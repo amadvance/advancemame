@@ -1,11 +1,18 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.71.0 2003/07
+	) Added the volume control at the SDL sound driver. It's implemented
+		reducing the sample values and not using the hardware
+		volume control.
+	) Fixed a possible bug on the SVGALIB Rage 128/Radeon drivers.
+		Also updated the SVGALIB patch in the contrib/ dir.
+
 AdvanceMAME Version 0.70.0 2003/06
 	) Added some patches for Linux 2.4.20 Frame Buffer for ATI Radeon
-		and nVidia GeForge boards to improve the support of low
+		and nVidia GeForce boards to improve the support of low
 		clock video modes.
-	) Added some patches for SVGALIB 1.9.17 for Trident and nVidia GeForge
+	) Added some patches for SVGALIB 1.9.17 for Trident and nVidia GeForce
 		boards to improve the support of low clock video modes.
 		These patches are integrated in the DOS and Windows SVGALIB
 		versions.

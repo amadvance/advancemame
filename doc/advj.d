@@ -11,7 +11,7 @@ Description
 	configuration file. You must repeat the calibration process
 	in the emulator.
 
-	Check the `advmame.txt' file for the description of the
+	Check the `device.txt' file for the description of the
 	`device_joystick' option.
 
 Copyright

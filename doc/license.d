@@ -1,5 +1,5 @@
 Name
-	license - The Advance License
+	license - The AdvanceMAME License
 
 	The AdvanceMAME/MESS/PAC projects are released under the
 	GNU GENERAL PUBLIC LICENSE (GPL) with this special exception
@@ -18,9 +18,6 @@ Name
 	This imply that the precompiled binary version of
 	AdvanceMAME/MESS/PAC linked with the MAME sources must also
 	follow the MAME License.
-
-	The AdvanceMENU and AdvanceCAB projects are released under
-	the GNU GENERAL PUBLIC LICENSE (GPL).
 
 	You can found a copy of the GPL LICENSE in the `COPYING'
 	file.

@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.8 2003/07
+	) Added the volume control at the SDL sound driver. It's implemented
+		reducing the sample values and not using the hardware
+		volume control.
+	) Fixed a possible bug on the SVGALIB Rage 128/Radeon drivers.
+		Also updated the SVGALIB patch in the contrib/ dir.
+
 AdvanceMENU Version 2.2.7 2003/06
 	) Fixed the horizontal and vertical sync polarity on the Linux
 		Framebuffer video driver [by Ralph]

@@ -14,8 +14,8 @@ Description
 
 	Press Break to terminate before the end.
 
-	Check the `advmame.txt' or `advmenu.txt' file for the description
-	of the `device_sound' and other options.
+	Check the `device.txt' file for the description of
+	the `device_sound' option.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

@@ -7,7 +7,7 @@ Synopsis
 Description
 	The `advm' utility tests the mouse.
 
-	Check the `advmame.txt' file for the description of the
+	Check the `device.txt' file for the description of the
 	`device_mouse' option.
 
 Copyright

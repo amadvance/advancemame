@@ -13,11 +13,7 @@ Description
 	This utility works differently if one of the -advmamec,
 	-advmessc, -advpacc and -advmenuc option is specified.
 	The main difference is the the name of the configuration
-	file used to store the video modes. Respectively they
-	are `advmame.rc', `advmess.rc', `advpac.rc' and `advmenu.rc'.
-
-	Check the `advv.txt' file for more details on the video drivers
-	supported.
+	file used to store the video modes.
 
 Options
 	-rc RCFILE
@@ -41,6 +37,14 @@ Options
 		Select the bit depth of the test video modes.
 		If omitted the 8 bit modes are used.
 		Valid values are 8, 15, 16 and 32.
+
+Configuration
+	Depending one the command line options used one of the `advmame.rc',
+	`advmess.rc', `advpac.rc' and `advmenu.rc' file is used to load and save
+	the video configuration.
+
+	Check the `device.txt' file for more details on the video drivers
+	and video options supported.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

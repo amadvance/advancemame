@@ -44,7 +44,7 @@ AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	This is the first Windows NT/2000/XP version able to directly 
 	program your video board. This puts the Windows version at the same level 
 	of the other Linux and DOS versions. It's very experimental, and tested only 
-	with a GeForge 2. Anyway, it should work with all the video boards that 
+	with a GeForce 2. Anyway, it should work with all the video boards that
 	work in DOS and Linux because the SVGA drivers are the same.
 
 	To use these video drivers you need to install the SVGAWIN.sys driver with the

@@ -13,7 +13,7 @@ Description
 	The utility prints the number of keys pressed in `[]' and the
 	list of key codes detected.
 
-	Check the `advmame.txt' file for the description of the
+	Check the `device.txt' file for the description of the
 	`device_keyboard' option.
 
 Copyright

@@ -546,16 +546,15 @@ Configuration
 
   Display Configuration Options
     device_video_*
-	All the `device_video_*' options defined in the `advv.txt' file can
+	All the `device_video_*' options defined in the `device.txt' file can
 	be used.
 
-	If you are using the `sdl' or `vbe' video driver you don't need to
-	set these options. They are completely ignored.
+	If you use a `System' video driver, you don't need to set these
+	options. They are mostly ignored.
 
-	With the other video drivers these options are used to select 
-	and create the correct video mode.
-	They are mandatory. You can use the `advcfg' utility to set them 
-	interactively.
+	With a `Generate' video drivers these options are used to select
+	and create the correct video mode. They are mandatory. You can use
+	the `advcfg' utility to set them interactively.
 
     display_mode
 	Selects a specific modeline by its name.
@@ -982,57 +981,9 @@ Configuration
 
   Sound Configuration Options
 
-    device_sound
-	Specify the sound-card.
-
-	:device_sound auto | none | DEVICE
-
-	Options:
-		none - No sound.
-		auto - Automatic detection (default).
-
-	Options for Linux:
-		alsa - ALSA automatic detection.
-		oss - OSS automatic detection.
-		sdl - SDL automatic detection.
-
-	Options for Mac OS X:
-		sdl - SDL automatic detection.
-
-	Options for DOS:
-		seal - SEAL automatic detection.
-		seal/sb - Sound Blaster.
-		seal/pas - Pro Audio Spectrum.
-		seal/gusmax - Gravis Ultrasound Max.
-		seal/gus - Gravis Ultrasound.
-		seal/wss - Windows Sound System.
-		seal/ess - Ensoniq Soundscape.
-		allegro - Allegro automatic detection.
-		allegro/sb10 - Sound Blaster 1.0.
-		allegro/sb15 - Sound Blaster 1.5.
-		allegro/sb20 - Sound Blaster 2.0.
-		allegro/sbpro - Sound Blaster Pro.
-		allegro/sb16 - Sound Blaster 16.
-		allegro/audio - Ensoniq AudioDrive.
-		allegro/wss - Windows Sound System.
-		allegro/ess - Ensoniq Soundscape.
-		vsync/sb -  Sound Blaster.
-		vsync/sbwin - Sound Blaster (Windows).
-		vsync/ac97 - AC97.
-		vsync/ac97win - AC97 (Windows).
-		vsync/gusmax - Gravis Ultrasound Max.
-		vsync/gus - Gravis Ultrasound.
-		vsync/audio - Ensoniq AudioDrive.
-		vsync/wss - Windows Sound System.
-		vsync/ess- Ensoniq Soundscape.
-
-	The vsync/ drivers came from th VSyncMAME emulator. More info
-	are in the VSyncMAME page :
-
-		http://vsyncmame.mameworld.net
-
-	Options Windows:
-		sdl - SDL automatic detection.
+    device_sound_*
+	All the `device_sound_*' options defined in the `device.txt' file can
+	be used.
 
     sound_mode
 	Sets the sound output mode.
@@ -1092,116 +1043,9 @@ Configuration
 
   Input Configuration Options
 
-    device_keyboard
-	Selects the keyboard drivers.
-
-	:device_keyboard auto | none
-
-	Options:
-		none - No keyboard.
-		auto - Automatic detection (default).
-
-	Options for Linux:
-		svgalib - SVGALIB keyboard. This driver is not available
-			if the SDL video output is used.
-		raw - Linux RAW kernel keyboard interface. This driver
-			is not available if the SDL video output is used.
-		sdl - SDL keyboard. This driver is available
-			only if the SDL video output is used.
-
-	Options for Mac OS X:
-		sdl - SDL keyboard.
-
-	Options for DOS:
-		allegro - Allegro automatic detection.
-
-	Options for Windows:
-		sdl - SDL automatic detection.
-
-    device_joystick
-	Selects the joystick driver.
-
-	:device_joystick auto | none | DEVICE
-
-	Options:
-		none - No joystick (default).
-		auto - Automatic detection.
-
-	Options for Linux:
-		svgalib - SVGALIB automatic detection.
-		sdl - SDL automatic detection.
-
-	If you use the `svgalib' driver remember to configure the
-	correct joystick in the SVGALIB configuration file.
-
-	Options for Mac OS X:
-		sdl - SDL automatic detection.
-
-	Options for DOS:
-		allegro - Allegro automatic detection.
-		allegro/standard - Standard joystick.
-		allegro/dual - Dual joysticks.
-		allegro/4button - 4-button joystick.
-		allegro/6button - 6-button joystick.
-		allegro/8button - 8-button joystick.
-		allegro/fspro - CH Flightstick Pro.
-		allegro/wingex - Logitech Wingman Extreme.
-		allegro/sidewinder - Sidewinder.
-		allegro/sidewinderag - Sidewinder Aggressive.
-		allegro/gamepadpro - GamePad Pro.
-		allegro/grip - GrIP.
-		allegro/grip4 - GrIP 4-way.
-		allegro/sneslpt1 - SNESpad LPT1.
-		allegro/sneslpt2 - SNESpad LPT2.
-		allegro/sneslpt3 - SNESpad LPT3.
-		allegro/psxlpt1 - PSXpad LPT1.
-		allegro/psxlpt2 - PSXpad LPT2.
-		allegro/psxlpt3 - PSXpad LPT3.
-		allegro/n64lpt1 - N64pad LPT1.
-		allegro/n64lpt2 - N64pad LPT2.
-		allegro/n64lpt3 - N64pad LPT3.
-		allegro/db9lpt1 - DB9 LPT1.
-		allegro/db9lpt2 - DB9 LPT2.
-		allegro/db9lpt3 - DB9 LPT3.
-		allegro/tgxlpt1 - TGX-LPT1.
-		allegro/tgxlpt2 - TGX LPT2.
-		allegro/tgxlpt3 - TGX LPT3.
-		allegro/segaisa - IF-SEGA/ISA.
-		allegro/segapci - IF-SEGA2/PCI.
-		allegro/segapcifast - IF-SEGA2/PCI (normal).
-		allegro/wingwarrior - Wingman Warrior.
-
-	Options for Windows:
-		sdl - SDL automatic detection.
-
-    device_mouse
-	Selects the mouse driver.
-
-	:device_mouse auto | none
-
-	Options:
-		none - No mouse (default).
-		auto - Automatic detection.
-
-	Options for Linux:
-		svgalib - SVGALIB automatic detection.
-		sdl - SDL automatic detection.
-
-	If you use the `svgalib' driver remember to configure the
-	correct mouse in the SVGALIB configuration file.
-
-	Options for Mac OS X:
-		sdl - SDL automatic detection.
-
-	Options for DOS:
-		allegro - Allegro automatic detection.
-
-	The Allegro driver also uses the special `optimous' driver
-	for a second mouse. The `optimous' driver is available in
-	the `contrib/' directory.
-
-	Options for Windows:
-		sdl - SDL automatic detection.
+    device_keyboard/joystick/mouse
+	All the `device_keyboard/joystick/mouse_*' options defined in
+	the `device.txt' file can be used.
 
     input_steadykey
 	Helps recognition of very long key sequences. But slows a bit
