@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "svgalib.h"
+#include "svgaint.h"
 
 /* --------------------- Macro definitions shared by library modules */
 
