@@ -8,7 +8,10 @@ Description
 	The `advm' utility tests the mouse.
 
 	Check the `device.txt' file for the description of the
-	`device_mouse' option.
+	`device_mouse' and related options.
+
+	In Linux you need to kill GPM before running `advm'. Otherwise
+	the mouse may not respond correctly.
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.

@@ -1,4 +1,4 @@
-Name
+33;1R114RName
 	device drivers - The Advance device drivers
 
 	This file describes the video, sound, joystick, mouse and keyboard
@@ -147,21 +147,21 @@ Sound Drivers
   Available Drivers
 	The following is the list of all the sound drivers supported.
 
-    alsa - Linux ALSA sound
-	This driver works in Linux and it use the ALSA sound library.
+    alsa - ALSA sound
+	This driver works in Linux and it uses the ALSA sound library.
 
-    oss - Linux OSS sound
-	This driver works in Linux and it use the OSS sound library.
+    oss - OSS sound
+	This driver works in Linux and it uses the OSS sound library.
 
-    seal - DOS SEAL sound
-	This driver works in DOS and it use the SEAL sound library with
+    seal - SEAL sound
+	This driver works in DOS and it uses the SEAL sound library with
 	some specific changes for MAME.
 
-    allegro - DOS Allegro sound
-	This driver works in DOS and it use the Allegro library.
+    allegro - Allegro sound
+	This driver works in DOS and it uses the Allegro library.
 
-    vsync - DOS VSYNC sound
-	This driver works in DOS and it use the VSync sound drivers
+    vsync - VSYNC sound
+	This driver works in DOS and it uses the VSync sound drivers
 	from the VSyncMAME emulator.
 
 	More info is in the VSyncMAME page :
@@ -177,6 +177,71 @@ Sound Drivers
 
 	It isn't able to precisely control the amount of bufferized samples.
 	This means that it may add a small latency on the sound output.
+
+Input Drivers
+  Available Keyboard Drivers
+	The following is the list of all the keyboard drivers supported.
+
+    svgalib - SVGALIB keyboard
+	This driver works in Linux and it uses the SVGALIB library.
+
+    raw - Linux Kernel keyboard
+	This driver works in Linux and it uses directly the Linux kernel
+	keyboard interface.
+
+    allegro - Allegro keyboard
+	This driver works in DOS and it uses the Allegro library.
+
+    sdl - SDL keyboard
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL library.
+
+  Available Joystick Drivers
+	The following is the list of all the joystick drivers supported.
+
+    svgalib - SVGALIB joystick
+	This driver works in Linux and it uses the SVGALIB library.
+
+    allegro - Allegro joystick
+	This driver works in DOS and it uses the Allegro library.
+
+    sdl - SDL joystick
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL joystick interface.
+
+  Available Mouse Drivers
+	The following is the list of all the mouse drivers supported.
+
+    svgalib - SVGALIB mouse
+	This driver works in Linux and it uses the SVGALIB library.
+
+	It supports only a single mouse input.
+
+	To use this driver you need to configure correctly the
+	SVGALIB mouse support in the file /etc/vga/libvga.config file.
+
+    raw - Serial mouse
+	This driver works in Linux and it communicates directly with
+	the configured serial mouses. It's also support USB mouses
+	using the Linux mousedev module.
+
+	It supports up to 4 mouses at the same time.
+
+	To use this driver you need to configure correctly the
+	device_raw_* options to specify the mouse types and the mouse
+	devices.
+
+    allegro - Allegro mouse
+	This driver works in DOS and it uses the Allegro library.
+
+	It supports up to 2 mouses at the same time using the
+	special `optimous' driver present in the `contrib/' directory.
+
+    sdl - SDL mouse
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL mouse interface.
+
+	It supports only a single mouse input.
 
 Video Drivers Configuration
 	The following are the video configuration options available for
@@ -709,7 +774,7 @@ Input Drivers Configuration
 
 	Options for Linux:
 		svgalib - SVGALIB automatic detection.
-		raw - RAW automatic detection. It supports up to 4 mouse.
+		raw - RAW automatic detection. It supports up to 4 mouses.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
@@ -757,7 +822,8 @@ Input Drivers Configuration
 		wacomgraphire - Wacom Graphire tablet/mouse.
 		drmousee4ds - Digital Research double-wheeled mouse.
 
-	Use the legacy devices only you have a very old mouse.
+	The Linux USB mouses under /dev/input/* are always of type imps2
+	or exps2.
 
     device_raw_mousedev[0,1,2,3]
 	Select the mouse device to use.

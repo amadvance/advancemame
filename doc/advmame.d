@@ -9,7 +9,7 @@ Synopsis
 	:	[-listxml] [-record FILE] [-playback FILE] [-version]
 
 Description
-	AdvanceMAME is an unofficial MAME version for Linux, Mac OS X, DOS
+	AdvanceMAME is an unofficial MAME version for GNU/Linux, Mac OS X, DOS
 	and Windows with an advanced video support for helping the use with
 	TVs, Arcade Monitors, Fixed Frequencies Monitors and also with normal
 	PC Monitors.
@@ -25,18 +25,19 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with horizontal
 		Arcade Monitors or TVs.
+	* Special `scale' effects to improve the aspect with modern
+		PC Monitors.
 	* Special `blit' effects to improve the image quality in
 		stretching.
 	* Special `rgb' effects to simulate the aspect of a real Arcade
 		Monitor.
-	* Special `scale' effects to improve the aspect with modern
-		PC Monitors.
 	* Change of the video mode and other options at runtime.
-	* Automatic exit after some time of inactivity.
-	* Scripts capabilities to drive external devices.
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
 		thread architecture (only for Linux/Mac OS X).
 	* Sound and video recording in WAV, PNG and MNG files.
+	* Support for up to 4 mouses in Linux and 2 in DOS.
+	* Automatic exit after some time of inactivity.
+	* Scripts capabilities to drive external hardware devices.
 
 Keys
 	In the game play you can use the following keys :
@@ -228,7 +229,7 @@ Features
 	directly from the `Video Menu'.
 
   Scripts
-	AdvanceMAME support a basic script language capable to
+	AdvanceMAME supports a basic script language capable to
 	control an external hardware through the parallel port
 	or keyboard led signals.
 
@@ -251,8 +252,8 @@ Features
 	play.
 
 	You can play the game in a faster way, change arbitrarily the
-	frame rate, skip the startup process at the maximum speed, or
-	skip the game animations pressing a key.
+	frame rate, skip the game startup process at the maximum speed,
+	or skip the game animations pressing a key.
 
 	More details are in the description of the `misc_fps', `misc_speed',
 	`misc_turbospeed' and `misc_startuptime' options.
@@ -269,7 +270,7 @@ Features
 	and `input_idleexit' options.
 
   Input Control
-	AdvanceMAME support a very fine control of the mapping
+	AdvanceMAME supports a very fine control of the mapping
 	of the analog inputs on the MAME analog port.
 
 	More details are in the description of the `input_map'

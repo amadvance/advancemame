@@ -2,12 +2,12 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.71.1 2003/07
-	) Added a new mouse driver for Linux which support up to 4 mouses
+	) Added a new mouse driver for Linux which supports up to 4 mouses
 		at the same time.
 	) Partially fixed some problems on games that need
-		to change the game display area at runtime like "orunners".
+		to change the display area at runtime like "orunners".
 	) Added the `misc_fps' option to change arbitrarily the frame rate
-		of the game (like SmoothMAME).
+		of the games (like SmoothMAME).
 
 AdvanceMESS Version 0.71.0.0 2003/07
 	) All from AdvanceMAME 0.71.0.
