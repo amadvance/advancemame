@@ -676,7 +676,7 @@ static void run_background_set(config_state& rs, const resource& sound)
 	}
 }
 
-static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent, int pos_current, int pos_max)
+static void run_background_wait(config_state& rs, const resource& sound, bool silent, int pos_current, int pos_max)
 {
 	target_clock_t back_start = target_clock();
 
@@ -700,9 +700,6 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 
 			// start the new game clip
 			int_clip_start(pos_current);
-		} else {
-			// if silent we are already in idle state
-			idle_control = false;
 		}
 
 		// wait until something pressed
@@ -740,13 +737,6 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			} else {
 				if (!int_clip_is_active(pos_current)) {
 					clip_done = true;
-				}
-			}
-
-			if (idle_control) {
-				if (!clip_done || !sound_done) {
-					// prevent any idle event
-					int_idle_time_reset();
 				}
 			}
 		}
@@ -1614,7 +1604,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
 		int_idle_1_enable(true);
 
-		run_background_wait(rs, sound, true, silent, pos_rel, backdrop_mac);
+		run_background_wait(rs, sound, silent, pos_rel, backdrop_mac);
 
 		// replay the sound and clip
 		silent = false;
@@ -1825,7 +1815,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		// next game
 		++counter;
 
-		run_background_wait(rs, sound, false, false, 0, 1);
+		run_background_wait(rs, sound, false, 0, 1);
 
 		key = int_event_get(false);
 
