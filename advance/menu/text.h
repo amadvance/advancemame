@@ -66,6 +66,7 @@ unsigned int_put_width(const std::string& s);
 unsigned int_put(int x, int y, int dx, const std::string& s, const int_color& color);
 void int_put_filled(int x, int y, int dx, const std::string& s, const int_color& color);
 void int_put_special(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+unsigned int_put_right(int x, int y, int dx, const std::string& s, const int_color& color);
 
 void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Aoutline, unsigned Acursor, double expand_factor);
 void int_backdrop_done();

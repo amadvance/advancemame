@@ -166,23 +166,17 @@ void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v)
 {
 	uint8* ptr = bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
 	switch (bmp->bytes_per_pixel) {
-		case 1 :
-			ptr[0] = v;
+	case 1 :
+		cpu_uint8_write(ptr, v);
 		break;
-		case 2 :
-			ptr[0] = v;
-			ptr[1] = v >> 8;
+	case 2 :
+		cpu_uint16_write(ptr, v);
 		break;
-		case 3 :
-			ptr[0] = v;
-			ptr[1] = v >> 8;
-			ptr[2] = v >> 16;
+	case 3 :
+		cpu_uint24_write(ptr, v);
 		break;
-		case 4 :
-			ptr[0] = v;
-			ptr[1] = v >> 8;
-			ptr[2] = v >> 16;
-			ptr[3] = v >> 24;
+	case 4 :
+		cpu_uint32_write(ptr, v);
 		break;
 	};
 }
@@ -498,6 +492,25 @@ unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size,
 }
 
 /**
+ * Convert a 24 bit bitmap to a palettized 8 bit version.
+ * The conversion map must be computed with bitmap_reduce().
+ */
+void bitmap_cvt_reduce_24to8(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map)
+{
+	unsigned cx, cy;
+	for(cy=0;cy<src->size_y;++cy) {
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
+		for(cx=0;cx<src->size_x;++cx) {
+			unsigned color = convert_map[REDUCE_COLOR_TO_INDEX(src_ptr[0], src_ptr[1], src_ptr[2])];
+			*dst_ptr = color;
+			dst_ptr += 1;
+			src_ptr += 3;
+		}
+	}
+}
+
+/**
  * Resize a bitmap.
  * \param bmp Bitmap to resize.
  * \param x, y Start position of the bitmap range.
@@ -593,7 +606,7 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 	assert( newbmp );
 
 	if (bmp->bytes_per_pixel == 1) {
-		// 8 bit
+		/* 8 bit */
 		for(j=0;j<y0;++j) {
 			uint8* dst;
 			dst = (uint8*)bitmap_line(newbmp, j);
@@ -619,7 +632,7 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 				*dst++ = color;
 		}
 	} else if (bmp->bytes_per_pixel == 3) {
-		// 24 bit
+		/* 24 bit */
 		unsigned c0 = color & 0xFF;
 		unsigned c1 = (color >> 8) & 0xFF;
 		unsigned c2 = (color >> 16) & 0xFF;
@@ -777,11 +790,11 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy)
 
 /**
  * Convert a 8 bit bitmap.
- * \param dst Destination bitmap. The bitmap must have the correct size.
+ * \param dst Destination bitmap. The bitmap must have at least the same size of the source bitmap.
  * \param src Source bitmap.
  * \param color_map Conversion table.
  */
-void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+static void bitmap_cvt_palette_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 {
 	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
@@ -797,11 +810,11 @@ void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 
 /**
  * Convert a 8 bit bitmap to a 16 bit bitmap.
- * \param dst Destination bitmap. The bitmap must have the correct size.
+ * \param dst Destination bitmap. The bitmap must have at least the same size of the source bitmap.
  * \param src Source bitmap.
  * \param color_map Conversion table. 
  */
-void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+static void bitmap_cvt_palette_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 {
 	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
@@ -818,11 +831,11 @@ void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 
 /**
  * Convert a 8 bit bitmap to a 32 bit bitmap.
- * \param dst Destination bitmap. The bitmap must have the correct size.
+ * \param dst Destination bitmap. The bitmap must have at least the same size of the source bitmap.
  * \param src Source bitmap.
  * \param color_map Conversion table. 
  */
-void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+static void bitmap_cvt_palette_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 {
 	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
@@ -838,20 +851,80 @@ void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 }
 
 /**
- * Convert a 24 bit bitmap to a palettized 8 bit version.
- * The conversion map must be computed with bitmap_reduction().
+ * Convert a palette bitmap.
+ * \param dst Destination bitmap. The bitmap must have at least the same size of the source bitmap.
+ * \param src Source bitmap.
+ * \param color_map Conversion table. 
  */
-void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map)
+void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 {
 	unsigned cx, cy;
+
+	/* specialized versions */
+	if (src->bytes_per_pixel == 1) {
+		switch (dst->bytes_per_pixel) {
+		case 1 :
+			bitmap_cvt_palette_8to8(dst, src, color_map);
+			return;
+		case 2 :
+			bitmap_cvt_palette_8to16(dst, src, color_map);
+			return;
+		case 4 :
+			bitmap_cvt_palette_8to32(dst, src, color_map);
+			return;
+		}
+	}
+
 	for(cy=0;cy<src->size_y;++cy) {
 		uint8* src_ptr = bitmap_line(src, cy);
 		uint8* dst_ptr = bitmap_line(dst, cy);
+
 		for(cx=0;cx<src->size_x;++cx) {
-			unsigned color = convert_map[REDUCE_COLOR_TO_INDEX(src_ptr[0], src_ptr[1], src_ptr[2])];
-			*dst_ptr = color;
-			dst_ptr += 1;
-			src_ptr += 3;
+			adv_pixel p;
+
+			switch (src->bytes_per_pixel) {
+			default:
+				assert(0);
+			case 1 :
+				p = cpu_uint8_read(src_ptr);
+				src_ptr += 1;
+				break;
+			case 2 :
+				p = cpu_uint16_read(src_ptr);
+				src_ptr += 2;
+				break;
+			case 3 :
+				p = cpu_uint24_read(src_ptr);
+				src_ptr += 3;
+				break;
+			case 4 :
+				p = cpu_uint32_read(src_ptr);
+				src_ptr += 4;
+				break;
+			}
+
+			p = color_map[p];
+
+			switch (dst->bytes_per_pixel) {
+			default:
+				assert(0);
+			case 1 :
+				cpu_uint8_write(dst_ptr, p);
+				dst_ptr += 1;
+				break;
+			case 2 :
+				cpu_uint16_write(dst_ptr, p);
+				dst_ptr += 2;
+				break;
+			case 3 :
+				cpu_uint24_write(dst_ptr, p);
+				dst_ptr += 3;
+				break;
+			case 4 :
+				cpu_uint32_write(dst_ptr, p);
+				dst_ptr += 4;
+				break;
+			}
 		}
 	}
 }
@@ -863,7 +936,7 @@ void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map
  * \param src Source bitmap.
  * \param src_def Source RGB definition.
  */
-void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def)
+void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def)
 {
 	unsigned cx, cy;
 	union adv_color_def_union sdef;
@@ -937,75 +1010,4 @@ void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_col
 	}
 }
 
-/**
- * Convert a 24 bit bitmap to a 8 bit bitmap.
- * The current RGB format is used.
- */
-void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src)
-{
-	unsigned cx, cy;
-	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src, cy);
-		uint8* dst_ptr = bitmap_line(dst, cy);
-		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
-			dst_ptr += 1;
-			src_ptr += 3;
-		}
-	}
-}
 
-/**
- * Convert a 24 bit bitmap to a 16 bit bitmap.
- * The current RGB format is used.
- */
-void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src)
-{
-	unsigned cx, cy;
-	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src, cy);
-		uint16* dst_ptr = (uint16*)bitmap_line(dst, cy);
-		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
-			dst_ptr += 1;
-			src_ptr += 3;
-		}
-	}
-}
-
-/**
- * Convert a 24 bit bitmap to a 32 bit bitmap.
- * The current RGB format is used.
- */
-void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src)
-{
-	unsigned cx, cy;
-	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src, cy);
-		uint32* dst_ptr = (uint32*)bitmap_line(dst, cy);
-		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
-			dst_ptr += 1;
-			src_ptr += 3;
-		}
-	}
-}
-
-/**
- * Convert a 32 bit bitmap to a 24 bit bitmap removing the alpha channel.
- */
-void bitmap_cvt_32to24(adv_bitmap* dst, adv_bitmap* src)
-{
-	unsigned cx, cy;
-	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src, cy);
-		uint8* dst_ptr = bitmap_line(dst, cy);
-		for(cx=0;cx<src->size_x;++cx) {
-			dst_ptr[0] = src_ptr[0];
-			dst_ptr[1] = src_ptr[1];
-			dst_ptr[2] = src_ptr[2];
-			dst_ptr += 3;
-			src_ptr += 4;
-		}
-	}
-}

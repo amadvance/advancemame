@@ -26,16 +26,16 @@ $(DOCOBJ):
 	$(ECHO) $@
 	$(MD) $@
 
-$(DOCOBJ)/%.txt : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
+$(DOCOBJ)/%.txt : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD)
 	$(D2OBJ)/advd2 txt < $< > $@
 
-$(DOCOBJ)/%.html : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
+$(DOCOBJ)/%.html : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD)
 	$(D2OBJ)/advd2 html < $< > $@
 
-$(DOCOBJ)/%.hh : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
+$(DOCOBJ)/%.hh : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD)
 	$(D2OBJ)/advd2 frame < $< > $@
 
-$(DOCOBJ)/%.1 : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
+$(DOCOBJ)/%.1 : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD)
 	$(D2OBJ)/advd2 man < $< > $@
 
 $(DOCOBJ)/%.ps : $(D2OBJ)/%.1

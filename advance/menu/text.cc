@@ -1190,6 +1190,12 @@ unsigned int_put_width(const string& s)
 	return size;
 }
 
+unsigned int_put_right(int x, int y, int dx, const string& s, const int_color& color)
+{
+	unsigned size = int_put_width(s);
+	return int_put(x + dx - size, y, dx, s, color);
+}
+
 //---------------------------------------------------------------------------
 // Backdrop
 
@@ -1694,19 +1700,14 @@ static adv_bitmap* backdrop_load(const resource& res, adv_color_rgb* rgb, unsign
 		free(pal_ptr);
 
 		// duplicate the bitmap, it must exists also after destroying the mng context
-		adv_bitmap* dup_bitmap;
-		if (bitmap->bytes_per_pixel == 4) {
-			dup_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 24);
-			bitmap_cvt_32to24(dup_bitmap, bitmap);
-		} else {
-			dup_bitmap = bitmap_dup(bitmap);
-		}
-
+		adv_bitmap* dup_bitmap = bitmap_dup(bitmap);
 		bitmap_free(bitmap);
+		bitmap = dup_bitmap;
+
 		mng_done(mng);
 		fzclose(f);
 
-		return dup_bitmap;
+		return bitmap;
 	}
 
 	return 0;
@@ -1822,60 +1823,18 @@ static adv_bitmap* int_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitm
 	}
 
 	adv_bitmap* pal_bitmap;
-	if (video_bytes_per_pixel() == 1) {
-		// video 8 bit
-		adv_pixel color_map[256];
-		pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 8);
+
+	pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
+	if (bitmap->bytes_per_pixel == 1) {
+		/* palette bitmap */
+		unsigned color_map[256];
 		for(unsigned i=0;i<*rgb_max;++i)
 			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-		if (bitmap->bytes_per_pixel==1) {
-			// bitmap 8 bit
-			bitmap_cvt_8to8(pal_bitmap, bitmap, color_map);
-		} else if (bitmap->bytes_per_pixel==3) {
-			// bitmap 24 bit
-			bitmap_cvt_24to8(pal_bitmap, bitmap);
-		} else {
-			bitmap_free(bitmap);
-			bitmap_free(pal_bitmap);
-			return 0;
-		}
-	} else if (video_bytes_per_pixel() == 2) {
-		// video 16 bit
-		pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 16);
-		if (bitmap->bytes_per_pixel == 1) {
-			// bitmap 8 bit
-			unsigned color_map[256];
-			for(unsigned i=0;i<*rgb_max;++i)
-				video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-			bitmap_cvt_8to16(pal_bitmap, bitmap, color_map);
-		} else if (bitmap->bytes_per_pixel == 3) {
-			// bitmap 24 bit
-			bitmap_cvt_24to16(pal_bitmap, bitmap);
-		} else {
-			bitmap_free(bitmap);
-			bitmap_free(pal_bitmap);
-			return 0;
-		}
-	} else if (video_bytes_per_pixel() == 4) {
-		// video 32 bit
-		pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 32);
-		if (bitmap->bytes_per_pixel == 1) {
-			// bitmap 8 bit
-			unsigned color_map[256];
-			for(unsigned i=0;i<*rgb_max;++i)
-				video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-			bitmap_cvt_8to32(pal_bitmap, bitmap, color_map);
-		} else if (bitmap->bytes_per_pixel == 3) {
-			// bitmap 24 bit
-			bitmap_cvt_24to32(pal_bitmap, bitmap);
-		} else {
-			bitmap_free(bitmap);
-			bitmap_free(pal_bitmap);
-			return 0;
-		}
+		bitmap_cvt_palette(pal_bitmap, bitmap, color_map);
 	} else {
-		bitmap_free(bitmap);
-		return 0;
+		/* rgb bitmap */
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		bitmap_cvt_rgb(pal_bitmap, video_color_def(), bitmap, def);
 	}
 
 	bitmap_free(bitmap);
@@ -2371,16 +2330,12 @@ static void int_clip_idle()
 	// write
 	if (bitmap->bytes_per_pixel == 1) {
 		adv_pixel palette[256];
-		unsigned i;
-
-		for(i=0;i<rgb_max;++i)
+		for(unsigned i=0;i<rgb_max;++i)
 			video_pixel_make(palette + i, rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
-
 		video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, palette, combine);
 	} else if (bitmap->bytes_per_pixel == 3 || bitmap->bytes_per_pixel == 4) {
-		adv_color_def color_def = color_def_make_from_rgb_sizelenpos(bitmap->bytes_per_pixel, 8, 0, 8, 8, 8, 16);
-
-		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, color_def, combine);
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, def, combine);
 	}
 
 	// end write

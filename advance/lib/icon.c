@@ -173,7 +173,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 
 		for(j=0;j<colors;++j) {
 			struct icon_rgb_t color; 
-			if (fzread(&color, sizeof(struct icon_rgb_t), 1, f)!=1)
+			if (fzread(&color, sizeof(struct icon_rgb_t), 1, f)!=1) /* ENDIAN */
 				goto out_entry;
 			rgb[j].red = color.red;
 			rgb[j].green = color.green;

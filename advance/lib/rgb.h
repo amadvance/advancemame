@@ -186,6 +186,8 @@ static inline void rgb_shiftmask_get(int* shift, unsigned* mask, unsigned len, u
 int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
 adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
 
+adv_color_def png_color_def(unsigned bytes_per_pixel);
+
 /*@}*/
 
 #ifdef __cplusplus

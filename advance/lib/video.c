@@ -505,6 +505,9 @@ void video_done(void)
 	if (video_mode_is_active())
 		video_mode_done(1);
 
+	/* disable */
+	video_state.active = 0;
+
 	/* disable all the video driver */
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
@@ -513,9 +516,6 @@ void video_done(void)
 	}
 
 	video_fake_text_done();
-
-	/* disable */
-	video_state.active = 0;
 
 	/* reset the driver list */
 	video_state.driver_mac = 0;
@@ -722,12 +722,12 @@ adv_error video_mode_set(adv_mode* mode)
 
 	/* check for a mode change without a driver change */
 	if (video_mode_is_active()
-		&& video_option.fast_change
-		&& mode_driver(mode)->mode_change != 0
 		&& video_current_driver() == mode_driver(mode)
+		&& ((video_driver_flags() & VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE) == 0 || video_option.fast_change)
+		&& mode_driver(mode)->mode_change != 0
 	) {
 		/* change the mode */
-		if (mode_driver(mode)->mode_change( &mode->driver_mode ) != 0) {
+		if (mode_driver(mode)->mode_change(&mode->driver_mode) != 0) {
 			video_state.mode_active = 0;
 			video_write_line = 0;
 			return -1;
@@ -737,7 +737,7 @@ adv_error video_mode_set(adv_mode* mode)
 			video_mode_done(1);
 
 		/* set the mode */
-		if (mode_driver(mode)->mode_set( &mode->driver_mode ) != 0)
+		if (mode_driver(mode)->mode_set(&mode->driver_mode) != 0)
 			return -1;
 	}
 

@@ -612,14 +612,14 @@ static void rgb_raw_mask4_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel1 << 8 | pixel2 << 16 | pixel3 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 			dst[1] = dst[0];
 			dst[2] = dst[0];
 			dst[3] = dst[0];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel1 << 16;
-			dst[1] = pixel2 | pixel3 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
+			dst[1] = cpu_uint32_make_uint16(pixel2, pixel3);
 			dst[2] = dst[0];
 			dst[3] = dst[1];
 			break;
@@ -643,14 +643,14 @@ static void rgb_raw_carry4_compute(unsigned bytes_per_pixel, uint32* dst, unsign
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel1 << 8 | pixel2 << 16 | pixel3 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 			dst[1] = dst[0];
 			dst[2] = dst[0];
 			dst[3] = dst[0];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel1 << 16;
-			dst[1] = pixel2 | pixel3 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
+			dst[1] = cpu_uint32_make_uint16(pixel2, pixel3);
 			dst[2] = dst[0];
 			dst[3] = dst[1];
 			break;
@@ -673,17 +673,17 @@ static void rgb_raw_mask3_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel1 << 8 | pixel2 << 16 | pixel0 << 24;
-			dst[1] = pixel1 | pixel2 << 8 | pixel0 << 16 | pixel1 << 24;
-			dst[2] = pixel2 | pixel0 << 8 | pixel1 << 16 | pixel2 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel0);
+			dst[1] = cpu_uint32_make_uint8(pixel1, pixel2, pixel0, pixel1);
+			dst[2] = cpu_uint32_make_uint8(pixel2, pixel0, pixel1, pixel2);
 			dst[3] = dst[0];
 			dst[4] = dst[1];
 			dst[5] = dst[2];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel1 << 16;
-			dst[1] = pixel2 | pixel0 << 16;
-			dst[2] = pixel1 | pixel2 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
+			dst[1] = cpu_uint32_make_uint16(pixel2, pixel0);
+			dst[2] = cpu_uint32_make_uint16(pixel1, pixel2);
 			dst[3] = dst[0];
 			dst[4] = dst[1];
 			dst[5] = dst[2];
@@ -708,11 +708,11 @@ static void rgb_raw_mask2_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel1 << 8 | pixel0 << 16 | pixel1 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 			dst[1] = dst[0];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel1 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 			dst[1] = dst[0];
 			break;
 		case 4 :
@@ -731,11 +731,11 @@ static void rgb_raw_carry2_compute(unsigned bytes_per_pixel, uint32* dst, unsign
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel1 << 8 | pixel0 << 16 | pixel1 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 			dst[1] = dst[0];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel1 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 			dst[1] = dst[0];
 			break;
 		case 4 :
@@ -753,11 +753,11 @@ static void rgb_raw_mask1_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 
 	switch (bytes_per_pixel) {
 		case 1 :
-			dst[0] = pixel0 | pixel0 << 8 | pixel0 << 16 | pixel0 << 24;
+			dst[0] = cpu_uint32_make_uint8(pixel0, pixel0, pixel0, pixel0);
 			dst[1] = dst[0];
 			break;
 		case 2 :
-			dst[0] = pixel0 | pixel0 << 16;
+			dst[0] = cpu_uint32_make_uint16(pixel0, pixel0);
 			dst[1] = dst[0];
 			break;
 		case 4 :

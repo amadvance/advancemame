@@ -36,10 +36,10 @@
 /****************************************************************************/
 /* palette8to8 */
 
-static void video_line_palette8to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to8_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -50,11 +50,11 @@ static void video_line_palette8to8_step1(const struct video_stage_horz_struct* s
 	}
 }
 
-static void video_line_palette8to8(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to8(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -65,7 +65,7 @@ static void video_line_palette8to8(const struct video_stage_horz_struct* stage, 
 	}
 }
 
-static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette8to8, sdx, sdp, 1, sdx, 1);
 	STAGE_PALETTE(stage, palette);
@@ -76,7 +76,7 @@ static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, u
 /* palette8to16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -111,10 +111,10 @@ static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_stru
 }
 #endif
 
-static void video_line_palette8to16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to16_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -125,12 +125,12 @@ static void video_line_palette8to16_step1_def(const struct video_stage_horz_stru
 	}
 }
 
-static void video_line_palette8to16(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to16(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -141,7 +141,7 @@ static void video_line_palette8to16(const struct video_stage_horz_struct* stage,
 	}
 }
 
-static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette8to16, sdx, sdp, 1, sdx, 2);
 	STAGE_PALETTE(stage, palette);
@@ -151,10 +151,10 @@ static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, 
 /****************************************************************************/
 /* palette8to32 */
 
-static void video_line_palette8to32_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to32_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -165,11 +165,11 @@ static void video_line_palette8to32_step4(const struct video_stage_horz_struct* 
 	}
 }
 
-static void video_line_palette8to32(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette8to32(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -180,7 +180,7 @@ static void video_line_palette8to32(const struct video_stage_horz_struct* stage,
 	}
 }
 
-static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette8to32, sdx, sdp, 1, sdx, 4);
 	STAGE_PALETTE(stage, palette);
@@ -191,7 +191,7 @@ static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, 
 /* palette16to8 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -241,10 +241,10 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 }
 #endif
 
-static void video_line_palette16to8_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to8_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 4;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -256,7 +256,7 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -313,14 +313,14 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 }
 #endif
 
-static void video_line_palette16to8_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to8_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 4;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
 	int line_index3 = line_index2 + line_index1;
 	int line_index4 = line_index3 + line_index1;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
@@ -330,7 +330,7 @@ static void video_line_palette16to8_def(const struct video_stage_horz_struct* st
 	}
 }
 
-static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette16to8, sdx, sdp, 2, sdx, 1);
 	STAGE_PALETTE(stage, palette);
@@ -341,7 +341,7 @@ static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, 
 /* palette16to16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -376,10 +376,10 @@ static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_palette16to16_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -391,7 +391,7 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -429,12 +429,12 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 }
 #endif
 
-static void video_line_palette16to16_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to16_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
@@ -444,7 +444,7 @@ static void video_line_palette16to16_def(const struct video_stage_horz_struct* s
 	}
 }
 
-static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette16to16, sdx, sdp, 2, sdx, 2);
 	STAGE_PALETTE(stage, palette);
@@ -455,7 +455,7 @@ static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage,
 /* palette16to32 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -484,10 +484,10 @@ static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_palette16to32_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to32_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
 	uint32* dst32 = (uint32*)dst;
 
@@ -499,7 +499,7 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
 
@@ -529,11 +529,11 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 }
 #endif
 
-static void video_line_palette16to32_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_palette16to32_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
-	unsigned* palette = stage->palette;
+	const unsigned* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
@@ -543,7 +543,7 @@ static void video_line_palette16to32_def(const struct video_stage_horz_struct* s
 	}
 }
 
-static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, const unsigned* palette)
 {
 	STAGE_SIZE(stage, pipe_palette16to32, sdx, sdp, 2, sdx, 4);
 	STAGE_PALETTE(stage, palette);

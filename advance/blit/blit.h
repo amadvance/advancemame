@@ -56,7 +56,7 @@ struct video_stage_horz_struct;
  * \param dst Destination data.
  * \param src Source data.
  */
-typedef void video_stage_hook(const struct video_stage_horz_struct* stage, void* dst, void* src);
+typedef void video_stage_hook(const struct video_stage_horz_struct* stage, void* dst, const void* src);
 
 /**
  * Pipeline stage types.
@@ -100,6 +100,7 @@ enum video_stage_enum {
 	pipe_bgra5551tobgra8888, /**< RGB conversion 5551 (bgra) -\> 8888 (bgra). */
 	pipe_bgra5551toyuy2, /**< YUY2 conversion 5551 (bgra) -\> (yuy2). */
 	pipe_rgb888tobgra8888, /**< RGB conversion 888 (rgb) -\> 8888 (bgra). */
+	pipe_rgba8888tobgra8888, /**< RGB conversion 8888 (rgba) -\> 8888 (bgra). */
 	pipe_bgr888tobgra8888, /**< RGB conversion 888 (bgr) -\> 8888 (bgra). */
 	pipe_rgbtorgb, /**< Generic RGB conversion. */
 	pipe_rgbtoyuy2, /**< Generic YUY2 conversion. */
@@ -153,7 +154,7 @@ struct video_stage_horz_struct {
 
 	adv_slice slice; /**< Stretch slice. */
 
-	unsigned* palette; /**< Palette conversion table. */
+	const unsigned* palette; /**< Palette conversion table. */
 
 	/* unchained plane */
 	unsigned plane_num; /**< Number of plane. */
@@ -196,7 +197,7 @@ struct video_stage_vert_struct;
 /**
  * Template for a vertical pipeline stage.
  */
-typedef void video_stage_vert_hook(const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, void* src);
+typedef void video_stage_vert_hook(const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src);
 
 /**
  * Pipeline vertical trasformation stage.
@@ -345,13 +346,13 @@ void video_stretch_palette_hw_pipeline_init(struct video_pipeline_struct* pipeli
  * Initialize a pipeline for a stretch blit with a software 8 bit palette.
  * Check the video_stretch_palette_8() for more details.
  */
-void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine);
+void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine);
 
 /**
  * Initialize a pipeline for a stretch blit with a software 16 bit palette.
  * Check the video_stretch_palette_16() for more details.
  */
-void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine);
+void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine);
 
 /**
  * Blit using a precomputed pipeline.
@@ -360,7 +361,7 @@ void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeli
  * \param dst_y Destination y.
  * \param src Source data.
  */
-void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned dst_x, unsigned dst_y, void* src);
+void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned dst_x, unsigned dst_y, const void* src);
 
 /***************************************************************************/
 /* blit */
@@ -381,7 +382,7 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_rgb_def Source RGB format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
+static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
@@ -413,7 +414,7 @@ static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned d
  * \param src_dp Source pixel step expressed in bytes.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
+static inline void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
@@ -439,7 +440,7 @@ static inline void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsi
  * \param palette Palette data.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine)
+static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
@@ -465,7 +466,7 @@ static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsig
  * \param palette Palette data.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine)
+static inline void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 

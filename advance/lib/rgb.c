@@ -376,3 +376,25 @@ adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsi
 	return rgb_mask_make_from_def(d_len, d_pos) & rgb_shift(rgb_mask_make_from_def(s_len, s_pos), rgb_conv_shift_get(s_len, s_pos, d_len, d_pos));
 }
 
+/**
+ * Get the color definition of a PNG image.
+ * \param bytes_per_pixel Size of the pixel.
+ */
+adv_color_def png_color_def(unsigned bytes_per_pixel)
+{
+	adv_color_def def;
+#ifdef USE_LSB
+	if (bytes_per_pixel == 3 || bytes_per_pixel == 4)
+		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 0, 8, 8, 8, 16);
+	else
+		def = color_def_make(adv_color_type_palette);
+#else
+	if (bytes_per_pixel == 3)
+		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 16, 8, 8, 8, 0);
+	else if (bytes_per_pixel == 4)
+		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 24, 8, 16, 8, 8);
+	else
+		def = color_def_make(adv_color_type_palette);
+#endif
+	return def;
+}

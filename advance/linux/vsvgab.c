@@ -164,7 +164,8 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	svgalib_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
-		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
+		| VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE;
 
 	switch (chipset) {
 	case BANSHEE :
@@ -192,7 +193,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 void svgalib_done(void)
 {
-	assert(svgalib_is_active() && !svgalib_mode_is_active() );
+	assert(svgalib_is_active() && !svgalib_mode_is_active());
 
 	log_std(("video:svgalib: svgalib_done()\n"));
 

@@ -82,7 +82,7 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
+all: $(INSTALL_BINFILES) $(DOCOBJ) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
 emu: $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ)/advcfg$(EXE)
@@ -94,7 +94,7 @@ j: $(JOBJ)/advj$(EXE)
 m: $(MOBJ)/advm$(EXE)
 line: $(LINEOBJ)/advline$(EXE_BUILD)
 d2: $(D2OBJ)/advd2$(EXE_BUILD)
-web: $(WEB_DOCFILES)
+web: $(DOCOBJ) $(WEB_DOCFILES)
 
 ############################################################################
 # Common SRC
@@ -293,7 +293,7 @@ uninstall-bin:
 		rm -f $(PREFIX)/bin/$$i; \
 	done
 
-install-doc: $(INSTALL_DOCFILES)
+install-doc: $(DOCOBJ) $(INSTALL_DOCFILES)
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
 		$(INSTALL_DATA) $$i $(DATADIR)/doc; \
@@ -307,7 +307,7 @@ ifdef INSTALL_DOCFILES
 	done
 endif
 
-install-man: $(INSTALL_MANFILES)
+install-man: $(DOCOBJ) $(INSTALL_MANFILES)
 ifdef INSTALL_MANFILES
 	@for i in $(INSTALL_MANFILES); do \
 		$(INSTALL_DATA) $$i $(PREFIX)/man/man1; \

@@ -56,17 +56,15 @@ static uint32 mean_mask[MEAN_MASK_MAX];
 static uint32 expand_nibble(unsigned bytes_per_pixel, unsigned v)
 {
 	switch (bytes_per_pixel) {
-		case 1 :
-			return v | v << 8 | v << 16 | v << 24;
-			break;
-		case 2 :
-			return v | v << 16;
-			break;
-		case 4 :
-			return v;
-			break;
+	case 1 :
+		return v | v << 8 | v << 16 | v << 24;
+	case 2 :
+		return v | v << 16;
+	case 4 :
+		return v;
+	default:
+		return 0;
 	}
-	return 0;
 }
 
 static void internal_mean_set(void)
@@ -146,7 +144,6 @@ static inline void internal_mean32_vert_self_mmx(uint32* dst, const uint32* src,
 
 static inline void internal_mean32_vert_self_def(uint32* dst32, const uint32* src32, unsigned count)
 {
-
 	while (count) {
 		dst32[0] = internal_mean_value(dst32[0], src32[0]);
 		++src32;
@@ -415,12 +412,20 @@ static inline void internal_mean8_horz_next_step1_def(uint8* dst8, const uint8* 
 		uint32* dst32 = (uint32*)dst8;
 		--count;
 		while (count) {
+#ifdef USE_LSB
 			*dst32 = internal_mean_value(src32[0], (src32[0] >> 8) | (src32[1] << 24));
+#else
+			*dst32 = internal_mean_value(src32[0], (src32[0] << 8) | (src32[1] >> 24));
+#endif
 			++dst32;
 			++src32;
 			--count;
 		}
+#ifdef USE_LSB
 		*dst32 = internal_mean_value(src32[0], (src32[0] >> 8) | (src32[0] & 0xFF000000));
+#else
+		*dst32 = internal_mean_value(src32[0], (src32[0] << 8) | (src32[0] & 0x000000FF));
+#endif
 	}
 }
 
@@ -432,12 +437,20 @@ static inline void internal_mean16_horz_next_step2_def(uint16* dst16, const uint
 		uint32* dst32 = (uint32*)dst16;
 		--count;
 		while (count) {
+#ifdef USE_LSB
 			*dst32 = internal_mean_value(src32[0], (src32[0] >> 16) | (src32[1] << 16));
+#else
+			*dst32 = internal_mean_value(src32[0], (src32[0] << 16) | (src32[1] >> 16));
+#endif
 			++dst32;
 			++src32;
 			--count;
 		}
+#ifdef USE_LSB
 		*dst32 = internal_mean_value(src32[0], (src32[0] >> 16) | (src32[0] & 0xFFFF0000));
+#else
+		*dst32 = internal_mean_value(src32[0], (src32[0] << 16) | (src32[0] & 0x0000FFFF));
+#endif
 	}
 }
 

@@ -37,18 +37,18 @@
 /* filter8 */
 
 #if defined(USE_ASM_i586)
-static void video_line_filter8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean8_horz_next_step1_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_filter8_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean8_horz_next_step1_def(dst, src, stage->slice.count);
 }
 
-static void video_line_filter8_step(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter8_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean8_horz_next_step(dst, src, stage->slice.count, stage->sdp);
 }
@@ -63,18 +63,18 @@ static void video_stage_filter8_set(struct video_stage_horz_struct* stage, unsig
 /* filter16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_filter16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean16_horz_next_step2_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_filter16_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean16_horz_next_step2_def(dst, src, stage->slice.count);
 }
 
-static void video_line_filter16_step(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter16_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean16_horz_next_step(dst, src, stage->slice.count, stage->sdp);
 }
@@ -89,18 +89,18 @@ static void video_stage_filter16_set(struct video_stage_horz_struct* stage, unsi
 /* filter32 */
 
 #if defined(USE_ASM_i586)
-static void video_line_filter32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean32_horz_next_step4_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_filter32_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean32_horz_next_step4_def(dst, src, stage->slice.count);
 }
 
-static void video_line_filter32_step(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_filter32_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean32_horz_next_step(dst, src, stage->slice.count, stage->sdp);
 }

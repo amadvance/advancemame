@@ -155,20 +155,107 @@ static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned c
 
 	count /= 2;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[0], src[1], src[1]);
-		dst += 4;
-		src += 2;
+		unsigned p0 = P8DER(src, 0);
+		unsigned p1 = P8DER(src, 1);
+		P32DER0(dst) = cpu_uint32_make_uint8(p0, p0, p1, p1);
+		PADD(dst, 4);
+		PADD(src, 2);
 		--count;
 	}
 
-	while (rest) {
+	if (rest) {
 		dst[0] = src[0];
-                dst += 1;
-		src += 1;
-		--rest;
+		dst[1] = src[0];
 	}
 }
 #endif
+
+static inline void internal_double8_step_def(uint8* dst, const uint8* src, unsigned count, int step)
+{
+	unsigned rest = count % 2;
+
+	count /= 2;
+	while (count) {
+		unsigned p0, p1;
+		p0 = P8DER0(src);
+		PADD(src, step);
+		p1 = P8DER0(src);
+		PADD(src, step);
+		P32DER0(dst) = cpu_uint32_make_uint8(p0, p0, p1, p1);
+		PADD(dst, 4);
+		PADD(src, 2);
+		--count;
+	}
+
+	if (rest) {
+		dst[0] = src[0];
+		dst[1] = src[0];
+	}
+}
+
+static inline void internal_triple8_def(uint8* dst, const uint8* src, unsigned count)
+{
+	count /= 4;
+	while (count) {
+		unsigned p0 = P8DER(src, 0);
+		unsigned p1 = P8DER(src, 1);
+		unsigned p2 = P8DER(src, 2);
+		unsigned p3 = P8DER(src, 3);
+		P32DER(dst, 0) = cpu_uint32_make_uint8(p0, p0, p0, p1);
+		P32DER(dst, 4) = cpu_uint32_make_uint8(p1, p1, p2, p2);
+		P32DER(dst, 8) = cpu_uint32_make_uint8(p2, p3, p3, p3);
+		PADD(dst, 12);
+		PADD(src, 4);
+		--count;
+	}
+
+	/* TODO REST */
+}
+
+static inline void internal_triple8_step_def(uint8* dst, const uint8* src, unsigned count, int step)
+{
+	count /= 4;
+	while (count) {
+		unsigned p0, p1, p2, p3;
+		p0 = P8DER0(src);
+		PADD(src, step);
+		p1 = P8DER0(src);
+		PADD(src, step);
+		p2 = P8DER0(src);
+		PADD(src, step);
+		p3 = P8DER0(src);
+		PADD(src, step);
+		P32DER(dst, 0) = cpu_uint32_make_uint8(p0, p0, p0, p1);
+		P32DER(dst, 4) = cpu_uint32_make_uint8(p1, p1, p2, p2);
+		P32DER(dst, 8) = cpu_uint32_make_uint8(p2, p3, p3, p3);
+		PADD(dst, 12);
+		--count;
+	}
+
+	/* TODO REST */
+}
+
+static inline void internal_quadruple8_def(uint8* dst, const uint8* src, unsigned count)
+{
+	while (count) {
+		unsigned p0 = P8DER0(src);
+		P32DER0(dst) = cpu_uint32_make_uint8(p0, p0, p0, p0);
+		PADD(dst, 4);
+		PADD(src, 1);
+		--count;
+	}
+}
+
+static inline void internal_quadruple8_step_def(uint8* dst, const uint8* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P8DER0(src);
+		P32DER0(dst) = cpu_uint32_make_uint8(p0, p0, p0, p0);
+		PADD(dst, 4);
+		PADD(src, step);
+		--count;
+	}
+}
 
 #if defined(USE_ASM_i586)
 static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
@@ -200,13 +287,83 @@ static inline void internal_double16_def(uint16* dst, const uint16* src, unsigne
 static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
 {
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make_uint16(src[0], src[0]);
-		dst += 2;
-		src += 1;
+		unsigned p0 = P16DER0(src);
+		P32DER0(dst) = cpu_uint32_make_uint16(p0, p0);
+		PADD(dst, 4);
+		PADD(src, 2);
 		--count;
 	}
 }
 #endif
+
+static inline void internal_double16_step_def(uint16* dst, const uint16* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P16DER0(src);
+		P32DER0(dst) = cpu_uint32_make_uint16(p0, p0);
+		PADD(dst, 4);
+		PADD(src, step);
+		--count;
+	}
+}
+
+static inline void internal_triple16_def(uint16* dst, const uint16* src, unsigned count)
+{
+	count /= 2;
+	while (count) {
+		unsigned p0 = P16DER(src, 0);
+		unsigned p1 = P16DER(src, 2);
+		P32DER(dst, 0) = cpu_uint32_make_uint16(p0, p0);
+		P32DER(dst, 4) = cpu_uint32_make_uint16(p0, p1);
+		P32DER(dst, 8) = cpu_uint32_make_uint16(p1, p1);
+		PADD(dst, 12);
+		PADD(src, 4);
+		--count;
+	}
+	/* TODO REST */
+}
+
+static inline void internal_triple16_step_def(uint16* dst, const uint16* src, unsigned count, int step)
+{
+	count /= 2;
+	while (count) {
+		unsigned p0, p1;
+		p0 = P16DER0(src);
+		PADD(src, step);
+		p1 = P16DER0(src);
+		PADD(src, step);
+		P32DER(dst, 0) = cpu_uint32_make_uint16(p0, p0);
+		P32DER(dst, 4) = cpu_uint32_make_uint16(p0, p1);
+		P32DER(dst, 8) = cpu_uint32_make_uint16(p1, p1);
+		PADD(dst, 12);
+		--count;
+	}
+	/* TODO REST */
+}
+
+static inline void internal_quadruple16_def(uint16* dst, const uint16* src, unsigned count)
+{
+	while (count) {
+		unsigned p0 = P16DER0(src);
+		P32DER(dst, 0) = cpu_uint32_make_uint16(p0, p0);
+		P32DER(dst, 4) = cpu_uint32_make_uint16(p0, p0);
+		PADD(dst, 8);
+		PADD(src, 2);
+		--count;
+	}
+}
+
+static inline void internal_quadruple16_step_def(uint16* dst, const uint16* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P16DER0(src);
+		P32DER(dst, 0) = cpu_uint32_make_uint16(p0, p0);
+		P32DER(dst, 4) = cpu_uint32_make_uint16(p0, p0);
+		PADD(dst, 8);
+		PADD(src, step);
+		--count;
+	}
+}
 
 #if defined(USE_ASM_i586)
 static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
@@ -234,13 +391,81 @@ static inline void internal_double32_def(uint32* dst, const uint32* src, unsigne
 static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
 {
 	while (count) {
-		dst[0] = src[0];
-		dst[1] = src[0];
-		dst += 2;
-		src += 1;
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		PADD(dst, 8);
+		PADD(src, 4);
 		--count;
 	}
 }
 #endif
+
+static inline void internal_double32_step_def(uint32* dst, const uint32* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		PADD(dst, 8);
+		PADD(src, step);
+		--count;
+	}
+}
+
+static inline void internal_triple32_def(uint32* dst, const uint32* src, unsigned count)
+{
+	while (count) {
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		P32DER(dst, 8) = p0;
+		PADD(dst, 12);
+		PADD(src, 4);
+		--count;
+	}
+}
+
+static inline void internal_triple32_step_def(uint32* dst, const uint32* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		P32DER(dst, 8) = p0;
+		PADD(dst, 12);
+		PADD(src, step);
+		--count;
+	}
+}
+
+static inline void internal_quadruple32_def(uint32* dst, const uint32* src, unsigned count)
+{
+	while (count) {
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		P32DER(dst, 8) = p0;
+		P32DER(dst, 12) = p0;
+		PADD(dst, 16);
+		PADD(src, 4);
+		--count;
+	}
+}
+
+static inline void internal_quadruple32_step_def(uint32* dst, const uint32* src, unsigned count, int step)
+{
+	while (count) {
+		unsigned p0 = P32DER0(src);
+		P32DER(dst, 0) = p0;
+		P32DER(dst, 4) = p0;
+		P32DER(dst, 8) = p0;
+		P32DER(dst, 12) = p0;
+		PADD(dst, 16);
+		PADD(src, step);
+		--count;
+	}
+}
+
 
 #endif

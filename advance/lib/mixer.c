@@ -414,7 +414,8 @@ static void mixer_channel_loop_check(unsigned channel)
 
 /**
  * Play a WAV file.
- * If the channel is playing, it's before stopped.
+ * If the channel is playing, it's stopped before.
+ * The file is automatically closed if no error is reported.
  * \param channel Channel to use.
  * \param file File to play.
  * \param loop If loop the playing.
@@ -428,7 +429,7 @@ adv_error mixer_play_file_wav(unsigned channel, adv_fz* file, adv_bool loop)
 
 	mixer_channel_abort(channel);
 
-	if (wave_file(file, &nchannel, &bit, &size, &rate)!=0) {
+	if (wave_read(file, &nchannel, &bit, &size, &rate) != 0) {
 		return -1;
 	}
 
@@ -452,26 +453,16 @@ adv_error mixer_play_file_wav(unsigned channel, adv_fz* file, adv_bool loop)
  */
 adv_error mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const unsigned char* end, adv_bool loop)
 {
-	const unsigned char* start;
-	unsigned rate;
-	unsigned bit;
-	unsigned size;
-	unsigned nchannel;
+	adv_fz* f;
 
-	mixer_channel_abort(channel);
+	f = fzopenmemory(begin, end - begin);
+	if (!f)
+		return -1;
 
-	start = begin;
-	if (wave_memory(&start, end, &nchannel, &bit, &size, &rate)!=0) {
+	if (mixer_play_file_wav(channel, f, loop) != 0) {
+		fzclose(f);
 		return -1;
 	}
-
-	mixer_channel_alloc(channel, mixer_raw_memory, loop);
-	mixer_channel_set(channel, rate, nchannel, bit);
-
-	mixer_map[channel].data = begin;
-	mixer_map[channel].start = start - begin;
-	mixer_map[channel].end = mixer_map[channel].start + size;
-	mixer_map[channel].pos = start - begin;
 
 	return 0;
 }
@@ -513,7 +504,7 @@ static adv_error mixer_raw_pump(unsigned channel)
 
 	if (run) {
 		if (mixer_map[channel].file) {
-			if (fzread(data, run, 1, mixer_map[channel].file)!=1) {
+			if (fzread(data, run, 1, mixer_map[channel].file) != 1) {
 				mixer_channel_abort(channel);
 				return -1;
 			}
@@ -789,7 +780,8 @@ static adv_error mixer_mp3_pump(unsigned channel)
 
 /**
  * Play a MP3 file.
- * If the channel is playing, it's before stopped.
+ * If the channel is playing, it's stopped before.
+ * The file is automatically closed if no error is reported.
  * \param channel Channel to use.
  * \param file File to play.
  * \param loop If loop the playing.

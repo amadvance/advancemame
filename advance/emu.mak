@@ -368,7 +368,8 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/mouseall.o \
 	$(OBJ)/advance/lib/mousedrv.o \
 	$(OBJ)/advance/lib/mnone.o \
-	$(OBJ)/advance/lib/error.o
+	$(OBJ)/advance/lib/error.o \
+	$(OBJ)/advance/lib/wave.o
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)

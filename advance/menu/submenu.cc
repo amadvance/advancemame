@@ -44,6 +44,7 @@ void run_sort(config_state& rs)
 	ch.insert( ch.end(), choice("Name", sort_by_name) );
 	ch.insert( ch.end(), choice("Time played", sort_by_time) );
 	ch.insert( ch.end(), choice("Coins", sort_by_coin) );
+	ch.insert( ch.end(), choice("Time per coin", sort_by_timepercoin) );
 	ch.insert( ch.end(), choice("Group", sort_by_group) );
 	ch.insert( ch.end(), choice("Type", sort_by_type) );
 	ch.insert( ch.end(), choice("Manufacturer", sort_by_manufacturer) );
@@ -656,6 +657,7 @@ bool run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Game/Run Clone", 15) );
 	ch.insert( ch.end(), choice("Command", 7) );
 	ch.insert( ch.end(), choice("Help", 10) );
+	ch.insert( ch.end(), choice("Statistics", 18) );
 
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" Menu", FIRST_CHOICE_X, FIRST_CHOICE_Y, MENU_CHOICE_DX, i);
@@ -721,6 +723,9 @@ bool run_submenu(config_state& rs)
 				break;
 			case 17 :
 				run_difficulty(rs);
+				break;
+			case 18 :
+				run_stat(rs);
 				break;
 		}
 	}
@@ -842,6 +847,200 @@ void run_help(config_state& rs)
 	int_put(xd, y, "Return to the menu", COLOR_HELP_NORMAL);
 	y += int_font_dy_get();
 
+	int_getkey();
+}
+
+// ------------------------------------------------------------------------
+// Stat
+
+#define STAT_MAX 10
+
+void stat_insert(const game* (&map)[STAT_MAX], unsigned (&val)[STAT_MAX], const game* g, unsigned v)
+{
+	for(unsigned i=0;i<STAT_MAX;++i) {
+		if (!map[i] || val[i] < v) {
+			for(unsigned j=STAT_MAX-1;j>i;--j) {
+				map[j] = map[j-1];
+				val[j] = val[j-1];
+			}
+			map[i] = g;
+			val[i] = v;
+			return;
+		}
+	}
+}
+
+string stat_time(unsigned v)
+{
+	ostringstream os;
+	os << (v/3600) << ":" << setw(2) << setfill('0') << ((v/60)%60);
+	return os.str();
+}
+
+string stat_int(unsigned v)
+{
+	ostringstream os;
+	os << v;
+	return os.str();
+}
+
+string stat_perc(unsigned v, unsigned t)
+{
+	ostringstream os;
+	if (t)
+		os << v * 100 / t << "%";
+	else
+		os << "0%";
+	return os.str();
+}
+
+void run_stat(config_state& rs)
+{
+	unsigned total_count = 0;
+	unsigned total_coin = 0;
+	unsigned total_time = 0;
+	unsigned select_count = 0;
+	unsigned select_coin = 0;
+	unsigned select_time = 0;
+	const game* most_coin_map[STAT_MAX] = { 0, 0, 0 };
+	const game* most_time_map[STAT_MAX] = { 0, 0, 0 };
+	const game* most_timepercoin_map[STAT_MAX] = { 0, 0, 0 };
+	unsigned most_coin_val[STAT_MAX] = { 0, 0, 0 };
+	unsigned most_time_val[STAT_MAX] = { 0, 0, 0 };
+	unsigned most_timepercoin_val[STAT_MAX] = { 0, 0, 0 };
+	unsigned n;
+
+	int y = 2*int_font_dy_get();
+	int xn = 1*int_font_dx_get();
+	int xs = (1+1*8)*int_font_dx_get();
+	int xt = (1+2*8)*int_font_dx_get();
+	int xp = (1+3*8)*int_font_dx_get();
+
+	n = (int_dy_get() / int_font_dy_get() - 14) / 3;
+	if (n > STAT_MAX)
+		n = STAT_MAX;
+
+	int_clear(0, 0, int_dx_get(), int_dy_get(), COLOR_HELP_NORMAL.background);
+	int_clear(0, 0, int_dx_get(), int_font_dy_get(), COLOR_MENU_BAR.background);
+	int_put(2*int_font_dx_get(), 0, "STATISTICS", COLOR_MENU_BAR_TAG);
+
+	// select and sort
+	for(game_set::const_iterator i=rs.gar.begin();i!=rs.gar.end();++i) {
+		unsigned coin;
+		unsigned time;
+		unsigned timepercoin;
+
+		if (i->emulator_get()->tree_get())
+			coin = i->coin_tree_get();
+		else
+			coin = i->coin_get();
+		if (i->emulator_get()->tree_get())
+			time = i->time_tree_get();
+		else
+			time = i->time_get();
+		if (coin)
+			timepercoin = time / coin;
+		else
+			timepercoin = 0;
+
+		total_count += 1;
+		total_coin += coin;
+		total_time += time;
+
+		// emulator
+		if (!i->emulator_get()->state_get())
+			continue;
+
+		// group
+		if (!i->group_derived_get()->state_get())
+			continue;
+
+		// type
+		if (!i->type_derived_get()->state_get())
+			continue;
+
+		// filter
+		if (!i->emulator_get()->filter(*i))
+			continue;
+
+		select_count += 1;
+		select_coin += coin;
+		select_time += time;
+
+		stat_insert(most_coin_map, most_coin_val, &*i, coin);
+		stat_insert(most_time_map, most_time_val, &*i, time);
+		stat_insert(most_timepercoin_map, most_timepercoin_val, &*i, timepercoin);
+	}
+
+	y += int_font_dy_get();
+	int_put(xt, y, "Total", COLOR_HELP_TAG);
+	int_put(xs, y, "Selected", COLOR_HELP_TAG);
+	int_put(xp, y, "Percentage", COLOR_HELP_TAG);
+
+	{
+
+		y += int_font_dy_get();
+		int_put(xn, y, "Games", COLOR_HELP_TAG);
+		int_put(xt, y, stat_int(total_count), COLOR_HELP_NORMAL);
+		int_put(xs, y, stat_int(select_count), COLOR_HELP_NORMAL);
+		int_put(xp, y, stat_perc(select_count, total_count), COLOR_HELP_NORMAL);
+	}
+
+	{
+		y += int_font_dy_get();
+		int_put(xn, y, "Coins", COLOR_HELP_TAG);
+		int_put(xt, y, stat_int(total_coin), COLOR_HELP_NORMAL);
+		int_put(xs, y, stat_int(select_coin), COLOR_HELP_NORMAL);
+		int_put(xp, y, stat_perc(select_coin, total_coin), COLOR_HELP_NORMAL);
+	}
+
+	{
+		y += int_font_dy_get();
+		int_put(xn, y, "Time", COLOR_HELP_TAG);
+		int_put(xt, y, stat_time(total_time), COLOR_HELP_NORMAL);
+		int_put(xs, y, stat_time(select_time), COLOR_HELP_NORMAL);
+		int_put(xp, y, stat_perc(select_time, total_time), COLOR_HELP_NORMAL);
+	}
+
+	xs = (1+1*5)*int_font_dx_get();
+	xt = (1+2*5)*int_font_dx_get();
+
+	if (n>0 && most_time_map[0]) {
+		y += int_font_dy_get();
+		y += int_font_dy_get();
+		int_put(xn, y, "Most time", COLOR_HELP_TAG);
+		for(unsigned i=0;i<n && most_time_map[i];++i) {
+			y += int_font_dy_get();
+			int_put(xn, y, stat_time(most_time_val[i]), COLOR_HELP_NORMAL);
+			int_put(xs, y, stat_perc(most_time_val[i], select_time), COLOR_HELP_NORMAL);
+			int_put(xt, y, most_time_map[i]->description_get(), COLOR_HELP_NORMAL);
+		}
+	}
+
+	if (n>0 && most_coin_map[0]) {
+		ostringstream os;
+		y += int_font_dy_get();
+		y += int_font_dy_get();
+		int_put(xn, y, "Most coins", COLOR_HELP_TAG);
+		for(unsigned i=0;i<n && most_coin_map[i];++i) {
+			y += int_font_dy_get();
+			int_put(xn, y, stat_int(most_coin_val[i]), COLOR_HELP_NORMAL);
+			int_put(xs, y, stat_perc(most_coin_val[i], select_coin), COLOR_HELP_NORMAL);
+			int_put(xt, y, most_coin_map[i]->description_get(), COLOR_HELP_NORMAL);
+		}
+	}
+
+	if (n>0 && most_timepercoin_map[0]) {
+		ostringstream os;
+		y += int_font_dy_get();
+		y += int_font_dy_get();
+		int_put(xn, y, "Most time per coin", COLOR_HELP_TAG);
+		for(unsigned i=0;i<n && most_timepercoin_map[i];++i) {
+			y += int_font_dy_get();
+			int_put(xn, y, stat_time(most_timepercoin_val[i]), COLOR_HELP_NORMAL);
+			int_put(xt, y, most_timepercoin_map[i]->description_get(), COLOR_HELP_NORMAL);
+		}
+	}
 
 	int_getkey();
 }

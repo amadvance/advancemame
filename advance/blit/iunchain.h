@@ -232,7 +232,7 @@ static inline void internal_unchained8_double_step(uint8* dst, const uint8* src,
 	}
 }
 
-static inline void internal_unchained8_palette16to8(uint8* dst, const uint16* src, unsigned count, unsigned* palette)
+static inline void internal_unchained8_palette16to8(uint8* dst, const uint16* src, unsigned count, const unsigned* palette)
 {
 	unsigned rest = count % 4;
 
@@ -251,7 +251,7 @@ static inline void internal_unchained8_palette16to8(uint8* dst, const uint16* sr
 	}
 }
 
-static inline void internal_unchained8_double_palette16to8(uint8* dst, const uint16* src, unsigned count, unsigned* palette)
+static inline void internal_unchained8_double_palette16to8(uint8* dst, const uint16* src, unsigned count, const unsigned* palette)
 {
 	unsigned rest = count % 4;
 

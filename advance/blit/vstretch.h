@@ -57,7 +57,7 @@ static uint32 mask8_set_all[256];
 	dst8[2] = color; \
 	dst8 += 3;
 
-static inline void video_line_stretchx8_1x_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx8_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -75,17 +75,17 @@ static inline void video_line_stretchx8_1x_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_stretchx8_1x(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_1x_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx8_1x_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_1x_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_1x_step(stage, dst, src, 1);
 }
 
-static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -106,53 +106,53 @@ static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_stretchx8_x1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_x1_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx8_x1_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_x1_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_x1_step(stage, dst, src, 1);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx8_11_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx8_11_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_def(dst, src, stage->slice.count);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx8_11_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_step2_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx8_11_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_step2_def(dst, src, stage->slice.count);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx8_11_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_step_mmx(dst, src, stage->slice.count, stage->sdp);
 }
 #endif
 
-static void video_line_stretchx8_11_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_11_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx8_12_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx8_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -172,47 +172,34 @@ static inline void video_line_stretchx8_12_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_stretchx8_12(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_12(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_12_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx8_12_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_12_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_12_step(stage, dst, src, 1);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx8_22_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_22_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double8_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx8_22_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_22_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double8_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx8_22(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_22(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	unsigned inner_count = stage->slice.count / 2;
-
-	while (inner_count) {
-		unsigned color0, color1;
-		uint32 mask;
-		color0 = P8DER0(src);
-		PADD(src, stage->sdp);
-		color1 = P8DER0(src);
-		PADD(src, stage->sdp);
-		mask = color0 | color0 << 8 | color1 << 16 | color1 << 24;
-		P32DER0(dst) = mask;
-		PADD(dst, 4);
-		--inner_count;
-	}
+	internal_double8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx8_23_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx8_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -232,81 +219,34 @@ static inline void video_line_stretchx8_23_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_stretchx8_23(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_23(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_23_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx8_23_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_23_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx8_23_step(stage, dst, src, 1);
 }
 
-static void video_line_stretchx8_33_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_33_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count / 4;
-
-	while (inner_count) {
-		unsigned color0 = P8DER(src, 0);
-		unsigned color1 = P8DER(src, 1);
-		unsigned color2 = P8DER(src, 2);
-		unsigned color3 = P8DER(src, 3);
-		*dst32++ = color0 | color0 << 8 | color0 << 16 | color1 << 24;
-		*dst32++ = color1 | color1 << 8 | color2 << 16 | color2 << 24;
-		*dst32++ = color2 | color3 << 8 | color3 << 16 | color3 << 24;
-		PADD(src, 4);
-		--inner_count;
-	}
+	internal_triple8_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx8_33(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_33(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count / 4;
-
-	while (inner_count) {
-		unsigned color0;
-		unsigned color1;
-		unsigned color2;
-		unsigned color3;
-		color0 = P8DER0(src);
-		PADD(src, stage->sdp);
-		color1 = P8DER0(src);
-		PADD(src, stage->sdp);
-		color2 = P8DER0(src);
-		PADD(src, stage->sdp);
-		color3 = P8DER0(src);
-		PADD(src, stage->sdp);
-		*dst32++ = color0 | color0 << 8 | color0 << 16 | color1 << 24;
-		*dst32++ = color1 | color1 << 8 | color2 << 16 | color2 << 24;
-		*dst32++ = color2 | color3 << 8 | color3 << 16 | color3 << 24;
-		--inner_count;
-	}
+	internal_triple8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static void video_line_stretchx8_44_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_44_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		*dst32++ = mask8_set_all[P8DER0(src)];
-		PADD(src, 1);
-		--inner_count;
-	}
+	internal_quadruple8_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx8_44(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx8_44(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		*dst32++ = mask8_set_all[P8DER0(src)];
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_quadruple8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
 /* Inizialize the line rescaling system */
@@ -387,7 +327,7 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 	dst16[2] = color; \
 	dst16 += 3;
 
-static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -405,17 +345,17 @@ static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx16_1x(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_1x_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx16_1x_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_1x_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_1x_step(stage, dst, src, 2);
 }
 
-static inline void video_line_stretchx16_x1_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx16_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -435,41 +375,41 @@ static inline void video_line_stretchx16_x1_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx16_x1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_x1_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx16_x1_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_x1_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_x1_step(stage, dst, src, 2);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx16_11_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_11_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy16_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx16_11_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_11_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy16_def(dst, src, stage->slice.count);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx16_11_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_11_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy16_step_mmx(dst, src, stage->slice.count, stage->sdp);
 }
 #endif
 
-static void video_line_stretchx16_11_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_11_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx16_12_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx16_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -489,43 +429,34 @@ static inline void video_line_stretchx16_12_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx16_12(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_12(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_12_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx16_12_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_12_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_12_step(stage, dst, src, 2);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx16_22_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_22_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double16_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx16_22_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_22_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double16_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx16_22(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_22(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P16DER0(src);
-		mask |= mask << 16;
-		*dst32++ = mask;
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_double16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx16_23_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx16_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -545,84 +476,34 @@ static inline void video_line_stretchx16_23_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx16_23(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_23(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_23_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx16_23_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_23_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx16_23_step(stage, dst, src, 2);
 }
 
-static void video_line_stretchx16_33_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_33_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count / 2;
-
-	while (inner_count) {
-		uint32 mask0 = P16DER(src, 0);
-		uint32 mask2 = P16DER(src, 2);
-		uint32 mask1 = mask0 | mask2 << 16;
-		mask0 |= mask0 << 16;
-		mask2 |= mask2 << 16;
-		*dst32++ = mask0;
-		*dst32++ = mask1;
-		*dst32++ = mask2;
-		PADD(src, 4);
-		--inner_count;
-	}
+	internal_triple16_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx16_33(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_33(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count / 2;
-
-	while (inner_count) {
-		uint32 mask0, mask1, mask2;
-		mask0 = P16DER0(src);
-		PADD(src, stage->sdp);
-		mask2 = P16DER0(src);
-		PADD(src, stage->sdp);
-		mask1 = mask0 | mask2 << 16;
-		mask0 |= mask0 << 16;
-		mask2 |= mask2 << 16;
-		*dst32++ = mask0;
-		*dst32++ = mask1;
-		*dst32++ = mask2;
-		--inner_count;
-	}
+	internal_triple16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static void video_line_stretchx16_44_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_44_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P16DER0(src);
-		mask |= mask << 16;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, 2);
-		--inner_count;
-	}
+	internal_quadruple16_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx16_44(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx16_44(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P16DER0(src);
-		mask |= mask << 16;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_quadruple16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
 static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
@@ -702,7 +583,7 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 	dst32[2] = color; \
 	dst32 += 3;
 
-static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -720,17 +601,17 @@ static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx32_1x(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_1x_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx32_1x_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_1x_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_1x_step(stage, dst, src, 4);
 }
 
-static inline void video_line_stretchx32_x1_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx32_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -750,46 +631,46 @@ static inline void video_line_stretchx32_x1_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx32_x1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_x1_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx32_x1_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_x1_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_x1_step(stage, dst, src, 4);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx32_11_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_11_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy32_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx32_11_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_11_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy32_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx32_11_step3(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_11_step3(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy32_step3(dst, src, stage->slice.count);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx32_11_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_11_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy32_step_mmx(dst, src, stage->slice.count, stage->sdp);
 }
 #endif
 
-static void video_line_stretchx32_11_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_11_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_copy32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx32_12_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx32_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -809,43 +690,34 @@ static inline void video_line_stretchx32_12_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx32_12(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_12(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_12_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx32_12_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_12_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_12_step(stage, dst, src, 4);
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_stretchx32_22_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_22_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double32_mmx(dst, src, stage->slice.count);
 }
 #endif
 
-static void video_line_stretchx32_22_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_22_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_double32_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx32_22(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_22(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P32DER0(src);
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_double32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx32_23_step(const struct video_stage_horz_struct* stage, void* dst, void* src, unsigned sdp)
+static inline void video_line_stretchx32_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
 {
 	int error = stage->slice.error;
 	unsigned inner_count = stage->slice.count;
@@ -865,76 +737,34 @@ static inline void video_line_stretchx32_23_step(const struct video_stage_horz_s
 	}
 }
 
-static void video_line_stretchx32_23(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_23(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_23_step(stage, dst, src, stage->sdp);
 }
 
-static void video_line_stretchx32_23_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_23_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	video_line_stretchx32_23_step(stage, dst, src, 4);
 }
 
-static void video_line_stretchx32_33_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_33_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P32DER0(src);
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, 4);
-		--inner_count;
-	}
+	internal_triple32_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx32_33(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_33(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P32DER0(src);
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_triple32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static void video_line_stretchx32_44_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_44_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P32DER0(src);
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, 4);
-		--inner_count;
-	}
+	internal_quadruple32_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx32_44(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static void video_line_stretchx32_44(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
-	uint32* dst32 = (uint32*)dst;
-	unsigned inner_count = stage->slice.count;
-
-	while (inner_count) {
-		uint32 mask = P32DER0(src);
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		*dst32++ = mask;
-		PADD(src, stage->sdp);
-		--inner_count;
-	}
+	internal_quadruple32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
 static void video_stage_stretchx32_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)

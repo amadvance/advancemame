@@ -103,8 +103,6 @@ extern video_internal video_state;
 /***************************************************************************/
 /* Informative */
 
-unsigned video_internal_flags(void);
-
 /** If the video library is initialized. */
 static inline adv_bool video_is_active(void)
 {

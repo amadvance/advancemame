@@ -1,20 +1,29 @@
 /*
- * Mpeg Layer-3 audio decoder 
- * --------------------------
- * copyright (c) 1995,1996,1997 by Michael Hipp.
- * All rights reserved. See also 'README'
- */ 
+ * This file is part of MPGLIB.
+ *
+ * Copyright (C) 1995-1997 Michael Hipp
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 #include <stdlib.h>
 #include "mpg123.h"
 #include "mpglib.h"
 #include "huffman.h"
-#ifdef HAVEGTK
-#include "../gtkanal.h"
-#endif
 
 #define MPEG1
-
 
 static mp3internal_real ispow[8207];
 static mp3internal_real aa_ca[8],aa_cs[8];
@@ -327,12 +336,6 @@ static int III_get_side_info_1(struct mp3_decoder_state* state,struct III_sidein
        {
 	 unsigned int qss = mp3internal_getbits_fast(state,8);
 	 gr_info->pow2gain = gainpow2+256 - qss + powdiff;
-#ifdef HAVEGTK
-	 if (gtkflag) {
-	   pinfo->qss[gr][ch]=qss;
-	   pinfo->big_values[gr][ch]=gr_info->big_values;
-	 }
-#endif
        }
        if(ms_stereo)
          gr_info->pow2gain += 2;
@@ -355,10 +358,6 @@ static int III_get_side_info_1(struct mp3_decoder_state* state,struct III_sidein
          for(i=0;i<3;i++) {
 	   unsigned int sbg = (mp3internal_getbits_fast(state,3)<<3);
            gr_info->full_gain[i] = gr_info->pow2gain + sbg;
-#ifdef HAVEGTK
-	   if (gtkflag)
-	     pinfo->sub_gain[gr][ch][i]=sbg/8;
-#endif
 	 }
 
 
@@ -385,10 +384,6 @@ static int III_get_side_info_1(struct mp3_decoder_state* state,struct III_sidein
        gr_info->preflag = mp3internal_get1bit(state);
        gr_info->scalefac_scale = mp3internal_get1bit(state);
        gr_info->count1table_select = mp3internal_get1bit(state);
-#ifdef HAVEGTK
-       if (gtkflag)
-	 pinfo->scalefac_scale[gr][ch]=gr_info->scalefac_scale;
-#endif
      }
    }
    return 0;
@@ -423,12 +418,6 @@ static int III_get_side_info_2(struct mp3_decoder_state* state, struct III_sidei
        }
        qss=mp3internal_getbits_fast(state,8);
        gr_info->pow2gain = gainpow2+256 - qss + powdiff;
-#ifdef HAVEGTK
-       if (gtkflag) {
-	   pinfo->qss[0][ch]=qss;
-	   pinfo->big_values[0][ch]=gr_info->big_values;
-       }
-#endif
 
        if(ms_stereo)
          gr_info->pow2gain += 2;
@@ -449,10 +438,6 @@ static int III_get_side_info_2(struct mp3_decoder_state* state, struct III_sidei
          for(i=0;i<3;i++) {
 	   unsigned int sbg = (mp3internal_getbits_fast(state,3)<<3);
            gr_info->full_gain[i] = gr_info->pow2gain + sbg;
-#ifdef HAVEGTK
-	   if (gtkflag)
-	     pinfo->sub_gain[0][ch][i]=sbg/8;
-#endif
 	 }
 
          if(gr_info->block_type == 0) {
@@ -484,10 +469,6 @@ static int III_get_side_info_2(struct mp3_decoder_state* state, struct III_sidei
        }
        gr_info->scalefac_scale = mp3internal_get1bit(state);
        gr_info->count1table_select = mp3internal_get1bit(state);
-#ifdef HAVEGTK
-       if (gtkflag)
-	 pinfo->scalefac_scale[0][ch]=gr_info->scalefac_scale;
-#endif
    }
    return 0;
 }
@@ -1572,13 +1553,6 @@ int mp3internal_do_layer3(void* external_state, struct mp3_decoder_state* state,
 	return MP3_ERR;
 #endif
       }
-#ifdef HAVEGTK
-      if (gtkflag) {
-	int i;
-	for (i=0; i<39; i++) 
-	  pinfo->sfb_s[gr][0][i]=scalefacs[0][i];
-      }
-#endif
       if(III_dequantize_sample(state,hybridIn[0], scalefacs[0],gr_info,sfreq,part2bits))
         return MP3_ERR; /* return clip */
     }
@@ -1595,13 +1569,6 @@ int mp3internal_do_layer3(void* external_state, struct mp3_decoder_state* state,
 	return MP3_ERR;
 #endif
       }
-#ifdef HAVEGTK
-      if (gtkflag) {
-	int i;
-	for (i=0; i<39; i++) 
-	  pinfo->sfb_s[gr][1][i]=scalefacs[1][i];
-      }
-#endif
 
       if(III_dequantize_sample(state,hybridIn[1],scalefacs[1],gr_info,sfreq,part2bits))
           return MP3_ERR; /* return clip */
@@ -1646,70 +1613,6 @@ int mp3internal_do_layer3(void* external_state, struct mp3_decoder_state* state,
           break;
       }
     }
-
-#ifdef HAVEGTK
-    if (gtkflag) {
-    extern int tabsel_123[2][3][16];
-    extern int pretab[21];
-    int i,j,sb;
-    float ifqstep;
-
-    for (ch=0;ch<stereo1;ch++) {
-      struct gr_info_s *gr_info = &(sideinfo.ch[ch].gr[gr]);
-      ifqstep = ( pinfo->scalefac_scale[gr][ch] == 0 ) ? .5 : 1.0;
-      if (2==gr_info->block_type) {
-	for (i=0; i<3; i++) {
-	  for (sb=0; sb<12; sb++) {
-	    j = 3*sb+i;
-	    /*
-           is_p = scalefac[sfb*3+lwin-gr_info->mixed_block_flag]; 
-	    */
-	    /* scalefac was copied into pinfo->sfb_s[] above */
-	    pinfo->sfb_s[gr][ch][j] = -ifqstep*pinfo->sfb_s[gr][ch][j-gr_info->mixed_block_flag];
-	    pinfo->sfb_s[gr][ch][j] -= 2*(pinfo->sub_gain[gr][ch][i]);
-	  }
-	  pinfo->sfb_s[gr][ch][3*sb+i] = - 2*(pinfo->sub_gain[gr][ch][i]);
-	}
-      }else{
-	for (sb=0; sb<21; sb++) {
-	  /* scalefac was copied into pinfo->sfb[] above */
-	  pinfo->sfb[gr][ch][sb] = pinfo->sfb_s[gr][ch][sb];
-	  if (gr_info->preflag) pinfo->sfb[gr][ch][sb] += pretab[sb];
-	  pinfo->sfb[gr][ch][sb] *= -ifqstep;
-	}
-      }
-    }
-
-
-    
-    pinfo->bitrate = 
-      tabsel_123[fr->lsf][fr->lay-1][fr->bitrate_index];
-    pinfo->sampfreq = mp3internal_freqs[sfreq];
-    pinfo->emph = fr->emphasis;
-    pinfo->crc = fr->error_protection;
-    pinfo->padding = fr->padding;
-    pinfo->stereo = fr->stereo;
-    pinfo->js =   (fr->mode == MPG_MD_JOINT_STEREO);
-    pinfo->ms_stereo = ms_stereo;
-    pinfo->i_stereo = i_stereo;
-    pinfo->maindata = sideinfo.main_data_begin;
-
-    for(ch=0;ch<stereo1;ch++) {
-      struct gr_info_s *gr_info = &(sideinfo.ch[ch].gr[gr]);
-      pinfo->mixed[gr][ch] = gr_info->mixed_block_flag;
-      pinfo->mpg123blocktype[gr][ch]=gr_info->block_type;
-      pinfo->mainbits[gr][ch] = gr_info->part2_3_length;
-      if (gr==1) pinfo->scfsi[ch] = gr_info->scfsi;
-    }
-    for(ch=0;ch<stereo1;ch++) { 
-      int j=0;
-      for (sb=0;sb<SBLIMIT;sb++)
-	for(ss=0;ss<SSLIMIT;ss++,j++) 
-	  pinfo->mpg123xr[gr][ch][j]=hybridIn[ch][sb][ss];
-    }
-  }
-
-#endif
 
     for(ch=0;ch<stereo1;ch++) {
       struct gr_info_s *gr_info = &(sideinfo.ch[ch].gr[gr]);

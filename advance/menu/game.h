@@ -430,5 +430,6 @@ std::string sort_item_type(const game& g);
 std::string sort_item_size(const game& g);
 std::string sort_item_res(const game& g);
 std::string sort_item_info(const game& g);
+std::string sort_item_timepercoin(const game& g);
 
 #endif

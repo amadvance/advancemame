@@ -1,14 +1,25 @@
-
 /*
- * Discrete Cosine Tansform (DCT) for subband synthesis
+ * This file is part of MPGLIB.
  *
- * -funroll-loops (for gcc) will remove the loops for better performance
- * using loops in the source-code enhances readabillity
+ * Copyright (C) 1995-1997 Michael Hipp
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 /*
- * TODO: write an optimized version for the down-sampling modes
- *       (in these modes the bands 16-31 (2:1) or 8-31 (4:1) are zero 
+ * Discrete Cosine Tansform (DCT) for subband synthesis
  */
 
 #include "mpg123.h"

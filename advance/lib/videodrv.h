@@ -128,8 +128,9 @@
  * Video driver flags used internally by the drivers.
  */
 /*@{*/
-#define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x01000000 /**< First internal flags. */
-#define VIDEO_DRIVER_FLAGS_INTERNAL_MASK 0xFF000000 /**< Available internal flags. */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE 0x10000000 /**< Dangerous mode change. */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x20000000 /**< First internal flag for the user. */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_MASK 0xF0000000 /**< Available internal flags. */
 /*@}*/
 
 /**

@@ -65,17 +65,15 @@ Video Drivers
 	* Generate drivers able to program directly the video board.
 	* System drivers able to use only the available video modes.
 
-	The Generate drivers are always the preffered choice.
+	The Generate drivers are always the preferred choice.
 
     Generate drivers
 	This set of drivers is able to program the directly the video board
 	to always generate a perfect video mode with the correct size
 	and frequency.
 
-	They always work in `fullscreen' mode.
-
-	They generally support only a subset of video boards and need to run
-	in fullscreen mode.
+	They always work in `fullscreen' output mode and generally support 
+	only a subset of video boards.
 
 	To function correctly these drivers require a correct configuration
 	of the device_video_* options.
@@ -84,15 +82,16 @@ Video Drivers
 	This set of drivers is able to use only the video modes available
 	on the operating system.
 
-	They can work in `fullscreen' mode, `window' mode and `zoom' mode
+	They can work in `fullscreen' mode, `window' mode and `zoom' output mode
 	using the video board hardware acceleration to stretch the image.
 	The default output mode is `window' if you run the program in a window
 	manager, otherwise the output mode `fullscreen' is chosen.
 
 	Please note that these drivers generally need to stretch the image
-	losing a lot in quality.
+	losing a lot in image quality.
 
   List
+    DOS  
 	In DOS the following drivers are available:
 		svgaline - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
@@ -149,7 +148,8 @@ Video Drivers
 			It doesn't require any `device_video_*' options
 			because it cannot control how the video modes are
 			generated.
-
+    
+    Linux
 	In Linux the following drivers are available:
 		svgalib - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
@@ -176,6 +176,7 @@ Video Drivers
 			able to use the current text mode. It can't really
 			change the video mode.
 
+    Mac OS X
 	In Mac OS X the following drivers are available:
 		sdl - Available SDL modes.
 			This driver is able to use only the video modes
@@ -184,6 +185,7 @@ Video Drivers
 			because it cannot control how the video modes are
 			generated.
 
+    Windows
 	In Windows the following drivers are available:
 		svgawin - Generated SVGA modes. (only for Windows NT/2000/XP)
 			Video modes obtained tweaking the hardware

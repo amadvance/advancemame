@@ -31,6 +31,8 @@
 #include "emu.h"
 #include "log.h"
 #include "portable.h"
+#include "endianrw.h"
+#include "wave.h"
 
 #include <zlib.h>
 
@@ -38,169 +40,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-
-/***************************************************************************/
-/* fread/fwrite */
-
-static void write_be_u32(uint8* v, unsigned i)
-{
-	v[0] = (i >> 24) & 0xFF;
-	v[1] = (i >> 16) & 0xFF;
-	v[2] = (i >> 8) & 0xFF;
-	v[3] = i & 0xFF;
-}
-
-static size_t fwrite_le_u16(unsigned* p, size_t num, FILE* f)
-{
-	unsigned count = 0;
-	while (count<num) {
-		unsigned char b0, b1;
-		b0 = *p & 0xFF;
-		b1 = (*p >> 8) & 0xFF;
-		if (fwrite(&b0, 1, 1, f) != 1 || fwrite(&b1, 1, 1, f) != 1) 
-			return count;
-		++count;
-		++p;
-	}
-	return count;
-}
-
-
-static size_t fwrite_le_u32(unsigned* p, size_t num, FILE* f)
-{
-	unsigned count = 0;
-	while (count<num) {
-		unsigned char b0, b1, b2, b3;
-		b0 = *p & 0xFF;
-		b1 = (*p >> 8) & 0xFF;
-		b2 = (*p >> 16) & 0xFF;
-		b3 = (*p >> 24) & 0xFF;
-		if (fwrite(&b0, 1, 1, f) != 1 || fwrite(&b1, 1, 1, f) != 1 ||
-			fwrite(&b2, 1, 1, f) != 1 || fwrite(&b3, 1, 1, f) != 1)
-			return count;
-		++count;
-		++p;
-	}
-	return count;
-}
-
-/***************************************************************************/
-/* Wave */
-
-static size_t fwrite_tag(char* p, FILE* f)
-{
-	return fwrite( p, 1, 4, f ) == 4;
-}
-
-/* record_id */
-
-typedef struct {
-	char id[4];
-	unsigned size;
-} record_id;
-
-static size_t fwrite_id( record_id* p, FILE* f)
-{
-	return fwrite_tag( p->id, f ) && fwrite_le_u32( &p->size, 1, f );
-}
-
-#define WAVE_FORMAT_PCM      0x0001 /* Microsoft Pulse Code Modulation (PCM) format */
-#define IBM_FORMAT_MULAW     0x0101 /* IBM mu-law format */
-#define IBM_FORMAT_ALAW      0x0102 /* IBM a-law format */
-#define IBM_FORMAT_ADPCM     0x0103 /* IBM AVC Adaptive Differential Pulse Code Modulation format */
-
-typedef struct {
-	unsigned wFormatTag; /* Format category */
-	unsigned wChannels; /* Number of channels */
-	unsigned dwSamplesPerSec; /* Sampling rate */
-	unsigned dwAvgu8sPerSec; /* For buffer estimation */
-	unsigned wBlockAlign; /* Data block size */
-} record_fmt;
-
-static size_t fwrite_fmt( record_fmt* p, FILE* f)
-{
-	return fwrite_le_u16( &p->wFormatTag, 1, f ) &&
-		fwrite_le_u16( &p->wChannels, 1, f ) &&
-		fwrite_le_u32( &p->dwSamplesPerSec, 1, f ) &&
-		fwrite_le_u32( &p->dwAvgu8sPerSec, 1, f ) &&
-		fwrite_le_u16( &p->wBlockAlign, 1, f );
-}
-
-/* record_fmt_PCM */
-
-typedef struct {
-	unsigned wBitsPerSample; /* Sample size */
-} record_fmt_specific_PCM;
-
-static size_t fwrite_fmt_PCM( record_fmt_specific_PCM* p, FILE* f)
-{
-	return fwrite_le_u16( &p->wBitsPerSample, 1, f);
-}
-
-static size_t fwrite_header(int speed, int bit, int channel, int size, FILE* f)
-{
-	record_id riff_id;
-	char wave_id[4];
-	record_id fmt_id;
-	record_fmt fmt;
-	record_fmt_specific_PCM fmt_PCM;
-	record_id data_id;
-	
-	unsigned size_byte;
-	if (bit <= 8)
-		size_byte = 1;
-	else if (bit <= 16)
-		size_byte = 2;
-	else
-		size_byte = 4;
-	
-	memcpy(riff_id.id, "RIFF", 4);
-	riff_id.size = 0x24 + size;
-	if (!fwrite_id( &riff_id, f )) return 0;
-	
-	memcpy(wave_id, "WAVE", 4);
-	if (!fwrite_tag( wave_id, f )) return 0;
-
-	memcpy(fmt_id.id, "fmt ", 4);
-	fmt_id.size = 0x10;
-	if (!fwrite_id( &fmt_id, f )) return 0;
-	
-	fmt.wFormatTag = WAVE_FORMAT_PCM;
-	fmt.wChannels = channel; 
-	fmt.dwSamplesPerSec = speed;
-	fmt.dwAvgu8sPerSec = size_byte*channel*speed;
-	fmt.wBlockAlign = size_byte*channel;
-	if (!fwrite_fmt( &fmt, f )) return 0;
-
-	fmt_PCM.wBitsPerSample = bit;
-	if (!fwrite_fmt_PCM( &fmt_PCM, f )) return 0;
-	
-	memcpy( data_id.id, "data", 4);
-	data_id.size = size;
-	if (!fwrite_id( &data_id, f )) return 0;
-
-	return 1;
-}
-
-static size_t fwrite_header_size(int size, FILE* f)
-{
-	unsigned dsize;
-
-	dsize = 0x24 + size;
-	if (fseek(f, 4, SEEK_SET)!=0) 
-		return 0;
-	if (!fwrite_le_u32( &dsize, 1, f)) 
-		return 0;
-
-	dsize = size;
-	if (fseek(f, 0x28, SEEK_SET)!=0) 
-		return 0;
-	if (!fwrite_le_u32( &dsize, 1, f)) 
-		return 0;
-
-	return 1;
-}
 
 /***************************************************************************/
 /* Sound */
@@ -222,7 +61,6 @@ static unsigned SOUND_FREQUENCY_MAP[] = {
 
 static void sound_cancel(struct advance_record_context* context)
 {
-
 	if (!context->state.sound_active_flag)
 		return;
 
@@ -232,7 +70,7 @@ static void sound_cancel(struct advance_record_context* context)
 	remove(context->state.sound_file_buffer);
 }
 
-static int sound_start(struct advance_record_context* context, const char* file, double frequency, int stereo)
+static adv_error sound_start(struct advance_record_context* context, const char* file, double frequency, int stereo)
 {
 	unsigned* f;
 
@@ -271,7 +109,7 @@ static int sound_start(struct advance_record_context* context, const char* file,
 		return -1;
 	}
 
-	if (fwrite_header(context->state.sound_frequency, 16, context->state.sound_stereo_flag ? 2 : 1, 0, context->state.sound_f)!=1) {
+	if (wave_write(context->state.sound_f, context->state.sound_stereo_flag ? 2 : 1, 16, 0, context->state.sound_frequency) != 0) {
 		log_std(("ERROR: writing file %s\n", context->state.sound_file_buffer));
 		fclose(context->state.sound_f);
 		remove(context->state.sound_file_buffer);
@@ -288,8 +126,10 @@ static int sound_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int sound_update(struct advance_record_context* context, const short* map, unsigned mac)
+static adv_error sound_update(struct advance_record_context* context, const short* map, unsigned mac)
 {
+	unsigned i;
+
 	if (!context->state.sound_active_flag)
 		return -1;
 
@@ -304,8 +144,12 @@ static int sound_update(struct advance_record_context* context, const short* map
 		return 0;
 	}
 
-	if (fwrite(map, mac * context->state.sound_sample_size, 1, context->state.sound_f)!=1)
-		goto err;
+	for(i=0;i<mac;++i) {
+		unsigned char p[2];
+		le_uint16_write(p, map[i]);
+		if (fwrite(p, 2, 1, context->state.sound_f) != 1)
+			goto err;
+	}
 
 	context->state.sound_sample_counter += mac;
 
@@ -317,15 +161,14 @@ err:
 }
 
 /* Save and stop the current file recording */
-static int sound_stop(struct advance_record_context* context, unsigned* time)
+static adv_error sound_stop(struct advance_record_context* context, unsigned* time)
 {
-
 	if (!context->state.sound_active_flag)
 		return -1;
 
 	context->state.sound_active_flag = 0;
 
-	if (fwrite_header_size(context->state.sound_sample_size * context->state.sound_sample_counter, context->state.sound_f) != 1) {
+	if (wave_write_size(context->state.sound_f, context->state.sound_sample_size * context->state.sound_sample_counter) != 0) {
 		log_std(("ERROR: writing header file %s\n", context->state.sound_file_buffer));
 		fclose(context->state.sound_f);
 		remove(context->state.sound_file_buffer);
@@ -383,16 +226,16 @@ static void png_orientation(const uint8** ptr, unsigned* width, unsigned* height
 	}
 }
 
-static int png_write_chunk(FILE* f, unsigned chunk_type, uint8* chunk_data, unsigned chunk_length)
+static adv_error png_write_chunk(FILE* f, unsigned chunk_type, uint8* chunk_data, unsigned chunk_length)
 {
 	uint8 v[4];
 	unsigned crc;
 
-	write_be_u32(v, chunk_length);
+	be_uint32_write(v, chunk_length);
 	if (fwrite(v, 4, 1, f) != 1)
 		return -1;
 
-	write_be_u32(v, chunk_type);
+	be_uint32_write(v, chunk_type);
 	if (fwrite(v, 4, 1, f) != 1)
 		return -1;
 
@@ -404,14 +247,14 @@ static int png_write_chunk(FILE* f, unsigned chunk_type, uint8* chunk_data, unsi
 		crc = crc32(crc, chunk_data, chunk_length);
 	}
 
-	write_be_u32(v, crc);
+	be_uint32_write(v, crc);
 	if (fwrite(v, 4, 1, f) != 1)
 		return -1;
 
 	return 0;
 }
 
-static int png_write_header(FILE* f)
+static adv_error png_write_header(FILE* f)
 {
 	if (fwrite(PNG_Signature, 8, 1, f) != 1)
 		return -1;
@@ -419,12 +262,12 @@ static int png_write_header(FILE* f)
 	return 0;
 }
 
-static int png_write_footer(FILE* f)
+static adv_error png_write_footer(FILE* f)
 {
 	return 0;
 }
 
-static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned frequency, unsigned orientation)
+static adv_error mng_write_header(FILE* f, unsigned width, unsigned height, unsigned frequency, unsigned orientation)
 {
 	uint8 mhdr[28];
 	unsigned simplicity;
@@ -441,10 +284,10 @@ static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned f
 		| (1 << 6);
 
 	memset(mhdr, 0, 28);
-	write_be_u32(mhdr, width);
-	write_be_u32(mhdr + 4, height);
-	write_be_u32(mhdr + 8, frequency);
-	write_be_u32(mhdr + 24, simplicity);
+	be_uint32_write(mhdr, width);
+	be_uint32_write(mhdr + 4, height);
+	be_uint32_write(mhdr + 8, frequency);
+	be_uint32_write(mhdr + 24, simplicity);
 
 	if (png_write_chunk(f, MNG_CN_MHDR, mhdr, 28)!=0)
 		return -1;
@@ -452,7 +295,7 @@ static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned f
 	return 0;
 }
 
-static int mng_write_footer(FILE* f)
+static adv_error mng_write_footer(FILE* f)
 {
 
 	if (png_write_chunk(f, MNG_CN_MEND, 0, 0)!=0)
@@ -462,7 +305,7 @@ static int mng_write_footer(FILE* f)
 }
 
 #ifdef USE_MNG_LC
-static int mng_write_image_frame(FILE* f, unsigned tick)
+static adv_error mng_write_image_frame(FILE* f, unsigned tick)
 {
 	uint8 fram[10];
 	unsigned fi;
@@ -477,7 +320,7 @@ static int mng_write_image_frame(FILE* f, unsigned tick)
 	fram[3] = 0; /* No timeout change */
 	fram[4] = 0; /* No clip change */
 	fram[5] = 0; /* No sync id change */
-	write_be_u32(fram+6, fi); /* Delay in tick */
+	be_uint32_write(fram+6, fi); /* Delay in tick */
 
 	if (png_write_chunk(f, MNG_CN_FRAM, fram, 10)!=0)
 		return -1;
@@ -486,14 +329,14 @@ static int mng_write_image_frame(FILE* f, unsigned tick)
 }
 #endif
 
-static int png_write_image_header(FILE* f, unsigned width, unsigned height, unsigned bit_depth, unsigned color_type, unsigned orientation)
+static adv_error png_write_image_header(FILE* f, unsigned width, unsigned height, unsigned bit_depth, unsigned color_type, unsigned orientation)
 {
 	uint8 ihdr[13];
 
 	png_orientation_size(&width, &height, orientation);
 
-	write_be_u32(ihdr, width);
-	write_be_u32(ihdr+4, height);
+	be_uint32_write(ihdr, width);
+	be_uint32_write(ihdr+4, height);
 
 	ihdr[8] = bit_depth;
 	ihdr[9] = color_type;
@@ -507,7 +350,7 @@ static int png_write_image_header(FILE* f, unsigned width, unsigned height, unsi
 	return 0;
 }
 
-static int png_write_image_footer(FILE* f)
+static adv_error png_write_image_footer(FILE* f)
 {
 	if (png_write_chunk(f, PNG_CN_IEND, 0, 0)!=0)
 		return -1;
@@ -515,7 +358,7 @@ static int png_write_image_footer(FILE* f)
 	return 0;
 }
 
-static int png_write_data(FILE* f, unsigned width, unsigned height, const uint8* ptr, unsigned bytes_per_pixel, unsigned bytes_per_scanline, int fast)
+static adv_error png_write_data(FILE* f, unsigned width, unsigned height, const uint8* ptr, unsigned bytes_per_pixel, unsigned bytes_per_scanline, int fast)
 {
 	uint8* z_ptr;
 	uint8* f_ptr;
@@ -564,7 +407,7 @@ err_free:
 	return -1;
 }
 
-static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation)
+static adv_error png_write_image_4rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, adv_color_def color_def, adv_bool fast, unsigned orientation)
 {
 	uint8* i_ptr;
 	unsigned i_size;
@@ -572,6 +415,9 @@ static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_s
 	unsigned i, j;
 	int pixel_pitch = 4;
 	int line_pitch = bytes_per_scanline;
+	union adv_color_def_union def;
+	int red_shift, green_shift, blue_shift;
+	unsigned red_mask, green_mask, blue_mask;
 
 	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
 
@@ -580,12 +426,21 @@ static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_s
 	if (!i_ptr)
 		goto err;
 
+	def.ordinal = color_def;
+	rgb_shiftmask_get(&red_shift, &red_mask, def.nibble.red_len, def.nibble.red_pos);
+	rgb_shiftmask_get(&green_shift, &green_mask, def.nibble.green_len, def.nibble.green_pos);
+	rgb_shiftmask_get(&blue_shift, &blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
+
 	p = i_ptr;
 	for(i=0;i<height;++i) {
 		for(j=0;j<width;++j) {
-			p[2] = ptr[0];
-			p[1] = ptr[1];
-			p[0] = ptr[2];
+			adv_pixel pixel;
+
+			pixel = cpu_uint32_read(ptr);
+
+			p[0] = rgb_nibble_extract(pixel, red_shift, red_mask);
+			p[1] = rgb_nibble_extract(pixel, green_shift, green_mask);
+			p[2] = rgb_nibble_extract(pixel, blue_shift, blue_mask);
 
 			p += 3;
 			ptr += pixel_pitch;
@@ -607,7 +462,61 @@ err:
 	return -1;
 }
 
-static int png_write_image_15rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation)
+static adv_error png_write_image_2rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, adv_color_def color_def, adv_bool fast, unsigned orientation)
+{
+	uint8* i_ptr;
+	unsigned i_size;
+	uint8* p;
+	unsigned i, j;
+	int pixel_pitch = 2;
+	int line_pitch = bytes_per_scanline;
+	union adv_color_def_union def;
+	int red_shift, green_shift, blue_shift;
+	unsigned red_mask, green_mask, blue_mask;
+
+	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
+
+	i_size = height * (width * 3);
+	i_ptr = malloc(i_size);
+	if (!i_ptr)
+		goto err;
+
+	def.ordinal = color_def;
+	rgb_shiftmask_get(&red_shift, &red_mask, def.nibble.red_len, def.nibble.red_pos);
+	rgb_shiftmask_get(&green_shift, &green_mask, def.nibble.green_len, def.nibble.green_pos);
+	rgb_shiftmask_get(&blue_shift, &blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
+
+	p = i_ptr;
+	for(i=0;i<height;++i) {
+		for(j=0;j<width;++j) {
+			adv_pixel pixel;
+
+			pixel = cpu_uint16_read(ptr);
+
+			p[0] = rgb_nibble_extract(pixel, red_shift, red_mask);
+			p[1] = rgb_nibble_extract(pixel, green_shift, green_mask);
+			p[2] = rgb_nibble_extract(pixel, blue_shift, blue_mask);
+
+			p += 3;
+			ptr += pixel_pitch;
+		}
+		ptr += line_pitch - pixel_pitch * width;
+	}
+
+	if (png_write_data(f, width, height, i_ptr, 3, 3 * width, fast) != 0)
+		goto err_free;
+
+	free(i_ptr);
+
+	return 0;
+
+err_free:
+	free(i_ptr);
+err:
+	return -1;
+}
+
+static adv_error png_write_image_2pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
 {
 	uint8* i_ptr;
 	unsigned i_size;
@@ -626,13 +535,14 @@ static int png_write_image_15rgb(FILE* f, const uint8* ptr, unsigned bytes_per_s
 	p = i_ptr;
 	for(i=0;i<height;++i) {
 		for(j=0;j<width;++j) {
-			unsigned v = *(uint16*)ptr;
-			unsigned r = (v >> 10) & 0x1F;
-			unsigned g = (v >> 5) & 0x1F;
-			unsigned b = (v & 0x1F);
-			p[0] = (r << 3) | (r >> 2);
-			p[1] = (g << 3) | (g >> 2);
-			p[2] = (b << 3) | (b >> 2);
+			adv_pixel pixel;
+
+			pixel = cpu_uint16_read(ptr);
+
+			p[0] = osd_rgb_red(rgb[pixel]);
+			p[1] = osd_rgb_green(rgb[pixel]);
+			p[2] = osd_rgb_blue(rgb[pixel]);
+
 			p += 3;
 			ptr += pixel_pitch;
 		}
@@ -652,49 +562,7 @@ err:
 	return -1;
 }
 
-static int png_write_image_16pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation)
-{
-	uint8* i_ptr;
-	unsigned i_size;
-	uint8* p;
-	unsigned i, j;
-	int pixel_pitch = 2;
-	int line_pitch = bytes_per_scanline;
-
-	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
-
-	i_size = height * (width * 3);
-	i_ptr = malloc(i_size);
-	if (!i_ptr)
-		goto err;
-
-	p = i_ptr;
-	for(i=0;i<height;++i) {
-		for(j=0;j<width;++j) {
-			unsigned v = *(uint16*)ptr;
-			p[0] = osd_rgb_red(rgb[v]);
-			p[1] = osd_rgb_green(rgb[v]);
-			p[2] = osd_rgb_blue(rgb[v]);
-			p += 3;
-			ptr += pixel_pitch;
-		}
-		ptr += line_pitch - pixel_pitch * width;
-	}
-
-	if (png_write_data(f, width, height, i_ptr, 3, 3 * width, fast) != 0)
-		goto err_free;
-
-	free(i_ptr);
-
-	return 0;
-
-err_free:
-	free(i_ptr);
-err:
-	return -1;
-}
-
-static int png_write_image_16palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation)
+static adv_error png_write_image_2palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
 {
 	uint8 palette[3*256];
 	uint8* i_ptr;
@@ -704,13 +572,16 @@ static int png_write_image_16palsmall(FILE* f, const uint8* ptr, unsigned bytes_
 	int pixel_pitch = 2;
 	int line_pitch = bytes_per_scanline;
 
-	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
+	if (rgb_max > 256)
+		goto err;
 
 	for (i=0;i<rgb_max;++i) {
 		palette[i*3] = osd_rgb_red(rgb[i]);
 		palette[i*3+1] = osd_rgb_green(rgb[i]);
 		palette[i*3+2] = osd_rgb_blue(rgb[i]);
 	}
+
+	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
 
 	if (png_write_chunk(f, PNG_CN_PLTE, palette, rgb_max*3)!=0)
 		goto err;
@@ -723,7 +594,12 @@ static int png_write_image_16palsmall(FILE* f, const uint8* ptr, unsigned bytes_
 	p = i_ptr;
 	for(i=0;i<height;++i) {
 		for(j=0;j<width;++j) {
-			p[0] = *ptr;
+			adv_pixel pixel;
+
+			pixel = cpu_uint16_read(ptr);
+
+			p[0] = pixel;
+
 			p += 1;
 			ptr += pixel_pitch;
 		}
@@ -786,7 +662,7 @@ static void video_freq_step(unsigned* base, unsigned* step, double freq)
 	*step = s;
 }
 
-static int video_start(struct advance_record_context* context, const char* file, double frequency, unsigned width, unsigned height, unsigned orientation)
+static adv_error video_start(struct advance_record_context* context, const char* file, double frequency, unsigned width, unsigned height, unsigned orientation)
 {
 	unsigned mng_frequency;
 	unsigned mng_step;
@@ -835,7 +711,7 @@ static int video_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+static adv_error video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
 {
 	unsigned color_type;
 
@@ -876,16 +752,16 @@ static int video_update(struct advance_record_context* context, const void* vide
 	}
 
 	if (video_bytes_per_pixel == 2 && palette_map && palette_max <= 256) {
-		if (png_write_image_16palsmall(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
+		if (png_write_image_2palsmall(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 4 && !palette_map) {
-		if (png_write_image_32rgb(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, 1, orientation)!=0)
+		if (png_write_image_4rgb(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 1, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 2 && !palette_map) {
-		if (png_write_image_15rgb(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, 1, orientation)!=0)
+		if (png_write_image_2rgb(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 1, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 2 && palette_map) {
-		if (png_write_image_16pal(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
+		if (png_write_image_2pal(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
 			goto err_data;
 	} else {
 		log_std(("ERROR: unknown image format for file %s\n", context->state.video_file_buffer));
@@ -906,7 +782,7 @@ err:
 }
 
 /* Save and stop the current file recording */
-static int video_stop(struct advance_record_context* context, unsigned* time)
+static adv_error video_stop(struct advance_record_context* context, unsigned* time)
 {
 	if (!context->state.video_active_flag)
 		return -1;
@@ -933,7 +809,7 @@ err:
 /*************************************************************************************/
 /* Snapshot */
 
-static int snapshot_start(struct advance_record_context* context, const char* file)
+static adv_error snapshot_start(struct advance_record_context* context, const char* file)
 {
 	context->state.snapshot_active_flag = 1;
 
@@ -942,7 +818,7 @@ static int snapshot_start(struct advance_record_context* context, const char* fi
 	return 0;
 }
 
-static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+static adv_error snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
 {
 	const char* file = context->state.snapshot_file_buffer;
 	FILE* f;
@@ -975,16 +851,16 @@ static int snapshot_update(struct advance_record_context* context, const void* v
 	}
 
 	if (video_bytes_per_pixel == 2 && palette_map && palette_max <= 256) {
-		if (png_write_image_16palsmall(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
+		if (png_write_image_2palsmall(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 4 && !palette_map) {
-		if (png_write_image_32rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, 0, orientation)!=0)
+		if (png_write_image_4rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 0, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 2 && !palette_map) {
-		if (png_write_image_15rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, 0, orientation)!=0)
+		if (png_write_image_2rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 0, orientation)!=0)
 			goto err_data;
 	} else if (video_bytes_per_pixel == 2 && palette_map) {
-		if (png_write_image_16pal(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
+		if (png_write_image_2pal(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
 			goto err_data;
 	} else {
 		log_std(("ERROR: unknown image format for file %s\n", file));

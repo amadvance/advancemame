@@ -610,6 +610,48 @@ void sdl_mode_done(adv_bool restore)
 	sdl_state.mode_active = 0;
 }
 
+adv_error sdl_mode_change(const sdl_video_mode* mode)
+{
+	assert( sdl_is_active() );
+	assert( sdl_mode_is_active() );
+
+	log_std(("video:sdl: sdlb_mode_change()\n"));
+
+	if (sdl_state.output == adv_output_zoom) {
+		SDL_FreeYUVOverlay(sdl_state.overlay);
+
+		sdl_state.mode_active = 0;
+
+		sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
+		if (!sdl_state.overlay) {
+			sdl_state.surface = 0;
+			log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
+			error_set("Unable to create the SDL overlay");
+			return -1;
+		}
+
+		log_std(("video:sdl: overlay size:%dx%d planes:%d scanline:%d\n", sdl_state.overlay->w, sdl_state.overlay->h, sdl_state.overlay->planes, sdl_state.overlay->pitches[0]));
+		log_std(("video:sdl: overlay hw_overlay:%d\n", (unsigned)sdl_state.overlay->hw_overlay));
+
+		/* In Linux XFree+XV if the overlay is too big incorrect values are returned */
+		if (sdl_state.overlay->w * 2 > sdl_state.overlay->pitches[0]) {
+			SDL_FreeYUVOverlay(sdl_state.overlay);
+			sdl_state.overlay = 0;
+			sdl_state.surface = 0;
+			log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
+			error_set("Invalid SDL overlay");
+			return -1;
+		}
+
+		sdl_state.mode_active = 1;
+
+		return 0;
+	} else {
+		sdl_mode_done(0);
+		return sdl_mode_set(mode);
+	}
+}
+
 unsigned sdl_virtual_x(void)
 {
 	if (sdl_state.overlay)
@@ -845,6 +887,11 @@ static adv_error sdl_mode_set_void(const void* mode)
 	return sdl_mode_set((const sdl_video_mode*)mode);
 }
 
+static adv_error sdl_mode_change_void(const void* mode)
+{
+	return sdl_mode_change((const sdl_video_mode*)mode);
+}
+
 static adv_error sdl_mode_import_void(adv_mode* mode, const void* sdl_mode)
 {
 	return sdl_mode_import(mode, (const sdl_video_mode*)sdl_mode);
@@ -874,7 +921,7 @@ adv_video_driver video_sdl_driver = {
 	sdl_done,
 	sdl_flags,
 	sdl_mode_set_void,
-	0,
+	sdl_mode_change_void,
 	sdl_mode_done,
 	sdl_virtual_x,
 	sdl_virtual_y,

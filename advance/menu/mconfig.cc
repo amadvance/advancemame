@@ -46,7 +46,8 @@ static adv_conf_enum_int OPTION_SORT[] = {
 { "type", sort_by_type },
 { "size", sort_by_size },
 { "resolution", sort_by_res },
-{ "info", sort_by_info }
+{ "info", sort_by_info },
+{ "timepercoin", sort_by_timepercoin }
 };
 
 static adv_conf_enum_int OPTION_RESTORE[] = {
@@ -1037,8 +1038,8 @@ bool config_state::save(adv_conf* config_context) const {
 		if (0
 			|| i->is_user_group_set()
 			|| i->is_user_type_set()
-			|| (i->is_time_set() && i->time_get()!=0)
-			|| (i->is_coin_set() && i->coin_get()!=0)
+			|| i->is_time_set()
+			|| i->is_coin_set()
 			|| (i->is_user_description_set() && i->description_get().length()!=0)
 		) {
 			ostringstream f;

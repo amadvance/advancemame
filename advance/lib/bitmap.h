@@ -81,18 +81,10 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
 
 unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp);
 
-void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
+void bitmap_cvt_reduce_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map);
 
-void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
-void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
-void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
-
-void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map);
-
-void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src);
-void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src);
-void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src);
-void bitmap_cvt_32to24(adv_bitmap* dst, adv_bitmap* src);
+void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
+void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
 
 /*@}*/
 

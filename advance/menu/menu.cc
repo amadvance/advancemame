@@ -361,6 +361,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_timepercoin : draw_tag_right("timepercoin", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	switch (difficulty) {
@@ -1703,7 +1704,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	log_std(("menu: insert begin\n"));
 
 	bool list_mode = rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed;
-	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_coin) {
+	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_coin || rs.sort_effective == sort_by_timepercoin) {
 		gc.reserve(gss.size());
 		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
 			gc.insert(gc.end(), new menu_entry(*i, 0));
@@ -1884,6 +1885,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case sort_by_info :
 			psc = new pgame_sort_set(sort_by_info_func);
 			category_func = sort_item_info;
+			break;
+		case sort_by_timepercoin :
+			psc = new pgame_sort_set(sort_by_timepercoin_func);
+			category_func = sort_item_timepercoin;
 			break;
 		default:
 			return INT_KEY_NONE;

@@ -329,7 +329,8 @@ adv_error vbeline_init(int device_id, adv_output output, adv_cursor cursor)
 		return -1;
 	}
 
-	vbeline_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	vbeline_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
+		| VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE;
 
 	vbeline_probe();
 

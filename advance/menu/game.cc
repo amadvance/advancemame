@@ -721,3 +721,9 @@ string sort_item_info(const game& g)
 		return "<undefined>";
 }
 
+string sort_item_timepercoin(const game& g)
+{
+	(void)g;
+	return string();
+}
+

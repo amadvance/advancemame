@@ -39,7 +39,8 @@ enum game_sort_t {
 	sort_by_size,
 	sort_by_coin,
 	sort_by_res,
-	sort_by_info
+	sort_by_info,
+	sort_by_timepercoin
 };
 
 inline bool sort_by_root_name_func(const game* A, const game* B)
@@ -75,6 +76,11 @@ inline bool sort_by_time_func(const game* A, const game* B)
 inline bool sort_by_coin_func(const game* A, const game* B)
 {
 	return pgame_combine_less(A, B, pgame_by_coin_less, pgame_by_desc_less, pgame_by_name_less);
+}
+
+inline bool sort_by_timepercoin_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_timepercoin_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
 inline bool sort_by_group_func(const game* A, const game* B)

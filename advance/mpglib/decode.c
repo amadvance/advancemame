@@ -1,13 +1,25 @@
 /*
- * Mpeg Layer-1,2,3 audio decoder 
- * ------------------------------
- * copyright (c) 1995,1996,1997 by Michael Hipp, All rights reserved.
- * See also 'README'
+ * This file is part of MPGLIB.
  *
- * slighlty optimized for machines without autoincrement/decrement.
- * The performance is highly compiler dependend. Maybe
- * the decode.c version for 'normal' processor may be faster
- * even for Intel processors.
+ * Copyright (C) 1995-1997 Michael Hipp
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+/*
+ * Slighlty optimized for machines without autoincrement/decrement.
  */
 
 #include <stdlib.h>
@@ -17,38 +29,54 @@
 #include "mpg123.h"
 #include "mpglib.h"
 
-/* old WRITE_SAMPLE */
-#define WRITE_SAMPLE(samples,sum,clip) \
-  if( (sum) > 32767.0) { *(samples) = 0x7fff; (clip)++; } \
-  else if( (sum) < -32768.0) { *(samples) = -0x8000; (clip)++; } \
-  else { *(samples) = sum; }
+static inline void write_le(unsigned char* ptr, int v)
+{
+	ptr[0] = v & 0xFF;
+	ptr[1] = (v >> 8) & 0xFF;
+}
+
+static inline int write_clip(unsigned char* ptr, mp3internal_real sum)
+{
+	if (sum > 32767.0) {
+		write_le(ptr, 0x7fff);
+		return 1;
+	} else if (sum < -32768.0) {
+		write_le(ptr, -0x8000);
+		return 1;
+	} else {
+		write_le(ptr, sum);
+		return 0;
+	}
+}
 
 int mp3internal_synth_1to1_mono(struct mp3_decoder_state* state, mp3internal_real *bandPtr,unsigned char *samples,int *pnt)
 {
-  short samples_tmp[64];
-  short *tmp1 = samples_tmp;
-  int i,ret;
-  int pnt1 = 0;
+	unsigned char ptr_samples_tmp[64*2];
+	unsigned char* ptr_tmp1 = ptr_samples_tmp;
+	unsigned i;
+	int ret;
+	int pnt1 = 0;
 
-  ret = mp3internal_synth_1to1(state,bandPtr,0,(unsigned char *) samples_tmp,&pnt1);
-  samples += *pnt;
+	ret = mp3internal_synth_1to1(state, bandPtr, 0, ptr_samples_tmp, &pnt1);
 
-  for(i=0;i<32;i++) {
-    *( (short *) samples) = *tmp1;
-    samples += 2;
-    tmp1 += 2;
-  }
-  *pnt += 64;
+	samples += *pnt;
 
-  return ret;
+	for(i=0;i<32;i++) {
+		samples[0] = ptr_tmp1[0];
+		samples[1] = ptr_tmp1[1];
+		samples += 2;
+		ptr_tmp1 += 4;
+	}
+
+	*pnt += 64;
+
+	return ret;
 }
 
-int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *bandPtr,int channel,unsigned char *out,int *pnt)
+int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *bandPtr, int channel, unsigned char *out, int *pnt)
 {
-  static const int step = 2;
   int bo;
-  short *samples = (short *) (out + *pnt);
-
+  unsigned char* ptr_samples = out + *pnt;
   mp3internal_real *b0,(*buf)[0x110];
   int clip = 0; 
   int bo1;
@@ -61,7 +89,7 @@ int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *ba
     buf = state->synth_buffs[0];
   }
   else {
-    samples++;
+    ptr_samples += 2;
     buf = state->synth_buffs[1];
   }
 
@@ -79,10 +107,10 @@ int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *ba
   state->synth_bo = bo;
   
   {
-    register int j;
+    int j;
     mp3internal_real *window = mp3internal_decwin + 16 - bo1;
 
-    for (j=16;j;j--,b0+=0x10,window+=0x20,samples+=step)
+    for (j=16;j;j--,b0+=0x10,window+=0x20,ptr_samples+=4)
     {
       mp3internal_real sum;
       sum  = window[0x0] * b0[0x0];
@@ -102,7 +130,7 @@ int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *ba
       sum += window[0xE] * b0[0xE];
       sum -= window[0xF] * b0[0xF];
 
-      WRITE_SAMPLE(samples,sum,clip);
+	clip += write_clip(ptr_samples, sum);
     }
 
     {
@@ -115,12 +143,12 @@ int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *ba
       sum += window[0xA] * b0[0xA];
       sum += window[0xC] * b0[0xC];
       sum += window[0xE] * b0[0xE];
-      WRITE_SAMPLE(samples,sum,clip);
-      b0-=0x10,window-=0x20,samples+=step;
+	clip += write_clip(ptr_samples, sum);
+      b0-=0x10,window-=0x20,ptr_samples+=4;
     }
     window += bo1<<1;
 
-    for (j=15;j;j--,b0-=0x10,window-=0x20,samples+=step)
+    for (j=15;j;j--,b0-=0x10,window-=0x20,ptr_samples+=4)
     {
       mp3internal_real sum;
       sum = -window[-0x1] * b0[0x0];
@@ -140,7 +168,7 @@ int mp3internal_synth_1to1(struct mp3_decoder_state* state, mp3internal_real *ba
       sum -= window[-0xF] * b0[0xE];
       sum -= window[-0x0] * b0[0xF];
 
-      WRITE_SAMPLE(samples,sum,clip);
+	clip += write_clip(ptr_samples, sum);
     }
   }
   *pnt += 128;

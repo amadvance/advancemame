@@ -1495,13 +1495,7 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 		colors = context->state.game_colors;
 	}
 
-	/* TODO This is an hack to resolve some MAME 0.62 problems on the palette management */
-	/* TODO The palette is always set to the biggest size of 65536 */
-	if (colors > 256)
-		context->state.palette_total = 65536;
-	else
-		context->state.palette_total = colors;
-
+	context->state.palette_total = colors;
 	context->state.palette_dirty_total = (context->state.palette_total + osd_mask_size - 1) / osd_mask_size;
 
 	log_std(("emu:video: palette_total %d\n", context->state.palette_total));
@@ -1661,7 +1655,14 @@ static inline void video_frame_blit(struct advance_video_context* context, unsig
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.game_color_def, combine);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-			video_stretch_palette_hw(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, combine);
+			const unsigned char* src_palette;
+			/* It needs to address the less significative byte */
+#ifdef USE_MSB
+			src_palette = 1 + (const unsigned char*)src;
+#else
+			src_palette = (const unsigned char*)src;
+#endif
+			video_stretch_palette_hw(dst_x, dst_y, dst_dx, dst_dy, src_palette, src_dx, src_dy, src_dw, src_dp, combine);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
@@ -2371,6 +2372,9 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 		log_std(("ERROR:emu:video: null debugger bitmap\n"));
 		return;
 	}
+
+	/* TODO Check if the debugger is working */
+	/* TODO Is it correct to assume an 8 bit bitmap ? */
 
 	/* max size */
 	size_x = video_size_x();

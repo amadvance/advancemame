@@ -42,6 +42,7 @@ bool run_submenu(config_state& rs);
 void run_runinfo(config_state& rs);
 void run_calib(config_state& rs);
 void run_difficulty(config_state& rs);
+void run_stat(config_state& rs);
 
 #define FIRST_CHOICE_X (int_dx_get()/20)
 #define FIRST_CHOICE_Y (int_dy_get()/15)

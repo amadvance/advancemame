@@ -19,130 +19,170 @@
  */
 
 #include "wave.h"
+#include "endianrw.h"
+#include "log.h"
 
 #include <string.h>
 
-typedef struct {
-	char id[4];
-	unsigned size;
-} record_id;
+#define WAVE_FORMAT_PCM 0x0001 /* Microsoft Pulse Code Modulation (PCM) format */
+#define IBM_FORMAT_MULAW 0x0101 /* IBM mu-law format */
+#define IBM_FORMAT_ALAW 0x0102 /* IBM a-law format */
+#define IBM_FORMAT_ADPCM 0x0103 /* IBM AVC Adaptive Differential Pulse Code Modulation format */
 
-typedef struct {
-	unsigned wFormatTag; // Format category
-	unsigned wChannels; // Number of channels
-	unsigned dwSamplesPerSec; // Sampling rate
-	unsigned dwAvgu8sPerSec; // For buffer estimation
-	unsigned wBlockAlign; // Data block size
-} record_fmt;
-
-typedef struct {
-	unsigned wBitsPerSample; // Sample size
-} record_fmt_specific_PCM;
-
-static int read_u16(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num)
+static adv_error le_uint16_fwrite(FILE* f, unsigned v)
 {
-	unsigned count = 0;
-	while (count<num) {
-		if (*data_begin + 2 > data_end)
-			return -1;
-		*p = (*data_begin)[0] | (unsigned)(*data_begin)[1] << 8;
-		*data_begin += 2;
-		++count;
-		++p;
-	}
-	return 0;
-}
+	unsigned char p[2];
 
-static int read_u32(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num)
-{
-	unsigned count = 0;
-	while (count<num) {
-		if (*data_begin + 4 > data_end)
-			return -1;
-		*p = (*data_begin)[0] | (unsigned)(*data_begin)[1] << 8 | (unsigned)(*data_begin)[2] << 16 | (unsigned)(*data_begin)[3] << 24;
-		*data_begin += 4;
-		++count;
-		++p;
-	}
-	return 0;
-}
-
-static int read_tag(const unsigned char** data_begin, const unsigned char* data_end, char* p)
-{
-	if (*data_begin + 4 > data_end)
+	le_uint16_write(p, v);
+	if (fwrite(p, 2, 1, f) != 1)
 		return -1;
-	memcpy(p, *data_begin, 4);
-	*data_begin += 4;
+
 	return 0;
 }
 
-static int skip(const unsigned char** data_begin, const unsigned char* data_end, size_t num)
+static adv_error le_uint32_fwrite(FILE* f, unsigned v)
 {
-	if (*data_begin + num > data_end)
+	unsigned char p[4];
+
+	le_uint32_write(p, v);
+	if (fwrite(p, 4, 1, f) != 1)
 		return -1;
-	*data_begin += num;
+
 	return 0;
 }
 
-static int read_id(const unsigned char** data_begin, const unsigned char* data_end, record_id* p)
+static adv_error wave_write_tag(FILE* f, const char* tag)
 {
-	return read_tag(data_begin, data_end, p->id )==0
-		&& read_u32(data_begin, data_end, &p->size, 1)==0
-		? 0 : -1;
-}
-
-static int read_fmt(const unsigned char** data_begin, const unsigned char* data_end, record_fmt* p)
-{
-	return read_u16( data_begin, data_end, &p->wFormatTag, 1)==0 &&
-		read_u16( data_begin, data_end, &p->wChannels, 1)==0 &&
-		read_u32( data_begin, data_end, &p->dwSamplesPerSec, 1)==0 &&
-		read_u32( data_begin, data_end, &p->dwAvgu8sPerSec, 1)==0 &&
-		read_u16( data_begin, data_end, &p->wBlockAlign, 1)==0
-		? 0 : -1;
-}
-
-static int read_fmt_PCM(const unsigned char** data_begin, const unsigned char* data_end, record_fmt_specific_PCM* p)
-{
-	return read_u16( data_begin, data_end, &p->wBitsPerSample, 1 ) == 0
-		? 0 : -1;
-}
-
-static int fread_u16(adv_fz* f, unsigned* p, size_t num)
-{
-	unsigned count = 0;
-	while (count<num) {
-		unsigned char b0, b1;
-		if (fzread(&b0, 1, 1, f) != 1 || fzread(&b1, 1, 1, f) != 1)
-			return -1;
-		*p = b0 | (unsigned)b1 << 8;
-		++count;
-		++p;
-	}
+	if (fwrite(tag, 1, 4, f) != 4)
+		return -1;
 	return 0;
 }
 
-static int fread_u32(adv_fz* f, unsigned* p, size_t num)
+static adv_error wave_write_id(FILE* f, const char* tag, unsigned size)
 {
-	unsigned count = 0;
-	while (count<num) {
-		unsigned char b0, b1, b2, b3;
-		if (fzread( &b0, 1, 1, f ) != 1 || fzread(&b1, 1, 1, f ) != 1 ||
-		    fzread( &b2, 1, 1, f ) != 1 || fzread(&b3, 1, 1, f ) != 1)
-			return -1;
-		*p = b0 | (unsigned)b1 << 8 | (unsigned)b2 << 16 | (unsigned)b3 << 24;
-		++count;
-		++p;
-	}
+	if (wave_write_tag(f, tag) != 0)
+		return -1;
+	if (le_uint32_fwrite(f, size) != 0)
+		return -1;
 	return 0;
 }
 
-static int fread_tag(adv_fz* f, char* p)
+static adv_error wave_write_fmt(FILE* f, unsigned format_tag, unsigned channels, unsigned samples_per_sec, unsigned avg_u8s_per_sec, unsigned block_align)
 {
-	return fzread( p, 4, 1, f ) == 1
-		? 0 : -1;
+	if (le_uint16_fwrite(f, format_tag) != 0)
+		return -1;
+	if (le_uint16_fwrite(f, channels) != 0)
+		return -1;
+	if (le_uint32_fwrite(f, samples_per_sec) != 0)
+		return -1;
+	if (le_uint32_fwrite(f, avg_u8s_per_sec) != 0)
+		return -1;
+	if (le_uint16_fwrite(f, block_align) != 0)
+		return -1;
+	return 0;
 }
 
-static int fskip(adv_fz* f, size_t num)
+static adv_error wave_write_fmt_PCM(FILE* f, unsigned bits_per_sample)
+{
+	if (le_uint16_fwrite(f, bits_per_sample) != 0)
+		return -1;
+	return 0;
+}
+
+/**
+ * Write a WAVE header to a file.
+ * \param f File to write.
+ * \param channel Number of channels.
+ * \param bit Bits per sample.
+ * \param size Size of the data in bytes.
+ * \param freq Frequency in Hz.
+ */
+adv_error wave_write(FILE* f, unsigned channel, unsigned bit, unsigned size, unsigned freq)
+{
+	unsigned size_byte;
+	if (bit <= 8)
+		size_byte = 1;
+	else if (bit <= 16)
+		size_byte = 2;
+	else
+		size_byte = 4;
+
+	if (wave_write_id(f, "RIFF", 0x24 + size) != 0)
+		return -1;
+
+	if (wave_write_tag(f, "WAVE") != 0)
+		return -1;
+
+	if (wave_write_id(f, "fmt ", 0x10) != 0)
+		return -1;
+
+	if (wave_write_fmt(f, WAVE_FORMAT_PCM, channel, freq, size_byte * channel * freq, size_byte * channel) != 0)
+		return -1;
+
+	if (wave_write_fmt_PCM(f, bit) != 0)
+		return -1;
+
+	if (wave_write_id(f, "data", size) != 0)
+		return -1;
+
+	return 0;
+}
+
+/**
+ * Adjust a WAVE header setting the correct size.
+ * \param f File to write.
+ * \param size Number of samples.
+ */
+adv_error wave_write_size(FILE* f, unsigned size)
+{
+	unsigned dsize;
+
+	dsize = 0x24 + size;
+	if (fseek(f, 4, SEEK_SET) != 0)
+		return -1;
+	if (le_uint32_fwrite(f, dsize) != 0)
+		return -1;
+
+	dsize = size;
+	if (fseek(f, 0x28, SEEK_SET) != 0)
+		return -1;
+	if (le_uint32_fwrite(f, dsize) != 0)
+		return -1;
+
+	return 0;
+}
+
+static adv_error le_uint16_fread(adv_fz* f, unsigned* v)
+{
+	unsigned char p[2];
+
+	if (fzread(p, 2, 1, f) != 1)
+		return -1;
+	*v = le_uint16_read(p);
+
+	return 0;
+}
+
+static adv_error le_uint32_fread(adv_fz* f, unsigned* v)
+{
+	unsigned char p[4];
+
+	if (fzread(p, 4, 1, f) != 1)
+		return -1;
+	*v = le_uint32_read(p);
+
+	return 0;
+}
+
+static adv_error wave_read_tag(adv_fz* f, char* tag)
+{
+	if (fzread(tag, 4, 1, f ) != 1)
+		return -1;
+
+	return 0;
+}
+
+static adv_error wave_skip(adv_fz* f, unsigned num)
 {
 	unsigned count = 0;
 	while (count<num) {
@@ -154,169 +194,114 @@ static int fskip(adv_fz* f, size_t num)
 	return 0;
 }
 
-static int fread_id(adv_fz* f, record_id* p)
+static adv_error wave_read_id(adv_fz* f, char* tag, unsigned* size)
 {
-	return fread_tag( f, p->id )==0
-		&& fread_u32(f, &p->size, 1)==0
-		? 0 : -1;
+	if (wave_read_tag(f, tag) != 0)
+		return -1;
+	if (le_uint32_fread(f, size) != 0)
+		return -1;
+	return 0;
 }
 
-static int fread_fmt(adv_fz* f, record_fmt* p)
+static adv_error wave_read_fmt(adv_fz* f, unsigned* format_tag, unsigned* channels, unsigned* samples_per_sec, unsigned* avg_u8s_per_sec, unsigned* block_align)
 {
-	return fread_u16(f, &p->wFormatTag, 1)==0 &&
-		fread_u16(f, &p->wChannels, 1)==0 &&
-		fread_u32(f, &p->dwSamplesPerSec, 1)==0 &&
-		fread_u32(f, &p->dwAvgu8sPerSec, 1)==0 &&
-		fread_u16(f, &p->wBlockAlign, 1)==0
-		? 0 : -1;
+	if (le_uint16_fread(f, format_tag) != 0)
+		return -1;
+	if (le_uint16_fread(f, channels) != 0)
+		return -1;
+	if (le_uint32_fread(f, samples_per_sec) != 0)
+		return -1;
+	if (le_uint32_fread(f, avg_u8s_per_sec) != 0)
+		return -1;
+	if (le_uint16_fread(f, block_align) != 0)
+		return -1;
+	return 0;
 }
 
-static int fread_fmt_PCM(adv_fz* f, record_fmt_specific_PCM* p)
+static adv_error wave_read_fmt_PCM(adv_fz* f, unsigned* size)
 {
-	return fread_u16( f, &p->wBitsPerSample, 1 )==0
-		? 0 : -1;
-}
-
-/**
- * Read a WAVE header from memory.
- * \param data_begin Pointer at the data. The pointer is incremented to the first sample byte.
- * \param data_end Pointer at the end of the data.
- * \param data_nchannel Where to put the number of channels. 1 or 2.
- * \param data_bit Where to put the bit of the samples. 8 or 16.
- * \param data_size Where to put the number of samples.
- * \param data_freq Where to put the frequency.
- */
-int wave_memory(const unsigned char** data_begin, const unsigned char* data_end, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq)
-{
-	record_id riff_id;
-	char wave_id[4];
-	record_id fmt_id;
-	record_fmt fmt;
-	record_fmt_specific_PCM fmt_PCM;
-	record_id data_id;
-
-	if (read_id(data_begin, data_end, &riff_id)!=0) return -1;
-	if (memcmp( riff_id.id, "RIFF", 4)!=0) return -1;
-
-	if (read_tag(data_begin, data_end, wave_id)!=0) return -1;
-	if (memcmp(wave_id, "WAVE", 4)!=0) return -1;
-
-	// read until get fmt tag
-	if (read_id(data_begin, data_end, &fmt_id)!=0) return -1;
-	while (memcmp(fmt_id.id, "fmt ", 4)!=0) {
-		// salta al prossimo chunk
-		if (skip(data_begin, data_end, fmt_id.size)!=0) return -1;
-		// legge il chunk
-		if (read_id(data_begin, data_end, &fmt_id)!=0) return -1;
-	}
-	if (memcmp(fmt_id.id, "fmt ", 4)!=0) return -1;
-	if (fmt_id.size < 16) return -1;
-
-	if (read_fmt(data_begin, data_end, &fmt)!=0) return -1;
-	if (fmt.wFormatTag != 0x0001) return -1; //  Microsoft Pulse Code Modulation (PCM) format
-	if (fmt.wChannels < 1 || fmt.wChannels > 2) return -1;
-
-	if (read_fmt_PCM(data_begin, data_end, &fmt_PCM)!=0) return -1;
-	if (fmt_PCM.wBitsPerSample < 4 || fmt_PCM.wBitsPerSample>16) return -1;
-
-	// skip fmt unknown extension
-	if (fmt_id.size > 16) {
-		if (skip(data_begin, data_end, fmt_id.size - 16)!=0) return -1;
-	}
-
-	// read until get data tag
-	if (read_id(data_begin, data_end, &data_id)!=0) return -1;
-	while (memcmp(data_id.id, "data", 4)!=0) {
-		// salta al prossimo chunk
-		if (skip(data_begin, data_end, data_id.size)!=0) return -1;
-		// legge il chunk
-		if (read_id(data_begin, data_end, &data_id)!=0) return -1;
-	}
-	if (memcmp(data_id.id, "data", 4)!=0) return -1;
-
-	if (data_end - *data_begin < data_id.size)
+	if (le_uint16_fread(f, size) != 0)
 		return -1;
-
-	// limitations
-	if (fmt.wChannels!=1 && fmt.wChannels!=2)
-		return -1;
-	if (fmt_PCM.wBitsPerSample!=8 && fmt_PCM.wBitsPerSample!=16)
-		return -1;
-
-	*data_nchannel = fmt.wChannels;
-	*data_bit = fmt_PCM.wBitsPerSample;
-	*data_size = data_id.size;
-	*data_freq = fmt.dwSamplesPerSec;
-
 	return 0;
 }
 
 /**
  * Read a WAVE header from a file.
  * \param f File to read.
- * \param data_nchannel Where to put the number of channels. 1 or 2.
- * \param data_bit Where to put the bit of the samples. 8 or 16.
- * \param data_size Where to put the number of samples.
- * \param data_freq Where to put the frequency. 
+ * \param channel Number of channels. 1 or 2.
+ * \param bit Bit per samples. 8 or 16.
+ * \param size Size of the data in bytes.
+ * \param freq Frequency in Hz.
  */
-int wave_file(adv_fz* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq)
+adv_error wave_read(adv_fz* f, unsigned* channel, unsigned* bit, unsigned* size, unsigned* freq)
 {
-	record_id riff_id;
-	char wave_id[4];
-	record_id fmt_id;
-	record_fmt fmt;
-	record_fmt_specific_PCM fmt_PCM;
-	record_id data_id;
+	char id[4];
+	unsigned r_size;
+	unsigned r_bit;
+	unsigned r_format_tag;
+	unsigned r_channel;
+	unsigned r_freq;
+	unsigned avg_u8s_per_sec;
+	unsigned block_align;
 
-	if (fread_id(f, &riff_id)!=0) return -1;
-	if (memcmp( riff_id.id, "RIFF", 4)!=0) return -1;
-
-	if (fread_tag(f, wave_id)!=0) return -1;
-	if (memcmp( wave_id, "WAVE", 4)!=0) return -1;
-
-	// read until get fmt tag
-	if (fread_id(f, &fmt_id)!=0) return -1;
-	while (memcmp(fmt_id.id, "fmt ", 4)!=0) {
-		// salta al prossimo chunk
-		if (fskip(f, fmt_id.size)!=0) return -1;
-		// legge il chunk
-		if (fread_id(f, &fmt_id)!=0) return -1;
-	}
-	if (memcmp(fmt_id.id, "fmt ", 4)!=0) return -1;
-	if (fmt_id.size < 16) return -1;
-
-	if (fread_fmt(f, &fmt)!=0) return -1;
-	if (fmt.wFormatTag != 0x0001) return -1; //  Microsoft Pulse Code Modulation (PCM) format
-	if (fmt.wChannels < 1 || fmt.wChannels > 2) return -1;
-
-	if (fread_fmt_PCM(f, &fmt_PCM)!=0) return -1;
-	if (fmt_PCM.wBitsPerSample < 4 || fmt_PCM.wBitsPerSample>16) return -1;
-
-	// skip fmt unknown extension
-	if (fmt_id.size > 16) {
-		if (fskip(f, fmt_id.size - 16)!=0) return -1;
-	}
-
-	// read until get data tag
-	if (fread_id(f, &data_id)!=0) return -1;
-	while (memcmp( data_id.id, "data", 4)!=0) {
-		// salta al prossimo chunk
-		if (fskip(f, data_id.size)!=0) return -1;
-		// legge il chunk
-		if (fread_id(f, &data_id)!=0) return -1;
-	}
-	if (memcmp(data_id.id, "data", 4)!=0) return -1;
-
-	// limitations
-	if (fmt.wChannels!=1 && fmt.wChannels!=2)
+	if (wave_read_id(f, id, &r_size) != 0)
 		return -1;
-	if (fmt_PCM.wBitsPerSample!=8 && fmt_PCM.wBitsPerSample!=16)
+	if (memcmp(id, "RIFF", 4) != 0)
 		return -1;
 
-	*data_nchannel = fmt.wChannels;
-	*data_bit = fmt_PCM.wBitsPerSample;
-	*data_size = data_id.size;
-	*data_freq = fmt.dwSamplesPerSec;
+	if (wave_read_tag(f, id) != 0)
+		return -1;
+	if (memcmp(id, "WAVE", 4) != 0)
+		return -1;
+
+	/* read until the fmt tag */
+	if (wave_read_id(f, id, &r_size) != 0)
+		return -1;
+	while (memcmp(id, "fmt ", 4) != 0) {
+		if (wave_skip(f, r_size)!=0)
+			return -1;
+		if (wave_read_id(f, id, &r_size) != 0)
+			return -1;
+	}
+	if (memcmp(id, "fmt ", 4) != 0)
+		return -1;
+	if (r_size < 16)
+		return -1;
+
+	if (wave_read_fmt(f, &r_format_tag, &r_channel, &r_freq, &avg_u8s_per_sec, &block_align) != 0)
+		return -1;
+	if (r_format_tag != WAVE_FORMAT_PCM)
+		return -1;
+	if (r_channel != 1 && r_channel != 2)
+		return -1;
+
+	if (wave_read_fmt_PCM(f, &r_bit)!=0)
+		return -1;
+	if (r_bit != 8 && r_bit != 16)
+		return -1;
+
+	/* skip any unknown extension at the format */
+	if (wave_skip(f, r_size - 16) != 0)
+		return -1;
+
+	/* read until the data tag */
+	if (wave_read_id(f, id, &r_size) != 0)
+		return -1;
+	while (memcmp(id, "data", 4) != 0) {
+		if (wave_skip(f, r_size) != 0)
+			return -1;
+		if (wave_read_id(f, id, &r_size) != 0)
+			return -1;
+	}
+	if (memcmp(id, "data", 4) != 0)
+		return -1;
+
+	log_std(("wave: read channel:%d bit:%d size:%d freq:%d\n", r_channel, r_bit, r_size, r_freq));
+
+	*channel = r_channel;
+	*bit = r_bit;
+	*size = r_size;
+	*freq = r_freq;
 
 	return 0;
 }

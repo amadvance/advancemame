@@ -76,21 +76,23 @@
 #endif
 
 struct os_context {
+	adv_bool signal_active; /**< A signal was raised. */
+
 #ifdef USE_SVGALIB
-	int svgalib_active; /**< SVGALIB initialized. */
+	adv_bool svgalib_active; /**< SVGALIB initialized. */
 #endif
 
 #ifdef USE_SLANG
-	int slang_active; /**< Slang initialized. */
+	adv_bool slang_active; /**< Slang initialized. */
 #endif
 
 #ifdef USE_X
-	int x_active; /**< X initialized. */
+	adv_bool x_active; /**< X initialized. */
 	Display* x_display; /**< X display. */
 #endif
 
 #ifdef USE_SDL
-	int sdl_active; /**< SDL initialized. */
+	adv_bool sdl_active; /**< SDL initialized. */
 #endif
 
 	int is_quit; /**< Is termination requested. */
@@ -459,6 +461,13 @@ int os_is_quit(void)
 
 void os_default_signal(int signum)
 {
+	/* prevent recursion */
+	if (OS.signal_active) {
+		target_signal(signum);
+		return;
+	}
+	OS.signal_active = 1;
+
 	log_std(("os: signal %d\n", signum));
 
 #if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW)

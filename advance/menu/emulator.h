@@ -404,4 +404,40 @@ inline bool pgame_by_coin_less(const game* A, const game* B)
 	return vA > vB;
 }
 
+inline bool pgame_by_timepercoin_less(const game* A, const game* B)
+{
+	unsigned tA;
+	unsigned tB;
+	unsigned cA;
+	unsigned cB;
+	unsigned vA;
+	unsigned vB;
+	if (A->emulator_get()->tree_get()) {
+		tA = A->time_tree_get();
+		cA = A->coin_tree_get();
+	} else {
+		tA = A->time_get();
+		cA = A->coin_get();
+	}
+	if (B->emulator_get()->tree_get()) {
+		tB = B->time_tree_get();
+		cB = B->coin_tree_get();
+	} else {
+		tB = B->time_get();
+		cB = B->coin_get();
+	}
+
+	if (cA)
+		vA = tA / cA;
+	else
+		vA = 0;
+	if (cB)
+		vB = tB / cB;
+	else
+		vB = 0;
+
+	return vA > vB;
+}
+
+
 #endif
