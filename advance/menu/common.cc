@@ -21,7 +21,7 @@
 #include "common.h"
 #include "unzip.h"
 #include "crc.h"
-#include "os.h"
+#include "target.h"
 
 #include <iostream>
 

@@ -28,8 +28,46 @@
  * do so, delete this exception statement from your version.
  */
 
-/* TODO -- INCOMPLETE -- */
-/* -L/usr/X11/lib -lX11 -lXext -lXxf86dga -lXxf86vm */
+/* -- INCOMPLETE -- */
+
+/*
+Two problems:
+1) The XFree86 4.2.0 is buggy. Anyway, the following patch fix the AddModeline and ValidateModeline
+functions. You need only to compile /usr/X11/lib/modules/extensions/libextmod.a.
+2) The DGA scan the list of available modes only at the startup. In the DGAInit
+function called by the video drivers. Any added modeline is not seen by DGAQueryModes.
+
+The only solution is to don't use DGA at all. Simply use the normal
+Xlib functions. The problem is that you lose the Vsync capability.
+*/
+
+/* Link flags: -L/usr/X11/lib -lX11 -lXext -lXxf86dga -lXxf86vm */
+
+/* Patch for programs/Xserver/Xext/xf86vmode.c */
+/*
+--- xf86vmode.c.ori	2001-08-06 22:51:03.000000000 +0200
++++ xf86vmode.c	2002-08-18 16:07:53.000000000 +0200
+@@ -752,6 +751,10 @@
+     VidModeSetModeValue(mode, VIDMODE_V_SYNCEND, stuff->vsyncend);
+     VidModeSetModeValue(mode, VIDMODE_V_TOTAL, stuff->vtotal);
+     VidModeSetModeValue(mode, VIDMODE_FLAGS, stuff->flags);
++    VidModeSetModeValue(mode, VIDMODE_CLOCK, stuff->dotclock);
++    ((DisplayModePtr)mode)->VScan = 1;
++    ((DisplayModePtr)mode)->status = MODE_OK;
++    ((DisplayModePtr)mode)->type = M_T_CLOCK_CRTC_C;
+ 
+     if (stuff->privsize)
+ 	ErrorF("AddModeLine - Privates in request have been ignored\n");
+@@ -1108,6 +1112,8 @@
+     VidModeSetModeValue(modetmp, VIDMODE_V_SYNCEND, stuff->vsyncend);
+     VidModeSetModeValue(modetmp, VIDMODE_V_TOTAL, stuff->vtotal);
+     VidModeSetModeValue(modetmp, VIDMODE_FLAGS, stuff->flags);
++    VidModeSetModeValue(modetmp, VIDMODE_CLOCK, stuff->dotclock);
++    ((DisplayModePtr)modetmp)->VScan = 1;
+     if (stuff->privsize)
+ 	ErrorF("ValidateModeLine - Privates in request have been ignored\n");
+ 
+*/
 
 #include "vdga.h"
 #include "video.h"
@@ -195,6 +233,10 @@ video_error dga_mode_set(const dga_video_mode* mode)
 {
 	XF86VidModeModeInfo modeline;
 	Status st;
+	unsigned i;
+	XDGAMode* modes;
+	int num_modes;
+	int num;
 
 	log_std(("video:dga: dga_mode_set()\n"));
 
@@ -244,6 +286,28 @@ video_error dga_mode_set(const dga_video_mode* mode)
 	}
 
 	dga_print();
+
+	log_std(("video:dga: XDGAQueryModes()\n"));
+	modes = XDGAQueryModes(DGA_Display, DGA_Screen, &num_modes);
+	if (!modes) {
+		log_std(("video:dga: XDGAQueryModes() failed\n"));
+		video_error_description_set("Unable to list the available DGA modes");
+		return -1;
+	}
+
+	for(i=0;i<num_modes;++i) {
+		if (modes[i].viewportWidth == mode->crtc.hde && modes[i].viewportHeight == mode->crtc.vde && mode->bits_per_pixel == modes[i].bitsPerPixel) {
+			num = i;
+			log_std(("video:dga: match mode num:%d, name:%s viewport:%dx%d, bits:%d, vclock:%g\n", (int)modes[i].num, (const char*)modes[i].name, (int)modes[i].viewportWidth, (int)modes[i].viewportHeight, (int)modes[i].bitsPerPixel, (double)modes[i].verticalRefresh));
+			break;
+		}
+	}
+	if (i==num_modes) {
+		log_std(("video:dga: no mode match\n"));
+		video_error_description_set("Unable to create the correct video mode");
+	}
+
+	XFree(modes);
 
 	return -1;
 }

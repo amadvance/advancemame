@@ -18,12 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "os.h"
 #include "game.h"
 #include "text.h"
 #include "play.h"
 #include "menu.h"
 #include "video.h"
+#include "log.h"
+#include "os.h"
+#include "target.h"
 
 #include <sstream>
 #include <iomanip>

@@ -24,6 +24,7 @@ AdvanceMENU Version 2.0.0 2002/08
 	) Added support for the 32 bit graphics output.
 	) The article `The' on the game names is put at the end
 		of the name.
+	) Fixed a bug on the emulator names. Now they can be uppercase.
 
 AdvanceMENU Version 1.19.1 2002/07
 	) Fixed a bug when forcing the use of the vbeline/3dfx driver.

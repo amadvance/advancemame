@@ -1,6 +1,6 @@
-diff -u /mame/svgalib/endianes.h ./endianes.h
---- /mame/svgalib/endianes.h	Tue May 29 11:00:22 2001
-+++ ./endianes.h	Sun Jun 16 22:44:26 2002
+diff -u -B -b ../../../svgalib/endianes.h ./endianes.h
+--- ../../../svgalib/endianes.h	2001-05-29 11:00:22.000000000 +0200
++++ ./endianes.h	2002-08-10 16:23:46.000000000 +0200
 @@ -1,14 +1,16 @@
 -#include <endian.h>
 -#include <byteswap.h>
@@ -27,9 +27,9 @@ diff -u /mame/svgalib/endianes.h ./endianes.h
 +}
  
  #endif
-diff -u /mame/svgalib/libvga.h ./libvga.h
---- /mame/svgalib/libvga.h	Sat Apr 27 11:26:26 2002
-+++ ./libvga.h	Sun Jun 16 23:12:42 2002
+diff -u -B -b ../../../svgalib/libvga.h ./libvga.h
+--- ../../../svgalib/libvga.h	2002-04-27 11:26:26.000000000 +0200
++++ ./libvga.h	2002-08-10 16:23:46.000000000 +0200
 @@ -17,6 +17,8 @@
  typedef unsigned short CARD16;
  typedef unsigned char CARD8;
@@ -39,9 +39,9 @@ diff -u /mame/svgalib/libvga.h ./libvga.h
  /* --------------------- Macro definitions shared by library modules */
  
  /* VGA index register ports */
-diff -u /mame/svgalib/drivers/apm.c drivers/apm.c
---- /mame/svgalib/drivers/apm.c	Tue Apr 30 09:37:42 2002
-+++ drivers/apm.c	Sun Jun 16 22:45:40 2002
+diff -u -B -b ../../../svgalib/drivers/apm.c drivers/apm.c
+--- ../../../svgalib/drivers/apm.c	2002-04-30 09:37:42.000000000 +0200
++++ drivers/apm.c	2002-06-16 17:34:18.000000000 +0200
 @@ -33,8 +33,8 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -62,9 +62,9 @@ diff -u /mame/svgalib/drivers/apm.c drivers/apm.c
  
      apm_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/ark.c drivers/ark.c
---- /mame/svgalib/drivers/ark.c	Sat Apr 20 23:32:26 2002
-+++ drivers/ark.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/ark.c drivers/ark.c
+--- ../../../svgalib/drivers/ark.c	2002-04-20 23:32:26.000000000 +0200
++++ drivers/ark.c	2002-06-16 17:34:20.000000000 +0200
 @@ -34,7 +34,7 @@
  #include "timing.h"
  #include "ramdac/ramdac.h"
@@ -92,9 +92,9 @@ diff -u /mame/svgalib/drivers/ark.c drivers/ark.c
  	    return -1;
  	}
  	val = __svgalib_inSR(0x10);
-diff -u /mame/svgalib/drivers/banshee.c drivers/banshee.c
---- /mame/svgalib/drivers/banshee.c	Tue Apr 30 09:38:40 2002
-+++ drivers/banshee.c	Sun Jun 16 22:45:58 2002
+diff -u -B -b ../../../svgalib/drivers/banshee.c drivers/banshee.c
+--- ../../../svgalib/drivers/banshee.c	2002-04-30 09:38:40.000000000 +0200
++++ drivers/banshee.c	2002-06-16 17:34:22.000000000 +0200
 @@ -9,12 +9,12 @@
  #include "vga.h"
  #include "libvga.h"
@@ -119,9 +119,9 @@ diff -u /mame/svgalib/drivers/banshee.c drivers/banshee.c
  
      banshee_initializemode(moderegs, &modetiming, modeinfo, mode);
  
-diff -u /mame/svgalib/drivers/et6000.c drivers/et6000.c
---- /mame/svgalib/drivers/et6000.c	Wed Apr 10 13:57:56 2002
-+++ drivers/et6000.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/et6000.c drivers/et6000.c
+--- ../../../svgalib/drivers/et6000.c	2002-04-10 13:57:56.000000000 +0200
++++ drivers/et6000.c	2002-06-16 17:34:24.000000000 +0200
 @@ -8,13 +8,11 @@
  #include <fcntl.h>
  #include <sys/types.h>
@@ -146,9 +146,9 @@ diff -u /mame/svgalib/drivers/et6000.c drivers/et6000.c
      et6000_initializemode(moderegs,modetiming,modeinfo,mode);
      cursor_doublescan = modetiming->flags & DOUBLESCAN ?1:0;
  #ifdef DBG
-diff -u /mame/svgalib/drivers/g400.c drivers/g400.c
---- /mame/svgalib/drivers/g400.c	Tue Apr 30 09:36:26 2002
-+++ drivers/g400.c	Sun Jun 16 22:46:18 2002
+diff -u -B -b ../../../svgalib/drivers/g400.c drivers/g400.c
+--- ../../../svgalib/drivers/g400.c	2002-04-30 09:36:26.000000000 +0200
++++ drivers/g400.c	2002-06-16 17:34:26.000000000 +0200
 @@ -19,12 +19,12 @@
  #include "driver.h"
  #include "timing.h"
@@ -174,9 +174,9 @@ diff -u /mame/svgalib/drivers/g400.c drivers/g400.c
  
      g400_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/i740.c drivers/i740.c
---- /mame/svgalib/drivers/i740.c	Tue Apr 30 09:36:32 2002
-+++ drivers/i740.c	Sun Jun 16 22:46:32 2002
+diff -u -B -b ../../../svgalib/drivers/i740.c drivers/i740.c
+--- ../../../svgalib/drivers/i740.c	2002-04-30 09:36:32.000000000 +0200
++++ drivers/i740.c	2002-06-16 17:34:30.000000000 +0200
 @@ -15,10 +15,10 @@
  #include "driver.h"
  #include "timing.h"
@@ -199,9 +199,9 @@ diff -u /mame/svgalib/drivers/i740.c drivers/i740.c
  
      i740_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/i810.c drivers/i810.c
---- /mame/svgalib/drivers/i810.c	Fri May  3 19:41:36 2002
-+++ drivers/i810.c	Sun Jun 16 23:00:30 2002
+diff -u -B -b ../../../svgalib/drivers/i810.c drivers/i810.c
+--- ../../../svgalib/drivers/i810.c	2002-05-03 19:41:36.000000000 +0200
++++ drivers/i810.c	2002-08-17 10:58:04.000000000 +0200
 @@ -3,7 +3,7 @@
    written by Matan Ziv-Av.
  */
@@ -211,9 +211,18 @@ diff -u /mame/svgalib/drivers/i810.c drivers/i810.c
  
  #include <stdlib.h>
  #include <stdio.h>		
-@@ -22,7 +22,7 @@
- #include "i810_wmark.c"
- #include "vgammvgaio.h"
+@@ -16,13 +16,13 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "i810_reg.h"
+-#include "i810_wmark.c"
+-#include "vgammvgaio.h"
++#include "i810_wma.c"
++#include "vgammvga.h"
  #include <sys/ioctl.h>
 -#include "svgalib_helper.h"
 +/* #include "svgalib_helper.h" */
@@ -229,9 +238,18 @@ diff -u /mame/svgalib/drivers/i810.c drivers/i810.c
  
      initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/laguna.c drivers/laguna.c
---- /mame/svgalib/drivers/laguna.c	Sun May 19 12:54:58 2002
-+++ drivers/laguna.c	Sun Jun 16 22:46:50 2002
+@@ -693,7 +693,7 @@
+ static int init(int force, int par1, int par2)
+ {
+     unsigned long buf[64];
+-    unsigned int t, i, id;
++    unsigned int id;
+     int found=0;
+     
+     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
+diff -u -B -b ../../../svgalib/drivers/laguna.c drivers/laguna.c
+--- ../../../svgalib/drivers/laguna.c	2002-05-19 12:54:58.000000000 +0200
++++ drivers/laguna.c	2002-06-16 17:34:34.000000000 +0200
 @@ -19,7 +19,7 @@
  #include "driver.h"
  #include "timing.h"
@@ -250,9 +268,9 @@ diff -u /mame/svgalib/drivers/laguna.c drivers/laguna.c
  
      laguna_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/millenni.c drivers/millenni.c
---- /mame/svgalib/drivers/millenni.c	Tue Apr 30 09:35:06 2002
-+++ drivers/millenni.c	Sun Jun 16 22:47:00 2002
+diff -u -B -b ../../../svgalib/drivers/millenni.c drivers/millenni.c
+--- ../../../svgalib/drivers/millenni.c	2002-04-30 09:35:06.000000000 +0200
++++ drivers/millenni.c	2002-06-16 17:34:38.000000000 +0200
 @@ -11,9 +11,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -274,9 +292,9 @@ diff -u /mame/svgalib/drivers/millenni.c drivers/millenni.c
  
      mil_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/mx.c drivers/mx.c
---- /mame/svgalib/drivers/mx.c	Tue Apr 30 09:34:50 2002
-+++ drivers/mx.c	Sun Jun 16 22:47:08 2002
+diff -u -B -b ../../../svgalib/drivers/mx.c drivers/mx.c
+--- ../../../svgalib/drivers/mx.c	2002-04-30 09:34:50.000000000 +0200
++++ drivers/mx.c	2002-06-16 17:34:40.000000000 +0200
 @@ -24,7 +24,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -295,9 +313,9 @@ diff -u /mame/svgalib/drivers/mx.c drivers/mx.c
  
      mx_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/nv3.c drivers/nv3.c
---- /mame/svgalib/drivers/nv3.c	Wed May  1 00:13:24 2002
-+++ drivers/nv3.c	Sun Jun 16 23:31:30 2002
+diff -u -B -b ../../../svgalib/drivers/nv3.c drivers/nv3.c
+--- ../../../svgalib/drivers/nv3.c	2002-05-01 00:13:24.000000000 +0200
++++ drivers/nv3.c	2002-06-16 17:34:40.000000000 +0200
 @@ -27,7 +27,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -316,9 +334,9 @@ diff -u /mame/svgalib/drivers/nv3.c drivers/nv3.c
  
      nv3_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/pm2.c drivers/pm2.c
---- /mame/svgalib/drivers/pm2.c	Fri Jun  7 23:09:30 2002
-+++ drivers/pm2.c	Sun Jun 16 23:11:26 2002
+diff -u -B -b ../../../svgalib/drivers/pm2.c drivers/pm2.c
+--- ../../../svgalib/drivers/pm2.c	2002-06-07 23:09:30.000000000 +0200
++++ drivers/pm2.c	2002-08-17 10:57:52.000000000 +0200
 @@ -12,9 +12,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -331,17 +349,17 @@ diff -u /mame/svgalib/drivers/pm2.c drivers/pm2.c
  #include "pm2io.h"
  
  #define REG_SAVE(i) (VGA_TOTAL_REGS+i)
-@@ -763,7 +763,6 @@
-         case cPM2V:
+@@ -764,6 +764,7 @@
              __svgalib_pm2_driverspecs.cursor = pm2v_cursor;
              break;
--        default:
+         default:
++            break;
      }
      
      if (__svgalib_driver_report) {
-diff -u /mame/svgalib/drivers/r128.c drivers/r128.c
---- /mame/svgalib/drivers/r128.c	Wed Jun 12 13:02:54 2002
-+++ drivers/r128.c	Sun Jun 16 22:47:24 2002
+diff -u -B -b ../../../svgalib/drivers/r128.c drivers/r128.c
+--- ../../../svgalib/drivers/r128.c	2002-06-12 13:02:54.000000000 +0200
++++ drivers/r128.c	2002-08-18 17:12:18.000000000 +0200
 @@ -13,9 +13,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -367,6 +385,26 @@ diff -u /mame/svgalib/drivers/r128.c drivers/r128.c
      }
  
 +	if (!post_div->divider) {
++		post_div = post_divs + 7;
++		save->pll_output_freq = post_div->divider * freq;
++	}
++
+     save->dot_clock_freq = freq;
+     save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
+ 				   pll->reference_freq);
+@@ -817,7 +821,6 @@
+     };
+ 
+     if (freq > pll->max_pll_freq)      freq = pll->max_pll_freq;
+-    if (freq * 12 < pll->min_pll_freq) freq = pll->min_pll_freq / 12;
+ 
+     for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
+ 	save->pll_output_freq = post_div->divider * freq;
+@@ -825,6 +828,11 @@
+ 	    && save->pll_output_freq <= pll->max_pll_freq) break;
+     }
+ 
++	if (!post_div->divider) {
 +		post_div = post_divs + 6;
 +		save->pll_output_freq = post_div->divider * freq;
 +	}
@@ -374,7 +412,7 @@ diff -u /mame/svgalib/drivers/r128.c drivers/r128.c
      save->dot_clock_freq = freq;
      save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
  				   pll->reference_freq);
-@@ -1075,7 +1079,7 @@
+@@ -1075,7 +1083,7 @@
  	return 1;
      }
  
@@ -383,9 +421,42 @@ diff -u /mame/svgalib/drivers/r128.c drivers/r128.c
  
      r128_initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/rage.c drivers/rage.c
---- /mame/svgalib/drivers/rage.c	Sat Apr 27 17:57:58 2002
-+++ drivers/rage.c	Sun Jun 16 22:45:04 2002
+@@ -1382,7 +1390,7 @@
+         pll.xclk           = R128_BIOS16(pll_info_block + 0x08);
+         munmap(BIOS_POINTER, 64*1024);
+     }
+-#if 1
++#if 0
+ fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
+     pll.min_pll_freq,    pll.max_pll_freq, pll.xclk);
+ #endif
+diff -u -B -b ../../../svgalib/drivers/r128_reg.h drivers/r128_reg.h
+--- ../../../svgalib/drivers/r128_reg.h	2002-06-08 13:05:38.000000000 +0200
++++ drivers/r128_reg.h	2002-06-16 17:34:50.000000000 +0200
+@@ -50,13 +50,13 @@
+ 
+ #define R128_TIMEOUT 2000000
+ 
+-#define MMIO_IN8(dummy, addr)  (*(unsigned char *)(MMIO_POINTER + addr))
+-#define MMIO_IN16(dummy, addr)  (*(unsigned short *)(MMIO_POINTER + addr))
+-#define MMIO_IN32(dummy, addr)  LE32(*(unsigned int *)(MMIO_POINTER + addr))
+-
+-#define MMIO_OUT8(dummy, addr, val)  (*(unsigned char *)(MMIO_POINTER + addr) = val)
+-#define MMIO_OUT16(dummy, addr, val)  (*(unsigned short *)(MMIO_POINTER + addr) = val)
+-#define MMIO_OUT32(dummy, addr, val)  (*(unsigned int *)(MMIO_POINTER + addr) = LE32(val))
++#define MMIO_IN8(dummy, addr)  (*(volatile unsigned char *)(MMIO_POINTER + addr))
++#define MMIO_IN16(dummy, addr)  (*(volatile unsigned short *)(MMIO_POINTER + addr))
++#define MMIO_IN32(dummy, addr)  LE32(*(volatile unsigned int *)(MMIO_POINTER + addr))
++
++#define MMIO_OUT8(dummy, addr, val)  (*(volatile unsigned char *)(MMIO_POINTER + addr) = val)
++#define MMIO_OUT16(dummy, addr, val)  (*(volatile unsigned short *)(MMIO_POINTER + addr) = val)
++#define MMIO_OUT32(dummy, addr, val)  (*(volatile unsigned int *)(MMIO_POINTER + addr) = LE32(val))
+ 
+ 				/* Memory mapped register access macros */
+ #define INREG8(addr)        MMIO_IN8(R128MMIO, addr)
+diff -u -B -b ../../../svgalib/drivers/rage.c drivers/rage.c
+--- ../../../svgalib/drivers/rage.c	2002-04-27 17:57:58.000000000 +0200
++++ drivers/rage.c	2002-06-16 17:34:54.000000000 +0200
 @@ -38,7 +38,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -404,9 +475,9 @@ diff -u /mame/svgalib/drivers/rage.c drivers/rage.c
      
      ATINewHWPtr=(ATIHWPtr)(moderegs+VGA_TOTAL_REGS); 
  
-diff -u /mame/svgalib/drivers/renditio.c drivers/renditio.c
---- /mame/svgalib/drivers/renditio.c	Sat Apr 20 23:45:32 2002
-+++ drivers/renditio.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/renditio.c drivers/renditio.c
+--- ../../../svgalib/drivers/renditio.c	2002-04-20 23:45:32.000000000 +0200
++++ drivers/renditio.c	2002-06-16 17:34:56.000000000 +0200
 @@ -12,13 +12,13 @@
  #include "driver.h"
  #include "timing.h"
@@ -432,9 +503,9 @@ diff -u /mame/svgalib/drivers/renditio.c drivers/renditio.c
  
      initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/s3.c drivers/s3.c
---- /mame/svgalib/drivers/s3.c	Wed Apr 10 13:57:56 2002
-+++ drivers/s3.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/s3.c drivers/s3.c
+--- ../../../svgalib/drivers/s3.c	2002-04-10 13:57:56.000000000 +0200
++++ drivers/s3.c	2002-06-16 17:35:02.000000000 +0200
 @@ -95,9 +95,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -483,9 +554,9 @@ diff -u /mame/svgalib/drivers/s3.c drivers/s3.c
      return 0;
  }
  
-diff -u /mame/svgalib/drivers/savage.c drivers/savage.c
---- /mame/svgalib/drivers/savage.c	Sat Apr 20 10:07:36 2002
-+++ drivers/savage.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/savage.c drivers/savage.c
+--- ../../../svgalib/drivers/savage.c	2002-04-20 10:07:36.000000000 +0200
++++ drivers/savage.c	2002-06-16 17:35:04.000000000 +0200
 @@ -18,10 +18,10 @@
  #include "driver.h"
  #include "timing.h"
@@ -527,9 +598,9 @@ diff -u /mame/svgalib/drivers/savage.c drivers/savage.c
  
      initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/drivers/sis.c drivers/sis.c
---- /mame/svgalib/drivers/sis.c	Tue Apr 30 09:34:24 2002
-+++ drivers/sis.c	Sun Jun 16 22:47:42 2002
+diff -u -B -b ../../../svgalib/drivers/sis.c drivers/sis.c
+--- ../../../svgalib/drivers/sis.c	2002-04-30 09:34:24.000000000 +0200
++++ drivers/sis.c	2002-06-16 17:35:06.000000000 +0200
 @@ -32,9 +32,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -551,9 +622,9 @@ diff -u /mame/svgalib/drivers/sis.c drivers/sis.c
      
      if(chip>=SIS_300) 
          sis_300_initializemode(moderegs, modetiming, modeinfo, mode); else
-diff -u /mame/svgalib/drivers/trident.c drivers/trident.c
---- /mame/svgalib/drivers/trident.c	Wed Apr 10 13:57:56 2002
-+++ drivers/trident.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/drivers/trident.c drivers/trident.c
+--- ../../../svgalib/drivers/trident.c	2002-04-10 13:57:56.000000000 +0200
++++ drivers/trident.c	2002-06-16 17:35:08.000000000 +0200
 @@ -13,11 +13,11 @@
  #include "driver.h"
  #include "timing.h"
@@ -586,9 +657,9 @@ diff -u /mame/svgalib/drivers/trident.c drivers/trident.c
  
      initializemode(moderegs, modetiming, modeinfo, mode);
      free(modetiming);
-diff -u /mame/svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
---- /mame/svgalib/ramdac/ibmrgb52.c	Wed Apr 10 13:57:56 2002
-+++ ramdac/ibmrgb52.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
+--- ../../../svgalib/ramdac/ibmrgb52.c	2002-04-10 13:57:56.000000000 +0200
++++ ramdac/ibmrgb52.c	2002-06-16 17:35:12.000000000 +0200
 @@ -15,7 +15,7 @@
  #include "driver.h"		/* for __svgalib_driver_report */
  #include "ramdac.h"
@@ -598,9 +669,9 @@ diff -u /mame/svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
  
  #define IBMRGB52x_STATESIZE	0x101
  
-diff -u /mame/svgalib/clockchi/icd2061a.c clockchi/icd2061a.c
---- /mame/svgalib/clockchi/icd2061a.c	Wed Apr 10 13:57:56 2002
-+++ clockchi/icd2061a.c	Sun Jun 16 22:45:04 2002
+diff -u -B -b ../../../svgalib/clockchi/icd2061a.c clockchi/icd2061a.c
+--- ../../../svgalib/clockchi/icd2061a.c	2002-04-10 13:57:56.000000000 +0200
++++ clockchi/icd2061a.c	2002-06-16 17:34:16.000000000 +0200
 @@ -13,7 +13,7 @@
  #include "timing.h"
  #include "libvga.h"

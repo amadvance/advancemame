@@ -20,6 +20,7 @@
 
 #include "mconfig.h"
 #include "text.h"
+#include "target.h"
 
 #include <sstream>
 
@@ -116,10 +117,6 @@ static void config_error_oa(const string& opt, const string& arg) {
 
 static void config_error_a(const string& arg) {
 	target_err("Invalid argument '%s'.\n", arg.c_str());
-}
-
-static void config_error_o(const string& opt) {
-	target_err("Invalid option '%s'.\n", opt.c_str());
 }
 
 static bool config_import(const string& s, string& a0) {

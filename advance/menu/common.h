@@ -21,7 +21,7 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
-#include "os.h"
+#include "file.h"
 
 #include <string>
 #include <list>

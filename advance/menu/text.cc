@@ -33,6 +33,7 @@
 #include "crtcbag.h"
 #include "clear.h"
 #include "blit.h"
+#include "target.h"
 #include "os.h"
 #include "videoall.h"
 #include "keyall.h"
@@ -198,7 +199,7 @@ static bool text_updating_active; // is updating the video
 // Joystick
 
 static void text_joystick_init(struct conf_context* config_context) {
-	joystickb_reg(config_context);
+	joystickb_reg(config_context, 0);
 	joystickb_reg_driver_all(config_context);
 }
 
@@ -263,7 +264,7 @@ static int text_joystick_move_raw_poll() {
 // Key
 
 static void text_key_init(struct conf_context* config_context) {
-	keyb_reg(config_context);
+	keyb_reg(config_context, 1);
 	keyb_reg_driver_all(config_context);
 }
 
@@ -291,13 +292,12 @@ static void text_key_done2() {
 // -----------------------------------------------------------------------
 // Mouse
 
-static int text_mouse_id;
 static int text_mouse_delta;
 static int text_mouse_pos_x;
 static int text_mouse_pos_y;
 
 static void text_mouse_init(struct conf_context* config_context) {
-	mouseb_reg(config_context);
+	mouseb_reg(config_context, 0);
 	mouseb_reg_driver_all(config_context);
 	conf_int_register_limit_default(config_context, "mouse_delta", 1, 1000, 100);
 }
@@ -306,9 +306,6 @@ static void text_mouse_done() {
 }
 
 static bool text_mouse_load(struct conf_context* config_context) {
-	unsigned i;
-	const char* s;
-
 	text_mouse_pos_x = 0;
 	text_mouse_pos_y = 0;
 	text_mouse_delta = conf_int_get_default(config_context, "mouse_delta");
@@ -518,7 +515,7 @@ void text_init(struct conf_context* config_context) {
 	generate_interpolate_register(config_context);
 	monitor_register(config_context);
 
-	video_reg(config_context);
+	video_reg(config_context, 1);
 	video_reg_driver_all(config_context);
 
 	video_crtc_container_register(config_context);
@@ -1000,13 +997,6 @@ static void video_backdrop_box() {
 			backdrop_box_color = ((backdrop_box_color << 4) & 0xF0) | ((backdrop_box_color >> 4) & 0xF);
 		}
 	}
-}
-
-static void video_backdrop_clear(struct backdrop_t* back, unsigned color) {
-	unsigned char* v0 = video_write_line(0);
-	unsigned char* v1 = video_write_line(1);
-
-	gen_clear_raw(v0, video_bytes_per_pixel(), v1 - v0, back->pos.real_x, back->pos.real_y, back->pos.real_dx, back->pos.real_dy, color);
 }
 
 //---------------------------------------------------------------------------
@@ -2542,15 +2532,6 @@ static unsigned string2event(const string& s) {
 		return KEYTAB[i].event;
 	else
 		return TEXT_KEY_NONE;
-}
-
-static const char* event2string(unsigned e) {
-	unsigned i;
-	for(i=0;KEYTAB[i].name && i != e;++i);
-	if (KEYTAB[i].name)
-		return KEYTAB[i].name;
-	else
-		return KEYTAB[0].name;
 }
 
 bool text_key_in(const string& s) {

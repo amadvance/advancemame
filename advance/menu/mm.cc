@@ -23,6 +23,8 @@
 #include "submenu.h"
 #include "text.h"
 #include "play.h"
+#include "log.h"
+#include "target.h"
 #include "os.h"
 #include "option.h"
 

@@ -26,7 +26,8 @@
 #include "game.h"
 #include "readinfo.h"
 #include "unzip.h"
-#include "os.h"
+#include "target.h"
+#include "log.h"
 
 #include <dirent.h>
 #include <sys/stat.h>

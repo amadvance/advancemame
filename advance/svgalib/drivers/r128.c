@@ -781,7 +781,7 @@ static void RADEONInitPLLRegisters(R128SavePtr save, R128PLLPtr pll,
     }
 
 	if (!post_div->divider) {
-		post_div = post_divs + 6;
+		post_div = post_divs + 7;
 		save->pll_output_freq = post_div->divider * freq;
 	}
 
@@ -821,13 +821,17 @@ static void R128InitPLLRegisters(R128SavePtr save, R128PLLPtr pll,
     };
 
     if (freq > pll->max_pll_freq)      freq = pll->max_pll_freq;
-    if (freq * 12 < pll->min_pll_freq) freq = pll->min_pll_freq / 12;
 
     for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
 	save->pll_output_freq = post_div->divider * freq;
 	if (save->pll_output_freq >= pll->min_pll_freq
 	    && save->pll_output_freq <= pll->max_pll_freq) break;
     }
+
+	if (!post_div->divider) {
+		post_div = post_divs + 6;
+		save->pll_output_freq = post_div->divider * freq;
+	}
 
     save->dot_clock_freq = freq;
     save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
@@ -1386,7 +1390,7 @@ static int r128_init(int force, int par1, int par2)
         pll.xclk           = R128_BIOS16(pll_info_block + 0x08);
         munmap(BIOS_POINTER, 64*1024);
     }
-#if 1
+#if 0
 fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     pll.min_pll_freq,    pll.max_pll_freq, pll.xclk);
 #endif

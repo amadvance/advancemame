@@ -41,7 +41,6 @@ SYSTEMOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vsvgab.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vfb.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vdga.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/soss.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/jsvgab.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/ksvgab.o \

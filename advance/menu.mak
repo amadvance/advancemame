@@ -92,7 +92,6 @@ MENUOBJS += \
 	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vdga.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/soss.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/ksvgab.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/msvgab.o \

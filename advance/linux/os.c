@@ -167,12 +167,21 @@ int os_inner_init(const char* title) {
 		}
 		/* check for the DGA extension */
 		log_std(("video:dga: XDGAQueryExtension()\n"));
-		if (!XDGAQueryExtension(OS.dga_display, &event_base, &error_base)
-			|| !XDGAQueryVersion(OS.dga_display, &major_version, &minor_version)) {
+		if (!XDGAQueryExtension(OS.dga_display, &event_base, &error_base)) {
+			log_std(("video:dga: XDGAQueryExtension() failed\n"));
 			XCloseDisplay(OS.dga_display);
 			target_err("DGA extensions not available");
 			return -1;
 		}
+		log_std(("video:dga: XDGAQueryExtension() event_base:%d error_base:%d\n", event_base, error_base));
+		log_std(("video:dga: XDGAQueryVersion()\n"));
+		if (!XDGAQueryVersion(OS.dga_display, &major_version, &minor_version)) {
+			log_std(("video:dga: XDGAQueryVersion() failed\n"));
+			XCloseDisplay(OS.dga_display);
+			target_err("DGA version not available");
+			return -1;
+		}
+		log_std(("video:dga: XDGAQueryVersion() major_version:%d, minor_version:%d\n", major_version, minor_version));
 		if (major_version < 2) {
 			XCloseDisplay(OS.dga_display);
 			target_err("DGA driver requires DGA 2.0 or newer");

@@ -60,7 +60,7 @@ AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
 if test -z "$CFLAGS" ; then
 	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -gstabs+3 -Wall"
+		CFLAGS="-O0 -gstabs+3 -Wall -Wno-sign-compare"
 	else
 		CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
 	fi

@@ -45,7 +45,6 @@ VOBJS += \
 	$(VOBJ)/$(CONF_SYSTEM)/os.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vdga.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vslang.o \
 	$(VOBJ)/$(CONF_SYSTEM)/ilinux.o
 endif

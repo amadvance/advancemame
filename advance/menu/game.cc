@@ -24,6 +24,7 @@
 #include "readinfo.h"
 #include "common.h"
 #include "unzip.h"
+#include "target.h"
 
 #include <iostream>
 
@@ -37,10 +38,18 @@ using namespace std;
 // ------------------------------------------------------------------------
 // game
 
+/// Set the final name in lowercase. The user name before the slash is kept.
 string game_name_adjust(const string& name) {
 	string r = name;
-	for(unsigned i=0;i<r.length();++i)
+	unsigned i = r.rfind('/');
+	if (i == string::npos)
+		i = 0;
+	else
+		++i;
+
+	for(;i<r.length();++i)
 		r[i] = tolower(r[i]);
+
 	return r;
 }
 
@@ -729,7 +738,6 @@ void game_set::import_nms(const string& file, const string& emulator, void (game
 
 	string ss = file_read( file );
 
-	bool in = false;
 	while (j < ss.length()) {
 		string s = token_get(ss,j,"\r\n");
 		token_skip(ss,j,"\r\n");

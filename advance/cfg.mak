@@ -49,7 +49,6 @@ CFGOBJS += \
 	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vdga.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/ilinux.o
 endif
