@@ -35,18 +35,15 @@
 /**
  * Register all the joystick drivers.
  * The drivers are registered on the basis of the following defines:
- *  - USE_JOYSTICK_ALLEGRO
  *  - USE_JOYSTICK_EVENT
  *  - USE_JOYSTICK_SVGALIB
  *  - USE_JOYSTICK_RAW
  *  - USE_JOYSTICK_SDL
+ *  - USE_JOYSTICK_ALLEGRO
  *  - USE_JOYSTICK_NONE
  */
 void joystickb_reg_driver_all(adv_conf* context)
 {
-#ifdef USE_JOYSTICK_ALLEGRO
-	joystickb_reg_driver(context, &joystickb_allegro_driver);
-#endif
 #ifdef USE_JOYSTICK_EVENT
 	joystickb_reg_driver(context, &joystickb_event_driver);
 #endif
@@ -58,6 +55,9 @@ void joystickb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_JOYSTICK_SDL
 	joystickb_reg_driver(context, &joystickb_sdl_driver);
+#endif
+#ifdef USE_JOYSTICK_ALLEGRO
+	joystickb_reg_driver(context, &joystickb_allegro_driver);
 #endif
 #ifdef USE_JOYSTICK_NONE
 	joystickb_reg_driver(context, &joystickb_none_driver);
@@ -71,9 +71,6 @@ void joystickb_reg_driver_all(adv_conf* context)
 void joystickb_report_driver_all(char* s, unsigned size)
 {
 	*s = 0;
-#ifdef USE_JOYSTICK_ALLEGRO
-	sncat(s, size, " allegro");
-#endif
 #ifdef USE_JOYSTICK_EVENT
 	sncat(s, size, " event");
 #endif
@@ -85,6 +82,9 @@ void joystickb_report_driver_all(char* s, unsigned size)
 #endif
 #ifdef USE_JOYSTICK_SDL
 	sncat(s, size, " sdl");
+#endif
+#ifdef USE_JOYSTICK_ALLEGRO
+	sncat(s, size, " allegro");
 #endif
 #ifdef USE_JOYSTICK_NONE
 	sncat(s, size, " none");

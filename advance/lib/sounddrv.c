@@ -38,127 +38,175 @@
 #include <stdio.h>
 #include <string.h>
 
-struct sound_state_struct sound_state;
+struct soundb_state_struct soundb_state;
 
-void sound_default(void)
+void soundb_default(void)
 {
-	sound_state.is_initialized_flag = 1;
-	sncpy(sound_state.name, DEVICE_NAME_MAX, "auto");
+	soundb_state.is_initialized_flag = 1;
+	sncpy(soundb_state.name, DEVICE_NAME_MAX, "auto");
 }
 
-void sound_reg(adv_conf* context, adv_bool auto_detect)
+void soundb_reg(adv_conf* context, adv_bool auto_detect)
 {
 	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
-void sound_reg_driver(adv_conf* context, sound_driver* driver)
+void soundb_reg_driver(adv_conf* context, soundb_driver* driver)
 {
-	assert( sound_state.driver_mac < SOUND_DRIVER_MAX );
+	assert(soundb_state.driver_mac < SOUND_DRIVER_MAX);
 
-	sound_state.driver_map[sound_state.driver_mac] = driver;
-	sound_state.driver_map[sound_state.driver_mac]->reg(context);
+	soundb_state.driver_map[soundb_state.driver_mac] = driver;
+	soundb_state.driver_map[soundb_state.driver_mac]->reg(context);
 
 	log_std(("sound: register driver %s\n", driver->name));
 
-	++sound_state.driver_mac;
+	++soundb_state.driver_mac;
 }
 
-adv_error sound_load(adv_conf* context)
+adv_error soundb_load(adv_conf* context)
 {
 	unsigned i;
 	int at_least_one;
 
-	if (sound_state.driver_mac == 0) {
+	if (soundb_state.driver_mac == 0) {
 		error_set("No sound driver was compiled in.");
 		return -1;
 	}
 
-	sound_state.is_initialized_flag = 1;
-	sncpy(sound_state.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_sound"));
+	soundb_state.is_initialized_flag = 1;
+	sncpy(soundb_state.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_sound"));
 
 	/* load specific driver options */
 	at_least_one = 0;
-	for(i=0;i<sound_state.driver_mac;++i) {
+	for(i=0;i<soundb_state.driver_mac;++i) {
 		const adv_device* dev;
 
-		dev = device_match(sound_state.name, (adv_driver*)sound_state.driver_map[i], 0);
+		dev = device_match(soundb_state.name, (adv_driver*)soundb_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;
 
-		if (sound_state.driver_map[i]->load(context) != 0)
+		if (soundb_state.driver_map[i]->load(context) != 0)
 			return -1;
 	}
 
 	if (!at_least_one) {
-		device_error("device_sound", sound_state.name, (const adv_driver**)sound_state.driver_map, sound_state.driver_mac);
+		device_error("device_sound", soundb_state.name, (const adv_driver**)soundb_state.driver_map, soundb_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	unsigned i;
 
-	assert(sound_state.driver_current == 0);
+	assert(soundb_state.driver_current == 0);
+	assert(!soundb_state.is_active_flag);
 
-	assert( !sound_state.is_active_flag );
+	soundb_state.is_playing_flag = 0;
 
-	sound_state.is_playing_flag = 0;
-
-	if (!sound_state.is_initialized_flag) {
-		sound_default();
+	if (!soundb_state.is_initialized_flag) {
+		soundb_default();
 	}
 
 	/* store the error prefix */
 	error_nolog_set("Unable to inizialize the sound driver. The errors are:\n");
 
-	for(i=0;i<sound_state.driver_mac;++i) {
+	for(i=0;i<soundb_state.driver_mac;++i) {
 		const adv_device* dev;
 
-		dev = device_match(sound_state.name, (const adv_driver*)sound_state.driver_map[i], 1);
+		dev = device_match(soundb_state.name, (const adv_driver*)soundb_state.driver_map[i], 1);
 
-		error_cat_set(sound_state.driver_map[i]->name, 1);
+		error_cat_set(soundb_state.driver_map[i]->name, 1);
 
-		if (dev && sound_state.driver_map[i]->init(dev->id, rate, stereo_flag, buffer_time) == 0) {
-			sound_state.driver_current = sound_state.driver_map[i];
+		if (dev && soundb_state.driver_map[i]->init(dev->id, rate, stereo_flag, buffer_time) == 0) {
+			soundb_state.driver_current = soundb_state.driver_map[i];
 			break;
 		}
 	}
 
 	error_cat_set(0, 0);
 
-	if (!sound_state.driver_current)
+	if (!soundb_state.driver_current)
 		return -1;
 
 	error_reset();
 
-	log_std(("sound: select driver %s\n", sound_state.driver_current->name));
+	log_std(("sound: select driver %s\n", soundb_state.driver_current->name));
 
-	sound_state.is_active_flag = 1;
+	soundb_state.is_active_flag = 1;
 
 	return 0;
 }
 
-void sound_done(void)
+void soundb_done(void)
 {
-	assert( sound_state.driver_current );
-	assert( sound_state.is_active_flag );
+	assert(soundb_state.driver_current);
+	assert(soundb_state.is_active_flag);
 
-	sound_state.driver_current->done();
+	soundb_state.driver_current->done();
 
-	sound_state.driver_current = 0;
-	sound_state.is_active_flag = 0;
+	soundb_state.driver_current = 0;
+	soundb_state.is_active_flag = 0;
 }
 
-void sound_abort(void)
+void soundb_abort(void)
 {
-	if (sound_state.is_active_flag) {
-		if (sound_state.is_playing_flag)
-			sound_stop();
-		sound_done();
+	if (soundb_state.is_active_flag) {
+		if (soundb_state.is_playing_flag)
+			soundb_stop();
+		soundb_done();
 	}
+}
+
+void soundb_play(const adv_sample* sample_map, unsigned sample_count)
+{
+	assert(soundb_state.is_active_flag && soundb_state.is_playing_flag);
+
+	soundb_state.driver_current->play(sample_map, sample_count);
+}
+
+unsigned soundb_buffered(void)
+{
+	assert(soundb_state.is_active_flag && soundb_state.is_playing_flag);
+
+	return soundb_state.driver_current->buffered();
+}
+
+void soundb_stop(void)
+{
+	assert(soundb_state.is_active_flag && soundb_state.is_playing_flag);
+
+	soundb_state.driver_current->stop();
+
+	soundb_state.is_playing_flag = 0;
+}
+
+adv_error soundb_start(double silence_time)
+{
+	assert(soundb_state.is_active_flag && !soundb_state.is_playing_flag);
+
+	if (soundb_state.driver_current->start(silence_time) != 0)
+		return -1;
+
+	soundb_state.is_playing_flag = 1;
+
+	return 0;
+}
+
+void soundb_volume(double v)
+{
+	assert(soundb_state.is_active_flag);
+
+	soundb_state.driver_current->volume(v);
+}
+
+const char* soundb_name(void)
+{
+	assert(soundb_state.is_active_flag);
+
+	return soundb_state.driver_current->name;
 }
 

@@ -208,7 +208,7 @@ static void mixer_pump(unsigned buffered)
 	}
 
 	if (!count)
-		sound_play(0, 0);
+		soundb_play(0, 0);
 
 	while (count) {
 		unsigned run = count;
@@ -238,7 +238,7 @@ static void mixer_pump(unsigned buffered)
 			mixer_raw_buffer[i*2+1] = (short)c1;
 		}
 
-		sound_play(mixer_raw_buffer, run);
+		soundb_play(mixer_raw_buffer, run);
 
 		mixer_buffer_pos += run;
 		if (mixer_buffer_pos == MIXER_BUFFER_MAX)
@@ -868,7 +868,7 @@ void mixer_poll(void)
 	for(i=0;i<mixer_nchannel;++i)
 		mixer_channel_pump(i);
 
-	mixer_pump( sound_buffered() );
+	mixer_pump( soundb_buffered() );
 }
 
 /**
@@ -876,8 +876,8 @@ void mixer_poll(void)
  */
 void mixer_reg(adv_conf* context)
 {
-	sound_reg(context, 1);
-	sound_reg_driver_all(context);
+	soundb_reg(context, 1);
+	soundb_reg_driver_all(context);
 }
 
 /**
@@ -885,7 +885,7 @@ void mixer_reg(adv_conf* context)
  */
 adv_error mixer_load(adv_conf* context)
 {
-	if (sound_load(context)!=0) {
+	if (soundb_load(context)!=0) {
 		return -1;
 	}
 
@@ -924,7 +924,7 @@ adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double
 	if (buffer_time < latency_time)
 		goto err;
 
-	if (sound_init(&mixer_rate, 1, latency_time) != 0)
+	if (soundb_init(&mixer_rate, 1, latency_time) != 0)
 		goto err;
 
 	mixer_buffer_size = buffer_time * mixer_rate;
@@ -935,13 +935,13 @@ adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double
 	if (mixer_latency_size > mixer_buffer_size)
 		goto err_done;
 
-	if (sound_start(latency_time) != 0)
+	if (soundb_start(latency_time) != 0)
 		goto err_done;
 
 	return 0;
 
 err_done:
-	sound_done();
+	soundb_done();
 err:
 	return -1;
 }
@@ -958,8 +958,8 @@ void mixer_done(void)
 	for(i=0;i<MIXER_CHANNEL_MAX;++i)
 		mixer_channel_abort(i);
 
-	sound_stop();
-	sound_done();
+	soundb_stop();
+	soundb_done();
 
 	mp3_lib_done();
 }
@@ -969,7 +969,7 @@ void mixer_done(void)
  */
 void mixer_volume(double volume)
 {
-	sound_volume(volume);
+	soundb_volume(volume);
 }
 
 

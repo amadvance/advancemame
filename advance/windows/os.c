@@ -229,8 +229,8 @@ void os_default_signal(int signum)
 #if defined(USE_SOUND_SDL)
 	log_std(("os: sound_abort\n"));
 	{
-		extern void sound_abort(void);
-		sound_abort();
+		extern void soundb_abort(void);
+		soundb_abort();
 	}
 #endif
 

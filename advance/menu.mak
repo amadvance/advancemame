@@ -142,6 +142,12 @@ MENUCFLAGS += \
 MENUOBJS += \
 	$(MENUOBJ)/linux/kraw.o
 endif
+ifeq ($(CONF_LIB_JRAW),yes)
+MENUCFLAGS += \
+	-DUSE_JOYSTICK_RAW
+MENUOBJS += \
+	$(MENUOBJ)/linux/jraw.o
+endif
 ifeq ($(CONF_LIB_MRAW),yes)
 MENUCFLAGS += \
 	-DUSE_MOUSE_RAW

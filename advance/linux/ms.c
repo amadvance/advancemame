@@ -302,12 +302,14 @@ static int raw_mouse_init(struct raw_mouse_context* context)
     fprintf(stderr,"m_accel_maxdelta: %ld\n",	(long)m_accel_maxdelta);
 #endif
 
+#if 0
     /*  Ensure that the open will get a file descriptor greater
      *  than 2, else problems can occur with stdio functions
      *  under certain strange conditions:  */
     if (fcntl(0,F_GETFD) < 0) open("/dev/null", O_RDONLY);
     if (fcntl(1,F_GETFD) < 0) open("/dev/null", O_WRONLY);
     if (fcntl(2,F_GETFD) < 0) open("/dev/null", O_WRONLY);
+#endif
 
     /* Set the proper wheel delta */
     if(context->m_wheel_steps)

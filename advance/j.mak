@@ -48,6 +48,12 @@ JOBJDIRS += \
 JOBJS += \
 	$(JOBJ)/sdl/jsdl.o
 endif
+ifeq ($(CONF_LIB_JRAW),yes)
+JCFLAGS += \
+	-DUSE_JOYSTICK_RAW
+JOBJS += \
+	$(JOBJ)/linux/jraw.o
+endif
 ifeq ($(CONF_LIB_JEVENT),yes)
 JCFLAGS += \
 	-DUSE_JOYSTICK_EVENT

@@ -38,7 +38,7 @@
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
 
-struct sound_oss_context {
+struct soundb_oss_context {
 	unsigned channel;
 	unsigned rate;
 	unsigned sample_length;
@@ -46,19 +46,19 @@ struct sound_oss_context {
 	int handle;
 };
 
-static struct sound_oss_context oss_state;
+static struct soundb_oss_context oss_state;
 
 static adv_device DEVICE[] = {
 { "auto", -1, "OSS automatic detection" },
 { 0, 0, 0 }
 };
 
-adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	int i;
 	audio_buf_info info;
 
-	log_std(("sound:oss: sound_oss_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
+	log_std(("sound:oss: soundb_oss_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
 	if (stereo_flag) {
 		oss_state.sample_length = 4;
@@ -127,20 +127,20 @@ err:
 	return -1;
 }
 
-void sound_oss_done(void)
+void soundb_oss_done(void)
 {
-	log_std(("sound:oss: sound_oss_done()\n"));
+	log_std(("sound:oss: soundb_oss_done()\n"));
 
 	close(oss_state.handle);
 }
 
-void sound_oss_stop(void)
+void soundb_oss_stop(void)
 {
-	log_std(("sound:oss: sound_oss_stop()\n"));
+	log_std(("sound:oss: soundb_oss_stop()\n"));
 	/* TODO implement OSS sound stop */
 }
 
-unsigned sound_oss_buffered(void)
+unsigned soundb_oss_buffered(void)
 {
 	unsigned bytes_buffered;
 	audio_buf_info info;
@@ -157,17 +157,17 @@ unsigned sound_oss_buffered(void)
 	return bytes_buffered / oss_state.sample_length;
 }
 
-void sound_oss_volume(double volume)
+void soundb_oss_volume(double volume)
 {
-	log_std(("sound:oss: sound_oss_volume(volume:%g)\n", (double)volume));
+	log_std(("sound:oss: soundb_oss_volume(volume:%g)\n", (double)volume));
 	/* TODO implement OSS volume control */
 }
 
-void sound_oss_play(const short* sample_map, unsigned sample_count)
+void soundb_oss_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	int r;
 
-	log_debug(("sound:oss: sound_oss_play(count:%d)\n", sample_count));
+	log_debug(("sound:oss: soundb_oss_play(count:%d)\n", sample_count));
 
 	/* calling write with a 0 size result in wrong output */
 	if (sample_count) {
@@ -179,13 +179,13 @@ void sound_oss_play(const short* sample_map, unsigned sample_count)
 	}
 }
 
-adv_error sound_oss_start(double silence_time)
+adv_error soundb_oss_start(double silence_time)
 {
-	short buf[256];
+	adv_sample buf[256];
 	unsigned sample;
 	unsigned i;
 
-	log_std(("sound:oss: sound_oss_start(silence_time:%g)\n", silence_time));
+	log_std(("sound:oss: soundb_oss_start(silence_time:%g)\n", silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = 0x8000;
@@ -199,42 +199,42 @@ adv_error sound_oss_start(double silence_time)
 		if (run > 256)
 			run = 256;
 		sample -= run;
-		sound_oss_play(buf, run / oss_state.channel);
+		soundb_oss_play(buf, run / oss_state.channel);
 	}
 
 	return 0;
 }
 
-unsigned sound_oss_flags(void)
+unsigned soundb_oss_flags(void)
 {
 	return 0;
 }
 
-adv_error sound_oss_load(adv_conf* context)
+adv_error soundb_oss_load(adv_conf* context)
 {
 	return 0;
 }
 
-void sound_oss_reg(adv_conf* context)
+void soundb_oss_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_oss_driver = {
+soundb_driver soundb_oss_driver = {
 	"oss",
 	DEVICE,
-	sound_oss_load,
-	sound_oss_reg,
-	sound_oss_init,
-	sound_oss_done,
-	sound_oss_flags,
-	sound_oss_play,
-	sound_oss_buffered,
-	sound_oss_start,
-	sound_oss_stop,
-	sound_oss_volume
+	soundb_oss_load,
+	soundb_oss_reg,
+	soundb_oss_init,
+	soundb_oss_done,
+	soundb_oss_flags,
+	soundb_oss_play,
+	soundb_oss_buffered,
+	soundb_oss_start,
+	soundb_oss_stop,
+	soundb_oss_volume
 };
 
 

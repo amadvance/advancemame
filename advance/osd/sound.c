@@ -66,7 +66,7 @@ void osd_set_mastervolume(int attenuation)
 
 		context->state.volume = volume;
 
-		sound_volume(volume);
+		soundb_volume(volume);
 	}
 }
 
@@ -83,9 +83,9 @@ void osd_sound_enable(int enable_it)
 
 	if (context->state.active_flag) {
 		if (enable_it)
-			sound_volume(context->state.volume);
+			soundb_volume(context->state.volume);
 		else
-			sound_volume(0);
+			soundb_volume(0);
 	}
 }
 
@@ -116,7 +116,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	if (low_buffer_time < 0.3)
 		low_buffer_time = 0.3;
 
-	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
+	if (soundb_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
 		return -1;
 	}
 
@@ -130,7 +130,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.adjust_limit = 0;
 	context->state.active_flag = 1;
 
-	sound_start(context->config.latency_time);
+	soundb_start(context->config.latency_time);
 
 	osd_set_mastervolume(context->config.attenuation);
 
@@ -145,8 +145,8 @@ void osd2_sound_done(void)
 
 	assert(context->state.active_flag);
 
-	sound_stop();
-	sound_done();
+	soundb_stop();
+	soundb_done();
 }
 
 /***************************************************************************/
@@ -265,7 +265,7 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 				sound_adjust(context, output_channel, sample_mix, sample_mix, sample_count);
 			}
 
-			sound_play(sample_mix, sample_count);
+			soundb_play(sample_mix, sample_count);
 
 			free(sample_mix);
 
@@ -276,11 +276,11 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 
 				sound_adjust(context, output_channel, sample_buffer, sample_mix, sample_count);
 
-				sound_play(sample_mix, sample_count);
+				soundb_play(sample_mix, sample_count);
 
 				free(sample_mix);
 			} else {
-				sound_play(sample_buffer, sample_count);
+				soundb_play(sample_buffer, sample_count);
 			}
 		}
 
@@ -299,7 +299,7 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency)
 {
 	if (context->state.active_flag) {
-		int buffered = sound_buffered();
+		int buffered = soundb_buffered();
 		int expected;
 
 		expected = context->state.latency_min + context->state.rate * extra_latency;
@@ -332,8 +332,8 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
 	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
-	sound_reg(cfg_context, 1);
-	sound_reg_driver_all(cfg_context);
+	soundb_reg(cfg_context, 1);
+	soundb_reg_driver_all(cfg_context);
 
 	return 0;
 }
@@ -357,7 +357,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
 	option->filter_flag = conf_bool_get_default(cfg_context, "sound_resamplefilter");
 
-	if (sound_load(cfg_context)!=0) {
+	if (soundb_load(cfg_context)!=0) {
 		return -1;
 	}
 

@@ -250,17 +250,12 @@ unsigned mouseb_event_axe_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:event: mouseb_event_axe_count_get()\n"));
 
-	assert(mouse < mouseb_event_count_get());
-
 	return event_state.map[mouse].axe_mac;
 }
 
 const char* mouseb_event_axe_name_get(unsigned mouse, unsigned axe)
 {
 	log_debug(("mouseb:event: mouseb_event_button_axe_get()\n"));
-
-	assert(mouse < mouseb_event_count_get());
-	assert(axe < mouseb_event_axe_count_get(mouse) );
 
 	return event_state.map[mouse].axe_map[axe].name;
 }
@@ -269,17 +264,12 @@ unsigned mouseb_event_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:event: mouseb_event_button_count_get()\n"));
 
-	assert(mouse < mouseb_event_count_get());
-
 	return event_state.map[mouse].button_mac;
 }
 
 const char* mouseb_event_button_name_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:event: mouseb_event_button_name_get()\n"));
-
-	assert(mouse < mouseb_event_count_get());
-	assert(button < mouseb_event_button_count_get(mouse) );
 
 	return event_state.map[mouse].button_map[button].name;
 }
@@ -291,9 +281,6 @@ int mouseb_event_axe_get(unsigned mouse, unsigned axe)
 
 	log_debug(("mouseb:event: mouseb_event_axe_get()\n"));
 
-	assert(mouse < mouseb_event_count_get());
-	assert(axe < mouseb_event_axe_count_get(mouse) );
-
 	r = event_state.map[mouse].axe_map[axe].value;
 	event_state.map[mouse].axe_map[axe].value = 0;
 
@@ -303,9 +290,6 @@ int mouseb_event_axe_get(unsigned mouse, unsigned axe)
 unsigned mouseb_event_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:event: mouseb_event_button_get()\n"));
-
-	assert(mouse < mouseb_event_count_get());
-	assert(button < mouseb_event_button_count_get(mouse) );
 
 	return event_state.map[mouse].button_map[button].state;
 }

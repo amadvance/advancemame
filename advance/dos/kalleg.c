@@ -224,17 +224,12 @@ adv_bool keyb_allegro_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:allegro: keyb_svgalib_has()\n"));
 
-	assert(code < KEYB_MAX);
-
 	return allegro_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_allegro_get(unsigned keyboard, unsigned code)
 {
 	unsigned low_code;
-
-	assert(keyboard < keyb_event_count_get());
-	assert(code < KEYB_MAX);
 
 	log_debug(("keyb:allegro: keyb_allegro_get(keyboard:%d,code:%d)\n", keyboard, code));
 
@@ -252,8 +247,6 @@ unsigned keyb_allegro_get(unsigned keyboard, unsigned code)
 void keyb_allegro_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
-
-	assert(keyboard < keyb_event_count_get());
 
 	log_debug(("keyb:allegro: keyb_allegro_all_get(keyboard:%d)\n", keyboard));
 

@@ -651,6 +651,38 @@ fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
 AC_ARG_ENABLE(
+	[jraw],
+	AC_HELP_STRING([--enable-jraw],[enable the use of the raw joystick interface. (default auto)]),
+	[ac_lib_jraw=$enableval],
+	[ac_lib_jraw=auto]
+)
+if test $ac_lib_jraw = auto; then
+	AC_MSG_CHECKING([for raw joystick interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+			#include <linux/joystick.h>
+		]], [[
+			#ifndef JS_VERSION
+			choke me
+			#endif
+		]])],[ac_lib_jraw=yes],[ac_lib_jraw=no])
+	AC_MSG_RESULT([$ac_lib_jraw])
+elif test $ac_lib_jraw = yes; then
+	AC_MSG_CHECKING([for raw joystick interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+			#include <linux/joystick.h>
+		]], [[
+			#ifndef JS_VERSION
+			choke me
+			#endif
+		]])],[],[AC_MSG_ERROR([the JRAW joystick interface is missing])])
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_jraw = yes; then
+	ac_lib_joystick="$ac_lib_joystick raw"
+fi
+AC_SUBST([CONF_LIB_JRAW],[$ac_lib_jraw])
+
+AC_ARG_ENABLE(
 	[mraw],
 	AC_HELP_STRING([--enable-mraw],[enable the use of the raw mouse interface. (default auto)]),
 	[ac_lib_mraw=$enableval],
@@ -670,7 +702,7 @@ elif test $ac_lib_mraw = yes; then
 			void dummy(void) {
 				tcsetattr(0, TCSAFLUSH, 0);
 			}
-		]])],[],[AC_MSG_ERROR([the KRAW mouse interface is missing])])
+		]])],[],[AC_MSG_ERROR([the MRAW mouse interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mraw = yes; then

@@ -91,6 +91,8 @@ struct mouseb_state_struct {
 	mouseb_driver* driver_map[MOUSE_DRIVER_MAX]; /**< Registered drivers. */
 	mouseb_driver* driver_current; /**< Current driver active. 0 if none. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the driver to use. */
+	char axe_name_buffer[DEVICE_NAME_MAX];
+	char button_name_buffer[DEVICE_NAME_MAX];
 };
 
 /**
@@ -110,73 +112,20 @@ adv_error mouseb_load(adv_conf* config_context);
 adv_error mouseb_init(void);
 void mouseb_done(void);
 void mouseb_abort(void);
-
-static inline unsigned mouseb_count_get(void)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->count_get();
-}
-
-static inline unsigned mouseb_axe_count_get(unsigned mouse)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->axe_count_get(mouse);
-}
-
-static inline unsigned mouseb_button_count_get(unsigned mouse)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->button_count_get(mouse);
-}
-
-static inline int mouseb_axe_get(unsigned mouse, unsigned axe)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->axe_get(mouse, axe);
-}
-
-static inline unsigned mouseb_button_get(unsigned mouse, unsigned button)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->button_get(mouse, button);
-}
-
-static inline const char* mouseb_button_name_get(unsigned mouse, unsigned button)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->button_name_get(mouse, button);
-}
-
-static inline const char* mouseb_axe_name_get(unsigned mouse, unsigned axe)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->axe_name_get(mouse, axe);
-}
-
-static inline void mouseb_poll(void)
-{
-	assert( mouseb_state.is_active_flag );
-
-	mouseb_state.driver_current->poll();
-}
+unsigned mouseb_count_get(void);
+unsigned mouseb_axe_count_get(unsigned mouse);
+unsigned mouseb_button_count_get(unsigned mouse);
+int mouseb_axe_get(unsigned mouse, unsigned axe);
+unsigned mouseb_button_get(unsigned mouse, unsigned button);
+const char* mouseb_button_name_get(unsigned mouse, unsigned button);
+const char* mouseb_axe_name_get(unsigned mouse, unsigned axe);
+void mouseb_poll(void);
 
 /**
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* mouseb_name(void)
-{
-	assert( mouseb_state.is_active_flag );
-
-	return mouseb_state.driver_current->name;
-}
+const char* mouseb_name(void);
 
 /*@}*/
 

@@ -771,11 +771,11 @@ adv_error event_read(int f, int* type, int* code, int* value)
 	}
 
 	if (size != sizeof(e)) {
-		log_std(("ERROR:mouseb:event: invalid read size %d on the event interface, errno %d (%s)\n", size, errno, strerror(errno)));
+		log_std(("ERROR:event: invalid read size %d on the event interface, errno %d (%s)\n", size, errno, strerror(errno)));
 		return -1;
 	}
 
-	log_std(("mouseb:event: read %ld.%06ld, type %d, code %d, value %d\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value));
+	log_debug(("event: read %ld.%06ld, type %d, code %d, value %d\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value));
 
 	*type = e.type;
 	*code = e.code;

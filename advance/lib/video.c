@@ -54,7 +54,7 @@
 /* State */
 
 /** State of the video support. */
-video_internal video_state;
+struct video_state_struct video_state;
 
 struct video_option_struct {
 	adv_bool initialized; /**< Initialized flag. */

@@ -143,31 +143,14 @@ adv_error inputb_enable(adv_bool graphics);
 void inputb_disable(void);
 
 void inputb_abort(void);
-
-static inline adv_bool inputb_hit(void)
-{
-	assert( inputb_state.is_active_flag && inputb_state.is_enabled_flag );
-
-	return inputb_state.driver_current->hit();
-}
-
-static inline unsigned inputb_get(void)
-{
-	assert( inputb_state.is_active_flag && inputb_state.is_enabled_flag );
-
-	return inputb_state.driver_current->get();
-}
+adv_bool inputb_hit(void);
+unsigned inputb_get(void);
 
 /**
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* inputb_name(void)
-{
-	assert( inputb_state.is_active_flag );
-
-	return inputb_state.driver_current->name;
-}
+const char* inputb_name(void);
 
 #ifdef __cplusplus
 }

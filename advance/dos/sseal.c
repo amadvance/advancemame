@@ -65,7 +65,7 @@ static void set_timer_rate(unsigned tick)
 
 #endif
 
-struct sound_seal_context {
+struct soundb_seal_context {
 	int active_flag;
 
 	unsigned channel;
@@ -79,7 +79,7 @@ struct sound_seal_context {
 	LPAUDIOWAVE wave[2];
 };
 
-static struct sound_seal_context seal_state;
+static struct soundb_seal_context seal_state;
 
 static adv_device DEVICE[] = {
 { "auto", AUDIO_DEVICE_MAPPER, "SEAL sound" },
@@ -92,13 +92,13 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	unsigned i;
 	AUDIOINFO info;
 	AUDIOCAPS caps;
 
-	log_std(("sound:seal: sound_seal_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+	log_std(("sound:seal: soundb_seal_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
 
 	/* ensure to be able to store the required buffer time */
 	buffer_time *= 2;
@@ -175,9 +175,9 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 	return 0;
 }
 
-void sound_seal_done(void)
+void soundb_seal_done(void)
 {
-	log_std(("sound:seal: sound_seal_done()\n"));
+	log_std(("sound:seal: soundb_seal_done()\n"));
 
 	if (seal_state.active_flag) {
 		seal_state.active_flag = 0;
@@ -186,7 +186,7 @@ void sound_seal_done(void)
 	}
 }
 
-void sound_seal_stop(void)
+void soundb_seal_stop(void)
 {
 	unsigned i;
 
@@ -196,7 +196,7 @@ void sound_seal_stop(void)
 	_remove_irq(SOUND_INT);
 #endif
 
-	log_std(("sound:seal: sound_seal_stop()\n"));
+	log_std(("sound:seal: soundb_seal_stop()\n"));
 
 	for (i=0;i<seal_state.channel;++i) {
 		assert( seal_state.wave[i] );
@@ -211,16 +211,16 @@ void sound_seal_stop(void)
 	}
 }
 
-static unsigned sound_seal_current(void)
+static unsigned soundb_seal_current(void)
 {
 	LONG play_pos;
 	AGetVoicePosition(seal_state.voice[0], &play_pos);
 	return play_pos;
 }
 
-unsigned sound_seal_buffered(void)
+unsigned soundb_seal_buffered(void)
 {
-	unsigned play_pos = sound_seal_current();
+	unsigned play_pos = soundb_seal_current();
 	unsigned missing;
 
 	if (play_pos <= seal_state.pos)
@@ -231,11 +231,11 @@ unsigned sound_seal_buffered(void)
 	return missing;
 }
 
-static adv_bool sound_seal_overflow(unsigned pos, unsigned length)
+static adv_bool soundb_seal_overflow(unsigned pos, unsigned length)
 {
 	unsigned play_pos;
 
-	play_pos = sound_seal_current();
+	play_pos = soundb_seal_current();
 
 	return pos <= play_pos && play_pos < pos + length;
 }
@@ -244,11 +244,11 @@ static adv_bool sound_seal_overflow(unsigned pos, unsigned length)
 static volatile unsigned seal_int_counter;
 static volatile unsigned seal_int_increment;
 
-static void sound_seal_update(void)
+static void soundb_seal_update(void)
 {
 }
 
-static int sound_seal_int_handler(void)
+static int soundb_seal_int_handler(void)
 {
 	AUpdateAudio();
 
@@ -263,17 +263,17 @@ static int sound_seal_int_handler(void)
 	return 1; /* chain */
 }
 #else
-static void sound_seal_update(void)
+static void soundb_seal_update(void)
 {
-	AUpdateAudioEx(sound_seal_buffered());
+	AUpdateAudioEx(soundb_seal_buffered());
 }
 #endif
 
-adv_error sound_seal_start(double silence_time)
+adv_error soundb_seal_start(double silence_time)
 {
 	unsigned i;
 
-	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n", silence_time));
+	log_std(("sound:seal: soundb_seal_start(silecen_time:%g)\n", silence_time));
 
 	for(i=0;i<seal_state.channel;++i)
 	{
@@ -319,15 +319,15 @@ adv_error sound_seal_start(double silence_time)
 
 	seal_state.pos = (unsigned)(silence_time * seal_state.rate) % seal_state.length;
 
-	sound_seal_update();
+	soundb_seal_update();
 
 	seal_state.last = target_clock();
 
-	log_std(("sound:seal: sound_seal_start current %d, buffered %d\n", sound_seal_current(), sound_seal_buffered()));
+	log_std(("sound:seal: soundb_seal_start current %d, buffered %d\n", soundb_seal_current(), soundb_seal_buffered()));
 
 #ifdef USE_SOUND_INT
 	log_std(("sound:seal: install_irq()\n"));
-	_install_irq(SOUND_INT, sound_seal_int_handler);
+	_install_irq(SOUND_INT, soundb_seal_int_handler);
 	seal_int_counter = 0;
 	seal_int_increment = SOUND_BPS_TO_TIMER(SOUND_INT_BPS);;
 	set_timer_rate(seal_int_increment);
@@ -336,11 +336,11 @@ adv_error sound_seal_start(double silence_time)
 	return 0;
 }
 
-void sound_seal_volume(double volume)
+void soundb_seal_volume(double volume)
 {
 	int v;
 
-	log_std(("sound:seal: sound_seal_volume(volume:%g)\n", (double)volume));
+	log_std(("sound:seal: soundb_seal_volume(volume:%g)\n", (double)volume));
 
 	v = volume * 256;
 	if (v < 0)
@@ -350,12 +350,12 @@ void sound_seal_volume(double volume)
 	ASetAudioMixerValue(AUDIO_MIXER_MASTER_VOLUME, v);
 }
 
-void sound_seal_play(const short* sample_map, unsigned sample_count)
+void soundb_seal_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	unsigned count = sample_count;
 	target_clock_t current = target_clock();
 
-	log_debug(("sound:seal: sound_seal_play(count:%d)\n", sample_count));
+	log_debug(("sound:seal: soundb_seal_play(count:%d)\n", sample_count));
 
 	log_debug(("sound:seal: delay from last update %g, samples %g\n",
 		(current - seal_state.last) / (double)TARGET_CLOCKS_PER_SEC,
@@ -364,7 +364,7 @@ void sound_seal_play(const short* sample_map, unsigned sample_count)
 
 	seal_state.last = current;
 
-	if (sound_seal_overflow(seal_state.pos, sample_count)) {
+	if (soundb_seal_overflow(seal_state.pos, sample_count)) {
 		log_std(("ERROR:sound:seal: sound buffer overflow\n"));
 	}
 
@@ -412,39 +412,39 @@ void sound_seal_play(const short* sample_map, unsigned sample_count)
 		}
 	}
 
-	sound_seal_update();
+	soundb_seal_update();
 }
 
-unsigned sound_seal_flags(void)
+unsigned soundb_seal_flags(void)
 {
 	return 0;
 }
 
-adv_error sound_seal_load(adv_conf* context)
+adv_error soundb_seal_load(adv_conf* context)
 {
 	return 0;
 }
 
-void sound_seal_reg(adv_conf* context)
+void soundb_seal_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_seal_driver = {
+soundb_driver soundb_seal_driver = {
 	"seal",
 	DEVICE,
-	sound_seal_load,
-	sound_seal_reg,
-	sound_seal_init,
-	sound_seal_done,
-	sound_seal_flags,
-	sound_seal_play,
-	sound_seal_buffered,
-	sound_seal_start,
-	sound_seal_stop,
-	sound_seal_volume
+	soundb_seal_load,
+	soundb_seal_reg,
+	soundb_seal_init,
+	soundb_seal_done,
+	soundb_seal_flags,
+	soundb_seal_play,
+	soundb_seal_buffered,
+	soundb_seal_start,
+	soundb_seal_stop,
+	soundb_seal_volume
 };
 
 

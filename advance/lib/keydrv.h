@@ -157,33 +157,18 @@ void keyb_disable(void);
  */
 void keyb_abort(void);
 
-static inline unsigned keyb_count_get(void)
-{
-	assert( keyb_state.is_active_flag );
-
-	return keyb_state.driver_current->count_get();
-}
+unsigned keyb_count_get(void);
 
 /**
  * Return the capabilities flag of the keyboard driver.
  */
-static inline unsigned keyb_flags(void)
-{
-	assert( keyb_state.is_active_flag );
-
-	return keyb_state.driver_current->flags();
-}
+unsigned keyb_flags(void);
 
 /**
  * Check if a keyboard has the specified key.
  * \param code One of the KEYB_* codes.
  */
-static inline adv_bool keyb_has(unsigned keyboard, unsigned code)
-{
-	assert( keyb_state.is_active_flag );
-
-	return keyb_state.driver_current->has(keyboard, code);
-}
+adv_bool keyb_has(unsigned keyboard, unsigned code);
 
 /**
  * Get the status of the specified key.
@@ -192,46 +177,26 @@ static inline adv_bool keyb_has(unsigned keyboard, unsigned code)
  *  - == 0 not pressed
  *  - != 0 pressed
  */
-static inline unsigned keyb_get(unsigned keyboard, unsigned code)
-{
-	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
-
-	return keyb_state.driver_current->get(keyboard, code);
-}
+unsigned keyb_get(unsigned keyboard, unsigned code);
 
 /**
  * Get the status of all the keys.
  * \param code_map The destination vector of KEYB_MAX elements.
  */
-static inline void keyb_all_get(unsigned keyboard, unsigned char* code_map)
-{
-	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
-
-	keyb_state.driver_current->all_get(keyboard, code_map);
-}
+void keyb_all_get(unsigned keyboard, unsigned char* code_map);
 
 /**
  * Poll the keyboard status.
  * This function must be called periodically to ensure that
  * the keyboard events are processed.
  */
-static inline void keyb_poll(void)
-{
-	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
-
-	keyb_state.driver_current->poll();
-}
+void keyb_poll(void);
 
 /**
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* keyb_name(void)
-{
-	assert( keyb_state.is_active_flag );
-
-	return keyb_state.driver_current->name;
-}
+const char* keyb_name(void);
 
 /*@}*/
 

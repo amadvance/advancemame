@@ -98,9 +98,9 @@ static void mouseb_setup(struct mouse_item_context* item)
 		{ MOUSE_LEFTBUTTON, "left" },
 		{ MOUSE_RIGHTBUTTON, "right" },
 		{ MOUSE_MIDDLEBUTTON, "middle" },
-		{ MOUSE_FOURTHBUTTON, "fourth" },
-		{ MOUSE_FIFTHBUTTON, "fifth" },
-		{ MOUSE_SIXTHBUTTON, "sixth" }
+		{ MOUSE_FOURTHBUTTON, "button4" },
+		{ MOUSE_FIFTHBUTTON, "button5" },
+		{ MOUSE_SIXTHBUTTON, "button6" }
 	};
 
 	struct axe_entry {
@@ -172,13 +172,17 @@ adv_error mouseb_raw_init(int mouseb_id)
 
 	raw_state.mac = 0;
 	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		log_std(("mouseb:raw: opening mouse %s\n", raw_state.map[i].context.dev));
 		if (raw_mouse_init(&raw_state.map[i].context) == 0) {
+			log_std(("mouseb:raw: open device %s\n", raw_state.map[i].context.dev));
+
 			mouseb_setup(&raw_state.map[i]);
+
 			raw_state.map[i].active_flag = 1;
 			raw_state.mac = i + 1;
 		} else {
-			log_std(("mouseb:raw: error opening mouse device %s, errno %d (%s)\n", raw_state.map[i].context.dev, errno, strerror(errno)));
+			if (errno != ENODEV) {
+				log_std(("ERROR:mouseb:raw: error opening device %s, errno %d (%s)\n", raw_state.map[i].context.dev, errno, strerror(errno)));
+			}
 			raw_state.map[i].active_flag = 0;
 		}
 	}
@@ -217,17 +221,12 @@ unsigned mouseb_raw_axe_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:raw: mouseb_raw_axe_count_get()\n"));
 
-	assert(mouse < mouseb_raw_count_get());
-
 	return raw_state.map[mouse].axe_mac;
 }
 
 const char* mouseb_raw_axe_name_get(unsigned mouse, unsigned axe)
 {
 	log_debug(("mouseb:raw: mouseb_raw_axe_name_get()\n"));
-
-	assert(mouse < mouseb_raw_count_get());
-	assert(axe < mouseb_raw_axe_count_get(mouse));
 
 	return raw_state.map[mouse].axe_map[axe].name;
 }
@@ -236,17 +235,12 @@ unsigned mouseb_raw_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:raw: mouseb_raw_button_count_get()\n"));
 
-	assert(mouse < mouseb_raw_count_get());
-
 	return raw_state.map[mouse].button_mac;
 }
 
 const char* mouseb_raw_button_name_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:raw: mouseb_raw_button_name_get()\n"));
-
-	assert(mouse < mouseb_raw_count_get());
-	assert(button < mouseb_raw_button_count_get(mouse));
 
 	return raw_state.map[mouse].button_map[button].name;
 }
@@ -257,9 +251,6 @@ int mouseb_raw_axe_get(unsigned mouse, unsigned axe)
 
 	log_debug(("mouseb:raw: mouseb_raw_pos_get()\n"));
 
-	assert(mouse < mouseb_raw_count_get());
-	assert(axe < mouseb_raw_axe_count_get(mouse));
-
 	r = *raw_state.map[mouse].axe_map[axe].pvalue;
 	*raw_state.map[mouse].axe_map[axe].pvalue = 0;
 
@@ -269,9 +260,6 @@ int mouseb_raw_axe_get(unsigned mouse, unsigned axe)
 unsigned mouseb_raw_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:raw: mouseb_raw_button_get()\n"));
-
-	assert(mouse < mouseb_raw_count_get());
-	assert(button < mouseb_raw_button_count_get(mouse) );
 
 	return (raw_state.map[mouse].button_map[button].code & *raw_state.map[mouse].button_map[button].pvalue) != 0;
 }

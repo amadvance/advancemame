@@ -158,3 +158,182 @@ void joystickb_abort(void)
 	}
 }
 
+unsigned joystickb_count_get(void)
+{
+	assert(joystickb_state.is_active_flag);
+
+	return joystickb_state.driver_current->count_get();
+}
+
+unsigned joystickb_stick_count_get(unsigned joystick)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+
+	return joystickb_state.driver_current->stick_count_get(joystick);
+}
+
+unsigned joystickb_stick_axe_count_get(unsigned joystick, unsigned stick)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(stick < joystickb_stick_count_get(joystick) );
+
+	return joystickb_state.driver_current->stick_axe_count_get(joystick, stick);
+}
+
+unsigned joystickb_button_count_get(unsigned joystick)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+
+	return joystickb_state.driver_current->button_count_get(joystick);
+}
+
+unsigned joystickb_rel_count_get(unsigned joystick)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+
+	if (joystickb_state.driver_current->rel_count_get)
+		return joystickb_state.driver_current->rel_count_get(joystick);
+	else
+		return 0;
+}
+
+const char* joystickb_stick_name_get(unsigned joystick, unsigned stick)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(stick < joystickb_stick_count_get(joystick) );
+
+	if (joystickb_state.driver_current->stick_name_get)
+		return joystickb_state.driver_current->stick_name_get(joystick, stick);
+
+	snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick%d", stick+1);
+
+	return joystickb_state.stick_name_buffer;
+}
+
+const char* joystickb_stick_axe_name_get(unsigned joystick, unsigned stick, unsigned axe)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(stick < joystickb_stick_count_get(joystick));
+	assert(axe < joystickb_stick_axe_count_get(joystick, stick));
+
+	if (joystickb_state.driver_current->stick_axe_name_get)
+		return joystickb_state.driver_current->stick_axe_name_get(joystick, stick, axe);
+
+	switch (axe) {
+	case 0 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "x"); break;
+	case 1 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "y"); break;
+	case 2 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "z"); break;
+	default: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "axe%d", axe+1);
+	}
+
+	return joystickb_state.axe_name_buffer;
+}
+
+const char* joystickb_button_name_get(unsigned joystick, unsigned button)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(button < joystickb_button_count_get(joystick) );
+
+	if (joystickb_state.driver_current->button_name_get)
+		return joystickb_state.driver_current->button_name_get(joystick, button);
+
+	snprintf(joystickb_state.button_name_buffer, sizeof(joystickb_state.button_name_buffer), "button%d", button+1);
+
+	return joystickb_state.button_name_buffer;
+}
+
+const char* joystickb_rel_name_get(unsigned joystick, unsigned rel)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(rel < joystickb_rel_count_get(joystick) );
+
+	if (joystickb_state.driver_current->rel_name_get)
+		return joystickb_state.driver_current->rel_name_get(joystick, rel);
+
+	switch (rel) {
+	case 0 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "x"); break;
+	case 1 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "y"); break;
+	case 2 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "z"); break;
+	default: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "rel%d", rel+1);
+	}
+
+	return joystickb_state.rel_name_buffer;
+}
+
+unsigned joystickb_button_get(unsigned joystick, unsigned button)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(button < joystickb_button_count_get(joystick));
+
+	return joystickb_state.driver_current->button_get(joystick, button);
+}
+
+unsigned joystickb_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(stick < joystickb_stick_count_get(joystick) );
+	assert(axe < joystickb_stick_axe_count_get(joystick, stick) );
+
+	return joystickb_state.driver_current->stick_axe_digital_get(joystick, stick, axe, d);
+}
+
+int joystickb_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(stick < joystickb_stick_count_get(joystick) );
+	assert(axe < joystickb_stick_axe_count_get(joystick, stick) );
+
+	return joystickb_state.driver_current->stick_axe_analog_get(joystick, stick, axe);
+}
+
+int joystickb_rel_get(unsigned joystick, unsigned rel)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(rel < joystickb_rel_count_get(joystick) );
+
+	return joystickb_state.driver_current->rel_get(joystick, rel);
+}
+
+void joystickb_calib_start(void)
+{
+	assert( joystickb_state.is_active_flag );
+
+	if (joystickb_state.driver_current->calib_start)
+		joystickb_state.driver_current->calib_start();
+}
+
+const char* joystickb_calib_next(void)
+{
+	assert( joystickb_state.is_active_flag );
+
+	if (joystickb_state.driver_current->calib_next)
+		return joystickb_state.driver_current->calib_next();
+	else
+		return 0;
+}
+
+void joystickb_poll(void)
+{
+	assert( joystickb_state.is_active_flag );
+
+	joystickb_state.driver_current->poll();
+}
+
+const char* joystickb_name(void)
+{
+	assert( joystickb_state.is_active_flag );
+
+	return joystickb_state.driver_current->name;
+}

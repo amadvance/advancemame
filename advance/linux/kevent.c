@@ -444,9 +444,6 @@ adv_bool keyb_event_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:event: keyb_event_has()\n"));
 
-	assert(keyboard < keyb_event_count_get());
-	assert(code < KEYB_MAX);
-
 	/* remove unknown key */
 	if (event_state.map_up_to_low[code] == LOW_INVALID)
 		return 0;
@@ -461,9 +458,6 @@ adv_bool keyb_event_has(unsigned keyboard, unsigned code)
 unsigned keyb_event_get(unsigned keyboard, unsigned code)
 {
 	unsigned low_code;
-
-	assert(keyboard < keyb_event_count_get());
-	assert(code < KEYB_MAX);
 
 	log_debug(("keyb:event: keyb_event_get(keyboard:%d,code:%d)\n", keyboard, code));
 
@@ -481,8 +475,6 @@ unsigned keyb_event_get(unsigned keyboard, unsigned code)
 void keyb_event_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
-
-	assert(keyboard < keyb_event_count_get());
 
 	log_debug(("keyb:event: keyb_event_all_get(keyboard:%d)\n", keyboard));
 

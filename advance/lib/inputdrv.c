@@ -184,3 +184,24 @@ void inputb_abort(void)
 	}
 }
 
+adv_bool inputb_hit(void)
+{
+	assert(inputb_state.is_active_flag && inputb_state.is_enabled_flag);
+
+	return inputb_state.driver_current->hit();
+}
+
+unsigned inputb_get(void)
+{
+	assert(inputb_state.is_active_flag && inputb_state.is_enabled_flag);
+
+	return inputb_state.driver_current->get();
+}
+
+const char* inputb_name(void)
+{
+	assert(inputb_state.is_active_flag);
+
+	return inputb_state.driver_current->name;
+}
+

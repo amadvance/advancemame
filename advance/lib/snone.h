@@ -48,7 +48,7 @@ extern "C" {
  * Sound driver "none".
  * This driver implement a null sound. No output is generated.
  */
-extern sound_driver sound_none_driver;
+extern soundb_driver soundb_none_driver;
 
 /*@}*/
 

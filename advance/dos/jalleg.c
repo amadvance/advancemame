@@ -224,17 +224,12 @@ unsigned joystickb_allegro_stick_count_get(unsigned j)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_count_get()\n"));
 
-	assert(j < joystickb_allegro_count_get());
-
 	return joy[j].num_sticks;
 }
 
 unsigned joystickb_allegro_stick_axe_count_get(unsigned j, unsigned s)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_count_get()\n"));
-
-	assert(j < joystickb_allegro_count_get());
-	assert(s < joystickb_allegro_stick_count_get(j) );
 
 	return joy[j].stick[s].num_axis;
 }
@@ -243,17 +238,12 @@ unsigned joystickb_allegro_button_count_get(unsigned j)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_button_count_get()\n"));
 
-	assert(j < joystickb_allegro_count_get());
-
 	return joy[j].num_buttons;
 }
 
 const char* joystickb_allegro_stick_name_get(unsigned j, unsigned s)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_name_get()\n"));
-
-	assert(j < joystickb_allegro_count_get());
-	assert(s < joystickb_allegro_stick_count_get(j) );
 
 	return joy[j].stick[s].name;
 }
@@ -262,19 +252,12 @@ const char* joystickb_allegro_stick_axe_name_get(unsigned j, unsigned s, unsigne
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_name_get()\n"));
 
-	assert(j < joystickb_allegro_count_get());
-	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
-
 	return joy[j].stick[s].axis[a].name;
 }
 
 const char* joystickb_allegro_button_name_get(unsigned j, unsigned b)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_button_name_get()\n"));
-
-	assert(j < joystickb_allegro_count_get());
-	assert(b < joystickb_allegro_button_count_get(j) );
 
 	return joy[j].button[b].name;
 }
@@ -283,9 +266,6 @@ unsigned joystickb_allegro_button_get(unsigned j, unsigned b)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_button_get()\n"));
 
-	assert(j < joystickb_allegro_count_get());
-	assert(b < joystickb_allegro_button_count_get(j) );
-
 	return joy[j].button[b].b;
 }
 
@@ -293,10 +273,6 @@ unsigned joystickb_allegro_stick_axe_digital_get(unsigned j, unsigned s, unsigne
 {
 	const JOYSTICK_AXIS_INFO* jai;
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_digital_get()\n"));
-
-	assert(j < joystickb_allegro_count_get());
-	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
 
 	jai = &joy[j].stick[s].axis[a];
 	if (d)
@@ -310,10 +286,6 @@ unsigned joystickb_allegro_stick_axe_digital_get(unsigned j, unsigned s, unsigne
 int joystickb_allegro_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_analog_get()\n"));
-
-	assert(j < joystickb_allegro_count_get());
-	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
 
 	return joy[j].stick[s].axis[a].pos;
 }

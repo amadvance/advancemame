@@ -43,28 +43,28 @@
  *  - USE_SOUND_SDL
  *  - USE_SOUND_NONE
  */
-void sound_reg_driver_all(adv_conf* context)
+void soundb_reg_driver_all(adv_conf* context)
 {
 #ifdef USE_SOUND_SEAL
-	sound_reg_driver(context, &sound_seal_driver);
+	soundb_reg_driver(context, &soundb_seal_driver);
 #endif
 #ifdef USE_SOUND_ALLEGRO
-	sound_reg_driver(context, &sound_allegro_driver);
+	soundb_reg_driver(context, &soundb_allegro_driver);
 #endif
 #ifdef USE_SOUND_VSYNC
-	sound_reg_driver(context, &sound_vsync_driver);
+	soundb_reg_driver(context, &soundb_vsync_driver);
 #endif
 #ifdef USE_SOUND_ALSA
-	sound_reg_driver(context, &sound_alsa_driver);
+	soundb_reg_driver(context, &soundb_alsa_driver);
 #endif
 #ifdef USE_SOUND_OSS
-	sound_reg_driver(context, &sound_oss_driver);
+	soundb_reg_driver(context, &soundb_oss_driver);
 #endif
 #ifdef USE_SOUND_SDL
-	sound_reg_driver(context, &sound_sdl_driver);
+	soundb_reg_driver(context, &soundb_sdl_driver);
 #endif
 #ifdef USE_SOUND_NONE
-	sound_reg_driver(context, &sound_none_driver);
+	soundb_reg_driver(context, &soundb_none_driver);
 #endif
 }
 
@@ -72,7 +72,7 @@ void sound_reg_driver_all(adv_conf* context)
  * Report the available drivers.
  * The driver names are copied in the string separated by spaces.
  */
-void sound_report_driver_all(char* s, unsigned size)
+void soundb_report_driver_all(char* s, unsigned size)
 {
 	*s = 0;
 #ifdef USE_SOUND_SEAL

@@ -96,6 +96,12 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/kraw.o
 endif
+ifeq ($(CONF_LIB_JRAW),yes)
+ADVANCECFLAGS += \
+	-DUSE_JOYSTICK_RAW
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/jraw.o
+endif
 ifeq ($(CONF_LIB_MRAW),yes)
 ADVANCECFLAGS += \
 	-DUSE_MOUSE_RAW

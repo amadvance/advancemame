@@ -60,7 +60,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore);
 /***************************************************************************/
 /* Private */
 
-typedef struct video_internal_struct {
+struct video_state_struct {
 	adv_bool active; /**< !=0 if active. */
 
 	unsigned driver_mac; /**< Number of video driver available. */
@@ -96,9 +96,9 @@ typedef struct video_internal_struct {
 	unsigned char* fake_text_last_map; /**< Fake text last buffer. */
 	unsigned fake_text_dx; /**< Fake text columns. */
 	unsigned fake_text_dy; /**< Fake text rows. */
-} video_internal;
+};
 
-extern video_internal video_state;
+extern struct video_state_struct video_state;
 
 /***************************************************************************/
 /* Informative */

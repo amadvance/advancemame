@@ -140,52 +140,14 @@ unsigned mouseb_allegro_axe_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_axe_count_get()\n"));
 
-	assert(mouse < mouseb_allegro_count_get());
-
 	return 2;
-}
-
-const char* mouseb_allegro_axe_name_get(unsigned mouse, unsigned axe)
-{
-	log_debug(("mouseb:allegro: mouseb_allegro_axe_count_get()\n"));
-
-	assert(mouse < mouseb_allegro_count_get());
-	assert(axe < mouseb_allegro_axe_count_get());
-
-	switch (axe) {
-	case 0 : return "x";
-	case 1 : return "y";
-	}
-
-	return 0;
 }
 
 unsigned mouseb_allegro_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_button_count_get()\n"));
 
-	assert(mouse < mouseb_allegro_count_get());
-
 	return allegro_state.mouse[mouse].buttons_counter;
-}
-
-const char* mouseb_allegro_button_name_get(unsigned mouse, unsigned button)
-{
-	log_debug(("mouseb:allegro: mouseb_allegro_button_count_get()\n"));
-
-	assert(mouse < mouseb_allegro_count_get());
-	assert(button < mouseb_allegro_button_count_get());
-
-	switch (button) {
-	case 0 : return "left";
-	case 1 : return "right";
-	case 2 : return "middle";
-	case 3 : return "forth";
-	case 4 : return "fifth";
-	case 5 : return "sixth";
-	}
-
-	return "unknown";
 }
 
 int mouseb_allegro_axe_get(unsigned mouse, unsigned axe)
@@ -193,9 +155,6 @@ int mouseb_allegro_axe_get(unsigned mouse, unsigned axe)
 	int r;
 
 	log_debug(("mouseb:allegro: mouseb_allegro_pos_get()\n"));
-
-	assert(mouse < mouseb_allegro_count_get());
-	assert(axe < mouseb_allegro_axe_count_get());
 
 	switch (axe) {
 	case 0 : r = allegro_state.mouse[mouse].x; allegro_state.mouse[mouse].x = 0; break;
@@ -209,9 +168,6 @@ int mouseb_allegro_axe_get(unsigned mouse, unsigned axe)
 unsigned mouseb_allegro_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_button_get()\n"));
-
-	assert(mouse < mouseb_allegro_count_get());
-	assert(button < mouseb_allegro_button_count_get(mouse) );
 
 	if (mouse == allegro_state.secondary_at_index) {
 		return (allegro_state.mouse2_button & (1 << button)) != 0;
@@ -268,9 +224,9 @@ mouseb_driver mouseb_allegro_driver = {
 	mouseb_allegro_flags,
 	mouseb_allegro_count_get,
 	mouseb_allegro_axe_count_get,
-	mouseb_allegro_axe_name_get,
+	0,
 	mouseb_allegro_button_count_get,
-	mouseb_allegro_button_name_get,
+	0,
 	mouseb_allegro_axe_get,
 	mouseb_allegro_button_get,
 	mouseb_allegro_poll

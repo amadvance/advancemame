@@ -83,20 +83,6 @@ unsigned mouseb_none_button_get(unsigned mouse, unsigned button)
 	return 0;
 }
 
-const char* mouseb_none_axe_name_get(unsigned mouse, unsigned axe)
-{
-	log_debug(("mouseb:none: mouseb_none_button_name_get()\n"));
-
-	return axe == 0 ? "x" : "y";
-}
-
-const char* mouseb_none_button_name_get(unsigned mouse, unsigned button)
-{
-	log_debug(("mouseb:none: mouseb_none_button_name_get()\n"));
-
-	return 0;
-}
-
 void mouseb_none_poll(void)
 {
 	log_debug(("mouseb:none: mouseb_none_poll()\n"));
@@ -129,9 +115,9 @@ mouseb_driver mouseb_none_driver = {
 	mouseb_none_flags,
 	mouseb_none_count_get,
 	mouseb_none_axe_count_get,
-	mouseb_none_axe_name_get,
+	0,
 	mouseb_none_button_count_get,
-	mouseb_none_button_name_get,
+	0,
 	mouseb_none_axe_get,
 	mouseb_none_button_get,
 	mouseb_none_poll

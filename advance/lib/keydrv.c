@@ -182,4 +182,57 @@ void keyb_abort(void)
 	}
 }
 
+unsigned keyb_count_get(void)
+{
+	assert(keyb_state.is_active_flag);
+
+	return keyb_state.driver_current->count_get();
+}
+
+unsigned keyb_flags(void)
+{
+	assert(keyb_state.is_active_flag);
+
+	return keyb_state.driver_current->flags();
+}
+
+adv_bool keyb_has(unsigned keyboard, unsigned code)
+{
+	assert(keyb_state.is_active_flag);
+	assert(keyboard < keyb_count_get());
+	assert(code < KEYB_MAX);
+
+	return keyb_state.driver_current->has(keyboard, code);
+}
+
+unsigned keyb_get(unsigned keyboard, unsigned code)
+{
+	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
+	assert(keyboard < keyb_count_get());
+	assert(code < KEYB_MAX);
+
+	return keyb_state.driver_current->get(keyboard, code);
+}
+
+void keyb_all_get(unsigned keyboard, unsigned char* code_map)
+{
+	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
+	assert(keyboard < keyb_count_get());
+
+	keyb_state.driver_current->all_get(keyboard, code_map);
+}
+
+void keyb_poll(void)
+{
+	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
+
+	keyb_state.driver_current->poll();
+}
+
+const char* keyb_name(void)
+{
+	assert(keyb_state.is_active_flag);
+
+	return keyb_state.driver_current->name;
+}
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,23 +29,23 @@
  */
 
 /** \file
- * Sound driver "oss".
+ * Joystick driver "raw".
  */
 
-#ifndef __SOSS_H
-#define __SOSS_H
+#ifndef __JRAW_H
+#define __JRAW_H
 
-#include "sounddrv.h"
+#include "joydrv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * Sound driver "oss".
- * \ingroup Sound
+ * Joystick driver "raw".
+ * \ingroup Joystick
  */
-extern soundb_driver soundb_oss_driver;
+extern joystickb_driver joystickb_raw_driver;
 
 #ifdef __cplusplus
 }

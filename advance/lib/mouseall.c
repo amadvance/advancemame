@@ -35,18 +35,15 @@
 /**
  * Register all the mouse drivers.
  * The drivers are registered on the basis of the following defines:
- *  - USE_MOUSE_ALLEGRO
  *  - USE_MOUSE_EVENT
  *  - USE_MOUSE_SVGALIB
  *  - USE_MOUSE_RAW
  *  - USE_MOUSE_SDL
+ *  - USE_MOUSE_ALLEGRO
  *  - USE_MOUSE_NONE
  */
 void mouseb_reg_driver_all(adv_conf* context)
 {
-#ifdef USE_MOUSE_ALLEGRO
-	mouseb_reg_driver(context, &mouseb_allegro_driver);
-#endif
 #ifdef USE_MOUSE_EVENT
 	mouseb_reg_driver(context, &mouseb_event_driver);
 #endif
@@ -58,6 +55,9 @@ void mouseb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_MOUSE_SDL
 	mouseb_reg_driver(context, &mouseb_sdl_driver);
+#endif
+#ifdef USE_MOUSE_ALLEGRO
+	mouseb_reg_driver(context, &mouseb_allegro_driver);
 #endif
 #ifdef USE_MOUSE_NONE
 	mouseb_reg_driver(context, &mouseb_none_driver);
@@ -71,9 +71,6 @@ void mouseb_reg_driver_all(adv_conf* context)
 void mouseb_report_driver_all(char* s, unsigned size)
 {
 	*s = 0;
-#ifdef USE_MOUSE_ALLEGRO
-	sncat(s, size, " allegro");
-#endif
 #ifdef USE_MOUSE_EVENT
 	sncat(s, size, " event");
 #endif
@@ -85,6 +82,9 @@ void mouseb_report_driver_all(char* s, unsigned size)
 #endif
 #ifdef USE_MOUSE_SDL
 	sncat(s, size, " sdl");
+#endif
+#ifdef USE_MOUSE_ALLEGRO
+	sncat(s, size, " allegro");
 #endif
 #ifdef USE_MOUSE_NONE
 	sncat(s, size, " none");

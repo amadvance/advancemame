@@ -272,7 +272,7 @@ PACKAGE_VERSION='source'
 PACKAGE_STRING='advance source'
 PACKAGE_BUGREPORT=''
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_HOST EXE_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER ZLIBS CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT CONF LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_HOST EXE_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER ZLIBS CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT CONF LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -833,6 +833,8 @@ Optional Features:
   --enable-svgawin        enable the use of the SVGAWIN library. (default
                           auto)
   --enable-kraw           enable the use of the raw keyboard interface.
+                          (default auto)
+  --enable-jraw           enable the use of the raw joystick interface.
                           (default auto)
   --enable-mraw           enable the use of the raw mouse interface. (default
                           auto)
@@ -5479,6 +5481,117 @@ fi
 CONF_LIB_KRAW=$ac_lib_kraw
 
 
+# Check whether --enable-jraw or --disable-jraw was given.
+if test "${enable_jraw+set}" = set; then
+  enableval="$enable_jraw"
+  ac_lib_jraw=$enableval
+else
+  ac_lib_jraw=auto
+
+fi;
+if test $ac_lib_jraw = auto; then
+	echo "$as_me:$LINENO: checking for raw joystick interface" >&5
+echo $ECHO_N "checking for raw joystick interface... $ECHO_C" >&6
+	cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+			#include <linux/joystick.h>
+
+int
+main ()
+{
+
+			#ifndef JS_VERSION
+			choke me
+			#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_lib_jraw=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_lib_jraw=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+	echo "$as_me:$LINENO: result: $ac_lib_jraw" >&5
+echo "${ECHO_T}$ac_lib_jraw" >&6
+elif test $ac_lib_jraw = yes; then
+	echo "$as_me:$LINENO: checking for raw joystick interface" >&5
+echo $ECHO_N "checking for raw joystick interface... $ECHO_C" >&6
+	cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+			#include <linux/joystick.h>
+
+int
+main ()
+{
+
+			#ifndef JS_VERSION
+			choke me
+			#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  :
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+{ { echo "$as_me:$LINENO: error: the JRAW joystick interface is missing" >&5
+echo "$as_me: error: the JRAW joystick interface is missing" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+	echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+fi
+if test $ac_lib_jraw = yes; then
+	ac_lib_joystick="$ac_lib_joystick raw"
+fi
+CONF_LIB_JRAW=$ac_lib_jraw
+
+
 # Check whether --enable-mraw or --disable-mraw was given.
 if test "${enable_mraw+set}" = set; then
   enableval="$enable_mraw"
@@ -5572,8 +5685,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: the KRAW mouse interface is missing" >&5
-echo "$as_me: error: the KRAW mouse interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the MRAW mouse interface is missing" >&5
+echo "$as_me: error: the MRAW mouse interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -6597,6 +6710,7 @@ s,@SDLLIBS@,$SDLLIBS,;t t
 s,@CONF_LIB_SDL@,$CONF_LIB_SDL,;t t
 s,@CONF_LIB_SVGAWIN@,$CONF_LIB_SVGAWIN,;t t
 s,@CONF_LIB_KRAW@,$CONF_LIB_KRAW,;t t
+s,@CONF_LIB_JRAW@,$CONF_LIB_JRAW,;t t
 s,@CONF_LIB_MRAW@,$CONF_LIB_MRAW,;t t
 s,@CONF_LIB_MEVENT@,$CONF_LIB_MEVENT,;t t
 s,@CONF_LIB_KEVENT@,$CONF_LIB_KEVENT,;t t

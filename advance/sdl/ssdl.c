@@ -46,30 +46,30 @@ struct sdl_option_struct {
 
 static struct sdl_option_struct sdl_option;
 
-struct sound_sdl_context {
+struct soundb_sdl_context {
 	adv_bool active_flag;
 
 	SDL_AudioSpec info;
 
 	unsigned fifo_pos;
 	unsigned fifo_mac;
-	sound_sample_t fifo_map[FIFO_MAX];
+	adv_sample fifo_map[FIFO_MAX];
 
 	adv_bool underflow_flag;
 
 	int volume; /**< Volume adjustmennt. 256 == 1.0 */
 };
 
-static struct sound_sdl_context sdl_state;
+static struct soundb_sdl_context sdl_state;
 
 static adv_device DEVICE[] = {
 { "auto", -1, "SDL sound" },
 { 0, 0, 0 }
 };
 
-static void sound_sdl_callback(void *userdata, Uint8 *stream, int len)
+static void soundb_sdl_callback(void *userdata, Uint8 *stream, int len)
 {
-	struct sound_sdl_context* state = (struct sound_sdl_context*)userdata;
+	struct soundb_sdl_context* state = (struct soundb_sdl_context*)userdata;
 	unsigned samples_count;
 	Uint8* samples_buffer;
 
@@ -93,14 +93,14 @@ static void sound_sdl_callback(void *userdata, Uint8 *stream, int len)
 	}
 }
 
-adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	char name[64];
 
-	log_std(("sound:sdl: sound_sdl_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", (unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
+	log_std(("sound:sdl: soundb_sdl_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", (unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
 
 	if (!sdl_option.initialized) {
-		sound_sdl_default();
+		soundb_sdl_default();
 	}
 
 	sdl_state.underflow_flag = 0;
@@ -121,7 +121,7 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	sdl_state.info.format = AUDIO_S16LSB;
 	sdl_state.info.channels = stereo_flag ? 2 : 1;
 	sdl_state.info.samples = sdl_option.samples;
-	sdl_state.info.callback = sound_sdl_callback;
+	sdl_state.info.callback = soundb_sdl_callback;
 	sdl_state.info.userdata = &sdl_state;
 
 	log_std(("sound:sdl: request fragment size %d [samples]\n", sdl_state.info.samples));
@@ -145,9 +145,9 @@ err:
 	return -1;
 }
 
-void sound_sdl_done(void)
+void soundb_sdl_done(void)
 {
-	log_std(("sound:sdl: sound_sdl_done()\n"));
+	log_std(("sound:sdl: soundb_sdl_done()\n"));
 
 	if (sdl_state.active_flag) {
 		sdl_state.active_flag = 0;
@@ -156,21 +156,21 @@ void sound_sdl_done(void)
 	}
 }
 
-void sound_sdl_stop(void)
+void soundb_sdl_stop(void)
 {
-	log_std(("sound:sdl: sound_sdl_stop()\n"));
+	log_std(("sound:sdl: soundb_sdl_stop()\n"));
 
 	SDL_PauseAudio(1);
 }
 
-unsigned sound_sdl_buffered(void)
+unsigned soundb_sdl_buffered(void)
 {
 	return sdl_state.fifo_mac / sdl_state.info.channels;
 }
 
-void sound_sdl_volume(double volume)
+void soundb_sdl_volume(double volume)
 {
-	log_std(("sound:sdl: sound_sdl_volume(volume:%g)\n", (double)volume));
+	log_std(("sound:sdl: soundb_sdl_volume(volume:%g)\n", (double)volume));
 
 	sdl_state.volume = volume * 256;
 	if (sdl_state.volume < 0)
@@ -179,14 +179,14 @@ void sound_sdl_volume(double volume)
 		sdl_state.volume = 256;
 }
 
-void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count)
+void soundb_sdl_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	unsigned i;
 	unsigned count = sample_count * sdl_state.info.channels;
 
 	SDL_LockAudio();
 
-	log_debug(("sound:sdl: sound_sdl_play(count:%d), stored %d\n", sample_count, sdl_state.fifo_mac / sdl_state.info.channels));
+	log_debug(("sound:sdl: soundb_sdl_play(count:%d), stored %d\n", sample_count, sdl_state.fifo_mac / sdl_state.info.channels));
 
 	if (sdl_state.underflow_flag) {
 		sdl_state.underflow_flag = 0;
@@ -218,18 +218,18 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count)
 		}
 	}
 
-	log_debug(("sound:sdl: sound_sdl_play() return stored %d\n", sdl_state.fifo_mac / sdl_state.info.channels));
+	log_debug(("sound:sdl: soundb_sdl_play() return stored %d\n", sdl_state.fifo_mac / sdl_state.info.channels));
 
 	SDL_UnlockAudio();
 }
 
-adv_error sound_sdl_start(double silence_time)
+adv_error soundb_sdl_start(double silence_time)
 {
-	sound_sample_t buf[256];
+	adv_sample buf[256];
 	unsigned sample;
 	unsigned i;
 
-	log_std(("sound:sdl: sound_sdl_start(silence_time:%g)\n", (double)silence_time));
+	log_std(("sound:sdl: soundb_sdl_start(silence_time:%g)\n", (double)silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = sdl_state.info.silence;
@@ -243,7 +243,7 @@ adv_error sound_sdl_start(double silence_time)
 		if (run > 256)
 			run = 256;
 		sample -= run;
-		sound_sdl_play(buf, run / sdl_state.info.channels);
+		soundb_sdl_play(buf, run / sdl_state.info.channels);
 	}
 
 	SDL_PauseAudio(0);
@@ -251,7 +251,7 @@ adv_error sound_sdl_start(double silence_time)
 	return 0;
 }
 
-unsigned sound_sdl_flags(void)
+unsigned soundb_sdl_flags(void)
 {
 	return 0;
 }
@@ -271,7 +271,7 @@ static adv_conf_enum_int OPTION[] = {
 { "16384", 16384 }
 };
 
-adv_error sound_sdl_load(adv_conf* context)
+adv_error soundb_sdl_load(adv_conf* context)
 {
 	sdl_option.samples = conf_int_get_default(context, "device_sdl_samples");
 
@@ -280,7 +280,7 @@ adv_error sound_sdl_load(adv_conf* context)
 	return 0;
 }
 
-void sound_sdl_reg(adv_conf* context)
+void soundb_sdl_reg(adv_conf* context)
 {
 	unsigned def_samples;
 
@@ -294,7 +294,7 @@ void sound_sdl_reg(adv_conf* context)
 	conf_int_register_enum_default(context, "device_sdl_samples", conf_enum(OPTION), def_samples);
 }
 
-void sound_sdl_default(void)
+void soundb_sdl_default(void)
 {
 	sdl_option.samples = 512;
 	sdl_option.initialized = 1;
@@ -303,19 +303,19 @@ void sound_sdl_default(void)
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_sdl_driver = {
+soundb_driver soundb_sdl_driver = {
 	"sdl",
 	DEVICE,
-	sound_sdl_load,
-	sound_sdl_reg,
-	sound_sdl_init,
-	sound_sdl_done,
-	sound_sdl_flags,
-	sound_sdl_play,
-	sound_sdl_buffered,
-	sound_sdl_start,
-	sound_sdl_stop,
-	sound_sdl_volume
+	soundb_sdl_load,
+	soundb_sdl_reg,
+	soundb_sdl_init,
+	soundb_sdl_done,
+	soundb_sdl_flags,
+	soundb_sdl_play,
+	soundb_sdl_buffered,
+	soundb_sdl_start,
+	soundb_sdl_stop,
+	soundb_sdl_volume
 };
 
 

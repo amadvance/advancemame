@@ -45,7 +45,7 @@ extern "C" {
  * Sound driver "vsync".
  * \ingroup Sound
  */
-extern sound_driver sound_vsync_driver;
+extern soundb_driver soundb_vsync_driver;
 
 #ifdef __cplusplus
 }

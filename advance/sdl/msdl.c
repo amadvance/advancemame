@@ -83,46 +83,14 @@ unsigned mouseb_sdl_axe_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_axe_count_get()\n"));
 
-	assert(mouse < mouseb_sdl_count_get());
-
 	return 2;
-}
-
-const char* mouseb_sdl_axe_name_get(unsigned mouse, unsigned axe)
-{
-	log_debug(("mouseb:sdl: mouseb_sdl_axe_name_get()\n"));
-
-	switch (axe) {
-	case 0 : return "x";
-	case 1 : return "y";
-	}
-
-	return 0;
 }
 
 unsigned mouseb_sdl_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_button_count_get()\n"));
 
-	assert(mouse < mouseb_sdl_count_get());
-
 	return SDL_MOUSE_BUTTON_MAX;
-}
-
-const char* mouseb_sdl_button_name_get(unsigned mouse, unsigned button)
-{
-	log_debug(("mouseb:sdl: mouseb_sdl_button_name_get()\n"));
-
-	switch (button) {
-	case 0 : return "left";
-	case 1 : return "right";
-	case 2 : return "middle";
-	case 3 : return "forth";
-	case 4 : return "fifth";
-	case 5 : return "sixth";
-	}
-
-	return "unknown";
 }
 
 int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
@@ -130,9 +98,6 @@ int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
 	int r;
 
 	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
-
-	assert(mouse < mouseb_sdl_count_get());
-	assert(axe < mouseb_sdl_axe_count_get(mouse));
 
 	switch (axe) {
 	case 0 : r = sdl_state.x; sdl_state.x = 0; break;
@@ -146,9 +111,6 @@ int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
 unsigned mouseb_sdl_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_button_get()\n"));
-
-	assert(mouse < mouseb_sdl_count_get());
-	assert(button < mouseb_sdl_button_count_get(mouse) );
 
 	return sdl_state.button_map[button];
 }
@@ -203,9 +165,9 @@ mouseb_driver mouseb_sdl_driver = {
 	mouseb_sdl_flags,
 	mouseb_sdl_count_get,
 	mouseb_sdl_axe_count_get,
-	mouseb_sdl_axe_name_get,
+	0,
 	mouseb_sdl_button_count_get,
-	mouseb_sdl_button_name_get,
+	0,
 	mouseb_sdl_axe_get,
 	mouseb_sdl_button_get,
 	mouseb_sdl_poll

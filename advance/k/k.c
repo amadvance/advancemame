@@ -22,9 +22,10 @@
 #include "conf.h"
 #include "keyall.h"
 #include "target.h"
-#include "portable.h"
 #include "log.h"
 #include "error.h"
+#include "snstring.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -179,6 +179,19 @@ Sound Drivers
     oss - OSS sound
 	This driver works in Linux and it uses the OSS sound library.
 
+    sdl - SDL sound
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL library.
+
+	It isn't able to use the hardware volume control of the sound card.
+	The volume changes are simulated reducing the sample values.
+
+	It isn't able to precisely control the amount of bufferized samples.
+	This means that it may add a small latency on the sound output.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
+
     seal - SEAL sound
 	This driver works in DOS and it uses the SEAL sound library with
 	some specific changes for MAME.
@@ -199,29 +212,9 @@ Sound Drivers
 
 		:http://vsyncmame.mameworld.net
 
-    sdl - SDL sound
-	This driver works in Linux, Windows and Mac OS X and it uses
-	the SDL library.
-
-	It isn't able to use the hardware volume control of the sound card.
-	The volume changes are simulated reducing the sample values.
-
-	It isn't able to precisely control the amount of bufferized samples.
-	This means that it may add a small latency on the sound output.
-
-	You can change some options of this driver using the SDL specific
-	environment variables described in the contrib/sdl/env.txt file.
-
 Input Drivers
   Available Keyboard Drivers
 	The following is the list of all the keyboard drivers supported.
-
-    svgalib - SVGALIB keyboard
-	This driver works in Linux and it uses the SVGALIB library.
-
-	It supports only one keyboard.
-
-	You can change console with ALT+Fx and break the program with CTRL+C.
 
     event - Linux Input-Event interface
 	This driver works in Linux and it uses the new style input-event
@@ -232,6 +225,13 @@ Input Drivers
 	For USB devices this driver doesn't requires any configuration.
 	It's able to autodetect all the present hardware.
 
+    svgalib - SVGALIB keyboard
+	This driver works in Linux and it uses the SVGALIB library.
+
+	It supports only one keyboard.
+
+	You can change console with ALT+Fx and break the program with CTRL+C.
+
     raw - Linux Kernel keyboard
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
@@ -240,14 +240,11 @@ Input Drivers
 
 	You can change console with ALT+Fx and break the program with CTRL+C.
 
-    allegro - Allegro keyboard
-	This driver works in DOS and it uses the Allegro library.
-
-	You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
-
     sdl - SDL keyboard
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL library.
+
+	It supports only one keyboard.
 
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
@@ -255,15 +252,15 @@ Input Drivers
 	In a Window Manager environment you can switch to fullscreen
 	pressing ALT+ENTER.
 
+    allegro - Allegro keyboard
+	This driver works in DOS and it uses the Allegro library.
+
+	It supports only one keyboard.
+
+	You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
+
   Available Joystick Drivers
 	The following is the list of all the joystick drivers supported.
-
-    svgalib - SVGALIB joystick
-	This driver works in Linux and it uses the SVGALIB library.
-
-	It supports more than one joystick at the same time.
-
-	The joysticks are searched on the /dev/jsX devices.
 
     event - Linux Input-Event interface
 	This driver works in Linux and it uses the new style input-event
@@ -283,13 +280,20 @@ Input Drivers
 
 	The joysticks are searched on the /dev/input/eventX devices.
 
-    allegro - Allegro joystick
-	This driver works in DOS and it uses the Allegro library.
+    svgalib - SVGALIB joystick
+	This driver works in Linux and it uses the SVGALIB library.
 
-	It supports only one joystick.
+	It supports up to 4 joysticks at the same time.
 
-	Details on how to build the Parallel Port hardware interfaces for
-	SNES, PSX, N64 and other pads are in the Allegro sources.
+	The joysticks are searched on the /dev/jsX devices.
+
+    raw - Linux Kernel joystick
+	This driver works in Linux and it uses directly the Linux kernel
+	joystick interface.
+
+	It supports up to 4 joysticks at the same time.
+
+	The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
 
     sdl - SDL joystick
 	This driver works in Linux, Windows and Mac OS X and it uses
@@ -300,16 +304,16 @@ Input Drivers
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
 
+    allegro - Allegro joystick
+	This driver works in DOS and it uses the Allegro library.
+
+	It supports only one joystick.
+
+	Details on how to build the Parallel Port hardware interfaces for
+	SNES, PSX, N64 and other pads are in the Allegro sources.
+
   Available Mouse Drivers
 	The following is the list of all the mouse drivers supported.
-
-    svgalib - SVGALIB mouse
-	This driver works in Linux and it uses the SVGALIB library.
-
-	It supports only one mouse.
-
-	To use this driver you need to configure correctly the
-	SVGALIB mouse support in the file /etc/vga/libvga.config file.
 
     event - Linux Input-Event interface
 	This driver works in Linux and it uses the new style input-event
@@ -322,31 +326,39 @@ Input Drivers
 
 	The mouses are searched on the /dev/input/eventX devices.
 
+    svgalib - SVGALIB mouse
+	This driver works in Linux and it uses the SVGALIB library.
+
+	It supports only one mouse.
+
+	To use this driver you need to configure correctly the
+	SVGALIB mouse support in the file /etc/vga/libvga.config file.
+
     raw - Serial mouse
 	This driver works in Linux and it communicates directly with
 	the configured serial mouses. It's also support USB mouses
 	using the Linux mousedev module.
 
-	It supports more than one mouse at the same time.
+	It supports up to 4 mice at the same time.
 
 	To use this driver you need to configure correctly the
 	device_raw_* options to specify the mouse types and the mouse
 	devices.
+
+    sdl - SDL mouse
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL mouse interface.
+
+	It supports only one mouse and only two axes.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
 
     allegro - Allegro mouse
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports up to 2 mouses at the same time using the
 	special `optimous' driver present in the `contrib/' directory.
-
-    sdl - SDL mouse
-	This driver works in Linux, Windows and Mac OS X and it uses
-	the SDL mouse interface.
-
-	It supports only one mouse.
-
-	You can change some options of this driver using the SDL specific
-	environment variables described in the contrib/sdl/env.txt file.
 
 Video Drivers Configuration
 	The following are the video configuration options available for
@@ -730,12 +742,12 @@ Sound Drivers Configuration
 		auto - Automatic detection (default).
 
 	Options for Linux:
-		alsa - ALSA automatic detection.
-		oss - OSS automatic detection.
-		sdl - SDL automatic detection.
+		alsa - ALSA sound interface.
+		oss - OSS sound interface.
+		sdl - SDL sound interface.
 
 	Options for Mac OS X:
-		sdl - SDL automatic detection.
+		sdl - SDL sound interface.
 
 	Options for DOS:
 		seal - SEAL automatic detection.
@@ -765,7 +777,7 @@ Sound Drivers Configuration
 		vsync/ess- Ensoniq Soundscape.
 
 	Options Windows:
-		sdl - SDL automatic detection.
+		sdl - SDL sound interface.
 
 Input Drivers Configuration
     device_keyboard
@@ -779,22 +791,22 @@ Input Drivers Configuration
 
 	Options for Linux:
 		event - Linux input-event interface.
-		svgalib - SVGALIB keyboard.
+		svgalib - SVGALIB keyboard interface.
 		raw - Linux kernel keyboard interface.
-		sdl - SDL keyboard. This driver is available
+		sdl - SDL keyboard interface. This driver is available
 			only if the SDL video output is used.
 
 	If you are using the SDL video driver you must also use the SDL
 	keyboard driver.
 
 	Options for Mac OS X:
-		sdl - SDL keyboard.
+		sdl - SDL keyboard interface.
 
 	Options for DOS:
-		allegro - Allegro automatic detection.
+		allegro - Allegro keyboard interface.
 
 	Options for Windows:
-		sdl - SDL automatic detection.
+		sdl - SDL keyboard interface.
 
     device_joystick
 	Selects the joystick driver.
@@ -807,11 +819,12 @@ Input Drivers Configuration
 
 	Options for Linux:
 		event - Linux input-event interface.
-		svgalib - SVGALIB automatic detection.
-		sdl - SDL automatic detection.
+		svgalib - SVGALIB joystick interface.
+		raw - Linux kernel joystick interface.
+		sdl - SDL joystick interface.
 
 	Options for Mac OS X:
-		sdl - SDL automatic detection.
+		sdl - SDL joystick interface.
 
 	Options for DOS:
 		allegro - Allegro automatic detection.
@@ -848,7 +861,7 @@ Input Drivers Configuration
 		allegro/wingwarrior - Wingman Warrior.
 
 	Options for Windows:
-		sdl - SDL automatic detection.
+		sdl - SDL joystick interface.
 
     device_mouse
 	Selects the mouse driver.
@@ -861,22 +874,18 @@ Input Drivers Configuration
 
 	Options for Linux:
 		event - Linux input-event interface.
-		svgalib - SVGALIB automatic detection.
+		svgalib - SVGALIB mouse interface.
 		raw - Direct serial communication.
-		sdl - SDL automatic detection.
+		sdl - SDL mouse interface.
 
 	Options for Mac OS X:
-		sdl - SDL automatic detection.
+		sdl - SDL mouse interface.
 
 	Options for DOS:
-		allegro - Allegro automatic detection.
-
-	The Allegro driver also uses the special `optimous' driver
-	for a second mouse. The `optimous' driver is available in
-	the `contrib/' directory.
+		allegro - Allegro mouse interface.
 
 	Options for Windows:
-		sdl - SDL automatic detection.
+		sdl - SDL mouse interface.
 
   raw Configuration Options
     device_raw_mousetype[0,1,2,3]

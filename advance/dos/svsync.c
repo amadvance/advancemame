@@ -39,12 +39,12 @@
 #include "wss.h"
 #include "wss.c"
 
-struct sound_vsync_context {
+struct soundb_vsync_context {
 	unsigned channel;
 	unsigned rate;
 };
 
-static struct sound_vsync_context vsync_state;
+static struct soundb_vsync_context vsync_state;
 
 static adv_device DEVICE[] = {
 { "sb", 1, "Sound Blaster" },
@@ -59,9 +59,9 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
-	log_std(("sound:vsync: sound_vsync_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+	log_std(("sound:vsync: soundb_vsync_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
 
 	/* ensure to be able to store the required buffer time */
 	buffer_time *= 2;
@@ -90,32 +90,32 @@ adv_error sound_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, 
 	return 0;
 }
 
-void sound_vsync_done(void)
+void soundb_vsync_done(void)
 {
-	log_std(("sound:vsync: sound_vsync_done()\n"));
+	log_std(("sound:vsync: soundb_vsync_done()\n"));
 
 	log_std(("sound:vsync: w_sound_device_exit()\n"));
 	w_sound_device_exit();
 }
 
-void sound_vsync_stop(void)
+void soundb_vsync_stop(void)
 {
-	log_std(("sound:vsync: sound_vsync_stop()\n"));
+	log_std(("sound:vsync: soundb_vsync_stop()\n"));
 
 	w_set_master_volume(0);
 	w_clear_buffer();
 }
 
-unsigned sound_vsync_buffered(void)
+unsigned soundb_vsync_buffered(void)
 {
 	return w_get_latency();
 }
 
-adv_error sound_vsync_start(double silence_time)
+adv_error soundb_vsync_start(double silence_time)
 {
 	unsigned sample_count;
 
-	log_std(("sound:vsync: sound_vsync_start(silence_time:%g)\n", silence_time));
+	log_std(("sound:vsync: soundb_vsync_start(silence_time:%g)\n", silence_time));
 
 	sample_count = silence_time * vsync_state.rate;
 
@@ -130,11 +130,11 @@ adv_error sound_vsync_start(double silence_time)
 	return 0;
 }
 
-void sound_vsync_volume(double volume)
+void soundb_vsync_volume(double volume)
 {
 	int v;
 
-	log_std(("sound:vsync: sound_vsync_volume(volume:%g)\n", (double)volume));
+	log_std(("sound:vsync: soundb_vsync_volume(volume:%g)\n", (double)volume));
 
 	v = volume * 255;
 	if (v < 0)
@@ -146,11 +146,11 @@ void sound_vsync_volume(double volume)
 	w_set_master_volume(v);
 }
 
-void sound_vsync_play(const short* sample_map, unsigned sample_count)
+void soundb_vsync_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	unsigned count = sample_count;
 
-	log_debug(("sound:vsync: sound_vsync_play(count:%d)\n", sample_count));
+	log_debug(("sound:vsync: soundb_vsync_play(count:%d)\n", sample_count));
 
 	if (sample_count) {
 		w_lock_mixing_buffer(sample_count);
@@ -162,34 +162,34 @@ void sound_vsync_play(const short* sample_map, unsigned sample_count)
 	}
 }
 
-unsigned sound_vsync_flags(void)
+unsigned soundb_vsync_flags(void)
 {
 	return 0;
 }
 
-adv_error sound_vsync_load(adv_conf* context)
+adv_error soundb_vsync_load(adv_conf* context)
 {
 	return 0;
 }
 
-void sound_vsync_reg(adv_conf* context)
+void soundb_vsync_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_vsync_driver = {
+soundb_driver soundb_vsync_driver = {
 	"vsync",
 	DEVICE,
-	sound_vsync_load,
-	sound_vsync_reg,
-	sound_vsync_init,
-	sound_vsync_done,
-	sound_vsync_flags,
-	sound_vsync_play,
-	sound_vsync_buffered,
-	sound_vsync_start,
-	sound_vsync_stop,
-	sound_vsync_volume
+	soundb_vsync_load,
+	soundb_vsync_reg,
+	soundb_vsync_init,
+	soundb_vsync_done,
+	soundb_vsync_flags,
+	soundb_vsync_play,
+	soundb_vsync_buffered,
+	soundb_vsync_start,
+	soundb_vsync_stop,
+	soundb_vsync_volume
 };

@@ -45,7 +45,7 @@ extern "C" {
  * Sound driver "seal".
  * \ingroup Sound
  */
-extern sound_driver sound_seal_driver;
+extern soundb_driver soundb_seal_driver;
 
 #ifdef __cplusplus
 }

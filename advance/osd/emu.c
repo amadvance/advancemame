@@ -156,7 +156,7 @@ static void version(void)
 	target_out("%s %s\n\n", ADVANCE_TITLE, VERSION);
 	video_report_driver_all(report_buffer, sizeof(report_buffer));
 	target_out("Video:%s\n", report_buffer);
-	sound_report_driver_all(report_buffer, sizeof(report_buffer));
+	soundb_report_driver_all(report_buffer, sizeof(report_buffer));
 	target_out("Sound:%s\n", report_buffer);
 	keyb_report_driver_all(report_buffer, sizeof(report_buffer));
 	target_out("Keyboard:%s\n", report_buffer);

@@ -385,17 +385,12 @@ unsigned joystickb_event_stick_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:event: joystickb_event_stick_count_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-
 	return event_state.map[joystick].stick_mac;
 }
 
 unsigned joystickb_event_stick_axe_count_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:event: joystickb_event_stick_axe_count_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(stick < joystickb_event_stick_count_get(joystick) );
 
 	return event_state.map[joystick].stick_map[stick].axe_mac;
 }
@@ -404,19 +399,12 @@ const char* joystickb_event_stick_name_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:event: joystickb_event_stick_name_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-	assert(stick < joystickb_event_stick_count_get(joystick) );
-
 	return event_state.map[joystick].stick_map[stick].name;
 }
 
 const char* joystickb_event_stick_axe_name_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	log_debug(("joystickb:event: joystickb_event_stick_axe_name_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(stick < joystickb_event_stick_count_get(joystick) );
-	assert(axe < joystickb_event_stick_axe_count_get(joystick, stick) );
 
 	return event_state.map[joystick].stick_map[stick].axe_map[axe].name;
 }
@@ -425,10 +413,6 @@ unsigned joystickb_event_stick_axe_digital_get(unsigned joystick, unsigned stick
 {
 	int r;
 	log_debug(("joystickb:event: joystickb_event_stick_axe_digital_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(stick < joystickb_event_stick_count_get(joystick) );
-	assert(axe < joystickb_event_stick_axe_count_get(joystick, stick) );
 
 	r = event_state.map[joystick].stick_map[stick].axe_map[axe].value;
 	if (d)
@@ -444,10 +428,6 @@ int joystickb_event_stick_axe_analog_get(unsigned joystick, unsigned stick, unsi
 	int r;
 	log_debug(("joystickb:event: joystickb_event_stick_axe_analog_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-	assert(stick < joystickb_event_stick_count_get(joystick) );
-	assert(axe < joystickb_event_stick_axe_count_get(joystick, stick) );
-
 	r = event_state.map[joystick].stick_map[stick].axe_map[axe].value_adj;
 
 	return r;
@@ -457,17 +437,12 @@ unsigned joystickb_event_button_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:event: joystickb_event_button_count_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-
 	return event_state.map[joystick].button_mac;
 }
 
 const char* joystickb_event_button_name_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:event: joystickb_event_button_name_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(button < joystickb_event_button_count_get(joystick) );
 
 	return event_state.map[joystick].button_map[button].name;
 }
@@ -476,9 +451,6 @@ unsigned joystickb_event_button_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:event: joystickb_event_button_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-	assert(button < joystickb_event_button_count_get(joystick) );
-
 	return event_state.map[joystick].button_map[button].state != 0;
 }
 
@@ -486,17 +458,12 @@ unsigned joystickb_event_rel_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:event: joystickb_event_rel_count_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-
 	return event_state.map[joystick].rel_mac;
 }
 
 const char* joystickb_event_rel_name_get(unsigned joystick, unsigned rel)
 {
 	log_debug(("joystickb:event: joystickb_event_button_rel_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(rel < joystickb_event_rel_count_get(joystick) );
 
 	return event_state.map[joystick].rel_map[rel].name;
 }
@@ -508,25 +475,10 @@ int joystickb_event_rel_get(unsigned joystick, unsigned rel)
 
 	log_debug(("joystickb:event: joystickb_event_rel_get()\n"));
 
-	assert(joystick < joystickb_event_count_get());
-	assert(rel < joystickb_event_rel_count_get(joystick) );
-
 	r = event_state.map[joystick].rel_map[rel].value;
 	event_state.map[joystick].rel_map[rel].value = 0;
 
 	return r;
-}
-
-void joystickb_event_calib_start(void)
-{
-	log_debug(("joystickb:event: joystickb_event_calib_start()\n"));
-}
-
-const char* joystickb_event_calib_next(void)
-{
-	log_debug(("joystickb:event: joystickb_event_calib_next()\n"));
-
-	return 0;
 }
 
 static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
@@ -643,8 +595,8 @@ joystickb_driver joystickb_event_driver = {
 	joystickb_event_rel_count_get,
 	joystickb_event_rel_name_get,
 	joystickb_event_rel_get,
-	joystickb_event_calib_start,
-	joystickb_event_calib_next,
+	0,
+	0,
 	joystickb_event_poll
 };
 

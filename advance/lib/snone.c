@@ -33,21 +33,21 @@
 
 #include <assert.h>
 
-struct sound_none_context {
+struct soundb_none_context {
 	unsigned rate;
 	unsigned latency;
 };
 
-static struct sound_none_context none_state;
+static struct soundb_none_context none_state;
 
 static adv_device DEVICE[] = {
 { "auto", 0, "No sound" },
 { 0, 0, 0 }
 };
 
-int sound_none_init(int device_id, unsigned* rate, int stereo_flag, double buffer_time)
+int soundb_none_init(int device_id, unsigned* rate, int stereo_flag, double buffer_time)
 {
-	log_std(("sound: sound_none(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+	log_std(("sound: soundb_none(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
 
 	none_state.rate = *rate;
 	none_state.latency = 0;
@@ -55,68 +55,68 @@ int sound_none_init(int device_id, unsigned* rate, int stereo_flag, double buffe
 	return 0;
 }
 
-void sound_none_done(void)
+void soundb_none_done(void)
 {
-	log_std(("sound: sound_none_done()\n"));
+	log_std(("sound: soundb_none_done()\n"));
 }
 
-void sound_none_stop(void)
+void soundb_none_stop(void)
 {
-	log_std(("sound: sound_none_stop()\n"));
+	log_std(("sound: soundb_none_stop()\n"));
 }
 
-unsigned sound_none_buffered(void)
+unsigned soundb_none_buffered(void)
 {
 	return none_state.latency - none_state.latency / 8;
 }
 
-int sound_none_start(double silence_time)
+int soundb_none_start(double silence_time)
 {
-	log_std(("sound: sound_none_start(silence_time:%g)\n", silence_time));
+	log_std(("sound: soundb_none_start(silence_time:%g)\n", silence_time));
 	none_state.latency = silence_time * none_state.rate;
 	return 0;
 }
 
-void sound_none_volume(double volume)
+void soundb_none_volume(double volume)
 {
-	log_std(("sound: sound_none_volume(volume:%g)\n", (double)volume));
+	log_std(("sound: soundb_none_volume(volume:%g)\n", (double)volume));
 }
 
-void sound_none_play(const short* sample_map, unsigned sample_count)
+void soundb_none_play(const short* sample_map, unsigned sample_count)
 {
-	log_debug(("sound: sound_none_play(count:%d)\n", sample_count));
+	log_debug(("sound: soundb_none_play(count:%d)\n", sample_count));
 }
 
-unsigned sound_none_flags(void)
-{
-	return 0;
-}
-
-int sound_none_load(adv_conf* context)
+unsigned soundb_none_flags(void)
 {
 	return 0;
 }
 
-void sound_none_reg(adv_conf* context)
+int soundb_none_load(adv_conf* context)
+{
+	return 0;
+}
+
+void soundb_none_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_none_driver = {
+soundb_driver soundb_none_driver = {
 	"none",
 	DEVICE,
-	sound_none_load,
-	sound_none_reg,
-	sound_none_init,
-	sound_none_done,
-	sound_none_flags,
-	sound_none_play,
-	sound_none_buffered,
-	sound_none_start,
-	sound_none_stop,
-	sound_none_volume
+	soundb_none_load,
+	soundb_none_reg,
+	soundb_none_init,
+	soundb_none_done,
+	soundb_none_flags,
+	soundb_none_play,
+	soundb_none_buffered,
+	soundb_none_start,
+	soundb_none_stop,
+	soundb_none_volume
 };
 
 

@@ -55,18 +55,6 @@ unsigned joystickb_none_count_get(void)
 	return 0;
 }
 
-void joystickb_none_calib_start(void)
-{
-	log_debug(("joystickb:none: joystickb_none_calib_start()\n"));
-}
-
-const char* joystickb_none_calib_next(void)
-{
-	log_debug(("joystickb:none: joystickb_none_calib_next()\n"));
-
-	return 0;
-}
-
 void joystickb_none_poll(void)
 {
 	log_debug(("joystickb:none: joystickb_none_poll()\n"));
@@ -110,8 +98,8 @@ joystickb_driver joystickb_none_driver = {
 	0,
 	0,
 	0,
-	joystickb_none_calib_start,
-	joystickb_none_calib_next,
+	0,
+	0,
 	joystickb_none_poll
 };
 

@@ -158,3 +158,100 @@ void mouseb_abort(void)
 	}
 }
 
+unsigned mouseb_count_get(void)
+{
+	assert(mouseb_state.is_active_flag);
+
+	return mouseb_state.driver_current->count_get();
+}
+
+unsigned mouseb_axe_count_get(unsigned mouse)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+
+	return mouseb_state.driver_current->axe_count_get(mouse);
+}
+
+unsigned mouseb_button_count_get(unsigned mouse)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_event_count_get());
+
+	return mouseb_state.driver_current->button_count_get(mouse);
+}
+
+int mouseb_axe_get(unsigned mouse, unsigned axe)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+	assert(axe < mouseb_axe_count_get(mouse));
+
+	return mouseb_state.driver_current->axe_get(mouse, axe);
+}
+
+unsigned mouseb_button_get(unsigned mouse, unsigned button)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+	assert(button < mouseb_button_count_get(mouse) );
+
+	return mouseb_state.driver_current->button_get(mouse, button);
+}
+
+const char* mouseb_button_name_get(unsigned mouse, unsigned button)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_event_count_get());
+	assert(button < mouseb_event_button_count_get(mouse));
+
+	if (mouseb_state.driver_current->button_name_get)
+		return mouseb_state.driver_current->button_name_get(mouse, button);
+
+	switch (button) {
+	case 0 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "left"); break;
+	case 1 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "right"); break;
+	case 2 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "middle"); break;
+	default: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "button%d", button+1);
+	}
+
+	return mouseb_state.button_name_buffer;
+}
+
+const char* mouseb_axe_name_get(unsigned mouse, unsigned axe)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+	assert(axe < mouseb_axe_count_get(mouse));
+
+	if (mouseb_state.driver_current->axe_name_get)
+		return mouseb_state.driver_current->axe_name_get(mouse, axe);
+
+	switch (axe) {
+	case 0 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "x"); break;
+	case 1 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "y"); break;
+	case 2 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "z"); break;
+	default: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "axe%d", axe+1);
+	}
+
+	return mouseb_state.axe_name_buffer;
+}
+
+void mouseb_poll(void)
+{
+	assert( mouseb_state.is_active_flag );
+
+	mouseb_state.driver_current->poll();
+}
+
+/**
+ * Get the driver/device name.
+ * \return Pointer at a static buffer.
+ */
+const char* mouseb_name(void)
+{
+	assert( mouseb_state.is_active_flag );
+
+	return mouseb_state.driver_current->name;
+}
+

@@ -45,9 +45,9 @@ extern "C" {
  * Sound driver "sdl".
  * \ingroup Sound
  */
-extern sound_driver sound_sdl_driver;
+extern soundb_driver soundb_sdl_driver;
 
-void sound_sdl_default(void);
+void soundb_sdl_default(void);
 
 #ifdef __cplusplus
 }

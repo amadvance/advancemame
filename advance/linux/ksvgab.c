@@ -236,17 +236,12 @@ adv_bool keyb_svgalib_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:svgalib: keyb_svgalib_has()\n"));
 
-	assert(code < KEYB_MAX);
-
 	return svgalib_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
 {
 	unsigned low_code;
-
-	assert(keyboard < keyb_svgalib_count_get());
-	assert(code < KEYB_MAX);
 
 	log_debug(("keyb:svgalib: keyb_svgalib_get(keyboard:%d,code:%d)\n", keyboard, code));
 
@@ -265,8 +260,6 @@ void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
 	const char* state;
-
-	assert(keyboard < keyb_svgalib_count_get());
 
 	log_debug(("keyb:svgalib: keyb_svgalib_all_get(keyboard:%d)\n", keyboard));
 

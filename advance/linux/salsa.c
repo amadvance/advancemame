@@ -39,14 +39,14 @@
 
 #include <assert.h>
 
-struct sound_alsa_context {
+struct soundb_alsa_context {
 	unsigned channel;
 	unsigned rate;
 	unsigned sample_length;
 	snd_pcm_t* handle;
 };
 
-static struct sound_alsa_context alsa_state;
+static struct soundb_alsa_context alsa_state;
 
 static adv_device DEVICE[] = {
 { "auto", -1, "ALSA automatic detection" },
@@ -81,14 +81,14 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 	));
 }
 
-adv_error sound_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	int r;
 	snd_pcm_hw_params_t* hw_params;
 	snd_pcm_sw_params_t* sw_params;
 	snd_pcm_uframes_t buffer_size;
 
-	log_std(("sound:alsa: sound_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
+	log_std(("sound:alsa: soundb_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
 	if (stereo_flag) {
 		alsa_state.sample_length = 4;
@@ -191,20 +191,20 @@ err:
 	return -1;
 }
 
-void sound_alsa_done(void)
+void soundb_alsa_done(void)
 {
-	log_std(("sound:alsa: sound_alsa_done()\n"));
+	log_std(("sound:alsa: soundb_alsa_done()\n"));
 
 	snd_pcm_drop(alsa_state.handle);
 	snd_pcm_close(alsa_state.handle);
 }
 
-void sound_alsa_stop(void)
+void soundb_alsa_stop(void)
 {
-	log_std(("sound:alsa: sound_alsa_stop()\n"));
+	log_std(("sound:alsa: soundb_alsa_stop()\n"));
 }
 
-unsigned sound_alsa_buffered(void)
+unsigned soundb_alsa_buffered(void)
 {
 	snd_pcm_sframes_t buffered;
 	int r;
@@ -220,7 +220,7 @@ unsigned sound_alsa_buffered(void)
 	return buffered;
 }
 
-void sound_alsa_volume(double volume)
+void soundb_alsa_volume(double volume)
 {
 	snd_mixer_t* handle;
 	snd_mixer_elem_t* elem;
@@ -233,7 +233,7 @@ void sound_alsa_volume(double volume)
 
 	snd_mixer_selem_id_alloca(&sid);
 
-	log_std(("sound:alsa: sound_alsa_volume(volume:%g)\n", (double)volume));
+	log_std(("sound:alsa: soundb_alsa_volume(volume:%g)\n", (double)volume));
 
 	snd_mixer_selem_id_set_name(sid, "Master");
 
@@ -316,11 +316,11 @@ err:
 	return;
 }
 
-void sound_alsa_play(const short* sample_map, unsigned sample_count)
+void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	int r;
 
-	log_debug(("sound:alsa: sound_alsa_play(count:%d)\n", sample_count));
+	log_debug(("sound:alsa: soundb_alsa_play(count:%d)\n", sample_count));
 
 	/* calling write with a 0 size result in wrong output */
 	while (sample_count) {
@@ -349,13 +349,13 @@ void sound_alsa_play(const short* sample_map, unsigned sample_count)
 	}
 }
 
-adv_error sound_alsa_start(double silence_time)
+adv_error soundb_alsa_start(double silence_time)
 {
-	short buf[256];
+	adv_sample buf[256];
 	unsigned sample;
 	unsigned i;
 
-	log_std(("sound:alsa: sound_alsa_start(silence_time:%g)\n", silence_time));
+	log_std(("sound:alsa: soundb_alsa_start(silence_time:%g)\n", silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = 0x8000;
@@ -369,42 +369,42 @@ adv_error sound_alsa_start(double silence_time)
 		if (run > 256)
 			run = 256;
 		sample -= run;
-		sound_alsa_play(buf, run / alsa_state.channel);
+		soundb_alsa_play(buf, run / alsa_state.channel);
 	}
 
 	return 0;
 }
 
-unsigned sound_alsa_flags(void)
+unsigned soundb_alsa_flags(void)
 {
 	return 0;
 }
 
-adv_error sound_alsa_load(adv_conf* context)
+adv_error soundb_alsa_load(adv_conf* context)
 {
 	return 0;
 }
 
-void sound_alsa_reg(adv_conf* context)
+void soundb_alsa_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-sound_driver sound_alsa_driver = {
+soundb_driver soundb_alsa_driver = {
 	"alsa",
 	DEVICE,
-	sound_alsa_load,
-	sound_alsa_reg,
-	sound_alsa_init,
-	sound_alsa_done,
-	sound_alsa_flags,
-	sound_alsa_play,
-	sound_alsa_buffered,
-	sound_alsa_start,
-	sound_alsa_stop,
-	sound_alsa_volume
+	soundb_alsa_load,
+	soundb_alsa_reg,
+	soundb_alsa_init,
+	soundb_alsa_done,
+	soundb_alsa_flags,
+	soundb_alsa_play,
+	soundb_alsa_buffered,
+	soundb_alsa_start,
+	soundb_alsa_stop,
+	soundb_alsa_volume
 };
 
 
