@@ -46,9 +46,7 @@ Totals
 	accounting, and so on). Many programmers forget these other costs and
 	are shocked by the high figures.
 
-	The Advance project, as Open Source project, has no corporate overhead
-	and can benefit of the high efficiency of the Open Source development
-	model.
+	The Advance project, as Open Source project, has no corporate overhead.
 
 Projects
 	:SLOC    Project                 SLOC-by-Language

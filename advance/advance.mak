@@ -2,11 +2,11 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.78.0.1
+EMUVERSION = 0.78.0.2
 else
-EMUVERSION = 0.78.1
+EMUVERSION = 0.79.0
 endif
-MENUVERSION = 2.2.17
+MENUVERSION = 2.3.0
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -33,11 +33,13 @@ all_override: $(ADVANCE_ALL)
 endif
 
 ifneq ($(wildcard $(EMUSRC)),)
+INSTALL_DIRS += $(OBJ)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
+INSTALL_DIRS += $(DOCOBJ)
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mess)
@@ -45,31 +47,38 @@ INSTALL_MANFILES += $(srcdir)/support/advmess.1
 endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
+INSTALL_DIRS += $(MENUOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/v.mak),)
-INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advv.1
-endif
 ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
+INSTALL_DIRS += $(CFGOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
 endif
+ifneq ($(wildcard $(srcdir)/advance/v.mak),)
+INSTALL_DIRS += $(VOBJ) $(DOCOBJ)
+INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
+INSTALL_MANFILES += $(DOCOBJ)/advv.1
+endif
 ifneq ($(CONF_HOST),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
+INSTALL_DIRS += $(SOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advs.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/k.mak),)
+INSTALL_DIRS += $(KOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(KOBJ)/advk$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advk.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/j.mak),)
+INSTALL_DIRS += $(JOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(JOBJ)/advj$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advj.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/m.mak),)
+INSTALL_DIRS += $(MOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(MOBJ)/advm$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advm.1
 endif
@@ -79,18 +88,18 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(DOCOBJ) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
-emu: $(OBJ)/$(EMUNAME)$(EXE)
-menu: $(MENUOBJ)/advmenu$(EXE)
-cfg: $(CFGOBJ)/advcfg$(EXE)
-v: $(VOBJ)/advv$(EXE)
-s: $(SOBJ)/advs$(EXE)
-k: $(KOBJ)/advk$(EXE)
-i: $(IOBJ)/advi$(EXE)
-j: $(JOBJ)/advj$(EXE)
-m: $(MOBJ)/advm$(EXE)
-line: $(LINEOBJ)/advline$(EXE_BUILD)
-d2: $(D2OBJ)/advd2$(EXE_BUILD)
+all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
+emu: $(OBJ) $(OBJ)/$(EMUNAME)$(EXE)
+menu: $(MENUOBJ) $(MENUOBJ)/advmenu$(EXE)
+cfg: $(CFGOBJ) $(CFGOBJ)/advcfg$(EXE)
+v: $(VOBJ) $(VOBJ)/advv$(EXE)
+s: $(SOBJ) $(SOBJ)/advs$(EXE)
+k: $(KOBJ) $(KOBJ)/advk$(EXE)
+i: $(IOBJ) $(IOBJ)/advi$(EXE)
+j: $(JOBJ) $(JOBJ)/advj$(EXE)
+m: $(MOBJ) $(MOBJ)/advm$(EXE)
+line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_BUILD)
+d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_BUILD)
 web: $(DOCOBJ) $(WEB_DOCFILES)
 
 ############################################################################
@@ -249,6 +258,8 @@ D2_SRC = \
 
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.usr \
+	$(srcdir)/root.mak \
 	$(srcdir)/config.guess \
 	$(srcdir)/config.sub \
 	$(srcdir)/configure \
@@ -358,7 +369,7 @@ RCFLAGS += --include-dir advance/lib
 #WHOLE_CFLAGS_OPT = -O2 -Wall -Wno-sign-compare -Wno-unused
 #WHOLE_CFLAGS_EMU = -fomit-frame-pointer
 #WHOLE_LDFLAGS = -rdynamic
-DEFS_LINUX = -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_LIBZ=1 -DHAVE_SLANG_SLANG_H=1
+DEFS_LINUX = -DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SCHED_H=1 -DHAVE_NETDB_H=1 -DHAVE_TERMIOS_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_IOCTL_H=1 -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_UNISTD_H=1 -DHAVE_FORK=1 -DHAVE_VFORK=1 -DHAVE_WORKING_VFORK=1 -DHAVE_WORKING_FORK=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_SOCKET_H=1 -DSELECT_TYPE_ARG1=int -DSELECT_TYPE_ARG234=\(fd_set\ \*\) -DSELECT_TYPE_ARG5=\(struct\ timeval\ \*\) -DPROTOTYPES=1 -D__PROTOTYPES=1 -DHAVE_VPRINTF=1 -DHAVE_GETCWD=1 -DHAVE_GETTIMEOFDAY=1 -DHAVE_MEMSET=1 -DHAVE_MKDIR=1 -DHAVE_MUNMAP=1 -DHAVE_SELECT=1 -DHAVE_STRCASECMP=1 -DHAVE_STRDUP=1 -DHAVE_STRERROR=1 -DHAVE_STRSTR=1 -DHAVE_UNAME=1 -DHAVE_LIBZ=1 -DHAVE_SLANG_SLANG_H=1
 
 # Optimized
 WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O2 -Wall -Wno-sign-compare -Wno-unused
@@ -370,92 +381,94 @@ ARCH_PENTIUM = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_
 ARCH_PENTIUM_BLEND = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 ARCH_PENTIUM_BLEND_GCCOLD = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=i586 -mcpu=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 
+MANUAL=-f Makefile.usr
+
 mame:
-	$(MAKE) CONF=no CONF_EMU=mame emu
+	$(MAKE) $(MANUAL) CONF_EMU=mame emu
 
 neomame:
-	$(MAKE) CONF=no CONF_EMU=neomame emu
+	$(MAKE) $(MANUAL) CONF_EMU=neomame emu
 
 cpmame:
-	$(MAKE) CONF=no CONF_EMU=cpmame emu
+	$(MAKE) $(MANUAL) CONF_EMU=cpmame emu
 
 tiny:
-	$(MAKE) CONF=no CONF_EMU=tiny emu
+	$(MAKE) $(MANUAL) CONF_EMU=tiny emu
 
 # Ensure that the mess target is always created also if a mess directory exists
 .PHONY: mess
 
 mess:
-	$(MAKE) CONF=no CONF_EMU=mess emu
+	$(MAKE) $(MANUAL) CONF_EMU=mess emu
 
 wholemame: mamedif
-	$(MAKE) CONF=no dist
-	$(MAKE) CONF=no CONF_DIFFSRC=yes dist
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(MANUAL) dist
+	$(MAKE) $(MANUAL) CONF_DIFFSRC=yes dist
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distbin
 
 dosmame:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distbin
 
 winmame:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
 
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
-		CONF=no CONF_HOST=unix \
+		CONF_HOST=unix \
 		CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
 		CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
 		CONF_LIB_SVGALIB=no CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
 		CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
 wholecd:
-	$(MAKE) $(WHOLECD_FLAGS) distbin
-	$(MAKE) $(WHOLECD_FLAGS) distmenubin
-	$(MAKE) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distbin
+	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distmenubin
+	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
 
 wholemess: messdif
-	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) CONF=no CONF_EMU=mess CONF_DIFFSRC=yes dist
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) CONF_EMU=mess dist
+	$(MAKE) $(MANUAL) CONF_EMU=mess CONF_DIFFSRC=yes dist
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos CONF_EMU=mess distbin
 
 dosmess:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos CONF_EMU=mess distbin
 
 winmess:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
 
 wholemenu:
-	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distmenubin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
+	$(MAKE) $(MANUAL) distmenu
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distmenubin
 
 dosmenu:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distmenubin
 
 wholecab:
-	$(MAKE) CONF=no distcab
-	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=dos distcabbin
-	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=windows distcabbin
+	$(MAKE) $(MANUAL) distcab
+	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=dos distcabbin
+	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=windows distcabbin
 
 wholewin:
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distmenubin
 
 distmess:
-	$(MAKE) CONF=no CONF_EMU=mess dist
+	$(MAKE) $(MANUAL) CONF_EMU=mess dist
 
 distmessbin:
-	$(MAKE) CONF=no CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) CONF_EMU=mess distbin
 
 distmame:
-	$(MAKE) CONF=no CONF_EMU=mame dist
+	$(MAKE) $(MANUAL) CONF_EMU=mame dist
 
 distmamebin:
-	$(MAKE) CONF=no CONF_EMU=mame distbin
+	$(MAKE) $(MANUAL) CONF_EMU=mame distbin
 
 

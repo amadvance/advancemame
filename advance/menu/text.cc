@@ -18,8 +18,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#define USE_MULTI_CLIP
-
 #include "advance.h"
 
 #include "text.h"

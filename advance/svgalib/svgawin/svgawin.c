@@ -210,7 +210,7 @@ unsigned adv_svgalib_inportl(unsigned port)
 int adv_svgalib_pci_bus_max(unsigned* bus_max)
 {
 	SVGALIB_PCI_BUS_OUT out;
-	
+
 	if (adv_svgalib_ioctl(IOCTL_SVGALIB_PCI_BUS, 0, 0, &out, sizeof(out)) != 0) {
 		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_PCI_BUS failed, GetLastError() = %d\n", (unsigned)GetLastError());
 		return -1;
@@ -339,30 +339,7 @@ int adv_svgalib_pci_write_dword(unsigned bus_device_func, unsigned reg, unsigned
 /**************************************************************************/
 /* device */
 
-/**
- * The video board bus number.
- */
-static unsigned the_bus;
-
-static int bus_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) {
-	unsigned dw;
-	unsigned base_class;
-
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
-		return 0;
-
-	base_class = (dw >> 16) & 0xFFFF;
-	if (base_class != 0x300 /* DISPLAY | VGA */)
-		return 0;
-
-	*(unsigned*)_arg = bus_device_func;
-
-	return 1;
-}
-
 int adv_svgalib_open(void) {
-	int r;
-	unsigned bus_device_func;
 	SVGALIB_VERSION_OUT version;
 
 	the_handle = CreateFile("\\\\.\\SVGALIB", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -405,14 +382,12 @@ int adv_svgalib_open(void) {
 	}
 #endif
 
-	/* search the bus on which is the first video board */
-	r = adv_svgalib_pci_scan_device(bus_callback,&bus_device_func);
-	if (r != 0) {
-		/* found */
-		the_bus = (bus_device_func >> 8) & 0xFF;
-	} else {
-		adv_svgalib_log("svgalib: adv_svgalib_pci_scan_device has not found a video board\n");
-		the_bus = 0;
+	{
+		unsigned bus_max;
+		adv_svgalib_log("svgalib: getting bus number\n");
+		if (adv_svgalib_pci_bus_max(&bus_max) == 0) {
+			adv_svgalib_log("svgalib: %d bus\n", bus_max);
+		}
 	}
 
 	return 0;
@@ -438,9 +413,29 @@ void adv_svgalib_close(void) {
 /**************************************************************************/
 /* mmap */
 
-void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset) {
+static void* adv_svgalib_mmap_try(unsigned offset, unsigned bus, unsigned length) {
 	SVGALIB_MAP_IN in;
 	SVGALIB_MAP_OUT out;
+
+	in.address.QuadPart = offset;
+	in.bus = bus;
+	in.size = length;
+
+	adv_svgalib_log("svgalib: mapping address %08x, size %d, bus %d\n", offset, length, bus);
+
+	if (adv_svgalib_ioctl(IOCTL_SVGALIB_MAP, &in, sizeof(in), &out, sizeof(out)) != 0) {
+		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_MAP failed, GetLastError() = %d\n", (unsigned)GetLastError());
+		return MAP_FAILED;
+	}
+
+	adv_svgalib_log("svgalib: mapped pointer %08x\n", (unsigned)out.address);
+
+	return out.address;
+}
+
+void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset) {
+	void* r;
+	unsigned bus;
 
 	(void)prot;
 	(void)fd;
@@ -448,20 +443,28 @@ void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd
 	if ((flags & MAP_FIXED) != 0)
 		return MAP_FAILED;
 
-	in.address.QuadPart = offset;
-	in.bus = the_bus;
-	in.size = length;
+	bus = (adv_svgalib_state.last_bus_device_func >> 8) & 0xFF;
 
-	adv_svgalib_log("svgalib: mapping address %08x, size %d, bus %d\n", offset, length, the_bus);
+	/* first try with the correct bus */
+	r = adv_svgalib_mmap_try(offset, bus, length);
+	if (r == MAP_FAILED) {
+		unsigned i;
+		unsigned bus_max;
 
-	if (adv_svgalib_ioctl(IOCTL_SVGALIB_MAP, &in, sizeof(in), &out, sizeof(out)) != 0) {
-		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_MAP failed, GetLastError() = %d\n", (unsigned)GetLastError());	
-		return MAP_FAILED;
+		if (adv_svgalib_pci_bus_max(&bus_max) == 0) {
+			/* try all the other bus */
+			for(i=0;i<bus_max;++i) {
+				if (i != bus) {
+					r = adv_svgalib_mmap_try(offset, bus, length);
+					if (r != MAP_FAILED) {
+						break;
+					}
+				}
+			}
+		}
 	}
 
-	adv_svgalib_log("svgalib: mapped pointer %08x\n", (unsigned)out.address);
-
-	return out.address;
+	return r;
 }
 
 int adv_svgalib_munmap(void* start, unsigned length) {

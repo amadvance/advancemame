@@ -354,36 +354,36 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		draw_tag_right("locked", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN);
 
 	switch (preview) {
-		case preview_flyer: draw_tag_right("flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case preview_cabinet: draw_tag_right("cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case preview_icon: draw_tag_right("icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case preview_marquee: draw_tag_right("marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case preview_title: draw_tag_right("titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case preview_snap: draw_tag_right("snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_flyer: draw_tag_right("flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_cabinet: draw_tag_right("cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_icon: draw_tag_right("icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_marquee: draw_tag_right("marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_title: draw_tag_right("titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_snap: draw_tag_right("snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	switch (sort_mode) {
-		case sort_by_group : draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_name : draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_root_name : draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_time : draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_session : draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_year : draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_manufacturer : draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_type : draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_timepersession : draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_group : draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_name : draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_root_name : draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_time : draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_session : draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_year : draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_manufacturer : draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_type : draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_timepersession : draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	switch (difficulty) {
-		case difficulty_none : draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case difficulty_easiest : draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case difficulty_easy : draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case difficulty_medium : draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case difficulty_hard : draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case difficulty_hardest : draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_none : draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easiest : draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easy : draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_medium : draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hard : draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hardest : draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (g) {
@@ -518,34 +518,34 @@ bool backdrop_find_preview_strict(resource& path, preview_t preview, const game*
 {
 	if (pgame) {
 		switch (preview) {
-			case preview_icon :
-				if (pgame->preview_find(path, &game::preview_icon_get))
+		case preview_icon :
+			if (pgame->preview_find(path, &game::preview_icon_get))
+				return true;
+			break;
+		case preview_marquee :
+			if (pgame->preview_find(path, &game::preview_marquee_get))
+				return true;
+			break;
+		case preview_title :
+			if (pgame->preview_find(path, &game::preview_title_get))
+				return true;
+			break;
+		case preview_snap :
+			if (!only_clip) {
+				if (pgame->preview_find(path, &game::preview_snap_get))
 					return true;
-				break;
-			case preview_marquee :
-				if (pgame->preview_find(path, &game::preview_marquee_get))
-					return true;
-				break;
-			case preview_title :
-				if (pgame->preview_find(path, &game::preview_title_get))
-					return true;
-				break;
-			case preview_snap :
-				if (!only_clip) {
-					if (pgame->preview_find(path, &game::preview_snap_get))
-						return true;
-				}
-				if (pgame->preview_find(path, &game::preview_clip_get))
-					return true;
-				break;
-			case preview_flyer :
-				if (pgame->preview_find(path, &game::preview_flyer_get))
-					return true;
-				break;
-			case preview_cabinet :
-				if (pgame->preview_find(path, &game::preview_cabinet_get))
-					return true;
-				break;
+			}
+			if (pgame->preview_find(path, &game::preview_clip_get))
+				return true;
+			break;
+		case preview_flyer :
+			if (pgame->preview_find(path, &game::preview_flyer_get))
+				return true;
+			break;
+		case preview_cabinet :
+			if (pgame->preview_find(path, &game::preview_cabinet_get))
+				return true;
+			break;
 		}
 	}
 
@@ -564,30 +564,30 @@ bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& 
 	aspecty = 0;
 
 	switch (preview) {
-		case preview_icon :
-			if (rs.preview_default_icon != "none")
-				path = rs.preview_default_icon;
-			break;
-		case preview_marquee :
-			if (rs.preview_default_marquee != "none")
-				path = rs.preview_default_marquee;
-			break;
-		case preview_title :
-			if (rs.preview_default_title != "none")
-				path = rs.preview_default_title;
-			break;
-		case preview_snap :
-			if (rs.preview_default_snap != "none")
-				path = rs.preview_default_snap;
-			break;
-		case preview_flyer :
-			if (rs.preview_default_flyer != "none")
-				path = rs.preview_default_flyer;
-			break;
-		case preview_cabinet :
-			if (rs.preview_default_cabinet != "none")
-				path = rs.preview_default_cabinet;
-			break;
+	case preview_icon :
+		if (rs.preview_default_icon != "none")
+			path = rs.preview_default_icon;
+		break;
+	case preview_marquee :
+		if (rs.preview_default_marquee != "none")
+			path = rs.preview_default_marquee;
+		break;
+	case preview_title :
+		if (rs.preview_default_title != "none")
+			path = rs.preview_default_title;
+		break;
+	case preview_snap :
+		if (rs.preview_default_snap != "none")
+			path = rs.preview_default_snap;
+		break;
+	case preview_flyer :
+		if (rs.preview_default_flyer != "none")
+			path = rs.preview_default_flyer;
+		break;
+	case preview_cabinet :
+		if (rs.preview_default_cabinet != "none")
+			path = rs.preview_default_cabinet;
+		break;
 	}
 
 	if (!path.is_valid() && rs.preview_default != "none")
@@ -667,7 +667,7 @@ static void run_background_set(config_state& rs, const resource& sound)
 	}
 }
 
-static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent, int current)
+static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent, int pos_current, int pos_max)
 {
 	target_clock_t back_start = target_clock();
 
@@ -690,7 +690,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			run_background_set(rs, sound);
 
 			// start the new game clip
-			int_clip_start(current);
+			int_clip_start(pos_current);
 		} else {
 			// if silent we are already in idle state
 			idle_control = false;
@@ -715,11 +715,23 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 				}
 			}
 
-			// restart the clip if terminated
-			if (!int_clip_is_active(current)) {
-				clip_done = true;
-				if (rs.clip_mode == clip_singleloop || rs.clip_mode == clip_multiloop)
-					int_clip_start(current);
+			if (rs.clip_mode == clip_singleloop || rs.clip_mode == clip_multiloop) {
+				if (!int_clip_is_active(pos_current)) {
+					int_clip_start(pos_current);
+				}
+				clip_done = true; // disable the control, the clip never finish
+			} else if (rs.clip_mode == clip_multiloopall) {
+				unsigned i;
+				for(i=0;i<pos_max;++i) {
+					if (!int_clip_is_active(i)) {
+						int_clip_start(i);
+					}
+				}
+				clip_done = true; // disable the control, the clip never finish
+			} else {
+				if (!int_clip_is_active(pos_current)) {
+					clip_done = true;
+				}
 			}
 
 			if (idle_control) {
@@ -846,12 +858,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	// effective preview type
 	preview_t effective_preview;
 	switch (rs.mode_effective) {
-		case mode_tile_icon : effective_preview = preview_icon; break;
-		case mode_tile_marquee : effective_preview = preview_marquee; break;
-		default:
-			effective_preview = rs.preview_effective;
-			if (effective_preview == preview_icon || effective_preview == preview_marquee)
-				effective_preview = preview_snap;
+	case mode_tile_icon : effective_preview = preview_icon; break;
+	case mode_tile_marquee : effective_preview = preview_marquee; break;
+	default:
+		effective_preview = rs.preview_effective;
+		if (effective_preview == preview_icon || effective_preview == preview_marquee)
+			effective_preview = preview_snap;
 	}
 
 	// cursor
@@ -1063,88 +1075,88 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		if (!flipxy) {
 			switch (rs.mode_effective) {
-				default: /* for warnings */
-				case mode_tile_giant :
-					coln = 16;
-					rown = 12;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
-					bar_left_dx = 0;
-					bar_right_dx = 0;
-					bar_top_dy = 0;
-					bar_bottom_dy = 0;
+			default: /* for warnings */
+			case mode_tile_giant :
+				coln = 16;
+				rown = 12;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
+				bar_left_dx = 0;
+				bar_right_dx = 0;
+				bar_top_dy = 0;
+				bar_bottom_dy = 0;
 				break;
-				case mode_tile_enormous :
-					coln = 12;
-					rown = 9;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
-					bar_left_dx = 0;
-					bar_right_dx = 0;
-					bar_top_dy = 0;
-					bar_bottom_dy = 0;
+			case mode_tile_enormous :
+				coln = 12;
+				rown = 9;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
+				bar_left_dx = 0;
+				bar_right_dx = 0;
+				bar_top_dy = 0;
+				bar_bottom_dy = 0;
 				break;
-				case mode_tile_big :
-					coln = 8;
-					rown = 6;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
+			case mode_tile_big :
+				coln = 8;
+				rown = 6;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
 				break;
-				case mode_tile_normal :
-					coln = 5;
-					rown = 4;
-					name_dy = int_font_dy_get();
+			case mode_tile_normal :
+				coln = 5;
+				rown = 4;
+				name_dy = int_font_dy_get();
 				break;
-				case mode_tile_small :
-					coln = 4;
-					rown = 3;
-					name_dy = int_font_dy_get();
+			case mode_tile_small :
+				coln = 4;
+				rown = 3;
+				name_dy = int_font_dy_get();
 				break;
 			}
 		} else {
 			switch (rs.mode_effective) {
-				default: /* for warnings */
-				case mode_tile_giant :
-					coln = 12;
-					rown = 16;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
-					bar_left_dx = 0;
-					bar_right_dx = 0;
-					bar_top_dy = 0;
-					bar_bottom_dy = 0;
+			default: /* for warnings */
+			case mode_tile_giant :
+				coln = 12;
+				rown = 16;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
+				bar_left_dx = 0;
+				bar_right_dx = 0;
+				bar_top_dy = 0;
+				bar_bottom_dy = 0;
 				break;
-				case mode_tile_enormous :
-					coln = 9;
-					rown = 12;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
-					bar_left_dx = 0;
-					bar_right_dx = 0;
-					bar_top_dy = 0;
-					bar_bottom_dy = 0;
+			case mode_tile_enormous :
+				coln = 9;
+				rown = 12;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
+				bar_left_dx = 0;
+				bar_right_dx = 0;
+				bar_top_dy = 0;
+				bar_bottom_dy = 0;
 				break;
-				case mode_tile_big :
-					coln = 6;
-					rown = 8;
-					name_dy = 0;
-					space_x = 0;
-					space_y = 0;
+			case mode_tile_big :
+				coln = 6;
+				rown = 8;
+				name_dy = 0;
+				space_x = 0;
+				space_y = 0;
 				break;
-				case mode_tile_normal :
-					coln = 4;
-					rown = 5;
-					name_dy = int_font_dy_get();
+			case mode_tile_normal :
+				coln = 4;
+				rown = 5;
+				name_dy = int_font_dy_get();
 				break;
-				case mode_tile_small :
-					coln = 3;
-					rown = 4;
-					name_dy = int_font_dy_get();
+			case mode_tile_small :
+				coln = 3;
+				rown = 4;
+				name_dy = int_font_dy_get();
 				break;
 			}
 		}
@@ -1320,9 +1332,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, 0, cursor_size, rs.preview_expand, false);
 		else {
 			if (space_x == 0)
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall);
 			else
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall);
 		}
 		for(int i=0;i<backdrop_mac;++i)
 			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
@@ -1495,7 +1507,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			if (backdrop_mac == 1) {
 				backdrop_game_set(effective_game, 0, effective_preview, true, false, true, rs);
 			} else if (backdrop_mac > 1) {
-				if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop) {
+				if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall) {
 					// put all the clip in the internal cache
 					for(int i=0;i<coln*rown;++i) {
 						int_clip_clear(i);
@@ -1503,7 +1515,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				}
 				for(int i=0;i<coln*rown;++i) {
 					bool current = i == pos_rel;
-					if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop)
+					if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall)
 						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, true, rs);
 					else
 						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, current, rs);
@@ -1518,7 +1530,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
 		int_idle_1_enable(true);
 
-		run_background_wait(rs, sound, true, silent, pos_rel);
+		run_background_wait(rs, sound, true, silent, pos_rel, backdrop_mac);
 
 		// replay the sound and clip
 		silent = false;
@@ -1535,85 +1547,85 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 
 		switch (key) {
-			case INT_KEY_INS :
-				if (pos_base + pos_rel < gc.size() && pos_base + pos_rel > 0) {
-					unsigned new_pos = pos_base + pos_rel - 1;
-					string i = gc[new_pos]->category(category_extract);
-					while (new_pos>0 && gc[new_pos-1]->category(category_extract)== i)
-						--new_pos;
-					menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
-				}
-				break;
-			case INT_KEY_DEL :
-				if (pos_base + pos_rel < gc.size()) {
-					unsigned new_pos = pos_base + pos_rel;
-					string i = gc[new_pos]->category(category_extract);
-					while (new_pos<gc.size()-1 && gc[new_pos]->category(category_extract)== i)
-						++new_pos;
-					menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
-				}
-				break;
-			default:
-				if (key<0xFF && isalnum(key)) {
-					oldfast.insert(oldfast.length(), 1, key);
-					menu_array::const_iterator i;
-					for(i=gc.begin();i!=gc.end();++i) {
-						if (menu_fast_compare((*i)->desc_get(), oldfast)) {
-							break;
-						}
+		case INT_KEY_INS :
+			if (pos_base + pos_rel < gc.size() && pos_base + pos_rel > 0) {
+				unsigned new_pos = pos_base + pos_rel - 1;
+				string i = gc[new_pos]->category(category_extract);
+				while (new_pos>0 && gc[new_pos-1]->category(category_extract)== i)
+					--new_pos;
+				menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
+			}
+			break;
+		case INT_KEY_DEL :
+			if (pos_base + pos_rel < gc.size()) {
+				unsigned new_pos = pos_base + pos_rel;
+				string i = gc[new_pos]->category(category_extract);
+				while (new_pos<gc.size()-1 && gc[new_pos]->category(category_extract)== i)
+					++new_pos;
+				menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
+			}
+			break;
+		default:
+			if (key<0xFF && isalnum(key)) {
+				oldfast.insert(oldfast.length(), 1, key);
+				menu_array::const_iterator i;
+				for(i=gc.begin();i!=gc.end();++i) {
+					if (menu_fast_compare((*i)->desc_get(), oldfast)) {
+						break;
 					}
-					if (i==gc.end()) {
-						for(i=gc.begin();i!=gc.end();++i) {
-							if ((*i)->has_game()) {
-								const game& g = (*i)->game_get().clone_best_get();
-								if (menu_fast_compare(g.name_without_emulator_get(), oldfast)) {
-									break;
-								}
+				}
+				if (i==gc.end()) {
+					for(i=gc.begin();i!=gc.end();++i) {
+						if ((*i)->has_game()) {
+							const game& g = (*i)->game_get().clone_best_get();
+							if (menu_fast_compare(g.name_without_emulator_get(), oldfast)) {
+								break;
 							}
 						}
 					}
-					if (i!=gc.end()) {
-						int pos = i - gc.begin();
-						menu_pos(pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
-						rs.fast = oldfast;
-					}
 				}
-				break;
-			case INT_KEY_ENTER :
-			case INT_KEY_RUN_CLONE :
-			case INT_KEY_LOCK :
-				done = true;
-				break;
-			case INT_KEY_IDLE_0 :
-			case INT_KEY_IDLE_1 :
-				done = true;
-				break;
+				if (i!=gc.end()) {
+					int pos = i - gc.begin();
+					menu_pos(pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
+					rs.fast = oldfast;
+				}
+			}
+			break;
+		case INT_KEY_ENTER :
+		case INT_KEY_RUN_CLONE :
+		case INT_KEY_LOCK :
+			done = true;
+			break;
+		case INT_KEY_IDLE_0 :
+		case INT_KEY_IDLE_1 :
+			done = true;
+			break;
 		}
 		if (!rs.lock_effective)
 		switch (key) {
-			case INT_KEY_MODE :
-			case INT_KEY_HELP :
-			case INT_KEY_GROUP :
-			case INT_KEY_TYPE :
-			case INT_KEY_EXCLUDE :
-			case INT_KEY_SORT :
-			case INT_KEY_SETGROUP :
-			case INT_KEY_SETTYPE :
-			case INT_KEY_COMMAND :
-			case INT_KEY_MENU :
-			case INT_KEY_EMU :
-			case INT_KEY_ROTATE :
-			case INT_KEY_SPACE :
+		case INT_KEY_MODE :
+		case INT_KEY_HELP :
+		case INT_KEY_GROUP :
+		case INT_KEY_TYPE :
+		case INT_KEY_EXCLUDE :
+		case INT_KEY_SORT :
+		case INT_KEY_SETGROUP :
+		case INT_KEY_SETTYPE :
+		case INT_KEY_COMMAND :
+		case INT_KEY_MENU :
+		case INT_KEY_EMU :
+		case INT_KEY_ROTATE :
+		case INT_KEY_SPACE :
+			done = true;
+			break;
+		case INT_KEY_ESC :
+			if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
 				done = true;
-				break;
-			case INT_KEY_ESC :
-				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
-					done = true;
-				break;
-			case INT_KEY_OFF :
-				if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
-					done = true;
-				break;
+			break;
+		case INT_KEY_OFF :
+			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
+				done = true;
+			break;
 		}
 
 		if (pos_rel + pos_base < gc.size() && gc[pos_rel + pos_base]->has_game()) {
@@ -1657,14 +1669,14 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 	preview_t preview = preview_snap;
 
 	switch (rs.idle_saver_type) {
-		case saver_snap : preview = preview_snap; break;
-		case saver_play : preview = preview_snap; break;
-		case saver_flyer : preview = preview_flyer; break;
-		case saver_cabinet : preview = preview_cabinet; break;
-		case saver_title : preview = preview_title; break;
-		case saver_off :
-			assert(0);
-			break;
+	case saver_snap : preview = preview_snap; break;
+	case saver_play : preview = preview_snap; break;
+	case saver_flyer : preview = preview_flyer; break;
+	case saver_cabinet : preview = preview_cabinet; break;
+	case saver_title : preview = preview_title; break;
+	case saver_off :
+		assert(0);
+		break;
 	}
 
 	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, 0, rs.preview_expand, false);
@@ -1729,7 +1741,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		// next game
 		++counter;
 
-		run_background_wait(rs, sound, false, false, 0);
+		run_background_wait(rs, sound, false, false, 0, 1);
 
 		key = int_getkey(false);
 
@@ -1839,11 +1851,11 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 			silent = false;
 
 			switch (key) {
-				case INT_KEY_IDLE_1 :
-					idle = true;
-					break;
-				default:
-					done = true;
+			case INT_KEY_IDLE_1 :
+				idle = true;
+				break;
+			default:
+				done = true;
 			}
 		}
 	}
@@ -1877,14 +1889,14 @@ void run_runinfo(config_state& rs)
 	if (rs.run_saver_type != saver_off) {
 		preview_t preview = preview_snap;
 		switch (rs.run_saver_type) {
-			case saver_snap : preview = preview_snap; break;
-			case saver_play : preview = preview_snap; break;
-			case saver_flyer : preview = preview_flyer; break;
-			case saver_cabinet : preview = preview_cabinet; break;
-			case saver_title : preview = preview_title; break;
-			case saver_off :
-				assert(0);
-				break;
+		case saver_snap : preview = preview_snap; break;
+		case saver_play : preview = preview_snap; break;
+		case saver_flyer : preview = preview_flyer; break;
+		case saver_cabinet : preview = preview_cabinet; break;
+		case saver_title : preview = preview_title; break;
+		case saver_off :
+			assert(0);
+			break;
 		}
 
 		resource backdrop;
@@ -1920,56 +1932,56 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 	// setup the sorted container
 	switch (rs.sort_effective) {
-		case sort_by_root_name :
-			psc = new pgame_sort_set(sort_by_root_name_func);
-			category_func = sort_item_root_name;
-			break;
-		case sort_by_name :
-			psc = new pgame_sort_set(sort_by_name_func);
-			category_func = sort_item_name;
-			break;
-		case sort_by_manufacturer :
-			psc = new pgame_sort_set(sort_by_manufacturer_func);
-			category_func = sort_item_manufacturer;
-			break;
-		case sort_by_year :
-			psc = new pgame_sort_set(sort_by_year_func);
-			category_func = sort_item_year;
-			break;
-		case sort_by_time :
-			psc = new pgame_sort_set(sort_by_time_func);
-			category_func = sort_item_time;
-			break;
-		case sort_by_session :
-			psc = new pgame_sort_set(sort_by_session_func);
-			category_func = sort_item_session;
-			break;
-		case sort_by_group :
-			psc = new pgame_sort_set(sort_by_group_func);
-			category_func = sort_item_group;
-			break;
-		case sort_by_type :
-			psc = new pgame_sort_set(sort_by_type_func);
-			category_func = sort_item_type;
-			break;
-		case sort_by_size :
-			psc = new pgame_sort_set(sort_by_size_func);
-			category_func = sort_item_size;
-			break;
-		case sort_by_res :
-			psc = new pgame_sort_set(sort_by_res_func);
-			category_func = sort_item_res;
-			break;
-		case sort_by_info :
-			psc = new pgame_sort_set(sort_by_info_func);
-			category_func = sort_item_info;
-			break;
-		case sort_by_timepersession :
-			psc = new pgame_sort_set(sort_by_timepersession_func);
-			category_func = sort_item_timepersession;
-			break;
-		default:
-			return INT_KEY_NONE;
+	case sort_by_root_name :
+		psc = new pgame_sort_set(sort_by_root_name_func);
+		category_func = sort_item_root_name;
+		break;
+	case sort_by_name :
+		psc = new pgame_sort_set(sort_by_name_func);
+		category_func = sort_item_name;
+		break;
+	case sort_by_manufacturer :
+		psc = new pgame_sort_set(sort_by_manufacturer_func);
+		category_func = sort_item_manufacturer;
+		break;
+	case sort_by_year :
+		psc = new pgame_sort_set(sort_by_year_func);
+		category_func = sort_item_year;
+		break;
+	case sort_by_time :
+		psc = new pgame_sort_set(sort_by_time_func);
+		category_func = sort_item_time;
+		break;
+	case sort_by_session :
+		psc = new pgame_sort_set(sort_by_session_func);
+		category_func = sort_item_session;
+		break;
+	case sort_by_group :
+		psc = new pgame_sort_set(sort_by_group_func);
+		category_func = sort_item_group;
+		break;
+	case sort_by_type :
+		psc = new pgame_sort_set(sort_by_type_func);
+		category_func = sort_item_type;
+		break;
+	case sort_by_size :
+		psc = new pgame_sort_set(sort_by_size_func);
+		category_func = sort_item_size;
+		break;
+	case sort_by_res :
+		psc = new pgame_sort_set(sort_by_res_func);
+		category_func = sort_item_res;
+		break;
+	case sort_by_info :
+		psc = new pgame_sort_set(sort_by_info_func);
+		category_func = sort_item_info;
+		break;
+	case sort_by_timepersession :
+		psc = new pgame_sort_set(sort_by_timepersession_func);
+		category_func = sort_item_timepersession;
+		break;
+	default:
+		return INT_KEY_NONE;
 	}
 
 	// recompute the preview mask
@@ -2085,62 +2097,62 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 		if (!rs.lock_effective)
 		switch (key) {
-			case INT_KEY_MODE :
-				if (rs.mode_mask) {
-					do {
-						switch (rs.mode_effective) {
-							case mode_full : rs.mode_effective = mode_full_mixed; break;
-							case mode_full_mixed : rs.mode_effective = mode_text; break;
-							case mode_text : rs.mode_effective = mode_list; break;
-							case mode_list : rs.mode_effective = mode_list_mixed; break;
-							case mode_list_mixed : rs.mode_effective = mode_tile_small; break;
-							case mode_tile_small : rs.mode_effective = mode_tile_normal; break;
-							case mode_tile_normal : rs.mode_effective = mode_tile_big; break;
-							case mode_tile_big : rs.mode_effective = mode_tile_enormous; break;
-							case mode_tile_enormous : rs.mode_effective = mode_tile_giant; break;
-							case mode_tile_giant : rs.mode_effective = mode_tile_icon; break;
-							case mode_tile_icon : rs.mode_effective = mode_tile_marquee; break;
-							case mode_tile_marquee : rs.mode_effective = mode_full; break;
-						}
-					} while ((rs.mode_effective & rs.mode_mask) == 0);
-				}
-				break;
-			case INT_KEY_SPACE :
-				if (rs.preview_mask) {
-					do {
-						switch (rs.preview_effective) {
-							case preview_icon :
-							case preview_marquee :
-							case preview_snap : rs.preview_effective = preview_title; break;
-							case preview_title : rs.preview_effective = preview_flyer; break;
-							case preview_flyer : rs.preview_effective = preview_cabinet; break;
-							case preview_cabinet : rs.preview_effective = preview_snap; break;
-						}
-					} while ((rs.preview_effective & rs.preview_mask) == 0);
-				}
-				break;
+		case INT_KEY_MODE :
+			if (rs.mode_mask) {
+				do {
+					switch (rs.mode_effective) {
+					case mode_full : rs.mode_effective = mode_full_mixed; break;
+					case mode_full_mixed : rs.mode_effective = mode_text; break;
+					case mode_text : rs.mode_effective = mode_list; break;
+					case mode_list : rs.mode_effective = mode_list_mixed; break;
+					case mode_list_mixed : rs.mode_effective = mode_tile_small; break;
+					case mode_tile_small : rs.mode_effective = mode_tile_normal; break;
+					case mode_tile_normal : rs.mode_effective = mode_tile_big; break;
+					case mode_tile_big : rs.mode_effective = mode_tile_enormous; break;
+					case mode_tile_enormous : rs.mode_effective = mode_tile_giant; break;
+					case mode_tile_giant : rs.mode_effective = mode_tile_icon; break;
+					case mode_tile_icon : rs.mode_effective = mode_tile_marquee; break;
+					case mode_tile_marquee : rs.mode_effective = mode_full; break;
+					}
+				} while ((rs.mode_effective & rs.mode_mask) == 0);
+			}
+			break;
+		case INT_KEY_SPACE :
+			if (rs.preview_mask) {
+				do {
+					switch (rs.preview_effective) {
+						case preview_icon :
+						case preview_marquee :
+						case preview_snap : rs.preview_effective = preview_title; break;
+						case preview_title : rs.preview_effective = preview_flyer; break;
+						case preview_flyer : rs.preview_effective = preview_cabinet; break;
+						case preview_cabinet : rs.preview_effective = preview_snap; break;
+					}
+				} while ((rs.preview_effective & rs.preview_mask) == 0);
+			}
+			break;
 		}
 		switch (key) {
-			case INT_KEY_ENTER :
-			case INT_KEY_RUN_CLONE :
-			case INT_KEY_IDLE_0 :
-			case INT_KEY_IDLE_1 :
-			case INT_KEY_LOCK :
-			case INT_KEY_HELP :
-			case INT_KEY_GROUP :
-			case INT_KEY_TYPE :
-			case INT_KEY_EXCLUDE :
-			case INT_KEY_SORT :
-			case INT_KEY_SETGROUP :
-			case INT_KEY_SETTYPE :
-			case INT_KEY_COMMAND :
-			case INT_KEY_MENU :
-			case INT_KEY_EMU :
-			case INT_KEY_ROTATE :
-			case INT_KEY_ESC :
-			case INT_KEY_OFF :
-				done = true;
-				break;
+		case INT_KEY_ENTER :
+		case INT_KEY_RUN_CLONE :
+		case INT_KEY_IDLE_0 :
+		case INT_KEY_IDLE_1 :
+		case INT_KEY_LOCK :
+		case INT_KEY_HELP :
+		case INT_KEY_GROUP :
+		case INT_KEY_TYPE :
+		case INT_KEY_EXCLUDE :
+		case INT_KEY_SORT :
+		case INT_KEY_SETGROUP :
+		case INT_KEY_SETTYPE :
+		case INT_KEY_COMMAND :
+		case INT_KEY_MENU :
+		case INT_KEY_EMU :
+		case INT_KEY_ROTATE :
+		case INT_KEY_ESC :
+		case INT_KEY_OFF :
+			done = true;
+			break;
 		}
 	}
 

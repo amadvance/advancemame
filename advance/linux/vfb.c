@@ -37,16 +37,18 @@
 #include "portable.h"
 #include "target.h"
 
+#include <linux/fb.h>
+
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/io.h>
+
 #include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include <sys/io.h>
-#include <linux/fb.h>
 
 /* Define USE_DIRECTIO to use direct port io instead of the /dev/port interface in vsync polling */
 #define USE_DIRECTIO

@@ -2,7 +2,7 @@
 AC_INIT([advance],[source])
 AC_CANONICAL_HOST
 AC_PREREQ(2.57)
-AC_COPYRIGHT([Copyright 2003 Andrea Mazzoleni])
+AC_COPYRIGHT([Copyright 2004 Andrea Mazzoleni])
 
 # Checks for system.
 case "$host" in
@@ -288,12 +288,27 @@ if test $ac_host = dos; then
 fi
 
 if test $ac_host = unix ; then
-	AC_CHECK_HEADERS([sys/utsname.h])
-	AC_CHECK_HEADERS([sys/time.h])
-	AC_CHECK_HEADERS([sys/types.h])
-	AC_CHECK_HEADERS([sys/stat.h])
+
+	# Checks for header files.
+	AC_PATH_X
+	AC_HEADER_STDC
+	AC_HEADER_SYS_WAIT
+	AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h sched.h netdb.h termios.h])
+	AC_CHECK_HEADERS([sys/utsname.h sys/time.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h])
+
+	# Checks for library functions.
+	AC_FUNC_ALLOCA
+	AC_FUNC_FORK
+	AC_PROG_GCC_TRADITIONAL
+	AC_FUNC_MALLOC
+	AC_FUNC_MMAP
+	AC_FUNC_SELECT_ARGTYPES
+	AC_FUNC_SETVBUF_REVERSED
+	AC_FUNC_VPRINTF
+	AC_CHECK_FUNCS([getcwd gettimeofday memset mkdir munmap select strcasecmp strdup strerror strstr uname])
 fi
 
+# zlib
 AC_CHECK_LIB(
 	[z],
 	[adler32],
@@ -303,6 +318,7 @@ AC_CHECK_LIB(
 ZLIBS="-lz"
 AC_SUBST([ZLIBS],[$ZLIBS])
 
+# svgalib
 AC_ARG_ENABLE(
 	[svgalib],
 	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
@@ -781,9 +797,6 @@ if test $ac_lib_jevent = yes; then
 	ac_lib_joystick="$ac_lib_joystick event"
 fi
 AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
-
-# Notify that ./configure was runned
-AC_SUBST([CONF],[yes])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

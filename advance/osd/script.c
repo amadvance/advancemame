@@ -279,6 +279,26 @@ int script_value_free_num(struct script_value* p)
 	return v;
 }
 
+static struct script_value* script_value_add(struct script_value* a, struct script_value* b)
+{
+	if (a->type == SCRIPT_VALUE_TEXT && b->type == SCRIPT_VALUE_TEXT) {
+		struct script_value* p = script_value_alloc(SCRIPT_VALUE_TEXT);
+		unsigned la = strlen(a->value.text);
+		unsigned lb = strlen(b->value.text);
+		char* s = malloc(la + lb);
+
+		memcpy(s, a->value.text, la);
+		memcpy(s + la, b->value.text, lb);
+		s[la + lb] = 0;
+
+		p->value.text = s;
+
+		return p;
+	} else {
+		return script_value_alloc_num(script_value_free_num(a) + script_value_free_num(b));
+	}
+}
+
 struct script_value* script_evaluate(const struct script_exp* exp)
 {
 	switch (exp->type) {
@@ -301,7 +321,7 @@ struct script_value* script_evaluate(const struct script_exp* exp)
 		case SCRIPT_EXP_LNOT :
 			return script_value_alloc_num(!script_value_free_num(script_evaluate(exp->data.op1e.arg0)));
 		case SCRIPT_EXP_ADD :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) + script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+			return script_value_add(script_evaluate(exp->data.op2ee.arg0), script_evaluate(exp->data.op2ee.arg1));
 		case SCRIPT_EXP_SUB :
 			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) - script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
 		case SCRIPT_EXP_AND :

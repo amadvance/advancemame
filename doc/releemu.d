@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.79.0
+	This release changes the manual compilation process in DOS
+	and Windows. You must now use the Makefile.usr file instead of
+	the old Makefile.in file. Check the build.txt file for more details.
+
 AdvanceMAME 0.78.0
 	This release completely removes the .cfg file support. All the
 	customization information are now saved in the main .rc file.

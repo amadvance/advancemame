@@ -1,6 +1,15 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.0 2004/02
+	) Added a the new entry `multiloopall' at the `ui_clip' option
+		which loops all the clips.
+	) To compile in DOS/Window now you must use the `Makefile.usr' file.
+	) Added the "m" library at the link step. This solve the linking
+		problem with recent MINGW compilers.
+	) Fixed a problem when converting old options name to the new values.
+		The conversion was failing if more than one conversion was required.
+
 AdvanceMENU Version 2.2.17 2004/01
 	) Removed the MAME .cfg support. AdvanceMAME doesn't use them
 		anymore.

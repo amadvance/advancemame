@@ -26,7 +26,6 @@ SOBJS += \
 	$(SOBJ)/mpglib/tabinit.o \
 	$(SOBJ)/s/s.o
 SOBJDIRS += \
-	$(SOBJ) \
 	$(SOBJ)/s \
 	$(SOBJ)/lib \
 	$(SOBJ)/mpglib
@@ -112,6 +111,10 @@ endif
 $(SOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(SCFLAGS) -c $< -o $@
+
+$(SOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(SOBJDIRS)):
 	$(ECHO) $@

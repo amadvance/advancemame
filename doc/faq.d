@@ -7,10 +7,10 @@ Name
 
 		* AdvanceMAME FAQ
 		* AdvanceMENU FAQ
-		* DOS Configuration FAQ
-		* Linux Configuration FAQ
-		* Windows Configuration FAQ
-		* Video Configuration FAQ
+		* DOS FAQ
+		* Linux FAQ
+		* Windows FAQ
+		* Video FAQ
 		* License FAQ
 
 AdvanceMAME FAQ
@@ -56,7 +56,18 @@ AdvanceMENU FAQ
 	:emulator_roms "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms_filter "mp3" "*.mp3"
 
-DOS Configuration FAQ
+DOS FAQ
+  How can I solve the compiler error "Argument list too long (E2BIG)"
+	If compiling you get the "Argument list too long" error, you need
+	to use the DJGPP stubedit utility to increase bufsize for both
+	gcc.exe and collect2.exe, with the following commands:
+
+	:stubedit c:\djgpp\bin\gcc.exe bufsize=32k
+	:stubedit c:\djgpp\lib\gcc-lib\djgpp\3.23\collect2.exe bufsize=32k
+
+	You may need to use different paths to the files, especially for
+	collect2.exe.
+
   What's the best configuration in PURE DOS ?
 	My favorite choice is to use HIMEM, EMM386 and a little
 	cache with SMARTDRV.
@@ -97,7 +108,7 @@ DOS Configuration FAQ
 	in the contrib/optimous directory. It's also present
 	a short text instruction file.
 
-Linux Configuration FAQ
+Linux FAQ
   How can I load the svgalib_helper.o kernel module automatically ?
 	Insert this line :
 
@@ -112,8 +123,10 @@ Linux Configuration FAQ
 
   On scrolling games I see a missing frame every 5/10 seconds, also
   with vsync enabled. How can I fix it ?
-	Try disabling the joystick use with the `device_joystick none'
-	option, or upgrade at the svgalib 1.9.16 library which supports
+	If you are using a gameport joystick try disabling the joystick support
+	with the `device_joystick none' option.
+
+	Or upgrade at the svgalib 1.9.16 library which supports
 	for some boards the vsync IRQ.
 
   Using the last svgalib and enabling vsync I report random freeze
@@ -146,14 +159,35 @@ Linux Configuration FAQ
 		:exec(...)
 
   Can I run the Advance programs in a readonly filesystem ?
-	Yes. All the writable files are put in the $HOME directory.
-	If you don't set a HOME environment variable no file is
-	written.
+	Yes. All the writable files are put in the $HOME/.advance
+	directory. If they are readonly, they are not updated.
 
-Windows Configuration FAQ
-	<empty>
+Windows FAQ
+  The SVGAWIN driver doesn't seem to work with my video board. How can I
+  solve this ?
+	The SVGAWIN driver is experimental. At present it's only tested
+	on Windows 2000 with a GeForce 2 board. It may not work will all
+	the other boards.
 
-Video Configuration FAQ
+	The svgawin drivers are inherently unsafe because they should coexist
+	with the normal Windows drivers.
+
+	The most common problem is that the Windows driver sets the video
+	card in a state that the SVGAWIN driver cannot understand or
+	restore.
+
+	The only possible solution is to try to reduce the video hardware
+	acceleration at the minimum in
+	DisplayProperties/Settings/Advanced/Troubleshooting.
+
+	If you want a stable solution you must use the Linux or DOS
+	version of AdvanceMAME and AdvanceMENU.
+
+	Alternatively you can try to use two different video boards, one for
+	Windows and the other for the game display. Check the
+	`device_svgawin_skipboard' option to control which video board to use.
+
+Video FAQ
   How can I enable the TV-OUT signal (S-VIDEO) of the video board ?
 	You cannot. If the TV-OUT signal is not enabled automatically
 	by your video board you cannot enable it manually.
@@ -444,5 +478,5 @@ GPL FAQ
 	:http://www.gnu.org/licenses/gpl-faq.html#TOCDistributingSourceIsInconvenient
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

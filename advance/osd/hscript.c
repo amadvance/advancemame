@@ -34,6 +34,8 @@
 #include "log.h"
 #include "target.h"
 #include "keydrv.h"
+#include "snstring.h"
+#include "portable.h"
 
 #include "glue.h"
 #include "emu.h"
@@ -63,6 +65,11 @@ struct hardware_script_state {
 	unsigned char kdb_state;
 
 	const char* script_text;
+
+	char info_desc_buffer[256];
+	char info_manufacturer_buffer[256];
+	char info_year_buffer[256];
+	char info_throttle_buffer[256];
 };
 
 static struct hardware_script_state STATE;
@@ -132,10 +139,27 @@ struct symbol {
 { 0, 0 }
 };
 
-/* Evaluate a symbol */
-static struct script_value* script_symbol_get(union script_arg_extra argextra)
+/* Evaluate a constant */
+static struct script_value* script_constant_get(union script_arg_extra argextra)
 {
 	return script_value_alloc_num(argextra.value);
+}
+
+/* Evaluate a text variable */
+static struct script_value* script_text_get(union script_arg_extra argextra)
+{
+	switch (argextra.value) {
+	case 0 :
+		return script_value_alloc_text(STATE.info_desc_buffer);
+	case 1 :
+		return script_value_alloc_text(STATE.info_manufacturer_buffer);
+	case 2 :
+		return script_value_alloc_text(STATE.info_year_buffer);
+	case 3 :
+		return script_value_alloc_text(STATE.info_throttle_buffer);
+	}
+
+	return script_value_alloc_num(0);
 }
 
 /* Check a symbol */
@@ -148,7 +172,7 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	while (p->name) {
 		if (strcmp(sym, p->name)==0) {
 			argextra->value = p->value;
-			return &script_symbol_get;
+			return &script_constant_get;
 		}
 		++p;
 	}
@@ -162,7 +186,7 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 			if (name) {
 				if (strcmp(sym_name, name)==0) {
 					argextra->value = i;
-					return &script_symbol_get;
+					return &script_constant_get;
 				}
 			}
 		}
@@ -173,9 +197,26 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	while (mp->name) {
 		if (strcmp(sym, mp->name)==0) {
 			argextra->value = mp->port;
-			return &script_symbol_get;
+			return &script_constant_get;
 		}
 		++mp;
+	}
+
+	if (strcmp(sym, "info_desc")==0) {
+		argextra->value = 0;
+		return &script_text_get;
+	}
+	if (strcmp(sym, "info_manufacturer")==0) {
+		argextra->value = 1;
+		return &script_text_get;
+	}
+	if (strcmp(sym, "info_year")==0) {
+		argextra->value = 2;
+		return &script_text_get;
+	}
+	if (strcmp(sym, "info_throttle")==0) {
+		argextra->value = 3;
+		return &script_text_get;
 	}
 
 	return 0;
@@ -292,6 +333,35 @@ static struct script_value* script_function3_get(struct script_value* varg0, str
 	return script_value_alloc_num(r);
 }
 
+static struct script_value* script_function3t_get(struct script_value* varg0, struct script_value* varg1, union script_arg_extra argextra)
+{
+	int arg0 = script_value_free_num(varg0);
+	int r;
+
+	switch (argextra.value) {
+	case 6 : /* lcd */
+		if (varg1->type == SCRIPT_VALUE_NUM) {
+			char buffer[32];
+			snprintf(buffer, sizeof(buffer), "%d", varg1->value.num);
+			advance_global_lcd(&CONTEXT.global, arg0, buffer);
+		} else if (varg1->type == SCRIPT_VALUE_TEXT) {
+			advance_global_lcd(&CONTEXT.global, arg0, varg1->value.text);
+		} else {
+			log_std(("ERROR:script: invalid type\n"));
+		}
+
+		r = 0;
+		break;
+	default :
+		r = 0;
+		break;
+	}
+
+	script_value_free(varg1);
+
+	return script_value_alloc_num(r);
+}
+
 script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_arg_extra* argextra)
 {
 	if (strcmp(sym, "event")==0) {
@@ -340,6 +410,9 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 	} else if (strcmp(sym, "simulate_key")==0) {
 		argextra->value = 5;
 		return &script_function3_get;
+	} else if (strcmp(sym, "lcd")==0) {
+		argextra->value = 6;
+		return &script_function3t_get;
 	}
 	return 0;
 }
@@ -384,6 +457,11 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_event14", "");
 
 	STATE.active_flag  = 0;
+
+	STATE.info_desc_buffer[0] = 0;
+	STATE.info_manufacturer_buffer[0] = 0;
+	STATE.info_year_buffer[0] = 0;
+	STATE.info_throttle_buffer[0] = 0;
 
 	return 0;
 }
@@ -613,5 +691,17 @@ void hardware_simulate_input_idle(struct simulate* SIMULATE, unsigned time_to_pl
 			SIMULATE[i].time_to_play = 0;
 		}
 	}
+}
+
+void hardware_script_info(const char* desc, const char* manufacturer, const char* year, const char* throttle)
+{
+	if (desc)
+		sncpy(STATE.info_desc_buffer, sizeof(STATE.info_desc_buffer), desc);
+	if (manufacturer)
+		sncpy(STATE.info_manufacturer_buffer, sizeof(STATE.info_manufacturer_buffer), manufacturer);
+	if (year)
+		sncpy(STATE.info_year_buffer, sizeof(STATE.info_year_buffer), year);
+	if (throttle)
+		sncpy(STATE.info_throttle_buffer, sizeof(STATE.info_throttle_buffer), throttle);
 }
 

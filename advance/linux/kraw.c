@@ -34,18 +34,19 @@
 #include "error.h"
 #include "oslinux.h"
 
+#include <unistd.h>
+#include <termios.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/kd.h>
+#include <sys/stat.h>
+#include <sys/vt.h>
+
+#include <signal.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <sys/kd.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/vt.h>
-#include <signal.h>
-#include <errno.h>
 
 /**
  * Define to enable the First key hack.

@@ -49,6 +49,8 @@
 struct target_context {
 	char buffer_out[BUFFER_SIZE];
 	char buffer_err[BUFFER_SIZE];
+	
+	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 };
 
 static struct target_context TARGET;
@@ -59,6 +61,9 @@ static struct target_context TARGET;
 adv_error target_init(void)
 {
 	memset(&TARGET, 0, sizeof(TARGET));
+	
+	TARGET.usleep_granularity = 0;
+	
 	return 0;
 }
 
@@ -80,8 +85,42 @@ void target_idle(void)
 	Sleep(1);
 }
 
+void target_usleep_granularity(unsigned us)
+{
+	TARGET.usleep_granularity = us;
+}
+
 void target_usleep(unsigned us)
 {
+#if 0 /* For now disabled. It needs more testing. */
+
+	/* TODO Try to increase the precision using MultimediaTimer and */
+	/* timeBeginPeriod/timeEndPeriod */
+
+	target_clock_t start;
+	target_clock_t stop;
+	unsigned requested;
+	unsigned effective;
+
+	/* if too short don't wait */
+	if (us <= TARGET.usleep_granularity) {
+		return;
+	}
+
+	requested = us - TARGET.usleep_granularity;
+
+	start = target_clock();
+	Sleep(requested / 1000);
+	stop = target_clock();
+
+	effective = (stop - start) * 1000000 / TARGET_CLOCKS_PER_SEC;
+
+	if (effective > us) {
+		/* don't adjust the granularity, it should be measured by the OS code */
+		/* TARGET.usleep_granularity += effective - us; */
+		log_std(("WARNING:linux: target_usleep() too long, granularity %d [us] (requested %d, tryed %d, effective %d)\n", TARGET.usleep_granularity, us, requested, effective));
+	}
+#endif
 }
 
 /***************************************************************************/

@@ -151,13 +151,42 @@ string interp(const unsigned p[10]) {
 	return s;
 }
 
+typedef list<pair<string,string> > assign_set;
+
+string assign(const string& r, const string& s, assign_set& assign)
+{
+	if (s.find("IC") != string::npos)
+		return s;
+
+	assign_set::iterator i;
+	for(i=assign.begin();i!=assign.end();++i) {
+		if (i->second == s)
+			break;
+	}
+
+	if (i == assign.end()) {
+		pair<string,string> p;
+		p.first = r;
+		p.second = s;
+		assign.insert(assign.end(), p);
+		return s;
+	} else {
+#if 0 /* disable common subexpression, you cannot reread the value from the destination */
+		return i->first;
+#else
+		cerr << "warning: possible common subexpression " << i->first << " = " << s << endl;
+		return s;
+#endif
+	}
+}
+
 class cond {
 public:
 	cond(const string& Aname);
 
 	string name;
-	mutable list<string> if_true;
-	mutable list<string> if_false;
+	mutable assign_set if_true;
+	mutable assign_set if_false;
 
 	bool operator<(const cond& A) const;
 };

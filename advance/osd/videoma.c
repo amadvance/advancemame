@@ -82,7 +82,9 @@
 
 	game_visible_pos_x/y
 		Position of the visible part in the game screen. The coords
-		are referenced on the used game area.
+		are referenced on the used game area. So, they can be negative
+		but still valid because they are in the game area, also if it isn't
+		used.
 
 	mode_visible_size_x/y
 		Part of the screen used for drawing. game_visible_* area is
@@ -2700,6 +2702,17 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 			buffer[l-11] = 255;
 
 		advance_ui_direct(ui_context, buffer);
+
+		hardware_script_info(0, 0, 0, buffer);
+	} else {
+		char buffer[256];
+		unsigned rate;
+
+		rate = floor( 100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5 );
+
+		snprintf(buffer, sizeof(buffer), "%3d%%", rate);
+
+		hardware_script_info(0, 0, 0, buffer);
 	}
 }
 

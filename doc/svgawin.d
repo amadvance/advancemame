@@ -41,6 +41,10 @@ Troubleshooting
 	If you want a stable solution you must use the Linux or DOS
 	version of AdvanceMAME and AdvanceMENU.
 
+	Alternatively you can try to use two different video boards, one for
+	Windows and the other for the game display. Check the
+	`device_svgawin_skipboard' option to control which video board to use.
+
 Tech
 	This driver is used to export at user level some reversed operations
 	generally available only at kernel level. Specifically you can:
@@ -57,4 +61,4 @@ Tech
 	file.
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

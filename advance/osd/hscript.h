@@ -85,6 +85,8 @@ void hardware_script_terminate(int id);
 
 void hardware_script_idle(unsigned time_to_play);
 
+void hardware_script_info(const char* desc, const char* manufacturer, const char* year, const char* throttle);
+
 /***************************************************************************/
 /* simulate */
 

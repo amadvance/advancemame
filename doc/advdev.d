@@ -723,6 +723,22 @@ Video Drivers Configuration
 	The following are the common video configuration options
 	available only for the `svgaline' DOS video driver.
 
+    device_svgaline_skipboard
+	Selects how many board skip in the video card detection. If you have
+	more than a video card on your system you and the wrong one is
+	used you can force to skip an arbitrary number of video boards.
+
+	:device_svgaline_skipboard 0 | 1 | 2 | 3
+
+	Options:
+		0 - Don't skip any board (default).
+		1 - Skip 1 boards.
+		2 - Skip 2 boards.
+		3 - Skip 3 boards.
+
+	Examples:
+		:device_svgaline_skipboard 1
+
     device_svgaline_divideclock
 	Divide the pixelclock using the VGA sequencer. It should help to support 
 	lower pixel clocks on some boards.
@@ -739,8 +755,24 @@ Video Drivers Configuration
 	The following are the common video configuration options
 	available only for the `svgawin' Windows video driver.
 
+    device_svgawin_skipboard
+	Selects how many board skip in the video card detection. If you have
+	more than a video card on your system you and the wrong one is
+	used you can force to skip an arbitrary number of video boards.
+
+	:device_svgawin_skipboard 0 | 1 | 2 | 3
+
+	Options:
+		0 - Don't skip any board (default).
+		1 - Skip 1 boards.
+		2 - Skip 2 boards.
+		3 - Skip 3 boards.
+
+	Examples:
+		:device_svgawin_skipboard 1
+
     device_svgawin_stub
-	Select how the driver uses the Windows graphics.
+	Selects how the driver uses the Windows graphics.
 
 	The use of this option is discouraged, it's present only for testing.
 
@@ -751,7 +783,7 @@ Video Drivers Configuration
 			the video mode (default).
 
     device_svgawin_divideclock
-	Divide the pixelclock using the VGA sequencer. It should help to support 
+	Divides the pixelclock using the VGA sequencer. It should help to support
 	lower pixel clocks on some boards.
 
 	The use of this option is discouraged, it's present only for testing.
@@ -964,5 +996,5 @@ Input Drivers Configuration
 		:device_raw_mousedev[1] /dev/ttyS2
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

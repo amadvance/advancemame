@@ -1,6 +1,19 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.79.0 2004/02
+	) Added LCD support at the Linux version using the lcdproc library.
+		You can now display arbitrary messages on the LCD using the
+		"lcd" command on the scripts.
+	) Added the `device_svgawin_skipboard' and `device_svgaline_skipboard'
+		options to control which video board to use in Windows and DOS
+		in case you have more than one video board on the system.
+	) To compile in DOS/Window now you must use the `Makefile.usr' file.
+	) Fixed a problem when converting old options name to the new values.
+		The conversion was failing if more than one conversion was required.
+	) Splitted the big source file blit.c in small parts. This should reduce
+		the memory requirement when compiling.
+
 AdvanceMAME Version 0.78.1 2004/01
 	) Fixed the audio surround enabled with the "sound_mode surround" option.
 		Now you should not hear audio statics anymore.

@@ -36,15 +36,26 @@
 
 #include "oslinux.h"
 
-#include <stdlib.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_SCHED_H
 #include <sched.h>
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+#include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/time.h>
 #include <string.h>
 
 struct target_context {

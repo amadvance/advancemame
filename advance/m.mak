@@ -4,7 +4,6 @@
 MCFLAGS += \
 	-I$(srcdir)/advance/lib
 MOBJDIRS += \
-	$(MOBJ) \
 	$(MOBJ)/m \
 	$(MOBJ)/lib
 MOBJS += \
@@ -78,6 +77,10 @@ endif
 $(MOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MCFLAGS) -c $< -o $@
+
+$(MOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(MOBJDIRS)):
 	$(ECHO) $@

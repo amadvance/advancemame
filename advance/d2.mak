@@ -2,7 +2,6 @@
 # D2
 
 D2OBJDIRS = \
-	$(D2OBJ) \
 	$(D2OBJ)/d2
 D2OBJS = \
 	$(D2OBJ)/d2/d2.o
@@ -10,6 +9,10 @@ D2OBJS = \
 $(D2OBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)
 	$(CXX_BUILD) $(CFLAGS_BUILD) $(D2CFLAGS) -c $< -o $@
+
+$(D2OBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(D2OBJDIRS)):
 	$(ECHO) $@

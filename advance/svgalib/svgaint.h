@@ -253,6 +253,8 @@ struct adv_svgalib_state_struct {
 	int mode_tvntsc;
 
 	int divide_clock; /**< If set uses the VGA sequencer register to divide the dot clock by 2. */
+	int skip_board; /**< Number of boards to skip. Normally 0. */
+	unsigned last_bus_device_func; /**< Last device found. */
 
 	int has_interlace;
 	int has_bit8;
@@ -276,7 +278,7 @@ extern struct adv_svgalib_state_struct adv_svgalib_state;
 
 #ifdef USE_SVGALIB_EXTERNAL
 
-int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer);
+int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer, int skipboard);
 void ADV_SVGALIB_CALL adv_svgalib_done(void);
 
 int ADV_SVGALIB_CALL adv_svgalib_detect(const char* name);

@@ -37,27 +37,12 @@
 #include "measure.h"
 #include "portable.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <setjmp.h>
-#include <time.h>
-
-#ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+#if defined(USE_SDL)
+#include "ossdl.h"
+#include "SDL.h"
+#include "ksdl.h"
+#include "isdl.h"
+#include "msdl.h"
 #endif
 
 #if defined(USE_SVGALIB)
@@ -66,10 +51,10 @@
 #endif
 
 #if defined(USE_SLANG)
-#ifdef HAVE_SLANG_H
+#if HAVE_SLANG_H
 #include <slang.h>
 #else
-#ifdef HAVE_SLANG_SLANG_H
+#if HAVE_SLANG_SLANG_H
 #include <slang/slang.h>
 #else
 #error slang.h file not found!
@@ -81,13 +66,35 @@
 #include <X11/Xlib.h>
 #endif
 
-#if defined(USE_SDL)
-#include "ossdl.h"
-#include "SDL.h"
-#include "ksdl.h"
-#include "isdl.h"
-#include "msdl.h"
+#if HAVE_UNISTD_H
+#include <unistd.h>
 #endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+#if HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <stdio.h>
+#include <setjmp.h>
+#include <time.h>
+
 
 struct os_context {
 #ifdef USE_SVGALIB
@@ -261,6 +268,9 @@ int os_inner_init(const char* title)
 #ifdef USE_SDL
 	SDL_version compiled;
 #endif
+	unsigned char endian[4] = { 0x1, 0x2, 0x3, 0x4 };
+	uint32 endian_little = 0x04030201;
+	uint32 endian_big = 0x01020304;
 
 	log_std(("os: os_inner_init\n"));
 
@@ -273,31 +283,6 @@ int os_inner_init(const char* title)
 		log_std(("os: machine %s\n", uts.machine));
 	}
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
-	log_std(("os: scheduling available\n"));
-#else
-	log_std(("os: scheduling NOT available\n"));
-#endif
-
-	/* save term if possible */
-	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
-		log_std(("ERROR:os: error getting the tty state.\n"));
-		OS.term_active = 0;
-	} else {
-		OS.term_active = 1;
-	}
-
-	/* print the compiler version */
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
-#define COMPILER_RESOLVE(a) #a
-#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
-	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
-#else
-	log_std(("os: compiler unknown\n"));
-#endif
-
-	os_delay();
-
 #if defined(linux)
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
 	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n", sysconf(_SC_NPROCESSORS_CONF)));
@@ -309,17 +294,72 @@ int os_inner_init(const char* title)
 	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n", sysconf(_SC_WORD_BIT)));
 #endif
 
+#ifdef _POSIX_PRIORITY_SCHEDULING
+	log_std(("os: scheduling available\n"));
+#else
+	log_std(("os: scheduling NOT available\n"));
+#endif
+
+	/* print the compiler version */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
+#else
+	log_std(("os: compiler unknown\n"));
+#endif
+
+	/* check for int size */
+	if (sizeof(uint8) != 1) {
+		target_err("The program is compiled with invalid uint8 type.\n");
+		return -1;
+	}
+	if (sizeof(uint16) != 2) {
+		target_err("The program is compiled with invalid uint16 type.\n");
+		return -1;
+	}
+	if (sizeof(uint32) != 4) {
+		target_err("The program is compiled with invalid uint32 type.\n");
+		return -1;
+	}
+	if (sizeof(uint64) != 8) {
+		target_err("The program is compiled with invalid uint64 type.\n");
+		return -1;
+	}
+
+	/* check for the endianess */
+#ifdef USE_MSB
+	log_std(("os: compiled big endian system\n"));
+	if (memcmp(endian, &endian_big, 4) != 0) {
+		target_err("The program is compiled as bigendian but system doesn't appear to be bigendian.\n");
+		return -1;
+	}
+#endif
+#ifdef USE_LSB
+	log_std(("os: compiled little endian system\n"));
+	if (memcmp(endian, &endian_little, 4) != 0) {
+		target_err("The program is compiled as littleendian but system doesn't appear to be littleendian.\n");
+		return -1;
+	}
+#endif
+
+	/* get DISPLAY environment variable */
 	display = getenv("DISPLAY");
 	if (display)
 		log_std(("os: DISPLAY=%s\n", display));
 	else
 		log_std(("os: DISPLAY undef\n"));
 
-#ifdef USE_LSB
-	log_std(("os: compiled little endian system\n"));
-#else
-	log_std(("os: compiled big endian system\n"));
-#endif
+	/* probe the delay system */
+	os_delay();
+
+	/* save term if possible */
+	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
+		log_std(("ERROR:os: error getting the tty state.\n"));
+		OS.term_active = 0;
+	} else {
+		OS.term_active = 1;
+	}
 
 #if defined(USE_X)
 	OS.x_active = 0;
@@ -388,10 +428,18 @@ int os_inner_init(const char* title)
 
 	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
 	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
-	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-		log_std(("os: sdl little endian system\n"));
-	else
-		log_std(("os: sdl big endian system\n"));
+#ifdef USE_MSB
+	if (SDL_BYTEORDER != SDL_BIG_ENDIAN) {
+		target_err("Invalid SDL endianess.\n");
+		return -1;
+	}
+#endif
+#ifdef USE_LSB
+	if (SDL_BYTEORDER != SDL_LIL_ENDIAN) {
+		target_err("Invalid SDL endianess.\n");
+		return -1;
+	}
+#endif
 #endif
 #if defined(USE_SLANG)
 	OS.slang_active = 0;
@@ -414,15 +462,19 @@ int os_inner_init(const char* title)
 		struct sigaction term_action;
 		struct sigaction quit_action;
 		struct sigaction hup_action;
+		struct sigaction pipe_action;
+
+		/* STANDARD signals */
 
 		term_action.sa_handler = os_signal;
+		/* block external generated signals in the signal handler */
 		sigemptyset(&term_action.sa_mask);
-		/* block external generated signals */
 		sigaddset(&term_action.sa_mask, SIGALRM);
 		sigaddset(&term_action.sa_mask, SIGINT);
 		sigaddset(&term_action.sa_mask, SIGTERM);
 		sigaddset(&term_action.sa_mask, SIGHUP);
 		sigaddset(&term_action.sa_mask, SIGQUIT);
+
 		term_action.sa_flags = 0;
 
 		/* external generated */
@@ -436,17 +488,24 @@ int os_inner_init(const char* title)
 		sigaction(SIGSEGV, &term_action, 0);
 		sigaction(SIGBUS, &term_action, 0);
 
+		/* HUP signal */
 		hup_action.sa_handler = os_hup_signal;
 		sigemptyset(&hup_action.sa_mask);
 		hup_action.sa_flags = 0;
-
 		sigaction(SIGHUP, &hup_action, 0);
 
+		/* QUIT signal */
 		quit_action.sa_handler = os_quit_signal;
 		sigemptyset(&quit_action.sa_mask);
 		quit_action.sa_flags = 0;
-
 		sigaction(SIGQUIT, &quit_action, 0);
+
+		/* PIPE signal, ignoring it force the functions to return with */
+		/* error. It happen for example on the LCD sockects */
+		pipe_action.sa_handler = SIG_IGN;
+		sigemptyset(&pipe_action.sa_mask);
+		pipe_action.sa_flags = 0;
+		sigaction(SIGPIPE, &pipe_action, 0);
 	}
 
 	return 0;

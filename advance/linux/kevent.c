@@ -35,12 +35,14 @@
 #include "event.h"
 #include "portable.h"
 
+#include <linux/input.h>
+
 #include <unistd.h>
+#include <sys/kd.h>
+
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <linux/input.h>
-#include <sys/kd.h>
 
 #define EVENT_KEYBOARD_MAX 8
 #define EVENT_KEYBOARD_DEVICE_MAX 32

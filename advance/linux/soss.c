@@ -32,11 +32,13 @@
 #include "log.h"
 #include "error.h"
 
-#include <assert.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
+
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <assert.h>
 
 struct soundb_oss_context {
 	unsigned channel;

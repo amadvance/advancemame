@@ -45,10 +45,12 @@
 #include <vgamouse.h>
 #endif
 
+#include <linux/input.h>
+
 #include <unistd.h>
+
 #include <errno.h>
 #include <string.h>
-#include <linux/input.h>
 
 #define EVENT_MOUSE_MAX 8
 #define EVENT_MOUSE_DEVICE_MAX 32

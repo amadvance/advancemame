@@ -1,5 +1,2 @@
-#!/bin/bash
+./configure --host=i386-mingw32msvc --build=`./config.guess` $@
 
-(
-	./configure --host=i386-mingw32msvc --build=`./config.guess` $@
-)

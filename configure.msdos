@@ -1,5 +1,2 @@
-#!/bin/bash
+./configure --host=i586-pc-msdosdjgpp --build=`./config.guess` $@
 
-(
-	./configure --host=i586-pc-msdosdjgpp --build=`./config.guess` $@
-)

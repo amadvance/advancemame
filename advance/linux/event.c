@@ -31,12 +31,13 @@
 #include "event.h"
 #include "log.h"
 
+#include <linux/input.h>
+
+#include <unistd.h>
+#include <fcntl.h>
+
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <linux/input.h>
 
 static void event_key_log(int f)
 {

@@ -35,6 +35,7 @@
 /** \defgroup Functionality Functionalities */
 /*@{*/
 /** \defgroup Error Error */
+/** \defgroup LCD LCD */
 /** \defgroup Log Log */
 /** \defgroup Color Color */
 /** \defgroup BitMap BitMap */

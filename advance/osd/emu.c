@@ -596,6 +596,9 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
+	/* initialize the MAME CPU support.It must be called before the mame_print commands */
+	mame_print_init();
+
 	if (opt_info) {
 		mame_print_info(stdout);
 		goto done_os;
@@ -738,15 +741,17 @@ int os_main(int argc, char* argv[])
 
 	log_std(("emu: *_inner_init()\n"));
 
-	if (advance_video_inner_init(&context->video, &option) != 0)
+	if (advance_global_inner_init(&context->global) != 0)
 		goto err_os_inner;
+	if (advance_video_inner_init(&context->video, &option) != 0)
+		goto err_inner_global;
 	if (advance_input_inner_init(&context->input, context->cfg) != 0)
 		goto err_inner_video;
 	if (advance_ui_inner_init(&context->ui, context->cfg) != 0)
 		goto err_inner_input;
-	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
+	if (advance_safequit_inner_init(&context->safequit, &option) != 0)
 		goto err_inner_ui;
-	if (hardware_script_inner_init()!=0)
+	if (hardware_script_inner_init() != 0)
 		goto err_inner_safequit;
 
 	log_std(("emu: mame_game_run()\n"));
@@ -762,6 +767,7 @@ int os_main(int argc, char* argv[])
 	advance_ui_inner_done(&context->ui);
 	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
+	advance_global_inner_done(&context->global);
 
 	log_std(("emu: os_inner_done()\n"));
 
@@ -820,6 +826,8 @@ err_inner_input:
 	advance_input_inner_done(&context->input);
 err_inner_video:
 	advance_video_inner_done(&context->video);
+err_inner_global:
+	advance_global_inner_done(&context->global);
 err_os_inner:
 	os_inner_done();
 	hardware_script_done();

@@ -86,6 +86,7 @@ struct svgawin_option_struct {
 	adv_bool initialized;
 	int stub;
 	int divide_clock;
+	int skip;
 };
 
 static struct svgawin_option_struct svgawin_option;
@@ -350,7 +351,7 @@ static adv_error svgalib_init(int device_id)
 		return -1;
 	name = j->name;
 
-	if (adv_svgalib_init(svgawin_option.divide_clock) != 0) {
+	if (adv_svgalib_init(svgawin_option.divide_clock, svgawin_option.skip) != 0) {
 		error_set("Unable to inizialize the SVGAWIN library.\n");
 		return -1;
 	}
@@ -947,6 +948,7 @@ void svgawin_default(void)
 {
 	svgawin_option.initialized = 1;
 	svgawin_option.divide_clock = 0;
+	svgawin_option.skip = 0;
 	svgawin_option.stub = 0;
 }
 
@@ -961,6 +963,7 @@ void svgawin_reg(adv_conf* context)
 	assert( !svgawin_is_active() );
 
 	conf_bool_register_default(context, "device_svgawin_divideclock", 0);
+	conf_int_register_limit_default(context, "device_svgawin_skipboard", 0, 8, 0);
 	conf_int_register_enum_default(context, "device_svgawin_stub", conf_enum(OPTION_STUB), STUB_FULLSCREEN);
 
 	svgawin_option.initialized = 1;
@@ -971,6 +974,7 @@ adv_error svgawin_load(adv_conf* context)
 	assert( !svgawin_is_active() );
 
 	svgawin_option.divide_clock = conf_bool_get_default(context, "device_svgawin_divideclock");
+	svgawin_option.skip = conf_int_get_default(context, "device_svgawin_skipboard");
 	svgawin_option.stub = conf_int_get_default(context, "device_svgawin_stub");
 
 	svgawin_option.initialized = 1;
@@ -1056,5 +1060,4 @@ int os_internal_svgawin_is_video_mode_active(void)
 {
 	return svgawin_is_active() && svgawin_mode_is_active();
 }
-
 

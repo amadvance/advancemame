@@ -44,6 +44,10 @@
 #include "blit.h"
 #include "font.h"
 
+#ifdef USE_LCD
+#include "lcd.h"
+#endif
+
 #include <time.h>
 #ifdef USE_SMP
 #include <pthread.h>
@@ -701,11 +705,17 @@ struct advance_global_config_context {
 	int difficulty; /**< Difficulty level. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
 	double pause_brightness; /**< Display brightness when paused. */
+	char lcd_server_buffer[256]; /**< Server (address:port) for the LCD output. */
+	int lcd_timeout; /**< LCD timeout in ms. */
+	int lcd_speed; /**< LCD speed. */
 };
 
 struct advance_global_state_context {
 	adv_bool is_config_writable; /**< Is the configuration file writable ? */
 	char message_buffer[256]; /**< Next message to be displayed. */
+#ifdef USE_LCD
+	adv_lcd* lcd; /**< LCD context. */
+#endif
 };
 
 struct advance_global_context {
@@ -715,8 +725,11 @@ struct advance_global_context {
 
 void advance_global_message_va(struct advance_global_context* context, const char* text, va_list arg);
 void advance_global_message(struct advance_global_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
+void advance_global_lcd(struct advance_global_context* context, unsigned row, const char* text);
 
 adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context);
+adv_error advance_global_inner_init(struct advance_global_context* context);
+void advance_global_inner_done(struct advance_global_context* context);
 adv_error advance_global_config_load(struct advance_global_context* context, adv_conf* cfg_context);
 void advance_global_done(struct advance_global_context* context);
 

@@ -8,9 +8,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <malloc.h>
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#include <alloca.h>
+#endif
 
 #include <windows.h>
-#include <malloc.h>		/* For _alloca() */
 
 /* Include the SDL main definition header */
 #include "SDL.h"
@@ -317,3 +321,4 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	/* Run the main program (after a little SDL initialization) */
 	return(console_main(argc, argv));
 }
+

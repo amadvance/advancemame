@@ -2,7 +2,6 @@
 # Line
 
 LINEOBJDIRS = \
-	$(LINEOBJ) \
 	$(LINEOBJ)/line
 LINEOBJS = \
 	$(LINEOBJ)/line/line.o
@@ -11,6 +10,10 @@ LINELIBS = -lm
 $(LINEOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)
 	$(CXX_BUILD) $(CFLAGS_BUILD) $(LINECFLAGS) -c $< -o $@
+
+$(LINEOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(LINEOBJDIRS)):
 	$(ECHO) $@

@@ -4,7 +4,6 @@
 JCFLAGS += \
 	-I$(srcdir)/advance/lib
 JOBJDIRS += \
-	$(JOBJ) \
 	$(JOBJ)/j \
 	$(JOBJ)/lib
 JOBJS += \
@@ -112,6 +111,10 @@ endif
 $(JOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(JCFLAGS) -c $< -o $@
+
+$(JOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(JOBJDIRS)):
 	$(ECHO) $@

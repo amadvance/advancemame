@@ -42,6 +42,8 @@ extern "C" {
 /***************************************************************************/
 /* Internal */
 
+void target_usleep_granularity(unsigned us);
+
 /* Check if SVGAWIN is used in some way */
 #if defined(USE_VIDEO_SVGAWIN)
 #define USE_SVGAWIN
@@ -61,3 +63,4 @@ int os_internal_svgawin_is_video_mode_active(void);
 #endif
 
 #endif
+

@@ -4,7 +4,6 @@
 KCFLAGS += \
 	-I$(srcdir)/advance/lib
 KOBJDIRS += \
-	$(KOBJ) \
 	$(KOBJ)/k \
 	$(KOBJ)/lib
 KOBJS += \
@@ -71,6 +70,10 @@ endif
 $(KOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(KCFLAGS) -c $< -o $@
+
+$(KOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(KOBJDIRS)):
 	$(ECHO) $@

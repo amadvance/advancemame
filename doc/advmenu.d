@@ -96,7 +96,7 @@ Emulators
 		:emulator_roms "zsnes" "c:\game\zsnes\roms"
 		:emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"
 
-	The various %f, %p, ... macros are explained in the `emulator'
+	The various %s, %f, %p, ... macros are explained in the `emulator'
 	option description.
 
 	The roms are searched in the path specified with the
@@ -367,7 +367,7 @@ Configuration
 
 	In the emulator option some strings are substituted
 	with some special values:
-		%s -  The game name. For example "pacman".
+		%s - The game name. For example "pacman".
 		%p - The complete path of the rom. For
 			example "c:\emu\roms\pacman.zip".
 		%f - The rom name with the extension. For
@@ -864,7 +864,7 @@ Configuration
     ui_clip
 	Select how play the video clips.
 
-	:ui_clip none | single | singleloop | multi | multiloop
+	:ui_clip none | single | singleloop | multi | multiloop | multiloopall
 
 	Options:
 		none - No clip.
@@ -874,6 +874,8 @@ Configuration
 		multi - Play all the clips.
 		multiloop - Play all the clips, and loop the clip on the
 			cursor. The sound is not looped.
+		multiloopall - Play all the clips, and loop all the clips.
+			The sound is not looped.
 
     ui_command_menu
 	Menu item name for the commands submenu.
@@ -1205,5 +1207,5 @@ Signals
 		SIGHUP - Restart the program.
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni, Randy Schnedler.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Randy Schnedler.
 

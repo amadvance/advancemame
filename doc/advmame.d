@@ -36,7 +36,8 @@ Description
 		thread architecture (only for Linux/Mac OS X).
 	* Sound and video recording in WAV, PNG and MNG files.
 	* Automatic exit after some time of inactivity.
-	* Scripts capabilities to drive external hardware devices.
+	* Scripts capabilities to drive external hardware devices
+		like LCDs and lights.
 	* Textual configuration files.
 
 Keys
@@ -353,6 +354,11 @@ Features
 	screen for games without cocktail support.
 
 	Press `slash_pad' to flip the screen.
+
+  LCD
+	AdvanceMAME is able to talk to a `lcdproc' server located anywhere
+	in internet to display arbitrary information on a real or simulated
+	LCD display.
 
 Use Cases
 	This section describes some useful cases for AdvanceMAME
@@ -1654,6 +1660,48 @@ Configuration
 	behaviour of the emulation. Specifically some implementations may
 	depend on the number of sample requested, information which is not
 	stored in the recorded input file.
+
+  LCD Configuration Options
+	AdvanceMAME is able to display arbitrary information on a LCD display
+	using the integrated script capabilities.
+
+	To use the LCD support you must install on your system the `lcdproc'
+	program available at:
+
+		:http://lcdproc.sourceforge.net
+
+	More details and some examples of how display information on the LCD
+	using the scripts are in the `script.txt' documentation file.
+
+    lcd_server
+	Selects the server address and port to use for display information on
+	the LCD.
+
+	lcd_server none | [SERVER][:PORT]
+
+	Options:
+		none - Disable the LCD support (default).
+		SERVER - Address of the server. If omitted `localhost' is used.
+		PORT - Port of the server. If omitted `13666' is used.
+
+	Examples:
+		:lcd_server localhost
+
+    lcd_timeout
+	Selects the timeout to connect at the server.
+
+	lcd_timeout TIMEOUT
+
+	Options:
+		TIMEOUT - Timeout in milliseconds (default 500).
+
+    lcd_speed
+	Selects the LCD scrolling speed for long messages.
+
+	lcd_speed DELAY
+
+	Options:
+		DELAY - Delay in 1/8th of seconds (default 8).
 
   Misc Configuration Options
 

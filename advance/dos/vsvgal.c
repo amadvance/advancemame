@@ -66,6 +66,7 @@ unsigned char* (*svgaline_write_line)(unsigned y);
 struct svgaline_option_struct {
 	adv_bool initialized;
 	int divide_clock;
+	int skip;
 };
 
 static struct svgaline_option_struct svgaline_option;
@@ -217,7 +218,7 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 		svgaline_default();
 	}
 
-	if (adv_svgalib_init(svgaline_option.divide_clock) != 0) {
+	if (adv_svgalib_init(svgaline_option.divide_clock, svgaline_option.skip) != 0) {
 		log_std(("video:svgaline: error calling adv_svgalib_init()\n"));
 		return -1;
 	}
@@ -485,6 +486,7 @@ void svgaline_default(void)
 {
 	svgaline_option.initialized = 1;
 	svgaline_option.divide_clock = 0;
+	svgaline_option.skip = 0;
 }
 
 void svgaline_reg(adv_conf* context)
@@ -492,6 +494,7 @@ void svgaline_reg(adv_conf* context)
 	assert( !svgaline_is_active() );
 
 	conf_bool_register_default(context, "device_svgaline_divideclock", 0);
+	conf_int_register_limit_default(context, "device_svgaline_skipboard", 0, 8, 0);
 
 	svgaline_option.initialized = 1;
 }
@@ -501,6 +504,7 @@ adv_error svgaline_load(adv_conf* context)
 	assert( !svgaline_is_active() );
 
 	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divideclock");
+	svgaline_option.skip = conf_int_get_default(context, "device_svgaline_skipboard");
 
 	svgaline_option.initialized = 1;
 

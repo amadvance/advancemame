@@ -35,11 +35,13 @@
 #include "snstring.h"
 #include "portable.h"
 
+#include <linux/joystick.h>
+
 #include <unistd.h>
+
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <linux/joystick.h>
 
 #define RAW_JOYSTICK_MAX 4
 #define RAW_JOYSTICK_DEVICE_MAX 4

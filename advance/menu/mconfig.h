@@ -30,14 +30,15 @@
 #include <list>
 
 #define ADVANCE_COPY \
-	"AdvanceMENU - Copyright (C) 1999-2003 by Andrea Mazzoleni\n"
+	"AdvanceMENU - Copyright (C) 1999-2004 by Andrea Mazzoleni\n"
 
 enum clip_mode_t {
 	clip_none,
 	clip_single,
 	clip_singleloop,
 	clip_multi,
-	clip_multiloop
+	clip_multiloop,
+	clip_multiloopall
 };
 
 /// Type of sorting.

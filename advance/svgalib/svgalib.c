@@ -284,10 +284,7 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 	struct pci_find* arg = (struct pci_find*)_arg;
 	(void)device;
 
-	if (vendor != arg->vendor)
-		return 0;
-
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+	if (adv_svgalib_pci_read_dword_nolog(bus_device_func,0x8,&dw)!=0)
 		return 0;
 
 	base_class = (dw >> 16) & 0xFFFF;
@@ -298,6 +295,12 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 		--arg->cont;
 		return 0;
 	}
+
+	/* The original SVGALIB code tests the vendor before the count check */
+	/* It is moved to allow a consistent use of the count on different vendors */
+	/* and not limiting it at only the current vendor */
+	if (vendor != arg->vendor)
+		return 0;
 
 	arg->bus_device_func = bus_device_func;
 
@@ -310,11 +313,13 @@ int __svgalib_pci_find_vendor_vga(unsigned int vendor, unsigned long *conf, int 
 	int i;
 	struct pci_find find;
 	find.vendor = vendor;
-	find.cont = cont;
+	find.cont = cont + adv_svgalib_state.skip_board;
 
 	r = adv_svgalib_pci_scan_device(pci_scan_device_callback,&find);
 	if (r!=1)
 		return 1; /* not found */
+
+	adv_svgalib_state.last_bus_device_func = find.bus_device_func;
 
 	for(i=0;i<64;++i) {
 		unsigned v;
@@ -331,11 +336,13 @@ int __svgalib_pci_find_vendor_vga_pos(unsigned int vendor, unsigned long *conf, 
 	int i;
 	struct pci_find find;
 	find.vendor = vendor;
-	find.cont = cont;
+	find.cont = cont + adv_svgalib_state.skip_board;
 
 	r = adv_svgalib_pci_scan_device(pci_scan_device_callback,&find);
 	if (r!=1)
 		return -1; /* not found */
+
+	adv_svgalib_state.last_bus_device_func = find.bus_device_func;
 
 	for(i=0;i<64;++i) {
 		unsigned v;
@@ -798,13 +805,12 @@ int vga_getpalvec(int start, int num, int *pal) {
 	(void)num;
 	(void)pal;
 	/* used only for cursor */
-	adv_svgalib_log("svgalib: invalid vga_getpalvec() call\n");	
+	adv_svgalib_log("svgalib: invalid vga_getpalvec() call\n");
 	adv_svgalib_abort();
 	return num;
 }
 
 int vga_setpalette(int index, int red, int green, int blue) {
-
 	/* correct wrong RGB values */
 	red &= 0x3F;
 	green &= 0x3F;
@@ -1389,7 +1395,7 @@ static void mode_done(void)
  *  - ==0 on success
  *  - !=0 on error
  */
-int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer)
+int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer, int skip_board)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_init()\n");
 	
@@ -1401,6 +1407,8 @@ int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer)
 	heap_init();
 
 	adv_svgalib_state.divide_clock = divide_clock_with_sequencer;
+	adv_svgalib_state.skip_board = skip_board;
+	adv_svgalib_state.last_bus_device_func = 0;
 
 	__svgalib_chipset = UNDEFINED;
 	__svgalib_driverspecs = &__svgalib_vga_driverspecs;

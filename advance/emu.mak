@@ -7,13 +7,12 @@ ADVANCECFLAGS += \
 	-I$(srcdir)/advance/blit
 
 OBJDIRS += \
-	$(OBJ) \
 	$(OBJ)/advance \
 	$(OBJ)/advance/lib \
 	$(OBJ)/advance/osd \
 	$(OBJ)/advance/blit
 
-ADVANCELIBS += $(ZLIBS)
+ADVANCELIBS += $(ZLIBS) -lm
 
 ifeq ($(CONF_HOST),unix)
 OBJDIRS += \
@@ -25,12 +24,13 @@ ADVANCECFLAGS += \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_NONE
+	-DUSE_JOYSTICK_NONE \
+	-DUSE_LCD
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/file.o \
 	$(OBJ)/advance/linux/target.o \
-	$(OBJ)/advance/linux/os.o
-ADVANCELIBS += -lm
+	$(OBJ)/advance/linux/os.o \
+	$(OBJ)/advance/lib/lcd.o
 ifeq ($(CONF_LIB_PTHREAD),yes)
 CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
@@ -368,6 +368,15 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/fileio.o \
 	$(OBJ)/advance/osd/fuzzy.o \
 	$(OBJ)/advance/blit/blit.o \
+	$(OBJ)/advance/blit/lq2x.o \
+	$(OBJ)/advance/blit/lq3x.o \
+	$(OBJ)/advance/blit/lq4x.o \
+	$(OBJ)/advance/blit/hq2x.o \
+	$(OBJ)/advance/blit/hq3x.o \
+	$(OBJ)/advance/blit/hq4x.o \
+	$(OBJ)/advance/blit/scale2x.o \
+	$(OBJ)/advance/blit/scale3x.o \
+	$(OBJ)/advance/blit/interp.o \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/blit/slice.o \
 	$(OBJ)/advance/lib/portable.o \
@@ -588,6 +597,10 @@ $(OBJ)/%.a:
 	$(ECHO) $@
 	$(RM) $@
 	$(AR) crs $@ $^
+
+$(OBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(OBJDIRS)):
 	$(ECHO) $@

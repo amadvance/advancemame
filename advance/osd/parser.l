@@ -64,9 +64,9 @@ ID_TEXT     \"[^"\n]*\"
 
 {ID_VAL} {
 		if (yytext[0]=='0' && yytext[1]=='b')
-			yylval.val = strtol( yytext+2,0,2 );
+			yylval.val = strtol(yytext+2, 0, 2);
 		else
-			yylval.val = strtol( yytext,0,0 );
+			yylval.val = strtol(yytext, 0, 0);
 		return VAL;
 	}
 

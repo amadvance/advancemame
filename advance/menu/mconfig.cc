@@ -117,7 +117,8 @@ static adv_conf_enum_int OPTION_CLIPMODE[] = {
 { "single", clip_single },
 { "singleloop", clip_singleloop },
 { "multi", clip_multi },
-{ "multiloop", clip_multiloop }
+{ "multiloop", clip_multiloop },
+{ "multiloopall", clip_multiloopall }
 };
 
 static void config_error_la(const string& line, const string& arg)

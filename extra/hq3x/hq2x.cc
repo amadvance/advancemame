@@ -150,10 +150,13 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		set<cond> cs;
+		assign_set assign_base;
 		for(unsigned j=0;j<N;++j) {
+			ostringstream p;
+			p << "P" << j;
 			if (m[j].size() == 1) {
 				set<item>::iterator l=m[j].begin();
-				cout << "P" << j << " = " << interp(l->p) << ";" << endl;
+				cout << p.str() << " = " << assign(p.str(),interp(l->p),assign_base) << ";" << endl;
 			} else if (m[j].size() == 2) {
 				set<item>::iterator l;
 				set<item>::iterator h;
@@ -168,30 +171,35 @@ int main(int argc, char* argv[]) {
 				}
 				string c = condition(l->mask);
 				pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
-				ostringstream i0, i1;
-				i1 << "P" << j << " = " << interp(l->p) << ";";
-				i0 << "P" << j << " = " << interp(h->p) << ";";
-				string ss;
-				n.first->if_true.insert(n.first->if_true.end(), i1.str());
-				n.first->if_false.insert(n.first->if_false.end(), i0.str());
+				pair<string,string> i0, i1;
+				i1.first = p.str();
+				i1.second = interp(l->p);
+				i0.first = p.str();
+				i0.second = interp(h->p);
+				n.first->if_true.insert(n.first->if_true.end(), i1);
+				n.first->if_false.insert(n.first->if_false.end(), i0);
 			} else {
 				for(set<item>::iterator l=m[j].begin();l!=m[j].end();++l) {
 					string c = condition(l->mask);
 					pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
-					ostringstream i1;
-					i1 << "P" << j << " = " << interp(l->p) << ";";
-					n.first->if_true.insert(n.first->if_true.end(), i1.str());
+					pair<string,string> i1;
+					i1.first = p.str();
+					i1.second = interp(l->p);
+					n.first->if_true.insert(n.first->if_true.end(), i1);
 				}
 			}
 		}
 		for(set<cond>::iterator j=cs.begin();j!=cs.end();++j) {
+			assign_set assign_cond;
 			cout << "if (" << j->name << ") {" << endl;
-			for(list<string>::iterator k=j->if_true.begin();k!=j->if_true.end();++k)
-				cout << "\t" << *k << endl;
+			assign_cond = assign_base;
+			for(assign_set::iterator k=j->if_true.begin();k!=j->if_true.end();++k)
+				cout << "\t" << k->first << " = " << assign(k->first, k->second, assign_cond) << ";" << endl;
 			if (j->if_false.size() > 0) {
 				cout << "} else {" << endl;
-				for(list<string>::iterator k=j->if_false.begin();k!=j->if_false.end();++k)
-					cout << "\t" << *k << endl;
+				assign_cond = assign_base;
+				for(assign_set::iterator k=j->if_false.begin();k!=j->if_false.end();++k)
+					cout << "\t" << k->first << " = " << assign(k->first, k->second, assign_cond) << ";" << endl;
 			}
 			cout << "}" << endl;
 		}

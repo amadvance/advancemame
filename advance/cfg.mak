@@ -7,7 +7,6 @@ CFGCFLAGS += \
 	-I$(srcdir)/advance/v \
 	-DUSE_BLIT_TINY
 CFGOBJDIRS += \
-	$(CFGOBJ) \
 	$(CFGOBJ)/cfg \
 	$(CFGOBJ)/lib \
 	$(CFGOBJ)/blit \
@@ -235,6 +234,10 @@ endif
 $(CFGOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(CFGCFLAGS) -c $< -o $@
+
+$(CFGOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(CFGOBJDIRS)):
 	$(ECHO) $@

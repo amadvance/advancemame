@@ -31,16 +31,25 @@
 #include "file.h"
 #include "target.h"
 
-#include <signal.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+#if HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
+#include <signal.h>
 
 #ifndef DATADIR
 #error Macro DATADIR undefined

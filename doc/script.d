@@ -9,16 +9,17 @@ Description
 	When the event is triggered the script is started.
 
 Grammar
-	The scripts are very C like.
+	The scripts use a C like grammar.
 
 Scripts
 	These are the available scripts:
-		script_video - The video mode is set. It's the first event.
-		script_emulation - The emulation start. It happens after
+		script_video - The video mode is set. It's the first event
+			triggered.
+		script_emulation - The emulation start. It's triggered after
 			the MAME confirmation screens.
 		script_play - The game play start. It happens after the
-			turbo_startup_time.
-		script_led1,2,3 - The leds controlled by the emulated
+			`sync_startuptime'.
+		script_led1,2,3 - The led controlled by the emulated
 			game is enabled.
 		script_turbo - The turbo button is pressed.
 		script_coin1,2,3,4 - A coin button is pressed.
@@ -30,31 +31,17 @@ Scripts
 	You can assign a script at every event. The script is started
 	when the event is triggered.
 
-Ports
-	The external devices can be controlled using the keyboard led
-	or the common PC ports, like the parallel port.
-
-	To maintain the same interface the keyboard leds are mapped
-	to the virtual port 0 at the lower 3 bits.
-	All the other ports are mapped to the PC hardware ports.
-
-	These are the available functions to read and write the ports:
-
-		set(ADDRESS, VALUE) - set the port with the specified value
-		get(ADDRESS) - return the value of the port
-		on(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) | VALUE)
-		off(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) & ~VALUE)
-		toggle(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) ^ VALUE)
-
-	In DOS the hardware ports are accessed directly, in Linux through the
-	/dev/port interface.
-
 Values
-	These are the available value formats:
-		... - Decimal format.
-		0x... - Hexadecimal format.
-		0b... - Binary format.
-		"..." - Strings.
+	You have two type of values. Numerical integer values and text
+	string values.
+
+	The numerical values are expressed with the following formats:
+		... - Number in decimal format.
+		0x... - Number in hexadecimal format.
+		0b... - Number in binary format.
+
+	The text values are expressed with the following formats:
+		"..." - String.
 
 	Examples:
 		10 - Decimal format of 10.
@@ -62,26 +49,60 @@ Values
 		0b1010 - Binary format of 10.
 		"Text" - Generic string.
 
-Expression
-	These are the available operators:
-		+ - addition
-		- - subtraction
-		& - bitwise and
-		| - bitwise or
-		^ - bitwise xor
-		~ - bitwise not
-		&& - logical and
-		|| - logical or
-		! - logical not
-		< - less
-		> - greater
-		== - equal
-		<= - less or equal
-		>= - greater or equal
+Operators
+	The values can be combined in expressions using some operators.
+
+	For numerical values the following operators are available:
+		+ - Addition.
+		- - Subtraction.
+		& - Bitwise and.
+		| - Bitwise or.
+		^ - Bitwise xor.
+		~ - Bitwise not.
+		&& - Logical and.
+		|| - Logical or.
+		! - Logical not.
+		< - Less.
+		> - Greater.
+		== - Equal.
+		<= - Less or equal.
+		>= - Greater or equal.
+
+	For string values the following operators are available:
+		+ - Concatenation.
 
 Commands
 	These are the available commands:
+		while (CONDITION) { ... } - Repeat until CONDITION is not 0.
+		if (CONDITION) { ...  } - Execute if CONDITIDION is not 0.
+		loop { ... } - Repeat forever.
+		repeat (N) { ... } - Repeat N times.
+		wait(CONDITION) - Wait until the CONDITION is not 0.
+		delay(N) - Wait the specified N milliseconds.
 
+	The 'wait()' and 'delay()' commands are used to maintain the
+	synchronization with the game emulation. When these commands
+	are executed, the script is temporarily suspended. All others
+	commands are executed continuously without any delay.
+
+	The granularity of the delay command is the frame rate period.
+	Approx. 16 ms for a 60 Hz game. Delays under this limit may
+	don't have the desired effect.
+
+	IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
+	COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may
+	loop forever and the executable will lock! For example the
+	statement :
+
+		:loop { toggle(kdb, 1); }
+
+	completely STOP the emulation and you CAN'T EXIT from the program.
+	A correct one is :
+
+		:loop { toggle(kdb, 1); delay(100); }
+
+Functions
+	These are the available functions:
 		event() - Return 0 if the event that started the
 			script is terminated. Return 1 if the event
 			is active.
@@ -91,39 +112,33 @@ Commands
 			event for N milli seconds.
 		simulate_key(KEY,N) - Simulate the specified key for
 			N milli seconds.
-		wait(CONDITION) - Wait until the condition is true.
-		delay(N) - Wait the specified N milliseconds.
-		while (CONDITION) { ... } - While != 0.
-		if (CONDITION) { ...  } - If value != 0.
-		loop { ... } - Repeat forever.
-		repeat (N) { ... } - Repeat N times.
-		log(VALUE) - Output a value in the log.
+		log(VALUE) - Output a value in the log file.
 		msg(VALUE) - Print on screen a value.
+		lcd(ROW, VALUE) - Display a value on the LCD at the
+			specified row. The first row is 0.
 
 	The 'event()' command can be used to determine the end of the event
 	that started the script. For example for the 'coin1' event the
 	function return 0 when the key is released.
 
-	The 'wait()' and 'delay()' commands are used to maintain the
-	synchronization with the game emulation. When these commands
-	are executed the script is temporarily suspended. All others
-	commands are executed continuously without any delay.
+Ports
+	External devices can be controlled using the keyboard led
+	or the PC ports, like the parallel port.
 
-	The granularity of the delay command is the frame rate period.
-	Approx. 16 ms for a 60 Hz game. Delays under this limit don't
-	have the desired effect.
+	To maintain the same interface the keyboard leds are mapped
+	to the virtual port 0 at the lower 3 bits.
+	All the other ports are mapped to the PC hardware ports.
 
-	IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
-	COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may be
-	looped forever and the executable may locks! For example the
-	statement :
+	These are the available functions to read and write the ports:
 
-		:loop { toggle(kdb, 1); }
+		set(ADDRESS, VALUE) - Set the port with the specified value.
+		get(ADDRESS) - Return the value of the port
+		on(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) | VALUE).
+		off(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) & ~VALUE).
+		toggle(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) ^ VALUE).
 
-	completely STOP the emulation and you CAN'T EXIT from MAME.
-	A correct one is :
-
-		:loop { toggle(kdb, 1); delay(100); }
+	In DOS the hardware ports are accessed directly, in Linux through the
+	/dev/port interface.
 
 Symbols
 	This is the complete list of all the predefinite symbols
@@ -137,7 +152,7 @@ Symbols
 		lpt3 - The address of the lpt2 port (0x3bc)
 
 	These are the event symbols available for the
-	`simulate_event(EVENT,TIME)' and `event(EVENT)' 
+	`simulate_event(EVENT, TIME)' and `event(EVENT)'
 	commands :
 		EVENT - p1_up, p1_down, p1_left, p1_right, p2_up, p2_down,
 			p2_left, p2_right, p1_button1, p1_button2, p1_button3,
@@ -150,7 +165,7 @@ Symbols
 			service_coin3, service_coin4, service, tilt.
 
 	These are the user interface event symbols available for
-	the `simulate_event(EVENT,TIME)' and `event(EVENT)' 
+	the `simulate_event(EVENT, TIME)' and `event(EVENT)'
 	commands :
 		EVENT - ui_mode_next, ui_mode_pred, ui_record_start,
 			ui_record_stop, ui_turbo, ui_cocktail, ui_configure,
@@ -165,7 +180,7 @@ Symbols
 			ui_save_cheat, ui_watch_value.
 
 	These are the keyboard symbols available for the
-	`simulate_key(EVENT,TIME)' command :
+	`simulate_key(EVENT, TIME)' command :
 		EVENT - key_a, key_b, key_c, key_d, key_e, key_f, key_g,
 			key_h, key_i, key_j, key_k, key_l, key_m, key_n,
 			key_o, key_p, key_q, key_r, key_s, key_t, key_u,
@@ -188,6 +203,13 @@ Symbols
 			key_lalt, key_ralt, key_scrlock, key_numlock,
 			key_capslock, key_lwin, key_rwin, key_menu.
 
+	These are text symbols containing some game and emulation
+	information:
+		info_desc - The game title. For example "PacMan".
+		info_manufacturer - The game manufacturer. For example "Namco".
+		info_year - The game year. For example "1980".
+		info_throttle - The current game speed. For example "100%".
+
 Examples
 	This script clears all the keyboard leds at the emulation end :
 
@@ -197,8 +219,13 @@ Examples
 	the bit 0 during the emulation and clear them then the game
 	stop :
 
-		:script_start set(lpt1, 0xff); while(event()) { toggle(lpt1, 1); \
-		:	delay(500); } set(lpt1, 0);
+		:script_start \
+		:	set(lpt1, 0xff); \
+		:	while(event()) { \
+		:		toggle(lpt1, 1); \
+		:		delay(500); \
+		:	} \
+		:	set(lpt1, 0);
 
 	Map the first MAME led to the first keyboard led:
 
@@ -210,7 +237,11 @@ Examples
 
 	Flash the third keyboard led when the 'turbo' is active :
 
-		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } \
+		:script_turbo \
+		:	while (event()) { \
+		:		toggle(kdb, 0b100); \
+		:		delay(500); \
+		:	} \
 		:	off(kdb, 0b100);
 
 	Light the third keyboard led when the 'coin1' key is pressed :
@@ -219,16 +250,28 @@ Examples
 
 	Add 3 coins automatically:
 
-		:script_play delay(1000); repeat(3) { simulate_event(coin1,100); \
-		:	delay(200); }
+		:script_play \
+		:	delay(1000); \
+		:	repeat(3) { \
+		:		simulate_event(coin1,100); \
+		:		delay(200); \
+		:	}
 
 	Add a coin when the player start:
 
-		:script_start1 wait(!event()); simulate_event(coin1,100); \
-		:	delay(500); simulate_event(start1,100);
+		:script_start1 \
+		:	wait(!event());
+		:	simulate_event(coin1,100); \
+		:	delay(500); \
+		:	simulate_event(start1,100);
+
+	Display continously the game speed on the LCD:
+
+		:script_video loop { lcd(0,"Speed " + info_throttle); delay(1000); }
 
 Configuration
-	The scripts must be inserted in the 'advmame.rc' file.
+	The scripts must be inserted in the 'advmame.rc' file. You can split
+	complex scripts terminating any splitted row with the `\' char.
 
 	For example:
 
@@ -236,7 +279,11 @@ Configuration
 		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
 		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
 		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
-		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } \
+		:script_turbo \
+		:	while (event()) { \
+		:		toggle(kdb, 0b100); \
+		:		delay(500); \
+		:	} \
 		:	off(kdb, 0b100);
 		:script_start1 \
 		:	set(lpt1, 0xff); \
@@ -245,7 +292,11 @@ Configuration
 		:		delay(500); \
 		:	} \
 		:	set(lpt1, 0);
+		:script_video loop { \
+		:		lcd(0,"Speed " + info_throttle); \
+		:		delay(1000); \
+		:	}
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

@@ -32,6 +32,10 @@
 #include "input.h"
 #include "glue.h"
 
+#ifdef USE_LCD
+#include "lcd.h"
+#endif
+
 #include "log.h"
 #include "snstring.h"
 #include "target.h"
@@ -79,13 +83,25 @@ void advance_global_message(struct advance_global_context* context, const char* 
 }
 
 /**
- * Display a message.
+ * Display a message on the screen.
  * This function can be called also from the video thread.
  */
 void advance_global_message_va(struct advance_global_context* context, const char* text, va_list arg)
 {
 	vsnprintf(context->state.message_buffer, sizeof(context->state.message_buffer), text, arg);
 	log_std(("advance:global: set msg %s\n", context->state.message_buffer));
+}
+
+/**
+ * Display a message in the LCD.
+ */
+void advance_global_lcd(struct advance_global_context* context, unsigned row, const char* text)
+{
+#ifdef USE_LCD
+	if (context->state.lcd) {
+		adv_lcd_display(context->state.lcd, row, text, context->config.lcd_speed);
+	}
+#endif
 }
 
 /**
@@ -443,16 +459,63 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
 
+#ifdef USE_LCD
+	conf_string_register_default(cfg_context, "lcd_server", "none");
+	conf_int_register_limit_default(cfg_context, "lcd_timeout", 100, 60000, 500);
+	conf_int_register_limit_default(cfg_context, "lcd_speed", -16, 16, 4);
+#endif
+
 	return 0;
 }
 
 adv_error advance_global_config_load(struct advance_global_context* context, adv_conf* cfg_context)
 {
+	const char* s;
+
 	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
 	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");
 
+#ifdef USE_LCD
+	s = conf_string_get_default(cfg_context, "lcd_server");
+	sncpy(context->config.lcd_server_buffer, sizeof(context->config.lcd_server_buffer), s);
+	context->config.lcd_timeout = conf_int_get_default(cfg_context, "lcd_timeout");
+	context->config.lcd_speed = conf_int_get_default(cfg_context, "lcd_speed");
+#endif
+
 	return 0;
+}
+
+adv_error advance_global_inner_init(struct advance_global_context* context)
+{
+#ifdef USE_LCD
+	if (strcmp(context->config.lcd_server_buffer, "none") != 0) {
+		log_std(("global: initializing lcd at '%s' with timeout %d\n", context->config.lcd_server_buffer, context->config.lcd_timeout));
+
+		context->state.lcd = adv_lcd_init(context->config.lcd_server_buffer, context->config.lcd_timeout);
+		if (!context->state.lcd) {
+			log_std(("ERROR:global: lcd not initialized\n"));
+			/* ignore error and continue without using display */
+			context->state.lcd = 0;
+		}
+	} else {
+		context->state.lcd = 0;
+	}
+#endif
+
+	advance_global_lcd(context, 0, "");
+	advance_global_lcd(context, 1, "riga 1");
+
+	return 0;
+}
+
+void advance_global_inner_done(struct advance_global_context* context)
+{
+#ifdef USE_LCD
+	if (context->state.lcd) {
+		adv_lcd_done(context->state.lcd);
+	}
+#endif
 }
 
 void advance_global_done(struct advance_global_context* context)

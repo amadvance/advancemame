@@ -38,6 +38,8 @@
 #include "ossdl.h"
 #include "snstring.h"
 #include "portable.h"
+#include "measure.h"
+#include "oswin.h"
 
 #include "SDL.h"
 
@@ -49,6 +51,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <windows.h>
 
 struct os_context {
 	int is_quit; /**< Is termination requested. */
@@ -71,10 +74,29 @@ void os_done(void)
 {
 }
 
+static void os_wait(void)
+{
+	Sleep(1);
+}
+
 int os_inner_init(const char* title)
 {
 	SDL_version compiled;
 	target_clock_t start, stop;
+	double delay_time;
+	unsigned i;
+	
+	target_yield();
+
+	delay_time = measure_step(os_wait, 0.0001, 0.2, 7);
+
+	if (delay_time > 0) {
+		log_std(("os: sleep granularity %g\n", delay_time));
+		target_usleep_granularity( delay_time * 1000000 );
+	} else {
+		log_std(("ERROR:os: sleep granularity NOT measured\n"));
+		target_usleep_granularity( 20000 /* 20 ms */ );
+	}
 
 	log_std(("os: sys SDL\n"));
 

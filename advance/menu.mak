@@ -11,7 +11,6 @@ MENUCFLAGS += \
 	-I$(srcdir)/advance/expat \
 	-DUSE_BLIT_TINY
 MENUOBJDIRS += \
-	$(MENUOBJ) \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
@@ -89,7 +88,8 @@ MENUOBJS += \
 	$(MENUOBJ)/expat/xmlrole.o \
 	$(MENUOBJ)/expat/xmltok.o \
 	$(MENUOBJ)/expat/xmlparse.o
-MENULIBS += $(ZLIBS)
+
+MENULIBS += $(ZLIBS) -lm
 
 ifeq ($(CONF_HOST),unix)
 MENUOBJDIRS += \
@@ -402,6 +402,10 @@ $(MENUOBJ)/%.o: $(srcdir)/advance/%.c
 $(MENUOBJ)/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
+
+$(MENUOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(MENUOBJDIRS)):
 	$(ECHO) $@

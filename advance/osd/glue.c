@@ -437,9 +437,26 @@ const char* mame_game_description(const mame_game* game)
 	return driver->description;
 }
 
+const char* mame_game_manufacturer(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	return driver->manufacturer;
+}
+
+const char* mame_game_year(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	return driver->year;
+}
+
 const mame_game* mame_game_at(unsigned i)
 {
 	return (const mame_game*)drivers[i];
+}
+
+void mame_print_init(void)
+{
+	cpuintrf_init();
 }
 
 void mame_print_info(FILE* out)
@@ -693,6 +710,8 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	GLUE.sound_speed = context->video.config.fps_speed_factor;
 	GLUE.sound_fps = context->video.config.fps_fixed;
+
+	hardware_script_info(mame_game_description(context->game), mame_game_manufacturer(context->game), mame_game_year(context->game), "Loading");
 
 	r = run_game(game_index);
 

@@ -155,14 +155,21 @@ static void raw_mouse_handler(struct raw_mouse_context* context, int button, int
  *  event scancode setting 7/98 - Brion
  */
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <termios.h>
-#include <fcntl.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
+
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 
 /* #define DEBUG */
 /* #define DEBUG_ACCEL */

@@ -36,11 +36,13 @@
 #include "snstring.h"
 #include "portable.h"
 
+#include <linux/input.h>
+
 #include <unistd.h>
+
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <linux/input.h>
 
 /***************************************************************************/
 /* Acts Labs Lightgun */

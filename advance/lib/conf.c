@@ -1240,19 +1240,21 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	autoreg = ADV_CONF_CONV_AUTOREG_NO;
 	if (input->conv_mac) {
 		unsigned conv;
-		for(conv=0;conv<input->conv_mac;++conv)
+		/* use the conversion map to substitute options */
+		for(conv=0;conv<input->conv_mac;++conv) {
 			if (glob_match(own_section, input->conv_map[conv].section_glob)
 				&& glob_match(own_tag, input->conv_map[conv].tag_glob)
 				&& glob_match(own_value, input->conv_map[conv].value_glob)
-			)
-				break;
-		if (conv < input->conv_mac) {
-			autoreg = input->conv_map[conv].autoreg;
-			own_section = glob_subst(input->conv_map[conv].section_result, own_section);
-			own_tag = glob_subst(input->conv_map[conv].tag_result, own_tag);
-			own_value = glob_subst(input->conv_map[conv].value_result, own_value);
-			free(own_format);
-			own_format = format_alloc(own_value);
+			) {
+				autoreg = input->conv_map[conv].autoreg;
+				own_section = glob_subst(input->conv_map[conv].section_result, own_section);
+				own_tag = glob_subst(input->conv_map[conv].tag_result, own_tag);
+				own_value = glob_subst(input->conv_map[conv].value_result, own_value);
+				free(own_format);
+				own_format = format_alloc(own_value);
+
+				/* don't stop and continue on the next conversion */
+			}
 		}
 	}
 
@@ -1598,8 +1600,10 @@ err:
  * \param file_out Path of the output configuration, use 0 for a readonly file.
  * \param ignore_unknown Ignore any unknown option.
  * \param multi_line Support the multi line values terminating with a backslash.
- * \param conv_map Vector of conversion. Use 0 for none.
- * \param conv_mac Elements in the conversion vector. Use 0 for none.
+ * \param conv_map Vector of conversion elements. Use 0 for none. All the elements are
+ * applied in order. If an element match the substitution is done and the conversion
+ * continues checking the next element and so on.
+ * \param conv_mac Number of elements in the conversion vector. Use 0 for none.
  * \param error Callback called for every error.
  * \param error_context Argument for the error callback.
  * \return

@@ -4,7 +4,6 @@
 ICFLAGS += \
 	-I$(srcdir)/advance/lib
 IOBJDIRS += \
-	$(IOBJ) \
 	$(IOBJ)/i \
 	$(IOBJ)/lib
 IOBJS += \
@@ -55,6 +54,10 @@ endif
 $(IOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ICFLAGS) -c $< -o $@
+
+$(IOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(IOBJDIRS)):
 	$(ECHO) $@

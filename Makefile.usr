@@ -1,0 +1,346 @@
+#############################################################################
+# Manual user configuration
+#
+# You you use the ./configure script you don't need to edit this file.
+#
+
+# Installation prefix (only for Unix):
+PREFIX=/usr/local
+
+# Select the emu executable (mame by default)
+# The available choices are: mame, mess
+#CONF_EMU=mame
+
+# Uncomment the host operating system.
+# The available choices are unix, dos, windows.
+#
+# The unix host uses:
+#   SVGALIB, Frame Buffer, SDL for the video
+#   tty, SDL for the text
+#   ALSA, OSS, SDL for the sound
+#   SVGALIB, KEVENT, KRAW, SDL for the keyboard
+#   SVGALIB, JEVENT, JRAW, SDL for the joystick
+#   SVGALIB, MEVENT, MRAW, SDL for the mouse
+#   pthread for the Multiprocessor support
+#
+# The dos host uses:
+#   SVGALINE, VBELINE, VGALINE, VBE for the video
+#   VGALINE for the text
+#   SEAL, Allegro and VSYNC for the sound
+#   Allegro for the keyboard
+#   Allegro for the joystick
+#   Allegro for the mouse
+#   none for the Multiprocessor support (no Multiprocessor support)
+#
+# The windows host uses:
+#   SVGAWIN, SDL for the video
+#   SDL for the text
+#   SDL for the sound
+#   SDL for the keyboard
+#   SDL for the joystick
+#   SDL for the mouse
+#   none for the Multiprocessor support (no Multiprocessor support)
+#
+#CONF_HOST=unix
+#CONF_HOST=dos
+#CONF_HOST=windows
+
+# Uncomment and set to "no" to disable some libraries:
+#CONF_LIB_SVGALIB=yes
+#CONF_LIB_SVGAWIN=yes
+#CONF_LIB_SDL=yes
+#CONF_LIB_FB=yes
+#CONF_LIB_ALSA=yes
+#CONF_LIB_OSS=yes
+#CONF_LIB_PTHREAD=yes
+#CONF_LIB_SLANG=yes
+#CONF_LIB_KRAW=yes
+#CONF_LIB_JRAW=yes
+#CONF_LIB_MRAW=yes
+#CONF_LIB_KEVENT=yes
+#CONF_LIB_JEVENT=yes
+#CONF_LIB_MEVENT=yes
+
+# Select the optimization flags: (optimized build for Pentium by default)
+# Optimized build for Pentium
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Pentium Pro, Pentium II, Pentium III, Celeron
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium2 -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Pentium IV
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium4 -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for K6, K6-II, K6-III
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=k6 -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Duron, Athlon, Athlon XP, Athlon MP
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=athlon -Wall -Wno-sign-compare -Wno-unused
+
+# Select the optimization linker flags: (optimized link by default)
+# Optimized build
+#CONF_LDFLAGS=-s
+
+# Uncomment and set to "yes" to compile the MAME debugger (default no):
+#CONF_DEBUGGER=no
+
+# Uncomment and set to "yes" to enable the debug code (default no):
+#CONF_DEBUG=no
+
+#############################################################################
+# Completing manual configuration with defaults
+#
+
+# Automatic EMU detection by source
+ifeq ($(CONF_EMU),)
+ifneq ($(wildcard src),)
+CONF_EMU = mame
+endif
+endif
+ifeq ($(CONF_EMU),)
+ifneq ($(wildcard srcmess),)
+CONF_EMU = mess
+endif
+endif
+
+# Automatic BUILD environment detection
+ifndef CONF_BUILD
+UNAME := $(shell uname)
+ifneq (,$(findstring Linux,$(UNAME)))
+CONF_BUILD=unix
+else
+ifneq (,$(findstring DOS,$(UNAME)))
+CONF_BUILD=dos
+else
+CONF_BUILD=windows
+endif
+endif
+endif
+
+# Automatic HOST environment detection
+ifndef CONF_HOST
+CONF_HOST=$(CONF_BUILD)
+endif
+
+# Automatic libraries and other options setting
+ifndef CONF_LIB_SVGALIB
+CONF_LIB_SVGALIB=no
+endif
+     
+ifndef CONF_LIB_FB
+CONF_LIB_FB=yes
+endif
+
+ifndef CONF_LIB_ALSA
+CONF_LIB_ALSA=yes
+endif
+
+ifndef CONF_LIB_OSS
+CONF_LIB_OSS=no
+endif
+     
+ifndef CONF_LIB_SDL
+CONF_LIB_SDL=yes
+endif
+
+ifndef CONF_LIB_SVGAWIN
+CONF_LIB_SVGAWIN=yes
+endif
+
+ifndef CONF_LIB_PTHREAD
+CONF_LIB_PTHREAD=yes
+endif
+     
+ifndef CONF_LIB_SLANG
+CONF_LIB_SLANG=yes
+endif
+
+ifndef CONF_LIB_KRAW
+CONF_LIB_KRAW=yes
+endif
+
+ifndef CONF_LIB_JRAW
+CONF_LIB_JRAW=yes
+endif
+
+ifndef CONF_LIB_MRAW
+CONF_LIB_MRAW=yes
+endif
+
+ifndef CONF_LIB_KEVENT
+CONF_LIB_KEVENT=yes
+endif
+
+ifndef CONF_LIB_JEVENT
+CONF_LIB_JEVENT=yes
+endif
+
+ifndef CONF_LIB_MEVENT
+CONF_LIB_MEVENT=yes
+endif
+
+ifndef CONF_CFLAGS_ARCH
+CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
+endif
+
+ifndef CONF_CFLAGS_OPT
+CONF_CFLAGS_OPT = -O2 -fomit-frame-pointer -march=pentium -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
+endif
+
+ifndef CONF_LDFLAGS
+CONF_LDFLAGS=-s
+endif
+
+ifndef CONF_DEBUGGER
+CONF_DEBUGGER=no
+endif
+
+ifndef CONF_DEBUG
+CONF_DEBUG=no
+endif
+
+ifndef CONF_DEFS
+CONF_DEFS=
+endif
+
+ifndef DATADIR
+DATADIR=$(PREFIX)/share/advance
+endif
+
+#############################################################################
+# Extra configuration common for ./configure and manual
+#
+
+# Enable the creation of the map files
+ifndef CONF_MAP
+CONF_MAP=no
+endif
+
+# Name of the architecture. Used in the distribution file names.
+ifndef CONF_ARCH
+CONF_ARCH=blend
+endif
+
+# Pack also the emulator source in the dist package
+ifndef CONF_DIFFSRC
+CONF_DIFFSRC=no
+endif
+
+#############################################################################
+# Tools configuration for manual
+#
+
+srcdir=.
+MD = -@mkdir -p
+RM = @rm -f
+ECHO = @echo
+
+# No installation with the manual configuration
+INSTALL = false
+
+ifeq ($(CONF_HOST),unix)
+LN_S = @ln -s
+EXE =
+ASMFLAGS = -f elf
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
+ZLIBS = -lz
+endif
+ifeq ($(CONF_HOST),dos)
+LN_S = @cp -p
+EXE = .exe
+ASMFLAGS = -f coff
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
+ZLIBS = -lz
+endif
+ifeq ($(CONF_HOST),windows)
+LN_S = @cp -p
+EXE = .exe
+ASMFLAGS = -f coff
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
+ZLIBS = -lz
+endif
+
+ifeq ($(CONF_BUILD),unix)
+ASM = @nasm
+EXE_BUILD =
+CC_BUILD = @gcc
+CXX_BUILD = @g++
+LD_BUILD = @gcc
+LDXX_BUILD = @g++
+ifeq ($(CONF_HOST),unix)
+AR = @ar
+CC = @gcc
+CXX = @g++
+LD = @gcc
+LDXX = @g++
+SDLCFLAGS = $(shell sdl-config --cflags)
+SDLLIBS = $(shell sdl-config --libs)
+endif
+ifeq ($(CONF_HOST),dos)
+# Probably you need to changes these to cross compile:
+CROSSTARGET = i586-pc-msdosdjgpp
+CROSSDIR = /usr/local/gcc-2.95.3-i586-pc-msdosdjgpp
+#CROSSDIR = /usr/local/gcc-3.2.3-i586-pc-msdosdjgpp
+AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
+CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
+endif
+ifeq ($(CONF_HOST),windows)
+# Probably you need to changes these to cross compile:
+CROSSTARGET = i386-mingw32msvc
+CROSSDIR = /usr/local/cross-tools
+AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
+#CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -I$(CROSSDIR)/$(CROSSTARGET)/include
+#CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -I$(CROSSDIR)/$(CROSSTARGET)/include
+CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
+RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
+SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL
+SDLLIBS = -lmingw32 -lSDL -mwindows
+endif
+endif
+
+ifeq ($(CONF_BUILD),dos)
+ASM = @nasm
+EXE_BUILD = .exe
+CC_BUILD = @gcc
+LD_BUILD = @gcc
+CXX_BUILD = @gxx
+LDXX_BUILD = @gxx
+AR = @ar
+CC = @gcc
+CXX = @gxx
+LD = @gcc
+LDXX = @gxx
+endif
+
+ifeq ($(CONF_BUILD),windows)
+ASM = @nasmw
+EXE_BUILD = .exe
+CC_BUILD = @gcc
+LD_BUILD = @gcc
+CXX_BUILD = @g++
+LDXX_BUILD = @g++
+AR = @ar
+CC = @gcc
+CXX = @g++
+LD = @gcc
+LDXX = @g++
+RC = @windres
+# The "" are required, otherwise the backslash are removed
+SDLCFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\SDL"
+SDLLIBS = -lmingw32 -lSDL -mwindows
+endif
+
+# No installation with the manual configuration
+INSTALL_PROGRAM_DIR = false
+INSTALL_MAN_DIR = false
+INSTALL_DATA_DIR = false
+INSTALL_PROGRAM = false
+INSTALL_MAN = false
+INSTALL_DATA = false
+
+#############################################################################
+# Root makefile
+
+include root.mak

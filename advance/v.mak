@@ -32,7 +32,6 @@ VOBJS += \
 	$(VOBJ)/v/v.o \
 	$(VOBJ)/v/draw.o
 VOBJDIRS += \
-	$(VOBJ) \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit
@@ -231,6 +230,10 @@ endif
 $(VOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(VCFLAGS) -c $< -o $@
+
+$(VOBJ):
+	$(ECHO) $@
+	$(MD) $@
 
 $(sort $(VOBJDIRS)):
 	$(ECHO) $@
