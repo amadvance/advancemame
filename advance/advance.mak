@@ -1350,7 +1350,7 @@ dist: testmake $(RCSRC) $(TARGET_ADVANCE_SRC)
 	rm -f $(TARGET_DISTFILE_SRC).zip
 	cd $(TARGET_DISTDIR_SRC) && zip -r ../$(TARGET_DISTFILE_SRC).zip *
 	rm -f $(TARGET_DISTFILE_SRC).tar.gz
-	tar cfz $(TARGET_DISTFILE_SRC).tar.gz $(TARGET_DISTDIR_SRC)
+	tar cfzo $(TARGET_DISTFILE_SRC).tar.gz $(TARGET_DISTDIR_SRC)
 	rm -r $(TARGET_DISTDIR_SRC)
 
 distbin: $(TARGET_ROOT_BIN)
@@ -1364,7 +1364,7 @@ ifeq ($(HOST_TARGET),dos)
 	cd $(TARGET_DISTDIR_BIN) && zip -r ../$(TARGET_DISTFILE_BIN).zip *
 else
 	rm -f $(TARGET_DISTFILE_BIN).tar.gz
-	tar cfz $(TARGET_DISTFILE_BIN).tar.gz $(TARGET_DISTDIR_BIN)
+	tar cfzo $(TARGET_DISTFILE_BIN).tar.gz $(TARGET_DISTDIR_BIN)
 endif
 	rm -r $(TARGET_DISTDIR_BIN)
 
@@ -1481,7 +1481,7 @@ distmenu: testmake $(RCSRC)
 	rm -f $(MENU_DIST_FILE_SRC).zip
 	cd $(MENU_DIST_DIR_SRC) && zip -r ../$(MENU_DIST_FILE_SRC).zip *
 	rm -f $(MENU_DIST_FILE_SRC).tar.gz
-	tar cfz $(MENU_DIST_FILE_SRC).tar.gz $(MENU_DIST_DIR_SRC)
+	tar cfzo $(MENU_DIST_FILE_SRC).tar.gz $(MENU_DIST_DIR_SRC)
 	rm -r $(MENU_DIST_DIR_SRC)
 
 distmenubin: $(MENU_ROOT_BIN)
@@ -1498,7 +1498,7 @@ ifeq ($(HOST_TARGET),dos)
 	cd $(MENU_DIST_DIR_BIN) && zip -r ../$(MENU_DIST_FILE_BIN).zip *
 else
 	rm -f $(MENU_DIST_FILE_BIN).tar.gz
-	tar cfz $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
+	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
 endif
 	rm -r $(MENU_DIST_DIR_BIN)
 
