@@ -1684,16 +1684,19 @@ wholemame:
 	$(MAKE) dist
 	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos MAP=1 distbin
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos MAP=1 distbin
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos MAP=1 distbin
 
 wholemess:
 	$(MAKE) TARGET=mess dist
 	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=mess MAP=1 distbin
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mess MAP=1 distbin
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos TARGET=mess MAP=1 distbin
 
 wholepac:
 	$(MAKE) TARGET=pac dist
 	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=pac MAP=1 distbin
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=pac MAP=1 distbin
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos TARGET=pac MAP=1 distbin
 
 wholemenu:
 	$(MAKE) distmenu
