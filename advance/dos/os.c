@@ -54,7 +54,7 @@ struct os_context {
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	/**
 	 * Enable the Allegro compatibility.
-	 * This option enable the redirection of all the Allegro configuration option
+	 * This option enable the redirection of all the Allegro configuration options
 	 * in the current API.
 	 * You must simply set this variable at the configuration context to use
 	 * before calling any Allegro functions.
@@ -386,7 +386,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_SOUND_SEAL) || defined(USE_SOUND_ALLEGRO)
+#if defined(USE_SOUND_SEAL) || defined(USE_SOUND_ALLEGRO) || defined(USE_SOUND_VSYNC)
 	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);
@@ -420,7 +420,7 @@ static int os_fixed(void)
 	r.x.ax = 0x3306;
 	__dpmi_int(0x21, &r);
 	if (r.x.bx == ((50 << 8) | 5)) {
-		cprintf("Windows NT/2000/XP not supported. Please upgrade to Linux.\n\r");
+		cprintf("Windows NT/2000/XP not supported.\n\r");
 		return -1;
 	}
 
@@ -454,6 +454,6 @@ int main(int argc, char* argv[])
 
 	file_done();
 	target_done();
-	
+
 	return EXIT_SUCCESS;
 }

@@ -838,6 +838,7 @@ static int sis_init(int force, int par1, int par2)
     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
     sis_linear_base=0;
     chip=0;
+    pci_id=0;
     if (!found){
        sis_linear_base=buf[4]&0xffffff00;
        pci_id=(buf[0]>>16)&0xffff;

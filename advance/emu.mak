@@ -92,7 +92,8 @@ ADVANCECFLAGS += \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers
+	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgados
 ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE \
@@ -111,10 +112,10 @@ ADVANCELDFLAGS += \
 OBJDIRS += \
 	$(OBJ)/advance/card \
 	$(OBJ)/advance/svgalib \
-	$(OBJ)/advance/svgalib/svgados \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
-	$(OBJ)/advance/svgalib/drivers
+	$(OBJ)/advance/svgalib/drivers \
+	$(OBJ)/advance/svgalib/svgados
 ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filedos.o \
 	$(OBJ)/advance/lib/targdos.o \
@@ -151,7 +152,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/g400.o \
 	$(OBJ)/advance/svgalib/drivers/pm2.o \
 	$(OBJ)/advance/svgalib/drivers/i740.o \
-	$(OBJ)/advance/svgalib/drivers/i810.o \
 	$(OBJ)/advance/svgalib/drivers/laguna.o \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
@@ -215,16 +215,16 @@ endif
 ifeq ($(CONF_LIB_SDL),yes)
 OBJDIRS += \
 	$(OBJ)/advance/svgalib \
-	$(OBJ)/advance/svgalib/svgawin \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
-	$(OBJ)/advance/svgalib/drivers
+	$(OBJ)/advance/svgalib/drivers \
+	$(OBJ)/advance/svgalib/svgawin
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/svgalib \
-	-I$(srcdir)/advance/svgalib/svgawin \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgawin \
 	-DUSE_VIDEO_SVGAWIN
 ADVANCEOBJS += \
 	$(OBJ)/advance/windows/vsvgawin.o \
@@ -242,7 +242,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/g400.o \
 	$(OBJ)/advance/svgalib/drivers/pm2.o \
 	$(OBJ)/advance/svgalib/drivers/i740.o \
-	$(OBJ)/advance/svgalib/drivers/i810.o \
 	$(OBJ)/advance/svgalib/drivers/laguna.o \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
@@ -602,7 +601,9 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/advline.d \
 	$(srcdir)/doc/carddos.d \
 	$(srcdir)/doc/cardlinx.d \
-	$(srcdir)/doc/install.d
+	$(srcdir)/doc/cardwin.d \
+	$(srcdir)/doc/install.d \
+	$(srcdir)/doc/svgawin.d
 
 EMU_DOC_BIN = \
 	$(DOCOBJ)/license.txt \
@@ -616,6 +617,9 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/histemu.txt \
 	$(DOCOBJ)/faq.txt \
 	$(DOCOBJ)/tips.txt \
+	$(DOCOBJ)/carddos.txt \
+	$(DOCOBJ)/cardlinx.txt \
+	$(DOCOBJ)/cardwin.txt \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \
@@ -626,27 +630,31 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/releemu.html \
 	$(DOCOBJ)/histemu.html \
 	$(DOCOBJ)/faq.html \
-	$(DOCOBJ)/tips.html
+	$(DOCOBJ)/tips.html \
+	$(DOCOBJ)/carddos.html \
+	$(DOCOBJ)/cardlinx.html \
+	$(DOCOBJ)/cardwin.html
+ifeq ($(CONF_HOST),windows)
+EMU_DOC_BIN += \
+	$(DOCOBJ)/svgawin.txt \
+	$(DOCOBJ)/svgawin.html
+endif
 ifneq ($(CONF_HOST),windows)
 EMU_DOC_BIN += \
+	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/advk.txt \
 	$(DOCOBJ)/advs.txt \
 	$(DOCOBJ)/advj.txt \
 	$(DOCOBJ)/advm.txt \
-	$(DOCOBJ)/carddos.txt \
-	$(DOCOBJ)/cardlinx.txt \
-	$(DOCOBJ)/install.txt \
+	$(DOCOBJ)/install.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
 	$(DOCOBJ)/advk.html \
 	$(DOCOBJ)/advs.html \
 	$(DOCOBJ)/advj.html \
-	$(DOCOBJ)/advm.html \
-	$(DOCOBJ)/carddos.html \
-	$(DOCOBJ)/cardlinx.html \
-	$(DOCOBJ)/install.html
+	$(DOCOBJ)/advm.html
 endif
 
 EMU_ROOT_BIN = \
@@ -662,6 +670,8 @@ EMU_ROOT_BIN += \
 endif
 ifeq ($(CONF_HOST),windows)
 EMU_ROOT_BIN += \
+	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll
 endif
@@ -739,6 +749,16 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 	cp $(SVGALIBRAMDAC_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/ramdac
 	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/drivers
 	cp $(SVGALIBDRIVERS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/drivers
+	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgados
+	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin
+	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	mkdir $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(EMU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(EMU_DIST_DIR_SRC)/advance/mpglib
 	cp $(MPGLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/mpglib
 	mkdir $(EMU_DIST_DIR_SRC)/advance/v

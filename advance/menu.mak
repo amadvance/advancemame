@@ -146,6 +146,7 @@ MENUCFLAGS += \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgados \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE -DUSE_SOUND_INT \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
@@ -184,7 +185,8 @@ MENUOBJS += \
 	$(MENUOBJ)/dos/pcimap.o \
 	$(MENUOBJ)/dos/map.o \
 	$(MENUOBJ)/card/board.o \
-	$(MENUOBJ)/svgalib/libdos.o \
+	$(MENUOBJ)/svgalib/svgalib.o \
+	$(MENUOBJ)/svgalib/svgados/svgados.o \
 	$(MENUOBJ)/svgalib/accel.o \
 	$(MENUOBJ)/svgalib/vgaio.o \
 	$(MENUOBJ)/svgalib/vgammvga.o \
@@ -197,7 +199,6 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/g400.o \
 	$(MENUOBJ)/svgalib/drivers/pm2.o \
 	$(MENUOBJ)/svgalib/drivers/i740.o \
-	$(MENUOBJ)/svgalib/drivers/i810.o \
 	$(MENUOBJ)/svgalib/drivers/laguna.o \
 	$(MENUOBJ)/svgalib/drivers/millenni.o \
 	$(MENUOBJ)/svgalib/drivers/mx.o \
@@ -224,7 +225,8 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib \
 	$(MENUOBJ)/svgalib/ramdac \
 	$(MENUOBJ)/svgalib/clockchi \
-	$(MENUOBJ)/svgalib/drivers
+	$(MENUOBJ)/svgalib/drivers \
+	$(MENUOBJ)/svgalib/svgados
 endif
 
 ifeq ($(CONF_HOST),windows)
@@ -445,6 +447,16 @@ distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histm
 	cp $(SVGALIBRAMDAC_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/ramdac
 	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/drivers
 	cp $(SVGALIBDRIVERS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/drivers
+	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgados
+	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin
+	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	mkdir $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(MENU_DIST_DIR_SRC)/advance/mpglib
 	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/mpglib
 	mkdir $(MENU_DIST_DIR_SRC)/advance/v

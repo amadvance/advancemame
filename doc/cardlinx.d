@@ -28,13 +28,34 @@ SVGALib
 		+IBM {1014} : FireGL Mobility 7800 
 	+Mach64 ST [5354] 
 		+Mach64 ST Reference 
-	+R200 [514e] 
-	+R200 [514f] 
 	+Rade 128 Pro Ultra TU [5455] 
+	+Radeon 7000 (Radeon VE QY) [5159] 
+		+C.P. Technology Co Ltd {148c} : Radeon 7000 Evil Master Multi-display 
+		+C.P. Technology Co Ltd {148c} : Radeon 7000 Multi-display Edition 
+		+Giga-Byte Technology {1458} : Radeon 7000 PRO MAYA AV Series 
+		+Hightech Information Systems Ltd {17af} : Excalibur Radeon 7000 
+		+Optimus 7000 
+		+PC Partner Ltd {174b} : Radeon VE 7000 
+		+Radeon 7000 
+		+Radeon VE 7000 
+		+Radeon VE DDR 
 	+Radeon 7500 QX [5158] 
+	+Radeon 7500 [5157] 
+		+C.P. Technology Co Ltd {148c} : Radeon 7500 Evil Master Multi-display Edition 
+		+C.P. Technology Co Ltd {148c} : Radeon 7500 PCI Dual Display 
+		+C.P. Technology Co Ltd {148c} : Radeon 7500LE Dual Display 
+		+Giga-Byte Technology {1458} : Radeon 7500 PRO MAYA AR 
+		+Hightech Information Systems Ltd {17af} : Excalibur Radeon 7500LE 
+		+Optimus 7500 
+		+PC Partner Ltd {174b} : Radeon 7500LE 
 	+Radeon 8500 DV [4242] 
 		+Radeon 8500 All-in-Wonder DV Edition 
+	+Radeon 8500 [514c] 
+		+C.P. Technology Co Ltd {148c} : Radeon 8500 Evil Master II Multi-display Edition 
+		+Giga-Byte Technology {1458} : Radeon 8500 Deluxe MAYA (AP64D-H) 
+		+Radeon 8500 
 	+Radeon Mobility M6 LW [4c57] 
+		+ASUSTeK Computer Inc {1043} : L2 Series Notebooks 
 		+IBM {1014} : Radeon Mobility 7500 
 	+Radeon Mobility M6 LY [4c59] 
 		+Radeon Mobility 
@@ -47,26 +68,21 @@ SVGALib
 		+Radeon SDR 
 		+Radeon SDR PCI 
 		+Radeon Workstation AGP 
-		+SGS Thomson Microelectronics {104a} : PowerVR KYRO Graphics Accelerator 
+		+ST Microelectronics (SGS Thomson) {104a} : PowerVR KYRO Graphics Accelerator 
 	+Radeon QE [5145] 
 	+Radeon QF [5146] 
 	+Radeon QG [5147] 
-	+Radeon QL [514c] 
-		+Radeon 8500 
-	+Radeon QW [5157] 
-		+Radeon 7500 
 	+Radeon R200 QH [5148] 
 	+Radeon R200 QI [5149] 
 	+Radeon R200 QJ [514a] 
 	+Radeon R200 QK [514b] 
+	+Radeon R200 QM [514e] 
+	+Radeon R200 QN [514f] 
 	+Radeon R200 Qh [5168] 
 	+Radeon R200 Qi [5169] 
 	+Radeon R200 Qj [516a] 
 	+Radeon R200 Qk [516b] 
 	+Radeon R200 [516c] 
-	+Radeon VE QY [5159] 
-		+Radeon VE 7000 
-		+Radeon VE DDR 
 	+Radeon VE QZ [515a] 
 	+Rage 128 4x [5348] 
 	+Rage 128 4x [534e] 
@@ -112,6 +128,7 @@ SVGALib
 	+Rage 128 PX/Pro AGP 4x (TMDS) [5058] 
 	+Rage 128 Pro AGP 4x [5446] 
 		+All-In-Wonder 128 Pro Ultra AGP 
+		+PC Partner Ltd {174b} : Rage 128 Pro AGP 4x 
 		+Rage Fury Pro 
 		+Rage Fury Pro/Xpert 2000 Pro 
 		+Xpert 2000 Pro 
@@ -170,24 +187,24 @@ SVGALib
 		+Aopen Inc {a0a0} : Blade3D/VIA MVP4 AGP 
 		+CyberBlade i7/VIA MVP4 
 		+Samsung Electronics Co Ltd {144d} : Blade3D/VIA MVP4 AGP 
-		+Tekram {1de1} : Blade3D/VIA MVP4 AGP 
+		+Tekram Technology {1de1} : Blade3D/VIA MVP4 AGP 
 		+Trigem Computer Inc {109f} : Blade3D/VIA MVP4 AGP 
 	+CyberBlade i7d [8420] 
-		+Compaq Computer Corp {0e11} : CyberBlade i7 AGP 
+		+Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : CyberBlade i7 AGP 
 	+CyberBlade-A i1 AGP [8620] 
 		+IBM {1014} : R30 Laptop Integrated Video 
 	+CyberBlade/XPm [9930] 
 	+CyberBlade/i1 [8500] 
 		+Chaintech Computer Co Ltd {270f} : VT8361/VT8601 Graphics Controller 
 		+CyberBlade/i1 
+		+Epox Computer Co Ltd {1695} : VT8361/VT8601 Graphics Controller 
 		+First International Computer Inc {1509} : VT8361/VT8601 Graphics Controller 
 		+Formosa Industrial Computing {147a} : VT8361/VT8601 Graphics Controller 
 		+GVC/BCM Advanced Research {14a4} : VT8361/VT8601 Graphics Controller 
 		+Gateway 2000 {107b} : VT8361/VT8601 Graphics Controller 
 		+Giga-Byte Technology {1458} : VT8361/VT8601 Graphics Controller 
 		+Micro-Star International Co Ltd (MSI) {1462} : VT8361/VT8601 Graphics Controller 
-		+Tekram {1de1} : VT8361/VT8601 Graphics Controller 
-		+{1695} : VT8361/VT8601 Graphics Controller 
+		+Tekram Technology {1de1} : VT8361/VT8601 Graphics Controller 
 	+TGUI9320 GUI Accelerator [9320] 
 	+TGUI9420 DGi GUI Accelerator [9420] 
 	+TGUI9430 GUI Accelerator [9430] 
@@ -237,7 +254,7 @@ SVGALib
 		+Millennium G200 SD PCI 
 	+MGA-G400/450 Chipset [0525] 
 		+4Sight II 
-		+Compaq Computer Corp {0e11} : MGA-G400 AGP 
+		+Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : MGA-G400 AGP 
 		+Digital First {1705} : Digital First Millennium G450 16MB 
 		+Digital First {1705} : Digital First Millennium G450 16MB SGRAM 
 		+Digital First {1705} : Digital First Millennium G450 32MB 
@@ -288,12 +305,12 @@ SVGALib
 		+C.P. Technology Co Ltd {148c} : CS305 
 		+CardExpert Technology {10b0} : CARDEXpert SiS305 
 		+Chaintech Computer Co Ltd {270f} : SI40 
-		+Joytech Computer Co, Ltd {1496} : APOLLO 3DVR305 
+		+Joytech Computer Co Ltd {1496} : APOLLO 3DVR305 
 		+Leadtek Research {107d} : WinFast VR300 
 		+Palit Microsystems Inc {1569} : SiS 305 
 		+SiS300/SiS305 GUI Accelerator+3D 
+		+Sparkle Computer Co Ltd {172f} : SP305 
 		+Yuan Yuan Enterprise Co Ltd {12ab} : AGP 110L/AGP 110S 
-		+{172f} : SP305 
 		+{400c} : V300C 
 	+SiS530,620 GUI Accelerator+3D [6306] 
 		+SiS530,620 GUI Accelerator+3D 
@@ -418,7 +435,7 @@ SVGALib
 		+ASUSTeK Computer Inc {1043} : AGP-V8200T5 Deluxe (*)
 		+ASUSTeK Computer Inc {1043} : AGP-V8200T5 Pure (*)
 	+GeForce3 [NV20] [0200] (*)
-		+ASUSTeK Computer Inc {1043} : V8200 Deluxe Video-in TV Out 3D Glasses 64Mb DDR (*)
+		+ASUSTeK Computer Inc {1043} : V8200 Deluxe Video-in, TV Out, 3D Glasses, 64Mb DDR (*)
 		+Abit Computer Corp {147b} : Siluro GF3 (*)
 		+ELSA GmbH {1048} : GLADIAC 920 (*)
 		+Hercules {1681} : 3D Prophet III (*)
@@ -426,6 +443,7 @@ SVGALib
 		+ASUSTeK Computer Inc {1043} : V8170 MX NTSC (*)
 		+ASUSTeK Computer Inc {1043} : V8170 MX PAL (*)
 		+ASUSTeK Computer Inc {1043} : V8170 SE (*)
+		+Jaton Corp {1b13} : 3DForce 4-MX420 (*)
 	+GeForce4 MX 440 [NV17.2] [0171] (*)
 		+ASUSTeK Computer Inc {1043} : V8170 DDR (*)
 		+ASUSTeK Computer Inc {1043} : V8170 DVI DDR (*)
@@ -461,9 +479,9 @@ SVGALib
 	+Quadro4 200/400NVS [[NV17GL.2] [017a] (*)
 	+Quadro4 500XGL [NV17GL.1] [0178] (*)
 	+Quadro4 550XGL [[NV17GL.3] [017b] (*)
-	+Quadro4 700XGL [NV25GL.4] [025b] (*)
-	+Quadro4 750XGL [NV25GL.2] [0259] (*)
-	+Quadro4 900XGL [NV25GL.1] [0258] (*)
+	+Quadro4 700 XGL [NV25GL.4] [025b] (*)
+	+Quadro4 750 XGL [NV25GL.2] [0259] (*)
+	+Quadro4 900 XGL [NV25GL.1] [0258] (*)
 	+RIVA TNT2 Aladdin [NVA0] [00a0] 
 		+ASUSTeK Computer Inc {1043} : CUA Onboard RIVA TNT2 
 		+Guillemot Corp {14af} : Maxi Gamer Xentor 
@@ -572,6 +590,10 @@ SVGALib
 	+Vanta [NV6] [002e] 
 	+Vanta [NV6] [002f] 
 
+  Alliance Semiconductor (1142)
+	+ProMotion AT3D [643d] (*)
+	+ProVideo 6424 ProMotion AT24 GUI Accelerator [6424] (*)
+
   Rendition (1163)
 	+Verite 2000/2100/2200 [2000] (*)
 		+Diamond Multimedia Systems {1092} : Stealth II S220 (*)
@@ -670,7 +692,7 @@ SVGALib
 		+IBM {1014} : Integrated 86C365/366 Trio3D 
 	+86C375 ViRGE/DX, 86C385 ViRGE/GX [8a01] 
 		+86C375 ViRGE/DX 
-		+Compaq Computer Corp {0e11} : 86C385 ViRGE/GX 
+		+Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : 86C385 ViRGE/GX 
 		+ELSA GmbH {1048} : Victory 3DX 
 		+STB Systems {10b4} : Nitro 3D 
 	+86C390 Savage3D/MV [8a21] 
@@ -716,7 +738,7 @@ SVGALib
 		+IBM {1014} : Intel(r) 82810E Graphics Controller (*)
 		+Intel(r) 82810E Graphics Controller (*)
 		+Siemens PC Systeme GmBH {110a} : 82810e 810e Chipset Graphics Controller (*)
-		+Tekram {1de1} : TRM-S381 Fe Mainboard (*)
+		+Tekram Technology {1de1} : TRM-S381 Fe Mainboard (*)
 	+Intel740 AGP Graphics Accelerator [7800] (*)
 		+Diamond Multimedia Systems {1092} : Stealth II G460 (*)
 		+Intel740 Graphics Accelerator (*)

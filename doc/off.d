@@ -1,5 +1,5 @@
 Name
-	off - Shutdown the PC
+	off - Shutdown for DOS
 
 Description
 	The `off' utility can be used to shutdown an ATX-powered PC.

@@ -1,19 +1,21 @@
 Name
 	advcab - The AdvanceCAB collections
 
-	AdvanceCAB is a collection of DOS utilities to help the use of
-	standard DOS applications with TV and Arcade Monitors.
+	AdvanceCAB is a collection of DOS and Windows utilities to help
+	the use of standard applications with TV and Arcade Monitors.
 
 	The official site of AdvanceCAB is :
 
 		http://advancemame.sourceforge.net
 
 	This package contains :
-		vga - VGA bios wrapper
-		vbe - VBE bios wrapper
-		vbe32 - VBE bios
-		off - Shutdown the PC
-		video - Video control
-		portio - Input/output on hardware ports
-		advv - Utility for configuring vga and vbe
+		vga - VGA BIOS wrapper for DOS
+		vbe - VBE 16 bit BIOS wrapper for DOS
+		vbe32 - VBE 32 bit BIOS for DOS
+		off - Shutdown the PC for DOS
+		video - Video control for DOS
+		portio - Input/output on hardware ports for DOS
+		advv - Video configurator for DOS
+		videowin - Video control for Windows NT/2000/XP
+		svgawin - SVGALIB driver for Windows NT/2000/XP
 

@@ -18,7 +18,7 @@
 #endif
 #define PROT_READ 0
 #define PROT_WRITE 0
-#define sigemptyset(a)
+#define sigemptyset(a) do { (void)(a); } while (0)
 #define sigaddset(a,b)
 #define sigprocmask(a,b,c)
 #endif
@@ -262,11 +262,11 @@ static inline unsigned adv_svgalib_mmio_size_get(void) {
 	return __svgalib_mmio_size;
 }
 
-static inline unsigned adv_svgalib_bytes_per_scanline_get(void) {
+static inline unsigned adv_svgalib_scanline_get(void) {
 	return adv_svgalib_state.mode.bytes_per_scanline;
 }
 
-static inline unsigned adv_svgalib_bytes_per_pixel_get(void) {
+static inline unsigned adv_svgalib_pixel_get(void) {
 	return adv_svgalib_state.mode.bytes_per_pixel;
 }
 

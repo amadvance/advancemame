@@ -1,12 +1,12 @@
 Name
-	video - Video control
+	video - Video control for DOS
 
 Synopsys
-	:video [/l PCXIMAGE] [/s MODE] [/e] [/d] [/r]
+	:video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]
 
 Description
 	The `video' utility can be used to control the video
-	output of the PC in the early boot stage.
+	output of the PC in DOS.
 
 Options
 	/l IMAGE
@@ -16,7 +16,7 @@ Options
 
 	/s MODE
 		Set an arbitrary video mode. The MODE is expressed as
-		an hexadecimal number.
+		an hexadecimal BIOS number.
 
 	The most common modes are:
 		1 - Text mode 40x25 16 color.
@@ -24,11 +24,10 @@ Options
 		13 - Graphics mode 320x200 256 color.
 
 	/d
-		Disable the hardware video signal using the standard
-		VGA registers.
+		Disable the hardware video signal.
 
 	/e
-		Reenable the video signal.
+		Enable the hardware video signal.
 
 	/r
 		Reset the video board using the BIOS startup

@@ -1,5 +1,5 @@
 Name
-	vbe - VBE 16 bit wrapper
+	vbe - VBE 16 bit BIOS wrapper for DOS
 
 Synopsys
 	:vbe [/l] [/u] [/c CONFIG]
@@ -18,7 +18,7 @@ Description
 	Monitor.
  
 	At the startup the configuration file `vbe.rc', created with
-	the utility `vbev', is read and all the `modeline' present
+	the utility `vbev', is read and all the modelines present
 	are activated. The format of this configuration file is
 	specified in the document `advv.txt'.
 
@@ -150,8 +150,7 @@ Examples
 Bugs
 	The configuration file is checked only for the
 	`device_video_modeline' and `device_video' options.
-	All the other options are ignored. Also the `device_vbeline_*'
-	are not read.
+	All the other options are ignored.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

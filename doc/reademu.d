@@ -34,5 +34,6 @@ Name
 		advm - The mouse tester.
 		advk - The keyboard tester.
 		advs - The sound tester.
-		advk - The keyboard tester.
+		advj - The joystick tester.
+
 

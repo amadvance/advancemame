@@ -38,6 +38,11 @@ VIDEO_SRC = \
 	$(wildcard advance/video/*.c) \
 	$(wildcard advance/video/*.h)
 
+VIDEOWIN_SRC = \
+	advance/videowin/makefile \
+	$(wildcard advance/videowin/*.c) \
+	$(wildcard advance/videowin/*.h)
+
 CAB_ROOT_SRC = \
 	$(srcdir)/COPYING \
 	Makefile.in
@@ -55,34 +60,52 @@ CAB_DOC_SRC = \
 	doc/video.d \
 	doc/off.d \
 	doc/portio.d \
+	doc/videowin.d \
+	doc/svgawin.d \
+	doc/carddos.d \
+	doc/cardwin.d \
 	doc/histcab.d \
 	doc/readcab.d \
 	doc/relecab.d
 
-CAB_DOC_BIN = \
+CAB_DOC_BIN += \
 	$(DOCOBJ)/license.txt \
+	$(DOCOBJ)/histcab.txt \
+	$(DOCOBJ)/readcab.txt \
+	$(DOCOBJ)/relecab.txt \
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/histcab.html \
+	$(DOCOBJ)/readcab.html \
+	$(DOCOBJ)/relecab.html \
+	$(DOCOBJ)/advv.html \
+	$(RCSRC)
+ifeq ($(CONF_HOST),dos)
+CAB_DOC_BIN += \
 	$(DOCOBJ)/vbe.txt \
 	$(DOCOBJ)/vbe32.txt \
 	$(DOCOBJ)/vga.txt \
 	$(DOCOBJ)/video.txt \
 	$(DOCOBJ)/off.txt \
 	$(DOCOBJ)/portio.txt \
-	$(DOCOBJ)/advv.txt \
-	$(DOCOBJ)/histcab.txt \
-	$(DOCOBJ)/readcab.txt \
-	$(DOCOBJ)/relecab.txt \
-	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/carddos.txt \
 	$(DOCOBJ)/vbe.html \
 	$(DOCOBJ)/vbe32.html \
 	$(DOCOBJ)/vga.html \
 	$(DOCOBJ)/video.html \
 	$(DOCOBJ)/off.html \
 	$(DOCOBJ)/portio.html \
-	$(DOCOBJ)/advv.html \
-	$(DOCOBJ)/histcab.html \
-	$(DOCOBJ)/readcab.html \
-	$(DOCOBJ)/relecab.html \
-	$(RCSRC)
+	$(DOCOBJ)/carddos.html
+endif
+ifeq ($(CONF_HOST),windows)
+CAB_DOC_BIN += \
+	$(DOCOBJ)/videowin.txt \
+	$(DOCOBJ)/svgawin.txt \
+	$(DOCOBJ)/cardwin.txt \
+	$(DOCOBJ)/videowin.html \
+	$(DOCOBJ)/svgawin.html \
+	$(DOCOBJ)/cardwin.html
+endif
 
 CAB_SUPPORT_SRC = \
 	$(RCSRC) \
@@ -94,22 +117,32 @@ CAB_SUPPORT_SRC = \
 CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
-CAB_ROOT_BIN = \
+ifeq ($(CONF_HOST),dos)
+CAB_ROOT_BIN += \
 	advance/vbe/vbe.com \
 	advance/vbe32/vbe32.exe \
 	advance/vga/vga.exe \
 	advance/video/video.exe \
 	advance/off/off.com \
 	advance/portio/portio.exe \
-	support/video.pcx \
-	support/videobis.pcx \
 	support/vbev.bat \
 	support/vgav.bat \
 	support/cwsdpmi.exe \
-	$(VOBJ)/advv$(EXE)
+	$(VOBJ)/advv$(EXE) \
+	support/video.pcx \
+	support/videobis.pcx
+endif
+ifeq ($(CONF_HOST),windows)
+CAB_ROOT_BIN += \
+	advance/videowin/videowin.exe \
+	advance/svgalib/svgawin/driver/svgawin.sys \
+	advance/svgalib/svgawin/install/svgawin.exe
+endif
 
-CAB_DIST_DIR_SRC = tmpcab
-CAB_DIST_DIR_BIN = tmpcabbin
+CAB_DIST_FILE_SRC = advancecab-$(CABVERSION)
+CAB_DIST_FILE_BIN = advancecab-$(CABVERSION)-$(BINARYTAG)
+CAB_DIST_DIR_SRC = $(CAB_DIST_FILE_SRC)
+CAB_DIST_DIR_BIN = $(CAB_DIST_FILE_BIN)
 
 distcab: $(RCSRC)
 	mkdir $(CAB_DIST_DIR_SRC)
@@ -136,13 +169,33 @@ distcab: $(RCSRC)
 	cp $(OFF_SRC) $(CAB_DIST_DIR_SRC)/advance/off
 	mkdir $(CAB_DIST_DIR_SRC)/advance/portio
 	cp $(PORTIO_SRC) $(CAB_DIST_DIR_SRC)/advance/portio
+	mkdir $(CAB_DIST_DIR_SRC)/advance/videowin
+	cp $(VIDEOWIN_SRC) $(CAB_DIST_DIR_SRC)/advance/videowin
 	mkdir $(CAB_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(CAB_DIST_DIR_SRC)/advance/d2
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib
+	cp $(SVGALIB_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/clockchi
+	cp $(SVGALIBCLOCKCHI_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/clockchi
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/ramdac
+	cp $(SVGALIBRAMDAC_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/ramdac
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/drivers
+	cp $(SVGALIBDRIVERS_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/drivers
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgados
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(CAB_DIST_DIR_SRC)/contrib
 	mkdir $(CAB_DIST_DIR_SRC)/contrib/cab
 	cp -R $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_SRC)/contrib/cab
-	rm -f advancecab-$(CABVERSION).zip
-	cd $(CAB_DIST_DIR_SRC) && zip -r ../advancecab-$(CABVERSION).zip *
+	rm -f $(CAB_DIST_FILE_SRC).zip
+	cd $(CAB_DIST_DIR_SRC) && zip -r ../$(CAB_DIST_FILE_SRC).zip *
 	rm -r $(CAB_DIST_DIR_SRC)
 
 distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)
@@ -154,9 +207,11 @@ distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)
 	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)/doc
 	cp $(CAB_DOC_BIN) $(CAB_DIST_DIR_BIN)/doc
+ifeq ($(CONF_HOST),dos)
 	mkdir $(CAB_DIST_DIR_BIN)/contrib
 	cp -r $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_BIN)/contrib
-	rm -f advancecab-$(CABVERSION)-$(BINARYTAG).zip
+endif
+	rm -f $(CAB_DIST_FILE_BIN).zip
 	find $(CAB_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
-	cd $(CAB_DIST_DIR_BIN) && zip -r ../advancecab-$(CABVERSION)-$(BINARYTAG).zip *
+	cd $(CAB_DIST_DIR_BIN) && zip -r ../$(CAB_DIST_FILE_BIN).zip *
 	rm -r $(CAB_DIST_DIR_BIN)

@@ -11,7 +11,7 @@ EMUVERSION = 0.61.4
 endif
 endif
 MENUVERSION = 2.1.3
-CABVERSION = 1.0.0
+CABVERSION = 1.1.0
 
 ############################################################################
 # Common dir
@@ -139,6 +139,28 @@ SVGALIBCLOCKCHI_SRC = \
 SVGALIBRAMDAC_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.c) \
 	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.h)
+
+SVGALIBSVGADOS_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgados/*.c)
+
+SVGALIBSVGAWIN_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/*.h)
+
+SVGALIBSVGAWINSYS_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/sys/*.h)
+
+SVGALIBSVGAWININSTALL_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/makefile) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/install/*.h)
+
+SVGALIBSVGAWINDRIVER_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/makefile) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/sources) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.rc) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.h)
 
 V_SRC = \
 	$(wildcard $(srcdir)/advance/v/*.c) \
@@ -364,8 +386,9 @@ wholemenu:
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distmenubin
 
 wholecab:
-	$(MAKE) CONF=no CONF_HOST=dos distcab
+	$(MAKE) CONF=no distcab
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=dos distcabbin
+	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=windows distcabbin
 
 distmess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

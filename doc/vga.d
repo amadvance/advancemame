@@ -1,5 +1,5 @@
 Name
-	vga - VGA mode remapper
+	vga - VGA mode remapper for DOS
 
 Synopsys
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
@@ -11,13 +11,13 @@ Description
 	video hardware.
 
 	The `vga.exe' excutable can be used as a standard executable or
-	it can also be loaded as a 'sys' driver in the `config.sys' as a
+	it can also be loaded as a `sys' driver in the `config.sys' as a
 	`device'. Please note that the `sys' version can't be unloaded.
 
 	At the startup the configuration file `vga.rc', created with
 	the utility `vgav', is read and all the modelines present
 	are activated. The format of this configuration file is
-	specified in the document `mv.txt'.
+	specified in the document `advv.txt'.
 
 	These are some example rc files:
 
@@ -27,7 +27,7 @@ Description
 		medium.rc - Arcade Medium Resolution (25 kHz).
 		extended.rc - Arcade Extended Resolution (16.5 kHz).
 		pcvga.rc - VGA PC Monitor.
-		pcmult.rc - SVGA PC Multisync Monitor.
+		pcsvga60.rc - SVGA PC Multisync Monitor.
 	
 	From all the modelines in the configuration file three of them
 	are chosen for the standard VGA mode 1h, 3h and 13h.
@@ -57,7 +57,7 @@ Options
 		the utility.
 
 	/c CONFIG
-		Use an arbitary configuration file for the /l and /a
+		Use an arbitrary configuration file for the /l and /a
 		commands.
 
 	/d
@@ -67,7 +67,7 @@ Options
 		running your programs.
 
 	/e
-		Enable the video output
+		Enable the video output.
 
 	You can force a video mode reset in text mode using the standard
 	DOS command:

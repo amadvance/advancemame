@@ -70,7 +70,7 @@ static struct svgaline_option_struct svgaline_option;
 /* Internal */
 
 static unsigned char* svgaline_linear_write_line(unsigned y) {
-	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_bytes_per_scanline_get() * y;
+	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
 }
 
 /* Keep the same order of svgaline_chipset_struct cards */
@@ -316,13 +316,13 @@ void svgaline_mode_done(adv_bool restore) {
 }
 
 unsigned svgaline_virtual_x(void) {
-	unsigned size = adv_svgalib_bytes_per_scanline_get() / adv_svgalib_bytes_per_pixel_get();
+	unsigned size = adv_svgalib_scanline_get() / adv_svgalib_pixel_get();
 	size = size & ~0x7;
 	return size;
 }
 
 unsigned svgaline_virtual_y(void) {
-	return adv_svgalib_linear_size_get() / adv_svgalib_bytes_per_scanline_get();
+	return adv_svgalib_linear_size_get() / adv_svgalib_scanline_get();
 }
 
 unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
@@ -331,7 +331,7 @@ unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
 }
 
 unsigned svgaline_bytes_per_scanline(void) {
-	return adv_svgalib_bytes_per_scanline_get();
+	return adv_svgalib_scanline_get();
 }
 
 adv_rgb_def svgaline_rgb_def(void) {

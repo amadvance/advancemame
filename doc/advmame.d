@@ -501,8 +501,8 @@ Configuration
 	All the `device_video_*' options defined in the `advv.txt' file can
 	be used.
 
-	If you are using the `sdl' video driver you don't need to set these 
-	options. 
+	If you are using the `sdl' or `vbe' video driver you don't need to
+	set these options. They are completly ignored.
 
 	With the other video drivers these options are used to select 
 	and create the correct video mode.

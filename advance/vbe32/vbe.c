@@ -19,7 +19,6 @@
  */
 
 #include "vbe.h"
-#include "pci.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -462,42 +461,41 @@ static int load(const char* file) {
 	return 0;
 }
 
-static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg)
+static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg)
 {
-	DWORD dw;
+	unsigned dw;
 	unsigned base_class;
 	unsigned subsys_card;
 	unsigned subsys_vendor;
 
-	(void)arg;
-
-	if (pci_read_dword(bus_device_func,0x8,&dw)!=0)
+	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
 		return 0;
 
 	base_class = (dw >> 24) & 0xFF;
 	if (base_class != 0x3 /* PCI_CLASS_DISPLAY */)
 		return 0;
 
-	if (pci_read_dword(bus_device_func,0x2c,&dw)!=0)
+	*(int*)_arg = 1;
+
+	if (adv_svgalib_pci_read_dword(bus_device_func,0x2c,&dw)!=0)
 		return 0;
 
 	subsys_vendor = dw & 0xFFFF;
 	subsys_card = (dw >> 16) & 0xFFFF;
 
-	printf("PCI/AGP card : %04x/%04x\n",vendor,device);
+	printf("PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d\n", vendor, device, bus_device_func >> 8, bus_device_func & 0xFF);
 
 	return 0;
 }
 
 static int driver_init(void) {
+	int found;
+	found = 0;
+
 	printf("\n");
 
-	if (pci_scan_device(pci_scan_device_callback,0)!=0) {
-		printf("PCI/AGP card : none\n");
-	}
-
 	if (adv_svgalib_init(0) != 0) {
-		printf("Error initializing SVGALIB\n");
+		printf("Error initializing SVGALIB.\n");
 		return -1;
 	}
 
@@ -505,6 +503,11 @@ static int driver_init(void) {
 		printf("Unsupported video board.\n");
 		return -1;
 	}
+
+	adv_svgalib_pci_scan_device(probe_callback,&found);
+
+	if (!found)
+		printf("No PCI/AGP boards found\n");
 
 	printf("Video driver : %s\n", adv_svgalib_driver_get());
 

@@ -588,7 +588,7 @@ static int apm_init(int force, int par1, int par2)
     
     munmap(p, 0x1000);
     
-    __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,
+    __svgalib_vgammbase=(unsigned)mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,
                 __svgalib_linear_mem_base+0xfff000);
 
     __svgalib_mm_io_mapio();

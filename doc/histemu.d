@@ -8,12 +8,11 @@ AdvanceMAME Version 0.61.4 2002/10 (not yet released)
 	) Better ./configure script. It detects and automatically 
 		enables all the available libraries.
 	) The configuration file now recognizes the SIZEXxSIZEYxFREQ section.
-	) Fixed a nasty bug on the DOS svgaline drivers in the
-		libdos_mode_done() function.
 	) Fixed a precision error checking the clock in the DOS vgaline
 		driver.
 	) Removed the limitation of 8 bit crtc multiplier in the DOS
 		vgaline driver.
+	) Revised the SVGALIB DOS compatibility layer. Some bugs fixed.
 
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.

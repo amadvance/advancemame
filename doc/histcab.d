@@ -1,6 +1,11 @@
 Name
 	advcab - History For AdvanceCAB
 
+AdvanceCAB Version 1.1.0 2002/11
+	) Added the VIDEOWIN utility. It's able to set an arbitrary
+		modeline in Windows NT/2000/XP. It supports all the
+		most recent boards.
+
 AdvanceCAB Version 1.0.0 2002/10
 	) Added the VBE32 utility. It's a new 32 bit VBE BIOS
 		which supports all the new video boards.

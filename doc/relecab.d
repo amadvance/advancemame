@@ -1,6 +1,11 @@
 Name
 	advcab - Release Notes For AdvanceCAB
 
+AdvanceCAB 1.1.0
+	The first version with a preliminary Windows NT/2000/XP support.
+	No configuration tools are available for Windows. You must use
+	one of the preconfigured .rc files or create a new one in DOS.
+
 AdvanceCAB 1.0.0
 	A new version !
 

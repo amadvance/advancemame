@@ -65,7 +65,6 @@ VBEOBJS += \
 	$(VBEOBJ)/svgalib/drivers/g400.o \
 	$(VBEOBJ)/svgalib/drivers/pm2.o \
 	$(VBEOBJ)/svgalib/drivers/i740.o \
-	$(VBEOBJ)/svgalib/drivers/i810.o \
 	$(VBEOBJ)/svgalib/drivers/laguna.o \
 	$(VBEOBJ)/svgalib/drivers/millenni.o \
 	$(VBEOBJ)/svgalib/drivers/mx.o \

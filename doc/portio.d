@@ -1,5 +1,5 @@
 Name
-	portio - Input/output on hardware ports
+	portio - Input/Output on hardware ports for DOS
 
 Synopsys
 	:portio lpt?

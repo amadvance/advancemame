@@ -1,5 +1,5 @@
 Name
-	vbe32 - VBE 32 bit bios
+	vbe32 - VBE 32 bit BIOS for DOS
 
 Synopsys
 	:vbe32 [/l] [/c CONFIG]
@@ -18,7 +18,7 @@ Description
 	Monitor.
  
 	At the startup the configuration file `vbe.rc', created with
-	the utility `vbev', is read and all the `modeline' present
+	the utility `vbev', is read and all the modelines present
 	are activated. The format of this configuration file is
 	specified in the document `advv.txt'.
 
@@ -46,7 +46,7 @@ Options
 		Use an arbitary configuration file
 
 Cards
-	The program supports all the svgaline drivers listed in the
+	The program supports all the `svgaline' drivers listed in the
 	`carddos.txt' file.
 
 Limitations
@@ -84,7 +84,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' option.
+	`device_video_modeline' options.
 	All the other options are ignored.
 
 Copyright

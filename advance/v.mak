@@ -116,7 +116,6 @@ VOBJS += \
 	$(VOBJ)/svgalib/drivers/g400.o \
 	$(VOBJ)/svgalib/drivers/pm2.o \
 	$(VOBJ)/svgalib/drivers/i740.o \
-	$(VOBJ)/svgalib/drivers/i810.o \
 	$(VOBJ)/svgalib/drivers/laguna.o \
 	$(VOBJ)/svgalib/drivers/millenni.o \
 	$(VOBJ)/svgalib/drivers/mx.o \

@@ -10,6 +10,6 @@ Name
 
 	This package contains :
 		advmenu - The frontend.
-		advcfg - The automatic video configurator (only in the *-native-* package).
-		advv - The manual video configurator and tester (only in the *-native-* package).
+		advcfg - The automatic video configurator.
+		advv - The manual video configurator and tester.
 

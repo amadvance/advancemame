@@ -115,8 +115,8 @@ Video Drivers
 			software VESA BIOS like the SciTech Display Doctor.
 		vbe - Available VBE modes.
 			This driver is able to use only the video modes
-			reported by your VESA BIOS.
-			It doesn't require any `device_p/h/vclock' options
+			reported by the VBE BIOS.
+			It doesn't require any `device_video_*' options
 			because it cannot control how the video modes are
 			generated.
 
@@ -131,8 +131,8 @@ Video Drivers
 			support in your kernel.
 		sdl - Available SDL modes.
 			This driver is able to use only the video modes
-			reported by the SDL system.
-			It doesn't require any `device_p/h/vclock' options
+			reported by the SDL graphics library.
+			It doesn't require any `device_video_*' options
 			because it cannot control how the video modes are
 			generated.
 		slang - sLang text modes.
@@ -144,8 +144,8 @@ Video Drivers
 	available:
 		sdl - SDL modes.
 			This driver is able to use only the video modes
-			reported by the SDL system.
-			It doesn't require any `device_p/h/vclock' options
+			reported by the SDL graphics library.
+			It doesn't require any `device_video_*' options
 			because it cannot control how the video modes are
 			generated.
 
@@ -232,6 +232,9 @@ Configuration
 		fb - SVGA tweaked grahics modes with the Linux Console
 			Frame Buffer.
 		slang - Text video modes with the sLang library.
+		sdl - SDL graphics modes.
+
+	Options for Windows:
 		sdl - SDL graphics modes.
 
 	Please note that to use the utilities `advv' and `advcfg' you
@@ -488,7 +491,7 @@ Configuration
 
 	Options:
 		yes - Try to always use a fullscreen mode.
-		no - Try to use a window mode (default).
+		no - Try to use a windowed mode (default).
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
