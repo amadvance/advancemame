@@ -7,7 +7,7 @@ typedef struct {
 } TRIDENTRegRec, *TRIDENTRegPtr;
 
 enum {
-    TGUI9420DGi,
+    TGUI9420DGi=0,
     TGUI9430DGi,
     TGUI9440AGi,
     CYBER9320,
@@ -180,6 +180,7 @@ enum {
 		OUTB(0x3CE, CyberControl); \
 		OUTB(0x3CF,val); \
 	} while (0);
+
 static int ClockLimit[] = {
 	80000,
 	80000,
@@ -195,6 +196,7 @@ static int ClockLimit[] = {
 	80000,
 	80000,
 	80000,
+/* 9440 */
 	90000,
 	90000,
 	135000,
@@ -202,6 +204,7 @@ static int ClockLimit[] = {
 	170000,
 	170000,
 	170000,
+/* 9685 */
 	170000,
 	170000,
 	170000,
@@ -238,6 +241,7 @@ static int ClockLimit16bpp[] = {
 	40000,
 	40000,
 	40000,
+/* 9440 */
 	45000,
 	45000,
 	90000,
@@ -245,6 +249,7 @@ static int ClockLimit16bpp[] = {
 	135000,
 	135000,
 	170000,
+/* 9685 */
 	170000,
 	170000,
 	170000,
@@ -281,6 +286,7 @@ static int ClockLimit24bpp[] = {
 	25180,
 	25180,
 	25180,
+/* 9440 */
 	25180,
 	25180,
 	40000,
@@ -288,6 +294,7 @@ static int ClockLimit24bpp[] = {
 	70000,
 	70000,
 	70000,
+/* 9685 */
 	115000,
 	115000,
 	115000,
@@ -324,6 +331,7 @@ static int ClockLimit32bpp[] = {
 	25180,
 	25180,
 	25180,
+/* 9440 */
 	25180,
 	25180,
 	40000,
@@ -331,6 +339,7 @@ static int ClockLimit32bpp[] = {
 	70000,
 	70000,
 	70000,
+/* 9685 */
 	115000,
 	115000,
 	115000,
@@ -352,4 +361,3 @@ static int ClockLimit32bpp[] = {
 	115000,
 	115000,
 };
-

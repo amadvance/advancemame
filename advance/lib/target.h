@@ -200,6 +200,12 @@ void target_led_set(unsigned mask);
 /* System */
 
 /**
+ * Execute a script.
+ * \return Like system("./script").
+ */
+adv_error target_script(const char* script);
+
+/**
  * Execute an external program with pipe support.
  * \return Like system().
  */

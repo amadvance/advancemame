@@ -1,3 +1,17 @@
+#if 1
+//#define mb()    __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+#define mb()    __asm__ __volatile__ ("": : :"memory")
+#define rage_inb(a) v_readb(a)
+#define rage_inl(a) v_readl(a)
+#define rage_outb(a,v) do {v_writeb(v,a); mb();}while(0)
+#define rage_outl(a,v) do {v_writel(v,a); mb();}while(0)
+#else
+#define rage_inb(a) inb(a)
+#define rage_inl(a) inl(a)
+#define rage_outb(a,v) outb(a,v)
+#define rage_outl(a,v) outl(a,v)
+#endif
+
 #define SPARSE_IO 0
 #define BLOCK_IO 1
 
@@ -6,8 +20,8 @@
 
 #define GetReg(_Register, _Index)                               \
         (                                                       \
-                outb(_Register, _Index),                        \
-                inb(_Register + 1)                              \
+                rage_outb(_Register, _Index),                        \
+                rage_inb(_Register + 1)                              \
         )
 
 #define ATIIOPort(_PortTag)							\
@@ -62,6 +76,7 @@
 #define DSP_ON_OFF		BlockIOTag(0x09u)	/* VTB/GTB/LT */
 #define VGA_DSP_CONFIG		BlockIOTag(0x13u)	/* VTB/GTB/LT */
 #define VGA_DSP_ON_OFF		BlockIOTag(0x14u)	/* VTB/GTB/LT */
+#define HW_DEBUG		BlockIOTag(0x1fu)
 #define OVR_CLR			IOPortTag(0x08u, 0x10u)
 #define MEM_INFO		IOPortTag(0x14u, 0x2cu) /* Renamed MEM_CNTL */
 #define CONFIG_CNTL		IOPortTag(0x1au, 0x37u)
@@ -320,11 +335,9 @@
 #define ATIGetMach64PLLReg(_Index)                              \
         (                                                       \
                 ATIAccessMach64PLLReg(_Index, 0),           \
-                inb(ATIIOPortCLOCK_CNTL + 2)                    \
+                rage_inb(ATIIOPortCLOCK_CNTL + 2)                    \
         )
 #define ATIPutMach64PLLReg(_Index, _Value)                      \
-        (                                                       \
-                ATIAccessMach64PLLReg(_Index, 1),            \
-                outb(ATIIOPortCLOCK_CNTL + 2, _Value)           \
-        )
+                ATIAccessMach64PLLReg(_Index, 1);            \
+                rage_outb(ATIIOPortCLOCK_CNTL + 2, _Value)          
 

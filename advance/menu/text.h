@@ -54,6 +54,8 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 void int_unset(bool reset_video_mode);
 bool int_enable(const std::string& font, unsigned orientation);
 void int_disable();
+void int_unplug();
+void int_plug();
 
 bool int_image(const char* file);
 void int_clear();

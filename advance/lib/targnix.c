@@ -289,6 +289,42 @@ void target_led_set(unsigned mask)
 /***************************************************************************/
 /* System */
 
+adv_error target_script(const char* script)
+{
+	char file[FILE_MAXPATH];
+	int f;
+	int r;
+
+	log_std(("linux: script\n%s\n", script));
+
+	strcpy(file, "/tmp/advscriptXXXXXX");
+	f = mkstemp(file);
+	if (f == -1) {
+		return -1;
+	}
+
+	/* set it executable */
+	if (fchmod(f, S_IRWXU) != 0) {
+		close(f);
+		return -1;
+	}
+
+	if (write(f, script, strlen(script)) != strlen(script)) {
+		close(f);
+		return -1;
+	}
+
+	close(f);
+
+	r = system(file);
+
+	log_std(("linux: return %d\n", r));
+
+	remove(file); /* ignore error */
+
+	return r;
+}
+
 adv_error target_system(const char* cmd)
 {
 	log_std(("linux: system %s\n", cmd));
@@ -476,10 +512,16 @@ static void target_backtrace(void)
 void target_signal(int signum)
 {
 	if (signum == SIGINT) {
-		fprintf(stderr, "Break pressed\n\r");
+		fprintf(stderr, "Break\n\r");
 		exit(EXIT_FAILURE);
 	} else if (signum == SIGQUIT) {
-		fprintf(stderr, "Quit pressed\n\r");
+		fprintf(stderr, "Quit\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGTERM) {
+		fprintf(stderr, "Terminated\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGALRM) {
+		fprintf(stderr, "Alarm\n\r");
 		exit(EXIT_FAILURE);
 	} else {
 		fprintf(stderr, "Signal %d.\n", signum);

@@ -47,6 +47,16 @@
 #include <signal.h>
 #include <errno.h>
 
+/**
+ * Define to enable the First key hack.
+ * This is an HACK to solve a strange problem which happen
+ * with AdvanceCD on only some systems. The first key pressed in AdvanceMENU
+ * returning from AdvanceMAME get two press, instead of a press and a release
+ * It happen only on the first run of AdvanceMENU on the first terminal.
+ * Tested with Linux 2.4.22, it also happen with the SVGALIB 1.9.17 keyboard driver.
+ */
+#define USE_FIRST_HACK
+
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
 #define RAW_MAX 128
@@ -61,7 +71,9 @@ struct keyb_raw_context {
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
 	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
+#ifdef USE_FIRST_HACK
 	adv_bool first_flag; /**< First key hack enabled. */
+#endif
 	unsigned char first_code; /**< First key pressed. */
 	adv_bool first_state; /**< State of processing the first key. */
 };
@@ -537,11 +549,7 @@ void keyb_raw_poll(void)
 
 		log_debug(("keyb:raw: read %02x -> %d, %d\n", (unsigned)c, (unsigned)code, (int)pressed));
 
-		/* This is an HACK to solve a strange problem which happen */
-		/* with AdvanceCD. The first key pressed in AdvanceMENU returning */
-		/* from AdvanceMAME get two press, instead of a press and a release */
-		/* It happen only on the first run of AdvanceMENU on the first terminal. */
-		/* Tested with Linux 2.4.22, it also happen with the SVGALIB 1.9.17 keyboard driver. */
+#ifdef USE_FIRST_HACK
 		if (raw_state.first_flag) {
 			switch (raw_state.first_state) {
 			case 0 :
@@ -561,6 +569,7 @@ void keyb_raw_poll(void)
 				break;
 			}
 		}
+#endif
 
 		if (code < RAW_MAX)
 			raw_state.state[code] = pressed;
@@ -576,7 +585,9 @@ unsigned keyb_raw_flags(void)
 
 adv_error keyb_raw_load(adv_conf* context)
 {
+#ifdef USE_FIRST_HACK
 	raw_state.first_flag = conf_bool_get_default(context, "device_raw_firstkeyhack");
+#endif
 
 	return 0;
 }

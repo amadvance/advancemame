@@ -203,7 +203,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_enum_default(config_context, "mode", conf_enum(OPTION_MODE), mode_list);
 	conf_string_register_default(config_context, "mode_skip", "");
 	conf_int_register_enum_default(config_context, "misc_exit", conf_enum(OPTION_EXIT), exit_normal);
-	conf_bool_register_default(config_context, "misc_console", 0);
+	conf_bool_register_default(config_context, "ui_console", 0);
 	conf_string_register_multi(config_context, "event_assign");
 	conf_string_register_multi(config_context, "ui_color");
 	conf_string_register_default(config_context, "idle_start", "0 0");
@@ -254,6 +254,9 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_limit_default(config_context, "ui_skipright", 0, 1000, 0);
 	conf_bool_register_default(config_context, "ui_bottombar", 1);
 	conf_bool_register_default(config_context, "ui_topbar", 1);
+	conf_string_register_default(config_context, "ui_command_menu", "Command");
+	conf_string_register_default(config_context, "ui_command_error", "Error running the command");
+	conf_string_register_multi(config_context, "ui_command");
 }
 
 // -------------------------------------------------------------------------
@@ -600,6 +603,30 @@ bool config_state::load_iterator_game(adv_conf* config_context, const string& ta
 	return true;
 }
 
+bool config_state::load_iterator_script(adv_conf* config_context, const string& tag)
+{
+	adv_conf_iterator i;
+	conf_iterator_begin(&i, config_context, tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string s = conf_iterator_string_get(&i);
+
+		int j = 0;
+		string name = arg_get(s, j);
+		if (name.length() == 0) {
+			config_error_a(s);
+			return false;
+		}
+
+		string text = string(s, j);
+
+		script_bag.insert(script_bag.end(), script(name, text));
+
+		conf_iterator_next(&i);
+	}
+
+	return true;
+}
+
 static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 {
 	string s;
@@ -643,6 +670,10 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	ui_bottom = conf_int_get_default(config_context, "ui_skipbottom");
 	ui_top_bar = conf_bool_get_default(config_context, "ui_topbar");
 	ui_bottom_bar = conf_bool_get_default(config_context, "ui_bottombar");
+	script_menu = conf_string_get_default(config_context, "ui_command_menu");
+	script_error = conf_string_get_default(config_context, "ui_command_error");
+	if (!load_iterator_script(config_context, "ui_command"))
+		return false;
 
 	sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
 	lock_orig = (bool)conf_bool_get_default(config_context, "lock");
@@ -651,7 +682,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!config_load_skip(config_context, mode_skip_mask))
 		return false;
 	exit_mode = (exit_t)conf_int_get_default(config_context, "misc_exit");
-	console_mode = conf_bool_get_default(config_context, "misc_console");
+	console_mode = conf_bool_get_default(config_context, "ui_console");
 	if (!config_load_iterator(config_context, "event_assign", int_key_in))
 		return false;
 	if (!config_load_iterator(config_context, "ui_color", int_color_in))

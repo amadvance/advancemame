@@ -111,6 +111,7 @@ void joystickb_reg(adv_conf* config_context, adv_bool auto_detect);
 void joystickb_reg_driver(adv_conf* config_context, joystickb_driver* driver);
 adv_error joystickb_load(adv_conf* config_context);
 adv_error joystickb_init(void);
+void joystickb_init_null(void);
 void joystickb_done(void);
 void joystickb_abort(void);
 unsigned joystickb_count_get(void);

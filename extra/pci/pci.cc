@@ -437,10 +437,19 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 	}
 }
 
-#define MSG \
-"\tThis list is automatically generated from the `pcidevs.txt' file:\n" \
+#define HEADER \
+"\tPlease note that not all the OEM cards are listed. If your card has a\n" \
+"\tsupported chipset, it's probably supported also if the OEM vendor is not\n" \
+"\tin the list.\n" \
+"\n"
+
+#define FOOTER \
 "\n" \
-"\t\thttp://members.datafast.net.au/dft0802/downloads/pcidevs.txt\n" \
+"\tThis list is automatically generated from the `pcidevs.txt' and `pci.ids'\n" \
+"\tfiles available at:\n" \
+"\n" \
+"\t\t:http://members.datafast.net.au/dft0802/downloads/pcidevs.txt\n" \
+"\t\t:http://pciids.sf.net/\n" \
 "\n" \
 "\tThe numbers in [] are the PCI device IDs of the video board\n" \
 "\tmodels. The numbers in () are the PCI vendor IDs of the\n" \
@@ -459,7 +468,7 @@ void print_dos(ostream& os, entry_vendor_set& vs_svgaline, entry_vendor_set& vs_
 "\tThis is the list of the DOS video cards supported\n"
 "\tby the Advance programs with the DOS drivers. \n"
 "\n"
-MSG
+HEADER
 ;
 
 	os <<
@@ -482,6 +491,8 @@ MSG
 ;
 
 	print_set(os,vs_vbeline);
+
+	os << FOOTER;
 }
 
 void print_linux(ostream& os, entry_vendor_set& vs_svgalib, entry_vendor_set& vs_fb) {
@@ -492,7 +503,7 @@ void print_linux(ostream& os, entry_vendor_set& vs_svgalib, entry_vendor_set& vs
 "\tThis is the list of the Linux video cards supported\n"
 "\tby the Advance programs with the Linux drivers. \n"
 "\n"
-MSG
+HEADER
 ;
 
 	os <<
@@ -520,6 +531,8 @@ MSG
 ;
 
 	print_set(os,vs_svgalib);
+
+	os << FOOTER;
 }
 
 void print_cd(ostream& os, entry_vendor_set& vs_fb) {
@@ -529,7 +542,7 @@ void print_cd(ostream& os, entry_vendor_set& vs_fb) {
 "\n"
 "\tThis is the list of the video cards supported by AdvanceCD.\n"
 "\n"
-MSG
+HEADER
 ;
 
 	os <<
@@ -540,6 +553,8 @@ MSG
 ;
 
 	print_set(os,vs_fb);
+
+	os << FOOTER;
 }
 
 void print_win(ostream& os, entry_vendor_set& vs_svgaline) {
@@ -550,7 +565,7 @@ void print_win(ostream& os, entry_vendor_set& vs_svgaline) {
 "\tThis is the list of the Windows video cards supported\n"
 "\tby the Advance programs with the Windows drivers.\n"
 "\n"
-MSG
+HEADER
 ;
 
 	os <<
@@ -563,6 +578,8 @@ MSG
 ;
 
 	print_set(os,vs_svgaline);
+
+	os << FOOTER;
 }
 
 // --------------------------------------------------------------------------

@@ -733,7 +733,6 @@ void int_done()
 
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
 {
-
 	int_alpha_mode = alpha_mode;
 
 	int_idle_time = time(0);
@@ -787,6 +786,17 @@ err_key:
 	int_key_done();
 err:
 	return false;
+}
+
+void int_unplug()
+{
+	joystickb_done();
+}
+
+void int_plug()
+{
+	if (joystickb_init() != 0)
+		joystickb_init_null();
 }
 
 void int_unset(bool reset_video_mode)
@@ -2634,20 +2644,20 @@ void int_key_out(adv_conf* config_context, const char* tag)
 // Color
 
 int_color COLOR_HELP_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_HELP_TAG = { { 255, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_TITLE = { { 255, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_HELP_TAG = { { 0x24, 0x7e, 0xF0 }, { 255, 255, 255 } };
+int_color COLOR_CHOICE_TITLE = { { 0x24, 0x7e, 0xF0 }, { 255, 255, 255 } };
 int_color COLOR_CHOICE_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_SELECT = { { 0, 0, 0 }, { 0, 255, 0 } };
+int_color COLOR_CHOICE_SELECT = { { 0, 0, 0 }, { 0xBF, 0xFF, 0xFF } };
 int_color COLOR_MENU_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
 int_color COLOR_MENU_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
-int_color COLOR_MENU_TAG = { { 255, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_MENU_SELECT = { { 0, 0, 0 }, { 0, 255, 0 } };
-int_color COLOR_MENU_HIDDEN_SELECT = { { 128, 128, 128 }, { 0, 255, 0 } };
-int_color COLOR_MENU_TAG_SELECT = { { 255, 0, 0 }, { 0, 255, 0 } };
+int_color COLOR_MENU_TAG = { { 0x24, 0x7e, 0xF0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_SELECT = { { 0, 0, 0 }, { 0xBF, 0xFF, 0xFF } };
+int_color COLOR_MENU_HIDDEN_SELECT = { { 128, 128, 128 }, { 0xBF, 0xFF, 0xFF } };
+int_color COLOR_MENU_TAG_SELECT = { { 0x24, 0x7e, 0xF0 }, { 0xBF, 0xFF, 0xFF } };
 int_color COLOR_MENU_BAR = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_MENU_BAR_TAG = { { 255, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_BAR_TAG = { { 0x24, 0x7e, 0xF0 }, { 255, 255, 255 } };
 int_color COLOR_MENU_BAR_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
-int_color COLOR_MENU_GRID = { { 255, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_GRID = { { 0x24, 0x7e, 0xF0 }, { 255, 255, 255 } };
 int_color COLOR_MENU_BACKDROP = { { 0, 0, 0 }, { 128, 128, 128 } };
 int_color COLOR_MENU_ICON = { { 255, 255, 255 }, { 255, 255, 255 } };
 int_color COLOR_MENU_CURSOR = { { 128, 128, 128 }, { 255, 255, 255 } };

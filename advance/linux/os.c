@@ -47,6 +47,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <setjmp.h>
 
 #if defined(USE_SVGALIB)
 #include <vga.h>
@@ -71,8 +72,6 @@
 #endif
 
 struct os_context {
-	adv_bool signal_active; /**< A signal was raised. */
-
 #ifdef USE_SVGALIB
 	adv_bool svgalib_active; /**< SVGALIB initialized. */
 #endif
@@ -98,6 +97,8 @@ struct os_context {
 };
 
 static struct os_context OS;
+static sigjmp_buf OS_HUP; /**< Restart point of the program after a SIGHUP. */
+static int OS_SIGNAL; /**< Prevent recursive signal. */
 
 /***************************************************************************/
 /* Init */
@@ -113,9 +114,91 @@ void os_done(void)
 {
 }
 
+/***************************************************************************/
+/* Signal */
+
+static void os_restore(void) {
+#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW) || defined(USE_KEYBOARD_EVENT)
+	log_std(("os: keyb_abort\n"));
+	{
+		extern void keyb_abort(void);
+		keyb_abort();
+	}
+#endif
+
+#if defined(USE_MOUSE_SVGALIB) || defined(USE_MOUSE_SDL) || defined(USE_MOUSE_RAW) || defined(USE_MOUSE_EVENT)
+	log_std(("os: mouseb_abort\n"));
+	{
+		extern void mouseb_abort(void);
+		mouseb_abort();
+	}
+#endif
+
+#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB) || defined(USE_VIDEO_X) || defined(USE_VIDEO_SDL)
+	log_std(("os: video_abort\n"));
+	{
+		extern void video_abort(void);
+		video_abort();
+	}
+#endif
+
+#if defined(USE_SOUND_OSS) || defined(USE_SOUND_SDL) || defined(USE_SOUND_ALSA)
+	log_std(("os: sound_abort\n"));
+	{
+		extern void soundb_abort(void);
+		soundb_abort();
+	}
+#endif
+
+	target_mode_reset();
+
+	if (OS.term_active) {
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
+			/* ignore error */
+			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+		}
+	}
+
+	log_std(("os: close log\n"));
+	log_abort();
+}
+
+
 static void os_quit_signal(int signum)
 {
 	OS.is_quit = 1;
+}
+
+static void os_hup_signal(int signum)
+{
+	os_restore();
+
+	/* restart the program */
+	siglongjmp(OS_HUP, 1);
+}
+
+void os_default_signal(int signum)
+{
+	if (OS_SIGNAL) {
+		/* detect recursive signals, for example a SIGSEGV while processig SIGTERM */
+		fprintf(stderr, "Double signals, %d and %d\n", OS_SIGNAL, signum);
+		target_signal(signum);
+	}
+	OS_SIGNAL = signum;
+
+	log_std(("os: signal %d\n", signum));
+
+	os_restore();
+
+	target_signal(signum);
+}
+
+/***************************************************************************/
+/* Inner */
+
+int os_is_quit(void)
+{
+	return OS.is_quit;
 }
 
 int os_inner_init(const char* title)
@@ -269,14 +352,44 @@ int os_inner_init(const char* title)
 	sncpy(OS.title_buffer, sizeof(OS.title_buffer), title);
 
 	/* set some signal handlers */
-	signal(SIGABRT, os_signal);
-	signal(SIGFPE, os_signal);
-	signal(SIGILL, os_signal);
-	signal(SIGINT, os_signal);
-	signal(SIGSEGV, os_signal);
-	signal(SIGTERM, os_signal);
-	signal(SIGHUP, os_quit_signal);
-	signal(SIGQUIT, os_quit_signal);
+	{
+		struct sigaction term_action;
+		struct sigaction quit_action;
+		struct sigaction hup_action;
+
+		term_action.sa_handler = os_signal;
+		sigemptyset(&term_action.sa_mask);
+		/* block external generated signals */
+		sigaddset(&term_action.sa_mask, SIGALRM);
+		sigaddset(&term_action.sa_mask, SIGINT);
+		sigaddset(&term_action.sa_mask, SIGTERM);
+		sigaddset(&term_action.sa_mask, SIGHUP);
+		sigaddset(&term_action.sa_mask, SIGQUIT);
+		term_action.sa_flags = 0;
+
+		/* external generated */
+		sigaction(SIGALRM, &term_action, 0);
+		sigaction(SIGINT, &term_action, 0);
+		sigaction(SIGTERM, &term_action, 0);
+		/* internal generated */
+		sigaction(SIGABRT, &term_action, 0);
+		sigaction(SIGFPE, &term_action, 0);
+		sigaction(SIGILL, &term_action, 0);
+		sigaction(SIGSEGV, &term_action, 0);
+		sigaction(SIGBUS, &term_action, 0);
+
+		hup_action.sa_handler = os_hup_signal;
+		sigemptyset(&hup_action.sa_mask);
+		hup_action.sa_flags = 0;
+
+		sigaction(SIGHUP, &hup_action, 0);
+
+		quit_action.sa_handler = os_quit_signal;
+		sigemptyset(&quit_action.sa_mask);
+		quit_action.sa_flags = 0;
+
+		sigaction(SIGQUIT, &quit_action, 0);
+	}
 
 	return 0;
 }
@@ -433,76 +546,31 @@ void os_poll(void)
 }
 
 /***************************************************************************/
-/* Signal */
-
-int os_is_quit(void)
-{
-	return OS.is_quit;
-}
-
-void os_default_signal(int signum)
-{
-	/* prevent recursion */
-	if (OS.signal_active) {
-		target_signal(signum);
-		return;
-	}
-	OS.signal_active = 1;
-
-	log_std(("os: signal %d\n", signum));
-
-#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW) || defined(USE_KEYBOARD_EVENT)
-	log_std(("os: keyb_abort\n"));
-	{
-		extern void keyb_abort(void);
-		keyb_abort();
-	}
-#endif
-
-#if defined(USE_MOUSE_SVGALIB) || defined(USE_MOUSE_SDL) || defined(USE_MOUSE_RAW) || defined(USE_MOUSE_EVENT)
-	log_std(("os: mouseb_abort\n"));
-	{
-		extern void mouseb_abort(void);
-		mouseb_abort();
-	}
-#endif
-
-#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB) || defined(USE_VIDEO_X) || defined(USE_VIDEO_SDL)
-	log_std(("os: video_abort\n"));
-	{
-		extern void video_abort(void);
-		video_abort();
-	}
-#endif
-
-#if defined(USE_SOUND_OSS) || defined(USE_SOUND_SDL) || defined(USE_SOUND_ALSA)
-	log_std(("os: sound_abort\n"));
-	{
-		extern void soundb_abort(void);
-		soundb_abort();
-	}
-#endif
-
-	target_mode_reset();
-
-	if (OS.term_active) {
-		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
-			/* ignore error */
-			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
-		}
-	}
-
-	log_std(("os: close log\n"));
-	log_abort();
-
-	target_signal(signum);
-}
-
-/***************************************************************************/
 /* Main */
 
 int main(int argc, char* argv[])
 {
+	char** copyv;
+	int i;
+
+	/* duplicate the arguments */
+	copyv = alloca((argc+1) * sizeof(char*));
+	for(i=0;i<argc;++i) {
+		copyv[i] = alloca(strlen(argv[i]) + 1);
+		strcpy(copyv[i], argv[i]);
+	}
+	copyv[i] = 0;
+
+	/* set the entry point to restart the program */
+	if (sigsetjmp(OS_HUP, 1) != 0) {
+
+		/* restart the program */
+		execv(copyv[0], copyv);
+
+		/* abort if fail */
+		abort();
+	}
+
 	if (target_init() != 0)
 		return EXIT_FAILURE;
 

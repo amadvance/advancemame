@@ -575,6 +575,7 @@ extern void vga_runinbackground(int stat, ...);
 #define VGA_GOTOBACK -1
 #define VGA_COMEFROMBACK -2
 extern int vga_runinbackground_version(void);
+extern void vga_waitvtactive(void);
 
 #ifdef __cplusplus
 }

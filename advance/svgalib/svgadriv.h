@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "libvga.h"
 #include "vga.h"
+#include "libvga.h"
 #include "timing.h"
 #include "accel.h"
 #include "memio.h"

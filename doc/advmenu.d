@@ -365,7 +365,7 @@ Configuration
 			game. However, you may wish to add extra
 			arguments.
 
-	In the emulator option some strings are substitutes
+	In the emulator option some strings are substituted
 	with some special values:
 		%s -  The game name. For example "pacman".
 		%p - The complete path of the rom. For
@@ -794,7 +794,7 @@ Configuration
 	Options:
 		STEP - Mouse/trackball position step (default 100).
 
-  User Interface skin
+  User Interface
 
     ui_background
 	Define a background image.
@@ -858,6 +858,43 @@ Configuration
 			white or RRGGBB in hex format. For example
 			FF0000 is red and 00FF00 is green.
 		BACKGROUND - Background color. Like foreground color.
+
+    ui_command_menu
+	Menu item for the commands submenu.
+
+	ui_command_menu MENU
+
+	Options:
+		MENU - Name of the menu entry (default "Command").
+
+    ui_command_error
+	Message displayed on a command error.
+
+	ui_command_error MSG
+
+	Options:
+		MSG - Message to display (default "Error running the command").
+
+    ui_command
+	Used defined commands.
+
+	ui_command "MENU" SCRIPT
+
+	Options:
+		MENU - Name of the menu entry.
+		SCRIPT - Commands to execute.
+
+	Examples:
+		:ui_command "Joystick/Standard" \
+		:	rmmod analog \
+		:	sleep 1 \
+		:	modprobe analog
+
+    ui_console
+	Change the interface behavior for the use on a Game Console system.
+	Mainly used in AdvanceCD.
+
+	ui_console yes | no
 
   Other Configuration Options
 
@@ -1143,8 +1180,9 @@ Formats Supported
 Signals
 	The program intercepts the following signals:
 
-		SIGQUIT - Exit normally
-		SIGTERM - Exit restoring only the video
+		SIGQUIT - Exit normally.
+		SIGTERM, SIGINT, SIGALRM - Exit restoring only the output devices.
+		SIGHUP - Restart the program.
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni, Randy Schnedler.

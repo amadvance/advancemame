@@ -1612,7 +1612,8 @@ Signals
 	The program intercepts the following signals:
 
 		SIGQUIT - Exit normally.
-		SIGTERM - Abort restoring the output devices.
+		SIGTERM, SIGINT, SIGALRM - Exit restoring only the output devices.
+		SIGHUP - Restart the program.
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni, Filipe Estima.

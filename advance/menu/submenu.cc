@@ -22,6 +22,7 @@
 #include "text.h"
 #include "play.h"
 #include "joydrv.h"
+#include "target.h"
 
 #include <sstream>
 #include <iomanip>
@@ -30,6 +31,10 @@
 #include <unistd.h>
 
 using namespace std;
+
+#define MSG_CHOICE_DX 30*int_font_dx_get()
+#define MSG_CHOICE_X (int_dx_get()-MSG_CHOICE_DX)/2
+#define MSG_CHOICE_Y int_dy_get()/2
 
 // ------------------------------------------------------------------------
 // Sort menu
@@ -71,97 +76,135 @@ void run_sort(config_state& rs)
 void run_command(config_state& rs)
 {
 	choice_bag ch;
-	bool used_backdrop = false;
-	bool used_sound = false;
 
-	if (rs.current_game && rs.current_game->preview_snap_get().is_deletable()) {
-		string s = "Delete game snapshot";
-		if (rs.current_game->preview_snap_get() == rs.current_backdrop) {
-			s += " (shown)";
-			used_backdrop = true;
+	if (!rs.console_mode && rs.current_game) {
+		bool used_backdrop = false;
+		bool used_sound = false;
+
+		if (rs.current_game->preview_snap_get().is_deletable()) {
+			string s = "Delete game snapshot";
+			if (rs.current_game->preview_snap_get() == rs.current_backdrop) {
+				s += " (shown)";
+				used_backdrop = true;
+			}
+			ch.insert( ch.end(), choice(s, 0) );
 		}
-		ch.insert( ch.end(), choice(s, 0) );
-	}
-	if (rs.current_game && rs.current_game->preview_clip_get().is_deletable()) {
-		string s = "Delete game clip";
-		if (rs.current_game->preview_clip_get() == rs.current_backdrop) {
-			s += " (shown)";
-			used_backdrop = true;
+		if (rs.current_game->preview_clip_get().is_deletable()) {
+			string s = "Delete game clip";
+			if (rs.current_game->preview_clip_get() == rs.current_backdrop) {
+				s += " (shown)";
+				used_backdrop = true;
+			}
+			ch.insert( ch.end(), choice(s, 1) );
 		}
-		ch.insert( ch.end(), choice(s, 1) );
-	}
-	if (rs.current_game && rs.current_game->preview_flyer_get().is_deletable()) {
-		string s = "Delete game flyer";
-		if (rs.current_game->preview_flyer_get() == rs.current_backdrop) {
-			s += " (shown)";
-			used_backdrop = true;
+		if (rs.current_game->preview_flyer_get().is_deletable()) {
+			string s = "Delete game flyer";
+			if (rs.current_game->preview_flyer_get() == rs.current_backdrop) {
+				s += " (shown)";
+				used_backdrop = true;
+			}
+			ch.insert( ch.end(), choice(s, 2) );
 		}
-		ch.insert( ch.end(), choice(s, 2) );
-	}
-	if (rs.current_game && rs.current_game->preview_cabinet_get().is_deletable()) {
-		string s = "Delete game cabinet";
-		if (rs.current_game->preview_cabinet_get() == rs.current_backdrop) {
-			s += " (shown)";
-			used_backdrop = true;
+		if (rs.current_game->preview_cabinet_get().is_deletable()) {
+			string s = "Delete game cabinet";
+			if (rs.current_game->preview_cabinet_get() == rs.current_backdrop) {
+				s += " (shown)";
+				used_backdrop = true;
+			}
+			ch.insert( ch.end(), choice(s, 3) );
 		}
-		ch.insert( ch.end(), choice(s, 3) );
-	}
-	if (rs.current_game && rs.current_game->preview_icon_get().is_deletable()) {
-		string s = "Delete game icon";
-		if (rs.current_game->preview_icon_get() == rs.current_backdrop) {
-			s += " (shown)";
-			used_backdrop = true;
+		if (rs.current_game->preview_icon_get().is_deletable()) {
+			string s = "Delete game icon";
+			if (rs.current_game->preview_icon_get() == rs.current_backdrop) {
+				s += " (shown)";
+				used_backdrop = true;
+			}
+			ch.insert( ch.end(), choice(s, 4) );
 		}
-		ch.insert( ch.end(), choice(s, 4) );
-	}
-	if (!used_backdrop && rs.current_game && rs.current_backdrop.is_deletable()) {
-		string s = "Delete shown image (from parent)";
-		ch.insert( ch.end(), choice(s, 5) );
-	}
-	if (rs.current_game && rs.current_game->preview_sound_get().is_deletable()) {
-		string s = "Delete game sound";
-		if (rs.current_game->preview_sound_get() == rs.current_sound) {
-			s += " (played)";
-			used_sound = true;
+		if (!used_backdrop && rs.current_backdrop.is_deletable()) {
+			string s = "Delete shown image (from parent)";
+			ch.insert( ch.end(), choice(s, 5) );
 		}
-		ch.insert( ch.end(), choice(s, 6) );
+		if (rs.current_game->preview_sound_get().is_deletable()) {
+			string s = "Delete game sound";
+			if (rs.current_game->preview_sound_get() == rs.current_sound) {
+				s += " (played)";
+				used_sound = true;
+			}
+			ch.insert( ch.end(), choice(s, 6) );
+		}
+		if (!used_sound && rs.current_sound.is_deletable()) {
+			ch.insert( ch.end(), choice("Delete played sound (from parent)", 7) );
+		}
 	}
-	if (!used_sound && rs.current_game && rs.current_sound.is_deletable()) {
-		ch.insert( ch.end(), choice("Delete played sound (from parent)", 7) );
-	}
+
+	for(script_container::iterator i=rs.script_bag.begin();i!=rs.script_bag.end();++i)
+		ch.insert( ch.end(), choice(i->name, &*i) );
 
 	if (ch.begin() == ch.end())
 		ch.insert( ch.end(), choice("No commands available", -1) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Commands", SECOND_CHOICE_X, SECOND_CHOICE_Y, COMMAND_CHOICE_DX, i);
+	int key = ch.run(string(" ") + rs.script_menu, SECOND_CHOICE_X, SECOND_CHOICE_Y, COMMAND_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		switch (i->value_get()) {
+		int r;
+		if (i->value_get()>=0 && i->value_get()<=256) {
+			switch (i->value_get()) {
 			case 0 :
-				remove(cpath_export(rs.current_game->preview_snap_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_snap_get().archive_get()));
 				break;
 			case 1 :
-				remove(cpath_export(rs.current_game->preview_clip_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_clip_get().archive_get()));
 				break;
 			case 2 :
-				remove(cpath_export(rs.current_game->preview_flyer_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_flyer_get().archive_get()));
 				break;
 			case 3 :
-				remove(cpath_export(rs.current_game->preview_cabinet_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_cabinet_get().archive_get()));
 				break;
 			case 4 :
-				remove(cpath_export(rs.current_game->preview_icon_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_icon_get().archive_get()));
 				break;
 			case 5 :
-				remove(cpath_export(rs.current_backdrop.archive_get()));
+				r = remove(cpath_export(rs.current_backdrop.archive_get()));
 				break;
 			case 6 :
-				remove(cpath_export(rs.current_game->preview_sound_get().archive_get()));
+				r = remove(cpath_export(rs.current_game->preview_sound_get().archive_get()));
 				break;
 			case 7 :
-				remove(cpath_export(rs.current_sound.archive_get()));
+				r = remove(cpath_export(rs.current_sound.archive_get()));
 				break;
+			default:
+				r = -1;
+				break;
+			}
+		} else {
+			script* s = static_cast<script*>(i->ptr_get());
+
+			string text = s->text;
+
+			if (rs.current_game) {
+				text = subs(text, "%s", rs.current_game->name_get());
+				if (rs.current_game->rom_zip_set_get().size()) {
+					string path = *rs.current_game->rom_zip_set_get().begin();
+					text = subs(text, "%p", path_export(path));
+					text = subs(text, "%f", path_export(file_file(path)));
+				}
+			}
+
+			int_unplug();
+
+			r = target_script(s->text.c_str());
+
+			int_plug();
+		}
+
+		if (r != 0) {
+			choice_bag ch;
+			ch.insert( ch.end(), choice(rs.script_error, 0) );
+			choice_bag::iterator i = ch.begin();
+			ch.run(" Error", MSG_CHOICE_X, MSG_CHOICE_Y, MSG_CHOICE_DX, i);
 		}
 	}
 }
@@ -674,8 +717,8 @@ unsigned run_submenu(config_state& rs)
 		ch.insert( ch.end(), choice("Game/Set Group", 9) );
 	ch.insert( ch.end(), choice("Game/Run", 14) );
 	ch.insert( ch.end(), choice("Game/Run Clone", 15) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Command", 7) );
+	if (!rs.console_mode || rs.script_bag.size()!=0)
+		ch.insert( ch.end(), choice(rs.script_menu, 7) );
 	ch.insert( ch.end(), choice("Help", 10) );
 	if (!rs.console_mode)
 		ch.insert( ch.end(), choice("Statistics", 18) );

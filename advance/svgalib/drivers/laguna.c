@@ -604,8 +604,6 @@ static int laguna_init(int force, int par1, int par2)
 
     if (!found){
        int i,j;
-       laguna_mmio_base=buf[4]&0xffffff00;
-       laguna_linear_base=buf[5]&0xffffff00;
        switch(buf[0]>>16) {
            case 0xd0:
                laguna_chiptype=L5462;
@@ -617,6 +615,13 @@ static int laguna_init(int force, int par1, int par2)
                laguna_chiptype=L5465;
                break;
        }
+       if(laguna_chiptype==L5465) {
+		   laguna_mmio_base=buf[5]&0xffffff00;
+		   laguna_linear_base=buf[4]&0xffffff00;
+	   } else {
+		   laguna_mmio_base=buf[4]&0xffffff00;
+		   laguna_linear_base=buf[5]&0xffffff00;
+	   }
        if(__svgalib_secondary)laguna_mapio();
 
        __svgalib_mmio_base=laguna_mmio_base;

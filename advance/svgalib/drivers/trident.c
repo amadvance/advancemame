@@ -26,7 +26,8 @@ static void unlock(void);
 static void lock(void);
 
 static int memory, chip, NewClockCode;
-static int frequency;
+static int frequency=0;
+static int MUX;
 static int is_linear, linear_base, mmio_base;
 
 static CardSpecs *cardspecs;
@@ -357,8 +358,8 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 		ffreq =  ( ((n + 8) * frequency) / ((m + 2) * powerup[k]) ) ;
 		if (!setup || abs(ffreq - freq) < clock_diff)
 		{
-				clock_diff = abs(ffreq - freq);
-				p = n; q = m; r = k; setup = 1;
+			clock_diff = abs(ffreq - freq);
+			p = n; q = m; r = k; setup = 1;
 		}
 	    }
 
@@ -389,9 +390,18 @@ static void initializemode(unsigned char *moderegs,
     
     pReg = (TRIDENTRegPtr)(moderegs+60);
    
-    __svgalib_setup_VGA_registers(moderegs, modetiming, modeinfo);
-
     clock=modetiming->pixelClock;
+
+	if((clock>90000) && (modeinfo->bitsPerPixel==8)) {
+		MUX=1;
+		modetiming->CrtcHDisplay>>=1;
+		modetiming->CrtcHTotal>>=1;
+		modetiming->CrtcHSyncStart>>=1;
+		modetiming->CrtcHSyncEnd>>=1;								 
+	} else {
+		MUX=0;
+	}
+    __svgalib_setup_VGA_registers(moderegs, modetiming, modeinfo);
 
     OUTB(0x3C4, 0x11);
     protect = INB(0x3C5);
@@ -636,8 +646,8 @@ static void initializemode(unsigned char *moderegs,
 	    /* Fall Through */
 	case TGUI9660:
 	case TGUI9680:
-#if 0
-	    if (pTrident->MUX && pScrn->bitsPerPixel == 8 && mode->CrtcHAdjusted) {
+#if 1
+	    if (MUX) {
 	    	pReg->tridentRegs3x4[PixelBusReg] |= 0x01; /* 16bit bus */
 	    	pReg->tridentRegs3C4[NewMode2] |= 0x02; /* half clock */
     		pReg->tridentRegsDAC[0x00] |= 0x20;	/* mux mode */
@@ -1126,7 +1136,7 @@ static int init(int force, int par1, int par2)
     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
     linear_base=0;
     id=(buf[0]>>16)&0xffff;
-    if(found || (id<0x8400) || (id>0x9880))
+    if(found || (id<0x8400) || (id>0x9930))
         return 1;
 
     linear_base=buf[4]&0xffff0000;
@@ -1146,14 +1156,17 @@ static int init(int force, int par1, int par2)
     switch(id) {
         case 0x9420:
             chip=TGUI9420DGi;
+            frequency = 14318;
             break;
         case 0x9430:
             chip=TGUI9430DGi;
+            frequency = 14318;
             break;
         case 0x9440:
         case 0x9460:
         case 0x9470:
             chip=TGUI9440AGi;
+            frequency = 14318;
             break;
         case 0x9320:
             chip=CYBER9320;
@@ -1243,41 +1256,51 @@ static int init(int force, int par1, int par2)
         case 0x9880:
             chip=BLADE3D;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8400:
             chip=CYBERBLADEI7;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8420:
             chip=CYBERBLADEI7D;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8500:
             chip=CYBERBLADEI1;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8520:
             chip=CYBERBLADEI1D;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8600:
             chip=CYBERBLADEAI1;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x8620:
             chip=CYBERBLADEAI1D;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x9910:
             chip=CYBERBLADEXP;
             NewClockCode=1;
+            frequency = 14318;
             break;
         case 0x9930:
             chip=CYBERBLADEXPm;
             NewClockCode=1;
+            frequency = 14318;
             break;
         default:
             chip=TGUI9440AGi;
+            frequency = 14318;
             break;
     }
 
@@ -1292,6 +1315,9 @@ static int init(int force, int par1, int par2)
         case 7:
             memory=2048;
             break;
+		case 14:
+			memory=32768;
+			break;
         case 15:
             memory=4096;
             break;
@@ -1299,8 +1325,8 @@ static int init(int force, int par1, int par2)
             memory=1024;
     }
 
-    if(__svgalib_incrtc(TVinterface) & 0x80) frequency = 17734; else frequency = 14318;
-	frequency = 14318;
+    if((frequency==0) && (__svgalib_incrtc(TVinterface) & 0x80)) 
+		frequency = 17734; else frequency=14318;
 	
     if (__svgalib_driver_report) {
 		fprintf(stderr,"Using Trident driver, %s with %iKB.\n", chipnames[chip],memory);

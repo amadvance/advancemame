@@ -57,18 +57,18 @@ static void __svgalib_rage_attscreen(int i)
 
 static void __svgalib_rage_inpal(int i, int *r, int *g, int *b)
 {
-    outb(ATIIOPortDAC_READ, i);
-    *r=inb(ATIIOPortDAC_DATA);
-    *g=inb(ATIIOPortDAC_DATA);
-    *b=inb(ATIIOPortDAC_DATA);
+    rage_outb(ATIIOPortDAC_READ, i);
+    *r=rage_inb(ATIIOPortDAC_DATA);
+    *g=rage_inb(ATIIOPortDAC_DATA);
+    *b=rage_inb(ATIIOPortDAC_DATA);
 }
 
 static void __svgalib_rage_outpal(int i, int r, int g, int b)
 {
-    outb(ATIIOPortDAC_WRITE, i);
-    outb(ATIIOPortDAC_DATA,r);
-    outb(ATIIOPortDAC_DATA,g);
-    outb(ATIIOPortDAC_DATA,b);
+    rage_outb(ATIIOPortDAC_WRITE, i);
+    rage_outb(ATIIOPortDAC_DATA,r);
+    rage_outb(ATIIOPortDAC_DATA,g);
+    rage_outb(ATIIOPortDAC_DATA,b);
 }
 
 static void rage_mapio(void)

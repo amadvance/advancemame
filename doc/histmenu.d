@@ -2,6 +2,8 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.13 2003/10
+	) The SIGHUP signal now kill and restart the program.
+	) Added external command support with `ui_command'.
 
 AdvanceMENU Version 2.2.12 2003/09
 	) Added a new set of `ui_*' options to define an user interface skin

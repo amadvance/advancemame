@@ -703,16 +703,16 @@ static int init(int force, int par1, int par2)
        memory = 4096;
     } else {
         memory = 4096;
-        ioctl(__svgalib_mem_fd, SVGALIB_HELPER_IOCGI810GTT, &t);
+        ioctl(__svgalib_mem_fd, SVGAHELPER_I810GTT, &t);
         *(unsigned int *)(__svgalib_vgammbase + 0x2020) = t | 1;
         for(i=0;i<1024;i++) {
             t=i;
-            ioctl(__svgalib_mem_fd, SVGALIB_HELPER_IOCGI810GTTE, &t);
+            ioctl(__svgalib_mem_fd, SVGAHELPER_I810GTTE, &t);
             *(unsigned int *)(__svgalib_vgammbase + 0x10000 + 4*i) = t;
         }
     }
     cur_base = (memory>>2)-1;
-    ioctl(__svgalib_mem_fd, SVGALIB_HELPER_IOCGI810GTTE, &cur_base);
+    ioctl(__svgalib_mem_fd, SVGAHELPER_I810GTTE, &cur_base);
     cur_base &= ~1 ;
     __svgalib_banked_mem_base=linear_base;
     __svgalib_modeinfo_linearset |= IS_LINEAR;

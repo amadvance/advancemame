@@ -142,6 +142,7 @@ extern int __svgalib_mouse_fd;
 extern int __svgalib_kbd_fd;
 extern int __svgalib_runinbackground;
 extern int __svgalib_vgacolormode;
+extern int biosparams, biosparam[16];
 
 extern unsigned char __svgalib_novga;
 extern unsigned char __svgalib_textprog;

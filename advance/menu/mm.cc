@@ -509,6 +509,8 @@ static adv_conf_conv STANDARD[] = {
 /* 2.2.12 */
 { "*", "event_exit_press", "*", "", "", "", 0 }, /* remove */
 { "*", "color", "*", "%s", "ui_color", "%s", 0 }, /* rename */
+/* 2.2.13 */
+{ "*", "misc_console", "*", "%s", "ui_console", "%s", 0 } /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

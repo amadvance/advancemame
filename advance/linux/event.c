@@ -29,7 +29,6 @@
  */
 
 #include "event.h"
-
 #include "log.h"
 
 #include <errno.h>

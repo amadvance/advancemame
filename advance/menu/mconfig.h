@@ -27,6 +27,8 @@
 #include "choice.h"
 #include "conf.h"
 
+#include <list>
+
 #define ADVANCE_COPY \
 	"AdvanceMENU - Copyright (C) 1999-2003 by Andrea Mazzoleni\n"
 
@@ -160,11 +162,21 @@ enum exit_t {
 	exit_all
 };
 
+struct script {
+	std::string name;
+	std::string text;
+
+	script(const std::string& Aname, const std::string& Atext) : name(Aname), text(Atext) { }
+};
+
+typedef std::list<script> script_container;
+
 struct config_state {
 
 	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
 	bool load_iterator_game(adv_conf* config_context, const std::string& tag);
 	bool load_iterator_import(adv_conf* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
+	bool load_iterator_script(adv_conf* config_context, const std::string& tag);
 
 	void import_desc(const game& g, const std::string& text);
 	void import_info(const game& g, const std::string& text);
@@ -286,6 +298,10 @@ public:
 	bool ui_bottom_bar; ///< User interface need bottom bar
 
 	bool console_mode; ///< Run in console mode with limited features. Mainly for AdvanceCD.
+
+	std::string script_menu;
+	std::string script_error;
+	script_container script_bag;
 
 	config_state();
 	~config_state();

@@ -379,67 +379,67 @@ static void g400_initializemode(unsigned char *moderegs,
 
 	switch(id)
 	{
-            case ID_1064:
-		initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
-		initDAC[ MGA1064_SYS_PLL_N ] = 0x44;
-		initDAC[ MGA1064_SYS_PLL_P ] = 0x18;
-		*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16)  = 0x5F094F21;
-		*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x00000000;
-		break;
-            case ID_G100:
-		initDAC[ MGAGDAC_XVREFCTRL ] = 0x03;
-		if(HasSDRAM) {
-                    initDAC[ MGA1064_SYS_PLL_M ] = 0x01;
-                    initDAC[ MGA1064_SYS_PLL_N ] = 0x0E;
-                    initDAC[ MGA1064_SYS_PLL_P ] = 0x18;
-                    *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x404991a9;
-		} else {
-                    initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
-                    initDAC[ MGA1064_SYS_PLL_N ] = 0x16;
-                    initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
-		    *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x4049d121;
-		}
-                *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x0000007;
-		break;
-            case ID_G400:
-	       if( 0 /* pMga->Dac.maxPixelClock == 360000 */) {  /* G400 MAX */
-			initDAC[ MGA1064_SYS_PLL_M ] = 0x02;
-			initDAC[ MGA1064_SYS_PLL_N ] = 0x1B;
+		case ID_1064:
+			initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
+			initDAC[ MGA1064_SYS_PLL_N ] = 0x44;
 			initDAC[ MGA1064_SYS_PLL_P ] = 0x18;
-			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x019B8419;
-			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x5053C120;
-		} else {
-			initDAC[ MGA1064_SYS_PLL_M ] = 0x13;
-			initDAC[ MGA1064_SYS_PLL_N ] = 0x7A;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16)  = 0x5F094F21;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x00000000;
+			break;
+ 		case ID_G100:
+			initDAC[ MGAGDAC_XVREFCTRL ] = 0x03;
+			if(HasSDRAM) {
+				initDAC[ MGA1064_SYS_PLL_M ] = 0x01;
+				initDAC[ MGA1064_SYS_PLL_N ] = 0x0E;
+				initDAC[ MGA1064_SYS_PLL_P ] = 0x18;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x404991a9;
+			} else {
+				initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
+				initDAC[ MGA1064_SYS_PLL_N ] = 0x16;
+				initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x4049d121;
+			}
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x0000007;
+			break;
+		case ID_G400:
+			if( 0 /* pMga->Dac.maxPixelClock == 360000 */) {  /* G400 MAX */
+				initDAC[ MGA1064_SYS_PLL_M ] = 0x02;
+				initDAC[ MGA1064_SYS_PLL_N ] = 0x1B;
+				initDAC[ MGA1064_SYS_PLL_P ] = 0x18;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x019B8419;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x5053C120;
+			} else {
+				initDAC[ MGA1064_SYS_PLL_M ] = 0x13;
+				initDAC[ MGA1064_SYS_PLL_N ] = 0x7A;
+				initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x0190a421;
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x50044120;
+			} 
+			if(HasSDRAM)
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) &= ~(1 << 14);
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x01003000;
+			break;
+		case ID_G450:
+			initDAC[ 0x2c ] = 0x05;
+			initDAC[ 0x2d ] = 0x23;
+			initDAC[ 0x2e ] = 0x40;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 0) = 0x40341160;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x01003000;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x0190a421;
+			if(!HasSDRAM)
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 0) |= (1 << 14);
+			break;        
+		case ID_G200:
+		default:
+			initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
+			initDAC[ MGA1064_SYS_PLL_N ] = 0x18;
 			initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
-                        *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x0190a421;
-			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x50044120;
-                } 
-		if(HasSDRAM)
-		   *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) &= ~(1 << 14);
-		*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x01003000;
-		break;
-            case ID_G450:
-                initDAC[ 0x2c ] = 0x05;
-                initDAC[ 0x2d ] = 0x23;
-                initDAC[ 0x2e ] = 0x40;
-                *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 0) = 0x40341160;
-                *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x01003000;
-                *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 8) = 0x0190a421;
-		if(!HasSDRAM)
-		   *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 0) |= (1 << 14);
-                break;        
-            case ID_G200:
-            default:
-            	initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
-		initDAC[ MGA1064_SYS_PLL_N ] = 0x18;
-		initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
-	        *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x00008000;
-		if(HasSDRAM)
-		    *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x40499121;
-		else
-		    *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x4049cd21;
-		break;
+			*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x00008000;
+			if(HasSDRAM)
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x40499121;
+			else
+				*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x4049cd21;
+			break;
 	}
 
 	*(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) &= ~0x20000000;
@@ -841,25 +841,25 @@ static int g400_init(int force, int par1, int par2)
     pci_id=(buf[0]>>16)&0xffff;
 	
     switch(pci_id) {
-        case 0x525:
-		if((buf[11]&0xffff0000) == 0x07c00000)
-			id = ID_G450; else id = ID_G400;
-                max_mem=32;
-		break;
-	case 0x520:
-	case 0x521:
-		id = ID_G200;
-                max_mem=16;
-		break;
-        case 0x51a:
-        case 0x51e:
-            	id = ID_1064;
-                break;
-        case 0x2527:
-            	id = ID_G450;
-	default:
-		id = ID_G100;
-    }
+		case 0x525:
+			if((buf[11]&0xffff0000) == 0x07c00000)
+				id = ID_G450; else id = ID_G400;
+			max_mem=32;
+			break;
+		case 0x520:
+		case 0x521:
+			id = ID_G200;
+			max_mem=16;
+			break;
+		case 0x51a:
+		case 0x51e:
+			id = ID_1064;
+			break;
+		case 0x2527:
+			id = ID_G450;
+		default:
+			id = ID_G100;
+	}
 
     g400_linear_base = buf[4]&0xffffff00;
     g400_mmio_base = buf[5]&0xffffff00;

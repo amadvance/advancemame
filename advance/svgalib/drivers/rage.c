@@ -60,11 +60,11 @@ static int    ATIIOPortCRTC_H_TOTAL_DISP, ATIIOPortCRTC_H_SYNC_STRT_WID,
 
 static void ATIAccessMach64PLLReg(const int Index, const int Write)
 {
-    int clock_cntl1 = port_in(ATIIOPortCLOCK_CNTL + 1) &
+    int clock_cntl1 = rage_inb(ATIIOPortCLOCK_CNTL + 1) &
         ~GetByte(PLL_WR_EN | PLL_ADDR, 1);
 
     /* Set PLL register to be read or written */
-    outb(ATIIOPortCLOCK_CNTL + 1, clock_cntl1 |
+    rage_outb(ATIIOPortCLOCK_CNTL + 1, clock_cntl1 |
         GetByte(SetBits(Index, PLL_ADDR) | SetBits(Write, PLL_WR_EN), 1));
 }
 
@@ -121,7 +121,7 @@ static void rage_ChipID(void)
 {
    int ATIChipType, ATIChipClass, ATIChipRevision, ATIChipVersion,
        ATIChipFoundry;
-    unsigned int IO_Value = inl(ATIIOPort(CONFIG_CHIP_ID));
+    unsigned int IO_Value = rage_inl(ATIIOPort(CONFIG_CHIP_ID));
     ATIChipType     = GetBits(IO_Value, 0xFFFFU);
     ATIChipClass    = GetBits(IO_Value, CFG_CHIP_CLASS);
     ATIChipRevision = GetBits(IO_Value, CFG_CHIP_REV);
@@ -295,18 +295,18 @@ static void rage_ChipID(void)
 
 static int rage_probe(void)
 {
-    unsigned int i=inl(ATIIOPort(SCRATCH_REG0));
-    outl(ATIIOPort(SCRATCH_REG0),0x55555555);
-    if(inl(ATIIOPort(SCRATCH_REG0))!=0x55555555) {
-       outl(ATIIOPort(SCRATCH_REG0),i);
+    unsigned int i=rage_inl(ATIIOPort(SCRATCH_REG0));
+	rage_outl(ATIIOPort(SCRATCH_REG0),0x55555555);
+    if(rage_inl(ATIIOPort(SCRATCH_REG0))!=0x55555555) {
+       rage_outl(ATIIOPort(SCRATCH_REG0),i);
        return 0;
     };
-    outl(ATIIOPort(SCRATCH_REG0),0xaaaaaaaa);
-    if(inl(ATIIOPort(SCRATCH_REG0))!=0xaaaaaaaa) {
-       outl(ATIIOPort(SCRATCH_REG0),i);
+    rage_outl(ATIIOPort(SCRATCH_REG0),0xaaaaaaaa);
+    if(rage_inl(ATIIOPort(SCRATCH_REG0))!=0xaaaaaaaa) {
+       rage_outl(ATIIOPort(SCRATCH_REG0),i);
        return 0;
     };
-    outl(ATIIOPort(SCRATCH_REG0),i);
+    rage_outl(ATIIOPort(SCRATCH_REG0),i);
 
     return 1;
 };
@@ -341,20 +341,20 @@ ATIDivide(int Numerator, int Denominator, int Shift, const int RoundingKind)
 static void rage_setpage(int page)
 {
     page*=2;
-    outl(ATIIOPortMEM_VGA_WP_SEL, page | ((page+1)<<16));
-    outl(ATIIOPortMEM_VGA_RP_SEL, page | ((page+1)<<16));
+    rage_outl(ATIIOPortMEM_VGA_WP_SEL, page | ((page+1)<<16));
+    rage_outl(ATIIOPortMEM_VGA_RP_SEL, page | ((page+1)<<16));
 }
 
 static void rage_setrdpage(int page)
 {
     page*=2;
-    outl(ATIIOPortMEM_VGA_RP_SEL, page | ((page+1)<<16));
+    rage_outl(ATIIOPortMEM_VGA_RP_SEL, page | ((page+1)<<16));
 }
 
 static void rage_setwrpage(int page)
 {
     page*=2;
-    outl(ATIIOPortMEM_VGA_WP_SEL, page | ((page+1)<<16));
+    rage_outl(ATIIOPortMEM_VGA_WP_SEL, page | ((page+1)<<16));
 }
 
 static int __svgalib_rage_inlinearmode(void)
@@ -392,47 +392,47 @@ static int rage_saveregs(unsigned char regs[])
 
   save=(ATIHWPtr)(regs+VGA_TOTAL_REGS);
 
-  save->crtc_gen_cntl = inl(ATIIOPortCRTC_GEN_CNTL);
+  save->crtc_gen_cntl = rage_inl(ATIIOPortCRTC_GEN_CNTL);
 
-  save->crtc_h_total_disp = inl(ATIIOPortCRTC_H_TOTAL_DISP);
-  save->crtc_h_sync_strt_wid = inl(ATIIOPortCRTC_H_SYNC_STRT_WID);
-  save->crtc_v_total_disp = inl(ATIIOPortCRTC_V_TOTAL_DISP);
-  save->crtc_v_sync_strt_wid = inl(ATIIOPortCRTC_V_SYNC_STRT_WID);
-  save->crtc_off_pitch = inl(ATIIOPortCRTC_OFF_PITCH);
+  save->crtc_h_total_disp = rage_inl(ATIIOPortCRTC_H_TOTAL_DISP);
+  save->crtc_h_sync_strt_wid = rage_inl(ATIIOPortCRTC_H_SYNC_STRT_WID);
+  save->crtc_v_total_disp = rage_inl(ATIIOPortCRTC_V_TOTAL_DISP);
+  save->crtc_v_sync_strt_wid = rage_inl(ATIIOPortCRTC_V_SYNC_STRT_WID);
+  save->crtc_off_pitch = rage_inl(ATIIOPortCRTC_OFF_PITCH);
 
-  save->ovr_clr = inl(ATIIOPortOVR_CLR);
+  save->ovr_clr = rage_inl(ATIIOPortOVR_CLR);
 
-  save->clock_cntl = inl(ATIIOPortCLOCK_CNTL);
+  save->clock_cntl = rage_inl(ATIIOPortCLOCK_CNTL);
 
-  save->bus_cntl = inl(ATIIOPortBUS_CNTL);
+  save->bus_cntl = rage_inl(ATIIOPortBUS_CNTL);
 
-  save->mem_vga_wp_sel = inl(ATIIOPortMEM_VGA_WP_SEL);
-  save->mem_vga_rp_sel = inl(ATIIOPortMEM_VGA_RP_SEL);
+  save->mem_vga_wp_sel = rage_inl(ATIIOPortMEM_VGA_WP_SEL);
+  save->mem_vga_rp_sel = rage_inl(ATIIOPortMEM_VGA_RP_SEL);
 
-  save->dac_cntl = inl(ATIIOPortDAC_CNTL); /* internal DAC */
+  save->dac_cntl = rage_inl(ATIIOPortDAC_CNTL); /* internal DAC */
 
-  save->config_cntl = inl(ATIIOPortCONFIG_CNTL);
+  save->config_cntl = rage_inl(ATIIOPortCONFIG_CNTL);
 
-  save->mem_info = inl(ATIIOPortMEM_INFO);
+  save->mem_info = rage_inl(ATIIOPortMEM_INFO);
 
-  save->crtc_int_cntl=inl(ATIIOPortCRTC_INT_CNTL);
-  save->crtc_gen_cntl=inl(ATIIOPortCRTC_GEN_CNTL);
-  save->gen_test_cntl=inl(ATIIOPortGEN_TEST_CNTL);  
+  save->crtc_int_cntl=rage_inl(ATIIOPortCRTC_INT_CNTL);
+  save->crtc_gen_cntl=rage_inl(ATIIOPortCRTC_GEN_CNTL);
+  save->gen_test_cntl=rage_inl(ATIIOPortGEN_TEST_CNTL);  
 
   if((ATIChip>=ATI_CHIP_264VTB)&&(ATIIODecoding==BLOCK_IO)) {
-    save->dsp_on_off=inl(ATIIOPortDSP_ON_OFF);
-    save->dsp_config=inl(ATIIOPortDSP_CONFIG);
+    save->dsp_on_off=rage_inl(ATIIOPortDSP_ON_OFF);
+    save->dsp_config=rage_inl(ATIIOPortDSP_CONFIG);
   };
 
   ATIIOPortDAC_DATA = ATIIOPortDAC_REGS + 1;
   ATIIOPortDAC_MASK = ATIIOPortDAC_REGS + 2;
   ATIIOPortDAC_READ = ATIIOPortDAC_REGS + 3;
   ATIIOPortDAC_WRITE = ATIIOPortDAC_REGS + 0;
-  save->dac_read = port_in(ATIIOPortDAC_READ);
-  save->dac_write = port_in(ATIIOPortDAC_WRITE);
-  save->dac_mask = port_in(ATIIOPortDAC_MASK);
+  save->dac_read = rage_inb(ATIIOPortDAC_READ);
+  save->dac_write = rage_inb(ATIIOPortDAC_WRITE);
+  save->dac_mask = rage_inb(ATIIOPortDAC_MASK);
 
-  outl(ATIIOPortCRTC_GEN_CNTL, save->crtc_gen_cntl | 0x1000000);
+  rage_outl(ATIIOPortCRTC_GEN_CNTL, save->crtc_gen_cntl | 0x1000000);
   
   switch(rage_clock){
      case -1: /* internal clock */
@@ -440,56 +440,57 @@ static int rage_saveregs(unsigned char regs[])
            save->PLL[i]=ATIGetMach64PLLReg(i); /* internal Clock */
         break;
      case 4: /* CH8398 */        
-        i=inl(ATIIOPortDAC_CNTL);
-        outl(ATIIOPortDAC_CNTL,(i&~3)|3);
-        outb(ATIIOPortDAC_READ, ATIClockToProgram);
-        save->PLL[0]=port_in(ATIIOPortDAC_DATA);
-        save->PLL[1]=port_in(ATIIOPortDAC_DATA);
-        outl(ATIIOPortDAC_CNTL,i);        
+        i=rage_inl(ATIIOPortDAC_CNTL);
+        rage_outl(ATIIOPortDAC_CNTL,(i&~3)|3);
+        rage_outb(ATIIOPortDAC_READ, ATIClockToProgram);
+        save->PLL[0]=rage_inb(ATIIOPortDAC_DATA);
+        save->PLL[1]=rage_inb(ATIIOPortDAC_DATA);
+        rage_outl(ATIIOPortDAC_CNTL,i);        
         break;
   };
 
-  outb(ATIIOPortDAC_MASK, 0xFFU);
-  outb(ATIIOPortDAC_READ, 0x00U);
+  rage_outb(ATIIOPortDAC_MASK, 0xFFU);
+  rage_outb(ATIIOPortDAC_READ, 0x00U);
 
   for (i = 0;  i<DAC_SIZE;  i++)
-      save->DAC[i] = port_in(ATIIOPortDAC_DATA);
+      save->DAC[i] =rage_inb(ATIIOPortDAC_DATA);
 
   switch(rage_dac){
       case -1:
-          save->cur_clr0=inl(ATIIOPortCUR_CLR0);
-          save->cur_clr1=inl(ATIIOPortCUR_CLR1);
-          save->cur_offset=inl(ATIIOPortCUR_OFFSET);
-          save->cur_horz_vert_posn=inl(ATIIOPortCUR_HORZ_VERT_POSN);
-          save->cur_horz_vert_off=inl(ATIIOPortCUR_HORZ_VERT_OFF);
+          save->cur_clr0=rage_inl(ATIIOPortCUR_CLR0);
+          save->cur_clr1=rage_inl(ATIIOPortCUR_CLR1);
+          save->cur_offset=rage_inl(ATIIOPortCUR_OFFSET);
+          save->cur_horz_vert_posn=rage_inl(ATIIOPortCUR_HORZ_VERT_POSN);
+          save->cur_horz_vert_off=rage_inl(ATIIOPortCUR_HORZ_VERT_OFF);
           break;
       case 4: /* CH8398 */
-          i=inl(ATIIOPortDAC_CNTL);
-          outl(ATIIOPortDAC_CNTL,(i&~3)|3);
-          save->extdac[4]=port_in(ATIIOPortDAC_WRITE);
-          save->extdac[5]=port_in(ATIIOPortDAC_DATA);
-          save->extdac[7]=port_in(ATIIOPortDAC_READ);
-          save->extdac[6]=port_in(ATIIOPortDAC_MASK); 
-          outl(ATIIOPortDAC_CNTL,i);          
+          i=rage_inl(ATIIOPortDAC_CNTL);
+          rage_outl(ATIIOPortDAC_CNTL,(i&~3)|3);
+          save->extdac[4]=rage_inb(ATIIOPortDAC_WRITE);
+          save->extdac[5]=rage_inb(ATIIOPortDAC_DATA);
+          save->extdac[7]=rage_inb(ATIIOPortDAC_READ);
+          save->extdac[6]=rage_inb(ATIIOPortDAC_MASK); 
+          rage_outl(ATIIOPortDAC_CNTL,i);          
           break;
        case 5:
-          i=inl(ATIIOPortDAC_CNTL);
-          outl(ATIIOPortDAC_CNTL,(i&~3)|2);
-          save->extdac[8]=port_in(ATIIOPortDAC_WRITE);
-          save->extdac[10]=port_in(ATIIOPortDAC_MASK);
-          save->extdac[11]=port_in(ATIIOPortDAC_READ);
-          outl(ATIIOPortDAC_CNTL,(i&~3)|3);
-          save->extdac[12]=port_in(ATIIOPortDAC_WRITE);
-          outl(ATIIOPortDAC_CNTL,i);
+          i=rage_inl(ATIIOPortDAC_CNTL);
+          rage_outl(ATIIOPortDAC_CNTL,(i&~3)|2);
+          save->extdac[8]=rage_inb(ATIIOPortDAC_WRITE);
+          save->extdac[10]=rage_inb(ATIIOPortDAC_MASK);
+          save->extdac[11]=rage_inb(ATIIOPortDAC_READ);
+          rage_outl(ATIIOPortDAC_CNTL,(i&~3)|3);
+          save->extdac[12]=rage_inb(ATIIOPortDAC_WRITE);
+          rage_outl(ATIIOPortDAC_CNTL,i);
        break;
   };
-  
-  for(i=6;i<7;i++) {
-     outb(0x1ce, 0xb0+i);
-     save->atib[i]=inb(0x1cf);
-  }
 
-  outl(ATIIOPortCRTC_GEN_CNTL, save->crtc_gen_cntl);
+  if(ATIChip<ATI_CHIP_264CT) 
+	  for(i=6;i<7;i++) {
+  		  rage_outb(0x1ce, 0xb0+i);
+     	  save->atib[i]=rage_inb(0x1cf);
+	  }
+
+  rage_outl(ATIIOPortCRTC_GEN_CNTL, save->crtc_gen_cntl);
 
   return RAGE_TOTAL_REGS - VGA_TOTAL_REGS;
 }
@@ -504,42 +505,42 @@ static void rage_setregs(const unsigned char regs[], int mode)
 
     restore=(ATIHWPtr)(regs+VGA_TOTAL_REGS);
 
-    outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl & ~CRTC_EN );
+    rage_outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl & ~CRTC_EN );
 
     /* Load Mach64 CRTC registers */
-    outl(ATIIOPortCRTC_H_TOTAL_DISP, restore->crtc_h_total_disp);
-    outl(ATIIOPortCRTC_H_SYNC_STRT_WID, restore->crtc_h_sync_strt_wid);
-    outl(ATIIOPortCRTC_V_TOTAL_DISP, restore->crtc_v_total_disp);
-    outl(ATIIOPortCRTC_V_SYNC_STRT_WID, restore->crtc_v_sync_strt_wid);
-    outl(ATIIOPortCRTC_OFF_PITCH, restore->crtc_off_pitch);
+    rage_outl(ATIIOPortCRTC_H_TOTAL_DISP, restore->crtc_h_total_disp);
+    rage_outl(ATIIOPortCRTC_H_SYNC_STRT_WID, restore->crtc_h_sync_strt_wid);
+    rage_outl(ATIIOPortCRTC_V_TOTAL_DISP, restore->crtc_v_total_disp);
+    rage_outl(ATIIOPortCRTC_V_SYNC_STRT_WID, restore->crtc_v_sync_strt_wid);
+    rage_outl(ATIIOPortCRTC_OFF_PITCH, restore->crtc_off_pitch);
     /* Set pixel clock */
-    outl(ATIIOPortCLOCK_CNTL, restore->clock_cntl);
+    rage_outl(ATIIOPortCLOCK_CNTL, restore->clock_cntl);
 
     /* Load overscan registers */
-    outl(ATIIOPortOVR_CLR, restore->ovr_clr);
+    rage_outl(ATIIOPortOVR_CLR, restore->ovr_clr);
 
     /* Finalize CRTC setup and turn on the screen */
-    outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl);
+    rage_outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl);
 
     /* Aperture setup */
-    outl(ATIIOPortBUS_CNTL, restore->bus_cntl);
+    rage_outl(ATIIOPortBUS_CNTL, restore->bus_cntl);
 
-    outl(ATIIOPortMEM_VGA_WP_SEL, restore->mem_vga_wp_sel);
-    outl(ATIIOPortMEM_VGA_RP_SEL, restore->mem_vga_rp_sel);
+    rage_outl(ATIIOPortMEM_VGA_WP_SEL, restore->mem_vga_wp_sel);
+    rage_outl(ATIIOPortMEM_VGA_RP_SEL, restore->mem_vga_rp_sel);
 
-    outl(ATIIOPortCONFIG_CNTL, restore->config_cntl);
+    rage_outl(ATIIOPortCONFIG_CNTL, restore->config_cntl);
 
     if((ATIChip>=ATI_CHIP_264VTB)&&(ATIIODecoding==BLOCK_IO)) {
-       outl(ATIIOPortDSP_ON_OFF, restore->dsp_on_off);
-       outl(ATIIOPortDSP_CONFIG, restore->dsp_config);
+       rage_outl(ATIIOPortDSP_ON_OFF, restore->dsp_on_off);
+       rage_outl(ATIIOPortDSP_CONFIG, restore->dsp_config);
     };
     
-    outl(ATIIOPortMEM_INFO, restore->mem_info);
-    outl(ATIIOPortCRTC_INT_CNTL,restore->crtc_int_cntl);
-    outl(ATIIOPortCRTC_GEN_CNTL,restore->crtc_gen_cntl);
-    outl(ATIIOPortGEN_TEST_CNTL,restore->gen_test_cntl);
+    rage_outl(ATIIOPortMEM_INFO, restore->mem_info);
+    rage_outl(ATIIOPortCRTC_INT_CNTL,restore->crtc_int_cntl);
+    rage_outl(ATIIOPortCRTC_GEN_CNTL,restore->crtc_gen_cntl);
+    rage_outl(ATIIOPortGEN_TEST_CNTL,restore->gen_test_cntl);
 
-    outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl | 0x1000000);
+    rage_outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl | 0x1000000);
 
     switch(rage_clock){
        case -1: /* internal clock */
@@ -554,57 +555,58 @@ static void rage_setregs(const unsigned char regs[], int mode)
           ATIPutMach64PLLReg(PLL_VCLK_CNTL,i);
           break;
        case 4: /* CH8398 */
-          i=inl(ATIIOPortDAC_CNTL);
-          outl(ATIIOPortDAC_CNTL,(i&~3)|3);
-          outb(ATIIOPortDAC_WRITE, ATIClockToProgram);
-          outb(ATIIOPortDAC_DATA, restore->PLL[0]);
-          outb(ATIIOPortDAC_DATA, restore->PLL[1]);
-          outl(ATIIOPortDAC_CNTL,i);          
+          i=rage_inl(ATIIOPortDAC_CNTL);
+          rage_outl(ATIIOPortDAC_CNTL,(i&~3)|3);
+          rage_outb(ATIIOPortDAC_WRITE, ATIClockToProgram);
+          rage_outb(ATIIOPortDAC_DATA, restore->PLL[0]);
+          rage_outb(ATIIOPortDAC_DATA, restore->PLL[1]);
+          rage_outl(ATIIOPortDAC_CNTL,i);          
           break;
     };
 
     /* make sure the dac is in 8 bit or 6 bit mode, as needed */
-    outl(ATIIOPortDAC_CNTL, restore->dac_cntl); 
+    rage_outl(ATIIOPortDAC_CNTL, restore->dac_cntl); 
  
-    outb(ATIIOPortDAC_MASK, 0xFFU);
-    outb(ATIIOPortDAC_WRITE, 0x00U);
+    rage_outb(ATIIOPortDAC_MASK, 0xFFU);
+    rage_outb(ATIIOPortDAC_WRITE, 0x00U);
     for (Index = 0;  Index < DAC_SIZE;  Index++)
-      outb(ATIIOPortDAC_DATA, restore->DAC[Index]);
+      rage_outb(ATIIOPortDAC_DATA, restore->DAC[Index]);
 
     switch(rage_dac){
       case -1:
-          outl(ATIIOPortCUR_CLR0, restore->cur_clr0);
-          outl(ATIIOPortCUR_CLR1, restore->cur_clr1);
-          outl(ATIIOPortCUR_OFFSET, restore->cur_offset);
-          outl(ATIIOPortCUR_HORZ_VERT_POSN, restore->cur_horz_vert_posn);
-          outl(ATIIOPortCUR_HORZ_VERT_OFF, restore->cur_horz_vert_off);
+          rage_outl(ATIIOPortCUR_CLR0, restore->cur_clr0);
+          rage_outl(ATIIOPortCUR_CLR1, restore->cur_clr1);
+          rage_outl(ATIIOPortCUR_OFFSET, restore->cur_offset);
+          rage_outl(ATIIOPortCUR_HORZ_VERT_POSN, restore->cur_horz_vert_posn);
+          rage_outl(ATIIOPortCUR_HORZ_VERT_OFF, restore->cur_horz_vert_off);
           break;
       case 4: /* CH8398 */
-          i=inl(ATIIOPortDAC_CNTL);
-          outl(ATIIOPortDAC_CNTL,(i&~3)|3);
-          outb(ATIIOPortDAC_MASK, restore->extdac[6]);
-          outl(ATIIOPortDAC_CNTL,i);          
+          i=rage_inl(ATIIOPortDAC_CNTL);
+          rage_outl(ATIIOPortDAC_CNTL,(i&~3)|3);
+          rage_outb(ATIIOPortDAC_MASK, restore->extdac[6]);
+          rage_outl(ATIIOPortDAC_CNTL,i);          
           break;
        case 5:
-          i=inl(ATIIOPortDAC_CNTL);
-          outl(ATIIOPortDAC_CNTL,(i&0xfffffffc)|2);
-          outb(ATIIOPortDAC_WRITE,restore->extdac[8]);
-          outb(ATIIOPortDAC_MASK,restore->extdac[10]);
-          outb(ATIIOPortDAC_READ,restore->extdac[11]);
-          outl(ATIIOPortDAC_CNTL,(i&0xfffffffc)|3);
-          outb(ATIIOPortDAC_WRITE,(port_in(ATIIOPortDAC_WRITE)&0x80)|restore->extdac[12]);
+          i=rage_inl(ATIIOPortDAC_CNTL);
+          rage_outl(ATIIOPortDAC_CNTL,(i&0xfffffffc)|2);
+          rage_outb(ATIIOPortDAC_WRITE,restore->extdac[8]);
+          rage_outb(ATIIOPortDAC_MASK,restore->extdac[10]);
+          rage_outb(ATIIOPortDAC_READ,restore->extdac[11]);
+          rage_outl(ATIIOPortDAC_CNTL,(i&0xfffffffc)|3);
+          rage_outb(ATIIOPortDAC_WRITE,(rage_inb(ATIIOPortDAC_WRITE)&0x80)|restore->extdac[12]);
        break;
     };
 
-    outb(ATIIOPortDAC_READ, restore->dac_read);
-    outb(ATIIOPortDAC_WRITE, restore->dac_write);
-    outl(ATIIOPortDAC_CNTL, restore->dac_cntl);
+    rage_outb(ATIIOPortDAC_READ, restore->dac_read);
+    rage_outb(ATIIOPortDAC_WRITE, restore->dac_write);
+    rage_outl(ATIIOPortDAC_CNTL, restore->dac_cntl);
     
-    for(i=6;i<7;i++) {
-       outb(0x1ce, 0xb0 + i);
-       outb(0x1cf, restore->atib[i]);
-    }
-    outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl);
+    if(ATIChip<ATI_CHIP_264CT)
+		for(i=6;i<7;i++) {
+    		rage_outb(0x1ce, 0xb0 + i);
+       		rage_outb(0x1cf, restore->atib[i]);
+    	}
+    rage_outl(ATIIOPortCRTC_GEN_CNTL, restore->crtc_gen_cntl);
 
 };
 /* Return nonzero if mode is available */
@@ -679,13 +681,13 @@ static void rage_initializemode(unsigned char *moderegs,
 
     ATINewHWPtr->clock_cntl=ATIClockToProgram;
 
-    ATINewHWPtr->crtc_int_cntl=(inl(ATIIOPortCRTC_INT_CNTL) & ~CRTC_INT_ENS) 
+    ATINewHWPtr->crtc_int_cntl=(rage_inl(ATIIOPortCRTC_INT_CNTL) & ~CRTC_INT_ENS) 
        				| CRTC_INT_ACKS /*0x80000074 */;
 
     ATINewHWPtr->shared_cntl=0;
     ATINewHWPtr->gen_test_cntl=0;
     
-    ATINewHWPtr->mem_info=inl(ATIIOPortMEM_INFO);
+    ATINewHWPtr->mem_info=rage_inl(ATIIOPortMEM_INFO);
     
     if(ATIChip<ATI_CHIP_264CT)
       ATINewHWPtr->mem_info &= ~(CTL_MEM_BNDRY | CTL_MEM_BNDRY_EN) ;
@@ -698,7 +700,7 @@ static void rage_initializemode(unsigned char *moderegs,
 
     ATINewHWPtr->crtc_off_pitch=SetBits(modeinfo->width >> 3, CRTC_PITCH);
   
-    ATINewHWPtr->bus_cntl = (inl(ATIIOPortBUS_CNTL) &
+    ATINewHWPtr->bus_cntl = (rage_inl(ATIIOPortBUS_CNTL) &
         ~BUS_HOST_ERR_INT_EN) | BUS_HOST_ERR_INT;
     if (ATIChip < ATI_CHIP_264VTB)
         ATINewHWPtr->bus_cntl = (ATINewHWPtr->bus_cntl &
@@ -707,14 +709,14 @@ static void rage_initializemode(unsigned char *moderegs,
     else
         ATINewHWPtr->bus_cntl |= BUS_APER_REG_DIS;
 
-    ATINewHWPtr->dac_cntl=inl(ATIIOPortDAC_CNTL);
+    ATINewHWPtr->dac_cntl=rage_inl(ATIIOPortDAC_CNTL);
 
     if (modeinfo->bitsPerPixel>8)
             ATINewHWPtr->dac_cntl |= DAC_8BIT_EN;
       else
             ATINewHWPtr->dac_cntl &= ~DAC_8BIT_EN;
 
-    ATINewHWPtr->config_cntl= inl(ATIIOPortCONFIG_CNTL) | CFG_MEM_VGA_AP_EN | 2;
+    ATINewHWPtr->config_cntl= rage_inl(ATIIOPortCONFIG_CNTL) | CFG_MEM_VGA_AP_EN | 2;
 
     ATINewHWPtr->ovr_clr=0;
 
@@ -766,7 +768,7 @@ static void rage_initializemode(unsigned char *moderegs,
     if (modetiming->flags & NVSYNC)
           ATINewHWPtr->crtc_v_sync_strt_wid |= CRTC_V_SYNC_POL;
 
-    ATINewHWPtr->crtc_gen_cntl = inl(ATIIOPortCRTC_GEN_CNTL) &
+    ATINewHWPtr->crtc_gen_cntl = rage_inl(ATIIOPortCRTC_GEN_CNTL) &
             ~(CRTC_DBL_SCAN_EN | CRTC_INTERLACE_EN |
               CRTC_HSYNC_DIS | CRTC_VSYNC_DIS | CRTC_CSYNC_EN |
               CRTC_PIX_BY_2_EN | CRTC_DISPLAY_DIS | CRTC_VGA_XOVERSCAN |
@@ -912,15 +914,17 @@ static void rage_lock(void)
 
 static int rage_test(void)
 {
-    int i, found;
-    unsigned long buf[64];
+   int i=0, found;
+   unsigned long buf[64];
     
    found=__svgalib_pci_find_vendor_vga(0x1002,buf,0);
    if(found)return 0;
-   if (!found){
-      ATIIOBase=buf[5]&BLOCK_IO_BASE;
-   };
-
+   
+   rage_init(0,0,0);
+   return 1;
+   
+   ATIIOBase=buf[5]&BLOCK_IO_BASE;
+   
    if(ATIIOBase)
       {
          ATIIODecoding=BLOCK_IO;
@@ -951,8 +955,8 @@ static void rage_setdisplaystart(int address)
     unsigned int t;
     
     address>>=3;
-    t=inl(ATIIOPortCRTC_OFF_PITCH);
-    outl(ATIIOPortCRTC_OFF_PITCH,(t&~CRTC_OFFSET)|address);
+    t=rage_inl(ATIIOPortCRTC_OFF_PITCH);
+    rage_outl(ATIIOPortCRTC_OFF_PITCH,(t&~CRTC_OFFSET)|address);
 
 }
 
@@ -961,8 +965,8 @@ static void rage_setlogicalwidth(int width)
     unsigned int t;
     
     if(rage_bpp>0)width=width/rage_bpp;
-    t=inl(ATIIOPortCRTC_OFF_PITCH);
-    outl(ATIIOPortCRTC_OFF_PITCH,(t&~CRTC_PITCH)|((width>>3)<<22));
+    t=rage_inl(ATIIOPortCRTC_OFF_PITCH);
+    rage_outl(ATIIOPortCRTC_OFF_PITCH,(t&~CRTC_PITCH)|((width>>3)<<22));
 
 }
 
@@ -1025,22 +1029,22 @@ static int rage_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
         case CURSOR_INIT:
             return 1;
         case CURSOR_HIDE:
-            t=inl(ATIIOPortGEN_TEST_CNTL);
-            outl(ATIIOPortGEN_TEST_CNTL,t&~GEN_CUR_EN);
+            t=rage_inl(ATIIOPortGEN_TEST_CNTL);
+            rage_outl(ATIIOPortGEN_TEST_CNTL,t&~GEN_CUR_EN);
             break;
         case CURSOR_SHOW:
-            t=inl(ATIIOPortGEN_TEST_CNTL);
-            outl(ATIIOPortGEN_TEST_CNTL,t|GEN_CUR_EN);
+            t=rage_inl(ATIIOPortGEN_TEST_CNTL);
+            rage_outl(ATIIOPortGEN_TEST_CNTL,t|GEN_CUR_EN);
             break;
         case CURSOR_POSITION:
-            outl(ATIIOPortCUR_HORZ_VERT_POSN,p1|(p2<<16));
-            outl(ATIIOPortCUR_HORZ_VERT_OFF,0);
+            rage_outl(ATIIOPortCUR_HORZ_VERT_POSN,p1|(p2<<16));
+            rage_outl(ATIIOPortCUR_HORZ_VERT_OFF,0);
         break;
         case CURSOR_SELECT:
             i=rage_memory*1024-(p1+1)*4096;
-            outl(ATIIOPortCUR_OFFSET,i>>3);
-            outl(ATIIOPortCUR_CLR0,cur_colors[p1*2]);
-            outl(ATIIOPortCUR_CLR1,cur_colors[p1*2+1]);
+            rage_outl(ATIIOPortCUR_OFFSET,i>>3);
+            rage_outl(ATIIOPortCUR_CLR0,cur_colors[p1*2]);
+            rage_outl(ATIIOPortCUR_CLR1,cur_colors[p1*2+1]);
             break;
         case CURSOR_IMAGE:
             i=rage_memory*1024-(p1+1)*4096;
@@ -1119,7 +1123,7 @@ static int rage_init(int force, int par1, int par2)
    
    rage_unlock();
    if (force) {
-	rage_memory = par1;
+		rage_memory = par1;
         rage_chiptyperev = par2;
    } else {
 
@@ -1129,7 +1133,21 @@ static int rage_init(int force, int par1, int par2)
    rage_linear_base=0;
    if (!found){
       rage_linear_base=buf[4]&0xffffff00ul;
-      ATIIOBase=buf[5]&BLOCK_IO_BASE;
+#if 0
+	  // This uses IO
+	   ATIIOBase=buf[5]&BLOCK_IO_BASE;
+#else
+	  // This uses MMIO
+	  __svgalib_mmio_base=buf[6]&0xffffff00ul;
+	  if(__svgalib_mmio_base==0) {
+	  		__svgalib_mmio_base=rage_linear_base+0x007ff000;
+			ATIIOBase=0xc00;
+	  } else {
+	  		ATIIOBase=1024;
+	  }
+	  __svgalib_mmio_size=4096;
+	  map_mmio();	  
+#endif
    };
 
    if(ATIIOBase)
@@ -1183,9 +1201,8 @@ static int rage_init(int force, int par1, int par2)
    ATIIOPortCUR_CLR0=ATIIOPort(CUR_CLR0);
    ATIIOPortCUR_CLR1=ATIIOPort(CUR_CLR1);
    ATIIOPortCUR_OFFSET=ATIIOPort(CUR_OFFSET);
-
-   i = inl(ATIIOPort(MEM_INFO));
-   j = inl(ATIIOPort(CONFIG_STATUS64_0));
+   i = rage_inl(ATIIOPort(MEM_INFO));
+   j = rage_inl(ATIIOPort(CONFIG_STATUS64_0));
    if(ATIChip<ATI_CHIP_264CT) {
      ATIMemoryType=GetBits(j,CFG_MEM_TYPE);
    } else {
@@ -1207,6 +1224,8 @@ static int rage_init(int force, int par1, int par2)
         fprintf(stderr,"Using RAGE driver, %iKB.   ChipID:%i MemType:%i\n",rage_memory,ATIChip,ATIMemoryType);
         if(rage_dac)fprintf(stderr,"Using external DAC:%i\n",rage_dac);
    }
+   if(ATIChip>=ATI_CHIP_264GTPRO) /* enable offset double buffering */
+   		rage_outl(ATIIOPort(HW_DEBUG), rage_inl(ATIIOPort(HW_DEBUG))|0x400);
 
    cardspecs = malloc(sizeof(CardSpecs));
    cardspecs->videoMemory = rage_memory;
@@ -1257,71 +1276,89 @@ static int rage_init(int force, int par1, int par2)
 
 #define BIOSWord(x) ((int)BIOS[x]+256*(int)BIOS[x+1])
 
-   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xc0000);
+#if 0
+   if(biosparams) {
+	  fref=biosparam[1];
+	  ATIClockToProgram=biosparam[0];
+	  rage_dac = -1;
+	  rage_clock = -1;
+	  maxM=minM=ATIGetMach64PLLReg(PLL_REF_DIV);
+	  minN=2;
+	  maxN=255;
+	  Nadj=0;
+	  Madj=0;
+	  fref*=2; /* X says double for all chips */
+   } else
+#endif
+	{
+	   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xe4100000);
 
-   i=BIOSWord(0x48);
-   j=BIOSWord(i+0x10);
+	   i=BIOSWord(0x48);
+	   j=BIOSWord(i+0x10);
 
-   ATIClockToProgram=BIOS[j+6];
+	   ATIClockToProgram=BIOS[j+6];
 
-   if(ATIChip>=ATI_CHIP_264CT){
-      rage_dac = -1;
-      rage_clock = -1;
-      maxM=minM=ATIGetMach64PLLReg(PLL_REF_DIV);
-      minN=2;
-      maxN=255;
-      switch (BIOSWord(j+0x08)/10) {
-         case 143:
-            fref=14318; 
-            break;
-         case 286:
-            fref=28636;
-            break;
-         default:
-            fref=BIOSWord(j+0x08)*10;
-            break;
-      }
-      Nadj=0;
-      Madj=0;
-      fref*=2; /* X says double for all chips */
-      if(__svgalib_ragedoubleclock)fref/=2; /* just in case */
-      if (__svgalib_driver_report) {
-          fprintf(stderr,"Rage: BIOS reports base frequency=%.3fMHz  Denominator=%3i\n",fref/1000,maxM);
-      }
-   } else {
-      rage_dac=(j>>9)&7;
-      switch(rage_dac) {
-          case 4:
-              rage_clock=4;
-              Nadj=8;
-              minN=64;
-              maxN=263;
-              maxM=34;
-              minM=23;
-              Madj=2;
-              for(i=0;i<3;i++)postdiv[i]=1<<i;
-              for(i=3;i<8;i++)postdiv[i]=0;
-              fref=14318;
-              cardspecs->maxPixelClock32bpp = 0;
-              break;
-          case 5:
-              rage_clock=5;
-              maxM=minM=46;
-              Madj=0;
-              minN=257;
-              maxN=512;
-              Nadj=257;
-              for(i=0;i<4;i++)postdiv[i]=1<<i;
-              for(i=4;i<8;i++)postdiv[i]=0;
-              fref=14318;
-              break;
-      };
-      if (__svgalib_driver_report) {
-          fprintf(stderr,"Rage: BIOS reports RamDAC=%i\n",rage_dac);
-      }
-   };
+	   if(ATIChip>=ATI_CHIP_264CT){
+		  rage_dac = -1;
+		  rage_clock = -1;
+		  maxM=minM=ATIGetMach64PLLReg(PLL_REF_DIV);
+		  minN=2;
+		  maxN=255;
+		  switch (BIOSWord(j+0x08)/10) {
+			 case 143:
+				fref=14318; 
+				break;
+			 case 286:
+				fref=28636;
+				break;
+			 default:
+				fref=BIOSWord(j+0x08)*10;
+				break;
+		  }
+		  Nadj=0;
+		  Madj=0;
+		  fref*=2; /* X says double for all chips */
+		  
+		  if(__svgalib_ragedoubleclock)fref/=2; /* just in case */
+		  if (__svgalib_driver_report) {
+			  fprintf(stderr,"Rage: BIOS reports base frequency=%.3fMHz  Denominator=%3i\n",
+					  fref/1000,maxM);
+		  }
+	   } else {
+		  rage_dac=(j>>9)&7;
+		  switch(rage_dac) {
+			  case 4:
+				  rage_clock=4;
+				  Nadj=8;
+				  minN=64;
+				  maxN=263;
+				  maxM=34;
+				  minM=23;
+				  Madj=2;
+				  for(i=0;i<3;i++)postdiv[i]=1<<i;
+				  for(i=3;i<8;i++)postdiv[i]=0;
+				  fref=14318;
+				  cardspecs->maxPixelClock32bpp = 0;
+				  break;
+			  case 5:
+				  rage_clock=5;
+				  maxM=minM=46;
+				  Madj=0;
+				  minN=257;
+				  maxN=512;
+				  Nadj=257;
+				  for(i=0;i<4;i++)postdiv[i]=1<<i;
+				  for(i=4;i<8;i++)postdiv[i]=0;
+				  fref=14318;
+				  break;
+		  };
+		  if (__svgalib_driver_report) {
+			  fprintf(stderr,"Rage: BIOS reports RamDAC=%i\n",rage_dac);
+		  }
+	   };
 
-   munmap(BIOS,32768);
+	   munmap(BIOS,32768);
+	}
 
    return 0;
 }
@@ -1397,7 +1434,7 @@ static int ClacDSP(int n, int l, int bpp, unsigned int *conf, unsigned int *onof
     ATIXCLKPostDivider -= GetBits(IO_Value, PLL_MFB_TIMES_4_2B);
     ATIXCLKFeedbackDivider = ATIGetMach64PLLReg(PLL_MCLK_FB_DIV);
 
-    IO_Value = inl(ATIIOPortMEM_INFO);
+    IO_Value = rage_inl(ATIIOPortMEM_INFO);
     tmp = GetBits(IO_Value, CTL_MEM_TRP);
     ATIXCLKPageFaultDelay = GetBits(IO_Value, CTL_MEM_TRCD) +
         GetBits(IO_Value, CTL_MEM_TCRD) + tmp + 2;
@@ -1460,10 +1497,10 @@ static int ClacDSP(int n, int l, int bpp, unsigned int *conf, unsigned int *onof
         ATIXCLKMaxRASDelay = ATIXCLKPageFaultDelay + 1;
 
     /* Allow BIOS to override */
-    dsp_config = inl(ATIIOPortDSP_CONFIG);
-    dsp_on_off = inl(ATIIOPortDSP_ON_OFF);
-    vga_dsp_config = inl(ATIIOPort(VGA_DSP_CONFIG));
-    vga_dsp_on_off = inl(ATIIOPort(VGA_DSP_ON_OFF));
+    dsp_config = rage_inl(ATIIOPortDSP_CONFIG);
+    dsp_on_off = rage_inl(ATIIOPortDSP_ON_OFF);
+    vga_dsp_config = rage_inl(ATIIOPort(VGA_DSP_CONFIG));
+    vga_dsp_on_off = rage_inl(ATIIOPort(VGA_DSP_ON_OFF));
 
     if (dsp_config)
         ATIDisplayLoopLatency = GetBits(dsp_config, DSP_LOOP_LATENCY);

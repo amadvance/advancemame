@@ -903,27 +903,30 @@ void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf
  * On error the value struct is not modified.
  */
 
-static adv_error import_bool(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+static adv_error import_bool(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	if (strcmp(own_value, "yes")==0) {
 		value->data.bool_value = 1;
+		free(own_value);
 		free(value->format);
-		value->format = own_value;
+		value->format = own_format;
 		return 0;
 	} else if (strcmp(own_value, "no")==0) {
 		value->data.bool_value = 0;
+		free(own_value);
 		free(value->format);
-		value->format = own_value;
+		value->format = own_format;
 		return 0;
 	} else {
 		if (error)
 			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, "Valid arguments are 'yes' and 'no'", "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 		free(own_value);
+		free(own_format);
 		return -1;
 	}
 }
 
-static adv_error import_int(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+static adv_error import_int(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	if (value->option->data.base_int.has_enum) {
 		unsigned i;
@@ -936,8 +939,9 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 		for(i=0;i<value->option->data.base_int.enum_mac;++i) {
 			if (strcmp(value->option->data.base_int.enum_map[i].value, own_value)==0) {
 				value->data.int_value = value->option->data.base_int.enum_map[i].map;
+				free(own_value);
 				free(value->format);
-				value->format = own_value;
+				value->format = own_format;
 				return 0;
 			}
 		}
@@ -949,8 +953,9 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 			for(i=0;i<value->option->data.base_int.enum_mac;++i) {
 				if (value->option->data.base_int.enum_map[i].map == r) {
 					value->data.int_value = value->option->data.base_int.enum_map[i].map;
+					free(own_value);
 					free(value->format);
-					value->format = own_value;
+					value->format = own_format;
 					return 0;
 				}
 			}
@@ -972,6 +977,7 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, own_valid, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 		free(own_valid);
 		free(own_value);
+		free(own_format);
 		return -1;
 	} else {
 		char* endp;
@@ -987,18 +993,20 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 				if (error)
 					error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 				free(own_value);
+				free(own_format);
 				return -1;
 		}
 
 		value->data.int_value = r;
+		free(own_value);
 		free(value->format);
-		value->format = own_value;
+		value->format = own_format;
 
 		return 0;
 	}
 }
 
-static adv_error import_float(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+static adv_error import_float(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	char* endp;
 
@@ -1014,17 +1022,19 @@ static adv_error import_float(struct adv_conf_value_struct* value, char* own_val
 		if (error)
 			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Out of range argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 		free(own_value);
+		free(own_format);
 		return -1;
 	}
 
 	value->data.float_value = r;
+	free(own_value);
 	free(value->format);
-	value->format = own_value;
+	value->format = own_format;
 
 	return 0;
 }
 
-static adv_error import_string(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+static adv_error import_string(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	unsigned i;
 	char* own_valid;
@@ -1034,7 +1044,7 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 		free(value->data.string_value);
 		value->data.string_value = own_value;
 		free(value->format);
-		value->format = strdup(own_value);
+		value->format = own_format;
 		return 0;
 	}
 
@@ -1044,7 +1054,7 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 			free(value->data.string_value);
 			value->data.string_value = own_value;
 			free(value->format);
-			value->format = strdup(own_value);
+			value->format = own_format;
 			return 0;
 		}
 	}
@@ -1066,19 +1076,20 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 
 	free(own_valid);
 	free(own_value);
+	free(own_format);
 	return -1;
 }
 
 /**
  * Import a value. The value item is NOT initialized before the call.
  */
-static adv_error value_import(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+static adv_error value_import(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	switch (value->option->type) {
-		case conf_type_bool : return import_bool(value, own_value, error, error_context);
-		case conf_type_int : return import_int(value, own_value, error, error_context);
-		case conf_type_float : return import_float(value, own_value, error, error_context);
-		case conf_type_string : return import_string(value, own_value, error, error_context);
+		case conf_type_bool : return import_bool(value, own_value, own_format, error, error_context);
+		case conf_type_int : return import_int(value, own_value, own_format, error, error_context);
+		case conf_type_float : return import_float(value, own_value, own_format, error, error_context);
+		case conf_type_string : return import_string(value, own_value, own_format, error, error_context);
 		default:
 			assert(0);
 			return -1;
@@ -1097,9 +1108,9 @@ static adv_error value_make_raw(adv_conf* context, struct adv_conf_input_struct*
 	value->input = input;
 	value->section = own_section;
 	value->comment = own_comment;
-	value->format = own_format;
+	value->format = 0;
 
-	if (value_import(value, own_value, error, error_context) != 0) {
+	if (value_import(value, own_value, own_format, error, error_context) != 0) {
 		value_free(value);
 		return -1;
 	}
@@ -1157,6 +1168,37 @@ err:
 	return -1;
 }
 
+static char* format_alloc(const char* value)
+{
+	unsigned eol;
+	const char* s;
+	char* d;
+	char* r;
+
+	eol = 0;
+	s = value;
+	while (*s) {
+		if (*s == '\n')
+			++eol;
+		++s;
+	}
+
+	r = malloc(strlen(value) + eol + 1);
+
+	s = value;
+	d = r;
+	while (*s) {
+		if (*s == '\n')
+			*d++ = '\\';
+		*d++ = *s;
+		++s;
+	}
+
+	*d = 0;
+
+	return r;
+}
+
 /** Insert if it doesn't exist whithout error checks. Return the existing value if any. */
 static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context)
 {
@@ -1165,7 +1207,7 @@ static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* 
 		struct adv_conf_value_struct* value_exist = value_search_inputsectiontag(context, input, section, option->tag);
 		if (value_exist) {
 			context->is_modified = 1;
-			return value_import(value_exist, strdup(value), error, error_context);
+			return value_import(value_exist, strdup(value), format_alloc(value), error, error_context);
 		}
 	}
 
@@ -1214,7 +1256,7 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 			own_tag = glob_subst(input->conv_map[conv].tag_result, own_tag);
 			own_value = glob_subst(input->conv_map[conv].value_result, own_value);
 			free(own_format);
-			own_format = strdup(own_value);
+			own_format = format_alloc(own_value);
 		}
 	}
 
@@ -1424,7 +1466,7 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 					copy |= copy_in_value;
 				} else if (c == '\n') {
 					state = state_value;
-					copy |= copy_in_format;
+					copy |= copy_in_value | copy_in_format;
 				} else {
 					ungetc(c, f);
 					state = state_value;
@@ -1738,7 +1780,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 				own_value = strdup("no");
 			else
 				own_value = strdup("yes");
-			own_format = strdup(own_value);
+			own_format = format_alloc(own_value);
 
 			if (value_make_own(context, input, option, own_section, own_comment, own_value, own_format, error, error_context) != 0)
 				return -1;
@@ -1748,7 +1790,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 			char* own_section = strdup(section);
 			char* own_comment = strdup("");
 			char* own_value = strdup(argv[i+1]);
-			char* own_format = strdup(own_value);
+			char* own_format = format_alloc(own_value);
 
 			if (value_make_own(context, input, option, own_section, own_comment, own_value, own_format, error, error_context) != 0)
 				return -1;
@@ -1775,11 +1817,6 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 static adv_error value_save(struct adv_conf_input_struct* input, struct adv_conf_value_struct* value, const char** global_section, FILE* f, conf_error_callback* error, void* error_context)
 {
 	if (strcmp(*global_section, value->section) != 0) {
-#if 0
-		/* print an extra newline before a section change */
-		if (*value->comment == 0)
-			fprintf(f, "\n");
-#endif
 		*global_section = value->section;
 	}
 	if (*value->section)
