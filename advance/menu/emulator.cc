@@ -164,7 +164,7 @@ bool emulator::filter(const game& g) const {
 void emulator::cache(const game_set& gar, const game& g) const {
 }
 
-bool emulator::is_ready() const {
+bool emulator::is_present() const {
 	// if empty disable always
 	if (user_exe_path.length() == 0)
 		return false;
@@ -173,6 +173,10 @@ bool emulator::is_ready() const {
 	if (access(cpath_export(config_exe_path_get()),X_OK)!=0)
 		return false;
 
+	return true;
+}
+
+bool emulator::is_runnable() const {
 	return true;
 }
 
@@ -2574,12 +2578,20 @@ bool generic::load_software(game_set&) {
 	return true;
 }
 
-bool generic::is_ready() const {
+bool generic::is_present() const {
 	// if empty enable always
 	if (user_exe_path.length()==0)
 		return true;
 
-	return emulator::is_ready();
+	return emulator::is_present();
+}
+
+bool generic::is_runnable() const {
+	// if empty it isn't runnable
+	if (user_exe_path.length()==0)
+		return false;
+
+	return emulator::is_runnable();
 }
 
 bool generic::run(const game& g, unsigned orientation, bool ignore_error) const {

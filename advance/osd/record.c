@@ -550,9 +550,9 @@ static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_s
 	p = i_ptr;
 	for(i=0;i<height;++i) {
 		for(j=0;j<width;++j) {
-			p[0] = ptr[0];
+			p[2] = ptr[0];
 			p[1] = ptr[1];
-			p[2] = ptr[2];
+			p[0] = ptr[2];
 
 			p += 3;
 			ptr += pixel_pitch;

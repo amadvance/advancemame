@@ -304,6 +304,12 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 		case TEXT_KEY_END :
 			menu_pos(pos_max,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
 			break;
+		case TEXT_KEY_LEFT :
+			if (coln > 1) {
+				menu_pos(pos_base + pos_rel - 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+				break;
+			}
+			// otherwise continue
 		case TEXT_KEY_PGUP :
 			if (pos_base >= pos_rel_max) {
 				pos_base -= pos_rel_max;
@@ -313,6 +319,12 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 				pos_rel = 0;
 			}
 			break;
+		case TEXT_KEY_RIGHT :
+			if (coln > 1) {
+				menu_pos(pos_base + pos_rel + 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+				break;
+			}
+			// otherwise continue
 		case TEXT_KEY_PGDN :
 			if (pos_base + pos_rel_max <= pos_base_upper) {
 				pos_base += pos_rel_max;
@@ -330,12 +342,6 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 			break;
 		case TEXT_KEY_DOWN :
 			menu_pos(pos_base + pos_rel + coln,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
-			break;
-		case TEXT_KEY_LEFT :
-			menu_pos(pos_base + pos_rel - 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
-			break;
-		case TEXT_KEY_RIGHT :
-			menu_pos(pos_base + pos_rel + 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
 			break;
 		default:
 			return key;

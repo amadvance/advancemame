@@ -38,7 +38,7 @@ using namespace std;
 // --------------------------------------------------------------------------
 // Run
 
-int run_sub(config_state& rs) {
+int run_sub(config_state& rs, bool silent) {
 
 	log_std(("menu: text_init4 call\n"));
 
@@ -53,7 +53,10 @@ int run_sub(config_state& rs) {
 	log_std(("menu: menu start\n"));
 
 	while (!done) {
-		key = run_menu(rs,(rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0);
+		key = run_menu(rs,(rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0, silent);
+
+		// don't replay the sound and clip
+		silent = true;
 
 		if (!rs.lock_effective)
 		switch (key) {
@@ -61,15 +64,23 @@ int run_sub(config_state& rs) {
 				run_help();
 				break;
 			case TEXT_KEY_GROUP :
+				// replay the sound and clip
+				silent = false;
 				run_group(rs);
 				break;
 			case TEXT_KEY_EMU :
+				// replay the sound and clip
+				silent = false;
 				run_emu_next(rs);
 				break;
 			case TEXT_KEY_TYPE :
+				// replay the sound and clip
+				silent = false;
 				run_type(rs);
 				break;
 			case TEXT_KEY_EXCLUDE :
+				// replay the sound and clip
+				silent = false;
 				if (rs.current_game)
 					rs.current_game->emulator_get()->attrib_run();
 				break;
@@ -77,15 +88,23 @@ int run_sub(config_state& rs) {
 				run_command(rs);
 				break;
 			case TEXT_KEY_SORT :
+				// replay the sound and clip
+				silent = false;
 				run_sort(rs);
 				break;
 			case TEXT_KEY_MENU :
+				// replay the sound and clip
+				silent = false;
 				run_submenu(rs);
 				break;
 			case TEXT_KEY_SETGROUP :
+				// replay the sound and clip
+				silent = false;
 				run_group_move(rs);
 				break;
 			case TEXT_KEY_SETTYPE :
+				// replay the sound and clip
+				silent = false;
 				run_type_move(rs);
 				break;
 			case TEXT_KEY_ROTATE :
@@ -106,6 +125,8 @@ int run_sub(config_state& rs) {
 				}
 				break;
 			case TEXT_KEY_RUN_CLONE :
+				// replay the sound and clip
+				silent = false;
 				if (rs.current_game) {
 					run_clone(rs);
 					if (rs.current_clone) {
@@ -115,6 +136,8 @@ int run_sub(config_state& rs) {
 				}
 				break;
 			case TEXT_KEY_ENTER :
+				// replay the sound and clip
+				silent = false;
 				if (rs.current_game) {
 					if (rs.current_game->emulator_get()->tree_get())
 						rs.current_clone = &rs.current_game->clone_best_get();
@@ -140,7 +163,7 @@ int run_sub(config_state& rs) {
 	return key;
 }
 
-int run_main(config_state& rs, bool is_first) {
+int run_main(config_state& rs, bool is_first, bool silent) {
 	log_std(("menu: text_init3 call\n"));
 
 	if (!text_init3(rs.video_gamma, rs.video_brightness,
@@ -183,7 +206,11 @@ int run_main(config_state& rs, bool is_first) {
 	log_std(("menu: menu start\n"));
 
 	while (!done) {
-		key = run_sub(rs);
+		key = run_sub(rs, silent);
+
+		// don't replay the sound and clip
+		silent = true;
+
 		if (!rs.lock_effective)
 		switch (key) {
 			case TEXT_KEY_ROTATE : {
@@ -254,6 +281,7 @@ int run_main(config_state& rs, bool is_first) {
 int run_all(struct conf_context* config_context, config_state& rs) {
 	bool done = false;
 	bool is_first = true;
+	bool silent = false;
 	int key = 0;
 
 	rs.current_game = 0;
@@ -261,9 +289,13 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 	rs.fast = "";
 
 	while (!done) {
-		key = run_main(rs, is_first);
+		key = run_main(rs, is_first, silent);
 
+		// the next
 		is_first = false;
+
+		// replay the sound and clip
+		silent = false;
 
 		switch (key) {
 			case TEXT_KEY_ESC :
@@ -273,6 +305,11 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 			case TEXT_KEY_ENTER :
 			case TEXT_KEY_IDLE_0 :
 			case TEXT_KEY_RUN_CLONE :
+				if (key == TEXT_KEY_IDLE_0) {
+					// don't replay the sound and clip
+					silent = true;
+				}
+
 				if (!rs.current_clone)
 					rs.current_clone = rs.current_game;
 

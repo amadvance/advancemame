@@ -507,9 +507,11 @@ static int test_crtc(int x, int y, video_crtc* crtc, int print_clock, int print_
 
 	if (print_key) {
 		++y;
-		draw_string(x,y,"Q...I  Inc horz (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x,y,"Q...U  Inc horz (SHIFT dec)",DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"A...K  Inc vert (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x,y,"A...J  Inc vert (SHIFT dec)",DRAW_COLOR_WHITE);
+		++y;
+		draw_string(x,y,"I,K    Inc horz/vert size (SHIFT dec)",DRAW_COLOR_WHITE);
 		++y;
 		draw_string(x,y,"XCV    Flip flag",DRAW_COLOR_WHITE);
 		++y;

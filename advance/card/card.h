@@ -121,7 +121,7 @@ int card_compatible_mode(const card_mode STACK_PTR* mode0, const card_mode STACK
 
 #else
 
-void card_log(const char *text,...);
+void card_log(const char *text,...) __attribute__((format(printf,1,2)));
 
 #define CARD_LOG(a) card_log a
 

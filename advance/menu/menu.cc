@@ -625,23 +625,7 @@ static void run_background_set(config_state& rs, const resource& sound) {
 	}
 }
 
-static void run_background_idle(config_state& rs) {
-	if (!play_background_is_active()) {
-		rs.current_sound = resource();
-		if (rs.sound_background.size() != 0) {
-			string path = file_select_random(rs.sound_background);
-			log_std(("menu: play background music '%s'\n", path.c_str()));
-			play_background_effect(path,PLAY_PRIORITY_BACKGROUND,false);
-		} else if (rs.sound_background_loop.length()) {
-			log_std(("menu: play background effect '%s'\n", rs.sound_background_loop.c_str()));
-			play_background_effect(rs.sound_background_loop,PLAY_PRIORITY_BACKGROUND,true);
-		} else {
-			log_std(("menu: no background effect\n"));
-		}
-	}
-}
-
-static void run_background_wait(config_state& rs, const resource& sound) {
+static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent) {
 	os_clock_t back_start = os_clock();
 
 	// delay before the background music start
@@ -652,24 +636,60 @@ static void run_background_wait(config_state& rs, const resource& sound) {
 	}
 
 	if (!text_keypressed()) {
-		// stop the previous playing
-		run_background_reset(rs);
+		bool sound_done = false; // game sound terminated
+		bool clip_done = false; // clip sound terminate
 
-		// start the new game play
-		run_background_set(rs, sound);
+		if (!silent) {
+			// stop the previous playing
+			run_background_reset(rs);
 
-		// start the new game clip
-		text_clip_start();
+			// start the new game play
+			run_background_set(rs, sound);
+
+			// start the new game clip
+			text_clip_start();
+		} else {
+			// if silent we are already in idle state
+			idle_control = false;
+		}
 
 		// wait until something pressed
 		while (!text_keypressed()) {
 			// start some background music if required
-			run_background_idle(rs);
+
+			if (!play_background_is_active()) {
+				sound_done = true;
+				rs.current_sound = resource();
+				if (rs.sound_background.size() != 0) {
+					string path = file_select_random(rs.sound_background);
+					log_std(("menu: play background music '%s'\n", path.c_str()));
+					play_background_effect(path,PLAY_PRIORITY_BACKGROUND,false);
+				} else if (rs.sound_background_loop.length()) {
+					log_std(("menu: play background effect '%s'\n", rs.sound_background_loop.c_str()));
+					play_background_effect(rs.sound_background_loop,PLAY_PRIORITY_BACKGROUND,true);
+				} else {
+					log_std(("menu: no background effect\n"));
+				}
+			}
+
+			// restart the clip if terminated
+			if (!text_clip_is_active()) {
+				clip_done = true;
+				if (rs.loop)
+					text_clip_start();
+			}
+
+			if (idle_control) {
+				if (!clip_done || !sound_done) {
+					// prevent any idle event
+					text_idle_time_reset();
+				}
+			}
 		}
 	}
 }
 
-static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_item_func* category_extract) {
+static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_item_func* category_extract, bool silent) {
 	int coln; // number of columns
 	int rown; // number of rows
 
@@ -1359,7 +1379,13 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		log_std(("menu: wait begin\n"));
 
-		run_background_wait(rs, sound);
+		text_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
+		text_idle_1_enable(true);
+
+		run_background_wait(rs, sound, true, silent);
+
+		// replay the sound and clip
+		silent = false;
 
 		log_std(("menu: wait end\n"));
 
@@ -1411,9 +1437,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				break;
 			case TEXT_KEY_ENTER :
 			case TEXT_KEY_RUN_CLONE :
+			case TEXT_KEY_LOCK :
+				done = true;
+				break;
 			case TEXT_KEY_IDLE_0 :
 			case TEXT_KEY_IDLE_1 :
-			case TEXT_KEY_LOCK :
 				done = true;
 				break;
 		}
@@ -1519,6 +1547,9 @@ int run_menu_idle(config_state& rs, menu_array& gc) {
 		avail[j] = t;
 	}
 
+	text_idle_0_enable(false);
+	text_idle_1_enable(true);
+
 	while (!done) {
 		unsigned pos;
 		bool found;
@@ -1555,7 +1586,7 @@ int run_menu_idle(config_state& rs, menu_array& gc) {
 		// next game
 		++counter;
 
-		run_background_wait(rs,sound);
+		run_background_wait(rs,sound,false,false);
 
 		key = text_getkey(false);
 
@@ -1584,7 +1615,6 @@ int run_menu_idle_off() {
 	target_apm_standby();
 
 	while (!done) {
-
 		text_update();
 
 		key = text_getkey(false);
@@ -1598,7 +1628,7 @@ int run_menu_idle_off() {
 	return key;
 }
 
-int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* category_func, bool flipxy) {
+int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* category_func, bool flipxy, bool silent) {
 	menu_array gc;
 
 	log_std(("menu: insert begin\n"));
@@ -1655,7 +1685,10 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 
 		if (!done) {
-			key = run_menu_user(rs,flipxy,gc,category_func);
+			key = run_menu_user(rs,flipxy,gc,category_func,silent);
+
+			// replay the sound and clip
+			silent = false;
 
 			switch (key) {
 				case TEXT_KEY_IDLE_1 :
@@ -1729,7 +1762,7 @@ void run_runinfo(config_state& rs) {
 	}
 }
 
-int run_menu(config_state& rs, bool flipxy) {
+int run_menu(config_state& rs, bool flipxy, bool silent) {
 	pgame_sort_set* psc;
 	sort_item_func* category_func;
 
@@ -1887,7 +1920,10 @@ int run_menu(config_state& rs, bool flipxy) {
 	int key = 0;
 
 	while (!done) {
-		key = run_menu_sort(rs,*psc,category_func,flipxy);
+		key = run_menu_sort(rs,*psc,category_func,flipxy,silent);
+
+		// don't replay the sound and clip
+		silent = true;
 
 		if (!rs.lock_effective)
 		switch (key) {

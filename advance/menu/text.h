@@ -67,6 +67,7 @@ void text_clip_start();
 void text_clip_done();
 void text_clip_set(int back_index, const resource& res, unsigned aspectx, unsigned aspecty);
 void text_clip_clear();
+bool text_clip_is_active();
 
 void text_update(bool progressive = true);
 unsigned text_update_pre(bool progressive = false);
@@ -74,8 +75,11 @@ void text_update_post(unsigned y = 0);
 
 unsigned text_getkey(bool update_background = true);
 int text_keypressed();
+
 void text_idle_repeat_reset();
 void text_idle_time_reset();
+void text_idle_0_enable(bool state);
+void text_idle_1_enable(bool state);
 
 int text_font_dx_get();
 int text_font_dy_get();

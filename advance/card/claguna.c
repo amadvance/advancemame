@@ -184,7 +184,7 @@ static void laguna_memory_clear(void)
 	r.h.bl = 0x85;
 	__dpmi_int(0x10, &r);
 	installedmemory = r.h.al * 65536;
-	CARD_LOG(("laguna: Installed Memory %d MByte\n", installedmemory / (1024 * 1024) ));
+	CARD_LOG(("laguna: Installed Memory %ld MByte\n", installedmemory / (1024 * 1024) ));
 
 	loopcounter = 0;
 	while (loopcounter < installedmemory) {

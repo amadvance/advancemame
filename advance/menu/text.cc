@@ -230,6 +230,8 @@ static int text_joystick_button_raw_poll() {
 					case 0 : return TEXT_KEY_ENTER;
 					case 1 : return TEXT_KEY_ESC;
 					case 2 : return TEXT_KEY_MENU;
+					case 3 : return TEXT_KEY_SPACE;
+					case 4 : return TEXT_KEY_MODE;
 				}
 			}
 		}
@@ -496,10 +498,11 @@ static unsigned text_idle_1; // seconds before the first 1 event
 static unsigned text_idle_1_rep; // seconds before the second 1 event
 static unsigned text_repeat; // milli seconds before the first key repeat event
 static unsigned text_repeat_rep; // milli seconds before the second key repeat event
+static time_t text_idle_time;
+static bool text_idle_0_state;
+static bool text_idle_1_state;
 
 static bool text_wait_for_backdrop; // wait for backdrop completion
-
-static time_t text_idle_time;
 
 static unsigned video_buffer_size;
 static unsigned video_buffer_line_size;
@@ -664,7 +667,7 @@ void text_done2() {
 	video_done();
 }
 
-bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep,unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode) {
+bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode) {
 
 	text_alpha_mode = alpha_mode;
 
@@ -675,6 +678,8 @@ bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_
 	text_idle_1_rep = idle_1_rep;
 	text_repeat = repeat;
 	text_repeat_rep = repeat_rep;
+	text_idle_0_state = true;
+	text_idle_1_state = true;
 	text_wait_for_backdrop = !backdrop_fast;
 	if (gamma < 0.1) gamma = 0.1;
 	if (gamma > 10) gamma = 10;
@@ -1490,6 +1495,10 @@ static bool text_clip_need_load() {
 	return false;
 }
 
+bool text_clip_is_active() {
+	return text_clip_active && text_clip_running;
+}
+
 static struct bitmap* text_clip_load(video_color* rgb_map, unsigned* rgb_max) {
 	if (!text_clip_active)
 		return 0;
@@ -1499,6 +1508,7 @@ static struct bitmap* text_clip_load(video_color* rgb_map, unsigned* rgb_max) {
 		text_clip_f = text_clip_res.open();
 		if (!text_clip_f) {
 			text_clip_active = false;
+			text_clip_f = 0;
 			return 0;
 		}
 
@@ -1530,7 +1540,7 @@ static struct bitmap* text_clip_load(video_color* rgb_map, unsigned* rgb_max) {
 		mng_done(text_mng_context);
 		fzclose(text_clip_f);
 		text_clip_f = 0;
-		text_clip_active = false;
+		text_clip_running = false;
 		return 0;
 	}
 
@@ -2332,6 +2342,14 @@ void text_idle_time_reset() {
 	text_idle_time = time(0);
 }
 
+void text_idle_0_enable(bool state) {
+	text_idle_0_state = state;
+}
+
+void text_idle_1_enable(bool state) {
+	text_idle_1_state = state;
+}
+
 static void text_clip_idle() {
 	video_color rgb_map[256];
 	unsigned rgb_max;
@@ -2460,16 +2478,16 @@ static void text_box_idle() {
 }
 
 static void text_idle() {
-	if (text_key_last == TEXT_KEY_IDLE_0 && text_idle_0_rep && time(0) - text_idle_time > text_idle_0_rep)
+	if (text_idle_0_state && text_key_last == TEXT_KEY_IDLE_0 && text_idle_0_rep && time(0) - text_idle_time > text_idle_0_rep)
 		text_key_saved = TEXT_KEY_IDLE_0;
 
-	if (text_key_last == TEXT_KEY_IDLE_1 && text_idle_1_rep && time(0) - text_idle_time > text_idle_1_rep)
+	if (text_idle_1_state && text_key_last == TEXT_KEY_IDLE_1 && text_idle_1_rep && time(0) - text_idle_time > text_idle_1_rep)
 		text_key_saved = TEXT_KEY_IDLE_1;
 
-	if (text_idle_0 && time(0) - text_idle_time > text_idle_0)
+	if (text_idle_0_state && text_idle_0 && time(0) - text_idle_time > text_idle_0)
 		text_key_saved = TEXT_KEY_IDLE_0;
 
-	if (text_idle_1 && time(0) - text_idle_time > text_idle_1)
+	if (text_idle_1_state && text_idle_1 && time(0) - text_idle_time > text_idle_1)
 		text_key_saved = TEXT_KEY_IDLE_1;
 
 	if (text_key_saved == TEXT_KEY_NONE) {

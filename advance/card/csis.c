@@ -406,7 +406,7 @@ static long sis_clock_get(long vclk, int STACK_PTR *Num, int STACK_PTR *Div, int
 	vclk = (long)((double)BASE_FREQ * (*Num * *Div)/(*DeN * *PS * *SeqDiv));
 
 	CARD_LOG(("sis: Num %3d, DeN %3d, Div %1d, PS %1d, SeqDiv %1d\n", *Num, *DeN, *Div, *PS, *SeqDiv));
-	CARD_LOG(("sis: 14.318 * (Num/DeN) : %lf\n", (BASE_FREQ/1000000)*(*Num)/(*DeN)));
+	CARD_LOG(("sis: 14.318 * (Num/DeN) : %g\n", (double)(BASE_FREQ/1000000)*(*Num)/(*DeN)));
 	CARD_LOG(("sis: vclk : %lf\n", (double)vclk / 1000000.0));
 
 	return vclk;

@@ -108,7 +108,7 @@ static void tdfx_screen_size_set(card_crtc STACK_PTR *cp, const card_mode STACK_
 	card_outl(tdfx_io_base + 0x98, d0);
 	d0 = card_inl(tdfx_io_base + 0x98);
 
-	CARD_LOG(("3dfx: %dx%d\n", d0 & 0x0FFF, (d0 >> 12) & 0x0FFF));
+	CARD_LOG(("3dfx: %ldx%ld\n", d0 & 0x0FFF, (d0 >> 12) & 0x0FFF));
 
 	d0 = card_inl(tdfx_io_base + 0x5C);
 	d0 = d0 & ~0x01;

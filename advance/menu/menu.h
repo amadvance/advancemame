@@ -47,6 +47,6 @@ public:
 
 typedef std::vector<menu_entry*> menu_array;
 
-int run_menu(config_state& rs, bool flipxy);
+int run_menu(config_state& rs, bool flipxy, bool silent);
 
 #endif

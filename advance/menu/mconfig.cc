@@ -207,6 +207,7 @@ void config_state::conf_register(struct conf_context* config_context) {
 	conf_string_register_default(config_context, "preview_default_title", "none");
 	conf_int_register_enum_default(config_context, "event_mode", conf_enum(OPTION_EVENTMODE), 1);
 	conf_bool_register_default(config_context, "event_alpha", 1);
+	conf_bool_register_default(config_context, "loop", 0);
 	conf_int_register_enum_default(config_context, "merge", conf_enum(OPTION_MERGE), merge_differential);
 	conf_int_register_limit_default(config_context, "icon_space", 10, 500, 43);
 	conf_string_register_default(config_context, "sound_foreground_begin", "default");
@@ -619,6 +620,7 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 		return false;
 	preview_fast = (bool)conf_int_get_default(config_context, "event_mode");
 	alpha_mode = (bool)conf_bool_get_default(config_context, "event_alpha");
+	loop = (bool)conf_bool_get_default(config_context, "loop");
 	merge = (merge_t)conf_int_get_default(config_context, "merge");
 	icon_space = conf_int_get_default(config_context, "icon_space");
 
@@ -675,7 +677,7 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 
 	// select the active emulators
 	for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
-		if ((*i)->is_ready())
+		if ((*i)->is_present())
 			emu_active.insert(emu_active.end(),*i);
 		else
 			target_err("Emulator '%s' not found.\n", (*i)->user_exe_path_get().c_str());

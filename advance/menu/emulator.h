@@ -156,7 +156,8 @@ public:
 	virtual bool load_software(game_set& gar) = 0;
 	virtual void update(const game& g) const;
 
-	virtual bool is_ready() const;
+	virtual bool is_present() const;
+	virtual bool is_runnable() const;
 	virtual std::string type_get() const = 0;
 };
 
@@ -353,7 +354,8 @@ public:
 	virtual std::string type_get() const;
 
 	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
-	virtual bool is_ready() const;
+	virtual bool is_present() const;
+	virtual bool is_runnable() const;
 };
 
 typedef std::list<emulator*> pemulator_container;

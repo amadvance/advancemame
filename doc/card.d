@@ -26,10 +26,11 @@ Name
 		+Radeon [4242, 4c57, 4c59, 4c51, 51xx]
 
 	g400 - +Matrox (102B)
-		+Mystique [051A, 051E]
+		+Mystique [051a, 051e]
 		+G100 [1000, 1001]
 		+G200 [0520, 0521]
-		+G400 [0525], G450 [0525]
+		+G400 [0525]
+		+G450 [0525, 2527]
 
 	banshee - +3dfx (121A)
 		+Voodoo Banshee [0003] (interlaced modes not supported)

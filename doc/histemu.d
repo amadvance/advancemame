@@ -20,7 +20,7 @@ AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 		different axes from different mouses.
 	) Renamed the option `misc_language' to `misc_languagefile'.
 	) Fixed the saving of the cheats.
-	) Documented the varius `misc_*file' options.
+	) Documented the various `misc_*file' options.
 	) Removed the `zmng' utility from the contrib dir.
 		It's now included in the AdvanceSCAN package.
 	) Renamed the `input_safeexit' option to `misc_safequit' and
@@ -42,6 +42,7 @@ AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 	) Added the options `device_video_8bit', `device_video_15bit',
 		`device_video_16bit', `device_video_32bit' to selectively
 		disable some bit depths on the video drivers.
+	) Fixed the colors on the snapshots of games with a 32 color depth.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

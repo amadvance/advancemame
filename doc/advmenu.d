@@ -1076,6 +1076,16 @@ Configuration
 		snap, flyers, cabinets, titles - Display the
 			specified preview. (default snap).
 
+    loop
+	Select if the animated clips need to be played continuosly.
+
+	:loop yes | no
+
+	Options:
+		no - Play the clips only one time (default).
+		yes - Play the clips continuosly. The sound is not
+			looped.
+
     color
 	Colors used.
 

@@ -55,7 +55,7 @@ void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned o
 	if (map_create_linear_mapping(&linear, offset, length)!=0)
 		return MAP_FAILED;
 
-	card_log("card: mmap %x -> %x, size %x\n", offset, linear, length);
+	card_log("card: mmap %x -> %lx, size %x\n", offset, linear, length);
 
 	linear += __djgpp_conventional_base;
 
@@ -69,7 +69,7 @@ int munmap(void* start, unsigned length) {
 
 	offset -= __djgpp_conventional_base;
 
-	card_log("card: munmap %x, size %x\n", offset, length);
+	card_log("card: munmap %lx, size %x\n", offset, length);
 
 	map_remove_linear_mapping(offset,length);
 

@@ -31,6 +31,14 @@ AdvanceMENU Version 2.1.0 2002/08
 	) Fixed the slowdown bug with a lot of MESS roms.
 	) Generally improved the speed of the select/sort implementation
 		of the list of games.
+	) Added the `loop' option to continuosly play the MNG files.
+	) In a single column mode the left and right events are now like
+		page up and page down events.
+	) Now the idle event never interrupt a long game clip or sound.
+	) If the generic emulator path is empty the idle start event
+		is automatically disabled.
+	) When returning from a idle start event the game clip and sound
+		aren't played.
 
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics

@@ -27,7 +27,7 @@
 #include "choice.h"
 #include "conf.h"
 
-// Type of sorting
+/// Type of sorting.
 enum game_sort_t {
 	sort_by_group,
 	sort_by_name,
@@ -85,7 +85,7 @@ typedef bool (*pgame_sort_func)(const game*, const game*);
 
 typedef std::set<const game*,pgame_sort_func> pgame_sort_set;
 
-// List mode
+/// Type of mode.
 enum show_t {
 	mode_list = 1,
 	mode_tile_small = 2,
@@ -101,7 +101,7 @@ enum show_t {
 	mode_text = 2048
 };
 
-// Type of image to display
+/// Type of image to display.
 enum preview_t {
 	preview_snap = 1,
 	preview_flyer = 2,
@@ -111,7 +111,7 @@ enum preview_t {
 	preview_title = 32
 };
 
-// Type of image to display
+/// Type of screensaver to display.
 enum saver_t {
 	saver_snap,
 	saver_play,
@@ -121,10 +121,11 @@ enum saver_t {
 	saver_off
 };
 
+/// Type of configuration save/restore.
 enum restore_t {
-	restore_none, // save the modification in the config file
-	restore_exit, // restore the original before exiting
-	restore_idle // restore the original data at the idle
+	restore_none, ///< Save the modification in the config file.
+	restore_exit, ///< Restore the original before exiting.
+	restore_idle ///< Restore the original data at the idle.
 };
 
 struct config_state {
@@ -133,32 +134,32 @@ struct config_state {
 	bool load_iterator_game(struct conf_context* config_context, const std::string& tag);
 
 public:
-	game_set gar; // main game list
+	game_set gar; ///< Main game list.
 
-	pcategory_container group; // group set
-	pcategory_container type; // type set
-	category_container include_group_effective; // included groups
-	category_container include_type_effective; // included types
-	category_container include_group_orig;
-	category_container include_type_orig;
+	pcategory_container group; ///< Group set.
+	pcategory_container type; ///< Type set.
+	category_container include_group_orig; ///< Original Included groups.
+	category_container include_type_orig; ///< Original Included types.
+	category_container include_group_effective; ///< Included groups.
+	category_container include_type_effective; ///< Included types.
 
-	bool lock_effective; // interface locked
-	bool lock_orig;
+	bool lock_orig; ///< Original interface locked.
+	bool lock_effective; ///< Interface locked.
 
-	pemulator_container emu; // list of supported emulators
-	pemulator_container emu_active; // list of active emulators, a subset of emu.
-	emulator_container include_emu_effective; // emulator listed
-	emulator_container include_emu_orig; // emulator listed
+	pemulator_container emu; ///< Supported emulators set.
+	pemulator_container emu_active; ///< Active emulators, a subset of emu.
+	emulator_container include_emu_orig; ///< Original included emulators.
+	emulator_container include_emu_effective; ///< Included emulators.
 
 	// video
-	unsigned video_size; // preferred video x size
-	unsigned video_depth; // video bit depth
-	bool video_reset_mode; // reset to text mode
-	std::string video_font_path; // font, "none"== default
-	double video_gamma;
-	double video_brightness;
-	unsigned video_orientation_orig;
-	unsigned video_orientation_effective;
+	unsigned video_size; ///< Preferred video x size.
+	unsigned video_depth; ///< Preferred video bit depth.
+	bool video_reset_mode; ///< Reset to text mode at exit.
+	std::string video_font_path; ///< Font path, "none"== default.
+	double video_gamma; ///< Video gamma.
+	double video_brightness; ///< Video brightness.
+	unsigned video_orientation_orig; ///< Original video orientation.
+	unsigned video_orientation_effective; ///< Video orientation.
 
 	// desc import
 	std::string desc_import_type;
@@ -177,49 +178,51 @@ public:
 	std::string group_import_file;
 	std::string group_import_section;
 
-	preview_t preview_effective; // type of preview selected
-	preview_t preview_orig;
-	bool preview_fast; // fast preview (skip if keypress)
-	double preview_expand; // max strect factor
-	std::string preview_default; // default preview
-	std::string preview_default_snap; // default preview for the specified mode
-	std::string preview_default_flyer; // default preview for the specified mode
-	std::string preview_default_cabinet; // default preview for the specified mode
-	std::string preview_default_icon; // default preview for the specified mode
-	std::string preview_default_marquee; // default preview for the specified mode
-	std::string preview_default_title; // default preview for the specified mode
+	preview_t preview_orig; ///< Original preview type selected.
+	preview_t preview_effective; ///< Preview type selected.
+	bool preview_fast; ///< Fast preview mode.
+	double preview_expand; ///< Max strect factor
+	std::string preview_default; ///< Default preview file.
+	std::string preview_default_snap; ///< Default preview file for the specified mode.
+	std::string preview_default_flyer; ///< Default preview file for the specified mode.
+	std::string preview_default_cabinet; ///< Default preview file for the specified mode.
+	std::string preview_default_icon; ///< Default preview file for the specified mode.
+	std::string preview_default_marquee; ///< Default preview file for the specified mode.
+	std::string preview_default_title; ///< Default preview file for the specified mode.
 
-	unsigned icon_space; // space between icons
+	bool loop; ///< Loop the play of all the game clips and sounds.
 
-	unsigned menu_base_orig; // cursor position
-	unsigned menu_rel_orig; // current game
-	unsigned menu_base_effective; // cursor position
-	unsigned menu_rel_effective; // current game
+	unsigned icon_space; ///< Space in pixels between icons.
 
-	bool alpha_mode; // use alphanumeric keys for fast move
+	unsigned menu_base_orig; ///< Original cursor position.
+	unsigned menu_rel_orig; ///< Original current game.
+	unsigned menu_base_effective; ///< Cursor position.
+	unsigned menu_rel_effective; ///< Current game.
 
-	game_sort_t sort_effective; // sort mode
-	game_sort_t sort_orig;
+	bool alpha_mode; ///< Use alphanumeric keys for fast move.
 
-	show_t mode_effective; // list mode
-	show_t mode_orig; // list mode
-	unsigned mode_mask; // list of available modes (derived)
-	unsigned mode_skip_mask; // list of mode skipped
+	game_sort_t sort_orig; ///< Original sort mode.
+	game_sort_t sort_effective; ///< Sort mode.
 
-	unsigned idle_start_first; // seconds
-	unsigned idle_start_rep; // seconds
-	unsigned idle_saver_first; // seconds
-	unsigned idle_saver_rep; // seconds
-	saver_t idle_saver_type;
-	unsigned repeat; // milli seconds
-	unsigned repeat_rep; // milli seconds
+	show_t mode_orig; ///< Original list mode.
+	show_t mode_effective; ///< List mode.
 
-	merge_t merge; // rom merge type
+	unsigned mode_skip_mask; ///< Mask of modes to skip.
 
-	std::string msg_run_game; // message to display before a game run
-	saver_t run_saver_type; // preview to display before a game run
+	unsigned idle_start_first; ///< Idle time before the first automatic start action (seconds).
+	unsigned idle_start_rep; ///< Idle time before the next automatic start action (seconds).
+	unsigned idle_saver_first; ///< Idle time before the first screensaver action (seconds).
+	unsigned idle_saver_rep; ///< Idle time before the next screensaver action (seconds).
+	saver_t idle_saver_type; ///< Screensaver type.
+	unsigned repeat; // Keyboard first repeat period.
+	unsigned repeat_rep; ///< Keyboard next repeat period.
 
-	unsigned exit_count; // number of times the exit buttun need to be pressed
+	merge_t merge; ///< Rom merge type.
+
+	std::string msg_run_game; ///< Message to display before a game run.
+	saver_t run_saver_type; ///< Preview to display before a game run.
+
+	unsigned exit_count; ///< Number of times the exit buttun need to be pressed.
 
 	// foreground sound
 	std::string sound_foreground_begin;
@@ -234,21 +237,22 @@ public:
 	std::string sound_background_start;
 	std::string sound_background_stop;
 	std::string sound_background_loop;
-	std::string sound_background_loop_dir; // directory for background file
-	path_container sound_background; // list of background file
+	std::string sound_background_loop_dir; ///< Directory for background file.
 
-	// restore
-	restore_t restore;
+	// configure
+	restore_t restore; ///< Configuration restore mode.
+
+	bool quiet; ///< Quiet mode.
 
 	// internal state
-	unsigned preview_mask; // type of preview accepted (computed for the shown games)
-	const game* current_game; // gioco alla posizione del cursore, ==0 se nessuno
-	const game* current_clone; // clone scelto, ==0 se nessuno
-	std::string fast; // stringa per selezione veloce
-	resource current_backdrop; // backdrop shown for the current game, "" if none
-	resource current_sound; // sound used for the current game, "" if none
-
-	bool quiet; // quiet mode
+	unsigned mode_mask; ///< Mask of available modes.
+	path_container sound_background; ///< List of background file.
+	unsigned preview_mask; ///< Mask of preview accepted (derived for the shown games)
+	const game* current_game; ///< Game at the cursor position, ==0 if none.
+	const game* current_clone; ///< Clone game selected, ==0 if none.
+	std::string fast; ///< Fast selection string.
+	resource current_backdrop; ///< Image shown for the current game.
+	resource current_sound; ///< Sound played for the current game.
 
 	config_state();
 	~config_state();
