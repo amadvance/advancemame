@@ -1179,7 +1179,8 @@ Configuration
 			black, blue, green, cyan, red, magenta, brown,
 			lightgray, gray, lightblue, lightgreen
 			lightcyan, lightred, lightmagenta, yellow,
-			white.
+			white or RRGGBB in hex format. For example
+			FF0000 is red and 00FF00 green.
 		BACKGROUND - Background color. Like foreground color.
 
     misc_quiet

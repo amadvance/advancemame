@@ -34,12 +34,12 @@
 
 using namespace std;
 
-static string text_sound_event_key;
+static string int_sound_event_key;
 
-static bool text_alpha_mode;
+static bool int_alpha_mode;
 
 // Orientation flag
-static unsigned text_orientation = 0;
+static unsigned int_orientation = 0;
 
 // Font (already orientation corrected)
 static unsigned real_font_dx;
@@ -63,33 +63,33 @@ static inline void swap(int& a, int& b)
 	b = t;
 }
 
-int text_dx_get()
+int int_dx_get()
 {
-	if (text_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ORIENTATION_FLIP_XY)
 		return video_size_y();
 	else
 		return video_size_x();
 }
 
-int text_dy_get()
+int int_dy_get()
 {
-	if (text_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ORIENTATION_FLIP_XY)
 		return video_size_x();
 	else
 		return video_size_y();
 }
 
-int text_font_dx_get()
+int int_font_dx_get()
 {
-	if (text_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ORIENTATION_FLIP_XY)
 		return real_font_dy;
 	else
 		return real_font_dx;
 }
 
-int text_font_dy_get()
+int int_font_dy_get()
 {
-	if (text_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ORIENTATION_FLIP_XY)
 		return real_font_dx;
 	else
 		return real_font_dy;
@@ -119,10 +119,6 @@ public:
 	unsigned target_dy_get() const { return target_dy; }
 	unsigned aspectx_get() const { return aspectx; }
 	unsigned aspecty_get() const { return aspecty; }
-
-	// RGB palette for 8 bits video modes
-	adv_color_rgb rgb[256];
-	unsigned rgb_max;
 };
 
 backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty)
@@ -162,10 +158,10 @@ struct backdrop_t {
 };
 
 // Color used for missing backdrop
-static unsigned backdrop_missing_color;
+static int_color backdrop_missing_color;
 
 // Color used for the lighting box backdrop
-static unsigned backdrop_box_color;
+static int_color backdrop_box_color;
 
 #define BACKDROP_MAX 512
 static unsigned backdrop_mac;
@@ -182,98 +178,97 @@ static double backdrop_expand_factor; // stretch factor
 static unsigned backdrop_outline; // size of the backdrop outline
 static unsigned backdrop_cursor; // size of the backdrop cursor
 
-static string text_cfg_file;
+static string int_cfg_file;
 
-static bool text_updating_active; // is updating the video
+static bool int_updating_active; // is updating the video
 
 // -----------------------------------------------------------------------
 // Joystick
 
-static void text_joystick_init(adv_conf* config_context)
+static void int_joystick_init(adv_conf* config_context)
 {
 	joystickb_reg(config_context, 0);
 	joystickb_reg_driver_all(config_context);
 }
 
-static void text_joystick_done()
+static void int_joystick_done()
 {
 }
 
-static bool text_joystick_load(adv_conf* config_context)
+static bool int_joystick_load(adv_conf* config_context)
 {
 	if (joystickb_load(config_context) != 0)
 		return false;
 	return true;
 }
 
-static bool text_joystick_init2()
+static bool int_joystick_init2()
 {
 	if (joystickb_init() != 0)
 		return false;
 	return true;
 }
 
-static void text_joystick_done2()
+static void int_joystick_done2()
 {
 	joystickb_done();
 }
 
-static int text_joystick_button_raw_poll()
+static int int_joystick_button_raw_poll()
 {
 	for(int i=0;i<joystickb_count_get();++i) {
 		for(int j=0;j<joystickb_button_count_get(i);++j) {
 			if (joystickb_button_get(i, j)) {
 				switch (j) {
-					case 0 : return TEXT_KEY_ENTER;
-					case 1 : return TEXT_KEY_ESC;
-					case 2 : return TEXT_KEY_MENU;
-					case 3 : return TEXT_KEY_SPACE;
-					case 4 : return TEXT_KEY_MODE;
+					case 0 : return INT_KEY_ENTER;
+					case 1 : return INT_KEY_ESC;
+					case 2 : return INT_KEY_MENU;
+					case 3 : return INT_KEY_SPACE;
+					case 4 : return INT_KEY_MODE;
 				}
 			}
 		}
 	}
 
-	return TEXT_KEY_NONE;
+	return INT_KEY_NONE;
 }
 
-static int text_joystick_move_raw_poll()
+static int int_joystick_move_raw_poll()
 {
-
 	for(int i=0;i<joystickb_count_get();++i) {
 		for(int j=0;j<joystickb_stick_count_get(i);++j) {
 			if (joystickb_stick_axe_count_get(i, j) > 0) {
 				if (joystickb_stick_axe_digital_get(i, j, 0, 0))
-					return TEXT_KEY_RIGHT;
+					return INT_KEY_RIGHT;
 				if (joystickb_stick_axe_digital_get(i, j, 0, 1))
-					return TEXT_KEY_LEFT;
+					return INT_KEY_LEFT;
 			}
 			if (joystickb_stick_axe_count_get(i, j) > 1) {
 				if (joystickb_stick_axe_digital_get(i, j, 1, 0))
-					return TEXT_KEY_DOWN;
+					return INT_KEY_DOWN;
 				if (joystickb_stick_axe_digital_get(i, j, 1, 1))
-					return TEXT_KEY_UP;
+					return INT_KEY_UP;
 			}
 		}
 	}
 
-	return TEXT_KEY_NONE;
+	return INT_KEY_NONE;
 }
 
 // -----------------------------------------------------------------------
 // Key
 
-static void text_key_init(adv_conf* config_context)
+static void int_key_init(adv_conf* config_context)
 {
 	keyb_reg(config_context, 1);
 	keyb_reg_driver_all(config_context);
 }
 
-static void text_key_done()
+static void int_key_done()
 {
 }
 
-static bool text_key_load(adv_conf* config_context)
+static bool int_key_load(adv_conf* config_context)
 {
 	if (keyb_load(config_context) != 0)
 		return false;
@@ -281,7 +276,7 @@ static bool text_key_load(adv_conf* config_context)
 	return true;
 }
 
-static bool text_key_init2()
+static bool int_key_init2()
 {
 	if (keyb_init(0) != 0)
 		return false;
@@ -289,7 +284,7 @@ static bool text_key_init2()
 	return true;
 }
 
-static void text_key_done2()
+static void int_key_done2()
 {
 	keyb_done();
 }
@@ -297,26 +292,26 @@ static void text_key_done2()
 // -----------------------------------------------------------------------
 // Mouse
 
-static int text_mouse_delta;
-static int text_mouse_pos_x;
-static int text_mouse_pos_y;
+static int int_mouse_delta;
+static int int_mouse_pos_x;
+static int int_mouse_pos_y;
 
-static void text_mouse_init(adv_conf* config_context)
+static void int_mouse_init(adv_conf* config_context)
 {
 	mouseb_reg(config_context, 0);
 	mouseb_reg_driver_all(config_context);
 	conf_int_register_limit_default(config_context, "mouse_delta", 1, 1000, 100);
 }
 
-static void text_mouse_done()
+static void int_mouse_done()
 {
 }
 
-static bool text_mouse_load(adv_conf* config_context)
+static bool int_mouse_load(adv_conf* config_context)
 {
-	text_mouse_pos_x = 0;
-	text_mouse_pos_y = 0;
-	text_mouse_delta = conf_int_get_default(config_context, "mouse_delta");
+	int_mouse_pos_x = 0;
+	int_mouse_pos_y = 0;
+	int_mouse_delta = conf_int_get_default(config_context, "mouse_delta");
 
 	if (mouseb_load(config_context) != 0)
 		return false;
@@ -324,7 +319,7 @@ static bool text_mouse_load(adv_conf* config_context)
 	return true;
 }
 
-static bool text_mouse_init2()
+static bool int_mouse_init2()
 {
 	if (mouseb_init() != 0)
 		return false;
@@ -332,59 +327,59 @@ static bool text_mouse_init2()
 	return true;
 }
 
-static void text_mouse_done2()
+static void int_mouse_done2()
 {
 	mouseb_done();
 }
 
-static int text_mouse_button_raw_poll()
+static int int_mouse_button_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
 		if (mouseb_button_count_get(i) > 0 && mouseb_button_get(i, 0))
-			return TEXT_KEY_ENTER;
+			return INT_KEY_ENTER;
 
 		if (mouseb_button_count_get(i) > 1 && mouseb_button_get(i, 1))
-			return TEXT_KEY_ESC;
+			return INT_KEY_ESC;
 
 		if (mouseb_button_count_get(i) > 2 && mouseb_button_get(i, 2))
-			return TEXT_KEY_MENU;
+			return INT_KEY_MENU;
 	}
 
-	return TEXT_KEY_NONE;
+	return INT_KEY_NONE;
 }
 
-static int text_mouse_move_raw_poll()
+static int int_mouse_move_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
 		int x, y;
 
 		mouseb_pos_get(i, &x, &y);
 
-		text_mouse_pos_x += x;
-		text_mouse_pos_y += y;
+		int_mouse_pos_x += x;
+		int_mouse_pos_y += y;
 	}
 
-	if (text_mouse_pos_x >= text_mouse_delta) {
-		text_mouse_pos_x -= text_mouse_delta;
-		return TEXT_KEY_RIGHT;
+	if (int_mouse_pos_x >= int_mouse_delta) {
+		int_mouse_pos_x -= int_mouse_delta;
+		return INT_KEY_RIGHT;
 	}
 
-	if (text_mouse_pos_x <= -text_mouse_delta) {
-		text_mouse_pos_x += text_mouse_delta;
-		return TEXT_KEY_LEFT;
+	if (int_mouse_pos_x <= -int_mouse_delta) {
+		int_mouse_pos_x += int_mouse_delta;
+		return INT_KEY_LEFT;
 	}
 
-	if (text_mouse_pos_y >= text_mouse_delta) {
-		text_mouse_pos_y -= text_mouse_delta;
-		return TEXT_KEY_DOWN;
+	if (int_mouse_pos_y >= int_mouse_delta) {
+		int_mouse_pos_y -= int_mouse_delta;
+		return INT_KEY_DOWN;
 	}
 
-	if (text_mouse_pos_y <= -text_mouse_delta) {
-		text_mouse_pos_y += text_mouse_delta;
-		return TEXT_KEY_UP;
+	if (int_mouse_pos_y <= -int_mouse_delta) {
+		int_mouse_pos_y += int_mouse_delta;
+		return INT_KEY_UP;
 	}
 
-	return TEXT_KEY_NONE;
+	return INT_KEY_NONE;
 }
 
 // -------------------------------------------------------------------------
@@ -392,27 +387,27 @@ static int text_mouse_move_raw_poll()
 
 #define DEFAULT_GRAPH_MODE "default_graph" // default video mode
 
-static unsigned text_mode_size;
-static adv_mode text_current_mode; // selected video mode
-static adv_monitor text_monitor; // monitor info
-static adv_generate_interpolate_set text_interpolate;
-static adv_crtc_container text_modelines;
-static bool text_has_clock = false;
-static bool text_has_generate = false;
+static unsigned int_mode_size;
+static adv_mode int_current_mode; // selected video mode
+static adv_monitor int_monitor; // monitor info
+static adv_generate_interpolate_set int_interpolate;
+static adv_crtc_container int_modelines;
+static bool int_has_clock = false;
+static bool int_has_generate = false;
 
 // comparing for graphics mode
-bool mode_graphics_less(const adv_mode* A, const adv_mode* B)
+bool int_mode_graphics_less(const adv_mode* A, const adv_mode* B)
 {
 	int areaA = A->size_x * A->size_y;
 	int areaB = B->size_x * B->size_y;
 
-	int difA = abs( areaA - static_cast<int>(text_mode_size*text_mode_size*3/4) );
-	int difB = abs( areaB - static_cast<int>(text_mode_size*text_mode_size*3/4) );
+	int difA = abs( areaA - static_cast<int>(int_mode_size*int_mode_size*3/4) );
+	int difB = abs( areaB - static_cast<int>(int_mode_size*int_mode_size*3/4) );
 
 	return difA < difB;
 }
 
-static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container& modelines)
+static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& modelines)
 {
 	adv_crtc_container_iterator i;
 	adv_error err;
@@ -424,13 +419,13 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 
 			// check the clocks only if the driver is programmable
 			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
-				if (!crtc_clock_check(&text_monitor, crtc)) {
+				if (!crtc_clock_check(&int_monitor, crtc)) {
 					target_err("The selected mode '%s' is out of your monitor capabilities.\n", DEFAULT_GRAPH_MODE);
 					return false;
 				}
 			}
 
-			if (video_mode_generate(&text_current_mode, crtc, index)!=0) {
+			if (video_mode_generate(&int_current_mode, crtc, index)!=0) {
 				target_err("The selected mode '%s' is out of your video board capabilities.\n", DEFAULT_GRAPH_MODE);
 				return false;
 			}
@@ -441,15 +436,15 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 	}
 
 	// generate an exact mode with clock
-	if (text_has_generate) {
+	if (int_has_generate) {
 		adv_crtc crtc;
-		err = generate_find_interpolate(&crtc, text_mode_size, text_mode_size*3/4, 70, &text_monitor, &text_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate(&crtc, int_mode_size, int_mode_size*3/4, 70, &int_monitor, &int_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
 		if (err == 0) {
-			if (crtc_clock_check(&text_monitor, &crtc)) {
+			if (crtc_clock_check(&int_monitor, &crtc)) {
 				adv_mode mode;
 				mode_reset(&mode);
 				if (video_mode_generate(&mode, &crtc, index)==0) {
-					text_current_mode = mode;
+					int_current_mode = mode;
 					mode_found = true;
 					log_std(("text: generating a perfect mode from the format option.\n"));
 					return true;
@@ -459,14 +454,14 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 	}
 
 	// generate any resolution for a window manager
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		adv_crtc crtc;
-		crtc_fake_set(&crtc, text_mode_size, text_mode_size*3/4);
+		crtc_fake_set(&crtc, int_mode_size, int_mode_size*3/4);
 
 		adv_mode mode;
 		mode_reset(&mode);
 		if (video_mode_generate(&mode, &crtc, index)==0) {
-			text_current_mode = mode;
+			int_current_mode = mode;
 			mode_found = true;
 			log_std(("text: generating a perfect mode for the window manager.\n"));
 			return true;
@@ -479,7 +474,7 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 
 		// check the clocks only if the driver is programmable
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
-			if (!crtc_clock_check(&text_monitor, crtc)) {
+			if (!crtc_clock_check(&int_monitor, crtc)) {
 				continue;
 			}
 		}
@@ -487,8 +482,8 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 		adv_mode mode;
 		mode_reset(&mode);
 		if (video_mode_generate(&mode, crtc, index)==0) {
-			if (!mode_found || mode_graphics_less(&mode, &text_current_mode)) {
-				text_current_mode = mode;
+			if (!mode_found || int_mode_graphics_less(&mode, &int_current_mode)) {
+				int_current_mode = mode;
 				mode_found = true;
 			}
 		}
@@ -500,36 +495,34 @@ static bool text_mode_find(bool& mode_found, unsigned index, adv_crtc_container&
 // -------------------------------------------------------------------------
 // text
 
-static double text_gamma;
-static double text_brightness;
+static double int_gamma;
+static double int_brightness;
 
-static int text_key_saved = TEXT_KEY_NONE;
-static int text_key_last = TEXT_KEY_NONE;
+static int int_key_saved = INT_KEY_NONE;
+static int int_key_last = INT_KEY_NONE;
 
-static unsigned text_idle_0; // seconds before the first 0 event
-static unsigned text_idle_0_rep; // seconds before the second 0 event
-static unsigned text_idle_1; // seconds before the first 1 event
-static unsigned text_idle_1_rep; // seconds before the second 1 event
-static unsigned text_repeat; // milli seconds before the first key repeat event
-static unsigned text_repeat_rep; // milli seconds before the second key repeat event
-static time_t text_idle_time;
-static bool text_idle_0_state;
-static bool text_idle_1_state;
+static unsigned int_idle_0; // seconds before the first 0 event
+static unsigned int_idle_0_rep; // seconds before the second 0 event
+static unsigned int_idle_1; // seconds before the first 1 event
+static unsigned int_idle_1_rep; // seconds before the second 1 event
+static unsigned int_repeat; // milli seconds before the first key repeat event
+static unsigned int_repeat_rep; // milli seconds before the second key repeat event
+static time_t int_idle_time;
+static bool int_idle_0_state;
+static bool int_idle_1_state;
 
-static bool text_wait_for_backdrop; // wait for backdrop completion
+static bool int_wait_for_backdrop; // wait for backdrop completion
 
 static unsigned video_buffer_size;
 static unsigned video_buffer_line_size;
 static unsigned video_buffer_pixel_size;
 static unsigned char* video_buffer;
 
-static void palette_set(adv_color_rgb* pal, unsigned pal_max, unsigned* conv);
-
-void text_init(adv_conf* config_context)
+void int_init(adv_conf* config_context)
 {
-	text_mouse_init(config_context);
-	text_joystick_init(config_context);
-	text_key_init(config_context);
+	int_mouse_init(config_context);
+	int_joystick_init(config_context);
+	int_key_init(config_context);
 	generate_interpolate_register(config_context);
 	monitor_register(config_context);
 
@@ -538,42 +531,42 @@ void text_init(adv_conf* config_context)
 
 	crtc_container_register(config_context);
 
-	crtc_container_init(&text_modelines);
+	crtc_container_init(&int_modelines);
 }
 
-bool text_load(adv_conf* config_context)
+bool int_load(adv_conf* config_context)
 {
 	adv_error err;
 
-	if (!text_joystick_load(config_context))
+	if (!int_joystick_load(config_context))
 		return false;
-	if (!text_mouse_load(config_context))
+	if (!int_mouse_load(config_context))
 		return false;
-	if (!text_key_load(config_context))
+	if (!int_key_load(config_context))
 		return false;
 
-	err = generate_interpolate_load(config_context, &text_interpolate);
+	err = generate_interpolate_load(config_context, &int_interpolate);
 	if (err<0) {
 		target_err("%s\n", error_get());
 		return false;
 	}
 	if (err==0) {
-		text_has_generate = true;
+		int_has_generate = true;
 	} else {
-		text_has_generate = false;
+		int_has_generate = false;
 		log_std(("text: format option not found.\n"));
 	}
 
-	err = monitor_load(config_context, &text_monitor);
+	err = monitor_load(config_context, &int_monitor);
 	if (err<0) {
 		target_err("%s\n", error_get());
 		return false;
 	}
 	if (err==0) {
-		text_has_clock = true;
+		int_has_clock = true;
 	} else {
-		text_has_clock = false;
-		monitor_parse(&text_monitor, "10 - 80", "30.5 - 60", "55 - 90");
+		int_has_clock = false;
+		monitor_parse(&int_monitor, "10 - 80", "30.5 - 60", "55 - 90");
 		log_std(("text: clock options not found. Use default SVGA monitor clocks.\n"));
 	}
 
@@ -583,7 +576,7 @@ bool text_load(adv_conf* config_context)
 		return false;
 	}
 
-	err = crtc_container_load(config_context, &text_modelines);
+	err = crtc_container_load(config_context, &int_modelines);
 	if (err!=0) {
 		target_err("%s\n", error_get());
 		return false;
@@ -592,22 +585,22 @@ bool text_load(adv_conf* config_context)
 	return true;
 }
 
-void text_done(void)
+void int_done(void)
 {
-	crtc_container_done(&text_modelines);
-	text_mouse_done();
-	text_joystick_done();
-	text_key_done();
+	crtc_container_done(&int_modelines);
+	int_mouse_done();
+	int_joystick_done();
+	int_key_done();
 }
 
-bool text_init2(unsigned size, const string& sound_event_key)
+bool int_init2(unsigned size, const string& sound_event_key)
 {
 	unsigned index;
 	bool mode_found = false;
 
-	text_mode_size = size;
-	text_sound_event_key = sound_event_key;
-	mode_reset(&text_current_mode);
+	int_mode_size = size;
+	int_sound_event_key = sound_event_key;
+	mode_reset(&int_current_mode);
 
 	if (video_init() != 0) {
 		target_err("%s\n", error_get());
@@ -617,31 +610,35 @@ bool text_init2(unsigned size, const string& sound_event_key)
 	if (video_blit_init() != 0) {
 		video_done();
 		target_err("%s\n", error_get());
-		goto out_video;
+		goto int_video;
+	}
+
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM)!=0) {
+		target_err("Zoom output mode not supported by this program.\n");
+		goto int_blit;
 	}
 
 	// disable generate if the clocks are not available
-	if (!text_has_clock)
-		text_has_generate = false;
+	if (!int_has_clock)
+		int_has_generate = false;
 
 	// disable generate if the driver is not programmable
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
-		text_has_generate = false;
+		int_has_generate = false;
 
 	// add modes if the list is empty and no generation is possibile
-	if (!text_has_generate
-		&& crtc_container_is_empty(&text_modelines)) {
+	if (!int_has_generate
+		&& crtc_container_is_empty(&int_modelines)) {
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
-			crtc_container_insert_default_modeline_svga(&text_modelines);
-			crtc_container_insert_default_modeline_vga(&text_modelines);
+			crtc_container_insert_default_modeline_svga(&int_modelines);
+			crtc_container_insert_default_modeline_vga(&int_modelines);
 		} else {
-			crtc_container_insert_default_system(&text_modelines);
+			crtc_container_insert_default_system(&int_modelines);
 		}
 	}
 
 	// check if the video driver has a default bit depth
 	switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
-	case VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8 : index = MODE_FLAGS_INDEX_PALETTE8; break;
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8 : index = MODE_FLAGS_INDEX_BGR8; break;
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15 : index = MODE_FLAGS_INDEX_BGR15; break;
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16 : index = MODE_FLAGS_INDEX_BGR16; break;
@@ -652,110 +649,107 @@ bool text_init2(unsigned size, const string& sound_event_key)
 	}
 
 	if (index) {
-		if (!text_mode_find(mode_found, index, text_modelines))
-			goto out_blit;
+		if (!int_mode_find(mode_found, index, int_modelines))
+			goto int_blit;
 	}
 
 	// if no mode found retry with a different bit depth
 	if (!mode_found) {
-		unsigned select[] = { MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_PALETTE8, MODE_FLAGS_INDEX_BGR8, 0 };
+		unsigned select[] = { MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, 0 };
 		unsigned* i;
 
 		i = select;
 		while (*i && !mode_found) {
-			if (!text_mode_find(mode_found, *i, text_modelines))
-				goto out_blit;
+			if (!int_mode_find(mode_found, *i, int_modelines))
+				goto int_blit;
 			++i;
 		}
 	}
 
 	if (!mode_found) {
 		target_err("No video modes available for your current configuration.\n");
-		goto out_blit;
+		goto int_blit;
 	}
 
 	return true;
 
-out_blit:
+int_blit:
 	video_blit_done();
-out_video:
+int_video:
 	video_done();
 out:
 	return false;
 }
 
-void text_done2()
+void int_done2()
 {
 	video_blit_done();
 	video_done();
 }
 
-bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
+bool int_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
 {
 
-	text_alpha_mode = alpha_mode;
+	int_alpha_mode = alpha_mode;
 
-	text_idle_time = time(0);
-	text_idle_0 = idle_0;
-	text_idle_1 = idle_1;
-	text_idle_0_rep = idle_0_rep;
-	text_idle_1_rep = idle_1_rep;
-	text_repeat = repeat;
-	text_repeat_rep = repeat_rep;
-	text_idle_0_state = true;
-	text_idle_1_state = true;
-	text_wait_for_backdrop = !backdrop_fast;
+	int_idle_time = time(0);
+	int_idle_0 = idle_0;
+	int_idle_1 = idle_1;
+	int_idle_0_rep = idle_0_rep;
+	int_idle_1_rep = idle_1_rep;
+	int_repeat = repeat;
+	int_repeat_rep = repeat_rep;
+	int_idle_0_state = true;
+	int_idle_1_state = true;
+	int_wait_for_backdrop = !backdrop_fast;
 	if (gamma < 0.1) gamma = 0.1;
 	if (gamma > 10) gamma = 10;
-	text_gamma = 1.0 / gamma;
-	text_brightness = brightness;
+	int_gamma = 1.0 / gamma;
+	int_brightness = brightness;
 
-	if (video_mode_set(&text_current_mode) != 0) {
+	if (video_mode_set(&int_current_mode) != 0) {
 		video_mode_restore();
 		target_err("%s\n", error_get());
 		goto out;
 	}
 
-	if (!text_key_init2()) {
+	if (!int_key_init2()) {
 		video_mode_restore();
 		target_err("%s\n", error_get());
 		goto out;
 	}
 
-	if (!text_joystick_init2()) {
+	if (!int_joystick_init2()) {
 		video_mode_restore();
 		target_err("%s\n", error_get());
-		goto out_key;
+		goto int_key;
 	}
 
-	if (!text_mouse_init2()) {
+	if (!int_mouse_init2()) {
 		video_mode_restore();
 		target_err("%s\n", error_get());
-		goto out_joy;
+		goto int_joy;
 	}
 
-	if (video_index() == MODE_FLAGS_INDEX_PALETTE8)
-		palette_set(0, 0, 0);
-		
 	return true;
 
-out_joy:
-	text_joystick_done();
-out_key:
-	text_key_done();
+int_joy:
+	int_joystick_done();
+int_key:
+	int_key_done();
 out:
 	return false;
 }
 
-void text_done3(bool reset_video_mode)
+void int_done3(bool reset_video_mode)
 {
 
-	text_mouse_done2();
-	text_joystick_done2();
-	text_key_done2();
+	int_mouse_done2();
+	int_joystick_done2();
+	int_key_done2();
 
 	if (reset_video_mode) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
 			video_write_lock();
 			video_clear(0, 0, video_size_x(), video_size_y(), 0);
 			video_write_unlock(0, 0, video_size_x(), video_size_y());
@@ -767,9 +761,9 @@ void text_done3(bool reset_video_mode)
 
 }
 
-bool text_init4(const string& font, unsigned orientation)
+bool int_init4(const string& font, unsigned orientation)
 {
-	text_orientation = orientation;
+	int_orientation = orientation;
 
 	// load the font
 	real_font_map = 0;
@@ -780,7 +774,7 @@ bool text_init4(const string& font, unsigned orientation)
 		real_font_map = font_default(video_size_y() / 25);
 
 	// set the orientation
-	font_orientation(real_font_map, text_orientation);
+	font_orientation(real_font_map, int_orientation);
 
 	// compute font size
 	real_font_dx = font_size_x(real_font_map);
@@ -791,176 +785,77 @@ bool text_init4(const string& font, unsigned orientation)
 	video_buffer_size = video_size_y() * video_buffer_line_size;
 	video_buffer = (unsigned char*)operator new(video_buffer_size);
 
-	text_clear();
+	int_clear();
 
-	text_updating_active = false;
+	int_updating_active = false;
 
 	return true;
 }
 
-void text_done4()
+void int_done4()
 {
 	font_free(real_font_map);
 	operator delete(video_buffer);
 }
 
 //---------------------------------------------------------------------------
-// Palette
-
-#define PALETTE_RESERVED_MAX 16
-
-static adv_color_rgb PALETTE_RESERVED[PALETTE_RESERVED_MAX] = {
-{   0,  0,  0, 0 },
-{ 192,  0,  0, 0 },
-{   0, 192,  0, 0 },
-{ 192, 192,  0, 0 },
-{   0,  0, 192, 0 },
-{ 192,  0, 192, 0 },
-{   0, 192, 192, 0 },
-{ 192, 192, 192, 0 },
-{ 128, 128, 128, 0 },
-{ 255,  0,  0, 0 },
-{   0, 255,  0, 0 },
-{ 255, 255,  0, 0 },
-{   0,  0, 255, 0 },
-{ 255,  0, 255, 0 },
-{   0, 255, 255, 0 },
-{ 255, 255, 255, 0 }
-};
-
-static adv_color_rgb text_palette[256];
-
-int palette_dist(const adv_color_rgb& A, const adv_color_rgb& B)
-{
-	int r = (int)A.red - B.red;
-	int g = (int)A.green - B.green;
-	int b = (int)A.blue - B.blue;
-	return r*r + g*g + b*b;
-}
-
-static void palette_set(adv_color_rgb* pal, unsigned pal_max, unsigned* conv)
-{
-	unsigned i;
-	for(i=0;i<PALETTE_RESERVED_MAX;++i)
-		text_palette[i] = PALETTE_RESERVED[i];
-
-	for(i=0;i<256-PALETTE_RESERVED_MAX && i<pal_max;++i) {
-		text_palette[i+PALETTE_RESERVED_MAX] = pal[i];
-		conv[i] = i+PALETTE_RESERVED_MAX;
-	}
-
-	// search for best colors
-	while (i<pal_max) {
-		unsigned best = PALETTE_RESERVED_MAX;
-		int dist = palette_dist(pal[i], text_palette[best]);
-		for(unsigned j=best+1;j<256;++j) {
-			int ndist = palette_dist(pal[i], text_palette[j]);
-			if (ndist < dist) {
-				dist = ndist;
-				best = j;
-			}
-		}
-		conv[i] = best;
-		++i;
-	}
-
-	for(i=0;i<256;++i) {
-		double f = 255.0 * text_brightness;
-		text_palette[i].red = (uint8)(f * pow(text_palette[i].red / 255.0, text_gamma));
-		text_palette[i].green = (uint8)(f * pow(text_palette[i].green / 255.0, text_gamma));
-		text_palette[i].blue = (uint8)(f * pow(text_palette[i].blue / 255.0, text_gamma));
-	}
-}
-
-// Conversion from text color to video color
-static inline adv_pixel index2color(unsigned color)
-{
-	if (video_index() == MODE_FLAGS_INDEX_PALETTE8) {
-		return color & 0xF;
-	} else {
-		adv_pixel r;
-		color &= 0xF;
-		video_pixel_make(&r, PALETTE_RESERVED[color].red, PALETTE_RESERVED[color].green, PALETTE_RESERVED[color].blue);
-		return r;
-	}
-}
-
-//---------------------------------------------------------------------------
 // Generic put
 
-static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib)
+static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
 {
-	unsigned color = index2color(attrib);
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned char* dst_ptr = buffer;
 		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = color;
+			*dst_ptr = pixel;
 			dst_ptr += 1;
 		}
 		buffer += ptr_d;
 	}
 }
 
-static void gen_clear_raw8packed(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib)
+static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
 {
-	unsigned color = index2color(attrib);
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned char* dst_ptr = buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = color;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
-static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib)
-{
-	adv_pixel color = index2color(attrib);
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned* dst_ptr = (unsigned*)buffer;
 		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = color;
+			*dst_ptr = pixel;
 			dst_ptr += 1;
 		}
 		buffer += ptr_d;
 	}
 }
 
-static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib)
+static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
 {
-	adv_pixel color = index2color(attrib);
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned short* dst_ptr = (unsigned short*)buffer;
 		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = color;
+			*dst_ptr = pixel;
 			dst_ptr += 1;
 		}
 		buffer += ptr_d;
 	}
 }
 
-static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, int color)
+static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, const int_rgb& color)
 {
 	assert( x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y() );
 
+	adv_pixel pixel = video_pixel_get(color.r, color.g, color.b);
+
 	switch (video_index()) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
-		gen_clear_raw8packed(ptr, ptr_p, ptr_d, x, y, dx, dy, color);
-		break;
 	case MODE_FLAGS_INDEX_BGR8 :
-		gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, color);
+		gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
 	case MODE_FLAGS_INDEX_BGR15 :
 	case MODE_FLAGS_INDEX_BGR16 :
-		gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, color);
+		gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
 	case MODE_FLAGS_INDEX_BGR32 :
-		gen_clear_raw32rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, color);
+		gen_clear_raw32rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
 	}
 }
@@ -972,13 +867,13 @@ static void gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d
 	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
 	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
 	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x);
@@ -993,13 +888,13 @@ static void gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
 	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
 	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 2);
@@ -1014,13 +909,13 @@ static void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
 	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color >> 4);
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
 	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 4);
@@ -1031,12 +926,13 @@ static void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 //---------------------------------------------------------------------------
 // Video put
 
-static void video_box(int x, int y, int dx, int dy, int width, int color)
+static void video_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
 {
-	video_clear(x, y, dx, width, color);
-	video_clear(x, y+dy-width, dx, width, color);
-	video_clear(x, y+width, width, dy-2*width, color);
-	video_clear(x+dx-width, y+width, width, dy-2*width, color);
+	adv_pixel pixel = video_pixel_get(color.r, color.g, color.b);
+	video_clear(x, y, dx, width, pixel);
+	video_clear(x, y+dy-width, dx, width, pixel);
+	video_clear(x, y+width, width, dy-2*width, pixel);
+	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
 }
 
 static void video_backdrop_box()
@@ -1044,17 +940,18 @@ static void video_backdrop_box()
 	for(int i=0;i<backdrop_mac;++i) {
 		struct backdrop_t* back = backdrop_map + i;
 		if (back->pos.highlight && backdrop_cursor) {
-			unsigned color = index2color(backdrop_box_color);
 			unsigned x = back->pos.real_x - backdrop_outline;
 			unsigned y = back->pos.real_y - backdrop_outline;
 			unsigned dx = back->pos.real_dx + 2*backdrop_outline;
 			unsigned dy = back->pos.real_dy + 2*backdrop_outline;
 
 			video_write_lock();
-			video_box(x, y, dx, dy, backdrop_cursor, color);
+			video_box(x, y, dx, dy, backdrop_cursor, backdrop_box_color.foreground);
 			video_write_unlock(x, y, dx, dy);
 
-			backdrop_box_color = ((backdrop_box_color << 4) & 0xF0) | ((backdrop_box_color >> 4) & 0xF);
+			int_rgb c = backdrop_box_color.foreground;
+			backdrop_box_color.foreground = backdrop_box_color.background;
+			backdrop_box_color.background = c;
 		}
 	}
 }
@@ -1062,12 +959,12 @@ static void video_backdrop_box()
 //---------------------------------------------------------------------------
 // Text put
 
-static void text_clear_raw(int x, int y, int dx, int dy, int color)
+static void int_clear_raw(int x, int y, int dx, int dy, const int_rgb& color)
 {
 	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y, dx, dy, color);
 }
 
-static void text_backdrop_raw(struct backdrop_t* back, const adv_bitmap* map)
+static void int_backdrop_raw(struct backdrop_t* back, const adv_bitmap* map)
 {
 	switch (video_bytes_per_pixel()) {
 		case 1 :
@@ -1082,17 +979,15 @@ static void text_backdrop_raw(struct backdrop_t* back, const adv_bitmap* map)
 	}
 }
 
-static void text_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib)
+static void int_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_pixel pixel_foreground, adv_pixel pixel_background)
 {
 	adv_bitmap* src = real_font_map->data[bitmap];
-	unsigned color_fore = index2color(attrib);
-	unsigned color_back = index2color(attrib >> 4);
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = bitmap_line(src, cy);
 		unsigned char* dst_ptr = buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
-			unsigned color = *src_ptr ? color_fore : color_back;
+			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
 			*dst_ptr = color;
 			dst_ptr += 1;
 			src_ptr += 1;
@@ -1101,36 +996,15 @@ static void text_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsi
 	}
 }
 
-static void text_put8packed_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib)
+static void int_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_pixel pixel_foreground, adv_pixel pixel_background)
 {
 	adv_bitmap* src = real_font_map->data[bitmap];
-	unsigned color_fore = index2color(attrib);
-	unsigned color_back = index2color(attrib >> 4);
-	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
-	for(unsigned cy=0;cy<src->size_y;++cy) {
-		unsigned char* src_ptr = bitmap_line(src, cy);
-		unsigned char* dst_ptr = buffer;
-		for(unsigned cx=0;cx<src->size_x;++cx) {
-			unsigned color = *src_ptr ? color_fore : color_back;
-			*dst_ptr = color;
-			dst_ptr += 1;
-			src_ptr += 1;
-		}
-		buffer += video_buffer_line_size;
-	}
-}
-
-static void text_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib)
-{
-	adv_bitmap* src = real_font_map->data[bitmap];
-	adv_pixel color_fore = index2color(attrib);
-	adv_pixel color_back = index2color(attrib >> 4);
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = bitmap_line(src, cy);
 		unsigned short* dst_ptr = (unsigned short*)buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
-			unsigned color = *src_ptr ? color_fore : color_back;
+			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
 			*dst_ptr = color;
 			dst_ptr += 1;
 			src_ptr += 1;
@@ -1139,17 +1013,15 @@ static void text_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, uns
 	}
 }
 
-static void text_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib)
+static void int_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_pixel pixel_foreground, adv_pixel pixel_background)
 {
 	adv_bitmap* src = real_font_map->data[bitmap];
-	adv_pixel color_fore = index2color(attrib);
-	adv_pixel color_back = index2color(attrib >> 4);
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = bitmap_line(src, cy);
 		unsigned* dst_ptr = (unsigned*)buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
-			unsigned color = *src_ptr ? color_fore : color_back;
+			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
 			*dst_ptr = color;
 			dst_ptr += 1;
 			src_ptr += 1;
@@ -1158,97 +1030,98 @@ static void text_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, uns
 	}
 }
 
-unsigned text_put_width(char c)
+unsigned int_put_width(char c)
 {
 	adv_bitmap* src = real_font_map->data[(unsigned char)c];
-	if (text_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ORIENTATION_FLIP_XY)
 		return src->size_y;
 	else
 		return src->size_x;
 }
 
-void text_put(int x, int y, char c, int color)
+void int_put(int x, int y, char c, const int_color& color)
 {
-	if (x>=0 && y>=0 && x+text_put_width(c)<=text_dx_get() && y+text_font_dy_get()<=text_dy_get()) {
+	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
 		adv_bitmap* src = real_font_map->data[(unsigned char)c];
-		if (text_orientation & ORIENTATION_FLIP_XY)
+		if (int_orientation & ORIENTATION_FLIP_XY)
 			swap(x, y);
-		if (text_orientation & ORIENTATION_MIRROR_X)
+		if (int_orientation & ORIENTATION_MIRROR_X)
 			x = video_size_x() - src->size_x - x;
-		if (text_orientation & ORIENTATION_MIRROR_Y)
+		if (int_orientation & ORIENTATION_MIRROR_Y)
 			y = video_size_y() - src->size_y - y;
 
 		assert( x>=0 && y>=0 && x+src->size_x<=video_size_x() &&  y+src->size_y<=video_size_y() );
 
+		adv_pixel pixel_foreground = video_pixel_get(color.foreground.r, color.foreground.g, color.foreground.b);
+		adv_pixel pixel_background = video_pixel_get(color.background.r, color.background.g, color.background.b);
+
 		switch (video_index()) {
-		case MODE_FLAGS_INDEX_PALETTE8 :
-			text_put8packed_char_font(x, y, (unsigned char)c, color);
-			break;
 		case MODE_FLAGS_INDEX_BGR8 :
-			text_put8rgb_char_font(x, y, (unsigned char)c, color);
+			int_put8rgb_char_font(x, y, (unsigned char)c, pixel_foreground, pixel_background);
 			break;
 		case MODE_FLAGS_INDEX_BGR15 :
 		case MODE_FLAGS_INDEX_BGR16 :
-			text_put16rgb_char_font(x, y, (unsigned char)c, color);
+			int_put16rgb_char_font(x, y, (unsigned char)c, pixel_foreground, pixel_background);
 			break;
 		case MODE_FLAGS_INDEX_BGR32 :
-			text_put32rgb_char_font(x, y, (unsigned char)c, color);
+			int_put32rgb_char_font(x, y, (unsigned char)c, pixel_foreground, pixel_background);
 			break;
 		}
 	}
 }
 
-void text_put_filled(int x, int y, int dx, const string& s, int color)
+void int_put_filled(int x, int y, int dx, const string& s, const int_color& color)
 {
 	for(unsigned i=0;i<s.length();++i) {
-		if (text_put_width(s[i]) <= dx) {
-			text_put(x, y, s[i], color);
-			x += text_put_width(s[i]);
-			dx -= text_put_width(s[i]);
+		if (int_put_width(s[i]) <= dx) {
+			int_put(x, y, s[i], color);
+			x += int_put_width(s[i]);
+			dx -= int_put_width(s[i]);
 		} else
 			break;
 	}
 	if (dx)
-		text_clear(x, y, dx, text_font_dy_get(), color >> 4);
+		int_clear(x, y, dx, int_font_dy_get(), color.background);
 }
 
-void text_put_special(bool& in, int x, int y, int dx, const string& s, int c0, int c1, int c2)
+void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
 {
 	for(unsigned i=0;i<s.length();++i) {
-		if (text_put_width(s[i]) <= dx) {
+		if (int_put_width(s[i]) <= dx) {
 			if (s[i]=='(' || s[i]=='[')
 				in = true;
 			if (!in && i==0) {
-				text_put(x, y, s[i], c0);
+				int_put(x, y, s[i], c0);
 			} else {
-				text_put(x, y, s[i], in ? c1 : c2);
+				int_put(x, y, s[i], in ? c1 : c2);
 			}
-			x += text_put_width(s[i]);
-			dx -= text_put_width(s[i]);
+			x += int_put_width(s[i]);
+			dx -= int_put_width(s[i]);
 			if (s[i]==')' || s[i]==']')
 				in = false;
 		} else
 			break;
 	}
 	if (dx)
-		text_clear(x, y, dx, text_font_dy_get(), c0 >> 4);
+		int_clear(x, y, dx, int_font_dy_get(), c0.background);
 }
 
-static void text_clear_noclip(int x, int y, int dx, int dy, int color)
+static void int_clear_noclip(int x, int y, int dx, int dy, const int_rgb& color)
 {
-	if (text_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ORIENTATION_FLIP_XY) {
 		swap(x, y);
 		swap(dx, dy);
 	}
-	if (text_orientation & ORIENTATION_MIRROR_X)
+
+	if (int_orientation & ORIENTATION_MIRROR_X)
 		x = video_size_x() - dx - x;
-	if (text_orientation & ORIENTATION_MIRROR_Y)
+	if (int_orientation & ORIENTATION_MIRROR_Y)
 		y = video_size_y() - dy - y;
 
-	text_clear_raw(x, y, dx, dy, color);
+	int_clear_raw(x, y, dx, dy, color);
 }
 
-void text_clear(int x, int y, int dx, int dy, int color)
+void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 {
 	if (x < 0) {
 		dx += x;
@@ -1258,20 +1131,20 @@ void text_clear(int x, int y, int dx, int dy, int color)
 		dy += y;
 		y = 0;
 	}
-	if (x + dx > text_dx_get()) {
-		dx = text_dx_get() - x;
+	if (x + dx > int_dx_get()) {
+		dx = int_dx_get() - x;
 	}
-	if (y + dy > text_dy_get()) {
-		dy = text_dy_get() - y;
+	if (y + dy > int_dy_get()) {
+		dy = int_dy_get() - y;
 	}
 	if (dx > 0 && dy > 0)
-		text_clear_noclip(x, y, dx, dy, color);
+		int_clear_noclip(x, y, dx, dy, color);
 }
 
-void text_clear()
+void int_clear()
 {
 	// clear the bitmap
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
 		&& video_buffer_pixel_size > 1) {
 		memset(video_buffer, 0xFF, video_buffer_size);
 	} else {
@@ -1279,40 +1152,40 @@ void text_clear()
 	}
 }
 
-void text_box(int x, int y, int dx, int dy, int width, int color)
+void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
 {
-	text_clear(x, y, dx, width, color);
-	text_clear(x, y+dy-width, dx, width, color);
-	text_clear(x, y+width, width, dy-2*width, color);
-	text_clear(x+dx-width, y+width, width, dy-2*width, color);
+	int_clear(x, y, dx, width, color);
+	int_clear(x, y+dy-width, dx, width, color);
+	int_clear(x, y+width, width, dy-2*width, color);
+	int_clear(x+dx-width, y+width, width, dy-2*width, color);
 }
 
-void text_put(int x, int y, const string& s, int color)
+void int_put(int x, int y, const string& s, const int_color& color)
 {
 	for(unsigned i=0;i<s.length();++i) {
-		text_put(x, y, s[i], color);
-		x += text_put_width(s[i]);
+		int_put(x, y, s[i], color);
+		x += int_put_width(s[i]);
 	}
 }
 
-unsigned text_put(int x, int y, int dx, const string& s, int color)
+unsigned int_put(int x, int y, int dx, const string& s, const int_color& color)
 {
 	for(unsigned i=0;i<s.length();++i) {
-		int width = text_put_width(s[i]);
+		int width = int_put_width(s[i]);
 		if (width > dx)
 			return i;
-		text_put(x, y, s[i], color);
+		int_put(x, y, s[i], color);
 		x += width;
 		dx -= width;
 	}
 	return s.length();
 }
 
-unsigned text_put_width(const string& s)
+unsigned int_put_width(const string& s)
 {
 	unsigned size = 0;
 	for(unsigned i=0;i<s.length();++i)
-		size += text_put_width(s[i]);
+		size += int_put_width(s[i]);
 	return size;
 }
 
@@ -1320,7 +1193,7 @@ unsigned text_put_width(const string& s)
 // Backdrop
 
 // Reduce the size of the cache
-static void text_backdrop_cache_reduce()
+static void int_backdrop_cache_reduce()
 {
 	// limit the cache size
 	if (backdrop_cache_list) {
@@ -1335,7 +1208,7 @@ static void text_backdrop_cache_reduce()
 }
 
 // Delete or insert in the cache the backdrop image
-static void text_backdrop_cache(backdrop_data* data)
+static void int_backdrop_cache(backdrop_data* data)
 {
 	if (data) {
 		if (data->has_bitmap()) {
@@ -1347,7 +1220,7 @@ static void text_backdrop_cache(backdrop_data* data)
 	}
 }
 
-static backdrop_data* text_backdrop_cache_find(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty)
+static backdrop_data* int_backdrop_cache_find(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty)
 {
 	// search in the cache
 	for(list<backdrop_data*>::iterator i=backdrop_cache_list->begin();i!=backdrop_cache_list->end();++i) {
@@ -1368,22 +1241,22 @@ static backdrop_data* text_backdrop_cache_find(const resource& res, unsigned dx,
 	return new backdrop_data(res, dx, dy, aspectx, aspecty);
 }
 
-static void text_backdrop_cache_all()
+static void int_backdrop_cache_all()
 {
 	for(unsigned i=0;i<backdrop_mac;++i) {
-		text_backdrop_cache(backdrop_map[i].data);
+		int_backdrop_cache(backdrop_map[i].data);
 		backdrop_map[i].data = 0;
 	}
 }
 
 // Select the backdrop
-void text_backdrop_set(int back_index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
+void int_backdrop_set(int back_index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
 {
 	assert( back_index < backdrop_mac );
 
-	text_backdrop_cache(backdrop_map[back_index].data);
+	int_backdrop_cache(backdrop_map[back_index].data);
 
-	backdrop_map[back_index].data = text_backdrop_cache_find(res, backdrop_map[back_index].pos.dx, backdrop_map[back_index].pos.dy, aspectx, aspecty);
+	backdrop_map[back_index].data = int_backdrop_cache_find(res, backdrop_map[back_index].pos.dx, backdrop_map[back_index].pos.dy, aspectx, aspecty);
 
 	if (backdrop_map[back_index].last == res) {
 		if (backdrop_map[back_index].pos.highlight != highlight) {
@@ -1398,11 +1271,11 @@ void text_backdrop_set(int back_index, const resource& res, bool highlight, unsi
 }
 
 // Clear the backdrop
-void text_backdrop_clear(int back_index, bool highlight)
+void int_backdrop_clear(int back_index, bool highlight)
 {
 	assert( back_index < backdrop_mac );
 
-	text_backdrop_cache(backdrop_map[back_index].data);
+	int_backdrop_cache(backdrop_map[back_index].data);
 
 	backdrop_map[back_index].data = 0;
 
@@ -1418,7 +1291,7 @@ void text_backdrop_clear(int back_index, bool highlight)
 	}
 }
 
-void text_backdrop_done()
+void int_backdrop_done()
 {
 	assert(backdrop_mac != 0);
 
@@ -1435,7 +1308,7 @@ void text_backdrop_done()
 	backdrop_cache_list = 0;
 }
 
-void text_backdrop_init(unsigned Abackdrop_missing_color, unsigned Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor)
+void int_backdrop_init(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor)
 {
 	assert(backdrop_mac == 0);
 
@@ -1449,7 +1322,7 @@ void text_backdrop_init(unsigned Abackdrop_missing_color, unsigned Abackdrop_box
 	backdrop_mac = Amac;
 	backdrop_cache_max = backdrop_mac*2 + 1;
 
-	text_updating_active = false;
+	int_updating_active = false;
 
 	for(int i=0;i<backdrop_mac;++i) {
 		backdrop_map[i].data = 0;
@@ -1465,11 +1338,11 @@ void text_backdrop_init(unsigned Abackdrop_missing_color, unsigned Abackdrop_box
 }
 
 // Set the backdrop position and size
-void text_backdrop_pos(int back_index, int x, int y, int dx, int dy)
+void int_backdrop_pos(int back_index, int x, int y, int dx, int dy)
 {
 	assert( back_index < backdrop_mac );
 
-	text_backdrop_cache(backdrop_map[back_index].data);
+	int_backdrop_cache(backdrop_map[back_index].data);
 	backdrop_map[back_index].data = 0;
 
 	backdrop_map[back_index].last = resource();
@@ -1481,14 +1354,14 @@ void text_backdrop_pos(int back_index, int x, int y, int dx, int dy)
 	backdrop_map[back_index].pos.dx = backdrop_map[back_index].pos.real_dx = dx - 2*backdrop_outline;
 	backdrop_map[back_index].pos.dy = backdrop_map[back_index].pos.real_dy = dy - 2*backdrop_outline;
 
-	if (text_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ORIENTATION_FLIP_XY) {
 		swap(backdrop_map[back_index].pos.real_x, backdrop_map[back_index].pos.real_y);
 		swap(backdrop_map[back_index].pos.real_dx, backdrop_map[back_index].pos.real_dy);
 	}
-	if (text_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ORIENTATION_MIRROR_X) {
 		backdrop_map[back_index].pos.real_x = video_size_x() - backdrop_map[back_index].pos.real_x - backdrop_map[back_index].pos.real_dx;
 	}
-	if (text_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
 		backdrop_map[back_index].pos.real_y = video_size_y() - backdrop_map[back_index].pos.real_y - backdrop_map[back_index].pos.real_dy;
 	}
 }
@@ -1496,106 +1369,106 @@ void text_backdrop_pos(int back_index, int x, int y, int dx, int dy)
 //---------------------------------------------------------------------------
 // Clip
 
-static bool text_clip_active;
-static bool text_clip_running;
-static resource text_clip_res;
-static int text_clip_index;
-static adv_fz* text_clip_f;
-static unsigned text_clip_aspectx;
-static unsigned text_clip_aspecty;
-os_clock_t text_clip_wait;
-unsigned text_clip_count;
-adv_mng* text_mng_context;
+static bool int_clip_active;
+static bool int_clip_running;
+static resource int_clip_res;
+static int int_clip_index;
+static adv_fz* int_clip_f;
+static unsigned int_clip_aspectx;
+static unsigned int_clip_aspecty;
+os_clock_t int_clip_wait;
+unsigned int_clip_count;
+adv_mng* int_mng_context;
 
-void text_clip_clear()
+void int_clip_clear()
 {
-	if (text_clip_f) {
-		fzclose(text_clip_f);
-		mng_done(text_mng_context);
-		text_clip_f = 0;
+	if (int_clip_f) {
+		fzclose(int_clip_f);
+		mng_done(int_mng_context);
+		int_clip_f = 0;
 	}
-	text_clip_active = false;
-	text_clip_running = false;
+	int_clip_active = false;
+	int_clip_running = false;
 }
 
-void text_clip_set(int back_index, const resource& res, unsigned aspectx, unsigned aspecty)
+void int_clip_set(int back_index, const resource& res, unsigned aspectx, unsigned aspecty)
 {
-	text_clip_clear();
+	int_clip_clear();
 
-	text_clip_index = back_index;
-	text_clip_res = res;
-	text_clip_active = true;
-	text_clip_running = false;
-	text_clip_aspectx = aspectx;
-	text_clip_aspecty = aspecty;
+	int_clip_index = back_index;
+	int_clip_res = res;
+	int_clip_active = true;
+	int_clip_running = false;
+	int_clip_aspectx = aspectx;
+	int_clip_aspecty = aspecty;
 }
 
-void text_clip_init()
+void int_clip_init()
 {
-	text_clip_f = 0;
-	text_clip_active = false;
+	int_clip_f = 0;
+	int_clip_active = false;
 }
 
-void text_clip_start()
+void int_clip_start()
 {
-	if (!text_clip_active)
+	if (!int_clip_active)
 		return;
 
-	text_clip_running = true;
-	text_clip_wait = os_clock(); // reset the start time
+	int_clip_running = true;
+	int_clip_wait = os_clock(); // reset the start time
 }
 
-void text_clip_done()
+void int_clip_done()
 {
-	text_clip_clear();
+	int_clip_clear();
 }
 
-static bool text_clip_need_load()
+static bool int_clip_need_load()
 {
-	if (!text_clip_active)
+	if (!int_clip_active)
 		return false;
 
-	if (!text_clip_running)
+	if (!int_clip_running)
 		return false;
 
-	if (!text_clip_f)
+	if (!int_clip_f)
 		return true;
 
-	if (os_clock() > text_clip_wait)
+	if (os_clock() > int_clip_wait)
 		return true;
 
 	return false;
 }
 
-bool text_clip_is_active()
+bool int_clip_is_active()
 {
-	return text_clip_active && text_clip_running;
+	return int_clip_active && int_clip_running;
 }
 
-static adv_bitmap* text_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
+static adv_bitmap* int_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 {
-	if (!text_clip_active)
+	if (!int_clip_active)
 		return 0;
 
-	if (!text_clip_f) {
+	if (!int_clip_f) {
 		// first load
-		text_clip_f = text_clip_res.open();
-		if (!text_clip_f) {
-			text_clip_active = false;
-			text_clip_f = 0;
+		int_clip_f = int_clip_res.open();
+		if (!int_clip_f) {
+			int_clip_active = false;
+			int_clip_f = 0;
 			return 0;
 		}
 
-		text_mng_context = mng_init(text_clip_f);
-		if (text_mng_context == 0) {
-			fzclose(text_clip_f);
-			text_clip_f = 0;
-			text_clip_active = false;
+		int_mng_context = mng_init(int_clip_f);
+		if (int_mng_context == 0) {
+			fzclose(int_clip_f);
+			int_clip_f = 0;
+			int_clip_active = false;
 			return 0;
 		}
 
-		text_clip_wait = os_clock();
-		text_clip_count = 0;
+		int_clip_wait = os_clock();
+		int_clip_count = 0;
 	}
 
 	unsigned pix_width;
@@ -1609,33 +1482,33 @@ static adv_bitmap* text_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 	unsigned pal_size;
 	unsigned tick;
 
-	int r = mng_read(text_mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, text_clip_f);
+	int r = mng_read(int_mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, int_clip_f);
 	if (r != 0) {
-		mng_done(text_mng_context);
-		fzclose(text_clip_f);
-		text_clip_f = 0;
-		text_clip_running = false;
+		mng_done(int_mng_context);
+		fzclose(int_clip_f);
+		int_clip_f = 0;
+		int_clip_running = false;
 		return 0;
 	}
 
-	double delay = tick / (double)mng_frequency_get(text_mng_context);
+	double delay = tick / (double)mng_frequency_get(int_mng_context);
 
 	adv_bitmap* bitmap = bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 	if (!bitmap) {
 		free(dat_ptr);
 		free(pal_ptr);
-		mng_done(text_mng_context);
-		fzclose(text_clip_f);
-		text_clip_f = 0;
-		text_clip_active = false;
+		mng_done(int_mng_context);
+		fzclose(int_clip_f);
+		int_clip_f = 0;
+		int_clip_active = false;
 		return 0;
 	}
 
 	free(pal_ptr);
 
-	text_clip_wait += (os_clock_t)(delay * OS_CLOCKS_PER_SEC);
+	int_clip_wait += (os_clock_t)(delay * OS_CLOCKS_PER_SEC);
 
-	++text_clip_count;
+	++int_clip_count;
 
 	return bitmap;
 }
@@ -1645,24 +1518,24 @@ static adv_bitmap* text_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 
 extern "C" int fast_exit_handler(void)
 {
-	if (text_wait_for_backdrop)
+	if (int_wait_for_backdrop)
 		return 0;
 
-	text_keypressed();
-	return text_key_saved == TEXT_KEY_PGUP
-		|| text_key_saved == TEXT_KEY_PGDN
-		|| text_key_saved == TEXT_KEY_INS
-		|| text_key_saved == TEXT_KEY_DEL
-		|| text_key_saved == TEXT_KEY_HOME
-		|| text_key_saved == TEXT_KEY_END
-		|| text_key_saved == TEXT_KEY_UP
-		|| text_key_saved == TEXT_KEY_DOWN
-		|| text_key_saved == TEXT_KEY_LEFT
-		|| text_key_saved == TEXT_KEY_RIGHT
-		|| text_key_saved == TEXT_KEY_MODE;
+	int_keypressed();
+	return int_key_saved == INT_KEY_PGUP
+		|| int_key_saved == INT_KEY_PGDN
+		|| int_key_saved == INT_KEY_INS
+		|| int_key_saved == INT_KEY_DEL
+		|| int_key_saved == INT_KEY_HOME
+		|| int_key_saved == INT_KEY_END
+		|| int_key_saved == INT_KEY_UP
+		|| int_key_saved == INT_KEY_DOWN
+		|| int_key_saved == INT_KEY_LEFT
+		|| int_key_saved == INT_KEY_RIGHT
+		|| int_key_saved == INT_KEY_MODE;
 }
 
-static void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, adv_color_rgb trasparent)
+static void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& trasparent)
 {
 	unsigned index;
 	if (*rgb_max == 256) {
@@ -1695,7 +1568,10 @@ static void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rg
 		++*rgb_max;
 	}
 
-	rgb[index] = trasparent;
+	rgb[index].red = trasparent.r;
+	rgb[index].green = trasparent.g;
+	rgb[index].blue = trasparent.b;
+	rgb[index].alpha = 0;
 
 	for(unsigned y=0;y<bitmap->size_y;++y) {
 		uint8* line = bitmap_line(bitmap, y);
@@ -1765,7 +1641,10 @@ static adv_bitmap* backdrop_load(const resource& res, adv_color_rgb* rgb, unsign
 			fzclose(f);
 			return 0;
 		}
-		icon_apply(bitmap, bitmap_mask, rgb, rgb_max, PALETTE_RESERVED[backdrop_missing_color >> 4]);
+
+		// TODO
+		icon_apply(bitmap, bitmap_mask, rgb, rgb_max, backdrop_missing_color.background);
+
 		bitmap_free(bitmap_mask);
 		fzclose(f);
 		return bitmap;
@@ -1832,9 +1711,9 @@ static adv_bitmap* backdrop_load(const resource& res, adv_color_rgb* rgb, unsign
 	return 0;
 }
 
-void text_backdrop_compute_real_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
+void int_backdrop_compute_real_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
 {
-	if (text_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ORIENTATION_FLIP_XY) {
 		unsigned t = aspectx;
 		aspectx = aspecty;
 		aspecty = t;
@@ -1868,7 +1747,7 @@ void text_backdrop_compute_real_size(unsigned* rx, unsigned* ry, struct backdrop
 		*ry = dy;
 }
 
-void text_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
+void int_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
 {
 	if (!aspectx || !aspecty) {
 		aspectx = bitmap->size_x;
@@ -1880,7 +1759,7 @@ void text_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backd
 		aspecty = 1;
 	}
 
-	if (text_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ORIENTATION_FLIP_XY) {
 		aspectx *= 4 * video_size_y();
 		aspecty *= 3 * video_size_x();
 	} else {
@@ -1904,18 +1783,18 @@ void text_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backd
 		*ry = dy;
 }
 
-static adv_bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned aspectx, unsigned aspecty)
+static adv_bitmap* int_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned aspectx, unsigned aspecty)
 {
 	if (bitmap->size_x < back->pos.dx) {
 		unsigned rx, ry;
 
 		// flip
-		bitmap_orientation(bitmap, text_orientation & ORIENTATION_FLIP_XY);
+		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
 
-		text_backdrop_compute_real_size(&rx, &ry, back, bitmap, aspectx, aspecty);
+		int_backdrop_compute_real_size(&rx, &ry, back, bitmap, aspectx, aspecty);
 
 		// resize & mirror
-		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, text_orientation);
+		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation);
 		if (!shrink_bitmap) {
 			bitmap_free(bitmap);
 			return 0;
@@ -1925,11 +1804,11 @@ static adv_bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, adv_bit
 	} else {
 		unsigned rx, ry;
 
-		text_backdrop_compute_virtual_size(&rx, &ry, back, bitmap, aspectx, aspecty);
+		int_backdrop_compute_virtual_size(&rx, &ry, back, bitmap, aspectx, aspecty);
 
 		// resize & mirror
-		unsigned flip = (text_orientation & ORIENTATION_FLIP_XY) ? ORIENTATION_MIRROR_X | ORIENTATION_MIRROR_Y : 0;
-		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, text_orientation ^ flip);
+		unsigned flip = (int_orientation & ORIENTATION_FLIP_XY) ? ORIENTATION_MIRROR_X | ORIENTATION_MIRROR_Y : 0;
+		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation ^ flip);
 		if (!shrink_bitmap) {
 			bitmap_free(bitmap);
 			return 0;
@@ -1938,51 +1817,26 @@ static adv_bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, adv_bit
 		bitmap = shrink_bitmap;
 
 		// flip
-		bitmap_orientation(bitmap, text_orientation & ORIENTATION_FLIP_XY);
+		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
 	}
 
 	adv_bitmap* pal_bitmap;
 	if (video_bytes_per_pixel() == 1) {
 		// video 8 bit
+		adv_pixel color_map[256];
 		pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 8);
-		if (video_index() == MODE_FLAGS_INDEX_PALETTE8) {
-			// video index mode
-			if (bitmap->bytes_per_pixel == 1) {
-				// bitmap 8 bit
-				unsigned index_map[256];
-				palette_set(rgb, *rgb_max, index_map);
-				bitmap_cvt_8to8(pal_bitmap, bitmap, index_map);
-			} else if (bitmap->bytes_per_pixel==3) {
-				// bitmap 24 bit
-				unsigned index_map[256];
-				unsigned convert_map[REDUCE_INDEX_MAX];
-				*rgb_max = 256 - PALETTE_RESERVED_MAX;
-				*rgb_max = bitmap_reduce(convert_map, rgb, *rgb_max, bitmap);
-				palette_set(rgb, *rgb_max, index_map);
-				for(unsigned i=0;i<REDUCE_INDEX_MAX;++i)
-					convert_map[i] = index_map[convert_map[i]];
-				bitmap_cvt_24to8idx(pal_bitmap, bitmap, convert_map);
-			} else {
-				bitmap_free(bitmap);
-				bitmap_free(pal_bitmap);
-				return 0;
-			}
+		for(unsigned i=0;i<*rgb_max;++i)
+			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
+		if (bitmap->bytes_per_pixel==1) {
+			// bitmap 8 bit
+			bitmap_cvt_8to8(pal_bitmap, bitmap, color_map);
+		} else if (bitmap->bytes_per_pixel==3) {
+			// bitmap 24 bit
+			bitmap_cvt_24to8(pal_bitmap, bitmap);
 		} else {
-			// video rgb mode
-			unsigned color_map[256];
-			for(unsigned i=0;i<*rgb_max;++i)
-				video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-			if (bitmap->bytes_per_pixel==1) {
-				// bitmap 8 bit
-				bitmap_cvt_8to8(pal_bitmap, bitmap, color_map);
-			} else if (bitmap->bytes_per_pixel==3) {
-				// bitmap 24 bit
-				bitmap_cvt_24to8(pal_bitmap, bitmap);
-			} else {
-				bitmap_free(bitmap);
-				bitmap_free(pal_bitmap);
-				return 0;
-			}
+			bitmap_free(bitmap);
+			bitmap_free(pal_bitmap);
+			return 0;
 		}
 	} else if (video_bytes_per_pixel() == 2) {
 		// video 16 bit
@@ -2029,61 +1883,58 @@ static adv_bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, adv_bit
 	return bitmap;
 }
 
-static void text_backdrop_clear(struct backdrop_t* back)
+static void int_backdrop_clear(struct backdrop_t* back)
 {
-	text_clear(back->pos.x, back->pos.y, back->pos.dx, back->pos.dy, backdrop_missing_color >> 4);
+	int_clear(back->pos.x, back->pos.y, back->pos.dx, back->pos.dy, backdrop_missing_color.background);
 }
 
-static void text_backdrop_load(struct backdrop_t* back)
+static void int_backdrop_load(struct backdrop_t* back)
 {
 	if (!back->data->bitmap_get()) {
+		adv_color_rgb rgb[256];
+		unsigned rgb_max;
 
-		adv_bitmap* bitmap = backdrop_load(back->data->res_get(), back->data->rgb, &back->data->rgb_max);
+		adv_bitmap* bitmap = backdrop_load(back->data->res_get(), rgb, &rgb_max);
 		if (!bitmap)
 			return;
 
-		bitmap = text_backdrop_compute_bitmap(back, bitmap, back->data->rgb, &back->data->rgb_max, back->data->aspectx_get(), back->data->aspecty_get());
+		bitmap = int_backdrop_compute_bitmap(back, bitmap, rgb, &rgb_max, back->data->aspectx_get(), back->data->aspecty_get());
 		if (!bitmap)
 			return;
 
 		// store
 		back->data->bitmap_set(bitmap);
-	} else {
-		if (video_index() == MODE_FLAGS_INDEX_PALETTE8) {
-			unsigned index_map[256];
-			palette_set(back->data->rgb, back->data->rgb_max, index_map);
-		}
 	}
 }
 
 // Update the backdrop image
-static void text_backdrop_update(struct backdrop_t* back)
+static void int_backdrop_update(struct backdrop_t* back)
 {
 	if (back->data) {
 		if (!fast_exit_handler())
-			text_backdrop_load(back);
+			int_backdrop_load(back);
 	}
 
 	if (back->pos.redraw) {
 		if (back->data) {
 			if (back->data->bitmap_get()) {
 				back->pos.redraw = false;
-				text_backdrop_raw(back, back->data->bitmap_get());
+				int_backdrop_raw(back, back->data->bitmap_get());
 			} else {
 				// the image need to be update when loaded
-				text_backdrop_clear(back);
+				int_backdrop_clear(back);
 			}
 		} else {
 			back->pos.redraw = false;
-			text_backdrop_clear(back);
+			int_backdrop_clear(back);
 		}
 
 		if (backdrop_outline)
-			text_box(back->pos.x-backdrop_outline, back->pos.y-backdrop_outline, back->pos.dx+2*backdrop_outline, back->pos.dy+2*backdrop_outline, backdrop_outline, backdrop_missing_color);
+			int_box(back->pos.x-backdrop_outline, back->pos.y-backdrop_outline, back->pos.dx+2*backdrop_outline, back->pos.dy+2*backdrop_outline, backdrop_outline, backdrop_missing_color.foreground);
 	}
 }
 
-static void text_copy_partial(unsigned y0, unsigned y1)
+static void int_copy_partial(unsigned y0, unsigned y1)
 {
 	video_write_lock();
 
@@ -2114,63 +1965,56 @@ static void text_copy_partial(unsigned y0, unsigned y1)
 	video_write_unlock(0, y0, video_size_x(), y1 - y0);
 }
 
-unsigned text_update_pre(bool progressive)
+unsigned int_update_pre(bool progressive)
 {
-	text_updating_active = false;
+	int_updating_active = false;
 
 	play_poll();
 
-	text_backdrop_cache_reduce();
-
-	/* this palette is used if no one image is present */
-	if (video_index() == MODE_FLAGS_INDEX_PALETTE8)
-		palette_set(0, 0, 0);
+	int_backdrop_cache_reduce();
 
 	int y = 0;
 	for(int i=0;i<backdrop_mac;++i) {
 		play_poll();
 
 		// this thick work only if the backdrop are from top to down
-		if (text_orientation == 0 && progressive) {
+		if (int_orientation == 0 && progressive) {
 			// update progressively the screen
 			int yl = backdrop_map[i].pos.real_y - backdrop_outline;
 			if (yl > y) {
-				text_copy_partial(y, yl);
+				int_copy_partial(y, yl);
 				y = yl;
 			}
 		}
 
-		text_backdrop_update(backdrop_map + i);
+		int_backdrop_update(backdrop_map + i);
 	}
 
-	text_backdrop_cache_all();
+	int_backdrop_cache_all();
 
 	return y;
 }
 
-void text_update_post(unsigned y)
+void int_update_post(unsigned y)
 {
 	play_poll();
 
-	text_copy_partial(y, video_size_y());
+	int_copy_partial(y, video_size_y());
 
 	video_backdrop_box();
 
-	if (video_index() == MODE_FLAGS_INDEX_PALETTE8)
-		video_palette_set(text_palette, 0, 256, false);
-
 	play_poll();
 
-	text_updating_active = true;
+	int_updating_active = true;
 }
 
-void text_update(bool progressive)
+void int_update(bool progressive)
 {
-	text_update_post(text_update_pre(progressive));
+	int_update_post(int_update_pre(progressive));
 }
 
 #ifdef __SNAPSHOT__
-void text_snapshot()
+void int_snapshot()
 {
 	static unsigned snapshot_num = 0;
 	char snapshot_name[32];
@@ -2198,35 +2042,35 @@ struct key_cvt {
 #define OP_NOT (KEYB_MAX + 2)
 
 static struct key_cvt KEYTAB[] = {
-{"up", TEXT_KEY_UP, { KEYB_UP, KEYB_MAX } },
-{"down", TEXT_KEY_DOWN, { KEYB_DOWN, KEYB_MAX } },
-{"left", TEXT_KEY_LEFT, { KEYB_LEFT, KEYB_MAX } },
-{"right", TEXT_KEY_RIGHT, { KEYB_RIGHT, KEYB_MAX } },
-{"enter", TEXT_KEY_ENTER, { KEYB_ENTER, KEYB_MAX } },
-{"shutdown", TEXT_KEY_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
-{"esc", TEXT_KEY_ESC, { KEYB_ESC, KEYB_MAX } },
-{"space", TEXT_KEY_SPACE, { KEYB_SPACE, KEYB_MAX } },
-{"mode", TEXT_KEY_MODE, { KEYB_TAB, KEYB_MAX } },
-{"home", TEXT_KEY_HOME, { KEYB_HOME, KEYB_MAX } },
-{"end", TEXT_KEY_END, { KEYB_END, KEYB_MAX } },
-{"pgup", TEXT_KEY_PGUP, { KEYB_PGUP, KEYB_MAX } },
-{"pgdn", TEXT_KEY_PGDN, { KEYB_PGDN, KEYB_MAX } },
-{"help", TEXT_KEY_HELP, { KEYB_F1, KEYB_MAX } },
-{"group", TEXT_KEY_GROUP, { KEYB_F2, KEYB_MAX } },
-{"type", TEXT_KEY_TYPE, { KEYB_F3, KEYB_MAX } },
-{"exclude", TEXT_KEY_EXCLUDE, { KEYB_F4, KEYB_MAX } },
-{"sort", TEXT_KEY_SORT, { KEYB_F5, KEYB_MAX } },
-{"setgroup", TEXT_KEY_SETGROUP, { KEYB_F9, KEYB_MAX } },
-{"settype", TEXT_KEY_SETTYPE, { KEYB_F10, KEYB_MAX } },
-{"runclone", TEXT_KEY_RUN_CLONE, { KEYB_F12, KEYB_MAX } },
-{"del", TEXT_KEY_DEL, { KEYB_DEL, KEYB_MAX } },
-{"ins", TEXT_KEY_INS, { KEYB_INSERT, KEYB_MAX } },
-{"command", TEXT_KEY_COMMAND, { KEYB_F8, KEYB_MAX } },
-{"menu", TEXT_KEY_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
-{"emulator", TEXT_KEY_EMU, { KEYB_F6, KEYB_MAX } },
-{"snapshot", TEXT_KEY_SNAPSHOT, { KEYB_PERIOD_PAD, KEYB_MAX } },
-{"rotate", TEXT_KEY_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
-{"lock", TEXT_KEY_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
+{"up", INT_KEY_UP, { KEYB_UP, KEYB_MAX } },
+{"down", INT_KEY_DOWN, { KEYB_DOWN, KEYB_MAX } },
+{"left", INT_KEY_LEFT, { KEYB_LEFT, KEYB_MAX } },
+{"right", INT_KEY_RIGHT, { KEYB_RIGHT, KEYB_MAX } },
+{"enter", INT_KEY_ENTER, { KEYB_ENTER, KEYB_MAX } },
+{"shutdown", INT_KEY_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
+{"esc", INT_KEY_ESC, { KEYB_ESC, KEYB_MAX } },
+{"space", INT_KEY_SPACE, { KEYB_SPACE, KEYB_MAX } },
+{"mode", INT_KEY_MODE, { KEYB_TAB, KEYB_MAX } },
+{"home", INT_KEY_HOME, { KEYB_HOME, KEYB_MAX } },
+{"end", INT_KEY_END, { KEYB_END, KEYB_MAX } },
+{"pgup", INT_KEY_PGUP, { KEYB_PGUP, KEYB_MAX } },
+{"pgdn", INT_KEY_PGDN, { KEYB_PGDN, KEYB_MAX } },
+{"help", INT_KEY_HELP, { KEYB_F1, KEYB_MAX } },
+{"group", INT_KEY_GROUP, { KEYB_F2, KEYB_MAX } },
+{"type", INT_KEY_TYPE, { KEYB_F3, KEYB_MAX } },
+{"exclude", INT_KEY_EXCLUDE, { KEYB_F4, KEYB_MAX } },
+{"sort", INT_KEY_SORT, { KEYB_F5, KEYB_MAX } },
+{"setgroup", INT_KEY_SETGROUP, { KEYB_F9, KEYB_MAX } },
+{"settype", INT_KEY_SETTYPE, { KEYB_F10, KEYB_MAX } },
+{"runclone", INT_KEY_RUN_CLONE, { KEYB_F12, KEYB_MAX } },
+{"del", INT_KEY_DEL, { KEYB_DEL, KEYB_MAX } },
+{"ins", INT_KEY_INS, { KEYB_INSERT, KEYB_MAX } },
+{"command", INT_KEY_COMMAND, { KEYB_F8, KEYB_MAX } },
+{"menu", INT_KEY_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
+{"emulator", INT_KEY_EMU, { KEYB_F6, KEYB_MAX } },
+{"snapshot", INT_KEY_SNAPSHOT, { KEYB_PERIOD_PAD, KEYB_MAX } },
+{"rotate", INT_KEY_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
+{"lock", INT_KEY_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
 { 0, 0, { 0 } }
 };
 
@@ -2350,46 +2194,46 @@ static int keyboard_raw_poll()
 			return i->event;
 	}
 
-	if (text_alpha_mode) {
+	if (int_alpha_mode) {
 		for(unsigned i=0;KEY_CONV[i].code != KEYB_MAX;++i)
 			if (keyb_get(KEY_CONV[i].code))
 				return KEY_CONV[i].c;
 	}
 
-	return TEXT_KEY_NONE;
+	return INT_KEY_NONE;
 }
 
 static int key_poll()
 {
-	static int key_repeat_last = TEXT_KEY_NONE;
+	static int key_repeat_last = INT_KEY_NONE;
 
 	static os_clock_t key_repeat_last_time = 0;
 	static bool key_repeat_last_counter = 0;
 
-	int r = TEXT_KEY_NONE;
+	int r = INT_KEY_NONE;
 
-	if (r == TEXT_KEY_NONE) {
+	if (r == INT_KEY_NONE) {
 		if (os_is_quit())
-			r = TEXT_KEY_ESC;
+			r = INT_KEY_ESC;
 	}
 
-	if (r == TEXT_KEY_NONE) {
+	if (r == INT_KEY_NONE) {
 		r = keyboard_raw_poll();
 	}
 
-	if (r == TEXT_KEY_NONE) {
-		r = text_joystick_button_raw_poll();
+	if (r == INT_KEY_NONE) {
+		r = int_joystick_button_raw_poll();
 	}
 
-	if (r == TEXT_KEY_NONE) {
-		r = text_mouse_button_raw_poll();
+	if (r == INT_KEY_NONE) {
+		r = int_mouse_button_raw_poll();
 	}
 
-	if (r == TEXT_KEY_NONE) {
-		r = text_mouse_move_raw_poll();
+	if (r == INT_KEY_NONE) {
+		r = int_mouse_move_raw_poll();
 
 		// never repeat or wait or play for the mouse movements
-		if (r != TEXT_KEY_NONE) {
+		if (r != INT_KEY_NONE) {
 			key_repeat_last = r;
 			key_repeat_last_counter = 0;
 			key_repeat_last_time = os_clock();
@@ -2397,74 +2241,71 @@ static int key_poll()
 		}
 	}
 
-	if (r == TEXT_KEY_NONE) {
-		r = text_joystick_move_raw_poll();
+	if (r == INT_KEY_NONE) {
+		r = int_joystick_move_raw_poll();
 	}
 
-	if (r == TEXT_KEY_NONE) {
-		key_repeat_last = TEXT_KEY_NONE;
+	if (r == INT_KEY_NONE) {
+		key_repeat_last = INT_KEY_NONE;
 		key_repeat_last_counter = 0;
 		key_repeat_last_time = os_clock();
-		return TEXT_KEY_NONE;
+		return INT_KEY_NONE;
 	} else if (r != key_repeat_last) {
 		key_repeat_last = r;
 		key_repeat_last_counter = 0;
 		key_repeat_last_time = os_clock();
-		play_foreground_effect_key(text_sound_event_key);
+		play_foreground_effect_key(int_sound_event_key);
 		return r;
 	} else {
-		if ((key_repeat_last_counter == 0 && (os_clock() - key_repeat_last_time > text_repeat * OS_CLOCKS_PER_SEC / 1000)) ||
-			(key_repeat_last_counter > 0 && (os_clock() - key_repeat_last_time > text_repeat_rep * OS_CLOCKS_PER_SEC / 1000))) {
+		if ((key_repeat_last_counter == 0 && (os_clock() - key_repeat_last_time > int_repeat * OS_CLOCKS_PER_SEC / 1000)) ||
+			(key_repeat_last_counter > 0 && (os_clock() - key_repeat_last_time > int_repeat_rep * OS_CLOCKS_PER_SEC / 1000))) {
 			key_repeat_last_time = os_clock();
 			++key_repeat_last_counter;
 			return r;
 		} else {
-			return TEXT_KEY_NONE;
+			return INT_KEY_NONE;
 		}
 	}
 }
 
-void text_idle_repeat_reset()
+void int_idle_repeat_reset()
 {
-	text_key_last = TEXT_KEY_NONE;
+	int_key_last = INT_KEY_NONE;
 }
 
-void text_idle_time_reset()
+void int_idle_time_reset()
 {
-	text_idle_time = time(0);
+	int_idle_time = time(0);
 }
 
-void text_idle_0_enable(bool state)
+void int_idle_0_enable(bool state)
 {
-	text_idle_0_state = state;
+	int_idle_0_state = state;
 }
 
-void text_idle_1_enable(bool state)
+void int_idle_1_enable(bool state)
 {
-	text_idle_1_state = state;
+	int_idle_1_state = state;
 }
 
-static void text_clip_idle()
+static void int_clip_idle()
 {
 	adv_color_rgb rgb_map[256];
 	unsigned rgb_max;
-	backdrop_t* back = backdrop_map + text_clip_index;
+	backdrop_t* back = backdrop_map + int_clip_index;
 
-	if (video_index() == MODE_FLAGS_INDEX_PALETTE8)
-		return;
-
-	if (!text_clip_need_load()) {
+	if (!int_clip_need_load()) {
 		return;
 	}
 
-	adv_bitmap* bitmap = text_clip_load(rgb_map, &rgb_max);
+	adv_bitmap* bitmap = int_clip_load(rgb_map, &rgb_max);
 	if (!bitmap) {
 		// update the screen with the previous backdrop
-		text_copy_partial(back->pos.real_y, back->pos.real_y + back->pos.real_dy);
+		int_copy_partial(back->pos.real_y, back->pos.real_y + back->pos.real_dy);
 		return;
 	}
 
-	unsigned color = index2color(backdrop_missing_color >> 4);
+	adv_pixel pixel = video_pixel_get(backdrop_missing_color.background.r, backdrop_missing_color.background.g, backdrop_missing_color.background.b);
 
 	// source range and steps
 	unsigned char* ptr = bitmap->ptr;
@@ -2474,7 +2315,7 @@ static void text_clip_idle()
 	int dy = bitmap->size_y;
 
 	// set the correct orientation
-	if (text_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ORIENTATION_FLIP_XY) {
 		int t;
 		t = dp;
 		dp = dw;
@@ -2483,11 +2324,11 @@ static void text_clip_idle()
 		dx = dy;
 		dy = t;
 	}
-	if (text_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ORIENTATION_MIRROR_X) {
 		ptr = ptr + (dx-1) * dp;
 		dp = - dp;
 	}
-	if (text_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
 		ptr = ptr + (dy-1) * dw;
 		dw = - dw;
 	}
@@ -2505,7 +2346,7 @@ static void text_clip_idle()
 	// compute the size of the bitmap
 	unsigned rel_dx;
 	unsigned rel_dy;
-	text_backdrop_compute_real_size(&rel_dx, &rel_dy, back, bitmap, text_clip_aspectx, text_clip_aspecty);
+	int_backdrop_compute_real_size(&rel_dx, &rel_dy, back, bitmap, int_clip_aspectx, int_clip_aspecty);
 
 	// start writing
 	video_write_lock();
@@ -2515,9 +2356,9 @@ static void text_clip_idle()
 		unsigned pre_dx = (dst_dx - rel_dx) / 2;
 		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
 
-		if (text_clip_count == 1) {
-			video_clear(dst_x, dst_y, pre_dx, dst_dy, color);
-			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, color);
+		if (int_clip_count == 1) {
+			video_clear(dst_x, dst_y, pre_dx, dst_dy, pixel);
+			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, pixel);
 		}
 
 		dst_x += pre_dx;
@@ -2527,9 +2368,9 @@ static void text_clip_idle()
 		unsigned pre_dy = (dst_dy - rel_dy) / 2;
 		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
 
-		if (text_clip_count == 1) {
-			video_clear(dst_x, dst_y, dst_dx, pre_dy, color);
-			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, color);
+		if (int_clip_count == 1) {
+			video_clear(dst_x, dst_y, dst_dx, pre_dy, pixel);
+			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, pixel);
 		}
 
 		dst_y += pre_dy;
@@ -2559,34 +2400,34 @@ static void text_clip_idle()
 	bitmap_free(bitmap);
 }
 
-static void text_box_idle()
+static void int_box_idle()
 {
-	static os_clock_t text_backdrop_box_last = 0;
-	os_clock_t text_backdrop_box_new = os_clock();
-	if (text_backdrop_box_new >= text_backdrop_box_last + OS_CLOCKS_PER_SEC/20) {
-		text_backdrop_box_last = text_backdrop_box_new;
+	static os_clock_t int_backdrop_box_last = 0;
+	os_clock_t int_backdrop_box_new = os_clock();
+	if (int_backdrop_box_new >= int_backdrop_box_last + OS_CLOCKS_PER_SEC/20) {
+		int_backdrop_box_last = int_backdrop_box_new;
 		video_backdrop_box();
 	}
 }
 
-static void text_idle()
+static void int_idle()
 {
-	if (text_idle_0_state && text_key_last == TEXT_KEY_IDLE_0 && text_idle_0_rep && time(0) - text_idle_time > text_idle_0_rep)
-		text_key_saved = TEXT_KEY_IDLE_0;
+	if (int_idle_0_state && int_key_last == INT_KEY_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time > int_idle_0_rep)
+		int_key_saved = INT_KEY_IDLE_0;
 
-	if (text_idle_1_state && text_key_last == TEXT_KEY_IDLE_1 && text_idle_1_rep && time(0) - text_idle_time > text_idle_1_rep)
-		text_key_saved = TEXT_KEY_IDLE_1;
+	if (int_idle_1_state && int_key_last == INT_KEY_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time > int_idle_1_rep)
+		int_key_saved = INT_KEY_IDLE_1;
 
-	if (text_idle_0_state && text_idle_0 && time(0) - text_idle_time > text_idle_0)
-		text_key_saved = TEXT_KEY_IDLE_0;
+	if (int_idle_0_state && int_idle_0 && time(0) - int_idle_time > int_idle_0)
+		int_key_saved = INT_KEY_IDLE_0;
 
-	if (text_idle_1_state && text_idle_1 && time(0) - text_idle_time > text_idle_1)
-		text_key_saved = TEXT_KEY_IDLE_1;
+	if (int_idle_1_state && int_idle_1 && time(0) - int_idle_time > int_idle_1)
+		int_key_saved = INT_KEY_IDLE_1;
 
-	if (text_key_saved == TEXT_KEY_NONE) {
-		if (text_updating_active) {
-			text_clip_idle();
-			text_box_idle();
+	if (int_key_saved == INT_KEY_NONE) {
+		if (int_updating_active) {
+			int_clip_idle();
+			int_box_idle();
 			target_idle();
 		}
 	}
@@ -2597,53 +2438,53 @@ static void text_idle()
 	joystickb_poll();
 }
 
-int text_keypressed()
+int int_keypressed()
 {
 	static os_clock_t key_pressed_last_time = 0;
 
-	if (text_key_saved != TEXT_KEY_NONE)
+	if (int_key_saved != INT_KEY_NONE)
 		return 1;
 
 	os_clock_t now = os_clock();
 
-	text_idle();
+	int_idle();
 
 	/* don't check too fast */
 	if (now - key_pressed_last_time >= OS_CLOCKS_PER_SEC / 25) {
 		key_pressed_last_time = now;
 
-		text_key_saved = key_poll();
+		int_key_saved = key_poll();
 
-		if (text_key_saved != TEXT_KEY_NONE)
+		if (int_key_saved != INT_KEY_NONE)
 			return 1;
 	}
 
 	return 0;
 }
 
-unsigned text_getkey(bool update_background)
+unsigned int_getkey(bool update_background)
 {
 	if (update_background)
-		text_update();
+		int_update();
 
-	while (!text_keypressed()) { }
+	while (!int_keypressed()) { }
 
-	text_idle_time = time(0);
+	int_idle_time = time(0);
 
-	assert( text_key_saved != TEXT_KEY_NONE);
+	assert( int_key_saved != INT_KEY_NONE);
 
-	text_key_last = text_key_saved;
-	text_key_saved = TEXT_KEY_NONE;
+	int_key_last = int_key_saved;
+	int_key_saved = INT_KEY_NONE;
 
 #ifdef __SNAPSHOT__
-	if (text_key_last == TEXT_KEY_SNAPSHOT)
-		text_snapshot();
+	if (int_key_last == INT_KEY_SNAPSHOT)
+		int_snapshot();
 #endif
 
-	return text_key_last;
+	return int_key_last;
 }
 
-static void text_key_insert(unsigned event, unsigned* seq)
+static void int_key_insert(unsigned event, unsigned* seq)
 {
 	unsigned i;
 	for(i=0;KEYTAB[i].name && KEYTAB[i].event != event;++i);
@@ -2662,10 +2503,10 @@ static unsigned string2event(const string& s)
 	if (KEYTAB[i].name)
 		return KEYTAB[i].event;
 	else
-		return TEXT_KEY_NONE;
+		return INT_KEY_NONE;
 }
 
-bool text_key_in(const string& s)
+bool int_key_in(const string& s)
 {
 	string sevent;
 	unsigned seq[SEQ_MAX];
@@ -2675,7 +2516,7 @@ bool text_key_in(const string& s)
 	sevent = arg_get(s, pos);
 
 	unsigned event = string2event(sevent);
-	if (event == TEXT_KEY_NONE)
+	if (event == INT_KEY_NONE)
 		return false;
 
 	seq_count = 0;
@@ -2703,12 +2544,12 @@ bool text_key_in(const string& s)
 	if (!seq_valid(seq))
 		return false;
 
-	text_key_insert(event, seq);
+	int_key_insert(event, seq);
 
 	return true;
 }
 
-void text_key_out(adv_conf* config_context, const char* tag)
+void int_key_out(adv_conf* config_context, const char* tag)
 {
 	for(unsigned i=0;KEYTAB[i].name;++i) {
 		string s;
@@ -2734,35 +2575,27 @@ void text_key_out(adv_conf* config_context, const char* tag)
 //---------------------------------------------------------------------------
 // Color
 
-// 9 blue
-// A green
-// B cyan
-// C red
-// D magenta
-// E yellow
-// F white
-
-unsigned COLOR_HELP_NORMAL = 0xF0;
-unsigned COLOR_HELP_TAG = 0xFC;
-unsigned COLOR_CHOICE_TITLE = 0xFC;
-unsigned COLOR_CHOICE_NORMAL = 0xF0;
-unsigned COLOR_CHOICE_SELECT = 0xA0;
-unsigned COLOR_MENU_NORMAL = 0xF0;
-unsigned COLOR_MENU_HIDDEN = 0xF8;
-unsigned COLOR_MENU_TAG = 0xFC;
-unsigned COLOR_MENU_SELECT = 0xA0;
-unsigned COLOR_MENU_HIDDEN_SELECT = 0xA8;
-unsigned COLOR_MENU_TAG_SELECT = 0xAC;
-unsigned COLOR_MENU_BAR = 0xF0;
-unsigned COLOR_MENU_BAR_TAG = 0xFC;
-unsigned COLOR_MENU_BAR_HIDDEN = 0xF8;
-unsigned COLOR_MENU_GRID = 0xFC;
-unsigned COLOR_MENU_BACKDROP = 0x80;
-unsigned COLOR_MENU_ICON = 0xFF;
-unsigned COLOR_MENU_CURSOR = 0xF8;
+int_color COLOR_HELP_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_HELP_TAG = { { 255, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_CHOICE_TITLE = { { 255, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_CHOICE_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_CHOICE_SELECT = { { 0, 255, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
+int_color COLOR_MENU_TAG = { { 250, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_SELECT = { { 0, 0, 0 }, { 0, 255, 0 } };
+int_color COLOR_MENU_HIDDEN_SELECT = { { 128, 128, 128 }, { 0, 255, 0 } };
+int_color COLOR_MENU_TAG_SELECT = { { 0, 255, 0 }, { 0, 255, 0 } };
+int_color COLOR_MENU_BAR = { { 0, 0, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_BAR_TAG = { { 0, 255, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_BAR_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
+int_color COLOR_MENU_GRID = { { 0, 255, 0 }, { 255, 255, 255 } };
+int_color COLOR_MENU_BACKDROP = { { 0, 0, 0 }, { 128, 128, 128 } };
+int_color COLOR_MENU_ICON = { { 255, 255, 255 }, { 255, 255, 255 } };
+int_color COLOR_MENU_CURSOR = { { 128, 128, 128 }, { 255, 255, 255 } };
 
 static struct {
-	unsigned* var;
+	int_color* var;
 	const char* name;
 } COLOR_TAB[] = {
 { &COLOR_HELP_NORMAL, "help" },
@@ -2786,42 +2619,71 @@ static struct {
 { 0, 0 }
 };
 
-static const char* COLOR[] = {
-"black",
-"blue",
-"green",
-"cyan",
-"red",
-"magenta",
-"brown",
-"lightgray",
-"gray",
-"lightblue",
-"lightgreen",
-"lightcyan",
-"lightred",
-"lightmagenta",
-"yellow",
-"white"
+static struct color_name {
+	const char* name;
+	int_rgb rgb;
+}  COLOR_NAME[] = {
+{ "black", { 0, 0, 0 } },
+{ "blue", { 0, 0, 192 } },
+{ "green", { 0, 192, 0 } },
+{ "cyan", { 0, 192, 192 } },
+{ "red", { 192, 0, 0 } },
+{ "magenta", { 192, 0, 192 } },
+{ "brown", { 192, 192, 0 } },
+{ "lightgray", { 192, 192, 192 } },
+{ "gray", { 128, 128, 128 } },
+{ "lightblue", { 0, 0, 255 } },
+{ "lightgreen", { 0, 255, 0 } },
+{ "lightcyan", { 0, 255, 255 } },
+{ "lightred", { 255, 0, 0 } },
+{ "lightmagenta", { 255, 0, 255 } },
+{ "yellow", { 255, 255, 0 } },
+{ "white", { 255, 255, 255 } }
 };
 
-static unsigned string2color(const string& s)
-{
-	for(unsigned i=0;i<16;++i)
-		if (COLOR[i] == s)
-			return i;
+static unsigned hexdigit2int(char c) {
+	if (c>='A' && c<='F')
+		return c - 'A' + 10;
+	if (c>='a' && c<='f')
+		return c - 'a' + 10;
+	if (c>='0' && c<='9')
+		return c - '0';
 	return 0;
 }
 
-static const char* color2string(unsigned c)
-{
-	if (c<16)
-		return COLOR[c];
-	else
-		return COLOR[0];
+static unsigned hexnibble2int(char c0, char c1) {
+	return hexdigit2int(c0) * 16 + hexdigit2int(c1);
 }
 
-bool text_color_in(const string& s)
+static int_rgb string2color(const string& s)
+{
+	for(unsigned i=0;i<16;++i)
+		if (s == COLOR_NAME[i].name)
+			return COLOR_NAME[i].rgb;
+
+	if (s.length() == 6 && s.find_first_not_of("0123456789abcdefABCDEF") == string::npos) {
+		int_rgb c;
+		c.r = hexnibble2int(s[0],s[1]);
+		c.g = hexnibble2int(s[2],s[3]);
+		c.b = hexnibble2int(s[4],s[5]);
+		return c;
+	}
+
+	return COLOR_NAME[0].rgb;
+}
+
+static const char* color2string(const int_rgb& c)
+{
+	static char buffer[32];
+	for(unsigned i=0;i<16;++i)
+		if (c.r == COLOR_NAME[i].rgb.r && c.g == COLOR_NAME[i].rgb.g && c.b == COLOR_NAME[i].rgb.b)
+			return COLOR_NAME[i].name;
+
+	sprintf(buffer, "%02x%02x%02x", (unsigned)c.r, (unsigned)c.g, (unsigned)c.b);
+	return buffer;
+}
+
+bool int_color_in(const string& s)
 {
 	string sname;
 	string sarg0;
@@ -2863,20 +2725,21 @@ bool text_color_in(const string& s)
 	if (!COLOR_TAB[i].name)
 		return false;
 
-	*COLOR_TAB[i].var = string2color(sarg0) | string2color(sarg1) << 4;
+	COLOR_TAB[i].var->foreground = string2color(sarg0);
+	COLOR_TAB[i].var->background = string2color(sarg1);
 
 	return true;
 }
 
-void text_color_out(adv_conf* config_context, const char* tag)
+void int_color_out(adv_conf* config_context, const char* tag)
 {
 	for(unsigned i=0;COLOR_TAB[i].name;++i) {
 		string s;
 		s += COLOR_TAB[i].name;
 		s += " ";
-		s += color2string(*COLOR_TAB[i].var & 0xF);
+		s += color2string(COLOR_TAB[i].var->foreground);
 		s += " ";
-		s += color2string(*COLOR_TAB[i].var >> 4);
+		s += color2string(COLOR_TAB[i].var->background);
 		conf_set(config_context, "", tag, s.c_str());
 	}
 }

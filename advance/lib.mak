@@ -4,10 +4,10 @@
 LIB_VERSION = 0.1
 
 doclib:
-	doxygen advance/lib/lib.cfg
+	doxygen advance/lib/lib.cfg 2> reference/lib.log
 
 docsvgalib:
-	doxygen advance/svgalib/svgalib.cfg
+	doxygen advance/svgalib/svgalib.cfg 2> reference/svgalib.log
 
 LIB_ADVANCE_SRC = \
 	advance/lib.mak

@@ -1042,10 +1042,14 @@ int osd_start_audio_stream(int stereo)
 	if (osd2_sound_init(&rate, stereo) != 0) {
 		log_std(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
 
+		osd2_thread_init();
+
 		/* disable the MAME sound generation */
 		Machine->sample_rate = 0;
 		return 0;
 	}
+
+	osd2_thread_init();
 
 	log_std(("osd: osd_start_audio_stream return %d rate\n", rate));
 
@@ -1071,6 +1075,8 @@ int osd_start_audio_stream(int stereo)
 void osd_stop_audio_stream(void)
 {
 	log_std(("osd: osd_stop_audio_stream()\n"));
+
+	osd2_thread_done();
 
 	if (GLUE.sound_flag) {
 		free(GLUE.sound_silence_buffer);

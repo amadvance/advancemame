@@ -33,9 +33,7 @@ using namespace std;
 // ------------------------------------------------------------------------
 // Sort menu
 
-#define SORT_CHOICE_X text_dx_get()/8
-#define SORT_CHOICE_Y text_dy_get()/5
-#define SORT_CHOICE_DX 15*text_font_dx_get()
+#define SORT_CHOICE_DX 15*int_font_dx_get()
 
 void run_sort(config_state& rs)
 {
@@ -56,8 +54,8 @@ void run_sort(config_state& rs)
 	choice_bag::iterator i = ch.find_by_value(rs.sort_effective);
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Sort mode", SORT_CHOICE_X, SORT_CHOICE_Y, SORT_CHOICE_DX, i);
-	if (key == TEXT_KEY_ENTER) {
+	int key = ch.run(" Sort mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, SORT_CHOICE_DX, i);
+	if (key == INT_KEY_ENTER) {
 		rs.sort_effective = (game_sort_t)i->value_get();
 	}
 }
@@ -65,9 +63,7 @@ void run_sort(config_state& rs)
 // ------------------------------------------------------------------------
 // Command menu
 
-#define COMMAND_CHOICE_X text_dx_get()/8
-#define COMMAND_CHOICE_Y text_dy_get()/5
-#define COMMAND_CHOICE_DX 33*text_font_dx_get()
+#define COMMAND_CHOICE_DX 33*int_font_dx_get()
 
 void run_command(config_state& rs)
 {
@@ -135,9 +131,9 @@ void run_command(config_state& rs)
 		ch.insert( ch.end(), choice("No commands available", -1) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Commands", COMMAND_CHOICE_X, COMMAND_CHOICE_Y, COMMAND_CHOICE_DX, i);
+	int key = ch.run(" Commands", SECOND_CHOICE_X, SECOND_CHOICE_Y, COMMAND_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		switch (i->value_get()) {
 			case 0 :
 				remove(cpath_export(rs.current_game->preview_snap_get().archive_get()));
@@ -170,9 +166,7 @@ void run_command(config_state& rs)
 // ------------------------------------------------------------------------
 // Mode menu
 
-#define MODE_CHOICE_X text_dx_get()/8
-#define MODE_CHOICE_Y text_dy_get()/5
-#define MODE_CHOICE_DX 15*text_font_dx_get()
+#define MODE_CHOICE_DX 15*int_font_dx_get()
 
 void run_mode(config_state& rs)
 {
@@ -192,9 +186,9 @@ void run_mode(config_state& rs)
 	ch.insert( ch.end(), choice("Tile Marquee", mode_tile_marquee) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Mode", MODE_CHOICE_X, MODE_CHOICE_Y, MODE_CHOICE_DX, i);
+	int key = ch.run(" Mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, MODE_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.mode_effective = (show_t)i->value_get();
 	}
 }
@@ -202,9 +196,7 @@ void run_mode(config_state& rs)
 // ------------------------------------------------------------------------
 // Preview menu
 
-#define PREVIEW_CHOICE_X text_dx_get()/8
-#define PREVIEW_CHOICE_Y text_dy_get()/5
-#define PREVIEW_CHOICE_DX 15*text_font_dx_get()
+#define PREVIEW_CHOICE_DX 15*int_font_dx_get()
 
 void run_preview(config_state& rs)
 {
@@ -218,9 +210,9 @@ void run_preview(config_state& rs)
 	ch.insert( ch.end(), choice("Marquee", preview_marquee) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Preview", PREVIEW_CHOICE_X, PREVIEW_CHOICE_Y, PREVIEW_CHOICE_DX, i);
+	int key = ch.run(" Preview", SECOND_CHOICE_X, SECOND_CHOICE_Y, PREVIEW_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.preview_effective = (preview_t)i->value_get();
 	}
 }
@@ -228,9 +220,7 @@ void run_preview(config_state& rs)
 // ------------------------------------------------------------------------
 // Group menu
 
-#define GROUP_CHOICE_X text_dx_get()/8
-#define GROUP_CHOICE_Y text_dy_get()/5
-#define GROUP_CHOICE_DX 20*text_font_dx_get()
+#define GROUP_CHOICE_DX 20*int_font_dx_get()
 
 void run_group(config_state& rs)
 {
@@ -242,9 +232,9 @@ void run_group(config_state& rs)
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show groups", GROUP_CHOICE_X, GROUP_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Show groups", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.include_group_effective.erase(rs.include_group_effective.begin(), rs.include_group_effective.end());
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -294,9 +284,7 @@ void run_group_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Emu menu
 
-#define EMU_CHOICE_X text_dx_get()/8
-#define EMU_CHOICE_Y text_dy_get()/5
-#define EMU_CHOICE_DX 20*text_font_dx_get()
+#define EMU_CHOICE_DX 20*int_font_dx_get()
 
 void run_emu(config_state& rs)
 {
@@ -314,9 +302,9 @@ void run_emu(config_state& rs)
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show emulators", EMU_CHOICE_X, EMU_CHOICE_Y, EMU_CHOICE_DX, i);
+	int key = ch.run(" Show emulators", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.include_emu_effective.erase(rs.include_emu_effective.begin(), rs.include_emu_effective.end());
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -337,9 +325,9 @@ emulator* run_emu_select(config_state& rs)
 
 	if (ch.size() > 1) {
 		choice_bag::iterator i = ch.begin();
-		int key = ch.run(" Which emulator", EMU_CHOICE_X, EMU_CHOICE_Y, EMU_CHOICE_DX, i);
+		int key = ch.run(" Which emulator", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
 
-		if (key != TEXT_KEY_ENTER)
+		if (key != INT_KEY_ENTER)
 			return 0;
 
 		emu = i->desc_get();
@@ -384,9 +372,7 @@ void run_emu_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Type menu
 
-#define TYPE_CHOICE_X text_dx_get()/8
-#define TYPE_CHOICE_Y 2*text_font_dy_get()
-#define TYPE_CHOICE_DX 30*text_font_dx_get()
+#define TYPE_CHOICE_DX 30*int_font_dx_get()
 
 void run_type(config_state& rs)
 {
@@ -398,9 +384,9 @@ void run_type(config_state& rs)
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show types", TYPE_CHOICE_X, TYPE_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Show types", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.include_type_effective.erase(rs.include_type_effective.begin(), rs.include_type_effective.end());
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -465,9 +451,9 @@ void run_group_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select group", GROUP_CHOICE_X, GROUP_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Select group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.current_game->user_group_set( rs.group.insert(i->desc_get()) );
 	}
 }
@@ -486,9 +472,9 @@ void run_type_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select type", TYPE_CHOICE_X, TYPE_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Select type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.current_game->user_type_set( rs.type.insert(i->desc_get()) );
 	}
 }
@@ -496,9 +482,9 @@ void run_type_move(config_state& rs)
 // ------------------------------------------------------------------------
 // Clone menu
 
-#define CLONE_CHOICE_X text_dx_get()/10
-#define CLONE_CHOICE_Y text_dy_get()/5
-#define CLONE_CHOICE_DX text_dx_get()*4/5
+#define CLONE_CHOICE_X int_dx_get()/10
+#define CLONE_CHOICE_Y int_dy_get()/5
+#define CLONE_CHOICE_DX int_dx_get()*4/5
 
 void run_clone(config_state& rs)
 {
@@ -521,7 +507,7 @@ void run_clone(config_state& rs)
 
 	i = ch.begin();
 	int key = ch.run(" Select clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		rs.current_clone = (game*)i->ptr_get();
 	}
 }
@@ -529,9 +515,9 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_X (text_dx_get()-30*text_font_dx_get())/2
-#define CALIB_CHOICE_Y text_dy_get()/2
-#define CALIB_CHOICE_DX 30*text_font_dx_get()
+#define CALIB_CHOICE_DX 30*int_font_dx_get()
+#define CALIB_CHOICE_X (int_dx_get()-CALIB_CHOICE_DX)/2
+#define CALIB_CHOICE_Y int_dy_get()/2
 
 void run_calib(config_state& rs)
 {
@@ -555,7 +541,7 @@ void run_calib(config_state& rs)
 		choice_bag::iterator i = ch.begin();
 		int key = ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
 
-		if (key != TEXT_KEY_ENTER) {
+		if (key != INT_KEY_ENTER) {
 			message = 0;
 			break;
 		}
@@ -574,9 +560,7 @@ void run_calib(config_state& rs)
 // ------------------------------------------------------------------------
 // Sub Menu
 
-#define MENU_CHOICE_X text_dx_get()/16
-#define MENU_CHOICE_Y text_dy_get()/10
-#define MENU_CHOICE_DX 25*text_font_dx_get()
+#define MENU_CHOICE_DX 25*int_font_dx_get()
 
 void run_submenu(config_state& rs)
 {
@@ -598,9 +582,9 @@ void run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Help", 10) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Menu", MENU_CHOICE_X, MENU_CHOICE_Y, MENU_CHOICE_DX, i);
+	int key = ch.run(" Menu", FIRST_CHOICE_X, FIRST_CHOICE_Y, MENU_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		emulator* emu;
 
 		switch (i->value_get()) {
@@ -657,78 +641,78 @@ void run_submenu(config_state& rs)
 
 void run_help()
 {
-	text_clear(0, 0, text_dx_get(), text_dy_get(), COLOR_HELP_NORMAL >> 4);
-	text_clear(0, 0, text_dx_get(), text_font_dy_get(), COLOR_MENU_BAR >> 4);
-	text_put(2*text_font_dx_get(), 0, "HELP", COLOR_MENU_BAR_TAG);
+	int_clear(0, 0, int_dx_get(), int_dy_get(), COLOR_HELP_NORMAL.background);
+	int_clear(0, 0, int_dx_get(), int_font_dy_get(), COLOR_MENU_BAR.background);
+	int_put(2*int_font_dx_get(), 0, "HELP", COLOR_MENU_BAR_TAG);
 
-	int y = 2*text_font_dy_get();
-	int xt = 1*text_font_dx_get();
-	int xd = 8*text_font_dx_get();
-	text_put(xt, y, "TILDE", COLOR_HELP_TAG);
-	text_put(xd, y, "Main menu", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "ENTER", COLOR_HELP_TAG);
-	text_put(xd, y, "Run the current game/On menu accept the choice", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "SPACE", COLOR_HELP_TAG);
-	text_put(xd, y, "Change the preview type/On menu change the option", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "TAB", COLOR_HELP_TAG);
-	text_put(xd, y, "Change the menu mode", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "ESC", COLOR_HELP_TAG);
-	text_put(xd, y, "Exit (CTRL+ESC to shutdown)", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F2", COLOR_HELP_TAG);
-	text_put(xd, y, "Include/Exclude games by group", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F3", COLOR_HELP_TAG);
-	text_put(xd, y, "Include/Exclude games by type", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F4", COLOR_HELP_TAG);
-	text_put(xd, y, "Include/Exclude games by attribute", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F5", COLOR_HELP_TAG);
-	text_put(xd, y, "Select the game sort method", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F6", COLOR_HELP_TAG);
-	text_put(xd, y, "Select the emulator", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F8", COLOR_HELP_TAG);
-	text_put(xd, y, "Commands", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F9", COLOR_HELP_TAG);
-	text_put(xd, y, "Change the current game group", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F10", COLOR_HELP_TAG);
-	text_put(xd, y, "Change the current game type", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "F12", COLOR_HELP_TAG);
-	text_put(xd, y, "Run a clone", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "0 PAD", COLOR_HELP_TAG);
-	text_put(xd, y, "Rotate the screen", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
+	int y = 2*int_font_dy_get();
+	int xt = 1*int_font_dx_get();
+	int xd = 8*int_font_dx_get();
+	int_put(xt, y, "TILDE", COLOR_HELP_TAG);
+	int_put(xd, y, "Main menu", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ENTER", COLOR_HELP_TAG);
+	int_put(xd, y, "Run the current game/On menu accept the choice", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "SPACE", COLOR_HELP_TAG);
+	int_put(xd, y, "Next preview mode/On menu change the option", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "TAB", COLOR_HELP_TAG);
+	int_put(xd, y, "Next menu mode", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ESC", COLOR_HELP_TAG);
+	int_put(xd, y, "Exit (CTRL+ESC to shutdown)", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F2", COLOR_HELP_TAG);
+	int_put(xd, y, "Next game group", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F3", COLOR_HELP_TAG);
+	int_put(xd, y, "Next game type", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F4", COLOR_HELP_TAG);
+	int_put(xd, y, "Include/Exclude games by attribute", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F5", COLOR_HELP_TAG);
+	int_put(xd, y, "Select the game sort method", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F6", COLOR_HELP_TAG);
+	int_put(xd, y, "Next emulator", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F8", COLOR_HELP_TAG);
+	int_put(xd, y, "Commands", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F9", COLOR_HELP_TAG);
+	int_put(xd, y, "Change the current game group", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F10", COLOR_HELP_TAG);
+	int_put(xd, y, "Change the current game type", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "F12", COLOR_HELP_TAG);
+	int_put(xd, y, "Run a clone", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "0 PAD", COLOR_HELP_TAG);
+	int_put(xd, y, "Rotate the screen", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
 
-	y += text_font_dy_get();
-	text_put(xt, y, "In the selection submenus:", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "ENTER", COLOR_HELP_TAG);
-	text_put(xd, y, "Accept", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "DEL", COLOR_HELP_TAG);
-	text_put(xd, y, "Unselect all", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "INS", COLOR_HELP_TAG);
-	text_put(xd, y, "Select all", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "SPACE", COLOR_HELP_TAG);
-	text_put(xd, y, "Toggle (+ include, - exclude, * required)", COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt, y, "ESC", COLOR_HELP_TAG);
-	text_put(xd, y, "Cancel", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "In the selection submenus:", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ENTER", COLOR_HELP_TAG);
+	int_put(xd, y, "Accept", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "DEL", COLOR_HELP_TAG);
+	int_put(xd, y, "Unselect all", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "INS", COLOR_HELP_TAG);
+	int_put(xd, y, "Select all", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "SPACE", COLOR_HELP_TAG);
+	int_put(xd, y, "Toggle (+ include, - exclude, * required)", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ESC", COLOR_HELP_TAG);
+	int_put(xd, y, "Cancel", COLOR_HELP_NORMAL);
 
-	text_getkey();
+	int_getkey();
 }
 
 

@@ -20,10 +20,12 @@
 
 #include "text.h"
 #include "emulator.h"
+#include "submenu.h"
 #include "common.h"
 #include "menu.h"
-#include "bitmap.h"
 #include "game.h"
+
+#include "bitmap.h"
 #include "readinfo.h"
 #include "unzip.h"
 #include "target.h"
@@ -97,9 +99,7 @@ static bool spawn_check(int r, bool ignore_error)
 //---------------------------------------------------------------------------
 // emulator
 
-#define ATTRIB_CHOICE_X text_dx_get()/8 + 2
-#define ATTRIB_CHOICE_Y text_dy_get()/5 + 2
-#define ATTRIB_CHOICE_DX 20*text_font_dx_get()
+#define ATTRIB_CHOICE_DX 20*int_font_dx_get()
 
 emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
 	state(false), name(Aname) {
@@ -329,11 +329,11 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 
 	bool result = spawn_check(r, ignore_error);
 
-	text_idle_time_reset();
+	int_idle_time_reset();
 
 	// if returned with success
 	if (result)
-		text_idle_repeat_reset();
+		int_idle_repeat_reset();
 
 	chdir(cpath_export(olddir));
 
@@ -352,14 +352,14 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 			int opos = ostart + 3;
 			string r0, r90, r180, r270;
 
-			r0 = token_get(arg, opos, ", ]");
-			if (opos < arg.length() && arg[opos]==', ')
+			r0 = token_get(arg, opos, ",]");
+			if (opos < arg.length() && arg[opos]==',')
 				++opos;
-			r90 = token_get(arg, opos, ", ]");
-			if (opos < arg.length() && arg[opos]==', ')
+			r90 = token_get(arg, opos, ",]");
+			if (opos < arg.length() && arg[opos]==',')
 				++opos;
-			r180 = token_get(arg, opos, ", ]");
-			if (opos < arg.length() && arg[opos]==', ')
+			r180 = token_get(arg, opos, ",]");
+			if (opos < arg.length() && arg[opos]==',')
 				++opos;
 			r270 = token_get(arg, opos, "]");
 
@@ -367,10 +367,10 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 				++opos;
 				string o;
 				switch (orientation) {
-				case TEXT_ORIENTATION_ROT0 : o = r0; break;
-				case TEXT_ORIENTATION_ROT90 : o = r90; break;
-				case TEXT_ORIENTATION_ROT180 : o = r180; break;
-				case TEXT_ORIENTATION_ROT270 : o = r270; break;
+				case INT_ORIENTATION_ROT0 : o = r0; break;
+				case INT_ORIENTATION_ROT90 : o = r90; break;
+				case INT_ORIENTATION_ROT180 : o = r180; break;
+				case INT_ORIENTATION_ROT270 : o = r270; break;
 				}
 				arg.erase(ostart, opos - ostart);
 				arg.insert(ostart, o);
@@ -841,9 +841,9 @@ void mame_mame::attrib_run()
 	ch.insert( ch.end(), choice("PlayChoice-10", exclude_playchoice_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", ATTRIB_CHOICE_X, ATTRIB_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
 		exclude_bad_effective = ch[1].tristate_get();
 		exclude_clone_effective = ch[2].tristate_get();
@@ -1481,9 +1481,9 @@ void mame_mess::attrib_run()
 	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", ATTRIB_CHOICE_X, ATTRIB_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
 		exclude_bad_effective = ch[1].tristate_get();
 		exclude_clone_effective = ch[2].tristate_get();
@@ -2233,9 +2233,9 @@ void raine_info::attrib_run()
 	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", ATTRIB_CHOICE_X, ATTRIB_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
 		exclude_bad_effective = ch[1].tristate_get();
 		exclude_clone_effective = ch[2].tristate_get();
@@ -2621,9 +2621,9 @@ void generic::attrib_run()
 	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", ATTRIB_CHOICE_X, ATTRIB_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
-	if (key == TEXT_KEY_ENTER) {
+	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
 	}
 }

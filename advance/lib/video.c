@@ -761,7 +761,6 @@ adv_error video_mode_grab(adv_mode* mode)
  * Generate a video mode.
  * \param mode Destination of the new video mode.
  * \param crtc Required crtc of the new video mode.
- * \param bits Required bits per pixel of the new video mode.
  * \param flags Required flags of the new video mode.
  */
 adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned flags)

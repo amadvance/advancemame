@@ -96,27 +96,38 @@ struct sound_state_struct {
 	char name[DEVICE_NAME_MAX];
 };
 
-struct sound_state_struct sound_state;
+extern struct sound_state_struct sound_state;
 
 void sound_reg(adv_conf* config_context, adv_bool auto_detect);
 void sound_reg_driver(adv_conf* config_context, sound_driver* driver);
 adv_error sound_load(adv_conf* config_context);
-adv_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
+adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time);
 void sound_done(void);
 void sound_abort(void);
 
+/**
+ * Play the specified samples.
+ * \param sample_map Samples to play.
+ * \param sample_count Number of samples to play. If stereo is enable sample_map must contains the 2*sample_count samples.
+ */
 static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->play(sample_map, sample_count);
 }
 
+/**
+ * Return the number of buffered samples.
+ */
 static inline unsigned sound_buffered(void) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	return sound_state.driver_current->buffered();
 }
 
+/**
+ * Stop the playing.
+ */
 static inline void sound_stop(void) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
@@ -125,6 +136,11 @@ static inline void sound_stop(void) {
 	sound_state.is_playing_flag = 0;
 }
 
+/**
+ * Start the playing.
+ * The buffer is filled with the specified amount of silence.
+ * \param silence_time Silence time.
+ */
 static inline adv_error sound_start(double silence_time) {
 	assert( sound_state.is_active_flag && !sound_state.is_playing_flag );
 

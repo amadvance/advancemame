@@ -36,6 +36,8 @@
 #include <stdio.h>
 #include <string.h>
 
+struct sound_state_struct sound_state;
+
 void sound_default(void)
 {
 	sound_state.is_initialized_flag = 1;

@@ -401,7 +401,7 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_analog[*]", "*", "", "", "", 0 }, /* ignore */
 { "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.1 */
-{ "*", "input_map[*, track]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.2 */
 { "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 }, /* rename */
 { "*", "input_safeexit", "*", "%s", "misc_safequit", "%s", 0 }, /* rename */

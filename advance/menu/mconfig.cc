@@ -589,11 +589,11 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 	while (i<s.length()) {
 		string arg = arg_get(s, i);
 		if (arg == "flip_xy")
-			mask ^= TEXT_ORIENTATION_SWAP_XY;
+			mask ^= INT_ORIENTATION_SWAP_XY;
 		else if (arg == "mirror_x")
-			mask ^= TEXT_ORIENTATION_FLIP_X;
+			mask ^= INT_ORIENTATION_FLIP_X;
 		else if (arg == "mirror_y")
-			mask ^= TEXT_ORIENTATION_FLIP_Y;
+			mask ^= INT_ORIENTATION_FLIP_Y;
 		else {
 			config_error_la("video_orientation " + s, arg);
 			return false;
@@ -621,9 +621,9 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!config_load_skip(config_context, mode_skip_mask))
 		return false;
 	exit_count = conf_int_get_default(config_context, "event_exit_press");
-	if (!config_load_iterator(config_context, "event_assign", text_key_in))
+	if (!config_load_iterator(config_context, "event_assign", int_key_in))
 		return false;
-	if (!config_load_iterator(config_context, "color", text_color_in))
+	if (!config_load_iterator(config_context, "color", int_color_in))
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "idle_start"), a0, a1))
 		return false;
@@ -961,12 +961,12 @@ void config_state::conf_default(adv_conf* config_context)
 
 	conf_iterator_begin(&i, config_context, "color");
 	if (conf_iterator_is_end(&i)) {
-		text_color_out(config_context, "color");
+		int_color_out(config_context, "color");
 	}
 
 	conf_iterator_begin(&i, config_context, "event_assign");
 	if (conf_iterator_is_end(&i)) {
-		text_key_out(config_context, "event_assign");
+		int_key_out(config_context, "event_assign");
 	}
 }
 
@@ -1006,15 +1006,15 @@ bool config_state::save(adv_conf* config_context) const {
 	}
 
 	string s;
-	if ((video_orientation_orig & TEXT_ORIENTATION_SWAP_XY) != 0) {
+	if ((video_orientation_orig & INT_ORIENTATION_SWAP_XY) != 0) {
 		if (s.length()) s += " ";
 		s += "flip_xy";
 	}
-	if ((video_orientation_orig & TEXT_ORIENTATION_FLIP_X) != 0) {
+	if ((video_orientation_orig & INT_ORIENTATION_FLIP_X) != 0) {
 		if (s.length()) s += " ";
 		s += "mirror_x";
 	}
-	if ((video_orientation_orig & TEXT_ORIENTATION_FLIP_Y) != 0) {
+	if ((video_orientation_orig & INT_ORIENTATION_FLIP_Y) != 0) {
 		if (s.length()) s += " ";
 		s += "mirror_y";
 	}

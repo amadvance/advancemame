@@ -48,6 +48,9 @@ extern "C" {
 /***************************************************************************/
 /* Video crtc container */
 
+/**
+ * Container of adv_crtc objets.
+ */
 typedef struct adv_crtc_container_struct {
 	adv_crtc* base;
 } adv_crtc_container;

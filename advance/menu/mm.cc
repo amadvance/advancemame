@@ -40,10 +40,10 @@ using namespace std;
 int run_sub(config_state& rs, bool silent)
 {
 
-	log_std(("menu: text_init4 call\n"));
+	log_std(("menu: int_init4 call\n"));
 
-	if (!text_init4(rs.video_font_path, rs.video_orientation_effective)) {
-		return TEXT_KEY_ESC;
+	if (!int_init4(rs.video_font_path, rs.video_orientation_effective)) {
+		return INT_KEY_ESC;
 	}
 
 	bool done = false;
@@ -55,79 +55,79 @@ int run_sub(config_state& rs, bool silent)
 	while (!done) {
 		emulator* emu;
 
-		key = run_menu(rs, (rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0, silent);
+		key = run_menu(rs, (rs.video_orientation_effective & INT_ORIENTATION_SWAP_XY) != 0, silent);
 
 		// don't replay the sound and clip
 		silent = true;
 
 		if (!rs.lock_effective)
 		switch (key) {
-			case TEXT_KEY_HELP :
+			case INT_KEY_HELP :
 				run_help();
 				break;
-			case TEXT_KEY_GROUP :
+			case INT_KEY_GROUP :
 				// replay the sound and clip
 				silent = false;
 				run_group_next(rs);
 				break;
-			case TEXT_KEY_EMU :
+			case INT_KEY_EMU :
 				// replay the sound and clip
 				silent = false;
 				run_emu_next(rs);
 				break;
-			case TEXT_KEY_TYPE :
+			case INT_KEY_TYPE :
 				// replay the sound and clip
 				silent = false;
 				run_type_next(rs);
 				break;
-			case TEXT_KEY_EXCLUDE :
+			case INT_KEY_EXCLUDE :
 				// replay the sound and clip
 				silent = false;
 				emu = run_emu_select(rs);
 				if (emu)
 					emu->attrib_run();
 				break;
-			case TEXT_KEY_COMMAND :
+			case INT_KEY_COMMAND :
 				run_command(rs);
 				break;
-			case TEXT_KEY_SORT :
+			case INT_KEY_SORT :
 				// replay the sound and clip
 				silent = false;
 				run_sort(rs);
 				break;
-			case TEXT_KEY_MENU :
+			case INT_KEY_MENU :
 				// replay the sound and clip
 				silent = false;
 				run_submenu(rs);
 				break;
-			case TEXT_KEY_SETGROUP :
+			case INT_KEY_SETGROUP :
 				// replay the sound and clip
 				silent = false;
 				run_group_move(rs);
 				break;
-			case TEXT_KEY_SETTYPE :
+			case INT_KEY_SETTYPE :
 				// replay the sound and clip
 				silent = false;
 				run_type_move(rs);
 				break;
-			case TEXT_KEY_ROTATE :
-			case TEXT_KEY_ESC :
-			case TEXT_KEY_OFF :
+			case INT_KEY_ROTATE :
+			case INT_KEY_ESC :
+			case INT_KEY_OFF :
 				done = true;
 				break;
 		}
 		switch (key) {
-			case TEXT_KEY_LOCK :
+			case INT_KEY_LOCK :
 				rs.lock_effective = !rs.lock_effective;
 				break;
-			case TEXT_KEY_IDLE_0 :
+			case INT_KEY_IDLE_0 :
 				if (rs.current_game) {
 					rs.current_clone = &rs.current_game->clone_best_get();
 					done = true;
 					is_run = true;
 				}
 				break;
-			case TEXT_KEY_RUN_CLONE :
+			case INT_KEY_RUN_CLONE :
 				// replay the sound and clip
 				silent = false;
 				if (rs.current_game) {
@@ -138,7 +138,7 @@ int run_sub(config_state& rs, bool silent)
 					}
 				}
 				break;
-			case TEXT_KEY_ENTER :
+			case INT_KEY_ENTER :
 				// replay the sound and clip
 				silent = false;
 				if (rs.current_game) {
@@ -160,28 +160,28 @@ int run_sub(config_state& rs, bool silent)
 
 	log_std(("menu: menu stop\n"));
 
-	log_std(("menu: text_done4 call\n"));
-	text_done4();
+	log_std(("menu: int_done4 call\n"));
+	int_done4();
 
 	return key;
 }
 
 int run_main(config_state& rs, bool is_first, bool silent)
 {
-	log_std(("menu: text_init3 call\n"));
+	log_std(("menu: int_init3 call\n"));
 
-	if (!text_init3(rs.video_gamma, rs.video_brightness,
+	if (!int_init3(rs.video_gamma, rs.video_brightness,
 		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
 		rs.preview_fast, rs.alpha_mode)) {
-		return TEXT_KEY_ESC;
+		return INT_KEY_ESC;
 	}
 
 	log_std(("menu: play_init call\n"));
 	if (!play_init()) {
-		text_done3(true);
+		int_done3(true);
 		target_err("Error initializing the sound mixer.\n");
 		target_err("Try with the option '-device_sound none'.\n");
-		return TEXT_KEY_ESC;
+		return INT_KEY_ESC;
 	}
 
 	// play start background sounds
@@ -217,32 +217,32 @@ int run_main(config_state& rs, bool is_first, bool silent)
 
 		if (!rs.lock_effective)
 		switch (key) {
-			case TEXT_KEY_ROTATE : {
-					unsigned mirror = rs.video_orientation_effective & (TEXT_ORIENTATION_FLIP_X | TEXT_ORIENTATION_FLIP_Y);
-					unsigned flip = rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY;
+			case INT_KEY_ROTATE : {
+					unsigned mirror = rs.video_orientation_effective & (INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y);
+					unsigned flip = rs.video_orientation_effective & INT_ORIENTATION_SWAP_XY;
 					if (mirror == 0) {
-						mirror = TEXT_ORIENTATION_FLIP_Y;
-					} else if (mirror == TEXT_ORIENTATION_FLIP_Y) {
-						mirror = TEXT_ORIENTATION_FLIP_X | TEXT_ORIENTATION_FLIP_Y;
-					} else if (mirror == (TEXT_ORIENTATION_FLIP_X | TEXT_ORIENTATION_FLIP_Y)) {
-						mirror = TEXT_ORIENTATION_FLIP_X;
+						mirror = INT_ORIENTATION_FLIP_Y;
+					} else if (mirror == INT_ORIENTATION_FLIP_Y) {
+						mirror = INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y;
+					} else if (mirror == (INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y)) {
+						mirror = INT_ORIENTATION_FLIP_X;
 					} else {
 						mirror = 0;
 					}
-					flip ^= TEXT_ORIENTATION_SWAP_XY;
+					flip ^= INT_ORIENTATION_SWAP_XY;
 					rs.video_orientation_effective = flip | mirror;
 				}
 				break;
-			case TEXT_KEY_ESC :
-			case TEXT_KEY_OFF :
+			case INT_KEY_ESC :
+			case INT_KEY_OFF :
 				done = true;
 				is_terminate = true;
 				break;
 		}
 		switch (key) {
-			case TEXT_KEY_IDLE_0 :
-			case TEXT_KEY_ENTER :
-			case TEXT_KEY_RUN_CLONE :
+			case INT_KEY_IDLE_0 :
+			case INT_KEY_ENTER :
+			case INT_KEY_RUN_CLONE :
 				if (rs.current_game && rs.current_clone) {
 					done = true;
 					is_run = true;
@@ -273,8 +273,8 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	log_std(("menu: play_done call\n"));
 	play_done();
 
-	log_std(("menu: text_done3 call\n"));
-	text_done3(is_terminate || rs.video_reset_mode);
+	log_std(("menu: int_done3 call\n"));
+	int_done3(is_terminate || rs.video_reset_mode);
 
 	return key;
 }
@@ -303,14 +303,14 @@ int run_all(adv_conf* config_context, config_state& rs)
 		silent = false;
 
 		switch (key) {
-			case TEXT_KEY_ESC :
-			case TEXT_KEY_OFF :
+			case INT_KEY_ESC :
+			case INT_KEY_OFF :
 				done = true;
 				break;
-			case TEXT_KEY_ENTER :
-			case TEXT_KEY_IDLE_0 :
-			case TEXT_KEY_RUN_CLONE :
-				if (key == TEXT_KEY_IDLE_0) {
+			case INT_KEY_ENTER :
+			case INT_KEY_IDLE_0 :
+			case INT_KEY_RUN_CLONE :
+				if (key == INT_KEY_IDLE_0) {
 					// don't replay the sound and clip
 					silent = true;
 				}
@@ -323,7 +323,7 @@ int run_all(adv_conf* config_context, config_state& rs)
 					rs.save(config_context);
 
 					// run the game
-					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, key == TEXT_KEY_IDLE_0);
+					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, key == INT_KEY_IDLE_0);
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -493,7 +493,7 @@ int os_main(int argc, char* argv[])
 
 	config_state::conf_register(config_context);
 
-	text_init(config_context);
+	int_init(config_context);
 	play_reg(config_context);
 
 #ifdef __MSDOS__
@@ -594,7 +594,7 @@ int os_main(int argc, char* argv[])
 	if (!rs.load(config_context, opt_verbose)) {
 		goto err_init;
 	}
-	if (!text_load(config_context)) {
+	if (!int_load(config_context)) {
 		goto err_init;
 	}
 	if (!play_load(config_context)) {
@@ -606,7 +606,7 @@ int os_main(int argc, char* argv[])
 		goto err_init;
 	}
 
-	if (!text_init2(rs.video_size, rs.sound_foreground_key)) {
+	if (!int_init2(rs.video_size, rs.sound_foreground_key)) {
 		goto err_inner_init;
 	}
 	
@@ -626,7 +626,7 @@ int os_main(int argc, char* argv[])
 	// print the messages before restoring the video
 	target_flush();
 
-	text_done2();
+	int_done2();
 	
 	// save all the data
 	rs.save(config_context);
@@ -638,10 +638,10 @@ int os_main(int argc, char* argv[])
 	os_inner_done();
 	
 done_init:
-	text_done();
+	int_done();
 	os_done();
 
-	if (key == TEXT_KEY_OFF)
+	if (key == INT_KEY_OFF)
 		target_apm_shutdown();
 
 	conf_done(config_context);
@@ -652,7 +652,7 @@ err_inner_init:
 	os_inner_done();
 
 err_init:
-	text_done();
+	int_done();
 	os_done();
 
 err_conf:

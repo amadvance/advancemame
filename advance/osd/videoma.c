@@ -2459,9 +2459,13 @@ static void* video_thread(void* void_context)
 /**
  * Initialize and start the video thread.
  */
-static int video_init_thread(struct advance_video_context* context)
+int osd2_thread_init(void)
 {
 #ifdef USE_SMP
+	struct advance_video_context* context = &CONTEXT.video;
+
+	log_std(("osd: osd2_thread_init\n"));
+
 	context->state.thread_exit_flag = 0;
 	context->state.thread_state_ready_flag = 0;
 	context->state.thread_state_game = 0;
@@ -2471,6 +2475,7 @@ static int video_init_thread(struct advance_video_context* context)
 	context->state.thread_state_sample_max = 0;
 	context->state.thread_state_sample_buffer = 0;
 	context->state.thread_state_skip_flag = 0;
+	log_std(("advance:thread: start\n"));
 	if (pthread_mutex_init(&context->state.thread_video_mutex, NULL) != 0)
 		return -1;
 	if (pthread_cond_init(&context->state.thread_video_cond, NULL) != 0)
@@ -2484,25 +2489,31 @@ static int video_init_thread(struct advance_video_context* context)
 /**
  * Terminate and deallocate the video thread.
  */
-static void video_done_thread(struct advance_video_context* context)
+void osd2_thread_done(void)
 {
 #ifdef USE_SMP
+	struct advance_video_context* context = &CONTEXT.video;
+
+	log_std(("osd: osd2_thread_done\n"));
+
+	log_std(("advance:thread: exit signal\n"));
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 	context->state.thread_exit_flag = 1;
 	pthread_cond_signal(&context->state.thread_video_cond);
 	pthread_mutex_unlock(&context->state.thread_video_mutex);
 
+	log_std(("advance:thread: join\n"));
 	pthread_join(context->state.thread_id, NULL);
 
+	log_std(("advance:thread: exit\n"));
 	bitmap_free(context->state.thread_state_game);
 	free(context->state.thread_state_sample_buffer);
 	pthread_cond_destroy(&context->state.thread_video_cond);
 	pthread_mutex_destroy(&context->state.thread_video_mutex);
+
+	log_std(("advance:thread: done\n"));
 #endif
 }
-
-/***************************************************************************/
-/* thread callback */
 
 int thread_is_active(void)
 {
@@ -2583,7 +2594,7 @@ int osd2_video_init(struct osd_video_option* req)
 	adv_mode mode;
 	mode_reset(&mode);
 
-	log_std(("osd: osd_video_init\n"));
+	log_std(("osd: osd2_video_init\n"));
 
 	log_std(("osd: area_size_x %d, area_size_y %d\n", req->area_size_x, req->area_size_y));
 	log_std(("osd: used_size_x %d, used_size_y %d, used_pos_x %d, used_pos_y %d\n", req->used_size_x, req->used_size_y, req->used_pos_x, req->used_pos_y));
@@ -2643,14 +2654,6 @@ int osd2_video_init(struct osd_video_option* req)
 		return -1;
 	}
 
-	if (video_init_thread(context) != 0) {
-		keyb_done();
-		video_done_mode(context, 0);
-		video_mode_restore();
-		target_err("Error initializing the thread system\n");
-		return -1;
-	}
-
 	return 0;
 }
 
@@ -2658,9 +2661,7 @@ void osd2_video_done(void)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	log_std(("osd: osd_video_done\n"));
-
-	video_done_thread(context);
+	log_std(("osd: osd2_video_done\n"));
 
 	keyb_done();
 

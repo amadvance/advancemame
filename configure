@@ -796,7 +796,10 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-debug          enable the debug information (default no)
+  --enable-debug          enable the debug information and slow code (default
+                          no)
+  --enable-fast           enable the fast compilation and slow code (default
+                          no)
   --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
   --enable-svgalib        enable the use of the SVGALIB library. (default
@@ -3153,9 +3156,20 @@ fi;
 CONF_DEBUG=$ac_enable_debug
 
 
+# Check whether --enable-fast or --disable-fast was given.
+if test "${enable_fast+set}" = set; then
+  enableval="$enable_fast"
+  ac_enable_fast=$enableval
+else
+  ac_enable_fast=no
+
+fi;
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
+	elif test $ac_enable_fast = yes ; then
+		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
 

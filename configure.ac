@@ -106,15 +106,24 @@ AC_SUBST([ZLIBS],[$ZLIBS])
 # Checks for optimizations
 AC_ARG_ENABLE(
 	[debug],
-	AC_HELP_STRING([--enable-debug],[enable the debug information (default no)]),
+	AC_HELP_STRING([--enable-debug],[enable the debug information and slow code (default no)]),
 	[ac_enable_debug=$enableval],
 	[ac_enable_debug=no]
 )
 AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
+AC_ARG_ENABLE(
+	[fast],
+	AC_HELP_STRING([--enable-fast],[enable the fast compilation and slow code (default no)]),
+	[ac_enable_fast=$enableval],
+	[ac_enable_fast=no]
+)
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
+	elif test $ac_enable_fast = yes ; then
+		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
 		AC_CHECK_CPU_ARCH

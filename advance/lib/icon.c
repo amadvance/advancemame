@@ -85,7 +85,7 @@ struct bitmap_header_t {
 
 /**
  * Load a .ico file in a bitmap.
- * Only the 16 and 256 color format are supported.
+ * Only the 16 and 256 color formats are supported.
  * \param f File to load.
  * \param rgb Where to put the palette information. it must point to a vector of 256 elements.
  * \param rgb_max Where to put the number of palette entries.

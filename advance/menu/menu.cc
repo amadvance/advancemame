@@ -79,12 +79,12 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 	else
 		s = g.description_get();
 
-	unsigned ident = text_font_dx_get()/2;
+	unsigned ident = int_font_dx_get()/2;
 
-	int color;
-	int color_first;
-	int color_in;
-	int color_back;
+	int_color color;
+	int_color color_first;
+	int_color color_in;
+	int_color color_back;
 	const game* gb;
 	if (g.emulator_get()->tree_get())
 		gb = &g.clone_best_get();
@@ -107,35 +107,35 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 	unsigned py = 0;
 	bool in = false;
 
-	while (dy >= py + text_font_dy_get()) {
+	while (dy >= py + int_font_dy_get()) {
 		unsigned str_len = s.length() - str_pos;
 		while (str_len > 0 && issep(s[str_pos])) {
 			++str_pos;
 			--str_len;
 		}
-		unsigned pixel_len = text_put_width(s.substr(str_pos, str_len));
+		unsigned pixel_len = int_put_width(s.substr(str_pos, str_len));
 		while (pixel_len > dx - 2*ident) {
 			while (str_len > 0 && !issep(s[str_pos+str_len-1]))
 				--str_len;
 			while (str_len > 0 && issep(s[str_pos+str_len-1]))
 				--str_len;
-			pixel_len = text_put_width(s.substr(str_pos, str_len));
+			pixel_len = int_put_width(s.substr(str_pos, str_len));
 		}
 
 		if (str_len == 0) {
 			// retry splitting in any point
 			str_len = s.length() - str_pos;
 			if (str_len) {
-				pixel_len = text_put_width(s.substr(str_pos, str_len));
+				pixel_len = int_put_width(s.substr(str_pos, str_len));
 				while (pixel_len > dx - 2*ident) {
 					--str_len;
-					pixel_len = text_put_width(s.substr(str_pos, str_len));
+					pixel_len = int_put_width(s.substr(str_pos, str_len));
 				}
 			}
 		}
 
 		if (!str_len) {
-			text_clear(x, y+py, dx, text_font_dy_get(), color_back >> 4);
+			int_clear(x, y+py, dx, int_font_dy_get(), color_back.background);
 		} else {
 			int space_left = (dx - pixel_len) / 2;
 			int ident_left = ident;
@@ -146,15 +146,15 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 			if (ident_right > space_right)
 				ident_right = space_right;
 
-			text_clear(x, y+py, space_left-ident_left, text_font_dy_get(), color_back >> 4);
-			text_clear(x+space_left-ident_left, y+py, ident_left, text_font_dy_get(), color >> 4);
-			text_put_special(in, x+space_left, y+py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
-			text_clear(x+space_left+pixel_len, y+py, ident_right, text_font_dy_get(), color >> 4);
-			text_clear(x+space_left+pixel_len+ident_right, y+py, space_right-ident_right, text_font_dy_get(), color_back >> 4);
+			int_clear(x, y+py, space_left-ident_left, int_font_dy_get(), color_back.background);
+			int_clear(x+space_left-ident_left, y+py, ident_left, int_font_dy_get(), color.background);
+			int_put_special(in, x+space_left, y+py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
+			int_clear(x+space_left+pixel_len, y+py, ident_right, int_font_dy_get(), color.background);
+			int_clear(x+space_left+pixel_len+ident_right, y+py, space_right-ident_right, int_font_dy_get(), color_back.background);
 		}
 
 		color_first = color;
-		py += text_font_dy_get();
+		py += int_font_dy_get();
 		str_pos += str_len;
 	}
 }
@@ -167,11 +167,11 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 	else
 		s = g.description_get();
 
-	ident += text_font_dx_get()/2;
+	ident += int_font_dx_get()/2;
 
-	int color;
-	int color_first;
-	int color_in;
+	int_color color;
+	int_color color_first;
+	int_color color_in;
 	const game* gb;
 	if (g.emulator_get()->tree_get())
 		gb = &g.clone_best_get();
@@ -187,49 +187,49 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 		color_in = color;
 	}
 
-	text_clear(x, y, ident, text_font_dy_get(), color >> 4);
+	int_clear(x, y, ident, int_font_dy_get(), color.background);
 	bool in = false;
-	text_put_special(in, x+ident, y, dx - ident, s, color_first, color_in, color);
+	int_put_special(in, x+ident, y, dx - ident, s, color_first, color_in, color);
 }
 
 void draw_menu_empty(int x, int y, int dx, int dy, bool selected)
 {
-	int color;
+	int_color color;
 	color = selected ? COLOR_MENU_HIDDEN_SELECT : COLOR_MENU_HIDDEN;
-	text_clear(x, y, dx, dy, color >> 4);
+	int_clear(x, y, dx, dy, color.background);
 }
 
 void draw_menu_desc(const string& desc, int x, int y, int dx, bool selected)
 {
-	int color;
+	int_color color;
 	color = selected ? COLOR_MENU_TAG_SELECT : COLOR_MENU_TAG;
-	text_put_filled(x, y, dx, desc, color);
+	int_put_filled(x, y, dx, desc, color);
 }
 
-void draw_tag_left(const string& s, int& xl, int& xr, int y, int sep, int color)
+void draw_tag_left(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	int len = sep + text_put_width(s);
+	int len = sep + int_put_width(s);
 	if (len < xr-xl) {
-		text_put(xl, y, s, color);
+		int_put(xl, y, s, color);
 		xl += len;
 	}
 }
 
-void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, int color)
+void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	int len = text_put_width(s);
+	int len = int_put_width(s);
 	if (len+sep < xr-xl) {
-		text_put(xr-len, y, s, color);
+		int_put(xr-len, y, s, color);
 		xr -= len + sep;
 	}
 }
 
 void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 {
-	text_clear(x, y, dx, text_font_dy_get(), COLOR_MENU_BAR >> 4);
+	int_clear(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
-	int separator = dx > 40*text_font_dx_get() ? 1*text_font_dx_get() : 0*text_font_dx_get();
-	int in_separator =  dx > 40*text_font_dx_get() ? 2*text_font_dx_get() : 1*text_font_dx_get();
+	int separator = dx > 40*int_font_dx_get() ? 1*int_font_dx_get() : 0*int_font_dx_get();
+	int in_separator =  dx > 40*int_font_dx_get() ? 2*int_font_dx_get() : 1*int_font_dx_get();
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
@@ -311,10 +311,10 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 
 void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, preview_t preview, game_sort_t sort_mode, bool lock)
 {
-	text_clear(x, y, dx, text_font_dy_get(), COLOR_MENU_BAR >> 4);
+	int_clear(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
-	int separator = dx > 40*text_font_dx_get() ? 1*text_font_dx_get() : 0*text_font_dx_get();
-	int in_separator = dx > 40*text_font_dx_get() ? 2*text_font_dx_get() : 1*text_font_dx_get();
+	int separator = dx > 40*int_font_dx_get() ? 1*int_font_dx_get() : 0*int_font_dx_get();
+	int in_separator = dx > 40*int_font_dx_get() ? 2*int_font_dx_get() : 1*int_font_dx_get();
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
@@ -435,29 +435,29 @@ void draw_menu_scroll(int x, int y, int dx, int dy, int pos, int delta, int max)
 	int y0 = pos * (dy-1) / (max-1);
 	int y1 = (pos+delta-1) * (dy-1) / (max-1);
 
-	text_clear(x, y, dx, dy, COLOR_MENU_GRID >> 4);
-	text_clear(x, y+y0, dx, y1-y0+1, COLOR_MENU_GRID);
+	int_clear(x, y, dx, dy, COLOR_MENU_GRID.background);
+	int_clear(x, y+y0, dx, y1-y0+1, COLOR_MENU_GRID.foreground);
 }
 
 void draw_menu_info(const string& desc, unsigned counter)
 {
-	int border = text_font_dx_get()/2;
+	int border = int_font_dx_get()/2;
 
-	int dx = text_put_width(desc);
-	int x = (text_dx_get() - dx) / 2;
+	int dx = int_put_width(desc);
+	int x = (int_dx_get() - dx) / 2;
 
-	int dy = text_font_dy_get();
+	int dy = int_font_dy_get();
 	int y;
 
 	if (counter % 2 == 0)
-		y = text_dy_get() - 3 * text_font_dy_get();
+		y = int_dy_get() - 3 * int_font_dy_get();
 	else
-		y = 2 * text_font_dy_get();
+		y = 2 * int_font_dy_get();
 
-	text_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL);
-	text_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL >> 4);
+	int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
+	int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
 
-	text_put(x, y, dx, desc, COLOR_CHOICE_TITLE);
+	int_put(x, y, dx, desc, COLOR_CHOICE_TITLE);
 }
 
 // ------------------------------------------------------------------------
@@ -587,25 +587,25 @@ void backdrop_game_set(const game* effective_game, unsigned back_pos, preview_t 
 
 		if (clip && preview == preview_snap) {
 			if (effective_game->preview_find(clip_res, &game::preview_clip_get))
-				text_clip_set(back_pos, clip_res, aspectx, aspecty);
+				int_clip_set(back_pos, clip_res, aspectx, aspecty);
 			else
-				text_clip_clear();
+				int_clip_clear();
 		}
 	} else {
 		aspectx = 0;
 		aspecty = 0;
 
 		if (clip && preview == preview_snap) {
-			text_clip_clear();
+			int_clip_clear();
 		}
 	}
 
 	if (backdrop_find_preview_default(backdrop_res, aspectx, aspecty, preview, effective_game, rs)) {
-		text_backdrop_set(back_pos, backdrop_res, highlight, aspectx, aspecty);
+		int_backdrop_set(back_pos, backdrop_res, highlight, aspectx, aspecty);
 		if (current)
 			rs.current_backdrop = backdrop_res;
 	} else {
-		text_backdrop_clear(back_pos, highlight);
+		int_backdrop_clear(back_pos, highlight);
 		if (current)
 			rs.current_backdrop = resource();
 	}
@@ -651,11 +651,11 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 	// delay before the background music start
 	os_clock_t back_stop = back_start + rs.repeat_rep * OS_CLOCKS_PER_SEC / 666; // / 666 = * 3 / 2 / 1000
 
-	// short busy wait (text_keypressed contains a idle call) */
-	while (!text_keypressed() && (os_clock() < back_stop)) {
+	// short busy wait (int_keypressed contains a idle call) */
+	while (!int_keypressed() && (os_clock() < back_stop)) {
 	}
 
-	if (!text_keypressed()) {
+	if (!int_keypressed()) {
 		bool sound_done = false; // game sound terminated
 		bool clip_done = false; // clip sound terminate
 
@@ -667,14 +667,14 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			run_background_set(rs, sound);
 
 			// start the new game clip
-			text_clip_start();
+			int_clip_start();
 		} else {
 			// if silent we are already in idle state
 			idle_control = false;
 		}
 
 		// wait until something pressed
-		while (!text_keypressed()) {
+		while (!int_keypressed()) {
 			// start some background music if required
 
 			if (!play_background_is_active()) {
@@ -693,16 +693,16 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			}
 
 			// restart the clip if terminated
-			if (!text_clip_is_active()) {
+			if (!int_clip_is_active()) {
 				clip_done = true;
 				if (rs.loop)
-					text_clip_start();
+					int_clip_start();
 			}
 
 			if (idle_control) {
 				if (!clip_done || !sound_done) {
 					// prevent any idle event
-					text_idle_time_reset();
+					int_idle_time_reset();
 				}
 			}
 		}
@@ -758,14 +758,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	// standard bars
 	bar_top_x = 0;
 	bar_top_y = 0;
-	bar_top_dy = text_font_dy_get();
+	bar_top_dy = int_font_dy_get();
 	bar_bottom_x = 0;
-	bar_bottom_dy = text_font_dy_get();
+	bar_bottom_dy = int_font_dy_get();
 	bar_left_x = 0;
 	bar_left_y = bar_top_dy;
-	bar_left_dx = text_font_dx_get()/2;
+	bar_left_dx = int_font_dx_get()/2;
 	bar_right_y = bar_top_dy;
-	bar_right_dx = text_font_dx_get()/2;
+	bar_right_dx = int_font_dx_get()/2;
 
 	// effective preview type
 	preview_t effective_preview;
@@ -796,18 +796,18 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		unsigned icon_space = rs.icon_space;
 		if (icon_space > 64)
 			icon_space = 64;
-		if (icon_space < 2*cursor_size + text_font_dy_get())
-			icon_space = 2*cursor_size + text_font_dy_get();
+		if (icon_space < 2*cursor_size + int_font_dy_get())
+			icon_space = 2*cursor_size + int_font_dy_get();
 
 		space_x = 0;
 		space_y = 0;
-		name_dy = text_font_dy_get();
+		name_dy = int_font_dy_get();
 		if (!flipxy) {
-			coln = (text_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (text_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
+			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
 		} else {
-			coln = (text_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (text_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
+			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
 		}
 
 		backdrop_mac = coln*rown;
@@ -815,8 +815,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		win_x = bar_left_dx;
 		win_y = bar_top_dy;
 
-		win_dx = (text_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (text_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -829,8 +829,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_effective == mode_tile_marquee) {
 		// marquee mode
-		space_x = text_font_dx_get()/2;
-		space_y = text_font_dx_get()/2;
+		space_x = int_font_dx_get()/2;
+		space_y = int_font_dx_get()/2;
 		name_dy = 0;
 
 		if (!flipxy) {
@@ -846,8 +846,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		win_x = bar_left_dx;
 		win_y = bar_top_dy;
 
-		win_dx = (text_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (text_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -879,8 +879,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		backdrop_x = win_x;
 		backdrop_y = win_y;
-		backdrop_dx = text_dx_get() - bar_left_dx - bar_right_dx;
-		backdrop_dy = text_dy_get() - bar_top_dy - bar_bottom_dy;
+		backdrop_dx = int_dx_get() - bar_left_dx - bar_right_dx;
+		backdrop_dy = int_dy_get() - bar_top_dy - bar_bottom_dy;
 
 		bar_right_x = bar_left_dx + backdrop_dx;
 		bar_bottom_y = bar_top_dy + backdrop_dy;
@@ -890,20 +890,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		// text mode
 		backdrop_mac = 0;
 
-		name_dy = text_font_dy_get();
+		name_dy = int_font_dy_get();
 
-		space_x = text_font_dx_get() / 2;
+		space_x = int_font_dx_get() / 2;
 		space_y = 0;
 
-		coln = text_dx_get() / (20*text_font_dx_get());
+		coln = int_dx_get() / (20*int_font_dx_get());
 		if (coln < 2)
 			coln = 2;
-		rown = (text_dy_get() - bar_top_dy - bar_bottom_dy) / text_font_dy_get();
+		rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
 
 		win_x = bar_left_dx;
 		win_y = bar_top_dy;
-		win_dx = (text_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = rown * text_font_dy_get();
+		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = rown * int_font_dy_get();
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -920,7 +920,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			backdrop_mac = 4;
 		else
 			backdrop_mac = 1;
-		name_dy = text_font_dy_get();
+		name_dy = int_font_dy_get();
 
 		win_x = bar_left_dx;
 		win_y = bar_top_dy;
@@ -943,15 +943,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			space_y = 0;
 
 			coln = 1;
-			win_dx = (text_dx_get() - bar_left_dx - bar_right_dx) * multiplier / divisor;
-			win_dx -= win_dx % text_font_dx_get();
+			win_dx = (int_dx_get() - bar_left_dx - bar_right_dx) * multiplier / divisor;
+			win_dx -= win_dx % int_font_dx_get();
 
-			rown = (text_dy_get() - bar_top_dy - bar_bottom_dy) / text_font_dy_get();
-			win_dy = rown * text_font_dy_get();
+			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
+			win_dy = rown * int_font_dy_get();
 
 			backdrop_x = win_x + win_dx;
 			backdrop_y = win_y;
-			backdrop_dx = text_dx_get() - win_dx - bar_left_dx - bar_right_dx;
+			backdrop_dx = int_dx_get() - win_dx - bar_left_dx - bar_right_dx;
 			backdrop_dy = win_dy;
 
 			bar_right_x = bar_left_dx + win_dx + backdrop_dx;
@@ -960,20 +960,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			bar_left_dy = bar_right_dy = win_dy;
 		} else {
 			// vertical
-			space_x = text_font_dx_get() / 2;
+			space_x = int_font_dx_get() / 2;
 			space_y = 0;
-			coln = text_dx_get()/(20*text_font_dx_get());
+			coln = int_dx_get()/(20*int_font_dx_get());
 			if (coln < 2)
 				coln = 2;
-			win_dx = (text_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+			win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
 
-			rown = (text_dy_get() - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * text_font_dy_get());
-			win_dy = rown * text_font_dy_get();
+			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get());
+			win_dy = rown * int_font_dy_get();
 
 			backdrop_x = win_x;
 			backdrop_y = win_y + win_dy;
 			backdrop_dx = win_dx;
-			backdrop_dy = text_dy_get() - win_dy - bar_top_dy - bar_bottom_dy;
+			backdrop_dy = int_dy_get() - win_dy - bar_top_dy - bar_bottom_dy;
 
 			bar_right_x = bar_left_dx + win_dx;
 			bar_bottom_y = bar_top_dy + win_dy + backdrop_dy;
@@ -982,8 +982,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	} else {
 		// tile modes
-		space_x = text_font_dx_get()/2;
-		space_y = text_font_dx_get()/2;
+		space_x = int_font_dx_get()/2;
+		space_y = int_font_dx_get()/2;
 
 		if (!flipxy) {
 			switch (rs.mode_effective) {
@@ -1020,12 +1020,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				case mode_tile_normal :
 					coln = 5;
 					rown = 4;
-					name_dy = text_font_dy_get();
+					name_dy = int_font_dy_get();
 				break;
 				case mode_tile_small :
 					coln = 4;
 					rown = 3;
-					name_dy = text_font_dy_get();
+					name_dy = int_font_dy_get();
 				break;
 			}
 		} else {
@@ -1063,12 +1063,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				case mode_tile_normal :
 					coln = 4;
 					rown = 5;
-					name_dy = text_font_dy_get();
+					name_dy = int_font_dy_get();
 				break;
 				case mode_tile_small :
 					coln = 3;
 					rown = 4;
-					name_dy = text_font_dy_get();
+					name_dy = int_font_dy_get();
 				break;
 			}
 		}
@@ -1078,8 +1078,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		win_x = bar_left_dx;
 		win_y = bar_top_dy;
 
-		win_dx = (text_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (text_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -1096,7 +1096,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	backdrop_map_bis = new cell_t[backdrop_mac];
 
 	// text position
-	struct cell_t* text_map = new cell_t[coln*rown];
+	struct cell_t* int_map = new cell_t[coln*rown];
 
 	// size of the text cell
 	int cell_dx = (win_dx - space_x * (coln-1)) / coln;
@@ -1183,20 +1183,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	}
 
 	if (rs.mode_effective == mode_full_mixed || rs.mode_effective == mode_full) {
-		text_map[0].x = 0;
-		text_map[0].y = 0;
-		text_map[0].dx = 0;
-		text_map[0].dy = 0;
+		int_map[0].x = 0;
+		int_map[0].y = 0;
+		int_map[0].dx = 0;
+		int_map[0].dy = 0;
 	} else if (rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_text) {
 		for(int r=0;r<rown;++r) {
 			for(int c=0;c<coln;++c) {
 				unsigned i = r*coln+c;
 				int x = win_x + (cell_dx + space_x) * c;
 				int y = win_y + (cell_dy + space_y) * r;
-				text_map[i].x = x;
-				text_map[i].y = y + cell_dy - name_dy;
-				text_map[i].dx = cell_dx;
-				text_map[i].dy = name_dy;
+				int_map[i].x = x;
+				int_map[i].y = y + cell_dy - name_dy;
+				int_map[i].dx = cell_dx;
+				int_map[i].dy = name_dy;
 			}
 		}
 	} else {
@@ -1216,40 +1216,40 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					} while (space_up < 0);
 					backdrop_map[i].x = x + (cell_dx - 32 - 2*cursor_size) / 2;
 					backdrop_map[i].y = y + space_up;
-					text_map[i].x = x;
-					text_map[i].y = y + backdrop_map[i].dy + 2*space_up;
-					text_map[i].dx = cell_dx;
-					text_map[i].dy = name_row*name_dy;
+					int_map[i].x = x;
+					int_map[i].y = y + backdrop_map[i].dy + 2*space_up;
+					int_map[i].dx = cell_dx;
+					int_map[i].dy = name_row*name_dy;
 				} else {
 					backdrop_map[i].x = x;
 					backdrop_map[i].y = y;
 					backdrop_map[i].dx = cell_dx;
 					backdrop_map[i].dy = cell_dy - name_dy;
-					text_map[i].x = x;
-					text_map[i].y = y + cell_dy - name_dy;
-					text_map[i].dx = cell_dx;
-					text_map[i].dy = name_dy;
+					int_map[i].x = x;
+					int_map[i].y = y + cell_dy - name_dy;
+					int_map[i].dx = cell_dx;
+					int_map[i].dy = name_dy;
 				}
 			}
 		}
 	}
 
 	if (backdrop_mac == 1) {
-		text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 1, cursor_size, rs.preview_expand);
-		text_backdrop_pos(0, backdrop_x, backdrop_y, backdrop_dx, backdrop_dy);
+		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 1, cursor_size, rs.preview_expand);
+		int_backdrop_pos(0, backdrop_x, backdrop_y, backdrop_dx, backdrop_dy);
 	} else if (backdrop_mac > 1) {
 		if (rs.mode_effective == mode_tile_icon)
-			text_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, cursor_size, cursor_size, rs.preview_expand);
+			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, cursor_size, cursor_size, rs.preview_expand);
 		else if (rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_full_mixed)
-			text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
 		else {
 			if (space_x == 0)
-				text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 0, cursor_size, rs.preview_expand);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 0, cursor_size, rs.preview_expand);
 			else
-				text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
 		}
 		for(int i=0;i<backdrop_mac;++i)
-			text_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
+			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
 	}
 
 	// reset the sound
@@ -1257,7 +1257,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	// reset the clip
 	if (backdrop_mac > 0)
-		text_clip_init();
+		int_clip_init();
 
 	int pos_rel_max = coln*rown;
 	int pos_base_upper = gc.size();
@@ -1337,16 +1337,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	int exit_count = 0;
 
 	// clear all the screen
-	text_clear();
+	int_clear();
 
 	// clear the used part
-	text_clear(0, 0, bar_left_dx + win_dx + bar_right_dx, bar_top_dy + win_dy + bar_bottom_dy, COLOR_MENU_GRID >> 4);
+	int_clear(0, 0, bar_left_dx + win_dx + bar_right_dx, bar_top_dy + win_dy + bar_bottom_dy, COLOR_MENU_GRID.background);
 
 	log_std(("menu: user end\n"));
 
 	while (!done) {
 		if (name_dy)
-			draw_menu_window(rs.gar, gc, text_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_effective == mode_tile_icon);
+			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_effective == mode_tile_icon);
 		if (bar_top_dy)
 			draw_menu_bar(rs.current_game, gc.size(), bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
@@ -1354,7 +1354,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (bar_right_dx)
 			draw_menu_scroll(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, pos_base, pos_rel_max, pos_base_upper + pos_rel_max);
 		if (bar_left_dx)
-			text_clear(bar_left_x, bar_left_y, bar_left_dx, bar_left_dy, COLOR_MENU_BAR >> 4);
+			int_clear(bar_left_x, bar_left_y, bar_left_dx, bar_left_dy, COLOR_MENU_BAR.background);
 
 		resource sound;
 		if (!sound_find_preview(sound, rs, rs.current_game)) {
@@ -1382,10 +1382,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 			if (!game_horz) {
 				for(int i=0;i<backdrop_mac;++i)
-					text_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
+					int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
 			} else {
 				for(int i=0;i<backdrop_mac;++i)
-					text_backdrop_pos(i, backdrop_map_bis[i].x, backdrop_map_bis[i].y, backdrop_map_bis[i].dx, backdrop_map_bis[i].dy);
+					int_backdrop_pos(i, backdrop_map_bis[i].x, backdrop_map_bis[i].y, backdrop_map_bis[i].dx, backdrop_map_bis[i].dy);
 			}
 
 			if (rs.preview_effective == preview_title) {
@@ -1421,12 +1421,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 		}
 
-		text_update(rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed);
+		int_update(rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed);
 
 		log_std(("menu: wait begin\n"));
 
-		text_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
-		text_idle_1_enable(true);
+		int_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
+		int_idle_1_enable(true);
 
 		run_background_wait(rs, sound, true, silent);
 
@@ -1435,20 +1435,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		log_std(("menu: wait end\n"));
 
-		key = text_getkey(false);
+		key = int_getkey(false);
 
 		log_std(("menu: key %d\n", key));
 
 		string oldfast = rs.fast;
 		rs.fast.erase();
 
-		if (key != TEXT_KEY_ESC)
+		if (key != INT_KEY_ESC)
 			exit_count = 0;
 
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 
 		switch (key) {
-			case TEXT_KEY_INS :
+			case INT_KEY_INS :
 				if (pos_base + pos_rel < gc.size() && pos_base + pos_rel > 0) {
 					unsigned new_pos = pos_base + pos_rel - 1;
 					string i = gc[new_pos]->category(category_extract);
@@ -1457,7 +1457,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 				}
 				break;
-			case TEXT_KEY_DEL :
+			case INT_KEY_DEL :
 				if (pos_base + pos_rel < gc.size()) {
 					unsigned new_pos = pos_base + pos_rel;
 					string i = gc[new_pos]->category(category_extract);
@@ -1481,39 +1481,39 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					}
 				}
 				break;
-			case TEXT_KEY_ENTER :
-			case TEXT_KEY_RUN_CLONE :
-			case TEXT_KEY_LOCK :
+			case INT_KEY_ENTER :
+			case INT_KEY_RUN_CLONE :
+			case INT_KEY_LOCK :
 				done = true;
 				break;
-			case TEXT_KEY_IDLE_0 :
-			case TEXT_KEY_IDLE_1 :
+			case INT_KEY_IDLE_0 :
+			case INT_KEY_IDLE_1 :
 				done = true;
 				break;
 		}
 		if (!rs.lock_effective)
 		switch (key) {
-			case TEXT_KEY_MODE :
-			case TEXT_KEY_HELP :
-			case TEXT_KEY_GROUP :
-			case TEXT_KEY_TYPE :
-			case TEXT_KEY_EXCLUDE :
-			case TEXT_KEY_SORT :
-			case TEXT_KEY_SETGROUP :
-			case TEXT_KEY_SETTYPE :
-			case TEXT_KEY_COMMAND :
-			case TEXT_KEY_MENU :
-			case TEXT_KEY_EMU :
-			case TEXT_KEY_ROTATE :
-			case TEXT_KEY_SPACE :
+			case INT_KEY_MODE :
+			case INT_KEY_HELP :
+			case INT_KEY_GROUP :
+			case INT_KEY_TYPE :
+			case INT_KEY_EXCLUDE :
+			case INT_KEY_SORT :
+			case INT_KEY_SETGROUP :
+			case INT_KEY_SETTYPE :
+			case INT_KEY_COMMAND :
+			case INT_KEY_MENU :
+			case INT_KEY_EMU :
+			case INT_KEY_ROTATE :
+			case INT_KEY_SPACE :
 				done = true;
 				break;
-			case TEXT_KEY_ESC :
+			case INT_KEY_ESC :
 				++exit_count;
 				if (rs.exit_count && exit_count >= rs.exit_count)
 					done = true;
 				break;
-			case TEXT_KEY_OFF :
+			case INT_KEY_OFF :
 				done = true;
 				break;
 		}
@@ -1527,7 +1527,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	}
 
-	if (key == TEXT_KEY_IDLE_0) {
+	if (key == INT_KEY_IDLE_0) {
 		if (gc.size() > 0) {
 			unsigned pos = rand() % gc.size();
 			while (pos < gc.size() && !gc[pos]->has_game())
@@ -1540,13 +1540,13 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	rs.menu_base_effective = pos_base;
 	rs.menu_rel_effective = pos_rel;
 
-	delete [] text_map;
+	delete [] int_map;
 	delete [] backdrop_map;
 	delete [] backdrop_map_bis;
 
 	if (backdrop_mac > 0) {
-		text_clip_done();
-		text_backdrop_done();
+		int_clip_done();
+		int_backdrop_done();
 	}
 
 	return key;
@@ -1570,10 +1570,10 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 			break;
 	}
 
-	text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
-	text_clip_init();
+	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
+	int_clip_init();
 
-	text_backdrop_pos(0, 0, 0, text_dx_get(), text_dy_get());
+	int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 
 	// make the set of available snapshot
 	vector<unsigned> avail;
@@ -1594,8 +1594,8 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		avail[j] = t;
 	}
 
-	text_idle_0_enable(false);
-	text_idle_1_enable(true);
+	int_idle_0_enable(false);
+	int_idle_1_enable(true);
 
 	while (!done) {
 		unsigned pos;
@@ -1619,15 +1619,15 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 				}
 			}
 
-			text_update_pre();
+			int_update_pre();
 
 			draw_menu_info(gc[pos]->game_get().description_get(), counter);
 
-			text_update_post();
+			int_update_post();
 		} else {
 			backdrop_game_set(0, 0, preview, false, false, true, rs);
 
-			text_update();
+			int_update();
 		}
 
 		// next game
@@ -1635,20 +1635,20 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 		run_background_wait(rs, sound, false, false);
 
-		key = text_getkey(false);
+		key = int_getkey(false);
 
-		if (key != TEXT_KEY_IDLE_1) {
+		if (key != INT_KEY_IDLE_1) {
 			done = true;
 
 			// select the game if the user press enter
-			if (found && key == TEXT_KEY_ENTER) {
+			if (found && key == INT_KEY_ENTER) {
 				rs.current_game = &gc[pos]->game_get();
 			}
 		}
 	}
 
-	text_clip_done();
-	text_backdrop_done();
+	int_clip_done();
+	int_backdrop_done();
 
 	return key;
 }
@@ -1658,16 +1658,16 @@ int run_menu_idle_off()
 	bool done = false;
 	int key = 0;
 
-	text_clear();
+	int_clear();
 
 	target_apm_standby();
 
 	while (!done) {
-		text_update();
+		int_update();
 
-		key = text_getkey(false);
+		key = int_getkey(false);
 
-		if (key != TEXT_KEY_IDLE_1)
+		if (key != INT_KEY_IDLE_1)
 			done = true;
 	}
 
@@ -1698,7 +1698,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				else
 					ident += 1;
 			}
-			gc.insert(gc.end(), new menu_entry(*i, ident * text_font_dx_get()));
+			gc.insert(gc.end(), new menu_entry(*i, ident * int_font_dx_get()));
 		}
 	} else {
 		string category = "<>";
@@ -1709,7 +1709,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				category = new_category;
 				gc.insert(gc.end(), new menu_entry(category));
 			}
-			gc.insert(gc.end(), new menu_entry(*i, text_font_dx_get()));
+			gc.insert(gc.end(), new menu_entry(*i, int_font_dx_get()));
 		}
 	}
 
@@ -1727,7 +1727,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				run_menu_idle_off();
 			else {
 				key = run_menu_idle(rs, gc);
-				if (key == TEXT_KEY_ENTER)
+				if (key == INT_KEY_ENTER)
 					done = true;
 			}
 			idle = false;
@@ -1740,7 +1740,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 			silent = false;
 
 			switch (key) {
-				case TEXT_KEY_IDLE_1 :
+				case INT_KEY_IDLE_1 :
 					idle = true;
 					break;
 				default:
@@ -1758,10 +1758,10 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 // ------------------------------------------------------------------------
 // Run Info
 
-#define RUNINFO_CHOICE_X text_dx_get()/8
-#define RUNINFO_CHOICE_Y text_dy_get()/10
-#define RUNINFO_CHOICE_DX text_dx_get()*3/4
-#define RUNINFO_CHOICE_DY 2*text_font_dy_get()
+#define RUNINFO_CHOICE_X int_dx_get()/8
+#define RUNINFO_CHOICE_Y int_dy_get()/10
+#define RUNINFO_CHOICE_DX int_dx_get()*3/4
+#define RUNINFO_CHOICE_DY 2*int_font_dy_get()
 
 void run_runinfo(config_state& rs)
 {
@@ -1769,7 +1769,7 @@ void run_runinfo(config_state& rs)
 	int y = RUNINFO_CHOICE_Y;
 	int dx = RUNINFO_CHOICE_DX;
 	int dy = RUNINFO_CHOICE_DY;
-	int border = text_font_dx_get()/2;
+	int border = int_font_dx_get()/2;
 
 	const game* g = rs.current_clone ? rs.current_clone : rs.current_game;
 	if (!g)
@@ -1790,25 +1790,25 @@ void run_runinfo(config_state& rs)
 
 		resource backdrop;
 		if (backdrop_find_preview_strict(backdrop, preview, g, false)) {
-			text_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
-			text_backdrop_pos(0, 0, 0, text_dx_get(), text_dy_get());
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
+			int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 			backdrop_game_set(g, 0, preview, false, false, false, rs);
-			text_update();
-			text_backdrop_done();
+			int_update();
+			int_backdrop_done();
 		}
 	}
 
 	if (rs.msg_run_game.length()) {
-		text_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL);
-		text_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL >> 4);
+		int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
+		int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
 
-		text_put(x, y, dx, rs.msg_run_game, COLOR_CHOICE_TITLE);
-		y += text_font_dy_get();
+		int_put(x, y, dx, rs.msg_run_game, COLOR_CHOICE_TITLE);
+		y += int_font_dy_get();
 
-		text_put(x, y, dx, g->description_get(), COLOR_CHOICE_NORMAL);
-		y += text_font_dy_get();
+		int_put(x, y, dx, g->description_get(), COLOR_CHOICE_NORMAL);
+		y += int_font_dy_get();
 
-		text_update();
+		int_update();
 	}
 }
 
@@ -1866,7 +1866,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			category_func = sort_item_info;
 			break;
 		default:
-			return TEXT_KEY_NONE;
+			return INT_KEY_NONE;
 	}
 
 	// recompute the preview mask
@@ -1982,7 +1982,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 		if (!rs.lock_effective)
 		switch (key) {
-			case TEXT_KEY_MODE :
+			case INT_KEY_MODE :
 				if (rs.mode_mask) {
 					do {
 						switch (rs.mode_effective) {
@@ -2002,7 +2002,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 					} while ((rs.mode_effective & rs.mode_mask) == 0);
 				}
 				break;
-			case TEXT_KEY_SPACE :
+			case INT_KEY_SPACE :
 				if (rs.preview_mask) {
 					do {
 						switch (rs.preview_effective) {
@@ -2018,24 +2018,24 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 				break;
 		}
 		switch (key) {
-			case TEXT_KEY_ENTER :
-			case TEXT_KEY_RUN_CLONE :
-			case TEXT_KEY_IDLE_0 :
-			case TEXT_KEY_IDLE_1 :
-			case TEXT_KEY_LOCK :
-			case TEXT_KEY_HELP :
-			case TEXT_KEY_GROUP :
-			case TEXT_KEY_TYPE :
-			case TEXT_KEY_EXCLUDE :
-			case TEXT_KEY_SORT :
-			case TEXT_KEY_SETGROUP :
-			case TEXT_KEY_SETTYPE :
-			case TEXT_KEY_COMMAND :
-			case TEXT_KEY_MENU :
-			case TEXT_KEY_EMU :
-			case TEXT_KEY_ROTATE :
-			case TEXT_KEY_ESC :
-			case TEXT_KEY_OFF :
+			case INT_KEY_ENTER :
+			case INT_KEY_RUN_CLONE :
+			case INT_KEY_IDLE_0 :
+			case INT_KEY_IDLE_1 :
+			case INT_KEY_LOCK :
+			case INT_KEY_HELP :
+			case INT_KEY_GROUP :
+			case INT_KEY_TYPE :
+			case INT_KEY_EXCLUDE :
+			case INT_KEY_SORT :
+			case INT_KEY_SETGROUP :
+			case INT_KEY_SETTYPE :
+			case INT_KEY_COMMAND :
+			case INT_KEY_MENU :
+			case INT_KEY_EMU :
+			case INT_KEY_ROTATE :
+			case INT_KEY_ESC :
+			case INT_KEY_OFF :
 				done = true;
 				break;
 		}

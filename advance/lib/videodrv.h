@@ -132,11 +132,14 @@
 #define VIDEO_DRIVER_FLAGS_USER_MASK 0xFF000000 /**< Available user flags. */
 /*@}*/
 
+/**
+ * Output mode of a video driver.
+ */
 typedef enum adv_output_enum {
-	adv_output_auto = -1,
-	adv_output_fullscreen = 0,
-	adv_output_window = 1,
-	adv_output_zoom = 2
+	adv_output_auto = -1, /**< Automatically detected. */
+	adv_output_fullscreen = 0, /**< Fullscreen mode of operation. */
+	adv_output_window = 1, /**< Window mode of operation. */
+	adv_output_zoom = 2 /**< Fullscreen zoomed mode of operation. */
 } adv_output;
 
 /**
@@ -147,20 +150,35 @@ typedef struct adv_video_driver_struct {
 	const char* name; /**< Name of the main driver */
 	const adv_device* device_map; /**< List of supported devices */
 
-	/** Load the configuration options. Call before init() */
+	/**
+	 * Load the configuration options of the video driver.
+	 * Call before init().
+	 */
 	adv_error (*load)(adv_conf* context);
 
-	/** Register the load options. Call before load(). */
+	/**
+	 * Register the load options of the video driver.
+	 * Call before load().
+	 */
 	void (*reg)(adv_conf* context);
 
-	adv_error (*init)(int id, adv_output output); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	/**
+	 * Initialize the driver.
+	 * \param id Choosen device from ::device_map.
+	 * \param output Output mode.
+	 */
+	adv_error (*init)(int id, adv_output output);
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	/**
+	 * Deinitialize the driver.
+	 */
+	void (*done)(void);
 
-	adv_error (*mode_set)(const void* mode); /**< Set a video mode */
-	adv_error (*mode_change)(const void* mode); /**< Change the video mode */
-	void (*mode_done)(adv_bool restore); /**< Reset a video mode */
+	unsigned (*flags)(void); /**< Get the capabilities of the driver. */
+
+	adv_error (*mode_set)(const void* mode); /**< Set a video mode. */
+	adv_error (*mode_change)(const void* mode); /**< Change the video mode. */
+	void (*mode_done)(adv_bool restore); /**< Reset a video mode. */
 
 	/* Information of the current video mode */
 	unsigned (*virtual_x)(void);
@@ -171,9 +189,21 @@ typedef struct adv_video_driver_struct {
 	unsigned (*adjust_bytes_per_page)(unsigned bytes_per_page);
 	adv_color_def (*color_def)(void);
 
-	void (*write_lock)(void); /**< Grant access in writing. */
-	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y); /**< Remove the lock for writing. */
-	unsigned char* (**write_line)(unsigned y); /**< Access the memory for writing. */
+	/**
+	 * Grant access in writing.
+	 */
+	void (*write_lock)(void);
+
+	/**
+	 * Remove the lock for writing.
+	 */
+	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y);
+
+	/**
+	 * Access the memory for writing.
+	 * You must call write_lock() before this function.
+	 */
+	unsigned char* (**write_line)(unsigned y);
 
 	/* Operations on the current video mode */
 	void (*wait_vsync)(void);
@@ -189,7 +219,11 @@ typedef struct adv_video_driver_struct {
 	adv_error (*mode_import)(adv_mode* mode, const void* driver_mode);
 	int (*mode_compare)(const void* a, const void* b);
 
-	/** Insert a set of default modelines */
+	/**
+	 * Insert a set of default modelines in the container.
+	 * All the available video modes are added in the container.
+	 * If the video driver is programmable, none video mode is added.
+	 */
 	void (*crtc_container_insert_default)(adv_crtc_container* cc);
 } adv_video_driver;
 

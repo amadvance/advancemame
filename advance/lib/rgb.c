@@ -180,7 +180,7 @@ const char* color_def_name_make(adv_color_def def_ordinal)
 		strcpy(color_name_buffer, "palette");
 		return color_name_buffer;
 	case adv_color_type_rgb :
-		sprintf(color_name_buffer, "rgb %d/%d, %d/%d, %d/%d",
+		sprintf(color_name_buffer, "rgb %d/%d,%d/%d,%d/%d",
 			def.nibble.red_len, def.nibble.red_pos,
 			def.nibble.green_len, def.nibble.green_pos,
 			def.nibble.blue_len, def.nibble.blue_pos

@@ -102,9 +102,10 @@ int thread_init(void)
 /** Deinitialize the thread system. */
 void thread_done(void)
 {
+	pthread_mutex_lock(&thread_mutex);
 	thread_exit = 1;
-
 	pthread_cond_signal(&thread_cond);
+	pthread_mutex_unlock(&thread_mutex);
 
 	pthread_join(thread_id, NULL);
 

@@ -332,19 +332,6 @@ uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
 RCFLAGS += --include-dir advance/lib
 
 ############################################################################
-# Special build
-
-# It seems to be required with gcc 3.1 for DOS and Windows. No problem in Linux.
-#
-#MSG_FIX = $(MSG) "(with low opt)"
-#
-#CFLAGS_FIX = $(subst -O3,-O2,$(CFLAGS))
-#
-#$(OBJ)/memory.o: $(EMUSRC)/memory.c
-#	$(ECHO) $@ $(MSG_FIX)
-#	$(CC) $(CFLAGS_FIX) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
-
-############################################################################
 # Special Rules
 
 # Debug

@@ -13,6 +13,9 @@ AdvanceMENU Version 2.2.2 2002/12
 		driver [Kari Hautio].
 	) Removed the option `video_depth'.
 	) Upgraded at the SVGALIB 1.9.17 library.
+	) Removed the support for the 8 bit palette mode.
+	) The `color' option now support a true color specification with
+		the format RRGGBB in hex values.
 
 AdvanceMENU Version 2.2.1 2002/11
 	) Reduced the startup load time.

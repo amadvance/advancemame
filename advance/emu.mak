@@ -486,6 +486,7 @@ endif
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 
+# Special rule for gcc 3.1, 3.1.1, 3.2, 3.2.1
 $(OBJ)/memory.o: $(EMUSRC)/memory.c
 	$(ECHO) $@ $(MSG) "(without -O3)"
 	$(CC) $(subst -O3,-O2,$(CFLAGS)) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@

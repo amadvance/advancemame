@@ -105,7 +105,7 @@ static struct s3_id s3_id_list[] = {
 { 0x8C01, "S3 ViRGE/MX", S3_CONF_UNSUPPORTED  },
 { 0x8C02, "S3 ViRGE/MX+", S3_CONF_UNSUPPORTED  },
 { 0x8C03, "S3 ViRGE/MX+MV", S3_CONF_UNSUPPORTED  },
-{ 0xca00, "S3 SonicVibes, ", S3_CONF_UNSUPPORTED },
+{ 0xca00, "S3 SonicVibes", S3_CONF_UNSUPPORTED },
 { 0, 0, S3_CONF_UNSUPPORTED }
 };
 

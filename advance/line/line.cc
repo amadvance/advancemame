@@ -857,8 +857,8 @@ void help()
 	cout << "Usage:" << endl;
 	cout << "\tmodeline [options] [XxY]" << endl;
 	cout << "Format:" << endl;
-	cout << "\t/fh A, F, S, B   Select the horizontal format" << endl;
-	cout << "\t/fv A, F, S, B   Select the vertical format" << endl;
+	cout << "\t/fh A,F,S,B   Select the horizontal format" << endl;
+	cout << "\t/fv A,F,S,B   Select the vertical format" << endl;
 	cout << "\t/sync_vga     Generate the sync polarization for a VGA monitor" << endl;
 	cout << "Clock contrains:" << endl;
 	cout << "\t/p CLOCK      Select the pixel clock [Hz]" << endl;
@@ -982,7 +982,7 @@ int main(int argc, char* argv[])
 			double A, F, S, B;
 			char s1, s2, s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
-			if (s1!=', ' || s2!=', ' || s3!=', ') {
+			if (s1!=',' || s2!=',' || s3!=',') {
 				cerr << "Invalid separator " << endl;
 				exit(EXIT_FAILURE);
 			}
@@ -993,7 +993,7 @@ int main(int argc, char* argv[])
 			double A, F, S, B;
 			char s1, s2, s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
-			if (s1!=', ' || s2!=', ' || s3!=', ') {
+			if (s1!=',' || s2!=',' || s3!=',') {
 				cerr << "Invalid separator " << endl;
 				exit(EXIT_FAILURE);
 			}

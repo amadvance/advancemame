@@ -502,7 +502,7 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 		++y;
 		draw_string(x, y, "A...J  Inc vert (SHIFT dec)", DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x, y, "I, K    Inc horz/vert size (SHIFT dec)", DRAW_COLOR_WHITE);
+		draw_string(x, y, "I,K    Inc horz/vert size (SHIFT dec)", DRAW_COLOR_WHITE);
 		++y;
 		draw_string(x, y, "XCV    Flip flag", DRAW_COLOR_WHITE);
 		++y;

@@ -96,7 +96,7 @@ unsigned inputb_sdl_get(void)
 
 	switch (r) {
 	case SDLK_LAST : return INPUTB_NONE;
-	case SDLK_COMMA : return ', ';
+	case SDLK_COMMA : return ',';
 	case SDLK_PERIOD : return '.';
 	case SDLK_a : return 'a' + upper;
 	case SDLK_b : return 'b' + upper;

@@ -99,8 +99,8 @@ Requirements
 		:Make 3.79.1 (or newer)
 
 	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 are NOT
-	supported. In DOS also the versions 3.1, 3.1.1 and 3.2 are
-	NOT supported. Other versions may work.
+	supported. In DOS the versions 3.1, 3.1.1, 3.2 and 3.2.1 are
+	NOT supportedhave some know problems. Other versions may work.
 
 	To build on Linux you need the additional following software:
 		:Linux 2.4.5 (or newer)

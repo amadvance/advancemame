@@ -149,7 +149,7 @@ static const short yyrline[] = { 0,
 
 static const char * const yytname[] = {   "$", "error", "$undefined.", "OP_LAND",
 "OP_LOR", "'&'", "'|'", "'^'", "'<'", "'>'", "OP_E", "OP_LE", "OP_GE", "OP_SL", "OP_SR",
-"'+'", "'-'", "'~'", "'!'", "WAIT", "DELAY", "VAL", "STRING", "'('", "')'", "', '", "'{'",
+"'+'", "'-'", "'~'", "'!'", "WAIT", "DELAY", "VAL", "STRING", "'('", "')'", "','", "'{'",
 "'}'", "';'", "script", "cmd_list", "exp", "cmd", NULL
 };
 static const short yytoknum[] = { 0,
