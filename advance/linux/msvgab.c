@@ -83,8 +83,8 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 		return -1;
 	}
 
-	mouse_setxrange(-32728, 32727);
-	mouse_setyrange(-32728, 32727);
+	mouse_setxrange(-8191, 8191);
+	mouse_setyrange(-8191, 8191);
 	mouse_setscale(1);
 	mouse_setwrap(MOUSE_NOWRAP);
 
@@ -131,8 +131,8 @@ void mouseb_svgalib_pos_get(unsigned m, int* x, int* y)
 	assert( m < mouseb_svgalib_count_get());
 
 	*x = svgalib_state.x;
-	*y = svgalib_state.y;
 	svgalib_state.x = 0;
+	*y = svgalib_state.y;
 	svgalib_state.y = 0;
 }
 
@@ -150,11 +150,22 @@ void mouseb_svgalib_poll(void)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_poll()\n"));
 
-	mouse_setposition(0, 0);
+	/* update the position */
 	mouse_update();
-	svgalib_state.x = mouse_getx();
-	svgalib_state.y = mouse_gety();
+
+	/* get the new position */
+	svgalib_state.x += mouse_getx();
+	svgalib_state.y += mouse_gety();
 	svgalib_state.button_mask = mouse_getbutton();
+
+	/* clear the current position */
+	mouse_setposition(0, 0);
+
+	/* the range must be reset on a video mode change */
+	mouse_setxrange(-8191, 8191);
+	mouse_setyrange(-8191, 8191);
+
+	log_debug(("mouseb:svgalib: mouseb_svgalib_poll() -> %d,%d,%d\n", svgalib_state.x, svgalib_state.y, svgalib_state.button_mask));
 }
 
 unsigned mouseb_svgalib_flags(void)

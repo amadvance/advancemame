@@ -325,9 +325,10 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	}
 	svgalib_state.memory_size = res;
 
-	/* claim two screen of memory */
+	/* claim two screen of memory, not more */
 	if (svgalib_state.memory_size > bytes_per_scanline * mode->crtc.vde * 2)
 		svgalib_state.memory_size = bytes_per_scanline * mode->crtc.vde * 2;
+	log_std(("video:svgalib: using %d bytes\n", svgalib_state.memory_size));
 	vga_claimvideomemory(svgalib_state.memory_size);
 
 	svgalib_state.ptr = vga_getgraphmem();
@@ -479,7 +480,7 @@ adv_error svgalib_scanline_set(unsigned byte_length)
 		return -1;
 	}
 	svgalib_state.bytes_per_pixel = modeinfo->bytesperpixel;
-	svgalib_state.bytes_per_scanline = modeinfo->linewidth;	
+	svgalib_state.bytes_per_scanline = modeinfo->linewidth;
 
 	return 0;
 }
