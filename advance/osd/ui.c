@@ -237,10 +237,15 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const c
 		} else {
 			const char* begin = e->text_buffer;
 			const char* end = e->text_buffer + strlen(e->text_buffer);
-			
+
+			adv_bool title = *begin == '#';
+			if (title)
+				++begin;
+
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 
-			ui_text_center(context, dst, pos_x + size_x / 2, y, begin, end, cef, ceb, def);
+
+			ui_text_center(context, dst, pos_x + size_x / 2, y, begin, end, title ? ctf : cef, title ? ctb : ceb, def);
 		}
 	}
 }

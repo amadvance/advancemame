@@ -2414,7 +2414,7 @@ const char* conf_iterator_string_get(const adv_conf_iterator* i)
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
- * \param result Where to put the value of the option.
+ * \param result Value to save.
  */
 adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* result)
 {
@@ -2439,17 +2439,17 @@ adv_error conf_set(adv_conf* context, const char* section, const char* tag, cons
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
- * \param result Where to put the value of the option.
+ * \param result Value to save.
  */
 adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag, adv_bool result)
 {
-	const char* result_string;
+	const char* buffer;
 
 	assert_option(context, tag, conf_type_bool);
 
-	result_string = result ? "yes" : "no";
+	buffer = result ? "yes" : "no";
 
-	return conf_set(context, section, tag, result_string);
+	return conf_set(context, section, tag, buffer);
 }
 
 /**
@@ -2459,7 +2459,7 @@ adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag,
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
- * \param result Where to put the value of the option.
+ * \param result Value to save.
  */
 adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, int result)
 {
@@ -2499,19 +2499,17 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
- * \param result Where to put the value of the option.
+ * \param result Value to save.
  */
 adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double result)
 {
-	char result_buffer[CONF_NUM_BUFFER_MAX];
-	const char* result_string;
+	char buffer[CONF_NUM_BUFFER_MAX];
 
 	assert_option(context, tag, conf_type_float);
 
-	snprintf(result_buffer, sizeof(result_buffer), "%g", (double)result);
-        result_string = result_buffer;
+	snprintf(buffer, sizeof(buffer), "%g", (double)result);
 
-	return conf_set(context, section, tag, result_string);
+	return conf_set(context, section, tag, buffer);
 }
 
 /**
@@ -2521,7 +2519,7 @@ adv_error conf_float_set(adv_conf* context, const char* section, const char* tag
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
- * \param result Where to put the value of the option.
+ * \param result Value to save.
  */
 adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* result)
 {
@@ -2638,44 +2636,18 @@ static const char* value_get(struct adv_conf_value_struct* value, char* buffer, 
 			return 0;
 	}
 }
-
-/**
- * Set the default value of a option.
- * The option is added in the last writable file.
- * \param context Configuration context to use.
- * \param section Section of the option.
- * \param tag Tag of the option.
- */
-adv_error conf_set_default(adv_conf* context, const char* section, const char* tag)
-{
-	struct adv_conf_input_struct* input;
-	struct adv_conf_option_struct* option;
-	const char* result_string;
-	char result_buffer[CONF_NUM_BUFFER_MAX];
-
-	input = input_searchbest_writable(context);
-	if (!input)
-		return -1;
-
-	option = option_search_tag(context, tag);
-	if (!option)
-		return -1;
-
-	result_string = option_default_get(option, result_buffer, sizeof(result_buffer));
-	if (!result_string)
-		return -1;
-
-	return value_set_dup(context, input, option, section, "", result_string, result_string, 0, 0);
-}
-
 /**
  * Set the value of a option only if it change something.
  * The value is set only if the current value is different. Otherwise the
  * option is removed.
+ * The current value is checked reading all the section specified
+ * with conf_section_set() which have the precedence on the
+ * save section specified.
  * The option is added in the last writable file.
  * \param context Configuration context to use.
  * \param section Section of the option.
  * \param tag Tag of the option.
+ * \param result Value to save.
  */
 adv_error conf_set_if_different(adv_conf* context, const char* section, const char* tag, const char* result)
 {
@@ -2712,6 +2684,107 @@ adv_error conf_set_if_different(adv_conf* context, const char* section, const ch
 		return conf_set(context, section, tag, result);
 	else
 		return conf_remove(context, section, tag);
+}
+
+/**
+ * Like conf_set_if_different() but operates on bool values.
+ */
+adv_error conf_bool_set_if_different(adv_conf* context, const char* section, const char* tag, adv_bool result)
+{
+	const char* buffer;
+
+	assert_option(context, tag, conf_type_bool);
+
+	buffer = result ? "yes" : "no";
+
+	return conf_set_if_different(context, section, tag, buffer);
+}
+
+/**
+ * Like conf_set_if_different() but operates on int values.
+ */
+adv_error conf_int_set_if_different(adv_conf* context, const char* section, const char* tag, int result)
+{
+	const char* result_string;
+	char result_buffer[CONF_NUM_BUFFER_MAX];
+	struct adv_conf_option_struct* option;
+
+	assert_option(context, tag, conf_type_int);
+
+	option = option_search_tag(context, tag);
+	if (!option)
+		return -1;
+
+	if (!option->data.base_int.has_enum) {
+		snprintf(result_buffer, sizeof(result_buffer), "%d", (int)result);
+		result_string = result_buffer;
+	} else {
+		unsigned i;
+		result_string = 0;
+		for(i=0;i<option->data.base_int.enum_mac;++i) {
+			if (option->data.base_int.enum_map[i].map == result) {
+				result_string = option->data.base_int.enum_map[i].value;
+				break;
+			}
+		}
+		if (i == option->data.base_int.enum_mac)
+			return -1;
+	}
+
+	return conf_set_if_different(context, section, tag, result_string);
+}
+
+/**
+ * Like conf_set_if_different() but operates on float values.
+ */
+adv_error conf_float_set_if_different(adv_conf* context, const char* section, const char* tag, double result)
+{
+	char buffer[CONF_NUM_BUFFER_MAX];
+
+	assert_option(context, tag, conf_type_float);
+
+	snprintf(buffer, sizeof(buffer), "%g", result);
+
+	return conf_set_if_different(context, section, tag, buffer);
+}
+
+/**
+ * Like conf_set_if_different() but operates on string values.
+ */
+adv_error conf_string_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value)
+{
+	assert_option(context, tag, conf_type_string);
+
+	return conf_set_if_different(context, section, tag, value);
+}
+
+/**
+ * Set the default value of a option.
+ * The option is added in the last writable file.
+ * \param context Configuration context to use.
+ * \param section Section of the option.
+ * \param tag Tag of the option.
+ */
+adv_error conf_set_default(adv_conf* context, const char* section, const char* tag)
+{
+	struct adv_conf_input_struct* input;
+	struct adv_conf_option_struct* option;
+	const char* result_string;
+	char result_buffer[CONF_NUM_BUFFER_MAX];
+
+	input = input_searchbest_writable(context);
+	if (!input)
+		return -1;
+
+	option = option_search_tag(context, tag);
+	if (!option)
+		return -1;
+
+	result_string = option_default_get(option, result_buffer, sizeof(result_buffer));
+	if (!result_string)
+		return -1;
+
+	return value_set_dup(context, input, option, section, "", result_string, result_string, 0, 0);
 }
 
 /**

@@ -32,54 +32,6 @@
  * Extra types.
  */
 
-/** \defgroup Functionality Functionalities */
-/*@{*/
-/** \defgroup Error Error */
-/** \defgroup LCD LCD */
-/** \defgroup Log Log */
-/** \defgroup Color Color */
-/** \defgroup Complex Complex */
-/** \defgroup BitMap BitMap */
-/** \defgroup Configuration Configuration */
-/** \defgroup Crtc Crtc */
-/** \defgroup Generate Crtc Generation */
-/** \defgroup Filter Filter */
-/** \defgroup Font Font */
-/** \defgroup Blit Blit */
-/** \defgroup Monitor Monitor */
-/** \defgroup Update Update */
-/** \defgroup Mode Mode */
-/** \defgroup String Dynamic String */
-/** \defgroup SafeString Safe String */
-/** \defgroup Info Info */
-/** \defgroup Mixer Mixer */
-/*@}*/
-/** \defgroup Stream Streams */
-/*@{*/
-/** \defgroup AudioFile Audio */
-/** \defgroup VideoFile Video */
-/** \defgroup CompressedFile Compressed */
-/** \defgroup ZIPFile ZIP */
-/*@}*/
-/** \defgroup Driver Drivers */
-/*@{*/
-/** \defgroup Device Device */
-/** \defgroup Video Video */
-/** \defgroup Input Input */
-/** \defgroup Joystick Joystick */
-/** \defgroup Keyboard Keyboard */
-/** \defgroup Mouse Mouse */
-/** \defgroup Sound Sound */
-/*@}*/
-/** \defgroup Portable Portable */
-/*@{*/
-/** \defgroup Type Type */
-/** \defgroup System System */
-/** \defgroup Target Target */
-/** \defgroup File File */
-/** \defgroup Endian Endian */
-/*@}*/
-
 #ifndef __EXTRA_H
 #define __EXTRA_H
 

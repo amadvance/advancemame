@@ -45,11 +45,6 @@ static struct game_adjust_struct {
 };
 
 /**
- * Base for the sample gain adjustment.
- */
-#define SAMPLE_MULT_BASE 4096
-
-/**
  * Expected volume factor.
  * Value guessed with some tries.
  */
@@ -61,7 +56,7 @@ static struct game_adjust_struct {
 /**
  * Maximum volume requested at the hardware mixer.
  */
-#define SOUND_MIXER_MAX 0.9
+#define SOUND_MIXER_MAX 1.0
 
 static void sound_volume_update(struct advance_sound_context* context)
 {
@@ -188,7 +183,7 @@ static void sound_normalize(struct advance_sound_context* context, unsigned chan
 
 						snprintf(buffer, sizeof(buffer), "%d", adjust_db);
 
-						conf_set(CONTEXT.cfg, mame_section_name(CONTEXT.game, CONTEXT.cfg), "sound_adjust", buffer);
+						conf_set_if_different(CONTEXT.cfg, mame_section_name(CONTEXT.game, CONTEXT.cfg), "sound_adjust", buffer);
 					}
 
 					sound_volume_update(context);
@@ -489,6 +484,7 @@ static void sound_play_adjust(struct advance_sound_context* context, const short
 void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
 {
 	adv_bool mute;
+	double start, stop;
 
 	if (!context->state.active_flag)
 		return;
@@ -517,7 +513,13 @@ void advance_sound_frame(struct advance_sound_context* context, struct advance_r
 		sound_volume_update(context);
 	}
 
+	start = advance_timer();
+
 	sound_play_adjust(context, sample_buffer, sample_count, sample_recount, compute_power);
+
+	stop = advance_timer();
+
+	context->state.time = (stop - start) * 0.05 + context->state.time * 0.95;
 
 	if (!video_context->state.pause_flag)
 		advance_record_sound_update(record_context, sample_buffer, sample_count);
@@ -639,6 +641,26 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	return 0;
 }
 
+void advance_sound_config_save(struct advance_sound_context* context, const char* section)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+
+	conf_int_set_if_different(cfg_context, section, "sound_mode", context->config.mode);
+	if (context->config.adjust < 0) {
+		conf_string_set_if_different(cfg_context, section, "sound_adjust", "none");
+	} else {
+		char buffer[16];
+		snprintf(buffer, sizeof(buffer), "%d", context->config.adjust);
+		conf_string_set_if_different(cfg_context, section, "sound_adjust", buffer);
+	}
+	conf_bool_set_if_different(cfg_context, section, "sound_normalize", context->config.normalize_flag);
+	conf_int_set_if_different(cfg_context, section, "sound_equalizer_lowvolume", context->config.equalizer_low);
+	conf_int_set_if_different(cfg_context, section, "sound_equalizer_midvolume", context->config.equalizer_mid);
+	conf_int_set_if_different(cfg_context, section, "sound_equalizer_highvolume", context->config.equalizer_high);
+
+	advance_global_message(&CONTEXT.global, "Audio options saved in %s/", section);
+}
+
 /***************************************************************************/
 /* OSD interface */
 
@@ -697,9 +719,9 @@ static void sound_equalizer_update(struct advance_sound_context* context)
 
 		context->state.equalizer_flag = 1;
 
-		adv_filter_lp_butterworth_set(&context->state.equalizer_low, 0.018, 5);
-		adv_filter_bp_butterworth_set(&context->state.equalizer_mid, 0.018, 0.18, 5);
-		adv_filter_hp_butterworth_set(&context->state.equalizer_high, 0.18, 5);
+		adv_filter_lp_butterworth_set(&context->state.equalizer_low, 0.018, 3);
+		adv_filter_bp_butterworth_set(&context->state.equalizer_mid, 0.018, 0.18, 3);
+		adv_filter_hp_butterworth_set(&context->state.equalizer_high, 0.18, 3);
 
 		if (reset) {
 			unsigned i;
@@ -857,6 +879,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
 	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
 
+	context->state.time = 0;
+
 	/* size the buffer to allow a double latency, the specified latency */
 	/* is the target latency, a latency bigger than the target must be allowed */
 	low_buffer_time = context->config.latency_time * 2;
@@ -870,6 +894,9 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	if (soundb_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
 		return -1;
 	}
+
+	context->state.menu_sub_flag = 0;
+	context->state.menu_sub_selected = 0;
 
 	context->state.active_flag = 1;
 	context->state.buffer_time = low_buffer_time;

@@ -1252,19 +1252,25 @@ Configuration
 	If the `sound_normalize' option is active this value is
 	also automatically updated during the game play.
 
-	:sound_adjust auto | VOLUME
+	:sound_adjust auto | none | VOLUME
 
 	Options:
 		auto - Get the value for the current game from
 			an internal database.
+		none - Starts with no volume adjutment. If the
+			`sound_normalize' option is active the
+			initial volume is automatically computed.
 		VOLUME - The volume gain in dB (default 0).
 			The gain is a positive value from 0 to 40.
+			If the `sound_normalize' option is active the
+			volume is automatically decreased when
+			necessary.
 
 	Examples:
 		:sound_adjust 16
 
     sound_normalize
-	Automatically decreases the sound gain to prevent too hight
+	Automatically decreases the sound gain to prevent too high
 	volume condition. Precisely, the maximum audio normalized
 	power is made constant for all the games.
 

@@ -34,6 +34,8 @@
 
 #include "advance.h"
 
+#include <math.h>
+
 /***************************************************************************/
 /* Menu */
 
@@ -67,7 +69,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 		++total;
 	}
 
-	menu_item[total] = "Return to Main Menu";
+	menu_item[total] = strdup("Return to Main Menu");
 	flag[total] = 0;
 	++total;
 
@@ -122,12 +124,14 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 
 static int video_pipeline_menu(struct advance_video_context* context, struct advance_ui_context* ui_context, int selected, unsigned input)
 {
-	const char *menu_item[64 + 2];
-	char flag[64 + 2];
+	const char* menu_item[64];
+	char flag[64];
+	char buffer[256];
+
+	int total;
+
 	int i;
 	const struct video_stage_horz_struct* stage;
-	char buffer[256];
-	int total;
 
 	if (selected >= 1)
 		selected = selected - 1;
@@ -160,6 +164,10 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 		++total;
 	}
 
+	menu_item[total] = strdup("#Blit Time");
+	flag[total] = 0;
+	++total;
+
 	if (context->state.pipeline_measure_flag) {
 		menu_item[total] = strdup("Time measure not completed");
 		flag[total] = 0;
@@ -174,19 +182,9 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
 		++total;
-
-		if (context->state.pipeline_measure_bestisdirect_flag) {
-			menu_item[total] = strdup("Using direct write");
-			flag[total] = 0;
-			++total;
-		} else {
-			menu_item[total] = strdup("Using buffered write");
-			flag[total] = 0;
-			++total;
-		}
 	}
 
-	menu_item[total] = "Return to Main Menu";
+	menu_item[total] = strdup("Return to Main Menu");
 	flag[total] = 0;
 	++total;
 
@@ -228,6 +226,8 @@ int osd2_video_menu(int selected, unsigned input)
 	const char* menu_item[32];
 	const char* menu_subitem[32];
 	char flag[32];
+	char buffer[128];
+
 	int total;
 	int arrowize;
 
@@ -245,9 +245,8 @@ int osd2_video_menu(int selected, unsigned input)
 	int index_index;
 	int smp_index;
 	int crash_index;
-	char mode_buffer[128];
 
-	struct advance_video_context* context = &CONTEXT.video;
+	struct advance_video_context* video_context = &CONTEXT.video;
 	struct advance_global_context* global_context = &CONTEXT.global;
 	struct advance_ui_context* ui_context = &CONTEXT.ui;
 
@@ -256,53 +255,53 @@ int osd2_video_menu(int selected, unsigned input)
 	else
 		selected = 0;
 
-	if (context->state.menu_sub_flag)
+	if (video_context->state.menu_sub_flag)
 	{
 		int ret = 0;
-		switch (context->state.menu_sub_flag) {
-		case 1 : ret = video_mode_menu(context, ui_context, context->state.menu_sub_selected, input); break;
-		case 2 : ret = video_pipeline_menu(context, ui_context, context->state.menu_sub_selected, input); break;
+		switch (video_context->state.menu_sub_flag) {
+		case 1 : ret = video_mode_menu(video_context, ui_context, video_context->state.menu_sub_selected, input); break;
+		case 2 : ret = video_pipeline_menu(video_context, ui_context, video_context->state.menu_sub_selected, input); break;
 		}
 		switch (ret) {
 		case -1 : return -1; /* hide interface */
-		case 0 : context->state.menu_sub_flag = 0; context->state.menu_sub_selected = 1; break; /* close submenu */
-		default: context->state.menu_sub_selected = ret; break;
+		case 0 : video_context->state.menu_sub_flag = 0; video_context->state.menu_sub_selected = 1; break; /* close submenu */
+		default: video_context->state.menu_sub_selected = ret; break;
 		}
 		return selected + 1;
 	}
 
 	total = 0;
 
-	snprintf(mode_buffer, sizeof(mode_buffer), "%dx%dx%d %.1f/%.1f/%.1f",
+	snprintf(buffer, sizeof(buffer), "#%dx%dx%d %.1f/%.1f/%.1f",
 		video_size_x(),
 		video_size_y(),
 		video_bits_per_pixel(),
-		(double)crtc_pclock_get(&context->state.crtc_effective) / 1E6,
-		(double)crtc_hclock_get(&context->state.crtc_effective) / 1E3,
-		(double)crtc_vclock_get(&context->state.crtc_effective)
+		(double)crtc_pclock_get(&video_context->state.crtc_effective) / 1E6,
+		(double)crtc_hclock_get(&video_context->state.crtc_effective) / 1E3,
+		(double)crtc_vclock_get(&video_context->state.crtc_effective)
 	);
-	menu_item[total] = mode_buffer;
+	menu_item[total] = strdup(buffer);
 	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
 
 	resolution_index = total;
-	menu_item[total] = "Mode";
-	menu_subitem[total] = context->config.resolution_buffer;
+	menu_item[total] = "Mode...";
+	menu_subitem[total] = video_context->config.resolution_buffer;
 	flag[total] = 0;
 	++total;
 
-	if (!context->state.game_vector_flag) {
-		if (strcmp(context->config.resolution_buffer, "auto")==0) {
+	if (!video_context->state.game_vector_flag) {
+		if (strcmp(video_context->config.resolution_buffer, "auto")==0) {
 			magnify_index = total;
-			switch (mode_current_magnify(context)) {
+			switch (mode_current_magnify(video_context)) {
 			default :
 			case 1 : menu_item[total] = "Magnify [1]"; break;
 			case 2 : menu_item[total] = "Magnify [2]"; break;
 			case 3 : menu_item[total] = "Magnify [3]"; break;
 			case 4 : menu_item[total] = "Magnify [4]"; break;
 			}
-			switch (context->config.magnify_factor) {
+			switch (video_context->config.magnify_factor) {
 			default :
 			case 0 : menu_subitem[total] = "auto"; break;
 			case 1 : menu_subitem[total] = "1"; break;
@@ -319,7 +318,7 @@ int osd2_video_menu(int selected, unsigned input)
 			case 1 : menu_item[total] = "Scanline [double]"; break;
 			case -1 : menu_item[total] = "Scanline [interlace]"; break;
 			}
-			if (context->config.scanlines_flag)
+			if (video_context->config.scanlines_flag)
 				menu_subitem[total] = "yes";
 			else
 				menu_subitem[total] = "no";
@@ -331,19 +330,19 @@ int osd2_video_menu(int selected, unsigned input)
 			scanline_index = -1;
 		}
 
-		menu_item[total] = "Options";
+		menu_item[total] = "#Options";
 		menu_subitem[total] = 0;
 		flag[total] = 0;
 		++total;
 
 		stretch_index = total;
-		switch (mode_current_stretch(context)) {
+		switch (mode_current_stretch(video_context)) {
 		case STRETCH_NONE : menu_item[total] = "Resize [no]"; break;
 		case STRETCH_INTEGER_XY : menu_item[total] = "Resize [integer]"; break;
 		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_item[total] = "Resize [mixed]"; break;
 		case STRETCH_FRACTIONAL_XY : menu_item[total] = "Resize [fractional]"; break;
 		}
-		switch (context->config.stretch) {
+		switch (video_context->config.stretch) {
 		case STRETCH_NONE : menu_subitem[total] = "no"; break;
 		case STRETCH_INTEGER_XY : menu_subitem[total] = "integer"; break;
 		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_subitem[total] = "mixed"; break;
@@ -387,7 +386,7 @@ int osd2_video_menu(int selected, unsigned input)
 		menu_item[total] = "Color [unknown]";
 		break;
 	}
-	switch (context->config.index) {
+	switch (video_context->config.index) {
 	case MODE_FLAGS_INDEX_NONE :
 	menu_subitem[total] = "auto";
 			break;
@@ -417,7 +416,7 @@ int osd2_video_menu(int selected, unsigned input)
 	++total;
 
 	combine_index = total;
-	switch (context->state.combine) {
+	switch (video_context->state.combine) {
 	case COMBINE_NONE : menu_item[total] = "Resize Effect [no]"; break;
 	case COMBINE_MAXMIN : menu_item[total] = "Resize Effect [max]"; break;
 	case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
@@ -426,7 +425,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
 	case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
 	}
-	switch (context->config.combine) {
+	switch (video_context->config.combine) {
 	case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
 	case COMBINE_NONE : menu_subitem[total] = "no"; break;
 	case COMBINE_MAXMIN : menu_subitem[total] = "max"; break;
@@ -440,7 +439,7 @@ int osd2_video_menu(int selected, unsigned input)
 	++total;
 
 	effect_index = total;
-	switch (context->state.rgb_effect) {
+	switch (video_context->state.rgb_effect) {
 	case EFFECT_NONE : menu_item[total] = "Rgb Effect [no]"; break;
 	case EFFECT_RGB_TRIAD3PIX : menu_item[total] = "Rgb Effect [triad3dot]"; break;
 	case EFFECT_RGB_TRIAD6PIX : menu_item[total] = "Rgb Effect [triad6dot]"; break;
@@ -453,7 +452,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case EFFECT_RGB_SCANDOUBLEVERT : menu_item[total] = "Rgb Effect [scan2vert]"; break;
 	case EFFECT_RGB_SCANTRIPLEVERT : menu_item[total] = "Rgb Effect [scan3vert]"; break;
 	}
-	switch (context->config.rgb_effect) {
+	switch (video_context->config.rgb_effect) {
 	case EFFECT_NONE : menu_subitem[total] = "no"; break;
 	case EFFECT_RGB_TRIAD3PIX : menu_subitem[total] = "triad3dot"; break;
 	case EFFECT_RGB_TRIAD6PIX : menu_subitem[total] = "triad6dot"; break;
@@ -470,11 +469,11 @@ int osd2_video_menu(int selected, unsigned input)
 	++total;
 
 	vsync_index = total;
-	switch (context->state.vsync_flag) {
+	switch (video_context->state.vsync_flag) {
 	case 0 : menu_item[total] = "Vsync [no]"; break;
 	case 1 : menu_item[total] = "Vsync [yes]"; break;
 	}
-	switch (context->config.vsync_flag) {
+	switch (video_context->config.vsync_flag) {
 	case 0 : menu_subitem[total] = "no"; break;
 	case 1 : menu_subitem[total] = "yes"; break;
 	}
@@ -483,11 +482,11 @@ int osd2_video_menu(int selected, unsigned input)
 
 #ifdef USE_SMP
 	smp_index = total;
-	switch (context->config.smp_flag) {
+	switch (video_context->config.smp_flag) {
 	case 0 : menu_item[total] = "SMP [no]"; break;
 	case 1 : menu_item[total] = "SMP [yes]"; break;
 	}
-	switch (context->config.smp_flag) {
+	switch (video_context->config.smp_flag) {
 	case 0 : menu_subitem[total] = "no"; break;
 	case 1 : menu_subitem[total] = "yes"; break;
 	}
@@ -498,7 +497,7 @@ int osd2_video_menu(int selected, unsigned input)
 #endif
 
 	pipeline_index = total;
-	menu_item[total] = "Show Pipeline";
+	menu_item[total] = "Details...";
 	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
@@ -510,16 +509,7 @@ int osd2_video_menu(int selected, unsigned input)
 		flag[total] = 0;
 		++total;
 
-		save_resolution_index = total;
-		if (context->state.game_vector_flag)
-			menu_item[total] = "Save for all vector games";
-		else
-			menu_item[total] = "Save for this game size";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
-
-		if (!context->state.game_vector_flag) {
+		if (!video_context->state.game_vector_flag) {
 			save_resolutionclock_index = total;
 			menu_item[total] = "Save for this game size/freq";
 			menu_subitem[total] = 0;
@@ -528,13 +518,22 @@ int osd2_video_menu(int selected, unsigned input)
 		} else {
 			save_resolutionclock_index = -1;
 		}
+
+		save_resolution_index = total;
+		if (video_context->state.game_vector_flag)
+			menu_item[total] = "Save for all vector games";
+		else
+			menu_item[total] = "Save for this game size";
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
 	} else {
 		save_game_index = -1;
 		save_resolution_index = -1;
 		save_resolutionclock_index = -1;
 	}
 
-	if (context->config.crash_flag) {
+	if (video_context->config.crash_flag) {
 		crash_index = total;
 		menu_item[total] = "Crash";
 		menu_subitem[total] = 0;
@@ -583,15 +582,15 @@ int osd2_video_menu(int selected, unsigned input)
 		if (selected == total - 1) {
 			selected = -1;
 		} else if (selected == resolution_index) {
-			context->state.menu_sub_flag = 1;
+			video_context->state.menu_sub_flag = 1;
 		} else if (selected == pipeline_index) {
-			context->state.menu_sub_flag = 2;
+			video_context->state.menu_sub_flag = 2;
 		} else if (selected == save_game_index) {
-			advance_video_config_save(context, context->config.section_name_buffer);
+			advance_video_config_save(video_context, video_context->config.section_name_buffer);
 		} else if (selected == save_resolution_index) {
-			advance_video_config_save(context, context->config.section_resolution_buffer);
+			advance_video_config_save(video_context, video_context->config.section_resolution_buffer);
 		} else if (selected == save_resolutionclock_index) {
-			advance_video_config_save(context, context->config.section_resolutionclock_buffer);
+			advance_video_config_save(video_context, video_context->config.section_resolutionclock_buffer);
 		} else if (selected == crash_index) {
 			target_crash();
 		}
@@ -600,7 +599,7 @@ int osd2_video_menu(int selected, unsigned input)
 	if (input == OSD_INPUT_RIGHT)
 	{
 		if (selected == combine_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
 			case COMBINE_AUTO : config.combine = COMBINE_NONE; break;
 			case COMBINE_NONE : config.combine = COMBINE_MAXMIN; break;
@@ -611,9 +610,9 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_LQ : config.combine = COMBINE_HQ; break;
 			case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.rgb_effect) {
 			case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
 			case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
@@ -627,34 +626,34 @@ int osd2_video_menu(int selected, unsigned input)
 			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
 			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_NONE; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == vsync_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.vsync_flag) {
 			case 0 : config.vsync_flag = 1; break;
 			case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == smp_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.smp_flag) {
 			case 0 : config.smp_flag = 1; break;
 			case 1 : config.smp_flag = 0; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == scanline_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			config.scanlines_flag = !config.scanlines_flag;
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == magnify_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			if (config.magnify_factor == 4)
 				config.magnify_factor = 0;
 			else
 				config.magnify_factor += 1;
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == index_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.index) {
 			case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
 			case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_BGR8; break;
@@ -664,23 +663,23 @@ int osd2_video_menu(int selected, unsigned input)
 			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_YUY2; break;
 			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_NONE; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == stretch_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.stretch) {
 			case STRETCH_NONE : config.stretch = STRETCH_FRACTIONAL_XY; break;
 			case STRETCH_INTEGER_XY : config.stretch = STRETCH_NONE; break;
 			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_INTEGER_XY; break;
 			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		}
 	}
 
 	if (input == OSD_INPUT_LEFT)
 	{
 		if (selected == combine_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
 			case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
 			case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
@@ -691,9 +690,9 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
 			case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.rgb_effect) {
 			case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
 			case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_NONE; break;
@@ -707,34 +706,34 @@ int osd2_video_menu(int selected, unsigned input)
 			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
 			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == vsync_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.vsync_flag) {
 			case 0 : config.vsync_flag = 1; break;
 			case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == smp_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.smp_flag) {
 			case 0 : config.smp_flag = 1; break;
 			case 1 : config.smp_flag = 0;  break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == scanline_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			config.scanlines_flag = !config.scanlines_flag;
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == magnify_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			if (config.magnify_factor == 0)
 				config.magnify_factor = 4;
 			else
 				config.magnify_factor -= 1;
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == index_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.index) {
 			case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_YUY2; break;
 			case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_NONE; break;
@@ -744,16 +743,16 @@ int osd2_video_menu(int selected, unsigned input)
 			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_BGR16; break;
 			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_BGR32; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		} else if (selected == stretch_index) {
-			struct advance_video_config_context config = context->config;
+			struct advance_video_config_context config = video_context->config;
 			switch (config.stretch) {
 			case STRETCH_NONE : config.stretch = STRETCH_INTEGER_XY; break;
 			case STRETCH_INTEGER_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
 			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_FRACTIONAL_XY; break;
 			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
 			}
-			advance_video_reconfigure(context, &config);
+			advance_video_reconfigure(video_context, &config);
 		}
 	}
 
@@ -766,19 +765,135 @@ int osd2_video_menu(int selected, unsigned input)
 	return selected + 1;
 }
 
+static int audio_pipeline_menu(struct advance_sound_context* sound_context, struct advance_ui_context* ui_context, int selected, unsigned input)
+{
+	const char* menu_item[64];
+	char flag[64];
+	char buffer[256];
+
+	int total;
+
+	int i;
+
+	if (selected >= 1)
+		selected = selected - 1;
+	else
+		selected = 0;
+
+	total = 0;
+
+	i = 1;
+
+	if (sound_context->config.normalize_flag) {
+		snprintf(buffer, sizeof(buffer), "(%d) normalize", i);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+		++i;
+	}
+
+	if (sound_context->state.sample_mult != SAMPLE_MULT_BASE) {
+		int preamp = 20 * log10((double)sound_context->state.sample_mult / SAMPLE_MULT_BASE);
+		snprintf(buffer, sizeof(buffer), "(%d) preamp %d (dB)", i, preamp);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+		++i;
+	}
+
+	if (sound_context->state.equalizer_flag) {
+		snprintf(buffer, sizeof(buffer), "(%d) equalizer", i);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+		++i;
+	}
+
+	if (sound_context->state.input_mode != sound_context->state.output_mode) {
+		const char* from;
+		const char* to;
+
+		switch (sound_context->state.input_mode) {
+		case SOUND_MODE_MONO : from = "mono"; break;
+		case SOUND_MODE_STEREO : from = "stereo"; break;
+		case SOUND_MODE_SURROUND : from = "surround"; break;
+		default: from = "unknown"; break;
+		}
+		switch (sound_context->state.output_mode) {
+		case SOUND_MODE_MONO : to = "mono"; break;
+		case SOUND_MODE_STEREO : to = "stereo"; break;
+		case SOUND_MODE_SURROUND : to = "surround"; break;
+		default: to = "unknown"; break;
+		}
+
+		snprintf(buffer, sizeof(buffer), "(%d) %s to %s", i, from, to);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+		++i;
+	}
+
+	snprintf(buffer, sizeof(buffer), "(%d) write", i);
+	menu_item[total] = strdup(buffer);
+	flag[total] = 0;
+	++total;
+	++i;
+
+	menu_item[total] = strdup("#Play Time");
+	flag[total] = 0;
+	++total;
+
+	snprintf(buffer, sizeof(buffer), "Write %.2f ms", sound_context->state.time * 1000);
+	menu_item[total] = strdup(buffer);
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = strdup("Return to Main Menu");
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = 0;
+	flag[total] = 0;
+
+	advance_ui_menu_vect(ui_context, "Audio Pipeline", menu_item, 0, flag, selected, 0);
+
+	if (input == OSD_INPUT_DOWN)
+	{
+		selected = (selected + 1) % total;
+	}
+
+	if (input == OSD_INPUT_UP)
+	{
+		selected = (selected + total - 1) % total;
+	}
+
+	if (input == OSD_INPUT_SELECT)
+	{
+		if (selected == total - 1) selected = -1;
+	}
+
+	if (input == OSD_INPUT_CANCEL)
+		selected = -1;
+
+	if (input == OSD_INPUT_CONFIGURE)
+		selected = -2;
+
+	for(i=0;i<total-1;++i) {
+		free((char*)menu_item[i]);
+	}
+
+	return selected + 1;
+}
+
 int osd2_audio_menu(int selected, unsigned input)
 {
 	const char* menu_item[32];
 	const char* menu_subitem[32];
 	char flag[32];
+	char buffer[128];
+
 	int total;
 	int arrowize;
-
-	char volume_buffer[128];
-	char adjust_buffer[128];
-	char eql_buffer[128];
-	char eqm_buffer[128];
-	char eqh_buffer[128];
 
 	struct advance_video_context* video_context = &CONTEXT.video;
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
@@ -792,11 +907,26 @@ int osd2_audio_menu(int selected, unsigned input)
 	int eql_index;
 	int eqm_index;
 	int eqh_index;
+	int save_game_index;
+	int pipeline_index;
 
 	if (selected >= 1)
 		selected = selected - 1;
 	else
 		selected = 0;
+
+	if (sound_context->state.menu_sub_flag) {
+		int ret = 0;
+		switch (sound_context->state.menu_sub_flag) {
+		case 1 : ret = audio_pipeline_menu(sound_context, ui_context, sound_context->state.menu_sub_selected, input); break;
+		}
+		switch (ret) {
+		case -1 : return -1; /* hide interface */
+		case 0 : sound_context->state.menu_sub_flag = 0; sound_context->state.menu_sub_selected = 1; break; /* close submenu */
+		default: sound_context->state.menu_sub_selected = ret; break;
+		}
+		return selected + 1;
+	}
 
 	total = 0;
 
@@ -817,12 +947,12 @@ int osd2_audio_menu(int selected, unsigned input)
 
 	volume_index = total;
 	menu_item[total] = "Attenuation (dB)";
-	snprintf(volume_buffer, sizeof(volume_buffer), "%d", sound_context->config.attenuation);
-	menu_subitem[total] = volume_buffer;
+	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.attenuation);
+	menu_subitem[total] = strdup(buffer);
 	flag[total] = 0;
 	++total;
 
-	menu_item[total] = "Normalize";
+	menu_item[total] = "#Normalize";
 	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
@@ -839,38 +969,54 @@ int osd2_audio_menu(int selected, unsigned input)
 	adjust_index = total;
 	menu_item[total] = "Amplifier (dB)";
 	if (sound_context->config.adjust >= 0)
-		snprintf(adjust_buffer, sizeof(adjust_buffer), "%d", sound_context->config.adjust);
+		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.adjust);
 	else
-		strcpy(adjust_buffer, "auto");
-	menu_subitem[total] = adjust_buffer;
+		sncpy(buffer, sizeof(buffer), "none");
+	menu_subitem[total] = strdup(buffer);
 	flag[total] = 0;
 	++total;
 
-	menu_item[total] = "Equalizer";
+	menu_item[total] = "#Equalizer";
 	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
 
 	eql_index = total;
 	menu_item[total] = "Low Freq (dB)";
-	snprintf(eql_buffer, sizeof(eql_buffer), "%d", sound_context->config.equalizer_low);
-	menu_subitem[total] = eql_buffer;
+	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_low);
+	menu_subitem[total] = strdup(buffer);
 	flag[total] = 0;
 	++total;
 
 	eqm_index = total;
 	menu_item[total] = "Mid Freq (dB)";
-	snprintf(eqm_buffer, sizeof(eqm_buffer), "%d", sound_context->config.equalizer_mid);
-	menu_subitem[total] = eqm_buffer;
+	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_mid);
+	menu_subitem[total] = strdup(buffer);
 	flag[total] = 0;
 	++total;
 
 	eqh_index = total;
 	menu_item[total] = "High Freq (dB)";
-	snprintf(eqh_buffer, sizeof(eqh_buffer), "%d", sound_context->config.equalizer_high);
-	menu_subitem[total] = eqh_buffer;
+	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_high);
+	menu_subitem[total] = strdup(buffer);
 	flag[total] = 0;
 	++total;
+
+	pipeline_index = total;
+	menu_item[total] = "Details...";
+	menu_subitem[total] = 0;
+	flag[total] = 0;
+	++total;
+
+	if (global_context->state.is_config_writable) {
+		save_game_index = total;
+		menu_item[total] = "Save for this game";
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
+	} else {
+		save_game_index = -1;
+	}
 
 	menu_item[total] = "Return to Main Menu";
 	menu_subitem[total] = 0;
@@ -906,6 +1052,10 @@ int osd2_audio_menu(int selected, unsigned input)
 	{
 		if (selected == total - 1) {
 			selected = -1;
+		} else if (selected == pipeline_index) {
+			sound_context->state.menu_sub_flag = 1;
+		} else if (selected == save_game_index) {
+			advance_sound_config_save(sound_context, video_context->config.section_name_buffer);
 		}
 	}
 

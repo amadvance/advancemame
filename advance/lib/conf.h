@@ -288,8 +288,14 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
 adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double value);
 adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* value);
-adv_error conf_set_default(adv_conf* context, const char* section, const char* tag);
+
+adv_error conf_bool_set_if_different(adv_conf* context, const char* section, const char* tag, adv_bool value);
+adv_error conf_int_set_if_different(adv_conf* context, const char* section, const char* tag, int value);
+adv_error conf_float_set_if_different(adv_conf* context, const char* section, const char* tag, double value);
+adv_error conf_string_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value);
+
+adv_error conf_set_default(adv_conf* context, const char* section, const char* tag);
 void conf_set_default_if_missing(adv_conf* context, const char* section);
 
 void conf_remove_if_default(adv_conf* context, const char* section);

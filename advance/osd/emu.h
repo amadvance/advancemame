@@ -426,6 +426,11 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 #define SOUND_MODE_SURROUND 2
 /*@}*/
 
+/**
+ * Base for the sample gain adjustment.
+ */
+#define SAMPLE_MULT_BASE 4096
+
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
@@ -441,6 +446,8 @@ struct advance_sound_config_context {
 
 struct advance_sound_state_context {
 	adv_bool active_flag; /**< Flag for active sound. */
+
+	double time; /**< Estimate of play time. */
 
 	int adjust; /**< Current adjust factor int db for sound normalization. */
 
@@ -466,7 +473,7 @@ struct advance_sound_state_context {
 	adv_bool mute_flag; /**< Mute state for demo mode. */
 	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
 
-	adv_bool equalizer_flag;
+	adv_bool equalizer_flag; /**< Main equalizer flag. */
 	adv_filter equalizer_low;
 	adv_filter equalizer_mid;
 	adv_filter equalizer_high;
@@ -476,6 +483,10 @@ struct advance_sound_state_context {
 	double equalizer_low_factor;
 	double equalizer_mid_factor;
 	double equalizer_high_factor;
+
+	/* Menu state */
+	adv_bool menu_sub_flag; /**< If the sub menu is active. */
+	int menu_sub_selected; /**< Index of the selected sub menu voice. */
 };
 
 struct advance_sound_context {
@@ -488,8 +499,8 @@ void advance_sound_done(struct advance_sound_context* context);
 adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
-
 void advance_sound_reconfigure(struct advance_sound_context* context, struct advance_sound_config_context* config);
+void advance_sound_config_save(struct advance_sound_context* context, const char* section);
 
 /***************************************************************************/
 /* Video */

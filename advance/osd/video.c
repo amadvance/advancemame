@@ -1306,34 +1306,34 @@ void advance_video_config_save(struct advance_video_context* context, const char
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
 
-	conf_string_set(cfg_context, section, "display_mode", context->config.resolution_buffer);
+	conf_string_set_if_different(cfg_context, section, "display_mode", context->config.resolution_buffer);
 	if (!context->state.game_vector_flag) {
-		conf_int_set(cfg_context, section, "display_resizeeffect", context->config.combine);
-		conf_int_set(cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
-		conf_int_set(cfg_context, section, "display_resize", context->config.stretch);
-		conf_int_set(cfg_context, section, "display_magnify", context->config.magnify_factor);
-		conf_int_set(cfg_context, section, "display_color", context->config.index);
+		conf_int_set_if_different(cfg_context, section, "display_resizeeffect", context->config.combine);
+		conf_int_set_if_different(cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
+		conf_int_set_if_different(cfg_context, section, "display_resize", context->config.stretch);
+		conf_int_set_if_different(cfg_context, section, "display_magnify", context->config.magnify_factor);
+		conf_int_set_if_different(cfg_context, section, "display_color", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
 			|| context->state.game_visible_size_y < context->state.game_used_size_y)
 		{
 			if (context->config.skipcolumns>=0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skipcolumns);
-				conf_string_set(cfg_context, section, "display_skipcolumns", buffer);
+				conf_string_set_if_different(cfg_context, section, "display_skipcolumns", buffer);
 			} else
-				conf_string_set(cfg_context, section, "display_skipcolumns", "auto");
+				conf_string_set_if_different(cfg_context, section, "display_skipcolumns", "auto");
 			if (context->config.skiplines>=0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skiplines);
-				conf_string_set(cfg_context, section, "display_skiplines", buffer);
+				conf_string_set_if_different(cfg_context, section, "display_skiplines", buffer);
 			} else
-				conf_string_set(cfg_context, section, "display_skiplines", "auto");
+				conf_string_set_if_different(cfg_context, section, "display_skiplines", "auto");
 		} else {
 			conf_remove(cfg_context, section, "display_skipcolumns");
 			conf_remove(cfg_context, section, "display_skiplines");
 		}
-		conf_bool_set(cfg_context, section, "display_scanlines", context->config.scanlines_flag);
-		conf_bool_set(cfg_context, section, "display_vsync", context->config.vsync_flag);
+		conf_bool_set_if_different(cfg_context, section, "display_scanlines", context->config.scanlines_flag);
+		conf_bool_set_if_different(cfg_context, section, "display_vsync", context->config.vsync_flag);
 	}
 
 	advance_global_message(&CONTEXT.global, "Video options saved in %s/", section);

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2004 Andrea Mazzoleni
+ * Copyright (C) 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,10 @@
 
 #include <assert.h>
 #include <math.h>
+
+#ifndef M_PI
+#define M_PI acos(-1.0)
+#endif
 
 /****************************************************************************/
 /* IIR */
@@ -351,6 +355,7 @@ static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha
 	f->N = f->zpoles_mac;
 }
 
+#ifndef __WIN32__
 static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned order, double ripple)
 {
 	int i;
@@ -376,6 +381,7 @@ static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned
 		f->spoles_map[i].im *= cosh(y);
 	}
 }
+#endif
 
 static void filter_bessel_compute_s(struct adv_filter_struct_iir* f, unsigned order)
 {
@@ -405,6 +411,7 @@ static void filter_butterworth_compute_s(struct adv_filter_struct_iir* f, unsign
 	}
 }
 
+#ifndef __WIN32__
 void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, double rippler)
 {
 	struct adv_filter_struct_iir* iir = &f->data.iir;
@@ -422,6 +429,7 @@ void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, dou
 
 	filter_iir_setup(f, adv_filter_lp, adv_filter_iir_chebyshev);
 }
+#endif
 
 void adv_filter_lp_bessel_set(adv_filter* f, double freq, unsigned order)
 {
@@ -457,24 +465,6 @@ void adv_filter_lp_butterworth_set(adv_filter* f, double freq, unsigned order)
 	filter_expand_poly(iir, freq, freq, adv_filter_lp);
 
 	filter_iir_setup(f, adv_filter_lp, adv_filter_iir_butterworth);
-}
-
-void adv_filter_hp_chebyshev_set(adv_filter* f, double freq, unsigned order, double rippler)
-{
-	struct adv_filter_struct_iir* iir = &f->data.iir;
-
-	assert(0 < freq && freq <= 0.5);
-
-	if (order > FILTER_ORDER_IIR_MAX)
-		order = FILTER_ORDER_IIR_MAX;
-
-	filter_init(iir);
-	filter_chebyshev_compute_s(iir, order, rippler);
-	filter_normalize(iir, freq, freq, adv_filter_hp);
-	filter_compute_z(iir, adv_filter_hp);
-	filter_expand_poly(iir, freq, freq, adv_filter_hp);
-
-	filter_iir_setup(f, adv_filter_hp, adv_filter_iir_chebyshev);
 }
 
 void adv_filter_hp_bessel_set(adv_filter* f, double freq, unsigned order)
@@ -645,13 +635,6 @@ void adv_filter_lp_windowedsinc_set(adv_filter* f, double freq, unsigned order)
 	f->insert = filter_fir_insert;
 	f->extract = filter_fir_extract;
 	f->reset = filter_fir_reset;
-
-#if 0
-	/* decrease the order to remove small coefficiens (less than 1E-9 of first lobe) */
-	while (fabs(csinc(-0.5 * order, 2*freq)) * 1E9 < 2*freq) {
-		order -= 2;
-	}
-#endif
 
 	/* compute the antitrasform of the perfect low pass filter */
 	for(i=0;i<=order;++i) {
