@@ -32,10 +32,12 @@
 #include "glue.h"
 #include "mame2.h"
 #include "log.h"
+#include "target.h"
 
 #include "hscript.h"
 
 #include <stdio.h>
+#include <ctype.h>
 #include <stdarg.h>
 
 /* Used in os_inline.h */
@@ -434,14 +436,51 @@ static int mess_log(char *fmt, va_list arg) {
 }
 #endif
 
+const struct mame_game* mame_playback_look(const char* file) {
+	INP_HEADER inp_header;
+	void* playback;
+
+	playback= osd_fopen(0,file,OSD_FILETYPE_INPUTLOG,0);
+	if (!playback) {
+		target_err("Error opening the input playback file '%s'\n", file);
+		return 0;
+	}
+
+	/* read playback header */
+	if (osd_fread(playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+		osd_fclose(playback);
+		target_err("Error reading the input playback file '%s'\n", file);
+		return 0;
+	}
+
+	osd_fclose(playback);
+
+	if (!isalnum(inp_header.name[0])) {
+		target_err("No game specified in the playback file '%s'\n", file);
+		return 0;
+	} else {
+		unsigned i;
+		const struct mame_game* game = mame_game_at(0);
+
+		for(i=0;game!=0;++i) {
+			if (strcmp(mame_game_name(game),inp_header.name) == 0) {
+				break;
+			}
+			game = mame_game_at(i+1);
+		}
+
+		if (!game) {
+			target_err("Unknown game '%s' specified in the playback file.\n", inp_header.name);
+			return 0;
+		}
+
+		return game;
+	}
+}
+
 int mame_game_run(struct advance_context* context, const struct mame_option* advance) {
 	int r;
-
-	unsigned i;
-	const struct GameDriver* driver = (const struct GameDriver*)advance->game;
-	for(i=0;drivers[i];++i)
-		if (driver == drivers[i])
-			break;
+	int game_index;
 
 	/* store the game pointer */
 	context->game = advance->game;
@@ -479,7 +518,81 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	options.savegame = advance->savegame;
 
-	options.language_file = osd_fopen(0,advance->language_file,OSD_FILETYPE_LANGUAGE,0);
+	if (advance->language_file[0])
+		options.language_file = osd_fopen(0,advance->language_file,OSD_FILETYPE_LANGUAGE,0);
+	else
+		options.language_file = 0;
+
+	if (advance->record_file[0]) {
+		INP_HEADER inp_header;
+
+		options.record = osd_fopen(0,advance->record_file,OSD_FILETYPE_INPUTLOG,1);
+		if (!options.record) {
+			target_err("Error opening the input record file '%s'\n", advance->record_file);
+			return -1;
+		}
+
+		memset(&inp_header, 0, sizeof(INP_HEADER));
+		strncpy(inp_header.name, mame_game_name(advance->game), 8);
+
+		inp_header.version[0] = 0;
+		inp_header.version[1] = 0;
+		inp_header.version[2] = 0;
+
+		if (osd_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+			target_err("Error writing the input record file '%s'\n", advance->record_file);
+			return -1;
+		}
+	} else
+		options.record = 0;
+
+	if (advance->playback_file[0]) {
+		INP_HEADER inp_header;
+
+		options.playback = osd_fopen(0,advance->playback_file,OSD_FILETYPE_INPUTLOG,0);
+		if (!options.playback) {
+			target_err("Error opening the input playback file '%s'\n", advance->playback_file);
+			return -1;
+		}
+
+		/* read playback header */
+		if (osd_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+			target_err("Error reading the input playback file '%s'\n", advance->playback_file);
+			return -1;
+		}
+
+		if (!isalnum(inp_header.name[0])) {
+			/* without header */
+			osd_fseek(options.playback, 0, SEEK_SET);
+		} else {
+			unsigned i;
+			const struct mame_game* game = mame_game_at(0);
+
+			for(i=0;game!=0;++i) {
+				if (strcmp(mame_game_name(game),inp_header.name) == 0) {
+					break;
+				}
+				game = mame_game_at(i+1);
+			}
+
+			if (!game) {
+				target_err("Unknown game '%s' specified in the playback file.\n", inp_header.name);
+				return -1;
+			}
+
+			if (game != context->game) {
+				target_err("The playback game '%s' and the requested game '%s' don't match.\n", mame_game_name(game), mame_game_name(context->game));
+				return -1;
+			}
+		}
+	} else
+		options.playback = 0;
+
+	if (!context->game) {
+		target_err("No game specified.\n");
+		return -1;
+	}
+
 	cheatfile = (char*)advance->cheat_file;
 	history_filename = (char*)advance->history_file;
 	mameinfo_filename = (char*)advance->info_file;
@@ -504,10 +617,21 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.mess_printf_output = mess_log;
 #endif
 
-	r = run_game(i);
+	for(game_index=0;drivers[game_index];++game_index)
+		if ((const struct GameDriver*)context->game == drivers[game_index])
+			break;
+	assert( drivers[game_index] != 0);
+	if (!drivers[game_index])
+		return -1;
+
+	r = run_game(game_index);
 
 	if (options.language_file)
 		osd_fclose(options.language_file);
+	if (options.record)
+		osd_fclose(options.record);
+	if (options.playback)
+		osd_fclose(options.playback);
 
 	return r;
 }

@@ -1,7 +1,7 @@
 Name
 	advmenu - History For Advance Emulators
 
-AdvanceMAME Version 0.61.2 2002/08
+AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
 		in a Window Manager. But it isn't a good choice for
@@ -31,8 +31,11 @@ AdvanceMAME Version 0.61.2 2002/08
 		it's available as formatted text, html and man pages.
 	) Fixed an overflow bug on the aspect computation. It prevented
 		"Elevator Action" to run.
-	) Fixed some bugs on the SVGALIB r128 driver.
+	) Fixed some problems for the Rage128 board with the DOS svgaline
+		driver.
 	) Upgraded at the SVGALIB 1.9.16 library.
+	) Readded the `-playback' and `-record' command line options.
+	) Added a `./configure' script in all the distributions.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

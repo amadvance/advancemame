@@ -3189,35 +3189,6 @@ if test $ac_auto_cflags = yes; then
 	else
 		CFLAGS=""
 
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O3" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -O3... $ECHO_C" >&6
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -O3 conftest.c 2>&1`"; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  CFLAGS="$CFLAGS -O3"
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O2" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -O2... $ECHO_C" >&6
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -O2 conftest.c 2>&1`"; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  CFLAGS="$CFLAGS -O2"
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-  CFLAGS="$CFLAGS -O"
-fi
-rm -f conftest*
-
-fi
-rm -f conftest*
-
-
 if grep -i "family.*:.*3" /proc/cpuinfo > /dev/null ; then
 	ac_cpu_arch="i386"
 	ac_cpu_family=3
@@ -3254,8 +3225,8 @@ else
 	ac_cpu_arch=blend
 	ac_cpu_family=0
 fi
-echo "$as_me:$LINENO: checking host cpu, family" >&5
-echo $ECHO_N "checking host cpu, family... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking build cpu, family" >&5
+echo $ECHO_N "checking build cpu, family... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $ac_cpu_arch, $ac_cpu_family" >&5
 echo "${ECHO_T}$ac_cpu_arch, $ac_cpu_family" >&6
 
@@ -3303,6 +3274,35 @@ rm -f conftest*
 		fi
 	fi
 fi
+
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O3" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -O3... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -O3 conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -O3"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O2" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -O2... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -O2 conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -O2"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+  CFLAGS="$CFLAGS -O"
+fi
+rm -f conftest*
+
+fi
+rm -f conftest*
 
 		if test ! $ac_cc_arch = blend; then
 			CFLAGS="-march=$ac_cc_arch $CFLAGS"
@@ -3876,7 +3876,8 @@ fi
 
 
 elif test $ac_with_system = dos; then
-	echo "$as_me:$LINENO: checking for install_allegro in -lalleg" >&5
+
+echo "$as_me:$LINENO: checking for install_allegro in -lalleg" >&5
 echo $ECHO_N "checking for install_allegro in -lalleg... $ECHO_C" >&6
 if test "${ac_cv_lib_alleg_install_allegro+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3932,18 +3933,21 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_alleg_install_allegro" >&5
 echo "${ECHO_T}$ac_cv_lib_alleg_install_allegro" >&6
 if test $ac_cv_lib_alleg_install_allegro = yes; then
-  ac_library_allegro=yes
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBALLEG 1
+_ACEOF
+
+  LIBS="-lalleg $LIBS"
+
 else
-  ac_library_allegro=no
+  { { echo "$as_me:$LINENO: error: The Allegro library is required for the \"dos\" system" >&5
+echo "$as_me: error: The Allegro library is required for the \"dos\" system" >&2;}
+   { (exit 1); exit 1; }; }
 
 fi
 
-	if test $ac_library_allegro = no; then
-		{ { echo "$as_me:$LINENO: error: The Allegro library is required for the \"dos\" system" >&5
-echo "$as_me: error: The Allegro library is required for the \"dos\" system" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-	echo "$as_me:$LINENO: checking for AInitialize in -laudio" >&5
+
+echo "$as_me:$LINENO: checking for AInitialize in -laudio" >&5
 echo $ECHO_N "checking for AInitialize in -laudio... $ECHO_C" >&6
 if test "${ac_cv_lib_audio_AInitialize+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3999,17 +4003,19 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_audio_AInitialize" >&5
 echo "${ECHO_T}$ac_cv_lib_audio_AInitialize" >&6
 if test $ac_cv_lib_audio_AInitialize = yes; then
-  ac_library_seal=yes
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBAUDIO 1
+_ACEOF
+
+  LIBS="-laudio $LIBS"
+
 else
-  ac_library_seal=no
+  { { echo "$as_me:$LINENO: error: The SEAL library is required for the \"dos\" system" >&5
+echo "$as_me: error: The SEAL library is required for the \"dos\" system" >&2;}
+   { (exit 1); exit 1; }; }
 
 fi
 
-	if test $ac_library_seal = no; then
-		{ { echo "$as_me:$LINENO: error: The SEAL library is required for the \"dos\" system" >&5
-echo "$as_me: error: The SEAL library is required for the \"dos\" system" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
 elif test $ac_with_system = linux; then
 	echo "$as_me:$LINENO: checking for vga_init in -lvga" >&5
 echo $ECHO_N "checking for vga_init in -lvga... $ECHO_C" >&6
@@ -4069,15 +4075,12 @@ echo "${ECHO_T}$ac_cv_lib_vga_vga_init" >&6
 if test $ac_cv_lib_vga_vga_init = yes; then
   ac_library_vga=yes
 else
-  ac_library_vga=no
+  { { echo "$as_me:$LINENO: error: The vgalib library is required for the \"linux\" system" >&5
+echo "$as_me: error: The vgalib library is required for the \"linux\" system" >&2;}
+   { (exit 1); exit 1; }; }
 
 fi
 
-	if test $ac_library_vga = no; then
-		{ { echo "$as_me:$LINENO: error: The vgalib library is required for the \"linux\" system" >&5
-echo "$as_me: error: The vgalib library is required for the \"linux\" system" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 #include "confdefs.h"
@@ -4110,19 +4113,16 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_library_vga_version=yes
+  :
 else
   echo "$as_me: failed program was:" >&5
 cat conftest.$ac_ext >&5
-ac_library_vga_version=no
+{ { echo "$as_me:$LINENO: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
+echo "$as_me: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&2;}
+   { (exit 1); exit 1; }; }
 
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
-	if test $ac_library_vga_version = no; then
-		{ { echo "$as_me:$LINENO: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
-echo "$as_me: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
 elif test $ac_with_system = none; then
 	{ { echo "$as_me:$LINENO: error: You must specify a --with-system= option" >&5
 echo "$as_me: error: You must specify a --with-system= option" >&2;}
@@ -4204,6 +4204,77 @@ if test $ac_cv_lib_pthread_pthread_create = yes; then
   ac_enable_smp=yes
 else
   ac_enable_smp=no
+fi
+
+elif test $ac_enable_smp = yes; then
+
+echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5
+echo $ECHO_N "checking for pthread_create in -lpthread... $ECHO_C" >&6
+if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread
+	 $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char pthread_create ();
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+pthread_create ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_pthread_pthread_create=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_lib_pthread_pthread_create=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_pthread_pthread_create" >&5
+echo "${ECHO_T}$ac_cv_lib_pthread_pthread_create" >&6
+if test $ac_cv_lib_pthread_pthread_create = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPTHREAD 1
+_ACEOF
+
+  LIBS="-lpthread $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: The pthread library is required for the Multiprocessor support" >&5
+echo "$as_me: error: The pthread library is required for the Multiprocessor support" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 fi
@@ -5212,6 +5283,7 @@ else
 fi
 echo ""
 echo "== Compiler =="
+echo "CC :" $CC
 echo "CFLAGS :" $CFLAGS
 echo "LDFLAGS :" $LDFLAGS
 echo ""

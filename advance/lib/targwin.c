@@ -297,7 +297,7 @@ void target_nfo(const char *text, ...) {
 }
 
 void target_flush(void) {
-	MSG  msg;
+	MSG msg;
 
 	/* flush the message queue, otherwise the MessageBox may be not displayed */
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -312,7 +312,7 @@ void target_flush(void) {
 		*TARGET.buffer_err = 0;
 	}
 	
-	if (*TARGET.buffer_out) {	
+	if (*TARGET.buffer_out) {
 		MessageBox(NULL, TARGET.buffer_out, "Advance Message", MB_ICONINFORMATION);
 		*TARGET.buffer_out = 0;
 	}

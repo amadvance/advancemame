@@ -193,7 +193,7 @@ static const char* MODELINE_VGA[] = {
 /* from VGA2NTSC */
 /* "ntsc_vga_text_vga2ntsc 14.16 640 736 800 904 200 220 229 263 -hsync -vsync",*/
 
-#include "vgamode.h"
+#include "vgamode.dat"
 
 0
 };
@@ -224,7 +224,7 @@ static const char* MODELINE_SVGA[] = {
 "ntsc_horz_640x242 12.2096 640 664 720 776 242 245 248 262 -hsync -vsync",
 "ntsc_small_horz_608x228 12.2096 608 640 696 776 228 238 241 262 -hsync -vsync",
 
-#include "svgamode.h"
+#include "svgamode.dat"
 
 0
 };

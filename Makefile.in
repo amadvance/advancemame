@@ -54,7 +54,7 @@ PREFIX=@prefix@
 # Uncomment and set to "yes" to enable the SMP (Multiprocessor) code (default yes):
 #CONF_SMP=yes
 
-# Select the architecture CFLAGS (i686 by default)
+# Select the optimization flags: (optimized build for 586 by default)
 # The available choices for the -march= option with gcc-2.95 are:
 #   i386, i486, i586, i686
 # The available choices for the -march= option with gcc-3.0 are:
@@ -63,20 +63,12 @@ PREFIX=@prefix@
 #   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2,
 #   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
 #   athlon-xp, athlon-mp
-# for i586
-#CONF_CFLAGS_ARCH=-march=i586 -DUSE_LSB -DUSE_ASM_i586
-# for i686
-#CONF_CFLAGS_ARCH=-march=i686 -DUSE_LSB -DUSE_ASM_i586
-# for k6
-#CONF_CFLAGS_ARCH=-march=k6 -DUSE_LSB -DUSE_ASM_i586
-# for generic LittleEndian
-#CONF_CFLAGS_ARCH=-DUSE_LSB
-# for generic BigEndian
-#CONF_CFLAGS_ARCH=-DUSE_MSB
-
-# Select the optimization flags: (optimized build by default)
-# Optimized build
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for i586
+#CONF_CFLAGS_OPT=-O3 -march=i586 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for i686
+#CONF_CFLAGS_OPT=-O3 -march=i686 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for k6
+#CONF_CFLAGS_OPT=-O3 -march=k6 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
 # Profile build
 #CONF_CFLAGS_OPT=-O3 -pg -Wall -Wno-sign-compare -Wno-unused
 # Debug build
@@ -98,7 +90,7 @@ PREFIX=@prefix@
 #CONF_DEBUG=no
 
 #############################################################################
-# Override configuration
+# Global configuration
 
 ifndef CONF
 CONF=@CONF@
@@ -119,7 +111,7 @@ CONF_DEBUG=@CONF_DEBUG@
 endif
 
 #############################################################################
-# Default configuration
+# Global configuration by autotected (it work only for Linux/Dos/Windows)
 #
 
 # Automatic EMU detection by source
@@ -159,8 +151,12 @@ endif
 ifndef CONF_SYSTEM
 ifeq ($(CONF_HOST),windows)
 CONF_SYSTEM=sdl
-else
-CONF_SYSTEM=$(CONF_HOST)
+endif
+ifeq ($(CONF_HOST),dos)
+CONF_SYSTEM=dos
+endif
+ifeq ($(CONF_HOST),unix)
+CONF_SYSTEM=linux
 endif
 endif
 
@@ -169,7 +165,7 @@ CONF_SMP=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH
-CONF_CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586
+CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
 endif
 
 ifndef CONF_CFLAGS_OPT
@@ -193,7 +189,7 @@ CONF_DEBUG=no
 endif
 
 #############################################################################
-# Extra configuration
+# Extra configuration (common for ./configure and autotected)
 
 # Enable the creation of the map files
 ifndef CONF_MAP
@@ -208,7 +204,6 @@ endif
 ############################################################################
 # Tools configuration
 
-# From the ./configure script
 ifeq ($(CONF),yes)
 srcdir=@srcdir@
 INSTALL=@INSTALL@
@@ -238,7 +233,10 @@ ASMFLAGS=@ASMFLAGS@
 CFLAGS_BUILD=@CFLAGS_BUILD@
 endif
 
-# Autotected
+#############################################################################
+# Tools configuration by autotected (it work only for Linux/Dos/Windows)
+#
+
 ifneq ($(CONF),yes)
 srcdir=.
 MD = -@mkdir -p
@@ -368,7 +366,7 @@ BINARYTAG = $(CONF_HOST)-$(CONF_SYSTEM)-$(CONF_ARCH)
 # Some conversion
 ifeq ($(CONF_HOST)-$(CONF_SYSTEM),dos-dos)
 BINARYTAG = dos-native-$(CONF_ARCH)
-else
+endif
 ifeq ($(CONF_HOST)-$(CONF_SYSTEM),unix-linux)
 BINARYTAG = linux-native-$(CONF_ARCH)
 endif
@@ -386,7 +384,7 @@ ifeq (,$(findstring $(CONF_SYSTEM),-linux-dos-sdl-))
 $(error Invalid CONF_SYSTEM=$(CONF_SYSTEM))
 endif
 ifeq ($(CONF_HOST),unix)
-ifeq (,$(findstring $(CONF_SYSTEM),-unix-sdl-))
+ifeq (,$(findstring $(CONF_SYSTEM),-linux-sdl-))
 $(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
 endif
 endif
@@ -520,38 +518,5 @@ flags: obj
 osdep:
 	rgrep -r MSDOS $(srcdir)/advance
 	rgrep -r WIN32 $(srcdir)/advance
-
-costadvance:
-	sloccount \
-		advance/blit \
-		advance/card \
-		advance/cfg \
-		advance/common \
-		advance/d2 \
-		advance/dos \
-		advance/j \
-		advance/k \
-		advance/lib \
-		advance/line \
-		advance/linux \
-		advance/m \
-		advance/menu \
-		advance/off \
-		advance/osd \
-		advance/portio \
-		advance/s \
-		advance/sdl \
-		advance/tsr \
-		advance/v \
-		advance/vbe \
-		advance/vga \
-		advance/video \
-		> cost/advance.txt
-
-costmame:
-	sloccount src > cost/mame.txt
-
-costmess:
-	sloccount mess > cost/mess.txt
 
 

@@ -29,6 +29,7 @@
  */
 
 #include "file.h"
+#include "target.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -90,12 +91,12 @@ int file_init(void) {
 
 		if (stat(FL.home_dir,&st) == 0) {
 			if (!S_ISDIR(st.st_mode)) {
-				fprintf(stderr,"Failure: A file named %s exists\n",FL.home_dir);
+				target_err("Failure: A file named %s exists\n", FL.home_dir);
 				return -1;
 			}
 		} else {
 			if (mkdir(FL.home_dir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
-				fprintf(stderr,"Failure: Error creating the directory %s\n",FL.home_dir);
+				target_err("Failure: Error creating the directory %s\n", FL.home_dir);
 				return -1;
 			}
 		}
@@ -114,6 +115,8 @@ int file_init(void) {
 			sprintf(buffer,"%s/memcard",FL.home_dir);
 			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 			sprintf(buffer,"%s/sta",FL.home_dir);
+			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+			sprintf(buffer,"%s/inp",FL.home_dir);
 			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		}
 #endif

@@ -47,7 +47,7 @@
 /* Common variable */
 
 enum advance_t {
-	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga
+	advance_mame, advance_mess, advance_pac, advance_menu
 } the_advance; /* The current operating mode */
 
 /***************************************************************************/
@@ -1333,8 +1333,17 @@ static int cmd_test(video_generate_interpolate_set* interpolate, const video_mon
 
 void cmd_save(struct conf_context* config, const video_generate_interpolate_set* interpolate, const video_monitor* monitor, int type)
 {
-	conf_string_set(config,"","display_mode","auto");
-	conf_string_set(config,"","display_adjust","generate");
+	switch (the_advance) {
+	case advance_mame :
+	case advance_mess :
+	case advance_pac :
+		/* set the specific AdvanceMAME options to enable the generate mode. */
+		conf_string_set(config,"","display_mode","auto");
+		conf_string_set(config,"","display_adjust","generate");
+		break;
+	case advance_menu:
+		break;
+	}
 	generate_interpolate_save(config,interpolate);
 	monitor_save(config,monitor);
 }
@@ -1438,7 +1447,6 @@ int os_main(int argc, char* argv[]) {
 			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
 			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
 			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
-			default : opt_rc = "advcfg.rc"; break;
 		}
 	}
 
@@ -1452,7 +1460,6 @@ int os_main(int argc, char* argv[]) {
 			case advance_mame : log = "advmamev.log"; break;
 			case advance_mess : log = "advmessv.log"; break;
 			case advance_pac : log = "advpacv.log"; break;
-			default: log = "advv.log"; break;
 		}
 		remove(log);
 		log_init(log,opt_logsync);

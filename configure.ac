@@ -117,9 +117,9 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
 	else
 		CFLAGS=""
-		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
 		AC_CHECK_CPU_ARCH
 		AC_CHECK_CC_ARCH
+		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
 		if test ! $ac_cc_arch = blend; then
 			CFLAGS="-march=$ac_cc_arch $CFLAGS"
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
@@ -268,7 +268,7 @@ elif test $ac_with_system = sdl; then
 		[SDL],
 		[SDL_Init],
 		[],
-		AC_MSG_ERROR([The SDL library is required for the "sdl" system]),
+		[AC_MSG_ERROR([The SDL library is required for the "sdl" system])],
 		[$SDLLIBS]
 	)
 	AC_SUBST(SDLCFLAGS)
@@ -277,42 +277,30 @@ elif test $ac_with_system = dos; then
 	AC_CHECK_LIB(
 		[alleg],
 		[install_allegro],
-		[ac_library_allegro=yes],
-		[ac_library_allegro=no]
+		[],
+		[AC_MSG_ERROR([The Allegro library is required for the "dos" system])]
 	)
-	if test $ac_library_allegro = no; then
-		AC_MSG_ERROR([The Allegro library is required for the "dos" system])
-	fi
 	AC_CHECK_LIB(
 		[audio],
 		[AInitialize],
-		[ac_library_seal=yes],
-		[ac_library_seal=no]
+		[],
+		[AC_MSG_ERROR([The SEAL library is required for the "dos" system])]
 	)
-	if test $ac_library_seal = no; then
-		AC_MSG_ERROR([The SEAL library is required for the "dos" system])
-	fi
 elif test $ac_with_system = linux; then
 	AC_CHECK_LIB(
 		[vga],
 		[vga_init],
 		[ac_library_vga=yes],
-		[ac_library_vga=no]
+		[AC_MSG_ERROR([The vgalib library is required for the "linux" system])]
 	)
-	if test $ac_library_vga = no; then
-		AC_MSG_ERROR([The vgalib library is required for the "linux" system])
-	fi
 	AC_TRY_COMPILE(
 		[#include <vga.h>],
 		[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
 		choke me
 		#endif],
-		[ac_library_vga_version=yes],
-		[ac_library_vga_version=no]
+		[],
+		[AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])]
 	)
-	if test $ac_library_vga_version = no; then
-		AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])
-	fi
 elif test $ac_with_system = none; then
 	AC_MSG_ERROR([You must specify a --with-system= option])
 else
@@ -332,6 +320,14 @@ if test $ac_enable_smp = auto; then
 		[pthread_create],
 		[ac_enable_smp=yes],
 		[ac_enable_smp=no],
+		[]
+	)
+elif test $ac_enable_smp = yes; then
+	AC_CHECK_LIB(
+		[pthread],
+		[pthread_create],
+		[],
+		[AC_MSG_ERROR([The pthread library is required for the Multiprocessor support])],
 		[]
 	)
 fi
@@ -389,6 +385,7 @@ else
 fi
 echo ""
 echo "== Compiler =="
+echo "CC :" $CC
 echo "CFLAGS :" $CFLAGS
 echo "LDFLAGS :" $LDFLAGS
 echo ""

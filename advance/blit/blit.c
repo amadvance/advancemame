@@ -57,6 +57,26 @@ static void blit_cpuid(unsigned level, unsigned* regs) {
 
 static int blit_has_mmx(void) {
 	unsigned regs[4];
+	unsigned a,b;
+
+	__asm__ __volatile__(
+		"pushfl\n"
+		"pushfl\n"
+		"popl %0\n"
+		"movl %0,%1\n"
+		"xorl $0x200000,%0\n"
+		"pushl %0\n"
+		"popfl\n"
+		"pushfl\n"
+		"popl %0\n"
+		"popfl"
+		: "=r" (a), "=r" (b)
+		:
+		: "cc"
+	);
+
+	if (a == b)
+		return 0; /* no cpuid */
 
 	blit_cpuid(0, regs);
 	if (regs[0] > 0) {

@@ -210,7 +210,8 @@ LINUX_SRC = \
 
 DOS_SRC = \
 	$(wildcard $(srcdir)/advance/dos/*.c) \
-	$(wildcard $(srcdir)/advance/dos/*.h)
+	$(wildcard $(srcdir)/advance/dos/*.h) \
+	$(wildcard $(srcdir)/advance/dos/*.dat)
 
 SDL_SRC = \
 	$(wildcard $(srcdir)/advance/sdl/*.c) \
@@ -329,10 +330,11 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special Rules
 
-ARCH_ALL = CONF_ARCH=i386 CONF_CFLAGS_ARCH="-march=i386 -DUSE_LSB"
-ARCH_PENTIUM = CONF_ARCH=i586 CONF_CFLAGS_ARCH="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
-ARCH_PENTIUM2 = CONF_ARCH=i686 CONF_CFLAGS_ARCH="-march=i686 -DUSE_LSB -DUSE_ASM_i586"
-ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_ARCH="-march=k6 -DUSE_LSB -DUSE_ASM_i586"
+ARCH_COMMON = -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+ARCH_ALL = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(ARCH_COMMON)"
+ARCH_PENTIUM = CONF_ARCH=i586 CONF_CFLAGS_OPT="-march=i586 $(ARCH_COMMON)"
+ARCH_PENTIUM2 = CONF_ARCH=i686 CONF_CFLAGS_OPT="-march=i686 $(ARCH_COMMON)"
+ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_OPT="-march=k6 $(ARCH_COMMON)"
 
 mame:
 	$(MAKE) CONF=no CONF_EMU=mame emu

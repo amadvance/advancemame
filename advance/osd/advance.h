@@ -547,8 +547,6 @@ int mame_game_run(struct advance_context* context, const struct mame_option* opt
 /* Fileio */
 int advance_fileio_init(struct conf_context* context);
 void advance_fileio_done(void);
-int advance_fileio_inner_init(void);
-void advance_fileio_inner_done(void);
 int advance_fileio_config_load(struct conf_context* context, struct mame_option* option);
 
 /* Timer */

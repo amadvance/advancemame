@@ -60,10 +60,9 @@ else
 	ac_cpu_arch=blend
 	ac_cpu_family=0
 fi
-AC_MSG_CHECKING([host cpu, family])
+AC_MSG_CHECKING([build cpu, family])
 AC_MSG_RESULT([$ac_cpu_arch, $ac_cpu_family])
 ])
-
 
 dnl @synopsis AC_CHECK_CC_ARCH
 dnl 

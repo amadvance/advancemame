@@ -102,7 +102,7 @@ static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
 	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
+	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, 0, 0 },
@@ -931,16 +931,14 @@ void advance_fileio_done(void) {
 	}
 }
 
-int advance_fileio_inner_init(void) {
-	return 0;
-}
-
-void advance_fileio_inner_done(void) {
-}
-
 int advance_fileio_config_load(struct conf_context* context, struct mame_option* option) {
 	struct fileio_item* i;
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
+		/* free a previously loaded value */
+		path_free(i->dir_map,i->dir_mac);
+		i->dir_map = 0;
+		i->dir_mac = 0;
+
 		if (i->config) {
 			const char* s = conf_string_get_default(context, i->config);
 			log_std(("advance:fileio: %s %s\n", i->config, s));
@@ -961,3 +959,4 @@ int advance_fileio_config_load(struct conf_context* context, struct mame_option*
 
 	return 0;
 }
+

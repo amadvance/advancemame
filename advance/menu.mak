@@ -317,7 +317,6 @@ MENU_DOC_BIN += \
 endif
 
 MENU_ROOT_BIN = \
-	$(srcdir)/COPYING \
 	$(MENUOBJ)/advmenu$(EXE)
 ifeq ($(CONF_HOST),unix)
 MENU_ROOT_BIN += \
@@ -411,10 +410,12 @@ ifeq ($(CONF_HOST),unix)
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
+	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/COPYING
 else
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
 	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/history.txt
+	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)/doc

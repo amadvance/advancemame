@@ -1,6 +1,12 @@
 Name
 	advemu - Release Notes For AdvanceMAME/MESS/PAC
 
+AdvanceMAME 0.61.2
+	On the argument of the device_joystick and device_mouse configuration
+	options you must always to prepend the main driver name. For example:
+	`device_joystick 4button' must be changed in
+	`device_joystick allegro/4button'.
+
 AdvanceMAME 0.61.0
 	The `input_analog' and `input_track' options are now substituted
 	by the new `input_map' option.

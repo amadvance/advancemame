@@ -190,14 +190,8 @@ static const mame_game* select_game(const char* gamename) {
 	unsigned i;
 	int limit;
 
-	/* get the game */
-	if (!gamename) {
-		target_err("You must specify a game name. For example: mame pacman\n");
-		return 0;
-	}
-
 	for(i=0;mame_game_at(i);++i) {
-		if (strcasecmp(gamename,mame_game_name(mame_game_at(i))) == 0) {
+		if (strcmp(gamename,mame_game_name(mame_game_at(i))) == 0) {
 			return mame_game_at(i);
 		}
 		++game_count;
@@ -496,16 +490,17 @@ static struct conf_conv STANDARD[] = {
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
 #endif
 /* 0.57.1 */
-{ "*", "misc_mameinfofile", "*", "%s", "misc_infofile", "%s", 0 },
-{ "*", "sound_recordtime", "*", "%s", "record_sound_time", "%s", 0 },
+{ "*", "misc_mameinfofile", "*", "%s", "misc_infofile", "%s", 0 }, /* rename */
+{ "*", "sound_recordtime", "*", "%s", "record_sound_time", "%s", 0 }, /* rename */
 /* 0.61.0 */
 { "*", "input_analog[*]", "*", "", "", "", 0 }, /* ignore */
 { "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.1 */
 { "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.2 */
-{ "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 },
-{ "*", "input_safeexit", "*", "%s", "misc_safequit", "%s", 0 },
+{ "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 }, /* rename */
+{ "*", "input_safeexit", "*", "%s", "misc_safequit", "%s", 0 }, /* rename */
+{ "*", "dir_inp", "*", "", "", "", 0 }, /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -517,11 +512,6 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 		target_err("%s\n", valid);
 	va_end(arg);
 }
-
-#ifndef NDEBUG
-/* Used for profiling */
-unsigned trace_count[32];
-#endif
 
 int os_main(int argc, char* argv[])
 {
@@ -608,6 +598,12 @@ int os_main(int argc, char* argv[])
 			option.debug_flag = 1;
 		} else if (strcmp(argv[i],"-listinfo") == 0) {
 			opt_info = 1;
+		} else if (strcmp(argv[i],"-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
+			strcpy(option.record_file,argv[i+1]);
+			++i;
+		} else if (strcmp(argv[i],"-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
+			strcpy(option.playback_file,argv[i+1]);
+			++i;
 		} else if (argv[i][0]!='-') {
 			if (opt_gamename) {
 				target_err("Multiple game name definition, '%s' and '%s'.\n", opt_gamename, argv[i]);
@@ -649,13 +645,26 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (!opt_gamename) {
-		target_err("No game specified.\n");
-		goto err_os;
-	}
+		if (!option.playback_file[0]) {
+			target_err("No game specified.\n");
+			goto err_os;
+		}
 
-	option.game = select_game(opt_gamename);
-	if (option.game == 0) {
-		goto err_os;
+		/* read the global configuration only */
+		section_map[0] = "";
+		conf_section_set(cfg_context, section_map, 1);
+
+		if (advance_fileio_config_load(cfg_context, &option) != 0)
+			goto err_os;
+
+		option.game = mame_playback_look(option.playback_file);
+		if (option.game == 0)
+			goto err_os;
+
+	} else {
+		option.game = select_game(opt_gamename);
+		if (option.game == 0)
+			goto err_os;
 	}
 
 	/* set the used section */
@@ -714,8 +723,6 @@ int os_main(int argc, char* argv[])
 		goto err_os_inner;
 	if (advance_input_inner_init(&context->input)!=0)
 		goto err_os_inner;
-	if (advance_fileio_inner_init()!=0)
-		goto err_os_inner;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
 		goto err_os_inner;
 	if (hardware_script_inner_init()!=0)
@@ -724,12 +731,13 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: mame_game_run()\n"));
 
 	r = mame_game_run(context,&option);
+	if (r < 0)
+		goto err_os_inner;
 
 	log_std(("advance: *_inner_done()\n"));
 
 	hardware_script_inner_done();
 	advance_safequit_inner_done(&context->safequit);
-	advance_fileio_inner_done();
 	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
 
@@ -766,15 +774,6 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: conf_done()\n"));
 
 	conf_done(cfg_context);
-
-#ifndef NDEBUG
-	{
-		unsigned i;
-		for(i=0;i<32;++i)
-			if (trace_count[i])
-				printf("trace_count_%d %d\n",i,trace_count[i]);
-	}
-#endif
 
 	return r;
 

@@ -91,6 +91,8 @@ struct mame_option {
 	char savegame;
 
 	char language_file[MAME_MAXPATH];
+	char record_file[MAME_MAXPATH];
+	char playback_file[MAME_MAXPATH];
 	char cheat_file[MAME_MAXPATH];
 	char history_file[MAME_MAXPATH];
 	char info_file[MAME_MAXPATH];
@@ -114,6 +116,7 @@ const char* mame_game_description(const mame_game* game);
 void mame_print_info(FILE* out);
 int mame_is_game_in_list(const char* list[], const mame_game* game);
 int mame_is_game_vector(const mame_game* game);
+const struct mame_game* mame_playback_look(const char* file);
 
 /***************************************************************************/
 /* MAME callback interface */

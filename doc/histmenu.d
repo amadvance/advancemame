@@ -1,12 +1,15 @@
 Name
 	advmenu - History For AdvanceMENU
 
-AdvanceMENU Version 2.0.1 2002/08
+AdvanceMENU Version 2.1.0 2002/08 (not yet released)
 	) Revised the output format of all the documentation. Now
 		it's available as formatted text, html and man pages.
 	) Fixed a bug on the emulator names. Now they can be uppercase.
-	) Fixed some bugs on the SVGALIB r128 driver.
+	) Fixed some problems for the Rage128 board with the DOS svgaline
+		driver.
 	) Upgraded at the SVGALIB 1.9.16 library.
+	) Added a `./configure' script in all the distributions.
+	) Fixed the output in the configuration file of the advcfg program.
 
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics

@@ -3,11 +3,13 @@ Name
 
 Synopsys
 	:advmame GAME [-default] [-remove] [-log] [-listinfo]
+	:	[-record FILE] [-playback FILE]
 
 	:advpac GAME [-default] [-remove] [-log] [-listinfo]
+	:	[-record FILE] [-playback FILE]
 
 	:advmess MACHINE [images...] [-default] [-remove] [-log]
-	:	[-listinfo]
+	:	[-listinfo] [-record FILE] [-playback FILE]
 
 Description
 	AdvanceMAME is an unofficial MAME version for DOS and Linux with
@@ -61,6 +63,15 @@ Options
 
 	-listinfo
 		Outputs a very complete report of the emulated games.
+
+	-record FILE
+		Record all the game inputs in the specified file.
+		The file is saved in the directory specified by the
+		`dir_inp' configuration option.
+
+	-playback FILE
+		Play back the previously recorded game inputs in the
+		specified file.
 
 	On the command line you can also specify all configuration
 	options with the format -OPTION ARGUMENT. For boolean options

@@ -50,8 +50,8 @@ CAB_DOC_SRC = \
 	doc/off.d \
 	doc/portio.d \
 	doc/histcab.d \
-	doc/readcab.txt \
-	doc/relecab.txt
+	doc/readcab.d \
+	doc/relecab.d
 
 CAB_DOC_BIN = \
 	$(DOCOBJ)/license.txt \
@@ -81,7 +81,6 @@ CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
 CAB_ROOT_BIN = \
-	$(srcdir)/COPYING \
 	advance/vbe/vbe.com \
 	advance/vga/vga.exe \
 	advance/video/video.exe \
@@ -132,8 +131,10 @@ distcab: $(RCSRC)
 
 distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)
-	cp doc/readcab.txt $(CAB_DIST_DIR_BIN)/readme.txt
-	cp doc/relecab.txt $(CAB_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/readcab.txt $(MENU_DIST_DIR_BIN)/readme.txt
+	cp $(DOCOBJ)/relecab.txt $(MENU_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/histcab.txt $(MENU_DIST_DIR_BIN)/history.txt
+	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/copying.txt
 	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)/doc
 	cp $(CAB_DOC_BIN) $(CAB_DIST_DIR_BIN)/doc
