@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2004-06-12 18:24:02.000000000 +0200
++++ mess/advance.pat	2004-07-12 19:46:48.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive mess.ori/expat/expat.h mess/expat/expat.h
 --- mess.ori/expat/expat.h	2004-03-12 21:40:17.000000000 +0100
-+++ mess/expat/expat.h	2004-06-30 20:15:04.000000000 +0200
++++ mess/expat/expat.h	2004-07-12 19:46:48.000000000 +0200
 @@ -41,15 +41,10 @@
     Note that on at least some Unix versions, the Expat library must be
     compiled with the cdecl calling convention as the default since
@@ -36,7 +36,7 @@ diff -U 5 --new-file --recursive mess.ori/expat/expat.h mess/expat/expat.h
  #ifndef XML_BUILDING_EXPAT
 diff -U 5 --new-file --recursive mess.ori/expat/expatcfg.h mess/expat/expatcfg.h
 --- mess.ori/expat/expatcfg.h	1970-01-01 01:00:00.000000000 +0100
-+++ mess/expat/expatcfg.h	2004-06-12 18:24:02.000000000 +0200
++++ mess/expat/expatcfg.h	2004-07-12 19:46:48.000000000 +0200
 @@ -0,0 +1,15 @@
 +#include <stdlib.h>
 +#include <string.h>
@@ -55,7 +55,7 @@ diff -U 5 --new-file --recursive mess.ori/expat/expatcfg.h mess/expat/expatcfg.h
 +
 diff -U 5 --new-file --recursive mess.ori/expat/internal.h mess/expat/internal.h
 --- mess.ori/expat/internal.h	2004-03-12 21:40:17.000000000 +0100
-+++ mess/expat/internal.h	2004-06-12 18:24:02.000000000 +0200
++++ mess/expat/internal.h	2004-07-12 19:46:48.000000000 +0200
 @@ -18,56 +18,9 @@
  
     Note: Use of these macros is based on judgement, not hard rules,
@@ -115,7 +115,7 @@ diff -U 5 --new-file --recursive mess.ori/expat/internal.h mess/expat/internal.h
 -#endif
 diff -U 5 --new-file --recursive mess.ori/expat/xmlparse.c mess/expat/xmlparse.c
 --- mess.ori/expat/xmlparse.c	2004-03-12 21:40:18.000000000 +0100
-+++ mess/expat/xmlparse.c	2004-06-12 18:24:02.000000000 +0200
++++ mess/expat/xmlparse.c	2004-07-12 19:46:48.000000000 +0200
 @@ -5,19 +5,11 @@
  #include <stddef.h>
  #include <string.h>                     /* memset(), memcpy() */
@@ -139,7 +139,7 @@ diff -U 5 --new-file --recursive mess.ori/expat/xmlparse.c mess/expat/xmlparse.c
  #define XML_ENCODE_MAX XML_UTF16_ENCODE_MAX
 diff -U 5 --new-file --recursive mess.ori/expat/xmlrole.c mess/expat/xmlrole.c
 --- mess.ori/expat/xmlrole.c	2004-03-12 21:40:19.000000000 +0100
-+++ mess/expat/xmlrole.c	2004-06-12 18:24:02.000000000 +0200
++++ mess/expat/xmlrole.c	2004-07-12 19:46:48.000000000 +0200
 @@ -1,18 +1,10 @@
  /* Copyright (c) 1998, 1999 Thai Open Source Software Center Ltd
     See the file COPYING for copying permission.
@@ -162,7 +162,7 @@ diff -U 5 --new-file --recursive mess.ori/expat/xmlrole.c mess/expat/xmlrole.c
  
 diff -U 5 --new-file --recursive mess.ori/expat/xmltok.c mess/expat/xmltok.c
 --- mess.ori/expat/xmltok.c	2004-03-12 21:40:20.000000000 +0100
-+++ mess/expat/xmltok.c	2004-06-12 18:24:02.000000000 +0200
++++ mess/expat/xmltok.c	2004-07-12 19:46:48.000000000 +0200
 @@ -1,18 +1,10 @@
  /* Copyright (c) 1998, 1999 Thai Open Source Software Center Ltd
     See the file COPYING for copying permission.
@@ -184,8 +184,8 @@ diff -U 5 --new-file --recursive mess.ori/expat/xmltok.c mess/expat/xmltok.c
  #include "nametab.h"
  
 diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
---- mess.ori/inputx.c	2004-06-08 03:01:13.000000000 +0200
-+++ mess/inputx.c	2004-06-12 18:24:02.000000000 +0200
+--- mess.ori/inputx.c	2004-07-06 01:01:48.000000000 +0200
++++ mess/inputx.c	2004-07-12 20:12:53.000000000 +0200
 @@ -1,8 +1,7 @@
  #include <ctype.h>
  #include <assert.h>
@@ -195,9 +195,24 @@ diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
  #include "mame.h"
  
  #define NUM_CODES		128
+@@ -1043,13 +1042,11 @@
+ 
+ 
+ 
+ int input_player_number(const struct InputPort *port)
+ {
+-	if ((port->type & ~IPF_MASK) == IPT_EXTENSION)
+-		port--;
+-	return (port->type & IPF_PLAYERMASK) / IPF_PLAYER2;
++	return port->player;
+ }
+ 
+ 
+ 
+ int input_has_input_class(int inputclass)
 diff -U 5 --new-file --recursive mess.ori/systems/coleco.c mess/systems/coleco.c
---- mess.ori/systems/coleco.c	2004-04-29 05:15:45.000000000 +0200
-+++ mess/systems/coleco.c	2004-06-26 00:04:04.000000000 +0200
+--- mess.ori/systems/coleco.c	2004-07-06 01:04:07.000000000 +0200
++++ mess/systems/coleco.c	2004-07-12 19:46:48.000000000 +0200
 @@ -108,24 +108,24 @@
  }
  

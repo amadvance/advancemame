@@ -207,9 +207,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
---- src.ori/drivers/namcos12.c	2004-07-11 14:44:03.000000000 +0200
-+++ src/drivers/namcos12.c	2004-07-11 14:44:55.000000000 +0200
-@@ -263,11 +263,11 @@
+--- src.ori/drivers/namcos12.c	2004-07-11 21:09:43.000000000 +0200
++++ src/drivers/namcos12.c	2004-07-11 21:09:54.000000000 +0200
+@@ -459,11 +459,11 @@
  	MDRV_NVRAM_HANDLER( generic_0fill )
  
  	/* video hardware */
@@ -443,8 +443,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/info.c src/info.c
---- src.ori/info.c	2004-07-11 14:44:04.000000000 +0200
-+++ src/info.c	2004-07-11 20:18:51.000000000 +0200
+--- src.ori/info.c	2004-07-11 21:09:43.000000000 +0200
++++ src/info.c	2004-07-11 21:09:54.000000000 +0200
 @@ -670,15 +670,31 @@
  	struct InternalMachineDriver driver;
  
@@ -484,7 +484,7 @@ diff -U 5 --new-file --recursive src.ori/info.c src/info.c
  		fprintf(out, " sound=\"good\"");
  
  	if (game->flags & GAME_IMPERFECT_GRAPHICS)
--		fprintf(out, " graphic=\"preliminary\"");
+-		fprintf(out, " graphic=\"imperfect\"");
 +		fprintf(out, " graphics=\"imperfect\"");
  	else
 -		fprintf(out, " graphic=\"good\"");
@@ -925,8 +925,8 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
---- src.ori/rules.mak	2004-06-27 18:40:48.000000000 +0200
-+++ src/rules.mak	2004-07-11 14:44:55.000000000 +0200
+--- src.ori/rules.mak	2004-07-11 21:09:43.000000000 +0200
++++ src/rules.mak	2004-07-11 21:09:54.000000000 +0200
 @@ -1143,16 +1143,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -963,7 +963,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring E132XS@,$(CPUS)))
-@@ -1230,13 +1230,13 @@
+@@ -1241,13 +1241,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -1600,14 +1600,14 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	if (input_ui_pressed(IPT_UI_SHOW_GFX))
  	{
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
---- src.ori/vidhrdw/voodoo.c	2004-06-27 18:40:46.000000000 +0200
-+++ src/vidhrdw/voodoo.c	2004-07-11 14:44:56.000000000 +0200
-@@ -11,11 +11,11 @@
- #include "cpu/mips/mips3.h"
- #include <math.h>
+--- src.ori/vidhrdw/voodoo.c	2004-07-11 21:09:43.000000000 +0200
++++ src/vidhrdw/voodoo.c	2004-07-11 21:12:19.000000000 +0200
+@@ -16,11 +16,11 @@
+  *
+  *	Math trickery
+  *
+  *************************************/
  
- 
- /* math trickery */
 -#ifndef _WIN32
 +#if 1 /* AdvanceMAME: Use always the portable implementation */
  #define SETUP_FPU()
