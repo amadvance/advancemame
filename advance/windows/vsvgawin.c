@@ -356,7 +356,7 @@ static adv_error svgalib_init(int device_id)
 	log_std(("video:svgawin: found driver %s\n", adv_svgalib_driver_get()));
 
 	svgawin_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC |
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	if (adv_svgalib_state.has_bit8)
@@ -379,7 +379,7 @@ static adv_error svgalib_init(int device_id)
 	return 0;
 }
 
-adv_error svgawin_init(int device_id)
+adv_error svgawin_init(int device_id, adv_output output)
 {
 	log_std(("video:svgawin: svgawin_init()\n"));
 

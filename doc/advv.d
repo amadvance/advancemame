@@ -208,11 +208,11 @@ Video Drivers
 	If a modelines named `default_text' is present in your
 	configuration file the program use it.
 
-	If correct `device_video_clock' options are found in your
+	If correct `device_video_p/h/vclock' options are found in your
 	configuration file the program try to use a text mode that
-	match your `clock' configuration.
-	First are tried modes in the configuration file, after
-	modes present in a internal list of the program.
+	match your clock configuration from a list of predefined
+	modes and the modes present in the configuration file.
+
 	If no one of these modes match your configuration the current
 	text mode is used.
 

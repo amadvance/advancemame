@@ -26,6 +26,7 @@
 #include "inputdrv.h"
 #include "target.h"
 #include "error.h"
+#include "log.h"
 
 #ifdef __MSDOS__
 #include <scrvga.h>
@@ -35,6 +36,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+
+/***************************************************************************/
+/* Common variable */
+
+/* Sound enabled */
+int the_sound_flag = 1;
+
+/* Default video mode */
+adv_mode the_default_mode;
+
+/* Default video mode set */
+int the_default_mode_flag = 0;
 
 /***************************************************************************/
 /* Video crtc container extension */
@@ -68,8 +81,6 @@ unsigned crtc_container_max(adv_crtc_container* vmc)
 /***************************************************************************/
 /* Sound */
 
-int the_sound_flag = 1;
-
 void sound_error(void)
 {
 	if (the_sound_flag) {
@@ -92,23 +103,7 @@ void sound_signal(void)
 }
 
 /***************************************************************************/
-/* Monitor */
-
-/* Video monitor specifications */
-adv_monitor the_monitor;
-
-/* Video mode generator specifications */
-adv_generate_interpolate_set the_interpolate;
-
-adv_gtf the_gtf;
-
-/***************************************************************************/
 /* Text output */
-
-adv_crtc_container the_modes; /* main video mode container */
-int the_modes_modified; /* container need to be saved */
-adv_mode the_default_mode;  /* Default video mode */
-int the_default_mode_flag = 0; /* Default video mode set */
 
 unsigned text_size_x(void)
 {
@@ -145,18 +140,21 @@ int text_crtc_compare(const adv_crtc* a, const adv_crtc* b)
 	return 0;
 }
 
-static int text_default_set(void)
+static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 {
 	adv_crtc_container_iterator i;
 
+	log_std(("text: selecting text mode\n"));
+
 	/* search for the default mode */
-	if (!the_default_mode_flag) {
-		for(crtc_container_iterator_begin(&i, &the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	if (cc && monitor && !the_default_mode_flag) {
+		for(crtc_container_iterator_begin(&i, cc);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
 			if (strcmp(crtc->name, DEFAULT_TEXT_MODE)==0) {
-				if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc))
+				if ((crtc_is_fake(crtc) || crtc_clock_check(monitor, crtc))
 					&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT)==0) {
+					log_std(("text: using specified %s mode\n", crtc->name));
 					the_default_mode = mode;
 					the_default_mode_flag = 1;
 				}
@@ -164,15 +162,16 @@ static int text_default_set(void)
 		}
 	}
 
-	/* search the best mode */
-	if (!the_default_mode_flag) {
+	/* search the best mode in the list */
+	if (cc && monitor && !the_default_mode_flag) {
 		adv_crtc default_crtc;
-		for(crtc_container_iterator_begin(&i, &the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		for(crtc_container_iterator_begin(&i, cc);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
-			if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc))
+			if ((crtc_is_fake(crtc) || crtc_clock_check(monitor, crtc))
 				&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT)==0) {
 				if (!the_default_mode_flag || text_crtc_compare(crtc, &default_crtc)>0) {
+					log_std(("text: using mode %s from list\n", crtc->name));
 					the_default_mode = mode;
 					default_crtc = *crtc;
 					the_default_mode_flag = 1;
@@ -186,8 +185,10 @@ static int text_default_set(void)
 			/* add a fake text mode for the windowed modes */
 			adv_crtc crtc;
 			adv_mode mode;
+			crtc_reset_all(&crtc);
 			crtc_fake_set(&crtc, 640, 480);
 			if (video_mode_generate(&mode, &crtc, MODE_FLAGS_INDEX_TEXT)==0) {
+				log_std(("text: using generated mode\n"));
 				the_default_mode = mode;
 				the_default_mode_flag = 1;
 			}
@@ -199,6 +200,7 @@ static int text_default_set(void)
 		adv_mode mode;
 		if (video_mode_grab(&mode) == 0
 			&& mode_is_text(&mode)) {
+			log_std(("text: using grabbed mode\n"));
 			the_default_mode = mode;
 			the_default_mode_flag = 1;
 		}
@@ -213,9 +215,9 @@ static int text_default_set(void)
 	return 0;
 }
 
-int text_init(void)
+int text_init(adv_crtc_container* cc, adv_monitor* monitor)
 {
-	if (text_default_set()!=0) {
+	if (text_default_set(cc,monitor)!=0) {
 		video_mode_restore();
 		target_err("Error inizialing the default video mode\n\"%s\"", error_get());
 		return -1;

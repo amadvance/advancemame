@@ -56,23 +56,10 @@ void sound_warn(void);
 void sound_signal(void);
 
 /***************************************************************************/
-/* Monitor */
-
-/* Video monitor specifications */
-extern adv_monitor the_monitor;
-
-/* Video mode generator specifications */
-extern adv_generate_interpolate_set the_interpolate;
-
-extern adv_gtf the_gtf;
-
-/***************************************************************************/
 /* Text output */
 
 #define DEFAULT_TEXT_MODE "default_text"
 
-extern adv_crtc_container the_modes; /* main video mode container */
-extern int the_modes_modified; /* container need to be saved */
 extern adv_mode the_default_mode;  /* Default video mode */
 extern int the_default_mode_flag; /* Default video mode set */
 
@@ -81,7 +68,7 @@ unsigned text_size_y(void);
 void text_clear(void);
 void text_set_font(void);
 int text_crtc_compare(const adv_crtc* a, const adv_crtc* b);
-int text_init(void);
+int text_init(adv_crtc_container* cc, adv_monitor* monitor);
 void text_reset(void);
 void text_done(void);
 void text_put(int x, int y, char c, int color);

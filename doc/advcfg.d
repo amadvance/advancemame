@@ -16,6 +16,9 @@ Description
 	file used to store the video modes. Respectively they
 	are `advmame.rc', `advmess.rc', `advpac.rc' and `advmenu.rc'.
 
+	Check the `advv.txt' file for more details on the video drivers
+	supported.
+
 Options
 	-rc RCFILE
 		Specify an alternate name of the configuration file.

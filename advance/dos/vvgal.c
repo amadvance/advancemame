@@ -415,7 +415,7 @@ unsigned vgaline_flags(void)
 {
 	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_TEXT
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
-		| 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
 adv_error vgaline_mode_set(const vgaline_video_mode* mode)
@@ -631,6 +631,14 @@ int vgaline_mode_compare(const vgaline_video_mode* a, const vgaline_video_mode* 
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
+void vgaline_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	log_std(("video:vgaline: vgaline_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_bios_vga(cc);
+	crtc_container_insert_default_modeline_vga(cc);
+}
+
 /***************************************************************************/
 /* Driver */
 
@@ -718,6 +726,6 @@ adv_video_driver video_vgaline_driver = {
 	vgaline_mode_generate_void,
 	vgaline_mode_import_void,
 	vgaline_mode_compare_void,
-	0
+	vgaline_crtc_container_insert_default
 };
 

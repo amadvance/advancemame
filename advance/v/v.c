@@ -47,29 +47,46 @@
 #endif
 
 /***************************************************************************/
+/* Common variable */
+
+/* The current operating mode */
+enum advance_t {
+	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga, advance_videow
+} the_advance;
+
+/* The configuration */
+adv_conf* the_config;
+
+int the_mode_index = MODE_FLAGS_INDEX_PALETTE8;
+
+/* Video mode container */
+adv_crtc_container the_modes;
+
+/* Container need to be saved */
+adv_bool the_modes_modified;
+
+/* Video monitor specifications */
+adv_monitor the_monitor;
+
+/* Video mode generator specifications */
+adv_generate_interpolate_set the_interpolate;
+
+/* GTF data */
+adv_gtf the_gtf;
+
+/***************************************************************************/
 /* crtc */
 
-static int crtc_select_by_addr(const adv_crtc* a, void* b)
+static adv_bool crtc_select_by_addr(const adv_crtc* a, void* b)
 {
 	return a==b;
 }
 
-static int crtc_select_by_compare(const adv_crtc* a, void* _b)
+static adv_bool crtc_select_by_compare(const adv_crtc* a, void* _b)
 {
 	const adv_crtc* b = (const adv_crtc*)_b;
 	return crtc_compare(a, b)==0;
 }
-
-/***************************************************************************/
-/* Common variable */
-
-enum advance_t {
-	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga, advance_videow
-} the_advance; /* The current operating mode */
-
-adv_conf* the_config;
-
-int the_mode_index = MODE_FLAGS_INDEX_PALETTE8;
 
 /***************************************************************************/
 /* Common information screens */
@@ -207,7 +224,7 @@ static void menu_remove(adv_crtc* crtc)
 	menu_max = crtc_container_max(&the_modes);
 }
 
-static void menu_item_draw(int x, int y, int dx, int pos, int selected)
+static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 {
 	char buffer[256];
 
@@ -759,9 +776,9 @@ static int test_draw(int x, int y, adv_mode* mode)
 	return y;
 }
 
-static int test_exe_crtc(int userkey, adv_crtc* crtc)
+static adv_bool test_exe_crtc(int userkey, adv_crtc* crtc)
 {
-	int modify = 0;
+	adv_bool modify = 0;
 	unsigned pred_t;
 	int xdelta;
 
@@ -992,11 +1009,11 @@ static void cmd_select(void)
 	menu_modify();
 }
 
-static int cmd_offvideo_test(int userkey)
+static adv_error cmd_offvideo_test(int userkey)
 {
 	adv_crtc* crtc;
 	adv_crtc crtc_save;
-	int modify = 0;
+	adv_bool modify = 0;
 
 	crtc = menu_current();
 	if (!crtc)
@@ -1025,14 +1042,14 @@ static int cmd_offvideo_test(int userkey)
 	return 0;
 }
 
-static int cmd_onvideo_test(void)
+static adv_error cmd_onvideo_test(void)
 {
 	adv_crtc* crtc;
 	adv_mode mode;
-	int done ;
+	adv_bool done;
 	adv_crtc crtc_save;
-	int dirty = 1;
-	int crtc_save_modified;
+	adv_bool dirty = 1;
+	adv_bool crtc_save_modified;
 
 	mode_reset(&mode);
 
@@ -1058,11 +1075,11 @@ static int cmd_onvideo_test(void)
 	done = 0;
 	while (!done) {
 		int userkey;
-		int modify = 0;
+		adv_bool modify = 0;
 
 		adv_crtc last_crtc = *crtc;
 		adv_mode last_mode = mode;
-		int vm_last_modified = the_modes_modified;
+		adv_bool vm_last_modified = the_modes_modified;
 
 		if (dirty) {
 			video_write_lock();
@@ -1123,7 +1140,7 @@ static int cmd_onvideo_test(void)
 	return 0;
 }
 
-static int cmd_onvideo_calib(void)
+static adv_error cmd_onvideo_calib(void)
 {
 	adv_mode mode;
 	adv_crtc* crtc;
@@ -1171,12 +1188,12 @@ static int cmd_onvideo_calib(void)
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);	
+	} while (inputb_get()==INPUTB_NONE);
 
 	return 0;
 }
 
-static int cmd_onvideo_animate(void)
+static adv_error cmd_onvideo_animate(void)
 {
 	adv_mode mode;
 	adv_crtc* crtc;
@@ -1256,7 +1273,7 @@ static void cmd_gotopos(int i)
 	}
 }
 
-static int cmd_input_key(const char* tag, const char* keys)
+static adv_error cmd_input_key(const char* tag, const char* keys)
 {
 	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
 	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
@@ -1281,7 +1298,7 @@ static int cmd_input_key(const char* tag, const char* keys)
 	}
 }
 
-static int cmd_input_string(const char* tag, char* buffer, unsigned length)
+static adv_error cmd_input_string(const char* tag, char* buffer, unsigned length)
 {
 	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
 	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
@@ -1326,7 +1343,7 @@ static void cmd_copy(void)
 	menu_insert(&copy);
 }
 
-static int cmd_modeline_create(int favourite_vtotal)
+static adv_error cmd_modeline_create(int favourite_vtotal)
 {
 	adv_crtc crtc;
 	char buffer[80];
@@ -1384,7 +1401,7 @@ static int cmd_modeline_create(int favourite_vtotal)
 	return 0;
 }
 
-static int cmd_mode_clock(void)
+static adv_error cmd_mode_clock(void)
 {
 	adv_crtc* crtc;
 	char buffer[80];
@@ -1470,10 +1487,10 @@ static void cmd_save(void)
 	the_modes_modified = 0;
 }
 
-static int cmd_exit(void)
+static adv_error cmd_exit(void)
 {
 	if (the_modes_modified) {
-		int res;
+		adv_error res;
 
 		sound_warn();
 
@@ -1510,7 +1527,7 @@ static int cmd_exit(void)
 /* Menu */
 static int menu_run(void)
 {
-	int done;
+	adv_bool done;
 	int userkey;
 
 	menu_base = 0;
@@ -1656,8 +1673,8 @@ static int menu_run(void)
 
 #ifdef __MSDOS__
 
-int the_advance_vbe_active; /* if AdvanceVBE is active */
-int the_advance_vga_active; /* if AdvanceVGA is active */
+adv_bool the_advance_vbe_active; /* if AdvanceVBE is active */
+adv_bool the_advance_vga_active; /* if AdvanceVGA is active */
 
 /* RUThere code for int2f */
 #define VBE_RUT_ACK1 0xAD17
@@ -1732,10 +1749,10 @@ int os_main(int argc, char* argv[])
 	adv_crtc_container selected;
 	adv_crtc_container_iterator i;
 	const char* opt_rc;
-	int opt_log;
-	int opt_logsync;
+	adv_bool opt_log;
+	adv_bool opt_logsync;
 	int j;
-	int res;
+	adv_error res;
 	const char* section_map[1];
 
 	opt_rc = 0;
@@ -1937,15 +1954,7 @@ int os_main(int argc, char* argv[])
 	/* all mode */
 	crtc_container_init(&selected);
 
-	if (the_advance == advance_vbe) {
-		crtc_container_insert_default_modeline_svga(&selected);
-		crtc_container_insert_default_bios_vga(&selected); /* for text modes */
-	} else if (the_advance == advance_vga) {
-		crtc_container_insert_default_modeline_vga(&selected);
-	} else {
-		crtc_container_insert_default_modeline_vga(&selected);
-		crtc_container_insert_default_modeline_svga(&selected);
-	}
+	/* insert modes */
 	crtc_container_insert_default_system(&selected);
 
 	/* sort */
@@ -1967,7 +1976,7 @@ int os_main(int argc, char* argv[])
 	/* union set */
 	for(crtc_container_iterator_begin(&i, &selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
-		int has = crtc_container_has(&the_modes, crtc, crtc_compare) != 0;
+		adv_bool has = crtc_container_has(&the_modes, crtc, crtc_compare) != 0;
 		if (has)
 			crtc_container_remove(&the_modes, crtc_select_by_compare, crtc);
 		crtc->user_flags |= MODE_FLAGS_USER_BIT0;
@@ -1977,7 +1986,7 @@ int os_main(int argc, char* argv[])
 
 	the_modes_modified = 0;
 
-	if (text_init() != 0) {
+	if (text_init(&the_modes,&the_monitor) != 0) {
 		goto err_input;
 	}
 

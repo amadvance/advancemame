@@ -1030,6 +1030,13 @@ adv_error vbeline_load(adv_conf* context)
 	return 0;
 }
 
+void vbeline_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	log_std(("video:vbeline: vbeline_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_modeline_svga(cc);
+}
+
 /***************************************************************************/
 /* Driver */
 
@@ -1089,6 +1096,6 @@ adv_video_driver video_vbeline_driver = {
 	vbeline_mode_generate_void,
 	vbeline_mode_import_void,
 	vbeline_mode_compare_void,
-	0
+	vbeline_crtc_container_insert_default
 };
 

@@ -18,6 +18,9 @@ AdvanceMAME Version 0.62.2 2002/12
 	) Added a new `sound_mode' option which replaces the old
 		`sound_stereo'. It also support a (fake) `surround'
 		effect.
+	) The `advcfg' utility now uses the user and system list
+		of modelines if the device_video_p/h/vclock option is
+		present.
 
 AdvanceMESS Version 0.62.0.0 2002/12
 	) All from AdvanceMAME 0.62.2.

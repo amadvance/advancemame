@@ -489,6 +489,13 @@ adv_error svgaline_load(adv_conf* context)
 	return 0;
 }
 
+void svgaline_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	log_std(("video:svgaline: svgaline_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_modeline_svga(cc);
+}
+
 /***************************************************************************/
 /* Driver */
 
@@ -553,6 +560,6 @@ adv_video_driver video_svgaline_driver = {
 	svgaline_mode_generate_void,
 	svgaline_mode_import_void,
 	svgaline_mode_compare_void,
-	0
+	svgaline_crtc_container_insert_default
 };
 
