@@ -239,7 +239,7 @@ static int draw_text_error(void) {
 
 	if (*video_error_description_get()) {
 		y = draw_text_para(x,y,dx,dy-y,"\nThe video software report this error:",COLOR_NORMAL);
-		os_log(("v: error \"%s\"\n", video_error_description_get() ));
+		log_std(("v: error \"%s\"\n", video_error_description_get() ));
 		y = draw_text_para(x,y,dx,dy-y,video_error_description_get(),COLOR_ERROR);
 	}
 
@@ -1744,7 +1744,7 @@ static void rut(void) {
 
 void video_log_va(const char *text, va_list arg)
 {
-	os_msg_va(text,arg);
+	log_va(text,arg);
 }
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -1819,7 +1819,7 @@ int os_main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[j],"vbev")) {
 			the_advance = advance_vbe;
 		} else {
-			fprintf(stderr,"Unknow option %s\n",argv[j]);
+			fprintf(stderr,"Unknown option %s\n",argv[j]);
 			goto err;
 		}
 	}
@@ -1879,10 +1879,10 @@ int os_main(int argc, char* argv[]) {
 		switch (the_advance) {
 			case advance_vbe : opt_rc = "vbe.rc"; break;
 			case advance_vga : opt_rc = "vga.rc"; break;
-			case advance_menu : opt_rc = os_config_file_home("advmenu.rc"); break;
-			case advance_mame : opt_rc = os_config_file_home("advmame.rc"); break;
-			case advance_mess : opt_rc = os_config_file_home("advmess.rc"); break;
-			case advance_pac : opt_rc = os_config_file_home("advpac.rc"); break;
+			case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
+			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
+			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
+			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
 			default : opt_rc = "advv.rc"; break;
 		}
 	}
@@ -1907,10 +1907,10 @@ int os_main(int argc, char* argv[]) {
 			default: log = "advv.log"; break;
 		}
 		remove(log);
-		os_msg_init(log,opt_logsync);
+		log_init(log,opt_logsync);
         }
 
-	os_log(("v: %s %s\n",__DATE__,__TIME__));
+	log_std(("v: %s %s\n",__DATE__,__TIME__));
 
 	section_map[0] = "";
 	conf_section_set(the_config, section_map, 1);
@@ -1921,13 +1921,13 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
-	if (os_inner_init() != 0) {
+	if (os_inner_init("AdvanceVIDEO") != 0) {
 		goto err_os;
 	}
 
 	video_init();
 
-	video_blit_set_mmx(os_mmx_get());
+	video_blit_set_mmx(target_mmx_get());
 
 	if (monitor_load(the_config, &the_monitor) != 0) {
 		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
@@ -1935,13 +1935,13 @@ int os_main(int argc, char* argv[]) {
 		goto err_video;
 	}
 
-	os_log(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
+	log_std(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
 	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j)
 		if (the_monitor.hclock[j].low)
-			os_log(("v: hclock %.3f - %.3f\n",(double)the_monitor.hclock[j].low,(double)the_monitor.hclock[j].high));
+			log_std(("v: hclock %.3f - %.3f\n",(double)the_monitor.hclock[j].low,(double)the_monitor.hclock[j].high));
 	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j)
 		if (the_monitor.vclock[j].low)
-			os_log(("v: vclock %.3f - %.3f\n",(double)the_monitor.vclock[j].low,(double)the_monitor.vclock[j].high));
+			log_std(("v: vclock %.3f - %.3f\n",(double)the_monitor.vclock[j].low,(double)the_monitor.vclock[j].high));
 
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);
@@ -2015,7 +2015,7 @@ int os_main(int argc, char* argv[]) {
 
 	menu_run();
 
-	os_log(("v: shutdown\n"));
+	log_std(("v: shutdown\n"));
 
 	text_done();
 
@@ -2025,10 +2025,10 @@ int os_main(int argc, char* argv[]) {
 
 	os_inner_done();
 
-	os_log(("v: the end\n"));
+	log_std(("v: the end\n"));
 
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 
 	os_done();
@@ -2044,7 +2044,7 @@ err_video:
 	os_inner_done();
 err_os:
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 	os_done();
 err_conf:

@@ -1,12 +1,27 @@
-AdvanceMENU Version 1.19.2 2002/07
+AdvanceMENU Version 2.0.0 2002/07
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
 		in a Window Manager. But it isn't a good choice for
 		a fullscreen use of the program.
 	) Added the HOST_SYSTEM section in the makefile.
+	) Added the `windows' target in the Makefile. It use the `sdl'
+		system.
+	) Added the `device_sdl_fullscreen' option to force the use of
+		a fullscreen mode with the SDL library.
 	) The key specification in the config file are now by
 		name and not by scancode. The list of available
-		names is in the advmenu.txt file.
+		names is in the advmenu.txt file. This makes
+		the configuration file portable.
+	) Added the support of the Windows MAME emulator with the
+		emulator type `mame'. The old DOS MAME is still
+		supported with the `dmame' emulator type.
+	) Added the support of the XMAME emulator with the
+		emulator type `xmame'.
+	) The Linux version now searchs the emulators in the whole
+		PATH if a relative path is given.
+	) Added support for the 32 bit graphics output.
+	) The article `The' on the game names is put at the end
+		of the name.
 
 AdvanceMENU Version 1.19.1 2002/07
 	) Fixed a bug when forcing the use of the vbeline/3dfx driver.

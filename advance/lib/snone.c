@@ -46,7 +46,7 @@ static device DEVICE[] = {
 };
 
 int sound_none_init(int device_id, unsigned* rate, int stereo_flag, double buffer_time) {
-	os_log(("sound: sound_none(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound: sound_none(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	none_state.rate = *rate;
 	none_state.latency = 0;
@@ -55,11 +55,11 @@ int sound_none_init(int device_id, unsigned* rate, int stereo_flag, double buffe
 }
 
 void sound_none_done(void) {
-	os_log(("sound: sound_none_done()\n"));
+	log_std(("sound: sound_none_done()\n"));
 }
 
 void sound_none_stop(void) {
-	os_log(("sound: sound_none_stop()\n"));
+	log_std(("sound: sound_none_stop()\n"));
 }
 
 unsigned sound_none_buffered(void) {
@@ -67,17 +67,17 @@ unsigned sound_none_buffered(void) {
 }
 
 int sound_none_start(double silence_time) {
-	os_log(("sound: sound_none_start(silence_time:%g)\n",silence_time));
+	log_std(("sound: sound_none_start(silence_time:%g)\n",silence_time));
 	none_state.latency = silence_time * none_state.rate;
 	return 0;
 }
 
 void sound_none_volume(double volume) {
-	os_log(("sound: sound_none_volume(volume:%g)\n",(double)volume));
+	log_std(("sound: sound_none_volume(volume:%g)\n",(double)volume));
 }
 
 void sound_none_play(const short* sample_map, unsigned sample_count) {
-	os_log(("sound: sound_none_play(count:%d)\n",sample_count));
+	log_std(("sound: sound_none_play(count:%d)\n",sample_count));
 }
 
 unsigned sound_none_flags(void) {

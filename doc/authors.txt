@@ -14,11 +14,13 @@ ACKNOWLEDGMENTS
 
 LIBRARIES
 	MAME - http://www.mame.net - Copyright Nicola Salmoria and the MAME Team
+	MESS - http://mess.emuverse.com - Copyright the MESS Team
+	PacMAME - http://www.mameworld.net/pacmame - Copyright bgr software
 	SVGALIB - http://www.svgalib.org
 	Allegro - http://www.allegro.org - Copyright Shawn Hargreaves
 	SEAL - Copyright Carlos Hasan
 	MPGLIB - http://www.mpg123.de - Copyright Michael Hipp
-	zlib - Copyright Jean-loup Gailly and Mark Adler
-	sLang - Copyright John E. Davis
-	SDL - http://www.libsdl.org
+	zlib - http://www.gzip.org/zlib - Copyright Jean-loup Gailly and Mark Adler
+	sLang - http://www.s-lang.org - Copyright John E. Davis
+	SDL - http://www.libsdl.org - Copyright Sam Lantinga
 

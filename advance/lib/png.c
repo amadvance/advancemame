@@ -45,14 +45,14 @@ int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type) 
 	unsigned char cc[4];
 
 	if (fzread(cl, 4, 1, f) != 1) {
-		os_log(("png: io error\n"));
+		log_std(("png: io error\n"));
 		goto err;
 	}
 
 	*size = read_be_u32(cl);
 
 	if (fzread(ct, 4, 1, f) != 1) {
-		os_log(("png: io error\n"));
+		log_std(("png: io error\n"));
 		goto err;
 	}
 
@@ -61,12 +61,12 @@ int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type) 
 	if (*size) {
 		*data = malloc(*size);
 		if (!*data) {
-			os_log(("png: low memory\n"));
+			log_std(("png: low memory\n"));
 			goto err;
 		}
 
 		if (fzread(*data, *size, 1, f) != 1) {
-			os_log(("png: io error\n"));
+			log_std(("png: io error\n"));
 			goto err_data;
 		}
 	} else {
@@ -74,7 +74,7 @@ int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type) 
 	}
 
 	if (fzread(cc, 4, 1, f) != 1) {
-		os_log(("png: io error\n"));
+		log_std(("png: io error\n"));
 		goto err_data;
 	}
 

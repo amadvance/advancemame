@@ -120,7 +120,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc > 1) {
-		fprintf(stderr,"Unknow argument '%s'\n",argv[1]);
+		fprintf(stderr,"Unknown argument '%s'\n",argv[1]);
 		goto err_os;
 	}
 
@@ -143,7 +143,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
-	if (os_inner_init() != 0)
+	if (os_inner_init("AdvanceKEY") != 0)
 		goto err_os;
 
 	if (os_key_init(keyboard_id, 0) != 0)

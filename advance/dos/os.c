@@ -50,19 +50,7 @@ struct mouse_context {
 	unsigned buttons;
 };
 
-/* Number of universal buffer */
-#define UNIVERSAL_MAX 4
-
-/* Size of the universal buffer */
-#define UNIVERSAL_SIZE OS_MAXLIST
-
 struct os_context {
-	char file_legacy[OS_MAXPATH];
-	char file_home[OS_MAXPATH];
-
-	char universal_map[UNIVERSAL_MAX][UNIVERSAL_SIZE];
-	unsigned universal_mac;
-
 	int mouse_id;
 	struct mouse_context mouse[2];
 	unsigned mouse_shift;
@@ -75,9 +63,6 @@ struct os_context {
 	int joy_id;
 	int joy_calibration_target;
 	int joy_calibration_first;
-
-	FILE* msg;
-	int msg_sync_flag;
 
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	/**
@@ -138,7 +123,7 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 	char allegro_name[256];
 	const char* result;
 
-	os_log(("allegro: get_config_string(%s,%s,%s)\n",section,name,def));
+	log_std(("allegro: get_config_string(%s,%s,%s)\n",section,name,def));
 
 	/* disable the emulation of the third mouse button */
 	if (strcmp(name,"emulate_three")==0)
@@ -159,7 +144,7 @@ int __wrap_get_config_int(const char *section, const char *name, int def) {
 	char allegro_name[256];
 	const char* result;
 
-	os_log(("allegro: get_config_int(%s,%s,%d)\n",section,name,def));
+	log_std(("allegro: get_config_int(%s,%s,%d)\n",section,name,def));
 
 	if (!OS.allegro_conf)
 		return def;
@@ -176,7 +161,7 @@ int __wrap_get_config_id(const char *section, const char *name, int def) {
 	char allegro_name[256];
 	const char* result;
 
-	os_log(("allegro: get_config_id(%s,%s,%d)\n",section,name,def));
+	log_std(("allegro: get_config_id(%s,%s,%d)\n",section,name,def));
 
 	if (!OS.allegro_conf)
 		return def;
@@ -198,7 +183,7 @@ int __wrap_get_config_id(const char *section, const char *name, int def) {
 void __wrap_set_config_string(const char *section, const char *name, const char *val) {
 	char allegro_name[128];
 
-	os_log(("allegro: set_config_string(%s,%s,%s)\n",section,name,val));
+	log_std(("allegro: set_config_string(%s,%s,%s)\n",section,name,val));
 
 	if (!OS.allegro_conf)
 		return;
@@ -216,7 +201,7 @@ void __wrap_set_config_int(const char *section, const char *name, int val) {
 	char allegro_name[128];
 	char buffer[16];
 
-	os_log(("allegro: set_config_int(%s,%s,%d)\n",section,name,val));
+	log_std(("allegro: set_config_int(%s,%s,%d)\n",section,name,val));
 
 	if (!OS.allegro_conf)
 		return;
@@ -231,7 +216,7 @@ void __wrap_set_config_id(const char *section, const char *name, int val) {
 	char allegro_name[128];
 	char buffer[16];
 
-	os_log(("allegro: set_config_id(%s,%s,%d)\n",section,name,val));
+	log_std(("allegro: set_config_id(%s,%s,%d)\n",section,name,val));
 
 	if (!OS.allegro_conf)
 		return;
@@ -247,44 +232,6 @@ void __wrap_set_config_id(const char *section, const char *name, int val) {
 }
 
 #endif
-
-/***************************************************************************/
-/* Debug */
-
-void os_msg_va(const char *text, va_list arg) {
-	if (OS.msg) {
-		vfprintf(OS.msg,text,arg);
-		if (OS.msg_sync_flag) {
-			fflush(OS.msg);
-			sync();
-		}
-	}
-}
-
-void os_msg(const char *text, ...) {
-	va_list arg;
-	va_start(arg, text);
-	os_msg_va(text, arg);
-	va_end(arg);
-}
-
-int os_msg_init(const char* file, int sync_flag) {
-	OS.msg_sync_flag = sync_flag;
-	if (file) {
-		OS.msg = fopen(file,"w");
-		if (!OS.msg)
-			return -1;
-	}
-
-	return 0;
-}
-
-void os_msg_done(void) {
-	if (OS.msg) {
-		fclose(OS.msg);
-		OS.msg = 0;
-	}
-}
 
 /***************************************************************************/
 /* Clock */
@@ -350,7 +297,7 @@ static void os_clock_setup(void) {
 	qsort(v,7,sizeof(os_clock_t),ticker_cmp);
 
 	for(i=0;i<7;++i)
-		os_log(("os: clock estimate %g\n",(double)v[i]));
+		log_std(("os: clock estimate %g\n",(double)v[i]));
 
 	OS_CLOCKS_PER_SEC = v[3]; /* median value */
 
@@ -359,7 +306,7 @@ static void os_clock_setup(void) {
 	else
 		error = 0;
 
-	os_log(("os: select clock %g (err %g%%)\n", (double)v[3], error * 100.0));
+	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], error * 100.0));
 #endif
 }
 
@@ -368,8 +315,6 @@ static void os_clock_setup(void) {
 
 int os_init(struct conf_context* context) {
 	memset(&OS,0,sizeof(OS));
-
-	OS.universal_mac = 0;
 
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	OS.allegro_conf = context;
@@ -392,7 +337,7 @@ static void os_align(void) {
 	for(i=0;i<32;++i) {
 		m[i] = (char*)malloc(i);
 		if (((unsigned)m[i]) & 0x7)
-			os_log(("ERROR: unaligned malloc ptr:%08p, size:%d\n", m[i], i));
+			log_std(("ERROR: unaligned malloc ptr:%08p, size:%d\n", m[i], i));
 	}
 
 	for(i=0;i<32;++i) {
@@ -400,7 +345,7 @@ static void os_align(void) {
 	}
 }
 
-int os_inner_init(void) {
+int os_inner_init(const char* title) {
 
 	os_clock_setup();
 
@@ -520,7 +465,7 @@ int os_mouse_init(int mouse_id)
 	OS.mouse_shift = 0;
 	OS.mouse_count = 0;
 
-	os_log(("os: mouse_init(mouse_id:%d)\n",mouse_id));
+	log_std(("os: mouse_init(mouse_id:%d)\n",mouse_id));
 
 	OS.mouse_id = mouse_id;
 
@@ -529,17 +474,17 @@ int os_mouse_init(int mouse_id)
 		if (err != -1) {
 			OS.mouse[OS.mouse_count].buttons = err;
 			++OS.mouse_count;
-			os_log(("os: Allegro mouse found\n"));
+			log_std(("os: Allegro mouse found\n"));
 		} else {
-			os_log(("os: Allegro mouse NOT found\n"));
+			log_std(("os: Allegro mouse NOT found\n"));
 			++OS.mouse_shift;
 		}
 		if (mouse2_init() == 0) {
 			OS.mouse[OS.mouse_count].buttons = 2;
 			++OS.mouse_count;
-			os_log(("os: Secondary mouse found\n"));
+			log_std(("os: Secondary mouse found\n"));
 		} else {
-			os_log(("os: Secondary mouse NOT found\n"));
+			log_std(("os: Secondary mouse NOT found\n"));
 		}
 	}
 
@@ -548,7 +493,7 @@ int os_mouse_init(int mouse_id)
 
 void os_mouse_done(void)
 {
-	os_log(("os: mouse_done()\n"));
+	log_std(("os: mouse_done()\n"));
 
 	if (OS.mouse_id != MOUSE_TYPE_NONE) {
 		remove_mouse();
@@ -753,11 +698,11 @@ int os_joy_init(int joy_id)
 	OS.joy_id = joy_id;
 
 	if (OS.joy_id != JOY_TYPE_NONE) {
-		os_log(("os: joystick load calibration data\n"));
+		log_std(("os: joystick load calibration data\n"));
 		if (load_joystick_data(0) != 0) {
-			os_log(("os: joystick error loading calibration data, try reinizializing\n"));
+			log_std(("os: joystick error loading calibration data, try reinizializing\n"));
 			if (install_joystick(OS.joy_id) != 0) {
-				os_log(("os: joystick initialization failed\n"));
+				log_std(("os: joystick initialization failed\n"));
 				return -1;
 			}
 		}
@@ -778,7 +723,7 @@ void os_joy_done(void)
 void os_joy_calib_start(void)
 {
 	if (OS.joy_id != JOY_TYPE_NONE) {
-		os_log(("os: joystick calibration start\n"));
+		log_std(("os: joystick calibration start\n"));
 
 		remove_joystick();
 		install_joystick(OS.joy_id);
@@ -797,7 +742,7 @@ const char* os_joy_calib_next(void)
 			if (joy[OS.joy_calibration_target].flags & JOYFLAG_CALIBRATE) {
 				if (!OS.joy_calibration_first) {
 					if (calibrate_joystick(OS.joy_calibration_target) != 0) {
-						os_log(("os: joystick error in calibration %d\n",OS.joy_calibration_target));
+						log_std(("os: joystick error in calibration %d\n",OS.joy_calibration_target));
 						/* stop on error */
 						return 0;
 					}
@@ -809,7 +754,7 @@ const char* os_joy_calib_next(void)
 					const char* msg;
 
 					msg = calibrate_joystick_name(OS.joy_calibration_target);
-					os_log(("os: joystick calibration msg %s\n",msg));
+					log_std(("os: joystick calibration msg %s\n",msg));
 					return msg;
 				}
 			} else {
@@ -819,359 +764,12 @@ const char* os_joy_calib_next(void)
 			}
 		}
 
-		os_log(("os: joystick saving calibration data\n"));
+		log_std(("os: joystick saving calibration data\n"));
 
 		save_joystick_data(0);
 	}
 
 	return 0;
-}
-
-/***************************************************************************/
-/* Hardware */
-
-void os_mode_reset(void) {
-	/* Restore the default text mode */
-	__dpmi_regs r;
-	r.x.ax = 0x3;
-	__dpmi_int(0x10, &r);
-}
-
-/***************************************************************************/
-/* Sound */
-
-/**
- * Play a short error sound.
- */
-void os_sound_error(void) {
-	sound(100);
-	delay(120);
-	nosound();
-}
-
-/**
- * Play a short warning sound.
- */
-void os_sound_warn(void) {
-	sound(900);
-	delay(10);
-	nosound();
-}
-
-/**
- * Play a long notify sound.
- */
-void os_sound_signal(void) {
-	unsigned i;
-	for(i=0;i<10;++i) {
-		sound(800);
-		delay(10);
-		nosound();
-		delay(10);
-	}
-}
-
-/***************************************************************************/
-/* APM */
-
-int os_apm_shutdown(void) {
-	__dpmi_regs regs;
-
-	sync();
-
-	/* APM detect */
-
-	regs.x.ax = 0x5300;
-	regs.x.bx = 0x0000;
-	__dpmi_int(0x15,&regs);
-	if ((regs.x.flags & 1)!=0 || regs.x.bx != 0x504D) {
-		/* APM BIOS not found */
-		return -1;
-	}
-
-	if (regs.x.ax < 0x102) {
-		/* APM BIOS too old */
-		return -1;
-	}
-
-	/* APM connection */
-	regs.x.ax = 0x5301;
-	regs.x.bx = 0x0000;
-	__dpmi_int(0x15,&regs);
-	if ((regs.x.flags & 1) != 0) {
-		/* APM real mode connection failed */
-		return -1;
-	}
-
-	/* APM notify version */
-	regs.x.ax = 0x530E;
-	regs.x.bx = 0x0000;
-	regs.x.cx = 0x0102;
-	__dpmi_int(0x15,&regs);
-	if ((regs.x.flags & 1) != 0) {
-		/* APM notify version failed */
-	}
-
-	/* APM off */
-	regs.x.ax = 0x5307;
-	regs.x.bx = 0x0001;
-	regs.x.cx = 0x0003;
-	__dpmi_int(0x15,&regs);
-
-	return -1;
-}
-
-int os_apm_standby(void) {
-	unsigned mode;
-	__dpmi_regs r;
-
-	r.x.ax = 0x4F10;
-	r.h.bl = 0x00;
-	r.x.dx = 0;
-	r.x.es = 0;
-
-	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
-		return -1;
-	}
-
-	if (r.h.bh & 0x4) {
-		mode = 0x4; /* off */
-	} else if (r.h.bh & 0x2) {
-		mode = 0x2; /* suspend */
-	} else if (r.h.bh & 0x1) {
-		mode = 0x1; /* standby */
-	} else {
-		return -1;
-	}
-
-	r.x.ax = 0x4F10;
-	r.h.bl = 0x01;
-	r.h.bh = mode;
-
-	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
-		return -1;
-	}
-
-	return 0;
-}
-
-int os_apm_wakeup(void) {
-	__dpmi_regs r;
-
-	r.x.ax = 0x4F10;
-	r.h.bl = 0x00;
-	r.x.dx = 0;
-	r.x.es = 0;
-
-	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
-		return -1;
-	}
-
-	r.x.ax = 0x4F10;
-	r.h.bl = 0x01;
-	r.h.bh = 0x00;
-
-	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
-		return -1;
-	}
-
-	return 0;
-}
-
-/***************************************************************************/
-/* System */
-
-int os_system(const char* cmd) {
-	int r;
-	__djgpp_exception_toggle();
-	r = system(cmd);
-	__djgpp_exception_toggle();
-	return r;
-}
-
-int os_spawn(const char* file, const char** argv) {
-	int r;
-	__djgpp_exception_toggle();
-	r = spawnvp(P_WAIT,file,(char**)argv);
-	__djgpp_exception_toggle();
-	return r;
-}
-
-/***************************************************************************/
-/* FileSystem */
-
-char os_dir_separator(void) {
-	return ';';
-}
-
-char os_dir_slash(void) {
-	return '\\';
-}
-
-static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end) {
-	int need_slash;
-
-	if (end - begin == 2 && begin[1]==':') {
-		/* only drive spec */
-		memcpy(dst_begin,"/dos/",5);
-		dst_begin += 5;
-		*dst_begin++ = tolower(begin[0]);
-		begin += 2;
-		need_slash = 1;
-	} else if (end - begin >= 3 && begin[1]==':' && (begin[2]=='\\' || begin[2]=='/')) {
-		/* absolute path */
-		memcpy(dst_begin,"/dos/",5);
-		dst_begin += 5;
-		*dst_begin++ = tolower(begin[0]);
-		begin += 3;
-		need_slash = 1;
-	} else if (end - begin >= 3 && begin[1]==':') {
-		/* drive + relative path, assume it's an absolute path */
-		memcpy(dst_begin,"/dos/",5);
-		dst_begin += 5;
-		*dst_begin++ = tolower(begin[0]);
-		begin += 2;
-		need_slash = 1;
-	} else if (end - begin >= 1 && (begin[0]=='\\' || begin[0]=='/')) {
-		/* absolute path on the current drive */
-		memcpy(dst_begin,"/dos/",5);
-		dst_begin += 5;
-		*dst_begin++ = getdisk() + 'a';
-		begin += 1;
-		need_slash = 1;
-	} else {
-		/* relative path, keep it relative */
-		need_slash = 0;
-	}
-
-	/* add a slash if something other is specified */
-	if (need_slash && begin != end) {
-		*dst_begin++ = '/';
-	}
-
-	/* copy the remaining path */
-	while (begin != end) {
-		if (*begin=='\\')
-			*dst_begin++ = '/';
-		else
-			*dst_begin++ = tolower(*begin);
-		++begin;
-	}
-
-	return dst_begin;
-}
-
-static char* export_conv(char* dst_begin, char* dst_end, const char* begin, const char* end) {
-
-	if (end - begin == 6 && memcmp(begin,"/dos/",5)==0) {
-		/* root dir */
-		*dst_begin++ = begin[5];
-		*dst_begin++ = ':';
-		*dst_begin++ = '\\';
-		begin += 6;
-	} else if (end - begin >= 7 && memcmp(begin,"/dos/",5)==0) {
-		/* absolute path */
-		*dst_begin++ = begin[5];
-		*dst_begin++ = ':';
-		*dst_begin++ = '\\';
-		begin += 7;
-	} else {
-		/* relative path */
-	}
-
-	/* copy the remaining path */
-	while (begin != end) {
-		if (*begin=='/')
-			*dst_begin++ = '\\';
-		else
-			*dst_begin++ = *begin;
-		++begin;
-	}
-
-	return dst_begin;
-}
-
-const char* os_import(const char* path) {
-	char* buffer = OS.universal_map[OS.universal_mac];
-	const char* begin = path;
-	char* dst_begin = buffer;
-	char* dst_end = buffer + UNIVERSAL_SIZE;
-
-	OS.universal_mac = (OS.universal_mac + 1) % UNIVERSAL_MAX;
-
-	while (*begin) {
-		const char* end = strchr(begin,';');
-		if (!end)
-			end = begin + strlen(begin);
-		if (dst_begin != buffer)
-			*dst_begin++ = ':';
-		dst_begin = import_conv(dst_begin, dst_end, begin, end);
-		begin = end;
-		if (*begin)
-			++begin;
-	}
-
-	*dst_begin = 0;
-
-	return buffer;
-}
-
-const char* os_export(const char* path) {
-	char* buffer = OS.universal_map[OS.universal_mac];
-	const char* begin = path;
-	char* dst_begin = buffer;
-	char* dst_end = buffer + UNIVERSAL_SIZE;
-
-	OS.universal_mac = (OS.universal_mac + 1) % UNIVERSAL_MAX;
-
-	while (*begin) {
-		const char* end = strchr(begin,':');
-		if (!end)
-			end = begin + strlen(begin);
-		if (dst_begin != buffer)
-			*dst_begin++ = ';';
-		dst_begin = export_conv(dst_begin, dst_end, begin, end);
-		begin = end;
-		if (*begin)
-			++begin;
-	}
-
-	*dst_begin = 0;
-
-	return buffer;
-}
-
-/***************************************************************************/
-/* Files */
-
-const char* os_config_file_root(const char* file) {
-	return 0;
-}
-
-const char* os_config_file_home(const char* file) {
-	sprintf(OS.file_home,"%s",file);
-	return OS.file_home;
-}
-
-const char* os_config_file_legacy(const char* file) {
-	sprintf(OS.file_legacy,"%s",file);
-	return OS.file_legacy;
-}
-
-const char* os_config_dir_multidir(const char* tag) {
-	return tag;
-}
-
-const char* os_config_dir_singledir(const char* tag) {
-	return tag;
-}
-
-const char* os_config_dir_singlefile(void) {
-	return ".";
 }
 
 /***************************************************************************/
@@ -1183,10 +781,10 @@ int os_is_term(void) {
 
 void os_default_signal(int signum)
 {
-	os_log(("os: signal %d\n",signum));
+	log_std(("os: signal %d\n",signum));
 
 #if defined(USE_VIDEO_SVGALINE) || defined(USE_VIDEO_VBELINE) || defined(USE_VIDEO_VBE)
-	os_log(("os: video_abort\n"));
+	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
 		video_abort();
@@ -1194,18 +792,17 @@ void os_default_signal(int signum)
 #endif
 
 #if defined(USE_SOUND_SEAL) || defined(USE_SOUND_ALLEGRO)
-	os_log(("os: sound_abort\n"));
+	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);
 		sound_abort();
 	}
 #endif
 
-	os_mode_reset();
+	target_mode_reset();
 
-	os_log(("os: close log\n"));
-
-	os_msg_done();
+	log_std(("os: close log\n"));
+	log_abort();
 
 	if (signum == SIGINT) {
 		cprintf("Break pressed\n\r");
@@ -1267,9 +864,22 @@ int main(int argc, char* argv[])
 	if (os_fixed() != 0)
 		return EXIT_FAILURE;
 
-	if (os_main(argc,argv) != 0)
+	if (target_init() != 0)
 		return EXIT_FAILURE;
 
+	if (file_init() != 0) {
+		target_done();
+		return EXIT_FAILURE;
+	}
+
+	if (os_main(argc,argv) != 0) {
+		file_done();
+		target_done();
+		return EXIT_FAILURE;
+	}
+
+	file_done();
+	target_done();
+	
 	return EXIT_SUCCESS;
 }
-

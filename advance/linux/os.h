@@ -36,6 +36,9 @@
 #endif
 
 #include "conf.h"
+#include "log.h"
+#include "target.h"
+#include "file.h"
 
 #include <vga.h>
 #include <vgakeyboard.h>
@@ -50,18 +53,6 @@
 extern "C" {
 #endif
 
-/***************************************************************************/
-/* Generic */
-
-/** Max path length. */
-#define OS_MAXPATH 256
-
-/** Max command line length. */
-#define OS_MAXCMD 1024
-
-/** Max number of arguments. */
-#define OS_MAXARG 64
-
 struct os_device {
 	const char *name;
 	int id;
@@ -69,29 +60,11 @@ struct os_device {
 };
 
 /***************************************************************************/
-/* Debug */
-
-void os_msg_va(const char *text, va_list arg);
-void os_msg(const char *text, ...);
-int os_msg_init(const char* file, int sync_flag);
-void os_msg_done(void);
-
-#ifndef NDEBUG
-#define os_log(a) os_msg a
-#define os_log_debug(a) os_msg a
-#define os_log_pedantic(a) do { } while (0)
-#else
-#define os_log(a) os_msg a
-#define os_log_debug(a) do { } while (0)
-#define os_log_pedantic(a) do { } while (0)
-#endif
-
-/***************************************************************************/
 /* Init/Done */
 
 int os_init(struct conf_context* context);
 void os_done(void);
-int os_inner_init(void);
+int os_inner_init(const char* title);
 void os_inner_done(void);
 void os_poll(void);
 void os_idle(void);
@@ -321,168 +294,6 @@ int os_joy_stick_axe_analog_get(unsigned j, unsigned s, unsigned a);
 
 void os_joy_calib_start(void);
 const char* os_joy_calib_next(void);
-
-/***************************************************************************/
-/* Hardware */
-
-/**
- * Write a byte in a port.
- */
-void os_port_set(unsigned addr, unsigned value);
-
-/**
- * Read a byte from a port.
- */
-unsigned os_port_get(unsigned addr);
-
-/**
- * Write a byte an a absolute memory address.
- */
-void os_writeb(unsigned addr, unsigned char c);
-
-/**
- * Read a byte an a absolute memory address.
- */
-unsigned char os_readb(unsigned addr);
-
-/**
- * Check the MMX presence.
- * \return
- *  - 0 not present
- *  - 1 present
- */
-int os_mmx_get(void);
-
-/**
- * Reset the current video mode.
- * Generally called on emergency.
- */
-void os_mode_reset(void);
-
-/***************************************************************************/
-/* Sound */
-
-void os_sound_error(void);
-void os_sound_warn(void);
-void os_sound_signal(void);
-
-/***************************************************************************/
-/* APM */
-
-/**
- * Shutdown the system.
- * \return ==0 (or never return) if success
- */
-int os_apm_shutdown(void);
-
-/**
- * Put the system in standby mode.
- * \return ==0 if success
- */
-int os_apm_standby(void);
-
-/**
- * Restore the system after a standby.
- * \return ==0 if success
- */
-int os_apm_wakeup(void);
-
-/***************************************************************************/
-/* System */
-
-/**
- * Execute an external program with pipe support.
- * \return Like system().
- */
-int os_system(const char* cmd);
-
-/**
- * Execute an external program.
- * \return Like spawn().
- */
-int os_spawn(const char* file, const char** argv);
-
-/***************************************************************************/
-/* FileSystem */
-
-/**
- * Return the char used as a dir separator.
- * Example ':' in UNIX and ';' in MSDOS.
- */
-char os_dir_separator(void);
-
-/**
- * Return the char used as a dir slashr.
- * Example '/' in UNIX and '\' in MSDOS.
- */
-char os_dir_slash(void);
-
-/**
- * Convert a path from the OS format in a standard UNIX format.
- * The returned buffer may be the same argument or a static buffer.
- * If a static buffer is used, you need at least two static buffer to use
- * alternatively.
- */
-const char* os_import(const char* path);
-
-/*
- * Convert a path to the OS format from a standard UNIX format.
- * The returned buffer may be the same argument or a static buffer.
- * If a static buffer is used, you need at least two static buffer to use
- * alternatively.
- */
-const char* os_export(const char* path);
-
-/***************************************************************************/
-/* Files */
-
-/**
- * Complete path of a file in the root data directory.
- * If the path is relative, the root directory is added. If the
- * path is absolute the path isn't changed.
- * \note The arg and the returned value are in the OS depended format.
- * \return The complete path or 0 if the root dir is not supported.
- */
-const char* os_config_file_root(const char* file);
-
-/**
- * Complete path of a file in the home data directory.
- * If the path is relative, the home directory is added. If the
- * path is absolute the path isn't changed.
- * \note The arg and the returned value are in the OS depended format.
- * \return The complete path.
- */
-const char* os_config_file_home(const char* file);
-
-/**
- * Complete path of a file in the legacy data directory.
- * If the path is relative, the legacye directory is added. If the
- * path is absolute the path isn't changed.
- * \note The arg and the returned value are in the OS depended format.
- * \return The complete path or 0 if the legacy dir is not supported.
- */
-const char* os_config_file_legacy(const char* file);
-
-/**
- * Directory list where to search a subdirectory or a file.
- * \note The returned value is in the OS depended format.
- * \return The directory list with the tag added. Generally first the HOME DATA directory and as second choice the ROOT DATA directory.
- */
-const char* os_config_dir_multidir(const char* tag);
-
-/**
- * Single directory where to search a subdirectory or a file.
- * \note The returned value is in the OS depended format.
- * \return The directory with the tag added. Generally the HOME DATA directory.
- */
-const char* os_config_dir_singledir(const char* tag);
-
-/**
- * Directory list where search a single support file.
- * \note The returned value is in the OS depended format.
- * \return The directory list. Generally first the HOME DATA directory and as second choice the ROOT DATA directory.
- */
-const char* os_config_dir_singlefile(void);
 
 #ifdef __cplusplus
 }

@@ -106,23 +106,23 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 	unsigned long dat_size;
 
 	if (ihdr_size != 13) {
-		os_log(("mng: invalid IHDR size\n"));
+		log_std(("mng: invalid IHDR size\n"));
 		goto err;
 	}
 
 	mng->dat_width = read_be_u32(ihdr + 0);
 	mng->dat_height = read_be_u32(ihdr + 4);
 	if (mng->dat_x + mng->frame_width > mng->dat_width) {
-		os_log(("mng: frame not complete\n"));
+		log_std(("mng: frame not complete\n"));
 		goto err;
 	}
 	if (mng->dat_y + mng->frame_height > mng->dat_height) {
-		os_log(("mng: frame not complete\n"));
+		log_std(("mng: frame not complete\n"));
 		goto err;
 	}
 
 	if (ihdr[8] != 8) { /* bit depth */
-		os_log(("mng: unsupported bit depth\n"));
+		log_std(("mng: unsupported bit depth\n"));
 		goto err;
 	}
 	if (ihdr[9] == 3) /* color type */
@@ -132,19 +132,19 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 	else if (ihdr[9] == 6)
 		mng->pixel = 4;
 	else {
-		os_log(("mng: unsupported color type\n"));
+		log_std(("mng: unsupported color type\n"));
 		goto err;
 	}
 	if (ihdr[10] != 0) { /* compression */
-		os_log(("mng: unsupported compression type\n"));
+		log_std(("mng: unsupported compression type\n"));
 		goto err;
 	}
 	if (ihdr[11] != 0) { /* filter */
-		os_log(("mng: unsupported filter type\n"));
+		log_std(("mng: unsupported filter type\n"));
 		goto err;
 	}
 	if (ihdr[12] != 0) { /* interlace */
-		os_log(("mng: interlace not supported\n"));
+		log_std(("mng: interlace not supported\n"));
 		goto err;
 	}
 
@@ -155,7 +155,7 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 	} else {
 		if (mng->dat_line != mng->dat_width * mng->pixel + 1
 			|| mng->dat_size != mng->dat_height * mng->dat_line) {
-			os_log(("mng: unsupported size change\n"));
+			log_std(("mng: unsupported size change\n"));
 			goto err;
 		}
 	}
@@ -170,12 +170,12 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 			goto err;
 
 		if (type != PNG_CN_PLTE) {
-			os_log(("mng: missing PLTE chunk\n"));
+			log_std(("mng: missing PLTE chunk\n"));
 			goto err_data;
 		}
 
 		if (size % 3 != 0 || size / 3 > 256) {
-			os_log(("mng: invalid palette size\n"));
+			log_std(("mng: invalid palette size\n"));
 			goto err_data;
 		}
 
@@ -189,20 +189,20 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 		goto err;
 
 	if (type != PNG_CN_IDAT) {
-		os_log(("mng: missing IDAT chunk\n"));
+		log_std(("mng: missing IDAT chunk\n"));
 		goto err_data;
 	}
 
 	dat_size = mng->dat_size;
 	if (uncompress(mng->dat_ptr, &dat_size, data, size) != Z_OK) {
-		os_log(("mng: corrupt compressed data\n"));
+		log_std(("mng: corrupt compressed data\n"));
 		goto err_data;
 	}
 
 	free(data);
 
 	if (dat_size != mng->dat_size) {
-		os_log(("mng: corrupt compressed data\n"));
+		log_std(("mng: corrupt compressed data\n"));
 		goto err;
 	}
 
@@ -217,7 +217,7 @@ static int mng_load_png(struct mng_context* mng, FZ* f, unsigned char* ihdr, uns
 		goto err;
 
 	if (type != PNG_CN_IEND) {
-		os_log(("mng: missing IEND chunk\n"));
+		log_std(("mng: missing IEND chunk\n"));
 		goto err_data;
 	}
 
@@ -235,21 +235,21 @@ static int mng_load_defi(struct mng_context* mng, unsigned char* defi, unsigned 
 	unsigned id;
 
 	if (defi_size != 4 && defi_size != 12) {
-		os_log(("mng: unsupported DEFI size\n"));
+		log_std(("mng: unsupported DEFI size\n"));
 		return -1;
 	}
 
 	id = read_be_u16(defi + 0);
 	if (id != 1) {
-		os_log(("mng: unsupported id number\n"));
+		log_std(("mng: unsupported id number\n"));
 		return -1;
 	}
 	if (defi[2] != 0) { /* visible */
-		os_log(("mng: unsupported visible type\n"));
+		log_std(("mng: unsupported visible type\n"));
 		return -1;
 	}
 	if (defi[3] != 1) { /* concrete */
-		os_log(("mng: unsupported concrete type\n"));
+		log_std(("mng: unsupported concrete type\n"));
 		return -1;
 	}
 
@@ -271,19 +271,19 @@ static int mng_load_move(struct mng_context* mng, FZ* f, unsigned char* move, un
 	unsigned id;
 
 	if (move_size != 13) {
-		os_log(("mng: unsupported MOVE size\n"));
+		log_std(("mng: unsupported MOVE size\n"));
 		return -1;
 	}
 
 	id = read_be_u16(move + 0);
 	if (id != 1) {
-		os_log(("mng: unsupported id number\n"));
+		log_std(("mng: unsupported id number\n"));
 		return -1;
 	}
 
 	id = read_be_u16(move + 2);
 	if (id != 1) {
-		os_log(("mng: unsupported id number\n"));
+		log_std(("mng: unsupported id number\n"));
 		return -1;
 	}
 
@@ -294,7 +294,7 @@ static int mng_load_move(struct mng_context* mng, FZ* f, unsigned char* move, un
 		mng->dat_x += - (int)read_be_u32(move + 5);
 		mng->dat_y += - (int)read_be_u32(move + 9);
 	} else {
-		os_log(("mng: unsupported move type\n"));
+		log_std(("mng: unsupported move type\n"));
 		return -1;
 	}
 
@@ -346,29 +346,29 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 	unsigned ope;
 
 	if (dhdr_size != 4 && dhdr_size != 12 && dhdr_size != 20) {
-		os_log(("mng: unsupported DHDR size\n"));
+		log_std(("mng: unsupported DHDR size\n"));
 		goto err;
 	}
 
 	id = read_be_u16(dhdr + 0);
 	if (id != 1) /* object id 1 */ {
-		os_log(("mng: unsupported id number\n"));
+		log_std(("mng: unsupported id number\n"));
 		goto err;
 	}
 
 	if (dhdr[2] != 1) /* PNG stream without IHDR header */ {
-		os_log(("mng: unsupported delta type\n"));
+		log_std(("mng: unsupported delta type\n"));
 		goto err;
 	}
 
 	ope = dhdr[3];
 	if (ope != 0 && ope != 1 && ope != 4 && ope != 7) {
-		os_log(("mng: unsupported delta operation\n"));
+		log_std(("mng: unsupported delta operation\n"));
 		goto err;
 	}
 
 	if (!mng->dat_ptr || !mng->dlt_ptr) {
-		os_log(("mng: invalid delta context\n"));
+		log_std(("mng: invalid delta context\n"));
 		goto err;
 	}
 
@@ -393,12 +393,12 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 
 	if (type == PNG_CN_PLTE) {
 		if (mng->pixel != 1) {
-			os_log(("mng: unexpected PLTE chunk\n"));
+			log_std(("mng: unexpected PLTE chunk\n"));
 			goto err_data;
 		}
 
 		if (size % 3 != 0 || size / 3 > 256) {
-			os_log(("mng: invalid palette size\n"));
+			log_std(("mng: invalid palette size\n"));
 			goto err_data;
 		}
 
@@ -414,12 +414,12 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 	if (type == MNG_CN_PPLT) {
 		unsigned i;
 		if (mng->pixel != 1) {
-			os_log(("mng: unexpected PPLT chunk\n"));
+			log_std(("mng: unexpected PPLT chunk\n"));
 			goto err_data;
 		}
 
 		if (data[0] != 0) { /* RGB replacement */
-			os_log(("mng: unsupported palette operation\n"));
+			log_std(("mng: unsupported palette operation\n"));
 			goto err_data;
 		}
 
@@ -432,7 +432,7 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 			v1 = data[i++];
 			delta_size = (v1 - v0 + 1) * 3;
 			if (i + delta_size > size) {
-				os_log(("mng: invalid palette format\n"));
+				log_std(("mng: invalid palette format\n"));
 				goto err_data;
 			}
 			memcpy(mng->pal_ptr + v0 * 3, data + i, delta_size);
@@ -449,13 +449,13 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 		unsigned long dlt_size;
 
 		if (pos_x + width > mng->dat_width || pos_y + height > mng->dat_height) {
-			os_log(("mng: frame not complete\n"));
+			log_std(("mng: frame not complete\n"));
 			goto err_data;
 		}
 
 		dlt_size = mng->dat_size;
 		if (uncompress(mng->dlt_ptr, &dlt_size, data, size) != Z_OK) {
-			os_log(("mng: corrupt compressed data\n"));
+			log_std(("mng: corrupt compressed data\n"));
 			goto err_data;
 		}
 
@@ -464,7 +464,7 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 		} else if (ope == 1) {
 			mng_delta_addition(mng, pos_x, pos_y, width, height);
 		} else {
-			os_log(("mng: unsupported delta operation\n"));
+			log_std(("mng: unsupported delta operation\n"));
 			goto err_data;
 		}
 
@@ -474,13 +474,13 @@ static int mng_load_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 			goto err;
 	} else {
 		if (ope != 7) {
-			os_log(("mng: unsupported delta operation\n"));
+			log_std(("mng: unsupported delta operation\n"));
 			goto err_data;
 		}
 	}
 
 	if (type != PNG_CN_IEND) {
-		os_log(("mng: missing IEND chunk\n"));
+		log_std(("mng: missing IEND chunk\n"));
 		goto err_data;
 	}
 
@@ -595,7 +595,7 @@ struct bitmap* mng_load(void* void_mng, FZ* f, video_color* rgb, unsigned* rgb_m
 			default :
 				/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
 				if ((type & 0x20000000) == 0) {
-					os_log(("mng: unsupported critical chunk 0x%08x\n", type));
+					log_std(("mng: unsupported critical chunk 0x%08x\n", type));
 					goto err_data;
 				}
 		}
@@ -633,7 +633,7 @@ void* mng_init(FZ* f) {
 	mng->dlt_line = 0;
 
 	if (mng_read_signature(f) != 0) {
-		os_log(("mng: invalid signature\n"));
+		log_std(("mng: invalid signature\n"));
 		goto err_mng;
 	}
 
@@ -641,12 +641,12 @@ void* mng_init(FZ* f) {
 		goto err_mng;
 
 	if (type != MNG_CN_MHDR) {
-		os_log(("mng: missing MHDR chunk\n"));
+		log_std(("mng: missing MHDR chunk\n"));
 		goto err_data;
 	}
 
 	if (size != 28) {
-		os_log(("mng: invalid MHDR size\n"));
+		log_std(("mng: invalid MHDR size\n"));
 		goto err_data;
 	}
 
@@ -661,7 +661,7 @@ void* mng_init(FZ* f) {
 	if (simplicity != 0x41 /* MNG-VLC without transparency */
 		&& simplicity != 0x43 /* MNG-VLC without transparency + FRAME */
 		&& simplicity != 0x267 /* generated by zmng */) {
-		os_log(("mng: unsupported simplicity %d, continue anyway\n", simplicity));
+		log_std(("mng: unsupported simplicity %d, continue anyway\n", simplicity));
 	}
 
 	free(data);

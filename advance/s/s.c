@@ -62,7 +62,7 @@ void run(unsigned channel, const char* file) {
 	} else if (strcmp(ext,".mp3")==0) {
 		mixer_play_file_mp3(channel,f,0);
 	} else {
-		fprintf(stderr,"Unknow file extension %s\n",ext);
+		fprintf(stderr,"Unknown file extension %s\n",ext);
 		fzclose(f);
 		done = 1;
 		return;
@@ -131,7 +131,7 @@ int os_main(int argc, char* argv[]) {
 	while (attenuation++ < 0)
 		volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
 
-	if (os_inner_init() != 0)
+	if (os_inner_init("AdvanceSOUND") != 0)
 		goto err_os;
 
 	n = argc - 1;

@@ -332,7 +332,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 struct advance_record_config_context {
 	unsigned sound_time; /**< Max recording time in seconds */
 	unsigned video_time; /**< Max recording time in seconds */
-	char dir[OS_MAXPATH];
+	char dir[FILE_MAXPATH];
 	int video_flag;
 	int sound_flag;
 	unsigned video_interlace; /**< Interlace factor for the video recording */
@@ -357,13 +357,13 @@ struct advance_record_state_context {
 	unsigned video_freq_step; /**< Frequency base value */
 	unsigned video_freq_base; /**< Frequency step value */
 
-	char sound_file[OS_MAXPATH]; /**< Sound file */
+	char sound_file[FILE_MAXPATH]; /**< Sound file */
 	FILE* sound_f; /**< Sound handle */
 
-	char video_file[OS_MAXPATH]; /**< Video file */
+	char video_file[FILE_MAXPATH]; /**< Video file */
 	FILE* video_f; /**< Video handle */
 
-	char snapshot_file[OS_MAXPATH]; /**< Shapshot file */
+	char snapshot_file[FILE_MAXPATH]; /**< Shapshot file */
 };
 
 struct advance_record_context {

@@ -188,7 +188,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc > 1) {
-		fprintf(stderr,"Unknow argument '%s'\n",argv[1]);
+		fprintf(stderr,"Unknown argument '%s'\n",argv[1]);
 		goto err_os;
 	}
 
@@ -212,7 +212,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
-	if (os_inner_init() != 0)
+	if (os_inner_init("AdvanceJOYSTICK") != 0)
 		goto err_os;
 
 	if (os_joy_init(joystick_id) != 0)

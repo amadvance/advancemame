@@ -59,7 +59,7 @@ game::game() {
 	coin = 0;
 }
 
-game::game(const string& Aname) : name(game_name_adjust(Aname)) {
+game::game(const string& Aname) : name(Aname) {
 	flag = flag_working | flag_sound | flag_color;
 	sizex = 0;
 	sizey = 0;
@@ -95,6 +95,16 @@ game::game(const game& A) :
 }
 
 game::~game() {
+}
+
+void game::auto_description_set(const std::string& A) const {
+	if (!is_user_description_set()) {
+		if (A.length() >= 4 && A[0]=='T' && A[1]=='h' && A[2]=='e' && A[3]==' ') {
+			description = A.substr(4,A.length() - 4) + " <The>";
+		} else {
+			description = A;
+		}
+	}
 }
 
 void game::rom_zip_set_insert(const string& Afile) const {
@@ -206,7 +216,7 @@ bool game::preview_dir_set(const string& dir, void (game::*preview_set)(const re
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
-		string file = os_import(dd->d_name);
+		string file = file_import(dd->d_name);
 		string ext = file_ext(file);
 		string name = file_basename(file);
 		if (name == game_name && ext.length() && (ext == ext0 || ext == ext1)) {
@@ -444,7 +454,7 @@ void game_set::sync_relationships() {
 		if (i->cloneof_get().length() != 0) {
 			iterator j = find( game(i->cloneof_get()) );
 			if (j == end()) {
-				cerr << "warning: missing definition of cloneof " << i->cloneof_get() << " for game " << i->name_get() << endl;
+				target_err("warning: missing definition of cloneof '%s' for game '%s'\n", i->cloneof_get().c_str(), i->name_get().c_str());
 				(const_cast<game*>((&*i)))->cloneof_set("");
 				i->parent_set( 0 );
 			} else {
@@ -452,7 +462,7 @@ void game_set::sync_relationships() {
 
 				while (j != end()) {
 					if (&*j == &*i) {
-						cerr << "warning: circular cloneof reference for game " << i->name_get() << endl;
+						target_err("warning: circular cloneof reference for game '%s'\n", i->name_get().c_str());
 						(const_cast<game*>((&*i)))->cloneof_set("");
 						i->parent_set( 0 );
 						break;
@@ -468,12 +478,12 @@ void game_set::sync_relationships() {
 		if (i->romof_get().length() != 0) {
 			game_set::const_iterator j = find( i->romof_get() );
 			if (j == end()) {
-				cerr << "warning: missing definition of romof " << i->romof_get() << " for game " << i->name_get() << endl;
+				target_err("warning: missing definition of romof '%s' for game '%s'\n", i->romof_get().c_str(), i->name_get().c_str());
 				(const_cast<game*>((&*i)))->romof_set("");
 			} else {
 				while (j != end()) {
 					if (&*j == &*i) {
-						cerr << "warning: circular romof reference for game " << i->name_get() << endl;
+						target_err("warning: circular romof reference for game '%s'\n", i->name_get().c_str());
 						(const_cast<game*>((&*i)))->romof_set("");
 						break;
 					}
@@ -630,7 +640,7 @@ bool game_set::preview_dir_set(const string& dir, const string& emulator_name, v
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
-		string file = os_import(dd->d_name);
+		string file = file_import(dd->d_name);
 		string ext = file_ext(file);
 		if (ext.length() && (ext == ext0 || ext == ext1)) {
 			string name = emulator_name + "/" + file_basename(file);
@@ -671,7 +681,7 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
-		string file = os_import(dd->d_name);
+		string file = file_import(dd->d_name);
 		string path = slash_add(dir) + file;
 
 		// check for directory

@@ -50,7 +50,7 @@ void sound_reg_driver(struct conf_context* context, sound_driver* driver) {
 	sound_state.driver_map[sound_state.driver_mac] = driver;
 	sound_state.driver_map[sound_state.driver_mac]->reg(context);
 
-	os_log(("sound: register driver %s\n", driver->name));
+	log_std(("sound: register driver %s\n", driver->name));
 
 	++sound_state.driver_mac;
 }
@@ -115,7 +115,7 @@ video_error sound_init(unsigned* rate, video_bool stereo_flag, double buffer_tim
 	if (!sound_state.driver_current)
 		return -1;
 
-	os_log(("sound: select driver %s\n", sound_state.driver_current->name));
+	log_std(("sound: select driver %s\n", sound_state.driver_current->name));
 
 	sound_state.is_active_flag = 1;
 

@@ -341,7 +341,7 @@ void logerror(const char *text,...)
 {
 	va_list arg;
 	va_start(arg,text);
-	os_msg_va(text,arg);
+	log_va(text,arg);
 	va_end(arg);
 }
 
@@ -608,7 +608,7 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	unsigned aspect_x;
 	unsigned aspect_y;
 
-	os_log(("osd: osd_create_display(width:%d, height:%d, aspect_x:%d, aspect_y:%d, depth:%d, colors:%d, fps:%g, attributes:%d, orientation:%d)\n", params->width, params->height, params->aspect_x, params->aspect_y, params->depth, params->colors, (double)params->fps, params->video_attributes, params->orientation));
+	log_std(("osd: osd_create_display(width:%d, height:%d, aspect_x:%d, aspect_y:%d, depth:%d, colors:%d, fps:%g, attributes:%d, orientation:%d)\n", params->width, params->height, params->aspect_x, params->aspect_y, params->depth, params->colors, (double)params->fps, params->video_attributes, params->orientation));
 
 	width = params->width;
 	height = params->height;
@@ -666,7 +666,7 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 }
 
 void osd_close_display(void) {
-	os_log(("osd: osd_close_display()\n"));
+	log_std(("osd: osd_close_display()\n"));
 
 	if (GLUE.video_flag)
 		osd2_video_done();
@@ -675,7 +675,7 @@ void osd_close_display(void) {
 int osd_menu(struct mame_bitmap *bitmap, int selected) {
 	unsigned input;
 
-	os_log_pedantic(("osd: osd_menu(%d)\n",selected));
+	log_pedantic(("osd: osd_menu(%d)\n",selected));
 
 	/* save the bitmap */
 	GLUE.bitmap = bitmap;
@@ -713,7 +713,7 @@ static unsigned glue_sound_sample(void) {
 	/* Generally happen that the DMA buffer underflow reporting */
 	/* a very full state instead of an empty one. */
 	if (samples < 16) {
-		os_log(("WARNING: too less sound samples %d adjusted to 16\n", samples));
+		log_std(("WARNING: too less sound samples %d adjusted to 16\n", samples));
 		samples = 16;
 	}
 
@@ -828,7 +828,7 @@ void osd_update_video_and_audio(struct mame_display *display) {
 			/* if no sound generated use the silence buffer */
 			sample_count = glue_sound_sample();
 			if (sample_count > GLUE.sound_silence_count) {
-				os_log(("ERROR: silence underflow! %d %d\n", sample_count, GLUE.sound_silence_count));
+				log_std(("ERROR: silence underflow! %d %d\n", sample_count, GLUE.sound_silence_count));
 				sample_count = GLUE.sound_silence_count;
 			}
 
@@ -857,19 +857,19 @@ void osd_update_video_and_audio(struct mame_display *display) {
 int osd_start_audio_stream(int stereo) {
 	unsigned rate = Machine->sample_rate;
 
-	os_log(("osd: osd_start_audio_stream(sample_rate:%d, stereo_flag:%d)\n", rate, stereo));
+	log_std(("osd: osd_start_audio_stream(sample_rate:%d, stereo_flag:%d)\n", rate, stereo));
 
 	assert( GLUE.sound_flag == 0 );
 
 	if (osd2_sound_init(&rate, stereo) != 0) {
-		os_log(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
+		log_std(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
 
 		/* disable the MAME sound generation */
 		Machine->sample_rate = 0;
 		return 0;
 	}
 
-	os_log(("osd: osd_start_audio_stream return %d rate\n", rate));
+	log_std(("osd: osd_start_audio_stream return %d rate\n", rate));
 
 	/* adjust the rate */
 	Machine->sample_rate = rate;
@@ -891,7 +891,7 @@ int osd_start_audio_stream(int stereo) {
 }
 
 void osd_stop_audio_stream(void) {
-	os_log(("osd: osd_stop_audio_stream()\n"));
+	log_std(("osd: osd_stop_audio_stream()\n"));
 
 	if (GLUE.sound_flag) {
 		free(GLUE.sound_silence_buffer);
@@ -902,7 +902,7 @@ void osd_stop_audio_stream(void) {
 }
 
 int osd_update_audio_stream(short* buffer) {
-	os_log_debug(("osd: osd_update_audio_stream()\n"));
+	log_debug(("osd: osd_update_audio_stream()\n"));
 
 	if (GLUE.sound_flag) {
 
@@ -1009,7 +1009,7 @@ static void mess_config_load(struct conf_context* context) {
 		while (!conf_iterator_is_end(&j)) {
 			const char* arg = conf_iterator_string_get(&j);
 
-			os_log(("mess: register device %s %s\n",i->name,arg));
+			log_std(("mess: register device %s %s\n",i->name,arg));
 
 			register_device(i->id,arg);
 

@@ -196,7 +196,7 @@ int wave_memory(const unsigned char** data_begin, const unsigned char* data_end,
 	if (read_fmt_PCM(data_begin, data_end, &fmt_PCM)!=0) return -1;
 	if (fmt_PCM.wBitsPerSample < 4 || fmt_PCM.wBitsPerSample>16) return -1;
 
-	// skip fmt unknow extension
+	// skip fmt unknown extension
 	if (fmt_id.size > 16) {
 		if (skip(data_begin, data_end, fmt_id.size - 16)!=0) return -1;
 	}
@@ -261,7 +261,7 @@ int wave_file(FZ* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data
 	if (fread_fmt_PCM(f, &fmt_PCM)!=0) return -1;
 	if (fmt_PCM.wBitsPerSample < 4 || fmt_PCM.wBitsPerSample>16) return -1;
 
-	// skip fmt unknow extension
+	// skip fmt unknown extension
 	if (fmt_id.size > 16) {
 		if (fskip(f, fmt_id.size - 16)!=0) return -1;
 	}

@@ -263,12 +263,12 @@ static int sound_start(struct advance_record_context* context, const char* file,
 
 	context->state.sound_f = fopen(context->state.sound_file, "wb");
 	if (!context->state.sound_f) {
-		os_log(("ERROR: opening file %s\n", context->state.sound_file));
+		log_std(("ERROR: opening file %s\n", context->state.sound_file));
 		return -1;
 	}
 
 	if (fwrite_header(context->state.sound_frequency, 16, context->state.sound_stereo_flag ? 2 : 1, 0, context->state.sound_f)!=1) {
-		os_log(("ERROR: writing file %s\n", context->state.sound_file));
+		log_std(("ERROR: writing file %s\n", context->state.sound_file));
 		fclose(context->state.sound_f);
 		remove(context->state.sound_file);
 		return -1;
@@ -298,7 +298,7 @@ static int sound_update(struct advance_record_context* context, const short* map
 
 	return 0;
 err:
-	os_log(("ERROR: writing file %s\n", context->state.sound_file));
+	log_std(("ERROR: writing file %s\n", context->state.sound_file));
 	sound_cancel(context);
 	return -1;
 }
@@ -312,7 +312,7 @@ static int sound_stop(struct advance_record_context* context, unsigned* time) {
 	context->state.sound_active_flag = 0;
 
 	if (fwrite_header_size(context->state.sound_sample_size * context->state.sound_sample_counter, context->state.sound_f) != 1) {
-		os_log(("ERROR: writing header file %s\n", context->state.sound_file));
+		log_std(("ERROR: writing header file %s\n", context->state.sound_file));
 		fclose(context->state.sound_f);
 		remove(context->state.sound_file);
 		return -1;
@@ -772,7 +772,7 @@ static int video_start(struct advance_record_context* context, const char* file,
 
 	context->state.video_f = fopen(context->state.video_file, "wb");
 	if (!context->state.video_f) {
-		os_log(("ERROR: opening file %s\n", context->state.video_file));
+		log_std(("ERROR: opening file %s\n", context->state.video_file));
 		return -1;
 	}
 
@@ -789,7 +789,7 @@ static int video_start(struct advance_record_context* context, const char* file,
 	context->state.video_freq_step = mng_step;
 
 	if (mng_write_header(context->state.video_f, width, height, context->state.video_freq_base, orientation) != 0) {
-		os_log(("ERROR: writing header in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing header in file %s\n", context->state.video_file));
 		fclose(context->state.video_f);
 		remove(context->state.video_file);
 		return -1;
@@ -828,13 +828,13 @@ static int video_update(struct advance_record_context* context, const void* vide
 
 #ifdef USE_MNG_LC
 	if (mng_write_image_frame(context->state.video_f, context->state.video_freq_step) != 0) {
-		os_log(("ERROR: writing image frame in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image frame in file %s\n", context->state.video_file));
 		goto err;
 	}
 #endif
 
 	if (png_write_image_header(context->state.video_f, video_width, video_height, 8, color_type, orientation) != 0) {
-		os_log(("ERROR: writing image header in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image header in file %s\n", context->state.video_file));
 		goto err;
 	}
 
@@ -851,18 +851,18 @@ static int video_update(struct advance_record_context* context, const void* vide
 		if (png_write_image_16pal(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
 			goto err_data;
 	} else {
-		os_log(("ERROR: unknow image format for file %s\n", context->state.video_file));
+		log_std(("ERROR: unknown image format for file %s\n", context->state.video_file));
 		goto err;
 	}
 
 	if (png_write_image_footer(context->state.video_f) != 0) {
-		os_log(("ERROR: writing image footer in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image footer in file %s\n", context->state.video_file));
 		goto err;
 	}
 
 	return 0;
 err_data:
-	os_log(("ERROR: writing image data in file %s\n", context->state.video_file));
+	log_std(("ERROR: writing image data in file %s\n", context->state.video_file));
 err:
 	video_cancel(context);
 	return -1;
@@ -886,7 +886,7 @@ static int video_stop(struct advance_record_context* context, unsigned* time) {
 	return 0;
 
 err:
-	os_log(("ERROR: closing file %s\n", context->state.video_file));
+	log_std(("ERROR: closing file %s\n", context->state.video_file));
 	fclose(context->state.video_f);
 	remove(context->state.video_file);
 	return -1;
@@ -914,12 +914,12 @@ static int snapshot_update(struct advance_record_context* context, const void* v
 
 	f = fopen(file, "wb");
 	if (!f) {
-		os_log(("ERROR: opening file %s\n", file));
+		log_std(("ERROR: opening file %s\n", file));
 		goto err;
 	}
 
 	if (png_write_header(f) != 0) {
-		os_log(("ERROR: writing header in file %s\n", file));
+		log_std(("ERROR: writing header in file %s\n", file));
 		goto err_file;
 	}
 
@@ -929,7 +929,7 @@ static int snapshot_update(struct advance_record_context* context, const void* v
 		color_type = 2;
 
 	if (png_write_image_header(f, video_width, video_height, 8, color_type, orientation) != 0) {
-		os_log(("ERROR: writing image header in file %s\n", file));
+		log_std(("ERROR: writing image header in file %s\n", file));
 		goto err_file;
 	}
 
@@ -946,17 +946,17 @@ static int snapshot_update(struct advance_record_context* context, const void* v
 		if (png_write_image_16pal(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
 			goto err_data;
 	} else {
-		os_log(("ERROR: unknow image format for file %s\n", file));
+		log_std(("ERROR: unknown image format for file %s\n", file));
 		goto err_file;
 	}
 
 	if (png_write_image_footer(f) != 0) {
-		os_log(("ERROR: writing image footer in file %s\n", file));
+		log_std(("ERROR: writing image footer in file %s\n", file));
 		goto err_file;
 	}
 
 	if (png_write_footer(f)!=0) {
-		os_log(("ERROR: writing file footer in file %s\n", file));
+		log_std(("ERROR: writing file footer in file %s\n", file));
 		goto err_file;
 	}
 
@@ -964,7 +964,7 @@ static int snapshot_update(struct advance_record_context* context, const void* v
 
 	return 0;
 err_data:
-	os_log(("ERROR: writing image data in file %s\n", file));
+	log_std(("ERROR: writing image data in file %s\n", file));
 err_file:
 	fclose(f);
 	remove(file);
@@ -996,8 +996,8 @@ void osd_record_start(void)
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
 	struct advance_video_context* video_context = &CONTEXT.video;
 	const mame_game* game = CONTEXT.game;
-	char path_wav[OS_MAXPATH];
-	char path_mng[OS_MAXPATH];
+	char path_wav[FILE_MAXPATH];
+	char path_mng[FILE_MAXPATH];
 
 	if (context->config.sound_flag && sound_context->state.rate) {
 		sound_cancel(context); /* ignore error */
@@ -1016,7 +1016,7 @@ void osd_record_start(void)
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	os_log(("osd: osd_record_start()\n"));
+	log_std(("osd: osd_record_start()\n"));
 
 	if (context->config.sound_flag && sound_context->state.rate) {
 		sound_start(context, path_wav, sound_context->state.rate, sound_context->state.stereo_flag);
@@ -1051,7 +1051,7 @@ void osd_record_stop(void)
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	os_log(("osd: osd_record_stop()\n"));
+	log_std(("osd: osd_record_stop()\n"));
 
 	if (context->config.sound_flag) {
 		if (sound_stop(context, &sound_time) != 0) {
@@ -1093,9 +1093,9 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
 	struct advance_video_context* video_context = &CONTEXT.video;
 	const mame_game* game = CONTEXT.game;
-	char path_png[OS_MAXPATH];
+	char path_png[FILE_MAXPATH];
 
-	os_log(("osd: osd_save_snapshot(x1:%d,y1:%d,x2:%d,y2:%d)\n", x1, y1, x2, y2));
+	log_std(("osd: osd_save_snapshot(x1:%d,y1:%d,x2:%d,y2:%d)\n", x1, y1, x2, y2));
 
 	advance_snapshot_next(context, game, path_png);
 

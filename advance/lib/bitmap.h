@@ -73,6 +73,8 @@ void bitmap_cvt_24to8idx(struct bitmap* dst, struct bitmap* src, unsigned* conve
 void bitmap_cvt_8to16(struct bitmap* dst, struct bitmap* src, unsigned* color_map);
 void bitmap_cvt_24to16(struct bitmap* dst, struct bitmap* src);
 void bitmap_cvt_32to24(struct bitmap* dst, struct bitmap* src);
+void bitmap_cvt_8to32(struct bitmap* dst, struct bitmap* src, unsigned* color_map);
+void bitmap_cvt_24to32(struct bitmap* dst, struct bitmap* src);
 
 #ifdef __cplusplus
 }

@@ -1343,7 +1343,7 @@ void cmd_save(struct conf_context* config, const video_generate_interpolate_set*
 
 void video_log_va(const char *text, va_list arg)
 {
-	os_msg_va(text,arg);
+	log_va(text,arg);
 }
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -1423,17 +1423,17 @@ int os_main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[j],"bit") && j+1<argc) {
 			bits = atoi(argv[++j]);
 		} else {
-			fprintf(stderr,"Unknow option %s\n",argv[j]);
+			fprintf(stderr,"Unknown option %s\n",argv[j]);
 			goto err_os;
 		}
 	}
 
 	if (!opt_rc) {
 		switch (the_advance) {
-			case advance_menu : opt_rc = os_config_file_home("advmenu.rc"); break;
-			case advance_mame : opt_rc = os_config_file_home("advmame.rc"); break;
-			case advance_mess : opt_rc = os_config_file_home("advmess.rc"); break;
-			case advance_pac : opt_rc = os_config_file_home("advpac.rc"); break;
+			case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
+			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
+			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
+			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
 			default : opt_rc = "advcfg.rc"; break;
 		}
 	}
@@ -1451,10 +1451,10 @@ int os_main(int argc, char* argv[]) {
 			default: log = "advv.log"; break;
 		}
 		remove(log);
-		os_msg_init(log,opt_logsync);
+		log_init(log,opt_logsync);
         }
 
-	os_log(("cfg: %s %s\n",__DATE__,__TIME__));
+	log_std(("cfg: %s %s\n",__DATE__,__TIME__));
 
 	section_map[0] = "";
 	conf_section_set(config, section_map, 1);
@@ -1465,13 +1465,13 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
-	if (os_inner_init() != 0) {
+	if (os_inner_init("AdvanceCFG") != 0) {
 		goto err_os;
 	}
 
 	video_init();
 
-	video_blit_set_mmx(os_mmx_get());
+	video_blit_set_mmx(target_mmx_get());
 
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		fprintf(stderr,"Your video board isn't supported.\n");
@@ -1551,7 +1551,7 @@ int os_main(int argc, char* argv[]) {
 		}
 	}
 
-	os_log(("cfg: shutdown\n"));
+	log_std(("cfg: shutdown\n"));
 
 	text_done();
 
@@ -1559,10 +1559,10 @@ int os_main(int argc, char* argv[]) {
 
 	os_inner_done();
 
-	os_log(("cfg: the end\n"));
+	log_std(("cfg: the end\n"));
 
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 
 	os_done();
@@ -1578,7 +1578,7 @@ err_video:
 	os_inner_done();
 err_os:
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 	os_done();
 err_conf:

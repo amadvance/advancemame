@@ -124,7 +124,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc > 1) {
-		fprintf(stderr,"Unknow argument '%s'\n",argv[1]);
+		fprintf(stderr,"Unknown argument '%s'\n",argv[1]);
 		goto err_os;
 	}
 

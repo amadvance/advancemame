@@ -97,7 +97,7 @@ struct conf_input {
 	struct conf_conv* conv_map; /**< Vector of conversion */
 	unsigned conv_mac; /** Number of conversion */
 
-	conf_bool ignore_unknow_flag; /**< If the unknow options must be ignored */
+	conf_bool ignore_unknown_flag; /**< If the unknown options must be ignored */
 
 	int priority; /**< Priority of the file. Bigger is more */
 
@@ -169,7 +169,7 @@ void conf_uncomment(struct conf_context* context);
 conf_error conf_save(struct conf_context* context, conf_bool force);
 
 enum conf_callback_error {
-	conf_error_unknow, /**< Unknow option. */
+	conf_error_unknown, /**< Unknown option. */
 	conf_error_invalid, /**< Invalid argument. */
 	conf_error_missing /**< Missing argument. */
 };
@@ -201,14 +201,14 @@ struct conf_conv {
 /**
  * Load an input file and store it in memory.
  * The old format file is only read, the file is written with the new format.
- * Any unknow option in the old format is ignored.
+ * Any unknown option in the old format is ignored.
  * \param file_in path of the configuration file in the old format
  * \param file_out path of the output configuration, use 0 for a readonly file
  * \return
  *   - ==0 if ok
  *   - !=0 if not ok and error callback called
  */
-conf_error conf_input_file_load_adv(struct conf_context* context, int priority, const char* file_in, const char* file_out, conf_bool ignore_unknow, conf_bool multi_line, const struct conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context);
+conf_error conf_input_file_load_adv(struct conf_context* context, int priority, const char* file_in, const char* file_out, conf_bool ignore_unknown, conf_bool multi_line, const struct conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context);
 
 /**
  * Set the list of input arguments.

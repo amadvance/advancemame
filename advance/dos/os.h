@@ -36,6 +36,9 @@
 #endif
 
 #include "conf.h"
+#include "log.h"
+#include "target.h"
+#include "file.h"
 
 #include "allegro2.h"
 
@@ -43,26 +46,12 @@
 #include <keys.h>
 #include <pc.h>
 #include <sys/farptr.h>
+#include <sys/wait.h>
 #include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/***************************************************************************/
-/* Generic */
-
-/** Max path length. */
-#define OS_MAXPATH 256
-
-/** Max path list. */
-#define OS_MAXLIST 8192
-
-/** Max command line length. */
-#define OS_MAXCMD 512
-
-/** Max number of arguments. */
-#define OS_MAXARG 32
 
 struct os_device {
 	const char *name;
@@ -71,29 +60,11 @@ struct os_device {
 };
 
 /***************************************************************************/
-/* Debug */
-
-void os_msg_va(const char *text, va_list arg);
-void os_msg(const char *text, ...);
-int os_msg_init(const char* file, int sync_flag);
-void os_msg_done(void);
-
-#ifndef NDEBUG
-#define os_log(a) os_msg a
-#define os_log_debug(a) os_msg a
-#define os_log_pedantic(a) do { } while (0)
-#else
-#define os_log(a) os_msg a
-#define os_log_debug(a) do { } while (0)
-#define os_log_pedantic(a) do { } while (0)
-#endif
-
-/***************************************************************************/
 /* Init/Done */
 
 int os_init(struct conf_context* context);
 void os_done(void);
-int os_inner_init(void);
+int os_inner_init(const char* title);
 void os_inner_done(void);
 void os_poll(void);
 void os_idle(void);
@@ -380,71 +351,6 @@ static __inline__ int os_joy_stick_axe_analog_get(unsigned j, unsigned s, unsign
 
 void os_joy_calib_start(void);
 const char* os_joy_calib_next(void);
-
-/***************************************************************************/
-/* Hardware */
-
-static __inline__ void os_port_set(unsigned addr, unsigned value) {
-	outportb(addr,value);
-}
-
-static __inline__ unsigned os_port_get(unsigned addr) {
-	return inportb(addr);
-}
-
-static __inline__ void os_writeb(unsigned addr, unsigned char c) {
-	_farpokeb( _dos_ds, addr, c);
-}
-
-static __inline__ unsigned char os_readb(unsigned addr) {
-	return _farpeekb(_dos_ds, addr);
-}
-
-static __inline__ int os_mmx_get(void) {
-	return cpu_mmx;
-}
-
-void os_mode_reset(void);
-
-/***************************************************************************/
-/* Sound */
-
-void os_sound_error(void);
-void os_sound_warn(void);
-void os_sound_signal(void);
-
-/***************************************************************************/
-/* APM */
-
-int os_apm_shutdown(void);
-int os_apm_standby(void);
-int os_apm_wakeup(void);
-
-/***************************************************************************/
-/* System */
-
-int os_system(const char* cmd);
-int os_spawn(const char* file, const char** argv);
-
-/***************************************************************************/
-/* FileSystem */
-
-char os_dir_separator(void);
-char os_dir_slash(void);
-
-const char* os_import(const char* path);
-const char* os_export(const char* path);
-
-/***************************************************************************/
-/* Files */
-
-const char* os_config_file_root(const char* file);
-const char* os_config_file_home(const char* file);
-const char* os_config_file_legacy(const char* file);
-
-const char* os_config_dir_multidir(const char* tag);
-const char* os_config_dir_singledir(const char* tag);
-const char* os_config_dir_singlefile(void);
 
 #ifdef __cplusplus
 }

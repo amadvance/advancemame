@@ -147,8 +147,8 @@ public:
 	void romof_set(const std::string& A) { romof = A; }
 	const std::string& romof_get() const { return romof; }
 
+	void auto_description_set(const std::string& A) const;
 	bool is_user_description_set() const { return flag_get(flag_user_description_set); }
-	void auto_description_set(const std::string& A) const { if (!is_user_description_set()) description = A; }
 	void user_description_set(const std::string& A) const { flag |= flag_user_description_set; description = A; }
 	const std::string& description_get() const { return description; }
 

@@ -42,22 +42,7 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
-#ifndef PREFIX
-#error Macro PREFIX undefined
-#endif
-
-struct os_fixed {
-	char root_dir[OS_MAXPATH];
-	char home_dir[OS_MAXPATH];
-	char dir_buffer[OS_MAXPATH];
-	char file_root[OS_MAXPATH];
-	char file_home[OS_MAXPATH];
-};
-
 struct os_context {
-	FILE* msg;
-	int msg_sync_flag;
-
 #ifdef USE_KEYBOARD_SVGALIB
 	int key_id;
 #endif
@@ -86,7 +71,6 @@ struct os_context {
 	int is_term; /**< Is termination requested */
 };
 
-static struct os_fixed OSF;
 static struct os_context OS;
 
 #define KEY_TYPE_NONE 0
@@ -97,43 +81,6 @@ static struct os_context OS;
 
 #define JOYSTICK_TYPE_NONE 0
 #define JOYSTICK_TYPE_AUTO 1
-
-/***************************************************************************/
-/* Debug */
-
-void os_msg_va(const char *text, va_list arg) {
-	if (OS.msg) {
-		vfprintf(OS.msg,text,arg);
-		if (OS.msg_sync_flag)
-			fflush(OS.msg);
-	}
-}
-
-void os_msg(const char *text, ...) {
-	va_list arg;
-	va_start(arg, text);
-	os_msg_va(text, arg);
-	va_end(arg);
-}
-
-int os_msg_init(const char* file, int sync_flag) {
-	OS.msg_sync_flag = sync_flag;
-
-	if (file) {
-		OS.msg = fopen(file,"w");
-		if (!OS.msg)
-			return -1;
-	}
-
-	return 0;
-}
-
-void os_msg_done(void) {
-	if (OS.msg) {
-		fclose(OS.msg);
-		OS.msg = 0;
-	}
-}
 
 /***************************************************************************/
 /* Clock */
@@ -149,61 +96,6 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-static void strcatslash(char* str) {
-	if (str[0] && str[strlen(str)-1] !='/')
-		strcat(str,"/");
-}
-
-static int os_fixed(void) {
-	char* home;
-
-	/* root */
-	strcpy(OSF.root_dir,PREFIX);
-	strcatslash(OSF.root_dir);
-	strcat(OSF.root_dir,"share/advance");
-
-	/* home */
-	home = getenv("HOME");
-	if (!home || !*home) {
-		/* use the root dir as home dir */
-		strcpy(OSF.home_dir,OSF.root_dir);
-	} else {
-		strcpy(OSF.home_dir,home);
-		strcatslash(OSF.home_dir);
-		strcat(OSF.home_dir,".advance");
-	}
-
-	if (OSF.home_dir[0]) {
-		struct stat st;
-		if (stat(OSF.home_dir,&st) == 0) {
-			if (!S_ISDIR(st.st_mode)) {
-				fprintf(stderr,"Failure: A file named %s exists\n",OSF.home_dir);
-				return -1;
-			}
-		} else {
-			char buffer[OS_MAXPATH];
-			if (mkdir(OSF.home_dir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
-				fprintf(stderr,"Failure: Error creating the directory %s\n",OSF.home_dir);
-				return -1;
-			}
-			sprintf(buffer,"%s/cfg",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/snap",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/hi",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/nvram",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/memcard",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/sta",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		}
-	}
-
-	return 0;
-}
-
 int os_init(struct conf_context* context) {
 	memset(&OS,0,sizeof(OS));
 
@@ -217,21 +109,18 @@ static void os_term_signal(int signum) {
 	OS.is_term = 1;
 }
 
-int os_inner_init(void) {
+int os_inner_init(const char* title) {
 	os_clock_t start, stop;
 	struct utsname uts;
 
 	if (uname(&uts) != 0) {
-		os_log(("ERROR: uname failed\n"));
+		log_std(("ERROR: uname failed\n"));
 	} else {
-		os_log(("os: sys %s\n",uts.sysname));
-		os_log(("os: release %s\n",uts.release));
-		os_log(("os: version %s\n",uts.version));
-		os_log(("os: machine %s\n",uts.machine));
+		log_std(("os: sys %s\n",uts.sysname));
+		log_std(("os: release %s\n",uts.release));
+		log_std(("os: version %s\n",uts.version));
+		log_std(("os: machine %s\n",uts.machine));
 	}
-
-	os_log(("os: root dir %s\n", OSF.root_dir));
-	os_log(("os: home dir %s\n", OSF.home_dir));
 
 	usleep(10000);
 	start = os_clock();
@@ -239,7 +128,7 @@ int os_inner_init(void) {
 	while (stop == start)
 		stop = os_clock();
 
-	os_log(("os: clock delta %ld\n",(unsigned long)(stop - start)));
+	log_std(("os: clock delta %ld\n",(unsigned long)(stop - start)));
 
 	usleep(10000);
 	start = os_clock();
@@ -247,16 +136,16 @@ int os_inner_init(void) {
 	usleep(1000);
 	stop = os_clock();
 
-	os_log(("os: 0.001 delay, effective %g\n",(stop - start) / (double)OS_CLOCKS_PER_SEC ));
+	log_std(("os: 0.001 delay, effective %g\n",(stop - start) / (double)OS_CLOCKS_PER_SEC ));
 
-	os_log(("os: sysconf(_SC_CLK_TCK) %ld\n",sysconf(_SC_CLK_TCK)));
-	os_log(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n",sysconf(_SC_NPROCESSORS_CONF)));
-	os_log(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n",sysconf(_SC_NPROCESSORS_ONLN)));
-	os_log(("os: sysconf(_SC_PHYS_PAGES) %ld\n",sysconf(_SC_PHYS_PAGES)));
-	os_log(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n",sysconf(_SC_AVPHYS_PAGES)));
-	os_log(("os: sysconf(_SC_CHAR_BIT) %ld\n",sysconf(_SC_CHAR_BIT)));
-	os_log(("os: sysconf(_SC_LONG_BIT) %ld\n",sysconf(_SC_LONG_BIT)));
-	os_log(("os: sysconf(_SC_WORD_BIT) %ld\n",sysconf(_SC_WORD_BIT)));
+	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n",sysconf(_SC_CLK_TCK)));
+	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n",sysconf(_SC_NPROCESSORS_CONF)));
+	log_std(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n",sysconf(_SC_NPROCESSORS_ONLN)));
+	log_std(("os: sysconf(_SC_PHYS_PAGES) %ld\n",sysconf(_SC_PHYS_PAGES)));
+	log_std(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n",sysconf(_SC_AVPHYS_PAGES)));
+	log_std(("os: sysconf(_SC_CHAR_BIT) %ld\n",sysconf(_SC_CHAR_BIT)));
+	log_std(("os: sysconf(_SC_LONG_BIT) %ld\n",sysconf(_SC_LONG_BIT)));
+	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n",sysconf(_SC_WORD_BIT)));
 
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB) || defined(USE_INPUT_SVGALIB)
 	vga_disabledriverreport();
@@ -312,7 +201,7 @@ void os_poll(void) {
 void os_idle(void) {
 	struct timespec req;
 	req.tv_sec = 0;
-	req.tv_nsec = 1000000;
+	req.tv_nsec = 1000000; /* 1 ms */
 	nanosleep(&req, 0);
 }
 
@@ -336,7 +225,7 @@ int os_key_init(int key_id, int disable_special)
 
 	if (OS.key_id != KEY_TYPE_NONE) {
 		if (keyboard_init() != 0) {
-			os_log(("ERROR: keyboard_init() failed\n"));
+			log_std(("ERROR: keyboard_init() failed\n"));
 			return -1;
 		}
 	}
@@ -609,7 +498,7 @@ void os_joy_done(void)
 }
 
 const char* os_joy_name_get(void) {
-	return "Unknow";
+	return "Unknown";
 }
 
 const char* os_joy_driver_name_get(void) {
@@ -707,162 +596,6 @@ const char* os_joy_calib_next(void)
 #endif
 
 /***************************************************************************/
-/* Hardware */
-
-void os_port_set(unsigned addr, unsigned value) {
-}
-
-unsigned os_port_get(unsigned addr) {
-	return 0;
-}
-
-void os_writeb(unsigned addr, unsigned char c) {
-}
-
-unsigned char os_readb(unsigned addr) {
-	return 0;
-}
-
-int os_mmx_get(void) {
-	/* TODO MMX detect, assume yes */
-	return 1;
-}
-
-void os_mode_reset(void) {
-	/* no mode reset */
-}
-
-/***************************************************************************/
-/* Sound */
-
-void os_sound_error(void) {
-	/* nothing */
-}
-
-void os_sound_warn(void) {
-	/* nothing */
-}
-
-void os_sound_signal(void) {
-	/* nothing */
-}
-
-/***************************************************************************/
-/* APM */
-
-int os_apm_shutdown(void) {
-	return 0;
-}
-
-int os_apm_standby(void) {
-	return 0;
-}
-
-int os_apm_wakeup(void) {
-	return 0;
-}
-
-/***************************************************************************/
-/* System */
-
-int os_system(const char* cmd) {
-	os_log(("linux: system %s\n",cmd));
-
-	return system(cmd);
-}
-
-int os_spawn(const char* file, const char** argv) {
-	int pid, status;
-	int i;
-
-	os_log(("linux: spawn %s\n",file));
-	for(i=0;argv[i];++i)
-		os_log(("linux: spawn arg %s\n",argv[i]));
-
-	pid = fork();
-	if (pid == -1)
-		return -1;
-
-	if (pid == 0) {
-		execvp(file, (char**)argv);
-		exit(127);
-	} else {
-		while (1) {
-			if (waitpid(pid, &status, 0) == -1) {
-				if (errno != EINTR) {
-					status = -1;
-					break;
-				}
-			} else
-				break;
-		}
-
-		return status;
-	}
-}
-
-/***************************************************************************/
-/* FileSystem */
-
-char os_dir_separator(void) {
-	return ':';
-}
-
-char os_dir_slash(void) {
-	return '/';
-}
-
-const char* os_import(const char* path) {
-	return path;
-}
-
-const char* os_export(const char* path) {
-	return path;
-}
-
-/***************************************************************************/
-/* Files */
-
-const char* os_config_file_root(const char* file) {
-	if (file[0] == '/')
-		sprintf(OSF.file_root,"%s",file);
-	else
-		/* if relative add the root data dir */
-		sprintf(OSF.file_root,"%s/%s",OSF.root_dir,file);
-	return OSF.file_root;
-}
-
-const char* os_config_file_home(const char* file) {
-	if (file[0] == '/')
-		sprintf(OSF.file_home,"%s",file);
-	else
-		/* if relative add the home data dir */
-		sprintf(OSF.file_home,"%s/%s",OSF.home_dir,file);
-	return OSF.file_home;
-}
-
-const char* os_config_file_legacy(const char* file) {
-	return 0;
-}
-
-const char* os_config_dir_multidir(const char* tag) {
-	assert( tag[0] != '/' );
-	sprintf(OSF.dir_buffer,"%s/%s:%s/%s",OSF.home_dir,tag,OSF.root_dir,tag);
-	return OSF.dir_buffer;
-}
-
-const char* os_config_dir_singledir(const char* tag) {
-	assert( tag[0] != '/' );
-	sprintf(OSF.dir_buffer,"%s/%s",OSF.home_dir,tag);
-	return OSF.dir_buffer;
-}
-
-const char* os_config_dir_singlefile(void) {
-	sprintf(OSF.dir_buffer,"%s:%s",OSF.home_dir,OSF.root_dir);
-	return OSF.dir_buffer;
-}
-
-/***************************************************************************/
 /* Signal */
 
 int os_is_term(void) {
@@ -884,10 +617,10 @@ static void os_backtrace(void) {
 
 void os_default_signal(int signum)
 {
-	os_log(("os: signal %d\n",signum));
+	log_std(("os: signal %d\n",signum));
 
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB)
-	os_log(("os: video_abort\n"));
+	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
 		video_abort();
@@ -895,18 +628,17 @@ void os_default_signal(int signum)
 #endif
 
 #if defined(USE_SOUND_OSS)
-	os_log(("os: sound_abort\n"));
+	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);
 		sound_abort();
 	}
 #endif
 
-	os_mode_reset();
+	target_mode_reset();
 
-	os_log(("os: close log\n"));
-
-	os_msg_done();
+	log_std(("os: close log\n"));
+	log_abort();
 
 	if (signum == SIGINT) {
 		fprintf(stderr,"Break pressed\n\r");
@@ -936,10 +668,22 @@ void os_default_signal(int signum)
 
 int main(int argc, char* argv[])
 {
-	if (os_fixed() != 0)
+	if (target_init() != 0)
 		return EXIT_FAILURE;
-	if (os_main(argc,argv) != 0)
+
+	if (file_init() != 0) {
+		target_done();
 		return EXIT_FAILURE;
+	}
+
+	if (os_main(argc,argv) != 0) {
+		file_done();
+		target_done();		
+		return EXIT_FAILURE;
+	}
+
+	file_done();
+	target_done();
 	
 	return EXIT_SUCCESS;
 }

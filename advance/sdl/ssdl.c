@@ -35,7 +35,7 @@
 
 #include "SDL.h"
 
-#define FIFO_MAX 16384
+#define FIFO_MAX 65536
 
 struct sound_sdl_context {
 	video_bool active_flag;
@@ -45,6 +45,8 @@ struct sound_sdl_context {
 	unsigned fifo_pos;
 	unsigned fifo_mac;
 	sound_sample_t fifo_map[FIFO_MAX];
+	
+	int underflow_flag;
 };
 
 static struct sound_sdl_context sdl_state;
@@ -56,11 +58,13 @@ device DEVICE[] = {
 
 static void sound_sdl_callback(void *userdata, Uint8 *stream, int len) {
 	struct sound_sdl_context* state = (struct sound_sdl_context*)userdata;
+	unsigned samples_count;
+	sound_sample_t* samples_buffer;
 
 	assert( state == &sdl_state );
 
-	unsigned samples_count = len / 2;
-	sound_sample_t* samples_buffer = (sound_sample_t*)stream;
+	samples_count = len / 2;
+	samples_buffer = (sound_sample_t*)stream;
 
 	while (samples_count) {
 		if (state->fifo_mac) {
@@ -69,6 +73,7 @@ static void sound_sdl_callback(void *userdata, Uint8 *stream, int len) {
 			--state->fifo_mac;
 		} else {
 			*samples_buffer = state->info.silence;
+			state->underflow_flag = 1; /* signal the underflow */
 		}
 
 		++samples_buffer;
@@ -80,18 +85,19 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 {
 	char name[64];
 
-	os_log(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",sound_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",sound_id,*rate,stereo_flag,buffer_time));
 
+	sdl_state.underflow_flag = 0;
 	sdl_state.fifo_pos = 0;
 	sdl_state.fifo_mac = 0;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-		os_log(("sound:sdl: SDL_InitSubSystem(SDL_INIT_AUDIO) failed %s\n", SDL_GetError()));
+		log_std(("sound:sdl: SDL_InitSubSystem(SDL_INIT_AUDIO) failed %s\n", SDL_GetError()));
 		return -1;
 	}
 
-	if (SDL_VideoDriverName(name,sizeof(name))) {
-		os_log(("sound:sdl: driver %s\n", name));
+	if (SDL_AudioDriverName(name,sizeof(name))) {
+		log_std(("sound:sdl: driver %s\n", name));
 	}
 
 	sdl_state.info.freq = *rate;
@@ -101,15 +107,15 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 	sdl_state.info.callback = sound_sdl_callback;
 	sdl_state.info.userdata = &sdl_state;
 
-	os_log(("sound:sdl: request fragment size %d\n", sdl_state.info.samples));
+	log_std(("sound:sdl: request fragment size %d [samples]\n", sdl_state.info.samples));
 
 	if (SDL_OpenAudio(&sdl_state.info, 0) != 0) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		os_log(("sound:sdl: SDL_OpenAudio(%d,AUDIO_S16LSB,%d,%d) failed, %s\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError()));
+		log_std(("sound:sdl: SDL_OpenAudio(%d,AUDIO_S16LSB,%d,%d) failed, %s\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError()));
 		return -1;
 	}
 
-	os_log(("sound:sdl: result fragment size %d, buffer size %d\n", sdl_state.info.samples, sdl_state.info.size));
+	log_std(("sound:sdl: result fragment size %d [samples], buffer size %d [bytes]\n", sdl_state.info.samples, sdl_state.info.size));
 
 	*rate = sdl_state.info.freq;
 
@@ -119,7 +125,7 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 }
 
 void sound_sdl_done(void) {
-	os_log(("sound:sdl: sound_sdl_done()\n"));
+	log_std(("sound:sdl: sound_sdl_done()\n"));
 
 	if (sdl_state.active_flag) {
 		sdl_state.active_flag = 0;
@@ -129,7 +135,7 @@ void sound_sdl_done(void) {
 }
 
 void sound_sdl_stop(void) {
-	os_log(("sound:sdl: sound_sdl_stop()\n"));
+	log_std(("sound:sdl: sound_sdl_stop()\n"));
 
 	SDL_PauseAudio(1);
 }
@@ -139,7 +145,7 @@ unsigned sound_sdl_buffered(void) {
 }
 
 void sound_sdl_volume(double volume) {
-	os_log(("sound:sdl: sound_sdl_volume(volume:%g)\n",(double)volume));
+	log_std(("sound:sdl: sound_sdl_volume(volume:%g)\n",(double)volume));
 	/* no hardware volume control with SDL */
 }
 
@@ -147,14 +153,19 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	unsigned i;
 	unsigned count = sample_count * sdl_state.info.channels;
 
-	os_log_debug(("sound:sdl: sound_sdl_play(count:%d)\n", sample_count));
+	log_debug(("sound:sdl: sound_sdl_play(count:%d), stored %d\n", sample_count, sdl_state.fifo_mac / sdl_state.info.channels));
 
 	SDL_LockAudio();
 
+	if (sdl_state.underflow_flag) {
+		sdl_state.underflow_flag = 0;
+		log_std(("ERROR: sound buffer fifo underflow\n"));
+	}
+
 	if (sdl_state.fifo_mac + count > FIFO_MAX) {
-		SDL_UnlockAudio();
-		os_log(("sound:sdl: sound BUFFER OVERFLOW\n"));
-		return;
+		sdl_state.fifo_mac = 0;
+		sdl_state.fifo_pos = 0;
+		log_std(("ERROR: sound buffer fifo overflow, reset the buffer\n"));
 	}
 
 	i = (sdl_state.fifo_pos + sdl_state.fifo_mac) % FIFO_MAX;
@@ -174,14 +185,14 @@ video_error sound_sdl_start(double silence_time) {
 	unsigned sample;
 	unsigned i;
 
-	os_log(("sound:sdl: sound_sdl_start(silence_time:%g)\n",silence_time));
+	log_std(("sound:sdl: sound_sdl_start(silence_time:%g)\n",silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = sdl_state.info.silence;
 
 	sample = silence_time * sdl_state.info.freq * sdl_state.info.channels;
 
-	os_log(("sound:sdl: writing %d bytes, %d sample of silence\n", sample / sdl_state.info.channels * 2, sample / sdl_state.info.channels));
+	log_std(("sound:sdl: writing %d bytes, %d sample of silence\n", sample / sdl_state.info.channels * 2, sample / sdl_state.info.channels));
 
 	while (sample) {
 		unsigned run = sample;

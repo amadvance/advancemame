@@ -78,7 +78,7 @@ video_error svgalib_init(int device_id) {
 	/* assume that vga_init() is already called */
 	assert( !svgalib_is_active() );
 
-	os_log(("video:svgalib: svgalib_init()\n"));
+	log_std(("video:svgalib: svgalib_init()\n"));
 
 	/* check the version of the SVGALIB */
 	res = vga_setmode(-1);
@@ -94,7 +94,7 @@ video_error svgalib_init(int device_id) {
 void svgalib_done(void) {
 	assert(svgalib_is_active() && !svgalib_mode_is_active() );
 
-	os_log(("video:svgalib: svgalib_done()\n"));
+	log_std(("video:svgalib: svgalib_done()\n"));
 
 	svgalib_state.active = 0;
 }
@@ -139,7 +139,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	assert( svgalib_is_active() && !svgalib_mode_is_active() );
 
-	os_log(("video:svgalib: svgalib_mode_set()\n"));
+	log_std(("video:svgalib: svgalib_mode_set()\n"));
 
 	flags = 0;
 	if (crtc_is_doublescan(&mode->crtc))
@@ -299,7 +299,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 video_error svgalib_mode_change(const svgalib_video_mode* mode) {
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
-	os_log(("video:svgalib: svgalib_mode_change()\n"));
+	log_std(("video:svgalib: svgalib_mode_change()\n"));
 
 	svgalib_state.mode_active = 0; /* fake done */
 	return svgalib_mode_set(mode);
@@ -308,7 +308,7 @@ video_error svgalib_mode_change(const svgalib_video_mode* mode) {
 void svgalib_mode_done(video_bool restore) {
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
-	os_log(("video:svgalib: svgalib_mode_done()\n"));
+	log_std(("video:svgalib: svgalib_mode_done()\n"));
 
 	svgalib_state.mode_active = 0;
 

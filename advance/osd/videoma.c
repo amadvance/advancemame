@@ -285,32 +285,32 @@ static void video_update_sync(struct advance_video_context* context)
 	if (context->state.vsync_flag) {
 		/* disable if no throttling */
 		if (!context->state.sync_throttle_flag) {
-			os_log(("advance:video: vsync disabled because throttle disactive\n"));
+			log_std(("advance:video: vsync disabled because throttle disactive\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if turbo active */
 		if (context->state.turbo_flag) {
-			os_log(("advance:video: vsync disabled because turbo active\n"));
+			log_std(("advance:video: vsync disabled because turbo active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if fastest active */
 		if (context->state.fastest_flag) {
-			os_log(("advance:video: vsync disabled because fastest active\n"));
+			log_std(("advance:video: vsync disabled because fastest active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if measure active */
 		if (context->state.measure_flag) {
-			os_log(("advance:video: vsync disabled because measure active\n"));
+			log_std(("advance:video: vsync disabled because measure active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable the vsync flag if the frame rate is wrong */
 		if (context->state.mode_vclock < reference * 0.97
 			|| context->state.mode_vclock > reference * 1.03) {
-			os_log(("advance:video: vsync disabled because the vclock is too different %g %g\n",reference,context->state.mode_vclock));
+			log_std(("advance:video: vsync disabled because the vclock is too different %g %g\n",reference,context->state.mode_vclock));
 			context->state.vsync_flag = 0;
 		}
 	}
@@ -456,7 +456,7 @@ static int video_init_mode(struct advance_video_context* context, video_mode* mo
 
 	video_invalidate_screen();
 
-	os_log(("advance:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n",video_name(),video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
+	log_std(("advance:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n",video_name(),video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
 
 	return 0;
 }
@@ -543,10 +543,10 @@ static void video_update_pan(struct advance_video_context* context) {
 		context->state.game_visible_pos_y = context->state.game_used_size_y - context->state.game_visible_size_y;
 	}
 
-	os_log(("advance:video: game_visible_pos_x %d\n",context->state.game_visible_pos_x));
-	os_log(("advance:video: game_visible_pos_y %d\n",context->state.game_visible_pos_y));
-	os_log(("advance:video: game_visible_size_x %d\n",context->state.game_visible_size_x));
-	os_log(("advance:video: game_visible_size_y %d\n",context->state.game_visible_size_y));
+	log_std(("advance:video: game_visible_pos_x %d\n",context->state.game_visible_pos_x));
+	log_std(("advance:video: game_visible_pos_y %d\n",context->state.game_visible_pos_y));
+	log_std(("advance:video: game_visible_size_x %d\n",context->state.game_visible_size_x));
+	log_std(("advance:video: game_visible_size_y %d\n",context->state.game_visible_size_y));
 
 	pos_x = context->state.game_visible_pos_x;
 	pos_y = context->state.game_visible_pos_y;
@@ -570,7 +570,7 @@ static void video_update_pan(struct advance_video_context* context) {
 		SWAP(unsigned, size_x, size_y);
 	}
 
-	os_log(("advance:video: mame_ui_area_set(min_x:%d,min_y:%d,max_x:%d,max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1,pos_y+size_y-1));
+	log_std(("advance:video: mame_ui_area_set(min_x:%d,min_y:%d,max_x:%d,max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1,pos_y+size_y-1));
 
 	mame_ui_area_set(pos_x, pos_y, pos_x+size_x-1,pos_y+size_y-1);
 }
@@ -605,7 +605,7 @@ static void video_update_effect(struct advance_video_context* context)
 
 	if ((context->state.combine == COMBINE_MEAN || context->state.combine == COMBINE_MAX || context->state.combine == COMBINE_FILTER || context->state.combine == COMBINE_FILTERX || context->state.combine == COMBINE_FILTERY)
 		&& !context->state.mode_rgb_flag) {
-		os_log(("advance:video: resizeeffect=* disabled because we are in a palettized mode\n"));
+		log_std(("advance:video: resizeeffect=* disabled because we are in a palettized mode\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -614,27 +614,27 @@ static void video_update_effect(struct advance_video_context* context)
 			|| context->state.mode_visible_size_y != 2*context->state.game_visible_size_y
 		)
 	) {
-		os_log(("advance:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
+		log_std(("advance:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	/* max only in y reduction */
 	if (context->state.combine == COMBINE_MAX
 		&& context->state.mode_visible_size_y >= context->state.game_visible_size_y) {
-		os_log(("advance:video: resizeeffect=max disabled because the wrong mode size\n"));
+		log_std(("advance:video: resizeeffect=max disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	/* mean only in y change */
 	if (context->state.combine == COMBINE_MEAN
 		&& context->state.mode_visible_size_y == context->state.game_visible_size_y) {
-		os_log(("advance:video: resizeeffect=mean disabled because the wrong mode size\n"));
+		log_std(("advance:video: resizeeffect=mean disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	if (context->state.effect != EFFECT_NONE
 		&& !context->state.mode_rgb_flag) {
-		os_log(("advance:video: rgbeffect=* disabled because we are in a palettized mode\n"));
+		log_std(("advance:video: rgbeffect=* disabled because we are in a palettized mode\n"));
 		context->state.effect = EFFECT_NONE;
 	}
 
@@ -897,7 +897,7 @@ static int video_update_crtc(struct advance_video_context* context) {
 	/* build the vector of config pointer */
 	context->state.crtc_mac = 0;
 
-	os_log(("advance:mode:select\n"));
+	log_std(("advance:mode:select\n"));
 
 	for(video_crtc_container_iterator_begin(&i,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
 		video_crtc* crtc = video_crtc_container_iterator_get(&i);
@@ -909,18 +909,18 @@ static int video_update_crtc(struct advance_video_context* context) {
 		} else {
 			char buffer[256];
 			video_crtc_print(buffer, crtc);
-			os_log(("advance:excluded: modeline:\"%s\"\n", buffer));
+			log_std(("advance:excluded: modeline:\"%s\"\n", buffer));
 		}
 	}
 
-	os_log(("advance:mode:sort\n"));
+	log_std(("advance:mode:sort\n"));
 
 	crtc_sort(context, context->state.crtc_map, context->state.crtc_mac);
 
 	for(j=0;j<context->state.crtc_mac;++j) {
 		char buffer[256];
 		video_crtc_print(buffer, context->state.crtc_map[j]);
-		os_log(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
+		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
 	if (strcmp(context->config.resolution,"auto")!=0) {
@@ -945,9 +945,9 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	if (!crtc) {
 		if (strcmp(context->config.resolution,"auto")==0)
-			fprintf(stderr,"No video modes available for this game\n");
+			target_err("No video modes available for this game\n");
 		else
-			fprintf(stderr,"The specified 'display_mode %s' does not exist\n",context->config.resolution);
+			target_err("The specified 'display_mode %s' does not exist\n",context->config.resolution);
 		return -1;
 	}
 
@@ -956,7 +956,7 @@ static int video_update_crtc(struct advance_video_context* context) {
 	{
 		char buffer[256];
 		video_crtc_print(buffer, crtc);
-		os_log(("advance:selected: modeline:\"%s\"\n", buffer));
+		log_std(("advance:selected: modeline:\"%s\"\n", buffer));
 	}
 
 	return 0;
@@ -1055,12 +1055,12 @@ static const video_crtc* video_init_crtc_make_raster(struct advance_video_contex
 	strcpy(crtc.name,name);
 
 	video_crtc_print(buffer,&crtc);
-	os_log(("advance:generate: modeline \"%s\"\n",buffer));
+	log_std(("advance:generate: modeline \"%s\"\n",buffer));
 
 	ret = video_crtc_container_insert(&context->config.crtc_bag,&crtc);
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
-		os_log(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
+		log_std(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
 		context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
 	}
 
@@ -1081,7 +1081,7 @@ static void video_init_crtc_make_fake(struct advance_video_context* context, con
 	strcpy(crtc.name,name);
 	video_crtc_print(buffer,&crtc);
 
-	os_log(("advance:generate: fake \"%s\"\n",buffer));
+	log_std(("advance:generate: fake \"%s\"\n",buffer));
 
 	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
 }
@@ -1121,7 +1121,7 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 	strcpy(crtc.name,name);
 
 	video_crtc_print(buffer,&crtc);
-	os_log(("advance:generate: modeline \"%s\"\n",buffer));
+	log_std(("advance:generate: modeline \"%s\"\n",buffer));
 
 	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
 }
@@ -1152,13 +1152,13 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
-		fprintf(stderr,"Your current video driver doesn't support hardware programming.\n");
-		fprintf(stderr,"Try changing the video driver with the `device_video' option or\n");
-		fprintf(stderr,"disable the `display_adjust' option.\n");
+		target_err("Your current video driver doesn't support hardware programming.\n");
+		target_err("Try changing the video driver with the `device_video' option or\n");
+		target_err("disable the `display_adjust' option.\n");
 		return -1;
 	}
 
-	os_log(("advance:video: blit_orientation %d\n", context->config.blit_orientation));
+	log_std(("advance:video: blit_orientation %d\n", context->config.blit_orientation));
 
 	context->state.pause_flag = 0;
 	context->state.crtc_selected = 0;
@@ -1230,8 +1230,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		/* if the clock is programmable the monitor specification must be present */
 		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (monitor_is_empty(&context->config.monitor)) {
-				fprintf(stderr,"Missing options `device_video_p/h/vclock'\n");
-				fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
+				target_err("Missing options `device_video_p/h/vclock'\n");
+				target_err("Please read the file `install.txt' and `advv.txt'\n");
 				return -1;
 			}
 		}
@@ -1266,7 +1266,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		factor_y = pc_aspect_ratio_y * context->state.game_aspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
-		os_log(("advance:video: best aspect factor %dx%d (expansion %g)\n", factor_x, factor_y, (double)context->config.aspect_expansion_factor));
+		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", factor_x, factor_y, (double)context->config.aspect_expansion_factor));
 
 		/* Some video drivers have problem with 8 bit modes and */
 		/* not exactly a 16 pixel multiplier size */
@@ -1312,7 +1312,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		}
 	}
 
-	os_log(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n",best_size_x,best_size_y,best_size_2x,best_size_2y,best_size_3x,best_size_3y,best_bits,(double)best_vclock));
+	log_std(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n",best_size_x,best_size_y,best_size_2x,best_size_2y,best_size_3x,best_size_3y,best_bits,(double)best_vclock));
 
 	if (context->state.game_vector_flag) {
 		context->config.stretch = STRETCH_NONE;
@@ -1324,14 +1324,14 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	context->state.mode_best_size_2y = best_size_2y;
 	context->state.mode_best_vclock = best_vclock;
 
-	os_log(("advance:video: game_area_size_x %d\n",context->state.game_area_size_x));
-	os_log(("advance:video: game_area_size_y %d\n",context->state.game_area_size_y));
-	os_log(("advance:video: game_used_pos_x %d\n",context->state.game_used_pos_x));
-	os_log(("advance:video: game_used_pos_y %d\n",context->state.game_used_pos_y));
-	os_log(("advance:video: game_used_size_x %d\n",context->state.game_used_size_x));
-	os_log(("advance:video: game_used_size_y %d\n",context->state.game_used_size_y));
-	os_log(("advance:video: game_aspect_x %d\n",context->state.game_aspect_x));
-	os_log(("advance:video: game_aspect_y %d\n",context->state.game_aspect_y));
+	log_std(("advance:video: game_area_size_x %d\n",context->state.game_area_size_x));
+	log_std(("advance:video: game_area_size_y %d\n",context->state.game_area_size_y));
+	log_std(("advance:video: game_used_pos_x %d\n",context->state.game_used_pos_x));
+	log_std(("advance:video: game_used_pos_y %d\n",context->state.game_used_pos_y));
+	log_std(("advance:video: game_used_size_x %d\n",context->state.game_used_size_x));
+	log_std(("advance:video: game_used_size_y %d\n",context->state.game_used_size_y));
+	log_std(("advance:video: game_aspect_x %d\n",context->state.game_aspect_x));
+	log_std(("advance:video: game_aspect_y %d\n",context->state.game_aspect_y));
 
 	return 0;
 }
@@ -1358,8 +1358,8 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 	context->state.palette_total = colors;
 	context->state.palette_dirty_total = (context->state.palette_total + osd_mask_size - 1) / osd_mask_size;
 
-	os_log(("advance:video: palette_total %d\n", context->state.palette_total));
-	os_log(("advance:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
+	log_std(("advance:video: palette_total %d\n", context->state.palette_total));
+	log_std(("advance:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
 
 	context->state.palette_dirty_map = (osd_mask_t*)malloc(context->state.palette_dirty_total * sizeof(osd_mask_t));
 	context->state.palette_map = (osd_rgb_t*)malloc(context->state.palette_total * sizeof(osd_rgb_t));
@@ -1446,7 +1446,7 @@ static __inline__ void video_frame_resolution(struct advance_video_context* cont
 	}
 
 	if (modify) {
-		os_log(("advance:video: select mode %s\n",context->config.resolution));
+		log_std(("advance:video: select mode %s\n",context->config.resolution));
 
 		/* update all the complete state, the configuration is choosen by the name */
 		advance_video_change(context);
@@ -1782,11 +1782,11 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		skip = estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip;
 	}
 
-	os_log_debug(("advance:skip: step %g [sec]\n", step));
-	os_log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n",estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
-	os_log_debug(("advance:skip: mame_full %g [sec], mame_skip %g [sec], osd_full %g [sec], osd_skip %g [sec]\n",estimate_context->estimate_mame_full,estimate_context->estimate_mame_skip,estimate_context->estimate_osd_full,estimate_context->estimate_osd_skip));
-	os_log_debug(("advance:skip: common_full %g [sec], common_skip %g [sec]\n",estimate_context->estimate_common_full,estimate_context->estimate_common_skip));
-	os_log_debug(("advance:skip: full %g [sec], skip %g [sec]\n", full, skip));
+	log_debug(("advance:skip: step %g [sec]\n", step));
+	log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n",estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
+	log_debug(("advance:skip: mame_full %g [sec], mame_skip %g [sec], osd_full %g [sec], osd_skip %g [sec]\n",estimate_context->estimate_mame_full,estimate_context->estimate_mame_skip,estimate_context->estimate_osd_full,estimate_context->estimate_osd_skip));
+	log_debug(("advance:skip: common_full %g [sec], common_skip %g [sec]\n",estimate_context->estimate_common_full,estimate_context->estimate_common_skip));
+	log_debug(("advance:skip: full %g [sec], skip %g [sec]\n", full, skip));
 
 	if (full < step) {
 		context->state.skip_level_full = SYNC_MAX;
@@ -1809,7 +1809,7 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		}
 	}
 
-	os_log_debug(("advance:skip: cycle %d/%d\n",context->state.skip_level_full,context->state.skip_level_skip));
+	log_debug(("advance:skip: cycle %d/%d\n",context->state.skip_level_full,context->state.skip_level_skip));
 }
 
 static double video_frame_wait(double current, double expected) {
@@ -1843,7 +1843,7 @@ static void video_frame_sync(struct advance_video_context* context) {
 
 		context->state.sync_warming_up_flag = 0;
 
-		os_log_debug(("advance:sync: throttle warming up\n"));
+		log_debug(("advance:sync: throttle warming up\n"));
 	} else {
 		double previous = current;
 
@@ -1871,13 +1871,13 @@ static void video_frame_sync(struct advance_video_context* context) {
 					video_wait_vsync();
 					after = advance_timer();
 					if (after - current > 1.1 / video_measured_vclock())
-						os_log(("ERROR: sync wait too long. %g instead of %g\n", after - current, 1.0 / (double)video_measured_vclock()));
+						log_std(("ERROR: sync wait too long. %g instead of %g\n", after - current, 1.0 / (double)video_measured_vclock()));
 					current = after;
 				} else {
-					os_log(("ERROR: sync delay too big\n"));
+					log_std(("ERROR: sync delay too big\n"));
 				}
 			} else {
-				os_log(("ERROR: too late for a sync\n"));
+				log_std(("ERROR: too late for a sync\n"));
 			}
 		} else {
 			current = video_frame_wait(current, expected);
@@ -1886,7 +1886,7 @@ static void video_frame_sync(struct advance_video_context* context) {
 		/* update the error state */
 		context->state.sync_pivot = expected - current;
 
-		os_log(("advance:sync: total %.5f, error%8.5f, last %.5f, wait %.5f\n", current - context->state.sync_last, context->state.sync_pivot, previous - context->state.sync_last, current - previous));
+		log_debug(("advance:sync: total %.5f, error%8.5f, last %.5f, wait %.5f\n", current - context->state.sync_last, context->state.sync_pivot, previous - context->state.sync_last, current - previous));
 
 		context->state.sync_last = current;
 	}
@@ -1904,11 +1904,11 @@ static void video_frame_sync_free(struct advance_video_context* context) {
 
 		context->state.sync_warming_up_flag = 0;
 
-		os_log_debug(("advance:sync: free warming up\n"));
+		log_debug(("advance:sync: free warming up\n"));
 	} else {
 		context->state.sync_last = current;
 
-		os_log_debug(("advance:sync: free\n"));
+		log_debug(("advance:sync: free\n"));
 	}
 }
 
@@ -1952,7 +1952,7 @@ static void video_frame_skip(struct advance_video_context* context, struct advan
 
 		context->state.skip_warming_up_flag = 0;
 
-		os_log_debug(("advance:skip: throttle warming up\n"));
+		log_debug(("advance:skip: throttle warming up\n"));
 	} else {
 
 		/* compute if the next (not the current one) frame must be skipped */
@@ -1971,7 +1971,7 @@ static void video_frame_skip(struct advance_video_context* context, struct advan
 			}
 		}
 
-		os_log_debug(("advance:skip: skip %d, frame %d/%d/%d\n",context->state.skip_flag,context->state.skip_level_counter,context->state.skip_level_full,context->state.skip_level_skip));
+		log_debug(("advance:skip: skip %d, frame %d/%d/%d\n",context->state.skip_flag,context->state.skip_level_counter,context->state.skip_level_full,context->state.skip_level_skip));
 	}
 }
 
@@ -2159,7 +2159,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	unsigned size_y;
 
 	if (!bitmap || !palette) {
-		os_log(("ERROR: null debugger bitmap\n"));
+		log_std(("ERROR: null debugger bitmap\n"));
 		return;
 	}
 
@@ -2205,6 +2205,12 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 
 	/* the frame syncronization is out of the time estimation */
 	video_sync_update(context, sound_context, skip_flag);
+
+	/* idle */
+#if 0 /* TODO verficare il comportamento di os_idle() */
+	/* doing it after the sync permits to don't lose the video syncs */
+	os_idle();
+#endif
 
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);
@@ -2272,7 +2278,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		context->state.thread_state_skip_flag = skip_flag;
 
 		if (sample_count > context->state.thread_state_sample_max) {
-			os_log(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, sample_count, sound_context->state.bytes_per_sample * sample_count));
+			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, sample_count, sound_context->state.bytes_per_sample * sample_count));
 			context->state.thread_state_sample_max = sample_count;
 			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.bytes_per_sample * context->state.thread_state_sample_max);
 			assert(context->state.thread_state_sample_buffer);
@@ -2293,7 +2299,7 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 	if (context->config.smp_flag && !context->state.debugger_flag) {
 		pthread_mutex_lock(&context->state.thread_video_mutex);
 
-		os_log_debug(("advance:thread: signal\n"));
+		log_debug(("advance:thread: signal\n"));
 
 		pthread_cond_signal(&context->state.thread_video_cond);
 
@@ -2316,25 +2322,25 @@ static void* video_thread(void* void_context) {
 	struct advance_estimate_context* estimate_context = &CONTEXT.estimate;
 	struct advance_record_context* record_context = &CONTEXT.record;
 
-	os_log(("advance:thread: start\n"));
+	log_std(("advance:thread: start\n"));
 
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 
 	while (1) {
-		os_log_debug(("advance:thread: wait\n"));
+		log_debug(("advance:thread: wait\n"));
 
 		/* wait for the next signal */
 		pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
-		os_log_debug(("advance:thread: wakeup\n"));
+		log_debug(("advance:thread: wakeup\n"));
 
 		/* check for exit */
 		if (context->state.thread_exit_flag) {
-			os_log(("advance:thread: stop\n"));
+			log_std(("advance:thread: stop\n"));
 			pthread_mutex_unlock(&context->state.thread_video_mutex);
 			pthread_exit(0);
 		}
 
-		os_log_debug(("advance:thread: draw\n"));
+		log_debug(("advance:thread: draw\n"));
 
 		/* update the frame */
 		video_frame_update_now(
@@ -2463,14 +2469,14 @@ int osd2_video_init(struct osd_video_option* req)
 
 	video_mode mode;
 
-	os_log(("osd: osd_video_init\n"));
+	log_std(("osd: osd_video_init\n"));
 
-	os_log(("osd: area_size_x %d, area_size_y %d\n", req->area_size_x, req->area_size_y));
-	os_log(("osd: used_size_x %d, used_size_y %d, used_pos_x %d, used_pos_y %d\n", req->used_size_x, req->used_size_y, req->used_pos_x, req->used_pos_y));
-	os_log(("osd: aspect_x %d, aspect_y %d\n", req->aspect_x, req->aspect_y));
-	os_log(("osd: bits_per_pixel %d, rgb_flag %d, colors %d\n", req->bits_per_pixel, req->rgb_flag, req->colors));
-	os_log(("osd: vector_flag %d\n", req->vector_flag));
-	os_log(("osd: fps %g\n", req->fps));
+	log_std(("osd: area_size_x %d, area_size_y %d\n", req->area_size_x, req->area_size_y));
+	log_std(("osd: used_size_x %d, used_size_y %d, used_pos_x %d, used_pos_y %d\n", req->used_size_x, req->used_size_y, req->used_pos_x, req->used_pos_y));
+	log_std(("osd: aspect_x %d, aspect_y %d\n", req->aspect_x, req->aspect_y));
+	log_std(("osd: bits_per_pixel %d, rgb_flag %d, colors %d\n", req->bits_per_pixel, req->rgb_flag, req->colors));
+	log_std(("osd: vector_flag %d\n", req->vector_flag));
+	log_std(("osd: fps %g\n", req->fps));
 
 	if (video_init_state(context,req) != 0) {
 		goto err;
@@ -2531,7 +2537,7 @@ void osd2_video_done(void)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	os_log(("osd: osd_video_done\n"));
+	log_std(("osd: osd_video_done\n"));
 
 	video_done_thread(context);
 
@@ -2556,14 +2562,14 @@ void osd2_video_done(void)
         /* print the speed measure */
 	if (context->state.measure_flag
 		&& context->state.measure_stop > context->state.measure_start) {
-		printf("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / OS_CLOCKS_PER_SEC);
+		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / OS_CLOCKS_PER_SEC);
 	}
 }
 
 void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	os_log(("osd: osd2_area(%d,%d,%d,%d)\n",x1,y1,x2,y2));
+	log_std(("osd: osd2_area(%d,%d,%d,%d)\n",x1,y1,x2,y2));
 
 	context->state.game_used_pos_x = x1;
 	context->state.game_used_pos_y = y1;
@@ -2585,17 +2591,17 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	unsigned dirty_size;
 	unsigned i;
 
-	os_log_debug(("osd: osd2_palette(size:%d)\n", size));
+	log_debug(("osd: osd2_palette(size:%d)\n", size));
 
 	if (context->state.game_rgb_flag) {
-		os_log_debug(("WARNING: no palette because the game is in RGB mode\n"));
+		log_debug(("WARNING: no palette because the game is in RGB mode\n"));
 		return;
 	}
 
 	dirty_size = (size + osd_mask_size - 1) / osd_mask_size;
 
 	if (size > context->state.palette_total || dirty_size > context->state.palette_dirty_total) {
-		os_log(("ERROR: invalid palette access\n"));
+		log_std(("ERROR: invalid palette access\n"));
 		return;
 	}
 
@@ -2610,7 +2616,7 @@ void osd_pause(int paused)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	os_log(("osd: osd_pause(paused:%d)\n",paused));
+	log_std(("osd: osd_pause(paused:%d)\n",paused));
 
 	context->state.pause_flag = paused != 0;
 }
@@ -2619,7 +2625,7 @@ void osd_reset(void)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	os_log(("osd: osd_reset()\n"));
+	log_std(("osd: osd_reset()\n"));
 
 	hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
 	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
@@ -2647,7 +2653,7 @@ void osd2_debugger_focus(int debugger_has_focus)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	os_log(("osd: osd_debugger_focus(debugger_has_focus:%d)\n", debugger_has_focus));
+	log_std(("osd: osd_debugger_focus(debugger_has_focus:%d)\n", debugger_has_focus));
 
 	context->state.debugger_flag = debugger_has_focus;
 
@@ -2911,7 +2917,7 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 			option->debug_height = crtc_vsize_get(crtc);
 		}
 	}
-	os_log(("advance:video: suggested debugger size %dx%d\n", option->debug_width, option->debug_height));
+	log_std(("advance:video: suggested debugger size %dx%d\n", option->debug_width, option->debug_height));
 
 	/* set the vector game size */
 	if (mame_is_game_vector(option->game)) {
@@ -2953,7 +2959,7 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 			mode_size_x = crtc_hsize_get(best_crtc);
 			mode_size_y = crtc_vsize_get(best_crtc);
 		} else {
-			os_log(("advance:video: no specific mode for vector games\n"));
+			log_std(("advance:video: no specific mode for vector games\n"));
 		}
 
 		/* assume a game aspect of 4/3 */
@@ -2968,7 +2974,7 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 		option->vector_width = game_size_x;
 		option->vector_height = game_size_y;
 
-		os_log(("advance:video: suggested vector size %dx%d\n", option->vector_width, option->vector_height));
+		log_std(("advance:video: suggested vector size %dx%d\n", option->vector_width, option->vector_height));
 	} else {
 		option->vector_width = 0;
 		option->vector_height = 0;
@@ -3097,19 +3103,19 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);
 	if (err<0) {
-		fprintf(stderr,"%s\n", video_error_description_get());
-		fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
+		target_err("%s\n", video_error_description_get());
+		target_err("Please read the file `install.txt' and `advv.txt'\n");
 		return -1;
 	}
 	if (err == 0) {
 		/* print the clock ranges */
-		os_log(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
+		log_std(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
 		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.hclock[i].low)
-				os_log(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
+				log_std(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
 		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.vclock[i].low)
-				os_log(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
+				log_std(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
 	}
 	if (err > 0) {
 		monitor_reset(&context->config.monitor);
@@ -3118,25 +3124,25 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load generate_linear config */
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
 	if (err<0) {
-		fprintf(stderr,"%s\n", video_error_description_get());
-		fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
+		target_err("%s\n", video_error_description_get());
+		target_err("Please read the file `install.txt' and `advv.txt'\n");
 		return -1;
 	} else if (err>0) {
 		if (monitor_hclock_check(&context->config.monitor, 15720)) {
 			/* Arcade Standard Resolution */
-			os_log(("advance:video: default format standard resolution\n"));
+			log_std(("advance:video: default format standard resolution\n"));
 			generate_default_atari_standard(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 15720;
 			context->config.interpolate.mac = 1;
 		} else if (monitor_hclock_check(&context->config.monitor, 25000)) {
 			/* Arcade Medium Resolution */
-			os_log(("advance:video: default format medium resolution\n"));
+			log_std(("advance:video: default format medium resolution\n"));
 			generate_default_atari_medium(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 25000;
 			context->config.interpolate.mac = 1;
 		} else {
 			/* VGA Resolution */
-			os_log(("advance:video: default format vga resolution\n"));
+			log_std(("advance:video: default format vga resolution\n"));
 			generate_default_vga(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 31500;
 			context->config.interpolate.mac = 1;
@@ -3150,8 +3156,8 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	}
 
 	if (video_crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
-		fprintf(stderr,"Invalid modeline.\n");
-		fprintf(stderr,"%s\n",video_error_description_get());
+		target_err("Invalid modeline.\n");
+		target_err("%s\n",video_error_description_get());
 		return -1;
 	}
 
@@ -3166,8 +3172,8 @@ int advance_video_inner_init(struct advance_video_context* context, struct mame_
 {
 	video_init();
 
-	if (!video_blit_set_mmx(os_mmx_get())) {
-		fprintf(stderr,"This executable version requires an MMX processor\n");
+	if (!video_blit_set_mmx(target_mmx_get())) {
+		target_err("This executable version requires an MMX processor\n");
 		return -1;
 	}
 

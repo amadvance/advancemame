@@ -79,7 +79,7 @@ struct script_exp* script_exp_make_op1s(int type, const char* arg0) {
 	if (!exp->data.op1s.eval) {
 		char buffer[128];
 		script_exp_free(exp);
-		sprintf(buffer,"Unknow symbol %s",arg0);
+		sprintf(buffer,"Unknown symbol %s",arg0);
 		script_error(buffer);
 		return 0;
 	}
@@ -108,7 +108,7 @@ struct script_exp* script_exp_make_op1f(int type, const char* arg0) {
 	if (!exp->data.op1f.eval) {
 		char buffer[128];
 		script_exp_free(exp);
-		sprintf(buffer,"Unknow function %s",arg0);
+		sprintf(buffer,"Unknown function %s",arg0);
 		script_error(buffer);
 		return 0;
 	}
@@ -123,7 +123,7 @@ struct script_exp* script_exp_make_op2fe(int type, const char* arg0, struct scri
 	if (!exp->data.op2fe.eval) {
 		char buffer[128];
 		script_exp_free(exp);
-		sprintf(buffer,"Unknow function %s",arg0);
+		sprintf(buffer,"Unknown function %s",arg0);
 		script_error(buffer);
 		return 0;
 	}
@@ -139,7 +139,7 @@ struct script_exp* script_exp_make_op3fee(int type, const char* arg0, struct scr
 	if (!exp->data.op3fee.eval) {
 		char buffer[128];
 		script_exp_free(exp);
-		sprintf(buffer,"Unknow function %s",arg0);
+		sprintf(buffer,"Unknown function %s",arg0);
 		script_error(buffer);
 		return 0;
 	}
@@ -249,7 +249,7 @@ struct script_cmd* script_cmd_make_op2sc(const char* tag, struct script_cmd* arg
 		return cmd;
 	} else {
 		char buffer[128];
-		sprintf(buffer,"Unknow operation %s",tag);
+		sprintf(buffer,"Unknown operation %s",tag);
 		script_error(buffer);
 		return 0;
 	}
@@ -283,7 +283,7 @@ struct script_cmd* script_cmd_make_op2se(const char* arg0, struct script_exp* ar
 		return cmd;
 	} else {
 		char buffer[128];
-		sprintf(buffer,"Unknow operation %s",arg0);
+		sprintf(buffer,"Unknown operation %s",arg0);
 		script_error(buffer);
 		return 0;
 	}
@@ -316,7 +316,7 @@ struct script_cmd* script_cmd_make_op3sec(const char* arg0, struct script_exp* a
 		return cmd;
 	} else {
 		char buffer[128];
-		sprintf(buffer,"Unknow command %s",arg0);
+		sprintf(buffer,"Unknown command %s",arg0);
 		script_error(buffer);
 		return 0;
 	}

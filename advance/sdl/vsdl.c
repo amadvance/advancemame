@@ -37,9 +37,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/***************************************************************************/
+/* Options */
+
+struct sdl_option_struct {
+	video_bool initialized;
+	video_bool fullscreen;
+};
+
+static struct sdl_option_struct sdl_option;
+
 typedef struct sdl_internal_struct {
-	video_bool active; /* !=0 if present */
-	video_bool mode_active; /* !=0 if mode set */
+	video_bool active; /** !=0 if present */
+	video_bool mode_active; /** !=0 if mode set */
+	video_bool lock_active; /** !=0 if lock active */
 
 	SDL_Surface* surface;
 } sdl_internal;
@@ -56,18 +67,28 @@ static device DEVICE[] = {
 
 video_error sdl_init(int device_id) {
 	char name[64];
+	const device* i;
+
 	assert( !sdl_is_active() );
+	
+	log_std(("video:sdl: sdl_init()\n"));
+	
+	sdl_state.mode_active = 0;
+	sdl_state.lock_active = 0;
+	sdl_state.surface = 0;
 
-	os_log(("video:sdl: sdl_init()\n"));
-
-	const device* i = DEVICE;
+	i = DEVICE;
 	while (i->name && i->id != device_id)
 		++i;
 	if (!i->name)
 		return -1;
 
+	if (!sdl_option.initialized) {
+		sdl_default();
+	}
+
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-		os_log(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+		log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
 		return -1;
 	}
 
@@ -84,7 +105,7 @@ void sdl_done(void) {
 	assert( sdl_is_active() );
 	assert( !sdl_mode_is_active() );
 
-	os_log(("video:sdl: sdl_done()\n"));
+	log_std(("video:sdl: sdl_done()\n"));
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
@@ -119,27 +140,38 @@ unsigned sdl_flags(void) {
 }
 
 static unsigned char* sdl_linear_write_line(unsigned y) {
+	assert( sdl_state.lock_active );
+	
 	return (unsigned char*)sdl_state.surface->pixels + (unsigned)sdl_state.surface->pitch * y;
 }
 
 void sdl_write_lock(void) {
+	assert( !sdl_state.lock_active );
+	
 	if (SDL_MUSTLOCK(sdl_state.surface)) {
 		while (SDL_LockSurface( sdl_state.surface ) != 0) {
 			SDL_Delay(1);
 		}
 	}
+	
+	sdl_state.lock_active = 1;
 }
 
 void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) {
+	assert( sdl_state.lock_active );
+	
 	if (SDL_MUSTLOCK(sdl_state.surface))
 		SDL_UnlockSurface(sdl_state.surface);
 	SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
+	
+	sdl_state.lock_active = 0;
 }
 
 static unsigned SDL_ModeFlags(void) {
 	unsigned flags;
 
-	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0
+		&& !sdl_option.fullscreen) {
 		/* use a window if a window manager is present */
 		flags = 0;
 	} else {
@@ -156,7 +188,7 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 	assert( sdl_is_active() );
 	assert( !sdl_mode_is_active() );
 
-	os_log(("video:sdl: sdl_mode_set()\n"));
+	log_std(("video:sdl: sdl_mode_set()\n"));
 
 	info = SDL_GetVideoInfo();
 
@@ -173,7 +205,7 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 
 	sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_ModeFlags() );
 	if (!sdl_state.surface) {
-		os_log(("video:sdl: SDL_SetVideoMode(%d,%d,%d,SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_GetError()));
+		log_std(("video:sdl: SDL_SetVideoMode(%d,%d,%d,SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_GetError()));
 		return -1;
 	}
 
@@ -221,7 +253,7 @@ void sdl_mode_done(video_bool restore) {
 	assert( sdl_is_active() );
 	assert( sdl_mode_is_active() );
 
-	os_log(("video:sdl: sdl_mode_done()\n"));
+	log_std(("video:sdl: sdl_mode_done()\n"));
 
 	sdl_state.mode_active = 0;
 }
@@ -284,7 +316,7 @@ video_error sdl_palette8_set(const video_color* palette, unsigned start, unsigne
 	}
 
 	if (SDL_SetPalette(sdl_state.surface, SDL_PHYSPAL, sdl_pal, start, count) != 1) {
-		os_log(("video:sdl: SDL_SetPalette(SDL_PHYSPAL) failed, %s\n",  SDL_GetError()));
+		log_std(("video:sdl: SDL_SetPalette(SDL_PHYSPAL) failed, %s\n",  SDL_GetError()));
 		return -1;
 	}
 
@@ -375,7 +407,7 @@ void sdl_crtc_container_insert_default(video_crtc_container* cc) {
 	unsigned i;
 	SDL_Rect** map;
 
-	os_log(("video:sdl: sdl_crtc_container_insert_default()\n"));
+	log_std(("video:sdl: sdl_crtc_container_insert_default()\n"));
 
 	map = SDL_ListModes(0, SDL_ModeFlags() );
 
@@ -393,10 +425,35 @@ void sdl_crtc_container_insert_default(video_crtc_container* cc) {
 		video_crtc crtc;
 		crtc_fake_set(&crtc, map[i]->w, map[i]->h);
 
-		os_log(("video:sdl: mode %dx%d\n", (unsigned)map[i]->w, (unsigned)map[i]->h));
+		log_std(("video:sdl: mode %dx%d\n", (unsigned)map[i]->w, (unsigned)map[i]->h));
 
 		video_crtc_container_insert(cc, &crtc);
 	}
+}
+
+void sdl_default(void) {
+	sdl_option.fullscreen = 0;
+
+	sdl_option.initialized = 1;
+}
+
+void sdl_reg(struct conf_context* context) {
+	unsigned i;
+
+	assert( !sdl_is_active() );
+
+	conf_bool_register_default(context, "device_sdl_fullscreen", 0);
+}
+
+video_error sdl_load(struct conf_context* context) {
+	/* Options must be loaded before initialization */
+	assert( !sdl_is_active() );
+
+	sdl_option.fullscreen = conf_bool_get_default(context, "device_sdl_fullscreen");
+
+	sdl_option.initialized = 1;
+
+	return 0;
 }
 
 /***************************************************************************/
@@ -418,13 +475,6 @@ static int sdl_mode_compare_void(const void* a, const void* b) {
 	return sdl_mode_compare((const sdl_video_mode*)a, (const sdl_video_mode*)b);
 }
 
-static void sdl_reg_dummy(struct conf_context* context) {
-}
-
-static video_error sdl_load_dummy(struct conf_context* context) {
-	return 0;
-}
-
 static unsigned sdl_mode_size(void) {
 	return sizeof(sdl_video_mode);
 }
@@ -432,8 +482,8 @@ static unsigned sdl_mode_size(void) {
 video_driver video_sdl_driver = {
 	"sdl",
 	DEVICE,
-	sdl_load_dummy,
-	sdl_reg_dummy,
+	sdl_load,
+	sdl_reg,
 	sdl_init,
 	sdl_done,
 	sdl_flags,

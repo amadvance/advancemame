@@ -294,7 +294,7 @@ int main(int argl, const char far* args) {
 		} else if (optionmatch(tok,"r")) {
 			arg_r = 1;
 		} else {
-			cputs("Unknow option ");
+			cputs("Unknown option ");
 			cputs(tok);
 			cputs("\r\n");
 			return EXIT_FAILURE;

@@ -586,7 +586,7 @@ static int mp3_first_read_stream(unsigned channel) {
 		/* RIFF header */
 		unsigned char id[4];
 
-		os_log(("mixer: skip RIFF header\n"));
+		log_std(("mixer: skip RIFF header\n"));
 
 		if (mp3_skip(channel, 12, data, &pos, &run) != 0)
 			return -1;
@@ -620,7 +620,7 @@ static int mp3_first_read_stream(unsigned channel) {
 		unsigned size = (unsigned)data[9] | (((unsigned)data[8]) << 7) | (((unsigned)data[7]) << 14) | (((unsigned)data[6]) << 21);
 		size += 10;
 
-		os_log(("mixer: skip ID3 header %d\n",size));
+		log_std(("mixer: skip ID3 header %d\n",size));
 
 		if (mp3_skip(channel, size, data, &pos, &run) != 0)
 			return -1;
@@ -810,7 +810,7 @@ int mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffe
 	assert(nchannel <= MIXER_CHANNEL_MAX);
 	assert(ndivider > 0);
 
-	os_log(("mixer: mixer_init(rate:%d,nchannel:%d,ndivider:%d,buffer:%g,latency:%g)\n",rate,nchannel,ndivider,buffer_time,latency_time));
+	log_std(("mixer: mixer_init(rate:%d,nchannel:%d,ndivider:%d,buffer:%g,latency:%g)\n",rate,nchannel,ndivider,buffer_time,latency_time));
 
 	for(i=0;i<MIXER_CHANNEL_MAX;++i)
 		mixer_map[i].type = mixer_none;
@@ -849,7 +849,7 @@ err:
 void mixer_done(void) {
 	unsigned i;
 
-	os_log(("mixer: mixer_done()\n"));
+	log_std(("mixer: mixer_done()\n"));
 
 	for(i=0;i<MIXER_CHANNEL_MAX;++i)
 		mixer_channel_abort(i);

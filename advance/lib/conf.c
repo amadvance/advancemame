@@ -1014,7 +1014,7 @@ static conf_error input_value_insert(struct conf_context* context, struct conf_i
 			return 0;
 		}
 
-		if (input->ignore_unknow_flag) {
+		if (input->ignore_unknown_flag) {
 			/* ignore */
 			free(own_section);
 			free(own_tag);
@@ -1024,7 +1024,7 @@ static conf_error input_value_insert(struct conf_context* context, struct conf_i
 			return 0;
 		}
 
-		error(error_context, conf_error_unknow, input->file_in, own_tag, 0, "Unknow option '%s' in file '%s'", own_tag, input->file_in);
+		error(error_context, conf_error_unknown, input->file_in, own_tag, 0, "Unknown option '%s' in file '%s'", own_tag, input->file_in);
 		goto err_free;
 	} else {
 		free(own_tag);
@@ -1299,7 +1299,7 @@ err:
 	return -1;
 }
 
-conf_error conf_input_file_load_adv(struct conf_context* context, int priority, const char* file_in, const char* file_out, conf_bool ignore_unknow_flag, conf_bool multi_line, const struct conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context) {
+conf_error conf_input_file_load_adv(struct conf_context* context, int priority, const char* file_in, const char* file_out, conf_bool ignore_unknown_flag, conf_bool multi_line, const struct conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context) {
 	struct conf_input* input;
 
 	conf_bool is_file_in_exist = file_in != 0 && access(file_in,F_OK) == 0;
@@ -1311,7 +1311,7 @@ conf_error conf_input_file_load_adv(struct conf_context* context, int priority, 
 	input = input_alloc();
 
 	input->priority = priority;
-	input->ignore_unknow_flag = ignore_unknow_flag;
+	input->ignore_unknown_flag = ignore_unknown_flag;
 
 	if (file_in)
 		input->file_in = strdup(file_in);
@@ -1360,7 +1360,7 @@ conf_error conf_input_args_load(struct conf_context* context, int priority, cons
 	struct conf_input* input = input_alloc();
 
 	input->priority = priority;
-	input->ignore_unknow_flag = 1;
+	input->ignore_unknown_flag = 1;
 	input->file_in = strdup("commandline");
 	input->file_out = 0;
 

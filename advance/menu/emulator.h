@@ -137,21 +137,42 @@ public:
 	virtual void update(const game& g) const;
 };
 
-class mame : public mame_like {
+class mame_emu : public mame_like {
 	void load_game_cfg_dir(const game_set& gar, const std::string& dir) const;
 	bool load_game_coin(const std::string& file, unsigned& total_coin) const;
 public:
-	mame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	mame_emu(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, bool ignore_error) const;
-	virtual bool load_cfg(const game_set& gar);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar);
+};
 
+class dmame : public mame_emu {
+public:
+	dmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+
+	virtual bool load_cfg(const game_set& gar);
 	virtual std::string type_get() const;
 };
 
-class advmame : public mame {
+class wmame : public mame_emu {
+public:
+	wmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+
+	virtual bool load_cfg(const game_set& gar);
+	virtual std::string type_get() const;
+};
+
+class xmame : public mame_emu {
+public:
+	xmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+
+	virtual bool load_cfg(const game_set& gar);
+	virtual std::string type_get() const;
+};
+
+class advmame : public mame_emu {
 public:
 	advmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -159,7 +180,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class advpac : public mame {
+class advpac : public mame_emu {
 public:
 	advpac(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -190,14 +211,14 @@ public:
 	virtual std::string type_get() const;
 };
 
-class mess : public mame_like {
+class dmess : public mame_like {
 	static std::string image_name_get(const std::string& snap_create, const std::string& name);
 
 	void scan_software_by_sys(game_container& gac, const std::string& software, const std::string& parent);
 	void scan_software(game_container& gac, const game_set& gar);
 	void scan_alias(game_set& gar, game_container& gac, const std::string& cfg);
 public:
-	mess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	dmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar);
@@ -207,9 +228,9 @@ public:
 	virtual std::string type_get() const;
 };
 
-class raine : public emulator {
+class draine : public emulator {
 public:
-	raine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar);

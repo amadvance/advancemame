@@ -1,5 +1,13 @@
 RELEASE NOTES FOR AdvanceMENU
 
+AdvanceMENU 2.0.0
+
+The emulator type `mame' is now used for the Windows MAME.
+The DOS MAME now requires the `dmame' emulator type.
+The DOS MESS now requires the `dmess' emulator type.
+The DOS Raine now requires the `draine' emulator type.
+
+
 AdvanceMENU 1.17.4
 
 The option `preview_aspect' is removed. It's automatically

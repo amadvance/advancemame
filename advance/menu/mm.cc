@@ -37,7 +37,7 @@ using namespace std;
 
 int run_sub(config_state& rs) {
 
-	os_log(("menu: text_init4 call\n"));
+	log_std(("menu: text_init4 call\n"));
 
 	if (!text_init4(rs.video_font_path,rs.video_orientation_effective)) {
 		return TEXT_KEY_ESC;
@@ -47,7 +47,7 @@ int run_sub(config_state& rs) {
 	bool is_run = false;
 	int key = 0;
 
-	os_log(("menu: menu start\n"));
+	log_std(("menu: menu start\n"));
 
 	while (!done) {
 		key = run_menu(rs,(rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0);
@@ -128,29 +128,29 @@ int run_sub(config_state& rs) {
 			run_runinfo(rs);
 	}
 
-	os_log(("menu: menu stop\n"));
+	log_std(("menu: menu stop\n"));
 
-	os_log(("menu: text_done4 call\n"));
+	log_std(("menu: text_done4 call\n"));
 	text_done4();
 
 	return key;
 }
 
 int run_main(config_state& rs, bool is_first) {
-	os_log(("menu: text_init3 call\n"));
+	log_std(("menu: text_init3 call\n"));
 
 	if (!text_init3(rs.video_gamma, rs.video_brightness,
 		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
 		rs.preview_fast, rs.alpha_mode)) {
-		cerr << "Error setting the video mode" << endl;
+		target_err("Error setting the video mode\n");
 		return TEXT_KEY_ESC;
 	}
 
-	os_log(("menu: play_init call\n"));
+	log_std(("menu: play_init call\n"));
 	if (!play_init()) {
 		text_done3(true);
-		cerr << "Error initializing the sound device." << endl;
-		cerr << "Try with the option '-device_sound none'." << endl;
+		target_err("Error initializing the sound device.\n");
+		target_err("Try with the option '-device_sound none'.\n");
 		return TEXT_KEY_ESC;
 	}
 
@@ -169,7 +169,7 @@ int run_main(config_state& rs, bool is_first) {
 	}
 
 	// fill the player buffer
-	os_log(("menu: play_fill call\n"));
+	log_std(("menu: play_fill call\n"));
 	play_fill();
 
 	bool done = false;
@@ -177,7 +177,7 @@ int run_main(config_state& rs, bool is_first) {
 	bool is_run = false;
 	int key = 0;
 
-	os_log(("menu: menu start\n"));
+	log_std(("menu: menu start\n"));
 
 	while (!done) {
 		key = run_sub(rs);
@@ -217,7 +217,7 @@ int run_main(config_state& rs, bool is_first) {
 		}
 	}
 
-	os_log(("menu: menu stop\n"));
+	log_std(("menu: menu stop\n"));
 
 	if (is_terminate) {
 		play_foreground_effect_end(rs.sound_foreground_end);
@@ -229,17 +229,17 @@ int run_main(config_state& rs, bool is_first) {
 	}
 
 	// wait for the sound end
-	os_log(("menu: wait foreground stop\n"));
+	log_std(("menu: wait foreground stop\n"));
 	play_foreground_wait();
-	os_log(("menu: background stop\n"));
+	log_std(("menu: background stop\n"));
 	play_background_stop(PLAY_PRIORITY_EVENT);
-	os_log(("menu: wait background stop\n"));
+	log_std(("menu: wait background stop\n"));
 	play_background_wait();
 
-	os_log(("menu: play_done call\n"));
+	log_std(("menu: play_done call\n"));
 	play_done();
 
-	os_log(("menu: text_done3 call\n"));
+	log_std(("menu: text_done3 call\n"));
 	text_done3(is_terminate || rs.video_reset_mode);
 
 	return key;
@@ -272,8 +272,8 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 			case TEXT_KEY_RUN_CLONE :
 				if (!rs.current_clone)
 					rs.current_clone = rs.current_game;
-				if (rs.current_clone) {
 
+				if (rs.current_clone) {
 					// save before
 					config_save(rs,config_context);
 
@@ -285,6 +285,9 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 
 					// save after
 					config_save(rs,config_context);
+					
+					// print the messages
+					target_flush();
 				}
 				break;
 		}
@@ -298,16 +301,16 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 
 void video_log_va(const char *text, va_list arg)
 {
-	os_msg_va(text,arg);
+	log_va(text,arg);
 }
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
 	va_list arg;
 	va_start(arg, desc);
-	vfprintf(stderr, desc, arg);
-	fprintf(stderr, "\n");
+	target_err_va(desc, arg);
+	target_err("\n");
 	if (valid)
-		fprintf(stderr, "%s\n", valid);
+		target_err("%s\n", valid);
 	va_end(arg);
 }
 
@@ -380,7 +383,7 @@ int os_main(int argc, char* argv[]) {
 	config_context = conf_init();
 
 	if (os_init(config_context)!=0) {
-		cerr << "Error initializing the OS support" << endl;
+		target_err("Error initializing the OS support\n");
 		goto err_conf;
 	}
 
@@ -390,16 +393,16 @@ int os_main(int argc, char* argv[]) {
 
 #ifdef __MSDOS__
 	/* LEGACY (to be removed) */
-	if (os_config_file_legacy("mm.cfg")!=0 && access(os_config_file_legacy("mm.cfg"),R_OK)==0 && access(os_config_file_home("advmenu.rc"),R_OK)!=0) {
-		if (conf_input_file_load_adv(config_context, 0, os_config_file_legacy("mm.cfg"), os_config_file_home("advmenu.rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
+	if (file_config_file_legacy("mm.cfg")!=0 && access(file_config_file_legacy("mm.cfg"),R_OK)==0 && access(file_config_file_home("advmenu.rc"),R_OK)!=0) {
+		if (conf_input_file_load_adv(config_context, 0, file_config_file_legacy("mm.cfg"), file_config_file_home("advmenu.rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
 			goto err_init;
 		conf_sort(config_context);
 		conf_uncomment(config_context);
 		if (conf_save(config_context,1) != 0) {
-			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' created from '" <<  os_config_file_legacy("mm.cfg") << "'" << endl;
+		target_out("Configuration file '%s' created from '%s'\n", file_config_file_home("advmenu.rc"), file_config_file_legacy("mm.cfg"));
 		goto done_init;
 	}
 #endif
@@ -424,41 +427,41 @@ int os_main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[i],"logsync")) {
 			opt_logsync = true;
 		} else {
-			cerr << "Unknow option " << argv[i] << endl;
+			target_err("Unknown option %s\n",argv[i]);
 			goto err_init;
 		}
 	}
 
 	if (opt_log || opt_logsync) {
 		remove("advmenu.log");
-		if (os_msg_init("advmenu.log", opt_logsync) != 0) {
-			cerr << "Error opening the log file 'advmenu.log'" << endl;
+		if (log_init("advmenu.log", opt_logsync) != 0) {
+			target_err("Error opening the log file 'advmenu.log'\n");
 			goto err_init;
 		}
 	}
 
-	os_log(("menu: %s %s\n",__DATE__,__TIME__));
+	log_std(("menu: %s %s\n",__DATE__,__TIME__));
 
-	if (os_config_file_root("advmenu.rc") != 0)
-		if (conf_input_file_load_adv(config_context, 2, os_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_root("advmenu.rc") != 0)
+		if (conf_input_file_load_adv(config_context, 2, file_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 			goto err_init;
 
-	if (conf_input_file_load_adv(config_context, 0, os_config_file_home("advmenu.rc"), os_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(config_context, 0, file_config_file_home("advmenu.rc"), file_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_init;
 
 	section_map[0] = "";
 	conf_section_set(config_context, section_map, 1);
 
-	if (!(os_config_file_root("advmenu.rc") != 0 && access(os_config_file_root("advmenu.rc"),R_OK)==0)
-		&& !(os_config_file_home("advmenu.rc") != 0 && access(os_config_file_home("advmenu.rc"),R_OK)==0)) {
+	if (!(file_config_file_root("advmenu.rc") != 0 && access(file_config_file_root("advmenu.rc"),R_OK)==0)
+		&& !(file_config_file_home("advmenu.rc") != 0 && access(file_config_file_home("advmenu.rc"),R_OK)==0)) {
 		config_default(config_context);
 		conf_set_default_if_missing(config_context,"");
 		conf_sort(config_context);
 		if (conf_save(config_context,1) != 0) {
-			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' created with all the default options" << endl;
+		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
@@ -466,20 +469,20 @@ int os_main(int argc, char* argv[]) {
 		config_default(config_context);
 		conf_set_default_if_missing(config_context,"");
 		if (conf_save(config_context,1) != 0) {
-			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			target_err("Error writing the configuration file '%s'\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' updated with all the default options" << endl;
+		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
 	if (opt_remove) {
 		conf_remove_if_default(config_context,"");
 		if (conf_save(config_context,1) != 0) {
-			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' updated with all the default options removed" << endl;
+		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
@@ -493,12 +496,18 @@ int os_main(int argc, char* argv[]) {
 		goto err_init;
 	}
 
-	os_inner_init();
+	if (os_inner_init("AdvanceMENU") != 0) {
+		target_err("Error initializing the os support\n");
+		goto err_init;
+	}
 
 	if (!text_init2(rs.video_size, rs.video_depth, rs.sound_foreground_key)) {
-		cerr << "Error initializing the video device" << endl;
+		target_err("Error initializing the video device\n");
 		goto err_inner_init;
 	}
+	
+	// print the messages after setting the video
+	target_flush();
 
 	// set the modifiable data
 	config_restore_load(rs);
@@ -510,23 +519,26 @@ int os_main(int argc, char* argv[]) {
 		config_restore_save(rs);
 	}
 
-	text_done2();
+	// print the messages before restoring the video
+	target_flush();
 
+	text_done2();
+	
 	// save all the data
 	config_save(rs,config_context);
 
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 
 	os_inner_done();
-
+	
 done_init:
 	text_done();
 	os_done();
 
 	if (key == TEXT_KEY_OFF)
-		os_apm_shutdown();
+		target_apm_shutdown();
 
 	conf_done(config_context);
 

@@ -48,8 +48,13 @@ void* __wrap_malloc(size_t size) {
 	void* p;
 
 	p = __real_malloc(size);
-	if (!p)
+	if (!p) {
+#ifdef WIN32
+		raise(SIGSEGV);
+#else
 		raise(SIGUSR1);
+#endif
+	}
 
 	return p;
 }

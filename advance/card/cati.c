@@ -461,7 +461,7 @@ int ati_detect(void)
 	if (Clock_Type < MACH64_CLOCK_TYPE_MAX)
 		card_log("ati: type of MACH64 clk: %s (%d)\n", mach64ClockTypeTable[Clock_Type], Clock_Type);
 	else
-		card_log("ati: type of MACH64 clk: Unknow (%d)\n", Clock_Type);
+		card_log("ati: type of MACH64 clk: Unknown (%d)\n", Clock_Type);
 
 	card_log("ati: MACH64 ref Freq:%d\n", RefFreq);
 	card_log("ati: MACH64 ref Div:%d\n", RefDivider);

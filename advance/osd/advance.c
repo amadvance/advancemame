@@ -50,7 +50,7 @@ struct advance_context CONTEXT;
 
 void video_log_va(const char *text, va_list arg)
 {
-	os_msg_va(text,arg);
+	log_va(text,arg);
 }
 
 /***************************************************************************/
@@ -187,7 +187,7 @@ static const mame_game* select_game(const char* gamename) {
 
 	/* get the game */
 	if (!gamename) {
-		fprintf(stderr,"You must specify a game name. For example: mame pacman\n");
+		target_err("You must specify a game name. For example: mame pacman\n");
 		return 0;
 	}
 
@@ -200,7 +200,7 @@ static const mame_game* select_game(const char* gamename) {
 
 	game_map = malloc(game_count*sizeof(struct game_fuzzy));
 
-	fprintf(stderr,"Game \"%s\" not supported\n", gamename);
+	target_err("Game \"%s\" not supported\n", gamename);
 
 	limit = (strlen(gamename) - 6) * FUZZY_UNIT_A;
 	if (limit < 4*FUZZY_UNIT_A)
@@ -222,11 +222,11 @@ static const mame_game* select_game(const char* gamename) {
 	qsort(game_map,game_count,sizeof(struct game_fuzzy),game_fuzzy_cmp);
 
 	if (game_map[0].fuzzy < limit) {
-		fprintf(stderr,"\nSimilar are:\n");
+		target_err("\nSimilar are:\n");
 		for (i=0;i<15 && i<game_count;++i) {
 			if (game_map[i].fuzzy < limit) {
 				const mame_game* game = mame_game_at(game_map[i].index);
-				printf("%10s %s\n",mame_game_name(game),mame_game_description(game));
+				target_err("%10s %s\n",mame_game_name(game),mame_game_description(game));
 			}
 		}
 	}
@@ -500,10 +500,10 @@ static struct conf_conv STANDARD[] = {
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
 	va_list arg;
 	va_start(arg, desc);
-	vfprintf(stderr, desc, arg);
-	fprintf(stderr, "\n");
+	target_err_va(desc, arg);
+	target_err("\n");
 	if (valid)
-		fprintf(stderr, "%s\n", valid);
+		target_err("%s\n", valid);
 	va_end(arg);
 }
 
@@ -541,7 +541,7 @@ int os_main(int argc, char* argv[])
 	cfg_context = conf_init();
 
 	if (os_init(cfg_context)!=0) {
-		fprintf(stderr,"Error initializing the OS support\n");
+		target_err("Error initializing the OS support\n");
 		goto err_conf;
 	}
 
@@ -562,22 +562,22 @@ int os_main(int argc, char* argv[])
 
 #ifdef __MSDOS__
 	/* LEGACY (to be removed) */
-	if (os_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg")!=0 && access(os_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"),R_OK)==0 && access(os_config_file_home(ADVANCE_NAME ".rc"),R_OK)!=0) {
-		if (conf_input_file_load_adv(cfg_context, 0, os_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"), os_config_file_home(ADVANCE_NAME ".rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
+	if (file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg")!=0 && access(file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"),R_OK)==0 && access(file_config_file_home(ADVANCE_NAME ".rc"),R_OK)!=0) {
+		if (conf_input_file_load_adv(cfg_context, 0, file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"), file_config_file_home(ADVANCE_NAME ".rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
 			goto err_os;
 		conf_sort(cfg_context);
 		conf_uncomment(cfg_context);
 		conf_save(cfg_context,1);
-		printf("Configuration file '%s' created from '%s'\n", os_config_file_home(ADVANCE_NAME ".rc"), os_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"));
+		target_out("Configuration file '%s' created from '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"));
 		goto done_os;
 	}
 #endif
 
-	if (os_config_file_root(ADVANCE_NAME ".rc")!=0 && access(os_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
-		if (conf_input_file_load_adv(cfg_context, 2, os_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_root(ADVANCE_NAME ".rc")!=0 && access(file_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
+		if (conf_input_file_load_adv(cfg_context, 2, file_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 			goto err_os;
 
-	if (conf_input_file_load_adv(cfg_context, 0, os_config_file_home(ADVANCE_NAME ".rc"), os_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(cfg_context, 0, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
 
 	if (conf_input_args_load(cfg_context, 1, "", &argc, argv, error_callback, 0) != 0)
@@ -599,12 +599,12 @@ int os_main(int argc, char* argv[])
 			opt_info = 1;
 		} else if (argv[i][0]!='-') {
 			if (opt_gamename) {
-				fprintf(stderr, "Multiple game name definition, '%s' and '%s'\n", opt_gamename, argv[i]);
+				target_err("Multiple game name definition, '%s' and '%s'\n", opt_gamename, argv[i]);
 				goto err_os;
 			}
 			opt_gamename = argv[i];
 		} else {
-			fprintf(stderr, "Unknow command line option '%s'\n",argv[i]);
+			target_err("Unknown command line option '%s'\n",argv[i]);
 			goto err_os;
 		}
 	}
@@ -614,31 +614,31 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
-	if (!(os_config_file_root(ADVANCE_NAME ".rc") != 0 && access(os_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
-		&& !(os_config_file_home(ADVANCE_NAME ".rc") != 0 && access(os_config_file_home(ADVANCE_NAME ".rc"),R_OK)==0)) {
+	if (!(file_config_file_root(ADVANCE_NAME ".rc") != 0 && access(file_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
+		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"),R_OK)==0)) {
 		conf_set_default_if_missing(cfg_context,"");
 		conf_sort(cfg_context);
 		conf_save(cfg_context,1);
-		printf("Configuration file '%s' created with all the default options\n", os_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_default) {
 		conf_set_default_if_missing(cfg_context,"");
 		conf_save(cfg_context,1);
-		printf("Configuration file '%s' updated with all the default options\n", os_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_remove) {
 		conf_remove_if_default(cfg_context,"");
 		conf_save(cfg_context,1);
-		printf("Configuration file '%s' updated with all the default options removed\n", os_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (!opt_gamename) {
-		fprintf(stderr, "Game not specified\n");
+		target_err("Game not specified\n");
 		goto err_os;
 	}
 
@@ -658,13 +658,13 @@ int os_main(int argc, char* argv[])
 	conf_section_set(cfg_context, section_map, 4);
 
 	if (opt_log || opt_logsync) {
-		if (os_msg_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
-			fprintf(stderr,"Error opening the log file '" ADVANCE_NAME ".log'\n");
+		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
+			target_err("Error opening the log file '" ADVANCE_NAME ".log'\n");
 			goto err_os;
 		}
 	}
 
-	os_log(("advance: *_load()\n"));
+	log_std(("advance: *_load()\n"));
 
 	/* load all the options */
 	if (mame_config_load(cfg_context,&option) != 0)
@@ -683,19 +683,19 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 
 	if (!option.quiet_flag) {
-		fprintf(stderr, ADVANCE_COPY);
+		target_nfo(ADVANCE_COPY);
 #ifdef __MSDOS__
-		fprintf(stderr,"%ld [Mb] free physical memory, %ld [Mb] free virtual memory\n", _go32_dpmi_remaining_physical_memory()/(1024*1024), _go32_dpmi_remaining_virtual_memory()/(1024*1024));
+		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", _go32_dpmi_remaining_physical_memory()/(1024*1024), _go32_dpmi_remaining_virtual_memory()/(1024*1024));
 #endif
 	}
 
-	os_log(("advance: os_inner_init()\n"));
+	log_std(("advance: os_inner_init()\n"));
 
-	if (os_inner_init() != 0) {
+	if (os_inner_init("AdvanceMAME") != 0) {
 		goto err_os;
 	}
 
-	os_log(("advance: *_inner_init()\n"));
+	log_std(("advance: *_inner_init()\n"));
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
@@ -708,11 +708,11 @@ int os_main(int argc, char* argv[])
 	if (hardware_script_inner_init()!=0)
 		goto err_os_inner;
 
-	os_log(("advance: mame_game_run()\n"));
+	log_std(("advance: mame_game_run()\n"));
 
 	r = mame_game_run(context,&option);
 
-	os_log(("advance: *_inner_done()\n"));
+	log_std(("advance: *_inner_done()\n"));
 
 	hardware_script_inner_done();
 	advance_safequit_inner_done();
@@ -720,11 +720,11 @@ int os_main(int argc, char* argv[])
 	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
 
-	os_log(("advance: os_inner_done()\n"));
+	log_std(("advance: os_inner_done()\n"));
 
 	os_inner_done();
 
-	os_log(("advance: *_done()\n"));
+	log_std(("advance: *_done()\n"));
 
 	hardware_script_done();
 	advance_fileio_done();
@@ -734,26 +734,26 @@ int os_main(int argc, char* argv[])
 	advance_video_done(&context->video);
 	mame_done(context);
 
-	os_log(("advance: os_msg_done()\n"));
+	log_std(("advance: os_msg_done()\n"));
 
 	if (opt_log || opt_logsync) {
-		os_msg_done();
+		log_done();
 	}
 
-	os_log(("advance: os_done()\n"));
+	log_std(("advance: os_done()\n"));
 
 	os_done();
 
-	os_log(("advance: conf_save()\n"));
+	log_std(("advance: conf_save()\n"));
 
 	/* save the configuration only if modified */
 	conf_save(cfg_context,0);
 
-	os_log(("advance: conf_done()\n"));
+	log_std(("advance: conf_done()\n"));
 
 	conf_done(cfg_context);
 
-	os_log(("advance: malloc_done()\n"));
+	log_std(("advance: malloc_done()\n"));
 
 #ifndef NDEBUG
 	{

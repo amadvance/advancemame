@@ -64,6 +64,9 @@ video_error sdl_palette8_set(const video_color* palette, unsigned start, unsigne
 video_error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode);
 video_error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b);
+void sdl_default(void);
+void sdl_reg(struct conf_context* context);
+video_error sdl_load(struct conf_context* context);
 
 extern video_driver video_sdl_driver;
 

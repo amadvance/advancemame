@@ -24,7 +24,6 @@
 #include <sstream>
 
 #include <dirent.h>
-#include <unistd.h>
 
 using namespace std;
 
@@ -108,19 +107,19 @@ static struct conf_enum_int OPTION_DEPTH[] = {
 };
 
 static void config_error_la(const string& line, const string& arg) {
-	cerr << "Invalid argument '" << arg <<  "' at line '" << line << "'" << endl;
+	target_err("Invalid argument '%s' at line '%s'\n", arg.c_str(), line.c_str());
 }
 
 static void config_error_oa(const string& opt, const string& arg) {
-	cerr << "Invalid argument '" << arg <<  "' at option '" << opt << "'" << endl;
+	target_err("Invalid argument '%s' at option '%s'\n", arg.c_str(), opt.c_str());
 }
 
 static void config_error_a(const string& arg) {
-	cerr << "Invalid argument '" << arg <<  "'" << endl;
+	target_err("Invalid argument '%s'\n", arg.c_str());
 }
 
 static void config_error_o(const string& opt) {
-	cerr << "Invalid option '" << opt <<  "'" << endl;
+	target_err("Invalid option '%s'\n", opt.c_str());
 }
 
 static bool config_import(const string& s, string& a0) {
@@ -256,7 +255,7 @@ static bool config_load_background_dir(const string& dir, path_container& c) {
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
-		string file = os_import(dd->d_name);
+		string file = file_import(dd->d_name);
 		if (file_ext(file) == ".mp3" || file_ext(file) == ".wav") {
 			c.insert( c.end(), slash_add(dir) + file);
 		}
@@ -384,11 +383,15 @@ static bool config_load_iterator_emu(struct conf_context* config_context, const 
 		}
 		emulator* e;
 		if (a1 == "mame") {
-			e = new mame(a0,a2,a3);
-		} else if (a1 == "mess") {
-			e = new mess(a0,a2,a3);
-		} else if (a1 == "raine") {
-			e = new raine(a0,a2,a3);
+			e = new wmame(a0,a2,a3);
+		} else if (a1 == "dmame") {
+			e = new dmame(a0,a2,a3);
+		} else if (a1 == "xmame") {
+			e = new xmame(a0,a2,a3);
+		} else if (a1 == "dmess") {
+			e = new dmess(a0,a2,a3);
+		} else if (a1 == "draine") {
+			e = new draine(a0,a2,a3);
 		} else if (a1 == "generic") {
 			e = new generic(a0,a2,a3);
 		} else if (a1 == "advmame") {
@@ -466,7 +469,7 @@ static bool config_load_iterator_game(struct conf_context* config_context, const
 			type = CATEGORY_UNDEFINED;
 
 		if (!config_load_game(rs,game,group,type,time,coin,desc)) {
-			cerr << "warning: ignoring info for game " << game << endl;
+			target_err("warning: ignoring info for game %s\n", game.c_str());
 		}
 
 		conf_iterator_next(&i);
@@ -637,9 +640,9 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 
 	// print the copyright message before other messages
 	if (!rs.quiet) {
-		cerr << "AdvanceMENU - Copyright (C) 1999-2002 by Andrea Mazzoleni" << endl;
+		target_nfo("AdvanceMENU - Copyright (C) 1999-2002 by Andrea Mazzoleni\n");
 #ifdef __MSDOS__
-		cerr << _go32_dpmi_remaining_physical_memory()/(1024*1024) << " [Mb] free physical memory, " << _go32_dpmi_remaining_virtual_memory()/(1024*1024) << " [Mb] free virtual memory" << endl;
+		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", (unsigned)_go32_dpmi_remaining_physical_memory()/(1024*1024), (unsigned)_go32_dpmi_remaining_virtual_memory()/(1024*1024));
 #endif
 	}
 
@@ -648,18 +651,19 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 		if ((*i)->is_ready())
 			rs.emu_active.insert(rs.emu_active.end(),*i);
 		else
-			cerr << "warning: emulator " << (*i)->user_exe_path_get() << " not found" << endl;
+			target_err("warning: emulator %s not found\n", (*i)->user_exe_path_get().c_str());
 	}
 
 	if (rs.emu_active.size() == 0) {
-		cerr << "No emulator found. Add an `emulator' option in your configuration file." << endl;
+		target_err("None emulator found. Add an `emulator' option in your configuration file.\n");
+		target_err("These options are documented in the `advmenu.txt' file.\n");
 		return false;
 	}
 
 	// load the game definitions
 	for(pemulator_container::iterator i=rs.emu_active.begin();i!=rs.emu_active.end();++i) {
 		if (opt_verbose)
-			cerr << "log: load game for " << (*i)->user_name_get() << endl;
+			target_nfo("log: load game for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_game(rs.gar)) {
 			return false;
 		}
@@ -668,7 +672,7 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	// load the emulator configurations
 	for(pemulator_container::iterator i=rs.emu_active.begin();i!=rs.emu_active.end();++i) {
 		if (opt_verbose)
-			cerr << "log: load cfg for " << (*i)->user_name_get() << endl;
+			target_nfo("log: load cfg for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_cfg(rs.gar)) {
 			return false;
 		}
@@ -677,14 +681,14 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	// load the software definitions
 	for(pemulator_container::iterator i=rs.emu_active.begin();i!=rs.emu_active.end();++i) {
 		if (opt_verbose)
-			cerr << "log: load software for " << (*i)->user_name_get() << endl;
+			target_nfo("log: load software for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_software(rs.gar)) {
 			exit(EXIT_FAILURE);
 		}
 	}
 
 	if (opt_verbose)
-		cerr << "log: adjust list" << endl;
+		target_nfo("log: adjust list\n");
 
 	// compile the relations
 	rs.gar.sync_relationships();
@@ -692,12 +696,12 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	// set the previews
 	for(pemulator_container::iterator i=rs.emu_active.begin();i!=rs.emu_active.end();++i) {
 		if (opt_verbose)
-			cerr << "log: load preview for " << (*i)->user_name_get() << endl;
+			target_nfo("log: load preview for %s\n", (*i)->user_name_get().c_str());
 		(*i)->preview_set(rs.gar);
 	}
 
 	if (opt_verbose)
-		cerr << "log: load group and types" << endl;
+		target_nfo("log: load group and types\n");
 
 	// load the group/type informations
 	if (!config_load_iterator_category(config_context,"group",rs.group))
@@ -717,7 +721,7 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 		rs.include_type_orig = rs.type;
 
 	if (opt_verbose)
-		cerr << "log: load games info" << endl;
+		target_nfo("log: load games info\n");
 
 	if (!config_load_iterator_game(config_context,"game",rs))
 		return false;
@@ -735,7 +739,7 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	// load the emulator data
 	for(pemulator_container::iterator i=rs.emu_active.begin();i!=rs.emu_active.end();++i) {
 		if (opt_verbose)
-			cerr << "log: load data for " << (*i)->user_name_get() << endl;
+			target_nfo("log: load data for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_data(rs.gar)) {
 			exit(EXIT_FAILURE);
 		}
@@ -749,7 +753,7 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	}
 	if (rs.desc_import_type == "nms") {
 		if (opt_verbose)
-			cerr << "log: importing from " << rs.desc_import_file << endl;
+			target_nfo("log: importing from %s\n", rs.desc_import_file.c_str());
 		rs.gar.import_nms(rs.desc_import_file,rs.desc_import_sub,&game::auto_description_set);
 	} else if (rs.desc_import_type != "none") {
 		config_error_oa("desc_import", rs.desc_import_type);
@@ -764,11 +768,11 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	}
 	if (rs.type_import_type == "ini") {
 		if (opt_verbose)
-			cerr << "log: importing from " << rs.type_import_file << endl;
+			target_nfo("log: importing from %s\n", rs.type_import_file.c_str());
 		rs.type.import_ini(rs.gar,rs.type_import_file,rs.type_import_section,rs.type_import_sub,&game::auto_type_set,rs.include_type_orig);
 	} else if (rs.type_import_type == "mac") {
 		if (opt_verbose)
-			cerr << "log: importing from " << rs.type_import_file << endl;
+			target_nfo("log: importing from %s\n", rs.type_import_file.c_str());
 		rs.type.import_mac(rs.gar,rs.type_import_file,rs.type_import_section,rs.type_import_sub,&game::auto_type_set,rs.include_type_orig);
 	} else if (rs.type_import_type != "none") {
 		config_error_oa("type_import", rs.type_import_type);
@@ -783,11 +787,11 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	}
 	if (rs.group_import_type == "ini") {
 		if (opt_verbose)
-			cerr << "log: importing from " << rs.group_import_file << endl;
+			target_nfo("log: importing from %s\n", rs.group_import_file.c_str());
 		rs.group.import_ini(rs.gar,rs.group_import_file,rs.group_import_section,rs.group_import_sub,&game::auto_group_set,rs.include_group_orig);
 	} else if (rs.group_import_type == "mac") {
 		if (opt_verbose)
-			cerr << "log: importing from " << rs.group_import_file << endl;
+			target_nfo("log: importing from %s\n", rs.group_import_file.c_str());
 		rs.group.import_mac(rs.gar,rs.group_import_file,rs.group_import_section,rs.group_import_sub,&game::auto_group_set,rs.include_group_orig);
 	} else if (rs.group_import_type != "none") {
 		config_error_oa("group_import", rs.group_import_type);
@@ -795,12 +799,12 @@ bool config_load(config_state& rs, struct conf_context* config_context, bool opt
 	}
 
 	if (opt_verbose)
-		cerr << "log: load background music list" << endl;
+		target_nfo("log: load background music list\n");
 
 	config_load_background_list(rs.sound_background_loop_dir,rs.sound_background);
 
 	if (opt_verbose)
-		cerr << "log: start" << endl;
+		target_nfo("log: start\n");
 
 	return true;
 }
@@ -810,29 +814,56 @@ void config_default(struct conf_context* config_context) {
 
 	conf_iterator_begin(&i, config_context, "emulator");
 	if (conf_iterator_is_end(&i)) {
-#ifdef __MSDOS__
-		if (file_exists("mamedos.exe"))
-			conf_set(config_context,"","emulator", "\"mamedos\" mame \"mamedos.exe\" \"\"");
-		if (file_exists("advmame.exe"))
+		char path[FILE_MAXPATH];
+#if defined(__MSDOS__) || defined(__WIN32__)
+		if (target_search(path,FILE_MAXPATH,"advmame.exe") == 0) {
 			conf_set(config_context,"","emulator", "\"advmame\" advmame \"advmame.exe\" \"\"");
-		if (file_exists("advmess.exe"))
+		}
+		if (target_search(path,FILE_MAXPATH,"advmess.exe") == 0) {
 			conf_set(config_context,"","emulator", "\"advmess\" advmess \"advmess.exe\" \"\"");
-		if (file_exists("advpac.exe"))
+		}
+		if (target_search(path,FILE_MAXPATH,"advpac.exe") == 0) {
 			conf_set(config_context,"","emulator", "\"advpac\" advpac \"advpac.exe\" \"\"");
-		if (file_exists("raine.exe"))
-			conf_set(config_context,"","emulator", "\"raine\" raine \"raine.exe\" \"\"");
-		if (file_exists("snes9x.exe")) {
+		}
+		if (target_search(path,FILE_MAXPATH,"dmame.exe") == 0) {
+			conf_set(config_context,"","emulator", "\"dmame\" dmame \"dmame.exe\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"mame.exe") == 0) {
+			conf_set(config_context,"","emulator", "\"mame\" mame \"mame.exe\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"raine.exe") == 0) {
+			conf_set(config_context,"","emulator", "\"draine\" draine \"raine.exe\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"snes9x.exe") == 0) {
 			conf_set(config_context,"","emulator", "\"snes9x\" generic \"snes9x.exe\" \"%f\"");
 			conf_set(config_context,"","emulator_roms", "\"snes9x\" \"roms\"");
 		}
-		if (file_exists("zsnes.exe")) {
+		if (target_search(path,FILE_MAXPATH,"zsnes.exe") == 0) {
 			conf_set(config_context,"","emulator", "\"zsnes\" generic \"zsnes.exe\" \"-e -m roms\\%f\"");
 			conf_set(config_context,"","emulator_roms", "\"zsnes\" \"roms\"");
 		}
 #else
-		conf_set(config_context,"","emulator","\"advmame\" advmame \"advmame\" \"\"");
-		conf_set(config_context,"","emulator","\"advmess\" advmess \"advmess\" \"\"");
-		conf_set(config_context,"","emulator","\"advpac\" advpac \"advpac\" \"\"");
+		if (target_search(path,FILE_MAXPATH,"advmame") == 0) {
+			conf_set(config_context,"","emulator","\"advmame\" advmame \"advmame\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"advmess") == 0) {
+			conf_set(config_context,"","emulator","\"advmess\" advmess \"advmess\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"advpac") == 0) {
+			conf_set(config_context,"","emulator","\"advpac\" advpac \"advpac\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"xmame") == 0) {
+			conf_set(config_context,"","emulator","\"xmame\" xmame \"xmame\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"xmame.x11") == 0) {
+			conf_set(config_context,"","emulator","\"xmame.x11\" xmame \"xmame.x11\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"xmame.SDL") == 0) {
+			conf_set(config_context,"","emulator","\"xmame.SDL\" xmame \"xmame.SDL\" \"\"");
+		}
+		if (target_search(path,FILE_MAXPATH,"xmame.svgalib") == 0) {
+			conf_set(config_context,"","emulator","\"xmame.svgalib\" xmame \"xmame.svgalib\" \"\"");
+		}
 #endif
 	}
 
@@ -968,7 +999,7 @@ bool config_save(const config_state& rs, struct conf_context* config_context) {
 		return false;
 
 	// prevent data lost if crashing
-	sync();
+	target_sync();
 
 	return true;
 }

@@ -73,7 +73,7 @@ string sort_item_manufacturer(const game& g) {
 
 string sort_item_year(const game& g) {
 	if (!g.year_get().length())
-		return "unknow";
+		return "unknown";
 	else
 		return g.year_get();
 }
@@ -292,10 +292,10 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 	text_put_special(in,x+ident,y,dx - ident,s,color_first,color_in,color);
 }
 
-void draw_menu_empty(int x, int y, int dx, bool selected) {
+void draw_menu_empty(int x, int y, int dx, int dy, bool selected) {
 	int color;
 	color = selected ? COLOR_MENU_HIDDEN_SELECT : COLOR_MENU_HIDDEN;
-	text_clear(x,y,dx,text_font_dy_get(),color >> 4);
+	text_clear(x,y,dx,dy,color >> 4);
 }
 
 void draw_menu_desc(const string& desc, int x, int y, int dx, bool selected) {
@@ -515,7 +515,7 @@ void draw_menu_window(const game_set& gar, const menu_array& gc, struct cell_t* 
 					draw_menu_desc(gc[start]->desc_get(),cell->x,cell->y, cell->dx, start == pos );
 				}
 			} else {
-				draw_menu_empty(cell->x,cell->y, cell->dx, start == pos );
+				draw_menu_empty(cell->x,cell->y, cell->dx, cell->dy, start == pos );
 			}
 			++start;
 			++cell;
@@ -726,12 +726,12 @@ static void run_background_reset(config_state& rs) {
 
 static void run_background_set(config_state& rs, const resource& sound) {
 	if (sound.is_valid()) {
-		os_log(("menu: play game music '%s'\n", sound.path_get().c_str()));
+		log_std(("menu: play game music '%s'\n", sound.path_get().c_str()));
 		play_background_stop(PLAY_PRIORITY_BACKGROUND);
 		play_background_effect(sound,PLAY_PRIORITY_GAME_BACKGROUND,false);
 		rs.current_sound = sound;
 	} else {
-		os_log(("menu: no game music found\n"));
+		log_std(("menu: no game music found\n"));
 	}
 }
 
@@ -740,13 +740,13 @@ static void run_background_idle(config_state& rs) {
 		rs.current_sound = resource();
 		if (rs.sound_background.size() != 0) {
 			string path = file_select_random(rs.sound_background);
-			os_log(("menu: play background music '%s'\n", path.c_str()));
+			log_std(("menu: play background music '%s'\n", path.c_str()));
 			play_background_effect(path,PLAY_PRIORITY_BACKGROUND,false);
 		} else if (rs.sound_background_loop.length()) {
-			os_log(("menu: play background effect '%s'\n", rs.sound_background_loop.c_str()));
+			log_std(("menu: play background effect '%s'\n", rs.sound_background_loop.c_str()));
 			play_background_effect(rs.sound_background_loop,PLAY_PRIORITY_BACKGROUND,true);
 		} else {
-			os_log(("menu: no background effect\n"));
+			log_std(("menu: no background effect\n"));
 		}
 	}
 }
@@ -823,7 +823,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	struct cell_t* backdrop_map; // map of the backdrop positions
 	struct cell_t* backdrop_map_bis; // alternate map of the backdrop positions
 
-	os_log(("menu: user begin\n"));
+	log_std(("menu: user begin\n"));
 
 	// standard bars
 	bar_top_x = 0;
@@ -1387,7 +1387,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	// clear the used part
 	text_clear(0,0,bar_left_dx + win_dx + bar_right_dx,bar_top_dy + win_dy + bar_bottom_dy,COLOR_MENU_GRID >> 4);
 
-	os_log(("menu: user end\n"));
+	log_std(("menu: user end\n"));
 
 	while (!done) {
 		if (name_dy)
@@ -1468,15 +1468,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		text_update(rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed);
 
-		os_log(("menu: wait begin\n"));
+		log_std(("menu: wait begin\n"));
 
 		run_background_wait(rs, sound);
 
-		os_log(("menu: wait end\n"));
+		log_std(("menu: wait end\n"));
 
 		key = text_getkey(false);
 
-		os_log(("menu: key %d\n",key));
+		log_std(("menu: key %d\n",key));
 
 		string oldfast = rs.fast;
 		rs.fast.erase();
@@ -1690,7 +1690,7 @@ int run_menu_idle_off() {
 
 	text_clear();
 
-	os_apm_standby();
+	target_apm_standby();
 
 	while (!done) {
 
@@ -1702,7 +1702,7 @@ int run_menu_idle_off() {
 			done = true;
 	}
 
-	os_apm_wakeup();
+	target_apm_wakeup();
 
 	return key;
 }
@@ -1710,7 +1710,7 @@ int run_menu_idle_off() {
 int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* category_func, bool flipxy) {
 	menu_array gc;
 
-	os_log(("menu: insert begin\n"));
+	log_std(("menu: insert begin\n"));
 
 	bool list_mode = rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed;
 	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_coin) {
@@ -1740,7 +1740,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 	}
 
-	os_log(("menu: insert end\n"));
+	log_std(("menu: insert end\n"));
 
 	bool done = false;
 	int key = 0;
@@ -1783,7 +1783,7 @@ int run_menu(config_state& rs, bool flipxy) {
 	pgame_sort_set* psc;
 	sort_item_func* category_func;
 
-	os_log(("menu: sort begin\n"));
+	log_std(("menu: sort begin\n"));
 
 	// sort
 	switch (rs.sort_effective) {
@@ -1953,7 +1953,7 @@ int run_menu(config_state& rs, bool flipxy) {
 	if (!rs.mode_mask)
 		rs.mode_mask = mode_text;
 
-	os_log(("menu: sort end\n"));
+	log_std(("menu: sort end\n"));
 
 	bool done = false;
 	int key = 0;
@@ -2523,14 +2523,11 @@ void run_submenu(config_state& rs) {
 void run_help() {
 	text_clear(0,0,text_dx_get(),text_dy_get(),COLOR_HELP_NORMAL >> 4);
 	text_clear(0,0,text_dx_get(),text_font_dy_get(),COLOR_MENU_BAR >> 4);
-	text_put(2*text_font_dx_get(),0,"HELP",COLOR_MENU_BAR);
+	text_put(2*text_font_dx_get(),0,"HELP",COLOR_MENU_BAR_TAG);
 
 	int y = 2*text_font_dy_get();
 	int xt = 1*text_font_dx_get();
 	int xd = 8*text_font_dx_get();
-	text_put(xt,y,"F1",COLOR_HELP_TAG);
-	text_put(xd,y,"Help screen",COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
 	text_put(xt,y,"TILDE",COLOR_HELP_TAG);
 	text_put(xd,y,"Main menu",COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
@@ -2544,10 +2541,7 @@ void run_help() {
 	text_put(xd,y,"Change the menu mode",COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
 	text_put(xt,y,"ESC",COLOR_HELP_TAG);
-	text_put(xd,y,"Exit",COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-	text_put(xt,y,"CTRL+ESC",COLOR_HELP_TAG);
-	text_put(xd,y,"Shutdown",COLOR_HELP_NORMAL);
+	text_put(xd,y,"Exit (CTRL+ESC to shutdown)",COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
 	text_put(xt,y,"F2",COLOR_HELP_TAG);
 	text_put(xd,y,"Include/Exclude games by group",COLOR_HELP_NORMAL);
@@ -2564,11 +2558,6 @@ void run_help() {
 	text_put(xt,y,"F6",COLOR_HELP_TAG);
 	text_put(xd,y,"Select the emulator",COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-#if 0
-	text_put(xt,y,"F7",COLOR_HELP_TAG);
-	text_put(xd,y,"Configuration",COLOR_HELP_NORMAL);
-	y += text_font_dy_get();
-#endif
 	text_put(xt,y,"F8",COLOR_HELP_TAG);
 	text_put(xd,y,"Commands",COLOR_HELP_NORMAL);
 	y += text_font_dy_get();

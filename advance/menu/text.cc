@@ -215,10 +215,10 @@ static bool text_joystick_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_JOY[i].name) {
-		printf("Invalid argument '%s' for option 'device_joystick'\n",s);
-		printf("Valid values are:\n");
+		target_err("Invalid argument '%s' for option 'device_joystick'\n",s);
+		target_err("Valid values are:\n");
 		for (i=0;OS_JOY[i].name;++i) {
-			printf("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
+			target_err("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
 		}
 		return false;
 	}
@@ -298,10 +298,10 @@ static bool text_key_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_KEY[i].name) {
-		printf("Invalid argument '%s' for option 'device_keyboard'\n",s);
-		printf("Valid values are:\n");
+		target_err("Invalid argument '%s' for option 'device_keyboard'\n",s);
+		target_err("Valid values are:\n");
 		for (i=0;OS_KEY[i].name;++i) {
-			printf("%8s %s\n", OS_KEY[i].name, OS_KEY[i].desc);
+			target_err("%8s %s\n", OS_KEY[i].name, OS_KEY[i].desc);
 		}
 		return false;
 	}
@@ -351,10 +351,10 @@ static bool text_mouse_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_MOUSE[i].name) {
-		printf("Invalid argument '%s' for option 'device_mouse'\n",s);
-		printf("Valid values are:\n");
+		target_err("Invalid argument '%s' for option 'device_mouse'\n",s);
+		target_err("Valid values are:\n");
 		for (i=0;OS_MOUSE[i].name;++i) {
-			printf("%8s %s\n", OS_MOUSE[i].name, OS_MOUSE[i].desc);
+			target_err("%8s %s\n", OS_MOUSE[i].name, OS_MOUSE[i].desc);
 		}
 		return false;
 	}
@@ -457,13 +457,13 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 			// check the clocks only if the driver is programmable
 			if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 				if (!crtc_clock_check(&text_monitor,crtc)) {
-					cerr << "The selected mode '" << DEFAULT_GRAPH_MODE << "' is out of your monitor capabilities" << endl;
+					target_err("The selected mode '%s' is out of your monitor capabilities\n", DEFAULT_GRAPH_MODE);
 					return false;
 				}
 			}
 
 			if (video_mode_generate(&text_current_mode,crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
-				cerr << "The selected mode '" << DEFAULT_GRAPH_MODE << "' is out of your video board capabilities" << endl;
+				target_err("The selected mode '%s' is out of your video board capabilities\n", DEFAULT_GRAPH_MODE);
 				return false;
 			}
 
@@ -582,7 +582,7 @@ bool text_load(struct conf_context* config_context) {
 
 	err = generate_interpolate_load(config_context, &text_interpolate);
 	if (err<0) {
-		cerr << video_error_description_get() << endl;
+		target_err("%s\n", video_error_description_get());
 		return false;
 	}
 	if (err==0) {
@@ -594,7 +594,7 @@ bool text_load(struct conf_context* config_context) {
 
 	err = monitor_load(config_context,&text_monitor);
 	if (err<0) {
-		cerr << video_error_description_get() << endl;
+		target_err("%s\n", video_error_description_get());
 		return false;
 	}
 	if (err==0) {
@@ -607,13 +607,13 @@ bool text_load(struct conf_context* config_context) {
 
 	err = video_load(config_context, "");
 	if (err != 0) {
-		cerr << video_error_description_get() << endl;
+		target_err("%s\n", video_error_description_get());
 		return false;
 	}
 
 	err = video_crtc_container_load(config_context,&text_modelines);
 	if (err!=0) {
-		cerr << video_error_description_get() << endl;
+		target_err("%s\n", video_error_description_get());
 		return false;
 	}
 
@@ -685,7 +685,7 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	}
 
 	if (!mode_found) {
-		cerr << "No video modes available" << endl;
+		target_err("No video modes available\n");
 		goto out_video;
 	}
 
@@ -731,7 +731,7 @@ bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_
 
 	if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
 		palette_set(0,0,0);
-
+		
 	return true;
 
 out_joy:
@@ -751,7 +751,11 @@ void text_done3(bool reset_video_mode) {
 	text_key_done2();
 
 	if (reset_video_mode) {
-		video_clear(0,0,video_size_x(),video_size_y(),0);
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
+			video_write_lock();
+			video_clear(0,0,video_size_x(),video_size_y(),0);
+			video_write_unlock(0,0,video_size_x(),video_size_y());
+		}
 		video_mode_reset();
 	} else {
 		video_mode_done(0);
@@ -782,8 +786,7 @@ bool text_init4(const string& font, unsigned orientation) {
 	video_buffer_size = video_size_y() * video_buffer_line_size;
 	video_buffer = (unsigned char*)operator new(video_buffer_size);
 
-	// clear the bitmap
-	memset(video_buffer,0,video_buffer_size);
+	text_clear();
 
 	text_updating_active = false;
 
@@ -861,36 +864,23 @@ static void palette_set(video_color* pal, unsigned pal_max, unsigned* conv) {
 	}
 }
 
-static inline unsigned color2palette(unsigned color) {
-	return color & 0xF;
-}
-
 // Conversion from text color to video color
-static inline video_rgb color2rgb(unsigned color) {
-	video_rgb r;
-	color &= 0xF;
-	video_rgb_make(&r, PALETTE_RESERVED[color].red, PALETTE_RESERVED[color].green, PALETTE_RESERVED[color].blue);
-	return r;
+static inline video_rgb index2color(unsigned color) {
+	if (video_index() == VIDEO_FLAGS_INDEX_PACKED) {
+		return color & 0xF;
+	} else {
+		video_rgb r;
+		color &= 0xF;
+		video_rgb_make(&r, PALETTE_RESERVED[color].red, PALETTE_RESERVED[color].green, PALETTE_RESERVED[color].blue);
+		return r;
+	}
 }
 
 //---------------------------------------------------------------------------
 // Generic put
 
-static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib) {
-	video_rgb color = color2rgb(attrib);
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned short* dst_ptr = (unsigned short*)buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = color;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
 static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib) {
-	unsigned color = color2rgb(attrib);
+	unsigned color = index2color(attrib);
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned char* dst_ptr = buffer;
@@ -903,7 +893,7 @@ static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d
 }
 
 static void gen_clear_raw8packed(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib) {
-	unsigned color = color2palette(attrib);
+	unsigned color = index2color(attrib);
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned char* dst_ptr = buffer;
@@ -915,16 +905,48 @@ static void gen_clear_raw8packed(unsigned char* ptr, unsigned ptr_p, unsigned pt
 	}
 }
 
+static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib) {
+	video_rgb color = index2color(attrib);
+	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
+	for(unsigned cy=0;cy<dy;++cy) {
+		unsigned* dst_ptr = (unsigned*)buffer;
+		for(unsigned cx=0;cx<dx;++cx) {
+			*dst_ptr = color;
+			dst_ptr += 1;
+		}
+		buffer += ptr_d;
+	}
+}
+
+static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned attrib) {
+	video_rgb color = index2color(attrib);
+	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
+	for(unsigned cy=0;cy<dy;++cy) {
+		unsigned short* dst_ptr = (unsigned short*)buffer;
+		for(unsigned cx=0;cx<dx;++cx) {
+			*dst_ptr = color;
+			dst_ptr += 1;
+		}
+		buffer += ptr_d;
+	}
+}
+
 static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, int color) {
 	assert( x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y() );
 
-	if (video_bytes_per_pixel() == 1) {
-		if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
-			gen_clear_raw8packed(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
-		else
-			gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
-	} else {
-		gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
+	switch (video_bytes_per_pixel()) {
+		case 1 :
+			if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
+				gen_clear_raw8packed(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
+			else
+				gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
+			break;
+		case 2 :
+			gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
+			break;
+		case 4 :
+			gen_clear_raw32rgb(ptr, ptr_p, ptr_d, x,y,dx,dy,color);
+			break;
 	}
 }
 
@@ -968,6 +990,26 @@ static void gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 	}
 }
 
+static void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, struct backdrop_t* back, const bitmap* map) {
+	unsigned x0 = (back->pos.real_dx - map->size_x) / 2;
+	unsigned x1 = back->pos.real_dx -  map->size_x - x0;
+	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
+	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
+	if (x0)
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x,back->pos.real_y,x0,back->pos.real_dy,backdrop_missing_color >> 4);
+	if (x1)
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1,back->pos.real_y,x1,back->pos.real_dy,backdrop_missing_color >> 4);
+	if (y0)
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x,back->pos.real_y,back->pos.real_dx,y0,backdrop_missing_color >> 4);
+	if (y1)
+		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x,back->pos.real_y + back->pos.real_dy - y1,back->pos.real_dx,y1,backdrop_missing_color >> 4);
+	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
+	for(unsigned cy=0;cy<map->size_y;++cy) {
+		memcpy(buffer,bitmap_line(const_cast<bitmap*>(map),cy),map->size_x * 4);
+		buffer += ptr_d;
+	}
+}
+
 //---------------------------------------------------------------------------
 // Video put
 
@@ -982,7 +1024,7 @@ static void video_backdrop_box() {
 	for(int i=0;i<backdrop_mac;++i) {
 		struct backdrop_t* back = backdrop_map + i;
 		if (back->pos.highlight && backdrop_cursor) {
-			unsigned color = color2rgb(backdrop_box_color);
+			unsigned color = index2color(backdrop_box_color);
 			unsigned x = back->pos.real_x - backdrop_outline;
 			unsigned y = back->pos.real_y - backdrop_outline;
 			unsigned dx = back->pos.real_dx + 2*backdrop_outline;
@@ -1000,17 +1042,8 @@ static void video_backdrop_box() {
 static void video_backdrop_clear(struct backdrop_t* back, unsigned color) {
 	unsigned char* v0 = video_write_line(0);
 	unsigned char* v1 = video_write_line(1);
-	gen_clear_raw(v0, video_bytes_per_pixel(), v1 - v0, back->pos.real_x, back->pos.real_y, back->pos.real_dx, back->pos.real_dy, color);
-}
 
-static void video_backdrop_raw(struct backdrop_t* back, const bitmap* map) {
-	unsigned char* v0 = video_write_line(0);
-	unsigned char* v1 = video_write_line(1);
-	if (video_bytes_per_pixel() == 1) {
-		gen_backdrop_raw8(v0, video_bytes_per_pixel(), v1 - v0, back, map);
-	} else {
-		gen_backdrop_raw16(v0, video_bytes_per_pixel(), v1 - v0, back, map);
-	}
+	gen_clear_raw(v0, video_bytes_per_pixel(), v1 - v0, back->pos.real_x, back->pos.real_y, back->pos.real_dx, back->pos.real_dy, color);
 }
 
 //---------------------------------------------------------------------------
@@ -1021,35 +1054,23 @@ static void text_clear_raw(int x, int y, int dx, int dy, int color) {
 }
 
 static void text_backdrop_raw(struct backdrop_t* back, const bitmap* map) {
-	if (video_bytes_per_pixel() == 1) {
-		gen_backdrop_raw8(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
-	} else {
-		gen_backdrop_raw16(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
-	}
-}
-
-static void text_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib) {
-	struct bitmap* src = real_font_map->data[bitmap];
-	video_rgb color_fore = color2rgb(attrib);
-	video_rgb color_back = color2rgb(attrib >> 4);
-	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
-	for(unsigned cy=0;cy<src->size_y;++cy) {
-		unsigned char* src_ptr = bitmap_line(src,cy);
-		unsigned short* dst_ptr = (unsigned short*)buffer;
-		for(unsigned cx=0;cx<src->size_x;++cx) {
-			unsigned color = *src_ptr ? color_fore : color_back;
-			*dst_ptr = color;
-			dst_ptr += 1;
-			src_ptr += 1;
-		}
-		buffer += video_buffer_line_size;
+	switch (video_bytes_per_pixel()) {
+		case 1 :
+			gen_backdrop_raw8(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
+			break;
+		case 2 :
+			gen_backdrop_raw16(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
+			break;
+		case 4 :
+			gen_backdrop_raw32(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
+			break;
 	}
 }
 
 static void text_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib) {
 	struct bitmap* src = real_font_map->data[bitmap];
-	unsigned color_fore = color2rgb(attrib);
-	unsigned color_back = color2rgb(attrib >> 4);
+	unsigned color_fore = index2color(attrib);
+	unsigned color_back = index2color(attrib >> 4);
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = bitmap_line(src,cy);
@@ -1066,12 +1087,48 @@ static void text_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsi
 
 static void text_put8packed_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib) {
 	struct bitmap* src = real_font_map->data[bitmap];
-	unsigned color_fore = color2palette(attrib);
-	unsigned color_back = color2palette(attrib >> 4);
+	unsigned color_fore = index2color(attrib);
+	unsigned color_back = index2color(attrib >> 4);
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = bitmap_line(src,cy);
 		unsigned char* dst_ptr = buffer;
+		for(unsigned cx=0;cx<src->size_x;++cx) {
+			unsigned color = *src_ptr ? color_fore : color_back;
+			*dst_ptr = color;
+			dst_ptr += 1;
+			src_ptr += 1;
+		}
+		buffer += video_buffer_line_size;
+	}
+}
+
+static void text_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib) {
+	struct bitmap* src = real_font_map->data[bitmap];
+	video_rgb color_fore = index2color(attrib);
+	video_rgb color_back = index2color(attrib >> 4);
+	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
+	for(unsigned cy=0;cy<src->size_y;++cy) {
+		unsigned char* src_ptr = bitmap_line(src,cy);
+		unsigned short* dst_ptr = (unsigned short*)buffer;
+		for(unsigned cx=0;cx<src->size_x;++cx) {
+			unsigned color = *src_ptr ? color_fore : color_back;
+			*dst_ptr = color;
+			dst_ptr += 1;
+			src_ptr += 1;
+		}
+		buffer += video_buffer_line_size;
+	}
+}
+
+static void text_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, unsigned attrib) {
+	struct bitmap* src = real_font_map->data[bitmap];
+	video_rgb color_fore = index2color(attrib);
+	video_rgb color_back = index2color(attrib >> 4);
+	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
+	for(unsigned cy=0;cy<src->size_y;++cy) {
+		unsigned char* src_ptr = bitmap_line(src,cy);
+		unsigned* dst_ptr = (unsigned*)buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
 			unsigned color = *src_ptr ? color_fore : color_back;
 			*dst_ptr = color;
@@ -1102,13 +1159,19 @@ void text_put(int x, int y, char c, int color) {
 
 		assert( x>=0 && y>=0 && x+src->size_x<=video_size_x() &&  y+src->size_y<=video_size_y() );
 
-		if (video_bytes_per_pixel() == 1) {
-			if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
-				text_put8packed_char_font(x,y,(unsigned char)c,color);
-			else
-				text_put8rgb_char_font(x,y,(unsigned char)c,color);
-		} else {
-			text_put16rgb_char_font(x,y,(unsigned char)c,color);
+		switch (video_bytes_per_pixel()) {
+			case 1 :
+				if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
+					text_put8packed_char_font(x,y,(unsigned char)c,color);
+				else
+					text_put8rgb_char_font(x,y,(unsigned char)c,color);
+				break;
+			case 2 :
+				text_put16rgb_char_font(x,y,(unsigned char)c,color);
+				break;
+			case 4 :
+				text_put32rgb_char_font(x,y,(unsigned char)c,color);
+				break;
 		}
 	}
 }
@@ -1180,7 +1243,13 @@ void text_clear(int x, int y, int dx, int dy, int color) {
 }
 
 void text_clear() {
-	memset(video_buffer,0,video_buffer_size);
+	// clear the bitmap
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0
+		&& video_buffer_pixel_size > 1) {
+		memset(video_buffer,0xFF,video_buffer_size);
+	} else {
+		memset(video_buffer,0x0,video_buffer_size);
+	}
 }
 
 void text_box(int x, int y, int dx, int dy, int width, int color) {
@@ -1781,7 +1850,7 @@ static struct bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, stru
 				return 0;
 			}
 		}
-	} else {
+	} else if (video_bytes_per_pixel() == 2) {
 		// video 16 bit
 		pal_bitmap = bitmap_alloc(bitmap->size_x,bitmap->size_y,16);
 		if (bitmap->bytes_per_pixel == 1) {
@@ -1798,7 +1867,28 @@ static struct bitmap* text_backdrop_compute_bitmap(struct backdrop_t* back, stru
 			bitmap_free(pal_bitmap);
 			return 0;
 		}
+	} else if (video_bytes_per_pixel() == 4) {
+		// video 32 bit
+		pal_bitmap = bitmap_alloc(bitmap->size_x,bitmap->size_y,32);
+		if (bitmap->bytes_per_pixel == 1) {
+			// bitmap 8 bit
+			unsigned color_map[256];
+			for(unsigned i=0;i<*rgb_max;++i)
+				video_rgb_make(color_map + i,rgb[i].red,rgb[i].green,rgb[i].blue);
+			bitmap_cvt_8to32(pal_bitmap,bitmap,color_map);
+		} else if (bitmap->bytes_per_pixel == 3) {
+			// bitmap 24 bit
+			bitmap_cvt_24to32(pal_bitmap,bitmap);
+		} else {
+			bitmap_free(bitmap);
+			bitmap_free(pal_bitmap);
+			return 0;
+		}
+	} else {
+		bitmap_free(bitmap);
+		return 0;
 	}
+
 	bitmap_free(bitmap);
 	bitmap = pal_bitmap;
 
@@ -2216,20 +2306,16 @@ static void text_clip_idle() {
 		return;
 	}
 
-	// if it's the first frame
-	if (text_clip_count == 1) {
-		// clear the video box
-		video_backdrop_clear(back, backdrop_missing_color >> 4);
-	}
+	unsigned color = index2color(backdrop_missing_color >> 4);
 
-#if 1
-	/* source */
+	// source range and steps
 	unsigned char* ptr = bitmap->ptr;
 	int dw = bitmap->bytes_per_scanline;
 	int dp = bitmap->bytes_per_pixel;
 	int dx = bitmap->size_x;
 	int dy = bitmap->size_y;
 
+	// set the correct orientation
 	if (text_orientation & ORIENTATION_FLIP_XY) {
 		int t;
 		t = dp;
@@ -2248,27 +2334,47 @@ static void text_clip_idle() {
 		dw = - dw;
 	}
 
-	/* dest */
+	// destination range
 	unsigned dst_dx;
 	unsigned dst_dy;
 	unsigned dst_x;
 	unsigned dst_y;
-	unsigned rel_dx;
-	unsigned rel_dy;
-
-	text_backdrop_compute_real_size(&rel_dx, &rel_dy, back, bitmap, text_clip_aspectx, text_clip_aspecty);
-
 	dst_x = back->pos.real_x;
 	dst_y = back->pos.real_y;
 	dst_dx = back->pos.real_dx;
 	dst_dy = back->pos.real_dy;
 
+	// compute the size of the bitmap
+	unsigned rel_dx;
+	unsigned rel_dy;
+	text_backdrop_compute_real_size(&rel_dx, &rel_dy, back, bitmap, text_clip_aspectx, text_clip_aspecty);
+
+	// start writing
+	video_write_lock();
+
+	// adjust the destination range if too big
 	if (dst_dx > rel_dx) {
-		dst_x += (dst_dx - rel_dx) / 2;
+		unsigned pre_dx = (dst_dx - rel_dx) / 2;
+		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
+
+		if (text_clip_count == 1) {
+			video_clear(dst_x, dst_y, pre_dx, dst_dy, color);
+			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, color);
+		}
+
+		dst_x += pre_dx;
 		dst_dx = rel_dx;
 	}
 	if (dst_dy > rel_dy) {
-		dst_y += (dst_dy - rel_dy) / 2;
+		unsigned pre_dy = (dst_dy - rel_dy) / 2;
+		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
+
+		if (text_clip_count == 1) {
+			video_clear(dst_x, dst_y, dst_dx, pre_dy, color);
+			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, color);
+		}
+
+		dst_y += pre_dy;
 		dst_dy = rel_dy;
 	}
 
@@ -2278,8 +2384,7 @@ static void text_clip_idle() {
 	unsigned combine =  VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 #endif
 
-	video_write_lock();
-
+	// write
 	if (bitmap->bytes_per_pixel == 1) {
 		video_rgb palette[256];
 		unsigned i;
@@ -2294,18 +2399,8 @@ static void text_clip_idle() {
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, rgb_def, combine);
 	}
 
+	// end write
 	video_write_unlock(dst_x, dst_y, dst_dx, dst_dy);
-
-#else
-
-	/* alternate blit, slower but it supports 8 bit palette modes */
-	bitmap = text_backdrop_compute_bitmap(back, bitmap, rgb_map, &rgb_max, text_clip_aspectx, text_clip_aspecty);
-	if (!bitmap) {
-		return;
-	}
-
-	video_backdrop_raw(back, bitmap);
-#endif
 
 	bitmap_free(bitmap);
 }

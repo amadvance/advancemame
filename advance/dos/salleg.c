@@ -70,13 +70,13 @@ static int allegro_freq;
 int __real__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices);
 
 int __wrap__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices) {
-	os_log(("allegro: sound bufsize %d, freq %d, stereo %d, is16bit %d\n",bufsize,freq,stereo,is16bit));
+	log_std(("allegro: sound bufsize %d, freq %d, stereo %d, is16bit %d\n",bufsize,freq,stereo,is16bit));
 	allegro_freq = freq;
 	return __real__mixer_init(bufsize, freq, stereo, is16bit, voices);
 }
 
 video_error sound_allegro_init(int device_id, unsigned* rate, video_bool stereo_flag, double buffer_time) {
-	os_log(("sound:allegro: sound_allegro_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:allegro: sound_allegro_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	if (stereo_flag) {
 		allegro_state.channel = 2;
@@ -105,7 +105,7 @@ video_error sound_allegro_init(int device_id, unsigned* rate, video_bool stereo_
 }
 
 void sound_allegro_done(void) {
-	os_log(("sound:allegro: sound_allegro_done()\n"));
+	log_std(("sound:allegro: sound_allegro_done()\n"));
 
 	if (allegro_state.active_flag) {
 		allegro_state.active_flag = 0;
@@ -114,7 +114,7 @@ void sound_allegro_done(void) {
 }
 
 void sound_allegro_stop(void) {
-	os_log(("sound:allegro: sound_allegro_stop()\n"));
+	log_std(("sound:allegro: sound_allegro_stop()\n"));
 
 	voice_stop(allegro_state.voice);
 	deallocate_voice(allegro_state.voice);
@@ -151,7 +151,7 @@ static video_bool sound_allegro_overflow(unsigned pos, unsigned length) {
 video_error sound_allegro_start(double silence_time) {
 	unsigned i;
 
-	os_log(("sound:allegro: sound_allegro_start(silence_time:%g)\n",silence_time));
+	log_std(("sound:allegro: sound_allegro_start(silence_time:%g)\n",silence_time));
 
 	allegro_state.wave = create_sample(16,allegro_state.channel > 1,allegro_state.rate,allegro_state.length);
 	if (!allegro_state.wave)
@@ -170,7 +170,7 @@ video_error sound_allegro_start(double silence_time) {
 
 	allegro_state.last = os_clock();
 
-	os_log(("sound:allegro: sound_allegro_start current %d, buffered %d\n",sound_allegro_current(), sound_allegro_buffered()));
+	log_std(("sound:allegro: sound_allegro_start current %d, buffered %d\n",sound_allegro_current(), sound_allegro_buffered()));
 
 	return 0;
 }
@@ -178,7 +178,7 @@ video_error sound_allegro_start(double silence_time) {
 void sound_allegro_volume(double volume) {
 	int v;
 
-	os_log(("sound:allegro: sound_allegro_volume(volume:%g)\n",(double)volume));
+	log_std(("sound:allegro: sound_allegro_volume(volume:%g)\n",(double)volume));
 
 	v = volume * 255;
 	if (v < 0)
@@ -192,9 +192,9 @@ void sound_allegro_play(const short* sample_map, unsigned sample_count) {
 	unsigned count = sample_count;
 	os_clock_t current = os_clock();
 
-	os_log_debug(("sound:allegro: sound_allegro_play(count:%d)\n",sample_count));
+	log_debug(("sound:allegro: sound_allegro_play(count:%d)\n",sample_count));
 
-	os_log_debug(("sound:allegro: delay from last update %g, samples %g\n",
+	log_debug(("sound:allegro: delay from last update %g, samples %g\n",
 		(current - allegro_state.last) / (double)OS_CLOCKS_PER_SEC,
 		(current - allegro_state.last) / (double)OS_CLOCKS_PER_SEC * allegro_state.rate
 		));
@@ -202,7 +202,7 @@ void sound_allegro_play(const short* sample_map, unsigned sample_count) {
 	allegro_state.last = current;
 
 	if (sound_allegro_overflow(allegro_state.pos,sample_count))
-		os_log(("sound:allegro: sound overflow\n"));
+		log_std(("sound:allegro: sound overflow\n"));
 
 	if (allegro_state.channel > 1) {
 		while (count) {

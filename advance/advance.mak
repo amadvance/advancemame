@@ -14,7 +14,7 @@ else
 EMUVERSION = 0.61.2
 endif
 endif
-MENUVERSION = 1.19.2
+MENUVERSION = 2.0.0
 CABVERSION = 0.11.2
 
 ############################################################################
@@ -28,6 +28,12 @@ SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
 LINEOBJ = obj/line/$(BINARYDIR)
 MENUOBJ = obj/menu/$(BINARYDIR)
+
+############################################################################
+# Common
+
+# Resource include dir
+RCFLAGS += --include-dir advance/lib
 
 ############################################################################
 # Target and Core
@@ -59,6 +65,12 @@ TARGETLIBS += -lpthread
 endif
 endif
 
+ifeq ($(HOST_TARGET),windows)
+TARGETCFLAGS += \
+	-DPI=3.1415927 \
+	-DM_PI=3.1415927
+endif
+
 ifeq ($(HOST_SYSTEM),linux)
 SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SYSTEMCFLAGS += \
@@ -67,6 +79,8 @@ SYSTEMCFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
 SYSTEMLIBS += -lvga
 SYSTEMOBJS += \
+	$(OBJ)/advance/lib/filenix.o \
+	$(OBJ)/advance/lib/targnix.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/soss.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/vsvgab.o \
@@ -100,9 +114,12 @@ OBJDIRS += \
 	$(OBJ)/advance/svgalib/clockchi \
 	$(OBJ)/advance/svgalib/drivers
 SYSTEMOBJS += \
+	$(OBJ)/advance/lib/filedos.o \
+	$(OBJ)/advance/lib/targdos.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/sseal.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/salleg.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vvbe.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/vvgal.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/vvbel.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/vsvgal.o \
@@ -151,17 +168,32 @@ SYSTEMOBJS += \
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SYSTEMCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\"
+SYSTEMCFLAGS += \
 	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
-SYSTEMLIBS += $(shell sdl-config --libs)
+SYSTEMLIBS += $(SDLLIBS)
 SYSTEMOBJS += \
 	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/vsdl.o \
 	$(OBJ)/advance/$(HOST_SYSTEM)/ssdl.o
+ifeq ($(HOST_TARGET),linux)
+SYSTEMOBJS += \
+	$(OBJ)/advance/lib/filenix.o \
+	$(OBJ)/advance/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+SYSTEMOBJS += \
+	$(OBJ)/advance/lib/filedos.o \
+	$(OBJ)/advance/lib/targwin.o \
+	$(OBJ)/advance/lib/icondef.o
+# Customize the SDL_main function
+SYSTEMCFLAGS += -DNO_STDIO_REDIRECT
+SYSTEMOBJS += $(OBJ)/advance/sdl/sdlmwin.o
+endif
 endif
 
 ifdef WRAPALLOC
@@ -207,9 +239,12 @@ INSTALL_IMAGEDIRS += \
 	msx2j nascom1 nascom1a nascom1b nascom2 nascom2a coupe coupe512 pdp1 mtx512 \
 	intvkbd aquarius exidy galaxy svi318 svi328 svi328a apexc mk1 mk2
 
-ifneq ($(wildcard advance/osd),)
+ifneq ($(EMU),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 INSTALL_DATAFILES += support/safequit.dat
+endif
+ifneq ($(wildcard advance/menu),)
+INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 endif
 ifneq ($(HOST_SYSTEM),sdl)
 ifneq ($(wildcard advance/v),)
@@ -217,7 +252,6 @@ INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 endif
 ifneq ($(wildcard advance/cfg),)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
-endif
 endif
 ifneq ($(wildcard advance/s),)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
@@ -234,8 +268,6 @@ endif
 ifneq ($(wildcard advance/line),)
 INSTALL_BINFILES += $(LINEOBJ)/advline$(EXE)
 endif
-ifneq ($(wildcard advance/menu),)
-INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 endif
 
 INSTALL_DOCFILES += $(wildcard doc/*.txt)
@@ -263,35 +295,35 @@ MSG_FIX = $(MSG) "(with low opt)"
 CFLAGS_FIX_GCC30 = $(subst -O3,-O1,$(CFLAGS))
 
 $(OBJ)/advance/card/%.o: advance/card/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
 $(OBJ)/advance/svgalib/%.o: advance/svgalib/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
 $(MENUOBJ)/card/%.o: advance/card/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(MENUCFLAGS) -c $< -o $@
 
 $(MENUOBJ)/svgalib/%.o: advance/svgalib/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(MENUCFLAGS) -c $< -o $@
 
 $(VOBJ)/card/%.o: advance/card/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(VCFLAGS) -c $< -o $@
 
 $(VOBJ)/svgalib/%.o: advance/svgalib/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(VCFLAGS) -c $< -o $@
 
 $(CFGOBJ)/card/%.o: advance/card/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(CFGCFLAGS) -c $< -o $@
 
 $(CFGOBJ)/svgalib/%.o: advance/svgalib/%.c
-	@echo $@ $(MSG_FIX)
+	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(CFGCFLAGS) -c $< -o $@
 
 ############################################################################
@@ -332,6 +364,10 @@ install: install_bin install_data install_doc
 ############################################################################
 # EMU
 
+ifeq ($(EMU),mame)
+EMUCFLAGS += -DMAME
+endif
+
 ifeq ($(EMU),mess)
 EMUCFLAGS += -DMESS
 endif
@@ -362,6 +398,7 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/fuzzy.o \
 	$(OBJ)/advance/blit/blit.o \
 	$(OBJ)/advance/blit/clear.o \
+	$(OBJ)/advance/lib/log.o \
 	$(OBJ)/advance/lib/video.o \
 	$(OBJ)/advance/lib/conf.o \
 	$(OBJ)/advance/lib/incstr.o \
@@ -379,15 +416,19 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/videoall.o \
 	$(OBJ)/advance/lib/soundall.o
 
-EMULIBS += -lz
+EMULIBS += $(ZLIBS)
 
 $(OBJ)/advance/osd/%.o: advance/osd/%.c
-	@echo $@ $(MSG)
+	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: advance/%.c
-	@echo $@ $(MSG)
+	$(ECHO) $@ $(MSG) 
 	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
+	
+$(OBJ)/advance/%.o: advance/%.rc
+	$(ECHO) $@ $(MSG)
+	$(RC) $(RCFLAGS) $< -o $@
 
 ############################################################################
 # V
@@ -398,6 +439,7 @@ VCFLAGS += \
 	-Iadvance/blit \
 	-Iadvance/common
 VOBJS = \
+	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
 	$(VOBJ)/lib/conf.o \
 	$(VOBJ)/lib/incstr.o \
@@ -428,6 +470,8 @@ VCFLAGS += \
 	-DUSE_INPUT_SVGALIB
 VLIBS = -lslang -lvga
 VOBJS += \
+	$(VOBJ)/lib/filenix.o \
+	$(VOBJ)/lib/targnix.o \
 	$(VOBJ)/$(HOST_SYSTEM)/os.o \
 	$(VOBJ)/$(HOST_SYSTEM)/vsvgab.o \
 	$(VOBJ)/$(HOST_SYSTEM)/vfb.o \
@@ -444,6 +488,8 @@ VCFLAGS += \
 	-Iadvance/svgalib/drivers
 VLIBS = -lalleg
 VOBJS += \
+	$(VOBJ)/lib/filedos.o \
+	$(VOBJ)/lib/targdos.o \
 	$(VOBJ)/$(HOST_SYSTEM)/os.o \
 	$(VOBJ)/$(HOST_SYSTEM)/vvgal.o \
 	$(VOBJ)/$(HOST_SYSTEM)/vvbe.o \
@@ -525,6 +571,7 @@ SCFLAGS += \
 	-Iadvance/mpglib \
 	-Iadvance/common
 SOBJS = \
+	$(SOBJ)/lib/log.o \
 	$(SOBJ)/lib/conf.o \
 	$(SOBJ)/lib/incstr.o \
 	$(SOBJ)/lib/sounddrv.o \
@@ -551,8 +598,10 @@ ifeq ($(HOST_SYSTEM),linux)
 SCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SCFLAGS += \
 	-DUSE_SOUND_OSS
-SLIBS = -lz -lm
+SLIBS = $(ZLIBS) -lm
 SOBJS += \
+	$(SOBJ)/lib/filenix.o \
+	$(SOBJ)/lib/targnix.o \
 	$(SOBJ)/$(HOST_SYSTEM)/os.o \
 	$(SOBJ)/$(HOST_SYSTEM)/soss.o
 endif
@@ -560,23 +609,35 @@ endif
 ifeq ($(HOST_SYSTEM),dos)
 SCFLAGS += \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO
-SLIBS = -laudio -lalleg -lz -lm
+SLIBS = -laudio -lalleg $(ZLIBS) -lm
 SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJS += \
+	$(SOBJ)/lib/filedos.o \
+	$(SOBJ)/lib/targdos.o \
 	$(SOBJ)/$(HOST_SYSTEM)/os.o \
 	$(SOBJ)/$(HOST_SYSTEM)/sseal.o \
 	$(SOBJ)/$(HOST_SYSTEM)/salleg.o
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-SCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_SOUND_SDL
-SLIBS = -lz -lm $(shell sdl-config --libs)
+SLIBS += $(ZLIBS) -lm $(SDLLIBS)
 SOBJS += \
 	$(SOBJ)/$(HOST_SYSTEM)/os.o \
 	$(SOBJ)/$(HOST_SYSTEM)/ssdl.o
+ifeq ($(HOST_TARGET),linux)
+SOBJS += \
+	$(SOBJ)/lib/filenix.o \
+	$(SOBJ)/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+SOBJS += \
+	$(SOBJ)/lib/filedos.o \
+	$(SOBJ)/lib/targwin.o
+endif
 endif
 
 $(SOBJ)/%.o: advance/%.c
@@ -614,6 +675,7 @@ CFGOBJDIRS = \
 	$(CFGOBJ)/v \
 	$(CFGOBJ)/$(HOST_SYSTEM)
 CFGOBJS = \
+	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
 	$(CFGOBJ)/lib/conf.o \
 	$(CFGOBJ)/lib/incstr.o \
@@ -640,6 +702,8 @@ CFGCFLAGS += \
 	-Iadvance/$(HOST_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
+	$(CFGOBJ)/lib/filenix.o \
+	$(CFGOBJ)/lib/targnix.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/vsvgab.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/vfb.o \
@@ -658,6 +722,8 @@ CFGCFLAGS += \
 	-Iadvance/svgalib/drivers
 CFGLIBS = -lalleg
 CFGOBJS += \
+	$(CFGOBJ)/lib/filedos.o \
+	$(CFGOBJ)/lib/targdos.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/vvgal.o \
 	$(CFGOBJ)/$(HOST_SYSTEM)/vvbel.o \
@@ -743,6 +809,7 @@ KOBJDIRS = \
 	$(KOBJ)/$(HOST_SYSTEM)
 KOBJS = \
 	$(KOBJ)/k/k.o \
+	$(KOBJ)/lib/log.o \
 	$(KOBJ)/lib/conf.o \
 	$(KOBJ)/lib/key.o \
 	$(KOBJ)/lib/incstr.o
@@ -750,23 +817,39 @@ KOBJS = \
 ifeq ($(HOST_SYSTEM),linux)
 KCFLAGS += -DPREFIX=\"$(PREFIX)\"
 KLIBS = -lvga
-KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
+KOBJS += \
+	$(KOBJ)/lib/filenix.o \
+	$(KOBJ)/lib/targnix.o \
+	$(KOBJ)/$(HOST_SYSTEM)/os.o
 KCFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB
 endif
 
 ifeq ($(HOST_SYSTEM),dos)
 KLIBS = -lalleg
-KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
+KOBJS += \
+	$(KOBJ)/lib/filedos.o \
+	$(KOBJ)/lib/targdos.o \
+	$(KOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-KCFLAGS += -DPREFIX=\"$(PREFIX)\"
-KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
 KCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_KEYBOARD_SDL
-KLIBS = $(shell sdl-config --libs)
+KLIBS += $(SDLLIBS)
+KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
+ifeq ($(HOST_TARGET),linux)
+KOBJS += \
+	$(KOBJ)/lib/filenix.o \
+	$(KOBJ)/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+KOBJS += \
+	$(KOBJ)/lib/filedos.o \
+	$(KOBJ)/lib/targwin.o
+endif
 endif
 
 $(KOBJ)/%.o: advance/%.c
@@ -801,6 +884,7 @@ JOBJDIRS = \
 	$(JOBJ)/$(HOST_SYSTEM)
 JOBJS = \
 	$(JOBJ)/j/j.o \
+	$(JOBJ)/lib/log.o \
 	$(JOBJ)/lib/conf.o \
 	$(JOBJ)/lib/incstr.o
 
@@ -809,7 +893,10 @@ JCFLAGS += -DPREFIX=\"$(PREFIX)\"
 JCFLAGS += \
 	-DUSE_JOYSTICK_SVGALIB
 JLIBS = -lvga
-JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
+JOBJS += \
+	$(JOBJ)/lib/filenix.o \
+	$(JOBJ)/lib/targnix.o \
+	$(JOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 ifeq ($(HOST_SYSTEM),dos)
@@ -822,16 +909,29 @@ JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
 JLIBS = -lalleg
-JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
+JOBJS += \
+	$(JOBJ)/lib/filedos.o \
+	$(JOBJ)/lib/targdos.o \
+	$(JOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-JCFLAGS += -DPREFIX=\"$(PREFIX)\"
 JCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_JOYSTICK_SDL
-JLIBS += $(shell sdl-config --libs)
+JLIBS += $(SDLLIBS)
 JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
+ifeq ($(HOST_TARGET),linux)
+JOBJS += \
+	$(JOBJ)/lib/filenix.o \
+	$(JOBJ)/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+JOBJS += \
+	$(JOBJ)/lib/filedos.o \
+	$(JOBJ)/lib/targwin.o
+endif
 endif
 
 $(JOBJ)/%.o: advance/%.c
@@ -866,6 +966,7 @@ MOBJDIRS = \
 	$(MOBJ)/$(HOST_SYSTEM)
 MOBJS = \
 	$(MOBJ)/m/m.o \
+	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
 	$(MOBJ)/lib/incstr.o
 
@@ -874,7 +975,10 @@ MCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MCFLAGS += \
 	-DUSE_MOUSE_SVGALIB
 MLIBS = -lvga
-MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
+MOBJS += \
+	$(MOBJ)/lib/filenix.o \
+	$(MOBJ)/lib/targnix.o \
+	$(MOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 ifeq ($(HOST_SYSTEM),dos)
@@ -887,16 +991,29 @@ MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
 MLIBS = -lalleg
-MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
+MOBJS += \
+	$(MOBJ)/lib/filedos.o \
+	$(MOBJ)/lib/targdos.o \
+	$(MOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-MCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_MOUSE_SDL
-MLIBS += $(shell sdl-config --libs)
+MLIBS += $(SDLLIBS)
 MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
+ifeq ($(HOST_TARGET),linux)
+MOBJS += \
+	$(MOBJ)/lib/filenix.o \
+	$(MOBJ)/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+MOBJS += \
+	$(MOBJ)/lib/filedos.o \
+	$(MOBJ)/lib/targwin.o
+endif
 endif
 
 $(MOBJ)/%.o: advance/%.c
@@ -977,6 +1094,7 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/playsnd.o \
 	$(MENUOBJ)/menu/resource.o \
 	$(MENUOBJ)/menu/text.o \
+	$(MENUOBJ)/lib/log.o \
 	$(MENUOBJ)/lib/mng.o \
 	$(MENUOBJ)/lib/bitmap.o \
 	$(MENUOBJ)/lib/fz.o \
@@ -1013,7 +1131,7 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/dct64.o \
 	$(MENUOBJ)/mpglib/layer3.o \
 	$(MENUOBJ)/mpglib/tabinit.o
-MENULIBS += -lz
+MENULIBS += $(ZLIBS)
 
 ifeq ($(HOST_SYSTEM),linux)
 MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
@@ -1023,6 +1141,8 @@ MENUCFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
 MENULIBS += -lvga
 MENUOBJS += \
+	$(MENUOBJ)/lib/filenix.o \
+	$(MENUOBJ)/lib/targnix.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/vsvgab.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/vfb.o \
@@ -1049,6 +1169,8 @@ MENULDFLAGS += \
 	-Xlinker --wrap -Xlinker set_config_id
 MENULIBS += -lalleg -laudio
 MENUOBJS += \
+	$(MENUOBJ)/lib/filedos.o \
+	$(MENUOBJ)/lib/targdos.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/vvgal.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/vvbe.o \
@@ -1106,17 +1228,31 @@ MENUOBJDIRS += \
 endif
 
 ifeq ($(HOST_SYSTEM),sdl)
-MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MENUCFLAGS += \
-	$(shell sdl-config --cflags) \
+	$(SDLCFLAGS) \
+	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
-MENULIBS += $(shell sdl-config --libs)
+MENULIBS += $(SDLLIBS)
 MENUOBJS += \
 	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/vsdl.o \
 	$(MENUOBJ)/$(HOST_SYSTEM)/ssdl.o
+ifeq ($(HOST_TARGET),linux)
+MENUOBJS += \
+	$(MENUOBJ)/lib/filenix.o \
+	$(MENUOBJ)/lib/targnix.o
+endif
+ifeq ($(HOST_TARGET),windows)
+MENUOBJS += \
+	$(MENUOBJ)/lib/filedos.o \
+	$(MENUOBJ)/lib/targwin.o \
+	$(MENUOBJ)/lib/icondef.o
+# Customize the SDL_main function
+MENUCFLAGS += -DNO_STDIO_REDIRECT
+MENUOBJS += $(MENUOBJ)/sdl/sdlmwin.o
+endif
 endif
 
 ifdef MAP
@@ -1130,6 +1266,10 @@ $(MENUOBJ)/%.o: advance/%.cc
 $(MENUOBJ)/%.o: advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
+
+$(MENUOBJ)/%.o: advance/%.rc
+	$(ECHO) $@ $(MSG)
+	$(RC) $(RCFLAGS) $< -o $@
 
 $(sort $(MENUOBJDIRS)):
 	$(ECHO) $@
@@ -1175,11 +1315,9 @@ advance/advmess.dif: srcmess srcmess.ori
 # Test for a clean makefile
 
 testmake:
-	!grep "^HOST_TARGET" makefile > /dev/null
-	!grep "^DEBUG" makefile > /dev/null
-	!grep "^PROFILE" makefile > /dev/null
-	!grep "^SYMBOLS" makefile > /dev/null
-	!grep "^MAP" makefile > /dev/null
+	grep "^#PROFILE" makefile > /dev/null
+	grep "^#SYMBOLS" makefile > /dev/null
+	grep "^#MAP" makefile > /dev/null
 	grep "^COMPRESS" makefile > /dev/null
 
 ############################################################################
@@ -1281,6 +1419,10 @@ DOS_SRC = \
 	$(wildcard advance/dos/*.c) \
 	$(wildcard advance/dos/*.h)
 
+SDL_SRC = \
+	$(wildcard advance/sdl/*.c) \
+	$(wildcard advance/sdl/*.h)
+
 TARGET_CONTRIB_SRC = \
 	$(wildcard contrib/mame/*)
 
@@ -1290,17 +1432,8 @@ TARGET_SUPPORT_SRC = \
 
 TARGET_DOC_COMMON = \
 	doc/advmame.txt \
-	doc/advv.txt \
-	doc/advcfg.txt \
-	doc/advk.txt \
-	doc/advs.txt \
-	doc/advj.txt \
-	doc/advm.txt \
-	doc/advline.txt \
-	doc/card.txt \
 	doc/readme.txt \
 	doc/release.txt \
-	doc/install.txt \
 	doc/license.txt \
 	doc/authors.txt \
 	doc/script.txt \
@@ -1311,26 +1444,52 @@ TARGET_DOC_COMMON = \
 
 TARGET_DOC_SRC = \
 	$(TARGET_DOC_COMMON) \
-	doc/build.txt
+	doc/build.txt \
+	doc/advv.txt \
+	doc/advcfg.txt \
+	doc/advk.txt \
+	doc/advs.txt \
+	doc/advj.txt \
+	doc/advm.txt \
+	doc/advline.txt \
+	doc/card.txt \
+	doc/install.txt
 
 TARGET_ROOT_BIN = \
 	$(TARGET_DOC_COMMON) \
-	$(TARGET_SUPPORT_SRC) \
 	$(OBJ)/$(EMUNAME)$(EXE) \
+	support/safequit.dat
+ifneq ($(HOST_SYSTEM),sdl)
+TARGET_ROOT_BIN += \
+	$(RCSRC) \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
 	$(MOBJ)/advm$(EXE) \
-	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE) \
-	$(LINEOBJ)/advline$(EXE)
+	$(LINEOBJ)/advline$(EXE) \
+	doc/advv.txt \
+	doc/advcfg.txt \
+	doc/advk.txt \
+	doc/advs.txt \
+	doc/advj.txt \
+	doc/advm.txt \
+	doc/advline.txt \
+	doc/card.txt \
+	doc/install.txt
+endif
 
 ifeq ($(EMU),mess)
+ifneq ($(HOST_SYSTEM),sdl)
 TARGET_ROOT_BIN += support/advmessv.bat support/advmessc.bat
+endif
 TARGET_DOC_SRC += support/advmessv.bat support/advmessc.bat
 endif
 ifeq ($(EMU),pac)
+ifneq ($(HOST_SYSTEM),sdl)
 TARGET_ROOT_BIN += support/advpacv.bat support/advpacc.bat
+endif
 TARGET_DOC_SRC += support/advpacv.bat support/advpacc.bat
 endif
 
@@ -1358,6 +1517,8 @@ dist: testmake $(RCSRC) $(TARGET_ADVANCE_SRC)
 	cp $(LINUX_SRC) $(TARGET_DISTDIR_SRC)/advance/linux
 	mkdir $(TARGET_DISTDIR_SRC)/advance/dos
 	cp $(DOS_SRC) $(TARGET_DISTDIR_SRC)/advance/dos
+	mkdir $(TARGET_DISTDIR_SRC)/advance/sdl
+	cp $(SDL_SRC) $(TARGET_DISTDIR_SRC)/advance/sdl
 	mkdir $(TARGET_DISTDIR_SRC)/advance/osd
 	cp $(SRCOSD) $(TARGET_DISTDIR_SRC)/advance/osd
 	mkdir $(TARGET_DISTDIR_SRC)/advance/common
@@ -1406,7 +1567,7 @@ distbin: $(TARGET_ROOT_BIN)
 	cp $(TARGET_ROOT_BIN) $(TARGET_DISTDIR_BIN)
 	mkdir $(TARGET_DISTDIR_BIN)/contrib
 	cp -R $(TARGET_CONTRIB_SRC) $(TARGET_DISTDIR_BIN)/contrib
-ifeq ($(HOST_TARGET),dos)
+ifneq ($(HOST_TARGET),linux)
 	rm -f $(TARGET_DISTFILE_BIN).zip
 	find $(TARGET_DISTDIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
 	cd $(TARGET_DISTDIR_BIN) && zip -r ../$(TARGET_DISTFILE_BIN).zip *
@@ -1453,12 +1614,9 @@ MENU_CONTRIB_SRC = \
 
 MENU_DOC_COMMON = \
 	doc/advmenu.txt \
-	doc/advv.txt \
-	doc/advcfg.txt \
-	doc/install.txt \
-	doc/card.txt \
 	doc/license.txt \
 	doc/authors.txt \
+	doc/faq.txt \
 	doc/copying
 
 MENU_DOC_SRC = \
@@ -1466,7 +1624,11 @@ MENU_DOC_SRC = \
 	doc/build.txt \
 	doc/histmenu.txt \
 	doc/readmenu.txt \
-	doc/relemenu.txt
+	doc/relemenu.txt \
+	doc/advv.txt \
+	doc/advcfg.txt \
+	doc/install.txt \
+	doc/card.txt
 
 MENU_SUPPORT_SRC = \
 	$(RCSRC) \
@@ -1475,10 +1637,23 @@ MENU_SUPPORT_SRC = \
 
 MENU_ROOT_BIN = \
 	$(MENU_DOC_COMMON) \
-	$(MENU_SUPPORT_SRC) \
-	$(MENUOBJ)/advmenu$(EXE) \
+	$(MENUOBJ)/advmenu$(EXE)
+ifneq ($(HOST_SYSTEM),sdl)
+MENU_ROOT_BIN += \
+	$(RCSRC) \
+	support/advmenuv.bat \
+	support/advmenuc.bat \
 	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE)
+	$(CFGOBJ)/advcfg$(EXE) \
+	doc/advv.txt \
+	doc/advcfg.txt \
+	doc/install.txt \
+	doc/card.txt
+endif
+ifeq ($(HOST_TARGET),windows)
+MENU_ROOT_BIN += \
+	support/sdl.dll
+endif
 
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
 MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
@@ -1504,6 +1679,8 @@ distmenu: testmake $(RCSRC)
 	cp $(LINUX_SRC) $(MENU_DIST_DIR_SRC)/advance/linux
 	mkdir $(MENU_DIST_DIR_SRC)/advance/dos
 	cp $(DOS_SRC) $(MENU_DIST_DIR_SRC)/advance/dos
+	mkdir $(MENU_DIST_DIR_SRC)/advance/sdl
+	cp $(SDL_SRC) $(MENU_DIST_DIR_SRC)/advance/sdl
 	mkdir $(MENU_DIST_DIR_SRC)/advance/menu
 	cp $(MENU_SRC) $(MENU_DIST_DIR_SRC)/advance/menu
 	mkdir $(MENU_DIST_DIR_SRC)/advance/common
@@ -1543,7 +1720,7 @@ distmenubin: $(MENU_ROOT_BIN)
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)/contrib
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_BIN)/contrib
-ifeq ($(HOST_TARGET),dos)
+ifneq ($(HOST_TARGET),linux)
 	rm -f $(MENU_DIST_FILE_BIN).zip
 	find $(MENU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
 	cd $(MENU_DIST_DIR_BIN) && zip -r ../$(MENU_DIST_FILE_BIN).zip *
@@ -1613,7 +1790,7 @@ CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
 CAB_ROOT_BIN = \
-        $(CAB_DOC_COMMON) \
+	$(CAB_DOC_COMMON) \
 	$(CAB_SUPPORT_SRC) \
 	doc/advline.txt \
 	doc/advv.txt \
@@ -1703,16 +1880,17 @@ dosdistbink6:
 dosdistcabbin:
 	$(MAKE) $(ARCH_ALL) HOST_TARGET=dos distcabbin
 
-dosdistmenubin: dosdistmenubinpentium
+dosdistmenubin:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos HOST_SYSTEM=dos distmenubin
 
-dosdistmenubinpentium:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos distmenubin
+linuxdistmenubin:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=linux HOST_SYSTEM=linux distmenubin
 
-dosdistmenubinpentium2:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distmenubin
+windowsdistmenubin:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=windows HOST_SYSTEM=sdl distmenubin
 
-dosdistmenubink6:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distmenubin
+linuxsdldistmenubin:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=linux HOST_SYSTEM=sdl distmenubin
 
 mame:
 	$(MAKE) EMU=mame emu
@@ -1749,7 +1927,10 @@ wholepac:
 
 wholemenu:
 	$(MAKE) distmenu
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos MAP=1 distmenubin
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos HOST_SYSTEM=dos MAP=1 distmenubin
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=windows HOST_SYSTEM=sdl MAP=1 distmenubin
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=linux HOST_SYSTEM=sdl MAP=1 distmenubin
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=linux HOST_SYSTEM=linux MAP=1 distmenubin
 
 wholecab:
 	$(MAKE) HOST_TARGET=dos distcab

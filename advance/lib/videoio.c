@@ -111,118 +111,7 @@ static video_error parse_double(double* r, const char** begin, const char* end) 
 /***************************************************************************/
 /* Video crtc container */
 
-static video_error parse_crtc_old(video_crtc* crtc, const char* begin, const char* end) {
-	int v;
-	double d;
-	char driver[32];
-
-	/* skip the driver name */
-	if (parse_token(driver,sizeof(driver)," \t(",&begin,end)!=0)
-		return -1;
-	if (strcmp(driver,"vbeline")!=0 && strcmp(driver,"vgaline")!=0)
-		return -1;
-
-	parse_separator(" \t",&begin,end);
-
-	/* skip the ( */
-	if (begin == end || *begin!='(')
-		return -1;
-	++begin;
-
-	/* skip the mode number */
-	if (parse_token(driver,sizeof(driver)," \t",&begin,end)!=0)
-		return -1;
-	parse_separator(" \t",&begin,end);
-
-	if (parse_double(&d,&begin,end))
-		return -1;
-	crtc->pixelclock = d * 1E6;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->hde = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->hrs = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->hre = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->ht = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->vde = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->vrs = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->vre = v;
-
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
-		return -1;
-	crtc->vt = v;
-
-	parse_separator(" \t",&begin,end);
-	while (begin != end && *begin!=')') {
-		char token[32];
-		if (parse_token(token,sizeof(token)," \t)",&begin,end))
-			return -1;
-		if (strcasecmp(token,"doublescan")==0) {
-			crtc_doublescan_set(crtc);
-		} else if (strcasecmp(token,"+hsync")==0) {
-			crtc_phsync_set(crtc);
-		} else if (strcasecmp(token,"-hsync")==0) {
-			crtc_nhsync_set(crtc);
-		} else if (strcasecmp(token,"+vsync")==0) {
-			crtc_pvsync_set(crtc);
-		} else if (strcasecmp(token,"-vsync")==0) {
-			crtc_nvsync_set(crtc);
-		} else if (strcasecmp(token,"interlaced")==0) { /* LEGACY for the old modelines */
-			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token,"interlace")==0) {
-			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token,"tvpal")==0) {
-			crtc_tvpal_set(crtc);
-		} else if (strcasecmp(token,"tvntsc")==0) {
-			crtc_tvntsc_set(crtc);
-		} else {
-			if (token[0]=='#')
-				return 0; /* comment */
-			sprintf(video_mode_parse_error,"Unknow token '%s'",token);
-			return -1;
-		}
-		parse_separator(" \t",&begin,end);
-	}
-
-	if (begin == end || *begin!=')')
-		return -1;
-	++begin;
-
-	parse_separator(" \t",&begin,end);
-
-	if (begin != end)
-		return -1;
-
-	return 0;
-}
-
-static video_error parse_crtc_new(video_crtc* crtc, const char* begin, const char* end) {
+static video_error parse_crtc(video_crtc* crtc, const char* begin, const char* end) {
 	int v;
 	double d;
 
@@ -296,7 +185,7 @@ static video_error parse_crtc_new(video_crtc* crtc, const char* begin, const cha
 		} else {
 			if (token[0]=='#')
 				return 0; /* comment */
-			sprintf(video_mode_parse_error,"Unknow token '%s'",token);
+			sprintf(video_mode_parse_error,"Unknown token '%s'",token);
 			return -1;
 		}
 		parse_separator(" \t",&begin,end);
@@ -333,13 +222,8 @@ video_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* en
 		return -1;
 	}
 
-	if (isdigit(*begin)) {
-		if (parse_crtc_new(crtc,begin,end) != 0)
-			return -1;
-	} else {
-		if (parse_crtc_old(crtc,begin,end) != 0)
-			return -1;
-	}
+	if (parse_crtc(crtc,begin,end) != 0)
+		return -1;
 
 	return 0;
 }

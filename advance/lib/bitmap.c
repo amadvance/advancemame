@@ -721,6 +721,35 @@ void bitmap_cvt_24to16(struct bitmap* dst, struct bitmap* src) {
 	}
 }
 
+void bitmap_cvt_8to32(struct bitmap* dst, struct bitmap* src, unsigned* color_map) {
+	unsigned cx,cy;
+	for(cy=0;cy<src->size_y;++cy) {
+		uint8* src_ptr = bitmap_line(src,cy);
+		uint32* dst_ptr = (uint32*)bitmap_line(dst,cy);
+		for(cx=0;cx<src->size_x;++cx) {
+			unsigned color = color_map[*src_ptr];
+			*dst_ptr = color;
+			dst_ptr += 1;
+			src_ptr += 1;
+		}
+	}
+}
+
+void bitmap_cvt_24to32(struct bitmap* dst, struct bitmap* src) {
+	unsigned cx,cy;
+	for(cy=0;cy<src->size_y;++cy) {
+		uint8* src_ptr = bitmap_line(src,cy);
+		uint32* dst_ptr = (uint32*)bitmap_line(dst,cy);
+		for(cx=0;cx<src->size_x;++cx) {
+			video_rgb color;
+			video_rgb_make(&color,src_ptr[0],src_ptr[1],src_ptr[2]);
+			*dst_ptr = color;
+			dst_ptr += 1;
+			src_ptr += 3;
+		}
+	}
+}
+
 void bitmap_cvt_32to24(struct bitmap* dst, struct bitmap* src) {
 	unsigned cx,cy;
 	for(cy=0;cy<src->size_y;++cy) {

@@ -1076,7 +1076,7 @@ uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
 			}
 			strcpy(config,tok);
 		} else {
-			cputs("Unknow option ");
+			cputs("Unknown option ");
 			cputs(tok);
 			cputs("\r\n");
 			return TSR_FAILURE;

@@ -1000,7 +1000,7 @@ int main(int argc, char* argv[]) {
 			fixed_size = true;
 			break;
 		} else {
-			cerr << "Unknow option " << opt << endl;
+			cerr << "Unknown option " << opt << endl;
 			exit(EXIT_FAILURE);
 		}
 		if (used_arg)

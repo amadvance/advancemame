@@ -117,7 +117,7 @@ video_error fb_init(int device_id) {
 
 	assert( !fb_is_active() );
 
-	os_log(("video:fb: fb_init()\n"));
+	log_std(("video:fb: fb_init()\n"));
 
 	fb = getenv("FRAMEBUFFER");
 	if (!fb)
@@ -142,7 +142,7 @@ video_error fb_init(int device_id) {
 void fb_done(void) {
 	assert(fb_is_active() && !fb_mode_is_active() );
 
-	os_log(("video:fb: fb_done()\n"));
+	log_std(("video:fb: fb_done()\n"));
 
 	close(fb_state.fd);
 
@@ -166,7 +166,7 @@ video_error fb_mode_set(const fb_video_mode* mode)
 {
 	assert( fb_is_active() && !fb_mode_is_active() );
 
-	os_log(("video:fb: fb_mode_set()\n"));
+	log_std(("video:fb: fb_mode_set()\n"));
 
 	/* get the current info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.oldinfo) != 0) {
@@ -294,7 +294,7 @@ video_error fb_mode_set(const fb_video_mode* mode)
 void fb_mode_done(video_bool restore) {
 	assert( fb_is_active() && fb_mode_is_active() );
 
-	os_log(("video:fb: fb_mode_done()\n"));
+	log_std(("video:fb: fb_mode_done()\n"));
 
 	munmap(fb_state.ptr, fb_state.fixinfo.smem_len);
 

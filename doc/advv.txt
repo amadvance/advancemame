@@ -417,11 +417,11 @@ VBELINE CONFIGURATION
 	device_video_vbeline_driver none | auto | vbe3 | ...
 
 	Options:
-		none - don't use any `vbeline' driver.
-		auto - autodetect (default).
-		vbe3 - use the VBE3 BIOS if available, this is the
+		none - Don't use any `vbeline' driver.
+		auto - Autodetect (default).
+		vbe3 - Use the VBE3 BIOS if available, this is the
 			last driver detected.
-		... - check the `card.txt' file for a complete list of
+		... - Check the `card.txt' file for a complete list of
 			the video driver available.
 	Example:
 		device_vbeline_driver vbe3
@@ -445,6 +445,19 @@ VBELINE CONFIGURATION
 		512 - Use always the 512x384 mode.
 		640 - Use always the 640x480 mode.
 		800 - Use always the 800x600 mode.
+
+SDL CONFIGURATION
+	These options have effects only on the `sdl' drivers.
+
+    "device_sdl_fullscreen"
+	Force the use of a fullscreen mode also if a Window Manager
+	is present.
+
+	device_sdl_fullscreen yes | no
+
+	Options:
+		yes - Try to always use a fullscreen mode.
+		no - Try to use a window mode (default).
 
 COPYRIGHT
 	Copyright (C) 2002 Andrea Mazzoleni

@@ -93,7 +93,7 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 	AUDIOINFO info;
 	AUDIOCAPS caps;
 
-	os_log(("sound:seal: sound_seal_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:seal: sound_seal_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	if (stereo_flag) {
 		seal_state.channel = 2;
@@ -102,7 +102,7 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 	}
 
 	if (AInitialize() != AUDIO_ERROR_NONE) {
-		os_log(("sound:seal: error in AInitialize\n"));
+		log_std(("sound:seal: error in AInitialize\n"));
 		return -1;
 	}
 
@@ -110,13 +110,13 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 		UINT id = device_id;
 
 		if (APingAudio(&id) != AUDIO_ERROR_NONE) {
-			os_log(("sound:seal: error in APingAudio\n"));
+			log_std(("sound:seal: error in APingAudio\n"));
 			return -1;
 		}
 
 		device_id = id;
 
-		os_log(("sound:seal: ping %d\n",device_id));
+		log_std(("sound:seal: ping %d\n",device_id));
 
 		/* disable the AWE32 driver */
 		if (device_id == 2)
@@ -136,13 +136,13 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 	}
 
 	if (AOpenAudio(&info) != AUDIO_ERROR_NONE) {
-		os_log(("sound:seal: error in AOpenAudio\n"));
+		log_std(("sound:seal: error in AOpenAudio\n"));
 		return -1;
 	}
 
 	AGetAudioDevCaps(info.nDeviceId,&caps);
 
-	os_log(("sound:seal: soundcard %d:%s at %d-bit %s %u Hz\n",
+	log_std(("sound:seal: soundcard %d:%s at %d-bit %s %u Hz\n",
 		(unsigned)info.nDeviceId,
 		caps.szProductName,
 		info.wFormat & AUDIO_FORMAT_16BITS ? 16 : 8,
@@ -168,7 +168,7 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 }
 
 void sound_seal_done(void) {
-	os_log(("sound:seal: sound_seal_done()\n"));
+	log_std(("sound:seal: sound_seal_done()\n"));
 
 	if (seal_state.active_flag) {
 		seal_state.active_flag = 0;
@@ -181,12 +181,12 @@ void sound_seal_stop(void) {
 	unsigned i;
 
 #ifdef USE_SOUND_INT
-	os_log(("sound:seal: remove_irq()\n"));
+	log_std(("sound:seal: remove_irq()\n"));
 	set_timer_rate(0);
 	_remove_irq(SOUND_INT);
 #endif
 
-	os_log(("sound:seal: sound_seal_stop()\n"));
+	log_std(("sound:seal: sound_seal_stop()\n"));
 
 	for (i=0;i<seal_state.channel;++i) {
 		assert( seal_state.wave[i] );
@@ -256,7 +256,7 @@ static void sound_seal_update(void) {
 video_error sound_seal_start(double silence_time) {
 	unsigned i;
 
-	os_log(("sound:seal: sound_seal_start(silecen_time:%g)\n",silence_time));
+	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n",silence_time));
 
 	for(i=0;i<seal_state.channel;++i)
 	{
@@ -306,10 +306,10 @@ video_error sound_seal_start(double silence_time) {
 
 	seal_state.last = os_clock();
 
-	os_log(("sound:seal: sound_seal_start current %d, buffered %d\n",sound_seal_current(), sound_seal_buffered()));
+	log_std(("sound:seal: sound_seal_start current %d, buffered %d\n",sound_seal_current(), sound_seal_buffered()));
 
 #ifdef USE_SOUND_INT
-	os_log(("sound:seal: install_irq()\n"));
+	log_std(("sound:seal: install_irq()\n"));
 	_install_irq(SOUND_INT, sound_seal_int_handler);
 	seal_int_counter = 0;
 	seal_int_increment = SOUND_BPS_TO_TIMER(SOUND_INT_BPS);;
@@ -322,7 +322,7 @@ video_error sound_seal_start(double silence_time) {
 void sound_seal_volume(double volume) {
 	int v;
 
-	os_log(("sound:seal: sound_seal_volume(volume:%g)\n",(double)volume));
+	log_std(("sound:seal: sound_seal_volume(volume:%g)\n",(double)volume));
 
 	v = volume * 256;
 	if (v < 0)
@@ -336,9 +336,9 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 	unsigned count = sample_count;
 	os_clock_t current = os_clock();
 
-	os_log_debug(("sound:seal: sound_seal_play(count:%d)\n",sample_count));
+	log_debug(("sound:seal: sound_seal_play(count:%d)\n",sample_count));
 
-	os_log_debug(("sound:seal: delay from last update %g, samples %g\n",
+	log_debug(("sound:seal: delay from last update %g, samples %g\n",
 		(current - seal_state.last) / (double)OS_CLOCKS_PER_SEC,
 		(current - seal_state.last) / (double)OS_CLOCKS_PER_SEC * seal_state.rate
 		));
@@ -346,7 +346,7 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 	seal_state.last = current;
 
 	if (sound_seal_overflow(seal_state.pos,sample_count))
-		os_log(("sound:seal: sound overflow\n"));
+		log_std(("sound:seal: sound overflow\n"));
 
 	if (seal_state.channel > 1) {
 		while (count) {

@@ -105,7 +105,7 @@ static struct fileio_item CONFIG[] = {
 /* Internal interface */
 
 static int item_has_ext(const char* file) {
-	const char* slash = strrchr(file,os_dir_slash());
+	const char* slash = strrchr(file,file_dir_slash());
 	const char* dot = strrchr(file,'.');
 
 	return dot!=0 && (slash==0 || slash < dot);
@@ -149,14 +149,14 @@ static int item_is_partialequal(const char* zipfile, const char* file) {
 }
 
 static int item_open_raw(const char* file, const char* ext, const char* mode, struct fileio_handle* h) {
-	char file_complete[OS_MAXPATH];
+	char file_complete[FILE_MAXPATH];
 
 	if (ext && !item_has_ext(file))
 		sprintf(file_complete,"%s%s",file,ext);
 	else
 		strcpy(file_complete,file);
 
-	os_log(("osd: osd_fopen() try %s\n",file_complete));
+	log_std(("osd: osd_fopen() try %s\n",file_complete));
 
 	h->crc = 0;
 	h->is_crc_set = 0;
@@ -164,7 +164,7 @@ static int item_open_raw(const char* file, const char* ext, const char* mode, st
 	if (!h->f)
 		return -1;
 
-	os_log(("osd: osd_fopen() -> %s\n",file_complete));
+	log_std(("osd: osd_fopen() -> %s\n",file_complete));
 
 	return 0;
 }
@@ -173,14 +173,14 @@ static int item_open_zip(const char* zip_file, const char* file, const char* ext
 	ZIP* zip;
 	struct zipent* ent;
 	int found;
-	char file_complete[OS_MAXPATH];
+	char file_complete[FILE_MAXPATH];
 
 	if (ext && !item_has_ext(file))
 		sprintf(file_complete,"%s%s",file,ext);
 	else
 		strcpy(file_complete,file);
 
-	os_log(("osd: osd_fopen() try %s/%s\n",zip_file,file_complete));
+	log_std(("osd: osd_fopen() try %s/%s\n",zip_file,file_complete));
 
 	if (access(zip_file,R_OK)!=0)
 		return -1;
@@ -213,7 +213,7 @@ static int item_open_zip(const char* zip_file, const char* file, const char* ext
 	if (!found)
 		return -1;
 
-	os_log(("osd: osd_fopen() -> %s/%s\n",zip_file,file_complete));
+	log_std(("osd: osd_fopen() -> %s/%s\n",zip_file,file_complete));
 
 	return 0;
 }
@@ -240,7 +240,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 		if (!h->f
 			&& item->mode == FILEIO_MODE_DIRGAME
 			&& game) {
-			char file[OS_MAXPATH];
+			char file[FILE_MAXPATH];
 
 			sprintf(file,"%s/%s",item->dir_map[i],game);
 
@@ -251,7 +251,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 		if (!h->f
 			&& (item->mode == FILEIO_MODE_DIRNAME || item->mode == FILEIO_MODE_NAME)
 			&& name) {
-			char file[OS_MAXPATH];
+			char file[FILE_MAXPATH];
 
 			sprintf(file,"%s/%s",item->dir_map[i],name);
 
@@ -263,7 +263,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& item->mode == FILEIO_MODE_COLLECTION
 			&& game
 			&& name) {
-			char file[OS_MAXPATH];
+			char file[FILE_MAXPATH];
 
 			sprintf(file,"%s/%s/%s",item->dir_map[i],game,name);
 
@@ -277,7 +277,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& game
 			&& name) {
 
-			char zip_file[OS_MAXPATH];
+			char zip_file[FILE_MAXPATH];
 
 			sprintf(zip_file, "%s/%s.zip", item->dir_map[i], game);
 
@@ -293,8 +293,8 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& name
 			&& strchr(name,'=')==0) {
 
-			char zip_file[OS_MAXPATH];
-			char file[OS_MAXPATH];
+			char zip_file[FILE_MAXPATH];
+			char file[FILE_MAXPATH];
 			const char* end;
 
 			end = strchr(name,'.');
@@ -317,8 +317,8 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& name
 			&& strchr(name,'=')!=0) {
 
-			char zip_file[OS_MAXPATH];
-			char file[OS_MAXPATH];
+			char zip_file[FILE_MAXPATH];
+			char file[FILE_MAXPATH];
 			const char* end;
 			const char* real_name;
 
@@ -335,7 +335,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 	}
 
 	if (!h->f) {
-		os_log(("osd: osd_fopen() leave with failure\n"));
+		log_std(("osd: osd_fopen() leave with failure\n"));
 		free(h);
 		return 0;
 	}
@@ -363,8 +363,8 @@ static int item_stat(int type, const char* name) {
 
 	found = 0;
 	for(i=0;!found && i<item->dir_mac;++i) {
-		char file[OS_MAXPATH];
-		char path[OS_MAXPATH];
+		char file[FILE_MAXPATH];
+		char path[FILE_MAXPATH];
 		struct stat st;
 
 		switch (item->mode) {
@@ -376,7 +376,7 @@ static int item_stat(int type, const char* name) {
 					strcat(file,item->extension);
 				sprintf(path,"%s/%s",item->dir_map[i],file);
 
-				os_log(("osd: osd_faccess() try %s\n",path));
+				log_std(("osd: osd_faccess() try %s\n",path));
 
 				found = stat(path,&st) == 0 && !S_ISDIR(st.st_mode);
 			break;
@@ -384,13 +384,13 @@ static int item_stat(int type, const char* name) {
 				sprintf(file,"%s",name);
 				sprintf(path,"%s/%s",item->dir_map[i],file);
 
-				os_log(("osd: osd_faccess() try %s\n",path));
+				log_std(("osd: osd_faccess() try %s\n",path));
 
 				found = stat(path,&st) == 0 && S_ISDIR(st.st_mode);
 				if (!found) {
 					sprintf(path,"%s/%s.zip",item->dir_map[i],name);
 
-					os_log(("osd: osd_faccess() try %s\n",path));
+					log_std(("osd: osd_faccess() try %s\n",path));
 
 					found = stat(path,&st) == 0 && !S_ISDIR(st.st_mode);
 				}
@@ -415,7 +415,7 @@ static int item_stat(int type, const char* name) {
  */
 int osd_faccess(const char *newfilename, int filetype)
 {
-	os_log(("osd: osd_faccess(newfilename:%s,filetype:%d)\n",newfilename,filetype));
+	log_std(("osd: osd_faccess(newfilename:%s,filetype:%d)\n",newfilename,filetype));
 
 	/* used for audit and also for screenshot saving */
 	return item_stat(filetype,newfilename) == 0 ? 1 : 0;
@@ -425,7 +425,7 @@ void* osd_fopen(const char *game, const char *filename, int filetype, int mode)
 {
 	static const char* open_modes[] = { "rb", "wb", "r+b", "r+b", "w+b" };
 
-	os_log(("osd: osd_fopen(game:%s, filename:%s, filetype:%d, mode:%d,%s)\n",game,filename,filetype,mode,open_modes[mode]));
+	log_std(("osd: osd_fopen(game:%s, filename:%s, filetype:%d, mode:%d,%s)\n",game,filename,filetype,mode,open_modes[mode]));
 
 	return item_open(filetype, game, filename, open_modes[mode]);
 }
@@ -434,7 +434,7 @@ int osd_fread(void* void_h, void* buffer, int length)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_fread(void_h, buffer, length:%d)\n",length));
+	log_pedantic(("osd: osd_fread(void_h, buffer, length:%d)\n",length));
 
 	return fzread(buffer,1,length,h->f);
 }
@@ -445,7 +445,7 @@ int osd_fread_swap(void* void_h, void* buffer, int length)
 	unsigned char* buf = (unsigned char*)buffer;
 	int res;
 
-	os_log_debug(("osd: osd_fread_swap(void_h, buffer, length:%d)\n",length));
+	log_debug(("osd: osd_fread_swap(void_h, buffer, length:%d)\n",length));
 
 	res = osd_fread(void_h, buf, length);
 
@@ -462,7 +462,7 @@ int osd_fwrite(void* void_h, const void* buffer, int length)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_fwrite(void_h, buffer, length:%d)\n",length));
+	log_pedantic(("osd: osd_fwrite(void_h, buffer, length:%d)\n",length));
 
 	return fzwrite(buffer, 1, length, h->f);
 }
@@ -473,7 +473,7 @@ int osd_fwrite_swap(void* void_h, const void *buffer, int length)
 	unsigned char *buf = (unsigned char *)buffer;
 	int res;
 
-	os_log_debug(("osd: osd_fwrite_swap(void_h, buffer, length:%d)\n",length));
+	log_debug(("osd: osd_fwrite_swap(void_h, buffer, length:%d)\n",length));
 
 	for(i=0;i<length;i+=2) {
 		unsigned char temp = buf[i];
@@ -497,7 +497,7 @@ int osd_fread_scatter(void* void_h, void* buffer, int length, int increment)
 	unsigned char* buf = (unsigned char*)buffer;
 	unsigned done = 0;
 
-	os_log_debug(("osd: osd_fread_scatter(void_h, buffer, length:%d, increment:%d)\n",length,increment));
+	log_debug(("osd: osd_fread_scatter(void_h, buffer, length:%d, increment:%d)\n",length,increment));
 
 	while (done < length) {
 		unsigned i;
@@ -522,7 +522,7 @@ int osd_fseek(void* void_h, int offset, int whence)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_debug(("osd: osd_fseek(void_h, offset:%d, whence:%d)\n",offset,whence));
+	log_debug(("osd: osd_fseek(void_h, offset:%d, whence:%d)\n",offset,whence));
 
 	return fzseek(h->f, offset, whence);
 }
@@ -531,7 +531,7 @@ void osd_fclose(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_debug(("osd: osd_fclose(void_h)\n"));
+	log_debug(("osd: osd_fclose(void_h)\n"));
 
 	item_close(h);
 }
@@ -543,7 +543,7 @@ int osd_fchecksum(const char* game, const char* filename, unsigned int* length, 
 	(void)length;
 	(void)sum;
 
-	os_log_debug(("osd: osd_fchecksm(game:%s,  filename:%s, length, sum)\n",game,filename));
+	log_debug(("osd: osd_fchecksm(game:%s,  filename:%s, length, sum)\n",game,filename));
 
 	assert( 0 );
 
@@ -555,7 +555,7 @@ int osd_fsize(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_debug(("osd: osd_fsize(void_h)\n"));
+	log_debug(("osd: osd_fsize(void_h)\n"));
 
 	return fzsize(h->f);
 }
@@ -564,7 +564,7 @@ unsigned int osd_fcrc(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_debug(("osd: osd_fcrc(void_h)\n"));
+	log_debug(("osd: osd_fcrc(void_h)\n"));
 
 	if (!h->is_crc_set) {
 		unsigned char data[4096];
@@ -596,7 +596,7 @@ unsigned int osd_fcrc(void* void_h)
 		fzseek(h->f, 0, SEEK_SET);
 	}
 
-	os_log(("osd: osd_fcrc() -> %08x\n",h->crc));
+	log_std(("osd: osd_fcrc() -> %08x\n",h->crc));
 
 	return h->crc;
 }
@@ -605,7 +605,7 @@ int osd_fgetc(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_fgetc(void_h)\n"));
+	log_pedantic(("osd: osd_fgetc(void_h)\n"));
 
 	return fzgetc(h->f);
 }
@@ -614,7 +614,7 @@ int osd_ungetc(int c, void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_ungetc(c:%d,void_h)\n",c));
+	log_pedantic(("osd: osd_ungetc(c:%d,void_h)\n",c));
 
 	return fzungetc(c, h->f);
 }
@@ -623,7 +623,7 @@ char *osd_fgets(char* s, int n, void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_fgets(s,n,void_h)\n"));
+	log_pedantic(("osd: osd_fgets(s,n,void_h)\n"));
 
 	return fzgets(s, n, h->f);
 }
@@ -632,7 +632,7 @@ int osd_feof(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_pedantic(("osd: osd_feof(void_h)\n"));
+	log_pedantic(("osd: osd_feof(void_h)\n"));
 
 	return fzeof(h->f);
 }
@@ -641,7 +641,7 @@ int osd_ftell(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
 
-	os_log_debug(("osd: osd_ftell(void_h)\n"));
+	log_debug(("osd: osd_ftell(void_h)\n"));
 
 	return fztell(h->f);
 }
@@ -660,7 +660,7 @@ int osd_display_loading_rom_message(const char *name, int current, int total)
 	(void)current;
 	(void)total;
 
-	os_log_debug(("osd: osd_display_loading_rom_message(name:%s,current:%d,total:%d)\n",name,current,total));
+	log_debug(("osd: osd_display_loading_rom_message(name:%s,current:%d,total:%d)\n",name,current,total));
 
 	/* nothing */
 
@@ -674,18 +674,18 @@ int osd_display_loading_rom_message(const char *name, int current, int total)
 
 int osd_num_devices(void)
 {
-	os_log(("osd: osd_num_device()\n"));
+	log_std(("osd: osd_num_device()\n"));
 	return 0;
 }
 
 void osd_change_device(const char* device)
 {
-	os_log(("osd: osd_change_devicee(device:%s)\n",device));
+	log_std(("osd: osd_change_devicee(device:%s)\n",device));
 }
 
 const char *osd_get_device_name(int i)
 {
-	os_log(("osd: osd_get_device_name(i:%d)\n",i));
+	log_std(("osd: osd_get_device_name(i:%d)\n",i));
 	return "";
 }
 
@@ -693,7 +693,7 @@ void* osd_dir_open(const char* dir, const char* mask)
 {
 	struct dirio_handle* h;
 
-	os_log(("osd: osd_dir_open(dir:%s,mask:%s)\n",dir,mask));
+	log_std(("osd: osd_dir_open(dir:%s,mask:%s)\n",dir,mask));
 
 	h = malloc(sizeof(struct dirio_handle));
 
@@ -715,7 +715,7 @@ void osd_dir_close(void* void_h)
 {
 	struct dirio_handle* h = (struct dirio_handle*)void_h;
 
-	os_log(("osd: osd_dir_close(void_h)\n"));
+	log_std(("osd: osd_dir_close(void_h)\n"));
 
 	assert(h && h->h);
   
@@ -735,7 +735,7 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 	d = readdir(h->h);
 
 	while (d) {
-		char file[OS_MAXPATH];
+		char file[FILE_MAXPATH];
 		struct stat st;
 
 		sprintf(file,"%s/%s",h->dir,d->d_name);
@@ -748,7 +748,7 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 					*is_dir = 1;
 					strcpy(name,d->d_name);
 
-					os_log(("osd: osd_dir_get_entry() -> %s\n",name));
+					log_std(("osd: osd_dir_get_entry() -> %s\n",name));
 
 					return strlen(name);
 				}
@@ -757,7 +757,7 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 					*is_dir = 0;
 					strcpy(name,d->d_name);
 
-					os_log(("osd: osd_dir_get_entry() -> %s\n",name));
+					log_std(("osd: osd_dir_get_entry() -> %s\n",name));
 
 					return strlen(name);
 				}
@@ -772,28 +772,28 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 
 void osd_change_directory(const char* dir)
 {
-	os_log(("osd: osd_change_directory(dir:%s)\n",dir));
+	log_std(("osd: osd_change_directory(dir:%s)\n",dir));
 
 	chdir(dir);
 }
 
 const char* osd_get_cwd(void)
 {
-	static char cwd[OS_MAXPATH];
+	static char cwd[FILE_MAXPATH];
 
-	os_log(("osd: osd_get_cdw()\n"));
+	log_std(("osd: osd_get_cdw()\n"));
 
 	getcwd(cwd, sizeof(cwd));
 	strcat(cwd, "/");
 
-	os_log(("osd: osd_get_cwd() -> %s\n",cwd));
+	log_std(("osd: osd_get_cwd() -> %s\n",cwd));
 
 	return cwd;
 }
 
 int osd_select_file(int sel, char* filename)
 {
-	os_log(("osd: osd_select_file(sel:%d,filename:%s)\n",sel,filename));
+	log_std(("osd: osd_select_file(sel:%d,filename:%s)\n",sel,filename));
 
 	return 0;
 }
@@ -802,7 +802,7 @@ char* osd_basename(char* filename)
 {
 	char* base;
 
-	os_log(("osd: osd_basename(filename:%s)\n",filename));
+	log_std(("osd: osd_basename(filename:%s)\n",filename));
 
 	base = strrchr(filename, os_dir_slash());
 	if (base)
@@ -810,7 +810,7 @@ char* osd_basename(char* filename)
 	else
 		base = filename;
 
-	os_log(("osd: osd_basename() -> %s\n",base));
+	log_std(("osd: osd_basename() -> %s\n",base));
 
 	return base;
 }
@@ -829,7 +829,7 @@ static int path_allocate(char*** dir_map, unsigned* dir_mac, const char* path)
 	*dir_mac = 0;
 	*dir_map = 0;
 
-	separator[0] = os_dir_separator();
+	separator[0] = file_dir_separator();
 	separator[1] = 0;
 
 	token = strtok(temp_path, separator);
@@ -866,10 +866,10 @@ int advance_fileio_init(struct conf_context* context) {
 		if (i->config) {
 			const char* def = 0;
 			switch (i->mode) {
-				case FILEIO_MODE_COLLECTION : def = os_config_dir_multidir(i->def); break;
-				case FILEIO_MODE_DIRGAME : def = os_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_DIRNAME : def = os_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_NAME : def = os_config_dir_singlefile(); break;
+				case FILEIO_MODE_COLLECTION : def = file_config_dir_multidir(i->def); break;
+				case FILEIO_MODE_DIRGAME : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_DIRNAME : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_NAME : def = file_config_dir_singlefile(); break;
 			}
 			if (def)
 				conf_string_register_default(context, i->config, def);
@@ -902,18 +902,18 @@ int advance_fileio_config_load(struct conf_context* context, struct mame_option*
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
 		if (i->config) {
 			const char* s = conf_string_get_default(context, i->config);
-			os_log(("advance:fileio: %s %s\n", i->config, s));
+			log_std(("advance:fileio: %s %s\n", i->config, s));
 			path_allocate(&i->dir_map,&i->dir_mac,s);
 		} else {
 			/* add the standard directories search as default */
-			path_allocate(&i->dir_map,&i->dir_mac,os_config_dir_singlefile());
+			path_allocate(&i->dir_map,&i->dir_mac,file_config_dir_singlefile());
 		}
 	}
 
 #ifdef MESS
 	{
 		const char* s = conf_string_get_default(context, "dir_crc");
-		os_log(("advance:fileio: %s %s\n", "dir_crc", s));
+		log_std(("advance:fileio: %s %s\n", "dir_crc", s));
 		strcpy(option->crc_dir, s);
 	}
 #endif

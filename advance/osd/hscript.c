@@ -78,7 +78,7 @@ unsigned char script_port_read(int address) {
 	if (address == 0) {
 		return STATE.kdb_state;
 	} else
-		return os_port_get(address);
+		return target_port_get(address);
 }
 
 void script_port_write(int address,unsigned char value) {
@@ -93,7 +93,7 @@ void script_port_write(int address,unsigned char value) {
 			STATE.kdb_state = value;
 		}
 	} else {
-		os_port_set(address,value);
+		target_port_set(address,value);
 	}
 }
 
@@ -400,8 +400,8 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 
 /* Parse error callback */
 void script_error(const char* s) {
-	fprintf(stderr,"Error compiling the script: %s\n",STATE.script_text);
-	fprintf(stderr,"%s\n",s);
+	target_err("Error compiling the script: %s\n",STATE.script_text);
+	target_err("%s\n",s);
 }
 
 int hardware_script_init(struct conf_context* context) {

@@ -228,7 +228,7 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 	}
 
 	if (strcmp(crtc_name_get(a),crtc_name_get(b))!=0)
-		os_log(("video config compare indecision for %s, %s\n", crtc_name_get(a), crtc_name_get(b)));
+		log_std(("video config compare indecision for %s, %s\n", crtc_name_get(a), crtc_name_get(b)));
 
 	return 0;
 }

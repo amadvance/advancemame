@@ -86,7 +86,7 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 	subsys_vendor = dw & 0xFFFF;
 	subsys_card = (dw >> 16) & 0xFFFF;
 
-	os_log(("video: found pci display vendor:%04x, device:%04x, subsys_vendor:%04x, subsys_card:%04x\n",vendor,device,subsys_vendor,subsys_card));
+	log_std(("video: found pci display vendor:%04x, device:%04x, subsys_vendor:%04x, subsys_card:%04x\n",vendor,device,subsys_vendor,subsys_card));
 
 	return 0;
 }
@@ -121,7 +121,7 @@ void video_reg_driver(struct conf_context* context, video_driver* driver) {
 
 	assert( video_state.driver_mac < DEVICE_MAX );
 
-	os_log(("video: register driver %s\n", driver->name));
+	log_std(("video: register driver %s\n", driver->name));
 
 	video_state.driver_map[video_state.driver_mac] = driver;
 	video_state.driver_map[video_state.driver_mac]->reg(context);
@@ -138,11 +138,11 @@ void video_init(void) {
 
 	assert( !video_is_active() );
 
-	os_log(("video: video_init\n"));
+	log_std(("video: video_init\n"));
 
 #ifdef __MSDOS__
 	if (pci_scan_device(pci_scan_device_callback,0)!=0) {
-		os_log(("video: error scanning pci display device, resume and continue\n"));
+		log_std(("video: error scanning pci display device, resume and continue\n"));
 	}
 #endif
 
@@ -162,7 +162,7 @@ void video_init(void) {
 		dev = device_match(video_option.name,(const driver*)video_state.driver_map[j]);
 
 		if (dev && video_state.driver_map[j]->init(dev->id) == 0) {
-			os_log(("video: select driver %s\n", video_state.driver_map[j]->name));
+			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
 			video_state.driver_map[j] = 0; /* deactivate the driver */
@@ -170,7 +170,7 @@ void video_init(void) {
 	}
 
 	if (!at_least_one) {
-		os_log(("video: no video driver activated\n"));
+		log_std(("video: no video driver activated\n"));
 	}
 
 	/* enable */
@@ -188,7 +188,7 @@ void video_done(void) {
 
 	assert( video_is_active() && !video_mode_is_active() );
 
-	os_log(("video: video_done\n"));
+	log_std(("video: video_done\n"));
 
 	/* safer */
 	if (video_mode_is_active())
@@ -323,7 +323,7 @@ static void video_state_rgb_clear(void);
 video_error video_mode_set(video_mode* mode) {
 	assert( video_is_active() );
 
-	os_log(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n",video_mode_name(mode),video_mode_size_x(mode),video_mode_size_y(mode),video_mode_bits_per_pixel(mode),(double)video_mode_hclock(mode) / 1E3,(double)video_mode_vclock(mode)));
+	log_std(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n",video_mode_name(mode),video_mode_size_x(mode),video_mode_size_y(mode),video_mode_bits_per_pixel(mode),(double)video_mode_hclock(mode) / 1E3,(double)video_mode_vclock(mode)));
 
 	video_state.old_mode_required = 1; /* the mode will change */
 
@@ -375,7 +375,7 @@ video_error video_mode_set(video_mode* mode) {
 			error = 0;
 		}
 
-		os_log(("video: measured/expected vert clock: %.2f/%.2f = %g (err %g%%)\n",video_measured_vclock(),video_vclock(),factor,error * 100.0));
+		log_std(("video: measured/expected vert clock: %.2f/%.2f = %g (err %g%%)\n",video_measured_vclock(),video_vclock(),factor,error * 100.0));
 	}
 
 	return 0;
@@ -577,7 +577,7 @@ void video_mode_reset(void) {
 		return;
 
 	/* os mode reset */
-	os_mode_reset();
+	target_mode_reset();
 }
 
 /**
@@ -646,14 +646,14 @@ double video_measure_step(void (*wait)(void), double low, double high) {
 		--map_end;
 
 	if (map_start == map_end) {
-		os_log(("video: measure vclock failed, return 0\n"));
+		log_std(("video: measure vclock failed, return 0\n"));
 		return 0;
 	}
 
 	median = map_start + (map_end - map_start) / 2; /* the median */
 
 	for(i=map_start;i<map_end;++i) {
-		os_log(("video: measured vclock %g\n", OS_CLOCKS_PER_SEC / map[i]));
+		log_std(("video: measured vclock %g\n", OS_CLOCKS_PER_SEC / map[i]));
 	}
 
 	if (map[map_start])
@@ -661,7 +661,7 @@ double video_measure_step(void (*wait)(void), double low, double high) {
 	else
 		error = 0;
 
-	os_log(("video: used vclock %g (err %g%%)\n", OS_CLOCKS_PER_SEC / map[median], error * 100.0));
+	log_std(("video: used vclock %g (err %g%%)\n", OS_CLOCKS_PER_SEC / map[median], error * 100.0));
 
 	return OS_CLOCKS_PER_SEC / map[median];
 }
@@ -982,9 +982,9 @@ void video_error_description_set(const char* text, ...) {
 	va_list arg;
 	va_start(arg,text);
 	vsprintf(video_state.error,text,arg);
-	os_log(("video: set_error_description \""));
+	log_std(("video: set_error_description \""));
 	video_log_va(text,arg);
-	os_log(("\"\n"));
+	log_std(("\"\n"));
 	va_end(arg);
 }
 

@@ -66,19 +66,19 @@ int the_sound_flag = 1;
 
 void sound_error(void) {
 	if (the_sound_flag) {
-		os_sound_error();
+		target_sound_error();
 	}
 }
 
 void sound_warn(void) {
 	if (the_sound_flag) {
-		os_sound_warn();
+		target_sound_warn();
 	}
 }
 
 void sound_signal(void) {
 	if (the_sound_flag) {
-		os_sound_signal();
+		target_sound_signal();
 	}
 }
 

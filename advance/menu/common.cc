@@ -352,12 +352,12 @@ string list_abs(const string& list, const string& cwd) {
 }
 
 string dir_cwd() {
-	char cwd[OS_MAXPATH];
-	if (getcwd(cwd,OS_MAXPATH)==0) {
+	char cwd[FILE_MAXPATH];
+	if (getcwd(cwd,FILE_MAXPATH)==0) {
 		assert(0);
 		return "/"; /* TODO this should never happen */
 	} else {
-		return os_import(cwd);
+		return file_import(cwd);
 	}
 }
 
@@ -453,16 +453,16 @@ bool is_globlist(const string& file, const string& globlist) {
 string file_read(const string& file) {
 	struct stat st;
 
-	const char* path = os_config_file_home( file.c_str() );
+	const char* path = file_config_file_home( file.c_str() );
 
 	if (stat(path,&st)!=0) {
-		cerr << "warning: error opening file " << path << endl;
+		target_err("warning: error opening file '%s'\n", path);
 		return string("");
 	}
 
 	FILE* f = fopen(path,"rb");
 	if (!f) {
-		cerr << "warning: error opening file " << path << endl;
+		target_err("warning: error opening file '%s'\n", path);
 		return string("");
 	}
 
@@ -471,7 +471,7 @@ string file_read(const string& file) {
 	if (fread(ssc,st.st_size,1,f)!=1) {
 		operator delete(ssc);
 		fclose(f);
-		cerr << "warning: error reading file " << path << endl;
+		target_err("warning: error reading file '%s'\n", path);
 		return string("");
 	}
 

@@ -29,35 +29,35 @@
 typedef std::list<std::string> path_container;
 
 inline std::string path_import(const std::string& s) {
-	return os_import(s.c_str());
+	return file_import(s.c_str());
 }
 
 inline std::string path_export(const std::string& s) {
-	return os_export(s.c_str());
+	return file_export(s.c_str());
 }
 
 inline std::string list_import(const std::string& s) {
-	return os_import(s.c_str());
+	return file_import(s.c_str());
 }
 
 inline std::string list_export(const std::string& s) {
-	return os_export(s.c_str());
+	return file_export(s.c_str());
 }
 
 inline const char* cpath_import(const std::string& s) {
-	return os_import(s.c_str());
+	return file_import(s.c_str());
 }
 
 inline const char* cpath_export(const std::string& s) {
-	return os_export(s.c_str());
+	return file_export(s.c_str());
 }
 
 inline const char* clist_import(const std::string& s) {
-	return os_import(s.c_str());
+	return file_import(s.c_str());
 }
 
 inline const char* clist_export(const std::string& s) {
-	return os_export(s.c_str());
+	return file_export(s.c_str());
 }
 
 std::string slash_add(const std::string& s);

@@ -85,7 +85,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 
-	os_log(("osd: osd2_sound_init(sample_rate:%d,stereo_flag:%d)\n", *sample_rate, stereo_flag));
+	log_std(("osd: osd2_sound_init(sample_rate:%d,stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
 	assert( context->state.active_flag == 0);
 
@@ -118,7 +118,7 @@ void osd2_sound_done(void)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 
-	os_log(("osd: osd2_sound_done()\n"));
+	log_std(("osd: osd2_sound_done()\n"));
 
 	assert( context->state.active_flag);
 
@@ -137,7 +137,7 @@ void osd2_sound_done(void)
  */
 void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count)
 {
-	os_log_debug(("advance: sound play %d\n", sample_count));
+	log_debug(("advance: sound play %d\n", sample_count));
 
 	if (context->state.active_flag) {
 		sound_play(sample_buffer,sample_count);
@@ -158,7 +158,7 @@ int advance_sound_latency_diff(struct advance_sound_context* context)
 	if (context->state.active_flag) {
 		int latency = sound_buffered();
 
-		os_log_debug(("advance: sound latency %d, dif %d\n", latency, latency - context->state.latency));
+		log_debug(("advance: sound latency %d, dif %d\n", latency, latency - context->state.latency));
 
 		return latency - context->state.latency;
 	} else {

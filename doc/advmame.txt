@@ -149,7 +149,7 @@ OPTIONS
 	you don't need to specify the argument but you must use the
 	-OPTION or -noOPTION format. For example:
 
-		advmame pacman -device_soundcard sb -nodisplay_scanlines
+		advmame pacman -device_sound sb -nodisplay_scanlines
 
 	You can use short options if they are unambigous. You can remove
 	any prepending tag separated with `_' or truncate it.

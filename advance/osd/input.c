@@ -446,15 +446,15 @@ int advance_input_inner_init(struct advance_input_context* context)
 		return -1;
 	}
 
-	os_log(("advance:mouse: %d available\n", os_mouse_count_get() ));
+	log_std(("advance:mouse: %d available\n", os_mouse_count_get() ));
 	for(i=0;i<os_mouse_count_get();++i) {
-		os_log(("advance:mouse: %d, buttons %d\n",i,os_mouse_button_count_get(i)));
+		log_std(("advance:mouse: %d, buttons %d\n",i,os_mouse_button_count_get(i)));
 	}
-	os_log(("advance:joystick: %d available\n", os_joy_count_get() ));
+	log_std(("advance:joystick: %d available\n", os_joy_count_get() ));
 	if (os_joy_count_get())
-		os_log(("advance:joystick: name %s, driver %s\n", os_joy_name_get(), os_joy_driver_name_get() ));
+		log_std(("advance:joystick: name %s, driver %s\n", os_joy_name_get(), os_joy_driver_name_get() ));
 	for(i=0;i<os_joy_count_get();++i) {
-		os_log(("advance:joystick: %d, buttons %d, stick %d, axes %d\n",i,os_joy_button_count_get(i),os_joy_stick_count_get(i),os_joy_stick_axe_count_get(i,0)));
+		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n",i,os_joy_button_count_get(i),os_joy_stick_count_get(i),os_joy_stick_axe_count_get(i,0)));
 	}
 
 	input_init_joystick();
@@ -511,7 +511,7 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 				return -1;
 			}
 
-			os_log(("advance: input analog mapping player:%d axe:%d (%s) <- joy:%d, stick:%d, axe:%d\n", i, j, input_map_axe_desc[j], joy, stick, axe));
+			log_std(("advance: input analog mapping player:%d axe:%d (%s) <- joy:%d, stick:%d, axe:%d\n", i, j, input_map_axe_desc[j], joy, stick, axe));
 			context->config.analog_map[i][j] = CODE_JOY_STICK_AXE(joy,stick,axe);
 		}
 	}
@@ -527,7 +527,7 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 			return -1;
 		}
 
-		os_log(("advance: input track mapping player:%d <- mouse:%d\n", i, mouse));
+		log_std(("advance: input track mapping player:%d <- mouse:%d\n", i, mouse));
 		context->config.trak_map[i] = CODE_MOUSE(mouse);
 	}
 

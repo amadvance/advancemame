@@ -37,31 +37,13 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <execinfo.h>
 #include <sys/stat.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
-
-#ifndef PREFIX
-#error Macro PREFIX undefined
-#endif
-
-struct os_fixed {
-	char root_dir[OS_MAXPATH];
-	char home_dir[OS_MAXPATH];
-	char dir_buffer[OS_MAXPATH];
-	char file_root[OS_MAXPATH];
-	char file_home[OS_MAXPATH];
-};
 
 #define MOUSE_BUTTON_MAX 3 /**< Max number os mouse buttons */
 #define KEY_MAX SDLK_LAST /**< Max number of keys */
 #define JOYSTICK_MAX 4 /**< Max number of joysticks */
 
 struct os_context {
-	FILE* msg;
-	int msg_sync_flag;
-
 	int key_id; /**< Keyboard identifier */
 	int key_map[KEY_MAX];
 
@@ -80,7 +62,6 @@ struct os_context {
 	int is_term; /**< Is termination requested */
 };
 
-static struct os_fixed OSF;
 static struct os_context OS;
 
 #define KEY_TYPE_NONE 0
@@ -91,43 +72,6 @@ static struct os_context OS;
 
 #define JOYSTICK_TYPE_NONE 0
 #define JOYSTICK_TYPE_AUTO 1
-
-/***************************************************************************/
-/* Debug */
-
-void os_msg_va(const char *text, va_list arg) {
-	if (OS.msg) {
-		vfprintf(OS.msg,text,arg);
-		if (OS.msg_sync_flag)
-			fflush(OS.msg);
-	}
-}
-
-void os_msg(const char *text, ...) {
-	va_list arg;
-	va_start(arg, text);
-	os_msg_va(text, arg);
-	va_end(arg);
-}
-
-int os_msg_init(const char* file, int sync_flag) {
-	OS.msg_sync_flag = sync_flag;
-
-	if (file) {
-		OS.msg = fopen(file,"w");
-		if (!OS.msg)
-			return -1;
-	}
-
-	return 0;
-}
-
-void os_msg_done(void) {
-	if (OS.msg) {
-		fclose(OS.msg);
-		OS.msg = 0;
-	}
-}
 
 /***************************************************************************/
 /* Clock */
@@ -141,59 +85,40 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-static void strcatslash(char* str) {
-	if (str[0] && str[strlen(str)-1] !='/')
-		strcat(str,"/");
-}
+#include "icondef.h"
 
-static int os_fixed(void) {
-	char* home;
+static void SDL_WM_DefIcon(void) {
+	SDL_Surface* surface;
+	SDL_Color colors[ICON_PALETTE];
+	unsigned i,x,y;
 
-	/* root */
-	strcpy(OSF.root_dir,PREFIX);
-	strcatslash(OSF.root_dir);
-	strcat(OSF.root_dir,"share/advance");
-
-	/* home */
-	home = getenv("HOME");
-	if (!home || !*home) {
-		/* use the root dir as home dir */
-		strcpy(OSF.home_dir,OSF.root_dir);
-	} else {
-		strcpy(OSF.home_dir,home);
-		strcatslash(OSF.home_dir);
-		strcat(OSF.home_dir,".advance");
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
+	if (!surface) {
+		log_std(("sound: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
+		return;
 	}
 
-	if (OSF.home_dir[0]) {
-		struct stat st;
-		if (stat(OSF.home_dir,&st) == 0) {
-			if (!S_ISDIR(st.st_mode)) {
-				fprintf(stderr,"Failure: A file named %s exists\n",OSF.home_dir);
-				return -1;
-			}
-		} else {
-			char buffer[OS_MAXPATH];
-			if (mkdir(OSF.home_dir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
-				fprintf(stderr,"Failure: Error creating the directory %s\n",OSF.home_dir);
-				return -1;
-			}
-			sprintf(buffer,"%s/cfg",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/snap",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/hi",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/nvram",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/memcard",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/sta",OSF.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		}
+	for(y=0;y<ICON_SIZE;++y) {
+		unsigned char* p = (unsigned char*)surface->pixels + y * surface->pitch;
+		for(x=0;x<ICON_SIZE;++x)
+			p[x] = icon_pixel[y*ICON_SIZE+x];
 	}
 
-	return 0;
+	for(i=0;i<ICON_PALETTE;++i) {
+		colors[i].r = icon_palette[i*3+0];
+		colors[i].g = icon_palette[i*3+1];
+		colors[i].b = icon_palette[i*3+2];
+	}
+
+	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
+		log_std(("sound: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
+		SDL_FreeSurface(surface);
+		return;
+	}
+
+	SDL_WM_SetIcon(surface, icon_mask);
+
+	SDL_FreeSurface(surface);
 }
 
 int os_init(struct conf_context* context) {
@@ -209,30 +134,28 @@ static void os_term_signal(int signum) {
 	OS.is_term = 1;
 }
 
-int os_inner_init(void) {
+int os_inner_init(const char* title) {
 	SDL_version compiled;
-
-	os_log(("os: root dir %s\n", OSF.root_dir));
-	os_log(("os: home dir %s\n", OSF.home_dir));
 
 	/* the SDL_INIT_VIDEO flags must be specified also if the video */
 	/* output isn't used */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
-		os_log(("sound: SDL_Init() failed, %s\n", SDL_GetError()));
+		log_std(("sound: SDL_Init() failed, %s\n", SDL_GetError()));
 		return -1;
 	}
 
 	SDL_VERSION(&compiled);
 
-	os_log(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
-	os_log(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
+	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
+	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
 	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-		os_log(("os: little endian system\n"));
+		log_std(("os: little endian system\n"));
 	else
-		os_log(("os: big endian system\n"));
+		log_std(("os: big endian system\n"));
 
 	/* set the titlebar */
-	SDL_WM_SetCaption("Advance",0);
+	SDL_WM_SetCaption(title,title);
+	SDL_WM_DefIcon();
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -241,11 +164,6 @@ int os_inner_init(void) {
 	signal(SIGINT, os_signal);
 	signal(SIGSEGV, os_signal);
 	signal(SIGTERM, os_term_signal);
-	signal(SIGHUP, os_signal);
-	signal(SIGKILL, os_signal);
-	signal(SIGPIPE, os_signal);
-	signal(SIGQUIT, os_term_signal);
-	signal(SIGUSR1, os_signal); /* used for malloc failure */
 
 	return 0;
 }
@@ -307,7 +225,7 @@ void os_poll(void) {
 }
 
 void os_idle(void) {
-	SDL_Delay(0);
+	SDL_Delay(1);
 }
 
 void os_usleep(unsigned us) {
@@ -488,7 +406,7 @@ void os_joy_done(void)
 }
 
 const char* os_joy_name_get(void) {
-	return "Unknow";
+	return "Unknown";
 }
 
 const char* os_joy_driver_name_get(void) {
@@ -583,162 +501,6 @@ const char* os_joy_calib_next(void)
 }
 
 /***************************************************************************/
-/* Hardware */
-
-void os_port_set(unsigned addr, unsigned value) {
-}
-
-unsigned os_port_get(unsigned addr) {
-	return 0;
-}
-
-void os_writeb(unsigned addr, unsigned char c) {
-}
-
-unsigned char os_readb(unsigned addr) {
-	return 0;
-}
-
-int os_mmx_get(void) {
-	/* TODO MMX detect, assume yes */
-	return 1;
-}
-
-void os_mode_reset(void) {
-	/* no mode reset */
-}
-
-/***************************************************************************/
-/* Sound */
-
-void os_sound_error(void) {
-	/* nothing */
-}
-
-void os_sound_warn(void) {
-	/* nothing */
-}
-
-void os_sound_signal(void) {
-	/* nothing */
-}
-
-/***************************************************************************/
-/* APM */
-
-int os_apm_shutdown(void) {
-	return 0;
-}
-
-int os_apm_standby(void) {
-	return 0;
-}
-
-int os_apm_wakeup(void) {
-	return 0;
-}
-
-/***************************************************************************/
-/* System */
-
-int os_system(const char* cmd) {
-	os_log(("sdl: system %s\n",cmd));
-
-	return system(cmd);
-}
-
-int os_spawn(const char* file, const char** argv) {
-	int pid, status;
-	int i;
-
-	os_log(("sdl: spawn %s\n",file));
-	for(i=0;argv[i];++i)
-		os_log(("sdl: spawn arg %s\n",argv[i]));
-
-	pid = fork();
-	if (pid == -1)
-		return -1;
-
-	if (pid == 0) {
-		execvp(file, (char**)argv);
-		exit(127);
-	} else {
-		while (1) {
-			if (waitpid(pid, &status, 0) == -1) {
-				if (errno != EINTR) {
-					status = -1;
-					break;
-				}
-			} else
-				break;
-		}
-
-		return status;
-	}
-}
-
-/***************************************************************************/
-/* FileSystem */
-
-char os_dir_separator(void) {
-	return ':';
-}
-
-char os_dir_slash(void) {
-	return '/';
-}
-
-const char* os_import(const char* path) {
-	return path;
-}
-
-const char* os_export(const char* path) {
-	return path;
-}
-
-/***************************************************************************/
-/* Files */
-
-const char* os_config_file_root(const char* file) {
-	if (file[0] == '/')
-		sprintf(OSF.file_root,"%s",file);
-	else
-		/* if relative add the root data dir */
-		sprintf(OSF.file_root,"%s/%s",OSF.root_dir,file);
-	return OSF.file_root;
-}
-
-const char* os_config_file_home(const char* file) {
-	if (file[0] == '/')
-		sprintf(OSF.file_home,"%s",file);
-	else
-		/* if relative add the home data dir */
-		sprintf(OSF.file_home,"%s/%s",OSF.home_dir,file);
-	return OSF.file_home;
-}
-
-const char* os_config_file_legacy(const char* file) {
-	return 0;
-}
-
-const char* os_config_dir_multidir(const char* tag) {
-	assert( tag[0] != '/' );
-	sprintf(OSF.dir_buffer,"%s/%s:%s/%s",OSF.home_dir,tag,OSF.root_dir,tag);
-	return OSF.dir_buffer;
-}
-
-const char* os_config_dir_singledir(const char* tag) {
-	assert( tag[0] != '/' );
-	sprintf(OSF.dir_buffer,"%s/%s",OSF.home_dir,tag);
-	return OSF.dir_buffer;
-}
-
-const char* os_config_dir_singlefile(void) {
-	sprintf(OSF.dir_buffer,"%s:%s",OSF.home_dir,OSF.root_dir);
-	return OSF.dir_buffer;
-}
-
-/***************************************************************************/
 /* Signal */
 
 int os_is_term(void) {
@@ -747,10 +509,10 @@ int os_is_term(void) {
 
 void os_default_signal(int signum)
 {
-	os_log(("os: signal %d\n", signum));
+	log_std(("os: signal %d\n", signum));
 
 #if defined(USE_VIDEO_SDL)
-	os_log(("os: video_abort\n"));
+	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
 		video_abort();
@@ -758,7 +520,7 @@ void os_default_signal(int signum)
 #endif
 
 #if defined(USE_SOUND_SDL)
-	os_log(("os: sound_abort\n"));
+	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);
 		sound_abort();
@@ -767,21 +529,14 @@ void os_default_signal(int signum)
 
 	SDL_Quit();
 
-	os_mode_reset();
+	target_mode_reset();
 
-	os_log(("os: close log\n"));
-
-	os_msg_done();
+	log_std(("os: close log\n"));
+	log_abort();
 
 	if (signum == SIGINT) {
 		fprintf(stderr,"Break pressed\n\r");
 		exit(EXIT_FAILURE);
-	} else if (signum == SIGQUIT) {
-		fprintf(stderr,"Quit pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else if (signum == SIGUSR1) {
-		fprintf(stderr,"Low memory\n\r");
-		_exit(EXIT_FAILURE);
 	} else {
 		fprintf(stderr,"AdvanceMAME signal %d.\n",signum);
 		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
@@ -799,10 +554,22 @@ void os_default_signal(int signum)
 
 int main(int argc, char* argv[])
 {
-	if (os_fixed() != 0)
+	if (target_init() != 0)
 		return EXIT_FAILURE;
-	if (os_main(argc,argv) != 0)
+
+	if (file_init() != 0) {
+		target_done();
 		return EXIT_FAILURE;
+	}
+
+	if (os_main(argc,argv) != 0) {
+		file_done();
+		target_done();		
+		return EXIT_FAILURE;
+	}
+		
+	file_done();
+	target_done();
 	
 	return EXIT_SUCCESS;
 }

@@ -13,42 +13,18 @@ PREFIX=/usr/local
 # The available choices are: mame, neomame, cpmame, mess, pac
 #EMU = mame
 
-# Select the target architecture CFLAGS (i686 by default)
-# The available choices for the -march= option with gcc-2.95 are:
-#   i386, i486, i586, i686
-# The available choices for the -march= option with gcc-3.0 are:
-#   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, k6, athlon
-# The available choices for the -march= option with gcc-3.1 are:
-#   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2,
-#   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
-#   athlon-xp, athlon-mp
-# for i586
-#CFLAGS_ARCH = -march=i586 -DUSE_LSB -DUSE_ASM_i586
-# for i686
-CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
-# for k6
-#CFLAGS_ARCH = -march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
-# for generic LittleEndian
-#CFLAGS_ARCH = -DUSE_LSB
-# for generic BigEndian
-#CFLAGS_ARCH = -DUSE_LSB
-
-#############################################################################
-# Advanced configuration
-#
-
-# Uncomment to enable the SMP code:
-USE_SMP=1
-
 # Uncommment the target operating system or the current one is used:
 #HOST_TARGET=linux
 #HOST_TARGET=dos
+#HOST_TARGET=windows
 
 # Uncomment the main system library to use.
 # The available choices for Linux are :
 #   linux, sdl (default is linux)
 # The available choices for DOS are :
 #   dos (default is dos)
+# The available choices for Windows are :
+#   sdl (default is sdl)
 #
 # The dos system uses:
 #   SVGALIB, VESAtweak and VGAtweak for the graphics output
@@ -59,7 +35,7 @@ USE_SMP=1
 # output of your video board.
 #
 # The linux system uses:
-#   SVGALIB for the graphics output
+#   SVGALIB and Frame Buffer Consolle for the graphics output
 #   SLang for the text output
 #   OSS for the sound output
 #   SVGALIB for the input
@@ -78,6 +54,29 @@ USE_SMP=1
 #HOST_SYSTEM=linux
 #HOST_SYSTEM=dos
 #HOST_SYSTEM=sdl
+
+# Uncomment to enable the SMP (Multiprocessor) code:
+USE_SMP=1
+
+# Select the target architecture CFLAGS (i686 by default)
+# The available choices for the -march= option with gcc-2.95 are:
+#   i386, i486, i586, i686
+# The available choices for the -march= option with gcc-3.0 are:
+#   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, k6, athlon
+# The available choices for the -march= option with gcc-3.1 are:
+#   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2,
+#   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
+#   athlon-xp, athlon-mp
+# for i586
+#CFLAGS_ARCH = -march=i586 -DUSE_LSB -DUSE_ASM_i586
+# for i686
+CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
+# for k6
+#CFLAGS_ARCH = -march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
+# for generic LittleEndian
+#CFLAGS_ARCH = -DUSE_LSB
+# for generic BigEndian
+#CFLAGS_ARCH = -DUSE_MSB
 
 # Compilation option for the optimized build
 CFLAGS_OPTIMIZE = -O3 -fomit-frame-pointer -fstrict-aliasing
@@ -106,10 +105,14 @@ COMPRESS=1
 
 # Build environment
 HOST := $(shell uname)
-ifeq ($(HOST),Linux)
+ifneq (,$(findstring Linux,$(HOST)))
 HOST_BUILD=linux
 else
+ifneq (,$(findstring DOS,$(HOST)))
 HOST_BUILD=dos
+else
+HOST_BUILD=windows
+endif
 endif
 
 # Target environment
@@ -119,18 +122,25 @@ endif
 
 # Core environment
 ifndef HOST_SYSTEM
+ifeq ($(HOST_TARGET),windows)
+HOST_SYSTEM=sdl
+else
 HOST_SYSTEM=$(HOST_TARGET)
+endif
 endif
 
 # Binary description
+ifeq ($(HOST_TARGET),$(HOST_SYSTEM))
+BINARYTAG = $(HOST_TARGET)-native-$(ARCH)
+else
 BINARYTAG = $(HOST_TARGET)-$(HOST_SYSTEM)-$(ARCH)
+endif
 BINARYDIR = $(HOST_TARGET)/$(HOST_SYSTEM)/$(ARCH)
 
 ############################################################################
 # Tool options
 
 MAKE = @make -j 2
-ASM = @nasm
 MD = -@mkdir -p
 RM = @rm -f
 UPX = @upx -q -q -q
@@ -152,15 +162,25 @@ LN = @ln -s
 EXE =
 ASMFLAGS = -f elf
 CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
+ZLIBS = -lz
 endif
 ifeq ($(HOST_TARGET),dos)
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+ZLIBS = -lz
+endif
+ifeq ($(HOST_TARGET),windows)
+LN = @cp
+EXE = .exe
+ASMFLAGS = -f coff
+CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+ZLIBS = -static -lz
 endif
 
 ifeq ($(HOST_BUILD),linux)
+ASM = @nasm
 EXE-HOST =
 CC-HOST = @gcc
 TOUCH = @touch
@@ -170,27 +190,42 @@ CC = @gcc
 CXX = @g++
 LD = @gcc
 LDXX = @g++
+ifeq ($(SYMBOLS),1)
 # For the stack backtrace
 LDFLAGS += -rdynamic
+endif
+SDLCFLAGS = $(shell sdl-config --cflags)
+SDLLIBS = $(shell sdl-config --libs)
 endif
 ifeq ($(HOST_TARGET),dos)
 # Probably you need to changes these to cross compile:
 DJDIR = /mnt/dos1/djgpp
-#CROSSTARGET = i386-pc-msdosdjgpp
+LDFLAGS += -L $(DJDIR)/lib
 CROSSTARGET = i586-pc-msdosdjgpp
-#CROSSDIR = /usr/local/gcc-2.95.2-i386-pc-msdosdjgpp
-CROSSDIR = /usr/local/gcc-3.0.4-i586-pc-msdosdjgpp
-#CROSSDIR = /usr/local/gcc-3.1-i586-pc-msdosdjgpp
+CROSSDIR = /usr
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
-LDFLAGS += -L $(DJDIR)/lib
+endif
+ifeq ($(HOST_TARGET),windows)
+# Probably you need to changes these to cross compile:
+CROSSTARGET = i386-mingw32msvc
+CROSSDIR = /usr/local/cross-tools
+AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
+CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
+RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
+SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL
+SDLLIBS = -lSDL -mwindows
 endif
 endif
 
 ifeq ($(HOST_BUILD),dos)
+ASM = @nasm
 EXE-HOST = .exe
 CC-HOST = @gcc
 AR = @ar
@@ -199,6 +234,22 @@ CXX = @gxx
 LD = @gcc
 LDXX = @gxx
 TOUCH = @rem
+endif
+
+ifeq ($(HOST_BUILD),windows)
+ASM = @nasmw
+EXE-HOST = .exe
+CC-HOST = @gcc
+AR = @ar
+CC = @gcc
+CXX = @g++
+LD = @gcc
+LDXX = @g++
+TOUCH = @true
+RC = @windres
+# The "" are required, otherwise the backslash are removed
+SDLCFLAGS = "-IC:\MINGW\INCLUDE\SDL"
+SDLLIBS = -lSDL -mwindows
 endif
 
 #############################################################################
@@ -251,9 +302,6 @@ ifeq ($(EMU),)
 ifneq ($(wildcard srcpac),)
 EMU = pac
 endif
-endif
-ifeq ($(EMU),)
-EMU = unknow
 endif
 
 # Target file name
@@ -387,11 +435,11 @@ endif
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/mess/%.o: mess/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
 $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
@@ -450,6 +498,8 @@ flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
 	$(ECHO) CFLAGS-HOST=$(CFLAGS-HOST)
+	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
+	$(ECHO) SDLLIBS=$(SDLLIBS)
 	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
 	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
 	$(ECHO) EMULIBS=$(EMULIBS)
@@ -463,6 +513,10 @@ flags: obj
 	$(ECHO) CC-HOST=$(CC-HOST)
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
+
+os:
+	rgrep -r MSDOS advance
+	rgrep -r WIN32 advance
 
 #############################################################################
 # SLOCCount
