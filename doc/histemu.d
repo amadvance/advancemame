@@ -11,6 +11,12 @@ AdvanceMAME Version 0.87.1 2004/10
 		It's now required only if you change the
 		documentation.
 	) Fixed the user interface in overlay video modes.
+	) Added new configuration sections which allow to select
+		different options based on the input device type.
+		The new sections are named: `joy4way',
+		`joy8way', `doublejoy4way', `doublejoy8way',
+		`paddle', `dial', `trackball', `stick', `lightgun',
+		`mouse'.
 
 AdvanceMESS Version 0.87.0.0 2004/10
 	) All from AdvanceMAME 0.87.0.

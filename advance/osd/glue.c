@@ -407,6 +407,97 @@ unsigned mame_game_players(const mame_game* game)
 }
 
 /**
+ * Return the game control string.
+ * \return A string like "joy4way" or 0 if unknown.
+ */
+const char* mame_game_control(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const struct InputPort* input;
+	const char* control = 0;
+
+	/* memory management for input_port_allocate */
+	begin_resource_tracking();
+
+	/* create the input port list */
+	input = input_port_allocate(driver->construct_ipt);
+
+	while (input->type != IPT_END) {
+		switch (input->type) {
+		case IPT_JOYSTICK_UP :
+		case IPT_JOYSTICK_DOWN :
+		case IPT_JOYSTICK_LEFT :
+		case IPT_JOYSTICK_RIGHT :
+			if (!control) {
+				if (input->four_way)
+					control = "joy4way";
+				else
+					control = "joy8way";
+			}
+			break;
+		case IPT_JOYSTICKRIGHT_UP :
+		case IPT_JOYSTICKRIGHT_DOWN :
+		case IPT_JOYSTICKRIGHT_LEFT :
+		case IPT_JOYSTICKRIGHT_RIGHT :
+		case IPT_JOYSTICKLEFT_UP :
+		case IPT_JOYSTICKLEFT_DOWN :
+		case IPT_JOYSTICKLEFT_LEFT :
+		case IPT_JOYSTICKLEFT_RIGHT :
+			if (!control) {
+				if (input->four_way)
+					control = "doublejoy4way";
+				else
+					control = "doublejoy8way";
+			}
+			break;
+		case IPT_PADDLE  :
+		case IPT_PADDLE_V  :
+			if (!control) {
+				control = "paddle";
+			}
+			break;
+		case IPT_DIAL :
+		case IPT_DIAL_V :
+			if (!control) {
+				control = "dial";
+			}
+			break;
+		case IPT_TRACKBALL_X :
+		case IPT_TRACKBALL_Y :
+			if (!control) {
+				control = "trackball";
+			}
+			break;
+		case IPT_AD_STICK_X :
+		case IPT_AD_STICK_Y :
+		case IPT_AD_STICK_Z :
+			if (!control) {
+				control = "stick";
+			}
+			break;
+		case IPT_LIGHTGUN_X :
+		case IPT_LIGHTGUN_Y :
+			if (!control) {
+				control = "lightgun";
+			}
+			break;
+		case IPT_MOUSE_X :
+		case IPT_MOUSE_Y :
+			if (!control) {
+				control = "mouse";
+			}
+			break;
+		}
+
+		++input;
+	}
+
+	end_resource_tracking();
+
+	return control;
+}
+
+/**
  * Return the game at the specified index position.
  * \return
  * - == 0 Last empty position.

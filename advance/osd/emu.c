@@ -587,11 +587,12 @@ int os_main(int argc, char* argv[])
 	char* opt_gamename;
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
-	char* section_map[16];
+	char* section_map[32];
 	unsigned section_mac;
 	const mame_game* parent;
-	char buffer[32];
+	char buffer[128];
 	char cfg_buffer[512];
+	const char* control;
 
 	opt_xml = 0;
 	opt_log = 0;
@@ -846,6 +847,10 @@ int os_main(int argc, char* argv[])
 		section_map[section_mac++] = strdup("vertical");
 	else
 		section_map[section_mac++] = strdup("horizontal");
+	control = mame_game_control(option.game);
+	if (control) {
+		section_map[section_mac++] = strdup(control);
+	}
 	snprintf(buffer, sizeof(buffer), "%dplayer", mame_game_players(option.game));
 	section_map[section_mac++] = strdup(buffer);
 	section_map[section_mac++] = strdup("");

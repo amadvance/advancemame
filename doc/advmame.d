@@ -557,15 +557,19 @@ Configuration
 		`RESOLUTION' - The resolution of the game, like
 			`244x288' for raster games or `vector' for
 			vector games.
-		`ORIENTATION' - The game orientation. `vertical'
-			or `horizontal'.
-		`Nplayer' - Number of players in the game. `1player', `2player',
-			`3player', ...
+		`ORIENTATION' - The game orientation. One of `vertical',
+			`horizontal'.
+		`CONTROLLER' - The game input device. One of `joy4way',
+			`joy8way', `doublejoy4way', `doublejoy8way',
+			`paddle', `dial', `trackball', `stick', `lightgun',
+			`mouse'.
+		`Nplayer' - Number of players in the game. One of `1player',
+			`2player', `3player', ...
 		`' - The default empty section.
 
 	For example for the game `pacman' the following sections are
 	read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
-	`2player' and `'.
+	`joy4way', `2player' and `'.
 
 	You can override any global options inserting new options in
 	any of the sections of the game.
