@@ -46,7 +46,7 @@ extern "C" {
 /***************************************************************************/
 /* Option */
 
-void video_reg(struct conf_context* context);
+void video_reg(struct conf_context* context, video_bool auto_detect);
 void video_reg_driver(struct conf_context* context, video_driver* driver);
 video_error video_load(struct conf_context* context, const char* driver_ignore);
 
@@ -371,7 +371,7 @@ static __inline__ void video_unchained_plane_set(unsigned plane) {
 
 void video_wait_vsync(void);
 
-void video_init(void);
+video_error video_init(void);
 void video_done(void);
 void video_abort(void);
 

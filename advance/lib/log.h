@@ -44,8 +44,8 @@ int log_init(const char* file, int sync_flag);
 void log_done(void);
 void log_abort(void);
 
-void log_va(const char *text, va_list arg);
-void log_f(const char *text, ...);
+void log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void log_f(const char *text, ...) __attribute__((format(printf,1,2)));
 
 #ifndef NDEBUG
 #define log_std(a) log_f a

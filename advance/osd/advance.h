@@ -34,6 +34,8 @@
 #include "glue.h"
 
 #include "os.h"
+#include "file.h"
+#include "key.h"
 #include "conf.h"
 #include "generate.h"
 #include "crtcbag.h"
@@ -176,8 +178,8 @@ struct advance_video_state_context {
 	/* Game info */
 	int game_vector_flag; /**< If is a vector game. */
 	double game_fps; /**< Frame rate of the game. */
-	unsigned game_aspect_x; /**< Aspect x of the game */
-	unsigned game_aspect_y; /**< Aspect x of the game */
+	unsigned long long game_aspect_x; /**< Aspect x of the game */
+	unsigned long long game_aspect_y; /**< Aspect x of the game */
 	unsigned game_area_size_x; /**< Max size of the visible part. */
 	unsigned game_area_size_y; /**< Max size of the visible part. */
 	unsigned game_used_size_x; /**< Current size of the visible part. */
@@ -307,7 +309,7 @@ struct advance_video_context {
 	struct advance_video_state_context state;
 };
 
-void video_aspect_reduce(unsigned* a, unsigned *b);
+void video_aspect_reduce(unsigned long long* a, unsigned long long* b);
 double video_rate_scale_down(double rate, double reference);
 int crtc_scanline(const video_crtc* crtc);
 void crtc_sort(const struct advance_video_context* context, const video_crtc** map, unsigned mac);
@@ -477,9 +479,6 @@ void advance_safequit_update(struct advance_safequit_context* context);
 
 struct advance_input_config {
 	int input_idle_limit; /**< Limit of no input to exit */
-	int mouse_id; /**< Mouse type */
-	int joystick_id; /**< Joystick type */
-	int keyboard_id; /**< Keyboard type */
 	int steadykey_flag;
 	int disable_special_flag; /**< Disable the special OS key sequences */
 

@@ -35,12 +35,18 @@
 #include "blit.h"
 #include "os.h"
 #include "fuzzy.h"
+#include "log.h"
+#include "target.h"
 
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef __MSDOS__
+#include <dpmi.h> /* for _go32_dpmi_remaining_virtual_memory() */
+#endif
 
 struct advance_context CONTEXT;
 

@@ -14,21 +14,27 @@ MOBJS = \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
-	$(MOBJ)/lib/incstr.o
-
+	$(MOBJ)/lib/incstr.o \
+	$(MOBJ)/lib/device.o \
+	$(MOBJ)/lib/mousedrv.o \
+	$(MOBJ)/lib/mouseall.o \
+	$(MOBJ)/lib/mnone.o
 ifeq ($(CONF_SYSTEM),linux)
 MCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MCFLAGS += \
-	-DUSE_MOUSE_SVGALIB
+	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE
 MLIBS = -lvga
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \
 	$(MOBJ)/lib/targnix.o \
-	$(MOBJ)/$(CONF_SYSTEM)/os.o
+	$(MOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MOBJ)/$(CONF_SYSTEM)/msvgab.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
-MCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
+MCFLAGS += \
+	-DUSE_CONFIG_ALLEGRO_WRAPPER \
+	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE
 MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
 	-Xlinker --wrap -Xlinker get_config_int \
@@ -40,16 +46,19 @@ MLIBS = -lalleg
 MOBJS += \
 	$(MOBJ)/lib/filedos.o \
 	$(MOBJ)/lib/targdos.o \
-	$(MOBJ)/$(CONF_SYSTEM)/os.o
+	$(MOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MOBJ)/$(CONF_SYSTEM)/malleg.o
 endif
 
 ifeq ($(CONF_SYSTEM),sdl)
 MCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_MOUSE_SDL
+	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE
 MLIBS += $(SDLLIBS)
-MOBJS += $(MOBJ)/$(CONF_SYSTEM)/os.o
+MOBJS += \
+	$(MOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MOBJ)/$(CONF_SYSTEM)/msdl.o
 ifeq ($(CONF_HOST),linux)
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \

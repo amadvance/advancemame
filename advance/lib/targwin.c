@@ -30,7 +30,6 @@
 
 #include "target.h"
 #include "log.h"
-
 #include "os.h"
 
 #include "SDL.h"

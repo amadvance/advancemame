@@ -920,13 +920,6 @@ static unsigned char setregmask(unsigned char value, unsigned rbit, unsigned lbi
 	}
 }
 
-/* Get a register with mask */
-static unsigned char getregmask(unsigned rbit, unsigned lbit, unsigned char reg) {
-	reg >>= rbit;
-	reg &= (1 << lbit) - 1;
-	return reg;
-}
-
 void vga_regs_htt_set(struct vga_regs* regs, unsigned value) {
 	regs->crtc[0x0] = value - 5;
 }

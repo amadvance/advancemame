@@ -29,7 +29,7 @@
  */
 
 #include "snone.h"
-#include "os.h"
+#include "log.h"
 
 #include <assert.h>
 

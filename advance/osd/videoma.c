@@ -32,6 +32,8 @@
 #include "glue.h"
 
 #include "os.h"
+#include "log.h"
+#include "target.h"
 #include "video.h"
 #include "update.h"
 #include "generate.h"
@@ -41,6 +43,7 @@
 #include "script.h"
 #include "conf.h"
 #include "videoall.h"
+#include "keydrv.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -85,51 +88,46 @@
 			SCREEN_INTEGER interger multiplier
 			SCREEN_FRACTIONAL fractional multiplier
 		This value is derivate from game_visible_size and screen_visible_size
-*/
 
-/*
-Aspetto:
+	pc_aspect_ratio
+		The aspect of a standard horizontal PC monitor.
 
-pc_aspect_ratio
-	Sono le le dimensioni dello schermo di un normale pc 4 (width),
-	3 (height). Invertite se il the_monitor Š montato verticale.
+	arcade_aspect_ratio
+		Sono le le dimensioni dello schermo di un arcade 4,3
+		se orizzontale e 3,4 se verticale
 
-arcade_aspect_ratio
-	Sono le le dimensioni dello schermo di un arcade 4,3
-	se orizzontale e 3,4 se verticale
+	game_aspect_ratio
+		E' la dimensione in pixel ARCADE di un quadrato (a vista)
+		disegnato sullo schermo ARCADE alla particolare risoluzione ARCADE
+		FIX.game_width, FIX.game_height.
 
-game_aspect_ratio
-	E' la dimensione in pixel ARCADE di un quadrato (a vista)
-	disegnato sullo schermo ARCADE alla particolare risoluzione ARCADE
-	FIX.game_width, FIX.game_height.
-
-	E' la combinazione di arcade_aspect_ratio con la particolare
-	risoluzione FIX.game_width,FIX.game_height.
+		E' la combinazione di arcade_aspect_ratio con la particolare
+		risoluzione FIX.game_width,FIX.game_height.
 
 	arcade_aspect_ratio_x   game_aspect_ratio_x   game_use_size_x
 	--------------------- * ------------------- = -----------
 	arcade_aspect_ratio_y   game_aspect_ratio_y   game_used_size_y
 
-screen_aspect_ratio
-	E' la dimensione in pixel PC di un quadrato (a vista)
-	disegnato sullo schermo PC alla particolare risoluzione PC
-	mode->size_x, mode->size_y.
+	screen_aspect_ratio
+		E' la dimensione in pixel PC di un quadrato (a vista)
+		disegnato sullo schermo PC alla particolare risoluzione PC
+		mode->size_x, mode->size_y.
 
-	E' la combinazione di pc_aspect_ratio con la particolare
-	risoluzione mode->size_x,mode->size_y.
+		E' la combinazione di pc_aspect_ratio con la particolare
+		risoluzione mode->size_x,mode->size_y.
 
 	pc_aspect_ratio_x   screen_aspect_ratio_x   screen_size_x
 	----------------- * --------------------- = -------------
 	pc_aspect_ratio_y   screen_aspect_ratio_y   screen_size_y
 
 
-resulting_aspect_ratio
-	E' la dimensione in pixel ARCADE di un quadrato (a vista)
-	disegnato sullo schermo PC.
+	resulting_aspect_ratio
+		E' la dimensione in pixel ARCADE di un quadrato (a vista)
+		disegnato sullo schermo PC.
 
-	Idealmente dovrebbe essere uguale a game_aspect_ratio.
-	Se non c'e' stretching e' uguale per definizione a
-	screen_aspect ratio.
+		Idealmente dovrebbe essere uguale a game_aspect_ratio.
+		Se non c'e' stretching e' uguale per definizione a
+		screen_aspect ratio.
 
 	screen_stretch_factor_x   resulting_aspect_ratio_x   screen_aspect_ratio_x
 	----------------------- * ------------------------ = ---------------------
@@ -749,12 +747,12 @@ static void video_update_visible(struct advance_video_context* context, const vi
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 	} else {
-		unsigned factor_x;
-		unsigned factor_y;
-		unsigned screen_aspect_ratio_x;
-		unsigned screen_aspect_ratio_y;
-		unsigned arcade_aspect_ratio_x;
-		unsigned arcade_aspect_ratio_y;
+		unsigned long long factor_x;
+		unsigned long long factor_y;
+		unsigned long long screen_aspect_ratio_x;
+		unsigned long long screen_aspect_ratio_y;
+		unsigned long long arcade_aspect_ratio_x;
+		unsigned long long arcade_aspect_ratio_y;
 
 		screen_aspect_ratio_x = crtc_hsize_get(crtc) * pc_aspect_ratio_y;
 		screen_aspect_ratio_y = crtc_vsize_get(crtc) * pc_aspect_ratio_x;
@@ -784,7 +782,6 @@ static void video_update_visible(struct advance_video_context* context, const vi
 	}
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
-
 		context->state.game_visible_size_x = context->state.game_used_size_x;
 		context->state.game_visible_size_y = context->state.game_used_size_y;
 
@@ -841,7 +838,6 @@ static void video_update_visible(struct advance_video_context* context, const vi
 			context->state.game_visible_size_y = context->state.game_used_size_y;
 			context->state.mode_visible_size_y = my * context->state.game_visible_size_y;
 		}
-
 	} else {
 		if (context->state.game_used_size_x > crtc_hsize_get(crtc))
 			context->state.mode_visible_size_x = crtc_vsize_get(crtc);
@@ -960,48 +956,6 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 /***************************************************************************/
 /* Initialization */
-
-/**
- * Search the modeline with the nearest height not lower.
- */
-static const video_crtc* video_init_crtc_bigger_find(struct advance_video_context* context, unsigned size_y) {
-	video_crtc_container_iterator j;
-	video_crtc* best_crtc = 0;
-
-	for(video_crtc_container_iterator_begin(&j,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&j);video_crtc_container_iterator_next(&j)) {
-		video_crtc result;
-		video_crtc* crtc = video_crtc_container_iterator_get(&j);
-		if (video_make_crtc(context,&result,crtc) == 0
-			&& crtc_vsize_get(&result) >= size_y) {
-			if (!best_crtc || crtc_vsize_get(best_crtc) > crtc_vsize_get(&result)) {
-				best_crtc = crtc;
-			}
-		}
-	}
-
-	return best_crtc;
-}
-
-/**
- * Search the modeline with the nearest height not bigger.
- */
-static const video_crtc* video_init_crtc_smaller_find(struct advance_video_context* context, unsigned size_y) {
-	video_crtc_container_iterator j;
-	video_crtc* best_crtc = 0;
-
-	for(video_crtc_container_iterator_begin(&j,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&j);video_crtc_container_iterator_next(&j)) {
-		video_crtc result;
-		video_crtc* crtc = video_crtc_container_iterator_get(&j);
-		if (video_make_crtc(context,&result,crtc) == 0
-			&& crtc_vsize_get(&result) <= size_y) {
-			if (!best_crtc || crtc_vsize_get(best_crtc) < crtc_vsize_get(&result)) {
-				best_crtc = crtc;
-			}
-		}
-	}
-
-	return best_crtc;
-}
 
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
@@ -1142,8 +1096,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	unsigned best_size_3y;
 	unsigned best_bits;
 	double best_vclock;
-	unsigned arcade_aspect_ratio_x;
-	unsigned arcade_aspect_ratio_y;
+	unsigned long long arcade_aspect_ratio_x;
+	unsigned long long arcade_aspect_ratio_y;
 
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
@@ -1219,8 +1173,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
 		video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
 	} else {
-		unsigned factor_x;
-		unsigned factor_y;
+		unsigned long long factor_x;
+		unsigned long long factor_y;
 		unsigned step_x;
 
 		/* if the clock is programmable the monitor specification must be present */
@@ -1262,7 +1216,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		factor_y = pc_aspect_ratio_y * context->state.game_aspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
-		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", factor_x, factor_y, (double)context->config.aspect_expansion_factor));
+		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
 		/* Some video drivers have problem with 8 bit modes and */
 		/* not exactly a 16 pixel multiplier size */
@@ -1320,14 +1274,14 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	context->state.mode_best_size_2y = best_size_2y;
 	context->state.mode_best_vclock = best_vclock;
 
-	log_std(("advance:video: game_area_size_x %d\n",context->state.game_area_size_x));
-	log_std(("advance:video: game_area_size_y %d\n",context->state.game_area_size_y));
-	log_std(("advance:video: game_used_pos_x %d\n",context->state.game_used_pos_x));
-	log_std(("advance:video: game_used_pos_y %d\n",context->state.game_used_pos_y));
-	log_std(("advance:video: game_used_size_x %d\n",context->state.game_used_size_x));
-	log_std(("advance:video: game_used_size_y %d\n",context->state.game_used_size_y));
-	log_std(("advance:video: game_aspect_x %d\n",context->state.game_aspect_x));
-	log_std(("advance:video: game_aspect_y %d\n",context->state.game_aspect_y));
+	log_std(("advance:video: game_area_size_x %d\n", (unsigned)context->state.game_area_size_x));
+	log_std(("advance:video: game_area_size_y %d\n", (unsigned)context->state.game_area_size_y));
+	log_std(("advance:video: game_used_pos_x %d\n", (unsigned)context->state.game_used_pos_x));
+	log_std(("advance:video: game_used_pos_y %d\n", (unsigned)context->state.game_used_pos_y));
+	log_std(("advance:video: game_used_size_x %d\n", (unsigned)context->state.game_used_size_x));
+	log_std(("advance:video: game_used_size_y %d\n", (unsigned)context->state.game_used_size_y));
+	log_std(("advance:video: game_aspect_x %d\n", (unsigned)context->state.game_aspect_x));
+	log_std(("advance:video: game_aspect_y %d\n", (unsigned)context->state.game_aspect_y));
 
 	return 0;
 }
@@ -1600,6 +1554,8 @@ static __inline__ void video_frame_put(struct advance_video_context* context, co
 	/* screen position */
 	dst_x = context->state.blit_dst_x + x;
 	dst_y = context->state.blit_dst_y + y;
+
+	log_debug(("osd:frame dst_xxdst_y:%dx%d, dst_dxxdst_dy:%dx%d, xxy:%dx%d, dxxdy:%dx%d, dpxdw:%dx%d\n", dst_x, dst_y, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_pos_x, context->state.game_visible_pos_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dp, context->state.blit_src_dw));
 
 	/* compute the source pointer */
 	src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
@@ -2509,7 +2465,7 @@ int osd2_video_init(struct osd_video_option* req)
 
 	hardware_script_start(HARDWARE_SCRIPT_VIDEO);
 
-	if (os_key_init(input_context->config.keyboard_id, input_context->config.disable_special_flag) != 0) {
+	if (keyb_init(input_context->config.disable_special_flag) != 0) {
 		goto err_mode;
 	}
 
@@ -2520,7 +2476,7 @@ int osd2_video_init(struct osd_video_option* req)
 	return 0;
 
 err_os:
-	os_key_done();
+	keyb_done();
 err_mode:
 	video_done_mode(context, 0);
 	video_mode_reset();
@@ -2536,7 +2492,7 @@ void osd2_video_done(void)
 
 	video_done_thread(context);
 
-	os_key_done();
+	keyb_done();
 
 	if (context->config.restore_flag || context->state.measure_flag) {
 		video_done_mode(context,1);
@@ -2869,7 +2825,7 @@ int advance_video_init(struct advance_video_context* context, struct conf_contex
 	video_crtc_container_register(cfg_context);
 	generate_interpolate_register(cfg_context);
 
-	video_reg(cfg_context);
+	video_reg(cfg_context, 1);
 	video_reg_driver_all(cfg_context);
 
 	/* load graphics modes */
@@ -3165,7 +3121,9 @@ void advance_video_done(struct advance_video_context* context) {
 
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
-	video_init();
+	if (video_init() != 0) {
+		return -1;
+	}
 
 	if (video_blit_init() != 0) {
 		video_done();

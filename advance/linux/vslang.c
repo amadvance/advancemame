@@ -29,6 +29,7 @@
  */
 
 #include "vslang.h"
+#include "log.h"
 
 #include <slang/slang.h>
 #include <stdlib.h>
@@ -65,13 +66,14 @@ static unsigned char* slang_linear_write_line(unsigned y) {
 /* Public */
 
 static device DEVICE[] = {
-	{ "auto", -1, "sLang automatic detection" },
+{ "auto", -1, "sLang video" },
+{ 0, 0, 0 }
 };
 
 video_error slang_init(int device_id) {
-	int res;
-
 	assert( !slang_is_active() );
+
+	log_std(("video:slang: slang_init()\n"));
 
 	/* get the term info */
 	SLtt_get_terminfo();
@@ -85,6 +87,8 @@ video_error slang_init(int device_id) {
 
 void slang_done(void) {
 	assert(slang_is_active() && !slang_mode_is_active() );
+
+	log_std(("video:slang: slang_done()\n"));
 
 	slang_state.active = 0;
 }

@@ -29,7 +29,7 @@
  */
 
 #include "ssdl.h"
-#include "os.h"
+#include "log.h"
 
 #include <assert.h>
 
@@ -51,8 +51,8 @@ struct sound_sdl_context {
 
 static struct sound_sdl_context sdl_state;
 
-device DEVICE[] = {
-{ "auto", -1, "SDL automatic detection" },
+static device DEVICE[] = {
+{ "auto", -1, "SDL sound" },
 { 0, 0, 0 }
 };
 

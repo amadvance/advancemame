@@ -28,8 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "log.h"
-#include "os.h"
+#include "target.h"
 
 #include <stdio.h>
 

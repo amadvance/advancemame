@@ -743,28 +743,6 @@ static void rgb_raw_mask1_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 	}
 }
 
-static void rgb_raw_carry1_compute(unsigned bytes_per_pixel, uint32* dst, unsigned mask) {
-	unsigned pixel0 = rgb_raw_carry_mask_compute(mask);
-
-	switch (bytes_per_pixel) {
-		case 1 :
-			dst[0] = pixel0 | pixel0 << 8 | pixel0 << 16 | pixel0 << 24;
-			dst[1] = dst[0];
-			break;
-		case 2 :
-			dst[0] = pixel0 | pixel0 << 16;
-			dst[1] = dst[0];
-			break;
-		case 4 :
-			dst[0] = pixel0;
-			dst[1] = dst[0];
-			break;
-		default:
-			assert(0);
-	}
-}
-
-
 /***************************************************************************/
 /* internal_rgb_triad16pix */
 

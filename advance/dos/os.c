@@ -29,6 +29,12 @@
  */
 
 #include "os.h"
+#include "log.h"
+#include "target.h"
+#include "file.h"
+#include "conf.h"
+
+#include "allegro2.h"
 
 #include <signal.h>
 #include <process.h>
@@ -43,27 +49,7 @@
 #include <assert.h>
 #include <string.h>
 
-struct mouse_context {
-	int skip;
-	int x;
-	int y;
-	unsigned buttons;
-};
-
 struct os_context {
-	int mouse_id;
-	struct mouse_context mouse[2];
-	unsigned mouse_shift;
-	unsigned mouse_count;
-
-	int mouse2_button;
-
-	int key_id;
-
-	int joy_id;
-	int joy_calibration_target;
-	int joy_calibration_first;
-
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	/**
 	 * Enable the Allegro compatibility.
@@ -78,41 +64,6 @@ struct os_context {
 };
 
 static struct os_context OS;
-
-#define KEY_TYPE_NONE 0
-#define KEY_TYPE_AUTO 1
-
-#define MOUSE_TYPE_NONE 0
-#define MOUSE_TYPE_AUTO 1
-
-/***************************************************************************/
-/* Second mouse */
-
-static int mouse2_init(void) {
-	__dpmi_regs r;
-
-	r.x.ax = 100;
-        __dpmi_int(0x33, &r);
-	if (r.x.ax == 100 || r.x.ax == 0)
-		return -1;
-
-	return 0;
-}
-
-static void mouse2_get(int* x, int* y) {
-	__dpmi_regs r;
-
-	r.x.ax = 103;
-	__dpmi_int(0x33, &r);
-
-	OS.mouse2_button = r.x.bx;
-
-	r.x.ax = 111;
-	__dpmi_int(0x33, &r);
-
-	*x = (short)r.x.cx;
-	*y = (short)r.x.dx;
-}
 
 /***************************************************************************/
 /* Allegro configuration compatibility */
@@ -310,6 +261,17 @@ static void os_clock_setup(void) {
 #endif
 }
 
+os_clock_t os_clock(void) {
+	os_clock_t r;
+
+	__asm__ __volatile__ (
+		"rdtsc"
+		: "=A" (r)
+	);
+
+	return r;
+}
+
 /***************************************************************************/
 /* Init */
 
@@ -374,392 +336,22 @@ void os_inner_done(void) {
 }
 
 void os_poll(void) {
-	if (OS.joy_id != JOY_TYPE_NONE) {
-		poll_joystick();
-	}
-
-	if (keyboard_needs_poll())
-		poll_keyboard();
 }
 
 /***************************************************************************/
-/* Keyboard */
+/* Led */
 
-struct os_device OS_KEY[] = {
-	{ "none", KEY_TYPE_NONE, "No keyboard" },
-	{ "auto", KEY_TYPE_AUTO, "Automatic detection" },
-	{ 0, 0, 0 }
-};
+void os_led_set(unsigned mask) {
+	unsigned allegro_mask = 0;
 
-int os_key_init(int key_id, int disable_special)
-{
-	OS.key_id = key_id;
+	if ((mask & OS_LED_NUMLOCK) != 0)
+		allegro_mask |= KB_NUMLOCK_FLAG;
+	if ((mask & OS_LED_CAPSLOCK) != 0)
+		allegro_mask |= KB_CAPSLOCK_FLAG;
+	if ((mask & OS_LED_SCROLOCK) != 0)
+		allegro_mask |= KB_SCROLOCK_FLAG;
 
-	if (OS.key_id != KEY_TYPE_NONE) {
-		if (install_keyboard() != 0)
-			return -1;
-	}
-
-	if (disable_special) {
-		/* disable BREAK (CTRL+C) and QUIT (CTRL+\) in protect mode */
-		__djgpp_set_ctrl_c(0);
-
-		/* disable BREAK in real mode */
-		_go32_want_ctrl_break(1);
-
-		/* disable the Allegro CTRL+ALT+END and CTRL+BREAK */
-		three_finger_flag = 0;
-	}
-
-	return 0;
-}
-
-void os_key_done(void)
-{
-	if (OS.key_id != KEY_TYPE_NONE) {
-		remove_keyboard();
-	}
-
-	OS.key_id = KEY_TYPE_NONE;
-}
-
-/***************************************************************************/
-/* Input */
-
-int os_input_init(void) {
-	return 0;
-}
-
-void os_input_done(void) {
-}
-
-int os_input_hit(void) {
-	return kbhit();
-}
-
-unsigned os_input_get(void) {
-	return getkey();
-}
-
-/***************************************************************************/
-/* Mouse */
-
-struct os_device OS_MOUSE[] = {
-	{ "auto", MOUSE_TYPE_AUTO, "Automatic detection" },
-	{ "none", MOUSE_TYPE_NONE, "No mouse" },
-	{ 0, 0, 0 }
-};
-
-int os_mouse_init(int mouse_id)
-{
-	OS.mouse_shift = 0;
-	OS.mouse_count = 0;
-
-	log_std(("os: mouse_init(mouse_id:%d)\n",mouse_id));
-
-	OS.mouse_id = mouse_id;
-
-	if (OS.mouse_id != MOUSE_TYPE_NONE) {
-		int err = install_mouse();
-		if (err != -1) {
-			OS.mouse[OS.mouse_count].buttons = err;
-			++OS.mouse_count;
-			log_std(("os: Allegro mouse found\n"));
-		} else {
-			log_std(("os: Allegro mouse NOT found\n"));
-			++OS.mouse_shift;
-		}
-		if (mouse2_init() == 0) {
-			OS.mouse[OS.mouse_count].buttons = 2;
-			++OS.mouse_count;
-			log_std(("os: Secondary mouse found\n"));
-		} else {
-			log_std(("os: Secondary mouse NOT found\n"));
-		}
-	}
-
-	return 0;
-}
-
-void os_mouse_done(void)
-{
-	log_std(("os: mouse_done()\n"));
-
-	if (OS.mouse_id != MOUSE_TYPE_NONE) {
-		remove_mouse();
-	}
-
-	OS.mouse_id = MOUSE_TYPE_NONE;
-}
-
-unsigned os_mouse_count_get(void)
-{
-	return OS.mouse_count;
-}
-
-unsigned os_mouse_button_count_get(unsigned mouse)
-{
-	return OS.mouse[mouse].buttons;
-}
-
-void os_mouse_pos_get(unsigned mouse, int* x, int* y)
-{
-	if (OS.mouse[mouse].skip) {
-		*x = OS.mouse[mouse].x;
-		*y = OS.mouse[mouse].y;
-		OS.mouse[mouse].skip = 0;
-	} else {
-		switch (mouse + OS.mouse_shift) {
-		case 0 :
-			get_mouse_mickeys(&OS.mouse[mouse].x,&OS.mouse[mouse].y);
-			break;
-		case 1 :
-			mouse2_get(&OS.mouse[mouse].x,&OS.mouse[mouse].y);
-			break;
-		}
-		*x = OS.mouse[mouse].x/2;
-		*y = OS.mouse[mouse].y/2;
-		OS.mouse[mouse].x -= *x;
-		OS.mouse[mouse].y -= *y;
-		OS.mouse[mouse].skip = 1;
-	}
-}
-
-unsigned os_mouse_button_get(unsigned mouse, unsigned button)
-{
-	switch (mouse + OS.mouse_shift) {
-		case 0 : return (mouse_b & (1 << button)) != 0;
-		case 1 : return (OS.mouse2_button & (1 << button)) != 0;
-	}
-
-	return 0;
-}
-
-/***************************************************************************/
-/* Joystick */
-
-struct os_device OS_JOY[] = {
-	{ "auto", JOY_TYPE_AUTODETECT, "Automatic detection" },
-	{ "none", JOY_TYPE_NONE, "No joystick" },
-	{ "standard", JOY_TYPE_STANDARD, "Standard joystick" },
-	{ "dual", JOY_TYPE_2PADS , "Dual joysticks" },
-	{ "4button", JOY_TYPE_4BUTTON, "4-button joystick" },
-	{ "6button", JOY_TYPE_6BUTTON, "6-button joystick" },
-	{ "8button", JOY_TYPE_8BUTTON, "8-button joystick" },
-	{ "fspro", JOY_TYPE_FSPRO, "CH Flightstick Pro" },
-	{ "wingex", JOY_TYPE_WINGEX, "Logitech Wingman Extreme" },
-	{ "sidewinder", JOY_TYPE_SIDEWINDER, "Sidewinder" },
-	{ "sidewinderag", JOY_TYPE_SIDEWINDER_AG, "Sidewinder Aggressive" },
-	{ "gamepadpro", JOY_TYPE_GAMEPAD_PRO, "GamePad Pro" },
-	{ "grip", JOY_TYPE_GRIP, "GrIP" },
-	{ "grip4",JOY_TYPE_GRIP4, "GrIP 4-way" },
-	{ "sneslpt1", JOY_TYPE_SNESPAD_LPT1, "SNESpad LPT1" },
-	{ "sneslpt2", JOY_TYPE_SNESPAD_LPT2, "SNESpad LPT2" },
-	{ "sneslpt3", JOY_TYPE_SNESPAD_LPT3, "SNESpad LPT3" },
-/*
- *      Based on sample code by Earle F. Philhower, III. from DirectPad
- *      Pro 4.9, for use with the DirectPad Pro parallel port interface.
- *
- *      See <http://www.ziplabel.com/dpadpro> for interface details.
- *
- *
- *       -----------------------
- *      | o o o | o o o | o o o | Controller Port (looking into plug)
- *       \_____________________/
- *        1 2 3   4 5 6   7 8 9
- *
- *      Controller          Parallel
- *
- *      1 - data            10 (conport 1, 3, 4, 5, 6), 13 (conport 2)
- *      2 - command         2
- *      3 - 9V(shock)       +9V power supply terminal for Dual Shock
- *      4 - gnd             18,19 also -9V and/or -5V power supply terminal
- *      5 - V+              5, 6, 7, 8, 9 through diodes, or +5V power supply terminal
- *      6 - att             3 (conport 1, 2), 5 (conport 3), 6 (conport 4), 7 (conport 5), 8 (conport 6)
- *      7 - clock           4
- *      9 - ack             12 (conport 1, 3, 4, 5, 6), 14 (conport 2) **
- *
- *      ** There is an error in the DirectPad Pro documentation, which states that
- *         the second control port should have pin 9 connected to pin 15 on the
- *         parallel port. This should actually be pin 14 on the parallel port. To
- *         make things more confusing, this error is unlikely to prevent the
- *         interface from working properly. It's also possible that a change to the
- *         scanning code has been made in version 5.0 to prevent people from having
- *         to rewire their interfaces.
- *
- */
-	{ "psxlpt1", JOY_TYPE_PSXPAD_LPT1, "PSXpad LPT1" },
-	{ "psxlpt2", JOY_TYPE_PSXPAD_LPT2, "PSXpad LPT2" },
-	{ "psxlpt3", JOY_TYPE_PSXPAD_LPT3, "PSXpad LPT3" },
-/*
- *
- *      This driver supports upto four N64 controllers. The analog stick
- *      calibrates itself when the controller is powered up (in hardware).
- *      There is some autodetection code included, but it's unused as it's
- *      unreliable. Care to take a look?
- *
- *      This driver is for the N64 pad -> parallel port interface developed
- *      by Stephan Hans and Simon Nield, supported by DirectPad Pro 4.9.
- *
- *      See http://www.st-hans.de/N64.htm for interface information, and
- *      See http://www.ziplabel.com for DirectPad Pro information.
- */
-	{ "n64lpt1", JOY_TYPE_N64PAD_LPT1, "N64pad LPT1" },
-	{ "n64lpt2", JOY_TYPE_N64PAD_LPT2, "N64pad LPT2" },
-	{ "n64lpt3", JOY_TYPE_N64PAD_LPT3, "N64pad LPT3" },
-/*
- *
- *      Supports 2 two-button joysticks. Port 1 is compatible with Linux
- *      joy-db9 driver (multisystem 2-button), and port 2 is compatible
- *       with Atari interface for DirectPad Pro.
- *
- *      Based on joy-db9 driver for Linux by Vojtech Pavlik
- *      and on Atari interface for DirectPad Pro by Earle F. Philhower, III
- *
- *      Interface pinout
- *
- *
- *      Parallel port                           Joystick port 1
- *       1----------------------------------------------------1
- *      14----------------------------------------------------2
- *      16----------------------------------------------------3
- *      17----------------------------------------------------4
- *      11----------------------------------------------------6
- *      12----------------------------------------------------7 (button 2)
- *      18----------------------------------------------------8
- *
- *                                              Joystick port 2
- *       2----------------------------------------------------1
- *       3----------------------------------------------------2
- *       4----------------------------------------------------3
- *       5----------------------------------------------------4
- *       6----------------------------------------------------6
- *       7----------------------------------------------------7 (button 2)
- *      19----------------------------------------------------8
- *
- *      Advantages
- *
- *      * Simpler to build (no diodes required)
- *      * Autofire will work (if joystick supports it)
- *
- *      Drawbacks
- *
- *      * The parallel port must be in SPP (PS/2) mode in order for this
- *        driver to work. In Normal mode, port 2 won't work because data
- *        pins are not inputs. In EPP/ECP PS/2 mode, directions for
- *        port 1 won't work (buttons will) beacuse control pins are not
- *        inputs.
- *
- *       * The parallel port should not require pull-up resistors
- *         (however, newer ones don't)
- *
- */
-	{ "db9lpt1", JOY_TYPE_DB9_LPT1, "DB9 LPT1" },
-	{ "db9lpt2", JOY_TYPE_DB9_LPT2, "DB9 LPT2" },
-	{ "db9lpt3", JOY_TYPE_DB9_LPT3, "DB9 LPT3" },
-/*
- *
- *      Supports up to 7 joysticks, each one with up to 5 buttons.
- *
- *      Original interface and driver by Steffen Schwenke
- *      See <http://www.burg-halle.de/~schwenke/parport.html> for details
- *      on how to build the interface
- *
- *      Advantages
- *
- *      * Exploits the parallel port to its limits
- *
- *      Drawbacks
- *
- *      * Autofire will not work
- */
-	{ "tgxlpt1", JOY_TYPE_TURBOGRAFX_LPT1, "TGX-LPT1" },
-	{ "tgxlpt2", JOY_TYPE_TURBOGRAFX_LPT2, "TGX LPT2" },
-	{ "tgxlpt3", JOY_TYPE_TURBOGRAFX_LPT3, "TGX LPT3" },
-	{ "segaisa", JOY_TYPE_IFSEGA_ISA, "IF-SEGA/ISA" },
-	{ "segapci", JOY_TYPE_IFSEGA_PCI, "IF-SEGA2/PCI" },
-	{ "segapcifast", JOY_TYPE_IFSEGA_PCI_FAST, "IF-SEGA2/PCI (normal)" },
-	{ "wingwarrior", JOY_TYPE_WINGWARRIOR, "Wingman Warrior" },
-	{ 0, 0, 0 }
-};
-
-int os_joy_init(int joy_id)
-{
-	OS.joy_id = joy_id;
-
-	if (OS.joy_id != JOY_TYPE_NONE) {
-		log_std(("os: joystick load calibration data\n"));
-		if (load_joystick_data(0) != 0) {
-			log_std(("os: joystick error loading calibration data, try reinizializing\n"));
-			if (install_joystick(OS.joy_id) != 0) {
-				log_std(("os: joystick initialization failed\n"));
-				return -1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-void os_joy_done(void)
-{
-	if (OS.joy_id != JOY_TYPE_NONE) {
-		remove_joystick();
-	}
-
-	OS.joy_id = JOY_TYPE_NONE;
-}
-
-void os_joy_calib_start(void)
-{
-	if (OS.joy_id != JOY_TYPE_NONE) {
-		log_std(("os: joystick calibration start\n"));
-
-		remove_joystick();
-		install_joystick(OS.joy_id);
-
-		OS.joy_calibration_target = 0;
-		OS.joy_calibration_first = 1;
-	}
-}
-
-const char* os_joy_calib_next(void)
-{
-	if (OS.joy_id != JOY_TYPE_NONE) {
-
-		while (OS.joy_calibration_target < num_joysticks) {
-
-			if (joy[OS.joy_calibration_target].flags & JOYFLAG_CALIBRATE) {
-				if (!OS.joy_calibration_first) {
-					if (calibrate_joystick(OS.joy_calibration_target) != 0) {
-						log_std(("os: joystick error in calibration %d\n",OS.joy_calibration_target));
-						/* stop on error */
-						return 0;
-					}
-				}
-
-				OS.joy_calibration_first = 0;
-
-				if (joy[OS.joy_calibration_target].flags & JOYFLAG_CALIBRATE) {
-					const char* msg;
-
-					msg = calibrate_joystick_name(OS.joy_calibration_target);
-					log_std(("os: joystick calibration msg %s\n",msg));
-					return msg;
-				}
-			} else {
-				/* next joystick */
-				OS.joy_calibration_target++;
-				OS.joy_calibration_first = 1;
-			}
-		}
-
-		log_std(("os: joystick saving calibration data\n"));
-
-		save_joystick_data(0);
-	}
-
-	return 0;
+	set_leds(allegro_mask);
 }
 
 /***************************************************************************/

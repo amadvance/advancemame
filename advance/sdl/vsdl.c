@@ -30,7 +30,7 @@
 
 #include "vsdl.h"
 #include "video.h"
-#include "os.h"
+#include "log.h"
 
 #include "SDL.h"
 
@@ -60,14 +60,29 @@ static sdl_internal sdl_state;
 unsigned char* (*sdl_write_line)(unsigned y);
 
 static device DEVICE[] = {
-{ "auto", 1, "SDL automatic detection" },
-{ "sdl", 2, "SDL (no hardware programming)" },
+{ "auto", 1, "SDL video" },
 { 0, 0, 0 }
 };
+
+static unsigned SDL_ModeFlags(void) {
+	unsigned flags;
+
+	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+		/* use a window if a window manager is present */
+		flags = 0;
+	} else {
+		/* use fullscreen direct access otherwise */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
+	}
+
+	return flags;
+}
 
 video_error sdl_init(int device_id) {
 	char name[64];
 	const device* i;
+	unsigned j;
+	SDL_Rect** map;
 
 	assert( !sdl_is_active() );
 	
@@ -94,6 +109,15 @@ video_error sdl_init(int device_id) {
 
 	if (SDL_VideoDriverName(name,sizeof(name))) {
 		video_log("video:sdl: driver %s\n", name);
+	}
+
+	map = SDL_ListModes(0, SDL_ModeFlags() );
+	if (map && map != (SDL_Rect **)-1) {
+		for(j=0;map[j];++j) {
+			log_std(("video:sdl: mode %dx%d\n", (unsigned)map[j]->w, (unsigned)map[j]->h));
+		}
+	} else {
+		log_std(("video:sdl: no default video modes\n"));
 	}
 
 	sdl_state.active = 1;
@@ -165,20 +189,6 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) 
 	SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
 	
 	sdl_state.lock_active = 0;
-}
-
-static unsigned SDL_ModeFlags(void) {
-	unsigned flags;
-
-	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
-		/* use a window if a window manager is present */
-		flags = 0;
-	} else {
-		/* use fullscreen direct access otherwise */
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
-	}
-
-	return flags;
 }
 
 video_error sdl_mode_set(const sdl_video_mode* mode) {
@@ -363,8 +373,6 @@ video_error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
 }
 
 video_error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
-	int number;
-	unsigned model;
 	unsigned suggested_bits;
 
 	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, bits, SDL_ModeFlags() );
@@ -437,8 +445,6 @@ void sdl_default(void) {
 }
 
 void sdl_reg(struct conf_context* context) {
-	unsigned i;
-
 	assert( !sdl_is_active() );
 
 	conf_bool_register_default(context, "device_sdl_fullscreen", 0);

@@ -32,6 +32,8 @@
 #include "script.h"
 
 #include "os.h"
+#include "target.h"
+#include "keydrv.h"
 
 #include "mame2.h"
 

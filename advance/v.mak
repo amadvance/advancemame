@@ -19,6 +19,8 @@ VOBJS = \
 	$(VOBJ)/lib/monitor.o \
 	$(VOBJ)/lib/device.o \
 	$(VOBJ)/lib/gtf.o \
+	$(VOBJ)/lib/inputall.o \
+	$(VOBJ)/lib/inputdrv.o \
 	$(VOBJ)/lib/videoall.o \
 	$(VOBJ)/blit/blit.o \
 	$(VOBJ)/blit/clear.o \
@@ -35,7 +37,7 @@ ifeq ($(CONF_SYSTEM),linux)
 VCFLAGS += -DPREFIX=\"$(PREFIX)\"
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SVGALIB
+	-DUSE_INPUT_LINUX
 VLIBS = -lslang -lvga
 VOBJS += \
 	$(VOBJ)/lib/filenix.o \
@@ -43,12 +45,15 @@ VOBJS += \
 	$(VOBJ)/$(CONF_SYSTEM)/os.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vslang.o
+	$(VOBJ)/$(CONF_SYSTEM)/vdga.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vslang.o \
+	$(VOBJ)/$(CONF_SYSTEM)/ilinux.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
+	-DUSE_INPUT_DOS \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
@@ -65,6 +70,7 @@ VOBJS += \
 	$(VOBJ)/$(CONF_SYSTEM)/vsvgal.o \
 	$(VOBJ)/$(CONF_SYSTEM)/scrvbe.o \
 	$(VOBJ)/$(CONF_SYSTEM)/scrvga.o \
+	$(VOBJ)/$(CONF_SYSTEM)/idos.o \
 	$(VOBJ)/card/card.o \
 	$(VOBJ)/card/pci.o \
 	$(VOBJ)/card/map.o \

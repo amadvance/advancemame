@@ -30,7 +30,8 @@
 
 #include "vsvgab.h"
 #include "video.h"
-#include "os.h"
+#include "log.h"
+#include "osint.h"
 
 #include <vga.h>
 #include <string.h>
@@ -69,7 +70,8 @@ static unsigned char* svgalib_linear_write_line(unsigned y) {
 /* Public */
 
 static device DEVICE[] = {
-	{ "auto", -1, "SVGALIB automatic detection" },
+{ "auto", -1, "SVGALIB video" },
+{ 0, 0, 0 }
 };
 
 video_error svgalib_init(int device_id) {
@@ -80,10 +82,15 @@ video_error svgalib_init(int device_id) {
 
 	log_std(("video:svgalib: svgalib_init()\n"));
 
+	if (!os_internal_svgalib_get()) {
+		log_std(("video:svgalib: svgalib not initialized\n"));
+		return -1;
+	}
+
 	/* check the version of the SVGALIB */
 	res = vga_setmode(-1);
 	if (res < 0 || res < 0x1911) { /* 1.9.11 */
-		video_error_description_set("You need SVGALIB 1.9.11 or better");
+		video_error_description_set("You need SVGALIB 1.9.11 or newer");
 		return -1;
 	}
 
@@ -313,7 +320,7 @@ void svgalib_mode_done(video_bool restore) {
 	svgalib_state.mode_active = 0;
 
 	if (restore) {
-		/* a mode reset is required otherwise the other drivers are not unable to set the mode */
+		/* a mode reset is required otherwise the other drivers are not able to set the mode */
 		video_log("video:svgalib: vga_setmode(TEXT)\n");
 		vga_setmode(TEXT);
 	}

@@ -32,12 +32,15 @@
 #include "log.h"
 #include "file.h"
 
-#include "allegro2.h" /* used for the MMX detection */
-
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <process.h>
 #include <sys/exceptn.h>
+#include <sys/farptr.h>
+#include <go32.h>
+#include <dpmi.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <dos.h>
 #include <string.h>
 #include <stdio.h>

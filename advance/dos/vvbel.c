@@ -102,7 +102,7 @@ static struct vbeline_option_struct vbeline_option;
 #define VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT
 
 static device DEVICE[] = {
-{ "auto", 1, "VBELINE automatic detection" },
+{ "auto", 1, "VBELINE video" },
 { "laguna", 2, "Cirrus Laguna" },
 { "3dfx", 3, "3dfx" },
 { "savage", 4, "S3 Savage" },

@@ -35,7 +35,9 @@
 #include "blit.h"
 #include "os.h"
 #include "videoall.h"
-#include "key.h"
+#include "keyall.h"
+#include "mouseall.h"
+#include "joyall.h"
 
 #include <list>
 #include <iostream>
@@ -195,52 +197,34 @@ static bool text_updating_active; // is updating the video
 // -----------------------------------------------------------------------
 // Joystick
 
-static int text_joystick_id;
-
 static void text_joystick_init(struct conf_context* config_context) {
-	conf_string_register_default(config_context, "device_joystick", "none");
+	joystickb_reg(config_context);
+	joystickb_reg_driver_all(config_context);
 }
 
 static void text_joystick_done() {
 }
 
 static bool text_joystick_load(struct conf_context* config_context) {
-	unsigned i;
-	const char* s;
-
-	s = conf_string_get_default(config_context, "device_joystick");
-	for (i=0;OS_JOY[i].name;++i) {
-		if (strcmp(OS_JOY[i].name, s) == 0) {
-			text_joystick_id = OS_JOY[i].id;
-			break;
-		}
-	}
-	if (!OS_JOY[i].name) {
-		target_err("Invalid argument '%s' for option 'device_joystick'.\n",s);
-		target_err("Valid values are:\n");
-		for (i=0;OS_JOY[i].name;++i) {
-			target_err("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
-		}
+	if (joystickb_load(config_context) != 0)
 		return false;
-	}
-
 	return true;
 }
 
 static bool text_joystick_init2() {
-	if (os_joy_init(text_joystick_id) != 0)
+	if (joystickb_init() != 0)
 		return false;
 	return true;
 }
 
 static void text_joystick_done2() {
-	os_joy_done();
+	joystickb_done();
 }
 
 static int text_joystick_button_raw_poll() {
-	for(int i=0;i<os_joy_count_get();++i) {
-		for(int j=0;j<os_joy_button_count_get(i);++j) {
-			if (os_joy_button_get(i,j)) {
+	for(int i=0;i<joystickb_count_get();++i) {
+		for(int j=0;j<joystickb_button_count_get(i);++j) {
+			if (joystickb_button_get(i,j)) {
 				switch (j) {
 					case 0 : return TEXT_KEY_ENTER;
 					case 1 : return TEXT_KEY_ESC;
@@ -255,18 +239,18 @@ static int text_joystick_button_raw_poll() {
 
 static int text_joystick_move_raw_poll() {
 
-	for(int i=0;i<os_joy_count_get();++i) {
-		for(int j=0;j<os_joy_stick_count_get(i);++j) {
-			if (os_joy_stick_axe_count_get(i,j) > 0) {
-				if (os_joy_stick_axe_digital_get(i,j,0,0))
+	for(int i=0;i<joystickb_count_get();++i) {
+		for(int j=0;j<joystickb_stick_count_get(i);++j) {
+			if (joystickb_stick_axe_count_get(i,j) > 0) {
+				if (joystickb_stick_axe_digital_get(i,j,0,0))
 					return TEXT_KEY_RIGHT;
-				if (os_joy_stick_axe_digital_get(i,j,0,1))
+				if (joystickb_stick_axe_digital_get(i,j,0,1))
 					return TEXT_KEY_LEFT;
 			}
-			if (os_joy_stick_axe_count_get(i,j) > 1) {
-				if (os_joy_stick_axe_digital_get(i,j,1,0))
+			if (joystickb_stick_axe_count_get(i,j) > 1) {
+				if (joystickb_stick_axe_digital_get(i,j,1,0))
 					return TEXT_KEY_DOWN;
-				if (os_joy_stick_axe_digital_get(i,j,1,1))
+				if (joystickb_stick_axe_digital_get(i,j,1,1))
 					return TEXT_KEY_UP;
 			}
 		}
@@ -278,46 +262,30 @@ static int text_joystick_move_raw_poll() {
 // -----------------------------------------------------------------------
 // Key
 
-static int text_key_id;
-
 static void text_key_init(struct conf_context* config_context) {
-	conf_string_register_default(config_context, "device_keyboard", "auto");
+	keyb_reg(config_context);
+	keyb_reg_driver_all(config_context);
 }
 
 static void text_key_done() {
 }
 
 static bool text_key_load(struct conf_context* config_context) {
-	unsigned i;
-	const char* s;
-
-	s = conf_string_get_default(config_context, "device_keyboard");
-	for (i=0;OS_KEY[i].name;++i) {
-		if (strcmp(OS_KEY[i].name, s) == 0) {
-			text_key_id = OS_KEY[i].id;
-			break;
-		}
-	}
-	if (!OS_KEY[i].name) {
-		target_err("Invalid argument '%s' for option 'device_keyboard'.\n",s);
-		target_err("Valid values are:\n");
-		for (i=0;OS_KEY[i].name;++i) {
-			target_err("%8s %s\n", OS_KEY[i].name, OS_KEY[i].desc);
-		}
+	if (keyb_load(config_context) != 0)
 		return false;
-	}
 
 	return true;
 }
 
 static bool text_key_init2() {
-	if (os_key_init(text_key_id, 0) != 0)
+	if (keyb_init(0) != 0)
 		return false;
+
 	return true;
 }
 
 static void text_key_done2() {
-	os_key_done();
+	keyb_done();
 }
 
 // -----------------------------------------------------------------------
@@ -329,7 +297,8 @@ static int text_mouse_pos_x;
 static int text_mouse_pos_y;
 
 static void text_mouse_init(struct conf_context* config_context) {
-	conf_string_register_default(config_context, "device_mouse", "none");
+	mouseb_reg(config_context);
+	mouseb_reg_driver_all(config_context);
 	conf_int_register_limit_default(config_context, "mouse_delta", 1, 1000, 100);
 }
 
@@ -344,44 +313,32 @@ static bool text_mouse_load(struct conf_context* config_context) {
 	text_mouse_pos_y = 0;
 	text_mouse_delta = conf_int_get_default(config_context, "mouse_delta");
 
-	s = conf_string_get_default(config_context, "device_mouse");
-	for (i=0;OS_MOUSE[i].name;++i) {
-		if (strcmp(OS_MOUSE[i].name, s) == 0) {
-			text_mouse_id = OS_MOUSE[i].id;
-			break;
-		}
-	}
-	if (!OS_MOUSE[i].name) {
-		target_err("Invalid argument '%s' for option 'device_mouse'.\n",s);
-		target_err("Valid values are:\n");
-		for (i=0;OS_MOUSE[i].name;++i) {
-			target_err("%8s %s\n", OS_MOUSE[i].name, OS_MOUSE[i].desc);
-		}
+	if (mouseb_load(config_context) != 0)
 		return false;
-	}
 
 	return true;
 }
 
 static bool text_mouse_init2() {
-	if (os_mouse_init(text_mouse_id) != 0)
+	if (mouseb_init() != 0)
 		return false;
+
 	return true;
 }
 
 static void text_mouse_done2() {
-	os_mouse_done();
+	mouseb_done();
 }
 
 static int text_mouse_button_raw_poll() {
-	for(int i=0;i<os_mouse_count_get();++i) {
-		if (os_mouse_button_count_get(i) > 0 && os_mouse_button_get(i,0))
+	for(int i=0;i<mouseb_count_get();++i) {
+		if (mouseb_button_count_get(i) > 0 && mouseb_button_get(i,0))
 			return TEXT_KEY_ENTER;
 
-		if (os_mouse_button_count_get(i) > 1 && os_mouse_button_get(i,1))
+		if (mouseb_button_count_get(i) > 1 && mouseb_button_get(i,1))
 			return TEXT_KEY_ESC;
 
-		if (os_mouse_button_count_get(i) > 2 && os_mouse_button_get(i,2))
+		if (mouseb_button_count_get(i) > 2 && mouseb_button_get(i,2))
 			return TEXT_KEY_MENU;
 	}
 
@@ -389,10 +346,10 @@ static int text_mouse_button_raw_poll() {
 }
 
 static int text_mouse_move_raw_poll() {
-	for(int i=0;i<os_mouse_count_get();++i) {
+	for(int i=0;i<mouseb_count_get();++i) {
 		int x, y;
 
-		os_mouse_pos_get(i,&x,&y);
+		mouseb_pos_get(i,&x,&y);
 
 		text_mouse_pos_x += x;
 		text_mouse_pos_y += y;
@@ -633,7 +590,8 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	text_mode_depth = depth;
 	text_sound_event_key = sound_event_key;
 
-	video_init();
+	if (video_init() != 0)
+		goto out;
 
 	if (video_blit_init() != 0)
 		goto out_video;
@@ -696,6 +654,7 @@ out_blit:
 	video_blit_done();
 out_video:
 	video_done();
+out:
 	return false;
 }
 
@@ -2189,7 +2148,7 @@ int seq_pressed(const unsigned* code)
 				break;
 			default:
 				if (res) {
-					int pressed = os_key_get(code[j]);
+					int pressed = keyb_get(code[j]);
 					if ((pressed != 0) == invert)
 						res = 0;
 				}
@@ -2288,7 +2247,7 @@ static int keyboard_raw_poll() {
 
 	if (text_alpha_mode) {
 		for(unsigned i=0;KEY_CONV[i].code != OS_KEY_MAX;++i)
-			if (os_key_get(KEY_CONV[i].code))
+			if (keyb_get(KEY_CONV[i].code))
 				return KEY_CONV[i].c;
 	}
 
@@ -2516,6 +2475,9 @@ static void text_idle() {
 	}
 
 	play_poll();
+	keyb_poll();
+	mouseb_poll();
+	joystickb_poll();
 }
 
 int text_keypressed() {

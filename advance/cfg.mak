@@ -27,6 +27,8 @@ CFGOBJS = \
 	$(CFGOBJ)/lib/monitor.o \
 	$(CFGOBJ)/lib/gtf.o \
 	$(CFGOBJ)/lib/device.o \
+	$(CFGOBJ)/lib/inputall.o \
+	$(CFGOBJ)/lib/inputdrv.o \
 	$(CFGOBJ)/lib/videoall.o \
 	$(CFGOBJ)/blit/blit.o \
 	$(CFGOBJ)/blit/clear.o \
@@ -38,7 +40,7 @@ ifeq ($(CONF_SYSTEM),linux)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SVGALIB \
+	-DUSE_INPUT_LINUX \
 	-I$(srcdir)/advance/$(CONF_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
@@ -47,13 +49,16 @@ CFGOBJS += \
 	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o
+	$(CFGOBJ)/$(CONF_SYSTEM)/vdga.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/ilinux.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
+	-DUSE_INPUT_DOS \
 	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
@@ -70,6 +75,7 @@ CFGOBJS += \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgal.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/scrvbe.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/scrvga.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/idos.o \
 	$(CFGOBJ)/card/card.o \
 	$(CFGOBJ)/card/pci.o \
 	$(CFGOBJ)/card/map.o \

@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __SDL_H
-#define __SDL_H
+#ifndef __VSDL_H
+#define __VSDL_H
 
 #include "videodrv.h"
 

@@ -200,7 +200,7 @@ static struct svgaline_chipset_struct cards[] = {
 
 /* Keep the same order of svgaline_chipset_struct cards */
 static device DEVICE[] = {
-	{ "auto", -1, "SVGALINE automatic detection" },
+	{ "auto", -1, "SVGALINE video" },
 #ifdef INCLUDE_NV3_DRIVER
 	{ "nv3", NV3, "nVidia Riva/GeForce" },
 #endif

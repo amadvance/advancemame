@@ -20,10 +20,9 @@
 
 #include "mixer.h"
 #include "mpglib.h"
-#include "sounddrv.h"
 #include "wave.h"
-#include "os.h"
 #include "soundall.h"
+#include "log.h"
 
 #include <string.h>
 
@@ -792,7 +791,7 @@ void mixer_poll(void) {
 }
 
 void mixer_reg(struct conf_context* context) {
-	sound_reg(context);
+	sound_reg(context, 1);
 	sound_reg_driver_all(context);
 }
 

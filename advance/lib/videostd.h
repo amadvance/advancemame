@@ -129,8 +129,9 @@ void video_error_description_set(const char* error, ...);
 void video_error_description_nolog_set(const char* error, ...);
 void video_error_description_nolog_cat(const char* error, ...);
 
-void video_log(const char *text, ...);
-void video_log_va(const char *text, va_list arg);
+void video_log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void video_log(const char *text, ...) __attribute__((format(printf,1,2)));
+
 void video_log_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
 void video_log_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
 

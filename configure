@@ -796,6 +796,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-debug          enable the debug information (default no)
   --enable-smp            enable the multi processor support (default yes)
   --enable-debugger       enable the emulator debugger (default no)
   --enable-compress       enable the compression of the executable (default
@@ -1324,11 +1325,34 @@ esac
 CONF_BUILD=$ac_build
 
 
+# Check whether --enable-debug or --disable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval="$enable_debug"
+  ac_enable_debug=$enableval
+else
+  ac_enable_debug=no
+
+fi;
+CONF_DEBUG=$ac_enable_debug
+
+
 if test -z "$CFLAGS" ; then
-	CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+	if test $ac_enable_debug = yes ; then
+		CFLAGS="-O0 -gstabs+3 -Wall"
+	else
+		CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+	fi
 fi
 if test -z "$LDFLAGS" ; then
-	LDFLAGS="-s"
+	if test $ac_enable_debug = yes ; then
+		if test $ac_host = linux ; then
+			LDFLAGS="-rdynamic"
+		else
+			LDFLAGS=""
+		fi
+	else
+		LDFLAGS="-s"
+	fi
 fi
 
 # Checks for programs.
@@ -4029,6 +4053,10 @@ CONF_CFLAGS_ARCH=$CFLAGS_ARCH
 CONF_CFLAGS_OPT=$CFLAGS
 
 
+# Export the linker LDFLAGS
+CONF_LDFLAGS=$LDFLAGS
+
+
 # Notify that ./configure was runned
 CONF=yes
 
@@ -4627,6 +4655,7 @@ s,@EXE@,$EXE,;t t
 s,@CONF_HOST@,$CONF_HOST,;t t
 s,@EXE_BUILD@,$EXE_BUILD,;t t
 s,@CONF_BUILD@,$CONF_BUILD,;t t
+s,@CONF_DEBUG@,$CONF_DEBUG,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t
@@ -4668,6 +4697,7 @@ s,@TOUCH@,$TOUCH,;t t
 s,@CONF_COMPRESS@,$CONF_COMPRESS,;t t
 s,@CONF_CFLAGS_ARCH@,$CONF_CFLAGS_ARCH,;t t
 s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
+s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t
 s,@CONF@,$CONF,;t t
 CEOF
 

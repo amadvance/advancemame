@@ -29,11 +29,16 @@
  */
 
 #include "advance.h"
+#include "log.h"
+
 #include "mame2.h"
 
 #include "hscript.h"
 #include "conf.h"
 #include "os.h"
+#include "keyall.h"
+#include "mouseall.h"
+#include "joyall.h"
 
 #include <time.h>
 
@@ -255,7 +260,7 @@ static void input_keyboard_update(struct advance_input_context* context)
 	if (context->config.steadykey_flag) {
 		unsigned char last[OS_KEY_MAX];
 
-		os_key_all_get(last);
+		keyb_all_get(last);
 
 		assert( sizeof(last) == sizeof(context->state.key_current) );
 		assert( sizeof(last) == sizeof(context->state.key_old) );
@@ -269,7 +274,7 @@ static void input_keyboard_update(struct advance_input_context* context)
 		}
 
 	} else {
-		os_key_all_get(context->state.key_current);
+		keyb_all_get(context->state.key_current);
 	}
 }
 
@@ -289,8 +294,8 @@ static void input_init_joystick(void)
 
 	mac = 0;
 
-	for(i=0;i<os_mouse_count_get() && i<CODE_MOUSE_MAX;++i) {
-		for(j=0;j<os_mouse_button_count_get(i) && j<CODE_BUTTON_MAX;++j) {
+	for(i=0;i<mouseb_count_get() && i<CODE_MOUSE_MAX;++i) {
+		for(j=0;j<mouseb_button_count_get(i) && j<CODE_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
 				sprintf(buf,"MOUSE%d B%d",i+1,j+1);
 				strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
@@ -302,11 +307,11 @@ static void input_init_joystick(void)
 		}
 	}
 
-	for(i=0;i<os_joy_count_get() && i<CODE_JOY_MAX;++i) {
-		for(j=0;j<os_joy_stick_count_get(i) && j<CODE_STICK_MAX;++j) {
-			for(k=0;k<os_joy_stick_axe_count_get(i,j) && k<CODE_AXE_MAX;++k) {
+	for(i=0;i<joystickb_count_get() && i<CODE_JOY_MAX;++i) {
+		for(j=0;j<joystickb_stick_count_get(i) && j<CODE_STICK_MAX;++j) {
+			for(k=0;k<joystickb_stick_axe_count_get(i,j) && k<CODE_AXE_MAX;++k) {
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf,"J%d %s %s -", i+1, os_joy_stick_name_get(i,j), os_joy_stick_axe_name_get(i,j,k));
+					sprintf(buf,"J%d %s %s -", i+1, joystickb_stick_name_get(i,j), joystickb_stick_axe_name_get(i,j,k));
 					strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
@@ -315,7 +320,7 @@ static void input_init_joystick(void)
 				}
 
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf,"J%d %s %s +", i+1, os_joy_stick_name_get(i,j), os_joy_stick_axe_name_get(i,j,k));
+					sprintf(buf,"J%d %s %s +", i+1, joystickb_stick_name_get(i,j), joystickb_stick_axe_name_get(i,j,k));
 					strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
@@ -325,9 +330,9 @@ static void input_init_joystick(void)
 			}
 		}
 
-		for(j=0;j<os_joy_button_count_get(i) && j<CODE_BUTTON_MAX;++j) {
+		for(j=0;j<joystickb_button_count_get(i) && j<CODE_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
-				sprintf(buf,"J%d %s",i+1, os_joy_button_name_get(i,j));
+				sprintf(buf,"J%d %s",i+1, joystickb_button_name_get(i,j));
 				strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
@@ -365,22 +370,22 @@ static __inline__ int input_is_joy_pressed(int joycode)
 			unsigned s = CODE_JOYPOS_STICK_GET(joycode);
 			unsigned a = CODE_JOYPOS_AXE_GET(joycode);
 			unsigned d = CODE_JOYPOS_DIR_GET(joycode);
-			if (j < os_joy_count_get() && s < os_joy_stick_count_get(j) && a < os_joy_stick_axe_count_get(j,s))
-				return os_joy_stick_axe_digital_get(j,s,a,d);
+			if (j < joystickb_count_get() && s < joystickb_stick_count_get(j) && a < joystickb_stick_axe_count_get(j,s))
+				return joystickb_stick_axe_digital_get(j,s,a,d);
 			break;
 		}
 		case CODE_TYPE_JOYBUTTON : {
 			unsigned j = CODE_JOYPOS_DEV_GET(joycode);
 			unsigned b = CODE_JOYPOS_BUTTON_GET(joycode);
-			if (j < os_joy_count_get() && b < os_joy_button_count_get(j))
-				return os_joy_button_get(j,b);
+			if (j < joystickb_count_get() && b < joystickb_button_count_get(j))
+				return joystickb_button_get(j,b);
 			break;
 		}
 		case CODE_TYPE_MOUSEBUTTON : {
 			unsigned m = CODE_MOUSEBUTTON_DEV_GET(joycode);
 			unsigned b = CODE_MOUSEBUTTON_BUTTON_GET(joycode);
-			if (m < os_mouse_count_get() && b < os_mouse_button_count_get(m))
-				return os_mouse_button_get(m,b);
+			if (m < mouseb_count_get() && b < mouseb_button_count_get(m))
+				return mouseb_button_get(m,b);
 			break;
 		}
 	}
@@ -430,9 +435,12 @@ int advance_input_init(struct advance_input_context* context, struct conf_contex
 		conf_string_register_default(cfg_context, tag, def);
 	}
 
-	conf_string_register_default(cfg_context, "device_joystick", "none");
-	conf_string_register_default(cfg_context, "device_mouse", "none");
-	conf_string_register_default(cfg_context, "device_keyboard", "auto");
+	joystickb_reg(cfg_context, 0);
+	joystickb_reg_driver_all(cfg_context);
+	mouseb_reg(cfg_context, 0);
+	mouseb_reg_driver_all(cfg_context);
+	keyb_reg(cfg_context, 1);
+	keyb_reg_driver_all(cfg_context);
 
 	return 0;
 }
@@ -444,23 +452,21 @@ int advance_input_inner_init(struct advance_input_context* context)
 {
 	unsigned i;
 
-	if (os_joy_init(context->config.joystick_id) != 0)
+	if (joystickb_init() != 0)
 		return -1;
 
-	if (os_mouse_init(context->config.mouse_id) != 0) {
-		os_joy_done();
+	if (mouseb_init() != 0) {
+		joystickb_done();
 		return -1;
 	}
 
-	log_std(("advance:mouse: %d available\n", os_mouse_count_get() ));
-	for(i=0;i<os_mouse_count_get();++i) {
-		log_std(("advance:mouse: %d, buttons %d\n",i,os_mouse_button_count_get(i)));
+	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
+	for(i=0;i<mouseb_count_get();++i) {
+		log_std(("advance:mouse: %d, buttons %d\n",i,mouseb_button_count_get(i)));
 	}
-	log_std(("advance:joystick: %d available\n", os_joy_count_get() ));
-	if (os_joy_count_get())
-		log_std(("advance:joystick: name %s, driver %s\n", os_joy_name_get(), os_joy_driver_name_get() ));
-	for(i=0;i<os_joy_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n",i,os_joy_button_count_get(i),os_joy_stick_count_get(i),os_joy_stick_axe_count_get(i,0)));
+	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
+	for(i=0;i<joystickb_count_get();++i) {
+		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n",i,joystickb_button_count_get(i),joystickb_stick_count_get(i),joystickb_stick_axe_count_get(i,0)));
 	}
 
 	input_init_joystick();
@@ -473,13 +479,16 @@ int advance_input_inner_init(struct advance_input_context* context)
 }
 
 void advance_input_inner_done(struct advance_input_context* context) {
-	os_mouse_done();
-	os_joy_done();
+	mouseb_done();
+	joystickb_done();
 }
 
 void advance_input_update(struct advance_input_context* context, int is_pause)
 {
 	os_poll();
+	keyb_poll();
+	mouseb_poll();
+	joystickb_poll();
 
 	input_keyboard_update(context);
 
@@ -555,51 +564,15 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 		context->config.traky_map[i] = CODE_TRAK(mouse,axe);
 	}
 
-	s = conf_string_get_default(cfg_context, "device_joystick");
-	for (i=0;OS_JOY[i].name;++i) {
-		if (strcmp(OS_JOY[i].name, s) == 0) {
-			context->config.joystick_id = OS_JOY[i].id;
-			break;
-		}
-	}
-	if (!OS_JOY[i].name) {
-		printf("Invalid argument '%s' for option 'device_joystick'\n",s);
-		printf("Valid values are:\n");
-		for (i=0;OS_JOY[i].name;++i) {
-			printf("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
-		}
+	if (joystickb_load(cfg_context) != 0) {
 		return -1;
 	}
 
-	s = conf_string_get_default(cfg_context, "device_mouse");
-	for (i=0;OS_MOUSE[i].name;++i) {
-		if (strcmp(OS_MOUSE[i].name, s) == 0) {
-			context->config.mouse_id = OS_MOUSE[i].id;
-			break;
-		}
-	}
-	if (!OS_MOUSE[i].name) {
-		printf("Invalid argument '%s' for option 'device_mouse'\n",s);
-		printf("Valid values are:\n");
-		for (i=0;OS_MOUSE[i].name;++i) {
-			printf("%8s %s\n", OS_MOUSE[i].name, OS_MOUSE[i].desc);
-		}
+	if (mouseb_load(cfg_context) != 0) {
 		return -1;
 	}
 
-	s = conf_string_get_default(cfg_context, "device_keyboard");
-	for (i=0;OS_KEY[i].name;++i) {
-		if (strcmp(OS_KEY[i].name, s) == 0) {
-			context->config.keyboard_id = OS_KEY[i].id;
-			break;
-		}
-	}
-	if (!OS_KEY[i].name) {
-		printf("Invalid argument '%s' for option 'device_keyboard'\n",s);
-		printf("Valid values are:\n");
-		for (i=0;OS_KEY[i].name;++i) {
-			printf("%8s %s\n", OS_KEY[i].name, OS_KEY[i].desc);
-		}
+	if (keyb_load(cfg_context) != 0) {
 		return -1;
 	}
 
@@ -692,11 +665,11 @@ void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode a
 				unsigned s = CODE_JOYPOS_STICK_GET(v);
 				unsigned a = CODE_JOYPOS_AXE_GET(v);
 
-				if (j < os_joy_count_get()
-					&& s < os_joy_stick_count_get(j)
-					&& a < os_joy_stick_axe_count_get(j,s))
+				if (j < joystickb_count_get()
+					&& s < joystickb_stick_count_get(j)
+					&& a < joystickb_stick_axe_count_get(j,s))
 				{
-					analog_axis[i] = os_joy_stick_axe_analog_get(j,s,a);
+					analog_axis[i] = joystickb_stick_axe_analog_get(j,s,a);
 					if (analog_axis[i])
 						input_something_pressed(context);
 				} else {
@@ -726,12 +699,12 @@ int osd_joystick_needs_calibration(void)
 
 void osd_joystick_start_calibration(void)
 {
-	os_joy_calib_start();
+	joystickb_calib_start();
 }
 
 const char* osd_joystick_calibrate_next(void)
 {
-	return os_joy_calib_next();
+	return joystickb_calib_next();
 }
 
 void osd_joystick_calibrate(void)
@@ -759,9 +732,9 @@ void osd_trak_read(int player, int* x, int* y)
 		unsigned my = CODE_TRAK_DEV_GET(vy);
 		unsigned ay = CODE_TRAK_AXE_GET(vy);
 
-		if (mx < os_mouse_count_get() && ax < 2) {
+		if (mx < mouseb_count_get() && ax < 2) {
 			int v0, v1;
-			os_mouse_pos_get(mx,&v0,&v1);
+			mouseb_pos_get(mx,&v0,&v1);
 
 			if (v0 || v1)
 				input_something_pressed(context);
@@ -772,9 +745,9 @@ void osd_trak_read(int player, int* x, int* y)
 				*x = v1;
 		}
 
-		if (my < os_mouse_count_get() && ay < 2) {
+		if (my < mouseb_count_get() && ay < 2) {
 			int v0, v1;
-			os_mouse_pos_get(my,&v0,&v1);
+			mouseb_pos_get(my,&v0,&v1);
 
 			if (v0 || v1)
 				input_something_pressed(context);

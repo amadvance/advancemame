@@ -29,10 +29,12 @@
  */
 
 #include "sounddrv.h"
+#include "log.h"
 #include "os.h"
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 #include <dos.h>
 
 #include "audio.h"
@@ -78,7 +80,7 @@ struct sound_seal_context {
 static struct sound_seal_context seal_state;
 
 static device DEVICE[] = {
-{ "auto", AUDIO_DEVICE_MAPPER, "SEAL automatic detection" },
+{ "auto", AUDIO_DEVICE_MAPPER, "SEAL sound" },
 { "sb", 1, "Sound Blaster" },
 { "pas", 3, "Pro Audio Spectrum" },
 { "gusmax", 4, "Gravis Ultrasound Max" },

@@ -29,7 +29,7 @@
  */
 
 #include "sounddrv.h"
-#include "os.h"
+#include "log.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -40,8 +40,8 @@ void sound_default(void) {
 	strcpy(sound_state.name, "auto");
 }
 
-void sound_reg(struct conf_context* context) {
-	conf_string_register_default(context, "device_sound", "auto");
+void sound_reg(struct conf_context* context, video_bool auto_detect) {
+	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
 void sound_reg_driver(struct conf_context* context, sound_driver* driver) {

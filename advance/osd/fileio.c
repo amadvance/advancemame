@@ -32,6 +32,7 @@
 #include "unzip.h"
 #include "conf.h"
 #include "fz.h"
+#include "log.h"
 
 #include "mame2.h"
 
@@ -90,8 +91,8 @@ struct fileio_item {
 
 static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_ROM, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
-	/* TODO implementare in OSD_FILETYPE_ROM_NOCRC la lettura senza crc */
-	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
+/* TODO implementare in OSD_FILETYPE_ROM_NOCRC la lettura senza crc */
+/*	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, */
 	{ OSD_FILETYPE_IMAGE_R, "dir_imager", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_IMAGE_RW, "dir_imagerw", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, 0, 0 },
 	{ OSD_FILETYPE_IMAGE_DIFF, "dir_imagediff", "image", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, 0, 0 },

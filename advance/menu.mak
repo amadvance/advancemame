@@ -54,6 +54,15 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/device.o \
 	$(MENUOBJ)/lib/sounddrv.o \
 	$(MENUOBJ)/lib/snone.o \
+	$(MENUOBJ)/lib/keydrv.o \
+	$(MENUOBJ)/lib/keyall.o \
+	$(MENUOBJ)/lib/knone.o \
+	$(MENUOBJ)/lib/mousedrv.o \
+	$(MENUOBJ)/lib/mouseall.o \
+	$(MENUOBJ)/lib/mnone.o \
+	$(MENUOBJ)/lib/joydrv.o \
+	$(MENUOBJ)/lib/joyall.o \
+	$(MENUOBJ)/lib/jnone.o \
 	$(MENUOBJ)/lib/readinfo.o \
 	$(MENUOBJ)/lib/soundall.o \
 	$(MENUOBJ)/lib/videoall.o \
@@ -73,7 +82,9 @@ MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MENUCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
+	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
 MENULIBS += -lvga
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \
@@ -81,7 +92,11 @@ MENUOBJS += \
 	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/soss.o
+	$(MENUOBJ)/$(CONF_SYSTEM)/vdga.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/soss.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/ksvgab.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/msvgab.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/jsvgab.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
@@ -92,7 +107,10 @@ MENUCFLAGS += \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_NONE -DUSE_SOUND_INT
+	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_NONE -DUSE_SOUND_INT \
+	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
 MENULDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 MENUCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 MENULDFLAGS += \
@@ -115,6 +133,9 @@ MENUOBJS += \
 	$(MENUOBJ)/$(CONF_SYSTEM)/scrvga.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/salleg.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/sseal.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/malleg.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/kalleg.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/jalleg.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/card/pci.o \
 	$(MENUOBJ)/card/map.o \
@@ -168,12 +189,17 @@ MENUCFLAGS += \
 	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
+	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
 MENULIBS += $(SDLLIBS)
 MENUOBJS += \
 	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/vsdl.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/ssdl.o
+	$(MENUOBJ)/$(CONF_SYSTEM)/ssdl.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/ksdl.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/msdl.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/jsdl.o
 ifeq ($(CONF_HOST),linux)
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \

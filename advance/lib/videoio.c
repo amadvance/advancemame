@@ -32,7 +32,6 @@
 #include "generate.h"
 #include "gtf.h"
 #include "crtcbag.h"
-#include "os.h"
 
 #include <stdio.h>
 #include <assert.h>

@@ -22,6 +22,7 @@
 #include "video.h"
 #include "blit.h"
 #include "os.h"
+#include "inputdrv.h"
 
 #ifdef __MSDOS__
 #include <scrvga.h>
@@ -456,7 +457,7 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 		draw_text_string(x,y,s,color);
 		draw_text_fill(x+len,y,' ',dx-len,color);
 		video_wait_vsync();
-		userkey = os_input_get();
+		userkey = inputb_get();
 		switch (userkey) {
 			case OS_INPUT_BACKSPACE :
 			case OS_INPUT_DEL :
@@ -859,7 +860,7 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		}
 
 		video_wait_vsync();
-		key = os_input_get();
+		key = inputb_get();
 
 		switch (key) {
 			case OS_INPUT_SPACE:

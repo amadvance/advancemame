@@ -19,7 +19,6 @@
  */
 
 #include "key.h"
-#include "os.h"
 
 #include <stdio.h>
 #include <string.h>

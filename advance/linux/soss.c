@@ -29,7 +29,8 @@
  */
 
 #include "soss.h"
-#include "os.h"
+#include "log.h"
+#include "target.h"
 
 #include <assert.h>
 #include <fcntl.h>
@@ -49,7 +50,7 @@ struct sound_oss_context {
 
 static struct sound_oss_context oss_state;
 
-device DEVICE[] = {
+static device DEVICE[] = {
 { "auto", -1, "OSS automatic detection" },
 { 0, 0, 0 }
 };
@@ -126,6 +127,7 @@ video_error sound_oss_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 err_close:
 	close(oss_state.handle);
 err:
+	target_err("Error initializing the OSS sound.\n");
 	return -1;
 }
 

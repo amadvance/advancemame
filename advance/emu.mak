@@ -16,6 +16,8 @@ OBJDIRS += \
 	$(OBJ)/advance/blit \
 	$(OBJ)/advance/$(CONF_SYSTEM)
 
+TARGETLIBS += $(ZLIBS)
+
 ifeq ($(CONF_HOST),linux)
 TARGETLIBS += -lm
 ifeq ($(CONF_SMP),yes)
@@ -29,15 +31,21 @@ SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SYSTEMCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
+	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
 SYSTEMLIBS += -lvga
 SYSTEMOBJS += \
 	$(OBJ)/advance/lib/filenix.o \
 	$(OBJ)/advance/lib/targnix.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/soss.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vsvgab.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vfb.o
+	$(OBJ)/advance/$(CONF_SYSTEM)/vfb.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/vdga.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/soss.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/jsvgab.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/ksvgab.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/msvgab.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
@@ -50,7 +58,10 @@ SYSTEMCFLAGS += \
 	-I$(srcdir)/advance/svgalib/drivers
 SYSTEMCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
-	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE
+	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
 SYSTEMLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SYSTEMLIBS += -laudio -lalleg
 SYSTEMLDFLAGS += \
@@ -78,6 +89,9 @@ SYSTEMOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vsvgal.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/scrvbe.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/scrvga.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/jalleg.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/kalleg.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/malleg.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/snprintf.o \
 	$(OBJ)/advance/card/card.o \
 	$(OBJ)/advance/card/pci.o \
@@ -127,12 +141,17 @@ SYSTEMCFLAGS += \
 SYSTEMCFLAGS += \
 	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
+	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
 SYSTEMLIBS += $(SDLLIBS)
 SYSTEMOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vsdl.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/ssdl.o
+	$(OBJ)/advance/$(CONF_SYSTEM)/ssdl.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/jsdl.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/ksdl.o \
+	$(OBJ)/advance/$(CONF_SYSTEM)/msdl.o
 ifeq ($(CONF_HOST),linux)
 SYSTEMOBJS += \
 	$(OBJ)/advance/lib/filenix.o \
@@ -215,9 +234,16 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/vnone.o \
 	$(OBJ)/advance/lib/device.o \
 	$(OBJ)/advance/lib/videoall.o \
-	$(OBJ)/advance/lib/soundall.o
-
-EMULIBS += $(ZLIBS)
+	$(OBJ)/advance/lib/soundall.o \
+	$(OBJ)/advance/lib/joyall.o \
+	$(OBJ)/advance/lib/joydrv.o \
+	$(OBJ)/advance/lib/jnone.o \
+	$(OBJ)/advance/lib/keyall.o \
+	$(OBJ)/advance/lib/keydrv.o \
+	$(OBJ)/advance/lib/knone.o \
+	$(OBJ)/advance/lib/mouseall.o \
+	$(OBJ)/advance/lib/mousedrv.o \
+	$(OBJ)/advance/lib/mnone.o
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c
 	$(ECHO) $@ $(MSG)
@@ -337,7 +363,7 @@ endif
 
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(SYSTEMLDFLAGS) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(TARGETLIBS) $(SYSTEMLIBS) $(EMULIBS) $(DRVLIBS) -o $@
+	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(SYSTEMLDFLAGS) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(TARGETLIBS) $(SYSTEMLIBS) $(DRVLIBS) -o $@
 ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@

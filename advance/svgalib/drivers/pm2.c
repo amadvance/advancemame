@@ -763,6 +763,8 @@ static int init(int force, int par1, int par2)
         case cPM2V:
             __svgalib_pm2_driverspecs.cursor = pm2v_cursor;
             break;
+        default:
+            break;
     }
     
     if (__svgalib_driver_report) {

@@ -352,8 +352,7 @@ static int vgaline_mode_realize(struct vga_regs* regs, const vgaline_video_mode*
 /* Public */
 
 static device DEVICE[] = {
-{ "auto", 1, "VGA automatic detection" },
-{ "vga", 2, "VGA (limited hardware programming)" },
+{ "auto", 1, "VGA video" },
 { 0, 0, 0 }
 };
 

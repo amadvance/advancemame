@@ -29,6 +29,7 @@
  */
 
 #include "advance.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,9 +78,9 @@ const char* mode_desc(struct advance_video_context* context, const video_crtc* c
 }
 
 /* Compute the MCD of two number (Euclide) */
-static unsigned aspect_MCD(unsigned m, unsigned n) {
+static unsigned long long aspect_MCD(unsigned long long m, unsigned long long n) {
 	while (n) {
-		unsigned r = m % n;
+		unsigned long long r = m % n;
 		m = n;
 		n = r;
 		}
@@ -87,8 +88,8 @@ static unsigned aspect_MCD(unsigned m, unsigned n) {
 }
 
 /* Reduce a fraction */
-void video_aspect_reduce(unsigned* a, unsigned *b) {
-	unsigned r = aspect_MCD(*a,*b);
+void video_aspect_reduce(unsigned long long* a, unsigned long long* b) {
+	unsigned long long r = aspect_MCD(*a,*b);
 	*a /= r;
 	*b /= r;
 }

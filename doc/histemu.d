@@ -1,7 +1,7 @@
 Name
 	advmenu - History For Advance Emulators
 
-AdvanceMAME Version 0.61.2 2002/07
+AdvanceMAME Version 0.61.2 2002/08
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
 		in a Window Manager. But it isn't a good choice for
@@ -29,6 +29,8 @@ AdvanceMAME Version 0.61.2 2002/07
 		default.
 	) Revised the output format of all the documentation. Now
 		it's available as formatted text, html and man pages.
+	) Fixed an overflow bug on the aspect computation. It prevented
+		"Elevator Action" to run.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

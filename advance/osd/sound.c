@@ -32,6 +32,7 @@
 #include "conf.h"
 #include "sounddrv.h"
 #include "soundall.h"
+#include "log.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -173,7 +174,7 @@ int advance_sound_init(struct advance_sound_context* context, struct conf_contex
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
 	conf_float_register_limit_default(cfg_context, "sound_latency", 0.02, 2.0, 0.1);
 
-	sound_reg(cfg_context);
+	sound_reg(cfg_context, 1);
 	sound_reg_driver_all(cfg_context);
 
 	return 0;

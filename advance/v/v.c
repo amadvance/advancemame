@@ -26,6 +26,9 @@
 #include "conf.h"
 #include "os.h"
 #include "videoall.h"
+#include "inputall.h"
+#include "log.h"
+#include "file.h"
 
 #include <string.h>
 
@@ -70,104 +73,6 @@ int the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB;
 /***************************************************************************/
 /* Common information screens */
 
-/*
-static int draw_text_warn(void) {
-	int x = 0;
-	int y = 0;
-	int dx = text_size_x();
-	int dy = text_size_y();
-	static int userkey = 0;
-
-	if (userkey != OS_INPUT_SPACE) {
-
-	text_clear();
-
-	draw_text_center(x,y,dx,
-"WARNING! Playing with video parameter can DAMAGE YOUR MONITOR!"
-	,COLOR_REVERSE);
-	++y;
-
-	draw_text_center(x,y,dx,
-"IF YOU HEAR STRANGE SOUNDS PRESS ESC IMMEDITIALLY!"
-	,COLOR_REVERSE);
-	++y;
-
-	y = draw_text_para(x,y,dx,dy-y,
-"You can modify two series of parameters, horizontal and vertical. These "
-"parameters control the course of the video beam."
-"\n\n"
-"The display region is the part used for drawing. Start always from 0. "
-"The retrace region is the part used by the beam to return backward. "
-"The blank region is the part in which the beam is turned off. "
-"The total end is the total number of columns and lines."
-"\n\n"
-"The starting and ending values of these regions are shown in the correct order, from the "
-"smallest to the greatest, you must mantain this condition."
-"\n\n"
-"Others important values are the horizontal and vertical clock frequencies, these "
-"values MUST BE COMPATIBLE with your monitor. You MUST check your monitor's manual "
-"for getting correct values. "
-"Generic old SVGA monitors accept fixed HClock of 31.5 and 35.5 kHz, new multisync monitors "
-"accept values in the range 30-70 kHz. The generic VClock's acceptable range is 50-120 Hz."
-"\n\n"
-"For centering the screen modify the retrace start or use the ARROWS. "
-"For changing the resolution modify the display end. "
-"For resizing the screen modify the total end and the polarization or use the CTRL+ARROWS. "
-"\n\n"
-"Press SPACE to continue or ESC to exit."
-	,COLOR_NORMAL);
-
-	do {
-		userkey = input_getkey();
-	} while (userkey!=OS_INPUT_SPACE && userkey!=OS_INPUT_ESC);
-
-	}
-
-	return userkey != OS_INPUT_SPACE;
-}
-*/
-
-/*
-static int draw_text_warn_bios(void) {
-	int x = 0;
-	int y = 0;
-	int dx = text_size_x();
-	int dy = text_size_y();
-	int userkey = 0;
-
-	if (userkey != OS_INPUT_Y) {
-
-	text_clear();
-
-	draw_text_center(x,y,dx,
-"WARNING! Using wrong video mode can DAMAGE YOUR MONITOR!"
-	,COLOR_REVERSE);
-	++y;
-
-	draw_text_center(x,y,dx,
-"IF YOU HEAR STRANGE SOUNDS PRESS ESC IMMEDITIALLY!"
-	,COLOR_REVERSE);
-	++y;
-
-	++y;
-	y = draw_text_para(x,y,dx,dy-y,
-"You are going to test a BIOS VGA or VBE mode with a low frequency monitor.\n"
-"Usually these modes work only with normal high frequency monitors. "
-"So proceed only if you know that you are doing."
-"\n\n"
-"Press Y to continue or ESC to exit."
-	,COLOR_NORMAL);
-
-	do {
-		userkey = input_getkey();
-	} while (userkey!=OS_INPUT_Y &&  userkey!=OS_INPUT_ESC);
-
-	}
-
-	return userkey != OS_INPUT_Y;
-}
-*/
-
 static int draw_text_help(void) {
 	int x = 0;
 	int y = 0;
@@ -211,7 +116,7 @@ static int draw_text_help(void) {
 	video_wait_vsync();
 
 	do {
-		userkey = os_input_get();
+		userkey = inputb_get();
 	} while (userkey!=OS_INPUT_ESC);
 
 	return userkey;
@@ -248,7 +153,7 @@ static int draw_text_error(void) {
 	video_wait_vsync();
 
 	do {
-		userkey = os_input_get();
+		userkey = inputb_get();
 	} while (userkey!=OS_INPUT_ESC);
 
 	return userkey;
@@ -1107,7 +1012,7 @@ static int cmd_onvideo_test(void) {
 
 		video_wait_vsync();
 
-		userkey = os_input_get();
+		userkey = inputb_get();
 
 		switch (userkey) {
 			case OS_INPUT_ESC :
@@ -1192,7 +1097,7 @@ static int cmd_onvideo_calib(void) {
 
 	video_wait_vsync();
 
-	os_input_get();
+	inputb_get();
 
 	return 0;
 }
@@ -1234,7 +1139,7 @@ static int cmd_onvideo_animate(void) {
 	}
 
 	counter = update_page_max_get();
-	while (!os_input_hit()) {
+	while (!inputb_hit()) {
 		update_start();
 		draw_graphics_animate(update_x_get(), update_y_get(), video_size_x(), video_size_y(), counter - update_page_max_get() + 1, 1);
 		++counter;
@@ -1244,7 +1149,7 @@ static int cmd_onvideo_animate(void) {
 
 	video_wait_vsync();
 
-	os_input_get();
+	inputb_get();
 
 	update_done();
 
@@ -1279,7 +1184,7 @@ static int cmd_input_key(const char* tag, const char* keys) {
 		unsigned k;
 		video_wait_vsync();
 
-		k = os_input_get();
+		k = inputb_get();
 		if (k == OS_INPUT_ESC)
 			return -1;
 
@@ -1577,7 +1482,7 @@ static int menu_run(void) {
 
 		video_wait_vsync();
 
-		userkey = os_input_get();
+		userkey = inputb_get();
 
 		switch (userkey) {
 			case OS_INPUT_UP:
@@ -1788,7 +1693,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_conf;
 	}
 
-	video_reg(the_config);
+	video_reg(the_config, 1);
 	monitor_register(the_config);
 	video_crtc_container_register(the_config);
 	generate_interpolate_register(the_config);
@@ -1852,28 +1757,11 @@ int os_main(int argc, char* argv[]) {
 		goto err;
 #endif
 	} else {
-#ifdef USE_VIDEO_SVGALIB
-		video_reg_driver(the_config, &video_svgalib_driver);
-#endif
-#ifdef USE_VIDEO_FB
-		video_reg_driver(the_config, &video_fb_driver);
-#endif
-#ifdef USE_VIDEO_SVGALINE
-		video_reg_driver(the_config, &video_svgaline_driver);
-#endif
-#ifdef USE_VIDEO_VBELINE
-		video_reg_driver(the_config, &video_vbeline_driver);
-#endif
-#ifdef USE_VIDEO_VGALINE
-		video_reg_driver(the_config, &video_vgaline_driver);
-#endif
-#ifdef USE_VIDEO_DOS
-		video_reg_driver(the_config, &video_dos_driver);
-#endif
-#ifdef USE_VIDEO_SLANG
-		video_reg_driver(the_config, &video_slang_driver);
-#endif
+		video_reg_driver_all(the_config);
 	}
+
+	inputb_reg(the_config, 1);
+	inputb_reg_driver_all(the_config);
 
 	if (!opt_rc) {
 		switch (the_advance) {
@@ -1921,20 +1809,30 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
+	if (inputb_load(the_config) != 0) {
+		goto err_os;
+	}
+
 	if (os_inner_init("AdvanceVIDEO") != 0) {
 		goto err_os;
 	}
 
-	video_init();
+	if (video_init() != 0) {
+		goto err_os;
+	}
 
 	if (video_blit_init() != 0) {
 		goto err_video;
 	}
 
+	if (inputb_init() != 0) {
+		goto err_blit;
+	}
+
 	if (monitor_load(the_config, &the_monitor) != 0) {
 		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
 		printf("%s\n",video_error_description_get());
-		goto err_blit;
+		goto err_input;
 	}
 
 	log_std(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
@@ -1950,7 +1848,7 @@ int os_main(int argc, char* argv[]) {
 	if (res<0) {
 		fprintf(stderr,"Error loading the format options from the configuration file %s.\n", opt_rc);
 		fprintf(stderr,"%s\n", video_error_description_get());
-		goto err_blit;
+		goto err_input;
 	}
 	if (res>0) {
 		generate_default_vga(&the_interpolate.map[0].gen);
@@ -1963,7 +1861,7 @@ int os_main(int argc, char* argv[]) {
 	if (res<0) {
 		fprintf(stderr,"Error loading the gtf options from the configuration file %s.\n", opt_rc);
 		fprintf(stderr,"%s\n", video_error_description_get());
-		goto err_blit;
+		goto err_input;
 	}
 	if (res>0) {
 		gtf_default_vga(&the_gtf);
@@ -1995,7 +1893,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_crtc_container_load(the_config, &selected) != 0) {
 		fprintf(stderr,video_error_description_get());
-		goto err_blit;
+		goto err_input;
 	}
 
 	/* union set */
@@ -2023,6 +1921,8 @@ int os_main(int argc, char* argv[]) {
 
 	video_crtc_container_done(&the_modes);
 
+	inputb_done();
+
 	video_blit_done();
 
 	video_done();
@@ -2043,6 +1943,8 @@ int os_main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 
+err_input:
+	inputb_done();
 err_blit:
 	video_blit_done();
 err_video:
@@ -2059,22 +1961,3 @@ err:
 	return EXIT_FAILURE;
 }
 
-#ifdef __MSDOS__
-
-/* Keep Allegro small */
-BEGIN_GFX_DRIVER_LIST
-END_GFX_DRIVER_LIST
-
-BEGIN_COLOR_DEPTH_LIST
-END_COLOR_DEPTH_LIST
-
-BEGIN_DIGI_DRIVER_LIST
-END_DIGI_DRIVER_LIST
-
-BEGIN_MIDI_DRIVER_LIST
-END_MIDI_DRIVER_LIST
-
-BEGIN_JOYSTICK_DRIVER_LIST
-END_JOYSTICK_DRIVER_LIST
-
-#endif

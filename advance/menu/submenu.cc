@@ -20,6 +20,7 @@
 
 #include "submenu.h"
 #include "text.h"
+#include "joydrv.h"
 
 #include <sstream>
 #include <iomanip>
@@ -410,10 +411,10 @@ void run_calib(config_state& rs)
 	const char* message = 0;
 	bool at_least_one = false;
 
-	os_joy_calib_start();
+	joystickb_calib_start();
 
 	while (1) {
-		const char* ope = os_joy_calib_next();
+		const char* ope = joystickb_calib_next();
 
 		if (!ope) {
 			if (!at_least_one)

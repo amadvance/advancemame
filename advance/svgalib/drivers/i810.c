@@ -693,7 +693,7 @@ DriverSpecs __svgalib_i810_driverspecs =
 static int init(int force, int par1, int par2)
 {
     unsigned long buf[64];
-    unsigned int t, i, id;
+    unsigned int id;
     int found=0;
     
     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);

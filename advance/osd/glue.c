@@ -31,6 +31,7 @@
 #include "advance.h"
 #include "glue.h"
 #include "mame2.h"
+#include "log.h"
 
 #include "hscript.h"
 

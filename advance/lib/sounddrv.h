@@ -87,7 +87,7 @@ struct sound_state_struct {
 
 struct sound_state_struct sound_state;
 
-void sound_reg(struct conf_context* config_context);
+void sound_reg(struct conf_context* config_context, video_bool auto_detect);
 void sound_reg_driver(struct conf_context* config_context, sound_driver* driver);
 video_error sound_load(struct conf_context* config_context);
 video_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);

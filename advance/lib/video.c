@@ -29,10 +29,9 @@
  */
 
 #include "video.h"
-
-#ifdef __MSDOS__
-#include "pci.h"
-#endif
+#include "log.h"
+#include "target.h"
+#include "os.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -41,7 +40,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "os.h"
+#ifdef __MSDOS__
+#include "pci.h" /* for pci_* */
+#endif
 
 /***************************************************************************/
 /* State */
@@ -104,8 +105,8 @@ void video_default(void) {
 	strcpy(video_option.name,"auto");
 }
 
-void video_reg(struct conf_context* context) {
-	conf_string_register_default(context, "device_video", "auto");
+void video_reg(struct conf_context* context, video_bool auto_detect) {
+	conf_string_register_default(context, "device_video", auto_detect ? "auto" : "none");
 	conf_bool_register_default(context, "device_video_singlescan", 1);
 	conf_bool_register_default(context, "device_video_doublescan", 1);
 	conf_bool_register_default(context, "device_video_interlace", 1);
@@ -132,7 +133,7 @@ void video_reg_driver(struct conf_context* context, video_driver* driver) {
 /**
  * Inizialize the video system.
  */
-void video_init(void) {
+video_error video_init(void) {
 	unsigned i;
 	int at_least_one;
 
@@ -171,6 +172,7 @@ void video_init(void) {
 
 	if (!at_least_one) {
 		log_std(("video: no video driver activated\n"));
+		return -1;
 	}
 
 	/* enable */
@@ -178,6 +180,8 @@ void video_init(void) {
 	video_state.mode_active = 0;
 
 	video_state.old_mode_required = 0;
+
+	return 0;
 }
 
 /**

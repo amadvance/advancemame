@@ -50,11 +50,31 @@ case "$build" in
 esac
 AC_SUBST([CONF_BUILD],[$ac_build])
 
+AC_ARG_ENABLE(
+	[debug],
+	AC_HELP_STRING([--enable-debug],[enable the debug information (default no)]),
+	[ac_enable_debug=$enableval],
+	[ac_enable_debug=no]
+)
+AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
+
 if test -z "$CFLAGS" ; then
-	CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+	if test $ac_enable_debug = yes ; then
+		CFLAGS="-O0 -gstabs+3 -Wall"
+	else
+		CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+	fi
 fi
 if test -z "$LDFLAGS" ; then
-	LDFLAGS="-s"
+	if test $ac_enable_debug = yes ; then
+		if test $ac_host = linux ; then
+			LDFLAGS="-rdynamic"
+		else
+			LDFLAGS=""
+		fi
+	else
+		LDFLAGS="-s"
+	fi
 fi
 
 # Checks for programs.
@@ -299,6 +319,9 @@ AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
 # Export the optimization CFLAGS
 AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
+
+# Export the linker LDFLAGS
+AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
 
 # Notify that ./configure was runned
 AC_SUBST([CONF],[yes])

@@ -30,7 +30,8 @@
 
 #include "vfb.h"
 #include "video.h"
-#include "os.h"
+#include "log.h"
+#include "osint.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -109,7 +110,8 @@ static void fb_log(void) {
 /* Public */
 
 static device DEVICE[] = {
-	{ "auto", -1, "Console Frame Buffer automatic detection" },
+{ "auto", -1, "Frame Buffer video" },
+{ 0, 0, 0 }
 };
 
 video_error fb_init(int device_id) {
@@ -119,18 +121,23 @@ video_error fb_init(int device_id) {
 
 	log_std(("video:fb: fb_init()\n"));
 
+	if (!os_internal_svgalib_get()) {
+		log_std(("video:fb: svgalib not initialized\n"));
+		return -1;
+	}
+
 	fb = getenv("FRAMEBUFFER");
 	if (!fb)
-                fb = "/dev/fb0";
+		fb = "/dev/fb0";
 
-	if (access(fb,W_OK)!=0) {
-		video_log("video:fb: no access at the frame buffer %s",fb);
+	if (access(fb,R_OK | W_OK)!=0) {
+		video_error_description_set("No access at the framebuffer %s",fb);
 		return -1;
 	}
 
 	fb_state.fd = open(fb, O_RDWR);
 	if (fb_state.fd < 0) {
-		video_log("video:fb: error opening %s",fb);
+		video_error_description_set("Error opening the framebuffer %s\n",fb);
 		return -1;
 	}
 

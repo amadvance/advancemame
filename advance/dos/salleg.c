@@ -29,6 +29,7 @@
  */
 
 #include "sounddrv.h"
+#include "log.h"
 #include "os.h"
 
 #include <assert.h>
@@ -53,7 +54,7 @@ struct sound_allegro_context {
 static struct sound_allegro_context allegro_state;
 
 static device DEVICE[] = {
-{ "auto", DIGI_AUTODETECT, "Allegro automatic detection" },
+{ "auto", DIGI_AUTODETECT, "Allegro sound" },
 { "sb10", DIGI_SB10, "Sound Blaster 1.0" },
 { "sb15", DIGI_SB15, "Sound Blaster 1.5" },
 { "sb20", DIGI_SB20, "Sound Blaster 2.0" },

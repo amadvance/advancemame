@@ -29,6 +29,7 @@
  */
 
 #include "advance.h"
+#include "log.h"
 
 #include <zlib.h>
 
@@ -85,16 +86,6 @@ static size_t fwrite_le_u32(unsigned* p, size_t num, FILE* f) {
 
 static size_t fwrite_tag(char* p, FILE* f) {
 	return fwrite( p, 1, 4, f ) == 4;
-}
-
-static size_t fskip(size_t num, FILE* f) {    
-	unsigned count = 0;
-	while (count<num) {
-		int c = getc(f);
-		if (c==EOF) return count;
-		++count;
-	}
-	return count;
 }
 
 /* record_id */
@@ -1041,7 +1032,6 @@ void osd_record_start(void)
 void osd_record_stop(void)
 {
 	struct advance_record_context* context = &CONTEXT.record;
-	struct advance_sound_context* sound_context = &CONTEXT.sound;
 
 	unsigned sound_time = 0;
 	unsigned video_time = 0;
@@ -1089,8 +1079,6 @@ static void advance_snapshot_next(struct advance_record_context* context, const 
 void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
 	struct advance_record_context* context = &CONTEXT.record;
-	struct advance_sound_context* sound_context = &CONTEXT.sound;
-	struct advance_video_context* video_context = &CONTEXT.video;
 	const mame_game* game = CONTEXT.game;
 	char path_png[FILE_MAXPATH];
 

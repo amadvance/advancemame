@@ -20,6 +20,7 @@
 
 #include "os.h"
 #include "conf.h"
+#include "joyall.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,14 +28,13 @@
 #include <string.h>
 
 void probe(void) {
-	int i,j,k;
+	int i,j;
 
-	printf("Name %s/%s\n",os_joy_name_get(),os_joy_driver_name_get());
-	printf("Joysticks %d\n",os_joy_count_get());
-	for(i=0;i<os_joy_count_get();++i) {
-		printf("Joy %d, buttons %d, sticks %d\n",i,os_joy_button_count_get(i),os_joy_stick_count_get(i));
-		for(j=0;j<os_joy_stick_count_get(i);++j) {
-			printf("Joy %d, stick %d [%s], axes %d\n",i,j,os_joy_stick_name_get(i,j),os_joy_stick_axe_count_get(i,j));
+	printf("Joysticks %d\n",joystickb_count_get());
+	for(i=0;i<joystickb_count_get();++i) {
+		printf("Joy %d, buttons %d, sticks %d\n",i,joystickb_button_count_get(i),joystickb_stick_count_get(i));
+		for(j=0;j<joystickb_stick_count_get(i);++j) {
+			printf("Joy %d, stick %d [%s], axes %d\n",i,j,joystickb_stick_name_get(i,j),joystickb_stick_axe_count_get(i,j));
 		}
 	}
 
@@ -45,10 +45,12 @@ int button_pressed(void) {
 	int i,j;
 
 	os_poll();
+	joystickb_poll();
+	target_idle();
 
-	for(i=0;i<os_joy_count_get();++i) {
-		for(j=0;j<os_joy_button_count_get(i);++j) {
-			if (os_joy_button_get(i,j))
+	for(i=0;i<joystickb_count_get();++i) {
+		for(j=0;j<joystickb_button_count_get(i);++j) {
+			if (joystickb_button_get(i,j))
 				return 1;
 		}
 	}
@@ -72,21 +74,19 @@ void calibrate(void) {
 	const char* msg;
 	int step;
 
-	os_joy_calib_start();
+	joystickb_calib_start();
 
-	msg = os_joy_calib_next();
+	msg = joystickb_calib_next();
 	if (msg) {
 		step = 1;
 		printf("Calibration:\n");
 		while (msg) {
-			int done;
-
 			printf("%d) %s and press a joystick button\n",step,msg);
 			++step;
 
 			wait_button_press();
 
-			msg = os_joy_calib_next();
+			msg = joystickb_calib_next();
 
 			wait_button_release();
 		}
@@ -116,29 +116,29 @@ void run(void) {
 	while (!done) {
 
 		new_msg[0] = 0;
-		for(i=0;i<os_joy_count_get();++i) {
+		for(i=0;i<joystickb_count_get();++i) {
 
 			if (i!=0)
 				strcat(new_msg,"\n");
 
 			sprintf(new_msg + strlen(new_msg), "joy %d, [",i);
-			for(j=0;j<os_joy_button_count_get(i);++j) {
-				if (os_joy_button_get(i,j))
+			for(j=0;j<joystickb_button_count_get(i);++j) {
+				if (joystickb_button_get(i,j))
 					strcat(new_msg,"_");
 				else
 					strcat(new_msg,"-");
 			}
 			strcat(new_msg,"], ");
-			for(j=0;j<os_joy_stick_count_get(i);++j) {
-				for(k=0;k<os_joy_stick_axe_count_get(i,j);++k) {
+			for(j=0;j<joystickb_stick_count_get(i);++j) {
+				for(k=0;k<joystickb_stick_axe_count_get(i,j);++k) {
 					char digital;
-					if (os_joy_stick_axe_digital_get(i,j,k,0))
+					if (joystickb_stick_axe_digital_get(i,j,k,0))
 						digital = '\\';
-					else if (os_joy_stick_axe_digital_get(i,j,k,1))
+					else if (joystickb_stick_axe_digital_get(i,j,k,1))
 						digital = '/';
 					else
 						digital = '-';
-					sprintf(new_msg + strlen(new_msg), " %d/%d [%4d %c]",j,k,os_joy_stick_axe_analog_get(i,j,k),digital);
+					sprintf(new_msg + strlen(new_msg), " %d/%d [%4d %c]",j,k,joystickb_stick_axe_analog_get(i,j,k),digital);
 				}
 			}
 		}
@@ -152,6 +152,7 @@ void run(void) {
 		}
 
 		os_poll();
+		joystickb_poll();
 		target_idle();
 	}
 }
@@ -171,18 +172,16 @@ void os_signal(int signum) {
 }
 
 int os_main(int argc, char* argv[]) {
-	int joystick_id;
 	struct conf_context* context;
-	const char* s;
         const char* section_map[1];
-	int i;
 
 	context = conf_init();
 
 	if (os_init(context) != 0)
 		goto err_conf;
 
-	conf_string_register_default(context, "device_joystick", "auto");
+	joystickb_reg(context, 1);
+	joystickb_reg_driver_all(context);
 
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -195,34 +194,20 @@ int os_main(int argc, char* argv[]) {
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
 
-	s = conf_string_get_default(context, "device_joystick");
-	joystick_id = 0;
-	for (i=0;OS_JOY[i].name;++i) {
-		if (strcmp(OS_JOY[i].name, s) == 0) {
-                	joystick_id = OS_JOY[i].id;
-			break;
-		}
-	}
-	if (!OS_JOY[i].name) {
-		printf("Invalid argument '%s' for option 'device_joystick'\n",s);
-		printf("Valid values are:\n");
-		for (i=0;OS_JOY[i].name;++i) {
-			printf("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
-		}
+	if (joystickb_load(context) != 0)
 		goto err_os;
-	}
 
 	if (os_inner_init("AdvanceJOYSTICK") != 0)
 		goto err_os;
 
-	if (os_joy_init(joystick_id) != 0)
+	if (joystickb_init() != 0)
 		goto err_os_inner;
 
 	probe();
 	calibrate();
 	run();
 
-	os_joy_done();
+	joystickb_done();
 	os_inner_done();
 	os_done();
 	conf_done(context);
@@ -235,23 +220,6 @@ err_os:
 	os_done();
 err_conf:
 	conf_done(context);
-err:
 	return EXIT_FAILURE;
 }
 
-#ifdef __MSDOS__
-
-/* Keep Allegro small */
-BEGIN_GFX_DRIVER_LIST
-END_GFX_DRIVER_LIST
-
-BEGIN_COLOR_DEPTH_LIST
-END_COLOR_DEPTH_LIST
-
-BEGIN_DIGI_DRIVER_LIST
-END_DIGI_DRIVER_LIST
-
-BEGIN_MIDI_DRIVER_LIST
-END_MIDI_DRIVER_LIST
-
-#endif

@@ -29,6 +29,8 @@
  */
 
 #include "device.h"
+#include "log.h"
+#include "target.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -81,9 +83,12 @@ const device* device_match(const char* tag, const driver* drv) {
 
 void device_error(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac) {
 	unsigned i,j;
-	printf("Invalid argument '%s' for option '%s'\n",arg,option);
-	printf("Valid values are:\n");
-	printf("%16s %s\n","auto","Automatic detection");
+
+	log_std(("device: device_error %s %s\n",option,arg));
+
+	target_err("Invalid argument '%s' for option '%s'\n",arg,option);
+	target_err("Valid values are:\n");
+	target_err("%16s %s\n","auto","Automatic detection");
 
 	for(i=0;i<driver_mac;++i) {
 		for(j=0;driver_map[i]->device_map[j].name;++j) {
@@ -93,7 +98,7 @@ void device_error(const char* option, const char* arg, const driver** driver_map
 			} else {
 				sprintf(buffer,"%s/%s",driver_map[i]->name,driver_map[i]->device_map[j].name);
 			}
-			printf("%16s %s\n",buffer,driver_map[i]->device_map[j].desc);
+			target_err("%16s %s\n",buffer,driver_map[i]->device_map[j].desc);
 		}
 	}
 }

@@ -36,8 +36,7 @@
 #include <stdio.h>
 
 static device DEVICE[] = {
-{ "auto", 1, "VBE automatic detection" },
-{ "vbe", 2, "VBE (no hardware programming)" },
+{ "auto", 1, "VBE video" },
 { 0, 0, 0 }
 };
 

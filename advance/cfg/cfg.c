@@ -25,6 +25,9 @@
 #include "generate.h"
 #include "os.h"
 #include "videoall.h"
+#include "inputall.h"
+#include "log.h"
+#include "file.h"
 
 #ifdef USE_VIDEO_VBELINE
 #include "scrvbe.h"
@@ -52,8 +55,6 @@ enum advance_t {
 
 int draw_test(int x, int y, video_crtc* crtc, int modify) {
 	char buffer[256];
-	double hclock;
-	double vclock;
 
 	draw_test_default();
 
@@ -517,7 +518,7 @@ static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor,
 
 		current = *crtc;
 
-		userkey = os_input_get();
+		userkey = inputb_get();
 
 		if (only_h_center) {
 			switch (userkey) {
@@ -624,7 +625,7 @@ static void adjust_fix(video_crtc* crtc, unsigned bits, const video_monitor* mon
 		}
 		draw_test(2,2,&current,0);
 
-		os_input_get();
+		inputb_get();
 	}
 }
 
@@ -1121,7 +1122,7 @@ int cmd_test_mode(video_generate_interpolate_set* interpolate, const video_monit
 
 	if (calib) {
 		draw_graphics_calib(0,0,video_size_x(),video_size_y());
-		os_input_get();
+		inputb_get();
 	} else {
 		adjust_fix(&crtc, bits, monitor);
 	}
@@ -1393,8 +1394,11 @@ int os_main(int argc, char* argv[]) {
 		goto err;
 	}
 
-	video_reg(config);
+	video_reg(config, 1);
 	video_reg_driver_all(config);
+
+	inputb_reg(config, 1);
+	inputb_reg_driver_all(config);
 
 	monitor_register(config);
 	video_crtc_container_register(config);
@@ -1465,17 +1469,27 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
+	if (inputb_load(config) != 0) {
+		goto err_os;
+	}
+
 	if (os_inner_init("AdvanceCFG") != 0) {
 		goto err_os;
 	}
 
-	video_init();
+	if (video_init() != 0) {
+		goto err_os;
+	}
 
 	if (video_blit_init() != 0) {
 		goto err_video;
 	}
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		fprintf(stderr,"Your video board isn't supported.\n");
+		goto err_blit;
+	}
+
+	if (inputb_init() != 0) {
 		goto err_blit;
 	}
 
@@ -1556,6 +1570,8 @@ int os_main(int argc, char* argv[]) {
 
 	text_done();
 
+	inputb_done();
+
 	video_done();
 
 	os_inner_done();
@@ -1584,28 +1600,9 @@ err_os:
 		log_done();
 	}
 	os_done();
-err_conf:
 	conf_done(config);
 err:
 	return EXIT_FAILURE;
 }
 
-#ifdef __MSDOS__
 
-/* Keep Allegro small */
-BEGIN_GFX_DRIVER_LIST
-END_GFX_DRIVER_LIST
-
-BEGIN_COLOR_DEPTH_LIST
-END_COLOR_DEPTH_LIST
-
-BEGIN_DIGI_DRIVER_LIST
-END_DIGI_DRIVER_LIST
-
-BEGIN_MIDI_DRIVER_LIST
-END_MIDI_DRIVER_LIST
-
-BEGIN_JOYSTICK_DRIVER_LIST
-END_JOYSTICK_DRIVER_LIST
-
-#endif
