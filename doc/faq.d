@@ -88,16 +88,7 @@ Linux Configuration FAQ
 	option, or upgrade at the svgalib 1.9.16 library which supports
 	for some boards the vsync IRQ.
 
-Video Configuration FAQ
-  On vertical scrolling games I see a slow moving horizontal
-  defects on the image. How can I remove it ?
-	This happen when AdvaceMAME select a video mode with a
-	vertical frequency equal at the refresh rate of the game
-	emulated. The defect is caused by a small difference of the
-	two frequencies. The solution is to enable the
-	"display_vsync" option.
-
-  How can I enable the DGA extension ?
+  How can I enable the XFree86 DGA extension ?
 	Ensure that in your XF86Config file the line :
 
 		:Option    "omit xfree86-dga"
@@ -106,6 +97,57 @@ Video Configuration FAQ
 	the `dga' utility. Run :
 
 		:man dga
+
+Video Configuration FAQ
+  Which is the "tearing" effect ?
+	The tearing effect is a defects of the animation caused by a wrong
+	syncronization with the game refresh rate and the video mode refresh
+	rate. It generally appears as a horizontal image split line, on the
+	top of this line you see the previous game frame, on the bottom of this
+	line you see the next game frame.
+
+	If the game and the video refresh rate are only a little different
+	the tearing split line is slowly moving up or down. If the refreshs are
+	very different the split line is moving randomily.
+
+	The tearing effect is mostly noticeable in games with a continously
+	scrolling background.
+
+  How can I remove the tearing effect ?
+	The only way to remove the tearing effect is to enable the
+	`display_vsync' option. To correctly work this option need a video
+	mode with a refresh rate which is a multiplier of the original game
+	refresh rate. For example for a 50 Hz game you can use video modes
+	of 50, 100, 150 Hz.
+
+  How can I reduce the tearing effect ?
+	If for some reason you cannot use the `display_vsync' option the
+	only way to reduce the tearing effect is to choose a video mode
+	refresh rate which ensure to have a randomly and fast moving tearing
+	split line.
+
+	Generally they are high refresh rates, prime with the original game
+	frequency.
+
+  Does the "double/tripler buffer" help to reduce the tearing effect ?
+	No. A generic asyncronous buffer does't remove or reduce the
+	tearing effect. A syncronous buffer instead it's exactly like
+	the vsync. AdvanceMAME supports only the asyncronous buffers.
+
+  Can I get a good animation with a video mode with arbitrary frequency ?
+	There is no way to get a perfect animation without using
+	a video mode with the same game refresh rate. You will get the
+	tearing effect or a not smooth animation from some frames skipped
+	or displayed too long.
+
+	For example, suppose to use a 70 Hz video mode with a 60 Hz game.
+	You can display every frame for 1/60 of second and get the tearing
+	effect. Alternatively you can display every frame for 1/70 of second,
+	but after 7 frame you need to display a frame for 2/70 of second to
+	resyncronize with the original game speed.
+
+	The only exception is for frequencies which are multipler of
+	the original game refresh rate.
 
 License FAQ
   Why SourceForge accepted the AdvanceMAME project and not the

@@ -531,7 +531,9 @@ static struct conf_conv STANDARD[] = {
 { "*", "device_joystick", "segaisa", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "segapci", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 } /* rename */
+{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
+/* 0.61.3 */
+{ "*", "display_waitvsync", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {

@@ -28,6 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "sseal.h"
 #include "sounddrv.h"
 #include "log.h"
 #include "os.h"

@@ -2833,8 +2833,7 @@ int advance_video_init(struct advance_video_context* context, struct conf_contex
 	context->state.cfg_context = cfg_context;
 
 	conf_bool_register_default(cfg_context, "display_scanlines", 1);
-	conf_bool_register_default(cfg_context, "display_vsync", 0);
-	conf_bool_register_default(cfg_context, "display_waitvsync", 0);
+	conf_bool_register_default(cfg_context, "display_vsync", 1);
 	conf_bool_register_default(cfg_context, "display_buffer", 0);
 	conf_int_register_enum_default(cfg_context, "display_resize", conf_enum(OPTION_RESIZE), STRETCH_INTEGER_X_FRACTIONAL_Y);
 	conf_bool_register_default(cfg_context, "display_magnify", 0);

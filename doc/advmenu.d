@@ -673,9 +673,19 @@ Configuration
 		allegro/sb20 - Sound Blaster 2.0.
 		allegro/sbpro - Sound Blaster Pro.
 		allegro/sb16 - Sound Blaster 16.
-		allegro/audio - ESS AudioDrive.
+		allegro/audio - Ensoniq AudioDrive.
 		allegro/wss - Windows Sound System.
 		allegro/ess - Ensoniq Soundscape.
+		vsync/sb -  Sound Blaster.
+		vsync/sbwin - Sound Blaster (Windows).
+		vsync/ac97 - AC97.
+		vsync/ac97win - AC97 (Windows).
+		vsync/gusmax - Gravis Ultrasound Max.
+		vsync/gus - Gravis Ultrasound.
+		vsync/audio - Ensoniq AudioDrive.
+		vsync/wss - Windows Sound System.
+		vsync/ess- Ensoniq Soundscape.
+
 
 	Options for the Linux version:
 		oss - OSS automatic detection.

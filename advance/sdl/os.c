@@ -80,6 +80,17 @@ static void os_term_signal(int signum) {
 
 int os_inner_init(const char* title) {
 	SDL_version compiled;
+	os_clock_t start, stop;
+
+	log_std(("os: sys SDL\n"));
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#else
+	log_std(("os: compiler unknown\n"));
+#endif
 
 	log_std(("os: call SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
@@ -96,6 +107,13 @@ int os_inner_init(const char* title) {
 		log_std(("os: little endian system\n"));
 	else
 		log_std(("os: big endian system\n"));
+
+
+	start = os_clock();
+	stop = os_clock();
+	while (stop == start)
+		stop = os_clock();
+	log_std(("os: clock delta %ld\n",(unsigned long)(stop - start)));
 
 	/* set the titlebar */
 	strcpy(OS.title, title);
@@ -218,7 +236,7 @@ void os_default_signal(int signum)
 		fprintf(stderr,"Break pressed\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr,"AdvanceMAME signal %d.\n",signum);
+		fprintf(stderr,"Signal %d.\n",signum);
 		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
 
 		if (signum == SIGILL) {

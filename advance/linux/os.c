@@ -123,20 +123,25 @@ int os_inner_init(const char* title) {
 		log_std(("os: machine %s\n",uts.machine));
 	}
 
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#else
+	log_std(("os: compiler unknown\n"));
+#endif
+
 	usleep(10000);
 	start = os_clock();
 	stop = os_clock();
 	while (stop == start)
 		stop = os_clock();
-
 	log_std(("os: clock delta %ld\n",(unsigned long)(stop - start)));
 
 	usleep(10000);
 	start = os_clock();
-
 	usleep(1000);
 	stop = os_clock();
-
 	log_std(("os: 0.001 delay, effective %g\n",(stop - start) / (double)OS_CLOCKS_PER_SEC ));
 
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n",sysconf(_SC_CLK_TCK)));
@@ -149,6 +154,10 @@ int os_inner_init(const char* title) {
 	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n",sysconf(_SC_WORD_BIT)));
 
 	display = getenv("DISPLAY");
+	if (display)
+		log_std(("os: DISPLAY=%s\n", display));
+	else
+		log_std(("os: DISPLAY undef\n"));
 
 #if defined(USE_SVGALIB)
 	OS.svgalib_active = 0;
@@ -354,11 +363,8 @@ void os_default_signal(int signum)
 	} else if (signum == SIGQUIT) {
 		fprintf(stderr,"Quit pressed\n\r");
 		exit(EXIT_FAILURE);
-	} else if (signum == SIGUSR1) {
-		fprintf(stderr,"Low memory\n\r");
-		_exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr,"AdvanceMAME signal %d.\n",signum);
+		fprintf(stderr,"Signal %d.\n", signum);
 		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
 
 		os_backtrace();

@@ -37,6 +37,7 @@
 #include "allegro2.h"
 
 #include <signal.h>
+#include <time.h>
 #include <process.h>
 #include <conio.h>
 #include <crt0.h>
@@ -309,10 +310,24 @@ static void os_align(void) {
 
 int os_inner_init(const char* title) {
 
+	log_std(("os: sys DOS\n"));
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#else
+	log_std(("os: compiler unknown\n"));
+#endif
+
 	os_clock_setup();
 
-	if (allegro_init() != 0)
+	log_std(("os: allegro_init()\n"));
+	if (allegro_init() != 0) {
+		log_std(("os: allegro_init() failed\n"));
+		target_err("Error initializing the ALLEGRO library.\n");
 		return -1;
+	}
 
 	os_align();
 
@@ -323,10 +338,7 @@ int os_inner_init(const char* title) {
 	signal(SIGINT, os_signal);
 	signal(SIGSEGV, os_signal);
 	signal(SIGTERM, os_signal);
-	signal(SIGHUP, os_signal);
-	signal(SIGPIPE, os_signal);
 	signal(SIGQUIT, os_signal);
-	signal(SIGUSR1, os_signal); /* used for malloc failure */
 
 	return 0;
 }
@@ -396,7 +408,7 @@ void os_default_signal(int signum)
 		cprintf("Low memory\n\r");
 		_exit(EXIT_FAILURE);
 	} else {
-		cprintf("AdvanceMAME signal %d.\n\r", signum);
+		cprintf("Signal %d.\n\r", signum);
 		cprintf("%s, %s\n\r", __DATE__, __TIME__);
 
 		if (signum == SIGILL) {

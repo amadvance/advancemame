@@ -44,7 +44,7 @@ endif
 
 ifeq ($(CONF_SYSTEM),dos)
 SCFLAGS += \
-	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO
+	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC
 SLIBS = -laudio -lalleg $(ZLIBS) -lm
 SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJS += \
@@ -52,7 +52,8 @@ SOBJS += \
 	$(SOBJ)/lib/targdos.o \
 	$(SOBJ)/$(CONF_SYSTEM)/os.o \
 	$(SOBJ)/$(CONF_SYSTEM)/sseal.o \
-	$(SOBJ)/$(CONF_SYSTEM)/salleg.o
+	$(SOBJ)/$(CONF_SYSTEM)/salleg.o \
+	$(SOBJ)/$(CONF_SYSTEM)/svsync.o
 endif
 
 ifeq ($(CONF_SYSTEM),sdl)

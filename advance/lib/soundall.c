@@ -37,6 +37,9 @@ void sound_reg_driver_all(struct conf_context* context) {
 #ifdef USE_SOUND_ALLEGRO
 	sound_reg_driver(context, &sound_allegro_driver);
 #endif
+#ifdef USE_SOUND_VSYNC
+	sound_reg_driver(context, &sound_vsync_driver);
+#endif
 #ifdef USE_SOUND_OSS
 	sound_reg_driver(context, &sound_oss_driver);
 #endif

@@ -621,10 +621,8 @@ Configuration
 	:display_buffer yes | no
 
 	Options:
-		yes - Use the best buffering available.
 		no - Doesn't use any buffering (default).
-
-	The suggested choice is to enable buffering.
+		yes - Use the best buffering available.
 
     display_vsync
 	Synchronize the video display with the video beam instead of
@@ -636,8 +634,8 @@ Configuration
 	:display_vsync yes | no
 
 	Options:
-		no - Use the timer (default).
-		yes - Use the video refresh rate.
+		no - Use the timer.
+		yes - Use the video refresh rate (default).
 
 	You can enable or disable it also on the runtime Video menu.
 
@@ -902,9 +900,18 @@ Configuration
 		allegro/sb20 - Sound Blaster 2.0.
 		allegro/sbpro - Sound Blaster Pro.
 		allegro/sb16 - Sound Blaster 16.
-		allegro/audio - ESS AudioDrive.
+		allegro/audio - Ensoniq AudioDrive.
 		allegro/wss - Windows Sound System.
 		allegro/ess - Ensoniq Soundscape.
+		vsync/sb -  Sound Blaster.
+		vsync/sbwin - Sound Blaster (Windows).
+		vsync/ac97 - AC97.
+		vsync/ac97win - AC97 (Windows).
+		vsync/gusmax - Gravis Ultrasound Max.
+		vsync/gus - Gravis Ultrasound.
+		vsync/audio - Ensoniq AudioDrive.
+		vsync/wss - Windows Sound System.
+		vsync/ess- Ensoniq Soundscape.
 
 	Options for the Linux version:
 		oss - OSS automatic detection.

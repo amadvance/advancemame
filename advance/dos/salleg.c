@@ -28,6 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "salleg.h"
 #include "sounddrv.h"
 #include "log.h"
 #include "os.h"
@@ -60,7 +61,7 @@ static device DEVICE[] = {
 { "sb20", DIGI_SB20, "Sound Blaster 2.0" },
 { "sbpro", DIGI_SBPRO, "Sound Blaster Pro" },
 { "sb16", DIGI_SB16, "Sound Blaster 16" },
-{ "audio", DIGI_AUDIODRIVE, "ESS AudioDrive" },
+{ "audio", DIGI_AUDIODRIVE, "Ensoniq AudioDrive" },
 { "wss", DIGI_WINSOUNDSYS, "Windows Sound System" },
 { "ess", DIGI_SOUNDSCAPE, "Ensoniq Soundscape" },
 { 0, 0, 0 }

@@ -113,12 +113,13 @@ Requirements
 	compiler, don't use it.
 
 	To build in DOS you need the additional following software:
-		:DJGPP development kit 2.03
-		:DJGPP GNU binutils
-		:DJGPP GNU C/C++ compiler
-		:DJGPP GNU make
-		:DJGPP GNU fileutils
-		:DJGPP GNU patch
+		:DJGPP development kit 2.03 (djdev*.zip)
+		:DJGPP GNU binutils (bnu*b.zip)
+		:DJGPP GNU C/C++ compiler (gcc*b.zip gpp*b.zip)
+		:DJGPP GNU make (mak*b.zip)
+		:DJGPP GNU fileutils (fil*b.zip)
+		:DJGPP GNU shellutils (shl*b.zip)
+		:DJGPP GNU patch (pat*b.zip)
 		:SEAL 1.0.7 + mame patch
 		:Allegro 3.9.40 (or newer)
 
