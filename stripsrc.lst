@@ -1,5 +1,6 @@
 cpu
 dbgfonts
+debug
 drivers
 includes
 machine
@@ -55,8 +56,6 @@ mame.c
 mame.h
 mame.mak
 mameblit.c
-mamedbg.c
-mamedbg.h
 md5.c
 md5.h
 memory.c
@@ -87,7 +86,5 @@ unzip.h
 usrintrf.c
 usrintrf.h
 version.c
-window.c
-window.h
 x86drc.c
 x86drc.h

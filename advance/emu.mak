@@ -566,11 +566,11 @@ EMUCFLAGS += \
 	-Dvga_init=mess_vga_init
 # -Dvga_init=mess_vga_init prevent a name clash with the vga_init SVGALIB function
 endif
-EMUCFLAGS += \
-	-I$(EMUSRC)
 
 EMUCFLAGS += \
+	-I$(EMUSRC) \
 	-I$(EMUSRC)/includes \
+	-I$(EMUSRC)/debug \
 	-I$(OBJ)/cpu/m68000 \
 	-I$(EMUSRC)/cpu/m68000 \
 	-DINLINE="static __inline__" \
@@ -601,7 +601,8 @@ OBJDIRS += \
 	$(OBJ)/drivers \
 	$(OBJ)/machine \
 	$(OBJ)/vidhrdw \
-	$(OBJ)/sndhrdw
+	$(OBJ)/sndhrdw \
+	$(OBJ)/debug
 ifeq ($(CONF_EMU),mess)
 OBJDIRS += \
 	$(OBJ)/mess \

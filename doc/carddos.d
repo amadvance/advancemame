@@ -17,6 +17,8 @@ SVGALINE Drivers
 	The `svgaline' drivers are a subset of the Linux SVGALIB library.
 
   ATI Technologies (1002)
+	+M22 [FireGL GL] [5464] 
+	+M22 [Radeon Mobility M300] [5460] 
 	+Mach64 CT (215CT222) [4354] 
 	+Mach64 ET [4554] 
 	+Mach64 GX (210888GX) [4758] 
@@ -27,6 +29,7 @@ SVGALINE Drivers
 	+Mobility Radeon 9000 [4c66] 
 	+R200 QT [Radeon 8500] [5154] 
 	+R200 QU [Radeon 9100] [5155] 
+	+RV280 [Radeon 9200 SE (PCI)] [5944] 
 	+Rade 128 Pro Ultra TU [5455] 
 	+Radeon 7000 Series (RV100) [5159] 
 		+Optimus 7000 
@@ -40,6 +43,7 @@ SVGALINE Drivers
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 7000 
 		+OEM PC Partner Ltd {174b} : Radeon FSC 
 		+OEM PC Partner Ltd {174b} : Radeon VE 7000 
+		+OEM PC Partner Ltd {174b} : Sapphire Radeon VE 7000 DDR 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 7000 Evil Master Multi-display 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 7000 Multi-display Edition 
 		+OEM Ultimarc {0f01} : ArcadeVGA 
@@ -56,6 +60,7 @@ SVGALINE Drivers
 	+Radeon 7500 Series (RV200) [5157] 
 		+All-in-Wonder Radeon 7500 
 		+All-in-Wonder VE PCI 
+		+Dell Optiplex GX260 
 		+Optimus 7500 
 		+Radeon 7500 Series 
 		+OEM Giga-Byte Technology {1458} : RV200 QW [RADEON 7500 PRO MAYA AR] 
@@ -73,6 +78,7 @@ SVGALINE Drivers
 		+All-in-Wonder Radeon 8500 (RV200) 
 		+Radeon 8500/8500LE (R200) 
 		+OEM Giga-Byte Technology {1458} : Radeon 8500 Deluxe MAYA (AP64D-H) 
+		+OEM Hercules {1681} : Radeon 8500 [3D Prophet 8500 128Mb] 
 		+OEM PC Partner Ltd {174b} : Radeon R200 QL [Sapphire Radeon 8500 LE] 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 8500 Evil Master II Multi-display Edition 
 	+Radeon 9000 (RV250) [4967] 
@@ -90,28 +96,32 @@ SVGALINE Drivers
 		+OEM PC Partner Ltd {174b} : Radeon 9000 Atlantis Pro 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 9000 Pro Evil Commando 
 		+OEM Wistron Corporation {17c0} : S-Media Radeon 9000 
+	+Radeon 9000U Family - Secondary [5942] 
+	+Radeon 9000U Family [5962] 
 	+Radeon 9100 Series (R200) [514d] 
-		+OEM Visiontek {1545} : VISIONTEK XTASY RADEON 9100 
+		+OEM Visiontek {1545} : VISIONTEK XTASY Radeon 9100 
 	+Radeon 9200 Pro (RV280) [5960] 
-		+RADEON 9200 PRO 
+		+Radeon 9200 PRO 
 	+Radeon 9200 SE Series (RV280) [5964] 
 		+OEM ASUSTeK Computer Inc {1043} : A9200SE 
+		+OEM Ge-Cube {18bc} : GC-R9200L(SE)-C3H [Radeon 9200 Game Buster] 
 		+OEM Ge-Cube {18bc} : Radeon 9200 SE 128Mb Game Buster 
 		+OEM Giga-Byte Technology {1458} : Radeon 9200 SE 
+		+OEM Hightech Information Systems Ltd {17af} : Radeon 9200 SE Excalibur 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : R92LE-C3S 
 	+Radeon 9200 Series (RV280) [5961] 
 		+ALL-IN-WONDER 9200 SERIES 
-		+RADEON 9200 
+		+Radeon 9200 
 		+OEM ASUSTeK Computer Inc {1043} : Radeon A9200LE 
-		+OEM First International Computer Inc {1509} : FIC RADEON 9200 
+		+OEM First International Computer Inc {1509} : FIC Radeon 9200 
 		+OEM Ge-Cube {18bc} : GeXcube GC-R9200-C3 
 		+OEM Ge-Cube {18bc} : Radeon 9200 Game Buster 
 		+OEM Ge-Cube {18bc} : Radeon 9200 Game Buster VIVO 
-		+OEM Giga-Byte Technology {1458} : GIGABYTE RADEON 9200 
+		+OEM Giga-Byte Technology {1458} : GIGABYTE Radeon 9200 
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9200 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 
-		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : SMARTVGA RADEON 9200 
+		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : SMARTVGA Radeon 9200 
 	+Radeon Mobility M6 LY [4c59] 
 		+Radeon Mobility 
 		+OEM Acer Inc {1025} : Radeon Mobility 
@@ -224,6 +234,7 @@ SVGALINE Drivers
 	+Rage 3D IIC AGP (PQFP Package) [475a] 
 		+Rage 3D IIC 
 		+Rage 3D IIC AGP 
+		+Rage 3D Pro AGP 2x XPERT 98 
 	+Rage 3D IIC PCI [Mach64 GT IIC] (PQFP Package) [4756] 
 		+Rage 3D IIC PCI 
 	+Rage 3D LT Pro AGP 133MHz (BGA-312 Package) [4c42] 
@@ -523,8 +534,33 @@ SVGALINE Drivers
 		+SiS5597 SVGA (Shared RAM) 
 	+SiS6205 GUI Accelerator with RAM-DAC, UMA-Support [0205] 
 	+SiS630,730 GUI Accelerator+3D [6300] 
+		+SiS 630 
 		+OEM ASUSTeK Computer Inc {1043} : CUSI-FX motherboard 
-		+OEM Elitegroup Computer Sys {1019} : P6STP-FL motherboard 
+		+OEM ASUSTeK Computer Inc {1043} : SiS 630 
+		+OEM Acer Inc {1025} : SiS 630 
+		+OEM Alpha-Top Corp {156d} : SiS 630 
+		+OEM Aopen Inc {a0a0} : SiS 630 
+		+OEM Chaintech Computer Co Ltd {270f} : SiS 630 
+		+OEM Clevo/Kapok Computer {1558} : SiS 630 
+		+OEM Elitegroup Computer Sys {1019} : SiS 630 
+		+OEM GVC/BCM Advanced Research {14a4} : SiS 630 
+		+OEM Giga-Byte Technology {1458} : SiS 630 
+		+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : SiS 630 
+		+OEM IBM {1014} : SiS 630 
+		+OEM Inventec Corp {1170} : SiS 630 
+		+OEM Leadtek Research {107d} : SiS 630 
+		+OEM Micro-Star International Co Ltd (MSI) {1462} : SiS 630 
+		+OEM Mitac {1071} : SiS 630 
+		+OEM NEC Electronics Hong Kong {1033} : SiS 630 
+		+OEM Procomp Informatics Ltd {15c5} : SiS 630 
+		+OEM Quanta Computer Inc {152d} : SiS 630 
+		+OEM Quantum Designs H.K. Ltd {1098} : SiS 630 
+		+OEM Sharp Corp {13bd} : SiS 630 
+		+OEM Sony Corp {104d} : SiS 630 
+		+OEM Tatung Co {15d5} : SiS 630 
+		+OEM Twinhead International Corp {14ff} : SiS 630 
+		+OEM Universal Scientific Ind {14cd} : SiS 630 
+		+OEM Uniwill Computer Corp {1584} : SiS 630 
 	+SiS6326 GUI Accelerator [6326] 
 		+SiS6326 GUI Accelerator 
 		+OEM Diamond Multimedia Systems {1092} : SpeedStar A50 
@@ -641,32 +677,49 @@ SVGALINE Drivers
 		+OEM Guillemot Corp {14af} : 3D Prophet SE 
 	+GeForce FX 5100 [NV34.7] [0327] (*)
 	+GeForce FX 5200 Ultra [NV34.2] [0321] (*)
+	+GeForce FX 5200 [0320] (*)
 	+GeForce FX 5200 [NV34.3] [0322] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9520 (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9520 MAGIC (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9520 Magic (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9520 Video Suite (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9520TD (*)
 		+OEM Leadtek Research {107d} : WinFast A340 TDH (*)
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-8917 (FX5200-T128) (*)
 	+GeForce FX 5200LE [NV34.3] [0323] (*)
 	+GeForce FX 5500 [NV34.6] [0326] (*)
 	+GeForce FX 5600 Ultra [NV31.1] [0311] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9560 Ultra (*)
 	+GeForce FX 5600 [NV31.2] [0312] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9560 (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9560 Video Suite (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9560TD (*)
 		+OEM Leadtek Research {107d} : WinFast A310TD (*)
 	+GeForce FX 5600XT [NV31.4] [0314] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9560XT (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9560XT/TD (*)
 		+OEM Leadtek Research {107d} : A310XTTD 5600 (*)
 	+GeForce FX 5700 Ultra [NV36.1] [0341] (*)
 	+GeForce FX 5700 [NV36.2] [0342] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9570 (*)
 	+GeForce FX 5700LE [NV36.3] [0343] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9570LE (*)
 	+GeForce FX 5700VE [NV36.4] [0344] (*)
 	+GeForce FX 5800 Ultra [NV30.2] [0301] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9900 Ultra (*)
 	+GeForce FX 5800 [NV30.3] [0302] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9900 Ultra (*)
 	+GeForce FX 5900 Ultra [NV35.0] [0330] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9950 Ultra (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9950TD Ultra (*)
 		+OEM Leadtek Research {107d} : WinFast A350 Ultra (*)
 	+GeForce FX 5900 [NV35.1] [0331] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9950 (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9950SE (*)
 	+GeForce FX 5900XT [NV35.2] [0332] (*)
 	+GeForce FX 5900ZT [NV35.4] [0334] (*)
 	+GeForce FX 5950 Ultra [NV35.3] [0333] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9980 Ultra (*)
 	+GeForce FX Go 5200 32M/64M [0328] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5200 32M/64M (*)
 	+GeForce FX Go 5200 [0324] (*)
@@ -716,6 +769,7 @@ SVGALINE Drivers
 		+OEM ASUSTeK Computer Inc {1043} : V7100MAGIC (*)
 		+OEM Leadtek Research {107d} : GeForce2 MX 100/200 (*)
 	+GeForce2 MX/MX 400 [NV11] [0110] (*)
+		+Dell OEM GeForce 2 MX 400 (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 DVI SDRAM (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 Deluxe Combo (*)
@@ -792,6 +846,8 @@ SVGALINE Drivers
 	+GeForce4 448 Go [NV18M] [018d] (*)
 	+GeForce4 460 Go [NV17M] [0177] (*)
 	+GeForce4 MX 4000 [0185] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9400 Gamer Edition (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9400 Magic (*)
 	+GeForce4 MX 420 [NV17.3] [0172] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 120Mb (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 MAGIC (*)
@@ -808,6 +864,7 @@ SVGALINE Drivers
 		+OEM ASUSTeK Computer Inc {1043} : V8170 DDR(SE) (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 DVI DDR (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 MAGIC (*)
+		+OEM ASUSTeK Computer Inc {1043} : V8170 SE (*)
 		+OEM Abit Computer Corp {147b} : Siluro GF4 MX 440 (*)
 		+OEM CardExpert Technology {10b0} : Gainward Pro/600 TV (*)
 		+OEM Leadtek Research {107d} : WinFast A170 DDR (*)
@@ -819,6 +876,9 @@ SVGALINE Drivers
 		+OEM ASUSTeK Computer Inc {1043} : V9180 (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9180 (TSOP) (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9180 MAGIC (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9180 Magic (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9180 Magic (R2.00A) (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9180 SE (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9180 Video Suite (*)
 		+OEM Abit Computer Corp {147b} : Siluro GF4 MX-8X (*)
 		+OEM Leadtek Research {107d} : WinFast A180 (*)
@@ -867,17 +927,29 @@ SVGALINE Drivers
 		+OEM ASUSTeK Computer Inc {1043} : V8460 ULTRA DELUXE (*)
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : GeForce4 Ti 4600 (*)
 	+GeForce4 Ti 4800 SE [NV28.3] [0282] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9280S2 (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9480 (*)
 	+GeForce4 Ti 4800 [NV28.1] [0280] (*)
 	+Geforce4 488 Go [0187] (*)
 		+OEM Wistron Corporation {17c0} : Geforce4 488 Go (*)
 	+ICE FX 2000 [030a] (*)
 	+Mutara V08 [NV2] [0010] 
+	+NV17 [GeForce4 410 Go 16M] [017d] (*)
 	+NV28 [GeForce4 Ti 4200 Go AGP 8x] [0286] (*)
 	+NV31 [0313] (*)
+	+NV31 [0316] (*)
+	+NV31 [0317] (*)
+	+NV31 [031d] (*)
+	+NV31 [031e] (*)
+	+NV31 [031f] (*)
 	+NV31GL.1 [0318] (*)
 	+NV31GL.2 [0319] (*)
 	+NV34GL [032f] (*)
 	+NV34M [GeForce FX Go5200] [0329] (*)
+	+NV36 [0349] (*)
+	+NV36 [034b] (*)
+	+NV36 [GeForce FX Go5700] [0347] (*)
+	+NV36 [Quadro FX Go1000] [034c] (*)
 	+NV36.5 [0345] (*)
 	+NV36GL [034f] (*)
 	+NVIDIA Quadro FX 700 Go [031c] (*)
@@ -889,9 +961,9 @@ SVGALINE Drivers
 	+Quadro FX 1100 [NV36GL] [034e] (*)
 	+Quadro FX 2000 [NV30GL.1] [0308] (*)
 	+Quadro FX 3000 [NV35GL] [0338] (*)
-	+Quadro FX 500 [NV34GL.4] [032b] (*)
+	+Quadro FX 500/600 [NV34GL.4] [032b] (*)
 	+Quadro FX 700 [NV35GL] [033f] (*)
-	+Quadro NVS 280 [NV34GL.3] [032a] (*)
+	+Quadro NVS 280 PCI [NV34GL.3] [032a] (*)
 	+Quadro NVS with AGP 8X [NV18GL.2] [018a] (*)
 	+Quadro2 MXR/EX/Go [NV11GL] [0113] (*)
 		+OEM ELSA GmbH {1048} : Synergy 2000 (*)
@@ -1299,8 +1371,33 @@ VBELINE Drivers
 		+SiS530,620 GUI Accelerator+3D 
 	+SiS540 PCI Display Adapter [5300] 
 	+SiS630,730 GUI Accelerator+3D [6300] 
+		+SiS 630 
 		+OEM ASUSTeK Computer Inc {1043} : CUSI-FX motherboard 
-		+OEM Elitegroup Computer Sys {1019} : P6STP-FL motherboard 
+		+OEM ASUSTeK Computer Inc {1043} : SiS 630 
+		+OEM Acer Inc {1025} : SiS 630 
+		+OEM Alpha-Top Corp {156d} : SiS 630 
+		+OEM Aopen Inc {a0a0} : SiS 630 
+		+OEM Chaintech Computer Co Ltd {270f} : SiS 630 
+		+OEM Clevo/Kapok Computer {1558} : SiS 630 
+		+OEM Elitegroup Computer Sys {1019} : SiS 630 
+		+OEM GVC/BCM Advanced Research {14a4} : SiS 630 
+		+OEM Giga-Byte Technology {1458} : SiS 630 
+		+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : SiS 630 
+		+OEM IBM {1014} : SiS 630 
+		+OEM Inventec Corp {1170} : SiS 630 
+		+OEM Leadtek Research {107d} : SiS 630 
+		+OEM Micro-Star International Co Ltd (MSI) {1462} : SiS 630 
+		+OEM Mitac {1071} : SiS 630 
+		+OEM NEC Electronics Hong Kong {1033} : SiS 630 
+		+OEM Procomp Informatics Ltd {15c5} : SiS 630 
+		+OEM Quanta Computer Inc {152d} : SiS 630 
+		+OEM Quantum Designs H.K. Ltd {1098} : SiS 630 
+		+OEM Sharp Corp {13bd} : SiS 630 
+		+OEM Sony Corp {104d} : SiS 630 
+		+OEM Tatung Co {15d5} : SiS 630 
+		+OEM Twinhead International Corp {14ff} : SiS 630 
+		+OEM Universal Scientific Ind {14cd} : SiS 630 
+		+OEM Uniwill Computer Corp {1584} : SiS 630 
 	+SiS6326 GUI Accelerator [6326] 
 		+SiS6326 GUI Accelerator 
 		+OEM Diamond Multimedia Systems {1092} : SpeedStar A50 
@@ -1323,7 +1420,7 @@ VBELINE Drivers
 		+OEM NEC Electronics Hong Kong {1033} : NM2160 MagicGraph 128XD (*)
 		+OEM Sony Corp {104d} : NM2160 MagicGraph 128XD (*)
 	+NM2200 MagicMedia 256AV [0005] (*)
-		+OEM Dell Computer Corp {1028} : Latitude CPi A400XT (*)
+		+OEM Dell Computer Corp {1028} : Latitude CPi A (*)
 		+OEM IBM {1014} : NM2200 MagicMedia 256AV (*)
 	+NM2360 MagicMedia 256ZX / 256M6D [0006] (*)
 		+OEM IBM {1014} : NM2360 MagicMedia 256ZX (*)
