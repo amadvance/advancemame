@@ -385,10 +385,12 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
 	$(OBJ)/advance/osd/global.o \
-	$(OBJ)/advance/osd/videoui.o \
-	$(OBJ)/advance/osd/videoma.o \
-	$(OBJ)/advance/osd/videocf.o \
-	$(OBJ)/advance/osd/videomn.o \
+	$(OBJ)/advance/osd/ui.o \
+	$(OBJ)/advance/osd/video.o \
+	$(OBJ)/advance/osd/frame.o \
+	$(OBJ)/advance/osd/sync.o \
+	$(OBJ)/advance/osd/mode.o \
+	$(OBJ)/advance/osd/menu.o \
 	$(OBJ)/advance/osd/estimate.o \
 	$(OBJ)/advance/osd/record.o \
 	$(OBJ)/advance/osd/sound.o \

@@ -1270,7 +1270,7 @@ static adv_error parse_inputname(char* s)
 	return 0;
 }
 
-adv_error advance_input_parse_analogname(unsigned* type, const char* buffer)
+adv_error advance_input_parse_analogname(unsigned* port, const char* buffer)
 {
 	struct mame_analog* i;
 
@@ -1287,7 +1287,7 @@ adv_error advance_input_parse_analogname(unsigned* type, const char* buffer)
 		return -1;
 	}
 
-	*type = i->type;
+	*port = i->port;
 
 	return 0;
 }
@@ -1334,13 +1334,15 @@ adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* rev
 	return 0;
 }
 
-int advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type)
+int advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type, unsigned player)
 {
 	struct mame_analog* a;
 
-	a = mame_analog_find(type & (~IPF_MASK | IPF_PLAYERMASK));
+	unsigned port = MAME_PORT_PLAYER(type, player);
+
+	a = mame_analog_find(port);
 	if (!a) {
-		log_std(("WARNING:emu:input: unknown analog port %d\n", type & (~IPF_MASK | IPF_PLAYERMASK)));
+		log_std(("WARNING:emu:input: unknown analog port %d,%d\n", type, player));
 		return -1;
 	}
 

@@ -94,7 +94,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 
 			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), "auto");
 
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 
 			/* show at screen the new configuration name */
 			advance_ui_message(ui_context, mode_current_name(context));
@@ -103,7 +103,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 
 			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), crtc_name_get(entry[selected]));
 
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		}
 	}
 
@@ -599,13 +599,13 @@ int osd2_menu(int selected, unsigned input)
 		} else if (selected == pipeline_index) {
 			context->state.menu_sub_flag = 2;
 		} else if (selected == save_game_index) {
-			advance_video_save(context, context->config.section_name_buffer);
+			advance_video_config_save(context, context->config.section_name_buffer);
 		} else if (selected == save_resolution_index) {
-			advance_video_save(context, context->config.section_resolution_buffer);
+			advance_video_config_save(context, context->config.section_resolution_buffer);
 		} else if (selected == save_resolutionclock_index) {
-			advance_video_save(context, context->config.section_resolutionclock_buffer);
+			advance_video_config_save(context, context->config.section_resolutionclock_buffer);
 		} else if (selected == save_all_index) {
-			advance_video_save(context, "");
+			advance_video_config_save(context, "");
 		} else if (selected == crash_index) {
 			target_crash();
 		}
@@ -625,7 +625,7 @@ int osd2_menu(int selected, unsigned input)
 			case COMBINE_LQ : config.combine = COMBINE_HQ; break;
 			case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == effect_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.rgb_effect) {
@@ -641,32 +641,32 @@ int osd2_menu(int selected, unsigned input)
 			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
 			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_NONE; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == vsync_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.vsync_flag) {
 			case 0 : config.vsync_flag = 1; break;
 			case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == smp_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.smp_flag) {
 			case 0 : config.smp_flag = 1; break;
 			case 1 : config.smp_flag = 0; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == scanline_index) {
 			struct advance_video_config_context config = context->config;
 			config.scanlines_flag = !config.scanlines_flag;
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = context->config;
 			if (config.magnify_factor == 4)
 				config.magnify_factor = 0;
 			else
 				config.magnify_factor += 1;
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == index_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.index) {
@@ -678,7 +678,7 @@ int osd2_menu(int selected, unsigned input)
 			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_YUY2; break;
 			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_NONE; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == stretch_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.stretch) {
@@ -687,7 +687,7 @@ int osd2_menu(int selected, unsigned input)
 			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_INTEGER_XY; break;
 			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		}
 	}
 
@@ -705,7 +705,7 @@ int osd2_menu(int selected, unsigned input)
 			case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
 			case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == effect_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.rgb_effect) {
@@ -721,32 +721,32 @@ int osd2_menu(int selected, unsigned input)
 			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
 			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == vsync_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.vsync_flag) {
 			case 0 : config.vsync_flag = 1; break;
 			case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == smp_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.smp_flag) {
 			case 0 : config.smp_flag = 1; break;
 			case 1 : config.smp_flag = 0;  break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == scanline_index) {
 			struct advance_video_config_context config = context->config;
 			config.scanlines_flag = !config.scanlines_flag;
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = context->config;
 			if (config.magnify_factor == 0)
 				config.magnify_factor = 4;
 			else
 				config.magnify_factor -= 1;
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == index_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.index) {
@@ -758,7 +758,7 @@ int osd2_menu(int selected, unsigned input)
 			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_BGR16; break;
 			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_BGR32; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		} else if (selected == stretch_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.stretch) {
@@ -767,7 +767,7 @@ int osd2_menu(int selected, unsigned input)
 			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_FRACTIONAL_XY; break;
 			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
 			}
-			advance_video_change(context, &config);
+			advance_video_reconfigure(context, &config);
 		}
 	}
 

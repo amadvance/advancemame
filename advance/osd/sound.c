@@ -320,7 +320,7 @@ static void sound_play_adjust_const(struct advance_sound_context* context, const
  * \param sample_count Number of samples (not multiplied by 2 if stereo).
  * \param sample_diff Correction of the number of sample to output.
  */
-void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
+void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
 {
 	adv_bool mute;
 

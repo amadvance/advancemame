@@ -129,7 +129,6 @@ const char* mame_game_description(const mame_game* game);
 const char* mame_game_year(const mame_game* game);
 const char* mame_game_manufacturer(const mame_game* game);
 unsigned mame_game_players(const mame_game* game);
-void mame_print_info(FILE* out);
 void mame_print_xml(FILE* out);
 adv_bool mame_is_game_vector(const mame_game* game);
 adv_bool mame_is_game_relative(const char* relative, const mame_game* game);
@@ -138,7 +137,7 @@ const struct mame_game* mame_playback_look(const char* file);
 struct mame_port {
 	const char* name; /**< Name of the port. */
 	const char* desc; /**< Description. */
-	unsigned port; /**< Port value. */
+	unsigned port; /**< Unique port value. */
 };
 
 struct mame_port* mame_port_list(void);
@@ -147,8 +146,8 @@ int mame_port_player(unsigned port);
 void mame_name_adjust(char* dst, unsigned size, const char* s);
 
 struct mame_analog {
-	const char* name;
-	unsigned type;
+	const char* name; /**< Name of the analog port. */
+	unsigned port; /**< Unique analog port value. */
 };
 
 struct mame_analog* mame_analog_list(void);
@@ -157,7 +156,7 @@ struct mame_analog* mame_analog_find(unsigned port);
 /***************************************************************************/
 /* Conversion */
 
-unsigned glue_port_convert(unsigned* type_pred, unsigned type, const char* name);
+unsigned glue_port_convert(unsigned type, unsigned player, unsigned index, const char* name);
 void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max);
 void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsigned mame_max);
 
@@ -172,8 +171,35 @@ struct mame_digital_map_entry {
 	adv_bool port_state; /**< State of the port. */
 };
 
-/** New ports. */
-#define MAME_PORT_INTERNAL 0x70000000
+/**
+ * Mask used to store the player number.
+ * The player number uses 1 for player1.
+ */
+#define MAME_PORT_PLAYER_SHIFT 16
+#define MAME_PORT_PLAYER_MASK 0xff0000
+
+/**
+ * Mask used to store the port type.
+ */
+#define MAME_PORT_TYPE_SHIFT 0
+#define MAME_PORT_TYPE_MASK 0xff
+
+/**
+ * Mask used to store the port index and the key code.
+ * The port index is used to double the ports which need more than
+ * one keyboard sequence like all the mame analog ports.
+ * The key code is used for the mess keyboard emulation and it contains
+ * the keyboard code emulated.
+ */
+#define MAME_PORT_INDEX_SHIFT 8
+#define MAME_PORT_INDEX_MASK 0xff00
+
+/**
+ * Firt free port for new port types.
+ */
+#define MAME_PORT_INTERNAL 0xc0
+
+// TODO controllare come sono usati questi valori
 #define IPT_MAME_PORT_SAFEQUIT (MAME_PORT_INTERNAL + 0)
 #define IPT_MAME_PORT_EVENT1 (MAME_PORT_INTERNAL + 1)
 #define IPT_MAME_PORT_EVENT2 (MAME_PORT_INTERNAL + 2)
@@ -189,6 +215,30 @@ struct mame_digital_map_entry {
 #define IPT_MAME_PORT_EVENT12 (MAME_PORT_INTERNAL + 12)
 #define IPT_MAME_PORT_EVENT13 (MAME_PORT_INTERNAL + 13)
 #define IPT_MAME_PORT_EVENT14 (MAME_PORT_INTERNAL + 14)
+
+#define MAME_PORT(type, player, keyboard) \
+	(((type) << MAME_PORT_TYPE_SHIFT) | ((player) << MAME_PORT_PLAYER_SHIFT) | ((keyboard) << MAME_PORT_INDEX_SHIFT))
+
+#define MAME_PORT_PLAYER(type, player) \
+	MAME_PORT(type, player, 0)
+
+#define MAME_PORT_INDEX(type, player, index) \
+	MAME_PORT(type, player, index)
+
+#define MAME_PORT_KEYBOARD(keyboard) \
+	MAME_PORT_INDEX(IPT_KEYBOARD, 0, keyboard)
+
+#define MAME_PORT_TYPE_GET(port) \
+	(((port) & MAME_PORT_TYPE_MASK) >> MAME_PORT_TYPE_SHIFT)
+
+#define MAME_PORT_PLAYER_GET(port) \
+	(((port) & MAME_PORT_PLAYER_MASK) >> MAME_PORT_PLAYER_SHIFT)
+
+#define MAME_PORT_INDEX_GET(port) \
+	(((port) & MAME_PORT_INDEX_MASK) >> MAME_PORT_INDEX_SHIFT)
+
+#define MAME_PORT_KEYBOARD_GET(port) \
+	MAME_PORT_INDEX_GET(port)
 
 int mame_ui_port_pressed(unsigned port);
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2);

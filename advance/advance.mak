@@ -93,6 +93,11 @@ line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_BUILD)
 d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_BUILD)
 web: $(DOCOBJ) $(WEB_DOCFILES)
 
+# Ensure that the doc target is always created also if a doc directory exists
+.PHONY: doc
+
+doc: $(DOCOBJ) $(INSTALL_DOCFILES)
+
 ############################################################################
 # Common SRC
 

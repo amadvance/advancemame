@@ -228,7 +228,6 @@ static void help(void)
 	target_out("%sdefault        add all the default options at the configuration file\n", slash);
 	target_out("%sremove         remove all the default option from the configuration file\n", slash);
 	target_out("%slog            create a log of operations\n", slash);
-	target_out("%slistinfo       output the rom INFO file\n", slash);
 	target_out("%slistxml        output the rom XML file\n", slash);
 	target_out("%srecord FILE    record an .inp file\n", slash);
 	target_out("%splayback FILE  play an .inp file\n", slash);
@@ -479,7 +478,6 @@ int os_main(int argc, char* argv[])
 	int r;
 	int i;
 	struct mame_option option;
-	int opt_info;
 	int opt_xml;
 	int opt_log;
 	int opt_logsync;
@@ -494,7 +492,6 @@ int os_main(int argc, char* argv[])
 	const mame_game* parent;
 	char buffer[32];
 
-	opt_info = 0;
 	opt_xml = 0;
 	opt_log = 0;
 	opt_logsync = 0;
@@ -588,8 +585,6 @@ int os_main(int argc, char* argv[])
 			opt_remove = 1;
 		} else if (target_option_compare(argv[i], "debug")) {
 			option.debug_flag = 1;
-		} else if (target_option_compare(argv[i], "listinfo")) {
-			opt_info = 1;
 		} else if (target_option_compare(argv[i], "listxml")) {
 			opt_xml = 1;
 		} else if (target_option_compare(argv[i], "record") && i+1<argc && argv[i+1][0] != '-') {
@@ -618,11 +613,6 @@ int os_main(int argc, char* argv[])
 			target_err("Unknown command line option '%s'.\n", argv[i]);
 			goto err_os;
 		}
-	}
-
-	if (opt_info) {
-		mame_print_info(stdout);
-		goto done_os;
 	}
 
 	if (opt_xml) {

@@ -37,6 +37,7 @@
 #include "mame2.h"
 
 #include "advance.h"
+
 #ifdef USE_LCD
 #include "lcd.h"
 #endif
@@ -216,8 +217,8 @@ static void customize_language(struct advance_global_context* context, struct In
 		return;
 
 	i = current;
-	while ((i->type & ~IPF_MASK) != IPT_END) {
-		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME
+	while (i->type != IPT_END) {
+		if (i->type == IPT_DIPSWITCH_NAME
 			&& (strstr(i->name, "Language")!=0 || strstr(i->name, "Territory")!=0 || strstr(i->name, "Country")!=0)) {
 			struct InputPort* j;
 			struct InputPort* best;
@@ -234,7 +235,7 @@ static void customize_language(struct advance_global_context* context, struct In
 			begin = ++i;
 
 			/* read the value */
-			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+			while (i->type == IPT_DIPSWITCH_SETTING) {
 				++i;
 			}
 
@@ -301,8 +302,8 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 	end = 0;
 
 	i = current;
-	while ((i->type & ~IPF_MASK) != IPT_END) {
-		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME
+	while (i->type != IPT_END) {
+		if (i->type == IPT_DIPSWITCH_NAME
 			&& strcmp(i->name,"Difficulty")==0) {
 
 			/* the value is stored in the NAME item */
@@ -311,7 +312,7 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 			begin = ++i;
 
 			/* read the value */
-			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+			while (i->type == IPT_DIPSWITCH_SETTING) {
 				++i;
 			}
 
@@ -437,8 +438,8 @@ static void customize_freeplay(struct advance_global_context* context, struct In
 	atleastone = 0;
 
 	i = current;
-	while ((i->type & ~IPF_MASK) != IPT_END) {
-		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME) {
+	while (i->type != IPT_END) {
+		if (i->type == IPT_DIPSWITCH_NAME) {
 			struct InputPort* value;
 			struct InputPort* freeplay_exact;
 			struct InputPort* freeplay_in;
@@ -452,7 +453,7 @@ static void customize_freeplay(struct advance_global_context* context, struct In
 			++i;
 
 			/* read the value */
-			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+			while (i->type == IPT_DIPSWITCH_SETTING) {
 				if (!freeplay_exact && sglob(i->name, "Free?Play")) {
 					freeplay_exact = i;
 				} else if (!freeplay_in && sglob(i->name, "*Free?Play*")) {
@@ -494,8 +495,8 @@ static void customize_mutedemo(struct advance_global_context* context, struct In
 	atleastone = 0;
 
 	i = current;
-	while ((i->type & ~IPF_MASK) != IPT_END) {
-		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME) {
+	while (i->type != IPT_END) {
+		if (i->type == IPT_DIPSWITCH_NAME) {
 			struct InputPort* value;
 			struct InputPort* exact;
 
@@ -510,7 +511,7 @@ static void customize_mutedemo(struct advance_global_context* context, struct In
 			++i;
 
 			/* read the value */
-			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+			while (i->type == IPT_DIPSWITCH_SETTING) {
 				if (match_name) {
 					if (!exact && strcmp(i->name, "Off")==0) {
 						exact = i;
@@ -547,7 +548,7 @@ static void customize_switch(struct advance_global_context* context, adv_conf* c
 
 	i = current;
 	while (i->type != IPT_END) {
-		if ((i->type & ~IPF_MASK) == ipt_name) {
+		if (i->type == ipt_name) {
 			char name_buffer[256];
 			char tag_buffer[256];
 			const char* value;
@@ -557,7 +558,7 @@ static void customize_switch(struct advance_global_context* context, adv_conf* c
 			if (conf_autoreg_string_get(cfg_context, tag_buffer, &value) == 0) {
 				struct InputPort* j;
 				j = i + 1;
-				while ((j->type & ~IPF_MASK) == ipt_setting) {
+				while (j->type == ipt_setting) {
 					char value_buffer[256];
 					mame_name_adjust(value_buffer, sizeof(value_buffer), j->name);
 					if (strcmp(value_buffer, value) == 0) {
@@ -585,7 +586,7 @@ static void customize_analog(struct advance_global_context* context, adv_conf* c
 	while (i->type != IPT_END) {
 		char name_buffer[256];
 
-		if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), i->type) == 0) {
+		if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), i->type, i->player + 1) == 0) {
 			char tag_buffer[256];
 			const char* value;
 			snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
@@ -599,16 +600,10 @@ static void customize_analog(struct advance_global_context* context, adv_conf* c
 
 				d = strdup(value);
 				if (advance_input_parse_analogvalue(&delta, &sensitivity, &reverse, &center, d) == 0) {
-					IP_SET_DELTA(i, delta);
-					IP_SET_SENSITIVITY(i, sensitivity);
-					if (reverse)
-						i->type |= IPF_REVERSE;
-					else
-						i->type &= ~IPF_REVERSE;
-					if (center)
-						i->type |= IPF_CENTER;
-					else
-						i->type &= ~IPF_CENTER;
+					i->u.analog.delta = delta;
+					i->u.analog.sensitivity = sensitivity;
+					i->u.analog.reverse = reverse;
+					i->u.analog.center = center;
 					log_std(("emu:global: input set '%s %s'\n", name_buffer, value));
 				} else {
 					log_std(("ERROR:emu:global: unknown '%s %s'\n", tag_buffer, value));
@@ -630,29 +625,36 @@ static void customize_input(struct advance_global_context* context, adv_conf* cf
 
 	i = current;
 	while (i->type != IPT_END) {
-		struct mame_port* p;
+		unsigned count;
+		unsigned n;
+		if (i->type >= IPT_ANALOG_START && i->type <= IPT_ANALOG_END)
+			count = 2;
+		else
+			count = 1;
+		for(n=0;n<count;++n) {
+			struct mame_port* p;
+			p = mame_port_find(glue_port_convert(i->type, i->player + 1, n, i->name));
+			if (p != 0) {
+				char tag_buffer[64];
+				const char* value;
 
-		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type, i[0].name));
-		if (p != 0) {
-			char tag_buffer[64];
-			const char* value;
+				snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+				if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
+					char* d = strdup(value);
+					unsigned seq[INPUT_MAP_MAX];
 
-			if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
-				char* d = strdup(value);
-				unsigned seq[INPUT_MAP_MAX];
-
-				if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
-					if (seq[0] != DIGITAL_SPECIAL_AUTO) {
-						log_std(("emu:global: input game seq '%s %s'\n", p->name, value));
-						glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq, SEQ_MAX);
+					if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
+						if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+							log_std(("emu:global: input game seq '%s %s'\n", p->name, value));
+							glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq[n], SEQ_MAX);
+						}
+					} else {
+						log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
 					}
-				} else {
-					log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
-				}
 
-				free(d);
+					free(d);
+				}
 			}
 		}
 
@@ -686,29 +688,37 @@ void osd_customize_inputport_pre_defaults(struct ipd* defaults)
 	log_std(("emu:global: osd_customize_inputport_pre_defaults()\n"));
 
 	while (i->type != IPT_END) {
-		struct mame_port* p;
+		unsigned count;
+		unsigned n;
+		if (i->type >= IPT_ANALOG_START && i->type <= IPT_ANALOG_END)
+			count = 2;
+		else
+			count = 1;
+		for(n=0;n<count;++n) {
+			struct mame_port* p;
 
-		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type, i[0].name));
-		if (p != 0) {
-			char tag_buffer[64];
-			const char* value;
+			p = mame_port_find(glue_port_convert(i->type, i->player, n, i->name));
+			if (p != 0) {
+				char tag_buffer[64];
+				const char* value;
 
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+				snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
-			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
-				char* d = strdup(value);
-				unsigned seq[INPUT_MAP_MAX];
+				if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
+					char* d = strdup(value);
+					unsigned seq[INPUT_MAP_MAX];
 
-				if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
-					if (seq[0] != DIGITAL_SPECIAL_AUTO) {
-						log_std(("emu:global: input default seq '%s %s'\n", p->name, value));
-						glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq, SEQ_MAX);
+					if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
+						if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+							log_std(("emu:global: input default seq '%s %s'\n", p->name, value));
+							glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq[n], SEQ_MAX);
+						}
+					} else {
+						log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
 					}
-				} else {
-					log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
-				}
 
-				free(d);
+					free(d);
+				}
 			}
 		}
 

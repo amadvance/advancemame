@@ -80,6 +80,388 @@
 #endif
 
 /***************************************************************************/
+/* SafeQuit */
+
+#define SAFEQUIT_ENTRY_MAX 256
+
+enum {
+	safequit_event_zerocoin = 0,
+	safequit_event_demomode = 1,
+	safequit_event_event1 = 2,
+	safequit_event_event2 = 3,
+	safequit_event_event3 = 4,
+	safequit_event_event4 = 5,
+	safequit_event_event5 = 6,
+	safequit_event_event6 = 7,
+	safequit_event_event7 = 8,
+	safequit_event_event8 = 9,
+	safequit_event_event9 = 10,
+	safequit_event_event10 = 11,
+	safequit_event_event11 = 12,
+	safequit_event_event12 = 13,
+	safequit_event_event13 = 14,
+	safequit_event_event14 = 15
+};
+
+enum {
+	safequit_action_match = 0,
+	safequit_action_nomatch = 1,
+	safequit_action_on = 2,
+	safequit_action_off = 3
+};
+
+struct safequit_entry {
+	unsigned char event;
+	unsigned char cpu;
+	unsigned address;
+	unsigned char action;
+	unsigned char mask;
+	unsigned char result;
+	unsigned frame_count;
+};
+
+struct advance_safequit_config_context {
+	char file_buffer[FILE_MAXPATH]; /**< File safequit.dat to load. */
+	adv_bool debug_flag; /**< Show the debug flag on the screen. */
+        adv_bool safe_exit_flag; /**< Flag for safe exit. */
+};
+
+struct advance_safequit_state_context {
+	struct safequit_entry entry_map[SAFEQUIT_ENTRY_MAX];
+	unsigned entry_mac;
+	unsigned status;
+	unsigned coin; /**< Number of coins. */
+	adv_bool coin_set; /**< If the number of coins is valid. */
+};
+
+struct advance_safequit_context {
+	struct advance_safequit_config_context config;
+	struct advance_safequit_state_context state;
+};
+
+adv_error advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context);
+void advance_safequit_done(struct advance_safequit_context* context);
+adv_error advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
+void advance_safequit_inner_done(struct advance_safequit_context* context);
+adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
+adv_bool advance_safequit_can_exit(struct advance_safequit_context* context);
+unsigned advance_safequit_event_mask(struct advance_safequit_context* context);
+void advance_safequit_update(struct advance_safequit_context* context);
+
+/***************************************************************************/
+/* Input */
+
+/** Max supported input devices. */
+/*@{*/
+#define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
+
+#define INPUT_ANALOG_MAX 4 /**< Max number of analog control for player. */
+#define INPUT_TRAK_MAX 2 /**< Max number of trak control for player. */
+#define INPUT_DIGITAL_MAX 2048 /**< Max number of digital port definition. */
+
+#define INPUT_MAP_MAX 16 /**< Max number of mapping codes. */
+
+#define INPUT_KEYBOARD_MAX 4 /**< Max number of keyboard. */
+#define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
+#define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
+#define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
+#define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
+#define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
+#define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
+
+#define INPUT_HELP_MAX 512 /**< Max number of help entry. */
+
+/*@}*/
+
+struct help_entry {
+	unsigned code;
+	unsigned x;
+	unsigned y;
+	unsigned dx;
+	unsigned dy;
+};
+
+struct analog_map_entry {
+	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+};
+
+struct trak_map_entry {
+	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+};
+
+struct advance_input_config_context {
+	int input_idle_limit; /**< Limit of no input to exit. */
+	adv_bool steadykey_flag; /**< Enable the steady-key management. */
+	adv_bool disable_special_flag; /**< Disable the special OS key sequences. */
+
+	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
+	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
+};
+
+struct advance_input_state_context {
+	adv_bool active_flag; /**< Flag for active input. */
+
+	target_clock_t input_current_clock; /**< Current clock. */
+	target_clock_t input_idle_clock; /**< Clock of last input. */
+
+	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
+	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
+
+	unsigned char key_old[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard previous frame state. */
+	unsigned char key_current[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard current frame state. */
+
+	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
+	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */
+	int joystick_digital_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX][INPUT_DIR_MAX]; /**< Joystick digital state. */
+	int ball_analog_current[INPUT_JOY_MAX][INPUT_AXE_MAX]; /**< Joystick ball analog state. */
+
+	int mouse_button_current[INPUT_MOUSE_MAX][INPUT_BUTTON_MAX]; /**< Mouse button state. */
+	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */
+};
+
+struct advance_input_context {
+	struct advance_input_config_context config;
+	struct advance_input_state_context state;
+};
+
+adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
+void advance_input_done(struct advance_input_context* context);
+adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context);
+void advance_input_inner_done(struct advance_input_context* context);
+void advance_input_update(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool is_pause);
+adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
+void advance_input_force_exit(struct advance_input_context* context);
+adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char* buffer);
+adv_error advance_input_parse_analogname(unsigned* type, const char* buffer);
+adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer);
+adv_error advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type, unsigned player);
+void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center);
+adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code);
+
+
+/***************************************************************************/
+/* UI */
+
+struct advance_ui_config_context {
+	unsigned help_mac; /**< Number of help entries. */
+	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
+	char help_image_buffer[256]; /**< File name of the help image. */
+	char ui_font_buffer[256]; /**< File name of the font. */
+	adv_bool ui_speedmark_flag; /**< If display of not the speed mark on screen. */
+	unsigned ui_font_orientation; /**< Orientation for the font. */
+	unsigned ui_font_sizex; /**< X size of the font. */
+	unsigned ui_font_sizey; /**< Y size of the font. */
+};
+
+struct advance_ui_state_context {
+	adv_bool ui_extra_flag; /**< Extra frame to be drawn to clear the off game border. */
+	adv_bool ui_message_flag; /**< User interface message display flag. */
+	double ui_message_stop_time; /**< Time to stop thee interface message display. */
+	char ui_message_buffer[256]; /**< User interface message buffer. */
+	adv_bool ui_help_flag; /**< User interface help display flag. */
+	adv_font* ui_font; /**< User interface font. */
+	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
+	adv_bool ui_menu_flag; /**< Menu display flag. */
+	struct ui_menu_entry* ui_menu_map;
+	unsigned ui_menu_mac;
+	unsigned ui_menu_sel;
+	adv_bool ui_osd_flag; /**< On Screen Display display flag. */
+	char ui_osd_buffer[256];
+	int ui_osd_value;
+	int ui_osd_max;
+	int ui_osd_min;
+	int ui_osd_def;
+	adv_bool ui_scroll_flag; /**< Scroll display flag. */
+	char* ui_scroll_begin;
+	char* ui_scroll_end;
+	unsigned ui_scroll_pos;
+
+	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
+	char ui_direct_buffer[256]; /**< Direct text on screen message. */
+	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
+	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
+
+	adv_bitmap* help_image; /**< Help image. */
+	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
+	unsigned help_rgb_max; /**< Help image palette size. */
+};
+
+struct advance_ui_context {
+	struct advance_ui_config_context config;
+	struct advance_ui_state_context state;
+};
+
+void advance_ui_message_va(struct advance_ui_context* context, const char* text, va_list arg);
+void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
+void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
+void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
+void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
+void advance_ui_help(struct advance_ui_context* context);
+void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
+void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
+void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
+void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
+adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
+adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* cfg_context, struct mame_option* option);
+void advance_ui_done(struct advance_ui_context* context);
+adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context);
+void advance_ui_inner_done(struct advance_ui_context* context);
+adv_bool advance_ui_buffer_active(struct advance_ui_context* context);
+adv_bool advance_ui_direct_active(struct advance_ui_context* context);
+adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
+void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width, unsigned screen_height, unsigned aspect_x, unsigned aspect_y);
+
+/***************************************************************************/
+/* Record */
+
+struct advance_record_config_context {
+	unsigned sound_time; /**< Max recording time in seconds. */
+	unsigned video_time; /**< Max recording time in seconds. */
+	char dir_buffer[FILE_MAXPATH]; /**< Directory to store the recording. */
+	adv_bool video_flag; /**< Main activation flag for video recording. */
+	adv_bool sound_flag; /**< Main activation flag for sound recording. */
+	unsigned video_interlace; /**< Interlace factor for the video recording. */
+};
+
+struct advance_record_state_context {
+#ifdef USE_SMP
+	pthread_mutex_t access_mutex;
+#endif
+
+	adv_bool sound_active_flag; /**< Main activation flag for sound recording. */
+	adv_bool video_active_flag; /**< Main activation flag for video recording. */
+	adv_bool snapshot_active_flag; /**< Main activatio flag for snapshot recording. */
+
+	adv_bool sound_stereo_flag; /**< Number of channels 1 (==0) or 2 (!=0) channels. */
+	double sound_frequency; /**< Frequency. */
+	unsigned sound_sample_counter; /**< Samples saved. */
+	unsigned sound_sample_size; /**< Size in byte of one sample. */
+	adv_bool sound_stopped_flag; /**< If the sound recording is stopped. */
+
+	double video_frequency;
+	unsigned video_sample_counter;
+	unsigned video_freq_step; /**< Frequency base value. */
+	unsigned video_freq_base; /**< Frequency step value. */
+	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
+
+	char sound_file_buffer[FILE_MAXPATH]; /**< Sound file */
+	FILE* sound_f; /**< Sound handle */
+
+	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
+	adv_fz* video_f; /**< Video handle */
+
+	char snapshot_file_buffer[FILE_MAXPATH]; /**< Shapshot file */
+};
+
+struct advance_record_context {
+	struct advance_record_config_context config;
+	struct advance_record_state_context state;
+};
+
+adv_error advance_record_init(struct advance_record_context* context, adv_conf* cfg_context);
+void advance_record_done(struct advance_record_context* context);
+adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
+
+void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+
+adv_bool advance_record_sound_is_active(struct advance_record_context* context);
+adv_bool advance_record_video_is_active(struct advance_record_context* context);
+adv_bool advance_record_snapshot_is_active(struct advance_record_context* context);
+
+adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+
+/***************************************************************************/
+/* Estimate */
+
+struct advance_estimate_context {
+	double estimate_mame_full; /**< Estimate time for a MAME full frame */
+	double estimate_mame_skip; /**< Estimate time for a MAME skip frame */
+	double estimate_osd_full; /**< Estimate time for a OSD full frame */
+	double estimate_osd_skip; /**< Estimate time for a OSD skip frame */
+	double estimate_common_full;
+	double estimate_common_skip;
+	double estimate_frame; /**< Estimate time for a MAME+OSD frame */
+	adv_bool estimate_mame_flag; /**< If last time at point 1 is set */
+	adv_bool estimate_osd_flag; /**< If last time at point 2 is set */
+	adv_bool estimate_frame_flag; /**< If last time at point 3 is set */
+	adv_bool estimate_common_flag;
+	double estimate_mame_last; /**< Last time at point 1 */
+	double estimate_osd_last; /**< Last time at point 2 */
+	double estimate_frame_last; /**< Last time at point 3 */
+	double estimate_common_last;
+};
+
+void advance_estimate_init(struct advance_estimate_context* context, double step);
+
+void advance_estimate_mame_begin(struct advance_estimate_context* context);
+void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag);
+void advance_estimate_osd_begin(struct advance_estimate_context* context);
+void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag);
+void advance_estimate_frame(struct advance_estimate_context* context);
+void advance_estimate_common_begin(struct advance_estimate_context* context);
+void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag);
+
+/***************************************************************************/
+/* Sound */
+
+/** Sound mode (enumeration). */
+/*@{*/
+#define SOUND_MODE_AUTO -1
+#define SOUND_MODE_MONO 0
+#define SOUND_MODE_STEREO 1
+#define SOUND_MODE_SURROUND 2
+/*@}*/
+
+struct advance_sound_config_context {
+	double latency_time; /**< Requested minimum latency in seconds */
+	int mode; /**< Channel mode. */
+	int attenuation; /**< Sound attenuation in db (0 == full volume). */
+	adv_bool adjust_flag; /**< Adjust the sound volume. */
+	adv_bool mutedemo_flag; /**< Mute on demo. */
+	adv_bool mutestartup_flag; /**< Mute on startup. */
+};
+
+struct advance_sound_state_context {
+	adv_bool active_flag; /**< Flag for active sound. */
+
+	double volume; /**< Current volume. [0 - 1]. */
+
+	unsigned latency_min; /**< Expected minum latency in samples. */
+	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
+	unsigned rate; /**< Current sample rate */
+	int input_mode; /**< Input mode format. */
+	int output_mode; /**< Output mode format. */
+	unsigned input_bytes_per_sample; /**< Input data sample size. */
+	unsigned output_bytes_per_sample; /**< Output data sample size. */
+	unsigned snapshot_counter; /**< Current snapshot counter */
+
+	unsigned adjust_power_counter; /**< Sample counter for the power computation. */
+	unsigned adjust_power_counter_limit; /**< Limit for the counter. */
+	long long adjust_power_accumulator; /**< Power accumulator. */
+	long long adjust_power; /**< Current max normalized power. */
+	unsigned adjust_mult; /**< Sample multiplicator. */
+	double adjust_power_factor; /**< Current power adjustment. */
+	double adjust_volume_factor; /**< Current volume adjustment. Used only if adjust_flag is set. */
+
+	adv_bool mute_flag; /**< Mute state for demo mode. */
+	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
+};
+
+struct advance_sound_context {
+	struct advance_sound_config_context config;
+	struct advance_sound_state_context state;
+};
+
+adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
+void advance_sound_done(struct advance_sound_context* context);
+adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
+int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
+int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
+
+/***************************************************************************/
 /* Video */
 
 /** Software strecth (enumeration). */
@@ -403,318 +785,32 @@ void advance_video_done(struct advance_video_context* context);
 adv_error advance_video_inner_init(struct advance_video_context* context, struct mame_option* option);
 void advance_video_inner_done(struct advance_video_context* context);
 adv_error advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option);
-void advance_video_change(struct advance_video_context* context, struct advance_video_config_context* config);
-void advance_video_save(struct advance_video_context* context, const char* section);
+void advance_video_config_save(struct advance_video_context* context, const char* section);
 
-/***************************************************************************/
-/* Record */
+void advance_video_update_skip(struct advance_video_context* context);
+void advance_video_update_sync(struct advance_video_context* context);
+adv_bool advance_video_skip_dec(struct advance_video_context* context);
+adv_bool advance_video_skip_inc(struct advance_video_context* context);
+void advance_video_invalidate_screen(struct advance_video_context* context);
+void advance_video_invalidate_pipeline(struct advance_video_context* context);
+void advance_video_update_pan(struct advance_video_context* context);
+adv_error advance_video_update_index(struct advance_video_context* context);
+void advance_video_update_ui(struct advance_video_context* context, const adv_crtc* crtc);
+void advance_video_update_visible(struct advance_video_context* context, const adv_crtc* crtc);
+adv_error advance_video_update_selectedcrtc(struct advance_video_context* context);
+void advance_video_update_effect(struct advance_video_context* context);
 
-struct advance_record_config_context {
-	unsigned sound_time; /**< Max recording time in seconds. */
-	unsigned video_time; /**< Max recording time in seconds. */
-	char dir_buffer[FILE_MAXPATH]; /**< Directory to store the recording. */
-	adv_bool video_flag; /**< Main activation flag for video recording. */
-	adv_bool sound_flag; /**< Main activation flag for sound recording. */
-	unsigned video_interlace; /**< Interlace factor for the video recording. */
-};
+void advance_video_mode_preinit(struct advance_video_context* context, struct mame_option* option);
+adv_error advance_video_mode_init(struct advance_video_context* context, struct osd_video_option* req);
+void advance_video_mode_done(struct advance_video_context* context);
+adv_error advance_video_mode_update(struct advance_video_context* context);
 
-struct advance_record_state_context {
-#ifdef USE_SMP
-	pthread_mutex_t access_mutex;
-#endif
+void advance_video_reconfigure(struct advance_video_context* context, struct advance_video_config_context* config);
 
-	adv_bool sound_active_flag; /**< Main activation flag for sound recording. */
-	adv_bool video_active_flag; /**< Main activation flag for video recording. */
-	adv_bool snapshot_active_flag; /**< Main activatio flag for snapshot recording. */
-
-	adv_bool sound_stereo_flag; /**< Number of channels 1 (==0) or 2 (!=0) channels. */
-	double sound_frequency; /**< Frequency. */
-	unsigned sound_sample_counter; /**< Samples saved. */
-	unsigned sound_sample_size; /**< Size in byte of one sample. */
-	adv_bool sound_stopped_flag; /**< If the sound recording is stopped. */
-
-	double video_frequency;
-	unsigned video_sample_counter;
-	unsigned video_freq_step; /**< Frequency base value. */
-	unsigned video_freq_base; /**< Frequency step value. */
-	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
-
-	char sound_file_buffer[FILE_MAXPATH]; /**< Sound file */
-	FILE* sound_f; /**< Sound handle */
-
-	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
-	adv_fz* video_f; /**< Video handle */
-
-	char snapshot_file_buffer[FILE_MAXPATH]; /**< Shapshot file */
-};
-
-struct advance_record_context {
-	struct advance_record_config_context config;
-	struct advance_record_state_context state;
-};
-
-adv_error advance_record_init(struct advance_record_context* context, adv_conf* cfg_context);
-void advance_record_done(struct advance_record_context* context);
-adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
-
-void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
-
-adv_bool advance_record_sound_is_active(struct advance_record_context* context);
-adv_bool advance_record_video_is_active(struct advance_record_context* context);
-adv_bool advance_record_snapshot_is_active(struct advance_record_context* context);
-
-adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
-
-/***************************************************************************/
-/* SafeQuit */
-
-#define SAFEQUIT_ENTRY_MAX 256
-
-enum {
-	safequit_event_zerocoin = 0,
-	safequit_event_demomode = 1,
-	safequit_event_event1 = 2,
-	safequit_event_event2 = 3,
-	safequit_event_event3 = 4,
-	safequit_event_event4 = 5,
-	safequit_event_event5 = 6,
-	safequit_event_event6 = 7,
-	safequit_event_event7 = 8,
-	safequit_event_event8 = 9,
-	safequit_event_event9 = 10,
-	safequit_event_event10 = 11,
-	safequit_event_event11 = 12,
-	safequit_event_event12 = 13,
-	safequit_event_event13 = 14,
-	safequit_event_event14 = 15
-};
-
-enum {
-	safequit_action_match = 0,
-	safequit_action_nomatch = 1,
-	safequit_action_on = 2,
-	safequit_action_off = 3
-};
-
-struct safequit_entry {
-	unsigned char event;
-	unsigned char cpu;
-	unsigned address;
-	unsigned char action;
-	unsigned char mask;
-	unsigned char result;
-	unsigned frame_count;
-};
-
-struct advance_safequit_config_context {
-	char file_buffer[FILE_MAXPATH]; /**< File safequit.dat to load. */
-	adv_bool debug_flag; /**< Show the debug flag on the screen. */
-        adv_bool safe_exit_flag; /**< Flag for safe exit. */
-};
-
-struct advance_safequit_state_context {
-	struct safequit_entry entry_map[SAFEQUIT_ENTRY_MAX];
-	unsigned entry_mac;
-	unsigned status;
-	unsigned coin; /**< Number of coins. */
-	adv_bool coin_set; /**< If the number of coins is valid. */
-};
-
-struct advance_safequit_context {
-	struct advance_safequit_config_context config;
-	struct advance_safequit_state_context state;
-};
-
-adv_error advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context);
-void advance_safequit_done(struct advance_safequit_context* context);
-adv_error advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
-void advance_safequit_inner_done(struct advance_safequit_context* context);
-adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
-adv_bool advance_safequit_can_exit(struct advance_safequit_context* context);
-unsigned advance_safequit_event_mask(struct advance_safequit_context* context);
-void advance_safequit_update(struct advance_safequit_context* context);
-
-/***************************************************************************/
-/* Sound */
-
-/** Sound mode (enumeration). */
-/*@{*/
-#define SOUND_MODE_AUTO -1
-#define SOUND_MODE_MONO 0
-#define SOUND_MODE_STEREO 1
-#define SOUND_MODE_SURROUND 2
-/*@}*/
-
-struct advance_sound_config_context {
-	double latency_time; /**< Requested minimum latency in seconds */
-	int mode; /**< Channel mode. */
-	int attenuation; /**< Sound attenuation in db (0 == full volume). */
-	adv_bool adjust_flag; /**< Adjust the sound volume. */
-	adv_bool mutedemo_flag; /**< Mute on demo. */
-	adv_bool mutestartup_flag; /**< Mute on startup. */
-};
-
-struct advance_sound_state_context {
-	adv_bool active_flag; /**< Flag for active sound. */
-
-	double volume; /**< Current volume. [0 - 1]. */
-
-	unsigned latency_min; /**< Expected minum latency in samples. */
-	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
-	unsigned rate; /**< Current sample rate */
-	int input_mode; /**< Input mode format. */
-	int output_mode; /**< Output mode format. */
-	unsigned input_bytes_per_sample; /**< Input data sample size. */
-	unsigned output_bytes_per_sample; /**< Output data sample size. */
-	unsigned snapshot_counter; /**< Current snapshot counter */
-
-	unsigned adjust_power_counter; /**< Sample counter for the power computation. */
-	unsigned adjust_power_counter_limit; /**< Limit for the counter. */
-	long long adjust_power_accumulator; /**< Power accumulator. */
-	long long adjust_power; /**< Current max normalized power. */
-	unsigned adjust_mult; /**< Sample multiplicator. */
-	double adjust_power_factor; /**< Current power adjustment. */
-	double adjust_volume_factor; /**< Current volume adjustment. Used only if adjust_flag is set. */
-
-	adv_bool mute_flag; /**< Mute state for demo mode. */
-	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
-};
-
-struct advance_sound_context {
-	struct advance_sound_config_context config;
-	struct advance_sound_state_context state;
-};
-
-adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
-void advance_sound_done(struct advance_sound_context* context);
-adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
-void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power);
-int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
-int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
-
-/***************************************************************************/
-/* Estimate */
-
-struct advance_estimate_context {
-	double estimate_mame_full; /**< Estimate time for a MAME full frame */
-	double estimate_mame_skip; /**< Estimate time for a MAME skip frame */
-	double estimate_osd_full; /**< Estimate time for a OSD full frame */
-	double estimate_osd_skip; /**< Estimate time for a OSD skip frame */
-	double estimate_common_full;
-	double estimate_common_skip;
-	double estimate_frame; /**< Estimate time for a MAME+OSD frame */
-	adv_bool estimate_mame_flag; /**< If last time at point 1 is set */
-	adv_bool estimate_osd_flag; /**< If last time at point 2 is set */
-	adv_bool estimate_frame_flag; /**< If last time at point 3 is set */
-	adv_bool estimate_common_flag;
-	double estimate_mame_last; /**< Last time at point 1 */
-	double estimate_osd_last; /**< Last time at point 2 */
-	double estimate_frame_last; /**< Last time at point 3 */
-	double estimate_common_last;
-};
-
-void advance_estimate_init(struct advance_estimate_context* context, double step);
-
-void advance_estimate_mame_begin(struct advance_estimate_context* context);
-void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag);
-void advance_estimate_osd_begin(struct advance_estimate_context* context);
-void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag);
-void advance_estimate_frame(struct advance_estimate_context* context);
-void advance_estimate_common_begin(struct advance_estimate_context* context);
-void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag);
-
-/***************************************************************************/
-/* Input */
-
-/** Max supported input devices. */
-/*@{*/
-#define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
-
-#define INPUT_ANALOG_MAX 4 /**< Max number of analog control for player. */
-#define INPUT_TRAK_MAX 2 /**< Max number of trak control for player. */
-#define INPUT_DIGITAL_MAX 2048 /**< Max number of digital port definition. */
-
-#define INPUT_MAP_MAX 16 /**< Max number of mapping codes. */
-
-#define INPUT_KEYBOARD_MAX 4 /**< Max number of keyboard. */
-#define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
-#define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
-#define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
-#define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
-#define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
-#define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
-
-#define INPUT_HELP_MAX 512 /**< Max number of help entry. */
-
-/*@}*/
-
-struct help_entry {
-	unsigned code;
-	unsigned x;
-	unsigned y;
-	unsigned dx;
-	unsigned dy;
-};
-
-struct analog_map_entry {
-	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
-};
-
-struct trak_map_entry {
-	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
-};
-
-struct advance_input_config_context {
-	int input_idle_limit; /**< Limit of no input to exit. */
-	adv_bool steadykey_flag; /**< Enable the steady-key management. */
-	adv_bool disable_special_flag; /**< Disable the special OS key sequences. */
-
-	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
-	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
-};
-
-struct advance_input_state_context {
-	adv_bool active_flag; /**< Flag for active input. */
-
-	target_clock_t input_current_clock; /**< Current clock. */
-	target_clock_t input_idle_clock; /**< Clock of last input. */
-
-	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
-	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
-
-	unsigned char key_old[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard previous frame state. */
-	unsigned char key_current[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard current frame state. */
-
-	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
-	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */
-	int joystick_digital_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX][INPUT_DIR_MAX]; /**< Joystick digital state. */
-	int ball_analog_current[INPUT_JOY_MAX][INPUT_AXE_MAX]; /**< Joystick ball analog state. */
-
-	int mouse_button_current[INPUT_MOUSE_MAX][INPUT_BUTTON_MAX]; /**< Mouse button state. */
-	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */
-};
-
-struct advance_input_context {
-	struct advance_input_config_context config;
-	struct advance_input_state_context state;
-};
-
-adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
-void advance_input_done(struct advance_input_context* context);
-adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context);
-void advance_input_inner_done(struct advance_input_context* context);
-void advance_input_update(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool is_pause);
-adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
-int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
-void advance_input_force_exit(struct advance_input_context* context);
-adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char* buffer);
-adv_error advance_input_parse_analogname(unsigned* type, const char* buffer);
-adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer);
-adv_error advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type);
-void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center);
-adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code);
+void advance_video_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context);
+void advance_video_sync(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, adv_bool skip_flag);
+void advance_video_frame(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, adv_bool skip_flag);
+void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power);
 
 /***************************************************************************/
 /* Global */
@@ -785,78 +881,6 @@ void advance_fileio_default_dir(void);
 adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* cfg_context);
 void advance_fileio_done(struct advance_fileio_context* context);
 adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option);
-
-/***************************************************************************/
-/* UI */
-
-struct advance_ui_config_context {
-	unsigned help_mac; /**< Number of help entries. */
-	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
-	char help_image_buffer[256]; /**< File name of the help image. */
-	char ui_font_buffer[256]; /**< File name of the font. */
-	adv_bool ui_speedmark_flag; /**< If display of not the speed mark on screen. */
-	unsigned ui_font_orientation; /**< Orientation for the font. */
-	unsigned ui_font_sizex; /**< X size of the font. */
-	unsigned ui_font_sizey; /**< Y size of the font. */
-};
-
-struct advance_ui_state_context {
-	adv_bool ui_extra_flag; /**< Extra frame to be drawn to clear the off game border. */
-	adv_bool ui_message_flag; /**< User interface message display flag. */
-	double ui_message_stop_time; /**< Time to stop thee interface message display. */
-	char ui_message_buffer[256]; /**< User interface message buffer. */
-	adv_bool ui_help_flag; /**< User interface help display flag. */
-	adv_font* ui_font; /**< User interface font. */
-	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
-	adv_bool ui_menu_flag; /**< Menu display flag. */
-	struct ui_menu_entry* ui_menu_map;
-	unsigned ui_menu_mac;
-	unsigned ui_menu_sel;
-	adv_bool ui_osd_flag; /**< On Screen Display display flag. */
-	char ui_osd_buffer[256];
-	int ui_osd_value;
-	int ui_osd_max;
-	int ui_osd_min;
-	int ui_osd_def;
-	adv_bool ui_scroll_flag; /**< Scroll display flag. */
-	char* ui_scroll_begin;
-	char* ui_scroll_end;
-	unsigned ui_scroll_pos;
-
-	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
-	char ui_direct_buffer[256]; /**< Direct text on screen message. */
-	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
-	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
-
-	adv_bitmap* help_image; /**< Help image. */
-	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
-	unsigned help_rgb_max; /**< Help image palette size. */
-};
-
-struct advance_ui_context {
-	struct advance_ui_config_context config;
-	struct advance_ui_state_context state;
-};
-
-void advance_ui_message_va(struct advance_ui_context* context, const char* text, va_list arg);
-void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
-void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
-void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
-void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
-void advance_ui_help(struct advance_ui_context* context);
-void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
-void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
-void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
-void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
-adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
-adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* cfg_context, struct mame_option* option);
-void advance_ui_done(struct advance_ui_context* context);
-adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context);
-void advance_ui_inner_done(struct advance_ui_context* context);
-adv_bool advance_ui_buffer_active(struct advance_ui_context* context);
-adv_bool advance_ui_direct_active(struct advance_ui_context* context);
-adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
-void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width, unsigned screen_height, unsigned aspect_x, unsigned aspect_y);
 
 /***************************************************************************/
 /* State */

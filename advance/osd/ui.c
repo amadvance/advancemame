@@ -37,9 +37,6 @@
 
 #include "advance.h"
 
-#include <string.h>
-#include <stdlib.h>
-
 /**************************************************************************/
 /* Internal */
 
