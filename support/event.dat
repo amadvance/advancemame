@@ -37,8 +37,7 @@
 ; it's necessary ** ALL ITS COMPONENTS ** are TRUE for at least 1 second.
 ;
 ; The field <event> can be "zerocoin" or "demomode" for the "Safe Quit"
-; system or "event1", "event2", "event3", "event4", "event5" and "event6"
-; for the "Event" system.
+; system or "event1", "event2", ..., "event14" for the "Event" system.
 ;
 ; The event "zerocoin" tests the "waiting coins" (not yet played).
 ; I searched for addresses corresponding to coin slot 1 only, but you are

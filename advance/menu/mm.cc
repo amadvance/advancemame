@@ -68,67 +68,61 @@ int run_sub(config_state& rs, bool silent)
 		// don't replay the sound and clip
 		silent = true;
 
-		if (!rs.lock_effective)
-		switch (key) {
-			case INT_KEY_HELP :
-				run_help(rs);
-				break;
-			case INT_KEY_GROUP :
-				// replay the sound and clip
-				silent = false;
-				run_group_next(rs);
-				break;
-			case INT_KEY_EMU :
-				// replay the sound and clip
-				silent = false;
-				run_emu_next(rs);
-				break;
-			case INT_KEY_TYPE :
-				// replay the sound and clip
-				silent = false;
-				run_type_next(rs);
-				break;
-			case INT_KEY_EXCLUDE :
-				// replay the sound and clip
-				silent = false;
-				emu = run_emu_select(rs);
-				if (emu)
-					emu->attrib_run();
-				break;
-			case INT_KEY_COMMAND :
-				run_command(rs);
-				break;
-			case INT_KEY_SORT :
-				// replay the sound and clip
-				silent = false;
-				run_sort(rs);
-				break;
-			case INT_KEY_MENU :
-				// replay the sound and clip
-				silent = false;
-				if (run_submenu(rs)) {
-					if (rs.current_game) {
-						done = true;
-						is_run = true;
-						key = INT_KEY_ENTER;
-					}
-				}
-				break;
-			case INT_KEY_SETGROUP :
-				// replay the sound and clip
-				silent = false;
-				run_group_move(rs);
-				break;
-			case INT_KEY_SETTYPE :
-				// replay the sound and clip
-				silent = false;
-				run_type_move(rs);
-				break;
-			case INT_KEY_ROTATE :
-			case INT_KEY_ESC :
-			case INT_KEY_OFF :
-				done = true;
-				break;
+		if (!rs.lock_effective) {
+			if (key == INT_KEY_MENU) {
+				key = run_submenu(rs);
+			}
+
+			switch (key) {
+				case INT_KEY_HELP :
+					run_help(rs);
+					break;
+				case INT_KEY_GROUP :
+					// replay the sound and clip
+					silent = false;
+					run_group_next(rs);
+					break;
+					case INT_KEY_EMU :
+					// replay the sound and clip
+					silent = false;
+					run_emu_next(rs);
+						break;
+				case INT_KEY_TYPE :
+					// replay the sound and clip
+					silent = false;
+					run_type_next(rs);
+					break;
+				case INT_KEY_EXCLUDE :
+					// replay the sound and clip
+					silent = false;
+					emu = run_emu_select(rs);
+					if (emu)
+						emu->attrib_run();
+					break;
+				case INT_KEY_COMMAND :
+					run_command(rs);
+					break;
+				case INT_KEY_SORT :
+					// replay the sound and clip
+					silent = false;
+					run_sort(rs);
+					break;
+				case INT_KEY_SETGROUP :
+					// replay the sound and clip
+					silent = false;
+					run_group_move(rs);
+					break;
+				case INT_KEY_SETTYPE :
+					// replay the sound and clip
+					silent = false;
+					run_type_move(rs);
+					break;
+				case INT_KEY_ROTATE :
+				case INT_KEY_ESC :
+				case INT_KEY_OFF :
+					done = true;
+					break;
+			}
 		}
 		switch (key) {
 			case INT_KEY_LOCK :
@@ -502,7 +496,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
 { "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
 { "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
-{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 } /* rename */
+{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
+/* 2.2.12 */
+{ "*", "event_exit_press", "*", "", "", "", 0 }, /* remove */
+{ "*", "color", "*", "%s", "ui_color", "%s", 0 }, /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

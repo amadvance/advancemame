@@ -283,6 +283,14 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_event4", "");
 	conf_string_register_default(context, "script_event5", "");
 	conf_string_register_default(context, "script_event6", "");
+	conf_string_register_default(context, "script_event7", "");
+	conf_string_register_default(context, "script_event8", "");
+	conf_string_register_default(context, "script_event9", "");
+	conf_string_register_default(context, "script_event10", "");
+	conf_string_register_default(context, "script_event11", "");
+	conf_string_register_default(context, "script_event12", "");
+	conf_string_register_default(context, "script_event13", "");
+	conf_string_register_default(context, "script_event14", "");
 
 	STATE.active_flag  = 0;
 
@@ -457,6 +465,30 @@ int hardware_script_config_load(adv_conf* context)
 
 	s = conf_string_get_default(context, "script_event6");
 	hardware_script_set(HARDWARE_SCRIPT_EVENT6, s);
+
+	s = conf_string_get_default(context, "script_event7");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT7, s);
+
+	s = conf_string_get_default(context, "script_event8");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT8, s);
+
+	s = conf_string_get_default(context, "script_event9");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT9, s);
+
+	s = conf_string_get_default(context, "script_event10");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT10, s);
+
+	s = conf_string_get_default(context, "script_event11");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT11, s);
+
+	s = conf_string_get_default(context, "script_event12");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT12, s);
+
+	s = conf_string_get_default(context, "script_event13");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT13, s);
+
+	s = conf_string_get_default(context, "script_event14");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT14, s);
 
 	return 0;
 }

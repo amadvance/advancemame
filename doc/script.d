@@ -24,7 +24,7 @@ Scripts
 		script_coin1,2,3,4 - A coin button is pressed.
 		script_start1,2,3,4 - A start button is pressed.
 		script_safequit - The game enter in the safequit status.
-		script_event1,2,3,4,5,6 - The events controlled by the
+		script_event1-14 - The events controlled by the
 			event system.
 
 	You can assign a script at every event. The script is started

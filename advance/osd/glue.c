@@ -836,6 +836,14 @@ static struct mame_port PORT[] = {
 	S("event4", MAME_PORT_EVENT4)
 	S("event5", MAME_PORT_EVENT5)
 	S("event6", MAME_PORT_EVENT6)
+	S("event7", MAME_PORT_EVENT7)
+	S("event8", MAME_PORT_EVENT8)
+	S("event9", MAME_PORT_EVENT9)
+	S("event10", MAME_PORT_EVENT10)
+	S("event11", MAME_PORT_EVENT11)
+	S("event12", MAME_PORT_EVENT12)
+	S("event13", MAME_PORT_EVENT13)
+	S("event14", MAME_PORT_EVENT14)
 
 	{ 0, 0 }
 };
@@ -884,6 +892,22 @@ int mame_ui_port_pressed(unsigned port)
 		return (advance_safequit_event_mask(safequit_context) & 0x40) != 0;
 	case IPT_MAME_PORT_EVENT6 :
 		return (advance_safequit_event_mask(safequit_context) & 0x80) != 0;
+	case IPT_MAME_PORT_EVENT7 :
+		return (advance_safequit_event_mask(safequit_context) & 0x100) != 0;
+	case IPT_MAME_PORT_EVENT8 :
+		return (advance_safequit_event_mask(safequit_context) & 0x200) != 0;
+	case IPT_MAME_PORT_EVENT9 :
+		return (advance_safequit_event_mask(safequit_context) & 0x400) != 0;
+	case IPT_MAME_PORT_EVENT10 :
+		return (advance_safequit_event_mask(safequit_context) & 0x800) != 0;
+	case IPT_MAME_PORT_EVENT11 :
+		return (advance_safequit_event_mask(safequit_context) & 0x1000) != 0;
+	case IPT_MAME_PORT_EVENT12 :
+		return (advance_safequit_event_mask(safequit_context) & 0x2000) != 0;
+	case IPT_MAME_PORT_EVENT13 :
+		return (advance_safequit_event_mask(safequit_context) & 0x4000) != 0;
+	case IPT_MAME_PORT_EVENT14 :
+		return (advance_safequit_event_mask(safequit_context) & 0x8000) != 0;
 	}
 
 	seq = input_port_type_seq(port);

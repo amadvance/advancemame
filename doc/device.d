@@ -20,7 +20,7 @@ Video Drivers
 	only a subset of video boards.
 
 	To function correctly these drivers require a correct configuration
-	of the device_video_* options.
+	of the `device_video_*' options.
 
 	The `Generate' drivers are always the preferred choice.
 
@@ -36,24 +36,77 @@ Video Drivers
 	Please note that these drivers generally need to stretch the image
 	losing a lot in image quality and speed.
 
-  Available Drivers
+	These drivers don't require any `device_video_*' options because they
+	cannot control how the video modes are generated.
+
+  Available Generate Drivers
 	The following is the list of all the video drivers supported.
 
-    svgaline - Generate DOS SVGA modes
+    svgalib - Generate SVGA video (Linux)
+	This driver works in Linux and is able to use video modes obtained
+	tweaking the hardware registers of the recognized SVGA boards using
+	the SVGALIB library.
+
+	All clocks, all RGB bit depths are available.
+	This driver is generally able to syncronize with the vertical sync
+	of the video mode.
+
+	To use these modes your video board must be supported
+	by a `svgalib' driver listed in the `cardlinx.txt' file.
+	To use this driver you need to install the SVGALIB library
+	version 1.9.x.
+
+	To use this driver you need to correctly configure the
+	SVGALIB HorizSync and VertRefresh options in the
+	file /etc/vga/libvga.config file.
+	You must use a range equal or a bit larger than the range
+	specified with the AdvanceMAME hclock and vclock options.
+
+	This driver is not available in X (when the environment DISPLAY
+	variable is defined).
+
+    fb - Generate Frame Buffer video (Linux)
+	This driver works in Linux and is able to create video modes
+	using the Linux Kernel Frame Buffer interface.
+
+	All clocks, all RGB bit depths are available.
+
+	This driver is able to use the Linux fb API to syncronize with
+	the vertical sync of the video mode, but generally it isn't possible
+	because the low end drivers don't support this feature.
+	Anyway, if you run the program as root it can use the standard VGA
+	registers to detect the vsync.
+	This is the major limitation compared with the svgalib driver.
+
+	To use this driver you must activate the Console Frame Buffer
+	support in your Linux kernel.
+
+	This driver is not available in X (when the environment DISPLAY
+	variable is defined).
+
+	The Frame Buffer device opened is `/dev/fb0' and `/dev/fb/0', you
+	can change it setting the FRAMEBUFFER environment variable.
+
+	The generic Frame Buffer `vesafb' driver cannot be used because
+	it doesn't allow the creation of new video modes. If it's your
+	only option you can use it through the SDL library.
+
+    svgaline - Generate SVGA video (DOS)
 	This driver works in DOS and is able to use video modes obtained
 	tweaking the hardware registers of the recognized SVGA boards.
 
 	All clocks, all RGB bit depths are available.
+
 	To use these modes your video board must be supported
 	by a `svgaline' driver listed in the `carddos.txt' file.
 
 	This driver is completely independent of the VGA/VBE BIOS
 	of your board.
 
-    vbeline - Generate DOS VBE (VESA) modes
+    vbeline - Generate VBE video (DOS)
 	This driver works in DOS and is able to use video modes obtained
-	tweaking the standard VBE BIOS mode changing the hardware registers
-	of the SVGA.
+	tweaking the standard VBE (VESA) BIOS mode changing the hardware
+	registers of the SVGA.
 
 	All clocks, all RGB bit depths are available.
 
@@ -78,7 +131,7 @@ Video Drivers
 	you don't have a VBE3 BIOS you can try installing a
 	software VESA BIOS like the SciTech Display Doctor.
 
-    vgaline - Generate DOS VGA modes
+    vgaline - Generate VGA video (DOS)
 	This driver works in DOS and is able to use video modes obtained
 	tweaking the hardware registers of the standard VGA.
 	Usually these modes are called Tweaked, XMode, ZMode.
@@ -93,67 +146,7 @@ Video Drivers
 	This driver is completely independent of the VGA BIOS
 	of your board.
 
-    vbe - System DOS VBE modes
-	This driver works in DOS and is able to use video modes reported
-	by the VBE BIOS.
-
-	It doesn't require any `device_video_*' options because it cannot
-	control how the video modes are generated.
-    
-    svgalib - Generate Linux SVGA modes
-	This driver works in Linux and is able to use video modes obtained
-	tweaking the hardware registers of the recognized SVGA boards using
-	the SVGALIB library.
-
-	All clocks, all RGB bit depths are available.
-
-	To use these modes your video board must be supported
-	by a `svgalib' driver listed in the `cardlinx.txt' file.
-	To use this driver you need to install the SVGALIB library
-	version 1.9.x.
-
-	To use this driver you need to correctly configure the
-	SVGALIB HorizSync and VertRefresh options in the
-	file /etc/vga/libvga.config file.
-	You must use a range equal or a bit larger than the range
-	specified with the AdvanceMAME hclock and vclock options.
-
-	This driver is not available in X (when the environment DISPLAY
-	variable is defined).
-
-    fb - Generate Linux Frame Buffer modes
-	This driver works in Linux and is able to create video modes
-	using the Linux Kernel Frame Buffer interface.
-
-	All clocks, all RGB bit depths are available.
-
-	To use this driver you must activate the Console Frame Buffer
-	support in your Linux kernel.
-
-	This driver is not available in X (when the environment DISPLAY
-	variable is defined).
-
-	The Frame Buffer device opened is `/dev/fb0', you can change it
-	setting the FRAMEBUFFER environment variable.
-
-	The generic Frame Buffer `vesafb' driver cannot be used because
-	it doesn't allow the creation of new video modes. If it's your
-	only option you can use it through the SDL library.
-
-    sdl - System SDL modes
-	This driver works in Linux, Windows and Mac OS X and is able to
-	use video modes reported by the SDL graphics library.
-
-	It supports all RGB/YUY2 bit depths available.
-
-	You can change some options of this driver using the SDL specific
-	environment variables described in the contrib/sdl/env.txt file.
-
-    slang - System Linux sLang text modes
-	This driver works in Linux and is able to use current terminal text
-	mode from the Linux sLang library.
-
-    svgawin - Generate Windows SVGA modes
+    svgawin - Generate SVGA video (Windows)
 	This driver works in Windows NT/2000/XP and is able to use video
 	modes obtained tweaking the hardware registers of the recognized
 	SVGA boards.
@@ -169,17 +162,40 @@ Video Drivers
 	This driver is experimental. At present it's only tested on Windows
 	2000 with a GeForce 2 board. It may not work will all the other boards.
 
+  Available System Drivers
+	The following is the list of all the System video drivers supported.
+
+    sdl - System SDL video (Linux, Windows and Mac OS X)
+	This driver works in Linux, Windows and Mac OS X and is able to
+	use video modes reported by the SDL graphics library.
+
+	It supports all RGB/YUY2 bit depths available.
+	The output in the YUY2 modes is generally accelerated, and can be used
+        to scale the video output to an arbitrary size. You can enable this
+	feature with the `-device_output zoom' option.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
+
+    slang - System sLang text video (Linux)
+	This driver works in Linux and is able to use current terminal text
+	mode from the Linux sLang library.
+
+    vbe - System VBE video (DOS)
+	This driver works in DOS and is able to use video modes reported
+	by the VBE BIOS.
+
 Sound Drivers
   Available Drivers
 	The following is the list of all the sound drivers supported.
 
-    alsa - ALSA sound
+    alsa - ALSA sound (Linux)
 	This driver works in Linux and it uses the ALSA sound library.
 
-    oss - OSS sound
+    oss - OSS sound (Linux)
 	This driver works in Linux and it uses the OSS sound library.
 
-    sdl - SDL sound
+    sdl - SDL sound (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL library.
 
@@ -192,7 +208,7 @@ Sound Drivers
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
 
-    seal - SEAL sound
+    seal - SEAL sound (DOS)
 	This driver works in DOS and it uses the SEAL sound library with
 	some specific changes for MAME.
 
@@ -201,10 +217,10 @@ Sound Drivers
 
 		:http://www.mame.net
 
-    allegro - Allegro sound
+    allegro - Allegro sound (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
-    vsync - VSYNC sound
+    vsync - VSYNC sound (DOS)
 	This driver works in DOS and it uses the VSync sound drivers
 	from the VSyncMAME emulator.
 
@@ -216,20 +232,20 @@ Input Drivers
   Available Keyboard Drivers
 	The following is the list of all the keyboard drivers supported.
 
-    event - Linux Input-Event interface
+    event - Kernel Input-Event interface (Linux)
 	This driver works in Linux and it uses the new style input-event
 	interface of the Linux kernel.
 
 	It supports more than one keyboard at the same time.
 
-    svgalib - SVGALIB keyboard
+    svgalib - SVGALIB keyboard (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports only one keyboard.
 
 	You can change console with ALT+Fx and break the program with CTRL+C.
 
-    raw - Linux Kernel keyboard
+    raw - Kernel keyboard (Linux)
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
 
@@ -237,7 +253,7 @@ Input Drivers
 
 	You can change console with ALT+Fx and break the program with CTRL+C.
 
-    sdl - SDL keyboard
+    sdl - SDL keyboard (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL library.
 
@@ -249,7 +265,7 @@ Input Drivers
 	In a Window Manager environment you can switch to fullscreen
 	pressing ALT+ENTER.
 
-    allegro - Allegro keyboard
+    allegro - Allegro keyboard (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports only one keyboard.
@@ -259,7 +275,7 @@ Input Drivers
   Available Joystick Drivers
 	The following is the list of all the joystick drivers supported.
 
-    event - Linux Input-Event interface
+    event - Kernel Input-Event interface (Linux)
 	This driver works in Linux and it uses the new style input-event
 	interface of the Linux kernel.
 
@@ -277,14 +293,14 @@ Input Drivers
 
 	The joysticks are searched on the /dev/input/eventX devices.
 
-    svgalib - SVGALIB joystick
+    svgalib - SVGALIB joystick (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports up to 4 joysticks at the same time.
 
 	The joysticks are searched on the /dev/jsX devices.
 
-    raw - Linux Kernel joystick
+    raw - Kernel joystick (Linux)
 	This driver works in Linux and it uses directly the Linux kernel
 	joystick interface.
 
@@ -292,7 +308,7 @@ Input Drivers
 
 	The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
 
-    sdl - SDL joystick
+    sdl - SDL joystick (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL joystick interface.
 
@@ -301,7 +317,7 @@ Input Drivers
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
 
-    allegro - Allegro joystick
+    allegro - Allegro joystick (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports only one joystick.
@@ -312,7 +328,7 @@ Input Drivers
   Available Mouse Drivers
 	The following is the list of all the mouse drivers supported.
 
-    event - Linux Input-Event interface
+    event - Kernel Input-Event interface (Linux)
 	This driver works in Linux and it uses the new style input-event
 	interface of the Linux kernel.
 
@@ -323,7 +339,7 @@ Input Drivers
 
 	The mouses are searched on the /dev/input/eventX devices.
 
-    svgalib - SVGALIB mouse
+    svgalib - SVGALIB mouse (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports only one mouse.
@@ -331,7 +347,7 @@ Input Drivers
 	To use this driver you need to configure correctly the
 	SVGALIB mouse support in the file /etc/vga/libvga.config file.
 
-    raw - Serial mouse
+    raw - Serial mouse (Linux)
 	This driver works in Linux and it communicates directly with
 	the configured serial mouses. It's also support USB mouses
 	using the Linux mousedev module.
@@ -342,7 +358,7 @@ Input Drivers
 	device_raw_* options to specify the mouse types and the mouse
 	devices.
 
-    sdl - SDL mouse
+    sdl - SDL mouse (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL mouse interface.
 
@@ -351,7 +367,7 @@ Input Drivers
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
 
-    allegro - Allegro mouse
+    allegro - Allegro mouse (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports up to 2 mouses at the same time using the

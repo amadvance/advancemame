@@ -483,7 +483,7 @@ static void keyb_raw_vt_switch(unsigned char code)
 			log_std(("keyb:raw: waiting vt return\n"));
 
 			/* wait for original console to be actived */
-			while (ioctl(raw_state.f, VT_WAITACTIVE, vts.v_active) < 0 ) {
+			while (ioctl(raw_state.f, VT_WAITACTIVE, vts.v_active) < 0) {
 
 				if ((errno != EINTR) && (errno != EAGAIN)) {
 					log_std(("keyb:raw: ioctl(VT_WAITACTIVE) failed, %d\n", errno));
@@ -535,7 +535,7 @@ void keyb_raw_poll(void)
 		code = c & 0x7f;
 		pressed = (c & 0x80) == 0;
 
-		log_std(("keyb:raw: read %02x -> %d, %d\n", (unsigned)c, (unsigned)code, (int)pressed));
+		log_debug(("keyb:raw: read %02x -> %d, %d\n", (unsigned)c, (unsigned)code, (int)pressed));
 
 		/* This is an HACK to solve a strange problem which happen */
 		/* with AdvanceCD. The first key pressed in AdvanceMENU returning */

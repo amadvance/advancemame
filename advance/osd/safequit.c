@@ -49,13 +49,13 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 	struct safequit_entry* entry = &context->state.entry_map[context->state.entry_mac];
 
 	if (context->state.entry_mac >= SAFEQUIT_ENTRY_MAX) {
-		target_err("Too many entries on the event database.\n");
+		target_err("Too many entries in the event database.\n");
 		return -1;
 	}
 
 	i = 0;
 
-	/* event (decimal 1-8 or nominal) */
+	/* event */
 	t = stoken(&c, &i, buf, ":", " \t");
 	if (strcmp(t, "zerocoin") == 0) {
 		entry->event = safequit_event_zerocoin;
@@ -73,6 +73,22 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 		entry->event = safequit_event_event5;
 	} else if (strcmp(t, "event6") == 0) {
 		entry->event = safequit_event_event6;
+	} else if (strcmp(t, "event7") == 0) {
+		entry->event = safequit_event_event7;
+	} else if (strcmp(t, "event8") == 0) {
+		entry->event = safequit_event_event8;
+	} else if (strcmp(t, "event9") == 0) {
+		entry->event = safequit_event_event9;
+	} else if (strcmp(t, "event10") == 0) {
+		entry->event = safequit_event_event10;
+	} else if (strcmp(t, "event11") == 0) {
+		entry->event = safequit_event_event11;
+	} else if (strcmp(t, "event12") == 0) {
+		entry->event = safequit_event_event12;
+	} else if (strcmp(t, "event13") == 0) {
+		entry->event = safequit_event_event13;
+	} else if (strcmp(t, "event14") == 0) {
+		entry->event = safequit_event_event14;
 	} else {
 		goto err;
 	}
@@ -176,7 +192,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 	def = 0;
 
 	buffer[0] = 0;
-	while (fgets(buffer, sizeof(buffer), f) != NULL)
+	while (fgets(buffer, sizeof(buffer), f) != 0)
 	{
 		unsigned len = strlen(buffer);
 
@@ -281,9 +297,14 @@ adv_error advance_safequit_config_load(struct advance_safequit_context* context,
 void advance_safequit_event(struct advance_safequit_context* context, struct safequit_entry* entry, unsigned char result)
 {
 	if (advance_safequit_is_entry_set(entry, result)) {
-		if (entry->frame_count < mame_ui_frames_per_second()) {
-			entry->frame_count++;
-			context->state.status &= ~(1 << entry->event);
+		if (entry->event == safequit_event_zerocoin
+			|| entry->event == safequit_event_demomode) {
+			/* delay the activation of the event for 1 second */
+			if (entry->frame_count < mame_ui_frames_per_second()) {
+				/* clear the event */
+				entry->frame_count++;
+				context->state.status &= ~(1 << entry->event);
+			}
 		}
 	} else {
 		entry->frame_count = 0;
@@ -293,7 +314,7 @@ void advance_safequit_event(struct advance_safequit_context* context, struct saf
 
 void advance_safequit_coin(struct advance_safequit_context* context, struct safequit_entry* entry, unsigned char result)
 {
-	/* try to use the zero_coin rules to detect the number of coins */
+	/* try to use the zerocoin rules to detect the number of coins */
 	if (entry->event == safequit_event_zerocoin
 		&& entry->action == safequit_action_match) {
 		if (entry->result == 0 && (entry->mask == 0xf || entry->mask == 0xff)) {
@@ -330,7 +351,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	unsigned i;
 
 	context->state.coin_set = 0;
-	context->state.status = 0xff;
+	context->state.status = 0xffffffff;
 
 	for(i=0;i<context->state.entry_mac;++i) {
 		struct safequit_entry* entry = &context->state.entry_map[i];
@@ -341,7 +362,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	}
 
 	if (context->config.debug_flag) {
-		char buffer[16];
+		char buffer[64];
 
 		buffer[0] = (context->state.status & 0x01) ? 'Z' : '_';
 		buffer[1] = (context->state.status & 0x02) ? 'D' : '_';
@@ -351,7 +372,15 @@ void advance_safequit_update(struct advance_safequit_context* context)
 		buffer[5] = (context->state.status & 0x20) ? '4' : '_';
 		buffer[6] = (context->state.status & 0x40) ? '5' : '_';
 		buffer[7] = (context->state.status & 0x80) ? '6' : '_';
-		buffer[8] = 0;
+		buffer[8] = (context->state.status & 0x100) ? '7' : '_';
+		buffer[9] = (context->state.status & 0x200) ? '8' : '_';
+		buffer[10] = (context->state.status & 0x400) ? '9' : '_';
+		buffer[11] = (context->state.status & 0x800) ? 'a' : '_';
+		buffer[12] = (context->state.status & 0x1000) ? 'b' : '_';
+		buffer[13] = (context->state.status & 0x2000) ? 'c' : '_';
+		buffer[14] = (context->state.status & 0x4000) ? 'd' : '_';
+		buffer[15] = (context->state.status & 0x8000) ? 'e' : '_';
+		buffer[16] = 0;
 
 		if (context->state.coin_set) {
 			sncatf(buffer, sizeof(buffer), "-%d", context->state.coin);
@@ -376,3 +405,4 @@ adv_bool advance_safequit_event_mask(struct advance_safequit_context* context)
 
 	return context->state.status;
 }
+

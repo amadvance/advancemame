@@ -55,9 +55,12 @@ void int_unset(bool reset_video_mode);
 bool int_enable(const std::string& font, unsigned orientation);
 void int_disable();
 
+bool int_image(const char* file);
 void int_clear();
 void int_clear(int x, int y, int dx, int dy, const int_rgb& color);
 void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color);
+void int_rotate(int& x, int& y, int& dx, int& dy);
+void int_invrotate(int& x, int& y, int& dx, int& dy);
 
 void int_put(int x, int y, char c, const int_color& color);
 unsigned int_put_width(char c);

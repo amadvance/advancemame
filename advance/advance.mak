@@ -2,11 +2,11 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.73.0.0
+EMUVERSION = 0.73.0.1
 else
-EMUVERSION = 0.73.0
+EMUVERSION = 0.73.1
 endif
-MENUVERSION = 2.2.11
+MENUVERSION = 2.2.12
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -401,7 +401,7 @@ WHOLECD_FLAGS = \
 		CONF=no CONF_HOST=unix \
 		CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
 		CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
-		CONF_LIB_SVGALIB=yes CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
+		CONF_LIB_SVGALIB=no CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
 		CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
 wholecd:

@@ -1025,4 +1025,26 @@ void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv
 	}
 }
 
+void bitmap_put(adv_bitmap* dst, unsigned x, unsigned y, adv_bitmap* src)
+{
+	unsigned cy;
+	int w;
+	int h;
+
+	h = src->size_y;
+	if (y + h > dst->size_y)
+		h = dst->size_y - y;
+	w = src->size_x;
+	if (x + w > dst->size_x)
+		w = dst->size_x - x;
+
+	if (h<=0 || w<=0)
+		return;
+
+	for(cy=0;cy<h;++cy) {
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
+		memcpy(dst_ptr, src_ptr, w * src->bytes_per_pixel);
+	}
+}
 

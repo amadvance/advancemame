@@ -49,6 +49,7 @@ struct target_context {
 	unsigned min_usleep; /**< Minimun sleep time in microseconds. */
 
 	target_clock_t last; /**< Last clock. */
+	target_clock_t init; /**< First clock. */
 };
 
 static struct target_context TARGET;
@@ -59,7 +60,10 @@ static struct target_context TARGET;
 adv_error target_init(void)
 {
 	TARGET.last = 0;
+	TARGET.init = 0;
 	TARGET.min_usleep = 0;
+
+	TARGET.init = target_clock();
 
 	return 0;
 }
@@ -132,7 +136,7 @@ target_clock_t target_clock(void)
 	if (r < TARGET.last)
 		r = TARGET.last;
 
-	TARGET.last = r;
+	TARGET.last = r - TARGET.init;
 
 	return TARGET.last;
 }
@@ -145,21 +149,22 @@ void target_port_set(unsigned addr, unsigned value)
 	int f;
 	off_t o;
 	size_t s;
-	char c;
+	unsigned char c;
 
 	f = open("/dev/port", O_WRONLY);
 	if (f == -1) {
-		log_std(("linux: port_set failed, error %d open(/dev/port)\n", errno));
+		if (errno != EACCES)
+			log_std(("ERROR:linux: port_set failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
 		return;
 	}
 
 	o = lseek(f, addr, SEEK_SET);
 	if (o == -1) {
-		log_std(("linux: port_set failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
+		log_std(("ERROR:linux: port_set failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
 		return;
 	}
 	if (o != addr) {
-		log_std(("linux: port_set failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
+		log_std(("ERROR:linux: port_set failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
 		return;
 	}
 
@@ -167,11 +172,11 @@ void target_port_set(unsigned addr, unsigned value)
 
 	s = write(f, &c, 1);
 	if (s == -1) {
-		log_std(("linux: port_set failed, error %d in write(0x%x) /dev/port\n", errno, value));
+		log_std(("ERROR:linux: port_set failed, error %d in write(0x%x) /dev/port\n", errno, value));
 		return;
 	}
 	if (s != 1) {
-		log_std(("linux: port_set failed, erroneous return value %d in write(0x%x) /dev/port\n", (int)s, value));
+		log_std(("ERROR:linux: port_set failed, erroneous return value %d in write(0x%x) /dev/port\n", (int)s, value));
 		return;
 	}
 
@@ -183,37 +188,38 @@ unsigned target_port_get(unsigned addr)
 	int f;
 	off_t o;
 	size_t s;
-	char c;
+	unsigned char c;
 
 	f = open("/dev/port", O_RDONLY);
 	if (f == -1) {
-		log_std(("linux: port_get failed, error %d open(/dev/port)\n", errno));
+		if (errno != EACCES)
+			log_std(("ERROR:linux: port_get failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
 		return 0;
 	}
 
 	o = lseek(f, addr, SEEK_SET);
 	if (o == -1) {
-		log_std(("linux: port_get failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
+		log_std(("ERROR:linux: port_get failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
 		return 0;
 	}
 	if (o != addr) {
-		log_std(("linux: port_get failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
+		log_std(("ERROR:linux: port_get failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
 		return 0;
 	}
 
 	s = read(f, &c, 1);
 	if (s == -1) {
-		log_std(("linux: port_get failed, error %d in read() /dev/port\n", errno));
+		log_std(("ERROR:linux: port_get failed, error %d in read() /dev/port\n", errno));
 		return 0;
 	}
 	if (s != 1) {
-		log_std(("linux: port_get failed, erroneous return value %d in read() /dev/port\n", (int)s));
+		log_std(("ERROR:linux: port_get failed, erroneous return value %d in read() /dev/port\n", (int)s));
 		return 0;
 	}
 
 	close(f);
 
-	return (unsigned char)c;
+	return c;
 }
 
 void target_writeb(unsigned addr, unsigned char c)

@@ -86,6 +86,8 @@ void bitmap_cvt_reduce_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* conv
 void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
 void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
 
+void bitmap_put(adv_bitmap* dst, unsigned x, unsigned y, adv_bitmap* src);
+
 /*@}*/
 
 #ifdef __cplusplus

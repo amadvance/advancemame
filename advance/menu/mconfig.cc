@@ -67,6 +67,13 @@ static adv_conf_enum_int OPTION_MODE[] = {
 { "text", mode_text }
 };
 
+static adv_conf_enum_int OPTION_EXIT[] = {
+{ "none", exit_none },
+{ "normal", exit_normal },
+{ "shutdown", exit_shutdown },
+{ "all", exit_all }
+};
+
 static adv_conf_enum_int OPTION_SAVER[] = {
 { "snap", saver_snap },
 { "play", saver_play },
@@ -195,9 +202,10 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_enum_default(config_context, "config", conf_enum(OPTION_RESTORE), restore_none);
 	conf_int_register_enum_default(config_context, "mode", conf_enum(OPTION_MODE), mode_list);
 	conf_string_register_default(config_context, "mode_skip", "");
-	conf_int_register_limit_default(config_context, "event_exit_press", 0, 3, 1);
+	conf_int_register_enum_default(config_context, "misc_exit", conf_enum(OPTION_EXIT), exit_normal);
+	conf_bool_register_default(config_context, "misc_console", 0);
 	conf_string_register_multi(config_context, "event_assign");
-	conf_string_register_multi(config_context, "color");
+	conf_string_register_multi(config_context, "ui_color");
 	conf_string_register_default(config_context, "idle_start", "0 0");
 	conf_string_register_default(config_context, "idle_screensaver", "60 10");
 	conf_int_register_enum_default(config_context, "idle_screensaver_preview", conf_enum(OPTION_SAVER), saver_snap);
@@ -239,6 +247,13 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_float_register_limit_default(config_context, "video_brightness", 0.2, 5, 1);
 	conf_bool_register_default(config_context, "video_restore", 1);
 	conf_bool_register_default(config_context, "misc_quiet", 0);
+	conf_string_register_default(config_context, "ui_background", "none");
+	conf_int_register_limit_default(config_context, "ui_skipbottom", 0, 1000, 0);
+	conf_int_register_limit_default(config_context, "ui_skiptop", 0, 1000, 0);
+	conf_int_register_limit_default(config_context, "ui_skipleft", 0, 1000, 0);
+	conf_int_register_limit_default(config_context, "ui_skipright", 0, 1000, 0);
+	conf_bool_register_default(config_context, "ui_bottombar", 1);
+	conf_bool_register_default(config_context, "ui_topbar", 1);
 }
 
 // -------------------------------------------------------------------------
@@ -621,16 +636,25 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	current_backdrop = resource();
 	current_sound = resource();
 
+	ui_back = conf_string_get_default(config_context, "ui_background");
+	ui_left = conf_int_get_default(config_context, "ui_skipleft");
+	ui_right = conf_int_get_default(config_context, "ui_skipright");
+	ui_top = conf_int_get_default(config_context, "ui_skiptop");
+	ui_bottom = conf_int_get_default(config_context, "ui_skipbottom");
+	ui_top_bar = conf_bool_get_default(config_context, "ui_topbar");
+	ui_bottom_bar = conf_bool_get_default(config_context, "ui_bottombar");
+
 	sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
 	lock_orig = (bool)conf_bool_get_default(config_context, "lock");
 	restore = (restore_t)conf_int_get_default(config_context, "config");
 	mode_orig = (show_t)conf_int_get_default(config_context, "mode");
 	if (!config_load_skip(config_context, mode_skip_mask))
 		return false;
-	exit_count = conf_int_get_default(config_context, "event_exit_press");
+	exit_mode = (exit_t)conf_int_get_default(config_context, "misc_exit");
+	console_mode = conf_bool_get_default(config_context, "misc_console");
 	if (!config_load_iterator(config_context, "event_assign", int_key_in))
 		return false;
-	if (!config_load_iterator(config_context, "color", int_color_in))
+	if (!config_load_iterator(config_context, "ui_color", int_color_in))
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "idle_start"), a0, a1))
 		return false;
@@ -964,9 +988,9 @@ void config_state::conf_default(adv_conf* config_context)
 		conf_set(config_context, "", "type", "\"<undefined>\"");
 	}
 
-	conf_iterator_begin(&i, config_context, "color");
+	conf_iterator_begin(&i, config_context, "ui_color");
 	if (conf_iterator_is_end(&i)) {
-		int_color_out(config_context, "color");
+		int_color_out(config_context, "ui_color");
 	}
 
 	conf_iterator_begin(&i, config_context, "event_assign");

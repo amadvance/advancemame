@@ -64,6 +64,34 @@ static inline void swap(int& a, int& b)
 	b = t;
 }
 
+void int_invrotate(int& x, int& y, int& dx, int& dy)
+{
+	if (int_orientation & ORIENTATION_MIRROR_X) {
+		x = video_size_x() - x - dx;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
+		y = video_size_y() - y - dy;
+	}
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		swap(x, y);
+		swap(dx, dy);
+	}
+}
+
+void int_rotate(int& x, int& y, int& dx, int& dy)
+{
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		swap(x, y);
+		swap(dx, dy);
+	}
+	if (int_orientation & ORIENTATION_MIRROR_X) {
+		x = video_size_x() - x - dx;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
+		y = video_size_y() - y - dy;
+	}
+}
+
 int int_dx_get()
 {
 	if (int_orientation & ORIENTATION_FLIP_XY)
@@ -1170,6 +1198,68 @@ void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 	}
 	if (dx > 0 && dy > 0)
 		int_clear_noclip(x, y, dx, dy, color);
+}
+
+bool int_image(const char* file)
+{
+	if (color_def_type_get(video_color_def()) != adv_color_type_rgb)
+		return false;
+
+	adv_fz* f = fzopen(file, "r");
+	if (!f)
+		return false;
+
+	unsigned pix_width;
+	unsigned pix_height;
+	unsigned pix_pixel;
+	unsigned char* dat_ptr;
+	unsigned dat_size;
+	unsigned char* pix_ptr;
+	unsigned pix_scanline;
+	unsigned char* pal_ptr;
+	unsigned pal_size;
+
+	int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
+	if (r != 0) {
+		fzclose(f);
+		return false;
+	}
+
+	fzclose(f);
+
+	adv_color_def def = png_color_def(pix_pixel);
+
+	if (color_def_type_get(def) != adv_color_type_rgb) {
+		free(dat_ptr);
+		free(pal_ptr);
+		return false;
+	}
+
+	adv_bitmap* bitmap = bitmap_import(pix_width, pix_height, pix_pixel, 0, 0, pix_ptr, pix_scanline);
+	if (!bitmap) {
+		free(dat_ptr);
+		free(pal_ptr);
+		return 0;
+	}
+
+	adv_bitmap* bitmap_scr = bitmap_import(video_size_x(), video_size_y(), video_bits_per_pixel(), 0, 0, video_buffer, video_buffer_line_size);
+
+	if (def != video_color_def()) {
+		adv_bitmap* bitmap_cvt = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
+		bitmap_cvt_rgb(bitmap_cvt, video_color_def(), bitmap, def);
+		bitmap_put(bitmap_scr, 0, 0, bitmap_cvt);
+		bitmap_free(bitmap_cvt);
+	} else {
+		bitmap_put(bitmap_scr, 0, 0, bitmap);
+	}
+
+	bitmap_free(bitmap_scr);
+
+	free(dat_ptr);
+	free(pal_ptr);
+	bitmap_free(bitmap);
+
+	return true;
 }
 
 void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color)

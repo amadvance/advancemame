@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.12 2003/09
+	) Added a new set of `ui_*' options to define a user interface skin
+		with a background image.
+	) Added a new `misc_exit' option which substitute the old `exit_press'.
+
 AdvanceMENU Version 2.2.11 2003/09
 	) Fixed some problems on the SDL keyboard driver in the
 		Windows version.

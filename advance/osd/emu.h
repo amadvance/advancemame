@@ -496,7 +496,15 @@ enum {
 	safequit_event_event3 = 4,
 	safequit_event_event4 = 5,
 	safequit_event_event5 = 6,
-	safequit_event_event6 = 7
+	safequit_event_event6 = 7,
+	safequit_event_event7 = 8,
+	safequit_event_event8 = 9,
+	safequit_event_event9 = 10,
+	safequit_event_event10 = 11,
+	safequit_event_event11 = 12,
+	safequit_event_event12 = 13,
+	safequit_event_event13 = 14,
+	safequit_event_event14 = 15
 };
 
 enum {

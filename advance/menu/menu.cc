@@ -720,6 +720,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	int coln; // number of columns
 	int rown; // number of rows
 
+	int scr_x; // useable screen
+	int scr_y;
+	int scr_dx;
+	int scr_dy;
+
 	int win_x; // menu window
 	int win_y;
 	int win_dx;
@@ -763,16 +768,34 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	log_std(("menu: user begin\n"));
 
+	scr_x = rs.ui_left;
+	scr_y = rs.ui_top;
+	scr_dx = video_size_x() - rs.ui_right - scr_x;
+	scr_dy = video_size_y() - rs.ui_bottom - scr_y;
+	if (scr_dx <= 0 || scr_dy <= 0) {
+		scr_x = 0;
+		scr_y = 0;
+		scr_dx = video_size_x();
+		scr_dy = video_size_y();
+	}
+	int_invrotate(scr_x, scr_y, scr_dx, scr_dy);
+
 	// standard bars
-	bar_top_x = 0;
-	bar_top_y = 0;
-	bar_top_dy = int_font_dy_get();
-	bar_bottom_x = 0;
-	bar_bottom_dy = int_font_dy_get();
-	bar_left_x = 0;
-	bar_left_y = bar_top_dy;
+	bar_top_x = scr_x;
+	bar_top_y = scr_y;
+	if (rs.ui_top_bar)
+		bar_top_dy = int_font_dy_get();
+	else
+		bar_top_dy = 0;
+	bar_bottom_x = scr_x;
+	if (rs.ui_bottom_bar)
+		bar_bottom_dy = int_font_dy_get();
+	else
+		bar_bottom_dy = 0;
+	bar_left_x = scr_x;
+	bar_left_y = scr_y + bar_top_dy;
 	bar_left_dx = int_font_dx_get()/2;
-	bar_right_y = bar_top_dy;
+	bar_right_y = scr_y + bar_top_dy;
 	bar_right_dx = int_font_dx_get()/2;
 
 	// effective preview type
@@ -812,27 +835,27 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		name_dy = int_font_dy_get();
 		if (!flipxy) {
 			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32+icon_space);
 		} else {
 			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32+icon_space);
 		}
 
 		backdrop_mac = coln*rown;
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
 
-		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
 		backdrop_dx = 0;
 		backdrop_dy = 0;
 
-		bar_right_x = bar_left_dx + win_dx;
-		bar_bottom_y = bar_top_dy + win_dy;
+		bar_right_x = scr_x + bar_left_dx + win_dx;
+		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_effective == mode_tile_marquee) {
@@ -851,19 +874,19 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		backdrop_mac = coln*rown;
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
 
-		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
 		backdrop_dx = 0;
 		backdrop_dy = 0;
 
-		bar_right_x = bar_left_dx + win_dx;
-		bar_bottom_y = bar_top_dy + win_dy;
+		bar_right_x = scr_x + bar_left_dx + win_dx;
+		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_effective == mode_full || rs.mode_effective == mode_full_mixed) {
@@ -874,8 +897,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			backdrop_mac = 1;
 		name_dy = 0;
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
 
 		space_x = 0;
 		space_y = 0;
@@ -887,11 +910,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		backdrop_x = win_x;
 		backdrop_y = win_y;
-		backdrop_dx = int_dx_get() - bar_left_dx - bar_right_dx;
-		backdrop_dy = int_dy_get() - bar_top_dy - bar_bottom_dy;
+		backdrop_dx = scr_dx - bar_left_dx - bar_right_dx;
+		backdrop_dy = scr_dy - bar_top_dy - bar_bottom_dy;
 
-		bar_right_x = bar_left_dx + backdrop_dx;
-		bar_bottom_y = bar_top_dy + backdrop_dy;
+		bar_right_x = scr_x + bar_left_dx + backdrop_dx;
+		bar_bottom_y = scr_y + bar_top_dy + backdrop_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + backdrop_dx;
 		bar_left_dy = bar_right_dy = backdrop_dy;
 	} else if (rs.mode_effective == mode_text) {
@@ -903,14 +926,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		space_x = int_font_dx_get() / 2;
 		space_y = 0;
 
-		coln = int_dx_get() / (20*int_font_dx_get());
+		coln = scr_dx / (20*int_font_dx_get());
 		if (coln < 2)
 			coln = 2;
-		rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
+		rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
-		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
 		win_dy = rown * int_font_dy_get();
 
 		backdrop_x = 0;
@@ -918,8 +941,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		backdrop_dx = 0;
 		backdrop_dy = 0;
 
-		bar_right_x = bar_left_dx + win_dx;
-		bar_bottom_y = bar_top_dy + win_dy;
+		bar_right_x = scr_x + bar_left_dx + win_dx;
+		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed) {
@@ -930,8 +953,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			backdrop_mac = 1;
 		name_dy = int_font_dy_get();
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
 
 		unsigned multiplier;
 		unsigned divisor;
@@ -951,40 +974,40 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			space_y = 0;
 
 			coln = 1;
-			win_dx = (int_dx_get() - bar_left_dx - bar_right_dx) * multiplier / divisor;
+			win_dx = (scr_dx - bar_left_dx - bar_right_dx) * multiplier / divisor;
 			win_dx -= win_dx % int_font_dx_get();
 
-			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
 			win_dy = rown * int_font_dy_get();
 
 			backdrop_x = win_x + win_dx;
 			backdrop_y = win_y;
-			backdrop_dx = int_dx_get() - win_dx - bar_left_dx - bar_right_dx;
+			backdrop_dx = scr_dx - win_dx - bar_left_dx - bar_right_dx;
 			backdrop_dy = win_dy;
 
-			bar_right_x = bar_left_dx + win_dx + backdrop_dx;
-			bar_bottom_y = bar_top_dy + win_dy;
+			bar_right_x = scr_x + bar_left_dx + win_dx + backdrop_dx;
+			bar_bottom_y = scr_y + bar_top_dy + win_dy;
 			bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx + backdrop_dx;
 			bar_left_dy = bar_right_dy = win_dy;
 		} else {
 			// vertical
 			space_x = int_font_dx_get() / 2;
 			space_y = 0;
-			coln = int_dx_get()/(20*int_font_dx_get());
+			coln = scr_dx/(20*int_font_dx_get());
 			if (coln < 2)
 				coln = 2;
-			win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+			win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
 
-			rown = (int_dy_get() - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get());
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get());
 			win_dy = rown * int_font_dy_get();
 
 			backdrop_x = win_x;
 			backdrop_y = win_y + win_dy;
 			backdrop_dx = win_dx;
-			backdrop_dy = int_dy_get() - win_dy - bar_top_dy - bar_bottom_dy;
+			backdrop_dy = scr_dy - win_dy - bar_top_dy - bar_bottom_dy;
 
-			bar_right_x = bar_left_dx + win_dx;
-			bar_bottom_y = bar_top_dy + win_dy + backdrop_dy;
+			bar_right_x = scr_x + bar_left_dx + win_dx;
+			bar_bottom_y = scr_y + bar_top_dy + win_dy + backdrop_dy;
 			bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 			bar_left_dy = bar_right_dy = win_dy + backdrop_dy;
 		}
@@ -1083,19 +1106,19 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		backdrop_mac = coln*rown;
 
-		win_x = bar_left_dx;
-		win_y = bar_top_dy;
+		win_x = scr_x + bar_left_dx;
+		win_y = scr_y + bar_top_dy;
 
-		win_dx = (int_dx_get() - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (int_dy_get() - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
 		backdrop_dx = 0;
 		backdrop_dy = 0;
 
-		bar_right_x = bar_left_dx + win_dx;
-		bar_bottom_y = bar_top_dy + win_dy;
+		bar_right_x = scr_x + bar_left_dx + win_dx;
+		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
 	}
@@ -1355,13 +1378,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	bool done = false;
 	int key = 0;
-	int exit_count = 0;
 
 	// clear all the screen
 	int_clear();
 
+	// load the background image
+	if (rs.ui_back != "none")
+		int_image(rs.ui_back.c_str());
+
 	// clear the used part
-	int_clear(0, 0, bar_left_dx + win_dx + bar_right_dx, bar_top_dy + win_dy + bar_bottom_dy, COLOR_MENU_GRID.background);
+	int_clear(scr_x, scr_y, bar_left_dx + win_dx + bar_right_dx, bar_top_dy + win_dy + bar_bottom_dy, COLOR_MENU_GRID.background);
 
 	log_std(("menu: user end\n"));
 
@@ -1463,9 +1489,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		string oldfast = rs.fast;
 		rs.fast.erase();
 
-		if (key != INT_KEY_ESC)
-			exit_count = 0;
-
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 
 		switch (key) {
@@ -1541,12 +1564,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				done = true;
 				break;
 			case INT_KEY_ESC :
-				++exit_count;
-				if (rs.exit_count && exit_count >= rs.exit_count)
+				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all)
 					done = true;
 				break;
 			case INT_KEY_OFF :
-				done = true;
+				if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
+					done = true;
 				break;
 		}
 

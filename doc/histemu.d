@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.73.1 2003/09
+	) The Linux fb video driver is now able to wait for vsync also if
+		the low-end driver doesn't support this feature.
+		You must run the program as root.
+	) Increased the number of supported event [by Filipe Estima].
+
 AdvanceMAME Version 0.73.0 2003/09
 	) Fixed some problems on the SDL keyboard driver in the
 		Windows version.

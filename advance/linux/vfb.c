@@ -35,6 +35,7 @@
 #include "error.h"
 #include "snstring.h"
 #include "portable.h"
+#include "target.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -44,20 +45,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
+#include <sys/io.h>
 #include <linux/fb.h>
+
+/* Define USE_IOPL to use iopl instead of the /dev/port interface */
+#define USE_IOPL
 
 /***************************************************************************/
 /* State */
 
+enum fb_wait_enum {
+	fb_wait_detect,
+	fb_wait_none,
+	fb_wait_api,
+	fb_wait_vga
+};
+
 typedef struct fb_internal_struct {
 	adv_bool active;
 	adv_bool mode_active;
-	int fd; /** File handle */
+	int fd; /**< File handle */
 
-	struct fb_var_screeninfo oldinfo; /** Old variable info */
-	struct fb_fix_screeninfo fixinfo; /** Fixed info */
-	struct fb_var_screeninfo varinfo; /** Variable info */
+	struct fb_var_screeninfo oldinfo; /**< Old variable info. */
+	struct fb_fix_screeninfo fixinfo; /**< Fixed info. */
+	struct fb_var_screeninfo varinfo; /**< Variable info. */
 
 	unsigned index;
 	unsigned bytes_per_scanline;
@@ -65,6 +76,12 @@ typedef struct fb_internal_struct {
 	unsigned char* ptr;
 
 	unsigned flags;
+
+#ifdef USE_IOPL
+	adv_bool io_perm_flag; /**< IO Permission granted. */
+#endif
+
+	enum fb_wait_enum wait; /**< Wait mode. */
 } fb_internal;
 
 static fb_internal fb_state;
@@ -397,10 +414,16 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	}
 
 	fb = getenv("FRAMEBUFFER");
-	if (!fb)
+	if (fb && fb[0]) {
+		fb_state.fd = open(fb, O_RDWR);
+	} else {
 		fb = "/dev/fb0";
-
-	fb_state.fd = open(fb, O_RDWR);
+		fb_state.fd = open(fb, O_RDWR);
+		if (fb_state.fd < 0 && errno == ENOENT) {
+			fb = "/dev/fb/0";
+			fb_state.fd = open(fb, O_RDWR);
+		}
+	}
 	if (fb_state.fd < 0) {
 		error_set("Error opening the frame buffer %s. Error %d (%s).\n", fb, errno, strerror(errno));
 		return -1;
@@ -442,6 +465,16 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 		error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.", id_buffer);
 		goto err_close;
 	}
+
+#ifdef USE_IOPL
+	/* get permission on the ports */
+	if (iopl(3) == 0) {
+		fb_state.io_perm_flag = 1;
+	} else {
+		fb_state.io_perm_flag = 0;
+		log_std(("ERROR:fb: iopl(3) failed\n"));
+	}
+#endif
 
 	fb_state.active = 1;
 
@@ -584,6 +617,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
+	fb_state.wait = fb_wait_detect; /* reset the wait mode */
+
 	fb_state.mode_active = 1;
 
 	return 0;
@@ -644,7 +679,10 @@ adv_color_def fb_color_def(void)
 	);
 }
 
-void fb_wait_vsync(void)
+/**
+ * Wait a vsync using the FB API.
+ */
+static adv_error fb_wait_vsync_api(void)
 {
 	struct fb_vblank blank;
 
@@ -653,7 +691,7 @@ void fb_wait_vsync(void)
 	if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
 		log_std(("ERROR:video:fb: FBIOGET_VBLANK not supported\n"));
 		/* not supported */
-		return;
+		return -1;
 	}
 
 	if ((blank.flags & FB_VBLANK_HAVE_COUNT) != 0) {
@@ -662,25 +700,98 @@ void fb_wait_vsync(void)
 		log_debug(("video:fb: using FB_VBLANK_HAVE_COUNT\n"));
 		while (start == blank.count) {
 			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-				return;
+				return -1;
 			}
 		}
 	} else if ((blank.flags & FB_VBLANK_HAVE_VSYNC) != 0) {
 		log_debug(("video:fb: using FB_VBLANK_HAVE_VSYNC\n"));
 		while ((blank.flags & FB_VBLANK_VSYNCING) == 0) {
 			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-				return;
+				return -1;
 			}
 		}
 	} else if ((blank.flags & FB_VBLANK_HAVE_VBLANK) != 0) {
 		log_debug(("video:fb: using FB_VBLANK_HAVE_VBLANK\n"));
 		while ((blank.flags & FB_VBLANK_VBLANKING) == 0) {
 			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-				return;
+				return -1;
 			}
 		}
 	} else {
 		log_std(("video:fb: VBLANK unusable\n"));
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
+ * Upper loop limit for the vsync wait.
+ * Any port read take approximatively 0.5 - 1.5us.
+ */
+#define VSYNC_LIMIT 100000
+
+/**
+ * Wait a vsync using the VGA registers.
+ */
+static adv_error fb_wait_vsync_vga(void)
+{
+	unsigned counter;
+
+	assert(fb_is_active() && fb_mode_is_active());
+
+#ifdef USE_IOPL
+	if (!fb_state.io_perm_flag) {
+		log_std(("ERROR:fb: wait not allowed, you must be root\n"));
+		return -1;
+	}
+#endif
+
+	counter = 0;
+
+#ifdef USE_IOPL
+	while ((inb(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
+		++counter;
+
+	while ((inb(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
+		++counter;
+#else
+	while ((target_port_get(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
+		++counter;
+
+	while ((target_port_get(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
+		++counter;
+#endif
+
+	if (counter >= VSYNC_LIMIT) {
+		log_std(("ERROR:fb: wait timeout\n"));
+		return -1;
+	}
+
+	return 0;
+}
+
+void fb_wait_vsync(void)
+{
+	switch (fb_state.wait) {
+	case fb_wait_api :
+		if (fb_wait_vsync_api() != 0)
+			fb_state.wait = fb_wait_none;
+		break;
+	case fb_wait_vga :
+		if (fb_wait_vsync_vga() != 0)
+			fb_state.wait = fb_wait_none;
+		break;
+	case fb_wait_detect:
+		if (fb_wait_vsync_api() == 0)
+			fb_state.wait = fb_wait_api;
+		else if (fb_wait_vsync_vga() == 0)
+			fb_state.wait = fb_wait_vga;
+		else
+			fb_state.wait = fb_wait_none;
+		break;
+	case fb_wait_none:
+		break;
 	}
 }
 

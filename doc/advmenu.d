@@ -794,6 +794,71 @@ Configuration
 	Options:
 		STEP - Mouse/trackball position step (default 100).
 
+  User Interface skin
+
+    ui_background
+	Define a background image.
+
+	ui_background FILE
+
+	The image must be in PNG format at 24 bits per pixel. The image is
+	not loaded if the current video mode is a 8 bits per pixel.
+
+	Options:
+		FILE - File to load (default none).
+
+    ui_skiptop/bottom/left/right
+	Define the border area of the screen not used by the menu. Generally it's
+	the part of the screen used by the background image.
+
+	ui_skiptop N
+	ui_skipbottom N
+	ui_skipleft N
+	ui_skipright N
+
+	Options:
+		N - Number of pixel to skip (defaul 0).
+
+    ui_topbar/bottombar
+	Enable or disable the top and bottom information bars.
+
+	ui_topbar yes | no
+	ui_bottombar yes | no
+
+    ui_color
+	Colors used.
+
+	:ui_color TAG FOREGROUND BACKGROUND
+
+	Tags:
+		help - Help.
+		help_tag - Help highlight.
+		submenu_bar - Submenu title.
+		submenu_item - Submenu entry.
+		submenu_item_select - Submenu selected entry.
+		menu_item - Menu entry.
+		menu_hidden - Menu hidden entry.
+		menu_tag - Menu highlight entry.
+		menu_item_select - Menu selected entry.
+		menu_hidden_select - Menu hidden selected entry.
+		menu_tag_select - Menu selected highlight.
+		bar - Title.
+		bar_tag - Title highlight.
+		bar_hidden - Title hidden text.
+		grid - Scrollbar marker and grid.
+		backdrop - Backdrop outline and missing backdrop.
+		icon - Icon outline and missing icon.
+		cursor - Flashing cursor.
+
+	Options:
+		FOREGROUND - Foreground color. One of the following :
+			black, blue, green, cyan, red, magenta, brown,
+			lightgray, gray, lightblue, lightgreen
+			lightcyan, lightred, lightmagenta, yellow,
+			white or RRGGBB in hex format. For example
+			FF0000 is red and 00FF00 is green.
+		BACKGROUND - Background color. Like foreground color.
+
   Other Configuration Options
 
     idle_start
@@ -994,21 +1059,6 @@ Configuration
 		yes - Enable (default).
 		no - Disable.
 
-    event_exit_press
-	Number of times you need to press the exit key to exit from
-	the program.
-
-	:event_exit_press 0 | 1 | 2 | 3
-
-	Options:
-		0 - Exit is disabled.
-		1 - Exit after the first press (default).
-		2 - Exit after two consecutive presses.
-		3 - Exit after three consecutive presses.
-
-	Examples:
-		:event_exit_press 3
-
     run_msg
 	One line message displayed when a game is chosen. The
 	message is displayed only if the option `video_restore' is
@@ -1046,39 +1096,16 @@ Configuration
 		yes - Play the clips continuously. The sound is not
 			looped.
 
-    color
-	Colors used.
+    misc_exit
+	Exit modes.
 
-	:color TAG FOREGROUND BACKGROUND
-
-	Tags:
-		help - Help.
-		help_tag - Help highlight.
-		submenu_bar - Submenu title.
-		submenu_item - Submenu entry.
-		submenu_item_select - Submenu selected entry.
-		menu_item - Menu entry.
-		menu_hidden - Menu hidden entry.
-		menu_tag - Menu highlight entry.
-		menu_item_select - Menu selected entry.
-		menu_hidden_select - Menu hidden selected entry.
-		menu_tag_select - Menu selected highlight.
-		bar - Title.
-		bar_tag - Title highlight.
-		bar_hidden - Title hidden text.
-		grid - Scrollbar marker and grid.
-		backdrop - Backdrop outline and missing backdrop.
-		icon - Icon outline and missing icon.
-		cursor - Flashing cursor.
+	:misc_exit none | normal | shutdown | all
 
 	Options:
-		FOREGROUND - Foreground color. One of the following :
-			black, blue, green, cyan, red, magenta, brown,
-			lightgray, gray, lightblue, lightgreen
-			lightcyan, lightred, lightmagenta, yellow,
-			white or RRGGBB in hex format. For example
-			FF0000 is red and 00FF00 green.
-		BACKGROUND - Background color. Like foreground color.
+		none - Exit is disabled.
+		normal - Exit is possible pressing ESC.
+		shutdown - Exit is possible pressing CTRL-ESC.
+		all - All the exit modes are possible.
 
     misc_quiet
 	Doesn't print the copyright text message at the startup :

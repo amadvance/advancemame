@@ -225,7 +225,7 @@ adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 
 	if (the_default_mode_flag == 0) {
 		video_mode_restore();
-		target_err("No text modes available for your hardware.\n\rPlease check your `device_video_p/h/vclock' options in the configuration file.\nEventually add a specific modeline named '" DEFAULT_TEXT_MODE "'\n\rand ensure that you have a text mode video driver compiled in.\n\r");
+		target_err("No text modes available for your hardware.\n\rPlease check your `device_video_p/h/vclock' options in the configuration file.\nEventually add a specific modeline named '" DEFAULT_TEXT_MODE "'\n\rand ensure that you have a text mode video driver compiled in.\n\rEnsure also to use the auto option for device_video.\n\r");
 		return -1;
 	}
 

@@ -1914,6 +1914,14 @@ void video_frame_event(struct advance_video_context* context, struct advance_saf
 	event_check(16, advance_safequit_event_mask(safequit_context) & 0x20, HARDWARE_SCRIPT_EVENT4, context->state.event_mask_old, &event_mask);
 	event_check(17, advance_safequit_event_mask(safequit_context) & 0x40, HARDWARE_SCRIPT_EVENT5, context->state.event_mask_old, &event_mask);
 	event_check(18, advance_safequit_event_mask(safequit_context) & 0x80, HARDWARE_SCRIPT_EVENT6, context->state.event_mask_old, &event_mask);
+	event_check(19, advance_safequit_event_mask(safequit_context) & 0x100, HARDWARE_SCRIPT_EVENT7, context->state.event_mask_old, &event_mask);
+	event_check(20, advance_safequit_event_mask(safequit_context) & 0x200, HARDWARE_SCRIPT_EVENT8, context->state.event_mask_old, &event_mask);
+	event_check(21, advance_safequit_event_mask(safequit_context) & 0x400, HARDWARE_SCRIPT_EVENT9, context->state.event_mask_old, &event_mask);
+	event_check(22, advance_safequit_event_mask(safequit_context) & 0x800, HARDWARE_SCRIPT_EVENT10, context->state.event_mask_old, &event_mask);
+	event_check(23, advance_safequit_event_mask(safequit_context) & 0x1000, HARDWARE_SCRIPT_EVENT11, context->state.event_mask_old, &event_mask);
+	event_check(24, advance_safequit_event_mask(safequit_context) & 0x2000, HARDWARE_SCRIPT_EVENT12, context->state.event_mask_old, &event_mask);
+	event_check(25, advance_safequit_event_mask(safequit_context) & 0x4000, HARDWARE_SCRIPT_EVENT13, context->state.event_mask_old, &event_mask);
+	event_check(26, advance_safequit_event_mask(safequit_context) & 0x8000, HARDWARE_SCRIPT_EVENT14, context->state.event_mask_old, &event_mask);
 
 	/* save the new status */
 	context->state.event_mask_old = event_mask;

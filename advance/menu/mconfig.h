@@ -153,6 +153,13 @@ enum restore_t {
 	restore_idle ///< Restore the original data at the idle.
 };
 
+enum exit_t {
+	exit_none,
+	exit_normal,
+	exit_shutdown,
+	exit_all
+};
+
 struct config_state {
 
 	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
@@ -238,7 +245,7 @@ public:
 	std::string msg_run_game; ///< Message to display before a game run.
 	saver_t run_saver_type; ///< Preview to display before a game run.
 
-	unsigned exit_count; ///< Number of times the exit buttun need to be pressed.
+	exit_t exit_mode; ///< Exit mode
 
 	// foreground sound
 	std::string sound_foreground_begin;
@@ -269,6 +276,16 @@ public:
 	std::string fast; ///< Fast selection string.
 	resource current_backdrop; ///< Image shown for the current game.
 	resource current_sound; ///< Sound played for the current game.
+
+	std::string ui_back; ///< User interface background
+	unsigned ui_left; ///< User interface left border
+	unsigned ui_right; ///< User interface right border
+	unsigned ui_top; ///< User interface top border
+	unsigned ui_bottom; ///< User interface bottom border
+	bool ui_top_bar; ///< User interface need top bar
+	bool ui_bottom_bar; ///< User interface need bottom bar
+
+	bool console_mode; ///< Run in console mode with limited features. Mainly for AdvanceCD.
 
 	config_state();
 	~config_state();
