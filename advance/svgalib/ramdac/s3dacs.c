@@ -51,45 +51,45 @@ static int GENDAC_SDAC_probe(void)
     saveCR55 = __svgalib_inCR(0x55);
     __svgalib_outbCR(0x55, saveCR55 & ~1);
 
-    outb(0x3c7, 0);
+    port_out_r(0x3c7, 0);
     for (i = 0; i < 2 * 3; i++)	/* save first two LUT entries */
-	savelut[i] = inb(0x3c9);
-    outb(0x3c8, 0);
+	savelut[i] = port_in(0x3c9);
+    port_out_r(0x3c8, 0);
     for (i = 0; i < 2 * 3; i++)	/* set first two LUT entries to zero */
-	outb(0x3c9, 0);
+	port_out_r(0x3c9, 0);
 
     __svgalib_outbCR(0x55, saveCR55 | 1);
 
-    outb(0x3c7, 0);
+    port_out_r(0x3c7, 0);
     for (i = clock01 = 0; i < 4; i++)
-	clock01 = (clock01 << 8) | (inb(0x3c9) & 0xff);
+	clock01 = (clock01 << 8) | (port_in(0x3c9) & 0xff);
     for (i = clock23 = 0; i < 4; i++)
-	clock23 = (clock23 << 8) | (inb(0x3c9) & 0xff);
+	clock23 = (clock23 << 8) | (port_in(0x3c9) & 0xff);
 
     __svgalib_outbCR(0x55, saveCR55 & ~1);
 
-    outb(0x3c8, 0);
+    port_out_r(0x3c8, 0);
     for (i = 0; i < 2 * 3; i++)	/* restore first two LUT entries */
-	outb(0x3c9, savelut[i]);
+	port_out_r(0x3c9, savelut[i]);
 
     __svgalib_outbCR(0x55, saveCR55);
 
     if (clock01 == 0x28613d62 ||
 	(clock01 == 0x7f7f7f7f && clock23 != 0x7f7f7f7f)) {
 
-	inb(0x3c8);		/* dactopel */
+	port_in(0x3c8);		/* dactopel */
 
-	inb(0x3c6);
-	inb(0x3c6);
-	inb(0x3c6);
+	port_in(0x3c6);
+	port_in(0x3c6);
+	port_in(0x3c6);
 
 	/* the forth read will show the SDAC chip ID and revision */
-	if (((i = inb(0x3c6)) & 0xf0) == 0x70) {
+	if (((i = port_in(0x3c6)) & 0xf0) == 0x70) {
 	    return 2;		/* SDAC found. */
 	} else {
 	    return 1;		/* GENDAC found. */
 	}
-	inb(0x3c8);		/* dactopel */
+	port_in(0x3c8);		/* dactopel */
     }
     return 0;
 }
@@ -103,9 +103,9 @@ static void GENDAC_SDAC_init(void)
     val = __svgalib_inCR(0x55);
     __svgalib_outbCR(0x55, val | 0x01);
 
-    outb(0x3C7, 10);		/* Read MCLK. */
-    m = inb(0x3C9);
-    n = inb(0x3C9);
+    port_out_r(0x3C7, 10);		/* Read MCLK. */
+    m = port_in(0x3C9);
+    n = port_in(0x3C9);
 
     __svgalib_outbCR(0x55, val);		/* Restore CR55. */
 
@@ -230,14 +230,14 @@ unsigned char data2;
     /* set RS2 via CR55, yuck */
     tmp = __svgalib_inCR(0x55) & 0xFC;
     __svgalib_outCR(tmp | 0x01);
-    tmp1 = inb(GENDAC_INDEX);
+    tmp1 = port_in(GENDAC_INDEX);
 
-    outb(GENDAC_INDEX, reg);
-    outb(GENDAC_DATA, data1);
-    outb(GENDAC_DATA, data2);
+    port_out_r(GENDAC_INDEX, reg);
+    port_out_r(GENDAC_DATA, data1);
+    port_out_r(GENDAC_DATA, data2);
 
     /* Now clean up our mess */
-    outb(GENDAC_INDEX, tmp1);
+    port_out_r(GENDAC_INDEX, tmp1);
     __svgalib_outbCR(0x55, tmp);
 }
 #endif
@@ -266,14 +266,14 @@ static void GENDAC_SDAC_savestate(unsigned char *regs)
     tmp = __svgalib_inCR(0x55);
     __svgalib_outbCR(0x55, tmp | 1);
 
-    regs[SDAC_COMMAND] = inb(0x3c6);
-    regs[SDAC_PLL_WRITEINDEX] = inb(0x3c8);	/* PLL write index */
-    regs[SDAC_PLL_READINDEX] = inb(0x3c7);	/* PLL read index */
-    outb(0x3c7, 2);		/* index to f2 reg */
-    regs[SDAC_PLL_M] = inb(0x3c9);	/* f2 PLL M divider */
-    regs[SDAC_PLL_N1_N2] = inb(0x3c9);	/* f2 PLL N1/N2 divider */
-    outb(0x3c7, 0x0e);		/* index to PLL control */
-    regs[SDAC_PLL_CONTROL] = inb(0x3c9);	/* PLL control */
+    regs[SDAC_COMMAND] = port_in(0x3c6);
+    regs[SDAC_PLL_WRITEINDEX] = port_in(0x3c8);	/* PLL write index */
+    regs[SDAC_PLL_READINDEX] = port_in(0x3c7);	/* PLL read index */
+    port_out_r(0x3c7, 2);		/* index to f2 reg */
+    regs[SDAC_PLL_M] = port_in(0x3c9);	/* f2 PLL M divider */
+    regs[SDAC_PLL_N1_N2] = port_in(0x3c9);	/* f2 PLL N1/N2 divider */
+    port_out_r(0x3c7, 0x0e);		/* index to PLL control */
+    regs[SDAC_PLL_CONTROL] = port_in(0x3c9);	/* PLL control */
 
     __svgalib_outbCR(0x55, tmp & ~1);
 }
@@ -301,14 +301,14 @@ static void GENDAC_SDAC_restorestate(const unsigned char *regs)
     } while (0);
 #endif
 
-    outb(0x3c6, regs[SDAC_COMMAND]);
-    outb(0x3c8, 2);		/* index to f2 reg */
-    outb(0x3c9, regs[SDAC_PLL_M]);	/* f2 PLL M divider */
-    outb(0x3c9, regs[SDAC_PLL_N1_N2]);	/* f2 PLL N1/N2 divider */
-    outb(0x3c8, 0x0e);		/* index to PLL control */
-    outb(0x3c9, regs[SDAC_PLL_CONTROL]);	/* PLL control */
-    outb(0x3c8, regs[SDAC_PLL_WRITEINDEX]);	/* PLL write index */
-    outb(0x3c7, regs[SDAC_PLL_READINDEX]);	/* PLL read index */
+    port_out_r(0x3c6, regs[SDAC_COMMAND]);
+    port_out_r(0x3c8, 2);		/* index to f2 reg */
+    port_out_r(0x3c9, regs[SDAC_PLL_M]);	/* f2 PLL M divider */
+    port_out_r(0x3c9, regs[SDAC_PLL_N1_N2]);	/* f2 PLL N1/N2 divider */
+    port_out_r(0x3c8, 0x0e);		/* index to PLL control */
+    port_out_r(0x3c9, regs[SDAC_PLL_CONTROL]);	/* PLL control */
+    port_out_r(0x3c8, regs[SDAC_PLL_WRITEINDEX]);	/* PLL write index */
+    port_out_r(0x3c7, regs[SDAC_PLL_READINDEX]);	/* PLL read index */
 
     __svgalib_outbCR(0x55, tmp);
 }
@@ -524,17 +524,17 @@ static int Trio64_get_mclk(void)
     unsigned char sr8;
     int m, n, n1, n2;
 
-    outb(0x3c4, 0x08);
-    sr8 = inb(0x3c5);
-    outb(0x3c5, 0x06);
+    port_out_r(0x3c4, 0x08);
+    sr8 = port_in(0x3c5);
+    port_out_r(0x3c5, 0x06);
 
-    outb(0x3c4, 0x11);
-    m = inb(0x3c5);
-    outb(0x3c4, 0x10);
-    n = inb(0x3c5);
+    port_out_r(0x3c4, 0x11);
+    m = port_in(0x3c5);
+    port_out_r(0x3c4, 0x10);
+    n = port_in(0x3c5);
 
-    outb(0x3c4, 0x08);
-    outb(0x3c5, sr8);
+    port_out_r(0x3c4, 0x08);
+    port_out_r(0x3c5, sr8);
 
     m &= 0x7f;
     n1 = n & 0x1f;
@@ -556,20 +556,20 @@ static void Trio64_set_mclk(int khz)
     }
 
     fprintf(stderr,"%0.3f MHz MCLK, m = %d, n = %d, r = %d\n", khz / 1000.0, min_m - 2, min_n1 - 2, n2);
-    outb(0x3C4, 0x08);
-    sr8 = inb(0x3C5);
-    outb(0x3C5, 0x06);		/* Unlock. */
+    port_out_r(0x3C4, 0x08);
+    sr8 = port_in(0x3C5);
+    port_out_r(0x3C5, 0x06);		/* Unlock. */
 
-    outb(0x3c4, 0x15);
-    outb(0x3c5, inb(0x3c5) & ~0x20);
+    port_out_r(0x3c4, 0x15);
+    port_out_r(0x3c5, port_in(0x3c5) & ~0x20);
 
     /* MCLK. */
     __svgalib_outSR(0x10, (min_n1 - 2) | (n2 << 5));
     __svgalib_outSR(0x11, min_m - 2);
 
-    outb(0x3c4, 0x15);
-    outb(0x3c5, inb(0x3c5) | 0x20);
-    outb(0x3c5, inb(0x3c5) & ~0x20);
+    port_out_r(0x3c4, 0x15);
+    port_out_r(0x3c5, port_in(0x3c5) | 0x20);
+    port_out_r(0x3c5, port_in(0x3c5) & ~0x20);
     
     __svgalib_outSR(0x08, sr8);
 }
@@ -665,9 +665,9 @@ static void Trio64_initializestate(unsigned char *regs, int bpp, int colormode,
 static void Trio64_savestate(unsigned char *regs)
 {
     unsigned char sr8;
-    outb(0x3C4, 0x08);
-    sr8 = inb(0x3C5);
-    outb(0x3C5, 0x06);		/* Unlock. */
+    port_out_r(0x3C4, 0x08);
+    sr8 = port_in(0x3C5);
+    port_out_r(0x3C5, 0x06);		/* Unlock. */
 
     regs[TRIO64_SR15] = __svgalib_inSR(0x15);
     regs[TRIO64_SR18] = __svgalib_inSR(0x18);
@@ -682,9 +682,9 @@ static void Trio64_restorestate(const unsigned char *regs)
 {
     unsigned char sr8, tmp;
 
-    outb(0x3C4, 0x08);
-    sr8 = inb(0x3C5);
-    outb(0x3C5, 0x06);		/* Unlock. */
+    port_out_r(0x3C4, 0x08);
+    sr8 = port_in(0x3C5);
+    port_out_r(0x3C5, 0x06);		/* Unlock. */
 
     __svgalib_outCR(0x67, regs[TRIO64_CR67]);
 
@@ -701,17 +701,17 @@ static void Trio64_restorestate(const unsigned char *regs)
      * incorrect, it should flip the bit by writing to 0x3c5, not
      * 0x3c4.
      */
-    outb(0x3c4, 0x15);
-    tmp = inb(0x3c5);
-    outb(0x3c4, tmp & ~0x20);
-    outb(0x3c4, tmp | 0x20);
-    outb(0x3c4, tmp & ~0x20);
+    port_out_r(0x3c4, 0x15);
+    tmp = port_in(0x3c5);
+    port_out_r(0x3c4, tmp & ~0x20);
+    port_out_r(0x3c4, tmp | 0x20);
+    port_out_r(0x3c4, tmp & ~0x20);
 #else
-    outb(0x3c4, 0x15);
-    tmp = inb(0x3c5);
-    outb(0x3c5, tmp & ~0x20);
-    outb(0x3c5, tmp | 0x20);
-    outb(0x3c5, tmp & ~0x20);
+    port_out_r(0x3c4, 0x15);
+    tmp = port_in(0x3c5);
+    port_out_r(0x3c5, tmp & ~0x20);
+    port_out_r(0x3c5, tmp | 0x20);
+    port_out_r(0x3c5, tmp & ~0x20);
 #endif
     
     __svgalib_outSR(0x08, sr8);

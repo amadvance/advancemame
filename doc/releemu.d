@@ -1,6 +1,10 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.94.0
+	This version uses for DOS the new SVGALIB 1.9.20 library that
+	adds support for the latest Radeon and nVidia video boards.
+
 AdvanceMAME 0.92.1
 	This version is based on the MAME update 0.92u2000. This
 	is a very stable version of the MAME core. A good candidate
@@ -25,7 +29,7 @@ AdvanceMAME 0.84.0
 	on the new input management.
 
 AdvanceMAME 0.82.0
-	This version has a reworked audio/video syncronization algorithm.
+	This version has a reworked audio/video synchronization algorithm.
 	It should fix any remaining problem of distorted sound present on
 	some specific systems.
 

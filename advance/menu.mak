@@ -279,7 +279,6 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/et6000.o \
 	$(MENUOBJ)/svgalib/drivers/g400.o \
 	$(MENUOBJ)/svgalib/drivers/pm2.o \
-	$(MENUOBJ)/svgalib/drivers/i740.o \
 	$(MENUOBJ)/svgalib/drivers/laguna.o \
 	$(MENUOBJ)/svgalib/drivers/millenni.o \
 	$(MENUOBJ)/svgalib/drivers/mx.o \
@@ -291,6 +290,7 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/sis.o \
 	$(MENUOBJ)/svgalib/drivers/trident.o \
 	$(MENUOBJ)/svgalib/drivers/renditio.o \
+	$(MENUOBJ)/svgalib/drivers/unichrom.o \
 	$(MENUOBJ)/svgalib/ramdac/ibmrgb52.o \
 	$(MENUOBJ)/svgalib/ramdac/attdacs.o \
 	$(MENUOBJ)/svgalib/ramdac/icw.o \
@@ -385,7 +385,6 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/et6000.o \
 	$(MENUOBJ)/svgalib/drivers/g400.o \
 	$(MENUOBJ)/svgalib/drivers/pm2.o \
-	$(MENUOBJ)/svgalib/drivers/i740.o \
 	$(MENUOBJ)/svgalib/drivers/laguna.o \
 	$(MENUOBJ)/svgalib/drivers/millenni.o \
 	$(MENUOBJ)/svgalib/drivers/mx.o \
@@ -397,6 +396,7 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/sis.o \
 	$(MENUOBJ)/svgalib/drivers/trident.o \
 	$(MENUOBJ)/svgalib/drivers/renditio.o \
+	$(MENUOBJ)/svgalib/drivers/unichrom.o \
 	$(MENUOBJ)/svgalib/ramdac/ibmrgb52.o \
 	$(MENUOBJ)/svgalib/ramdac/attdacs.o \
 	$(MENUOBJ)/svgalib/ramdac/icw.o \

@@ -139,7 +139,6 @@
 #define PRAMDAC_Val(mask,value)          DEVICE_VALUE(PRAMDAC,mask,value)
 #define PRAMDAC_Mask(mask)               DEVICE_MASK(PRAMDAC,mask)
 
-
 #define PDAC_ReadExt(reg) \
   ((PDAC_Write(INDEX_LO,(NV_PDAC_EXT_##reg) & 0xff)),\
   (PDAC_Write(INDEX_HI,((NV_PDAC_EXT_##reg) >> 8) & 0xff)),\
@@ -150,8 +149,8 @@
   (PDAC_Write(INDEX_HI,((NV_PDAC_EXT_##reg) >> 8) & 0xff)),\
   (PDAC_Write(INDEX_DATA,(value))))
 
-#define CRTC_Write(index,value) outb(CRT_IC,(index));outb(CRT_DC,value)
-#define CRTC_Read(index) (outb(CRT_IC,index),inb(CRT_DC))
+#define CRTC_Write(index,value) port_out_r(CRT_IC,(index));port_out_r(CRT_DC,value)
+#define CRTC_Read(index) (port_out_r(CRT_IC,index),port_in(CRT_DC))
 
 #define PCRTC_Write(index,value) __svgalib_outcrtc(NV_PCRTC_##index,value)
 #define PCRTC_Read(index) __svgalib_incrtc(NV_PCRTC_##index)
@@ -160,8 +159,8 @@
 #define PCRTC_Val(mask,value)          DEVICE_VALUE(PCRTC,mask,value)
 #define PCRTC_Mask(mask)               DEVICE_MASK(PCRTC,mask)
 
-#define SR_Write(index,value) outb(SEQ_I,(index));outb(SEQ_D,value)
-#define SR_Read(index) (outb(SEQ_I,index),inb(SEQ_D))
+#define SR_Write(index,value) port_out_r(SEQ_I,(index));port_out_r(SEQ_D,value)
+#define SR_Read(index) (port_out_r(SEQ_I,index),port_in(SEQ_D))
 
 #define PEXTDEV_Read(reg)                   DEVICE_READ(PEXTDEV,reg)
 

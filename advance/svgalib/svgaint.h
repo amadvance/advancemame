@@ -150,13 +150,14 @@ void ADV_SVGALIB_CALL adv_svgalib_abort(void);
 #define INCLUDE_RENDITION_DRIVER
 #define INCLUDE_G400_DRIVER
 #define INCLUDE_PM2_DRIVER
+#define INCLUDE_UNICHROME_DRIVER
 #define INCLUDE_SAVAGE_DRIVER
 #define INCLUDE_MILLENNIUM_DRIVER
 #define INCLUDE_R128_DRIVER
 #define INCLUDE_BANSHEE_DRIVER
 #define INCLUDE_SIS_DRIVER
-#define INCLUDE_I740_DRIVER
-/* #define INCLUDE_I810_DRIVER */ /* It requires special kernel support. */
+/* #define INCLUDE_I740_DRIVER */ /* Not imported */
+/* #define INCLUDE_I810_DRIVER */ /* Requires special support */
 #define INCLUDE_LAGUNA_DRIVER
 #define INCLUDE_RAGE_DRIVER
 #define INCLUDE_MX_DRIVER

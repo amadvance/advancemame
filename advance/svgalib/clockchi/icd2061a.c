@@ -114,7 +114,7 @@ static int I2061A_GetClock(long dwv)
 }
 
 /* needs some delay for really fast cpus */
-#define wrt_clk_bit(v) outb(MIS_W, v), (void)inb(crtcaddr), (void)inb(crtcaddr)
+#define wrt_clk_bit(v) port_out_r(MIS_W, v), (void)port_in(crtcaddr), (void)port_in(crtcaddr)
 
 /* ATTENTION: This assumes CRTC registers and S3 registers to be UNLOCKED! */
 static void I2061A_init_clock(unsigned long setup)
@@ -125,33 +125,33 @@ static void I2061A_init_clock(unsigned long setup)
     unsigned short bitval;
     int i;
     unsigned char c;
-    unsigned short crtcaddr = (inb(MIS_R) & 0x01) ? CRT_IC : CRT_IM;
+    unsigned short crtcaddr = (port_in(MIS_R) & 0x01) ? CRT_IC : CRT_IM;
 
-    oldclk = inb(MIS_R);
+    oldclk = port_in(MIS_R);
 
-    outb(crtcaddr, 0x42);
-    restore42 = inb(crtcaddr + 1);
+    port_out_r(crtcaddr, 0x42);
+    restore42 = port_in(crtcaddr + 1);
 
-    outw(SEQ_I, 0x0100);
+    port_outw_r(SEQ_I, 0x0100);
 
-    outb(SEQ_I, 1);
-    c = inb(SEQ_D);
-    outb(SEQ_D, 0x20 | c);
+    port_out_r(SEQ_I, 1);
+    c = port_in(SEQ_D);
+    port_out_r(SEQ_D, 0x20 | c);
 
-    outb(crtcaddr, 0x42);
-    outb(crtcaddr + 1, 0x03);
+    port_out_r(crtcaddr, 0x42);
+    port_out_r(crtcaddr + 1, 0x03);
 
-    outw(SEQ_I, 0x0300);
+    port_outw_r(SEQ_I, 0x0300);
 
     nclk[0] = oldclk & 0xF3;
     nclk[1] = nclk[0] | 0x08;
     clk[0] = nclk[0] | 0x04;
     clk[1] = nclk[0] | 0x0C;
 
-    outb(crtcaddr, 0x42);
-    (void) inb(crtcaddr + 1);
+    port_out_r(crtcaddr, 0x42);
+    (void) port_in(crtcaddr + 1);
 
-    outw(SEQ_I, 0x0100);
+    port_outw_r(SEQ_I, 0x0100);
 
     wrt_clk_bit(oldclk | 0x08);
     wrt_clk_bit(oldclk | 0x0C);
@@ -176,16 +176,16 @@ static void I2061A_init_clock(unsigned long setup)
     wrt_clk_bit(nclk[1]);
     wrt_clk_bit(clk[1]);
 
-    outb(SEQ_I, 1);
-    c = inb(SEQ_D);
-    outb(SEQ_D, 0xDF & c);
+    port_out_r(SEQ_I, 1);
+    c = port_in(SEQ_D);
+    port_out_r(SEQ_D, 0xDF & c);
 
-    outb(crtcaddr, 0x42);
-    outb(crtcaddr + 1, restore42);
+    port_out_r(crtcaddr, 0x42);
+    port_out_r(crtcaddr + 1, restore42);
 
-    outb(MIS_W, oldclk);
+    port_out_r(MIS_W, oldclk);
 
-    outw(SEQ_I, 0x0300);
+    port_outw_r(SEQ_I, 0x0300);
 
     vga_waitretrace();
     vga_waitretrace();

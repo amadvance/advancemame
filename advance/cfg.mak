@@ -133,8 +133,6 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/et6000.o \
 	$(CFGOBJ)/svgalib/drivers/g400.o \
 	$(CFGOBJ)/svgalib/drivers/pm2.o \
-	$(CFGOBJ)/svgalib/drivers/i740.o \
-	$(CFGOBJ)/svgalib/drivers/i810.o \
 	$(CFGOBJ)/svgalib/drivers/laguna.o \
 	$(CFGOBJ)/svgalib/drivers/millenni.o \
 	$(CFGOBJ)/svgalib/drivers/mx.o \
@@ -146,6 +144,7 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/sis.o \
 	$(CFGOBJ)/svgalib/drivers/trident.o \
 	$(CFGOBJ)/svgalib/drivers/renditio.o \
+	$(CFGOBJ)/svgalib/drivers/unichrom.o \
 	$(CFGOBJ)/svgalib/ramdac/ibmrgb52.o \
 	$(CFGOBJ)/svgalib/ramdac/attdacs.o \
 	$(CFGOBJ)/svgalib/ramdac/icw.o \
@@ -214,7 +213,6 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/et6000.o \
 	$(CFGOBJ)/svgalib/drivers/g400.o \
 	$(CFGOBJ)/svgalib/drivers/pm2.o \
-	$(CFGOBJ)/svgalib/drivers/i740.o \
 	$(CFGOBJ)/svgalib/drivers/laguna.o \
 	$(CFGOBJ)/svgalib/drivers/millenni.o \
 	$(CFGOBJ)/svgalib/drivers/mx.o \
@@ -226,6 +224,7 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/sis.o \
 	$(CFGOBJ)/svgalib/drivers/trident.o \
 	$(CFGOBJ)/svgalib/drivers/renditio.o \
+	$(CFGOBJ)/svgalib/drivers/unichrom.o \
 	$(CFGOBJ)/svgalib/ramdac/ibmrgb52.o \
 	$(CFGOBJ)/svgalib/ramdac/attdacs.o \
 	$(CFGOBJ)/svgalib/ramdac/icw.o \

@@ -85,7 +85,7 @@ static void __svgalib_nv3_outpal(int i, int r, int g, int b)
     v_writeb(b, NV_PVGA2+PEL_D);
 }
 
-static void nv3_mapio(void)
+static void mapio(void)
 {
     __svgalib_inmisc=__svgalib_nv3_inmisc;
     __svgalib_outmisc=__svgalib_nv3_outmisc;

@@ -2,7 +2,7 @@
 # Version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.92.0.0
+EMUVERSION = 0.94.0.0
 else
 EMUVERSION = 0.94.0
 endif

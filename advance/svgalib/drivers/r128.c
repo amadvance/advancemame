@@ -270,7 +270,16 @@ static void R128RestoreFPRegisters(R128SavePtr restore)
 #endif
 static void R128PLLWaitForReadUpdateComplete(void)
 {
-    while (INPLL(R128_PPLL_REF_DIV) & R128_PPLL_ATOMIC_UPDATE_R);
+    int i = 0;
+
+    /* FIXME: Certain revisions of R300 can't recover here.  Not sure of
+       the cause yet, but this workaround will mask the problem for now.
+       Other chips usually will pass at the very first test, so the
+       workaround shouldn't have any effect on them. */
+    for (i = 0;
+	 (i < 10000 &&
+	  INPLL(R128_PPLL_REF_DIV) & R128_PPLL_ATOMIC_UPDATE_R);
+	 i++);
 }
 
 static void R128PLLWriteUpdate(void)
@@ -653,8 +662,12 @@ static Bool R128InitCrtcRegisters(R128SavePtr save,
 				    ? R128_CRTC_V_SYNC_POL
 				    : 0));
     save->crtc_offset      = 0;
-    save->crtc_offset_cntl = 0;
-    save->crtc_pitch       = info->width / 8;
+	/* The register reference says this bit should be 0,
+	 * but on my RV280 it appears as if it should be 1
+	 * for changing offset at vertical blank. */
+    save->crtc_offset_cntl = 1<<16; 
+
+	save->crtc_pitch       = info->width / 8;
 
     save->config_cntl |= R128_CFG_VGA_RAM_EN;
     
@@ -1125,18 +1138,16 @@ static int r128_test(void)
 
 
 /* Set display start address (not for 16 color modes) */
-/* Cirrus supports any address in video memory (up to 2Mb) */
 
 static void r128_setdisplaystart(int address)
 { 
-  int naddress=address >> 2;
-  __svgalib_outcrtc(0x0c,(naddress>>8)&0xff);
-  __svgalib_outcrtc(0x0d,(naddress)&0xff);
+//  int naddress=address >> 2;
+//  __svgalib_outcrtc(0x0c,(naddress>>8)&0xff);
+//  __svgalib_outcrtc(0x0d,(naddress)&0xff);
   OUTREG(R128_CRTC_OFFSET, address);
 }
 
 /* Set logical scanline length (usually multiple of 8) */
-/* Cirrus supports multiples of 8, up to 4088 */
 
 static void r128_setlogicalwidth(int width)
 {   
@@ -1306,8 +1317,10 @@ static int r128_init(int force, int par1, int par2)
     unsigned char *BIOS_POINTER;
     char chipnames[2][9]={"Rage 128", "Radeon"};
 
+    r128_memory=0;
+	chiptype=-1;
     if (force) {
-	r128_memory = par1;
+		r128_memory = par1;
         chiptype = par2;
     } else {
 
@@ -1317,30 +1330,45 @@ static int r128_init(int force, int par1, int par2)
 
     if(found) return -1;
     
-    chiptype=-1;
     id=(buf[0]>>16)&0xffff;
     
-    if( (id==0x4c45) || /* Rage Mobility M3 AGP */
-        (id==0x4c46) || /* Rage Mobility M3 AGP 2x */
-        (id==0x4d46) || /* Rage Mobility 128 AGP 4x */
-        (id==0x4d4c) || /* Rage Mobility 128 AGP */
-        ((id>>8)==0x50) || /* Rage 128 */
-        ((id>>8)==0x52) || /* Rage 128 */
-        ((id>>8)==0x53) || /* Rage 128 */
-        ((id>>8)==0x54)) /* Rage 128 */
-        chiptype=Rage128;
+    if( (id==0x4c45) ||
+        (id==0x4c46) ||
+        (id==0x4d46) ||
+        (id==0x4d4c) ||
+        ((id>>8)==0x50) ||
+        ((id>>8)==0x52) ||
+        ((id>>8)==0x53) ||
+        ((id>>4)==0x544) ||
+        ((id>>4)==0x545) ||
+		0) chiptype=Rage128;
         
-    if( (id==0x4242) || /* Radeon 8500 DV */
-        (id==0x4c57) || /* Radeon Mobility M7 LW */
-        (id==0x4c59) || /* Radeon Mobility M6 LY */
-        (id==0x4c5a) || /* Radeon Mobility M6 LZ */
-        (id==0x4c66) || /* Radeon Mobility 9000 */
-        ((id>>8)==0x41) || /* Radeon 9600 */
-        ((id>>8)==0x49) || /* Radeon 9000 */
-        ((id>>8)==0x4E) || /* Radeon 9700/9800 */
-        ((id>>8)==0x51) || /* Radeon 7000/7200/7500/8500/9100 */
-        ((id>>8)==0x59)) /* Radeon 9200 */
-        chiptype = Radeon;
+    if( 
+		(id==0x4242) ||
+		(id==0x4336) ||
+		(id==0x4337) ||
+		(id==0x4437) ||
+        (id==0x7c37) ||
+		((id>=0x4c57)&&(id<0x4d00)) ||
+        ((id>>4)==0x546) ||
+        ((id>>8)==0x31) ||
+        ((id>>8)==0x3E) ||
+        ((id>>8)==0x41) ||
+        ((id>>8)==0x49) ||
+        ((id>>8)==0x4a) ||
+        ((id>>8)==0x4e) ||
+        ((id>>8)==0x51) ||
+        ((id>>8)==0x55) ||
+        ((id>>8)==0x58) ||
+        ((id>>8)==0x59) ||
+        ((id>>8)==0x5b) ||
+        ((id>>8)==0x5c) ||
+        ((id>>8)==0x5d)
+		) chiptype = Radeon;
+
+	if( (id == 0x4158) ||
+		(id == 0x5354)
+		) return -1; /* Mach64/Mach32 */
 	
     if(chiptype==-1) return -1;
     
@@ -1354,8 +1382,9 @@ static int r128_init(int force, int par1, int par2)
     if (MMIO_POINTER == MAP_FAILED)
         return -1;
 
-    r128_memory      = INREG(R128_CONFIG_MEMSIZE) / 1024;
-    BusCntl            = INREG(R128_BUS_CNTL);
+    if(!r128_memory) r128_memory = INREG(R128_CONFIG_MEMSIZE) / 1024;
+
+	BusCntl            = INREG(R128_BUS_CNTL);
     HasPanelRegs	= 0;
     CRTOnly		= 1;
     r128_ramtype	= 1;
@@ -1410,7 +1439,7 @@ static int r128_init(int force, int par1, int par2)
         pll.xclk           = R128_BIOS16(pll_info_block + 0x08);
         munmap(BIOS_POINTER, 64*1024);
     }
-#if 1
+#if 0
 fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     pll.min_pll_freq,    pll.max_pll_freq, pll.xclk);
 #endif

@@ -57,13 +57,13 @@ static int Sierra_32K_map_horizontal_crtc(int bpp, int pixelclock, int htiming)
 void __svgalib_Sierra_32K_savestate(unsigned char *regs)
 {
     _ramdac_dactocomm();
-    regs[0] = inb(PEL_MSK);
+    regs[0] = port_in(PEL_MSK);
 }
 
 void __svgalib_Sierra_32K_restorestate(const unsigned char *regs)
 {
     _ramdac_dactocomm();
-    outb(PEL_MSK, regs[0]);
+    port_out_r(PEL_MSK, regs[0]);
 }
 
 #endif
@@ -119,11 +119,11 @@ static int SC15025_probe(void)
     int i, flag = 0;
 
     _ramdac_dactocomm();
-    c = inb(PEL_MSK);
+    c = port_in(PEL_MSK);
     _ramdac_setcomm(c | 0x10);
     for (i = 0; i < 4; i++) {
-	outb(PEL_IR, 0x9 + i);
-	id[i] = inb(PEL_IW);
+	port_out_r(PEL_IR, 0x9 + i);
+	id[i] = port_in(PEL_IW);
     }
     _ramdac_setcomm(c);
     _ramdac_dactopel();
@@ -170,13 +170,13 @@ static void SC15025_initializestate(unsigned char *regs, int bpp, int colormode,
 static void SC15025_savestate(unsigned char *regs)
 {
     _ramdac_dactocomm();
-    regs[0] = inb(PEL_MSK);
+    regs[0] = port_in(PEL_MSK);
     _ramdac_setcomm(regs[0] | 0x10);
     _ramdac_dactocomm();
-    outb(PEL_IR, 8);
-    regs[1] = inb(PEL_IW);	/* Aux control */
-    outb(PEL_IR, 16);
-    regs[2] = inb(PEL_IW);	/* Pixel Repack */
+    port_out_r(PEL_IR, 8);
+    regs[1] = port_in(PEL_IW);	/* Aux control */
+    port_out_r(PEL_IR, 16);
+    regs[2] = port_in(PEL_IW);	/* Pixel Repack */
     _ramdac_setcomm(regs[0]);
 }
 
@@ -185,13 +185,13 @@ static void SC15025_restorestate(const unsigned char *regs)
     unsigned char c;
 
     _ramdac_dactocomm();
-    c = inb(PEL_MSK);
+    c = port_in(PEL_MSK);
     _ramdac_setcomm(c | 0x10);
     _ramdac_dactocomm();
-    outb(PEL_IR, 8);
-    outb(PEL_IW, regs[1]);	/* Aux control */
-    outb(PEL_IR, 16);
-    outb(PEL_IW, regs[2]);	/* Pixel Repack */
+    port_out_r(PEL_IR, 8);
+    port_out_r(PEL_IW, regs[1]);	/* Aux control */
+    port_out_r(PEL_IR, 16);
+    port_out_r(PEL_IW, regs[2]);	/* Pixel Repack */
     _ramdac_setcomm(c);
     _ramdac_setcomm(regs[0]);
 }
@@ -265,32 +265,32 @@ static int SC1148X_probe(void)
     int flag = 0;
 
     _ramdac_dactopel();
-    tmp = inb(PEL_MSK);
+    tmp = port_in(PEL_MSK);
     do {
 	tmp2 = tmp;
-	tmp = inb(PEL_MSK);
+	tmp = port_in(PEL_MSK);
     } while (tmp2 != tmp);
-    inb(PEL_IW);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
+    port_in(PEL_IW);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
     for (tmp2 = 9; tmp != 0x8E && tmp2 > 0; tmp2--)
-	tmp = inb(PEL_MSK);
+	tmp = port_in(PEL_MSK);
     if (tmp != 0x8E) {
         _ramdac_dactocomm();
-        oc = inb(PEL_MSK);
+        oc = port_in(PEL_MSK);
         _ramdac_dactopel();
-        op = inb(PEL_MSK);
+        op = port_in(PEL_MSK);
         tmp = oc ^ 0xFF;
-        outb(PEL_MSK, tmp);
+        port_out_r(PEL_MSK, tmp);
         _ramdac_dactocomm();
-        tmp2 = inb(PEL_MSK);
+        tmp2 = port_in(PEL_MSK);
         if (tmp2 != tmp) {
             tmp = _ramdac_setcomm(tmp = oc ^ 0x60);
             if ((tmp & 0xe0) == (tmp2 & 0xe0)) {
-                tmp = inb(PEL_MSK);
+                tmp = port_in(PEL_MSK);
                 _ramdac_dactopel();
-                if (tmp != inb(PEL_MSK))
+                if (tmp != port_in(PEL_MSK))
 		    flag = 1; /* Sierra Mark 2 or 3 */
 	    } else {
 		/* We have a Sierra SC11486 */
@@ -307,10 +307,10 @@ static int SC1148X_probe(void)
 #endif
 	    }
 	    _ramdac_dactocomm();
-	    outb(PEL_MSK, oc);
+	    port_out_r(PEL_MSK, oc);
 	}
 	_ramdac_dactopel();
-	outb(PEL_MSK, op);
+	port_out_r(PEL_MSK, op);
     } else {
 	_ramdac_dactopel();
 	/* Diamond SS2410 */

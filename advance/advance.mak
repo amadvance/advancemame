@@ -408,6 +408,12 @@ wholemame: mamedif
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distbin
 
+dosmame:
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distbin
+
+winmame:
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distbin
+
 wholecd:
 	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distbin
 	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distmenubin

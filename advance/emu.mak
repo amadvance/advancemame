@@ -218,7 +218,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/et6000.o \
 	$(OBJ)/advance/svgalib/drivers/g400.o \
 	$(OBJ)/advance/svgalib/drivers/pm2.o \
-	$(OBJ)/advance/svgalib/drivers/i740.o \
 	$(OBJ)/advance/svgalib/drivers/laguna.o \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
@@ -230,6 +229,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/sis.o \
 	$(OBJ)/advance/svgalib/drivers/trident.o \
 	$(OBJ)/advance/svgalib/drivers/renditio.o \
+	$(OBJ)/advance/svgalib/drivers/unichrom.o \
 	$(OBJ)/advance/svgalib/ramdac/ibmrgb52.o \
 	$(OBJ)/advance/svgalib/ramdac/attdacs.o \
 	$(OBJ)/advance/svgalib/ramdac/icw.o \
@@ -317,7 +317,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/et6000.o \
 	$(OBJ)/advance/svgalib/drivers/g400.o \
 	$(OBJ)/advance/svgalib/drivers/pm2.o \
-	$(OBJ)/advance/svgalib/drivers/i740.o \
 	$(OBJ)/advance/svgalib/drivers/laguna.o \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
@@ -329,6 +328,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/sis.o \
 	$(OBJ)/advance/svgalib/drivers/trident.o \
 	$(OBJ)/advance/svgalib/drivers/renditio.o \
+	$(OBJ)/advance/svgalib/drivers/unichrom.o \
 	$(OBJ)/advance/svgalib/ramdac/ibmrgb52.o \
 	$(OBJ)/advance/svgalib/ramdac/attdacs.o \
 	$(OBJ)/advance/svgalib/ramdac/icw.o \

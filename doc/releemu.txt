@@ -3,6 +3,13 @@
                        ==================================
 
 
+ADVANCEMAME 0.94.0
+==================
+
+This version uses for DOS the new SVGALIB 1.9.20 library that
+adds support for the latest Radeon and nVidia video boards.
+
+
 ADVANCEMAME 0.92.1
 ==================
 
@@ -41,7 +48,7 @@ on the new input management.
 ADVANCEMAME 0.82.0
 ==================
 
-This version has a reworked audio/video syncronization algorithm.
+This version has a reworked audio/video synchronization algorithm.
 It should fix any remaining problem of distorted sound present on
 some specific systems.
 

@@ -25,9 +25,9 @@ static int ICW_probe(void)
     unsigned char mi, di;
 
     _ramdac_dactocomm();
-    inb(PEL_MSK);		/* Control register 0. */
-    mi = inb(PEL_MSK);		/* Manufacturer ID. */
-    di = inb(PEL_MSK);		/* Device ID. */
+    port_in(PEL_MSK);		/* Control register 0. */
+    mi = port_in(PEL_MSK);		/* Manufacturer ID. */
+    di = port_in(PEL_MSK);		/* Device ID. */
     if (mi == 0x84) {
 	if (di == 0x98)
 	    return 1;

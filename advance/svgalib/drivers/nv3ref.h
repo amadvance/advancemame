@@ -144,6 +144,7 @@
 #define NV_PRAMDAC_VPLL_COEFF_MDIV                              7:0 /* RWIUF */
 #define NV_PRAMDAC_VPLL_COEFF_NDIV                             15:8 /* RWIUF */
 #define NV_PRAMDAC_VPLL_COEFF_PDIV                            18:16 /* RWIVF */
+#define NV_PRAMDAC_VPLLB_COEFF                           0x00680578 /* RW-4R */
 
 
 #define NV_PRAMDAC_PLL_COEFF_SELECT                      0x0068050C /* RW-4R */

@@ -138,6 +138,9 @@ static adv_device DEVICE[] = {
 #ifdef INCLUDE_PM2_DRIVER
 	{ "pm2", PM2, "Permedia 2" },
 #endif
+#ifdef INCLUDE_UNICHROME_DRIVER
+	{ "unichrome", UNICHROME, "VIA Unichrome" },
+#endif
 #ifdef INCLUDE_SAVAGE_DRIVER
 	{ "savage", SAVAGE, "S3 Savage" },
 #endif

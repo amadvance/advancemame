@@ -32,7 +32,7 @@ static CardSpecs *cardspecs;
 static void banshee_setpage(int page)
 {
    page<<=1;
-   outl(banshee_io_base+0x2c,(inl(banshee_io_base+0x2c)&0xfff00000)|(page)|(page<<10));
+   port_outl_r(banshee_io_base+0x2c,(port_inl(banshee_io_base+0x2c)&0xfff00000)|(page)|(page<<10));
 }
 
 static int __svgalib_banshee_inlinearmode(void)
@@ -79,20 +79,20 @@ static int banshee_saveregs(uint8_t regs[])
   
   regs[BANSHEEREG_SAVE(0)]=__svgalib_incrtc(0x1a);
   regs[BANSHEEREG_SAVE(1)]=__svgalib_incrtc(0x1b);
-  save->pllCtrl0=inl(banshee_io_base+0x40);
-  save->pllCtrl1=inl(banshee_io_base+0x44);
-  save->dacMode=inl(banshee_io_base+0x4c);
-  save->dacAddr=inl(banshee_io_base+0x50);
-  save->vidProcCfg=inl(banshee_io_base+0x5c);
-  save->vidScreenSize=inl(banshee_io_base+0x98);
-  save->vgaInit0=inl(banshee_io_base+0x28);
-  save->vgaInit1=inl(banshee_io_base+0x2c);
-  save->vidDesktopStartAddr=inl(banshee_io_base+0xe4);
-  save->vidDesktopOverlayStride=inl(banshee_io_base+0xe8);
-  save->hwCurPatAddr=inl(banshee_io_base+0x60);
-  save->hwCurLoc=inl(banshee_io_base+0x64);
-  save->hwCurC0=inl(banshee_io_base+0x68);
-  save->hwCurC1=inl(banshee_io_base+0x6c);
+  save->pllCtrl0=port_inl(banshee_io_base+0x40);
+  save->pllCtrl1=port_inl(banshee_io_base+0x44);
+  save->dacMode=port_inl(banshee_io_base+0x4c);
+  save->dacAddr=port_inl(banshee_io_base+0x50);
+  save->vidProcCfg=port_inl(banshee_io_base+0x5c);
+  save->vidScreenSize=port_inl(banshee_io_base+0x98);
+  save->vgaInit0=port_inl(banshee_io_base+0x28);
+  save->vgaInit1=port_inl(banshee_io_base+0x2c);
+  save->vidDesktopStartAddr=port_inl(banshee_io_base+0xe4);
+  save->vidDesktopOverlayStride=port_inl(banshee_io_base+0xe8);
+  save->hwCurPatAddr=port_inl(banshee_io_base+0x60);
+  save->hwCurLoc=port_inl(banshee_io_base+0x64);
+  save->hwCurC0=port_inl(banshee_io_base+0x68);
+  save->hwCurC1=port_inl(banshee_io_base+0x6c);
   
   return BANSHEE_TOTAL_REGS - VGA_TOTAL_REGS;
 }
@@ -109,23 +109,23 @@ static void banshee_setregs(const uint8_t regs[], int mode)
   
     __svgalib_outcrtc(0x1a,regs[BANSHEEREG_SAVE(0)]);
     __svgalib_outcrtc(0x1b,regs[BANSHEEREG_SAVE(1)]);
-    outl(banshee_io_base+0x40,restore->pllCtrl0);
-    outl(banshee_io_base+0x44,restore->pllCtrl1);
-    outl(banshee_io_base+0x4c,restore->dacMode);
-    outl(banshee_io_base+0x50,restore->dacAddr);
-    outl(banshee_io_base+0x5c,restore->vidProcCfg);
-    outl(banshee_io_base+0x98,restore->vidScreenSize);
-    outl(banshee_io_base+0x28,restore->vgaInit0);
-    outl(banshee_io_base+0x2c,restore->vgaInit1);
-    outl(banshee_io_base+0xe4,restore->vidDesktopStartAddr);
-    outl(banshee_io_base+0xe8,restore->vidDesktopOverlayStride);
-    outl(banshee_io_base+0x60,restore->hwCurPatAddr);
-    outl(banshee_io_base+0x64,restore->hwCurLoc);
-    outl(banshee_io_base+0x68,restore->hwCurC0);
-    outl(banshee_io_base+0x6c,restore->hwCurC1);
-    outl(banshee_io_base+0x5c,restore->vidProcCfg&0xfffffffe);
-    outl(banshee_io_base+0x5c,restore->vidProcCfg|1);
-    outl(banshee_io_base+0x5c,restore->vidProcCfg);
+    port_outl_r(banshee_io_base+0x40,restore->pllCtrl0);
+    port_outl_r(banshee_io_base+0x44,restore->pllCtrl1);
+    port_outl_r(banshee_io_base+0x4c,restore->dacMode);
+    port_outl_r(banshee_io_base+0x50,restore->dacAddr);
+    port_outl_r(banshee_io_base+0x5c,restore->vidProcCfg);
+    port_outl_r(banshee_io_base+0x98,restore->vidScreenSize);
+    port_outl_r(banshee_io_base+0x28,restore->vgaInit0);
+    port_outl_r(banshee_io_base+0x2c,restore->vgaInit1);
+    port_outl_r(banshee_io_base+0xe4,restore->vidDesktopStartAddr);
+    port_outl_r(banshee_io_base+0xe8,restore->vidDesktopOverlayStride);
+    port_outl_r(banshee_io_base+0x60,restore->hwCurPatAddr);
+    port_outl_r(banshee_io_base+0x64,restore->hwCurLoc);
+    port_outl_r(banshee_io_base+0x68,restore->hwCurC0);
+    port_outl_r(banshee_io_base+0x6c,restore->hwCurC1);
+    port_outl_r(banshee_io_base+0x5c,restore->vidProcCfg&0xfffffffe);
+    port_outl_r(banshee_io_base+0x5c,restore->vidProcCfg|1);
+    port_outl_r(banshee_io_base+0x5c,restore->vidProcCfg);
 
 }
 
@@ -290,9 +290,9 @@ static int banshee_setmode(int mode, int prv_mode)
         banshee_unlock();
         __svgalib_outcrtc(0x1a,0x00);
         __svgalib_outcrtc(0x1b,0x00);
-        outl(banshee_io_base+0x28, inl(banshee_io_base+0x28) & ~0x1245 );
-        outl(banshee_io_base+0x2c, inl(banshee_io_base+0x2c) & ~0x100000 );
-        outl(banshee_io_base+0x5c, inl(banshee_io_base+0x5c) & ~1 ); /* VGA */
+        port_outl_r(banshee_io_base+0x28, port_inl(banshee_io_base+0x28) & ~0x1245 );
+        port_outl_r(banshee_io_base+0x2c, port_inl(banshee_io_base+0x2c) & ~0x100000 );
+        port_outl_r(banshee_io_base+0x5c, port_inl(banshee_io_base+0x5c) & ~1 ); /* VGA */
 	return __svgalib_vga_driverspecs.setmode(mode, prv_mode);
     }
     if (!banshee_modeavailable(mode))
@@ -323,12 +323,12 @@ static int banshee_setmode(int mode, int prv_mode)
 static void banshee_unlock(void)
 {
     __svgalib_outcrtc(0x11,__svgalib_incrtc(0x11)&0x7f);    
-    outl(banshee_io_base+0x28,(inl(banshee_io_base+0x28)&0xffffffbf)|(1<<6));
+    port_outl_r(banshee_io_base+0x28,(port_inl(banshee_io_base+0x28)&0xffffffbf)|(1<<6));
 }
 
 static void banshee_lock(void)
 {
-    outl(banshee_io_base+0x28,(inl(banshee_io_base+0x28)&0xffffffbf));
+    port_outl_r(banshee_io_base+0x28,(port_inl(banshee_io_base+0x28)&0xffffffbf));
 }
 
 
@@ -355,7 +355,7 @@ static void banshee_setdisplaystart(int address)
 { 
   __svgalib_outcrtc(0x0c,((address>>2) & 0x00FF00)>>8);
   __svgalib_outcrtc(0x0d,(address>>2) & 0x00FF);
-  outl(banshee_io_base+0xe4,address);
+  port_outl_r(banshee_io_base+0xe4,address);
 }
 
 
@@ -366,7 +366,7 @@ static void banshee_setlogicalwidth(int width)
     int offset = width >> 3;
  
     __svgalib_outcrtc(0x13,offset&0xff);
-    outl(banshee_io_base+0xe8,width);
+    port_outl_r(banshee_io_base+0xe8,width);
 }
 
 static int banshee_linear(int op, int param)
@@ -404,19 +404,19 @@ static int banshee_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
         case CURSOR_INIT:
             return 1;
         case CURSOR_HIDE:
-            outl(banshee_io_base+0x5c,inl(banshee_io_base+0x5c)&~(1<<27));
+            port_outl_r(banshee_io_base+0x5c,port_inl(banshee_io_base+0x5c)&~(1<<27));
             break;
         case CURSOR_SHOW:
-            outl(banshee_io_base+0x5c,inl(banshee_io_base+0x5c)|(1<<27));
+            port_outl_r(banshee_io_base+0x5c,port_inl(banshee_io_base+0x5c)|(1<<27));
             break;
         case CURSOR_POSITION:
-            outl(banshee_io_base+0x64,((p2+64)<<16)|(p1+64));
+            port_outl_r(banshee_io_base+0x64,((p2+64)<<16)|(p1+64));
             break;
         case CURSOR_SELECT:
             i=banshee_memory*1024-(p1+1)*4096;
-            outl(banshee_io_base+0x68,cur_colors[p1*2]);
-            outl(banshee_io_base+0x6c,cur_colors[p1*2+1]);
-            outl(banshee_io_base+0x60,i);
+            port_outl_r(banshee_io_base+0x68,cur_colors[p1*2]);
+            port_outl_r(banshee_io_base+0x6c,cur_colors[p1*2+1]);
+            port_outl_r(banshee_io_base+0x60,i);
             break;
         case CURSOR_IMAGE:
             i=banshee_memory*1024-(p1+1)*4096;
@@ -511,8 +511,8 @@ static int banshee_init(int force, int par1, int par2)
     if(banshee_memory==0) {
        unsigned int draminit0,draminit1;
        
-       draminit0=inl(banshee_io_base+0x18);
-       draminit1=inl(banshee_io_base+0x1c);
+       draminit0=port_inl(banshee_io_base+0x18);
+       draminit1=port_inl(banshee_io_base+0x1c);
        if(chiptype == 9) {
            banshee_memory = 1024*
                             4*(1+((draminit0>>26)&1))*   	   /* chips */

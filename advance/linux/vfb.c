@@ -127,8 +127,8 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 {
 	if (fix) {
 		log_std(("video:fb: fix info\n"));
-		log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fix->smem_start, (unsigned)fix->smem_len));
-		log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fix->mmio_start, (unsigned)fix->mmio_len));
+		log_std(("video:fb: smem_start:%08xh, smem_len:%08xh\n", (unsigned)fix->smem_start, (unsigned)fix->smem_len));
+		log_std(("video:fb: mmio_start:%08xh, mmio_len:%08xh\n", (unsigned)fix->mmio_start, (unsigned)fix->mmio_len));
 		log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fix->type, (unsigned)fix->type_aux));
 		switch (fix->visual) {
 			case FB_VISUAL_TRUECOLOR :
@@ -150,6 +150,8 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 	}
 
 	if (var) {
+		unsigned clock;
+
 		log_std(("video:fb: variable info\n"));
 		log_std(("video:fb: xres:%d, yres:%d\n", (unsigned)var->xres, (unsigned)var->yres));
 		log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)var->xres_virtual, (unsigned)var->yres_virtual));
@@ -161,11 +163,18 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->blue.length, (unsigned)var->blue.offset,
 			(unsigned)var->transp.length, (unsigned)var->transp.offset
 		));
-		log_std(("video:fb: nonstd:%d, activate:%x\n", (unsigned)var->nonstd, (unsigned)var->activate));
+		log_std(("video:fb: nonstd:%d, activate:%xh\n", (unsigned)var->nonstd, (unsigned)var->activate));
 		log_std(("video:fb: height:%d, width:%d\n", var->height, var->width));
 		log_std(("video:fb: accel_flags:%d\n", var->accel_flags));
-		log_std(("video:fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
+
+		if (var->pixclock)
+			clock = (unsigned)(1000000000000LL / var->pixclock);
+		else
+			clock = 0;
+
+		log_std(("video:fb: pixclock:%d (%d Hz), left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
 			(unsigned)var->pixclock,
+			clock,
 			(unsigned)var->left_margin,
 			(unsigned)var->right_margin,
 			(unsigned)var->upper_margin,
@@ -173,11 +182,11 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->hsync_len,
 			(unsigned)var->vsync_len
 		));
-		log_std(("video:fb: sync:%x", (unsigned)var->sync));
-		if ((var->sync & FB_SYNC_HOR_HIGH_ACT) == 0)
-			log_std((" nhsync"));
-		if ((var->sync & FB_SYNC_VERT_HIGH_ACT) == 0)
-			log_std((" nvsync"));
+		log_std(("video:fb: sync:%xh", (unsigned)var->sync));
+		if ((var->sync & FB_SYNC_HOR_HIGH_ACT) != 0)
+			log_std((" phsync"));
+		if ((var->sync & FB_SYNC_VERT_HIGH_ACT) != 0)
+			log_std((" pvsync"));
 		if ((var->sync & FB_SYNC_EXT) != 0)
 			log_std((" external_sync"));
 		if ((var->sync & FB_SYNC_COMP_HIGH_ACT) != 0)
@@ -187,13 +196,13 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 		if ((var->sync & FB_SYNC_ON_GREEN) != 0)
 			log_std((" sync_on_green"));
 		log_std(("\n"));
-		log_std(("video:fb: vmode:%x", (unsigned)var->vmode));
+		log_std(("video:fb: vmode:%xh", (unsigned)var->vmode));
 		if (var->vmode & FB_VMODE_INTERLACED)
 			log_std((" interlace"));
 		if (var->vmode & FB_VMODE_DOUBLE)
 			log_std((" doublescan"));
 		log_std(("\n"));
-		log_std(("video:fb: reserved %x:%x:%x:%x:%x:%x\n",
+		log_std(("video:fb: reserved %xh:%xh:%xh:%xh:%xh:%xh\n",
 			(unsigned)var->reserved[0],
 			(unsigned)var->reserved[1],
 			(unsigned)var->reserved[2],

@@ -1,9 +1,15 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.94.0.0 2005/03
+	) All from AdvanceMAME 0.94.0.
+
 AdvanceMAME Version 0.94.0 2005/03
 	) The install target now create the bin/ directory if
 		it's missing.
+	) Updated to SVGALIB 1.9.20. This add support for the
+		most recent Radeon and nVidia boards at the DOS
+		version.
 
 AdvanceMAME Version 0.92.1 2005/02
 	) Fixed the recognition of the `sync_resample' option.

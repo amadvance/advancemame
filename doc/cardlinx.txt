@@ -1238,11 +1238,22 @@ The `svgalib' driver uses the Linux SVGALIB library.
 It supports all the video boards supported by the library.
 
 The following is the list of the drivers available on the
-SVGALIB 1.9.19 with the AdvanceMAME patches applied.
+SVGALIB 1.9.20 with the AdvanceMAME patches applied.
 
 2.1 ATI Technologies (1002)
 ---------------------------
 
+Fire GL X2 [414b]
+FireGL M24 GL [3154]
+FireGL Mobility [4c58]
+    OEM IBM {1014} : FireGL Mobility 7800
+FireGL T2 - Seocndary [4174]
+FireGL V3200 [3e54]
+FireGL X2 - Secondary [4e6b]
+M10 NQ [Radeon Mobility 9600] [4e51]
+M10 NS [Radeon Mobility 9600] [4e53]
+M11 NV [FireGL Mobility T2e] [4e56]
+M18 JN [Radeon Mobility 9800] [4a4e]
 M22 [FireGL GL] [5464]
 Mach64 CT (215CT222) [4354]
 Mach64 ET [4554]
@@ -1251,12 +1262,31 @@ Mach64 VT (215VT22200) [5654]
     Mach64VT Reference
 Mach64 VT3 [5655]
 Mach64 VT4 PCI (PQFP Package) [5656]
+Mobility FireGL 9000 [4c64]
 Mobility Radeon 9000 [4c66]
+Mobility Radeon 9100 IGP [5835]
+Mobility Radeon 9200 [5c61]
+Mobility Radeon 9200 [5c63]
 Mobility Radeon X300 [5460]
+Mobility Radeon X600 [3150]
 Mobility Radeon XPRESS 200 [5955]
 R200 QT [Radeon 8500] [5154]
 R200 QU [Radeon 9100] [5155]
+R420 JH [Radeon X800] [4a48]
+R420 JL [Radeon X800] [4a4c]
+R420 JM [FireGL X3] [4a4d]
+R423 UH [Radeon X800 (PCIE)] [5548]
+R423 UQ [FireGL V7200 (PCIE)] [5551]
+R423 UR [FireGL V5100 (PCIE)] [5552]
+R423 UT [FireGL V7100 (PCIE)] [5554]
+RS300 Host Bridge [5830]
+RS300 Host Bridge [5831]
+RS300 Host Bridge [5832]
 RV280 [Radeon 9200 SE (PCI)] [5944]
+RV350 AQ [Radeon 9600 SE] [7c37]
+RV350 [Mobility Radeon 9600 M10] [4e52]
+RV370 5B64 [FireGL V3100 (PCIE)] [5b64]
+RV370 5B65 [FireGL D1100 (PCIE)] [5b65]
 Rade 128 Pro Ultra TU [5455]
 Radeon 7000 Series (RV100) [5159]
     Optimus 7000
@@ -1308,8 +1338,22 @@ Radeon 8500/8500LE (R200) [514c]
     OEM Hercules {1681} : Radeon 8500 [3D Prophet 8500 128Mb]
     OEM PC Partner Ltd {174b} : Radeon R200 QL [Sapphire Radeon 8500 LE]
     OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 8500 Evil Master II Multi-display Edition
+Radeon 9000 (RV250) - Secondary [496f]
+    +Radeon 9000 (RV250) - Secondary
 Radeon 9000 (RV250) [4967]
     Radeon 9000 (RV250)
+Radeon 9000 Series (RV250) - Secondary [496e]
+    +Radeon 9000 - Secondary
+    +Radeon 9000 Pro - Secondary
+    +Radeon 9000 Series (RV250) - Secondary
+    +OEM Connect Components Ltd {17ee} : 3D Radeon 9000 Pro - Secondary
+    +OEM First International Computer Inc {1509} : AT009 Radeon 9000 Pro - Secondary
+    +OEM Giga-Byte Technology {1458} : Maya Radeon 9000 Pro - Secondary
+    +OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9000 - Secondary
+    +OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9000 Pro - Secondary
+    +OEM PC Partner Ltd {174b} : Radeon 9000 Atlantis Pro - Secondary
+    +OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 9000 Pro Evil Commando - Secondary
+    +OEM Wistron Corporation {17c0} : S-Media Radeon 9000 - Secondary
 Radeon 9000 Series (RV250) [4966]
     Radeon 9000 Series (RV250)
     OEM Connect Components Ltd {17ee} : 3D Radeon 9000 Pro
@@ -1336,6 +1380,14 @@ Radeon 9200 SE Series (RV280) [5964]
     OEM Hightech Information Systems Ltd {17af} : Radeon 9200 SE Excalibur
     OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE
     OEM PowerColor (C.P. Technology Co Ltd) {148c} : R92LE-C3S
+Radeon 9200 SE Series - Secondary (RV280) [5d44]
+    OEM ASUSTeK Computer Inc {1043} : A9200SE Secondary
+    OEM Ge-Cube {18bc} : GC-R9200L(SE)-C3H [Radeon 9200 Game Buster]
+    OEM Ge-Cube {18bc} : Radeon 9200 SE 128Mb Game Buster - Secondary
+    OEM Giga-Byte Technology {1458} : Radeon 9200 SE - Secondary
+    OEM Hightech Information System Ltd (Medion??) {1787} : Excalibur 9200SE VIVO 128M (Secondary)
+    OEM Hightech Information Systems Ltd {17af} : Radeon 9200 SE Excalibur (Secondary)
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE - Secondary
 Radeon 9200 Series (RV280) [5961]
     ALL-IN-WONDER 9200 SERIES
     Radeon 9200
@@ -1350,6 +1402,67 @@ Radeon 9200 Series (RV280) [5961]
     OEM Yuan Yuan Enterprise Co Ltd {12ab} : SMARTVGA Radeon 9200
 Radeon 9250 (RV280) [5960]
     Radeon 9250
+Radeon 9500 Family - Secondary [4169]
+Radeon 9500 Family [4149]
+Radeon 9500 Series (R300) [4144]
+    Radeon 9500 Series (R300)
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9500
+Radeon 9550 - Secondary [4173]
+Radeon 9550 [4153]
+    OEM ASUSTeK Computer Inc {1043} : A9550TD
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9550
+Radeon 9600 (RV350) [4151]
+    OEM ASUSTeK Computer Inc {1043} : A9600SE
+Radeon 9600 Series (V350) [4150]
+    ALL-IN-WONDER 9600 Series
+    R9600 Pro secondary (Asus OEM for HP)
+    Radeon 9600 Series
+    OEM Celestica {18d4} : Radeon 9600 Pro
+    OEM Connect Components Ltd {17ee} : Radeon 9600 256Mb Primary
+    OEM First International Computer Inc {1509} : A96 Radeon 9600 128M
+    OEM First International Computer Inc {1509} : A96P Radeon 9600 Pro 128M
+    OEM Ge-Cube {18bc} : GC-R9600PRO Primary
+    OEM Giga-Byte Technology {1458} : Giga-Byte GV-R96128D Primary
+    OEM Giga-Byte Technology {1458} : Radeon 9600 Pro
+    OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9600
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9600
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 Pro
+    OEM PowerColor (C.P. Technology Co Ltd) {148c} : PowerColor R96A-C3N
+    OEM Yuan Yuan Enterprise Co Ltd {12ab} : Radeon 9600
+Radeon 9600 XT (V350) [4152]
+    Radeon 9600XT
+    OEM ASUSTeK Computer Inc {1043} : Radeon 9600 XT TVD
+    OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 XT
+Radeon 9600TX (R300) [4e46]
+Radeon 9700 (R300) [4145]
+Radeon 9700 (R300) [4146]
+Radeon 9700/9500 Series (R300) [4e45]
+    Radeon 9700/9500 Series (R300)
+Radeon 9700/Pro, 9500 Series (R300) [4e44]
+    All-in-Wonder 9700 Series (R300)
+    Radeon 9700/9500 Series (R300)
+    OEM Hercules {1681} : 3D Prophet 9500 Pro
+Radeon 9800 (R350) (??) [4e49]
+Radeon 9800 Family [414a]
+Radeon 9800 Pro (R350) [4e48]
+    ALL-IN-WONDER 9800 SERIES
+    OEM ASUSTeK Computer Inc {1043} : Radeon A9800PRO
+Radeon 9800 SE (R350) [4148]
+    ALL-IN-WONDER 9800 Series
+Radeon 9800 XT (R350) [4e4a]
+    OEM ASUSTeK Computer Inc {1043} : A9800 XT
+Radeon IGP 320 [4136]
+    Radeon IGP 320
+Radeon IGP 340 [4137]
+Radeon IGP9100 AGP Bridge [5838]
+Radeon IGP9100 Host Bridge [5833]
+Radeon IGP9100 [5834]
+Radeon Mobility 7000 IGP [4437]
+Radeon Mobility M10 NP (RV350) [4e50]
+    OEM Acer Inc {1025} : TravelMate 290
+    OEM Fujitsu Siemens Computers {1734} : Amilo M1420W
+    OEM Hewlett-Packard Company {103c} : NC6000 laptop
+Radeon Mobility M10 NT (RV350-WS) [4e54]
 Radeon Mobility M6 LY [4c59]
     Radeon Mobility
     OEM Acer Inc {1025} : Radeon Mobility
@@ -1364,6 +1477,9 @@ Radeon Mobility M7 LW [4c57]
     OEM Dell Computer Corp {1028} : Radeon Mobility M7 LW (Dell Inspiron 8100)
     OEM IBM {1014} : Radeon Mobility 7500
     OEM Samsung Electronics Co Ltd {144d} : Radeon Mobility M7 LW in vpr Matrix 170B4
+Radeon Mobility U1 [4336]
+    Radeon Mobility U1
+    OEM Hewlett-Packard Company {103c} : Pavilion ze4400 builtin Video
 Radeon QE [5145]
 Radeon QF [5146]
 Radeon QG [5147]
@@ -1382,9 +1498,51 @@ Radeon R200 Qi [5169]
 Radeon R200 Qj [516a]
 Radeon R200 Qk [516b]
 Radeon R200 [516c]
+Radeon R250 Le [Radeon Mobility 9000 M9] [4c65]
+Radeon R250 Lg [Radeon Mobility 9000 M9] [4c67]
+Radeon R250 Ln [Radeon Mobility 9000 M9] [Secondary] [4c6e]
 Radeon RV250 Id [Radeon 9000] [4964]
 Radeon RV250 Ie [Radeon 9000] [4965]
 Radeon VE QZ [515a]
+Radeon X300 Series - Secondary [5b70]
+    +Radeon X300 Series - Secondary
+Radeon X300 Series [5b60]
+    Radeon X300 Series
+    OEM ASUSTeK Computer Inc {1043} : EAX300SE
+Radeon X600 Series - Secondary [5b72]
+Radeon X600 Series Secondary [3e70]
+    +OEM ASUSTeK Computer Inc {1043} : EAX600 PRO/TD - Secondary
+    +OEM PC Partner Ltd {174b} : Sapphire Radeon X600XT - Secondary
+Radeon X600 Series [3e50]
+    OEM ASUSTeK Computer Inc {1043} : EAX600 PRO/TD
+    OEM PC Partner Ltd {174b} : Sapphire Radeon X600XT
+Radeon X600 Series [5b62]
+Radeon X800 - Secondary [4a6b]
+Radeon X800 Pro - Secondary [5569]
+Radeon X800 Pro [5549]
+Radeon X800 SE - Secondary [556b]
+Radeon X800 SE [554b]
+Radeon X800 Series - Secondary [4a69]
+Radeon X800 Series - Secondary [4a6a]
+Radeon X800 Series - Secondary [556d]
+Radeon X800 Series - Secondary [556f]
+Radeon X800 Series [4a49]
+Radeon X800 Series [4a4a]
+Radeon X800 Series [554d]
+Radeon X800 Series [554f]
+Radeon X800 XT - Secondary [5d77]
+Radeon X800 XT Platinum - Secondary [4a70]
+Radeon X800 XT Platinum - Secondary [556a]
+Radeon X800 XT Platinum [4a50]
+Radeon X800 XT Platinum [554a]
+Radeon X800 XT [5d57]
+Radeon X800 [4a4b]
+Radeon X850 Series - Secondary [5d6d]
+Radeon X850 Series - Secondary [5d6f]
+Radeon X850 Series - Secondary [5d72]
+Radeon X850 Series [5d4d]
+Radeon X850 Series [5d4f]
+Radeon X850 Series [5d52]
 Radeon XPRESS 200 [5954]
 Rage 128 4x [5348]
 Rage 128 4x [534e]
@@ -1914,6 +2072,19 @@ GeForce 256 [NV10] [0100]
     OEM ELSA GmbH {1048} : ERAZOR X
     OEM Guillemot Corp {14af} : 3D Prophet
     OEM Guillemot Corp {14af} : 3D Prophet SE
+GeForce 6200 [014f] (*)
+GeForce 6600 GT [0140] (*)
+GeForce 6600 [0141] (*)
+GeForce 6610 XL [0145] (*)
+GeForce 6800 GT [NV40.5] [0045] (*)
+GeForce 6800 LE NV40.2 [0042] (*)
+GeForce 6800 Ultra [NV40.0] [0040] (*)
+    OEM ASUSTeK Computer Inc {1043} : V9999 Ultra Deluxe (*)
+    OEM ASUSTeK Computer Inc {1043} : V9999GT (*)
+GeForce 6800 [NV40.1] [0041] (*)
+    OEM ASUSTeK Computer Inc {1043} : V9999 Gamer Edition (*)
+    OEM ASUSTeK Computer Inc {1043} : V9999 Ultra Deluxe (*)
+GeForce 6800 [NV41.1] [00c1] (*)
 GeForce FX 5100 [NV34.7] [0327] (*)
 GeForce FX 5200 Ultra [NV34.2] [0321] (*)
 GeForce FX 5200 [0320] (*)
@@ -1979,30 +2150,30 @@ GeForce FX Go 5650 [031b] (*)
 GeForce FX Go 5700 [NV36] [0347] (*)
 GeForce FX Go5100 [NV34M] [032d] (*)
 GeForce FX [NV30.1] [0300] (*)
-GeForce2 GTS/PRO [NV15] [0150]
-    OEM AOpen Inc {a0a0} : Afterburner Deluxe
-    OEM AOpen Inc {a0a0} : Afterburner Deluxe II
-    OEM AOpen Inc {a0a0} : GF2PRO-VO
-    OEM AOpen Inc {a0a0} : PA256 Deluxe
-    OEM AOpen Inc {a0a0} : PA256 Deluxe II
-    OEM AOpen Inc {a0a0} : PA256 Pro
-    OEM ASUSTeK Computer Inc {1043} : AGP-V770/64M
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SDRAM
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SGRAM
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Pure/Deluxe
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700/64M
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SDRAM
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SGRAM
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700ULTRA
-    OEM Creative Labs {1102} : Annihilator 2
-    OEM ELSA GmbH {1048} : Gladiac GeForce2 GTS
-    OEM Guillemot Corp {14af} : 3D Prophet II GTS
-    OEM Guillemot Corp {14af} : 3D Prophet II GTS/GTS Pro
-    OEM Leadtek Research {107d} : WinFast GeForce 2 Pro
-    OEM Leadtek Research {107d} : WinFast GeForce2 GTS with TV output
-    OEM Micro-Star International Co Ltd (MSI) {1462} : Creative GeForce2 Pro
-    OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8817 Starforce 8817
+GeForce2 GTS/PRO [NV15] [0150] (*)
+    OEM AOpen Inc {a0a0} : Afterburner Deluxe (*)
+    OEM AOpen Inc {a0a0} : Afterburner Deluxe II (*)
+    OEM AOpen Inc {a0a0} : GF2PRO-VO (*)
+    OEM AOpen Inc {a0a0} : PA256 Deluxe (*)
+    OEM AOpen Inc {a0a0} : PA256 Deluxe II (*)
+    OEM AOpen Inc {a0a0} : PA256 Pro (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V770/64M (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SDRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SGRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Pure/Deluxe (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700/64M (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SDRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SGRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700ULTRA (*)
+    OEM Creative Labs {1102} : Annihilator 2 (*)
+    OEM ELSA GmbH {1048} : Gladiac GeForce2 GTS (*)
+    OEM Guillemot Corp {14af} : 3D Prophet II GTS (*)
+    OEM Guillemot Corp {14af} : 3D Prophet II GTS/GTS Pro (*)
+    OEM Leadtek Research {107d} : WinFast GeForce 2 Pro (*)
+    OEM Leadtek Research {107d} : WinFast GeForce2 GTS with TV output (*)
+    OEM Micro-Star International Co Ltd (MSI) {1462} : Creative GeForce2 Pro (*)
+    OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8817 Starforce 8817 (*)
 GeForce2 Go/MX Ultra [NV11] [0112] (*)
     OEM Abit Computer Corp {147b} : Siluro MX200 (*)
     OEM Abit Computer Corp {147b} : Siluro T200 (*)
@@ -2048,19 +2219,19 @@ GeForce2 MX/MX 400 [NV11] [0110] (*)
     OEM Leadtek Research {107d} : GeForce2 MX 400 (*)
     OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8817 Starforce 8817 (*)
     OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8818 Starforce 8818 (*)
-GeForce2 Ti (DDR) [NV15DDR] [0151]
-    OEM AOpen Inc {a0a0} : GeForce2 Ti-VO
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SDRAM
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SGRAM
-    OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SDRAM
-    OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SGRAM
-    OEM Micro-Star International Co Ltd (MSI) {1462} : Creative 3D Blaster Geforce2 Titanium
-GeForce2 Ultra (BladeRunner) [NV15BR] [0152]
-    GeForce2 Ultra (Gateway)
-    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Ultra
-    OEM ELSA GmbH {1048} : GLADIAC ULTRA
-    OEM Hercules {1681} : 3D Prophet II Ultra
-    OEM Visiontek {1545} : GeForce2 Ultra (Gateway)
+GeForce2 Ti (DDR) [NV15DDR] [0151] (*)
+    OEM AOpen Inc {a0a0} : GeForce2 Ti-VO (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SDRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SGRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SDRAM (*)
+    OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SGRAM (*)
+    OEM Micro-Star International Co Ltd (MSI) {1462} : Creative 3D Blaster Geforce2 Titanium (*)
+GeForce2 Ultra (BladeRunner) [NV15BR] [0152] (*)
+    GeForce2 Ultra (Gateway) (*)
+    OEM ASUSTeK Computer Inc {1043} : AGP-V7700Ultra (*)
+    OEM ELSA GmbH {1048} : GLADIAC ULTRA (*)
+    OEM Hercules {1681} : 3D Prophet II Ultra (*)
+    OEM Visiontek {1545} : GeForce2 Ultra (Gateway) (*)
 GeForce3 Ti 200 [NV20.1] [0201] (*)
     OEM ASUSTeK Computer Inc {1043} : AGP-V8200T2 Deluxe (*)
     OEM ASUSTeK Computer Inc {1043} : AGP-V8200T2 Pure (*)
@@ -2145,6 +2316,7 @@ GeForce4 MX 440SE with AGP 8X [NV18.3] [0182] (*)
 GeForce4 MX 460 [NV17.1] [0170] (*)
     OEM ASUSTeK Computer Inc {1043} : V8170 PRO (*)
     OEM ASUSTeK Computer Inc {1043} : V8170 PRO DELUXE (*)
+GeForce4 MX Integrated GPU [01f0] (*)
 GeForce4 Ti 4200 Go AGP 8x [NV28] [0286] (*)
 GeForce4 Ti 4200 [NV25.4] [0253] (*)
     OEM ASUSTeK Computer Inc {1043} : V8420 Deluxe (*)
@@ -2194,6 +2366,11 @@ NV36 [0349] (*)
 NV36 [034b] (*)
 NV36.5 [0345] (*)
 NV36GL [034f] (*)
+NV40.3 [0043] (*)
+NV40GL [0049] (*)
+NV41.0 [00c0] (*)
+NV41.2 [00c2] (*)
+NV41.8 [00c8] (*)
 NVIDIA Quadro FX 700 Go [031c] (*)
 Quadro (GeForce 256 GL) [NV10GL] [0103]
     OEM ASUSTeK Computer Inc {1043} : V6600GL
@@ -2201,16 +2378,19 @@ Quadro (GeForce 256 GL) [NV10GL] [0103]
 Quadro DCC [NV20DCC] [0203] (*)
 Quadro FX 1000 [NV30GL.2] [0309] (*)
 Quadro FX 1100 [NV36GL] [034e] (*)
+Quadro FX 1400 [NV41GL] [00ce] (*)
 Quadro FX 2000 [NV30GL.1] [0308] (*)
 Quadro FX 3000 [NV35GL] [0338] (*)
+Quadro FX 4000 [NV40GL] [004e] (*)
 Quadro FX 500/600 [NV34GL.4] [032b] (*)
+Quadro FX 540 [014e] (*)
 Quadro FX 700 [NV35GL] [033f] (*)
 Quadro FX Go 1000 [NV36] [034c] (*)
 Quadro NVS 280 PCI [NV34GL.3] [032a] (*)
 Quadro NVS with AGP 8X [NV18GL.2] [018a] (*)
 Quadro2 MXR/EX/Go [NV11GL] [0113] (*)
     OEM ELSA GmbH {1048} : Synergy 2000 (*)
-Quadro2 Pro [NV15GL] [0153]
+Quadro2 Pro [NV15GL] [0153] (*)
 Quadro4 200/400 NVS [NV17GL.2] [017a] (*)
 Quadro4 380 XGL [NV18GL.3] [018b] (*)
 Quadro4 500 Go GL [NV17M-GL] [017c] (*)
@@ -2345,21 +2525,30 @@ VANTA / VANTA LT [NVVANTA] [002c]
 Vanta [NV6] [002e]
 Vanta [NV6] [002f]
 
-2.7 Alliance Semiconductor Corporation (1142)
+2.7 VIA Technologies, Inc. (1106)
+---------------------------------
+
+KM400 Graphics Adapter [7205]
+    OEM Giga-Byte Technology {1458} : Gigabyte GA-7VM400(A)M(F) Motherboard
+VIA/S3 Unichrome Pro VGA Adapter [3108]
+VIA/S3 Unichrome Pro VGA Adapter [3118]
+VT8623 Apollo CLE266 CastleRock AGP 8X Controller [3122]
+
+2.8 Alliance Semiconductor Corporation (1142)
 ---------------------------------------------
 
 ProMotion AT3D [643d] (*)
 ProVideo 6424 ProMotion AT24 GUI Accelerator [6424] (*)
 
-2.8 Rendition (1163)
+2.9 Rendition (1163)
 --------------------
 
 Verite 2000/2100/2200 [2000] (*)
     OEM Diamond Multimedia Systems {1092} : Stealth II S220 (*)
     OEM Hercules Computer Technology Inc {4843} : Thriller V2000 PCI (*)
 
-2.9 3Dfx Interactive, Inc. (121a)
----------------------------------
+2.10 3Dfx Interactive, Inc. (121a)
+----------------------------------
 
 3Dfx Voodoo Banshee Chipset [0003] (*)
     Voodoo Banshee AGP SDRAM (*)
@@ -2392,7 +2581,7 @@ Voodoo4/5 [0009]
     Voodoo5 SDRAM/SGRAM AGP
     Voodoo5 SGRAM PCI
 
-2.10 3DLabs (3d3d)
+2.11 3DLabs (3d3d)
 ------------------
 
 3D Extreme Permedia II 2D+3D Accelerator [0007] (*)
@@ -2408,7 +2597,7 @@ Permedia 2 2D+3D Accelerator [0009] (*)
     OEM AccelGraphics Inc (Kubota Pacific) {1040} : AccelStar II (*)
     OEM Intraserver Technology Inc {13e9} : 6221L-4U (*)
 
-2.11 S3 Inc. (5333)
+2.12 S3 Inc. (5333)
 -------------------
 
 82C270-294 Savage/MX [8c11]

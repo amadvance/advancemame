@@ -78,7 +78,7 @@ static unsigned char* svgaline_linear_write_line(unsigned y)
 	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
 }
 
-/* Keep the same order of svgaline_chipset_struct cards */
+/* Keep the same order of the  __svgalib_getchipset() SVGALIB function */
 static adv_device DEVICE[] = {
 	{ "auto", -1, "SVGALINE video" },
 #ifdef INCLUDE_NV3_DRIVER
@@ -95,6 +95,9 @@ static adv_device DEVICE[] = {
 #endif
 #ifdef INCLUDE_PM2_DRIVER
 	{ "pm2", PM2, "Permedia 2" },
+#endif
+#ifdef INCLUDE_UNICHROME_DRIVER
+	{ "unichrome", UNICHROME, "VIA Unichrome" },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
 	{ "savage", SAVAGE, "S3 Savage" },

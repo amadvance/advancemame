@@ -95,14 +95,14 @@ static CardSpecs *cardspecs;
 
 static void sis_setpage(int page)
 {
-        outb(0x3cb+__svgalib_io_reloc,page);
-        outb(0x3cd+__svgalib_io_reloc,page);
+        port_out_r(0x3cb+__svgalib_io_reloc,page);
+        port_out_r(0x3cd+__svgalib_io_reloc,page);
 }
 
 static void sis_300_setpage(int page)
 {
-        outb(0x3cb+__svgalib_io_reloc,((page>>4)&0x0f) | (page&0xf0));
-        outb(0x3cd+__svgalib_io_reloc,(page&0x0f) | ((page&0x0f)<<4));
+        port_out_r(0x3cb+__svgalib_io_reloc,((page>>4)&0x0f) | (page&0xf0));
+        port_out_r(0x3cd+__svgalib_io_reloc,(page&0x0f) | ((page&0x0f)<<4));
 }
 
 static int __svgalib_sis_inlinearmode(void)

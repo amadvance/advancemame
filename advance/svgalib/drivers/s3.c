@@ -623,7 +623,7 @@ static void s3_setregs(const unsigned char regs[], int mode)
      * set this first, so if we segfault on this
      * we don't get a screwed up display
      */
-    outw(ADVFUNC_CNTL, s3_8514regs[S3_ADVFUNC_CNTL]);
+    port_outw_r(ADVFUNC_CNTL, s3_8514regs[S3_ADVFUNC_CNTL]);
 
     /* get S3 VGA/Ext registers */
     bmax = 0x4F;
@@ -1146,14 +1146,14 @@ static int s3_setmode(int mode, int prv_mode)
 /* Some port I/O functions: */
 static unsigned char rdinx(int port, unsigned char index)
 {
-    outb(port, index);
+    port_out_r(port, index);
     return port_in(port + 1);
 }
 
 static void wrinx(int port, unsigned char index, unsigned char val)
 {
-    outb(port, index);
-    outb(port + 1, val);
+    port_out_r(port, index);
+    port_out_r(port + 1, val);
 }
 
 /*
@@ -1181,19 +1181,19 @@ static int s3_test(void)
     vgaCRIndex = vgaIOBase + 4;
     vgaCRReg = vgaIOBase + 5;
 
-    outb(vgaCRIndex, 0x11);	/* for register CR11, (Vertical Retrace End) */
-    outb(vgaCRReg, 0x00);	/* set to 0 */
+    port_out_r(vgaCRIndex, 0x11);	/* for register CR11, (Vertical Retrace End) */
+    port_out_r(vgaCRReg, 0x00);	/* set to 0 */
 
-    outb(vgaCRIndex, 0x38);	/* check if we have an S3 */
-    outb(vgaCRReg, 0x00);
+    port_out_r(vgaCRIndex, 0x38);	/* check if we have an S3 */
+    port_out_r(vgaCRReg, 0x00);
 
     /* Make sure we can't write when locked */
 
     if (testinx2(vgaCRIndex, 0x35, 0x0f))
 	return 0;
 
-    outb(vgaCRIndex, 0x38);	/* for register CR38, (REG_LOCK1) */
-    outb(vgaCRReg, 0x48);	/* unlock S3 register set for read/write */
+    port_out_r(vgaCRIndex, 0x38);	/* for register CR38, (REG_LOCK1) */
+    port_out_r(vgaCRReg, 0x48);	/* unlock S3 register set for read/write */
 
     /* Make sure we can write when unlocked */
 
@@ -1227,11 +1227,11 @@ static void s3_setpage(int page)
 	page *= 4;
 #endif
     s3_unlock();
-    outb(CRT_IC, 0x35);
-    outb(CRT_DC, (port_in(CRT_DC) & 0xF0) | (page & 0x0F));
+    port_out_r(CRT_IC, 0x35);
+    port_out_r(CRT_DC, (port_in(CRT_DC) & 0xF0) | (page & 0x0F));
     if (s3_chiptype >= S3_801) {
-	outb(CRT_IC, 0x51);
-	outb(CRT_DC, (port_in(CRT_DC) & ~0x0C) | ((page & 0x30) >> 2));
+	port_out_r(CRT_IC, 0x51);
+	port_out_r(CRT_DC, (port_in(CRT_DC) & ~0x0C) | ((page & 0x30) >> 2));
     }
     port_in(CRT_DC);			/* ARI: Ferraro says: required for first generation 911 only */
     s3_lock();
@@ -1249,8 +1249,8 @@ static void s3_setpage864(int page)
 {
     s3_unlock();
     /* "Linear" mode banking. */
-    outb(CRT_IC, 0x6A);
-    outb(CRT_DC, (port_in(CRT_DC) & ~0x3F) | page);
+    port_out_r(CRT_IC, 0x6A);
+    port_out_r(CRT_DC, (port_in(CRT_DC) & ~0x3F) | page);
     s3_lock();
 }
 
@@ -1271,18 +1271,18 @@ static void s3_setdisplaystart(int address)
 	address *= 4;
 #endif
     s3_unlock();
-    outw(CRT_IC, 0x0d | ((address << 6) & 0xff00));	/* sa2-sa9 */
-    outw(CRT_IC, 0x0c | ((address >> 2) & 0xff00));	/* sa10-sa17 */
+    port_outw_r(CRT_IC, 0x0d | ((address << 6) & 0xff00));	/* sa2-sa9 */
+    port_outw_r(CRT_IC, 0x0c | ((address >> 2) & 0xff00));	/* sa10-sa17 */
     port_in(0x3da);			/* set ATC to addressing mode */
-    outb(ATT_IW, 0x13 + 0x20);	/* select ATC reg 0x13 */
-    outb(ATT_IW, (port_in(ATT_R) & 0xf0) | ((address & 3) << 1));
+    port_out_r(ATT_IW, 0x13 + 0x20);	/* select ATC reg 0x13 */
+    port_out_r(ATT_IW, (port_in(ATT_R) & 0xf0) | ((address & 3) << 1));
     /* write sa0-1 to bits 1-2 */
 
-    outb(CRT_IC, 0x31);
-    outb(CRT_DC, (port_in(CRT_DC) & ~0x30) | ((address & 0xc0000) >> 14));
+    port_out_r(CRT_IC, 0x31);
+    port_out_r(CRT_DC, (port_in(CRT_DC) & ~0x30) | ((address & 0xc0000) >> 14));
     if (s3_chiptype >= S3_801) {
-	outb(CRT_IC, 0x51);
-	outb(CRT_DC, (port_in(CRT_DC) & ~0x03) | ((address & 0x300000) >> 20));
+	port_out_r(CRT_IC, 0x51);
+	port_out_r(CRT_DC, (port_in(CRT_DC) & ~0x03) | ((address & 0x300000) >> 20));
     }
     s3_lock();
 }
@@ -1304,14 +1304,14 @@ static void s3_linear_enable(void)
     
     if (s3_chiptype > S3_924) {
     	int i;
-    	outb (CRT_IC, 0x40);
+    	port_out_r (CRT_IC, 0x40);
     	i = (s3_cr40 & 0xf6) | 0x0a;
-    	outb (CRT_DC, (unsigned char) i);
-    	outb (CRT_IC, 0x58);
-    	outb (CRT_DC, s3_linear_opt | s3_cr58);
+    	port_out_r (CRT_DC, (unsigned char) i);
+    	port_out_r (CRT_IC, 0x58);
+    	port_out_r (CRT_DC, s3_linear_opt | s3_cr58);
     	if (s3_chiptype > S3_928) {
-    	    outb (CRT_IC, 0x54);
-    	    outb (CRT_DC, (s3_cr54 + 0x07));
+    	    port_out_r (CRT_IC, 0x54);
+    	    port_out_r (CRT_DC, (s3_cr54 + 0x07));
     	}
     }
     
@@ -1324,13 +1324,13 @@ static void s3_linear_disable(void)
     
     if (s3_chiptype > S3_924) {
     	if (s3_chiptype > S3_928) {
-    	    outb (CRT_IC, 0x54);
-    	    outb (CRT_DC, s3_cr54);
+    	    port_out_r (CRT_IC, 0x54);
+    	    port_out_r (CRT_DC, s3_cr54);
     	}
-    	outb (CRT_IC, 0x58);
-    	outb (CRT_DC, s3_cr58);
-    	outb (CRT_IC, 0x40);
-    	outb (CRT_DC, s3_cr40);
+    	port_out_r (CRT_IC, 0x58);
+    	port_out_r (CRT_DC, s3_cr58);
+    	port_out_r (CRT_IC, 0x40);
+    	port_out_r (CRT_DC, s3_cr40);
     }
     
     s3_lock();

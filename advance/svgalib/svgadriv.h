@@ -64,6 +64,7 @@ typedef struct {
     AccelSpecs *accelspecs;
     Emulation *emul;
     int (*cursor)(int cmd, int p1, int p2, int p3, int p4, void *p5);
+    int disabled;
 } DriverSpecs;
 
 extern DriverSpecs __svgalib_vga_driverspecs;
@@ -104,6 +105,7 @@ extern DriverSpecs __svgalib_trident_driverspecs;
 extern DriverSpecs __svgalib_rendition_driverspecs;
 extern DriverSpecs __svgalib_g450c2_driverspecs;
 extern DriverSpecs __svgalib_pm2_driverspecs;
+extern DriverSpecs __svgalib_unichrome_driverspecs;
 
 extern DriverSpecs *__svgalib_driverspecs;
 extern DriverSpecs *__svgalib_driverspecslist[];

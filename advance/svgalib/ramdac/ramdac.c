@@ -58,24 +58,24 @@ int __svgalib_setDacSpeed(int dacspeed, int defspeed)
 #ifndef __OPTIMIZE__	/* otherwise inlined from ramdac.h */
 void _ramdac_dactocomm(void)
 {
-    inb(PEL_IW);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
+    port_in(PEL_IW);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
 }
 
 void _ramdac_dactopel(void)
 {
-    inb(PEL_IW);
+    port_in(PEL_IW);
 }
 
 unsigned char _ramdac_setcomm(unsigned char data)
 {
     _ramdac_dactocomm();
-    outb(PEL_MSK, data);
+    port_out_r(PEL_MSK, data);
     _ramdac_dactocomm();
-    return inb(PEL_MSK);
+    return port_in(PEL_MSK);
 }
 #endif
 

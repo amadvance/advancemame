@@ -6,10 +6,10 @@
 #define rage_outb(a,v) do {v_writeb(v,a); mb();}while(0)
 #define rage_outl(a,v) do {v_writel(v,a); mb();}while(0)
 #else
-#define rage_inb(a) inb(a)
-#define rage_inl(a) inl(a)
-#define rage_outb(a,v) outb(a,v)
-#define rage_outl(a,v) outl(a,v)
+#define rage_inb(a) port_in(a)
+#define rage_inl(a) port_inl(a)
+#define rage_outb(a,v) port_out_r(a,v)
+#define rage_outl(a,v) port_outl_r(a,v)
 #endif
 
 #define SPARSE_IO 0

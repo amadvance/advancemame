@@ -254,9 +254,9 @@ static void et6000_initializemode(unsigned char *moderegs,
   moderegs[VGA_MISCOUTPUT] = (moderegs[VGA_MISCOUTPUT] & 0xf3) |
                              ((modetiming->selectedClockNo & 0x03) << 2);
    tmp=comp_lmn(modetiming->pixelClock,fac);
-   outb(base1 | 0x68,6);    
-   outb(base1 | 0x69,tmp&0xff);
-   outb(base1 | 0x69,tmp>>8);
+   port_out_r(base1 | 0x68,6);    
+   port_out_r(base1 | 0x69,tmp&0xff);
+   port_out_r(base1 | 0x69,tmp>>8);
   /* because timing is giving the wrong */
   /* clock. FIX THIS WHEN CLOCK IS OK.  */
 }
@@ -338,8 +338,8 @@ static void et6000_setregs(const unsigned char regs[], int mode)
   /* Write some et6000 specific registers. */
   port_out(regs[EXT+11],SEG_SELECT);
   if(regs[EXT + 10])                       /* I am using EXT+10 for linear  */
-    outb(base1 | 0x13,regs[EXT + 10]);     /*  modes                        */
-  outb(base1 | 0x40,regs[EXT + 9]);
+    port_out_r(base1 | 0x13,regs[EXT + 10]);     /*  modes                        */
+  port_out_r(base1 | 0x40,regs[EXT + 9]);
   /* Unprotect writing CRT reg 0x35 */
   port_out(0x11,__svgalib_CRT_I);
   save = port_in(__svgalib_CRT_D);
@@ -358,14 +358,14 @@ static void et6000_setregs(const unsigned char regs[], int mode)
   port_out(0x18,__svgalib_CRT_I);
   port_out(regs[EXT + 2],__svgalib_CRT_D);
                                       /* See saveregs for these registers. */
-  outb(base1 | 0x58,(vga_getcolors() == (1 << 16))? (regs[EXT] | 0x02):
+  port_out_r(base1 | 0x58,(vga_getcolors() == (1 << 16))? (regs[EXT] | 0x02):
                                                         regs[EXT]);
-  outb(base1 | 0x59,regs[EXT + 6]);
-  outb(base1 | 0x57,((port_in(base1 | 0x57) | ((regs[EXT + 5] & 0x20) >> 4))));
+  port_out_r(base1 | 0x59,regs[EXT + 6]);
+  port_out_r(base1 | 0x57,((port_in(base1 | 0x57) | ((regs[EXT + 5] & 0x20) >> 4))));
 
     /* For True Color modes we must devide the MCLK by 3. */
-    outb(base1 | 0x42,regs[EXT + 1]);
-    outb(base1 | 0x40,regs[EXT + 9]);
+    port_out_r(base1 | 0x42,regs[EXT + 1]);
+    port_out_r(base1 | 0x40,regs[EXT + 9]);
 #ifdef DB6K
     fprintf(outf,"after second block\n");
 #endif
@@ -394,7 +394,7 @@ static void et6000_setregs(const unsigned char regs[], int mode)
 static void et6000_unlock(void)
 {
   if(x3_8)
-    outb(x3_8,0xa0);
+    port_out_r(x3_8,0xa0);
     else
       fprintf(stderr,"et6000_unlock called when et6000 was not initialized.\n");
 }
@@ -406,7 +406,7 @@ static void et6000_lock(void)
     fprintf(outf,"Lock called\n");
 #endif
     return;                /* et4000 does this, I don't know why! */
-    outb(x3_8,0);          /* I think it is because we lose root  */
+    port_out_r(x3_8,0);          /* I think it is because we lose root  */
   }                        /* privalege after initialize and can  */
   else                     /* no longer unlock registers.         */
     fprintf(stderr,"et6000_lock called when et6000 was not initialized.\n");
@@ -549,9 +549,9 @@ DPRT("Found et6000\n");
     __svgalib_linear_mem_size = et6000_memory*0x100000;
     __svgalib_linear_mem_base = et6000_linear_base;
     /* Banked memory is set in vga.c */
-    outb(base1 | 0x68,0xa);   /* Set clocka */
-    outb(base1 | 0x69,0x24);
-    outb(base1 | 0x69,0x21);
+    port_out_r(base1 | 0x68,0xa);   /* Set clocka */
+    port_out_r(base1 | 0x69,0x24);
+    port_out_r(base1 | 0x69,0x21);
     if(__svgalib_driver_report)
       fprintf(stderr,"Using Tseng ET6000 driver (%d MBytes %sDRAM)\n",
 		       et6000_memory,mem_type ? "M" : "");
@@ -611,7 +611,7 @@ static void et6000_setpage(int page)
 	/* Write page4-5 to bits 0-1 of ext. bank register, */
 	/* and to bits 4-5. */
     /* return;       Testing */
-	outb(0x3cb, ((port_in(0x3cb) & ~0x33) | (page >> 4) | (page & 0x30)));
+	port_out_r(0x3cb, ((port_in(0x3cb) & ~0x33) | (page >> 4) | (page & 0x30)));
 }
 
 static void et6000_setrdpage(int page)
@@ -620,7 +620,7 @@ static void et6000_setrdpage(int page)
   last_page &= 0x0F;
   last_page |= (page << 4);
   port_out(last_page,SEG_SELECT);
-  outb(0x3cb,(port_in(0x3cb) & ~0x30) | (page & 0x30));
+  port_out_r(0x3cb,(port_in(0x3cb) & ~0x30) | (page & 0x30));
 }
 
 static void et6000_setwrpage(int page)
@@ -629,7 +629,7 @@ static void et6000_setwrpage(int page)
   last_page &= 0xF0;
   last_page |= (page | 0x0F);
   port_out(last_page,SEG_SELECT);
-  outb(0x3cb,(port_in(0x3cb) & ~0x03) | page >> 4);
+  port_out_r(0x3cb,(port_in(0x3cb) & ~0x03) | page >> 4);
 }
 
 static int  et6000_setmode(int mode, int prv_mode)
@@ -651,21 +651,21 @@ static int  et6000_setmode(int mode, int prv_mode)
 	/* least on some cards). */
 DPRT("STDVGADRV\n");
 	et6000_unlock();
-	outb(__svgalib_CRT_I, 0x34);            /* 3#4 */
+	port_out_r(__svgalib_CRT_I, 0x34);            /* 3#4 */
 	i = port_in(__svgalib_CRT_D);               /* 3#5 */
 	if ((i & 0x02) == 0x02)                 /* Clock0 select bit 2 */
-	    outb(__svgalib_CRT_D, (i & 0xFD));  /* Turn it off. */
+	    port_out_r(__svgalib_CRT_D, (i & 0xFD));  /* Turn it off. */
 	                              /* Make sure pci bus is set right. */
 #ifdef DB6K
 	fprintf(outf,"reg 42 = %2x  58 = %2x before.\n",port_in(base1 | 0x42)
 		,port_in(base1 | 0x58));
 #endif
-	outb(base1 | 0x40,pci40std);
-	outb(base1 | 0x42,pci42std);
-	outb(base1 | 0x57,pci57std);
-	outb(base1 | 0x58,pci58std);
-	outb(base1 | 0x59,pci59std);
-	outb(base1 | 0x46,(port_in(base1 | 0x46)&0xfe)); 
+	port_out_r(base1 | 0x40,pci40std);
+	port_out_r(base1 | 0x42,pci42std);
+	port_out_r(base1 | 0x57,pci57std);
+	port_out_r(base1 | 0x58,pci58std);
+	port_out_r(base1 | 0x59,pci59std);
+	port_out_r(base1 | 0x46,(port_in(base1 | 0x46)&0xfe)); 
 	  /* make sure cursor is off */
 	if(mode == 5) cursor_doublescan = 1;
 #ifdef DB6K
@@ -752,10 +752,10 @@ static void et6000_setdisplaystart(int address)
    #ifdef DB6K
   fprintf(outf,"address = 0x%08x\n",address);
   #endif */
-  outw(x3_4, 0x0d +(((address >>2) & 0x00ff) << 8));  /* ds0-7  */
-  outw(x3_4, 0x0c + ((address >>2) & 0xff00));        /* ds0 15 */
-  outb(x3_4, 0x33);
-  outb(x3_5, (port_in(x3_5) & 0xf0)  | ((address & 0xf0000) >> 18 ));
+  port_outw_r(x3_4, 0x0d +(((address >>2) & 0x00ff) << 8));  /* ds0-7  */
+  port_outw_r(x3_4, 0x0c + ((address >>2) & 0xff00));        /* ds0 15 */
+  port_out_r(x3_4, 0x33);
+  port_out_r(x3_5, (port_in(x3_5) & 0xf0)  | ((address & 0xf0000) >> 18 ));
                                                       /* ds 16-19 */
 }
 
@@ -765,9 +765,9 @@ static void et6000_setlogicalwidth(int width)
 #ifdef DB6K
   fprintf(outf,"width = 0x%08x\n",width);
 #endif
-  outw(x3_4,0x13 + (((width >> 3 ) & 0xff) << 8));       /* lw3-10 */
-  outb(x3_4 ,0x3f);
-  outb(x3_5,(port_in(x3_5) & 0x3f) | ((width & 0x1800) >> 3)); /* lw11-12 */
+  port_outw_r(x3_4,0x13 + (((width >> 3 ) & 0xff) << 8));       /* lw3-10 */
+  port_out_r(x3_4 ,0x3f);
+  port_out_r(x3_5,(port_in(x3_5) & 0x3f) | ((width & 0x1800) >> 3)); /* lw11-12 */
 }
 
 static void et6000_getmodeinfo(int mode,vga_modeinfo *modeinfo)
@@ -903,7 +903,7 @@ static int  et6000_linear(int op, int param)
       port_out(5,GRA_I);
       port_out(0x40,GRA_D);  /* Set linear graphics. Don't touch this */
                              /* on disable. */
-      outb(base1 | 0x40, 0x09);
+      port_out_r(base1 | 0x40, 0x09);
       /* Set memory relocation and linear. */
       return(0);
     }
@@ -912,7 +912,7 @@ static int  et6000_linear(int op, int param)
 #ifdef DB6K
       fprintf(outf,"DISABLE\n");
 #endif
-      outb(base1 | 0x40, 0);
+      port_out_r(base1 | 0x40, 0);
       /* Turn off memory relocation and linear. */
       __svgalib_modeinfo_linearset = 0;  /* In vga.c */
       return(0);
@@ -951,7 +951,7 @@ static int et6000_cursor(int cmd,int p1,int p2,int p3,int p4,void *p5)
       break;
 
     case CURSOR_HIDE:
-      outb(base1 | 0x46,port_in(base1 | 0x46)&0xfe);
+      port_out_r(base1 | 0x46,port_in(base1 | 0x46)&0xfe);
       break;
 
     case CURSOR_SHOW:
@@ -960,15 +960,15 @@ static int et6000_cursor(int cmd,int p1,int p2,int p3,int p4,void *p5)
 	  fprintf(stderr,"No active cursor\n");
 	  return(-1);
 	}
-      outb(base1 | 0x46,port_in(base1 | 0x46) | 0x01);
+      port_out_r(base1 | 0x46,port_in(base1 | 0x46) | 0x01);
       break;
 
     case CURSOR_POSITION:
-      outb(base1 | 0x84,p1&0xff);
-      outb(base1 | 0x85,p1 >> 8);
-      outb(base1 | 0x86,(p2<<cursor_doublescan)&0xff);
+      port_out_r(base1 | 0x84,p1&0xff);
+      port_out_r(base1 | 0x85,p1 >> 8);
+      port_out_r(base1 | 0x86,(p2<<cursor_doublescan)&0xff);
       /* double for double scan */
-      outb(base1 | 0x87,(p2<<cursor_doublescan) >> 8);
+      port_out_r(base1 | 0x87,(p2<<cursor_doublescan) >> 8);
       break;
 
     case CURSOR_IMAGE:
@@ -1056,9 +1056,9 @@ static int et6000_cursor(int cmd,int p1,int p2,int p3,int p4,void *p5)
 			,col,j,cl[j],c0);
 #endif
 	    }
-	  outb(base1 | 0x67,9);  /* set register 9 for colors */
-	  outb(base1 | 0x69,cl[0]); /* Sprite color 0 */
-	  outb(base1 | 0x69,cl[1]); /* Sprite color 1 */
+	  port_out_r(base1 | 0x67,9);  /* set register 9 for colors */
+	  port_out_r(base1 | 0x69,cl[0]); /* Sprite color 0 */
+	  port_out_r(base1 | 0x69,cl[1]); /* Sprite color 1 */
 	  /*  sptr = sptptr = __svgalib_linear_mem_size/2 - 1024; */
 	  sptptr = 0x7ff00;
 	  sptr = 64512 - 128 - 512*(cursor_doublescan - 1) + 
@@ -1114,18 +1114,18 @@ static int et6000_cursor(int cmd,int p1,int p2,int p3,int p4,void *p5)
 	      sptr += 8;
 	    }
 	    
-	  outb(x3_4,0x0E); /* CRTC Reg E bits 16-19 of sprite add. */
-	  outb(x3_5,(sptptr >> 16) & 0x0f);
-	  outb(x3_4,0x0F);
-	  outb(x3_5,(sptptr >> 8)&0xff);
-	  outb(base1 | 0x82,0x20);  /* set cursor size. */
-	  outb(base1 | 0x83,0x20*(cursor_doublescan-1));
+	  port_out_r(x3_4,0x0E); /* CRTC Reg E bits 16-19 of sprite add. */
+	  port_out_r(x3_5,(sptptr >> 16) & 0x0f);
+	  port_out_r(x3_4,0x0F);
+	  port_out_r(x3_5,(sptptr >> 8)&0xff);
+	  port_out_r(base1 | 0x82,0x20);  /* set cursor size. */
+	  port_out_r(base1 | 0x83,0x20*(cursor_doublescan-1));
 	  active_cursor = p1;
 #ifdef DB6K
-	  outb(x3_4,0x0E);
+	  port_out_r(x3_4,0x0E);
 	  fprintf(outf,"sptptr = 0x%08x  0E = 0x%x ",
 		  sptptr,port_in(x3_5));
-	  outb(x3_4,0x0F);
+	  port_out_r(x3_4,0x0F);
 	  fprintf(outf,"0F = 0x%x\n",port_in(x3_5));
 	  *(LINEAR_POINTER) = 0x26;
 	  fprintf(outf," = 0x%02x\n",

@@ -30,14 +30,14 @@ static int att20c490_probe(void)
     int flag = 0;
 
     _ramdac_dactocomm();
-    oldcomm = inb(PEL_MSK);
+    oldcomm = port_in(PEL_MSK);
     _ramdac_dactopel();
-    oldpel = inb(PEL_MSK);
+    oldpel = port_in(PEL_MSK);
 
     notcomm = ~oldcomm;
-    outb(PEL_MSK, notcomm);
+    port_out_r(PEL_MSK, notcomm);
     _ramdac_dactocomm();
-    v = inb(PEL_MSK);
+    v = port_in(PEL_MSK);
     if (v != notcomm) {
 	if ((_ramdac_setcomm(0xe0) & 0xe0) == 0xe0) {
 	    if ((_ramdac_setcomm(0x60) & 0xe0) == 0) {
@@ -47,16 +47,16 @@ static int att20c490_probe(void)
 		    flag = 1;	/* 20c493 */
 	    } else {
 		_ramdac_setcomm(oldcomm);
-		if (inb(PEL_MSK) == notcomm)
+		if (port_in(PEL_MSK) == notcomm)
 		    if (_ramdac_setcomm(0xFF) == 0xFF)
 			flag = 1;	/* 20c491/20c492 */
 	    }
 	}
     }
     _ramdac_dactocomm();
-    outb(PEL_MSK, oldcomm);
+    port_out_r(PEL_MSK, oldcomm);
     _ramdac_dactopel();
-    outb(PEL_MSK, oldpel);
+    port_out_r(PEL_MSK, oldpel);
     return flag;
 }
 #else
@@ -70,9 +70,9 @@ static void att20c490_init(void)
 	fprintf(stderr,"svgalib: Using AT&T20C490-compatible truecolor DAC.\n");
 #if 0
     dactocomm();
-    inb(PEL_MSK);			/* Skip command register. */
-    fprintf(stderr,"svgalib: DAC Manufacturer ID = 0x%02X, ", inb(PEL_MSK));
-    fprintf(stderr,"Device ID = 0x%02X.\n", inb(PEL_MSK));
+    port_in(PEL_MSK);			/* Skip command register. */
+    fprintf(stderr,"svgalib: DAC Manufacturer ID = 0x%02X, ", port_in(PEL_MSK));
+    fprintf(stderr,"Device ID = 0x%02X.\n", port_in(PEL_MSK));
 #endif
 }
 

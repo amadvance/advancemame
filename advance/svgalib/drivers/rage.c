@@ -943,6 +943,8 @@ static int rage_test(void)
          };
       };
 
+printf("i=%i\n", i);
+	  
     if(!i)return 0;  
    
     rage_init(0,0,0);

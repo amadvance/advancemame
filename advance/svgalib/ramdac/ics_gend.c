@@ -146,14 +146,14 @@ static void GENDAC_savestate(unsigned char *regs)
     tmp = __svgalib_inSR(0x1c);
     __svgalib_outSR(0x1c, tmp | 0x80);
 
-    regs[SDAC_COMMAND] = inb(0x3c6);
-    regs[SDAC_PLL_WRITEINDEX] = inb(0x3c8);	/* PLL write index */
-    regs[SDAC_PLL_READINDEX] = inb(0x3c7);	/* PLL read index */
-    outb(0x3c7, 2);		/* index to f2 reg */
-    regs[SDAC_PLL_M] = inb(0x3c9);	/* f2 PLL M divider */
-    regs[SDAC_PLL_N1_N2] = inb(0x3c9);	/* f2 PLL N1/N2 divider */
-    outb(0x3c7, 0x0e);		/* index to PLL control */
-    regs[SDAC_PLL_CONTROL] = inb(0x3c9);	/* PLL control */
+    regs[SDAC_COMMAND] = port_in(0x3c6);
+    regs[SDAC_PLL_WRITEINDEX] = port_in(0x3c8);	/* PLL write index */
+    regs[SDAC_PLL_READINDEX] = port_in(0x3c7);	/* PLL read index */
+    port_out_r(0x3c7, 2);		/* index to f2 reg */
+    regs[SDAC_PLL_M] = port_in(0x3c9);	/* f2 PLL M divider */
+    regs[SDAC_PLL_N1_N2] = port_in(0x3c9);	/* f2 PLL N1/N2 divider */
+    port_out_r(0x3c7, 0x0e);		/* index to PLL control */
+    regs[SDAC_PLL_CONTROL] = port_in(0x3c9);	/* PLL control */
 
     __svgalib_outSR(0x1c, tmp & ~0x80);
 }
@@ -165,14 +165,14 @@ static void GENDAC_restorestate(const unsigned char *regs)
     tmp = __svgalib_inseq(0x1c);
     __svgalib_outseq(0x1c, tmp | 0x80);
 
-    outb(0x3c6, regs[SDAC_COMMAND]);
-    outb(0x3c8, 2);		/* index to f2 reg */
-    outb(0x3c9, regs[SDAC_PLL_M]);	/* f2 PLL M divider */
-    outb(0x3c9, regs[SDAC_PLL_N1_N2]);	/* f2 PLL N1/N2 divider */
-    outb(0x3c8, 0x0e);		/* index to PLL control */
-    outb(0x3c9, regs[SDAC_PLL_CONTROL]);	/* PLL control */
-    outb(0x3c8, regs[SDAC_PLL_WRITEINDEX]);	/* PLL write index */
-    outb(0x3c7, regs[SDAC_PLL_READINDEX]);	/* PLL read index */
+    port_out_r(0x3c6, regs[SDAC_COMMAND]);
+    port_out_r(0x3c8, 2);		/* index to f2 reg */
+    port_out_r(0x3c9, regs[SDAC_PLL_M]);	/* f2 PLL M divider */
+    port_out_r(0x3c9, regs[SDAC_PLL_N1_N2]);	/* f2 PLL N1/N2 divider */
+    port_out_r(0x3c8, 0x0e);		/* index to PLL control */
+    port_out_r(0x3c9, regs[SDAC_PLL_CONTROL]);	/* PLL control */
+    port_out_r(0x3c8, regs[SDAC_PLL_WRITEINDEX]);	/* PLL write index */
+    port_out_r(0x3c7, regs[SDAC_PLL_READINDEX]);	/* PLL read index */
 
     __svgalib_outseq(0x1c, tmp);
 }
@@ -187,10 +187,10 @@ static void GENDAC_restorestate(const unsigned char *regs)
 static int GENDAC_probe(void)
 {
     int i;
-    inb(0x3c6);
-    inb(0x3c6);
-    inb(0x3c6);
-    i=inb(0x3c6);
+    port_in(0x3c6);
+    port_in(0x3c6);
+    port_in(0x3c6);
+    i=port_in(0x3c6);
     if(i==177) return 1;
     return 0;
 }

@@ -50,19 +50,19 @@ static CardSpecs *cardspecs;
 static void outXR(int index,unsigned char d)
 {
     __svgalib_outseq(0x1d,index>>2);
-    outb(apm_xbase,d);
+    port_out_r(apm_xbase,d);
 }
 
 static void outwXR(int index,unsigned short d)
 {
     __svgalib_outseq(0x1d,index>>2);
-    outw(apm_xbase,d);
+    port_outw_r(apm_xbase,d);
 }
 
 static void outlXR(int index,unsigned long d)
 {
     __svgalib_outseq(0x1d,index>>2);
-    outl(apm_xbase,d);
+    port_outl_r(apm_xbase,d);
 }
 
 static unsigned char inXR(int index)
@@ -83,7 +83,7 @@ static unsigned short inwXR(int index)
 static unsigned long inlXR(int index)
 {
     __svgalib_outseq(0x1d,index>>2);
-    return inl(apm_xbase);
+    return port_inl(apm_xbase);
 }
 
 enum {
@@ -123,7 +123,10 @@ static void apm_getmodeinfo(int mode, vga_modeinfo *modeinfo)
 /* Read and save chipset-specific registers */
 
 static int apm_saveregs(unsigned char regs[])
-{ unsigned long k;
+{ 
+	unsigned long k;
+	unsigned long *p;
+	unsigned short *q;
 
     apm_unlock();		/* May be locked again by other programs (e.g. X) */
     regs[APMREG_SAVE(2)] = __svgalib_incrtc(0x19);
@@ -148,12 +151,18 @@ static int apm_saveregs(unsigned char regs[])
    regs[APMREG_SAVE(15)] = (k >> 8)&0xff;
    regs[APMREG_SAVE(16)] = (k >> 16) & 0xff ;
    regs[APMREG_SAVE(17)] = ( k >> 24 ) & 0xff ;
-   (unsigned long)regs[APMREG_SAVE(18)] = inlXR(0xf0) ;
-   (unsigned long)regs[APMREG_SAVE(22)] = inlXR(0xf4) ;
-   (unsigned long)regs[APMREG_SAVE(26)] = inlXR(0x140) ;
-   (unsigned short)regs[APMREG_SAVE(30)] = inlXR(0x144) ;
-   (unsigned long)regs[APMREG_SAVE(32)] = inXR(0x148) ;
-   (unsigned short)regs[APMREG_SAVE(36)] = inXR(0x14c) ;
+   p=(unsigned long *) &regs[APMREG_SAVE(18)];
+   *p = inlXR(0xf0);
+   p=(unsigned long *) &regs[APMREG_SAVE(22)];
+   *p = inlXR(0xf4);
+   p=(unsigned long *) &regs[APMREG_SAVE(26)];
+   *p = inlXR(0x140);
+   q=(unsigned short *) &regs[APMREG_SAVE(30)];
+   *q = inlXR(0x144);
+   p=(unsigned long *) &regs[APMREG_SAVE(32)];
+   *p = inXR(0x148);
+   q=(unsigned short *) &regs[APMREG_SAVE(36)];
+   *q = inXR(0x14c);
 
     return APM_TOTAL_REGS - VGA_TOTAL_REGS;
 }
@@ -485,14 +494,14 @@ static void apm_setwrpage(int page)
 
 static void apm_setdisplaystart(int address)
 {  int i;
-  outw(0x3d4, (address & 0x00FF00) | 0x0C);
-  outw(0x3d4, ((address & 0x00FF) << 8) | 0x0D);
+  port_outw_r(0x3d4, (address & 0x00FF00) | 0x0C);
+  port_outw_r(0x3d4, ((address & 0x00FF) << 8) | 0x0D);
 
   /*
    * Here the high-order bits are masked and shifted, and put into
    * the appropriate extended registers.
    */
-   outb(0x3d4,0x1c);
+   port_out_r(0x3d4,0x1c);
    i=(port_in(0x3d5)&0xf0)|((address & 0x0f0000) >> 16);
    __svgalib_outCR(0x1c,i);
 /*  modinx(vgaIOBase + 4, 0x1c, 0x0f, (address & 0x0f0000) >> 16); */

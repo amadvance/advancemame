@@ -391,9 +391,9 @@ static void mx_unlock(void)
     int vgaIOBase, temp;
 
     vgaIOBase = (port_in(0x3CC) & 0x01) ? 0x3D0 : 0x3B0;
-    outb(vgaIOBase + 4, 0x11);
+    port_out_r(vgaIOBase + 4, 0x11);
     temp = port_in(vgaIOBase + 5);
-    outb(vgaIOBase + 5, temp & 0x7F);
+    port_out_r(vgaIOBase + 5, temp & 0x7F);
     
     __svgalib_outCR(0x19, 0x88);
 }
@@ -403,9 +403,9 @@ static void mx_lock(void)
     int vgaIOBase, temp;
 
     vgaIOBase = (port_in(0x3CC) & 0x01) ? 0x3D0 : 0x3B0;
-    outb(vgaIOBase + 4, 0x11);
+    port_out_r(vgaIOBase + 4, 0x11);
     temp = port_in(vgaIOBase + 5);
-    outb(vgaIOBase + 5, temp & 0x7F);
+    port_out_r(vgaIOBase + 5, temp & 0x7F);
     
     __svgalib_outCR(0x19, 0x0);
 }
@@ -434,9 +434,9 @@ static int mx_test(void)
 static void mx_setdisplaystart(int address)
 { 
   address=address >> 2;
-  outw(CRT_IC, (address & 0x00FF00) | 0x0C);
-  outw(CRT_IC, ((address & 0x00FF) << 8) | 0x0D);
-  outw(CRT_IC, ((address & 0xFF0000) >> 8) | 0x21);
+  port_outw_r(CRT_IC, (address & 0x00FF00) | 0x0C);
+  port_outw_r(CRT_IC, ((address & 0x00FF) << 8) | 0x0D);
+  port_outw_r(CRT_IC, ((address & 0xFF0000) >> 8) | 0x21);
 
 }
 

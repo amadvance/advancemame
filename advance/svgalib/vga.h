@@ -293,7 +293,9 @@ extern "C"
         int version;
         int size;
         int chipset;
-        int physmem;
+        long physmem;
+		long physmemsize; /* Will there be a card with more than 4GB? */
+		void * linearmem;
     } vga_cardinfo;
 
     extern vga_cardinfo *vga_getcardinfo(void);
@@ -319,7 +321,8 @@ extern "C"
     extern void vga_disabledriverreport(void);
     extern int vga_setmodeX(void);
     extern int vga_init(void);	/* Used to return void in svgalib <= 1.12. */
-    extern int vga_initf(int);	
+    extern int vga_initf(int);
+	extern void vga_norevokeprivs(void);
     extern int vga_getmousetype(void);
     extern int vga_getmonitortype(void);
     extern void vga_setmousesupport(int s);
@@ -381,7 +384,8 @@ extern "C"
 #define TRIDENT		34
 #define RENDITION 	35
 #define G450C2		36
-#define PM2		37
+#define PM2			37
+#define UNICHROME	38
     
     /* Hor. sync: */
 #define MON640_60	0	/* 31.5 KHz (standard VGA) */
@@ -394,6 +398,7 @@ extern "C"
 
     extern void vga_setchipset(int c);
     extern void vga_setchipsetandfeatures(int c, int par1, int par2);
+    extern void vga_disablechipset(int c);
     extern void vga_gettextfont(void *font);
     extern void vga_puttextfont(void *font);
     extern void vga_settextmoderegs(void *regs);
@@ -580,6 +585,17 @@ extern void vga_runinbackground(int stat, ...);
 #define VGA_COMEFROMBACK -2
 extern int vga_runinbackground_version(void);
 extern void vga_waitvtactive(void);
+
+#ifdef _SVGALIB_LRMI
+typedef struct {
+    int (*rm_init)(void);
+    int (*rm_call)(struct vm86_regs *r);
+    int (*rm_int)(int interrupt, struct vm86_regs *r);
+    void * (*rm_alloc_real)(int size);
+    void (*rm_free_real)(void *m);
+} LRMI_callbacks;
+extern int vga_set_LRMI_callbacks(LRMI_callbacks * LRMI);
+#endif
 
 #ifdef __cplusplus
 }

@@ -140,24 +140,24 @@ void __svgalib_Sierra_32K_restorestate(const unsigned char *regs);
 #ifdef __OPTIMIZE__
 static __inline__ void _ramdac_dactocomm(void)
 {
-    inb(PEL_IW);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
-    inb(PEL_MSK);
+    port_in(PEL_IW);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
+    port_in(PEL_MSK);
 }
 
 static __inline__ void _ramdac_dactopel(void)
 {
-    inb(PEL_IW);
+    port_in(PEL_IW);
 }
 
 static __inline__ unsigned char _ramdac_setcomm(unsigned char data)
 {
     _ramdac_dactocomm();
-    outb(PEL_MSK, data);
+    port_out_r(PEL_MSK, data);
     _ramdac_dactocomm();
-    return inb(PEL_MSK);
+    return port_in(PEL_MSK);
 }
 #else
 void _ramdac_dactocomm(void);

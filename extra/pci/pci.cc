@@ -588,7 +588,7 @@ HEADER
 "\tIt supports all the video boards supported by the library.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tSVGALIB 1.9.19 with the AdvanceMAME patches applied.\n"
+"\tSVGALIB 1.9.20 with the AdvanceMAME patches applied.\n"
 "\n"
 ;
 

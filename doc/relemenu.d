@@ -1,6 +1,10 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.4.7
+	This version uses for DOS the new SVGALIB 1.9.20 library that
+	adds support for the latest Radeon and nVidia video boards.
+
 AdvanceMENU 2.3.8
 	This release adds support for specific emulator configuration
 	options. Please note that these specific emulator

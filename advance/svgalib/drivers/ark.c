@@ -245,7 +245,7 @@ static void ark_setregs(const unsigned char regs[], int mode)
     __svgalib_outCR(0x44, regs[ARK_CR44]);
 
     port_in(0x3C8);
-    outb(0x3C6, regs[ARK_PELMASK]);
+    port_out_r(0x3C6, regs[ARK_PELMASK]);
     dac_used->restoreState(regs + ARK_DAC_OFFSET);
 
     __svgalib_outCR(0x46, regs[ARK_CR46]);
@@ -516,9 +516,9 @@ static void ark_setdisplaystart(int address)
 {
     __svgalib_outcrtc(0x0d, (address >> 2) & 0xff);
     __svgalib_outcrtc(0x0c, (address >> 10) & 0xff);
-    inb(0x3da);			/* set ATC to addressing mode */
-    outb(ATT_IW, 0x13 + 0x20);	/* select ATC reg 0x13 */
-    outb(ATT_IW, (port_in(ATT_R) & 0xf0) | ((address & 3) << 1));
+    port_in(0x3da);			/* set ATC to addressing mode */
+    port_out_r(ATT_IW, 0x13 + 0x20);	/* select ATC reg 0x13 */
+    port_out_r(ATT_IW, (port_in(ATT_R) & 0xf0) | ((address & 3) << 1));
     /* write sa0-1 to bits 1-2 */
     __svgalib_outcrtc(0x40, (address >> 18) & 0x07);
 }
@@ -530,8 +530,8 @@ static void ark_setdisplaystart(int address)
 static void ark_setlogicalwidth(int width)
 {
     __svgalib_outcrtc(0x13, (width >> 3));
-    outb(__svgalib_CRT_I, 0x41);
-    outb(__svgalib_CRT_D, (port_in(__svgalib_CRT_D) & ~0x08) | ((width >> 3) & 0x100));
+    port_out_r(__svgalib_CRT_I, 0x41);
+    port_out_r(__svgalib_CRT_D, (port_in(__svgalib_CRT_D) & ~0x08) | ((width >> 3) & 0x100));
 }
 
 static int ark_linear(int op, int param)
