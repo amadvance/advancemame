@@ -461,6 +461,7 @@ EMUOBJS += \
 EMUCHDMANOBJS = \
 	$(OBJ)/chdman.o \
 	$(OBJ)/chd.o \
+	$(OBJ)/chdcd.o \
 	$(OBJ)/sha1.o \
 	$(OBJ)/md5.o \
 	$(OBJ)/version.o

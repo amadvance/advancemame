@@ -56,14 +56,17 @@ static void blit_cpuid(unsigned level, unsigned* regs)
 		"popal\n"
 		:
 		: "a" (level), "D" (regs)
-		: "cc"
+		: "cc", "memory"
 	);
 }
 
-static adv_bool blit_has_mmx(void)
+static void blit_has_capability(adv_bool* mmx, adv_bool* sse)
 {
 	unsigned regs[4];
 	unsigned a, b;
+
+	*mmx = 0;
+	*sse = 0;
 
 	__asm__ __volatile__(
 		"pushfl\n"
@@ -83,29 +86,30 @@ static adv_bool blit_has_mmx(void)
 
 	if (a == b) {
 		log_std(("blit: no cpuid\n"));
-		return 0; /* no cpuid */
+		return; /* no cpuid */
 	}
 
 	blit_cpuid(0, regs);
 	if (regs[0] > 0) {
 		blit_cpuid(1, regs);
 		if ((regs[3] & 0x800000) != 0) {
-			log_std(("blit: mmx\n"));
-			return 1;
+			*mmx = 1;
+			if ((regs[3] & 0x2000000) != 0) {
+				*sse = 1;
+			}
 		}
 	}
-
-	log_std(("blit: no mmx\n"));
-	return 0;
 }
 
 /* Support the the both condition. MMX present or not */
 adv_bool the_blit_mmx = 0;
+adv_bool the_blit_sse = 0;
+
 #define BLITTER(name) (the_blit_mmx ? name##_mmx : name##_def)
 
-static adv_error blit_set_mmx(void)
+static adv_error blit_cpu(void)
 {
-	the_blit_mmx = blit_has_mmx();
+	blit_has_capability(&the_blit_mmx, &the_blit_sse);
 
 	return 0;
 }
@@ -124,9 +128,10 @@ static inline void internal_end(void)
 /* Assume that MMX is NOT present. */
 
 #define the_blit_mmx 0
+#define the_blit_sse 0
 #define BLITTER(name) (name##_def)
 
-static adv_error blit_set_mmx(void)
+static adv_error blit_cpu(void)
 {
 	return 0;
 }
@@ -318,7 +323,7 @@ static void video_buffer_done(void)
 
 adv_error video_blit_init(void)
 {
-	if (blit_set_mmx() != 0) {
+	if (blit_cpu() != 0) {
 		error_set("This executable requires an MMX processor.\n");
 		return -1;
 	}

@@ -1337,6 +1337,8 @@ static int r128_init(int force, int par1, int par2)
         ((id>>8)==0x41) ||
         ((id>>8)==0x49) ||
         ((id>>8)==0x4E) ||
+        ((id>>8)==0x58) ||
+        ((id>>8)==0x59) ||
         ((id>>8)==0x51))
         chiptype = Radeon;
 	

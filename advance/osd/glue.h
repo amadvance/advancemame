@@ -93,15 +93,13 @@ struct mame_option {
 	adv_bool artwork_bezel_flag;
 	adv_bool artwork_crop_flag;
 
-	char savegame;
-
+	char savegame_file_buffer[MAME_MAXPATH];
 	char language_file_buffer[MAME_MAXPATH];
 	char record_file_buffer[MAME_MAXPATH];
 	char playback_file_buffer[MAME_MAXPATH];
 	char cheat_file_buffer[MAME_MAXPATH];
 	char history_file_buffer[MAME_MAXPATH];
 	char info_file_buffer[MAME_MAXPATH];
-
 	char bios_buffer[MAME_MAXBIOS];
 
 #ifdef MESS

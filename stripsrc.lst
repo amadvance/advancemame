@@ -11,8 +11,12 @@ artwork.h
 audit.c
 audit.h
 blitgen.c
+cdrom.c
+cdrom.h
 chd.c
 chd.h
+chdcd.c
+chdcd.h
 chdman.c
 cheat.c
 cheat.h

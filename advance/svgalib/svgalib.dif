@@ -374,7 +374,7 @@ diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
      if (__svgalib_driver_report) {
 diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
 --- ../svgalib.ori/drivers/r128.c	2003-10-13 17:40:51.000000000 +0200
-+++ drivers/r128.c	2004-02-22 17:54:46.000000000 +0100
++++ drivers/r128.c	2004-04-05 22:08:22.000000000 +0200
 @@ -10,12 +10,12 @@
  #include <errno.h>
  #include "vga.h"
@@ -440,7 +440,7 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
      if (IS_IN_STANDARD_VGA_DRIVER(mode))
  	return __svgalib_vga_driverspecs.modeavailable(mode);
  
-@@ -1327,6 +1333,10 @@
+@@ -1327,6 +1333,12 @@
          (id==0x4c57) ||
          (id==0x4c59) ||
          (id==0x4c5a) ||
@@ -448,6 +448,8 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
 +        ((id>>8)==0x41) ||
 +        ((id>>8)==0x49) ||
 +        ((id>>8)==0x4E) ||
++        ((id>>8)==0x58) ||
++        ((id>>8)==0x59) ||
          ((id>>8)==0x51))
          chiptype = Radeon;
  	

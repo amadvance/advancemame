@@ -635,7 +635,10 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.use_artwork |= ARTWORK_USE_BEZELS;
 	options.artwork_res = 1; /* no artwork scaling */
 	options.artwork_crop = advance->artwork_crop_flag;
-	options.savegame = advance->savegame;
+	if (advance->savegame_file_buffer[0] != 0)
+		options.savegame = advance->savegame_file_buffer;
+	else
+		options.savegame = 0; /* no savegame to load */
 	options.debug_width = advance->debug_width;
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;
@@ -2243,6 +2246,8 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	sncpy(option->language_file_buffer, sizeof(option->language_file_buffer), conf_string_get_default(cfg_context, "misc_languagefile"));
 
 	sncpy(option->cheat_file_buffer, sizeof(option->cheat_file_buffer), conf_string_get_default(cfg_context, "misc_cheatfile"));
+
+	sncpy(option->savegame_file_buffer, sizeof(option->savegame_file_buffer), "");
 
 	sncpy(option->bios_buffer, sizeof(option->bios_buffer), conf_string_get_default(cfg_context, "misc_bios"));
 
