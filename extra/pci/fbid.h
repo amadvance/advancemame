@@ -42,6 +42,7 @@
 { PCI_VENDOR_ID_3DLABS, PCI_DEVICE_ID_3DLABS_PERMEDIA3, "" },
 
 /* radeonfb.c */
+#ifndef USE_FB_PATCH
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_QD, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_QE, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_QF, "" },
@@ -80,35 +81,82 @@
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, "" },
-#ifdef USE_FB_PATCH
-/* { PCI_VENDOR_ID_ATI, 0x4147, "" }, */ /* ATI FireGL Z1 AG (AGP) */
-
-{ PCI_VENDOR_ID_ATI, 0x4148, "" }, /* ATI Radeon 9800SE AH (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x4149, "" }, /* ATI Radeon 9800 AI (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x414A, "" }, /* ATI Radeon 9800 AJ (AGP) */
-/* { PCI_VENDOR_ID_ATI, 0x414B, "" }, */ /* ATI FireGL X2 AK (AGP) */
-
-{ PCI_VENDOR_ID_ATI, 0x4151, "" }, /* ATI Radeon 9600SE AQ (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x4153, "" }, /* ATI Radeon 9600 AS (AGP) */
-/* { PCI_VENDOR_ID_ATI, 0x4154, "" }, */ /* ATI FireGL T2 AT (AGP) */
-/* { PCI_VENDOR_ID_ATI, 0x4156, "" }, */ /* ATI FireGL RV360 AV (AGP) */
-
-{ PCI_VENDOR_ID_ATI, 0x4E50, "" }, /* ATI Radeon Mobility 9600 (M10) NP (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x4E51, "" }, /* ATI Radeon Mobility 9600 (M10) NQ (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x4E52, "" }, /* ATI Radeon Mobility 9600 (M11) NR (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x4E53, "" }, /* ATI Radeon Mobility 9600 (M10) NS (AGP) */
-/* { PCI_VENDOR_ID_ATI, 0x4E54, "" }, */ /* ATI FireGL Mobility T2 (M10) NT (AGP) */
-/* { PCI_VENDOR_ID_ATI, 0x4E56, "" }, */ /* ATI FireGL Mobility T2 (M11) NV (AGP) */
-
-{ PCI_VENDOR_ID_ATI, 0x5834, "" }, /* ATI Radeon 9100 IGP (A5) 5834 */
-{ PCI_VENDOR_ID_ATI, 0x5835, "" }, /* ATI Radeon Mobility 9100 IGP (U3) 5835 */
-
-{ PCI_VENDOR_ID_ATI, 0x5961, "" }, /* ATI Radeon 9200 5961 (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x5962, "" }, /* ATI Radeon 9200 5962 (AGP) */
+#else
+{ PCI_VENDOR_ID_ATI, 0x4144, "" }, /* Radeon 9500 Series (R300) */
+{ PCI_VENDOR_ID_ATI, 0x4145, "" }, /* Radeon 9700 (R300) */
+{ PCI_VENDOR_ID_ATI, 0x4146, "" }, /* Radeon 9700 (R300) */
+/* { PCI_VENDOR_ID_ATI, 0x4147, "" }, */ /* FireGL Z1 AG (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4148, "" }, /* Radeon 9800SE AH (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4149, "" }, /* Radeon 9800 AI (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x414A, "" }, /* Radeon 9800 AJ (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x414B, "" }, */ /* FireGL X2 AK (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4150, "" }, /* Radeon 9600 Series (V350) */
+{ PCI_VENDOR_ID_ATI, 0x4151, "" }, /* Radeon 9600SE AQ (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4152, "" }, /* Radeon 9600 XT (V350) */
+{ PCI_VENDOR_ID_ATI, 0x4153, "" }, /* Radeon 9600 AS (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4154, "" }, */ /* FireGL T2 AT (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4155, "" }, */ /* RV350 AU [Fire GL T2] */
+/* { PCI_VENDOR_ID_ATI, 0x4156, "" }, */ /* FireGL RV360 AV (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4157, "" }, */ /* RV350 AW [Fire GL T2] */
+{ PCI_VENDOR_ID_ATI, 0x4242, "" }, /* Radeon 8500 DV */
+{ PCI_VENDOR_ID_ATI, 0x4964, "" },
+{ PCI_VENDOR_ID_ATI, 0x4965, "" },
+{ PCI_VENDOR_ID_ATI, 0x4966, "" }, /* Radeon 9000 Series (RV250) */
+{ PCI_VENDOR_ID_ATI, 0x4967, "" }, /* Radeon 9000 (RV250) */
+{ PCI_VENDOR_ID_ATI, 0x4c57, "" }, /* Radeon Mobility M7 LW */
+/* { PCI_VENDOR_ID_ATI, 0x4c58, "" }, */ /* FireGL Mobility */
+{ PCI_VENDOR_ID_ATI, 0x4c59, "" }, /* Radeon Mobility M6 LY */
+{ PCI_VENDOR_ID_ATI, 0x4c5a, "" }, /* Radeon Mobility M6 LZ */
+/* { PCI_VENDOR_ID_ATI, 0x4c64, "" }, */ /* Mobility FireGL 9000 */
+{ PCI_VENDOR_ID_ATI, 0x4c65, "" },
+{ PCI_VENDOR_ID_ATI, 0x4c66, "" }, /* Mobility Radeon 9000 */
+{ PCI_VENDOR_ID_ATI, 0x4c67, "" },
+{ PCI_VENDOR_ID_ATI, 0x4e44, "" }, /* Radeon 9700/Pro, 9500 Series (R300) */
+{ PCI_VENDOR_ID_ATI, 0x4e45, "" }, /* Radeon 9700/9500 Series (R300) */
+{ PCI_VENDOR_ID_ATI, 0x4e46, "" }, /* Radeon 9600TX (R300) */
+/* { PCI_VENDOR_ID_ATI, 0x4e47, "" }, */ /* Fire GL X1/Z1 AGP/Pro Video Accelerator (R300-WS) */
+{ PCI_VENDOR_ID_ATI, 0x4e48, "" }, /* Radeon 9800 Pro (R350) */
+{ PCI_VENDOR_ID_ATI, 0x4e49, "" }, /* Radeon 9800 (R350) (??) */
+{ PCI_VENDOR_ID_ATI, 0x4e4a, "" }, /* Radeon 9800 XT (R350) */
+/* { PCI_VENDOR_ID_ATI, 0x4e4b, "" }, */ /* R350 NK [Fire GL X2] */
+{ PCI_VENDOR_ID_ATI, 0x4e50, "" }, /* Radeon Mobility 9600 (M10) NP (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4e51, "" }, /* Radeon Mobility 9600 (M10) NQ (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4e52, "" }, /* Radeon Mobility 9600 (M11) NR (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4e53, "" }, /* Radeon Mobility 9600 (M10) NS (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4e54, "" }, */ /* FireGL Mobility T2 (M10) NT (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4e56, "" }, */ /* FireGL Mobility T2 (M11) NV (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5144, "" },
+{ PCI_VENDOR_ID_ATI, 0x5145, "" },
+{ PCI_VENDOR_ID_ATI, 0x5146, "" },
+{ PCI_VENDOR_ID_ATI, 0x5147, "" },
+/* { PCI_VENDOR_ID_ATI, 0x5148, "" }, */ /* Radeon R200 QH [Radeon 8500] */
+{ PCI_VENDOR_ID_ATI, 0x5149, "" }, /* Radeon R200 QI */
+{ PCI_VENDOR_ID_ATI, 0x514a, "" }, /* Radeon R200 QJ */
+{ PCI_VENDOR_ID_ATI, 0x514b, "" }, /* Radeon R200 QK */
+{ PCI_VENDOR_ID_ATI, 0x514c, "" },
+{ PCI_VENDOR_ID_ATI, 0x514d, "" },
+{ PCI_VENDOR_ID_ATI, 0x514e, "" },
+{ PCI_VENDOR_ID_ATI, 0x514f, "" },
+{ PCI_VENDOR_ID_ATI, 0x5154, "" }, /* R200 QT [Radeon 8500] */
+{ PCI_VENDOR_ID_ATI, 0x5155, "" }, /* R200 QU [Radeon 9100] */
+{ PCI_VENDOR_ID_ATI, 0x5157, "" },
+{ PCI_VENDOR_ID_ATI, 0x5158, "" },
+{ PCI_VENDOR_ID_ATI, 0x5159, "" },
+{ PCI_VENDOR_ID_ATI, 0x515a, "" },
+{ PCI_VENDOR_ID_ATI, 0x5168, "" }, /* Radeon R200 Qh */
+{ PCI_VENDOR_ID_ATI, 0x5169, "" }, /* Radeon R200 Qi */
+{ PCI_VENDOR_ID_ATI, 0x516a, "" }, /* Radeon R200 Qj */
+{ PCI_VENDOR_ID_ATI, 0x516b, "" }, /* Radeon R200 Qk */
+{ PCI_VENDOR_ID_ATI, 0x516c, "" },
+{ PCI_VENDOR_ID_ATI, 0x5834, "" }, /* Radeon 9100 IGP (A5) 5834 */
+{ PCI_VENDOR_ID_ATI, 0x5835, "" }, /* Radeon Mobility 9100 IGP (U3) 5835 */
+{ PCI_VENDOR_ID_ATI, 0x5960, "" }, /* Radeon 9200 Pro (RV280) */
+{ PCI_VENDOR_ID_ATI, 0x5961, "" }, /* Radeon 9200 5961 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5962, "" }, /* Radeon 9200 5962 (AGP) */
 { PCI_VENDOR_ID_ATI, 0x5963, "" },
-{ PCI_VENDOR_ID_ATI, 0x5964, "" }, /* ATI Radeon 9200SE 5964 (AGP) */
-{ PCI_VENDOR_ID_ATI, 0x5C61, "" }, /* ATI Radeon Mobility 9200 (M9+) 5C61 (AGP */
-{ PCI_VENDOR_ID_ATI, 0x5C63, "" }, /* ATI Radeon Mobility 9200 (M9+) 5C63 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5964, "" }, /* Radeon 9200SE 5964 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5C61, "" }, /* Radeon Mobility 9200 (M9+) 5C61 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5C63, "" }, /* Radeon Mobility 9200 (M9+) 5C63 (AGP) */
 #endif
 
 /* tdfxfb.c */

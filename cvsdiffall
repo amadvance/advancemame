@@ -1,0 +1,4 @@
+#!/bin/bash
+
+find -name CVS | xargs -n 1 ./cvsdiff
+

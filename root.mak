@@ -56,6 +56,8 @@ endif
 #############################################################################
 # Advance
 
+include $(srcdir)/advance/version.mak
+
 include $(srcdir)/advance/advance.mak
 
 ifneq ($(wildcard $(EMUSRC)),)
