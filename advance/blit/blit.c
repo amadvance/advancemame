@@ -151,35 +151,54 @@ static inline void internal_end(void)
 /* video stage */
 
 #define STAGE_SIZE(stage, _type, _sdx, _sdp, _sbpp, _ddx, _dbpp) \
-	stage->type = (_type); \
-	stage->sdx = (_sdx); \
-	stage->sdp = (_sdp); \
-	stage->sbpp = (_sbpp); \
-	slice_set(&stage->slice, (_sdx), (_ddx)); \
-	stage->palette = 0; \
-	stage->buffer_size = (_dbpp)*(_ddx); \
-	stage->buffer_extra_size = 0; \
-	stage->plane_num = 0; \
-	stage->plane_put_plain = 0; \
-	stage->plane_put = 0; \
-	stage->put_plain = 0; \
-	stage->put = 0; \
-	stage->sdef = 0; \
-	stage->ddef = 0
+	do { \
+		stage->type = (_type); \
+		stage->sdx = (_sdx); \
+		stage->sdp = (_sdp); \
+		stage->sbpp = (_sbpp); \
+		slice_set(&stage->slice, (_sdx), (_ddx)); \
+		stage->palette = 0; \
+		stage->buffer_size = (_dbpp)*(_ddx); \
+		stage->buffer_extra_size = 0; \
+		stage->plane_num = 0; \
+		stage->plane_put_plain = 0; \
+		stage->plane_put = 0; \
+		stage->put_plain = 0; \
+		stage->put = 0; \
+	} while (0)
 
 #define STAGE_PUT(stage, _put_plain, _put) \
-	stage->put_plain = (_put_plain); \
-	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
+	do { \
+		stage->put_plain = (_put_plain); \
+		stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put); \
+	} while (0)
 
 #define STAGE_EXTRA(stage) \
-	stage->buffer_extra_size = stage->buffer_size
+	do { \
+		stage->buffer_extra_size = stage->buffer_size; \
+	} while (0)
 
 #define STAGE_PALETTE(stage, _palette) \
-	stage->palette = _palette
+	do { \
+		stage->palette = _palette; \
+	} while (0)
 
-#define STAGE_FORMAT(stage, _sdef, _ddef) \
-	stage->sdef = _sdef; \
-	stage->ddef = _ddef
+#define STAGE_CONVERSION(stage, _sdef, _ddef) \
+	do { \
+		union adv_color_def_union tmp_sdef; \
+		union adv_color_def_union tmp_ddef; \
+		tmp_sdef.ordinal = (_sdef); \
+		tmp_ddef.ordinal = (_ddef); \
+		stage->red_shift = rgb_conv_shift_get(tmp_sdef.nibble.red_len, tmp_sdef.nibble.red_pos, tmp_ddef.nibble.red_len, tmp_ddef.nibble.red_pos); \
+		stage->red_mask = rgb_conv_mask_get(tmp_sdef.nibble.red_len, tmp_sdef.nibble.red_pos, tmp_ddef.nibble.red_len, tmp_ddef.nibble.red_pos); \
+		stage->green_shift = rgb_conv_shift_get(tmp_sdef.nibble.green_len, tmp_sdef.nibble.green_pos, tmp_ddef.nibble.green_len, tmp_ddef.nibble.green_pos); \
+		stage->green_mask = rgb_conv_mask_get(tmp_sdef.nibble.green_len, tmp_sdef.nibble.green_pos, tmp_ddef.nibble.green_len, tmp_ddef.nibble.green_pos); \
+		stage->blue_shift = rgb_conv_shift_get(tmp_sdef.nibble.blue_len, tmp_sdef.nibble.blue_pos, tmp_ddef.nibble.blue_len, tmp_ddef.nibble.blue_pos); \
+		stage->blue_mask = rgb_conv_mask_get(tmp_sdef.nibble.blue_len, tmp_sdef.nibble.blue_pos, tmp_ddef.nibble.blue_len, tmp_ddef.nibble.blue_pos); \
+		stage->ssp = color_def_bytes_per_pixel_get(tmp_sdef.ordinal); \
+		stage->dsp = color_def_bytes_per_pixel_get(tmp_ddef.ordinal); \
+	} while (0)
+
 
 #include "vstretch.h"
 #include "vcopy.h"
@@ -676,12 +695,12 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_palette16to32 : return "palette 16>32";
 		case pipe_bgra8888tobgr332 : return "bgra 8888>bgr 332";
 		case pipe_bgra8888tobgr565 : return "bgra 8888>bgr 565";
-		case pipe_bgra8888tobgr555 : return "bgra 8888>bgr 555";
+		case pipe_bgra8888tobgra5551 : return "bgra 8888>bgra 5551";
 		case pipe_bgra8888toyuy2 : return "bgra 8888>yuy2";
-		case pipe_bgr555tobgr332 : return "bgr 555>bgr 332";
-		case pipe_bgr555tobgr565 : return "bgr 555>bgr 565";
-		case pipe_bgr555tobgra8888 : return "bgr 555>bgra 8888";
-		case pipe_bgr555toyuy2 : return "bgr 555>yuy2";
+		case pipe_bgra5551tobgr332 : return "bgra 5551>bgr 332";
+		case pipe_bgra5551tobgr565 : return "bgra 5551>bgr 565";
+		case pipe_bgra5551tobgra8888 : return "bgra 5551>bgra 8888";
+		case pipe_bgra5551toyuy2 : return "bgra 5551>yuy2";
 		case pipe_rgb888tobgra8888 : return "rgb 888>bgra 8888";
 		case pipe_bgr888tobgra8888 : return "bgr 888>bgra 8888";
 		case pipe_rgbtorgb : return "rgb>rgb";
@@ -718,12 +737,12 @@ static adv_bool pipe_is_conversion(enum video_stage_enum pipe)
 		case pipe_unchained_x_double_palette16to8 :
 		case pipe_bgra8888tobgr332 :
 		case pipe_bgra8888tobgr565 :
-		case pipe_bgra8888tobgr555 :
+		case pipe_bgra8888tobgra5551 :
 		case pipe_bgra8888toyuy2 :
-		case pipe_bgr555tobgr332 :
-		case pipe_bgr555tobgr565 :
-		case pipe_bgr555tobgra8888 :
-		case pipe_bgr555toyuy2 :
+		case pipe_bgra5551tobgr332 :
+		case pipe_bgra5551tobgr565 :
+		case pipe_bgra5551tobgra8888 :
+		case pipe_bgra5551toyuy2 :
 		case pipe_rgb888tobgra8888 :
 		case pipe_bgr888tobgra8888 :
 		case pipe_rgbtorgb :
@@ -787,13 +806,13 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			case pipe_palette16to16 : return 1;
 			case pipe_palette16to32 : return 1;
 			case pipe_bgra8888tobgr332 : return is_plain;
-			case pipe_bgra8888tobgr555 : return is_plain;
+			case pipe_bgra8888tobgra5551 : return is_plain;
 			case pipe_bgra8888tobgr565 : return is_plain;
 			case pipe_bgra8888toyuy2 : return 1;
-			case pipe_bgr555tobgr332 : return is_plain;
-			case pipe_bgr555tobgr565 : return is_plain;
-			case pipe_bgr555tobgra8888 : return is_plain;
-			case pipe_bgr555toyuy2 : return 1;
+			case pipe_bgra5551tobgr332 : return is_plain;
+			case pipe_bgra5551tobgr565 : return is_plain;
+			case pipe_bgra5551tobgra8888 : return is_plain;
+			case pipe_bgra5551toyuy2 : return 1;
 			case pipe_rgb888tobgra8888 : return 0;
 			case pipe_bgr888tobgra8888 : return 0;
 			case pipe_rgbtorgb : return 0;
@@ -804,15 +823,12 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			case pipe_unchained_palette16to8 : return 1;
 			case pipe_unchained_x_double : return 1;
 			case pipe_unchained_x_double_palette16to8 : return 1;
-			default:
-			return 0;
+			default: return 0;
 		}
 	} else {
-		adv_bool is_plain = stage->sbpp == stage->sdp;
 		switch (stage->type) {
 			case pipe_x_stretch : return 0;
-			default:
-				return is_plain;
+			default: return 1;
 		}
 	}
 }
@@ -2191,7 +2207,7 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 4;
 				}
-				video_stage_bgra8888tobgr555_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888tobgra5551_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
@@ -2215,7 +2231,7 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 2;
 				}
-				video_stage_bgr555tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
@@ -2223,7 +2239,7 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 2;
 				}
-				video_stage_bgr555tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
 				/* rotation */
@@ -2231,10 +2247,10 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 2;
 				}
-				video_stage_bgr555tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
-				video_stage_bgr555toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else {
 				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );

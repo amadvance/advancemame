@@ -228,6 +228,11 @@ ifndef CONF_ARCH
 CONF_ARCH=blend
 endif
 
+# Pack also the emulator source in the dist package
+ifndef CONF_WHOLESRC
+CONF_WHOLESRC=no
+endif
+
 ############################################################################
 # Tools configuration
 

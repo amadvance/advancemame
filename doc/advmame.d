@@ -12,9 +12,9 @@ Synopsis
 	:	[-listinfo] [-record FILE] [-playback FILE] [-version]
 
 Description
-	AdvanceMAME is an unofficial MAME version for Linux, DOS and Windows 
-	with an advanced video support for helping the use with TVs, Arcade
-	Monitors, Fixed Frequencies Monitors and also with normal
+	AdvanceMAME is an unofficial MAME version for Linux, Mac OS X, DOS
+	and Windows with an advanced video support for helping the use with
+	TVs, Arcade Monitors, Fixed Frequencies Monitors and also with normal
 	PC Monitors.
 
 	The major features are:
@@ -30,15 +30,15 @@ Description
 		Arcade Monitors or TVs.
 	* Special `blit' effects to improve the image quality in
 		stretching.
-	* Special `RGB' effects to simulate the aspect of a real Arcade
+	* Special `rgb' effects to simulate the aspect of a real Arcade
 		Monitor.
-	* Special `scale2x' effects to improve the aspect with modern
+	* Special `scale' effects to improve the aspect with modern
 		PC Monitors.
 	* Change of the video mode and other options at runtime.
 	* Automatic exit after some time of inactivity.
 	* Scripts capabilities to drive external devices.
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
-		thread architecture (only for Linux).
+		thread architecture (only for Linux/Mac OS X).
 	* Sound and video recording in WAV, PNG and MNG files.
 
 Keys
@@ -360,8 +360,8 @@ Configuration
 	options from the file `advmame.rc', `advmess.rc' and `advpac.rc'
 	in the current directory.
 
-	The Linux version reads configuration options from the files
-	`advmame.rc', `advmess.rc' and `advpac.rc' in the $root and
+	The Linux and Mac OS X versions read configuration options from the
+	files `advmame.rc', `advmess.rc' and `advpac.rc' in the $root and
 	the $home directory.
 	The $root directory is `$DATA/advance/', where $DATA is the
 	data directory configured with the `configure' script.
@@ -455,12 +455,11 @@ Configuration
   Directory Configuration Options
 
     dir_*
-	All the directories specifications. The DOS and Windows versions 
-	use the `;' char as directory separator, instead, the Linux version
-	uses the `:' char.
+	All the directories specifications. In DOS and Windows use the `;'
+	char as directory separator. In Linux and Mac OS X use the `:' char.
 
 	:dir_* DIR[;DIR]... (DOS, Windows)
-	:dir_* DIR[:DIR]... (Linux)
+	:dir_* DIR[:DIR]... (Linux, Mac OS X)
 
 	Options:
 		dir_rom - Multi directory specification for the
@@ -486,7 +485,7 @@ Configuration
 			files.
 		dir_crc - Single directory for the `crc' files.
 
-	Defaults for the DOS and Windows versions :
+	Defaults for DOS and Windows :
 		dir_rom - rom
 		dir_image - image
 		dir_diff - diff
@@ -501,7 +500,7 @@ Configuration
 		dir_snap - snap
 		dir_crc - crc
 
-	Defaults for the Linux version :
+	Defaults for Linux and Mac OS X :
 		dir_rom - $home/rom:$root/rom
 		dir_image - $home/image:$root/image
 		dir_diff - $home/image:$root/diff
@@ -986,12 +985,15 @@ Configuration
 		none - No sound.
 		auto - Automatic detection (default).
 
-	Options for the Linux version:
+	Options for Linux:
 		alsa - ALSA automatic detection.
 		oss - OSS automatic detection.
 		sdl - SDL automatic detection.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		seal - SEAL automatic detection.
 		seal/sb - Sound Blaster.
 		seal/pas - Pro Audio Spectrum.
@@ -1023,7 +1025,7 @@ Configuration
 
 		http://vsyncmame.mameworld.net
 
-	Options for the Windows version:
+	Options Windows:
 		sdl - SDL automatic detection.
 
     sound_mode
@@ -1093,13 +1095,22 @@ Configuration
 		none - No keyboard.
 		auto - Automatic detection (default).
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB keyboard. This driver is not available
 			if the SDL video output is used.
 		raw - Linux RAW kernel keyboard interface. This driver
 			is not available if the SDL video output is used.
 		sdl - SDL keyboard. This driver is available
 			only if the SDL video output is used.
+
+	Options for Mac OS X:
+		sdl - SDL keyboard.
+
+	Options for DOS:
+		allegro - Allegro automatic detection.
+
+	Options for Windows:
+		sdl - SDL automatic detection.
 
     device_joystick
 	Selects the joystick driver.
@@ -1110,14 +1121,17 @@ Configuration
 		none - No joystick (default).
 		auto - Automatic detection.
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB automatic detection.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
 	correct joystick in the SVGALIB configuration file.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		allegro - Allegro automatic detection.
 		allegro/standard - Standard joystick.
 		allegro/dual - Dual joysticks.
@@ -1151,7 +1165,7 @@ Configuration
 		allegro/segapcifast - IF-SEGA2/PCI (normal).
 		allegro/wingwarrior - Wingman Warrior.
 
-	Options for the Windows version:
+	Options for Windows:
 		sdl - SDL automatic detection.
 
     device_mouse
@@ -1163,21 +1177,24 @@ Configuration
 		none - No mouse (default).
 		auto - Automatic detection.
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB automatic detection.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
 	correct mouse in the SVGALIB configuration file.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		allegro - Allegro automatic detection.
 
 	The Allegro driver also uses the special `optimous' driver
 	for a second mouse. The `optimous' driver is available in
 	the `contrib/' directory.
 
-	Options for the Windows version:
+	Options for Windows:
 		sdl - SDL automatic detection.
 
     input_steadykey
@@ -1448,9 +1465,9 @@ Configuration
 		sysinfo.dat - MESS info database.
 		english.lng - Language database.
 
-	These files should reside in current directory for the
-	DOS and Windows versions or in the $root or $home directories 
-	for the Linux version.
+	These files should reside in current directory for
+	DOS and Windows or in the $root or $home directories
+	for Linux an Mac OS X.
 
     misc_cheat
 	Enable or disable the cheat system. It may also change the
@@ -1464,12 +1481,12 @@ Configuration
 		no - Disable the cheats (default).
 
     misc_cheatfile
-	Select the cheat files. The DOS and Windows versions use the
-	`;' char as file separator, instead, the Linux version
-	uses the `:' char.
+	Select the cheat files. In DOS and Windows use the
+	`;' char as file separator. In Linux and Mac OS X use
+	the `:' char.
 
 	:misc_cheatfile FILE[;FILE]... (DOS, Windows)
-	:misc_cheatfile FILE[:FILE]... (Linux)
+	:misc_cheatfile FILE[:FILE]... (Linux, Mac OS X)
 
 	Options:
 		FILE - Cheat file to load (default cheat.dat).

@@ -38,7 +38,6 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <execinfo.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>

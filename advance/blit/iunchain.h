@@ -75,7 +75,7 @@ static inline void internal_unchained8(uint8* dst, const uint8* src, unsigned co
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make8(src[0], src[4], src[8], src[12]);
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[4], src[8], src[12]);
 		dst += 4;
 		src += 16;
 		--count;
@@ -120,7 +120,7 @@ static inline void internal_unchained8_step2(uint8* dst, const uint8* src, unsig
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make8(src[0], src[8], src[16], src[24]);
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[8], src[16], src[24]);
 		dst += 4;
 		src += 32;
 		--count;
@@ -165,7 +165,7 @@ static inline void internal_unchained8_double(uint8* dst, const uint8* src, unsi
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make8(src[0], src[2], src[4], src[6]);
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[2], src[4], src[6]);
 		dst += 4;
 		src += 8;
 		--count;

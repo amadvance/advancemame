@@ -30,6 +30,7 @@
 
 #include "ssdl.h"
 #include "log.h"
+#include "endianrw.h"
 
 #include <assert.h>
 
@@ -67,24 +68,24 @@ static void sound_sdl_callback(void *userdata, Uint8 *stream, int len)
 {
 	struct sound_sdl_context* state = (struct sound_sdl_context*)userdata;
 	unsigned samples_count;
-	sound_sample_t* samples_buffer;
+	Uint8* samples_buffer;
 
 	assert( state == &sdl_state );
 
 	samples_count = len / 2;
-	samples_buffer = (sound_sample_t*)stream;
+	samples_buffer = stream;
 
 	while (samples_count) {
 		if (state->fifo_mac) {
-			*samples_buffer = state->fifo_map[state->fifo_pos];
+			le_uint16_write(samples_buffer, state->fifo_map[state->fifo_pos]);
 			state->fifo_pos = (state->fifo_pos + 1) % FIFO_MAX;
 			--state->fifo_mac;
 		} else {
-			*samples_buffer = state->info.silence;
+			le_uint16_write(samples_buffer, state->info.silence);
 			state->underflow_flag = 1; /* signal the underflow */
 		}
 
-		++samples_buffer;
+		samples_buffer += 2;
 		--samples_count;
 	}
 }

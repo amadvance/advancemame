@@ -69,6 +69,7 @@ struct video_option_struct {
 	adv_bool mode_yuy2; /**< Allow yuy2 modes. */
 	adv_output output; /**< Output mode. */
 	adv_cursor cursor; /**< Cursor mode. */
+	unsigned zoom_size; /**< Zoom size. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
@@ -338,6 +339,7 @@ void video_default(void)
 	video_option.fast_change = 0;
 	video_option.output = adv_output_auto;
 	video_option.cursor = adv_cursor_auto;
+	video_option.zoom_size = 1024;
 	sncpy(video_option.name, DEVICE_NAME_MAX, "auto");
 }
 
@@ -373,6 +375,7 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 	conf_bool_register_default(context, "device_color_yuy2", 1);
 	conf_int_register_enum_default(context, "device_video_output", conf_enum(OPTION_OUTPUT), adv_output_auto);
 	conf_int_register_enum_default(context, "device_video_cursor", conf_enum(OPTION_CURSOR), adv_cursor_auto);
+	conf_int_register_limit_default(context, "device_video_zoom", 640, 4096, 1024);
 }
 
 /**
@@ -461,7 +464,7 @@ adv_error video_init(void)
 
 		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[j], 0);
 
-		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.cursor) == 0) {
+		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.zoom_size, video_option.cursor) == 0) {
 			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
@@ -566,6 +569,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.mode_yuy2 = conf_bool_get_default(context, "device_color_yuy2");
 	video_option.output = conf_int_get_default(context, "device_video_output");
 	video_option.cursor = conf_int_get_default(context, "device_video_cursor");
+	video_option.zoom_size = conf_int_get_default(context, "device_video_zoom");
 
 	sncpy(video_option.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_video"));
 

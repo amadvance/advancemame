@@ -38,7 +38,6 @@
 #include "fuzzy.h"
 #include "log.h"
 #include "target.h"
-#include "alloc.h"
 #include "portable.h"
 
 #include <signal.h>
@@ -504,8 +503,6 @@ int os_main(int argc, char* argv[])
 	opt_remove = 0;
 	opt_version = 0;
 
-	malloc_init();
-
 	memset(&option, 0, sizeof(option));
 
 	if (thread_init() != 0) {
@@ -806,7 +803,6 @@ int os_main(int argc, char* argv[])
 done_os:
 	os_done();
 	conf_done(cfg_context);
-	malloc_done();
 	return 0;
 
 err_os_inner:
@@ -818,6 +814,5 @@ err_conf:
 err_thread:
 	thread_done();
 err:
-	malloc_done();
 	return -1;
 }

@@ -19,32 +19,37 @@ rm -f conftest*
 
 dnl @synopsis AC_CHECK_CPU_ARCH
 dnl 
-dnl Sets ac_cpu_arch and ac_cpu_family. If unrecognized set
-dnl ac_cpu_arch=blend and ac_cpu_family=0
+dnl Sets ac_cpu_arch and ac_cpu_arch_secondary. If unrecognized set
+dnl ac_cpu_arch=blend and ac_cpu_arch_secondary=blend
 
 AC_DEFUN(AC_CHECK_CPU_ARCH,
 [
-if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
-	if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium4"
-		ac_cpu_arch_secondary=i686
-	elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentiumpro"
-		ac_cpu_arch_secondary=i686
-	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium"
-		ac_cpu_arch_secondary=i586
-	else
-		ac_cpu_arch=blend
-		ac_cpu_arch_secondary=blend
-	fi
-elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
-	if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="athlon"
-		ac_cpu_arch_secondary=k6
-	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="k6"
-		ac_cpu_arch_secondary=k6
+if test -f /proc/cpuinfo ; then
+	if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
+		if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentium4"
+			ac_cpu_arch_secondary=i686
+		elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentiumpro"
+			ac_cpu_arch_secondary=i686
+		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentium"
+			ac_cpu_arch_secondary=i586
+		else
+			ac_cpu_arch=blend
+			ac_cpu_arch_secondary=blend
+		fi
+	elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
+		if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="athlon"
+			ac_cpu_arch_secondary=k6
+		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="k6"
+			ac_cpu_arch_secondary=k6
+		else
+			ac_cpu_arch=blend
+			ac_cpu_arch_secondary=blend
+		fi
 	else
 		ac_cpu_arch=blend
 		ac_cpu_arch_secondary=blend
@@ -53,6 +58,7 @@ else
 	ac_cpu_arch=blend
 	ac_cpu_arch_secondary=blend
 fi
+
 AC_MSG_CHECKING([build arch])
 AC_MSG_RESULT([$ac_cpu_arch])
 ])

@@ -31,21 +31,16 @@
 #ifndef __FUZZY_H
 #define __FUZZY_H
 
-/* Penality for a char missing in the A string */
+/**
+ * Penality for a single char missing in the A string used in the ::fuzzy() function.
+ */
 #define FUZZY_UNIT_A 2
 
-/* Penality for a sequence missing in the B string.
+/**
+ * Penality for a sequence missing in the B string used in the ::fuzzy() function.
  * The start and the end don't count.
  */
 #define FUZZY_UNIT_B 1
-
-/*
- * Examples: "A string", "B string" -> penality
- * "123", "xxx1xxx23xxx" -> 1*UNIT_B
- * "123", "xxx1xxx2xxxxx3xxx" -> 2*UNIT_B
- * "123", "xxx1xxx2xxxxx" -> 1*UNIT_B+1*UNIT_A
- * "123", "xxx1xxx3xxxxx" -> 1*UNIT_B+1*UNIT_A
- */
 
 int fuzzy(const char* a, const char* b, int upper_limit);
 

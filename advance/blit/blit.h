@@ -92,13 +92,13 @@ enum video_stage_enum {
 	pipe_palette16to16, /**< Palette conversion 16 -\> 16. */
 	pipe_palette16to32, /**< Palette conversion 16 -\> 32. */
 	pipe_bgra8888tobgr332, /**< RGB conversion 8888 (bgra) -\> 332 (bgr). */
-	pipe_bgra8888tobgr555, /**< RGB conversion 8888 (bgra) -\> 555 (bgr). */
+	pipe_bgra8888tobgra5551, /**< RGB conversion 8888 (bgra) -\> 5551 (bgra). */
 	pipe_bgra8888tobgr565, /**< RGB conversion 8888 (bgra) -\> 565 (bgr). */
 	pipe_bgra8888toyuy2, /**< YUY2 conversion 8888 (bgra) -\> (yuy2). */
-	pipe_bgr555tobgr332, /**< RGB conversion 555 (bgr) -\> 332 (bgr). */
-	pipe_bgr555tobgr565, /**< RGB conversion 555 (bgr) -\> 565 (bgr). */
-	pipe_bgr555tobgra8888, /**< RGB conversion 555 (bgr) -\> 8888 (bgra). */
-	pipe_bgr555toyuy2, /**< YUY2 conversion 555 (bgra) -\> (yuy2). */
+	pipe_bgra5551tobgr332, /**< RGB conversion 5551 (bgra) -\> 332 (bgr). */
+	pipe_bgra5551tobgr565, /**< RGB conversion 5551 (bgra) -\> 565 (bgr). */
+	pipe_bgra5551tobgra8888, /**< RGB conversion 5551 (bgra) -\> 8888 (bgra). */
+	pipe_bgra5551toyuy2, /**< YUY2 conversion 5551 (bgra) -\> (yuy2). */
 	pipe_rgb888tobgra8888, /**< RGB conversion 888 (rgb) -\> 8888 (bgra). */
 	pipe_bgr888tobgra8888, /**< RGB conversion 888 (bgr) -\> 8888 (bgra). */
 	pipe_rgbtorgb, /**< Generic RGB conversion. */
@@ -146,8 +146,10 @@ struct video_stage_horz_struct {
 	unsigned sdx; /**< Size of the source (in bytes). */
 	unsigned sbpp; /**< Bytes per pixel of the source. */
 
-	adv_color_def sdef; /**< Color definition of the source. */
-	adv_color_def ddef; /**< Color definition of the destination. */
+	int red_shift, green_shift, blue_shift; /**< Shifts used for color conversion. */
+	adv_pixel red_mask, green_mask, blue_mask; /**< Masks used for color conversion. */
+	unsigned ssp; /**< Size in bytes of the source pixel. */
+	unsigned dsp; /**< Size in bytes of the destination pixel. */
 
 	adv_slice slice; /**< Stretch slice. */
 

@@ -82,9 +82,10 @@ static adv_bool none_mode_is_active(void)
 	return none_state.mode_active != 0;
 }
 
-static adv_error none_init(int device_id, adv_output output, adv_cursor cursor)
+static adv_error none_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	(void)cursor;
+	(void)zoom_size;
 
 	assert( !none_is_active() );
 

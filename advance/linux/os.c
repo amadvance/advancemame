@@ -185,6 +185,7 @@ int os_inner_init(const char* title)
 	stop = os_clock();
 	log_std(("os: 0.001 delay, effective %g\n", (stop - start) / (double)OS_CLOCKS_PER_SEC ));
 
+#if defined(linux)
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
 	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n", sysconf(_SC_NPROCESSORS_CONF)));
 	log_std(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n", sysconf(_SC_NPROCESSORS_ONLN)));
@@ -193,6 +194,7 @@ int os_inner_init(const char* title)
 	log_std(("os: sysconf(_SC_CHAR_BIT) %ld\n", sysconf(_SC_CHAR_BIT)));
 	log_std(("os: sysconf(_SC_LONG_BIT) %ld\n", sysconf(_SC_LONG_BIT)));
 	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n", sysconf(_SC_WORD_BIT)));
+#endif
 
 	display = getenv("DISPLAY");
 	if (display)

@@ -272,7 +272,7 @@ PACKAGE_VERSION='source'
 PACKAGE_STRING='advance source'
 PACKAGE_BUGREPORT=''
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_HOST EXE_BUILD CONF_BUILD CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD ZLIBS CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG SDLCONFIG SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_DEBUGGER UPX TOUCH CONF_COMPRESS CONF LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_HOST EXE_BUILD CONF_BUILD CXX CXXFLAGS LDFLAGS CPPFLAGS ac_ct_CXX EXEEXT OBJEXT CC CFLAGS ac_ct_CC INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER UPX TOUCH CONF_COMPRESS ZLIBS CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -819,6 +819,9 @@ Optional Features:
                           Only for developers. (default no)
   --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
+  --enable-debugger       enable the emulator debugger (default no)
+  --enable-compress       enable the compression of the executable (default
+                          no)
   --enable-svgalib        enable the use of the SVGALIB library. (default
                           auto)
   --enable-fb             enable the use of the Frame Buffer library. (default
@@ -832,15 +835,13 @@ Optional Features:
                           auto)
   --enable-kraw           enable the use of the KRAW keyboard library.
                           (default auto)
-  --enable-debugger       enable the emulator debugger (default no)
-  --enable-compress       enable the compression of the executable (default
-                          no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-emu              select the emulator to use: mame, mess, neomame,
                           cpmame, pac, none (default auto)
+  --with-sdl-prefix=DIR   Prefix where SDL is installed (optional)
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -1353,18 +1354,31 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 
 # Checks for system.
-
 case "$host" in
 	*-*-linux*)
 		ac_host=unix
+		ac_host_cflags=
+		ac_host_ldflags=
 		ASMFLAGS="-f elf"
 
 		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"
 
 
 	;;
+	*-*-darwin*)
+		ac_host=unix
+		ac_host_cflags=-no-cpp-precomp
+		ac_host_ldflags=
+		ASMFLAGS=""
+
+		CFLAGS_BUILD="-O0"
+
+
+	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_host=windows
+		ac_host_cflags=
+		ac_host_ldflags=
 		ASMFLAGS="-f coff"
 
 		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"
@@ -1374,7 +1388,8 @@ case "$host" in
 	;;
 	*-*-msdos*)
 		ac_host=dos
-		ac_lib="Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
+		ac_host_cflags=
+		ac_host_ldflags=
 		ASMFLAGS="-f coff"
 
 		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"
@@ -1386,6 +1401,8 @@ case "$host" in
 		{ echo "$as_me:$LINENO: WARNING: Never tried host platform! Please report if it's working" >&5
 echo "$as_me: WARNING: Never tried host platform! Please report if it's working" >&2;}
 		ac_host=unix
+		ac_host_cflags=
+		ac_host_ldflags=
 		ASMFLAGS=""
 
 		CFLAGS_BUILD="-O0"
@@ -1398,6 +1415,10 @@ CONF_HOST=$ac_host
 
 case "$build" in
 	*-*-linux*)
+		ac_build=unix
+
+	;;
+	*-*-darwin*)
 		ac_build=unix
 
 	;;
@@ -3242,85 +3263,6 @@ fi
 done
 
 
-# Checks for libraries.
-
-
-echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
-echo $ECHO_N "checking for adler32 in -lz... $ECHO_C" >&6
-if test "${ac_cv_lib_z_adler32+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lz  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char adler32 ();
-int
-main ()
-{
-adler32 ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_z_adler32=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_z_adler32=no
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_z_adler32" >&5
-echo "${ECHO_T}$ac_cv_lib_z_adler32" >&6
-if test $ac_cv_lib_z_adler32 = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBZ 1
-_ACEOF
-
-  LIBS="-lz $LIBS"
-
-else
-  { { echo "$as_me:$LINENO: error: The zlib library is required" >&5
-echo "$as_me: error: The zlib library is required" >&2;}
-   { (exit 1); exit 1; }; }
-
-fi
-
-if test $ac_host = windows; then
-	ZLIBS="-static -lz"
-else
-	ZLIBS="-lz"
-fi
-ZLIBS=$ZLIBS
-
-
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
@@ -3354,27 +3296,32 @@ if test $ac_auto_cflags = yes; then
 	else
 		CFLAGS=""
 
-if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
-	if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium4"
-		ac_cpu_arch_secondary=i686
-	elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentiumpro"
-		ac_cpu_arch_secondary=i686
-	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium"
-		ac_cpu_arch_secondary=i586
-	else
-		ac_cpu_arch=blend
-		ac_cpu_arch_secondary=blend
-	fi
-elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
-	if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="athlon"
-		ac_cpu_arch_secondary=k6
-	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="k6"
-		ac_cpu_arch_secondary=k6
+if test -f /proc/cpuinfo ; then
+	if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
+		if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentium4"
+			ac_cpu_arch_secondary=i686
+		elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentiumpro"
+			ac_cpu_arch_secondary=i686
+		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="pentium"
+			ac_cpu_arch_secondary=i586
+		else
+			ac_cpu_arch=blend
+			ac_cpu_arch_secondary=blend
+		fi
+	elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
+		if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="athlon"
+			ac_cpu_arch_secondary=k6
+		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+			ac_cpu_arch="k6"
+			ac_cpu_arch_secondary=k6
+		else
+			ac_cpu_arch=blend
+			ac_cpu_arch_secondary=blend
+		fi
 	else
 		ac_cpu_arch=blend
 		ac_cpu_arch_secondary=blend
@@ -3383,6 +3330,7 @@ else
 	ac_cpu_arch=blend
 	ac_cpu_arch_secondary=blend
 fi
+
 echo "$as_me:$LINENO: checking build arch" >&5
 echo $ECHO_N "checking build arch... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: $ac_cpu_arch" >&5
@@ -3496,6 +3444,9 @@ fi
 rm -f conftest*
 
 	fi
+	if test ! -z $ac_host_cflags; then
+		CFLAGS="$ac_host_cflags $CFLAGS"
+	fi
 fi
 if test $ac_auto_ldflags = yes ; then
 	if test $ac_enable_debug = yes ; then
@@ -3507,6 +3458,9 @@ if test $ac_auto_ldflags = yes ; then
 	else
 		LDFLAGS="-s"
 	fi
+	if test ! -z $ac_host_ldflags; then
+		LDFLAGS="$ac_host_ldflags $LDFLAGS"
+	fi
 fi
 
 CONF_CFLAGS_OPT=$CFLAGS
@@ -3515,6 +3469,7 @@ CONF_LDFLAGS=$LDFLAGS
 
 
 # Checks for architecture
+
 echo "$as_me:$LINENO: checking whether byte ordering is bigendian" >&5
 echo $ECHO_N "checking whether byte ordering is bigendian... $ECHO_C" >&6
 if test "${ac_cv_c_bigendian+set}" = set; then
@@ -3745,7 +3700,7 @@ int
 main ()
 {
 
-			#if !defined(__i386__)
+			#if !defined(__GNUC__) || !defined(__i386__)
 			choke me
 			#endif
 
@@ -3775,9 +3730,56 @@ fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_enable_asm" >&5
 echo "${ECHO_T}$ac_enable_asm" >&6
+	if test $ac_enable_asm = yes; then
+		for ac_prog in ${ac_tool_prefix}nasm
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_ASM+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$ASM"; then
+  ac_cv_prog_ASM="$ASM" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_ASM="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
 fi
-if test $ac_enable_asm = yes; then
-	for ac_prog in nasm nasmw
+fi
+ASM=$ac_cv_prog_ASM
+if test -n "$ASM"; then
+  echo "$as_me:$LINENO: result: $ASM" >&5
+echo "${ECHO_T}$ASM" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$ASM" && break
+done
+test -n "$ASM" || ASM="none"
+
+		if test $ASM = none; then
+			ac_enable_asm=no
+		else
+			CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+		fi
+	fi
+elif test $ac_enable_asm = yes; then
+	for ac_prog in ${ac_tool_prefix}nasm
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -3819,11 +3821,12 @@ done
 test -n "$ASM" || ASM="none"
 
 	if test $ASM = none; then
-		{ { echo "$as_me:$LINENO: error: The NASM assembler is required for the \"asm\" compilation" >&5
-echo "$as_me: error: The NASM assembler is required for the \"asm\" compilation" >&2;}
+		{ { echo "$as_me:$LINENO: error: the NASM assembler is required for the \"asm\" compilation" >&5
+echo "$as_me: error: the NASM assembler is required for the \"asm\" compilation" >&2;}
    { (exit 1); exit 1; }; }
+	else
+		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
 	fi
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
 fi
 
 # Export the architecture CFLAGS
@@ -3853,52 +3856,254 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		{ { echo "$as_me:$LINENO: error: You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		{ { echo "$as_me:$LINENO: error: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		{ { echo "$as_me:$LINENO: error: You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		{ { echo "$as_me:$LINENO: error: You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		{ { echo "$as_me:$LINENO: error: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		{ { echo "$as_me:$LINENO: error: You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		{ { echo "$as_me:$LINENO: error: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&5
-echo "$as_me: error: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&2;}
+		{ { echo "$as_me:$LINENO: error: you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 elif test ! $ac_with_emu = none; then
-	{ { echo "$as_me:$LINENO: error: Unknown emulator $ac_with_emu" >&5
-echo "$as_me: error: Unknown emulator $ac_with_emu" >&2;}
+	{ { echo "$as_me:$LINENO: error: unknown emulator $ac_with_emu" >&5
+echo "$as_me: error: unknown emulator $ac_with_emu" >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -f $srcdir/makefile ; then
-	{ echo "$as_me:$LINENO: WARNING: A lowercase makefile exists! Have you deleted the original emulator makefile ?" >&5
-echo "$as_me: WARNING: A lowercase makefile exists! Have you deleted the original emulator makefile ?" >&2;}
-fi
 CONF_EMU=$ac_with_emu
+
+
+# Check whether --enable-debugger or --disable-debugger was given.
+if test "${enable_debugger+set}" = set; then
+  enableval="$enable_debugger"
+  ac_enable_debugger=$enableval
+else
+  ac_enable_debugger=no
+
+fi;
+CONF_DEBUGGER=$ac_enable_debugger
+
+
+# Check whether --enable-compress or --disable-compress was given.
+if test "${enable_compress+set}" = set; then
+  enableval="$enable_compress"
+  ac_enable_compress=$enableval
+else
+  ac_enable_compress=no
+
+fi;
+if test $ac_enable_compress = yes; then
+	for ac_prog in upx
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_UPX+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$UPX"; then
+  ac_cv_prog_UPX="$UPX" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_UPX="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+UPX=$ac_cv_prog_UPX
+if test -n "$UPX"; then
+  echo "$as_me:$LINENO: result: $UPX" >&5
+echo "${ECHO_T}$UPX" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$UPX" && break
+done
+test -n "$UPX" || UPX="{ { echo "$as_me:$LINENO: error: the upx program is required for compressing" >&5
+echo "$as_me: error: the upx program is required for compressing" >&2;}
+   { (exit 1); exit 1; }; }
+	"
+
+	for ac_prog in touch
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_TOUCH+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$TOUCH"; then
+  ac_cv_prog_TOUCH="$TOUCH" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_TOUCH="$ac_prog"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+TOUCH=$ac_cv_prog_TOUCH
+if test -n "$TOUCH"; then
+  echo "$as_me:$LINENO: result: $TOUCH" >&5
+echo "${ECHO_T}$TOUCH" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  test -n "$TOUCH" && break
+done
+test -n "$TOUCH" || TOUCH="{ { echo "$as_me:$LINENO: error: the touch program is required for compressing" >&5
+echo "$as_me: error: the touch program is required for compressing" >&2;}
+   { (exit 1); exit 1; }; }
+	"
+
+fi
+CONF_COMPRESS=$ac_enable_compress
+
+UPX=$UPX
+
+TOUCH=$TOUCH
+
+
+# Checks for libraries.
+
+ac_lib_video=no
+ac_lib_sound=no
+ac_lib_keyboard=no
+
+if test $ac_host = dos; then
+	ac_lib="$ac_lib Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
+	ac_lib_video=yes
+	ac_lib_sound=yes
+	ac_lib_keyboard=yes
+fi
+
+
+echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
+echo $ECHO_N "checking for adler32 in -lz... $ECHO_C" >&6
+if test "${ac_cv_lib_z_adler32+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char adler32 ();
+int
+main ()
+{
+adler32 ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_z_adler32=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_z_adler32=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_z_adler32" >&5
+echo "${ECHO_T}$ac_cv_lib_z_adler32" >&6
+if test $ac_cv_lib_z_adler32 = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBZ 1
+_ACEOF
+
+  LIBS="-lz $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: the zlib library is required" >&5
+echo "$as_me: error: the zlib library is required" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+if test $ac_host = windows; then
+	ZLIBS="-static -lz"
+else
+	ZLIBS="-lz"
+fi
+ZLIBS=$ZLIBS
 
 
 # Check whether --enable-svgalib or --disable-svgalib was given.
@@ -4083,8 +4288,8 @@ _ACEOF
   LIBS="-lvga $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: The SVGALIB library is missing" >&5
-echo "$as_me: error: The SVGALIB library is missing" >&2;}
+  { { echo "$as_me:$LINENO: error: the SVGALIB library is missing" >&5
+echo "$as_me: error: the SVGALIB library is missing" >&2;}
    { (exit 1); exit 1; }; }
 
 fi
@@ -4126,14 +4331,16 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
-echo "$as_me: error: The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version" >&2;}
+{ { echo "$as_me:$LINENO: error: the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
+echo "$as_me: error: the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 fi
 if test $ac_lib_svgalib = yes; then
 	ac_lib="$ac_lib SVGALIB"
+	ac_lib_video=yes
+	ac_lib_keyboard=yes
 fi
 CONF_LIB_SVGALIB=$ac_lib_svgalib
 
@@ -4231,8 +4438,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: The Frame Buffer library is missing" >&5
-echo "$as_me: error: The Frame Buffer library is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the Frame Buffer library is missing" >&5
+echo "$as_me: error: the Frame Buffer library is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -4241,6 +4448,7 @@ echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_fb = yes; then
 	ac_lib="$ac_lib FrameBuffer"
+	ac_lib_video=yes
 fi
 CONF_LIB_FB=$ac_lib_fb
 
@@ -4344,8 +4552,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: The ALSA library is missing or too old" >&5
-echo "$as_me: error: The ALSA library is missing or too old" >&2;}
+{ { echo "$as_me:$LINENO: error: the ALSA library is missing or too old" >&5
+echo "$as_me: error: the ALSA library is missing or too old" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -4354,6 +4562,7 @@ echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_alsa = yes; then
 	ac_lib="$ac_lib ALSA"
+	ac_lib_sound=yes
 fi
 CONF_LIB_ALSA=$ac_lib_alsa
 
@@ -4451,8 +4660,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: The OSS library is missing" >&5
-echo "$as_me: error: The OSS library is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the OSS library is missing" >&5
+echo "$as_me: error: the OSS library is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -4461,6 +4670,7 @@ echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_oss = yes; then
 	ac_lib="$ac_lib OSS"
+	ac_lib_sound=yes
 fi
 CONF_LIB_OSS=$ac_lib_oss
 
@@ -4604,8 +4814,8 @@ _ACEOF
   LIBS="-lpthread $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: The pthread library is missing" >&5
-echo "$as_me: error: The pthread library is missing" >&2;}
+  { { echo "$as_me:$LINENO: error: the pthread library is missing" >&5
+echo "$as_me: error: the pthread library is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -4755,8 +4965,8 @@ _ACEOF
   LIBS="-lslang $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: The sLang library is missing" >&5
-echo "$as_me: error: The sLang library is missing" >&2;}
+  { { echo "$as_me:$LINENO: error: the sLang library is missing" >&5
+echo "$as_me: error: the sLang library is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -4767,6 +4977,21 @@ fi
 CONF_LIB_SLANG=$ac_lib_slang
 
 
+ac_lib_sdl_args=
+ac_lib_sdl_path="$PATH"
+
+# Check whether --with-sdl-prefix or --without-sdl-prefix was given.
+if test "${with_sdl_prefix+set}" = set; then
+  withval="$with_sdl_prefix"
+  ac_lib_sdl_prefix="$withval"
+else
+  ac_lib_sdl_prefix=""
+
+fi;
+if test ! -z $ac_lib_sdl_prefix; then
+	ac_lib_sdl_args="--prefix=${ac_lib_sdl_prefix}"
+	ac_lib_sdl_path="${ac_lib_sdl_prefix}/bin"
+fi
 # Check whether --enable-sdl or --disable-sdl was given.
 if test "${enable_sdl+set}" = set; then
   enableval="$enable_sdl"
@@ -4779,96 +5004,56 @@ if test $ac_lib_sdl = auto; then
 	if test $ac_host = dos; then
 		ac_lib_sdl=no
 	else
-		if test -z ${host_alias} ; then
-			for ac_prog in sdl-config
-
+		for ac_prog in ${ac_tool_prefix}sdl-config
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_SDLCONFIG+set}" = set; then
+if test "${ac_cv_path_ac_lib_sdl_config+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$SDLCONFIG"; then
-  ac_cv_prog_SDLCONFIG="$SDLCONFIG" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+  case $ac_lib_sdl_config in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_lib_sdl_config="$ac_lib_sdl_config" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in ${ac_lib_sdl_path}
+
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_SDLCONFIG="$ac_prog"
+    ac_cv_path_ac_lib_sdl_config="$as_dir/$ac_word$ac_exec_ext"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
 done
 done
 
+  ;;
+esac
 fi
-fi
-SDLCONFIG=$ac_cv_prog_SDLCONFIG
-if test -n "$SDLCONFIG"; then
-  echo "$as_me:$LINENO: result: $SDLCONFIG" >&5
-echo "${ECHO_T}$SDLCONFIG" >&6
+ac_lib_sdl_config=$ac_cv_path_ac_lib_sdl_config
+
+if test -n "$ac_lib_sdl_config"; then
+  echo "$as_me:$LINENO: result: $ac_lib_sdl_config" >&5
+echo "${ECHO_T}$ac_lib_sdl_config" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-  test -n "$SDLCONFIG" && break
+  test -n "$ac_lib_sdl_config" && break
 done
 
-		else
-			for ac_prog in ${host_alias}-sdl-config
-
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_SDLCONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$SDLCONFIG"; then
-  ac_cv_prog_SDLCONFIG="$SDLCONFIG" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_SDLCONFIG="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-SDLCONFIG=$ac_cv_prog_SDLCONFIG
-if test -n "$SDLCONFIG"; then
-  echo "$as_me:$LINENO: result: $SDLCONFIG" >&5
-echo "${ECHO_T}$SDLCONFIG" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$SDLCONFIG" && break
-done
-
-		fi
-		if test -z $SDLCONFIG; then
+		if test -z $ac_lib_sdl_config; then
 			ac_lib_sdl=no
 		else
-			SDLCFLAGS=`$SDLCONFIG --cflags`
-			SDLLIBS=`$SDLCONFIG --libs`
+			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 			echo "$as_me:$LINENO: checking for SDL_Init in -lSDL" >&5
 echo $ECHO_N "checking for SDL_Init in -lSDL... $ECHO_C" >&6
 if test "${ac_cv_lib_SDL_SDL_Init+set}" = set; then
@@ -4933,98 +5118,58 @@ fi
 		fi
 	fi
 elif test $ac_lib_sdl = yes; then
-	if test -z ${host_alias} ; then
-		for ac_prog in sdl-config
-
+	for ac_prog in ${ac_tool_prefix}sdl-config
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_SDLCONFIG+set}" = set; then
+if test "${ac_cv_path_ac_lib_sdl_config+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$SDLCONFIG"; then
-  ac_cv_prog_SDLCONFIG="$SDLCONFIG" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+  case $ac_lib_sdl_config in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_lib_sdl_config="$ac_lib_sdl_config" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in ${ac_lib_sdl_path}
+
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_SDLCONFIG="$ac_prog"
+    ac_cv_path_ac_lib_sdl_config="$as_dir/$ac_word$ac_exec_ext"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
 done
 done
 
+  ;;
+esac
 fi
-fi
-SDLCONFIG=$ac_cv_prog_SDLCONFIG
-if test -n "$SDLCONFIG"; then
-  echo "$as_me:$LINENO: result: $SDLCONFIG" >&5
-echo "${ECHO_T}$SDLCONFIG" >&6
+ac_lib_sdl_config=$ac_cv_path_ac_lib_sdl_config
+
+if test -n "$ac_lib_sdl_config"; then
+  echo "$as_me:$LINENO: result: $ac_lib_sdl_config" >&5
+echo "${ECHO_T}$ac_lib_sdl_config" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-  test -n "$SDLCONFIG" && break
+  test -n "$ac_lib_sdl_config" && break
 done
 
-	else
-		for ac_prog in ${host_alias}-sdl-config
-
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_SDLCONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$SDLCONFIG"; then
-  ac_cv_prog_SDLCONFIG="$SDLCONFIG" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_SDLCONFIG="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-SDLCONFIG=$ac_cv_prog_SDLCONFIG
-if test -n "$SDLCONFIG"; then
-  echo "$as_me:$LINENO: result: $SDLCONFIG" >&5
-echo "${ECHO_T}$SDLCONFIG" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$SDLCONFIG" && break
-done
-
-	fi
-	if test -z $SDLCONFIG ; then
-		{ { echo "$as_me:$LINENO: error: The sdl-config tool is missing" >&5
-echo "$as_me: error: The sdl-config tool is missing" >&2;}
+	if test -z $ac_lib_sdl_config ; then
+		{ { echo "$as_me:$LINENO: error: the ${ac_tool_prefix}sdl-config tool is missing" >&5
+echo "$as_me: error: the ${ac_tool_prefix}sdl-config tool is missing" >&2;}
    { (exit 1); exit 1; }; }
 	else
-		SDLCFLAGS=`$SDLCONFIG --cflags`
-		SDLLIBS=`$SDLCONFIG --libs`
+		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+		SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 
 echo "$as_me:$LINENO: checking for SDL_Init in -lSDL" >&5
 echo $ECHO_N "checking for SDL_Init in -lSDL... $ECHO_C" >&6
@@ -5089,8 +5234,8 @@ _ACEOF
   LIBS="-lSDL $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: The SDL library is missing" >&5
-echo "$as_me: error: The SDL library is missing" >&2;}
+  { { echo "$as_me:$LINENO: error: the SDL library is missing" >&5
+echo "$as_me: error: the SDL library is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -5098,6 +5243,9 @@ fi
 fi
 if test $ac_lib_sdl = yes; then
 	ac_lib="$ac_lib SDL"
+	ac_lib_video=yes
+	ac_lib_sound=yes
+	ac_lib_keyboard=yes
 fi
 
 
@@ -5107,20 +5255,37 @@ CONF_LIB_SDL=$ac_lib_sdl
 # Check whether --enable-svgawin or --disable-svgawin was given.
 if test "${enable_svgawin+set}" = set; then
   enableval="$enable_svgawin"
-  ac_lib_sdl=$enableval
+  ac_lib_svgawin=$enableval
 else
-  ac_lib_sdl=auto
+  ac_lib_svgawin=auto
 
 fi;
-if test $ac_lib_sdl = auto; then
+if test $ac_lib_svgawin = auto; then
 	if test $ac_host = windows; then
-		ac_lib_svgawin=yes
+		if test $ac_lib_sdl = yes; then
+			ac_lib_svgawin=yes
+		else
+			ac_lib_svgawin=no
+		fi
 	else
 		ac_lib_svgawin=no
 	fi
 fi
 if test $ac_lib_svgawin = yes; then
+	if test ! $ac_host = windows; then
+		{ { echo "$as_me:$LINENO: error: the SVGAWIN library not supported in this host" >&5
+echo "$as_me: error: the SVGAWIN library not supported in this host" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+	if test $ac_lib_sdl = no; then
+		{ { echo "$as_me:$LINENO: error: the SVGAWIN library requires the SDL library" >&5
+echo "$as_me: error: the SVGAWIN library requires the SDL library" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+fi
+if test $ac_lib_svgawin = yes; then
 	ac_lib="$ac_lib SVGAWIN"
+	ac_lib_video=yes
 fi
 CONF_LIB_SVGAWIN=$ac_lib_svgawin
 
@@ -5180,7 +5345,7 @@ echo "${ECHO_T}$ac_lib_kraw" >&6
 	else
 		ac_lib_kraw=no
 	fi
-elif test $ac_lib_fb = yes; then
+elif test $ac_lib_kraw = yes; then
 	echo "$as_me:$LINENO: checking for KRAW keyboard interface" >&5
 echo $ECHO_N "checking for KRAW keyboard interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
@@ -5218,8 +5383,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: The KRAW keyboard interface is missing" >&5
-echo "$as_me: error: The KRAW keyboard interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the KRAW keyboard interface is missing" >&5
+echo "$as_me: error: the KRAW keyboard interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -5228,124 +5393,9 @@ echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_kraw = yes; then
 	ac_lib="$ac_lib KRAW"
+	ac_lib_keyboard=yes
 fi
 CONF_LIB_KRAW=$ac_lib_kraw
-
-
-# Check whether --enable-debugger or --disable-debugger was given.
-if test "${enable_debugger+set}" = set; then
-  enableval="$enable_debugger"
-  ac_enable_debugger=$enableval
-else
-  ac_enable_debugger=no
-
-fi;
-CONF_DEBUGGER=$ac_enable_debugger
-
-
-# Check whether --enable-compress or --disable-compress was given.
-if test "${enable_compress+set}" = set; then
-  enableval="$enable_compress"
-  ac_enable_compress=$enableval
-else
-  ac_enable_compress=no
-
-fi;
-if test $ac_enable_compress = yes; then
-	for ac_prog in upx
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_UPX+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$UPX"; then
-  ac_cv_prog_UPX="$UPX" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_UPX="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-UPX=$ac_cv_prog_UPX
-if test -n "$UPX"; then
-  echo "$as_me:$LINENO: result: $UPX" >&5
-echo "${ECHO_T}$UPX" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$UPX" && break
-done
-test -n "$UPX" || UPX="{ { echo "$as_me:$LINENO: error: The upx program is required for compressing" >&5
-echo "$as_me: error: The upx program is required for compressing" >&2;}
-   { (exit 1); exit 1; }; }
-	"
-
-	for ac_prog in touch
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_TOUCH+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$TOUCH"; then
-  ac_cv_prog_TOUCH="$TOUCH" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_TOUCH="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-TOUCH=$ac_cv_prog_TOUCH
-if test -n "$TOUCH"; then
-  echo "$as_me:$LINENO: result: $TOUCH" >&5
-echo "${ECHO_T}$TOUCH" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-  test -n "$TOUCH" && break
-done
-test -n "$TOUCH" || TOUCH="{ { echo "$as_me:$LINENO: error: The touch program is required for compressing" >&5
-echo "$as_me: error: The touch program is required for compressing" >&2;}
-   { (exit 1); exit 1; }; }
-	"
-
-fi
-CONF_COMPRESS=$ac_enable_compress
-
-UPX=$UPX
-
-TOUCH=$TOUCH
 
 
 # Notify that ./configure was runned
@@ -6029,29 +6079,29 @@ s,@GZIP@,$GZIP,;t t
 s,@ZIP@,$ZIP,;t t
 s,@CC_BUILD@,$CC_BUILD,;t t
 s,@CXX_BUILD@,$CXX_BUILD,;t t
-s,@ZLIBS@,$ZLIBS,;t t
 s,@CONF_DEBUG@,$CONF_DEBUG,;t t
 s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
 s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t
 s,@ASM@,$ASM,;t t
 s,@CONF_CFLAGS_ARCH@,$CONF_CFLAGS_ARCH,;t t
 s,@CONF_EMU@,$CONF_EMU,;t t
+s,@CONF_DEBUGGER@,$CONF_DEBUGGER,;t t
+s,@UPX@,$UPX,;t t
+s,@TOUCH@,$TOUCH,;t t
+s,@CONF_COMPRESS@,$CONF_COMPRESS,;t t
+s,@ZLIBS@,$ZLIBS,;t t
 s,@CONF_LIB_SVGALIB@,$CONF_LIB_SVGALIB,;t t
 s,@CONF_LIB_FB@,$CONF_LIB_FB,;t t
 s,@CONF_LIB_ALSA@,$CONF_LIB_ALSA,;t t
 s,@CONF_LIB_OSS@,$CONF_LIB_OSS,;t t
 s,@CONF_LIB_PTHREAD@,$CONF_LIB_PTHREAD,;t t
 s,@CONF_LIB_SLANG@,$CONF_LIB_SLANG,;t t
-s,@SDLCONFIG@,$SDLCONFIG,;t t
+s,@ac_lib_sdl_config@,$ac_lib_sdl_config,;t t
 s,@SDLCFLAGS@,$SDLCFLAGS,;t t
 s,@SDLLIBS@,$SDLLIBS,;t t
 s,@CONF_LIB_SDL@,$CONF_LIB_SDL,;t t
 s,@CONF_LIB_SVGAWIN@,$CONF_LIB_SVGAWIN,;t t
 s,@CONF_LIB_KRAW@,$CONF_LIB_KRAW,;t t
-s,@CONF_DEBUGGER@,$CONF_DEBUGGER,;t t
-s,@UPX@,$UPX,;t t
-s,@TOUCH@,$TOUCH,;t t
-s,@CONF_COMPRESS@,$CONF_COMPRESS,;t t
 s,@CONF@,$CONF,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
@@ -6292,7 +6342,7 @@ fi
 
 
 echo ""
-echo "== Host Architecture =="
+echo "== Host =="
 echo "Environment :" $host
 if test $ac_is_bigendian = yes; then
 	echo "Endianess : big"
@@ -6305,6 +6355,22 @@ else
 	echo "Assembler for Pentium : no"
 fi
 echo "Libraries :" $ac_lib
+if test $ac_lib_video = no; then
+	{ { echo "$as_me:$LINENO: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&5
+echo "$as_me: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test $ac_lib_sound = no; then
+	{ { echo "$as_me:$LINENO: error: no sound library found" >&5
+echo "$as_me: error: no sound library found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test $ac_lib_keyboard = no; then
+	{ { echo "$as_me:$LINENO: error: no keyboard library found" >&5
+echo "$as_me: error: no keyboard library found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 echo ""
 echo "== Compiler =="
 echo "CC :" $CC
@@ -6317,5 +6383,4 @@ if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
 echo "Compress executables :" $ac_enable_compress
-
 

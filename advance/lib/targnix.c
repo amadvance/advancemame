@@ -42,7 +42,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <string.h>
-#include <execinfo.h>
 
 /***************************************************************************/
 /* Init */
@@ -303,6 +302,9 @@ void target_flush(void)
 	fflush(stderr);
 }
 
+#if defined(linux)
+#include <execinfo.h>
+
 static void target_backtrace(void)
 {
 	void* buffer[256];
@@ -326,6 +328,7 @@ static void target_backtrace(void)
 
 	free(symbols);
 }
+#endif
 
 void target_signal(int signum)
 {
@@ -339,7 +342,9 @@ void target_signal(int signum)
 		fprintf(stderr, "Signal %d.\n", signum);
 		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
 
+#if defined(linux)
 		target_backtrace();
+#endif
 
 		if (signum == SIGILL) {
 			fprintf(stderr, "Are you using the correct binary ?\n");

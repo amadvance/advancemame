@@ -41,9 +41,8 @@
 #include <unistd.h>
 
 /**
- * Called while loading ROMs.
- * It is called a last time with name == 0 to signal that the ROM loading
- * process is finished.
+ * Function called while loading ROMs.
+ * It's called with romdata == 0 to print a message.
  * \return
  *  - !=0 to abort loading
  *  - ==0 on success
@@ -91,7 +90,7 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 const char* NAME_EASIEST[] = { "Easiest", "Very Easy", 0 };
 const char* NAME_EASY[] = { "Easy", "Easier", "Easy?", 0 };
 const char* NAME_MEDIUM[] = { "Medium", "Normal", "Normal?", 0 };
-const char* NAME_HARD[] = { "Hard", "Harder", "Difficuly", "Hard?", 0 };
+const char* NAME_HARD[] = { "Hard", "Harder", "Difficult", "Hard?", 0 };
 const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 
 void osd_customize_inputport_current(struct InputPort* current)
@@ -187,7 +186,7 @@ void osd_customize_inputport_current(struct InputPort* current)
 		}
 	}
 
-	/* search an secondaryt match */
+	/* search a secondary match */
 	if (!level && names_secondary) {
 		unsigned j;
 		for(j=0;names[j] && !level;++j) {

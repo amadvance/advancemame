@@ -577,3 +577,4 @@ else
 	cd $(MENU_DIST_DIR_BIN) && zip -r ../$(MENU_DIST_FILE_BIN).zip *
 endif
 	rm -r $(MENU_DIST_DIR_BIN)
+

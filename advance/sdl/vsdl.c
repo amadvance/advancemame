@@ -149,17 +149,18 @@ static void SDL_WM_DefIcon(void)
 	SDL_FreeSurface(surface);
 }
 
-static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
+static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	char name[64];
 	const adv_device* i;
 	unsigned j;
 	SDL_Rect** map; /* it must not be released */
 	const SDL_VideoInfo* info;
+	adv_bool has_window_manager;
 
 	assert( !sdl_is_active() );
 
-	log_std(("video:sdl: sdl_init(id:%d,output:%x)\n", device_id, (unsigned)output));
+	log_std(("video:sdl: sdl_init(id:%d,output:%d)\n", device_id, (unsigned)output));
 
 	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -196,12 +197,48 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 
 	info = SDL_GetVideoInfo();
 
+	log_std(("video:sdl: video hw_available:%d\n", (unsigned)info->hw_available));
+	log_std(("video:sdl: video wm_available:%d\n", (unsigned)info->wm_available));
+	log_std(("video:sdl: video blit_hw:%d\n", (unsigned)info->blit_hw));
+	log_std(("video:sdl: video blit_hw_CC:%d\n", (unsigned)info->blit_hw_CC));
+	log_std(("video:sdl: video blit_hw_A:%d\n", (unsigned)info->blit_hw_A));
+	log_std(("video:sdl: video blit_sw:%d\n", (unsigned)info->blit_sw));
+	log_std(("video:sdl: video blit_sw_CC:%d\n", (unsigned)info->blit_sw_CC));
+	log_std(("video:sdl: video blit_sw_A:%d\n", (unsigned)info->blit_sw_A));
+	log_std(("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill));
+	log_std(("video:sdl: video video_mem:%d kBytes\n", (unsigned)info->video_mem));
+	log_std(("video:sdl: video bit:%d byte:%d rgb:%d/%d:%d/%d:%d/%d\n",
+			(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
+			(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
+			(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
+			(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
+	));
+
 	sdl_state.flags = 0;
 
 	sdl_state.cursor = cursor;
 
+	if (info->wm_available) {
+		has_window_manager = 1;
+	} else {
+		/* with Mac OS X and SDL 1.2.5 Quartz driver the wm_available flag is not set */
+		log_std(("video:sdl: SDL_ListModes(0,0)\n"));
+		map = SDL_ListModes(0, 0);
+		if (map == 0) {
+			log_std(("video:sdl: no resolutions\n"));
+			has_window_manager = 0;
+		} else if (map == (SDL_Rect **)-1) {
+			/* all resolution available */
+			log_std(("video:sdl: all resolutions\n"));
+			has_window_manager = 1;
+		} else {
+			log_std(("video:sdl: some resolutions\n"));
+			has_window_manager = 0;
+		}
+	}
+
 	if (output == adv_output_auto) {
-		if (info->wm_available)
+		if (has_window_manager)
 			sdl_state.output = adv_output_window;
 		else
 			sdl_state.output = adv_output_fullscreen;
@@ -209,18 +246,19 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 		sdl_state.output = output;
 	}
 
-	if (sdl_state.output == adv_output_window && !info->wm_available) {
+	if (sdl_state.output == adv_output_window && !has_window_manager) {
 		log_std(("video:sdl: Window output not available\n"));
 		error_nolog_cat("sdl: Window output not available\n");
 		return -1;
 	}
 
 	/* get the list of modes */
+	log_std(("video:sdl: SDL_ListModes(0, SDL_ModeFlags())\n"));
 	map = SDL_ListModes(0, SDL_ModeFlags());
 	if (map == 0) {
-		log_std(("video:sdl: no default video modes\n"));
+		log_std(("video:sdl: no resolutions\n"));
 	} else if (map == (SDL_Rect **)-1) {
-		log_std(("video:sdl: all resolution availables\n"));
+		log_std(("video:sdl: all resolutions\n"));
 	} else {
 		for(j=0;map[j];++j) {
 			log_std(("video:sdl: mode %dx%d\n", (unsigned)map[j]->w, (unsigned)map[j]->h));
@@ -241,7 +279,7 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 	} else if (sdl_state.output == adv_output_fullscreen) {
 		unsigned x;
 		unsigned y;
-		
+
 		log_std(("video:sdl: use fullscreen output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
@@ -275,6 +313,7 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 		unsigned mode_x;
 		unsigned mode_y;
 		adv_bool mode_flag;
+		unsigned zoom_area = zoom_size * zoom_size * 3 / 4;
 
 		log_std(("video:sdl: use zoom output\n"));
 
@@ -287,15 +326,25 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 			return -1;
 		}
 
+		if (has_window_manager) {
+			sdl_state.zoom_bit = info->vfmt->BitsPerPixel;
+		} else {
+			sdl_state.zoom_bit = 16;
+		}
+
+		log_std(("video:sdl: zoom bitsperpixel %d\n", sdl_state.zoom_bit));
+
 		/* select the mode */
 		mode_flag = 0;
 		mode_x = 0;
 		mode_y = 0;
 		for(j=0;map[j];++j) {
-			if (!mode_flag || abs(mode_x * mode_y - 1024*768) > abs(map[j]->w * map[j]->h - 1024*768)) {
-				mode_flag = 1;
-				mode_x = map[j]->w;
-				mode_y = map[j]->h;
+			if (SDL_VideoModeOK(map[j]->w, map[j]->h, sdl_state.zoom_bit, SDL_ModeFlags()) != 0) {
+				if (!mode_flag || abs(mode_x*mode_y - zoom_area) > abs(map[j]->w*map[j]->h - zoom_area)) {
+					mode_flag = 1;
+					mode_x = map[j]->w;
+					mode_y = map[j]->h;
+				}
 			}
 		}
 
@@ -308,10 +357,7 @@ static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 		sdl_state.zoom_x = mode_x;
 		sdl_state.zoom_y = mode_y;
 
-		if (info->wm_available)
-			sdl_state.zoom_bit = 0; /* autodetect */
-		else
-			sdl_state.zoom_bit = 16; /* use 16 bit modes */
+		log_std(("video:sdl: zoom size %dx%d\n", sdl_state.zoom_x, sdl_state.zoom_y));
 	} else {
 		return -1;
 	}
@@ -395,6 +441,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
 			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			error_set("Unable to initialize the SDL video");
 			return -1;
 		}
 
@@ -420,7 +467,13 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	log_std(("video:sdl: video blit_sw_CC:%d\n", (unsigned)info->blit_sw_CC));
 	log_std(("video:sdl: video blit_sw_A:%d\n", (unsigned)info->blit_sw_A));
 	log_std(("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill));
-	log_std(("video:sdl: video video_mem:%d\n", (unsigned)info->video_mem));
+	log_std(("video:sdl: video video_mem:%d kBytes\n", (unsigned)info->video_mem));
+	log_std(("video:sdl: video bit:%d byte:%d %d/%d:%d/%d:%d/%d\n",
+			(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
+			(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
+			(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
+			(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
+	));
 
 	sdl_state.index = mode->index;
 
@@ -430,28 +483,43 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 			return -1;
 		}
 
-		sdl_state.surface = SDL_SetVideoMode(sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_FULLSCREEN | SDL_HWSURFACE);
+		sdl_state.surface = SDL_SetVideoMode(sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_ModeFlags());
 		if (!sdl_state.surface) {
 			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE) failed, %s\n", sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_GetError()));
+			error_set("Unable to set the SDL video mode");
 			return -1;
 		}
 
 		sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
 		if (!sdl_state.overlay) {
+			sdl_state.surface = 0;
 			log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
+			error_set("Unable to create the SDL overlay");
 			return -1;
 		}
 
+		log_std(("video:sdl: overlay size:%dx%d planes:%d scanline:%d\n", sdl_state.overlay->w, sdl_state.overlay->h, sdl_state.overlay->planes, sdl_state.overlay->pitches[0]));
 		log_std(("video:sdl: overlay hw_overlay:%d\n", (unsigned)sdl_state.overlay->hw_overlay));
+
+		/* In Linux XFree+XV if the overlay is too big incorrect values are returned */
+		if (sdl_state.overlay->w * 2 > sdl_state.overlay->pitches[0]) {
+			SDL_FreeYUVOverlay(sdl_state.overlay);
+			sdl_state.overlay = 0;
+			sdl_state.surface = 0;
+			log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
+			error_set("Invalid SDL overlay");
+			return -1;
+		}
 	} else {
 		if (sdl_state.index == MODE_FLAGS_INDEX_YUY2) {
 			log_std(("video:sdl: YUY2 is not supported\n"));
 			return -1;
 		}
 
-		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_ModeFlags() );
+		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_ModeFlags());
 		if (!sdl_state.surface) {
 			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
+			error_set("Unable to set the SDL video mode");
 			return -1;
 		}
 
@@ -475,7 +543,13 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		break;
 	}
 
-	log_std(("video:sdl: surface %dx%dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h, (unsigned)sdl_state.surface->format->BitsPerPixel));
+	log_std(("video:sdl: surface %dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h));
+	log_std(("video:sdl: surface bit:%d byte:%d %d/%d:%d/%d:%d/%d\n",
+			(unsigned)sdl_state.surface->format->BitsPerPixel, (unsigned)sdl_state.surface->format->BytesPerPixel,
+			(unsigned)8 - sdl_state.surface->format->Rloss, (unsigned)sdl_state.surface->format->Rshift,
+			(unsigned)8 - sdl_state.surface->format->Gloss, (unsigned)sdl_state.surface->format->Gshift,
+			(unsigned)8 - sdl_state.surface->format->Bloss, (unsigned)sdl_state.surface->format->Bshift
+	));
 	if ((sdl_state.surface->flags & SDL_SWSURFACE) != 0)
 		log_std(("video:sdl: surface flag SDL_SWSURFACE\n"));
 	if ((sdl_state.surface->flags & SDL_HWSURFACE) != 0)
@@ -733,22 +807,23 @@ int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b)
 
 void sdl_crtc_container_insert_default(adv_crtc_container* cc)
 {
-	unsigned i;
-	SDL_Rect** map; /* it must not be released */
-
 	log_std(("video:sdl: sdl_crtc_container_insert_default()\n"));
 
-	map = SDL_ListModes(0, SDL_ModeFlags() );
-	if (!map) {
-		/* no resolutions */
-	} else if (map == (SDL_Rect **)-1) {
-		/* all resolutions available */
-	} else {
-		for(i=0;map[i];++i) {
-			adv_crtc crtc;
-			crtc_fake_set(&crtc, map[i]->w, map[i]->h);
-			snprintf(crtc.name, CRTC_NAME_MAX, "sdl_%dx%d", map[i]->w, map[i]->h);
-			crtc_container_insert(cc, &crtc);
+	if (sdl_state.output == adv_output_fullscreen) {
+		SDL_Rect** map; /* it must not be released */
+		map = SDL_ListModes(0, SDL_ModeFlags() );
+		if (!map) {
+			/* no resolutions */
+		} else if (map == (SDL_Rect **)-1) {
+			/* all resolutions available */
+		} else {
+			unsigned i;
+			for(i=0;map[i];++i) {
+				adv_crtc crtc;
+				crtc_fake_set(&crtc, map[i]->w, map[i]->h);
+				snprintf(crtc.name, CRTC_NAME_MAX, "sdl_%dx%d", map[i]->w, map[i]->h);
+				crtc_container_insert(cc, &crtc);
+			}
 		}
 	}
 }

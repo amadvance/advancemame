@@ -82,7 +82,10 @@ static void* thread_proc(void* arg)
 		thread_func = 0;
 		pthread_cond_signal(&thread_cond);
 	}
+
+	return 0;
 }
+
 
 /** Initialize the thread support. */
 int thread_init(void)

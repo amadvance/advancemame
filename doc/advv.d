@@ -57,8 +57,43 @@ Options
 		The default is `advmame'.
 
 Video Drivers
-	For the DOS version of the programs the following drivers are 
-	available:
+	For any different platform a set of different video drivers are
+	available. 
+  Type
+	The drivers can be divided in two different categories:
+
+	* Generate drivers able to program directly the video board.
+	* System drivers able to use only the available video modes.
+
+	The Generate drivers are always the preffered choice.
+
+    Generate drivers
+	This set of drivers is able to program the directly the video board
+	to always generate a perfect video mode with the correct size
+	and frequency.
+
+	They always work in `fullscreen' mode.
+
+	They generally support only a subset of video boards and need to run
+	in fullscreen mode.
+
+	To function correctly these drivers require a correct configuration
+	of the device_video_* options.
+
+    System drivers
+	This set of drivers is able to use only the video modes available
+	on the operating system.
+
+	They can work in `fullscreen' mode, `window' mode and `zoom' mode
+	using the video board hardware acceleration to stretch the image.
+	The default output mode is `window' if you run the program in a window
+	manager, otherwise the output mode `fullscreen' is chosen.
+
+	Please note that these drivers generally need to stretch the image
+	losing a lot in quality.
+
+  List
+	In DOS the following drivers are available:
 		svgaline - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
@@ -115,8 +150,7 @@ Video Drivers
 			because it cannot control how the video modes are
 			generated.
 
-	For the Linux version of the programs the following drivers are 
-	available:
+	In Linux the following drivers are available:
 		svgalib - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
@@ -142,8 +176,15 @@ Video Drivers
 			able to use the current text mode. It can't really
 			change the video mode.
 
-	For the Windows version of the programs the following drivers are 
-	available:
+	In Mac OS X the following drivers are available:
+		sdl - Available SDL modes.
+			This driver is able to use only the video modes
+			reported by the SDL graphics library.
+			It doesn't require any `device_video_*' options
+			because it cannot control how the video modes are
+			generated.
+
+	In Windows the following drivers are available:
 		svgawin - Generated SVGA modes. (only for Windows NT/2000/XP)
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
@@ -228,12 +269,15 @@ Configuration
 
 	Options:
 		auto - Automatic detection of all the available drivers
-			(default). The order of detection is for DOS :
-			svgaline, vbeline, vgaline, vbe. And for Linux :
-			svgalib, fb, sdl, slang. And for Windows :
-			svgawin, sdl.
+			(default).
 
-	Options for the Linux version:
+	The order of detection:
+		DOS - svgaline, vbeline, vgaline, vbe.
+		Linux - svgalib, fb, sdl, slang.
+		Mac OS X - sdl.
+		Windows - svgawin, sdl.
+
+	Options for Linux:
 		svgalib - SVGA generated graphics modes with the
 			SVGALIB 1.9.x library. This driver is not
 			available in X (when the environment DISPLAY
@@ -245,13 +289,16 @@ Configuration
 		slang - Text video modes with the sLang library.
 		sdl - SDL graphics and fake text modes.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL graphics and fake text modes.
+
+	Options for DOS:
 		svgaline - SVGA generated graphics modes.
 		vbeline - VBE generated graphics modes.
 		vgaline - VGA generated text and graphics modes.
 		vbe - VBE graphics modes.
 
-	Options for the Windows version:
+	Options for Windows:
 		svgawin - SVGA generated graphics modes with the
 			SVGAWIN included library. To use this driver you
 			need to install the `svgawin.sys' driver with the
@@ -293,6 +340,37 @@ Configuration
 	video drivers with the exception of `sdl' and `vbe'.
 	The `sdl' and `vbe' video drivers simply ignore all these
 	options.
+
+    device_video_output
+	Select the output mode.
+
+	:device_video_output auto | window | fullscreen | zoom
+
+	Options:
+		auto - Automatically chosen (default).
+		window - Use a window display.
+		fullscreen - Use a fullscreen display.
+		zoom - Zoom the image to fullscreen using the
+			video board hardware. This mode uses a
+			YUV overlay available only in some environments,
+			like xv in X Window and DirectX in Windows.
+			The specific format used is YUY2.
+
+	Please note that with the zoom mode, if the original image is in the
+	RGB format instead of a palette format, the program
+	needs to convert it to the YUY2 format before displaying it.
+	It requires some time.
+
+    device_video_zoom
+	Select the favorite horizontal size to use with the `zoom' output
+	mode. The program selects the nearest available video mode.
+
+	device_video_zoom SIZE
+
+	Options:
+		SIZE - The favorite horizontal size (default 1024).
+
+	This option has effect only with the `zoom' output mode.
 
     device_video_pclock/hclock/vclock
 	Specify the monitor frequency range in term of horizontal and
@@ -466,26 +544,6 @@ Configuration
 			low end driver allow it (default).
 		no - Disable completely the bit depth.
 
-    device_video_output
-	Select the output mode.
-
-	:device_video_output auto | window | fullscreen | zoom
-
-	Options:
-		auto - Automatically choose (default).
-		window - Use a window.
-		fullscreen - Use a fullscreen display.
-		zoom - Zoom the image to fullscreen using the
-			video board hardware. This mode uses a
-			YUV overlay available only in some environment,
-			like xv in X Window and DirectX in Windows.
-			The specific format used is YUY2.
-
-	Please note that with the zoom mode in AdvanceMAME, if the original
-	image is in the RGB format instead of a palette format, the program
-	need to convert it to the YUY2 format before displaying it.
-	It requires some time.
-
     device_video_cursor
 	Select the mouse cursor mode.
 
@@ -515,26 +573,10 @@ Configuration
 	The following are the common video configuration options
 	available only for the `vbeline' DOS video driver.
 
-    device_vbeline_driver
-	Select the video driver used. The program uses the specified
-	driver ONLY if it's correctly detected.
-	
-	You should use this option only to force the `vbe3' driver.
-
-	:device_video_vbeline_driver none | auto | vbe3 | ...
-
-	Options:
-		none - Don't use any `vbeline' driver.
-		auto - Auto-detect (default).
-		vbe3 - Use the VBE3 BIOS if available, this is the
-			last driver detected.
-		... - Check the `carddos.txt' file for a complete list of
-			the video driver available.
-	Example:
-		:device_vbeline_driver vbe3
-
     device_vbeline_mode
 	Select which `vbe' mode to use when generating `vbeline' modes.
+
+	The use of this option is discouraged, it's present only for testing.
 
 	:device_vbeline_mode smaller | bigger | ...
 

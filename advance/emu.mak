@@ -14,7 +14,6 @@ OBJDIRS += \
 	$(OBJ)/advance/blit
 
 ADVANCELIBS += $(ZLIBS)
-ADVANCELDFLAGS += -Xlinker --wrap -Xlinker malloc -Xlinker --wrap -Xlinker realloc
 
 ifeq ($(CONF_HOST),unix)
 OBJDIRS += \
@@ -320,7 +319,6 @@ EMUCFLAGS += -I$(srcdir)/advance/osd
 M68000FLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
-	$(OBJ)/advance/osd/allocz.o \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
 	$(OBJ)/advance/osd/global.o \
@@ -552,7 +550,7 @@ $(OBJ)/cpu/m68000/68020.o: $(OBJ)/cpu/m68000/68020.asm
 $(OBJ)/%.a:
 	$(ECHO) $@
 	$(RM) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 $(sort $(OBJDIRS)):
 	$(ECHO) $@
@@ -846,6 +844,15 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame
+ifeq ($(CONF_WHOLESRC),yes)
+ifeq ($(CONF_EMU),mame)
+	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
+endif
+ifeq ($(CONF_EMU),mess)
+	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
+	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
+endif
+endif
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz
 	tar cfzo $(EMU_DIST_FILE_SRC).tar.gz $(EMU_DIST_DIR_SRC)
 	rm -r $(EMU_DIST_DIR_SRC)

@@ -94,11 +94,12 @@ static unsigned char* svgalib_linear_write_line(unsigned y)
 	return svgalib_state.ptr + svgalib_state.bytes_per_scanline * y;
 }
 
-adv_error svgalib_init(int device_id, adv_output output, adv_cursor cursor)
+adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	int res;
 	int chipset;
 	(void)cursor;
+	(void)zoom_size;
 
 	/* assume that vga_init() is already called */
 	assert( !svgalib_is_active() );

@@ -5,23 +5,35 @@ AC_PREREQ(2.57)
 AC_COPYRIGHT([Copyright 2003 Andrea Mazzoleni])
 
 # Checks for system.
-
 case "$host" in
 	*-*-linux*)
 		ac_host=unix
+		ac_host_cflags=
+		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f elf"])
 		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"])
 		AC_SUBST([EXE],[])
 	;;
+	*-*-darwin*)
+		ac_host=unix
+		ac_host_cflags=-no-cpp-precomp
+		ac_host_ldflags=
+		AC_SUBST([ASMFLAGS],[""])
+		AC_SUBST([CFLAGS_BUILD],["-O0"])
+		AC_SUBST([EXE],[])
+	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_host=windows
+		ac_host_cflags=
+		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f coff"])
 		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*-*-msdos*)
 		ac_host=dos
-		ac_lib="Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
+		ac_host_cflags=
+		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f coff"])
 		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"])
 		AC_SUBST([EXE],[.exe])
@@ -29,6 +41,8 @@ case "$host" in
 	*)
 		AC_MSG_WARN([Never tried host platform! Please report if it's working])
 		ac_host=unix
+		ac_host_cflags=
+		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],[""])
 		AC_SUBST([CFLAGS_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
@@ -38,6 +52,10 @@ AC_SUBST([CONF_HOST],[$ac_host])
 
 case "$build" in
 	*-*-linux*)
+		ac_build=unix
+		AC_SUBST([EXE_BUILD],[])
+	;;
+	*-*-darwin*)
 		ac_build=unix
 		AC_SUBST([EXE_BUILD],[])
 	;;
@@ -85,20 +103,6 @@ AC_CHECK_PROGS(ZIP, zip)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
 
-# Checks for libraries.
-AC_CHECK_LIB(
-	[z],
-	[adler32],
-	[],
-	AC_MSG_ERROR([The zlib library is required])
-)
-if test $ac_host = windows; then
-	ZLIBS="-static -lz"
-else
-	ZLIBS="-lz"
-fi
-AC_SUBST([ZLIBS],[$ZLIBS])
-
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
@@ -135,6 +139,9 @@ if test $ac_auto_cflags = yes; then
 		fi
 		AC_CHECK_CC_OPT([-Wall -Wno-sign-compare -Wno-unused], [CFLAGS="$CFLAGS -Wall -Wno-sign-compare -Wno-unused"], [])
 	fi
+	if test ! -z $ac_host_cflags; then
+		CFLAGS="$ac_host_cflags $CFLAGS"
+	fi
 fi
 if test $ac_auto_ldflags = yes ; then
 	if test $ac_enable_debug = yes ; then
@@ -145,6 +152,9 @@ if test $ac_auto_ldflags = yes ; then
 		fi
 	else
 		LDFLAGS="-s"
+	fi
+	if test ! -z $ac_host_ldflags; then
+		LDFLAGS="$ac_host_ldflags $LDFLAGS"
 	fi
 fi
 
@@ -171,18 +181,26 @@ AC_ARG_ENABLE(
 if test $ac_enable_asm = auto; then
 	AC_MSG_CHECKING([whether ${CC-cc} accepts Pentium assembler])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
-			#if !defined(__i386__)
+			#if !defined(__GNUC__) || !defined(__i386__)
 			choke me
 			#endif
 		]])],[ac_enable_asm=yes],[ac_enable_asm=no])
 	AC_MSG_RESULT([$ac_enable_asm])
-fi
-if test $ac_enable_asm = yes; then
-	AC_CHECK_PROGS([ASM], [nasm nasmw], [none])
-	if test $ASM = none; then
-		AC_MSG_ERROR([The NASM assembler is required for the "asm" compilation])
+	if test $ac_enable_asm = yes; then
+		AC_CHECK_PROGS([ASM], [${ac_tool_prefix}nasm], [none])
+		if test $ASM = none; then
+			ac_enable_asm=no
+		else
+			CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+		fi
 	fi
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+elif test $ac_enable_asm = yes; then
+	AC_CHECK_PROGS([ASM], [${ac_tool_prefix}nasm], [none])
+	if test $ASM = none; then
+		AC_MSG_ERROR([the NASM assembler is required for the "asm" compilation])
+	else
+		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+	fi
 fi
 
 # Export the architecture CFLAGS
@@ -208,35 +226,88 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		AC_MSG_ERROR([You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		AC_MSG_ERROR([You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		AC_MSG_ERROR([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions.])
+		AC_MSG_ERROR([you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test ! $ac_with_emu = none; then
-	AC_MSG_ERROR([Unknown emulator $ac_with_emu])
-fi
-if test -f $srcdir/makefile ; then
-	AC_MSG_WARN([A lowercase makefile exists! Have you deleted the original emulator makefile ?])
+	AC_MSG_ERROR([unknown emulator $ac_with_emu])
 fi
 AC_SUBST(CONF_EMU,$ac_with_emu)
+
+AC_ARG_ENABLE(
+	[debugger],
+	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),
+	[ac_enable_debugger=$enableval],
+	[ac_enable_debugger=no]
+)
+AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
+
+AC_ARG_ENABLE(
+	[compress],
+	AC_HELP_STRING([--enable-compress],[enable the compression of the executable (default no)]),
+	[ac_enable_compress=$enableval],
+	[ac_enable_compress=no]
+)
+if test $ac_enable_compress = yes; then
+	AC_CHECK_PROGS(
+		[UPX],
+		[upx],
+		AC_MSG_ERROR([the upx program is required for compressing])
+	)
+	AC_CHECK_PROGS(
+		[TOUCH],
+		[touch],
+		AC_MSG_ERROR([the touch program is required for compressing])
+	)
+fi
+AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
+AC_SUBST([UPX],[$UPX])
+AC_SUBST([TOUCH],[$TOUCH])
+
+# Checks for libraries.
+
+ac_lib_video=no
+ac_lib_sound=no
+ac_lib_keyboard=no
+
+if test $ac_host = dos; then
+	ac_lib="$ac_lib Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
+	ac_lib_video=yes
+	ac_lib_sound=yes
+	ac_lib_keyboard=yes
+fi
+
+AC_CHECK_LIB(
+	[z],
+	[adler32],
+	[],
+	AC_MSG_ERROR([the zlib library is required])
+)
+if test $ac_host = windows; then
+	ZLIBS="-static -lz"
+else
+	ZLIBS="-lz"
+fi
+AC_SUBST([ZLIBS],[$ZLIBS])
 
 AC_ARG_ENABLE(
 	[svgalib],
@@ -267,16 +338,18 @@ elif test $ac_lib_svgalib = yes; then
 		[vga],
 		[vga_init],
 		[],
-		[AC_MSG_ERROR([The SVGALIB library is missing])]
+		[AC_MSG_ERROR([the SVGALIB library is missing])]
 	)
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
 			#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
 			choke me
 			#endif
-		]])],[],[AC_MSG_ERROR([The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
+		]])],[],[AC_MSG_ERROR([the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
 fi
 if test $ac_lib_svgalib = yes; then
 	ac_lib="$ac_lib SVGALIB"
+	ac_lib_video=yes
+	ac_lib_keyboard=yes
 fi
 AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 
@@ -300,11 +373,12 @@ elif test $ac_lib_fb = yes; then
 	AC_MSG_CHECKING([for FrameBuffer])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
 			struct fb_var_screeninfo dummy;
-		]])],[],[AC_MSG_ERROR([The Frame Buffer library is missing])])
+		]])],[],[AC_MSG_ERROR([the Frame Buffer library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_fb = yes; then
 	ac_lib="$ac_lib FrameBuffer"
+	ac_lib_video=yes
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
@@ -334,11 +408,12 @@ elif test $ac_lib_alsa = yes; then
 			choke me
 			#endif
 			int dummy = SND_PCM_FORMAT_S16_LE;
-		]])],[],[AC_MSG_ERROR([The ALSA library is missing or too old])])
+		]])],[],[AC_MSG_ERROR([the ALSA library is missing or too old])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_alsa = yes; then
 	ac_lib="$ac_lib ALSA"
+	ac_lib_sound=yes
 fi
 AC_SUBST([CONF_LIB_ALSA],[$ac_lib_alsa])
 
@@ -362,11 +437,12 @@ elif test $ac_lib_oss = yes; then
 	AC_MSG_CHECKING([for OSS])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
 			int dummy = SNDCTL_DSP_SETFMT;
-		]])],[],[AC_MSG_ERROR([The OSS library is missing])])
+		]])],[],[AC_MSG_ERROR([the OSS library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_oss = yes; then
 	ac_lib="$ac_lib OSS"
+	ac_lib_sound=yes
 fi
 AC_SUBST([CONF_LIB_OSS],[$ac_lib_oss])
 
@@ -393,7 +469,7 @@ elif test $ac_lib_pthread = yes; then
 		[pthread],
 		[pthread_create],
 		[],
-		[AC_MSG_ERROR([The pthread library is missing])],
+		[AC_MSG_ERROR([the pthread library is missing])],
 		[]
 	)
 fi
@@ -425,7 +501,7 @@ elif test $ac_lib_slang = yes; then
 		[slang],
 		[SLang_init_tty],
 		[],
-		[AC_MSG_ERROR([The sLang library is missing])],
+		[AC_MSG_ERROR([the sLang library is missing])],
 		[]
 	)
 fi
@@ -434,6 +510,18 @@ if test $ac_lib_slang = yes; then
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 
+ac_lib_sdl_args=
+ac_lib_sdl_path="$PATH"
+AC_ARG_WITH(
+	[sdl-prefix],
+	AC_HELP_STRING([--with-sdl-prefix=DIR],[Prefix where SDL is installed (optional)]),
+	[ac_lib_sdl_prefix="$withval"],
+	[ac_lib_sdl_prefix=""]
+)
+if test ! -z $ac_lib_sdl_prefix; then
+	ac_lib_sdl_args="--prefix=${ac_lib_sdl_prefix}"
+	ac_lib_sdl_path="${ac_lib_sdl_prefix}/bin"
+fi
 AC_ARG_ENABLE(
 	[sdl],
 	AC_HELP_STRING([--enable-sdl],[enable the use of the SDL library. (default auto)]),
@@ -444,22 +532,17 @@ if test $ac_lib_sdl = auto; then
 	if test $ac_host = dos; then
 		ac_lib_sdl=no
 	else
-		if test -z ${host_alias} ; then
-			AC_CHECK_PROGS(
-				[SDLCONFIG],
-				[sdl-config]
-			)
-		else
-			AC_CHECK_PROGS(
-				[SDLCONFIG],
-				[${host_alias}-sdl-config]
-			)
-		fi
-		if test -z $SDLCONFIG; then
+		AC_PATH_PROGS(
+			[ac_lib_sdl_config],
+			[${ac_tool_prefix}sdl-config],
+			[],
+			[${ac_lib_sdl_path}]
+		)
+		if test -z $ac_lib_sdl_config; then
 			ac_lib_sdl=no
 		else
-			SDLCFLAGS=`$SDLCONFIG --cflags`
-			SDLLIBS=`$SDLCONFIG --libs`
+			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 			AC_CHECK_LIB(
 				[SDL],
 				[SDL_Init],
@@ -470,33 +553,31 @@ if test $ac_lib_sdl = auto; then
 		fi
 	fi
 elif test $ac_lib_sdl = yes; then
-	if test -z ${host_alias} ; then
-		AC_CHECK_PROGS(
-			[SDLCONFIG],
-			[sdl-config]
-		)
+	AC_PATH_PROGS(
+		[ac_lib_sdl_config],
+		[${ac_tool_prefix}sdl-config],
+		[],
+		[${ac_lib_sdl_path}]
+	)
+	if test -z $ac_lib_sdl_config ; then
+		AC_MSG_ERROR([the ${ac_tool_prefix}sdl-config tool is missing])
 	else
-		AC_CHECK_PROGS(
-			[SDLCONFIG],
-			[${host_alias}-sdl-config]
-		)
-	fi
-	if test -z $SDLCONFIG ; then
-		AC_MSG_ERROR([The sdl-config tool is missing])
-	else
-		SDLCFLAGS=`$SDLCONFIG --cflags`
-		SDLLIBS=`$SDLCONFIG --libs`
+		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+		SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 		AC_CHECK_LIB(
 			[SDL],
 			[SDL_Init],
 			[],
-			[AC_MSG_ERROR([The SDL library is missing])],
+			[AC_MSG_ERROR([the SDL library is missing])],
 			[$SDLLIBS]
 		)
 	fi
 fi
 if test $ac_lib_sdl = yes; then
 	ac_lib="$ac_lib SDL"
+	ac_lib_video=yes
+	ac_lib_sound=yes
+	ac_lib_keyboard=yes
 fi
 AC_SUBST([SDLCFLAGS])
 AC_SUBST([SDLLIBS])
@@ -505,18 +586,31 @@ AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 AC_ARG_ENABLE(
 	[svgawin],
 	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
-	[ac_lib_sdl=$enableval],
-	[ac_lib_sdl=auto]
+	[ac_lib_svgawin=$enableval],
+	[ac_lib_svgawin=auto]
 )
-if test $ac_lib_sdl = auto; then
+if test $ac_lib_svgawin = auto; then
 	if test $ac_host = windows; then
-		ac_lib_svgawin=yes
+		if test $ac_lib_sdl = yes; then
+			ac_lib_svgawin=yes
+		else
+			ac_lib_svgawin=no
+		fi
 	else
 		ac_lib_svgawin=no
 	fi
 fi
 if test $ac_lib_svgawin = yes; then
+	if test ! $ac_host = windows; then
+		AC_MSG_ERROR([the SVGAWIN library not supported in this host])
+	fi
+	if test $ac_lib_sdl = no; then
+		AC_MSG_ERROR([the SVGAWIN library requires the SDL library])
+	fi
+fi
+if test $ac_lib_svgawin = yes; then
 	ac_lib="$ac_lib SVGAWIN"
+	ac_lib_video=yes
 fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
@@ -536,47 +630,18 @@ if test $ac_lib_kraw = auto; then
 	else
 		ac_lib_kraw=no
 	fi
-elif test $ac_lib_fb = yes; then
+elif test $ac_lib_kraw = yes; then
 	AC_MSG_CHECKING([for KRAW keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
 			int dummy = K_MEDIUMRAW;
-		]])],[],[AC_MSG_ERROR([The KRAW keyboard interface is missing])])
+		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kraw = yes; then
 	ac_lib="$ac_lib KRAW"
+	ac_lib_keyboard=yes
 fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
-
-AC_ARG_ENABLE(
-	[debugger],
-	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),
-	[ac_enable_debugger=$enableval],
-	[ac_enable_debugger=no]
-)
-AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
-
-AC_ARG_ENABLE(
-	[compress],
-	AC_HELP_STRING([--enable-compress],[enable the compression of the executable (default no)]),
-	[ac_enable_compress=$enableval],
-	[ac_enable_compress=no]
-)
-if test $ac_enable_compress = yes; then
-	AC_CHECK_PROGS(
-		[UPX],
-		[upx],
-		AC_MSG_ERROR([The upx program is required for compressing])
-	)
-	AC_CHECK_PROGS(
-		[TOUCH],
-		[touch],
-		AC_MSG_ERROR([The touch program is required for compressing])
-	)
-fi
-AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
-AC_SUBST([UPX],[$UPX])
-AC_SUBST([TOUCH],[$TOUCH])
 
 # Notify that ./configure was runned
 AC_SUBST([CONF],[yes])
@@ -585,7 +650,7 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
 echo ""
-echo "== Host Architecture =="
+echo "== Host =="
 echo "Environment :" $host
 if test $ac_is_bigendian = yes; then
 	echo "Endianess : big"
@@ -598,6 +663,16 @@ else
 	echo "Assembler for Pentium : no"
 fi
 echo "Libraries :" $ac_lib
+if test $ac_lib_video = no; then
+	AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+fi
+if test $ac_lib_sound = no; then
+	AC_MSG_ERROR([no sound library found])
+fi
+if test $ac_lib_keyboard = no; then
+	AC_MSG_ERROR([no keyboard library found])
+fi
+
 echo ""
 echo "== Compiler =="
 echo "CC :" $CC
@@ -610,5 +685,4 @@ if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
 echo "Compress executables :" $ac_enable_compress
-
 

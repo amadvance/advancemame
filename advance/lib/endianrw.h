@@ -25,8 +25,8 @@
 /** \addtogroup Endian */
 /*@{*/
 
-#ifndef __ENDIAN_H
-#define __ENDIAN_H
+#ifndef __ENDIANRW_H
+#define __ENDIANRW_H
 
 #include "extra.h"
 
@@ -89,38 +89,42 @@ static inline unsigned cpu_uint32_make_uint8(unsigned v0, unsigned v1, unsigned 
 /*@{*/
 static inline unsigned le_uint8_read(const void* ptr)
 {
-	const unsigned char* ptr8 = (const unsigned char*)ptr;
-	return ptr8[0];
+	return *(const unsigned char*)ptr;
 }
 
 static inline unsigned be_uint8_read(const void* ptr)
 {
-	const unsigned char* ptr8 = (const unsigned char*)ptr;
-	return ptr8[0];
+	return *(const unsigned char*)ptr;
 }
 
 static inline unsigned cpu_uint8_read(const void* ptr)
 {
-	const unsigned char* ptr8 = (const unsigned char*)ptr;
-	return ptr8[0];
-}
-
-static inline unsigned le_uint16_read(const void* ptr)
-{
-	const unsigned char* ptr8 = (const unsigned char*)ptr;
-	return (unsigned)ptr8[0] | (unsigned)ptr8[1] << 8;
-}
-
-static inline unsigned be_uint16_read(const void* ptr)
-{
-	const unsigned char* ptr8 = (const unsigned char*)ptr;
-	return (unsigned)ptr8[1] | (unsigned)ptr8[0] << 8;
+	return *(const unsigned char*)ptr;
 }
 
 static inline unsigned cpu_uint16_read(const void* ptr)
 {
-	const uint16* ptr16 = (const uint16*)ptr;
-	return ptr16[0];
+	return *(const uint16*)ptr;
+}
+
+static inline unsigned le_uint16_read(const void* ptr)
+{
+#ifdef USE_LSB
+	return cpu_uint16_read(ptr);
+#else
+	const unsigned char* ptr8 = (const unsigned char*)ptr;
+	return (unsigned)ptr8[0] | (unsigned)ptr8[1] << 8;
+#endif
+}
+
+static inline unsigned be_uint16_read(const void* ptr)
+{
+#ifdef USE_MSB
+	return cpu_uint16_read(ptr);
+#else
+	const unsigned char* ptr8 = (const unsigned char*)ptr;
+	return (unsigned)ptr8[1] | (unsigned)ptr8[0] << 8;
+#endif
 }
 
 static inline unsigned le_uint24_read(const void* ptr)
@@ -144,10 +148,15 @@ static inline unsigned cpu_uint24_read(const void* ptr)
 #endif
 }
 
+static inline unsigned cpu_uint32_read(const void* ptr)
+{
+	return *(const uint32*)ptr;
+}
+
 static inline unsigned le_uint32_read(const void* ptr)
 {
 #ifdef USE_LSB
-	return *(uint32*)ptr;
+	return cpu_uint32_read(ptr);
 #else
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned)ptr8[0] | (unsigned)ptr8[1] << 8 | (unsigned)ptr8[2] << 16 | (unsigned)ptr8[3] << 24;
@@ -157,17 +166,11 @@ static inline unsigned le_uint32_read(const void* ptr)
 static inline unsigned be_uint32_read(const void* ptr)
 {
 #ifdef USE_MSB
-	return *(uint32*)ptr;
+	return cpu_uint32_read(ptr);
 #else
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned)ptr8[3] | (unsigned)ptr8[2] << 8 | (unsigned)ptr8[1] << 16 | (unsigned)ptr8[0] << 24;
 #endif
-}
-
-static inline unsigned cpu_uint32_read(const void* ptr)
-{
-	const uint32* ptr32 = (const uint32*)ptr;
-	return ptr32[0];
 }
 /*@}*/
 
@@ -175,6 +178,12 @@ static inline unsigned cpu_uint32_read(const void* ptr)
  * Write a value in the Little or Big endian format.
  */
 /*@{*/
+static inline void cpu_uint8_write(void* ptr, unsigned v)
+{
+	unsigned char* ptr8 = (unsigned char*)ptr;
+	ptr8[0] = v;
+}
+
 static inline void le_uint8_write(void* ptr, unsigned v)
 {
 	unsigned char* ptr8 = (unsigned char*)ptr;
@@ -187,30 +196,32 @@ static inline void be_uint8_write(void* ptr, unsigned v)
 	ptr8[0] = v;
 }
 
-static inline void cpu_uint8_write(void* ptr, unsigned v)
-{
-	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[0] = v;
-}
-
-static inline void le_uint16_write(void* ptr, unsigned v)
-{
-	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[0] = v & 0xFF;
-	ptr8[1] = (v >> 8) & 0xFF;
-}
-
-static inline void be_uint16_write(void* ptr, unsigned v)
-{
-	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[1] = v & 0xFF;
-	ptr8[0] = (v >> 8) & 0xFF;
-}
-
 static inline void cpu_uint16_write(void* ptr, unsigned v)
 {
 	uint16* ptr16 = (uint16*)ptr;
 	ptr16[0] = v;
+}
+
+static inline void le_uint16_write(void* ptr, unsigned v)
+{
+#ifdef USE_LSB
+	cpu_uint16_write(ptr, v);
+#else
+	unsigned char* ptr8 = (unsigned char*)ptr;
+	ptr8[0] = v & 0xFF;
+	ptr8[1] = (v >> 8) & 0xFF;
+#endif
+}
+
+static inline void be_uint16_write(void* ptr, unsigned v)
+{
+#ifdef USE_MSB
+	cpu_uint16_write(ptr, v);
+#else
+	unsigned char* ptr8 = (unsigned char*)ptr;
+	ptr8[1] = v & 0xFF;
+	ptr8[0] = (v >> 8) & 0xFF;
+#endif
 }
 
 static inline void le_uint24_write(void* ptr, unsigned v)
@@ -238,10 +249,16 @@ static inline void cpu_uint24_write(void* ptr, unsigned v)
 #endif
 }
 
+static inline void cpu_uint32_write(void* ptr, unsigned v)
+{
+	uint32* ptr32 = (uint32*)ptr;
+	ptr32[0] = v;
+}
+
 static inline void le_uint32_write(void* ptr, unsigned v)
 {
 #ifdef USE_LSB
-	*(uint32*)ptr = v;
+	cpu_uint32_write(ptr, v);
 #else
 	unsigned char* ptr8 = (unsigned char*)ptr;
 	ptr8[0] = v & 0xFF;
@@ -254,7 +271,7 @@ static inline void le_uint32_write(void* ptr, unsigned v)
 static inline void be_uint32_write(void* ptr, unsigned v)
 {
 #ifdef USE_MSB
-	*(uint32*)ptr = v;
+	cpu_uint32_write(ptr, v);
 #else
 	unsigned char* ptr8 = (unsigned char*)ptr;
 	ptr8[3] = v & 0xFF;
@@ -262,12 +279,6 @@ static inline void be_uint32_write(void* ptr, unsigned v)
 	ptr8[1] = (v >> 16) & 0xFF;
 	ptr8[0] = (v >> 24) & 0xFF;
 #endif
-}
-
-static inline void cpu_uint32_write(void* ptr, unsigned v)
-{
-	uint32* ptr32 = (uint32*)ptr;
-	ptr32[0] = v;
 }
 
 /*@}*/

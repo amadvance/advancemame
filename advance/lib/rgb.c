@@ -31,6 +31,7 @@
 #include "rgb.h"
 #include "mode.h"
 #include "portable.h"
+#include "endianrw.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -155,8 +156,7 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
 		unsigned u = ((-11055*r - 21712*g + 32768*b + 8388608) >> 16) & 0xFF;
 		unsigned v = ((32768*r - 27439*g - 5328*b + 8388608) >> 16) & 0xFF;
 
-		/* ENDIAN */
-		return y | u << 8 | y << 16 | v << 24;
+		return cpu_uint32_make_uint8(y, u, y, v);
 		}
 	default :
 		/* return always 0 if the pixel is not computable, */

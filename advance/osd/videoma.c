@@ -483,6 +483,7 @@ static void video_invalidate_screen(void)
 	/* if case the memory size detection is wrong  */
 	for(i=0;i<update_page_max_get();++i) {
 		update_start();
+		log_std(("emu:video: clear %dx%d %dx%d\n", update_x_get(), update_y_get(), video_size_x(), video_size_y()));
 		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), color);
 		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), color);
 	}
@@ -1259,6 +1260,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		&& !video_is_programmable(context)
 	) {
 #if 1
+		/* disable the adjust mode if i isn't supported by the video driver */
 		context->config.adjust = ADJUST_NONE;
 		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
 #else
@@ -2596,6 +2598,8 @@ static void* video_thread(void* void_context)
 		/* signal the completion of the operation */
 		pthread_cond_signal(&context->state.thread_video_cond);
 	}
+	
+	return 0;
 }
 #endif
 

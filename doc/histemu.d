@@ -7,6 +7,9 @@ AdvanceMAME Version 0.67.1 2003/05
 	) The `display_adjust' value `generate' is now renamed `generate_yclock'.
 		A bunch of new `generate_*' values are available for a fine
 		control on the generated modes.
+	) Improved the support for BigEndian targets.
+	) Added a preliminary support for Mac OS X. It compiles and run
+		with the SDL library.
 	) In Linux you can specify an arbitrary data directory with the
 		$ADVANCE environment variable. This value overwrite the default
 		$HOME/.advance.
@@ -14,7 +17,7 @@ AdvanceMAME Version 0.67.1 2003/05
 	) Removed some "buffer overflow".
 	) Fixed the mouse handling in Linux with the SVGALIB library
 		[by Fabio Cavallo].
-	) Improved the support for BigEndian targets.
+	) Fixed some minor problems in the `configure' script.
 
 AdvanceMAME Version 0.67.0 2003/04
 	) Updated with autoconf 2.57.

@@ -46,21 +46,20 @@ Preparing The Sources
 		:patch -p1 < ../advance/advmame.dif
 
 Configuring
-    Linux
+    Linux/Mac OS X
 	Run the `./configure' script.
 
 	Generally no extra option is required. You can get the complete
 	option list with the `./configure --help' command.
 
 	The configure script automatically detects all the available libraries
-	and the optimization flags.
+	and the optimization flags. You can use the --with-sdl-prefix option
+	to search for the SDL library in specific locations.
 
-	If you want to customize the compilation CFLAGS you can set them before
-	calling the ./configure script, for example:
+	If you want to customize the compilation CFLAGS you can put them on the
+	./configure command line, for example:
 
-		:export CFLAGS="-O2 -march=pentium4 -fomit-frame-pointer"
-		:export LDFLAGS="-s"
-		:./configure
+		:./configure CFLAGS="-O2 -march=pentium4 -fomit-frame-pointer" LDFLAGS="-s"
 
 	The configure script automatically detects the emulator to compile
 	checking the installed sources. You can force a specific emulator
@@ -74,11 +73,11 @@ Compiling
 	To compile run `make'.
 
 Installing
-    Linux
+    Linux/Mac OS X
 	Run `make install' to install the binaries and the documentation.
-	The binaries are installed in $prefix/bin, the documentation
-	in $prefix/doc/advance, the program data in $prefix/share/advance and
-	the man pages in $prefix/man/man1.
+	The binaries are installed in $prefix/bin, the program data in
+	$prefix/share/advance, the documentation in $prefix/share/advance/doc,
+	and the man pages in $prefix/man/man1.
 
 	The default installation $prefix is /usr/local.
 
@@ -129,6 +128,21 @@ Requirements
 
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.
+
+    Mac OS X
+	To build in Mac OS X you need the following software:
+		:Mac OS X
+		:GNU gcc C/C++ 2.95.3 (or newer)
+		:LibSDL 1.2.4 (or newer)
+
+	The gcc compiler is included in the Apple Development Kit which
+	must be installed manually from the original Mac OS X cd.
+
+	The SDL library must be manually compiled and installed.
+	Please note that you may need to use the --with-sdl-prefix option
+	of the emulator ./configure to correctly find the installed SDL
+	library. Generally "./configure --with-sdl-prefix=/usr/local" is
+	enough.
 
     DOS
 	To build in DOS you need the following software:

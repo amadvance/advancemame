@@ -155,7 +155,7 @@ static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned c
 
 	count /= 2;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make8(src[0], src[0], src[1], src[1]);
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[0], src[1], src[1]);
 		dst += 4;
 		src += 2;
 		--count;
@@ -200,7 +200,7 @@ static inline void internal_double16_def(uint16* dst, const uint16* src, unsigne
 static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
 {
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make16(src[0], src[0]);
+		P32DER0(dst) = cpu_uint32_make_uint16(src[0], src[0]);
 		dst += 2;
 		src += 1;
 		--count;

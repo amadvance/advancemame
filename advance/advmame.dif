@@ -122,6 +122,38 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  #else
  
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/tms9900/9900stat.h src/cpu/tms9900/9900stat.h
+--- src.ori/cpu/tms9900/9900stat.h	2000-01-11 17:50:10.000000000 +0100
++++ src/cpu/tms9900/9900stat.h	2003-05-08 21:03:29.000000000 +0200
+@@ -186,11 +186,11 @@
+ }
+ 
+ #define wadd(addr,expr) { int lval = setst_add_laeco(readword(addr), (expr)); writeword((addr),lval); }
+ #define wsub(addr,expr) { int lval = setst_sub_laeco(readword(addr), (expr)); writeword((addr),lval); }
+ 
+-#ifdef __POWERPC__
++#if defined(__POWERPC__) && !defined(__GNUC__)
+ 
+ // setst_add_32_laeco :
+ // - computes a+b
+ // - sets L, A, E, Carry and Overflow in st
+ //
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/tms9900/99xxstat.h src/cpu/tms9900/99xxstat.h
+--- src.ori/cpu/tms9900/99xxstat.h	1999-12-30 15:57:16.000000000 +0100
++++ src/cpu/tms9900/99xxstat.h	2003-05-08 21:03:29.000000000 +0200
+@@ -190,11 +190,11 @@
+ }
+ 
+ #define wadd(addr,expr) { int lval = setst_add_laeco(readword(addr), (expr)); writeword((addr),lval); }
+ #define wsub(addr,expr) { int lval = setst_sub_laeco(readword(addr), (expr)); writeword((addr),lval); }
+ 
+-#ifdef __POWERPC__
++#if defined(__POWERPC__) && !defined(__GNUC__)
+ 
+ // setst_add_32_laeco :
+ // - computes a+b
+ // - sets L, A, E, Carry and Overflow in st
+ //
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:43.000000000 +0100
 +++ src/cpu/z80/z80.c	2003-04-09 20:37:49.000000000 +0200
