@@ -629,13 +629,13 @@ static void video_update_effect(struct advance_video_context* context)
 	if (context->state.combine == COMBINE_AUTO) {
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE2X;
+			context->state.combine = COMBINE_SCALE;
 		} else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE3X;
+			context->state.combine = COMBINE_SCALE;
 		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE4X;
+			context->state.combine = COMBINE_SCALE;
 		} else if (context->state.mode_visible_size_x >= 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y >= 2*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_FILTER;
@@ -666,37 +666,27 @@ static void video_update_effect(struct advance_video_context* context)
 		}
 	}
 
-	if ((context->state.combine == COMBINE_SCALE2X  || context->state.combine == COMBINE_LQ2X || context->state.combine == COMBINE_HQ2X)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x
-			|| context->state.mode_visible_size_y != 2*context->state.game_visible_size_y
-		)
+	if ((context->state.combine == COMBINE_SCALE)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 	) {
-		log_std(("emu:video: resizeeffect=scale2x|lq2x|hq2x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=scale disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if ((context->state.combine == COMBINE_SCALE3X || context->state.combine == COMBINE_LQ3X || context->state.combine == COMBINE_HQ3X)
-		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x
-			|| context->state.mode_visible_size_y != 3*context->state.game_visible_size_y
-		)
+	if ((context->state.combine == COMBINE_LQ || context->state.combine == COMBINE_HQ)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 	) {
-		log_std(("emu:video: resizeeffect=scale3x|lq3x|hq3x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=lq|hq disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if ((context->state.combine == COMBINE_HQ3X || context->state.combine == COMBINE_HQ2X
-		|| context->state.combine == COMBINE_LQ3X || context->state.combine == COMBINE_LQ2X)
+	if ((context->state.combine == COMBINE_HQ || context->state.combine == COMBINE_LQ)
 		&& (context->state.mode_index != MODE_FLAGS_INDEX_BGR32 && context->state.mode_index != MODE_FLAGS_INDEX_BGR16 && context->state.mode_index != MODE_FLAGS_INDEX_BGR15)) {
-		log_std(("emu:video: resizeeffect=lq2x|lq3x|hq2x|hq3x disabled because is supported only in 15/16/32 bit modes\n"));
-		context->state.combine = COMBINE_NONE;
-	}
-
-	if (context->state.combine == COMBINE_SCALE4X
-		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x
-			|| context->state.mode_visible_size_y != 4*context->state.game_visible_size_y
-		)
-	) {
-		log_std(("emu:video: resizeeffect=scale4x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=lq|hq disabled because is supported only in 15/16/32 bit modes\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -1633,7 +1623,7 @@ static void video_frame_resolution(struct advance_video_context* context, unsign
 	}
 }
 
-static inline void video_frame_pan(struct advance_video_context* context, unsigned input)
+static void video_frame_pan(struct advance_video_context* context, unsigned input)
 {
 	adv_bool modify = 0;
 
@@ -1672,38 +1662,7 @@ static inline void video_frame_pan(struct advance_video_context* context, unsign
 	}
 }
 
-static inline void video_frame_blit(struct advance_video_context* context, unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp)
-{
-	unsigned combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
-	if (context->state.game_rgb_flag) {
-		video_stretch(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.game_color_def, combine);
-	} else {
-		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-			switch (context->state.game_bytes_per_pixel) {
-			case 2 :
-				video_stretch_palette_16hw(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, combine);
-				break;
-			default:
-				log_std(("ERROR:emu:video unsupported hardware palette size %d\n", context->state.game_bytes_per_pixel));
-				break;
-			}
-		} else {
-			switch (context->state.game_bytes_per_pixel) {
-			case 1 :
-				video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
-				break;
-			case 2 :
-				video_stretch_palette_16(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
-				break;
-			default:
-				log_std(("ERROR:emu:video unsupported palette size %d\n", context->state.game_bytes_per_pixel));
-				break;
-			}
-		}
-	}
-}
-
-static inline void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
+static void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
 	char buffer[256];
@@ -1764,7 +1723,100 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 	/* adjust the source position */
 	context->state.game_visible_pos_x = context->state.game_visible_pos_x - context->state.game_visible_pos_x % context->state.game_visible_pos_x_increment;
 
-	combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
+	combine = 0;
+
+	switch (context->state.rgb_effect) {
+	case EFFECT_RGB_TRIAD3PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIAD3PIX;
+		break;
+	case EFFECT_RGB_TRIADSTRONG3PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX;
+		break;
+	case EFFECT_RGB_TRIAD6PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIAD6PIX;
+		break;
+	case EFFECT_RGB_TRIADSTRONG6PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX;
+		break;
+	case EFFECT_RGB_TRIAD16PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIAD16PIX;
+		break;
+	case EFFECT_RGB_TRIADSTRONG16PIX :
+		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX;
+		break;
+	case EFFECT_RGB_SCANDOUBLEHORZ :
+		combine |= VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ;
+		break;
+	case EFFECT_RGB_SCANTRIPLEHORZ :
+		combine |= VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ;
+		break;
+	case EFFECT_RGB_SCANDOUBLEVERT :
+		combine |= VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT;
+		break;
+	case EFFECT_RGB_SCANTRIPLEVERT :
+		combine |= VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT;
+		break;
+	}
+
+	switch (context->state.interlace_effect) {
+	case EFFECT_INTERLACE_EVEN :
+		combine |= VIDEO_COMBINE_SWAP_EVEN;
+		break;
+	case EFFECT_INTERLACE_ODD :
+		combine |= VIDEO_COMBINE_SWAP_ODD;
+		break;
+	}
+
+	switch (context->state.combine) {
+	case COMBINE_MAX :
+		combine |= VIDEO_COMBINE_Y_MAX;
+		break;
+	case COMBINE_MEAN :
+		combine |= VIDEO_COMBINE_Y_MEAN;
+		break;
+	case COMBINE_FILTER :
+		combine |= VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
+		break;
+	case COMBINE_FILTERX :
+		combine |= VIDEO_COMBINE_Y_NONE | VIDEO_COMBINE_X_FILTER;
+		break;
+	case COMBINE_FILTERY :
+		combine |= VIDEO_COMBINE_Y_FILTER;
+		break;
+	case COMBINE_SCALE :
+		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_SCALE2X;
+		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_SCALE3X;
+		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_SCALE4X;
+		else
+			combine |= VIDEO_COMBINE_Y_NONE;
+		break;
+	case COMBINE_LQ :
+		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_LQ2X;
+		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_LQ3X;
+		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_LQ4X;
+		else
+			combine |= VIDEO_COMBINE_Y_NONE;
+		break;
+	case COMBINE_HQ :
+		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_HQ2X;
+		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_HQ3X;
+		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
+			combine |= VIDEO_COMBINE_Y_HQ4X;
+		else
+			combine |= VIDEO_COMBINE_Y_NONE;
+		break;
+	default:
+		combine |= VIDEO_COMBINE_Y_NONE;
+		break;
+	}
 
 	if (context->state.game_rgb_flag) {
 		adv_error res;
@@ -1772,6 +1824,7 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 		assert(res == 0);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
+			assert(context->state.game_bytes_per_pixel == 2);
 			video_stretch_palette_16hw_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
@@ -1791,7 +1844,7 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 	context->state.blit_pipeline_flag = 1;
 }
 
-static inline void video_frame_put(struct advance_video_context* context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
+static void video_frame_put(struct advance_video_context* context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
 {
 	unsigned dst_x;
 	unsigned dst_y;
@@ -1809,7 +1862,7 @@ static inline void video_frame_put(struct advance_video_context* context, const 
 	video_blit_pipeline(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 }
 
-static inline void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
+static void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
 {
 	update_start();
 
@@ -1819,7 +1872,7 @@ static inline void video_frame_screen(struct advance_video_context* context, con
 	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 }
 
-static inline void video_frame_palette(struct advance_video_context* context)
+static void video_frame_palette(struct advance_video_context* context)
 {
 	if (context->state.palette_dirty_flag) {
 		unsigned i;
@@ -3180,13 +3233,9 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filter", COMBINE_FILTER },
 { "filterx", COMBINE_FILTERX },
 { "filtery", COMBINE_FILTERY },
-{ "scale2x", COMBINE_SCALE2X },
-{ "scale3x", COMBINE_SCALE3X },
-{ "scale4x", COMBINE_SCALE4X },
-{ "lq2x", COMBINE_LQ2X },
-{ "lq3x", COMBINE_LQ3X },
-{ "hq2x", COMBINE_HQ2X },
-{ "hq3x", COMBINE_HQ3X }
+{ "scale", COMBINE_SCALE },
+{ "lq", COMBINE_LQ },
+{ "hq", COMBINE_HQ },
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {

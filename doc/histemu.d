@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.74.1 2003/09
+	) Added the effects `lq4x' and `hq4x'. The `hq2x' and `hq3x' versions
+		are now exactly like the original effects.
+	) The effects names `scale2/3/4x', `lq2/3/4x' and `hq2/3/4x' are now
+		unified in `scale', `lq' and `hq'. The correct scale
+		factor if automatically detected from the video mode size.
+
 AdvanceMAME Version 0.74.0 2003/09
 	) Added a bunch of new video effects: `lq2x', `hq2x', `lq3x' and `hq3x'.
 		They are interpolation effects. Slower than `scale2x'

@@ -411,13 +411,9 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
 		case COMBINE_FILTERX : menu_item[total] = "Resize Effect [filterx]"; break;
 		case COMBINE_FILTERY : menu_item[total] = "Resize Effect [filtery]"; break;
-		case COMBINE_SCALE2X : menu_item[total] = "Resize Effect [scale2x]"; break;
-		case COMBINE_SCALE3X : menu_item[total] = "Resize Effect [scale3x]"; break;
-		case COMBINE_SCALE4X : menu_item[total] = "Resize Effect [scale4x]"; break;
-		case COMBINE_LQ2X : menu_item[total] = "Resize Effect [lq2x]"; break;
-		case COMBINE_LQ3X : menu_item[total] = "Resize Effect [lq3x]"; break;
-		case COMBINE_HQ2X : menu_item[total] = "Resize Effect [hq2x]"; break;
-		case COMBINE_HQ3X : menu_item[total] = "Resize Effect [hq3x]"; break;
+		case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
+		case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
+		case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
 	}
 	switch (context->config.combine) {
 		case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
@@ -427,13 +423,9 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
 		case COMBINE_FILTERX : menu_subitem[total] = "filterx"; break;
 		case COMBINE_FILTERY : menu_subitem[total] = "filtery"; break;
-		case COMBINE_SCALE2X : menu_subitem[total] = "scale2x"; break;
-		case COMBINE_SCALE3X : menu_subitem[total] = "scale3x"; break;
-		case COMBINE_SCALE4X : menu_subitem[total] = "scale4x"; break;
-		case COMBINE_LQ2X : menu_subitem[total] = "lq2x"; break;
-		case COMBINE_LQ3X : menu_subitem[total] = "lq3x"; break;
-		case COMBINE_HQ2X : menu_subitem[total] = "hq2x"; break;
-		case COMBINE_HQ3X : menu_subitem[total] = "hq3x"; break;
+		case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
+		case COMBINE_LQ : menu_subitem[total] = "lq"; break;
+		case COMBINE_HQ : menu_subitem[total] = "hq"; break;
 	}
 	flag[total] = 0;
 	++total;
@@ -622,14 +614,10 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
 				case COMBINE_FILTER : config.combine = COMBINE_FILTERX; break;
 				case COMBINE_FILTERX : config.combine = COMBINE_FILTERY; break;
-				case COMBINE_FILTERY : config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_SCALE2X : config.combine = COMBINE_LQ2X; break;
-				case COMBINE_LQ2X : config.combine = COMBINE_HQ2X; break;
-				case COMBINE_HQ2X : config.combine = COMBINE_SCALE3X; break;
-				case COMBINE_SCALE3X : config.combine = COMBINE_LQ3X; break;
-				case COMBINE_LQ3X : config.combine = COMBINE_HQ3X; break;
-				case COMBINE_HQ3X : config.combine = COMBINE_SCALE4X; break;
-				case COMBINE_SCALE4X : config.combine = COMBINE_AUTO; break;
+				case COMBINE_FILTERY : config.combine = COMBINE_SCALE; break;
+				case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
+				case COMBINE_LQ : config.combine = COMBINE_HQ; break;
+				case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_change(context, &config);
 			mame_ui_refresh();
@@ -709,20 +697,16 @@ int osd2_menu(int selected, unsigned input)
 		if (selected == combine_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.combine) {
-				case COMBINE_AUTO : config.combine = COMBINE_SCALE4X; break;
+				case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
 				case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
 				case COMBINE_MAX : config.combine = COMBINE_NONE; break;
 				case COMBINE_MEAN : config.combine = COMBINE_MAX; break;
 				case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
 				case COMBINE_FILTERX : config.combine = COMBINE_FILTER; break;
 				case COMBINE_FILTERY : config.combine = COMBINE_FILTERX; break;
-				case COMBINE_SCALE2X : config.combine = COMBINE_FILTERY; break;
-				case COMBINE_LQ2X : config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_HQ2X : config.combine = COMBINE_LQ2X; break;
-				case COMBINE_SCALE3X : config.combine = COMBINE_HQ2X; break;
-				case COMBINE_LQ3X : config.combine = COMBINE_SCALE3X; break;
-				case COMBINE_HQ3X : config.combine = COMBINE_LQ3X; break;
-				case COMBINE_SCALE4X : config.combine = COMBINE_HQ3X; break;
+				case COMBINE_SCALE : config.combine = COMBINE_FILTERY; break;
+				case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
+				case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			}
 			advance_video_change(context, &config);
 			mame_ui_refresh();

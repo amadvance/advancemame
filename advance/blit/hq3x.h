@@ -108,11 +108,11 @@ static void hq3x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16*
 #define MDL interp_16_diff(c[7], c[3])
 #define MUL interp_16_diff(c[3], c[1])
 #define IC(p0) c[p0]
-#define I844(p0,p1,p2) interp_16_211(c[p0], c[p1], c[p2])
-#define I124(p0,p1) interp_16_31(c[p0], c[p1])
+#define I211(p0,p1,p2) interp_16_211(c[p0], c[p1], c[p2])
+#define I31(p0,p1) interp_16_31(c[p0], c[p1])
 #define I772(p0,p1,p2) interp_16_772(c[p0], c[p1], c[p2])
-#define I142(p0,p1) interp_16_71(c[p0], c[p1])
-#define I88(p0,p1) interp_16_11(c[p0], c[p1])
+#define I71(p0,p1) interp_16_71(c[p0], c[p1])
+#define I11(p0,p1) interp_16_11(c[p0], c[p1])
 
 		switch (mask) {
 		#include "hq3x.dat"
@@ -132,11 +132,11 @@ static void hq3x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16*
 #undef MDL
 #undef MUL
 #undef IC
-#undef I844
-#undef I124
+#undef I211
+#undef I31
 #undef I772
-#undef I142
-#undef I88
+#undef I71
+#undef I11
 
 		src0 += 1;
 		src1 += 1;
@@ -213,11 +213,11 @@ static void hq3x_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32*
 #define MDL interp_32_diff(c[7], c[3])
 #define MUL interp_32_diff(c[3], c[1])
 #define IC(p0) c[p0]
-#define I844(p0,p1,p2) interp_32_211(c[p0], c[p1], c[p2])
-#define I124(p0,p1) interp_32_31(c[p0], c[p1])
+#define I211(p0,p1,p2) interp_32_211(c[p0], c[p1], c[p2])
+#define I31(p0,p1) interp_32_31(c[p0], c[p1])
 #define I772(p0,p1,p2) interp_32_772(c[p0], c[p1], c[p2])
-#define I142(p0,p1) interp_32_71(c[p0], c[p1])
-#define I88(p0,p1) interp_32_11(c[p0], c[p1])
+#define I71(p0,p1) interp_32_71(c[p0], c[p1])
+#define I11(p0,p1) interp_32_11(c[p0], c[p1])
 
 		switch (mask) {
 		#include "hq3x.dat"
@@ -237,11 +237,11 @@ static void hq3x_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32*
 #undef MDL
 #undef MUL
 #undef IC
-#undef I844
-#undef I124
+#undef I211
+#undef I31
 #undef I772
-#undef I142
-#undef I88
+#undef I71
+#undef I11
 
 		src0 += 1;
 		src1 += 1;

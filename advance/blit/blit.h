@@ -121,8 +121,10 @@ enum video_stage_enum {
 	pipe_y_scale4x, /**< Scale4x. */
 	pipe_y_lq2x,/**< LQ2x */
 	pipe_y_lq3x, /**< LQ3x */
+	pipe_y_lq4x, /**< LQ4x */
 	pipe_y_hq2x,/**< HQ2x */
-	pipe_y_hq3x /**< HQ3x */
+	pipe_y_hq3x, /**< HQ3x */
+	pipe_y_hq4x /**< HQ4x */
 };
 
 /**
@@ -183,8 +185,10 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_SCALE4X 0x6 /**< Scale4x. */
 #define VIDEO_COMBINE_Y_LQ2X 0x7 /**< LQ2x. */
 #define VIDEO_COMBINE_Y_LQ3X 0x8 /**< LQ3x. */
-#define VIDEO_COMBINE_Y_HQ2X 0x9 /**< HQ2x. */
-#define VIDEO_COMBINE_Y_HQ3X 0xA /**< HQ3x. */
+#define VIDEO_COMBINE_Y_LQ4X 0x9 /**< LQ4x. */
+#define VIDEO_COMBINE_Y_HQ2X 0xA /**< HQ2x. */
+#define VIDEO_COMBINE_Y_HQ3X 0xB /**< HQ3x. */
+#define VIDEO_COMBINE_Y_HQ4X 0xC /**< HQ4x. */
 #endif
 #define VIDEO_COMBINE_Y_MASK 0xF /**< Mask for the Y effect. */
 

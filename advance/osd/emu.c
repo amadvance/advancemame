@@ -334,7 +334,15 @@ static adv_conf_conv STANDARD[] = {
 { "*", "misc_safequitdebug", "*", "%s", "misc_eventdebug", "%s", 0 }, /* rename */
 { "*", "misc_safequitfile", "*", "%s", "misc_eventfile", "%s", 0 }, /* rename */
 /* 0.74.0 */
-{ "*", "display_rotate", "*", "", "", "", 0 } /* ignore */
+{ "*", "display_rotate", "*", "", "", "", 0 }, /* ignore */
+/* 0.74.1 */
+{ "*", "display_resizeeffect", "scale2x", "%s", "display_resizeeffect", "scale", 0 }, /* rename */
+{ "*", "display_resizeeffect", "scale3x", "%s", "display_resizeeffect", "scale", 0 }, /* rename */
+{ "*", "display_resizeeffect", "scale4x", "%s", "display_resizeeffect", "scale", 0 }, /* rename */
+{ "*", "display_resizeeffect", "lq2x", "%s", "display_resizeeffect", "lq", 0 }, /* rename */
+{ "*", "display_resizeeffect", "lq3x", "%s", "display_resizeeffect", "lq", 0 }, /* rename */
+{ "*", "display_resizeeffect", "hq2x", "%s", "display_resizeeffect", "hq", 0 }, /* rename */
+{ "*", "display_resizeeffect", "hq3x", "%s", "display_resizeeffect", "hq", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

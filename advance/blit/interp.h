@@ -94,6 +94,24 @@ static inline interp_uint16 interp_16_31(interp_uint16 p1, interp_uint16 p2)
 		| INTERP_16_MASK_2((INTERP_16_MASK_2(p1)*3 + INTERP_16_MASK_2(p2)) / 4);
 }
 
+static inline interp_uint16 interp_16_1411(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+	return INTERP_16_MASK_1((INTERP_16_MASK_1(p1)*14 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 16)
+		| INTERP_16_MASK_2((INTERP_16_MASK_2(p1)*14 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 16);
+}
+
+static inline interp_uint16 interp_16_431(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+	return INTERP_16_MASK_1((INTERP_16_MASK_1(p1)*4 + INTERP_16_MASK_1(p2)*3 + INTERP_16_MASK_1(p3)) / 8)
+		| INTERP_16_MASK_2((INTERP_16_MASK_2(p1)*4 + INTERP_16_MASK_2(p2)*3 + INTERP_16_MASK_2(p3)) / 8);
+}
+
+static inline interp_uint16 interp_16_53(interp_uint16 p1, interp_uint16 p2)
+{
+	return INTERP_16_MASK_1((INTERP_16_MASK_1(p1)*5 + INTERP_16_MASK_1(p2)*3) / 8)
+		| INTERP_16_MASK_2((INTERP_16_MASK_2(p1)*5 + INTERP_16_MASK_2(p2)*3) / 8);
+}
+
 #define INTERP_32_MASK_1(v) (v & 0xFF00FF)
 #define INTERP_32_MASK_2(v) (v & 0x00FF00)
 
@@ -145,62 +163,88 @@ static inline interp_uint32 interp_32_31(interp_uint32 p1, interp_uint32 p2)
 		| INTERP_32_MASK_2((INTERP_32_MASK_2(p1)*3 + INTERP_32_MASK_2(p2)) / 4);
 }
 
+static inline interp_uint32 interp_32_1411(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+	return INTERP_32_MASK_1((INTERP_32_MASK_1(p1)*14 + INTERP_32_MASK_1(p2) + INTERP_32_MASK_1(p3)) / 16)
+		| INTERP_32_MASK_2((INTERP_32_MASK_2(p1)*14 + INTERP_32_MASK_2(p2) + INTERP_32_MASK_2(p3)) / 16);
+}
+
+static inline interp_uint32 interp_32_431(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+	return INTERP_32_MASK_1((INTERP_32_MASK_1(p1)*4 + INTERP_32_MASK_1(p2)*3 + INTERP_32_MASK_1(p3)) / 8)
+		| INTERP_32_MASK_2((INTERP_32_MASK_2(p1)*4 + INTERP_32_MASK_2(p2)*3 + INTERP_32_MASK_2(p3)) / 8);
+}
+
+static inline interp_uint32 interp_32_53(interp_uint32 p1, interp_uint32 p2)
+{
+	return INTERP_32_MASK_1((INTERP_32_MASK_1(p1)*5 + INTERP_32_MASK_1(p2)*3) / 8)
+		| INTERP_32_MASK_2((INTERP_32_MASK_2(p1)*5 + INTERP_32_MASK_2(p2)*3) / 8);
+}
+
 /***************************************************************************/
 /* diff */
 
-static unsigned interp_diff_mask;
-
-#define INTERP_DIFF_LIMIT 96
+#define INTERP_Y_LIMIT (0x30*4)
+#define INTERP_U_LIMIT (0x07*4)
+#define INTERP_V_LIMIT (0x06*8)
 
 static int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 {
-	int c;
+	int r, g, b;
+	int y, u, v;
 
-	if ((p1 & interp_diff_mask) == (p2 & interp_diff_mask))
+	if (p1 == p2)
 		return 0;
 
-	c = ((p1 & 0x1F) - (p2 & 0x1F)) << 3;
-	if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
+	if (interp_bits_per_pixel == 16) {
+		b = ((p1 & 0x1F) - (p2 & 0x1F)) << 3;
+		g = ((p1 & 0x7E0) - (p2 & 0x7E0)) >> 3;
+		r = ((p1 & 0xF800) - (p2 & 0xF800)) >> 8;
+	} else {
+		b = ((p1 & 0x1F) - (p2 & 0x1F)) << 3;
+		g = ((p1 & 0x3E0) - (p2 & 0x3E0)) >> 2;
+		r = ((p1 & 0x7C00) - (p2 & 0x7C00)) >> 7;
+	}
+
+	y = r + g + b;
+	u = r - b;
+	v = -r + 2*g - b;
+
+	if (y < -INTERP_Y_LIMIT || y > INTERP_Y_LIMIT)
 		return 1;
 
-	if (interp_bits_per_pixel == 16) {
-		c = ((p1 & 0x7E0) - (p2 & 0x7E0)) >> 3;
-		if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
-			return 1;
+	if (u < -INTERP_U_LIMIT || u > INTERP_U_LIMIT)
+		return 1;
 
-		c = ((p1 & 0xF800) - (p2 & 0xF800)) >> 8;
-		if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
-			return 1;
-	} else {
-		c = ((p1 & 0x3E0) - (p2 & 0x3E0)) >> 2;
-		if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
-			return 1;
-
-		c = ((p1 & 0x7C00) - (p2 & 0x7C00)) >> 7;
-		if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
-			return 1;
-	}
+	if (v < -INTERP_V_LIMIT || v > INTERP_V_LIMIT)
+		return 1;
 
 	return 0;
 }
 
 static int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 {
-	int c;
+	int r, g, b;
+	int y, u, v;
 
-	if ((p1 & 0xF0F0F0) == (p2 & 0xF0F0F0))
+	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
 		return 0;
 
-	c = (p1 & 0xFF) - (p2 & 0xFF);
-	if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
+	b = (p1 & 0xFF) - (p2 & 0xFF);
+	g = ((p1 & 0xFF00) - (p2 & 0xFF00)) >> 8;
+	r = ((p1 & 0xFF0000) - (p2 & 0xFF0000)) >> 16;
+
+	y = r + g + b;
+	u = r - b;
+	v = -r + 2*g - b;
+
+	if (y < -INTERP_Y_LIMIT || y > INTERP_Y_LIMIT)
 		return 1;
 
-	c = ((p1 & 0xFF00) - (p2 & 0xFF00)) >> 8;
-	if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
+	if (u < -INTERP_U_LIMIT || u > INTERP_U_LIMIT)
 		return 1;
 
-	c = ((p1 & 0xFF0000) - (p2 & 0xFF0000)) >> 16;
-	if (c < -INTERP_DIFF_LIMIT || c > INTERP_DIFF_LIMIT)
+	if (v < -INTERP_V_LIMIT || v > INTERP_V_LIMIT)
 		return 1;
 
 	return 0;
@@ -214,17 +258,14 @@ static void interp_set(unsigned bits_per_pixel)
 	case 15 :
 		interp_mask[0] = 0x7C1F;
 		interp_mask[1] = 0x03E0;
-		interp_diff_mask = 0x7BDE;
 		break;
 	case 16 :
 		interp_mask[0] = 0xF81F;
 		interp_mask[1] = 0x07E0;
-		interp_diff_mask = 0xF79E;
 		break;
 	case 32 :
 		interp_mask[0] = 0xFF00FF;
 		interp_mask[1] = 0x00FF00;
-		interp_diff_mask = 0xF0F0F0;
 		break;
 	}
 }

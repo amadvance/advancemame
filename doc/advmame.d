@@ -184,8 +184,7 @@ Features
 	the image quality when it's stretched.
 
 	There are a lot of video effects: `none', `max', `mean',
-	`filter', `scale2x', `scale3x', `scale4x', `lq2x', `lq3x',
-	`hq2x' and `hq3x'.
+	`filter', `scale', `lq' and `hq'.
         You can select the favorite effect with the `display_resizeeffect'
 	option.
 
@@ -200,15 +199,14 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it's applied before.
-	The `scale2x', `scale3x' and `scale4x' effects add missing pixels
+	The `scale', `lq' and `hq' effects add missing pixels
 	trying to match the image patterns.
 
 	The `max', `mean' and `filter' effects work only in RGB video
 	modes (not palettized).
 
-	The `scale2x', `scale3x' and `scale4x' effects work only if the
-	image is magnified. To enable it you should also use the `magnify'
-	option.
+	The `scale', `lq' and `hq' effects work only if the image is
+	magnified. To enable it you should also use the `magnify' option.
 
   RGB Effects
 	AdvanceMAME supports also some special video effects to simulate
@@ -361,9 +359,9 @@ Other Ports
 	library on witch you can create modeline dynamically and
 	that doesn't require the root access.
 
-	AdvanceMAME has also some unique features like the `scale2x',
-	`filter' and `rgb' effects, the turbo mode, the scripts, SMP,
-	8 bit depth, ...
+	AdvanceMAME has also some unique features like the `scale',
+	`lq', `hq', `filter' and `rgb' effects, the turbo mode, the
+	scripts, SMP, 8 bit depth, ...
 
 Configuration
 	In DOS and Windows the configuration options are read from the
@@ -690,7 +688,7 @@ Configuration
 
     display_magnify
 	Used to suggest the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scale2x', `scale3x' and `scale4x'
+	It is mainly used to enable the `scale', `lq' and `hq'
 	effects. This option doesn't have any effect for vector games.
 
 	:display_magnify auto | 1 | 2 | 3 | 4
@@ -807,8 +805,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| filterx | filtery | scale2x | scale3x | scale4x
-	:	| lq2x | lq3x | hq2x | hq3x
+	:	| filterx | filtery | scale | lq | hq
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -841,18 +838,23 @@ Configuration
 			Supported only in RGB (not palettized) video
 			modes.
 		filterx/filtery - Like `filter' but only in one direction.
-		scale2x/scale3x/scale4x - It tries to add the missing pixels
+		scale - It tries to add the missing pixels
 			matching the original bitmap pattern.
 			It doesn't interpolate pixels and it compares colors
 			for equality.
-		lq2x, lq3x - It tries to add the missing pixels matching the
+			If works for expansion factor of 2, 3 and 4.
+		lq - It tries to add the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
-			than scale2x/scale3x. It interpolates pixels and it
+			than `scale'. It interpolates pixels and it
 			compares colors for equality.
-		hq2x, hq3x - It tries to add the missing pixels matching the
+			If works for expansion factor of 2 and 3 and only in
+			rgb modes at 15, 16 and 32 bits.
+		hq - It tries to add the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
-			than scale2x/scale3x. It interpolates pixels and it
+			than `scale'. It interpolates pixels and it
 			compares colors for distance.
+			If works for expansion factor of 2 and 3 and only in
+			rgb modes at 15, 16 and 32 bits.
 
 	The Nx filters work only if the video `magnify' factor match the
 	effect scale factor.
@@ -1442,7 +1444,7 @@ Configuration
 	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a big speed improvement only if you are using
-	a strong video effect like `scale2x'.
+	a heavy video effect like `hq'.
 
 	:misc_smp yes | no
 

@@ -339,11 +339,7 @@ License FAQ
 GPL FAQ
 	This is an extract of the Official GPL FAQ present at :
 
-		http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs
-
-	and
-
-		http://www.gnu.org/licenses/gpl-faq.html#TOCDeveloperViolate
+		:http://www.gnu.org/licenses/gpl-faq.html
 
   I am writing free software that uses non-free libraries.
   What legal issues come up if I use the GPL?
@@ -408,7 +404,9 @@ GPL FAQ
 	whether to do so.
 
 	Adding this exception eliminates the legal issue, ...
-	
+
+	:http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs
+
   Is the developer of a GPL-covered program bound by the GPL? Could the
   developer's actions ever be a violation of the GPL?
   
@@ -420,6 +418,23 @@ GPL FAQ
 	However, if the developer does something that would violate the GPL
 	if done by someone else, the developer will surely lose moral
 	standing in the community.
+
+	:http://www.gnu.org/licenses/gpl-faq.html#TOCDeveloperViolate
+
+  I want to distribute binaries, but distributing complete source is inconvenient.
+  Is it ok if I give users the diffs from the "standard" version along with the
+  binaries?
+
+	This is a well-meaning request, but this method of providing the source
+	doesn't really do the job.
+
+	A user that wants the source a year from now may be unable to get the proper
+	version from another site at that time. The standard distribution site may have
+	a newer version, but the same diffs probably won't work with that version.
+
+	So you need to provide complete sources, not just diffs, with the binaries.
+
+	:http://www.gnu.org/licenses/gpl-faq.html#TOCDistributingSourceIsInconvenient
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
