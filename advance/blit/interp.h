@@ -40,10 +40,10 @@ typedef unsigned interp_uint32;
 /***************************************************************************/
 /* interpolation */
 
-static unsigned interp_mask[2];
-static unsigned interp_red_mask, interp_green_mask, interp_blue_mask;
-static int interp_red_shift, interp_green_shift, interp_blue_shift;
-static unsigned interp_near_mask;
+extern unsigned interp_mask[2];
+extern unsigned interp_red_mask, interp_green_mask, interp_blue_mask;
+extern int interp_red_shift, interp_green_shift, interp_blue_shift;
+extern unsigned interp_near_mask;
 
 #define INTERP_16_MASK_1(v) ((v) & interp_mask[0])
 #define INTERP_16_MASK_2(v) ((v) & interp_mask[1])
@@ -211,117 +211,9 @@ static inline interp_uint32 interp_32_97(interp_uint32 p1, interp_uint32 p2)
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*9 + INTERP_32_MASK_2(p2)*7) / 16);
 }
 
-/***************************************************************************/
-/* diff */
+int interp_16_diff(interp_uint16 p1, interp_uint16 p2);
+int interp_32_diff(interp_uint32 p1, interp_uint32 p2);
 
-#define INTERP_Y_LIMIT (0x30 * 4)
-#define INTERP_U_LIMIT (0x07 * 4)
-#define INTERP_V_LIMIT (0x06 * 8)
-
-static int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
-{
-	int r, g, b;
-	int y, u, v;
-
-#if 0 /* OSDEF Reference code */
-	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
-		return 0;
-
-	b = rgb_shift_sign((p1 & interp_blue_mask) - (p2 & interp_blue_mask), interp_blue_shift);
-	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
-	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
-#else
-	/* assume standard rgb formats */
-	if (p1 == p2)
-		return 0;
-
-	if (interp_green_mask == 0x7E0) {
-		b = (int)((p1 & 0x1F) - (p2 & 0x1F)) << 3;
-		g = (int)((p1 & 0x7E0) - (p2 & 0x7E0)) >> 3;
-		r = (int)((p1 & 0xF800) - (p2 & 0xF800)) >> 8;
-	} else {
-		b = (int)((p1 & 0x1F) - (p2 & 0x1F)) << 3;
-		g = (int)((p1 & 0x3E0) - (p2 & 0x3E0)) >> 2;
-		r = (int)((p1 & 0x7C00) - (p2 & 0x7C00)) >> 7;
-	}
-#endif
-
-	y = r + g + b;
-
-	if (y < -INTERP_Y_LIMIT || y > INTERP_Y_LIMIT)
-		return 1;
-
-	u = r - b;
-
-	if (u < -INTERP_U_LIMIT || u > INTERP_U_LIMIT)
-		return 1;
-
-	v = -r + 2*g - b;
-
-	if (v < -INTERP_V_LIMIT || v > INTERP_V_LIMIT)
-		return 1;
-
-	return 0;
-}
-
-static int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
-{
-	int r, g, b;
-	int y, u, v;
-
-#if 0 /* OSDEF Reference code */
-	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
-		return 0;
-
-	b = rgb_shift_sign((p1 & interp_blue_mask) - (p2 & interp_blue_mask), interp_blue_shift);
-	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
-	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
-#else
-	/* assume standard rgb formats */
-	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
-		return 0;
-
-	b = (int)((p1 & 0xFF) - (p2 & 0xFF));
-	g = (int)((p1 & 0xFF00) - (p2 & 0xFF00)) >> 8;
-	r = (int)((p1 & 0xFF0000) - (p2 & 0xFF0000)) >> 16;
-#endif
-
-	y = r + g + b;
-
-	if (y < -INTERP_Y_LIMIT || y > INTERP_Y_LIMIT)
-		return 1;
-
-	u = r - b;
-
-	if (u < -INTERP_U_LIMIT || u > INTERP_U_LIMIT)
-		return 1;
-
-	v = -r + 2*g - b;
-
-	if (v < -INTERP_V_LIMIT || v > INTERP_V_LIMIT)
-		return 1;
-
-	return 0;
-}
-
-static void interp_set(const struct video_pipeline_target_struct* target)
-{
-	union adv_color_def_union def;
-
-	def.ordinal = target->color_def;
-
-	rgb_shiftmask_get(&interp_red_shift, &interp_red_mask, def.nibble.red_len, def.nibble.red_pos);
-	rgb_shiftmask_get(&interp_green_shift, &interp_green_mask, def.nibble.green_len, def.nibble.green_pos);
-	rgb_shiftmask_get(&interp_blue_shift, &interp_blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
-
-	interp_mask[0] = interp_red_mask | interp_blue_mask;
-	interp_mask[1] = interp_green_mask;
-
-	interp_near_mask = ~(
-			((interp_red_mask >> 5) & interp_red_mask)
-			| ((interp_green_mask >> 5) & interp_green_mask)
-			| ((interp_blue_mask >> 5) & interp_blue_mask)
-		) & (interp_red_mask | interp_green_mask | interp_blue_mask);
-}
+void interp_set(unsigned color_def);
 
 #endif

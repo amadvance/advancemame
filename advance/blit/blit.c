@@ -335,7 +335,7 @@ void video_blit_done(void)
 /***************************************************************************/
 /* stage helper */
 
-static void stage_copy(const struct video_stage_horz_struct* stage, void* dst, void* src)
+static inline void stage_copy(const struct video_stage_horz_struct* stage, void* dst, void* src)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		BLITTER(internal_copy8)(dst, src, stage->sdx * stage->sbpp);
@@ -400,7 +400,7 @@ static void stage_mean_vert_self(const struct video_stage_horz_struct* stage, vo
 }
 
 #ifndef USE_BLIT_TINY
-static void scale2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void scale2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 1 : BLITTER(scale2x_8)(dst0, dst1, src0, src1, src2, count); break;
@@ -409,7 +409,7 @@ static void scale2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, 
 	}
 }
 
-static void lq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void lq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : lq2x_16_def(dst0, dst1, src0, src1, src2, count); break;
@@ -418,7 +418,7 @@ static void lq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, uns
 }
 
 #ifndef USE_BLIT_SMALL
-static void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : hq2x_16_def(dst0, dst1, src0, src1, src2, count); break;
@@ -427,7 +427,7 @@ static void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, uns
 }
 #endif
 
-static void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 1 : scale3x_8_def(dst0, dst1, dst2, src0, src1, src2, count); break;
@@ -436,7 +436,7 @@ static void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, 
 	}
 }
 
-static void lq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void lq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : lq3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
@@ -445,7 +445,7 @@ static void lq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, voi
 }
 
 #ifndef USE_BLIT_SMALL
-static void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : hq3x_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
@@ -454,14 +454,14 @@ static void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, voi
 }
 #endif
 
-static void stage_scale2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_scale2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		scale2x(dst0, dst1, src0, src1, src2, stage->sbpp, stage->sdx);
 	}
 }
 
-static void stage_lq2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_lq2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		lq2x(dst0, dst1, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -469,7 +469,7 @@ static void stage_lq2x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_hq2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq2x(dst0, dst1, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -477,14 +477,14 @@ static void stage_hq2x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 #endif
 
-static void stage_scale3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_scale3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		scale3x(dst0, dst1, dst2, src0, src1, src2, stage->sbpp, stage->sdx);
 	}
 }
 
-static void stage_lq3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_lq3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		lq3x(dst0, dst1, dst2, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -492,7 +492,7 @@ static void stage_lq3x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_hq3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq3x(dst0, dst1, dst2, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -500,7 +500,7 @@ static void stage_hq3x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 #endif
 
-static void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : lq4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
@@ -509,7 +509,7 @@ static void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, voi
 }
 
 #ifndef USE_BLIT_SMALL
-static void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
+static inline void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
 		case 2 : hq4x_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
@@ -518,13 +518,13 @@ static void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, voi
 }
 #endif
 
-static void stage_scale4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
+static inline void stage_scale4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
 {
 	scale2x(dst0, dst1, src0, src1, src2, stage->sbpp, 2 * stage->sdx);
 	scale2x(dst2, dst3, src1, src2, src3, stage->sbpp, 2 * stage->sdx);
 }
 
-static void stage_lq4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
+static inline void stage_lq4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		lq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -532,7 +532,7 @@ static void stage_lq4x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
+static inline void stage_hq4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->sbpp, stage->sdx);
@@ -540,14 +540,14 @@ static void stage_hq4x(const struct video_stage_horz_struct* stage, void* dst0, 
 }
 #endif
 
-static void stage_scale2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_scale2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		scale2x(dst0, dst1, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
 	}
 }
 
-static void stage_lq2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_lq2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		lq2x(dst0, dst1, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -555,7 +555,7 @@ static void stage_lq2x_direct(const struct video_stage_vert_struct* stage, void*
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
+static inline void stage_hq2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq2x(dst0, dst1, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -563,14 +563,14 @@ static void stage_hq2x_direct(const struct video_stage_vert_struct* stage, void*
 }
 #endif
 
-static void stage_scale3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_scale3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		scale3x(dst0, dst1, dst2, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
 	}
 }
 
-static void stage_lq3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_lq3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		lq3x(dst0, dst1, dst2, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -578,7 +578,7 @@ static void stage_lq3x_direct(const struct video_stage_vert_struct* stage, void*
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
+static inline void stage_hq3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq3x(dst0, dst1, dst2, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -586,13 +586,13 @@ static void stage_hq3x_direct(const struct video_stage_vert_struct* stage, void*
 }
 #endif
 
-static void stage_scale4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
+static inline void stage_scale4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
 {
 	scale2x(dst0, dst1, src0, src1, src2, stage->stage_pivot_sbpp, 2 * stage->stage_pivot_sdx);
 	scale2x(dst2, dst3, src1, src2, src3, stage->stage_pivot_sbpp, 2 * stage->stage_pivot_sdx);
 }
 
-static void stage_lq4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
+static inline void stage_lq4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		lq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -600,7 +600,7 @@ static void stage_lq4x_direct(const struct video_stage_vert_struct* stage, void*
 }
 
 #ifndef USE_BLIT_SMALL
-static void stage_hq4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
+static inline void stage_hq4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
@@ -3023,7 +3023,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 			|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X
 #endif
 		)
-			interp_set(target);
+			interp_set(target->color_def);
 
 		if ((combine & VIDEO_COMBINE_X_RGB_TRIAD3PIX)!=0 || (combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX)!=0)
 			internal_rgb_triad3pix_set(target);
