@@ -1,7 +1,9 @@
-TIPS
+NAME
+	tips - The Speed Tips
+
 	This is a collection of tips to improve the emulation speed.
 
-SPEED TIPS THAT DON'T REDUCE THE EMULATION QUALITY
+Speed Tips That Don't Reduce The Emulation Quality
 	The following are simple tips to improve the speed of the
 	emulation without any quality degradation.
 
@@ -40,7 +42,7 @@ SPEED TIPS THAT DON'T REDUCE THE EMULATION QUALITY
 	The number on the upperleft corner if the memory bandwidth in
 	MB/s. Good values are over 200 MB/s.
 
-SPEED TIPS THAT REDUCE THE EMULATION QUALITY
+Speed Tips That Reduce The Emulation Quality
 	The following are simple tips to improve the speed of the
 	emulation with a quality degradation.
 
@@ -48,15 +50,15 @@ SPEED TIPS THAT REDUCE THE EMULATION QUALITY
 	Select a lower sample rate than the default 44100 with the
 	option :
 
-		sound_samplerate 22050
+		:sound_samplerate 22050
 
 	A more aggressive value is 11025.
 
     Video depth
 	Force the use of the 8 bit depth with the option :
 
-		display_depth 8
+		:display_depth 8
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

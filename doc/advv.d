@@ -1,11 +1,11 @@
-NAME
+Name
 	advv - The AdvanceVIDEO Manual Configurator
 
-SYNOPSYS
+Synopsys
 	:advv [-advmamev] [-advmessv] [-advpacv] [-advmenuv] [-vbev]
 	:	[-vgav] [-log] [-logsync] [-rc RCFILE]
 
-DESCRIPTION
+Description
 	The `advv' utility is the main video configuration program
 	for AdvanceMAME, AdvanceMESS, AdvancePAC, AdvanceMENU,
 	AdvanceVBE and AdvanceVGA.
@@ -37,7 +37,7 @@ DESCRIPTION
 	If you have problem please read the TROUBLESHOTTING chapter in
 	the `install.txt' file.
 
-OPTIONS
+Options
 	-rc RCFILE
 		Specify an alternate name of the configuration file.
 
@@ -55,7 +55,7 @@ OPTIONS
 		`advmess', `advpac', `advmenu', `vbe' and `vga'.
 		The default is `advmame'.
 
-VIDEO DRIVER
+Video Drivers
 	For the DOS `native' version of the programs the following
 	drivers are available:
 		vgaline - Tweaked VGA modes.
@@ -148,7 +148,7 @@ VIDEO DRIVER
 	the frequency range supported by your monitor are displayed
 	in red, and you are prevented to use them.
 
-CREATING VIDEO MODES
+  Creating Video Modes
 	To create a new modeline you should press F5 and you must enter
 	the :
 
@@ -163,7 +163,7 @@ CREATING VIDEO MODES
 	configuration file, the video mode is created with this format.
 	Otherwise a generic VGA monitor format is used.
 
-ADJUSTING MODELINES
+  Adjusting Modelines
 	You can modify the modelines in the test screen pressing ENTER
 	or in the list screen directly.
 
@@ -183,7 +183,7 @@ ADJUSTING MODELINES
 	Remember to select the modified modelines with SPACE otherwise
 	they aren't saved in your configuration file and will be lost.
 
-STARTUP TEXT MODE
+  Startup Text Mode
 	The program at startup tries to set a text mode supported by
 	your hardware to show his data.
 
@@ -198,7 +198,8 @@ STARTUP TEXT MODE
 	If no one of these modes match your configuration the current
 	text mode is used.
 
-VIDEO CONFIGURATION OPTIONS
+Configuration
+  Video Configuration Options
 	The following are the common video configuration options
 	available for all the programs.
 
@@ -255,7 +256,7 @@ VIDEO CONFIGURATION OPTIONS
 	Example to enable the `fb' and `slang' driver for Linux :
 		:device_video fb slang
 
-NATIVE VIDEO CONFIGURATION OPTIONS
+  Native Video Configuration Options
 	The following are the common video configuration options
 	available for all `native' video drivers, i.e. all the
 	video drivers with the exception of `sdl' and `vbe'.
@@ -330,10 +331,10 @@ NATIVE VIDEO CONFIGURATION OPTIONS
 	the format used by the Linux SVGALIB library and by the
 	XFree Window system.
 
-	:device_video_modeline NAME CLOCK HDE HRS HRE HT VDE VRS VRE VT [-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace] [tvpal] [tvntsc]
+	:device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT [-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace] [tvpal] [tvntsc]
 
 	Options:
-		NAME - Name of the video mode. You can use the quotes
+		Name - Name of the video mode. You can use the quotes
 			'"` for the names with spaces.
 		CLOCK - Pixel clock in MHz
 		HDE HRS HRE HT - Horizontal `Display End',
@@ -393,7 +394,7 @@ NATIVE VIDEO CONFIGURATION OPTIONS
 		yes - Enable the fast video mode change.
 		no - Disable the fast video mode change (default).
 
-VBELINE CONFIGURATION OPTIONS
+  VbeLine Configuration Options
 	The following are the common video configuration options
 	available only for the `vbeline' driver.
 
@@ -435,7 +436,7 @@ VBELINE CONFIGURATION OPTIONS
 		640 - Use always the 640x480 mode.
 		800 - Use always the 800x600 mode.
 
-SDL CONFIGURATION OPTIONS
+  SDL Configuration Options
 	The following are the common video configuration options
 	available only for the `sdl' driver.
 
@@ -449,6 +450,6 @@ SDL CONFIGURATION OPTIONS
 		yes - Try to always use a fullscreen mode.
 		no - Try to use a window mode (default).
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

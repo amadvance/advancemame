@@ -2,9 +2,9 @@
 # K
 
 KCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/common
 KOBJDIRS = \
 	$(KOBJ) \
 	$(KOBJ)/k \
@@ -55,7 +55,7 @@ KOBJS += \
 endif
 endif
 
-$(KOBJ)/%.o: advance/%.c
+$(KOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(KCFLAGS) -c $< -o $@
 
@@ -71,5 +71,5 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advk$(EXE)
-	$(LN) $@ advk$(EXE)
+	$(LN_S) $@ advk$(EXE)
 

@@ -1,10 +1,10 @@
-NAME
+Name
 	vga - VGA mode remapper
 
-SYNOPSYS
+Synopsys
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 
-DESCRIPTION
+Description
 	The `vga' utility is a TSR (Terminate Stay Resident) VGA BIOS
 	wrapper that substitutes the default list of VGA video modes
 	with a list of the favourite modes which work best with your
@@ -40,7 +40,7 @@ DESCRIPTION
 	detected. When the current video mode width and height match
 	a modeline, the modeline is automatically set.
 
-OPTIONS
+Options
 	These are the command line options supported:
 
 	/l
@@ -76,10 +76,10 @@ OPTIONS
 
 	or with the `video' utility.
 
-CARDS SUPPORTED
+Cards
 	This utility should works with any VGA compatible board.
 
-HOW IT WORKS
+How It Works
 	This utility intercepts all the VGA BIOS calls and if it detects
 	a ModeSet call for a know mode it uses his version of the mode.
 
@@ -91,14 +91,14 @@ HOW IT WORKS
 	The disabling of the video output works ignoring all the int
 	10h calls.
 
-LIMITATIONS
+Limitations
 	Only the `modelines' compatible with the vga hardware are used.
 
 	The text modes can use only the pixel clocks 28.322, 25.175,
 	14.161 and 12.587 MHz. The graphics modes can use only the
 	pixelclocks 14.161, 12.587, 7.080 and 6.293 MHz.
 
-EXAMPLES
+Examples
 	Load it:
 
 		:vga /l
@@ -136,11 +136,11 @@ EXAMPLES
 
 	to reenable the video output.
 
-BUGS
+Bugs
 	The configuration file is checked only for the
 	`device_video_modeline' options.
 	All the other options are ignored.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

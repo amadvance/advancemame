@@ -1,3 +1,6 @@
+Name
+	advmenu - History For Advance Emulators
+
 AdvanceMAME Version 0.61.2 2002/07
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
@@ -549,20 +552,18 @@ AdvanceMAME Version 0.37b6.0
 		vertical and horizontal frequencies.
 		Try with :
 
-		[config]
-		vsync = yes
-		vsync_adjust = yes
+		:[config]
+		:vsync = yes
+		:vsync_adjust = yes
 
-		Note that if the vsync is enabled you are very limited
-		in changing the video mode at runtime.
 	) Solved some bugs in the `r128' driver. Now working.
 	) Now `mame' doesn't add any default video modes if the list
 		defined in the `mame.cfg' file is empty. You MUST use
 		`mv' to select the video modes avaliable.
-	) Now the required hclock/vclock specification for a LCD screen	are:
-		[video]
-		hclock = 0
-		vclock = 0
+	) Now the required hclock/vclock specification for a LCD screen are:
+		:[video]
+		:hclock = 0
+		:vclock = 0
 	) The default keys for the video mode change at runtime are now
 		`,' (COMMA) and `.' (STOP) for preventing clash with the
 		hotrod settings.
@@ -582,8 +583,8 @@ AdvanceMAME Version 0.37b5.0
 
 	If you have problem with these new drivers you can
 	disable them with the option:
-		[video]
-		vbeline_driver = no
+		:[video]
+		:vbeline_driver = no
 
 	) Added the contrib/xfree directory with some very useful
 		technical documentation of video stuffs
@@ -779,11 +780,12 @@ AdvanceMAME Version 0.36b16.2 (never released)
 	) Video option bliteffect= for selecting the image
 		reduction algorithm (when the screeen is too small for
 		the complete image). Modes avaliable :
-			no - skip some lines
-			max - plot the lightest pixel (work very well for
-				pacman style games). Avaliable only if the
-				game uses a fixed palette.
-			auto - automatic selection (list based)
+
+		no - skip some lines
+		max - plot the lightest pixel (work very well for
+			pacman style games). Avaliable only if the
+			game uses a fixed palette.
+		auto - automatic selection (list based)
 	) Added video options blitrotate = auto, automatic selection (list based)
 	) Added new aos.txt and mame.dat for AOS [Nick Bourdo]
 	) Video configuration modifiable at runtime, press HOME/END,

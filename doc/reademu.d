@@ -1,7 +1,6 @@
-NAME
+Name
 	advmame - The Advance Emulators
 
-AdvanceMAME, AdvanceMESS, AdvancePAC
 	AdvanceMAME/MESS/PAC are unofficial MAME/MESS/PacMAME versions for DOS,
 	Linux and Windows with an advanced video support for helping the use
 	with TVs, Arcade Monitors, Fixed Frequencies Monitors and also for PC
@@ -9,7 +8,7 @@ AdvanceMAME, AdvanceMESS, AdvancePAC
 
 	The official site of AdvanceMAME/MESS/PAC is :
 
-		:http://advancemame.sourceforge.net
+		http://advancemame.sourceforge.net
 
 	WARNING! TO PREVENT HARDWARE DAMAGE IT'S EXTREMELY IMPORTANT THAT YOU
 	CORRECTLY CONFIGURE YOUR MONITOR FREQUENCIES WITH THE CORRECT CLOCKS.

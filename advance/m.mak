@@ -2,9 +2,9 @@
 # M
 
 MCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/common
 MOBJDIRS = \
 	$(MOBJ) \
 	$(MOBJ)/m \
@@ -62,7 +62,7 @@ MOBJS += \
 endif
 endif
 
-$(MOBJ)/%.o: advance/%.c
+$(MOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MCFLAGS) -c $< -o $@
 
@@ -78,4 +78,4 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advm$(EXE)
-	$(LN) $@ advm$(EXE)
+	$(LN_S) $@ advm$(EXE)

@@ -1,13 +1,13 @@
-NAME
+Name
 	portio - Input/output on hardware ports
 
-SYNOPSYS
+Synopsys
 	:portio lpt?
 	:portio ADDRESS_HEX
 	:portio lpt? VALUE_HEX
 	:portio ADDRESS_HEX VALUE_HEX
 
-DESCRIPTION
+Description
 	The `portio' utility can be used to drive the parallel port
 	or any other hardware device which use the PC ports.
 
@@ -24,7 +24,7 @@ DESCRIPTION
 	The address of the lpt ports are detected using the BIOS
 	informations at the memory address 408h.
 
-EXAMPLES
+Examples
 	Set all the parallel port data bits:
 
 		:portio lpt1 ff
@@ -41,6 +41,6 @@ EXAMPLES
 
 		:device=c:\mame\portio.exe lpt1 ff
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

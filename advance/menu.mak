@@ -2,11 +2,11 @@
 # Menu build
 
 MENUCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/blit \
-	-Iadvance/mpglib \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/blit \
+	-I$(srcdir)/advance/mpglib \
+	-I$(srcdir)/advance/common
 MENUOBJDIRS += \
 	$(MENUOBJ) \
 	$(MENUOBJ)/menu \
@@ -86,11 +86,11 @@ endif
 
 ifeq ($(CONF_SYSTEM),dos)
 MENUCFLAGS += \
-	-Iadvance/card \
-	-Iadvance/svgalib \
-	-Iadvance/svgalib/clockchi \
-	-Iadvance/svgalib/ramdac \
-	-Iadvance/svgalib/drivers \
+	-I$(srcdir)/advance/card \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_NONE -DUSE_SOUND_INT
 MENULDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
@@ -194,15 +194,15 @@ ifeq ($(CONF_MAP),yes)
 MENULDFLAGS += -Xlinker -Map -Xlinker $(MENUOBJ)/advmenu.map
 endif
 
-$(MENUOBJ)/%.o: advance/%.cc
+$(MENUOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)
 	$(CXX) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
 
-$(MENUOBJ)/%.o: advance/%.c
+$(MENUOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(MENUCFLAGS) -c $< -o $@
 
-$(MENUOBJ)/%.o: advance/%.rc
+$(MENUOBJ)/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
 
@@ -218,83 +218,74 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advmenu$(EXE)
-	$(LN) $@ advmenu$(EXE)
+	$(LN_S) $@ advmenu$(EXE)
 
 ############################################################################
 # MENU dist
 
 MENU_ROOT_SRC = \
-	Makefile.in \
-	config.guess \
-	config.status \
-	config.sub \
-	configure \
-	configure.ac \
-	configure.msdos \
-	configure.windows \
-	install-sh \
-	mkinstalldirs
+	$(CONF_BIN)
 
 MENU_SRC = \
-	$(wildcard advance/menu/*.c) \
-	$(wildcard advance/menu/*.cc) \
-	$(wildcard advance/menu/*.h)
+	$(wildcard $(srcdir)/advance/menu/*.c) \
+	$(wildcard $(srcdir)/advance/menu/*.cc) \
+	$(wildcard $(srcdir)/advance/menu/*.h)
 
 MENU_ADVANCE_SRC = \
-	advance/advance.mak \
-	advance/v.mak \
-	advance/cfg.mak \
-	advance/d2.mak
+	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/v.mak \
+	$(srcdir)/advance/cfg.mak \
+	$(srcdir)/advance/d2.mak
 
 MENU_CONTRIB_SRC = \
-	$(wildcard contrib/menu/*)
+	$(wildcard $(srcdir)/contrib/menu/*)
 
 MENU_DOC_SRC = \
-	doc/copying \
-	doc/license.d \
-	doc/advmenu.d \
-	doc/authors.d \
-	doc/faq.d \
-	doc/histmenu.d \
-	doc/readmenu.d \
-	doc/relemenu.d \
-	doc/advv.d \
-	doc/advcfg.d \
-	doc/install.d \
-	doc/card.d \
-	doc/build.d
+	$(srcdir)/doc/copying \
+	$(srcdir)/doc/license.d \
+	$(srcdir)/doc/advmenu.d \
+	$(srcdir)/doc/authors.d \
+	$(srcdir)/doc/faq.d \
+	$(srcdir)/doc/histmenu.d \
+	$(srcdir)/doc/readmenu.d \
+	$(srcdir)/doc/relemenu.d \
+	$(srcdir)/doc/advv.d \
+	$(srcdir)/doc/advcfg.d \
+	$(srcdir)/doc/install.d \
+	$(srcdir)/doc/card.d \
+	$(srcdir)/doc/build.d
 
 MENU_SUPPORT_SRC = \
 	$(RCSRC) \
-	support/advmenuv.bat \
-	support/advmenuc.bat
+	$(srcdir)/support/advmenuv.bat \
+	$(srcdir)/support/advmenuc.bat
 
 MENU_DOC_BIN = \
-	doc/copying \
-	$(D2OBJ)/license.txt \
-	$(D2OBJ)/advmenu.txt \
-	$(D2OBJ)/authors.txt \
-	$(D2OBJ)/faq.txt \
-	$(D2OBJ)/readmenu.txt \
-	$(D2OBJ)/relemenu.txt \
-	$(D2OBJ)/histmenu.txt \
-	$(D2OBJ)/license.html \
-	$(D2OBJ)/advmenu.html \
-	$(D2OBJ)/authors.html \
-	$(D2OBJ)/faq.html \
-	$(D2OBJ)/relemenu.html \
-	$(D2OBJ)/histmenu.html \
-	$(D2OBJ)/histmenu.html
+	$(srcdir)/doc/copying \
+	$(DOCOBJ)/license.txt \
+	$(DOCOBJ)/advmenu.txt \
+	$(DOCOBJ)/authors.txt \
+	$(DOCOBJ)/faq.txt \
+	$(DOCOBJ)/readmenu.txt \
+	$(DOCOBJ)/relemenu.txt \
+	$(DOCOBJ)/histmenu.txt \
+	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/advmenu.html \
+	$(DOCOBJ)/authors.html \
+	$(DOCOBJ)/faq.html \
+	$(DOCOBJ)/relemenu.html \
+	$(DOCOBJ)/histmenu.html \
+	$(DOCOBJ)/histmenu.html
 ifneq ($(CONF_HOST),sdl)
 MENU_DOC_BIN += \
-	$(D2OBJ)/advv.txt \
-	$(D2OBJ)/advcfg.txt \
-	$(D2OBJ)/install.txt \
-	$(D2OBJ)/card.txt \
-	$(D2OBJ)/advv.html \
-	$(D2OBJ)/advcfg.html \
-	$(D2OBJ)/install.html \
-	$(D2OBJ)/card.html \
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/advcfg.txt \
+	$(DOCOBJ)/install.txt \
+	$(DOCOBJ)/card.txt \
+	$(DOCOBJ)/advv.html \
+	$(DOCOBJ)/advcfg.html \
+	$(DOCOBJ)/install.html \
+	$(DOCOBJ)/card.html \
 	$(RCSRC)
 endif
 
@@ -302,17 +293,17 @@ MENU_ROOT_BIN = \
 	$(MENUOBJ)/advmenu$(EXE)
 ifeq ($(CONF_SYSTEM),linux)
 MENU_ROOT_BIN += \
-	$(D2OBJ)/advmenu.1 \
-	$(wildcard support/confbin/*)
+	$(DOCOBJ)/advmenu.1 \
+	$(CONF_SRC)
 endif
 ifeq ($(CONF_HOST),dos)
 MENU_ROOT_BIN += \
-	support/advmenuv.bat \
-	support/advmenuc.bat
+	$(srcdir)/support/advmenuv.bat \
+	$(srcdir)/support/advmenuc.bat
 endif
 ifeq ($(CONF_HOST),windows)
 MENU_ROOT_BIN += \
-	support/sdl.dll
+	$(srcdir)/support/sdl.dll
 endif
 ifneq ($(CONF_SYSTEM),sdl)
 MENU_ROOT_BIN += \
@@ -320,8 +311,8 @@ MENU_ROOT_BIN += \
 	$(CFGOBJ)/advcfg$(EXE)
 ifeq ($(CONF_SYSTEM),linux)
 MENU_ROOT_BIN += \
-	$(D2OBJ)/advv.1 \
-	$(D2OBJ)/advcfg.1
+	$(DOCOBJ)/advv.1 \
+	$(DOCOBJ)/advcfg.1
 endif
 endif
 
@@ -336,12 +327,12 @@ MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
 endif
 
-distmenu: $(RCSRC) $(D2OBJ)/readmenu.txt $(D2OBJ)/relemenu.txt $(D2OBJ)/histmenu.txt $(D2OBJ)/build.txt
+distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $(DOCOBJ)/build.txt
 	mkdir $(MENU_DIST_DIR_SRC)
-	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_SRC)/README
-	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_SRC)/RELEASE
-	cp $(D2OBJ)/histmenu.txt $(MENU_DIST_DIR_SRC)/HISTORY
-	cp $(D2OBJ)/build.txt $(MENU_DIST_DIR_SRC)/BUILD
+	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_SRC)/README
+	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_SRC)/RELEASE
+	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_SRC)/HISTORY
+	cp $(DOCOBJ)/build.txt $(MENU_DIST_DIR_SRC)/BUILD
 	cp $(MENU_ROOT_SRC) $(MENU_DIST_DIR_SRC)
 	mkdir $(MENU_DIST_DIR_SRC)/doc
 	cp $(MENU_DOC_SRC) $(MENU_DIST_DIR_SRC)/doc
@@ -389,13 +380,13 @@ distmenu: $(RCSRC) $(D2OBJ)/readmenu.txt $(D2OBJ)/relemenu.txt $(D2OBJ)/histmenu
 distmenubin: $(MENU_ROOT_BIN) $(MENU_DOC_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)
 ifeq ($(CONF_HOST),linux)
-	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
-	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
-	cp $(D2OBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
+	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
+	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
+	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
 else
-	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
-	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
-	cp $(D2OBJ)/history.txt $(MENU_DIST_DIR_BIN)/history.txt
+	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
+	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/history.txt $(MENU_DIST_DIR_BIN)/history.txt
 endif
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)/doc

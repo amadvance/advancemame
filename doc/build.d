@@ -1,8 +1,10 @@
-BUILD
+Name
+	build - How To Build
+
 	This file contains the instructions to build AdvanceMAME, AdvanceMESS,
 	AdvancePAC and AdvanceMENU from the source archives.
 
-PREPARING THE SOURCE
+Preparing The Source
 	To compile AdvanceMENU you don't need to add anything at the source, they are
 	already complete.
 
@@ -21,7 +23,7 @@ PREPARING THE SOURCE
 	PacMAME source with `advance/advpac.dif'. If the patch aren't applied correctly
 	probably you are using the wrong version of the emulator source.
 
-CONFIGURING
+Configuring
 	In a Unix system you need to run the `./configure' script with the
 	proper options. You can get a complete list with the `./configure --help' command.
 	Generally, you need only to specify the the --with-system option choosing the
@@ -43,11 +45,11 @@ CONFIGURING
 	In a DOS/Windows system you need to manually rename the `Makefile.in' file
 	as `Makefile', and edit the its first section to match your requirements.
 
-COMPILING
+Compiling
 	Finally you can run `make' to compile all, and in a Unix system `make install'
 	to install the binaries and the documentation.
 
-TARGETS
+Targets
 	These are the defined targets in the `Makefile' :
 		emu - Compile the emulator.
 		cfg -  Compile `advcfg'.
@@ -62,7 +64,7 @@ TARGETS
 		clear - Clean all.
 		install - Install all [must be root].
 
-REQUIREMENTS
+Requirements
 	To compile the Advance projects you need the following
 	software :
 		:GNU gcc 2.95.3 or 3.0.4 or 3.1 (with c and c++ support)

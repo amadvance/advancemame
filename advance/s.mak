@@ -2,10 +2,10 @@
 # S
 
 SCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/mpglib \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/mpglib \
+	-I$(srcdir)/advance/common
 SOBJS = \
 	$(SOBJ)/lib/log.o \
 	$(SOBJ)/lib/conf.o \
@@ -76,7 +76,7 @@ SOBJS += \
 endif
 endif
 
-$(SOBJ)/%.o: advance/%.c
+$(SOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(SCFLAGS) -c $< -o $@
 
@@ -92,4 +92,4 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advs$(EXE)
-	$(LN) $@ advs$(EXE)
+	$(LN_S) $@ advs$(EXE)

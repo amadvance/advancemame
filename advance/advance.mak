@@ -1,5 +1,5 @@
 ############################################################################
-# COMMON version
+# Common version
 
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.56.x
@@ -14,7 +14,7 @@ MENUVERSION = 2.0.1
 CABVERSION = 0.11.3
 
 ############################################################################
-# COMMON dir
+# Common dir
 
 OBJ = obj/$(CONF_EMU)/$(BINARYDIR)
 MENUOBJ = obj/menu/$(BINARYDIR)
@@ -26,15 +26,17 @@ SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
 LINEOBJ = obj/line/$(BINARYDIR_BUILD)
 D2OBJ = obj/d2/$(BINARYDIR_BUILD)
+DOCOBJ = obj/doc
 
 ############################################################################
-# COMMON targets
+# Common targets
 
 ifdef ALL
 all_override: $(ALL)
 endif
 
-# From MESS 0.56
+ifeq ($(CONF_EMU),mess)
+# from MESS 0.56
 INSTALL_IMAGEDIRS += \
 	a2600 a5200 a7800 lynx lynxa lynx2 nes nespal famicom gameboy snes gamegear \
 	sms genesis saturn astrocde studio2 channelf coleco colecoa pce arcadia vcg \
@@ -61,45 +63,46 @@ INSTALL_IMAGEDIRS += \
 	superbrd msx msxj msxkr msxuk hotbit11 hotbit12 expert10 expert11 msx2 msx2a \
 	msx2j nascom1 nascom1a nascom1b nascom2 nascom2a coupe coupe512 pdp1 mtx512 \
 	intvkbd aquarius exidy galaxy svi318 svi328 svi328a apexc mk1 mk2
+endif
 
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
-INSTALL_DATAFILES += support/safequit.dat
-INSTALL_MANFILES += $(D2OBJ)/advmame.1
+INSTALL_DATAFILES += $(srcdir)/support/safequit.dat
+INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 endif
-ifneq ($(wildcard advance/menu),)
+ifneq ($(wildcard $(srcdir)/advance/menu),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advmenu.1
+INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
 ifneq ($(CONF_SYSTEM),sdl)
-ifneq ($(wildcard advance/v),)
+ifneq ($(wildcard $(srcdir)/advance/v),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advv.1
+INSTALL_MANFILES += $(DOCOBJ)/advv.1
 endif
-ifneq ($(wildcard advance/cfg),)
+ifneq ($(wildcard $(srcdir)/advance/cfg),)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advcfg.1
+INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
 endif
-ifneq ($(wildcard advance/s),)
+ifneq ($(wildcard $(srcdir)/advance/s),)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advs.1
+INSTALL_MANFILES += $(DOCOBJ)/advs.1
 endif
-ifneq ($(wildcard advance/k),)
+ifneq ($(wildcard $(srcdir)/advance/k),)
 INSTALL_BINFILES += $(KOBJ)/advk$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advk.1
+INSTALL_MANFILES += $(DOCOBJ)/advk.1
 endif
-ifneq ($(wildcard advance/j),)
+ifneq ($(wildcard $(srcdir)/advance/j),)
 INSTALL_BINFILES += $(JOBJ)/advj$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advj.1
+INSTALL_MANFILES += $(DOCOBJ)/advj.1
 endif
-ifneq ($(wildcard advance/m),)
+ifneq ($(wildcard $(srcdir)/advance/m),)
 INSTALL_BINFILES += $(MOBJ)/advm$(EXE)
-INSTALL_MANFILES += $(D2OBJ)/advm.1
+INSTALL_MANFILES += $(DOCOBJ)/advm.1
 endif
 endif
 
-INSTALL_DOCFILES += $(subst doc/,$(D2OBJ)/,$(subst .d,.txt,$(wildcard doc/*.d)))
-INSTALL_DOCFILES += $(subst doc/,$(D2OBJ)/,$(subst .d,.html,$(wildcard doc/*.d)))
+INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard $(srcdir)/doc/*.d)))
+INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 
 all: $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
 emu: $(OBJ)/$(EMUNAME)$(EXE)
@@ -114,119 +117,145 @@ line: $(LINEOBJ)/advline$(EXE_BUILD)
 d2: $(D2OBJ)/advd2$(EXE_BUILD)
 
 ############################################################################
-# COMMON SRC
+# Common SRC
 
-RCSRC = support/pcvga.rc support/pcsvga60.rc \
-	support/standard.rc support/medium.rc \
-	support/extended.rc support/pal.rc \
-	support/ntsc.rc
+RCSRC = $(srcdir)/support/pcvga.rc \
+	$(srcdir)/support/pcsvga60.rc \
+	$(srcdir)/support/standard.rc \
+	$(srcdir)/support/medium.rc \
+	$(srcdir)/support/extended.rc \
+	$(srcdir)/support/pal.rc \
+	$(srcdir)/support/ntsc.rc
 
 MPGLIB_SRC = \
-	$(wildcard advance/mpglib/*.c) \
-	$(wildcard advance/mpglib/*.h) \
-	$(wildcard advance/mpglib/*.txt)
+	$(wildcard $(srcdir)/advance/mpglib/*.c) \
+	$(wildcard $(srcdir)/advance/mpglib/*.h) \
+	$(wildcard $(srcdir)/advance/mpglib/*.txt)
 
 LIB_SRC = \
-	$(wildcard advance/lib/*.c) \
-	$(wildcard advance/lib/*.h) \
-	$(wildcard advance/lib/*.ico) \
-	$(wildcard advance/lib/*.rc)
+	$(wildcard $(srcdir)/advance/lib/*.c) \
+	$(wildcard $(srcdir)/advance/lib/*.h) \
+	$(wildcard $(srcdir)/advance/lib/*.ico) \
+	$(wildcard $(srcdir)/advance/lib/*.rc)
 
 BLIT_SRC = \
-	$(wildcard advance/blit/*.c) \
-	$(wildcard advance/blit/*.h)
+	$(wildcard $(srcdir)/advance/blit/*.c) \
+	$(wildcard $(srcdir)/advance/blit/*.h)
 
 CARD_SRC = \
-	$(wildcard advance/card/*.c) \
-	$(wildcard advance/card/*.h)
+	$(wildcard $(srcdir)/advance/card/*.c) \
+	$(wildcard $(srcdir)/advance/card/*.h)
 	
 SVGALIB_SRC = \
-	$(wildcard advance/svgalib/*.c) \
-	$(wildcard advance/svgalib/*.h) \
-	$(wildcard advance/svgalib/*.dif) \
-	$(wildcard advance/svgalib/*.txt) \
-	$(wildcard advance/svgalib/*.bat)
+	$(wildcard $(srcdir)/advance/svgalib/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/*.h) \
+	$(wildcard $(srcdir)/advance/svgalib/*.dif) \
+	$(wildcard $(srcdir)/advance/svgalib/*.txt) \
+	$(wildcard $(srcdir)/advance/svgalib/*.bat)
 
 SVGALIBDRIVERS_SRC = \
-	$(wildcard advance/svgalib/drivers/*.c) \
-        $(wildcard advance/svgalib/drivers/*.h)
+	$(wildcard $(srcdir)/advance/svgalib/drivers/*.c) \
+        $(wildcard $(srcdir)/advance/svgalib/drivers/*.h)
 
 SVGALIBCLOCKCHI_SRC = \
-	$(wildcard advance/svgalib/clockchi/*.c) \
-        $(wildcard advance/svgalib/clockchi/*.h)
+	$(wildcard $(srcdir)/advance/svgalib/clockchi/*.c) \
+        $(wildcard $(srcdir)/advance/svgalib/clockchi/*.h)
 
 SVGALIBRAMDAC_SRC = \
-	$(wildcard advance/svgalib/ramdac/*.c) \
-	$(wildcard advance/svgalib/ramdac/*.h)
+	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.h)
 
 COMMON_SRC = \
-	$(wildcard advance/common/*.c) \
-	$(wildcard advance/common/*.h)
+	$(wildcard $(srcdir)/advance/common/*.c) \
+	$(wildcard $(srcdir)/advance/common/*.h)
 
 V_SRC = \
-	$(wildcard advance/v/*.c) \
-	$(wildcard advance/v/*.h)
+	$(wildcard $(srcdir)/advance/v/*.c) \
+	$(wildcard $(srcdir)/advance/v/*.h)
 
 S_SRC = \
-	$(wildcard advance/s/*.c) \
-	$(wildcard advance/s/*.h)
+	$(wildcard $(srcdir)/advance/s/*.c) \
+	$(wildcard $(srcdir)/advance/s/*.h)
 
 K_SRC = \
-	$(wildcard advance/k/*.c) \
-	$(wildcard advance/k/*.h)
+	$(wildcard $(srcdir)/advance/k/*.c) \
+	$(wildcard $(srcdir)/advance/k/*.h)
 
 J_SRC = \
-	$(wildcard advance/j/*.c) \
-	$(wildcard advance/j/*.h)
+	$(wildcard $(srcdir)/advance/j/*.c) \
+	$(wildcard $(srcdir)/advance/j/*.h)
 
 M_SRC = \
-	$(wildcard advance/m/*.c) \
-	$(wildcard advance/m/*.h)
+	$(wildcard $(srcdir)/advance/m/*.c) \
+	$(wildcard $(srcdir)/advance/m/*.h)
 
 CFG_SRC = \
-	$(wildcard advance/cfg/*.c)
+	$(wildcard $(srcdir)/advance/cfg/*.c)
 
 LINE_SRC = \
-	$(wildcard advance/line/*.cc)
+	$(wildcard $(srcdir)/advance/line/*.cc)
 
 SRCOSD = \
-	$(wildcard advance/osd/*.c) \
-	$(wildcard advance/osd/*.h) \
-	$(wildcard advance/osd/*.y) \
-	$(wildcard advance/osd/*.l)
+	$(wildcard $(srcdir)/advance/osd/*.c) \
+	$(wildcard $(srcdir)/advance/osd/*.h) \
+	$(wildcard $(srcdir)/advance/osd/*.y) \
+	$(wildcard $(srcdir)/advance/osd/*.l)
 
 LINUX_SRC = \
-	$(wildcard advance/linux/*.c) \
-	$(wildcard advance/linux/*.h)
+	$(wildcard $(srcdir)/advance/linux/*.c) \
+	$(wildcard $(srcdir)/advance/linux/*.h)
 
 DOS_SRC = \
-	$(wildcard advance/dos/*.c) \
-	$(wildcard advance/dos/*.h)
+	$(wildcard $(srcdir)/advance/dos/*.c) \
+	$(wildcard $(srcdir)/advance/dos/*.h)
 
 SDL_SRC = \
-	$(wildcard advance/sdl/*.c) \
-	$(wildcard advance/sdl/*.h)
+	$(wildcard $(srcdir)/advance/sdl/*.c) \
+	$(wildcard $(srcdir)/advance/sdl/*.h)
 
 D2_SRC = \
-	$(wildcard advance/d2/*.cc)
+	$(wildcard $(srcdir)/advance/d2/*.cc)
+
+CONF_BIN = \
+	$(srcdir)/Makefile.in \
+	$(srcdir)/config.guess \
+	$(srcdir)/config.status \
+	$(srcdir)/config.sub \
+	$(srcdir)/configure \
+	$(srcdir)/configure.ac \
+	$(srcdir)/configure.msdos \
+	$(srcdir)/configure.windows \
+	$(srcdir)/install-sh \
+	$(srcdir)/mkinstalldirs
+
+CONF_SRC = \
+	$(srcdir)/support/confbin/Makefile.am \
+	$(srcdir)/support/confbin/Makefile.in \
+	$(srcdir)/support/confbin/aclocal.m4 \
+	$(srcdir)/support/confbin/autogen.sh \
+	$(srcdir)/support/confbin/configure \
+	$(srcdir)/support/confbin/configure.ac \
+	$(srcdir)/support/confbin/install-sh \
+	$(srcdir)/support/confbin/missing \
+	$(srcdir)/support/confbin/mkinstalldirs
 
 ############################################################################
-# COMMON install
+# Common install
 
 install_data: $(INSTALL_DATAFILES)
-ifdef INSTALL_DATAFILES
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
+ifdef INSTALL_DATAFILES
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
-ifeq ($(CONF_EMU),mess)
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
-	@for i in $(INSTALL_IMAGEDIRS); do \
-		$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image/$$i; \
-	done
-endif
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/sample
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/artwork
 	@for i in $(INSTALL_DATAFILES); do \
 		$(INSTALL_DATA) $$i $(PREFIX)/share/advance; \
+	done
+endif
+ifdef INSTALL_IMAGEDIRS
+	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
+	@for i in $(INSTALL_IMAGEDIRS); do \
+		-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image/$$i; \
 	done
 endif
 
@@ -254,7 +283,7 @@ endif
 install: install_bin install_data install_doc install_man
 
 ############################################################################
-# COMMON build
+# Common build
 
 # Resource include dir
 RCFLAGS += --include-dir advance/lib
@@ -266,35 +295,35 @@ RCFLAGS += --include-dir advance/lib
 MSG_FIX = $(MSG) "(with low opt)"
 CFLAGS_FIX_GCC30 = $(subst -O3,-O1,$(CFLAGS))
 
-$(OBJ)/advance/card/%.o: advance/card/%.c
+$(OBJ)/advance/card/%.o: $(srcdir)/advance/card/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
-$(OBJ)/advance/svgalib/%.o: advance/svgalib/%.c
+$(OBJ)/advance/svgalib/%.o: $(srcdir)/advance/svgalib/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
-$(MENUOBJ)/card/%.o: advance/card/%.c
+$(MENUOBJ)/card/%.o: $(srcdir)/advance/card/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(MENUCFLAGS) -c $< -o $@
 
-$(MENUOBJ)/svgalib/%.o: advance/svgalib/%.c
+$(MENUOBJ)/svgalib/%.o: $(srcdir)/advance/svgalib/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(MENUCFLAGS) -c $< -o $@
 
-$(VOBJ)/card/%.o: advance/card/%.c
+$(VOBJ)/card/%.o: $(srcdir)/advance/card/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(VCFLAGS) -c $< -o $@
 
-$(VOBJ)/svgalib/%.o: advance/svgalib/%.c
+$(VOBJ)/svgalib/%.o: $(srcdir)/advance/svgalib/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(VCFLAGS) -c $< -o $@
 
-$(CFGOBJ)/card/%.o: advance/card/%.c
+$(CFGOBJ)/card/%.o: $(srcdir)/advance/card/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(CFGCFLAGS) -c $< -o $@
 
-$(CFGOBJ)/svgalib/%.o: advance/svgalib/%.c
+$(CFGOBJ)/svgalib/%.o: $(srcdir)/advance/svgalib/%.c
 	$(ECHO) $@ $(MSG_FIX)
 	$(CC) $(CFLAGS_FIX_GCC30) $(CFGCFLAGS) -c $< -o $@
 
@@ -316,39 +345,10 @@ dospac:
 	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=pac emu
 
 dosmenu:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_EMU=mame menu
-
-dosdistbin: dosdistbinpentium2
-
-dosdistbinpentium:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos distbin
-
-dosdistbinpentium2:
-	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos distbin
-
-dosdistbink6:
-	$(MAKE) $(ARCH_K6) CONF_HOST=dos distbin
-
-dosdistcabbin:
-	$(MAKE) $(ARCH_ALL) CONF_HOST=dos distcabbin
-
-dosdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_SYSTEM=dos distmenubin
-
-linuxdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=linux CONF_SYSTEM=linux distmenubin
-
-windowsdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=windows CONF_SYSTEM=sdl distmenubin
-
-linuxsdldistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=linux CONF_SYSTEM=sdl distmenubin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=mame menu
 
 mame:
 	$(MAKE) CONF_EMU=mame emu
-
-mame586:
-	$(MAKE) $(ARCH_PENTIUM) CONF_EMU=mame emu
 
 neomame:
 	$(MAKE) CONF_EMU=neomame emu
@@ -361,9 +361,6 @@ messmame:
 
 pacmame:
 	$(MAKE) CONF_EMU=pac emu
-
-menu586:
-	$(MAKE) $(ARCH_PENTIUM) menu
 
 wholemame:
 	$(MAKE) dist

@@ -2,7 +2,7 @@
 # Line
 
 LINECFLAGS += \
-	-Iadvance/common
+	-I$(srcdir)/advance/common
 LINEOBJDIRS = \
 	$(LINEOBJ) \
 	$(LINEOBJ)/line
@@ -10,7 +10,7 @@ LINEOBJS = \
 	$(LINEOBJ)/line/line.o
 LINELIBS = -lm
 
-$(LINEOBJ)/%.o: advance/%.cc
+$(LINEOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)
 	$(CXX_BUILD) $(CFLAGS_BUILD) $(LINECFLAGS) -c $< -o $@
 

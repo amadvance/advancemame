@@ -9,14 +9,20 @@ AC_COPYRIGHT([Copyright 2002 Andrea Mazzoleni])
 case "$host" in
 	*-*-linux*)
 		ac_host=linux
+		AC_SUBST([ASMFLAGS],["-f elf"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF"])
 		AC_SUBST([EXE],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_host=windows
+		AC_SUBST([ASMFLAGS],["-f coff"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*-*-msdos*)
 		ac_host=dos
+		AC_SUBST([ASMFLAGS],["-f coff"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*)
@@ -47,15 +53,24 @@ AC_SUBST([CONF_BUILD],[$ac_build])
 if test -z "$CFLAGS" ; then
 	CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
 fi
+if test -z "$LDFLAGS" ; then
+	LDFLAGS="-s"
+fi
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_LN_S
 AC_CHECK_TOOLS(AR, ar)
 AC_CHECK_TOOLS(RC, windres)
+AC_CHECK_PROGS(RM, rm)
+AC_CHECK_PROGS(CP, cp)
+AC_CHECK_PROGS(MKDIR, mkdir)
+AC_CHECK_PROGS(ECHO, echo)
 AC_CHECK_PROGS(TAR, tar)
 AC_CHECK_PROGS(GZIP, gzip)
+AC_CHECK_PROGS(ZIP, zip)
 AC_CHECK_PROGS(ASM, nasm)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
@@ -77,6 +92,12 @@ AC_CHECK_LIB(
 	[],
 	AC_MSG_ERROR([The zlib library is required])
 )
+if test $ac_host = windows; then
+	ZLIBS="-static -lz"
+else
+	ZLIBS="-lz"
+fi
+AC_SUBST([ZLIBS],[$ZLIBS])
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
@@ -102,27 +123,27 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		AC_MSG_ERROR([You need the MAME source in the src/ directory])
+		AC_MSG_ERROR([You need the MAME source in the $srcdir/src/ directory])
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MAME source in src/ with the advance/advmame.dif patch])
+		AC_MSG_ERROR([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch])
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the srcmess directory])
+		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory])
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the srcmess directory])
+		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory])
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MESS source in srcmess/ with the advance/advmess.dif patch])
+		AC_MSG_ERROR([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch])
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		AC_MSG_ERROR([You need the PacMAME source in the srcpac directory])
+		AC_MSG_ERROR([You need the PacMAME source in the $srcdir/srcpac/ directory])
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		AC_MSG_ERROR([You must patch the PacMAME source in srcpac/ with the advance/advpac.dif patch])
+		AC_MSG_ERROR([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch])
 	fi
 elif test ! $ac_with_emu = none; then
 	AC_MSG_ERROR([Unknown emulator $ac_with_emu])
@@ -260,6 +281,8 @@ if test $ac_enable_compress = yes; then
 	)
 fi
 AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
+AC_SUBST([UPX],[$UPX])
+AC_SUBST([TOUCH],[$TOUCH])
 
 AC_ARG_ENABLE(
 	[asm],
@@ -307,4 +330,5 @@ fi
 echo "Compress executables :" $ac_enable_compress
 echo "Emulator debugger :" $ac_enable_debugger
 echo "CFLAGS :" $CFLAGS
+echo "LDFLAGS :" $LDFLAGS
 

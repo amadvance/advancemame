@@ -1,7 +1,7 @@
-NAME
+Name
 	off - Shutdown the PC
 
-DESCRIPTION
+Description
 	The `off' utility can be used to shutdown an ATX-powered PC.
 
 	To work properly it requires an APM (Advanced Power
@@ -10,6 +10,6 @@ DESCRIPTION
 	Before the shutdown the disk cache (SMARTDRV) is automatically
 	flushed using the standard BIOS service 2F-4A10.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Randy Schnedler.
 

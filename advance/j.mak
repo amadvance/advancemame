@@ -2,9 +2,9 @@
 # J
 
 JCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/common
 JOBJDIRS = \
 	$(JOBJ) \
 	$(JOBJ)/j \
@@ -62,7 +62,7 @@ JOBJS += \
 endif
 endif
 
-$(JOBJ)/%.o: advance/%.c
+$(JOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(JCFLAGS) -c $< -o $@
 
@@ -78,4 +78,4 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advj$(EXE)
-	$(LN) $@ advj$(EXE)
+	$(LN_S) $@ advj$(EXE)

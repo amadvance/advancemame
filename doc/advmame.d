@@ -1,14 +1,14 @@
-NAME
+Name
 	advmame, advmess, advpac - The AdvanceMAME Emulator
 
-SYNOPSYS
+Synopsys
 	:advmame GAME [-default] [-remove] [-log] [-listinfo]
 
 	:advpac GAME [-default] [-remove] [-log] [-listinfo]
 
 	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
 
-DESCRIPTION
+Description
 	AdvanceMAME is an unofficial MAME version for DOS and Linux with
 	an advanced video support for helping the use with TVs, Arcade
 	Monitors, Fixed Frequencies Monitors and also with normal
@@ -38,7 +38,7 @@ DESCRIPTION
 		thread architecture (only for Linux).
 	* Sound and video recording in WAV, PNG and MNG files.
 
-OPTIONS
+Options
 	This is the list of the available command line options:
 
 	GAME/MACHINE
@@ -73,11 +73,11 @@ OPTIONS
 	For example `-dev_cartdrige' can be written as `-dev_cart',
 	`-cartdrige', `-cart', ...
 
-FEATURES
+Features
 	This section contains a brief description of all the features
 	of AdvanceMAME.
 
-    Automatic Video Mode Generation
+  Automatic Video Mode Generation
 	AdvanceMAME has the ability to directly control your video
 	board to get the best possibile video modes with always the
 	correct size and aspect ratio.
@@ -86,7 +86,7 @@ FEATURES
 	`display_adjust' option. More details are in the `install.txt'
 	file.
 
-    Video Menu
+  Video Menu
 	AdvanceMAME adds a new `Video' menu in MAME to change the video
 	options.
 
@@ -96,7 +96,7 @@ FEATURES
 	The selected option is displayed at the right side of the menu,
 	the effective value used for the option is displayed in `[]'.
 
-    Resize
+  Resize
 	AdavanceMAME supports many software stretching types of the
 	game image. Generally they are not used, because a video
 	mode of the correct size is automatically generated.
@@ -118,7 +118,7 @@ FEATURES
 	Usually the best choice is the `mixed' option. It's very fast
 	and the image quality doesn't suffer too much.
 
-    Blit Effects
+  Blit Effects
 	AdvanceMAME supports many special video effects to improve
 	the image quality when it's strecthed.
 
@@ -147,7 +147,7 @@ FEATURES
 	factor of 2. To enable it you should also use the `magnify'
 	option.
 
-    RGB Effects
+  RGB Effects
 	AdvanceMAME supports also some special video effects to simulate
 	the aspect of the game as displayed in an old fashion Arcade
 	Monitor.
@@ -155,7 +155,7 @@ FEATURES
 	You can simulate the RGB triads of the screen or the vertical and
 	horizonal scanlines.
 
-    Mode Selection
+  Mode Selection
 	In the `Video Mode' submenu you can select the favorite video
 	mode.
 
@@ -168,19 +168,19 @@ FEATURES
 	You can force a specific video mode with the option
 	`display_mode'.
 
-    Per Game options
+  Per Game options
 	All the video options are customizable for the single
 	game or for a group og games. You can also save them
 	directly from the `Video Menu'.
 
-    Scripts
+  Scripts
 	AdvanceMAME support a basic script language capable to
 	control an external hardware throught the parallel port
 	or keyboard led signals.
 
 	The scripts are described in the `script.txt' file.
 
-    Aspect Ratio Control
+  Aspect Ratio Control
 	AdvanceMAME tries always to display the game with the
 	correct aspect ratio.
 
@@ -192,7 +192,7 @@ FEATURES
 	More details are in the description of the
 	`display_expand' option.
 
-    Speed Control
+  Speed Control
 	AdvanceMAME permits a special speed control of the game
 	play.
 
@@ -203,7 +203,7 @@ FEATURES
 	More details are in the description of the `misc_speed',
 	`misc_turbospeed' and `misc_startuptime' options.
 
-    Exit Control
+  Exit Control
 	If you have a real Arcade Cabinet you can configure AdvanceMAME
 	to automatically exit after some time of inactivity to save
 	your monitor screen.
@@ -214,24 +214,24 @@ FEATURES
 	More details are in the description of the `misc_safequit',
 	and `input_idleexit' options.
 
-    Input Control
+  Input Control
 	AdvanceMAME support a very fine control of the mapping
 	of the analog inputs on the MAME analog port.
 
 	More details are in the description of the `input_map'
 	option.
 
-    Audio and Video Recording
+  Audio and Video Recording
 	AdvanceMAME can saves the game play in .WAV audio files and
 	.MNG video files.
 
 	More details are in the description of the `record_*'
 	options.
 
-USE CASES
+Use Cases
 	This section describes some useful cases for AdvanceMAME.
 
-    With a PC MultiSync Monitor
+  With a PC MultiSync Monitor
 	On a PC MultySync monitor you can get ANY Resolution at ANY
 	Vertical Frequency. In this case AdvanceMAME always generates
 	a `perfect' video mode with the correct size and clock. It
@@ -239,7 +239,7 @@ USE CASES
 	For example for the game "Bomb Jack" a video mode of 400x256
 	at 60 Hz (perfect size and perfect frequency) is used.
 
-    With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
+  With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
 	On Fixed Frequency monitors you are physically limited on
 	the choice of Horizontal Frequency in the video mode. In this
 	case AdvanceMAME takes care of your monitor's limitations
@@ -249,7 +249,7 @@ USE CASES
 	For example for the game "Pac-Man" and a VGA monitor (31.5 kHz)
 	a video mode of 400x288 at 100 Hz (perfect size) is used.
 
-    With a NTSC or PAL TV
+  With a NTSC or PAL TV
 	On a TV you are physically limited to use both fixed Horizontal
 	and Vertical Frequencies. This results on a prefixed number of
 	rows for the video mode.
@@ -261,17 +261,17 @@ USE CASES
 	For example for the game "Pac-Man" on a NTSC TV a video mode
 	of 400x240 (perfect horizontal size) is used.
 
-    With a Multiformat NTSC and PAL TV
+  With a Multiformat NTSC and PAL TV
 	If your TV supports both formats, AdvanceMAME automatically
 	chooses the format which better fits the game requirements.
 	For example for the game "Mr. Do!" a video mode of 336x240
 	NTSC (perfect size) is used. For the game "Pac-Man" a video mode
 	of 400x288 PAL (perfect size) is used.
 
-OTHER PORTS
+Other Ports
 	This section compares AdvanceMAME with the other MAME ports.
 
-    Windows MAME
+  Windows MAME
 	The official Windows MAME generally doesn't use a video mode
 	with the correct size but it stretches the image (losing in
 	quality) to match the best video mode found on the system list.
@@ -283,14 +283,14 @@ OTHER PORTS
 	Generally this port is limited by Windows to get the best from
 	your monitor.
 
-    DOS MAME
+  DOS MAME
 	The official DOS MAME (v0.53) is limited to use only the
 	standard VESA resolutions. Generally they are only 320x200,
 	320x240, 400x300, 512x384, 640x480, ...
 	The Arcade/TV support is limited at the mode 640x480 for the
 	ATI boards.
 
-    XMAME
+  XMAME
 	The XMAME port has nearly the same video capabilities of
 	AdvanceMAME. The only drawback is that it requires a manual
 	modeline creation. AdvanceMAME uses the latest SVGALIB
@@ -301,7 +301,7 @@ OTHER PORTS
 	`filter' and `rgb' effects, the turbo mode, the scripts, SMP,
 	8 bit depth, ...
 
-CONFIGURATION
+Configuration
 	The DOS version of AdvanceMAME reads configuration options
 	from the file `advmame.rc', `advmess.rc' and `advpac.rc'
 	in the current directory.
@@ -352,13 +352,13 @@ CONFIGURATION
 	value only for a single game or a single game resolution.
 	For example:
 
-		display_scanlines no
-		pacman/display_scanlines yes
-		pacman/dir_rom C:\PACMAN
-		vertical/display_ror yes
-		horizontal/display_ror no
+		:display_scanlines no
+		:pacman/display_scanlines yes
+		:pacman/dir_rom C:\PACMAN
+		:vertical/display_ror yes
+		:horizontal/display_ror no
 
-SOFTWARE CONFIGURATION OPTIONS
+  Software Configuration Options
 
     dev_*
 	Load a specific device for the AdvanceMESS emulator. These
@@ -383,13 +383,13 @@ SOFTWARE CONFIGURATION OPTIONS
 		snapshot - Load a snapshot.
 		quickload - Load a quickload.
 
-	Example:
+	Examples:
 		:advmess ti99_4a -dev_cartridge attackg.bin
 
 	Example using the command line autocompletion:
 		:advmess ti99_4a -cart alpinerc.bin -cart alpinerg.bin
 
-DIRECTORY CONFIGURATION OPTIONS
+  Directory Configuration Options
 
     dir_*
 	All the directories specifications. The DOS version uses the
@@ -460,12 +460,12 @@ DIRECTORY CONFIGURATION OPTIONS
 	For the `dir_rom' and `dir_image' the following file
 	combinations are tried:
 
-	* DIR/GAME/NAME.EXT
-	* DIR/GAME.zip/NAME.EXT
-	* DIR/GAME/NAME.zip/NAME.EXT
+	* DIR/GAME/Name.EXT
+	* DIR/GAME.zip/Name.EXT
+	* DIR/GAME/Name.zip/Name.EXT
 
 	Where DIR is every directories specified, GAME is the name of
-	the game or machine emulated, NAME if the rom name, EXT if the
+	the game or machine emulated, Name if the rom name, EXT if the
 	rom extension.
 
 	For the files searched in the `dir_image' option you can also
@@ -475,9 +475,9 @@ DIRECTORY CONFIGURATION OPTIONS
 	cartdriges `crom.bin' and `grom.bin' both contained in
 	the zip file `alpiner.zip' you can use this syntax:
 
-		advmess ti99_4a -cart alpiner=crom.bin -cart alpiner=grom.bin
+		:advmess ti99_4a -cart alpiner=crom.bin -cart alpiner=grom.bin
 
-DISPLAY CONFIGURATION OPTIONS
+  Display Configuration Options
 
     device_video_*
 	All the `device_video_*' options defined in the `advv.txt'
@@ -572,7 +572,7 @@ DISPLAY CONFIGURATION OPTIONS
 	The `fractional' option involves a big slowdown, so the `mixed' 
 	option is suggested.
 
-	Example:
+	Examples:
 		:display_resize mixed
 
     display_magnify
@@ -652,7 +652,7 @@ DISPLAY CONFIGURATION OPTIONS
 	Pressing F10 you can enable and disable the throttle
 	syncronization.
 
-	Example:
+	Examples:
 		:display_frameskip 0.5
 
     display_expand
@@ -665,10 +665,10 @@ DISPLAY CONFIGURATION OPTIONS
 		FACTOR - Expansion float factor from 1.0 to 2.0
 			(default 1.0)
 
-	Example:
+	Examples:
 		:display_expand 1.2
 
-DISPLAY EFFECT CONFIGURATION OPTIONS
+  Display Effect Configuration Options
 
     display_resizeeffect
 	When a video mode is smaller or bigger than the original arcade
@@ -765,7 +765,7 @@ DISPLAY EFFECT CONFIGURATION OPTIONS
 		SKIPLINES - Lines to skip.
 		SKIPCOLUMNS - Columns to skip.
 
-DISPLAY ARTWORK CONFIGURATION OPTIONS
+  Display Artwork Configuration Options
 
     display_artwork
 	Enables or disables the artwork display.
@@ -785,7 +785,7 @@ DISPLAY ARTWORK CONFIGURATION OPTIONS
 		yes - Crops the artwork.
 		no - Doesn't crop the artwork (default).
 
-DISPLAY VECTOR CONFIGURATION OPTIONS
+  Display Vector Configuration Options
 
     display_antialias
 	Antialiasing for vector games.
@@ -824,7 +824,7 @@ DISPLAY VECTOR CONFIGURATION OPTIONS
 		FACTOR - A float in the range 0.5 - 3.0
 			(default 1.5).
 
-DISPLAY ORIENTATION CONFIGURATION OPTIONS
+  Display Orientation Configuration Options
 
     display_rotate
 	Select where the rotation is done, at core level or at blit
@@ -848,8 +848,7 @@ DISPLAY ORIENTATION CONFIGURATION OPTIONS
 	:display_flipx yes | no
 	:display_flipy yes | no
 
-
-SOUND CONFIGURATION OPTIONS
+  Sound Configuration Options
 
     device_sound
 	Specify the soundcard.
@@ -904,7 +903,7 @@ SOUND CONFIGURATION OPTIONS
 		VOLUME - The volume is an attenuation in dB (default 0).
 			The dB is a negative value from -20 to 0.
 
-	Example:
+	Examples:
 		:sound_volume -12
 
     sound_latency
@@ -919,7 +918,7 @@ SOUND CONFIGURATION OPTIONS
 	If in the game play you hear some sound ticks you can try to
 	increase the latency.
 
-INPUT CONFIGURATION OPTIONS
+  Input Configuration Options
 
     device_keyboard
 	Enables or disables keyboard support.
@@ -1078,7 +1077,7 @@ INPUT CONFIGURATION OPTIONS
 		input_map[3,trakx] - mouse[3,0]
 		input_map[3,traky] - mouse[3,1]
 
-RECORD CONFIGURATION OPTIONS
+  Record Configuration Options
 	This section describes the options used for the recoring
 	features.
 
@@ -1137,11 +1136,10 @@ RECORD CONFIGURATION OPTIONS
 			means save 1 every 2. 3 means save 1 every 3,
 			and so on.
 
-	Example:
+	Examples:
 		:record_video_interleave 1
 
-MISC CONFIGURATION OPTIONS
-
+  Misc Configuration Options
     misc_smp [Linux Only]
 	Enables the "Symmetric Multi-Processing" (SMP).
 	This option use two concurrent threads. One for MAME and one
@@ -1169,7 +1167,7 @@ MISC CONFIGURATION OPTIONS
 	Options:
 		FACTOR - Float speed factor (default 1.0).
 
-	Example:
+	Examples:
 		:misc_speed 1.2
 
     misc_turbospeed
@@ -1220,7 +1218,7 @@ MISC CONFIGURATION OPTIONS
 
 	The use of this option is discouraged. Use the default value.
 
-SUPPORT FILES CONFIGURATION OPTIONS
+  Support Files Configuration Options
 	The AdvanceMAME emulator needs also some support files:
 
 		cheat.dat - Cheat database.
@@ -1307,7 +1305,6 @@ SUPPORT FILES CONFIGURATION OPTIONS
 	Options:
 		FILE - SafeQuit file to load (default safequit.dat).
 
-
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.
 

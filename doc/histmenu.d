@@ -1,3 +1,6 @@
+Name
+	advmenu - History For AdvanceMENU
+
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program

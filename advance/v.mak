@@ -2,10 +2,10 @@
 # V
 
 VCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/blit \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/blit \
+	-I$(srcdir)/advance/common
 VOBJS = \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
@@ -49,11 +49,11 @@ endif
 ifeq ($(CONF_SYSTEM),dos)
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
-	-Iadvance/card \
-	-Iadvance/svgalib \
-	-Iadvance/svgalib/clockchi \
-	-Iadvance/svgalib/ramdac \
-	-Iadvance/svgalib/drivers
+	-I$(srcdir)/advance/card \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers
 VLIBS = -lalleg
 VOBJS += \
 	$(VOBJ)/lib/filedos.o \
@@ -112,7 +112,7 @@ VOBJDIRS += \
 	$(VOBJ)/svgalib/drivers
 endif
 
-$(VOBJ)/%.o: advance/%.c
+$(VOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(VCFLAGS) -c $< -o $@
 
@@ -128,4 +128,4 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advv$(EXE)
-	$(LN) $@ advv$(EXE)
+	$(LN_S) $@ advv$(EXE)

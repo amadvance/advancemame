@@ -183,24 +183,51 @@ CONF_ARCH=def
 endif
 
 ############################################################################
-# Default Tools configuration
+# Tools configuration
 
-MAKE = @make -j 2
+# From the ./configure script
+ifeq (@CONF@,yes)
+srcdir=@srcdir@
+INSTALL=@INSTALL@
+CC=@@CC@
+CXX=@@CXX@
+LD=@@CC@
+LDXX=@@CXX@
+AR=@@AR@
+ASM=@@ASM@
+RC=@@RC@
+UPX=@@UPX@
+TOUCH=@@TOUCH@
+LN_S=@@LN_S@
+MD=-@@MKDIR@ -p
+RM=@@RM@ -f
+ECHO=@@ECHO@
+CC_BUILD=@@CC_BUILD@
+LD_BUILD=@@CC_BUILD@
+CXX_BUILD=@@CXX_BUILD@
+LDXX_BUILD=@@CXX_BUILD@
+EXE=@EXE@
+EXE_BUILD=@EXE_BUILD@
+SDLCFLAGS=@SDLCFLAGS@
+SDLLIBS=@SDLLIBS@
+ZLIBS=@ZLIBS@
+ASMFLAGS=@ASMFLAGS@
+CFLAGS_BUILD=@CFLAGS_BUILD@
+LDFLAGS=@LDFLAGS@
+endif
+
+# Autotected
+ifneq (@CONF@,yes)
+srcdir=.
 MD = -@mkdir -p
 RM = @rm -f
 ECHO = @echo
 # Don't add the prefix @. This command must be used also in a shell
 INSTALL = install
-INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755
-INSTALL_MAN_DIR = $(INSTALL) -d -o root -g 0 -m 755
-INSTALL_DATA_DIR = $(INSTALL) -d -o root -g bin -m 755
-INSTALL_PROGRAM = $(INSTALL) -c -o root -g bin -m 555
-INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
-INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 
 ifeq ($(CONF_HOST),linux)
 UPX = @upx -q -q -q
-LN = @ln -s
+LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
 CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
@@ -208,7 +235,7 @@ ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),dos)
 UPX = @upx -q -q -q
-LN = @cp
+LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
@@ -216,7 +243,7 @@ ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),windows)
 UPX = @upx -q -q -q
-LN = @cp
+LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
@@ -303,29 +330,15 @@ SDLCFLAGS = "-IC:\MINGW\INCLUDE\SDL"
 SDLLIBS = -lSDL -mwindows
 endif
 
-#############################################################################
-# Override Tools configuration
-
-ifeq (@CONF@,yes)
-INSTALL=@INSTALL@
-CC=@@CC@
-CXX=@@CXX@
-LD=@@CC@
-LDXX=@@CXX@
-AR=@@AR@
-ASM=@@ASM@
-RC=@@RC@
-CC_BUILD=@@CC_BUILD@
-LD_BUILD=@@CC_BUILD@
-CXX_BUILD=@@CXX_BUILD@
-LDXX_BUILD=@@CXX_BUILD@
-EXE=@EXE@
-EXE_BUILD=@EXE_BUILD@
-ASMFLAGS=@ASMFLAGS@
-SDLCFLAGS=@SDLCFLAGS@
-SDLLIBS=@SDLLIBS@
-CFLAGS_BUILD=@CFLAGS_BUILD@
 endif
+
+# Common
+INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755
+INSTALL_MAN_DIR = $(INSTALL) -d -o root -g 0 -m 755
+INSTALL_DATA_DIR = $(INSTALL) -d -o root -g bin -m 755
+INSTALL_PROGRAM = $(INSTALL) -c -o root -g bin -m 555
+INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
+INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 
 #############################################################################
 # Derived options
@@ -345,24 +358,24 @@ BINARYDIR = $(CONF_HOST)/$(CONF_SYSTEM)/$(CONF_ARCH)
 BINARYDIR_BUILD = $(CONF_BUILD)
 
 # Checks
-ifeq (,$(findstring $(CONF_HOST),/linux/dos/windows/))
+ifeq (,$(findstring $(CONF_HOST),-linux-dos-windows-))
 $(error Invalid CONF_HOST=$(CONF_HOST))
 endif
-ifeq (,$(findstring $(CONF_SYSTEM),/linux/dos/sdl/))
+ifeq (,$(findstring $(CONF_SYSTEM),-linux-dos-sdl))
 $(error Invalid CONF_SYSTEM=$(CONF_SYSTEM))
 endif
 ifeq ($(CONF_HOST),linux)
-ifeq (,$(findstring $(CONF_SYSTEM),/linux/sdl/))
+ifeq (,$(findstring $(CONF_SYSTEM),-linux-sdl-))
 $(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
 endif
 endif
 ifeq ($(CONF_HOST),dos)
-ifeq (,$(findstring $(CONF_SYSTEM),/dos/))
+ifeq (,$(findstring $(CONF_SYSTEM),-dos-))
 $(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
 endif
 endif
 ifeq ($(CONF_HOST),windows)
-ifeq (,$(findstring $(CONF_SYSTEM),/sdl/))
+ifeq (,$(findstring $(CONF_SYSTEM),-sdl-))
 $(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
 endif
 endif
@@ -393,63 +406,63 @@ EMUNAME = adv$(CONF_EMU)
 
 # Emulator source directory. If it doesn't exist the emulator isn't compiled
 ifeq ($(CONF_EMU),none)
-EMUSRC=srcnone
+EMUSRC=$(srcdir)/srcnone
 endif
 ifeq ($(CONF_EMU),mess)
-EMUSRC=srcmess
+EMUSRC=$(srcdir)/srcmess
 endif
 ifeq ($(CONF_EMU),pac)
-EMUSRC=srcpac
+EMUSRC=$(srcdir)/srcpac
 endif
 ifeq ($(EMUSRC),)
-EMUSRC=src
+EMUSRC=$(srcdir)/src
 endif
 
 #############################################################################
 # Advance
 
-include advance/advance.mak
+include $(srcdir)/advance/advance.mak
 
 ifneq ($(wildcard $(EMUSRC)),)
-include advance/emu.mak
+include $(srcdir)/advance/emu.mak
 endif
-ifneq ($(wildcard advance/menu),)
-include advance/menu.mak
+ifneq ($(wildcard $(srcdir)/advance/menu),)
+include $(srcdir)/advance/menu.mak
 endif
-ifneq ($(wildcard advance/tsr),)
-include advance/cab.mak
+ifneq ($(wildcard $(srcdir)/advance/tsr),)
+include $(srcdir)/advance/cab.mak
 endif
-ifneq ($(wildcard advance/v),)
-include advance/v.mak
+ifneq ($(wildcard $(srcdir)/advance/v),)
+include $(srcdir)/advance/v.mak
 endif
-ifneq ($(wildcard advance/cfg),)
-include advance/cfg.mak
+ifneq ($(wildcard $(srcdir)/advance/cfg),)
+include $(srcdir)/advance/cfg.mak
 endif
-ifneq ($(wildcard advance/s),)
-include advance/s.mak
+ifneq ($(wildcard $(srcdir)/advance/s),)
+include $(srcdir)/advance/s.mak
 endif
-ifneq ($(wildcard advance/k),)
-include advance/k.mak
+ifneq ($(wildcard $(srcdir)/advance/k),)
+include $(srcdir)/advance/k.mak
 endif
-ifneq ($(wildcard advance/j),)
-include advance/j.mak
+ifneq ($(wildcard $(srcdir)/advance/j),)
+include $(srcdir)/advance/j.mak
 endif
-ifneq ($(wildcard advance/m),)
-include advance/m.mak
+ifneq ($(wildcard $(srcdir)/advance/m),)
+include $(srcdir)/advance/m.mak
 endif
-ifneq ($(wildcard advance/line),)
-include advance/line.mak
+ifneq ($(wildcard $(srcdir)/advance/line),)
+include $(srcdir)/advance/line.mak
 endif
-ifneq ($(wildcard advance/d2),)
-include advance/d2.mak
+ifneq ($(wildcard $(srcdir)/advance/d2),)
+include $(srcdir)/advance/d2.mak
 endif
 
 #############################################################################
 # Special targets
 
 clean:
-	$(ECHO) obj
-	$(RM) -r obj
+	$(RM) -f -r obj
+	$(RM) -f config.status config.log
 
 flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
@@ -472,8 +485,8 @@ flags: obj
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 
 osdep:
-	rgrep -r MSDOS advance
-	rgrep -r WIN32 advance
+	rgrep -r MSDOS $(srcdir)/advance
+	rgrep -r WIN32 $(srcdir)/advance
 
 costadvance:
 	sloccount advance/blit advance/card advance/cfg advance/common \

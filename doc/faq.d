@@ -1,4 +1,6 @@
-FAQ
+Name
+	faq - The Advance FAQ
+
 	This is a collection of Frequently Asked Questions.
 
 	The FAQ is organized in the following chapters :
@@ -14,7 +16,7 @@ AdvanceMAME FAQ
 	<empty>
 
 AdvanceMENU FAQ
-    Can I use AdvanceMENU to list my MP3 and MNG collection ?
+  Can I use AdvanceMENU to list my MP3 and MNG collection ?
 	Yes. You can create a fake emulator to play all your music
 	and video clips. Add the following options in your
 	advmenu.rc :
@@ -29,46 +31,46 @@ AdvanceMENU FAQ
 	:emulator_roms "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms_filter "mp3" "*.mp3"
 
-DOS CONFIGURATION FAQ
-    What's the best configuration in PURE DOS ?
+DOS Configuration FAQ
+  What's the best configuration in PURE DOS ?
 	My favourite choice is to use HIMEM, EMM386 and a little
 	cache with SMARTDRV.
 
-	CONFIG.SYS
+	In CONFIG.SYS:
 		:dos=high
 		:device=C:\DOS\W98\HIMEM.SYS
 		:device=C:\DOS\EMM386.EXE NOEMS NOVCPI
 
-	AUTOEXEC.BAT
+	In AUTOEXEC.BAT:
 		:smartdrv 512
 
-    Why can I use only 32M of RAM ? I have more RAM.
+  Why can I use only 32M of RAM ? I have more RAM.
 	Start the EMM386.EXE device in your CONFIG.SYS with the
 	"NOEMS NOVCPI" arguments.
 
-    Why can I use only 64M of RAM ? I have more RAM.
+  Why can I use only 64M of RAM ? I have more RAM.
 	Don't use the DOS 6.22 version of the HIMEM.SYS device. Use a
 	newer version, the Windows 98 version works good. You don't
 	need to upgrade your DOS, simply copy the newer HIMEM.SYS
 	from a Windows 98 installation.
 
-    Which is the minimum memory requirement ?
+  Which is the minimum memory requirement ?
 	With 64 MB of memory you are able to play all the games.
 	At least in PURE DOS with CWSDPMI 5 with a lot of virtual
 	memory.
 
-    Which is the maximum memory required ?
+  Which is the maximum memory required ?
 	With 128 MB you should be able to play all the games without
 	any big speed loss. For the bigger games you may need 512
 	MB of virtual memory.
 
-    How can I use two mouse ?
+  How can I use two mouse ?
 	To use the second mouse support you need the mouse driver
 	in the contrib/optimous directory. It's also present
 	a short text instruction file.
 
-LINUX CONFIGURATION FAQ
-    How can I load the svgalib_helper.o kernel module automatically ?
+Linux Configuration FAQ
+  How can I load the svgalib_helper.o kernel module automatically ?
 	Insert this line :
 
 		:alias char-major-209 svgalib_helper
@@ -80,21 +82,22 @@ LINUX CONFIGURATION FAQ
 	After that the module is loaded automatically every time is
 	needed.
 
-    On scrolling games I see a missing frame every 5/10 seconds, also
-    with vsync enabled. How can I fix it ?
+  On scrolling games I see a missing frame every 5/10 seconds, also
+  with vsync enabled. How can I fix it ?
 	Try disabling the joystick use with the `device_joystick none'
-	option.
+	option, or upgrade at the svgalib 1.9.16 library which supports
+	for some boards the vsync IRQ.
 
-VIDEO CONFIGURATION FAQ
-    On vertical scrolling games I see a slow moving horizontal
-    defects on the image. How can I remove it ?
+Video Configuration FAQ
+  On vertical scrolling games I see a slow moving horizontal
+  defects on the image. How can I remove it ?
 	This happen when AdvaceMAME select a video mode with a
 	vertical frequency equal at the refresh rate of the game
 	emulated. The defect is caused by a small difference of the
 	two frequencies. The solution is to enable the
 	"display_vsync" option.
 
-   How can I enable the DGA extension ?
+  How can I enable the DGA extension ?
 	Ensure that in your XF86Config file the line :
 
 		:Option    "omit xfree86-dga"
@@ -104,9 +107,9 @@ VIDEO CONFIGURATION FAQ
 
 		:man dga
 
-LICENSE FAQ
-    Why SourceForge accepted the AdvanceMAME project and not the
-    xmame project ?
+License FAQ
+  Why SourceForge accepted the AdvanceMAME project and not the
+  xmame project ?
 	SourceForge accepts only Open Source licenses.
 
 	The source distribution of AdvanceMAME is released with
@@ -117,7 +120,7 @@ LICENSE FAQ
 	The MAME License isn't an Open Source license as defined
 	on http://www.opensource.org. So, it was rejected.
 
-    AdvanceMAME contains MAME ?
+  AdvanceMAME contains MAME ?
 	No. The AdvanceMAME source distribution doesn't contain
 	the MAME sources.
 
@@ -125,7 +128,7 @@ LICENSE FAQ
 	sources. And you also need the Allegro, SEAL and zlib
 	sources.
 
-    Which is the license of the AdvanceMAME source ?
+  Which is the license of the AdvanceMAME source ?
 	The AdvanceMAME project is released under the GPL license.
 
 	In addition you have some extra rights granted by a special
@@ -141,7 +144,8 @@ LICENSE FAQ
 	A GPL or a GPL + exception. You have all the rights of the
 	GPL, and, if you want, plus some others.
 
-    Why the AdvanceMAME license is called GPL if it's different than the GPL ?
+  Why the AdvanceMAME license is called GPL if it's different
+  than the GPL ?
 	The GPL license used by AdvanceMAME isn't modified in any
 	way.
 
@@ -166,23 +170,26 @@ LICENSE FAQ
 	Which explicitly claims that the program with the license
 	exception is still GPL.
 
-    Does the MAME license allow linking the MAME source with a GPL source ?
+  Does the MAME license allow linking the MAME source with
+  a GPL source ?
 	Yes. The only requirement of the MAME License for the
 	derivative works is the whole source availability.
 	With the GPL you have it.
 	Obviously this assuming that the MAME License isn't changed
 	and keeps its complete validity.
 
-    Does the GPL license allow to link a GPL source with a MAME source ?
+  Does the GPL license allow to link a GPL source with a
+  MAME source ?
 	No. The GPL license requires that the whole program be
 	released with the GPL license or with a GPL compatible
 	license. The MAME License isn't a GPL compatible license.
 
-    Does the GPL license + exception allow linking a
-    GPL + exception source with a MAME source ?
+  Does the GPL license + exception allow linking a
+  GPL + exception source with a MAME source ?
 	Yes. The license exception specifically allows it.
 
-    The license exception say "MAME library". Is MAME a library or a program ?
+  The license exception say "MAME library". Is MAME a library or
+  a program ?
 	AdvanceMAME uses only the internal MAME core, which is
 	effectively a library.  For example MESS is distributed with
 	the MAME core as a DLL (Dynamic Linked Library) and two
@@ -191,11 +198,11 @@ LICENSE FAQ
 	Anyway, calling a software program or library doesn't change
 	his license.
 
-    The GPL FAQ say: "Combining two modules means connecting
-    them together so that they form a single larger program. If
-    either part is covered by the GPL, the whole combination must
-    also be released under the GPL--if you can't, or won't, do
-    that, you may not combine them.". Is it true ?
+  The GPL FAQ say: "Combining two modules means connecting
+  them together so that they form a single larger program. If
+  either part is covered by the GPL, the whole combination must
+  also be released under the GPL--if you can't, or won't, do
+  that, you may not combine them.". Is it true ?
 	Yes. But the GPL FAQ speak of a generic GPL program without
 	any exception.
 
@@ -212,17 +219,17 @@ LICENSE FAQ
 	the users. So, the users can do things not generally
 	permitted by the simple GPL license.
 
-    Which is the license of the AdvanceMAME binary ?
+  Which is the license of the AdvanceMAME binary ?
 	The AdvanceMAME DOS binary contains source from AdvanceMAME,
 	MAME, Allegro, SEAL, svgalib and zlib. You must follow ALL
 	these licenses when you use the binary. So, you can do with
 	it only things allowed by ALL these licenses.
 
-    Can I sell the AdvanceMAME binary present on the web site ?
+  Can I sell the AdvanceMAME binary present on the web site ?
 	No. The AdvanceMAME binary contains compiled MAME source and
 	the "MAME License" proibits selling.
 
-    Who is the copyright holder of AdvanceMAME ?
+  Who is the copyright holder of AdvanceMAME ?
 	Andrea Mazzoleni is the copyright holder of AdvanceMAME.
 
 	Some source and documentation files are also under the
@@ -234,8 +241,8 @@ GPL FAQ
 
 		http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs
 
-    I am writing free software that uses non-free libraries.
-    What legal issues come up if I use the GPL?
+  I am writing free software that uses non-free libraries.
+  What legal issues come up if I use the GPL?
 
 	If the libraries that you link with falls within the
 	following exception in the GPL:
@@ -298,6 +305,6 @@ GPL FAQ
 
 	Adding this exception eliminates the legal issue, ...
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

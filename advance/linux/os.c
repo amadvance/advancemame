@@ -593,6 +593,11 @@ int os_is_term(void) {
 	return OS.is_term;
 }
 
+/**
+ * Print the stack backtrace.
+ * The programm need to be compiled without CFLAGS=-fomit-frame-pointer and with
+ * LDFLAGS=-rdynamic
+ */
 static void os_backtrace(void) {
 	void* buffer[256];
 	char** symbols;
@@ -600,9 +605,15 @@ static void os_backtrace(void) {
 	int i;
 	size = backtrace(buffer,256);
 	symbols = backtrace_symbols(buffer,size);
-	printf("Stack backtrace:\n");
-	for(i=0;i<size;++i)
-		printf("%s\n", symbols[i]);
+
+	if (size > 1) {
+		printf("Stack backtrace:\n");
+		for(i=0;i<size;++i)
+			printf("%s\n", symbols[i]);
+	} else {
+		printf("No stack backtrace: compile without CFLAGS=-fomit-frame-pointer and with LDFLAGS=-rdynamic\n");
+	}
+
 	free(symbols);
 }
 

@@ -1,10 +1,10 @@
-NAME
+Name
 	vbe - VBE mode remapper
 
-SYNOPSYS
+Synopsys
 	:vbe [/l] [/u] [/c CONFIG]
 
-DESCRIPTION
+Description
 	The `vbe' utility is a TSR (Terminate Stay Resident) VBE BIOS
 	wrapper that substitutes the default list of VBE video modes
 	with a list of the favourite modes which work best with your
@@ -32,7 +32,7 @@ DESCRIPTION
 	to create the list of available VBE mode. For every modeline
 	three VBE modes with 8, 15, 16 bits are added.
 
-OPTIONS
+Options
 	These are the command line options supported:
 
 	/l
@@ -44,7 +44,7 @@ OPTIONS
 	/c CONFIG
 		Use an arbitary configuration file
 
-CARDS SUPPORTED
+Cards
 	This is the list of all the supported cards with the vbeline
 	driver that support them.
 	Some of these drivers require that you prevently load the
@@ -87,7 +87,7 @@ CARDS SUPPORTED
 		compatible at registers level. Generally a recent board
 		should have a VBE3 BIOS.
 
-LIMITATIONS
+Limitations
 	AdvanceVBE isn't a complete VBE 2.0 bios. It requires an
 	existing and working VBE BIOS. Specifically you can get the
 	VBE 2.0 services, like the linear frame buffer, only if the
@@ -97,7 +97,7 @@ LIMITATIONS
 
 	The 24 and 32 bit depths are not supported.
 
-APPLICATION PROBLEMS
+Application Problems
 	Some applications are able to use only some common resolutions
 	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
 	may be completly ignored.
@@ -106,7 +106,7 @@ APPLICATION PROBLEMS
 	VBE modes contains duplicate resolutions or is too big.
 	Add only the best modelines and avoid duplicates.
 
-USE IN WINDOWS
+Use In Windows
 	The `vbe' utility is tested and working in Windows 98 with
 	a S3 board. You should only load the SDD utility (if required)
 	and the `vbe' utility in the `autoexec.bat'.
@@ -117,13 +117,13 @@ USE IN WINDOWS
 	Windows notices only the video modes of size 640x480,
 	800x600, 1024x768 and 1280x1024. Any other mode is ignored.
 
-TESTS
+Tests
 	Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy)
 	Duke Nukem 3D with the `s3' driver
 	Quake 1.0 with the `s3' driver
 	Windows 98 SE with the `s3' driver
 
-EXAMPLES
+Examples
 	Load it:
 
 		:vbe /l
@@ -143,12 +143,12 @@ EXAMPLES
 	For example :
 		:device_video vbeline/vbe3
 
-BUGS
+Bugs
 	The configuration file is checked only for the
 	`device_video_modeline' and `device_video' options.
 	All the other options are ignored. Also the `device_vbeline_*'
 	are not read.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

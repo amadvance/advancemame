@@ -2,11 +2,11 @@
 # EMU Target and System
 
 SYSTEMCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/osd \
-	-Iadvance/lib \
-	-Iadvance/common \
-	-Iadvance/blit
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/osd \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/common \
+	-I$(srcdir)/advance/blit
 
 OBJDIRS += \
 	$(OBJ) \
@@ -43,11 +43,11 @@ endif
 ifeq ($(CONF_SYSTEM),dos)
 SYSTEMCFLAGS += \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
-	-Iadvance/card \
-	-Iadvance/svgalib \
-	-Iadvance/svgalib/clockchi \
-	-Iadvance/svgalib/ramdac \
-	-Iadvance/svgalib/drivers
+	-I$(srcdir)/advance/card \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers
 SYSTEMCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE
@@ -177,8 +177,8 @@ EMUCFLAGS += \
 	-DM_PI=3.1415927
 endif
 
-EMUCFLAGS += -Iadvance/osd
-M68000FLAGS += -Iadvance/osd
+EMUCFLAGS += -I$(srcdir)/advance/osd
+M68000FLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
 	$(OBJ)/advance/osd/advance.o \
@@ -219,15 +219,15 @@ EMUOBJS += \
 
 EMULIBS += $(ZLIBS)
 
-$(OBJ)/advance/osd/%.o: advance/osd/%.c
+$(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) -c $< -o $@
 
-$(OBJ)/advance/%.o: advance/%.c
+$(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG) 
 	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
-$(OBJ)/advance/%.o: advance/%.rc
+$(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
 
@@ -252,12 +252,13 @@ EMUCFLAGS += -DMSB_FIRST
 M68000FLAGS += -DMSB_FIRST
 endif
 
+# TODO A che serve -I. ???
 EMUCFLAGS += \
 	-I. \
 	-I$(EMUSRC)
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += \
-	-Imess \
+	-I$(srcdir)/mess \
 	-DUNIX
 # -DUNIX is required by the MESS source
 endif
@@ -276,9 +277,9 @@ endif
 
 ifeq ($(CONF_EMU),mess)
 include $(EMUSRC)/core.mak
-include mess/$(CONF_EMU).mak
+include $(srcdir)/mess/$(CONF_EMU).mak
 include $(EMUSRC)/rules.mak
-include mess/rules_ms.mak
+include $(srcdir)/mess/rules_ms.mak
 else
 include $(EMUSRC)/core.mak
 include $(EMUSRC)/$(CONF_EMU).mak
@@ -331,7 +332,7 @@ M68000FLAGS += \
 	-I$(EMUSRC)
 ifeq ($(CONF_EMU),mess)
 M68000FLAGS += \
-	-Imess
+	-I$(srcdir)/mess
 endif
 
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
@@ -342,13 +343,13 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) $(EMUNAME)$(EXE)
-	$(LN) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
+	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
-$(OBJ)/mess/%.o: mess/%.c
+$(OBJ)/mess/%.o: $(srcdir)/mess/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
@@ -398,135 +399,126 @@ $(sort $(OBJDIRS)):
 ############################################################################
 # EMU diff
 
-advance/advmame.dif: src src.ori
-	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" -x "driver.c" src.ori src > advance/advmame.dif
-	ls -l advance/advmame.dif
+$(srcdir)/advance/advmame.dif: $(srcdir)/src $(srcdir)/src.ori
+	find $(srcdir)/src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/src.ori $(srcdir)/src > $(srcdir)/advance/advmame.dif
+	ls -l $(srcdir)/advance/advmame.dif
 
-advance/advpac.dif: srcpac srcpac.ori
-	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcpac.ori srcpac > advance/advpac.dif
-	ls -l advance/advpac.dif
+$(srcdir)/advance/advpac.dif: $(srcdir)/srcpac $(srcdir)/srcpac.ori
+	find $(srcdir)/srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/srcpac.ori $(srcdir)/srcpac > $(srcdir)/advance/advpac.dif
+	ls -l $(srcdir)/advance/advpac.dif
 
-advance/advmess.dif: srcmess srcmess.ori
-	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcmess.ori srcmess > advance/advmess.dif
-	ls -l advance/advmess.dif
+$(srcdir)/advance/advmess.dif: $(srcdir)/srcmess $(srcdir)/srcmess.ori
+	find $(srcdir)/srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/srcmess.ori $(srcdir)/srcmess > $(srcdir)/advance/advmess.dif
+	ls -l $(srcdir)/advance/advmess.dif
 
 ############################################################################
 # EMU dist
 
 EMU_ROOT_SRC = \
-	Makefile.in \
-	config.guess \
-	config.status \
-	config.sub \
-	configure \
-	configure.ac \
-	configure.msdos \
-	configure.windows \
-	install-sh \
-	mkinstalldirs
+	$(CONF_BIN)
 
 EMU_ADVANCE_SRC = \
-	advance/advance.mak \
-	advance/v.mak \
-	advance/cfg.mak \
-	advance/k.mak \
-	advance/s.mak \
-	advance/j.mak \
-	advance/m.mak \
-	advance/line.mak \
-	advance/d2.mak
+	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/v.mak \
+	$(srcdir)/advance/cfg.mak \
+	$(srcdir)/advance/k.mak \
+	$(srcdir)/advance/s.mak \
+	$(srcdir)/advance/j.mak \
+	$(srcdir)/advance/m.mak \
+	$(srcdir)/advance/line.mak \
+	$(srcdir)/advance/d2.mak
 
 ifeq ($(CONF_EMU),mess)
-EMU_ADVANCE_SRC += advance/advmess.dif
+EMU_ADVANCE_SRC += $(srcdir)/advance/advmess.dif
 else
 ifeq ($(CONF_EMU),pac)
-EMU_ADVANCE_SRC += advance/advpac.dif
+EMU_ADVANCE_SRC += $(srcdir)/advance/advpac.dif
 else
-EMU_ADVANCE_SRC += advance/advmame.dif
+EMU_ADVANCE_SRC += $(srcdir)/advance/advmame.dif
 endif
 endif
 
 EMU_CONTRIB_SRC = \
-	$(wildcard contrib/mame/*)
+	$(wildcard $(srcdir)/contrib/mame/*)
 
 EMU_SUPPORT_SRC = \
 	$(RCSRC) \
-	support/safequit.dat
+	$(srcdir)/support/safequit.dat
 
 EMU_DOC_SRC = \
-	doc/copying \
-	doc/advmame.d \
-	doc/license.d \
-	doc/authors.d \
-	doc/script.d \
-	doc/reademu.d \
-	doc/releemu.d \
-	doc/histemu.d \
-	doc/faq.d \
-	doc/tips.d \
-	doc/build.d \
-	doc/advv.d \
-	doc/advcfg.d \
-	doc/advk.d \
-	doc/advs.d \
-	doc/advj.d \
-	doc/advm.d \
-	doc/advline.d \
-	doc/card.d \
-	doc/install.d
+	$(srcdir)/doc/copying \
+	$(srcdir)/doc/advmame.d \
+	$(srcdir)/doc/license.d \
+	$(srcdir)/doc/authors.d \
+	$(srcdir)/doc/script.d \
+	$(srcdir)/doc/reademu.d \
+	$(srcdir)/doc/releemu.d \
+	$(srcdir)/doc/histemu.d \
+	$(srcdir)/doc/faq.d \
+	$(srcdir)/doc/tips.d \
+	$(srcdir)/doc/build.d \
+	$(srcdir)/doc/advv.d \
+	$(srcdir)/doc/advcfg.d \
+	$(srcdir)/doc/advk.d \
+	$(srcdir)/doc/advs.d \
+	$(srcdir)/doc/advj.d \
+	$(srcdir)/doc/advm.d \
+	$(srcdir)/doc/advline.d \
+	$(srcdir)/doc/card.d \
+	$(srcdir)/doc/install.d
 
 EMU_DOC_BIN = \
-	doc/copying \
-	$(D2OBJ)/license.txt \
-	$(D2OBJ)/advmame.txt \
-	$(D2OBJ)/build.txt \
-	$(D2OBJ)/authors.txt \
-	$(D2OBJ)/script.txt \
-	$(D2OBJ)/reademu.txt \
-	$(D2OBJ)/releemu.txt \
-	$(D2OBJ)/histemu.txt \
-	$(D2OBJ)/faq.txt \
-	$(D2OBJ)/tips.txt \
-	$(D2OBJ)/license.html \
-	$(D2OBJ)/advmame.html \
-	$(D2OBJ)/build.html \
-	$(D2OBJ)/authors.html \
-	$(D2OBJ)/script.html \
-	$(D2OBJ)/reademu.html \
-	$(D2OBJ)/releemu.html \
-	$(D2OBJ)/histemu.html \
-	$(D2OBJ)/faq.html \
-	$(D2OBJ)/tips.html
+	$(srcdir)/doc/copying \
+	$(DOCOBJ)/license.txt \
+	$(DOCOBJ)/advmame.txt \
+	$(DOCOBJ)/build.txt \
+	$(DOCOBJ)/authors.txt \
+	$(DOCOBJ)/script.txt \
+	$(DOCOBJ)/reademu.txt \
+	$(DOCOBJ)/releemu.txt \
+	$(DOCOBJ)/histemu.txt \
+	$(DOCOBJ)/faq.txt \
+	$(DOCOBJ)/tips.txt \
+	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/advmame.html \
+	$(DOCOBJ)/build.html \
+	$(DOCOBJ)/authors.html \
+	$(DOCOBJ)/script.html \
+	$(DOCOBJ)/reademu.html \
+	$(DOCOBJ)/releemu.html \
+	$(DOCOBJ)/histemu.html \
+	$(DOCOBJ)/faq.html \
+	$(DOCOBJ)/tips.html
 ifneq ($(CONF_HOST),sdl)
 EMU_DOC_BIN += \
-	$(D2OBJ)/advv.txt \
-	$(D2OBJ)/advcfg.txt \
-	$(D2OBJ)/advk.txt \
-	$(D2OBJ)/advs.txt \
-	$(D2OBJ)/advj.txt \
-	$(D2OBJ)/advm.txt \
-	$(D2OBJ)/card.txt \
-	$(D2OBJ)/install.txt \
-	$(D2OBJ)/advv.html \
-	$(D2OBJ)/advcfg.html \
-	$(D2OBJ)/advk.html \
-	$(D2OBJ)/advs.html \
-	$(D2OBJ)/advj.html \
-	$(D2OBJ)/advm.html \
-	$(D2OBJ)/card.html \
-	$(D2OBJ)/install.html
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/advcfg.txt \
+	$(DOCOBJ)/advk.txt \
+	$(DOCOBJ)/advs.txt \
+	$(DOCOBJ)/advj.txt \
+	$(DOCOBJ)/advm.txt \
+	$(DOCOBJ)/card.txt \
+	$(DOCOBJ)/install.txt \
+	$(DOCOBJ)/advv.html \
+	$(DOCOBJ)/advcfg.html \
+	$(DOCOBJ)/advk.html \
+	$(DOCOBJ)/advs.html \
+	$(DOCOBJ)/advj.html \
+	$(DOCOBJ)/advm.html \
+	$(DOCOBJ)/card.html \
+	$(DOCOBJ)/install.html
 endif
 
 EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
-	support/safequit.dat
+	$(srcdir)/support/safequit.dat
 ifeq ($(CONF_SYSTEM),linux)
 EMU_ROOT_BIN += \
-	$(D2OBJ)/advmame.1 \
-	$(wildcard support/confbin/*)
+	$(DOCOBJ)/advmame.1 \
+	$(CONF_SRC)
 endif
 ifneq ($(CONF_SYSTEM),sdl)
 EMU_ROOT_BIN += \
@@ -538,26 +530,26 @@ EMU_ROOT_BIN += \
 	$(MOBJ)/advm$(EXE)
 ifeq ($(CONF_SYSTEM),linux)
 EMU_ROOT_BIN += \
-	$(D2OBJ)/advv.1 \
-	$(D2OBJ)/advcfg.1 \
-	$(D2OBJ)/advk.1 \
-	$(D2OBJ)/advs.1 \
-	$(D2OBJ)/advj.1 \
-	$(D2OBJ)/advm.1
+	$(DOCOBJ)/advv.1 \
+	$(DOCOBJ)/advcfg.1 \
+	$(DOCOBJ)/advk.1 \
+	$(DOCOBJ)/advs.1 \
+	$(DOCOBJ)/advj.1 \
+	$(DOCOBJ)/advm.1
 endif
 endif
 
 ifeq ($(CONF_EMU),mess)
 ifeq ($(CONF_HOST),dos)
-EMU_ROOT_BIN += support/advmessv.bat support/advmessc.bat
+EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
-EMU_DOC_SRC += support/advmessv.bat support/advmessc.bat
+EMU_DOC_SRC += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 ifeq ($(CONF_EMU),pac)
 ifeq ($(CONF_HOST),dos)
-EMU_ROOT_BIN += support/advpacv.bat support/advpacc.bat
+EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
-EMU_DOC_SRC += support/advpacv.bat support/advpacc.bat
+EMU_DOC_SRC += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 
 EMU_DISTFILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
@@ -571,12 +563,12 @@ EMU_DIST_DIR_SRC = $(EMU_DISTFILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DISTFILE_BIN)
 endif
 
-dist: $(RCSRC) $(D2OBJ)/reademu.txt $(D2OBJ)/releemu.txt $(D2OBJ)/histemu.txt $(D2OBJ)/build.txt
+dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
-	cp $(D2OBJ)/reademu.txt $(EMU_DIST_DIR_SRC)/README
-	cp $(D2OBJ)/releemu.txt $(EMU_DIST_DIR_SRC)/RELEASE
-	cp $(D2OBJ)/histemu.txt $(EMU_DIST_DIR_SRC)/HISTORY
-	cp $(D2OBJ)/build.txt $(EMU_DIST_DIR_SRC)/BUILD
+	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_SRC)/README
+	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_SRC)/RELEASE
+	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_SRC)/HISTORY
+	cp $(DOCOBJ)/build.txt $(EMU_DIST_DIR_SRC)/BUILD
 	cp $(EMU_ROOT_SRC) $(EMU_DIST_DIR_SRC)
 	mkdir $(EMU_DIST_DIR_SRC)/doc
 	cp $(EMU_DOC_SRC) $(EMU_DIST_DIR_SRC)/doc
@@ -636,13 +628,13 @@ dist: $(RCSRC) $(D2OBJ)/reademu.txt $(D2OBJ)/releemu.txt $(D2OBJ)/histemu.txt $(
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)
 ifeq ($(CONF_HOST),linux)
-	cp $(D2OBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
-	cp $(D2OBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
-	cp $(D2OBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
+	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
+	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
+	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
 else
-	cp $(D2OBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/readme.txt
-	cp $(D2OBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/release.txt
-	cp $(D2OBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/history.txt
+	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/readme.txt
+	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/history.txt
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)/doc

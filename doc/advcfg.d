@@ -1,11 +1,11 @@
-NAME
+Name
 	advcfg - The AdvanceCFG Automatic Configurator
 
-SYNOPSYS
+Synopsys
 	:advcfg [-advmamec] [-advmessc] [-advpacc] [-advmenuc]
 	:	[-log] [-logsync] [-rc RCFILE] [-bit N]
 
-DESCRIPTION
+Description
 	The `advcfg' utility is the automatic video configuration
 	program for AdvanceMAME, AdvanceMESS, AdvancePAC and
 	AdvanceMENU.
@@ -16,7 +16,7 @@ DESCRIPTION
 	file used to store the video modes. Respectively they
 	are `advmame.rc', `advmess.rc', `advpac.rc' and `advmenu.rc'.
 
-OPTIONS
+Options
 	-rc RCFILE
 		Specify an alternate name of the configuration file.
 
@@ -38,6 +38,6 @@ OPTIONS
 		Select the bit depth of the test video modes.
 		If omitted the 8 bit modes are used.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

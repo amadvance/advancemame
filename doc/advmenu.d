@@ -1,10 +1,10 @@
-NAME
+Name
 	advmenu - The AdvanceMENU Frontend
 
-SYNOPSYS
+Synopsys
 	:advmenu [-default] [-remove] [-log] [-logsync]
 
-DESCRIPTION
+Description
 	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
 	AdvanceMESS, AdvancePAC, MAME, MESS, RAINE and other emulators.
 
@@ -34,7 +34,7 @@ DESCRIPTION
 	* Support for zipped images and sounds archives.
 	* Screensaver. A slide show of the game images.
 
-OPTIONS
+Options
 	-default
 		Add to the configuration file all the missing options
 		with default values.
@@ -55,7 +55,7 @@ OPTIONS
 	-verbose
 		Print some startup information.
 
-EMULATORS
+Emulators
 	The program supports many type of emulators. The emulators
 	AdvanceMAME, AdvancePAC, AdvanceMESS, MAME, XMAME, DMAME,
 	DMESS and DRAINE are directly supported  and the only thing
@@ -65,7 +65,7 @@ EMULATORS
 	All the other emulators are supported with the emulator
 	type `generic'.
 
-    generic
+  generic
 	For the `generic' emulator no additional rom information is
 	needed. Only the name and the size of the rom files are used.
 
@@ -97,7 +97,7 @@ EMULATORS
 	All the snapshots are searched in the directories specified with
 	the `emulator_*' options using the same name of the rom file.
 
-    advmame (The AdvanceMAME emulator)
+  advmame (The AdvanceMAME emulator)
 	For the `advmame' emulator type the roms informations are
 	gathered from the file `ENUNAME.lst'. If this file doesn't
 	exist, it's created automatically with emulator `-listinfo'
@@ -113,12 +113,12 @@ EMULATORS
 	The directories specified in `dir_snap', `dir_cfg' are used to
 	detect the list of available snapshots and .cfg files.
 
-    advpac (The AdvancePAC emulator)
+  advpac (The AdvancePAC emulator)
 	Exactly like the `advmame' emulator type with the exception
 	of the use of the `advpac.rc' configuration file instead of
 	`advmame.rc'.
 
-    advmess (The AdvanceMESS emulator)
+  advmess (The AdvanceMESS emulator)
 	For the `advmess' emulator the rom information is gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist,
 	it's created automatically with emulator `-listinfo' command.
@@ -161,7 +161,7 @@ EMULATORS
 	AdvanceMENU the file is moved automatically to
 	`snap\ti99_4a\alpiner.png'.
 
-    mame (The Windows version of the MAME emulator)
+  mame (The Windows version of the MAME emulator)
 	For the `mame' emulator the roms information is gathered from
 	the file `EMUNAME.lst'. If this file doesn't exist, it's created
 	automatically with emulator `-listinfo' command.
@@ -173,7 +173,7 @@ EMULATORS
 	The directories specified in `snap_directory', `cfg_directory' are
 	used to detect the list of available snapshots and MAME .cfg files.
 
-    xmame (The Unix version of the MAME emulator)
+  xmame (The Unix version of the MAME emulator)
 	For the `xmame' emulator the roms informations are gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-listinfo' command.
@@ -187,7 +187,7 @@ EMULATORS
 	The MAME cfg files are assumed to be in the `HOME/.xmame/cfg'
 	directory.
 
-    dmame (The DOS version of the MAME emulator)
+  dmame (The DOS version of the MAME emulator)
 	For the `dmame' emulator the roms informations are gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-listinfo' command.
@@ -199,7 +199,7 @@ EMULATORS
 	The directories specified in `snap', `cfg' are used to
 	detect the list of available snapshots and MAME .cfg files.
 
-    dmess (The DOS version of the MESS emulator)
+  dmess (The DOS version of the MESS emulator)
 	For the `dmess' emulator the roms informations are gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-listinfo' command.
@@ -230,7 +230,7 @@ EMULATORS
 	adding it on the same line of the alias after the comment char
 	'#' using this format :
 
-		:ALIAS = ALIAS_DEF # DESCRIPTION | YEAR | MANUFACTURER
+		:ALIAS = ALIAS_DEF # Description | YEAR | MANUFACTURER
 
 	For example:
 		:[ti99_4a]
@@ -245,7 +245,7 @@ EMULATORS
 	AdvanceMENU the file is moved automatically to
 	`snap\ti99_4a\alpiner.png'.
 
-    draine (The DOS version of the Raine emulator)
+  draine (The DOS version of the Raine emulator)
 	For the `draine' emulator the roms informations are gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-gameinfo' command.
@@ -256,7 +256,7 @@ EMULATORS
 	The directory specified in `screenshots' is used to detect the
 	list of available snapshots.
 
-CONFIGURATION
+Configuration
 	The file `advmenu.rc' is used to save the current state of the
 	frontend. It's read at startup and saved at exit. You can
 	prevent the automatic save at the exit with the `config' option.
@@ -284,8 +284,7 @@ CONFIGURATION
 	multidirectory separator is ';'. In Linux the directory name
 	separator is '/' and the multidirectory separator is ':'.
 
-GLOBAL CONFIGURATION OPTIONS
-
+  Global Configuration Options
     config
 	This option selects if and when the configuration modified by
 	the user at runtime should be saved.
@@ -366,14 +365,14 @@ GLOBAL CONFIGURATION OPTIONS
 	sounds files are also searched also in any `.zip' file present
 	in these directories.
 
-	:emulator_roms "NAME" "LIST"
-	:emulator_roms_filter "NAME" "LIST"
-	:emulator_altss "NAME" "LIST"
-	:emulator_flyers "NAME" "LIST"
-	:emulator_cabinets "NAME" "LIST"
-	:emulator_marquees "NAME" "LIST"
-	:emulator_icons "NAME" "LIST"
-	:emulator_titles "NAME" "LIST"
+	:emulator_roms "Name" "LIST"
+	:emulator_roms_filter "Name" "LIST"
+	:emulator_altss "Name" "LIST"
+	:emulator_flyers "Name" "LIST"
+	:emulator_cabinets "Name" "LIST"
+	:emulator_marquees "Name" "LIST"
+	:emulator_icons "Name" "LIST"
+	:emulator_titles "Name" "LIST"
 
 	Commands:
 		roms - List of directories used for the roms. This
@@ -392,7 +391,7 @@ GLOBAL CONFIGURATION OPTIONS
 		titles - Titles directory.
 
 	Options:
-		NAME - The name for the emulator. Must be the same
+		Name - The name for the emulator. Must be the same
 			name of a defined emulator
 		LIST - List of directories or patterns separated by `;'
 
@@ -480,7 +479,7 @@ GLOBAL CONFIGURATION OPTIONS
 		FACTOR - Expansion float factor from 1.0 to 3.0
 			(default 1.15)
 
-	Example:
+	Examples:
 		:preview_expand 1.15
 
     preview_default_*
@@ -540,7 +539,7 @@ GLOBAL CONFIGURATION OPTIONS
 	files for any rom found. It's used to keep some game
 	imformation like the time and coins used.
 
-	:game "EMULATOR/GAME" "GROUP" "TYPE" TIME COIN "DESCRIPTION"
+	:game "EMULATOR/GAME" "GROUP" "TYPE" TIME COIN "Description"
 
 	Options:
 		EMULATOR - Name of the emulator.
@@ -550,19 +549,18 @@ GLOBAL CONFIGURATION OPTIONS
 		TYPE - Name of the type of the game or empty "".
 		TIME - Time played in seconds.
 		COIN - Coins used.
-		DESCRIPTION - User description or empty "".
+		Description - User description or empty "".
 
-	The GROUP, TYPE and DESCRIPTION argument overwrite any
+	The GROUP, TYPE and Description argument overwrite any
 	other value import with the `group_impot', `type_import',
 	and `desc_import' options. The imported values take effect
-	only if the GROUP, TYPE and DESCRIPTION are empty.
+	only if the GROUP, TYPE and Description are empty.
 
-	Example:
+	Examples:
 		:game "advmame/puckman" "Very Good" "Arcade" 1231 21 "Pac-Man Japanese"
 		:game "advmame/1943" "" "" 121 4 "1943 !!"
 
-VIDEO CONFIGURATION OPTIONS
-
+  Video Configuration Options
     device_*
 	All the `device_*' options defined in the `advv.txt' file can
 	be used.
@@ -611,7 +609,7 @@ VIDEO CONFIGURATION OPTIONS
 		mirror_y - Mirror in the vertical direction.
 		flip_xy - Swap the x and y axes.
 
-	Example:
+	Examples:
 		:video_orientation flip_xy mirror_x
 
     video_brightness
@@ -622,7 +620,7 @@ VIDEO CONFIGURATION OPTIONS
 	Options:
 		FACTOR - Brightness float factor (default 1.0).
 
-	Example:
+	Examples:
 		:video_brightness 0.9
 
     video_gamma
@@ -633,11 +631,10 @@ VIDEO CONFIGURATION OPTIONS
 	Options:
 		FACTOR - Gamma float factor (default 1.0).
 
-	Example:
+	Examples:
 		:video_gamma 0.9
 
-SOUND CONFIGURATION OPTIONS
-
+  Sound Configuration Options
     device_sound
 	Select the sound card model.
 
@@ -677,7 +674,7 @@ SOUND CONFIGURATION OPTIONS
 		VOLUME - The volume is an attenuation in dB. The dB is
 			a negative value from -20 to 0.
 
-	Example:
+	Examples:
 		:sound_volume -12
 
     sound_latency
@@ -760,11 +757,10 @@ SOUND CONFIGURATION OPTIONS
 	Options:
 		DIR - Directory for .mp3 and .wav files.
 
-	Example:
+	Examples:
 		:sound_background_loop_dir C:\MP3\POP;C:\MP3\ROCK
 
-INPUT CONFIGURATION OPTIONS
-
+  Input Configuration Options
     device_joystick
 	Enables or disables joystick support.
 
@@ -834,8 +830,7 @@ INPUT CONFIGURATION OPTIONS
 	Options:
 		STEP - Mouse/trackball position step (default 100).
 
-OTHER CONFIGURATION OPTIONS
-
+  Other Configuration Options
     idle_start
 	Automatically start a random game after some time of inactivity.
 	You can also configure the AdvanceMAME option `input_idleexit'
@@ -849,7 +844,7 @@ OTHER CONFIGURATION OPTIONS
 		REPEAT_TIMEOUT - Number of seconds to wait for the
 			next run. 0 means do nothing (default).
 
-	Example:
+	Examples:
 		:idle_start 400 60
 
     idle_screensaver
@@ -864,7 +859,7 @@ OTHER CONFIGURATION OPTIONS
 		REPEAT_TIMEOUT - Number of seconds to wait for the
 			next run. 0 means do nothing (default).
 
-	Example:
+	Examples:
 		:idle_screensaver 40 5
 
     idle_screensaver_preview
@@ -928,10 +923,10 @@ OTHER CONFIGURATION OPTIONS
 		:desc_import nms "raine" "raine.nms"
 
 	The CATLIST files can be downloaded at :
-		:http://www.mameworld.net/catlist/
+		http://www.mameworld.net/catlist/
 
 	The MacMAME files can downloaded at:
-		:http://www.tznet.com/cmader/categories.html
+		http://www.tznet.com/cmader/categories.html
 
     lock
 	Lock or Unlock the user interface. When locked, the user can
@@ -990,7 +985,7 @@ OTHER CONFIGURATION OPTIONS
 			lshift, rshift, lcontrol, rcontrol, lalt, ralt,
 			lwin, rwin, menu, scrlock, numlock, capslock.
 
-	Example:
+	Examples:
 		:event_assign menu 90 or 35
 		:	-> 90 or 35
 		:event_assign emulator 91 23 or not 21 33
@@ -1043,7 +1038,7 @@ OTHER CONFIGURATION OPTIONS
 		2 - Exit after two consecutive presses.
 		3 - Exit after three consecutive presses.
 
-	Example:
+	Examples:
 		:event_exit_press 3
 
     msg_run
@@ -1056,7 +1051,7 @@ OTHER CONFIGURATION OPTIONS
 	Options:
 		MESSAGE - Message to display
 
-	Example:
+	Examples:
 		:msg_run "Run game"
 
     color
@@ -1099,7 +1094,7 @@ OTHER CONFIGURATION OPTIONS
 
 	:misc_quiet yes | no
 
-FORMATS SUPPORTED
+Formats Supported
 	This is the list of the file formats supported by AdvanceMENU.
 
 	Images:
@@ -1125,6 +1120,6 @@ FORMATS SUPPORTED
 	Archives:
 		ZIP - The ZIP format.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Randy Schnedler.
 

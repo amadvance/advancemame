@@ -1,10 +1,10 @@
-NAME
+Name
 	advj - The AdvanceJOYSTICK Tester
 
-SYNOPSYS
+Synopsys
 	:advj [-device_joystick DEVICE]
 
-DESCRIPTION
+Description
 	The `advj' utility calibrates and tests the joystick.
 
 	The calibration data is not saved in the AdvanceMAME
@@ -14,6 +14,6 @@ DESCRIPTION
 	Check the `advmame.txt' file for the description of the
 	`device_joystick' option.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

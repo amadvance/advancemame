@@ -55,20 +55,20 @@ CAB_DOC_SRC = \
 
 CAB_DOC_BIN = \
 	doc/copying \
-	$(D2OBJ)/license.txt \
-	$(D2OBJ)/vbe.txt \
-	$(D2OBJ)/vga.txt \
-	$(D2OBJ)/video.txt \
-	$(D2OBJ)/off.txt \
-	$(D2OBJ)/portio.txt \
-	$(D2OBJ)/advv.txt \
-	$(D2OBJ)/license.html \
-	$(D2OBJ)/vbe.html \
-	$(D2OBJ)/vga.html \
-	$(D2OBJ)/video.html \
-	$(D2OBJ)/off.html \
-	$(D2OBJ)/portio.html \
-	$(D2OBJ)/advv.html \
+	$(DOCOBJ)/license.txt \
+	$(DOCOBJ)/vbe.txt \
+	$(DOCOBJ)/vga.txt \
+	$(DOCOBJ)/video.txt \
+	$(DOCOBJ)/off.txt \
+	$(DOCOBJ)/portio.txt \
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/vbe.html \
+	$(DOCOBJ)/vga.html \
+	$(DOCOBJ)/video.html \
+	$(DOCOBJ)/off.html \
+	$(DOCOBJ)/portio.html \
+	$(DOCOBJ)/advv.html \
 	$(RCSRC) \
 
 CAB_SUPPORT_SRC = \

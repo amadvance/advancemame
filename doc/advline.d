@@ -1,7 +1,7 @@
-NAME
+Name
 	advline - The AdvanceLINE generator
 
-SYNOPSYS
+Synopsys
 	:advline [/fh A,F,S,B] [/fv A,F,S,B]
 	:	[/p CLOCK] [/h CLOCK] [/v CLOCK] [WIDTHxHEIGHT]
 
@@ -9,7 +9,7 @@ SYNOPSYS
 	:	[/atari_vga] [/pal] [/ntsc] [/hp_vga] [/vga] [/svga60]
 	:	[/svga57]
 
-DESCRIPTION
+Description
 	This utility is a video modeline generator. 
 	The output of the execution is a valid list of video modes that 
 	you can use in your `cfg' files. 
@@ -32,7 +32,7 @@ DESCRIPTION
 	limits. The available changes are enabling the doublescan, enabling
 	the interlace and doubling the horizontal size.
 
-OPTIONS
+Options
 	/fh A,F,S,B
 		Select the horizontal format. You need specify the length
 		of the Active Display, Front Porch, Sync Pulse and
@@ -80,7 +80,7 @@ OPTIONS
 		Set the desidered video mode. If none is specified a
 		default set is generated.
 
-PREDEFINITE OPTIONS
+Predefinite Options
 	These options are a predefinite set of configurations:
 
 	/atari_standard
@@ -131,7 +131,7 @@ PREDEFINITE OPTIONS
 	Examples for SVGA mode 384x224 at 72 Hz:
 		:modeline /svga60 /v 72 384x224
 
-TIMINGS
+Timings
 	This is the colletions of video timings used by the
 	predefinite options.
 
@@ -227,7 +227,7 @@ TIMINGS
 
 	Pixel Clock 20.00 MHz
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 
 

@@ -1,15 +1,15 @@
-NAME
+Name
 	advm - The AdvanceMOUSE Tester
 
-SYNOPSYS
+Synopsys
 	:advm [-device_mouse DEVICE]
 
-DESCRIPTION
+Description
 	The `advm' utility tests the mouse.
 
 	Check the `advmame.txt' file for the description of the
 	`device_mouse' option.
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

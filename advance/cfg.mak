@@ -2,11 +2,11 @@
 # CFG
 
 CFGCFLAGS += \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/lib \
-	-Iadvance/blit \
-	-Iadvance/v \
-	-Iadvance/common
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/blit \
+	-I$(srcdir)/advance/v \
+	-I$(srcdir)/advance/common
 CFGOBJDIRS = \
 	$(CFGOBJ) \
 	$(CFGOBJ)/cfg \
@@ -39,7 +39,7 @@ CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
 	-DUSE_INPUT_SVGALIB \
-	-Iadvance/$(CONF_SYSTEM)
+	-I$(srcdir)/advance/$(CONF_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
 	$(CFGOBJ)/lib/filenix.o \
@@ -54,12 +54,12 @@ ifeq ($(CONF_SYSTEM),dos)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
-	-Iadvance/$(CONF_SYSTEM) \
-	-Iadvance/card \
-	-Iadvance/svgalib \
-	-Iadvance/svgalib/clockchi \
-	-Iadvance/svgalib/ramdac \
-	-Iadvance/svgalib/drivers
+	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/card \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers
 CFGLIBS = -lalleg
 CFGOBJS += \
 	$(CFGOBJ)/lib/filedos.o \
@@ -117,7 +117,7 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/svgalib/drivers
 endif
 
-$(CFGOBJ)/%.o: advance/%.c
+$(CFGOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(CFGCFLAGS) -c $< -o $@
 
@@ -133,4 +133,4 @@ ifeq ($(CONF_COMPRESS),yes)
 	$(TOUCH) $@
 endif
 	$(RM) advcfg$(EXE)
-	$(LN) $@ advcfg$(EXE)
+	$(LN_S) $@ advcfg$(EXE)

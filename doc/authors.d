@@ -1,7 +1,9 @@
-AUTHORS
+Name
+	authors - Authors
+
 	* Andrea Mazzoleni
 
-ACKNOWLEDGMENTS
+Acknowledgments
 	* Nick Bourdo
 	* Prophet of Retrogames
 	* Melanie Burns (Exodus3D)
@@ -12,7 +14,7 @@ ACKNOWLEDGMENTS
 	* Ian Patterson
 	* Randy Schnedler
 
-LIBRARIES
+Libraries
 	MAME - http://www.mame.net - Copyright Nicola Salmoria and the MAME Team
 	MESS - http://mess.emuverse.com - Copyright the MESS Team
 	PacMAME - http://www.mameworld.net/pacmame - Copyright bgr software

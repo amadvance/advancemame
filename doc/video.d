@@ -1,14 +1,14 @@
-NAME
+Name
 	video - Video control
 
-SYNOPSYS
+Synopsys
 	:video [/l PCXIMAGE] [/s MODE] [/e] [/d] [/r]
 
-DESCRIPTION
+Description
 	The `video' utility can be used to control the video
 	output of the PC in the early boot stage.
 
-OPTIONS
+Options
 	/l IMAGE
 		Load a PCX image. The image must be a PCX image
 		in the 320x200 8bit format. The image is displayed using
@@ -18,10 +18,10 @@ OPTIONS
 		Set an arbitrary video mode. The MODE is expressed as
 		an hexadecimal number.
 
-		The most common modes are:
-			1 - text mode 40x25 16 color
-			3 - text mode 80x25 16 color
-			13 - graphics mode 320x200 256 color
+	The most common modes are:
+		1 - Text mode 40x25 16 color.
+		3 - Text mode 80x25 16 color.
+		13 - Graphics mode 320x200 256 color.
 
 	/d
 		Disable the hardware video signal using the standard
@@ -34,19 +34,19 @@ OPTIONS
 		Reset the video board using the BIOS startup
 		function.
 
-EXAMPLE
+Examples
 	A good configuration for Arcade monitors/TVs may be:
 
-	(in config.sys)
+	In CONFIG.SYS:
 		:device=c:\cab\video.exe /l c:\cab\video.pcx
 		:device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 		:...other commands...
 
-	(in autoexec.bat)
+	In AUTOEXEC.BAT:
 		:...other commands...
 		:c:\cab\vga /e
 		:...final application...
 
-COPYRIGHT
+Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.
 
