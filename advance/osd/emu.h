@@ -34,6 +34,7 @@
 #include "glue.h"
 
 #include "os.h"
+#include "target.h"
 #include "file.h"
 #include "key.h"
 #include "conf.h"
@@ -282,8 +283,8 @@ struct advance_video_state_context {
 	/* Measure */
 	unsigned measure_counter; /**< Measure frame counter. */
 	adv_bool measure_flag; /**< Measure active flag. */
-	os_clock_t measure_start; /**< Start of the measure. */
-	os_clock_t measure_stop; /**< End of the measure. */
+	target_clock_t measure_start; /**< Start of the measure. */
+	target_clock_t measure_stop; /**< End of the measure. */
 
 	/* Turbo */
 	adv_bool turbo_flag; /**< Turbo speed is active flag. */
@@ -540,8 +541,8 @@ struct advance_input_config_context {
 
 struct advance_input_state_context {
 	/* Clock */
-	os_clock_t input_current_clock; /**< Current clock. */
-	os_clock_t input_idle_clock; /**< Clock of last input. */
+	target_clock_t input_current_clock; /**< Current clock. */
+	target_clock_t input_idle_clock; /**< Clock of last input. */
 
 	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
 	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
@@ -646,7 +647,7 @@ adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* opti
 /* Timer */
 static inline double advance_timer(void)
 {
-	return os_clock() / (double)OS_CLOCKS_PER_SEC;
+	return target_clock() / (double)TARGET_CLOCKS_PER_SEC;
 }
 
 #endif

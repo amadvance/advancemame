@@ -33,6 +33,8 @@
 #include "file.h"
 #include "portable.h"
 
+#include "allegro2.h"
+
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <process.h>
@@ -77,6 +79,23 @@ void target_idle(void)
 
 void target_usleep(unsigned us)
 {
+}
+
+/***************************************************************************/
+/* Clock */
+
+target_clock_t TARGET_CLOCKS_PER_SEC;
+
+target_clock_t target_clock(void)
+{
+	target_clock_t r;
+
+	__asm__ __volatile__ (
+		"rdtsc"
+		: "=A" (r)
+	);
+
+	return r;
 }
 
 /***************************************************************************/
@@ -253,6 +272,23 @@ adv_error target_apm_wakeup(void)
 	}
 
 	return 0;
+}
+
+/***************************************************************************/
+/* Led */
+
+void target_led_set(unsigned mask)
+{
+	unsigned allegro_mask = 0;
+
+	if ((mask & TARGET_LED_NUMLOCK) != 0)
+		allegro_mask |= KB_NUMLOCK_FLAG;
+	if ((mask & TARGET_LED_CAPSLOCK) != 0)
+		allegro_mask |= KB_CAPSLOCK_FLAG;
+	if ((mask & TARGET_LED_SCROLOCK) != 0)
+		allegro_mask |= KB_SCROLOCK_FLAG;
+
+	set_leds(allegro_mask);
 }
 
 /***************************************************************************/

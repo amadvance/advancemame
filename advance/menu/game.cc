@@ -115,6 +115,40 @@ void game::auto_description_set(const std::string& A) const {
 	}
 }
 
+void game::manufacturer_set(const std::string& s)
+{
+	// clear previous value
+	manufacturer.erase();
+
+	// allocate the whole size to speedup
+	manufacturer.reserve(s.length());
+
+	// strip unused information
+	unsigned i = 0;
+	unsigned l = s.length();
+
+	// skip space at begin
+	while (i<s.length() && isspace(s[i]))
+		++i;
+
+	// skip space at end
+	while (i<l && isspace(s[l-1]))
+		--l;
+
+	if (s[i] == '[') {
+		++i;
+		while (i<l && s[i]!=']') {
+			manufacturer += s[i];
+			++i;
+		}
+	} else {
+		while (i<l && s[i]!='(' && s[i]!='/' && s[i]!='+' && s[i]!='&') {
+			manufacturer += s[i];
+			++i;
+		}
+	}
+}
+
 void game::rom_zip_set_insert(const string& Afile) const {
 	rzs.insert( rzs.end(), string( Afile ) );
 }

@@ -31,7 +31,7 @@
 #include "salleg.h"
 #include "sounddrv.h"
 #include "log.h"
-#include "os.h"
+#include "target.h"
 
 #include <assert.h>
 #include <dos.h>
@@ -46,7 +46,7 @@ struct sound_allegro_context {
 	unsigned length;
 	unsigned pos;
 
-	os_clock_t last;
+	target_clock_t last;
 
 	int voice;
 	SAMPLE* wave;
@@ -81,6 +81,9 @@ int __wrap__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voic
 adv_error sound_allegro_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	log_std(("sound:allegro: sound_allegro_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+
+	/* ensure to be able to store the required buffer time */
+	buffer_time *= 2;
 
 	if (stereo_flag) {
 		allegro_state.channel = 2;
@@ -178,7 +181,7 @@ adv_error sound_allegro_start(double silence_time)
 
 	allegro_state.pos = (unsigned)(silence_time * allegro_state.rate) % allegro_state.length;
 
-	allegro_state.last = os_clock();
+	allegro_state.last = target_clock();
 
 	log_std(("sound:allegro: sound_allegro_start current %d, buffered %d\n", sound_allegro_current(), sound_allegro_buffered()));
 
@@ -202,13 +205,13 @@ void sound_allegro_volume(double volume)
 void sound_allegro_play(const short* sample_map, unsigned sample_count)
 {
 	unsigned count = sample_count;
-	os_clock_t current = os_clock();
+	target_clock_t current = target_clock();
 
 	log_debug(("sound:allegro: sound_allegro_play(count:%d)\n", sample_count));
 
 	log_debug(("sound:allegro: delay from last update %g, samples %g\n",
-		(current - allegro_state.last) / (double)OS_CLOCKS_PER_SEC,
-		(current - allegro_state.last) / (double)OS_CLOCKS_PER_SEC * allegro_state.rate
+		(current - allegro_state.last) / (double)TARGET_CLOCKS_PER_SEC,
+		(current - allegro_state.last) / (double)TARGET_CLOCKS_PER_SEC * allegro_state.rate
 		));
 
 	allegro_state.last = current;

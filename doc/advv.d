@@ -196,7 +196,7 @@ Video Drivers
 			by a `svgawin' driver listed in the `cardwin.txt' file.
 
 			To use this driver you need to install the included SVGAWIN 
-			driver.
+			driver. Please read the `svgawin.txt' file carefully.
 		sdl - Available SDL modes.
 			This driver is able to use only the video modes
 			reported by the SDL graphics library.

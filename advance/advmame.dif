@@ -1,12 +1,12 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-05-16 18:50:18.000000000 +0200
++++ src/advance.pat	2003-06-13 21:21:32.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.c src/common.c
---- src.ori/common.c	2003-05-24 20:21:33.000000000 +0200
-+++ src/common.c	2003-05-24 20:22:26.000000000 +0200
-@@ -411,17 +411,11 @@
+--- src.ori/common.c	2003-06-10 19:33:14.000000000 +0200
++++ src/common.c	2003-06-13 21:21:32.000000000 +0200
+@@ -413,17 +413,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
  
@@ -25,7 +25,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
-@@ -1131,11 +1125,11 @@
+@@ -1133,11 +1127,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -40,7 +40,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-05-16 18:50:18.000000000 +0200
++++ src/cpmame.mak	2003-06-13 21:21:32.000000000 +0200
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -55,7 +55,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2002-08-25 01:51:28.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-05-16 18:50:18.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-06-13 21:21:32.000000000 +0200
 @@ -61,10 +61,16 @@
   *
   *****************************************************************************/
@@ -74,8 +74,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
---- src.ori/cpu/m68000/make68k.c	2002-11-15 20:08:26.000000000 +0100
-+++ src/cpu/m68000/make68k.c	2003-05-16 18:50:18.000000000 +0200
+--- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-06-13 21:21:32.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -124,7 +124,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-05-16 18:50:18.000000000 +0200
++++ src/cpu/z80/z80.c	2003-06-13 21:21:32.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -143,9 +143,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpuexec.c	2003-05-16 18:50:18.000000000 +0200
-@@ -233,10 +233,13 @@
+--- src.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
++++ src/cpuexec.c	2003-06-13 21:21:32.000000000 +0200
+@@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
  	/* reset sound chips */
@@ -159,10 +159,168 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/konamigx.c src/drivers/konamigx.c
+--- src.ori/drivers/konamigx.c	2003-06-05 12:00:00.000000000 +0200
++++ src/drivers/konamigx.c	2003-06-13 22:23:42.000000000 +0200
+@@ -2845,10 +2845,11 @@
+ 		konamigx_cfgport = 7;
+ 	}
+ 
+ 	else if (!strcmp(Machine->gamedrv->name, "tkmmpzdm"))
+ 	{
++		int i;
+ 		data32_t *rom = (data32_t*)memory_region(REGION_CPU1);
+ 
+ 		// The display is initialized after POST but the copyright screen disabled
+ 		// planes B,C,D and didn't bother restoring them. I've spent a good
+ 		// amount of time chasing this bug but the cause remains inconclusive.
+@@ -2864,24 +2865,26 @@
+ 		esc_cb = tkmmpzdm_esc;
+ 		readback = BPP6;
+ 		konamigx_cfgport = 7;
+ 
+ 		// boost voice(chip 1 channel 3-7)
+-		for (int i=3; i<=7; i++) K054539_set_gain(1, i, 2.0);
++		for (i=3; i<=7; i++) K054539_set_gain(1, i, 2.0);
+ 	}
+ 
+ 	else if (!strcmp(Machine->gamedrv->name, "dragoonj"))
+ 	{
++		int i;
++
+ 		#if GX_SKIPIDLE
+ 			ADD_SKIPPER32(0x202f48, 0xc00000, 0x1020, 0x1020, 0xff00, 0x0000ff00)
+ 		#endif
+ 
+ 		esc_cb = dragoonj_esc;
+ 		konamigx_cfgport = 7;
+ 
+ 		// soften percussions(chip 1 channel 0-3), boost voice(chip 1 channel 4-7)
+-		for (int i=0; i<=3; i++)
++		for (i=0; i<=3; i++)
+ 		{
+ 			K054539_set_gain(1, i, 0.8);
+ 			K054539_set_gain(1, i+4, 2.0);
+ 		}
+ 	}
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/mystwarr.c src/drivers/mystwarr.c
+--- src.ori/drivers/mystwarr.c	2003-06-05 12:00:00.000000000 +0200
++++ src/drivers/mystwarr.c	2003-06-14 18:19:51.000000000 +0200
+@@ -1817,91 +1817,103 @@
+ 	state_save_register_func_postload(reset_sound_region);
+ }
+ 
+ static DRIVER_INIT(mystwarr)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	#if MW_SKIPIDLE
+ 		ADD_SKIPPER16(0x1bac, 0x200000, 0x540, 0x6ff, -1, 0xffff)
+ 	#endif
+ 
+ 	// soften chorus(chip 0 channel 0-3), boost voice(chip 0 channel 4-7)
+-	for (int i=0; i<=3; i++)
++	for (i=0; i<=3; i++)
+ 	{
+ 		K054539_set_gain(0, i, 0.8);
+ 		K054539_set_gain(0, i+4, 2.0);
+ 	}
+ 
+ 	// soften percussions(chip 1 channel 0-7)
+-	for (int i=0; i<=7; i++) K054539_set_gain(1, i, 0.5);
++	for (i=0; i<=7; i++) K054539_set_gain(1, i, 0.5);
+ }
+ 
+ static DRIVER_INIT(dadandrn)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	#if MW_SKIPIDLE
+ 		ADD_SKIPPER16(0x442a, 0x600000, 0x400, 0x4ff, -1, 0xffff)
+ 	#endif
+ 
+ 	// boost voice(chip 0 channel 4-7)
+-	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
++	for (i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
+ }
+ 
+ static DRIVER_INIT(viostorm)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	#if MW_SKIPIDLE
+ 		ADD_SKIPPER16(0x0a9c, 0x200000, 0xf400, 0xf9df, -1, 0xffff)
+ 	#endif
+ 
+ 	// boost voice(chip 0 channel 4-7)
+-	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
++	for (i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
+ }
+ 
+ static DRIVER_INIT(metamrph)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	K053250_unpack_pixels(REGION_GFX3);
+ 
+ 	// boost voice(chip 0 channel 4-7) and soften other channels
+-	for (int i=0; i<=3; i++)
++	for (i=0; i<=3; i++)
+ 	{
+ 		K054539_set_gain(0, i,   0.8);
+ 		K054539_set_gain(0, i+4, 1.8);
+ 		K054539_set_gain(1, i,   0.8);
+ 		K054539_set_gain(1, i+4, 0.8);
+ 	}
+ }
+ 
+ static DRIVER_INIT(martchmp)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	#if MW_SKIPIDLE
+ 		ADD_SKIPPER16(0x1190, 0x100000, 0x30, 0xaf, -1, 0xffff)
+ 	#endif
+ 
+ 	K054539_init_flags(K054539_REVERSE_STEREO);
+ 
+ 	// boost voice(chip 0 channel 4-7)
+-	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 1.4);
++	for (i=4; i<=7; i++) K054539_set_gain(0, i, 1.4);
+ }
+ 
+ static DRIVER_INIT(gaiapols)
+ {
++	int i;
++
+ 	init_common();
+ 
+ 	#if MW_SKIPIDLE
+ 		ADD_SKIPPER16(0x200e4a, 0x600000, 0x540, 0x6ff, -1, 0xffff)
+ 	#endif
+ 
+ 	// boost voice(chip 0 channel 5-7)
+-	for (int i=5; i<=7; i++) K054539_set_gain(0, i, 2.0);
++	for (i=5; i<=7; i++) K054539_set_gain(0, i, 2.0);
+ }
+ 
+ 
+ /*           ROM       parent    machine   inp       init */
+ GAMEX( 1993, mystwarr, 0,        mystwarr, mystwarr, mystwarr, ROT0,  "Konami", "Mystic Warriors (World ver EAA)", GAME_IMPERFECT_GRAPHICS )
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2003-05-24 20:21:33.000000000 +0200
-+++ src/drivers/neogeo.c	2003-05-24 20:22:38.000000000 +0200
-@@ -316,11 +316,11 @@
+--- src.ori/drivers/neogeo.c	2003-06-10 19:59:08.000000000 +0200
++++ src/drivers/neogeo.c	2003-06-13 21:21:32.000000000 +0200
+@@ -381,11 +381,11 @@
  			}
  			fc++;
  		}
@@ -176,8 +334,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2003-05-24 20:21:34.000000000 +0200
-+++ src/fileio.c	2003-05-24 20:22:39.000000000 +0200
+--- src.ori/fileio.c	2003-05-23 16:51:24.000000000 +0200
++++ src/fileio.c	2003-06-13 21:21:32.000000000 +0200
 @@ -59,10 +59,11 @@
  	UINT64 offset;
  	UINT64 length;
@@ -319,1066 +477,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		fprintf(stderr, "Can't use HASH option with WRITE option in generic_fopen!\n");
  
  	/* determine start/stop based on reverse search flag */
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/info.c src/info.c
---- src.ori/info.c	2003-05-24 20:21:34.000000000 +0200
-+++ src/info.c	2003-05-24 21:29:51.000000000 +0200
-@@ -4,15 +4,21 @@
- #include "sound/samples.h"
- #include "info.h"
- #include "hash.h"
- #include "datafile.h"
- 
--/* Output format indentation */
--#define OUTPUT_XML		0
--
-+/* Format */
- #define SELECT(a,b) (OUTPUT_XML ? (b) : (a))
- 
-+/* MESS/MAME configuration */
-+#ifdef MESS
-+#define XML_ROOT "mess"
-+#define XML_TOP "machine"
-+#else
-+#define XML_ROOT "mame"
-+#define XML_TOP "game"
-+#endif
- 
- /* Indentation */
- #define INDENT "\t"
- 
- /* Output format configuration
-@@ -56,12 +62,12 @@
- #define L2P INDENT INDENT
- #define L2N "\n"
- #define L2E INDENT ")"
- */
- 
--/* Print a string in C format */
--static void print_c_string(FILE* out, const char* s)
-+/* Print a free format string */
-+static void print_free_string(int OUTPUT_XML, FILE* out, const char* s)
- {
- 	if (!OUTPUT_XML)
- 	{
- 		fprintf(out, "\"");
- 		if (s)
-@@ -112,16 +118,16 @@
- 			}
- 		}
- 	}
- }
- 
--/* Print a string in statement format (remove space, parentesis, ") */
--static void print_statement_string(FILE* out, const char* s)
-+/* Print a statement string */
-+static void print_statement_string(int OUTPUT_XML, FILE* out, const char* s)
- {
- 	if (OUTPUT_XML)
- 	{
--		print_c_string(out, s);
-+		print_free_string(OUTPUT_XML, out, s);
- 		return;
- 	}
- 	if (s)
- 	{
- 		while (*s)
-@@ -150,58 +156,62 @@
- 	{
- 		fprintf(out, "null");
- 	}
- }
- 
--static void print_game_switch(FILE* out, const struct GameDriver* game)
-+static void print_game_switch(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	const struct InputPortTiny* input = game->input_ports;
- 
- 	while ((input->type & ~IPF_MASK) != IPT_END)
- 	{
- 		if ((input->type & ~IPF_MASK)==IPT_DIPSWITCH_NAME)
- 		{
- 			int def = input->default_value;
- 			const char* def_name = 0;
- 
--			fprintf(out, SELECT(L1P "dipswitch" L2B, "\t\t<dipswitch>\n"));
-+			fprintf(out, SELECT(L1P "dipswitch" L2B, "\t\t<dipswitch"));
- 
--			fprintf(out, SELECT(L2P "name ", "\t\t\t<name>"));
--			print_c_string(out,input->name);
--			fprintf(out, "%s", SELECT(L2N, "</name>\n"));
-+			fprintf(out, SELECT(L2P "name ", " name=\""));
-+			print_free_string(OUTPUT_XML, out, input->name);
-+			fprintf(out, "%s", SELECT(L2N, "\""));
- 			++input;
- 
-+			fprintf(out, "%s", SELECT("", ">\n"));
-+
- 			while ((input->type & ~IPF_MASK)==IPT_DIPSWITCH_SETTING)
- 			{
- 				fprintf(out, SELECT(L2P "entry ", "\t\t\t<dipvalue"));
-+				fprintf(out, "%s", SELECT("", " name=\""));
-+				print_free_string(OUTPUT_XML, out, input->name);
-+				fprintf(out, "%s", SELECT(L2N, "\""));
- 				if (def == input->default_value)
- 				{
- 					def_name = input->name;
- 					fprintf(out, "%s", SELECT("", " default=\"yes\""));
- 				}
--				fprintf(out, "%s", SELECT("", ">\n"));
--				fprintf(out, "%s", SELECT("", "\t\t\t\t<name>"));
--				print_c_string(out,input->name);
--				fprintf(out, "%s", SELECT(L2N, "</name>\n\t\t\t</dipvalue>\n"));
-+
-+				fprintf(out, "%s", SELECT("", "/>\n"));
-+
- 				++input;
- 			}
- 
- 			if (def_name && !OUTPUT_XML)
- 			{
- 				fprintf(out, L2P "default ");
--				print_c_string(out,def_name);
-+				print_free_string(OUTPUT_XML, out, def_name);
- 				fprintf(out, "%s", L2N);
- 			}
- 
- 			fprintf(out, SELECT(L2E L1N, "\t\t</dipswitch>\n"));
- 		}
- 		else
- 			++input;
- 	}
- }
- 
--static void print_game_input(FILE* out, const struct GameDriver* game)
-+static void print_game_input(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	const struct InputPortTiny* input = game->input_ports;
- 	int nplayer = 0;
- 	const char* control = 0;
- 	int nbutton = 0;
-@@ -209,11 +219,12 @@
- 	const char* service = 0;
- 	const char* tilt = 0;
- 
- 	while ((input->type & ~IPF_MASK) != IPT_END)
- 	{
--		if ((input->type & ~IPF_MASK) != IPT_EXTENSION)		/* skip analog extension fields */
-+		/* skip analog extension fields */
-+		if ((input->type & ~IPF_MASK) != IPT_EXTENSION)
- 		{
- 			switch (input->type & IPF_PLAYERMASK)
- 			{
- 				case IPF_PLAYER1:
- 					if (nplayer<1) nplayer = 1;
-@@ -326,46 +337,37 @@
- 		}
- 		++input;
- 	}
- 
- 	fprintf(out, SELECT(L1P "input" L2B, "\t\t<input"));
--	if (OUTPUT_XML)
--	{
--		if (service)
--			fprintf(out, " service=\"%s\"", service );
--		if (tilt)
--			fprintf(out, " tilt=\"%s\"", tilt );
--		fprintf(out, ">\n");
--	}
--	fprintf(out, SELECT(L2P "players %d" L2N, "\t\t\t<players>%d</players>\n"), nplayer );
-+	fprintf(out, SELECT(L2P "players %d" L2N, " players=\"%d\""), nplayer );
- 	if (control)
--		fprintf(out, SELECT(L2P "control %s" L2N, "\t\t\t<control>%s</control>\n"), control );
-+		fprintf(out, SELECT(L2P "control %s" L2N, " control=\"%s\""), control );
- 	if (nbutton)
--		fprintf(out, SELECT(L2P "buttons %d" L2N, "\t\t\t<buttons>%d</buttons>\n"), nbutton );
-+		fprintf(out, SELECT(L2P "buttons %d" L2N, " buttons=\"%d\""), nbutton );
- 	if (ncoin)
--		fprintf(out, SELECT(L2P "coins %d" L2N, "\t\t\t<coins>%d</coins>\n"), ncoin );
--	if (!OUTPUT_XML)
--	{
--		if (service)
--			fprintf(out, L2P "service %s" L2N, service );
--		if (tilt)
--			fprintf(out, L2P "tilt %s" L2N, tilt );
--	}
--	fprintf(out, SELECT(L2E L1N, "\t\t</input>\n"));
-+		fprintf(out, SELECT(L2P "coins %d" L2N, " coins=\"%d\""), ncoin );
-+	if (service)
-+		fprintf(out, SELECT(L2P "service %s" L2N, " service=\"%s\""), service );
-+	if (tilt)
-+		fprintf(out, SELECT(L2P "tilt %s" L2N, " tilt=\"%s\""), tilt );
-+	fprintf(out, SELECT(L2E L1N, "/>\n"));
- }
- 
--static void print_game_rom(FILE* out, const struct GameDriver* game)
-+static void print_game_rom(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	const struct RomModule *region, *rom, *chunk;
- 	const struct RomModule *pregion, *prom, *fprom=NULL;
- 	extern struct GameDriver driver_0;
- 
- 	if (!game->rom)
- 		return;
- 
--	if (game->clone_of && game->clone_of != &driver_0)
--		fprintf(out, SELECT(L1P "romof %s" L1N, "\t\t<romof>%s</romof>\n"), game->clone_of->name);
-+	if (!OUTPUT_XML) {
-+		if (game->clone_of && game->clone_of != &driver_0)
-+			fprintf(out, L1P "romof %s" L1N, game->clone_of->name);
-+	}
- 
- 	for (region = rom_first_region(game); region; region = rom_next_region(region))
- 		for (rom = rom_first_file(region); rom; rom = rom_next_file(rom))
- 		{
- 			int offset, length, in_parent, is_disk, i;
-@@ -394,173 +396,184 @@
- 			}
- 
- 			if (!is_disk)
- 				fprintf(out, SELECT(L1P "rom" L2B, "\t\t<rom"));
- 			else
--				fprintf(out, SELECT(L1P "disk" L2B, "\t\t<disk>\n"));
--
--			if (OUTPUT_XML && !is_disk)
--			{
--				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
--					fprintf(out, " nodump=\"yes\"");	
--				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_BAD_DUMP))
--					fprintf(out, " baddump=\"yes\"");
--				if (ROMREGION_GETFLAGS(region) & ROMREGION_DISPOSE)
--					fprintf(out, " dispose=\"yes\"");
--				if (ROMREGION_GETFLAGS(region) & ROMREGION_SOUNDONLY)
--					fprintf(out, " soundonly=\"yes\"");
--				if (ROMREGION_GETFLAGS(region) & ~(ROMREGION_DISPOSE | ROMREGION_SOUNDONLY))
--					fprintf(out, " flags=\"0x%x\"", ROMREGION_GETFLAGS(region) & ~(ROMREGION_DISPOSE | ROMREGION_SOUNDONLY));
--				fprintf(out, ">\n");
--			}
-+				fprintf(out, SELECT(L1P "disk" L2B, "\t\t<disk"));
- 
- 			if (*name)
--				fprintf(out, SELECT(L2P "name %s" L2N, "\t\t\t<name>%s</name>\n"), name);
-+				fprintf(out, SELECT(L2P "name %s" L2N, " name=\"%s\""), name);
- 			if (!is_disk && in_parent)
--				fprintf(out, SELECT(L2P "merge %s" L2N, "\t\t\t<merge>%s</merge>\n"), ROM_GETNAME(fprom));
-+				fprintf(out, SELECT(L2P "merge %s" L2N, " merge=\"%s\""), ROM_GETNAME(fprom));
- 			if (!is_disk)
--				fprintf(out, SELECT(L2P "size %d" L2N, "\t\t\t<size>%d</size>\n"), length);
-+				fprintf(out, SELECT(L2P "size %d" L2N, " size=\"%d\""), length);
- 			
- 			if (!OUTPUT_XML)
- 			{
- 				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
- 					fprintf(out, L2P "flags nodump" L2N);
- 				
- 				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_BAD_DUMP))
- 					fprintf(out, L2P "flags baddump" L2N);
- 			}
- 
--			// Dump checksum informatoins only if there is a known dump
-+			/* dump checksum information only if there is a known dump */
- 			if (!hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
-+			{
- 				for (i=0;i<HASH_NUM_FUNCTIONS;i++)
- 				{
- 					int func = 1<<i;
- 					const char* func_name = hash_function_name(func);
- 					char checksum[1000];
- 
- 					if (hash_data_extract_printable_checksum(ROM_GETHASHDATA(rom), func, checksum))
- 					{
--						/* I can't use the SELECT() macro here because the number of parameters
--						   are different, and GCC whines about it. */
--						if (OUTPUT_XML)
--							fprintf(out, "\t\t\t<%s>%s</%s>\n", func_name, checksum, func_name);
--						else
--							fprintf(out, L2P "%s %s" L2N, func_name, checksum);
-+						fprintf(out, SELECT(L2P "%s %s" L2N, " %s=\"%s\""), func_name, checksum);
- 					}
--
- 				}
-+			}
- 
- 			switch (ROMREGION_GETTYPE(region))
- 			{
--				case REGION_CPU1: fprintf(out, SELECT(L2P "region cpu1" L2N, "\t\t\t<region>cpu1</region>\n")); break;
--				case REGION_CPU2: fprintf(out, SELECT(L2P "region cpu2" L2N, "\t\t\t<region>cpu2</region>\n")); break;
--				case REGION_CPU3: fprintf(out, SELECT(L2P "region cpu3" L2N, "\t\t\t<region>cpu3</region>\n")); break;
--				case REGION_CPU4: fprintf(out, SELECT(L2P "region cpu4" L2N, "\t\t\t<region>cpu4</region>\n")); break;
--				case REGION_CPU5: fprintf(out, SELECT(L2P "region cpu5" L2N, "\t\t\t<region>cpu5</region>\n")); break;
--				case REGION_CPU6: fprintf(out, SELECT(L2P "region cpu6" L2N, "\t\t\t<region>cpu6</region>\n")); break;
--				case REGION_CPU7: fprintf(out, SELECT(L2P "region cpu7" L2N, "\t\t\t<region>cpu7</region>\n")); break;
--				case REGION_CPU8: fprintf(out, SELECT(L2P "region cpu8" L2N, "\t\t\t<region>cpu8</region>\n")); break;
--				case REGION_GFX1: fprintf(out, SELECT(L2P "region gfx1" L2N, "\t\t\t<region>gfx1</region>\n")); break;
--				case REGION_GFX2: fprintf(out, SELECT(L2P "region gfx2" L2N, "\t\t\t<region>gfx2</region>\n")); break;
--				case REGION_GFX3: fprintf(out, SELECT(L2P "region gfx3" L2N, "\t\t\t<region>gfx3</region>\n")); break;
--				case REGION_GFX4: fprintf(out, SELECT(L2P "region gfx4" L2N, "\t\t\t<region>gfx4</region>\n")); break;
--				case REGION_GFX5: fprintf(out, SELECT(L2P "region gfx5" L2N, "\t\t\t<region>gfx5</region>\n")); break;
--				case REGION_GFX6: fprintf(out, SELECT(L2P "region gfx6" L2N, "\t\t\t<region>gfx6</region>\n")); break;
--				case REGION_GFX7: fprintf(out, SELECT(L2P "region gfx7" L2N, "\t\t\t<region>gfx7</region>\n")); break;
--				case REGION_GFX8: fprintf(out, SELECT(L2P "region gfx8" L2N, "\t\t\t<region>gfx8</region>\n")); break;
--				case REGION_PROMS: fprintf(out, SELECT(L2P "region proms" L2N, "\t\t\t<region>proms</region>\n")); break;
--				case REGION_SOUND1: fprintf(out, SELECT(L2P "region sound1" L2N, "\t\t\t<region>sound1</region>\n")); break;
--				case REGION_SOUND2: fprintf(out, SELECT(L2P "region sound2" L2N, "\t\t\t<region>sound2</region>\n")); break;
--				case REGION_SOUND3: fprintf(out, SELECT(L2P "region sound3" L2N, "\t\t\t<region>sound3</region>\n")); break;
--				case REGION_SOUND4: fprintf(out, SELECT(L2P "region sound4" L2N, "\t\t\t<region>sound4</region>\n")); break;
--				case REGION_SOUND5: fprintf(out, SELECT(L2P "region sound5" L2N, "\t\t\t<region>sound5</region>\n")); break;
--				case REGION_SOUND6: fprintf(out, SELECT(L2P "region sound6" L2N, "\t\t\t<region>sound6</region>\n")); break;
--				case REGION_SOUND7: fprintf(out, SELECT(L2P "region sound7" L2N, "\t\t\t<region>sound7</region>\n")); break;
--				case REGION_SOUND8: fprintf(out, SELECT(L2P "region sound8" L2N, "\t\t\t<region>sound8</region>\n")); break;
--				case REGION_USER1: fprintf(out, SELECT(L2P "region user1" L2N, "\t\t\t<region>user1</region>\n")); break;
--				case REGION_USER2: fprintf(out, SELECT(L2P "region user2" L2N, "\t\t\t<region>user2</region>\n")); break;
--				case REGION_USER3: fprintf(out, SELECT(L2P "region user3" L2N, "\t\t\t<region>user3</region>\n")); break;
--				case REGION_USER4: fprintf(out, SELECT(L2P "region user4" L2N, "\t\t\t<region>user4</region>\n")); break;
--				case REGION_USER5: fprintf(out, SELECT(L2P "region user5" L2N, "\t\t\t<region>user5</region>\n")); break;
--				case REGION_USER6: fprintf(out, SELECT(L2P "region user6" L2N, "\t\t\t<region>user6</region>\n")); break;
--				case REGION_USER7: fprintf(out, SELECT(L2P "region user7" L2N, "\t\t\t<region>user7</region>\n")); break;
--				case REGION_USER8: fprintf(out, SELECT(L2P "region user8" L2N, "\t\t\t<region>user8</region>\n")); break;
--				case REGION_DISKS: fprintf(out, SELECT(L2P "region disks" L2N, "\t\t\t<region>disks</region>\n")); break;
--				default: fprintf(out, SELECT(L2P "region 0x%x" L2N, "\t\t\t<region>0x%x</region>\n"), ROMREGION_GETTYPE(region));
-+				case REGION_CPU1: fprintf(out, SELECT(L2P "region cpu1" L2N, " region=\"cpu1\"")); break;
-+				case REGION_CPU2: fprintf(out, SELECT(L2P "region cpu2" L2N, " region=\"cpu2\"")); break;
-+				case REGION_CPU3: fprintf(out, SELECT(L2P "region cpu3" L2N, " region=\"cpu3\"")); break;
-+				case REGION_CPU4: fprintf(out, SELECT(L2P "region cpu4" L2N, " region=\"cpu4\"")); break;
-+				case REGION_CPU5: fprintf(out, SELECT(L2P "region cpu5" L2N, " region=\"cpu5\"")); break;
-+				case REGION_CPU6: fprintf(out, SELECT(L2P "region cpu6" L2N, " region=\"cpu6\"")); break;
-+				case REGION_CPU7: fprintf(out, SELECT(L2P "region cpu7" L2N, " region=\"cpu7\"")); break;
-+				case REGION_CPU8: fprintf(out, SELECT(L2P "region cpu8" L2N, " region=\"cpu8\"")); break;
-+				case REGION_GFX1: fprintf(out, SELECT(L2P "region gfx1" L2N, " region=\"gfx1\"")); break;
-+				case REGION_GFX2: fprintf(out, SELECT(L2P "region gfx2" L2N, " region=\"gfx2\"")); break;
-+				case REGION_GFX3: fprintf(out, SELECT(L2P "region gfx3" L2N, " region=\"gfx3\"")); break;
-+				case REGION_GFX4: fprintf(out, SELECT(L2P "region gfx4" L2N, " region=\"gfx4\"")); break;
-+				case REGION_GFX5: fprintf(out, SELECT(L2P "region gfx5" L2N, " region=\"gfx5\"")); break;
-+				case REGION_GFX6: fprintf(out, SELECT(L2P "region gfx6" L2N, " region=\"gfx6\"")); break;
-+				case REGION_GFX7: fprintf(out, SELECT(L2P "region gfx7" L2N, " region=\"gfx7\"")); break;
-+				case REGION_GFX8: fprintf(out, SELECT(L2P "region gfx8" L2N, " region=\"gfx8\"")); break;
-+				case REGION_PROMS: fprintf(out, SELECT(L2P "region proms" L2N, " region=\"proms\"")); break;
-+				case REGION_SOUND1: fprintf(out, SELECT(L2P "region sound1" L2N, " region=\"sound1\"")); break;
-+				case REGION_SOUND2: fprintf(out, SELECT(L2P "region sound2" L2N, " region=\"sound2\"")); break;
-+				case REGION_SOUND3: fprintf(out, SELECT(L2P "region sound3" L2N, " region=\"sound3\"")); break;
-+				case REGION_SOUND4: fprintf(out, SELECT(L2P "region sound4" L2N, " region=\"sound4\"")); break;
-+				case REGION_SOUND5: fprintf(out, SELECT(L2P "region sound5" L2N, " region=\"sound5\"")); break;
-+				case REGION_SOUND6: fprintf(out, SELECT(L2P "region sound6" L2N, " region=\"sound6\"")); break;
-+				case REGION_SOUND7: fprintf(out, SELECT(L2P "region sound7" L2N, " region=\"sound7\"")); break;
-+				case REGION_SOUND8: fprintf(out, SELECT(L2P "region sound8" L2N, " region=\"sound8\"")); break;
-+				case REGION_USER1: fprintf(out, SELECT(L2P "region user1" L2N, " region=\"user1\"")); break;
-+				case REGION_USER2: fprintf(out, SELECT(L2P "region user2" L2N, " region=\"user2\"")); break;
-+				case REGION_USER3: fprintf(out, SELECT(L2P "region user3" L2N, " region=\"user3\"")); break;
-+				case REGION_USER4: fprintf(out, SELECT(L2P "region user4" L2N, " region=\"user4\"")); break;
-+				case REGION_USER5: fprintf(out, SELECT(L2P "region user5" L2N, " region=\"user5\"")); break;
-+				case REGION_USER6: fprintf(out, SELECT(L2P "region user6" L2N, " region=\"user6\"")); break;
-+				case REGION_USER7: fprintf(out, SELECT(L2P "region user7" L2N, " region=\"user7\"")); break;
-+				case REGION_USER8: fprintf(out, SELECT(L2P "region user8" L2N, " region=\"user8\"")); break;
-+				case REGION_DISKS: fprintf(out, SELECT(L2P "region disks" L2N, " region=\"disks\"")); break;
-+				default: fprintf(out, SELECT(L2P "region 0x%x" L2N, " region=\"0x%x\""), ROMREGION_GETTYPE(region));
- 		}
- 
--		if (!is_disk && !OUTPUT_XML)
-+		if (!is_disk)
- 		{
--			switch (ROMREGION_GETFLAGS(region))
-+			if (OUTPUT_XML)
- 			{
--				case 0:
--					break;
--				case ROMREGION_SOUNDONLY:
--					fprintf(out, L2P "flags soundonly" L2N);
--					break;
--				case ROMREGION_DISPOSE:
--					fprintf(out, L2P "flags dispose" L2N);
--					break;
--				default:
--					fprintf(out, L2P "flags 0x%x" L2N, ROMREGION_GETFLAGS(region));
-+				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
-+					fprintf(out, " status=\"nodump\"");
-+				if (hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_BAD_DUMP))
-+					fprintf(out, " status=\"baddump\"");
-+				if (ROMREGION_GETFLAGS(region) & ROMREGION_DISPOSE)
-+					fprintf(out, " dispose=\"yes\"");
-+				if (ROMREGION_GETFLAGS(region) & ROMREGION_SOUNDONLY)
-+					fprintf(out, " soundonly=\"yes\"");
- 			}
--		}
--		if (!is_disk)
--		{
--			fprintf(out, SELECT(L2P "offs %x", "\t\t\t<offset>%x</offset>\n"), offset);
--			fprintf(out, SELECT(L2E L1N, "\t\t</rom>\n"));
-+			else
-+			{
-+				switch (ROMREGION_GETFLAGS(region))
-+				{
-+					case ROMREGION_SOUNDONLY:
-+						fprintf(out, L2P "flags soundonly" L2N);
-+						break;
-+					case ROMREGION_DISPOSE:
-+						fprintf(out, L2P "flags dispose" L2N);
-+						break;
-+				}
-+			}
-+
-+			fprintf(out, SELECT(L2P "offs %x", " offset=\"%x\""), offset);
-+			fprintf(out, SELECT(L2E L1N, "/>\n"));
- 		}
- 		else
- 		{
--			fprintf(out, SELECT(L2P "index %x", "\t\t\t<index>%x</index>\n"), DISK_GETINDEX(rom));
--			fprintf(out, SELECT(L2E L1N, "\t\t</disk>\n"));
-+			fprintf(out, SELECT(L2P "index %x", " index=\"%x\""), DISK_GETINDEX(rom));
-+			fprintf(out, SELECT(L2E L1N, "/>\n"));
- 		}
- 	}
- }
- 
--static void print_game_sample(FILE* out, const struct GameDriver* game)
-+static void print_game_sampleof(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- #if (HAS_SAMPLES)
- 	struct InternalMachineDriver drv;
- 	int i;
- 
- 	expand_machine_driver(game->drv, &drv);
- 
- 	for( i = 0; drv.sound[i].sound_type && i < MAX_SOUND; i++ )
- 	{
- 		const char **samplenames = NULL;
--#if (HAS_SAMPLES)
- 		if( drv.sound[i].sound_type == SOUND_SAMPLES )
- 			samplenames = ((struct Samplesinterface *)drv.sound[i].sound_interface)->samplenames;
--#endif
- 		if (samplenames != 0 && samplenames[0] != 0) {
- 			int k = 0;
- 			if (samplenames[k][0]=='*')
- 			{
- 				/* output sampleof only if different from game name */
- 				if (strcmp(samplenames[k] + 1, game->name)!=0)
--					fprintf(out, SELECT(L1P "sampleof %s" L1N, "\t\t<sampleof>%s</sampleof>\n"), samplenames[k] + 1);
-+					fprintf(out, SELECT(L1P "sampleof %s" L1N, " sampleof=\"%s\""), samplenames[k] + 1);
-+				++k;
-+			}
-+		}
-+	}
-+#endif
-+}
-+
-+static void print_game_sample(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
-+{
-+#if (HAS_SAMPLES)
-+	struct InternalMachineDriver drv;
-+	int i;
-+
-+	expand_machine_driver(game->drv, &drv);
-+
-+	for( i = 0; drv.sound[i].sound_type && i < MAX_SOUND; i++ )
-+	{
-+		const char **samplenames = NULL;
-+		if( drv.sound[i].sound_type == SOUND_SAMPLES )
-+			samplenames = ((struct Samplesinterface *)drv.sound[i].sound_interface)->samplenames;
-+		if (samplenames != 0 && samplenames[0] != 0) {
-+			int k = 0;
-+			if (samplenames[k][0]=='*')
-+			{
- 				++k;
- 			}
- 			while (samplenames[k] != 0) {
--				/* Check if is not empty */
-+				/* check if is not empty */
- 				if (*samplenames[k]) {
--					/* Check if sample is duplicate */
-+					/* check if sample is duplicate */
- 					int l = 0;
- 					while (l<k && strcmp(samplenames[k],samplenames[l])!=0)
- 						++l;
- 					if (l==k)
--						fprintf(out, SELECT(L1P "sample %s" L1N, "\t\t<sample name=\"%s\" />\n"), samplenames[k]);
-+						fprintf(out, SELECT(L1P "sample %s" L1N, "\t\t<sample name=\"%s\"/>\n"), samplenames[k]);
- 				}
- 				++k;
- 			}
- 		}
- 	}
- #endif
- }
- 
--static void print_game_micro(FILE* out, const struct GameDriver* game)
-+static void print_game_micro(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	struct InternalMachineDriver driver;
- 	const struct MachineCPU* cpu;
- 	const struct MachineSound* sound;
- 	int j;
-@@ -571,22 +584,22 @@
- 
- 	for(j=0;j<MAX_CPU;++j)
- 	{
- 		if (cpu[j].cpu_type!=0)
- 		{
--			fprintf(out, SELECT(L1P "chip" L2B, "\t\t<chip "));
-+			fprintf(out, SELECT(L1P "chip" L2B, "\t\t<chip"));
- 			if (cpu[j].cpu_flags & CPU_AUDIO_CPU)
--				fprintf(out, SELECT(L2P "type cpu flags audio" L2N, "type=\"cpu\" audio=\"yes\">\n"));
-+				fprintf(out, SELECT(L2P "type cpu flags audio" L2N, " type=\"cpu\" soundonly=\"yes\""));
- 			else
--				fprintf(out, SELECT(L2P "type cpu" L2N, "type=\"cpu\">\n"));
-+				fprintf(out, SELECT(L2P "type cpu" L2N, " type=\"cpu\""));
- 
--			fprintf(out, SELECT(L2P "name ", "\t\t\t<name>"));
--			print_statement_string(out, cputype_name(cpu[j].cpu_type));
--			fprintf(out, "%s", SELECT(L2N, "</name>\n"));
-+			fprintf(out, SELECT(L2P "name ", " name=\""));
-+			print_statement_string(OUTPUT_XML, out, cputype_name(cpu[j].cpu_type));
-+			fprintf(out, "%s", SELECT(L2N, "\""));
- 
--			fprintf(out, SELECT(L2P "clock %d" L2N, "\t\t\t<clock>%d</clock>\n"), cpu[j].cpu_clock);
--			fprintf(out, SELECT(L2E L1N, "\t\t</chip>\n"));
-+			fprintf(out, SELECT(L2P "clock %d" L2N, " clock=\"%d\""), cpu[j].cpu_clock);
-+			fprintf(out, SELECT(L2E L1N, "/>\n"));
- 		}
- 	}
- 
- 	for(j=0;j<MAX_SOUND;++j) if (sound[j].sound_type)
- 	{
-@@ -597,24 +610,24 @@
- 
- 			if (num == 0) num = 1;
- 
- 			for(l=0;l<num;++l)
- 			{
--				fprintf(out, SELECT(L1P "chip" L2B, "\t\t<chip "));
--				fprintf(out, SELECT(L2P "type audio" L2N, "type=\"audio\">\n"));
--				fprintf(out, SELECT(L2P "name ", "\t\t\t<name>"));
--				print_statement_string(out, sound_name(&sound[j]));
--				fprintf(out, "%s", SELECT(L2N, "</name>\n"));
-+				fprintf(out, SELECT(L1P "chip" L2B, "\t\t<chip"));
-+				fprintf(out, SELECT(L2P "type audio" L2N, " type=\"audio\""));
-+				fprintf(out, SELECT(L2P "name ", " name=\""));
-+				print_statement_string(OUTPUT_XML, out, sound_name(&sound[j]));
-+				fprintf(out, "%s", SELECT(L2N, "\""));
- 				if (sound_clock(&sound[j]))
--					fprintf(out, SELECT(L2P "clock %d" L2N, "\t\t\t<clock>%d</clock>\n"), sound_clock(&sound[j]));
--				fprintf(out, SELECT(L2E L1N, "\t\t</chip>\n"));
-+					fprintf(out, SELECT(L2P "clock %d" L2N, " clock=\"%d\""), sound_clock(&sound[j]));
-+				fprintf(out, SELECT(L2E L1N, "/>\n"));
- 			}
- 		}
- 	}
- }
- 
--static void print_game_video(FILE* out, const struct GameDriver* game)
-+static void print_game_video(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	struct InternalMachineDriver driver;
- 
- 	int dx;
- 	int dy;
-@@ -623,19 +636,19 @@
- 	int showxy;
- 	int orientation;
- 
- 	expand_machine_driver(game->drv, &driver);
- 
--	fprintf(out, SELECT(L1P "video" L2B, "\t\t<video "));
-+	fprintf(out, SELECT(L1P "video" L2B, "\t\t<video"));
- 	if (driver.video_attributes & VIDEO_TYPE_VECTOR)
- 	{
--		fprintf(out, SELECT(L2P "screen vector" L2N, "screen=\"vector\" "));
-+		fprintf(out, SELECT(L2P "screen vector" L2N, " screen=\"vector\""));
- 		showxy = 0;
- 	}
- 	else
- 	{
--		fprintf(out, SELECT(L2P "screen raster" L2N, "screen=\"raster\" "));
-+		fprintf(out, SELECT(L2P "screen raster" L2N, " screen=\"raster\""));
- 		showxy = 1;
- 	}
- 
- 	if (game->flags & ORIENTATION_SWAP_XY)
- 	{
-@@ -660,25 +673,25 @@
- 		dx = driver.default_visible_area.max_x - driver.default_visible_area.min_x + 1;
- 		dy = driver.default_visible_area.max_y - driver.default_visible_area.min_y + 1;
- 		orientation = 0;
- 	}
- 
--	fprintf(out, SELECT(L2P "orientation %s" L2N, "orientation=\"%s\">\n"), orientation ? "vertical" : "horizontal" );
-+	fprintf(out, SELECT(L2P "orientation %s" L2N, " orientation=\"%s\""), orientation ? "vertical" : "horizontal" );
- 	if (showxy)
- 	{
--		fprintf(out, SELECT(L2P "x %d" L2N, "\t\t\t<width>%d</width>\n"), dx);
--		fprintf(out, SELECT(L2P "y %d" L2N, "\t\t\t<height>%d</height>\n"), dy);
-+		fprintf(out, SELECT(L2P "x %d" L2N, " width=\"%d\""), dx);
-+		fprintf(out, SELECT(L2P "y %d" L2N, " height=\"%d\""), dy);
- 	}
- 
--	fprintf(out, SELECT(L2P "aspectx %d" L2N, "\t\t\t<aspectx>%d</aspectx>\n"), ax);
--	fprintf(out, SELECT(L2P "aspecty %d" L2N, "\t\t\t<aspecty>%d</aspecty>\n"), ay);
-+	fprintf(out, SELECT(L2P "aspectx %d" L2N, " aspectx=\"%d\""), ax);
-+	fprintf(out, SELECT(L2P "aspecty %d" L2N, " aspecty=\"%d\""), ay);
- 
--	fprintf(out, SELECT(L2P "freq %f" L2N, "\t\t\t<refresh>%f</refresh>\n"), driver.frames_per_second);
--	fprintf(out, SELECT(L2E L1N, "\t\t</video>\n"));
-+	fprintf(out, SELECT(L2P "freq %f" L2N, " refresh=\"%f\""), driver.frames_per_second);
-+	fprintf(out, SELECT(L2E L1N, "/>\n"));
- }
- 
--static void print_game_sound(FILE* out, const struct GameDriver* game)
-+static void print_game_sound(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	struct InternalMachineDriver driver;
- 	const struct MachineCPU* cpu;
- 	const struct MachineSound* sound;
- 
-@@ -703,270 +716,279 @@
- 		if  ((cpu[i].cpu_flags & CPU_AUDIO_CPU)!=0)
- 			has_sound = 1;
- 		++i;
- 	}
- 
--	fprintf(out, SELECT(L1P "sound" L2B, "\t\t<sound>\n"));
-+	fprintf(out, SELECT(L1P "sound" L2B, "\t\t<sound"));
- 
- 	/* sound channel */
- 	if (has_sound)
- 	{
- 		if (driver.sound_attributes & SOUND_SUPPORTS_STEREO)
--			fprintf(out, SELECT(L2P "channels 2" L2N, "\t\t\t<channels>2</channels>\n"));
-+			fprintf(out, SELECT(L2P "channels 2" L2N, " channels=\"2\""));
- 		else
--			fprintf(out, SELECT(L2P "channels 1" L2N, "\t\t\t<channels>1</channels>\n"));
-+			fprintf(out, SELECT(L2P "channels 1" L2N, " channels=\"1\""));
- 	}
- 	else
--		fprintf(out, SELECT(L2P "channels 0" L2N, "\t\t\t<channels>0</channels>\n"));
-+		fprintf(out, SELECT(L2P "channels 0" L2N, " channels=\"0\""));
- 
--	fprintf(out, SELECT(L2E L1N, "\t\t</sound>\n"));
-+	fprintf(out, SELECT(L2E L1N, "/>\n"));
- }
- 
- #define HISTORY_BUFFER_MAX 16384
- 
--static void print_game_history(FILE* out, const struct GameDriver* game)
-+static void print_game_history(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	char buffer[HISTORY_BUFFER_MAX];
- 
- 	if (load_driver_history(game,buffer,HISTORY_BUFFER_MAX)==0)
- 	{
--		fprintf(out, SELECT(L1P "history ", "\t\t<history>\n\t\t"));
--		print_c_string(out, buffer);
--		fprintf(out, SELECT(L1N, "\n\t\t</history>\n"));
-+		fprintf(out, SELECT(L1P "history ", "\t\t<history>"));
-+		print_free_string(OUTPUT_XML, out, buffer);
-+		fprintf(out, SELECT(L1N, "</history>\n"));
- 	}
- }
- 
--static void print_game_driver(FILE* out, const struct GameDriver* game)
-+static void print_game_driver(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	struct InternalMachineDriver driver;
- 
- 	expand_machine_driver(game->drv, &driver);
- 
--	fprintf(out, SELECT(L1P "driver" L2B, "\t\t<driver "));
-+	fprintf(out, SELECT(L1P "driver" L2B, "\t\t<driver"));
- 	if (game->flags & GAME_NOT_WORKING)
--		fprintf(out, SELECT(L2P "status preliminary" L2N, "status=\"preliminary\" "));
-+		fprintf(out, SELECT(L2P "status preliminary" L2N, " status=\"preliminary\""));
- 	else
--		fprintf(out, SELECT(L2P "status good" L2N, "status=\"good\" "));
-+		fprintf(out, SELECT(L2P "status good" L2N, " status=\"good\""));
- 
- 	if (game->flags & GAME_WRONG_COLORS)
--		fprintf(out, SELECT(L2P "color preliminary" L2N, "color=\"preliminary\" "));
-+		fprintf(out, SELECT(L2P "color preliminary" L2N, " color=\"preliminary\""));
- 	else if (game->flags & GAME_IMPERFECT_COLORS)
--		fprintf(out, SELECT(L2P "color imperfect" L2N, "color=\"imperfect\" "));
-+		fprintf(out, SELECT(L2P "color imperfect" L2N, " color=\"imperfect\""));
- 	else
--		fprintf(out, SELECT(L2P "color good" L2N, "color=\"good\" "));
-+		fprintf(out, SELECT(L2P "color good" L2N, " color=\"good\""));
- 
- 	if (game->flags & GAME_NO_SOUND)
--		fprintf(out, SELECT(L2P "sound preliminary" L2N, "sound=\"preliminary\""));
-+		fprintf(out, SELECT(L2P "sound preliminary" L2N, " sound=\"preliminary\""));
- 	else if (game->flags & GAME_IMPERFECT_SOUND)
--		fprintf(out, SELECT(L2P "sound imperfect" L2N, "sound=\"imperfect\""));
-+		fprintf(out, SELECT(L2P "sound imperfect" L2N, " sound=\"imperfect\""));
- 	else
--		fprintf(out, SELECT(L2P "sound good" L2N, "sound=\"good\""));
-+		fprintf(out, SELECT(L2P "sound good" L2N, " sound=\"good\""));
- 
--	fprintf(out, "%s", SELECT("", ">\n"));
-+	fprintf(out, SELECT(L2P "palettesize %d" L2N, " palettesize=\"%d\""), driver.total_colors);
- 
--	fprintf(out, SELECT(L2P "palettesize %d" L2N, "\t\t\t<palettesize>%d</palettesize>\n"), driver.total_colors);
--
--	fprintf(out, SELECT(L2E L1N, "\t\t</driver>\n"));
-+	fprintf(out, SELECT(L2E L1N, "/>\n"));
- }
- 
- /* Print the MAME info record for a game */
--static void print_game_info(FILE* out, const struct GameDriver* game)
-+static void print_game_info(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 
--#ifndef MESS
--	fprintf(out, SELECT("game" L1B, "\t<game>\n"));
--#else
--	fprintf(out, SELECT("machine" L1B, "\t<machine>\n"));
--#endif
-+	fprintf(out, SELECT(XML_TOP L1B, "\t<" XML_TOP));
- 
--	fprintf(out, SELECT(L1P "name %s" L1N, "\t\t<name>%s</name>\n"), game->name );
-+	fprintf(out, SELECT(L1P "name %s" L1N, " name=\"%s\""), game->name );
-+
-+	if (OUTPUT_XML) {
-+		extern struct GameDriver driver_0;
-+
-+		if (game->clone_of && !(game->clone_of->flags & NOT_A_DRIVER))
-+			fprintf(out, " cloneof=\"%s\"", game->clone_of->name);
-+
-+		if (game->clone_of && game->clone_of != &driver_0)
-+			fprintf(out, " romof=\"%s\"", game->clone_of->name);
-+
-+		print_game_sampleof(OUTPUT_XML, out, game);
-+
-+		fprintf(out, ">\n");
-+	}
- 
- 	if (game->description)
- 	{
- 		fprintf(out, SELECT(L1P "description ", "\t\t<description>"));
--		print_c_string(out, game->description );
-+		print_free_string(OUTPUT_XML, out, game->description);
- 		fprintf(out, SELECT(L1N, "</description>\n"));
- 	}
- 
- 	/* print the year only if is a number */
- 	if (game->year && strspn(game->year,"0123456789")==strlen(game->year))
- 		fprintf(out, SELECT(L1P "year %s" L1N, "\t\t<year>%s</year>\n"), game->year );
- 
- 	if (game->manufacturer)
- 	{
- 		fprintf(out, SELECT(L1P "manufacturer ", "\t\t<manufacturer>"));
--		print_c_string(out, game->manufacturer );
-+		print_free_string(OUTPUT_XML, out, game->manufacturer);
- 		fprintf(out, SELECT(L1N, "</manufacturer>\n"));
- 	}
- 
--	print_game_history(out,game);
-+	print_game_history(OUTPUT_XML, out, game);
- 
--	if (game->clone_of && !(game->clone_of->flags & NOT_A_DRIVER))
--		fprintf(out, SELECT(L1P "cloneof %s" L1N, "\t\t<cloneof>%s</cloneof>\n"), game->clone_of->name);
-+	if (!OUTPUT_XML) {
-+		if (game->clone_of && !(game->clone_of->flags & NOT_A_DRIVER))
-+			fprintf(out, L1P "cloneof %s" L1N, game->clone_of->name);
-+	}
-+
-+	print_game_rom(OUTPUT_XML, out, game);
-+
-+	if (!OUTPUT_XML) {
-+		print_game_sampleof(OUTPUT_XML, out, game);
-+	}
- 
--	print_game_rom(out,game);
--	print_game_sample(out,game);
--	print_game_micro(out,game);
--	print_game_video(out,game);
--	print_game_sound(out,game);
--	print_game_input(out,game);
--	print_game_switch(out,game);
--	print_game_driver(out,game);
-+	print_game_sample(OUTPUT_XML, out, game);
-+	print_game_micro(OUTPUT_XML, out, game);
-+	print_game_video(OUTPUT_XML, out, game);
-+	print_game_sound(OUTPUT_XML, out, game);
-+	print_game_input(OUTPUT_XML, out, game);
-+	print_game_switch(OUTPUT_XML, out, game);
-+	print_game_driver(OUTPUT_XML, out, game);
- 
--	fprintf(out, SELECT(L1E, "\t</game>\n"));
-+	fprintf(out, SELECT(L1E, "\t</" XML_TOP ">\n"));
- }
- 
- #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
- /* Print the resource info */
--static void print_resource_info(FILE* out, const struct GameDriver* game)
-+static void print_resource_info(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
--	fprintf(out, SELECT("resource" L1B, "\t<game resource=\"yes\">\n") );
-+	fprintf(out, SELECT("resource" L1B, "\t<" XML_TOP " runnable=\"no\"") );
- 
--	fprintf(out, SELECT(L1P "name %s" L1N, "\t\t<name>%s</name>\n"), game->name );
-+	fprintf(out, SELECT(L1P "name %s" L1N, " name=\"%s\""), game->name );
-+
-+	fprintf(out, "%s", SELECT("", ">\n"));
- 
- 	if (game->description)
- 	{
- 		fprintf(out, SELECT(L1P "description ", "\t\t<description>"));
--		print_c_string(out, game->description );
-+		print_free_string(OUTPUT_XML, out, game->description);
- 		fprintf(out, SELECT(L1N, "</description>\n"));
- 	}
- 
- 	/* print the year only if it's a number */
- 	if (game->year && strspn(game->year,"0123456789")==strlen(game->year))
- 		fprintf(out, SELECT(L1P "year %s" L1N, "\t\t<year>%s</year>\n"), game->year );
- 
- 	if (game->manufacturer)
- 	{
- 		fprintf(out, SELECT(L1P "manufacturer ", "\t\t<manufacturer>"));
--		print_c_string(out, game->manufacturer );
-+		print_free_string(OUTPUT_XML, out, game->manufacturer);
- 		fprintf(out, SELECT(L1N, "</manufacturer>\n"));
- 	}
- 
--	print_game_rom(out,game);
--	print_game_sample(out,game);
-+	print_game_rom(OUTPUT_XML, out, game);
-+	print_game_sample(OUTPUT_XML, out, game);
- 
--	fprintf(out, SELECT(L1E, "\t</game>\n"));
-+	fprintf(out, SELECT(L1E, "\t</" XML_TOP ">\n"));
- }
- 
- /* Import the driver object and print it as a resource */
--#define PRINT_RESOURCE(s) \
-+#define PRINT_RESOURCE(format, s) \
- 	{ \
- 		extern struct GameDriver driver_##s; \
--		print_resource_info( out, &driver_##s ); \
-+		print_resource_info(format, out, &driver_##s); \
- 	}
- 
- #endif
- 
--/* Print all the MAME info database */
--void print_mame_info(FILE* out, const struct GameDriver* games[])
-+static void print_mame_data(int OUTPUT_XML, FILE* out, const struct GameDriver* games[])
- {
- 	int j;
- 
--	if (OUTPUT_XML)
--	{
--		fprintf(out,
--			"<?xml version=\"1.0\"?>\n"
--#ifndef MESS
--			"<!DOCTYPE gamelist [\n"
--			"<!ELEMENT gamelist (game+)>\n"
--			"\t<!ELEMENT game (name, description, year, manufacturer, history, cloneof, driver, chip*, video, sound, input, dipswitch*, romof, rom*, disk*)>\n"
--			"\t\t<!ATTLIST game resource (yes|no) \"no\">\n"
--#else
--			"<!DOCTYPE machinelist [\n"
--			"<!ELEMENT machinelist (machine+)>\n"
--			"\t<!ELEMENT machine (name, description, year, manufacturer, history, cloneof, driver, chip*, video, sound, input, dipswitch*, romof, rom*, disk*)>\n"
--#endif
--			"\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t<!ELEMENT description (#PCDATA)>\n"
--			"\t\t<!ELEMENT year (#PCDATA)>\n"
--			"\t\t<!ELEMENT manufacturer (#PCDATA)>\n"
--			"\t\t<!ELEMENT history (#PCDATA)>\n"
--			"\t\t<!ELEMENT cloneof (#PCDATA)>\n"
--			"\t\t<!ELEMENT driver (palettesize)>\n"
--			"\t\t\t<!ATTLIST driver status (good|preliminary) #REQUIRED>\n"
--			"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"
--			"\t\t\t<!ATTLIST driver sound (good|imperfect|preliminary) #REQUIRED>\n"
--			"\t\t\t<!ELEMENT palettesize (#PCDATA)>\n"
--			"\t\t<!ELEMENT chip (name, clock)>\n"
--			"\t\t\t<!ATTLIST chip type (cpu|audio) #REQUIRED>\n"
--			"\t\t\t<!ATTLIST chip audio (yes|no) \"no\">\n"
--			"\t\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT clock (#PCDATA)>\n"
--			"\t\t<!ELEMENT video (width, height, aspectx, aspecty, refresh)>\n"
--			"\t\t\t<!ATTLIST video screen (raster|vector) \"raster\">\n"
--			"\t\t\t<!ATTLIST video orientation (raster|vector) #REQUIRED>\n"
--			"\t\t\t<!ELEMENT width (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT height (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT aspectx (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT aspecty (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT refresh (#PCDATA)>\n"
--			"\t\t<!ELEMENT sound (channels)>\n"
--			"\t\t\t<!ELEMENT channels (#PCDATA)>\n"
--			"\t\t<!ELEMENT input (players, control?, buttons?, coins?)>\n"
--			"\t\t\t<!ATTLIST input service (yes|no) \"no\">\n"
--			"\t\t\t<!ATTLIST input tilt (yes|no) \"no\">\n"
--			"\t\t\t<!ELEMENT players (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT control (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT buttons (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT coins (#PCDATA)>\n"
--			"\t\t<!ELEMENT dipswitch (name, dipvalue*)>\n"
--			"\t\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT dipvalue (name)>\n"
--			"\t\t\t\t<!ATTLIST dipvalue default (yes|no) \"no\">\n"
--			"\t\t\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t<!ELEMENT romof (#PCDATA)>\n"
--			"\t\t<!ELEMENT rom (name?, merge?, size, crc?, md5?, sha1?, region, offset)>\n"
--			"\t\t\t<!ATTLIST rom baddump (yes|no) \"no\">\n"
--			"\t\t\t<!ATTLIST rom nodump (yes|no) \"no\">\n"
--			"\t\t\t<!ATTLIST rom dispose (yes|no) \"no\">\n"
--			"\t\t\t<!ATTLIST rom soundonly (yes|no) \"no\">\n"
--			"\t\t\t<!ATTLIST rom flags CDATA #IMPLIED>\n"
--			"\t\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT merge (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT size (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT crc (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT md5 (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT sha1 (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT region (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT offset (#PCDATA)>\n"
--			"\t\t<!ELEMENT disk (name?, md5?, sha1?, region, index)>\n"
--			"\t\t\t<!ELEMENT name (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT md5 (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT sha1 (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT region (#PCDATA)>\n"
--			"\t\t\t<!ELEMENT index (#PCDATA)>\n"
--			"]>\n\n"
--#ifndef MESS
--			"<gamelist>\n"
--#else
--			"<machinelist>\n"
--#endif
--			);
--	}
--
- 	/* print games */
- 	for(j=0;games[j];++j)
--		print_game_info( out, games[j] );
-+		print_game_info(OUTPUT_XML, out, games[j]);
- 
- 	/* print the resources (only if linked) */
- #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
--	PRINT_RESOURCE(neogeo);
-+	PRINT_RESOURCE(OUTPUT_XML, neogeo);
- #if !defined(NEOMAME)
--	PRINT_RESOURCE(cvs);
--	PRINT_RESOURCE(decocass);
--	PRINT_RESOURCE(playch10);
--	PRINT_RESOURCE(pgm);
--	PRINT_RESOURCE(skns);
--	PRINT_RESOURCE(stvbios);
--	PRINT_RESOURCE(konamigx);
-+	PRINT_RESOURCE(OUTPUT_XML, cvs);
-+	PRINT_RESOURCE(OUTPUT_XML, decocass);
-+	PRINT_RESOURCE(OUTPUT_XML, playch10);
-+	PRINT_RESOURCE(OUTPUT_XML, pgm);
-+	PRINT_RESOURCE(OUTPUT_XML, skns);
-+	PRINT_RESOURCE(OUTPUT_XML, stvbios);
-+	PRINT_RESOURCE(OUTPUT_XML, konamigx);
- #endif
- #endif
-+}
- 
--	if (OUTPUT_XML)
--	{
--#ifndef MESS
--		fprintf(out, "</gamelist>\n");
--#else
--		fprintf(out, "</machinelist>\n");
--#endif
--	}
-+/* Print the MAME database in XML format */
-+void print_mame_xml(FILE* out, const struct GameDriver* games[])
-+{
-+	fprintf(out,
-+		"<?xml version=\"1.0\"?>\n"
-+		"<!DOCTYPE " XML_ROOT " [\n"
-+		"<!ELEMENT " XML_ROOT " (" XML_TOP "+)>\n"
-+		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
-+		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
-+		"\t\t<!ATTLIST " XML_TOP " runnable (yes|no) \"yes\">\n"
-+		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
-+		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
-+		"\t\t<!ATTLIST " XML_TOP " sampleof CDATA #IMPLIED>\n"
-+		"\t\t<!ELEMENT description (#PCDATA)>\n"
-+		"\t\t<!ELEMENT year (#PCDATA)>\n"
-+		"\t\t<!ELEMENT manufacturer (#PCDATA)>\n"
-+		"\t\t<!ELEMENT history (#PCDATA)>\n"
-+		"\t\t<!ELEMENT rom EMPTY>\n"
-+		"\t\t\t<!ATTLIST rom name CDATA #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST rom size CDATA #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST rom crc CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom md5 CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom sha1 CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom merge CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom region CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom offset CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST rom status (baddump|nodump|good) \"good\">\n"
-+		"\t\t\t<!ATTLIST rom dispose (yes|no) \"no\">\n"
-+		"\t\t\t<!ATTLIST rom soundonly (yes|no) \"no\">\n"
-+		"\t\t<!ELEMENT disk EMPTY>\n"
-+		"\t\t\t<!ATTLIST disk name CDATA #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST disk md5 CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST disk sha1 CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST disk region CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST disk index CDATA #IMPLIED>\n"
-+		"\t\t<!ELEMENT sample EMPTY>\n"
-+		"\t\t\t<!ATTLIST sample name CDATA #REQUIRED>\n"
-+		"\t\t<!ELEMENT chip EMPTY>\n"
-+		"\t\t\t<!ATTLIST chip name CDATA #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST chip type (cpu|audio) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST chip soundonly (yes|no) \"no\">\n"
-+		"\t\t\t<!ATTLIST chip clock CDATA #IMPLIED>\n"
-+		"\t\t<!ELEMENT video EMPTY>\n"
-+		"\t\t\t<!ATTLIST video screen (raster|vector) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST video orientation (vertical|horizontal) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST video width CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST video height CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST video aspectx CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST video aspecty CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST video refresh CDATA #REQUIRED>\n"
-+		"\t\t<!ELEMENT sound EMPTY>\n"
-+		"\t\t\t<!ATTLIST sound channels CDATA #REQUIRED>\n"
-+		"\t\t<!ELEMENT input EMPTY>\n"
-+		"\t\t\t<!ATTLIST input service (yes|no) \"no\">\n"
-+		"\t\t\t<!ATTLIST input tilt (yes|no) \"no\">\n"
-+		"\t\t\t<!ATTLIST input players CDATA #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST input control CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST input buttons CDATA #IMPLIED>\n"
-+		"\t\t\t<!ATTLIST input coins CDATA #IMPLIED>\n"
-+		"\t\t<!ELEMENT dipswitch (dipvalue*)>\n"
-+		"\t\t\t<!ATTLIST dipswitch name CDATA #REQUIRED>\n"
-+		"\t\t\t<!ELEMENT dipvalue EMPTY>\n"
-+		"\t\t\t\t<!ATTLIST dipvalue name CDATA #REQUIRED>\n"
-+		"\t\t\t\t<!ATTLIST dipvalue default (yes|no) \"no\">\n"
-+		"\t\t<!ELEMENT driver EMPTY>\n"
-+		"\t\t\t<!ATTLIST driver status (good|preliminary|test) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST driver sound (good|imperfect|preliminary) #REQUIRED>\n"
-+		"\t\t\t<!ATTLIST driver palettesize CDATA #REQUIRED>\n"
-+		"]>\n\n"
-+		"<" XML_ROOT ">\n"
-+	);
-+
-+	print_mame_data(1, out, games);
-+
-+	fprintf(out, "</" XML_ROOT ">\n");
-+}
-+
-+/* Print the MAME database in INFO format */
-+void print_mame_info(FILE* out, const struct GameDriver* games[])
-+{
-+	print_mame_data(0, out, games);
- }
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/info.h src/info.h
---- src.ori/info.h	2003-05-15 04:59:00.000000000 +0200
-+++ src/info.h	2003-05-24 21:32:11.000000000 +0200
-@@ -1,7 +1,10 @@
- #ifndef __INFO_H
- #define __INFO_H
- 
--/* Print all the MAME info records */
-+/* Print the MAME database in INFO format */
- void print_mame_info(FILE* out, const struct GameDriver* games[]);
- 
-+/* Print the MAME database in XML format */
-+void print_mame_xml(FILE* out, const struct GameDriver* games[]);
-+
- #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/inptport.c	2003-05-16 18:50:26.000000000 +0200
+--- src.ori/inptport.c	2003-06-09 22:02:00.000000000 +0200
++++ src/inptport.c	2003-06-13 21:23:27.000000000 +0200
 @@ -147,10 +147,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -1406,7 +507,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1151,10 +1156,11 @@
+@@ -1167,10 +1172,11 @@
  		if (readint(f,&dispensed_tickets) != 0)
  			goto getout;
  
@@ -1418,7 +519,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
  	/* All analog ports need initialization */
-@@ -1694,14 +1700,16 @@
+@@ -1710,14 +1716,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -1439,7 +540,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -1959,16 +1967,23 @@
+@@ -1975,16 +1983,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -1463,7 +564,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -2057,18 +2072,20 @@
+@@ -2076,18 +2091,20 @@
  				}
  				else
  				{
@@ -1491,16 +592,16 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2196,10 +2213,14 @@
- #ifdef MAME_NET
- 	if ( net_active() && (default_player != NET_SPECTATOR) )
- 		net_input_sync((unsigned char *) input_port_value, (unsigned char *) input_port_defaults, MAX_INPUT_PORTS);
+@@ -2218,10 +2235,14 @@
+ #elif defined XMAME_NET
+ 	if ( osd_net_active() )
+ 		osd_net_sync(input_port_value, input_port_defaults);
  #endif /* MAME_NET */
  
 +	/* set the last coin status */
 +	for(coin=0;coin<4;++coin)
 +		lastcoin[coin] = newcoin[coin];
-+	
++
  profiler_mark(PROFILER_END);
  }
  
@@ -1508,7 +609,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	2003-05-15 04:59:00.000000000 +0200
-+++ src/inptport.h	2003-05-16 18:50:26.000000000 +0200
++++ src/inptport.h	2003-06-13 21:21:40.000000000 +0200
 @@ -81,10 +81,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -1527,7 +628,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/input.c src/input.c
 --- src.ori/input.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/input.c	2003-05-16 18:50:26.000000000 +0200
++++ src/input.c	2003-06-13 21:21:40.000000000 +0200
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -1555,8 +656,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/mame.c src/mame.c
---- src.ori/mame.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/mame.c	2003-05-16 18:50:26.000000000 +0200
+--- src.ori/mame.c	2003-06-10 19:54:02.000000000 +0200
++++ src/mame.c	2003-06-13 21:21:40.000000000 +0200
 @@ -956,26 +956,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -1594,45 +695,15 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
  /*-------------------------------------------------
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/neomame.mak src/neomame.mak
---- src.ori/neomame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/neomame.mak	2003-05-16 18:50:26.000000000 +0200
-@@ -8,17 +8,20 @@
- EMULATOR_EXE = neomame.exe
- 
- # CPUs
- CPUS+=Z80@
- CPUS+=M68000@
-+CPUS+=M68020@
- 
- # SOUNDs
- SOUNDS+=AY8910@
- SOUNDS+=YM2610@
-+SOUNDS+=DISCRETE@
- 
- DRVLIBS = $(OBJ)/neogeo.a
- 
- $(OBJ)/neogeo.a: \
- 	$(OBJ)/machine/neogeo.o $(OBJ)/machine/pd4990a.o $(OBJ)/vidhrdw/neogeo.o $(OBJ)/drivers/neogeo.o \
-+	$(OBJ)/machine/neocrypt.o
- 
- # MAME specific core objs
- COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2003-05-15 04:59:00.000000000 +0200
-+++ src/osdepend.h	2003-05-16 18:50:26.000000000 +0200
-@@ -358,11 +358,37 @@
- /* things like changing the title bar or darkening the display. */
- /* Note that the OS dependant code must NOT stop processing input, since the user */
- /* interface is still active while the game is paused. */
- void osd_pause(int paused);
+--- src.ori/osdepend.h	2003-06-09 22:02:00.000000000 +0200
++++ src/osdepend.h	2003-06-13 21:24:55.000000000 +0200
+@@ -394,10 +394,32 @@
+       __attribute__ ((format (printf, 1, 2)));
+ #else
+ void CLIB_DECL logerror(const char *text,...);
+ #endif
  
-+/******************************************************************************
- 
-+  Additions
-+
-+******************************************************************************/
-+
 +/* called then the game is reset */
 +void osd_reset(void);
 +
@@ -1654,14 +725,15 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
 +
 +/* customize the inputport after they are read from the .cfg file */
 +void osd_customize_inputport_current(struct InputPort* current);
++
+ #ifdef __cplusplus
+ }
+ #endif
  
- #ifdef MAME_NET
- /* network */
- int osd_net_init(void);
- int osd_net_send(int player, unsigned char buf[], int *size);
+ #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
---- src.ori/ui_text.c	2003-05-24 20:21:34.000000000 +0200
-+++ src/ui_text.c	2003-05-24 20:23:10.000000000 +0200
+--- src.ori/ui_text.c	2003-05-23 16:51:24.000000000 +0200
++++ src/ui_text.c	2003-06-13 21:21:40.000000000 +0200
 @@ -239,10 +239,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -1678,8 +750,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  int uistring_init (mame_file *langfile)
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.h src/ui_text.h
---- src.ori/ui_text.h	2003-05-24 20:21:34.000000000 +0200
-+++ src/ui_text.h	2003-05-24 20:23:10.000000000 +0200
+--- src.ori/ui_text.h	2003-05-23 16:51:24.000000000 +0200
++++ src/ui_text.h	2003-06-13 21:21:40.000000000 +0200
 @@ -205,10 +205,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -1696,9 +768,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2003-05-24 20:21:34.000000000 +0200
-+++ src/usrintrf.c	2003-05-24 20:23:10.000000000 +0200
-@@ -847,12 +847,16 @@
+--- src.ori/usrintrf.c	2003-06-09 22:02:00.000000000 +0200
++++ src/usrintrf.c	2003-06-13 21:25:41.000000000 +0200
+@@ -851,12 +851,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -1717,7 +789,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	count = i;
  
  	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
-@@ -920,15 +924,27 @@
+@@ -924,15 +928,27 @@
  				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
  				curr_dt++;
  			}
@@ -1750,7 +822,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
  	i = selected - topitem;
-@@ -2047,13 +2063,13 @@
+@@ -2051,13 +2067,13 @@
  		in++;
  	}
  
@@ -1766,7 +838,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2066,15 +2082,17 @@
+@@ -2070,15 +2086,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -1784,7 +856,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -2093,10 +2111,18 @@
+@@ -2097,10 +2115,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -1803,7 +875,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -2144,10 +2170,21 @@
+@@ -2148,10 +2174,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -1825,7 +897,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -2180,10 +2217,21 @@
+@@ -2184,10 +2221,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -1847,7 +919,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2487,14 +2535,16 @@
+@@ -2491,14 +2539,16 @@
  
  int showgamewarnings(struct mame_bitmap *bitmap)
  {
@@ -1867,25 +939,25 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  		strcpy(buf, ui_getstring (UI_knownproblems));
  		strcat(buf, "\n\n");
-@@ -3046,15 +3096,15 @@
+@@ -3050,15 +3100,15 @@
  
  
  #ifndef MESS
  enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_STATS,UI_GAMEINFO, UI_HISTORY,
--		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
-+		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
+-		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT };
++		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,UI_OSD };
  #else
  enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_GAMEINFO, UI_IMAGEINFO,UI_FILEMANAGER,UI_TAPECONTROL,
--		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
-+		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
+-		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT };
++		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,UI_OSD };
  #endif
  
  
- #define MAX_SETUPMENU_ITEMS 20
- static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3129,10 +3179,11 @@
+ #ifdef XMAME
+ extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
+@@ -3150,10 +3200,11 @@
  #endif
  #endif
  #endif
@@ -1897,7 +969,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3191,10 +3242,13 @@
+@@ -3217,10 +3268,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -1911,7 +983,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3245,10 +3299,11 @@
+@@ -3274,10 +3328,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -1923,7 +995,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				break;
  
  			case UI_RESET:
-@@ -3782,10 +3837,63 @@
+@@ -3811,10 +3866,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -1987,7 +1059,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	int file = 0;
  
  	mame_pause(1);
-@@ -3902,17 +4010,42 @@
+@@ -3931,17 +4039,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -2032,7 +1104,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4015,10 +4148,14 @@
+@@ -4047,10 +4180,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -2047,7 +1119,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4027,11 +4164,11 @@
+@@ -4059,11 +4196,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -2061,8 +1133,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				setup_selected = -1;
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
---- src.ori/vidhrdw/cave.c	2003-05-15 04:58:00.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-05-16 18:50:26.000000000 +0200
+--- src.ori/vidhrdw/cave.c	2003-06-09 20:34:00.000000000 +0200
++++ src/vidhrdw/cave.c	2003-06-13 21:21:40.000000000 +0200
 @@ -1535,10 +1535,13 @@
  {
  	int pri, pri2;

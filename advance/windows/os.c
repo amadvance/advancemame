@@ -57,16 +57,6 @@ struct os_context {
 static struct os_context OS;
 
 /***************************************************************************/
-/* Clock */
-
-os_clock_t OS_CLOCKS_PER_SEC = 1000;
-
-os_clock_t os_clock(void)
-{
-	return SDL_GetTicks();
-}
-
-/***************************************************************************/
 /* Init */
 
 int os_init(adv_conf* context)
@@ -83,7 +73,7 @@ void os_done(void)
 int os_inner_init(const char* title)
 {
 	SDL_version compiled;
-	os_clock_t start, stop;
+	target_clock_t start, stop;
 
 	log_std(("os: sys SDL\n"));
 
@@ -118,10 +108,10 @@ int os_inner_init(const char* title)
 	else
 		log_std(("os: sdl big endian system\n"));
 
-	start = os_clock();
-	stop = os_clock();
+	start = target_clock();
+	stop = target_clock();
 	while (stop == start)
-		stop = os_clock();
+		stop = target_clock();
 	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
 
 	/* set the titlebar */
@@ -208,13 +198,6 @@ void os_poll(void)
 const char* os_internal_title_get(void)
 {
 	return OS.title_buffer;
-}
-
-/***************************************************************************/
-/* Led */
-
-void os_led_set(unsigned mask)
-{
 }
 
 /***************************************************************************/

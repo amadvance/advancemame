@@ -69,10 +69,10 @@ void wait_button_press(void)
 
 void wait_button_release(void)
 {
-	os_clock_t start = os_clock();
-	while (os_clock() - start < OS_CLOCKS_PER_SEC / 10) {
+	target_clock_t start = target_clock();
+	while (target_clock() - start < TARGET_CLOCKS_PER_SEC / 10) {
 		if (button_pressed())
-			start = os_clock();
+			start = target_clock();
 	}
 }
 
@@ -114,13 +114,13 @@ void run(void)
 	char msg[1024];
 	char new_msg[1024];
 	int i, j, k;
-	os_clock_t last;
+	target_clock_t last;
 
 	printf("Press Break to exit\n");
 
 	signal(SIGINT, sigint);
 
-	last = os_clock();
+	last = target_clock();
 	msg[0] = 0;
 	while (!done) {
 
@@ -153,8 +153,8 @@ void run(void)
 		}
 
 		if (strcmp(msg, new_msg)!=0) {
-			os_clock_t current = os_clock();
-			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
+			target_clock_t current = target_clock();
+			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
 			last = current;
 			sncpy(msg, sizeof(msg), new_msg);
 			printf("%s (%4.0f ms)\n", msg, period);

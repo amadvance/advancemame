@@ -191,7 +191,7 @@ public:
 	play_t play_best_get() const { return play_best; }
 	void year_set(const std::string& A) { year = A; }
 	const std::string& year_get() const { return year; }
-	void manufacturer_set(const std::string& A) { manufacturer = A; }
+	void manufacturer_set(const std::string& A);
 	const std::string& manufacturer_get() const { return manufacturer; }
 	void software_path_set(const std::string& A) const { software_path = A; }
 	const std::string& software_path_get() const { return software_path; }

@@ -83,6 +83,16 @@ void target_usleep(unsigned us)
 }
 
 /***************************************************************************/
+/* Clock */
+
+target_clock_t TARGET_CLOCKS_PER_SEC = 1000;
+
+target_clock_t target_clock(void)
+{
+	return SDL_GetTicks();
+}
+
+/***************************************************************************/
 /* Hardware */
 
 void target_port_set(unsigned addr, unsigned value)
@@ -132,10 +142,50 @@ void target_sound_signal(void)
 /***************************************************************************/
 /* APM */
 
+#define WIN2K_EWX_FORCEIFHUNG 0x00000010
+
 adv_error target_apm_shutdown(void)
 {
-	/* nothing */
-	return 0;
+	OSVERSIONINFO VersionInformation;
+	DWORD flags = EWX_POWEROFF;
+
+#if 0
+	/* force always the shutdown */
+	flags |= EWX_FORCE;
+#endif	
+
+	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (!GetVersionEx(&VersionInformation)) {
+		return -1;
+	}
+
+	if (VersionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+		HANDLE hToken;
+		TOKEN_PRIVILEGES tkp;
+
+	 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+			return -1;
+ 
+		LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+
+		tkp.PrivilegeCount = 1;
+		tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+ 
+		AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+ 
+		if (GetLastError() != ERROR_SUCCESS)
+			return -1;
+
+		if ((flags & EWX_FORCE) == 0) {
+			if (VersionInformation.dwMajorVersion >= 5)
+				flags |= WIN2K_EWX_FORCEIFHUNG;
+		}
+	}
+
+	if (!ExitWindowsEx(flags, 0)) 
+		return -1;
+
+	return 0;	
 }
 
 adv_error target_apm_standby(void)
@@ -148,6 +198,13 @@ adv_error target_apm_wakeup(void)
 {
 	/* nothing */
 	return 0;
+}
+
+/***************************************************************************/
+/* Led */
+
+void target_led_set(unsigned mask)
+{
 }
 
 /***************************************************************************/

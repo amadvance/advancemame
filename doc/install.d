@@ -205,27 +205,41 @@ Video Configuration
 
 		:device_video_pclock 8 - 50
 
-	) In DOS try forcing the use of the `vbeline' driver instead of the
-		`svgaline' driver with the option:
+    Linux
+	) If you are using the `svgalib' driver ensure that you have installed
+		the most recent SVGALIB library. The old 1.4.x versions are
+		not supported.
 
-		:device_video vbeline vgaline
+	) If you are using the `fb' driver check the kernel patches
+		in the `contrib/fb' directory.
 
-	) In DOS, if your board has a VESA VBE 3.0 BIOS, try forcing the
-		`vbeline/vbe3' driver with the options:
+	) If you are using the `svgalib' driver check the svgalib patches
+		in the `contrib/svgalib' directory.
 
-		:device_video vbeline/vbe3 vgaline
-
-	) In DOS try changing the `vbeline_mode' option:
-
-		:device_video vbeline vgaline
-		:device_vbeline_mode smaller
-
-	) In Linux try forcing the use of the `fb' driver instead of the
+	) Try forcing the use of the `fb' driver instead of the
 		`svgalib' driver with the option:
 
 		:device_video fb slang
 
-	) In Windows try reducing the video hardware acceleration.
+    DOS
+	) Try forcing the use of the `vbeline' driver instead of the
+		`svgaline' driver with the option:
+
+		:device_video vbeline vgaline
+
+	) If your board has a VESA VBE 3.0 BIOS, try forcing the
+		`vbeline/vbe3' driver with the options:
+
+		:device_video vbeline/vbe3 vgaline
+
+	) If you are using the `vbeline' driver try changing the `vbeline_mode'
+		option:
+
+		:device_video vbeline vgaline
+		:device_vbeline_mode smaller
+
+    Windows
+	) Try reducing the video hardware acceleration.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

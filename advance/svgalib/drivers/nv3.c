@@ -804,7 +804,7 @@ static int CalcVClock
     for (P = 0; P <= P_MAX; P ++)
     {
         Freq = VClk << P;
-        if ((Freq >= 128000) && (Freq <= MAXVCLOCK))
+        if ((Freq >= 128000 || P == P_MAX) && (Freq <= MAXVCLOCK))
         {
             for (M = M_MIN; M <= M_MAX; M++)
             {

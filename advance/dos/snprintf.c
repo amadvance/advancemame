@@ -49,6 +49,12 @@
  *    fixed handling of %.0f
  *    added test for HAVE_LONG_DOUBLE
  *
+ *  Chris Kirmse (ckirmse@yahoo.com) May 2003
+ *    fixed handling of leading zeros in the fractional part of a float.
+ *
+ *  Andrea Mazzoleni May 2003
+ *    added minimal support for %g.
+ *
  **************************************************************/
 
 /* #include "config.h" */
@@ -104,6 +110,8 @@ static void fmtstr (char *buffer, size_t *currlen, size_t maxlen,
 static void fmtint (char *buffer, size_t *currlen, size_t maxlen,
 		    long value, int base, int min, int max, int flags);
 static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
+		   LDOUBLE fvalue, int min, int max, int flags);
+static void fmtfpg (char *buffer, size_t *currlen, size_t maxlen,
 		   LDOUBLE fvalue, int min, int max, int flags);
 static void dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c );
 
@@ -328,6 +336,7 @@ static void dopr (char *buffer, size_t maxlen, const char *format, va_list args)
 	  fvalue = va_arg (args, LDOUBLE);
 	else
 	  fvalue = va_arg (args, double);
+	fmtfpg (buffer, &currlen, maxlen, fvalue, min, max, flags);
 	break;
       case 'c':
 	dopr_outch (buffer, &currlen, maxlen, va_arg (args, int));
@@ -675,7 +684,15 @@ static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
    */
   if (max > 0)
   {
+    int i;
     dopr_outch (buffer, currlen, maxlen, '.');
+
+    /* print leading zeros of the fractional part */
+    for (i=0;i<max - fplace;i++)
+    {
+      dopr_outch(buffer,currlen,maxlen,'0');
+      zpadlen--;
+    }
 
     while (fplace > 0) 
       dopr_outch (buffer, currlen, maxlen, fconvert[--fplace]);
@@ -691,6 +708,24 @@ static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
   {
     dopr_outch (buffer, currlen, maxlen, ' ');
     ++padlen;
+  }
+}
+
+static void fmtfpg (char *buffer, size_t *currlen, size_t maxlen,
+		   LDOUBLE fvalue, int min, int max, int flags)
+{
+  size_t len = *currlen;
+  size_t i;
+  fmtfp(buffer, currlen, maxlen, fvalue, min, max, flags);
+  /* remove ending 0 after '.' */
+  for(i=len;i<*currlen;++i)
+    if (buffer[i] == '.')
+      break;
+  if (i<*currlen) {
+    while (*currlen>0 && buffer[*currlen - 1]=='0')
+      --*currlen;
+    if (*currlen>0 && buffer[*currlen - 1]=='.')
+      --*currlen;
   }
 }
 
@@ -759,7 +794,7 @@ int main (void)
     NULL
   };
   double fp_nums[] = { -1.5, 134.21, 91340.2, 341.1234, 0203.9, 0.96, 0.996, 
-    0.9996, 1.996, 4.136, 0};
+    0.9996, 1.996, 4.136, 1.05, 0};
   char *int_fmt[] = {
     "%-1.5d",
     "%1.5d",

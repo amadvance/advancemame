@@ -33,10 +33,6 @@
 
 #include <unistd.h>
 
-#ifdef __MSDOS__
-#include <dpmi.h> /* for _go32_dpmi_* */
-#endif
-
 using namespace std;
 
 // ------------------------------------------------------------------------
@@ -656,13 +652,13 @@ static void run_background_set(config_state& rs, const resource& sound)
 
 static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent)
 {
-	os_clock_t back_start = os_clock();
+	target_clock_t back_start = target_clock();
 
 	// delay before the background music start
-	os_clock_t back_stop = back_start + rs.repeat_rep * OS_CLOCKS_PER_SEC / 666; // / 666 = * 3 / 2 / 1000
+	target_clock_t back_stop = back_start + rs.repeat_rep * TARGET_CLOCKS_PER_SEC / 666; // / 666 = * 3 / 2 / 1000
 
 	// short busy wait (int_keypressed contains a idle call) */
-	while (!int_keypressed() && (os_clock() < back_stop)) {
+	while (!int_keypressed() && (target_clock() < back_stop)) {
 	}
 
 	if (!int_keypressed()) {
@@ -1282,10 +1278,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	int pos_rel;
 
 	if (rs.current_game) {
+
 		// if a game is selected search the same game
 		int i;
 		i = 0;
-		while (i < gc.size() && gc[i]->has_game() && &gc[i]->game_get() != rs.current_game)
+
+		log_std(("menu: search for game %s\n", rs.current_game->name_get().c_str()));
+
+		while (i < gc.size() && (!gc[i]->has_game() || &gc[i]->game_get() != rs.current_game))
 			++i;
 
 		if (i < gc.size()) {

@@ -368,45 +368,6 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-#ifdef __MSDOS__
-/* LEGACY (to be removed) */
-static adv_conf_conv CONV[] = {
-{ "", "video_mode_reset", "*", "", "video_restore", "%s", 0 },
-{ "", "video_font", "no", "", "%s", "none", 0 },
-{ "", "merge", "no", "", "%s", "none", 0 },
-{ "", "mouse", "no", "", "device_mouse", "none", 0 },
-{ "", "mouse", "like_emulator", "", "device_mouse", "auto", 0 },
-{ "", "mouse", "*", "", "device_mouse", "%s", 0 },
-{ "", "joystick", "no", "", "device_joystick", "none", 0 },
-{ "", "joystick", "like_emulator", "", "device_joystick", "auto", 0 },
-{ "", "joystick", "*", "", "device_joystick", "%s", 0 },
-{ "", "sound", "no", "", "device_sound", "none", 0 },
-{ "", "sound", "sb", "", "device_sound", "seal/sb", 0 },
-{ "", "sound", "pas", "", "device_sound", "seal/pas", 0 },
-{ "", "sound", "gusmax", "", "device_sound", "seal/gusmax", 0 },
-{ "", "sound", "gus", "", "device_sound", "seal/gus", 0 },
-{ "", "sound", "wss", "", "device_sound", "seal/wss", 0 },
-{ "", "sound", "ess", "", "device_sound", "seal/ess", 0 },
-{ "", "sound", "gus", "", "device_sound", "seal/gus", 0 },
-{ "", "sound", "like_emulator", "", "device_sound", "auto", 0 },
-{ "", "sound", "\"no\"", "", "device_sound", "none", 0 },
-{ "", "sound", "\"sb\"", "", "device_sound", "seal/sb", 0 },
-{ "", "sound", "\"pas\"", "", "device_sound", "seal/pas", 0 },
-{ "", "sound", "\"gusmax\"", "", "device_sound", "seal/gusmax", 0 },
-{ "", "sound", "\"gus\"", "", "device_sound", "seal/gus", 0 },
-{ "", "sound", "\"wss\"", "", "device_sound", "seal/wss", 0 },
-{ "", "sound", "\"ess\"", "", "device_sound", "seal/ess", 0 },
-{ "", "sound", "\"gus\"", "", "device_sound", "seal/gus", 0 },
-{ "", "sound", "\"like_emulator\"", "", "device_sound", "auto", 0 },
-{ "", "sound", "\"*\"", "", "device_sound", "%s", 0 },
-{ "", "sound", "*", "", "device_sound", "%s", 0 },
-{ "", "video_gamma", "like_emulator", "", "%s", "1.0", 0 },
-{ "", "video_brightness", "like_emulator", "", "%s", "1.0", 0 },
-{ "", "video_orientation", "like_emulator", "", "%s", "", 0 },
-{ "", "sound_volume", "*", "", "%s", "0", 0 }
-};
-#endif
-
 static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
@@ -504,22 +465,6 @@ int os_main(int argc, char* argv[])
 
 	int_init(config_context);
 	play_reg(config_context);
-
-#ifdef __MSDOS__
-	/* LEGACY (to be removed) */
-	if (file_config_file_legacy("mm.cfg")!=0 && access(file_config_file_legacy("mm.cfg"), R_OK)==0 && access(file_config_file_home("advmenu.rc"), R_OK)!=0) {
-		if (conf_input_file_load_adv(config_context, 0, file_config_file_legacy("mm.cfg"), file_config_file_home("advmenu.rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
-			goto err_init;
-		conf_sort(config_context);
-		conf_uncomment(config_context);
-		if (conf_save(config_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
-			goto err_init;
-		}
-		target_out("Configuration file '%s' created from '%s'.\n", file_config_file_home("advmenu.rc"), file_config_file_legacy("mm.cfg"));
-		goto done_init;
-	}
-#endif
 
 	if (conf_input_args_load(config_context, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_init;

@@ -97,37 +97,6 @@ void os_signal(int signum);
  */
 void os_default_signal(int signum);
 
-/***************************************************************************/
-/* Clocks */
-
-/**
- * Type for the os_clock() function.
- */
-typedef long long os_clock_t;
-
-/**
- * Number of clock ticks per second.
- */
-extern os_clock_t OS_CLOCKS_PER_SEC;
-
-/**
- * Get the current clock value.
- * The base unit is ::OS_CLOCKS_PER_SEC.
- */
-os_clock_t os_clock(void);
-
-/***************************************************************************/
-/* Led */
-
-#define OS_LED_NUMLOCK 0x1
-#define OS_LED_CAPSLOCK 0x2
-#define OS_LED_SCROLOCK 0x4
-
-/**
- * Set the keyboard led status.
- */
-void os_led_set(unsigned mask);
-
 #ifdef __cplusplus
 }
 #endif

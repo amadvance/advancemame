@@ -66,6 +66,16 @@ void target_usleep(unsigned us)
 }
 
 /***************************************************************************/
+/* Clock */
+
+target_clock_t TARGET_CLOCKS_PER_SEC = 1000;
+
+target_clock_t target_clock(void)
+{
+	return SDL_GetTicks();
+}
+
+/***************************************************************************/
 /* Hardware */
 
 void target_port_set(unsigned addr, unsigned value)

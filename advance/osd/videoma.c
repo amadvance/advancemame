@@ -2043,8 +2043,8 @@ static void video_frame_sync(struct advance_video_context* context)
 
 				/* wait until the retrace is near, otherwise if the */
 				/* mode has a double freq the retrace may be the wrong one */
+				double early = 0.98 / video_measured_vclock();
 
-				double early = 0.90 / video_measured_vclock();
 				current = video_frame_wait(current, expected - early);
 
 				if (current < expected) {
@@ -2210,7 +2210,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		if (context->state.measure_counter > 0) {
 			--context->state.measure_counter;
 			if (context->state.measure_counter == 0) {
-				context->state.measure_stop = os_clock();
+				context->state.measure_stop = target_clock();
 
 				/* force the exit at the next frame */
 				CONTEXT.input.state.input_forced_exit_flag = 1;
@@ -2857,7 +2857,7 @@ void osd2_video_done(void)
         /* print the speed measure */
 	if (context->state.measure_flag
 		&& context->state.measure_stop > context->state.measure_start) {
-		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / OS_CLOCKS_PER_SEC);
+		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / TARGET_CLOCKS_PER_SEC);
 	}
 }
 
@@ -2939,7 +2939,7 @@ void osd_reset(void)
 	/* inizialize the measure state */
 	context->state.measure_counter = context->config.measure_time * context->state.game_fps;
 	context->state.measure_flag = context->state.measure_counter != 0;
-	context->state.measure_start = os_clock();
+	context->state.measure_start = target_clock();
 
 	video_update_skip(context);
 	video_update_sync(context);

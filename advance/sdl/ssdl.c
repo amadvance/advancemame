@@ -54,7 +54,7 @@ struct sound_sdl_context {
 	unsigned fifo_mac;
 	sound_sample_t fifo_map[FIFO_MAX];
 	
-	int underflow_flag;
+	adv_bool underflow_flag;
 };
 
 static struct sound_sdl_context sdl_state;

@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <fstream>
 #include <sstream>
@@ -44,30 +45,6 @@ using namespace std;
 
 //---------------------------------------------------------------------------
 // utils
-
-static const char* manufacturer_strip(const char* s)
-{
-	static char buffer[1024];
-	char* dst = buffer;
-	// remove begin space
-	while (*s && isspace(*s))
-		++s;
-	if (s[0] == '[') {
-		++s;
-		while (*s && *s!=']') {
-			*dst++ = *s++;
-		}
-	} else {
-		while (*s && *s!='(' && *s!='/' && *s!='+' && *s!='&') {
-			*dst++ = *s++;
-		}
-	}
-	// remove end space
-	while (dst != buffer && isspace(dst[-1]))
-		--dst;
-	*dst = 0;
-	return buffer;
-}
 
 static bool spawn_check(int r, bool ignore_error)
 {
@@ -584,7 +561,7 @@ bool mame_info::tree_get() const {
 	return exclude_clone_effective == exclude;
 }
 
-bool mame_info::internal_load(game_set& gar)
+bool mame_info::load_info(game_set& gar)
 {
 	info_t token = info_token_get();
 	while (token!=info_eof) {
@@ -608,7 +585,7 @@ bool mame_info::internal_load(game_set& gar)
 					g.auto_description_set( info_text_get() );
 				} else if (strcmp(info_text_get(), "manufacturer")==0) {
 					if (info_token_get() != info_string) return false;
-					g.manufacturer_set( manufacturer_strip( info_text_get() ) );
+					g.manufacturer_set( info_text_get() );
 				} else if (strcmp(info_text_get(), "year")==0) {
 					if (info_token_get() != info_symbol) return false;
 					g.year_set( info_text_get() );
@@ -736,7 +713,70 @@ extern "C" void info_ext_unget(void* _arg, char c)
 	arg->putback(c);
 }
 
-bool mame_info::load_game(game_set& gar)
+bool mame_info::is_update_xml()
+{
+	struct stat st_xml;
+	struct stat st_mame;
+	int err_xml;
+	int err_exe;
+
+	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+
+	err_xml = stat(cpath_export(xml_file), &st_xml);
+	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
+
+	if (file_ext(config_exe_path_get()) != ".bat"
+		&& err_exe==0
+		&& (err_xml!=0 || st_xml.st_mtime < st_mame.st_mtime || st_xml.st_size == 0)
+		&& (err_xml!=0 || access(cpath_export(xml_file), W_OK)==0)
+	) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool mame_info::update_xml()
+{
+	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+
+	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
+
+	ostringstream cmd;
+
+	cmd << cpath_export(config_exe_path_get()) << " -listxml > " << cpath_export(xml_file);
+
+	int r = target_system(cmd.str().c_str());
+
+	if (!spawn_check(r, false)) {
+		remove(cpath_export(xml_file));
+		return false;
+	}
+
+	return true;
+}
+
+bool mame_info::load_game_xml(game_set& gar)
+{
+	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+
+	ifstream f(cpath_export(xml_file), ios::in | ios::binary);
+	if (!f) {
+		target_err("Error opening the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
+		target_err("Try running manually the command: '%s -listxml > %s'.\n", user_exe_path.c_str(), cpath_export(xml_file));
+		return false;
+	}
+	if (!load_xml(f, gar)) {
+		f.close();
+		target_err("Error reading the '%s' information from file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
+		return false;
+	}
+	f.close();
+
+	return true;
+}
+
+bool mame_info::is_update_info()
 {
 	struct stat st_info;
 	struct stat st_mame;
@@ -753,18 +793,35 @@ bool mame_info::load_game(game_set& gar)
 		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)
 		&& (err_info!=0 || access(cpath_export(info_file), W_OK)==0)
 	) {
-		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
-
-		ostringstream cmd;
-
-		cmd << cpath_export(config_exe_path_get()) << " -listinfo > " << cpath_export(info_file);
-
-		int r = target_system(cmd.str().c_str());
-
-		bool result = spawn_check(r, false);
-		if (!result)
-			return false;
+		return false;
+	} else {
+		return true;
 	}
+}
+
+bool mame_info::update_info()
+{
+	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
+
+	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
+
+	ostringstream cmd;
+
+	cmd << cpath_export(config_exe_path_get()) << " -listinfo > " << cpath_export(info_file);
+
+	int r = target_system(cmd.str().c_str());
+
+	if (!spawn_check(r, false)) {
+		remove(cpath_export(info_file));
+		return false;
+	}
+
+	return true;
+}
+
+bool mame_info::load_game_info(game_set& gar)
+{
+	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
 
 	ifstream f(cpath_export(info_file), ios::in | ios::binary);
 	if (!f) {
@@ -773,7 +830,7 @@ bool mame_info::load_game(game_set& gar)
 		return false;
 	}
 	info_init(info_ext_get, info_ext_unget, &f);
-	if (!internal_load(gar)) {
+	if (!load_info(gar)) {
 		info_done();
 		f.close();
 		target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
@@ -783,6 +840,28 @@ bool mame_info::load_game(game_set& gar)
 	f.close();
 
 	return true;
+}
+
+bool mame_info::load_game(game_set& gar)
+{
+	if (is_update_xml()) {
+		return load_game_xml(gar);
+	}
+
+	if (is_update_info()) {
+		return load_game_info(gar);
+	}
+
+	if (update_xml()) {
+		return load_game_xml(gar);
+	}
+
+	if (update_info()) {
+		return load_game_info(gar);
+	}
+
+	target_err("Error generating the '%s' information file with -listxml and -listinfo.\n", user_name_get().c_str());
+	return false;
 }
 
 void mame_info::update(const game& g) const {
@@ -2439,7 +2518,7 @@ bool raine_info::load_data(const game_set& gar)
 	return true;
 }
 
-bool raine_info::internal_load(game_set& gar)
+bool raine_info::load_info(game_set& gar)
 {
 	info_t token = info_token_get();
 	while (token!=info_eof) {
@@ -2461,7 +2540,7 @@ bool raine_info::internal_load(game_set& gar)
 					g.auto_description_set( info_text_get() );
 				} else if (strcmp(info_text_get(), "manufacturer")==0) {
 					if (info_token_get() != info_string) return false;
-					g.manufacturer_set( manufacturer_strip( info_text_get() ) );
+					g.manufacturer_set( info_text_get() );
 				} else if (strcmp(info_text_get(), "year")==0) {
 					if (info_token_get() != info_symbol) return false;
 					g.year_set( info_text_get() );
@@ -2593,7 +2672,7 @@ bool raine_info::load_game(game_set& gar)
 		return false;
 	}
 	info_init(info_ext_get, info_ext_unget, &f);
-	if (!internal_load(gar)) {
+	if (!load_info(gar)) {
 		info_done();
 		f.close();
 		target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
@@ -2773,7 +2852,7 @@ bool generic::load_cfg(const game_set& gar)
 	return true;
 }
 
-bool generic::internal_load(game_set& gar)
+bool generic::load_info(game_set& gar)
 {
 	info_t token = info_token_get();
 	while (token!=info_eof) {
@@ -2800,7 +2879,7 @@ bool generic::internal_load(game_set& gar)
 					description = info_text_get();
 				} else if (strcmp(info_text_get(), "manufacturer")==0) {
 					if (info_token_get() != info_string) return false;
-					manufacturer = manufacturer_strip( info_text_get() );
+					manufacturer = info_text_get();
 				} else if (strcmp(info_text_get(), "year")==0) {
 					if (info_token_get() != info_symbol) return false;
 					year = info_text_get();
@@ -2855,7 +2934,7 @@ bool generic::load_game(game_set& gar)
 			return false;
 		}
 		info_init(info_ext_get, info_ext_unget, &f);
-		if (!internal_load(gar)) {
+		if (!load_info(gar)) {
 			info_done();
 			f.close();
 			target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);

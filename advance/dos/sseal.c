@@ -31,7 +31,7 @@
 #include "sseal.h"
 #include "sounddrv.h"
 #include "log.h"
-#include "os.h"
+#include "target.h"
 
 #include <assert.h>
 #include <string.h>
@@ -73,7 +73,7 @@ struct sound_seal_context {
 	unsigned length;
 	unsigned pos;
 
-	os_clock_t last;
+	target_clock_t last;
 
 	HAC voice[2];
 	LPAUDIOWAVE wave[2];
@@ -99,6 +99,9 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 	AUDIOCAPS caps;
 
 	log_std(("sound:seal: sound_seal_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+
+	/* ensure to be able to store the required buffer time */
+	buffer_time *= 2;
 
 	if (stereo_flag) {
 		seal_state.channel = 2;
@@ -318,7 +321,7 @@ adv_error sound_seal_start(double silence_time)
 
 	sound_seal_update();
 
-	seal_state.last = os_clock();
+	seal_state.last = target_clock();
 
 	log_std(("sound:seal: sound_seal_start current %d, buffered %d\n", sound_seal_current(), sound_seal_buffered()));
 
@@ -350,13 +353,13 @@ void sound_seal_volume(double volume)
 void sound_seal_play(const short* sample_map, unsigned sample_count)
 {
 	unsigned count = sample_count;
-	os_clock_t current = os_clock();
+	target_clock_t current = target_clock();
 
 	log_debug(("sound:seal: sound_seal_play(count:%d)\n", sample_count));
 
 	log_debug(("sound:seal: delay from last update %g, samples %g\n",
-		(current - seal_state.last) / (double)OS_CLOCKS_PER_SEC,
-		(current - seal_state.last) / (double)OS_CLOCKS_PER_SEC * seal_state.rate
+		(current - seal_state.last) / (double)TARGET_CLOCKS_PER_SEC,
+		(current - seal_state.last) / (double)TARGET_CLOCKS_PER_SEC * seal_state.rate
 		));
 
 	seal_state.last = current;

@@ -96,7 +96,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 
 	assert(context->state.active_flag == 0);
 
-#ifdef NDEBUG
+#if 0
 	/* TODO This sound none check doesn't work with multiple sound driver specification. */
 
 	/* disable the sound with the none driver in the release build, */
@@ -121,10 +121,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	if (low_buffer_time < 0.3)
 		low_buffer_time = 0.3; /* allow always a big maximum latency */
 
-	/* *2.0 is to increase a the lower driver buffer */
-	/* the value is guessed with some tries, don't change it */
-	/* without testing on all the drivers */
-	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, 2.0 * low_buffer_time) != 0) {
+	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
 		return -1;
 	}
 

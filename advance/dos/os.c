@@ -194,21 +194,14 @@ void __wrap_set_config_id(const char *section, const char *name, int val)
 #endif
 
 /***************************************************************************/
-/* Clock */
+/* Ticker */
 
-#if !defined(NDEBUG)
-#define USE_TICKER_FIXED 350000000
-#endif
-
-os_clock_t OS_CLOCKS_PER_SEC;
-
-#ifndef USE_TICKER_FIXED
-static void ticker_measure(os_clock_t* map, unsigned max)
+static void ticker_measure(target_clock_t* map, unsigned max)
 {
 	clock_t start;
 	clock_t stop;
-	os_clock_t tstart;
-	os_clock_t tstop;
+	target_clock_t tstart;
+	target_clock_t tstop;
 	unsigned mac;
 
 	mac = 0;
@@ -218,13 +211,13 @@ static void ticker_measure(os_clock_t* map, unsigned max)
 	} while (stop == start);
 
 	start = stop;
-	tstart = os_clock();
+	tstart = target_clock();
 	while (mac < max) {
 		do {
 			stop = clock();
 		} while (stop == start);
 
-		tstop = os_clock();
+		tstop = target_clock();
 
 		map[mac] = (tstop - tstart) * CLOCKS_PER_SEC / (stop - start);
 		++mac;
@@ -236,33 +229,28 @@ static void ticker_measure(os_clock_t* map, unsigned max)
 
 static int ticker_cmp(const void *e1, const void *e2)
 {
-	const os_clock_t* t1 = (const os_clock_t*)e1;
-	const os_clock_t* t2 = (const os_clock_t*)e2;
+	const target_clock_t* t1 = (const target_clock_t*)e1;
+	const target_clock_t* t2 = (const target_clock_t*)e2;
 
 	if (*t1 < *t2) return -1;
 	if (*t1 > *t2) return 1;
 	return 0;
 }
-#endif
 
-static void os_clock_setup(void)
+static void ticker_setup(void)
 {
-#ifdef USE_TICKER_FIXED
-	/* only for debugging */
-	OS_CLOCKS_PER_SEC = USE_TICKER_FIXED;
-#else
-	os_clock_t v[7];
+	target_clock_t v[7];
 	double error;
 	int i;
 
 	ticker_measure(v, 7);
 
-	qsort(v, 7, sizeof(os_clock_t), ticker_cmp);
+	qsort(v, 7, sizeof(target_clock_t), ticker_cmp);
 
 	for(i=0;i<7;++i)
 		log_std(("os: clock estimate %g\n", (double)v[i]));
 
-	OS_CLOCKS_PER_SEC = v[3]; /* median value */
+	TARGET_CLOCKS_PER_SEC = v[3]; /* median value */
 
 	if (v[0])
 		error = (v[6] - v[0]) / (double)v[0];
@@ -270,19 +258,6 @@ static void os_clock_setup(void)
 		error = 0;
 
 	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], error * 100.0));
-#endif
-}
-
-os_clock_t os_clock(void)
-{
-	os_clock_t r;
-
-	__asm__ __volatile__ (
-		"rdtsc"
-		: "=A" (r)
-	);
-
-	return r;
 }
 
 /***************************************************************************/
@@ -342,7 +317,7 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled big endian system\n"));
 #endif
 
-	os_clock_setup();
+	ticker_setup();
 
 	log_std(("os: allegro_init()\n"));
 	if (allegro_init() != 0) {
@@ -372,23 +347,6 @@ void os_inner_done(void)
 
 void os_poll(void)
 {
-}
-
-/***************************************************************************/
-/* Led */
-
-void os_led_set(unsigned mask)
-{
-	unsigned allegro_mask = 0;
-
-	if ((mask & OS_LED_NUMLOCK) != 0)
-		allegro_mask |= KB_NUMLOCK_FLAG;
-	if ((mask & OS_LED_CAPSLOCK) != 0)
-		allegro_mask |= KB_CAPSLOCK_FLAG;
-	if ((mask & OS_LED_SCROLOCK) != 0)
-		allegro_mask |= KB_SCROLOCK_FLAG;
-
-	set_leds(allegro_mask);
 }
 
 /***************************************************************************/

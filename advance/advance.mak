@@ -7,7 +7,7 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.69.0
+EMUVERSION = 0.70.0
 endif
 endif
 MENUVERSION = 2.2.7
@@ -111,6 +111,11 @@ MPGLIB_SRC = \
 	$(wildcard $(srcdir)/advance/mpglib/*.c) \
 	$(wildcard $(srcdir)/advance/mpglib/*.h) \
 	$(wildcard $(srcdir)/advance/mpglib/*.txt)
+
+EXPAT_SRC = \
+	$(wildcard $(srcdir)/advance/expat/*.c) \
+	$(wildcard $(srcdir)/advance/expat/*.h) \
+	$(wildcard $(srcdir)/advance/expat/COPYING)
 
 LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \

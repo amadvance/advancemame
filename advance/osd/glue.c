@@ -558,6 +558,10 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.debug_width = advance->debug_width;
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;
+	if (advance->bios_buffer[0] == 0 || strcmp(advance->bios_buffer, "default")==0)
+		options.bios = 0;
+	else
+		options.bios = strdup(advance->bios_buffer); /* TODO leak */
 
 	if (advance->language_file_buffer[0])
 		options.language_file = mame_fopen(0, advance->language_file_buffer, FILETYPE_LANGUAGE, 0);
@@ -1140,17 +1144,17 @@ void osd_save_snapshot(struct mame_bitmap *bitmap, const struct rectangle *bound
 
 cycles_t osd_cycles(void)
 {
-	return os_clock();
+	return target_clock();
 }
 
 cycles_t osd_cycles_per_second(void)
 {
-	return OS_CLOCKS_PER_SEC;
+	return TARGET_CLOCKS_PER_SEC;
 }
 
 cycles_t osd_profiling_ticks(void)
 {
-	return os_clock();
+	return target_clock();
 }
 
 /* Filter the user interface input state */
@@ -1320,6 +1324,8 @@ adv_error mame_init(struct advance_context* context, adv_conf* cfg_context)
 	conf_string_register_default(cfg_context, "misc_cheatfile", "cheat.dat" );
 	conf_string_register_default(cfg_context, "misc_historyfile", "history.dat");
 
+	conf_string_register_default(cfg_context, "misc_bios", "default");
+
 #ifdef MESS
 	conf_string_register_default(cfg_context, "misc_infofile", "sysinfo.dat");
 #else
@@ -1374,6 +1380,8 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	sncpy(option->language_file_buffer, sizeof(option->language_file_buffer), conf_string_get_default(cfg_context, "misc_languagefile"));
 
 	sncpy(option->cheat_file_buffer, sizeof(option->cheat_file_buffer), conf_string_get_default(cfg_context, "misc_cheatfile"));
+
+	sncpy(option->bios_buffer, sizeof(option->bios_buffer), conf_string_get_default(cfg_context, "misc_bios"));
 
 	/* convert the dir separator char to ';'. */
 	/* the cheat system use always this char in all the operating system */

@@ -31,7 +31,6 @@
 #include "hscript.h"
 #include "script.h"
 
-#include "os.h"
 #include "target.h"
 #include "keydrv.h"
 
@@ -91,10 +90,10 @@ void script_port_write(int address, unsigned char value)
 		value &= 0x7;
 		if (STATE.kdb_state != value) {
 			unsigned led_mask = 0;
-			if (value & 0x1) led_mask |= OS_LED_NUMLOCK;
-			if (value & 0x2) led_mask |= OS_LED_CAPSLOCK;
-			if (value & 0x4) led_mask |= OS_LED_SCROLOCK;
-			os_led_set(led_mask);
+			if (value & 0x1) led_mask |= TARGET_LED_NUMLOCK;
+			if (value & 0x2) led_mask |= TARGET_LED_CAPSLOCK;
+			if (value & 0x4) led_mask |= TARGET_LED_SCROLOCK;
+			target_led_set(led_mask);
 			STATE.kdb_state = value;
 		}
 	} else {

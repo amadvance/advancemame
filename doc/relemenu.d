@@ -1,6 +1,14 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.2.7
+	This release adds support for the new MAME -listxml option. It's now
+	used as default. The old -listinfo is still supported and it's used
+	if -listxml fails.
+
+	The xml file is saved with the .xml extension. You probably want to
+	remove the old .lst file.
+
 AdvanceMENU 2.2.6
 	This release supports Mac OS X with the SDL library. Please note that
 	it isn't able to directly program your video board, so you cannot use

@@ -1,6 +1,22 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.70.0 2003/06
+	) Added some patches for Linux 2.4.20 Frame Buffer for ATI Radeon
+		and nVidia GeForge boards to improve the support of low
+		clock video modes.
+	) Added some patches for SVGALIB 1.9.17 for Trident and nVidia GeForge
+		boards to improve the support of low clock video modes.
+		These patches are integrated in the DOS and Windows SVGALIB
+		versions.
+	) Fixed the sound recording broken in version 0.68.0.
+	) The MAME sound emulation is activated also if the "none" sound
+		device is chosen.
+	) The SIGPIPE signal is no more redirected.
+	) The SIGHUP signal now quits the program without aborting.
+	) Reduced the sound buffer length for the ALSA driver.
+	) Removed the legacy support for the "mame.cfg" configuration file.
+
 AdvanceMAME Version 0.69.0 2003/05
 	) Fixed the horizontal and vertical sync polarity on the Linux
 		Framebuffer video driver [by Ralph]

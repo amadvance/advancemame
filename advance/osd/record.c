@@ -144,7 +144,7 @@ static adv_error sound_update(struct advance_record_context* context, const shor
 		return 0;
 	}
 
-	for(i=0;i<mac;++i) {
+	for(i=0;i<mac * context->state.sound_sample_size / 2;++i) {
 		unsigned char p[2];
 		le_uint16_write(p, map[i]);
 		if (fwrite(p, 2, 1, context->state.sound_f) != 1)

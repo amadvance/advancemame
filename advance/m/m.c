@@ -53,13 +53,13 @@ void run(void)
 	char msg[1024];
 	char new_msg[1024];
 	int i, j;
-	os_clock_t last;
+	target_clock_t last;
 
 	printf("Press Break to exit\n");
 
 	signal(SIGINT, sigint);
 
-	last = os_clock();
+	last = target_clock();
 	msg[0] = 0;
 	while (!done) {
 
@@ -85,8 +85,8 @@ void run(void)
 		}
 
 		if (strcmp(msg, new_msg)!=0) {
-			os_clock_t current = os_clock();
-			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
+			target_clock_t current = target_clock();
+			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
 			sncpy(msg, sizeof(msg), new_msg);
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " (%4.0f ms)", period);
 			last = current;

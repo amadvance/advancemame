@@ -755,7 +755,7 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 
 	if (video_is_graphics()) {
 		unsigned i;
-		os_clock_t start, stop, end;
+		target_clock_t start, stop, end;
 		unsigned size, count;
 		struct video_pipeline_struct pipeline;
 		uint8* data;
@@ -772,19 +772,19 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 		video_blit_pipeline(&pipeline, s_x, s_y, data);
 
 		count = 0;
-		start = os_clock();
-		end = start + OS_CLOCKS_PER_SEC * 2;
+		start = target_clock();
+		end = start + TARGET_CLOCKS_PER_SEC * 2;
 		stop = start;
 		while (stop < end) {
 			video_blit_pipeline(&pipeline, s_x, s_y, data);
 			++count;
-			stop = os_clock();
+			stop = target_clock();
 		}
 
 		video_pipeline_done(&pipeline);
 		free(data);
 
-		size = size * count * (double)OS_CLOCKS_PER_SEC / (stop-start);
+		size = size * count * (double)TARGET_CLOCKS_PER_SEC / (stop-start);
 
 		return size;
 	}

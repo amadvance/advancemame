@@ -1383,7 +1383,7 @@ static int int_clip_index;
 static adv_fz* int_clip_f;
 static unsigned int_clip_aspectx;
 static unsigned int_clip_aspecty;
-os_clock_t int_clip_wait;
+target_clock_t int_clip_wait;
 unsigned int_clip_count;
 adv_mng* int_mng_context;
 
@@ -1422,7 +1422,7 @@ void int_clip_start()
 		return;
 
 	int_clip_running = true;
-	int_clip_wait = os_clock(); // reset the start time
+	int_clip_wait = target_clock(); // reset the start time
 }
 
 void int_clip_done()
@@ -1441,7 +1441,7 @@ static bool int_clip_need_load()
 	if (!int_clip_f)
 		return true;
 
-	if (os_clock() > int_clip_wait)
+	if (target_clock() > int_clip_wait)
 		return true;
 
 	return false;
@@ -1474,7 +1474,7 @@ static adv_bitmap* int_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 			return 0;
 		}
 
-		int_clip_wait = os_clock();
+		int_clip_wait = target_clock();
 		int_clip_count = 0;
 	}
 
@@ -1513,7 +1513,7 @@ static adv_bitmap* int_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 
 	free(pal_ptr);
 
-	int_clip_wait += (os_clock_t)(delay * OS_CLOCKS_PER_SEC);
+	int_clip_wait += (target_clock_t)(delay * TARGET_CLOCKS_PER_SEC);
 
 	++int_clip_count;
 
@@ -2155,7 +2155,7 @@ static int key_poll()
 {
 	static int key_repeat_last = INT_KEY_NONE;
 
-	static os_clock_t key_repeat_last_time = 0;
+	static target_clock_t key_repeat_last_time = 0;
 	static bool key_repeat_last_counter = 0;
 
 	int r = INT_KEY_NONE;
@@ -2184,7 +2184,7 @@ static int key_poll()
 		if (r != INT_KEY_NONE) {
 			key_repeat_last = r;
 			key_repeat_last_counter = 0;
-			key_repeat_last_time = os_clock();
+			key_repeat_last_time = target_clock();
 			return r;
 		}
 	}
@@ -2196,18 +2196,18 @@ static int key_poll()
 	if (r == INT_KEY_NONE) {
 		key_repeat_last = INT_KEY_NONE;
 		key_repeat_last_counter = 0;
-		key_repeat_last_time = os_clock();
+		key_repeat_last_time = target_clock();
 		return INT_KEY_NONE;
 	} else if (r != key_repeat_last) {
 		key_repeat_last = r;
 		key_repeat_last_counter = 0;
-		key_repeat_last_time = os_clock();
+		key_repeat_last_time = target_clock();
 		play_foreground_effect_key(int_sound_event_key);
 		return r;
 	} else {
-		if ((key_repeat_last_counter == 0 && (os_clock() - key_repeat_last_time > int_repeat * OS_CLOCKS_PER_SEC / 1000)) ||
-			(key_repeat_last_counter > 0 && (os_clock() - key_repeat_last_time > int_repeat_rep * OS_CLOCKS_PER_SEC / 1000))) {
-			key_repeat_last_time = os_clock();
+		if ((key_repeat_last_counter == 0 && (target_clock() - key_repeat_last_time > int_repeat * TARGET_CLOCKS_PER_SEC / 1000)) ||
+			(key_repeat_last_counter > 0 && (target_clock() - key_repeat_last_time > int_repeat_rep * TARGET_CLOCKS_PER_SEC / 1000))) {
+			key_repeat_last_time = target_clock();
 			++key_repeat_last_counter;
 			return r;
 		} else {
@@ -2346,9 +2346,9 @@ static void int_clip_idle()
 
 static void int_box_idle()
 {
-	static os_clock_t int_backdrop_box_last = 0;
-	os_clock_t int_backdrop_box_new = os_clock();
-	if (int_backdrop_box_new >= int_backdrop_box_last + OS_CLOCKS_PER_SEC/20) {
+	static target_clock_t int_backdrop_box_last = 0;
+	target_clock_t int_backdrop_box_new = target_clock();
+	if (int_backdrop_box_new >= int_backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
 		int_backdrop_box_last = int_backdrop_box_new;
 		video_backdrop_box();
 	}
@@ -2384,17 +2384,17 @@ static void int_idle()
 
 int int_keypressed()
 {
-	static os_clock_t key_pressed_last_time = 0;
+	static target_clock_t key_pressed_last_time = 0;
 
 	if (int_key_saved != INT_KEY_NONE)
 		return 1;
 
-	os_clock_t now = os_clock();
+	target_clock_t now = target_clock();
 
 	int_idle();
 
 	/* don't check too fast */
-	if (now - key_pressed_last_time >= OS_CLOCKS_PER_SEC / 25) {
+	if (now - key_pressed_last_time >= TARGET_CLOCKS_PER_SEC / 25) {
 		key_pressed_last_time = now;
 
 		int_key_saved = key_poll();

@@ -41,13 +41,25 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <string.h>
+
+struct target_context {
+	unsigned min_usleep; /**< Minimun sleep time in microseconds. */
+
+	target_clock_t last; /**< Last clock. */
+};
+
+static struct target_context TARGET;
 
 /***************************************************************************/
 /* Init */
 
 adv_error target_init(void)
 {
+	TARGET.last = 0;
+	TARGET.min_usleep = 0;
+
 	return 0;
 }
 
@@ -73,6 +85,55 @@ void target_idle(void)
 
 void target_usleep(unsigned us)
 {
+	struct timeval start_tv;
+	struct timeval stop_tv;
+	struct timespec req;
+	long long start, stop;
+	unsigned requested;
+	unsigned effective;
+
+	/* if too short don't wait */
+	if (us <= TARGET.min_usleep)
+		return;
+
+	requested = us - TARGET.min_usleep;
+
+	req.tv_sec = requested / 1000000;
+	req.tv_nsec = (requested % 1000000) * 1000;
+
+	gettimeofday(&start_tv, NULL);
+	nanosleep(&req, 0);
+	gettimeofday(&stop_tv, NULL);
+
+	effective = (stop_tv.tv_sec - start_tv.tv_sec) * 1000000 + (stop_tv.tv_usec - start_tv.tv_usec);
+
+	if (effective > us) {
+		TARGET.min_usleep += effective - us;
+		log_std(("linux: target_usleep() increase min sleep to %d [us] (requested %d, effective %d)\n", TARGET.min_usleep, us, effective));
+	}
+}
+
+/***************************************************************************/
+/* Clock */
+
+target_clock_t TARGET_CLOCKS_PER_SEC = 1000000LL;
+
+target_clock_t target_clock(void)
+{
+	struct timeval tv;
+	target_clock_t r;
+
+	gettimeofday(&tv, NULL);
+	r = tv.tv_sec * 1000000LL + tv.tv_usec;
+
+	/* on some laptops strange things may happen when the CPU change it's speed */
+	/* a back step of 20ms is reported in Linux */
+	if (r < TARGET.last)
+		r = TARGET.last;
+
+	TARGET.last = r;
+
+	return TARGET.last;
 }
 
 /***************************************************************************/
@@ -141,6 +202,14 @@ adv_error target_apm_wakeup(void)
 {
 	/* nothing */
 	return 0;
+}
+
+/***************************************************************************/
+/* Led */
+
+void target_led_set(unsigned mask)
+{
+	/* nothing */
 }
 
 /***************************************************************************/

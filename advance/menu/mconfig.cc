@@ -26,10 +26,6 @@
 
 #include <dirent.h>
 
-#ifdef __MSDOS__
-#include <dpmi.h> /* for _go32_dpmi_* */
-#endif
-
 using namespace std;
 
 // --------------------------------------------------------------------------
@@ -732,10 +728,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 
 	// print the copyright message before other messages
 	if (!quiet) {
-		target_nfo("AdvanceMENU - Copyright (C) 1999-2002 by Andrea Mazzoleni\n");
-#ifdef __MSDOS__
-		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", (unsigned)_go32_dpmi_remaining_physical_memory()/(1024*1024), (unsigned)_go32_dpmi_remaining_virtual_memory()/(1024*1024));
-#endif
+		target_nfo("AdvanceMENU - Copyright (C) 1999-2003 by Andrea Mazzoleni\n");
 	}
 
 	// select the active emulators
@@ -1003,9 +996,19 @@ bool config_state::save(adv_conf* config_context) const {
 		conf_string_set(config_context, "", "emulator_include", config_out(*i).c_str());
 	}
 
+	conf_remove(config_context, "", "group");
+	for(pcategory_container::const_iterator i=group.begin();i!=group.end();++i) {
+		conf_string_set(config_context, "", "group", config_out((*i)->name_get()).c_str());
+	}
+
 	conf_remove(config_context, "", "group_include");
 	for(category_container::const_iterator i=include_group_orig.begin();i!=include_group_orig.end();++i) {
 		conf_string_set(config_context, "", "group_include", config_out(*i).c_str());
+	}
+
+	conf_remove(config_context, "", "type");
+	for(pcategory_container::const_iterator i=type.begin();i!=type.end();++i) {
+		conf_string_set(config_context, "", "type", config_out((*i)->name_get()).c_str());
 	}
 
 	conf_remove(config_context, "", "type_include");

@@ -1,6 +1,6 @@
 SVGALIB port to MSDOS and Windows.
 
-Copyright (C) 1999-2002 Andrea Mazzoleni
+Copyright (C) 1999-2003 Andrea Mazzoleni
 
 This is not a complete port, but only the minimal interfaces required
 to compile the drivers.

@@ -1370,6 +1370,13 @@ Configuration
 
   Misc Configuration Options
 
+    misc_bios
+	Selects the game bios.
+
+	Options:
+		default - Use the default BIOS.
+		* - Select a specific BIOS.
+
     misc_difficulty
 	Selects the game difficulty.
 

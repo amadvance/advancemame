@@ -31,7 +31,7 @@
 #include "svsync.h"
 #include "sounddrv.h"
 #include "log.h"
-#include "os.h"
+#include "target.h"
 
 #include <assert.h>
 #include <dos.h>
@@ -62,6 +62,9 @@ static adv_device DEVICE[] = {
 adv_error sound_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	log_std(("sound:vsync: sound_vsync_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
+
+	/* ensure to be able to store the required buffer time */
+	buffer_time *= 2;
 
 	if (stereo_flag) {
 		vsync_state.channel = 2;

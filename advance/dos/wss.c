@@ -40,11 +40,11 @@
 /* Advance glue code */
 
 #include "log.h"
-#include "os.h"
+#include "target.h"
 
-#define cycles_t os_clock_t
-#define osd_cycles() os_clock()
-#define osd_cycles_per_second() OS_CLOCKS_PER_SEC
+#define cycles_t target_clock_t
+#define osd_cycles() target_clock()
+#define osd_cycles_per_second() TARGET_CLOCKS_PER_SEC
 
 __attribute__((format(printf, 1, 0))) static void logerror_(const char *text, ...)
 {

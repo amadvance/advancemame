@@ -2,6 +2,15 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.7 2003/06
+	) Fixed the horizontal and vertical sync polarity on the Linux
+		Framebuffer video driver [by Ralph]
+	) The Windows version is now able to shutdown the system like the
+		other versions.
+	) Added support for the new MAME -listxml option. It's now
+		used as default. The old -listinfo is still supported
+		and it's used if -listxml fails.
+	) Fixed the restoring of the old cursor position.
+	) Removed the legacy support for the "mm.cfg" configuration file.
 
 AdvanceMENU Version 2.2.6 2003/05
 	) Added support for Mac OS X. It compiles and run with the SDL library.

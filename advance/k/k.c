@@ -42,13 +42,13 @@ void run(void)
 	char new_msg[1024];
 	int esc_pressed_before;
 	int esc_count;
-	os_clock_t last;
+	target_clock_t last;
 
 	printf("Press ESC three times or Break to exit\n");
 
 	signal(SIGINT, sigint);
 
-	last = os_clock();
+	last = target_clock();
 	esc_pressed_before = 0;
 	esc_count = 0;
 	sncpy(msg, sizeof(msg), "unknown");
@@ -69,8 +69,8 @@ void run(void)
 		}
 
 		if (strcmp(msg, new_msg)!=0) {
-			os_clock_t current = os_clock();
-			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
+			target_clock_t current = target_clock();
+			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
 			last = current;
 			sncpy(msg, sizeof(msg), new_msg);
 			printf("(%6.1f ms) [%3d] %s\n", period, count, msg);

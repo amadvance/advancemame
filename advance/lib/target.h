@@ -95,6 +95,25 @@ void target_idle(void);
 void target_usleep(unsigned us);
 
 /***************************************************************************/
+/* Clocks */
+
+/**
+ * Type for the target_clock() function.
+ */
+typedef long long target_clock_t;
+
+/**
+ * Number of clock ticks per second.
+ */
+extern target_clock_t TARGET_CLOCKS_PER_SEC;
+
+/**
+ * Get the current clock value.
+ * The base unit is ::TARGET_CLOCKS_PER_SEC.
+ */
+target_clock_t target_clock(void);
+
+/***************************************************************************/
 /* Hardware */
 
 /**
@@ -164,6 +183,18 @@ adv_error target_apm_standby(void);
  * \return ==0 if success
  */
 adv_error target_apm_wakeup(void);
+
+/***************************************************************************/
+/* Led */
+
+#define TARGET_LED_NUMLOCK 0x1
+#define TARGET_LED_CAPSLOCK 0x2
+#define TARGET_LED_SCROLOCK 0x4
+
+/**
+ * Set the keyboard led status.
+ */
+void target_led_set(unsigned mask);
 
 /***************************************************************************/
 /* System */

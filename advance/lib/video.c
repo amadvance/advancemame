@@ -1048,21 +1048,21 @@ static int video_double_cmp(const void* _a, const void* _b)
 double video_measure_step(void (*wait)(void), double low, double high)
 {
 	double map[VIDEO_MEASURE_COUNT];
-	os_clock_t start, stop;
+	target_clock_t start, stop;
 	unsigned map_start, map_end;
 	unsigned median;
 	unsigned i;
 	double error;
 
-	low *= OS_CLOCKS_PER_SEC;
-	high *= OS_CLOCKS_PER_SEC;
+	low *= TARGET_CLOCKS_PER_SEC;
+	high *= TARGET_CLOCKS_PER_SEC;
 
 	i = 0;
 	wait();
-	start = os_clock();
+	start = target_clock();
 	while (i < VIDEO_MEASURE_COUNT) {
 		wait();
-		stop = os_clock();
+		stop = target_clock();
 		map[i] = stop - start;
 		start = stop;
 		++i;
@@ -1089,7 +1089,7 @@ double video_measure_step(void (*wait)(void), double low, double high)
 	median = map_start + (map_end - map_start) / 2; /* the median */
 
 	for(i=map_start;i<map_end;++i) {
-		log_std(("video: measured vclock %g\n", OS_CLOCKS_PER_SEC / map[i]));
+		log_std(("video: measured vclock %g\n", TARGET_CLOCKS_PER_SEC / map[i]));
 	}
 
 	if (map[map_start])
@@ -1097,9 +1097,9 @@ double video_measure_step(void (*wait)(void), double low, double high)
 	else
 		error = 0;
 
-	log_std(("video: used vclock %g (err %g%%)\n", OS_CLOCKS_PER_SEC / map[median], error * 100.0));
+	log_std(("video: used vclock %g (err %g%%)\n", TARGET_CLOCKS_PER_SEC / map[median], error * 100.0));
 
-	return OS_CLOCKS_PER_SEC / map[median];
+	return TARGET_CLOCKS_PER_SEC / map[median];
 }
 
 /** X size of the font for text mode. */

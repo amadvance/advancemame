@@ -487,7 +487,7 @@ adv_error advance_input_inner_init(struct advance_input_context* context)
 
 	input_init(context);
 
-	context->state.input_current_clock = os_clock();
+	context->state.input_current_clock = target_clock();
 	context->state.input_idle_clock = context->state.input_current_clock;
 	context->state.input_on_this_frame_flag = 0;
 
@@ -570,7 +570,7 @@ void advance_input_update(struct advance_input_context* context, adv_bool is_pau
 	input_joystick_update(context);
 
 	/* forced exit due idle timeout */
-	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * OS_CLOCKS_PER_SEC) {
+	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * TARGET_CLOCKS_PER_SEC) {
 		context->state.input_forced_exit_flag = 1;
 	}
 
@@ -579,7 +579,7 @@ void advance_input_update(struct advance_input_context* context, adv_bool is_pau
 		context->state.input_forced_exit_flag = 1;
 	}
 
-	context->state.input_current_clock = os_clock();
+	context->state.input_current_clock = target_clock();
 
 	if (context->state.input_on_this_frame_flag || is_pause) {
 		context->state.input_on_this_frame_flag = 0;

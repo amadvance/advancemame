@@ -319,13 +319,15 @@ static int modeavailable(int mode)
 static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 {
 	int powerup[4] = { 1,2,4,8 };
-	int clock_diff = 750;
+	int clock_diff;
+	int setup;
 	int freq, ffreq;
 	int m, n, k;
-	int p, q, r, s; 
+	int p, q, r;
 	int endn, endm, endk, startk=0, startn;
 
-	p = q = r = s = 0;
+	p = q = r = setup = 0;
+	clock_diff = clock;
 
 	if (NewClockCode)
 	{	
@@ -353,29 +355,12 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 	    for (m=1;m<=endm;m++)
 	    {
 		ffreq =  ( ((n + 8) * frequency) / ((m + 2) * powerup[k]) ) ;
-		if ((ffreq > freq - clock_diff) && (ffreq < freq + clock_diff)) 
+		if (!setup || abs(ffreq - freq) < clock_diff)
 		{
-/*
- * It seems that the 9440 docs have this STRICT limitation, although
- * most 9440 boards seem to cope. 96xx/Cyber chips don't need this limit
- * so, I'm gonna remove it and it allows lower clocks < 25.175 too !
- */
-#define STRICT 1
-#ifdef STRICT
-			if ( (n+8)*100/(m+2) < 978 && (n+8)*100/(m+2) > 349 ) {
-#endif
-				clock_diff = (freq > ffreq) ? freq - ffreq : ffreq - freq;
-				p = n; q = m; r = k; s = ffreq;
-#ifdef STRICT
-			}
-#endif
+				clock_diff = abs(ffreq - freq);
+				p = n; q = m; r = k; setup = 1;
 		}
 	    }
-
-	if (s == 0)
-	{
-            exit(1);
-        }
 
 	if (NewClockCode)
 	{

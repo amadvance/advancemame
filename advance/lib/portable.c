@@ -86,7 +86,7 @@ int snprintf(char* str, size_t count, const char* fmt, ...)
 	int r;
 
 	/* Note that the snprintf implementation of "Patrick Powell 1995" has */
-	/* various bugg on %f, %g and %e for example snprintf("%f",1.01) -> 1.1 */
+	/* various bugs on %f, %g and %e for example snprintf("%f",1.01) -> 1.1 */
 	va_list arg;
 	va_start(arg, fmt);
 	r = vsprintf(str, fmt, arg);

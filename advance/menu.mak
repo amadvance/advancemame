@@ -7,19 +7,22 @@ MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/mpglib
+	-I$(srcdir)/advance/mpglib \
+	-I$(srcdir)/advance/expat
 MENUOBJDIRS += \
 	$(MENUOBJ) \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
-	$(MENUOBJ)/mpglib
+	$(MENUOBJ)/mpglib \
+	$(MENUOBJ)/expat
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
 	$(MENUOBJ)/menu/common.o \
 	$(MENUOBJ)/menu/crc.o \
 	$(MENUOBJ)/menu/emulator.o \
+	$(MENUOBJ)/menu/emuxml.o \
 	$(MENUOBJ)/menu/game.o \
 	$(MENUOBJ)/menu/mconfig.o \
 	$(MENUOBJ)/menu/menu.o \
@@ -78,7 +81,10 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/decode.o \
 	$(MENUOBJ)/mpglib/dct64.o \
 	$(MENUOBJ)/mpglib/layer3.o \
-	$(MENUOBJ)/mpglib/tabinit.o
+	$(MENUOBJ)/mpglib/tabinit.o \
+	$(MENUOBJ)/expat/xmlrole.o \
+	$(MENUOBJ)/expat/xmltok.o \
+	$(MENUOBJ)/expat/xmlparse.o
 MENULIBS += $(ZLIBS)
 
 ifeq ($(CONF_HOST),unix)
@@ -536,6 +542,8 @@ distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $
 	cp $(SVGALIBSVGAWINDRIVER_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(MENU_DIST_DIR_SRC)/advance/mpglib
 	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/mpglib
+	mkdir $(MENU_DIST_DIR_SRC)/advance/expat
+	cp $(EXPAT_SRC) $(MENU_DIST_DIR_SRC)/advance/expat
 	mkdir $(MENU_DIST_DIR_SRC)/advance/v
 	cp $(V_SRC) $(MENU_DIST_DIR_SRC)/advance/v
 	mkdir $(MENU_DIST_DIR_SRC)/advance/cfg

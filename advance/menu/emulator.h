@@ -173,7 +173,14 @@ protected:
 	tristate_t exclude_vertical_effective;
 	tristate_t exclude_vertical_orig;
 
-	bool internal_load(game_set& gar);
+	bool load_info(game_set& gar);
+	bool load_xml(std::istream& is, game_set& gar);
+	bool load_game_info(game_set& gar);
+	bool load_game_xml(game_set& gar);
+	bool update_info();
+	bool is_update_info();
+	bool update_xml();
+	bool is_update_xml();
 public:
 	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -323,7 +330,7 @@ protected:
 	tristate_t exclude_vertical_effective;
 	tristate_t exclude_vertical_orig;
 
-	bool internal_load(game_set& gar);
+	bool load_info(game_set& gar);
 public:
 	raine_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -352,7 +359,7 @@ public:
 };
 
 class generic : public emulator {
-	bool generic::internal_load(game_set& gar);
+	bool generic::load_info(game_set& gar);
 public:
 	generic(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 

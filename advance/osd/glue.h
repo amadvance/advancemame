@@ -35,7 +35,10 @@
 
 #include <stdio.h>
 
-/** Max path length */
+/** Max bios name length. */
+#define MAME_MAXBIOS 64
+
+/** Max path length. */
 #define MAME_MAXPATH 512
 
 #ifdef MESS
@@ -96,6 +99,8 @@ struct mame_option {
 	char cheat_file_buffer[MAME_MAXPATH];
 	char history_file_buffer[MAME_MAXPATH];
 	char info_file_buffer[MAME_MAXPATH];
+
+	char bios_buffer[MAME_MAXBIOS];
 
 #ifdef MESS
 	char crc_dir_buffer[MAME_MAXPATH];

@@ -97,34 +97,9 @@ struct os_context {
 
 	int is_quit; /**< Is termination requested. */
 	char title_buffer[128]; /**< Title of the window. */
-
-	os_clock_t last; /**< Last clock. */
 };
 
 static struct os_context OS;
-
-/***************************************************************************/
-/* Clock */
-
-os_clock_t OS_CLOCKS_PER_SEC = 1000000LL;
-
-os_clock_t os_clock(void)
-{
-	struct timeval tv;
-	os_clock_t r;
-
-	gettimeofday(&tv, NULL);
-	r = tv.tv_sec * 1000000LL + tv.tv_usec;
-
-	/* on some laptops strange things may happen when the CPU change it's speed */
-	/* an back step of 20ms is reported in Linux */
-	if (r < OS.last)
-		r = OS.last;
-
-	OS.last = r;
-
-	return OS.last;
-}
 
 /***************************************************************************/
 /* Init */
@@ -132,8 +107,6 @@ os_clock_t os_clock(void)
 int os_init(adv_conf* context)
 {
 	memset(&OS, 0, sizeof(OS));
-
-	OS.last = 0;
 
 	return 0;
 }
@@ -150,7 +123,7 @@ static void os_quit_signal(int signum)
 int os_inner_init(const char* title)
 {
 	const char* display;
-	os_clock_t start, stop;
+	target_clock_t start, stop;
 	struct utsname uts;
 #ifdef USE_SDL
 	SDL_version compiled;
@@ -175,17 +148,17 @@ int os_inner_init(const char* title)
 #endif
 
 	usleep(10000);
-	start = os_clock();
-	stop = os_clock();
+	start = target_clock();
+	stop = target_clock();
 	while (stop == start)
-		stop = os_clock();
+		stop = target_clock();
 	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
 
 	usleep(10000);
-	start = os_clock();
+	start = target_clock();
 	usleep(1000);
-	stop = os_clock();
-	log_std(("os: 0.001 delay, effective %g\n", (stop - start) / (double)OS_CLOCKS_PER_SEC ));
+	stop = target_clock();
+	log_std(("os: 0.001 delay, effective %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC ));
 
 #if defined(linux)
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
@@ -294,8 +267,7 @@ int os_inner_init(const char* title)
 	signal(SIGINT, os_signal);
 	signal(SIGSEGV, os_signal);
 	signal(SIGTERM, os_signal);
-	signal(SIGHUP, os_signal);
-	signal(SIGPIPE, os_signal);
+	signal(SIGHUP, os_quit_signal);
 	signal(SIGQUIT, os_quit_signal);
 
 	return 0;
@@ -444,14 +416,6 @@ void os_poll(void)
 }
 
 /***************************************************************************/
-/* Led */
-
-void os_led_set(unsigned mask)
-{
-	/* TODO drive the led */
-}
-
-/***************************************************************************/
 /* Signal */
 
 int os_is_quit(void)
@@ -523,7 +487,7 @@ int main(int argc, char* argv[])
 
 	file_done();
 	target_done();
-	
+
 	return EXIT_SUCCESS;
 }
 

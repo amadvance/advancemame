@@ -101,12 +101,21 @@ static unsigned SDL_ModeFlags(void)
 	case adv_output_window :
 		flags = 0; /* software surface */
 		break;
+#ifdef USE_VIDEO_RESTORE		
+	case adv_output_fullscreen :
+		flags = SDL_FULLSCREEN;
+		break;
+	case adv_output_zoom :
+		flags = SDL_FULLSCREEN;
+		break;
+#else
 	case adv_output_fullscreen :
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
 		break;
 	case adv_output_zoom :
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
 		break;
+#endif		
 	}
 
 	return flags;
