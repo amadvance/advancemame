@@ -1,6 +1,15 @@
 Name
 	advmenu - History For AdvanceMENU
 
+AdvanceMENU Version 2.1.2 2002/09
+	) Added the support of the VSyncMAME audio drivers. This add
+		support for the AC97 chipset [Shigeaki Sakamaki].
+	) Removed the compression of all the executables, and added
+		a little debug info on the precompiled binaries.
+		This should help the problem reporting.
+	) Fixed a bug when setting emulator attributes without games 
+		listed.
+
 AdvanceMENU Version 2.1.1 2002/09
 	) Fixed the window title and the icon in the sdl system.
 	) In Windows the default sdl samples buffer is now 2048.

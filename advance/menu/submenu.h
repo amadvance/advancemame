@@ -34,6 +34,7 @@ void run_clone(config_state& rs);
 void run_command(config_state& rs);
 void run_emu(config_state& rs);
 void run_emu_next(config_state& rs);
+emulator* run_emu_select(config_state& rs);
 void run_submenu(config_state& rs);
 void run_runinfo(config_state& rs);
 void run_calib(config_state& rs);

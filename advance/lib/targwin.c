@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <signal.h>
 
 #define BUFFER_SIZE 8192
 
@@ -316,4 +317,29 @@ void target_flush(void) {
 		MessageBox(NULL, TARGET.buffer_out, "Advance Message", MB_ICONINFORMATION);
 		*TARGET.buffer_out = 0;
 	}
+}
+
+static void target_backtrace(void) {
+}
+
+void target_signal(int signum) {
+	if (signum == SIGINT) {
+		fprintf(stderr,"Break pressed\n\r");
+		exit(EXIT_FAILURE);
+	} else {
+		fprintf(stderr,"Signal %d.\n",signum);
+		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
+
+		if (signum == SIGILL) {
+			fprintf(stderr,"Are you using the correct binary ?\n");
+		}
+
+		_exit(EXIT_FAILURE);
+	}
+}
+
+void target_crash(void) {
+	unsigned* i = (unsigned*)0;
+	++*i;
+	abort();
 }

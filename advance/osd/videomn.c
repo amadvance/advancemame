@@ -29,6 +29,7 @@
  */
 
 #include "advance.h"
+#include "target.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -222,6 +223,7 @@ int osd2_menu(int selected, unsigned input)
 	int rgb_index;
 	int depth_index;
 	int smp_index;
+	int crash_index;
 	char mode_buffer[128];
 
 	struct advance_video_context* context = &CONTEXT.video;
@@ -501,6 +503,16 @@ int osd2_menu(int selected, unsigned input)
 		save_all_index = -1;
 	}
 
+	if (context->config.crash_flag) {
+		crash_index = total;
+		menu_item[total] = mame_ui_gettext("Crash");
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
+	} else {
+		crash_index = -1;
+	}
+
 	menu_item[total] = mame_ui_gettext("Return to Main Menu");
 	menu_subitem[total] = 0;
 	flag[total] = 0;
@@ -552,6 +564,8 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_save(context,context->config.section_resolution);
 		} else if (selected == save_all_index) {
 			advance_video_save(context,"");
+		} else if (selected == crash_index) {
+			target_crash();
 		}
 	}
 

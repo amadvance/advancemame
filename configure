@@ -1271,7 +1271,7 @@ case "$host" in
 		ac_host=unix
 		ASMFLAGS="-f elf"
 
-		CFLAGS_BUILD="-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF"
+		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"
 
 
 	;;
@@ -1279,7 +1279,7 @@ case "$host" in
 		ac_host=windows
 		ASMFLAGS="-f coff"
 
-		CFLAGS_BUILD="-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"
+		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"
 
 		EXE=.exe
 
@@ -1288,7 +1288,7 @@ case "$host" in
 		ac_host=dos
 		ASMFLAGS="-f coff"
 
-		CFLAGS_BUILD="-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"
+		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"
 
 		EXE=.exe
 
@@ -3307,7 +3307,7 @@ if test $ac_auto_ldflags = yes ; then
 			LDFLAGS="-g"
 		fi
 	else
-		LDFLAGS="-g"
+		LDFLAGS="-s"
 	fi
 fi
 
@@ -5291,7 +5291,7 @@ fi
 echo ""
 echo "== Compiler =="
 echo "CC :" $CC
-echo "CFLAGS :" $CFLAGS
+echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
 echo "LDFLAGS :" $LDFLAGS
 echo ""
 echo "== Configuration =="

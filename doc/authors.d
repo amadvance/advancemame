@@ -11,7 +11,7 @@ Acknowledgments
 	* Gareth Hall
 	* Robert Palmqvist
 	* Filipe Estima
-	* S. Sakamaki (Saka)
+	* Shigeaki Sakamaki (Saka)
 	* Ian Patterson
 	* Randy Schnedler
 

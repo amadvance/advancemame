@@ -398,28 +398,7 @@ void os_default_signal(int signum)
 	log_std(("os: close log\n"));
 	log_abort();
 
-	if (signum == SIGINT) {
-		cprintf("Break pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else if (signum == SIGQUIT) {
-		cprintf("Quit pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else if (signum == SIGUSR1) {
-		cprintf("Low memory\n\r");
-		_exit(EXIT_FAILURE);
-	} else {
-		cprintf("Signal %d.\n\r", signum);
-		cprintf("%s, %s\n\r", __DATE__, __TIME__);
-
-		if (signum == SIGILL) {
-			cprintf("Are you using the correct binary ?\n\r");
-		}
-
-		/* stack traceback */
-		__djgpp_traceback_exit(signum);
-
-		_exit(EXIT_FAILURE);
-	}
+	target_signal(signum);
 }
 
 /***************************************************************************/

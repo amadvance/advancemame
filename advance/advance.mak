@@ -199,7 +199,6 @@ D2_SRC = \
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/config.guess \
-	$(srcdir)/config.status \
 	$(srcdir)/config.sub \
 	$(srcdir)/configure \
 	$(srcdir)/configure.ac \
@@ -301,7 +300,7 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special build
 
-# It seems to be required with gcc 3.1 for DOS. No problem in Linux.
+# It seems to be required with gcc 3.1 for DOS and Windows. No problem in Linux.
 #
 #MSG_FIX = $(MSG) "(with low opt)"
 #
@@ -314,11 +313,14 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special Rules
 
-ARCH_COMMON = -O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
-ARCH_ALL = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(ARCH_COMMON)"
-ARCH_PENTIUM = CONF_ARCH=i586 CONF_CFLAGS_OPT="-march=i586 $(ARCH_COMMON)"
-ARCH_PENTIUM2 = CONF_ARCH=i686 CONF_CFLAGS_OPT="-march=i686 $(ARCH_COMMON)"
-ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_OPT="-march=k6 $(ARCH_COMMON)"
+WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused
+WHOLE_CFLAGS_EMU = -fomit-frame-pointer
+WHOLE_LDFLAGS = -rdynamic
+
+ARCH_I386 = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_I586 = CONF_ARCH=i586 CONF_CFLAGS_OPT="-march=i586 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_I686 = CONF_ARCH=i686 CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_OPT="-march=k6 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 
 mame:
 	$(MAKE) CONF=no CONF_EMU=mame emu
@@ -337,34 +339,36 @@ pacmame:
 
 wholemame:
 	$(MAKE) CONF=no dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=no distbin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=no distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
+	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
+	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes CONF_COMPRESS=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=no distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_MAP=yes CONF_COMPRESS=no distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_SYSTEM=dos distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux distmenubin
 
 wholecab:
 	$(MAKE) CONF=no CONF_HOST=dos distcab
-	$(MAKE) $(ARCH_ALL) CONF=no CONF_HOST=dos CONF_MAP=yes distcabbin
+	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=dos distcabbin
 
 distmess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

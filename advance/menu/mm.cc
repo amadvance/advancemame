@@ -53,6 +53,8 @@ int run_sub(config_state& rs, bool silent) {
 	log_std(("menu: menu start\n"));
 
 	while (!done) {
+		emulator* emu;
+
 		key = run_menu(rs,(rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0, silent);
 
 		// don't replay the sound and clip
@@ -81,8 +83,9 @@ int run_sub(config_state& rs, bool silent) {
 			case TEXT_KEY_EXCLUDE :
 				// replay the sound and clip
 				silent = false;
-				if (rs.current_game)
-					rs.current_game->emulator_get()->attrib_run();
+				emu = run_emu_select(rs);
+				if (emu)
+					emu->attrib_run();
 				break;
 			case TEXT_KEY_COMMAND :
 				run_command(rs);

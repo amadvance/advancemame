@@ -232,19 +232,7 @@ void os_default_signal(int signum)
 	log_std(("os: close log\n"));
 	log_abort();
 
-	if (signum == SIGINT) {
-		fprintf(stderr,"Break pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else {
-		fprintf(stderr,"Signal %d.\n",signum);
-		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
-
-		if (signum == SIGILL) {
-			fprintf(stderr,"Are you using the correct binary ?\n");
-		}
-
-		_exit(EXIT_FAILURE);
-	}
+	target_signal(signum);
 }
 
 /***************************************************************************/

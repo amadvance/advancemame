@@ -230,6 +230,16 @@ void target_nfo(const char *text, ...) __attribute__((format(printf,1,2)));
  */
 void target_flush(void);
 
+/**
+ * Process the specified signal.
+ */
+void target_signal(int signum);
+
+/**
+ * Crash the process.
+ */
+void target_crash(void);
+
 #ifdef __cplusplus
 }
 #endif

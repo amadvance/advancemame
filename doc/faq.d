@@ -42,7 +42,10 @@ DOS Configuration FAQ
 		:device=C:\DOS\EMM386.EXE NOEMS NOVCPI
 
 	In AUTOEXEC.BAT:
-		:smartdrv 512
+		:smartdrv 1024
+
+	If you have a lot of RAM you can use a bigger disk cache like :
+		:smartdrv 8192
 
   Why can I use only 32M of RAM ? I have more RAM.
 	Start the EMM386.EXE device in your CONFIG.SYS with the
@@ -56,7 +59,7 @@ DOS Configuration FAQ
 
   Which is the minimum memory requirement ?
 	With 64 MB of memory you are able to play all the games.
-	At least in PURE DOS with CWSDPMI 5 with a lot of virtual
+	At least in PURE DOS with CWSDPMI 5 and with 512 MB of virtual
 	memory.
 
   Which is the maximum memory required ?

@@ -799,6 +799,7 @@ void osd_close_display(void) {
 
 int osd_menu(struct mame_bitmap *bitmap, int selected) {
 	unsigned input;
+	int r;
 
 	log_pedantic(("osd: osd_menu(%d)\n",selected));
 
@@ -824,7 +825,11 @@ int osd_menu(struct mame_bitmap *bitmap, int selected) {
 	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
 		input |= OSD_INPUT_RIGHT;
 
-	return osd2_menu(selected,input);
+	r = osd2_menu(selected,input);
+	if (r < 0)
+		return -1;
+	else
+		return r;
 }
 
 /**

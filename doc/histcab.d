@@ -1,5 +1,5 @@
 Name
-	advmenu - History For AdvanceCAB Emulators
+	advcab - History For AdvanceCAB Emulators
 
 AdvanceCAB Version 0.11.3 2002/09 (not yet released)
 

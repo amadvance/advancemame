@@ -10,19 +10,19 @@ case "$host" in
 	*-*-linux*)
 		ac_host=unix
 		AC_SUBST([ASMFLAGS],["-f elf"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"])
 		AC_SUBST([EXE],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_host=windows
 		AC_SUBST([ASMFLAGS],["-f coff"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*-*-msdos*)
 		ac_host=dos
 		AC_SUBST([ASMFLAGS],["-f coff"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF"])
+		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*)
@@ -134,7 +134,7 @@ if test $ac_auto_ldflags = yes ; then
 			LDFLAGS="-g"
 		fi
 	else
-		LDFLAGS="-g"
+		LDFLAGS="-s"
 	fi
 fi
 
@@ -390,7 +390,7 @@ fi
 echo ""
 echo "== Compiler =="
 echo "CC :" $CC
-echo "CFLAGS :" $CFLAGS
+echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
 echo "LDFLAGS :" $LDFLAGS
 echo ""
 echo "== Configuration =="

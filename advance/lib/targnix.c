@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <execinfo.h>
 
 /***************************************************************************/
 /* Init */
@@ -272,4 +273,54 @@ void target_nfo(const char *text, ...) {
 void target_flush(void) {
 	fflush(stdout);
 	fflush(stderr);
+}
+
+static void target_backtrace(void) {
+	void* buffer[256];
+	char** symbols;
+	int size;
+	int i;
+
+	/* The programm need to be compiled without CFLAGS=-fomit-frame-pointer */
+	/* and with LDFLAGS=-rdynamic */
+	size = backtrace(buffer,256);
+
+	symbols = backtrace_symbols(buffer,size);
+
+	if (size > 1) {
+		printf("Stack backtrace:\n");
+		for(i=0;i<size;++i)
+			printf("%s\n", symbols[i]);
+	} else {
+		printf("No stack backtrace: compile without CFLAGS=-fomit-frame-pointer and with LDFLAGS=-rdynamic\n");
+	}
+
+	free(symbols);
+}
+
+void target_signal(int signum) {
+	if (signum == SIGINT) {
+		fprintf(stderr,"Break pressed\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGQUIT) {
+		fprintf(stderr,"Quit pressed\n\r");
+		exit(EXIT_FAILURE);
+	} else {
+		fprintf(stderr,"Signal %d.\n", signum);
+		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
+
+		target_backtrace();
+
+		if (signum == SIGILL) {
+			fprintf(stderr,"Are you using the correct binary ?\n");
+		}
+
+		_exit(EXIT_FAILURE);
+	}
+}
+
+void target_crash(void) {
+	unsigned* i = (unsigned*)0;
+	++*i;
+	abort();
 }

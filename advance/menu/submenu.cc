@@ -281,6 +281,36 @@ void run_emu(config_state& rs) {
 	}
 }
 
+emulator* run_emu_select(config_state& rs) {
+	choice_bag ch;
+
+	for(emulator_container::const_iterator j = rs.include_emu_effective.begin();j!=rs.include_emu_effective.end();++j) {
+		ch.insert( ch.end(), choice(*j, 0) );
+	}
+
+	string emu;
+
+	if (ch.size() > 1) {
+		choice_bag::iterator i = ch.begin();
+		int key = ch.run(" Which emulator", EMU_CHOICE_X, EMU_CHOICE_Y, EMU_CHOICE_DX, i);
+
+		if (key != TEXT_KEY_ENTER)
+			return 0;
+
+		emu = i->desc_get();
+	} else {
+		emu = ch.begin()->desc_get();
+	}
+
+	for(pemulator_container::const_iterator j = rs.emu_active.begin();j!=rs.emu_active.end();++j) {
+		if ((*j)->user_name_get() == emu) {
+			return *j;
+		}
+	}
+
+	return 0;
+}
+
 void run_emu_next(config_state& rs) {
 	string last = "";
 	bool pred_in = false;
@@ -481,6 +511,8 @@ void run_submenu(config_state& rs) {
 	int key = ch.run(" Menu", MENU_CHOICE_X, MENU_CHOICE_Y, MENU_CHOICE_DX, i);
 
 	if (key == TEXT_KEY_ENTER) {
+		emulator* emu;
+
 		switch (i->value_get()) {
 			case 0 :
 				run_sort(rs);
@@ -492,8 +524,9 @@ void run_submenu(config_state& rs) {
 				run_group(rs);
 				break;
 			case 3 :
-				if (rs.current_game)
-					rs.current_game->emulator_get()->attrib_run();
+				emu = run_emu_select(rs);
+				if (emu)
+					emu->attrib_run();
 				break;
 			case 4 :
 				run_emu(rs);

@@ -57,7 +57,7 @@ Options
 
 Emulators
 	The program supports many type of emulators. The emulators
-	AdvanceMAME, AdvancePAC, AdvanceMESS, MAME, XMAME, DMAME,
+	AdvanceMAME, AdvancePAC, AdvanceMESS, MAME, Xmame, DMAME,
 	DMESS and DRAINE are directly supported  and the only thing
 	you should do is to run the AdvanceMENU program in the same
 	directory of the emulator.

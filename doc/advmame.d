@@ -302,8 +302,8 @@ Other Ports
 	The Arcade/TV support is limited at the mode 640x480 for the
 	ATI boards.
 
-  XMAME
-	The XMAME port has nearly the same video capabilities of
+  Xmame
+	The Xmame port has nearly the same video capabilities of
 	AdvanceMAME. The only drawback is that it requires a manual
 	modeline creation. AdvanceMAME uses the latest SVGALIB
 	library on witch you can create modeline dinamically and

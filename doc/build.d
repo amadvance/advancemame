@@ -12,7 +12,7 @@ Preparing The Sources
 	need first to download and unzip the emulator source with the same
 	version of the Advance source. Please note that you must use the
 	original emulator source, you cannot use the source of another MAME
-	clone like XMAME.
+	clone like Xmame.
 
 	The source of the MAME emulator must be unzipped in the `src/' directory,
 	the MESS source in `srcmess/' and the PacMAME source in `srcpac/'.

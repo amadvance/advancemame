@@ -1,7 +1,7 @@
 Name
-	advmenu - History For Advance Emulators
+	advmame - History For Advance Emulators
 
-AdvanceMAME Version 0.61.3 2002/09 (not yet released)
+AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.
 	) In Windows the default sdl samples buffer is now 2048.
 		This solve the distorced sound.
@@ -13,6 +13,12 @@ AdvanceMAME Version 0.61.3 2002/09 (not yet released)
 	) Added the `cost' doc.
 	) Revised the video section of the `faq' doc.
 	) The `display_vsync' option is now enabled as default.
+	) Added the support of the VSyncMAME audio drivers. This add
+		support for the AC97 chipset [Shigeaki Sakamaki].
+	) Fixed a bug in the 68k emulator in the Windows port.
+	) Removed the compression of all the executables, and added
+		a little debug info on the precompiled binaries.
+		This should help the problem reporting.
 
 AdvanceMESS Version 0.61.0 2002/09
 	) Fixed the window title and the icon in the sdl system.

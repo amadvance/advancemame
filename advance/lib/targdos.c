@@ -44,6 +44,8 @@
 #include <dos.h>
 #include <string.h>
 #include <stdio.h>
+#include <signal.h>
+#include <conio.h>
 
 /***************************************************************************/
 /* Init */
@@ -382,4 +384,34 @@ void target_nfo(const char *text, ...) {
 }
 
 void target_flush(void) {
+}
+
+void target_signal(int signum) {
+	if (signum == SIGINT) {
+		cprintf("Break pressed\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGQUIT) {
+		cprintf("Quit pressed\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGUSR1) {
+		cprintf("Low memory\n\r");
+		_exit(EXIT_FAILURE);
+	} else {
+		cprintf("Signal %d.\n\r", signum);
+		cprintf("%s, %s\n\r", __DATE__, __TIME__);
+
+		__djgpp_traceback_exit(signum);
+
+		if (signum == SIGILL) {
+			cprintf("Are you using the correct binary ?\n\r");
+		}
+
+		_exit(EXIT_FAILURE);
+	}
+}
+
+void target_crash(void) {
+	unsigned* i = (unsigned*)0;
+	++*i;
+	abort();
 }

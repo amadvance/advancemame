@@ -175,6 +175,7 @@ struct advance_video_config_context {
 	char section_resolution[256]; /**< Section used to store the option for the resolution. */
 	char section_orientation[256]; /**< Section used to store the option for the orientation. */
 	int smp_flag; /**< Use threads */
+	int crash_flag; /**< If enable the crash menu entry. */
 };
 
 /* Internal options for the video part */

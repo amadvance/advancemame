@@ -1,20 +1,46 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <go32.h>
-#include <dpmi.h>
-#include <time.h>
-#include <string.h>
-#include <math.h>
-#include <sys/farptr.h>
-#include <pc.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "wss.h"
+/*
+ * This file is part of the Advance project
+ *
+ * Copyright (C) 2002 Shigeaki Sakamaki
+ * Copyright (C) 2002 Andrea Mazzoleni
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * In addition, as a special exception, Andrea Mazzoleni
+ * gives permission to link the code of this program with
+ * the MAME library (or with modified versions of MAME that use the
+ * same license as MAME), and distribute linked combinations including
+ * the two.  You must obey the GNU General Public License in all
+ * respects for all of the code used other than MAME.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
+ */
 
-/** AdvanceMAME glue BEGIN **/
+/*
+ * This file is an adaption of the VSyncMAME audio drivers written by
+ * Shigeaki Sakamaki. It also contains some snipsets from the projects
+ * Allegro (Allegro License) and ALSA (GPL/LGPL License) which have a
+ * GPL compatible license.
+ */
 
-#include "os.h"
+/*****************************************************************************/
+/* Advance Glue code */
+
 #include "log.h"
+#include "os.h"
 
 #define cycles_t os_clock_t
 #define osd_cycles() os_clock()
@@ -27,7 +53,28 @@ static void logerror_(const char *text,...) {
 	va_end(arg);
 }
 
-/** AdvanceMAME glue END **/
+#define W_WATERMARK_UNDERRUN 0
+#define W_WATERMARK_FULL 0
+#define W_WATERMARK_GOOD 0
+#define W_WATERMARK_OK 0
+#define W_WATERMARK_ON_THE_EDGE 0
+#define W_WATERMARK_UNDERRUN 0
+
+/*****************************************************************************/
+/* wss.h from the VSyncMAME source */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <go32.h>
+#include <dpmi.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <sys/farptr.h>
+#include <pc.h>
+#include <ctype.h>
+#include <stdarg.h>
+#include "wss.h"
 
 /***********************  COMMON  *************************/
 
@@ -80,9 +127,33 @@ static void _dma_start(int channel, unsigned long addr, int size, int auto_init,
 static void _dma_stop(int channel);
 static DWORD _dma_todo(int channel);
 static int _dma_count;
-
-
 static DWORD _dma_counter(void);
+
+#define SAMPLECNT	  16384 		// the buffer size has to be smaller than 64KBytes, for compatibility sake.
+#define SAMPLECNTMASK 0x3FFF		// 16bitPCM * stereo * 16384 = 64KBytes
+
+
+static DWORD g_prev_play_cursor = 0;
+static DWORD g_write_cursor = 0;
+static DWORD g_latency	= 48000/30;
+static float g_latencym = 2.2;
+static DWORD g_dma_average_cnt = (48000/60) << 8;
+static int	 g_dma_dt = 0;
+static int	 g_dma_overflow  = 0;
+static int	 g_dma_underflow = 0;
+
+#define DMA_AVERAGE 			256
+#define DMA_AVERAGE_MASK		0xFF
+#define DMA_AVERAGE_SHIFT_COUNT 8
+
+static DWORD g_dma_remainder = 0;
+static long  mixing_buff[SAMPLECNT*2];
+static DWORD g_current_req = 0;
+static DWORD g_next_req = 0;
+static int	 g_master_volume = 256;
+static DWORD g_samples_per_frame = 0;
+
+
 
 /* dos memory 4k bytes for work area */
 static BOOL allocate_dosmem4k(void);
@@ -104,10 +175,6 @@ static int g_dma_buff_size;
 static int g_dmacnt_shift_count;
 static __dpmi_meminfo info64k;
 
-
-
-#define SAMPLECNT	  16384
-#define SAMPLECNTMASK 0x3FFF
 
 
 static _go32_dpmi_seginfo old_handler, new_handler;
@@ -160,226 +227,20 @@ static void clear_error_message(void)
 /***********************  COMMON END  *********************/
 
 
-/***********************  Window Sound System  ************/
 
-static char device_name_soundscape[] = "Ensoniq Soundscape";
-static int soundscape_get_init_config(void);
 
-static int soundscape_start(int rate_no);
 
-static int wss_irq_handler(void);
-static void wss_wait(void);
-static int wss_start(int rate_no);
-static void wss_exit(void);
 
 
 
 
 
 
-struct codec_rate_struct
-{
-   int freq;
-   int divider;
-};
-
-static struct codec_rate_struct codec_rates[] =
-{
-   { 5512,	0x01 }, 	//	0
-   { 6620,	0x0F }, 	//	1
-   { 8000,	0x00 }, 	//	2
-   { 9600,	0x0E }, 	//	3
-   { 11025, 0x03 }, 	//	4
-   { 16000, 0x02 }, 	//	5
-   { 18900, 0x05 }, 	//	6
-   { 22050, 0x07 }, 	//	7
-   { 27420, 0x04 }, 	//	8
-   { 32000, 0x06 }, 	//	9
-   { 33075, 0x0D }, 	//	10
-   { 37800, 0x09 }, 	//	11
-   { 44100, 0x0B }, 	//	12
-   { 48000, 0x0C }, 	//	13
-   { 54857, 0x08 }, 	//	14
-   { 64000, 0x0A }		//	15
-};
-
-
-
-/* CODEC ports */
-#define IADDR	(wd.isa_port+4)
-#define IDATA	(wd.isa_port+5)
-#define STATUS	(wd.isa_port+6)
-#define PIO 	(wd.isa_port+7)
-
-#define INIT	0x80
-#define MCE 	0x40
-#define TRD 	0x20
-
-#define INT 	0x01
-#define PRDY	0x02
-#define PLR 	0x04
-#define PUL 	0x08
-#define SER 	0x10
-#define CRDY	0x20
-#define CLR 	0x40
-#define CUL 	0x80
-
-#define LADC	0x00
-#define RADC	0x01
-#define LAUX1	0x02
-#define RAUX1	0x03
-#define LAUX2	0x04
-#define RAUX2	0x05
-#define LDAC	0x06
-#define RDAC	0x07
-#define FS		0x08
-#define INTCON	0x09
-#define PINCON	0x0A
-#define ERRSTAT 0x0B
-#define MODE_ID 0x0C
-#define LOOPBCK 0x0D
-#define PB_UCNT 0x0E
-#define PB_LCNT 0x0F
-
-
-
-
-
-
-/***********************  Window Sound System END  ********/
-
-
-/***********************  BLASTER  ************************/
-
-static int sb_16bit    = FALSE; 		   /* in 16 bit mode? */
-static int sb_stereo   = FALSE; 		   /* in stereo mode? */
-static int sb_type	   = 0;
-
-static volatile DWORD sb_interrupt_driven_dma_position = 0;
-
-static DWORD sb_cursor_offset = 0;
-
-static int sb_samples_per_interrupt = 64;
-static int sb_current_address = 0;
-
-
-#define SBTYPE_SB100   0x100
-#define SBTYPE_SB201   0x201
-#define SBTYPE_SBPRO   0x300
-#define SBTYPE_SB16    0x400
-
-static void _sbpro_master_volume(int d0);
-static void _sb_voice(int state);
-static int get_blaster(void);
-static int sb_read_dsp_version(void);
-static int sb_write_dsp(unsigned char byte);
-static void sb_stereo_mode(int enable);
-static void sb_set_sample_rate(unsigned int rate);
-static int sb_interrupt(void);
-static void sb_play_buffer(int size);
-static void sb_stop(void);
-static int _sb_reset_dsp(int);
-static int sb_read_dsp(void);
-static void _sb_dac_level(BYTE);
-static void _sb16_dac_level(BYTE);
-static void sb16_get_dma_and_irq(void);
-static int sb201_interrupt_driven_interrupt(void);
-static int sb100_interrupt_driven_interrupt(void);
-static int sbpro_interrupt_driven_interrupt(void);
-static void wdm_sbpro_interrupt(void);
-
-
-
-
-
-
-static int wdm_sbpro_start(int rate_no);
-static int sb201_start(int rate_no);
-static int sbpro_start(int rate_no);
-static int sbpro_ex_start(int rate_no);
-static int sb16_start(int rate_no);
-static int sb16_ex_start(int rate_no);
-static int sb_auto_detect_start(int rate_no);
-static int sb201_interrupt_driven_start(int rate_no);
-static int sb100_interrupt_driven_start(int rate_no);
-
-static unsigned long sb100_get_next_addr(void);
-
-
-
-static void sb_exit(void);
-
-
-
-
-static int detectTrid4DWave(void);
-static int trid4dwave_as_sb16_start(int rate_no);
-
-static DWORD trid4dwave_iobase = -1;
-static char device_name_trid4dwave[]  = "Trident 4DWave DX/NX as SB16";
-
-
-/***********************  BLASTER END  ********************/
-
-
-
-
-
-
-/***********************  ULTRASOUND  *********************/
-
-static char device_name_ultrasound[]  = "Ultrasound";
-
-static int ultrasound_start(int rate_no);
-static void ultrasound_exit(void);
-
-static int ultramax_start(int rate_no);
-
-static int get_ultrasnd(void);
-static DWORD u_get_current_location(BYTE voice);
-static void u_upload(DWORD addr, BYTE data);
-static volatile int u_dma_upload(DWORD addr, WORD count, DWORD gusaddr,
-					int flag, DWORD addr2, WORD count2, DWORD gusaddr2);
-static void u_start_dma_upload(DWORD addr, WORD count, DWORD gusaddr);
-static DWORD convert_to_16bit(DWORD address);
-static void u_abort_dma_upload(void);
-
-
-
-
-static int u_prim_voice = 0;
-static int u_base = -1;
-static int u_cmd;
-static int u_datal;
-static int u_datah;
-static int u_page;
-static int u_status;
-static int u_dram;
-static DWORD u_freq_value = 0;
-static volatile int u_dma_busy_flag = FALSE;
-static volatile int u_twoflag = FALSE;
-static DWORD u_nextaddr;
-static WORD  u_nextcount;
-static DWORD u_nextgusaddr;
-
-
-
-/***********************  ULTRASOUND END  *****************/
-
-
-
-
-/***********************  ESS AUDIODRIVE  *****************/
-static int ess_start(int);
-static void ess_exit(void);
-
-
-/***********************  ESS AUDIODRIVE END  *************/
 
 
 
 /********************************************************************
- *	PCI BIOS helper funtions
+	PCI BIOS helper funtions
  ********************************************************************/
 
 #define PCI_ANY_ID	((WORD)(~0))
@@ -624,7 +485,7 @@ static BOOL detect_windows(void)
 
 
 /********************************************************************
- *	helper func
+	Interrupt and others helper functions
  ********************************************************************/
 
 static DWORD tasmania = 0;
@@ -653,49 +514,6 @@ void w_exit_critical(void)
 	}
 }
 
-
-
-static void udelay(int usec)
-{
-	cycles_t  prev;
-	double t;
-	cycles_t  cps = osd_cycles_per_second();
-
-	t = ((double)cps / 1000000.0) * usec;
-	prev = osd_cycles();
-	while(1){
-		if( (osd_cycles() - prev) >= (cycles_t)t ) break;
-	}
-}
-
-
-
-
-static void copy_to_dos_memory(DWORD dos_address, BYTE *src, DWORD length)
-{
-	int d0;
-
-	_farsetsel(_dos_ds);
-	d0 = 0;
-	while(d0 < length){
-		_farnspokeb(dos_address + d0, *(src + d0));
-		d0 += 1;
-	}
-}
-
-static void copy_from_dos_memory(DWORD dos_address, BYTE *dest, DWORD length)
-{
-	int d0;
-
-	_farsetsel(_dos_ds);
-	d0 = 0;
-	while(d0 < length){
-		*(dest + d0) = _farnspeekb(dos_address + d0);
-		d0 += 1;
-	}
-}
-
-
 static void eoi(int irq)
 {
 	outportb(0x20, 0x20);
@@ -716,8 +534,6 @@ static void unmask_irq(int irq)
 	  outportb(0x21, d0 & (~(1<<irq)) );
    }
 }
-
-
 
 static void mask_irq(int irq)
 {
@@ -769,12 +585,151 @@ static void restore_irq_handler(void)
 }
 
 
+static void udelay(int usec)
+{
+	cycles_t  prev;
+	double t;
+	cycles_t  cps = osd_cycles_per_second();
+
+	t = ((double)cps / 1000000.0) * usec;
+	prev = osd_cycles();
+	while(1){
+		if( (osd_cycles() - prev) >= (cycles_t)t ) break;
+	}
+}
+
+
+
+/********************************************************************
+	DOS memory allocation helper funtions
+ ********************************************************************/
+
+static void copy_to_dos_memory(DWORD dos_address, BYTE *src, DWORD length)
+{
+	int d0;
+
+	_farsetsel(_dos_ds);
+	d0 = 0;
+	while(d0 < length){
+		_farnspokeb(dos_address + d0, *(src + d0));
+		d0 += 1;
+	}
+}
+
+static void copy_from_dos_memory(DWORD dos_address, BYTE *dest, DWORD length)
+{
+	int d0;
+
+	_farsetsel(_dos_ds);
+	d0 = 0;
+	while(d0 < length){
+		*(dest + d0) = _farnspeekb(dos_address + d0);
+		d0 += 1;
+	}
+}
+
+
+static BOOL allocate_dosmem4k(void)
+{
+	if(g_dosmem4k_sel  != NULL) return FALSE;
+	if(g_dosmem4k_addr != NULL) return FALSE;
+	if(_dma_allocate_mem4k(&g_dosmem4k_sel, &g_dosmem4k_addr) == FALSE){
+		return FALSE;
+	}
+//	  info4k.size	 = 4096;
+//	  info4k.address = g_dosmem4k_addr;
+//	  __dpmi_lock_linear_region(&info4k);
+
+	return TRUE;
+}
+
+static void free_dosmem4k(void)
+{
+	if(g_dosmem4k_sel  == NULL) return;
+	if(g_dosmem4k_addr == NULL) return;
+//	  if(info4k.address != NULL){
+//		  __dpmi_unlock_linear_region(&info4k);
+//	  }
+	__dpmi_free_dos_memory(g_dosmem4k_sel);
+}
+
+static DWORD get_address_dosmem4k(void)
+{
+	return g_dosmem4k_addr;
+}
+
+
+static BOOL allocate_dosmem64k_for_dma(int format)
+{
+	BYTE *a0;
+	int d0;
+	BOOL lockflag = FALSE;
+
+	g_dma_buff_size = SAMPLECNT;
+	switch(format){
+		case _8BITMONO:
+			g_dma_buff_size *= 1;
+			g_dmacnt_shift_count = 0;
+			break;
+		case _8BITSTEREO:
+			g_dma_buff_size *= 2;
+			g_dmacnt_shift_count = 1;
+			break;
+		case _16BITSTEREO:
+			g_dma_buff_size *= 4;
+			g_dmacnt_shift_count = 2;
+			break;
+		default:
+			g_dma_buff_size = 0;
+	}
+	if(g_dma_buff_size == 0) return FALSE;
+	a0 = malloc(g_dma_buff_size);
+	if(a0 == NULL) return FALSE;
+	if (_dma_allocate_mem(&g_wss_dma_sel, &g_wss_dma_addr) == FALSE)
+		return FALSE;
+	d0 = 0;
+	while(d0 < g_dma_buff_size){
+		if(format == _8BITSTEREO || format == _8BITMONO)
+			a0[d0] = 0x80;
+		else
+			a0[d0] = 0x00;
+		d0 += 1;
+	}
+	copy_to_dos_memory(g_wss_dma_addr, a0, g_dma_buff_size);
+	free(a0);
+
+	if(lockflag == TRUE){
+		info64k.size	= 65536;
+		info64k.address = g_wss_dma_addr;
+		__dpmi_lock_linear_region(&info64k);
+	}else{
+		info64k.address = NULL;
+	}
+
+	return TRUE;
+}
+
+static void free_dosmem64k_for_dma(void)
+{
+	if(g_wss_dma_sel  == NULL) return;
+	if(g_wss_dma_addr == NULL) return;
+	if(info64k.address != NULL){
+		__dpmi_unlock_linear_region(&info64k);
+	}
+	__dpmi_free_dos_memory(g_wss_dma_sel);
+}
+
+static DWORD get_address_dosmem64k_for_dma(void)
+{
+	return g_wss_dma_addr;
+}
+
 
 
 
 
 /********************************************************************
- *	VDS helper func
+	VDS helper functions
  ********************************************************************/
 
 typedef struct {
@@ -916,10 +871,10 @@ static BOOL vds_helper_unlock(DWORD buffer_addr, DWORD *physical_addr_table, int
 }
 
 
-/**********************************************************
-						   dma.c  from allegro
-***********************************************************/
-
+/********************************************************************
+	DMA helper functions
+	This is based on Allegro liblary.
+ ********************************************************************/
 
 // 8bit DMAC
 #define DMA1_STAT		0x08
@@ -1138,8 +1093,6 @@ static void _dma_start(int channel, unsigned long addr, int size, int auto_init,
 }
 
 
-
-
 static void _dma_stop(int channel)
 {
    DMA_S *tdma = &mydma[channel];
@@ -1175,14 +1128,10 @@ static DWORD _dma_todo(int channel)
 
 
 
-/**********************************************************
-						dma.c end
-***********************************************************/
-
-
-/**********************************************************
-						AC97
-***********************************************************/
+/********************************************************************
+	AC'97 drivers
+	This is based on ALSA drivers
+ ********************************************************************/
 
 #define AC97_RESET				0x00	/* Reset */
 #define AC97_MASTER 			0x02	/* Master Volume */
@@ -1205,9 +1154,12 @@ typedef struct {
 } AC97_DEVICE_LIST;
 
 
+/********************************************************************
+	VIA 686/8233 driver
 
-/***********************  VIA SOUND  ************************/
-
+ note:
+	This driver may not work with 8233 yet.
+ ********************************************************************/
 
 
 #define VIA686_AC97ControllerCommand   0x80
@@ -1576,9 +1528,13 @@ static BOOL via686_start_no_chip_init(int rate)
 
 
 
-/***********************   ************************/
+/********************************************************************
+	Intel810 and derivations driver
 
-// 41194Hz?
+ note:
+	This driver was tested with i810(ICH), SiS7012, VIA686.
+ ********************************************************************/
+
 
 /* capture block */
 #define ICH_REG_PI_BDBAR		0x00	/* dword - buffer descriptor list base address */
@@ -1988,7 +1944,7 @@ static BOOL intel_ich_start_no_chip_init(int rate)
 
 
 /********************************************************************
- *						 ac97 autodetect							*
+	AC97 auto-detection
  ********************************************************************/
 
 static BOOL ac97_auto_detect_start(int rate, BOOL initialize)
@@ -2006,892 +1962,59 @@ static BOOL ac97_auto_detect_start(int rate, BOOL initialize)
 
 
 
-
-/***********************  sound blaster ************************/
-
-static DWORD sb100irq_current_pos(void);
-
-static int sb100_interrupt_driven_start(int rate)
-{
-	static char device_name_sb100_irq[] = "Sound Blaster 1.0 (interrupt driven)";
-	int ver = -1;
-
-	if(rate <= 11111){
-		rate = 11111;
-		sb_samples_per_interrupt = 16;
-	}else{
-		rate = 21739;
-		sb_samples_per_interrupt = 32;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = FALSE;
-	sb_type   = SBTYPE_SB100;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sb100_interrupt_driven_interrupt);
-	_sb_voice(TRUE);
-//	  sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-
-	sb_current_address = 0;
-	_dma_start(wd.isa_dma, sb100_get_next_addr(), sb_samples_per_interrupt, FALSE, FALSE);
-	sb_interrupt_driven_dma_position = SAMPLECNT - sb_current_address - 1;
-	sb_interrupt_driven_dma_position -= sb_cursor_offset;
-	sb_interrupt_driven_dma_position &= SAMPLECNTMASK;
-	sb_play_buffer(sb_samples_per_interrupt);
-
-	if(ver >= 0x300){
-		_sb_dac_level(0xFF);
-	}
-
-	wd.device_name	   = device_name_sb100_irq;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITMONO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = sb100irq_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-
-static unsigned long sb100_get_next_addr(void)
-{
-	unsigned long d0;
-
-	d0 = g_wss_dma_addr + sb_current_address;
-	sb_current_address += sb_samples_per_interrupt;
-	sb_current_address &= SAMPLECNTMASK;
-
-	return d0;
-}
-
-
-static int sb100_interrupt_driven_interrupt(void)
-{
-	inportb(wd.isa_port+0x0E);
-	eoi(wd.irq);						 /* acknowledge interrupt */
-
-	_dma_start(wd.isa_dma, sb100_get_next_addr(), sb_samples_per_interrupt, FALSE, FALSE);
-	sb_interrupt_driven_dma_position  = SAMPLECNT - sb_current_address - 1;
-	sb_interrupt_driven_dma_position -= sb_cursor_offset;
-	sb_interrupt_driven_dma_position &= SAMPLECNTMASK;
-
-	sb_play_buffer(sb_samples_per_interrupt);
-
-
-	return 0;
-}
-
-static DWORD sb100irq_current_pos(void)
-{
-	static DWORD dmac_sbirq_prev = 0;
-	static int ticker_flag = 0;
-	static cycles_t prev = 0;
-	DWORD d0;
-
-	d0 = sb_interrupt_driven_dma_position;
-	if(ticker_flag == 0){
-		if(d0 == dmac_sbirq_prev){
-			ticker_flag = 1;
-			prev = osd_cycles();
-		}else{
-			dmac_sbirq_prev = d0;
-		}
-	}else{
-		if(d0 == dmac_sbirq_prev){
-			if( (osd_cycles() - prev) > (osd_cycles_per_second() / 120) ){
-				ticker_flag = 0;
-				w_enter_critical();
-				sb100_interrupt_driven_interrupt();
-				w_exit_critical();
-			}
-		}else{
-			dmac_sbirq_prev = d0;
-			ticker_flag = 0;
-		}
-	}
-	return d0;
-}
-
-
-
-
-static DWORD sb201irq_current_pos(void);
-
-static int sb201_interrupt_driven_start(int rate)
-{
-	static char device_name_sb201_irq[] = "Sound Blaster 2.01 (interrupt driven)";
-	int ver  = -1;
-
-	if(rate <= 11111){
-		rate = 11111;
-		sb_samples_per_interrupt = 32;
-	}else if(rate <= 21739){
-		rate = 21739;
-		sb_samples_per_interrupt = 64;
-	}else{
-		rate = 45454;
-		sb_samples_per_interrupt = 128;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = FALSE;
-	sb_type   = SBTYPE_SB201;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sb201_interrupt_driven_interrupt);
-	_sb_voice(TRUE);
-//	  sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-	sb_interrupt_driven_dma_position  = SAMPLECNT - 1;
-	sb_interrupt_driven_dma_position -= sb_cursor_offset;
-	sb_interrupt_driven_dma_position -= sb_samples_per_interrupt;
-	sb_interrupt_driven_dma_position &= (SAMPLECNT - 1);
-
-	sb_play_buffer(sb_samples_per_interrupt);
-
-	if(ver >= 0x300){
-		_sb_dac_level(0xFF);
-	}
-
-	wd.device_name	   = device_name_sb201_irq;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITMONO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = sb201irq_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-static DWORD sb201irq_current_pos(void)
-{
-	return sb_interrupt_driven_dma_position;
-}
-
-static int sb201_interrupt_driven_interrupt(void)
-{
-	sb_interrupt_driven_dma_position -= sb_samples_per_interrupt;
-	sb_interrupt_driven_dma_position &= (SAMPLECNT - 1);
-
-	inportb(wd.isa_port+0x0E);
-	eoi(wd.irq);						 /* acknowledge interrupt */
-	return 0;
-}
-
-
-
-
-static int sbpro_interrupt_driven_start(int rate)
-{
-	static char device_name_sbpro_irq[] = "Sound Blaster Pro (interrupt driven)";
-	int ver  = -1;
-
-	if(rate <= 11111){
-		rate = 11111;
-		sb_samples_per_interrupt = 32;
-	}else{
-		rate = 21739;
-		sb_samples_per_interrupt = 64;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = TRUE;
-	sb_type   = SBTYPE_SBPRO;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sbpro_interrupt_driven_interrupt);
-	_sb_voice(TRUE);
-	sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-	sb_interrupt_driven_dma_position  = (SAMPLECNT * 2) - 1;
-	sb_interrupt_driven_dma_position -= (sb_cursor_offset * 2);
-	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
-	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
-
-	sb_play_buffer(sb_samples_per_interrupt * 2);
-
-	if(ver >= 0x300){
-		_sb_dac_level(0xFF);
-	}
-
-	wd.device_name	   = device_name_sbpro_irq;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITSTEREO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = sb201irq_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-static volatile int wdm_sbpro_init_flag;
-static volatile int wdm_sbpro_ticks_index;
-static volatile cycles_t wdm_sbpro_average_tick_per_interrupt;
-static volatile cycles_t wdm_sbpro_current_time;
-static volatile cycles_t wdm_sbpro_ticks[16];
-static volatile cycles_t wdm_sbpro_prev_tick;
-static volatile cycles_t wdm_sbpro_virtual_tick;
-static volatile cycles_t wdm_sbpro_tick_correction;
-
-static volatile DWORD wdm_sbpro_virtual_dma_position = 0;
-static volatile int   wdm_sbpro_delta = 0;
-
-
-#define WDM_SBPRO_SAMPLES_PER_INTERRUPT 	1024
-
-static DWORD sbprowdm_current_pos(void);
-
-static int wdm_sbpro_start(int rate)
-{
-	static char device_name_sbpro_wdm[] = "Sound Blaster Pro for WDM SBPro emulation";
-
-	int ver  = -1;
-
-	rate = 21739;
-	sb_samples_per_interrupt = WDM_SBPRO_SAMPLES_PER_INTERRUPT;
-
-	wd.playback_rate = rate;
-	wd.pcm_format = _8BITSTEREO;
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = TRUE;
-	sb_type   = SBTYPE_SBPRO;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)wdm_sbpro_interrupt);
-	_sb_voice(TRUE);
-	sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-	sb_interrupt_driven_dma_position  = (SAMPLECNT * 2) - 1;
-	sb_interrupt_driven_dma_position -= (sb_cursor_offset * 2);
-	sb_interrupt_driven_dma_position += 512;
-//	  sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
-	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
-
-	if(ver >= 0x300){
-		_sb_dac_level(0xFF);
-	}
-
-	wdm_sbpro_init_flag = 1;
-	sb_play_buffer(sb_samples_per_interrupt * 2);
-	while(1){
-		if(wdm_sbpro_init_flag == 0) break;
-	}
-
-	wd.device_name	   = device_name_sbpro_wdm;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITSTEREO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = sbprowdm_current_pos;
-	wd.initialized = TRUE;
-
-
-	return TRUE;
-}
-
-static DWORD sbprowdm_current_pos(void)
-{
-	cycles_t ticktemp;
-	DWORD d0;
-
-	w_enter_critical();
-	ticktemp = osd_cycles() - wdm_sbpro_virtual_tick + wdm_sbpro_tick_correction;
-	d0	= (ticktemp * (sb_samples_per_interrupt*2 - wdm_sbpro_delta/64))
-							/ wdm_sbpro_average_tick_per_interrupt;
-	d0	= wdm_sbpro_virtual_dma_position - d0;
-	d0 &= ((SAMPLECNT * 2) - 1);
-	w_exit_critical();
-
-	return d0;
-}
-
-
-static void wdm_sbpro_interrupt(void)
-{
-	cycles_t ticktemp;
-	int d0;
-
-	wdm_sbpro_current_time = osd_cycles();
-	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
-	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
-
-	if(wdm_sbpro_init_flag != 0){
-		if(wdm_sbpro_init_flag == 1){
-			wdm_sbpro_prev_tick = wdm_sbpro_current_time;
-			wdm_sbpro_ticks_index = 0;
-			wdm_sbpro_init_flag += 1;
-		}else{
-			wdm_sbpro_ticks[wdm_sbpro_ticks_index]
-								= wdm_sbpro_current_time - wdm_sbpro_prev_tick;
-			wdm_sbpro_ticks_index = (wdm_sbpro_ticks_index + 1) & 0x0F;
-			wdm_sbpro_prev_tick = wdm_sbpro_current_time;
-			wdm_sbpro_virtual_tick=wdm_sbpro_prev_tick;
-
-			if(wdm_sbpro_init_flag == (16 + 1)){
-				wdm_sbpro_average_tick_per_interrupt = 0;
-				d0 = 0;
-				while(d0 < 16){
-					wdm_sbpro_average_tick_per_interrupt += wdm_sbpro_ticks[d0];
-					d0 += 1;
-				}
-				wdm_sbpro_average_tick_per_interrupt /= 16;
-				if(wdm_sbpro_average_tick_per_interrupt == 0)
-					wdm_sbpro_average_tick_per_interrupt = 1;
-				wdm_sbpro_virtual_dma_position = sb_interrupt_driven_dma_position;
-				wdm_sbpro_delta = 0;
-				wdm_sbpro_init_flag = 0;		 // finished
-			}else{
-				wdm_sbpro_init_flag += 1;
-			}
-		}
-	}else{
-		ticktemp = wdm_sbpro_current_time - wdm_sbpro_virtual_tick + wdm_sbpro_tick_correction;
-		d0	= (ticktemp * (sb_samples_per_interrupt*2 - wdm_sbpro_delta/64))
-								/ wdm_sbpro_average_tick_per_interrupt;
-		wdm_sbpro_virtual_dma_position -= d0;
-		wdm_sbpro_virtual_dma_position &= ((SAMPLECNT * 2) - 1);
-		wdm_sbpro_delta += d0 - (sb_samples_per_interrupt * 2);
-
-		wdm_sbpro_ticks[wdm_sbpro_ticks_index]
-							= wdm_sbpro_current_time - wdm_sbpro_prev_tick;
-		wdm_sbpro_ticks_index = (wdm_sbpro_ticks_index + 1) & 0x0F;
-		wdm_sbpro_average_tick_per_interrupt = 0;
-		d0 = 0;
-		while(d0 < 16){
-			wdm_sbpro_average_tick_per_interrupt += wdm_sbpro_ticks[d0];
-			d0 += 1;
-		}
-		wdm_sbpro_average_tick_per_interrupt /= 16;
-		if(wdm_sbpro_average_tick_per_interrupt == 0)
-			wdm_sbpro_average_tick_per_interrupt = 1;
-		wdm_sbpro_virtual_tick += wdm_sbpro_average_tick_per_interrupt;
-		wdm_sbpro_prev_tick = wdm_sbpro_current_time;
-		wdm_sbpro_virtual_tick += (wdm_sbpro_prev_tick - wdm_sbpro_virtual_tick) / 64;
-		wdm_sbpro_tick_correction = wdm_sbpro_virtual_tick - wdm_sbpro_prev_tick;
-	}
-
-	inportb(wd.isa_port+0x0E);
-	eoi(wd.irq);						 /* acknowledge interrupt */
-	return;
-}
-
-
-static int sbpro_interrupt_driven_interrupt(void)
-{
-	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
-	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
-
-	inportb(wd.isa_port+0x0E);
-	eoi(wd.irq);						 /* acknowledge interrupt */
-	return 0;
-}
-
-
-
-static int sb_auto_detect_start(int rate_no)
-{
-	int result;
-	int ver;
-
-	get_blaster();
-	if(wd.isa_port < 0){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(ver < 0x201){
-		result = sb100_interrupt_driven_start(rate_no);
-	}else if(0x201 <= ver && ver < 0x300){
-		result = sb201_start(rate_no);
-	}else if(0x300 <= ver && ver < 0x400){
-		result = sbpro_start(rate_no);
-	}else{
-		sb16_get_dma_and_irq();
-		result = sb16_start(rate_no);
-	}
-	return result;
-}
-
-
-
-
-
-static int sbpro_ex_start(int rate)
-{
-	if(rate <= 11111){
-		rate = 11111;
-	}else if(rate <= 31250){
-		rate = 31250;
-	}else if(rate <= 32000){
-		rate = 32000;
-	}else if(rate <= 45454){
-		rate = 45454;
-	}else{
-		rate = 47619;
-	}
-
-	return sbpro_start(rate | 0x10000);
-}
-
-static int sb16_ex_start(int rate)
-{
-	return sb16_start(rate | 0x10000);
-}
-
-
-
-/*	from Allegro sb.c  */
-static int sb201_start(int rate)
-{
-	static char device_name_sb201[] 	= "Sound Blaster 2.01";
-	int ver  = -1;
-
-	if(rate <= 11111){
-		rate = 11111;
-	}else if(rate <= 21739){
-		rate = 21739;
-	}else if(rate <= 32258){
-		rate = 32258;
-	}else{
-		rate = 45454;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = FALSE;
-	sb_type   = SBTYPE_SB201;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-
-	ver = sb_read_dsp_version();
-	if(ver < 0){
-		set_error_message("sb_read_dsp_ver failed.\n");
-		return FALSE;
-	}
-
-	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sb_interrupt);
-	_sb_voice(TRUE);
-//	  sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-//	  sb_play_buffer(g_dma_buff_size);
-	sb_play_buffer(2048);
-
-	if(ver >= 0x300){
-		_sb_dac_level(0xFF);
-	}
-
-	wd.device_name	   = device_name_sb201;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITMONO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = common_dma_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-
-
-/*	from Allegro sb.c  */
-static int sbpro_start(int rate)
-{
-	static char device_name_sbpro[] 	= "Sound Blaster Pro";
-
-	if(rate < 0x10000){
-		if(rate <= 11111){
-			rate = 11111;
-		}else{
-			rate = 21739;
-		}
-	}else{
-		rate = rate - 0x10000;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	sb_16bit  = FALSE;
-	sb_stereo = TRUE;
-	sb_type   = SBTYPE_SBPRO;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sb_interrupt);
-	_sb_voice(TRUE);
-	sb_stereo_mode(sb_stereo);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-//	  sb_play_buffer(g_dma_buff_size);
-	sb_play_buffer(2048);
-	_sb_dac_level(0xFF);
-	_sbpro_master_volume(7);
-
-	wd.device_name	   = device_name_sbpro;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _8BITSTEREO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = common_dma_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-
-
-
-/*	from Allegro sb.c  */
-
-static int sb16_start(int rate)
-{
-	static char device_name_sb16[]		= "Sound Blaster 16";
-
-	if(rate < 0x10000){
-		if(rate <= 11025){
-			rate = 11025;
-		}else if(rate <= 22050){
-			rate = 22050;
-		}else if(rate <= 33075){
-			rate = 33075;
-		}else if(rate <= 100000){
-			rate = 44100;
-		}
-	}else{
-		rate = rate - 0x10000;
-	}
-
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-
-	wd.isa_dma = wd.isa_hdma;
-
-	sb_16bit  = TRUE;		  // cmd Bxh
-	sb_stereo = TRUE;
-	sb_type   = SBTYPE_SB16;
-
-	if(_sb_reset_dsp(1) != 0){
-		set_error_message("sb_reset_dsp failed.\n");
-		return FALSE;
-	}
-	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
-		return FALSE;
-	}
-	unmask_irq(wd.irq);
-	install_irq_handler(wd.irq, (void*)sb_interrupt);
-	_sb_voice(TRUE);
-	sb_set_sample_rate(rate);
-
-	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
-
-//	  sb_play_buffer(g_dma_buff_size);
-	sb_play_buffer(2048);
-	_sb_dac_level(0xFF);
-	_sb16_dac_level(0xFF);
-
-	wd.device_name	   = device_name_sb16;
-	wd.playback_rate   = rate;
-	wd.pcm_format	   = _16BITSTEREO;
-	wd.device_exit	   = sb_exit;
-	wd.pcm_upload	   = common_pcm_upload_func;
-	wd.get_current_pos = common_dma_current_pos;
-	wd.initialized = TRUE;
-
-	return TRUE;
-}
-
-
-/*
- *	cmi8x38 (as sb16)
- */
-
-static int detectCMI8x38(void);
-static int cmi8x38_as_sb16_start(int rate_no);
-
-static DWORD cmi8x38_iobase = -1;
-static char device_name_cmi8x38[]  = "CMI8338/8738 as SB16";
-
-
-static DWORD cmi8x38_current_pos(void)
-{
-	int limit;
-	DWORD d0 = 0;
-	DWORD d1;
-
-	limit = 1024;
-	w_enter_critical();
-	while(limit > 0){
-		d0 = inportw(cmi8x38_iobase + 0x1E);
-		d1 = inportw(cmi8x38_iobase + 0x1E);
-		if(d0 == d1) break;
-		limit -= 1;
-	}
-	w_exit_critical();
-	d0 = d0 * 2;
-
-	return d0;
-}
-
-static int cmi8x38_as_sb16_start(int rate)
-{
-	if(rate <= 11025){
-		rate = 11025;
-	}else if(rate <= 22050){
-		rate = 22050;
-	}else if(rate <= 33075){
-		rate = 33075;
-	}else if(rate <= 44100){
-		rate = 44100;
-	}else{
-		rate = 48000;
-	}
-
-	if( detectCMI8x38() == FALSE ){
-		set_error_message("CMI8x38 not found.\n");
-		return FALSE;
-	}
-	if( get_blaster() == FALSE ){
-		set_error_message("BLASTER not found.\n");
-		return FALSE;
-	}
-	sb16_get_dma_and_irq();
-
-	sb16_start(rate);
-
-	wd.device_name	   = device_name_cmi8x38;
-	wd.get_current_pos = cmi8x38_current_pos;
-
-	return TRUE;
-}
-
-
-/*
- *	trident 4dwave (as sb16)
- */
-
-static int GetSBDelta(int rate)
-{
-	double f0;
-
-	f0 = (double)rate / 48000;
-
-	return (int)(f0 * (1 << 12));
-}
-
-static int GetSampleRate(int sbdelta)
-{
-	double f0;
-
-	f0 = sbdelta;
-
-	return (int)((f0 * 48000) / (1 << 12));
-}
-
-static int SetSBDelta(DWORD iobase, int sbdelta)
-{
-	outportw(iobase + 0xAC, sbdelta & 0xFFFF);
-	return TRUE;
-}
-
-
-static DWORD trid4dwave_current_pos(void)
-{
-	int limit;
-	DWORD d0;
-	DWORD d1;
-
-	limit = 1024;
-	w_enter_critical();
-	while(limit > 0){
-		d0	= inportb(trid4dwave_iobase + 4);
-		d0 |= inportb(trid4dwave_iobase + 5) << 8;
-		d1	= inportb(trid4dwave_iobase + 4);
-		d1 |= inportb(trid4dwave_iobase + 5) << 8;
-		if(d0 == d1) break;
-		limit -= 1;
-	}
-	w_exit_critical();
-
-	return d0;
-}
-
-static int trid4dwave_as_sb16_start(int rate)
-{
-	int rate1;
-	int rate2;
-	int sbdelta;
-
-	if(rate <= 11025){
-		rate = 11025;
-	}
-	if(rate >= 48000){
-		rate = 48000;
-	}
-
-	if( detectTrid4DWave() == FALSE ){
-		set_error_message("Trident 4DWave not found.\n");
-		return FALSE;
-	}
-
-	sbdelta = GetSBDelta(rate);
-	rate1 = GetSampleRate(sbdelta);
-	rate2 = GetSampleRate(sbdelta + 1);
-	if(rate > rate1)
-		rate1 = rate - rate1;
-	else
-		rate1 = rate1 - rate;
-	if(rate > rate2)
-		rate2 = rate - rate2;
-	else
-		rate2 = rate2 - rate;
-	if(rate1 > rate2)
-		sbdelta += 1;
-	SetSBDelta(trid4dwave_iobase, sbdelta);
-
-	sb16_start(rate | 0x10000);
-
-	wd.device_name	   = device_name_trid4dwave;
-	wd.get_current_pos = trid4dwave_current_pos;
-
-	return TRUE;
-}
-
-
-
-
-
+/********************************************************************
+	SoundBlaster and derivations drivers
+	This driver is based on Allegro liblary.
+ ********************************************************************/
+
+static int sb_16bit    = FALSE; 		   /* in 16 bit mode? */
+static int sb_stereo   = FALSE; 		   /* in stereo mode? */
+static int sb_type	   = 0;
+
+static volatile DWORD sb_interrupt_driven_dma_position = 0;
+static DWORD sb_cursor_offset = 0;
+static int sb_samples_per_interrupt = 64;
+static int sb_current_address = 0;
+
+
+#define SBTYPE_SB100   0x100
+#define SBTYPE_SB201   0x201
+#define SBTYPE_SBPRO   0x300
+#define SBTYPE_SB16    0x400
+
+static void _sbpro_master_volume(int d0);
+static void _sb_voice(int state);
+static int get_blaster(void);
+static int sb_read_dsp_version(void);
+static int sb_write_dsp(unsigned char byte);
+static void sb_stereo_mode(int enable);
+static void sb_set_sample_rate(unsigned int rate);
+static int sb_interrupt(void);
+static void sb_play_buffer(int size);
+static void sb_stop(void);
+static int _sb_reset_dsp(int);
+static int sb_read_dsp(void);
+static void _sb_dac_level(BYTE);
+static void _sb16_dac_level(BYTE);
+static void sb16_get_dma_and_irq(void);
+static void wdm_sbpro_interrupt(void);
+
+
+static int wdm_sbpro_start(int rate_no);
+static int sb201_start(int rate_no);
+static int sbpro_start(int rate_no);
+static int sbpro_ex_start(int rate_no);
+static int sb16_start(int rate_no);
+static int sb16_ex_start(int rate_no);
+static int sb_auto_detect_start(int rate_no);
+static int sb201_interrupt_driven_start(int rate_no);
+static int sb100_interrupt_driven_start(int rate_no);
+
+
+
+/********************************************************************
+	SoundBlaster helper funtions
+ ********************************************************************/
 
 
 /*	from Allegro sb.c  */
@@ -3166,6 +2289,1118 @@ static void sb16_get_dma_and_irq(void)
 
 
 
+/********************************************************************
+	SB1.0 interrupt driven driver
+ ********************************************************************/
+
+static unsigned long sb100_get_next_addr(void)
+{
+	unsigned long d0;
+
+	d0 = g_wss_dma_addr + sb_current_address;
+	sb_current_address += sb_samples_per_interrupt;
+	sb_current_address &= SAMPLECNTMASK;
+
+	return d0;
+}
+
+static int sb100_interrupt_driven_interrupt(void)
+{
+	inportb(wd.isa_port+0x0E);
+	eoi(wd.irq);						 /* acknowledge interrupt */
+
+	_dma_start(wd.isa_dma, sb100_get_next_addr(), sb_samples_per_interrupt, FALSE, FALSE);
+	sb_interrupt_driven_dma_position  = SAMPLECNT - sb_current_address - 1;
+	sb_interrupt_driven_dma_position -= sb_cursor_offset;
+	sb_interrupt_driven_dma_position &= SAMPLECNTMASK;
+
+	sb_play_buffer(sb_samples_per_interrupt);
+
+
+	return 0;
+}
+
+static DWORD sb100irq_current_pos(void)
+{
+	static DWORD dmac_sbirq_prev = 0;
+	static int ticker_flag = 0;
+	static cycles_t prev = 0;
+	DWORD d0;
+
+	d0 = sb_interrupt_driven_dma_position;
+	if(ticker_flag == 0){
+		if(d0 == dmac_sbirq_prev){
+			ticker_flag = 1;
+			prev = osd_cycles();
+		}else{
+			dmac_sbirq_prev = d0;
+		}
+	}else{
+		if(d0 == dmac_sbirq_prev){
+			if( (osd_cycles() - prev) > (osd_cycles_per_second() / 120) ){
+				ticker_flag = 0;
+				w_enter_critical();
+				sb100_interrupt_driven_interrupt();
+				w_exit_critical();
+			}
+		}else{
+			dmac_sbirq_prev = d0;
+			ticker_flag = 0;
+		}
+	}
+	return d0;
+}
+
+
+static int sb100_interrupt_driven_start(int rate)
+{
+	static char device_name_sb100_irq[] = "Sound Blaster 1.0 (interrupt driven)";
+	int ver = -1;
+
+	if(rate <= 11111){
+		rate = 11111;
+		sb_samples_per_interrupt = 16;
+	}else{
+		rate = 22222;
+		sb_samples_per_interrupt = 32;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = FALSE;
+	sb_type   = SBTYPE_SB100;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sb100_interrupt_driven_interrupt);
+	_sb_voice(TRUE);
+//	  sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+
+	sb_current_address = 0;
+	_dma_start(wd.isa_dma, sb100_get_next_addr(), sb_samples_per_interrupt, FALSE, FALSE);
+	sb_interrupt_driven_dma_position = SAMPLECNT - sb_current_address - 1;
+	sb_interrupt_driven_dma_position -= sb_cursor_offset;
+	sb_interrupt_driven_dma_position &= SAMPLECNTMASK;
+	sb_play_buffer(sb_samples_per_interrupt);
+
+	if(ver >= 0x300){
+		_sb_dac_level(0xFF);
+	}
+
+	wd.device_name	   = device_name_sb100_irq;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITMONO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = sb100irq_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+
+/********************************************************************
+	SB2.01 interrupt driven driver
+ ********************************************************************/
+
+static DWORD sb201irq_current_pos(void)
+{
+	return sb_interrupt_driven_dma_position;
+}
+
+static int sb201_interrupt_driven_interrupt(void)
+{
+	sb_interrupt_driven_dma_position -= sb_samples_per_interrupt;
+	sb_interrupt_driven_dma_position &= (SAMPLECNT - 1);
+
+	inportb(wd.isa_port+0x0E);
+	eoi(wd.irq);						 /* acknowledge interrupt */
+	return 0;
+}
+
+static int sb201_interrupt_driven_start(int rate)
+{
+	static char device_name_sb201_irq[] = "Sound Blaster 2.01 (interrupt driven)";
+	int ver  = -1;
+
+	if(rate <= 11111){
+		rate = 11111;
+		sb_samples_per_interrupt = 32;
+	}else if(rate <= 21739){
+		rate = 21739;
+		sb_samples_per_interrupt = 64;
+	}else if(rate <= 22727){
+		rate = 22727;
+		sb_samples_per_interrupt = 64;
+	}else{
+		rate = 45454;
+		sb_samples_per_interrupt = 128;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = FALSE;
+	sb_type   = SBTYPE_SB201;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sb201_interrupt_driven_interrupt);
+	_sb_voice(TRUE);
+//	  sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+	sb_interrupt_driven_dma_position  = SAMPLECNT - 1;
+	sb_interrupt_driven_dma_position -= sb_cursor_offset;
+	sb_interrupt_driven_dma_position -= sb_samples_per_interrupt;
+	sb_interrupt_driven_dma_position &= (SAMPLECNT - 1);
+
+	sb_play_buffer(sb_samples_per_interrupt);
+
+	if(ver >= 0x300){
+		_sb_dac_level(0xFF);
+	}
+
+	wd.device_name	   = device_name_sb201_irq;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITMONO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = sb201irq_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+
+
+/********************************************************************
+	SBPro interrupt driven driver
+ ********************************************************************/
+
+static int sbpro_interrupt_driven_interrupt(void)
+{
+	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
+	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
+
+	inportb(wd.isa_port+0x0E);
+	eoi(wd.irq);						 /* acknowledge interrupt */
+	return 0;
+}
+
+static int sbpro_interrupt_driven_start(int rate)
+{
+	static char device_name_sbpro_irq[] = "Sound Blaster Pro (interrupt driven)";
+	int ver  = -1;
+
+	if(rate <= 11111){
+		rate = 11111;
+		sb_samples_per_interrupt = 32;
+	}else if(rate <= 21739){
+		rate = 21739;
+		sb_samples_per_interrupt = 64;
+	}else{
+		rate = 22727;
+		sb_samples_per_interrupt = 64;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = TRUE;
+	sb_type   = SBTYPE_SBPRO;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sbpro_interrupt_driven_interrupt);
+	_sb_voice(TRUE);
+	sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+	sb_interrupt_driven_dma_position  = (SAMPLECNT * 2) - 1;
+	sb_interrupt_driven_dma_position -= (sb_cursor_offset * 2);
+	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
+	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
+
+	sb_play_buffer(sb_samples_per_interrupt * 2);
+
+	if(ver >= 0x300){
+		_sb_dac_level(0xFF);
+	}
+
+	wd.device_name	   = device_name_sbpro_irq;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITSTEREO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = sb201irq_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+
+/********************************************************************
+	SBPro interrupt driven driver for WDM SBPro emulation device
+ ********************************************************************/
+
+static volatile int wdm_sbpro_init_flag;
+static volatile int wdm_sbpro_ticks_index;
+static volatile cycles_t wdm_sbpro_average_tick_per_interrupt;
+static volatile cycles_t wdm_sbpro_current_time;
+static volatile cycles_t wdm_sbpro_ticks[16];
+static volatile cycles_t wdm_sbpro_prev_tick;
+static volatile cycles_t wdm_sbpro_virtual_tick;
+static volatile cycles_t wdm_sbpro_tick_correction;
+
+static volatile DWORD wdm_sbpro_virtual_dma_position = 0;
+static volatile int   wdm_sbpro_delta = 0;
+
+#define WDM_SBPRO_SAMPLES_PER_INTERRUPT 	1024
+
+static DWORD sbprowdm_current_pos(void)
+{
+	cycles_t ticktemp;
+	DWORD d0;
+
+	w_enter_critical();
+	ticktemp = osd_cycles() - wdm_sbpro_virtual_tick + wdm_sbpro_tick_correction;
+	d0	= (ticktemp * (sb_samples_per_interrupt*2 - wdm_sbpro_delta/64))
+							/ wdm_sbpro_average_tick_per_interrupt;
+	d0	= wdm_sbpro_virtual_dma_position - d0;
+	d0 &= ((SAMPLECNT * 2) - 1);
+	w_exit_critical();
+
+	return d0;
+}
+
+
+static void wdm_sbpro_interrupt(void)
+{
+	cycles_t ticktemp;
+	int d0;
+
+	wdm_sbpro_current_time = osd_cycles();
+	sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
+	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
+
+	if(wdm_sbpro_init_flag != 0){
+		if(wdm_sbpro_init_flag == 1){
+			wdm_sbpro_prev_tick = wdm_sbpro_current_time;
+			wdm_sbpro_ticks_index = 0;
+			wdm_sbpro_init_flag += 1;
+		}else{
+			wdm_sbpro_ticks[wdm_sbpro_ticks_index]
+								= wdm_sbpro_current_time - wdm_sbpro_prev_tick;
+			wdm_sbpro_ticks_index = (wdm_sbpro_ticks_index + 1) & 0x0F;
+			wdm_sbpro_prev_tick = wdm_sbpro_current_time;
+			wdm_sbpro_virtual_tick=wdm_sbpro_prev_tick;
+
+			if(wdm_sbpro_init_flag == (16 + 1)){
+				wdm_sbpro_average_tick_per_interrupt = 0;
+				d0 = 0;
+				while(d0 < 16){
+					wdm_sbpro_average_tick_per_interrupt += wdm_sbpro_ticks[d0];
+					d0 += 1;
+				}
+				wdm_sbpro_average_tick_per_interrupt /= 16;
+				if(wdm_sbpro_average_tick_per_interrupt == 0)
+					wdm_sbpro_average_tick_per_interrupt = 1;
+				wdm_sbpro_virtual_dma_position = sb_interrupt_driven_dma_position;
+				wdm_sbpro_delta = 0;
+				wdm_sbpro_init_flag = 0;		 // finished
+			}else{
+				wdm_sbpro_init_flag += 1;
+			}
+		}
+	}else{
+		ticktemp = wdm_sbpro_current_time - wdm_sbpro_virtual_tick + wdm_sbpro_tick_correction;
+		d0	= (ticktemp * (sb_samples_per_interrupt*2 - wdm_sbpro_delta/64))
+								/ wdm_sbpro_average_tick_per_interrupt;
+		wdm_sbpro_virtual_dma_position -= d0;
+		wdm_sbpro_virtual_dma_position &= ((SAMPLECNT * 2) - 1);
+		wdm_sbpro_delta += d0 - (sb_samples_per_interrupt * 2);
+
+		wdm_sbpro_ticks[wdm_sbpro_ticks_index]
+							= wdm_sbpro_current_time - wdm_sbpro_prev_tick;
+		wdm_sbpro_ticks_index = (wdm_sbpro_ticks_index + 1) & 0x0F;
+		wdm_sbpro_average_tick_per_interrupt = 0;
+		d0 = 0;
+		while(d0 < 16){
+			wdm_sbpro_average_tick_per_interrupt += wdm_sbpro_ticks[d0];
+			d0 += 1;
+		}
+		wdm_sbpro_average_tick_per_interrupt /= 16;
+		if(wdm_sbpro_average_tick_per_interrupt == 0)
+			wdm_sbpro_average_tick_per_interrupt = 1;
+		wdm_sbpro_virtual_tick += wdm_sbpro_average_tick_per_interrupt;
+		wdm_sbpro_prev_tick = wdm_sbpro_current_time;
+		wdm_sbpro_virtual_tick += (wdm_sbpro_prev_tick - wdm_sbpro_virtual_tick) / 64;
+		wdm_sbpro_tick_correction = wdm_sbpro_virtual_tick - wdm_sbpro_prev_tick;
+	}
+
+	inportb(wd.isa_port+0x0E);
+	eoi(wd.irq);						 /* acknowledge interrupt */
+	return;
+}
+
+
+static int wdm_sbpro_start(int rate)
+{
+	static char device_name_sbpro_wdm[] = "Sound Blaster Pro for WDM SBPro emulation device";
+
+	int ver  = -1;
+
+	if(rate <= 21739){
+		rate = 21739;
+	}else{
+		rate = 22050;
+	}
+
+	sb_samples_per_interrupt = WDM_SBPRO_SAMPLES_PER_INTERRUPT;
+
+	wd.playback_rate = rate;
+	wd.pcm_format = _8BITSTEREO;
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = TRUE;
+	sb_type   = SBTYPE_SBPRO;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)wdm_sbpro_interrupt);
+	_sb_voice(TRUE);
+	sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+	sb_interrupt_driven_dma_position  = (SAMPLECNT * 2) - 1;
+	sb_interrupt_driven_dma_position -= (sb_cursor_offset * 2);
+	sb_interrupt_driven_dma_position += 512;
+//	  sb_interrupt_driven_dma_position -= (sb_samples_per_interrupt * 2);
+	sb_interrupt_driven_dma_position &= ((SAMPLECNT * 2) - 1);
+
+	if(ver >= 0x300){
+		_sb_dac_level(0xFF);
+	}
+
+	wdm_sbpro_init_flag = 1;
+	sb_play_buffer(sb_samples_per_interrupt * 2);
+	while(1){
+		if(wdm_sbpro_init_flag == 0) break;
+	}
+
+	wd.device_name	   = device_name_sbpro_wdm;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITSTEREO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = sbprowdm_current_pos;
+	wd.initialized = TRUE;
+
+
+	return TRUE;
+}
+
+
+/********************************************************************
+	SB2.01 driver
+ ********************************************************************/
+
+static int sb201_start(int rate)
+{
+	static char device_name_sb201[] = "Sound Blaster 2.01";
+	int ver  = -1;
+
+	if(rate <= 11111){
+		rate = 11111;
+	}else if(rate <= 21739){
+		rate = 21739;
+	}else if(rate <= 22727){
+		rate = 22727;
+	}else if(rate <= 32258){
+		rate = 32258;
+	}else{
+		rate = 45454;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = FALSE;
+	sb_type   = SBTYPE_SB201;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sb_interrupt);
+	_sb_voice(TRUE);
+//	  sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+//	  sb_play_buffer(g_dma_buff_size);
+	sb_play_buffer(2048);
+
+	if(ver >= 0x300){
+		_sb_dac_level(0xFF);
+	}
+
+	wd.device_name	   = device_name_sb201;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITMONO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = common_dma_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+
+
+/********************************************************************
+	SBPro driver
+ ********************************************************************/
+
+static int sbpro_start(int rate)
+{
+	static char device_name_sbpro[] = "Sound Blaster Pro";
+
+	if(rate < 0x10000){
+		if(rate <= 11111){
+			rate = 11111;
+		}else if(rate <= 21739){
+			rate = 21739;
+		}else{
+			rate = 22727;
+		}
+	}else{
+		rate = rate - 0x10000;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	sb_16bit  = FALSE;
+	sb_stereo = TRUE;
+	sb_type   = SBTYPE_SBPRO;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sb_interrupt);
+	_sb_voice(TRUE);
+	sb_stereo_mode(sb_stereo);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+//	  sb_play_buffer(g_dma_buff_size);
+	sb_play_buffer(2048);
+	_sb_dac_level(0xFF);
+	_sbpro_master_volume(7);
+
+	wd.device_name	   = device_name_sbpro;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _8BITSTEREO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = common_dma_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+static int sbpro_ex_start(int rate)
+{
+	if(rate <= 11111){
+		rate = 11111;
+	}else if(rate <= 31250){
+		rate = 31250;
+	}else if(rate <= 32000){
+		rate = 32000;
+	}else if(rate <= 45454){
+		rate = 45454;
+	}else{
+		rate = 47619;
+	}
+
+	return sbpro_start(rate | 0x10000);
+}
+
+
+/********************************************************************
+	SB16 driver
+ ********************************************************************/
+
+static int sb16_start(int rate)
+{
+	static char device_name_sb16[]		= "Sound Blaster 16";
+
+	if(rate < 0x10000){
+		if(rate <= 11025){
+			rate = 11025;
+		}else if(rate <= 22050){
+			rate = 22050;
+		}else if(rate <= 33075){
+			rate = 33075;
+		}else if(rate <= 100000){
+			rate = 44100;
+		}
+	}else{
+		rate = rate - 0x10000;
+	}
+
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	wd.isa_dma = wd.isa_hdma;
+
+	sb_16bit  = TRUE;		  // cmd Bxh
+	sb_stereo = TRUE;
+	sb_type   = SBTYPE_SB16;
+
+	if(_sb_reset_dsp(1) != 0){
+		set_error_message("sb_reset_dsp failed.\n");
+		return FALSE;
+	}
+	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
+		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		return FALSE;
+	}
+	unmask_irq(wd.irq);
+	install_irq_handler(wd.irq, (void*)sb_interrupt);
+	_sb_voice(TRUE);
+	sb_set_sample_rate(rate);
+
+	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
+
+//	  sb_play_buffer(g_dma_buff_size);
+	sb_play_buffer(2048);
+	_sb_dac_level(0xFF);
+	_sb16_dac_level(0xFF);
+
+	wd.device_name	   = device_name_sb16;
+	wd.playback_rate   = rate;
+	wd.pcm_format	   = _16BITSTEREO;
+	wd.device_exit	   = sb_exit;
+	wd.pcm_upload	   = common_pcm_upload_func;
+	wd.get_current_pos = common_dma_current_pos;
+	wd.initialized = TRUE;
+
+	return TRUE;
+}
+
+static int sb16_ex_start(int rate)
+{
+	return sb16_start(rate | 0x10000);
+}
+
+
+/********************************************************************
+	SoundBlaster auto-detection
+ ********************************************************************/
+
+static int sb_auto_detect_start(int rate_no)
+{
+	int result;
+	int ver;
+
+	get_blaster();
+	if(wd.isa_port < 0){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	ver = sb_read_dsp_version();
+	if(ver < 0){
+		set_error_message("sb_read_dsp_ver failed.\n");
+		return FALSE;
+	}
+
+	if(ver < 0x201){
+		result = sb100_interrupt_driven_start(rate_no);
+	}else if(0x201 <= ver && ver < 0x300){
+		result = sb201_start(rate_no);
+	}else if(0x300 <= ver && ver < 0x400){
+		result = sbpro_start(rate_no);
+	}else{
+		sb16_get_dma_and_irq();
+		result = sb16_start(rate_no);
+	}
+	return result;
+}
+
+
+#if 0
+
+/*
+
+	For CMI8x38 users, Use SB interrupt-driven driver instead.
+
+*/
+
+/********************************************************************
+	CMI8x38 (SB16 or SBPro) driver
+ ********************************************************************/
+
+static int detectCMI8x38(void);
+
+static DWORD cmi8x38_iobase = -1;
+
+static int detectCMI8x38(void)
+{
+	__dpmi_regs 	r;
+
+	r.d.eax = 0x0000b101;						// PCI BIOS - INSTALLATION CHECK
+	r.d.edi = 0x00000000;
+	__dpmi_int(0x1a, &r);
+	if( r.d.edx != 0x20494350 ){				// ' ICP'
+		return FALSE;
+	}
+
+	while(1){
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00000100;						// device ID
+		r.d.edx = 0x000013F6;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;
+
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00000101;						// device ID
+		r.d.edx = 0x000013F6;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;
+
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00000111;						// device ID
+		r.d.edx = 0x000013F6;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;
+
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00000101;						// device ID
+		r.d.edx = 0x000010B9;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+
+		if( r.h.ah == 0 ) break;
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00000111;						// device ID
+		r.d.edx = 0x000010B9;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;
+
+		return FALSE;
+	}
+
+	r.d.eax = 0x0000b10a;						// READ CONFIGURATION DWORD
+												// BH = bus number
+												// BL = device/function number
+	r.d.edi = 0x00000010;						// register number
+	__dpmi_int(0x1a, &r);
+	if( r.h.ah != 0 ){
+		return FALSE;
+	}
+	cmi8x38_iobase = r.d.ecx & ~0xFF;
+
+	return TRUE;
+}
+
+
+static DWORD cmi8x38_current_pos(void)
+{
+	int limit;
+	DWORD d0 = 0;
+	DWORD d1;
+
+	limit = 1024;
+	w_enter_critical();
+	while(limit > 0){
+		d0 = inportw(cmi8x38_iobase + 0x1E);
+		d1 = inportw(cmi8x38_iobase + 0x1E);
+		if(d0 == d1) break;
+		limit -= 1;
+	}
+	w_exit_critical();
+	d0 = d0 * 2;
+
+	return d0;
+}
+
+static int cmi8x38_as_sb16_start(int rate)
+{
+	static char device_name_cmi8x38_sb16[]	= "CMI8338/8738 as SB16";
+	static char device_name_cmi8x38_sbpro[] = "CMI8338/8738 as SBPro";
+
+	if( detectCMI8x38() == FALSE ){
+		set_error_message("CMI8x38 not found.\n");
+		return FALSE;
+	}
+	if( get_blaster() == FALSE ){
+		set_error_message("BLASTER not found.\n");
+		return FALSE;
+	}
+
+	if(sb_read_dsp_version() >= 0x400){
+		/*	old version of CMI8x38 is compatible with SB16	*/
+		sb16_get_dma_and_irq();
+		sb16_ex_start(rate);
+		wd.device_name	   = device_name_cmi8x38_sb16;
+		wd.get_current_pos = cmi8x38_current_pos;
+	}else{
+		/* not tested */
+		/*	new version of CMI8x38 is compatible with SBPro  */
+		sbpro_start(rate);
+		wd.device_name	   = device_name_cmi8x38_sbpro;
+		wd.get_current_pos = cmi8x38_current_pos;
+	}
+
+	return TRUE;
+}
+
+#endif
+
+
+/********************************************************************
+	Trident 4DWave(SB16) driver (for safety DMA Counter reading)
+	This Driver needs WAVEINIT.EXE for SB16 function.
+ ********************************************************************/
+
+static DWORD trid4dwave_iobase = -1;
+
+static int GetSBDelta(int rate)
+{
+	double f0;
+
+	f0 = (double)rate / 48000;
+
+	return (int)(f0 * (1 << 12));
+}
+
+static int GetSampleRate(int sbdelta)
+{
+	double f0;
+
+	f0 = sbdelta;
+
+	return (int)((f0 * 48000) / (1 << 12));
+}
+
+static int SetSBDelta(DWORD iobase, int sbdelta)
+{
+	outportw(iobase + 0xAC, sbdelta & 0xFFFF);
+	return TRUE;
+}
+
+
+static int detectTrid4DWave(void)
+{
+	__dpmi_regs 	r;
+
+	r.d.eax = 0x0000b101;						// PCI BIOS - INSTALLATION CHECK
+	r.d.edi = 0x00000000;
+	__dpmi_int(0x1a, &r);
+	if( r.d.edx != 0x20494350 ){				// ' ICP'
+		return FALSE;
+	}
+
+	do{
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00002000;						// device ID
+		r.d.edx = 0x00001023;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;					// DX found
+
+		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00002001;						// device ID
+		r.d.edx = 0x00001023;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;					// NX found
+
+		r.d.eax = 0x0000B102;						// PCI BIOS - FIND PCI DEVICE
+		r.d.ecx = 0x00007018;						// device ID
+		r.d.edx = 0x00001039;						// vendor ID
+		r.d.esi = 0x00000000;						// device index
+		__dpmi_int(0x1a, &r);
+		if( r.h.ah == 0 ) break;					// SiS Audio 7018 found
+
+		return FALSE;
+	}while(0);
+
+	r.d.eax = 0x0000b10a;						// READ CONFIGURATION DWORD
+												// BH = bus number
+												// BL = device/function number
+	r.d.edi = 0x00000010;						// register number
+	__dpmi_int(0x1a, &r);
+	if( r.h.ah != 0 ){
+		return FALSE;
+	}
+
+	trid4dwave_iobase = r.d.ecx & ~0xFF;
+	return TRUE;
+}
+
+
+
+static DWORD trid4dwave_current_pos(void)
+{
+	int limit;
+	DWORD d0;
+	DWORD d1;
+
+	limit = 1024;
+	w_enter_critical();
+	while(limit > 0){
+		d0	= inportb(trid4dwave_iobase + 4);
+		d0 |= inportb(trid4dwave_iobase + 5) << 8;
+		d1	= inportb(trid4dwave_iobase + 4);
+		d1 |= inportb(trid4dwave_iobase + 5) << 8;
+		if(d0 == d1) break;
+		limit -= 1;
+	}
+	w_exit_critical();
+
+	return d0;
+}
+
+static int trid4dwave_as_sb16_start(int rate)
+{
+	static char device_name_trid4dwave[]  = "Trident 4DWave DX/NX as SB16";
+	int rate1;
+	int rate2;
+	int sbdelta;
+
+	if(rate <= 11025){
+		rate = 11025;
+	}
+	if(rate >= 48000){
+		rate = 48000;
+	}
+
+	if( detectTrid4DWave() == FALSE ){
+		set_error_message("Trident 4DWave not found.\n");
+		return FALSE;
+	}
+
+	sbdelta = GetSBDelta(rate);
+	rate1 = GetSampleRate(sbdelta);
+	rate2 = GetSampleRate(sbdelta + 1);
+	if(rate > rate1)
+		rate1 = rate - rate1;
+	else
+		rate1 = rate1 - rate;
+	if(rate > rate2)
+		rate2 = rate - rate2;
+	else
+		rate2 = rate2 - rate;
+	if(rate1 > rate2)
+		sbdelta += 1;
+	SetSBDelta(trid4dwave_iobase, sbdelta);
+
+	sb16_start(rate | 0x10000);
+
+	wd.device_name	   = device_name_trid4dwave;
+	wd.get_current_pos = trid4dwave_current_pos;
+
+	return TRUE;
+}
+
+
+
+
+
+
+
+
+/********************************************************************
+	Window Sound System driver
+	This driver is based on Allegro liblary.
+ ********************************************************************/
+
+static char device_name_soundscape[] = "Ensoniq Soundscape";
+static int soundscape_get_init_config(void);
+static int soundscape_start(int rate_no);
+
+static void wss_wait(void);
+static int wss_start(int rate_no);
+static void wss_exit(void);
+
+struct codec_rate_struct
+{
+   int freq;
+   int divider;
+};
+
+static struct codec_rate_struct codec_rates[] =
+{
+   { 5512,	0x01 }, 	//	0
+   { 6620,	0x0F }, 	//	1
+   { 8000,	0x00 }, 	//	2
+   { 9600,	0x0E }, 	//	3
+   { 11025, 0x03 }, 	//	4
+   { 16000, 0x02 }, 	//	5
+   { 18900, 0x05 }, 	//	6
+   { 22050, 0x07 }, 	//	7
+   { 27420, 0x04 }, 	//	8
+   { 32000, 0x06 }, 	//	9
+   { 33075, 0x0D }, 	//	10
+   { 37800, 0x09 }, 	//	11
+   { 44100, 0x0B }, 	//	12
+   { 48000, 0x0C }, 	//	13
+   { 54857, 0x08 }, 	//	14
+   { 64000, 0x0A }		//	15
+};
+
+
+/* CODEC ports */
+#define IADDR	(wd.isa_port+4)
+#define IDATA	(wd.isa_port+5)
+#define STATUS	(wd.isa_port+6)
+#define PIO 	(wd.isa_port+7)
+
+#define INIT	0x80
+#define MCE 	0x40
+#define TRD 	0x20
+
+#define INT 	0x01
+#define PRDY	0x02
+#define PLR 	0x04
+#define PUL 	0x08
+#define SER 	0x10
+#define CRDY	0x20
+#define CLR 	0x40
+#define CUL 	0x80
+
+#define LADC	0x00
+#define RADC	0x01
+#define LAUX1	0x02
+#define RAUX1	0x03
+#define LAUX2	0x04
+#define RAUX2	0x05
+#define LDAC	0x06
+#define RDAC	0x07
+#define FS		0x08
+#define INTCON	0x09
+#define PINCON	0x0A
+#define ERRSTAT 0x0B
+#define MODE_ID 0x0C
+#define LOOPBCK 0x0D
+#define PB_UCNT 0x0E
+#define PB_LCNT 0x0F
+
 
 static int get_wsscfg(void)
 {
@@ -3194,12 +3429,7 @@ static int get_wsscfg(void)
 			}
 		}
 	}
-
-
-//	  if ((wd.isa_port < 0) || (wd.irq < 0) || (wd.isa_dma < 0))
-	if ((wd.isa_port < 0) || (wd.isa_dma < 0))
-		return FALSE;
-
+	if ((wd.isa_port < 0) || (wd.irq < 0) || (wd.isa_dma < 0)) return FALSE;
 	return TRUE;
 }
 
@@ -3209,7 +3439,6 @@ static void _wssout(BYTE d0, BYTE d1)
 	outportb(IDATA, d1);
 }
 
-
 static void wss_wait(void)
 {
    int i = 0xFFFF;
@@ -3217,82 +3446,17 @@ static void wss_wait(void)
    while ((inportb(wd.isa_port + 4) & INIT) || (i-- > 0));
 }
 
-
-
-
-
-
-
-
-
+#if 0
 static int wss_irq_handler(void)
 {
 	outportb(STATUS, 0);
 	eoi(wd.irq);
 	return 0;
 }
+#endif
 
 
 
-static int get_ultra16(void)
-{
-	int max_port  = -1;
-	int max_pdma  = -1;
-	int max_irq   = -1;
-	int max_type  = -1;
-	int max_cdrom = -1;
-	char *wsscfg = getenv("ULTRA16");
-
-	if(get_ultrasnd() == FALSE) return FALSE;
-
-	if (wsscfg != NULL) {
-		sscanf(wsscfg, "%x,%d,%d,%d,%d",
-			&max_port, &max_pdma, &max_irq, &max_type, &max_cdrom);
-	}
-	if( (max_port < 0) || (max_pdma < 0) || (max_type < 0) || (max_irq < 0) ) return FALSE;
-	if(max_type == 0){
-		wd.isa_port = max_port;
-		wd.isa_dma	= max_pdma;
-		wd.irq	= max_irq;
-	}else{
-		wd.isa_port = max_port - 4;
-		wd.isa_dma	= wd.isa_hdma;
-	}
-	return TRUE;
-}
-
-
-
-static int soundscape_start(int rate_no)
-{
-	if(soundscape_get_init_config() == FALSE) return FALSE;
-	if(wss_start(rate_no) == FALSE) return FALSE;
-	wd.device_name = device_name_soundscape;
-	return TRUE;
-}
-
-
-/*
- *	ultrasound max (CS4231 codec)
- */
-
-static int ultramax_start(int rate_no)
-{
-	static char device_name_ultrasound_max[]  = "Ultrasound Max";
-
-	if(get_ultra16() == FALSE){
-		set_error_message("ULTRA16 not found.\n");
-		return FALSE;
-	}
-	if(wss_start(rate_no) == FALSE) return FALSE;
-	wd.device_name = device_name_ultrasound_max;
-	return TRUE;
-}
-
-
-
-
-/*	from Allegro wss.c	*/
 static int wss_start(int rate)
 {
 	static char device_name_windows_sound_system[] = "Windows Sound System";
@@ -3383,7 +3547,7 @@ static int wss_start(int rate)
 	outportb(IDATA, 0x00);
 
 //	  unmask_irq(wd.irq);
-//	  install_irq_handler(wd.irq, (void*)wss_irq_handler);
+//	  install_irq_handler(wd.irq, (void*)wss_irq_handler);		// this driver does not need IRQ
 
 	_dma_start(wd.isa_dma, g_wss_dma_addr, g_dma_buff_size, TRUE, FALSE);
 
@@ -3437,104 +3601,229 @@ static void wss_exit(void)
 }
 
 
-static BOOL allocate_dosmem4k(void)
+/********************************************************************
+	Ultrasound MAX (CS4231 codec) driver
+ ********************************************************************/
+
+static int get_ultrasnd(void);
+
+static int get_ultra16(void)
 {
-	if(g_dosmem4k_sel  != NULL) return FALSE;
-	if(g_dosmem4k_addr != NULL) return FALSE;
-	if(_dma_allocate_mem4k(&g_dosmem4k_sel, &g_dosmem4k_addr) == FALSE){
-		return FALSE;
+	int max_port  = -1;
+	int max_pdma  = -1;
+	int max_irq   = -1;
+	int max_type  = -1;
+	int max_cdrom = -1;
+	char *wsscfg = getenv("ULTRA16");
+
+	if(get_ultrasnd() == FALSE) return FALSE;
+
+	if (wsscfg != NULL) {
+		sscanf(wsscfg, "%x,%d,%d,%d,%d",
+			&max_port, &max_pdma, &max_irq, &max_type, &max_cdrom);
 	}
-//	  info4k.size	 = 4096;
-//	  info4k.address = g_dosmem4k_addr;
-//	  __dpmi_lock_linear_region(&info4k);
-
-	return TRUE;
-}
-
-static void free_dosmem4k(void)
-{
-	if(g_dosmem4k_sel  == NULL) return;
-	if(g_dosmem4k_addr == NULL) return;
-//	  if(info4k.address != NULL){
-//		  __dpmi_unlock_linear_region(&info4k);
-//	  }
-	__dpmi_free_dos_memory(g_dosmem4k_sel);
-}
-
-static DWORD get_address_dosmem4k(void)
-{
-	return g_dosmem4k_addr;
-}
-
-
-static BOOL allocate_dosmem64k_for_dma(int format)
-{
-	BYTE *a0;
-	int d0;
-	BOOL lockflag = FALSE;
-
-	g_dma_buff_size = SAMPLECNT;
-	switch(format){
-		case _8BITMONO:
-			g_dma_buff_size *= 1;
-			g_dmacnt_shift_count = 0;
-			break;
-		case _8BITSTEREO:
-			g_dma_buff_size *= 2;
-			g_dmacnt_shift_count = 1;
-			break;
-		case _16BITSTEREO:
-			g_dma_buff_size *= 4;
-			g_dmacnt_shift_count = 2;
-			break;
-		default:
-			g_dma_buff_size = 0;
-	}
-	if(g_dma_buff_size == 0) return FALSE;
-	a0 = malloc(g_dma_buff_size);
-	if(a0 == NULL) return FALSE;
-	if (_dma_allocate_mem(&g_wss_dma_sel, &g_wss_dma_addr) == FALSE)
-		return FALSE;
-	d0 = 0;
-	while(d0 < g_dma_buff_size){
-		if(format == _8BITSTEREO || format == _8BITMONO)
-			a0[d0] = 0x80;
-		else
-			a0[d0] = 0x00;
-		d0 += 1;
-	}
-	copy_to_dos_memory(g_wss_dma_addr, a0, g_dma_buff_size);
-	free(a0);
-
-	if(lockflag == TRUE){
-		info64k.size	= 65536;
-		info64k.address = g_wss_dma_addr;
-		__dpmi_lock_linear_region(&info64k);
+	if( (max_port < 0) || (max_pdma < 0) || (max_type < 0) || (max_irq < 0) ) return FALSE;
+	if(max_type == 0){
+		wd.isa_port = max_port;
+		wd.isa_dma	= max_pdma;
+		wd.irq	= max_irq;
 	}else{
-		info64k.address = NULL;
+		wd.isa_port = max_port - 4;
+		wd.isa_dma	= wd.isa_hdma;
 	}
-
 	return TRUE;
 }
 
-static void free_dosmem64k_for_dma(void)
+static int ultramax_start(int rate_no)
 {
-	if(g_wss_dma_sel  == NULL) return;
-	if(g_wss_dma_addr == NULL) return;
-	if(info64k.address != NULL){
-		__dpmi_unlock_linear_region(&info64k);
+	static char device_name_ultrasound_max[]  = "Ultrasound Max";
+
+	if(get_ultra16() == FALSE){
+		set_error_message("ULTRA16 not found.\n");
+		return FALSE;
 	}
-	__dpmi_free_dos_memory(g_wss_dma_sel);
+	if(wss_start(rate_no) == FALSE) return FALSE;
+	wd.device_name = device_name_ultrasound_max;
+	return TRUE;
 }
 
-static DWORD get_address_dosmem64k_for_dma(void)
+
+/********************************************************************
+	Ensoniq Soundscape driver
+	This driver is based on Allegro liblary.
+ ********************************************************************/
+
+static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
 {
-	return g_wss_dma_addr;
+	char str[83];
+	char tokstr[33];
+	char *p;
+
+	/* make a local copy of the entry, upper-case it */
+	strcpy(tokstr, entry);
+	strupr(tokstr);
+
+	/* rewind the file and try to find it... */
+	rewind(fp);
+
+	for (;;) {
+		/* get the next string from the file */
+		fgets(str, 83, fp);
+		if (feof(fp)) {
+			fclose(fp);
+			return -1;
+		}
+
+		/* properly terminate the string */
+		for (p=str; *p; p++) {
+			if (isspace(*p)) {
+				*p = 0;
+				break;
+			}
+		}
+
+		/* see if it's an 'equate' string; if so, zero the '=' */
+		p = strchr(str, '=');
+		if (!p)
+			continue;
+
+		*p = 0;
+
+		/* upper-case the current string and test it */
+		strupr(str);
+
+		if (strcmp(str, tokstr))
+			continue;
+
+		/* it's our string - copy the right-hand value to buffer */
+		strcpy(dest, str+strlen(str)+1);
+		break;
+	}
+
+	return 0;
+}
+
+static int soundscape_get_init_config()
+{
+	FILE *fp = NULL;
+	char str[78];
+	char *ep;
+
+	/* get the environment var and build the filename, then open it */
+	if (!(ep = getenv("SNDSCAPE"))){
+		set_error_message("SNDSCAPE not found.");
+		return FALSE;
+	}
+	strcpy(str, ep);
+
+	if (str[strlen(str)-1] == '\\')
+		str[strlen(str)-1] = 0;
+
+	strcat(str, "\\SNDSCAPE.INI");
+
+	if (!(fp = fopen(str, "r"))){
+		set_error_message("SNDSCAPE.INI not found.");
+		return FALSE;
+	}
+   /* read all of the necessary config info ... */
+   if (get_ini_config_entry("Product", str, fp)) {
+	  fclose(fp);
+	  set_error_message("error in SNDSCAPE.INI.");
+	  return FALSE;
+   }
+#if 0
+   /* if an old product name is read, set the IRQs accordingly */
+   strupr(str);
+   if (strstr(str, "SOUNDFX") || strstr(str, "MEDIA_FX"))
+	  soundscape_irqset = rs_irqs;
+   else
+	  soundscape_irqset = ss_irqs;
+   if (get_ini_config_entry("Port", str, fp)) {
+	  fclose(fp);
+	  return FALSE;
+   }
+
+   soundscape_baseport = strtol(str, NULL, 16);
+#endif
+
+   if (get_ini_config_entry("WavePort", str, fp)) {
+	  fclose(fp);
+	  set_error_message("error in SNDSCAPE.INI.");
+	  return FALSE;
+   }
+
+   wd.isa_port = strtol(str, NULL, 16) - 4;
+#if 0
+   if (get_ini_config_entry("IRQ", str, fp)) {
+	  fclose(fp);
+	  return FALSE;
+   }
+
+   soundscape_midiirq = strtol(str, NULL, 10);
+
+   if (soundscape_midiirq == 2)
+	  soundscape_midiirq = 9;
+#endif
+   if (get_ini_config_entry("SBIRQ", str, fp)) {
+	  fclose(fp);
+	  set_error_message("error in SNDSCAPE.INI.");
+	  return FALSE;
+   }
+
+   wd.irq = strtol(str, NULL, 10);
+
+   if (wd.irq == 2)
+	  wd.irq = 9;
+
+   if (get_ini_config_entry("DMA", str, fp)) {
+	  fclose(fp);
+	  set_error_message("error in SNDSCAPE.INI.");
+	  return FALSE;
+   }
+
+   wd.isa_dma = strtol(str, NULL, 10);
+
+   fclose(fp);
+   return TRUE;
 }
 
 
+static int soundscape_start(int rate_no)
+{
+	if(soundscape_get_init_config() == FALSE) return FALSE;
+	if(wss_start(rate_no) == FALSE) return FALSE;
+	wd.device_name = device_name_soundscape;
+	return TRUE;
+}
 
 
+/********************************************************************
+	Ultrasound (GF1) driver
+ ********************************************************************/
+
+static DWORD u_get_current_position(BYTE voice);
+static void u_upload(DWORD addr, BYTE data);
+static volatile int u_dma_upload(DWORD addr, WORD count, DWORD gusaddr,
+					int flag, DWORD addr2, WORD count2, DWORD gusaddr2);
+static void u_start_dma_upload(DWORD addr, WORD count, DWORD gusaddr);
+static DWORD convert_to_16bit(DWORD address);
+static void u_abort_dma_upload(void);
+
+
+static int u_prim_voice = 0;
+static int u_base = -1;
+static int u_cmd;
+static int u_datal;
+static int u_datah;
+static int u_page;
+static int u_status;
+static int u_dram;
+static DWORD u_freq_value = 0;
+static volatile int u_dma_busy_flag = FALSE;
+static volatile int u_twoflag = FALSE;
+static DWORD u_nextaddr;
+static WORD  u_nextcount;
+static DWORD u_nextgusaddr;
 
 
 static void u_delay(void)
@@ -3697,7 +3986,7 @@ static void u_voice_stop(BYTE voice)
 }
 
 
-static DWORD u_get_current_location(BYTE voice)
+static DWORD u_get_current_position(BYTE voice)
 {
 	DWORD d0;
 	DWORD d1;
@@ -3754,9 +4043,6 @@ static DWORD convert_to_16bit(DWORD address)
 
 	return(address);
 }
-
-
-
 
 
 static volatile int u_dma_upload(DWORD addr, WORD count, DWORD gusaddr,
@@ -3910,13 +4196,6 @@ static void u_init(int base, DWORD freq)
 	outportb(u_base, 0x08);
 }
 
-
-/*
- *	ultrasound
- */
-
-void ultrasound_pcm_upload_func(void);
-
 static int get_ultrasnd(void)
 {
 	int midiirq;
@@ -3937,16 +4216,103 @@ static DWORD ultrasound_current_pos(void)
 	DWORD d0;
 
 	w_enter_critical();
-	d0 = (SAMPLECNT*2) - (u_get_current_location(u_prim_voice) - (31*2));
+	d0 = (SAMPLECNT*2) - (u_get_current_position(u_prim_voice) - (31*2));
 	w_exit_critical();
 
 	return d0;
 }
 
 
+static void ultrasound_pcm_upload_func(void)
+{
+	int d0;
+	long d1;
+	WORD d2;
+	DWORD d3;
+	DWORD start;
+	DWORD end;
+	DWORD start2;
+	DWORD end2;
+
+	if(wd.initialized == FALSE) return;
+
+	// dma upload
+	start = -1;
+	_farsetsel(_dos_ds);
+	d0 = 0;
+	while(d0 < g_current_req){
+		g_write_cursor = g_write_cursor & SAMPLECNTMASK;
+		if(wd.pcm_format == _16BITSTEREO){
+			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
+			if(d1 >  32767) d1 =  32767;
+			if(d1 < -32768) d1 = -32768;
+			d3	= d1 & 0xFFFF;
+			d1	= ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
+			if(d1 >  32767) d1 =  32767;
+			if(d1 < -32768) d1 = -32768;
+			d3 |= d1 << 16;
+			_farnspokel(g_wss_dma_addr + (g_write_cursor * 4), d3);
+		}else if(wd.pcm_format == _8BITSTEREO){
+			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
+			d2	= get_8bit_pcm_value(d1);
+			d1	= ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
+			d2 |= get_8bit_pcm_value(d1) << 8;
+			_farnspokew(g_wss_dma_addr + (g_write_cursor * 2), d2);
+		}else if(wd.pcm_format == _8BITMONO){
+			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
+			d1 += ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
+			d1	= d1 / 2;
+			d2	= get_8bit_pcm_value(d1);
+			_farnspokeb(g_wss_dma_addr + (g_write_cursor * 1), (BYTE)d2);
+		}
+		if(start == -1) start = g_write_cursor;
+		g_write_cursor += 1;
+		d0 += 1;
+	}
+	end = g_write_cursor;
+	if(start <= end){
+		start = start * 4;
+		end   = end * 4;
+		u_dma_upload(g_wss_dma_addr + start, end - start, start + (32*4),
+				FALSE, 0, 0, 0);
+	}else{
+		d3 = _farnspeekl(g_wss_dma_addr + (SAMPLECNTMASK * 4) );
+		u_upload( (31*4) + 0,  (d3 >>  0) & 0xFF);
+		u_upload( (31*4) + 1,  (d3 >>  8) & 0xFF);
+		u_upload( (31*4) + 2,  (d3 >> 16) & 0xFF);
+		u_upload( (31*4) + 3,  (d3 >> 24) & 0xFF);
+
+		start2 = 0;
+		end2 = end * 4;
+		start = start * 4;
+		end  = SAMPLECNT * 4;
+		u_dma_upload(g_wss_dma_addr + start, end - start, start + (32*4),
+				TRUE, g_wss_dma_addr + start2, end2 - start2, start2 + (32*4));
+	}
+}
+
+static void ultrasound_exit(void)
+{
+	int d0;
+
+	d0 = 0;
+	while(d0 < 2){
+		u_voice_stop(d0);
+		d0 += 1;
+	}
+	_dma_stop(wd.isa_dma);
+	mask_irq(wd.irq);
+	restore_irq_handler();
+	u_init(wd.isa_port, 44100);
+
+	free_dosmem64k_for_dma();
+	wavedevice_struct_init();
+}
+
 
 static int ultrasound_start(int rate)
 {
+	static char device_name_ultrasound[]  = "Ultrasound";
 	DWORD curr;
 
 	if(rate <= 22050){
@@ -3980,7 +4346,7 @@ static int ultrasound_start(int rate)
 
 	while(1){
 		w_enter_critical();
-		curr = u_get_current_location(u_prim_voice);
+		curr = u_get_current_position(u_prim_voice);
 		w_exit_critical();
 		if( curr > (32*4) ) break;
 	}
@@ -3988,286 +4354,12 @@ static int ultrasound_start(int rate)
 	return TRUE;
 }
 
-static void ultrasound_exit(void)
-{
-	int d0;
 
-	d0 = 0;
-	while(d0 < 2){
-		u_voice_stop(d0);
-		d0 += 1;
-	}
-	_dma_stop(wd.isa_dma);
-	mask_irq(wd.irq);
-	restore_irq_handler();
-	u_init(wd.isa_port, 44100);
+/********************************************************************
+	ESS AudioDrive driver
+	This driver is based on Allegro liblary.
+ ********************************************************************/
 
-	free_dosmem64k_for_dma();
-	wavedevice_struct_init();
-}
-
-
-
-/*	from Allegro sndscape.c  */
-static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
-{
-	char str[83];
-	char tokstr[33];
-	char *p;
-
-	/* make a local copy of the entry, upper-case it */
-	strcpy(tokstr, entry);
-	strupr(tokstr);
-
-	/* rewind the file and try to find it... */
-	rewind(fp);
-
-	for (;;) {
-		/* get the next string from the file */
-		fgets(str, 83, fp);
-		if (feof(fp)) {
-			fclose(fp);
-			return -1;
-		}
-
-		/* properly terminate the string */
-		for (p=str; *p; p++) {
-			if (isspace(*p)) {
-				*p = 0;
-				break;
-			}
-		}
-
-		/* see if it's an 'equate' string; if so, zero the '=' */
-		p = strchr(str, '=');
-		if (!p)
-			continue;
-
-		*p = 0;
-
-		/* upper-case the current string and test it */
-		strupr(str);
-
-		if (strcmp(str, tokstr))
-			continue;
-
-		/* it's our string - copy the right-hand value to buffer */
-		strcpy(dest, str+strlen(str)+1);
-		break;
-	}
-
-	return 0;
-}
-
-
-
-
-/*	from Allegro sndscape.c  */
-static int soundscape_get_init_config()
-{
-	FILE *fp = NULL;
-	char str[78];
-	char *ep;
-
-	/* get the environment var and build the filename, then open it */
-	if (!(ep = getenv("SNDSCAPE"))){
-		set_error_message("SNDSCAPE not found.");
-		return FALSE;
-	}
-	strcpy(str, ep);
-
-	if (str[strlen(str)-1] == '\\')
-		str[strlen(str)-1] = 0;
-
-	strcat(str, "\\SNDSCAPE.INI");
-
-	if (!(fp = fopen(str, "r"))){
-		set_error_message("SNDSCAPE.INI not found.");
-		return FALSE;
-	}
-   /* read all of the necessary config info ... */
-   if (get_ini_config_entry("Product", str, fp)) {
-	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
-	  return FALSE;
-   }
-#if 0
-   /* if an old product name is read, set the IRQs accordingly */
-   strupr(str);
-   if (strstr(str, "SOUNDFX") || strstr(str, "MEDIA_FX"))
-	  soundscape_irqset = rs_irqs;
-   else
-	  soundscape_irqset = ss_irqs;
-   if (get_ini_config_entry("Port", str, fp)) {
-	  fclose(fp);
-	  return FALSE;
-   }
-
-   soundscape_baseport = strtol(str, NULL, 16);
-#endif
-
-   if (get_ini_config_entry("WavePort", str, fp)) {
-	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
-	  return FALSE;
-   }
-
-   wd.isa_port = strtol(str, NULL, 16) - 4;
-#if 0
-   if (get_ini_config_entry("IRQ", str, fp)) {
-	  fclose(fp);
-	  return FALSE;
-   }
-
-   soundscape_midiirq = strtol(str, NULL, 10);
-
-   if (soundscape_midiirq == 2)
-	  soundscape_midiirq = 9;
-#endif
-   if (get_ini_config_entry("SBIRQ", str, fp)) {
-	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
-	  return FALSE;
-   }
-
-   wd.irq = strtol(str, NULL, 10);
-
-   if (wd.irq == 2)
-	  wd.irq = 9;
-
-   if (get_ini_config_entry("DMA", str, fp)) {
-	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
-	  return FALSE;
-   }
-
-   wd.isa_dma = strtol(str, NULL, 10);
-
-   fclose(fp);
-   return TRUE;
-}
-
-
-
-
-static int detectCMI8x38(void)
-{
-	__dpmi_regs 	r;
-
-	r.d.eax = 0x0000b101;						// PCI BIOS - INSTALLATION CHECK
-	r.d.edi = 0x00000000;
-	__dpmi_int(0x1a, &r);
-	if( r.d.edx != 0x20494350 ){				// ' ICP'
-		return FALSE;
-	}
-
-	while(1){
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00000100;						// device ID
-		r.d.edx = 0x000013F6;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;
-
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00000101;						// device ID
-		r.d.edx = 0x000013F6;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;
-
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00000111;						// device ID
-		r.d.edx = 0x000013F6;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;
-
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00000101;						// device ID
-		r.d.edx = 0x000010B9;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-
-		if( r.h.ah == 0 ) break;
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00000111;						// device ID
-		r.d.edx = 0x000010B9;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;
-
-		return FALSE;
-	}
-
-	r.d.eax = 0x0000b10a;						// READ CONFIGURATION DWORD
-												// BH = bus number
-												// BL = device/function number
-	r.d.edi = 0x00000010;						// register number
-	__dpmi_int(0x1a, &r);
-	if( r.h.ah != 0 ){
-		return FALSE;
-	}
-	cmi8x38_iobase = r.d.ecx & ~0xFF;
-
-	return TRUE;
-}
-
-
-static int detectTrid4DWave(void)
-{
-	__dpmi_regs 	r;
-
-	r.d.eax = 0x0000b101;						// PCI BIOS - INSTALLATION CHECK
-	r.d.edi = 0x00000000;
-	__dpmi_int(0x1a, &r);
-	if( r.d.edx != 0x20494350 ){				// ' ICP'
-		return FALSE;
-	}
-
-	do{
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00002000;						// device ID
-		r.d.edx = 0x00001023;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;					// DX found
-
-		r.d.eax = 0x0000b102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00002001;						// device ID
-		r.d.edx = 0x00001023;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;					// NX found
-
-		r.d.eax = 0x0000B102;						// PCI BIOS - FIND PCI DEVICE
-		r.d.ecx = 0x00007018;						// device ID
-		r.d.edx = 0x00001039;						// vendor ID
-		r.d.esi = 0x00000000;						// device index
-		__dpmi_int(0x1a, &r);
-		if( r.h.ah == 0 ) break;					// SiS Audio 7018 found
-
-		return FALSE;
-	}while(0);
-
-	r.d.eax = 0x0000b10a;						// READ CONFIGURATION DWORD
-												// BH = bus number
-												// BL = device/function number
-	r.d.edi = 0x00000010;						// register number
-	__dpmi_int(0x1a, &r);
-	if( r.h.ah != 0 ){
-		return FALSE;
-	}
-
-	trid4dwave_iobase = r.d.ecx & ~0xFF;
-	return TRUE;
-}
-
-
-
-
-
-/*	from Allegro essaudio.c  */
 static volatile int ess_is_dsp_ready_for_read(void)
 {
    return (inportb(0x0E + wd.isa_port) & 0x80);
@@ -4296,8 +4388,6 @@ static volatile int ess_write_dsp(unsigned char byte)
    }
    return -1;
 }
-
-
 
 static void ess_set_sample_rate(unsigned int rate)
 {
@@ -4372,6 +4462,17 @@ static void ess_play_buffer(int size)
 	ess_write_dsp(value);
 }
 
+static void ess_exit(void)
+{
+	/* halt sound output */
+	_sb_voice(FALSE);
+	/* stop dma transfer */
+	_dma_stop(wd.isa_dma);
+	_sb_reset_dsp(1);
+
+	free_dosmem64k_for_dma();
+	wavedevice_struct_init();
+}
 
 
 static int ess_start(int rate)
@@ -4465,22 +4566,10 @@ static int ess_start(int rate)
 	return TRUE;
 }
 
-static void ess_exit(void)
-{
-	/* halt sound output */
-	_sb_voice(FALSE);
-	/* stop dma transfer */
-	_dma_stop(wd.isa_dma);
-	_sb_reset_dsp(1);
 
-	free_dosmem64k_for_dma();
-	wavedevice_struct_init();
-}
-
-
-/*
- *	eternal silence
- */
+/********************************************************************
+	ETERNAL SILENCE (timer device) driver
+ ********************************************************************/
 
 static cycles_t es_tick_per_hz = 0;
 static cycles_t es_remain = 0;
@@ -4533,31 +4622,18 @@ static DWORD eternal_silence_current_pos(void)
 		es_count -= 1;
 	}
 	es_count = es_count & SAMPLECNTMASK;
-	return es_count << 2;						// _16BITSTEREO ˆµ‚¢
+	return es_count << 2;						// assume _16BITSTEREO
 }
 
 
 
 
 
-static DWORD g_prev_play_cursor = 0;
-static DWORD g_write_cursor = 0;
-static DWORD g_latency	= 48000/30;
-static float g_latencym = 2.2;
-static DWORD g_dma_average_cnt = (48000/60) << 8;
-static int	 g_dma_dt = 0;
-static int	 g_dma_overflow  = 0;
-static int	 g_dma_underflow = 0;
-#define DMA_AVERAGE 			256
-#define DMA_AVERAGE_MASK		0xFF
-#define DMA_AVERAGE_SHIFT_COUNT 8
 
-static DWORD g_dma_remainder = 0;
-static long  mixing_buff[SAMPLECNT*2];
-static DWORD g_current_req = 0;
-static DWORD g_next_req = 0;
-static int	 g_master_volume = 256;
-static DWORD g_samples_per_frame = 0;
+
+/********************************************************************
+	"w_" sound system funtions
+ ********************************************************************/
 
 void w_set_watermark(float latency, DWORD samples_per_frame)
 {
@@ -4593,7 +4669,6 @@ DWORD w_get_next_req(void)
 	if(wd.initialized == FALSE) return 0;
 	return g_next_req;
 }
-
 
 
 static void calc_next_req(void)
@@ -4799,74 +4874,6 @@ static void common_pcm_upload_func(void)
 	end = g_write_cursor;
 }
 
-void ultrasound_pcm_upload_func(void)
-{
-	int d0;
-	long d1;
-	WORD d2;
-	DWORD d3;
-	DWORD start;
-	DWORD end;
-	DWORD start2;
-	DWORD end2;
-
-	if(wd.initialized == FALSE) return;
-
-	// dma upload
-	start = -1;
-	_farsetsel(_dos_ds);
-	d0 = 0;
-	while(d0 < g_current_req){
-		g_write_cursor = g_write_cursor & SAMPLECNTMASK;
-		if(wd.pcm_format == _16BITSTEREO){
-			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
-			if(d1 >  32767) d1 =  32767;
-			if(d1 < -32768) d1 = -32768;
-			d3	= d1 & 0xFFFF;
-			d1	= ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
-			if(d1 >  32767) d1 =  32767;
-			if(d1 < -32768) d1 = -32768;
-			d3 |= d1 << 16;
-			_farnspokel(g_wss_dma_addr + (g_write_cursor * 4), d3);
-		}else if(wd.pcm_format == _8BITSTEREO){
-			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
-			d2	= get_8bit_pcm_value(d1);
-			d1	= ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
-			d2 |= get_8bit_pcm_value(d1) << 8;
-			_farnspokew(g_wss_dma_addr + (g_write_cursor * 2), d2);
-		}else if(wd.pcm_format == _8BITMONO){
-			d1	= ((mixing_buff[(d0*2) + 0] * g_master_volume)/256);
-			d1 += ((mixing_buff[(d0*2) + 1] * g_master_volume)/256);
-			d1	= d1 / 2;
-			d2	= get_8bit_pcm_value(d1);
-			_farnspokeb(g_wss_dma_addr + (g_write_cursor * 1), (BYTE)d2);
-		}
-		if(start == -1) start = g_write_cursor;
-		g_write_cursor += 1;
-		d0 += 1;
-	}
-	end = g_write_cursor;
-	if(start <= end){
-		start = start * 4;
-		end   = end * 4;
-		u_dma_upload(g_wss_dma_addr + start, end - start, start + (32*4),
-				FALSE, 0, 0, 0);
-	}else{
-		d3 = _farnspeekl(g_wss_dma_addr + (SAMPLECNTMASK * 4) );
-		u_upload( (31*4) + 0,  (d3 >>  0) & 0xFF);
-		u_upload( (31*4) + 1,  (d3 >>  8) & 0xFF);
-		u_upload( (31*4) + 2,  (d3 >> 16) & 0xFF);
-		u_upload( (31*4) + 3,  (d3 >> 24) & 0xFF);
-
-		start2 = 0;
-		end2 = end * 4;
-		start = start * 4;
-		end  = SAMPLECNT * 4;
-		u_dma_upload(g_wss_dma_addr + start, end - start, start + (32*4),
-				TRUE, g_wss_dma_addr + start2, end2 - start2, start2 + (32*4));
-	}
-}
-
 
 
 void w_unlock_mixing_buffer(void)
@@ -4934,7 +4941,7 @@ DWORD w_get_buffer_size(void)
 
 DWORD w_get_play_cursor(void)
 {
-	return (SAMPLECNT - 1) - (_dma_counter() >> g_dmacnt_shift_count);
+	return ((SAMPLECNT - 1) - (_dma_counter() >> g_dmacnt_shift_count)) & SAMPLECNTMASK;
 }
 
 DWORD w_get_write_cursor(void)
@@ -5029,17 +5036,17 @@ int w_get_watermark_status(void)
 	d0 = w_get_latency();
 
 	if(d0 >= (DWORD)(g_latency*2.5)){
-		result = -2;							// overrun
+		result = W_WATERMARK_UNDERRUN;				// underrun or overrun
 	}else if(d0 >= (DWORD)(g_latency*1.5)){
-		result = 2; 							// full
+		result = W_WATERMARK_FULL;
 	}else if(d0 >= (DWORD)g_latency){
-		result = 1; 							// good
+		result = W_WATERMARK_GOOD;
 	}else if(d0 >= g_samples_per_frame){
-		result = 0; 							// ok
+		result = W_WATERMARK_OK;
 	}else if(d0 >= g_samples_per_frame/8){
-		result = -1;							// lack
+		result = W_WATERMARK_ON_THE_EDGE;
 	}else{
-		result = -2;							// overrun
+		result = W_WATERMARK_UNDERRUN;
 	}
 
 	return result;
@@ -5186,7 +5193,7 @@ void w_clear_buffer(void)
 
 	if(wd.initialized == FALSE) return;
 
-	for(d0 = 0; d0 <= SAMPLECNT; d0 += 1024){
+	for(d0 = 0; d0 <= SAMPLECNT/1024; d0 += 1){
 		w_lock_mixing_buffer(1024);
 		w_mixing_zero();
 		w_unlock_mixing_buffer();
@@ -5211,115 +5218,6 @@ char *w_get_device_name(void)
 }
 
 
-
-
-int w_sound_device_init(int device_no, int rate)
-{
-	int result;
-
-	if(wd.initialized == TRUE){
-		set_error_message("already initialized.\n");
-		return FALSE;
-	}
-	if(rate < 0)
-		rate = 22050;
-	if(rate > 64000)
-		rate = 64000;
-
-	switch(device_no){
-		case 0:
-			result = eternal_silence_start(rate);
-			break;
-		case 1:
-			result = sb_auto_detect_start(rate);
-			break;
-		case 2:
-			result = ac97_auto_detect_start(rate, FALSE);
-			break;
-		case 3:
-			result = ac97_auto_detect_start(rate, TRUE);
-			break;
-		case 4:
-			result = ultramax_start(rate);
-			break;
-		case 5:
-			result = ultrasound_start(rate);
-			break;
-		case 6:
-			result = wss_start(rate);
-			break;
-		case 7:
-			result = soundscape_start(rate);
-			break;
-		case 8:
-			result = ess_start(rate);
-			break;
-		case 9:
-			result = wdm_sbpro_start(rate);
-			break;
-		case 10:
-			result = sb201_interrupt_driven_start(rate);
-			break;
-		case 11:
-			result = sb100_interrupt_driven_start(rate);
-			break;
-		case 12:
-			result = sb201_start(rate);
-			break;
-		case 13:
-			result = sbpro_start(rate);
-			break;
-		case 14:
-			result = sb16_start(rate);
-			break;
-		case 15:
-			result = sbpro_ex_start(rate);
-			break;
-		case 16:
-			result = sb16_ex_start(rate);
-			break;
-		case 17:
-			result = cmi8x38_as_sb16_start(rate);
-			break;
-		case 21:
-			result = trid4dwave_as_sb16_start(rate);
-			break;
-		case 23:
-			result = sbpro_interrupt_driven_start(rate);
-			break;
-		case 24:
-			result = via686_start_chip_init(rate);
-			break;
-		case 25:
-			result = via686_start_no_chip_init(rate);
-			break;
-		case 26:
-			result = intel_ich_start_chip_init(rate);
-			break;
-		case 27:
-			result = intel_ich_start_no_chip_init(rate);
-			break;
-
-		default:
-			result = FALSE;
-			set_error_message("invalid sound device number.\n");
-	}
-
-	w_set_watermark(2.2, 1200);
-
-	return result;
-}
-
-void w_sound_device_exit(void)
-{
-	w_clear_buffer();
-	if(wd.device_exit != NULL){
-		(*wd.device_exit)();
-	}
-}
-
-
-
 void vga_vsync(void)
 {
 	w_enter_critical();
@@ -5327,9 +5225,6 @@ void vga_vsync(void)
 	while( (inportb(0x3da) & 0x08) == 0 );
 	w_exit_critical();
 }
-
-
-
 
 
 DWORD w_get_actual_sample_rate(void)
@@ -5403,18 +5298,126 @@ void w_set_device_master_volume(int volume)
 }
 
 
+void w_sound_device_exit(void)
+{
+	w_clear_buffer();
+	if(wd.device_exit != NULL){
+		(*wd.device_exit)();
+	}
+	wd.initialized = FALSE;
+}
+
+
+int w_sound_device_init(int device_no, int rate)
+{
+	int result;
+
+	if(wd.initialized == TRUE){
+		set_error_message("The sound device was already initialized.\n");
+		return FALSE;
+	}
+
+	if(rate <= 0)	 rate = 22050;
+	if(rate > 64000) rate = 64000;
+
+	switch(device_no){
+		case 0:
+			result = eternal_silence_start(rate);
+			break;
+		case 1:
+			result = sb_auto_detect_start(rate);
+			break;
+		case 2:
+			result = ac97_auto_detect_start(rate, FALSE);
+			break;
+		case 3:
+			result = ac97_auto_detect_start(rate, TRUE);
+			break;
+		case 4:
+			result = ultramax_start(rate);
+			break;
+		case 5:
+			result = ultrasound_start(rate);
+			break;
+		case 6:
+			result = wss_start(rate);
+			break;
+		case 7:
+			result = soundscape_start(rate);
+			break;
+		case 8:
+			result = ess_start(rate);
+			break;
+		case 9:
+			result = wdm_sbpro_start(rate);
+			break;
+		case 10:
+			result = sb201_interrupt_driven_start(rate);
+			break;
+		case 11:
+			result = sb100_interrupt_driven_start(rate);
+			break;
+		case 12:
+			result = sb201_start(rate);
+			break;
+		case 13:
+			result = sbpro_start(rate);
+			break;
+		case 14:
+			result = sb16_start(rate);
+			break;
+		case 15:
+			result = sbpro_ex_start(rate);
+			break;
+		case 16:
+			result = sb16_ex_start(rate);
+			break;
+		case 17:
+/*
+			  // Use SB interrupt-driven driver instead.
+			result = cmi8x38_as_sb16_start(rate);
+*/
+			result = FALSE;
+			set_error_message("invalid sound device number.\n");
+			break;
+		case 21:
+			result = trid4dwave_as_sb16_start(rate);
+			break;
+		case 23:
+			result = sbpro_interrupt_driven_start(rate);
+			break;
+		case 24:
+			result = via686_start_chip_init(rate);
+			break;
+		case 25:
+			result = via686_start_no_chip_init(rate);
+			break;
+		case 26:
+			result = intel_ich_start_chip_init(rate);
+			break;
+		case 27:
+			result = intel_ich_start_no_chip_init(rate);
+			break;
+
+		default:
+			result = FALSE;
+			set_error_message("invalid sound device number.\n");
+	}
+
+	w_set_watermark(2.2, 1200);
+
+	return result;
+}
 
 
 
 
-/////////////////////////////////////////////////////////////////////
-// main
+//////////////////////////////////////////////////////////////////////
+// main() for debug
 
 
 
-#if 0
-
-
+#ifdef _WSS_DEBUG
 
 
 static double sin1dt;
@@ -5464,7 +5467,6 @@ static short sin_stream2r(void)
 }
 
 
-
 #define NORMAL							 1
 #define VSYNC							 2
 
@@ -5473,32 +5475,52 @@ static short sin_stream2r(void)
 int main()
 {
 	int d0;
-	DWORD d1;
 	int actual_sample_rate;
 	short a0[65536];
 	short a1[65536*2];
 	DWORD samples_this_frame = 0;
 	DWORD samples_left_over;
 	DWORD samples_per_frame;
+	int soundcard;
+	int i;
 	int mode;
-	int use_joystickbutton = TRUE;
 
 	mode = NORMAL;
 //	  mode = VSYNC;
 
-	if( w_sound_device_init(27, 24096) == FALSE){
+	printf("\nSelect the audio device:\n");
+	printf("  0. Eternal Silence\n");
+	printf("  1. Sound Blaster\n");
+	printf("  2. Chipset integrated AC97 (no init, for Win9x DosBox. AT YOUR OWN RISK!)\n");
+	printf("  3. Chipset integrated AC97 (for Pure DOS)\n");
+	printf("  4. Ultrasound Max\n");
+	printf("  5. Ultrasound\n");
+	printf("  6. Windows Sound System\n");
+	printf("  7. Ensoniq Soundscape\n");
+	printf("  8. ESS Audiodrive\n");
+	printf("  9. Sound Blaster Pro (for WDM SBPro device, -novsync & RDTSC required)\n");
+	printf("\n");
+
+	i = getch();
+	soundcard = i - '0';
+	if ( !((0 <= soundcard) && (soundcard <= 9)) )
+	{
+		printf("audio initialization failed\n");
+		soundcard = -1;
+		return -1;
+	}
+
+	if( w_sound_device_init(soundcard, 44100) == FALSE){
 		printf("%s\n", w_get_error_message() );
 		return -1;
 	}
 
 	printf("%s	", w_get_device_name() );
 	printf("nominal rate : %d Hz\n", w_get_nominal_sample_rate());
-if(1){
+
 	actual_sample_rate = w_get_actual_sample_rate();
 	printf("  actual rate  : %d Hz\n", actual_sample_rate);
-}else{
-	actual_sample_rate = w_get_nominal_sample_rate();
-}
+
 	sin_stream_init(actual_sample_rate);
 
 	samples_this_frame = actual_sample_rate / FRAMES_PER_SEC;
@@ -5514,69 +5536,40 @@ if(1){
 		samples_left_over = 0;
 	}
 
-if(0){
-	while(1){
-		static DWORD prevc = 0;
-		static DWORD currc = 0;
-		if( kbhit() ) break;
-//		  currc = intel_ich_current_pos();
-		currc = w_get_play_cursor();
-		if(prevc != currc){
-			printf("%08x, %d\n", currc, currc - prevc);
-			prevc = currc;
-		}
-	}
-
-	w_sound_device_exit();
-	return 1;
-}
+	/* main loop */
 	while(1){
 		if(mode == NORMAL){
+			/* normal mode */
 			samples_left_over += samples_per_frame;
 			samples_this_frame = (DWORD)(samples_left_over >> 12);
 			samples_left_over  = samples_left_over & 0xFFF;
+		}else{
+			/* vsync mode */
+			samples_this_frame = w_get_next_req();
 		}
 
-		d0 = 0;
-		while(d0 < samples_this_frame){
+
+		 /* do something here. start */
+
+		 /* do something here. end */
+
+
+		for(d0 = 0;d0 < samples_this_frame; d0 += 1){
 			a0[d0] = sin_stream1();
-			d0 += 1;
 		}
-		d0 = 0;
-		while(d0 < samples_this_frame){
+		for(d0 = 0;d0 < samples_this_frame; d0 += 1){
 			a1[(d0 * 2) + 0] = sin_stream2l();
 			a1[(d0 * 2) + 1] = sin_stream2r();
-			d0 += 1;
 		}
 
 		printf("samples : %d,  ", samples_this_frame);
 
 		if(mode == NORMAL){
-			if(w_get_watermark_status() == -2){
-				w_reset_watermark();
-				printf("\n reset watermark \n\n");
-			}
-		}
-
-		if(mode == NORMAL || mode == VSYNC){
-			w_lock_mixing_buffer(samples_this_frame);
-		}else{
-			w_lock_mixing_buffer(0);
-		}
-
-		w_mixing(a0, samples_this_frame, 0, 256);
-		w_mixing_stereo(a1, samples_this_frame, 256, 256);
-		w_unlock_mixing_buffer();
-
-		if(mode == VSYNC){
-			samples_this_frame = w_get_next_req();
-		}
-
-		if(mode == NORMAL){
+			/* normal mode */
 			while(1){
 				d0 = w_get_watermark_status();
-				if(d0 == -1 || d0 == 0) break;
-				if(d0 == -2) {
+				if(d0 == W_WATERMARK_GOOD || d0 == W_WATERMARK_OK || d0 == W_WATERMARK_ON_THE_EDGE) break;
+				if(d0 == W_WATERMARK_UNDERRUN) {
 					w_reset_watermark();
 					printf("\n reset watermark \n\n");
 					break;
@@ -5585,53 +5578,30 @@ if(0){
 			printf("latency:%5d, play:%5d, write:%5d \n",
 						w_get_latency(),
 						w_get_play_cursor(), w_get_write_cursor());
+			w_lock_mixing_buffer(samples_this_frame);
+			w_mixing(a0, samples_this_frame, 0, 256);
+			w_mixing_stereo(a1, samples_this_frame, 256, 256);
+			w_unlock_mixing_buffer();
 		}else{
+			/* vsync mode */
+			w_lock_mixing_buffer(samples_this_frame);
+			w_mixing(a0, samples_this_frame, 0, 256);
+			w_mixing_stereo(a1, samples_this_frame, 256, 256);
+			w_unlock_mixing_buffer();
+
 			vga_vsync();
+
 			d0 = w_get_watermark_status();
-			if(d0 == -1 || d0 == -2){
+			if(d0 == W_WATERMARK_ON_THE_EDGE || d0 == W_WATERMARK_UNDERRUN){
 				w_reset_watermark();
 				printf("\n reset watermark \n\n");
 			}
-			d1 = w_adjust_latency_for_vsync();
+			w_adjust_latency_for_vsync();
 			printf("latency:%5d, play:%5d, write:%5d \n",
 						w_get_latency(),
 						w_get_play_cursor(), w_get_write_cursor());
 			printf("over %5d, under %5d, ofdt %5d, ufdt %5d, dt %5d\n",
 				g_dma_overflow, g_dma_underflow, ofdt, ufdt, dma_dt);
-		}
-
-
-		if(use_joystickbutton == TRUE){
-				// for debug
-				// Try push joystick button.
-				//
-			static int prev1 = 0x10;
-			static int prev2 = 0x20;
-			int curr1;
-			int curr2;
-			static int pf = 0;
-
-			if(mode == VSYNC){
-				curr1 = inportb(0x201) & 0x10;
-				curr2 = inportb(0x201) & 0x20;
-				if(prev1 != 0 && curr1 == 0) vga_vsync();
-				if(prev2 != 0 && curr2 == 0) samples_this_frame += w_get_current_req();
-				prev1 = curr1;
-				prev2 = curr2;
-			}else{
-				curr1 = inportb(0x201) & 0x10;
-				curr2 = inportb(0x201) & 0x20;
-				if(prev1 != 0 && curr1 == 0){
-					pf = (pf + 4) & 0x3F;
-					w_set_watermark(2.2, actual_sample_rate / (FRAMES_PER_SEC + pf));
-				}
-				if(prev2 != 0 && curr2 == 0){
-					pf = (pf - 4) & 0x3F;
-					w_set_watermark(2.2, actual_sample_rate / (FRAMES_PER_SEC + pf));
-				}
-				prev1 = curr1;
-				prev2 = curr2;
-			}
 		}
 
 		if( kbhit() ) break;

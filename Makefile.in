@@ -64,18 +64,18 @@ PREFIX=@prefix@
 #   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
 #   athlon-xp, athlon-mp
 # Optimized build for i586
-#CONF_CFLAGS_OPT=-O3 -march=i586 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=i586 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for i686
-#CONF_CFLAGS_OPT=-O3 -march=i686 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=i686 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for k6
-#CONF_CFLAGS_OPT=-O3 -march=k6 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=k6 -Wall -Wno-sign-compare -Wno-unused
 # Profile build
 #CONF_CFLAGS_OPT=-O3 -pg -Wall -Wno-sign-compare -Wno-unused
 # Debug build
 #CONF_CFLAGS_OPT=-O0 -g -Wall -Wno-sign-compare -Wno-unused
 
-# Select the optimization linker flags: (optimized build by default)
-# Optimized build
+# Select the optimization linker flags: (not debug link by default)
+# Not debug build
 #CONF_LDFLAGS=-s
 # Debug/Profile build
 #CONF_LDFLAGS=-g
@@ -250,7 +250,7 @@ UPX = @upx -q -q -q
 LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
-CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
 ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),dos)
@@ -258,7 +258,7 @@ UPX = @upx -q -q -q
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
 ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),windows)
@@ -266,7 +266,7 @@ UPX = @upx -q -q -q
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
 ZLIBS = -lz
 endif
 
@@ -507,12 +507,9 @@ flags: obj
 	$(ECHO) SDLLIBS=$(SDLLIBS)
 	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
 	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
-	$(ECHO) TARGETCFLAGS=$(TARGETCFLAGS)
-	$(ECHO) TARGETLDFLAGS=$(TARGETLDFLAGS)
-	$(ECHO) TARGETLIBS=$(TARGETLIBS)
-	$(ECHO) SYSTEMCFLAGS=$(SYSTEMCFLAGS)
-	$(ECHO) SYSTEMLDFLAGS=$(SYSTEMLDFLAGS)
-	$(ECHO) SYSTEMLIBS=$(SYSTEMLIBS)
+	$(ECHO) ADVANCECFLAGS=$(ADVANCECFLAGS)
+	$(ECHO) ADVANCELDFLAGS=$(ADVANCELDFLAGS)
+	$(ECHO) ADVANCELIBS=$(ADVANCELIBS)
 	$(ECHO) CC=$(CC)
 	$(ECHO) CC_BUILD=$(CC_BUILD)
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
@@ -521,5 +518,6 @@ flags: obj
 osdep:
 	rgrep -r MSDOS $(srcdir)/advance
 	rgrep -r WIN32 $(srcdir)/advance
+	rgrep -r OS2 $(srcdir)/advance
 
 

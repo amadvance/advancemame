@@ -95,8 +95,8 @@ static bool spawn_check(int r, bool ignore_error) {
 //---------------------------------------------------------------------------
 // emulator
 
-#define ATTRIB_CHOICE_X text_dx_get()/8
-#define ATTRIB_CHOICE_Y text_dy_get()/5
+#define ATTRIB_CHOICE_X text_dx_get()/8 + 2
+#define ATTRIB_CHOICE_Y text_dy_get()/5 + 2
 #define ATTRIB_CHOICE_DX 20*text_font_dx_get()
 
 emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :

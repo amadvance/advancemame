@@ -2852,6 +2852,7 @@ int advance_video_init(struct advance_video_context* context, struct conf_contex
 	conf_int_register_enum_default(cfg_context, "display_interlaceeffect", conf_enum(OPTION_INTERLACEEFFECT), EFFECT_NONE);
 	conf_float_register_limit_default(cfg_context, "misc_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "misc_turbospeed", 0.1, 30.0, 3.0);
+	conf_bool_register_default(cfg_context, "misc_crash", 0);
 	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 6);
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
@@ -3064,6 +3065,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "misc_speed");
 	context->config.fastest_time = conf_int_get_default(cfg_context, "misc_startuptime");
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
+	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
 	strcpy(context->config.resolution,s);

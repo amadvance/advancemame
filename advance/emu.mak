@@ -1,7 +1,7 @@
 ############################################################################
 # EMU Target and System
 
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += \
 	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/osd \
 	-I$(srcdir)/advance/lib \
@@ -16,26 +16,27 @@ OBJDIRS += \
 	$(OBJ)/advance/blit \
 	$(OBJ)/advance/$(CONF_SYSTEM)
 
-TARGETLIBS += $(ZLIBS)
+ADVANCELIBS += $(ZLIBS)
 
 ifeq ($(CONF_HOST),unix)
-TARGETLIBS += -lm
+ADVANCELIBS += -lm
 ifeq ($(CONF_SMP),yes)
-TARGETCFLAGS += -DUSE_SMP -D_REENTRANT
-TARGETLIBS += -lpthread
+CFLAGS += -D_REENTRANT
+ADVANCECFLAGS += -DUSE_SMP
+ADVANCELIBS += -lpthread
 endif
 endif
 
 ifeq ($(CONF_SYSTEM),linux)
-SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += -DPREFIX=\"$(PREFIX)\"
+ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
-SYSTEMLIBS += -lvga
-SYSTEMOBJS += \
+ADVANCELIBS += -lvga
+ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filenix.o \
 	$(OBJ)/advance/lib/targnix.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
@@ -48,22 +49,22 @@ SYSTEMOBJS += \
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
-SYSTEMLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
-SYSTEMLIBS += -laudio -lalleg
-SYSTEMLDFLAGS += \
+ADVANCELDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
+ADVANCELIBS += -laudio -lalleg
+ADVANCELDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
 	-Xlinker --wrap -Xlinker get_config_int \
 	-Xlinker --wrap -Xlinker set_config_string \
@@ -76,7 +77,7 @@ OBJDIRS += \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
 	$(OBJ)/advance/svgalib/drivers
-SYSTEMOBJS += \
+ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filedos.o \
 	$(OBJ)/advance/lib/targdos.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
@@ -135,17 +136,17 @@ SYSTEMOBJS += \
 endif
 
 ifeq ($(CONF_SYSTEM),sdl)
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\"
-SYSTEMCFLAGS += \
+ADVANCECFLAGS += \
 	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
-SYSTEMLIBS += $(SDLLIBS)
-SYSTEMOBJS += \
+ADVANCELIBS += $(SDLLIBS)
+ADVANCEOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/vsdl.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/ssdl.o \
@@ -153,18 +154,18 @@ SYSTEMOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/ksdl.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/msdl.o
 ifeq ($(CONF_HOST),unix)
-SYSTEMOBJS += \
+ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filenix.o \
 	$(OBJ)/advance/lib/targnix.o
 endif
 ifeq ($(CONF_HOST),windows)
-SYSTEMOBJS += \
+ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filedos.o \
 	$(OBJ)/advance/lib/targwin.o \
 	$(OBJ)/advance/lib/icondef.o
 # Customize the SDL_main function
-SYSTEMCFLAGS += -DNO_STDIO_REDIRECT
-SYSTEMOBJS += $(OBJ)/advance/sdl/sdlmwin.o
+ADVANCECFLAGS += -DNO_STDIO_REDIRECT
+ADVANCEOBJS += $(OBJ)/advance/sdl/sdlmwin.o
 endif
 endif
 
@@ -247,11 +248,11 @@ EMUOBJS += \
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(EMUCFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG) 
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
@@ -278,7 +279,7 @@ EMUCFLAGS += -DMSB_FIRST
 M68000FLAGS += -DMSB_FIRST
 endif
 
-# TODO A che serve -I. ???
+# TODO check the -I. need
 EMUCFLAGS += \
 	-I. \
 	-I$(EMUSRC)
@@ -298,7 +299,7 @@ EMUCFLAGS += \
 
 # Map
 ifeq ($(CONF_MAP),yes)
-TARGETLDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
+ADVANCELDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
 endif
 
 ifeq ($(CONF_EMU),mess)
@@ -361,9 +362,9 @@ M68000FLAGS += \
 	-I$(srcdir)/mess
 endif
 
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
+$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(SYSTEMLDFLAGS) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(TARGETLIBS) $(SYSTEMLIBS) $(DRVLIBS) -o $@
+	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
 ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
@@ -373,11 +374,11 @@ endif
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/mess/%.o: $(srcdir)/mess/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
 $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
@@ -427,17 +428,17 @@ $(sort $(OBJDIRS)):
 
 advance/advmame.dif: src src.ori
 	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" src.ori src > advance/advmame.dif
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
 advance/advpac.dif: srcpac srcpac.ori
 	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcpac.ori srcpac > advance/advpac.dif
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" srcpac.ori srcpac > advance/advpac.dif
 	ls -l advance/advpac.dif
 
 advance/advmess.dif: srcmess srcmess.ori
 	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcmess.ori srcmess > advance/advmess.dif
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" srcmess.ori srcmess > advance/advmess.dif
 	ls -l advance/advmess.dif
 
 ############################################################################

@@ -41,7 +41,6 @@
 #include <stdio.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
-#include <execinfo.h>
 
 /* Check if svgalib is used in some way */
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
@@ -229,7 +228,6 @@ int os_inner_init(const char* title) {
 	signal(SIGHUP, os_signal);
 	signal(SIGPIPE, os_signal);
 	signal(SIGQUIT, os_term_signal);
-	signal(SIGUSR1, os_signal); /* used for malloc failure */
 
 	return 0;
 }
@@ -300,30 +298,6 @@ int os_is_term(void) {
 	return OS.is_term;
 }
 
-/**
- * Print the stack backtrace.
- * The programm need to be compiled without CFLAGS=-fomit-frame-pointer and with
- * LDFLAGS=-rdynamic
- */
-static void os_backtrace(void) {
-	void* buffer[256];
-	char** symbols;
-	int size;
-	int i;
-	size = backtrace(buffer,256);
-	symbols = backtrace_symbols(buffer,size);
-
-	if (size > 1) {
-		printf("Stack backtrace:\n");
-		for(i=0;i<size;++i)
-			printf("%s\n", symbols[i]);
-	} else {
-		printf("No stack backtrace: compile without CFLAGS=-fomit-frame-pointer and with LDFLAGS=-rdynamic\n");
-	}
-
-	free(symbols);
-}
-
 void os_default_signal(int signum)
 {
 	log_std(("os: signal %d\n",signum));
@@ -357,24 +331,7 @@ void os_default_signal(int signum)
 	log_std(("os: close log\n"));
 	log_abort();
 
-	if (signum == SIGINT) {
-		fprintf(stderr,"Break pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else if (signum == SIGQUIT) {
-		fprintf(stderr,"Quit pressed\n\r");
-		exit(EXIT_FAILURE);
-	} else {
-		fprintf(stderr,"Signal %d.\n", signum);
-		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
-
-		os_backtrace();
-
-		if (signum == SIGILL) {
-			fprintf(stderr,"Are you using the correct binary ?\n");
-		}
-
-		_exit(EXIT_FAILURE);
-	}
+	target_signal(signum);
 }
 
 /***************************************************************************/
