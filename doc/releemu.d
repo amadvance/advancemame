@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.80.2
+	This version has a reworked audio/video syncronization algorithm.
+	It should fix any remaining problem of distorted sound present on
+	some specific systems.
+
 AdvanceMAME 0.80.0
 	This version adds support for TrueType (TTF) fonts with alpha blending
 	using the FreeType2 library. If you compile from source, you must

@@ -1,6 +1,25 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.81.2 2004/05
+	) The sound normalization is now computed using the normalized
+		power of the audio.
+	) Improved the audio/video syncronization. It should fixes the problems
+		on system which are not able to return the correct number of
+		samples in the audio board buffer.
+	) The `sync_resample' default value is now to use internal
+		resampling.
+	) Fixed the loading of .rc files from the /etc directory.
+	) Improved the loading speed of the history/mameinfo databases in
+		Linux using the not locked file API.
+	) The history/mameinfo are now wrapped to fit the whole screen.
+
+AdvanceMESS Version 0.81.0.1 2004/05
+	) The customization of keyboard ports are now saved in the
+		.rc file as input_map[key_*] options.
+	) Added the MESS sysinfo.dat file in the distribution and
+		fixed its loading.
+
 AdvanceMAME Version 0.81.1 2004/04
 	) In Linux the hardware ports are always accessed directly if
 		the program is run as root. Otherwise is used the /dev/port

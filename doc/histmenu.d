@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.4 2004/05
+	) The program doesn't try to effectively load the
+		"none" image file used to disabled the image
+		loading.
+
 AdvanceMENU Version 2.3.3 2004/04
 	) Updated the expat library to version 1.95.7.
 	) Added support for recent Radeon boards 9600/9700/9800 at

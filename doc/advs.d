@@ -14,7 +14,7 @@ Description
 
 	Press Break to terminate before the end.
 
-	Check the `device.txt' file for the description of
+	Check the `advdev.txt' file for the description of
 	the `device_sound' option.
 
 Copyright

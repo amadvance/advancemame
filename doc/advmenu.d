@@ -692,7 +692,7 @@ Configuration
 
 	Options:
 		VOLUME - The volume is an attenuation in dB. The dB is
-			a negative value from -20 to 0.
+			a negative value from -40 to 0.
 
 	Examples:
 		:sound_volume -12

@@ -857,7 +857,51 @@ Sound Drivers Configuration
 	audio card.
 
 	Example:
-		device_alsa_device dmix
+		:device_alsa_device dmix
+
+	If you want to configure the ALSA library to as `default' device the
+	`dmix' device for all the applications, you can create the `.asoundrc'
+	in your home directory with the following content:
+
+		:pcm.!default {
+		:	type plug
+		:	slave.pcm "dmixer"
+		:}
+		:
+		:pcm.dmixer  {
+		:	type dmix
+		:	ipc_key 1024
+		:	slave {
+		:		pcm "hw:0,0"
+		:		period_time 0
+		:		period_size 1024
+		:		buffer_size 16384
+		:		rate 44100
+		:	}
+		:	bindings {
+		:		0 0
+		:		1 1
+		:	}
+		:}
+		: 
+		:ctl.dmixer {
+		:	type hw
+		:	card 0
+		:}
+
+	Note that the suggested `.asoundrc' on the ALSA web site has a lower
+	`buffer_size' value. For AdvanceMAME a bigger buffer is required.
+
+    device_alsa_mixer
+	Select the alsa mixer device.
+
+	:device_alsa_mixer DEVICE
+
+	Options:
+		DEVICE - Mixer device. The special 'channel' value is
+			used to adjust the volume changing the samples
+			instead of using the mixer. Other values are used to
+			select the ALSA mixer. (default 'channel').
 
   sdl Configuration Options
     device_sdl_samples

@@ -42,7 +42,7 @@ Configuration
 	`advmess.rc' and `advmenu.rc' file is used to load and save
 	the video configuration.
 
-	Check the `device.txt' file for more details on the video drivers
+	Check the `advdev.txt' file for more details on the video drivers
 	and video options supported.
 
 Copyright

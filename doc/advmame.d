@@ -683,6 +683,9 @@ Configuration
 	emulated game. Correct using of this option removes the need
 	of any software stretching improving a lot the game image.
 
+	For an introdution on how the program operates on video mode,
+	you can see the `install.txt' file.
+
 	:display_adjust none | x | clock | xclock | generate_exact
 	:	| generate_y | generate_clock | generate_clocky
 	:	| generate_yclock
@@ -697,8 +700,8 @@ Configuration
 			like doublescan and interlace, are maintained.
 		clock - Adjusts the available modeline's vertical clock
 			to match the game's frame rate.
-		xclock - Adjusts the available modeline's width and the
-			vertical clock.
+		xclock - Adjusts the available modeline's horizontal resolution
+			and the vertical clock.
 		generate_exact - Creates automatically some new modelines using
 			the format specified on the `device_video_format'
 			option.
@@ -723,31 +726,34 @@ Configuration
 		generate_clocky - Like generate_exact and it allows
 			to generate modes with a wrong clock and/or size if a
 			perfect mode is not possible. Modes with a correct clock
-			are favorite over mode with a  correct size.
+			are favorite over mode with a correct size.
 
-	The `generate' options are the most powerful, you don't need to
-	create a list of modelines with the `advv' utility.
-	With all the other options you need to create a list of good
-	modeline with the `advv' utility.
+	The non `generate' options use only the modelines defined with
+	the `device_video_modeline' option in the configuration file.
+	You can add them manually or using the `advv' utility.
+	Check the `advdev.txt' file for more details on the
+	`device_video_modeline' option. 
+
+	Of all the non `generate' options, the `xclock' is the
+	suggested and the most powerful.
+
+	The `generate' options are able to create at runtime all the
+	required modelines. You don't need to create a list of modelines
+	manually.
 
 	Of all the `generate' options, the `generate_yclock' is the
-	suggested.
-
-	The `advcfg' utility always sets up the `generate_yclock' option.
+	suggested and the most powerful. The `advcfg' utility always
+	sets the `generate_yclock' option.
 
 	If you can't get good result with the `generate' options you
-	should create a list of modelines and try with the `xclock' option.
-	The horizontal resolution of the modelines isn't important
-	because the video modes are stretched in any case.
-	Instead you should create a wide set of different vertical
+	should create a list of modelines and try with the `xclock' value.
+	You don't need to duplicate the same modeline with different
+	horizontal resolutions and/or the clocks, because the `xclock'
+	value allow the program to adjust them.
+	Instead, you should create a wide set of different vertical
 	resolutions on which the video mode can be chosen.
 	A good choice is to create all the resolutions with a step of
 	16 rows.
-
-	If you use `generate' you can set the option
-	`display_resize integer' for a Multi-Sync Monitor or
-	`display_resize mixed' for an Arcade/TV to disable
-	software stretching.
 
     display_color
 	Control the color format of the video mode.
@@ -1121,8 +1127,8 @@ Configuration
   Sound Configuration Options
 
     device_sound_*
-	All the `device_sound_*' options defined in the `advdev.txt' file can
-	be used.
+	All the `device_sound_*' options defined in the `advdev.txt'
+	file can be used.
 
     sound_mode
 	Sets the sound output mode.
@@ -1140,8 +1146,8 @@ Configuration
 			stereo games the right channel plays part of
 			the left channel as negate samples and vice-versa.
 			With mono games the left channel is the negation of
-			the right channel. This means that with surround enabled
-			the output is always stereo.
+			the right channel. This means that with surround
+			enabled the output is always stereo.
 
     sound_samplerate
 	Sets the audio sample rate.
@@ -1149,8 +1155,8 @@ Configuration
 	:sound_samplerate RATE
 
 	Options:
-		RATE - Sample rate. Common values are 11025, 22050
-			and 44100 (default 44100).
+		RATE - Sample rate. Common values are 11025, 22050,
+			44100 and 48000 (default 44100).
 
     sound_volume
 	Sets the startup volume.
@@ -1159,7 +1165,7 @@ Configuration
 
 	Options:
 		VOLUME - The volume is an attenuation in dB (default 0).
-			The dB is a negative value from -20 to 0.
+			The dB is a negative value from -40 to 0.
 
 	Examples:
 		:sound_volume -12
@@ -1177,15 +1183,10 @@ Configuration
 	increase the latency. Try doubling the value until the ticks
 	go away.
 
-	The emulator automatically increase (and decrease) the latency
-	if the game requires to skip some frames. Anyway, it cannot
-	correctly compute the latency of the first too long frame.
-	So, you need to use a latency greater than zero to play these
-	games.
-
     sound_normalize
-	Automatically increase the sound volume of games with a too
-	lower one.
+	Automatically increase and decrease the sound volume to make it
+	constant. Precisely, the max audio normalized power is made
+	constant for all the games.
 
 	:sound_normalize yes | no
 
@@ -1409,7 +1410,23 @@ Configuration
 		ui_down, ui_left, ui_right, ui_select, ui_cancel, ui_pan_up, 
 		ui_pan_down, ui_pan_left, ui_pan_right, ui_show_profiler, ui_toggle_ui, 
 		ui_toggle_debug, ui_save_state, ui_load_state, ui_add_cheat, 
-		ui_delete_cheat, ui_save_cheat, ui_watch_value.
+		ui_delete_cheat, ui_save_cheat, ui_watch_value, key_q, key_w,
+		key_e, key_r, key_t, key_y, key_u, key_i, key_o, key_p, key_a,
+		key_s, key_d, key_f, key_g, key_h, key_j, key_k, key_l, key_z,
+		key_x, key_c, key_v, key_b, key_n, key_m, key_0, key_1, key_2,
+		key_3, key_4, key_5, key_6, key_7, key_8, key_9, key_esc,
+		key_backquote, key_minus, key_equals, key_backspace, key_tab,
+		key_openbrace, key_closebrace, key_enter, key_semicolon, key_quote,
+		key_backslash, key_less, key_comma, key_period, key_slash, key_space,
+		key_insert, key_del, key_home, key_end, key_ctrl, key_alt, key_shift,
+		key_fctn, key_restore, key_break, key_graph, key_colon,
+		key_doublequote, key_pause, key_menu, key_stop, key_again,
+		key_undo, key_copy, key_open, key_paste, key_find, key_cut, key_help,
+		key_menu, key_back, key_forward, key_left, key_right, key_up,
+		key_down, key_f1, key_f2, key_f3, key_f4, key_f5, key_f6, key_f7,
+		key_f8, key_f9, key_f10, key_f11, key_f12, key_f13, key_f14,
+		key_f15, key_f16, key_f17, key_f18, key_f19, key_f20, key_f21,
+		key_f22, key_f23, key_f24.
 
 	The MOUSE_BUTTON names can be checked using the `advm' utility.
 	Generally they are:
@@ -1525,7 +1542,8 @@ Configuration
     ui_helpimage
 	Select the image to display on help request. The image must be a
 	a PNG file. The pixels in black are used as background, any other
-	color is used as foreground.
+	color is used as foreground. Please note that the displayed image
+	is always black and white.
 
 	:ui_helpimage auto | FILE
 
@@ -1533,6 +1551,8 @@ Configuration
 		auto - Use the internal help image. With this option all the
 			ui_helptag options are ignored.
 		FILE - Load an arbitrary image from a file.
+
+	The data used for the default image is in the `contrib/help' dir.
 
     ui_helptag
 	Select the highlight range for any digital input. When the user
@@ -1629,7 +1649,7 @@ Configuration
 	external utility to compress better the resulting file.
 
 	A powerful compression utility is the `advmng' program
-	available in the AdvanceSCAN package.
+	available in the AdvanceCOMP package.
 
     record_video/sound_time
 	This option controls the maximum length in seconds of the
@@ -1707,7 +1727,7 @@ Configuration
 
 	Options:
 		auto - Select automatically, at present it's always
-			the `emulation' mode (default).
+			the `internal' mode (default).
 		emulation - Change the emulation to produce the requested
 			number of samples instead of resampling.
 		internal - Internally resample the sound to match the
@@ -1716,8 +1736,8 @@ Configuration
 	Note that the `emulation' mode may result in wrong input recording
 	using the `-record' or `-playback' command line option due incorrect
 	behaviour of the emulation. Specifically some implementations may
-	depend on the number of sample requested, information which is not
-	stored in the recorded input file.
+	depend on the number of audio sample requested, information which
+	is not stored in the recorded input file.
 
   LCD Configuration Options
 	AdvanceMAME is able to display arbitrary information on a LCD display

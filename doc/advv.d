@@ -18,7 +18,7 @@ Description
 	The main difference is the the name of the configuration
 	file used to store the video modes.
 
-	Check the `device.txt' file for more details on the video drivers
+	Check the `advdev.txt' file for more details on the video drivers
 	supported.
 
 Options
@@ -118,7 +118,7 @@ Configuration
 	`advmess.rc', `advmenu.rc', `vbe.rc', `vga.rc' and
 	`videow.rc' file is used to load and save the video configuration.
 
-	Check the `device.txt' file for more details on the video drivers
+	Check the `advdev.txt' file for more details on the video drivers
 	and video options supported.
 
 Copyright
