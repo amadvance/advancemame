@@ -345,7 +345,7 @@ endif
 $(OBJ)/$(TARGETNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(OBJS) $(COREOBJS) $(TARGETOSOBJS) $(TARGETLIBS) $(DRVLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

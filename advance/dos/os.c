@@ -1232,22 +1232,22 @@ void os_default_signal(int signum)
 
 static int os_fixed(void)
 {
+	__dpmi_regs r;
+	void* t;
+
 	/* Fix an alignment problem of the DJGPP Library 2.03 (refresh) */
-	void* t = sbrk(0);
+	t = sbrk(0);
 	if (((unsigned)t & 0x7) == 4) {
 		sbrk(4);
 	}
 
-#if 1
 	/* Don't allow NT */
-	__dpmi_regs r;
 	r.x.ax = 0x3306;
 	__dpmi_int(0x21, &r);
 	if (r.x.bx == ((50 << 8) | 5)) {
 		cprintf("Windows NT/2000/XP not supported. Please upgrade to Linux.\n\r");
 		return -1;
 	}
-#endif
 
 	return 0;
 }

@@ -14,7 +14,7 @@ else
 TARGETVERSION = 0.61.0
 endif
 endif
-MENUVERSION = 1.19.0
+MENUVERSION = 1.19.x
 CABVERSION = 0.11.x
 
 ############################################################################
@@ -521,7 +521,7 @@ $(sort $(VOBJDIRS)):
 $(VOBJ)/advv$(EXE) : $(sort $(VOBJDIRS)) $(VOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(VLDFLAGS) $(VOBJS) $(VLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -590,7 +590,7 @@ $(sort $(SOBJDIRS)):
 $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(SLDFLAGS) $(SOBJS) $(SLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -720,7 +720,7 @@ $(sort $(CFGOBJDIRS)):
 $(CFGOBJ)/advcfg$(EXE) : $(sort $(CFGOBJDIRS)) $(CFGOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(CFGLDFLAGS) $(CFGOBJS) $(CFGLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -767,7 +767,7 @@ $(sort $(KOBJDIRS)):
 $(KOBJ)/advk$(EXE) : $(sort $(KOBJDIRS)) $(KOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(KLDFLAGS) $(KOBJS) $(KLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -822,7 +822,7 @@ $(sort $(JOBJDIRS)):
 $(JOBJ)/advj$(EXE) : $(sort $(JOBJDIRS)) $(JOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(JLDFLAGS) $(JOBJS) $(JLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -877,7 +877,7 @@ $(sort $(MOBJDIRS)):
 $(MOBJ)/advm$(EXE) : $(sort $(MOBJDIRS)) $(MOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(MLDFLAGS) $(MOBJS) $(MLIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -907,7 +907,7 @@ $(sort $(LINEOBJDIRS)):
 $(LINEOBJ)/advline$(EXE) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(LDFLAGS) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -1089,7 +1089,7 @@ $(sort $(MENUOBJDIRS)):
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(LDFLAGS) $(MENULDFLAGS) $(MENUOBJS) $(MENULIBS) -o $@
-ifdef COMPRESS
+ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
