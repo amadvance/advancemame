@@ -77,6 +77,7 @@ x86drc.c
 x86drc.h
 rules.mak
 cpu/arm
+cpu/e132xs
 cpu/g65816
 cpu/h6280
 cpu/hd6309
@@ -233,6 +234,8 @@ vidhrdw/poly.h
 vidhrdw/ppu2c03b.c
 vidhrdw/ppu2c03b.h
 vidhrdw/psx.c
+vidhrdw/res_net.c
+vidhrdw/res_net.h
 vidhrdw/snes.c
 vidhrdw/tia.c
 vidhrdw/tlc34076.c

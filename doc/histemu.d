@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.92.0.0 2005/02
+	) All from AdvanceMAME 0.92.0.
+
 AdvanceMAME Version 0.92.0 2005/02
 	) Added a new `system()' script function to execute
 		a shell script.
