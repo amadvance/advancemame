@@ -29,17 +29,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "vnone.h"
 #include "video.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 /***************************************************************************/
 /* State */

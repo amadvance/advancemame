@@ -29,13 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "update.h"
 #include "video.h"
-
-#include <assert.h>
 
 /**
  * Position for drawing.
@@ -58,7 +58,7 @@ static adv_bool is_update_draw_allowed;
 static unsigned update_page_max;
 
 /**
- * Inizialize the update system.
+ * Initialize the update system.
  * This function must be called after the mode was set.
  * \param max_buffer Max number of buffer to use.
  *   - 1 A single buffer is used.
@@ -85,7 +85,7 @@ void update_init(unsigned max_buffer)
 }
 
 /**
- * Deinizialize the update system.
+ * Deinitialize the update system.
  */
 void update_done(void)
 {

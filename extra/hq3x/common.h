@@ -33,60 +33,113 @@ bool item::operator<(const item& A) const
 	return false;
 }
 
-string condition(set<unsigned> mask)
+unsigned bit[16] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+
+bool reduce(string& s, list<unsigned>& mask, unsigned v, unsigned vm)
+{
+	unsigned count = 0;
+
+	v &= vm;
+
+	for(list<unsigned>::iterator i=mask.begin();i!=mask.end();++i) {
+		if ((*i & vm) == v)
+			++count;
+	}
+
+	unsigned expected = 1 << (4 - bit[vm]);
+
+	if (count == expected) {
+		if (s.length() != 0)
+			s += " || ";
+
+		string r;
+		unsigned count = 0;
+		for(unsigned i=0;i<4;++i) {
+			if (vm & (1 << i)) {
+				++count;
+				if (r.length() != 0)
+					r += " && ";
+				if ((v & (1 << i)) == 0)
+					r += "!";
+				switch (vm & (1 << i)) {
+				case 0x1 : r += "MUR"; break;
+				case 0x2 : r += "MDR"; break;
+				case 0x4 : r += "MDL"; break;
+				case 0x8 : r += "MUL"; break;
+				}
+			}
+		}
+
+		if (count>1)
+			s += "(";
+		s += r;
+		if (count>1)
+			s += ")";
+
+		for(list<unsigned>::iterator i=mask.begin();i!=mask.end();) {
+			if ((*i & vm) == v) {
+				list<unsigned>::iterator j = i;
+				++i;
+				mask.erase(j);
+			} else {
+				++i;
+			}
+		}
+
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool condition_is_perfect_split(const set<unsigned>& mask, bool& positive) {
+	if (mask.size() != 8)
+		return false;
+
+	unsigned v = 0xF;
+	unsigned vn = 0xF;
+
+	for(set<unsigned>::const_iterator i=mask.begin();i!=mask.end();++i) {
+		v &= *i;
+		vn &= ~*i;
+	}
+
+	if (v) {
+		positive = true;
+		return true;
+	}
+
+	if (vn) {
+		positive = false;
+		return true;
+	}
+
+	return false;
+}
+
+string condition(const set<unsigned>& mask)
 {
 	string s;
 
 	if (mask.size() == 16)
 		return s;
 
-	if (mask.size() == 8) {
-		unsigned v = 0xF;
-		unsigned vn = 0xF;
-		for(set<unsigned>::iterator i=mask.begin();i!=mask.end();++i) {
-			v &= *i;
-			vn &= ~*i;
-		}
+	list<unsigned> t;
 
-		if (v) {
-			switch (v) {
-			case 0x1 : s = "MUR"; break;
-			case 0x2 : s = "MDR"; break;
-			case 0x4 : s = "MDL"; break;
-			case 0x8 : s = "MUL"; break;
-			}
-		} else {
-			switch (vn) {
-			case 0x1 : s = "!MUR"; break;
-			case 0x2 : s = "!MDR"; break;
-			case 0x4 : s = "!MDL"; break;
-			case 0x8 : s = "!MUL"; break;
-			}
-		}
-
-		if (s == "") {
-			abort();
-		}
-
-		return s;
+	for(set<unsigned>::const_iterator i=mask.begin();i!=mask.end();++i) {
+		t.insert(t.end(), *i);
 	}
 
-	for(set<unsigned>::iterator i=mask.begin();i!=mask.end();++i) {
-		if (i != mask.begin())
-			s += " || ";
-		s += "(";
-		if ((*i & 0x1) == 0)
-			s += "!";
-		s += "MUR && ";
-		if ((*i & 0x2) == 0)
-			s += "!";
-		s += "MDR && ";
-		if ((*i & 0x4) == 0)
-			s += "!";
-		s += "MDL && ";
-		if ((*i & 0x8) == 0)
-			s += "!";
-		s += "MUL)";
+	while (t.size() != 0) {
+		for(unsigned k=1;k<=4;++k) {
+			for(unsigned i=0;i<16;++i) {
+				if (bit[i] == k) {
+					for(unsigned j=0;j<16;++j) {
+						reduce(s,t,~j,i);
+					}
+				}
+			}
+		}
 	}
 
 	return s;
@@ -127,16 +180,19 @@ string interp(const unsigned p[10]) {
 	s = "I";
 
 	if (m.size()==1) {
-		s += "C";
+		s += "1(";
 	} else {
+		ostringstream osn;
+		osn << m.size();
+		s += osn.str();
+		s += "(";
 		for(multiset<fact>::iterator i=m.begin();i!=m.end();++i) {
 			ostringstream os;
 			os << i->val;
 			s += os.str();
+			s += ", ";
 		}
 	}
-
-	s += "(";
 
 	for(multiset<fact>::iterator i=m.begin();i!=m.end();++i) {
 		ostringstream os;
@@ -155,7 +211,7 @@ typedef list<pair<string,string> > assign_set;
 
 string assign(const string& r, const string& s, assign_set& assign)
 {
-	if (s.find("IC") != string::npos)
+	if (s.find("I1") != string::npos)
 		return s;
 
 	assign_set::iterator i;
@@ -226,7 +282,7 @@ bool isequal(unsigned i, unsigned j, unsigned maskfull) {
 	if ((maskfull & maskbit(i)) == 0 && (maskfull & maskbit(j)) == 0) {
 		return 1;
 	}
-/* if enabled it will generate complex test M cases */
+/* if enabled it generates more complex test cases */
 #if 0
 	if ((i==2 && j==6) || (i==6 && j==2)) {
 		return (maskfull & 0x100) == 0;
@@ -244,6 +300,57 @@ bool isequal(unsigned i, unsigned j, unsigned maskfull) {
 	return 0;
 }
 
+/* adjust the sum */
+template<unsigned N> void adjust(unsigned D[N][10]) {
+	for(unsigned k=0;k<N;++k) {
+		unsigned tot;
+		unsigned max;
+		unsigned min;
+		unsigned count;
+		unsigned index;
+
+		do {
+			count = 0;
+			tot = 0;
+			max = D[k][1];
+			index = 1;
+			min = 100000;
+			for(unsigned i=1;i<=9;++i) {
+				tot += D[k][i];
+				if (D[k][i] > max) {
+					index = i;
+					max = D[k][i];
+				}
+				if (D[k][i] < min && D[k][i] != 0) {
+					min = D[k][i];
+				}
+				if (D[k][i] != 0)
+					++count;
+			}
+
+			if (min == max)
+				break;
+			if (count <= 3)
+				break;
+
+			for(unsigned i=1;i<=9;++i) {
+				if (D[k][i] == min)
+					D[k][i] = 0;
+			}
+
+		} while (1);
+
+		unsigned ntot = 0;
+		for(unsigned i=1;i<=9;++i) {
+			D[k][i] = (D[k][i] * 16 + (tot / 2 -1)) / tot;
+			ntot += D[k][i];
+		}
+
+		D[k][index] += 16 - ntot;
+	}
+}
+
+/* simplify with equal pixel */
 void simplify(unsigned p[10], unsigned maskfull) {
 	for(unsigned i=0;i<9;++i) {
 		for(unsigned j=i+1;j<9;++j) {
@@ -255,6 +362,7 @@ void simplify(unsigned p[10], unsigned maskfull) {
 	}
 }
 
+/* use only the most significative pixel */
 void discrete(unsigned p[10], unsigned maskfull) {
 	simplify(p, maskfull);
 

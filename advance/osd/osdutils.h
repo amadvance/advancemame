@@ -31,11 +31,72 @@
 #ifndef __OSDUTILS_H
 #define __OSDUTILS_H
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#include <string.h>
+#include <ctype.h>
 
-/* The MAME source doesn't have access at the lib include dir */
-#include "../lib/portable.h"
+#include <stdio.h> /* for vsnprintf */
+#include <stdarg.h> /* for vsnprintf */
+
+#include <sys/stat.h> /* for mkdir */
+#include <sys/types.h> /* for mkdir */
+
+#ifdef __WIN32__
+#include <io.h> /* for mkdir */
+#endif
+
+#ifdef __MSDOS__
+#include <wchar.h>
+
+static inline wchar_t towlower(wchar_t c)
+{
+	if (c >= 'A' && c <= 'Z')
+		return c - 'A' + 'a';
+	else
+		return c;
+}
+
+static inline wchar_t towupper(wchar_t c)
+{
+	if (c >= 'a' && c <= 'z')
+		return c - 'a' + 'A';
+	else
+		return c;
+}
+#endif
+
+#ifndef __WIN32__
+#define strcmpi strcmpi /* For some #ifdef */
+static inline int strcmpi(const char* a, const char* b)
+{
+	return strcasecmp(a, b);
+}
+#endif
+
+#ifndef __WIN32__
+#define strncmpi strncmpi /* For some #ifdef */
+static inline int strncmpi(const char* a, const char* b, size_t count)
+{
+	return strncasecmp(a, b, count);
+}
+#endif
+
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+static inline void strlwr(char* s) {
+	while (*s) {
+		*s = tolower(*s);
+		++s;
+	}
+}
+#endif
+
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+static inline void strupr(char* s) {
+	while (*s) {
+		*s = toupper(*s);
+		++s;
+	}
+}
+#endif
 
 static inline void osd_mkdir(const char* dir)
 {
@@ -56,4 +117,23 @@ static inline void osd_mkdir(const char* dir)
 #define EOLN "\n"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+#ifdef __MSDOS__
+int snprintf(char* str, size_t count, const char* fmt, ...);
+int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
+#endif
+
+#ifdef __WIN32__
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+

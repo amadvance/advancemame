@@ -29,10 +29,17 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "mame2.h"
 
-#include "emu.h"
+#include "input.h"
 
+#include "emu.h"
 #include "log.h"
 #include "target.h"
 #include "snstring.h"
@@ -43,10 +50,6 @@
 #include "keyall.h"
 #include "mouseall.h"
 #include "joyall.h"
-
-#include <time.h>
-
-#include "input.h"
 
 /**************************************************************************/
 /* MAME/OS equivalence */

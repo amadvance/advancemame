@@ -92,8 +92,8 @@ void target_usleep_granularity(unsigned us)
 
 void target_usleep(unsigned us)
 {
-#if 0 /* For now disabled. It needs more testing. */
-
+#if 0 /* OSDEF Test code */
+	/* For now disabled. It needs more testing. */
 	/* TODO Try to increase the precision using MultimediaTimer and */
 	/* timeBeginPeriod/timeEndPeriod */
 
@@ -192,10 +192,10 @@ adv_error target_apm_shutdown(void)
 	TOKEN_PRIVILEGES tkp;
 	DWORD flags = EWX_POWEROFF;
 
+#if 0 /* OSDEF Reference code */
 	/* Forces processes to terminate. When this flag is set, the system does not send */
 	/* the WM_QUERYENDSESSION and WM_ENDSESSION messages. This can cause the applications to */
 	/* lose data. Therefore, you should only use this flag in an emergency. */
-#if 0
 	flags |= EWX_FORCE;
 #endif
 
@@ -495,10 +495,6 @@ void target_flush(void)
 		MessageBox(NULL, TARGET.buffer_out, "Advance Message", MB_ICONINFORMATION);
 		*TARGET.buffer_out = 0;
 	}
-}
-
-static void target_backtrace(void)
-{
 }
 
 void target_signal(int signum)

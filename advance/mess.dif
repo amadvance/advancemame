@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2004-02-20 19:46:30.000000000 +0100
++++ mess/advance.pat	2004-03-30 16:33:59.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
---- mess.ori/inputx.c	2004-02-17 01:56:47.000000000 +0100
-+++ mess/inputx.c	2004-02-23 12:21:05.000000000 +0100
+--- mess.ori/inputx.c	2004-03-04 17:24:28.000000000 +0100
++++ mess/inputx.c	2004-03-30 16:33:59.000000000 +0200
 @@ -1,8 +1,7 @@
  #include <ctype.h>
  #include <assert.h>

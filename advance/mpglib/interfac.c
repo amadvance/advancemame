@@ -25,26 +25,26 @@
 #include "mpg123.h"
 #include "mpglib.h"
 
-static int mp3_lib_inizialized = 0;
+static int mp3_lib_initialized = 0;
 
 void mp3_lib_init(void) 
 {
-	assert(mp3_lib_inizialized == 0);
-	mp3_lib_inizialized = 1;
+	assert(mp3_lib_initialized == 0);
+	mp3_lib_initialized = 1;
 	mp3internal_make_decode_tables(32767);
 	mp3internal_init_layer3(SBLIMIT);
 }
 
 void mp3_lib_done(void) 
 {
-	assert(mp3_lib_inizialized != 0);
-	mp3_lib_inizialized = 0;
+	assert(mp3_lib_initialized != 0);
+	mp3_lib_initialized = 0;
 }
 
-/* Inizialize the decoding stream */
+/* Initialize the decoding stream */
 void mp3_init(struct mp3_mpstr *mp) 
 {
-	assert(mp3_lib_inizialized != 0);
+	assert(mp3_lib_initialized != 0);
 
 	memset(mp,0,sizeof(struct mp3_mpstr));
 	mp->framesize = 0;
@@ -56,12 +56,12 @@ void mp3_init(struct mp3_mpstr *mp)
 	mp->dirty = 0;
 }
 
-/* Deinizialize the decoding stream */
+/* Deinitialize the decoding stream */
 void mp3_done(struct mp3_mpstr *mp)
 {
 	struct mp3_buf *b,*bn;
 
-	assert(mp3_lib_inizialized != 0);
+	assert(mp3_lib_initialized != 0);
 
 	b = mp->tail;
 	while(b) {

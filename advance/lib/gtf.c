@@ -29,14 +29,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "gtf.h"
 
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
 
 static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust)
 {
@@ -133,13 +133,7 @@ void gtf_default_vga(adv_gtf* gtf)
 	gtf->v_sync_lines = 3;
 	gtf->h_sync_frac = 0.08;
 	gtf->v_min_sync_backporch_time = 550E-6;
-#if 0
-	/* original */
 	gtf->m = 3000;
-	gtf->c = 0.3;
-#else
-	gtf->m = 3000;
-	gtf->c = 0.26;
-#endif
+	gtf->c = 0.3; /* on my system 0.26 works better */
 }
 

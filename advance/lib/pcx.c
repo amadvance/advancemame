@@ -19,12 +19,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "pcx.h"
+#include "portable.h"
 
-#include <stdio.h>
+#include "pcx.h"
 
 /**
  * Header of the PCX image.

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ extern "C" {
 
 #include "font.h"
 
-adv_font* adv_font_default(unsigned height);
+adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alpha);
 
 #ifdef __cplusplus
 }

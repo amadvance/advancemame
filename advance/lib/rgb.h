@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #define __RGB_H
 
 #include "extra.h"
+#include "fz.h"
 
 #include <assert.h>
 
@@ -77,7 +78,8 @@ typedef enum adv_color_type_enum {
 	adv_color_type_palette = 1, /**< Palette. */
 	adv_color_type_rgb = 2, /**< RGB. */
 	adv_color_type_yuy2 = 3, /**< YUY2 (2 sample). */
-	adv_color_type_text = 4 /**< Text. */
+	adv_color_type_text = 4, /**< Text. */
+	adv_color_type_gray = 5 /**< Gray. */
 } adv_color_type;
 
 /**
@@ -118,6 +120,7 @@ adv_color_def color_def_make_rgb_from_sizelenpos(unsigned bytes_per_pixel, unsig
 adv_color_def color_def_make_rgb_from_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask);
 adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
+adv_pixel alpha_make_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def_ordinal);
 
 /**
  * Get the whole mask of all the color channels.
@@ -241,8 +244,6 @@ static inline void rgb_shiftmask_get(int* shift, unsigned* mask, unsigned len, u
 
 int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
 adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
-
-adv_color_def png_color_def(unsigned bytes_per_pixel);
 
 /*@}*/
 

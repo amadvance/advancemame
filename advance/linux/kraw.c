@@ -30,27 +30,28 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "kraw.h"
 #include "log.h"
 #include "error.h"
 #include "oslinux.h"
 
-#include <unistd.h>
+#if HAVE_TERMIOS_H
 #include <termios.h>
-#include <fcntl.h>
+#endif
+#if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+#if HAVE_SYS_KD_H
 #include <sys/kd.h>
-#include <sys/stat.h>
+#endif
+#if HAVE_SYS_VT_H
 #include <sys/vt.h>
-
-#include <signal.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#endif
 
 /**
  * Define to enable the First key hack.

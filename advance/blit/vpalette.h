@@ -79,6 +79,8 @@ static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, u
 static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 4;
+	const uint16* palette = stage->palette;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
@@ -109,9 +111,16 @@ static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_stru
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (stage->palette)
+		: "b" (palette)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P16DER0(dst) = palette[P8DER0(src)];
+		PADD(dst, 2);
+		PADD(src, 1);
+		--rest;
+	}
 }
 #endif
 
@@ -198,6 +207,8 @@ static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, 
 static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 8;
+	const uint8* palette = stage->palette;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
@@ -247,9 +258,16 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 		"1:\n"
 
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (stage->palette)
+		: "b" (palette)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P8DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 1);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 
@@ -271,6 +289,8 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 8;
+	const uint8* palette = stage->palette;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
@@ -327,9 +347,16 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 		"1:\n"
 
 		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (stage->palette), "c" (stage->sdp)
+		: "b" (palette), "c" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P8DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 1);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 
@@ -364,6 +391,8 @@ static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, 
 static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 4;
+	const uint16* palette = stage->palette;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -394,9 +423,16 @@ static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_str
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (stage->palette)
+		: "b" (palette)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P16DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 2);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 
@@ -418,6 +454,8 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 4;
+	const uint16* palette = stage->palette;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -451,9 +489,16 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (stage->palette), "c" (stage->sdp)
+		: "b" (palette), "c" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P16DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 2);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 
@@ -486,6 +531,8 @@ static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage,
 static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 2;
+	const uint32* palette = stage->palette;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -506,9 +553,16 @@ static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_str
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (stage->palette)
+		: "b" (palette)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P32DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 4);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 
@@ -530,6 +584,8 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
+	unsigned rest = count % 2;
+	const uint32* palette = stage->palette;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -551,9 +607,16 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (stage->palette), "c" (stage->sdp)
+		: "b" (palette), "c" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
+
+	while (rest) {
+		P32DER0(dst) = palette[P16DER0(src)];
+		PADD(dst, 4);
+		PADD(src, 2);
+		--rest;
+	}
 }
 #endif
 

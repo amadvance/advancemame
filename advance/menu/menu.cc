@@ -225,6 +225,12 @@ void draw_tag_left(const string& s, int& xl, int& xr, int y, int sep, const int_
 	}
 }
 
+void draw_tag_left_whole(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+{
+	if (int_put_width(s) <= (xr - xl) - sep)
+		draw_tag_left(s, xl, xr, y, sep, color);
+}
+
 void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
 	string r = reduce_string(s, (xr - xl) - sep);
@@ -235,6 +241,12 @@ void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, const int
 		int_put(xr - len + sep, y, r, color);
 		xr -= len;
 	}
+}
+
+void draw_tag_right_whole(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+{
+	if (int_put_width(s) <= (xr - xl) - sep)
+		draw_tag_right(s, xl, xr, y, sep, color);
 }
 
 void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
@@ -292,7 +304,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 		else
 			session = g->session_get();
 		os << setw(3) << setfill(' ') << session << "p";
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (g) {
@@ -301,13 +313,13 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 			os << setw(4) << g->size_get()/1000/1000 << "M";
 		else
 			os << setw(4) << g->size_get()/1000 << "k";
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (g && g->sizex_get() && g->sizey_get()) {
 		ostringstream os;
 		os << g->sizex_get() << "x" << g->sizey_get();
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (g) {
@@ -318,7 +330,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 		} else {
 			os << g->name_get();
 		}
-		draw_tag_left(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_left_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 }
 
@@ -1878,16 +1890,13 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 // ------------------------------------------------------------------------
 // Run Info
 
-#define RUNINFO_CHOICE_X int_dx_get()/8
 #define RUNINFO_CHOICE_Y int_dy_get()/10
-#define RUNINFO_CHOICE_DX int_dx_get()*3/4
 #define RUNINFO_CHOICE_DY 2*int_font_dy_get()
 
 void run_runinfo(config_state& rs)
 {
-	int x = RUNINFO_CHOICE_X;
+	int x = int_dx_get() / 2;
 	int y = RUNINFO_CHOICE_Y;
-	int dx = RUNINFO_CHOICE_DX;
 	int dy = RUNINFO_CHOICE_DY;
 	int border = int_font_dx_get()/2;
 
@@ -1895,9 +1904,9 @@ void run_runinfo(config_state& rs)
 	if (!g)
 		return;
 
-	if (rs.run_saver_type != saver_off) {
+	if (rs.ui_gamesaver != saver_off) {
 		preview_t preview = preview_snap;
-		switch (rs.run_saver_type) {
+		switch (rs.ui_gamesaver) {
 		case saver_snap : preview = preview_snap; break;
 		case saver_play : preview = preview_snap; break;
 		case saver_flyer : preview = preview_flyer; break;
@@ -1918,14 +1927,26 @@ void run_runinfo(config_state& rs)
 		}
 	}
 
-	if (rs.msg_run_game.length()) {
-		int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
-		int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
+	if (rs.ui_gamemsg.length() && rs.ui_gamemsg != "none") {
+		unsigned w0;
+		unsigned w1;
+		unsigned dx;
+		string desc = g->description_tree_get();
 
-		int_put(x, y, dx, rs.msg_run_game, COLOR_CHOICE_TITLE);
+		w0 = int_font_dx_get(rs.ui_gamemsg);
+		w1 = int_font_dx_get(desc);
+		if (w0 < w1)
+			dx = w1;
+		else
+			dx = w0;
+
+		int_box(x-2*border-dx/2, y-border, dx+4*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
+		int_clear(x-2*border-dx/2+1, y-border+1, dx+4*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
+
+		int_put(x-w0/2, y, w0, rs.ui_gamemsg, COLOR_CHOICE_TITLE);
 		y += int_font_dy_get();
 
-		int_put(x, y, dx, g->description_get(), COLOR_CHOICE_NORMAL);
+		int_put(x-w1/2, y, w1, desc, COLOR_CHOICE_NORMAL);
 		y += int_font_dy_get();
 
 		int_update();

@@ -72,6 +72,8 @@ protected:
 	std::string config_marquee_path;
 	std::string config_title_path;
 
+	bool has_atleastarom; // at least a rom was found
+
 	void scan_game(const game_set& gar, const std::string& path, const std::string& name);
 	void scan_dir(const game_set& gar, const std::string& dir, bool quiet);
 	void scan_dirlist(const game_set& gar, const std::string& dirlist, bool quiet);
@@ -157,6 +159,7 @@ public:
 
 	virtual bool is_present() const;
 	virtual bool is_runnable() const;
+	virtual bool is_empty() const;
 	virtual std::string type_get() const = 0;
 };
 

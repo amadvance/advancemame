@@ -922,7 +922,7 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 	assert( vbeline_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_set("Not programmable modes not supported.\n");
+		error_nolog_set("Not programmable modes are not supported.\n");
 		return -1;
 	}
 

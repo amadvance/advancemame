@@ -1,14 +1,18 @@
 Name
-	install - Installation and Configuration
+	install - Installation
 
-System Requirement
-	To run the Advance programs you first need to install and configure
+System Requirements
+	To run the Advance programs you may need to install and configure
 	some drivers and libraries on your system.
 
 	More details on the single drivers are present in the `advdev.txt'
 	documentation file.
 
   Linux
+  	To allow the Advance programs to display in X you must install the
+	SDL library. Generally it's already present in all the recent
+	distributions.
+  
 	To allow the Advance programs to directly control your video board
 	in console mode, you must install and configure the Linux Frame
 	Buffer driver or a recent SVGALIB library.
@@ -27,19 +31,15 @@ System Requirement
 	For both the Frame Buffer driver and SVGALIB library some additional
 	patches are available in the `contrib/' directory.
 
-	To allow the Advance programs to display in X you must install the
-	SDL library. Generally it's already present in all the recent
-	distributions.
-
 	To allow the Advance programs to play sounds, you must have
-	installed the OSS or ALSA audio system. Generally at least one
+	installed the OSS or the ALSA audio system. Generally at least one
 	is always available in all the Linux distributions.
-	If you have the SDL library, it can also be used for the sound
+	If you have the SDL library, it's also used for the sound
 	output.
 
 	The Advance programs are able to use the Linux support for
 	input controllers like keyboards, joysticks and mice.
-	If you have the SDL library, it can also be used for the input
+	If you have the SDL library, it's also used for the input
 	controllers.
 
     DOS
@@ -69,30 +69,51 @@ System Requirement
 
 		:http://www.libsdl.org
 
-First Time Configuration
+Installation
+	The suggested way to installing the Advance programs is to start 
+	from the sources.
+	
+	The build process is detailed in `build.txt' file, but generally 
+	you need only the usual commands:
+		
+		./configure
+		make
+		make install
+
+	The exception is the DOS and Windows target. In this case it's 
+	better to start from the binary distribution and don't compile 
+	the source.
+
+Configuration
 	All the Advance programs require a configuration step to work
 	correctly.
 	
-	If you want to run them as standard applications in a Window
-	Manager environment like X Window, Windows or Mac OS X Acqua, you
-	don't need to configure any video options.
-	
-	If you want to enable the direct programming of the video board
+	To create a default configuration file run the application from 
+	a command shell and a standard configuration .rc file will be 
+	created.
+
+	In Linux, Mac OS X and other Unix, the configuration file is 
+	created in the user home directory in the subdirectory .advance/. 
+	In DOS and Windows the configuration file is created in the 
+	current directory.
+
+    AdvanceMAME
+	To run AdvanceMAME you need at least to set the `dir_rom' option 
+	to the path there the roms resides.
+
+	If you want to run it as standard applications in a Window 
+	Manager environment like X Window, Windows or Mac OS X Acqua, 
+	you don't need to configure any video options. Instead, if you 
+	want to  enable the direct programming of the video board 
 	you need to carefully follow the "Video Configuration" chapter.
 
-	To create a default configuration files simply run the first time
-	the application from a command shell and a standard configuration .rc
-	file will be created.
-	In Linux, Mac OS X and other Unix, the configuration file is created
-	in the user home directory in the subdirectory .advance. In DOS and
-	Windows the configuration file is created in the current directory.
-
-	To run AdvanceMAME you need at least to set the dir_rom option to the
-	path there the roms resides.
-
-	To run AdvanceMENU you need to have at least one of the recognized
-	emulator in the current search path in Linux and OS X or in the
-	current directory for DOS and Windows.
+    AdvanceMENU
+    	To run AdvanceMENU you need to configure which emulator is 
+	present in your system. If a known emulator is found, it's 
+	configured automatically. In Linux and Mac OS X the 
+	emulators are searched in the current PATH list, in DOS and 
+	Windows only in the current directory.
+	
 	Generally you need also to adjust the path where the game's .png,
 	.mp3 and .mng files reside with the emulator_* options.
 
@@ -104,7 +125,7 @@ Video Configuration
 	This features is available in Linux with the SVGALIB and Frame
 	Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
 	and in Windows with the SVGAWIN library.
-	It isn't available on Mac OS X and other Unix.
+	It isn't available in Mac OS X and other Unix.
 
 	To made it possible the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal
@@ -121,7 +142,7 @@ Video Configuration
 	a video mode from scratch. It's the simplest mode of operation.
 
 	In the `manual' mode the programs pick the video mode from a
-	predefined list of modelines, eventually adjusting them to match
+	manually defined list of modelines, eventually adjusting them to match
 	the game clock or size requirements.
 	This mode of operation should be used only if the `automatic' mode
 	doesn't work.
@@ -134,7 +155,7 @@ Video Configuration
 	The `sdl' and `vbe' video drivers are only indicated to use AdvanceMAME 
 	in a Window Manager system. Instead it's the preferred choice for 
 	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
-	doesn't require not standard video modes.
+	only use standard video modes.
 
     Automatic Operation Mode
 	In the automatic operation mode the programs automatically
@@ -153,14 +174,16 @@ Video Configuration
 	supported by your monitor.
 
 	The `advcfg' utility add these options in your `advmame.rc'
-	and `advmenu.rc' :
+	and `advmenu.rc':
 
 		:display_mode auto (only for advmame)
 		:display_adjust generate (only for advmame)
-		:device_video_pclock ?
-		:device_video_hclock ?
-		:device_video_vclock ?
-		:device_video_format ?
+		:device_video_pclock (obtained from used input)
+		:device_video_hclock (obtained from used input)
+		:device_video_vclock (obtained from used input)
+		:device_video_format (obtained from used input)
+		
+	All these options are documented in the `advdev.txt' file.
 
     Manual Operation Mode
 	In the manual operation mode the programs scan a list of `good'
@@ -168,11 +191,12 @@ Video Configuration
 	You must in advance create this list of video modelines with the
 	`advv' utility.
 
-	This is the description of the few basic steps required to run
-	the programs in the manual operation mode.
+	This is the description of the few basic steps required to run 
+	the programs in the manual operation mode. All the option used 
+	are documented in the `advdev.txt' file.
 
 	) For AdvanceMAME add in the in the file `advmame.rc' these options:
-
+	
 		:display_mode auto
 		:display_adjust x
 
@@ -180,50 +204,59 @@ Video Configuration
 		options that specify which horizontal and vertical clocks are
 		supported by your monitor.
 		Generally these values are specified in the technical page of
-		your monitor manual. These are some example :
+		your monitor manual. These are some example:
 
-	Generic PC SVGA multisync monitor :
+	Generic PC SVGA multisync monitor:
+	
 		:device_video_pclock 10 - 150
 		:device_video_hclock 30.5 - 60
 		:device_video_vclock 55 - 130
 
-	Generic PC VGA monitor :
+	Generic PC VGA monitor:
+	
 		:device_video_pclock 10 - 50
 		:device_video_hclock 31.5
 		:device_video_vclock 55 - 130
 
-	Generic LCD screen :
+	Generic LCD screen:
+	
 		:device_video_pclock 0 - 0
 		:device_video_hclock 0
 		:device_video_vclock 0
 
-	PAL/SECAM TV (European) :
+	PAL/SECAM TV (European):
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62
 		:device_video_vclock 50
 
 	PAL/SECAM TV (European) which supports also NTSC
-	modes (very common if you use the SCART input) :
+	modes (very common if you use the SCART input):
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62, 15.73
 		:device_video_vclock 49 - 61
 
-	NTSC TV (USA) :
+	NTSC TV (USA):
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.73
 		:device_video_vclock 60
 
-	Generic Arcade Monitor Standard Resolution 15 kHz (CGA) :
+	Generic Arcade Monitor Standard Resolution 15 kHz (CGA):
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.75
 		:device_video_vclock 49 - 61
 
-	Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
+	Generic Arcade Monitor Medium Resolution 25 kHz (EGA):
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 25
 		:device_video_vclock 49 - 61
 
-	Generic Atari Monitor Extended Resolution 16 kHz
+	Generic Atari Monitor Extended Resolution 16 kHz:
+	
 		:device_video_pclock 5 - 50
 		:device_video_hclock 16.5
 		:device_video_vclock 53
@@ -257,7 +290,7 @@ Video Configuration
 	example modelines. The same modelines are contained in the `advv'
 	program.
 
-  Video Troubleshooting
+  Troubleshooting
 	) Delete any old configuration files and restart from scratch.
 
 	) If you are using a PC Multisync monitor and the image is
@@ -315,7 +348,7 @@ Video Configuration
 		:device_vbeline_mode smaller
 
     Windows
-	) Try reducing the video hardware acceleration.
+	) Try reducing the video hardware acceleration from the Control Panel.
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

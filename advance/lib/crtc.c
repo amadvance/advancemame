@@ -29,20 +29,18 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "crtc.h"
 
 #include "video.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 /**
  * Find the nearest value.

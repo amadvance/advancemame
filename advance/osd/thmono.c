@@ -28,6 +28,12 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "thread.h"
 
 void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max)

@@ -19,21 +19,20 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "video.h"
 #include "bitmap.h"
 #include "endianrw.h"
 #include "rgb.h"
+#include "pngdef.h"
 #include "slice.h"
 #include "filter.h"
 #include "png.h"
 #include "blit.h"
-
-#include <assert.h>
-#include <string.h>
-#include <stdlib.h>
 
 /**
  * Allocate a bitmap.

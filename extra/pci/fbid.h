@@ -65,6 +65,7 @@
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_If, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Ig, "" },
 /* { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Ld, "" }, */ /* Fire GL */
+{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Le, "" }, 
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Lf, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Lg, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_ND, "" },
@@ -79,6 +80,36 @@
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, "" },
 { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, "" },
+#ifdef USE_FB_PATCH
+/* { PCI_VENDOR_ID_ATI, 0x4147, "" }, */ /* ATI FireGL Z1 AG (AGP) */
+
+{ PCI_VENDOR_ID_ATI, 0x4148, "" }, /* ATI Radeon 9800SE AH (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4149, "" }, /* ATI Radeon 9800 AI (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x414A, "" }, /* ATI Radeon 9800 AJ (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x414B, "" }, */ /* ATI FireGL X2 AK (AGP) */
+
+{ PCI_VENDOR_ID_ATI, 0x4151, "" }, /* ATI Radeon 9600SE AQ (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4153, "" }, /* ATI Radeon 9600 AS (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4154, "" }, */ /* ATI FireGL T2 AT (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4156, "" }, */ /* ATI FireGL RV360 AV (AGP) */
+
+{ PCI_VENDOR_ID_ATI, 0x4E50, "" }, /* ATI Radeon Mobility 9600 (M10) NP (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4E51, "" }, /* ATI Radeon Mobility 9600 (M10) NQ (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4E52, "" }, /* ATI Radeon Mobility 9600 (M11) NR (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x4E53, "" }, /* ATI Radeon Mobility 9600 (M10) NS (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4E54, "" }, */ /* ATI FireGL Mobility T2 (M10) NT (AGP) */
+/* { PCI_VENDOR_ID_ATI, 0x4E56, "" }, */ /* ATI FireGL Mobility T2 (M11) NV (AGP) */
+
+{ PCI_VENDOR_ID_ATI, 0x5834, "" }, /* ATI Radeon 9100 IGP (A5) 5834 */
+{ PCI_VENDOR_ID_ATI, 0x5835, "" }, /* ATI Radeon Mobility 9100 IGP (U3) 5835 */
+
+{ PCI_VENDOR_ID_ATI, 0x5961, "" }, /* ATI Radeon 9200 5961 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5962, "" }, /* ATI Radeon 9200 5962 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5963, "" },
+{ PCI_VENDOR_ID_ATI, 0x5964, "" }, /* ATI Radeon 9200SE 5964 (AGP) */
+{ PCI_VENDOR_ID_ATI, 0x5C61, "" }, /* ATI Radeon Mobility 9200 (M9+) 5C61 (AGP */
+{ PCI_VENDOR_ID_ATI, 0x5C63, "" }, /* ATI Radeon Mobility 9200 (M9+) 5C63 (AGP) */
+#endif
 
 /* tdfxfb.c */
 #define PCI_DEVICE_ID_3DFX_VOODOO5	0x0009
@@ -219,51 +250,52 @@
 { PCI_VENDOR_ID_NVIDIA, 0x0289, "(*)" }, /* Quadro4 780 XGL [NV28GL] */
 { PCI_VENDOR_ID_NVIDIA, 0x028C, "(*)" }, /* Quadro4 700 Go GL [NV28GL] */
 { PCI_VENDOR_ID_NVIDIA, 0x0300, "(*)" }, /* GeForce FX [NV30] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0301, "(*)" }, /* GeForce FX 5800 Ultra [NV30] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0302, "(*)" }, /* GeForce FX 5800 [NV30] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0308, "(*)" }, /* Quadro FX 2000 [NV30GL] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0309, "(*)" }, /* Quadro FX 1000 [NV30GL] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0311, "(*)" }, /* GeForce FX 5600 Ultra [NV31] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0312, "(*)" }, /* GeForce FX 5600 [NV31] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0313, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0314, "(*)" }, /* GeForce FX 5600SE (from XFree 4.3.99.12) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0301, "(*)" }, /* GeForce FX 5800 Ultra [NV30] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0302, "(*)" }, /* GeForce FX 5800 [NV30] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0308, "(*)" }, /* Quadro FX 2000 [NV30GL] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0309, "(*)" }, /* Quadro FX 1000 [NV30GL] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0311, "(*)" }, /* GeForce FX 5600 Ultra [NV31] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0312, "(*)" }, /* GeForce FX 5600 [NV31] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0313, "(*)" }, /* (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0314, "(*)" }, /* GeForce FX 5600SE (from XFree 4.4.0) */
 { PCI_VENDOR_ID_NVIDIA, 0x0316, "(*)" }, /* NV31M (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x0317, "(*)" }, /* NV31M Pro (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0318, "(*)" }, /* (from XFree 4.3) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0319, "(*)" }, /* (from XFree 4.3) */
 { PCI_VENDOR_ID_NVIDIA, 0x031A, "(*)" }, /* GeForce FX Go5600 (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x031B, "(*)" }, /* GeForce FX Go5650 (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x031C, "(*)" }, /* Quadro FX Go700 (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x031D, "(*)" }, /* NV31GLM (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x031E, "(*)" }, /* NV31GLM Pro (from nVidia site) */
 { PCI_VENDOR_ID_NVIDIA, 0x031F, "(*)" }, /* NV31GLM Pro (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0321, "(*)" }, /* GeForce FX 5200 Ultra [NV34] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0322, "(*)" }, /* GeForce FX 5200 [NV34] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0323, "(*)" }, /* GeForce FX 5200SE (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0324, "(*)" }, /* GeForce FX Go5200 (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0325, "(*)" }, /* GeForce FX Go5250 (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0326, "(*)" }, /* (From XFree 4.3) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0328, "(*)" }, /* GeForce FX Go5200 32M/64M (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x032A, "(*)" }, /* (from XFree 4.3) */
-{ PCI_VENDOR_ID_NVIDIA, 0x032B, "(*)" }, /* Quadro FX 500 [NV34GL] */
-{ PCI_VENDOR_ID_NVIDIA, 0x032D, "(*)" }, /* GeForce FX Go5100 (from nVidia site) */
-{ PCI_VENDOR_ID_NVIDIA, 0x032E, "(*)" }, /* (from XFree 4.3) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0330, "(*)" }, /* GeForce FX 5900 Ultra [NV35] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0331, "(*)" }, /* GeForce FX 5900 [NV35] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0332, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0333, "(*)" }, /* GeForce FX 5950 Ultra (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0334, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0338, "(*)" }, /* Quadro FX 3000 [NV35GL] */
-{ PCI_VENDOR_ID_NVIDIA, 0x0341, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0342, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0343, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0347, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0348, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x0349, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x034B, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x034C, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x034E, "(*)" }, /* (from XFree 4.3.99.12) */
-{ PCI_VENDOR_ID_NVIDIA, 0x034F, "(*)" }, /* (from XFree 4.3.99.12) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0320, "(*)" }, /* GeForce FX 5200 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0321, "(*)" }, /* GeForce FX 5200 Ultra [NV34] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0322, "(*)" }, /* GeForce FX 5200 [NV34] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0323, "(*)" }, /* GeForce FX 5200SE (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0324, "(*)" }, /* GeForce FX Go5200 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0325, "(*)" }, /* GeForce FX Go5250 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0328, "(*)" }, /* GeForce FX Go5200 32M/64M (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0329, "(*)" }, /* GeForce FX 5200 (Mac) (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x032A, "(*)" }, /* Quadro NVS 280 PCI (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x032B, "(*)" }, /* Quadro FX 500 [NV34GL] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x032C, "(*)" }, /* GeForce FX Go5300 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x032D, "(*)" }, /* GeForce FX Go5100 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x032F, "(*)" }, /* (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0330, "(*)" }, /* GeForce FX 5900 Ultra [NV35] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0331, "(*)" }, /* GeForce FX 5900 [NV35] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0332, "(*)" }, /* GeForce FX 5900XT (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0333, "(*)" }, /* GeForce FX 5950 Ultra (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0334, "(*)" }, /* (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0338, "(*)" }, /* Quadro FX 3000 [NV35GL] (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0341, "(*)" }, /* GeForce FX 5700 Ultra (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0342, "(*)" }, /* GeForce FX 5700 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0343, "(*)" }, /* GeForce FX 5700LE (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0344, "(*)" }, /* GeForce FX 5700VE (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0347, "(*)" }, /* GeForce FX Go5700 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0348, "(*)" }, /* GeForce FX Go5700 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x0349, "(*)" }, /* (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x034B, "(*)" }, /* (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x034C, "(*)" }, /* Quadro FX Go1000 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x034E, "(*)" }, /* Quadro FX 1100 (from XFree 4.4.0) */
+{ PCI_VENDOR_ID_NVIDIA, 0x034F, "(*)" }, /* (from XFree 4.4.0) */
 #else
 /* original 2.4.22 */
 /* { PCI_VENDOR_ID_NVIDIA_SGS, PCI_DEVICE_ID_NVIDIA_SGS_RIVA128, "(*)" }, */ /* too old to list */

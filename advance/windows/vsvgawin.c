@@ -274,7 +274,7 @@ static adv_error sdl_init(int device_id)
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:svgawin: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-			error_set("Unable to inizialize the SDL library, %s.\n", SDL_GetError());
+			error_set("Unable to initialize the SDL library, %s.\n", SDL_GetError());
 			return -1;
 		}
 
@@ -352,7 +352,7 @@ static adv_error svgalib_init(int device_id)
 	name = j->name;
 
 	if (adv_svgalib_init(svgawin_option.divide_clock, svgawin_option.skip) != 0) {
-		error_set("Unable to inizialize the SVGAWIN library.\n");
+		error_set("Unable to initialize the SVGAWIN library.\n");
 		return -1;
 	}
 

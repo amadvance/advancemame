@@ -444,7 +444,7 @@ struct advance_record_state_context {
 	FILE* sound_f; /**< Sound handle */
 
 	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
-	FILE* video_f; /**< Video handle */
+	adv_fz* video_f; /**< Video handle */
 
 	char snapshot_file_buffer[FILE_MAXPATH]; /**< Shapshot file */
 };
@@ -466,7 +466,7 @@ adv_bool advance_record_sound_is_active(struct advance_record_context* context);
 adv_bool advance_record_video_is_active(struct advance_record_context* context);
 adv_bool advance_record_snapshot_is_active(struct advance_record_context* context);
 
-adv_error advance_record_png_write(FILE* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 
 /***************************************************************************/
 /* Sound */
@@ -760,6 +760,7 @@ struct advance_fileio_context {
 	struct advance_fileio_state_context state;
 };
 
+void advance_fileio_default_dir(void);
 adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* cfg_context);
 void advance_fileio_done(struct advance_fileio_context* context);
 adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option);
@@ -773,6 +774,8 @@ struct advance_ui_config_context {
 	char help_image_buffer[256]; /**< File name of the help image. */
 	char ui_font_buffer[256]; /**< File name of the font. */
 	unsigned ui_font_orientation; /**< Orientation for the font. */
+	unsigned ui_font_sizex; /**< X size of the font. */
+	unsigned ui_font_sizey; /**< Y size of the font. */
 };
 
 struct advance_ui_state_context {
@@ -798,8 +801,9 @@ struct advance_ui_state_context {
 	char* ui_scroll_end;
 	unsigned ui_scroll_pos;
 
-	adv_bool ui_direct_flag; /**< Direct on screen flag. */
-	char ui_direct_buffer[256]; /**< Direct on screen message. */
+	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
+	char ui_direct_buffer[256]; /**< Direct text on screen message. */
+	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
 
 	adv_bitmap* help_image; /**< Help image. */
 	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
@@ -813,7 +817,8 @@ struct advance_ui_context {
 
 void advance_ui_message_va(struct advance_ui_context* context, const char* text, va_list arg);
 void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
-void advance_ui_direct(struct advance_ui_context* context, const char* text);
+void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
+void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
 void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
 void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
@@ -827,7 +832,7 @@ void advance_ui_inner_done(struct advance_ui_context* context);
 adv_bool advance_ui_buffer_active(struct advance_ui_context* context);
 adv_bool advance_ui_direct_active(struct advance_ui_context* context);
 adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
-void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width);
+void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width, unsigned screen_height, unsigned aspect_x, unsigned aspect_y);
 
 /***************************************************************************/
 /* State */

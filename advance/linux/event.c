@@ -29,19 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "event.h"
 #include "log.h"
 
 #include <linux/input.h>
-
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <errno.h>
-#include <string.h>
 
 static void event_key_log(int f)
 {

@@ -136,6 +136,8 @@ int-flags: obj
 	$(ECHO) LD_BUILD=$(LD_BUILD)
 	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
 	$(ECHO) SDLLIBS=$(SDLLIBS)
+	$(ECHO) FREETYPECFLAGS=$(FREETYPECFLAGS)
+	$(ECHO) FREETYPELIBS=$(FREETYPELIBS)
 	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
 	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
 	$(ECHO) ADVANCECFLAGS=$(ADVANCECFLAGS)
@@ -149,6 +151,6 @@ int-osdep:
 	rgrep -r WIN32 $(srcdir)/advance
 
 int-def:
-	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif"
+	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
 
 

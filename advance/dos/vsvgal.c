@@ -452,7 +452,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 	log_std(("video:svgaline: svgaline_mode_generate(x:%d, y:%d, bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_set("Not programmable modes not supported.\n");
+		error_nolog_set("Not programmable modes are not supported.\n");
 		return -1;
 	}
 

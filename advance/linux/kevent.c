@@ -29,24 +29,22 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "kevent.h"
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
 #include "event.h"
-#include "portable.h"
 
 #include <linux/input.h>
 
-#include <unistd.h>
+#if HAVE_SYS_KD_H
 #include <sys/kd.h>
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
+#endif
 
 #define EVENT_KEYBOARD_MAX 8
 #define EVENT_KEYBOARD_DEVICE_MAX 32
@@ -840,7 +838,7 @@ void keyb_event_disable(void)
 	if (!event_state.passive_flag && event_state.graphics_flag) {
 		if (ioctl(event_state.fc, KDSETMODE, KD_TEXT) < 0) {
 			/* ignore error */
-			log_std(("keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+			log_std(("ERROR:keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}
 	}
 

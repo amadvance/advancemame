@@ -29,18 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "sounddrv.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 struct soundb_state_struct soundb_state;
 
@@ -116,7 +113,7 @@ adv_error soundb_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the sound driver. The errors are:\n");
+	error_nolog_set("Unable to initialize the sound driver. The errors are:\n");
 
 	for(i=0;i<soundb_state.driver_mac;++i) {
 		const adv_device* dev;

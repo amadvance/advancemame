@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "lq3x.h"
 
@@ -43,7 +45,7 @@
  * This effect is derived from the hq3x effect made by Maxim Stepin
  */
 
-void lq3x_16_def(interp_uint16* __restrict__ dst0, interp_uint16* __restrict__ dst1, interp_uint16* __restrict__ dst2, const interp_uint16* __restrict__ src0, const interp_uint16* __restrict__ src1, const interp_uint16* __restrict__ src2, unsigned count)
+void lq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
 {
 	unsigned i;
 
@@ -95,65 +97,27 @@ void lq3x_16_def(interp_uint16* __restrict__ dst0, interp_uint16* __restrict__ d
 		if (c[8] != c[4])
 			mask |= 1 << 7;
 
-#define P0 dst0[0]
-#define P1 dst0[1]
-#define P2 dst0[2]
-#define P3 dst1[0]
-#define P4 dst1[1]
-#define P5 dst1[2]
-#define P6 dst2[0]
-#define P7 dst2[1]
-#define P8 dst2[2]
+#define P(a, b) dst##b[a]
 #define MUR (c[1] != c[5])
 #define MDR (c[5] != c[7])
 #define MDL (c[7] != c[3])
 #define MUL (c[3] != c[1])
-#define IC(p0) c[p0]
-#define I11(p0,p1) interp_16_11(c[p0], c[p1])
-#define I211(p0,p1,p2) interp_16_211(c[p0], c[p1], c[p2])
-#define I31(p0,p1) interp_16_31(c[p0], c[p1])
-#define I332(p0,p1,p2) interp_16_332(c[p0], c[p1], c[p2])
-#define I431(p0,p1,p2) interp_16_431(c[p0], c[p1], c[p2])
-#define I521(p0,p1,p2) interp_16_521(c[p0], c[p1], c[p2])
-#define I53(p0,p1) interp_16_53(c[p0], c[p1])
-#define I611(p0,p1,p2) interp_16_611(c[p0], c[p1], c[p2])
-#define I71(p0,p1) interp_16_71(c[p0], c[p1])
-#define I772(p0,p1,p2) interp_16_772(c[p0], c[p1], c[p2])
-#define I97(p0,p1) interp_16_97(c[p0], c[p1])
-#define I1411(p0,p1,p2) interp_16_1411(c[p0], c[p1], c[p2])
-#define I151(p0,p1) interp_16_151(c[p0], c[p1])
+#define I1(p0) c[p0]
+#define I2(i0, i1, p0, p1) interp_16_##i0##i1(c[p0], c[p1])
+#define I3(i0, i1, i2, p0, p1, p2) interp_16_##i0##i1##i2(c[p0], c[p1], c[p2])
 
 		switch (mask) {
 		#include "lq3x.dat"
 		}
 
-#undef P0
-#undef P1
-#undef P2
-#undef P3
-#undef P4
-#undef P5
-#undef P6
-#undef P7
-#undef P8
+#undef P
 #undef MUR
 #undef MDR
 #undef MDL
 #undef MUL
-#undef IC
-#undef I11
-#undef I211
-#undef I31
-#undef I332
-#undef I431
-#undef I521
-#undef I53
-#undef I611
-#undef I71
-#undef I772
-#undef I97
-#undef I1411
-#undef I151
+#undef I1
+#undef I2
+#undef I3
 
 		src0 += 1;
 		src1 += 1;
@@ -164,7 +128,7 @@ void lq3x_16_def(interp_uint16* __restrict__ dst0, interp_uint16* __restrict__ d
 	}
 }
 
-void lq3x_32_def(interp_uint32* __restrict__ dst0, interp_uint32* __restrict__ dst1, interp_uint32* __restrict__ dst2, const interp_uint32* __restrict__ src0, const interp_uint32* __restrict__ src1, const interp_uint32* __restrict__ src2, unsigned count)
+void lq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
@@ -216,65 +180,27 @@ void lq3x_32_def(interp_uint32* __restrict__ dst0, interp_uint32* __restrict__ d
 		if (c[8] != c[4])
 			mask |= 1 << 7;
 
-#define P0 dst0[0]
-#define P1 dst0[1]
-#define P2 dst0[2]
-#define P3 dst1[0]
-#define P4 dst1[1]
-#define P5 dst1[2]
-#define P6 dst2[0]
-#define P7 dst2[1]
-#define P8 dst2[2]
+#define P(a, b) dst##b[a]
 #define MUR (c[1] != c[5])
 #define MDR (c[5] != c[7])
 #define MDL (c[7] != c[3])
 #define MUL (c[3] != c[1])
-#define IC(p0) c[p0]
-#define I11(p0,p1) interp_32_11(c[p0], c[p1])
-#define I211(p0,p1,p2) interp_32_211(c[p0], c[p1], c[p2])
-#define I31(p0,p1) interp_32_31(c[p0], c[p1])
-#define I332(p0,p1,p2) interp_32_332(c[p0], c[p1], c[p2])
-#define I431(p0,p1,p2) interp_32_431(c[p0], c[p1], c[p2])
-#define I521(p0,p1,p2) interp_32_521(c[p0], c[p1], c[p2])
-#define I53(p0,p1) interp_32_53(c[p0], c[p1])
-#define I611(p0,p1,p2) interp_32_611(c[p0], c[p1], c[p2])
-#define I71(p0,p1) interp_32_71(c[p0], c[p1])
-#define I772(p0,p1,p2) interp_32_772(c[p0], c[p1], c[p2])
-#define I97(p0,p1) interp_32_97(c[p0], c[p1])
-#define I1411(p0,p1,p2) interp_32_1411(c[p0], c[p1], c[p2])
-#define I151(p0,p1) interp_32_151(c[p0], c[p1])
+#define I1(p0) c[p0]
+#define I2(i0, i1, p0, p1) interp_32_##i0##i1(c[p0], c[p1])
+#define I3(i0, i1, i2, p0, p1, p2) interp_32_##i0##i1##i2(c[p0], c[p1], c[p2])
 
 		switch (mask) {
 		#include "lq3x.dat"
 		}
 
-#undef P0
-#undef P1
-#undef P2
-#undef P3
-#undef P4
-#undef P5
-#undef P6
-#undef P7
-#undef P8
+#undef P
 #undef MUR
 #undef MDR
 #undef MDL
 #undef MUL
-#undef IC
-#undef I11
-#undef I211
-#undef I31
-#undef I332
-#undef I431
-#undef I521
-#undef I53
-#undef I611
-#undef I71
-#undef I772
-#undef I97
-#undef I1411
-#undef I151
+#undef I1
+#undef I2
+#undef I3
 
 		src0 += 1;
 		src1 += 1;

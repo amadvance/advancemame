@@ -92,7 +92,7 @@ proc interrupt far
 	mov ax,cs
 	mov ds,ax
 
-	; check for inizialize command
+	; check for initialize command
 	les bx,[request_header]
 	cmp [byte ptr es:bx+2],0 ; request_header->command
 	je command_init

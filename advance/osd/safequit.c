@@ -29,16 +29,16 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 
 #include "log.h"
 #include "snstring.h"
-
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
 
 static adv_error advance_safequit_insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
 {
@@ -180,7 +180,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		}
 	}
 	if (!f) {
-		if (errno == ENOENT) {
+		if (errno == ENOENT || errno == EACCES) {
 			return 0;
 		}
 		log_std(("event: error %d opening the event file '%s'\n", errno, name));

@@ -692,9 +692,9 @@ YY_RULE_SETUP
 #line 65 "parser.l"
 {
 		if (yytext[0]=='0' && yytext[1]=='b')
-			yylval.val = strtol( yytext+2,0,2 );
+			yylval.val = strtol(yytext+2, 0, 2);
 		else
-			yylval.val = strtol( yytext,0,0 );
+			yylval.val = strtol(yytext, 0, 0);
 		return VAL;
 	}
 	YY_BREAK

@@ -19,14 +19,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "icon.h"
+#include "portable.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "icon.h"
 
 /*
 Icon format

@@ -343,9 +343,12 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 adv_bool os_internal_brokenint10_active(void)
 {
 #ifdef USE_VIDEO
-	/* ATI bios seem broken. Teste with a Rage 128 and a Radeon 7000. */
+	/* ATI bios seem broken. Tested with a Rage 128 (0x50xx) and a Radeon 7000 (0x51xx). */
 	/* Also a simple "mode co80" freeze the PC. */
-	return OS.pci_vga_vendor == 0x1002;
+	/* Allow ATI Rage (not 128) and ATI Match cards */
+	unsigned dh = (OS.pci_vga_device >> 8) & 0xFF;
+	return OS.pci_vga_vendor == 0x1002 /* ATI */
+		&& (dh == 0x50 || dh == 0x51 || dh == 0x52 || dh == 0x53);
 #else
 	return 0;
 #endif

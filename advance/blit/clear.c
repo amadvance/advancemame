@@ -29,15 +29,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "clear.h"
 
 #include "icommon.h"
-
-#include <assert.h>
-#include <stdlib.h>
 
 /***************************************************************************/
 /* Clear */

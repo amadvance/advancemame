@@ -28,10 +28,15 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "mame2.h"
 
 #include "emu.h"
-
 #include "unzip.h"
 #include "conf.h"
 #include "fz.h"
@@ -40,15 +45,6 @@
 #include "snstring.h"
 
 #include <zlib.h>
-
-#include <sys/stat.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <ctype.h>
-#include <assert.h>
-#include <dirent.h>
-#include <errno.h>
 
 /***************************************************************************/
 /* Declaration */
@@ -713,15 +709,37 @@ void advance_fileio_done(struct advance_fileio_context* context)
 	}
 }
 
-static void dir_create(char** dir_map, unsigned dir_mac)
+static void dir_create(const char* dir)
 {
-	unsigned i;
-	for(i=0;i<dir_mac;++i) {
-		struct stat st;
-		if (stat(dir_map[i], &st) != 0) {
-			log_std(("advance:fileio: creating dir %s\n", dir_map[i]));
-			if (file_dir_make(dir_map[i]) != 0) {
-				log_std(("advance:fileio: unable to create dir %s\n", dir_map[i]));
+	struct stat st;
+	if (stat(dir, &st) != 0) {
+		log_std(("advance:fileio: creating dir %s\n", dir));
+		if (file_dir_make(dir) != 0) {
+			log_std(("advance:fileio: unable to create dir %s\n", dir));
+		}
+	}
+}
+
+void advance_fileio_default_dir(void)
+{
+	struct fileio_item* i;
+	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+		if (i->config && i->def) {
+			const char* def = 0;
+			switch (i->mode) {
+				case FILEIO_MODE_MULTI : def = file_config_dir_multidir(i->def); break;
+				case FILEIO_MODE_SINGLE : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_FILE : def = file_config_dir_singlefile(); break;
+			}
+			if (def) {
+				char** dir_map;
+				unsigned dir_mac;
+				unsigned j;
+
+				path_allocate(&dir_map, &dir_mac, def);
+				for(j=0;j<dir_mac;++j)
+					dir_create(dir_map[j]);
+				path_free(dir_map, dir_mac);
 			}
 		}
 	}
@@ -737,10 +755,12 @@ adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv
 		i->dir_mac = 0;
 
 		if (i->config) {
+			unsigned j;
 			const char* s = conf_string_get_default(cfg_context, i->config);
 			log_std(("advance:fileio: %s %s\n", i->config, s));
 			path_allocate(&i->dir_map, &i->dir_mac, s);
-			dir_create(i->dir_map, i->dir_mac);
+			for(j=0;j<i->dir_mac;++j)
+				dir_create(i->dir_map[j]);
 		} else {
 			/* add the standard directories search as default */
 			path_allocate(&i->dir_map, &i->dir_mac, file_config_dir_singlefile());

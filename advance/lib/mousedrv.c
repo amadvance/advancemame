@@ -29,19 +29,16 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "mousedrv.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 #include "mnone.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 struct mouseb_state_struct mouseb_state;
 
@@ -115,7 +112,7 @@ adv_error mouseb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the mouse driver. The errors are:\n");
+	error_nolog_set("Unable to initialize the mouse driver. The errors are:\n");
 
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const adv_device* dev;

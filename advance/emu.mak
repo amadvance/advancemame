@@ -19,12 +19,20 @@ ifeq ($(CONF_HOST),unix)
 # Dependencies on DATADIR/SYSCONFDIR
 $(OBJ)/advance/linux/file.o: $(srcdir)/Makefile
 
+# Allow external customization for special targets
+ifndef DATADIR
+DATADIR=$(datadir)/advance
+endif
+ifndef SYSCONDIR
+SYSCONDIR=$(sysconfdir)
+endif
+
 OBJDIRS += \
 	$(OBJ)/advance/linux
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/linux \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DDATADIR=\"$(DATADIR)\" \
+	-DSYSCONFDIR=\"$(SYSCONFDIR)\" \
 	-DUSE_VIDEO_NONE \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \
@@ -63,6 +71,12 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/sdl/jsdl.o \
 	$(OBJ)/advance/sdl/vsdl.o
 endif
+ifeq ($(CONF_LIB_FREETYPE),yes)
+ADVANCECFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+ADVANCELIBS += $(FREETYPELIBS)
+endif
 ifeq ($(CONF_LIB_FB),yes)
 ADVANCECFLAGS += \
 	-DUSE_VIDEO_FB
@@ -75,7 +89,7 @@ ADVANCECFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB \
 	-DUSE_MOUSE_SVGALIB \
 	-DUSE_JOYSTICK_SVGALIB 
-ADVANCELIBS += -lvga
+ADVANCELIBS += -lvga -lm
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/vsvgab.o \
 	$(OBJ)/advance/linux/jsvgab.o \
@@ -87,7 +101,7 @@ ADVANCECFLAGS += \
 	-DUSE_SOUND_ALSA
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/salsa.o
-ADVANCELIBS += -lasound
+ADVANCELIBS += -lasound -lm
 endif
 ifeq ($(CONF_LIB_OSS),yes)
 ADVANCECFLAGS += \
@@ -229,6 +243,12 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
+ifeq ($(CONF_LIB_FREETYPE),yes)
+ADVANCECFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+ADVANCELIBS += $(FREETYPELIBS)
+endif
 endif
 
 ifeq ($(CONF_HOST),windows)
@@ -323,6 +343,12 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 endif
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
+ifeq ($(CONF_LIB_FREETYPE),yes)
+ADVANCECFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+ADVANCELIBS += $(FREETYPELIBS)
+endif
 endif
 
 ############################################################################
@@ -376,9 +402,13 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/fuzzy.o \
 	$(OBJ)/advance/blit/blit.o \
 	$(OBJ)/advance/blit/lq2x.o \
+	$(OBJ)/advance/blit/lq2x3.o \
+	$(OBJ)/advance/blit/lq2x4.o \
 	$(OBJ)/advance/blit/lq3x.o \
 	$(OBJ)/advance/blit/lq4x.o \
 	$(OBJ)/advance/blit/hq2x.o \
+	$(OBJ)/advance/blit/hq2x3.o \
+	$(OBJ)/advance/blit/hq2x4.o \
 	$(OBJ)/advance/blit/hq3x.o \
 	$(OBJ)/advance/blit/hq4x.o \
 	$(OBJ)/advance/blit/scale2x.o \
@@ -400,6 +430,8 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/bitmap.o \
 	$(OBJ)/advance/lib/filter.o \
 	$(OBJ)/advance/lib/png.o \
+	$(OBJ)/advance/lib/pngdef.o \
+	$(OBJ)/advance/lib/mng.o \
 	$(OBJ)/advance/lib/unzip.o \
 	$(OBJ)/advance/lib/videoio.o \
 	$(OBJ)/advance/lib/update.o \

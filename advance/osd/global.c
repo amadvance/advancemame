@@ -28,24 +28,23 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 #include "input.h"
 #include "glue.h"
-
 #ifdef USE_LCD
 #include "lcd.h"
 #endif
-
 #include "log.h"
 #include "snstring.h"
 #include "target.h"
 
 #include "mame2.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 /**
  * Function called while loading ROMs.

@@ -29,14 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "crtcbag.h"
 #include "video.h"
-
-#include <stdlib.h>
-#include <string.h>
 
 adv_bool crtc_container_is_empty(const adv_crtc_container* cc)
 {
@@ -44,7 +43,7 @@ adv_bool crtc_container_is_empty(const adv_crtc_container* cc)
 }
 
 /**
- * Inizialize the video crtc container.
+ * Initialize the video crtc container.
  * \note The container MUST be deinitialized.
  */
 void crtc_container_init(adv_crtc_container* cc)
@@ -53,7 +52,7 @@ void crtc_container_init(adv_crtc_container* cc)
 }
 
 /**
- * Deinizialize the video crtc container
+ * Deinitialize the video crtc container
  */
 void crtc_container_done(adv_crtc_container* cc)
 {

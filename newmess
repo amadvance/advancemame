@@ -1,0 +1,20 @@
+#/bin/bash
+
+rm -rf mess.old
+rm -rf mess.ori.old
+rm -rf mess.complete.old
+rm -rf mess.ori.complete.old
+rm -rf srcmess.old
+rm -rf srcmess.ori.old
+rm -rf srcmess.complete.old
+rm -rf srcmess.ori.complete.old
+
+mv mess mess.old
+mv mess.ori mess.ori.old
+mv mess.complete mess.complete.old
+mv mess.ori.complete mess.ori.complete.old
+mv srcmess srcmess.old
+mv srcmess.ori srcmess.ori.old
+mv srcmess.complete srcmess.complete.old
+mv srcmess.ori.complete srcmess.ori.complete.old
+

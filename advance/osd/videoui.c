@@ -28,11 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 #include "thread.h"
 #include "glue.h"
 #include "input.h"
-#include "portable.h"
 
 #include "os.h"
 #include "log.h"
@@ -48,7 +53,17 @@
 /**************************************************************************/
 /* Internal */
 
-static void ui_text_center(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned cf, unsigned cb)
+struct ui_color {
+	adv_pixel p;
+	adv_color_rgb c;
+};
+
+static inline adv_bool ui_alpha(adv_color_def color_def)
+{
+	return color_def_type_get(color_def) != adv_color_type_palette;
+}
+
+static void ui_text_center(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	int size_x;
 	int pos_x, pos_y;
@@ -58,20 +73,26 @@ static void ui_text_center(struct advance_ui_context* context, adv_bitmap* dst, 
 	pos_x = x - size_x / 2;
 	pos_y = y;
 
-	adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf, cb);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, pos_x, pos_y, begin, end, &cf.c, &cb.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf.p, cb.p);
 }
 
-static void ui_text_left(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned cf, unsigned cb)
+static void ui_text_left(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	int pos_x, pos_y;
 
 	pos_x = x;
 	pos_y = y;
 
-	adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf, cb);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, pos_x, pos_y, begin, end, &cf.c, &cb.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf.p, cb.p);
 }
 
-static void ui_text_right(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned cf, unsigned cb)
+static void ui_text_right(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	int size_x;
 	int pos_x, pos_y;
@@ -81,10 +102,13 @@ static void ui_text_right(struct advance_ui_context* context, adv_bitmap* dst, i
 	pos_x = x - size_x;
 	pos_y = y;
 
-	adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf, cb);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, pos_x, pos_y, begin, end, &cf.c, &cb.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, pos_x, pos_y, begin, end, cf.p, cb.p);
 }
 
-static void ui_messagebox_center(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned cf, unsigned cb)
+static void ui_messagebox_center(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	int border_x, border_y;
 	int size_x, size_y;
@@ -101,13 +125,16 @@ static void ui_messagebox_center(struct advance_ui_context* context, adv_bitmap*
 	pos_x = x - size_x / 2;
 	pos_y = y - size_y / 2;
 
-	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf);
-	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb);
+	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf.p);
+	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb.p);
 
-	adv_font_put_string(context->state.ui_font, dst, pos_x + border_x, pos_y + border_y, begin, end, cf, cb);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, pos_x + border_x, pos_y + border_y, begin, end, &cf.c, &cb.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, pos_x + border_x, pos_y + border_y, begin, end, cf.p, cb.p);
 }
 
-static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct ui_menu_entry* menu_map, unsigned menu_mac, int menu_sel, unsigned cf, unsigned cb)
+static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct ui_menu_entry* menu_map, unsigned menu_mac, int menu_sel, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	int step_x, step_y;
 	int border_x, border_y;
@@ -164,13 +191,13 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct 
 	}
 
 	/* put */
-	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf);
-	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb);
+	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf.p);
+	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb.p);
 
 	for(i=0;i<size_r;++i) {
 		struct ui_menu_entry* e = &menu_map[i + posr];
-		unsigned cef;
-		unsigned ceb;
+		struct ui_color cef;
+		struct ui_color ceb;
 		unsigned width = size_x - 2 * border_x;
 		unsigned y = pos_y + border_y + step_y * i;
 		
@@ -182,7 +209,7 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct 
 			ceb = cb;
 		}
 
-		adv_bitmap_clear(dst, pos_x + border_x / 2, y, size_x - border_x, step_y, ceb);
+		adv_bitmap_clear(dst, pos_x + border_x / 2, y, size_x - border_x, step_y, ceb.p);
 
 		if (e->option_buffer[0]) {
 			const char* begin = e->text_buffer;
@@ -190,7 +217,7 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct 
 
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 
-			ui_text_left(context, dst, pos_x + border_x, y, begin, end, cef, ceb);
+			ui_text_left(context, dst, pos_x + border_x, y, begin, end, cef, ceb, def);
 
 			width -= adv_font_sizex_string(context->state.ui_font, begin, end);
 
@@ -199,19 +226,19 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct 
 
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 			
-			ui_text_right(context, dst, pos_x + size_x - border_x, y, begin, end, cef, ceb);
+			ui_text_right(context, dst, pos_x + size_x - border_x, y, begin, end, cef, ceb, def);
 		} else {
 			const char* begin = e->text_buffer;
 			const char* end = e->text_buffer + strlen(e->text_buffer);
 			
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 
-			ui_text_center(context, dst, pos_x + size_x / 2, y, begin, end, cef, ceb);
+			ui_text_center(context, dst, pos_x + size_x / 2, y, begin, end, cef, ceb, def);
 		}
 	}
 }
 
-static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char* begin, char* end, unsigned pos, unsigned cf, unsigned cb)
+static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char* begin, char* end, unsigned pos, struct ui_color cf, struct ui_color cb, adv_color_def def)
 {
 	unsigned size_r;
 	unsigned size_v;
@@ -291,8 +318,8 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 	pos_y = dst->size_y / 2 - size_y / 2;
 
 	/* put */
-	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf);
-	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb);
+	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, cf.p);
+	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, cb.p);
 
 	n = 0;
 	i = start;
@@ -304,7 +331,7 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 
 		je = adv_font_sizex_limit(context->state.ui_font, i, j, size_x - 2 * border_x);
 
-		ui_text_left(context, dst, pos_x + border_x, pos_y + border_y + n * step_y, i, je, cf, cb);
+		ui_text_left(context, dst, pos_x + border_x, pos_y + border_y + n * step_y, i, je, cf, cb, def);
 
 		if (j != end)
 			i = j + 1;
@@ -393,10 +420,15 @@ void advance_ui_message_va(struct advance_ui_context* context, const char* text,
 	vsnprintf(context->state.ui_message_buffer, sizeof(context->state.ui_message_buffer), text, arg);
 }
 
-void advance_ui_direct(struct advance_ui_context* context, const char* text)
+void advance_ui_direct_text(struct advance_ui_context* context, const char* text)
 {
-	context->state.ui_direct_flag = 1;
+	context->state.ui_direct_text_flag = 1;
 	sncpy(context->state.ui_direct_buffer, sizeof(context->state.ui_direct_buffer), text);
+}
+
+void advance_ui_direct_slow(struct advance_ui_context* context, int flag)
+{
+	context->state.ui_direct_slow_flag = flag;
 }
 
 void advance_ui_help(struct advance_ui_context* context)
@@ -467,30 +499,31 @@ adv_bool advance_ui_buffer_active(struct advance_ui_context* context)
 
 adv_bool advance_ui_direct_active(struct advance_ui_context* context)
 {
-	return context->state.ui_direct_flag;
+	return context->state.ui_direct_text_flag
+		|| context->state.ui_direct_slow_flag;
 }
 
 /**************************************************************************/
 /* Update */
 
-struct ui_colors {
+struct ui_color_set {
 	adv_color_def def;
-	unsigned f;
-	unsigned b;
-	unsigned p1;
-	unsigned p2;
-	unsigned p3;
-	unsigned p4;
-	unsigned u;
+	struct ui_color f;
+	struct ui_color b;
+	struct ui_color p1;
+	struct ui_color p2;
+	struct ui_color p3;
+	struct ui_color p4;
+	struct ui_color u;
 };
 
-static void ui_message_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_message_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
 	if (context->state.ui_message_stop_time < advance_timer()) {
 		context->state.ui_message_flag = 0;
 	}
 
-	ui_messagebox_center(context, dst, dst->size_x / 2, dst->size_x / 2, context->state.ui_message_buffer, context->state.ui_message_buffer + strlen(context->state.ui_message_buffer), color->f, color->b);
+	ui_messagebox_center(context, dst, dst->size_x / 2, dst->size_x / 2, context->state.ui_message_buffer, context->state.ui_message_buffer + strlen(context->state.ui_message_buffer), color->f, color->b, color->def);
 }
 
 #define UI_MAP_MAX 256
@@ -512,7 +545,7 @@ static void ui_help_update_key(adv_bitmap* dst, adv_bitmap* src, int x, int y, i
 	}
 }
 
-static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
 	int size_x;
 	int size_y;
@@ -539,11 +572,11 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 
 	for(cy=0;cy<context->state.help_image->size_y;++cy) {
 		for(cx=0;cx<context->state.help_image->size_x;++cx) {
-			unsigned c;
+			adv_pixel c;
 			if ((adv_bitmap_pixel_get(context->state.help_image, cx, cy)) != pb) {
-				c = color->f;
+				c = color->f.p;
 			} else {
-				c = color->b;
+				c = color->b.p;
 			}
 			adv_bitmap_pixel_put(dst, pos_x + cx, pos_y + cy, c);
 		}
@@ -583,17 +616,17 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 				unsigned ckb;
 
 				switch (mame_port_player(digital_map[i].port)) {
-				case 1 : ckb = color->p1; break;
-				case 2 : ckb = color->p2; break;
-				case 3 : ckb = color->p3; break;
-				case 4 : ckb = color->p4; break;
-				default : ckb = color->u; break;
+				case 1 : ckb = color->p1.p; break;
+				case 2 : ckb = color->p2.p; break;
+				case 3 : ckb = color->p3.p; break;
+				case 4 : ckb = color->p4.p; break;
+				default : ckb = color->u.p; break;
 				}
-				ckf = color->f;
+				ckf = color->f.p;
 
 				if (digital_map[i].port_state) {
-					ckf = color->f;
-					ckb = color->f;
+					ckf = color->f.p;
+					ckb = color->f.p;
 				}
 			
 				for(k=0;k<context->config.help_mac;++k) {
@@ -609,38 +642,38 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 	}
 
 	if (msg_buffer[0])
-		ui_messagebox_center(context, dst, dst->size_x / 2, pos_y + size_y + adv_font_sizey(context->state.ui_font) * 2, msg_buffer, msg_buffer + strlen(msg_buffer), color->f, color->b);
+		ui_messagebox_center(context, dst, dst->size_x / 2, pos_y + size_y + adv_font_sizey(context->state.ui_font) * 2, msg_buffer, msg_buffer + strlen(msg_buffer), color->f, color->b, color->def);
 }
 
-static void ui_menu_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_menu_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
-	ui_menu(context, dst, context->state.ui_menu_map, context->state.ui_menu_mac, context->state.ui_menu_sel, color->f, color->b);
+	ui_menu(context, dst, context->state.ui_menu_map, context->state.ui_menu_mac, context->state.ui_menu_sel, color->f, color->b, color->def);
 
 	free(context->state.ui_menu_map);
 	context->state.ui_menu_map = 0;
 	context->state.ui_menu_flag = 0;
 }
 
-static void ui_osd_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_osd_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
 	unsigned pos_x, pos_y;
 
 	pos_x = dst->size_x / 2;
 	pos_y = dst->size_y * 7 / 8;
 
-	ui_messagebox_center(context, dst, pos_x, pos_y, context->state.ui_osd_buffer, context->state.ui_osd_buffer + strlen(context->state.ui_osd_buffer), color->f, color->b);
+	ui_messagebox_center(context, dst, pos_x, pos_y, context->state.ui_osd_buffer, context->state.ui_osd_buffer + strlen(context->state.ui_osd_buffer), color->f, color->b, color->def);
 
 	context->state.ui_osd_flag = 0;
 }
 
-static void ui_scroll_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_scroll_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
-	ui_scroll(context, dst, context->state.ui_scroll_begin, context->state.ui_scroll_end, context->state.ui_scroll_pos, color->f, color->b);
+	ui_scroll(context, dst, context->state.ui_scroll_begin, context->state.ui_scroll_end, context->state.ui_scroll_pos, color->f, color->b, color->def);
 
 	context->state.ui_scroll_flag = 0;
 }
 
-static void ui_direct_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_colors* color)
+static void ui_direct_text_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
 	const char* begin = context->state.ui_direct_buffer;
 	const char* end = context->state.ui_direct_buffer + strlen(context->state.ui_direct_buffer);
@@ -673,42 +706,64 @@ static void ui_direct_update(struct advance_ui_context* context, adv_bitmap* dst
 		pos_y = dst->size_y - 1 - pos_y;
 	}
 
-	adv_font_put_string_oriented(context->state.ui_font_oriented, dst, pos_x, pos_y, begin, end, color->f, color->b, context->config.ui_font_orientation);
+	adv_font_put_string_oriented(context->state.ui_font_oriented, dst, pos_x, pos_y, begin, end, color->f.p, color->b.p, context->config.ui_font_orientation);
 
-	context->state.ui_direct_flag = 0;
+	context->state.ui_direct_text_flag = 0;
 }
 
-static void ui_setup_color(struct ui_colors* color, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
+static void ui_direct_slow_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+{
+	int pos_x, pos_y;
+	int size_x, size_y;
+
+	size_x = dst->size_x / 20;
+	size_y = dst->size_y * 4 / 3 / 20;
+
+	pos_x = dst->size_x - 1 - size_x - size_x / 4;
+	pos_y = size_y / 4;
+
+	adv_bitmap_clear(dst, pos_x, pos_y, size_x, size_y, color->p3.p);
+
+	context->state.ui_direct_slow_flag = 0;
+}
+
+static void ui_setup_color(struct ui_color_set* color, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
 {
 	color->def = color_def;
 	switch (color_def_type_get(color_def)) {
 	case adv_color_type_rgb :
 	case adv_color_type_yuy2 :
-		color->b = pixel_make_from_def(0xff, 0xff, 0xff, color_def);
-		color->f = pixel_make_from_def(0x00, 0x00, 0x00, color_def);
-		color->p1 = pixel_make_from_def(0xff, 0xff, 0x00, color_def);
-		color->p2 = pixel_make_from_def(0x00, 0xff, 0x00, color_def);
-		color->p3 = pixel_make_from_def(0xff, 0x00, 0x00, color_def);
-		color->p4 = pixel_make_from_def(0x00, 0xff, 0xff, color_def);
-		color->u = pixel_make_from_def(0x80, 0x80, 0x80, color_def);
+		color->b.c.red = 0xff;
+		color->b.c.green = 0xff;
+		color->b.c.blue = 0xff;
+		color->b.p = pixel_make_from_def(0xff, 0xff, 0xff, color_def);
+		color->f.c.red = 0x00;
+		color->f.c.green = 0x00;
+		color->f.c.blue = 0x00;
+		color->f.p = pixel_make_from_def(0x00, 0x00, 0x00, color_def);
+		color->p1.p = pixel_make_from_def(0xff, 0xff, 0x00, color_def);
+		color->p2.p = pixel_make_from_def(0x00, 0xff, 0x00, color_def);
+		color->p3.p = pixel_make_from_def(0xff, 0x00, 0x00, color_def);
+		color->p4.p = pixel_make_from_def(0x00, 0xff, 0xff, color_def);
+		color->u.p = pixel_make_from_def(0x80, 0x80, 0x80, color_def);
 		break;
 	case adv_color_type_palette :
-		color->b = video_color_find(0xff, 0xff, 0xff, palette_map, palette_max);
-		color->f = video_color_find(0x00, 0x00, 0x00, palette_map, palette_max);
-		color->p1 = video_color_find(0xff, 0xff, 0x00, palette_map, palette_max);
-		color->p2 = video_color_find(0x00, 0xff, 0x00, palette_map, palette_max);
-		color->p3 = video_color_find(0xff, 0x00, 0x00, palette_map, palette_max);
-		color->p4 = video_color_find(0x00, 0xff, 0xff, palette_map, palette_max);
-		color->u = video_color_find(0x80, 0x80, 0x80, palette_map, palette_max);
+		color->b.p = video_color_find(0xff, 0xff, 0xff, palette_map, palette_max);
+		color->f.p = video_color_find(0x00, 0x00, 0x00, palette_map, palette_max);
+		color->p1.p = video_color_find(0xff, 0xff, 0x00, palette_map, palette_max);
+		color->p2.p = video_color_find(0x00, 0xff, 0x00, palette_map, palette_max);
+		color->p3.p = video_color_find(0xff, 0x00, 0x00, palette_map, palette_max);
+		color->p4.p = video_color_find(0x00, 0xff, 0xff, palette_map, palette_max);
+		color->u.p = video_color_find(0x80, 0x80, 0x80, palette_map, palette_max);
 		break;
 	default:
-		color->b = 0xffffffff;
-		color->f = 0x0;
-		color->p1 = color->b;
-		color->p2 = color->b;
-		color->p3 = color->b;
-		color->p4 = color->b;
-		color->u = color->b;
+		color->b.p = 0xffffffff;
+		color->f.p = 0x0;
+		color->p1.p = color->b.p;
+		color->p2.p = color->b.p;
+		color->p3.p = color->b.p;
+		color->p4.p = color->b.p;
+		color->u.p = color->b.p;
 		break;
 	}
 }
@@ -716,7 +771,7 @@ static void ui_setup_color(struct ui_colors* color, adv_color_def color_def, adv
 void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
 {
 	adv_bitmap* dst;
-	struct ui_colors color;
+	struct ui_color_set color;
 
 	ui_setup_color(&color, color_def, palette_map, palette_max);
 
@@ -751,14 +806,18 @@ void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, uns
 void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
 {
 	adv_bitmap* dst;
-	struct ui_colors color;
+	struct ui_color_set color;
 
 	ui_setup_color(&color, color_def, palette_map, palette_max);
 
 	dst = adv_bitmap_import_rgb(dx, dy, color_def_bytes_per_pixel_get(color_def), 0, 0, ptr, dw);
 
-	if (context->state.ui_direct_flag) {
-		ui_direct_update(context, dst, &color);
+	if (context->state.ui_direct_slow_flag) {
+		ui_direct_slow_update(context, dst, &color);
+	}
+
+	if (context->state.ui_direct_text_flag) {
+		ui_direct_text_update(context, dst, &color);
 	}
 
 	adv_bitmap_free(dst);
@@ -777,21 +836,36 @@ adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_cont
 	context->state.ui_scroll_flag = 0;
 	context->state.ui_scroll_begin = 0;
 	context->state.ui_scroll_end = 0;
-	context->state.ui_direct_flag = 0;
+	context->state.ui_direct_text_flag = 0;
+	context->state.ui_direct_slow_flag = 0;
 	context->state.ui_font = 0;
 	context->state.ui_font_oriented = 0;
 
 	conf_string_register_multi(cfg_context, "ui_helptag");
 	conf_string_register_default(cfg_context, "ui_helpimage", "auto");
 	conf_string_register_default(cfg_context, "ui_font", "auto");
+	conf_string_register_default(cfg_context, "ui_fontsize", "auto");
 
 	return 0;
 }
 
 adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
+	const char* s;
+	char* e;
+
 	sncpy(context->config.help_image_buffer, sizeof(context->config.help_image_buffer), conf_string_get_default(cfg_context, "ui_helpimage"));
 	sncpy(context->config.ui_font_buffer, sizeof(context->config.ui_font_buffer), conf_string_get_default(cfg_context, "ui_font"));
+
+	s = conf_string_get_default(cfg_context, "ui_fontsize");
+
+	context->config.ui_font_sizey = strtol(s, &e, 10);
+	if (*e) {
+		context->config.ui_font_sizex = strtol(s, &e, 10);
+	} else {
+		context->config.ui_font_sizex = 0;
+	}
+
 	context->config.ui_font_orientation = option->direct_orientation;
 
 	return 0;
@@ -803,42 +877,52 @@ void advance_ui_done(struct advance_ui_context* context)
 
 #include "help.dat"
 
-static void ui_adjustfont(struct advance_ui_context* context)
+void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width, unsigned screen_height, unsigned aspect_x, unsigned aspect_y)
 {
-	adv_bitmap* bitmap;
-
-	bitmap = adv_bitmap_alloc( adv_font_sizex_char(context->state.ui_font, '1'), adv_font_sizey_char(context->state.ui_font, '1'), 8);
-	adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
-	adv_font_set_char(context->state.ui_font, 255, adv_bitmap_dup(bitmap));
-	adv_font_set_char(context->state.ui_font_oriented, 255, adv_bitmap_dup(bitmap));
-	adv_bitmap_free(bitmap);
-
-	adv_font_orientation(context->state.ui_font_oriented, context->config.ui_font_orientation);
-}
-
-void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width)
-{
-	unsigned size;
-
-	if (strcmp(context->config.ui_font_buffer, "auto") != 0)
-		return;
+	unsigned sizex;
+	unsigned sizey;
 
 	adv_font_free(context->state.ui_font);
 	adv_font_free(context->state.ui_font_oriented);
 
-	if (screen_width >= 768)
-		size = 17;
-	else if (screen_width >= 512)
-		size = 15;
-	else if (screen_width >= 320)
-		size = 13;
+	context->state.ui_font = 0;
+	context->state.ui_font_oriented = 0;
+
+	if (context->config.ui_font_sizey >= 5 && context->config.ui_font_sizey <= 100)
+		sizey = screen_height / context->config.ui_font_sizey;
 	else
-		size = 11;
+		sizey = screen_height / 30;
 
-	context->state.ui_font = adv_font_default(size);
-	context->state.ui_font_oriented = adv_font_default(size);
+	if (context->config.ui_font_sizex >= 5 && context->config.ui_font_sizex <= 200)
+		sizex = screen_width / context->config.ui_font_sizex;
+	else
+		sizex = sizey * (screen_width*aspect_y) / (screen_height*aspect_x);
 
-	ui_adjustfont(context);
+	log_std(("emu:ui: font pixel size %dx%d\n", sizex, sizey));
+
+	if (strcmp(context->config.ui_font_buffer, "auto") != 0) {
+		adv_fz* f;
+		const char* file = file_config_file_home(context->config.ui_font_buffer);
+
+		log_std(("emu:ui: load font '%s'\n", file));
+
+		f = fzopen(file, "rb");
+		if (f) { /* ignore error */
+			context->state.ui_font = adv_font_load(f, sizex, sizey);
+			/* ignore error */
+
+			fzclose(f);
+		}
+	}
+
+	/* use default font otherwise */
+	if (!context->state.ui_font)
+		context->state.ui_font = adv_font_default(sizex, sizey, 0);
+
+	if (!context->state.ui_font_oriented)
+		context->state.ui_font_oriented = adv_font_default(13, 13, 1);
+
+	adv_font_orientation(context->state.ui_font_oriented, context->config.ui_font_orientation);
 }
 
 adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context)
@@ -846,11 +930,14 @@ adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cf
 	adv_conf_iterator k;
 	adv_color_def def;
 
-	if (strcmp(context->config.ui_font_buffer, "auto") == 0) {
-		context->state.ui_font = adv_font_default(13);
-		context->state.ui_font_oriented = adv_font_default(13);
-	} else {
+	context->state.ui_font = 0;
+	context->state.ui_font_oriented = 0;
+
+	if (strcmp(context->config.ui_font_buffer, "auto") != 0) {
+		/* try reading the font, the real font is loaded later */
+		adv_font* font;
 		adv_fz* f;
+
 		const char* file = file_config_file_home(context->config.ui_font_buffer);
 
 		log_std(("emu:ui: font '%s'\n", file));
@@ -861,27 +948,16 @@ adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cf
 			return -1;
 		}
 
-		context->state.ui_font = adv_font_load(f);
-		if (!context->state.ui_font) {
+		font = adv_font_load(f, 16, 16);
+		if (!font) {
 			target_err("Error reading the font %s\n%s\n", file, error_get());
 			return -1;
 		}
 
-		if (fzseek(f, 0, SEEK_SET) != 0) {
-			target_err("Error reading the font %s\n%s\n", file, error_get());
-			return -1;
-		}
-
-		context->state.ui_font_oriented = adv_font_load(f);
-		if (!context->state.ui_font_oriented) {
-			target_err("Error reading the font %s\n%s\n", file, error_get());
-			return -1;
-		}
+		adv_font_free(font);
 
 		fzclose(f);
 	}
-
-	ui_adjustfont(context);
 
 	def = color_def_make_rgb_from_sizelenpos(3, 8, 0, 8, 8, 8, 16);
 
@@ -1045,3 +1121,4 @@ void osd_ui_scroll(const char* text, int* pos)
 
 	advance_ui_scroll(context, text, text + strlen(text), pos);
 }
+

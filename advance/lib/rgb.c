@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,17 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "rgb.h"
-#include "mode.h"
 #include "portable.h"
-#include "endianrw.h"
 
-#include <stdio.h>
-#include <assert.h>
-#include <string.h>
+#include "rgb.h"
+#include "png.h"
+#include "mode.h"
+#include "endianrw.h"
 
 static char color_name_buffer[64];
 
@@ -136,7 +134,7 @@ B = Y + 1.730 (V - 128)
 
 /**
  * Compute a RGB value with a specific format
- * \param r, g, b RGB values 0-255.
+ * \param r, g, b RGB values [0-255].
  * \param def_ordinal RGB format definition.
  * \return RGB nibble as ordinal value.
  */
@@ -167,6 +165,24 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
 		/* for example in palettized modes */
 		return 0;
 	}
+}
+
+/**
+ * Compute a RGB value with a specific format
+ * \param fr, fg, fb Foreground RGB values [0-255].
+ * \param br, bg, bb Background RGB values [0-255].
+ * \param a Alpha value [0-255].
+ * \param def_ordinal RGB format definition.
+ * \return RGB nibble as ordinal value.
+ */
+adv_pixel alpha_make_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def_ordinal)
+{
+	return pixel_make_from_def(
+		(fr*a + (255-a)*br) / 255,
+		(fg*a + (255-a)*bg) / 255,
+		(fb*a + (255-a)*bb) / 255,
+		def_ordinal
+	);
 }
 
 /**
@@ -433,25 +449,3 @@ adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsi
 	return rgb_mask_make_from_def(d_len, d_pos) & rgb_shift(rgb_mask_make_from_def(s_len, s_pos), rgb_conv_shift_get(s_len, s_pos, d_len, d_pos));
 }
 
-/**
- * Get the color definition of a PNG image.
- * \param bytes_per_pixel Size of the pixel.
- */
-adv_color_def png_color_def(unsigned bytes_per_pixel)
-{
-	adv_color_def def;
-#ifdef USE_LSB
-	if (bytes_per_pixel == 3 || bytes_per_pixel == 4)
-		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 0, 8, 8, 8, 16);
-	else
-		def = color_def_make(adv_color_type_palette);
-#else
-	if (bytes_per_pixel == 3)
-		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 16, 8, 8, 8, 0);
-	else if (bytes_per_pixel == 4)
-		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 24, 8, 16, 8, 8);
-	else
-		def = color_def_make(adv_color_type_palette);
-#endif
-	return def;
-}

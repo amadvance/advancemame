@@ -29,13 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "monitor.h"
 #include "error.h"
-
-#include <string.h>
 
 /**
  * Clear a monitor clock specification.

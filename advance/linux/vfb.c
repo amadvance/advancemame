@@ -29,30 +29,31 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "vfb.h"
 #include "video.h"
 #include "log.h"
+#include "mode.h"
 #include "oslinux.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 #include "target.h"
 
 #include <linux/fb.h>
 
-#include <unistd.h>
-#include <fcntl.h>
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#endif
+#ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
+#endif
 
 /* Define USE_DIRECTIO to use direct port io instead of the /dev/port interface in vsync polling */
 #define USE_DIRECTIO
@@ -97,7 +98,10 @@ typedef struct fb_internal_struct {
 #endif
 
 	enum fb_wait_enum wait; /**< Wait mode. */
+	unsigned wait_error; /**< Wait try with error. */
 } fb_internal;
+
+#define WAIT_ERROR_MAX 2 /**< Max number of errors of consecutive allowed. */
 
 static fb_internal fb_state;
 
@@ -212,14 +216,17 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->reserved[4],
 			(unsigned)var->reserved[5]
 		));
-		v = 1000000000000LL / (double)var->pixclock;
-		v /= var->xres + var->left_margin + var->right_margin + var->hsync_len;
-		v /= var->yres + var->upper_margin + var->lower_margin + var->vsync_len;
-		log_std(("video:fb: expected vclock:%g\n", v));
+		v = var->pixclock;
+		v *= var->xres + var->left_margin + var->right_margin + var->hsync_len;
+		v *= var->yres + var->upper_margin + var->lower_margin + var->vsync_len;
+		if (v != 0) {
+			v = 1000000000000LL / v;
+			log_std(("video:fb: expected vclock:%g\n", v));
+		}
 	}
 }
 
-static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned bits_per_pixel, unsigned activate)
+static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned index, unsigned activate)
 {
 	memset(var, 0, sizeof(struct fb_var_screeninfo));
 
@@ -229,12 +236,19 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->yres_virtual = 2 * vde;
 	var->xoffset = 0;
 	var->yoffset = 0;
-	var->bits_per_pixel = (bits_per_pixel + 7) & ~7; /* 15 bits per pixel requires the value 16 */
 	var->grayscale = 0;
-	switch (bits_per_pixel) {
-	case 8 :
+	switch (index) {
+	case MODE_FLAGS_INDEX_PALETTE8 :
+		var->bits_per_pixel = 8;
+		var->red.length = 0;
+		var->red.offset = 0;
+		var->green.length = 0;
+		var->green.offset = 0;
+		var->blue.length = 0;
+		var->blue.offset = 0;
 		break;
-	case 15 :
+	case MODE_FLAGS_INDEX_BGR15 :
+		var->bits_per_pixel = 16; /* this is the real bits per pixel */
 		var->red.length = 5;
 		var->red.offset = 10;
 		var->green.length = 5;
@@ -242,7 +256,8 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 5;
 		var->blue.offset = 0;
 		break;
-	case 16 :
+	case MODE_FLAGS_INDEX_BGR16 :
+		var->bits_per_pixel = 16;
 		var->red.length = 5;
 		var->red.offset = 11;
 		var->green.length = 6;
@@ -250,8 +265,17 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 5;
 		var->blue.offset = 0;
 		break;
-	case 24 :
-	case 32 :
+	case MODE_FLAGS_INDEX_BGR24 :
+		var->bits_per_pixel = 24;
+		var->red.length = 8;
+		var->red.offset = 16;
+		var->green.length = 8;
+		var->green.offset = 8;
+		var->blue.length = 8;
+		var->blue.offset = 0;
+		break;
+	case MODE_FLAGS_INDEX_BGR32 :
+		var->bits_per_pixel = 32;
 		var->red.length = 8;
 		var->red.offset = 16;
 		var->green.length = 8;
@@ -291,7 +315,46 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	}
 }
 
-static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per_pixel)
+static adv_error fb_getfix(struct fb_fix_screeninfo* fix)
+{
+	log_std(("video:fb: ioctl(FBIOGET_FSCREENINFO)\n"));
+
+	/* get fix info */
+	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, fix) != 0) {
+		log_std(("ERROR:video:fb: ioctl(FBIOGET_FSCREENINFO) failed\n"));
+		return -1;
+	}
+
+	return 0;
+}
+
+static adv_error fb_setpan(struct fb_var_screeninfo* var)
+{
+	log_debug(("video:fb: ioctl(FBIOPAN_DISPLAY)\n"));
+
+	/* set the pan info */
+	if (ioctl(fb_state.fd, FBIOPAN_DISPLAY, var) != 0) {
+		log_std(("ERROR:video:fb: ioctl(FBIOPAN_DISPLAY) failed\n"));
+		return -1;
+	}
+
+	return 0;
+}
+
+static adv_error fb_setvar(struct fb_var_screeninfo* var)
+{
+	log_std(("video:fb: ioctl(FBIOPUT_VSCREENINFO)\n"));
+
+	/* set the variable info */
+	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0) {
+		log_std(("ERROR:video:fb: ioctl(FBIOPUT_VSCREENINFO) failed\n"));
+		return -1;
+	}
+
+	return 0;
+}
+
+static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_index)
 {
 	unsigned r_mask;
 	unsigned g_mask;
@@ -301,7 +364,7 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, var) != 0) {
-		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
+		log_std(("ERROR:video:fb: ioctl(FBIOGET_VSCREENINFO) failed\n"));
 		return -1;
 	}
 
@@ -310,14 +373,14 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per
 	b_mask = ((1 << var->blue.length) - 1) << var->blue.offset;
 
 	/* if overlapping */
-	if (hint_bits_per_pixel) {
 	if ((r_mask & g_mask) != 0
 		|| (r_mask & b_mask) != 0
 		|| (b_mask & g_mask) != 0
 	) {
-		log_std(("ERROR:video:fb: overlapping RGB nibble %x/%x/%x, try with standard value\n", r_mask, g_mask, b_mask));
-		switch (hint_bits_per_pixel) {
-		case 15 :
+		log_std(("ERROR:video:fb: overlapping RGB nibble %x/%x/%x\n", r_mask, g_mask, b_mask));
+		switch (hint_index) {
+		case MODE_FLAGS_INDEX_BGR15 :
+			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 5;
 			var->red.offset = 10;
 			var->green.length = 5;
@@ -325,7 +388,8 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per
 			var->blue.length = 5;
 			var->blue.offset = 0;
 			break;
-		case 16 :
+		case MODE_FLAGS_INDEX_BGR16 :
+			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 5;
 			var->red.offset = 11;
 			var->green.length = 6;
@@ -333,8 +397,9 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per
 			var->blue.length = 5;
 			var->blue.offset = 0;
 			break;
-		case 24 :
-		case 32 :
+		case MODE_FLAGS_INDEX_BGR24 :
+		case MODE_FLAGS_INDEX_BGR32 :
+			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 8;
 			var->red.offset = 16;
 			var->green.length = 8;
@@ -344,17 +409,29 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per
 			break;
 		}
 	}
+
+	return 0;
+}
+
+static adv_error fb_setcmap(struct fb_cmap* cmap)
+{
+	log_std(("video:fb: ioctl(FBIOPUTCMAP)\n"));
+
+	if (ioctl(fb_state.fd, FBIOPUTCMAP, cmap) != 0) {
+		log_std(("ERROR:video:fb: ioctl(FBIOPUTCMAP) failed\n"));
+		return -1;
 	}
 
 	return 0;
 }
 
-static adv_error fb_test(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned bits_per_pixel)
+static adv_error fb_test(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned index)
 {
-	log_std(("video:fb: test bit depth %d\n", bits_per_pixel));
+	log_std(("video:fb: test mode %dx%d %s\n", hde, vde, index_name(index)));
 
-	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, bits_per_pixel, FB_ACTIVATE_TEST);
-	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0)
+	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, index, FB_ACTIVATE_TEST);
+
+	if (fb_setvar(var) != 0)
 		return -1;
 
 	return 0;
@@ -362,26 +439,27 @@ static adv_error fb_test(struct fb_var_screeninfo* var, unsigned pixelclock, uns
 
 static adv_error fb_test_auto(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync)
 {
-	unsigned bits_per_pixel;
+	unsigned index;
 
-	if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
-		bits_per_pixel = 16;
-	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) != 0)
-		bits_per_pixel = 15;
-	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) != 0)
-		bits_per_pixel = 32;
-	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0)
-		bits_per_pixel = 8;
-	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) != 0)
-		bits_per_pixel = 24;
-	else
+	if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0) {
+		index = MODE_FLAGS_INDEX_BGR16;
+	} else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) != 0) {
+		index = MODE_FLAGS_INDEX_BGR15;
+	} else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) != 0) {
+		index = MODE_FLAGS_INDEX_BGR32;
+	} else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0) {
+		index = MODE_FLAGS_INDEX_PALETTE8;
+	} else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) != 0) {
+		index = MODE_FLAGS_INDEX_BGR24;
+	} else {
 		return -1;
+	}
 
-	log_std(("video:fb: test mode %d bits\n", bits_per_pixel));
+	log_std(("video:fb: test mode %dx%d %s\n", hde, vde, index_name(index)));
 
-	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, bits_per_pixel, FB_ACTIVATE_TEST);
+	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, index, FB_ACTIVATE_TEST);
 
-	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0)
+	if (fb_setvar(var) != 0)
 		return -1;
 
 	return 0;
@@ -393,46 +471,46 @@ static adv_error fb_detect(void)
 
 	/* test bit depth */
 	log_std(("video:fb: test bits depths\n"));
-	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 8) != 0
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, MODE_FLAGS_INDEX_PALETTE8) != 0
 		|| (var.bits_per_pixel != 8)) {
-		log_std(("video:fb: disable 8 bits modes, not supported\n"));
+		log_std(("video:fb: disable palette8 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	}
 
-	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 15) != 0
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, MODE_FLAGS_INDEX_BGR15) != 0
 		|| (var.bits_per_pixel != 16 || var.green.length != 5)) {
-		log_std(("video:fb: disable 15 bits modes, not supported\n"));
+		log_std(("video:fb: disable bgr15 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	}
 
-	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 16) != 0
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, MODE_FLAGS_INDEX_BGR16) != 0
 		|| (var.bits_per_pixel != 16 || var.green.length != 6)) {
-		log_std(("video:fb: disable 16 bits modes, not supported\n"));
+		log_std(("video:fb: disable bgr16 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	}
 
-	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 24) != 0
-		|| (var.bits_per_pixel != 24)) {
-		log_std(("video:fb: disable 24 bits modes, not supported\n"));
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, MODE_FLAGS_INDEX_BGR24) != 0
+		|| (var.bits_per_pixel != 24 || var.green.length != 8)) {
+		log_std(("video:fb: disable bgr24 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	}
 
-	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 32) != 0
-		|| (var.bits_per_pixel != 32)) {
-		log_std(("video:fb: disable 32 bits modes, not supported\n"));
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, MODE_FLAGS_INDEX_BGR32) != 0
+		|| (var.bits_per_pixel != 32 || var.green.length != 8)) {
+		log_std(("video:fb: disable bgr32 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 	}
 
 	/* test interlace modes */
-	log_std(("video:fb: test iterlace modes\n"));
+	log_std(("video:fb: test interlace modes\n"));
 	if (fb_test_auto(&var, 40280300, 1024, 1048, 1200, 1280, 768, 784, 787, 840, 0, 1, 1, 1) != 0
 		|| (var.vmode & FB_VMODE_INTERLACED) == 0) {
-		log_std(("video:fb: disable interlace modes, not supported\n"));
+		log_std(("video:fb: disable interlaced modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
 
 	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
-		log_std(("video:fb: disable interlace modes, not supported by the GeForce hardware\n"));
+		log_std(("video:fb: disable interlaced modes, not supported by the GeForce hardware\n"));
 		/* the GeForce hardware doesn't support interlace */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
@@ -447,7 +525,7 @@ static adv_error fb_detect(void)
 
 	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
 		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
-		/* the Linux 2.4.20/2.4.21/2.4.22 driver doesn't support doublescan */
+		/* the Linux 2.4.20/2.4.21/2.4.22/2.4.23/2.4.24/2.4.25 driver doesn't support doublescan */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
 
@@ -507,13 +585,14 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	}
 
 	/* get the fixed info */
-	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_FSCREENINFO) failed.");
+	if (fb_getfix(&fb_state.fixinfo) != 0) {
+		error_set("Error getting the fixed video mode information.\n");
 		goto err_close;
 	}
 
 	/* get the variable info */
 	if (fb_getvar(&fb_state.varinfo, 0) != 0) {
+		error_set("Error getting the variable video mode information.\n");
 		goto err_close;
 	}
 
@@ -577,58 +656,9 @@ void fb_done(void)
 	fb_state.active = 0;
 }
 
-adv_error fb_mode_set(const fb_video_mode* mode)
+static adv_error fb_setup_color(void)
 {
-	assert( fb_is_active() && !fb_mode_is_active() );
-
-	log_std(("video:fb: fb_mode_set()\n"));
-
-	log_std(("video:fb: get old\n"));
-
-	/* get the current info */
-	if (fb_getvar(&fb_state.oldinfo, 0) != 0) {
-		return -1;
-	}
-
-	fb_log(0, &fb_state.oldinfo);
-
-	fb_preset(&fb_state.varinfo,
-		mode->crtc.pixelclock,
-		mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht,
-		mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt,
-		crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc),
-		index_bits_per_pixel(mode->index), FB_ACTIVATE_NOW
-	);
-
-	log_std(("video:fb: set new\n"));
-
-	fb_log(0, &fb_state.varinfo);
-
-	log_std(("video:fb: FBIOPUT_VSCREENINFO\n"));
-
-	/* set the mode */
-	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Function ioctl(FBIOPUT_VSCREENINFO) failed.\n");
-		return -1;
-	}
-
-	log_std(("video:fb: get new\n"));
-
-	log_std(("video:fb: FBIOGET_FSCREENINFO\n"));
-
-	/* get the fixed info */
-	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_FSCREENINFO) failed.\n");
-		return -1;
-	}
-
-	/* get the variable info */
-	if (fb_getvar(&fb_state.varinfo, index_bits_per_pixel(mode->index)) != 0) {
-		return -1;
-	}
-
-	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
-
+	/* set the color information in direct color modes */
 	if (fb_state.fixinfo.visual == FB_VISUAL_DIRECTCOLOR) {
 		unsigned red_l = 1 << fb_state.varinfo.red.length;
 		unsigned green_l = 1 << fb_state.varinfo.green.length;
@@ -679,10 +709,11 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		cmap.blue = blue_map;
 		cmap.transp = trasp_map;
 
-		log_std(("video:fb: FBIOPUTCMAP\n"));
-
-		if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
-			error_set("Function ioctl(FBIOPUTCMAP) failed.\n");
+		if (fb_setcmap(&cmap) != 0) {
+			free(red_map);
+			free(green_map);
+			free(blue_map);
+			free(trasp_map);
 			return -1;
 		}
 
@@ -690,6 +721,89 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		free(green_map);
 		free(blue_map);
 		free(trasp_map);
+	}
+
+	return 0;
+}
+
+adv_error fb_mode_set(const fb_video_mode* mode)
+{
+	unsigned req_xres;
+	unsigned req_yres;
+	unsigned req_bits_per_pixel;
+
+	assert( fb_is_active() && !fb_mode_is_active() );
+
+	log_std(("video:fb: fb_mode_set()\n"));
+
+	log_std(("video:fb: get old\n"));
+
+	/* get the current info */
+	if (fb_getvar(&fb_state.oldinfo, 0) != 0) {
+		error_set("Error getting the variable video mode information.\n");
+		goto err;
+	}
+
+	fb_log(0, &fb_state.oldinfo);
+
+	fb_preset(&fb_state.varinfo,
+		mode->crtc.pixelclock,
+		mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht,
+		mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt,
+		crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc),
+		mode->index, FB_ACTIVATE_NOW
+	);
+
+	log_std(("video:fb: set new\n"));
+
+	fb_log(0, &fb_state.varinfo);
+
+	/* save the minimun required data */
+	req_xres = fb_state.varinfo.xres;
+	req_yres = fb_state.varinfo.yres;
+	req_bits_per_pixel = fb_state.varinfo.bits_per_pixel;
+
+	/* set the mode */
+	if (fb_setvar(&fb_state.varinfo) != 0) {
+		error_set("Error setting the variable video mode information.\n");
+		goto err;
+	}
+
+	log_std(("video:fb: get new\n"));
+
+	/* get the fixed info */
+	if (fb_getfix(&fb_state.fixinfo) != 0) {
+		error_set("Error getting the fixed video mode information.\n");
+		goto err_restore;
+	}
+
+	/* get the variable info */
+	if (fb_getvar(&fb_state.varinfo, mode->index) != 0) {
+		error_set("Error getting the variable video mode information.\n");
+		goto err_restore;
+	}
+
+	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
+
+	/* check the validity of the resulting video mode */
+	if (req_xres > fb_state.varinfo.xres
+		|| req_yres > fb_state.varinfo.yres
+		|| req_bits_per_pixel != fb_state.varinfo.bits_per_pixel
+	) {
+		log_std(("ERROR:video:fb: request for mode %dx%d %d bits resulted in mode %dx%dx %d bits\n", req_xres, req_yres, req_bits_per_pixel, fb_state.varinfo.xres, fb_state.varinfo.yres, fb_state.varinfo.bits_per_pixel));
+		error_set("Error setting the requested video mode.\n");
+		goto err_restore;
+	}
+	if (req_xres != fb_state.varinfo.xres
+		|| req_yres != fb_state.varinfo.yres
+	) {
+		/* allow bigger modes */
+		log_std(("WARNING:video:fb: request for mode %dx%d resulted in mode %dx%dx\n", req_xres, req_yres, fb_state.varinfo.xres, fb_state.varinfo.yres));
+	}
+
+	if (fb_setup_color() != 0) {
+		error_set("Error setting the color information.\n");
+		goto err_restore;
 	}
 
 	fb_write_line = fb_linear_write_line;
@@ -707,15 +821,21 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	);
 
 	if (fb_state.ptr == MAP_FAILED) {
-		error_set("Function mmap() failed.\n");
-		return -1;
+		error_set("Error mapping the video memory.\n");
+		goto err_restore;
 	}
 
 	fb_state.wait = fb_wait_detect; /* reset the wait mode */
+	fb_state.wait_error = 0;
 
 	fb_state.mode_active = 1;
 
 	return 0;
+
+err_restore:
+	fb_setvar(&fb_state.oldinfo); /* ignore error */
+err:
+	return -1;
 }
 
 void fb_mode_done(adv_bool restore)
@@ -724,12 +844,19 @@ void fb_mode_done(adv_bool restore)
 
 	log_std(("video:fb: fb_mode_done()\n"));
 
-	munmap(fb_state.ptr, fb_state.fixinfo.smem_len);
+	if (munmap(fb_state.ptr, fb_state.fixinfo.smem_len) != 0) {
+		log_std(("ERROR:video:fb: munmap failed\n"));
+		/* ignore error */
+	}
 
 	if (restore) {
-		if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.oldinfo) != 0) {
-			error_set("Function ioctl(FBIOPUT_VSCREENINFO) failed.\n");
-		}
+		fb_setvar(&fb_state.oldinfo);
+		/* ignore error */
+	} else {
+		/* ensure to have the correct color, the keyboard driver */
+		/* when resetting the console changes some colors */
+		fb_setup_color();
+		/* ignore error */
 	}
 
 	fb_state.mode_active = 0;
@@ -788,14 +915,16 @@ static adv_error fb_wait_vsync_api(void)
 
 	assert(fb_is_active() && fb_mode_is_active());
 
+	log_debug(("video:fb: ioctl(FBIOGET_VBLANK)\n"));
+
 	if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-		log_std(("ERROR:video:fb: FBIOGET_VBLANK not supported\n"));
-		/* not supported */
+		log_std(("WARNING:video:fb: ioctl(FBIOGET_VBLANK) failed\n"));
+		/* it may be not supported, it isn't an error */
 		return -1;
 	}
 
 	if ((blank.flags & FB_VBLANK_HAVE_COUNT) != 0) {
-		/* favorite choice because you cannot lose sync, generally is irq driven  */
+		/* favorite choice because you cannot lose sync, it should be irq driven */
 		unsigned start = blank.count;
 		log_debug(("video:fb: using FB_VBLANK_HAVE_COUNT\n"));
 		while (start == blank.count) {
@@ -818,7 +947,7 @@ static adv_error fb_wait_vsync_api(void)
 			}
 		}
 	} else {
-		log_std(("video:fb: VBLANK unusable\n"));
+		log_std(("WARNING:video:fb: VBLANK unusable\n"));
 		return -1;
 	}
 
@@ -895,20 +1024,35 @@ void fb_wait_vsync(void)
 {
 	switch (fb_state.wait) {
 	case fb_wait_api :
-		if (fb_wait_vsync_api() != 0)
-			fb_state.wait = fb_wait_none;
+		if (fb_wait_vsync_api() != 0) {
+			++fb_state.wait_error;
+			if (fb_state.wait_error > WAIT_ERROR_MAX)
+				fb_state.wait = fb_wait_none;
+		} else {
+			fb_state.wait_error = 0;
+		}
 		break;
 	case fb_wait_vga :
-		if (fb_wait_vsync_vga() != 0)
-			fb_state.wait = fb_wait_none;
+		if (fb_wait_vsync_vga() != 0) {
+			++fb_state.wait_error;
+			if (fb_state.wait_error > WAIT_ERROR_MAX)
+				fb_state.wait = fb_wait_none;
+		} else {
+			fb_state.wait_error = 0;
+		}
 		break;
 	case fb_wait_detect:
-		if (fb_wait_vsync_api() == 0)
+		if (fb_wait_vsync_api() == 0) {
 			fb_state.wait = fb_wait_api;
-		else if (fb_wait_vsync_vga() == 0)
+			fb_state.wait_error = 0;
+		} else if (fb_wait_vsync_vga() == 0) {
 			fb_state.wait = fb_wait_vga;
-		else
-			fb_state.wait = fb_wait_none;
+			fb_state.wait_error = 0;
+		} else {
+			++fb_state.wait_error;
+			if (fb_state.wait_error > WAIT_ERROR_MAX)
+				fb_state.wait = fb_wait_none;
+		}
 		break;
 	case fb_wait_none:
 		break;
@@ -925,8 +1069,8 @@ adv_error fb_scroll(unsigned offset, adv_bool waitvsync)
 	fb_state.varinfo.yoffset = offset / fb_state.bytes_per_scanline;
 	fb_state.varinfo.xoffset = (offset % fb_state.bytes_per_scanline) / fb_state.bytes_per_pixel;
 
-        if (ioctl(fb_state.fd, FBIOPAN_DISPLAY, &fb_state.varinfo) != 0) {
-		error_set("Function ioctl(FBIOPAN_DISPLAY) failed.\n");
+        if (fb_setpan(&fb_state.varinfo) != 0) {
+		error_set("Error panning the video.\n");
 		return -1;
 	}
 
@@ -963,8 +1107,8 @@ adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned
 	cmap.blue = b;
 	cmap.transp = t;
 
-	if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
-		error_set("Function ioctl(FBIOPUTCMAP) failed.\n");
+	if (fb_setcmap(&cmap) != 0) {
+		error_set("Error setting the color information.\n");
 		return -1;
 	}
 
@@ -997,7 +1141,7 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 	assert( fb_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_set("Not programmable modes not supported.\n");
+		error_nolog_set("Not programmable modes are not supported.\n");
 		return -1;
 	}
 
@@ -1020,10 +1164,6 @@ int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b)
 {
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
-}
-
-void fb_default(void)
-{
 }
 
 void fb_reg(adv_conf* context)

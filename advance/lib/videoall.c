@@ -29,13 +29,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "videoall.h"
 #include "video.h"
 #include "snstring.h"
-#include "portable.h"
 
 /**
  * Register all the video drivers.

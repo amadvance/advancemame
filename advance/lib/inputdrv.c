@@ -29,18 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "inputdrv.h"
 #include "error.h"
 #include "log.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 struct inputb_state_struct inputb_state;
 
@@ -115,7 +112,7 @@ adv_error inputb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the input driver. The errors are:\n");
+	error_nolog_set("Unable to initialize the input driver. The errors are:\n");
 
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const adv_device* dev;

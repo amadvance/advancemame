@@ -28,7 +28,14 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
+#include "glue.h"
 #include "thread.h"
 #include "hscript.h"
 #include "conf.h"
@@ -38,21 +45,12 @@
 #include "fuzzy.h"
 #include "log.h"
 #include "target.h"
-#include "portable.h"
 #include "videoall.h"
 #include "soundall.h"
 #include "keyall.h"
 #include "joyall.h"
 #include "mouseall.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <signal.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 
 struct advance_context CONTEXT;
 
@@ -185,7 +183,7 @@ static void version(void)
 
 	target_out("Directories:\n");
 #ifdef DATADIR
-	target_out("  Data: %s/advance\n", DATADIR);
+	target_out("  Data: %s\n", DATADIR);
 #else
 	target_out("  Data: . (current directory)\n");
 #endif
@@ -388,7 +386,16 @@ static adv_conf_conv STANDARD[] = {
 { "*", "misc_fps", "*", "%s", "sync_fps", "%s", 0 }, /* rename */
 { "*", "misc_speed", "*", "%s", "sync_speed", "%s", 0 }, /* rename */
 { "*", "misc_turbospeed", "*", "%s", "sync_turbospeed", "%s", 0 }, /* rename */
-{ "*", "misc_startuptime", "*", "%s", "sync_startuptime", "%s", 0 } /* rename */
+{ "*", "misc_startuptime", "*", "%s", "sync_startuptime", "%s", 0 }, /* rename */
+/* 0.80.0 */
+{ "*", "input_map[doubleright_up]", "*", "%s", "input_map[p1_doubleright_up]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleright_down]", "*", "%s", "input_map[p1_doubleright_down]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleright_left]", "*", "%s", "input_map[p1_doubleright_left]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleright_right]", "*", "%s", "input_map[p1_doubleright_right]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleleft_up]", "*", "%s", "input_map[p1_doubleleft_up]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleleft_down]", "*", "%s", "input_map[p1_doubleleft_down]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleleft_left]", "*", "%s", "input_map[p1_doubleleft_left]", "%s", 0 }, /* rename */
+{ "*", "input_map[doubleleft_right]", "*", "%s", "input_map[p1_doubleleft_right]", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -469,6 +476,7 @@ int os_main(int argc, char* argv[])
 	const char* section_map[16];
 	unsigned section_mac;
 	const mame_game* parent;
+	char buffer[32];
 
 	opt_info = 0;
 	opt_xml = 0;
@@ -620,12 +628,24 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)!=0) {
+		target_out("Creating a standard configuration file...\n");
+		advance_fileio_default_dir();
 		conf_set_default_if_missing(context->cfg, "");
 		conf_sort(context->cfg);
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+
+		/* set the empty section for reading the default options */
+		section_map[0] = "";
+		conf_section_set(context->cfg, section_map, 1);
+		target_out("\n");
+#ifdef MESS
+		target_out("The default bios search path is `%s', the default software search path is `%s'. You can change them using the `dir_rom' and `dir_image' options in the configuration file.\n", conf_string_get_default(context->cfg, "dir_rom"), conf_string_get_default(context->cfg, "dir_image"));
+#else
+		target_out("The default rom search path is `%s'. You can change it using the `dir_rom' option in the configuration file.\n", conf_string_get_default(context->cfg, "dir_rom"));
+#endif
 		goto done_os;
 	}
 
@@ -634,7 +654,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' updated with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -643,7 +663,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' updated with all the default options removed.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -680,22 +700,39 @@ int os_main(int argc, char* argv[])
 			goto err_os;
 	}
 
+	/* set the empty section for reading the software */
+	section_map[0] = "";
+	conf_section_set(context->cfg, section_map, 1);
+
 	/* set the used section */
 	section_mac = 0;
 	parent = option.game;
-	while (parent && section_mac<4) {
-		const char* name = mame_game_name(parent);
-		if (name && name[0])
-			section_map[section_mac++] = name;
+	while (parent && section_mac<8) {
+		const char* s;
+		s = mame_software_name(parent, context->cfg);
+		if (s && s[0]) {
+			section_map[section_mac++] = strdup(s);
+		}
 		parent = mame_game_parent(parent);
 	}
-	section_map[section_mac++] = mame_game_resolutionclock(option.game);
-	section_map[section_mac++] = mame_game_resolution(option.game);
+	parent = option.game;
+	while (parent && section_mac<8) {
+		const char* s;
+		s = mame_game_name(parent);
+		if (s && s[0]) {
+			section_map[section_mac++] = strdup(s);
+		}
+		parent = mame_game_parent(parent);
+	}
+	section_map[section_mac++] = strdup(mame_game_resolutionclock(option.game));
+	section_map[section_mac++] = strdup(mame_game_resolution(option.game));
 	if ((mame_game_orientation(option.game) & OSD_ORIENTATION_SWAP_XY) != 0)
-		section_map[section_mac++] = "vertical";
+		section_map[section_mac++] = strdup("vertical");
 	else
-		section_map[section_mac++] = "horizontal";
-	section_map[section_mac++] = "";
+		section_map[section_mac++] = strdup("horizontal");
+	snprintf(buffer, sizeof(buffer), "%dplayer", mame_game_players(option.game));
+	section_map[section_mac++] = strdup(buffer);
+	section_map[section_mac++] = strdup("");
 	conf_section_set(context->cfg, section_map, section_mac);
 	for(i=0;i<section_mac;++i)
 		log_std(("emu: use configuration section '%s'\n", section_map[i]));

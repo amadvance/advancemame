@@ -33,8 +33,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "scale3x.h"
 
@@ -48,7 +50,7 @@
 /***************************************************************************/
 /* Scale3x C implementation */
 
-static inline void scale3x_8_def_whole(scale3x_uint8* __restrict__ dst0, scale3x_uint8* __restrict__ dst1, scale3x_uint8* __restrict__ dst2, const scale3x_uint8* __restrict__ src0, const scale3x_uint8* __restrict__ src1, const scale3x_uint8* __restrict__ src2, unsigned count)
+static inline void scale3x_8_def_whole(scale3x_uint8* restrict dst0, scale3x_uint8* restrict dst1, scale3x_uint8* restrict dst2, const scale3x_uint8* restrict src0, const scale3x_uint8* restrict src1, const scale3x_uint8* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -135,7 +137,7 @@ static inline void scale3x_8_def_whole(scale3x_uint8* __restrict__ dst0, scale3x
 	dst2[2] = src1[0];
 }
 
-static inline void scale3x_8_def_border(scale3x_uint8* __restrict__ dst, const scale3x_uint8* __restrict__ src0, const scale3x_uint8* __restrict__ src1, const scale3x_uint8* __restrict__ src2, unsigned count)
+static inline void scale3x_8_def_border(scale3x_uint8* restrict dst, const scale3x_uint8* restrict src0, const scale3x_uint8* restrict src1, const scale3x_uint8* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -180,7 +182,7 @@ static inline void scale3x_8_def_border(scale3x_uint8* __restrict__ dst, const s
 	dst[2] = src1[0];
 }
 
-static inline void scale3x_8_def_center(scale3x_uint8* __restrict__ dst, const scale3x_uint8* __restrict__ src0, const scale3x_uint8* __restrict__ src1, const scale3x_uint8* __restrict__ src2, unsigned count)
+static inline void scale3x_8_def_center(scale3x_uint8* restrict dst, const scale3x_uint8* restrict src0, const scale3x_uint8* restrict src1, const scale3x_uint8* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -227,7 +229,7 @@ static inline void scale3x_8_def_center(scale3x_uint8* __restrict__ dst, const s
 	dst[2] = src1[0];
 }
 
-static inline void scale3x_16_def_whole(scale3x_uint16* __restrict__ dst0, scale3x_uint16* __restrict__ dst1, scale3x_uint16* __restrict__ dst2, const scale3x_uint16* __restrict__ src0, const scale3x_uint16* __restrict__ src1, const scale3x_uint16* __restrict__ src2, unsigned count)
+static inline void scale3x_16_def_whole(scale3x_uint16* restrict dst0, scale3x_uint16* restrict dst1, scale3x_uint16* restrict dst2, const scale3x_uint16* restrict src0, const scale3x_uint16* restrict src1, const scale3x_uint16* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -314,7 +316,7 @@ static inline void scale3x_16_def_whole(scale3x_uint16* __restrict__ dst0, scale
 	dst2[2] = src1[0];
 }
 
-static inline void scale3x_16_def_border(scale3x_uint16* __restrict__ dst, const scale3x_uint16* __restrict__ src0, const scale3x_uint16* __restrict__ src1, const scale3x_uint16* __restrict__ src2, unsigned count)
+static inline void scale3x_16_def_border(scale3x_uint16* restrict dst, const scale3x_uint16* restrict src0, const scale3x_uint16* restrict src1, const scale3x_uint16* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -359,7 +361,7 @@ static inline void scale3x_16_def_border(scale3x_uint16* __restrict__ dst, const
 	dst[2] = src1[0];
 }
 
-static inline void scale3x_16_def_center(scale3x_uint16* __restrict__ dst, const scale3x_uint16* __restrict__ src0, const scale3x_uint16* __restrict__ src1, const scale3x_uint16* __restrict__ src2, unsigned count)
+static inline void scale3x_16_def_center(scale3x_uint16* restrict dst, const scale3x_uint16* restrict src0, const scale3x_uint16* restrict src1, const scale3x_uint16* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -406,7 +408,7 @@ static inline void scale3x_16_def_center(scale3x_uint16* __restrict__ dst, const
 	dst[2] = src1[0];
 }
 
-static inline void scale3x_32_def_whole(scale3x_uint32* __restrict__ dst0, scale3x_uint32* __restrict__ dst1, scale3x_uint32* __restrict__ dst2, const scale3x_uint32* __restrict__ src0, const scale3x_uint32* __restrict__ src1, const scale3x_uint32* __restrict__ src2, unsigned count)
+static inline void scale3x_32_def_whole(scale3x_uint32* restrict dst0, scale3x_uint32* restrict dst1, scale3x_uint32* restrict dst2, const scale3x_uint32* restrict src0, const scale3x_uint32* restrict src1, const scale3x_uint32* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -493,7 +495,7 @@ static inline void scale3x_32_def_whole(scale3x_uint32* __restrict__ dst0, scale
 	dst2[2] = src1[0];
 }
 
-static inline void scale3x_32_def_border(scale3x_uint32* __restrict__ dst, const scale3x_uint32* __restrict__ src0, const scale3x_uint32* __restrict__ src1, const scale3x_uint32* __restrict__ src2, unsigned count)
+static inline void scale3x_32_def_border(scale3x_uint32* restrict dst, const scale3x_uint32* restrict src0, const scale3x_uint32* restrict src1, const scale3x_uint32* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -538,7 +540,7 @@ static inline void scale3x_32_def_border(scale3x_uint32* __restrict__ dst, const
 	dst[2] = src1[0];
 }
 
-static inline void scale3x_32_def_center(scale3x_uint32* __restrict__ dst, const scale3x_uint32* __restrict__ src0, const scale3x_uint32* __restrict__ src1, const scale3x_uint32* __restrict__ src2, unsigned count)
+static inline void scale3x_32_def_center(scale3x_uint32* restrict dst, const scale3x_uint32* restrict src0, const scale3x_uint32* restrict src1, const scale3x_uint32* restrict src2, unsigned count)
 {
 	assert(count >= 2);
 

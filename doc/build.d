@@ -175,17 +175,18 @@ Requirements
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.2 (or newer)
+		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:zlib 1.1.4 (or newer)
 
 	The following software is also used if present:
 		:NASM 0.98.33 (or newer)
 		:SVGALIB 1.9.14 (or newer)
-		:LibSDL 1.2.4 (or newer)
+		:SDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
+		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.2.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.3.
 	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
@@ -206,7 +207,10 @@ Requirements
 		:GNU gcc C/C++ 2.95.3 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:zlib 1.1.4 (or newer)
-		:LibSDL 1.2.4 (or newer)
+		:SDL 1.2.4 (or newer)
+
+	The following software is also used if present:
+		:FreeType 2.1.7 (or newer)
 
 	The gcc compiler and make program are included in the Apple
 	Development Kit which must be installed manually from the
@@ -224,7 +228,7 @@ Requirements
     DOS
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.2 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
@@ -234,8 +238,9 @@ Requirements
 		:zlib 1.1.4 (or newer)
 		:Allegro 4.0.0 (or newer)
 		:SEAL 1.0.7 + MAME patch
+		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.2.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.3.
 	The versions 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
@@ -261,7 +266,8 @@ Requirements
 		:MINGW GNU gcc C/C++ 2.95.3 (or never)
 		:NASM 0.98.33 (or newer)
 		:zlib 1.1.4 (or newer)
-		:LibSDL 1.2.4 (or newer)
+		:SDL 1.2.4 (or newer)
+		:FreeType 2.1.7 (or newer)
 
 	The only tested compiler version is 2.95.3. Other versions
 	should work.
@@ -272,7 +278,7 @@ Requirements
 		:GNU gcc C/C++ 2.95.3 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:zlib 1.1.4 (or newer)
-		:LibSDL 1.2.4 (or newer)
+		:SDL 1.2.4 (or newer)
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

@@ -29,44 +29,42 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "target.h"
 #include "log.h"
 #include "file.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include "oslinux.h"
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #if HAVE_SCHED_H
 #include <sched.h>
 #endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
+#if HAVE_TERMIOS_H
+#include <termios.h>
 #endif
-#if HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+#if GWINSZ_IN_SYS_IOCTL
+#include <sys/ioctl.h>
 #endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
+#if HAVE_EXECINFO_H
+#include <execinfo.h>
 #endif
-
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
 
 struct target_context {
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 
 	target_clock_t last; /**< Last clock. */
 	target_clock_t init; /**< First clock. */
+
+	unsigned col; /**< Number of columns. 0 if not detectable. */
+	unsigned row; /**< Number of rows. 0 if not detectable. */
 };
 
 static struct target_context TARGET;
@@ -79,8 +77,20 @@ adv_error target_init(void)
 	TARGET.last = 0;
 	TARGET.init = 0;
 	TARGET.usleep_granularity = 0;
+	TARGET.col = 0;
+	TARGET.row = 0;
 
 	TARGET.init = target_clock();
+
+#ifdef TIOCGWINSZ
+	{
+		struct winsize wind_struct;
+		if (ioctl(1, TIOCGWINSZ, &wind_struct) == 0) {
+			TARGET.col = wind_struct.ws_col;
+			TARGET.row = wind_struct.ws_row;
+		}
+	}
+#endif
 
 	return 0;
 }
@@ -94,7 +104,7 @@ void target_done(void)
 
 void target_yield(void)
 {
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#ifdef _POSIX_PRIORITY_SCHEDULING /* OSDEF Check for POSIX scheduling */
 	sched_yield();
 #endif
 }
@@ -453,22 +463,79 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 	return -1;
 }
 
+static void target_wrap(FILE* f, unsigned col, char* s)
+{
+	unsigned i;
+	unsigned p;
+	adv_bool has_space;
+
+	p = 0;
+	i = 0;
+	has_space = 1;
+	while (s[p]) {
+		const char* t;
+		char c;
+
+		t = stoken(&c, &p, s, " \r\n", "");
+
+		if (*t) {
+			if (i>0 && i + !has_space + strlen(t) >= col) {
+				fprintf(f, "\n");
+				i = 0;
+				has_space = 1;
+			} else {
+				if (!has_space) {
+					fprintf(f, " ");
+					++i;
+				}
+			}
+
+			fprintf(f, "%s", t);
+			i += strlen(t);
+			has_space = 0;
+		}
+
+		switch (c) {
+		case '\n' :
+			fprintf(f, "\n");
+			i = 0;
+			has_space = 1;
+			break;
+		case '\r' :
+			fprintf(f, "\r");
+			break;
+		}
+	}
+}
+
 void target_out_va(const char* text, va_list arg)
 {
-	vfprintf(stdout, text, arg);
+	if (TARGET.col) {
+		char buffer[4096];
+		vsnprintf(buffer, sizeof(buffer), text, arg);
+		target_wrap(stdout, TARGET.col, buffer);
+	} else {
+		vfprintf(stdout, text, arg);
+	}
 }
 
-void target_err_va(const char *text, va_list arg)
+void target_err_va(const char* text, va_list arg)
 {
-	vfprintf(stderr, text, arg);
+	if (TARGET.col) {
+		char buffer[4096];
+		vsnprintf(buffer, sizeof(buffer), text, arg);
+		target_wrap(stderr, TARGET.col, buffer);
+	} else {
+		vfprintf(stderr, text, arg);
+	}
 }
 
-void target_nfo_va(const char *text, va_list arg)
+void target_nfo_va(const char* text, va_list arg)
 {
-	vfprintf(stderr, text, arg);
+	target_err_va(text, arg);
 }
 
-void target_out(const char *text, ...)
+void target_out(const char* text, ...)
 {
 	va_list arg;
 	va_start(arg, text);
@@ -476,7 +543,7 @@ void target_out(const char *text, ...)
 	va_end(arg);
 }
 
-void target_err(const char *text, ...)
+void target_err(const char* text, ...)
 {
 	va_list arg;
 	va_start(arg, text);
@@ -484,7 +551,7 @@ void target_err(const char *text, ...)
 	va_end(arg);
 }
 
-void target_nfo(const char *text, ...)
+void target_nfo(const char* text, ...)
 {
 	va_list arg;
 	va_start(arg, text);
@@ -498,11 +565,9 @@ void target_flush(void)
 	fflush(stderr);
 }
 
-#if defined(linux)
-#include <execinfo.h>
-
 static void target_backtrace(void)
 {
+#if HAVE_BACKTRACE && HAVE_BACKTRACE_SYMBOLS
 	void* buffer[256];
 	char** symbols;
 	int size;
@@ -523,8 +588,8 @@ static void target_backtrace(void)
 	}
 
 	free(symbols);
-}
 #endif
+}
 
 void target_signal(int signum)
 {
@@ -544,9 +609,7 @@ void target_signal(int signum)
 		fprintf(stderr, "Signal %d.\n", signum);
 		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
 
-#if defined(linux)
 		target_backtrace();
-#endif
 
 		if (signum == SIGILL) {
 			fprintf(stderr, "Are you using the correct binary ?\n");

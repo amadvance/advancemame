@@ -50,7 +50,7 @@ int run_sub(config_state& rs, bool silent)
 
 	log_std(("menu: int_init4 call\n"));
 
-	if (!int_enable(rs.video_font_path, rs.video_orientation_effective)) {
+	if (!int_enable(rs.video_fontx, rs.video_fonty, rs.video_font_path, rs.video_orientation_effective)) {
 		return INT_KEY_ESC;
 	}
 
@@ -166,7 +166,7 @@ int run_sub(config_state& rs, bool silent)
 			else
 				rs.current_clone = rs.current_game;
 		}
-		if (!rs.video_reset_mode)
+		if (!rs.video_reset_mode_game)
 			run_runinfo(rs);
 	}
 
@@ -266,6 +266,18 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	log_std(("menu: menu stop\n"));
 
 	if (is_terminate) {
+		if (rs.ui_exit != "none") {
+			unsigned x , y;
+			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
+				int_clear();
+				int_image(rs.ui_exit.c_str(), x, y);
+				int_update();
+				int_disable();
+			}
+		}
+	}
+
+	if (is_terminate) {
 		play_foreground_effect_end(rs.sound_foreground_end);
 		play_background_effect(rs.sound_background_end, PLAY_PRIORITY_END, false);
 	}
@@ -286,7 +298,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	play_done();
 
 	log_std(("menu: int_unset call\n"));
-	int_unset(is_terminate || rs.video_reset_mode);
+	int_unset((is_terminate && rs.video_reset_mode_exit) || (!is_terminate && rs.video_reset_mode_game));
 
 	return key;
 }
@@ -391,7 +403,7 @@ static void version(void)
 
 	target_out("Directories:\n");
 #ifdef DATADIR
-	target_out("  Data: %s/advance\n", DATADIR);
+	target_out("  Data: %s\n", DATADIR);
 #else
 	target_out("  Data: . (current directory)\n");
 #endif
@@ -520,7 +532,16 @@ static adv_conf_conv STANDARD[] = {
 /* 2.2.17 */
 { "*", "device_video_overlay", "*", "%s", "device_video_overlaysize", "%s", 0 }, /* rename */
 { "*", "sort", "coin", "%s", "%s", "play", 0 }, /* rename */
-{ "*", "sort", "timepercoin", "%s", "%s", "timeperplay", 0 } /* rename */
+{ "*", "sort", "timepercoin", "%s", "%s", "timeperplay", 0 }, /* rename */
+/* 2.3.2 */
+{ "*", "video_size", "*", "%s", "display_size", "%s", 0 }, /* rename */
+{ "*", "video_font", "*", "%s", "ui_font", "%s", 0 }, /* rename */
+{ "*", "video_orientation", "*", "%s", "display_orientation", "%s", 0 }, /* rename */
+{ "*", "video_gamma", "*", "%s", "display_gamma", "%s", 0 }, /* rename */
+{ "*", "video_brightness", "*", "%s", "display_brightness", "%s", 0 }, /* rename */
+{ "*", "video_restore", "*", "%s", "display_restoreatgame", "%s", 0 }, /* rename */
+{ "*", "run_msg", "*", "%s", "ui_gamemsg", "%s", 0 }, /* rename */
+{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 } /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)
@@ -688,13 +709,14 @@ int os_main(int argc, char* argv[])
 	conf_section_set(config_context, section_map, 1);
 
 	if (access(file_config_file_home("advmenu.rc"), F_OK)!=0) {
+		target_out("Creating a standard configuration file...\n");
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
@@ -704,7 +726,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
@@ -713,7 +735,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 

@@ -149,7 +149,7 @@ static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned c
 	);
 }
 #else
-static inline void internal_double8_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count)
+static inline void internal_double8_def(uint8* restrict dst, const uint8* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -161,7 +161,7 @@ static inline void internal_double8_def(uint8* __restrict__ dst, const uint8* __
 }
 #endif
 
-static inline void internal_double8_step_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count, int step)
+static inline void internal_double8_step_def(uint8* restrict dst, const uint8* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -172,7 +172,7 @@ static inline void internal_double8_step_def(uint8* __restrict__ dst, const uint
 	}
 }
 
-static inline void internal_triple8_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count)
+static inline void internal_triple8_def(uint8* restrict dst, const uint8* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -184,7 +184,7 @@ static inline void internal_triple8_def(uint8* __restrict__ dst, const uint8* __
 	}
 }
 
-static inline void internal_triple8_step_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count, int step)
+static inline void internal_triple8_step_def(uint8* restrict dst, const uint8* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -196,7 +196,7 @@ static inline void internal_triple8_step_def(uint8* __restrict__ dst, const uint
 	}
 }
 
-static inline void internal_quadruple8_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count)
+static inline void internal_quadruple8_def(uint8* restrict dst, const uint8* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -209,7 +209,7 @@ static inline void internal_quadruple8_def(uint8* __restrict__ dst, const uint8*
 	}
 }
 
-static inline void internal_quadruple8_step_def(uint8* __restrict__ dst, const uint8* __restrict__ src, unsigned count, int step)
+static inline void internal_quadruple8_step_def(uint8* restrict dst, const uint8* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -249,7 +249,7 @@ static inline void internal_double16_def(uint16* dst, const uint16* src, unsigne
 	);
 }
 #else
-static inline void internal_double16_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count)
+static inline void internal_double16_def(uint16* restrict dst, const uint16* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -261,7 +261,7 @@ static inline void internal_double16_def(uint16* __restrict__ dst, const uint16*
 }
 #endif
 
-static inline void internal_double16_step_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count, int step)
+static inline void internal_double16_step_def(uint16* restrict dst, const uint16* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -272,7 +272,7 @@ static inline void internal_double16_step_def(uint16* __restrict__ dst, const ui
 	}
 }
 
-static inline void internal_triple16_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count)
+static inline void internal_triple16_def(uint16* restrict dst, const uint16* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -284,7 +284,7 @@ static inline void internal_triple16_def(uint16* __restrict__ dst, const uint16*
 	}
 }
 
-static inline void internal_triple16_step_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count, int step)
+static inline void internal_triple16_step_def(uint16* restrict dst, const uint16* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -296,7 +296,7 @@ static inline void internal_triple16_step_def(uint16* __restrict__ dst, const ui
 	}
 }
 
-static inline void internal_quadruple16_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count)
+static inline void internal_quadruple16_def(uint16* restrict dst, const uint16* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -309,7 +309,7 @@ static inline void internal_quadruple16_def(uint16* __restrict__ dst, const uint
 	}
 }
 
-static inline void internal_quadruple16_step_def(uint16* __restrict__ dst, const uint16* __restrict__ src, unsigned count, int step)
+static inline void internal_quadruple16_step_def(uint16* restrict dst, const uint16* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -345,7 +345,7 @@ static inline void internal_double32_def(uint32* dst, const uint32* src, unsigne
 	);
 }
 #else
-static inline void internal_double32_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count)
+static inline void internal_double32_def(uint32* restrict dst, const uint32* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -357,7 +357,7 @@ static inline void internal_double32_def(uint32* __restrict__ dst, const uint32*
 }
 #endif
 
-static inline void internal_double32_step_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count, int step)
+static inline void internal_double32_step_def(uint32* restrict dst, const uint32* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -368,7 +368,7 @@ static inline void internal_double32_step_def(uint32* __restrict__ dst, const ui
 	}
 }
 
-static inline void internal_triple32_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count)
+static inline void internal_triple32_def(uint32* restrict dst, const uint32* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -380,7 +380,7 @@ static inline void internal_triple32_def(uint32* __restrict__ dst, const uint32*
 	}
 }
 
-static inline void internal_triple32_step_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count, int step)
+static inline void internal_triple32_step_def(uint32* restrict dst, const uint32* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -392,7 +392,7 @@ static inline void internal_triple32_step_def(uint32* __restrict__ dst, const ui
 	}
 }
 
-static inline void internal_quadruple32_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count)
+static inline void internal_quadruple32_def(uint32* restrict dst, const uint32* restrict src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -405,7 +405,7 @@ static inline void internal_quadruple32_def(uint32* __restrict__ dst, const uint
 	}
 }
 
-static inline void internal_quadruple32_step_def(uint32* __restrict__ dst, const uint32* __restrict__ src, unsigned count, int step)
+static inline void internal_quadruple32_step_def(uint32* restrict dst, const uint32* restrict src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];

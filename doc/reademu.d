@@ -13,17 +13,16 @@ Name
 		http://advancemame.sourceforge.net
 
 	The main difference compared with the official emulators is that
-	the Advance versions program directly the video board to always get
-	a video mode with the correct size and frequency.
+	the Advance versions are able to program directly the video board
+	to always get a video mode with the correct size and frequency.
 
 	Generally the Advance emulators are able to use a video mode which
 	doesn't require any stretching or other unneeded effects to match the
-	original arcade display. When the stretching is required by hardware
-	limitations you can anyway choice from different types of stretch.
+	original arcade display.
 
-	The direct video board programming is fully supported only in Linux
+	The direct video board programming is fully supported in Linux
 	and DOS. It's partially supported in Windows. It isn't supported in
-	Mac OS X.
+	Mac OS X and other platforms.
 
 	This package contains :
 		advmame - The AdvanceMAME emulator (only in the advancemame-* package).

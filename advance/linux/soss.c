@@ -29,20 +29,20 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "soss.h"
 #include "log.h"
 #include "error.h"
 
-#include <sys/ioctl.h>
 #include <sys/soundcard.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <assert.h>
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
 
 struct soundb_oss_context {
 	unsigned channel;

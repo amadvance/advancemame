@@ -28,13 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "script.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "portable.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <string.h>
+#include "script.h"
 
 struct script_exp* script_exp_alloc(void)
 {

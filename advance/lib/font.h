@@ -47,7 +47,7 @@ typedef struct adv_font_struct {
 /** \addtogroup Font */
 /*@{*/
 
-adv_font* adv_font_load(adv_fz* f);
+adv_font* adv_font_load(adv_fz* f, unsigned sizex, unsigned sizey);
 void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap);
 void adv_font_free(adv_font* font);
 
@@ -61,13 +61,15 @@ unsigned adv_font_sizey_string(adv_font* font, const char* begin, const char* en
 const char* adv_font_sizey_limit(adv_font* font, const char* begin, const char* end, unsigned limit);
 
 void adv_font_orientation(adv_font* font, unsigned orientation_mask);
+void adv_font_scale(adv_font* font, unsigned fx, unsigned fy);
 
 void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back);
 void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back);
 void adv_font_put_string_oriented(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back, unsigned orientation);
+void adv_font_put_char_alpha(adv_font* font, adv_bitmap* dst, int x, int y, char c, const adv_color_rgb* color_front, const adv_color_rgb* color_back, adv_color_def color_def);
+void adv_font_put_string_alpha(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, const adv_color_rgb* color_front, const adv_color_rgb* color_back, adv_color_def color_def);
 void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front);
 void adv_font_put_string_trasp(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front);
-
 
 /*@}*/
 

@@ -28,6 +28,12 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 #include "thread.h"
 #include "glue.h"
@@ -50,13 +56,8 @@
 #include "keydrv.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
-#include <stdlib.h>
-#include <assert.h>
 #include <math.h>
-#include <limits.h>
-#include <string.h>
 #include <limits.h>
 
 /** Max framskip factor */
@@ -178,11 +179,11 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 			case 3 : best_size_x = context->state.mode_best_size_3x; break;
 			case 4 : best_size_x = context->state.mode_best_size_4x; break;
 			default: /* auto setting */
-				if (context->state.mode_best_size_x >= 512)
+				if (context->state.mode_best_size_x >= 512 || context->state.mode_best_size_y >= 384)
 					best_size_x = context->state.mode_best_size_x;
-				else if (context->state.mode_best_size_x >= 256)
+				else if (context->state.mode_best_size_x >= 256 || context->state.mode_best_size_y >= 256)
 					best_size_x = context->state.mode_best_size_2x;
-				else if (context->state.mode_best_size_x >= 192)
+				else if (context->state.mode_best_size_x >= 192 || context->state.mode_best_size_y >= 192)
 					best_size_x = context->state.mode_best_size_3x;
 				else
 					best_size_x = context->state.mode_best_size_4x;
@@ -304,8 +305,8 @@ static void video_update_sync(struct advance_video_context* context)
 		}
 
 		/* disable the vsync flag if the frame rate is wrong */
-		if (context->state.mode_vclock < reference * 0.97
-			|| context->state.mode_vclock > reference * 1.03) {
+		if (context->state.mode_vclock < reference * 0.96
+			|| context->state.mode_vclock > reference * 1.04) {
 			log_std(("emu:video: vsync disabled because the vclock is too different %g %g\n", reference, context->state.mode_vclock));
 			context->state.vsync_flag = 0;
 		}
@@ -363,7 +364,8 @@ static adv_error video_update_index(struct advance_video_context* context)
 
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		if (mode_may_be_palette) {
-			index = MODE_FLAGS_INDEX_PALETTE8;
+			/* don't use MODE_FLAGS_INDEX_PALETTE8 as default, to allow a rgb user interface */
+			index = MODE_FLAGS_INDEX_BGR16;
 		} else {
 			switch (context->state.game_bits_per_pixel) {
 			case 8 :
@@ -531,7 +533,7 @@ static adv_error video_init_vidmode(struct advance_video_context* context, adv_m
 	context->state.blit_pipeline_flag = 0;
 	context->state.buffer_ptr_alloc = 0;
 
-	/* inizialize the update system */
+	/* initialize the update system */
 	update_init( context->config.triplebuf_flag!=0 ? 3 : 1 );
 
 	video_invalidate_screen();
@@ -657,7 +659,18 @@ static void video_update_pan(struct advance_video_context* context)
 
 static void video_update_ui(struct advance_video_context* context, const adv_crtc* crtc)
 {
-	advance_ui_changefont(&CONTEXT.ui, crtc_hsize_get(crtc));
+	unsigned aspect_x;
+	unsigned aspect_y;
+
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
+		aspect_x = 1;
+		aspect_y = 1;
+	} else {
+		aspect_x = context->config.monitor_aspect_x;
+		aspect_y = context->config.monitor_aspect_y;
+	}
+
+	advance_ui_changefont(&CONTEXT.ui, crtc_hsize_get(crtc), crtc_vsize_get(crtc), aspect_x, aspect_y);
 }
 
 /**
@@ -677,21 +690,28 @@ static void video_update_effect(struct advance_video_context* context)
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE;
+		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
+			context->state.combine = COMBINE_SCALE;
+		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
+			context->state.combine = COMBINE_SCALE;
 		} else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE;
 		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE;
-		} else if (context->state.mode_visible_size_x >= 2*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y >= 2*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x >= 3*context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y >= 3*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_FILTER;
+		} else if ((context->state.mode_visible_size_x % context->state.game_visible_size_x) == 0
+			&& (context->state.mode_visible_size_y % context->state.game_visible_size_y) == 0) {
+			context->state.combine = COMBINE_NONE;
+		} else if (context->config.inlist_combinemax_flag) {
+			context->state.combine = COMBINE_MAXMIN;
 		} else {
-			if (context->config.inlist_combinemax_flag) {
-				context->state.combine = COMBINE_MAXMIN;
-			} else {
-				context->state.combine = COMBINE_MEAN;
-			}
+			context->state.combine = COMBINE_MEAN;
 		}
 	}
 
@@ -713,6 +733,8 @@ static void video_update_effect(struct advance_video_context* context)
 
 	if ((context->state.combine == COMBINE_SCALE)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 	) {
@@ -722,6 +744,8 @@ static void video_update_effect(struct advance_video_context* context)
 
 	if ((context->state.combine == COMBINE_LQ || context->state.combine == COMBINE_HQ)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 	) {
@@ -1311,10 +1335,10 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	context->state.menu_sub_flag = 0;
 	context->state.menu_sub_selected = 0;
 
-	context->state.fastest_counter = 0; /* inizialize the fastest frame counter */
+	context->state.fastest_counter = 0; /* initialize the fastest frame counter */
 	context->state.fastest_flag = 0; /* not active until the first reset call */
 
-	context->state.measure_counter = 0; /* inizialize the measure frame counter */
+	context->state.measure_counter = 0; /* initialize the measure frame counter */
 	context->state.measure_flag = 0; /* not active until the first reset call */
 	context->state.measure_start = 0;
 	context->state.measure_stop = 0;
@@ -1481,13 +1505,13 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 				}
 				if (!crtc || !crtc_is_interlace(crtc))
 					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 1, 0);
-				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 0, 1);
+				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 0, 0, 1);
 				if (context->config.scanlines_flag) {
 					if (!crtc || !crtc_is_singlescan(crtc))
-						video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0, 1);
+						video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 1, 0, 1);
 				}
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 1, 1);
+					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 0, 1, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 			}
@@ -1869,36 +1893,17 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 		combine |= VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 		break;
 	case COMBINE_SCALE :
-		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_SCALE2X;
-		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_SCALE3X;
-		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_SCALE4X;
-		else
-			combine |= VIDEO_COMBINE_Y_NONE;
+		combine |= VIDEO_COMBINE_Y_SCALE;
 		break;
 	case COMBINE_LQ :
-		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_LQ2X;
-		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_LQ3X;
-		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_LQ4X;
-		else
-			combine |= VIDEO_COMBINE_Y_NONE;
+		combine |= VIDEO_COMBINE_Y_LQ;
 		break;
 	case COMBINE_HQ :
 #ifndef USE_BLIT_SMALL
-		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_HQ2X;
-		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_HQ3X;
-		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
-			combine |= VIDEO_COMBINE_Y_HQ4X;
-		else
+		combine |= VIDEO_COMBINE_Y_HQ;
+#else
+		combine |= VIDEO_COMBINE_Y_NONE;
 #endif
-			combine |= VIDEO_COMBINE_Y_NONE;
 		break;
 	default:
 		combine |= VIDEO_COMBINE_Y_NONE;
@@ -2111,9 +2116,9 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 				snprintf(buffer, sizeof(buffer), "im%d.png", in);
 				++in;
 
-				f = fopen(buffer, "wb");
+				f = fzopen(buffer, "wb");
 				advance_record_png_write(f, buf_ptr, context->state.buffer_size_x, context->state.buffer_size_y, buf_dp, buf_dw, video_color_def(), 0, 0, 0);
-				fclose(f);
+				fzclose(f);
 			}
 		}
 #endif
@@ -2819,6 +2824,8 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		advance_ui_help(ui_context);
 	}
 
+	advance_ui_direct_slow(ui_context, context->state.skip_level_disable_flag);
+
 	if (context->state.info_flag) {
 		char buffer[256];
 		unsigned skip;
@@ -2859,7 +2866,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		if (l>=11 && isspace(buffer[l-11]))
 			buffer[l-11] = 255;
 
-		advance_ui_direct(ui_context, buffer);
+		advance_ui_direct_text(ui_context, buffer);
 
 		hardware_script_info(0, 0, 0, buffer);
 	} else {
@@ -2903,7 +2910,7 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 			if (context->state.game_rgb_flag) {
 				advance_record_video_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, 0, 0, context->config.game_orientation);
 			} else {
-				advance_record_video_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
+				advance_record_video_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
 			}
 		}
 
@@ -2929,7 +2936,7 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 			if (context->state.game_rgb_flag) {
 				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, 0, 0, context->config.game_orientation);
 			} else {
-				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
+				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
 			}
 		}
 	}
@@ -3560,11 +3567,11 @@ void osd_reset(void)
 	hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
 	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
 
-	/* inizialize the fastest state */
+	/* initialize the fastest state */
 	context->state.fastest_counter = context->config.fastest_time * context->state.game_fps;
 	context->state.fastest_flag = context->state.fastest_counter != 0;
 
-	/* inizialize the measure state */
+	/* initialize the measure state */
 	context->state.measure_counter = context->config.measure_time * context->state.game_fps;
 	context->state.measure_flag = context->state.measure_counter != 0;
 	context->state.measure_start = target_clock();
@@ -3617,7 +3624,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	unsigned av_c_neg;
 	int sample_limit;
 
-	/* store the current audio video synctonization error measured in sound samples */
+	/* store the current audio video syncronization error measured in sound samples */
 	context->state.av_sync_map[context->state.av_sync_mac] = context->state.latency_diff;
 
 	/* move the position on the circular buffer */
@@ -4012,7 +4019,12 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.game_orientation = mame_game_orientation(option->game);
 
 	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
-	sncpy(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), mame_game_name(option->game));
+	s = mame_software_name(option->game, cfg_context);
+	if (s==0 || s[0]==0)
+		s = mame_game_name(option->game);
+	if (s==0 || s[0]==0)
+		s = "";
+	sncpy(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), s);
 	sncpy(context->config.section_resolution_buffer, sizeof(context->config.section_resolution_buffer), mame_game_resolution(option->game));
 	sncpy(context->config.section_resolutionclock_buffer, sizeof(context->config.section_resolutionclock_buffer), mame_game_resolutionclock(option->game));
 	if ((context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) != 0)

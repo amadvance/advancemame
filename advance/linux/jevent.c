@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "jevent.h"
 #include "log.h"
@@ -38,21 +40,14 @@
 #include "error.h"
 #include "event.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include <linux/input.h>
-
-#include <unistd.h>
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
 
 /***************************************************************************/
 /* Acts Labs Lightgun */
 
 /**
- * Define to use the Acts Labs Lighgun Reload Hack.
+ * Define to use the Acts Labs Lightgun Reload Hack.
  * This lightgun remap the shot out of screen to the second button (BTN_SIDE)
  * instead of the first button (BTN_MIDDLE).
  */
@@ -697,7 +692,7 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 
 	axe->value = value;
 
-	if (min == max) {
+	if (min >= max) {
 		/* adjustment not possible */
 		axe->value_adj = 0;
 		return;
@@ -729,6 +724,12 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 
 		if (flat_min <= value && value <= flat_max) {
 			/* center position */
+			axe->value_adj = 0;
+			return;
+		}
+
+		if (min + 2 * flat >= max) {
+			/* adjustment not possible */
 			axe->value_adj = 0;
 			return;
 		}

@@ -29,13 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "log.h"
 #include "target.h"
-
-#include <stdio.h>
 
 /***************************************************************************/
 /* Log */

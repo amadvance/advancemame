@@ -19,14 +19,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "filter.h"
 
-#include <assert.h>
 #include <math.h>
-#include <stdlib.h>
 
 unsigned adv_filter_order_get(const adv_filter* f)
 {

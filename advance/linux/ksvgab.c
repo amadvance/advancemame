@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "ksvgab.h"
 #include "log.h"

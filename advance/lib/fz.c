@@ -29,16 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "fz.h"
 #include "endianrw.h"
-
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <sys/stat.h>
 
 /* Zip format */
 #define ZIP_LO_filename_length 0x1A
@@ -307,10 +304,10 @@ static void compressed_init(adv_fz* f)
 {
 	int err;
 
+	memset(&f->z, 0, sizeof(f->z));
 	f->z.zalloc = 0;
 	f->z.zfree = 0;
 	f->z.opaque = 0;
-
 	f->z.next_in  = 0;
 	f->z.avail_in = 0;
 	f->z.next_out = 0;
@@ -570,11 +567,14 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 	if (f->type == fz_file) {
 		switch (mode) {
 			case SEEK_SET :
-				return fseek(f->f, offset, SEEK_SET);
+				return fseek(f->f, f->real_offset + offset, SEEK_SET);
 			case SEEK_CUR :
 				return fseek(f->f, offset, SEEK_CUR);
 			case SEEK_END :
-				return fseek(f->f, offset, SEEK_END);
+				if (f->real_size)
+					return fseek(f->f, f->real_size - offset, SEEK_SET);
+				else
+					return fseek(f->f, offset, SEEK_END);
 			default:
 				return -1;
 		}

@@ -137,10 +137,13 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 
 	for(unsigned j=0;j<rows;++j) {
 		int_color color;
+		int_color colorf;
 		if (j==pos_rel) {
 			color = COLOR_CHOICE_SELECT;
+			colorf = COLOR_CHOICE_SELECT;
 		} else {
 			color = COLOR_CHOICE_NORMAL;
+			colorf = COLOR_CHOICE_TITLE;
 		}
 
 		choice_container::iterator i = begin() + pos_base + j;
@@ -162,8 +165,9 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 			tag = "";
 		}
 
-		int_put_filled(x, y, dx, tag, color);
-		int_put_filled(x+indent, y, dx-indent, rest, color);
+		int_put_filled(x, y, dx, tag, colorf);
+		bool in = false;
+		int_put_special(in, x+indent, y, dx-indent, rest, colorf, color, color);
 
 		y += int_font_dy_get();
 	}

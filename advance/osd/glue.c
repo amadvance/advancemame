@@ -28,6 +28,12 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 #include "glue.h"
 #include "mame2.h"
@@ -37,13 +43,9 @@
 #include "hscript.h"
 #include "glue.h"
 #include "snstring.h"
-
-#include <stdio.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <math.h>
-
 #include "input.h"
+
+#include <math.h>
 
 /* Used in os_inline.h */
 __extension__ unsigned long long mmx_8to64_map[256] = {
@@ -332,6 +334,7 @@ struct advance_glue_context {
 
 	char resolution_buffer[32]; /**< Buffer used by mame_resolution(). */
 	char resolutionclock_buffer[32]; /**< Buffer used by mame_resolutionclock(). */
+	char software_buffer[256]; /**< Buffer for software name. */
 
 	unsigned input; /**< Last user interface input. */
 };
@@ -422,6 +425,10 @@ unsigned mame_game_orientation(const mame_game* game)
 const char* mame_game_name(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
+
+	if (strcmp(driver->name, "root") == 0)
+		return 0;
+
 	return driver->name;
 }
 
@@ -447,6 +454,51 @@ const char* mame_game_year(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	return driver->year;
+}
+
+unsigned mame_game_players(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const struct InputPortTiny* input = driver->input_ports;
+	int nplayer = 1;
+
+	while ((input->type & ~IPF_MASK) != IPT_END)
+	{
+		/* skip analog extension fields */
+		if ((input->type & ~IPF_MASK) != IPT_EXTENSION)
+		{
+			switch (input->type & IPF_PLAYERMASK)
+			{
+				case IPF_PLAYER1:
+					if (nplayer<1) nplayer = 1;
+					break;
+				case IPF_PLAYER2:
+					if (nplayer<2) nplayer = 2;
+					break;
+				case IPF_PLAYER3:
+					if (nplayer<3) nplayer = 3;
+					break;
+				case IPF_PLAYER4:
+					if (nplayer<4) nplayer = 4;
+					break;
+				case IPF_PLAYER5:
+					if (nplayer<5) nplayer = 5;
+					break;
+				case IPF_PLAYER6:
+					if (nplayer<6) nplayer = 6;
+					break;
+				case IPF_PLAYER7:
+					if (nplayer<7) nplayer = 7;
+					break;
+				case IPF_PLAYER8:
+					if (nplayer<8) nplayer = 8;
+					break;
+			}
+		}
+		++input;
+	}
+
+	return nplayer;
 }
 
 const mame_game* mame_game_at(unsigned i)
@@ -776,14 +828,14 @@ static struct mame_port PORT[] = {
 	P("right", "Right", JOYSTICK_RIGHT)
 
 	/* DOUBLE JOYSTICK */
-	S("doubleright_up", "Double Right Up", JOYSTICKRIGHT_UP)
-	S("doubleright_down", "Double Right Down", JOYSTICKRIGHT_DOWN)
-	S("doubleright_left", "Double Right Left", JOYSTICKRIGHT_LEFT)
-	S("doubleright_right", "Double Right Right", JOYSTICKRIGHT_RIGHT)
-	S("doubleleft_up", "Double Left Up", JOYSTICKLEFT_UP)
-	S("doubleleft_down", "Double Left Down", JOYSTICKLEFT_DOWN)
-	S("doubleleft_left", "Double Left Left", JOYSTICKLEFT_LEFT)
-	S("doubleleft_right", "Double Left Right", JOYSTICKLEFT_RIGHT)
+	P("doubleright_up", "Double Right Up", JOYSTICKRIGHT_UP)
+	P("doubleright_down", "Double Right Down", JOYSTICKRIGHT_DOWN)
+	P("doubleright_left", "Double Right Left", JOYSTICKRIGHT_LEFT)
+	P("doubleright_right", "Double Right Right", JOYSTICKRIGHT_RIGHT)
+	P("doubleleft_up", "Double Left Up", JOYSTICKLEFT_UP)
+	P("doubleleft_down", "Double Left Down", JOYSTICKLEFT_DOWN)
+	P("doubleleft_left", "Double Left Left", JOYSTICKLEFT_LEFT)
+	P("doubleleft_right", "Double Left Right", JOYSTICKLEFT_RIGHT)
 
 	/* BUTTON */
 	P("button1", "Button 1", BUTTON1)
@@ -2048,6 +2100,63 @@ static void mess_done(void)
 }
 
 #endif
+
+const char* mame_software_name(const mame_game* game, adv_conf* context)
+{
+#ifdef MESS
+	const char** i;
+	static char buffer[256];
+
+	i = DEVICES;
+	while (*i) {
+		adv_conf_iterator j;
+		char software_buffer[256];
+		const char* s;
+
+		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
+
+		s = 0;
+		conf_iterator_begin(&j, context, buffer);
+		while (!conf_iterator_is_end(&j)) {
+			const char* arg;
+			int p;
+			char c;
+
+			arg = conf_iterator_string_get(&j);
+
+			sncpy(software_buffer, sizeof(software_buffer), arg);
+
+			/* convert user input to lower case */
+			for(p=0;software_buffer[p];++p)
+				software_buffer[p] = tolower(software_buffer[p]);
+
+			p = 0;
+			s = stoken(&c, &p, software_buffer, ".=", "");
+
+			if (s && s[0]) {
+				break;
+			}
+
+			conf_iterator_next(&j);
+		}
+
+		if (!conf_iterator_is_end(&j)) {
+			const char* n = mame_game_name(game);
+			if (s && s[0] && n && n[0]) {
+				snprintf(GLUE.software_buffer, sizeof(GLUE.software_buffer), "%s[%s]", n, s);
+				return GLUE.software_buffer;
+			}
+		}
+
+		++i;
+	}
+
+	return 0;
+
+#else
+	return 0;
+#endif
+}
 
 adv_error mame_init(struct advance_context* context)
 {

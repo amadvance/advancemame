@@ -1920,11 +1920,13 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (inputb_load(the_config) != 0) {
-		target_err("%s\n\r", error_get());
+		target_err("%s\n", error_get());
 		goto err_os;
 	}
 
-	/* after this command all the target_err() string must have \n\r at the end */
+	/* NOTE: After this command all the target_err() string must */
+	/* have \n\r at the end to ensure correct newline in graphics mode. */
+
 	if (os_inner_init("AdvanceVIDEO") != 0) {
 		goto err_os;
 	}
@@ -2009,7 +2011,7 @@ int os_main(int argc, char* argv[])
 	crtc_container_init(&selected);
 
 	if (crtc_container_load(the_config, &selected) != 0) {
-		target_err(error_get());
+		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
 

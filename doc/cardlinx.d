@@ -704,6 +704,13 @@ SVGALIB
 	SVGALIB 1.9.18 with the AdvanceMAME patches applied.
 
   ATI Technologies (1002)
+	+Mach64 CT (215CT222) [4354] 
+	+Mach64 ET [4554] 
+	+Mach64 GX (210888GX) [4758] 
+	+Mach64 VT (215VT22200) [5654] 
+		+Mach64VT Reference 
+	+Mach64 VT3 [5655] 
+	+Mach64 VT4 PCI (PQFP Package) [5656] 
 	+Mobility Radeon 9000 [4c66] 
 	+Radeon 7000 Series (RV100) [5159] 
 		+Optimus 7000 
@@ -826,6 +833,57 @@ SVGALIB
 	+Rage 128 RL/VR AGP 2x [524c] 
 		+Xpert 99 
 		+Xpert 99/Xpert 2000 
+	+Rage 3D I/II [Mach64 GT, Limited 3D] [4754] 
+	+Rage 3D II+ [Mach64 GTB] [4755] 
+		+Rage 3D II+ [Mach64 GTB] 
+	+Rage 3D IIC AGP (BGA Package) [4757] 
+		+Rage 3D IIC AGP 
+		+OEM Dell Computer Corp {1028} : Rage 3D IIC 
+	+Rage 3D IIC AGP (PQFP Package) [475a] 
+		+Rage 3D IIC 
+		+Rage 3D IIC AGP 
+	+Rage 3D IIC PCI [Mach64 GT IIC] (PQFP Package) [4756] 
+		+Rage 3D IIC PCI 
+	+Rage 3D LT Pro AGP 133MHz (BGA-312 Package) [4c42] 
+		+Rage 3D LT Pro 
+		+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : Rage 3D LT Pro 
+		+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : Rage 3D LT Pro (Compaq Aramada 1750) 
+		+OEM Dell Computer Corp {1028} : Rage 3D LT Pro 
+		+OEM Toshiba America Information Systems {1179} : Rage LT Pro AGP 2x 
+	+Rage 3D LT Pro AGP 66MHz (BGA-312 Package) [4c44] 
+	+Rage 3D LT Pro PCI (BGA-256 Package) [4c50] 
+		+Rage 3D LT Pro PCI 
+	+Rage 3D LT Pro PCI (BGA-312 Package) [4c49] 
+		+Rage 3D LT Pro 
+	+Rage 3D LT-G (215LG) [4c47] 
+		+OEM IBM {1014} : Radeon Mobility 7500 
+	+Rage 3D Pro AGP 1x (BGA Package) [4744] 
+		+Rage 3D Pro AGP 1x 
+	+Rage 3D Pro AGP 2x (BGA Package) [4742] 
+		+All-in-Wonder Pro 
+		+All-in-Wonder Pro NTSC 
+		+Rage 3D Pro AGP 2x 
+		+Rage 3D Pro AGP 2x (BGA Package) 
+		+Rage 3D Pro AGP 2x Onboard Display Adapter 
+		+Rage Pro Turbo AGP 2X 
+		+XPERT 98 
+		+XPERT XL 
+		+XPERT@PLAY 98 
+		+XPERT@WORK 
+		+OEM Dell Computer Corp {1028} : Optiplex GX1 Onboard Display Adapter 
+		+OEM Dell Computer Corp {1028} : Rage Pro Turbo AGP 2x 
+		+OEM Intel Corporation {8086} : Rage 3D Pro AGP 
+		+OEM Intel Corporation {8086} : Rage Pro Turbo AGP 2X 
+	+Rage 3D Pro PCI (BGA Package) [4749] 
+		+All-in-Wonder PRO NTSC 
+		+All-in-Wonder PRO PCI 
+		+OEM Dell Computer Corp {1028} : 6300/6350 PowerEdge Integrated Video 
+	+Rage 3D Pro PCI (PQFP Package) [4750] 
+		+Rage 3D Pro PCI (PQFP Package) 
+		+XPERT 98 
+		+XPERT XL 
+		+XPERT@PLAY 98 
+	+Rage 3D Pro PCI (PQFP Package, Limited 3D) [4751] 
 	+Rage Mobility M3 AGP 2x [4c46] 
 		+OEM Dell Computer Corp {1028} : Latitude C600 
 		+OEM IBM {1014} : Rage Mobility M3 AGP 2x 

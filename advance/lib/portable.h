@@ -35,111 +35,128 @@
 #ifndef __PORTABLE_H
 #define __PORTABLE_H
 
+/***************************************************************************/
+/* Config */
+
+/* Customize for MSDOS DJGPP */
+#ifdef __MSDOS__
+#define TIME_WITH_SYS_TIME 1
+#define HAVE_SYS_TIME_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_DIRENT_H 1
+#define HAVE_SYS_WAIT_H 1
+#define restrict __restrict
+#endif
+
+/* Customize for Windows Mingw/Cygwin */
+#ifdef __WIN32__
+#define TIME_WITH_SYS_TIME 1
+#define HAVE_SYS_TIME_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_DIRENT_H 1
+#define restrict __restrict
+#endif
+
+/* Include some standard headers */
+#include <stdio.h>
+#include <stdlib.h> /* On many systems (e.g., Darwin), `stdio.h' is a prerequisite. */
 #include <stdarg.h>
-#include <ctype.h>
 #include <string.h>
+#include <ctype.h>
 #include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
+#include <signal.h>
+
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#if TIME_WITH_SYS_TIME
+#include <sys/time.h>
+#include <time.h>
+#else
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+#endif
+
+#if HAVE_DIRENT_H
+#include <dirent.h>
+#define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+#define dirent direct
+#define NAMLEN(dirent) (dirent)->d_namlen
+#if HAVE_SYS_NDIR_H
+#include <sys/ndir.h>
+#endif
+#if HAVE_SYS_DIR_H
+#include <sys/dir.h>
+#endif
+#if HAVE_NDIR_H
+#include <ndir.h>
+#endif
+#endif
+
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#if HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef __WIN32__
+#ifndef WEXITSTATUS
+#define WEXITSTATUS(r) (r)
+#endif
+#ifndef WIFEXITED
+#define WIFEXITED(r) 1
+#endif
+#else
+#ifndef WEXITSTATUS
+#define WEXITSTATUS(r) ((unsigned)(r) >> 8)
+#endif
+#ifndef WIFEXITED
+#define WIFEXITED(r) (((r) & 255) == 0)
+#endif
+#endif
+
+#ifndef WIFSTOPPED
+#define WIFSTOPPED(r) 0
+#endif
+#ifndef WIFSIGNALED
+#define WIFSIGNALED(r) 0
+#endif
+#ifndef WTERMSIG
+#define WTERMSIG(r) 0
+#endif
+#ifndef WSTOPSIG
+#define WSTOPSIG(r) 0
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/***************************************************************************/
-/* Signal */
-
-#ifdef __WIN32__
-#define WIFSTOPPED(r) 0
-#define WIFSIGNALED(r) 0
-#define WIFEXITED(r) 1
-#define WEXITSTATUS(r) (r)
-#define WTERMSIG(r) 0
-#define WSTOPSIG(r) 0
-#else
-#include <sys/wait.h>
-#endif
-
-/***************************************************************************/
-/* snprintf */
-
-#ifdef __WIN32__
-#include <stdio.h>
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
-#endif
-
 #ifdef __MSDOS__
-#include <sys/types.h>
 int snprintf(char* str, size_t count, const char* fmt, ...);
 int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #endif
 
-#include <stdio.h>
-
-/***************************************************************************/
-/* wchar */
-
-#ifdef __MSDOS__
-
-#include <wchar.h>
-
-static inline wchar_t towlower(wchar_t c)
-{
-	if (c >= 'A' && c <= 'Z')
-		return c - 'A' + 'a';
-	else
-		return c;
-}
-
-static inline wchar_t towupper(wchar_t c)
-{
-	if (c >= 'a' && c <= 'z')
-		return c - 'a' + 'A';
-	else
-		return c;
-}
-#endif
-
-/***************************************************************************/
-/* strcmpi */
-
-#ifndef __WIN32__
-#define strcmpi strcmpi /* For some #ifdef */
-static inline int strcmpi(const char* a, const char* b)
-{
-	return strcasecmp(a, b);
-}
-#endif
-
-#ifndef __WIN32__
-#define strncmpi strncmpi /* For some #ifdef */
-static inline int strncmpi(const char* a, const char* b, size_t count)
-{
-	return strncasecmp(a, b, count);
-}
-#endif
-
-/***************************************************************************/
-/* strlwr */
-
-#if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strlwr(char* s) {
-	while (*s) {
-		*s = tolower(*s);
-		++s;
-	}
-}
-#endif
-
-/***************************************************************************/
-/* strupr */
-
-#if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strupr(char* s) {
-	while (*s) {
-		*s = toupper(*s);
-		++s;
-	}
-}
+#ifdef __WIN32__
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 #endif
 
 #ifdef __cplusplus

@@ -212,8 +212,11 @@ public:
 
 	// video
 	unsigned video_size; ///< Preferred video x size.
-	bool video_reset_mode; ///< Reset to text mode at exit.
-	std::string video_font_path; ///< Font path, "none"== default.
+	bool video_reset_mode_game; ///< Reset to text mode before running games.
+	bool video_reset_mode_exit; ///< Reset to text mode at exit.
+	std::string video_font_path; ///< Font path, "auto"== default.
+	int video_fontx; ///< Font size, "-1"==auto.
+	int video_fonty; ///< Font size, "-1"==auto.
 	double video_gamma; ///< Video gamma.
 	double video_brightness; ///< Video brightness.
 	unsigned video_orientation_orig; ///< Original video orientation.
@@ -263,9 +266,6 @@ public:
 
 	merge_t merge; ///< Rom merge type.
 
-	std::string msg_run_game; ///< Message to display before a game run.
-	saver_t run_saver_type; ///< Preview to display before a game run.
-
 	exit_t exit_mode; ///< Exit mode
 
 	// foreground sound
@@ -299,12 +299,17 @@ public:
 	resource current_sound; ///< Sound played for the current game.
 
 	std::string ui_back; ///< User interface background
+	std::string ui_help; ///< User interface help
+	std::string ui_exit; ///< User interface exit image
 	unsigned ui_left; ///< User interface left border
 	unsigned ui_right; ///< User interface right border
 	unsigned ui_top; ///< User interface top border
 	unsigned ui_bottom; ///< User interface bottom border
 	bool ui_top_bar; ///< User interface need top bar
 	bool ui_bottom_bar; ///< User interface need bottom bar
+	std::string ui_gamemsg; ///< Message to display before a game run.
+	saver_t ui_gamesaver; ///< Preview to display before a game run.
+	std::string ui_game; ///< User interface game image
 
 	bool console_mode; ///< Run in console mode with limited features. Mainly for AdvanceCD.
 

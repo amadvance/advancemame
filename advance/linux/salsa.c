@@ -29,20 +29,20 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "salsa.h"
 #include "log.h"
 #include "error.h"
 
-/* new ALSA API */
+/* Configure the ALSA header to use the new (1.0) ALSA API */
 #define ALSA_PCM_NEW_HW_PARAMS_API
 #define ALSA_PCM_NEW_SW_PARAMS_API
 
 #include <alsa/asoundlib.h>
-
-#include <assert.h>
 
 struct soundb_alsa_context {
 	unsigned channel;

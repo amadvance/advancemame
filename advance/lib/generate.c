@@ -29,15 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "generate.h"
 #include "log.h"
 
 #include <math.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* Normalize the values */
 void generate_normalize(adv_generate* generate)
@@ -355,18 +355,18 @@ static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, 
 		double f1 = (hclock - (double)e0->hclock) / (e1->hclock - (double)e0->hclock);
 		double f0 = 1 - f1;
 
-#if 1
-		/* compute the horizontal format with the linear interpolation */
+		/* compute the horizontal format with linear interpolation */
 		generate->hactive = pos(e0->gen.hactive * f0 + e1->gen.hactive * f1);
 		generate->hfront = pos(e0->gen.hfront * f0 + e1->gen.hfront * f1);
 		generate->hsync = pos(e0->gen.hsync * f0 + e1->gen.hsync * f1);
 		generate->hback = pos(e0->gen.hback * f0 + e1->gen.hback * f1);
-#else
+
+#if 0 /* OSDEF Alternate reference implementation */
 		/* I have some doubts on the correctness of this approach */
 		/* It computes correctly the size, but it may */
 		/* lose the correct centering */
 
-		/* compute the horizontal format with the gtf interpolation */
+		/* compute the horizontal format with gtf interpolation */
 		double duty_cycle;
 		double active;
 		double blank;

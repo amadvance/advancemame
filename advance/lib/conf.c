@@ -29,21 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "conf.h"
 #include "incstr.h"
 #include "log.h"
 #include "target.h"
-#include "portable.h"
-
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-#include <errno.h>
 
 /** Buffer used for int/float values */
 #define CONF_NUM_BUFFER_MAX 48

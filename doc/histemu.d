@@ -1,6 +1,27 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.80.0.0 2004/03
+	) You can now specify configuration options for a single software
+		using the format `SYSTEM[SOFTWARE]/OPTION' in the configuration
+		file. Like `ti99_4a[ti-inva]/display_magnify auto'.
+
+AdvanceMAME Version 0.80.0 2004/03
+	) The 16 bits rgb color mode is now used as default also if the
+		game has less than 256 colors. Previously the 8 bits palette
+		color mode was used.
+	) Added new configuration sections based on the number of the
+		players in the game using the format `Nplayer/OPTION'.
+		Like `1player/input_map[p1_button1] lshift'
+	) Added new effects `scale2x3', `scale2x4', `lq2x3', `lq2x4',
+		`hq2x3', `hq2x4'.
+	) Added support for TrueType (TTF) fonts with alpha blending
+		using the FreeType2 library. Added also a new `ui_fontsize'
+		option to select the font size and a collection of TTF fonts
+		in the `contrib/' dir
+	) Renamed the `input_map[double*_*]' options as `input_map[p1_double*_*]'
+		to allow different player specifications [Shane Warren].
+
 AdvanceMESS Version 0.79.0.0 2004/02
 	) All from AdvanceMAME 0.79.1 and MESS 0.79.0.
 

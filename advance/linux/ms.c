@@ -160,15 +160,13 @@ static void raw_mouse_handler(struct raw_mouse_context* context, int button, int
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <fcntl.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #if HAVE_TERMIOS_H
 #include <termios.h>
-#endif
-#if HAVE_FCNTL_H
-#include <fcntl.h>
 #endif
 
 /* #define DEBUG */

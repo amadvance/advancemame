@@ -19,16 +19,16 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "mixer.h"
 #include "mpglib.h"
 #include "wave.h"
 #include "soundall.h"
 #include "log.h"
-
-#include <string.h>
 
 #define MIXER_BUFFER_MAX 131072 /**< Max samples in the buffer */
 #define MIXER_PAGE_SIZE 4096 /**< Size of the buffer read from disk */

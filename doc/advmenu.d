@@ -399,7 +399,7 @@ Configuration
 		:	"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 
     emulator_TAG
-	Select additional directories for the emulators. These
+	Selects additional directories for the emulators. These
 	directories are used in addition to any other directory
 	defined in the emulator config file. The preview images and
 	sounds files are also searched also in any `.zip' file present
@@ -444,7 +444,7 @@ Configuration
 		:emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"
 
     mode
-	Select the menu mode shown.
+	Selects the menu mode shown.
 
 	:mode full | full_mixed | text | list | list_mixed | tile_small
 	:	| tile_normal | tile_big | tile_enormous | tile_giant
@@ -465,7 +465,7 @@ Configuration
 		tile_marquee - Special mode for marquee preview.
 
     mode_skip
-	Select the not required modes to skip when you press `tab'.
+	Selects the not required modes to skip when you press `tab'.
 
 	:mode_skip (full | full_mixed | list | list_mixed | tile_small
 	:	| tile_normal | tile_big | tile_enormous | tile_giant
@@ -480,7 +480,7 @@ Configuration
 		:mode_skip
 
     sort
-	Select the order of the games displayed.
+	Selects the order of the games displayed.
 
 	:sort parent | name | time | play | year | manufacturer
 	:	| type | group | size | resolution | info
@@ -499,7 +499,7 @@ Configuration
 		info - Information read with `info_import'.
 
     preview
-	Select the type of the images displayed.
+	Selects the type of the images displayed.
 
 	:preview snap | titles | flyers | cabinets
 
@@ -526,7 +526,7 @@ Configuration
 		:preview_expand 1.15
 
     preview_default_*
-	Select the default images. When an image for the selected game
+	Selects the default images. When an image for the selected game
 	is not found, a default image can be displayed.
 
 	:preview_default "IMAGE_PATH"
@@ -538,9 +538,9 @@ Configuration
 	:preview_default_title "IMAGE_PATH"
 
 	Commands:
-		default - Select the default image for all preview
+		default - Selects the default image for all preview
 			modes.
-		default_TAG - Select the default image for a single
+		default_TAG - Selects the default image for a single
 			preview mode.
 
 	Options:
@@ -562,7 +562,7 @@ Configuration
 		SPACE - The number of pixel between icons (default 43)
 
     merge
-	Select the expected format of your romset. It's used to test
+	Selects the expected format of your romset. It's used to test
 	the existence of the correct zips needed to run the games.
 
 	:merge none | differential | parent | any | disable
@@ -617,39 +617,38 @@ Configuration
 	and create the correct video mode. If missing the settings for a
 	standard Multisync SVGA monitor are used.
 
-    video_size
-	Select the desired size of the video mode.
+    display_size
+	Selects the desired size of the video mode.
 
-	:video_size X_SIZE
+	:display_size X_SIZE
 
 	Options:
 		X_SIZE - Width in pixels of the video mode. The nearest
 			available video mode is chosen (default 1024).
 
-    video_restore
-	Select whether to reset in the text mode before running the
+    display_restoreatgame
+	Selects whether to reset the video mode before running the
 	emulator.
 
-	:video_restore yes | no
+	:display_restoreatgame yes | no
 
 	Options:
-		yes - Switch to text mode (default).
+		yes - Reset the video mode (default).
 		no - Maintain the current graphics mode.
 
-    video_font
-	Select a font file. The formats GRX, PSF and RAW are supported.
-	You can find a collection of fonts in the `contrib' directory.
+    display_restoreatext
+	Selects whether to reset the video mode before exiting.
 
-	:video_font auto | "FONT_FILE"
+	:display_restoreatexit yes | no
 
 	Options:
-		auto - Use the built-in font (default).
-		FONT_FILE - Font file path.
+		yes - Reset the video mode (default).
+		no - Maintain the current graphics mode.
 
-    video_orientation
-	Select the desired orientation of the screen.
+    display_orientation
+	Selects the desired orientation of the screen.
 
-	:video_orientation (flip_xy | mirror_x | mirror_y)*
+	:display_orientation (flip_xy | mirror_x | mirror_y)*
 
 	Options:
 		mirror_x - Mirror in the horizontal direction.
@@ -657,29 +656,29 @@ Configuration
 		flip_xy - Swap the x and y axes.
 
 	Examples:
-		:video_orientation flip_xy mirror_x
+		:display_orientation flip_xy mirror_x
 
-    video_brightness
-	Select the image brightness factor.
+    display_brightness
+	Selects the image brightness factor.
 
-	:video_brightness FACTOR
+	:display_brightness FACTOR
 
 	Options:
 		FACTOR - Brightness float factor (default 1.0).
 
 	Examples:
-		:video_brightness 0.9
+		:display_brightness 0.9
 
-    video_gamma
-	Select the image gamma correction factor.
+    display_gamma
+	Selects the image gamma correction factor.
 
-	:video_gamma FACTOR
+	:display_gamma FACTOR
 
 	Options:
 		FACTOR - Gamma float factor (default 1.0).
 
 	Examples:
-		:video_gamma 0.9
+		:display_gamma 0.9
 
   Sound Configuration Options
     device_sound_*
@@ -717,7 +716,7 @@ Configuration
 			(default 0.1)
 
     sound_foreground_EVENT
-	Select the sounds played in foreground for the various events.
+	Selects the sounds played in foreground for the various events.
 
 	:sound_foreground_begin none | default | FILE
 	:sound_foreground_end none | default | FILE
@@ -738,7 +737,7 @@ Configuration
 		FILE - Path of the sound file (.wav or .mp3).
 
     sound_background_EVENT
-	Select the sounds played in background for the various events.
+	Selects the sounds played in background for the various events.
 
 	:sound_background_begin none | FILE
 	:sound_background_end none | FILE
@@ -760,7 +759,7 @@ Configuration
 		FILE - Path of the sound file (.wav or .mp3)
 
     sound_background_loop_dir
-	Select the background music directory to search for MP3 and WAV
+	Selects the background music directory to search for MP3 and WAV
 	files.
 
 	Music tracks will be played in random order.
@@ -789,7 +788,7 @@ Configuration
 	the `advdev.txt' file can be used.
 
     mouse_delta
-	Select the mouse/trackball sensitivity. Increase the value for
+	Selects the mouse/trackball sensitivity. Increase the value for
 	slower movement. Decrease it for a faster movement.
 
 	:mouse_delta STEP
@@ -799,6 +798,33 @@ Configuration
 
   User Interface
 
+    ui_font
+	Selects a font file. The formats TrueType (TTF), GRX, PSF and
+	RAW are supported. You can find a collection of fonts in the
+	`contrib' directory.
+
+	:ui_font auto | "FILE"
+
+	Options:
+		auto - Use the built-in font (default).
+		FILE - Font file path.
+
+	The TrueType (TTF) format is supported only if the program is
+	compiled with the FreeType2 library.
+
+    ui_fontsize
+	If the specificed font is scalable, selects the font size.
+	The size is expressed in number of rows and coloumns of text in the
+	screen.
+
+	:ui_fontsize auto | ROWS [COLS]
+
+	Options:
+		auto - Automatically compute the size (default).
+		ROWS - Number of text rows.
+		COLS - Number of text columns. If omitted is computed from
+			the number of rows.
+
     ui_background
 	Define a background image in the .PNG format. The image is stretched
 	to fit the screen.
@@ -806,7 +832,47 @@ Configuration
 	ui_background FILE
 
 	Options:
-		FILE - File to load (default none).
+		FILE - File in .PNG format to load (default none).
+
+    ui_exit
+	Define an exit background image in the .PNG format displayed when
+	the emulator exit. The image is stretched to fit the screen.
+	The message is displayed only if the option `display_restoreaatexit'
+	is set to `no'.
+
+	ui_exit FILE
+
+	Options:
+		FILE - File in .PNG format to load (default none).
+
+    ui_gamemsg
+	One line message displayed when a game is chosen. The
+	message is displayed only if the option `display_restoreaatgame' is
+	set to `no'.
+
+	:ui_gamemsg "MESSAGE"
+
+	Options:
+		MESSAGE - Message to display (default "Run Game").
+			To prevent the display of the message use the
+			empty string "".
+
+	Examples:
+		:ui_gamemsg "Avvio il gioco..."
+
+    ui_game
+	Selects the preview type to display when a game is run. The
+	message is displayed only if the option `display_restoreatgame' is
+	set to `no'.
+
+	:ui_game none | snap | flyers | cabinets | titles | FILE
+
+	Options:
+		none - Don't display any preview.
+		snap, flyers, cabinets, titles - Display the
+			specified preview. (default snap).
+		FILE - File in .PNG format to load.
+
 
     ui_skiptop/bottom/left/right
 	Define the border area of the screen not used by the menu. Generally
@@ -864,7 +930,7 @@ Configuration
 		BACKGROUND - Background color. Like foreground color.
 
     ui_clip
-	Select how play the video clips.
+	Selects how play the video clips.
 
 	:ui_clip none | single | singleloop | multi | multiloop | multiloopall
 
@@ -964,7 +1030,7 @@ Configuration
 		:idle_screensaver 40 5
 
     idle_screensaver_preview
-	Select the preview type to use. Like the preview option.
+	Selects the preview type to use. Like the preview option.
 
 	:idle_screensaver_preview none | play | snap | flyers
 	:	| cabinets | titles
@@ -979,7 +1045,7 @@ Configuration
 			snapshots are ignored.
 
     group/type
-	Select the available `group' and `type' category names and
+	Selects the available `group' and `type' category names and
 	which of them to show.
 
 	:group "STRING"
@@ -995,7 +1061,7 @@ Configuration
 		STRING - name of the category
 
     group/type/desc/info_import
-	Select the automatic import of the groups, types, descriptions
+	Selects the automatic import of the groups, types, descriptions
 	and extra info from an external file. The extra info are
 	additional information displayed for every game.
 
@@ -1099,7 +1165,7 @@ Configuration
 	names.
 
     event_repeat
-	Select the repeat rate of the various events.
+	Selects the repeat rate of the various events.
 
 	:event_repeat FIRST_TIME NEXT_TIME
 
@@ -1108,7 +1174,7 @@ Configuration
 		NEXT_TIME - Time of the next repeats in ms.
 
     event_mode
-	Select whether to wait for a complete screen update before
+	Selects whether to wait for a complete screen update before
 	processing the next event.
 
 	:event_mode wait | fast
@@ -1129,33 +1195,6 @@ Configuration
 	Options:
 		yes - Enable (default).
 		no - Disable.
-
-    run_msg
-	One line message displayed when a game is chosen. The
-	message is displayed only if the option `video_restore' is
-	set to `no'.
-
-	:run_msg "MESSAGE"
-
-	Options:
-		MESSAGE - Message to display (default "Run Game").
-			To prevent the display of the message use the
-			empty string "".
-
-	Examples:
-		:run_msg "Avvio il gioco..."
-
-    run_preview
-	Select the preview type to display when a game is run. The
-	message is displayed only if the option `video_restore' is
-	set to `no'.
-
-	:run_preview none | snap | flyers | cabinets | titles
-
-	Options:
-		none - Don't display any preview.
-		snap, flyers, cabinets, titles - Display the
-			specified preview. (default snap).
 
     misc_exit
 	Exit modes.
@@ -1194,6 +1233,7 @@ Formats Supported
 		WAV - The WAV format with a sample size of 16 bit.
 
 	Fonts:
+		TTF - The TrueType format (with the FreeType2 library).
 		RAW - The RAW format.
 		PSF - The PSF format.
 		GRX - The GRX format.

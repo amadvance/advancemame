@@ -31,14 +31,16 @@ Description
 		stretching.
 	* Special `rgb' effects to simulate the aspect of a real Arcade
 		Monitor.
-	* Change of the video mode and other options at runtime.
+	* Change of the video mode and other video options at runtime.
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
-		thread architecture (only for Linux/Mac OS X).
+		thread architecture (only for Linux).
 	* Sound and video recording in WAV, PNG and MNG files.
+        * Support for up to 4 mouses in Linux and 2 in DOS.
 	* Automatic exit after some time of inactivity.
 	* Scripts capabilities to drive external hardware devices
 		like LCDs and lights.
 	* Textual configuration files.
+	* Help screen describing the user input keys.
 
 Keys
 	In the game play you can use the following keys :
@@ -366,7 +368,7 @@ Use Cases
 	on different video hardware.
 
   With a PC Multi-Sync Monitor
-	On a PC Multi-Sync monitor you can get ANY Resolution at ANY
+	On a PC Multi-Sync monitor you can get any resolution at any
 	Vertical Frequency. In this case AdvanceMAME always generates
 	a `perfect' video mode with the correct size and clock. It
 	doesn't require any type of stretching.
@@ -409,21 +411,31 @@ Other Ports
 	other MAME ports.
 
   Windows MAME
-	The official Windows MAME generally doesn't use a video mode
-	with the correct size but it stretches the image (losing in
-	quality) to match the best video mode found on the system list.
+	The official Windows MAME is forced by Windows drivers to select
+	a video mode from a prefixed list of mode sizes and clocks.
+	If the emulated game requires a not standard mode size the
+	emulator must stretch the game image to fit the screen (losing in
+	quality). If the emulated games requires a not standard clock the
+	emulator must play the game without syncronizing with the video
+	vertical retrace (generating the tearing disturb on scrolling game)
+	or display frames for different time (generating a not constant
+	scrolling).
+
 	Depending on the type of your video drivers you can sometimes
-	edit this list.
+	edit the prefixed list of video modes.
+
 	The TV support depends on the video drivers of your board and
 	it's generally limited at the interlaced mode 640x480.
 	Arcade monitors are used as NTSC TVs.
+
 	Generally this port is limited by Windows to get the best from
 	your monitor.
 
   DOS MAME
-	The official DOS MAME (v0.53) is limited to use only the
-	standard VESA resolutions. Generally they are only 320x200,
+	The official DOS MAME is limited to use only the standard
+	VESA resolutions. Generally they are only 320x200,
 	320x240, 400x300, 512x384, 640x480, ...
+
 	The Arcade/TV support is limited at the mode 640x480 for the
 	ATI boards.
 
@@ -492,30 +504,39 @@ Configuration
 	When you run a game every option is read in different
 	sections in the following order:
 
-		`game' - The short game name, like `pacman'.
-		`parent' - If present, the parent name of the game,
+		`SYSTEM[SOFTWARE]' - The short system name and the loaded
+			software on the command line, like `ti99_4a[ti-inva]',
+			`a7800[digdug]' and `nes[commando]'.
+		`GAME' - The short game (or system) name, like `pacman',
+			`ti99_4a' and `nes'.
+		`PARENT' - If present, the parent name of the game,
 			like `puckman'.
-		`bios' - If present, the bios name of the game,
+		`BIOS' - If present, the bios name of the game,
 			like `neogeo'.
-		`resolutionxclock' - The resolution and the clock of the
+		`RESOLUTIONxCLOCK' - The resolution and the clock of the
 			game, like `244x288x60' for raster games or
 			`vector' for vector games. If the vertical clock
 			is a real value, it's rounded downwards to the
 			nearest integer.
-		`resolution' - The resolution of the game, like
+		`RESOLUTION' - The resolution of the game, like
 			`244x288' for raster games or `vector' for
 			vector games.
-		`orientation' - The game orientation. `vertical'
+		`ORIENTATION' - The game orientation. `vertical'
 			or `horizontal'.
+		`Nplayer' - Number of players in the game. `1player', `2player',
+			`3player', ...
 		`' - The default empty section.
 
-	You can override any global option inserting a new
-	value only for a single game or a single game resolution.
-	For example:
+	For example for the game `pacman' the following sections are
+	read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
+	`2player' and `'.
 
+	You can override any global options inserting new options in
+	any of the sections of the game.
+
+	For example:
 		:display_scanlines no
 		:pacman/display_scanlines yes
-		:pacman/dir_rom C:\PACMAN
 		:244x288x60/display_scanlines yes
 		:vertical/display_ror yes
 		:horizontal/display_ror no
@@ -1338,7 +1359,18 @@ Configuration
 	The DIGITAL controls are:
 		p1_up, p2_up, p3_up, p4_up, p1_down, p2_down, p3_down, p4_down, 
 		p1_left, p2_left, p3_left, p4_left, p1_right, p2_right, p3_right, 
-		p4_right, p1_button1, p2_button1, p3_button1, p4_button1, p1_button2, 
+		p4_right, p1_doubleright_up, p1_doubleright_down,
+		p1_doubleright_left, p1_doubleright_right, p1_doubleleft_up,
+		p1_doubleleft_down, p1_doubleleft_left, p1_doubleleft_right,
+		p2_doubleright_up, p2_doubleright_down, p2_doubleright_left,
+		p2_doubleright_right, p2_doubleleft_up, p2_doubleleft_down
+		p2_doubleleft_left, p2_doubleleft_right, p3_doubleright_up,
+		p3_doubleright_down, p3_doubleright_left, p3_doubleright_right,
+		p3_doubleleft_up, p3_doubleleft_down, p3_doubleleft_left,
+		p3_doubleleft_right, p4_doubleright_up, p4_doubleright_down,
+		p4_doubleright_left, p4_doubleright_right, p4_doubleleft_up,
+		p4_doubleleft_down, p4_doubleleft_left, p4_doubleleft_right,
+		p1_button1, p2_button1, p3_button1, p4_button1, p1_button2,
 		p2_button2, p3_button2, p4_button2, p1_button3, p2_button3, p3_button3, 
 		p4_button3, p1_button4, p2_button4, p3_button4, p4_button4, p1_button5, 
 		p2_button5, p3_button5, p4_button5, p1_button6, p2_button6, p3_button6, 
@@ -1535,16 +1567,31 @@ Configuration
 	The data used for the default image is in the `contrib/help' dir.
 
     ui_font
-	Select the font to use for the user interface. The formats GRX,
-	PSF and RAW are supported. You can find a collection of fonts in
-	the `contrib' directory.
+	Selects a font file. The formats TrueType (TTF), GRX, PSF and
+	RAW are supported. You can find a collection of fonts in the
+	`contrib' directory.
 
-	:ui_font auto | FILE
+	:ui_font auto | "FILE"
 
 	Options:
-		auto - Automatically select the internal
-			font (default).
-		FILE - Load an arbitrary font from a file.
+		auto - Use the built-in font (default).
+		FILE - Font file path.
+
+	The TrueType (TTF) format is supported only if the program is
+	compiled with the FreeType2 library.
+
+    ui_fontsize
+	If the specificed font is scalable, selects the font size.
+	The size is expressed in number of rows and coloumns of text in the
+	screen.
+
+	:ui_fontsize auto | ROWS [COLS]
+
+	Options:
+		auto - Automatically compute the size (default).
+		ROWS - Number of text rows.
+		COLS - Number of text columns. If omitted is computed from
+			the number of rows.
 
   Record Configuration Options
 	This section describes the options used for the recording

@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "extra.h"
 
@@ -40,12 +42,6 @@
 
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
 
 /****************************************************************************/
 /* Error */

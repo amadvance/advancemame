@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "itty.h"
 #include "log.h"
@@ -42,25 +44,12 @@
 #include "ossdl.h"
 #endif
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
+#if HAVE_TERMIOS_H
+#include <termios.h>
 #endif
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#if HAVE_TERMIOS_H
-#include <termios.h>
-#endif
-
-#include <stdio.h>
-#include <string.h>
-#include <stdio.h>
 
 struct inputb_tty_context {
 	unsigned last;

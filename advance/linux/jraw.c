@@ -29,23 +29,18 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "jraw.h"
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include <linux/joystick.h>
-
-#include <unistd.h>
-
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
 
 #define RAW_JOYSTICK_MAX 4
 #define RAW_JOYSTICK_DEVICE_MAX 4

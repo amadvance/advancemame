@@ -28,10 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "fuzzy.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include <ctype.h>
-#include <string.h>
+#include "portable.h"
+
+#include "fuzzy.h"
 
 /**
  * Check if "a" is a ordered subset of "b".

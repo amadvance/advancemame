@@ -1,6 +1,16 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.2 2004/03
+	) Renamed the `video_*' options in `display_*' like AdvanceMAME.
+	) Added new `ui_help' and `ui_exit' options to display arbitrary
+		help and exit images.
+	) Added support for TrueType (TTF) fonts with alpha blending
+		using the FreeType2 library. Added also a new `ui_fontsize'
+		option to select the font size and a collection of TTF fonts
+		in the `contrib/' dir
+	) Fixed the icon loading from a .zip file.
+
 AdvanceMENU Version 2.3.1 2004/02
 	) If no preview is available, the preview type is automatically
 		changed to a preview type not empty.

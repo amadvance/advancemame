@@ -44,6 +44,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/mixer.o \
 	$(MENUOBJ)/lib/wave.o \
 	$(MENUOBJ)/lib/png.o \
+	$(MENUOBJ)/lib/pngdef.o \
 	$(MENUOBJ)/lib/pcx.o \
 	$(MENUOBJ)/lib/icon.o \
 	$(MENUOBJ)/lib/fontdef.o \
@@ -98,11 +99,19 @@ ifeq ($(CONF_HOST),unix)
 # Dependencies on DATADIR/SYSCONFDIR
 $(MENUOBJ)/linux/file.o: $(srcdir)/Makefile
 
+# Allow external customization for special targets
+ifndef DATADIR
+DATADIR=$(datadir)/advance
+endif
+ifndef SYSCONDIR
+SYSCONDIR=$(sysconfdir)
+endif
+
 MENUOBJDIRS += \
 	$(MENUOBJ)/linux
 MENUCFLAGS +=  \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DDATADIR=\"$(DATADIR)\" \
+	-DSYSCONFDIR=\"$(SYSCONFDIR)\" \
 	-I$(srcdir)/advance/linux
 MENUCFLAGS += \
 	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \
@@ -205,6 +214,12 @@ MENUOBJS += \
 	$(MENUOBJ)/sdl/msdl.o \
 	$(MENUOBJ)/sdl/jsdl.o
 endif
+ifeq ($(CONF_LIB_FREETYPE),yes)
+MENUCFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+MENULIBS += $(FREETYPELIBS)
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)
@@ -297,10 +312,15 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib/clockchi \
 	$(MENUOBJ)/svgalib/drivers \
 	$(MENUOBJ)/svgalib/svgados
+ifeq ($(CONF_LIB_FREETYPE),yes)
+MENUCFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+MENULIBS += $(FREETYPELIBS)
+endif
 endif
 
 ifeq ($(CONF_HOST),windows)
-
 MENUCFLAGS += \
 	-I$(srcdir)/advance/windows \
 	-DUSE_VIDEO_RESTORE -DUSE_VIDEO_NONE \
@@ -391,6 +411,12 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/ramdac/btdacs.o \
 	$(MENUOBJ)/svgalib/ramdac/ics_gend.o \
 	$(MENUOBJ)/svgalib/clockchi/icd2061a.o
+endif
+ifeq ($(CONF_LIB_FREETYPE),yes)
+MENUCFLAGS += \
+	$(FREETYPECFLAGS) \
+	-DUSE_FREETYPE
+MENULIBS += $(FREETYPELIBS)
 endif
 endif
 

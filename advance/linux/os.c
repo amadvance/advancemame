@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "os.h"
 #include "oslinux.h"
@@ -39,7 +41,6 @@
 #include "file.h"
 #include "snstring.h"
 #include "measure.h"
-#include "portable.h"
 
 #if defined(USE_SDL)
 #include "ossdl.h"
@@ -70,35 +71,14 @@
 #include <X11/Xlib.h>
 #endif
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 #if HAVE_TERMIOS_H
 #include <termios.h>
 #endif
 #if HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 
-#include <stdlib.h>
-#include <string.h>
-#include <signal.h>
-#include <stdio.h>
 #include <setjmp.h>
-#include <time.h>
-
 
 struct os_context {
 #ifdef USE_SVGALIB
@@ -287,18 +267,34 @@ int os_inner_init(const char* title)
 		log_std(("os: machine %s\n", uts.machine));
 	}
 
-#if defined(linux)
+#if HAVE_SYSCONF
+#ifdef _SC_CLK_TCK
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
+#endif
+#ifdef _SC_NPROCESSORS_CONF
 	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n", sysconf(_SC_NPROCESSORS_CONF)));
+#endif
+#ifdef _SC_NPROCESSORS_ONLN
 	log_std(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n", sysconf(_SC_NPROCESSORS_ONLN)));
+#endif
+#ifdef _SC_PHYS_PAGES
 	log_std(("os: sysconf(_SC_PHYS_PAGES) %ld\n", sysconf(_SC_PHYS_PAGES)));
+#endif
+#ifdef _SC_AVPHYS_PAGES
 	log_std(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n", sysconf(_SC_AVPHYS_PAGES)));
+#endif
+#ifdef _SC_CHAR_BIT
 	log_std(("os: sysconf(_SC_CHAR_BIT) %ld\n", sysconf(_SC_CHAR_BIT)));
+#endif
+#ifdef _SC_LONG_BIT
 	log_std(("os: sysconf(_SC_LONG_BIT) %ld\n", sysconf(_SC_LONG_BIT)));
+#endif
+#ifdef _SC_WORD_BIT
 	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n", sysconf(_SC_WORD_BIT)));
 #endif
+#endif
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#ifdef _POSIX_PRIORITY_SCHEDULING /* OSDEF Check for POSIX scheduling */
 	log_std(("os: scheduling available\n"));
 #else
 	log_std(("os: scheduling NOT available\n"));

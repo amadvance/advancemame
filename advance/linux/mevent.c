@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "mevent.h"
 #include "log.h"
@@ -38,7 +40,6 @@
 #include "error.h"
 #include "snstring.h"
 #include "event.h"
-#include "portable.h"
 
 #ifdef USE_VIDEO_SDL
 #include "ossdl.h"
@@ -50,11 +51,6 @@
 #endif
 
 #include <linux/input.h>
-
-#include <unistd.h>
-
-#include <errno.h>
-#include <string.h>
 
 #define EVENT_MOUSE_MAX 8
 #define EVENT_MOUSE_DEVICE_MAX 32

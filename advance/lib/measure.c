@@ -19,13 +19,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "target.h"
 #include "log.h"
-
-#include <stdlib.h>
 
 static int double_cmp(const void* _a, const void* _b)
 {
@@ -92,7 +92,7 @@ double measure_median(double low, double high, double* map, unsigned count)
 	return map[median] / TARGET_CLOCKS_PER_SEC;
 }
 
-#define MEASURE_COUNT 7
+#define MEASURE_COUNT 15
 
 /**
  * Measure the time beetween two events.
@@ -112,6 +112,9 @@ double measure_step(void (*wait)(void), double low, double high, unsigned count)
 
 	if (count == 0 || count > MEASURE_COUNT)
 		count = MEASURE_COUNT;
+
+	/* try to not be interrupted */
+	target_yield();
 
 	i = 0;
 	wait();

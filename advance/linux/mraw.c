@@ -29,15 +29,16 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "mraw.h"
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #ifdef USE_VIDEO_SDL
 #include "ossdl.h"
@@ -47,9 +48,6 @@
 #include <vga.h>
 #include <vgamouse.h>
 #endif
-
-#include <errno.h>
-#include <string.h>
 
 /* include the mouse driver */
 #include "ms.c"

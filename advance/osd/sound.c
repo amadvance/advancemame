@@ -28,15 +28,17 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "emu.h"
 #include "conf.h"
 #include "sounddrv.h"
 #include "soundall.h"
 #include "log.h"
-
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define ADJUST_MULT_BASE 4096
 

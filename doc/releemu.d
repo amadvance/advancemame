@@ -1,6 +1,16 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.80.0
+	This version adds support for TrueType (TTF) fonts with alpha blending
+	using the FreeType2 library. If you compile from source, you must
+	ensure to have installed the FreeType2 library from
+	www.freetype.org or this feature will be disabled.
+
+	This version uses the 16 bits rgb color mode as default also if the
+	game has less than 256 colors. Previously the 8 bits palette
+	color mode was used.
+
 AdvanceMAME 0.79.1
 	The host configuration directory is now under the installation prefix
 	as $prefix/etc. This means that if you install in /usr/local the host

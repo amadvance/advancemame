@@ -19,14 +19,14 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "wave.h"
 #include "endianrw.h"
 #include "log.h"
-
-#include <string.h>
 
 #define WAVE_FORMAT_PCM 0x0001 /* Microsoft Pulse Code Modulation (PCM) format */
 #define IBM_FORMAT_MULAW 0x0101 /* IBM mu-law format */

@@ -29,32 +29,21 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "lcd.h"
 #include "log.h"
 #include "target.h"
-#include "portable.h"
 #include "snstring.h"
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 #if HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#if HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 #if HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+#include <sys/socket.h> /* On Darwin, `stdlib.h' is a prerequisite. */
 #endif
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -62,12 +51,6 @@
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
-
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-#include <errno.h>
 
 static adv_error adv_lcd_sendstr_noblock(adv_lcd* context, char* data)
 {

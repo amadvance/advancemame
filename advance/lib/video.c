@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "video.h"
 
@@ -41,15 +43,6 @@
 #include "rgb.h"
 #include "snstring.h"
 #include "measure.h"
-#include "portable.h"
-
-#include <ctype.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <assert.h>
-#include <time.h>
-#include <stdlib.h>
-#include <string.h>
 
 /***************************************************************************/
 /* State */
@@ -397,7 +390,7 @@ const adv_video_driver* video_driver_vector_pos(unsigned i)
 }
 
 /**
- * Inizialize the video system.
+ * Initialize the video system.
  */
 adv_error video_init(void)
 {
@@ -414,13 +407,13 @@ adv_error video_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the video driver. The errors are:\n");
+	error_nolog_set("Unable to initialize the video driver. The errors are:\n");
 
 	/* enable all the video driver */
 
-#if defined(__MSDOS__)
-	/* backward order */ /* TODO convert the order to forward removing the dependencies */
-	/* some drivers have dependencies to respect */
+#ifdef __MSDOS__ /* TODO convert the order to forward removing the dependencies */
+	/* backward order */
+	/* some MSDOS drivers have dependencies to respect */
 	forward = 0;
 #else
 	/* forward order */
@@ -475,7 +468,7 @@ adv_error video_init(void)
 }
 
 /**
- * Deinizialize the video system.
+ * Deinitialize the video system.
  */
 void video_done(void)
 {
@@ -746,7 +739,7 @@ adv_error video_mode_set(adv_mode* mode)
 		video_fake_text_adjust();
 	}
 
-	vsync_time = measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 7);
+	vsync_time = measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 11);
 
 	if (vsync_time > 0) {
 		video_state.measured_vclock = 1 / vsync_time;

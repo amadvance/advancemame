@@ -29,14 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "vslang.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include "oslinux.h"
 
@@ -49,10 +50,6 @@
 #error slang.h file not found!
 #endif
 #endif
-
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
 
 /***************************************************************************/
 /* State */

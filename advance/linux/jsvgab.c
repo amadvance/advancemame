@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "jsvgab.h"
 #include "log.h"
@@ -38,8 +40,6 @@
 #include "error.h"
 
 #include <vgajoystick.h>
-
-#include <stdio.h>
 
 #define JOYSTICK_MAX 4 /**< Max number of joysticks */
 

@@ -29,18 +29,15 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "device.h"
 #include "log.h"
 #include "target.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
 
 static const adv_device* device_match_one(const char* tag, const adv_driver* drv, adv_bool allow_none)
 {

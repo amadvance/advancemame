@@ -29,31 +29,17 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "file.h"
 #include "target.h"
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 #if HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
-#if HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
-#include <signal.h>
 
 #ifndef DATADIR
 #error Macro DATADIR undefined
@@ -96,7 +82,7 @@ adv_error file_init(void)
 
 
 	/* root */
-	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s/advance", DATADIR);
+	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", DATADIR);
 
 	/* home */
 

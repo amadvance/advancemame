@@ -19,16 +19,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "readinfo.h"
+#include "portable.h"
 
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
+#include "readinfo.h"
 
 /* Start size of buffer */
 #define INFO_BUF_MIN 64

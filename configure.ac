@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([advance],[source])
-AC_CONFIG_HEADERS([advance/lib/osconf.h:advance/lib/osconf.hin])
+AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
 AC_PREREQ(2.57)
 AC_COPYRIGHT([Copyright 2004 Andrea Mazzoleni])
@@ -192,11 +192,12 @@ AC_ARG_ENABLE(
 )
 if test $ac_enable_asm = auto; then
 	AC_MSG_CHECKING([whether ${CC-cc} accepts Pentium assembler])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
+	AC_TRY_COMPILE([
+		], [
 			#if !defined(__GNUC__) || !defined(__i386__)
 			choke me
 			#endif
-		]])],[ac_enable_asm=yes],[ac_enable_asm=no])
+		],[ac_enable_asm=yes],[ac_enable_asm=no])
 	AC_MSG_RESULT([$ac_enable_asm])
 	if test $ac_enable_asm = yes; then
 		AC_CHECK_PROGS([ASM], [${ac_tool_prefix}nasm], [none])
@@ -306,18 +307,23 @@ AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 if test $ac_host = unix ; then
 	AC_HEADER_STDC
 	AC_HEADER_SYS_WAIT
-	AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h sched.h netdb.h termios.h])
-	AC_CHECK_HEADERS([sys/utsname.h sys/time.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h])
+	AC_HEADER_DIRENT
+	AC_HEADER_TIME
+	AC_HEADER_TIOCGWINSZ
+	AC_CHECK_HEADERS([unistd.h sched.h netdb.h termios.h execinfo.h])
+	AC_CHECK_HEADERS([sys/utsname.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h sys/time.h sys/mman.h sys/io.h sys/kd.h sys/vt.h])
 	AC_CHECK_HEADERS([netinet/in.h])
+	AC_C_CONST
+	AC_C_RESTRICT
+	AC_C_INLINE
 	AC_FUNC_ALLOCA
 	AC_FUNC_FORK
-	AC_PROG_GCC_TRADITIONAL
 	AC_FUNC_MALLOC
 	AC_FUNC_MMAP
 	AC_FUNC_SELECT_ARGTYPES
-	AC_FUNC_SETVBUF_REVERSED
 	AC_FUNC_VPRINTF
-	AC_CHECK_FUNCS([getcwd gettimeofday memset mkdir munmap select strcasecmp strdup strerror strstr uname])
+	AC_CHECK_FUNCS([strcasecmp strerror])
+	AC_CHECK_FUNCS([uname sysconf backtrace backtrace_symbols])
 fi
 
 # Checks for libraries.
@@ -364,11 +370,13 @@ if test $ac_lib_svgalib = auto; then
 	)
 	if test $ac_lib_svgalib = yes; then
 		AC_MSG_CHECKING([for svgalib version])
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
+		AC_TRY_COMPILE([
+				#include <vga.h>
+			], [
 				#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
 				choke me
 				#endif
-			]])],[],[ac_lib_svgalib=no])
+			],[ac_lib_svgalib=yes],[ac_lib_svgalib=no])
 		AC_MSG_RESULT([$ac_lib_svgalib])
 	fi
 elif test $ac_lib_svgalib = yes; then
@@ -380,11 +388,13 @@ elif test $ac_lib_svgalib = yes; then
 		[-lm]
 	)
 	AC_MSG_CHECKING([for svgalib version])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
+	AC_TRY_COMPILE([
+			#include <vga.h>
+		], [
 			#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
 			choke me
 			#endif
-		]])],[],[AC_MSG_ERROR([the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
+		],[],[AC_MSG_ERROR([the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_svgalib = yes; then
@@ -406,15 +416,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_fb = auto; then
 	AC_MSG_CHECKING([for FrameBuffer])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/fb.h>
+		], [
 			struct fb_var_screeninfo dummy;
-		]])],[ac_lib_fb=yes],[ac_lib_fb=no])
+		],[ac_lib_fb=yes],[ac_lib_fb=no])
 	AC_MSG_RESULT([$ac_lib_fb])
 elif test $ac_lib_fb = yes; then
 	AC_MSG_CHECKING([for FrameBuffer])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/fb.h>
+		], [
 			struct fb_var_screeninfo dummy;
-		]])],[],[AC_MSG_ERROR([the Frame Buffer library is missing])])
+		],[],[AC_MSG_ERROR([the Frame Buffer library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_fb = yes; then
@@ -435,15 +449,18 @@ if test $ac_lib_alsa = auto; then
 		[asound],
 		[snd_pcm_open],
 		[ac_lib_alsa=yes],
-		[ac_lib_alsa=no]
+		[ac_lib_alsa=no],
+		[-lm]
 	)
 	if test $ac_lib_alsa = yes; then
-		AC_MSG_CHECKING([for ALSA version])
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
+		AC_MSG_CHECKING([for ALSA])
+		AC_TRY_COMPILE([
+				#include <alsa/asoundlib.h>
+			], [
 				#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 				choke me
 				#endif
-			]])],[],[ac_lib_alsa=no])
+			],[ac_lib_alsa=yes],[ac_lib_alsa=no])
 		AC_MSG_RESULT([$ac_lib_alsa])
 	fi
 elif test $ac_lib_alsa = yes; then
@@ -451,14 +468,17 @@ elif test $ac_lib_alsa = yes; then
 		[asound],
 		[snd_pcm_open],
 		[],
-		[AC_MSG_ERROR([the ALSA library is missing])]
+		[AC_MSG_ERROR([the ALSA library is missing])],
+		[-lm]
 	)
 	AC_MSG_CHECKING([for ALSA version])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
+	AC_TRY_COMPILE([
+			#include <alsa/asoundlib.h>
+		], [
 			#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 			choke me
 			#endif
-		]])],[],[AC_MSG_ERROR([the ALSA library is too old])])
+		],[],[AC_MSG_ERROR([the ALSA library is too old])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_alsa = yes; then
@@ -476,15 +496,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_oss = auto; then
 	AC_MSG_CHECKING([for OSS])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
+	AC_TRY_COMPILE([
+			#include <sys/soundcard.h>
+		], [
 			int dummy = SNDCTL_DSP_SETFMT;
-		]])],[ac_lib_oss=yes],[ac_lib_oss=no])
+		],[ac_lib_oss=yes],[ac_lib_oss=no])
 	AC_MSG_RESULT([$ac_lib_oss])
 elif test $ac_lib_oss = yes; then
 	AC_MSG_CHECKING([for OSS])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
+	AC_TRY_COMPILE([
+			#include <sys/soundcard.h>
+		], [
 			int dummy = SNDCTL_DSP_SETFMT;
-		]])],[],[AC_MSG_ERROR([the OSS library is missing])])
+		],[],[AC_MSG_ERROR([the OSS library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_oss = yes; then
@@ -518,7 +542,7 @@ elif test $ac_lib_pthread = yes; then
 	)
 fi
 if test $ac_lib_pthread = yes; then
-	ac_lib_thread="$ac_lib_thread pthread"
+	ac_lib_other="$ac_lib_other pthread"
 fi
 AC_SUBST([CONF_LIB_PTHREAD],[$ac_lib_pthread])
 
@@ -552,6 +576,93 @@ if test $ac_lib_slang = yes; then
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 
+# Checks for freetype
+ac_lib_freetype_args=
+ac_lib_freetype_path="$PATH"
+AC_ARG_WITH(
+	[freetype-prefix],
+	AC_HELP_STRING([--with-freetype-prefix=DIR],[Prefix where FreeType2 is installed (optional)]),
+	[ac_lib_freetype_prefix="$withval"],
+	[ac_lib_freetype_prefix=""]
+)
+if test ! -z $ac_lib_freetype_prefix; then
+	ac_lib_freetype_args="--prefix=${ac_lib_freetype_prefix}"
+	ac_lib_freetype_path="${ac_lib_freetype_prefix}/bin"
+fi
+AC_ARG_ENABLE(
+	[freetype],
+	AC_HELP_STRING([--enable-freetype],[enable the use of the FreeType2 library. (default auto)]),
+	[ac_lib_freetype=$enableval],
+	[ac_lib_freetype=auto]
+)
+if test $ac_lib_freetype = auto; then
+	AC_PATH_PROGS(
+		[ac_lib_freetype_config],
+		[${ac_tool_prefix}freetype-config],
+		[],
+		[${ac_lib_freetype_path}]
+	)
+	if test -z $ac_lib_freetype_config; then
+		ac_lib_freetype=no
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		FREETYPECFLAGS=`$ac_lib_freetype_config $ac_lib_freetype_args --cflags`
+		FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
+		CFLAGS="$FREETYPECFLAGS $CFLAGS"
+		LIBS="$FREETYPELIBS $LIBS"
+		AC_MSG_CHECKING([for FreeType2])
+		AC_TRY_LINK([
+				#include <ft2build.h>
+				#include FT_FREETYPE_H
+				#include FT_GLYPH_H
+			], [
+				FT_Library library;
+				FT_Init_FreeType(&library);
+				FT_Done_FreeType(library);
+			],[ac_lib_freetype=yes],[ac_lib_freetype=no])
+		AC_MSG_RESULT([$ac_lib_freetype])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+elif test $ac_lib_freetype = yes; then
+	AC_PATH_PROGS(
+		[ac_lib_freetype_config],
+		[${ac_tool_prefix}freetype-config],
+		[],
+		[${ac_lib_freetype_path}]
+	)
+	if test -z $ac_lib_freetype_config ; then
+		AC_MSG_ERROR([the ${ac_tool_prefix}freetype-config tool is missing])
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		FREETYPECFLAGS=`$ac_lib_freetype_config $ac_lib_freetype_args --cflags`
+		FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
+		CFLAGS="$FREETYPECFLAGS $CFLAGS"
+		LIBS="$FREETYPELIBS $LIBS"
+		AC_MSG_CHECKING([for FreeType2])
+		AC_TRY_LINK([
+				#include <ft2build.h>
+				#include FT_FREETYPE_H
+				#include FT_GLYPH_H
+			], [
+				FT_Library library;
+				FT_Init_FreeType(&library);
+				FT_Done_FreeType(library);
+			],[],[AC_MSG_ERROR([the FreeType2 library is missing])])
+		AC_MSG_RESULT([yes])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+fi
+if test $ac_lib_freetype = yes; then
+	ac_lib_other="$ac_lib_other freetype2"
+fi
+AC_SUBST([FREETYPECFLAGS])
+AC_SUBST([FREETYPELIBS])
+AC_SUBST([CONF_LIB_FREETYPE],[$ac_lib_freetype])
+
 # Checks for sdl
 ac_lib_sdl_args=
 ac_lib_sdl_path="$PATH"
@@ -581,19 +692,26 @@ if test $ac_lib_sdl = auto; then
 	if test -z $ac_lib_sdl_config; then
 		ac_lib_sdl=no
 	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
 		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
 		if test $ac_enable_static = yes ; then
 			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
 		else
 			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 		fi
-		AC_CHECK_LIB(
-			[SDL],
-			[SDL_Init],
-			[ac_lib_sdl=yes],
-			[ac_lib_sdl=no],
-			[$SDLLIBS]
-		)
+		CFLAGS="$SDLCFLAGS $CFLAGS"
+		LIBS="$SDLLIBS $LIBS"
+		AC_MSG_CHECKING([for SDL])
+		AC_TRY_LINK([
+				#include "SDL.h"
+				#undef main
+			], [
+				SDL_Init(SDL_INIT_EVERYTHING);
+			],[ac_lib_sdl=yes],[ac_lib_sdl=no])
+		AC_MSG_RESULT([$ac_lib_sdl])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
 	fi
 elif test $ac_lib_sdl = yes; then
 	AC_PATH_PROGS(
@@ -605,19 +723,26 @@ elif test $ac_lib_sdl = yes; then
 	if test -z $ac_lib_sdl_config ; then
 		AC_MSG_ERROR([the ${ac_tool_prefix}sdl-config tool is missing])
 	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
 		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
 		if test $ac_enable_static = yes ; then
 			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
 		else
 			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 		fi
-		AC_CHECK_LIB(
-			[SDL],
-			[SDL_Init],
-			[],
-			[AC_MSG_ERROR([the SDL library is missing])],
-			[$SDLLIBS]
-		)
+		CFLAGS="$SDLCFLAGS $CFLAGS"
+		LIBS="$SDLLIBS $LIBS"
+		AC_MSG_CHECKING([for SDL])
+		AC_TRY_LINK([
+				#include "SDL.h"
+				#undef main
+			], [
+				SDL_Init(SDL_INIT_EVERYTHING);
+			],[],[AC_MSG_ERROR([the SDL library is missing])])
+		AC_MSG_RESULT([yes])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
 	fi
 fi
 if test $ac_lib_sdl = yes; then
@@ -675,25 +800,29 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_kraw = auto; then
 	AC_MSG_CHECKING([for raw keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+	AC_TRY_COMPILE([
 			#include <sys/kd.h>
 			#include <sys/vt.h>
 			#include <sys/ioctl.h>
-		]], [[
+			#include <termios.h>
+		], [
 			int dummy0 = K_MEDIUMRAW;
 			int dummy1 = VT_ACTIVATE;
-		]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
+			struct termios dummy2;
+		],[ac_lib_kraw=yes],[ac_lib_kraw=no])
 	AC_MSG_RESULT([$ac_lib_kraw])
 elif test $ac_lib_kraw = yes; then
 	AC_MSG_CHECKING([for raw keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+	AC_TRY_COMPILE([
 			#include <sys/kd.h>
 			#include <sys/vt.h>
 			#include <sys/ioctl.h>
-		]], [[
+			#include <termios.h>
+		], [
 			int dummy0 = K_MEDIUMRAW;
 			int dummy1 = VT_ACTIVATE;
-		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
+			struct termios dummy2;
+		],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kraw = yes; then
@@ -711,23 +840,23 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_jraw = auto; then
 	AC_MSG_CHECKING([for raw joystick interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+	AC_TRY_COMPILE([
 			#include <linux/joystick.h>
-		]], [[
+		], [
 			#ifndef JS_VERSION
 			choke me
 			#endif
-		]])],[ac_lib_jraw=yes],[ac_lib_jraw=no])
+		],[ac_lib_jraw=yes],[ac_lib_jraw=no])
 	AC_MSG_RESULT([$ac_lib_jraw])
 elif test $ac_lib_jraw = yes; then
 	AC_MSG_CHECKING([for raw joystick interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+	AC_TRY_COMPILE([
 			#include <linux/joystick.h>
-		]], [[
+		], [
 			#ifndef JS_VERSION
 			choke me
 			#endif
-		]])],[],[AC_MSG_ERROR([the JRAW joystick interface is missing])])
+		],[],[AC_MSG_ERROR([the JRAW joystick interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_jraw = yes; then
@@ -744,19 +873,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_mraw = auto; then
 	AC_MSG_CHECKING([for raw mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
-			void dummy(void) {
-				tcsetattr(0, TCSAFLUSH, 0);
-			}
-		]])],[ac_lib_mraw=yes],[ac_lib_mraw=no])
+	AC_TRY_COMPILE([
+			#include <termios.h>
+		], [
+			tcsetattr(0, TCSAFLUSH, 0);
+		],[ac_lib_mraw=yes],[ac_lib_mraw=no])
 	AC_MSG_RESULT([$ac_lib_mraw])
 elif test $ac_lib_mraw = yes; then
 	AC_MSG_CHECKING([for raw mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
-			void dummy(void) {
-				tcsetattr(0, TCSAFLUSH, 0);
-			}
-		]])],[],[AC_MSG_ERROR([the MRAW mouse interface is missing])])
+	AC_TRY_COMPILE([
+			#include <termios.h>
+		], [
+			tcsetattr(0, TCSAFLUSH, 0);
+		],[],[AC_MSG_ERROR([the MRAW mouse interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mraw = yes; then
@@ -773,15 +902,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_mevent = auto; then
 	AC_MSG_CHECKING([for event mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[ac_lib_mevent=yes],[ac_lib_mevent=no])
+		],[ac_lib_mevent=yes],[ac_lib_mevent=no])
 	AC_MSG_RESULT([$ac_lib_mevent])
 elif test $ac_lib_mevent = yes; then
 	AC_MSG_CHECKING([for event mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the event mouse interface is missing])])
+		],[],[AC_MSG_ERROR([the event mouse interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mevent = yes; then
@@ -798,15 +931,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_kevent = auto; then
 	AC_MSG_CHECKING([for event keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[ac_lib_kevent=yes],[ac_lib_kevent=no])
+		],[ac_lib_kevent=yes],[ac_lib_kevent=no])
 	AC_MSG_RESULT([$ac_lib_kevent])
 elif test $ac_lib_kevent = yes; then
 	AC_MSG_CHECKING([for event keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the event keyboard interface is missing])])
+		],[],[AC_MSG_ERROR([the event keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kevent = yes; then
@@ -824,15 +961,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_jevent = auto; then
 	AC_MSG_CHECKING([for event joystick interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[ac_lib_jevent=yes],[ac_lib_jevent=no])
+		],[ac_lib_jevent=yes],[ac_lib_jevent=no])
 	AC_MSG_RESULT([$ac_lib_jevent])
 elif test $ac_lib_jevent = yes; then
 	AC_MSG_CHECKING([for event joystick interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+	AC_TRY_COMPILE([
+			#include <linux/input.h>
+		], [
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the event joystick interface is missing])])
+		],[],[AC_MSG_ERROR([the event joystick interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_jevent = yes; then
@@ -876,7 +1017,7 @@ echo "Sound :" $ac_lib_sound
 echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
-echo "Thread :" $ac_lib_thread
+echo "Other :" $ac_lib_other
 if test $ac_lib_video_flag = no; then
 	AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
 fi

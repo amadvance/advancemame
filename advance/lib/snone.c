@@ -29,13 +29,13 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "snone.h"
 #include "log.h"
-
-#include <assert.h>
 
 struct soundb_none_context {
 	unsigned rate;

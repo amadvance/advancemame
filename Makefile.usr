@@ -49,6 +49,7 @@ prefix=/usr/local
 #CONF_LIB_SVGALIB=yes
 #CONF_LIB_SVGAWIN=yes
 #CONF_LIB_SDL=yes
+#CONF_LIB_FREETYPE=yes
 #CONF_LIB_FB=yes
 #CONF_LIB_ALSA=yes
 #CONF_LIB_OSS=yes
@@ -137,6 +138,10 @@ endif
      
 ifndef CONF_LIB_SDL
 CONF_LIB_SDL=yes
+endif
+
+ifndef CONF_LIB_FREETYPE
+CONF_LIB_FREETYPE=yes
 endif
 
 ifndef CONF_LIB_SVGAWIN
@@ -273,6 +278,8 @@ LD = @gcc
 LDXX = @g++
 SDLCFLAGS = $(shell sdl-config --cflags)
 SDLLIBS = $(shell sdl-config --libs)
+FREETYPECFLAGS = $(shell freetype-config --cflags)
+FREETYPELIBS = $(shell freetype-config --libs)
 endif
 ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
@@ -284,21 +291,23 @@ CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
+FREETYPECFLAGS = -I$(CROSSDIR)/include/freetype2 -I$(CROSSDIR)/include
+FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
 endif
 ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i386-mingw32msvc
 CROSSDIR = /usr/local/cross-tools
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
-#CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -I$(CROSSDIR)/$(CROSSTARGET)/include
-#CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -I$(CROSSDIR)/$(CROSSTARGET)/include
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
-LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
-LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
-SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL
-SDLLIBS = -lmingw32 -lSDL -mwindows
+SDLCFLAGS = -I$(CROSSDIR)/include/SDL -I$(CROSSDIR)/include
+SDLLIBS = -L$(CROSSDIR)/lib -lmingw32 -lSDL -mwindows
+FREETYPECFLAGS = -I$(CROSSDIR)/include/freetype2 -I$(CROSSDIR)/include
+FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
 endif
 endif
 
@@ -314,6 +323,8 @@ CC = @gcc
 CXX = @gxx
 LD = @gcc
 LDXX = @gxx
+FREETYPECFLAGS = "-IC:\DJGPP\INCLUDE" "-IC:\DJGPP\INCLUDE\FREETYPE2"
+FREETYPELIBS = "-LC:\DJGPP\LIB" -lfreetype -lz
 endif
 
 ifeq ($(CONF_BUILD),windows)
@@ -331,7 +342,9 @@ LDXX = @g++
 RC = @windres
 # The "" are required, otherwise the backslash are removed
 SDLCFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\SDL"
-SDLLIBS = -lmingw32 -lSDL -mwindows
+SDLLIBS = "-LC:\MINGW\LIB" -lmingw32 -lSDL -mwindows
+FREETYPECFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\FREETYPE2"
+FREETYPELIBS = "-LC:\MINGW\LIB" -lfreetype -lz
 endif
 
 # No installation with the manual configuration

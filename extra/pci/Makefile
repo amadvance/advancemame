@@ -7,3 +7,7 @@ clean:
 	rm -f pci
 	rm -f audiocd.d cardcd.d carddos.d cardlinx.d cardwin.d
 	rm -f cardcd.lst
+
+alsa:
+	awk '{ print "{ " $$2 ", " $$3 ", \"\" }, /* " $$1 " */ " } ' < modules.pcimap > alsaid.h.new
+

@@ -256,7 +256,7 @@ static void video_line_stretchx8_44(const struct video_stage_horz_struct* stage,
 	internal_quadruple8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-/* Inizialize the line rescaling system */
+/* Initialize the line rescaling system */
 static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
 {
 	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 1, ddx, 1);
@@ -315,6 +315,9 @@ static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_s
 	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
+	unsigned t = 0;
+	unsigned s = 0;
+
 	while (inner_count) {
 		unsigned run = whole;
 		if ((error += up) > 0) {
@@ -322,6 +325,8 @@ static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_s
 			error -= down;
 		}
 		internal_fill16(dst, P16DER0(src), run);
+		t += run;
+		s += 1;
 		PADD(dst, run*2);
 		PADD(src, sdp);
 		--inner_count;

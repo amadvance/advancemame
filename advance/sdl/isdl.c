@@ -28,6 +28,12 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "isdl.h"
 #include "log.h"
 #include "target.h"
@@ -35,10 +41,6 @@
 #include "ossdl.h"
 
 #include "SDL.h"
-
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 
 struct inputb_sdl_context {
 	unsigned last; /**< Last key pressed. */

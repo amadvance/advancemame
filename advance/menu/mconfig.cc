@@ -143,7 +143,7 @@ static bool config_path_import(const string& s, string& a0)
 		return false;
 	}
 
-	a0 = path_import(a0);
+	a0 = path_import(file_config_file_home(a0.c_str()));
 
 	return true;
 }
@@ -221,8 +221,8 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_default(config_context, "menu_base", 0);
 	conf_int_register_default(config_context, "menu_rel", 0);
 	conf_string_register_default(config_context, "event_repeat", "500 50");
-	conf_string_register_default(config_context, "run_msg", "\"Run game\"");
-	conf_int_register_enum_default(config_context, "run_preview", conf_enum(OPTION_SAVER), saver_snap);
+	conf_string_register_default(config_context, "ui_gamemsg", "\"Loading\"");
+	conf_int_register_enum_default(config_context, "ui_game", conf_enum(OPTION_SAVER), saver_snap);
 	conf_int_register_enum_default(config_context, "difficulty", conf_enum(OPTION_DIFFICULTY), difficulty_none);
 	conf_int_register_enum_default(config_context, "preview", conf_enum(OPTION_PREVIEW), preview_snap);
 	conf_float_register_limit_default(config_context, "preview_expand", 1.0, 3.0, 1.15);
@@ -249,14 +249,18 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "sound_background_start", "none");
 	conf_string_register_default(config_context, "sound_background_stop", "none");
 	conf_string_register_default(config_context, "sound_background_loop_dir", "\"mp3\"");
-	conf_int_register_limit_default(config_context, "video_size", 160, 2048, 1024);
-	conf_string_register_default(config_context, "video_font", "none");
-	conf_string_register_default(config_context, "video_orientation", "");
-	conf_float_register_limit_default(config_context, "video_gamma", 0.2, 5, 1);
-	conf_float_register_limit_default(config_context, "video_brightness", 0.2, 5, 1);
-	conf_bool_register_default(config_context, "video_restore", 1);
+	conf_int_register_limit_default(config_context, "display_size", 160, 2048, 1024);
+	conf_string_register_default(config_context, "ui_font", "auto");
+	conf_string_register_default(config_context, "ui_fontsize", "auto");
+	conf_string_register_default(config_context, "display_orientation", "");
+	conf_float_register_limit_default(config_context, "display_gamma", 0.2, 5, 1);
+	conf_float_register_limit_default(config_context, "display_brightness", 0.2, 5, 1);
+	conf_bool_register_default(config_context, "display_restoreatgame", 1);
+	conf_bool_register_default(config_context, "display_restoreatexit", 1);
 	conf_bool_register_default(config_context, "misc_quiet", 0);
 	conf_string_register_default(config_context, "ui_background", "none");
+	conf_string_register_default(config_context, "ui_help", "none");
+	conf_string_register_default(config_context, "ui_exit", "none");
 	conf_int_register_limit_default(config_context, "ui_skipbottom", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skiptop", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skipleft", 0, 1000, 0);
@@ -641,7 +645,7 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 	string s;
 	int i;
 
-	s = conf_string_get_default(config_context, "video_orientation");
+	s = conf_string_get_default(config_context, "display_orientation");
 	i = 0;
 	mask = 0;
 	while (i<s.length()) {
@@ -653,7 +657,7 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 		else if (arg == "mirror_y")
 			mask ^= ADV_ORIENTATION_FLIP_Y;
 		else {
-			config_error_la("video_orientation " + s, arg);
+			config_error_la("display_orientation " + s, arg);
 			return false;
 		}
 	}
@@ -672,7 +676,9 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	current_backdrop = resource();
 	current_sound = resource();
 
-	ui_back = conf_string_get_default(config_context, "ui_background");
+	ui_back = file_config_file_home(conf_string_get_default(config_context, "ui_background"));
+	ui_help = file_config_file_home(conf_string_get_default(config_context, "ui_help"));
+	ui_exit = file_config_file_home(conf_string_get_default(config_context, "ui_exit"));
 	ui_left = conf_int_get_default(config_context, "ui_skipleft");
 	ui_right = conf_int_get_default(config_context, "ui_skipright");
 	ui_top = conf_int_get_default(config_context, "ui_skiptop");
@@ -710,19 +716,22 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	repeat = atoi( a0.c_str() );
 	repeat_rep = atoi( a1.c_str() );
-	video_size = conf_int_get_default(config_context, "video_size");
-	if (!config_path_import(conf_string_get_default(config_context, "video_font"), a0))
+	video_size = conf_int_get_default(config_context, "display_size");
+	video_font_path = file_config_file_home(conf_string_get_default(config_context, "ui_font"));
+	if (!config_split(conf_string_get_default(config_context, "ui_fontsize"), a0, a1))
 		return false;
-	video_font_path = a0;
+	video_fonty = atoi( a0.c_str());
+	video_fontx = atoi( a1.c_str());
 	if (!config_load_orientation(config_context, video_orientation_orig))
 		return false;
-	video_gamma = conf_float_get_default(config_context, "video_gamma");
-	video_brightness = conf_float_get_default(config_context, "video_brightness");
-	video_reset_mode = conf_bool_get_default(config_context, "video_restore");
+	video_gamma = conf_float_get_default(config_context, "display_gamma");
+	video_brightness = conf_float_get_default(config_context, "display_brightness");
+	video_reset_mode_game = conf_bool_get_default(config_context, "display_restoreatgame");
+	video_reset_mode_exit = conf_bool_get_default(config_context, "display_restoreatexit");
 	quiet = conf_bool_get_default(config_context, "misc_quiet");
-	if (!config_split(conf_string_get_default(config_context, "run_msg"), msg_run_game))
+	if (!config_split(conf_string_get_default(config_context, "ui_gamemsg"), ui_gamemsg))
 		return false;
-	run_saver_type = (saver_t)conf_int_get_default(config_context, "run_preview");
+	ui_gamesaver = (saver_t)conf_int_get_default(config_context, "ui_game");
 	difficulty_orig = (difficulty_t)conf_int_get_default(config_context, "difficulty");
 	preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
 	idle_saver_type = (saver_t)conf_int_get_default(config_context, "idle_screensaver_preview");
@@ -792,48 +801,85 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 
 	// print the copyright message before other messages
 	if (!quiet) {
-		target_nfo(ADVANCE_COPY);
+		target_out(ADVANCE_COPY);
 	}
 
 	// select the active emulators
 	for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
 		if ((*i)->is_present())
 			emu_active.insert(emu_active.end(), *i);
-		else
-			target_err("Emulator '%s' not found.\n", (*i)->user_exe_path_get().c_str());
+		else {
+			if (!quiet)
+				target_err("Emulator '%s' not found, ignoring it.\n", (*i)->user_exe_path_get().c_str());
+		}
 	}
 
 	if (emu_active.size() == 0) {
-		target_err("No emulator found. Add an `emulator' option in your configuration file.\n");
-		target_err("These options are documented in the `advmenu.txt' file.\n");
+		target_err("No emulator found. Add an `emulator' option in your configuration file. These options are documented in the `advmenu.txt' file.\n");
 		return false;
 	}
 
 	// load the game definitions
-	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
+	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();) {
 		if (opt_verbose)
 			target_nfo("log: load game for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_game(gar, quiet)) {
-			return false;
+			if (!quiet)
+				target_err("Emulator '%s' without game information, ignoring it.\n", (*i)->user_exe_path_get().c_str());
+			pemulator_container::iterator j = i;
+			++i;
+			emu_active.erase(j);
+		} else {
+			++i;
 		}
 	}
 
 	// load the emulator configurations
-	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
+	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();) {
 		if (opt_verbose)
 			target_nfo("log: load cfg for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_cfg(gar, quiet)) {
-			return false;
+			if (!quiet)
+				target_err("Emulator '%s' without configuration, ignoring it.\n", (*i)->user_exe_path_get().c_str());
+			pemulator_container::iterator j = i;
+			++i;
+			emu_active.erase(j);
+		} else {
+			++i;
+		}
+	}
+
+	// remove emulator without roms
+	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();) {
+		if ((*i)->is_empty()) {
+			if (!quiet)
+				target_err("Emulator '%s' without rom files, ignoring it.\n", (*i)->user_exe_path_get().c_str());
+			pemulator_container::iterator j = i;
+			++i;
+			emu_active.erase(j);
+		} else {
+			++i;
 		}
 	}
 
 	// load the software definitions
-	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
+	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();) {
 		if (opt_verbose)
 			target_nfo("log: load software for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_software(gar, quiet)) {
-			return false;
+			if (!quiet)
+				target_err("Emulator '%s' without software information, ignoring it.\n", (*i)->user_exe_path_get().c_str());
+			pemulator_container::iterator j = i;
+			++i;
+			emu_active.erase(j);
+		} else {
+			++i;
 		}
+	}
+
+	if (emu_active.size() == 0) {
+		target_err("No working emulator found. Adjust the `emulator' options in your configuration file. These options are documented in the `advmenu.txt' file.\n");
+		return false;
 	}
 
 	// cache some values and relations
@@ -882,22 +928,23 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		i->auto_type_set(type.undefined_get());
 	}
 
-	// load the emulator active
-	if (!config_load_iterator_emu_include(config_context, "emulator_include", include_emu_orig))
-		return false;
-
-	if (include_emu_orig.size() == 0) {
-		for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
-			include_emu_orig.insert(include_emu_orig.end(), (*i)->user_name_get());
-		}
-	}
-
 	// load the emulator data
 	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
 		if (opt_verbose)
 			target_nfo("log: load data for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_data(gar)) {
 			return false;
+		}
+	}
+
+	// load the emulator active
+	if (!config_load_iterator_emu_include(config_context, "emulator_include", include_emu_orig))
+		return false;
+
+	// if the set is empty add all the emulator
+	if (include_emu_orig.size() == 0) {
+		for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
+			include_emu_orig.insert(include_emu_orig.end(), (*i)->user_name_get());
 		}
 	}
 
@@ -950,51 +997,58 @@ void config_state::conf_default(adv_conf* config_context)
 		char path[FILE_MAXPATH];
 #if defined(__MSDOS__) || defined(__WIN32__)
 		if (target_search(path, FILE_MAXPATH, "advmame.exe") == 0) {
+			target_out("Adding emulator `advmame'...\n");
 			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame.exe\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "advmess.exe") == 0) {
+			target_out("Adding emulator `advmess'...\n");
 			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess.exe\" \"\"");
 		}
-		if (target_search(path, FILE_MAXPATH, "advpac.exe") == 0) {
-			conf_set(config_context, "", "emulator", "\"advpac\" advpac \"advpac.exe\" \"\"");
-		}
 		if (target_search(path, FILE_MAXPATH, "dmame.exe") == 0) {
+			target_out("Adding emulator `dmame'...\n");
 			conf_set(config_context, "", "emulator", "\"dmame\" dmame \"dmame.exe\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "mame.exe") == 0) {
+			target_out("Adding emulator `mame'...\n");
 			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame.exe\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "raine.exe") == 0) {
+			target_out("Adding emulator `draine'...\n");
 			conf_set(config_context, "", "emulator", "\"draine\" draine \"raine.exe\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "snes9x.exe") == 0) {
+			target_out("Adding emulator `snes9x'...\n");
 			conf_set(config_context, "", "emulator", "\"snes9x\" generic \"snes9x.exe\" \"%f\"");
 			conf_set(config_context, "", "emulator_roms", "\"snes9x\" \"roms\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "zsnes.exe") == 0) {
+			target_out("Adding emulator `zsnes'...\n");
 			conf_set(config_context, "", "emulator", "\"zsnes\" generic \"zsnes.exe\" \"-e -m roms\\%f\"");
 			conf_set(config_context, "", "emulator_roms", "\"zsnes\" \"roms\"");
 		}
 #else
 		if (target_search(path, FILE_MAXPATH, "advmame") == 0) {
+			target_out("Adding emulator `advmame'...\n");
 			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "advmess") == 0) {
+			target_out("Adding emulator `advmess'...\n");
 			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"\"");
 		}
-		if (target_search(path, FILE_MAXPATH, "advpac") == 0) {
-			conf_set(config_context, "", "emulator", "\"advpac\" advpac \"advpac\" \"\"");
-		}
 		if (target_search(path, FILE_MAXPATH, "xmame") == 0) {
+			target_out("Adding emulator `xmame'...\n");
 			conf_set(config_context, "", "emulator", "\"xmame\" xmame \"xmame\" \"\"");
 		} else {
 			if (target_search(path, FILE_MAXPATH, "xmame.x11") == 0) {
+				target_out("Adding emulator `xmame.x11'...\n");
 				conf_set(config_context, "", "emulator", "\"xmame.x11\" xmame \"xmame.x11\" \"\"");
 			}
 			if (target_search(path, FILE_MAXPATH, "xmame.SDL") == 0) {
+				target_out("Adding emulator `xmame.SDL'...\n");
 				conf_set(config_context, "", "emulator", "\"xmame.SDL\" xmame \"xmame.SDL\" \"\"");
 			}
 			if (target_search(path, FILE_MAXPATH, "xmame.svgalib") == 0) {
+				target_out("Adding emulator `xmame.svgalib'...\n");
 				conf_set(config_context, "", "emulator", "\"xmame.svgalib\" xmame \"xmame.svgalib\" \"\"");
 			}
 		}
@@ -1099,7 +1153,7 @@ bool config_state::save(adv_conf* config_context) const {
 		if (s.length()) s += " ";
 		s += "mirror_y";
 	}
-	conf_string_set(config_context, "", "video_orientation", s.c_str());
+	conf_string_set(config_context, "", "display_orientation", s.c_str());
 
 	conf_remove(config_context, "", "game");
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {

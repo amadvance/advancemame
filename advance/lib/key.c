@@ -19,15 +19,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "key.h"
 #include "portable.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "key.h"
 
 struct key_entry {
 	const char* name;

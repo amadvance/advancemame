@@ -29,12 +29,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
 
-#include "incstr.h"
+#include "portable.h"
 
-#include <stdlib.h>
+#include "incstr.h"
 
 void inc_str_init(adv_string* str)
 {

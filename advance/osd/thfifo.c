@@ -38,11 +38,15 @@
  * workpile implementation.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "thread.h"
 
 #include <pthread.h>
-#include <unistd.h>
-#include <stdlib.h>
 
 /**
  * Number of extra threads for reentrant calls.

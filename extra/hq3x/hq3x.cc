@@ -145,15 +145,16 @@ int main(int argc, char* argv[])
 		set<cond> cs;
 		assign_set assign_base;
 		for(unsigned j=0;j<N;++j) {
+			bool positive;
 			ostringstream p;
-			p << "P" << j;
+			p << "P(" << j % 3 << ", " << j / 3 << ")";
 			if (m[j].size() == 1) {
 				set<item>::iterator l=m[j].begin();
 				cout << p.str() << " = " << assign(p.str(),interp(l->p),assign_base) << ";" << endl;
-			} else if (m[j].size() == 2) {
+			} else if (m[j].size() == 2 && condition_is_perfect_split(m[j].begin()->mask,positive)) {
 				set<item>::iterator l;
 				set<item>::iterator h;
-				if (condition(m[j].begin()->mask)[0] == '!') {
+				if (!positive) {
 					h = m[j].begin();
 					l = h;
 					++l;

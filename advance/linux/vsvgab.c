@@ -29,8 +29,10 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
+
+#include "portable.h"
 
 #include "vsvgab.h"
 #include "video.h"
@@ -38,13 +40,8 @@
 #include "oslinux.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include <vga.h>
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 /***************************************************************************/
 /* State */
@@ -567,10 +564,6 @@ int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* 
 {
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
-}
-
-void svgalib_default(void)
-{
 }
 
 void svgalib_reg(adv_conf* context)

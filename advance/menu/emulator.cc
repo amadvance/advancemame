@@ -81,7 +81,7 @@ static bool spawn_check(int r, bool ignore_error)
 #define ATTRIB_CHOICE_DX 20*int_font_dx_get()
 
 emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	state(false), name(Aname) {
+	state(false), name(Aname), has_atleastarom(false) {
 	char path[FILE_MAXPATH];
 
 	user_exe_path = Aexe_path;
@@ -166,6 +166,10 @@ bool emulator::is_present() const {
 	return true;
 }
 
+bool emulator::is_empty() const {
+	return !has_atleastarom;
+}
+
 bool emulator::is_runnable() const {
 	return true;
 }
@@ -182,8 +186,10 @@ string emulator::exe_dir_get() const {
 void emulator::scan_game(const game_set& gar, const string& path, const string& name)
 {
 	game_set::const_iterator i = gar.find(game(name));
-	if (i!=gar.end())
+	if (i!=gar.end()) {
+		has_atleastarom = true;
 		i->rom_zip_set_insert(path);
+	}
 }
 
 void emulator::scan_dir(const game_set& gar, const string& dir, bool quiet)

@@ -29,16 +29,12 @@
  */
 
 #if HAVE_CONFIG_H
-#include <osconf.h>
+#include <config.h>
 #endif
-
-#include "snstring.h"
 
 #include "portable.h"
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
+#include "snstring.h"
 
 /**
  * Copy a string with a size limit.

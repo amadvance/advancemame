@@ -215,7 +215,7 @@ adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 {
 	if (text_default_set(cc,monitor)!=0) {
 		video_mode_restore();
-		target_err("Error inizialing the default video mode.\n\r\"%s\"\n\r", error_get());
+		target_err("Error initialing the default video mode.\n\r\"%s\"\n\r", error_get());
 		return -1;
 	}
 
@@ -237,12 +237,12 @@ void text_reset(void)
 
 	if (video_mode_set(&the_default_mode)!=0) {
 		video_mode_restore();
-		target_err("Error inizialing the default video mode\n\r");
+		target_err("Error initialing the default video mode\n\r");
 		exit(EXIT_FAILURE);
 	}
 
 	if (inputb_enable(0) != 0) {
-		target_err("Error inizialing the input mode\n\r");
+		target_err("Error initialing the input mode\n\r");
 		exit(EXIT_FAILURE);
 	}
 }

@@ -28,14 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "emu.h"
-#include "log.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "portable.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "emu.h"
+#include "log.h"
+
 #include <math.h>
-#include <string.h>
 
 const char* mode_current_name(const struct advance_video_context* context)
 {
@@ -110,12 +112,14 @@ void video_aspect_reduce(unsigned long long* a, unsigned long long* b)
 /***************************************************************************/
 /* Scoring */
 
-/* Less is better */
+/* Compare video mode attributes, on comparing lesser values are better */
 
 static int score_compare_scanline(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
 {
 	int as;
 	int bs;
+
+	log_std(("emu:video: compare scanline\n"));
 
 	if (context->config.scanlines_flag) {
 		if (crtc_is_doublescan(a))
@@ -153,11 +157,94 @@ static int score_compare_scanline(const struct advance_video_context* context, c
 	return 0;
 }
 
+/**
+ * Score modes comparing two dimensions. 
+ * Modes which have a both dimensions as an exact multipler of the requested size
+ * are scored better. All the modes which are not exact multiplier all scored all
+ * equals.
+ */
+static int score_compare_dim2(
+	unsigned ax, unsigned ay,
+	unsigned bx, unsigned by,
+	unsigned rx, unsigned ry,
+	unsigned mx0, unsigned mx1, unsigned mx2, unsigned mx3,
+	unsigned my0, unsigned my1, unsigned my2, unsigned my3
+) {
+	adv_bool ae;
+	adv_bool be;
+
+	ae = (ax == mx0 || ax == mx1 || ax == mx2 || ax == mx3) && (ay == my0 || ay == my1 || ay == my2 || ay == my3);
+	be = (bx == mx0 || bx == mx1 || bx == mx2 || bx == mx3) && (by == my0 || by == my1 || by == my2 || by == my3);
+
+	if (ae && !be) {
+		return -1;
+	} else if (!ae && be) {
+		return 1;
+	} else if (!ae && !be) {
+		return 0;
+	} else {
+		/* both are an exact multiplier */
+		unsigned as = ax * ay;
+		unsigned bs = bx * by;
+		unsigned rs = rx * ry;
+		unsigned ad = abs(as - rs);
+		unsigned bd = abs(bs - rs);
+
+		/* use at least an area big as the requested */
+		/* note that this is valid only if all the dimensions are exact multipliers */
+		if (as >= rs && bs < rs)
+			return -1;
+		else if (as < rs && bs >= rs)
+			return 1;
+
+		if (ad != bd)
+			return ad - bd; /* smaller difference is better */
+		else
+			return as - bs; /* smaller value is better */
+	}
+}
+
+/**
+ * Score modes comparing one dimension.
+ * Favorite in order:
+ * - Modes which have a the dimensions as an exact multipler of the requested dimension.
+ * - The nearest size at the requested dimension.
+ * - The smaller dimension.
+ */
+static int score_compare_dim1(
+	unsigned a,
+	unsigned b,
+	unsigned r,
+	unsigned m0, unsigned m1, unsigned m2, unsigned m3
+) {
+	adv_bool ae;
+	adv_bool be;
+
+	ae = (a == m0 || a == m1 || a == m2 || a == m3);
+	be = (b == m0 || b == m1 || b == m2 || b == m3);
+
+	if (ae && !be) {
+		return -1;
+	} else if (!ae && be) {
+		return 1;
+	} else {
+		unsigned ad = abs(a - r);
+		unsigned bd = abs(b - r);
+
+		if (ad != bd)
+			return ad - bd; /* smaller difference is better */
+		else
+			return a - b; /* smaller value is better */
+	}
+}
+
 static int score_compare_size(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
 {
 	int r;
 	unsigned best_size_x;
 	unsigned best_size_y;
+	unsigned av;
+	unsigned bv;
 
 	if (!context->state.game_vector_flag) {
 		switch (context->config.magnify_factor) {
@@ -178,13 +265,13 @@ static int score_compare_size(const struct advance_video_context* context, const
 			best_size_y = context->state.mode_best_size_4y;
 			break;
 		default :
-			if (context->state.mode_best_size_x >= 512) {
+			if (context->state.mode_best_size_x >= 512 || context->state.mode_best_size_y >= 384) {
 				best_size_x = context->state.mode_best_size_x;
 				best_size_y = context->state.mode_best_size_y;
-			} else if (context->state.mode_best_size_x >= 256) {
+			} else if (context->state.mode_best_size_x >= 256 || context->state.mode_best_size_y >= 256) {
 				best_size_x = context->state.mode_best_size_2x;
 				best_size_y = context->state.mode_best_size_2y;
-			} else if (context->state.mode_best_size_x >= 192) {
+			} else if (context->state.mode_best_size_x >= 192 || context->state.mode_best_size_y >= 192) {
 				best_size_x = context->state.mode_best_size_3x;
 				best_size_y = context->state.mode_best_size_3y;
 			} else {
@@ -198,13 +285,26 @@ static int score_compare_size(const struct advance_video_context* context, const
 		best_size_y = context->state.mode_best_size_y;
 	}
 
-	/* nearest is lower */
-	r = abs( crtc_vsize_get(a) - best_size_y) - abs( crtc_vsize_get(b) - best_size_y);
+	log_std(("emu:video: compare size dim2\n"));
+
+	r = score_compare_dim2(
+		crtc_hsize_get(a), crtc_vsize_get(a),
+		crtc_hsize_get(b), crtc_vsize_get(b),
+		best_size_x, best_size_y,
+		context->state.mode_best_size_x, context->state.mode_best_size_2x, context->state.mode_best_size_3x, context->state.mode_best_size_4x,
+		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y
+	);
 	if (r)
 		return r;
 
-	/* bigger is lower */
-	r = crtc_vsize_get(b) - crtc_vsize_get(a);
+	log_std(("emu:video: compare size dim1\n"));
+
+	r = score_compare_dim1(
+		crtc_vsize_get(a),
+		crtc_vsize_get(b),
+		best_size_y,
+		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y
+	);
 	if (r)
 		return r;
 
@@ -212,8 +312,15 @@ static int score_compare_size(const struct advance_video_context* context, const
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0)
 		return 0;
 
+	log_std(("emu:video: compare size dim1\n"));
+
 	/* nearest is lower */
-	r = abs( crtc_hsize_get(a) - best_size_x) - abs( crtc_hsize_get(b) - best_size_x);
+	r = score_compare_dim1(
+		crtc_hsize_get(a),
+		crtc_hsize_get(b),
+		best_size_x,
+		context->state.mode_best_size_x, context->state.mode_best_size_2x, context->state.mode_best_size_3x, context->state.mode_best_size_4x
+	);
 	if (r)
 		return r;
 
@@ -238,6 +345,8 @@ static int score_compare_frequency(const struct advance_video_context* context, 
 	double freq_b;
 	double err_a;
 	double err_b;
+
+	log_std(("emu:video: compare frequency\n"));
 
 	/* if adjusted in clock the crtc are equal */
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0)
@@ -278,7 +387,7 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 	}
 
 	if (strcmp(crtc_name_get(a), crtc_name_get(b))!=0)
-		log_std(("video config compare indecision for %s, %s\n", crtc_name_get(a), crtc_name_get(b)));
+		log_std(("emu:video: compare indecision for %s/%s\n", crtc_name_get(a), crtc_name_get(b)));
 
 	return 0;
 }
@@ -286,9 +395,23 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 /* Context variable needed by qsort */
 static const struct advance_video_context* the_context;
 
-static int void_score_compare_crtc(const void* a, const void* b)
+static int void_score_compare_crtc(const void* _a, const void* _b)
 {
-	return score_compare_crtc(the_context, *(const adv_crtc**)a, *(const adv_crtc**)b);
+	int r;
+
+	const adv_crtc* a = *(const adv_crtc**)_a;
+	const adv_crtc* b = *(const adv_crtc**)_b;
+
+	r = score_compare_crtc(the_context, a, b);
+
+	if (r < 0)
+		log_std(("emu:video: compare %s/%s, first is better\n", crtc_name_get(a), crtc_name_get(b)));
+	else if (r > 0)
+		log_std(("emu:video: compare %s/%s, second is better\n", crtc_name_get(a), crtc_name_get(b)));
+	else
+		log_std(("emu:video: compare %s/%s, equal\n", crtc_name_get(a), crtc_name_get(b)));
+
+	return r;
 }
 
 void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac)

@@ -196,7 +196,7 @@ adv_error joystickb_allegro_init(int id)
 
 	log_std(("joystickb:allegro: joystick load calibration data\n"));
 	if (load_joystick_data(0) != 0) {
-		log_std(("joystickb:allegro: joystick error loading calibration data, try reinizializing\n"));
+		log_std(("joystickb:allegro: joystick error loading calibration data, try reinitializing\n"));
 		if (install_joystick(allegro_state.id) != 0) {
 			log_std(("joystickb:allegro: joystick initialization failed\n"));
 			return -1;

@@ -215,7 +215,7 @@ static unsigned char* vbe_linear_write_line(unsigned y)
 	return vbe_state.linear_pointer + y * vbe_state.bytes_per_scanline;
 }
 
-/* Inizialize the vbe linear framebuffer
+/* Initialize the vbe linear framebuffer
  * return:
  *      0 on successfull
  */
@@ -245,7 +245,7 @@ static adv_error vbe_linear_init(void)
 	return 0;
 }
 
-/* Deinizialize the vbe linear framebuffer */
+/* Deinitialize the vbe linear framebuffer */
 static void vbe_linear_done(void)
 {
 	assert( vbe_linear_is_active() );
@@ -323,7 +323,7 @@ static inline void vbe_pm_call_ptr(uint32 addr, uint32 ebx, uint32 ecx, uint32 e
 	);
 }
 
-/* Inizialize the protect mode interface
+/* Initialize the protect mode interface
  * return:
  *   ==0 ok
  * note:
@@ -470,7 +470,7 @@ adv_color_def vbe_color_def(void)
  *   0 on successfull
  * note:
  *   update correctly      vbe_state
- *   inizialize linear frambuffer if requested
+ *   initialize linear frambuffer if requested
  *   if fail, video mode can be bronken
  */
 adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc)
@@ -565,7 +565,7 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc)
 			vbe_state.palette_width = 6; /* VBE default */
 		}
 
-		/* inizialize pm interface */
+		/* initialize pm interface */
 		if (vbe_state.info.VESAVersion >= 0x200) {
 			if (vbe_pm_init() != 0) {
 				/* ignore error, don't use pm interface */
@@ -573,7 +573,7 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc)
 		}
 
 		if (mode & vbeLinearBuffer) {
-			/* inizialize linear framebuffer */
+			/* initialize linear framebuffer */
 			if (vbe_linear_init() != 0) {
 				vbe_mode_done(1);
 				return -1;
@@ -658,7 +658,7 @@ static void dosmodezcpy(unsigned* dst, unsigned segoff, unsigned len)
 	*dst = 0xFFFF;
 }
 
-/* Inizialize the vbe system
+/* Initialize the vbe system
  * return:
  *      0 on successfull
  */
@@ -694,7 +694,7 @@ adv_error vbe_init(void)
 
 	assert( !vbe_is_active() );
 
-	/* inizialize with all zero */
+	/* initialize with all zero */
 	memset(&vbe_state.info, 0, sizeof(vbe_VbeInfoBlock) );
 
 	/* request VBE 2.0+ */
@@ -789,7 +789,7 @@ adv_error vbe_init(void)
 	return 0;
 }
 
-/* Deinizialize the vbe system */
+/* Deinitialize the vbe system */
 void vbe_done(void)
 {
 	assert( vbe_is_active() );

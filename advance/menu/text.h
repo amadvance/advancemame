@@ -34,15 +34,9 @@
 // -------------------------------------------------------------------------
 // Interface
 
-struct int_rgb {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-};
-
 struct int_color {
-	int_rgb foreground;
-	int_rgb background;
+	adv_color_rgb foreground;
+	adv_color_rgb background;
 };
 
 void int_reg(adv_conf* config_context);
@@ -52,15 +46,15 @@ bool int_init(unsigned video_size, const std::string& sound_event_key);
 void int_done();
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
 void int_unset(bool reset_video_mode);
-bool int_enable(const std::string& font, unsigned orientation);
+bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientation);
 void int_disable();
 void int_unplug();
 void int_plug();
 
 bool int_image(const char* file, unsigned& size_x, unsigned& size_y);
 void int_clear();
-void int_clear(int x, int y, int dx, int dy, const int_rgb& color);
-void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color);
+void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color);
+void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color);
 void int_rotate(int& x, int& y, int& dx, int& dy);
 void int_invrotate(int& x, int& y, int& dx, int& dy);
 
@@ -97,6 +91,7 @@ void int_idle_0_enable(bool state);
 void int_idle_1_enable(bool state);
 
 int int_font_dx_get();
+int int_font_dx_get(const std::string& s);
 int int_font_dy_get();
 
 int int_dx_get();

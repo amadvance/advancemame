@@ -28,13 +28,18 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "portable.h"
+
 #include "vsdl.h"
 #include "video.h"
 #include "log.h"
 #include "ossdl.h"
 #include "error.h"
 #include "target.h"
-#include "portable.h"
 
 #ifdef USE_KEYBOARD_SDL
 #include "ksdl.h"
@@ -45,10 +50,6 @@
 #endif
 
 #include "SDL.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 /***************************************************************************/
 /* Options */
