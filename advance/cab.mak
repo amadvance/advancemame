@@ -22,6 +22,11 @@ VBE32_SRC = \
 	$(wildcard $(srcdir)/advance/vbe32/*.c) \
 	$(wildcard $(srcdir)/advance/vbe32/*.h)
 
+VBEW_SRC = \
+	$(srcdir)/advance/vbew/makefile \
+	$(wildcard $(srcdir)/advance/vbew/*.c) \
+	$(wildcard $(srcdir)/advance/vbew/*.h)
+
 VGA_SRC = \
 	$(srcdir)/advance/vga/makefile \
 	$(wildcard $(srcdir)/advance/vga/*.asm) \
@@ -171,6 +176,8 @@ distcab: $(RCSRC)
 	cp $(VBE_SRC) $(CAB_DIST_DIR_SRC)/advance/vbe
 	mkdir $(CAB_DIST_DIR_SRC)/advance/vbe32
 	cp $(VBE32_SRC) $(CAB_DIST_DIR_SRC)/advance/vbe32
+	mkdir $(CAB_DIST_DIR_SRC)/advance/vbew
+	cp $(VBEW_SRC) $(CAB_DIST_DIR_SRC)/advance/vbew
 	mkdir $(CAB_DIST_DIR_SRC)/advance/vga
 	cp $(VGA_SRC) $(CAB_DIST_DIR_SRC)/advance/vga
 	mkdir $(CAB_DIST_DIR_SRC)/advance/video
@@ -203,6 +210,10 @@ distcab: $(RCSRC)
 	cp $(SVGALIBSVGAWININSTALL_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
 	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	cp $(SVGALIBSVGAWINDRIVER_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgavdd
+	cp $(SVGALIBSVGAVDD_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgavdd
+	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/svgavdd/vdd
+	cp $(SVGALIBSVGAVDDVDD_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib/svgavdd/vdd
 	mkdir $(CAB_DIST_DIR_SRC)/contrib
 	mkdir $(CAB_DIST_DIR_SRC)/contrib/cab
 	cp -R $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_SRC)/contrib/cab

@@ -1,12 +1,12 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2003-03-31 14:10:52.000000000 +0200
++++ srcmess/advance.pat	2003-07-16 18:15:59.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2003-03-19 02:27:38.000000000 +0100
-+++ srcmess/common.c	2003-03-31 14:10:52.000000000 +0200
-@@ -1117,11 +1117,11 @@
+--- srcmess.ori/common.c	2003-07-04 19:16:10.000000000 +0200
++++ srcmess/common.c	2003-07-16 18:15:59.000000000 +0200
+@@ -1182,11 +1182,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -21,7 +21,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
 --- srcmess.ori/cpu/i8085/i8085.c	2002-12-09 21:48:46.000000000 +0100
-+++ srcmess/cpu/i8085/i8085.c	2003-03-31 14:10:52.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2003-07-16 18:15:59.000000000 +0200
 @@ -80,10 +80,16 @@
   * 
   *****************************************************************************/
@@ -40,8 +40,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
---- srcmess.ori/cpu/m68000/make68k.c	2002-11-15 19:08:25.000000000 +0100
-+++ srcmess/cpu/m68000/make68k.c	2003-03-31 14:10:52.000000000 +0200
+--- srcmess.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2003-07-16 18:15:59.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -89,8 +89,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #else
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
---- srcmess.ori/cpu/z80/z80.c	2003-01-23 05:33:20.000000000 +0100
-+++ srcmess/cpu/z80/z80.c	2003-03-31 14:10:52.000000000 +0200
+--- srcmess.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
++++ srcmess/cpu/z80/z80.c	2003-07-16 18:15:59.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -109,9 +109,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2003-03-10 02:12:49.000000000 +0100
-+++ srcmess/cpuexec.c	2003-03-31 14:10:52.000000000 +0200
-@@ -233,10 +233,13 @@
+--- srcmess.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
++++ srcmess/cpuexec.c	2003-07-16 18:15:59.000000000 +0200
+@@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
  	/* reset sound chips */
@@ -126,37 +126,44 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	2003-02-28 10:29:31.000000000 +0100
-+++ srcmess/info.c	2003-03-31 14:10:52.000000000 +0200
-@@ -744,10 +744,39 @@
- 	fprintf(out, SELECT(L2P "palettesize %d" L2N, "\t\t\t<palettesize>%d</palettesize>\n"), driver.total_colors);
+--- srcmess.ori/info.c	2003-07-04 19:16:10.000000000 +0200
++++ srcmess/info.c	2003-07-16 18:16:53.000000000 +0200
+@@ -811,10 +811,46 @@
+ 	fprintf(out, SELECT(L2P "palettesize %d" L2N, " palettesize=\"%d\""), driver.total_colors);
  
- 	fprintf(out, SELECT(L2E L1N, "\t\t</driver>\n"));
+ 	fprintf(out, SELECT(L2E L1N, "/>\n"));
  }
  
 +#ifdef MESS
-+static void print_game_device(FILE* out, const struct GameDriver* game) {
++static void print_game_device(int OUTPUT_XML, FILE* out, const struct GameDriver* game) {
 +	const struct IODevice* dev = device_first(game);
 +
 +	while (dev) {
 +		const char* ext = dev->file_extensions;
 +
-+		fprintf(out, L1P "device" L2B);
-+		fprintf(out, L2P "name \"%s\"" L2N, device_typename(dev->type));
++		fprintf(out, SELECT(L1P "device" L2B, "\t\t<device"));
++		fprintf(out, SELECT(L2P "name ", " name=\""));
++		print_statement_string(OUTPUT_XML, out, device_typename(dev->type));
++		fprintf(out, "%s", SELECT(L2N, "\""));
++		fprintf(out, "%s", SELECT("", ">\n"));
 +
 +		while (*ext) {
 +			/* some drivers put the extension separated by a , */
 +			char* ext_list = strdup(ext);
 +			char* ext_item = strtok(ext_list, ",");
 +			while (ext_item && ext_item[0]) {
-+				fprintf(out, L2P "ext \"%s\"" L2N, ext_item);
-+				ext_item = strtok(0 ,",");
++				fprintf(out, SELECT(L2P "ext ", "\t\t\t<extension"));
++				fprintf(out, "%s", SELECT("", " name=\""));
++				print_free_string(OUTPUT_XML, out, ext_item);
++				fprintf(out, "%s", SELECT(L2N, "\""));
++				fprintf(out, "%s", SELECT("", "/>\n"));
++				ext_item = strtok(0, ",");
 +			}
 +			free(ext_list);
 +			ext += strlen(ext) + 1;
 +		}
 +
-+		fprintf(out, L2E L1N);
++		fprintf(out, SELECT(L2E L1N, "\t\t</device>\n"));
 +
 +		dev = device_next(game, dev);
 +	}
@@ -164,28 +171,56 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
 +#endif
 +
  /* Print the MAME info record for a game */
- static void print_game_info(FILE* out, const struct GameDriver* game)
+ static void print_game_info(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
  {
+ 	extern struct GameDriver driver_0;
  
- #ifndef MESS
-@@ -787,10 +816,13 @@
- 	print_game_video(out,game);
- 	print_game_sound(out,game);
- 	print_game_input(out,game);
- 	print_game_switch(out,game);
- 	print_game_driver(out,game);
+@@ -858,10 +894,13 @@
+ 	print_game_video(OUTPUT_XML, out, game);
+ 	print_game_sound(OUTPUT_XML, out, game);
+ 	print_game_input(OUTPUT_XML, out, game);
+ 	print_game_switch(OUTPUT_XML, out, game);
+ 	print_game_driver(OUTPUT_XML, out, game);
 +#ifdef MESS
-+	print_game_device(out,game);
++	print_game_device(OUTPUT_XML, out, game);
 +#endif
  
- 	fprintf(out, SELECT(L1E, "\t</game>\n"));
+ 	fprintf(out, SELECT(L1E, "\t</" XML_TOP ">\n"));
  }
  
  #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
+@@ -936,11 +975,11 @@
+ {
+ 	fprintf(out,
+ 		"<?xml version=\"1.0\"?>\n"
+ 		"<!DOCTYPE " XML_ROOT " [\n"
+ 		"<!ELEMENT " XML_ROOT " (" XML_TOP "+)>\n"
+-		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
++		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?, device*)>\n"
+ 		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
+ 		"\t\t<!ATTLIST " XML_TOP " runnable (yes|no) \"yes\">\n"
+ 		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
+ 		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
+ 		"\t\t<!ATTLIST " XML_TOP " sampleof CDATA #IMPLIED>\n"
+@@ -1003,10 +1042,14 @@
+ 		"\t\t<!ELEMENT driver EMPTY>\n"
+ 		"\t\t\t<!ATTLIST driver status (good|preliminary|test) #REQUIRED>\n"
+ 		"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"
+ 		"\t\t\t<!ATTLIST driver sound (good|imperfect|preliminary) #REQUIRED>\n"
+ 		"\t\t\t<!ATTLIST driver palettesize CDATA #REQUIRED>\n"
++		"\t\t<!ELEMENT device (extension*)>\n"
++		"\t\t\t<!ATTLIST device name CDATA #REQUIRED>\n"
++		"\t\t\t<!ELEMENT extension EMPTY>\n"
++		"\t\t\t\t<!ATTLIST extension name CDATA #REQUIRED>\n"
+ 		"]>\n\n"
+ 		"<" XML_ROOT ">\n"
+ 	);
+ 
+ 	print_mame_data(1, out, games);
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2003-03-19 02:27:38.000000000 +0100
-+++ srcmess/inptport.c	2003-03-31 14:10:52.000000000 +0200
-@@ -151,10 +151,13 @@
+--- srcmess.ori/inptport.c	2003-07-10 04:15:35.000000000 +0200
++++ srcmess/inptport.c	2003-07-16 18:15:59.000000000 +0200
+@@ -200,10 +200,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -199,7 +234,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -162,10 +165,12 @@
+@@ -211,10 +214,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -212,7 +247,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1698,14 +1703,16 @@
+@@ -1819,14 +1824,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -235,7 +270,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.h srcmess/inptport.h
 --- srcmess.ori/inptport.h	2003-01-23 05:32:14.000000000 +0100
-+++ srcmess/inptport.h	2003-03-31 14:10:52.000000000 +0200
++++ srcmess/inptport.h	2003-07-16 18:15:59.000000000 +0200
 @@ -84,10 +84,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -253,9 +288,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	2002-06-30 20:57:54.000000000 +0200
-+++ srcmess/input.c	2003-03-31 14:10:52.000000000 +0200
-@@ -782,11 +782,11 @@
+--- srcmess.ori/input.c	2003-03-27 23:47:53.000000000 +0100
++++ srcmess/input.c	2003-07-16 18:15:59.000000000 +0200
+@@ -791,11 +791,11 @@
  {
  	int pressed;
  
@@ -268,7 +303,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	{
  		if (ui_map[code].memory == 0)
  		{
-@@ -806,11 +806,11 @@
+@@ -815,11 +815,11 @@
  	static int counter,inputdelay;
  	int pressed;
  
@@ -282,9 +317,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.c srcmess/mame.c
---- srcmess.ori/mame.c	2003-03-19 02:27:38.000000000 +0100
-+++ srcmess/mame.c	2003-03-31 14:10:52.000000000 +0200
-@@ -957,26 +957,20 @@
+--- srcmess.ori/mame.c	2003-06-29 22:47:43.000000000 +0200
++++ srcmess/mame.c	2003-07-16 18:15:59.000000000 +0200
+@@ -969,26 +969,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -322,9 +357,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.h srcmess/mame.h
---- srcmess.ori/mame.h	2003-01-23 05:32:15.000000000 +0100
-+++ srcmess/mame.h	2003-03-31 14:10:52.000000000 +0200
-@@ -357,8 +357,9 @@
+--- srcmess.ori/mame.h	2003-06-11 05:14:49.000000000 +0200
++++ srcmess/mame.h	2003-07-16 18:15:59.000000000 +0200
+@@ -363,8 +363,9 @@
  /* return the index of the given CPU, or -1 if not found */
  int mame_find_cpu_index(const char *tag);
  
@@ -335,20 +370,14 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2002-12-21 18:07:36.000000000 +0100
-+++ srcmess/osdepend.h	2003-03-31 14:10:52.000000000 +0200
-@@ -358,11 +358,34 @@
- /* things like changing the title bar or darkening the display. */
- /* Note that the OS dependant code must NOT stop processing input, since the user */
- /* interface is still active while the game is paused. */
- void osd_pause(int paused);
+--- srcmess.ori/osdepend.h	2003-06-09 22:02:00.000000000 +0200
++++ srcmess/osdepend.h	2003-07-16 18:15:59.000000000 +0200
+@@ -394,10 +394,32 @@
+       __attribute__ ((format (printf, 1, 2)));
+ #else
+ void CLIB_DECL logerror(const char *text,...);
+ #endif
  
-+/******************************************************************************
- 
-+	Additions
-+
-+******************************************************************************/
-+
 +/* called then the game is reset */
 +void osd_reset(void);
 +
@@ -367,15 +396,19 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
 +/* start and stop the video/sound recording. */
 +void osd_record_start(void);
 +void osd_record_stop(void);
++
++/* customize the inputport after they are read from the .cfg file */
++void osd_customize_inputport_current(struct InputPort* current);
++
+ #ifdef __cplusplus
+ }
+ #endif
  
- #ifdef MAME_NET
- /* network */
- int osd_net_init(void);
- int osd_net_send(int player, unsigned char buf[], int *size);
+ #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2003-02-11 02:42:04.000000000 +0100
-+++ srcmess/ui_text.c	2003-03-31 14:10:52.000000000 +0200
-@@ -237,10 +237,14 @@
+--- srcmess.ori/ui_text.c	2003-05-23 16:51:24.000000000 +0200
++++ srcmess/ui_text.c	2003-07-16 18:15:59.000000000 +0200
+@@ -239,10 +239,14 @@
  	"Restoration successful",
  	"Select a value",
  	"All values saved",
@@ -391,9 +424,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  int uistring_init (mame_file *langfile)
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2003-02-11 02:42:04.000000000 +0100
-+++ srcmess/ui_text.h	2003-03-31 14:10:52.000000000 +0200
-@@ -203,10 +203,14 @@
+--- srcmess.ori/ui_text.h	2003-05-23 16:51:24.000000000 +0200
++++ srcmess/ui_text.h	2003-07-16 18:15:59.000000000 +0200
+@@ -205,10 +205,14 @@
  	UI_search_OK,
  	UI_search_select_value,
  	UI_search_all_values_saved,
@@ -409,9 +442,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2003-03-19 02:27:39.000000000 +0100
-+++ srcmess/usrintrf.c	2003-03-31 14:10:52.000000000 +0200
-@@ -845,12 +845,16 @@
+--- srcmess.ori/usrintrf.c	2003-07-10 04:15:35.000000000 +0200
++++ srcmess/usrintrf.c	2003-07-16 18:15:59.000000000 +0200
+@@ -858,12 +858,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -430,7 +463,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	count = i;
  
  	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
-@@ -918,15 +922,27 @@
+@@ -931,15 +935,27 @@
  				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
  				curr_dt++;
  			}
@@ -463,7 +496,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	}
  
  	i = selected - topitem;
-@@ -2045,13 +2061,13 @@
+@@ -2058,13 +2074,13 @@
  		in++;
  	}
  
@@ -479,7 +512,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2064,15 +2080,17 @@
+@@ -2077,15 +2093,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -497,7 +530,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -2091,10 +2109,18 @@
+@@ -2104,10 +2122,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -516,7 +549,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -2142,10 +2168,21 @@
+@@ -2155,10 +2181,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -538,7 +571,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -2178,10 +2215,21 @@
+@@ -2191,10 +2228,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -560,25 +593,25 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -3036,15 +3084,15 @@
+@@ -3067,15 +3115,15 @@
  
  
  #ifndef MESS
  enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_STATS,UI_GAMEINFO, UI_HISTORY,
--		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
-+		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
+-		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT };
++		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,UI_OSD };
  #else
  enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_GAMEINFO, UI_IMAGEINFO,UI_FILEMANAGER,UI_TAPECONTROL,
--		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
-+		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
+-		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT };
++		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,UI_OSD };
  #endif
  
  
- #define MAX_SETUPMENU_ITEMS 20
- static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3119,10 +3167,11 @@
+ #ifdef XMAME
+ extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
+@@ -3167,10 +3215,11 @@
  #endif
  #endif
  #endif
@@ -590,7 +623,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3181,10 +3230,13 @@
+@@ -3234,10 +3283,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -604,7 +637,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3235,10 +3287,11 @@
+@@ -3291,10 +3343,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -616,7 +649,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  				break;
  
  			case UI_RESET:
-@@ -3772,10 +3825,63 @@
+@@ -3828,10 +3881,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -680,7 +713,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	int file = 0;
  
  	mame_pause(1);
-@@ -3891,17 +3997,42 @@
+@@ -3984,17 +4090,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -725,7 +758,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4012,10 +4143,14 @@
+@@ -4108,10 +4239,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -740,7 +773,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4024,11 +4159,11 @@
+@@ -4120,11 +4255,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);

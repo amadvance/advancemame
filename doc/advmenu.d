@@ -293,9 +293,9 @@ Configuration
 	You can force the creation of a default configuration file with the
 	command line option `-default'.
 
-	In DOS and Windows the directory name separator is '\' and the
-	multi-directory separator is ';'. In Linux and Mac OS X the directory
-	name separator is '/' and the multi-directory separator is ':'.
+	In DOS and Windows the directory name separator is `\' and the
+	multi-directory separator is `;'. In Linux and Mac OS X the directory
+	name separator is `/' and the multi-directory separator is `:'.
 
   Global Configuration Options
     config
@@ -324,7 +324,7 @@ Configuration
 	an emulator, all the game information for that emulator (like
 	the time played) is lost.
 
-	:emulator "EMUNAME" (generic | advmame | advmess | mame | dmame | dmess | raine) "EXECUTABLE" "ARGUMENTS"
+	:emulator "EMUNAME" (generic | advmame | advmess | mame | dmame | dmess | raine) "[-]EXECUTABLE" "ARGUMENTS"
 
 	Options:
 		EMUNAME - The name for the emulator. It must be
@@ -336,11 +336,12 @@ Configuration
 		dmame - It's the DOS MAME emulator.
 		dmess - It's the DOS MESS emulator.
 		raine - It's the DOS Raine emulator.
-		EXECUTABLE - The executable path of the emulator.
-			You can also use a batch file.
-			If you specify the complete path of the
-			executable the program is able to generate
-			the listing file.
+		[-]EXECUTABLE - The executable path of the emulator.
+			In DOS and Windows you can also use a batch (.bat)
+			file, but this prevent the automatic generation of
+			the listing file which must be generated manually.
+			You can put a `-' in front of the file path
+			to ignore any error returned by the exevutable.
 		ARGUMENTS - The arguments to be passed to the emulator.
 			The arguments are needed only for the `generic'
 			emulator.  For the others, AdvanceMENU is
@@ -386,14 +387,14 @@ Configuration
 	sounds files are also searched also in any `.zip' file present
 	in these directories.
 
-	:emulator_roms "Name" "LIST"
-	:emulator_roms_filter "Name" "LIST"
-	:emulator_altss "Name" "LIST"
-	:emulator_flyers "Name" "LIST"
-	:emulator_cabinets "Name" "LIST"
-	:emulator_marquees "Name" "LIST"
-	:emulator_icons "Name" "LIST"
-	:emulator_titles "Name" "LIST"
+	:emulator_roms "EMUNAME" "LIST"
+	:emulator_roms_filter "EMUNAME" "LIST"
+	:emulator_altss "EMUNAME" "LIST"
+	:emulator_flyers "EMUNAME" "LIST"
+	:emulator_cabinets "EMUNAME" "LIST"
+	:emulator_marquees "EMUNAME" "LIST"
+	:emulator_icons "EMUNAME" "LIST"
+	:emulator_titles "EMUNAME" "LIST"
 
 	Commands:
 		roms - List of directories used for the roms. This
@@ -412,12 +413,14 @@ Configuration
 		titles - Titles directory.
 
 	Options:
-		Name - The name for the emulator. Must be the same
+		EMUNAME - The name for the emulator. Must be the same
 			name of a defined emulator
-		LIST - List of directories or patterns separated by `;'
+		LIST - List of directories or patterns. In DOS and Windows
+			use the `;' char as separator. In Linux and
+			Mac OS X use the `:' char.
 
-	Examples:
-		:emulator_roms "snes9x" "c:\game\snes9x\roms"
+	Examples for DOS and Windows:
+		:emulator_roms "snes9x" "c:\game\snes9x\roms;c:\game\zsnes\roms2"
 		:emulator_roms_filter "snes9x" "*.smc;*.sfc;*.fig;*.1"
 		:emulator_roms "zsnes" "c:\game\zsnes\roms"
 		:emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"

@@ -251,6 +251,9 @@ elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/advance.pat ; then
 		AC_MSG_ERROR([you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions.])
 	fi
+	if test ! -f $srcdir/mess/advance.pat ; then
+		AC_MSG_ERROR([you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions.])
+	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
 		AC_MSG_ERROR([you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions.])

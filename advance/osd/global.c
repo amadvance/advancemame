@@ -63,12 +63,18 @@ int osd_display_loading_rom_message(const char* name, struct rom_load_data* romd
 	return 0;
 }
 
+/**
+ *
+ */
 void advance_global_message(struct advance_global_context* context, const char* msg)
 {
 	log_std(("advance:global: set msg %s\n", msg));
 	sncpy(context->state.msg, MESSAGE_MAX, msg);
 }
 
+/**
+ * Display the stored message.
+ */
 void osd2_message(void)
 {
 	struct advance_global_context* context = &CONTEXT.global;

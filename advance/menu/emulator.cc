@@ -88,10 +88,13 @@ emulator::emulator(const string& Aname, const string& Aexe_path, const string& A
 	user_cmd_arg = Acmd_arg;
 
 	if (user_exe_path.length()) {
+		string nodash_path = user_exe_path;
+		if (nodash_path.length()>0 && nodash_path[0]=='-')
+			nodash_path.erase(0,1);
 		// search the emulator in the system path
-		if (target_search(path, FILE_MAXPATH, user_exe_path.c_str()) != 0) {
+		if (target_search(path, FILE_MAXPATH, nodash_path.c_str()) != 0) {
 			// if not found assume in the current dir
-			config_exe_path = path_abs(path_import(user_exe_path), dir_cwd());
+			config_exe_path = path_abs(path_import(nodash_path), dir_cwd());
 		} else {
 			// use the file found
 			config_exe_path = path_import(path);
@@ -271,6 +274,12 @@ void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& 
 bool emulator::run_process(time_t& duration, const string& dir, int argc, const char** argv, bool ignore_error) const {
 	time_t start, stop;
 
+	bool resume_error = false;
+
+	// resume error if the user ask for it
+	if (user_exe_path.length()>0 && user_exe_path[0]=='-')
+		resume_error = true;
+
 	string olddir = dir_cwd();
 
 	if (chdir(cpath_export(dir))!=0) {
@@ -303,7 +312,10 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 	else
 		duration = 0;
 
-	bool result = spawn_check(r, ignore_error);
+	bool result = spawn_check(r, ignore_error || resume_error);
+
+	if (resume_error)
+		result = true;
 
 	int_idle_time_reset();
 

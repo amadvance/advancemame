@@ -3892,6 +3892,11 @@ echo "$as_me: error: you need the MESS source in the $srcdir/mess/ directory. Ch
 echo "$as_me: error: you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
+	if test ! -f $srcdir/mess/advance.pat ; then
+		{ { echo "$as_me:$LINENO: error: you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
+	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
 		{ { echo "$as_me:$LINENO: error: you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&5

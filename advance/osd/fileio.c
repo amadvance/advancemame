@@ -487,16 +487,16 @@ const char* osd_get_cwd(void)
 	return FILEIO_CWD_BUFFER;
 }
 
-int osd_select_file(int type, int id, char* filename)
+int osd_select_file(mess_image *img, char *filename)
 {
-	log_std(("osd: osd_select_file(type:%d, id:%d, filename:%s)\n", type, id, filename));
+	log_std(("osd: osd_select_file(image:%p, filename:%s)\n", img, filename));
 
 	return 0;
 }
 
-void osd_image_load_status_changed(int type, int id)
+void osd_image_load_status_changed(mess_image *img, int is_final_unload)
 {
-	log_std(("osd: osd_image_load_status_changed(type:%d, id:%d)\n", type, id));
+	log_std(("osd: osd_image_load_status_changed(image:%p, is_final_unload:%d)\n", img, is_final_unload));
 }
 
 char* osd_basename(char* filename)
@@ -522,6 +522,8 @@ char* osd_strip_extension(const char* file)
 	char* slash;
 	char* dot;
 
+	log_std(("osd: osd_strip_extension(file:%s)\n", file));
+
 	if (!file)
 		return 0;
 
@@ -541,6 +543,8 @@ char* osd_dirname(const char* file)
 	char* r;
 	char* slash;
 
+	log_std(("osd: osd_dirname(file:%s)\n", file));
+
 	if (!file)
 		return 0;
 
@@ -554,11 +558,6 @@ char* osd_dirname(const char* file)
 		r[0] = 0;
 		return r;
 	}
-}
-
-void osd_device_eject(int type, int id)
-{
-	image_unload(type, id);
 }
 
 static char FILEIO_SEPARATOR[2];
@@ -578,6 +577,11 @@ int osd_is_path_separator(char ch)
 int osd_is_absolute_path(const char *path)
 {
 	return file_path_is_abs(path);
+}
+
+void osd_begin_final_unloading(void)
+{
+	log_std(("osd: osd_begin_final_unloading()\n"));
 }
 
 #endif

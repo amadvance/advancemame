@@ -1,0 +1,42 @@
+diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
+--- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
++++ mess/advance.pat	2003-07-16 18:15:59.000000000 +0200
+@@ -0,0 +1 @@
++These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive mess.ori/includes/psx.h mess/includes/psx.h
+--- mess.ori/includes/psx.h	2003-07-10 16:46:25.000000000 +0200
++++ mess/includes/psx.h	2003-07-16 18:46:08.000000000 +0200
+@@ -1,7 +1,7 @@
+ #include "driver.h"
+-#include "../src/includes/psx.h"
++#include "includes/psx.h"
+ 
+ READ32_HANDLER( psx_cd_r );
+ WRITE32_HANDLER( psx_cd_w );
+ 
+ READ32_HANDLER( psx_serial_r );
+diff -U 5 --new-file --recursive mess.ori/machine/psx.c mess/machine/psx.c
+--- mess.ori/machine/psx.c	2003-07-14 17:35:10.000000000 +0200
++++ mess/machine/psx.c	2003-07-16 18:46:37.000000000 +0200
+@@ -1,5 +1,6 @@
++#include "driver.h"
+ #include "includes/psx.h"
+ 
+ /* -----------------------------------------------------------------------
+  * cd_stat values
+  *
+diff -U 5 --new-file --recursive mess.ori/systems/psx.c mess/systems/psx.c
+--- mess.ori/systems/psx.c	2003-07-15 13:46:19.000000000 +0200
++++ mess/systems/psx.c	2003-07-16 18:47:37.000000000 +0200
+@@ -16,10 +16,11 @@
+ 
+ #include "driver.h"
+ #include "cpu/mips/mips.h"
+ #include "devices/snapquik.h"
+ #include "includes/psx.h"
++#include "../includes/psx.h"
+ 
+ struct 
+ {
+ 	UINT8 id[ 8 ];
+ 	UINT32 text;	/* SCE only */

@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.9 2003/07
+	) Added support for importing the XML output of AdvanceMESS 0.71.0.0.
+	) Added support for ignoring the return code of the runned
+		generic emulator. Simply put a '-' in front of the emulator
+		executable name.
+	) The number of listed games is now correct in any sort mode.
+
 AdvanceMENU Version 2.2.8 2003/07
 	) Added the volume control at the SDL sound driver. It's implemented
 		reducing the sample values and not using the hardware

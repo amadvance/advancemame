@@ -557,18 +557,23 @@ $(sort $(OBJDIRS)):
 
 advance/advmame.dif: src src.ori
 	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" src.ori src > advance/advmame.dif
+	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
 advance/advpac.dif: srcpac srcpac.ori
 	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" srcpac.ori srcpac > advance/advpac.dif
+	-diff -U 5 --new-file --recursive srcpac.ori srcpac > advance/advpac.dif
 	ls -l advance/advpac.dif
 
 advance/advmess.dif: srcmess srcmess.ori
 	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" srcmess.ori srcmess > advance/advmess.dif
+	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
 	ls -l advance/advmess.dif
+
+advance/mess.dif: mess mess.ori
+	find mess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive mess.ori mess > advance/mess.dif
+	ls -l advance/mess.dif
 
 ############################################################################
 # EMU dist
@@ -591,7 +596,7 @@ EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/d2.mak
 
 ifeq ($(CONF_EMU),mess)
-EMU_ADVANCE_SRC += $(srcdir)/advance/advmess.dif
+EMU_ADVANCE_SRC += $(srcdir)/advance/advmess.dif $(srcdir)/advance/mess.dif
 else
 ifeq ($(CONF_EMU),pac)
 EMU_ADVANCE_SRC += $(srcdir)/advance/advpac.dif

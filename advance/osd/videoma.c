@@ -933,9 +933,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 			&& abs(context->state.mode_visible_size_y - context->state.game_used_size_y) <= 8) {
 			context->state.mode_visible_size_y = context->state.game_used_size_y;
 		}
-
 	} else if (stretch == STRETCH_INTEGER_X_FRACTIONAL_Y) {
-
 		unsigned mx;
 		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x + 0.5);
 		if (mx < 1)
@@ -2864,19 +2862,34 @@ void osd2_video_done(void)
 void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
 	struct advance_video_context* context = &CONTEXT.video;
+	unsigned pos_x;
+	unsigned pos_y;
+	unsigned size_x;
+	unsigned size_y;
 
 	log_std(("osd: osd2_area(%d, %d, %d, %d)\n", x1, y1, x2, y2));
 
-	context->state.game_used_pos_x = x1;
-	context->state.game_used_pos_y = y1;
-	context->state.game_used_size_x = x2 - x1 + 1;
-	context->state.game_used_size_y = y2 - y1 + 1;
+	pos_x = x1;
+	pos_y = y1;
+	size_x = x2 - x1 + 1;
+	size_y = y2 - y1 + 1;
 
 	/* set the correct blit orientation */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
-		SWAP(unsigned, context->state.game_used_pos_x, context->state.game_used_pos_y );
-		SWAP(unsigned, context->state.game_used_size_x, context->state.game_used_size_y );
+		SWAP(unsigned, pos_x, pos_y);
+		SWAP(unsigned, size_x, size_y);
 	}
+
+	if (size_x != context->state.game_used_size_x
+		|| size_y != context->state.game_used_size_y) {
+		log_std(("ERROR:emu:video: change in the game area size. From %dx%d to %dx%d\n", context->state.game_used_size_x, context->state.game_used_size_y, size_x, size_y));
+		return;
+	}
+
+	context->state.game_used_pos_x = pos_x;
+	context->state.game_used_pos_y = pos_y;
+	context->state.game_used_size_x = size_x;
+	context->state.game_used_size_y = size_y;
 
 	video_update_pan(context);
 }

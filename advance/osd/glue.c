@@ -637,6 +637,10 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	} else
 		options.playback = 0;
 
+#ifdef MESS
+	options.ram = advance->ram;
+#endif
+
 	if (!context->game) {
 		target_err("No game specified.\n");
 		return -1;
@@ -907,7 +911,6 @@ int osd_menu(struct mame_bitmap *bitmap, int selected)
  */
 static unsigned glue_sound_sample(void)
 {
-
 	int samples = GLUE.sound_step - GLUE.sound_latency;
 
 	/* Correction for a generic sound buffer underflow. */
@@ -1224,6 +1227,12 @@ static const char* DEVICES[] = {
 	0
 };
 
+static int mess_printf_callback(const char *fmt, va_list arg)
+{
+	target_err_va(fmt, arg);
+	return 0;
+}
+
 static void mess_init(adv_conf* context)
 {
 	const char** i;
@@ -1232,6 +1241,9 @@ static void mess_init(adv_conf* context)
 
 	/* use the old portable ui */
 	options.disable_normal_ui = 0;
+
+	/* set the callback for messages */
+	options.mess_printf_output = mess_printf_callback;
 
 	i = DEVICES;
 	while (*i) {
@@ -1243,11 +1255,14 @@ static void mess_init(adv_conf* context)
 
 		++i;
 	}
+
+	conf_string_register_default(context, "misc_ramsize", "auto");
 }
 
-static int mess_config_load(adv_conf* context)
+static int mess_config_load(adv_conf* context, struct mame_option* option)
 {
 	const char** i;
+	const char* s;
 
 	i = DEVICES;
 	while (*i) {
@@ -1280,6 +1295,30 @@ static int mess_config_load(adv_conf* context)
 		}
 
 		++i;
+	}
+
+	s = conf_string_get_default(context, "misc_ramsize");
+	if (strcmp(s, "auto") == 0) {
+		option->ram = 0;
+	} else {
+		char* e;
+		option->ram = strtol(s,&e,10);
+
+		if (*e == 'k') {
+			option->ram *= 1024;
+			++e;
+		} else if (*e == 'M') {
+			option->ram *= 1024*1024;
+			++e;
+		} else if (*e == 'G') {
+			option->ram *= 1024*1024*1024;
+			++e;
+		}
+
+		if (option->ram == 0 || *e) {
+			target_err("Invalid argument '%s' for option 'misc_ramsize'\n", s);
+			return -1;
+		}
 	}
 
 	return 0;
@@ -1393,8 +1432,8 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	sncpy(option->info_file_buffer, sizeof(option->info_file_buffer), conf_string_get_default(cfg_context, "misc_infofile"));
 
 #ifdef MESS
-	if (mess_config_load(cfg_context) != 0) {
-		target_err("Internal error loading a device.\n");
+	if (mess_config_load(cfg_context, option) != 0) {
+		target_err("Error loading the device configuration options.\n");
 		return -1;
 	}
 #endif

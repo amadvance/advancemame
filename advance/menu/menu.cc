@@ -759,6 +759,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	struct cell_t* backdrop_map; // map of the backdrop positions
 	struct cell_t* backdrop_map_bis; // alternate map of the backdrop positions
 
+	unsigned game_count; // counter of game in the container
+
 	log_std(("menu: user begin\n"));
 
 	// standard bars
@@ -1342,6 +1344,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		rs.current_clone = 0;
 	}
 
+	// count the real games
+	{
+		int i;
+		game_count = 0;
+		for(i=0;i<gc.size();++i)
+			if (gc[i]->has_game())
+				++game_count;
+	}
+
 	bool done = false;
 	int key = 0;
 	int exit_count = 0;
@@ -1358,7 +1369,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (name_dy)
 			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_effective == mode_tile_icon);
 		if (bar_top_dy)
-			draw_menu_bar(rs.current_game, gc.size(), bar_top_x, bar_top_y, bar_top_dx);
+			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
 			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_effective, rs.difficulty_effective, rs.lock_effective);
 		if (bar_right_dx)

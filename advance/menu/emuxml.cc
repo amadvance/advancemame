@@ -16,7 +16,7 @@ using namespace std;
 /**
  * Max depth checked.
  */
-#define DEPTH_MAX 4
+#define DEPTH_MAX 5
 
 enum token_t {
 	token_open,
@@ -49,6 +49,7 @@ struct state_t {
 	emulator* e; /**< Current parent emulator. */
 	game* g; /**< Curren game in the loading process. */
 	game_set* a; /**< Game archive. */
+	machinedevice* m; /**< Machine device. */
 	unsigned rom_size; /**< Size of the current rom. */
 	bool rom_merge; /**< Merge of the current rom. */
 
@@ -82,6 +83,10 @@ static void process_runnable(struct state_t* state, enum token_t t, const char* 
 {
 	if (t == token_data) {
 		string v = string(s, len);
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->flag_set(v == "no", emulator::flag_derived_resource);
 	}
 }
@@ -89,6 +94,10 @@ static void process_runnable(struct state_t* state, enum token_t t, const char* 
 static void process_name(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->name_set( state->e->user_name_get() + "/" + string(s, len) );
 	}
 }
@@ -96,6 +105,10 @@ static void process_name(struct state_t* state, enum token_t t, const char* s, u
 static void process_description(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->auto_description_set( string(s, len) );
 	}
 }
@@ -103,6 +116,10 @@ static void process_description(struct state_t* state, enum token_t t, const cha
 static void process_manufacturer(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->manufacturer_set( string(s, len) );
 	}
 }
@@ -110,6 +127,10 @@ static void process_manufacturer(struct state_t* state, enum token_t t, const ch
 static void process_year(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->year_set( string(s, len) );
 	}
 }
@@ -117,6 +138,10 @@ static void process_year(struct state_t* state, enum token_t t, const char* s, u
 static void process_cloneof(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->cloneof_set( state->e->user_name_get() + "/" + string(s, len) );
 	}
 }
@@ -124,6 +149,10 @@ static void process_cloneof(struct state_t* state, enum token_t t, const char* s
 static void process_romof(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		state->g->romof_set( state->e->user_name_get() + "/" + string(s, len) );
 	}
 }
@@ -131,6 +160,10 @@ static void process_romof(struct state_t* state, enum token_t t, const char* s, 
 static void process_driverstatus(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		if (v == "preliminary")
 			state->g->play_set(play_not);
@@ -140,6 +173,10 @@ static void process_driverstatus(struct state_t* state, enum token_t t, const ch
 static void process_drivercolor(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		if (v == "preliminary")
 			if (state->g->play_get() < play_major)
@@ -150,6 +187,10 @@ static void process_drivercolor(struct state_t* state, enum token_t t, const cha
 static void process_driversound(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		if (v == "preliminary")
 			if (state->g->play_get() < play_minor)
@@ -163,6 +204,10 @@ static void process_rom(struct state_t* state, enum token_t t, const char* s, un
 		state->rom_merge = false;
 		state->rom_size = 0;
 	} else if (t == token_close) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		if (!state->rom_merge)
 			state->g->size_set( state->g->size_get() + state->rom_size );
 	}
@@ -183,9 +228,52 @@ static void process_rommerge(struct state_t* state, enum token_t t, const char* 
 	}
 }
 
+static void process_device(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
+{
+	if (t == token_open) {
+		state->m = new machinedevice;
+	} else if (t == token_close) {
+		if (!state->g || !state->m) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
+		state->g->machinedevice_bag_get().insert(state->g->machinedevice_bag_get().end(), *state->m);
+		delete state->m;
+		state->m = 0;
+	}
+}
+
+static void process_deviceextensionname(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
+{
+	if (t == token_data) {
+		if (!state->m) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
+		string v = string(s, len);
+		state->m->ext_bag.insert(state->m->ext_bag.end(), v);
+	}
+}
+
+static void process_devicename(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
+{
+	if (t == token_data) {
+		if (!state->m) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
+		string v = string(s, len);
+		state->m->name = v;
+	}
+}
+
 static void process_videoscreen(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->flag_set(v ==  "vector", emulator::flag_derived_vector );
 	}
@@ -194,6 +282,10 @@ static void process_videoscreen(struct state_t* state, enum token_t t, const cha
 static void process_videoorientation(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->flag_set(v == "vertical", emulator::flag_derived_vertical);
 	}
@@ -202,6 +294,10 @@ static void process_videoorientation(struct state_t* state, enum token_t t, cons
 static void process_videowidth(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->sizex_set( atoi(v.c_str()) );
 	}
@@ -210,6 +306,10 @@ static void process_videowidth(struct state_t* state, enum token_t t, const char
 static void process_videoheight(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->sizey_set( atoi(v.c_str()) );
 	}
@@ -218,6 +318,10 @@ static void process_videoheight(struct state_t* state, enum token_t t, const cha
 static void process_videoaspectx(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->aspectx_set( atoi(v.c_str()) );
 	}
@@ -226,6 +330,10 @@ static void process_videoaspectx(struct state_t* state, enum token_t t, const ch
 static void process_videoaspecty(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
 		string v = string(s, len);
 		state->g->aspecty_set( atoi(v.c_str()) );
 	}
@@ -243,27 +351,30 @@ static struct conversion_t {
 	const char* name[DEPTH_MAX];
 	process_t* process;
 } CONV[] = {
-	{ 1, { match_mamemessraine, match_gamemachine, 0, 0 }, process_game },
-	{ 2, { match_mamemessraine, match_gamemachine, "runnable", 0 }, process_runnable },
-	{ 2, { match_mamemessraine, match_gamemachine, "name", 0 }, process_name },
-	{ 2, { match_mamemessraine, match_gamemachine, "description", 0 }, process_description },
-	{ 2, { match_mamemessraine, match_gamemachine, "manufacturer", 0 }, process_manufacturer },
-	{ 2, { match_mamemessraine, match_gamemachine, "year", 0 }, process_year },
-	{ 2, { match_mamemessraine, match_gamemachine, "cloneof", 0 }, process_cloneof },
-	{ 2, { match_mamemessraine, match_gamemachine, "romof", 0 }, process_romof },
-	{ 2, { match_mamemessraine, match_gamemachine, "rom", 0 }, process_rom },
-	{ 3, { match_mamemessraine, match_gamemachine, "rom", "merge" }, process_rommerge },
-	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size" }, process_romsize },
-	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status" }, process_driverstatus },
-	{ 3, { match_mamemessraine, match_gamemachine, "driver", "color" }, process_drivercolor },
-	{ 3, { match_mamemessraine, match_gamemachine, "driver", "sound" }, process_driversound },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen" }, process_videoscreen },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation" }, process_videoorientation },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "width" }, process_videowidth },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "height" }, process_videoheight },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "aspectx" }, process_videoaspectx },
-	{ 3, { match_mamemessraine, match_gamemachine, "video", "aspecty" }, process_videoaspecty },
-	{ 0, { 0, 0, 0, 0 }, 0 }
+	{ 1, { match_mamemessraine, match_gamemachine, 0, 0, 0 }, process_game },
+	{ 2, { match_mamemessraine, match_gamemachine, "runnable", 0, 0 }, process_runnable },
+	{ 2, { match_mamemessraine, match_gamemachine, "name", 0, 0 }, process_name },
+	{ 2, { match_mamemessraine, match_gamemachine, "description", 0, 0 }, process_description },
+	{ 2, { match_mamemessraine, match_gamemachine, "manufacturer", 0, 0 }, process_manufacturer },
+	{ 2, { match_mamemessraine, match_gamemachine, "year", 0, 0 }, process_year },
+	{ 2, { match_mamemessraine, match_gamemachine, "cloneof", 0, 0 }, process_cloneof },
+	{ 2, { match_mamemessraine, match_gamemachine, "romof", 0, 0 }, process_romof },
+	{ 2, { match_mamemessraine, match_gamemachine, "rom", 0, 0 }, process_rom },
+	{ 3, { match_mamemessraine, match_gamemachine, "rom", "merge", 0 }, process_rommerge },
+	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size", 0 }, process_romsize },
+	{ 2, { match_mamemessraine, match_gamemachine, "device", 0, 0 }, process_device },
+	{ 3, { match_mamemessraine, match_gamemachine, "device", "name", 0 }, process_devicename },
+	{ 4, { match_mamemessraine, match_gamemachine, "device", "extension", "name" }, process_deviceextensionname },
+	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
+	{ 3, { match_mamemessraine, match_gamemachine, "driver", "color", 0 }, process_drivercolor },
+	{ 3, { match_mamemessraine, match_gamemachine, "driver", "sound", 0 }, process_driversound },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen", 0 }, process_videoscreen },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation", 0 }, process_videoorientation },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "width", 0 }, process_videowidth },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "height", 0 }, process_videoheight },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "aspectx", 0 }, process_videoaspectx },
+	{ 3, { match_mamemessraine, match_gamemachine, "video", "aspecty", 0 }, process_videoaspecty },
+	{ 0, { 0, 0, 0, 0, 0 }, 0 }
 };
 
 /**
@@ -393,6 +504,7 @@ bool mame_info::load_xml(istream& is, game_set& gar)
 	state.e = this;
 	state.g = 0;
 	state.a = &gar;
+	state.m = 0;
 
 	XML_SetUserData(state.parser, &state);
 	XML_SetElementHandler(state.parser, start_handler, end_handler);

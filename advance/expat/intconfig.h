@@ -8,7 +8,7 @@
 #define XML_DTD 1
 #define XML_CONTEXT_BYTES 1024
 
-#ifdef USE_LSB
+#if defined(USE_LSB) || defined(LSB_FIRST)
 #define BYTEORDER 1234
 #else
 #define BYTEORDER 4321

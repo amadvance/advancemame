@@ -2,15 +2,15 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.68.0.0
+EMUVERSION = 0.71.0.0
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.71.0
+EMUVERSION = 0.71.1
 endif
 endif
-MENUVERSION = 2.2.8
+MENUVERSION = 2.2.9
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -177,6 +177,17 @@ SVGALIBSVGAWINDRIVER_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.rc) \
 	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.c) \
 	$(wildcard $(srcdir)/advance/svgalib/svgawin/driver/*.h)
+
+SVGALIBSVGAVDD_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/*.c)
+
+SVGALIBSVGAVDDVDD_SRC = \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/makefile) \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/sources) \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.rc) \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.def) \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.c) \
+	$(wildcard $(srcdir)/advance/svgalib/svgavdd/vdd/*.h)
 
 V_SRC = \
 	$(wildcard $(srcdir)/advance/v/*.c) \
@@ -399,6 +410,7 @@ wholecd:
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
+	$(MAKE) CONF=no CONF_EMU=mess CONF_WHOLESRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
@@ -417,11 +429,6 @@ wholecab:
 	$(MAKE) CONF=no distcab
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=dos distcabbin
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=windows distcabbin
-
-wholedist:
-	$(MAKE) CONF=no dist
-	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) CONF=no distmenu
 
 wholewin:
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=windows distbin

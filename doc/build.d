@@ -5,45 +5,86 @@ Name
 	and AdvanceMENU from the source archives.
 
 Preparing The Sources
+	To build one of the Advance emulators you need first to download and
+	unzip the emulator source with the same version of the Advance source.
+	Please note that you must use the original emulator source, you cannot
+	use the source of another MAME clone like xmame.
+
+	Note that you need only the source from the MAME and MESS archive.
+	The original `makefile' and the other files must be manually deleted.
+
+	In Linux and Mac OS X remember to unzip the original MAMD and
+	MESS .zip archives with the `unzip -aa' command to convert the
+	files from the DOS/Windows CR/LF format to the Unix CR format.
+
+    AdvanceMENU
 	To compile AdvanceMENU you don't need to prepare the source, they are
-	already complete.
+	already complete in the AdvanceMENU archive.
 
-	To build one of the Advance emulators (MAME, MESS) you
-	need first to download and unzip the emulator source with the same
-	version of the Advance source. Please note that you must use the
-	original emulator source, you cannot use the source of another MAME
-	clone like xmame.
+    AdvanceMAME
+	To compile AdvanceMAME you need the MAME source of the same
+	version of AdvanceMAME.
 
-	The source of the MAME emulator must be unzipped in the `src/' directory
-	and the MESS source in `srcmess/'.
-	For MESS you need also the additional `mess/' source directory.
+	The source of the MAME emulator must be unzipped in the `src/'
+	directory at the same level of the `advance/' directory present
+	in the AdvanceMAME archive.
 
-	In Linux remember to unzip the original .zip archives with the
-	`unzip -aa' command to convert the files from the DOS/Windows CR/LF
-	format to the Unix CR format.
+	The final directory tree for AdvanceMAME must be :
 
-	The original `makefile' of the emulator must be manually deleted.
+		:advance/advance.mak (from AdvanceMAME)
+		:src/mame.mak (from MAME)
 
-	For example the final directory tree for AdvanceMAME must be :
-
-		:./configure
-		:./advance/advance.mak
-		:./src/mame.mak
-
-	After unpacked, you need to patch the original MAME source with the
-	patch `advance/advmame.dif' and the MESS source with `advance/advmess.dif'.
-	If the patch isn't applied correctly, probably you are using the wrong
+	After unpacked, you need to patch the original MAME source in
+	the `src/' directory with the patch `advance/advmame.dif'.
+	If the patche isn't applied correctly, probably you are using the wrong
 	version of the emulator source.
 
-	For example the command for patching the source for AdvanceMAME in DOS is :
+	The commands for patching the source for AdvanceMAME in DOS and Windows are :
 
 		:cd src
 		:patch -p1 < ..\advance\advmame.dif
 
-	and in Linux is :
+	and in Linux and Mac OS X are :
 
 		:cd src
 		:patch -p1 < ../advance/advmame.dif
+
+    AdvanceMESS
+	To compile AdvanceMESS you need the MAME and MESS source of
+	the same version of AdvanceMESS.
+
+	The source of the MESS emulator must be unzipped in the `srcmess/'
+	directory over a clean copy of the MAME source of the same version.
+	This means that the MESS source must overwrite the MAME source with
+	the same name. Please note that the original source directory in the
+	MAME and MESS archive is named `src/'. You must rename it `srcmess/'.
+	You need also the additional `mess/' source directory.
+
+	The final directory tree for AdvanceMESS must be :
+
+		:advance/advance.mak (from AdvanceMESS)
+		:srcmess/mame.mak (from MAME and MESS)
+		:mess/mess.mak (from MESS)
+
+	After unpacked, you need to patch the original MESS source in
+	in the `srcmess/' directory with the patch `advance/advmess.dif' and
+	the source in the `mess/' directory with the patch `advance/mess.dif'.
+	If the patches aren't applied correctly, probably you are using the wrong
+	version of the emulator source.
+
+	The commands for patching the source for AdvanceMESS in DOS and Windows are :
+
+		:cd srcmess
+		:patch -p1 < ..\advance\advmess.dif
+		:cd ..\mess
+		:patch -p1 < ..\advance\mess.dif
+
+	and in Linux and Mac OS X are :
+
+		:cd srcmess
+		:patch -p1 < ../advance/advmess.dif
+		:cd ../mess
+		:patch -p1 < ../advance/mess.dif
 
 Configuring
     Linux/Mac OS X
@@ -152,7 +193,7 @@ Requirements
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.2 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
 		:DJGPP GNU shellutils [shl*b.zip]
@@ -162,10 +203,10 @@ Requirements
 		:SEAL 1.0.7 + MAME patch
 		:Allegro 4.0.0 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3 and 3.2.2.
+	The suggested gcc compiler versions are 2.95.3 and 3.2.3.
 	The versions 3.0, 3.0.1 and 3.0.2 don't work.
-	The versions 3.1, 3.1.1, 3.2, 3.2.1 have some minor known
-	problems (a few games doesn't work correctly).
+	The versions 3.1, 3.1.1, 3.2, 3.2.1, 3.2.2 have some minor
+	problems (a few games may not work correctly).
 	Other versions should work.
 
 	The patched SEAL library is available at http://www.mame.net

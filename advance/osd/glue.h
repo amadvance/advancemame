@@ -106,6 +106,7 @@ struct mame_option {
 	char crc_dir_buffer[MAME_MAXPATH];
 	struct mame_image* image_map[MAME_MAXIMAGE];
 	unsigned image_mac;
+	unsigned ram;
 #endif
 };
 

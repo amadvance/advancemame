@@ -536,7 +536,7 @@ Configuration
 	cartdriges `crom.bin' and `grom.bin' both contained in
 	the zip file `alpiner.zip' you can use this syntax:
 
-		:advmess ti99_4a -cart alpiner=crom.bin -cart alpiner=grom.bin
+		:advmess ti99_4a -cart alpiner=alpinerc.bin -cart alpiner=alpinerg.bin
 
 	This feature is used automatically by AdvanceMENU to correctly
 	open software in zip files.
@@ -1215,11 +1215,26 @@ Configuration
   Misc Configuration Options
 
     misc_bios
-	Selects the game bios.
+	Selects the game bios in AdvanceMAME.
+
+	:misc_bios default | NAME
 
 	Options:
 		default - Use the default BIOS.
-		* - Select a specific BIOS.
+		NAME - Select a specific BIOS.
+
+    misc_ramsize
+	Control the ram size of the emulated machine in AdvanceMESS.
+
+	:misc_ramsize auto | SIZE [k|M|G]
+
+	Options:
+		auto - Automatic (default).
+		SIZE - Size of the RAM in bytes. You can use the 'k' (1024),
+			'M' (1024^2) or 'G' (1024^3) multiplier.
+
+	Examples:
+		misc_ramsize 1024k
 
     misc_difficulty
 	Selects the game difficulty.
