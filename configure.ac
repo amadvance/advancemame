@@ -156,7 +156,7 @@ fi
 AC_ARG_ENABLE(
 	[asm],
 	AC_HELP_STRING([--enable-asm],[enable the Pentium assembler optimizations (default auto)]),
-	[ac_enable_asm=$withval],
+	[ac_enable_asm=$enableval],
 	[ac_enable_asm=auto]
 )
 if test $ac_enable_asm = auto; then
@@ -235,7 +235,7 @@ AC_SUBST(CONF_EMU,$ac_with_emu)
 AC_ARG_ENABLE(
 	[svgalib],
 	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
-	[ac_lib_svgalib=$withval],
+	[ac_lib_svgalib=$enableval],
 	[ac_lib_svgalib=auto]
 )
 if test $ac_lib_svgalib = auto; then
@@ -283,7 +283,7 @@ AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 AC_ARG_ENABLE(
 	[fb],
 	AC_HELP_STRING([--enable-fb],[enable the use of the Frame Buffer library. (default auto)]),
-	[ac_lib_fb=$withval],
+	[ac_lib_fb=$enableval],
 	[ac_lib_fb=auto]
 )
 if test $ac_lib_fb = auto; then
@@ -317,7 +317,7 @@ AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 AC_ARG_ENABLE(
 	[oss],
 	AC_HELP_STRING([--enable-oss],[enable the use of the OSS library. (default auto)]),
-	[ac_lib_oss=$withval],
+	[ac_lib_oss=$enableval],
 	[ac_lib_oss=auto]
 )
 if test $ac_lib_oss = auto; then
@@ -415,7 +415,7 @@ AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 AC_ARG_ENABLE(
 	[sdl],
 	AC_HELP_STRING([--enable-sdl],[enable the use of the SDL library. (default auto)]),
-	[ac_lib_sdl=$withval],
+	[ac_lib_sdl=$enableval],
 	[ac_lib_sdl=auto]
 )
 if test $ac_lib_sdl = auto; then
@@ -483,7 +483,7 @@ AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 AC_ARG_ENABLE(
 	[svgawin],
 	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
-	[ac_lib_sdl=$withval],
+	[ac_lib_sdl=$enableval],
 	[ac_lib_sdl=auto]
 )
 if test $ac_lib_sdl = auto; then
@@ -501,7 +501,7 @@ AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 AC_ARG_ENABLE(
 	[kraw],
 	AC_HELP_STRING([--enable-kraw],[enable the use of the KRAW keyboard library. (default auto)]),
-	[ac_lib_kraw=$withval],
+	[ac_lib_kraw=$enableval],
 	[ac_lib_kraw=auto]
 )
 if test $ac_lib_kraw = auto; then

@@ -114,7 +114,7 @@ CONF_DEBUG=@CONF_DEBUG@
 endif
 
 #############################################################################
-# Global configuration by autotected (it work only for Linux/Dos/Windows)
+# Global configuration with autotection (it works only for Linux/DOS/Windows)
 #
 
 # Automatic EMU detection by source

@@ -8,6 +8,7 @@ AdvanceMENU Version 2.2.2 2002/12
 	) The game index is now saved when the sort order is changed
 		or when the game position changes because you play it.
 	) Added a new raw keyboard driver for Linux [Kari Hautio].
+	) Fixed some issues in the ./configure scripts.
 
 AdvanceMENU Version 2.2.1 2002/11
 	) Reduced the startup load time.

@@ -231,6 +231,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 				break;
 			case TEXT_KEY_ENTER :
 			case TEXT_KEY_ESC :
+			case TEXT_KEY_MENU :
 				done = 1;
 				break;
 		}

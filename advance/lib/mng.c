@@ -155,6 +155,8 @@ static adv_error mng_read_ihdr(adv_mng* mng, adv_fz* f, const unsigned char* ihd
 		memcpy(mng->pal_ptr, data, size);
 
 		free(data);
+	} else {
+		mng->pal_size = 0;
 	}
 
 	if (png_read_chunk(f, &data, &size, &type) != 0)
@@ -610,7 +612,7 @@ adv_error mng_read(
 err_data:
 	free(data);
 err:
-	return 0;
+	return -1;
 }
 
 /**
@@ -643,6 +645,7 @@ adv_mng* mng_init(adv_fz* f)
 	mng->dlt_ptr = 0;
 	mng->dlt_size = 0;
 	mng->dlt_line = 0;
+	mng->pal_size = 0;
 
 	if (mng_read_signature(f) != 0)
 		goto err_mng;

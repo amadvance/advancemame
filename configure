@@ -3535,7 +3535,7 @@ fi
 # Check whether --enable-asm or --disable-asm was given.
 if test "${enable_asm+set}" = set; then
   enableval="$enable_asm"
-  ac_enable_asm=$withval
+  ac_enable_asm=$enableval
 else
   ac_enable_asm=auto
 
@@ -3707,7 +3707,7 @@ CONF_EMU=$ac_with_emu
 # Check whether --enable-svgalib or --disable-svgalib was given.
 if test "${enable_svgalib+set}" = set; then
   enableval="$enable_svgalib"
-  ac_lib_svgalib=$withval
+  ac_lib_svgalib=$enableval
 else
   ac_lib_svgalib=auto
 
@@ -3946,7 +3946,7 @@ CONF_LIB_SVGALIB=$ac_lib_svgalib
 # Check whether --enable-fb or --disable-fb was given.
 if test "${enable_fb+set}" = set; then
   enableval="$enable_fb"
-  ac_lib_fb=$withval
+  ac_lib_fb=$enableval
 else
   ac_lib_fb=auto
 
@@ -4053,7 +4053,7 @@ CONF_LIB_FB=$ac_lib_fb
 # Check whether --enable-oss or --disable-oss was given.
 if test "${enable_oss+set}" = set; then
   enableval="$enable_oss"
-  ac_lib_oss=$withval
+  ac_lib_oss=$enableval
 else
   ac_lib_oss=auto
 
@@ -4466,7 +4466,7 @@ CONF_LIB_SLANG=$ac_lib_slang
 # Check whether --enable-sdl or --disable-sdl was given.
 if test "${enable_sdl+set}" = set; then
   enableval="$enable_sdl"
-  ac_lib_sdl=$withval
+  ac_lib_sdl=$enableval
 else
   ac_lib_sdl=auto
 
@@ -4803,7 +4803,7 @@ CONF_LIB_SDL=$ac_lib_sdl
 # Check whether --enable-svgawin or --disable-svgawin was given.
 if test "${enable_svgawin+set}" = set; then
   enableval="$enable_svgawin"
-  ac_lib_sdl=$withval
+  ac_lib_sdl=$enableval
 else
   ac_lib_sdl=auto
 
@@ -4824,7 +4824,7 @@ CONF_LIB_SVGAWIN=$ac_lib_svgawin
 # Check whether --enable-kraw or --disable-kraw was given.
 if test "${enable_kraw+set}" = set; then
   enableval="$enable_kraw"
-  ac_lib_kraw=$withval
+  ac_lib_kraw=$enableval
 else
   ac_lib_kraw=auto
 
