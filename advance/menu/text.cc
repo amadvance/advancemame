@@ -414,7 +414,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, adv_crtc_container&
 		if (strcmp(crtc->name,DEFAULT_GRAPH_MODE)==0) {
 
 			// check the clocks only if the driver is programmable
-			if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 				if (!crtc_clock_check(&text_monitor,crtc)) {
 					target_err("The selected mode '%s' is out of your monitor capabilities.\n", DEFAULT_GRAPH_MODE);
 					return false;
@@ -434,7 +434,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, adv_crtc_container&
 	// generate an exact mode with clock
 	if (text_has_generate) {
 		adv_crtc crtc;
-		err = generate_find_interpolate(&crtc, text_mode_size, text_mode_size*3/4, 70, &text_monitor, &text_interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate(&crtc, text_mode_size, text_mode_size*3/4, 70, &text_monitor, &text_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
 		if (err == 0) {
 			if (crtc_clock_check(&text_monitor,&crtc)) {
 				adv_mode mode;
@@ -450,7 +450,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, adv_crtc_container&
 	}
 
 	// generate any resolution for a window manager
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
 		adv_crtc crtc;
 		crtc_fake_set(&crtc, text_mode_size, text_mode_size*3/4);
 
@@ -469,7 +469,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, adv_crtc_container&
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
 
 		// check the clocks only if the driver is programmable
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (!crtc_clock_check(&text_monitor,crtc)) {
 				continue;
 			}
@@ -611,13 +611,13 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 		text_has_generate = false;
 
 	// disable generate if the driver is not programmable
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
 		text_has_generate = false;
 
 	// add modes if the list is empty and no generation is possibile
 	if (!text_has_generate
 		&& crtc_container_is_empty(&text_modelines)) {
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 			crtc_container_insert_default_modeline_svga(&text_modelines);
 			crtc_container_insert_default_modeline_vga(&text_modelines);
 		} else {
@@ -633,13 +633,13 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 		unsigned bits_per_pixel;
 
 		// check if the video driver has a default bit depth
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
 			bits_per_pixel = 8;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
 			bits_per_pixel = 15;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
 			bits_per_pixel = 16;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
 			bits_per_pixel = 32;
 		} else {
 			bits_per_pixel = 8; // as default uses the 8 bit depth
@@ -738,7 +738,7 @@ void text_done3(bool reset_video_mode) {
 	text_key_done2();
 
 	if (reset_video_mode) {
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
 			video_write_lock();
 			video_clear(0,0,video_size_x(),video_size_y(),0);
 			video_write_unlock(0,0,video_size_x(),video_size_y());
@@ -1224,7 +1224,7 @@ void text_clear(int x, int y, int dx, int dy, int color) {
 
 void text_clear() {
 	// clear the bitmap
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0
 		&& video_buffer_pixel_size > 1) {
 		memset(video_buffer,0xFF,video_buffer_size);
 	} else {

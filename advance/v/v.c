@@ -33,14 +33,14 @@
 #include "file.h"
 #include "target.h"
 
+#include <unistd.h>
 #include <string.h>
-
+#include <stdlib.h>
+#include <ctype.h>
+#include <assert.h>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <unistd.h>
 
 #ifdef __MSDOS__
 #include <dpmi.h>
@@ -62,7 +62,7 @@ static int crtc_select_by_compare(const adv_crtc* a, void* _b) {
 /* Common variable */
 
 enum advance_t {
-	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga
+	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga, advance_videow
 } the_advance; /* The current operating mode */
 
 adv_conf* the_config;
@@ -78,12 +78,11 @@ int the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB;
 /***************************************************************************/
 /* Common information screens */
 
-static int draw_text_help(void) {
+static void draw_text_help(void) {
 	int x = 0;
 	int y = 0;
 	int dx = text_size_x();
 	int dy = text_size_y();
-	int userkey = 0;
 
 	text_clear();
 
@@ -122,19 +121,16 @@ static int draw_text_help(void) {
 	video_wait_vsync();
 
 	do {
-		userkey = inputb_get();
-	} while (userkey!=INPUTB_ESC);
-
-	return userkey;
+		os_poll();
+	} while (inputb_get()==INPUTB_NONE);
 }
 
-static int draw_text_error(void) {
+static void draw_text_error(void) {
 	int x = 0;
 	int y = 0;
 	int dx = text_size_x();
 	int dy = text_size_y();
-	static int userkey = 0;
-
+	
 	text_clear();
 
 	draw_text_center(x,y,dx,
@@ -159,10 +155,8 @@ static int draw_text_error(void) {
 	video_wait_vsync();
 
 	do {
-		userkey = inputb_get();
-	} while (userkey!=INPUTB_ESC);
-
-	return userkey;
+		os_poll();
+	} while (inputb_get()==INPUTB_NONE);
 }
 
 /***************************************************************************/
@@ -362,26 +356,7 @@ static void draw_text_bar(int x, int by1, int by2, int dx) {
 	char buffer[256];
 	unsigned i;
 
-	switch (the_advance) {
-		case advance_vbe :
-			sprintf(buffer," AdvanceVBE Video Config - " __DATE__ );
-			break;
-		case advance_vga :
-			sprintf(buffer," AdvanceVGA Video Config - " __DATE__ );
-			break;
-		case advance_mess :
-			sprintf(buffer," AdvanceMESS Video Config - " __DATE__ );
-			break;
-		case advance_mame :
-			sprintf(buffer," AdvanceMAME Video Config - " __DATE__ );
-			break;
-		case advance_pac :
-			sprintf(buffer," AdvancePAC Video Config - " __DATE__ );
-			break;
-		case advance_menu :
-			sprintf(buffer," AdvanceMENU Video Config - " __DATE__ );
-			break;
-	}
+	sprintf(buffer," AdvanceVIDEO Config - " __DATE__ );
 
 	draw_text_left(x,by1,dx,buffer,COLOR_BAR);
 
@@ -590,6 +565,25 @@ static int test_svgaline(int x, int y, svgaline_video_mode* mode) {
 }
 #endif
 
+#ifdef USE_VIDEO_SVGAWIN
+static int test_svgawin(int x, int y, svgawin_video_mode* mode) {
+	char buffer[256];
+
+	draw_test_default();
+
+	sprintf(buffer,"svgawin %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	++y;
+
+	++y;
+
+	y = test_crtc(x,y,&mode->crtc,1,1,1);
+	y = test_default_command(x,y);
+	return y;
+}
+#endif
+
+
 #ifdef USE_VIDEO_SVGALIB
 static int test_svgalib(int x, int y, svgalib_video_mode* mode) {
 	char buffer[256];
@@ -695,6 +689,10 @@ static int test_draw(int x, int y, adv_mode* mode) {
 #ifdef USE_VIDEO_SVGALINE
 	else if (video_current_driver() == &video_svgaline_driver)
 		y = test_svgaline(x,y,(svgaline_video_mode*)mode->driver_mode);
+#endif
+#ifdef USE_VIDEO_SVGAWIN
+	else if (video_current_driver() == &video_svgawin_driver)
+		y = test_svgawin(x,y,(svgawin_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_VBE
 	else if (video_current_driver() == &video_vbe_driver)
@@ -1014,11 +1012,15 @@ static int cmd_onvideo_test(void) {
 		int vm_last_modified = the_modes_modified;
 
 		if (dirty) {
+			video_write_lock();
 			test_draw(1,1,&mode);
+			video_write_unlock(0,0,0,0);
 			dirty = 0;
 		}
 
 		video_wait_vsync();
+
+		os_poll();
 
 		userkey = inputb_get();
 
@@ -1095,6 +1097,8 @@ static int cmd_onvideo_calib(void) {
 		return -1;
 	}
 
+	video_write_lock();
+
 	draw_graphics_palette();
 	/* draw_graphics_out_of_screen(0); */
 	draw_graphics_clear();
@@ -1105,9 +1109,13 @@ static int cmd_onvideo_calib(void) {
 	sprintf(buffer," %.2f MB/s", speed / (double)(1024*1024));
 	draw_string(0,0,buffer,DRAW_COLOR_WHITE);
 
+	video_write_unlock(0,0,0,0);
+
 	video_wait_vsync();
 
-	inputb_get();
+	do {
+		os_poll();
+	} while (inputb_get()==INPUTB_NONE);	
 
 	return 0;
 }
@@ -1151,7 +1159,10 @@ static int cmd_onvideo_animate(void) {
 	}
 
 	counter = update_page_max_get();
+	
 	while (!inputb_hit()) {
+		os_poll();
+		
 		update_start();
 		draw_graphics_animate(update_x_get(), update_y_get(), video_size_x(), video_size_y(), counter - update_page_max_get() + 1, 1);
 		++counter;
@@ -1159,11 +1170,11 @@ static int cmd_onvideo_animate(void) {
 		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 1);
 	}
 
-	video_wait_vsync();
-
-	inputb_get();
-
 	update_done();
+
+	do {
+		os_poll();
+	} while (inputb_get()==INPUTB_NONE);	
 
 	return 0;
 }
@@ -1194,7 +1205,10 @@ static int cmd_input_key(const char* tag, const char* keys) {
 	while (1) {
 		int i;
 		unsigned k;
+
 		video_wait_vsync();
+
+		os_poll();
 
 		k = inputb_get();
 		if (k == INPUTB_ESC)
@@ -1494,6 +1508,8 @@ static int menu_run(void) {
 
 		video_wait_vsync();
 
+		os_poll();
+
 		userkey = inputb_get();
 
 		switch (userkey) {
@@ -1667,10 +1683,10 @@ void video_log_va(const char *text, va_list arg)
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
 	va_list arg;
 	va_start(arg, desc);
-	vfprintf(stderr, desc, arg);
-	fprintf(stderr, "\n");
+	target_err_va(desc, arg);
+	target_err("\n");
 	if (valid)
-		fprintf(stderr, "%s\n", valid);
+		target_err("%s\n", valid);
 	va_end(arg);
 }
 
@@ -1701,7 +1717,7 @@ int os_main(int argc, char* argv[]) {
 	the_config = conf_init();
 
 	if (os_init(the_config)!=0) {
-		fprintf(stderr,"Error initializing the OS support\n");
+		target_err("Error initializing the OS support\n");
 		goto err_conf;
 	}
 
@@ -1710,6 +1726,7 @@ int os_main(int argc, char* argv[]) {
 	crtc_container_register(the_config);
 	generate_interpolate_register(the_config);
 	gtf_register(the_config);
+	inputb_reg(the_config, 1);
 
 	if (conf_input_args_load(the_config, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -1735,8 +1752,10 @@ int os_main(int argc, char* argv[]) {
 			the_advance = advance_vga;
 		} else if (target_option(argv[j],"vbev")) {
 			the_advance = advance_vbe;
+		} else if (target_option(argv[j],"videowv")) {
+			the_advance = advance_videowv;
 		} else {
-			fprintf(stderr,"Unknown option %s\n",argv[j]);
+			target_err("Unknown option %s\n",argv[j]);
 			goto err;
 		}
 	}
@@ -1748,31 +1767,30 @@ int os_main(int argc, char* argv[]) {
 	if (the_advance == advance_vga) {
 #ifdef __MSDOS__
 		if (the_advance_vga_active) {
-			fprintf(stderr,"The AdvanceVGA utility is active. Disable it before running vgav.\n");
+			target_err("The AdvanceVGA utility is active. Disable it before running vgav.\n");
 			goto err;
 		}
 		video_reg_driver(the_config, &video_vgaline_driver);
 #else
-		fprintf(stderr,"The AdvanceVGA utility works only in DOS.\n");
+		target_err("The AdvanceVGA utility works only in DOS.\n");
 		goto err;
 #endif
 	} else if (the_advance == advance_vbe) {
 #ifdef __MSDOS__
 		if (the_advance_vbe_active) {
-			fprintf(stderr,"The AdvanceVBE utility is active. Disable it before running vbev.\n");
+			target_err("The AdvanceVBE utility is active. Disable it before running vbev.\n");
 			goto err;
 		}
 		video_reg_driver(the_config, &video_vbeline_driver);
 		video_reg_driver(the_config, &video_vgaline_driver); /* for the text modes */
 #else
-		fprintf(stderr,"The AdvanceVBE utility works only in DOS.\n");
+		target_err("The AdvanceVBE utility works only in DOS.\n");
 		goto err;
 #endif
 	} else {
 		video_reg_driver_all(the_config);
 	}
 
-	inputb_reg(the_config, 1);
 	inputb_reg_driver_all(the_config);
 
 	if (!opt_rc) {
@@ -1783,12 +1801,13 @@ int os_main(int argc, char* argv[]) {
 			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
 			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
 			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
+			case advance_videow : opt_rc = file_config_file_home("videow.rc"); break;
 			default : opt_rc = "advv.rc"; break;
 		}
 	}
 
 	if (access(opt_rc,R_OK)!=0) {
-		fprintf(stderr,"Configuration file %s not found\n", opt_rc);
+		target_err("Configuration file %s not found\n", opt_rc);
 		goto err_os;
 	}
 
@@ -1796,16 +1815,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (opt_log || opt_logsync) {
-		const char* log = 0;
-		switch (the_advance) {
-			case advance_vbe : log = "vbev.log"; break;
-			case advance_vga : log = "vgav.log"; break;
-			case advance_menu : log = "advmenuv.log"; break;
-			case advance_mame : log = "advmamev.log"; break;
-			case advance_mess : log = "advmessv.log"; break;
-			case advance_pac : log = "advpacv.log"; break;
-			default: log = "advv.log"; break;
-		}
+		const char* log = "advv.log";
 		remove(log);
 		log_init(log,opt_logsync);
         }
@@ -1816,8 +1826,8 @@ int os_main(int argc, char* argv[]) {
 	conf_section_set(the_config, section_map, 1);
 
 	if (video_load(the_config, "") != 0) {
-		fprintf(stderr,"Error loading the video options from the configuration file %s\n", opt_rc);
-		fprintf(stderr,"%s\n", error_get());
+		target_err("Error loading the video options from the configuration file %s\n", opt_rc);
+		target_err("%s\n", error_get());
 		goto err_os;
 	}
 
@@ -1858,8 +1868,8 @@ int os_main(int argc, char* argv[]) {
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);
 	if (res<0) {
-		fprintf(stderr,"Error loading the format options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n", error_get());
+		target_err("Error loading the format options from the configuration file %s.\n", opt_rc);
+		target_err("%s\n", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -1871,8 +1881,8 @@ int os_main(int argc, char* argv[]) {
 	/* load generate_linear config */
 	res = gtf_load(the_config, &the_gtf);
 	if (res<0) {
-		fprintf(stderr,"Error loading the gtf options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n", error_get());
+		target_err("Error loading the gtf options from the configuration file %s.\n", opt_rc);
+		target_err("%s\n", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -1891,6 +1901,7 @@ int os_main(int argc, char* argv[]) {
 		crtc_container_insert_default_modeline_vga(&selected);
 		crtc_container_insert_default_modeline_svga(&selected);
 	}
+	crtc_container_insert_default_system(&selected);
 
 	/* sort */
 	crtc_container_init(&the_modes);
@@ -1904,7 +1915,7 @@ int os_main(int argc, char* argv[]) {
 	crtc_container_init(&selected);
 
 	if (crtc_container_load(the_config, &selected) != 0) {
-		fprintf(stderr,error_get());
+		target_err(error_get());
 		goto err_input;
 	}
 
@@ -1921,7 +1932,9 @@ int os_main(int argc, char* argv[]) {
 
 	the_modes_modified = 0;
 
-	text_init();
+	if (text_init() != 0) {
+		goto err_input;
+	}
 
 	sound_signal();
 

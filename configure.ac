@@ -481,6 +481,24 @@ AC_SUBST([SDLLIBS])
 AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 
 AC_ARG_ENABLE(
+	[svgawin],
+	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
+	[ac_lib_sdl=$withval],
+	[ac_lib_sdl=auto]
+)
+if test $ac_lib_sdl = auto; then
+	if test $ac_host = windows; then
+		ac_lib_svgawin=yes
+	else
+		ac_lib_svgawin=no
+	fi
+fi
+if test $ac_lib_svgawin = yes; then
+	ac_lib="$ac_lib SVGAWIN"
+fi
+AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
+
+AC_ARG_ENABLE(
 	[debugger],
 	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),
 	[ac_enable_debugger=$enableval],

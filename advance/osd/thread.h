@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU General Public License for more details. 
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -28,28 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "inputall.h"
+#ifndef __THREAD_H
+#define __THREAD_H
 
-/**
- * Register all the input drivers.
- * The drivers are registered on the basis of the following defines:
- *  - USE_INPUT_DOS
- *  - USE_INPUT_SDL
- *  - USE_INPUT_SLANG
- *  - USE_INPUT_NONE
- */
-void inputb_reg_driver_all(adv_conf* context) {
-#ifdef USE_INPUT_DOS
-	inputb_reg_driver(context, &inputb_dos_driver);
+int thread_init(void);
+void thread_done(void);
+
 #endif
-#ifdef USE_INPUT_SLANG
-	inputb_reg_driver(context, &inputb_slang_driver);
-#endif
-#ifdef USE_INPUT_SDL
-	inputb_reg_driver(context, &inputb_sdl_driver);
-#endif
-#ifdef USE_INPUT_NONE
-	inputb_reg_driver(context, &inputb_none_driver);
-#endif
-}
 

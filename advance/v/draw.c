@@ -122,15 +122,17 @@ void text_clear(void) {
 
 /* Compare function to get the best video mode to display the program screen */
 int text_crtc_compare(const adv_crtc* a, const adv_crtc* b) {
-	/* bigger is better */
-	if (a->hde < b->hde)
+	unsigned as = a->hde * a->vde;
+	unsigned bs = b->hde * b->vde;
+
+	int ad = abs(as - 640*480);
+	int bd = abs(bs - 640*480);
+
+	if (ad > bd)
 		return -1;
-	if (a->hde > b->hde)
+	if (ad < bd)
 		return 1;
-	if (a->vde < b->vde)
-		return -1;
-	if (a->vde > b->vde)
-		return 1;
+
 	return 0;
 }
 
@@ -143,7 +145,7 @@ static int text_default_set(void) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
 			if (strcmp(crtc->name,DEFAULT_TEXT_MODE)==0) {
-				if (crtc_clock_check(&the_monitor,crtc)
+				if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor,crtc))
 					&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
 					the_default_mode = mode;
 					the_default_mode_flag = 1;
@@ -158,13 +160,26 @@ static int text_default_set(void) {
 		for(crtc_container_iterator_begin(&i,&the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
-			if (crtc_clock_check(&the_monitor,crtc)
+			if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor,crtc))
 				&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
 				if (!the_default_mode_flag || text_crtc_compare(crtc,&default_crtc)>0) {
 					the_default_mode = mode;
 					default_crtc = *crtc;
 					the_default_mode_flag = 1;
 				}
+			}
+		}
+	}
+
+	if (!the_default_mode_flag) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+			/* add a fake text mode for the windowed modes */
+			adv_crtc crtc;
+			adv_mode mode;
+			crtc_fake_set(&crtc, 640, 480);
+			if (video_mode_generate(&mode,&crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
+				the_default_mode = mode;
+				the_default_mode_flag = 1;
 			}
 		}
 	}
@@ -188,18 +203,20 @@ static int text_default_set(void) {
 	return 0;
 }
 
-void text_init(void) {
+int text_init(void) {
 	if (text_default_set()!=0) {
 		video_mode_restore();
-		printf("Error inizialing the default video mode\n\"%s\"", error_get());
-		exit(EXIT_FAILURE);
+		target_err("Error inizialing the default video mode\n\"%s\"", error_get());
+		return -1;
 	}
 
 	if (the_default_mode_flag == 0) {
 		video_mode_restore();
-		printf("No text modes available for your hardware.\nTry removig the `[video] vgaline_driver' option from the configuration file.\n");
-		exit(EXIT_FAILURE);
+		target_err("No text modes available for your hardware.\nTry removig the `device_video' option from the configuration file.\n");
+		return -1;
 	}
+	
+	return 0;
 }
 
 void text_reset(void) {
@@ -222,24 +239,6 @@ void text_put(int x, int y, char c, int color) {
 		video_put_char(x,y,c,color);
 	}
 }
-
-/**************************************************************************/
-/* Input */
-
-/* TODO
-int input_kbhit(void) {
-	return kbhit();
-}
-
-unsigned input_getkey(void) {
-	char c = getch();
-	if (!c) {
-		unsigned e = getch();
-		return e << 8;
-	} else
-		return c;
-}
-*/
 
 /***************************************************************************/
 /* Draw interface */
@@ -459,8 +458,13 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 		int len = strlen(s);
 		draw_text_string(x,y,s,color);
 		draw_text_fill(x+len,y,' ',dx-len,color);
+
 		video_wait_vsync();
+
+		os_poll();
+
 		userkey = inputb_get();
+
 		switch (userkey) {
 			case INPUTB_BACKSPACE :
 			case INPUTB_DEL :
@@ -863,6 +867,9 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		}
 
 		video_wait_vsync();
+
+		os_poll();
+
 		key = inputb_get();
 
 		switch (key) {

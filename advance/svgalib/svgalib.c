@@ -1,4 +1,8 @@
-#include "svgaint.h"
+/** \file
+ * SVGALIB user interface implementation.
+ */
+
+#include "svgaint.h" /* TODO includere svgalib.h e non svgaint.h */
 
 #include "libvga.h"
 #include "timing.h"
@@ -117,6 +121,19 @@ void* adv_svgalib_calloc(unsigned n, unsigned size) {
 	if (r)
 		memset(r, 0, n*size);
 	return r;
+}
+
+/**************************************************************************/
+/* printf */
+
+void adv_svgalib_printf(const char* format, ...) {
+}
+
+void adv_svgalib_fprintf(void* file, const char* format, ...) {
+}
+
+void* adv_svgalib_stderr() {
+	return 0;
 }
 
 /**************************************************************************/
@@ -1212,35 +1229,6 @@ static struct adv_svgalib_chipset_struct cards[] = {
 	{ 0, 0, 0, 0 }
 };
 
-int adv_svgalib_init(int divide_clock_with_sequencer)
-{
-	if (adv_svgalib_open() != 0)
-		return -1;
-
-	heap_init();
-
-	adv_svgalib_state.divide_clock = divide_clock_with_sequencer;
-
-	__svgalib_chipset = UNDEFINED;
-	__svgalib_driverspecs = &__svgalib_vga_driverspecs;
-	__svgalib_inmisc = __svgalib_vga_inmisc;
-	__svgalib_outmisc = __svgalib_vga_outmisc;
-	__svgalib_incrtc = __svgalib_vga_incrtc;
-	__svgalib_outcrtc = __svgalib_vga_outcrtc;
-	__svgalib_inseq = __svgalib_vga_inseq;
-	__svgalib_outseq = __svgalib_vga_outseq;
-	__svgalib_ingra = __svgalib_vga_ingra;
-	__svgalib_outgra = __svgalib_vga_outgra;
-	__svgalib_inatt = __svgalib_vga_inatt;
-	__svgalib_outatt = __svgalib_vga_outatt;
-	__svgalib_attscreen = __svgalib_vga_attscreen;
-	__svgalib_inpal = __svgalib_vga_inpal;
-	__svgalib_outpal = __svgalib_vga_outpal;
-	__svgalib_inis1 = __svgalib_vga_inis1;
-
-	return 0;
-}
-
 void adv_svgalib_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
 	/* mode */
@@ -1320,11 +1308,61 @@ void adv_svgalib_mode_done(void)
 	__svgalib_cur_info = __svgalib_infotable[__svgalib_cur_mode];
 }
 
+/**
+ * Initialize the svgalib library.
+ * \param divide_clock_with_sequencer Use the VGA sequencer to middle the clock. It doesn't work very well. Set it to 0.
+ * \return
+ *  - ==0 on success
+ *  - !=0 on error
+ */
+int adv_svgalib_init(int divide_clock_with_sequencer)
+{
+	memset(&adv_svgalib_state, 0, sizeof(adv_svgalib_state));
+
+	if (adv_svgalib_open() != 0)
+		return -1;
+
+	heap_init();
+
+	adv_svgalib_state.divide_clock = divide_clock_with_sequencer;
+
+	__svgalib_chipset = UNDEFINED;
+	__svgalib_driverspecs = &__svgalib_vga_driverspecs;
+	__svgalib_inmisc = __svgalib_vga_inmisc;
+	__svgalib_outmisc = __svgalib_vga_outmisc;
+	__svgalib_incrtc = __svgalib_vga_incrtc;
+	__svgalib_outcrtc = __svgalib_vga_outcrtc;
+	__svgalib_inseq = __svgalib_vga_inseq;
+	__svgalib_outseq = __svgalib_vga_outseq;
+	__svgalib_ingra = __svgalib_vga_ingra;
+	__svgalib_outgra = __svgalib_vga_outgra;
+	__svgalib_inatt = __svgalib_vga_inatt;
+	__svgalib_outatt = __svgalib_vga_outatt;
+	__svgalib_attscreen = __svgalib_vga_attscreen;
+	__svgalib_inpal = __svgalib_vga_inpal;
+	__svgalib_outpal = __svgalib_vga_outpal;
+	__svgalib_inis1 = __svgalib_vga_inis1;
+
+	return 0;
+}
+
+/**
+ * Deinitialize the SVGALIB library.
+ * You must call this function if adv_svgalib_init() complete with success.
+ */
 void adv_svgalib_done(void)
 {
 	adv_svgalib_close();
 }
 
+/**
+ * Detect the SVGALIB driver.
+ * You must call this function immediatly after adv_svgalib_init().
+ * \param name Name of the video driver, or "auto" for an anutomatic detection.
+ * \return
+ *  - ==0 on success
+ *  - !=0 on error
+ */
 int adv_svgalib_detect(const char* name) {
 	unsigned bit_map[5] = { 8,15,16,24,32 };
 	unsigned i;
@@ -1368,7 +1406,7 @@ int adv_svgalib_detect(const char* name) {
 	adv_svgalib_state.has_bit24 = 1;
 	adv_svgalib_state.has_bit32 = 1;
 
-	/* bit depth */
+	/* test the bit depths */
 	for(i=0;i<5;++i) {
 		unsigned bit = bit_map[i];
 
@@ -1391,7 +1429,7 @@ int adv_svgalib_detect(const char* name) {
 		return -1;
 	}
 
-	/* interlace */
+	/* test interlace */
 	adv_svgalib_state.has_interlace = 0;
 	if ((adv_svgalib_state.driver->cap & FLAGS_INTERLACE) != 0) {
 		adv_svgalib_state.has_interlace = 1;
@@ -1415,6 +1453,12 @@ int adv_svgalib_detect(const char* name) {
 	return 0;
 }
 
+/**
+ * Set a video mode.
+ * \return
+ *  - ==0 on success
+ *  - !=0 on error
+ */
 int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
 	adv_svgalib_mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
@@ -1447,6 +1491,13 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
 	return 0;
 }
 
+/**
+ * Unset a video mode.
+ * You must call this function if adv_svgalib_set() complete with success.
+ * \return
+ *  - ==0 on success
+ *  - !=0 on error
+ */
 void adv_svgalib_unset(void) {
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
@@ -1456,7 +1507,13 @@ void adv_svgalib_unset(void) {
 	adv_svgalib_mode_done();
 }
 
+/**
+ * Save the video board state.
+ * \param regs Destination of the state. It must be ADV_SVGALIB_STATE_SIZE bytes long.
+ */
 void adv_svgalib_save(unsigned char* regs) {
+	memset(regs, ADV_SVGALIB_STATE_SIZE, 0);
+
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
 
@@ -1465,6 +1522,10 @@ void adv_svgalib_save(unsigned char* regs) {
 	adv_svgalib_enable();
 }
 
+/**
+ * Restore the video board state.
+ * \param regs Source of the state. It must be previous obtained by adv_svgalib_save.
+ */
 void adv_svgalib_restore(unsigned char* regs) {
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
@@ -1482,6 +1543,9 @@ void adv_svgalib_restore(unsigned char* regs) {
 	vga_screenon();
 }
 
+/**
+ * Map the video board linear memory.
+ */
 void adv_svgalib_linear_map(void) {
 	if (__svgalib_linear_mem_size) {
 		__svgalib_linear_pointer = adv_svgalib_mmap(0, __svgalib_linear_mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_linear_mem_base);
@@ -1490,17 +1554,28 @@ void adv_svgalib_linear_map(void) {
 	}
 }
 
+/**
+ * Unmap the video board linear memory.
+ */
 void adv_svgalib_linear_unmap(void) {
 	if (__svgalib_linear_mem_size) {
 		adv_svgalib_munmap(__svgalib_linear_pointer, __svgalib_linear_mem_size);
 	}
 }
 
+/**
+ * Set the display start offset in the video memory.
+ * \param offset Display start offset in bytes.
+ */
 void adv_svgalib_scroll_set(unsigned offset) {
 	if (adv_svgalib_state.driver->drv->setdisplaystart)
 		adv_svgalib_state.driver->drv->setdisplaystart(offset);
 }
 
+/**
+ * Set the scanline length.
+ * \param offset Scanline length in bytes.
+ */
 void adv_svgalib_scanline_set(unsigned byte_length) {
 	adv_svgalib_state.mode.bytes_per_scanline = byte_length;
 
@@ -1508,18 +1583,49 @@ void adv_svgalib_scanline_set(unsigned byte_length) {
 		adv_svgalib_state.driver->drv->setlogicalwidth(byte_length);
 }
 
+/**
+ * Set a palette entry.
+ * \param index Index of the palette entry. From 0 to 255.
+ * \param r,g,b RGB values of 8 bits.
+ */
 void adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b) {
 	vga_setpalette(index, r >> 2, g >> 2, b >> 2);
 }
 
+/**
+ * Wait a vertical retrace.
+ */
 void adv_svgalib_wait_vsync(void) {
 	vga_waitretrace();
 }
 
+/**
+ * Enable the hardware video output.
+ */
 void adv_svgalib_on(void) {
 	vga_screenon();
 }
 
+/**
+ * Disable the hardware video output.
+ */
 void adv_svgalib_off(void) {
 	vga_screenoff();
 }
+
+/**
+ * Enable the hardware mouse pointer.
+ */
+void adv_svgalib_cursor_on(void) {
+	if (adv_svgalib_state.driver->drv->cursor)
+		adv_svgalib_state.driver->drv->cursor(CURSOR_SHOW, 0, 0, 0, 0, 0);
+}
+
+/**
+ * Disable the hardware mosue pointer.
+ */
+void adv_svgalib_cursor_off(void) {
+	if (adv_svgalib_state.driver->drv->cursor)
+		adv_svgalib_state.driver->drv->cursor(CURSOR_HIDE, 0, 0, 0, 0, 0);
+}
+

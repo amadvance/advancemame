@@ -137,6 +137,85 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/clockchi/icd2061a.o
 endif
 
+ifeq ($(CONF_HOST),windows)
+CFGCFLAGS += \
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/windows
+CFGOBJDIRS += \
+	$(CFGOBJ)/windows
+CFGOBJS += \
+	$(CFGOBJ)/lib/filedos.o \
+	$(CFGOBJ)/lib/targwin.o \
+	$(CFGOBJ)/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+CFGOBJDIRS += \
+	$(CFGOBJ)/sdl
+CFGCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL -DUSE_INPUT_SDL
+CFGLIBS += $(SDLLIBS)
+CFGOBJS += \
+	$(CFGOBJ)/sdl/vsdl.o \
+	$(CFGOBJ)/sdl/isdl.o
+# Customize the SDL_main function
+CFGCFLAGS += -DNO_STDIO_REDIRECT
+CFGOBJS += $(CFGOBJ)/windows/sdlmain.o		
+endif
+ifeq ($(CONF_LIB_SVGAWIN),yes)
+CFGOBJDIRS += \
+	$(CFGOBJ)/svgalib \
+	$(CFGOBJ)/svgalib/ramdac \
+	$(CFGOBJ)/svgalib/clockchi \
+	$(CFGOBJ)/svgalib/drivers \
+	$(CFGOBJ)/svgalib/svgawin
+CFGCFLAGS += \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgawin \
+	-DUSE_VIDEO_SVGAWIN
+CFGOBJS += \
+	$(CFGOBJ)/windows/vsvgawin.o \
+	$(CFGOBJ)/svgalib/svgalib.o \
+	$(CFGOBJ)/svgalib/svgawin/svgawin.o \
+	$(CFGOBJ)/svgalib/accel.o \
+	$(CFGOBJ)/svgalib/vgaio.o \
+	$(CFGOBJ)/svgalib/vgammvga.o \
+	$(CFGOBJ)/svgalib/vgaregs.o \
+	$(CFGOBJ)/svgalib/vgarelvg.o \
+	$(CFGOBJ)/svgalib/drivers/apm.o \
+	$(CFGOBJ)/svgalib/drivers/ark.o \
+	$(CFGOBJ)/svgalib/drivers/banshee.o \
+	$(CFGOBJ)/svgalib/drivers/et6000.o \
+	$(CFGOBJ)/svgalib/drivers/g400.o \
+	$(CFGOBJ)/svgalib/drivers/pm2.o \
+	$(CFGOBJ)/svgalib/drivers/i740.o \
+	$(CFGOBJ)/svgalib/drivers/laguna.o \
+	$(CFGOBJ)/svgalib/drivers/millenni.o \
+	$(CFGOBJ)/svgalib/drivers/mx.o \
+	$(CFGOBJ)/svgalib/drivers/nv3.o \
+	$(CFGOBJ)/svgalib/drivers/r128.o \
+	$(CFGOBJ)/svgalib/drivers/rage.o \
+	$(CFGOBJ)/svgalib/drivers/s3.o \
+	$(CFGOBJ)/svgalib/drivers/savage.o \
+	$(CFGOBJ)/svgalib/drivers/sis.o \
+	$(CFGOBJ)/svgalib/drivers/trident.o \
+	$(CFGOBJ)/svgalib/drivers/renditio.o \
+	$(CFGOBJ)/svgalib/ramdac/ibmrgb52.o \
+	$(CFGOBJ)/svgalib/ramdac/attdacs.o \
+	$(CFGOBJ)/svgalib/ramdac/icw.o \
+	$(CFGOBJ)/svgalib/ramdac/normal.o \
+	$(CFGOBJ)/svgalib/ramdac/ramdac.o \
+	$(CFGOBJ)/svgalib/ramdac/s3dacs.o \
+	$(CFGOBJ)/svgalib/ramdac/sierra.o \
+	$(CFGOBJ)/svgalib/ramdac/btdacs.o \
+	$(CFGOBJ)/svgalib/ramdac/ics_gend.o \
+	$(CFGOBJ)/svgalib/clockchi/icd2061a.o
+endif
+endif
+
 $(CFGOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(CFGCFLAGS) -c $< -o $@

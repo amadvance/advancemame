@@ -11,7 +11,7 @@ EMUVERSION = 0.61.4
 endif
 endif
 MENUVERSION = 2.1.3
-CABVERSION = 1.1.0
+CABVERSION = 1.1.1
 
 ############################################################################
 # Common dir
@@ -111,7 +111,9 @@ LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.h) \
 	$(wildcard $(srcdir)/advance/lib/*.ico) \
 	$(wildcard $(srcdir)/advance/lib/*.rc) \
-	$(wildcard $(srcdir)/advance/lib/*.dat)
+	$(wildcard $(srcdir)/advance/lib/*.dat) \
+	$(wildcard $(srcdir)/advance/lib/*.cfg) \
+	$(wildcard $(srcdir)/advance/lib/*.html)
 
 BLIT_SRC = \
 	$(wildcard $(srcdir)/advance/blit/*.c) \
@@ -126,7 +128,9 @@ SVGALIB_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/*.h) \
 	$(wildcard $(srcdir)/advance/svgalib/*.dif) \
 	$(wildcard $(srcdir)/advance/svgalib/*.txt) \
-	$(wildcard $(srcdir)/advance/svgalib/*.bat)
+	$(wildcard $(srcdir)/advance/svgalib/*.bat) \
+	$(wildcard $(srcdir)/advance/svgalib/*.cfg) \
+	$(wildcard $(srcdir)/advance/svgalib/*.html)
 
 SVGALIBDRIVERS_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/drivers/*.c) \
@@ -213,7 +217,8 @@ WINDOWS_SRC = \
 
 SDL_SRC = \
 	$(wildcard $(srcdir)/advance/sdl/*.c) \
-	$(wildcard $(srcdir)/advance/sdl/*.h)
+	$(wildcard $(srcdir)/advance/sdl/*.h) \
+	$(wildcard $(srcdir)/advance/sdl/*.dat)
 
 D2_SRC = \
 	$(wildcard $(srcdir)/advance/d2/*.cc)

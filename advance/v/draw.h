@@ -81,7 +81,7 @@ unsigned text_size_y(void);
 void text_clear(void);
 void text_set_font(void);
 int text_crtc_compare(const adv_crtc* a, const adv_crtc* b);
-void text_init(void);
+int text_init(void);
 void text_reset(void);
 void text_done(void);
 void text_put(int x, int y, char c, int color);

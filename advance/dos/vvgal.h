@@ -43,10 +43,10 @@ extern "C" {
 #endif
 
 typedef struct vgaline_video_mode_struct {
-	adv_crtc crtc; /**< CRTC values */
-	adv_bool is_text; /**< is a text mode */
-	unsigned font_x; /**< X size of the font, valid only in text mode */
-	unsigned font_y;  /**< Y size of the font, valid only in text mode */
+	adv_crtc crtc; /**< CRTC values. */
+	adv_bool is_text; /**< Is a text mode. */
+	unsigned font_x; /**< X size of the font, valid only in text mode. */
+	unsigned font_y;  /**< Y size of the font, valid only in text mode. */
 } vgaline_video_mode;
 
 adv_error vgaline_init(int device_id);

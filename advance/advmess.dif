@@ -1,33 +1,11 @@
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/advance.pat srcmess/advance.pat
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2002-09-08 18:16:02.000000000 +0200
++++ srcmess/advance.pat	2002-11-01 22:27:56.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2002-05-22 03:48:52.000000000 +0200
-+++ srcmess/common.c	2002-09-08 18:16:02.000000000 +0200
-@@ -424,17 +424,11 @@
- 	coin_counter_w - sets input for coin counter
- -------------------------------------------------*/
- 
- void coin_counter_w(int num,int on)
- {
--	if (num >= COIN_COUNTERS) return;
--	/* Count it only if the data has changed from 0 to non-zero */
--	if (on && (lastcoin[num] == 0))
--	{
--		coins[num]++;
--	}
--	lastcoin[num] = on;
-+	/* moved in update_input_ports */
- }
- 
- 
- /*-------------------------------------------------
- 	coin_lockout_w - locks out one coin input
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
 --- srcmess.ori/cpu/i8085/i8085.c	2002-07-21 18:24:54.000000000 +0200
-+++ srcmess/cpu/i8085/i8085.c	2002-09-08 18:16:02.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2002-11-01 22:27:56.000000000 +0100
 @@ -74,10 +74,16 @@
   * 
   *****************************************************************************/
@@ -45,9 +23,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #include "driver.h"
  #include "state.h"
  #include "osd_cpu.h"
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
---- srcmess.ori/cpu/m68000/make68k.c	2002-07-06 18:37:00.000000000 +0200
-+++ srcmess/cpu/m68000/make68k.c	2002-09-08 18:16:02.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
+--- srcmess.ori/cpu/m68000/make68k.c	2002-05-09 13:04:52.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2002-11-01 23:35:46.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -55,7 +33,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #define PCREL  1
  
 -#ifdef __ELF__
-+#if defined(OBJ_TARGET_ELF)
++#if defined(USE_OBJ_ELF)
  #define PREF ""
  #else
  #define PREF "_"
@@ -68,22 +46,35 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  /* External register preservation */
  
 -#ifdef DOS
-+#if defined(COMPILER_TARGET_GNUC)
++#if defined(USE_COMPILER_GNUC)
  
  /* Registers normally saved around C routines anyway */
  /* GCC 2.9.1 (dos) seems to preserve EBX,EDI and EBP */
  static char SavedRegs[] = "-B--SDB";
  
 -#elif defined(WIN32)
-+#elif defined(COMPILER_TARGET_VISUALC)
++#elif defined(USE_COMPILER_VISUALC)
  
  /* visual C++, win32, says it preserves ebx, edi, esi, and ebp */
  /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
  static char SavedRegs[] = "-B--S-B";
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
+@@ -8038,11 +8038,11 @@
+ 	fprintf(fp, "\t\tDW   0,0,0\n\n");
+ 
+ 
+ /* If Win32, put the table area in .data section (Kenjo) */
+ 
+-#ifdef WIN32
++#if defined(USE_OS_WINDOWS)
+ 
+ 	fprintf(fp, "%s_OPCODETABLE\tTIMES  65536  DD 0\n\n", CPUtype);
+ 
+ #else
+ 
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
 --- srcmess.ori/cpu/z80/z80.c	2002-05-22 03:49:32.000000000 +0200
-+++ srcmess/cpu/z80/z80.c	2002-09-08 18:16:02.000000000 +0200
++++ srcmess/cpu/z80/z80.c	2002-11-01 22:27:56.000000000 +0100
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -101,9 +92,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #if VERBOSE
  #define LOG(x)	logerror x
  #else
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2002-07-06 18:37:02.000000000 +0200
-+++ srcmess/cpuexec.c	2002-09-08 18:16:02.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpuexec.c srcmess/cpuexec.c
+--- srcmess.ori/cpuexec.c	2002-05-17 21:12:10.000000000 +0200
++++ srcmess/cpuexec.c	2002-11-01 22:27:56.000000000 +0100
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
@@ -118,10 +109,10 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	2002-07-06 18:37:18.000000000 +0200
-+++ srcmess/info.c	2002-09-08 19:43:52.000000000 +0200
-@@ -648,10 +648,42 @@
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/info.c srcmess/info.c
+--- srcmess.ori/info.c	2002-06-14 20:39:14.000000000 +0200
++++ srcmess/info.c	2002-11-02 13:42:20.000000000 +0100
+@@ -648,10 +648,39 @@
  	fprintf(out, L2P "palettesize %d" L2N, driver.total_colors);
  
  	fprintf(out, L2E L1N);
@@ -129,32 +120,29 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
 +#ifdef MESS
 +static void print_game_device(FILE* out, const struct GameDriver* game) {
-+	if (game->dev && game->dev->type != IO_END) {
-+		const struct IODevice* dev = game->dev;
++	const struct IODevice* dev = device_first(game);
 +
-+		while (dev->type != IO_END) {
-+			const char* ext = dev->file_extensions;
++	while (dev) {
++		const char* ext = dev->file_extensions;
 +
-+			fprintf(out, L1P "device" L2B);
-+			fprintf(out, L2P "name \"%s\"" L2N, device_typename(dev->type));
++		fprintf(out, L1P "device" L2B);
++		fprintf(out, L2P "name \"%s\"" L2N, device_typename(dev->type));
 +
-+			while (*ext) {
-+				/* some drivers put the extension separated by a , */
-+				char* ext_list = strdup(ext);
-+				char* ext_item = strtok(ext_list, ",");
-+				while (ext_item && ext_item[0]) {
-+					fprintf(out, L2P "ext \"%s\"" L2N, ext_item);
-+					ext_item = strtok(0 ,",");
-+				}
-+				free(ext_list);
-+
-+				ext += strlen(ext) + 1;
++		while (*ext) {
++			/* some drivers put the extension separated by a , */
++			char* ext_list = strdup(ext);
++			char* ext_item = strtok(ext_list, ",");
++			while (ext_item && ext_item[0]) {
++				fprintf(out, L2P "ext \"%s\"" L2N, ext_item);
++				ext_item = strtok(0 ,",");
 +			}
-+
-+			fprintf(out, L2E L1N);
-+
-+			++dev;
++			free(ext_list);
++			ext += strlen(ext) + 1;
 +		}
++
++		fprintf(out, L2E L1N);
++
++		dev = device_next(game, dev);
 +	}
 +}
 +#endif
@@ -164,7 +152,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  {
  
  #ifndef MESS
-@@ -691,10 +723,13 @@
+@@ -691,10 +720,13 @@
  	print_game_video(out,game);
  	print_game_sound(out,game);
  	print_game_input(out,game);
@@ -178,10 +166,10 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  }
  
  #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2002-07-06 18:37:18.000000000 +0200
-+++ srcmess/inptport.c	2002-09-08 18:16:02.000000000 +0200
-@@ -147,10 +147,13 @@
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.c srcmess/inptport.c
+--- srcmess.ori/inptport.c	2002-10-13 17:18:54.000000000 +0200
++++ srcmess/inptport.c	2002-11-01 22:27:56.000000000 +0100
+@@ -151,10 +151,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -195,7 +183,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -158,10 +161,12 @@
+@@ -162,10 +165,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -208,7 +196,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1694,14 +1699,16 @@
+@@ -1698,14 +1703,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -229,77 +217,10 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -1959,16 +1966,23 @@
- #define MAX_INPUT_BITS 1024
- 	static int impulsecount[MAX_INPUT_BITS];
- 	static int waspressed[MAX_INPUT_BITS];
- 	static int pbwaspressed[MAX_INPUT_BITS];
- 
-+	unsigned newcoin[COIN_COUNTERS];
-+	unsigned coin;
-+
- #ifdef MAME_NET
- 	int player;
- #endif /* MAME_NET */
- 
- 
- profiler_mark(PROFILER_INPUT);
-+	
-+	/* clear the new coin status */
-+	for(coin=0;coin<4;++coin)
-+		newcoin[coin] = 0;
- 
- 	/* clear all the values before proceeding */
- 	for (port = 0;port < MAX_INPUT_PORTS;port++)
- 	{
- 		input_port_value[port] = 0;
-@@ -2057,18 +2071,20 @@
- 				}
- 				else
- 				{
- 					InputSeq* seq;
- 					seq = input_port_seq(in);
--					if (seq_pressed(seq))
-+
-+					if (osd_input_port_filter(seq_pressed(seq), in->type & (IPF_PLAYERMASK | ~IPF_MASK)))
- 					{
--						/* skip if coin input and it's locked out */
--						if ((in->type & ~IPF_MASK) >= IPT_COIN1 &&
--							(in->type & ~IPF_MASK) <= IPT_COIN4 &&
--                            coinlockedout[(in->type & ~IPF_MASK) - IPT_COIN1])
--						{
--							continue;
-+						if ((in->type & ~IPF_MASK) >= IPT_COIN1 && (in->type & ~IPF_MASK) <= IPT_COIN4) {
-+							unsigned ncoin = (in->type & ~IPF_MASK) - IPT_COIN1;
-+							if (coinlockedout[ncoin])
-+								continue;
-+							if (!lastcoin[ncoin])
-+								++coins[ncoin];
-+							newcoin[ncoin] = 1;
- 						}
- 
- 						/* if IPF_RESET set, reset the first CPU */
- 						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
- 						{
-@@ -2196,10 +2212,14 @@
- #ifdef MAME_NET
- 	if ( net_active() && (default_player != NET_SPECTATOR) )
- 		net_input_sync((unsigned char *) input_port_value, (unsigned char *) input_port_defaults, MAX_INPUT_PORTS);
- #endif /* MAME_NET */
- 
-+	/* set the last coin status */
-+	for(coin=0;coin<4;++coin)
-+		lastcoin[coin] = newcoin[coin];
-+	
- profiler_mark(PROFILER_END);
- }
- 
- 
- 
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/inptport.h srcmess/inptport.h
---- srcmess.ori/inptport.h	2002-07-06 18:37:18.000000000 +0200
-+++ srcmess/inptport.h	2002-09-08 18:16:02.000000000 +0200
-@@ -81,10 +81,15 @@
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.h srcmess/inptport.h
+--- srcmess.ori/inptport.h	2002-10-13 17:18:54.000000000 +0200
++++ srcmess/inptport.h	2002-11-01 22:27:56.000000000 +0100
+@@ -84,10 +84,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -315,9 +236,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	IPT_UI_PAUSE,
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/input.c srcmess/input.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/input.c srcmess/input.c
 --- srcmess.ori/input.c	2002-07-06 13:33:26.000000000 +0200
-+++ srcmess/input.c	2002-09-08 18:17:58.000000000 +0200
++++ srcmess/input.c	2002-11-01 22:27:56.000000000 +0100
 @@ -791,11 +791,11 @@
  		pressed = 1;
  		ui_posted_press = 0;
@@ -344,9 +265,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{
  		if (ui_map[code].memory == 0)
  		{
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/mame.c srcmess/mame.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.c srcmess/mame.c
 --- srcmess.ori/mame.c	2002-07-13 14:00:10.000000000 +0200
-+++ srcmess/mame.c	2002-09-08 18:19:20.000000000 +0200
++++ srcmess/mame.c	2002-11-01 22:27:56.000000000 +0100
 @@ -1016,34 +1016,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -386,11 +307,11 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  
  /*-------------------------------------------------
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2002-08-23 16:30:08.000000000 +0200
-+++ srcmess/osdepend.h	2002-09-08 18:16:02.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
+--- srcmess.ori/osdepend.h	2002-09-27 05:08:54.000000000 +0200
++++ srcmess/osdepend.h	2002-11-01 22:27:56.000000000 +0100
 @@ -404,10 +404,36 @@
- #include "osd_dir.h"
+ #include "osd_mess.h"
  #endif
  
  void CLIB_DECL logerror(const char *text,...);
@@ -426,9 +347,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #endif
  
  #endif
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2002-07-06 18:37:22.000000000 +0200
-+++ srcmess/ui_text.c	2002-09-08 18:16:02.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.c srcmess/ui_text.c
+--- srcmess.ori/ui_text.c	2001-09-30 11:27:00.000000000 +0200
++++ srcmess/ui_text.c	2002-11-01 22:27:56.000000000 +0100
 @@ -202,10 +202,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -444,9 +365,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  int uistring_init (void *langfile)
  {
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2002-07-06 18:37:22.000000000 +0200
-+++ srcmess/ui_text.h	2002-09-08 18:16:02.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.h srcmess/ui_text.h
+--- srcmess.ori/ui_text.h	2001-09-30 11:27:04.000000000 +0200
++++ srcmess/ui_text.h	2002-11-01 22:27:56.000000000 +0100
 @@ -169,10 +169,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -462,9 +383,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  struct lang_struct
  {
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2002-07-06 13:33:28.000000000 +0200
-+++ srcmess/usrintrf.c	2002-09-08 18:20:24.000000000 +0200
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/usrintrf.c srcmess/usrintrf.c
+--- srcmess.ori/usrintrf.c	2002-10-17 14:26:12.000000000 +0200
++++ srcmess/usrintrf.c	2002-11-01 22:27:56.000000000 +0100
 @@ -663,12 +663,16 @@
  	while (items[i])
  	{

@@ -4,11 +4,13 @@
 LIB_VERSION = 0.1
 
 doclib:
-	doxygen advance/lib.cfg
+	doxygen advance/lib/lib.cfg
+
+docsvgalib:
+	doxygen advance/svgalib/svgalib.cfg
 
 LIB_ADVANCE_SRC = \
-	advance/lib.mak \
-	advance/lib.cfg
+	advance/lib.mak
 
 LIB_DISTFILE_SRC = advancelib-$(LIB_VERSION)
 LIB_DIST_DIR_SRC = $(LIB_DISTFILE_SRC)

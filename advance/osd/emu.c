@@ -29,6 +29,7 @@
  */
 
 #include "emu.h"
+#include "thread.h"
 #include "hscript.h"
 #include "conf.h"
 #include "video.h"
@@ -471,7 +472,16 @@ int os_main(int argc, char* argv[])
 
 	memset(&option,0,sizeof(option));
 
+	if (thread_init() != 0) {
+		target_err("Error initializing the thread support.\n");
+		goto err;
+	}
+
 	cfg_context = conf_init();
+	if (!cfg_context) {
+		target_err("Error initializing the configuration support.\n");
+		goto err_thread;
+	}
 
 	if (os_init(cfg_context)!=0) {
 		target_err("Error initializing the OS support.\n");
@@ -720,6 +730,8 @@ int os_main(int argc, char* argv[])
 
 	conf_done(cfg_context);
 
+	thread_done();
+
 	return r;
 
 done_os:
@@ -733,5 +745,8 @@ err_os:
 	os_done();
 err_conf:
 	conf_done(cfg_context);
+err_thread:
+	thread_done();
+err:
 	return -1;
 }

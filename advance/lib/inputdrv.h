@@ -50,6 +50,7 @@ extern "C" {
 /***************************************************************************/
 /* Codes */
 
+#define INPUTB_NONE 0
 #define INPUTB_TAB 9
 #define INPUTB_ENTER 13
 #define INPUTB_ESC 27

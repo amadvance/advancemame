@@ -807,6 +807,8 @@ Optional Features:
   --enable-pthread        enable the use of the pthread library (default auto)
   --enable-slang          enable the use of the sLang library (default auto)
   --enable-sdl            enable the use of the SDL library. (default auto)
+  --enable-svgawin        enable the use of the SVGAWIN library. (default
+                          auto)
   --enable-debugger       enable the emulator debugger (default no)
   --enable-compress       enable the compression of the executable (default
                           no)
@@ -4796,6 +4798,27 @@ fi
 CONF_LIB_SDL=$ac_lib_sdl
 
 
+# Check whether --enable-svgawin or --disable-svgawin was given.
+if test "${enable_svgawin+set}" = set; then
+  enableval="$enable_svgawin"
+  ac_lib_sdl=$withval
+else
+  ac_lib_sdl=auto
+
+fi;
+if test $ac_lib_sdl = auto; then
+	if test $ac_host = windows; then
+		ac_lib_svgawin=yes
+	else
+		ac_lib_svgawin=no
+	fi
+fi
+if test $ac_lib_svgawin = yes; then
+	ac_lib="$ac_lib SVGAWIN"
+fi
+CONF_LIB_SVGAWIN=$ac_lib_svgawin
+
+
 # Check whether --enable-debugger or --disable-debugger was given.
 if test "${enable_debugger+set}" = set; then
   enableval="$enable_debugger"
@@ -5553,6 +5576,7 @@ s,@SDLCONFIG@,$SDLCONFIG,;t t
 s,@SDLCFLAGS@,$SDLCFLAGS,;t t
 s,@SDLLIBS@,$SDLLIBS,;t t
 s,@CONF_LIB_SDL@,$CONF_LIB_SDL,;t t
+s,@CONF_LIB_SVGAWIN@,$CONF_LIB_SVGAWIN,;t t
 s,@CONF_DEBUGGER@,$CONF_DEBUGGER,;t t
 s,@UPX@,$UPX,;t t
 s,@TOUCH@,$TOUCH,;t t

@@ -371,7 +371,7 @@ int video_mode_compare(const adv_mode* a, const adv_mode* b);
 
 adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
 adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags);
-unsigned video_mode_generate_driver_flags(void);
+unsigned video_mode_generate_driver_flags(unsigned subset);
 
 void video_mode_print(char* buffer, const adv_mode* vm);
 

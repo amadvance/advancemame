@@ -1071,3 +1071,9 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 	(void)defaults;
 }
 
+#ifdef MESS
+int osd_keyboard_disabled(void)
+{
+	return 0; /* TODO implement osd_keyboard_disabled */
+}
+#endif

@@ -39,9 +39,9 @@ VIDEO_SRC = \
 	$(wildcard advance/video/*.h)
 
 VIDEOWIN_SRC = \
-	advance/videowin/makefile \
-	$(wildcard advance/videowin/*.c) \
-	$(wildcard advance/videowin/*.h)
+	advance/videow/makefile \
+	$(wildcard advance/videow/*.c) \
+	$(wildcard advance/videow/*.h)
 
 CAB_ROOT_SRC = \
 	$(srcdir)/COPYING \
@@ -60,7 +60,7 @@ CAB_DOC_SRC = \
 	doc/video.d \
 	doc/off.d \
 	doc/portio.d \
-	doc/videowin.d \
+	doc/videow.d \
 	doc/svgawin.d \
 	doc/carddos.d \
 	doc/cardwin.d \
@@ -99,10 +99,10 @@ CAB_DOC_BIN += \
 endif
 ifeq ($(CONF_HOST),windows)
 CAB_DOC_BIN += \
-	$(DOCOBJ)/videowin.txt \
+	$(DOCOBJ)/videow.txt \
 	$(DOCOBJ)/svgawin.txt \
 	$(DOCOBJ)/cardwin.txt \
-	$(DOCOBJ)/videowin.html \
+	$(DOCOBJ)/videow.html \
 	$(DOCOBJ)/svgawin.html \
 	$(DOCOBJ)/cardwin.html
 endif
@@ -112,7 +112,8 @@ CAB_SUPPORT_SRC = \
 	support/video.pcx \
 	support/videobis.pcx \
 	support/vbev.bat \
-	support/vgav.bat
+	support/vgav.bat \
+	support/videowv.bat
 
 CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
@@ -134,7 +135,9 @@ CAB_ROOT_BIN += \
 endif
 ifeq ($(CONF_HOST),windows)
 CAB_ROOT_BIN += \
-	advance/videowin/videowin.exe \
+	support/videowv.bat \
+	$(VOBJ)/advv$(EXE) \
+	advance/videow/videow.exe \
 	advance/svgalib/svgawin/driver/svgawin.sys \
 	advance/svgalib/svgawin/install/svgawin.exe
 endif
@@ -169,8 +172,8 @@ distcab: $(RCSRC)
 	cp $(OFF_SRC) $(CAB_DIST_DIR_SRC)/advance/off
 	mkdir $(CAB_DIST_DIR_SRC)/advance/portio
 	cp $(PORTIO_SRC) $(CAB_DIST_DIR_SRC)/advance/portio
-	mkdir $(CAB_DIST_DIR_SRC)/advance/videowin
-	cp $(VIDEOWIN_SRC) $(CAB_DIST_DIR_SRC)/advance/videowin
+	mkdir $(CAB_DIST_DIR_SRC)/advance/videow
+	cp $(VIDEOWIN_SRC) $(CAB_DIST_DIR_SRC)/advance/videow
 	mkdir $(CAB_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(CAB_DIST_DIR_SRC)/advance/d2
 	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib

@@ -100,16 +100,6 @@ void adv_svgalib_close(void) {
 }
 
 /**************************************************************************/
-/* printf */
-
-void adv_svgalib_fprintf(void* file, const char* format, ...) {
-}
-
-void* adv_svgalib_stderr() {
-	return 0;
-}
-
-/**************************************************************************/
 /* mmap */
 
 void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset) {

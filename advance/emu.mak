@@ -35,6 +35,9 @@ ifeq ($(CONF_LIB_PTHREAD),yes)
 CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
 ADVANCELIBS += -lpthread
+ADVANCEOBJS += $(OBJ)/advance/osd/thdouble.o
+else
+ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
 OBJDIRS += \
@@ -173,6 +176,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/btdacs.o \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
+ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 
 ifeq ($(CONF_HOST),windows)
@@ -212,7 +216,7 @@ ADVANCEOBJS += \
 ADVANCECFLAGS += -DNO_STDIO_REDIRECT
 ADVANCEOBJS += $(OBJ)/advance/windows/sdlmain.o
 endif
-ifeq ($(CONF_LIB_SDL),yes)
+ifeq ($(CONF_LIB_SVGAWIN),yes)
 OBJDIRS += \
 	$(OBJ)/advance/svgalib \
 	$(OBJ)/advance/svgalib/ramdac \
@@ -264,6 +268,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 endif
+ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 
 ############################################################################
@@ -617,9 +622,9 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/histemu.txt \
 	$(DOCOBJ)/faq.txt \
 	$(DOCOBJ)/tips.txt \
-	$(DOCOBJ)/carddos.txt \
-	$(DOCOBJ)/cardlinx.txt \
-	$(DOCOBJ)/cardwin.txt \
+	$(DOCOBJ)/install.txt \
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \
@@ -631,60 +636,61 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/histemu.html \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/tips.html \
-	$(DOCOBJ)/carddos.html \
-	$(DOCOBJ)/cardlinx.html \
-	$(DOCOBJ)/cardwin.html
-ifeq ($(CONF_HOST),windows)
+	$(DOCOBJ)/install.html \
+	$(DOCOBJ)/advv.html \
+	$(DOCOBJ)/advcfg.html
+ifeq ($(CONF_HOST),unix)
 EMU_DOC_BIN += \
-	$(DOCOBJ)/svgawin.txt \
-	$(DOCOBJ)/svgawin.html
-endif
-ifneq ($(CONF_HOST),windows)
-EMU_DOC_BIN += \
-	$(DOCOBJ)/install.txt \
-	$(DOCOBJ)/advv.txt \
-	$(DOCOBJ)/advcfg.txt \
+	$(DOCOBJ)/cardlinx.txt \
 	$(DOCOBJ)/advk.txt \
 	$(DOCOBJ)/advs.txt \
 	$(DOCOBJ)/advj.txt \
 	$(DOCOBJ)/advm.txt \
-	$(DOCOBJ)/install.html \
-	$(DOCOBJ)/advv.html \
-	$(DOCOBJ)/advcfg.html \
+	$(DOCOBJ)/cardlinx.html \
 	$(DOCOBJ)/advk.html \
 	$(DOCOBJ)/advs.html \
 	$(DOCOBJ)/advj.html \
 	$(DOCOBJ)/advm.html
 endif
+ifeq ($(CONF_HOST),dos)
+EMU_DOC_BIN += \
+	$(DOCOBJ)/carddos.txt \
+	$(DOCOBJ)/advk.txt \
+	$(DOCOBJ)/advs.txt \
+	$(DOCOBJ)/advj.txt \
+	$(DOCOBJ)/advm.txt \
+	$(DOCOBJ)/cardlinx.txt \
+	$(DOCOBJ)/cardlinx.html \
+	$(DOCOBJ)/carddos.html \
+	$(DOCOBJ)/advk.html \
+	$(DOCOBJ)/advs.html \
+	$(DOCOBJ)/advj.html \
+	$(DOCOBJ)/advm.html
+endif
+ifeq ($(CONF_HOST),windows)
+EMU_DOC_BIN += \
+	$(DOCOBJ)/svgawin.txt \
+	$(DOCOBJ)/cardwin.txt \
+	$(DOCOBJ)/svgawin.html \
+	$(DOCOBJ)/cardwin.html
+endif
 
 EMU_ROOT_BIN = \
-	$(OBJ)/$(EMUNAME)$(EXE)
+	$(OBJ)/$(EMUNAME)$(EXE) \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE)
 ifeq ($(CONF_EMU),mame)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/safequit.dat
 endif
 ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
-	$(DOCOBJ)/advmame.1 \
-	$(CONF_BIN)
-endif
-ifeq ($(CONF_HOST),windows)
-EMU_ROOT_BIN += \
-	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
-	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
-	$(srcdir)/support/sdl.dll \
-	$(srcdir)/support/zlib.dll
-endif
-ifneq ($(CONF_HOST),windows)
-EMU_ROOT_BIN += \
-	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE) \
+	$(CONF_BIN) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
-	$(MOBJ)/advm$(EXE)
-ifeq ($(CONF_HOST),unix)
-EMU_ROOT_BIN += \
+	$(MOBJ)/advm$(EXE) \
+	$(DOCOBJ)/advmame.1 \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1 \
 	$(DOCOBJ)/advk.1 \
@@ -692,6 +698,19 @@ EMU_ROOT_BIN += \
 	$(DOCOBJ)/advj.1 \
 	$(DOCOBJ)/advm.1
 endif
+ifeq ($(CONF_HOST),dos)
+EMU_ROOT_BIN += \
+	$(KOBJ)/advk$(EXE) \
+	$(SOBJ)/advs$(EXE) \
+	$(JOBJ)/advj$(EXE) \
+	$(MOBJ)/advm$(EXE)
+endif
+ifeq ($(CONF_HOST),windows)
+EMU_ROOT_BIN += \
+	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
+	$(srcdir)/support/sdl.dll \
+	$(srcdir)/support/zlib.dll
 endif
 
 ifeq ($(CONF_EMU),mess)
@@ -800,8 +819,10 @@ endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)/doc
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
+ifeq ($(CONF_HOST),dos)
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
+endif
 ifeq ($(CONF_HOST),unix)
 	rm -f $(EMU_DISTFILE_BIN).tar.gz
 	tar cfzo $(EMU_DISTFILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)

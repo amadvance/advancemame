@@ -38,6 +38,8 @@
  * workpile implementation.
  */
 
+#include "thread.h"
+
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>

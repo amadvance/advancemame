@@ -139,6 +139,85 @@ VOBJS += \
 	$(VOBJ)/svgalib/clockchi/icd2061a.o
 endif
 
+ifeq ($(CONF_HOST),windows)
+VCFLAGS += \
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/windows
+VOBJDIRS += \
+	$(VOBJ)/windows
+VOBJS += \
+	$(VOBJ)/lib/filedos.o \
+	$(VOBJ)/lib/targwin.o \
+	$(VOBJ)/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+VOBJDIRS += \
+	$(VOBJ)/sdl
+VCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL -DUSE_INPUT_SDL
+VLIBS += $(SDLLIBS)
+VOBJS += \
+	$(VOBJ)/sdl/vsdl.o \
+	$(VOBJ)/sdl/isdl.o
+# Customize the SDL_main function
+VCFLAGS += -DNO_STDIO_REDIRECT
+VOBJS += $(VOBJ)/windows/sdlmain.o	
+endif
+ifeq ($(CONF_LIB_SVGAWIN),yes)
+VOBJDIRS += \
+	$(VOBJ)/svgalib \
+	$(VOBJ)/svgalib/ramdac \
+	$(VOBJ)/svgalib/clockchi \
+	$(VOBJ)/svgalib/drivers \
+	$(VOBJ)/svgalib/svgawin
+VCFLAGS += \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgawin \
+	-DUSE_VIDEO_SVGAWIN
+VOBJS += \
+	$(VOBJ)/windows/vsvgawin.o \
+	$(VOBJ)/svgalib/svgalib.o \
+	$(VOBJ)/svgalib/svgawin/svgawin.o \
+	$(VOBJ)/svgalib/accel.o \
+	$(VOBJ)/svgalib/vgaio.o \
+	$(VOBJ)/svgalib/vgammvga.o \
+	$(VOBJ)/svgalib/vgaregs.o \
+	$(VOBJ)/svgalib/vgarelvg.o \
+	$(VOBJ)/svgalib/drivers/apm.o \
+	$(VOBJ)/svgalib/drivers/ark.o \
+	$(VOBJ)/svgalib/drivers/banshee.o \
+	$(VOBJ)/svgalib/drivers/et6000.o \
+	$(VOBJ)/svgalib/drivers/g400.o \
+	$(VOBJ)/svgalib/drivers/pm2.o \
+	$(VOBJ)/svgalib/drivers/i740.o \
+	$(VOBJ)/svgalib/drivers/laguna.o \
+	$(VOBJ)/svgalib/drivers/millenni.o \
+	$(VOBJ)/svgalib/drivers/mx.o \
+	$(VOBJ)/svgalib/drivers/nv3.o \
+	$(VOBJ)/svgalib/drivers/r128.o \
+	$(VOBJ)/svgalib/drivers/rage.o \
+	$(VOBJ)/svgalib/drivers/s3.o \
+	$(VOBJ)/svgalib/drivers/savage.o \
+	$(VOBJ)/svgalib/drivers/sis.o \
+	$(VOBJ)/svgalib/drivers/trident.o \
+	$(VOBJ)/svgalib/drivers/renditio.o \
+	$(VOBJ)/svgalib/ramdac/ibmrgb52.o \
+	$(VOBJ)/svgalib/ramdac/attdacs.o \
+	$(VOBJ)/svgalib/ramdac/icw.o \
+	$(VOBJ)/svgalib/ramdac/normal.o \
+	$(VOBJ)/svgalib/ramdac/ramdac.o \
+	$(VOBJ)/svgalib/ramdac/s3dacs.o \
+	$(VOBJ)/svgalib/ramdac/sierra.o \
+	$(VOBJ)/svgalib/ramdac/btdacs.o \
+	$(VOBJ)/svgalib/ramdac/ics_gend.o \
+	$(VOBJ)/svgalib/clockchi/icd2061a.o
+endif
+endif
+
 $(VOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(VCFLAGS) -c $< -o $@

@@ -62,11 +62,12 @@
 #endif
 
 /* Check if SDL is used in some way */
-#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL)
+#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL) || defined(USE_INPUT_SDL)
 #define USE_SDL
 #include "ossdl.h"
 #include "SDL.h"
 #include "ksdl.h"
+#include "isdl.h"
 #include "msdl.h"
 #endif
 
@@ -331,6 +332,9 @@ void os_poll(void) {
 #ifdef USE_KEYBOARD_SDL
 				keyb_sdl_event_press(event.key.keysym.sym);
 #endif
+#ifdef USE_INPUT_SDL
+				inputb_sdl_event_press(event.key.keysym.sym);
+#endif
 
 				/* toggle fullscreen check */
 				if (event.key.keysym.sym == SDLK_RETURN
@@ -349,6 +353,9 @@ void os_poll(void) {
 			case SDL_KEYUP :
 #ifdef USE_KEYBOARD_SDL
 				keyb_sdl_event_release(event.key.keysym.sym);
+#endif
+#ifdef USE_INPUT_SDL
+				inputb_sdl_event_release(event.key.keysym.sym);
 #endif
 			break;
 			case SDL_MOUSEMOTION :

@@ -522,9 +522,6 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
-			/* mask out the driver flags with the user requested limitations */
-			unsigned driver_flags = video_state.driver_map[i]->flags() & video_internal_flags();
-
 			/* allow always faked crtc */
 			if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
 				log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
@@ -662,7 +659,13 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	return 0;
 }
 
-unsigned video_mode_generate_driver_flags(void)
+/**
+ * Return the flags of the drivers used to generate video modes.
+ * This function add the flags of all the drivers usable.
+ * \param subset Define a subset of flags on which limit the search.
+ *   Use
+ */
+unsigned video_mode_generate_driver_flags(unsigned subset)
 {
 	unsigned flags;
 	unsigned i;
@@ -670,7 +673,7 @@ unsigned video_mode_generate_driver_flags(void)
 	flags = 0;
 
 	for(i=0;i<video_state.driver_mac;++i) {
-		if (video_state.driver_map[i]) {
+		if (video_state.driver_map[i] && (video_state.driver_map[i]->flags() & subset) != 0) {
 			/* limit the flags with the video internal options */
 			unsigned new_flags = video_state.driver_map[i]->flags() & video_internal_flags();
 

@@ -31,7 +31,7 @@ PREFIX=@prefix@
 #   none for the Multiprocessor support (no Multiprocessor support)
 #
 # The windows host system uses:
-#   SDL for the video
+#   SVGAWIN, SDL for the video
 #   none for the text (no text mode programs are available)
 #   SDL for the sound
 #   SDL for the keyboard
@@ -45,6 +45,7 @@ PREFIX=@prefix@
 
 # Uncomment and set to "no" to disable some libraries:
 #CONF_LIB_SVGALIB=yes
+#CONF_LIB_SVGAWIN=yes
 #CONF_LIB_SDL=yes
 #CONF_LIB_FB=yes
 #CONF_LIB_OSS=yes
@@ -101,6 +102,7 @@ CONF_LIB_SVGALIB=@CONF_LIB_SVGALIB@
 CONF_LIB_FB=@CONF_LIB_FB@
 CONF_LIB_OSS=@CONF_LIB_OSS@
 CONF_LIB_SDL=@CONF_LIB_SDL@
+CONF_LIB_SVGAWIN=@CONF_LIB_SVGAWIN@
 CONF_LIB_PTHREAD=@CONF_LIB_PTHREAD@
 CONF_LIB_SLANGD=@CONF_LIB_SLANG@
 CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
@@ -163,6 +165,10 @@ endif
      
 ifndef CONF_LIB_SDL
 CONF_LIB_SDL=yes
+endif
+
+ifndef CONF_LIB_SVGAWIN
+CONF_LIB_SVGAWIN=yes
 endif
 
 ifndef CONF_LIB_PTHREAD
@@ -311,13 +317,13 @@ ifeq ($(CONF_HOST),windows)
 CROSSTARGET = i386-mingw32msvc
 CROSSDIR = /usr/local/cross-tools
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
-CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
-CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
-LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
-LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
+CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -I$(CROSSDIR)/$(CROSSTARGET)/include
+CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -I$(CROSSDIR)/$(CROSSTARGET)/include
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
 RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
 SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL
-SDLLIBS = -lSDL -mwindows
+SDLLIBS = -lmingw32 -lSDL -mwindows
 endif
 endif
 
@@ -351,8 +357,8 @@ LDXX = @g++
 TOUCH = @true
 RC = @windres
 # The "" are required, otherwise the backslash are removed
-SDLCFLAGS = "-IC:\MINGW\INCLUDE\SDL"
-SDLLIBS = -lSDL -mwindows
+SDLCFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\SDL"
+SDLLIBS = -lmingw32 -lSDL -mwindows
 endif
 
 endif

@@ -189,7 +189,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 {
 	*crtc = *original_crtc;
 
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 0; /* always ok if driver is not programmable */
 	}
 
@@ -335,13 +335,13 @@ static int video_update_depthindex(struct advance_video_context* context) {
 
 	if (context->config.depth == 0) {
 		/* get the video driver preferred bit depth */
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
 			bits_per_pixel = 8;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
 			bits_per_pixel = 15;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
 			bits_per_pixel = 16;
-		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
+		} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
 			bits_per_pixel = 32;
 		} else {
 			if (mode_may_be_palette) {
@@ -372,7 +372,7 @@ static int video_update_depthindex(struct advance_video_context* context) {
 			case 32 : flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
 			default: return -1;
 		}
-		if ((video_mode_generate_driver_flags() & flag) != 0)
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & flag) != 0)
 			break;
 		++select;
 	}
@@ -700,13 +700,13 @@ static int is_crtc_acceptable(struct advance_video_context* context, const adv_c
 		return 0;
 
 	bit = 0;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
 		bit = 8;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
 		bit = 15;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
 		bit = 16;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
 		bit = 32;
 	if (!bit)
 		return 0;
@@ -735,7 +735,7 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 
 	mode_reset(&mode);
 
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 1; /* always ok if the driver is not programmable */
 	}
 
@@ -752,13 +752,13 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 	}
 
 	bit = 0;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
 		bit = 8;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
 		bit = 15;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
 		bit = 16;
-	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
+	if (bit == 0 && (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
 		bit = 32;
 	if (!bit)
 		return 0;
@@ -775,7 +775,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 
 	assert( crtc );
 
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
 		/* only for window manager drivers */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
@@ -1001,7 +1001,7 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 
 	if (force_scanline) {
 		/* use only single scanline modes */
-		unsigned cap = video_mode_generate_driver_flags() & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
+		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
 		/* try with a perfect mode */
 		if (err != 0)
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
@@ -1010,7 +1010,7 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
 	} else if (force_interlace) {
 		/* use only interlace modes */
-		unsigned cap = video_mode_generate_driver_flags() & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
+		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
 		/* try with a perfect mode */
 		if (err != 0)
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
@@ -1020,13 +1020,13 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 	} else {
 		/* try with a perfect mode */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_EXACT);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_EXACT);
 		/* try with a mode with different vclock but correct vtotal */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_VCLOCK);
 		/* try with a mode with different vtotal and different vclock */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 	}
 
 	if (err != 0)
@@ -1080,13 +1080,13 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	/* try with a perfect mode */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_EXACT);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_EXACT);
 	/* try with a mode with different vtotal but correct vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_VTOTAL);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_VTOTAL);
 	/* try with a mode with different vtotal and different vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 
 	if (err != 0)
 		return;
@@ -1133,7 +1133,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	unsigned long long arcade_aspect_ratio_y;
 
 	if (context->config.adjust != ADJUST_NONE
-		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
+		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
 		target_err(
 			"Your current video driver doesn't support hardware programming.\n"
@@ -1194,7 +1194,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		context->state.game_colors = req->colors;
 	}
 
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
 		best_size_x = context->state.game_used_size_x;
 		best_size_y = context->state.game_used_size_y;
 		best_size_2x = 2 * context->state.game_used_size_x;
@@ -1213,7 +1213,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		unsigned step_x;
 
 		/* if the clock is programmable the monitor specification must be present */
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (monitor_is_empty(&context->config.monitor)) {
 				target_err("Missing options `device_video_p/h/vclock'.\n");
 				target_err("Please read the file `install.txt' and `advv.txt'.\n");
@@ -1278,7 +1278,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 
 		if ((context->config.adjust & ADJUST_GENERATE) != 0
 			&& !context->state.game_vector_flag /* nonsense for vector games */
-			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
+			&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
 			&& context->config.interpolate.mac > 0
 		) {
 			const adv_crtc* crtc;
@@ -2918,7 +2918,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	if ((context->config.adjust & ADJUST_GENERATE) == 0
 		&& crtc_container_is_empty(&context->config.crtc_bag)) {
 
-		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
 			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
 		} else {
@@ -2951,7 +2951,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		mode_size_y = 480;
 
 		if ((context->config.adjust & ADJUST_GENERATE) != 0
-			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
+			&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
 			&& context->config.interpolate.mac > 0
 		) {
 			/* insert the default mode for vector games */

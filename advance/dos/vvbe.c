@@ -53,9 +53,7 @@ static adv_error vbe_init2(int device_id) {
 }
 
 unsigned vbe_flags(void) {
-	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
 }
 
 /**
@@ -227,8 +225,10 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 
 	assert( vbe_is_active() );
 
-	if (!crtc_is_fake(crtc) && video_mode_generate_check("vbe",vbe_flags(),8,2048,crtc,bits,flags)!=0)
+	if (!crtc_is_fake(crtc)) {
+		error_nolog_cat("vbe: Programmable modes not supported\n");
 		return -1;
+	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
 		case MODE_FLAGS_INDEX_RGB :

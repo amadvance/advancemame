@@ -1134,7 +1134,7 @@ static adv_conf_enum_int OPTION_DEPTH[] = {
 #ifdef MESS
 extern const struct Devices devices[]; /* from mess device.c */
 
-static void mess_init(CONF* context) {
+static void mess_init(adv_conf* context) {
 	const struct Devices* i;
 
 	options.image_count = 0;
@@ -1151,12 +1151,12 @@ static void mess_init(CONF* context) {
 	}
 }
 
-static void mess_config_load(CONF* context) {
+static void mess_config_load(adv_conf* context) {
 	const struct Devices* i;
 
 	i = devices;
 	while (i->id != IO_COUNT) {
-		conf_iterator j;
+		adv_conf_iterator j;
 		char buffer[256];
 
 		sprintf(buffer,"dev_%s",i->name);

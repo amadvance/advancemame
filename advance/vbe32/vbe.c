@@ -216,7 +216,7 @@ struct state_context {
 	/** Dos memory buffer. */
 	realptr dos_buffer;
 
-	unsigned char saved[MAX_REGS];
+	unsigned char saved[ADV_SVGALIB_STATE_SIZE];
 
 	unsigned bytes_per_scanline;
 	unsigned bytes_per_pixel;
@@ -877,7 +877,7 @@ static void vbe_service_4f04(_go32_dpmi_registers* r)
 
 */
 	if (r->h.dl == 0) {
-		r->x.bx = MAX_REGS;
+		r->x.bx = ADV_SVGALIB_STATE_SIZE;
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
@@ -887,9 +887,9 @@ static void vbe_service_4f04(_go32_dpmi_registers* r)
 
 	if (r->h.dl == 1) {
 		if ((r->x.cx & 0x1) != 0 || (r->x.cx & 0x4) != 0 || (r->x.cx & 0x8) != 0) {
-			unsigned char regs[MAX_REGS];
+			unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 			adv_svgalib_save(regs);
-			dosmemput(regs, MAX_REGS, r->x.es * 16 + r->x.bx);
+			dosmemput(regs, ADV_SVGALIB_STATE_SIZE, r->x.es * 16 + r->x.bx);
 		}
 		r->x.ax = 0x004f; /* success */
 		return;
@@ -897,8 +897,8 @@ static void vbe_service_4f04(_go32_dpmi_registers* r)
 
 	if (r->h.dl == 2) {
 		if ((r->x.cx & 0x1) != 0 || (r->x.cx & 0x4) != 0 || (r->x.cx & 0x8) != 0) {
-			unsigned char regs[MAX_REGS];
-			dosmemget(r->x.es * 16 + r->x.bx, MAX_REGS, regs);
+			unsigned char regs[ADV_SVGALIB_STATE_SIZE];
+			dosmemget(r->x.es * 16 + r->x.bx, ADV_SVGALIB_STATE_SIZE, regs);
 			adv_svgalib_restore(regs);
 		}
 		r->x.ax = 0x004f; /* success */

@@ -45,6 +45,9 @@ extern "C" {
 #ifdef USE_INPUT_DOS
 #include "idos.h"
 #endif
+#ifdef USE_INPUT_SDL
+#include "isdl.h"
+#endif
 #ifdef USE_INPUT_SLANG
 #include "islang.h"
 #endif

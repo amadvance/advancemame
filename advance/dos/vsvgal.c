@@ -49,7 +49,7 @@ typedef struct svgaline_internal_struct {
 	int mode_active;
 
 	unsigned cap;
-	unsigned char saved[MAX_REGS];
+	unsigned char saved[ADV_SVGALIB_STATE_SIZE];
 } svgaline_internal;
 
 static svgaline_internal svgaline_state;

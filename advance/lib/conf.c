@@ -31,11 +31,11 @@
 #include "conf.h"
 #include "incstr.h"
 
+#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
-#include <unistd.h>
 
 /** Buffer used for int/float values */
 #define CONF_NUM_BUFFER_MAX 48

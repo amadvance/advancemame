@@ -32,10 +32,6 @@
 #include "conf.h"
 #include "target.h"
 
-#ifdef USE_VIDEO_VBELINE
-#include "scrvbe.h"
-#endif
-
 #include <string.h>
 #include <math.h>
 #include <time.h>
@@ -376,7 +372,8 @@ static int cmd_model(adv_conf* config, adv_monitor* monitor) {
 				data[mac].model = strdup(model);
 				if (monitor_parse(&data[mac].monitor,"5 - 90",h,v)!=0) {
 					video_mode_restore();
-					fprintf(stderr,"Invalid monitor specification %s:%s:%s:%s.",manufacturer,model,h,v);
+					target_err("Invalid monitor specification %s:%s:%s:%s.",manufacturer,model,h,v);
+					target_flush();
 					exit(EXIT_FAILURE);
 				}
 				++mac;
@@ -511,18 +508,23 @@ static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_moni
 				video_mode_done(1);
 				if (video_mode_set(&mode)!=0) {
 					text_done();
-					fprintf(stderr,"Error setting the calibration mode.\n");
-					fprintf(stderr,"%s\n",error_get());
+					target_err("Error setting the calibration mode.\n");
+					target_err("%s\n",error_get());
+					target_flush();
 					exit(EXIT_FAILURE);
 				}
 				*crtc = current;
 				modify = 0;
+				
+				video_write_lock();
 				draw_test(2,2,msg,&current,1);
+				video_write_unlock(0,0,0,0);
 			} else {
 				if (first) {
 					text_done();
-					fprintf(stderr,"Error in the test mode.\n");
-					fprintf(stderr,"%s\n",error_get());
+					target_err("Error in the test mode.\n");
+					target_err("%s\n",error_get());
+					target_flush();
 					exit(EXIT_FAILURE);
 				}
 				sound_error();
@@ -532,6 +534,8 @@ static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_moni
 		first = 0;
 
 		current = *crtc;
+
+		os_poll();
 
 		userkey = inputb_get();
 
@@ -636,13 +640,19 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv
 		video_mode_done(1);
 		if (video_mode_set(&mode)!=0) {
 			text_done();
-			fprintf(stderr,"Error setting the calibration mode.\n");
-			fprintf(stderr,"%s\n",error_get());
+			target_err("Error setting the calibration mode.\n");
+			target_err("%s\n",error_get());
+			target_flush();
 			exit(EXIT_FAILURE);
 		}
+		
+		video_write_lock();
 		draw_test(2,2,msg,&current,0);
+		video_write_unlock(0,0,0,0);
 
-		inputb_get();
+		do {
+			os_poll();
+		} while (inputb_get()==INPUTB_NONE);
 	}
 }
 
@@ -674,8 +684,9 @@ static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const ad
 
 	if (crtc_adjust_clock(&crtc, monitor)!=0) {
 		text_done();
-		fprintf(stderr,"Calibration mode unsupported.\n");
-		fprintf(stderr,"%s\n",error_get());
+		target_err("Calibration mode unsupported.\n");
+		target_err("%s\n",error_get());
+		target_flush();
 		exit(EXIT_FAILURE);
 	}
 
@@ -1159,7 +1170,10 @@ int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* 
 
 	if (calib) {
 		draw_graphics_calib(0,0,video_size_x(),video_size_y());
-		inputb_get();
+		
+		do {
+			os_poll();
+		} while (inputb_get()==INPUTB_NONE);
 	} else {
 		adjust_fix("Verify the mode", &crtc, bits, monitor);
 	}
@@ -1271,17 +1285,17 @@ static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor
 	data[mac].type = test_exit;
 	++mac;
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags()) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
 		data[mac].type = test_custom_single;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags()) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
 		data[mac].type = test_custom_double;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags()) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
 		data[mac].type = test_custom_interlace;
 		++mac;
 	}
@@ -1356,7 +1370,7 @@ static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,video_mode_generate_driver_flags(),0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL),0);
 		}
 	} while (res >= 0 && (data[res].type == test_mode || data[res].type == test_custom_single || data[res].type == test_custom_double || data[res].type == test_custom_interlace || data[res].type == test_custom));
 
@@ -1396,10 +1410,10 @@ void video_log_va(const char *text, va_list arg)
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
 	va_list arg;
 	va_start(arg, desc);
-	vfprintf(stderr, desc, arg);
-	fprintf(stderr, "\n");
+	target_err_va(desc, arg);
+	target_err("\n");
 	if (valid)
-		fprintf(stderr, "%s\n", valid);
+		target_err("%s\n", valid);
 	va_end(arg);
 }
 
@@ -1437,7 +1451,7 @@ int os_main(int argc, char* argv[]) {
 	config = conf_init();
 
 	if (os_init(config)!=0) {
-		fprintf(stderr,"Error initializing the OS support.\n");
+		target_err("Error initializing the OS support.\n");
 		goto err;
 	}
 
@@ -1474,7 +1488,7 @@ int os_main(int argc, char* argv[]) {
 		} else if (target_option(argv[j],"bit") && j+1<argc) {
 			bits = atoi(argv[++j]);
 		} else {
-			fprintf(stderr,"Unknown option %s.\n",argv[j]);
+			target_err("Unknown option %s.\n",argv[j]);
 			goto err_os;
 		}
 	}
@@ -1492,13 +1506,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (opt_log || opt_logsync) {
-		const char* log = 0;
-		switch (the_advance) {
-			case advance_menu : log = "advmenuc.log"; break;
-			case advance_mame : log = "advmamec.log"; break;
-			case advance_mess : log = "advmessc.log"; break;
-			case advance_pac : log = "advpacc.log"; break;
-		}
+		const char* log = "advcfg.log";
 		remove(log);
 		log_init(log,opt_logsync);
         }
@@ -1509,8 +1517,8 @@ int os_main(int argc, char* argv[]) {
 	conf_section_set(config, section_map, 1);
 
 	if (video_load(config, "") != 0) {
-		fprintf(stderr,"Error loading the video options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n",error_get());
+		target_err("Error loading the video options from the configuration file %s.\n", opt_rc);
+		target_err("%s\n",error_get());
 		goto err_os;
 	}
 
@@ -1530,8 +1538,8 @@ int os_main(int argc, char* argv[]) {
 		goto err_video;
 	}
 
-	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		fprintf(stderr,"Your video board isn't supported.\n");
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+		target_err("No driver supports your video board.\nEnsure that all the required drivers are installed and correctly configured.\n");
 		goto err_blit;
 	}
 
@@ -1539,14 +1547,15 @@ int os_main(int argc, char* argv[]) {
 		case 8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT; break;
 		case 15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT; break;
 		case 16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT; break;
+		case 24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT; break;
 		case 32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
 		default:
-			fprintf(stderr,"Invalid bit depth specification.\n");
+			target_err("Invalid bit depth specification.\n");
 			goto err_blit;
 	}
-	if ((video_mode_generate_driver_flags() & bit_flag) == 0) {
-		fprintf(stderr,"Specified bit depth (%d) not supported.\n", bits);
-		fprintf(stderr,"Try another value with the -bit option.\n");
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & bit_flag) == 0) {
+		target_err("Specified bit depth (%d) not supported.\n", bits);
+		target_err("Try another value with the -bit option.\n");
 		goto err_blit;
 	}
 
@@ -1554,7 +1563,9 @@ int os_main(int argc, char* argv[]) {
 		goto err_blit;
 	}
 
-	text_init();
+	if (text_init() != 0) {
+		goto err_input;
+	}
 
 	while (state >= 0 && state != 8) {
 		int res;
@@ -1650,7 +1661,9 @@ int os_main(int argc, char* argv[]) {
 	conf_done(config);
 
 	return EXIT_SUCCESS;
-
+	
+err_input:
+	inputb_done();
 err_blit:
 	video_blit_done();
 err_video:

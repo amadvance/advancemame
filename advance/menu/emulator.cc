@@ -1973,7 +1973,7 @@ bool advmess::compile_ext(const game& g, unsigned& argc, const char* argv[], con
 
 			log_std(("menu:advmess: compile check ext .%s\n",j->c_str()));
 
-			// case unsensitve compare, it may be in a zip file
+			// case unsensitive compare, it may be in a zip file
 			if (case_equal(ext, string(".") + *j)) {
 
 				string option = "-dev_" + i->name;

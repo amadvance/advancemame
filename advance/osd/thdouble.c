@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "thread.h"
+
 /** \file
  * A pthread implementation of the osd_parallelize function.
  *

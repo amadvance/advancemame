@@ -104,15 +104,15 @@ void target_mode_reset(void) {
 /* Sound */
 
 void target_sound_error(void) {
-	MessageBeep(MB_ICONASTERISK);
+	/* MessageBeep(MB_ICONASTERISK); */
 }
 
 void target_sound_warn(void) {
-	MessageBeep(MB_ICONQUESTION);
+	/* MessageBeep(MB_ICONQUESTION); */
 }
 
 void target_sound_signal(void) {
-	MessageBeep(MB_OK);
+	/* MessageBeep(MB_OK); */
 }
 
 /***************************************************************************/

@@ -1,3 +1,7 @@
+/** \file
+ * SVGALIB user interface definition.
+ */
+
 #ifndef __SVGAINT_H
 #define __SVGAINT_H
 
@@ -40,6 +44,7 @@ typedef unsigned long uint32_t;
 #define mmap adv_svgalib_mmap
 #define munmap adv_svgalib_munmap
 #define iopl adv_svgalib_iopl
+#define printf adv_svgalib_printf
 #define fprintf adv_svgalib_fprintf
 #ifdef stderr
 #undef stderr
@@ -55,6 +60,7 @@ void* adv_svgalib_malloc(unsigned size);
 void* adv_svgalib_calloc(unsigned n, unsigned size);
 void adv_svgalib_free(void*);
 void adv_svgalib_fprintf(void*, const char* format, ...);
+void adv_svgalib_printf(const char* format, ...);
 void* adv_svgalib_stderr();
 int adv_svgalib_open(void);
 void adv_svgalib_close(void);
@@ -208,7 +214,15 @@ struct adv_svgalib_state_struct {
 	int has_tvpal;
 };
 
+/**
+ * Global SVGALIB state.
+ */
 extern struct adv_svgalib_state_struct adv_svgalib_state;
+
+/**
+ * Size in bytes of the video board state used by adv_svgalib_save() and adv_svgalib_restore().
+ */
+#define ADV_SVGALIB_STATE_SIZE MAX_REGS
 
 #ifdef USE_SVGALIB_EXTERNAL
 
@@ -234,8 +248,14 @@ void adv_svgalib_wait_vsync(void);
 void adv_svgalib_on(void);
 void adv_svgalib_off(void);
 
+void adv_svgalib_cursor_on(void);
+void adv_svgalib_cursor_off(void);
+
 static inline const char* adv_svgalib_driver_get() {
-	return adv_svgalib_state.driver->name;
+	if (adv_svgalib_state.driver)
+		return adv_svgalib_state.driver->name;
+	else
+		return 0;
 }
 
 static inline unsigned char* adv_svgalib_linear_pointer_get(void) {

@@ -63,9 +63,9 @@ struct dirio_handle {
 	char* pattern; /** Pattern applyed at the directory. */
 };
 
-#define FILEIO_MODE_DIRGAME 0 /**< Single file named like the game in a single dir. */
-#define FILEIO_MODE_DIRNAME 1 /**< Single file in a single dir. */
-#define FILEIO_MODE_NAME 2 /**< Single file named specifically in the root dir. */
+#define FILEIO_MODE_DIRGAME 0 /**< Single file named like the game/machine placed in a single dir. */
+#define FILEIO_MODE_DIRNAME 1 /**< Single file named as specified in the open call placed in a single dir. */
+#define FILEIO_MODE_ROOTNAME 2 /**< Single file named as specified in the open call placed in the root dir. */
 #define FILEIO_MODE_COLLECTION 3 /**< Collection of files. */
 
 #define FILEIO_OPEN_NONE 0 /**< Open not allowed. */
@@ -97,6 +97,7 @@ static struct fileio_item CONFIG[] = {
 /* TODO implementare in OSD_FILETYPE_ROM_NOCRC la lettura senza crc */
 /*	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, */
 #ifdef MESS
+/* MESS requires full access capabilities on image files, MAME read only */
 	{ OSD_FILETYPE_IMAGE, "dir_image", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITECREATE, 0, 0 },
 #else
 	{ OSD_FILETYPE_IMAGE_R, "dir_imager", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
@@ -105,17 +106,23 @@ static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_IMAGE_DIFF, "dir_imagediff", "image", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+#ifdef MESS
+/* MESS uses the game name for the .nv file and not the machine name. */
+/* for example zelda.nv and not nes.nv */
+	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+#else
 	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+#endif
 	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
+	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
 	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
-	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
-	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
+	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
+	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
 	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
@@ -306,7 +313,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 
 		/* file not compressed */
 		if (!h->f
-			&& (item->mode == FILEIO_MODE_DIRNAME || item->mode == FILEIO_MODE_NAME)
+			&& (item->mode == FILEIO_MODE_DIRNAME || item->mode == FILEIO_MODE_ROOTNAME)
 			&& name) {
 			char file[FILE_MAXPATH];
 			strcpy(file, file_abs(item->dir_map[i],name));
@@ -428,7 +435,7 @@ static int item_stat(int type, const char* name) {
 		switch (item->mode) {
 			case FILEIO_MODE_DIRGAME :
 			case FILEIO_MODE_DIRNAME :
-			case FILEIO_MODE_NAME :
+			case FILEIO_MODE_ROOTNAME :
 				sprintf(file,"%s",name);
 				if (item->extension && !item_has_ext(file))
 					strcat(file,item->extension);
@@ -923,7 +930,7 @@ char* osd_dirname(const char* file)
 
 void osd_device_eject(int type, int id)
 {
-	device_filename_change(type, id, 0);
+	image_unload(type, id);
 }
 
 #endif
@@ -980,7 +987,7 @@ int advance_fileio_init(adv_conf* context) {
 				case FILEIO_MODE_COLLECTION : def = file_config_dir_multidir(i->def); break;
 				case FILEIO_MODE_DIRGAME : def = file_config_dir_singledir(i->def); break;
 				case FILEIO_MODE_DIRNAME : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_NAME : def = file_config_dir_singlefile(); break;
+				case FILEIO_MODE_ROOTNAME : def = file_config_dir_singlefile(); break;
 			}
 			if (def)
 				conf_string_register_default(context, i->config, def);
