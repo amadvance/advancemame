@@ -105,7 +105,21 @@ static void fb_log(void)
 	log_std(("video:fb: id %s\n", fb_state.fixinfo.id));
 	log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fb_state.fixinfo.smem_start, (unsigned)fb_state.fixinfo.smem_len));
 	log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fb_state.fixinfo.mmio_start, (unsigned)fb_state.fixinfo.mmio_len));
-	log_std(("video:fb: type:%d, type_aux:%d, visual:%d\n", (unsigned)fb_state.fixinfo.type, (unsigned)fb_state.fixinfo.type_aux, (unsigned)fb_state.fixinfo.visual));
+	log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fb_state.fixinfo.type, (unsigned)fb_state.fixinfo.type_aux));
+	switch (fb_state.fixinfo.visual) {
+		case FB_VISUAL_TRUECOLOR :
+			log_std(("video:fb: visual:%d FB_VISUAL_TRUECOLOR\n", (unsigned)fb_state.fixinfo.visual));
+			break;
+		case FB_VISUAL_PSEUDOCOLOR :
+			log_std(("video:fb: visual:%d FB_VISUAL_PSEUDOCOLOR\n", (unsigned)fb_state.fixinfo.visual));
+			break;
+		case FB_VISUAL_DIRECTCOLOR :
+			log_std(("video:fb: visual:%d FB_VISUAL_DIRECTCOLOR\n", (unsigned)fb_state.fixinfo.visual));
+			break;
+		default:
+			log_std(("video:fb: visual:%d\n", (unsigned)fb_state.fixinfo.visual));
+			break;
+	}
 	log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fb_state.fixinfo.xpanstep, (unsigned)fb_state.fixinfo.ypanstep, (unsigned)fb_state.fixinfo.ywrapstep));
 	log_std(("video:fb: line_length:%d\n", (unsigned)fb_state.fixinfo.line_length));
 	log_std(("video:fb: accel:%d\n", (unsigned)fb_state.fixinfo.accel));
@@ -329,6 +343,57 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	}
 
 	fb_log();
+
+	if (fb_state.fixinfo.visual == FB_VISUAL_DIRECTCOLOR
+		|| fb_state.fixinfo.visual == FB_VISUAL_TRUECOLOR) {
+		unsigned red_l = 1 << fb_state.varinfo.red.length;
+		unsigned green_l = 1 << fb_state.varinfo.green.length;
+		unsigned blue_l = 1 << fb_state.varinfo.blue.length;
+		__u16* red_map;
+		__u16* green_map;
+		__u16* blue_map;
+		__u16* trasp_map;
+		unsigned l;
+		struct fb_cmap cmap;
+		unsigned i;
+
+		l = red_l;
+		if (l < green_l)
+			l = green_l;
+		if (l < blue_l)
+			l = blue_l;
+
+		red_map = malloc(sizeof(__u16) * l);
+		green_map = malloc(sizeof(__u16) * l);
+		blue_map = malloc(sizeof(__u16) * l);
+		trasp_map = malloc(sizeof(__u16) * l);
+
+		for (i=0;i<l;++i) {
+			red_map[i] = 65535 * i / red_l;
+			green_map[i] = 65535 * i / green_l;
+			blue_map[i] = 65535 * i / blue_l;
+			trasp_map[i] = 0;
+		}
+
+		cmap.start = 0;
+		cmap.len = l;
+		cmap.red = red_map;
+		cmap.green = green_map;
+		cmap.blue = blue_map;
+		cmap.transp = trasp_map;
+
+		log_std(("video:fb: FBIOPUTCMAP\n"));
+
+		if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
+			error_set("Error in FBIOPUTCMAP");
+			return -1;
+		}
+
+		free(red_map);
+		free(green_map);
+		free(blue_map);
+		free(trasp_map);
+	}
 
 	fb_write_line = fb_linear_write_line;
 

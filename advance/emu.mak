@@ -344,6 +344,7 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/conf.o \
 	$(OBJ)/advance/lib/incstr.o \
 	$(OBJ)/advance/lib/fz.o \
+	$(OBJ)/advance/lib/unzip.o \
 	$(OBJ)/advance/lib/videoio.o \
 	$(OBJ)/advance/lib/update.o \
 	$(OBJ)/advance/lib/generate.o \

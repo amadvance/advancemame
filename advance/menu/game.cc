@@ -205,14 +205,14 @@ const game& game::root_get() const {
 }
 
 bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const {
-	adv_zip* d = openzip(cpath_export(slash_remove(zip)));
+	adv_zip* d = zip_open(cpath_export(slash_remove(zip)));
 	if (!d)
 		return false;
 
 	string game_name = name_without_emulator_get();
 
 	adv_zipent* dd;
-	while ((dd = readzip(d))!=0) {
+	while ((dd = zip_read(d))!=0) {
 		string file = dd->name;
 		string ext = file_ext(file);
 		string name = file_basename(file);
@@ -221,17 +221,17 @@ bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const re
 			unsigned offset = dd->offset_lcl_hdr_frm_frst_disk;
 			if (dd->compression_method == 0x0) {
 				((*this).*preview_set)( resource(zipfile, offset, dd->uncompressed_size, true ) );
-				closezip(d);
+				zip_close(d);
 				return true;
 			} else if (dd->compression_method == 0x8) {
 				((*this).*preview_set)( resource(zipfile, offset, dd->compressed_size, dd->uncompressed_size, true ) );
-				closezip(d);
+				zip_close(d);
 				return true;
 			}
 		}
 	}
 
-	closezip(d);
+	zip_close(d);
 	return false;
 }
 
@@ -509,12 +509,12 @@ bool game_set::is_game_rom_of(const string& name_son, const string& name_parent)
 bool game_set::preview_zip_set(const string& zip, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
 {
 	bool almost_one = false;
-	adv_zip* d = openzip(cpath_export(slash_remove(zip)));
+	adv_zip* d = zip_open(cpath_export(slash_remove(zip)));
 	if (!d)
 		return almost_one;
 
 	adv_zipent* dd;
-	while ((dd = readzip(d))!=0) {
+	while ((dd = zip_read(d))!=0) {
 		string file = dd->name;
 		string ext = file_ext(file);
 		if (ext.length() && (ext == ext0 || ext == ext1)) {
@@ -534,7 +534,7 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 		}
 	}
 
-	closezip(d);
+	zip_close(d);
 	return almost_one;
 }
 

@@ -38,6 +38,8 @@
 #ifndef __FILE_H
 #define __FILE_H
 
+#include "extra.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,7 +54,7 @@ extern "C" {
  * Initialize the file system.
  * It's called in the main() function.
  */
-int file_init(void);
+adv_error file_init(void);
 
 /**
  * Deinitialize the file system.
@@ -74,6 +76,19 @@ char file_dir_separator(void);
  * Example '/' in UNIX and '\' in MSDOS.
  */
 char file_dir_slash(void);
+
+/**
+ * Create a directory.
+ * \note The arg is in the OS depended format.
+ * \return 0 on success.
+ */
+adv_error file_dir_make(const char* dir);
+
+/**
+ * Check if a directory is an absolute path.
+ * \note The arg is in the OS depended format.
+ */
+adv_bool file_path_is_abs(const char* path);
 
 /**
  * Compute the absolute path.
@@ -101,15 +116,8 @@ const char* file_import(const char* path);
  */
 const char* file_export(const char* path);
 
-/**
- * Create a directory.
- * \note The arg is in the OS depended format.
- * \return 0 on success.
- */
-int file_mkdir(const char* dir);
-
 /***************************************************************************/
-/* Files */
+/* Config */
 
 /**
  * Complete path of a file in the root data directory.

@@ -195,12 +195,12 @@ typedef struct adv_zip_struct {
  *  - !=0 success, zip stream
  *  - ==0 error
  */
-adv_zip* openzip(const char* path);
+adv_zip* zip_open(const char* path);
 
 /**
  * Closes a zip stream.
  */
-void closezip(adv_zip* zip);
+void zip_close(adv_zip* zip);
 
 /**
  * Reads the current entry from a zip stream.
@@ -209,14 +209,14 @@ void closezip(adv_zip* zip);
  *  - !=0 success
  *  - ==0 error
  */
-adv_zipent* readzip(adv_zip* zip);
+adv_zipent* zip_read(adv_zip* zip);
 
 /**
  * Resets a zip stream to the first entry.
  * \note The adv_zip file must be opened and not suspended.
  * \param zip opened zip
  */
-void rewindzip(adv_zip* zip);
+void zip_rewind(adv_zip* zip);
 
 /**
  * Read compressed data from a zip entry.
@@ -227,7 +227,7 @@ void rewindzip(adv_zip* zip);
  *  - ==0 success
  *  - <0 error
  */
-int readcompresszip(adv_zip* zip, adv_zipent* ent, char* data);
+int zip_read_compress(adv_zip* zip, adv_zipent* ent, char* data);
 
 /*@}*/
 

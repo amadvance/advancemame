@@ -85,9 +85,11 @@ static inline void osd_mkdir(const char* dir)
 
 #if defined(__MSDOS__) || defined(__WIN32__)
 #define PATH_SEPARATOR '\\'
+#define PATH_SEPARATOR_STR "\\"
 #define EOLN "\r\n"
 #else
 #define PATH_SEPARATOR '/'
+#define PATH_SEPARATOR_STR "/"
 #define EOLN "\n"
 #endif
 

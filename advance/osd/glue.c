@@ -905,7 +905,7 @@ static unsigned glue_sound_sample(void)
 		samples = 16;
 	}
 	if (samples < 16) {
-		log_std(("WARNING:glue: too less sound samples %d adjusted to 16\n", samples));
+		log_std(("WARNING:glue: too small sound samples %d adjusted to 16\n", samples));
 		samples = 16;
 	}
 

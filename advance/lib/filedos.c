@@ -61,7 +61,7 @@ static struct file_context FL;
 /***************************************************************************/
 /* Init */
 
-int file_init(void)
+adv_error file_init(void)
 {
 	memset(&FL, 0, sizeof(FL));
 
@@ -87,6 +87,20 @@ char file_dir_slash(void)
 	return '\\';
 }
 
+adv_error file_dir_make(const char* dir)
+{
+#ifdef __WIN32__
+	return mkdir(dir);
+#else
+	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+#endif
+}
+
+adv_bool file_path_is_abs(const char* path)
+{
+	return path[0] == '\\' || (path[0] != 0 && path[1]==':');
+}
+
 const char* file_abs(const char* dir, const char* file)
 {
 	/* TODO implement the complete . and .. management */
@@ -103,7 +117,7 @@ const char* file_abs(const char* dir, const char* file)
 
 static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end)
 {
-	int need_slash;
+	adb_bool need_slash;
 
 	if (end - begin == 2 && begin[1]==':') {
 		/* only drive spec */
@@ -240,15 +254,6 @@ const char* file_export(const char* path)
 	*dst_begin = 0;
 
 	return buffer;
-}
-
-int file_mkdir(const char* dir)
-{
-#ifdef __WIN32__
-	return mkdir(dir);
-#else
-	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-#endif
 }
 
 /***************************************************************************/

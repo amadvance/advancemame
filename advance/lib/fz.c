@@ -446,21 +446,31 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 {
 	if (f->type == fz_file) {
 		switch (mode) {
-			case SEEK_SET : return fseek(f->f, offset + f->real_offset, SEEK_SET);
-			case SEEK_CUR : return fseek(f->f, offset, SEEK_CUR);
+			case SEEK_SET :
+				return fseek(f->f, offset + f->real_offset, SEEK_SET);
+			case SEEK_CUR :
+				return fseek(f->f, offset, SEEK_CUR);
+			case SEEK_END :
+				return fseek(f->f, offset, SEEK_END);
 			default:
 				return -1;
 		}
 	} else {
 		int pos;
 		switch (mode) {
-			case SEEK_SET : pos = offset; break;
-			case SEEK_CUR : pos = f->virtual_pos + offset; break;
-			case SEEK_END : pos = f->virtual_size - offset; break;
+			case SEEK_SET :
+				pos = offset;
+				break;
+			case SEEK_CUR :
+				pos = f->virtual_pos + offset;
+				break;
+			case SEEK_END :
+				pos = f->virtual_size - offset;
+				break;
 			default:
 				return -1;
 		}
-		if (pos < 0 || pos >= f->virtual_size)
+		if (pos < 0 || pos > f->virtual_size)
 			return -1;
 
 		if (f->type == fz_memory) {

@@ -166,11 +166,28 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 	return PATH_NOT_FOUND;
 }
 
+static int partialequal(const char* zipfile, const char* file)
+{
+	const char* s1 = file;
+	/* start comparison after last / */
+	const char* s2 = strrchr(zipfile, '/');
+	if (s2)
+		++s2;
+	else
+		s2 = zipfile;
+	while (*s1 && toupper(*s1)==toupper(*s2)) {
+		++s1;
+		++s2;
+	}
+	return !*s1 && !*s2;
+}
+
 osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode)
 {
 	struct fileio_item* i;
 	char path[FILE_MAXPATH];
-	FILE* h;
+	adv_fz* h;
+	char* split;
 
 	log_std(("osd: osd_fopen(pathtype:%d,pathindex:%d,filename:%s,mode:%s)\n", pathtype, pathindex, filename, mode));
 
@@ -182,9 +199,50 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 	strcpy(path, file_abs(i->dir_map[pathindex], filename));
 
-	log_std(("osd: osd_fopen() -> %s\n", path));
+	split = strchr(path,'=');
+	if (split != 0) {
+		char zip_file[FILE_MAXPATH];
+		char file[FILE_MAXPATH];
+		adv_zip* zip;
+		adv_zipent* ent;
 
-	h = fopen(path, mode);
+		*split = 0;
+		strcpy(zip_file, path);
+		strcat(zip_file, ".zip");
+		strcpy(file, split + 1);
+
+		log_std(("osd: osd_fopen() -> %s %s\n", zip_file, file));
+
+		if (access(zip_file, R_OK)!=0) {
+			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file));
+			return 0;
+		}
+
+		zip = zip_open(zip_file);
+		if (!zip) {
+			log_std(("osd: osd_fopen() -> failed, zip %s not openable\n", zip_file));
+			return 0;
+		}
+
+		h = 0;
+		while ((ent = zip_read(zip))!=0) {
+			if (partialequal(ent->name, file)) {
+				if (ent->compression_method == 0) {
+					h = fzopenzipuncompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
+				} else if (ent->compression_method == 8) {
+					h = fzopenzipcompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->compressed_size, ent->uncompressed_size);
+				}
+				break;
+			}
+		}
+
+		zip_close(zip);
+	} else {
+		log_std(("osd: osd_fopen() -> %s\n", path));
+
+		/* open a regular file */
+		h = fzopen(path, mode);
+	}
 
 	log_std(("osd: osd_fopen() -> %s\n", h ? "success" : "failed"));
 
@@ -193,51 +251,75 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 int osd_fseek(osd_file* file, INT64 offset, int whence)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
+	int r;
 
-	return fseek(h, offset, whence);
+	log_std(("osd: osd_fseek(offset:%d, whence:%d)\n", (int)offset, (int)whence));
+
+	r = fzseek(h, offset, whence);
+
+	log_std(("osd: osd_fseek() -> %d\n", (int)r));
+
+	return r;
 }
 
 UINT64 osd_ftell(osd_file* file)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
+	UINT64 r;
 
-	return ftell(h);
+	log_std(("osd: osd_ftell()\n"));
+
+	r = fztell(h);
+
+	log_std(("osd: osd_ftell() -> %d\n", (int)r));
+
+	return r;
 }
 
 int osd_feof(osd_file* file)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
 
-	return feof(h);
+	return fzeof(h);
 }
 
 UINT32 osd_fread(osd_file* file, void* buffer, UINT32 length)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
+	UINT32 r;
 
-	return fread(buffer, 1, length, h);
+	log_pedantic(("osd: osd_fread(length:%d)\n", (int)length));
+
+	r = fzread(buffer, 1, length, h);
+
+	log_pedantic(("osd: osd_fread() -> %d\n", (int)r));
+
+	return r;
 }
 
 UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
+	UINT32 r;
 
-	return fwrite(buffer, 1, length, h);
+	log_pedantic(("osd: osd_fwrite(length:%d)\n", (int)length));
+
+	r = fzwrite(buffer, 1, length, h);
+
+	log_pedantic(("osd: osd_fwrite() -> %d\n", (int)r));
+
+	return r;
 }
 
 void osd_fclose(osd_file* file)
 {
-	FILE* h = (FILE*)file;
+	adv_fz* h = (adv_fz*)file;
 
-	fclose(h);
+	fzclose(h);
 }
 
-/***************************************************************************/
-/* Directory interface */
-
 #ifdef MESS
-
 int osd_num_devices(void)
 {
 	log_std(("osd: osd_num_device()\n"));
@@ -253,6 +335,31 @@ const char *osd_get_device_name(int i)
 {
 	log_std(("osd: osd_get_device_name(i:%d)\n", i));
 	return "";
+}
+
+int osd_create_directory(int pathtype, int pathindex, const char *dirname)
+{
+	struct fileio_item* i;
+	char path[FILE_MAXPATH];
+
+	log_std(("osd: osd_create_directory(pathtype:%d,pathindex:%d,dirname:%s)\n", pathtype, pathindex, dirname));
+
+	i = fileio_find(pathtype);
+	if (!i) {
+		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		return -1;
+	}
+
+	strcpy(path, file_abs(i->dir_map[pathindex], dirname));
+
+	log_std(("osd: osd_create_directory() -> %s\n", path));
+
+	if (file_dir_make(path) != 0) {
+		log_std(("ERROR:fileio: mkdir(%s) failed\n", path));
+		return -1;
+	}
+
+	return 0;
 }
 
 void* osd_dir_open(const char* dir, const char* mask)
@@ -293,6 +400,28 @@ void osd_dir_close(void* void_h)
 	free(h);
 }
 
+static int match(const char* str, const char* pattern) {
+	while (*str && *pattern) {
+		if (*pattern == '*') {
+			if (match(str+1,pattern))
+				return 1;
+			++pattern;
+		} else if (*pattern == '?') {
+			++str;
+			++pattern;
+		} else if (toupper(*str) == toupper(*pattern)) {
+			++str;
+			++pattern;
+		} else
+			return 0;
+	}
+
+	while (*pattern == '*' || *pattern == '?')
+		++pattern;
+
+	return !*str && !*pattern;
+}
+
 int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 {
 	struct dirio_handle* h = (struct dirio_handle*)void_h;
@@ -318,7 +447,7 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 
 					return strlen(name);
 				}
-			} else if (item_is_match(d->d_name, h->pattern)) {
+			} else if (match(d->d_name, h->pattern)) {
 				if (namelength >= strlen(d->d_name) + 1) {
 					*is_dir = 0;
 					strcpy(name, d->d_name);
@@ -426,6 +555,24 @@ void osd_device_eject(int type, int id)
 	image_unload(type, id);
 }
 
+const char *osd_path_separator(void)
+{
+	static char separator[2];
+	separator[0] = file_dir_slash();
+	separator[1] = 0;
+	return separator;
+}
+
+int osd_is_path_separator(char ch)
+{
+	return ch == file_dir_slash();
+}
+
+int osd_is_absolute_path(const char *path)
+{
+	return file_path_is_abs(path);
+}
+
 #endif
 
 /***************************************************************************/
@@ -510,7 +657,7 @@ static void dir_create(char** dir_map, unsigned dir_mac)
 		struct stat st;
 		if (stat(dir_map[i], &st) != 0) {
 			log_std(("advance:fileio: creating dir %s\n", dir_map[i]));
-			if (file_mkdir(dir_map[i]) != 0) {
+			if (file_dir_make(dir_map[i]) != 0) {
 				log_std(("advance:fileio: unable to create dir %s\n", dir_map[i]));
 			}
 		}

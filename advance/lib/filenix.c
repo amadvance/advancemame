@@ -67,7 +67,7 @@ static void strcatslash(char* str)
 		strcat(str, "/");
 }
 
-int file_init(void)
+adv_error file_init(void)
 {
 	char* home;
 
@@ -125,6 +125,16 @@ char file_dir_slash(void)
 	return '/';
 }
 
+adv_error file_dir_make(const char* dir)
+{
+	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+}
+
+adv_bool file_path_is_abs(const char* path)
+{
+	return path[0] == '/';
+}
+
 const char* file_abs(const char* dir, const char* file)
 {
 	/* TODO implement the complete . and .. management */
@@ -147,11 +157,6 @@ const char* file_import(const char* path)
 const char* file_export(const char* path)
 {
 	return path;
-}
-
-int file_mkdir(const char* dir)
-{
-	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 /***************************************************************************/

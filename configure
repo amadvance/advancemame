@@ -3174,57 +3174,31 @@ if test $ac_auto_cflags = yes; then
 	else
 		CFLAGS=""
 
-if grep -i "model name.*:.*Celeron.*Willamette" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium4"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Celeron.*Coppermine" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium3"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Celeron.*Mendocino" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium2"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Pentium.*III" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium3"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Pentium.*II" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium2"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Pentium.*Pro" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentiumpro"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Pentium.* 4 " /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium4"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium"
-	ac_cpu_arch_secondary=i586
-elif grep -i "model name.*:.*Athlon.*MP" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="athlon-mp"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Athlon.*XP" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="athlon-xp"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Athlon.*TBird" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="athlon-tbird"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Athlon.* 4 " /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="athlon-4"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="athlon"
-	ac_cpu_arch_secondary=i686
-elif grep -i "model name.*:.*Duron" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="pentium"
-	ac_cpu_arch_secondary=i586
-elif grep -i "model name.*:.*K6-3" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="k6-3"
-	ac_cpu_arch_secondary=i586
-elif grep -i "model name.*:.*K6-2" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="k6-2"
-	ac_cpu_arch_secondary=i586
-elif grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="k6"
-	ac_cpu_arch_secondary=i586
+if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
+	if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium4"
+		ac_cpu_arch_secondary=i686
+	elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentiumpro"
+		ac_cpu_arch_secondary=i686
+	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium"
+		ac_cpu_arch_secondary=i586
+	else
+		ac_cpu_arch=blend
+		ac_cpu_arch_secondary=blend
+	fi
+elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
+	if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="athlon"
+		ac_cpu_arch_secondary=k6
+	elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="k6"
+		ac_cpu_arch_secondary=k6
+	else
+		ac_cpu_arch=blend
+		ac_cpu_arch_secondary=blend
+	fi
 else
 	ac_cpu_arch=blend
 	ac_cpu_arch_secondary=blend

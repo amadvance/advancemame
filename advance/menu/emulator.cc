@@ -2157,14 +2157,14 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 
 	log_std(("menu:advmess: compile zip %s\n", cpath_export(zip_file)));
 
-	zip = openzip(cpath_export(zip_file));
+	zip = zip_open(cpath_export(zip_file));
 	if (!zip)
 		return false;
 
 	// name of the zip without the extension
 	string name = file_file(file_basename(zip_file));
 
-	while ((ent = readzip(zip))!=0) {
+	while ((ent = zip_read(zip))!=0) {
 		log_std(("menu:advmess: compile in zip %s\n", ent->name));
 
 		string zpath = ent->name;
@@ -2184,7 +2184,7 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 		}
 	}
 
-	closezip(zip);
+	zip_close(zip);
 
 	return something_found;
 }

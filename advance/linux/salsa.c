@@ -98,7 +98,7 @@ adv_error sound_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		alsa_state.channel = 1;
 	}
 
-	r = snd_pcm_open(&alsa_state.handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
+	r = snd_pcm_open(&alsa_state.handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 	if (r < 0) {
 		log_std(("sound:alsa: Couldn't open audio device: %s\n", snd_strerror(r)));
 		goto err;

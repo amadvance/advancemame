@@ -186,22 +186,22 @@ bool file_findinzip_byname(const string& zip_file, const string& name, string& f
 	if (access(cpath_export(zip_file), F_OK)!=0)
 		return false;
 
-	zip = openzip(cpath_export(zip_file));
+	zip = zip_open(cpath_export(zip_file));
 	if (!zip)
 		return false;
 
-	while ((ent = readzip(zip))!=0) {
+	while ((ent = zip_read(zip))!=0) {
 		string zfile = ent->name;
 		string zname = file_basename(zfile);
 		if (zname == name) {
 			crc = ent->crc32;
 			file = zfile;
-			closezip(zip);
+			zip_close(zip);
 			return true;
 		}
 	}
 
-	closezip(zip);
+	zip_close(zip);
 	return false;
 }
 
@@ -213,21 +213,21 @@ bool file_findinzip_byfile(const string& zip_file, const string& name, string& f
 	if (access(cpath_export(zip_file), F_OK)!=0)
 		return false;
 
-	zip = openzip(cpath_export(zip_file));
+	zip = zip_open(cpath_export(zip_file));
 	if (!zip)
 		return false;
 
-	while ((ent = readzip(zip))!=0) {
+	while ((ent = zip_read(zip))!=0) {
 		string zfile = ent->name;
 		if (zfile == name) {
 			crc = ent->crc32;
 			file = zfile;
-			closezip(zip);
+			zip_close(zip);
 			return true;
 		}
 	}
 
-	closezip(zip);
+	zip_close(zip);
 	return false;
 }
 
