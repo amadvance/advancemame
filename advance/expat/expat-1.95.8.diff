@@ -1,19 +1,30 @@
-diff -u --new-file expat-1.95.7.ori/expat.h expat/expat.h
---- expat-1.95.7.ori/expat.h	2003-10-16 06:20:54.000000000 +0200
-+++ expat/expat.h	2004-04-20 19:14:49.000000000 +0200
-@@ -43,11 +43,6 @@
+diff -u expat-1.95.8-ori/expat_external.h expat/expat_external.h
+--- expat-1.95.8-ori/expat_external.h	2004-05-06 15:55:49.000000000 +0200
++++ expat/expat_external.h	2004-08-07 14:06:08.000000000 +0200
+@@ -4,10 +4,6 @@
+ 
+ /* External API definitions */
+ 
+-#if defined(_MSC_EXTENSIONS) && !defined(__BEOS__) && !defined(__CYGWIN__)
+-#define XML_USE_MSC_EXTENSIONS 1
+-#endif
+-
+ /* Expat tries very hard to make the API boundary very specifically
+    defined.  There are two macros defined to control this boundary;
+    each of these can be defined before including this header to
+@@ -31,11 +27,6 @@
     system headers may assume the cdecl convention.
  */
  #ifndef XMLCALL
 -#if defined(XML_USE_MSC_EXTENSIONS)
 -#define XMLCALL __cdecl
--#elif defined(__GNUC__)
+-#elif defined(__GNUC__) && defined(__i386)
 -#define XMLCALL __attribute__((cdecl))
 -#else
  /* For any platform which uses this definition and supports more than
     one calling convention, we need to extend this definition to
     declare the convention used on that platform, if it's possible to
-@@ -59,7 +54,6 @@
+@@ -47,21 +38,9 @@
     platform's malloc() implementation.
  */
  #define XMLCALL
@@ -21,29 +32,24 @@ diff -u --new-file expat-1.95.7.ori/expat.h expat/expat.h
  #endif  /* not defined XMLCALL */
  
  
-diff -u --new-file expat-1.95.7.ori/expatcfg.h expat/expatcfg.h
---- expat-1.95.7.ori/expatcfg.h	1970-01-01 01:00:00.000000000 +0100
-+++ expat/expatcfg.h	2004-04-20 19:14:05.000000000 +0200
-@@ -0,0 +1,16 @@
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#define XML_NS 1
-+#define XML_DTD 1
-+#define XML_CONTEXT_BYTES 1024
-+
-+#if defined(USE_LSB) || defined(LSB_FIRST)
-+#define BYTEORDER 1234
-+#else
-+#define BYTEORDER 4321
-+#endif
-+
-+#define HAVE_MEMMOVE
-+
-+
-diff -u --new-file expat-1.95.7.ori/internal.h expat/internal.h
---- expat-1.95.7.ori/internal.h	2003-09-28 23:57:22.000000000 +0200
-+++ expat/internal.h	2003-08-30 15:58:25.000000000 +0200
+-#if !defined(XML_STATIC) && !defined(XMLIMPORT)
+-#ifndef XML_BUILDING_EXPAT
+-/* using Expat from an application */
+-
+-#ifdef XML_USE_MSC_EXTENSIONS
+-#define XMLIMPORT __declspec(dllimport)
+-#endif
+-
+-#endif
+-#endif  /* not defined XML_STATIC */
+-
+ /* If we didn't define it above, define it away: */
+ #ifndef XMLIMPORT
+ #define XMLIMPORT
+Only in expat: expatcfg.h
+diff -u expat-1.95.8-ori/internal.h expat/internal.h
+--- expat-1.95.8-ori/internal.h	2003-09-28 23:57:22.000000000 +0200
++++ expat/internal.h	2004-08-07 14:03:15.000000000 +0200
 @@ -20,54 +20,7 @@
           and therefore subject to change.
  */
@@ -99,10 +105,10 @@ diff -u --new-file expat-1.95.7.ori/internal.h expat/internal.h
 -#define inline
 -#endif
 -#endif
-diff -u --new-file expat-1.95.7.ori/xmlparse.c expat/xmlparse.c
---- expat-1.95.7.ori/xmlparse.c	2003-10-18 06:46:02.000000000 +0200
-+++ expat/xmlparse.c	2004-04-13 16:02:16.000000000 +0200
-@@ -7,15 +7,7 @@
+diff -u expat-1.95.8-ori/xmlparse.c expat/xmlparse.c
+--- expat-1.95.8-ori/xmlparse.c	2004-07-23 04:02:41.000000000 +0200
++++ expat/xmlparse.c	2004-08-07 14:03:49.000000000 +0200
+@@ -8,13 +8,7 @@
  
  #define XML_BUILDING_EXPAT 1
  
@@ -110,21 +116,19 @@ diff -u --new-file expat-1.95.7.ori/xmlparse.c expat/xmlparse.c
 -#include "winconfig.h"
 -#elif defined(MACOS_CLASSIC)
 -#include "macconfig.h"
--#else
--#ifdef HAVE_EXPAT_CONFIG_H
+-#elif defined(HAVE_EXPAT_CONFIG_H)
 -#include <expat_config.h>
--#endif
 -#endif /* ndef COMPILED_FROM_DSP */
 +#include "expatcfg.h"
  
  #include "expat.h"
  
-diff -u --new-file expat-1.95.7.ori/xmlrole.c expat/xmlrole.c
---- expat-1.95.7.ori/xmlrole.c	2003-10-16 06:51:11.000000000 +0200
-+++ expat/xmlrole.c	2004-04-13 16:02:03.000000000 +0200
-@@ -2,15 +2,7 @@
-    See the file COPYING for copying permission.
- */
+diff -u expat-1.95.8-ori/xmlrole.c expat/xmlrole.c
+--- expat-1.95.8-ori/xmlrole.c	2004-05-06 15:55:49.000000000 +0200
++++ expat/xmlrole.c	2004-08-07 14:03:15.000000000 +0200
+@@ -4,15 +4,7 @@
+ 
+ #include <stddef.h>
  
 -#ifdef COMPILED_FROM_DSP
 -#include "winconfig.h"
@@ -137,14 +141,14 @@ diff -u --new-file expat-1.95.7.ori/xmlrole.c expat/xmlrole.c
 -#endif /* ndef COMPILED_FROM_DSP */
 +#include "expatcfg.h"
  
+ #include "expat_external.h"
  #include "internal.h"
- #include "xmlrole.h"
-diff -u --new-file expat-1.95.7.ori/xmltok.c expat/xmltok.c
---- expat-1.95.7.ori/xmltok.c	2003-10-16 06:51:11.000000000 +0200
-+++ expat/xmltok.c	2004-04-13 16:01:53.000000000 +0200
-@@ -2,15 +2,7 @@
-    See the file COPYING for copying permission.
- */
+diff -u expat-1.95.8-ori/xmltok.c expat/xmltok.c
+--- expat-1.95.8-ori/xmltok.c	2004-05-06 15:55:49.000000000 +0200
++++ expat/xmltok.c	2004-08-07 14:03:15.000000000 +0200
+@@ -4,15 +4,7 @@
+ 
+ #include <stddef.h>
  
 -#ifdef COMPILED_FROM_DSP
 -#include "winconfig.h"
@@ -157,5 +161,5 @@ diff -u --new-file expat-1.95.7.ori/xmltok.c expat/xmltok.c
 -#endif /* ndef COMPILED_FROM_DSP */
 +#include "expatcfg.h"
  
+ #include "expat_external.h"
  #include "internal.h"
- #include "xmltok.h"
