@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
+AdvanceMAME 0.62.1
+	The .CHD files are searched as default in the "image" directory.
+	The .DIF file in the "diff" directory. You can customize them
+	with the `dir_image' and `dir_diff' options.
+
 AdvanceMAME 0.62.0 / AdvanceMESS 0.61.2
 	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
 	Simply run "svgawin /u" and "svgawin /l".

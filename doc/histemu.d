@@ -1,6 +1,11 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.62.1 2002/11
+	) Fixed the abort bug on the DOS and Windows versions for the
+		SVGALIB Rage 128/Radeon video boards.
+	) Some fixes for the `.chd' and `.dif' images.
+
 AdvanceMAME Version 0.62.0 2002/11
 	) The Windows SVGAWIN driver now use the framebuffer reported by
 		Windows if the Windows SVGALIB isn't able to get it.

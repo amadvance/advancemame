@@ -131,18 +131,15 @@ void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size) {
 /* compatibility */
 
 void ADV_SVGALIB_CALL adv_svgalib_printf(const char* format, ...) {
-	adv_svgalib_log("svgalib: invalid adv_svgalib_printf() call\n");
-	adv_svgalib_abort();
+	adv_svgalib_log("svgalib: ignored adv_svgalib_printf() call\n");
 }
 
 void ADV_SVGALIB_CALL adv_svgalib_fprintf(void* file, const char* format, ...) {
-	adv_svgalib_log("svgalib: invalid adv_svgalib_fprintf() call\n");
-	adv_svgalib_abort();
+	adv_svgalib_log("svgalib: ignored adv_svgalib_fprintf() call\n");
 }
 
 void* ADV_SVGALIB_CALL adv_svgalib_stderr() {
-	adv_svgalib_log("svgalib: invalid adv_svgalib_stderr() call\n");
-	adv_svgalib_abort();
+	adv_svgalib_log("svgalib: ignored adv_svgalib_stderr() call\n");
 	return 0;
 }
 
@@ -150,13 +147,13 @@ void ADV_SVGALIB_CALL adv_svgalib_exit(int code) {
 	adv_svgalib_log("svgalib: invalid adv_svgalib_exit() call\n");
 	adv_svgalib_abort();
 }
-	
+
 char* ADV_SVGALIB_CALL adv_svgalib_strtok(const char* s, const char* t) {
 	adv_svgalib_log("svgalib: invalid adv_svgalib_strtok() call\n");
 	adv_svgalib_abort();
 	return 0;
-}	
-	
+}
+
 double ADV_SVGALIB_CALL adv_svgalib_atof(const char* s) {
 	adv_svgalib_log("svgalib: invalid adv_svgalib_atof() call\n");
 	adv_svgalib_abort();

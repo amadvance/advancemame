@@ -276,16 +276,15 @@ endif
 ############################################################################
 # EMU build
 
+# the emulator define must be shared for both the emulator and the Advance Library
 ifeq ($(CONF_EMU),mame)
-EMUCFLAGS += -DMAME
+CFLAGS += -DMAME
 endif
-
 ifeq ($(CONF_EMU),mess)
-EMUCFLAGS += -DMESS
+CFLAGS += -DMESS
 endif
-
 ifeq ($(CONF_EMU),pac)
-EMUCFLAGS += -DPAC
+CFLAGS += -DPAC
 endif
 
 ifeq ($(CONF_HOST),unix)

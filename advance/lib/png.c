@@ -583,6 +583,7 @@ adv_error png_read_ihdr(
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
+	unsigned char** rns_ptr, unsigned* rns_size,
 	adv_fz* f, const unsigned char* data, unsigned data_size
 ) {
 	unsigned char* ptr;
@@ -600,6 +601,7 @@ adv_error png_read_ihdr(
 	*dat_ptr = 0;
 	*pix_ptr = 0;
 	*pal_ptr = 0;
+	*rns_ptr = 0;
 
 	if (data_size != 13) {
 		error_set("Invalid IHDR size %d instead of 13", data_size);
@@ -681,7 +683,12 @@ adv_error png_read_ihdr(
 	}
 
 	while (type != PNG_CN_IDAT) {
-		free(ptr);
+		if (type == PNG_CN_tRNS) {
+			*rns_ptr = ptr;
+			*rns_size = ptr_size;
+		} else {
+			free(ptr);
+		}
 
 		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0)
 			goto err;
@@ -776,6 +783,7 @@ err_ptr:
 err:
 	free(*dat_ptr);
 	free(*pal_ptr);
+	free(*rns_ptr);
 	return -1;
 }
 
@@ -792,13 +800,16 @@ err:
  * \param pix_scanline Where to put the length of a scanline in bytes.
  * \param pal_ptr Where to put the allocated palette data pointer. Set to 0 if the image is RGB.
  * \param pal_size Where to put the palette size in number of colors. Set to 0 if the image is RGB.
+ * \param rns_ptr Where to put the allocated transparency data pointer. Set to 0 if the image hasn't transparency.
+ * \param rns_size Where to put the transparency size in number of bytes. Set to 0 if the image hasn't transparency.
  * \param f File to read.
  */
-adv_error png_read(
+adv_error png_read_rns(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
+	unsigned char** rns_ptr, unsigned* rns_size,
 	adv_fz* f
 ) {
 	unsigned char* data;
@@ -816,7 +827,7 @@ adv_error png_read(
 
 		switch (type) {
 			case PNG_CN_IHDR :
-				if (png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, f, data, size) != 0)
+				if (png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, rns_ptr, rns_size, f, data, size) != 0)
 					goto err_data;
 				return 0;
 			default :
@@ -843,3 +854,26 @@ err_data:
 err:
 	return -1;
 }
+
+/**
+ * Load a PNG image.
+ * Like png_read_rns() but without transparency.
+ */
+adv_error png_read(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	adv_fz* f
+) {
+	adv_error r;
+	unsigned char* rns_ptr;
+	unsigned rns_size;
+
+	r = png_read_rns(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, &rns_ptr, &rns_size, f);
+
+	free(rns_ptr);
+
+	return r;
+}
+

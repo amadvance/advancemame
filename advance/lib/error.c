@@ -29,11 +29,20 @@
  */
 
 #include "extra.h"
+
+/** \def USE_ERROR_SILENT
+ * If defined USE_ERROR_SILENT the error functions don't show the error in the log.
+ * This macro can be used to reduce the dependencies of the library.
+ */
+
+#ifndef USE_ERROR_SILENT
 #include "log.h"
+#endif
 
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 /****************************************************************************/
 /* Error */
@@ -77,9 +86,11 @@ void error_set(const char* text, ...)
 	va_start(arg,text);
 	vsprintf(error_buffer,text,arg);
 
-	log_std(("video: set_error_description \""));
+#ifndef USE_ERROR_SILENT
+	log_std(("advance: set_error_description \""));
 	log_va(text,arg);
 	log_std(("\"\n"));
+#endif
 
 	va_end(arg);
 }
@@ -97,9 +108,11 @@ void error_unsupported_set(const char* text, ...)
 	va_start(arg,text);
 	vsprintf(error_buffer,text,arg);
 
-	log_std(("video: set_error_description \""));
+#ifndef USE_ERROR_SILENT
+	log_std(("advance: set_error_description \""));
 	log_va(text,arg);
 	log_std(("\"\n"));
+#endif
 
 	va_end(arg);
 }

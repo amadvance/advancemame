@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.1 2002/11
+	) Fixed the abort bug on the DOS and Windows versions for the
+		SVGALIB Rage 128/Radeon video boards.
+
 AdvanceMENU Version 2.2.0 2002/11
 	) In the Linux target the `shutdown' event runs "/sbin/poweroff".
 	) Merged the sdl and native system of the Linux target.

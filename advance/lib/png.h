@@ -38,6 +38,7 @@ extern "C" {
 #define PNG_CN_PLTE 0x504C5445
 #define PNG_CN_IDAT 0x49444154
 #define PNG_CN_IEND 0x49454E44
+#define PNG_CN_tRNS 0x74524e53
 /*@}*/
 
 adv_error png_read_chunk(adv_fz* f, unsigned char** data, unsigned* size, unsigned* type);
@@ -52,6 +53,7 @@ adv_error png_read_ihdr(
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
+	unsigned char** rns_ptr, unsigned* rns_size,
 	adv_fz* f, const unsigned char* data, unsigned data_size
 );
 
@@ -70,6 +72,15 @@ adv_error png_read(
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
+	adv_fz* f
+);
+
+adv_error png_read_rns(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	unsigned char** rns_ptr, unsigned* rns_size,
 	adv_fz* f
 );
 

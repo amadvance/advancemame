@@ -63,16 +63,16 @@ struct dirio_handle {
 	char* pattern; /** Pattern applyed at the directory. */
 };
 
-#define FILEIO_MODE_DIRGAME 0 /**< Single file named like the game/machine placed in a single dir. */
-#define FILEIO_MODE_DIRNAME 1 /**< Single file named as specified in the open call placed in a single dir. */
-#define FILEIO_MODE_ROOTNAME 2 /**< Single file named as specified in the open call placed in the root dir. */
+#define FILEIO_MODE_GAME 0 /**< Single file named like the game/machine placed in a single dir. */
+#define FILEIO_MODE_NAME 1 /**< Single file named as specified in the open call placed in a single dir. */
+#define FILEIO_MODE_ROOT 2 /**< Single file named as specified in the open call placed in the root dir. */
 #define FILEIO_MODE_COLLECTION 3 /**< Collection of files. */
 
 #define FILEIO_OPEN_NONE 0 /**< Open not allowed. */
 #define FILEIO_OPEN_READ 1 /**< Open for reading "rb". */
 #define FILEIO_OPEN_WRITE 2 /**< Open for writing "wb". */
 #define FILEIO_OPEN_READWRITE 3 /**< Open for reading and writing an existing file "r+b". */
-#define FILEIO_OPEN_READWRITECREATE 4 /**< Open for reading and writing a new file "w+b". */
+#define FILEIO_OPEN_READWRITECREATE 4 /**< Open for reading and writing a file, if it exists "r+b" otherwise "w+b". */
 
 struct fileio_item {
 	int type; /**< OSD_FILETYPE_* */
@@ -104,26 +104,26 @@ static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_IMAGE_R, "dir_image", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 /* OSD_FILETYPE_IMAGE_RW is not used. It's present only for MESS compatibility */
 #endif
-	{ OSD_FILETYPE_IMAGE_DIFF, "dir_diff", "diff", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_IMAGE_DIFF, "dir_diff", "diff", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITECREATE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 #ifdef MESS
 /* MESS uses the game name for the .nv file and not the machine name. */
 /* for example zelda.nv and not nes.nv */
-	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 #else
-	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 #endif
-	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
-	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
-	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
-	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_ROOTNAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
+	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
+	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_NAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
+	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
 	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
@@ -174,8 +174,9 @@ static int item_is_partialequal(const char* zipfile, const char* file) {
 	return !*s1 && !*s2;
 }
 
-static int item_open_raw(const char* file, const char* ext, const char* mode, struct fileio_handle* h) {
+static int item_open_raw(const char* file, const char* ext, unsigned  mode, struct fileio_handle* h) {
 	char file_complete[FILE_MAXPATH];
+	const char* open_mode;
 
 	if (ext && !item_has_ext(file))
 		sprintf(file_complete,"%s%s",file,ext);
@@ -186,11 +187,35 @@ static int item_open_raw(const char* file, const char* ext, const char* mode, st
 
 	h->crc = 0;
 	h->is_crc_set = 0;
-	h->f = fzopen(file_complete,mode);
+	h->f = 0;
+
+	switch (mode) {
+	case FILEIO_OPEN_NONE :
+		log_std(("ERROR: osd_fopen() invalid open in unsupported mode\n"));
+		return -1;
+	case FILEIO_OPEN_READ :
+		h->f = fzopen(file_complete,"rb");
+		break;
+	case FILEIO_OPEN_WRITE :
+		h->f = fzopen(file_complete,"wb");
+		break;
+	case FILEIO_OPEN_READWRITE :
+		h->f = fzopen(file_complete,"r+b");
+		break;
+	case FILEIO_OPEN_READWRITECREATE :
+		h->f = fzopen(file_complete,"r+b");
+		if (!h->f)
+			h->f = fzopen(file_complete,"w+b");
+		break;
+	default:
+		log_std(("ERROR: osd_fopen() invalid open in not specified mode\n"));
+		return -1;
+	}
+
 	if (!h->f)
 		return -1;
 
-	log_std(("osd: osd_fopen() -> %s\n",file_complete));
+	log_std(("osd: osd_fopen() -> %s\n", file_complete));
 
 	return 0;
 }
@@ -247,7 +272,6 @@ static int item_open_zip(const char* zip_file, const char* file, const char* ext
 static struct fileio_handle* item_open(int type, const char* game, const char* name, unsigned mode) {
 	int i;
 	struct fileio_handle* h = malloc(sizeof(struct fileio_handle));
-	const char* open_mode;
 
 	/* find the item */
 	const struct fileio_item* item = CONFIG;
@@ -281,16 +305,9 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 		log_std(("ERROR: osd_fopen() invalid open in unsupported mode\n"));
 		return 0;
 	case FILEIO_OPEN_READ :
-		open_mode = "rb";
-		break;
 	case FILEIO_OPEN_WRITE :
-		open_mode = "wb";
-		break;
 	case FILEIO_OPEN_READWRITE :
-		open_mode = "r+b";
-		break;
 	case FILEIO_OPEN_READWRITECREATE :
-		open_mode = "w+b";
 		break;
 	default:
 		log_std(("ERROR: osd_fopen() invalid open in not specified mode\n"));
@@ -302,26 +319,25 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 	h->f = 0;
 
 	for(i=0;!h->f && i<item->dir_mac;++i) {
-
-		/* file not compressed */
+		/* file not compressed (DIR/GAME) */
 		if (!h->f
-			&& item->mode == FILEIO_MODE_DIRGAME
+			&& item->mode == FILEIO_MODE_GAME
 			&& game) {
 			char file[FILE_MAXPATH];
 			strcpy(file, file_abs(item->dir_map[i],game));
-			item_open_raw(file, item->extension, open_mode, h);
+			item_open_raw(file, item->extension, mode, h);
 		}
 
-		/* file not compressed */
+		/* file not compressed (DIR/NAME) */
 		if (!h->f
-			&& (item->mode == FILEIO_MODE_DIRNAME || item->mode == FILEIO_MODE_ROOTNAME)
+			&& (item->mode == FILEIO_MODE_NAME || item->mode == FILEIO_MODE_ROOT)
 			&& name) {
 			char file[FILE_MAXPATH];
 			strcpy(file, file_abs(item->dir_map[i],name));
-			item_open_raw(file, item->extension, open_mode, h);
+			item_open_raw(file, item->extension, mode, h);
 		}
 
-		/* file not compressed */
+		/* file not compressed (DIR/GAME/NAME) */
 		if (!h->f
 			&& item->mode == FILEIO_MODE_COLLECTION
 			&& game
@@ -330,10 +346,10 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			char sub[FILE_MAXPATH];
 			sprintf(sub,"%s%c%s",game,file_dir_slash(),name);
 			strcpy(file,file_abs(item->dir_map[i],sub));
-			item_open_raw(file, item->extension, open_mode, h);
+			item_open_raw(file, item->extension, mode, h);
 		}
 
-		/* file compressed in a zip named as the game */
+		/* file compressed in a zip named as the game (DIR/GAME.ZIP/NAME) */
 		if (!h->f
 			&& item->mode == FILEIO_MODE_COLLECTION
 			&& mode == FILEIO_OPEN_READ
@@ -347,7 +363,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 		}
 
 #ifdef MESS
-		/* file compressed in a zip named as the file */
+		/* file compressed in a zip named as the file (DIR/NAME.ZIP/NAME) */
 		if (!h->f
 			&& item->mode == FILEIO_MODE_COLLECTION
 			&& mode == FILEIO_OPEN_READ
@@ -372,7 +388,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			item_open_zip(zip_file, name, item->extension, h);
 		}
 
-		/* file compressed in a zip with the specified name */
+		/* file compressed in a zip with the specified name (DIR/GAME/FILE1.ZIP/FILE0) */
 		/* for example alpiner=alpinerc.bin search alpinerc.bin in alpiner.zip */
 		if (!h->f
 			&& item->mode == FILEIO_MODE_COLLECTION
@@ -398,6 +414,17 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			item_open_zip(zip_file, real_name, item->extension, h);
 		}
 #endif
+
+		/* file not compressed in the root dir (DIR/NAME) */
+		if (!h->f
+			&& item->mode == FILEIO_MODE_COLLECTION
+			&& name) {
+			char file[FILE_MAXPATH];
+			char sub[FILE_MAXPATH];
+			sprintf(sub,"%s",name);
+			strcpy(file,file_abs(item->dir_map[i],sub));
+			item_open_raw(file, item->extension, mode, h);
+		}
 	}
 
 	if (!h->f) {
@@ -434,9 +461,9 @@ static int item_stat(int type, const char* name) {
 		struct stat st;
 
 		switch (item->mode) {
-			case FILEIO_MODE_DIRGAME :
-			case FILEIO_MODE_DIRNAME :
-			case FILEIO_MODE_ROOTNAME :
+			case FILEIO_MODE_GAME :
+			case FILEIO_MODE_NAME :
+			case FILEIO_MODE_ROOT :
 				sprintf(file,"%s",name);
 				if (item->extension && !item_has_ext(file))
 					strcat(file,item->extension);
@@ -986,9 +1013,9 @@ int advance_fileio_init(adv_conf* context) {
 			const char* def = 0;
 			switch (i->mode) {
 				case FILEIO_MODE_COLLECTION : def = file_config_dir_multidir(i->def); break;
-				case FILEIO_MODE_DIRGAME : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_DIRNAME : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_ROOTNAME : def = file_config_dir_singlefile(); break;
+				case FILEIO_MODE_GAME : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_NAME : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_ROOT : def = file_config_dir_singlefile(); break;
 			}
 			if (def)
 				conf_string_register_default(context, i->config, def);
