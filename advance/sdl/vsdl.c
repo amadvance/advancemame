@@ -236,6 +236,7 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 
 	log_std(("video:sdl: sdl_mode_set()\n"));
 
+	/* reopen the screen if needed */
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
@@ -304,24 +305,21 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 }
 
 void sdl_mode_done(video_bool restore) {
-	const SDL_VideoInfo* info;
-
 	assert( sdl_is_active() );
 	assert( sdl_mode_is_active() );
 
 	log_std(("video:sdl: sdl_mode_done()\n"));
 
-	info = SDL_GetVideoInfo();
-
-	/* close the screen if we are fullscreen in a window manager. */
+#ifdef USE_VIDEO_RESTORE
+	/* close the screen if we are fullscreen. */
 	/* otherwise we cannot see the started programs by AdvanceMENU. */
-	/* this is only done for the window managers becase the problem is only here */
-	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0 && info->wm_available) {
+	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0) {
 		if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
 			log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		}
 	}
+#endif
 
 	sdl_state.mode_active = 0;
 }
