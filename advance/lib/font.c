@@ -668,7 +668,7 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 	for(i=0;i<ADV_FONT_MAX;++i) {
 		e = FT_Load_Char(face, i, FT_LOAD_DEFAULT);
 		if (e == 0) {
-			unsigned x,y;
+			unsigned x, y;
 			FT_Glyph glyph;
 
 			e = FT_Get_Glyph(face->glyph, &glyph);
@@ -768,7 +768,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 
 	/* make a fake space if it's null */
 	if (adv_font_sizex_char(font, ' ') == 0) {
-		adv_bitmap* bitmap = adv_bitmap_alloc( adv_font_sizex_char(font, 'I'), adv_font_sizey_char(font, 'I'), 8);
+		adv_bitmap* bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, 'I'), adv_font_sizey_char(font, 'I'), 8);
 		adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
 		adv_font_set_char(font, ' ', bitmap);
 	}

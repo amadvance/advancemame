@@ -48,7 +48,7 @@ unsigned crtc_step(double v, unsigned st)
 	il = (unsigned)vl;
 	il -= il % st;
 	ih = il + st;
-	if (fabs(v - il) / fabs(v - ih) < (1.0 + 1e-6) ) /* the lower value are favourite */
+	if (fabs(v - il) / fabs(v - ih) < (1.0 + 1e-6)) /* the lower value are favourite */
 		return il;
 	else
 		return ih;
@@ -309,7 +309,7 @@ static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, doubl
 			double try_hclock;
 
 			/* the floor() approximation uses a lesser hclock */
-			try_vtotal = floor( monitor->hclock[j].high / req_vclock );
+			try_vtotal = floor(monitor->hclock[j].high / req_vclock);
 			try_hclock = req_vclock * try_vtotal;
 			if (monitor_hvclock_check(monitor, try_hclock, req_vclock)) {
 				if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {

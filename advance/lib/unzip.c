@@ -75,12 +75,12 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 		}
 
 		/* allocate buffer */
-		buf = (char*)malloc( buf_length );
+		buf = (char*)malloc(buf_length);
 		if (!buf) {
 			return -1;
 		}
 
-		if (fread( buf, buf_length, 1, zip->fp ) != 1) {
+		if (fread(buf, buf_length, 1, zip->fp) != 1) {
 			free(buf);
 			return -1;
 		}
@@ -88,7 +88,7 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 		if (ecd_find_sig(buf, buf_length, &offset)) {
 			zip->ecd_length = buf_length - offset;
 
-			zip->ecd = (char*)malloc( zip->ecd_length );
+			zip->ecd = (char*)malloc(zip->ecd_length);
 			if (!zip->ecd) {
 				free(buf);
 				return -1;
@@ -120,7 +120,7 @@ adv_zip* zip_open(const char* zipfile)
 	unsigned ezsize = 0;
 
 	/* allocate */
-	adv_zip* zip = (adv_zip*)malloc( sizeof(adv_zip) );
+	adv_zip* zip = (adv_zip*)malloc(sizeof(adv_zip));
 	if (!zip) {
 		return 0;
 	}
@@ -182,7 +182,7 @@ adv_zip* zip_open(const char* zipfile)
 	}
 
 	/* allocate space for cent_dir */
-	zip->cd = (char*)malloc( zip->size_of_cent_dir );
+	zip->cd = (char*)malloc(zip->size_of_cent_dir);
 	if (!zip->cd) {
 		free(zip->ecd);
 		fclose(zip->fp);
@@ -199,7 +199,7 @@ adv_zip* zip_open(const char* zipfile)
 		free(ezdata);
 	} else {
 		/* buffer not used */
-		free( ezdata );
+		free(ezdata);
 
 		/* seek to start of cent_dir */
 		if (fseek(zip->fp, zip->offset_to_start_of_cent_dir, SEEK_SET)!=0) {

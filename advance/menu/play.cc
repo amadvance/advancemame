@@ -166,7 +166,8 @@ void play_attenuation_set(int attenuation)
 	mixer_volume(volume);
 }
 
-int play_attenuation_get() {
+int play_attenuation_get()
+{
 	return play_attenuation;
 }
 

@@ -202,7 +202,7 @@ static void mixer_pump(unsigned buffered)
 	for(i=0;i<mixer_nchannel;++i) {
 		if (mixer_channel_is_active(i)) {
 			if (mixer_map[i].count) {
-				assert(mixer_map[i].count >= count );
+				assert(mixer_map[i].count >= count);
 				mixer_map[i].count -= count;
 			} else {
 				mixer_map[i].silence_count += count;
@@ -278,7 +278,7 @@ static void mixer_channel_need(unsigned channel, unsigned* min, unsigned* max)
 
 	*max = c * mixer_map[channel].rate / mixer_rate;
 
-	assert( *min <= *max );
+	assert(*min <= *max);
 }
 
 static inline int s16le2int(const unsigned char* data)
@@ -513,7 +513,7 @@ static adv_error mixer_raw_pump(unsigned channel)
 	if (run > MIXER_PAGE_SIZE)
 		run = MIXER_PAGE_SIZE;
 
-	assert( run % sample_size == 0 );
+	assert(run % sample_size == 0);
 
 	if (run) {
 		if (mixer_map[channel].file) {
@@ -881,7 +881,7 @@ void mixer_poll(void)
 	for(i=0;i<mixer_nchannel;++i)
 		mixer_channel_pump(i);
 
-	mixer_pump( soundb_buffered() );
+	mixer_pump(soundb_buffered());
 }
 
 /**

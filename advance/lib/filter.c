@@ -88,9 +88,9 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 	double gain;
 	double pi;
 
-	assert( order <= FILTER_ORDER_MAX );
-	assert( order % 2 == 1 );
-	assert( 0 < freq && freq <= 0.5 );
+	assert(order <= FILTER_ORDER_MAX);
+	assert(order % 2 == 1);
+	assert(0 < freq && freq <= 0.5);
 
 	/* The M_PI constants is not a ISO/POSIX standard */
 	pi = acos(-1);

@@ -47,12 +47,6 @@ static adv_conf_enum_int OPTION_SORT[] = {
 { "timeperplay", sort_by_timepersession }
 };
 
-static adv_conf_enum_int OPTION_RESTORE[] = {
-{ "save_at_exit", restore_none },
-{ "restore_at_exit", restore_exit },
-{ "restore_at_idle", restore_idle }
-};
-
 static adv_conf_enum_int OPTION_MODE[] = {
 { "list", mode_list },
 { "list_mixed", mode_list_mixed },
@@ -66,6 +60,19 @@ static adv_conf_enum_int OPTION_MODE[] = {
 { "tile_icon", mode_tile_icon },
 { "tile_marquee", mode_tile_marquee },
 { "text", mode_text }
+};
+
+static adv_conf_enum_int OPTION_PREVIEW[] = {
+{ "snap", preview_snap },
+{ "flyers", preview_flyer },
+{ "cabinets", preview_cabinet },
+{ "titles", preview_title }
+};
+
+static adv_conf_enum_int OPTION_RESTORE[] = {
+{ "save_at_exit", restore_none },
+{ "restore_at_exit", restore_exit },
+{ "restore_at_idle", restore_idle }
 };
 
 static adv_conf_enum_int OPTION_EXIT[] = {
@@ -91,13 +98,6 @@ static adv_conf_enum_int OPTION_DIFFICULTY[] = {
 { "normal", difficulty_medium },
 { "hard", difficulty_hard },
 { "hardest", difficulty_hardest }
-};
-
-static adv_conf_enum_int OPTION_PREVIEW[] = {
-{ "snap", preview_snap },
-{ "flyers", preview_flyer },
-{ "cabinets", preview_cabinet },
-{ "titles", preview_title }
 };
 
 static adv_conf_enum_int OPTION_EVENTMODE[] = {
@@ -201,6 +201,22 @@ static bool config_split(const string& s, string& a0, string& a1, string& a2, st
 		return false;
 	}
 	return true;
+}
+
+static string config_out(const string& a)
+{
+	return "\"" + a + "\"";
+}
+
+static string config_normalize(const string& a)
+{
+	string r;
+	for(unsigned i=0;i<a.length();++i)
+		if (isspace(a[i]) || a[i] == '/')
+			r += '_';
+		else
+			r += tolower(a[i]);
+	return r;
 }
 
 void config_state::conf_register(adv_conf* config_context)
@@ -321,7 +337,7 @@ static bool config_load_background_dir(const string& dir, path_container& c)
 
 			log_std(("menu: load background music file %s\n", path.c_str()));
 
-			c.insert( c.end(), path);
+			c.insert(c.end(), path);
 		}
 	}
 
@@ -356,12 +372,12 @@ static bool config_load_background_list(const string& list, path_container& c)
 
 bool config_state::load_game(const string& name, const string& group_name, const string& type_name, const string& time, const string& session, const string& desc)
 {
-	game_set::const_iterator i = gar.find( game( name ) );
+	game_set::const_iterator i = gar.find(game(name));
 	if (i==gar.end())
 		return false;
 
-	i->user_group_set(group.insert_double(group_name, include_group_orig));
-	i->user_type_set(type.insert_double(type_name, include_type_orig));
+	i->user_group_set(group.insert(group_name));
+	i->user_type_set(type.insert(type_name));
 
 	if (desc.length()!=0)
 		i->user_description_set(desc);
@@ -594,6 +610,21 @@ static bool config_load_iterator_category(adv_conf* config_context, const string
 	return true;
 }
 
+static bool config_load_iterator_category_section(adv_conf* config_context, const string& section, const string& tag, category_container& cat)
+{
+	adv_conf_iterator i;
+	conf_iterator_section_begin(&i, config_context, section.c_str(), tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string a0;
+		string s = conf_iterator_string_get(&i);
+		if (!config_split(s, a0))
+			return false;
+		cat.insert(cat.end(), a0);
+		conf_iterator_next(&i);
+	}
+	return true;
+}
+
 static bool config_load_iterator_emu_include(adv_conf* config_context, const string& tag, emulator_container& emu)
 {
 	adv_conf_iterator i;
@@ -712,6 +743,10 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	current_backdrop = resource();
 	current_sound = resource();
 
+	default_sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
+	default_mode_orig = (show_t)conf_int_get_default(config_context, "mode");
+	default_preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
+
 	if (!config_path(conf_string_get_default(config_context, "ui_background"), ui_back))
 		return false;
 	if (!config_path(conf_string_get_default(config_context, "ui_help"), ui_help))
@@ -729,10 +764,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!load_iterator_script(config_context, "ui_command"))
 		return false;
 
-	sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
 	lock_orig = (bool)conf_bool_get_default(config_context, "lock");
 	restore = (restore_t)conf_int_get_default(config_context, "config");
-	mode_orig = (show_t)conf_int_get_default(config_context, "mode");
 	if (!config_load_skip(config_context, mode_skip_mask))
 		return false;
 	exit_mode = (exit_t)conf_int_get_default(config_context, "misc_exit");
@@ -743,25 +776,25 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "idle_start"), a0, a1))
 		return false;
-	idle_start_first = atoi( a0.c_str() );
-	idle_start_rep = atoi( a1.c_str() );
+	idle_start_first = atoi(a0.c_str());
+	idle_start_rep = atoi(a1.c_str());
 	menu_base_orig = conf_int_get_default(config_context, "menu_base");
 	menu_rel_orig = conf_int_get_default(config_context, "menu_rel");
 	if (!config_split(conf_string_get_default(config_context, "idle_screensaver"), a0, a1))
 		return false;
-	idle_saver_first = atoi( a0.c_str() );
-	idle_saver_rep = atoi( a1.c_str() );
+	idle_saver_first = atoi(a0.c_str());
+	idle_saver_rep = atoi(a1.c_str());
 	if (!config_split(conf_string_get_default(config_context, "event_repeat"), a0, a1))
 		return false;
-	repeat = atoi( a0.c_str() );
-	repeat_rep = atoi( a1.c_str() );
+	repeat = atoi(a0.c_str());
+	repeat_rep = atoi(a1.c_str());
 	video_size = conf_int_get_default(config_context, "display_size");
 	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "ui_fontsize"), a0, a1))
 		return false;
-	video_fonty = atoi( a0.c_str());
-	video_fontx = atoi( a1.c_str());
+	video_fonty = atoi(a0.c_str());
+	video_fontx = atoi(a1.c_str());
 	if (!config_load_orientation(config_context, video_orientation_orig))
 		return false;
 	video_gamma = conf_float_get_default(config_context, "display_gamma");
@@ -773,7 +806,6 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	ui_gamesaver = (saver_t)conf_int_get_default(config_context, "ui_game");
 	difficulty_orig = (difficulty_t)conf_int_get_default(config_context, "difficulty");
-	preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
 	idle_saver_type = (saver_t)conf_int_get_default(config_context, "idle_screensaver_preview");
 	preview_expand = conf_float_get_default(config_context, "preview_expand");
 	if (!config_path_import(conf_string_get_default(config_context, "preview_default"), preview_default))
@@ -790,6 +822,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_path_import(conf_string_get_default(config_context, "preview_default_title"), preview_default_title))
 		return false;
+		
 	preview_fast = (bool)conf_int_get_default(config_context, "event_mode");
 	alpha_mode = (bool)conf_bool_get_default(config_context, "event_alpha");
 	clip_mode = (clip_mode_t)conf_int_get_default(config_context, "ui_clip");
@@ -838,6 +871,11 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_load_iterator_emu_set(config_context, "emulator_titles", emu, &emulator::user_title_path_set))
 		return false;
+
+	for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
+		if (!(*i)->config_get().load(config_context, config_normalize((*i)->user_name_get())))
+			return false;
+	}
 
 	// print the copyright message before other messages
 	if (!quiet) {
@@ -942,19 +980,20 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_load_iterator_pcategory(config_context, "type", type))
 		return false;
-	if (!config_load_iterator_category(config_context, "group_include", include_group_orig))
+
+	if (!config_load_iterator_category(config_context, "group_include", default_include_group_orig))
 		return false;
-	if (!config_load_iterator_category(config_context, "type_include", include_type_orig))
+	if (!config_load_iterator_category(config_context, "type_include", default_include_type_orig))
 		return false;
 
-	if (include_group_orig.size() == 0) {
+	if (default_include_group_orig.size() == 0) {
 		for(pcategory_container::iterator i=group.begin();i!=group.end();++i)
-			include_group_orig.insert((*i)->name_get());
+			default_include_group_orig.insert((*i)->name_get());
 	}
-	if (include_type_orig.size() == 0) {
+	if (default_include_type_orig.size() == 0) {
 		for(pcategory_container::iterator i=type.begin();i!=type.end();++i)
-			include_type_orig.insert((*i)->name_get());
-		}
+			default_include_type_orig.insert((*i)->name_get());
+	}
 
 	if (opt_verbose)
 		target_nfo("log: load games info\n");
@@ -1020,12 +1059,12 @@ void config_state::import_info(const game& g, const string& text)
 
 void config_state::import_type(const game& g, const string& text)
 {
-	g.auto_type_set(type.insert_double(text, include_type_orig));
+	g.auto_type_set(type.insert(text));
 }
 
 void config_state::import_group(const game& g, const string& text)
 {
-	g.auto_group_set(group.insert_double(text, include_group_orig));
+	g.auto_group_set(group.insert(text));
 }
 
 void config_state::conf_default(adv_conf* config_context)
@@ -1137,18 +1176,29 @@ void config_state::conf_default(adv_conf* config_context)
 // -------------------------------------------------------------------------
 // Configuration save
 
-static string config_out(const string& a0)
+bool config_state::save(adv_conf* config_context) const
 {
-	return "\"" + a0 + "\"";
-}
+	conf_int_set(config_context, "", "mode", default_mode_orig);
+	conf_int_set(config_context, "", "sort", default_sort_orig);
+	conf_int_set(config_context, "", "preview", default_preview_orig);
 
-bool config_state::save(adv_conf* config_context) const {
-	conf_int_set(config_context, "", "mode", mode_orig);
+	conf_remove(config_context, "", "group_include");
+	for(category_container::const_iterator i=default_include_group_orig.begin();i!=default_include_group_orig.end();++i) {
+		conf_string_set(config_context, "", "group_include", config_out(*i).c_str());
+	}
+
+	conf_remove(config_context, "", "type_include");
+	for(category_container::const_iterator i=default_include_type_orig.begin();i!=default_include_type_orig.end();++i) {
+		conf_string_set(config_context, "", "type_include", config_out(*i).c_str());
+	}
+
 	conf_int_set(config_context, "", "menu_base", menu_base_orig);
 	conf_int_set(config_context, "", "menu_rel", menu_rel_orig);
-	conf_int_set(config_context, "", "sort", sort_orig);
 	conf_int_set(config_context, "", "difficulty", difficulty_orig);
-	conf_int_set(config_context, "", "preview", preview_orig);
+
+	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->config_get().save(config_context, config_normalize((*i)->user_name_get()));
+	}
 
 	conf_remove(config_context, "", "emulator_include");
 	for(emulator_container::const_iterator i=include_emu_orig.begin();i!=include_emu_orig.end();++i) {
@@ -1160,19 +1210,9 @@ bool config_state::save(adv_conf* config_context) const {
 		conf_string_set(config_context, "", "group", config_out((*i)->name_get()).c_str());
 	}
 
-	conf_remove(config_context, "", "group_include");
-	for(category_container::const_iterator i=include_group_orig.begin();i!=include_group_orig.end();++i) {
-		conf_string_set(config_context, "", "group_include", config_out(*i).c_str());
-	}
-
 	conf_remove(config_context, "", "type");
 	for(pcategory_container::const_iterator i=type.begin();i!=type.end();++i) {
 		conf_string_set(config_context, "", "type", config_out((*i)->name_get()).c_str());
-	}
-
-	conf_remove(config_context, "", "type_include");
-	for(category_container::const_iterator i=include_type_orig.begin();i!=include_type_orig.end();++i) {
-		conf_string_set(config_context, "", "type_include", config_out(*i).c_str());
 	}
 
 	conf_remove(config_context, "", "emulator_attrib");
@@ -1193,6 +1233,7 @@ bool config_state::save(adv_conf* config_context) const {
 		if (s.length()) s += " ";
 		s += "mirror_y";
 	}
+
 	conf_string_set(config_context, "", "display_orientation", s.c_str());
 
 	conf_remove(config_context, "", "game");
@@ -1246,30 +1287,33 @@ bool config_state::save(adv_conf* config_context) const {
 
 void config_state::restore_load()
 {
-	mode_effective = mode_orig;
+	default_sort_effective = default_sort_orig;
+	default_mode_effective = default_mode_orig;
+	default_preview_effective = default_preview_orig;
+	default_include_group_effective = default_include_group_orig;
+	default_include_type_effective = default_include_type_orig;
+
 	difficulty_effective = difficulty_orig;
-	preview_effective = preview_orig;
-	sort_effective = sort_orig;
-	include_group_effective = include_group_orig;
-	include_type_effective = include_type_orig;
-	include_emu_effective = include_emu_orig;
+	include_emu_set(include_emu_orig);
 	menu_base_effective = menu_base_orig;
 	menu_rel_effective = menu_rel_orig;
 	lock_effective = lock_orig;
 	video_orientation_effective = video_orientation_orig;
 	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->config_get().restore_load();
 		(*i)->attrib_load();
 	}
 }
 
-void config_state::restore_save()
+void config_state::restore_save_default()
 {
-	mode_orig = mode_effective;
+	default_sort_orig = default_sort_effective;
+	default_mode_orig = default_mode_effective;
+	default_preview_orig = default_preview_effective;
+	default_include_group_orig = default_include_group_effective;
+	default_include_type_orig = default_include_type_effective;
+
 	difficulty_orig = difficulty_effective;
-	preview_orig = preview_effective;
-	sort_orig = sort_effective;
-	include_group_orig = include_group_effective;
-	include_type_orig = include_type_effective;
 	include_emu_orig = include_emu_effective;
 	menu_base_orig = menu_base_effective;
 	menu_rel_orig = menu_rel_effective;
@@ -1280,10 +1324,20 @@ void config_state::restore_save()
 	}
 }
 
+void config_state::restore_save()
+{
+	restore_save_default();
+
+	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->config_get().restore_save();
+	}
+}
+
 // ------------------------------------------------------------------------
 // Configuration state
 
 config_state::config_state()
+	: sub_emu(0)
 {
 }
 
@@ -1303,6 +1357,118 @@ config_state::~config_state()
 	}
 }
 
+void config_state::sub_disable()
+{
+	sub_emu = 0;
+}
+
+void config_state::sub_enable()
+{
+	if (include_emu_effective.size() == 1) {
+		sub_emu = 0;
+		for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
+			if ((*i)->user_name_get() == *include_emu_effective.begin()) {
+				sub_emu = *i;
+				break;
+			}
+		}
+	} else {
+		sub_emu = 0;
+	}
+}
+
+void config_state::include_emu_set(const emulator_container& A)
+{
+	include_emu_effective = A;
+
+	sub_enable();
+}
+
+const emulator_container& config_state::include_emu_get()
+{
+	return include_emu_effective;
+}
+
+game_sort_t config_state::sort_get()
+{
+	if (sub_has() && sub_get().sort_has())
+		return sub_get().sort_get();
+	else
+		return default_sort_effective;
+}
+
+show_t config_state::mode_get()
+{
+	if (sub_has() && sub_get().mode_has())
+		return sub_get().mode_get();
+	else
+		return default_mode_effective;
+}
+
+preview_t config_state::preview_get()
+{
+	if (sub_has() && sub_get().preview_has())
+		return sub_get().preview_get();
+	else
+		return default_preview_effective;
+}
+
+const category_container& config_state::include_group_get()
+{
+	if (sub_has() && sub_get().include_group_has())
+		return sub_get().include_group_get();
+	else
+		return default_include_group_effective;
+}
+
+const category_container& config_state::include_type_get()
+{
+	if (sub_has() && sub_get().include_type_has())
+		return sub_get().include_type_get();
+	else
+		return default_include_type_effective;
+}
+
+void config_state::sort_set(game_sort_t A)
+{
+	if (sub_has())
+		sub_get().sort_set(A);
+	else
+		default_sort_effective = A;
+}
+
+void config_state::mode_set(show_t A)
+{
+	if (sub_has())
+		sub_get().mode_set(A);
+	else
+		default_mode_effective = A;
+}
+
+void config_state::preview_set(preview_t A)
+{
+	if (sub_has())
+		sub_get().preview_set(A);
+	else
+		default_preview_effective = A;
+}
+
+void config_state::include_group_set(const category_container& A)
+{
+	if (sub_has())
+		sub_get().include_group_set(A);
+	else
+		default_include_group_effective = A;
+}
+
+void config_state::include_type_set(const category_container& A)
+{
+	if (sub_has())
+		sub_get().include_type_set(A);
+	else
+		default_include_type_effective = A;
+}
+
 // ------------------------------------------------------------------------
 // config_import
 
@@ -1314,7 +1480,7 @@ void config_import::import_ini(game_set& gar, config_state& config, void (config
 {
 	int j = 0;
 
-	string ss = file_read( file );
+	string ss = file_read(file);
 
 	bool in = false;
 	while (j < ss.length()) {
@@ -1334,7 +1500,7 @@ void config_import::import_ini(game_set& gar, config_state& config, void (config
 			string text = token_get(s, i, "");
 			if (text.length()) {
 				string name = emulator + "/" + tag;
-				game_set::const_iterator k = gar.find( game( name ) );
+				game_set::const_iterator k = gar.find(game(name));
 				if (k!=gar.end()) {
 					(config.*set)(*k, text);
 				}
@@ -1347,7 +1513,7 @@ void config_import::import_mac(game_set& gar, config_state& config, void (config
 {
 	int j = 0;
 
-	string ss = file_read( file );
+	string ss = file_read(file);
 
 	string main_text;
 	while (j < ss.length()) {
@@ -1372,7 +1538,7 @@ void config_import::import_mac(game_set& gar, config_state& config, void (config
 			}
 			if (main_text.length()) {
 				string name = emulator + "/" + tag;
-				game_set::const_iterator k = gar.find( game( name ) );
+				game_set::const_iterator k = gar.find(game(name));
 				if (k!=gar.end()) {
 					(config.*set)(*k, main_text);
 				}
@@ -1385,7 +1551,7 @@ void config_import::import_nms(game_set& gar, config_state& config, void (config
 {
 	int j = 0;
 
-	string ss = file_read( file );
+	string ss = file_read(file);
 
 	while (j < ss.length()) {
 		string s = token_get(ss, j, "\r\n");
@@ -1400,7 +1566,7 @@ void config_import::import_nms(game_set& gar, config_state& config, void (config
 
 		if (text.length() && tag.length()) {
 			string name = emulator + "/" + tag;
-			game_set::iterator k = gar.find( game( name ) );
+			game_set::iterator k = gar.find(game(name));
 			if (k!=gar.end()) {
 				(config.*set)(*k, text);
 			}
@@ -1416,5 +1582,217 @@ void config_import::import(game_set& gar, config_state& config, void (config_sta
 		import_mac(gar, config, set);
 	else if (type == "nms")
 		import_nms(gar, config, set);
+}
+
+bool config_emulator_state::load(adv_conf* config_context, const string& section)
+{
+	int i;
+
+	if (conf_int_section_get(config_context, section.c_str(), "sort", &i) == 0) {
+		sort_set_orig = true;
+		sort_orig = (game_sort_t)i;
+	} else {
+		sort_set_orig = false;
+	}
+
+	if (conf_int_section_get(config_context, section.c_str(), "mode", &i) == 0) {
+		mode_set_orig = true;
+		mode_orig = (show_t)i;
+	} else {
+		mode_set_orig = false;
+	}
+
+	if (conf_int_section_get(config_context, section.c_str(), "preview", &i) == 0) {
+		preview_set_orig = true;
+		preview_orig = (preview_t)i;
+	} else {
+		preview_set_orig = false;
+	}
+
+	if (!config_load_iterator_category_section(config_context, section, "group_include", include_group_orig))
+		return false;
+	if (include_group_orig.size() != 0) {
+		include_group_set_orig = true;
+	} else {
+		include_group_set_orig = false;
+	}
+
+	if (!config_load_iterator_category_section(config_context, section, "type_include", include_type_orig))
+		return false;
+	if (include_type_orig.size() != 0) {
+		include_type_set_orig = true;
+	} else {
+		include_type_set_orig = false;
+	}
+
+	return true;
+}
+
+void config_emulator_state::save(adv_conf* config_context, const string& section)
+{
+	if (mode_set_orig) {
+		conf_int_set(config_context, section.c_str(), "mode", mode_orig);
+	} else {
+		conf_remove(config_context, section.c_str(), "mode");
+	}
+
+	if (sort_set_orig) {
+		conf_int_set(config_context, section.c_str(), "sort", sort_orig);
+	} else {
+		conf_remove(config_context, section.c_str(), "sort");
+	}
+
+	if (preview_set_orig) {
+		conf_int_set(config_context, section.c_str(), "preview", preview_orig);
+	} else {
+		conf_remove(config_context, section.c_str(), "preview");
+	}
+
+	conf_remove(config_context, section.c_str(), "group_include");
+	if (include_group_set_orig) {
+		for(category_container::const_iterator i=include_group_orig.begin();i!=include_group_orig.end();++i) {
+			conf_string_set(config_context, section.c_str(), "group_include", config_out(*i).c_str());
+		}
+	}
+
+	conf_remove(config_context, section.c_str(), "type_include");
+	if (include_type_set_orig) {
+		for(category_container::const_iterator i=include_type_orig.begin();i!=include_type_orig.end();++i) {
+			conf_string_set(config_context, section.c_str(), "type_include", config_out(*i).c_str());
+		}
+	}
+}
+
+void config_emulator_state::restore_load()
+{
+	sort_effective = sort_orig;
+	mode_effective = mode_orig;
+	preview_effective = preview_orig;
+	include_group_effective = include_group_orig;
+	include_type_effective = include_type_orig;
+	sort_set_effective = sort_set_orig;
+	mode_set_effective = mode_set_orig;
+	preview_set_effective = preview_set_orig;
+	include_group_set_effective = include_group_set_orig;
+	include_type_set_effective = include_type_set_orig;
+}
+
+void config_emulator_state::restore_save()
+{
+	sort_orig = sort_effective;
+	mode_orig = mode_effective;
+	preview_orig = preview_effective;
+	include_group_orig = include_group_effective;
+	include_type_orig = include_type_effective;
+	sort_set_orig = sort_set_effective;
+	mode_set_orig = mode_set_effective;
+	preview_set_orig = preview_set_effective;
+	include_group_set_orig = include_group_set_effective;
+	include_type_set_orig = include_type_set_effective;
+}
+
+bool config_emulator_state::sort_has()
+{
+	return sort_set_effective;
+}
+
+bool config_emulator_state::mode_has()
+{
+	return mode_set_effective;
+}
+
+bool config_emulator_state::preview_has()
+{
+	return preview_set_effective;
+}
+
+bool config_emulator_state::include_group_has()
+{
+	return include_group_set_effective;
+}
+
+bool config_emulator_state::include_type_has()
+{
+	return include_type_set_effective;
+}
+
+game_sort_t config_emulator_state::sort_get()
+{
+	return sort_effective;
+}
+
+show_t config_emulator_state::mode_get()
+{
+	return mode_effective;
+}
+
+preview_t config_emulator_state::preview_get()
+{
+	return preview_effective;
+}
+
+const category_container& config_emulator_state::include_group_get()
+{
+	return include_group_effective;
+}
+
+const category_container& config_emulator_state::include_type_get()
+{
+	return include_type_effective;
+}
+
+void config_emulator_state::sort_set(game_sort_t A)
+{
+	sort_set_effective = true;
+	sort_effective = A;
+}
+
+void config_emulator_state::mode_set(show_t A)
+{
+	mode_set_effective = true;
+	mode_effective = A;
+}
+
+void config_emulator_state::preview_set(preview_t A)
+{
+	preview_set_effective = true;
+	preview_effective = A;
+}
+
+void config_emulator_state::include_group_set(const category_container& A)
+{
+	include_group_set_effective = true;
+	include_group_effective = A;
+}
+
+void config_emulator_state::include_type_set(const category_container& A)
+{
+	include_type_set_effective = true;
+	include_type_effective = A;
+}
+
+void config_emulator_state::sort_unset()
+{
+	sort_set_effective = false;
+}
+
+void config_emulator_state::mode_unset()
+{
+	mode_set_effective = false;
+}
+
+void config_emulator_state::preview_unset()
+{
+	preview_set_effective = false;
+}
+
+void config_emulator_state::include_group_unset()
+{
+	include_group_set_effective = false;
+}
+
+void config_emulator_state::include_type_unset()
+{
+	include_type_set_effective = false;
 }
 

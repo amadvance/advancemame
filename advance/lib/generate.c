@@ -329,7 +329,7 @@ void generate_interpolate_h(adv_generate* generate, unsigned hclock, const adv_g
 	const adv_generate_interpolate* e0 = 0;
 	const adv_generate_interpolate* e1 = 0;
 
-	assert( interpolate->mac );
+	assert(interpolate->mac);
 
 	for(i=0;i<interpolate->mac;++i) {
 		const adv_generate_interpolate* e = interpolate->map + i;

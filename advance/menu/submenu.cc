@@ -45,26 +45,26 @@ void run_sort(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Parent name", sort_by_root_name) );
-	ch.insert( ch.end(), choice("Name", sort_by_name) );
-	ch.insert( ch.end(), choice("Time played", sort_by_time) );
-	ch.insert( ch.end(), choice("Play", sort_by_session) );
-	ch.insert( ch.end(), choice("Time per play", sort_by_timepersession) );
-	ch.insert( ch.end(), choice("Group", sort_by_group) );
-	ch.insert( ch.end(), choice("Type", sort_by_type) );
-	ch.insert( ch.end(), choice("Manufacturer", sort_by_manufacturer) );
-	ch.insert( ch.end(), choice("Year", sort_by_year) );
-	ch.insert( ch.end(), choice("Size", sort_by_size) );
-	ch.insert( ch.end(), choice("Resolution", sort_by_res) );
-	ch.insert( ch.end(), choice("Info", sort_by_info) );
+	ch.insert(ch.end(), choice("Parent name", sort_by_root_name));
+	ch.insert(ch.end(), choice("Name", sort_by_name));
+	ch.insert(ch.end(), choice("Time played", sort_by_time));
+	ch.insert(ch.end(), choice("Play", sort_by_session));
+	ch.insert(ch.end(), choice("Time per play", sort_by_timepersession));
+	ch.insert(ch.end(), choice("Group", sort_by_group));
+	ch.insert(ch.end(), choice("Type", sort_by_type));
+	ch.insert(ch.end(), choice("Manufacturer", sort_by_manufacturer));
+	ch.insert(ch.end(), choice("Year", sort_by_year));
+	ch.insert(ch.end(), choice("Size", sort_by_size));
+	ch.insert(ch.end(), choice("Resolution", sort_by_res));
+	ch.insert(ch.end(), choice("Info", sort_by_info));
 
-	choice_bag::iterator i = ch.find_by_value(rs.sort_effective);
+	choice_bag::iterator i = ch.find_by_value(rs.sort_get());
 	if (i == ch.end())
 		i = ch.begin();
 
-	int key = ch.run(" Sort mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, SORT_CHOICE_DX, i);
+	int key = ch.run(" Select Sort Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, SORT_CHOICE_DX, i);
 	if (key == INT_KEY_ENTER) {
-		rs.sort_effective = (game_sort_t)i->value_get();
+		rs.sort_set((game_sort_t)i->value_get());
 	}
 }
 
@@ -87,7 +87,7 @@ void run_command(config_state& rs)
 				s += " (shown)";
 				used_backdrop = true;
 			}
-			ch.insert( ch.end(), choice(s, 0) );
+			ch.insert(ch.end(), choice(s, 0));
 		}
 		if (rs.current_game->preview_clip_get().is_deletable()) {
 			string s = "Delete game clip";
@@ -95,7 +95,7 @@ void run_command(config_state& rs)
 				s += " (shown)";
 				used_backdrop = true;
 			}
-			ch.insert( ch.end(), choice(s, 1) );
+			ch.insert(ch.end(), choice(s, 1));
 		}
 		if (rs.current_game->preview_flyer_get().is_deletable()) {
 			string s = "Delete game flyer";
@@ -103,7 +103,7 @@ void run_command(config_state& rs)
 				s += " (shown)";
 				used_backdrop = true;
 			}
-			ch.insert( ch.end(), choice(s, 2) );
+			ch.insert(ch.end(), choice(s, 2));
 		}
 		if (rs.current_game->preview_cabinet_get().is_deletable()) {
 			string s = "Delete game cabinet";
@@ -111,7 +111,7 @@ void run_command(config_state& rs)
 				s += " (shown)";
 				used_backdrop = true;
 			}
-			ch.insert( ch.end(), choice(s, 3) );
+			ch.insert(ch.end(), choice(s, 3));
 		}
 		if (rs.current_game->preview_icon_get().is_deletable()) {
 			string s = "Delete game icon";
@@ -119,11 +119,11 @@ void run_command(config_state& rs)
 				s += " (shown)";
 				used_backdrop = true;
 			}
-			ch.insert( ch.end(), choice(s, 4) );
+			ch.insert(ch.end(), choice(s, 4));
 		}
 		if (!used_backdrop && rs.current_backdrop.is_deletable()) {
 			string s = "Delete shown image (from parent)";
-			ch.insert( ch.end(), choice(s, 5) );
+			ch.insert(ch.end(), choice(s, 5));
 		}
 		if (rs.current_game->preview_sound_get().is_deletable()) {
 			string s = "Delete game sound";
@@ -131,10 +131,10 @@ void run_command(config_state& rs)
 				s += " (played)";
 				used_sound = true;
 			}
-			ch.insert( ch.end(), choice(s, 6) );
+			ch.insert(ch.end(), choice(s, 6));
 		}
 		if (!used_sound && rs.current_sound.is_deletable()) {
-			ch.insert( ch.end(), choice("Delete played sound (from parent)", 7) );
+			ch.insert(ch.end(), choice("Delete played sound (from parent)", 7));
 		}
 	}
 
@@ -149,11 +149,11 @@ void run_command(config_state& rs)
 			if (rs.current_game->rom_zip_set_get().size() == 0)
 				continue;
 		}
-		ch.insert( ch.end(), choice(i->name, &*i) );
+		ch.insert(ch.end(), choice(i->name, &*i));
 	}
 
 	if (ch.begin() == ch.end())
-		ch.insert( ch.end(), choice("No commands available", -1) );
+		ch.insert(ch.end(), choice("No commands available", -1));
 
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(string(" ") + rs.script_menu, SECOND_CHOICE_X, SECOND_CHOICE_Y, COMMAND_CHOICE_DX, i);
@@ -216,7 +216,7 @@ void run_command(config_state& rs)
 
 		if (r != 0) {
 			choice_bag ch;
-			ch.insert( ch.end(), choice(rs.script_error, 0) );
+			ch.insert(ch.end(), choice(rs.script_error, 0));
 			choice_bag::iterator i = ch.begin();
 			ch.run(" Error", MSG_CHOICE_X, MSG_CHOICE_Y, MSG_CHOICE_DX, i);
 		}
@@ -232,27 +232,27 @@ void run_mode(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Full", mode_full) );
-	ch.insert( ch.end(), choice("Full Mixed", mode_full_mixed) );
-	ch.insert( ch.end(), choice("Text", mode_text) );
-	ch.insert( ch.end(), choice("List", mode_list) );
-	ch.insert( ch.end(), choice("List Mixed", mode_list_mixed) );
-	ch.insert( ch.end(), choice("Tile Small", mode_tile_small) );
-	ch.insert( ch.end(), choice("Tile Normal", mode_tile_normal) );
-	ch.insert( ch.end(), choice("Tile Big", mode_tile_big) );
-	ch.insert( ch.end(), choice("Tile Enormous", mode_tile_enormous) );
-	ch.insert( ch.end(), choice("Tile Giant", mode_tile_giant) );
-	ch.insert( ch.end(), choice("Tile Icon", mode_tile_icon) );
-	ch.insert( ch.end(), choice("Tile Marquee", mode_tile_marquee) );
+	ch.insert(ch.end(), choice("Full", mode_full));
+	ch.insert(ch.end(), choice("Full Mixed", mode_full_mixed));
+	ch.insert(ch.end(), choice("Text", mode_text));
+	ch.insert(ch.end(), choice("List", mode_list));
+	ch.insert(ch.end(), choice("List Mixed", mode_list_mixed));
+	ch.insert(ch.end(), choice("Tile Small", mode_tile_small));
+	ch.insert(ch.end(), choice("Tile Normal", mode_tile_normal));
+	ch.insert(ch.end(), choice("Tile Big", mode_tile_big));
+	ch.insert(ch.end(), choice("Tile Enormous", mode_tile_enormous));
+	ch.insert(ch.end(), choice("Tile Giant", mode_tile_giant));
+	ch.insert(ch.end(), choice("Tile Icon", mode_tile_icon));
+	ch.insert(ch.end(), choice("Tile Marquee", mode_tile_marquee));
 
-	choice_bag::iterator i = ch.find_by_value(rs.mode_effective);
+	choice_bag::iterator i = ch.find_by_value(rs.mode_get());
 	if (i == ch.end())
 		i = ch.begin();
 
-	int key = ch.run(" Mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, MODE_CHOICE_DX, i);
+	int key = ch.run(" Select List Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, MODE_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.mode_effective = (show_t)i->value_get();
+		rs.mode_set((show_t)i->value_get());
 	}
 }
 
@@ -265,21 +265,21 @@ void run_preview(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Snap", preview_snap) );
-	ch.insert( ch.end(), choice("Title", preview_title) );
-	ch.insert( ch.end(), choice("Flyer", preview_flyer) );
-	ch.insert( ch.end(), choice("Cabinet", preview_cabinet) );
-	ch.insert( ch.end(), choice("Icon", preview_icon) );
-	ch.insert( ch.end(), choice("Marquee", preview_marquee) );
+	ch.insert(ch.end(), choice("Snap", preview_snap));
+	ch.insert(ch.end(), choice("Title", preview_title));
+	ch.insert(ch.end(), choice("Flyer", preview_flyer));
+	ch.insert(ch.end(), choice("Cabinet", preview_cabinet));
+	ch.insert(ch.end(), choice("Icon", preview_icon));
+	ch.insert(ch.end(), choice("Marquee", preview_marquee));
 
-	choice_bag::iterator i = ch.find_by_value(rs.preview_effective);
+	choice_bag::iterator i = ch.find_by_value(rs.preview_get());
 	if (i == ch.end())
 		i = ch.begin();
 
-	int key = ch.run(" Preview", SECOND_CHOICE_X, SECOND_CHOICE_Y, PREVIEW_CHOICE_DX, i);
+	int key = ch.run(" Select Preview Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, PREVIEW_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.preview_effective = (preview_t)i->value_get();
+		rs.preview_set((preview_t)i->value_get());
 	}
 }
 
@@ -293,19 +293,20 @@ void run_group(config_state& rs)
 	choice_bag ch;
 
 	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
-		bool tag = rs.include_group_effective.find((*j)->name_get()) != rs.include_group_effective.end();
-		ch.insert( ch.end(), choice((*j)->name_get(), tag, 0) );
+		bool tag = rs.include_group_get().find((*j)->name_get()) != rs.include_group_get().end();
+		ch.insert(ch.end(), choice((*j)->name_get(), tag, 0));
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show groups", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Include Groups", THIRD_CHOICE_X, THIRD_CHOICE_Y, GROUP_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.include_group_effective.erase(rs.include_group_effective.begin(), rs.include_group_effective.end());
+		category_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
-				rs.include_group_effective.insert( j->desc_get() );
+				c.insert(j->desc_get());
 		}
+		rs.include_group_set(c);
 	}
 }
 
@@ -319,7 +320,7 @@ void run_group_next(config_state& rs)
 		if (pred_in)
 			next_select = *j;
 		pred_in = false;
-		for(category_container::const_iterator k = rs.include_group_effective.begin();k!=rs.include_group_effective.end();++k) {
+		for(category_container::const_iterator k = rs.include_group_get().begin();k!=rs.include_group_get().end();++k) {
 			if ((*j)->name_get() == *k) {
 				pred_in = true;
 				break;
@@ -329,22 +330,23 @@ void run_group_next(config_state& rs)
 			all_select = false;
 	}
 
-	// remove all
-	rs.include_group_effective.erase(rs.include_group_effective.begin(), rs.include_group_effective.end());
+	category_container c;
 
 	if (!all_select && next_select == 0) {
 		// insert all
 		for(pcategory_container::const_iterator j=rs.group.begin();j!=rs.group.end();++j) {
-			rs.include_group_effective.insert( rs.include_group_effective.end(), (*j)->name_get() );
+			c.insert((*j)->name_get());
 		}
 	} else {
 		if ((all_select || next_select == 0) && rs.group.begin() != rs.group.end())
 			next_select = *rs.group.begin();
 		if (next_select != 0) {
 			// insert the next
-			rs.include_group_effective.insert( rs.include_group_effective.end(), next_select->name_get() );
+			c.insert(next_select->name_get());
 		}
 	}
+
+	rs.include_group_set(c);
 }
 
 // ------------------------------------------------------------------------
@@ -358,24 +360,25 @@ void run_emu(config_state& rs)
 
 	for(pemulator_container::const_iterator j = rs.emu_active.begin();j!=rs.emu_active.end();++j) {
 		bool tag = false;
-		for(emulator_container::const_iterator k = rs.include_emu_effective.begin();k!=rs.include_emu_effective.end();++k) {
+		for(emulator_container::const_iterator k = rs.include_emu_get().begin();k!=rs.include_emu_get().end();++k) {
 			if ((*j)->user_name_get() == *k) {
 				tag = true;
 				break;
 			}
 		}
-		ch.insert( ch.end(), choice((*j)->user_name_get(), tag, 0) );
+		ch.insert(ch.end(), choice((*j)->user_name_get(), tag, 0));
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show emulators", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
+	int key = ch.run(" Include Emulators", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.include_emu_effective.erase(rs.include_emu_effective.begin(), rs.include_emu_effective.end());
+		emulator_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
-				rs.include_emu_effective.insert( rs.include_emu_effective.end(), j->desc_get() );
+				c.insert(c.end(), j->desc_get());
 		}
+		rs.include_emu_set(c);
 	}
 }
 
@@ -383,15 +386,15 @@ emulator* run_emu_select(config_state& rs)
 {
 	choice_bag ch;
 
-	for(emulator_container::const_iterator j = rs.include_emu_effective.begin();j!=rs.include_emu_effective.end();++j) {
-		ch.insert( ch.end(), choice(*j, 0) );
+	for(emulator_container::const_iterator j = rs.include_emu_get().begin();j!=rs.include_emu_get().end();++j) {
+		ch.insert(ch.end(), choice(*j, 0));
 	}
 
 	string emu;
 
 	if (ch.size() > 1) {
 		choice_bag::iterator i = ch.begin();
-		int key = ch.run(" Which emulator", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
+		int key = ch.run(" Select Emulator", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
 
 		if (key != INT_KEY_ENTER)
 			return 0;
@@ -419,7 +422,7 @@ void run_emu_next(config_state& rs)
 		if (pred_in)
 			next_select = (*j)->user_name_get();
 		pred_in = false;
-		for(emulator_container::const_iterator k = rs.include_emu_effective.begin();k!=rs.include_emu_effective.end();++k) {
+		for(emulator_container::const_iterator k = rs.include_emu_get().begin();k!=rs.include_emu_get().end();++k) {
 			if ((*j)->user_name_get() == *k) {
 				pred_in = true;
 				break;
@@ -429,10 +432,12 @@ void run_emu_next(config_state& rs)
 	if (next_select.length() == 0 && rs.emu_active.begin() != rs.emu_active.end())
 		next_select = (*rs.emu_active.begin())->user_name_get();
 
-	rs.include_emu_effective.erase(rs.include_emu_effective.begin(), rs.include_emu_effective.end());
+	emulator_container c;
 
 	if (next_select.length() != 0)
-		rs.include_emu_effective.insert( rs.include_emu_effective.end(), next_select );
+		c.insert(c.end(), next_select);
+
+	rs.include_emu_set(c);
 }
 
 // ------------------------------------------------------------------------
@@ -445,19 +450,20 @@ void run_type(config_state& rs)
 	choice_bag ch;
 
 	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
-		bool tag = rs.include_type_effective.find((*j)->name_get()) != rs.include_type_effective.end();
-		ch.insert( ch.end(), choice((*j)->name_get(), tag, 0) );
+		bool tag = rs.include_type_get().find((*j)->name_get()) != rs.include_type_get().end();
+		ch.insert(ch.end(), choice((*j)->name_get(), tag, 0));
 	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show types", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Include Types", THIRD_CHOICE_X, THIRD_CHOICE_Y, TYPE_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.include_type_effective.erase(rs.include_type_effective.begin(), rs.include_type_effective.end());
+		category_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
-				rs.include_type_effective.insert( j->desc_get() );
+				c.insert(j->desc_get());
 		}
+		rs.include_type_set(c);
 	}
 }
 
@@ -471,7 +477,7 @@ void run_type_next(config_state& rs)
 		if (pred_in)
 			next_select = *j;
 		pred_in = false;
-		for(category_container::const_iterator k = rs.include_type_effective.begin();k!=rs.include_type_effective.end();++k) {
+		for(category_container::const_iterator k = rs.include_type_get().begin();k!=rs.include_type_get().end();++k) {
 			if ((*j)->name_get() == *k) {
 				pred_in = true;
 				break;
@@ -481,22 +487,21 @@ void run_type_next(config_state& rs)
 			all_select = false;
 	}
 
-	// remove all
-	rs.include_type_effective.erase(rs.include_type_effective.begin(), rs.include_type_effective.end());
-
+	category_container c;
 	if (!all_select && next_select == 0) {
 		// insert all
 		for(pcategory_container::const_iterator j=rs.type.begin();j!=rs.type.end();++j) {
-			rs.include_type_effective.insert( rs.include_type_effective.end(), (*j)->name_get() );
+			c.insert((*j)->name_get());
 		}
 	} else {
 		if ((all_select || next_select == 0) && rs.type.begin() != rs.type.end())
 			next_select = *rs.type.begin();
 		if (next_select != 0) {
 			// insert the next
-			rs.include_type_effective.insert( rs.include_type_effective.end(), next_select->name_get() );
+			c.insert(next_select->name_get());
 		}
 	}
+	rs.include_type_set(c);
 }
 
 
@@ -511,16 +516,16 @@ void run_group_move(config_state& rs)
 		return;
 
 	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
-		ch.insert( ch.end(), choice((*j)->name_get(), 0) );
+		ch.insert(ch.end(), choice((*j)->name_get(), 0));
 	}
 
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select game group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Select Game Group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.current_game->user_group_set( rs.group.insert(i->desc_get()) );
+		rs.current_game->user_group_set(rs.group.insert(i->desc_get()));
 	}
 }
 
@@ -532,16 +537,16 @@ void run_type_move(config_state& rs)
 		return;
 
 	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
-		ch.insert( ch.end(), choice((*j)->name_get(), 0) );
+		ch.insert(ch.end(), choice((*j)->name_get(), 0));
 	}
 
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select game type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Select Game Type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		rs.current_game->user_type_set( rs.type.insert(i->desc_get()) );
+		rs.current_game->user_type_set(rs.type.insert(i->desc_get()));
 	}
 }
 
@@ -570,7 +575,7 @@ void run_clone(config_state& rs)
 
 	ostringstream s;
 	s << base->description_get() << ", " << base->manufacturer_get() << ", " << base->year_get();
-	ch.insert( ch.end(), choice( s.str(), (void*)base ) );
+	ch.insert(ch.end(), choice(s.str(), (void*)base));
 
 	for(pgame_container::const_iterator j = base->clone_bag_get().begin();j!=base->clone_bag_get().end();++j) {
 		if (!(*j)->software_get()) {
@@ -584,7 +589,7 @@ void run_clone(config_state& rs)
 			default: break;
 			}
 
-			ch.insert( ch.end(), choice( s.str(), (void*)&**j ) );
+			ch.insert(ch.end(), choice(s.str(), (void*)&**j));
 		}
 	}
 
@@ -619,7 +624,7 @@ void run_calib(config_state& rs)
 		}
 
 		choice_bag ch;
-		ch.insert( ch.end(), choice(ope, 0) );
+		ch.insert(ch.end(), choice(ope, 0));
 
 		choice_bag::iterator i = ch.begin();
 		int key = ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
@@ -634,7 +639,7 @@ void run_calib(config_state& rs)
 
 	if (message) {
 		choice_bag ch;
-		ch.insert( ch.end(), choice(message, 0) );
+		ch.insert(ch.end(), choice(message, 0));
 		choice_bag::iterator i = ch.begin();
 		ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
 	}
@@ -649,18 +654,18 @@ void run_volume(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Full", 0) );
-	ch.insert( ch.end(), choice("-2 db", -2) );
-	ch.insert( ch.end(), choice("-4 db", -4) );
-	ch.insert( ch.end(), choice("-6 db", -6) );
-	ch.insert( ch.end(), choice("-8 db", -8) );
-	ch.insert( ch.end(), choice("-10 db", -10) );
-	ch.insert( ch.end(), choice("-12 db", -12) );
-	ch.insert( ch.end(), choice("-14 db", -14) );
-	ch.insert( ch.end(), choice("-16 db", -16) );
-	ch.insert( ch.end(), choice("-18 db", -18) );
-	ch.insert( ch.end(), choice("-20 db", -20) );
-	ch.insert( ch.end(), choice("Silence", -40) );
+	ch.insert(ch.end(), choice("Full", 0));
+	ch.insert(ch.end(), choice("-2 db", -2));
+	ch.insert(ch.end(), choice("-4 db", -4));
+	ch.insert(ch.end(), choice("-6 db", -6));
+	ch.insert(ch.end(), choice("-8 db", -8));
+	ch.insert(ch.end(), choice("-10 db", -10));
+	ch.insert(ch.end(), choice("-12 db", -12));
+	ch.insert(ch.end(), choice("-14 db", -14));
+	ch.insert(ch.end(), choice("-16 db", -16));
+	ch.insert(ch.end(), choice("-18 db", -18));
+	ch.insert(ch.end(), choice("-20 db", -20));
+	ch.insert(ch.end(), choice("Silence", -40));
 
 	choice_bag::iterator i = ch.find_by_value(play_attenuation_get());
 	if (i == ch.end())
@@ -684,12 +689,12 @@ void run_difficulty(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Default", difficulty_none) );
-	ch.insert( ch.end(), choice("Easiest", difficulty_easiest) );
-	ch.insert( ch.end(), choice("Easy", difficulty_easy) );
-	ch.insert( ch.end(), choice("Normal", difficulty_medium) );
-	ch.insert( ch.end(), choice("Hard", difficulty_hard) );
-	ch.insert( ch.end(), choice("Hardest", difficulty_hardest) );
+	ch.insert(ch.end(), choice("Default", difficulty_none));
+	ch.insert(ch.end(), choice("Easiest", difficulty_easiest));
+	ch.insert(ch.end(), choice("Easy", difficulty_easy));
+	ch.insert(ch.end(), choice("Normal", difficulty_medium));
+	ch.insert(ch.end(), choice("Hard", difficulty_hard));
+	ch.insert(ch.end(), choice("Hardest", difficulty_hardest));
 
 	choice_bag::iterator i = ch.find_by_value(rs.difficulty_effective);
 	if (i == ch.end())
@@ -706,49 +711,161 @@ void run_difficulty(config_state& rs)
 
 #define MENU_CHOICE_DX 25*int_font_dx_get()
 
+unsigned run_suballmenu(config_state& rs)
+{
+	choice_bag ch;
+	unsigned ret = INT_KEY_NONE;
+
+	rs.sub_disable(); // force the use of the default config
+
+	ch.insert(ch.end(), choice("Sort...", 0));
+	ch.insert(ch.end(), choice("Mode...", 1));
+	ch.insert(ch.end(), choice("Preview...", 2));
+	ch.insert(ch.end(), choice("Type...", 3));
+	ch.insert(ch.end(), choice("Group...", 4));
+	ch.insert(ch.end(), choice("Save Only Default", 5));
+	ch.insert(ch.end(), choice("Save All", 6));
+
+	choice_bag::iterator i = ch.begin();
+	int key = ch.run(" Default Config", SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
+
+	if (key == INT_KEY_ENTER) {
+		emulator* emu;
+
+		switch (i->value_get()) {
+			case 0 :
+				run_sort(rs);
+				break;
+			case 1 :
+				run_mode(rs);
+				break;
+			case 2 :
+				run_preview(rs);
+				break;
+			case 3 :
+				run_type(rs);
+				break;
+			case 4 :
+				run_group(rs);
+				break;
+			case 5 :
+				rs.restore_save_default();
+				break;
+			case 6 :
+				rs.restore_save();
+				break;
+		}
+	}
+
+	rs.sub_enable(); // restore the use of the normal config
+
+	return ret;
+}
+
+unsigned run_subthismenu(config_state& rs)
+{
+	choice_bag ch;
+	unsigned ret = INT_KEY_NONE;
+
+	ch.insert(ch.end(), choice("Sort...", 0));
+	ch.insert(ch.end(), choice("  Forget and use Default", 6, rs.sub_get().sort_has()));
+	ch.insert(ch.end(), choice("Mode...", 1));
+	ch.insert(ch.end(), choice("  Forget and use Default", 7, rs.sub_get().mode_has()));
+	ch.insert(ch.end(), choice("Preview...", 2));
+	ch.insert(ch.end(), choice("  Forget and use Default", 8, rs.sub_get().preview_has()));
+	ch.insert(ch.end(), choice("Type...", 3));
+	ch.insert(ch.end(), choice("  Forget and use Default", 9, rs.sub_get().include_type_has()));
+	ch.insert(ch.end(), choice("Group...", 4));
+	ch.insert(ch.end(), choice("  Forget and use Default", 10, rs.sub_get().include_group_has()));
+	ch.insert(ch.end(), choice("Save", 5));
+
+	choice_bag::iterator i = ch.begin();
+	int key = ch.run(" Only This Emulator Config", SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
+
+	if (key == INT_KEY_ENTER) {
+		emulator* emu;
+
+		switch (i->value_get()) {
+			case 0 :
+				run_sort(rs);
+				break;
+			case 1 :
+				run_mode(rs);
+				break;
+			case 2 :
+				run_preview(rs);
+				break;
+			case 3 :
+				run_type(rs);
+				break;
+			case 4 :
+				run_group(rs);
+				break;
+			case 5 :
+				rs.sub_get().restore_save();
+				break;
+			case 6 :
+				rs.sub_get().sort_unset();
+				break;
+			case 7 :
+				rs.sub_get().mode_unset();
+				break;
+			case 8 :
+				rs.sub_get().preview_unset();
+				break;
+			case 9 :
+				rs.sub_get().include_type_unset();
+				break;
+			case 10 :
+				rs.sub_get().include_group_unset();
+				break;
+		}
+	}
+
+	return ret;
+}
+
 unsigned run_submenu(config_state& rs)
 {
 	choice_bag ch;
 	unsigned ret = INT_KEY_NONE;
 
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Sort", 0) );
-	if (rs.type.size() > 1)
-		ch.insert( ch.end(), choice("Config - Type", 1) );
-	if (rs.group.size() > 1)
-		ch.insert( ch.end(), choice("Config - Group", 2) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Selection", 3) );
-	if (rs.emu.size() > 1)
-		ch.insert( ch.end(), choice("Config - Emulator", 4) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Mode", 5) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Preview", 6) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Calibration", 13) );
-	ch.insert( ch.end(), choice("Config - Volume", 16) );
-	ch.insert( ch.end(), choice("Config - Difficulty", 17) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Lock-Unlock", 12) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Config - Save as Default", 11) );
-	if (rs.type.size() > 1 && !rs.console_mode)
-		ch.insert( ch.end(), choice("Game - Set Type", 8) );
-	if (rs.group.size() > 1 && !rs.console_mode)
-		ch.insert( ch.end(), choice("Game - Set Group", 9) );
-	ch.insert( ch.end(), choice("Game - Run", 14) );
-	ch.insert( ch.end(), choice("Game - Run Clone", 15) );
-	if (!rs.console_mode || rs.script_bag.size()!=0)
-		ch.insert( ch.end(), choice(rs.script_menu, 7) );
-	ch.insert( ch.end(), choice("Help", 10) );
-	if (!rs.console_mode)
-		ch.insert( ch.end(), choice("Statistics", 18) );
+	if (!rs.console_mode) {
+		ch.insert(ch.end(), choice("Config - Default...", 0));
+		ch.insert(ch.end(), choice("Config - Only This Emulator...", 1, rs.sub_has()));
+		if (rs.emu.size() > 1)
+			ch.insert(ch.end(), choice("Select - Emulator...", 4));
+		ch.insert(ch.end(), choice("Select - Attribute...", 3));
+		ch.insert(ch.end(), choice("Select - Calibration...", 13));
+		ch.insert(ch.end(), choice("Select - Volume...", 16));
+		ch.insert(ch.end(), choice("Select - Difficulty...", 17));
+		ch.insert(ch.end(), choice("Select - Lock-Unlock", 12));
+		if (rs.type.size() > 1)
+			ch.insert(ch.end(), choice("Game - Set Type...", 8));
+		if (rs.group.size() > 1)
+			ch.insert(ch.end(), choice("Game - Set Group...", 9));
+		ch.insert(ch.end(), choice("Game - Run", 14));
+		ch.insert(ch.end(), choice("Game - Run Clone...", 15));
+		ch.insert(ch.end(), choice(rs.script_menu, 7));
+		ch.insert(ch.end(), choice("Help", 10));
+			ch.insert(ch.end(), choice("Statistics", 18));
+	} else {
+		if (rs.emu.size() > 1)
+			ch.insert(ch.end(), choice("Emulator", 4));
+		ch.insert(ch.end(), choice("Volume", 16));
+		ch.insert(ch.end(), choice("Difficulty", 17));
+		ch.insert(ch.end(), choice("Run", 14));
+		ch.insert(ch.end(), choice("Clone", 15));
+		if (rs.script_bag.size()!=0)
+				ch.insert(ch.end(), choice(rs.script_menu, 7));
+		ch.insert(ch.end(), choice("Help", 10));
+	}
+
 	if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all) {
-		ch.insert( ch.end(), choice("Exit", 19) );
+		ch.insert(ch.end(), choice("Exit", 19));
 	}
 	if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
-		ch.insert( ch.end(), choice("Poweroff", 20) );
+		ch.insert(ch.end(), choice("Poweroff", 20));
 	}
 
 	choice_bag::iterator i = ch.begin();
@@ -759,13 +876,10 @@ unsigned run_submenu(config_state& rs)
 
 		switch (i->value_get()) {
 			case 0 :
-				run_sort(rs);
+				run_suballmenu(rs);
 				break;
 			case 1 :
-				run_type(rs);
-				break;
-			case 2 :
-				run_group(rs);
+				run_subthismenu(rs);
 				break;
 			case 3 :
 				emu = run_emu_select(rs);
@@ -774,12 +888,6 @@ unsigned run_submenu(config_state& rs)
 				break;
 			case 4 :
 				run_emu(rs);
-				break;
-			case 5 :
-				run_mode(rs);
-				break;
-			case 6 :
-				run_preview(rs);
 				break;
 			case 7 :
 				run_command(rs);

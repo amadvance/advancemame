@@ -112,14 +112,14 @@ static inline adv_bool video_is_active(void)
 /** If a video mode is active. */
 static inline adv_bool video_mode_is_active(void)
 {
-	assert( video_is_active() );
+	assert(video_is_active());
 	return video_state.mode_active;
 }
 
 /** Current video mode. */
 static inline const adv_mode* video_current_mode(void)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 	return &video_state.mode;
 }
 

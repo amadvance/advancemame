@@ -488,7 +488,7 @@ bool is_globlist(const string& file, const string& globlist)
 	while (i<globlist.length()) {
 		unsigned end = globlist.find(':', i);
 		if (end==string::npos) {
-			string filter(globlist, i );
+			string filter(globlist, i);
 			i = globlist.size();
 			if (is_glob(file, filter))
 				return true;
@@ -506,7 +506,7 @@ string file_read(const string& file)
 {
 	struct stat st;
 
-	const char* path = file_config_file_home( file.c_str() );
+	const char* path = file_config_file_home(file.c_str());
 
 	if (stat(path, &st)!=0) {
 		target_err("Error opening the file '%s'.\n", path);

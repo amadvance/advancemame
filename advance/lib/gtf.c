@@ -44,7 +44,7 @@ static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsiz
 	crtc_name_set(crtc, "generate");
 
 	/* compute the vtotal */
-	vtotal = ceil( (gtf->v_min_frontporch_lines + vsize) / (1 - gtf->v_min_sync_backporch_time * vclock) );
+	vtotal = ceil((gtf->v_min_frontporch_lines + vsize) / (1 - gtf->v_min_sync_backporch_time * vclock));
 	factor = 0;
 
 	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust)!=0)
@@ -103,8 +103,8 @@ static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsiz
 
 adv_error gtf_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust)
 {
-	unsigned vmargin = crtc_step( vsize * gtf->margin_frac, CRTC_VSTEP );
-	unsigned hmargin = crtc_step( hsize * gtf->margin_frac, CRTC_HSTEP );
+	unsigned vmargin = crtc_step(vsize * gtf->margin_frac, CRTC_VSTEP);
+	unsigned hmargin = crtc_step(hsize * gtf->margin_frac, CRTC_HSTEP);
 
 	if (gtf_find_nomargin(crtc, hsize + hmargin * 2, vsize + vmargin * 2, vclock, monitor, gtf, capability, adjust) != 0) {
 		return -1;

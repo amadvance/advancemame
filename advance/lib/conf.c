@@ -2100,6 +2100,30 @@ adv_error conf_int_get(adv_conf* context, const char* tag, int* result)
 }
 
 /**
+ * Get a value in a specified section.
+ * The sections specified with of conf_section_set() are temporarely ignored.
+ * \param context Configuration context to use.
+ * \param section Section to search.
+ * \param tag Tag to search.
+ * \param result Where the value is copied
+ * \return
+ *   - ==0 if a value is found
+ *   - !=0 if not found
+ */
+adv_error conf_int_section_get(adv_conf* context, const char* section, const char* tag, int* result)
+{
+	struct adv_conf_value_struct* value = value_searchbest_sectiontag(context, section, tag);
+
+	assert_option_def(context, tag, conf_type_int, 0);
+
+	if (!value)
+		return -1;
+
+	*result = value->data.int_value;
+	return 0;
+}
+
+/**
  * Get a value with a default.
  * This function get a configuration value which as a default defined.
  * Because of the specification of the default value this function never fails.

@@ -127,12 +127,12 @@ typedef signed long long int int64; /**< Signed 64 bit integer. */
 /**
  * Align a unsigned interger at the specified byte size.
  */
-#define ALIGN_UNSIGNED(v,a) (((v) + ((a)-1)) & ~((a)-1))
+#define ALIGN_UNSIGNED(v, a) (((v) + ((a)-1)) & ~((a)-1))
 
 /**
  * Align a void pointer at the specified byte size.
  */
-#define ALIGN_PTR(v,a) (void*)ALIGN_UNSIGNED((unsigned char*)(v) - (unsigned char*)0, a)
+#define ALIGN_PTR(v, a) (void*)ALIGN_UNSIGNED((unsigned char*)(v) - (unsigned char*)0, a)
 /*@}*/
 
 /*@}*/

@@ -469,8 +469,7 @@ static void mng_import(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
-	unsigned char** pal_ptr, unsigned* pal_size
-)
+	unsigned char** pal_ptr, unsigned* pal_size)
 {
 	unsigned char* current_ptr = mng->dat_ptr + mng->dat_x * mng->pixel + mng->dat_y * mng->dat_line + 1;
 
@@ -520,8 +519,7 @@ adv_error adv_mng_read(
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
 	unsigned* tick,
-	adv_fz* f
-)
+	adv_fz* f)
 {
 	unsigned type;
 	unsigned char* data;
@@ -729,8 +727,8 @@ unsigned adv_mng_height_get(adv_mng* mng)
 adv_error adv_mng_write_mhdr(
 	unsigned pix_width, unsigned pix_height,
 	unsigned frequency, adv_bool is_lc,
-	adv_fz* f, unsigned* count
-) {
+	adv_fz* f, unsigned* count)
+{
 	uint8 mhdr[28];
 	unsigned simplicity;
 

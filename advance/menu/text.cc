@@ -360,8 +360,8 @@ bool int_mode_graphics_less(const adv_mode* A, const adv_mode* B)
 	int areaA = A->size_x * A->size_y;
 	int areaB = B->size_x * B->size_y;
 
-	int difA = abs( areaA - static_cast<int>(int_mode_size*int_mode_size*3/4) );
-	int difB = abs( areaB - static_cast<int>(int_mode_size*int_mode_size*3/4) );
+	int difA = abs(areaA - static_cast<int>(int_mode_size*int_mode_size*3/4));
+	int difB = abs(areaB - static_cast<int>(int_mode_size*int_mode_size*3/4));
 
 	return difA < difB;
 }
@@ -791,7 +791,8 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 	return true;
 }
 
-void int_disable() {
+void int_disable()
+{
 	adv_font_free(int_font);
 	operator delete(video_buffer);
 	adv_bitmap_free(video_bitmap);
@@ -931,7 +932,7 @@ static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 
 static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
-	assert( x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y() );
+	assert(x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y());
 
 	adv_pixel pixel = video_pixel_get(color.red, color.green, color.blue);
 
@@ -1819,7 +1820,8 @@ public:
 	bool idle();
 };
 
-unsigned cell_manager::backdrop_topline(int index) {
+unsigned cell_manager::backdrop_topline(int index)
+{
 	return backdrop_map[index].pos.real_y - backdrop_outline;
 }
 
@@ -2085,6 +2087,11 @@ bool cell_manager::idle()
 
 		// update all the clip
 		for(unsigned i=0;i<backdrop_mac;++i) {
+			target_clock_t backdrop_box_new = target_clock();
+			if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
+				backdrop_box_last = backdrop_box_new;
+				backdrop_box();
+			}
 
 			// increment the iterator
 			++idle_iterator;
@@ -2110,12 +2117,12 @@ bool cell_manager::idle()
 		for(unsigned i=0;i<backdrop_mac;++i) {
 			idle_update(i);
 		}
-	}
 
-	target_clock_t backdrop_box_new = target_clock();
-	if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
-		backdrop_box_last = backdrop_box_new;
-		backdrop_box();
+		target_clock_t backdrop_box_new = target_clock();
+		if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
+			backdrop_box_last = backdrop_box_new;
+			backdrop_box();
+		}
 	}
 
 	// recheck if some clip is already old
@@ -2458,7 +2465,7 @@ static void int_copy_partial(unsigned y0, unsigned y1)
 
 	unsigned char* buffer = video_buffer + y0 * video_buffer_line_size;
 	for(unsigned y=y0;y<y1;++y) {
-		memcpy(video_write_line(y), buffer, video_buffer_line_size );
+		memcpy(video_write_line(y), buffer, video_buffer_line_size);
 		buffer += video_buffer_line_size;
 	}
 
@@ -2856,7 +2863,7 @@ unsigned int_getkey(bool update_background)
 
 	int_idle_time_current = time(0);
 
-	assert( int_key_next != INT_KEY_NONE);
+	assert(int_key_next != INT_KEY_NONE);
 
 #if 0 /* OSDEF: Save interface image, only for debugging. */
 	if (int_key_next == INT_KEY_INS) {
@@ -2982,6 +2989,8 @@ int_color COLOR_HELP_TAG = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
 int_color COLOR_CHOICE_TITLE = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
 int_color COLOR_CHOICE_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
 int_color COLOR_CHOICE_SELECT = { { 0, 0, 0 }, { 0xFF, 0xFF, 0xBF } };
+int_color COLOR_CHOICE_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
+int_color COLOR_CHOICE_HIDDEN_SELECT = { { 128, 128, 128 }, { 0xFF, 0xFF, 0xBF } };
 int_color COLOR_MENU_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
 int_color COLOR_MENU_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
 int_color COLOR_MENU_TAG = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
@@ -3005,6 +3014,8 @@ static struct {
 { &COLOR_CHOICE_TITLE, "submenu_bar" },
 { &COLOR_CHOICE_NORMAL, "submenu_item" },
 { &COLOR_CHOICE_SELECT, "submenu_item_select" },
+{ &COLOR_CHOICE_HIDDEN, "submenu_hidden" },
+{ &COLOR_CHOICE_HIDDEN_SELECT, "submenu_hidden_select" },
 { &COLOR_MENU_NORMAL, "menu_item" },
 { &COLOR_MENU_HIDDEN, "menu_hidden" },
 { &COLOR_MENU_TAG, "menu_tag" },

@@ -154,7 +154,7 @@ adv_error wave_write_size(FILE* f, unsigned size)
 
 static adv_error wave_read_tag(adv_fz* f, char* tag)
 {
-	if (fzread(tag, 4, 1, f ) != 1)
+	if (fzread(tag, 4, 1, f) != 1)
 		return -1;
 
 	return 0;

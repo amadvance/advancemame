@@ -29,7 +29,8 @@
  * Return the default font.
  * \param height Height in pixel of the required font. The effective height may differs.
  */
-adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alpha) {
+adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alpha)
+{
 	adv_fz* f;
 	adv_font* font;
 	unsigned fx;

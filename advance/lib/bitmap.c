@@ -75,7 +75,7 @@ adv_bitmap* adv_bitmap_dup(adv_bitmap* bmp)
 	r->size_y = bmp->size_y;
 	r->bytes_per_pixel = bmp->bytes_per_pixel;
 	r->bytes_per_scanline = (r->size_x * r->bytes_per_pixel + 3) & ~0x3;
-	r->heap = malloc( r->bytes_per_scanline * r->size_y );
+	r->heap = malloc(r->bytes_per_scanline * r->size_y);
 	if (!r->heap) {
 		free(r);
 		return 0;
@@ -118,7 +118,7 @@ void adv_bitmap_move(adv_bitmap* dst, adv_bitmap* src)
 adv_bitmap* adv_bitmap_import_rgb(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline)
 {
 	adv_bitmap* bmp = (adv_bitmap*)malloc(sizeof(adv_bitmap));
-	assert( bmp );
+	assert(bmp);
 
 	bmp->size_x = width;
 	bmp->size_y = height;
@@ -561,9 +561,9 @@ static unsigned adv_bitmap_cvt_reduce_step1(unsigned* convert_map, adv_color_rgb
 		unsigned subindex = REDUCE_INDEX_MAX - i - 1;
 		unsigned j = index2[subindex] - map;
 		index2[subindex]->index = i + 1;
-		rgb_map[i].red = REDUCE_INDEX_TO_RED( j );
-		rgb_map[i].green = REDUCE_INDEX_TO_GREEN( j );
-		rgb_map[i].blue = REDUCE_INDEX_TO_BLUE( j );
+		rgb_map[i].red = REDUCE_INDEX_TO_RED(j);
+		rgb_map[i].green = REDUCE_INDEX_TO_GREEN(j);
+		rgb_map[i].blue = REDUCE_INDEX_TO_BLUE(j);
 		rgb_map[i].alpha = 0;
 	}
 

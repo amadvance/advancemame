@@ -61,24 +61,24 @@ bool tristate(tristate_t& v, const std::string& s)
 #define CHOICE_INDENT_2 " +M"
 #define CHOICE_INDENT_3 " OnlyM"
 
-choice::choice(const string& Adesc, int Avalue) :
-	state(1) {
+choice::choice(const string& Adesc, int Avalue, bool Aactive)
+	: state(1), active(Aactive) {
 	association.value = Avalue;
 
 	desc = Adesc;
 	desc_def = Adesc;
 }
 
-choice::choice(const string& Adesc, void* Aptr) :
-	state(1) {
+choice::choice(const string& Adesc, void* Aptr)
+	: state(1), active(true)  {
 	association.ptr = Aptr;
 
 	desc = Adesc;
 	desc_def = Adesc;
 }
 
-choice::choice(const string& Adesc, bool Abistate, int Avalue) :
-	state(2), bistate(Abistate) {
+choice::choice(const string& Adesc, bool Abistate, int Avalue)
+	: state(2), bistate(Abistate), active(true) {
 	association.value = Avalue;
 
 	desc = Adesc;
@@ -86,8 +86,8 @@ choice::choice(const string& Adesc, bool Abistate, int Avalue) :
 	desc_not = "\t" + Adesc;
 }
 
-choice::choice(const string& Adesc, tristate_t Atristate, int Avalue) :
-	state(3), tristate(Atristate) {
+choice::choice(const string& Adesc, tristate_t Atristate, int Avalue)
+	: state(3), tristate(Atristate), active(true) {
 	association.value = Avalue;
 
 	desc = Adesc;
@@ -96,8 +96,8 @@ choice::choice(const string& Adesc, tristate_t Atristate, int Avalue) :
 	desc_only = " Only\t" + Adesc;
 }
 
-choice::choice(const string& Adesc_def, const string& Adesc_not, const string& Adesc_only, tristate_t Atristate, int Avalue) :
-	state(3), tristate(Atristate) {
+choice::choice(const string& Adesc_def, const string& Adesc_not, const string& Adesc_only, tristate_t Atristate, int Avalue)
+	: state(3), tristate(Atristate), active(true) {
 	association.value = Avalue;
 
 	desc = Adesc_def;
@@ -106,11 +106,13 @@ choice::choice(const string& Adesc_def, const string& Adesc_not, const string& A
 	desc_only = Adesc_only;
 }
 
-const string& choice::desc_get() const {
+const string& choice::desc_get() const
+{
 	return desc;
 }
 
-const string& choice::print_get() const {
+const string& choice::print_get() const
+{
 	if (state_get()==1) {
 		return desc_def;
 	} else if (state_get()==2) {
@@ -138,15 +140,26 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 	for(unsigned j=0;j<rows;++j) {
 		int_color color;
 		int_color colorf;
-		if (j==pos_rel) {
-			color = COLOR_CHOICE_SELECT;
-			colorf = COLOR_CHOICE_SELECT;
-		} else {
-			color = COLOR_CHOICE_NORMAL;
-			colorf = COLOR_CHOICE_TITLE;
-		}
 
 		choice_container::iterator i = begin() + pos_base + j;
+
+		if (i->active_get()) {
+			if (j==pos_rel) {
+				color = COLOR_CHOICE_SELECT;
+				colorf = COLOR_CHOICE_SELECT;
+			} else {
+				color = COLOR_CHOICE_NORMAL;
+				colorf = COLOR_CHOICE_TITLE;
+			}
+		} else {
+			if (j==pos_rel) {
+				color = COLOR_CHOICE_HIDDEN_SELECT;
+				colorf = COLOR_CHOICE_HIDDEN_SELECT;
+			} else {
+				color = COLOR_CHOICE_HIDDEN;
+				colorf = COLOR_CHOICE_HIDDEN;
+			}
+		}
 
 		int indent = 0;
 		switch(i->state_get()) {
@@ -240,6 +253,10 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 				}
 				break;
 			case INT_KEY_ENTER :
+				pos = begin() + pos_base + pos_rel;
+				if (pos->active_get())
+					done = 1;
+				break;
 			case INT_KEY_ESC :
 			case INT_KEY_MENU :
 				done = 1;
@@ -343,7 +360,7 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 		case INT_KEY_PGDN :
 			if (pos_base + pos_rel_max <= pos_base_upper) {
 				pos_base += pos_rel_max;
-			} else if (pos_base < pos_base_upper ) {
+			} else if (pos_base < pos_base_upper) {
 				pos_base = pos_base_upper;
 			} else {
 				if (pos_max >= pos_base + 1)

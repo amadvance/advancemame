@@ -315,14 +315,14 @@ public:
 	bool preview_software_list_set(const std::string& list, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
 };
 
-inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*) )
+inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*))
 {
 	if (FA(A, B)) return true;
 	if (FA(B, A)) return false;
 	return FB(A, B);
 }
 
-inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*), bool (*FC)(const game*, const game*) )
+inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*), bool (*FC)(const game*, const game*))
 {
 	if (FA(A, B)) return true;
 	if (FA(B, A)) return false;

@@ -341,9 +341,9 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
  */
 void video_reg_driver(adv_conf* context, adv_video_driver* driver)
 {
-	assert( !video_is_active() );
+	assert(!video_is_active());
 
-	assert( video_state.driver_mac < DEVICE_MAX );
+	assert(video_state.driver_mac < DEVICE_MAX);
 
 	log_std(("video: register driver %s\n", driver->name));
 
@@ -394,7 +394,7 @@ adv_error video_init(void)
 	adv_bool at_least_one;
 	adv_bool forward;
 
-	assert( !video_is_active() );
+	assert(!video_is_active());
 
 	log_std(("video: video_init\n"));
 
@@ -441,7 +441,7 @@ adv_error video_init(void)
 		}
 	}
 
-	error_cat_set(0,0);
+	error_cat_set(0, 0);
 
 	log_std(("video: video_init report (multiline):\n%s\n", error_get()));
 
@@ -470,7 +470,7 @@ void video_done(void)
 {
 	unsigned i;
 
-	assert( video_is_active() && !video_mode_is_active() );
+	assert(video_is_active() && !video_mode_is_active());
 
 	log_std(("video: video_done\n"));
 
@@ -526,7 +526,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	}
 
 	/* options must be loaded before initialization */
-	assert( !video_is_active() );
+	assert(!video_is_active());
 
 	video_option.initialized = 1;
 	video_option.scan_single = conf_bool_get_default(context, "device_video_singlescan");
@@ -646,7 +646,7 @@ int video_mode_compare(const adv_mode* a, const adv_mode* b)
  */
 void video_mode_done(adv_bool restore)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	video_current_driver()->mode_done(restore);
 
@@ -688,7 +688,7 @@ adv_error video_mode_set(adv_mode* mode)
 	unsigned color_def;
 	double vsync_time;
 
-	assert( video_is_active() );
+	assert(video_is_active());
 
 	log_std(("video: mode_set %s %dx%d %s %.1f kHz/%.1f Hz\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), index_name(mode_index(mode)), (double)mode_hclock(mode) / 1E3, (double)mode_vclock(mode)));
 
@@ -795,7 +795,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 			/* must reject them if they are not allowed  */
 			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags)==0
 				&& video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
-				error_cat_set(0,0);
+				error_cat_set(0, 0);
 				error_reset();
 				log_pedantic(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 				return 0;
@@ -808,7 +808,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_PALETTE8;
 				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
-					error_cat_set(0,0);
+					error_cat_set(0, 0);
 					error_reset();
 					/* adjust the flags */
 					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR8 | MODE_FLAGS_INTERNAL_FAKERGB;
@@ -826,7 +826,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16;
 				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
-					error_cat_set(0,0);
+					error_cat_set(0, 0);
 					error_reset();
 					/* adjust the flags */
 					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16 | MODE_FLAGS_INTERNAL_FAKETEXT;
@@ -837,7 +837,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 		}
 	}
 
-	error_cat_set(0,0);
+	error_cat_set(0, 0);
 
 	return -1;
 }
@@ -1001,7 +1001,7 @@ void video_mode_restore(void)
  */
 void video_wait_vsync(void)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	video_current_driver()->wait_vsync();
 
@@ -1015,12 +1015,12 @@ void video_wait_vsync(void)
  */
 unsigned video_font_size_x(void)
 {
-	assert( video_mode_is_active() && video_is_text() );
+	assert(video_mode_is_active() && video_is_text());
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
 		return video_fake_text_font_size_x();
 	} else {
-		assert( video_current_driver()->font_size_x != 0 );
+		assert(video_current_driver()->font_size_x != 0);
 		return video_current_driver()->font_size_x();
 	}
 }
@@ -1030,12 +1030,12 @@ unsigned video_font_size_x(void)
  */
 unsigned video_font_size_y(void)
 {
-	assert( video_mode_is_active() && video_is_text() );
+	assert(video_mode_is_active() && video_is_text());
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
 		return video_fake_text_font_size_y();
 	} else {
-		assert( video_current_driver()->font_size_y != 0 );
+		assert(video_current_driver()->font_size_y != 0);
 		return video_current_driver()->font_size_y();
 	}
 }
@@ -1045,7 +1045,7 @@ unsigned video_font_size_y(void)
  */
 unsigned video_virtual_x(void)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0)
 		return video_fake_text_virtual_x();
@@ -1058,7 +1058,7 @@ unsigned video_virtual_x(void)
  */
 unsigned video_virtual_y(void)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0)
 		return video_fake_text_virtual_y();
 	else
@@ -1074,7 +1074,7 @@ unsigned video_virtual_y(void)
  */
 adv_error video_display_set(unsigned offset, adv_bool waitvsync)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
 		return video_fake_text_display_set(offset, waitvsync);
@@ -1085,7 +1085,7 @@ adv_error video_display_set(unsigned offset, adv_bool waitvsync)
 
 unsigned video_bytes_per_scanline(void)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
 		return video_fake_text_bytes_per_scanline();
@@ -1110,7 +1110,7 @@ unsigned video_bytes_per_page(void)
 
 void video_put_char(unsigned x, unsigned y, char c, unsigned color)
 {
-	assert( video_mode_is_active() && video_is_text() );
+	assert(video_mode_is_active() && video_is_text());
 
 	if (x < video_virtual_x() / video_font_size_x()
 		&& y < video_virtual_y() / video_font_size_y()) {
@@ -1150,7 +1150,7 @@ static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color
 
 void video_put_pixel(unsigned x, unsigned y, unsigned color)
 {
-	assert( video_mode_is_active() && video_is_graphics() );
+	assert(video_mode_is_active() && video_is_graphics());
 	if (x < video_virtual_x() && y < video_virtual_y())
 		video_put_pixel_noclip(x, y, color);
 }
@@ -1181,7 +1181,7 @@ void video_index_packed_to_rgb(int waitvsync)
 	video_color_def_adjust(color_def_make_rgb_from_sizelenpos(1, bit_r, bit_b+bit_g, bit_g, bit_b, bit_b, 0));
 
 	palette = malloc(colors * sizeof(adv_color_rgb));
-	assert( palette );
+	assert(palette);
 
 	for(i=0;i<colors;++i) {
 		palette[i].red = video_red_get_approx(i);
@@ -1214,7 +1214,7 @@ adv_bool video_index_packed_to_rgb_is_available(void)
  */
 void video_index_rgb_to_packed(void)
 {
-	assert( video_index_rgb_to_packed_is_available() );
+	assert(video_index_rgb_to_packed_is_available());
 
 	video_color_def_adjust(color_def_make(adv_color_type_palette));
 
@@ -1243,10 +1243,10 @@ adv_color_rgb* video_palette_get(void)
  */
 adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync)
 {
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
-	assert( video_index() == MODE_FLAGS_INDEX_PALETTE8 );
-	assert( start + count <= 256 );
+	assert(video_index() == MODE_FLAGS_INDEX_PALETTE8);
+	assert(start + count <= 256);
 
 	/* update the static palette */
 	memcpy(video_palette + start, palette, count * sizeof(adv_color_rgb));

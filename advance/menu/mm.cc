@@ -149,7 +149,7 @@ int run_sub(config_state& rs, bool silent)
 	}
 
 	if (is_run) {
-		assert( rs.current_game );
+		assert(rs.current_game);
 		if (!rs.current_clone) {
 			if (rs.current_game->emulator_get()->tree_get())
 				rs.current_clone = &rs.current_game->clone_best_get();

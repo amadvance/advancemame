@@ -30,11 +30,13 @@
 
 #include <string>
 
+struct config_emulator_state;
+
 class emulator {
-	bool state; /// if the emulator is listed or not
+	mutable config_emulator_state* config; ///< Pointer at the emulator configuration.
+	bool state; ///< If the emulator is listed or not.
 
 	emulator();
-
 protected:
 	tristate_t exclude_missing_effective;
 	tristate_t exclude_missing_orig;
@@ -89,6 +91,8 @@ protected:
 public:
 	emulator(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 	virtual ~emulator();
+
+	config_emulator_state& config_get() const { return *config; }
 
 	void state_set(bool Astate) { state = Astate; }
 	bool state_get() const { return state; }

@@ -51,7 +51,7 @@ void mouseb_reg(adv_conf* context, adv_bool auto_detect)
 
 void mouseb_reg_driver(adv_conf* context, mouseb_driver* driver)
 {
-	assert( mouseb_state.driver_mac < MOUSE_DRIVER_MAX );
+	assert(mouseb_state.driver_mac < MOUSE_DRIVER_MAX);
 
 	mouseb_state.driver_map[mouseb_state.driver_mac] = driver;
 	mouseb_state.driver_map[mouseb_state.driver_mac]->reg(context);
@@ -139,8 +139,8 @@ adv_error mouseb_init(void)
 
 void mouseb_done(void)
 {
-	assert( mouseb_state.driver_current );
-	assert( mouseb_state.is_active_flag );
+	assert(mouseb_state.driver_current);
+	assert(mouseb_state.is_active_flag);
 
 	mouseb_state.driver_current->done();
 
@@ -207,7 +207,7 @@ unsigned mouseb_button_get(unsigned mouse, unsigned button)
 {
 	assert(mouseb_state.is_active_flag);
 	assert(mouse < mouseb_count_get());
-	assert(button < mouseb_button_count_get(mouse) );
+	assert(button < mouseb_button_count_get(mouse));
 
 	return mouseb_state.driver_current->button_get(mouse, button);
 }
@@ -252,7 +252,7 @@ const char* mouseb_axe_name_get(unsigned mouse, unsigned axe)
 
 void mouseb_poll(void)
 {
-	assert( mouseb_state.is_active_flag );
+	assert(mouseb_state.is_active_flag);
 
 	mouseb_state.driver_current->poll();
 }
@@ -263,7 +263,7 @@ void mouseb_poll(void)
  */
 const char* mouseb_name(void)
 {
-	assert( mouseb_state.is_active_flag );
+	assert(mouseb_state.is_active_flag);
 
 	return mouseb_state.driver_current->name;
 }

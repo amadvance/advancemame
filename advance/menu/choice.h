@@ -53,14 +53,16 @@ class choice {
 	bool bistate;
 	tristate_t tristate;
 	choice_data association;
+	bool active;
 
 public:
-	choice(const std::string& Adesc, int Avalue);
+	choice(const std::string& Adesc, int Avalue, bool Aactive = true);
 	choice(const std::string& Adesc, void* Aptr);
 	choice(const std::string& Adesc, bool Abistate, int Avalue);
 	choice(const std::string& Adesc, tristate_t Atristate, int Avalue);
 	choice(const std::string& Adesc_def, const std::string& Adesc_not, const std::string& Adesc_only, tristate_t Atristate, int Avalue);
 
+	bool active_get() const { return active; }
 	int state_get() const { return state; }
 	bool bistate_get() const { return bistate; }
 	tristate_t tristate_get() const { return tristate; }

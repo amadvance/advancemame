@@ -180,8 +180,65 @@ struct script {
 
 typedef std::list<script> script_container;
 
-struct config_state {
+class config_emulator_state {
+	bool sort_set_orig; ///< If the sort is set.
+	game_sort_t sort_orig; ///< Original sort mode.
+	bool sort_set_effective; ///< If the sort is set.
+	game_sort_t sort_effective; ///< Sort mode.
 
+	bool mode_set_orig; ///< If the mode is set.
+	show_t mode_orig; ///< Original list mode.
+	bool mode_set_effective; ///< If the mode is set.
+	show_t mode_effective; ///< List mode.
+
+	bool preview_set_orig; ///< If the preview is set.
+	preview_t preview_orig; ///< Original preview type selected.
+	bool preview_set_effective; ///< If the preview is set.
+	preview_t preview_effective; ///< Preview type selected.
+
+	bool include_group_set_orig; ///< If the group include is set.
+	category_container include_group_orig; ///< Original Included groups.
+	bool include_group_set_effective; ///< If the group include is set.
+	category_container include_group_effective; ///< Included groups.
+
+	bool include_type_set_orig; ///< If the type include is set.
+	category_container include_type_orig; ///< Original Included types.
+	bool include_type_set_effective; ///< If the type include is set.
+	category_container include_type_effective; ///< Included types.
+
+public:
+	bool load(adv_conf* config_context, const std::string& section);
+	void save(adv_conf* config_context, const std::string& section);
+
+	void restore_load();
+	void restore_save();
+
+	game_sort_t sort_get();
+	show_t mode_get();
+	preview_t preview_get();
+	const category_container& include_group_get();
+	const category_container& include_type_get();
+
+	bool sort_has();
+	bool mode_has();
+	bool preview_has();
+	bool include_group_has();
+	bool include_type_has();
+
+	void sort_unset();
+	void mode_unset();
+	void preview_unset();
+	void include_group_unset();
+	void include_type_unset();
+
+	void sort_set(game_sort_t A);
+	void mode_set(show_t A);
+	void preview_set(preview_t A);
+	void include_group_set(const category_container& A);
+	void include_type_set(const category_container& A);
+};
+
+class config_state {
 	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& session, const std::string& desc);
 	bool load_iterator_game(adv_conf* config_context, const std::string& tag);
 	bool load_iterator_import(adv_conf* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
@@ -192,23 +249,57 @@ struct config_state {
 	void import_type(const game& g, const std::string& text);
 	void import_group(const game& g, const std::string& text);
 
+	emulator* sub_emu; ///< Sub emu selected.
+
+	game_sort_t default_sort_orig; ///< Original sort mode.
+	game_sort_t default_sort_effective; ///< Sort mode.
+
+	show_t default_mode_orig; ///< Original list mode.
+	show_t default_mode_effective; ///< List mode.
+
+	preview_t default_preview_orig; ///< Original preview type selected.
+	preview_t default_preview_effective; ///< Preview type selected.
+
+	category_container default_include_group_orig; ///< Original Included groups.
+	category_container default_include_group_effective; ///< Included groups.
+
+	category_container default_include_type_orig; ///< Original Included types.
+	category_container default_include_type_effective; ///< Included types.
+
+	emulator_container include_emu_orig; ///< Original included emulators.
+	emulator_container include_emu_effective; ///< Included emulators.
+
 public:
+	game_sort_t sort_get();
+	show_t mode_get();
+	preview_t preview_get();
+	const category_container& include_group_get();
+	const category_container& include_type_get();
+
+	void sort_set(game_sort_t A);
+	void mode_set(show_t A);
+	void preview_set(preview_t A);
+	void include_group_set(const category_container& A);
+	void include_type_set(const category_container& A);
+
+	void sub_disable();
+	void sub_enable();
+	bool sub_has() { return sub_emu != 0; }
+	config_emulator_state& sub_get() { return sub_emu->config_get(); }
+
+	void include_emu_set(const emulator_container& A);
+	const emulator_container& include_emu_get();
+
 	game_set gar; ///< Main game list.
-
-	pcategory_container group; ///< Group set.
-	pcategory_container type; ///< Type set.
-	category_container include_group_orig; ///< Original Included groups.
-	category_container include_type_orig; ///< Original Included types.
-	category_container include_group_effective; ///< Included groups.
-	category_container include_type_effective; ///< Included types.
-
-	bool lock_orig; ///< Original interface locked.
-	bool lock_effective; ///< Interface locked.
 
 	pemulator_container emu; ///< Supported emulators set.
 	pemulator_container emu_active; ///< Active emulators, a subset of emu.
-	emulator_container include_emu_orig; ///< Original included emulators.
-	emulator_container include_emu_effective; ///< Included emulators.
+
+	pcategory_container group; ///< Group set.
+	pcategory_container type; ///< Type set.
+
+	bool lock_orig; ///< Original interface locked.
+	bool lock_effective; ///< Interface locked.
 
 	// video
 	unsigned video_size; ///< Preferred video x size.
@@ -225,8 +316,6 @@ public:
 	difficulty_t difficulty_orig; ///< Original difficulty selected.
 	difficulty_t difficulty_effective; ///< Difficulty selected.
 
-	preview_t preview_orig; ///< Original preview type selected.
-	preview_t preview_effective; ///< Preview type selected.
 	bool preview_fast; ///< Fast preview mode.
 	double preview_expand; ///< Max strect factor
 	std::string preview_default; ///< Default preview file.
@@ -247,12 +336,6 @@ public:
 	unsigned menu_rel_effective; ///< Current game.
 
 	bool alpha_mode; ///< Use alphanumeric keys for fast move.
-
-	game_sort_t sort_orig; ///< Original sort mode.
-	game_sort_t sort_effective; ///< Sort mode.
-
-	show_t mode_orig; ///< Original list mode.
-	show_t mode_effective; ///< List mode.
 
 	unsigned mode_skip_mask; ///< Mask of modes to skip.
 
@@ -325,6 +408,7 @@ public:
 
 	void restore_load();
 	void restore_save();
+	void restore_save_default();
 
 	static void conf_register(adv_conf* config_context);
 	static void conf_default(adv_conf* config_context);

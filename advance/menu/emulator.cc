@@ -26,6 +26,7 @@
 #include "common.h"
 #include "menu.h"
 #include "game.h"
+#include "mconfig.h"
 
 #include "advance.h"
 
@@ -71,9 +72,12 @@ static bool spawn_check(int r, bool ignore_error)
 
 #define ATTRIB_CHOICE_DX 20*int_font_dx_get()
 
-emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	state(false), name(Aname), has_atleastarom(false) {
+emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: config(0), state(false), name(Aname), has_atleastarom(false)
+{
 	char path[FILE_MAXPATH];
+
+	config = new config_emulator_state;
 
 	user_exe_path = Aexe_path;
 	user_cmd_arg = Acmd_arg;
@@ -81,7 +85,7 @@ emulator::emulator(const string& Aname, const string& Aexe_path, const string& A
 	if (user_exe_path.length()) {
 		string nodash_path = user_exe_path;
 		if (nodash_path.length()>0 && nodash_path[0]=='-')
-			nodash_path.erase(0,1);
+			nodash_path.erase(0, 1);
 		// search the emulator in the system path
 		if (target_search(path, FILE_MAXPATH, nodash_path.c_str()) != 0) {
 			// if not found assume in the current dir
@@ -100,6 +104,7 @@ emulator::emulator(const string& Aname, const string& Aexe_path, const string& A
 
 emulator::~emulator()
 {
+	delete config;
 }
 
 string emulator::attrib_compile(const string& value0, const string& value1)
@@ -131,10 +136,11 @@ bool emulator::attrib_set(const string& value0, const string& value1)
 
 void emulator::attrib_get(adv_conf* config_context, const char* section, const char* tag)
 {
-	conf_string_set(config_context, section, tag, attrib_compile("missing", tristate(exclude_missing_orig)).c_str() );
+	conf_string_set(config_context, section, tag, attrib_compile("missing", tristate(exclude_missing_orig)).c_str());
 }
 
-bool emulator::filter(const game& g) const {
+bool emulator::filter(const game& g) const
+{
 	if (exclude_missing_effective == exclude && !g.present_tree_get())
 		return false;
 	if (exclude_missing_effective == exclude_not && g.present_tree_get())
@@ -142,10 +148,12 @@ bool emulator::filter(const game& g) const {
 	return true;
 }
 
-void emulator::cache(const game_set& gar, const game& g) const {
+void emulator::cache(const game_set& gar, const game& g) const
+{
 }
 
-bool emulator::is_present() const {
+bool emulator::is_present() const
+{
 	// if empty disable always
 	if (user_exe_path.length() == 0)
 		return false;
@@ -157,15 +165,18 @@ bool emulator::is_present() const {
 	return true;
 }
 
-bool emulator::is_empty() const {
+bool emulator::is_empty() const
+{
 	return !has_atleastarom;
 }
 
-bool emulator::is_runnable() const {
+bool emulator::is_runnable() const
+{
 	return true;
 }
 
-string emulator::exe_dir_get() const {
+string emulator::exe_dir_get() const
+{
 	string dir = file_dir(config_exe_path_get());
 
 	if (dir.length() == 1 && dir[0]=='/')
@@ -210,10 +221,10 @@ void emulator::scan_dirlist(const game_set& gar, const string& dirlist, bool qui
 	while (i<dirlist.length()) {
 		unsigned end = dirlist.find(':', i);
 		if (end==string::npos) {
-			scan_dir(gar, string( dirlist, i ), quiet);
+			scan_dir(gar, string(dirlist, i), quiet);
 			i = dirlist.size();
 		} else {
-			scan_dir(gar, string( dirlist, i, end-i ), quiet);
+			scan_dir(gar, string(dirlist, i, end-i), quiet);
 			i = end + 1;
 		}
 	}
@@ -261,16 +272,17 @@ void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& 
 	while (i<dirlist.length()) {
 		unsigned end = dirlist.find(':', i);
 		if (end==string::npos) {
-			load_dir(gar, string( dirlist, i ), filterlist, quiet);
+			load_dir(gar, string(dirlist, i), filterlist, quiet);
 			i = dirlist.size();
 		} else {
-			load_dir(gar, string( dirlist, i, end-i ), filterlist, quiet);
+			load_dir(gar, string(dirlist, i, end-i), filterlist, quiet);
 			i = end + 1;
 		}
 	}
 }
 
-bool emulator::run_process(time_t& duration, const string& dir, int argc, const char** argv, bool ignore_error) const {
+bool emulator::run_process(time_t& duration, const string& dir, int argc, const char** argv, bool ignore_error) const
+{
 	time_t start, stop;
 
 	bool resume_error = false;
@@ -327,7 +339,8 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 	return result;
 }
 
-unsigned emulator::compile(const game& g, const char** argv, unsigned argc, const string& list, unsigned orientation) const {
+unsigned emulator::compile(const game& g, const char** argv, unsigned argc, const string& list, unsigned orientation) const
+{
 	int pos = 0;
 	token_skip(list, pos, " \t");
 
@@ -382,7 +395,8 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 	return argc;
 }
 
-bool emulator::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool emulator::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -397,12 +411,13 @@ bool emulator::run(const game& g, const game* bios, unsigned orientation, diffic
 		free(const_cast<char*>(argv[i]));
 
 	if (ret)
-		g.time_set( g.time_get() + duration );
+		g.time_set(g.time_get() + duration);
 
 	return ret;
 }
 
-unsigned emulator::preview_set(game_set& gar) const {
+unsigned emulator::preview_set(game_set& gar) const
+{
 	unsigned preview = 0;
 
 	// search the previews in the software directory
@@ -431,7 +446,8 @@ unsigned emulator::preview_set(game_set& gar) const {
 	return preview;
 }
 
-void emulator::update(const game& g) const {
+void emulator::update(const game& g) const
+{
 	// update always the preview
 	if (!g.preview_software_list_set(config_alts_path_get(), &game::preview_snap_set, ".png", ".pcx")
 		&& !g.preview_list_set(config_alts_path_get(), &game::preview_snap_set, ".png", ".pcx"))
@@ -446,7 +462,8 @@ void emulator::update(const game& g) const {
 		g.preview_sound_set(resource());
 }
 
-bool emulator::validate_config_file(const string& file) const {
+bool emulator::validate_config_file(const string& file) const
+{
 	if (access(cpath_export(file), F_OK) != 0) {
 		target_err("Error opening the '%s' configuration file '%s'. It doesn't exist.\n", user_name_get().c_str(), cpath_export(file));
 		return false;
@@ -516,13 +533,14 @@ bool mame_info::attrib_set(const std::string& value0, const std::string& value1)
 void mame_info::attrib_get(adv_conf* config_context, const char* section, const char* tag)
 {
 	emulator::attrib_get(config_context, section, tag);
-	conf_string_set(config_context, section, tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("vector", tristate(exclude_vector_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("vertical", tristate(exclude_vertical_orig)).c_str() );
+	conf_string_set(config_context, section, tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("vector", tristate(exclude_vector_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("vertical", tristate(exclude_vertical_orig)).c_str());
 }
 
-bool mame_info::filter(const game& g) const {
+bool mame_info::filter(const game& g) const
+{
 	if (!emulator::filter(g))
 		return false;
 
@@ -564,11 +582,13 @@ bool mame_info::filter(const game& g) const {
 	return true;
 }
 
-void mame_info::cache(const game_set& gar, const game& g) const {
+void mame_info::cache(const game_set& gar, const game& g) const
+{
 	emulator::cache(gar, g);
 }
 
-bool mame_info::tree_get() const {
+bool mame_info::tree_get() const
+{
 	return exclude_clone_effective == exclude;
 }
 
@@ -590,22 +610,22 @@ bool mame_info::load_info(game_set& gar)
 					return false;
 				if (strcmp(info_text_get(), "name")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.name_set( user_name_get() + "/" + info_text_get() );
+					g.name_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "description")==0) {
 					if (info_token_get() != info_string) return false;
-					g.auto_description_set( info_text_get() );
+					g.auto_description_set(info_text_get());
 				} else if (strcmp(info_text_get(), "manufacturer")==0) {
 					if (info_token_get() != info_string) return false;
-					g.manufacturer_set( info_text_get() );
+					g.manufacturer_set(info_text_get());
 				} else if (strcmp(info_text_get(), "year")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.year_set( info_text_get() );
+					g.year_set(info_text_get());
 				} else if (strcmp(info_text_get(), "cloneof")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.cloneof_set( user_name_get() + "/" + info_text_get() );
+					g.cloneof_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "romof")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.romof_set( user_name_get() + "/" + info_text_get() );
+					g.romof_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "driver")==0) {
 					if (info_token_get() != info_open)  return false;
 					token = info_token_get();
@@ -629,22 +649,22 @@ bool mame_info::load_info(game_set& gar)
 						if (token != info_symbol) return false;
 						if (strcmp(info_text_get(), "screen")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.flag_set( strcmp( info_text_get(), "vector") == 0, flag_derived_vector );
+							g.flag_set(strcmp(info_text_get(), "vector") == 0, flag_derived_vector);
 						} else if (strcmp(info_text_get(), "orientation")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.flag_set( strcmp( info_text_get(), "vertical") == 0, flag_derived_vertical );
+							g.flag_set(strcmp(info_text_get(), "vertical") == 0, flag_derived_vertical);
 						} else if (strcmp(info_text_get(), "x")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.sizex_set( atoi(info_text_get()) );
+							g.sizex_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "y")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.sizey_set( atoi(info_text_get()) );
+							g.sizey_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "aspectx")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.aspectx_set( atoi(info_text_get()) );
+							g.aspectx_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "aspecty")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.aspecty_set( atoi(info_text_get()) );
+							g.aspecty_set(atoi(info_text_get()));
 						} else {
 							if (info_skip_value() == info_error) return false;
 						}
@@ -659,7 +679,7 @@ bool mame_info::load_info(game_set& gar)
 						if (token != info_symbol) return false;
 						if (strcmp(info_text_get(), "size")==0) {
 							if (info_token_get() != info_symbol) return false;
-							size = atoi( info_text_get() );
+							size = atoi(info_text_get());
 						} else if (strcmp(info_text_get(), "merge")==0) {
 							if (info_token_get() != info_symbol) return false;
 							merge = true;
@@ -669,7 +689,7 @@ bool mame_info::load_info(game_set& gar)
 						token = info_token_get();
 					}
 					if (!merge)
-						g.size_set( g.size_get() + size );
+						g.size_set(g.size_get() + size);
 				} else if (strcmp(info_text_get(), "device")==0) {
 					machinedevice dev;
 					if (info_token_get() != info_open) return false;
@@ -678,7 +698,7 @@ bool mame_info::load_info(game_set& gar)
 						if (token != info_symbol) return false;
 						if (strcmp(info_text_get(), "ext")==0) {
 							if (info_token_get() != info_string) return false;
-							dev.ext_bag.insert(dev.ext_bag.end(), string( info_text_get() ) );
+							dev.ext_bag.insert(dev.ext_bag.end(), string(info_text_get()));
 						} else if (strcmp(info_text_get(), "name")==0) {
 							if (info_token_get() != info_string) return false;
 							dev.name = string(info_text_get());
@@ -693,7 +713,7 @@ bool mame_info::load_info(game_set& gar)
 				}
 				token = info_token_get();
 			}
-			gar.insert( g );
+			gar.insert(g);
 		} else {
 			if (info_skip_value() == info_error)
 				return false;
@@ -723,7 +743,7 @@ bool mame_info::is_update_xml()
 	int err_xml;
 	int err_exe;
 
-	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
 
 	err_xml = stat(cpath_export(xml_file), &st_xml);
 	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
@@ -741,7 +761,7 @@ bool mame_info::is_update_xml()
 
 bool mame_info::update_xml()
 {
-	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
 
 	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
 
@@ -761,7 +781,7 @@ bool mame_info::update_xml()
 
 bool mame_info::load_game_xml(game_set& gar)
 {
-	string xml_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".xml").c_str())), dir_cwd());
+	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
 
 	ifstream f(cpath_export(xml_file), ios::in | ios::binary);
 	if (!f) {
@@ -786,7 +806,7 @@ bool mame_info::is_update_info()
 	int err_info;
 	int err_exe;
 
-	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
+	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
 
 	err_info = stat(cpath_export(info_file), &st_info);
 	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
@@ -804,7 +824,7 @@ bool mame_info::is_update_info()
 
 bool mame_info::update_info()
 {
-	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
+	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
 
 	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
@@ -824,7 +844,7 @@ bool mame_info::update_info()
 
 bool mame_info::load_game_info(game_set& gar)
 {
-	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
+	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
 
 	ifstream f(cpath_export(info_file), ios::in | ios::binary);
 	if (!f) {
@@ -867,7 +887,8 @@ bool mame_info::load_game(game_set& gar, bool quiet)
 	return false;
 }
 
-void mame_info::update(const game& g) const {
+void mame_info::update(const game& g) const
+{
 	emulator::update(g);
 }
 
@@ -917,17 +938,17 @@ void mame_mame::attrib_run()
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
-	ch.insert( ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0) );
-	ch.insert( ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0) );
-	ch.insert( ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0) );
-	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
-	ch.insert( ch.end(), choice("Neogeo", exclude_neogeo_effective, 0) );
-	ch.insert( ch.end(), choice("Cassette", exclude_deco_effective, 0) );
-	ch.insert( ch.end(), choice("PlayChoice-10", exclude_playchoice_effective, 0) );
+	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
+	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
+	ch.insert(ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0));
+	ch.insert(ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0));
+	ch.insert(ch.end(), choice("Neogeo", exclude_neogeo_effective, 0));
+	ch.insert(ch.end(), choice("Cassette", exclude_deco_effective, 0));
+	ch.insert(ch.end(), choice("PlayChoice-10", exclude_playchoice_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attributes", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -983,12 +1004,13 @@ void mame_mame::attrib_get(adv_conf* config_context, const char* section, const 
 {
 	mame_info::attrib_get(config_context, section, tag);
 
-	conf_string_set(config_context, section, tag, attrib_compile("neogeo", tristate(exclude_neogeo_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("deco", tristate(exclude_deco_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("playchoice", tristate(exclude_playchoice_orig)).c_str() );
+	conf_string_set(config_context, section, tag, attrib_compile("neogeo", tristate(exclude_neogeo_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("deco", tristate(exclude_deco_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("playchoice", tristate(exclude_playchoice_orig)).c_str());
 }
 
-bool mame_mame::filter(const game& g) const {
+bool mame_mame::filter(const game& g) const
+{
 	if (!mame_info::filter(g))
 		return false;
 
@@ -1008,7 +1030,8 @@ bool mame_mame::filter(const game& g) const {
 	return true;
 }
 
-void mame_mame::cache(const game_set& gar, const game& g) const {
+void mame_mame::cache(const game_set& gar, const game& g) const
+{
 	mame_info::cache(gar, g);
 
 	const game& bios = g.bios_get();
@@ -1027,7 +1050,8 @@ bool mame_mame::load_software(game_set&, bool quiet)
 	return true;
 }
 
-bool mame_mame::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool mame_mame::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -1075,8 +1099,8 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, diffi
 		free(const_cast<char*>(argv[i]));
 
 	if (ret) {
-		g.time_set( g.time_get() + duration );
-		g.session_set( g.session_get() + 1 );
+		g.time_set(g.time_get() + duration);
+		g.session_set(g.session_get() + 1);
 	}
 
 	return ret;
@@ -1090,7 +1114,8 @@ dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_ar
 {
 }
 
-string dmame::type_get() const {
+string dmame::type_get() const
+{
 	return "dmame";
 }
 
@@ -1131,9 +1156,9 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("snap"), ref_dir);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	conf_done(context);
 
@@ -1145,13 +1170,13 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
 	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1166,7 +1191,8 @@ wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_ar
 {
 }
 
-string wmame::type_get() const {
+string wmame::type_get() const
+{
 	return "mame";
 }
 
@@ -1207,9 +1233,9 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("snap"), ref_dir);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	conf_done(context);
 
@@ -1221,13 +1247,13 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
 	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1242,7 +1268,8 @@ xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_ar
 {
 }
 
-string xmame::type_get() const {
+string xmame::type_get() const
+{
 	return "xmame";
 }
 
@@ -1301,9 +1328,9 @@ bool xmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	config_rom_path = dir_cat(emu_rom_path, list_importxmame(user_rom_path, home_dir_os, ref_dir_os));
 	config_alts_path = dir_cat(emu_snap_path, list_importxmame(user_alts_path, home_dir_os, ref_dir_os));
@@ -1313,13 +1340,13 @@ bool xmame::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_importxmame(user_marquee_path, home_dir_os, ref_dir_os);
 	config_title_path = list_importxmame(user_title_path, home_dir_os, ref_dir_os);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1334,7 +1361,8 @@ advmame::advmame(const string& Aname, const string& Aexe_path, const string& Acm
 {
 }
 
-string advmame::type_get() const {
+string advmame::type_get() const
+{
 	return "advmame";
 }
 
@@ -1387,9 +1415,9 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	conf_done(context);
 
@@ -1401,13 +1429,13 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
 	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1422,7 +1450,8 @@ advpac::advpac(const string& Aname, const string& Aexe_path, const string& Acmd_
 {
 }
 
-string advpac::type_get() const {
+string advpac::type_get() const
+{
 	return "advpac";
 }
 
@@ -1465,9 +1494,9 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	conf_done(context);
 
@@ -1479,13 +1508,13 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
 	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1531,10 +1560,11 @@ bool mame_mess::attrib_set(const std::string& value0, const std::string& value1)
 void mame_mess::attrib_get(adv_conf* config_context, const char* section, const char* tag)
 {
 	mame_info::attrib_get(config_context, section, tag);
-	conf_string_set(config_context, section, tag, attrib_compile("empty", tristate(exclude_empty_orig)).c_str() );
+	conf_string_set(config_context, section, tag, attrib_compile("empty", tristate(exclude_empty_orig)).c_str());
 }
 
-bool mame_mess::filter(const game& g) const {
+bool mame_mess::filter(const game& g) const
+{
 	if (!mame_info::filter(g))
 		return false;
 
@@ -1555,15 +1585,15 @@ void mame_mess::attrib_run()
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
-	ch.insert( ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0) );
-	ch.insert( ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0) );
-	ch.insert( ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0) );
-	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
-	ch.insert( ch.end(), choice("With BIOS or not", " Only\tWith BIOS", " Only\tWithout BIOS", exclude_empty_effective, 0) );
+	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
+	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
+	ch.insert(ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0));
+	ch.insert(ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0));
+	ch.insert(ch.end(), choice("With BIOS or not", " Only\tWith BIOS", " Only\tWithout BIOS", exclude_empty_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attributes", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -1583,7 +1613,8 @@ dmess::dmess(const string& Aname, const string& Aexe_path, const string& Acmd_ar
 {
 }
 
-string dmess::type_get() const {
+string dmess::type_get() const
+{
 	return "dmess";
 }
 
@@ -1634,9 +1665,9 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs("snap", ref_dir);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
 	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
@@ -1646,13 +1677,13 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
 	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -1686,7 +1717,7 @@ void dmess::scan_software_by_sys(game_container& gac, const string& software, co
 
 			game g;
 			g.emulator_set(this);
-			g.name_set( user_name_get() + "/" + parent + "/" + name );
+			g.name_set(user_name_get() + "/" + parent + "/" + name);
 			g.software_set(true);
 			g.cloneof_set(user_name_get() + "/" + parent);
 			g.romof_set(user_name_get() + "/" + parent);
@@ -1747,7 +1778,7 @@ void dmess::scan_alias(game_set& gar, game_container& gac, const string& cfg)
 					// alias definition
 					game g;
 					g.emulator_set(this);
-					g.name_set( parent_g->name_get() + string("/") + first );
+					g.name_set(parent_g->name_get() + string("/") + first);
 					g.software_set(true);
 					g.flag_set(true, flag_derived_alias);
 					g.cloneof_set(parent_g->name_get());
@@ -1759,13 +1790,13 @@ void dmess::scan_alias(game_set& gar, game_container& gac, const string& cfg)
 
 					if (ptr < s.length() && s[ptr]=='#') {
 						++ptr; // skip the #
-						g.auto_description_set( strip_space(token_get(s, ptr, "|")));
+						g.auto_description_set(strip_space(token_get(s, ptr, "|")));
 						if (ptr < s.length() && s[ptr]=='|') ++ptr;
 						g.year_set(strip_space(token_get(s, ptr, "|")));
 						if (ptr < s.length() && s[ptr]=='|') ++ptr;
 						g.manufacturer_set(strip_space(token_get(s, ptr, "|")));
 					} else {
-						g.auto_description_set( case_auto(first) );
+						g.auto_description_set(case_auto(first));
 					}
 
 					// insert the game
@@ -1812,7 +1843,8 @@ string dmess::image_name_get(const string& snap_create, const string& name)
 	return path_buffer;
 }
 
-bool dmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool dmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -1822,11 +1854,15 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, difficult
 
 	if (g.software_get()) {
 		const game* bios = &g.bios_get();
+
+		int i = 0;
+		string dir = token_get(emu_snap_path, i, ":"); // use the first dir specification
+
 		// name without emulator and bios
 		string stripped_name = file_file(g.name_get());
 
-		image_create_file = image_name_get(emu_snap_path, bios->name_without_emulator_get());
-		snapshot_rename_dir = slash_add(emu_snap_path) + bios->name_without_emulator_get();
+		image_create_file = image_name_get(dir, bios->name_without_emulator_get());
+		snapshot_rename_dir = slash_add(dir) + bios->name_without_emulator_get();
 		image_rename_file = snapshot_rename_dir + "/" + stripped_name + ".png";
 
 		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
@@ -1866,14 +1902,16 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, difficult
 		free(const_cast<char*>(argv[i]));
 
 	if (ret)
-		g.time_set( g.time_get() + duration );
+		g.time_set(g.time_get() + duration);
 
 	if (g.software_get()) {
 		if (access(cpath_export(image_create_file), F_OK)==0) {
-			target_mkdir(cpath_export(snapshot_rename_dir));
-			// ignore error
-			rename(cpath_export(image_create_file), cpath_export(image_rename_file));
-			// ignore error
+			if (target_mkdir(cpath_export(snapshot_rename_dir)) != 0) {
+				log_std(("WARNING:%s: error creating dir %s\n", user_name_get().c_str(), cpath_export(snapshot_rename_dir)));
+			}
+			if (rename(cpath_export(image_create_file), cpath_export(image_rename_file)) != 0) {
+				log_std(("WARNING:%s: error moving file %s to %s\n", user_name_get().c_str(), cpath_export(image_create_file), cpath_export(image_rename_file)));
+			}
 		}
 	}
 
@@ -1888,7 +1926,8 @@ advmess::advmess(const string& Aname, const string& Aexe_path, const string& Acm
 {
 }
 
-string advmess::type_get() const {
+string advmess::type_get() const
+{
 	return "advmess";
 }
 
@@ -1941,9 +1980,9 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	config_rom_path = dir_cat(emu_rom_path, list_importmultidir(user_rom_path, ref_dir_os));
 	config_alts_path = dir_cat(emu_snap_path, list_importmultidir(user_alts_path, ref_dir_os));
@@ -1953,13 +1992,13 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
 	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
@@ -2012,7 +2051,7 @@ void advmess::scan_software_by_sys(game_container& gac, const string& software, 
 
 				game g;
 				g.emulator_set(this);
-				g.name_set( user_name_get() + "/" + parent + "/" + name );
+				g.name_set(user_name_get() + "/" + parent + "/" + name);
 				g.software_set(true);
 				g.cloneof_set(user_name_get() + "/" + parent);
 				g.romof_set(user_name_get() + "/" + parent);
@@ -2128,7 +2167,8 @@ bool advmess::compile_ext(const game& g, unsigned& argc, const char* argv[], con
 
 ///
 // Scan the zip file for any supported file.
-bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], const string& zip_file) const {
+bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], const string& zip_file) const
+{
 	adv_zip* zip;
 	adv_zipent* ent;
 	bool something_found = false;
@@ -2155,7 +2195,7 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 
                 if (compile_ext(g, argc, argv, zext)) {
 			string spec = name + '=' + zfile;
-			argv[argc] = strdup( spec.c_str() );
+			argv[argc] = strdup(spec.c_str());
 			++argc;
 			something_found = true;
 		}
@@ -2169,15 +2209,15 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 ///
 // Check if the file is a supported one.
 // If yes add the required options at the command line.
-bool advmess::compile_single(const game& g, unsigned& argc, const char* argv[], const string& file) const {
-
+bool advmess::compile_single(const game& g, unsigned& argc, const char* argv[], const string& file) const
+{
 	string ext = file_ext(file);
 
 	log_std(("menu:advmess: compile file %s\n", cpath_export(file)));
 
 	if (compile_ext(g, argc,  argv, ext)) {
 
-		argv[argc] = strdup( file_file(file).c_str() );
+		argv[argc] = strdup(file_file(file).c_str());
 		++argc;
 
 		return true;
@@ -2186,14 +2226,16 @@ bool advmess::compile_single(const game& g, unsigned& argc, const char* argv[], 
 	return false;
 }
 
-bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], const string& file) const {
+bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], const string& file) const
+{
 	if (file_ext(file) == ".zip")
 		return compile_zip(g, argc, argv, file);
 	else
 		return compile_single(g, argc, argv, file);
 }
 
-bool advmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool advmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2211,16 +2253,23 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, difficu
 	if (g.software_get()) {
 		bool found = false;
 
+		int i = 0;
+		string dir = token_get(emu_snap_path, i, ":"); // use the first dir specification
+
 		// name without emulator and bios
 		string stripped_name = file_file(g.name_get());
 
-		image_create_file = image_name_get(emu_snap_path, bios->name_without_emulator_get());
-		clip_create_file = clip_name_get(emu_snap_path, bios->name_without_emulator_get());
-		sound_create_file = sound_name_get(emu_snap_path, bios->name_without_emulator_get());
-		snapshot_rename_dir = slash_add(emu_snap_path) + bios->name_without_emulator_get();
+		image_create_file = image_name_get(dir, bios->name_without_emulator_get());
+		clip_create_file = clip_name_get(dir, bios->name_without_emulator_get());
+		sound_create_file = sound_name_get(dir, bios->name_without_emulator_get());
+		snapshot_rename_dir = slash_add(dir) + bios->name_without_emulator_get();
 		image_rename_file = snapshot_rename_dir + "/" + stripped_name + ".png";
 		clip_rename_file = snapshot_rename_dir + "/" + stripped_name + ".mng";
 		sound_rename_file = snapshot_rename_dir + "/" + stripped_name + ".wav";
+
+		log_std(("%s: image path %s\n", user_name_get().c_str(), cpath_export(image_create_file)));
+		log_std(("%s: clip path %s\n", user_name_get().c_str(), cpath_export(clip_create_file)));
+		log_std(("%s: sound path %s\n", user_name_get().c_str(), cpath_export(sound_create_file)));
 
 		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
 		argv[argc++] = strdup(bios->name_without_emulator_get().c_str());
@@ -2271,26 +2320,32 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, difficu
 		free(const_cast<char*>(argv[i]));
 
 	if (ret)
-		g.time_set( g.time_get() + duration );
+		g.time_set(g.time_get() + duration);
 
 	if (g.software_get()) {
 		if (access(cpath_export(image_create_file), F_OK)==0) {
-			target_mkdir(cpath_export(snapshot_rename_dir));
-			// ignore error
-			rename(cpath_export(image_create_file), cpath_export(image_rename_file));
-			// ignore error
+			if (target_mkdir(cpath_export(snapshot_rename_dir)) != 0) {
+				log_std(("WARNING:%s: error creating dir %s\n", user_name_get().c_str(), cpath_export(snapshot_rename_dir)));
+			}
+			if (rename(cpath_export(image_create_file), cpath_export(image_rename_file)) != 0) {
+				log_std(("WARNING:%s: error moving file %s to %s\n", user_name_get().c_str(), cpath_export(image_create_file), cpath_export(image_rename_file)));
+			}
 		}
 		if (access(cpath_export(clip_create_file), F_OK)==0) {
-			target_mkdir(cpath_export(snapshot_rename_dir));
-			// ignore error
-			rename(cpath_export(clip_create_file), cpath_export(clip_rename_file));
-			// ignore error
+			if (target_mkdir(cpath_export(snapshot_rename_dir)) != 0) {
+				log_std(("WARNING:%s: error creating dir %s\n", user_name_get().c_str(), cpath_export(snapshot_rename_dir)));
+			}
+			if (rename(cpath_export(clip_create_file), cpath_export(clip_rename_file)) != 0) {
+				log_std(("WARNING:%s: error moving file %s to %s\n", user_name_get().c_str(), cpath_export(clip_create_file), cpath_export(clip_rename_file)));
+			}
 		}
 		if (access(cpath_export(sound_create_file), F_OK)==0) {
-			target_mkdir(cpath_export(snapshot_rename_dir));
-			// ignore error
-			rename(cpath_export(sound_create_file), cpath_export(sound_rename_file));
-			// ignore error
+			if (target_mkdir(cpath_export(snapshot_rename_dir)) != 0) {
+				log_std(("WARNING:%s: error creating dir %s\n", user_name_get().c_str(), cpath_export(snapshot_rename_dir)));
+			}
+			if (rename(cpath_export(sound_create_file), cpath_export(sound_rename_file)) != 0) {
+				log_std(("WARNING:%s: error moving file %s to %s\n", user_name_get().c_str(), cpath_export(sound_create_file), cpath_export(sound_rename_file)));
+			}
 		}
 	}
 
@@ -2312,13 +2367,13 @@ void raine_info::attrib_run()
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
-	ch.insert( ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0) );
-	ch.insert( ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0) );
-	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
+	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
+	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
+	ch.insert(ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attributes", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -2367,12 +2422,13 @@ bool raine_info::attrib_set(const std::string& value0, const std::string& value1
 void raine_info::attrib_get(adv_conf* config_context, const char* section, const char* tag)
 {
 	emulator::attrib_get(config_context, section, tag);
-	conf_string_set(config_context, section, tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str() );
-	conf_string_set(config_context, section, tag, attrib_compile("vertical", tristate(exclude_vertical_orig)).c_str() );
+	conf_string_set(config_context, section, tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("vertical", tristate(exclude_vertical_orig)).c_str());
 }
 
-bool raine_info::filter(const game& g) const {
+bool raine_info::filter(const game& g) const
+{
 	if (!emulator::filter(g))
 		return false;
 
@@ -2399,11 +2455,13 @@ bool raine_info::filter(const game& g) const {
 	return true;
 }
 
-void raine_info::cache(const game_set& gar, const game& g) const {
+void raine_info::cache(const game_set& gar, const game& g) const
+{
 	emulator::cache(gar, g);
 }
 
-bool raine_info::tree_get() const {
+bool raine_info::tree_get() const
+{
 	return exclude_clone_effective == exclude;
 }
 
@@ -2428,22 +2486,22 @@ bool raine_info::load_info(game_set& gar)
 					return false;
 				if (strcmp(info_text_get(), "name")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.name_set( user_name_get() + "/" + info_text_get() );
+					g.name_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "description")==0) {
 					if (info_token_get() != info_string) return false;
-					g.auto_description_set( info_text_get() );
+					g.auto_description_set(info_text_get());
 				} else if (strcmp(info_text_get(), "manufacturer")==0) {
 					if (info_token_get() != info_string) return false;
-					g.manufacturer_set( info_text_get() );
+					g.manufacturer_set(info_text_get());
 				} else if (strcmp(info_text_get(), "year")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.year_set( info_text_get() );
+					g.year_set(info_text_get());
 				} else if (strcmp(info_text_get(), "cloneof")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.cloneof_set( user_name_get() + "/" + info_text_get() );
+					g.cloneof_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "romof")==0) {
 					if (info_token_get() != info_symbol) return false;
-					g.romof_set( user_name_get() + "/" + info_text_get() );
+					g.romof_set(user_name_get() + "/" + info_text_get());
 				} else if (strcmp(info_text_get(), "driver")==0) {
 					if (info_token_get() != info_open)  return false;
 					token = info_token_get();
@@ -2473,19 +2531,19 @@ bool raine_info::load_info(game_set& gar)
 						if (token != info_symbol) return false;
 						if (strcmp(info_text_get(), "orientation")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.flag_set( strcmp( info_text_get(), "vertical") == 0, flag_derived_vertical );
+							g.flag_set(strcmp(info_text_get(), "vertical") == 0, flag_derived_vertical);
 						} else if (strcmp(info_text_get(), "x")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.sizex_set( atoi(info_text_get()) );
+							g.sizex_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "y")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.sizey_set( atoi(info_text_get()) );
+							g.sizey_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "aspectx")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.aspectx_set( atoi(info_text_get()) );
+							g.aspectx_set(atoi(info_text_get()));
 						} else if (strcmp(info_text_get(), "aspecty")==0) {
 							if (info_token_get() != info_symbol) return false;
-							g.aspecty_set( atoi(info_text_get()) );
+							g.aspecty_set(atoi(info_text_get()));
 						} else {
 							if (info_skip_value() == info_error) return false;
 						}
@@ -2500,7 +2558,7 @@ bool raine_info::load_info(game_set& gar)
 						if (token != info_symbol) return false;
 						if (strcmp(info_text_get(), "size")==0) {
 							if (info_token_get() != info_symbol) return false;
-							size = atoi( info_text_get() );
+							size = atoi(info_text_get());
 						} else if (strcmp(info_text_get(), "merge")==0) {
 							if (info_token_get() != info_symbol) return false;
 							merge = true;
@@ -2510,13 +2568,13 @@ bool raine_info::load_info(game_set& gar)
 						token = info_token_get();
 					}
 					if (!merge)
-						g.size_set( g.size_get() + size );
+						g.size_set(g.size_get() + size);
 				} else {
 					if (info_skip_value() == info_error) return false;
 				}
 				token = info_token_get();
 			}
-			gar.insert( g );
+			gar.insert(g);
 		} else {
 			if (info_skip_value() == info_error)
 				return false;
@@ -2589,7 +2647,8 @@ draine::draine(const string& Aname, const string& Aexe_path, const string& Acmd_
 {
 }
 
-string draine::type_get() const {
+string draine::type_get() const
+{
 	return "draine";
 }
 
@@ -2644,9 +2703,9 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("screens"), ref_dir);
 	}
 
-	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
-	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
-	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
 
 	conf_done(context);
 
@@ -2658,20 +2717,21 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
 	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
-	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
-	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
-	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path) ));
-	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path) ));
-	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path) ));
-	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
-	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
 
 	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
 
-bool draine::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool draine::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -2689,7 +2749,7 @@ bool draine::run(const game& g, const game* bios, unsigned orientation, difficul
 		free(const_cast<char*>(argv[i]));
 
 	if (ret)
-		g.time_set( g.time_get() + duration );
+		g.time_set(g.time_get() + duration);
 
 	return ret;
 }
@@ -2706,10 +2766,10 @@ void generic::attrib_run()
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
+	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Attributes", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -2802,7 +2862,7 @@ bool generic::load_info(game_set& gar)
 					if (cloneof.length())
 						(const_cast<game&>(*i)).cloneof_set(cloneof);
 				} else {
-					log_std(("%s: ignoring game info %s\n", user_name_get().c_str(), name.c_str() ));
+					log_std(("%s: ignoring game info %s\n", user_name_get().c_str(), name.c_str()));
 				}
 			}
 		} else {
@@ -2819,10 +2879,10 @@ bool generic::load_game(game_set& gar, bool quiet)
 {
 	load_dirlist(gar, list_abs(list_import(user_rom_path), exe_dir_get()), list_import(user_rom_filter), quiet);
 
-	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
+	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
 
 	if (access(cpath_export(info_file), R_OK)==0) {
-		log_std(("%s: loading info %s\n", user_name_get().c_str(), cpath_export(info_file) ));
+		log_std(("%s: loading info %s\n", user_name_get().c_str(), cpath_export(info_file)));
 
 		ifstream f(cpath_export(info_file), ios::in | ios::binary);
 		if (!f) {
@@ -2839,7 +2899,7 @@ bool generic::load_game(game_set& gar, bool quiet)
 		info_done();
 		f.close();
 	} else {
-		log_std(("%s: missing info %s\n", user_name_get().c_str(), cpath_export(info_file) ));
+		log_std(("%s: missing info %s\n", user_name_get().c_str(), cpath_export(info_file)));
 	}
 
 	return true;
@@ -2856,7 +2916,8 @@ bool generic::is_empty() const
 	return false;
 }
 
-bool generic::is_present() const {
+bool generic::is_present() const
+{
 	// if empty enable always, this allow to create fake listing of mp3 and mng without a real emulator
 	if (user_exe_path.length()==0)
 		return true;
@@ -2864,7 +2925,8 @@ bool generic::is_present() const {
 	return emulator::is_present();
 }
 
-bool generic::is_runnable() const {
+bool generic::is_runnable() const
+{
 	// if empty it isn't runnable
 	if (user_exe_path.length()==0)
 		return false;
@@ -2872,7 +2934,8 @@ bool generic::is_runnable() const {
 	return emulator::is_runnable();
 }
 
-bool generic::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool generic::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+{
 	// if empty don't run
 	if (user_exe_path.length()==0)
 		return false;

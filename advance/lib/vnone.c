@@ -85,7 +85,7 @@ static adv_error none_init(int device_id, adv_output output, unsigned zoom_size,
 	(void)cursor;
 	(void)zoom_size;
 
-	assert( !none_is_active() );
+	assert(!none_is_active());
 
 	if (sizeof(none_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -116,15 +116,15 @@ static adv_error none_init(int device_id, adv_output output, unsigned zoom_size,
 
 static void none_done(void)
 {
-	assert(none_is_active() && !none_mode_is_active() );
+	assert(none_is_active() && !none_mode_is_active());
 
-	assert( !none_state.pointer );
+	assert(!none_state.pointer);
 	none_state.active = 0;
 }
 
 static unsigned none_flags(void)
 {
-	assert( none_is_active() );
+	assert(none_is_active());
 	return none_state.cap;
 }
 
@@ -134,7 +134,7 @@ static adv_error none_mode_set(const none_video_mode* mode)
 	none_state.color_def = color_def_make_from_index(mode->index);
 	none_state.bytes_per_pixel = index_bytes_per_pixel(mode->index);
 
-	assert( !none_state.pointer );
+	assert(!none_state.pointer);
 	none_state.pointer = (unsigned char*)malloc(none_state.size);
 
 	none_state.bytes_per_scanline = (none_state.bytes_per_pixel * mode->crtc.hde + 3) & ~3;
@@ -147,8 +147,8 @@ static void none_mode_done(adv_bool restore)
 {
 	assert(none_is_active() && none_mode_is_active());
 
-	assert( none_state.pointer );
-	free( none_state.pointer );
+	assert(none_state.pointer);
+	free(none_state.pointer);
 	none_state.pointer = 0;
 
 	(void)restore; /* ignored */
@@ -245,7 +245,7 @@ static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mo
 
 static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( none_is_active() );
+	assert(none_is_active());
 
 	if (video_mode_generate_check("none", none_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;

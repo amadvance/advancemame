@@ -95,7 +95,7 @@ static void process_game(struct state_t* state, enum token_t t, const char* s, u
 		state->g = new game;
 		state->g->emulator_set(state->e);
 	} else if (t == token_close) {
-		state->a->insert( *state->g );
+		state->a->insert(*state->g);
 		delete state->g;
 		state->g = 0;
 	}
@@ -120,7 +120,7 @@ static void process_name(struct state_t* state, enum token_t t, const char* s, u
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->name_set( state->e->user_name_get() + "/" + string(s, len) );
+		state->g->name_set(state->e->user_name_get() + "/" + string(s, len));
 	}
 }
 
@@ -131,7 +131,7 @@ static void process_description(struct state_t* state, enum token_t t, const cha
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->auto_description_set( string(s, len) );
+		state->g->auto_description_set(string(s, len));
 	}
 }
 
@@ -142,7 +142,7 @@ static void process_manufacturer(struct state_t* state, enum token_t t, const ch
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->manufacturer_set( string(s, len) );
+		state->g->manufacturer_set(string(s, len));
 	}
 }
 
@@ -153,7 +153,7 @@ static void process_year(struct state_t* state, enum token_t t, const char* s, u
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->year_set( string(s, len) );
+		state->g->year_set(string(s, len));
 	}
 }
 
@@ -164,7 +164,7 @@ static void process_cloneof(struct state_t* state, enum token_t t, const char* s
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->cloneof_set( state->e->user_name_get() + "/" + string(s, len) );
+		state->g->cloneof_set(state->e->user_name_get() + "/" + string(s, len));
 	}
 }
 
@@ -175,7 +175,7 @@ static void process_romof(struct state_t* state, enum token_t t, const char* s, 
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->romof_set( state->e->user_name_get() + "/" + string(s, len) );
+		state->g->romof_set(state->e->user_name_get() + "/" + string(s, len));
 	}
 }
 
@@ -205,7 +205,7 @@ static void process_rom(struct state_t* state, enum token_t t, const char* s, un
 			return;
 		}
 		if (!state->rom_merge)
-			state->g->size_set( state->g->size_get() + state->rom_size );
+			state->g->size_set(state->g->size_get() + state->rom_size);
 	}
 }
 
@@ -271,7 +271,7 @@ static void process_videoscreen(struct state_t* state, enum token_t t, const cha
 			return;
 		}
 		string v = string(s, len);
-		state->g->flag_set(v ==  "vector", emulator::flag_derived_vector );
+		state->g->flag_set(v ==  "vector", emulator::flag_derived_vector);
 	}
 }
 
@@ -295,7 +295,7 @@ static void process_videowidth(struct state_t* state, enum token_t t, const char
 			return;
 		}
 		string v = string(s, len);
-		state->g->sizex_set( atoi(v.c_str()) );
+		state->g->sizex_set(atoi(v.c_str()));
 	}
 }
 
@@ -307,7 +307,7 @@ static void process_videoheight(struct state_t* state, enum token_t t, const cha
 			return;
 		}
 		string v = string(s, len);
-		state->g->sizey_set( atoi(v.c_str()) );
+		state->g->sizey_set(atoi(v.c_str()));
 	}
 }
 
@@ -319,7 +319,7 @@ static void process_videoaspectx(struct state_t* state, enum token_t t, const ch
 			return;
 		}
 		string v = string(s, len);
-		state->g->aspectx_set( atoi(v.c_str()) );
+		state->g->aspectx_set(atoi(v.c_str()));
 	}
 }
 
@@ -331,7 +331,7 @@ static void process_videoaspecty(struct state_t* state, enum token_t t, const ch
 			return;
 		}
 		string v = string(s, len);
-		state->g->aspecty_set( atoi(v.c_str()) );
+		state->g->aspecty_set(atoi(v.c_str()));
 	}
 }
 

@@ -83,24 +83,28 @@ resource& resource::operator=(const resource& A)
 	return *this;
 }
 
-bool resource::is_valid() const {
+bool resource::is_valid() const
+{
 	if (path.length() == 0)
 		return false;
 	return true;
 }
 
-const string& resource::path_get() const {
+const string& resource::path_get() const
+{
 	return path;
 }
 
-string resource::archive_get() const {
+string resource::archive_get() const
+{
 	if (is_collection()) {
 		return slash_remove(file_dir(path_get()));
 	} else
 		return path_get();
 }
 
-bool resource::is_present() const {
+bool resource::is_present() const
+{
 	if (!is_valid())
 		return false;
 	if (access(cpath_export(archive_get()), F_OK | R_OK)!=0)
@@ -108,11 +112,13 @@ bool resource::is_present() const {
 	return true;
 }
 
-bool resource::is_collection() const {
+bool resource::is_collection() const
+{
 	return collection;
 }
 
-adv_fz* resource::open() const {
+adv_fz* resource::open() const
+{
 	if (!is_valid())
 		return 0;
 	if (compressed) {
@@ -125,7 +131,8 @@ adv_fz* resource::open() const {
 	}
 }
 
-bool resource::operator==(const resource& A) const {
+bool resource::operator==(const resource& A) const
+{
 	if (path != A.path)
 		return false;
 	if (compressed != A.compressed)

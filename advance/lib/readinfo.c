@@ -84,7 +84,7 @@ static void info_buf_resize(unsigned size)
 	if (size > info_buf_max)
 		info_buf_max = size;
 	info_buf_map = realloc(info_buf_map, info_buf_max);
-	assert( info_buf_map );
+	assert(info_buf_map);
 }
 
 /* Add a char to the buffer end */

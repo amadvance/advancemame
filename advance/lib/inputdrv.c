@@ -50,7 +50,7 @@ void inputb_reg(adv_conf* context, adv_bool auto_detect)
 
 void inputb_reg_driver(adv_conf* context, inputb_driver* driver)
 {
-	assert(inputb_state.driver_mac < INPUT_DRIVER_MAX );
+	assert(inputb_state.driver_mac < INPUT_DRIVER_MAX);
 
 	inputb_state.driver_map[inputb_state.driver_mac] = driver;
 	inputb_state.driver_map[inputb_state.driver_mac]->reg(context);
@@ -140,7 +140,7 @@ adv_error inputb_init(void)
 
 void inputb_done(void)
 {
-	assert(inputb_state.driver_current );
+	assert(inputb_state.driver_current);
 	assert(inputb_state.is_active_flag && !inputb_state.is_enabled_flag);
 
 	inputb_state.driver_current->done();

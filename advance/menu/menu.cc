@@ -444,10 +444,10 @@ void draw_menu_window(const game_set& gar, const menu_array& gc, struct cell_t* 
 					else
 						draw_menu_game_left(gar, g, cell->x, cell->y, cell->dx, start == pos, merge, use_ident ? gc[start]->ident_get() : 0);
 				} else {
-					draw_menu_desc(gc[start]->desc_get(), cell->x, cell->y, cell->dx, start == pos );
+					draw_menu_desc(gc[start]->desc_get(), cell->x, cell->y, cell->dx, start == pos);
 				}
 			} else {
-				draw_menu_empty(cell->x, cell->y, cell->dx, cell->dy, start == pos );
+				draw_menu_empty(cell->x, cell->y, cell->dx, cell->dy, start == pos);
 			}
 			++start;
 			++cell;
@@ -867,11 +867,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	// effective preview type
 	preview_t effective_preview;
-	switch (rs.mode_effective) {
+	switch (rs.mode_get()) {
 	case mode_tile_icon : effective_preview = preview_icon; break;
 	case mode_tile_marquee : effective_preview = preview_marquee; break;
 	default:
-		effective_preview = rs.preview_effective;
+		effective_preview = rs.preview_get();
 		if (effective_preview == preview_icon || effective_preview == preview_marquee)
 			effective_preview = preview_snap;
 		// if no image, set another preview
@@ -887,9 +887,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	// cursor
 	unsigned cursor_size;
-	if (rs.mode_effective != mode_full && rs.mode_effective != mode_list && rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed && rs.mode_effective != mode_text) {
+	if (rs.mode_get() != mode_full && rs.mode_get() != mode_list && rs.mode_get() != mode_full_mixed && rs.mode_get() != mode_list_mixed && rs.mode_get() != mode_text) {
 		// need a cursor
-		cursor_size = video_size_y() / 300 + 1; // size of the flashing cursor
+		cursor_size = video_size_y() / 200 + 1; // size of the flashing cursor
 	} else {
 		// no cursor
 		cursor_size = 0;
@@ -898,7 +898,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	// use identation on the names
 	bool use_ident = false;
 
-	if (rs.mode_effective == mode_tile_icon) {
+	if (rs.mode_get() == mode_tile_icon) {
 		// icon mode
 		unsigned icon_space = rs.icon_space;
 		if (icon_space > 64)
@@ -934,7 +934,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
-	} else if (rs.mode_effective == mode_tile_marquee) {
+	} else if (rs.mode_get() == mode_tile_marquee) {
 		// marquee mode
 		space_x = int_font_dx_get()/2;
 		space_y = int_font_dx_get()/2;
@@ -965,9 +965,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
-	} else if (rs.mode_effective == mode_full || rs.mode_effective == mode_full_mixed) {
+	} else if (rs.mode_get() == mode_full || rs.mode_get() == mode_full_mixed) {
 		// full mode
-		if (rs.mode_effective == mode_full_mixed)
+		if (rs.mode_get() == mode_full_mixed)
 			backdrop_mac = 4;
 		else
 			backdrop_mac = 1;
@@ -993,7 +993,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_bottom_y = scr_y + bar_top_dy + backdrop_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + backdrop_dx;
 		bar_left_dy = bar_right_dy = backdrop_dy;
-	} else if (rs.mode_effective == mode_text) {
+	} else if (rs.mode_get() == mode_text) {
 		// text mode
 		backdrop_mac = 0;
 
@@ -1021,9 +1021,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_bottom_y = scr_y + bar_top_dy + win_dy;
 		bar_top_dx = bar_bottom_dx = bar_left_dx + bar_right_dx + win_dx;
 		bar_left_dy = bar_right_dy = win_dy;
-	} else if (rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed) {
+	} else if (rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed) {
 		// list mode
-		if (rs.mode_effective == mode_list_mixed)
+		if (rs.mode_get() == mode_list_mixed)
 			backdrop_mac = 4;
 		else
 			backdrop_mac = 1;
@@ -1034,7 +1034,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		unsigned multiplier;
 		unsigned divisor;
-		if (rs.mode_effective == mode_list) {
+		if (rs.mode_get() == mode_list) {
 			multiplier = 1;
 			divisor = 3;
 		} else {
@@ -1093,7 +1093,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		space_y = int_font_dx_get()/2;
 
 		if (!flipxy) {
-			switch (rs.mode_effective) {
+			switch (rs.mode_get()) {
 			default: /* for warnings */
 			case mode_tile_giant :
 				coln = 16;
@@ -1136,7 +1136,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				break;
 			}
 		} else {
-			switch (rs.mode_effective) {
+			switch (rs.mode_get()) {
 			default: /* for warnings */
 			case mode_tile_giant :
 				coln = 12;
@@ -1209,7 +1209,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	int cell_dx = (win_dx - space_x * (coln-1)) / coln;
 	int cell_dy = (win_dy - space_y * (rown-1)) / rown;
 
-	if (rs.mode_effective == mode_full_mixed || rs.mode_effective == mode_list_mixed) {
+	if (rs.mode_get() == mode_full_mixed || rs.mode_get() == mode_list_mixed) {
 		unsigned middle_outline = 1;
 
 		int bar_dx; // size of the additional small images
@@ -1217,7 +1217,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int aspect_x;
 		int aspect_y;
 
-		if (rs.mode_effective == mode_list_mixed) {
+		if (rs.mode_get() == mode_list_mixed) {
 			if (!flipxy) {
 				aspect_x = 4 * 4 * video_size_y();
 				aspect_y = 3 * 3 * video_size_x();
@@ -1231,7 +1231,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 
 		// game vertical
-		if (rs.mode_effective == mode_list_mixed) {
+		if (rs.mode_get() == mode_list_mixed) {
 			bar_dx = backdrop_dx - backdrop_dy * aspect_y / aspect_x;
 			if (bar_dx < backdrop_dx / 5)
 				bar_dx = backdrop_dx / 5;
@@ -1260,7 +1260,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		backdrop_map[3].dy = backdrop_dy-2*bar_dy;
 
 		// game horizontal
-		if (rs.mode_effective == mode_list_mixed) {
+		if (rs.mode_get() == mode_list_mixed) {
 			bar_dx = backdrop_dx / 3;
 			bar_dy = backdrop_dy - backdrop_dx * aspect_y / aspect_x;
 			if (bar_dy < backdrop_dy / 5)
@@ -1289,12 +1289,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		backdrop_map_bis[3].dy = bar_dy+middle_outline;
 	}
 
-	if (rs.mode_effective == mode_full_mixed || rs.mode_effective == mode_full) {
+	if (rs.mode_get() == mode_full_mixed || rs.mode_get() == mode_full) {
 		int_map[0].x = 0;
 		int_map[0].y = 0;
 		int_map[0].dx = 0;
 		int_map[0].dy = 0;
-	} else if (rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_text) {
+	} else if (rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed || rs.mode_get() == mode_text) {
 		for(int r=0;r<rown;++r) {
 			for(int c=0;c<coln;++c) {
 				unsigned i = r*coln+c;
@@ -1312,7 +1312,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				unsigned i = r*coln+c;
 				int x = win_x + (cell_dx + space_x) * c;
 				int y = win_y + (cell_dy + space_y) * r;
-				if (rs.mode_effective == mode_tile_icon) {
+				if (rs.mode_get() == mode_tile_icon) {
 					backdrop_map[i].dx = 32+2*cursor_size;
 					backdrop_map[i].dy = 32+2*cursor_size;
 					int name_row = 3;
@@ -1345,9 +1345,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 1, cursor_size, rs.preview_expand, false);
 		int_backdrop_pos(0, backdrop_x, backdrop_y, backdrop_dx, backdrop_dy);
 	} else if (backdrop_mac > 1) {
-		if (rs.mode_effective == mode_tile_icon)
+		if (rs.mode_get() == mode_tile_icon)
 			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, coln, cursor_size, cursor_size, rs.preview_expand, false);
-		else if (rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_full_mixed)
+		else if (rs.mode_get() == mode_list_mixed || rs.mode_get() == mode_full_mixed)
 			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, 0, cursor_size, rs.preview_expand, false);
 		else {
 			if (space_x == 0)
@@ -1458,11 +1458,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	while (!done) {
 		if (name_dy)
-			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_effective == mode_tile_icon);
+			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_get() == mode_tile_icon);
 		if (bar_top_dy)
 			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
-			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_effective, rs.difficulty_effective, rs.lock_effective);
+			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_get(), rs.difficulty_effective, rs.lock_effective);
 		if (bar_right_dx)
 			draw_menu_scroll(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, pos_base, pos_rel_max, pos_base_upper + pos_rel_max);
 		if (bar_left_dx)
@@ -1475,10 +1475,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		const game* effective_game = pos_base + pos_rel < gc.size() && gc[pos_base + pos_rel]->has_game() ? &gc[pos_base + pos_rel]->game_get() : 0;
 
-		if (rs.mode_effective == mode_full_mixed || rs.mode_effective == mode_list_mixed) {
+		if (rs.mode_get() == mode_full_mixed || rs.mode_get() == mode_list_mixed) {
 			bool game_horz = true;
 
-			if (rs.mode_effective == mode_list_mixed && (effective_preview == preview_snap || effective_preview == preview_title)) {
+			if (rs.mode_get() == mode_list_mixed && (effective_preview == preview_snap || effective_preview == preview_title)) {
 				if (effective_game) {
 					if (effective_game->aspectx_get() && effective_game->aspecty_get()) {
 						game_horz = effective_game->aspectx_get() > effective_game->aspecty_get();
@@ -1560,7 +1560,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			int_put(x-dx/2, y, dx, over_msg, COLOR_CHOICE_TITLE);
 		}
 
-		int_update(rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed);
+		int_update(rs.mode_get() != mode_full_mixed && rs.mode_get() != mode_list_mixed);
 
 		log_std(("menu: wait begin\n"));
 
@@ -1826,13 +1826,13 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 
 	log_std(("menu: insert begin\n"));
 
-	bool list_mode = rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed;
-	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_session || rs.sort_effective == sort_by_timepersession) {
+	bool list_mode = rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed;
+	if (!list_mode || rs.sort_get() == sort_by_name || rs.sort_get() == sort_by_time || rs.sort_get() == sort_by_size || rs.sort_get() == sort_by_session || rs.sort_get() == sort_by_timepersession) {
 		gc.reserve(gss.size());
 		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
 			gc.insert(gc.end(), new menu_entry(*i, 0));
 		}
-	} else if (rs.sort_effective == sort_by_root_name) {
+	} else if (rs.sort_get() == sort_by_root_name) {
 		gc.reserve(gss.size());
 		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
 			unsigned ident = 0;
@@ -1977,7 +1977,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	log_std(("menu: sort begin\n"));
 
 	// setup the sorted container
-	switch (rs.sort_effective) {
+	switch (rs.sort_get()) {
 	case sort_by_root_name :
 		psc = new pgame_sort_set(sort_by_root_name_func);
 		category_func = sort_item_root_name;
@@ -2035,10 +2035,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	// setup the emulator state
 	for(pemulator_container::iterator i=rs.emu.begin();i!=rs.emu.end();++i) {
 		bool state = false;
-		if (rs.include_emu_effective.size() == 0) {
+		if (rs.include_emu_get().size() == 0) {
 			state = true;
 		} else {
-			for(emulator_container::iterator j=rs.include_emu_effective.begin();j!=rs.include_emu_effective.end();++j) {
+			for(emulator_container::const_iterator j=rs.include_emu_get().begin();j!=rs.include_emu_get().end();++j) {
 				if ((*i)->user_name_get() == *j) {
 					state = true;
 					break;
@@ -2056,10 +2056,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	// setup the group state
 	for(pcategory_container::iterator i=rs.group.begin();i!=rs.group.end();++i) {
 		bool state = false;
-		if (rs.include_group_effective.size() == 0) {
+		if (rs.include_group_get().size() == 0) {
 			state = true;
 		} else {
-			for(category_container::iterator j=rs.include_group_effective.begin();j!=rs.include_group_effective.end();++j) {
+			for(category_container::iterator j=rs.include_group_get().begin();j!=rs.include_group_get().end();++j) {
 				if ((*i)->name_get() == *j) {
 					state = true;
 					break;
@@ -2072,10 +2072,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	// setup the type state
 	for(pcategory_container::iterator i=rs.type.begin();i!=rs.type.end();++i) {
 		bool state = false;
-		if (rs.include_type_effective.size() == 0) {
+		if (rs.include_type_get().size() == 0) {
 			state = true;
 		} else {
-			for(category_container::iterator j=rs.include_type_effective.begin();j!=rs.include_type_effective.end();++j) {
+			for(category_container::iterator j=rs.include_type_get().begin();j!=rs.include_type_get().end();++j) {
 				if ((*i)->name_get() == *j) {
 					state = true;
 					break;
@@ -2187,35 +2187,35 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case INT_KEY_MODE :
 			if (rs.mode_mask) {
 				do {
-					switch (rs.mode_effective) {
-					case mode_full : rs.mode_effective = mode_full_mixed; break;
-					case mode_full_mixed : rs.mode_effective = mode_text; break;
-					case mode_text : rs.mode_effective = mode_list; break;
-					case mode_list : rs.mode_effective = mode_list_mixed; break;
-					case mode_list_mixed : rs.mode_effective = mode_tile_small; break;
-					case mode_tile_small : rs.mode_effective = mode_tile_normal; break;
-					case mode_tile_normal : rs.mode_effective = mode_tile_big; break;
-					case mode_tile_big : rs.mode_effective = mode_tile_enormous; break;
-					case mode_tile_enormous : rs.mode_effective = mode_tile_giant; break;
-					case mode_tile_giant : rs.mode_effective = mode_tile_icon; break;
-					case mode_tile_icon : rs.mode_effective = mode_tile_marquee; break;
-					case mode_tile_marquee : rs.mode_effective = mode_full; break;
+					switch (rs.mode_get()) {
+					case mode_full : rs.mode_set(mode_full_mixed); break;
+					case mode_full_mixed : rs.mode_set(mode_text); break;
+					case mode_text : rs.mode_set(mode_list); break;
+					case mode_list : rs.mode_set(mode_list_mixed); break;
+					case mode_list_mixed : rs.mode_set(mode_tile_small); break;
+					case mode_tile_small : rs.mode_set(mode_tile_normal); break;
+					case mode_tile_normal : rs.mode_set(mode_tile_big); break;
+					case mode_tile_big : rs.mode_set(mode_tile_enormous); break;
+					case mode_tile_enormous : rs.mode_set(mode_tile_giant); break;
+					case mode_tile_giant : rs.mode_set(mode_tile_icon); break;
+					case mode_tile_icon : rs.mode_set(mode_tile_marquee); break;
+					case mode_tile_marquee : rs.mode_set(mode_full); break;
 					}
-				} while ((rs.mode_effective & rs.mode_mask) == 0);
+				} while ((rs.mode_get() & rs.mode_mask) == 0);
 			}
 			break;
 		case INT_KEY_SPACE :
 			if (rs.preview_mask) {
 				do {
-					switch (rs.preview_effective) {
+					switch (rs.preview_get()) {
 						case preview_icon :
 						case preview_marquee :
-						case preview_snap : rs.preview_effective = preview_title; break;
-						case preview_title : rs.preview_effective = preview_flyer; break;
-						case preview_flyer : rs.preview_effective = preview_cabinet; break;
-						case preview_cabinet : rs.preview_effective = preview_snap; break;
+						case preview_snap : rs.preview_set(preview_title); break;
+						case preview_title : rs.preview_set(preview_flyer); break;
+						case preview_flyer : rs.preview_set(preview_cabinet); break;
+						case preview_cabinet : rs.preview_set(preview_snap); break;
 					}
-				} while ((rs.preview_effective & rs.preview_mask) == 0);
+				} while ((rs.preview_get() & rs.preview_mask) == 0);
 			}
 			break;
 		}

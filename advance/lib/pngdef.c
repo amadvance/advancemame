@@ -74,7 +74,8 @@ static adv_error png_write_raw_pal(
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
 	adv_bool fast,
 	adv_fz* f, unsigned* count
-) {
+)
+{
 	uint8 palette[3*256];
 	uint8* i_ptr;
 	unsigned i_size;
@@ -128,8 +129,8 @@ static adv_error png_write_raw_paltorgb(
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
 	adv_bool fast,
-	adv_fz* f, unsigned* count
-) {
+	adv_fz* f, unsigned* count)
+{
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
@@ -174,8 +175,8 @@ static adv_error png_write_raw_rgb(
 	unsigned pix_width, unsigned pix_height, adv_color_def pix_def,
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_bool fast,
-	adv_fz* f, unsigned* count
-) {
+	adv_fz* f, unsigned* count)
+{
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
@@ -231,8 +232,8 @@ adv_error adv_png_write_raw_def(
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
 	adv_bool fast,
-	adv_fz* f, unsigned* count
-) {
+	adv_fz* f, unsigned* count)
+{
 	adv_color_type type;
 	unsigned pixel;
 
@@ -278,8 +279,8 @@ adv_error adv_png_write_def(
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
 	adv_bool fast,
-	adv_fz* f, unsigned* count
-) {
+	adv_fz* f, unsigned* count)
+{
 	if (adv_png_write_signature(f, count) != 0) {
 		return -1;
 	}
