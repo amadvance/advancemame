@@ -5,14 +5,15 @@ AdvanceMENU Version 2.2.6 2003/05
 	) Added support for Mac OS X. It compiles and run with the SDL library.
 	) Added support for generic BigEndian targets.
 	) In Linux you can specify an arbitrary data directory with the
-		$ADVANCE environment variable. This value overwrite the default
+		$ADVANCE environment variable. This value overwrites the default
 		$HOME/.advance.
 	) Added the "-version" command line option.
 	) Removed some "buffer overflow".
 	) Fixed the mouse handling in Linux with the SVGALIB library
 		[by Fabio Cavallo].
-	) Added a the new sort order `time_per_coin'.
+	) Added a new sort order `time_per_coin'.
 	) Added a statistics information page.
+	) Some fixes for the gcc 3.3 compiler.
 
 AdvanceMENU Version 2.2.5 2003/03
 	) Fixed the default colors.

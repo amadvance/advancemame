@@ -88,7 +88,7 @@ unsigned slang_flags(void)
 	return VIDEO_DRIVER_FLAGS_MODE_TEXT | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-adv_error slang_init(int device_id, adv_output output, adv_cursor cursor)
+adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	assert( !slang_is_active() );
 	(void)cursor;

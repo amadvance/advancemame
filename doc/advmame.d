@@ -356,11 +356,11 @@ Other Ports
 	8 bit depth, ...
 
 Configuration
-	The DOS and Windows versions of AdvanceMAME read configuration 
-	options from the file `advmame.rc', `advmess.rc' and `advpac.rc'
-	in the current directory.
+	In DOS and Windows the configuration options are read from the
+	file `advmame.rc', `advmess.rc' and `advpac.rc' in the current
+	directory.
 
-	The Linux and Mac OS X versions read configuration options from the
+	In Linux and Mac OS X the configuration options are read from the
 	files `advmame.rc', `advmess.rc' and `advpac.rc' in the $root and
 	the $home directory.
 	The $root directory is `$DATA/advance/', where $DATA is the
@@ -380,7 +380,10 @@ Configuration
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
 
-	The options are specified in this format :
+	You can force the creation of a default configuration file with the
+	command line option `-default'.
+
+	In the condiguration file the options are specified in this format :
 
 		:[SECTION/]OPTION VALUE
 

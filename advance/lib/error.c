@@ -142,6 +142,7 @@ adv_bool error_unsupported_get(void)
 	return error_unsupported_flag;
 }
 
+#ifndef USE_ERROR_SILENT
 /**
  * Set the error description.
  * The previous description is overwritten.
@@ -174,5 +175,5 @@ void error_nolog_cat(const char* text, ...)
 
 	va_end(arg);
 }
-
+#endif
 

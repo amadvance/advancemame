@@ -129,6 +129,18 @@ static inline void strlwr(char* s) {
 #endif
 
 /***************************************************************************/
+/* strupr */
+
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+static inline void strupr(char* s) {
+	while (*s) {
+		*s = toupper(*s);
+		++s;
+	}
+}
+#endif
+
+/***************************************************************************/
 /* strzcpy */
 
 void sncpy(char* dst, size_t len, const char* src);

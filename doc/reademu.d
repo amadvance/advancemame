@@ -1,18 +1,16 @@
 Name
 	advmame - The AdvanceMAME/MESS Emulators
 
-	AdvanceMAME/MESS are unofficial MAME/MESS versions for Linux,
-	Mac OS X, DOS and Windows with an advanced video support for helping
-	the use with TVs, Arcade Monitors, Fixed Frequencies Monitors and also
-	for PC Monitors.
+	AdvanceMAME/MESS are unofficial MAME/MESS versions with an
+	advanced video support for helping the use with TVs, Arcade
+	Monitors, Fixed Frequencies Monitors and also for PC Monitors.
+
+	They run in Linux, Mac OS X, DOS, Windows and in all the other
+	platforms supported by the SDL library.
 
 	The official site of AdvanceMAME/MESS is :
 
 		http://advancemame.sourceforge.net
-
-	WARNING! TO PREVENT HARDWARE DAMAGE IT'S EXTREMELY IMPORTANT THAT YOU
-	CORRECTLY CONFIGURE YOUR MONITOR FREQUENCIES WITH THE CORRECT CLOCKS.
-	SEE THE FILE INSTALL.TXT FOR OTHER INFORMATIONS.
 
 	The main difference compared with the official emulators is that
 	the Advance versions program directly the video board to always get

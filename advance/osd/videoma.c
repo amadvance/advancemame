@@ -359,6 +359,10 @@ static adv_error video_update_index(struct advance_video_context* context)
 
 	index = context->config.index;
 
+	/* remove the palette request if the game is not palettizable */
+	if (!mode_may_be_palette && index == MODE_FLAGS_INDEX_PALETTE8)
+		index = MODE_FLAGS_INDEX_NONE;
+
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		/* get the video driver preferred bit depth */
 		switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
@@ -433,8 +437,8 @@ static adv_error video_update_index(struct advance_video_context* context)
 				return -1;
 		}
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & flag) != 0) {
-			/* only if a palette mode is usable */
-			if (mode_may_be_palette || index != MODE_FLAGS_INDEX_PALETTE8) {
+			/* accept a palette mode only if it's usable */
+			if (mode_may_be_palette || *select != MODE_FLAGS_INDEX_PALETTE8) {
 				break;
 			}
 		}
@@ -1547,19 +1551,19 @@ static void video_done_color(struct advance_video_context* context)
 /***************************************************************************/
 /* Frame */
 
-static inline adv_error video_frame_resolution(struct advance_video_context* context, unsigned input)
+static void video_frame_resolution(struct advance_video_context* context, unsigned input)
 {
 	adv_bool modify = 0;
 	adv_bool show = 0;
-	char old_buffer[MODE_NAME_MAX];
+	char new_resolution[MODE_NAME_MAX];
 
-	sncpy(old_buffer, sizeof(old_buffer), context->config.resolution_buffer);
+	sncpy(new_resolution, MODE_NAME_MAX, context->config.resolution_buffer);
 
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
-		if (strcmp(context->config.resolution_buffer, "auto")==0) {
+		if (strcmp(new_resolution, "auto")==0) {
 			if (context->state.crtc_mac > 1) {
-				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[1]));
+				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[1]));
 				modify = 1;
 			}
 		} else {
@@ -1568,45 +1572,33 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i+1<context->state.crtc_mac) {
-				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[i+1]));
+				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i+1]));
 				modify = 1;
 			}
 		}
 	} else if (input == OSD_INPUT_MODE_PRED) {
 		show = 1;
-		if (strcmp(context->config.resolution_buffer, "auto")!=0) {
+		if (strcmp(new_resolution, "auto")!=0) {
 			unsigned i;
 			for(i=0;i<context->state.crtc_mac;++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i>0) {
-				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[i-1]));
+				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i-1]));
 				modify = 1;
 			}
 		}
 	}
 
 	if (modify) {
-		log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
-
-		/* update all the complete state, the configuration is choosen by the name */
-		if (advance_video_change(context) != 0) {
-
-			/* it fails in some strange conditions, generally when a not supported feature is used */
-			/* for example if a interlaced mode is requested and the lower driver refuses to use it */
-			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), old_buffer);
-			log_std(("emu:video: retrying old_buffer mode %s\n", context->config.resolution_buffer));
-			if (advance_video_change(context) != 0) {
-				return -1;
-			}
-		}
+		struct advance_video_config_context config = context->config;
+		sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), new_resolution);
+		advance_video_change(context, &config);
 	}
 
 	if (show) {
 		mame_ui_message(context->config.resolution_buffer);
 	}
-
-	return 0;
 }
 
 static inline void video_frame_pan(struct advance_video_context* context, unsigned input)
@@ -1655,22 +1647,25 @@ static inline void video_frame_blit(struct advance_video_context* context, unsig
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.game_color_def, combine);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-			const unsigned char* src_palette;
-			/* It needs to address the less significative byte */
-#ifdef USE_MSB
-			src_palette = 1 + (const unsigned char*)src;
-#else
-			src_palette = (const unsigned char*)src;
-#endif
-			video_stretch_palette_hw(dst_x, dst_y, dst_dx, dst_dy, src_palette, src_dx, src_dy, src_dw, src_dp, combine);
+			switch (context->state.game_bytes_per_pixel) {
+			case 2 :
+				video_stretch_palette_16hw(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, combine);
+				break;
+			default:
+				log_std(("ERROR:emu:video unsupported hardware palette size %d\n", context->state.game_bytes_per_pixel));
+				break;
+			}
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
-				case 1 :
-					video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
-					break;
-				case 2 :
-					video_stretch_palette_16(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
-					break;
+			case 1 :
+				video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
+				break;
+			case 2 :
+				video_stretch_palette_16(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
+				break;
+			default:
+				log_std(("ERROR:emu:video unsupported palette size %d\n", context->state.game_bytes_per_pixel));
+				break;
 			}
 		}
 	}
@@ -1745,7 +1740,7 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 		assert(res == 0);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-			video_stretch_palette_hw_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
+			video_stretch_palette_16hw_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
@@ -2294,7 +2289,6 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 
 static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, adv_bool skip_flag)
 {
-
 	/* bitmap */
 	if (!skip_flag) {
 		video_frame_palette(context);
@@ -2354,10 +2348,7 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 	}
 
 	/* mode */
-	if (video_frame_resolution(context, input) != 0) {
-		/* no way to recover if you lose the video mode */
-		abort();
-	}
+	video_frame_resolution(context, input);
 
 	/* pan */
 	video_frame_pan(context, input);
@@ -2386,7 +2377,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 
 	if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 		/* TODO set the hardware palette for the debugger */
-		video_stretch_palette_hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
+		video_stretch_palette_16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
 	} else {
 		unsigned* palette_raw;
 		unsigned i;
@@ -2682,7 +2673,7 @@ int thread_is_active(void)
 /**
  * Update the state after a configuration change from the user interface.
  */
-adv_error advance_video_change(struct advance_video_context* context)
+adv_error advance_video_set(struct advance_video_context* context)
 {
 	adv_mode mode;
 
@@ -2735,6 +2726,37 @@ err:
 	pthread_mutex_unlock(&context->state.thread_video_mutex);
 #endif
 	return -1;
+}
+
+void advance_video_change(struct advance_video_context* context, struct advance_video_config_context* config)
+{
+	struct advance_video_config_context old_config;
+
+	/* save the old configuration */
+	old_config = context->config;
+
+	/* set the new config */
+	context->config = *config;
+
+	log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
+
+	/* update all the complete state, the configuration is choosen by the name */
+	if (advance_video_set(context) != 0) {
+		/* it fails in some strange conditions, generally when a not supported feature is used */
+		/* for example if a interlaced mode is requested and the lower driver refuses to use it */
+
+		/* restore the config */
+		context->config = old_config;
+
+		log_std(("emu:video: retrying old config\n"));
+
+		if (advance_video_set(context) != 0) {
+			/* if something go wrong abort */
+			log_std(("emu:video: advance_video_update_config() failed\n"));
+			target_err("Unexpected error changing video options.\n");
+			abort();
+		}
+	}
 }
 
 int osd2_video_init(struct osd_video_option* req)

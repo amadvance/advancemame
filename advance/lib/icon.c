@@ -41,47 +41,160 @@ n*(
  * ICON file header.
  */
 struct icon_header_t {
-	uint16 reserved __attribute__ ((packed));
-	uint16 type __attribute__ ((packed));
-	uint16 count __attribute__ ((packed));
-} __attribute__ ((packed));
+	unsigned reserved;
+	unsigned type;
+	unsigned count;
+};
+
+static adv_error icon_header_read(adv_fz* fz, struct icon_header_t* header)
+{
+	if (le_uint16_fzread(fz, &header->reserved) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->type) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->count) != 0)
+		return -1;
+	return 0;
+}
 
 /**
  * ICON image entry.
  */
 struct icon_entry_t {
-	uint8 width __attribute__ ((packed));
-	uint8 height __attribute__ ((packed));
-	uint8 color __attribute__ ((packed));
-	uint8 reserved __attribute__ ((packed));
-	uint16 planes __attribute__ ((packed));
-	uint16 bit __attribute__ ((packed));
-	uint32 size __attribute__ ((packed));
-	uint32 offset __attribute__ ((packed));
-} __attribute__ ((packed));
+	unsigned width;
+	unsigned height;
+	unsigned color;
+	unsigned reserved;
+	unsigned planes;
+	unsigned bit;
+	unsigned size;
+	unsigned offset;
+};
 
-/* ICON rgb entry */
+static adv_error icon_entry_read(adv_fz* fz, struct icon_entry_t* entry)
+{
+	if (le_uint8_fzread(fz, &entry->width) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &entry->height) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &entry->color) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &entry->reserved) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &entry->planes) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &entry->bit) != 0)
+		return -1;
+	if (le_uint32_fzread(fz, &entry->size) != 0)
+		return -1;
+	if (le_uint32_fzread(fz, &entry->offset) != 0)
+		return -1;
+	return 0;
+}
+
+/**
+ * ICON rgb entry.
+ */
 struct icon_rgb_t {
-	uint8 blue __attribute__ ((packed));
-	uint8 green __attribute__ ((packed));
-	uint8 red __attribute__ ((packed));
-	uint8 reserved __attribute__ ((packed));
-} __attribute__ ((packed));
+	unsigned blue;
+	unsigned green;
+	unsigned red;
+	unsigned reserved;
+};
 
-/* ICON bitmap header */
-struct bitmap_header_t {
-	uint32 size __attribute__ ((packed)); 
-	uint32 width __attribute__ ((packed)); 
-	uint32 height __attribute__ ((packed)); 
-	uint16 planes __attribute__ ((packed)); 
-	uint16 bit __attribute__ ((packed)); 
-	uint32 compression __attribute__ ((packed)); 
-	uint32 image_size __attribute__ ((packed)); 
-	uint32 x_pels __attribute__ ((packed));
-	uint32 y_pels __attribute__ ((packed));
-	uint32 color_used __attribute__ ((packed));
-	uint32 color_important __attribute__ ((packed));
-} __attribute__ ((packed));
+static adv_error icon_rgb_read(adv_fz* fz, struct icon_rgb_t* rgb)
+{
+	if (le_uint8_fzread(fz, &rgb->blue) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &rgb->green) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &rgb->red) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &rgb->reserved) != 0)
+		return -1;
+	return 0;
+}
+
+/**
+ * ICON bitmap header.
+ */
+struct icon_bitmap_header_t {
+	unsigned size; 
+	unsigned width; 
+	unsigned height; 
+	unsigned planes; 
+	unsigned bit; 
+	unsigned compression; 
+	unsigned image_size; 
+	unsigned x_pels;
+	unsigned y_pels;
+	unsigned color_used;
+	unsigned color_important;
+};
+
+static adv_error icon_bitmap_header_read(adv_fz* fz, struct icon_bitmap_header_t* header)
+{
+	unsigned size;
+
+	memset(header, 0, sizeof(struct icon_bitmap_header_t));
+
+	if (le_uint32_fzread(fz, &size) != 0)
+		return -1;
+
+	header->size = size;
+	if (header->size > 40)
+		header->size = 40;
+
+	do {
+		if (size == 4)
+			break;
+		if (le_uint32_fzread(fz, &header->width) != 0)
+			return -1;
+		if (size == 8)
+			break;
+		if (le_uint32_fzread(fz, &header->height) != 0)
+			return -1;
+		if (size == 12)
+			break;
+		if (le_uint16_fzread(fz, &header->planes) != 0)
+			return -1;
+		if (size == 14)
+			break;
+		if (le_uint16_fzread(fz, &header->bit) != 0)
+			return -1;
+		if (size == 16)
+			break;
+		if (le_uint32_fzread(fz, &header->compression) != 0)
+			return -1;
+		if (size == 20)
+			break;
+		if (le_uint32_fzread(fz, &header->image_size) != 0)
+			return -1;
+		if (size == 24)
+			break;
+		if (le_uint32_fzread(fz, &header->x_pels) != 0)
+			return -1;
+		if (size == 28)
+			break;
+		if (le_uint32_fzread(fz, &header->y_pels) != 0)
+			return -1;
+		if (size == 32)
+			break;
+		if (le_uint32_fzread(fz, &header->color_used) != 0)
+			return -1;
+		if (size == 36)
+			break;
+		if (le_uint32_fzread(fz, &header->color_important) != 0)
+			return -1;
+	} while (0);
+
+	if (size > header->size) {
+		if (fzseek(fz, size - header->size, SEEK_CUR) != 0)
+			return -1;
+	}
+
+	return 0;
+}
 
 /**
  * Load a .ico file in a bitmap.
@@ -99,7 +212,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 	struct icon_entry_t* entry;
 	int i;
 
-	if (fzread(&header, sizeof(struct icon_header_t), 1, f)!=1) /* ENDIAN */
+	if (icon_header_read(f, &header) != 0)
 		goto out;
 
 	if (header.reserved != 0)
@@ -115,12 +228,13 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 	if (!entry)
 		goto out;
 
-	if (fzread(entry, sizeof(struct icon_entry_t), header.count, f)!=header.count) /* ENDIAN */
-		goto out_entry;
+	for(i=0;i<header.count;++i) {
+		if (icon_entry_read(f, entry + i)!=0)
+			goto out_entry;
+	}
 
 	for(i=0;i<header.count;++i) {
-		struct bitmap_header_t bitmap_header;
-		uint32 size;
+		struct icon_bitmap_header_t bitmap_header;
 		unsigned j, y;
 		unsigned colors;
 
@@ -142,20 +256,8 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		if (fzseek(f, entry[i].offset, SEEK_SET)!=0)
 			goto out_entry;
 
-		if (fzread(&size, sizeof(uint32), 1, f)!=1) /* ENDIAN */
+		if (icon_bitmap_header_read(f, &bitmap_header) != 0)
 			goto out_entry;
-
-		memset(&bitmap_header, 0, sizeof(struct bitmap_header_t));
-		if (size > sizeof(struct bitmap_header_t))
-			bitmap_header.size = sizeof(struct bitmap_header_t);
-		else
-			bitmap_header.size = size;
-		
-		if (fzread(&bitmap_header.width, bitmap_header.size - 4, 1, f)!=1) /* ENDIAN */
-			goto out_entry;
-
-		if (size > bitmap_header.size)
-			fzseek(f, size - bitmap_header.size, SEEK_CUR);
 
 		if (colors == 256) {
 			if (bitmap_header.bit != 8)
@@ -172,8 +274,8 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 			continue; /* unsupported */
 
 		for(j=0;j<colors;++j) {
-			struct icon_rgb_t color; 
-			if (fzread(&color, sizeof(struct icon_rgb_t), 1, f)!=1) /* ENDIAN */
+			struct icon_rgb_t color;
+			if (icon_rgb_read(f, &color) != 0)
 				goto out_entry;
 			rgb[j].red = color.red;
 			rgb[j].green = color.green;
@@ -192,7 +294,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		if (colors == 256) {
 			/* read bitmap xor data (8 bit per pixel) */
 			for(y=0;y<bitmap->size_y;++y) {
-				uint8* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
+				unsigned char* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
 				if (fzread(line, bitmap->size_x*bitmap->bytes_per_pixel, 1, f)!=1)
 					goto out_bitmap_mask;
 			}
@@ -200,7 +302,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 			/* read bitmap xor data (4 bit per pixel) */
 			for(y=0;y<bitmap->size_y;++y) {
 				int k;
-				uint8* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
+				unsigned char* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
 				if (fzread(line, bitmap->size_x / 2, 1, f)!=1)
 					goto out_bitmap_mask;
 				/* convert */
@@ -216,7 +318,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		/* read bitmap mask data (1 bit per pixel) */
 		for(y=0;y<bitmap->size_y;++y) {
 			unsigned x ;
-			uint8* line = bitmap_line(*bitmap_mask, bitmap->size_y - y - 1);
+			unsigned char* line = bitmap_line(*bitmap_mask, bitmap->size_y - y - 1);
 			x = 0;
 			while (x < bitmap->size_x) {
 				unsigned bc;

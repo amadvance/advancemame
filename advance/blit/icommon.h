@@ -35,8 +35,7 @@
 /* internal */
 
 /* Add a byte index to a generic pointer */
-/* #define PADD(p, i) ((uint8*)p) += i */
-#define PADD(p, i) *((uint8**)&p) += i /* pedantic */
+#define PADD(p, i) ((uint8*)p) += i
 
 /* Dereference a uint8* with a byte index */
 #define P8DER(p, i) *(((uint8*)p) + i)

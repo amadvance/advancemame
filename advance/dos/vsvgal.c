@@ -183,7 +183,7 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-adv_error svgaline_init(int device_id, adv_output output, adv_cursor cursor)
+adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	unsigned i;
 	const char* name;
@@ -417,7 +417,7 @@ adv_error svgaline_palette8_set(const adv_color_rgb* palette, unsigned start, un
 
 adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgaline_mode)
 {
-	sncpy(mode->name, svgaline_mode->crtc.name, MODE_NAME_MAX);
+	sncpy(mode->name, MODE_NAME_MAX, svgaline_mode->crtc.name);
 
 	*DRIVER(mode) = *svgaline_mode;
 

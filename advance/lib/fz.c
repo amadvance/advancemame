@@ -515,3 +515,37 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 		}
 	}
 }
+
+adv_error le_uint8_fzread(adv_fz* f, unsigned* v)
+{
+	unsigned char p[1];
+
+	if (fzread(p, 1, 1, f) != 1)
+		return -1;
+	*v = le_uint8_read(p);
+
+	return 0;
+}
+
+adv_error le_uint16_fzread(adv_fz* f, unsigned* v)
+{
+	unsigned char p[2];
+
+	if (fzread(p, 2, 1, f) != 1)
+		return -1;
+	*v = le_uint16_read(p);
+
+	return 0;
+}
+
+adv_error le_uint32_fzread(adv_fz* f, unsigned* v)
+{
+	unsigned char p[4];
+
+	if (fzread(p, 4, 1, f) != 1)
+		return -1;
+	*v = le_uint32_read(p);
+
+	return 0;
+}
+

@@ -91,17 +91,23 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	{
 		if (selected == total - 1) selected = -1;
 		else if (selected == 0) {
-			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "auto");
-			advance_video_change(context);
+			struct advance_video_config_context config = context->config;
+
+			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), "auto");
+
+			advance_video_change(context, &config);
 
 			/* show at screen the new configuration name */
 			mame_ui_message(mode_current_name(context));
 
 			mame_ui_refresh();
 		} else {
-			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(entry[selected]));
-			advance_video_change(context);
-			
+			struct advance_video_config_context config = context->config;
+
+			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), crtc_name_get(entry[selected]));
+
+			advance_video_change(context, &config);
+
 			mame_ui_refresh();
 		}
 	}
@@ -599,80 +605,88 @@ int osd2_menu(int selected, unsigned input)
 	if (input == OSD_INPUT_RIGHT)
 	{
 		if (selected == combine_index) {
-			switch (context->config.combine) {
-				case COMBINE_AUTO : context->config.combine = COMBINE_NONE; break;
-				case COMBINE_NONE : context->config.combine = COMBINE_MAX; break;
-				case COMBINE_MAX : context->config.combine = COMBINE_MEAN; break;
-				case COMBINE_MEAN : context->config.combine = COMBINE_FILTER; break;
-				case COMBINE_FILTER : context->config.combine = COMBINE_FILTERX; break;
-				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTERY; break;
-				case COMBINE_FILTERY : context->config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_SCALE2X : context->config.combine = COMBINE_SCALE3X; break;
-				case COMBINE_SCALE3X : context->config.combine = COMBINE_SCALE4X; break;
-				case COMBINE_SCALE4X : context->config.combine = COMBINE_AUTO; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.combine) {
+				case COMBINE_AUTO : config.combine = COMBINE_NONE; break;
+				case COMBINE_NONE : config.combine = COMBINE_MAX; break;
+				case COMBINE_MAX : config.combine = COMBINE_MEAN; break;
+				case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
+				case COMBINE_FILTER : config.combine = COMBINE_FILTERX; break;
+				case COMBINE_FILTERX : config.combine = COMBINE_FILTERY; break;
+				case COMBINE_FILTERY : config.combine = COMBINE_SCALE2X; break;
+				case COMBINE_SCALE2X : config.combine = COMBINE_SCALE3X; break;
+				case COMBINE_SCALE3X : config.combine = COMBINE_SCALE4X; break;
+				case COMBINE_SCALE4X : config.combine = COMBINE_AUTO; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == effect_index) {
-			switch (context->config.rgb_effect) {
-				case EFFECT_NONE : context->config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD3PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : context->config.rgb_effect = EFFECT_NONE; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.rgb_effect) {
+				case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+				case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+				case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+				case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+				case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+				case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+				case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+				case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+				case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+				case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+				case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_NONE; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == vsync_index) {
-			switch (context->config.vsync_flag) {
-				case 0 : context->config.vsync_flag = 1; break;
-				case 1 : context->config.vsync_flag = 0; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.vsync_flag) {
+				case 0 : config.vsync_flag = 1; break;
+				case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == smp_index) {
-			switch (context->config.smp_flag) {
-				case 0 : context->config.smp_flag = 1; break;
-				case 1 : context->config.smp_flag = 0; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.smp_flag) {
+				case 0 : config.smp_flag = 1; break;
+				case 1 : config.smp_flag = 0; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == scanline_index) {
-			context->config.scanlines_flag = !context->config.scanlines_flag;
-			advance_video_change(context);
+			struct advance_video_config_context config = context->config;
+			config.scanlines_flag = !config.scanlines_flag;
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
-			context->config.magnify_factor += 1;
-			if (context->config.magnify_factor > 4)
-				context->config.magnify_factor = 1;
-			advance_video_change(context);
+			struct advance_video_config_context config = context->config;
+			config.magnify_factor += 1;
+			if (config.magnify_factor > 4)
+				config.magnify_factor = 1;
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == index_index) {
-			switch (context->config.index) {
-				case MODE_FLAGS_INDEX_NONE : context->config.index = MODE_FLAGS_INDEX_PALETTE8; break;
-				case MODE_FLAGS_INDEX_PALETTE8 : context->config.index = MODE_FLAGS_INDEX_BGR8; break;
-				case MODE_FLAGS_INDEX_BGR8 : context->config.index = MODE_FLAGS_INDEX_BGR15; break;
-				case MODE_FLAGS_INDEX_BGR15 : context->config.index = MODE_FLAGS_INDEX_BGR16; break;
-				case MODE_FLAGS_INDEX_BGR16 : context->config.index = MODE_FLAGS_INDEX_BGR32; break;
-				case MODE_FLAGS_INDEX_BGR32 : context->config.index = MODE_FLAGS_INDEX_YUY2; break;
-				case MODE_FLAGS_INDEX_YUY2 : context->config.index = MODE_FLAGS_INDEX_NONE; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.index) {
+				case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+				case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_BGR8; break;
+				case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_BGR15; break;
+				case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR16; break;
+				case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR32; break;
+				case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_YUY2; break;
+				case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_NONE; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == stretch_index) {
-			switch (context->config.stretch) {
-				case STRETCH_NONE : context->config.stretch = STRETCH_FRACTIONAL_XY; break;
-				case STRETCH_INTEGER_XY : context->config.stretch = STRETCH_NONE; break;
-				case STRETCH_INTEGER_X_FRACTIONAL_Y : context->config.stretch = STRETCH_INTEGER_XY; break;
-				case STRETCH_FRACTIONAL_XY : context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.stretch) {
+				case STRETCH_NONE : config.stretch = STRETCH_FRACTIONAL_XY; break;
+				case STRETCH_INTEGER_XY : config.stretch = STRETCH_NONE; break;
+				case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_INTEGER_XY; break;
+				case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		}
 	}
@@ -680,80 +694,88 @@ int osd2_menu(int selected, unsigned input)
 	if (input == OSD_INPUT_LEFT)
 	{
 		if (selected == combine_index) {
-			switch (context->config.combine) {
-				case COMBINE_AUTO : context->config.combine = COMBINE_SCALE4X; break;
-				case COMBINE_NONE : context->config.combine = COMBINE_AUTO; break;
-				case COMBINE_MAX : context->config.combine = COMBINE_NONE; break;
-				case COMBINE_MEAN : context->config.combine = COMBINE_MAX; break;
-				case COMBINE_FILTER : context->config.combine = COMBINE_MEAN; break;
-				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTER; break;
-				case COMBINE_FILTERY : context->config.combine = COMBINE_FILTERX; break;
-				case COMBINE_SCALE2X : context->config.combine = COMBINE_FILTERY; break;
-				case COMBINE_SCALE3X : context->config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_SCALE4X : context->config.combine = COMBINE_SCALE3X; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.combine) {
+				case COMBINE_AUTO : config.combine = COMBINE_SCALE4X; break;
+				case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
+				case COMBINE_MAX : config.combine = COMBINE_NONE; break;
+				case COMBINE_MEAN : config.combine = COMBINE_MAX; break;
+				case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
+				case COMBINE_FILTERX : config.combine = COMBINE_FILTER; break;
+				case COMBINE_FILTERY : config.combine = COMBINE_FILTERX; break;
+				case COMBINE_SCALE2X : config.combine = COMBINE_FILTERY; break;
+				case COMBINE_SCALE3X : config.combine = COMBINE_SCALE2X; break;
+				case COMBINE_SCALE4X : config.combine = COMBINE_SCALE3X; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == effect_index) {
-			switch (context->config.rgb_effect) {
-				case EFFECT_NONE : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_TRIAD3PIX : context->config.rgb_effect = EFFECT_NONE; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.rgb_effect) {
+				case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+				case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_NONE; break;
+				case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+				case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+				case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+				case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+				case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+				case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+				case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+				case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+				case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == vsync_index) {
-			switch (context->config.vsync_flag) {
-				case 0 : context->config.vsync_flag = 1; break;
-				case 1 : context->config.vsync_flag = 0; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.vsync_flag) {
+				case 0 : config.vsync_flag = 1; break;
+				case 1 : config.vsync_flag = 0; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == smp_index) {
-			switch (context->config.smp_flag) {
-				case 0 : context->config.smp_flag = 1; break;
-				case 1 : context->config.smp_flag = 0; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.smp_flag) {
+				case 0 : config.smp_flag = 1; break;
+				case 1 : config.smp_flag = 0; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == scanline_index) {
-			context->config.scanlines_flag = !context->config.scanlines_flag;
-			advance_video_change(context);
+			struct advance_video_config_context config = context->config;
+			config.scanlines_flag = !config.scanlines_flag;
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
-			context->config.magnify_factor -= 1;
-			if (context->config.magnify_factor < 1)
-				context->config.magnify_factor = 4;
-			advance_video_change(context);
+			struct advance_video_config_context config = context->config;
+			config.magnify_factor -= 1;
+			if (config.magnify_factor < 1)
+				config.magnify_factor = 4;
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == index_index) {
-			switch (context->config.index) {
-				case MODE_FLAGS_INDEX_NONE : context->config.index = MODE_FLAGS_INDEX_YUY2; break;
-				case MODE_FLAGS_INDEX_PALETTE8 : context->config.index = MODE_FLAGS_INDEX_NONE; break;
-				case MODE_FLAGS_INDEX_BGR8 : context->config.index = MODE_FLAGS_INDEX_PALETTE8; break;
-				case MODE_FLAGS_INDEX_BGR15 : context->config.index = MODE_FLAGS_INDEX_BGR8; break;
-				case MODE_FLAGS_INDEX_BGR16 : context->config.index = MODE_FLAGS_INDEX_BGR15; break;
-				case MODE_FLAGS_INDEX_BGR32 : context->config.index = MODE_FLAGS_INDEX_BGR16; break;
-				case MODE_FLAGS_INDEX_YUY2 : context->config.index = MODE_FLAGS_INDEX_BGR32; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.index) {
+				case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_YUY2; break;
+				case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_NONE; break;
+				case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+				case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR8; break;
+				case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR15; break;
+				case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_BGR16; break;
+				case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_BGR32; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == stretch_index) {
-			switch (context->config.stretch) {
-				case STRETCH_NONE : context->config.stretch = STRETCH_INTEGER_XY; break;
-				case STRETCH_INTEGER_XY : context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
-				case STRETCH_INTEGER_X_FRACTIONAL_Y : context->config.stretch = STRETCH_FRACTIONAL_XY; break;
-				case STRETCH_FRACTIONAL_XY : context->config.stretch = STRETCH_NONE; break;
+			struct advance_video_config_context config = context->config;
+			switch (config.stretch) {
+				case STRETCH_NONE : config.stretch = STRETCH_INTEGER_XY; break;
+				case STRETCH_INTEGER_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
+				case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_FRACTIONAL_XY; break;
+				case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
 			}
-			advance_video_change(context);
+			advance_video_change(context, &config);
 			mame_ui_refresh();
 		}
 	}

@@ -25,30 +25,71 @@
 /**
  * Header of the PCX image.
  */
-struct pcx_header {
-	uint8 manufacturer __attribute__ ((packed)); /**< Constant Flag, 10 = ZSoft .pcx. */
-	uint8 version __attribute__ ((packed)); /**< Version information. */
-	uint8 encoding __attribute__ ((packed)); /**< 1 = .PCX run length encoding. */
-	uint8 bits_per_pixel; /**< Number of bits to represent a pixel (per Plane) - 1, 2, 4, or 8. */
-	uint16 x_min __attribute__ ((packed)); /**< Image Dimensions. */
-	uint16 y_min __attribute__ ((packed));
-	uint16 x_max __attribute__ ((packed));
-	uint16 y_max __attribute__ ((packed));
-	uint16 hdpi __attribute__ ((packed)); /**< Horizontal Resolution of image in DPI. */
-	uint16 vdpi __attribute__ ((packed)); /**< Vertical Resolution of image in DPI. */
-	uint8 colornmap[48] __attribute__ ((packed)); /**< Color palette setting. */
-	uint8 reserverd __attribute__ ((packed));
-	uint8 planes __attribute__ ((packed)); /**< Number of color planes. */
-	uint16 bytes_per_line __attribute__ ((packed)); /**< Number of bytes to allocate for a scanline plane.  MUST be an EVEN number.  Do NOT calculate from Xmax-Xmin. */
-	uint16 palette_info __attribute__ ((packed)); /**< 1 = Color/BW, 2 = Grayscale (ignored in PB IV/ IV +). */
-	uint16 h_screen_size __attribute__ ((packed)); /**< Horizontal screen size in pixels. */
-	uint16 v_screen_size __attribute__ ((packed)); /**< Vertical screen size in pixels. */
-	uint8 filler[54] __attribute__ ((packed));
-} __attribute__ ((packed));
+struct pcx_header_t {
+	unsigned manufacturer; /**< Constant Flag, 10 = ZSoft .pcx. */
+	unsigned version; /**< Version information. */
+	unsigned encoding; /**< 1 = .PCX run length encoding. */
+	unsigned bits_per_pixel; /**< Number of bits to represent a pixel (per Plane) - 1, 2, 4, or 8. */
+	unsigned x_min; /**< Image Dimensions. */
+	unsigned y_min;
+	unsigned x_max;
+	unsigned y_max;
+	unsigned hdpi; /**< Horizontal Resolution of image in DPI. */
+	unsigned vdpi; /**< Vertical Resolution of image in DPI. */
+	unsigned char colornmap[48]; /**< Color palette setting. */
+	unsigned reserved;
+	unsigned planes; /**< Number of color planes. */
+	unsigned bytes_per_line; /**< Number of bytes to allocate for a scanline plane.  MUST be an EVEN number.  Do NOT calculate from Xmax-Xmin. */
+	unsigned palette_info; /**< 1 = Color/BW, 2 = Grayscale (ignored in PB IV/ IV +). */
+	unsigned h_screen_size; /**< Horizontal screen size in pixels. */
+	unsigned v_screen_size; /**< Vertical screen size in pixels. */
+	unsigned char filler[54];
+};
+
+static adv_error pcx_header_read(adv_fz* fz, struct pcx_header_t* header)
+{
+	if (le_uint8_fzread(fz, &header->manufacturer) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &header->version) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &header->encoding) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &header->bits_per_pixel) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->x_min) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->y_min) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->x_max) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->y_max) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->hdpi) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->vdpi) != 0)
+		return -1;
+	if (fzread(&header->colornmap, 48, 1, fz) != 1)
+		return -1;
+	if (le_uint8_fzread(fz, &header->reserved) != 0)
+		return -1;
+	if (le_uint8_fzread(fz, &header->planes) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->bytes_per_line) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->palette_info) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->h_screen_size) != 0)
+		return -1;
+	if (le_uint16_fzread(fz, &header->v_screen_size) != 0)
+		return -1;
+	if (fzread(&header->filler, 54, 1, fz) != 1)
+		return -1;
+	return 0;
+}
 
 struct pcx_decode_state {
 	unsigned count;
-	uint8 value;
+	unsigned char value;
 };
 
 static void pcx_decode(uint8* buffer, unsigned size, adv_fz* f, struct pcx_decode_state* state, unsigned delta)
@@ -110,11 +151,11 @@ static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state)
  */
 adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 {
-	struct pcx_header h;
+	struct pcx_header_t h;
 	adv_bitmap* bitmap;
 	unsigned width, height, depth;
 
-	if (fzread(&h, sizeof(h), 1, f)!=1) { /* ENDIAN */
+	if (pcx_header_read(f, &h)!=0) {
 		goto out;
 	}
 

@@ -31,6 +31,7 @@
 #include "target.h"
 #include "log.h"
 #include "file.h"
+#include "portable.h"
 
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -347,6 +348,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 
 		dir = strtok(path_list, separator);
 		while (dir) {
+			unsigned i;
 			sncpy(path, path_size, dir);
 
 			/* convert to the DOS slash */

@@ -81,6 +81,9 @@ Installing
 
 	The default installation $prefix is /usr/local.
 
+	In Mac OS X please verify that the directory $prefix/bin is in the
+	search PATH. Generally /usr/local/bin it isn't.
+
     DOS/Windows
 	Copy manually the compiled executables in a directory of your choice.
 
@@ -103,7 +106,7 @@ Requirements
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.2
+		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3
 		:GNU make 3.79.1 (or newer)
 		:NASM 0.98.33 (or newer)
 		:zlib 1.1.4 (or newer)
@@ -111,7 +114,7 @@ Requirements
 		:LibSDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3 and 3.2.2.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.
 	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 

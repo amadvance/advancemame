@@ -7,7 +7,7 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.67.1
+EMUVERSION = 0.68.0
 endif
 endif
 MENUVERSION = 2.2.6
@@ -82,7 +82,7 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(INSTALL_BINFILES) $(DOCOBJ) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
+all: $(DOCOBJ) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
 emu: $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ)/advcfg$(EXE)
@@ -371,6 +371,12 @@ wholemame:
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
+
+dosmame:
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
+
+winmame:
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \

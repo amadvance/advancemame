@@ -1,7 +1,12 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
-AdvanceMAME 2.2.5
+AdvanceMENU 2.2.6
+	This release supports Mac OS X with the SDL library. Please note that
+	it isn't able to directly program your video board, so you cannot use
+	it with an Arcade Monitor.
+
+AdvanceMENU 2.2.5
 	The precompiled DOS binary of this release is compiled with
 	the old gcc 2.95.3. Please report if this fixes any know
 	problem.

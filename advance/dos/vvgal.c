@@ -32,6 +32,7 @@
 #include "video.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -369,7 +370,7 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error vgaline_init(int device_id, adv_output output, adv_cursor cursor)
+adv_error vgaline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	const adv_device* i;
 

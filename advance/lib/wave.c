@@ -152,28 +152,6 @@ adv_error wave_write_size(FILE* f, unsigned size)
 	return 0;
 }
 
-static adv_error le_uint16_fread(adv_fz* f, unsigned* v)
-{
-	unsigned char p[2];
-
-	if (fzread(p, 2, 1, f) != 1)
-		return -1;
-	*v = le_uint16_read(p);
-
-	return 0;
-}
-
-static adv_error le_uint32_fread(adv_fz* f, unsigned* v)
-{
-	unsigned char p[4];
-
-	if (fzread(p, 4, 1, f) != 1)
-		return -1;
-	*v = le_uint32_read(p);
-
-	return 0;
-}
-
 static adv_error wave_read_tag(adv_fz* f, char* tag)
 {
 	if (fzread(tag, 4, 1, f ) != 1)
@@ -198,29 +176,29 @@ static adv_error wave_read_id(adv_fz* f, char* tag, unsigned* size)
 {
 	if (wave_read_tag(f, tag) != 0)
 		return -1;
-	if (le_uint32_fread(f, size) != 0)
+	if (le_uint32_fzread(f, size) != 0)
 		return -1;
 	return 0;
 }
 
 static adv_error wave_read_fmt(adv_fz* f, unsigned* format_tag, unsigned* channels, unsigned* samples_per_sec, unsigned* avg_u8s_per_sec, unsigned* block_align)
 {
-	if (le_uint16_fread(f, format_tag) != 0)
+	if (le_uint16_fzread(f, format_tag) != 0)
 		return -1;
-	if (le_uint16_fread(f, channels) != 0)
+	if (le_uint16_fzread(f, channels) != 0)
 		return -1;
-	if (le_uint32_fread(f, samples_per_sec) != 0)
+	if (le_uint32_fzread(f, samples_per_sec) != 0)
 		return -1;
-	if (le_uint32_fread(f, avg_u8s_per_sec) != 0)
+	if (le_uint32_fzread(f, avg_u8s_per_sec) != 0)
 		return -1;
-	if (le_uint16_fread(f, block_align) != 0)
+	if (le_uint16_fzread(f, block_align) != 0)
 		return -1;
 	return 0;
 }
 
 static adv_error wave_read_fmt_PCM(adv_fz* f, unsigned* size)
 {
-	if (le_uint16_fread(f, size) != 0)
+	if (le_uint16_fzread(f, size) != 0)
 		return -1;
 	return 0;
 }

@@ -25,10 +25,11 @@
 
 #include <iostream>
 
+#include <stdio.h>
+#include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <sys/stat.h>
-#include <stdio.h>
 #include <unistd.h>
 
 using namespace std;

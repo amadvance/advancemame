@@ -1,14 +1,45 @@
 Name
-	install - The Advance First Time Configuration
+	install - First Time Configuration and Run
 
 First Time Configuration
-	The Advance projects have the ability to directly control your
-	video board to get the best possible video modes with always
-	the correct size and aspect ratio.
+	All the Advance programs require a configuration step to work
+	correctly.
+	
+	If you want to run them as standard applications in a Window
+	Manager environemnt like X Window, Windows or Mac OS X Acqua, you
+	don't need to configure any video options.
+	
+	If you want to enable the direct programming of the video board
+	you need to carefully follow the "Video Configuration" chapter.
 
-	To made it possible they needs some information on your monitor
-	capability in the form of the supported pixel, horizontal and
-	vertical clocks.
+	To create a default configuration files simply run the first time
+	the application from a command shell and a standard configuration .rc
+	file will be created.
+	In Linux, Mac OS X and other Unix the configuration file is created
+	in the user home directory in the subdirectory .advance. In DOS and
+	Windows the configuration file is created in the current directory.
+
+	To run AdvanceMAME you need at least to set the dir_rom option to the
+	path there the roms resides.
+
+	To run AdvanceMENU you need to have at least one of the recognized
+	emulator in the current search path in Linux and OS X or in the
+	current directory for DOS and Windows.
+	Generally you need also to adjust the path where the game's .png,
+	.mp3 and .mng files reside with the emulator_* options.
+
+Video Configuration
+	The Advance programs have the ability to directly control your video
+	board to get the best possible fullscreen video modes with always the
+	correct size and aspect ratio.
+	
+	This features is available in Linux with the SVGALIB and Frame
+	Buffer libraries, in DOS with the SVGALIB library and in Windows with
+	the SVGAWIN library. It isn't availale on Mac OS X and other Unix.
+
+	To made it possible the programs need some information on your
+	monitor capability in the form of the supported pixel, horizontal
+	and vertical clocks.
 
 	With these info the programs are able to always generate
 	`perfect' video modes for the emulated game.
@@ -35,7 +66,7 @@ First Time Configuration
 	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
 	doesn't require not standard video modes.
 
-Automatic Operation Mode
+  Video Automatic Operation Mode
 	In the automatic operation mode the programs automatically
 	create a `perfect' video mode for the game to be emulated
 	that fit exactly the whole screen with the correct aspect
@@ -61,7 +92,7 @@ Automatic Operation Mode
 		:device_video_vclock ?
 		:device_video_format ?
 
-Manual Operation Mode
+  Video Manual Operation Mode
 	In the manual operation mode the programs scan a list of `good'
 	video modelines created manually and chose the best available.
 	You must in advance create this list of video modelines with the
@@ -152,9 +183,8 @@ Manual Operation Mode
 
 	) Press ESC to exit from `advv'
 
-	) Run `advmame' or the frontend `advmenu'
 
-Troubleshooting
+  Video Troubleshooting
 	) Delete any old configuration files and restart from scratch.
 
 	) If you are using a PC Multisync monitor and the image is

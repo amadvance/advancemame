@@ -2,11 +2,15 @@ Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
 AdvanceMAME 0.68.0
-	This release add supports the new `scale3x' and `scale4x' effects.
+	This release supports the new `scale3x' and `scale4x' effects.
 	To use them you must ensure to use an high pclock upper limit.
 	Something like 150 MHz. You need also a monitor which support an
 	high hclock upper limit. Something like 70 kHz.
 	Otherwise the required 3x3 and 4x4 times bigger mode may be rejected.
+
+	This release supports Mac OS X with the SDL library. Please note that
+	it isn't able to directly program your video board, so you cannot use
+	it with an Arcade Monitor.
 
 AdvanceMAME 0.67.0 / AdvanceMESS 0.66.0
 	The precompiled DOS binaries of these releases are compiled with

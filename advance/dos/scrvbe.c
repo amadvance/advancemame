@@ -32,6 +32,7 @@
 #include "scrvga.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include "map.h"
 
@@ -800,9 +801,9 @@ adv_error vbe_init(void)
 		dosstrzcpy(oem_product, vbe_state.info.OemProductNamePtr, sizeof(oem_product));
 		dosstrzcpy(oem_product_rev, vbe_state.info.OemProductRevPtr, sizeof(oem_product_rev));
 	} else {
-		sncpy(oem_vendor, "", sizeof(oem_vendor));
-		sncpy(oem_product, "", sizeof(oem_product));
-		sncpy(oem_product_rev, "", sizeof(oem_product_rev));
+		sncpy(oem_vendor, sizeof(oem_vendor), "");
+		sncpy(oem_product, sizeof(oem_product), "");
+		sncpy(oem_product_rev, sizeof(oem_product_rev), "");
 	}
 
 	log_std(("vbe: version %d.%d\n", (unsigned)vbe_state.info.VESAVersion >> 8, (unsigned)vbe_state.info.VESAVersion & 0xFF));

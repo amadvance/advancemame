@@ -27,10 +27,11 @@
 #include "target.h"
 #include "os.h"
 
-#include <stdio.h>
-#include <unistd.h>
-
 #include <iostream>
+
+#include <stdio.h>
+#include <assert.h>
+#include <unistd.h>
 
 using namespace std;
 

@@ -102,7 +102,7 @@ adv_bool file_path_is_abs(const char* path)
 	return path[0] == '\\' || (path[0] != 0 && path[1]==':');
 }
 
-const char* file_abs_buffer(const char* dir, const char* file)
+const char* file_abs(const char* dir, const char* file)
 {
 	/* TODO implement the complete . and .. management */
 	if (file[0] == '\\' || (file[0] != 0 && file[1]==':')) {

@@ -353,7 +353,7 @@ void advance_video_done(struct advance_video_context* context);
 adv_error advance_video_inner_init(struct advance_video_context* context, struct mame_option* option);
 void advance_video_inner_done(struct advance_video_context* context);
 adv_error advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option);
-adv_error advance_video_change(struct advance_video_context* context);
+void advance_video_change(struct advance_video_context* context, struct advance_video_config_context* config);
 void advance_video_save(struct advance_video_context* context, const char* section);
 
 /***************************************************************************/

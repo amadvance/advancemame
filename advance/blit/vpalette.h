@@ -550,4 +550,74 @@ static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage,
 	STAGE_PUT(stage, BLITTER(video_line_palette16to32_step2), BLITTER(video_line_palette16to32));
 }
 
+/****************************************************************************/
+/* imm16to8 */
+
+static void video_line_imm16to8_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	unsigned inner_count = stage->slice.count;
+	uint16* src16 = (uint16*)src;
+	uint8* dst8 = (uint8*)dst;
+
+	while (inner_count) {
+		*dst8++ = src16[0] & 0xFF;
+		src16 += 1;
+		--inner_count;
+	}
+}
+
+static void video_line_imm16to8_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	unsigned inner_count = stage->slice.count;
+	uint16* src16 = (uint16*)src;
+	uint8* dst8 = (uint8*)dst;
+
+	while (inner_count) {
+		*dst8++ = src16[0] & 0xFF;
+		PADD(src16, stage->sdp);
+		--inner_count;
+	}
+}
+
+static void video_stage_imm16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_imm16to8, sdx, sdp, 2, sdx, 1);
+	STAGE_PUT(stage, video_line_imm16to8_step2_def, video_line_imm16to8_def);
+}
+
+/****************************************************************************/
+/* imm16to32 */
+
+static void video_line_imm16to32_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	unsigned inner_count = stage->slice.count;
+	uint16* src16 = (uint16*)src;
+	uint32* dst32 = (uint32*)dst;
+
+	while (inner_count) {
+		*dst32++ = src16[0];
+		src16 += 1;
+		--inner_count;
+	}
+}
+
+static void video_line_imm16to32_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	unsigned inner_count = stage->slice.count;
+	uint16* src16 = (uint16*)src;
+	uint32* dst32 = (uint32*)dst;
+
+	while (inner_count) {
+		*dst32++ = src16[0];
+		PADD(src16, stage->sdp);
+		--inner_count;
+	}
+}
+
+static void video_stage_imm16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_imm16to32, sdx, sdp, 2, sdx, 4);
+	STAGE_PUT(stage, video_line_imm16to32_step2_def, video_line_imm16to32_def);
+}
+
 #endif

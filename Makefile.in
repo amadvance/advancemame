@@ -511,9 +511,15 @@ distclean: clean
 # Special targets
 
 flags: obj
+	$(ECHO) CC=$(CC)
 	$(ECHO) CFLAGS=$(CFLAGS)
+	$(ECHO) CXX=$(CXX)
+	$(ECHO) CXXFLAGS=$(CXXFLAGS)
+	$(ECHO) LD=$(LD)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
+	$(ECHO) CC_BUILD=$(CC_BUILD)
 	$(ECHO) CFLAGS_BUILD=$(CFLAGS_BUILD)
+	$(ECHO) LD_BUILD=$(LD_BUILD)
 	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
 	$(ECHO) SDLLIBS=$(SDLLIBS)
 	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
@@ -521,8 +527,6 @@ flags: obj
 	$(ECHO) ADVANCECFLAGS=$(ADVANCECFLAGS)
 	$(ECHO) ADVANCELDFLAGS=$(ADVANCELDFLAGS)
 	$(ECHO) ADVANCELIBS=$(ADVANCELIBS)
-	$(ECHO) CC=$(CC)
-	$(ECHO) CC_BUILD=$(CC_BUILD)
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 

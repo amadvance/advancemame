@@ -91,6 +91,8 @@ enum video_stage_enum {
 	pipe_palette16to8, /**< Palette conversion 16 -\> 8. */
 	pipe_palette16to16, /**< Palette conversion 16 -\> 16. */
 	pipe_palette16to32, /**< Palette conversion 16 -\> 32. */
+	pipe_imm16to8, /**< Immediate conversion 16 -\> 8. */
+	pipe_imm16to32, /**< Immediate conversion 16 -\> 32. */
 	pipe_bgra8888tobgr332, /**< RGB conversion 8888 (bgra) -\> 332 (bgr). */
 	pipe_bgra8888tobgra5551, /**< RGB conversion 8888 (bgra) -\> 5551 (bgra). */
 	pipe_bgra8888tobgr565, /**< RGB conversion 8888 (bgra) -\> 565 (bgr). */
@@ -338,9 +340,9 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 
 /**
  * Initialize a pipeline for a stretch blit with an hardware palette.
- * Check the video_stretch_palette_hw() for more details.
+ * Check the video_stretch_palette_16hw() for more details.
  */
-void video_stretch_palette_hw_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine);
+void video_stretch_palette_16hw_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine);
 
 /**
  * Initialize a pipeline for a stretch blit with a software 8 bit palette.
@@ -369,7 +371,6 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
 /**
  * Blit and stretch a bitmap.
  * The source bitmap can have any bit depth.
- * \note This function may fail if a unsupported color conversion is required.
  * \param dst_x Destination x.
  * \param dst_y Destination y.
  * \param dst_dx Destination size x.
@@ -398,11 +399,7 @@ static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned d
 
 /**
  * Blit and stretch a bitmap with an hardware palette.
- * The source bitmap must have the same bit depth of the screen.
- *
- * With correct choice of the src_dw and src_dp parameters you can also
- * rotate and/or flip the image.
- *
+ * The source bitmap must be a 16 bit bitmap.
  * \param dst_x Destination x.
  * \param dst_y Destination y.
  * \param dst_dx Destination size x.
@@ -414,11 +411,11 @@ static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned d
  * \param src_dp Source pixel step expressed in bytes.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
+static inline void video_stretch_palette_16hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
-	video_stretch_palette_hw_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, combine);
+	video_stretch_palette_16hw_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, combine);
 
 	video_blit_pipeline(&pipeline, dst_x, dst_y, src);
 

@@ -273,8 +273,11 @@ Configuration
 	frontend. It's read at startup and saved at exit. You can
 	prevent the automatic save at the exit with the `config' option.
 
-	The Linux version reads configuration options from the file
-	'advmenu.rc' in the $root and the $home directory.
+	In DOS and Windows the configuration options are read from the
+	file `advmame.rc' in the current directory.
+
+	In Linux and Mac OS X the configuration options are read from the
+	file `advmenu.rc' in the $root and the $home directory.
 	The $root directory is `$DATA/advance/', where $DATA is the
 	data directory configured with the `configure' script.
 	Generally it's `/usr/local/share'.
@@ -292,12 +295,12 @@ Configuration
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
 
-	You can force the creation of a default `advmenu.rc' with the
-	command `advmenu -default'.
+	You can force the creation of a default configuration file with the
+	command line option `-default'.
 
 	In DOS and Windows the directory name separator is '\' and the
-	multi-directory separator is ';'. In Linux the directory name
-	separator is '/' and the multi-directory separator is ':'.
+	multi-directory separator is ';'. In Linux and Mac OS X the directory
+	name separator is '/' and the multi-directory separator is ':'.
 
   Global Configuration Options
     config
@@ -378,7 +381,7 @@ Configuration
 		:emulator "snes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
 		:emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
 
-	Examples for Linux:
+	Examples for Linux and Mac OS X:
 		:emulator "advmame" advmame "advmame" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 
     emulator_TAG
@@ -670,12 +673,15 @@ Configuration
 		none - No sound.
 		auto - Automatic detection (default).
 
-	Options for the Linux version:
+	Options for Linux:
 		alsa - ALSA automatic detection.
 		oss - OSS automatic detection.
 		sdl - SDL automatic detection.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		seal - SEAL automatic detection.
 		seal/sb - Sound Blaster.
 		seal/pas - Pro Audio Spectrum.
@@ -707,7 +713,7 @@ Configuration
 
 		http://vsyncmame.mameworld.net
 
-	Options for the Windows version:
+	Options for Windows:
 		sdl - SDL automatic detection.
 
     sound_volume
@@ -790,7 +796,8 @@ Configuration
 	Music tracks will be played in random order.
 
 	Multiple directories may be specified by separating each with a
-	semicolon `;' in DOS and Windows, with a double-colon `:' in Linux.
+	semicolon `;' in DOS and Windows, with a double-colon `:' in Linux
+	and Mac OS X.
 
 	Note that this directory must be used only for your music.
 	The emulated game recordings, played when the cursor is moved on
@@ -816,13 +823,22 @@ Configuration
 		none - No keyboard.
 		auto - Automatic detection (default).
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB keyboard. This driver is not available
 			if the SDL video output is used.
 		raw - Linux RAW kernel keyboard interface. This driver
 			is not available if the SDL video output is used.
 		sdl - SDL keyboard. This driver is available
 			only if the SDL video output is used.
+
+	Options for Mac OS X:
+		sdl - SDL keyboard.
+
+	Options for DOS:
+		allegro - Allegro automatic detection.
+
+	Options for Windows:
+		sdl - SDL automatic detection.
 
     device_joystick
 	Selects the joystick driver.
@@ -833,14 +849,17 @@ Configuration
 		none - No joystick (default).
 		auto - Automatic detection.
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB automatic detection.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
 	correct joystick in the SVGALIB configuration file.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		allegro - Allegro automatic detection.
 		allegro/standard - Standard joystick.
 		allegro/dual - Dual joysticks.
@@ -874,7 +893,7 @@ Configuration
 		allegro/segapcifast - IF-SEGA2/PCI (normal).
 		allegro/wingwarrior - Wingman Warrior.
 
-	Options for the Windows version:
+	Options for Windows:
 		sdl - SDL automatic detection.
 
     device_mouse
@@ -886,21 +905,24 @@ Configuration
 		none - No mouse (default).
 		auto - Automatic detection.
 
-	Options for the Linux version:
+	Options for Linux:
 		svgalib - SVGALIB automatic detection.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
 	correct mouse in the SVGALIB configuration file.
 
-	Options for the DOS version:
+	Options for Mac OS X:
+		sdl - SDL automatic detection.
+
+	Options for DOS:
 		allegro - Allegro automatic detection.
 
 	The Allegro driver also uses the special `optimous' driver
 	for a second mouse. The `optimous' driver is available in
 	the `contrib/' directory.
 
-	Options for the Windows version:
+	Options for Windows:
 		sdl - SDL automatic detection.
 
     mouse_delta
@@ -982,8 +1004,8 @@ Configuration
 	additional information displayed for every game.
 
 	The file formats supported are CATINI, MacMAME and NMS.
-	The files are read in the current directory for the DOS and Windows 
-	versions and in the $home directory for the Linux version.
+	The files are read in the current directory in DOS and Windows
+	and in the $home directory in Linux and Mac OS X.
 
 	WARNING! These option DON'T OVERWRITE any user explicit
 	choices made with the `game' option.

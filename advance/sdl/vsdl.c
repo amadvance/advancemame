@@ -221,7 +221,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	if (info->wm_available) {
 		has_window_manager = 1;
 	} else {
-		/* with Mac OS X and SDL 1.2.5 Quartz driver the wm_available flag is not set */
+		/* in Mac OS X Quartz and SDL 1.2.5 the wm_available flag is not set */
 		log_std(("video:sdl: SDL_ListModes(0,0)\n"));
 		map = SDL_ListModes(0, 0);
 		if (map == 0) {
@@ -427,6 +427,41 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
 	sdl_state.lock_active = 0;
 }
 
+static adv_error sdl_overlay_set(const sdl_video_mode* mode)
+{
+	sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
+	if (!sdl_state.overlay) {
+		log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
+		error_set("Unable to create the SDL overlay");
+		return -1;
+	}
+
+	/* In Windows DirectX 5 and SDL 1.2.5 the pitches value is set only after the first lock */
+	if (SDL_LockYUVOverlay(sdl_state.overlay) != 0) {
+		SDL_FreeYUVOverlay(sdl_state.overlay);
+		sdl_state.overlay = 0;
+		log_std(("ERROR:video:sdl: overlay invalid lock\n"));
+		error_set("Invalid (not lockable) SDL overlay");
+		return -1;
+	}
+
+	SDL_UnlockYUVOverlay(sdl_state.overlay);
+
+	log_std(("video:sdl: overlay size:%dx%d planes:%d scanline:%d\n", (unsigned)sdl_state.overlay->w, (unsigned)sdl_state.overlay->h, (unsigned)sdl_state.overlay->planes, (unsigned)sdl_state.overlay->pitches[0]));
+	log_std(("video:sdl: overlay hw_overlay:%d\n", (unsigned)sdl_state.overlay->hw_overlay));
+
+	/* In Linux XFree+XV and SDL 1.2.5 if the overlay is too big incorrect values are returned */
+	if (sdl_state.overlay->w * 2 > sdl_state.overlay->pitches[0]) {
+		SDL_FreeYUVOverlay(sdl_state.overlay);
+		sdl_state.overlay = 0;
+		log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
+		error_set("Invalid (erroneous pitch) SDL overlay");
+		return -1;
+	}
+
+	return 0;
+}
+
 adv_error sdl_mode_set(const sdl_video_mode* mode)
 {
 	const SDL_VideoInfo* info;
@@ -490,24 +525,8 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 			return -1;
 		}
 
-		sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
-		if (!sdl_state.overlay) {
+		if (sdl_overlay_set(mode) != 0) {
 			sdl_state.surface = 0;
-			log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
-			error_set("Unable to create the SDL overlay");
-			return -1;
-		}
-
-		log_std(("video:sdl: overlay size:%dx%d planes:%d scanline:%d\n", sdl_state.overlay->w, sdl_state.overlay->h, sdl_state.overlay->planes, sdl_state.overlay->pitches[0]));
-		log_std(("video:sdl: overlay hw_overlay:%d\n", (unsigned)sdl_state.overlay->hw_overlay));
-
-		/* In Linux XFree+XV if the overlay is too big incorrect values are returned */
-		if (sdl_state.overlay->w * 2 > sdl_state.overlay->pitches[0]) {
-			SDL_FreeYUVOverlay(sdl_state.overlay);
-			sdl_state.overlay = 0;
-			sdl_state.surface = 0;
-			log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
-			error_set("Invalid SDL overlay");
 			return -1;
 		}
 	} else {
@@ -622,24 +641,8 @@ adv_error sdl_mode_change(const sdl_video_mode* mode)
 
 		sdl_state.mode_active = 0;
 
-		sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
-		if (!sdl_state.overlay) {
+		if (sdl_overlay_set(mode) != 0) {
 			sdl_state.surface = 0;
-			log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
-			error_set("Unable to create the SDL overlay");
-			return -1;
-		}
-
-		log_std(("video:sdl: overlay size:%dx%d planes:%d scanline:%d\n", sdl_state.overlay->w, sdl_state.overlay->h, sdl_state.overlay->planes, sdl_state.overlay->pitches[0]));
-		log_std(("video:sdl: overlay hw_overlay:%d\n", (unsigned)sdl_state.overlay->hw_overlay));
-
-		/* In Linux XFree+XV if the overlay is too big incorrect values are returned */
-		if (sdl_state.overlay->w * 2 > sdl_state.overlay->pitches[0]) {
-			SDL_FreeYUVOverlay(sdl_state.overlay);
-			sdl_state.overlay = 0;
-			sdl_state.surface = 0;
-			log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
-			error_set("Invalid SDL overlay");
 			return -1;
 		}
 

@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-/* The MAME source does't have access at the lib include dir */
+/* The MAME source doesn't have access at the lib include dir */
 #include "../lib/portable.h"
 
 static inline void osd_mkdir(const char* dir)

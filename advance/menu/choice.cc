@@ -22,6 +22,8 @@
 #include "text.h"
 #include "common.h"
 
+#include <assert.h>
+
 using namespace std;
 
 // ------------------------------------------------------------------------
