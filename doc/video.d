@@ -1,7 +1,7 @@
 Name
 	video - Video control for DOS
 
-Synopsys
+Synopsis
 	:video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]
 
 Description

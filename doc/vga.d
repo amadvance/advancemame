@@ -1,16 +1,16 @@
 Name
 	vga - VGA mode remapper for DOS
 
-Synopsys
+Synopsis
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 
 Description
 	The `vga' utility is a TSR (Terminate Stay Resident) VGA BIOS
 	wrapper that substitutes the default list of VGA video modes
-	with a list of the favourite modes which work best with your
+	with a list of the favorite modes which work best with your
 	video hardware.
 
-	The `vga.exe' excutable can be used as a standard executable or
+	The `vga.exe' executable can be used as a standard executable or
 	it can also be loaded as a `sys' driver in the `config.sys' as a
 	`device'. Please note that the `sys' version can't be unloaded.
 
@@ -129,7 +129,7 @@ Examples
 	`vga' as soon as possible to adjust the video output and prevent
 	other programs to write to the screen. You can also use the
 	`video' utility to load an arbitrary image to display.
-	After the system is inizialized you can insert in the autoexec.bat
+	After the system is initialized you can insert in the autoexec.bat
 	the command:
 
 		:c:\cab\vga /e

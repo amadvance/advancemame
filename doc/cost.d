@@ -7,7 +7,7 @@ Name
 		http://www.dwheeler.com/sloccount/
 
 	The MAME, MESS, PacMAME, SVGALIB and MPGLIB sources, and all the
-	automatically generated files are execluded from these stats.
+	automatically generated files are excluded from these stats.
 	The SLOCCount program automatically ignore any duplicated file.
 
 	:SLOC    Directory           SLOC-by-Language (Sorted)

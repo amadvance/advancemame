@@ -1,7 +1,7 @@
 Name
 	advline - The AdvanceLINE generator
 
-Synopsys
+Synopsis
 	:advline [/fh A,F,S,B] [/fv A,F,S,B]
 	:	[/p CLOCK] [/h CLOCK] [/v CLOCK] [WIDTHxHEIGHT]
 
@@ -20,7 +20,7 @@ Description
 	length of the Active Display, Front Porch, Sync Pulse and Back 
 	Porch.
 
-	You can also set any type of clock contrains like Horizontal Clock,
+	You can also set any type of clock constrains like Horizontal Clock,
 	Vertical Clock and Pixel Clock.
 	If you select more than one exact clock the resulting video modes 
 	will have something fixed.
@@ -77,7 +77,7 @@ Options
 		of your monitor.
 
 	=WIDTHxHEIGHT
-		Set the desidered video mode. If none is specified a
+		Set the favorite video mode. If none is specified a
 		default set is generated.
 
 Predefinite Options
@@ -132,7 +132,7 @@ Predefinite Options
 		:modeline /svga60 /v 72 384x224
 
 Timings
-	This is the colletions of video timings used by the
+	This is the collections of video timings used by the
 	predefinite options.
 
 	The nomenclature used is :

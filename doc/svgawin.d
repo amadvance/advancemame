@@ -1,7 +1,7 @@
 Name
 	svgawin - SVGAWIN driver installer
 
-Synopsys
+Synopsis
 	:svgawin [/l] [/u]
 
 Description

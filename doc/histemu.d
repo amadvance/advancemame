@@ -73,8 +73,8 @@ AdvanceMAME Version 0.63.0 2003/01
 
 AdvanceMAME Version 0.62.2 2002/12
 	) Added a new raw keyboard driver for Linux [Kari Hautio].
-	) Changed the yield behaviour on high system load. Now the
-		yield operation is done before the syncronization point.
+	) Changed the yield behavior on high system load. Now the
+		yield operation is done before the synchronization point.
 		It should reduce the effective system load.
 	) Fixed some issues in the ./configure scripts.
 	) Removed the blinking cursor in the Linux `fb' video
@@ -112,7 +112,7 @@ AdvanceMAME Version 0.62.0 2002/11
 		This fixes the crash problem with the Cirrus Laguna boards
 		and probably others.
 	) Updated the Windows SVGAWIN.SYS driver to the 1.1 version.
-	) Added the `display_aspectx' and `display_aspecty' to arbitary
+	) Added the `display_aspectx' and `display_aspecty' to arbitrary
 		selects the aspect ratio of the monitor used.
 	) Fixed a slowdown bug on the SVGALIB video board detection.
 	) Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
@@ -154,7 +154,7 @@ AdvanceMESS Version 0.61.1 2002/11
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.
 	) In Windows the default sdl samples buffer is now 2048.
-		This solve the distorced sound.
+		This solve the distorted sound.
 	) Added the new option `display_interlaceeffect' to help
 		with some broken monitors which need to swap the
 		video rows in interlaced modes.
@@ -173,7 +173,7 @@ AdvanceMAME Version 0.61.3 2002/09
 AdvanceMESS Version 0.61.0 2002/09
 	) Fixed the window title and the icon in the sdl system.
 	) In Windows the default sdl samples buffer is now 2048.
-		This solve the distorced sound.
+		This solve the distorted sound.
 	) Added the new option `display_interlaceeffect' to help
 		with some broken monitors which need to swap the
 		video rows in interlaced modes.
@@ -243,7 +243,7 @@ AdvanceMAME Version 0.61.0 2002/07
 		always configure the correct orientation.
 	) The `display_rotate auto' option now selects always the
 		`blit' rotation. The reason of this change is that
-		the `core' rotation will be completly removed on the
+		the `core' rotation will be completely removed on the
 		next MAME version (0.62).
 		On monoprocessor machines this may result in a
 		sensible slowdown on some games. Instead, on SMP
@@ -322,7 +322,7 @@ AdvanceMAME Version 0.59.0 2002/03
 AdvanceMAME Version 0.58.1 2002/03
 	) Fixed the clock values printed on the first line of the
 		video menu.
-	) Changed the behaviour of the "display_adjust x" option.
+	) Changed the behavior of the "display_adjust x" option.
 		Now all the modes are adjusted in size, not only the
 		nearest mode.
 	) Faster `scale2x' effect. Now optimized for AGP bus.
@@ -341,11 +341,11 @@ AdvanceMAME Version 0.58.0 2002/02
 		`record_video_interleave' options.
 	) Added the `zmng' compression utility in the contrib/zmng dir.
 	) When recording, the sound is now generated ignoring
-		the syncronization issues to get a perfect sound
+		the synchronization issues to get a perfect sound
 		also with games with a very high frame skip.
 	) Now you can record sound and video without any length limit.
 	) The recorded sound is now NOT adjusted in volume.
-	) Minor corrections at the sound syncronization.
+	) Minor corrections at the sound synchronization.
 
 AdvanceMESS Version 0.56.0 2002/01
 	) Added the MESS target at AdvanceMAME.
@@ -366,7 +366,7 @@ AdvanceMAME Version 0.57.1 2002/01
 	) Other minor bugfix.
 
 AdvanceMAME Version 0.57.0 2002/01
-	) Improved the SMP performance. Now the blit stage is completly
+	) Improved the SMP performance. Now the blit stage is completely
 		done by the second thread without any bitmap copy.
 	) Added a Console Frame Buffer video driver for Linux.
 	) Added the `misc_speed' option to control the speed of the game.
@@ -511,10 +511,10 @@ AdvanceMAME Version 0.53.0 2001/08
 		the Linux SVGALIB library. These drivers overperform
 		the old `vbeline' drivers. The old drivers are still
 		supported anyway.
-		These drivers are completly undependend of the underline
+		These drivers are completely independent of the underline
 		VBE BIOS. You don't need the SDD utility anymore.
 	) Added support for 32 bit depth.
-	) The sources are now completly indipendent from the MAMEDOS
+	) The sources are now completely independent from the MAMEDOS
 		sources. They stay in a new directory called `advance'.
 		Check the updated `build.txt' to compile.
 	) The configuration file is now named like the executable.
@@ -587,7 +587,7 @@ AdvanceMAME Version 0.37b14.3
 		details for a better debugging
 	) Changed the source distribution. Now you must apply two
 		patch. Check the build.txt file.
-	) Some fix and inprovement at the `cfg' utility.
+	) Some fix and improvement at the `cfg' utility.
 	) Added support for saving the volume attenuation in 
 		the directory "att". [Rafael Prado Rocchi]
 		You have to create the directory to enable this 
@@ -599,7 +599,7 @@ AdvanceMAME Version 0.37b14.2
 	) Removed the `[config] video_factor_frequency' option.
 		The game frequency is now matched implicitly.
 	) Renabled the `[config] scanlines' option. Now video modes are
-		generated and choosen with scanlines if available.
+		generated and chosen with scanlines if available.
 		Note that you generally need a wide Vclock range.
 		Something like 55-125 Hz.
 	) Added the `[config] magnify' option to suggest the use of
@@ -607,8 +607,8 @@ AdvanceMAME Version 0.37b14.2
 	) Added the `[config] rgb' to suggest the use of a true RGB mode.
 		If you already used the `depth=16' option now you can
 		set it to `depth=auto' and use `rgb=yes' instead.
-	) Some fix and inprovement at the modes generation and choice.
-	) Some fix and inprovement at the `cfg' utility.
+	) Some fix and improvement at the modes generation and choice.
+	) Some fix and improvement at the `cfg' utility.
 
 AdvanceMAME Version 0.37b14.1
 	) Added the configuration utility `cfg.exe' for the first
@@ -620,9 +620,9 @@ AdvanceMAME Version 0.37b14.1
 	) Solved a "Division by Zero" bug caused by
 		the incorrect use of textmode modelines.
 	) The "bliteffect = auto" option now select the "filter"
-		effect if the game is strecthed by a factor equal or
+		effect if the game is stretched by a factor equal or
 		greater than 2.
-	) The `pentium' version now uses the MMX if avaliable.
+	) The `pentium' version now uses the MMX if available.
 	) Added the `speed' utility to check the memory performance of
 		your video board.
 
@@ -758,7 +758,7 @@ AdvanceMAME Version 0.37b6.0
 	) Solved some bugs in the `r128' driver. Now working.
 	) Now `mame' doesn't add any default video modes if the list
 		defined in the `mame.cfg' file is empty. You MUST use
-		`mv' to select the video modes avaliable.
+		`mv' to select the video modes available.
 	) Now the required hclock/vclock specification for a LCD screen are:
 		:[video]
 		:hclock = 0
@@ -787,7 +787,7 @@ AdvanceMAME Version 0.37b5.0 2000/08
 
 	) Added the contrib/xfree directory with some very useful
 		technical documentation of video stuffs
-	) Changed the diplay format of the video mode list in `mame'
+	) Changed the display format of the video mode list in `mame'
 	) Updated a lot the file `mame.txt'
 	) Added the support for a second mouse imported from OptiMAME
 		by Andy Geez. You can found the custom mouse driver
@@ -978,7 +978,7 @@ AdvanceMAME Version 0.36b16.2 (never released)
 		from 8 to 16 bit
 	) Video option bliteffect= for selecting the image
 		reduction algorithm (when the screeen is too small for
-		the complete image). Modes avaliable :
+		the complete image). Modes available :
 
 		no - skip some lines
 		max - plot the lightest pixel (work very well for
@@ -988,7 +988,7 @@ AdvanceMAME Version 0.36b16.2 (never released)
 	) Added video options blitrotate = auto, automatic selection (list based)
 	) Added new aos.txt and mame.dat for AOS [Nick Bourdo]
 	) Video configuration modifiable at runtime, press HOME/END,
-		use the -log option for viewing the list of avaliable
+		use the -log option for viewing the list of available
 		video configuration for one game
 	) Added patch src.dif to apply at mame core sources for compiling
 	) Added `mame' configuration option "idleexit = SECONDS" for
@@ -1012,7 +1012,7 @@ AdvanceMAME Version 0.36b16.0 2000/02
 	) Substituted the option `resize = yes' to `resize = integer'
 
 AdvanceMAME Version 0.36b15.1 2000/01
-	) Correct the crash if "vsync" is active and no modes avaliable
+	) Correct the crash if "vsync" is active and no modes available
 	) Correct bug of missing horizontal lines if "scanline" is active
 	) Better output in errorlog.txt
 	) Correct bug in the input system

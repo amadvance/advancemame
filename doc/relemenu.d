@@ -8,7 +8,7 @@ AdvanceMAME 2.2.5
 
 AdvanceMENU 2.2.2
 	The option `video_depth' is now removed. The video bit depth is
-	choosen automatically. If you need to exclude some depth you can
+	chosen automatically. If you need to exclude some depth you can
 	use the new `device_color_*' options.
 
 AdvanceMENU 2.2.1
@@ -47,7 +47,7 @@ AdvanceMENU 1.16.1
 
 AdvanceMENU 1.16.0
 	The format of the configuration file is changed.
-	These are the istruction to convert your "mm.cfg" to the new format :
+	These are the instruction to convert your "mm.cfg" to the new format :
 
 	* Copy the file "mm.cfg" in the same directory of advmenu.exe.
 	* Ensure that a file named "advmenu.rc" doesn't exist.

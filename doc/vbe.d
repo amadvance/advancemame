@@ -1,7 +1,7 @@
 Name
 	vbe - VBE 16 bit BIOS wrapper for DOS
 
-Synopsys
+Synopsis
 	:vbe [/l] [/u] [/c CONFIG]
 
 Description
@@ -9,7 +9,7 @@ Description
 	wrapper. It isn't a complete VBE BIOS. It requires an existing and
 	working VBE BIOS.
 
-	It allow to set an arbitrary video mode list with the favourite
+	It allow to set an arbitrary video mode list with the favorite
 	modes which work best with your video hardware without any
 	restrictions in size and frequencies.
 
@@ -46,13 +46,13 @@ Options
 		Unload the utility
 
 	/c CONFIG
-		Use an arbitary configuration file
+		Use an arbitrary configuration file
 
 Cards
 	The program supports only some of the `vbeline' drivers listed in the
 	`carddos.txt' file.
 
-	Some of these drivers require that you prevently load the
+	Some of these drivers require that you in advance load the
 	`Scitech Display Doctor' (SDD) program to work correctly.
 
 	The available drivers are :
@@ -99,9 +99,9 @@ Limitations
 Application Problems
 	Some applications are able to use only some common resolutions
 	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
-	may be completly ignored or crash the application.
+	may be completely ignored or crash the application.
 
-	Others applications may get in trouble if the list of avaliable
+	Others applications may get in trouble if the list of available
 	VBE modes contains duplicate resolutions or is too big.
 	Add only the best modelines and avoid duplicates.
 

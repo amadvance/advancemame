@@ -29,7 +29,7 @@ AdvanceMENU Version 2.2.3 2003/01
 	) The emulator rom info file is not updated if the existing
 		file is readonly.
 	) Renamed the "Attrib" menu to "Selection".
-	) Added a new `difficulty' option and menu to globaly control
+	) Added a new `difficulty' option and menu to globally control
 		the difficulty level of the games. It works only
 		for the `advmame' emulator type and only for games
 		with a difficulty dip switch.
@@ -99,7 +99,7 @@ AdvanceMENU Version 2.1.2 2002/09
 AdvanceMENU Version 2.1.1 2002/09
 	) Fixed the window title and the icon in the sdl system.
 	) In Windows the default sdl samples buffer is now 2048.
-		This solve the distorced sound.
+		This solve the distorted sound.
 	) In DOS the executables are now searched also in the current
 		directory.
 	) Fixed the missing software bug when both DMESS and AdvanceMESS
@@ -137,7 +137,7 @@ AdvanceMENU Version 2.1.0 2002/09
 	) Fixed the slowdown bug with a lot of MESS roms.
 	) Generally improved the speed of the select/sort implementation
 		of the list of games.
-	) Added the `loop' option to continuosly play the MNG files.
+	) Added the `loop' option to continuously play the MNG files.
 	) In a single column mode the left and right events are now like
 		page up and page down events.
 	) Now the idle event never interrupt a long game clip or sound.
@@ -173,7 +173,7 @@ AdvanceMENU Version 2.0.0 2002/08
 		supported with the `dmame' emulator type.
 	) Added the support of the XMAME emulator with the
 		emulator type `xmame'.
-	) The Linux version now searchs the emulators in the whole
+	) The Linux version now searches the emulators in the whole
 		PATH if a relative path is given.
 	) Added support for the 32 bit graphics output.
 	) The article `The' on the game names is put at the end
@@ -186,7 +186,7 @@ AdvanceMENU Version 1.19.1 2002/07
 AdvanceMENU Version 1.19.0 2002/06
 	) Upgraded at the SVGALIB 1.9.15 library.
 	) Added the joystick calibration on the main menu.
-		This fixs the inverted movement with some
+		This fixes the inverted movement with some
 		joysticks on the DOS version.
 	) The third mouse and joystick button now open the
 		main menu.
@@ -217,7 +217,7 @@ AdvanceMENU Version 1.18.0 2002/04
 		game names without any image.
 	) Added description import from NMS files with the
 		option `desc_import'
-	) Changed the behaviour of the `*_import' options.
+	) Changed the behavior of the `*_import' options.
 		Now the imported values never overwrite the
 		user choices.
 	) Upgraded at the SVGALIB 1.9.13 library.
@@ -340,7 +340,7 @@ AdvanceMENU Version 1.15.0
 		roms files for the `generic' emulator.
 	) The `coin' and `time' values of a parent games count also
 		the clones if they are not displayed.
-	) Added a new event `shutdown' which exit immeditially and
+	) Added a new event `shutdown' which exit promptly and
 		shutdown the PC. (default CTRL+ESC)
 
 AdvanceMENU Version 1.14.2
@@ -399,7 +399,7 @@ AdvanceMENU Version 1.11.0
 		and `PlayChoice-10' games.
 	) Added the `idle_screesaver_preview' option `off' to
 		shutdown the monitor in the screensaver mode
-		using the VESA/PM services if avaliable.
+		using the VESA/PM services if available.
 	) Removed the auto cutoff of the preview images.
 	) The icons and marquees images are now selectable with the
 		new two modes `tile_icon' and `tile_marquee'.
@@ -498,7 +498,7 @@ AdvanceMENU Version 1.5.0
 	) Added the `event_alpha' option to disable the fast moving
 		with alphanumeric keys. This may be required with
 		keyboard encoders when alphanumeric keys are used for
-		others pourpuse.
+		others purpose.
 	) Added marquee support with the new mame.cfg option `marquees'.
 		Press `space' to activate it.
 	) Added multi emulator support. Now you can list all the games
@@ -571,7 +571,7 @@ AdvanceMENU Version 1.1.0 (0.37b6.0)
 		correctly the best clone is run instead. If you want
 		to force the run of the bad game use the F12 command.
 	) If the screenshot isn't found it's searched the screenshot of any
-		avaliable clones or parent games.
+		available clones or parent games.
 	) The key for selecting/deselecting all in the menu are now 'INS'
 		and 'DEL' and are remappable with the cfg file.
 	) Added the preview of the flyers pics. See the new options 'flyers'
@@ -588,6 +588,6 @@ AdvanceMENU Version 1.0.0 (0.37b5.0) 2000/08
 	) Added a new menu mode to the utility `mm' which display
 		a lot of tiled preview at the same times. Press TAB to
 		cycle from one mode to another.
-	) Now the utility `mm' is avaliable also as a standalone project
+	) Now the utility `mm' is available also as a standalone project
 		named AdvanceMENU
 

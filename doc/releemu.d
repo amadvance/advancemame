@@ -4,7 +4,7 @@ Name
 AdvanceMAME 0.68.0
 	This release add supports the new `scale3x' and `scale4x' effects.
 	To use them you must ensure to use an high pclock upper limit.
-	Something like 150 MHz. You need also a monitor wich support an
+	Something like 150 MHz. You need also a monitor which support an
 	high hclock upper limit. Something like 70 kHz.
 	Otherwise the required 3x3 and 4x4 times bigger mode may be rejected.
 

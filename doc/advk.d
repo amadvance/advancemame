@@ -1,7 +1,7 @@
 Name
 	advk - The AdvanceKEYBOARD Tester
 
-Synopsys
+Synopsis
 	:advk [-device_keyboard DEVICE]
 
 Description

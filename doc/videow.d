@@ -1,7 +1,7 @@
 Name
 	videow - Video control for Windows NT/2000/XP
 
-Synopsys
+Synopsis
 	:videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
 	:	[/n SIZE] [/m]
 
@@ -97,13 +97,13 @@ Limitations
 	* The program doesn't stay resident, any successive mode change will
 		reset the original video mode.
 
-Troubleshotting
-	) If the mouse pointer disappers try to reanable it with the /m option.
+Troubleshooting
+	) If the mouse pointer disappears try to reenable it with the /m option.
 
 	) If the screen image is stable but garbled it's probably because
 		the Windows video driver uses a not standard scanline size.
 		Try to guess it with the /n option. You should start
-		with the resolution width multiplied by the bytes per pixe.,
+		with the resolution width multiplied by the bytes per pixel.,
 		Then, increase this value until the screen become readable.
 		Generally the correct value is multiplier of 2^n where n
 		may vary from 1 to 8.

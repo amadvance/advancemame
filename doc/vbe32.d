@@ -1,15 +1,15 @@
 Name
 	vbe32 - VBE 32 bit BIOS for DOS
 
-Synopsys
+Synopsis
 	:vbe32 [/l] [/c CONFIG]
 
 Description
 	The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
-	VBE BIOS that completly substitutes the original VBE BIOS of your
+	VBE BIOS that completely substitutes the original VBE BIOS of your
 	video board.
 
-	It allow to set an arbitrary video mode list with the favourite
+	It allow to set an arbitrary video mode list with the favorite
 	modes which work best with your video hardware without any
 	restrictions in size and frequencies.
 
@@ -43,7 +43,7 @@ Options
 		Load in memory the utility
 
 	/c CONFIG
-		Use an arbitary configuration file
+		Use an arbitrary configuration file
 
 Cards
 	The program supports all the `svgaline' drivers listed in the
@@ -63,9 +63,9 @@ Limitations
 Application Problems
 	Some applications are able to use only some common resolutions
 	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
-	may be completly ignored or crash the application.
+	may be completely ignored or crash the application.
 
-	Others applications may get in trouble if the list of avaliable
+	Others applications may get in trouble if the list of available
 	VBE modes contains duplicate resolutions or is too big.
 	Add only the best modelines and avoid duplicates.
 

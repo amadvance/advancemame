@@ -18,7 +18,7 @@ Speed Tips That Don't Reduce The Emulation Quality
 	memory limit of 32/64/128 MB.
 
 	With a correct configuration the physical memory available
-	must be aproximatively large as your system memory less the
+	must be approximatively large as your system memory less the
 	memory used by the SMARTDRV cache and the 10 MB of the
 	executable size (not compressed).
 	If this doesn't happen check the DOS faq for a correct DOS
@@ -39,7 +39,7 @@ Speed Tips That Don't Reduce The Emulation Quality
 	You can test the effects of the changes using the `advv'
 	utility pressing F9 on a standard video mode like
 	"640x480x60Hz 8 bit".
-	The number on the upperleft corner if the memory bandwidth in
+	The number on the upper left corner if the memory bandwidth in
 	MB/s. Good values are over 200 MB/s.
 
 Speed Tips That Reduce The Emulation Quality

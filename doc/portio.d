@@ -1,7 +1,7 @@
 Name
 	portio - Input/Output on hardware ports for DOS
 
-Synopsys
+Synopsis
 	:portio lpt?
 	:portio ADDRESS_HEX
 	:portio lpt? VALUE_HEX

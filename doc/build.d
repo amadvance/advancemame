@@ -100,7 +100,7 @@ Targets
 		clear - Clean all.
 		install - Install all [must be root].
 
-Requirememts
+Requirements
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
@@ -119,7 +119,7 @@ Requirememts
 	The SVGALIB 1.4.x versions are NOT supported.
 
 	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
-	In the contrib/svgalib directory there are some source patchs to fix
+	In the contrib/svgalib directory there are some source patches to fix
 	some problems on the library. Use the noirq.diff patch if you detect
 	random freeze only with vsync activated.
 

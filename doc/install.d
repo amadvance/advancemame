@@ -3,7 +3,7 @@ Name
 
 First Time Configuration
 	The Advance projects have the ability to directly control your
-	video board to get the best possibile video modes with always
+	video board to get the best possible video modes with always
 	the correct size and aspect ratio.
 
 	To made it possible they needs some information on your monitor
@@ -20,7 +20,7 @@ First Time Configuration
 	a video mode from scratch. It's the simplest mode of operation.
 
 	In the `manual' mode the programs pick the video mode from a
-	predefined list of modelines, eventually adjsting them to match
+	predefined list of modelines, eventually adjusting them to match
 	the game clock or size requirements.
 	This mode of operation should be used only if the `automatic' mode
 	doesn't work.
@@ -31,7 +31,7 @@ First Time Configuration
 	can use only the video modes which your system reports as available.
 
 	The `sdl' and `vbe' video drivers are only indicated to use AdvanceMAME 
-	in a Window Manager system. Instead it's the prefered choice for 
+	in a Window Manager system. Instead it's the preferred choice for 
 	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
 	doesn't require not standard video modes.
 
@@ -64,7 +64,7 @@ Automatic Operation Mode
 Manual Operation Mode
 	In the manual operation mode the programs scan a list of `good'
 	video modelines created manually and chose the best available.
-	You must prevently create this list of video modelines with the
+	You must in advance create this list of video modelines with the
 	`advv' utility.
 
 	This is the description of the few basic steps required to run
@@ -72,7 +72,7 @@ Manual Operation Mode
 
 	) For AdvamceMAME add in the in the file `advmame.rc' these options:
 
-		:diplay_mode auto
+		:display_mode auto
 		:display_adjust x
 
 	) Add in the the file `advmame.rc' or `advmenu.rc' the `p/h/vclock'
@@ -152,9 +152,9 @@ Manual Operation Mode
 
 	) Press ESC to exit from `advv'
 
-	) Run `advmame' or the front-end `advmenu'
+	) Run `advmame' or the frontend `advmenu'
 
-Troubleshotting
+Troubleshooting
 	) Delete any old configuration files and restart from scratch.
 
 	) If you are using a PC Multisync monitor and the image is
@@ -166,7 +166,7 @@ Troubleshotting
 		:device_video_hclock 31 - 50
 
 	) If you are using an Arcade Monitor/TV and the image is
-		instable or completly black try increasing the lower
+		instable or completely black try increasing the lower
 		pclock limit. Instead of 5 try 8, 10, 12, ...
 		Try for example with:
 
@@ -189,7 +189,7 @@ Troubleshotting
 	) In DOS try changing the `vbeline_mode' option:
 
 		:device_video vbeline vgaline
-		:evice_vbeline_mode smaller
+		:device_vbeline_mode smaller
 
 	) In Linux try forcing the use of the `fb' driver instead of the
 		`svgalib' driver with the option:

@@ -1,7 +1,7 @@
 Name
 	advj - The AdvanceJOYSTICK Tester
 
-Synopsys
+Synopsis
 	:advj [-device_joystick DEVICE]
 
 Description

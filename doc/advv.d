@@ -1,7 +1,7 @@
 Name
 	advv - The AdvanceVIDEO Manual Configurator
 
-Synopsys
+Synopsis
 	:advv [-advmamev] [-advmessv] [-advpacv] [-advmenuv]
 	:	[-vbev] [-vgav] [-videowv] [-log] [-logsync]
 	:	[-rc RCFILE]
@@ -35,7 +35,7 @@ Description
 	modes in the configuration file. At the next run the emulator
 	will use one of the modelines that you have chosen.
 
-	If you have problem please read the TROUBLESHOTTING chapter in
+	If you have problem please read the TROUBLESHOOTING chapter in
 	the `install.txt' file.
 
 Options
@@ -67,7 +67,7 @@ Video Drivers
 			To use these modes your video board must be supported
 			by a `svgaline' driver listed in the `carddos.txt' file.
 
-			This driver is completly indipendent of the VBE BIOS
+			This driver is completely independent of the VBE BIOS
 			of your board.
 		vbeline - Generated VBE (VESA) modes.
 			Video modes obtained tweaking the standard VBE BIOS mode
@@ -82,7 +82,7 @@ Video Drivers
 			registers to modify the obtained video mode.
 			The driver `vbe3' is an exception. It requires the
 			presence of a VBE3 BIOS to change the frequency of the
-			desiderated video mode. Unfortunately the standard
+			desired video mode. Unfortunately the standard
 			VBE3 services don't support a resolution size change.
 
 			The resolution is changed modifying only the standard
@@ -106,7 +106,7 @@ Video Drivers
 			This driver supports also text modes with pixel clocks
 			12.59, 14.16, 25.17, 28.32 MHz.
 			
-			This driver is completly indipendent of the VGA BIOS
+			This driver is completely independent of the VGA BIOS
 			of your board.
 		vbe - Available VBE modes.
 			This driver is able to use only the video modes
@@ -238,7 +238,7 @@ Configuration
 			SVGALIB 1.9.x library. This driver is not
 			available in X (when the environment DISPLAY
 			variable is defined).
-		fb - SVGA generated grahics modes with the Linux Console
+		fb - SVGA generated graphics modes with the Linux Console
 			Frame Buffer. This driver is not
 			available in X (when the environment DISPLAY
 			variable is defined).
@@ -270,14 +270,14 @@ Configuration
 	`vbeline/vbe3'. A complete list of all the available model is in
 	the `card*.txt' files. 
 	
-	Plese note that forcing a specific video driver is discouraged.
+	Please note that forcing a specific video driver is discouraged.
 	Generally you don't need it.
 
 	For a more complete description of the drivers check the
 	previous `VIDEO DRIVER' section.
 
 	Example to enable the `vbeline' and the `vgaline' drivers
-	with autodetection for DOS :
+	with auto-detection for DOS :
 		:device_video vbeline vgaline
 
 	Example to force the `vbeline/vbe3' driver and the `vgaline'
@@ -428,7 +428,7 @@ Configuration
 	device_video_hclock option.
 
     device_video_singlescan/doublescan/interlace
-	Limit the use of certains features.
+	Limit the use of certain features.
 
 	:device_video_singlescan yes | no
 	:device_video_doublescan yes | no
@@ -437,7 +437,7 @@ Configuration
 	Options:
 		yes - Permits the use of the feature if the
 			low end driver allow it (default).
-		no - Disable completly the feature.
+		no - Disable completely the feature.
 
     device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
 	Limit the use of some bit depths. If you known that
@@ -464,7 +464,7 @@ Configuration
 	Options:
 		yes - Permits the use of the bit depth if the
 			low end driver allow it (default).
-		no - Disable completly the bit depth.
+		no - Disable completely the bit depth.
 
     device_video_output
 	Select the output mode.
@@ -525,7 +525,7 @@ Configuration
 
 	Options:
 		none - Don't use any `vbeline' driver.
-		auto - Autodetect (default).
+		auto - Auto-detect (default).
 		vbe3 - Use the VBE3 BIOS if available, this is the
 			last driver detected.
 		... - Check the `carddos.txt' file for a complete list of

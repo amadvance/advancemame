@@ -1,7 +1,7 @@
 Name
 	advmame, advmess, advpac - The AdvanceMAME Emulator
 
-Synopsys
+Synopsis
 	:advmame GAME [-default] [-remove] [-log] [-listinfo]
 	:	[-record FILE] [-playback FILE] [-version]
 
@@ -121,7 +121,7 @@ Options
 
 		:advmame pacman -device_sound sb -nodisplay_scanlines
 
-	You can use short options if they are unambigous. You can remove
+	You can use short options if they are unambiguous. You can remove
 	any prepending tag separated with `_' or truncate it.
 	For example `-dev_cartdrige' can be written as `-dev_cart',
 	`-cartdrige', `-cart', ...
@@ -132,7 +132,7 @@ Features
 
   Automatic Video Mode Generation
 	AdvanceMAME has the ability to directly control your video
-	board to get the best possibile video modes with always the
+	board to get the best possible video modes with always the
 	correct size and aspect ratio.
 
 	You can control how the mode are generated with the 
@@ -150,14 +150,14 @@ Features
 	the effective value used for the option is displayed in `[]'.
 
   Resize
-	AdavanceMAME supports many software stretching types of the
+	AdvanceMAME supports many software stretching types of the
 	game image. Generally they are not used, because a video
 	mode of the correct size is automatically generated.
 	But in some conditions it isn't possible, in this case the
 	image is stretched.
 
-	There are four strech type: `none', `integer', `mixed', `fractional'.
-	You can contol the type of stretching with the `display_resize' option.
+	There are four stretch type: `none', `integer', `mixed', `fractional'.
+	You can control the type of stretching with the `display_resize' option.
 
 	The `none' option simply disables any type of stretching.
 	The `integer' option allows only integer stretching in the
@@ -173,7 +173,7 @@ Features
 
   Blit Effects
 	AdvanceMAME supports many special video effects to improve
-	the image quality when it's strecthed.
+	the image quality when it's stretched.
 
 	There are five types of video effects: `none', `max', `mean',
 	`filter', `scale2x', `scale3x' and `scale4x'.
@@ -207,7 +207,7 @@ Features
 	Monitor.
 
 	You can simulate the RGB triads of the screen or the vertical and
-	horizonal scanlines.
+	horizontal scanlines.
 
   Mode Selection
 	In the `Video Mode' submenu you can select the favorite video
@@ -224,12 +224,12 @@ Features
 
   Per Game options
 	All the video options are customizable for the single
-	game or for a group og games. You can also save them
+	game or for a group of games. You can also save them
 	directly from the `Video Menu'.
 
   Scripts
 	AdvanceMAME support a basic script language capable to
-	control an external hardware throught the parallel port
+	control an external hardware through the parallel port
 	or keyboard led signals.
 
 	The scripts are described in the `script.txt' file.
@@ -241,7 +241,7 @@ Features
 	But if you want, you can permit a small aspect error
 	to enlarge the effective game image on the screen.
 	It's very useful to display vertical games on an
-	horizontal monitor and viceversa.
+	horizontal monitor and vice versa.
 
 	More details are in the description of the
 	`display_expand' option.
@@ -285,8 +285,8 @@ Features
 Use Cases
 	This section describes some useful cases for AdvanceMAME.
 
-  With a PC MultiSync Monitor
-	On a PC MultySync monitor you can get ANY Resolution at ANY
+  With a PC Multi-Sync Monitor
+	On a PC Multi-Sync monitor you can get ANY Resolution at ANY
 	Vertical Frequency. In this case AdvanceMAME always generates
 	a `perfect' video mode with the correct size and clock. It
 	doesn't require any type of stretching.
@@ -315,7 +315,7 @@ Use Cases
 	For example for the game "Pac-Man" on a NTSC TV a video mode
 	of 400x240 (perfect horizontal size) is used.
 
-  With a Multiformat NTSC and PAL TV
+  With a Multi-format NTSC and PAL TV
 	If your TV supports both formats, AdvanceMAME automatically
 	chooses the format which better fits the game requirements.
 	For example for the game "Mr. Do!" a video mode of 336x240
@@ -348,10 +348,10 @@ Other Ports
 	The xmame port has nearly the same video capabilities of
 	AdvanceMAME. The only drawback is that it requires a manual
 	modeline creation. AdvanceMAME uses the latest SVGALIB
-	library on witch you can create modeline dinamically and
+	library on witch you can create modeline dynamically and
 	that doesn't require the root access.
 
-	AdvanceMAME has also some uniqe features like the `scale2x',
+	AdvanceMAME has also some unique features like the `scale2x',
 	`filter' and `rgb' effects, the turbo mode, the scripts, SMP,
 	8 bit depth, ...
 
@@ -386,7 +386,7 @@ Configuration
 
 	If the SECTION is omitted the `' (empty) section is assumed.
 
-	You can split long options in a multiline format ending the line
+	You can split long options in a multi-line format ending the line
 	with the char `\' :
 
 		:[SECTION/]OPTION FIRST_LINE \
@@ -449,7 +449,7 @@ Configuration
 	Examples:
 		:advmess ti99_4a -dev_cartridge attackg.bin
 
-	Example using the command line autocompletion:
+	Example using the command line auto-completion:
 		:advmess ti99_4a -cart alpinerc.bin -cart alpinerg.bin
 
   Directory Configuration Options
@@ -528,7 +528,7 @@ Configuration
 	rom extension.
 
 	For the files searched in the `dir_image' option you can also
-	specify a different zip name separing the zip name without
+	specify a different zip name dividing the zip name without
 	the extension from the file name with the `=' char.
 	For example to run the `ti99_4a' emulator and load the
 	cartdriges `crom.bin' and `grom.bin' both contained in
@@ -545,7 +545,7 @@ Configuration
 	be used.
 
 	If you are using the `sdl' or `vbe' video driver you don't need to
-	set these options. They are completly ignored.
+	set these options. They are completely ignored.
 
 	With the other video drivers these options are used to select 
 	and create the correct video mode.
@@ -559,7 +559,7 @@ Configuration
 
 	Options:
 		MODELINE_NAME - Specific modeline, as named with
-			the `advmamev' utility.
+			the `advv' utility.
 		auto - Automatically chooses the best modeline
 			available (default).
 
@@ -590,7 +590,7 @@ Configuration
 			The generated modelines will have the names :
 			`generate', `generate-double', `generate-triple'
 			`generate-scanline' and `generate-interlace'.
-			Check the `advmamev.txt' file for other
+			Check the `advv.txt' file for other
 			explanation or simply use the `advcfg' utility 
 			to set it up correctly.
 			If the `device_video_format' option isn't
@@ -608,10 +608,10 @@ Configuration
 		generate_clocky - Like generate_exact and it allows
 			to generate modes with a wrong clock and/or size if a
 			perfect mode is not possible. Modes with a correct clock
-			are favorite over mode witha correct size.
+			are favorite over mode with a  correct size.
 
 	The `generate' options are the most powerful, you don't need to
-	create a list of modelines with the `advmamev' utility.
+	create a list of modelines with the `advv' utility.
 	With all the other options you need to create a list of good
 	modeline with the `advv' utility.
 
@@ -625,12 +625,12 @@ Configuration
 	The horizontal resolution of the modelines isn't important
 	because the video modes are stretched in any case.
 	Instead you should create a wide set of different vertical
-	resolutions on wich the video mode can be choosen.
+	resolutions on which the video mode can be chosen.
 	A good choice is to create all the resolutions with a step of
 	16 rows.
 
 	If you use `generate' you can set the option
-	`display_resize integer' for a MultiSync Monitor or
+	`display_resize integer' for a Multi-Sync Monitor or
 	`display_resize mixed' for an Arcade/TV to disable
 	software stretching.
 
@@ -651,7 +651,7 @@ Configuration
 	Note that the bgr24 color mode isn't really supported.
 
     display_resize
-	Used to suggest the favourite image stretching.
+	Used to suggest the favorite image stretching.
 	This option doesn't have any effect for vector games.
 
 	:display_resize none | integer | mixed | fractional
@@ -717,7 +717,7 @@ Configuration
 	You can enable or disable it also on the runtime Video menu.
 
     display_restore
-	Selects wether or not to reset to default text mode at the
+	Selects whether or not to reset to default text mode at the
 	emulator exit.
 
 	:display_restore yes | no
@@ -743,7 +743,7 @@ Configuration
 	dynamically adjusted during runtime to display the maximum
 	possible frames without dropping below the 100% speed.
 	Pressing F10 you can enable and disable the throttle
-	syncronization.
+	synchronization.
 
 	Examples:
 		:display_frameskip 0.5
@@ -919,7 +919,7 @@ Configuration
   Display Vector Configuration Options
 
     display_antialias
-	Antialiasing for vector games.
+	Anti-aliasing for vector games.
 
 	:display_antialias yes | no
 
@@ -978,7 +978,7 @@ Configuration
   Sound Configuration Options
 
     device_sound
-	Specify the soundcard.
+	Specify the sound-card.
 
 	:device_sound auto | none | DEVICE
 
@@ -1040,7 +1040,7 @@ Configuration
 			is duplicated.
 		surround - Use a fake surround effect. The right channel
 			plays part of the left channel as negate samples
-			and viceversa.
+			and vice-versa.
 
     sound_samplerate
 	Sets the audio sample rate.
@@ -1226,7 +1226,7 @@ Configuration
 		I - Number of player: 0, 1, 2, 3.
 		J - Name of player axe: x, y, z, pedal.
 		A - Number of physical joystick: 0, 1, 2, 3...
-		B - Number of physical stick of the josytick: 0, 1, 2, 3, ...
+		B - Number of physical stick of the joystick: 0, 1, 2, 3, ...
 		C - Number of physical axe of the stick: 0, 1, 2, 3, ...
 
 	Defaults:
@@ -1278,11 +1278,11 @@ Configuration
 		input_map[0,traky] - mouse[0,1] -mouse[1,1]
 
   Record Configuration Options
-	This section describes the options used for the recoring
+	This section describes the options used for the recording
 	features.
 
 	To start the recording press `left_ctrl+enter'. To end the
-	reconding and to save the clip press `enter'. If you press the
+	recording and to save the clip press `enter'. If you press the
 	start key more than one time the recording starts from the
 	last press.
 
@@ -1365,8 +1365,8 @@ Configuration
 	Enables the "Symmetric Multi-Processing" (SMP).
 	This option use two concurrent threads. One for MAME and one
 	for updating the screen.
-	The final blit stage in video memory is completly done by the
-	second thread. This behaviour requires a complete bitmap redraw
+	The final blit stage in video memory is completely done by the
+	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a big speed improvement only if you are using
 	a strong video effect like `scale2x'.
@@ -1418,7 +1418,7 @@ Configuration
 	:misc_quiet yes | no
 
     misc_timetorun
-	Run the emulation only for the given number of seconds whithout
+	Run the emulation only for the given number of seconds without
 	any throttling and at the exit print the number of real CPU
 	seconds used. Useful for benchmarking.
 
@@ -1454,7 +1454,7 @@ Configuration
 
     misc_cheat
 	Enable or disable the cheat system. It may also change the
-	game behaviour enabling the cheat dipswitch if available.
+	game behavior enabling the cheat dip-switch if available.
 	If enabled, it disables the hiscore saving.
 
 	:misc_cheat yes | no

@@ -1,7 +1,7 @@
 Name
 	advcfg - The AdvanceCFG Automatic Configurator
 
-Synopsys
+Synopsis
 	:advcfg [-advmamec] [-advmessc] [-advpacc] [-advmenuc]
 	:	[-log] [-logsync] [-rc RCFILE] [-bit N]
 

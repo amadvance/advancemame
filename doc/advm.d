@@ -1,7 +1,7 @@
 Name
 	advm - The AdvanceMOUSE Tester
 
-Synopsys
+Synopsis
 	:advm [-device_mouse DEVICE]
 
 Description

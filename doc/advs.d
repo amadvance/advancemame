@@ -1,7 +1,7 @@
 Name
 	advs - The AdvanceSOUND Tester
 
-Synopsys
+Synopsis
 	:advs [-device_sound DEVICE] [-sound_samplerate RATE]
 	:	[-sound_latency TIME] [-sound_buffer TIME]
 	:	[-sound_volume VOLUME] [-log] [-logsync]
@@ -10,7 +10,7 @@ Synopsys
 Description
 	The `advs' plays the specified wav and mp3 files.
 	If you specify more than one file all the files are mixed
-	and played togheter.
+	and played together.
 
 	Press Break to terminate before the end.
 

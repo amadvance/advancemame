@@ -20,7 +20,7 @@ Name
 	limitations and not due software limitations (i.e. VESA/DOS/Windows).
 
 	Generally the Advance emulators are able to use a video mode which
-	doesn't require any stretching or other unneed effects to match the
+	doesn't require any stretching or other unneeded effects to match the
 	original arcade display.
 	When the stretching is required by hardware limitations you can anyway
 	choice from different types of stretch.

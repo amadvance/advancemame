@@ -46,7 +46,7 @@ AdvanceMENU FAQ
 
 DOS Configuration FAQ
   What's the best configuration in PURE DOS ?
-	My favourite choice is to use HIMEM, EMM386 and a little
+	My favorite choice is to use HIMEM, EMM386 and a little
 	cache with SMARTDRV.
 
 	In CONFIG.SYS:
@@ -151,16 +151,16 @@ Video Configuration FAQ
 
   Which is the "tearing" effect ?
 	The tearing effect is a defects of the animation caused by a wrong
-	syncronization with the game refresh rate and the video mode refresh
+	synchronization with the game refresh rate and the video mode refresh
 	rate. It generally appears as a horizontal image split line, on the
 	top of this line you see the previous game frame, on the bottom of this
 	line you see the next game frame.
 
 	If the game and the video refresh rate are only a little different
-	the tearing split line is slowly moving up or down. If the refreshs are
-	very different the split line is moving randomily.
+	the tearing split line is slowly moving up or down. If the refreshes are
+	very different the split line is moving randomly.
 
-	The tearing effect is mostly noticeable in games with a continously
+	The tearing effect is mostly noticeable in games with a continuously
 	scrolling background.
 
   How can I remove the tearing effect ?
@@ -180,9 +180,9 @@ Video Configuration FAQ
 	frequency.
 
   Does the "double/tripler buffer" help to reduce the tearing effect ?
-	No. A generic asyncronous buffer does't remove or reduce the
-	tearing effect. A syncronous buffer instead it's exactly like
-	the vsync. AdvanceMAME supports only the asyncronous buffers.
+	No. A generic asynchronous buffer doesn't remove or reduce the
+	tearing effect. A synchronous buffer instead it's exactly like
+	the vsync. AdvanceMAME supports only the asynchronous buffers.
 
   Can I get a good animation with a video mode with arbitrary frequency ?
 	There is no way to get a perfect animation without using
@@ -196,12 +196,12 @@ Video Configuration FAQ
 	but after 7 frame you need to display a frame for 2/70 of second to
 	resyncronize with the original game speed.
 
-	The only exception is for frequencies which are multipler of
+	The only exception is for frequencies which are multiplier of
 	the original game refresh rate.
 
   Why the smaller video modes like 256x224 are not working ?
 	Probably your video board isn't able to generate very low
-	pixelclocks. You can try to increase the minimun value of the
+	pixelclocks. You can try to increase the minimum value of the
 	`device_video_pclock' option. The video mode generation will
 	automatically generate video modes with double or triple
 	horizontal resolutions to force the use of a pixelclock in
@@ -327,7 +327,7 @@ License FAQ
 
   Can I sell the AdvanceMAME binary present on the web site ?
 	No. The AdvanceMAME binary contains compiled MAME source and
-	the "MAME License" proibits selling.
+	the "MAME License" prohibits selling.
 
   Who is the copyright holder of AdvanceMAME ?
 	Andrea Mazzoleni is the copyright holder of AdvanceMAME.

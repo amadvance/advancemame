@@ -65,7 +65,7 @@ Operators
 		|| - logical or
 		! - logical not
 		< - less
-		> - greather
+		> - greater
 		== - equal
 		<= - less or equal
 		>= - greater or equal
@@ -95,11 +95,11 @@ Commands
 	The 'wait()' and 'delay()' command are used to maintain the
 	synchronization with the game emulation. When these commands
 	are executed the script is temporarily suspended. All others
-	commands are executed continuously whitout any delay.
+	commands are executed continuously without any delay.
 
 	The granularity of the delay command is the frame rate period.
 	Approx. 16 ms for a 60 Hz game. Delays under this limit don't
-	have the desiderated effect.
+	have the desired effect.
 
 	IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
 	COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may be
