@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.4.5 2004/12
+AdvanceMENU Version 2.4.5 2005/01
 	) Fixed the recognition of some USB mouses and keyboards
 		with the Linux event driver.
 	) The USB devices in Linux now have always the same order

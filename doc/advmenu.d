@@ -439,7 +439,9 @@ Configuration
 		roms_filter - List of pattern for the file to list.
 			An empty pattern means all files.
 		altss - Snapshot directory, used for snap images and
-			sounds.
+			sounds. If possible, the directories
+			specified in the emulator configuration file
+			are also used.
 		flyers - Flyers directory.
 		cabinets - Cabinets directory.
 		marquees - Marquees directory.
@@ -456,6 +458,9 @@ Configuration
 	Examples for DOS and Windows:
 		:emulator_roms "SNes9x" "c:\game\snes9x\roms;c:\game\zsnes\roms2"
 		:emulator_roms_filter "SNes9x" "*.smc;*.sfc;*.fig;*.1"
+		:emulator_flyers "SNes9x" "c:\game\zsnes\fly"
+		:emulator_cabinets "SNes9x" "c:\game\zsnes\cab"
+		:emulator_marquees "SNes9x" "c:\game\zsnes\mar"
 		:emulator_roms "ZSNes" "c:\game\zsnes\roms"
 		:emulator_roms_filter "ZSNes" "*.smc;*.sfc;*.fig;*.1"
 
