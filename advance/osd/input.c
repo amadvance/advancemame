@@ -2,6 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2003 Martin Adrian
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1085,6 +1086,189 @@ static adv_error parse_digital(unsigned* map, char* s)
 	return 0;
 }
 
+static adv_error parse_inputname(char* s)
+{
+	char c;
+	int p;
+	const char* t;
+	const char* argv[4];
+	unsigned argc;
+	const char* name;
+	int i;
+	adv_bool found;
+	unsigned code;
+
+	p = 0;
+	sskip(&p, s, " \t");
+
+	/* parse until first [ */
+	t = stoken(&c, &p, s, "[ \t", " \t");
+	if (c!='[') {
+		error_set("Missing [ in '%s'", t);
+		return -1;
+	}
+
+	/* get all arguments */
+	argc = 0;
+	while (s[p]) {
+		argv[argc] = stoken(&c, &p, s, ",] \t", " \t");
+		if (c == ',' || c == ']') {
+			if (argc == 4) {
+				error_set("Too many arguments for '%s'", t);
+				return -1;
+			}
+			++argc;
+			if (c == ']')
+				break;
+		} else {
+			error_set("Missing ] in '%s'", t);
+			return -1;
+		}
+	}
+	if (c!=']') {
+		error_set("Missing ] in '%s'", t);
+		return -1;
+	}
+
+	/* skip spaces */
+	sskip(&p, s, " \t");
+
+	/* get new name */
+	name = stoken(&c, &p, s, "", "");
+
+	if (*name == 0) {
+		error_set("Missing input name in '%s'", t);
+		return -1;
+	}
+
+	/* parse arguments */
+	if (strcmp(t, "keyboard") == 0) {
+		int board, key;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&board, argv[0]) != 0
+			|| parse_key(&key, argv[1], board) != 0)
+			return -1;
+
+		if (board < 0 || board >= INPUT_KEYBOARD_MAX) {
+			error_set("Invalid keyboard '%d'", board);
+			return -1;
+		}
+		if (key < 0 || key >= KEYB_MAX) {
+			error_set("Invalid key '%d'", key);
+			return -1;
+		}
+
+		code = DIGITAL_KBD(board, key);
+	} else if (strcmp(t, "joystick_digital") == 0) {
+		int joystick, stick, axe, dir;
+
+		if (argc != 4) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+	        if (parse_int(&joystick, argv[0]) != 0
+			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
+			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
+			|| parse_direction(&dir, argv[3]) != 0)
+			return -1;
+
+		if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+			error_set("Invalid joystick '%d'", joystick);
+			return -1;
+		}
+		if (stick < 0 || stick >= INPUT_STICK_MAX) {
+			error_set("Invalid stick '%d'", stick);
+			return -1;
+		}
+		if (axe < 0 || axe >= INPUT_AXE_MAX) {
+			error_set("Invalid joystick axe '%d'", axe);
+			return -1;
+		}
+
+		code = DIGITAL_JOY(joystick, stick, axe, dir);
+	} else if (strcmp(t, "joystick_button") == 0) {
+		int joystick, button;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&joystick, argv[0]) != 0
+			|| parse_joystick_button(&button, argv[1], joystick) != 0)
+			return -1;
+
+		if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+			error_set("Invalid joystick '%d'", joystick);
+			return -1;
+		}
+		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			error_set("Invalid joystick button '%d'", button);
+			return -1;
+		}
+
+		code = DIGITAL_JOY_BUTTON(joystick, button);
+	} else if (strcmp(t, "mouse_button") == 0) {
+		int mouse, button;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&mouse, argv[0]) != 0
+			|| parse_mouse_button(&button, argv[1], mouse) != 0)
+			return -1;
+
+		if (mouse < 0 || mouse >= INPUT_MOUSE_MAX) {
+			error_set("Invalid mouse '%d'", mouse);
+			return -1;
+		}
+		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			error_set("Invalid mouse button '%d'", button);
+			return -1;
+		}
+
+		code = DIGITAL_MOUSE_BUTTON(mouse, button);
+	} else {
+		error_set("Unknown input type '%s'", t);
+		return -1;
+	}
+
+	/* look up code in all the tables */
+	found = 0;
+	for(i=0;input_key_map[i].name;++i) {
+		if (input_key_map[i].code == code) {
+			sncpy(input_key_map[i].name, INPUT_NAME_MAX, name);
+			found = 1;
+		}
+	}
+	for(i=0;input_joy_map[i].name;++i) {
+		if (input_joy_map[i].code == code) {
+			sncpy(input_joy_map[i].name, INPUT_NAME_MAX, name);
+			found = 1;
+		}
+	}
+
+	/* if the code isn't found it isn't an error */
+	/* for example some USB input devices may be removed */
+	if (!found) {
+		if (argc > 0) {
+			log_std(("WARNING:emu:input: input '%s[%s,...]' not found", t, argv[0]));
+		} else {
+			log_std(("WARNING:emu:input: input '%s' not found", t));
+		}
+	}
+
+	return 0;
+}
+
 /**************************************************************************/
 /* Input */
 
@@ -1265,7 +1449,7 @@ static void input_setup_log(struct advance_input_context* context)
 {
 	unsigned i, j, k;
 
-	log_std(("advance: input devices\n"));
+	log_std(("emu:input: input devices\n"));
 
 	log_std(("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get()));
 	for(i=0;i<keyb_count_get();++i) {
@@ -1309,7 +1493,7 @@ static void input_setup_log(struct advance_input_context* context)
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		for(j=0;j<INPUT_ANALOG_MAX;++j) {
-			log_std(("advance: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
+			log_std(("emu:input: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
 			for(k=0;k<INPUT_MAP_MAX;++k) {
 				unsigned v = context->config.analog_map[i][j].seq[k];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
@@ -1333,7 +1517,7 @@ static void input_setup_log(struct advance_input_context* context)
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			log_std(("advance: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
+			log_std(("emu:input: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
 			for(k=0;k<INPUT_MAP_MAX;++k) {
 				unsigned v = context->config.trak_map[i][j].seq[k];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
@@ -1366,7 +1550,7 @@ static void input_setup_log(struct advance_input_context* context)
 	/* print the key list */
 	{
 		j = 0;
-		log_std(("advance: Keys\t\t"));
+		log_std(("emu:input: Keys\t\t"));
 		for(i=0;i<KEYB_MAX;++i) {
 			if (key_is_defined(i)) {
 				log_std(("%s, ", key_name(i)));
@@ -1384,7 +1568,7 @@ static void input_setup_log(struct advance_input_context* context)
 	{
 		struct mame_port* p;
 		j = 0;
-		log_std(("advance: Ports\t\t"));
+		log_std(("emu:input: Ports\t\t"));
 		for(p=mame_port_list();p->name;++p) {
 			log_std(("%s, ", p->name));
 			j += 2 + strlen(p->name);
@@ -1464,7 +1648,7 @@ static void input_setup_list(struct advance_input_context* context)
 	input_joy_map[mac].code = 0;
 	input_joy_map[mac].standardcode = 0;
 
-	log_std(("advance: input digital joystick code %d\n", mac));
+	log_std(("emu:input: input digital joystick code %d\n", mac));
 
 	/* set the equivalence */
 	for(i=0;i<mac;++i) {
@@ -1511,7 +1695,7 @@ static void input_setup_list(struct advance_input_context* context)
 		}
 	}
 
-	log_std(("advance: input digital keyboard code %d\n", mac));
+	log_std(("emu:input: input digital keyboard code %d\n", mac));
 }
 
 static void input_setup_init(struct advance_input_context* context)
@@ -1574,6 +1758,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	unsigned i, j;
 	const char* s;
 	const struct mame_port* p;
+	adv_conf_iterator k;
 
 	/* analog */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
@@ -1641,6 +1826,21 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	}
 	context->config.digital_mac = i;
 
+	log_std(("emu:input: input_name start\n"));
+	for (conf_iterator_begin(&k, cfg_context, "input_name");!conf_iterator_is_end(&k);conf_iterator_next(&k)) {
+		char* d = strdup(conf_iterator_string_get(&k));
+
+		log_std(("emu:input: input_name '%s'\n", d));
+
+		if (parse_inputname(d) != 0) {
+			free(d);
+			target_err("Invalid 'input_name' option.\n%s\n", error_get());
+			return -1;
+		}
+
+		free(d);
+	}
+
 	return 0;
 }
 
@@ -1649,7 +1849,7 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 	struct advance_input_context* context = &CONTEXT.input;
 	struct ipd* i = defaults;
 
-	log_std(("advance: osd_customize_inputport_defaults()\n"));
+	log_std(("emu:input: osd_customize_inputport_defaults()\n"));
 
 	while (i->type != IPT_END) {
 		unsigned port = i->type & (IPF_PLAYERMASK | ~IPF_MASK);
@@ -1674,9 +1874,9 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 					++p;
 				}
 				if (p->name)
-					log_std(("advance: customize input %s :", p->name));
+					log_std(("emu:input: customize input %s :", p->name));
 				else
-					log_std(("advance: customize input 0x%x :", port));
+					log_std(("emu:input: customize input 0x%x :", port));
 
 				k = 0;
 				y = 0;
@@ -1763,7 +1963,7 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 				}
 				log_std(("\n"));
 				if (overflow) {
-					log_std(("ERROR:advance: input map definition overflow\n"));
+					log_std(("ERROR:emu:input: input map definition overflow\n"));
 				}
 			}
 		}
@@ -1812,6 +2012,8 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 		conf_string_register_default(cfg_context, tag_buffer, "auto");
 		++p;
 	}
+
+	conf_string_register_multi(cfg_context, "input_name");
 
 	joystickb_reg(cfg_context, 0);
 	joystickb_reg_driver_all(cfg_context);
@@ -2054,7 +2256,7 @@ int osd_is_key_pressed(int keycode)
 	struct advance_input_context* context = &CONTEXT.input;
 	unsigned type;
 
-	log_debug(("advance: osd_is_key_pressed(keycode:0x%08x)\n", keycode));
+	log_debug(("emu:input: osd_is_key_pressed(keycode:0x%08x)\n", keycode));
 
 	assert(context->state.active_flag != 0);
 
@@ -2077,7 +2279,7 @@ int osd_is_key_pressed(int keycode)
 		}
 	}
 
-	log_std(("ERROR:advance: osd_is_key_pressed(keycode:0x%08x) is not a correct code\n", keycode));
+	log_std(("ERROR:emu:input: osd_is_key_pressed(keycode:0x%08x) is not a correct code\n", keycode));
 
 	return 0;
 }
@@ -2109,7 +2311,7 @@ int osd_is_joy_pressed(int joycode)
 	struct advance_input_context* context = &CONTEXT.input;
 	unsigned type;
 
-	log_debug(("advance: osd_is_joy_pressed(joycode:0x%08x)\n", joycode));
+	log_debug(("emu:input: osd_is_joy_pressed(joycode:0x%08x)\n", joycode));
 
 	assert(context->state.active_flag != 0);
 
@@ -2141,7 +2343,7 @@ int osd_is_joy_pressed(int joycode)
 		}
 	}
 
-	log_std(("ERROR:advance: osd_is_joy_pressed(joycode:0x%08x) is not a correct code\n", joycode));
+	log_std(("ERROR:emu:input: osd_is_joy_pressed(joycode:0x%08x) is not a correct code\n", joycode));
 
 	return 0;
 }

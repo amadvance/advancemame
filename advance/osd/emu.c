@@ -356,7 +356,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_map[p4_pedal_down]", "*", "", "", "", 0 }, /* ignore */
 /* 0.77.0 */
 { "*", "display_resizeeffect", "filterx", "%s", "%s", "filter", 0 }, /* rename */
-{ "*", "display_resizeeffect", "filtery", "%s", "%s", "filter", 0 } /* rename */
+{ "*", "display_resizeeffect", "filtery", "%s", "%s", "filter", 0 }, /* rename */
+/* 0.77.1 */
+{ "*", "device_video_output", "zoom", "%s", "%s", "overlay", 0 }, /* rename */
+{ "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

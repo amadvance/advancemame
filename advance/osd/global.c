@@ -246,6 +246,8 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 {
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
+	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
+
 	return 0;
 }
 
@@ -253,6 +255,8 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 {
 	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
+	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");
+
 	return 0;
 }
 

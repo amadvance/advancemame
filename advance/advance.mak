@@ -4,9 +4,9 @@
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.77.0.0
 else
-EMUVERSION = 0.77.0
+EMUVERSION = 0.77.1
 endif
-MENUVERSION = 2.2.14
+MENUVERSION = 2.2.15
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -38,6 +38,7 @@ ifneq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 endif
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
+INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mess)
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
 endif

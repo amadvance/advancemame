@@ -346,7 +346,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		adv_bool mode_flag;
 		unsigned zoom_area = zoom_size * zoom_size * 3 / 4;
 
-		log_std(("video:sdl: use zoom output\n"));
+		log_std(("video:sdl: use overlay output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
@@ -362,7 +362,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			sdl_state.zoom_bit = 16;
 		}
 
-		log_std(("video:sdl: zoom bitsperpixel %d\n", sdl_state.zoom_bit));
+		log_std(("video:sdl: overlay bitsperpixel %d\n", sdl_state.zoom_bit));
 
 		/* select the mode */
 		mode_flag = 0;
@@ -386,7 +386,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		sdl_state.zoom_x = mode_x;
 		sdl_state.zoom_y = mode_y;
 
-		log_std(("video:sdl: zoom size %dx%d\n", sdl_state.zoom_x, sdl_state.zoom_y));
+		log_std(("video:sdl: overlay size %dx%d\n", sdl_state.zoom_x, sdl_state.zoom_y));
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
@@ -791,7 +791,7 @@ adv_error sdl_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
  */
 adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 {
-	log_std(("video:sdl: sdl_mode_import()\n"));
+	log_debug(("video:sdl: sdl_mode_import()\n"));
 
 	snprintf(mode->name, MODE_NAME_MAX, "sdl_%dx%dx%d", sdl_mode->size_x, sdl_mode->size_y, index_bits_per_pixel(sdl_mode->index));
 
@@ -818,7 +818,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	unsigned request_y;
 	unsigned request_bits;
 
-	log_std(("video:sdl: sdl_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
+	log_debug(("video:sdl: sdl_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
 	if (!crtc_is_fake(crtc)) {
 		error_nolog_set("Programmable modes not supported.\n");
@@ -832,7 +832,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	case MODE_FLAGS_INDEX_BGR24 :
 	case MODE_FLAGS_INDEX_BGR32 :
 		if (sdl_state.output == adv_output_zoom) {
-			error_nolog_set("Only yuy2 is supported in zoom mode.\n");
+			error_nolog_set("Only yuy2 is supported in overlay mode.\n");
 			return -1;
 		}
 
@@ -857,7 +857,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
 		if (sdl_state.output != adv_output_zoom) {
-			error_nolog_set("yuy2 supported only in zoom mode.\n");
+			error_nolog_set("yuy2 supported only in overlay mode.\n");
 			return -1;
 		}
 		break;

@@ -435,7 +435,7 @@ MENU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/menu/*)
 
 MENU_DOC_SRC = \
-	$(srcdir)/doc/device.d \
+	$(srcdir)/doc/advdev.d \
 	$(srcdir)/doc/advmenu.d \
 	$(srcdir)/doc/build.d \
 	$(srcdir)/doc/cost.d \
@@ -455,7 +455,7 @@ MENU_SUPPORT_SRC = \
 	$(srcdir)/support/advmenuc.bat
 
 MENU_DOC_BIN = \
-	$(DOCOBJ)/device.txt \
+	$(DOCOBJ)/advdev.txt \
 	$(DOCOBJ)/advmenu.txt \
 	$(DOCOBJ)/build.txt \
 	$(DOCOBJ)/cost.txt \
@@ -467,7 +467,7 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/install.txt \
-	$(DOCOBJ)/device.html \
+	$(DOCOBJ)/advdev.html \
 	$(DOCOBJ)/advmenu.html \
 	$(DOCOBJ)/build.html \
 	$(DOCOBJ)/cost.html \
@@ -505,6 +505,7 @@ MENU_ROOT_BIN = \
 ifeq ($(CONF_HOST),unix)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
+	$(DOCOBJ)/advdev.1 \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1 \
 	$(CONF_BIN)

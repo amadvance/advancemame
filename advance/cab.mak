@@ -63,7 +63,7 @@ CAB_ADVANCE_SRC = \
 	$(srcdir)/advance/d2.mak
 
 CAB_DOC_SRC = \
-	$(srcdir)/doc/device.d \
+	$(srcdir)/doc/advdev.d \
 	$(srcdir)/doc/vbe.d \
 	$(srcdir)/doc/vbe32.d \
 	$(srcdir)/doc/vga.d \
@@ -79,12 +79,12 @@ CAB_DOC_SRC = \
 	$(srcdir)/doc/relecab.d
 
 CAB_DOC_BIN += \
-	$(DOCOBJ)/device.txt \
+	$(DOCOBJ)/advdev.txt \
 	$(DOCOBJ)/histcab.txt \
 	$(DOCOBJ)/readcab.txt \
 	$(DOCOBJ)/relecab.txt \
 	$(DOCOBJ)/advv.txt \
-	$(DOCOBJ)/device.html \
+	$(DOCOBJ)/advdev.html \
 	$(DOCOBJ)/histcab.html \
 	$(DOCOBJ)/readcab.html \
 	$(DOCOBJ)/relecab.html \

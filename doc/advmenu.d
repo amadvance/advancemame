@@ -604,7 +604,7 @@ Configuration
   Video Configuration Options
 
     device_video_*
-	All the `device_video_*' options defined in the `device.txt' file can
+	All the `device_video_*' options defined in the `advdev.txt' file can
 	be used.
 
 	If you use a `System' video driver, you don't need to set these
@@ -680,7 +680,7 @@ Configuration
 
   Sound Configuration Options
     device_sound_*
-	All the `device_sound_*' options defined in the `device.txt' file can
+	All the `device_sound_*' options defined in the `advdev.txt' file can
 	be used.
 
     sound_volume
@@ -783,7 +783,7 @@ Configuration
 
     device_keyboard/joystick/mouse
 	All the `device_keyboard/joystick/mouse_*' options defined in
-	the `device.txt' file can be used.
+	the `advdev.txt' file can be used.
 
     mouse_delta
 	Select the mouse/trackball sensitivity. Increase the value for
@@ -806,8 +806,11 @@ Configuration
 		FILE - File to load (default none).
 
     ui_skiptop/bottom/left/right
-	Define the border area of the screen not used by the menu. Generally it's
-	the part of the screen used by the background image.
+	Define the border area of the screen not used by the menu. Generally
+	it's the part of the screen used by the background image.
+	If a `ui_background' image is specified these values refer at image
+	size before stretching, otherwise they refer at the current video
+	mode size.
 
 	ui_skiptop N
 	ui_skipbottom N
@@ -815,7 +818,7 @@ Configuration
 	ui_skipright N
 
 	Options:
-		N - Number of pixel to skip (defaul 0).
+		N - Number of pixel to skip (default 0).
 
     ui_topbar/bottombar
 	Enable or disable the top and bottom information bars.

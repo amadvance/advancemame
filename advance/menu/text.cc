@@ -2350,7 +2350,7 @@ void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 		int_clear_noclip(x, y, dx, dy, color);
 }
 
-bool int_image(const char* file)
+bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 {
 	adv_fz* f = fzopen(file, "rb");
 	if (!f) {
@@ -2374,6 +2374,9 @@ bool int_image(const char* file)
 		fzclose(f);
 		return false;
 	}
+
+	scale_x = pix_width;
+	scale_y = pix_height;
 
 	fzclose(f);
 

@@ -159,32 +159,37 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned best_size_x;
 	unsigned best_size_y;
 
-	switch (context->config.magnify_factor) {
-	case 1 :
-		best_size_x = context->state.mode_best_size_x;
-		best_size_y = context->state.mode_best_size_y;
-		break;
-	case 2 :
-		best_size_x = context->state.mode_best_size_2x;
-		best_size_y = context->state.mode_best_size_2y;
-		break;
-	case 3 :
-		best_size_x = context->state.mode_best_size_3x;
-		best_size_y = context->state.mode_best_size_3y;
-		break;
-	case 4 :
-		best_size_x = context->state.mode_best_size_4x;
-		best_size_y = context->state.mode_best_size_4y;
-		break;
-	default :
-		if (context->state.mode_best_size_x < 512) {
-			best_size_x = context->state.mode_best_size_2x;
-			best_size_y = context->state.mode_best_size_2y;
-		} else {
+	if (!context->state.game_vector_flag) {
+		switch (context->config.magnify_factor) {
+		case 1 :
 			best_size_x = context->state.mode_best_size_x;
 			best_size_y = context->state.mode_best_size_y;
+			break;
+		case 2 :
+			best_size_x = context->state.mode_best_size_2x;
+			best_size_y = context->state.mode_best_size_2y;
+			break;
+		case 3 :
+			best_size_x = context->state.mode_best_size_3x;
+			best_size_y = context->state.mode_best_size_3y;
+			break;
+		case 4 :
+			best_size_x = context->state.mode_best_size_4x;
+			best_size_y = context->state.mode_best_size_4y;
+			break;
+		default :
+			if (context->state.mode_best_size_x < 512) {
+				best_size_x = context->state.mode_best_size_2x;
+				best_size_y = context->state.mode_best_size_2y;
+			} else {
+				best_size_x = context->state.mode_best_size_x;
+				best_size_y = context->state.mode_best_size_y;
+			}
+			break;
 		}
-		break;
+	} else {
+		best_size_x = context->state.mode_best_size_x;
+		best_size_y = context->state.mode_best_size_y;
 	}
 
 	/* nearest is lower */

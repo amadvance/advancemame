@@ -311,7 +311,7 @@ struct advance_glue_context {
 	int video_flag; /** If the video initialization completed with success. */
 
 	int sound_flag; /**< Sound main active flag. */
-	double sound_step; /**< Number of sound samples for a single frame. This is the ideal value. */
+	unsigned sound_step; /**< Number of sound samples for a single frame. This is the ideal value. */
 	unsigned sound_last_count; /** Number of sound samples for the last frame. */
 	int sound_latency; /**< Current samples in excess. Updated at every frame. */
 	double sound_speed; /**< Current speed adjustment. */
@@ -548,7 +548,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.use_samples = advance->samples_flag;
 	options.use_filter = advance->filter_flag;
 	options.brightness = advance->brightness;
-	options.pause_bright = 1.0;
+	options.pause_bright = context->global.config.pause_brightness;
 	options.gamma = advance->gamma;
 	options.color_depth = advance->color_depth;
 	options.vector_width = advance->vector_width;
@@ -1153,13 +1153,8 @@ static unsigned glue_sound_sample(void)
 	/* Correction for a generic sound buffer underflow. */
 	/* Generally happen that the DMA buffer underflow reporting */
 	/* a fill state instead of an empty one. */
-
 	/* The value of 16 is a standard value which should not generated problems */
 	/* on the MAME core */
-	if (samples < 0) {
-		log_std(("WARNING:glue: negative sound samples %d adjusted to 16\n", samples));
-		samples = 16;
-	}
 	if (samples < 16) {
 		log_std(("WARNING:glue: too small sound samples %d adjusted to 16\n", samples));
 		samples = 16;
@@ -1303,6 +1298,8 @@ int osd_start_audio_stream(int stereo)
 		GLUE.sound_fps = Machine->drv->frames_per_second;
 	GLUE.sound_step = rate / (GLUE.sound_fps * GLUE.sound_speed);
 	GLUE.sound_latency = 0;
+
+	log_std(("glue: sound samples for frame %d\n", GLUE.sound_step));
 
 	GLUE.sound_silence_count = 2 * GLUE.sound_step; /* double size for safety */
 	if (stereo) {

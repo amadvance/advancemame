@@ -629,7 +629,7 @@ EMU_SUPPORT_SRC += \
 endif
 
 EMU_DOC_SRC = \
-	$(srcdir)/doc/device.d \
+	$(srcdir)/doc/advdev.d \
 	$(srcdir)/doc/license.d \
 	$(srcdir)/doc/advmame.d \
 	$(srcdir)/doc/authors.d \
@@ -655,7 +655,7 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/svgawin.d
 
 EMU_DOC_BIN = \
-	$(DOCOBJ)/device.txt \
+	$(DOCOBJ)/advdev.txt \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmame.txt \
 	$(DOCOBJ)/build.txt \
@@ -670,7 +670,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
-	$(DOCOBJ)/device.html \
+	$(DOCOBJ)/advdev.html \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \
@@ -734,6 +734,7 @@ EMU_ROOT_BIN += \
 	$(JOBJ)/advj$(EXE) \
 	$(MOBJ)/advm$(EXE) \
 	$(DOCOBJ)/advmame.1 \
+	$(DOCOBJ)/advdev.1 \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1 \
 	$(DOCOBJ)/advk.1 \

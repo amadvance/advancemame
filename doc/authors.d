@@ -15,6 +15,7 @@ Acknowledgments
 	* Ian Patterson
 	* Randy Schnedler (Randy Power)
 	* Kari Hautio
+	* Martin Adrian (wpcmame)
 
 Libraries
 	MAME - http://www.mame.net

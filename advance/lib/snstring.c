@@ -127,7 +127,7 @@ void sskip(int* p, const char* s, const char* sep)
  * \param s String to scan. The string is modified to put the terminating 0 at the end of the token.
  * \param sep Set of chars to use as separators.
  * \param ignore Set of chars to ignore. They are removed at the start and at the end of the token. They are not removed after the separator.
- * \param The extratect token 0 always terminated.
+ * \param The extratect token, always 0 terminated.
  */
 const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore)
 {

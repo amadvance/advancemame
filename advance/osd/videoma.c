@@ -145,7 +145,8 @@ static adv_bool video_is_programmable(struct advance_video_context* context)
 static adv_bool video_is_generable(struct advance_video_context* context)
 {
 	return (context->config.adjust & ADJUST_GENERATE) != 0
-		&& video_is_programmable(context);
+		&& video_is_programmable(context)
+		&& context->config.interpolate.mac > 0;
 }
 
 /**
@@ -164,14 +165,18 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		unsigned best_size_x;
 
-		switch (context->config.magnify_factor) {
-		case 1 : best_size_x = context->state.mode_best_size_x; break;
-		case 2 : best_size_x = context->state.mode_best_size_2x; break;
-		case 3 : best_size_x = context->state.mode_best_size_3x; break;
-		case 4 : best_size_x = context->state.mode_best_size_4x; break;
-		default: /* auto setting */
-			best_size_x = context->state.mode_best_size_x < 512 ? context->state.mode_best_size_2x : context->state.mode_best_size_x;
-			break;
+		if (!context->state.game_vector_flag) {
+			switch (context->config.magnify_factor) {
+			case 1 : best_size_x = context->state.mode_best_size_x; break;
+			case 2 : best_size_x = context->state.mode_best_size_2x; break;
+			case 3 : best_size_x = context->state.mode_best_size_3x; break;
+			case 4 : best_size_x = context->state.mode_best_size_4x; break;
+			default: /* auto setting */
+				best_size_x = context->state.mode_best_size_x < 512 ? context->state.mode_best_size_2x : context->state.mode_best_size_x;
+				break;
+			}
+		} else {
+			best_size_x = context->state.mode_best_size_x;
 		}
 
 		crtc_hsize_set(crtc, best_size_x);
@@ -801,23 +806,24 @@ static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* cont
 
 	mode_reset(&mode);
 
-	if (!video_is_programmable(context)) {
-		return 1; /* always ok if the driver is not programmable */
-	}
+	if (video_is_programmable(context)) {
 
-	/* adjust the clock if possible */
-	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
-		if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
-			if (crtc_adjust_clock(&temp_crtc, &context->config.monitor) != 0) {
-				/* ignore error */
+		/* adjust the clock if possible */
+		if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
+			if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
+				if (crtc_adjust_clock(&temp_crtc, &context->config.monitor) != 0) {
+					/* ignore error */
+				}
 			}
+		}
+
+		/* final check on the monitor range */
+		if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
+			return 0;
 		}
 	}
 
-	if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
-		return 0;
-	}
-
+	/* try generating the video mode */
 	i = flags;
 	while (*i) {
 		if (video_mode_generate(&mode, &temp_crtc, *i)==0) {
@@ -1021,23 +1027,28 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 	/* build the vector of config pointer */
 	context->state.crtc_mac = 0;
 
-	log_std(("advance:mode:select\n"));
+	log_std(("emu:video: video mode selection\n"));
 
 	for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		if (is_crtc_acceptable(context, crtc)) {
 			if (context->state.crtc_mac < VIDEO_CRTC_MAX) {
+				char buffer[256];
 				context->state.crtc_map[context->state.crtc_mac] = crtc;
 				++context->state.crtc_mac;
+				crtc_print(buffer, sizeof(buffer), crtc);
+				log_std(("emu:video: accepted modeline:\"%s\"\n", buffer));
+			} else {
+				log_std(("ERROR:emu:video: too many modes\n"));
 			}
 		} else {
 			char buffer[256];
 			crtc_print(buffer, sizeof(buffer), crtc);
-			log_std(("advance:excluded: modeline:\"%s\"\n", buffer));
+			log_std(("emu:video: excluded modeline:\"%s\"\n", buffer));
 		}
 	}
 
-	log_std(("advance:mode:sort %d modes\n", context->state.crtc_mac));
+	log_std(("emu:video: %d video modes\n", context->state.crtc_mac));
 
 	if (!context->state.crtc_mac) {
 		return -1;
@@ -1045,10 +1056,11 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 
 	crtc_sort(context, context->state.crtc_map, context->state.crtc_mac);
 
+	log_std(("emu:video: sorted list of video modes\n"));
 	for(j=0;j<context->state.crtc_mac;++j) {
 		char buffer[256];
 		crtc_print(buffer, sizeof(buffer), context->state.crtc_map[j]);
-		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
+		log_std(("emu:video: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
 	crtc = 0;
@@ -1251,23 +1263,6 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	unsigned long long arcade_aspect_x;
 	unsigned long long arcade_aspect_y;
 
-	if (context->config.adjust != ADJUST_NONE
-		&& !video_is_programmable(context)
-	) {
-#if 1
-		/* disable the adjust mode if i isn't supported by the video driver */
-		context->config.adjust = ADJUST_NONE;
-		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
-#else
-		target_err(
-			"Your current video driver doesn't support hardware programming.\n"
-			"Try changing the video driver with the `device_video' option or\n"
-			"disable the `display_adjust' option.\n"
-		);
-		return -1;
-#endif
-	}
-
 	log_std(("emu:video: blit_orientation %d\n", context->config.blit_orientation));
 
 	context->state.pause_flag = 0;
@@ -1322,6 +1317,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		context->state.game_color_def = 0;
 		context->state.game_colors = req->colors;
 	}
+
+	log_std(("emu:video: generating video modes\n"));
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 		best_size_x = context->state.game_used_size_x;
@@ -1435,7 +1432,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		best_vclock = context->state.game_fps;
 
 		if (!context->state.game_vector_flag) { /* nonsense for vector games */
-			if (video_is_generable(context) && context->config.interpolate.mac > 0) {
+			if (video_is_generable(context)) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
 				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 0, 0);
@@ -1461,6 +1458,11 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
 				video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
 				video_init_crtc_make_fake(context, "generate-quad", best_size_4x, best_size_4y);
+			}
+		} else {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
+				/* generate modes for a zoom driver */
+				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 			}
 		}
 	}
@@ -3129,9 +3131,16 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 #if USE_INTERNALRESAMPLE
 	/* adjust the output sample count to correct the syncronization error */
 	/* the / 16 division is a low pass filter to improve the stability */
-	sample_recount = sample_count - CONTEXT.video.state.latency_diff / 16;
+	latency_diff = CONTEXT.video.state.latency_diff / 16;
+	if (latency_diff < -1 || latency_diff > 1) {
+		log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
+	}
+	sample_recount = sample_count - latency_diff;
+	/* Correction for a generic sound buffer underflow. */
+	/* Generally happen that the DMA buffer underflow reporting */
+	/* a fill state instead of an empty one. */
 	if (sample_recount < 16) {
-		/* doesn't allow an invalid value */
+		log_std(("WARNING:emu:video: too small sound samples %d adjusted to 16\n", sample_recount));
 		sample_recount = 16;
 	}
 	latency_diff = 0;
@@ -3144,6 +3153,9 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		/* adjust the next sample count to correct the syncronization error */
 		/* the / 16 division is a low pass filter to improve the stability */
 		latency_diff = CONTEXT.video.state.latency_diff / 16;
+		if (latency_diff < -1 || latency_diff > 1) {
+			log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
+		}
 	}
 	sample_recount = sample_count;
 #endif
@@ -3377,15 +3389,41 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	adv_crtc* best_crtc = 0;
 	int best_size;
 
-	/* insert some default modeline if no generate option is present and the modeline set is empty */
-	if (!video_is_generable(context)
-		&& crtc_container_is_empty(&context->config.crtc_bag)) {
+	if (context->config.adjust != ADJUST_NONE
+		&& !video_is_programmable(context)
+	) {
+		/* disable the adjust mode if i isn't supported by the video driver */
+		context->config.adjust = ADJUST_NONE;
+		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
+	}
 
-		if (video_is_programmable(context)) {
-			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
-			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
+	/* insert some default modeline if no generate option is present */
+	if (!video_is_generable(context)) {
+		adv_bool has_something = 0;
+
+		/* check if the list of video mode contains something useable */
+		for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+			adv_crtc* crtc = crtc_container_iterator_get(&i);
+			if (is_crtc_acceptable_preventive(context, crtc)) {
+				has_something = 1;
+			}
+		}
+
+		if (has_something) {
+			log_std(("emu:video: the user video mode list contains some useable mode\n"));
 		} else {
-			crtc_container_insert_default_active(&context->config.crtc_bag);
+			log_std(("emu:video: the user video mode list doesn't contain any useable mode\n"));
+		}
+
+		if (!has_something) {
+			log_std(("emu:video: insert default video modes\n"));
+
+			if (video_is_programmable(context)) {
+				crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
+				crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
+			} else {
+				crtc_container_insert_default_active(&context->config.crtc_bag);
+			}
 		}
 	}
 
@@ -3413,9 +3451,9 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		mode_size_x = 640;
 		mode_size_y = 480;
 
-		if (video_is_generable(context)
-			&& context->config.interpolate.mac > 0
-		) {
+		log_std(("emu:video: insert vector video modes\n"));
+
+		if (video_is_generable(context)) {
 			/* insert the default mode for vector games */
 			video_init_crtc_make_vector(context, "generate", mode_size_x, mode_size_y, mode_size_x*2, mode_size_y*2, 0, 0, 0, 0, mame_game_fps(option->game));
 		}

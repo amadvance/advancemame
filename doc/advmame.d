@@ -563,7 +563,7 @@ Configuration
 
   Display Configuration Options
     device_video_*
-	All the `device_video_*' options defined in the `device.txt' file can
+	All the `device_video_*' options defined in the `advdev.txt' file can
 	be used.
 
 	If you use a `System' video driver, you don't need to set these
@@ -931,6 +931,18 @@ Configuration
 		SKIPLINES - Lines to skip.
 		SKIPCOLUMNS - Columns to skip.
 
+    display_pausebrightness
+	Select the brightness of the display when game is paused.
+
+	:display_pausebrightness FACTOR
+
+	Options:
+		FACTOR - Float brigtness factor.
+			From 0.0 to 1.0 (default 1.0).
+
+	Examples:
+		:display_pausebrightness 0.6
+
   Display Artwork Configuration Options
 
     display_artwork_backdrop/overlay/bezel
@@ -1007,7 +1019,7 @@ Configuration
   Sound Configuration Options
 
     device_sound_*
-	All the `device_sound_*' options defined in the `device.txt' file can
+	All the `device_sound_*' options defined in the `advdev.txt' file can
 	be used.
 
     sound_mode
@@ -1083,7 +1095,7 @@ Configuration
 
     device_keyboard/joystick/mouse
 	All the `device_keyboard/joystick/mouse_*' options defined in
-	the `device.txt' file can be used.
+	the `advdev.txt' file can be used.
 
     input_steadykey
 	Helps recognition of very long key sequences. But slows a bit
@@ -1346,6 +1358,34 @@ Configuration
 		:input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]
 		:input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
 		:input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger] or mouse_button[0,left]
+
+    input_name
+	Change the display name of the specified digital input.
+
+	:input_name (keyboard[KEYBOARD,KEY]
+	:	| mouse_button[MOUSE,MOUSE_BUTTON]
+	:	| joystick_button[JOY,JOY_BUTTON]
+	:	| joystick_digital[JOY,CONTROL,AXE,DIR])
+	:	NAME
+
+	Options:
+		KEY - Name of physical key.
+		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
+		MOUSE_BUTTON - Number or name of a physical mouse button:
+			0, 1, 2, 3, ...
+		JOY - Number of physical joystick: 0, 1, 2, 3, ...
+		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
+		DIR - Direction of the movement: left, up, right, down.
+		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
+		JOY_BUTTON - Number or name of a physical joystick button:
+			0, 1, 2, 3, ...
+		NAME - Display name for digital input.
+
+	See input_map for valid KEY, MOUSE_BUTTON, CONTROL, JOY_BUTTON names.
+
+	Examples:
+		:input_name keyboard[0,lcontrol] P1Blue
+		:input_name joystick_digital[0,stick,x,right] P1JoyRight
 
   Record Configuration Options
 	This section describes the options used for the recording

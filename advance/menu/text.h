@@ -57,7 +57,7 @@ void int_disable();
 void int_unplug();
 void int_plug();
 
-bool int_image(const char* file);
+bool int_image(const char* file, unsigned& size_x, unsigned& size_y);
 void int_clear();
 void int_clear(int x, int y, int dx, int dy, const int_rgb& color);
 void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color);

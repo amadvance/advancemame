@@ -12,6 +12,17 @@ AdvanceMAME Version 0.77.1 2003/12
 		sections.
 	) Fixed a segmentation fault bug on the DOS SVGALIB driver for
 		ATI Rage boards.
+	) The description of the AdvanceMAME device drivers is now in the
+		`advdev.txt' file and it's installed as a man page in the Linux
+		systems.
+	) The `display_magnify' option is now disabled for vector games.
+	) Fixed some problems running vector games on windows.
+	) The `zoom' value of the `device_video_output' option is now
+		named `overlay'.
+	) Added a new `input_name' option to customize the input names
+		displayed in the menus [Martin Adrian].
+	) Added a new `display_pausebrightness' option to control the
+		display brightness when paused [Martin Adrian].
 
 AdvanceMAME Version 0.77.0 2003/11
 	) Added support for ACT Labs Lightgun in the Linux event driver.
@@ -59,7 +70,7 @@ AdvanceMAME Version 0.74.0 2003/09
 	) The Linux fb video driver is now able to wait for vsync also if
 		the low-end driver doesn't support this feature.
 		You must run the program as root.
-	) Increased the number of supported event [by Filipe Estima].
+	) Increased the number of supported event [Filipe Estima].
 	) Fixed support for SiS boards 530/630/730 in the DOS vbeline/sis
 		driver.
 	) Revised the list of supported cards.
@@ -158,7 +169,7 @@ AdvanceMAME Version 0.70.0 2003/06
 
 AdvanceMAME Version 0.69.0 2003/05
 	) Fixed the horizontal and vertical sync polarity on the Linux
-		Framebuffer video driver [by Ralph]
+		Framebuffer video driver [Ralph]
 	) Added a new preliminary -listxml option.
 	) Fixed the output of all the floating point values in configuration
 		files for the DOS version.
@@ -177,7 +188,7 @@ AdvanceMAME Version 0.68.0 2003/05
 	) Added the "-version" command line option.
 	) Removed some "buffer overflow".
 	) Fixed the mouse handling in Linux with the SVGALIB library
-		[by Fabio Cavallo].
+		[Fabio Cavallo].
 	) Fixed some minor problems in the `configure' script.
 	) Added the `device_video_zoom' option to control the size of
 		screen mode used with the `zoom' output mode.
@@ -189,7 +200,7 @@ AdvanceMAME Version 0.67.0 2003/04
 	) The configure script now checks if the MAME/MESS emulator source
 		are missing.
 	) Added in the contrib/ dir the "Quick guide to find safequit data"
-		[by Filipe Estima].
+		[Filipe Estima].
 
 AdvanceMESS Version 0.66.0.0 2003/04
 	) All from AdvanceMAME 0.67.0.
@@ -589,15 +600,15 @@ AdvanceMAME Version 0.56.1
 		at runtime.
 	) A new Makefile system, check the `build.txt' file for the new
 		compilation instructions.
-	) Updated the safequit.dat database [by Filipe Estima].
-	) Revised the docs [by Filipe Estima and Randy Schnedler].
+	) Updated the safequit.dat database [Filipe Estima].
+	) Revised the docs [Filipe Estima and Randy Schnedler].
 	) Compiled with the latest Allegro 3.9.40 library.
 	) Various bugs fixed.
 
 AdvanceMAME Version 0.56.0.1 (never released)
 	) Removed a warning in the source
 	) Solved the bug of the brightness on screen menu
-	) Added a new safequit.dat database [by Filipe Estima]
+	) Added a new safequit.dat database [Filipe Estima]
 	) Solved a bug with the VBE detection.
 	) Solved the bug for the detection of the svgaline Rendition
 		driver.

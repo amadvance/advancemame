@@ -202,21 +202,38 @@ void draw_menu_desc(const string& desc, int x, int y, int dx, bool selected)
 	int_put_filled(x, y, dx, desc, color);
 }
 
+string reduce_string(const string& s, unsigned width)
+{
+	string r = s;
+
+	while (int_put_width(r) > width && r.length()) {
+		r.erase(r.length() - 1, 1);
+	}
+
+	return r;
+}
+
 void draw_tag_left(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	int len = sep + int_put_width(s);
-	if (len < xr-xl) {
-		int_put(xl, y, s, color);
+	string r = reduce_string(s, (xr - xl) - sep);
+
+	int len = sep + int_put_width(r);
+
+	if (len <= xr - xl) {
+		int_put(xl, y, r, color);
 		xl += len;
 	}
 }
 
 void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	int len = int_put_width(s);
-	if (len+sep < xr-xl) {
-		int_put(xr-len, y, s, color);
-		xr -= len + sep;
+	string r = reduce_string(s, (xr - xl) - sep);
+
+	int len = sep + int_put_width(r);
+
+	if (len <= xr - xl) {
+		int_put(xr - len + sep, y, r, color);
+		xr -= len;
 	}
 }
 
@@ -766,12 +783,40 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	unsigned game_count; // counter of game in the container
 
+	unsigned ui_right; // user limit
+	unsigned ui_left;
+	unsigned ui_top;
+	unsigned ui_bottom;
+
 	log_std(("menu: user begin\n"));
 
-	scr_x = rs.ui_left;
-	scr_y = rs.ui_top;
-	scr_dx = video_size_x() - rs.ui_right - scr_x;
-	scr_dy = video_size_y() - rs.ui_bottom - scr_y;
+	// clear all the screen
+	int_clear();
+
+	ui_right = rs.ui_right;
+	ui_left = rs.ui_left;
+	ui_top = rs.ui_top;
+	ui_bottom = rs.ui_bottom;
+
+	// load the background image
+	if (rs.ui_back != "none") {
+		unsigned scale_x, scale_y;
+
+		if (int_image(rs.ui_back.c_str(), scale_x, scale_y)) {
+			// scale the user limit
+			if (scale_x && scale_y) {
+				ui_right = rs.ui_right * video_size_x() / scale_x;
+				ui_left = rs.ui_left * video_size_x() / scale_x;
+				ui_top = rs.ui_top * video_size_y() / scale_y;
+				ui_bottom = rs.ui_bottom * video_size_y() / scale_y;
+			}
+		}
+	}
+
+	scr_x = ui_left;
+	scr_y = ui_top;
+	scr_dx = video_size_x() - ui_right - scr_x;
+	scr_dy = video_size_y() - ui_bottom - scr_y;
 	if (scr_dx <= 0 || scr_dy <= 0) {
 		scr_x = 0;
 		scr_y = 0;
@@ -1374,13 +1419,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	bool done = false;
 	int key = 0;
-
-	// clear all the screen
-	int_clear();
-
-	// load the background image
-	if (rs.ui_back != "none")
-		int_image(rs.ui_back.c_str());
 
 	// clear the used part
 	int_clear(scr_x, scr_y, bar_left_dx + win_dx + bar_right_dx, bar_top_dy + win_dy + bar_bottom_dy, COLOR_MENU_GRID.background);

@@ -349,7 +349,7 @@ static adv_conf_enum_int OPTION_OUTPUT[] = {
 { "auto", adv_output_auto },
 { "window", adv_output_window },
 { "fullscreen", adv_output_fullscreen },
-{ "zoom", adv_output_zoom }
+{ "overlay", adv_output_zoom }
 };
 
 static adv_conf_enum_int OPTION_CURSOR[] = {
@@ -377,7 +377,7 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 	conf_bool_register_default(context, "device_color_yuy2", 1);
 	conf_int_register_enum_default(context, "device_video_output", conf_enum(OPTION_OUTPUT), adv_output_auto);
 	conf_int_register_enum_default(context, "device_video_cursor", conf_enum(OPTION_CURSOR), adv_cursor_auto);
-	conf_int_register_limit_default(context, "device_video_zoom", 640, 4096, 1024);
+	conf_int_register_limit_default(context, "device_video_overlay", 320, 4096, 1024);
 }
 
 /**
@@ -591,7 +591,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.mode_yuy2 = conf_bool_get_default(context, "device_color_yuy2");
 	video_option.output = conf_int_get_default(context, "device_video_output");
 	video_option.cursor = conf_int_get_default(context, "device_video_cursor");
-	video_option.zoom_size = conf_int_get_default(context, "device_video_zoom");
+	video_option.zoom_size = conf_int_get_default(context, "device_video_overlay");
 
 	sncpy(video_option.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_video"));
 
