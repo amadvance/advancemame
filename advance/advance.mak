@@ -2,7 +2,7 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.71.0.1
+EMUVERSION = 0.72.0.0
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
@@ -38,7 +38,7 @@ endif
 
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
-INSTALL_DATAFILES += $(srcdir)/support/safequit.dat
+INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 ifeq ($(CONF_EMU),mess)
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
@@ -358,7 +358,7 @@ RCFLAGS += --include-dir advance/lib
 #WHOLE_LDFLAGS = -rdynamic
 
 # Optimized
-WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused -fomit-frame-pointer
+WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O3 -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 

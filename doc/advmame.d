@@ -381,11 +381,13 @@ Configuration
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
 
-	You can include an additional configuration file with the `include'
-	option. In DOS and Windows the file is searched in the current directory.
-	In Linux and Mac OS X the file is searched in the $home directory if it's
-	expressed as a relative path. You can force the search in the current
-	directory using the `./' prefix.
+	You can include an additional configuration files with the `include'
+	option. In DOS and Windows the files are searched in the current directory.
+	In Linux and Mac OS X the files are searched in the $home directory if
+	they are expressed as a relative path. You can force the search in
+	the current directory using the `./' prefix.
+	To include more than one file you must separe the names with `;' in
+	DOS and Windows, and with `:' in Linux and Mac OS X.
 
 	You can force the creation of a default configuration file with the
 	command line option `-default'.
@@ -1078,9 +1080,13 @@ Configuration
 		yes - Hot key recognition (default).
 
 	In DOS the hotkey recognized are :
-		CTRL+ALT+DEL - Reset
-		CTRL+ALT+END - Quit
-		CTRL+BREAK (Pause) - Break
+		CTRL+ALT+DEL - Reset.
+		CTRL+ALT+END - Quit.
+		CTRL+BREAK (Pause) - Break.
+
+	In Linux the hotkey recognized generally are :
+		CTRL+C - Break.
+		ALT+Fx - Change virtual console.
 
     input_idleexit
 	Activates the automatic exit after some time of inactivity.
@@ -1505,7 +1511,7 @@ Configuration
 	The AdvanceMAME emulator needs also some support files:
 
 		cheat.dat - Cheat database.
-		safequit.dat - Safequit database.
+		event.dat - The Event and Safequit database.
 		history.dat - Game history database.
 		hiscore.dat - Highscore database.
 		mameinfo.dat - MAME info database.
@@ -1571,22 +1577,22 @@ Configuration
 	If the file `safequit.dat' is found the exit menu is shown only 
 	if one or more coins are inserted or if you are playing.
 
-    misc_safequitdebug
-	Activates the debug mode for the safequit feature. On the top
-	left of the screen the two internal state of the safequit engine
+    misc_eventdebug
+	Activates the debug mode for the event/safequit feature. On the top
+	left of the screen the internal state of the event/safequit engine
 	are printed. The first value is the coin state, the second value
 	is the playing state. If both the values are 1 the exit is permitted
-	without prompting.
+	without prompting. Other values are the 6 generic events.
 
-	:misc_safequitdebug yes | no
+	:misc_eventdebug yes | no
 
-    misc_safequitfile
-	Selects the safequit file to use.
+    misc_eventfile
+	Selects the event/safequit database to use.
 
-	:misc_safequitfile FILE
+	:misc_eventfile FILE
 
 	Options:
-		FILE - SafeQuit file to load (default safequit.dat).
+		FILE - Event file to load (default event.dat).
 
 Signals
 	The program intercepts the following signals:

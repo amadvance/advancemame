@@ -263,19 +263,25 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_video", "wait(!event()); set(kdb, 0);");
 	conf_string_register_default(context, "script_emulation", "");
 	conf_string_register_default(context, "script_play", "");
-	conf_string_register_default(context, "script_led[1]", "on(kdb, 0b1); wait(!event()); off(kdb, 0b1);");
-	conf_string_register_default(context, "script_led[2]", "on(kdb, 0b10); wait(!event()); off(kdb, 0b10);");
-	conf_string_register_default(context, "script_led[3]", "");
-	conf_string_register_default(context, "script_coin[1]", "");
-	conf_string_register_default(context, "script_coin[2]", "");
-	conf_string_register_default(context, "script_coin[3]", "");
-	conf_string_register_default(context, "script_coin[4]", "");
-	conf_string_register_default(context, "script_start[1]", "");
-	conf_string_register_default(context, "script_start[2]", "");
-	conf_string_register_default(context, "script_start[3]", "");
-	conf_string_register_default(context, "script_start[4]", "");
+	conf_string_register_default(context, "script_led1", "on(kdb, 0b1); wait(!event()); off(kdb, 0b1);");
+	conf_string_register_default(context, "script_led2", "on(kdb, 0b10); wait(!event()); off(kdb, 0b10);");
+	conf_string_register_default(context, "script_led3", "");
+	conf_string_register_default(context, "script_coin1", "");
+	conf_string_register_default(context, "script_coin2", "");
+	conf_string_register_default(context, "script_coin3", "");
+	conf_string_register_default(context, "script_coin4", "");
+	conf_string_register_default(context, "script_start1", "");
+	conf_string_register_default(context, "script_start2", "");
+	conf_string_register_default(context, "script_start3", "");
+	conf_string_register_default(context, "script_start4", "");
 	conf_string_register_default(context, "script_turbo", "while (event()) { toggle(kdb, 0b100); delay(100); } off(kdb, 0b100);");
 	conf_string_register_default(context, "script_safequit", "");
+	conf_string_register_default(context, "script_event1", "");
+	conf_string_register_default(context, "script_event2", "");
+	conf_string_register_default(context, "script_event3", "");
+	conf_string_register_default(context, "script_event4", "");
+	conf_string_register_default(context, "script_event5", "");
+	conf_string_register_default(context, "script_event6", "");
 
 	STATE.active_flag  = 0;
 
@@ -394,37 +400,37 @@ int hardware_script_config_load(adv_conf* context)
 	s = conf_string_get_default(context, "script_play");
 	hardware_script_set(HARDWARE_SCRIPT_PLAY, s);
 
-	s = conf_string_get_default(context, "script_led[1]");
+	s = conf_string_get_default(context, "script_led1");
 	hardware_script_set(HARDWARE_SCRIPT_LED1, s);
 
-	s = conf_string_get_default(context, "script_led[2]");
+	s = conf_string_get_default(context, "script_led2");
 	hardware_script_set(HARDWARE_SCRIPT_LED2, s);
 
-	s = conf_string_get_default(context, "script_led[3]");
+	s = conf_string_get_default(context, "script_led3");
 	hardware_script_set(HARDWARE_SCRIPT_LED3, s);
 
-	s = conf_string_get_default(context, "script_coin[1]");
+	s = conf_string_get_default(context, "script_coin1");
 	hardware_script_set(HARDWARE_SCRIPT_COIN1, s);
 
-	s = conf_string_get_default(context, "script_coin[2]");
+	s = conf_string_get_default(context, "script_coin2");
 	hardware_script_set(HARDWARE_SCRIPT_COIN2, s);
 
-	s = conf_string_get_default(context, "script_coin[3]");
+	s = conf_string_get_default(context, "script_coin3");
 	hardware_script_set(HARDWARE_SCRIPT_COIN3, s);
 
-	s = conf_string_get_default(context, "script_coin[4]");
+	s = conf_string_get_default(context, "script_coin4");
 	hardware_script_set(HARDWARE_SCRIPT_COIN4, s);
 
-	s = conf_string_get_default(context, "script_start[1]");
+	s = conf_string_get_default(context, "script_start1");
 	hardware_script_set(HARDWARE_SCRIPT_START1, s);
 
-	s = conf_string_get_default(context, "script_start[2]");
+	s = conf_string_get_default(context, "script_start2");
 	hardware_script_set(HARDWARE_SCRIPT_START2, s);
 
-	s = conf_string_get_default(context, "script_start[3]");
+	s = conf_string_get_default(context, "script_start3");
 	hardware_script_set(HARDWARE_SCRIPT_START3, s);
 
-	s = conf_string_get_default(context, "script_start[4]");
+	s = conf_string_get_default(context, "script_start4");
 	hardware_script_set(HARDWARE_SCRIPT_START4, s);
 
 	s = conf_string_get_default(context, "script_turbo");
@@ -432,6 +438,24 @@ int hardware_script_config_load(adv_conf* context)
 
 	s = conf_string_get_default(context, "script_safequit");
 	hardware_script_set(HARDWARE_SCRIPT_SAFEQUIT, s);
+
+	s = conf_string_get_default(context, "script_event1");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT1, s);
+
+	s = conf_string_get_default(context, "script_event2");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT2, s);
+
+	s = conf_string_get_default(context, "script_event3");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT3, s);
+
+	s = conf_string_get_default(context, "script_event4");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT4, s);
+
+	s = conf_string_get_default(context, "script_event5");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT5, s);
+
+	s = conf_string_get_default(context, "script_event6");
+	hardware_script_set(HARDWARE_SCRIPT_EVENT6, s);
 
 	return 0;
 }

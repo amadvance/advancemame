@@ -290,11 +290,13 @@ Configuration
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
 
-	You can include an additional configuration file with the `include'
-	option. In DOS and Windows the file is searched in the current directory.
-	In Linux and Mac OS X the file is searched in the $home directory if it's
-	expressed as a relative path. You can force the search in the current
-	directory using the `./' prefix.
+	You can include an additional configuration files with the `include'
+	option. In DOS and Windows the files are searched in the current directory.
+	In Linux and Mac OS X the files are searched in the $home directory if
+	they are expressed as a relative path. You can force the search in
+	the current directory using the `./' prefix.
+	To include more than one file you must separe the names with `;' in
+	DOS and Windows, and with `:' in Linux and Mac OS X.
 
 	You can force the creation of a default configuration file with the
 	command line option `-default'.

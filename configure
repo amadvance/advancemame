@@ -832,9 +832,9 @@ Optional Features:
   --enable-sdl            enable the use of the SDL library. (default auto)
   --enable-svgawin        enable the use of the SVGAWIN library. (default
                           auto)
-  --enable-kraw           enable the use of the RAW keyboard interface.
+  --enable-kraw           enable the use of the raw keyboard interface.
                           (default auto)
-  --enable-mraw           enable the use of the RAW mouse interface. (default
+  --enable-mraw           enable the use of the raw mouse interface. (default
                           auto)
   --enable-mevent         enable the use of the event mouse interface.
                           (default auto)
@@ -3397,6 +3397,24 @@ rm -f conftest*
 	fi
 fi
 
+		if test ! $ac_cc_arch = blend; then
+			CFLAGS="$CFLAGS -march=$ac_cc_arch "
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -fomit-frame-pointer" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -fomit-frame-pointer... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -fomit-frame-pointer conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -fomit-frame-pointer"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest*
+
+		fi
 
 echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O3" >&5
 echo $ECHO_N "checking whether ${CC-cc} accepts -O3... $ECHO_C" >&6
@@ -3426,16 +3444,15 @@ rm -f conftest*
 fi
 rm -f conftest*
 
-		if test ! $ac_cc_arch = blend; then
-			CFLAGS="-march=$ac_cc_arch $CFLAGS"
+		# -fno-merge-constants is required to speedup the link time. ld spends a lot of time trying to merge partial strings.
 
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -fomit-frame-pointer" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -fomit-frame-pointer... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -fno-merge-constants" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -fno-merge-constants... $ECHO_C" >&6
 echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -fomit-frame-pointer conftest.c 2>&1`"; then
+if test -z "`${CC-cc} -c -fno-merge-constants conftest.c 2>&1`"; then
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-  CFLAGS="$CFLAGS -fomit-frame-pointer"
+  CFLAGS="$CFLAGS -fno-merge-constants"
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -3443,15 +3460,44 @@ echo "${ECHO_T}no" >&6
 fi
 rm -f conftest*
 
-		fi
 
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -Wall -Wno-sign-compare -Wno-unused" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -Wall -Wno-sign-compare -Wno-unused... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -Wall" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -Wall... $ECHO_C" >&6
 echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -Wall -Wno-sign-compare -Wno-unused conftest.c 2>&1`"; then
+if test -z "`${CC-cc} -c -Wall conftest.c 2>&1`"; then
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-  CFLAGS="$CFLAGS -Wall -Wno-sign-compare -Wno-unused"
+  CFLAGS="$CFLAGS -Wall"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest*
+
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -Wno-sign-compare" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -Wno-sign-compare... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -Wno-sign-compare conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -Wno-sign-compare"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest*
+
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -Wno-unused" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -Wno-unused... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -Wno-unused conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -Wno-unused"
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -5341,8 +5387,8 @@ else
 
 fi;
 if test $ac_lib_kraw = auto; then
-	echo "$as_me:$LINENO: checking for RAW keyboard interface" >&5
-echo $ECHO_N "checking for RAW keyboard interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for raw keyboard interface" >&5
+echo $ECHO_N "checking for raw keyboard interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5350,12 +5396,17 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <sys/kd.h>
+
+			#include <sys/kd.h>
+			#include <sys/vt.h>
+			#include <sys/ioctl.h>
+
 int
 main ()
 {
 
-			int dummy = K_MEDIUMRAW;
+			int dummy0 = K_MEDIUMRAW;
+			int dummy1 = VT_ACTIVATE;
 
   ;
   return 0;
@@ -5384,8 +5435,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_lib_kraw" >&5
 echo "${ECHO_T}$ac_lib_kraw" >&6
 elif test $ac_lib_kraw = yes; then
-	echo "$as_me:$LINENO: checking for RAW keyboard interface" >&5
-echo $ECHO_N "checking for RAW keyboard interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for raw keyboard interface" >&5
+echo $ECHO_N "checking for raw keyboard interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5393,12 +5444,17 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <sys/kd.h>
+
+			#include <sys/kd.h>
+			#include <sys/vt.h>
+			#include <sys/ioctl.h>
+
 int
 main ()
 {
 
-			int dummy = K_MEDIUMRAW;
+			int dummy0 = K_MEDIUMRAW;
+			int dummy1 = VT_ACTIVATE;
 
   ;
   return 0;
@@ -5445,8 +5501,8 @@ else
 
 fi;
 if test $ac_lib_mraw = auto; then
-	echo "$as_me:$LINENO: checking for RAW mouse interface" >&5
-echo $ECHO_N "checking for RAW mouse interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for raw mouse interface" >&5
+echo $ECHO_N "checking for raw mouse interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5490,8 +5546,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_lib_mraw" >&5
 echo "${ECHO_T}$ac_lib_mraw" >&6
 elif test $ac_lib_mraw = yes; then
-	echo "$as_me:$LINENO: checking for RAW mouse interface" >&5
-echo $ECHO_N "checking for RAW mouse interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for raw mouse interface" >&5
+echo $ECHO_N "checking for raw mouse interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */

@@ -5,7 +5,7 @@ diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2003-08-10 16:47:51.000000000 +0200
-+++ src/common.c	2003-08-10 17:22:03.000000000 +0200
++++ src/common.c	2003-08-15 09:02:38.000000000 +0200
 @@ -414,17 +414,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -37,7 +37,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  	struct rectangle bounds;
  	struct mame_bitmap *osdcopy;
  	UINT32 saved_rgb_components[3];
-@@ -815,19 +810,22 @@
+@@ -815,17 +810,19 @@
  
  	/* if the OSD system allocated a bitmap; free it */
  	if (osdcopy)
@@ -54,13 +54,10 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 +#if 0 /* AdvanceMAME has its snapshot code */
  void save_screen_snapshot(struct mame_bitmap *bitmap)
  {
-+	osd_save_snapshot();
  	char name[20];
  	mame_file *fp;
  
- 	/* avoid overwriting existing files */
- 	/* first of all try with "gamename.png" */
-@@ -845,10 +843,11 @@
+@@ -845,10 +842,11 @@
  	{
  		save_screen_snapshot_as(fp, bitmap);
  		mame_fclose(fp);
@@ -72,7 +69,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  
  /***************************************************************************
  
-@@ -1202,11 +1201,11 @@
+@@ -1202,11 +1200,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");

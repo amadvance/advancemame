@@ -1098,6 +1098,13 @@ static void input_setup_log(struct advance_input_context* context)
 	log_std(("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get()));
 	for(i=0;i<keyb_count_get();++i) {
 		log_std(("keyboard %d\n", i));
+		log_std(("\tkeys"));
+		for(j=0;j<KEYB_MAX;++j) {
+			if (keyb_has(i, j)) {
+				log_std((" %s", key_name(j)));
+			}
+		}
+		log_std(("\n"));
 	}
 
 	log_std(("Driver %s, mouses %d\n", mouseb_name(), mouseb_count_get()));

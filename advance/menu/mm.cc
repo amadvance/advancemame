@@ -31,6 +31,7 @@
 #include "keyall.h"
 #include "joyall.h"
 #include "mouseall.h"
+#include "portable.h"
 
 #include <iostream>
 
@@ -374,12 +375,7 @@ static void version(void)
 }
 
 //---------------------------------------------------------------------------
-// main
-
-extern "C" void adv_svgalib_log_va(const char *text, va_list arg)
-{
-	log_va(text, arg);
-}
+// Configuration
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
 {
@@ -458,10 +454,70 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 } /* rename */
 };
 
+adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)
+{
+	char separator[2];
+	char* s;
+	int i;
+
+	separator[0] = file_dir_separator();
+	separator[1] = 0;
+
+	i = 0;
+	s = strdup(include_spec);
+
+	sskip(&i, s, " \t");
+	while (s[i]) {
+		char c;
+		const char* file;
+		const char* include_file;
+
+		file = stoken(&c, &i, s, separator, " \t");
+		sskip(&i, s, " \t");
+
+		if (file[0] == 0 || (c != 0 && s[i] == 0)) {
+			error_callback(error_context, conf_error_failure, file, 0, 0, "Error in the include file specification.");
+			free(s);
+			return -1;
+		}
+
+		include_file = file_config_file_home(file);
+
+		if (access(include_file, R_OK)!=0) {
+			error_callback(error_context, conf_error_failure, include_file, 0, 0, "Missing configuration include file '%s'.", include_file);
+			free(s);
+			return -1;
+		}
+
+		if (conf_input_file_load_adv(context, priority, include_file, 0, ignore_unknown, multi_line, conv_map, conv_mac, error_callback, error_context) != 0) {
+			free(s);
+			return -1;
+		}
+	}
+
+	free(s);
+
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+// Log
+
+extern "C" void adv_svgalib_log_va(const char *text, va_list arg)
+{
+	log_va(text, arg);
+}
+
+//---------------------------------------------------------------------------
+// Signal
+
 void os_signal(int signum)
 {
 	os_default_signal(signum);
 }
+
+//---------------------------------------------------------------------------
+// Main
 
 int os_main(int argc, char* argv[])
 {
@@ -475,7 +531,6 @@ int os_main(int argc, char* argv[])
 	bool opt_version;
 	int key = 0;
 	const char* section_map[1];
-	const char* include;
 
 	srand(time(0));
 
@@ -553,7 +608,7 @@ int os_main(int argc, char* argv[])
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
-		if (conf_save(config_context, 1, error_callback, 0) != 0) {
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
@@ -563,7 +618,7 @@ int os_main(int argc, char* argv[])
 	if (opt_default) {
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
-		if (conf_save(config_context, 1, error_callback, 0) != 0) {
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
@@ -572,7 +627,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_remove) {
 		conf_remove_if_default(config_context, "");
-		if (conf_save(config_context, 1, error_callback, 0) != 0) {
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
@@ -580,19 +635,8 @@ int os_main(int argc, char* argv[])
 	}
 
 	/* setup the include configuration file */
-	include = conf_string_get_default(config_context, "include");
-	if (include[0]) {
-		const char* include_file = file_config_file_home(include);
-		log_std(("menu: include file '%s'\n", include_file));
-		if (access(include_file, R_OK)!=0) {
-			target_err("Error opening the configuration include file '%s'.\n", include_file);
-			goto err_init;
-		}
-		if (conf_input_file_load_adv(config_context, 1, include_file, 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
-			goto err_init;
-		}
-	} else {
-		log_std(("menu: no include file\n"));
+	if (include_load(config_context, 1, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+		goto err_init;
 	}
 
 	log_std(("menu: *_load()\n"));

@@ -164,7 +164,7 @@ CONF_LIB_FB=yes
 endif
 
 ifndef CONF_LIB_ALSA
-CONF_LIB_ALSA=no
+CONF_LIB_ALSA=yes
 endif
 
 ifndef CONF_LIB_OSS
@@ -212,7 +212,7 @@ CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS

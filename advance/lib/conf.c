@@ -1798,7 +1798,7 @@ err:
 	return -1;
 }
 
-static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, conf_error_callback* error, void* error_context)
+static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
 {
 	FILE* f;
 	const char* global_section;
@@ -1811,8 +1811,10 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 
 	f = fopen(input->file_out, "wt");
 	if (!f) {
-		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
+		if (!quiet || errno != EACCES) {
+			if (error)
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
+		}
 		goto err;
 	}
 
@@ -1841,12 +1843,12 @@ err:
  * Updates all the writable configuration files.
  * \param context Configuration context to use.
  * \param force Force the rewrite also if the configuration file are unchanged.
+ * \param quiet Quiet on normal error. For example if the file is not writable.
  * \param error Callback called for every error.
  * \param error_context Argument for the error callback.
  */
-adv_error conf_save(adv_conf* context, adv_bool force, conf_error_callback* error, void* error_context)
+adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_error_callback* error, void* error_context)
 {
-
 	/* only if necessary */
 	if (!force && !context->is_modified)
 		return 0;
@@ -1854,7 +1856,7 @@ adv_error conf_save(adv_conf* context, adv_bool force, conf_error_callback* erro
 	if (context->input_list) {
 		struct adv_conf_input_struct* input = context->input_list;
 		do {
-			if (input_save(context, input, error, error_context)!=0)
+			if (input_save(context, input, quiet, error, error_context)!=0)
 				return -1;
 			input = input->next;
 		} while (input != context->input_list);

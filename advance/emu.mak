@@ -584,22 +584,22 @@ $(sort $(OBJDIRS)):
 ############################################################################
 # EMU diff
 
-advance/advmame.dif: src src.ori
+advance/advmame.dif:
 	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
-advance/advpac.dif: srcpac srcpac.ori
+advance/advpac.dif:
 	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive srcpac.ori srcpac > advance/advpac.dif
 	ls -l advance/advpac.dif
 
-advance/advmess.dif: srcmess srcmess.ori
+advance/advmess.dif:
 	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
 	ls -l advance/advmess.dif
 
-advance/mess.dif: mess mess.ori
+advance/mess.dif:
 	find mess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive mess.ori mess > advance/mess.dif
 	ls -l advance/mess.dif
@@ -639,7 +639,7 @@ EMU_CONTRIB_SRC = \
 
 ifeq ($(CONF_EMU),mame)
 EMU_SUPPORT_SRC += \
-	$(srcdir)/support/safequit.dat
+	$(srcdir)/support/event.dat
 endif
 ifeq ($(CONF_EMU),mess)
 EMU_SUPPORT_SRC += \
@@ -749,7 +749,7 @@ EMU_ROOT_BIN = \
 	$(CFGOBJ)/advcfg$(EXE)
 ifeq ($(CONF_EMU),mame)
 EMU_ROOT_BIN += \
-	$(srcdir)/support/safequit.dat
+	$(srcdir)/support/event.dat
 endif
 ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \

@@ -38,6 +38,13 @@ void probe(void)
 	printf("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get());
 	for(i=0;i<keyb_count_get();++i) {
 		printf("keyboard %d\n", i);
+		printf("\tkeys");
+		for(j=0;j<KEYB_MAX;++j) {
+			if (keyb_has(i, j)) {
+				printf(" %s", key_name(j));
+			}
+		}
+		printf("\n");
 	}
 
 	printf("\n");

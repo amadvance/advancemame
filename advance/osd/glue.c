@@ -34,8 +34,8 @@
 #include "log.h"
 #include "target.h"
 #include "file.h"
-
 #include "hscript.h"
+#include "glue.h"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -786,12 +786,14 @@ static struct mame_port PORT[] = {
 	/* TILT */
 	S("tilt", TILT)
 
-	/* UI */
+	/* UI specific of AdvanceMAME */
 	S("ui_mode_next", UI_MODE_NEXT)
 	S("ui_mode_pred", UI_MODE_PRED)
 	S("ui_record_start", UI_RECORD_START)
 	S("ui_record_stop", UI_RECORD_STOP)
 	S("ui_turbo", UI_TURBO)
+
+	/* UI */
 	S("ui_configure", UI_CONFIGURE)
 	S("ui_on_screen_display", UI_ON_SCREEN_DISPLAY)
 	S("ui_pause", UI_PAUSE)
@@ -823,6 +825,15 @@ static struct mame_port PORT[] = {
 	S("ui_save_cheat", UI_SAVE_CHEAT)
 	S("ui_watch_value", UI_WATCH_VALUE)
 
+	/* specific of AdvanceMAME */
+	S("safequit", MAME_PORT_SAFEQUIT)
+	S("event1", MAME_PORT_EVENT1)
+	S("event2", MAME_PORT_EVENT2)
+	S("event3", MAME_PORT_EVENT3)
+	S("event4", MAME_PORT_EVENT4)
+	S("event5", MAME_PORT_EVENT5)
+	S("event6", MAME_PORT_EVENT6)
+
 	{ 0, 0 }
 };
 
@@ -837,11 +848,31 @@ struct mame_port* mame_port_list(void)
 /**
  * Check if a MAME port is active.
  * A port is active if the associated key sequence is pressed.
- * The port values are only values get from the mame_port_list() function.
+ * The port values are only values get from the mame_port_list() function or one of the IPT_MAME_PORT_* defines.
  */
 int mame_ui_port_pressed(unsigned port)
 {
-	InputSeq* seq = input_port_type_seq(port);
+	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
+	InputSeq* seq;
+
+	switch (port) {
+	case IPT_MAME_PORT_SAFEQUIT :
+		return advance_safequit_can_exit(safequit_context);
+	case IPT_MAME_PORT_EVENT1 :
+		return (advance_safequit_event_mask(safequit_context) & 0x4) != 0;
+	case IPT_MAME_PORT_EVENT2 :
+		return (advance_safequit_event_mask(safequit_context) & 0x8) != 0;
+	case IPT_MAME_PORT_EVENT3 :
+		return (advance_safequit_event_mask(safequit_context) & 0x10) != 0;
+	case IPT_MAME_PORT_EVENT4 :
+		return (advance_safequit_event_mask(safequit_context) & 0x20) != 0;
+	case IPT_MAME_PORT_EVENT5 :
+		return (advance_safequit_event_mask(safequit_context) & 0x40) != 0;
+	case IPT_MAME_PORT_EVENT6 :
+		return (advance_safequit_event_mask(safequit_context) & 0x80) != 0;
+	}
+
+	seq = input_port_type_seq(port);
 	if (!seq)
 		return 0;
 	return seq_pressed(seq);

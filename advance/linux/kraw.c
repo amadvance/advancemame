@@ -43,6 +43,8 @@
 #include <sys/kd.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/vt.h>
+#include <signal.h>
 
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
@@ -53,6 +55,7 @@ struct keyb_raw_context {
 	int f; /**< Handle. */
 	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
 	unsigned char state[256]; /**< Key state. */
+	adv_bool disable_special_flag;
 };
 
 static struct keyb_pair {
@@ -197,6 +200,8 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 		raw_state.state[j] = 0;
 	}
 
+	raw_state.disable_special_flag = disable_special;
+
 	return 0;
 }
 
@@ -323,6 +328,99 @@ void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
+#define SCANCODE_LCTRL 29
+#define SCANCODE_RCTRL 97
+#define SCANCODE_C 46
+#define SCANCODE_ALT 56
+#define SCANCODE_ALTGR 100
+#define SCANCODE_F1 59
+#define SCANCODE_F2 60
+#define SCANCODE_F3 61
+#define SCANCODE_F4 62
+#define SCANCODE_F5 63
+#define SCANCODE_F6 64
+#define SCANCODE_F7 65
+#define SCANCODE_F8 66
+#define SCANCODE_F9 67
+#define SCANCODE_F10 68
+
+static void keyb_raw_vt_switch(unsigned char code)
+{
+	unsigned i;
+	struct vt_stat vts;
+	int vt;
+
+	/* check only if required */
+	if (raw_state.disable_special_flag)
+		return;
+
+	/* check only if a switch key is pressed/released */
+	switch (code) {
+	case SCANCODE_LCTRL :
+	case SCANCODE_RCTRL :
+	case SCANCODE_C :
+	case SCANCODE_ALT :
+	case SCANCODE_ALTGR :
+	case SCANCODE_F1 :
+	case SCANCODE_F2 :
+	case SCANCODE_F3 :
+	case SCANCODE_F4 :
+	case SCANCODE_F5 :
+	case SCANCODE_F6 :
+	case SCANCODE_F7 :
+	case SCANCODE_F8 :
+	case SCANCODE_F9 :
+	case SCANCODE_F10 :
+		break;
+	default:
+		return;
+	}
+
+	/* check for CTRL+C */
+	if ((raw_state.state[SCANCODE_LCTRL] || raw_state.state[SCANCODE_RCTRL])
+		&& raw_state.state[SCANCODE_C]) {
+		raise(SIGINT);
+		return;
+	}
+
+	/* check for ALT+Fx */
+
+	if (!raw_state.state[SCANCODE_ALT] && !raw_state.state[SCANCODE_ALTGR]) {
+		return;
+	}
+	vt = 0;
+	for(i=SCANCODE_F1;i<=SCANCODE_F10;++i) {
+		if (raw_state.state[i]) {
+			vt = i + 1 - SCANCODE_F1;
+			break;
+		}
+	}
+	if (!vt)
+		return;
+
+	/* do not switch vt's if need not to */
+	ioctl(raw_state.f, VT_GETSTATE, &vts);
+	if (vt == vts.v_active)
+		return;
+
+	/* if switching vt's, need to clear keystates */
+	for(i=0;i<256;++i) {
+		raw_state.state[i] = 0;
+	}
+
+	/* change vt */
+	ioctl(raw_state.f, VT_ACTIVATE, vt);
+
+	/* wait until the control return */
+	struct vt_stat vts_switch;
+	while (1) {
+		ioctl(raw_state.f, VT_GETSTATE, &vts_switch);
+		if (vts.v_active == vts_switch.v_active)
+			break;
+		sleep(1);
+	}
+}
+
 void keyb_raw_poll(void)
 {
 	unsigned char c;
@@ -330,7 +428,12 @@ void keyb_raw_poll(void)
 	log_debug(("keyb:raw: keyb_raw_poll()\n"));
 
 	while ((1 == read(raw_state.f, &c, 1)) && (c)) {
-		raw_state.state[c & 0x7f] = (c & 0x80) ? 0 : 1;
+		unsigned char code = c & 0x7f;
+		adv_bool pressed = (c & 0x80) == 0;
+
+		raw_state.state[code] = pressed;
+
+		keyb_raw_vt_switch(code);
 	}
 }
 

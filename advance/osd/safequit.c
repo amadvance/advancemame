@@ -52,19 +52,27 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 
 	i = 0;
 
-	/* event (decimal or nominal) */
+	/* event (decimal 1-8 or nominal) */
 	t = stoken(&c, &i, buf, ":", " \t");
-	if (strcmp(t, "zero_coin") == 0) {
+	if (strcmp(t, "zerocoin") == 0) {
 		entry->event = safequit_event_zerocoin;
-	} else if (strcmp(t, "demo_mode") == 0) {
+	} else if (strcmp(t, "demomode") == 0) {
 		entry->event = safequit_event_demomode;
+	} else if (strcmp(t, "event1") == 0) {
+		entry->event = safequit_event_event1;
+	} else if (strcmp(t, "event2") == 0) {
+		entry->event = safequit_event_event2;
+	} else if (strcmp(t, "event3") == 0) {
+		entry->event = safequit_event_event3;
+	} else if (strcmp(t, "event4") == 0) {
+		entry->event = safequit_event_event4;
+	} else if (strcmp(t, "event5") == 0) {
+		entry->event = safequit_event_event5;
+	} else if (strcmp(t, "event6") == 0) {
+		entry->event = safequit_event_event6;
 	} else {
-		entry->event = strtol(t,&e,10);
-		if (*e != 0 || e == t)
-			goto err;
-	}
-	if (entry->event >= 8)
 		goto err;
+	}
 	if (c != ':')
 		goto err;
 
@@ -84,11 +92,19 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 	if (c != ':')
 		goto err;
 
-	/* action (decimal) */
+	/* action (nominal) */
 	t = stoken(&c, &i, buf, ":", " \t");
-	entry->action = strtol(t, &e, 10);
-	if (*e != 0 || e == t)
+	if (strcmp(t, "match") == 0) {
+		entry->action = safequit_action_match;
+	} else if (strcmp(t, "nomatch") == 0) {
+		entry->action = safequit_action_nomatch;
+	} else if (strcmp(t, "on") == 0) {
+		entry->action = safequit_action_on;
+	} else if (strcmp(t, "off") == 0) {
+		entry->action = safequit_action_off;
+	} else {
 		goto err;
+	}
 	if (c != ':')
 		goto err;
 
@@ -181,16 +197,20 @@ err:
 static adv_bool advance_safequit_is_entry_set(struct safequit_entry* entry, unsigned char result)
 {
 	switch (entry->action) {
-		case safequit_action_match:
-			if ((result & entry->mask) == entry->result) {
-				return 1;
-			}
-			break;
-		case safequit_action_nomatch:
-			if ((result & entry->mask) != entry->result) {
-				return 1;
-			}
-			break;
+	case safequit_action_match :
+		if ((result & entry->mask) == entry->result) {
+			return 1;
+		}
+		break;
+	case safequit_action_nomatch :
+		if ((result & entry->mask) != entry->result) {
+			return 1;
+		}
+		break;
+	case safequit_action_on :
+		return 1;
+	case safequit_action_off :
+		return 0;
 	}
 
 	return 0;
@@ -199,8 +219,8 @@ static adv_bool advance_safequit_is_entry_set(struct safequit_entry* entry, unsi
 adv_error advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context)
 {
 	conf_bool_register_default(cfg_context, "misc_safequit", 1);
-	conf_bool_register_default(cfg_context, "misc_safequitdebug", 0);
-	conf_string_register_default(cfg_context, "misc_safequitfile", "safequit.dat");
+	conf_bool_register_default(cfg_context, "misc_eventdebug", 0);
+	conf_string_register_default(cfg_context, "misc_eventfile", "event.dat");
 	return 0;
 }
 
@@ -210,13 +230,13 @@ void advance_safequit_done(struct advance_safequit_context* context)
 
 adv_error advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option)
 {
-	if (!context->config.safe_exit_flag)
-		return 0;
-
 	context->state.entry_mac = 0;
 	context->state.status = 0;
 	context->state.coin_set = 0;
 	context->state.coin_format = safequit_format_bcd;
+
+	if (!context->config.safe_exit_flag)
+		return 0;
 
 	if (advance_safequit_load_database(context, context->config.file_buffer, mame_game_name(option->game)) != 0)
 		return -1;
@@ -231,8 +251,8 @@ void advance_safequit_inner_done(struct advance_safequit_context* context)
 adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context)
 {
 	context->config.safe_exit_flag = conf_bool_get_default(cfg_context, "misc_safequit");
-	context->config.debug_flag = conf_bool_get_default(cfg_context, "misc_safequitdebug");
-	sncpy(context->config.file_buffer, sizeof(context->config.file_buffer), conf_string_get_default(cfg_context, "misc_safequitfile"));
+	context->config.debug_flag = conf_bool_get_default(cfg_context, "misc_eventdebug");
+	sncpy(context->config.file_buffer, sizeof(context->config.file_buffer), conf_string_get_default(cfg_context, "misc_eventfile"));
 
 	return 0;
 }
@@ -258,17 +278,23 @@ void advance_safequit_coin(struct advance_safequit_context* context, struct safe
 		if (entry->result == 0 && (entry->mask == 0xf || entry->mask == 0xff)) {
 			unsigned v = result & entry->mask;
 			if (context->state.coin_format == safequit_format_bcd) {
-				context->state.coin_set = 1;
 				/* check if the value is in the bcd range */
 				if ((v & 0xf) > 9 || ((v & 0xf0) >> 4) > 9) {
 					context->state.coin_format = safequit_format_byte;
-					context->state.coin = v;
 				} else {
-					context->state.coin = ((v & 0xf0) >> 4) * 10 + (v & 0xF);
+					v = ((v & 0xf0) >> 4) * 10 + (v & 0xF);
 				}
-			} else if (context->state.coin_format == safequit_format_byte) {
+				if (context->state.coin_set)
+					context->state.coin += v;
+				else
+					context->state.coin = v;
 				context->state.coin_set = 1;
-				context->state.coin = v;
+			} else if (context->state.coin_format == safequit_format_byte) {
+				if (context->state.coin_set)
+					context->state.coin += v;
+				else
+					context->state.coin = v;
+				context->state.coin_set = 1;
 			}
 		} else if ((result & entry->mask) == entry->result) {
 			/* unknown */
@@ -281,9 +307,6 @@ void advance_safequit_coin(struct advance_safequit_context* context, struct safe
 void advance_safequit_update(struct advance_safequit_context* context)
 {
 	unsigned i;
-
-	if (!context->config.safe_exit_flag)
-		return;
 
 	context->state.coin_set = 0;
 	context->state.status = 0xff;
@@ -299,14 +322,14 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	if (context->config.debug_flag) {
 		char buffer[16];
 
-		buffer[0] = (context->state.status & 0x01) ? '1' : '0';
-		buffer[1] = (context->state.status & 0x02) ? '1' : '0';
-		buffer[2] = (context->state.status & 0x04) ? '1' : '0';
-		buffer[3] = (context->state.status & 0x08) ? '1' : '0';
-		buffer[4] = (context->state.status & 0x10) ? '1' : '0';
-		buffer[5] = (context->state.status & 0x20) ? '1' : '0';
-		buffer[6] = (context->state.status & 0x40) ? '1' : '0';
-		buffer[7] = (context->state.status & 0x80) ? '1' : '0';
+		buffer[0] = (context->state.status & 0x01) ? 'Z' : '_';
+		buffer[1] = (context->state.status & 0x02) ? 'D' : '_';
+		buffer[2] = (context->state.status & 0x04) ? '1' : '_';
+		buffer[3] = (context->state.status & 0x08) ? '2' : '_';
+		buffer[4] = (context->state.status & 0x10) ? '3' : '_';
+		buffer[5] = (context->state.status & 0x20) ? '4' : '_';
+		buffer[6] = (context->state.status & 0x40) ? '5' : '_';
+		buffer[7] = (context->state.status & 0x80) ? '6' : '_';
 		buffer[8] = 0;
 
 		if (context->state.coin_set) {
@@ -325,3 +348,10 @@ adv_bool advance_safequit_can_exit(struct advance_safequit_context* context)
 	return context->state.entry_mac == 0 || (context->state.status & 0x3) == 3;
 }
 
+adv_bool advance_safequit_event_mask(struct advance_safequit_context* context)
+{
+	if (context->state.entry_mac == 0)
+		return 0;
+
+	return context->state.status;
+}

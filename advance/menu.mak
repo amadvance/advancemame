@@ -141,6 +141,34 @@ MENUCFLAGS += \
 MENUOBJS += \
 	$(MENUOBJ)/linux/kraw.o
 endif
+ifeq ($(CONF_LIB_MRAW),yes)
+MENUCFLAGS += \
+	-DUSE_MOUSE_RAW
+MENUOBJS += \
+	$(MENUOBJ)/linux/mraw.o
+endif
+ifeq ($(CONF_LIB_KEVENT),yes)
+MENUCFLAGS += \
+	-DUSE_KEYBOARD_EVENT
+MENUOBJS += \
+	$(MENUOBJ)/linux/kevent.o
+endif
+ifeq ($(CONF_LIB_MEVENT),yes)
+MENUCFLAGS += \
+	-DUSE_MOUSE_EVENT
+MENUOBJS += \
+	$(MENUOBJ)/linux/mevent.o
+endif
+ifeq ($(CONF_LIB_JEVENT),yes)
+MENUCFLAGS += \
+	-DUSE_JOYSTICK_EVENT
+MENUOBJS += \
+	$(MENUOBJ)/linux/jevent.o
+endif
+ifneq (,$(findstring _EVENT,$(MENUCFLAGS)))
+MENUOBJS += \
+	$(MENUOBJ)/linux/event.o
+endif
 ifeq ($(CONF_LIB_SDL),yes)
 MENUCFLAGS += \
 	$(SDLCFLAGS) \

@@ -44,6 +44,7 @@
 #include "keyall.h"
 #include "joyall.h"
 #include "mouseall.h"
+#include "portable.h"
 
 #include <signal.h>
 #include <string.h>
@@ -165,7 +166,7 @@ static void version(void)
 }
 
 /***************************************************************************/
-/* Main */
+/* Configuration */
 
 static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
@@ -267,6 +268,19 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_map[1,pedal]", "*", "%s", "input_map[p2_pedal]", "%s", 0 }, /* rename */
 { "*", "input_map[2,pedal]", "*", "%s", "input_map[p3_pedal]", "%s", 0 }, /* rename */
 { "*", "input_map[3,pedal]", "*", "%s", "input_map[p4_pedal]", "%s", 0 }, /* rename */
+{ "*", "script_led[1]", "*", "%s", "script_led1", "%s", 0 }, /* rename */
+{ "*", "script_led[2]", "*", "%s", "script_led2", "%s", 0 }, /* rename */
+{ "*", "script_led[3]", "*", "%s", "script_led3", "%s", 0 }, /* rename */
+{ "*", "script_coin[1]", "*", "%s", "script_coin1", "%s", 0 }, /* rename */
+{ "*", "script_coin[2]", "*", "%s", "script_coin2", "%s", 0 }, /* rename */
+{ "*", "script_coin[3]", "*", "%s", "script_coin3", "%s", 0 }, /* rename */
+{ "*", "script_coin[4]", "*", "%s", "script_coin4", "%s", 0 }, /* rename */
+{ "*", "script_start[1]", "*", "%s", "script_start1", "%s", 0 }, /* rename */
+{ "*", "script_start[2]", "*", "%s", "script_start2", "%s", 0 }, /* rename */
+{ "*", "script_start[3]", "*", "%s", "script_start3", "%s", 0 }, /* rename */
+{ "*", "script_start[4]", "*", "%s", "script_start4", "%s", 0 }, /* rename */
+{ "*", "misc_safequitdebug", "*", "%s", "misc_eventdebug", "%s", 0 }, /* rename */
+{ "*", "misc_safequitfile", "*", "%s", "misc_eventfile", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -279,6 +293,55 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 		target_err("%s\n", valid);
 	va_end(arg);
 }
+
+adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)
+{
+	char separator[2];
+	char* s;
+	int i;
+
+	separator[0] = file_dir_separator();
+	separator[1] = 0;
+
+	i = 0;
+	s = strdup(include_spec);
+
+	sskip(&i, s, " \t");
+	while (s[i]) {
+		char c;
+		const char* file;
+		const char* include_file;
+
+		file = stoken(&c, &i, s, separator, " \t");
+		sskip(&i, s, " \t");
+
+		if (file[0] == 0 || (c != 0 && s[i] == 0)) {
+			error_callback(error_context, conf_error_failure, file, 0, 0, "Error in the include file specification.");
+			free(s);
+			return -1;
+		}
+
+		include_file = file_config_file_home(file);
+
+		if (access(include_file, R_OK)!=0) {
+			error_callback(error_context, conf_error_failure, include_file, 0, 0, "Missing configuration include file '%s'.", include_file);
+			free(s);
+			return -1;
+		}
+
+		if (conf_input_file_load_adv(context, priority, include_file, 0, ignore_unknown, multi_line, conv_map, conv_mac, error_callback, error_context) != 0) {
+			free(s);
+			return -1;
+		}
+	}
+
+	free(s);
+
+	return 0;
+}
+
+/***************************************************************************/
+/* Main */
 
 int os_main(int argc, char* argv[])
 {
@@ -296,7 +359,6 @@ int os_main(int argc, char* argv[])
 	struct advance_context* context = &CONTEXT;
 	adv_conf* cfg_context;
 	const char* section_map[5];
-	const char* include;
 
 	opt_info = 0;
 	opt_xml = 0;
@@ -431,7 +493,7 @@ int os_main(int argc, char* argv[])
 		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)==0)) {
 		conf_set_default_if_missing(cfg_context, "");
 		conf_sort(cfg_context);
-		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
+		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -440,7 +502,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_default) {
 		conf_set_default_if_missing(cfg_context, "");
-		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
+		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -449,7 +511,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_remove) {
 		conf_remove_if_default(cfg_context, "");
-		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
+		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -503,19 +565,8 @@ int os_main(int argc, char* argv[])
 		log_std(("advance: use configuration section '%s'\n", section_map[i]));
 
 	/* setup the include configuration file */
-	include = conf_string_get_default(cfg_context, "include");
-	if (include[0]) {
-		const char* include_file = file_config_file_home(include);
-		log_std(("advance: include file '%s'\n", include_file));
-		if (access(include_file, R_OK)!=0) {
-			target_err("Error opening the configuration include file '%s'.\n", include_file);
-			goto err_os;
-		}
-		if (conf_input_file_load_adv(cfg_context, 1, include_file, 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
-			goto err_os;
-		}
-	} else {
-		log_std(("advance: no include file\n"));
+	if (include_load(cfg_context, 1, conf_string_get_default(cfg_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+		goto err_os;
 	}
 
 	log_std(("advance: *_load()\n"));
@@ -603,7 +654,7 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: conf_save()\n"));
 
 	/* save the configuration only if modified, ignore the error but print the message */
-	conf_save(cfg_context, 0, error_callback, 0);
+	conf_save(cfg_context, 0, context->global.config.quiet_flag, error_callback, 0);
 
 	log_std(("advance: conf_done()\n"));
 

@@ -496,12 +496,20 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 
 enum {
 	safequit_event_zerocoin = 0,
-	safequit_event_demomode
+	safequit_event_demomode = 1,
+	safequit_event_event1 = 2,
+	safequit_event_event2 = 3,
+	safequit_event_event3 = 4,
+	safequit_event_event4 = 5,
+	safequit_event_event5 = 6,
+	safequit_event_event6 = 7
 };
 
 enum {
 	safequit_action_match = 0,
-	safequit_action_nomatch = 1
+	safequit_action_nomatch = 1,
+	safequit_action_on = 2,
+	safequit_action_off = 3
 };
 
 enum {
@@ -545,6 +553,7 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 void advance_safequit_inner_done(struct advance_safequit_context* context);
 adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
 adv_bool advance_safequit_can_exit(struct advance_safequit_context* context);
+adv_bool advance_safequit_event_mask(struct advance_safequit_context* context);
 void advance_safequit_update(struct advance_safequit_context* context);
 
 /***************************************************************************/

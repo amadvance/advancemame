@@ -744,9 +744,15 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 		goto err_mouse;
 	}
 
+	if (!int_key_enable()) {
+		video_mode_restore();
+		target_err("%s\n", error_get());
+		goto err_mouse;
+	}
+
 	return true;
 err_mouse:
-	int_joystick_done();
+	int_mouse_done();
 err_joy:
 	int_joystick_done();
 err_key:
@@ -757,6 +763,7 @@ err:
 
 void int_unset(bool reset_video_mode)
 {
+	int_key_disable();
 
 	if (reset_video_mode) {
 		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
@@ -802,15 +809,11 @@ bool int_enable(const string& font, unsigned orientation)
 
 	int_updating_active = false;
 
-	int_key_enable();
-
 	return true;
 }
 
 void int_disable()
 {
-	int_key_disable();
-
 	font_free(real_font_map);
 	operator delete(video_buffer);
 }

@@ -74,11 +74,11 @@ protected:
 	std::string config_title_path;
 
 	void scan_game(const game_set& gar, const std::string& path, const std::string& name);
-	void scan_dir(const game_set& gar, const std::string& dir);
-	void scan_dirlist(const game_set& gar, const std::string& dirlist);
+	void scan_dir(const game_set& gar, const std::string& dir, bool quiet);
+	void scan_dirlist(const game_set& gar, const std::string& dirlist, bool quiet);
 
-	void load_dir(game_set& gar, const std::string& dir, const std::string& filterlist);
-	void load_dirlist(game_set& gar, const std::string& dirlist, const std::string& filterlist);
+	void load_dir(game_set& gar, const std::string& dir, const std::string& filterlist, bool quiet);
+	void load_dirlist(game_set& gar, const std::string& dirlist, const std::string& filterlist, bool quiet);
 
 	bool run_process(time_t& duration, const std::string& dir, int argc, const char** argv, bool ignore_error) const;
 	unsigned compile(const game& g, const char** argv, unsigned argc, const std::string& list, unsigned orientation) const;
@@ -151,10 +151,10 @@ public:
 	unsigned preview_set(game_set& gar) const;
 
 	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
-	virtual bool load_cfg(const game_set& gar) = 0;
+	virtual bool load_cfg(const game_set& gar, bool quiet) = 0;
 	virtual bool load_data(const game_set& gar) = 0;
-	virtual bool load_game(game_set& gar) = 0;
-	virtual bool load_software(game_set& gar) = 0;
+	virtual bool load_game(game_set& gar, bool quiet) = 0;
+	virtual bool load_software(game_set& gar, bool quiet) = 0;
 	virtual void update(const game& g) const;
 
 	virtual bool is_present() const;
@@ -192,7 +192,7 @@ public:
 	virtual void cache(const game_set& gar, const game& g) const;
 	virtual bool tree_get() const;
 
-	virtual bool load_game(game_set& gar);
+	virtual bool load_game(game_set& gar, bool quiet);
 	virtual void update(const game& g) const;
 };
 
@@ -238,14 +238,14 @@ public:
 
 	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_data(const game_set& gar);
-	virtual bool load_software(game_set& gar);
+	virtual bool load_software(game_set& gar, bool quiet);
 };
 
 class dmame : public mame_mame {
 public:
 	dmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
 
@@ -253,7 +253,7 @@ class wmame : public mame_mame {
 public:
 	wmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
 
@@ -261,7 +261,7 @@ class xmame : public mame_mame {
 public:
 	xmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
 
@@ -269,7 +269,7 @@ class advmame : public mame_mame {
 public:
 	advmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
 
@@ -277,7 +277,7 @@ class advpac : public mame_mame {
 public:
 	advpac(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
 
@@ -297,9 +297,9 @@ public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
-	virtual bool load_software(game_set& gar);
+	virtual bool load_software(game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
 };
@@ -314,9 +314,9 @@ public:
 	dmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
-	virtual bool load_software(game_set& gar);
+	virtual bool load_software(game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
 };
@@ -344,8 +344,8 @@ public:
 	virtual bool tree_get() const;
 
 	virtual bool load_data(const game_set& gar);
-	virtual bool load_game(game_set& gar);
-	virtual bool load_software(game_set& gar);
+	virtual bool load_game(game_set& gar, bool quiet);
+	virtual bool load_software(game_set& gar, bool quiet);
 };
 
 class draine : public raine_info {
@@ -353,7 +353,7 @@ public:
 	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
 };
@@ -366,10 +366,10 @@ public:
 	virtual void attrib_run();
 	virtual bool tree_get() const;
 
-	virtual bool load_cfg(const game_set& gar);
+	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
-	virtual bool load_game(game_set& gar);
-	virtual bool load_software(game_set& gar);
+	virtual bool load_game(game_set& gar, bool quiet);
+	virtual bool load_software(game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
 

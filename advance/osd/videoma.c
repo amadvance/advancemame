@@ -1877,6 +1877,12 @@ void video_frame_event(struct advance_video_context* context, struct advance_saf
 	event_check(10, (input & OSD_INPUT_START4) != 0, HARDWARE_SCRIPT_START4, context->state.event_mask_old, &event_mask);
 	event_check(11, turbo_status, HARDWARE_SCRIPT_TURBO, context->state.event_mask_old, &event_mask);
 	event_check(12, advance_safequit_can_exit(safequit_context), HARDWARE_SCRIPT_SAFEQUIT, context->state.event_mask_old, &event_mask);
+	event_check(13, advance_safequit_event_mask(safequit_context) & 0x4, HARDWARE_SCRIPT_EVENT1, context->state.event_mask_old, &event_mask);
+	event_check(14, advance_safequit_event_mask(safequit_context) & 0x8, HARDWARE_SCRIPT_EVENT2, context->state.event_mask_old, &event_mask);
+	event_check(15, advance_safequit_event_mask(safequit_context) & 0x10, HARDWARE_SCRIPT_EVENT3, context->state.event_mask_old, &event_mask);
+	event_check(16, advance_safequit_event_mask(safequit_context) & 0x20, HARDWARE_SCRIPT_EVENT4, context->state.event_mask_old, &event_mask);
+	event_check(17, advance_safequit_event_mask(safequit_context) & 0x40, HARDWARE_SCRIPT_EVENT5, context->state.event_mask_old, &event_mask);
+	event_check(18, advance_safequit_event_mask(safequit_context) & 0x80, HARDWARE_SCRIPT_EVENT6, context->state.event_mask_old, &event_mask);
 
 	/* save the new status */
 	context->state.event_mask_old = event_mask;
@@ -2065,7 +2071,15 @@ static void video_frame_sync(struct advance_video_context* context)
 		/* update the error state */
 		context->state.sync_pivot = expected - current;
 
-		log_debug(("advance:sync: total %.5f, error%8.5f, last %.5f, wait %.5f\n", current - context->state.sync_last, context->state.sync_pivot, previous - context->state.sync_last, current - previous));
+		log_debug(("advance:sync: total %.5f, error %8.5f, last %.5f, wait %.5f\n", current - context->state.sync_last, context->state.sync_pivot, previous - context->state.sync_last, current - previous));
+
+		if (context->state.sync_pivot < -5) {
+			/* if the error is too big (negative) the delay is unrecoverable */
+			/* generally it happen with a virtual terminal switch */
+			/* the best solution is to restart the sync computation */
+			video_update_skip(context);
+			video_update_sync(context);
+		}
 
 		context->state.sync_last = current;
 	}
@@ -2123,7 +2137,6 @@ static void video_sync_update(struct advance_video_context* context, struct adva
 
 static void video_frame_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
 {
-
 	if (context->state.skip_warming_up_flag) {
 		context->state.skip_flag = 0;
 		context->state.skip_level_counter = 0;
@@ -2150,7 +2163,6 @@ static void video_frame_skip(struct advance_video_context* context, struct advan
 
 		log_debug(("advance:skip: throttle warming up\n"));
 	} else {
-
 		/* compute if the next (not the current one) frame must be skipped */
 		context->state.skip_flag = context->state.skip_level_counter >= context->state.skip_level_full;
 

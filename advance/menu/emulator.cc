@@ -186,11 +186,12 @@ void emulator::scan_game(const game_set& gar, const string& path, const string& 
 		i->rom_zip_set_insert(path);
 }
 
-void emulator::scan_dir(const game_set& gar, const string& dir)
+void emulator::scan_dir(const game_set& gar, const string& dir, bool quiet)
 {
 	DIR* d = opendir(cpath_export(dir));
 	if (!d) {
-		target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
+		if (!quiet)
+			target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
 		return;
 	}
 
@@ -206,26 +207,27 @@ void emulator::scan_dir(const game_set& gar, const string& dir)
 	closedir(d);
 }
 
-void emulator::scan_dirlist(const game_set& gar, const string& dirlist)
+void emulator::scan_dirlist(const game_set& gar, const string& dirlist, bool quiet)
 {
 	unsigned i = 0;
 	while (i<dirlist.length()) {
 		unsigned end = dirlist.find(':', i);
 		if (end==string::npos) {
-			scan_dir(gar, string( dirlist, i ));
+			scan_dir(gar, string( dirlist, i ), quiet);
 			i = dirlist.size();
 		} else {
-			scan_dir(gar, string( dirlist, i, end-i ));
+			scan_dir(gar, string( dirlist, i, end-i ), quiet);
 			i = end + 1;
 		}
 	}
 }
 
-void emulator::load_dir(game_set& gar, const string& dir, const string& filterlist)
+void emulator::load_dir(game_set& gar, const string& dir, const string& filterlist, bool quiet)
 {
 	DIR* d = opendir(cpath_export(dir));
 	if (!d) {
-		target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
+		if (!quiet)
+			target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
 		return;
 	}
 
@@ -256,16 +258,16 @@ void emulator::load_dir(game_set& gar, const string& dir, const string& filterli
 	closedir(d);
 }
 
-void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& filterlist)
+void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& filterlist, bool quiet)
 {
 	unsigned i = 0;
 	while (i<dirlist.length()) {
 		unsigned end = dirlist.find(':', i);
 		if (end==string::npos) {
-			load_dir(gar, string( dirlist, i ), filterlist);
+			load_dir(gar, string( dirlist, i ), filterlist, quiet);
 			i = dirlist.size();
 		} else {
-			load_dir(gar, string( dirlist, i, end-i ), filterlist);
+			load_dir(gar, string( dirlist, i, end-i ), filterlist, quiet);
 			i = end + 1;
 		}
 	}
@@ -854,7 +856,7 @@ bool mame_info::load_game_info(game_set& gar)
 	return true;
 }
 
-bool mame_info::load_game(game_set& gar)
+bool mame_info::load_game(game_set& gar, bool quiet)
 {
 	if (is_update_xml()) {
 		return load_game_xml(gar);
@@ -1109,7 +1111,7 @@ void mame_mame::load_game_cfg_dir(const game_set& gar, const string& dir) const 
 	closedir(d);
 }
 
-bool mame_mame::load_software(game_set&)
+bool mame_mame::load_software(game_set&, bool quiet)
 {
 	return true;
 }
@@ -1196,7 +1198,7 @@ string dmame::type_get() const {
 	return "dmame";
 }
 
-bool dmame::load_cfg(const game_set& gar)
+bool dmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1260,7 +1262,7 @@ bool dmame::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -1277,7 +1279,7 @@ string wmame::type_get() const {
 	return "mame";
 }
 
-bool wmame::load_cfg(const game_set& gar)
+bool wmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1341,7 +1343,7 @@ bool wmame::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -1358,7 +1360,7 @@ string xmame::type_get() const {
 	return "xmame";
 }
 
-bool xmame::load_cfg(const game_set& gar)
+bool xmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1428,7 +1430,7 @@ bool xmame::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -1445,7 +1447,7 @@ string advmame::type_get() const {
 	return "advmame";
 }
 
-bool advmame::load_cfg(const game_set& gar)
+bool advmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1509,7 +1511,7 @@ bool advmame::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -1526,7 +1528,7 @@ string advpac::type_get() const {
 	return "advpac";
 }
 
-bool advpac::load_cfg(const game_set& gar)
+bool advpac::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1590,7 +1592,7 @@ bool advpac::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -1695,7 +1697,7 @@ bool dmess::load_data(const game_set& gar)
 	return true;
 }
 
-bool dmess::load_cfg(const game_set& gar)
+bool dmess::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1762,7 +1764,7 @@ bool dmess::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
 		if (i->emulator_get() == this) {
@@ -1886,7 +1888,7 @@ void dmess::scan_alias(game_set& gar, game_container& gac, const string& cfg)
 	f.close();
 }
 
-bool dmess::load_software(game_set& gar)
+bool dmess::load_software(game_set& gar, bool quiet)
 {
 	game_container gac;
 
@@ -2005,7 +2007,7 @@ bool advmess::load_data(const game_set& gar)
 	return true;
 }
 
-bool advmess::load_cfg(const game_set& gar)
+bool advmess::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -2072,7 +2074,7 @@ bool advmess::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
 		if (i->emulator_get() == this) {
@@ -2157,7 +2159,7 @@ void advmess::scan_software(game_container& gac, const game_set& gar)
 	}
 }
 
-bool advmess::load_software(game_set& gar)
+bool advmess::load_software(game_set& gar, bool quiet)
 {
 	game_container gac;
 
@@ -2647,7 +2649,7 @@ bool raine_info::load_info(game_set& gar)
 	return true;
 }
 
-bool raine_info::load_game(game_set& gar)
+bool raine_info::load_game(game_set& gar, bool quiet)
 {
 	struct stat st_info;
 	struct stat st_mame;
@@ -2696,7 +2698,7 @@ bool raine_info::load_game(game_set& gar)
 	return true;
 }
 
-bool raine_info::load_software(game_set&)
+bool raine_info::load_software(game_set&, bool quiet)
 {
 	return true;
 }
@@ -2713,7 +2715,7 @@ string draine::type_get() const {
 	return "draine";
 }
 
-bool draine::load_cfg(const game_set& gar)
+bool draine::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -2786,7 +2788,7 @@ bool draine::load_cfg(const game_set& gar)
 	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path) ));
 	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path) ));
 
-	scan_dirlist(gar, config_rom_path_get());
+	scan_dirlist(gar, config_rom_path_get(), quiet);
 
 	return true;
 }
@@ -2849,7 +2851,7 @@ bool generic::load_data(const game_set& gar)
 	return true;
 }
 
-bool generic::load_cfg(const game_set& gar)
+bool generic::load_cfg(const game_set& gar, bool quiet)
 {
 	config_rom_path = list_abs(list_import(user_rom_path), exe_dir_get());
 	config_alts_path = list_abs(list_import(user_alts_path), exe_dir_get());
@@ -2931,9 +2933,9 @@ bool generic::load_info(game_set& gar)
 	return true;
 }
 
-bool generic::load_game(game_set& gar)
+bool generic::load_game(game_set& gar, bool quiet)
 {
-	load_dirlist(gar, list_abs(list_import(user_rom_path), exe_dir_get()), list_import(user_rom_filter));
+	load_dirlist(gar, list_abs(list_import(user_rom_path), exe_dir_get()), list_import(user_rom_filter), quiet);
 
 	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())), dir_cwd());
 
@@ -2961,7 +2963,7 @@ bool generic::load_game(game_set& gar)
 	return true;
 }
 
-bool generic::load_software(game_set&)
+bool generic::load_software(game_set&, bool quiet)
 {
 	return true;
 }

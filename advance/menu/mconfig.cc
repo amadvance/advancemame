@@ -749,7 +749,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
 		if (opt_verbose)
 			target_nfo("log: load game for %s\n", (*i)->user_name_get().c_str());
-		if (!(*i)->load_game(gar)) {
+		if (!(*i)->load_game(gar, quiet)) {
 			return false;
 		}
 	}
@@ -758,7 +758,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
 		if (opt_verbose)
 			target_nfo("log: load cfg for %s\n", (*i)->user_name_get().c_str());
-		if (!(*i)->load_cfg(gar)) {
+		if (!(*i)->load_cfg(gar, quiet)) {
 			return false;
 		}
 	}
@@ -767,8 +767,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
 		if (opt_verbose)
 			target_nfo("log: load software for %s\n", (*i)->user_name_get().c_str());
-		if (!(*i)->load_software(gar)) {
-			exit(EXIT_FAILURE);
+		if (!(*i)->load_software(gar, quiet)) {
+			return false;
 		}
 	}
 
@@ -833,7 +833,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		if (opt_verbose)
 			target_nfo("log: load data for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_data(gar)) {
-			exit(EXIT_FAILURE);
+			return false;
 		}
 	}
 
@@ -1073,7 +1073,7 @@ bool config_state::save(adv_conf* config_context) const {
 	}
 
 	// don't print the error message (error_callback==0)
-	if (conf_save(config_context, 1, 0, 0) != 0)
+	if (conf_save(config_context, 1, 0, 0, 0) != 0)
 		return false;
 
 	// prevent data lost if crashing

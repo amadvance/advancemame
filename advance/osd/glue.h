@@ -136,6 +136,16 @@ struct mame_port* mame_port_list(void);
 /***************************************************************************/
 /* MAME callback interface */
 
+/** New ports. */
+#define MAME_PORT_INTERNAL 0x70000000
+#define IPT_MAME_PORT_SAFEQUIT (MAME_PORT_INTERNAL + 0)
+#define IPT_MAME_PORT_EVENT1 (MAME_PORT_INTERNAL + 1)
+#define IPT_MAME_PORT_EVENT2 (MAME_PORT_INTERNAL + 2)
+#define IPT_MAME_PORT_EVENT3 (MAME_PORT_INTERNAL + 3)
+#define IPT_MAME_PORT_EVENT4 (MAME_PORT_INTERNAL + 4)
+#define IPT_MAME_PORT_EVENT5 (MAME_PORT_INTERNAL + 5)
+#define IPT_MAME_PORT_EVENT6 (MAME_PORT_INTERNAL + 6)
+
 int mame_ui_port_pressed(unsigned port);
 unsigned mame_ui_code_from_oskey(unsigned oscode);
 unsigned mame_ui_code_from_osjoystick(unsigned oscode);

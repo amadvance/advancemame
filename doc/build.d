@@ -13,7 +13,7 @@ Preparing The Sources
 	Note that you need only the source from the MAME and MESS archive.
 	The original `makefile' and the other files must be manually deleted.
 
-	In Linux and Mac OS X remember to unzip the original MAMD and
+	In Linux and Mac OS X remember to unzip the original MAME and
 	MESS .zip archives with the `unzip -aa' command to convert the
 	files from the DOS/Windows CR/LF format to the Unix CR format.
 
@@ -25,9 +25,10 @@ Preparing The Sources
 	To compile AdvanceMAME you need the MAME source of the same
 	version of AdvanceMAME.
 
-	The source of the MAME emulator must be unzipped in the `src/'
-	directory at the same level of the `advance/' directory present
-	in the AdvanceMAME archive.
+	Copy the `src/' directory in the MAME source archive at the same level
+	of the `advance/' directory present in the AdvanceMAME archive.
+	Please note that only the `src/' directory from the
+	MAME source is required, all the other files must be deleted.
 
 	The final directory tree for AdvanceMAME must be :
 
@@ -36,7 +37,7 @@ Preparing The Sources
 
 	After unpacked, you need to patch the original MAME source in
 	the `src/' directory with the patch `advance/advmame.dif'.
-	If the patche isn't applied correctly, probably you are using the wrong
+	If the patch isn't applied correctly, probably you are using the wrong
 	version of the emulator source.
 
 	The commands for patching the source for AdvanceMAME in DOS and Windows are :

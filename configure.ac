@@ -139,12 +139,16 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS=""
 		AC_CHECK_CPU_ARCH
 		AC_CHECK_CC_ARCH
-		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
 		if test ! $ac_cc_arch = blend; then
-			CFLAGS="-march=$ac_cc_arch $CFLAGS"
+			CFLAGS="$CFLAGS -march=$ac_cc_arch "
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		fi
-		AC_CHECK_CC_OPT([-Wall -Wno-sign-compare -Wno-unused], [CFLAGS="$CFLAGS -Wall -Wno-sign-compare -Wno-unused"], [])
+		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
+		# -fno-merge-constants is required to speedup the link time. ld spends a lot of time trying to merge partial strings.
+		AC_CHECK_CC_OPT([-fno-merge-constants], [CFLAGS="$CFLAGS -fno-merge-constants"], [])
+		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
+		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
+		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])
 	fi
 	if test ! -z $ac_host_cflags; then
 		CFLAGS="$ac_host_cflags $CFLAGS"
@@ -612,20 +616,30 @@ AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
 AC_ARG_ENABLE(
 	[kraw],
-	AC_HELP_STRING([--enable-kraw],[enable the use of the RAW keyboard interface. (default auto)]),
+	AC_HELP_STRING([--enable-kraw],[enable the use of the raw keyboard interface. (default auto)]),
 	[ac_lib_kraw=$enableval],
 	[ac_lib_kraw=auto]
 )
 if test $ac_lib_kraw = auto; then
-	AC_MSG_CHECKING([for RAW keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
-			int dummy = K_MEDIUMRAW;
+	AC_MSG_CHECKING([for raw keyboard interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+			#include <sys/kd.h>
+			#include <sys/vt.h>
+			#include <sys/ioctl.h>
+		]], [[
+			int dummy0 = K_MEDIUMRAW;
+			int dummy1 = VT_ACTIVATE;
 		]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
 	AC_MSG_RESULT([$ac_lib_kraw])
 elif test $ac_lib_kraw = yes; then
-	AC_MSG_CHECKING([for RAW keyboard interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
-			int dummy = K_MEDIUMRAW;
+	AC_MSG_CHECKING([for raw keyboard interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+			#include <sys/kd.h>
+			#include <sys/vt.h>
+			#include <sys/ioctl.h>
+		]], [[
+			int dummy0 = K_MEDIUMRAW;
+			int dummy1 = VT_ACTIVATE;
 		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
@@ -637,12 +651,12 @@ AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
 AC_ARG_ENABLE(
 	[mraw],
-	AC_HELP_STRING([--enable-mraw],[enable the use of the RAW mouse interface. (default auto)]),
+	AC_HELP_STRING([--enable-mraw],[enable the use of the raw mouse interface. (default auto)]),
 	[ac_lib_mraw=$enableval],
 	[ac_lib_mraw=auto]
 )
 if test $ac_lib_mraw = auto; then
-	AC_MSG_CHECKING([for RAW mouse interface])
+	AC_MSG_CHECKING([for raw mouse interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
 			void dummy(void) {
 				tcsetattr(0, TCSAFLUSH, 0);
@@ -650,7 +664,7 @@ if test $ac_lib_mraw = auto; then
 		]])],[ac_lib_mraw=yes],[ac_lib_mraw=no])
 	AC_MSG_RESULT([$ac_lib_mraw])
 elif test $ac_lib_mraw = yes; then
-	AC_MSG_CHECKING([for RAW mouse interface])
+	AC_MSG_CHECKING([for raw mouse interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
 			void dummy(void) {
 				tcsetattr(0, TCSAFLUSH, 0);

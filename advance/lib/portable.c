@@ -107,10 +107,10 @@ void sskip(int* p, const char* s, const char* sep)
 /**
  * Extract a token from a string.
  * \param c Separator character. It's cleared in the string to ensure a 0 termination of the token. It's 0 if the token end the string.
- * \param p Index on the string.
- * \param s String to scan.
+ * \param p Index on the string. The index is increased at the end of the token or after the separator if present.
+ * \param s String to scan. The string is modified to put the terminating 0 at the end of the token.
  * \param sep Set of chars to use as separators.
- * \param sep Set of chars to ignore.
+ * \param ignore Set of chars to ignore. They are removed at the start and at the end of the token. They are not removed after the separator.
  * \param The extratect token 0 always terminated.
  */
 const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore)

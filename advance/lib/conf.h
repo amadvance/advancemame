@@ -203,7 +203,7 @@ enum conf_callback_error {
  */
 typedef void conf_error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...);
 
-adv_error conf_save(adv_conf* context, adv_bool force, conf_error_callback* error, void* error_context);
+adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_error_callback* error, void* error_context);
 
 /**
  * Conversion specification.

@@ -39,6 +39,7 @@
 
 struct keyb_svgalib_context {
 	unsigned map_up_to_low[KEYB_MAX];
+	adv_bool disable_special_flag;
 };
 
 static struct keyb_pair {
@@ -179,6 +180,8 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 		svgalib_state.map_up_to_low[i->up_code] = i->low_code;
 	}
 
+	svgalib_state.disable_special_flag = disable_special;
+
 	return 0;
 }
 
@@ -205,6 +208,12 @@ adv_error keyb_svgalib_enable(void)
 		error_set("Error enabling the svgalib keyboard driver. Function keyboard_init() failed.\n");
 		return -1;
 	}
+
+	if (svgalib_state.disable_special_flag) {
+		keyboard_translatekeys(DONT_CATCH_CTRLC);
+	}
+
+	keyboard_clearstate();
 
 	return 0;
 }
@@ -249,23 +258,26 @@ unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
 	if (low_code == LOW_INVALID)
 		return 0;
 
-	return keyboard_keypressed(low_code);
+	return keyboard_keypressed(low_code) != KEY_NOTPRESSED;
 }
 
 void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
+	const char* state;
 
 	assert(keyboard < keyb_svgalib_count_get());
 
 	log_debug(("keyb:svgalib: keyb_svgalib_all_get(keyboard:%d)\n", keyboard));
+
+	state = keyboard_getstate();
 
 	for(i=0;i<KEYB_MAX;++i) {
 		unsigned low_code = svgalib_state.map_up_to_low[i];
 		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
 		else
-			code_map[i] = keyboard_keypressed(low_code);
+			code_map[i] = state[low_code] != KEY_NOTPRESSED;
 	}
 
 	/* disable the pause key */
@@ -312,5 +324,4 @@ keyb_driver keyb_svgalib_driver = {
 	keyb_svgalib_all_get,
 	keyb_svgalib_poll
 };
-
 

@@ -18,16 +18,14 @@ Scripts
 			the MAME confirmation screens.
 		script_play - The game play start. It happens after the
 			turbo_startup_time.
-		script_led[1] - The first led controlled by the emulated
-			game is enabled.
-		script_led[2] - The second led controlled by the emulated
-			game is enabled.
-		script_led[3] - The third led controlled by the emulated
+		script_led1,2,3 - The leds controlled by the emulated
 			game is enabled.
 		script_turbo - The turbo button is pressed.
-		script_coin[1,2,3,4] - A coin button is pressed.
-		script_start[1,2,3,4] - A start button is pressed.
+		script_coin1,2,3,4 - A coin button is pressed.
+		script_start1,2,3,4 - A start button is pressed.
 		script_safequit - The game enter in the safequit status.
+		script_event1,2,3,4,5,6 - The events controlled by the
+			event system.
 
 	You can assign a script at every event. The script is started
 	when the event is triggered.
@@ -82,7 +80,7 @@ Commands
 		event() - Return 0 if the event that started the
 			script is terminated.
 		event(EVENT) - Return 0 if the specified event is
-			terminated.
+			not active. Return 1 if the event is active.
 		simulate_event(EVENT,N) - Simulate the specified
 			event for N milli seconds.
 		simulate_key(KEY,N) - Simulate the specified key for
@@ -195,11 +193,11 @@ Examples
 
 	Map the first MAME led to the first keyboard led:
 
-		:script_led[1] on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
+		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
 
 	Map the second MAME led to the first keyboard led:
 
-		:script_led[2] on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
+		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
 
 	Flash the third keyboard led when the 'turbo' is active :
 
@@ -207,7 +205,7 @@ Examples
 
 	Light the third keyboard led when the 'coin1' key is pressed :
 
-		:script_coin[1] on(kdb, 0b100); delay(500); off(kdb, 0b100);
+		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
 
 	Add 3 coins automatically:
 
@@ -215,7 +213,7 @@ Examples
 
 	Add a coin when the player start:
 
-		:script_start[1] wait(!event()); simulate_event(coin1,100); delay(500); simulate_event(start1,100);
+		:script_start1 wait(!event()); simulate_event(coin1,100); delay(500); simulate_event(start1,100);
 
 Configuration
 	The scripts must be inserted in the 'advmame.rc' file.
@@ -223,11 +221,11 @@ Configuration
 	For example:
 
 		:script_video wait(!event()); set(kdb,0);
-		:script_led[1] on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
-		:script_led[2] on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
-		:script_coin[1] on(kdb, 0b100); delay(500); off(kdb, 0b100);
+		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
+		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
+		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
 		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } off(kdb, 0b100);
-		:script_start[1] \
+		:script_start1 \
 		:	set(lpt1, 0xff); \
 		:	while(event()) { \
 		:		toggle(lpt1, 1); \
