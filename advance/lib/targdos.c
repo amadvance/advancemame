@@ -31,6 +31,7 @@
 #include "target.h"
 #include "log.h"
 #include "file.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include "allegro2.h"

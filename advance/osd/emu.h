@@ -192,14 +192,14 @@ struct advance_video_state_context {
 	/* Game info */
 	adv_bool game_vector_flag; /**< If is a vector game. */
 	double game_fps; /**< Frame rate of the game. */
-	unsigned long long game_aspect_x; /**< Aspect x of the game */
-	unsigned long long game_aspect_y; /**< Aspect x of the game */
-	unsigned game_area_size_x; /**< Max size of the visible part. */
-	unsigned game_area_size_y; /**< Max size of the visible part. */
-	unsigned game_used_size_x; /**< Current size of the visible part. */
-	unsigned game_used_size_y; /**< Current size of the visible part. */
-	unsigned game_used_pos_x; /**< Current pos of the visible part. */
-	unsigned game_used_pos_y; /**< Current pos of the visible part. */
+	unsigned long long game_pixelaspect_x; /**< Pixel aspect of the game */
+	unsigned long long game_pixelaspect_y; /**< Pixel aspect of the game */
+	unsigned game_area_size_x; /**< Max size of the used part. */
+	unsigned game_area_size_y; /**< Max size of the used part. */
+	unsigned game_used_size_x; /**< Current size of the used part. */
+	unsigned game_used_size_y; /**< Current size of the used part. */
+	unsigned game_used_pos_x; /**< Current pos of the used part. */
+	unsigned game_used_pos_y; /**< Current pos of the used part. */
 	int game_bits_per_pixel; /**< Game bits per pixel. */
 	int game_bytes_per_pixel; /**< Game bytes per pixel. */
 	int game_colors; /**< Number of colors used by the game. */
@@ -293,13 +293,13 @@ struct advance_video_state_context {
 	int rgb_effect; /**< One of the EFFECT_ effect. */
 	int interlace_effect; /**< One of the EFFECT_INTERLACE_ effect. */
 
-	unsigned game_visible_size_x;
-	unsigned game_visible_size_y;
-	unsigned mode_visible_size_x;
-	unsigned mode_visible_size_y;
+	unsigned game_visible_size_x; /**< Size of the visible part of the game. */
+	unsigned game_visible_size_y; /**< Size of the visible part of the game. */
+	unsigned mode_visible_size_x; /**< Size of the visible part of the video mode. */
+	unsigned mode_visible_size_y; /**< Size of the visible part of the video mode. */
 
-	int game_visible_pos_x; /**< First visibile position in the used part of the bitmap (not in the whole bitmap). */
-	int game_visible_pos_y;
+	int game_visible_pos_x; /**< Position of the visibile part of the game in the used part. */
+	int game_visible_pos_y; /**< Position of the visibile part of the game in the used part. */
 
 	/** Basic increment of number of pixel for mantaining the alignement. */
 	unsigned game_visible_pos_x_increment;

@@ -27,7 +27,7 @@ there are still the following problems:
 #include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 #include "vgapci.h"
 
 /* New style driver interface. */

@@ -22,7 +22,7 @@ there are still the following problems:
 #include <unistd.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 
 /* New style driver interface. */
 #include "timing.h"

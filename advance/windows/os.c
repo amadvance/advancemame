@@ -36,6 +36,7 @@
 #include "target.h"
 #include "file.h"
 #include "ossdl.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include "SDL.h"

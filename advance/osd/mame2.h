@@ -31,11 +31,6 @@
 #ifndef __MAME2_H
 #define __MAME2_H
 
-#if defined(__MSDOS__) || defined(__WIN32__)
-/** Prevent the inclusion of the svgalib driver.h file */
-#define _DRIVER_H
-#endif
-
 #if defined(MESS)
 
 #include "../../srcmess/mame.h"

@@ -12,7 +12,7 @@
 
 #include "timing.h"
 #include "vgaregs.h"
-#include "driver.h"		/* for __svgalib_driver_report */
+#include "svgadriv.h"		/* for __svgalib_driver_report */
 #include "ramdac.h"
 
 /*

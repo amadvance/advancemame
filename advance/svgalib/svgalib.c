@@ -6,7 +6,7 @@
 
 #include "libvga.h"
 #include "timing.h"
-#include "driver.h"
+#include "svgadriv.h"
 #include "vga.h"
 #include "vgaio.h"
 #include "ramdac/ramdac.h"

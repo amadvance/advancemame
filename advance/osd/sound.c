@@ -328,7 +328,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
-	conf_bool_register_default(cfg_context, "sound_fillup", 1);
+	conf_bool_register_default(cfg_context, "sound_normalize", 1);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
 	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
@@ -353,7 +353,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	context->config.mode = conf_int_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
-	context->config.adjust_flag = conf_bool_get_default(cfg_context, "sound_fillup");
+	context->config.adjust_flag = conf_bool_get_default(cfg_context, "sound_normalize");
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
 	option->filter_flag = conf_bool_get_default(cfg_context, "sound_resamplefilter");
 

@@ -134,9 +134,6 @@ endif
 
 # Automatic BUILD environment detection
 ifndef CONF_BUILD
-ifdef CONF_HOST
-CONF_BUILD=$(CONF_HOST)
-else
 UNAME := $(shell uname)
 ifneq (,$(findstring Linux,$(UNAME)))
 CONF_BUILD=unix
@@ -145,7 +142,6 @@ ifneq (,$(findstring DOS,$(UNAME)))
 CONF_BUILD=dos
 else
 CONF_BUILD=windows
-endif
 endif
 endif
 endif
@@ -346,8 +342,10 @@ ifeq ($(CONF_HOST),windows)
 CROSSTARGET = i386-mingw32msvc
 CROSSDIR = /usr/local/cross-tools
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
-CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -I$(CROSSDIR)/$(CROSSTARGET)/include
-CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -I$(CROSSDIR)/$(CROSSTARGET)/include
+#CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -I$(CROSSDIR)/$(CROSSTARGET)/include
+#CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -I$(CROSSDIR)/$(CROSSTARGET)/include
+CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/ -L$(CROSSDIR)/$(CROSSTARGET)/lib
 RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres

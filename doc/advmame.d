@@ -1054,7 +1054,7 @@ Configuration
     sound_fillup
 	Automatically increase the volume of games with a too lower one.
 
-	:sound_fillup yes | no
+	:sound_normalize yes | no
 
 	Options:
 		yes - Enable the effect (default):

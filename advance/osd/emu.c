@@ -496,7 +496,7 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
-	if (access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)!=0) {
+	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)!=0) {
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
@@ -659,8 +659,10 @@ int os_main(int argc, char* argv[])
 
 	log_std(("advance: conf_save()\n"));
 
-	/* save the configuration only if modified, ignore the error but print the message */
-	conf_save(config_context, 0, context->global.config.quiet_flag, error_callback, 0);
+	/* save the configuration only if modified, ignore the error but print the messages */
+	if (access(file_config_file_home(ADVANCE_NAME ".rc"), W_OK)==0) {
+		conf_save(config_context, 0, context->global.config.quiet_flag, error_callback, 0);
+	}
 
 	log_std(("advance: conf_done()\n"));
 

@@ -33,6 +33,7 @@
 #include "video.h"
 #include "log.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include "board.h"

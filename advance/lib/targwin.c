@@ -31,6 +31,7 @@
 #include "target.h"
 #include "log.h"
 #include "os.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include "SDL.h"

@@ -10,7 +10,7 @@
 #include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 #include "timing.h"
 #include "interfac.h"
 #include "vgaregs.h"

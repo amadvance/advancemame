@@ -203,6 +203,33 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive src.ori/drivers/cave.c src/drivers/cave.c
+--- src.ori/drivers/cave.c	2003-08-10 16:47:52.000000000 +0200
++++ src/drivers/cave.c	2003-08-22 12:24:03.000000000 +0200
+@@ -3444,19 +3444,19 @@
+ }
+ 
+ 
+ DRIVER_INIT( pwrinst2 )
+ {
+-	cave_default_eeprom = 0;
+-	cave_default_eeprom_length = 0;
+-	cave_region_byte = -1;
+-
+ 	unsigned char *buffer;
+ 	data8_t *src = memory_region(REGION_GFX1);
+ 	int len = memory_region_length(REGION_GFX1);
+ 	int i, j;
+ 
++	cave_default_eeprom = 0;
++	cave_default_eeprom_length = 0;
++	cave_region_byte = -1;
++
+ 	if ((buffer = malloc(len)))
+ 	{
+ 		 for(i=0; i<len/2; i++) 		{
+ 			j = BITSWAP24(i,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7, 2,4,6,1,5,3, 0);
+ 			if(((j & 6) == 0) || ((j & 6) == 6))
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
 --- src.ori/drivers/multi32.c	2003-07-04 19:16:28.000000000 +0200
 +++ src/drivers/multi32.c	2003-08-10 16:48:27.000000000 +0200

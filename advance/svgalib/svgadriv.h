@@ -16,7 +16,7 @@
 #include "vga.h"
 #include "timing.h"
 #include "accel.h"
-#include "io.h"
+#include "memio.h"
 
 #define MAX_REGS 5000 /* VESA needs a lot of storage space */
 

@@ -9,7 +9,7 @@ Permedia 2 chipset driver
 #include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 #include "timing.h"
 #include "vgaregs.h"
 #include "interfac.h"

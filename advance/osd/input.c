@@ -541,7 +541,7 @@ static adv_error parse_analog(int* map, char* s)
 		const char* v1;
 		const char* v2;
 
-		t = stoken(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[ \t", " \t");
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
@@ -627,7 +627,7 @@ static int parse_trak(int* map, char* s)
 		const char* v0;
 		const char* v1;
 
-		t = stoken(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[ \t", " \t");
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
@@ -740,7 +740,7 @@ static int parse_digital(unsigned* map, char* s)
 		const char* v2;
 		const char* v3;
 
-		t = stoken(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[ \t", " \t");
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
@@ -1458,7 +1458,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
-				target_err("Valid format is keyboard[KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
+				target_err("Valid format is keyboard[BOARD,KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
 				return -1;
 			}
 			++i;

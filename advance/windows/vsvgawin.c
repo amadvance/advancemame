@@ -34,6 +34,7 @@
 #include "ossdl.h"
 #include "error.h"
 #include "conf.h"
+#include "snstring.h"
 #include "portable.h"
 
 #ifdef USE_KEYBOARD_SDL

@@ -2,13 +2,13 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.72.0 2003/09
-	) Added a new option `sound_fillup' which automatically increase
+	) Added a new option `sound_normalize' which automatically increase
 		the volume of games with a too lower one. It's enabled by default.
 	) Added a new set of Linux `event' input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.
 		These drivers remove any limitations on the number of
 		keyboards, mice and joysticks.
-	) The `input_map' option now accept the `auto' setting which
+	) The `input_map' option now accepts the `auto' setting which
 		is able to map the correct input device on the correct
 		game control.
 	) The `input_map' option now can remap also all the digital
@@ -29,7 +29,7 @@ AdvanceMAME Version 0.72.0 2003/09
 	) Renamed the safequit options in `misc_eventdebug' and
 		`misc_eventfile and the `safequit.dat' file in `event.dat'.
 	) The Linux keyboard `raw' driver has now a basic support to switch
-		vt pressing ALT+Fx.
+		virtual terminal pressing ALT+Fx.
 	) The Linux version of the advv and advcfg utilities have now
 		a better keyboard input handling.
 	) In Linux the host configuration files are now read in /etc,

@@ -1,5 +1,5 @@
 #include "libvga.h"
-#include "io.h"
+#include "memio.h"
 
 unsigned long __svgalib_vgammbase;
 

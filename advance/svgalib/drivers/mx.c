@@ -18,7 +18,7 @@ when entering text mode) or to the et4000 autodetection.
 #include <unistd.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 
 
 /* New style driver interface. */

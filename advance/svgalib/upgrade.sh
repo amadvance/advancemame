@@ -22,10 +22,10 @@ fi
 cp $SRC/8514a.h $DST
 cp $SRC/accel.c $DST
 cp $SRC/accel.h $DST
-cp $SRC/driver.h $DST
+cp $SRC/driver.h $DST/svgadriv.h
 cp $SRC/endianes.h $DST
 cp $SRC/interfac.h $DST
-cp $SRC/io.h $DST
+cp $SRC/io.h $DST/memio.h
 cp $SRC/libvga.h $DST
 cp $SRC/timing.h $DST
 cp $SRC/vga.h $DST

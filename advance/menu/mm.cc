@@ -610,7 +610,7 @@ int os_main(int argc, char* argv[])
 	section_map[0] = "";
 	conf_section_set(config_context, section_map, 1);
 
-	if (access(file_config_file_home("advmenu.rc"), R_OK)!=0) {
+	if (access(file_config_file_home("advmenu.rc"), F_OK)!=0) {
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);

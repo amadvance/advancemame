@@ -32,15 +32,12 @@
 #include "portable.h"
 
 #include <signal.h>
-#include <process.h>
 #include <sys/stat.h>
-#include <conio.h>
 #include <stdio.h>
-#include <dos.h>
-#include <dir.h>
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
+#include <dir.h>
 #include <direct.h>
 
 /** Number of universal buffers. */

@@ -346,12 +346,12 @@ RCFLAGS += --include-dir advance/lib
 # Special Rules
 
 # Debug
-#WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused
+#WHOLE_CFLAGS_OPT = -O2 -Wall -Wno-sign-compare -Wno-unused
 #WHOLE_CFLAGS_EMU = -fomit-frame-pointer
 #WHOLE_LDFLAGS = -rdynamic
 
 # Optimized
-WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O3 -Wall -Wno-sign-compare -Wno-unused
+WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O2 -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 
@@ -389,7 +389,7 @@ winmame:
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 
 WHOLECD_FLAGS = \
-		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
+		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
 		CONF=no CONF_HOST=unix \
 		CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
 		CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
@@ -407,6 +407,12 @@ wholemess:
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+
+dosmess:
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+
+winmess:
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 
 wholemenu:
 	$(MAKE) CONF=no distmenu

@@ -5,7 +5,7 @@ diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
 --- srcmess.ori/common.c	2003-08-10 16:47:51.000000000 +0200
-+++ srcmess/common.c	2003-08-15 09:02:40.000000000 +0200
++++ srcmess/common.c	2003-08-22 13:48:10.000000000 +0200
 @@ -733,10 +733,11 @@
  /*-------------------------------------------------
  	save_screen_snapshot_as - save a snapshot to

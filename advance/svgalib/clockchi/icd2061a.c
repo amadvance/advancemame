@@ -14,7 +14,7 @@
 #include "libvga.h"
 #include "ramdac/ramdac.h"
 #include "clockchi.h"
-#include "driver.h"
+#include "svgadriv.h"
 #include "vga.h"
 
 /* 

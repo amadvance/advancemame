@@ -33,7 +33,7 @@ Copyright 1994 through 1998 by Marc Aurele La France (TSI @ UQV), tsi@ualberta.c
 #include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
-#include "driver.h"
+#include "svgadriv.h"
 
 /* New style driver interface. */
 #include "timing.h"

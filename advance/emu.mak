@@ -405,10 +405,6 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG) 
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
-$(OBJ)/src/memory.o: $(srcdir)/src/memory.c
-	$(ECHO) $@ $(MSG) 
-	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
-
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
@@ -434,15 +430,14 @@ EMUCFLAGS += -DMSB_FIRST
 M68000FLAGS += -DMSB_FIRST
 endif
 
-EMUCFLAGS += \
-	-I. \
-	-I$(EMUSRC)
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += \
 	-I$(srcdir)/mess \
 	-DUNIX
 # -DUNIX is required by the MESS source
 endif
+EMUCFLAGS += \
+	-I$(EMUSRC)
 
 EMUCFLAGS += \
 	-I$(EMUSRC)/includes \

@@ -63,79 +63,31 @@
 /***************************************************************************/
 /*
 	Description of the various coordinate systems and variables :
+	All these values are already postprocessed after any SWAP/FLIP.
 
-	game_[width, height]
-		Size of the game screen (after any flipxy or swapxy).
-	game_used_[width, height]
-		Size of the used part of the game screen.
-	game_used_[pos_x, pos_y]
-		Position of the used part of the game screen.
-	game_visible_[width, height] (old gfx_display_columns, gfx_display_lines)
+	game_area_size_/y
+		Max size of the visible part of the game screen.
+
+	game_used_x/y
+		Current size of the visible part of the game screen.
+
+	game_used_x_pos_x/y
+		Current position of the visible part in the whole game are.
+
+	game_visible_size_x/y
 		Size of the visible part of the game screen. Can be smaller
 		than game_used_* if the video mode is too small. game_visible_
 		is always internal of the game_used part.
-	game_visible_[pos_x, pos_y] (old skipcolumns, skiplines)
+
+	game_visible_pos_x/y
 		Position of the visible part in the game screen (not
 		in the game_used part).
-	screen_visible_*
+
+	mode_visible_size_x/y
 		Part of the screen used for drawing. game_visible_* area is
-		drawn in screen_visible_* area, eventually with stretch_request.
-		screen_visible may be smaller than screen if game don't have
-		the same aspect ratio of the screen.
-	screen_stretch
-		Type of stretching done (is different than stretch_request variable)
-			SCREEN_NONE 1 multiplier
-			SCREEN_INTEGER interger multiplier
-			SCREEN_FRACTIONAL fractional multiplier
-		This value is derivate from game_visible_size and screen_visible_size
-
-	pc_aspect_ratio
-		The aspect of a standard horizontal PC monitor.
-
-	arcade_aspect_ratio
-		Sono le le dimensioni dello schermo di un arcade 4, 3
-		se orizzontale e 3, 4 se verticale
-
-	game_aspect_ratio
-		E' la dimensione in pixel ARCADE di un quadrato (a vista)
-		disegnato sullo schermo ARCADE alla particolare risoluzione ARCADE
-		FIX.game_width, FIX.game_height.
-
-		E' la combinazione di arcade_aspect_ratio con la particolare
-		risoluzione FIX.game_width, FIX.game_height.
-
-	arcade_aspect_ratio_x   game_aspect_ratio_x   game_use_size_x
-	--------------------- * ------------------- = -----------
-	arcade_aspect_ratio_y   game_aspect_ratio_y   game_used_size_y
-
-	screen_aspect_ratio
-		E' la dimensione in pixel PC di un quadrato (a vista)
-		disegnato sullo schermo PC alla particolare risoluzione PC
-		mode->size_x, mode->size_y.
-
-		E' la combinazione di pc_aspect_ratio con la particolare
-		risoluzione mode->size_x, mode->size_y.
-
-	pc_aspect_ratio_x   screen_aspect_ratio_x   screen_size_x
-	----------------- * --------------------- = -------------
-	pc_aspect_ratio_y   screen_aspect_ratio_y   screen_size_y
-
-
-	resulting_aspect_ratio
-		E' la dimensione in pixel ARCADE di un quadrato (a vista)
-		disegnato sullo schermo PC.
-
-		Idealmente dovrebbe essere uguale a game_aspect_ratio.
-		Se non c'e' stretching e' uguale per definizione a
-		screen_aspect ratio.
-
-	screen_stretch_factor_x   resulting_aspect_ratio_x   screen_aspect_ratio_x
-	----------------------- * ------------------------ = ---------------------
-	screen_stretch_factor_y   resulting_aspect_ratio_y   screen_aspect_ratio_y
-
-	screen_stretch_factor_x   pc_aspect_ratio_x   resulting_aspect_ratio_x   screen_size_x
-	----------------------- * ----------------- * ------------------------ = -------------
-	screen_stretch_factor_y   pc_aspect_ratio_y   resulting_aspect_ratio_y   screen_size_y
+		drawn in screen_visible_* area, eventually stretching.
+		mode_visible_size may be smaller than the video mode if the game
+		doesn't have the same aspect ratio of the screen.
 */
 
 /***************************************************************************/
@@ -462,7 +414,7 @@ static adv_error video_update_index(struct advance_video_context* context)
  * Create the video mode from the crtc.
  * \return 0 on success
  */
-static adv_error video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
+static adv_error video_make_vidmode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
 {
 	if (video_mode_generate(mode, crtc, context->state.mode_index)!=0) {
 		log_std(("ERROR:emu:video: video_mode_generate failed '%s'\n", error_get()));
@@ -501,7 +453,7 @@ static void video_invalidate_screen(void)
  * The mode is copyed in the context if it is set with success.
  * \return 0 on success
  */
-static adv_error video_init_mode(struct advance_video_context* context, adv_mode* mode)
+static adv_error video_init_vidmode(struct advance_video_context* context, adv_mode* mode)
 {
 	assert( !context->state.mode_flag );
 
@@ -527,7 +479,7 @@ static adv_error video_init_mode(struct advance_video_context* context, adv_mode
 	return 0;
 }
 
-static void video_done_mode(struct advance_video_context* context, adv_bool restore)
+static void video_done_vidmode(struct advance_video_context* context, adv_bool restore)
 {
 	assert( context->state.mode_flag );
 
@@ -545,7 +497,7 @@ static void video_done_mode(struct advance_video_context* context, adv_bool rest
 	context->state.mode_flag = 0;
 }
 
-static adv_error video_update_mode(struct advance_video_context* context, adv_mode* mode)
+static adv_error video_update_vidmode(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_key)
 {
 	/* destroy the pipeline, this force the pipeline update */
 	if (context->state.blit_pipeline_flag) {
@@ -557,9 +509,21 @@ static adv_error video_update_mode(struct advance_video_context* context, adv_mo
 		|| video_mode_compare(mode, video_current_mode())!=0
 	) {
 		if (context->state.mode_flag)
-			video_done_mode(context, 0);
-		if (video_init_mode(context, mode) != 0) {
+			video_done_vidmode(context, 0);
+
+		if (!ignore_key) {
+			keyb_disable();
+		}
+
+		if (video_init_vidmode(context, mode) != 0) {
 			return -1;
+		}
+
+		if (!ignore_key) {
+			if (keyb_enable(1) != 0) {
+				log_std(("ERROR:emu:video: calling keyb_enable() '%s'\n", error_get()));
+				return -1;
+			}
 		}
 	}
 
@@ -891,25 +855,48 @@ static void video_update_visible(struct advance_video_context* context, const ad
 	} else {
 		unsigned long long factor_x;
 		unsigned long long factor_y;
-		unsigned long long screen_aspect_ratio_x;
-		unsigned long long screen_aspect_ratio_y;
-		unsigned long long arcade_aspect_ratio_x;
-		unsigned long long arcade_aspect_ratio_y;
+		unsigned long long mode_pixelaspect_x;
+		unsigned long long mode_pixelaspect_y;
+		unsigned long long arcade_aspect_x;
+		unsigned long long arcade_aspect_y;
 
-		screen_aspect_ratio_x = crtc_hsize_get(crtc) * context->config.monitor_aspect_y;
-		screen_aspect_ratio_y = crtc_vsize_get(crtc) * context->config.monitor_aspect_x;
-		video_aspect_reduce(&screen_aspect_ratio_x, &screen_aspect_ratio_y);
+/*
+	mode_pixelaspect_x/y
+		It's the size in pixel of a visible square drawn on the current
+		video mode.
 
-		arcade_aspect_ratio_x = context->state.game_used_size_x * context->state.game_aspect_y;
-		arcade_aspect_ratio_y = context->state.game_used_size_y * context->state.game_aspect_x;
-		video_aspect_reduce(&arcade_aspect_ratio_x, &arcade_aspect_ratio_y);
+	monitor_aspect_x   mode_pixelaspect_x   mode_size_x
+	---------------- * ------------------ = -----------
+	monitor_aspect_y   mode_pixelaspect_y   mode_size_y
 
-		factor_x = screen_aspect_ratio_x * arcade_aspect_ratio_x;
-		factor_y = screen_aspect_ratio_y * arcade_aspect_ratio_y;
+	if mode_pixelaspect is equal at game_pixelaspect no stretching is
+	required to adjust the aspect.
+*/
+		mode_pixelaspect_x = crtc_hsize_get(crtc) * context->config.monitor_aspect_y;
+		mode_pixelaspect_y = crtc_vsize_get(crtc) * context->config.monitor_aspect_x;
+		video_aspect_reduce(&mode_pixelaspect_x, &mode_pixelaspect_y);
+
+		arcade_aspect_x = context->state.game_used_size_x * context->state.game_pixelaspect_y;
+		arcade_aspect_y = context->state.game_used_size_y * context->state.game_pixelaspect_x;
+		video_aspect_reduce(&arcade_aspect_x, &arcade_aspect_y);
+
+/*
+	The visible/used part of the video mode is computed in this way :
+
+	arcade_aspect_x   mode_pixelaspect_x   mode_visible_size_x
+	--------------- * ------------------ = -------------------
+	arcade_aspect_y   mode_pixelaspect_y   mode_visible_size_y
+
+	Note that mode_pixelaspect doesn't change if you use only part of
+	the screen. So, we can change safely the visible size.
+*/
+
+		factor_x = mode_pixelaspect_x * arcade_aspect_x;
+		factor_y = mode_pixelaspect_y * arcade_aspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
 		/* compute screen_visible size */
-		if (context->config.monitor_aspect_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * context->config.monitor_aspect_y) {
+		if (context->config.monitor_aspect_x * arcade_aspect_y > arcade_aspect_x * context->config.monitor_aspect_y) {
 			/* vertical game in horizontal screen */
 			context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 			/* adjust to 8 pixel */
@@ -917,9 +904,11 @@ static void video_update_visible(struct advance_video_context* context, const ad
 			if (context->state.mode_visible_size_x > crtc_hsize_get(crtc))
 				context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		} else {
-			/* orizontal game in vertical screen */
+			/* horizontal game in vertical screen */
 			context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 			context->state.mode_visible_size_y = context->state.mode_visible_size_x * factor_y / factor_x;
+			if (context->state.mode_visible_size_y > crtc_vsize_get(crtc))
+					context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 		}
 	}
 
@@ -1258,8 +1247,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	unsigned best_size_4y;
 	unsigned best_bits;
 	double best_vclock;
-	unsigned long long arcade_aspect_ratio_x;
-	unsigned long long arcade_aspect_ratio_y;
+	unsigned long long arcade_aspect_x;
+	unsigned long long arcade_aspect_y;
 
 	if (context->config.adjust != ADJUST_NONE
 		&& !video_is_programmable(context)
@@ -1313,15 +1302,15 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	context->state.game_used_pos_y = req->used_pos_y;
 	context->state.game_used_size_x = req->used_size_x;
 	context->state.game_used_size_y = req->used_size_y;
-	arcade_aspect_ratio_x = req->aspect_x;
-	arcade_aspect_ratio_y = req->aspect_y;
+	arcade_aspect_x = req->aspect_x;
+	arcade_aspect_y = req->aspect_y;
 
 	/* set the correct blit orientation */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
 		SWAP(unsigned, context->state.game_area_size_x, context->state.game_area_size_y );
 		SWAP(unsigned, context->state.game_used_pos_x, context->state.game_used_pos_y );
 		SWAP(unsigned, context->state.game_used_size_x, context->state.game_used_size_y );
-		SWAP(unsigned, arcade_aspect_ratio_x, arcade_aspect_ratio_y );
+		SWAP(unsigned, arcade_aspect_x, arcade_aspect_y );
 	}
 
 	context->state.game_rgb_flag = req->rgb_flag;
@@ -1364,33 +1353,55 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		}
 
 		/* expand the arcade aspect ratio */
-		if (arcade_aspect_ratio_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
-			arcade_aspect_ratio_x *= 100;
-			arcade_aspect_ratio_y *= 100 * context->config.aspect_expansion_factor;
+		if (arcade_aspect_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_x) {
+			arcade_aspect_x *= 100;
+			arcade_aspect_y *= 100 * context->config.aspect_expansion_factor;
 			/* limit */
-			if (arcade_aspect_ratio_y * context->config.monitor_aspect_x > context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
-				arcade_aspect_ratio_x = context->config.monitor_aspect_x;
-				arcade_aspect_ratio_y = context->config.monitor_aspect_y;
+			if (arcade_aspect_y * context->config.monitor_aspect_x > context->config.monitor_aspect_y * arcade_aspect_x) {
+				arcade_aspect_x = context->config.monitor_aspect_x;
+				arcade_aspect_y = context->config.monitor_aspect_y;
 			}
 		} else {
-			arcade_aspect_ratio_y *= 100;
-			arcade_aspect_ratio_x *= 100 * context->config.aspect_expansion_factor;
+			arcade_aspect_y *= 100;
+			arcade_aspect_x *= 100 * context->config.aspect_expansion_factor;
 			/* limit */
-			if (arcade_aspect_ratio_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
-				arcade_aspect_ratio_x = context->config.monitor_aspect_x;
-				arcade_aspect_ratio_y = context->config.monitor_aspect_y;
+			if (arcade_aspect_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_x) {
+				arcade_aspect_x = context->config.monitor_aspect_x;
+				arcade_aspect_y = context->config.monitor_aspect_y;
 			}
 		}
 
-		video_aspect_reduce(&arcade_aspect_ratio_x, &arcade_aspect_ratio_y);
+		video_aspect_reduce(&arcade_aspect_x, &arcade_aspect_y);
+
+/*
+	arcade_aspect_ratio
+		The aspect of the original arcade game.
+
+	game_pixelaspect
+		It's the size in pixel of a visible square drawn on the original
+		arcade game.
+
+	arcade_aspect_x   game_pixelaspect_x   game_used_size_x
+	--------------- * ------------------ = ----------------
+	arcade_aspect_y   game_pixelaspect_y   game_used_size_y
+
+	The mode size is computed in the this way :
+
+	monitor_aspect_x   game_pixelaspect_x   mode_size_x
+	---------------- * ------------------ = ------------
+	monitor_aspect_y   game_pixelaspect_y   mode_size_y
+
+	This formula ensures that the current video mode has the same
+	pixelaspect of the original video mode.
+*/
 
 		/* compute the game aspect ratio */
-		context->state.game_aspect_x = context->state.game_used_size_x * arcade_aspect_ratio_y;
-		context->state.game_aspect_y = context->state.game_used_size_y * arcade_aspect_ratio_x;
-		video_aspect_reduce(&context->state.game_aspect_x, &context->state.game_aspect_y);
+		context->state.game_pixelaspect_x = context->state.game_used_size_x * arcade_aspect_y;
+		context->state.game_pixelaspect_y = context->state.game_used_size_y * arcade_aspect_x;
+		video_aspect_reduce(&context->state.game_pixelaspect_x, &context->state.game_pixelaspect_y);
 
-		factor_x = context->config.monitor_aspect_x * context->state.game_aspect_x;
-		factor_y = context->config.monitor_aspect_y * context->state.game_aspect_y;
+		factor_x = context->config.monitor_aspect_x * context->state.game_pixelaspect_x;
+		factor_y = context->config.monitor_aspect_y * context->state.game_pixelaspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
 		log_std(("emu:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
@@ -1400,7 +1411,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		step_x = 16;
 
 		/* compute the best mode */
-		if (context->config.monitor_aspect_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * context->config.monitor_aspect_y) {
+		if (context->config.monitor_aspect_x * arcade_aspect_y > arcade_aspect_x * context->config.monitor_aspect_y) {
 			best_size_y = context->state.game_used_size_y;
 			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, step_x);
 			best_size_2y = 2*context->state.game_used_size_y;
@@ -1478,8 +1489,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	log_std(("emu:video: game_used_pos_y %d\n", (unsigned)context->state.game_used_pos_y));
 	log_std(("emu:video: game_used_size_x %d\n", (unsigned)context->state.game_used_size_x));
 	log_std(("emu:video: game_used_size_y %d\n", (unsigned)context->state.game_used_size_y));
-	log_std(("emu:video: game_aspect_x %d\n", (unsigned)context->state.game_aspect_x));
-	log_std(("emu:video: game_aspect_y %d\n", (unsigned)context->state.game_aspect_y));
+	log_std(("emu:video: game_aspect_x %d\n", (unsigned)context->state.game_pixelaspect_x));
+	log_std(("emu:video: game_aspect_y %d\n", (unsigned)context->state.game_pixelaspect_y));
 
 	return 0;
 }
@@ -2709,7 +2720,7 @@ adv_error advance_video_set(struct advance_video_context* context)
 	video_update_visible(context, &context->state.crtc_effective);
 	video_update_effect(context);
 
-	if (video_make_mode(context, &mode, &context->state.crtc_effective) != 0) {
+	if (video_make_vidmode(context, &mode, &context->state.crtc_effective) != 0) {
 		goto err;
 	}
 
@@ -2717,7 +2728,7 @@ adv_error advance_video_set(struct advance_video_context* context)
 
 	video_update_pan(context);
 
-	if (video_update_mode(context, &mode) != 0) {
+	if (video_update_vidmode(context, &mode, 0) != 0) {
 		goto err;
 	}
 
@@ -2812,7 +2823,7 @@ int osd2_video_init(struct osd_video_option* req)
 	video_update_visible(context, &context->state.crtc_effective);
 	video_update_effect(context);
 
-	if (video_make_mode(context, &mode, &context->state.crtc_effective) != 0) {
+	if (video_make_vidmode(context, &mode, &context->state.crtc_effective) != 0) {
 		target_err("%s\n", error_get());
 		return -1;
 	}
@@ -2821,7 +2832,7 @@ int osd2_video_init(struct osd_video_option* req)
 
 	video_update_pan(context);
 
-	if (video_update_mode(context, &mode) != 0) {
+	if (video_update_vidmode(context, &mode, 1) != 0) {
 		target_err("%s\n", error_get());
 		return -1;
 	}
@@ -2833,7 +2844,7 @@ int osd2_video_init(struct osd_video_option* req)
 
 	/* enable the keyboard input. It must be done after the video mode set. */
 	if (keyb_enable(1) != 0) {
-		video_done_mode(context, 0);
+		video_done_vidmode(context, 0);
 		video_mode_restore();
 		target_err("%s\n", error_get());
 		return -1;
@@ -2852,10 +2863,10 @@ void osd2_video_done(void)
 	keyb_disable();
 
 	if (context->config.restore_flag || context->state.measure_flag) {
-		video_done_mode(context, 1);
+		video_done_vidmode(context, 1);
 		video_mode_restore();
 	} else {
-		video_done_mode(context, 0);
+		video_done_vidmode(context, 0);
 		if (video_mode_is_active())
 			video_mode_done(0);
 	}
