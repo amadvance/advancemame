@@ -57,14 +57,16 @@ static double play_buffer_time;
 static double play_volume;
 static unsigned play_priority[CHANNEL_MAX];
 
-static bool play_memory(unsigned channel, unsigned char* data_begin, unsigned char* data_end, bool loop) {
-	if (mixer_play_memory_wav(channel,data_begin,data_end, loop) != 0)
+static bool play_memory(unsigned channel, unsigned char* data_begin, unsigned char* data_end, bool loop)
+{
+	if (mixer_play_memory_wav(channel, data_begin, data_end, loop) != 0)
 		return false;
 
 	return true;
 }
 
-static bool play_file(unsigned channel, const resource& res, bool loop) {
+static bool play_file(unsigned channel, const resource& res, bool loop)
+{
 	if (!res.is_present())
 		return false;
 
@@ -75,7 +77,7 @@ static bool play_file(unsigned channel, const resource& res, bool loop) {
 		if (!f)
 			return false;
 
-		if (mixer_play_file_mp3(channel,f,loop) != 0) {
+		if (mixer_play_file_mp3(channel, f, loop) != 0) {
 			fzclose(f);
 			return false;
 		}
@@ -84,7 +86,7 @@ static bool play_file(unsigned channel, const resource& res, bool loop) {
 		if (!f)
 			return false;
 
-		if (mixer_play_file_wav(channel,f,loop) != 0) {
+		if (mixer_play_file_wav(channel, f, loop) != 0) {
 			fzclose(f);
 			return false;
 		}
@@ -95,7 +97,8 @@ static bool play_file(unsigned channel, const resource& res, bool loop) {
 	return true;
 }
 
-static void play_wait(unsigned channel) {
+static void play_wait(unsigned channel)
+{
 	while (mixer_is_playing(channel)) {
 		play_poll();
 	}
@@ -104,7 +107,8 @@ static void play_wait(unsigned channel) {
 // --------------------------------------------------------------------------
 // Public
 
-void play_reg(adv_conf* context) {
+void play_reg(adv_conf* context)
+{
 	mixer_reg(context);
 	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
@@ -112,7 +116,8 @@ void play_reg(adv_conf* context) {
 	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
 }
 
-bool play_load(adv_conf* context) {
+bool play_load(adv_conf* context)
+{
 	int attenuation;
 
 	if (mixer_load(context)!=0) {
@@ -130,7 +135,8 @@ bool play_load(adv_conf* context) {
 	return true;
 }
 
-bool play_init() {
+bool play_init()
+{
 	unsigned i;
 
 	for(i=0;i<CHANNEL_MAX;++i)
@@ -144,16 +150,19 @@ bool play_init() {
 	return true;
 }
 
-void play_done() {
+void play_done()
+{
 	mixer_done();
 }
 
-void play_poll() {
+void play_poll()
+{
 	mixer_poll();
 	os_poll();
 }
 
-void play_fill() {
+void play_fill()
+{
 	mixer_poll();
 	mixer_poll();
 	mixer_poll();
@@ -163,55 +172,63 @@ void play_fill() {
 	os_poll();
 }
 
-void play_foreground_effect_begin(const resource& s) {
+void play_foreground_effect_begin(const resource& s)
+{
 	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND,LETSROCK_DATA,LETSROCK_DATA+LETSROCK_DATA_SIZE,false);
+		play_memory(CHANNEL_FOREGROUND, LETSROCK_DATA, LETSROCK_DATA+LETSROCK_DATA_SIZE, false);
 	} else if (s.path_get()!="none") {
-		play_file(CHANNEL_FOREGROUND,s,false);
+		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
-void play_foreground_effect_stop(const resource& s) {
+void play_foreground_effect_stop(const resource& s)
+{
 	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND,COMEON_DATA,COMEON_DATA+COMEON_DATA_SIZE,false);
+		play_memory(CHANNEL_FOREGROUND, COMEON_DATA, COMEON_DATA+COMEON_DATA_SIZE, false);
 	} else if (s.path_get()!="none") {
-		play_file(CHANNEL_FOREGROUND,s,false);
+		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
-void play_foreground_effect_end(const resource& s) {
+void play_foreground_effect_end(const resource& s)
+{
 	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND,GAMEOVER_DATA,GAMEOVER_DATA+GAMEOVER_DATA_SIZE,false);
+		play_memory(CHANNEL_FOREGROUND, GAMEOVER_DATA, GAMEOVER_DATA+GAMEOVER_DATA_SIZE, false);
 	} else if (s.path_get()!="none") {
-		play_file(CHANNEL_FOREGROUND,s,false);
+		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
-void play_foreground_effect_key(const resource& s) {
+void play_foreground_effect_key(const resource& s)
+{
 	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND,B0_DATA,B0_DATA+B0_DATA_SIZE,false);
+		play_memory(CHANNEL_FOREGROUND, B0_DATA, B0_DATA+B0_DATA_SIZE, false);
 	} else if (s.path_get()!="none") {
-		play_file(CHANNEL_FOREGROUND,s,false);
+		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
-void play_foreground_effect_start(const resource& s) {
+void play_foreground_effect_start(const resource& s)
+{
 	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND,COOL_DATA,COOL_DATA+COOL_DATA_SIZE,false);
+		play_memory(CHANNEL_FOREGROUND, COOL_DATA, COOL_DATA+COOL_DATA_SIZE, false);
 	} else if (s.path_get()!="none") {
-		play_file(CHANNEL_FOREGROUND,s,false);
+		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
-void play_foreground_wait() {
+void play_foreground_wait()
+{
 	play_wait(CHANNEL_FOREGROUND);
 }
 
-bool play_foreground_is_active() {
+bool play_foreground_is_active()
+{
 	return mixer_is_playing(CHANNEL_FOREGROUND);
 }
 
-void play_background_effect(const resource& s, unsigned priority, bool loop) {
+void play_background_effect(const resource& s, unsigned priority, bool loop)
+{
 	if (!play_background_is_active())
 		play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
 
@@ -221,13 +238,13 @@ void play_background_effect(const resource& s, unsigned priority, bool loop) {
 	play_priority[CHANNEL_BACKGROUND] = priority;
 
 	if (s.path_get()=="default") {
-		if (!play_memory(CHANNEL_BACKGROUND,FIRE_DATA,FIRE_DATA+FIRE_DATA_SIZE,loop)) {
+		if (!play_memory(CHANNEL_BACKGROUND, FIRE_DATA, FIRE_DATA+FIRE_DATA_SIZE, loop)) {
 			mixer_stop(CHANNEL_BACKGROUND);
 			play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
 			return;
 		}
 	} else if (s.path_get()!="none") {
-		if (!play_file(CHANNEL_BACKGROUND,s,loop)) {
+		if (!play_file(CHANNEL_BACKGROUND, s, loop)) {
 			mixer_stop(CHANNEL_BACKGROUND);
 			play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
 			return;
@@ -239,7 +256,8 @@ void play_background_effect(const resource& s, unsigned priority, bool loop) {
 	}
 }
 
-void play_background_stop(unsigned priority) {
+void play_background_stop(unsigned priority)
+{
 	if (!play_background_is_active())
 		play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
 
@@ -250,10 +268,12 @@ void play_background_stop(unsigned priority) {
 	mixer_stop(CHANNEL_BACKGROUND);
 }
 
-void play_background_wait() {
+void play_background_wait()
+{
 	play_wait(CHANNEL_BACKGROUND);
 }
 
-bool play_background_is_active() {
+bool play_background_is_active()
+{
 	return mixer_is_playing(CHANNEL_BACKGROUND);
 }

@@ -37,21 +37,21 @@
 /* internal copy */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 8;
 
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%0\n"
-		"addl $8,%1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -76,24 +76,24 @@ static __inline__ void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned
 #if defined(USE_ASM_i586)
 static uint8 copy8_mask[8] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 
-static __inline__ void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm2\n"
+		"movq (%3), %%mm2\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq 8(%0),%%mm1\n"
-		"pand %%mm2,%%mm0\n"
-		"pand %%mm2,%%mm1\n"
-		"packuswb %%mm1,%%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $16,%0\n"
-		"addl $8,%1\n"
+		"movq (%0), %%mm0\n"
+		"movq 8(%0), %%mm1\n"
+		"pand %%mm2, %%mm0\n"
+		"pand %%mm2, %%mm1\n"
+		"packuswb %%mm1, %%mm0\n"
+		"movq %%mm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -105,21 +105,21 @@ static __inline__ void internal_copy8_step2_mmx(uint8* dst, const uint8* src, un
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
 	__asm__ __volatile__ (
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movl (%0),%%eax\n"
-		"movl %%eax,(%1)\n"
-		"addl $4,%0\n"
-		"addl $4,%1\n"
+		"movl (%0), %%eax\n"
+		"movl %%eax, (%1)\n"
+		"addl $4, %0\n"
+		"addl $4, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -136,13 +136,13 @@ static __inline__ void internal_copy8_def(uint8* dst, const uint8* src, unsigned
 	}
 }
 #else
-static __inline__ void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
-	memcpy(dst,src,count);
+	memcpy(dst, src, count);
 }
 #endif
 
-static __inline__ void internal_copy8_step2_def(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -166,71 +166,76 @@ static __inline__ void internal_copy8_step2_def(uint8* dst, const uint8* src, un
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy16_mmx(uint16* dst, const uint16* src, unsigned count) {
+static inline void internal_copy16_mmx(uint16* dst, const uint16* src, unsigned count)
+{
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 2*count);
 }
 #endif
 
-static __inline__ void internal_copy16_def(uint16* dst, const uint16* src, unsigned count) {
+static inline void internal_copy16_def(uint16* dst, const uint16* src, unsigned count)
+{
 	internal_copy8_def((uint8*)dst, (uint8*)src, 2*count);
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy32_mmx(uint32* dst, const uint32* src, unsigned count) {
+static inline void internal_copy32_mmx(uint32* dst, const uint32* src, unsigned count)
+{
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 4*count);
 }
 #endif
 
-static __inline__ void internal_copy32_def(uint32* dst, const uint32* src, unsigned count) {
+static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned count)
+{
 	internal_copy8_def((uint8*)dst, (uint8*)src, 4*count);
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step1) {
+static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step1)
+{
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzbl (%0),%%eax\n"
-		"movzbl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm0\n"
-		"movd %%edx,%%mm1\n"
-		"addl %3,%0\n"
-		"addl %3,%0\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm0\n"
+		"movd %%edx, %%mm1\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
 		"punpcklbw %%mm1, %%mm0\n"
 
-		"movzbl (%0),%%eax\n"
-		"movzbl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm2\n"
-		"movd %%edx,%%mm3\n"
-		"addl %3,%0\n"
-		"addl %3,%0\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm2\n"
+		"movd %%edx, %%mm3\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
 		"punpcklbw %%mm3, %%mm2\n"
 		"punpcklwd %%mm2, %%mm0\n"
 
-		"movzbl (%0),%%eax\n"
-		"movzbl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm4\n"
-		"movd %%edx,%%mm5\n"
-		"addl %3,%0\n"
-		"addl %3,%0\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm4\n"
+		"movd %%edx, %%mm5\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
 		"punpcklbw %%mm5, %%mm4\n"
 
-		"movzbl (%0),%%eax\n"
-		"movzbl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm6\n"
-		"movd %%edx,%%mm7\n"
-		"addl %3,%0\n"
-		"addl %3,%0\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm6\n"
+		"movd %%edx, %%mm7\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
 		"punpcklbw %%mm7, %%mm6\n"
 		"punpcklwd %%mm6, %%mm4\n"
 
 		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -242,7 +247,7 @@ static __inline__ void internal_copy8_step_mmx(uint8* dst, const uint8* src, uns
 }
 #endif
 
-static __inline__ void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step1)
+static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step1)
 {
 	unsigned rest = count % 4;
 
@@ -270,31 +275,32 @@ static __inline__ void internal_copy8_step_def(uint8* dst, const uint8* src, uns
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step1) {
+static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step1)
+{
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm0\n"
-		"addl %3,%0\n"
-		"movd %%edx,%%mm1\n"
-		"addl %3,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm0\n"
+		"addl %3, %0\n"
+		"movd %%edx, %%mm1\n"
+		"addl %3, %0\n"
 		"punpcklwd %%mm1, %%mm0\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%3),%%edx\n"
-		"movd %%eax,%%mm2\n"
-		"addl %3,%0\n"
-		"movd %%edx,%%mm3\n"
-		"addl %3,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %3), %%edx\n"
+		"movd %%eax, %%mm2\n"
+		"addl %3, %0\n"
+		"movd %%edx, %%mm3\n"
+		"addl %3, %0\n"
 		"punpcklwd %%mm3, %%mm2\n"
 		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -305,7 +311,7 @@ static __inline__ void internal_copy16_step_mmx(uint16* dst, const uint16* src, 
 }
 #endif
 
-static __inline__ void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step1)
+static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step1)
 {
 	unsigned rest = count % 2;
 
@@ -314,21 +320,21 @@ static __inline__ void internal_copy16_step_def(uint16* dst, const uint16* src, 
 	count /= 2;
 	while (count) {
 		P32DER0(dst) = P16DER0(src) /* ENDIAN */
-			| (unsigned)P16DER(src,step1) << 16;
+			| (unsigned)P16DER(src, step1) << 16;
 		dst += 2;
-		PADD(src,step2);
+		PADD(src, step2);
 		--count;
 	}
 
 	while (rest) {
 		dst[0] = src[0];
 		dst += 1;
-		PADD(src,step1);
+		PADD(src, step1);
 		--rest;
 	}
 }
 
-static __inline__ void internal_copy32_step3(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_copy32_step3(uint32* dst, const uint32* src, unsigned count)
 {
 	uint8* dst8 = (uint8*)dst;
 	uint8* src8 = (uint8*)src;
@@ -356,21 +362,22 @@ static __inline__ void internal_copy32_step3(uint32* dst, const uint32* src, uns
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step1) {
+static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step1)
+{
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movd (%0),%%mm0\n"
-		"movd (%0,%3),%%mm1\n"
-		"addl %3,%0\n"
-		"addl %3,%0\n"
+		"movd (%0), %%mm0\n"
+		"movd (%0, %3), %%mm1\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
 		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -381,12 +388,12 @@ static __inline__ void internal_copy32_step_mmx(uint32* dst, const uint32* src, 
 }
 #endif
 
-static __inline__ void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step1)
+static inline void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step1)
 {
 	while (count) {
 		dst[0] = src[0];
 		dst += 1;
-		PADD(src,step1);
+		PADD(src, step1);
 		--count;
 	}
 }
@@ -395,7 +402,8 @@ static __inline__ void internal_copy32_step_def(uint32* dst, const uint32* src, 
 /* internal fill */
 
 /* Set optimized for small counts > 0 */
-static __inline__ void internal_fill8(uint8* dst, unsigned src, unsigned count) {
+static inline void internal_fill8(uint8* dst, unsigned src, unsigned count)
+{
 	do {
 		*dst++ = src;
 		--count;
@@ -403,7 +411,8 @@ static __inline__ void internal_fill8(uint8* dst, unsigned src, unsigned count) 
 }
 
 /* Set optimized for small counts > 0 */
-static __inline__ void internal_fill16(uint16* dst, unsigned src, unsigned count) {
+static inline void internal_fill16(uint16* dst, unsigned src, unsigned count)
+{
 	do {
 		*dst++ = src;
 		--count;
@@ -411,11 +420,75 @@ static __inline__ void internal_fill16(uint16* dst, unsigned src, unsigned count
 }
 
 /* Set optimized for small counts > 0 */
-static __inline__ void internal_fill32(uint32* dst, unsigned src, unsigned count) {
+static inline void internal_fill32(uint32* dst, unsigned src, unsigned count)
+{
 	do {
 		*dst++ = src;
 		--count;
 	} while (count);
+}
+
+/***************************************************************************/
+/* internal zero */
+
+#if defined(USE_ASM_i586)
+static inline void internal_zero8_mmx(uint8* dst, unsigned count)
+{
+	unsigned rest = count % 8;
+
+	assert_align(((unsigned)dst & 0x7)==0);
+
+	__asm__ __volatile__(
+		"shrl $3, %2\n"
+		"xorq %%mm0, %%mm0\n"
+		"jz 1f\n"
+		ASM_JUMP_ALIGN
+		"0:\n"
+		"movq %%mm0, (%0)\n"
+		"addl $8, %0\n"
+		"decl %2\n"
+		"jnz 0b\n"
+		"1:\n"
+		: "+D" (dst), "+c" (count)
+		:
+		: "cc"
+	);
+
+	while (rest) {
+		dst[0] = 0;
+		dst += 1;
+		--rest;
+	}
+}
+#endif
+
+static inline void internal_zero8_def(uint8* dst, unsigned count)
+{
+	memset(dst, 0, count);
+}
+
+#if defined(USE_ASM_i586)
+static inline void internal_zero16_mmx(uint16* dst, unsigned count)
+{
+	internal_zero8_mmx((uint8*)dst, 2*count);
+}
+#endif
+
+static inline void internal_zero16_def(uint16* dst, unsigned count)
+{
+	internal_zero8_def((uint8*)dst, 2*count);
+}
+
+#if defined(USE_ASM_i586)
+static inline void internal_zero32_mmx(uint32* dst, unsigned count)
+{
+	internal_zero8_mmx((uint8*)dst, 4*count);
+}
+#endif
+
+static inline void internal_zero32_def(uint32* dst, unsigned count)
+{
+	internal_zero8_def((uint8*)dst, 4*count);
 }
 
 #endif

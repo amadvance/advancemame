@@ -46,6 +46,8 @@ typedef struct none_internal_struct {
 	unsigned bytes_per_scanline;
 	unsigned size;
 	void* pointer;
+
+	unsigned cap;
 } none_internal;
 
 static none_internal none_state;
@@ -55,7 +57,8 @@ unsigned char* (*none_write_line)(unsigned y);
 /***************************************************************************/
 /* Internal */
 
-static unsigned char* none_linear_write_line(unsigned y) {
+static unsigned char* none_linear_write_line(unsigned y)
+{
 	return (unsigned char*)none_state.pointer + none_state.bytes_per_scanline * y;
 }
 
@@ -67,19 +70,38 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-static adv_bool none_is_active(void) {
+static adv_bool none_is_active(void)
+{
 	return none_state.active != 0;
 }
 
-static adv_bool none_mode_is_active(void) {
+static adv_bool none_mode_is_active(void)
+{
 	return none_state.mode_active != 0;
 }
 
-static adv_error none_init(int device_id) {
+static adv_error none_init(int device_id, adv_output output)
+{
 	assert( !none_is_active() );
 
 	if (sizeof(none_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	none_state.cap = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_MODE_YUY2
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+
+	switch (output) {
+	case adv_output_auto :
+	case adv_output_fullscreen :
+		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+		break;
+	case adv_output_window :
+		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
+		break;
+	case adv_output_zoom :
+		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM;
+		break;
+	}
 
 	none_state.size = 4*1024*1024;
 	none_state.pointer = 0;
@@ -89,17 +111,18 @@ static adv_error none_init(int device_id) {
 	return 0;
 }
 
-static void none_done(void) {
+static void none_done(void)
+{
 	assert(none_is_active() && !none_mode_is_active() );
 
 	assert( !none_state.pointer );
 	none_state.active = 0;
 }
 
-static unsigned none_flags(void) {
+static unsigned none_flags(void)
+{
 	assert( none_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_MODE_YUY2
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+	return none_state.cap;
 }
 
 static adv_error none_mode_set(const none_video_mode* mode)
@@ -117,7 +140,8 @@ static adv_error none_mode_set(const none_video_mode* mode)
 	return 0;
 }
 
-static void none_mode_done(adv_bool restore) {
+static void none_mode_done(adv_bool restore)
+{
 	assert(none_is_active() && none_mode_is_active());
 
 	assert( none_state.pointer );
@@ -129,52 +153,62 @@ static void none_mode_done(adv_bool restore) {
 	none_state.mode_active = 0;
 }
 
-static adv_error none_mode_change(const none_video_mode* mode) {
+static adv_error none_mode_change(const none_video_mode* mode)
+{
 	none_mode_done(1);
 	return none_mode_set(mode);
 }
 
-static unsigned none_virtual_x(void) {
+static unsigned none_virtual_x(void)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return none_state.bytes_per_scanline / none_state.bytes_per_pixel;
 }
 
-static unsigned none_virtual_y(void) {
+static unsigned none_virtual_y(void)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return none_state.size / none_state.bytes_per_scanline;
 }
 
-static unsigned none_adjust_bytes_per_page(unsigned bytes_per_page) {
+static unsigned none_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
-static unsigned none_bytes_per_scanline(void) {
+static unsigned none_bytes_per_scanline(void)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return none_state.bytes_per_scanline;
 }
 
-static adv_color_def none_color_def(void) {
+static adv_color_def none_color_def(void)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return none_state.color_def;
 }
 
-static void none_wait_vsync(void) {
+static void none_wait_vsync(void)
+{
 	assert(none_is_active() && none_mode_is_active());
 }
 
-static adv_error none_scroll(unsigned offset, adv_bool waitvsync) {
+static adv_error none_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return 0;
 }
 
-static adv_error none_scanline_set(unsigned byte_length) {
+static adv_error none_scanline_set(unsigned byte_length)
+{
 	assert(none_is_active() && none_mode_is_active());
 	none_state.bytes_per_scanline = (byte_length + 3) & ~3;
 	return 0;
 }
 
-static adv_error none_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+static adv_error none_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	assert(none_is_active() && none_mode_is_active());
 	return 0;
 }
@@ -211,7 +245,7 @@ static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc,
 {
 	assert( none_is_active() );
 
-	if (video_mode_generate_check("none",none_flags(),8,2048,crtc,flags)!=0)
+	if (video_mode_generate_check("none", none_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
 	mode->crtc = *crtc;
@@ -220,48 +254,57 @@ static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc,
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-static int none_mode_compare(const none_video_mode* a, const none_video_mode* b) {
+static int none_mode_compare(const none_video_mode* a, const none_video_mode* b)
+{
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
-static void none_reg(adv_conf* context) {
+static void none_reg(adv_conf* context)
+{
 }
 
-static adv_error none_load(adv_conf* context) {
+static adv_error none_load(adv_conf* context)
+{
 	return 0;
 }
 
 /***************************************************************************/
 /* Driver */
 
-static adv_error none_mode_set_void(const void* mode) {
+static adv_error none_mode_set_void(const void* mode)
+{
 	return none_mode_set((const none_video_mode*)mode);
 }
 
-static adv_error none_mode_change_void(const void* mode) {
+static adv_error none_mode_change_void(const void* mode)
+{
 	return none_mode_change((const none_video_mode*)mode);
 }
 
-static adv_error none_mode_import_void(adv_mode* mode, const void* none_mode) {
+static adv_error none_mode_import_void(adv_mode* mode, const void* none_mode)
+{
 	return none_mode_import(mode, (const none_video_mode*)none_mode);
 }
 
-static adv_error none_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
-	return none_mode_generate((none_video_mode*)mode,crtc,flags);
+static adv_error none_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
+	return none_mode_generate((none_video_mode*)mode, crtc, flags);
 }
 
-static int none_mode_compare_void(const void* a, const void* b) {
+static int none_mode_compare_void(const void* a, const void* b)
+{
 	return none_mode_compare((const none_video_mode*)a, (const none_video_mode*)b);
 }
 
-static unsigned none_mode_size(void) {
+static unsigned none_mode_size(void)
+{
 	return sizeof(none_video_mode);
 }
 

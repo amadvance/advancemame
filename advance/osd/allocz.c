@@ -34,17 +34,20 @@
 
 #include "alloc.h"
 
-void malloc_init(void) {
+void malloc_init(void)
+{
 }
 
-void malloc_done(void) {
+void malloc_done(void)
+{
 }
 
 extern void* __real_malloc(size_t size);
 
 extern void advance_signal(int);
 
-void* __wrap_malloc(size_t size) {
+void* __wrap_malloc(size_t size)
+{
 	void* p;
 
 	p = __real_malloc(size);

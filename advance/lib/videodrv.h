@@ -98,25 +98,30 @@
 #define VIDEO_DRIVER_FLAGS_DEFAULT_MASK 0xF00000
 /*@}*/
 
-/** \name Info Flags
- * Video driver flags for generic information.
+/** \name Output Flags
+ * Video driver output mode.
  */
 /*@{*/
 /**
- * If the program is runned in a Windows Manager environment.
+ * If the program is runned in fullscreen.
+ */
+#define VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN 0x100000
+
+/**
+ * If the program is runned as a window.
  * It imply that the game is shown as a window. So, all the window
  * sizes are possible.
  */
-#define VIDEO_DRIVER_FLAGS_INFO_WINDOW 0x100000
+#define VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW 0x200000
 
 /**
- * If the program is runned in a fullscreen with zoom environment.
+ * If the program is runned in fullscreen with zoom.
  * It imply that the game is always zoomed to fit the whole screen.
  * So, all the screen sizes are possible.
  */
-#define VIDEO_DRIVER_FLAGS_INFO_ZOOM 0x200000
+#define VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM 0x400000
 
-#define VIDEO_DRIVER_FLAGS_INFO_MASK 0xF00000 /**< Mask for the VIDEO_DRIVER_FLAGS_INFO_* flags. */
+#define VIDEO_DRIVER_FLAGS_OUTPUT_MASK 0xF00000 /**< Mask for the VIDEO_DRIVER_FLAGS_OUTPUT_* flags. */
 /*@}*/
 
 /** \name User Flags
@@ -126,6 +131,13 @@
 #define VIDEO_DRIVER_FLAGS_USER_BIT0 0x01000000 /**< First user flags. */
 #define VIDEO_DRIVER_FLAGS_USER_MASK 0xFF000000 /**< Available user flags. */
 /*@}*/
+
+typedef enum adv_output_enum {
+	adv_output_auto = -1,
+	adv_output_fullscreen = 0,
+	adv_output_window = 1,
+	adv_output_zoom = 2
+} adv_output;
 
 /**
  * Video driver.
@@ -141,7 +153,7 @@ typedef struct adv_video_driver_struct {
 	/** Register the load options. Call before load(). */
 	void (*reg)(adv_conf* context);
 
-	adv_error (*init)(int id); /**< Initialize the driver */
+	adv_error (*init)(int id, adv_output output); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */

@@ -59,7 +59,8 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Second mouse */
 
-static int mouse2_init(void) {
+static int mouse2_init(void)
+{
 	__dpmi_regs r;
 
 	r.x.ax = 100;
@@ -70,7 +71,8 @@ static int mouse2_init(void) {
 	return 0;
 }
 
-static void mouse2_get(int* x, int* y) {
+static void mouse2_get(int* x, int* y)
+{
 	__dpmi_regs r;
 
 	r.x.ax = 103;
@@ -92,7 +94,7 @@ adv_error mouseb_allegro_init(int mouseb_id)
 {
 	int err;
 
-	log_std(("mouseb:allegro: mouseb_allegro_init(id:%d)\n",mouseb_id));
+	log_std(("mouseb:allegro: mouseb_allegro_init(id:%d)\n", mouseb_id));
 
 	allegro_state.shift = 0;
 	allegro_state.counter = 0;
@@ -153,10 +155,10 @@ void mouseb_allegro_pos_get(unsigned m, int* x, int* y)
 	} else {
 		switch (m + allegro_state.shift) {
 		case 0 :
-			get_mouse_mickeys(&allegro_state.mouse[m].x,&allegro_state.mouse[m].y);
+			get_mouse_mickeys(&allegro_state.mouse[m].x, &allegro_state.mouse[m].y);
 			break;
 		case 1 :
-			mouse2_get(&allegro_state.mouse[m].x,&allegro_state.mouse[m].y);
+			mouse2_get(&allegro_state.mouse[m].x, &allegro_state.mouse[m].y);
 			break;
 		}
 		*x = allegro_state.mouse[m].x/2;

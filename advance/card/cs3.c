@@ -105,8 +105,8 @@ static struct s3_id s3_id_list[] = {
 { 0x8C01, "S3 ViRGE/MX", S3_CONF_UNSUPPORTED  },
 { 0x8C02, "S3 ViRGE/MX+", S3_CONF_UNSUPPORTED  },
 { 0x8C03, "S3 ViRGE/MX+MV", S3_CONF_UNSUPPORTED  },
-{ 0xca00, "S3 SonicVibes,", S3_CONF_UNSUPPORTED },
-{ 0,0, S3_CONF_UNSUPPORTED }
+{ 0xca00, "S3 SonicVibes, ", S3_CONF_UNSUPPORTED },
+{ 0, 0, S3_CONF_UNSUPPORTED }
 };
 
 static unsigned s3_bus_device_func;
@@ -208,14 +208,14 @@ static void s3_clock_set(int pll_mul, int pll_div, int pll_p)
 	unsigned d0;
 
 	if (s3_card->clock_type == S3_CLOCK_TRIO) {
-		unsigned SR12,SR13;
+		unsigned SR12, SR13;
 		SR12 = ((pll_div-2) & 0x1F) | ((pll_p & 0x7) << 5);
 		SR13 = ((pll_mul-2) & 0x7F);
 
 		card_seq_set(0x12, SR12);
 		card_seq_set(0x13, SR13);
 	} else if (s3_card->clock_type == S3_CLOCK_VIRGEGX2) {
-		unsigned SR12,SR13,SR29,ndiv;
+		unsigned SR12, SR13, SR29, ndiv;
 
 		ndiv = ((pll_div-2) & 0x1F) | ((pll_p & 0x7) << 5);
 
@@ -227,7 +227,7 @@ static void s3_clock_set(int pll_mul, int pll_div, int pll_p)
 		card_seq_set(0x13, SR13);
 		card_seq_set(0x29, SR29);
 	} else if (s3_card->clock_type == S3_CLOCK_AURORA) {
-		unsigned SR12,SR13;
+		unsigned SR12, SR13;
 		SR12 = ((pll_div-2) & 0x3F) | ((pll_p & 0x7) << 6);
 		SR13 = ((pll_mul-2) & 0x7F);
 
@@ -245,7 +245,8 @@ static void s3_clock_set(int pll_mul, int pll_div, int pll_p)
 	s3_pll_set();
 }
 
-const char* s3_driver(void) {
+const char* s3_driver(void)
+{
 	return s3_card->name;
 }
 
@@ -253,7 +254,8 @@ const char* s3_driver(void) {
 static int s3_active;
 #endif
 
-int s3_detect(void) {
+int s3_detect(void)
+{
 	int i;
 
 	assert( !s3_active );
@@ -264,7 +266,7 @@ int s3_detect(void) {
 	}
 
 	for(i=0;s3_id_list[i].name;++i) {
-		if (pci_find_device(0x00005333,s3_id_list[i].value,0,&s3_bus_device_func)==0)
+		if (pci_find_device(0x00005333, s3_id_list[i].value, 0, &s3_bus_device_func)==0)
 			break;
 	}
 
@@ -288,21 +290,23 @@ int s3_detect(void) {
 	return 1;
 }
 
-void s3_reset(void) {
+void s3_reset(void)
+{
 	assert( s3_active );
 #ifndef NDEBUG
 	s3_active = 0;
 #endif
 }
 
-int s3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co) {
+int s3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
+{
 	card_crtc cp = *_cp;
-	int pll_mul,pll_div,pll_p;
+	int pll_mul, pll_div, pll_p;
 	unsigned d0;
 
 	assert( s3_active );
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("s3: incompatible mode\n"));
 		return 0;
 	}
@@ -326,7 +330,7 @@ int s3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const 
 
 	/* Unlock all */
 	card_seq_set(0x08, 0x06); /* PLL Unlock */
-	/* VERT timing regs (CRTC index 6,7(bit0,2,3,5,7),9,10,11(bits0..3),15,16 ) */
+	/* VERT timing regs (CRTC index 6, 7(bit0, 2, 3, 5, 7), 9, 10, 11(bits0..3), 15, 16 ) */
 	/* HOR timing regs (CRTC index 0..5, 17(bit2) ) */
 	/* bit 0 of Clocking mode reg unlocked (8/9 dot font selection) */
 	/* Clock bits in MISC reg unlocked */

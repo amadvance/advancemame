@@ -39,6 +39,8 @@
 #include "log.h"
 #endif
 
+#include "error.h"
+
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -65,11 +67,21 @@ static adv_bool error_unsupported_flag;
 /**
  * Get the current error description.
  */
-const char* error_get(void) {
+const char* error_get(void)
+{
 	/* remove the trailing \n */
 	while (error_buffer[0] && isspace(error_buffer[strlen(error_buffer)-1]))
 		error_buffer[strlen(error_buffer)-1] = 0;
 	return error_buffer;
+}
+
+/**
+ * Reset the description of the last error.
+ */
+void error_reset(void)
+{
+	error_unsupported_flag = 0;
+	error_buffer[0] = 0;
 }
 
 /**
@@ -83,12 +95,12 @@ void error_set(const char* text, ...)
 
 	error_unsupported_flag = 0;
 
-	va_start(arg,text);
-	vsprintf(error_buffer,text,arg);
+	va_start(arg, text);
+	vsprintf(error_buffer, text, arg);
 
 #ifndef USE_ERROR_SILENT
 	log_std(("advance: set_error_description \""));
-	log_va(text,arg);
+	log_va(text, arg);
 	log_std(("\"\n"));
 #endif
 
@@ -105,12 +117,12 @@ void error_unsupported_set(const char* text, ...)
 
 	error_unsupported_flag = 1;
 
-	va_start(arg,text);
-	vsprintf(error_buffer,text,arg);
+	va_start(arg, text);
+	vsprintf(error_buffer, text, arg);
 
 #ifndef USE_ERROR_SILENT
 	log_std(("advance: set_error_description \""));
-	log_va(text,arg);
+	log_va(text, arg);
 	log_std(("\"\n"));
 #endif
 
@@ -140,8 +152,8 @@ void error_nolog_set(const char* text, ...)
 
 	error_unsupported_flag = 0;
 
-	va_start(arg,text);
-	vsprintf(error_buffer,text,arg);
+	va_start(arg, text);
+	vsprintf(error_buffer, text, arg);
 	va_end(arg);
 }
 
@@ -154,10 +166,10 @@ void error_nolog_cat(const char* text, ...)
 	va_list arg;
 	char buffer[ERROR_DESC_MAX];
 
-	va_start(arg,text);
-	vsprintf(buffer,text,arg);
+	va_start(arg, text);
+	vsprintf(buffer, text, arg);
 
-	strncat(error_buffer,buffer,ERROR_DESC_MAX);
+	strncat(error_buffer, buffer, ERROR_DESC_MAX);
 	error_buffer[ERROR_DESC_MAX-1] = 0;
 
 	va_end(arg);

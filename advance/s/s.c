@@ -34,41 +34,44 @@
 
 static int done;
 
-void sigint(int signum) {
+void sigint(int signum)
+{
 	done = 1;
 }
 
-void run(unsigned channel, const char* file) {
+void run(unsigned channel, const char* file)
+{
 	adv_fz* f;
 	const char* ext;
 
-	ext = strrchr(file,'.');
+	ext = strrchr(file, '.');
 	if (!ext) {
-		fprintf(stderr,"Missing file extension\n");
+		fprintf(stderr, "Missing file extension\n");
 		done = 1;
 		return;
 	}
 
-	f = fzopen(file,"rb");
+	f = fzopen(file, "rb");
 	if (!f) {
-		fprintf(stderr,"Error opening the file %s\n",file);
+		fprintf(stderr, "Error opening the file %s\n", file);
 		done = 1;
 		return;
 	}
 
-	if (strcmp(ext,".wav")==0) {
-		mixer_play_file_wav(channel,f,0);
-	} else if (strcmp(ext,".mp3")==0) {
-		mixer_play_file_mp3(channel,f,0);
+	if (strcmp(ext, ".wav")==0) {
+		mixer_play_file_wav(channel, f, 0);
+	} else if (strcmp(ext, ".mp3")==0) {
+		mixer_play_file_mp3(channel, f, 0);
 	} else {
-		fprintf(stderr,"Unknown file extension %s\n",ext);
+		fprintf(stderr, "Unknown file extension %s\n", ext);
 		fzclose(f);
 		done = 1;
 		return;
 	}
 }
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	vfprintf(stderr, desc, arg);
@@ -78,11 +81,13 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-void os_signal(int signum) {
+void os_signal(int signum)
+{
 	os_default_signal(signum);
 }
 
-int os_main(int argc, char* argv[]) {
+int os_main(int argc, char* argv[])
+{
 	int keyboard_id;
 	adv_conf* context;
 	const char* s;
@@ -111,7 +116,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc <= 1) {
-		fprintf(stderr,"Syntax: advs FILES...\n");
+		fprintf(stderr, "Syntax: advs FILES...\n");
 		goto err_os;
 	}
 
@@ -136,21 +141,21 @@ int os_main(int argc, char* argv[]) {
 	n = argc - 1;
 
 	if (n > MIXER_CHANNEL_MAX) {
-		fprintf(stderr,"Too many files\n");
+		fprintf(stderr, "Too many files\n");
 		goto err_os_inner;
 	}
 
-	if (mixer_init(rate,n, 1, buffer_time + latency_time, latency_time) != 0) {
-		fprintf(stderr,"Error initializing the mixer\n");
+	if (mixer_init(rate, n, 1, buffer_time + latency_time, latency_time) != 0) {
+		fprintf(stderr, "Error initializing the mixer\n");
 		goto err_os_inner;
 	}
 
 	mixer_volume(volume);
 
 	for(i=1;i<argc;++i)
-		run(i-1,argv[i]);
+		run(i-1, argv[i]);
 
-	signal(SIGINT,sigint);
+	signal(SIGINT, sigint);
 
 	while (!done) {
 		for(i=0;i<n;++i)

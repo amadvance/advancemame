@@ -27,32 +27,37 @@ using namespace std;
 //---------------------------------------------------------------------------
 // string
 
-string fill(unsigned l, char c) {
+string fill(unsigned l, char c)
+{
 	string r;
 	for(unsigned i=0;i<l;++i)
 		r += c;
 	return r;
 }
 
-string trim_left(const string& s) {
+string trim_left(const string& s)
+{
 	string r = s;
 	while (r.length() > 0 && isspace(r[0]))
-		r.erase(0,1);
+		r.erase(0, 1);
 	return r;
 }
 
-string trim_right(const string& s) {
+string trim_right(const string& s)
+{
 	string r = s;
 	while (r.length() > 0 && isspace(r[r.length()-1]))
-		r.erase(r.length()-1,1);
+		r.erase(r.length()-1, 1);
 	return r;
 }
 
-string trim(const string& s) {
+string trim(const string& s)
+{
 	return trim_left(trim_right(s));
 }
 
-string up(const string& s) {
+string up(const string& s)
+{
 	string r;
 	for(unsigned i=0;i<s.length();++i)
 		r += toupper(s[i]);
@@ -135,10 +140,12 @@ public:
 	virtual void tag_text(const string& s) = 0;
 };
 
-convert::~convert() {
+convert::~convert()
+{
 }
 
-bool convert::is_pre(const string& s, string& a) {
+bool convert::is_pre(const string& s, string& a)
+{
 	if (s.length() > 0 && s[0] == ':') {
 		a = s.substr(1);
 		return true;
@@ -146,7 +153,8 @@ bool convert::is_pre(const string& s, string& a) {
 	return false;
 }
 
-bool convert::is_line(const string& s, string& a) {
+bool convert::is_line(const string& s, string& a)
+{
 	if (s.length() > 0 && s[0] == '+') {
 		a = s.substr(1);
 		return true;
@@ -154,7 +162,8 @@ bool convert::is_line(const string& s, string& a) {
 	return false;
 }
 
-bool convert::is_dot(const string& s, string& a) {
+bool convert::is_dot(const string& s, string& a)
+{
 	if (s.length() > 0 && (s[0] == '*' || s[0]==')') && s[1] == ' ') {
 		a = s.substr(2);
 		return true;
@@ -162,7 +171,8 @@ bool convert::is_dot(const string& s, string& a) {
 	return false;
 }
 
-bool convert::is_option(const string& s, string& a) {
+bool convert::is_option(const string& s, string& a)
+{
 	string r = trim(s);
 
 	if (r.length() > 0 && (r[0] == '-' || r[0] =='/')) {
@@ -178,13 +188,14 @@ bool convert::is_option(const string& s, string& a) {
 	return false;
 }
 
-bool convert::is_tag(const string& s, string& a, string& b) {
+bool convert::is_tag(const string& s, string& a, string& b)
+{
 	if (s.length() > 0 && s[0] == ':')
 		return false;
 	unsigned d = s.find(" - ");
 	if (d == string::npos)
 		return false;
-	a = trim(s.substr(0,d));
+	a = trim(s.substr(0, d));
 	b = trim(s.substr(d+3));
 	return true;
 }
@@ -197,11 +208,11 @@ void convert::step(string& s)
 	unsigned nt = 0;
 	while (nt < s.length() && s[nt] == '\t')
 		++nt;
-	s.erase(0,nt);
+	s.erase(0, nt);
 	unsigned ns = 0;
 	while (ns < s.length() && s[ns] == ' ')
 		++ns;
-	s.erase(0,ns);
+	s.erase(0, ns);
 	ns += nt*8;
 
 	// continue with separator support
@@ -215,7 +226,7 @@ void convert::step(string& s)
 			sep();
 		}
 		string a;
-		if (is_line(s,a)) {
+		if (is_line(s, a)) {
 			tag_text(a);
 			line();
 		} else {
@@ -249,7 +260,7 @@ void convert::step(string& s)
 
 		if ((ns == 8 && state == state_para0) || (ns == 16 && state == state_para1)) {
 			string a;
-			if (is_line(s,a)) {
+			if (is_line(s, a)) {
 				para_text(a);
 				line();
 			} else {
@@ -269,8 +280,8 @@ void convert::step(string& s)
 
 	// start
 	if (ns == 8 || ns == 16) {
-		string a,b;
-		if (is_tag(s,a,b)) {
+		string a, b;
+		if (is_tag(s, a, b)) {
 			state_t state_new = ns == 8 ? state_tag0 : state_tag1;
 			if (state != state_new) {
 				tag_begin(ns == 16);
@@ -279,11 +290,11 @@ void convert::step(string& s)
 			}
 			state = state_new;
 			string c;
-			if (is_line(b,c)) {
-				tag_start(a,c);
+			if (is_line(b, c)) {
+				tag_start(a, c);
 				line();
 			} else {
-				tag_start(a,b);
+				tag_start(a, b);
 			}
 			return;
 		}
@@ -295,7 +306,7 @@ void convert::step(string& s)
 
 	if (ns == 8) {
 		string a;
-		if (is_option(s,a) && state != state_para0) {
+		if (is_option(s, a) && state != state_para0) {
 			if (state != state_option) {
 				option_begin();
 			} else {
@@ -313,7 +324,7 @@ void convert::step(string& s)
 
 	if (ns == 8 || ns == 16) {
 		string a;
-		if (is_dot(s,a)) {
+		if (is_dot(s, a)) {
 			state_t state_new = ns == 8 ? state_dot0 : state_dot1;
 			if (state != state_new) {
 				dot_begin(ns == 16);
@@ -332,7 +343,7 @@ void convert::step(string& s)
 
 	if (ns == 8 || ns == 16) {
 		string a;
-		if (is_pre(s,a)) {
+		if (is_pre(s, a)) {
 			state_t state_new = ns == 8 ? state_pre0 : state_pre1;
 			if (state != state_new)
 				pre_begin(ns == 16);
@@ -360,7 +371,7 @@ void convert::step(string& s)
 			para_begin(ns == 16);
 		state = state_new;
 		string a;
-		if (is_line(s,a)) {
+		if (is_line(s, a)) {
 			para_text(a);
 			line();
 		} else {
@@ -380,7 +391,8 @@ void convert::step(string& s)
 	return;
 }
 
-void convert::run() {
+void convert::run()
+{
 	string s;
 	state = state_filled;
 	request_separator = false;
@@ -389,9 +401,9 @@ void convert::run() {
 	if (s == "NAME" || s == "Name") {
 		getline(is, s);
 		unsigned d = s.find(" - ");
-		header(trim(s.substr(0,d)),trim(s.substr(d+3)));
+		header(trim(s.substr(0, d)), trim(s.substr(d+3)));
 	} else {
-		header("","");
+		header("", "");
 		step(s);
 	}
 
@@ -433,7 +445,7 @@ class convert_man : public convert {
 	bool para_indent;
 	string mask(string s);
 public:
-	convert_man(istream& Ais, ostream& Aos) : convert(Ais,Aos) { };
+	convert_man(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
 
 	virtual void header(const string& a, const string& b);
 	virtual void footer();
@@ -472,7 +484,8 @@ public:
 	virtual void tag_text(const string& s);
 };
 
-string convert_man::mask(string s) {
+string convert_man::mask(string s)
+{
 	string r;
 	for(unsigned i=0;i<s.length();++i) {
 		switch (s[i]) {
@@ -499,72 +512,84 @@ string convert_man::mask(string s) {
 	return r;
 }
 
-void convert_man::header(const string& a, const string& b) {
+void convert_man::header(const string& a, const string& b)
+{
 	os << ".TH \"" << mask(b) << "\" 1" << endl;
 	os << ".SH NAME" << endl;
 	os << mask(a + " - " + b) << endl;
 }
 
-void convert_man::footer() {
+void convert_man::footer()
+{
 }
 
-void convert_man::section_begin(unsigned level) {
+void convert_man::section_begin(unsigned level)
+{
 	if (level == 0)
 		os << ".SH ";
 	else
 		os << ".SS ";
 }
 
-void convert_man::section_end() {
+void convert_man::section_end()
+{
 	os << endl;
 	state = state_filled;
 }
 
-void convert_man::section_text(const string& s) {
+void convert_man::section_text(const string& s)
+{
 	if (state == state_section0)
 		os << mask(up(s)) << " ";
 	else
 		os << mask(s) << " ";
 }
 
-void convert_man::para_begin(unsigned level) {
+void convert_man::para_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 	if (level)
 		os << ".RS 4" << endl;
 }
 
-void convert_man::para_end() {
+void convert_man::para_end()
+{
 	if (state == state_para1)
 		os << ".RE" << endl;
 	state = state_separator;
 }
 
-void convert_man::para_text(const string& s) {
+void convert_man::para_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_man::pre_begin(unsigned level) {
+void convert_man::pre_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 	if (level)
 		os << ".RS 4" << endl;
 }
 
-void convert_man::pre_end() {
+void convert_man::pre_end()
+{
 	if (state == state_pre1)
 		os << ".RE" << endl;
 	state = state_separator;
 }
 
-void convert_man::pre_text(const string& s) {
+void convert_man::pre_text(const string& s)
+{
 	os << mask(s) << endl;
 	os << ".PD 0" << endl;
 	os << ".PP" << endl;
 	os << ".PD" << endl;
 }
 
-void convert_man::sep() {
+void convert_man::sep()
+{
 	if (state == state_tag0 || state == state_tag1) {
 		os << ".PD" << endl;
 		os << ".PP" << endl;
@@ -578,7 +603,8 @@ void convert_man::sep() {
 	}
 }
 
-void convert_man::line() {
+void convert_man::line()
+{
 	if (state == state_tag0 || state == state_tag1 || state == state_dot0 || state == state_dot1) {
 		os << ".PP" << endl;
 	} else {
@@ -588,47 +614,58 @@ void convert_man::line() {
 	}
 }
 
-void convert_man::dot_begin(unsigned level) {
+void convert_man::dot_begin(unsigned level)
+{
 	os << ".PD 0" << endl;
 }
 
-void convert_man::dot_end() {
+void convert_man::dot_end()
+{
 	os << ".PD" << endl;
 	state = state_filled;
 }
 
-void convert_man::dot_start(const string& s) {
+void convert_man::dot_start(const string& s)
+{
 	os << ".IP \\(bu" << endl;
 	os << mask(s) << endl;
 }
 
-void convert_man::dot_stop() {
+void convert_man::dot_stop()
+{
 }
 
-void convert_man::dot_text(const string& s) {
+void convert_man::dot_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_man::option_begin() {
+void convert_man::option_begin()
+{
 }
 
-void convert_man::option_end() {
+void convert_man::option_end()
+{
 	state = state_filled;
 }
 
-void convert_man::option_start(const string& s) {
+void convert_man::option_start(const string& s)
+{
 	os << ".TP" << endl;
 	os << ".B " << mask(s) << endl;
 }
 
-void convert_man::option_stop() {
+void convert_man::option_stop()
+{
 }
 
-void convert_man::option_text(const string& s) {
+void convert_man::option_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_man::tag_begin(unsigned level) {
+void convert_man::tag_begin(unsigned level)
+{
 	if (level)
 		os << ".RS 4" << endl;
 	else
@@ -637,7 +674,8 @@ void convert_man::tag_begin(unsigned level) {
 	para_indent = false;
 }
 
-void convert_man::tag_end() {
+void convert_man::tag_end()
+{
 	os << ".PD" << endl;
 	os << ".RE" << endl;
 	if (para_indent) {
@@ -647,7 +685,8 @@ void convert_man::tag_end() {
 	state = state_filled;
 }
 
-void convert_man::tag_start(const string& a, const string& b) {
+void convert_man::tag_start(const string& a, const string& b)
+{
 	if (para_indent) {
 		os << ".RE" << endl;
 		para_indent = false;
@@ -657,10 +696,12 @@ void convert_man::tag_start(const string& a, const string& b) {
 	os << mask(b) << endl;
 }
 
-void convert_man::tag_stop() {
+void convert_man::tag_stop()
+{
 }
 
-void convert_man::tag_text(const string& s) {
+void convert_man::tag_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
@@ -678,7 +719,7 @@ protected:
 	unsigned level2;
 	string mask(string s);
 public:
-	convert_html(istream& Ais, ostream& Aos) : convert(Ais,Aos) { };
+	convert_html(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
 
 	virtual void header(const string& a, const string& b);
 	virtual void footer();
@@ -717,7 +758,8 @@ public:
 	virtual void tag_text(const string& s);
 };
 
-string convert_html::mask(string s) {
+string convert_html::mask(string s)
+{
 	string r;
 	for(unsigned i=0;i<s.length();++i) {
 		switch (s[i]) {
@@ -741,7 +783,8 @@ string convert_html::mask(string s) {
 	return r;
 }
 
-void convert_html::header(const string& a, const string& b) {
+void convert_html::header(const string& a, const string& b)
+{
 	os << "<html>" << endl;
 	os << "<head>" << endl;
 	os << "<title>" << mask(b) << "</title>" << endl;
@@ -755,12 +798,14 @@ void convert_html::header(const string& a, const string& b) {
 	level2 = 0;
 }
 
-void convert_html::footer() {
+void convert_html::footer()
+{
 	os << "</body>" << endl;
 	os << "</html>" << endl;
 }
 
-void convert_html::section_begin(unsigned level) {
+void convert_html::section_begin(unsigned level)
+{
 	if (level == 0) {
 		++level0;
 		level1 = 0;
@@ -776,7 +821,8 @@ void convert_html::section_begin(unsigned level) {
 	}
 }
 
-void convert_html::section_end() {
+void convert_html::section_end()
+{
 	if (state == state_section0)
 		os << "</" HTML_H1 ">" << endl;
 	else if (state == state_section0)
@@ -786,11 +832,13 @@ void convert_html::section_end() {
 	state = state_filled;
 }
 
-void convert_html::section_text(const string& s) {
+void convert_html::section_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_html::para_begin(unsigned level) {
+void convert_html::para_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 	if (level) {
@@ -799,18 +847,21 @@ void convert_html::para_begin(unsigned level) {
 	}
 }
 
-void convert_html::para_end() {
+void convert_html::para_end()
+{
 	if (state == state_para1) {
 		os << "</td></tr></table>" << endl;
 	}
 	state = state_filled;
 }
 
-void convert_html::para_text(const string& s) {
+void convert_html::para_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_html::pre_begin(unsigned level) {
+void convert_html::pre_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 	if (level) {
@@ -820,7 +871,8 @@ void convert_html::pre_begin(unsigned level) {
 	os << "<font face=\"Courier\">" << endl;
 }
 
-void convert_html::pre_end() {
+void convert_html::pre_end()
+{
 	os << "</font>" << endl;
 	if (state == state_pre1) {
 		os << "</td></tr></table>" << endl;
@@ -828,84 +880,102 @@ void convert_html::pre_end() {
 	state = state_filled;
 }
 
-void convert_html::pre_text(const string& s) {
+void convert_html::pre_text(const string& s)
+{
 	os << mask(s) << "<br>" << endl;
 }
 
-void convert_html::sep() {
+void convert_html::sep()
+{
 	os << "<p>" << endl;
 }
 
-void convert_html::line() {
+void convert_html::line()
+{
 	os << "<br>" << endl;
 }
 
-void convert_html::dot_begin(unsigned level) {
+void convert_html::dot_begin(unsigned level)
+{
 	os << "<ul>" << endl;
 }
 
-void convert_html::dot_end() {
+void convert_html::dot_end()
+{
 	os << "</ul>" << endl;
 	state = state_filled;
 }
 
-void convert_html::dot_start(const string& s) {
+void convert_html::dot_start(const string& s)
+{
 	os << "<li>" << endl;
 	os << mask(s) << endl;
 }
 
-void convert_html::dot_stop() {
+void convert_html::dot_stop()
+{
 	os << "</li>" << endl;
 }
 
-void convert_html::dot_text(const string& s) {
+void convert_html::dot_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_html::option_begin() {
+void convert_html::option_begin()
+{
 	os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\">" << endl;
 }
 
-void convert_html::option_end() {
+void convert_html::option_end()
+{
 	os << "</table>" << endl;
 	state = state_filled;
 }
 
-void convert_html::option_start(const string& s) {
+void convert_html::option_start(const string& s)
+{
 	os << "<tr valign=\"top\" align=\"left\"><td><strong>" << endl;
 	os << mask(s) << endl;
 	os << "</em></td></tr><tr><td>" << endl;
 }
 
-void convert_html::option_stop() {
+void convert_html::option_stop()
+{
 	os << "</td></tr>" << endl;
 }
 
-void convert_html::option_text(const string& s) {
+void convert_html::option_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
-void convert_html::tag_begin(unsigned level) {
+void convert_html::tag_begin(unsigned level)
+{
 	os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\">" << endl;
 }
 
-void convert_html::tag_end() {
+void convert_html::tag_end()
+{
 	os << "</table>" << endl;
 	state = state_separator;
 }
 
-void convert_html::tag_start(const string& a, const string& b) {
+void convert_html::tag_start(const string& a, const string& b)
+{
 	os << "<tr valign=\"top\" align=\"left\"><td width=\"5%\"></td><td width=\"5%\"><em>" << endl;
 	os << mask(a) << endl;
 	os << "</em></td><td width=\"90%\">" << endl;
 	os << mask(b) << endl;
 }
 
-void convert_html::tag_stop() {
+void convert_html::tag_stop()
+{
 	os << "</td></tr>" << endl;
 }
 
-void convert_html::tag_text(const string& s) {
+void convert_html::tag_text(const string& s)
+{
 	os << mask(s) << endl;
 }
 
@@ -914,13 +984,14 @@ void convert_html::tag_text(const string& s) {
 
 class convert_frame : public convert_html {
 public:
-	convert_frame(istream& Ais, ostream& Aos) : convert_html(Ais,Aos) { };
+	convert_frame(istream& Ais, ostream& Aos) : convert_html(Ais, Aos) { };
 
 	virtual void header(const string& a, const string& b);
 	virtual void footer();
 };
 
-void convert_frame::header(const string& a, const string& b) {
+void convert_frame::header(const string& a, const string& b)
+{
 	if (b.length()) {
 		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
 	}
@@ -931,7 +1002,8 @@ void convert_frame::header(const string& a, const string& b) {
 
 }
 
-void convert_frame::footer() {
+void convert_frame::footer()
+{
 }
 
 //---------------------------------------------------------------------------
@@ -945,7 +1017,7 @@ class convert_txt : public convert {
 	unsigned level2;
 	string mask(string s);
 public:
-	convert_txt(istream& Ais, ostream& Aos) : convert(Ais,Aos) { };
+	convert_txt(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
 
 	virtual void header(const string& a, const string& b);
 	virtual void footer();
@@ -987,26 +1059,30 @@ public:
 #define MI "" // begin
 #define I "    " // tag
 
-string convert_txt::mask(string s) {
+string convert_txt::mask(string s)
+{
 	return s;
 }
 
-void convert_txt::header(const string& a, const string& b) {
+void convert_txt::header(const string& a, const string& b)
+{
 	if (b.length()) {
 		unsigned space = (80 - b.length()) / 2;
-		os << fill(space,' ') << fill(b.length(),'=') << endl;
-		os << fill(space,' ') << b << endl;
-		os << fill(space,' ') << fill(b.length(),'=') << endl;
+		os << fill(space, ' ') << fill(b.length(), '=') << endl;
+		os << fill(space, ' ') << b << endl;
+		os << fill(space, ' ') << fill(b.length(), '=') << endl;
 	}
 	level0 = 0;
 	level1 = 0;
 	level2 = 0;
 }
 
-void convert_txt::footer() {
+void convert_txt::footer()
+{
 }
 
-void convert_txt::section_begin(unsigned level) {
+void convert_txt::section_begin(unsigned level)
+{
 	if (level == 0) {
 		++level0;
 		level1 = 0;
@@ -1024,19 +1100,21 @@ void convert_txt::section_begin(unsigned level) {
 	max_length = 0;
 }
 
-void convert_txt::section_end() {
+void convert_txt::section_end()
+{
 	if (state == state_section0) {
-		os << fill(max_length,'=') << endl;
+		os << fill(max_length, '=') << endl;
 		os << endl;
 	} else if (state == state_section1) {
-		os << fill(max_length,'-') << endl;
+		os << fill(max_length, '-') << endl;
 		os << endl;
 	} else {
 	}
 	state = state_filled;
 }
 
-void convert_txt::section_text(const string& s) {
+void convert_txt::section_text(const string& s)
+{
 	ostringstream ss;
 	if (first_line) {
 		if (state == state_section0) {
@@ -1062,113 +1140,136 @@ void convert_txt::section_text(const string& s) {
 }
 
 
-void convert_txt::para_begin(unsigned level) {
+void convert_txt::para_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 }
 
-void convert_txt::para_end() {
+void convert_txt::para_end()
+{
 	state = state_filled;
 }
 
-void convert_txt::para_text(const string& s) {
+void convert_txt::para_text(const string& s)
+{
 	os << MI;
 	if (state == state_para1)
 		os << I;
 	os << mask(s) << endl;
 }
 
-void convert_txt::pre_begin(unsigned level) {
+void convert_txt::pre_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 }
 
-void convert_txt::pre_end() {
+void convert_txt::pre_end()
+{
 	state = state_filled;
 }
 
-void convert_txt::pre_text(const string& s) {
+void convert_txt::pre_text(const string& s)
+{
 	os << MI;
 	if (state == state_pre1)
 		os << I;
 	os << mask(s) << endl;
 }
 
-void convert_txt::sep() {
+void convert_txt::sep()
+{
 	os << endl;
 }
 
-void convert_txt::line() {
+void convert_txt::line()
+{
 }
 
-void convert_txt::dot_begin(unsigned level) {
+void convert_txt::dot_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 }
 
-void convert_txt::dot_end() {
+void convert_txt::dot_end()
+{
 	state = state_filled;
 }
 
-void convert_txt::dot_start(const string& s) {
+void convert_txt::dot_start(const string& s)
+{
 	os << MI;
 	if (state == state_dot1)
 		os << I ;
 	os << "* " << mask(s) << endl;
 }
 
-void convert_txt::dot_stop() {
+void convert_txt::dot_stop()
+{
 }
 
-void convert_txt::dot_text(const string& s) {
+void convert_txt::dot_text(const string& s)
+{
 	os << MI;
 	if (state == state_dot1)
 		os << I;
 	os << "  " << mask(s) << endl;
 }
 
-void convert_txt::option_begin() {
+void convert_txt::option_begin()
+{
 	if (state == state_separator)
 		sep();
 }
 
-void convert_txt::option_end() {
+void convert_txt::option_end()
+{
 	state = state_filled;
 }
 
-void convert_txt::option_start(const string& s) {
+void convert_txt::option_start(const string& s)
+{
 	os << MI;
 	os << I << mask(s) << endl;
 }
 
-void convert_txt::option_stop() {
+void convert_txt::option_stop()
+{
 }
 
-void convert_txt::option_text(const string& s) {
+void convert_txt::option_text(const string& s)
+{
 	os << MI;
 	os << I I << mask(s) << endl;
 }
 
-void convert_txt::tag_begin(unsigned level) {
+void convert_txt::tag_begin(unsigned level)
+{
 	if (state == state_separator)
 		sep();
 }
 
-void convert_txt::tag_end() {
+void convert_txt::tag_end()
+{
 	state = state_filled;
 }
 
-void convert_txt::tag_start(const string& a, const string& b) {
+void convert_txt::tag_start(const string& a, const string& b)
+{
 	os << MI;
 	if (state == state_tag1)
 		os << I;
 	os << mask(a) << " - " << mask(b) << endl;
 }
 
-void convert_txt::tag_stop() {
+void convert_txt::tag_stop()
+{
 }
 
-void convert_txt::tag_text(const string& s) {
+void convert_txt::tag_text(const string& s)
+{
 	os << MI;
 	if (state == state_tag1)
 		os << I ;
@@ -1178,7 +1279,8 @@ void convert_txt::tag_text(const string& s) {
 //---------------------------------------------------------------------------
 // main
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	if (argc != 2) {
 		cerr << "Syntax: txt2 man | html | frame | txt" << endl;
 		exit(EXIT_FAILURE);
@@ -1189,13 +1291,13 @@ int main(int argc, char* argv[]) {
 	string arg = argv[1];
 
 	if (arg == "html")
-		c = new convert_html(cin,cout);
+		c = new convert_html(cin, cout);
 	else if (arg == "frame")
-		c = new convert_frame(cin,cout);
+		c = new convert_frame(cin, cout);
 	else if (arg == "man")
-		c = new convert_man(cin,cout);
+		c = new convert_man(cin, cout);
 	else if (arg == "txt")
-		c = new convert_txt(cin,cout);
+		c = new convert_txt(cin, cout);
 	else {
 		cerr << "Unknown format `" << arg << "'" << endl;
 		exit(EXIT_FAILURE);

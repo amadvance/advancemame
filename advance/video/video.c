@@ -20,7 +20,8 @@
 
 #include "lib.h"
 
-static void help(void) {
+static void help(void)
+{
 	cputs("AdvanceVIDEO by Andrea Mazzoleni v0.11 " __DATE__ "\r\n");
 	cputs("Usage:\r\n");
 	cputs("    video [/r] [/s MODE] [/l IMAGE] [/d] [/e]\r\n");
@@ -36,15 +37,17 @@ static void help(void) {
 /***************************************************************************/
 /* video */
 
-void video_put(uint8* line, unsigned y, unsigned width) {
+void video_put(uint8* line, unsigned y, unsigned width)
+{
 	if (y >= 200)
 		return;
 	if (width > 320)
 		width = 320;
-	memcpy(MK_FP(0xA000,y*320),line,width);
+	memcpy(MK_FP(0xA000, y*320), line, width);
 }
 
-void palette_put(uint8* palette) {
+void palette_put(uint8* palette)
+{
 	unsigned i;
 	outportb(0x3C8, 0);
 	for(i=0;i<256;++i) {
@@ -55,16 +58,18 @@ void palette_put(uint8* palette) {
 	}
 }
 
-void palette_clear(void) {
+void palette_clear(void)
+{
 	unsigned i;
 	outportb(0x3C8, 0);
 	for(i=0;i<256*3;++i)
 		outportb(0x3C9, 0);
 }
 
-void video_set(unsigned mode) {
-	asm mov ah,0
-	asm mov al,[byte ptr mode]
+void video_set(unsigned mode)
+{
+	asm mov ah, 0
+	asm mov al, [byte ptr mode]
 	asm int 10h
 }
 
@@ -128,9 +133,10 @@ uint8 file_map[256];
 int file_mac;
 int file_max;
 
-uint8 file_get(int f) {
+uint8 file_get(int f)
+{
 	if (file_mac == file_max) {
-		file_max = read(f,&file_map,sizeof(file_map));
+		file_max = read(f, &file_map, sizeof(file_map));
 		if (file_max == -1)
 			file_max = 0;
 		file_mac = 0;
@@ -169,7 +175,8 @@ struct pcx_decode_state {
 	uint8 value;
 };
 
-static void pcx_decode(uint8* buffer, unsigned size, int f, struct pcx_decode_state* state, unsigned delta) {
+static void pcx_decode(uint8* buffer, unsigned size, int f, struct pcx_decode_state* state, unsigned delta)
+{
 	while (size) {
 		unsigned run;
 		if (!state->count) {
@@ -199,17 +206,18 @@ static void pcx_decode(uint8* buffer, unsigned size, int f, struct pcx_decode_st
 
 uint8 pcx_buffer[1024];
 
-int pcx_load(const char *filename) {
+int pcx_load(const char *filename)
+{
 	int f;
 	struct pcx_header h;
-	unsigned width,height,y;
+	unsigned width, height, y;
 
-	f = open(filename,O_RDONLY);
+	f = open(filename, O_RDONLY);
 	if (f == -1) {
 		goto out;
 	}
 
-	if (read(f,&h,sizeof(h))!=sizeof(h)) {
+	if (read(f, &h, sizeof(h))!=sizeof(h)) {
 		goto out_close;
 	}
 
@@ -228,9 +236,9 @@ int pcx_load(const char *filename) {
 	for(y=0;y<height;++y) {
 		struct pcx_decode_state state;
 		state.count = 0;
-		pcx_decode(pcx_buffer,width,f,&state,1);
-		video_put(pcx_buffer,y,width);
-		pcx_decode(0,h.bytes_per_line - width,f,&state,0);
+		pcx_decode(pcx_buffer, width, f, &state, 1);
+		video_put(pcx_buffer, y, width);
+		pcx_decode(0, h.bytes_per_line - width, f, &state, 0);
 		if (state.count!=0)
 			goto out_close;
 	}
@@ -255,7 +263,8 @@ out:
 /***************************************************************************/
 /* main */
 
-int main(int argl, const char far* args) {
+int main(int argl, const char far* args)
+{
 	int arg_set = 0;
 	int arg_load = 0;
 	int arg_d = 0;
@@ -266,32 +275,32 @@ int main(int argl, const char far* args) {
 	char far* tok;
 
 	char arg[128];
-	memcpy(arg,args,argl);
+	memcpy(arg, args, argl);
 	arg[argl] = 0;
 
-	tok = strtok(arg," \t");
+	tok = strtok(arg, " \t");
 	while (tok) {
-		if (optionmatch(tok,"s")) {
+		if (optionmatch(tok, "s")) {
 			arg_set = 1;
-			tok = strtok(0," \t");
+			tok = strtok(0, " \t");
 			if (!tok) {
 				cputs("Missing mode number\r\n");
 				return EXIT_FAILURE;
 			}
-			mode = strtou(tok,16);
-		} else if (optionmatch(tok,"l")) {
+			mode = strtou(tok, 16);
+		} else if (optionmatch(tok, "l")) {
 			arg_load = 1;
-			tok = strtok(0," \t");
+			tok = strtok(0, " \t");
 			if (!tok) {
 				cputs("Missing image name\r\n");
 				return EXIT_FAILURE;
 			}
-			strcpy(file,tok);
-		} else if (optionmatch(tok,"d")) {
+			strcpy(file, tok);
+		} else if (optionmatch(tok, "d")) {
 			arg_d = 1;
-		} else if (optionmatch(tok,"e")) {
+		} else if (optionmatch(tok, "e")) {
 			arg_e = 1;
-		} else if (optionmatch(tok,"r")) {
+		} else if (optionmatch(tok, "r")) {
 			arg_r = 1;
 		} else {
 			cputs("Unknown option ");
@@ -299,13 +308,13 @@ int main(int argl, const char far* args) {
 			cputs("\r\n");
 			return EXIT_FAILURE;
 		}
-		tok = strtok(0," \t");
+		tok = strtok(0, " \t");
 	}
 
 	if (arg_r) {
 		typedef void far (*func)(void);
 		func f;
-		f = (func)MK_FP(0xC000,3);
+		f = (func)MK_FP(0xC000, 3);
 		asm push ds
 		asm push si
 		asm push di

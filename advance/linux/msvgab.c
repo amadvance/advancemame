@@ -67,7 +67,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 		0
 	};
 
-	log_std(("mouseb:svgalib: mouseb_svgalib_init(id:%d)\n",mouseb_id));
+	log_std(("mouseb:svgalib: mouseb_svgalib_init(id:%d)\n", mouseb_id));
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("mouseb:svgalib: svgalib not initialized\n"));
@@ -83,8 +83,8 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 		return -1;
 	}
 
-	mouse_setxrange(-32728,32727);
-	mouse_setyrange(-32728,32727);
+	mouse_setxrange(-32728, 32727);
+	mouse_setyrange(-32728, 32727);
 	mouse_setscale(1);
 	mouse_setwrap(MOUSE_NOWRAP);
 
@@ -150,7 +150,7 @@ void mouseb_svgalib_poll(void)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_poll()\n"));
 
-	mouse_setposition(0,0);
+	mouse_setposition(0, 0);
 	mouse_update();
 	svgalib_state.x = mouse_getx();
 	svgalib_state.y = mouse_gety();

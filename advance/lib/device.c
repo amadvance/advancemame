@@ -36,13 +36,14 @@
 #include <stdio.h>
 #include <assert.h>
 
-static const adv_device* device_match_one(const char* tag, const adv_driver* drv, adv_bool allow_none) {
+static const adv_device* device_match_one(const char* tag, const adv_driver* drv, adv_bool allow_none)
+{
 	char tag_driver[DEVICE_NAME_MAX];
 	char* tag_device;
 	const adv_device* i;
 
-	strcpy(tag_driver,tag);
-	tag_device = strchr(tag_driver,'/');
+	strcpy(tag_driver, tag);
+	tag_device = strchr(tag_driver, '/');
 	if (tag_device) {
 		*tag_device = 0;
 		++tag_device;
@@ -50,8 +51,8 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 		tag_device = "auto";
 	}
 
-	if (strcmp(drv->name,"none")==0) {
-		if (allow_none || strcmp(tag_driver,"none")==0) {
+	if (strcmp(drv->name, "none")==0) {
+		if (allow_none || strcmp(tag_driver, "none")==0) {
 			assert(drv->device_map->name != 0);
 			return drv->device_map;
 		} else {
@@ -59,12 +60,12 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 		}
 	}
 
-	if (strcmp(tag_driver,"auto")!=0 && strcmp(tag_driver,drv->name)!=0)
+	if (strcmp(tag_driver, "auto")!=0 && strcmp(tag_driver, drv->name)!=0)
 		return 0;
 
 	i = drv->device_map;
 	while (i->name) {
-		if (strcmp(i->name,tag_device)==0)
+		if (strcmp(i->name, tag_device)==0)
 			break;
 		++i;
 	}
@@ -83,61 +84,64 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
  *   isn't specified. Otherwise the "none" driver is used only if explictly
  *   specified. It isn't used from "auto".
  */
-const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none) {
+const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none)
+{
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	strcpy(buffer, tag);
 
-	tag_one = strtok(buffer," \t");
+	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
-		const adv_device* dev = device_match_one(tag_one,drv,allow_none);
+		const adv_device* dev = device_match_one(tag_one, drv, allow_none);
 		if (dev)
 			return dev;
-		tag_one = strtok(NULL," \t");
+		tag_one = strtok(NULL, " \t");
 	}
 
 	return 0;
 }
 
-void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac) {
-	unsigned i,j;
+void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac)
+{
+	unsigned i, j;
 
-	log_std(("adv_device: device_error %s %s\n",option,arg));
+	log_std(("adv_device: device_error %s %s\n", option, arg));
 
-	target_err("Invalid argument '%s' for option '%s'\n",arg,option);
+	target_err("Invalid argument '%s' for option '%s'\n", arg, option);
 	target_err("Valid values are:\n");
-	target_err("%16s %s\n","auto","Automatic detection");
+	target_err("%16s %s\n", "auto", "Automatic detection");
 
 	for(i=0;i<driver_mac;++i) {
 		for(j=0;driver_map[i]->device_map[j].name;++j) {
 			char buffer[DEVICE_NAME_MAX];
-			if (strcmp(driver_map[i]->device_map[j].name,"auto")==0) {
-				sprintf(buffer,"%s",driver_map[i]->name);
+			if (strcmp(driver_map[i]->device_map[j].name, "auto")==0) {
+				sprintf(buffer, "%s", driver_map[i]->name);
 			} else {
-				sprintf(buffer,"%s/%s",driver_map[i]->name,driver_map[i]->device_map[j].name);
+				sprintf(buffer, "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
 			}
-			target_err("%16s %s\n",buffer,driver_map[i]->device_map[j].desc);
+			target_err("%16s %s\n", buffer, driver_map[i]->device_map[j].desc);
 		}
 	}
 }
 
-adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore) {
+adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore)
+{
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
-	unsigned i,j;
+	unsigned i, j;
 
 	/* check the validity of every item on the argument */
 	strcpy(buffer, arg);
-	tag_one = strtok(buffer," \t");
+	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
-		if (strcmp("auto",tag_one)!=0 && strstr(driver_ignore,tag_one)==0) {
+		if (strcmp("auto", tag_one)!=0 && strstr(driver_ignore, tag_one)==0) {
 			for(i=0;i<driver_mac;++i) {
-				if (strcmp(driver_map[i]->name,tag_one)==0)
+				if (strcmp(driver_map[i]->name, tag_one)==0)
 					break;
 				for(j=0;driver_map[i]->device_map[j].name;++j) {
 					char buffer_cat[DEVICE_NAME_MAX];
-					sprintf(buffer_cat,"%s/%s",driver_map[i]->name,driver_map[i]->device_map[j].name);
-					if (strcmp(buffer_cat,tag_one)==0)
+					sprintf(buffer_cat, "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
+					if (strcmp(buffer_cat, tag_one)==0)
 						break;
 				}
 				if (driver_map[i]->device_map[j].name)
@@ -148,7 +152,7 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 				return -1;
 			}
 		}
-		tag_one = strtok(NULL," \t");
+		tag_one = strtok(NULL, " \t");
 	}
 
 	return 0;

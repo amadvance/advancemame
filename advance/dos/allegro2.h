@@ -31,7 +31,7 @@
 #ifndef __ALLEGRO2_H
 #define __ALLEGRO2_H
 
-#define inline __inline__
+#define inline inline
 #undef INLINE
 #define ZERO_SIZE 1
 #define index index2
@@ -41,7 +41,7 @@
 #undef index
 #undef inline
 #undef INLINE
-#define INLINE static __inline__
+#define INLINE static inline
 #undef ZERO_SIZE
 
 #endif

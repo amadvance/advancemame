@@ -141,7 +141,8 @@ static struct key_entry KEY[] = {
 /**
  * Return a short name for the specified key code.
  */
-const char* key_name(unsigned code) {
+const char* key_name(unsigned code)
+{
 	static char name[32];
 	struct key_entry* i;
 
@@ -157,14 +158,15 @@ const char* key_name(unsigned code) {
  * Convert a short name to the relative key code.
  * If the short name is unknown the KEYB_MAX value is returned.
  */
-unsigned key_code(const char* name) {
+unsigned key_code(const char* name)
+{
 	struct key_entry* i;
 
 	for(i=KEY;i->name;++i)
 		if (strcmp(name, i->name)==0)
 			return i->code;
 
-	if (name[0] != 0 && strspn(name,"0123456789") == strlen(name)) {
+	if (name[0] != 0 && strspn(name, "0123456789") == strlen(name)) {
 		int v;
 		v = atoi(name);
 

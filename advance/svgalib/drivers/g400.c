@@ -79,12 +79,12 @@ static void outpal(int i, int r, int g, int b)
 
 static void g400_setpage(int page)
 {
-	g400_outExt(4,page);
+    g400_outExt(4,page);
 }
 
 static int __svgalib_g400_inlinearmode(void)
 {
-return g400_is_linear;
+    return g400_is_linear;
 }
 
 /* Fill in chipset specific mode information */
@@ -103,7 +103,7 @@ static void g400_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(g400_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_g400_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -432,8 +432,8 @@ static void g400_initializemode(unsigned char *moderegs,
             case ID_G200:
             default:
             	initDAC[ MGA1064_SYS_PLL_M ] = 0x04;
-		initDAC[ MGA1064_SYS_PLL_N ] = 0x2D;
-		initDAC[ MGA1064_SYS_PLL_P ] = 0x19;
+		initDAC[ MGA1064_SYS_PLL_N ] = 0x18;
+		initDAC[ MGA1064_SYS_PLL_P ] = 0x08;
 	        *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16 + 4) = 0x00008000;
 		if(HasSDRAM)
 		    *(unsigned int *)(moderegs + VGA_TOTAL_REGS + 16) = 0x40499121;
@@ -882,6 +882,8 @@ static int g400_init(int force, int par1, int par2)
         g400_memory=memorytest(LINEAR_POINTER,max_mem);
         unmap_linear(max_mem*1024*1024);
     }
+
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
     
     __svgalib_inpal=inpal;
     __svgalib_outpal=outpal;    

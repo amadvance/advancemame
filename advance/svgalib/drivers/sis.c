@@ -126,7 +126,7 @@ static void sis_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(sis_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_sis_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -875,7 +875,9 @@ static int sis_init(int force, int par1, int par2)
                 chip = SIS_315;
                 break;
        };
-    };
+    } else {
+		return -1;
+	}
     
     if(chip>=SIS_5597) {
        __svgalib_io_reloc=(buf[6]&0xffffff80)-0x380; /* should work at least for 6326 and 530 */
@@ -950,6 +952,9 @@ static int sis_init(int force, int par1, int par2)
        write_xr(0x2b,0xe4);
        write_xr(0x38,temp);
     }
+	if(chip>=SIS_300) {
+    	__svgalib_modeinfo_linearset |= IS_LINEAR;
+	}
 
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = sis_memory;

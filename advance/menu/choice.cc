@@ -27,7 +27,8 @@ using namespace std;
 // ------------------------------------------------------------------------
 // tristate
 
-const string tristate(tristate_t v) {
+const string tristate(tristate_t v)
+{
 	switch (v) {
 	case include : return "include";
 	case exclude : return "exclude";
@@ -38,7 +39,8 @@ const string tristate(tristate_t v) {
 	}
 }
 
-bool tristate(tristate_t& v, const std::string& s) {
+bool tristate(tristate_t& v, const std::string& s)
+{
 	if (s == "include")
 		v = include;
 	else if (s == "exclude")
@@ -126,8 +128,9 @@ const string& choice::print_get() const {
 	}
 }
 
-void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows) {
-	text_put_filled(x,y,dx,title,COLOR_CHOICE_TITLE);
+void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows)
+{
+	text_put_filled(x, y, dx, title, COLOR_CHOICE_TITLE);
 	y += text_font_dy_get();
 
 	for(unsigned j=0;j<rows;++j) {
@@ -149,22 +152,23 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 
 		int pos = 0;
 		const string& desc = i->print_get();
-		string tag = token_get(desc,pos,"\t");
-		token_skip(desc,pos,"\t");
-		string rest = token_get(desc,pos,"");
+		string tag = token_get(desc, pos, "\t");
+		token_skip(desc, pos, "\t");
+		string rest = token_get(desc, pos, "");
 		if (!rest.length()) {
 			rest = tag;
 			tag = "";
 		}
 
-		text_put_filled(x,y,dx,tag, color);
-		text_put_filled(x+indent,y,dx-indent,rest, color);
+		text_put_filled(x, y, dx, tag, color);
+		text_put_filled(x+indent, y, dx-indent, rest, color);
 
 		y += text_font_dy_get();
 	}
 }
 
-int choice_bag::run(const string& title, int x, int y, int dx, choice_container::iterator& pos) {
+int choice_bag::run(const string& title, int x, int y, int dx, choice_container::iterator& pos)
+{
 	int key = TEXT_KEY_ESC;
 	int done = 0;
 
@@ -181,8 +185,8 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int dy = (pos_rel_max+1) * text_font_dy_get();
 	int border = text_font_dx_get()/2;
 
-	text_box(x-border,y-border,dx+2*border,dy+border*2,1,COLOR_CHOICE_NORMAL);
-	text_clear(x-border+1,y-border+1,dx+2*border-2,dy+border*2-2,COLOR_CHOICE_NORMAL >> 4);
+	text_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL);
+	text_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL >> 4);
 
 	pos_rel = pos - begin();
 	if (pos_rel >= pos_rel_max) {
@@ -191,11 +195,11 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	}
 
 	while (!done) {
-		draw(title,x,y,dx,pos_base,pos_rel,pos_rel_max);
+		draw(title, x, y, dx, pos_base, pos_rel, pos_rel_max);
 
 		key = text_getkey();
 
-		key = menu_key(key,pos_base,pos_rel,pos_rel_max,pos_base_upper,1,pos_max);
+		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, 1, pos_max);
 
 		switch (key) {
 			case TEXT_KEY_DEL :
@@ -242,7 +246,8 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	return key;
 }
 
-choice_container::iterator choice_bag::find_by_value(int value) {
+choice_container::iterator choice_bag::find_by_value(int value)
+{
 	choice_container::iterator i = begin();
 	while (i != end()) {
 		if (i->value_get() == value)
@@ -252,7 +257,8 @@ choice_container::iterator choice_bag::find_by_value(int value) {
 	return i;
 }
 
-choice_container::iterator choice_bag::find_by_desc(const string& desc) {
+choice_container::iterator choice_bag::find_by_desc(const string& desc)
+{
 	choice_container::iterator i = begin();
 	while (i != end()) {
 		if (i->desc_get() == desc)
@@ -262,7 +268,8 @@ choice_container::iterator choice_bag::find_by_desc(const string& desc) {
 	return i;
 }
 
-void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max) {
+void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max)
+{
 
 	while (pos >= pos_base_upper + pos_rel_max)
 		pos -= coln;
@@ -297,17 +304,18 @@ void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_bas
 	}
 }
 
-int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max) {
+int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max)
+{
 	switch (key) {
 		case TEXT_KEY_HOME :
-			menu_pos(0,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+			menu_pos(0, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
 		case TEXT_KEY_END :
-			menu_pos(pos_max,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+			menu_pos(pos_max, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
 		case TEXT_KEY_LEFT :
 			if (coln > 1) {
-				menu_pos(pos_base + pos_rel - 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+				menu_pos(pos_base + pos_rel - 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 				break;
 			}
 			// otherwise continue
@@ -322,7 +330,7 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 			break;
 		case TEXT_KEY_RIGHT :
 			if (coln > 1) {
-				menu_pos(pos_base + pos_rel + 1,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+				menu_pos(pos_base + pos_rel + 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 				break;
 			}
 			// otherwise continue
@@ -339,10 +347,10 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 			}
 			break;
 		case TEXT_KEY_UP :
-			menu_pos(pos_base + pos_rel - coln,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+			menu_pos(pos_base + pos_rel - coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
 		case TEXT_KEY_DOWN :
-			menu_pos(pos_base + pos_rel + coln,pos_base,pos_rel,pos_rel_max,pos_base_upper,coln,pos_max);
+			menu_pos(pos_base + pos_rel + coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
 		default:
 			return key;

@@ -33,11 +33,13 @@
 /***************************************************************************/
 /* Interface */
 
-void card_unlock(void) {
+void card_unlock(void)
+{
 	card_crtc_set(0x11, card_crtc_get(0x11) & ~0x80);
 }
 
-void card_lock(void) {
+void card_lock(void)
+{
 	card_crtc_set(0x11, card_crtc_get(0x11) | 0x80);
 }
 
@@ -142,7 +144,8 @@ void card_crtc_all_set(card_crtc STACK_PTR *cp)
 	card_crtc_set(0x11, d1);
 }
 
-void card_generic_all_set(card_crtc STACK_PTR *cp) {
+void card_generic_all_set(card_crtc STACK_PTR *cp)
+{
 	card_crtc_all_set(cp);
 
 	/* Double Scan Dis. */
@@ -248,7 +251,8 @@ int card_divider_get(void)
 	return d0;
 }
 
-void card_divider_set(BYTE d0) {
+void card_divider_set(BYTE d0)
+{
 	assert( d0 == 1 || d0 == 2 );
 	d0 -= 1;
 	card_seq_set(0x01, (card_seq_get(0x01) & ~0x08) | (d0 << 3));
@@ -292,7 +296,8 @@ void card_doublescan_set(int flag)
 	card_crtc_set(0x09, d0);
 }
 
-void card_char_size_x_set(unsigned x) {
+void card_char_size_x_set(unsigned x)
+{
 	BYTE d0;
 	assert(x == 8 || x == 9);
 	d0 = card_seq_get(0x01);
@@ -303,7 +308,8 @@ void card_char_size_x_set(unsigned x) {
 	card_seq_set(0x01, d0);
 }
 
-void card_char_size_y_set(unsigned y) {
+void card_char_size_y_set(unsigned y)
+{
 	BYTE d0;
 	assert(y>=1 && y<=32);
 	d0 = card_crtc_get(0x9) & ~0x1F;
@@ -351,10 +357,11 @@ DWORD card_inl(int edx)
 }
 
 /* Compute the PLL parameters */
-long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, int div_max, int p_min, int p_max, long ref, long vco_min, long vco_max, int STACK_PTR* s_mul, int STACK_PTR* s_div, int STACK_PTR* s_p, int (*validate)(int,int,int)) {
-	int best_mul,best_div,best_p;
-	long best_clock,best_vco;
-	int pll_mul,pll_div,pll_p;
+long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, int div_max, int p_min, int p_max, long ref, long vco_min, long vco_max, int STACK_PTR* s_mul, int STACK_PTR* s_div, int STACK_PTR* s_p, int (*validate)(int, int, int))
+{
+	int best_mul, best_div, best_p;
+	long best_clock, best_vco;
+	int pll_mul, pll_div, pll_p;
 
 	CARD_LOG(("card: clock requested %.2f MHz\n", (double)dotclock / 1E6 ));
 	CARD_LOG(("card: clock range is %.2f - %.2f MHz\n", (double)vco_min / 1000 / (1 << p_max), (double)vco_max / 1000 / (1 << p_min) ));
@@ -375,7 +382,7 @@ long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, in
 			continue;
 		if (vco > vco_max*1000L)
 			continue;
-		if (validate && validate(pll_mul,pll_div,pll_p)!=0)
+		if (validate && validate(pll_mul, pll_div, pll_p)!=0)
 			continue;
 
 		if (best_clock < 0 || labs(new_clock - dotclock) < labs(best_clock - dotclock)) {
@@ -401,7 +408,7 @@ long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, in
 	*s_div = best_div;
 	*s_p = best_p;
 
-	CARD_LOG(("card: ref:%.2f MHz, mul:%d, div:%d, shift:%d\n",(double)ref / 1000,best_mul,best_div,best_p));
+	CARD_LOG(("card: ref:%.2f MHz, mul:%d, div:%d, shift:%d\n", (double)ref / 1000, best_mul, best_div, best_p));
 	CARD_LOG(("card: clock selected: %.2f MHz\n", (double)best_clock / 1E6 ));
 
 	return best_clock;
@@ -413,7 +420,8 @@ long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, in
  * Check if two modes are compatible.
  * Ensure that the VBE tweak convert one mode to another.
  */
-int card_compatible_mode(const card_mode STACK_PTR* mode0, const card_mode STACK_PTR* mode1) {
+int card_compatible_mode(const card_mode STACK_PTR* mode0, const card_mode STACK_PTR* mode1)
+{
 	if (mode0->bits_per_pixel != mode1->bits_per_pixel)
 		return 0;
 	if (mode0->bytes_per_pixel != mode1->bytes_per_pixel)

@@ -119,7 +119,8 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
  * This value is the number of bit to shift left a 8 bit channel value to match
  * the specified RGB definition. It may be a negative number.
  */
-static inline int rgb_shift_make_from_def(unsigned len, unsigned pos) {
+static inline int rgb_shift_make_from_def(unsigned len, unsigned pos)
+{
 	return pos + len - 8;
 }
 
@@ -127,7 +128,8 @@ static inline int rgb_shift_make_from_def(unsigned len, unsigned pos) {
  * Get a channel mask from the RGB definition.
  * This value is the mask bit of the specified channel RGB definition. 
  */
-static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos) {
+static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos)
+{
 	return ((1 << len) - 1) << pos;
 }
 
@@ -138,7 +140,8 @@ unsigned video_color_dist(const adv_color_rgb* A, const adv_color_rgb* B);
  * \param value Value to shift.
  * \param shift Number of bit to shift right. If negative the value is shifted left.
  */
-static inline unsigned rgb_shift(unsigned value, int shift) {
+static inline unsigned rgb_shift(unsigned value, int shift)
+{
 	if (shift >= 0)
 		return value >> shift;
 	else
@@ -151,8 +154,9 @@ static inline unsigned rgb_shift(unsigned value, int shift) {
  * \param shift Shift for the channel. Generally computed with rgb_shift_make_from_def().
  * \param mask Mask for the channel. Generally computed with rgb_mask_make_from_def().
  */
-static inline unsigned rgb_nibble_insert(unsigned value, int shift, unsigned mask) {
-	return rgb_shift(value,-shift) & mask;
+static inline unsigned rgb_nibble_insert(unsigned value, int shift, unsigned mask)
+{
+	return rgb_shift(value, -shift) & mask;
 }
 
 /**
@@ -161,8 +165,9 @@ static inline unsigned rgb_nibble_insert(unsigned value, int shift, unsigned mas
  * \param shift Shift for the channel. Generally computed with rgb_shift_make_from_def().
  * \param mask Mask for the channel. Generally computed with rgb_mask_make_from_def().
  */
-static inline unsigned rgb_nibble_extract(unsigned value, int shift, unsigned mask) {
-	return rgb_shift(value & mask,shift);
+static inline unsigned rgb_nibble_extract(unsigned value, int shift, unsigned mask)
+{
+	return rgb_shift(value & mask, shift);
 }
 
 unsigned rgb_approx(unsigned value, unsigned len);

@@ -54,7 +54,8 @@ extern uint8 int_2f_id;
 /* New 2f interrupt */
 void int_2f(void);
 
-void int_2f_trap(regs_32 far * r) {
+void int_2f_trap(regs_32 far * r)
+{
 	r->x.cx = TSR_RUTACK1;
 	r->x.dx = TSR_RUTACK2;
 	r->x.es = _DS;
@@ -62,7 +63,8 @@ void int_2f_trap(regs_32 far * r) {
 	r->h.al = 0xFF;
 }
 
-static void int_2f_call(void) {
+static void int_2f_call(void)
+{
 	asm push si
 	asm push di
 	asm push bp
@@ -74,14 +76,15 @@ static void int_2f_call(void) {
 	asm pop si
 }
 
-static int rut_free_code(unsigned code) {
-	asm mov ah,[byte ptr code]
-	asm xor al,al
-	asm xor bx,bx
-	asm xor cx,cx
-	asm xor dx,dx
+static int rut_free_code(unsigned code)
+{
+	asm mov ah, [byte ptr code]
+	asm xor al, al
+	asm xor bx, bx
+	asm xor cx, cx
+	asm xor dx, dx
 	int_2f_call();
-	asm cmp al,0
+	asm cmp al, 0
 	asm jne error
 	return 1;
 error:
@@ -89,7 +92,8 @@ error:
 }
 
 /* RUT install */
-static int rut_search(void) {
+static int rut_search(void)
+{
 	unsigned i;
 	int_2f_id = 0;
 	for(i=0xC0;i<=0xFF;++i) {
@@ -108,23 +112,24 @@ static int rut_search(void) {
 //   cx    RUT_ACK1
 //   dx    RUT_ACK2
 //   es:bx &tsr_type
-static struct tsr_type far * rut_is_installed_code(uint8 code) {
-	asm mov ah,[code]
-	asm xor al,al
-	asm xor bx,bx
-	asm xor cx,cx
-	asm xor dx,dx
+static struct tsr_type far * rut_is_installed_code(uint8 code)
+{
+	asm mov ah, [code]
+	asm xor al, al
+	asm xor bx, bx
+	asm xor cx, cx
+	asm xor dx, dx
 	int_2f_call();
-	asm cmp al,0FFh
+	asm cmp al, 0FFh
 	asm jne notinst
-	asm cmp cx,TSR_RUTACK1
+	asm cmp cx, TSR_RUTACK1
 	asm jne notinst
-	asm cmp dx,TSR_RUTACK2
+	asm cmp dx, TSR_RUTACK2
 	asm jne notinst
 
-	asm mov dx,es
-	asm mov ax,bx
-	return (struct tsr_type far*)MK_FP(_DX,_AX);
+	asm mov dx, es
+	asm mov ax, bx
+	return (struct tsr_type far*)MK_FP(_DX, _AX);
 notinst:
 	return 0;
 }
@@ -135,7 +140,8 @@ notinst:
 // return:
 //   0 non trovato
 //   !=0 puntatore alla zona dati del TSR
-static struct tsr_type far* tsr_is_installed(void) {
+static struct tsr_type far* tsr_is_installed(void)
+{
 	unsigned i;
 	for(i=0xC0;i<=0xFF;++i) {
 		struct tsr_type far* p = rut_is_installed_code(i);
@@ -161,7 +167,8 @@ void int_8(void);
 #endif
 
 /* Load old interrupt value */
-static void int_init(void) {
+static void int_init(void)
+{
 	int_2f_old = getvect(0x2f);
 	int_10_old = getvect(0x10);
 #ifdef __RUN__
@@ -174,7 +181,8 @@ static void int_init(void) {
 /* TSR */
 
 /* Unload the TSR */
-static int far _cdecl unload(void) {
+static int far _cdecl unload(void)
+{
 	/* device driver can't be unloaded */
 	if (tsr_sys)
 		return 0;
@@ -188,12 +196,12 @@ static int far _cdecl unload(void) {
 
 		tsr_done_0();
 
-		setvect(0x10,int_10_old);
+		setvect(0x10, int_10_old);
 #ifdef __RUN__
-		setvect(0x21,int_21_old);
-		setvect(0x8,int_8_old);
+		setvect(0x21, int_21_old);
+		setvect(0x8, int_8_old);
 #endif
-		setvect(0x2f,int_2f_old);
+		setvect(0x2f, int_2f_old);
 
 		tsr_done_1();
 
@@ -203,7 +211,8 @@ static int far _cdecl unload(void) {
 }
 
 /* Load the TSR */
-static int load(void) {
+static int load(void)
+{
 	(void far*)tsr_data.unload = MK_FP( _CS, FP_OFF( unload ));
 	(void far*)tsr_data.remote = MK_FP( _CS, FP_OFF( tsr_remote ));
 	tsr_data.seg = _DS;
@@ -220,20 +229,20 @@ static int load(void) {
 		return 0;
 	}
 
-	setvect(0x10,int_10);
+	setvect(0x10, int_10);
 #ifdef __RUN__
-	setvect(0x21,int_21);
-	setvect(0x8,int_8);
+	setvect(0x21, int_21);
+	setvect(0x8, int_8);
 #endif
-	setvect(0x2f,int_2f);
+	setvect(0x2f, int_2f);
 
 	if (tsr_init_1() != TSR_SUCCESS) {
-		setvect(0x10,int_10_old);
+		setvect(0x10, int_10_old);
 #ifdef __RUN__
-		setvect(0x21,int_21_old);
-		setvect(0x8,int_8_old);
+		setvect(0x21, int_21_old);
+		setvect(0x8, int_8_old);
 #endif
-		setvect(0x2f,int_2f_old);
+		setvect(0x2f, int_2f_old);
 
 		tsr_done_0();
 		return 0;
@@ -243,24 +252,26 @@ static int load(void) {
 }
 
 /* Unload the TSR in memory */
-static int mem_unload(void) {
+static int mem_unload(void)
+{
 	int far _cdecl (far* func)(void);
 	func = tsr_loaded->unload;
 	_AX = tsr_loaded->seg;
 	asm push ds
-	asm mov ds,ax
+	asm mov ds, ax
 	func();
 	asm pop ds
 	return _AX;
 }
 
 /* Unload the TSR in memory */
-static int mem_remote(void far* arg) {
+static int mem_remote(void far* arg)
+{
 	int far _cdecl (far* func)(void far* arg);
 	func = tsr_loaded->remote;
 	_AX = tsr_loaded->seg;
 	asm push ds
-	asm mov ds,ax
+	asm mov ds, ax
 	func(arg);
 	asm pop ds
 	return _AX;
@@ -269,7 +280,8 @@ static int mem_remote(void far* arg) {
 /***************************************************************************/
 /* main */
 
-int main(unsigned argl, const char far* args) {
+int main(unsigned argl, const char far* args)
+{
 	STACK_DECL char arg[128];
 	uint16 cmd;
 
@@ -278,14 +290,14 @@ int main(unsigned argl, const char far* args) {
 	tsr_loaded = tsr_is_installed();
 
 	/* Duplicate the command line locally */
-	memcpy(arg,args,argl);
+	memcpy(arg, args, argl);
 	arg[argl] = 0;
 
 	/* Call the main TSR function */
 	if (tsr_loaded)
-		cmd = tsr(mem_remote,arg);
+		cmd = tsr(mem_remote, arg);
 	else
-		cmd = tsr(0,arg);
+		cmd = tsr(0, arg);
 
 	if (cmd == TSR_LOAD) {
 		if (tsr_loaded)

@@ -186,7 +186,7 @@ public:
 	const std::string& manufacturer_get() const { return manufacturer; }
 	void software_path_set(const std::string& A) const { software_path = A; }
 	const std::string& software_path_get() const { return software_path; }
-	void software_set(bool A) { flag_set(A,flag_software); }
+	void software_set(bool A) { flag_set(A, flag_software); }
 	bool software_get() const { return flag_get(flag_software); }
 	void time_set(unsigned A) const { flag |= flag_time_set; time = A; }
 	bool is_time_set() const { return flag_get(flag_time_set); }
@@ -271,19 +271,19 @@ public:
 
 typedef std::list<game> game_container;
 
-struct game_by_name_less : std::binary_function<game,game,bool> {
+struct game_by_name_less : std::binary_function<game, game, bool> {
 	bool operator()(const game& A, const game& B) const {
 		return A.name_get().compare(B.name_get()) < 0;
 	}
 };
 
-struct game_by_play_less : std::binary_function<game,game,bool> {
+struct game_by_play_less : std::binary_function<game, game, bool> {
 	bool operator()(const game& A, const game& B) const {
 		return A.play_get() > B.play_get();
 	}
 };
 
-typedef std::set<game,game_by_name_less> game_by_name_set;
+typedef std::set<game, game_by_name_less> game_by_name_set;
 
 class game_set : public game_by_name_set {
 public:
@@ -307,31 +307,36 @@ public:
 	bool preview_software_list_set(const std::string& list, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
 };
 
-inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*) ) {
-	if (FA(A,B)) return true;
-	if (FA(B,A)) return false;
-	return FB(A,B);
+inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*) )
+{
+	if (FA(A, B)) return true;
+	if (FA(B, A)) return false;
+	return FB(A, B);
 }
 
-inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*), bool (*FC)(const game*, const game*) ) {
-	if (FA(A,B)) return true;
-	if (FA(B,A)) return false;
-	if (FB(A,B)) return true;
-	if (FB(B,A)) return false;
-	return FC(A,B);
+inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*), bool (*FC)(const game*, const game*) )
+{
+	if (FA(A, B)) return true;
+	if (FA(B, A)) return false;
+	if (FB(A, B)) return true;
+	if (FB(B, A)) return false;
+	return FC(A, B);
 }
 
-inline bool pgame_by_desc_less(const game* A, const game* B) {
-	return case_less(A->description_get(),B->description_get());
+inline bool pgame_by_desc_less(const game* A, const game* B)
+{
+	return case_less(A->description_get(), B->description_get());
 }
 
-inline bool pgame_by_rootdesc_less(const game* A, const game* B) {
+inline bool pgame_by_rootdesc_less(const game* A, const game* B)
+{
 	while (A->parent_get()) A = A->parent_get();
 	while (B->parent_get()) B = B->parent_get();
-	return pgame_by_desc_less(A,B);
+	return pgame_by_desc_less(A, B);
 }
 
-inline bool pgame_by_leveldesc_less(const game* A, const game* B) {
+inline bool pgame_by_leveldesc_less(const game* A, const game* B)
+{
 	const unsigned stack_max = 16;
 	const game* Astack_begin[stack_max];
 	const game** Astack_end = Astack_begin;
@@ -353,24 +358,28 @@ inline bool pgame_by_leveldesc_less(const game* A, const game* B) {
 		if (!(*Astack_end)->software_get() && (*Bstack_end)->software_get())
 			return false;
 		if ((*Astack_end)->description_get() != (*Bstack_end)->description_get())
-			return pgame_by_desc_less(*Astack_end,*Bstack_end);
+			return pgame_by_desc_less(*Astack_end, *Bstack_end);
 	}
 	return Astack_begin == Astack_end && Bstack_begin != Bstack_end;
 }
 
-inline bool pgame_by_manufacturer_less(const game* A, const game* B) {
-	return case_less(A->manufacturer_get(),B->manufacturer_get());
+inline bool pgame_by_manufacturer_less(const game* A, const game* B)
+{
+	return case_less(A->manufacturer_get(), B->manufacturer_get());
 }
 
-inline bool pgame_by_year_less(const game* A, const game* B) {
+inline bool pgame_by_year_less(const game* A, const game* B)
+{
 	return A->year_get() > B->year_get();
 }
 
-inline bool pgame_by_size_less(const game* A, const game* B) {
+inline bool pgame_by_size_less(const game* A, const game* B)
+{
 	return A->size_get() > B->size_get();
 }
 
-inline bool pgame_by_res_less(const game* A, const game* B) {
+inline bool pgame_by_res_less(const game* A, const game* B)
+{
 	int aA = A->sizex_get() * A->sizey_get();
 	int aB = B->sizex_get() * B->sizey_get();
 	if (aA < aB)
@@ -380,15 +389,18 @@ inline bool pgame_by_res_less(const game* A, const game* B) {
 	return A->sizex_get() < B->sizex_get();
 }
 
-inline bool pgame_by_info_less(const game* A, const game* B) {
+inline bool pgame_by_info_less(const game* A, const game* B)
+{
 	return A->info_get() < B->info_get();
 }
 
-inline bool pgame_by_clone_less(const game* A, const game* B) {
+inline bool pgame_by_clone_less(const game* A, const game* B)
+{
 	return (A->parent_get()!=0) < (B->parent_get()!=0);
 }
 
-inline bool pgame_by_name_less(const game* A, const game* B) {
+inline bool pgame_by_name_less(const game* A, const game* B)
+{
 	return A->name_get() < B->name_get();
 }
 

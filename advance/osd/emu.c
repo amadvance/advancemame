@@ -57,7 +57,7 @@ struct advance_context CONTEXT;
 
 void adv_svgalib_log_va(const char *text, va_list arg)
 {
-	log_va(text,arg);
+	log_va(text, arg);
 }
 
 /***************************************************************************/
@@ -77,7 +77,8 @@ struct game_fuzzy {
 	unsigned fuzzy;
 };
 
-static int game_fuzzy_cmp(const void* a, const void* b) {
+static int game_fuzzy_cmp(const void* a, const void* b)
+{
 	const struct game_fuzzy* A = (const struct game_fuzzy*)a;
 	const struct game_fuzzy* B = (const struct game_fuzzy*)b;
 	if (A->fuzzy < B->fuzzy)
@@ -87,14 +88,15 @@ static int game_fuzzy_cmp(const void* a, const void* b) {
 	return 0;
 }
 
-static const mame_game* select_game(const char* gamename) {
+static const mame_game* select_game(const char* gamename)
+{
 	int game_count = 0;
 	struct game_fuzzy* game_map;
 	unsigned i;
 	int limit;
 
 	for(i=0;mame_game_at(i);++i) {
-		if (strcmp(gamename,mame_game_name(mame_game_at(i))) == 0) {
+		if (strcmp(gamename, mame_game_name(mame_game_at(i))) == 0) {
 			return mame_game_at(i);
 		}
 		++game_count;
@@ -110,8 +112,8 @@ static const mame_game* select_game(const char* gamename) {
 
 	for(i=0;i<game_count;++i) {
 		const mame_game* game = mame_game_at(i);
-		int fuzzy_short = fuzzy(gamename,mame_game_name(game),limit);
-		int fuzzy_long = fuzzy(gamename,mame_game_description(game),limit);
+		int fuzzy_short = fuzzy(gamename, mame_game_name(game), limit);
+		int fuzzy_long = fuzzy(gamename, mame_game_description(game), limit);
 		int fuzzy = fuzzy_short < fuzzy_long ? fuzzy_short : fuzzy_long;
 
 		if (limit > fuzzy + 3*FUZZY_UNIT_A)
@@ -121,14 +123,14 @@ static const mame_game* select_game(const char* gamename) {
 		game_map[i].fuzzy = fuzzy;
 	}
 
-	qsort(game_map,game_count,sizeof(struct game_fuzzy),game_fuzzy_cmp);
+	qsort(game_map, game_count, sizeof(struct game_fuzzy), game_fuzzy_cmp);
 
 	if (game_map[0].fuzzy < limit) {
 		target_err("\nSimilar are:\n");
 		for (i=0;i<15 && i<game_count;++i) {
 			if (game_map[i].fuzzy < limit) {
 				const mame_game* game = mame_game_at(game_map[i].index);
-				target_err("%10s %s\n",mame_game_name(game),mame_game_description(game));
+				target_err("%10s %s\n", mame_game_name(game), mame_game_description(game));
 			}
 		}
 	}
@@ -399,7 +401,7 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_analog[*]", "*", "", "", "", 0 }, /* ignore */
 { "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.1 */
-{ "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[*, track]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.2 */
 { "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 }, /* rename */
 { "*", "input_safeexit", "*", "%s", "misc_safequit", "%s", 0 }, /* rename */
@@ -444,10 +446,21 @@ static adv_conf_conv STANDARD[] = {
 { "*", "dir_imagediff", "*", "", "", "", 0 }, /* ignore */
 /* 0.62.2 */
 { "*", "display_rgb", "*", "", "", "", 0 }, /* ignore */
-{ "*", "display_depth", "*", "", "", "", 0 } /* ignore */
+{ "*", "display_depth", "8", "%s", "display_color", "palette8", 0 }, /* rename */
+{ "*", "display_depth", "15", "%s", "display_color", "bgr15", 0 }, /* rename */
+{ "*", "display_depth", "16", "%s", "display_color", "bgr16", 0 }, /* rename */
+{ "*", "display_depth", "32", "%s", "display_color", "bgr32", 0 }, /* rename */
+{ "*", "device_sdl_fullscreen", "yes", "%s", "device_video_output", "fullscreen", 0 }, /* rename */
+{ "*", "device_sdl_fullscreen", "no", "%s", "device_video_output", "window", 0 }, /* rename */
+{ "*", "device_video_8bit", "*", "%s", "device_color_palette8", "%s", 0 }, /* rename */
+{ "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
+{ "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
+{ "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
+{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 } /* rename */
 };
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	target_err_va(desc, arg);
@@ -479,7 +492,7 @@ int os_main(int argc, char* argv[])
 	opt_default = 0;
 	opt_remove = 0;
 
-	memset(&option,0,sizeof(option));
+	memset(&option, 0, sizeof(option));
 
 	if (thread_init() != 0) {
 		target_err("Error initializing the thread support.\n");
@@ -497,7 +510,7 @@ int os_main(int argc, char* argv[])
 		goto err_conf;
 	}
 
-	if (mame_init(context,cfg_context)!=0)
+	if (mame_init(context, cfg_context)!=0)
 		goto err_os;
 	if (advance_video_init(&context->video, cfg_context)!=0)
 		goto err_os;
@@ -509,25 +522,25 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	if (advance_fileio_init(cfg_context)!=0)
 		goto err_os;
-	if (advance_safequit_init(&context->safequit,cfg_context)!=0)
+	if (advance_safequit_init(&context->safequit, cfg_context)!=0)
 		goto err_os;
 	if (hardware_script_init(cfg_context)!=0)
 		goto err_os;
 
 #ifdef __MSDOS__
 	/* LEGACY (to be removed) */
-	if (file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg")!=0 && access(file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"),R_OK)==0 && access(file_config_file_home(ADVANCE_NAME ".rc"),R_OK)!=0) {
+	if (file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg")!=0 && access(file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"), R_OK)==0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)!=0) {
 		if (conf_input_file_load_adv(cfg_context, 0, file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"), file_config_file_home(ADVANCE_NAME ".rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
 			goto err_os;
 		conf_sort(cfg_context);
 		conf_uncomment(cfg_context);
-		conf_save(cfg_context,1);
+		conf_save(cfg_context, 1);
 		target_out("Configuration file '%s' created from '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_legacy(ADVANCE_NAME_LEGACY ".cfg"));
 		goto done_os;
 	}
 #endif
 
-	if (file_config_file_root(ADVANCE_NAME ".rc")!=0 && access(file_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
+	if (file_config_file_root(ADVANCE_NAME ".rc")!=0 && access(file_config_file_root(ADVANCE_NAME ".rc"), R_OK)==0)
 		if (conf_input_file_load_adv(cfg_context, 2, file_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 			goto err_os;
 
@@ -539,23 +552,23 @@ int os_main(int argc, char* argv[])
 
 	option.debug_flag = 0;
 	for(i=1;i<argc;++i) {
-		if (strcmp(argv[i],"-default") == 0) {
+		if (strcmp(argv[i], "-default") == 0) {
 			opt_default = 1;
-		} else if (strcmp(argv[i],"-log") == 0) {
+		} else if (strcmp(argv[i], "-log") == 0) {
 			opt_log = 1;
-		} else if (strcmp(argv[i],"-logsync") == 0) {
+		} else if (strcmp(argv[i], "-logsync") == 0) {
 			opt_logsync = 1;
-		} else if (strcmp(argv[i],"-remove") == 0) {
+		} else if (strcmp(argv[i], "-remove") == 0) {
 			opt_remove = 1;
-		} else if (strcmp(argv[i],"-debug") == 0) {
+		} else if (strcmp(argv[i], "-debug") == 0) {
 			option.debug_flag = 1;
-		} else if (strcmp(argv[i],"-listinfo") == 0) {
+		} else if (strcmp(argv[i], "-listinfo") == 0) {
 			opt_info = 1;
-		} else if (strcmp(argv[i],"-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
-			strcpy(option.record_file,argv[i+1]);
+		} else if (strcmp(argv[i], "-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
+			strcpy(option.record_file, argv[i+1]);
 			++i;
-		} else if (strcmp(argv[i],"-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
-			strcpy(option.playback_file,argv[i+1]);
+		} else if (strcmp(argv[i], "-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
+			strcpy(option.playback_file, argv[i+1]);
 			++i;
 		} else if (argv[i][0]!='-') {
 			unsigned j;
@@ -568,7 +581,7 @@ int os_main(int argc, char* argv[])
 			for(j=0;opt_gamename[j];++j)
 				opt_gamename[j] = tolower(opt_gamename[j]);
 		} else {
-			target_err("Unknown command line option '%s'.\n",argv[i]);
+			target_err("Unknown command line option '%s'.\n", argv[i]);
 			goto err_os;
 		}
 	}
@@ -578,25 +591,25 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
-	if (!(file_config_file_root(ADVANCE_NAME ".rc") != 0 && access(file_config_file_root(ADVANCE_NAME ".rc"),R_OK)==0)
-		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"),R_OK)==0)) {
-		conf_set_default_if_missing(cfg_context,"");
+	if (!(file_config_file_root(ADVANCE_NAME ".rc") != 0 && access(file_config_file_root(ADVANCE_NAME ".rc"), R_OK)==0)
+		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)==0)) {
+		conf_set_default_if_missing(cfg_context, "");
 		conf_sort(cfg_context);
-		conf_save(cfg_context,1);
+		conf_save(cfg_context, 1);
 		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_default) {
-		conf_set_default_if_missing(cfg_context,"");
-		conf_save(cfg_context,1);
+		conf_set_default_if_missing(cfg_context, "");
+		conf_save(cfg_context, 1);
 		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_remove) {
-		conf_remove_if_default(cfg_context,"");
-		conf_save(cfg_context,1);
+		conf_remove_if_default(cfg_context, "");
+		conf_save(cfg_context, 1);
 		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
@@ -651,7 +664,7 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: *_load()\n"));
 
 	/* load all the options */
-	if (mame_config_load(cfg_context,&option) != 0)
+	if (mame_config_load(cfg_context, &option) != 0)
 		goto err_os;
 	if (advance_video_config_load(&context->video, cfg_context, &option) != 0)
 		goto err_os;
@@ -663,7 +676,7 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	if (advance_fileio_config_load(cfg_context, &option) != 0)
 		goto err_os;
-	if (advance_safequit_config_load(&context->safequit,cfg_context) != 0)
+	if (advance_safequit_config_load(&context->safequit, cfg_context) != 0)
 		goto err_os;
 	if (hardware_script_config_load(cfg_context) != 0)
 		goto err_os;
@@ -694,7 +707,7 @@ int os_main(int argc, char* argv[])
 
 	log_std(("advance: mame_game_run()\n"));
 
-	r = mame_game_run(context,&option);
+	r = mame_game_run(context, &option);
 	if (r < 0)
 		goto err_os_inner;
 
@@ -733,7 +746,7 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: conf_save()\n"));
 
 	/* save the configuration only if modified */
-	conf_save(cfg_context,0);
+	conf_save(cfg_context, 0);
 
 	log_std(("advance: conf_done()\n"));
 

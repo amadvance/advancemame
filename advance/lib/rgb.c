@@ -37,35 +37,21 @@
 
 static char color_name_buffer[64];
 
-/**
- * Compute a RGB value with a specific format
- * \param r,g,b RGB values 0-255.
- * \param def RGB format definition.
- * \return RGB nibble as ordinal value.
- */
-adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def_ordinal)
-{
-	union adv_color_def_union def;
-	def.ordinal = def_ordinal;
+/* YUV Conversion
 
-/*
    The following 2 sets of formulae are taken from information from Keith Jack's
    excellent book "Video Demystified" (ISBN 1-878707-09-4).
 
 RGB to YUV Conversion
 
 Y  =      (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
-
 Cr = V =  (0.439 * R) - (0.368 * G) - (0.071 * B) + 128
-
 Cb = U = -(0.148 * R) - (0.291 * G) + (0.439 * B) + 128
 
 YUV to RGB Conversion
 
 B = 1.164(Y - 16)                   + 2.018(U - 128)
-
 G = 1.164(Y - 16) - 0.813(V - 128) - 0.391(U - 128)
-
 R = 1.164(Y - 16) + 1.596(V - 128)
 
    In both these cases, you have to clamp the output values to keep them in the
@@ -79,36 +65,97 @@ Further Information
    formulae and suggests the following instead:
 
 Y = 0.299R + 0.587G + 0.114B
-
 U'= (B-Y)*0.565
-
 V'= (R-Y)*0.713
 
    with reciprocal versions:
 
 R = Y + 1.403V'
-
 G = Y - 0.344U' - 0.714V'
-
 B = Y + 1.770U'
+
+http://www.funducode.com/freec/Fileformats/format3/format3c.htm
+
+      Y =  0.299  R + 0.587  G + 0.114  B
+      U = -0.1687 R - 0.3313 G + 0.5    B + 128
+      V =  0.5    R - 0.4187 G - 0.0813 B + 128
+
+      R = Y                   + 1.402   (V-128)
+      G = Y - 0.34414 (U-128) - 0.71414 (V-128)
+      B  =  Y   +   1. 772   (U-128)
+               
+http://www.cs.sfu.ca/undergrad/CourseMaterials/CMPT479/material/notes/Chap3/Chap3.3/Chap3.3.html
+
+       Y = 0.299R + 0.587G + 0.114B 
+       U = 0.492 (B - Y)
+       V = 0.877 (R - Y)
+
+http://www.cse.msu.edu/%7Ecbowen/docs/yuvtorgb.html
+
+       Y = R *  .299 + G *  .587 + B *  .114;
+       U = R * -.169 + G * -.332 + B *  .500 + 128.;
+       V = R *  .500 + G * -.419 + B * -.0813 + 128.;
+
+       R = Y + (1.4075 * (V - 128));
+       G = Y - (0.3455 * (U - 128) - (0.7169 * (V - 128));
+       B = Y + (1.7790 * (U - 128);
+
+http://www.northpoleengineering.com/rgb2yuv.htm
+
+The block diagram of the basic RGB to YUV color converter is shown below.
+The color converter accepts 24-bits of RGB data and converts it to 24-bits
+of YUV data using only combinational logic. The conversions are based on the
+CCIR601 recommendations which implement an approximation of the color space
+conversion formulas. The CCIR recommended formulas are shown below:
+
+Y = (0.257 * R) + (0.504 * G) + (0.098 * B) + 16
+U = (0.439 * R) - (0.368 * G) - (0.071 * B) + 128
+V =-(0.148 * R) - (0.291 * G) + (0.439 * B) + 128
+
+http://www.matrix-vision.com/faq_englisch/a1e.htm
+
+RGB -> YUV:
+
+Y = 0.30 R + 0.59 G + 0.11 B
+U = 0.62 R - 0.52 G - 0.10 B + 128
+V = -0.15 R - 0.29 G +0.44 B + 128
+
+YUV - > RGB:
+
+R = Y + 1.370 (U - 128)
+G = Y - 0.698 (U - 128) - 0.336 (V - 128)
+B = Y + 1.730 (V - 128)
+
 */
+
+/**
+ * Compute a RGB value with a specific format
+ * \param r, g, b RGB values 0-255.
+ * \param def RGB format definition.
+ * \return RGB nibble as ordinal value.
+ */
+adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+	def.ordinal = def_ordinal;
 
 	switch (def.nibble.type) {
 	case adv_color_type_rgb :
-		return rgb_nibble_insert(r, rgb_shift_make_from_def(def.nibble.red_len,def.nibble.red_pos), rgb_mask_make_from_def(def.nibble.red_len,def.nibble.red_pos))
-			| rgb_nibble_insert(g, rgb_shift_make_from_def(def.nibble.green_len,def.nibble.green_pos), rgb_mask_make_from_def(def.nibble.green_len,def.nibble.green_pos))
-			| rgb_nibble_insert(b, rgb_shift_make_from_def(def.nibble.blue_len,def.nibble.blue_pos), rgb_mask_make_from_def(def.nibble.blue_len,def.nibble.blue_pos));
+		/* ENDIAN */
+		return rgb_nibble_insert(r, rgb_shift_make_from_def(def.nibble.red_len, def.nibble.red_pos), rgb_mask_make_from_def(def.nibble.red_len, def.nibble.red_pos))
+			| rgb_nibble_insert(g, rgb_shift_make_from_def(def.nibble.green_len, def.nibble.green_pos), rgb_mask_make_from_def(def.nibble.green_len, def.nibble.green_pos))
+			| rgb_nibble_insert(b, rgb_shift_make_from_def(def.nibble.blue_len, def.nibble.blue_pos), rgb_mask_make_from_def(def.nibble.blue_len, def.nibble.blue_pos));
 	case adv_color_type_yuy2 : {
-#if 0
-		/* from xmame */
-		unsigned y = ((9797*r + 19237*g + 3734*b) >> 15) & 0xFF;
-		unsigned u = ((18492 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23372 * (int)(r-y) >> 15) + 128) & 0xFF;
-#else
-		unsigned y = ((9797*r + 19234*g + 3735*b) >> 15) & 0xFF;
-		unsigned u = ((18513 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23363 * (int)(r-y) >> 15) + 128) & 0xFF;
-#endif
+/*
+      Y =  0.299  R + 0.587  G + 0.114  B
+      U = -0.1687 R - 0.3313 G + 0.5    B + 128
+      V =  0.5    R - 0.4187 G - 0.0813 B + 128
+*/
+		unsigned y = ((19595*r + 38469*g + 7471*b) >> 16) & 0xFF;
+		unsigned u = ((-11055*r - 21712*g + 32768*b + 8388608) >> 16) & 0xFF;
+		unsigned v = ((32768*r - 27439*g - 5328*b + 8388608) >> 16) & 0xFF;
+
+		/* ENDIAN */
 		return y | u << 8 | y << 16 | v << 24;
 		}
 	default :
@@ -120,7 +167,7 @@ B = Y + 1.770U'
 
 /**
  * Get a textual description of a RGB format definition.
- * Return a string description in the format red_len/red_pos,green_len/green_pos,blue_len/blue_pos.
+ * Return a string description in the format red_len/red_pos, green_len/green_pos, blue_len/blue_pos.
  * \return Pointer at a static buffer.
  */
 const char* color_def_name_make(adv_color_def def_ordinal)
@@ -130,20 +177,20 @@ const char* color_def_name_make(adv_color_def def_ordinal)
 
 	switch (def.nibble.type) {
 	case adv_color_type_palette :
-		strcpy(color_name_buffer,"palette");
+		strcpy(color_name_buffer, "palette");
 		return color_name_buffer;
 	case adv_color_type_rgb :
-		sprintf(color_name_buffer,"rgb %d/%d,%d/%d,%d/%d",
+		sprintf(color_name_buffer, "rgb %d/%d, %d/%d, %d/%d",
 			def.nibble.red_len, def.nibble.red_pos,
 			def.nibble.green_len, def.nibble.green_pos,
 			def.nibble.blue_len, def.nibble.blue_pos
 		);
 		return color_name_buffer;
 	case adv_color_type_yuy2 :
-		strcpy(color_name_buffer,"yuy2");
+		strcpy(color_name_buffer, "yuy2");
 		return color_name_buffer;
 	default:
-		strcpy(color_name_buffer,"unknown");
+		strcpy(color_name_buffer, "unknown");
 		return color_name_buffer;
 	}
 }
@@ -168,7 +215,8 @@ static unsigned rgb_len_get_from_mask(unsigned mask)
 /**
  * Make an arbitrary color format definition from the specified color type.
  */
-adv_color_def color_def_make(adv_color_type type) {
+adv_color_def color_def_make(adv_color_type type)
+{
 	union adv_color_def_union def;
 	def.ordinal = 0;
 
@@ -180,20 +228,21 @@ adv_color_def color_def_make(adv_color_type type) {
 /**
  * Make an arbitrary color format definition from the specified index type.
  */
-adv_color_def color_def_make_from_index(unsigned index) {
+adv_color_def color_def_make_from_index(unsigned index)
+{
 	switch (index) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
 		return color_def_make(adv_color_type_palette);
 	case MODE_FLAGS_INDEX_BGR8 :
-		return color_def_make_from_rgb_sizelenpos(1,3,5,3,2,2,0);
+		return color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0);
 	case MODE_FLAGS_INDEX_BGR15 :
-		return color_def_make_from_rgb_sizelenpos(2,5,10,5,5,5,0);
+		return color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0);
 	case MODE_FLAGS_INDEX_BGR16 :
-		return color_def_make_from_rgb_sizelenpos(2,5,11,6,5,5,0);
+		return color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0);
 	case MODE_FLAGS_INDEX_BGR24 :
-		return color_def_make_from_rgb_sizelenpos(3,8,16,8,8,8,0);
+		return color_def_make_from_rgb_sizelenpos(3, 8, 16, 8, 8, 8, 0);
 	case MODE_FLAGS_INDEX_BGR32 :
-		return color_def_make_from_rgb_sizelenpos(4,8,16,8,8,8,0);
+		return color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 	case MODE_FLAGS_INDEX_YUY2 :
 		return color_def_make(adv_color_type_yuy2);
 	default :
@@ -260,8 +309,8 @@ adv_color_def color_def_make_from_rgb_lenpos(unsigned red_len, unsigned red_pos,
 
 /**
  * Make an arbitary RGB format definition from a maskshift specification.
- * \param red_mask,green_mask,blue_mask Bit mask.
- * \param red_shift,green_shift,blue_shift Shift.
+ * \param red_mask, green_mask, blue_mask Bit mask.
+ * \param red_shift, green_shift, blue_shift Shift.
  */
 adv_color_def color_def_make_from_rgb_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift)
 {

@@ -35,19 +35,19 @@
 /* internal */
 
 /* Add a byte index to a generic pointer */
-/* #define PADD(p,i) ((uint8*)p) += i */
-#define PADD(p,i) *((uint8**)&p) += i /* pedantic */
+/* #define PADD(p, i) ((uint8*)p) += i */
+#define PADD(p, i) *((uint8**)&p) += i /* pedantic */
 
 /* Dereference a uint8* with a byte index */
-#define P8DER(p,i) *(((uint8*)p) + i)
+#define P8DER(p, i) *(((uint8*)p) + i)
 #define P8DER0(p) *(uint8*)p
 
 /* Dereference a uint16* with a byte index */
-#define P16DER(p,i) *(uint16*)(((uint8*)p) + i)
+#define P16DER(p, i) *(uint16*)(((uint8*)p) + i)
 #define P16DER0(p) *(uint16*)p
 
 /* Dereference a uint32* with a byte index */
-#define P32DER(p,i) *(uint32*)(((uint8*)p) + i)
+#define P32DER(p, i) *(uint32*)(((uint8*)p) + i)
 #define P32DER0(p) *(uint32*)p
 
 /* Suggested in "Intel Optimization" for Pentium II */

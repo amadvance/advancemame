@@ -28,12 +28,13 @@
 #include <signal.h>
 #include <string.h>
 
-void probe(void) {
+void probe(void)
+{
 	int i;
 
-	printf("Mouses %d\n",mouseb_count_get());
+	printf("Mouses %d\n", mouseb_count_get());
 	for(i=0;i<mouseb_count_get();++i) {
-		printf("Mouse %d, buttons %d\n",i,mouseb_button_count_get(i));
+		printf("Mouse %d, buttons %d\n", i, mouseb_button_count_get(i));
 	}
 
 	printf("\n");
@@ -41,19 +42,21 @@ void probe(void) {
 
 static int done;
 
-void sigint(int signum) {
+void sigint(int signum)
+{
 	done = 1;
 }
 
-void run(void) {
+void run(void)
+{
 	char msg[1024];
 	char new_msg[1024];
-	int i,j;
+	int i, j;
 	os_clock_t last;
 
 	printf("Press Break to exit\n");
 
-	signal(SIGINT,sigint);
+	signal(SIGINT, sigint);
 
 	last = os_clock();
 	msg[0] = 0;
@@ -61,32 +64,32 @@ void run(void) {
 
 		new_msg[0] = 0;
 		for(i=0;i<mouseb_count_get();++i) {
-			int x,y;
+			int x, y;
 
 			if (i!=0)
-				strcat(new_msg,"\n");
+				strcat(new_msg, "\n");
 
-			sprintf(new_msg + strlen(new_msg), "mouse %d, [",i);
+			sprintf(new_msg + strlen(new_msg), "mouse %d, [", i);
 			for(j=0;j<mouseb_button_count_get(i);++j) {
-				if (mouseb_button_get(i,j))
-					strcat(new_msg,"_");
+				if (mouseb_button_get(i, j))
+					strcat(new_msg, "_");
 				else
-					strcat(new_msg,"-");
+					strcat(new_msg, "-");
 			}
-			strcat(new_msg,"], ");
+			strcat(new_msg, "], ");
 
-			mouseb_pos_get(i,&x,&y);
+			mouseb_pos_get(i, &x, &y);
 
-			sprintf(new_msg + strlen(new_msg), " [%6d/%6d]",x,y);
+			sprintf(new_msg + strlen(new_msg), " [%6d/%6d]", x, y);
 		}
 
-		if (strcmp(msg,new_msg)!=0) {
+		if (strcmp(msg, new_msg)!=0) {
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
-			strcpy(msg,new_msg);
-			sprintf(new_msg + strlen(new_msg)," (%4.0f ms)",period);
+			strcpy(msg, new_msg);
+			sprintf(new_msg + strlen(new_msg), " (%4.0f ms)", period);
 			last = current;
-			printf("%s\n",new_msg);
+			printf("%s\n", new_msg);
 		}
 
 		os_poll();
@@ -95,7 +98,8 @@ void run(void) {
 	}
 }
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	vfprintf(stderr, desc, arg);
@@ -105,11 +109,13 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-void os_signal(int signum) {
+void os_signal(int signum)
+{
 	os_default_signal(signum);
 }
 
-int os_main(int argc, char* argv[]) {
+int os_main(int argc, char* argv[])
+{
 	adv_conf* context;
         const char* section_map[1];
 
@@ -125,7 +131,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc > 1) {
-		fprintf(stderr,"Unknown argument '%s'\n",argv[1]);
+		fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
 		goto err_os;
 	}
 

@@ -236,30 +236,31 @@ struct mode_number_struct {
 
 /** VESA 1.2 default numbering. */
 static struct mode_number_struct mode_number_map[] = {
-{ 0x100,640,400,8 },
-{ 0x101,640,480,8 },
-{ 0x103,800,600,8 },
-{ 0x105,1024,768,8 },
-{ 0x107,1280,1024,8 },
-{ 0x10D,320,200,15 },
-{ 0x10E,320,200,16 },
-{ 0x10F,320,200,24 },
-{ 0x110,640,480,15 },
-{ 0x111,640,480,16 },
-{ 0x112,640,480,24 },
-{ 0x113,800,600,15 },
-{ 0x114,800,600,16 },
-{ 0x115,800,600,24 },
-{ 0x116,1024,768,15 },
-{ 0x117,1024,768,16 },
-{ 0x118,1024,768,24 },
-{ 0x119,1280,1024,15 },
-{ 0x11A,1280,1024,16 },
-{ 0x11B,1280,1024,24 },
-{0,0,0,0}
+{ 0x100, 640, 400, 8 },
+{ 0x101, 640, 480, 8 },
+{ 0x103, 800, 600, 8 },
+{ 0x105, 1024, 768, 8 },
+{ 0x107, 1280, 1024, 8 },
+{ 0x10D, 320, 200, 15 },
+{ 0x10E, 320, 200, 16 },
+{ 0x10F, 320, 200, 24 },
+{ 0x110, 640, 480, 15 },
+{ 0x111, 640, 480, 16 },
+{ 0x112, 640, 480, 24 },
+{ 0x113, 800, 600, 15 },
+{ 0x114, 800, 600, 16 },
+{ 0x115, 800, 600, 24 },
+{ 0x116, 1024, 768, 15 },
+{ 0x117, 1024, 768, 16 },
+{ 0x118, 1024, 768, 24 },
+{ 0x119, 1280, 1024, 15 },
+{ 0x11A, 1280, 1024, 16 },
+{ 0x11B, 1280, 1024, 24 },
+{0, 0, 0, 0}
 };
 
-unsigned mode_find_number(unsigned x, unsigned y, unsigned bits) {
+unsigned mode_find_number(unsigned x, unsigned y, unsigned bits)
+{
 	unsigned i;
 	unsigned number;
 	for(i=0;mode_number_map[i].number;++i)
@@ -276,7 +277,8 @@ unsigned mode_find_number(unsigned x, unsigned y, unsigned bits) {
 	return number;
 }
 
-int mode_insert(mode_info* mode_ptr, int bits_per_pixel) {
+int mode_insert(mode_info* mode_ptr, int bits_per_pixel)
+{
 	unsigned number;
 
 	if (state.mode_max == MODE_MAX) {
@@ -304,60 +306,61 @@ int mode_insert(mode_info* mode_ptr, int bits_per_pixel) {
 	return 0;
 }
 
-int modeline_load(mode_info* mode_ptr) {
+int modeline_load(mode_info* mode_ptr)
+{
 	char* s;
 	char* name;
 	char* endp;
 
 	/* skip the name */
-	name = strtok(0," \t\r\n");
+	name = strtok(0, " \t\r\n");
 	if (!name) goto err;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
 
-	mode_ptr->pixelclock = strtod(s,&endp) * 1E6;
+	mode_ptr->pixelclock = strtod(s, &endp) * 1E6;
 	if (*endp) goto err_name;
 	if (!mode_ptr->pixelclock) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hde = strtol(s,&endp,10);
+	mode_ptr->hde = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hrs = strtol(s,&endp,10);
+	mode_ptr->hrs = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hre = strtol(s,&endp,10);
+	mode_ptr->hre = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->ht = strtol(s,&endp,10);
+	mode_ptr->ht = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vde = strtol(s,&endp,10);
+	mode_ptr->vde = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vrs = strtol(s,&endp,10);
+	mode_ptr->vrs = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vre = strtol(s,&endp,10);
+	mode_ptr->vre = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vt = strtol(s,&endp,10);
+	mode_ptr->vt = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
 	mode_ptr->doublescan = 0;
@@ -365,16 +368,16 @@ int modeline_load(mode_info* mode_ptr) {
 	mode_ptr->nhsync = 0;
 	mode_ptr->nvsync = 0;
 
-	while ((s = strtok(0," \t\r\n"))!=0) {
+	while ((s = strtok(0, " \t\r\n"))!=0) {
 		if (s[0]=='#')
 			break;
-		else if (strcmp(s,"doublescan")==0)
+		else if (strcmp(s, "doublescan")==0)
 			mode_ptr->doublescan = 1;
-		else if (strcmp(s,"interlaced")==0 || strcmp(s,"interlace")==0)
+		else if (strcmp(s, "interlaced")==0 || strcmp(s, "interlace")==0)
 			mode_ptr->interlace = 1;
-		else if (strcmp(s,"-hsync")==0)
+		else if (strcmp(s, "-hsync")==0)
 			mode_ptr->nhsync = 1;
-		else if (strcmp(s,"-vsync")==0)
+		else if (strcmp(s, "-vsync")==0)
 			mode_ptr->nvsync = 1;
 	}
 
@@ -388,12 +391,13 @@ err:
 	return -1;
 }
 
-static int mode_load(const char* file) {
+static int mode_load(const char* file)
+{
 	char buffer[256];
 	unsigned i;
 	FILE* f;
 
-	f = fopen(file,"r");
+	f = fopen(file, "r");
 	if (!f) {
 		printf("Configuration file %s not found.\n", file);
 		return -1;
@@ -402,32 +406,32 @@ static int mode_load(const char* file) {
 	state.mode_max = 0;
 
 	while (fgets(buffer, sizeof(buffer), f)) {
-		char* s = strtok(buffer," \t\r\n");
+		char* s = strtok(buffer, " \t\r\n");
 
-		if (s && strcmp(s,"device_video_modeline")==0) {
+		if (s && strcmp(s, "device_video_modeline")==0) {
 			mode_info info;
 			if (modeline_load(&info)!=0) {
 				fclose(f);
 				return -1;
 			}
 
-			if (adv_svgalib_state.has_bit8 && mode_insert(&info,8) != 0) {
+			if (adv_svgalib_state.has_bit8 && mode_insert(&info, 8) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (adv_svgalib_state.has_bit15 && mode_insert(&info,15) != 0) {
+			if (adv_svgalib_state.has_bit15 && mode_insert(&info, 15) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (adv_svgalib_state.has_bit16 && mode_insert(&info,16) != 0) {
+			if (adv_svgalib_state.has_bit16 && mode_insert(&info, 16) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (adv_svgalib_state.has_bit24 && mode_insert(&info,24) != 0) {
+			if (adv_svgalib_state.has_bit24 && mode_insert(&info, 24) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (adv_svgalib_state.has_bit32 && mode_insert(&info,32) != 0) {
+			if (adv_svgalib_state.has_bit32 && mode_insert(&info, 32) != 0) {
 				fclose(f);
 				return -1;
 			}
@@ -466,7 +470,7 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 	unsigned subsys_card;
 	unsigned subsys_vendor;
 
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+	if (adv_svgalib_pci_read_dword(bus_device_func, 0x8, &dw)!=0)
 		return 0;
 
 	base_class = (dw >> 24) & 0xFF;
@@ -475,7 +479,7 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 
 	*(int*)_arg = 1;
 
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x2c,&dw)!=0)
+	if (adv_svgalib_pci_read_dword(bus_device_func, 0x2c, &dw)!=0)
 		return 0;
 
 	subsys_vendor = dw & 0xFFFF;
@@ -486,7 +490,8 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 	return 0;
 }
 
-static int driver_init(void) {
+static int driver_init(void)
+{
 	int found;
 
 	printf("\n");
@@ -503,7 +508,7 @@ static int driver_init(void) {
 
 	printf("Board\n");
 	found = 0;
-	adv_svgalib_pci_scan_device(probe_callback,&found);
+	adv_svgalib_pci_scan_device(probe_callback, &found);
 	if (!found)
 		printf("ISA (?)\n");
 	printf("\n");
@@ -530,10 +535,11 @@ static int driver_init(void) {
 	return 0;
 }
 
-int vbe_init(const char* config) {
+int vbe_init(const char* config)
+{
 	_go32_dpmi_seginfo info;
 
-	memset(&state,0,sizeof(state));
+	memset(&state, 0, sizeof(state));
 	state.mode_max = 0;
 	state.mode_number_generator = VBE_CUSTOM_MODE;
 	state.version = 0x200;
@@ -559,7 +565,8 @@ int vbe_init(const char* config) {
 	return 0;
 }
 
-void vbe_done(void) {
+void vbe_done(void)
+{
 	adv_svgalib_done();
 }
 
@@ -588,7 +595,7 @@ static int mode_set(mode_info* mode)
 	state.bytes_per_pixel = (mode->bits_per_pixel + 7) / 8;
 	state.bytes_per_scanline = state.bytes_per_pixel * mode->hde;
 	state.scroll = 0;
-	memset(state.palette,0,sizeof(state.palette));
+	memset(state.palette, 0, sizeof(state.palette));
 
 	return 0;
 }

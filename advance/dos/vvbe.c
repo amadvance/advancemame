@@ -48,7 +48,8 @@ typedef struct vbe_internal_struct2 {
 
 static vbe_internal2 vbe_state2;
 
-static void vbe_probe(void) {
+static void vbe_probe(void)
+{
 	unsigned flags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
 
 	adv_bool has8bit = 0;
@@ -96,11 +97,18 @@ static void vbe_probe(void) {
 		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
-static adv_error vbe_init2(int device_id) {
+static adv_error vbe_init2(int device_id, adv_output output)
+{
 	const adv_device* i;
 
 	if (sizeof(vbe_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:vbe: Only fullscreen output is supported\n"));
+		error_nolog_cat("vbe: Only fullscreen output is supported\n");
+		return -1;
+	}
 
 	i = DEVICE;
 	while (i->name && i->id != device_id)
@@ -111,14 +119,16 @@ static adv_error vbe_init2(int device_id) {
 	if (vbe_init() != 0)
 		return -1;
 
-	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
+	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	vbe_probe();
 
 	return 0;
 }
 
-unsigned vbe_flags(void) {
+unsigned vbe_flags(void)
+{
 	return vbe_state2.cap;
 }
 
@@ -126,7 +136,8 @@ unsigned vbe_flags(void) {
  * Grab the current video mode.
  * \return 0 if successful
  */
-adv_error vbe_mode_grab(vbe_video_mode* mode) {
+adv_error vbe_mode_grab(vbe_video_mode* mode)
+{
 	if (!vbe_is_active())
 		return -1;
 
@@ -147,10 +158,11 @@ adv_error vbe_mode_grab(vbe_video_mode* mode) {
  * \param vbe_mode Mode to import.
  * \return 0 if successful
  */
-adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode) {
+adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
+{
 	vbe_ModeInfoBlock info;
 
-	sprintf(mode->name,"vbe_bios_%x",vbe_mode->mode);
+	sprintf(mode->name, "vbe_bios_%x", vbe_mode->mode);
 	*DRIVER(mode) = *vbe_mode;
 
 	if (vbe_mode_info_get(&info, DRIVER(mode)->mode)!=0) {
@@ -239,7 +251,8 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode) {
 	return 0;
 }
 
-adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	adv_color_rgb vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
@@ -261,10 +274,11 @@ adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
 		}
 	}
 
-	return vbe_palette_set(vbe_pal,start,count,waitvsync);
+	return vbe_palette_set(vbe_pal, start, count, waitvsync);
 }
 
-static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned bits, unsigned model, unsigned flags) {
+static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned bits, unsigned model, unsigned flags)
+{
 	vbe_mode_iterator i;
 
 	vbe_mode_iterator_begin(&i);
@@ -290,7 +304,8 @@ static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned
 	return -1;
 }
 
-adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
+adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned flags)
+{
 	int number;
 	unsigned model;
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
@@ -332,7 +347,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	number = vbe_search_target_mode(crtc->hde, crtc->vde, bits, model, vbeflags);
 	if (number < 0 && model == vbeMemRGB) {
 		model = vbeMemPK; /* the packed mode is better than RGB */
-		number = vbe_search_target_mode(crtc->hde, crtc->vde,bits, model, vbeflags);
+		number = vbe_search_target_mode(crtc->hde, crtc->vde, bits, model, vbeflags);
 	}
 	if (number < 0) {
 		error_nolog_cat("vbe: No compatible VBE mode found\n");
@@ -343,18 +358,20 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1;
 
-int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b) {
-	COMPARE(a->mode,b->mode)
+int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b)
+{
+	COMPARE(a->mode, b->mode)
 	return 0;
 }
 
-void vbe_crtc_container_insert_default(adv_crtc_container* cc) {
+void vbe_crtc_container_insert_default(adv_crtc_container* cc)
+{
 	vbe_mode_iterator i;
 
 	log_std(("video:vbe: vbe_crtc_container_insert_default()\n"));
@@ -398,34 +415,42 @@ void vbe_crtc_container_insert_default(adv_crtc_container* cc) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error vbe_mode_set_void(const void* mode) {
-	return vbe_mode_set(((const vbe_video_mode*)mode)->mode,0);
+static adv_error vbe_mode_set_void(const void* mode)
+{
+	return vbe_mode_set(((const vbe_video_mode*)mode)->mode, 0);
 }
 
-static adv_error vbe_mode_import_void(adv_mode* mode, const void* vbe_mode) {
+static adv_error vbe_mode_import_void(adv_mode* mode, const void* vbe_mode)
+{
 	return vbe_mode_import(mode, (const vbe_video_mode*)vbe_mode);
 }
 
-static adv_error vbe_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+static adv_error vbe_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
 	return vbe_mode_generate((vbe_video_mode*)mode, crtc, flags);
 }
 
-static int vbe_mode_compare_void(const void* a, const void* b) {
+static int vbe_mode_compare_void(const void* a, const void* b)
+{
 	return vbe_mode_compare((const vbe_video_mode*)a, (const vbe_video_mode*)b);
 }
 
-static void vbe_reg_dummy(adv_conf* context) {
+static void vbe_reg_dummy(adv_conf* context)
+{
 }
 
-static adv_error vbe_load_dummy(adv_conf* context) {
+static adv_error vbe_load_dummy(adv_conf* context)
+{
 	return 0;
 }
 
-static unsigned vbe_mode_size(void) {
+static unsigned vbe_mode_size(void)
+{
 	return sizeof(vbe_video_mode);
 }
 
-static adv_error vbe_mode_grab_void(void* mode) {
+static adv_error vbe_mode_grab_void(void* mode)
+{
 	return vbe_mode_grab((vbe_video_mode*)mode);
 }
 

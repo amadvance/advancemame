@@ -163,7 +163,7 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 	struct keyb_pair* i;
 	unsigned j;
 
-	log_std(("keyb:sdl: keyb_sdl_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	log_std(("keyb:sdl: keyb_sdl_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 	 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("keyb:sdl: not supported without the SDL video driver\n"));
@@ -195,7 +195,7 @@ unsigned keyb_sdl_get(unsigned code)
 
 	assert(code < KEYB_MAX);
 
-	log_debug(("keyb:sdl: keyb_sdl_get(code:%d)\n",code));
+	log_debug(("keyb:sdl: keyb_sdl_get(code:%d)\n", code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -203,7 +203,7 @@ unsigned keyb_sdl_get(unsigned code)
 
 	sdl_code = sdl_state.map_os_to_code[code];
 
-	log_debug(("keyb:sdl: keyb_sdl_get() sdl_code:%d\n",sdl_code));
+	log_debug(("keyb:sdl: keyb_sdl_get() sdl_code:%d\n", sdl_code));
 
 	if (!sdl_code)
 		return 0;
@@ -248,17 +248,20 @@ void keyb_sdl_reg(adv_conf* context)
 {
 }
 
-void keyb_sdl_event_press(unsigned code) {
+void keyb_sdl_event_press(unsigned code)
+{
 	if (code < SDLK_LAST)
 		sdl_state.state[code] = 1;
 }
 
-void keyb_sdl_event_release(unsigned code) {
+void keyb_sdl_event_release(unsigned code)
+{
 	if (code < SDLK_LAST)
 		sdl_state.state[code] = 0;
 }
 
-void keyb_sdl_event_release_all(void) {
+void keyb_sdl_event_release_all(void)
+{
 	unsigned j;
 
 	for(j=0;j<SDLK_LAST;++j) {

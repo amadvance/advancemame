@@ -52,7 +52,7 @@ typedef struct adv_crtc_container_struct {
 	adv_crtc* base;
 } adv_crtc_container;
 
-int crtc_compare(const adv_crtc* a,const adv_crtc* b);
+int crtc_compare(const adv_crtc* a, const adv_crtc* b);
 
 void crtc_container_init(adv_crtc_container* cc);
 void crtc_container_done(adv_crtc_container* cc);
@@ -62,10 +62,10 @@ void crtc_container_save(adv_conf* context, adv_crtc_container* cc);
 void crtc_container_clear(adv_conf* context);
 void crtc_container_register(adv_conf* context);
 
-const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b));
+const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b));
 void crtc_container_remove(adv_crtc_container* cc, adv_bool (*modeselect)(const adv_crtc*, void*), void*);
 const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm);
-const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b));
+const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b));
 adv_bool crtc_container_is_empty(const adv_crtc_container* cc);
 
 typedef struct adv_crtc_container_iterator_struct {

@@ -33,7 +33,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-void inc_str_init(adv_string* str) {
+void inc_str_init(adv_string* str)
+{
 	str->buffer_mac = 0;
 	str->current_mac = 0;
 	str->current_max = 1 << STR_MIN;
@@ -42,13 +43,15 @@ void inc_str_init(adv_string* str) {
 	str->current = str->buffer_map[0];
 }
 
-void inc_str_done(adv_string* str) {
+void inc_str_done(adv_string* str)
+{
 	unsigned i;
 	for(i=1;i<=str->buffer_mac;++i)
 		free(str->buffer_map[i]);
 }
 
-static adv_error inc_str_step(adv_string* str) {
+static adv_error inc_str_step(adv_string* str)
+{
 	if (str->buffer_mac == STR_MAX) {
 		errno = ENOMEM;
 		return -1;
@@ -68,7 +71,8 @@ static adv_error inc_str_step(adv_string* str) {
 	return 0;
 }
 
-adv_error inc_str_catm(adv_string* str, const char* s, unsigned len) {
+adv_error inc_str_catm(adv_string* str, const char* s, unsigned len)
+{
 
 	while (1) {
 		unsigned run = str->current_max - str->current_mac;
@@ -90,7 +94,8 @@ adv_error inc_str_catm(adv_string* str, const char* s, unsigned len) {
 	return 0;
 }
 
-adv_error inc_str_catc(adv_string* str, char c) {
+adv_error inc_str_catc(adv_string* str, char c)
+{
 	if (str->current_max == str->current_mac)
 		if (inc_str_step(str) != 0)
 			return -1;
@@ -102,11 +107,13 @@ adv_error inc_str_catc(adv_string* str, char c) {
 	return 0;
 }
 
-unsigned inc_str_len(adv_string* str) {
+unsigned inc_str_len(adv_string* str)
+{
 	return str->result_mac;
 }
 
-char* inc_str_alloc(adv_string* str) {
+char* inc_str_alloc(adv_string* str)
+{
 	char* result;
 	unsigned size;
 	unsigned i;

@@ -255,7 +255,8 @@ extern "C"
 #define IS_MODEX 4		/* ModeX style 256 colors */
 #define IS_DYNAMICMODE 8	/* Dynamic defined mode */
 #define CAPABLE_LINEAR 16	/* Can go to linear addressing mode. */
-#define IS_LINEAR 32		/* Linear addressing enabled. */
+#define IS_LINEAR 32		/* Linear addressing can be used. */
+#define LINEAR_MODE 512		/* Linear mode is enabled */
 #define EXT_INFO_AVAILABLE 64	/* Returned modeinfo contains valid extended fields */
 #define RGB_MISORDERED 128	/* Mach32 32bpp uses 0BGR instead of BGR0. */
     /* As of this version 1.25 also used to signal if real RGB
@@ -550,8 +551,10 @@ extern "C"
  * NULL is a valid argument for any of the ptrs.
  */
 
-/*    extern int vga_waitevent(int which, fd_set * in, fd_set * out, fd_set * except,
-			     struct timeval *timeout); */
+/*
+    extern int vga_waitevent(int which, fd_set * in, fd_set * out, fd_set * except,
+			     struct timeval *timeout);
+*/
 
 /*
  * valid values for what ( | is valid to combine them )

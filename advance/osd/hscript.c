@@ -67,7 +67,8 @@ struct hardware_script_state {
 static struct hardware_script_state STATE;
 
 /* Set the source */
-void hardware_script_set(int id, const char* script) {
+void hardware_script_set(int id, const char* script)
+{
 	free(STATE.text_map[id]);
 	if (script && *script)
 		STATE.text_map[id] = strdup(script);
@@ -76,14 +77,16 @@ void hardware_script_set(int id, const char* script) {
 }
 
 /* Port callback */
-unsigned char script_port_read(int address) {
+unsigned char script_port_read(int address)
+{
 	if (address == 0) {
 		return STATE.kdb_state;
 	} else
 		return target_port_get(address);
 }
 
-void script_port_write(int address,unsigned char value) {
+void script_port_write(int address, unsigned char value)
+{
 	if (address == 0) {
 		value &= 0x7;
 		if (STATE.kdb_state != value) {
@@ -95,7 +98,7 @@ void script_port_write(int address,unsigned char value) {
 			STATE.kdb_state = value;
 		}
 	} else {
-		target_port_set(address,value);
+		target_port_set(address, value);
 	}
 }
 
@@ -292,19 +295,21 @@ struct symbol {
 { "key_lwin", KEYB_LWIN },
 { "key_rwin", KEYB_RWIN },
 { "key_menu", KEYB_MENU },
-{ 0,0 }
+{ 0, 0 }
 };
 
 /* Evaluate a symbol */
-static int script_symbol_get(union script_arg_extra argextra) {
+static int script_symbol_get(union script_arg_extra argextra)
+{
 	return argextra.value;
 }
 
 /* Check a symbol */
-script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg_extra* argextra) {
+script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg_extra* argextra)
+{
 	struct symbol* p = SYMBOL;
 	while (p->name) {
-		if (strcmp(sym,p->name)==0) {
+		if (strcmp(sym, p->name)==0) {
 			argextra->value = p->value;
 			return &script_symbol_get;
 		}
@@ -313,7 +318,8 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	return 0;
 }
 
-int script_function1_get(union script_arg_extra argextra) {
+int script_function1_get(union script_arg_extra argextra)
+{
 	switch (argextra.value) {
 		case 0 : /* event */
 			return STATE.script_condition;
@@ -321,7 +327,8 @@ int script_function1_get(union script_arg_extra argextra) {
 	return 0;
 }
 
-int script_function2_get(int arg0, union script_arg_extra argextra) {
+int script_function2_get(int arg0, union script_arg_extra argextra)
+{
 	switch (argextra.value) {
 		case 0 : /* get */
 			return script_port_read(arg0);
@@ -333,10 +340,11 @@ int script_function2_get(int arg0, union script_arg_extra argextra) {
 	return 0;
 }
 
-int script_function3_get(int arg0, int arg1, union script_arg_extra argextra) {
+int script_function3_get(int arg0, int arg1, union script_arg_extra argextra)
+{
 	switch (argextra.value) {
 		case 0 : /* set */
-			script_port_write(arg0,arg1);
+			script_port_write(arg0, arg1);
 			return 0;
 		case 1 : /* on */
 			script_port_write(arg0, script_port_read(arg0) | arg1);
@@ -348,52 +356,55 @@ int script_function3_get(int arg0, int arg1, union script_arg_extra argextra) {
 			script_port_write(arg0, script_port_read(arg0) ^ arg1);
 			return 0;
 		case 4 : /* simulate_event */
-			hardware_simulate_input(SIMULATE_EVENT,arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
+			hardware_simulate_input(SIMULATE_EVENT, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
 			return 0;
 		case 5 : /* simulate_key */
-			hardware_simulate_input(SIMULATE_KEY,arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
+			hardware_simulate_input(SIMULATE_KEY, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
 			return 0;
 	}
 	return 0;
 }
 
-script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_arg_extra* argextra) {
-	if (strcmp(sym,"event")==0) {
+script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_arg_extra* argextra)
+{
+	if (strcmp(sym, "event")==0) {
 		argextra->value = 0;
 		return &script_function1_get;
 	}
 	return 0;
 }
 
-script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script_arg_extra* argextra) {
-	if (strcmp(sym,"event")==0) {
+script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script_arg_extra* argextra)
+{
+	if (strcmp(sym, "event")==0) {
 		argextra->value = 0;
 		return &script_function2_get;
-	} else if (strcmp(sym,"get")==0) {
+	} else if (strcmp(sym, "get")==0) {
 		argextra->value = 1;
 		return &script_function2_get;
 	}
 	return 0;
 }
 
-script_exp_op3fee_evaluator* script_function3_check(const char* sym, union script_arg_extra* argextra) {
+script_exp_op3fee_evaluator* script_function3_check(const char* sym, union script_arg_extra* argextra)
+{
 	(void)sym;
-	if (strcmp(sym,"set")==0) {
+	if (strcmp(sym, "set")==0) {
 		argextra->value = 0;
 		return &script_function3_get;
-	} else if (strcmp(sym,"on")==0) {
+	} else if (strcmp(sym, "on")==0) {
 		argextra->value = 1;
 		return &script_function3_get;
-	} else if (strcmp(sym,"off")==0) {
+	} else if (strcmp(sym, "off")==0) {
 		argextra->value = 2;
 		return &script_function3_get;
-	} else if (strcmp(sym,"toggle")==0) {
+	} else if (strcmp(sym, "toggle")==0) {
 		argextra->value = 3;
 		return &script_function3_get;
-	} else if (strcmp(sym,"simulate_event")==0) {
+	} else if (strcmp(sym, "simulate_event")==0) {
 		argextra->value = 4;
 		return &script_function3_get;
-	} else if (strcmp(sym,"simulate_key")==0) {
+	} else if (strcmp(sym, "simulate_key")==0) {
 		argextra->value = 5;
 		return &script_function3_get;
 	}
@@ -401,14 +412,16 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 }
 
 /* Parse error callback */
-void script_error(const char* s) {
-	target_err("Error compiling the script: %s\n",STATE.script_text);
-	target_err("%s\n",s);
+void script_error(const char* s)
+{
+	target_err("Error compiling the script: %s\n", STATE.script_text);
+	target_err("%s\n", s);
 }
 
-int hardware_script_init(adv_conf* context) {
+int hardware_script_init(adv_conf* context)
+{
 
-	conf_string_register_default(context, "script_video", "wait(!event()); set(kdb,0);");
+	conf_string_register_default(context, "script_video", "wait(!event()); set(kdb, 0);");
 	conf_string_register_default(context, "script_emulation", "");
 	conf_string_register_default(context, "script_play", "");
 	conf_string_register_default(context, "script_led[1]", "on(kdb, 0b1); wait(!event()); off(kdb, 0b1);");
@@ -429,11 +442,13 @@ int hardware_script_init(adv_conf* context) {
 	return 0;
 }
 
-void hardware_script_done(void) {
+void hardware_script_done(void)
+{
 	assert( !STATE.active_flag );
 }
 
-int hardware_script_inner_init(void) {
+int hardware_script_inner_init(void)
+{
 	int i;
 
 	assert( !STATE.active_flag );
@@ -456,7 +471,8 @@ int hardware_script_inner_init(void) {
 	return 0;
 }
 
-void hardware_script_inner_done(void) {
+void hardware_script_inner_done(void)
+{
 	int i;
 
 	assert( STATE.active_flag );
@@ -473,7 +489,8 @@ void hardware_script_inner_done(void) {
 	script_flush();
 }
 
-void hardware_script_abort(void) {
+void hardware_script_abort(void)
+{
 	if (STATE.active_flag) {
 		hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
 		hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
@@ -482,44 +499,50 @@ void hardware_script_abort(void) {
 }
 
 /* Start the script */
-void hardware_script_start(int id) {
+void hardware_script_start(int id)
+{
 	if (STATE.map[id].script) {
 		STATE.map[id].condition = 1;
 		/* start only if not already running */
 		if (script_run_end(STATE.map[id].state))
-			script_run_restart(STATE.map[id].state,STATE.map[id].script);
+			script_run_restart(STATE.map[id].state, STATE.map[id].script);
 	}
 }
 
-void hardware_script_stop(int id) {
+void hardware_script_stop(int id)
+{
 	if (STATE.map[id].script) {
 		STATE.map[id].condition = 0;
 	}
 }
 
-static void hardware_script_idle_single(unsigned id, unsigned time_to_play) {
+static void hardware_script_idle_single(unsigned id, unsigned time_to_play)
+{
 	if (STATE.map[id].script) {
 		/* set the global condition flag */
 		STATE.script_condition = STATE.map[id].condition;
-		script_run(STATE.map[id].state,time_to_play);
+		script_run(STATE.map[id].state, time_to_play);
 	}
 }
 
 /* Use idle time */
-void hardware_script_idle(unsigned time_to_play) {
+void hardware_script_idle(unsigned time_to_play)
+{
 	int i;
 	for(i=0;i<HARDWARE_SCRIPT_MAX;++i) {
-		hardware_script_idle_single(i,time_to_play);
+		hardware_script_idle_single(i, time_to_play);
 	}
 }
 
-void hardware_script_terminate(int id) {
+void hardware_script_terminate(int id)
+{
 	int time_to_play = SCRIPT_TIME_UNIT; /* one second time to flush any delay */
 	hardware_script_stop(id);
-	hardware_script_idle_single(id,time_to_play);
+	hardware_script_idle_single(id, time_to_play);
 }
 
-int hardware_script_config_load(adv_conf* context) {
+int hardware_script_config_load(adv_conf* context)
+{
 	const char* s;
 
 	s = conf_string_get_default(context, "script_video");
@@ -576,7 +599,8 @@ int hardware_script_config_load(adv_conf* context) {
 struct simulate SIMULATE_EVENT[SIMULATE_MAX];
 struct simulate SIMULATE_KEY[SIMULATE_MAX];
 
-void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_to_play) {
+void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_to_play)
+{
 	int best = 0;
 	int i;
 	for(i=1;i<SIMULATE_MAX;++i) {
@@ -587,7 +611,8 @@ void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_
 	SIMULATE[best].time_to_play = time_to_play;
 }
 
-void hardware_simulate_input_idle(struct simulate* SIMULATE, unsigned time_to_play) {
+void hardware_simulate_input_idle(struct simulate* SIMULATE, unsigned time_to_play)
+{
 	int i;
 	for(i=0;i<SIMULATE_MAX;++i) {
 		if (SIMULATE[i].time_to_play > time_to_play)

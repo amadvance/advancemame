@@ -72,7 +72,7 @@ static void getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -533,7 +533,8 @@ static int init(int force, int par1, int par2)
     if (__svgalib_driver_report) {
 	fprintf(stderr,"Using Rendition driver, %iKB.\n",memory);
     };
-
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
+	
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = memory;
     cardspecs->maxPixelClock4bpp = 0;	

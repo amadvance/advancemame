@@ -56,7 +56,8 @@ AL_FUNC(void, _remove_irq, (int num));
 #define SOUND_INT_BPS 100
 #define SOUND_INT 0x8
 
-static void set_timer_rate(unsigned tick) {
+static void set_timer_rate(unsigned tick)
+{
 	outportb(0x43, 0x34);
 	outportb(0x40, tick & 0xff);
 	outportb(0x40, tick >> 8);
@@ -91,12 +92,13 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
+adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+{
 	unsigned i;
 	AUDIOINFO info;
 	AUDIOCAPS caps;
 
-	log_std(("sound:seal: sound_seal_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:seal: sound_seal_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", device_id, *rate, stereo_flag, buffer_time));
 
 	if (stereo_flag) {
 		seal_state.channel = 2;
@@ -119,7 +121,7 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 
 		device_id = id;
 
-		log_std(("sound:seal: ping %d\n",device_id));
+		log_std(("sound:seal: ping %d\n", device_id));
 
 		/* disable the AWE32 driver */
 		if (device_id == 2)
@@ -143,7 +145,7 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 		return -1;
 	}
 
-	AGetAudioDevCaps(info.nDeviceId,&caps);
+	AGetAudioDevCaps(info.nDeviceId, &caps);
 
 	log_std(("sound:seal: soundcard %d:%s at %d-bit %s %u Hz\n",
 		(unsigned)info.nDeviceId,
@@ -170,7 +172,8 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 	return 0;
 }
 
-void sound_seal_done(void) {
+void sound_seal_done(void)
+{
 	log_std(("sound:seal: sound_seal_done()\n"));
 
 	if (seal_state.active_flag) {
@@ -180,7 +183,8 @@ void sound_seal_done(void) {
 	}
 }
 
-void sound_seal_stop(void) {
+void sound_seal_stop(void)
+{
 	unsigned i;
 
 #ifdef USE_SOUND_INT
@@ -204,13 +208,15 @@ void sound_seal_stop(void) {
 	}
 }
 
-static unsigned sound_seal_current(void) {
+static unsigned sound_seal_current(void)
+{
 	LONG play_pos;
 	AGetVoicePosition(seal_state.voice[0], &play_pos);
 	return play_pos;
 }
 
-unsigned sound_seal_buffered(void) {
+unsigned sound_seal_buffered(void)
+{
 	unsigned play_pos = sound_seal_current();
 	unsigned missing;
 
@@ -222,7 +228,8 @@ unsigned sound_seal_buffered(void) {
 	return missing;
 }
 
-static adv_bool sound_seal_overflow(unsigned pos, unsigned length) {
+static adv_bool sound_seal_overflow(unsigned pos, unsigned length)
+{
 	unsigned play_pos;
 
 	play_pos = sound_seal_current();
@@ -234,10 +241,12 @@ static adv_bool sound_seal_overflow(unsigned pos, unsigned length) {
 static volatile unsigned seal_int_counter;
 static volatile unsigned seal_int_increment;
 
-static void sound_seal_update(void) {
+static void sound_seal_update(void)
+{
 }
 
-static int sound_seal_int_handler(void) {
+static int sound_seal_int_handler(void)
+{
 	AUpdateAudio();
 
 	seal_int_counter += seal_int_increment;
@@ -251,15 +260,17 @@ static int sound_seal_int_handler(void) {
 	return 1; /* chain */
 }
 #else
-static void sound_seal_update(void) {
+static void sound_seal_update(void)
+{
 	AUpdateAudioEx(sound_seal_buffered());
 }
 #endif
 
-adv_error sound_seal_start(double silence_time) {
+adv_error sound_seal_start(double silence_time)
+{
 	unsigned i;
 
-	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n",silence_time));
+	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n", silence_time));
 
 	for(i=0;i<seal_state.channel;++i)
 	{
@@ -291,15 +302,15 @@ adv_error sound_seal_start(double silence_time) {
 	}
 
 	if (seal_state.channel > 1) {
-		ASetVoiceVolume(seal_state.voice[0],32);
-		ASetVoiceVolume(seal_state.voice[1],32);
-		ASetVoicePanning(seal_state.voice[0],0);
-		ASetVoicePanning(seal_state.voice[1],255);
+		ASetVoiceVolume(seal_state.voice[0], 32);
+		ASetVoiceVolume(seal_state.voice[1], 32);
+		ASetVoicePanning(seal_state.voice[0], 0);
+		ASetVoicePanning(seal_state.voice[1], 255);
 		AStartVoice(seal_state.voice[0]);
 		AStartVoice(seal_state.voice[1]);
 	} else {
-		ASetVoiceVolume(seal_state.voice[0],64);
-		ASetVoicePanning(seal_state.voice[0],128);
+		ASetVoiceVolume(seal_state.voice[0], 64);
+		ASetVoicePanning(seal_state.voice[0], 128);
 		AStartVoice(seal_state.voice[0]);
 	}
 
@@ -309,7 +320,7 @@ adv_error sound_seal_start(double silence_time) {
 
 	seal_state.last = os_clock();
 
-	log_std(("sound:seal: sound_seal_start current %d, buffered %d\n",sound_seal_current(), sound_seal_buffered()));
+	log_std(("sound:seal: sound_seal_start current %d, buffered %d\n", sound_seal_current(), sound_seal_buffered()));
 
 #ifdef USE_SOUND_INT
 	log_std(("sound:seal: install_irq()\n"));
@@ -322,10 +333,11 @@ adv_error sound_seal_start(double silence_time) {
 	return 0;
 }
 
-void sound_seal_volume(double volume) {
+void sound_seal_volume(double volume)
+{
 	int v;
 
-	log_std(("sound:seal: sound_seal_volume(volume:%g)\n",(double)volume));
+	log_std(("sound:seal: sound_seal_volume(volume:%g)\n", (double)volume));
 
 	v = volume * 256;
 	if (v < 0)
@@ -335,11 +347,12 @@ void sound_seal_volume(double volume) {
 	ASetAudioMixerValue(AUDIO_MIXER_MASTER_VOLUME, v);
 }
 
-void sound_seal_play(const short* sample_map, unsigned sample_count) {
+void sound_seal_play(const short* sample_map, unsigned sample_count)
+{
 	unsigned count = sample_count;
 	os_clock_t current = os_clock();
 
-	log_debug(("sound:seal: sound_seal_play(count:%d)\n",sample_count));
+	log_debug(("sound:seal: sound_seal_play(count:%d)\n", sample_count));
 
 	log_debug(("sound:seal: delay from last update %g, samples %g\n",
 		(current - seal_state.last) / (double)OS_CLOCKS_PER_SEC,
@@ -348,7 +361,7 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 
 	seal_state.last = current;
 
-	if (sound_seal_overflow(seal_state.pos,sample_count))
+	if (sound_seal_overflow(seal_state.pos, sample_count))
 		log_std(("ERROR: sound buffer overflow\n"));
 
 	if (seal_state.channel > 1) {
@@ -367,8 +380,8 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 				*buf1++ = *sample_map++;
 				--i;
 			}
-			AWriteAudioData(seal_state.wave[0],2*seal_state.pos,2*run);
-			AWriteAudioData(seal_state.wave[1],2*seal_state.pos,2*run);
+			AWriteAudioData(seal_state.wave[0], 2*seal_state.pos, 2*run);
+			AWriteAudioData(seal_state.wave[1], 2*seal_state.pos, 2*run);
 			seal_state.pos += run;
 			if (seal_state.pos == seal_state.length)
 				seal_state.pos = 0;
@@ -387,7 +400,7 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 				*buf0++ = *sample_map++;
 				--i;
 			}
-			AWriteAudioData(seal_state.wave[0],2*seal_state.pos,2*run);
+			AWriteAudioData(seal_state.wave[0], 2*seal_state.pos, 2*run);
 			seal_state.pos += run;
 			if (seal_state.pos == seal_state.length)
 				seal_state.pos = 0;
@@ -398,15 +411,18 @@ void sound_seal_play(const short* sample_map, unsigned sample_count) {
 	sound_seal_update();
 }
 
-unsigned sound_seal_flags(void) {
+unsigned sound_seal_flags(void)
+{
 	return 0;
 }
 
-adv_error sound_seal_load(adv_conf* context) {
+adv_error sound_seal_load(adv_conf* context)
+{
 	return 0;
 }
 
-void sound_seal_reg(adv_conf* context) {
+void sound_seal_reg(adv_conf* context)
+{
 }
 
 /***************************************************************************/

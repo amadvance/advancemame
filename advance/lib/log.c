@@ -83,7 +83,8 @@ void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsi
  * Print something with the printf format in the log file.
  * This function must not be called directly. One of the log_* macro must be used.
  */
-void log_f(const char* text, ...) {
+void log_f(const char* text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	log_va(text, arg);
@@ -94,9 +95,10 @@ void log_f(const char* text, ...) {
  * Print something with the printv format in the log file.
  * This function must not be called directly. One of the log_* macro must be used.
  */
-void log_va(const char* text, va_list arg) {
+void log_va(const char* text, va_list arg)
+{
 	if (LOG.msg) {
-		vfprintf(LOG.msg,text,arg);
+		vfprintf(LOG.msg, text, arg);
 
 		if (LOG.msg_sync_flag) {
 			fflush(LOG.msg);
@@ -110,13 +112,14 @@ void log_va(const char* text, va_list arg) {
  * \param file Log file. The file is overwritten.
  * \param sync_flag If set the file and the filesystem is flushed at every write. The function target_sync() is called.
  */
-adv_error log_init(const char* file, adv_bool sync_flag) {
+adv_error log_init(const char* file, adv_bool sync_flag)
+{
 
 	LOG.msg_sync_flag = sync_flag;
 	LOG.msg = 0;
 
 	if (file) {
-		LOG.msg = fopen(file,"w");
+		LOG.msg = fopen(file, "w");
 		if (!LOG.msg)
 			return -1;
 	}
@@ -127,7 +130,8 @@ adv_error log_init(const char* file, adv_bool sync_flag) {
 /** 
  * Deinitialize the log system.
  */
-void log_done(void) {
+void log_done(void)
+{
 	if (LOG.msg) {
 		fclose(LOG.msg);
 		LOG.msg = 0;
@@ -139,7 +143,8 @@ void log_done(void) {
  * This function ensure that the log file is flushed. 
  * It can be called in a signal handler in any condition.
  */
-void log_abort(void) {
+void log_abort(void)
+{
 	if (LOG.msg) {
 		fclose(LOG.msg);
 		LOG.msg = 0;

@@ -37,7 +37,8 @@ using namespace std;
 #define SORT_CHOICE_Y text_dy_get()/5
 #define SORT_CHOICE_DX 15*text_font_dx_get()
 
-void run_sort(config_state& rs) {
+void run_sort(config_state& rs)
+{
 	choice_bag ch;
 
 	ch.insert( ch.end(), choice("Parent name", sort_by_root_name) );
@@ -68,7 +69,8 @@ void run_sort(config_state& rs) {
 #define COMMAND_CHOICE_Y text_dy_get()/5
 #define COMMAND_CHOICE_DX 33*text_font_dx_get()
 
-void run_command(config_state& rs) {
+void run_command(config_state& rs)
+{
 	choice_bag ch;
 	bool used_backdrop = false;
 	bool used_sound = false;
@@ -172,7 +174,8 @@ void run_command(config_state& rs) {
 #define MODE_CHOICE_Y text_dy_get()/5
 #define MODE_CHOICE_DX 15*text_font_dx_get()
 
-void run_mode(config_state& rs) {
+void run_mode(config_state& rs)
+{
 	choice_bag ch;
 
 	ch.insert( ch.end(), choice("Full", mode_full) );
@@ -203,7 +206,8 @@ void run_mode(config_state& rs) {
 #define PREVIEW_CHOICE_Y text_dy_get()/5
 #define PREVIEW_CHOICE_DX 15*text_font_dx_get()
 
-void run_preview(config_state& rs) {
+void run_preview(config_state& rs)
+{
 	choice_bag ch;
 
 	ch.insert( ch.end(), choice("Snap", preview_snap) );
@@ -228,7 +232,8 @@ void run_preview(config_state& rs) {
 #define GROUP_CHOICE_Y text_dy_get()/5
 #define GROUP_CHOICE_DX 20*text_font_dx_get()
 
-void run_group(config_state& rs) {
+void run_group(config_state& rs)
+{
 	choice_bag ch;
 
 	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
@@ -248,7 +253,8 @@ void run_group(config_state& rs) {
 	}
 }
 
-void run_group_next(config_state& rs) {
+void run_group_next(config_state& rs)
+{
 	category* next_select = 0;
 	bool all_select = true;
 
@@ -292,7 +298,8 @@ void run_group_next(config_state& rs) {
 #define EMU_CHOICE_Y text_dy_get()/5
 #define EMU_CHOICE_DX 20*text_font_dx_get()
 
-void run_emu(config_state& rs) {
+void run_emu(config_state& rs)
+{
 	choice_bag ch;
 
 	for(pemulator_container::const_iterator j = rs.emu_active.begin();j!=rs.emu_active.end();++j) {
@@ -318,7 +325,8 @@ void run_emu(config_state& rs) {
 	}
 }
 
-emulator* run_emu_select(config_state& rs) {
+emulator* run_emu_select(config_state& rs)
+{
 	choice_bag ch;
 
 	for(emulator_container::const_iterator j = rs.include_emu_effective.begin();j!=rs.include_emu_effective.end();++j) {
@@ -348,7 +356,8 @@ emulator* run_emu_select(config_state& rs) {
 	return 0;
 }
 
-void run_emu_next(config_state& rs) {
+void run_emu_next(config_state& rs)
+{
 	string next_select = "";
 	bool pred_in = false;
 
@@ -379,7 +388,8 @@ void run_emu_next(config_state& rs) {
 #define TYPE_CHOICE_Y 2*text_font_dy_get()
 #define TYPE_CHOICE_DX 30*text_font_dx_get()
 
-void run_type(config_state& rs) {
+void run_type(config_state& rs)
+{
 	choice_bag ch;
 
 	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
@@ -399,7 +409,8 @@ void run_type(config_state& rs) {
 	}
 }
 
-void run_type_next(config_state& rs) {
+void run_type_next(config_state& rs)
+{
 	category* next_select = 0;
 	bool all_select = true;
 
@@ -440,14 +451,15 @@ void run_type_next(config_state& rs) {
 // ------------------------------------------------------------------------
 // Move menu
 
-void run_group_move(config_state& rs) {
+void run_group_move(config_state& rs)
+{
 	choice_bag ch;
 
 	if (!rs.current_game)
 		return;
 
 	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
-		ch.insert( ch.end(), choice((*j)->name_get(),0) );
+		ch.insert( ch.end(), choice((*j)->name_get(), 0) );
 	}
 
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
@@ -460,7 +472,8 @@ void run_group_move(config_state& rs) {
 	}
 }
 
-void run_type_move(config_state& rs) {
+void run_type_move(config_state& rs)
+{
 	choice_bag ch;
 
 	if (!rs.current_game)
@@ -487,7 +500,8 @@ void run_type_move(config_state& rs) {
 #define CLONE_CHOICE_Y text_dy_get()/5
 #define CLONE_CHOICE_DX text_dx_get()*4/5
 
-void run_clone(config_state& rs) {
+void run_clone(config_state& rs)
+{
 	choice_bag ch;
 	choice_bag::iterator i;
 
@@ -564,7 +578,8 @@ void run_calib(config_state& rs)
 #define MENU_CHOICE_Y text_dy_get()/10
 #define MENU_CHOICE_DX 25*text_font_dx_get()
 
-void run_submenu(config_state& rs) {
+void run_submenu(config_state& rs)
+{
 	choice_bag ch;
 
 	ch.insert( ch.end(), choice("Config/Sort", 0) );
@@ -640,77 +655,78 @@ void run_submenu(config_state& rs) {
 // ------------------------------------------------------------------------
 // Help menu
 
-void run_help() {
-	text_clear(0,0,text_dx_get(),text_dy_get(),COLOR_HELP_NORMAL >> 4);
-	text_clear(0,0,text_dx_get(),text_font_dy_get(),COLOR_MENU_BAR >> 4);
-	text_put(2*text_font_dx_get(),0,"HELP",COLOR_MENU_BAR_TAG);
+void run_help()
+{
+	text_clear(0, 0, text_dx_get(), text_dy_get(), COLOR_HELP_NORMAL >> 4);
+	text_clear(0, 0, text_dx_get(), text_font_dy_get(), COLOR_MENU_BAR >> 4);
+	text_put(2*text_font_dx_get(), 0, "HELP", COLOR_MENU_BAR_TAG);
 
 	int y = 2*text_font_dy_get();
 	int xt = 1*text_font_dx_get();
 	int xd = 8*text_font_dx_get();
-	text_put(xt,y,"TILDE",COLOR_HELP_TAG);
-	text_put(xd,y,"Main menu",COLOR_HELP_NORMAL);
+	text_put(xt, y, "TILDE", COLOR_HELP_TAG);
+	text_put(xd, y, "Main menu", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"ENTER",COLOR_HELP_TAG);
-	text_put(xd,y,"Run the current game/On menu accept the choice",COLOR_HELP_NORMAL);
+	text_put(xt, y, "ENTER", COLOR_HELP_TAG);
+	text_put(xd, y, "Run the current game/On menu accept the choice", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"SPACE",COLOR_HELP_TAG);
-	text_put(xd,y,"Change the preview type/On menu change the option",COLOR_HELP_NORMAL);
+	text_put(xt, y, "SPACE", COLOR_HELP_TAG);
+	text_put(xd, y, "Change the preview type/On menu change the option", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"TAB",COLOR_HELP_TAG);
-	text_put(xd,y,"Change the menu mode",COLOR_HELP_NORMAL);
+	text_put(xt, y, "TAB", COLOR_HELP_TAG);
+	text_put(xd, y, "Change the menu mode", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"ESC",COLOR_HELP_TAG);
-	text_put(xd,y,"Exit (CTRL+ESC to shutdown)",COLOR_HELP_NORMAL);
+	text_put(xt, y, "ESC", COLOR_HELP_TAG);
+	text_put(xd, y, "Exit (CTRL+ESC to shutdown)", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F2",COLOR_HELP_TAG);
-	text_put(xd,y,"Include/Exclude games by group",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F2", COLOR_HELP_TAG);
+	text_put(xd, y, "Include/Exclude games by group", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F3",COLOR_HELP_TAG);
-	text_put(xd,y,"Include/Exclude games by type",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F3", COLOR_HELP_TAG);
+	text_put(xd, y, "Include/Exclude games by type", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F4",COLOR_HELP_TAG);
-	text_put(xd,y,"Include/Exclude games by attribute",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F4", COLOR_HELP_TAG);
+	text_put(xd, y, "Include/Exclude games by attribute", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F5",COLOR_HELP_TAG);
-	text_put(xd,y,"Select the game sort method",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F5", COLOR_HELP_TAG);
+	text_put(xd, y, "Select the game sort method", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F6",COLOR_HELP_TAG);
-	text_put(xd,y,"Select the emulator",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F6", COLOR_HELP_TAG);
+	text_put(xd, y, "Select the emulator", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F8",COLOR_HELP_TAG);
-	text_put(xd,y,"Commands",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F8", COLOR_HELP_TAG);
+	text_put(xd, y, "Commands", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F9",COLOR_HELP_TAG);
-	text_put(xd,y,"Change the current game group",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F9", COLOR_HELP_TAG);
+	text_put(xd, y, "Change the current game group", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F10",COLOR_HELP_TAG);
-	text_put(xd,y,"Change the current game type",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F10", COLOR_HELP_TAG);
+	text_put(xd, y, "Change the current game type", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"F12",COLOR_HELP_TAG);
-	text_put(xd,y,"Run a clone",COLOR_HELP_NORMAL);
+	text_put(xt, y, "F12", COLOR_HELP_TAG);
+	text_put(xd, y, "Run a clone", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"0 PAD",COLOR_HELP_TAG);
-	text_put(xd,y,"Rotate the screen",COLOR_HELP_NORMAL);
+	text_put(xt, y, "0 PAD", COLOR_HELP_TAG);
+	text_put(xd, y, "Rotate the screen", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
 
 	y += text_font_dy_get();
-	text_put(xt,y,"In the selection submenus:",COLOR_HELP_NORMAL);
+	text_put(xt, y, "In the selection submenus:", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"ENTER",COLOR_HELP_TAG);
-	text_put(xd,y,"Accept",COLOR_HELP_NORMAL);
+	text_put(xt, y, "ENTER", COLOR_HELP_TAG);
+	text_put(xd, y, "Accept", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"DEL",COLOR_HELP_TAG);
-	text_put(xd,y,"Unselect all",COLOR_HELP_NORMAL);
+	text_put(xt, y, "DEL", COLOR_HELP_TAG);
+	text_put(xd, y, "Unselect all", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"INS",COLOR_HELP_TAG);
-	text_put(xd,y,"Select all",COLOR_HELP_NORMAL);
+	text_put(xt, y, "INS", COLOR_HELP_TAG);
+	text_put(xd, y, "Select all", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"SPACE",COLOR_HELP_TAG);
-	text_put(xd,y,"Toggle (+ include, - exclude, * required)",COLOR_HELP_NORMAL);
+	text_put(xt, y, "SPACE", COLOR_HELP_TAG);
+	text_put(xd, y, "Toggle (+ include, - exclude, * required)", COLOR_HELP_NORMAL);
 	y += text_font_dy_get();
-	text_put(xt,y,"ESC",COLOR_HELP_TAG);
-	text_put(xd,y,"Cancel",COLOR_HELP_NORMAL);
+	text_put(xt, y, "ESC", COLOR_HELP_TAG);
+	text_put(xd, y, "Cancel", COLOR_HELP_NORMAL);
 
 	text_getkey();
 }

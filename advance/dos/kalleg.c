@@ -164,7 +164,7 @@ adv_error keyb_allegro_init(int keyb_id, adv_bool disable_special)
 	struct keyb_pair* i;
 	unsigned j;
 
-	log_std(("key:allegro: keyb_allegro_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	log_std(("key:allegro: keyb_allegro_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	for(j=0;j<KEYB_MAX;++j) {
 		allegro_state.map_os_to_code[j] = KEY_MAX;
@@ -205,7 +205,7 @@ unsigned keyb_allegro_get(unsigned code)
 
 	assert(code < KEYB_MAX);
 
-	log_debug(("keyb:allegro: keyb_allegro_get(code:%d)\n",code));
+	log_debug(("keyb:allegro: keyb_allegro_get(code:%d)\n", code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -213,7 +213,7 @@ unsigned keyb_allegro_get(unsigned code)
 
 	allegro_code = allegro_state.map_os_to_code[code];
 
-	log_debug(("keyb:allegro: keyb_allegro_get() allegro_code:%d\n",allegro_code));
+	log_debug(("keyb:allegro: keyb_allegro_get() allegro_code:%d\n", allegro_code));
 
 	if (allegro_code == KEY_MAX)
 		return 0;

@@ -93,12 +93,12 @@ enum {
 static void apm_setpage(int page)
 {
     /* default 4K granularity */
-outwXR(0xc0,page << 4);
+    outwXR(0xc0,page << 4);
 }
 
 static int __svgalib_apm_inlinearmode(void)
 {
-return apm_is_linear;
+    return apm_is_linear;
 }
 
 /* Fill in chipset specific mode information */
@@ -116,7 +116,7 @@ static void apm_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_apm_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -509,7 +509,8 @@ static void apm_setlogicalwidth(int width)
 
 static int apm_linear(int op, int param)
 {
-if (op==LINEAR_ENABLE || op==LINEAR_DISABLE){ apm_is_linear=1-apm_is_linear; return 0;}
+if (op==LINEAR_ENABLE) { apm_is_linear=1; return 0;}
+if (op==LINEAR_DISABLE){ apm_is_linear=0; return 0;}
 if (op==LINEAR_QUERY_BASE) {__svgalib_outSR(0x1d,0x193>>2); return port_in(apm_xbase+3)<<24 ;}
 if (op == LINEAR_QUERY_RANGE || op == LINEAR_QUERY_GRANULARITY) return 0;		/* No granularity or range. */
     else return -1;		/* Unknown function. */
@@ -564,7 +565,6 @@ static int apm_init(int force, int par1, int par2)
     char    idstring[]  = "       ";
     int found=0;
     unsigned long buf[64];
-    unsigned char *p;
     int db, d9;
 
     apm_unlock();
@@ -578,25 +578,23 @@ static int apm_init(int force, int par1, int par2)
     };
 
     __svgalib_linear_mem_base=buf[4]&0xffffff00;
-    
-    p=mmap(0,0x1000, PROT_READ|PROT_WRITE, MAP_SHARED, __svgalib_mem_fd,
-       		__svgalib_linear_mem_base+0xffe000);
-    db=p[0xcdb];
-    d9=p[0xcd9];
-    p[0xcdb] = (db & 0xf4) | 0x0a ;
-    p[0xcd9] = (d9 & 0xcf) | 0x20 ;
-    
-    munmap(p, 0x1000);
-    
-    __svgalib_vgammbase=(unsigned)mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,
-                __svgalib_linear_mem_base+0xfff000);
 
+    __svgalib_mmio_base=__svgalib_linear_mem_base+0xffc000;
+    __svgalib_mmio_size=0x4000;
+    map_mmio();
+    db=v_readb(0x2cdb);
+    d9=v_readb(0x2cd9);
+    v_writeb((db & 0xf4) | 0x0a, 0x2cdb);
+    v_writeb((d9 & 0xcf) | 0x20, 0x2cd9);
+    __svgalib_vgammbase = 0x3000;
     __svgalib_mm_io_mapio();
 
     apm_memory=__svgalib_inseq(0x20)*64-34; /* maybe will support accel some day */
     if (__svgalib_driver_report) {
 	fprintf(stderr,"Using Alliance driver, %.7s, %iKB.\n",idstring, apm_memory);
     }
+
+    __svgalib_modeinfo_linearset = IS_LINEAR;
 
     apm_xbase= (__svgalib_inseq(0x1f) << 8 ) + __svgalib_inseq(0x1e);
     
@@ -628,20 +626,21 @@ static int apm_init(int force, int par1, int par2)
 static unsigned
 comp_lmn(unsigned clock)
 {
-  int     n, m, l, f;
-  double  fvco;
-  double  fout;
-  double  fmax;
-  double  fref;
-  double  fvco_goal;
-  double  k, c;
+  int n, m, l, f;
+  int fvco;
+  int fout;
+  int fmax;
+  int fref;
+  int fvco_goal;
+  int c;
 
-    if(apm_chiptype==AT3D)fmax = 400000.0; else fmax=265000.0;
+  if(apm_chiptype==AT3D)
+      fmax = 400000; else fmax=265000;
 /* The XFree86 driver says the max for AT24 is 250000,
    but there is a much used clock (65MHZ), that uses 260000 fvco,
    and the VESA bios on the card uses this clock, upped the max */   
   
-  fref = 14318.0;
+  fref = 14318;
 
   for (m = 1; m <= 5; m++)
   {
@@ -649,25 +648,18 @@ comp_lmn(unsigned clock)
     {
       for (n = 8; n <= 127; n++)
       {
-        fout = ((double)(n + 1) * fref)/((double)(m + 1) * (1 << l));
-        fvco_goal = (double)clock * (double)(1 << l);
-        fvco = fout * (double)(1 << l);
-        if (!WITHIN(fvco, 0.995*fvco_goal, 1.005*fvco_goal))
+        fout = ((n+1) * fref / (m+1) + (1<<(l-1))) >> l;
+        fvco_goal = clock << l;
+        fvco = (n+1) * fref / (m+1);
+        if (!WITHIN(fvco, 125000, fmax))
           continue;
-        if (!WITHIN(fvco, 125000.0, fmax))
+        if (!WITHIN(fvco, 995*fvco_goal/1000, 1005*fvco_goal/1000))
           continue;
-        if (!WITHIN(fvco / (double)(n+1), 300.0, 300000.0))
-          continue;
-        if (!WITHIN(fref / (double)(m+1), 300.0, 300000.0))
-          continue;
-
-        {
-          k = 7.0 / (175.0 - 380.0);
-          c = -k * 380.0;
-          f = (int)(k * fvco/1000.0 + c + 0.5);
-          if (f > 7) f = 7;
-          if (f < 0) f = 0;
-        }
+        
+        c=1000*(380*7)/(380-175);
+        f = (c+ 500 - 34*fvco/1000)/1000;
+        if (f > 7) f = 7;
+        if (f < 0) f = 0;
 /*fprintf(stderr,"clock=%i l=%i f=%i m=%i n=%i\n",clock,l,f,m,n);*/
         return (n << 16) | (m << 8) | (l << 2) | (f << 4);
       }

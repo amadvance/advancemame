@@ -127,13 +127,15 @@ adv_error inputb_init(void);
 void inputb_done(void);
 void inputb_abort(void);
 
-static inline adv_bool inputb_hit(void) {
+static inline adv_bool inputb_hit(void)
+{
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->hit();
 }
 
-static inline unsigned inputb_get(void) {
+static inline unsigned inputb_get(void)
+{
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->get();
@@ -143,7 +145,8 @@ static inline unsigned inputb_get(void) {
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* inputb_name(void) {
+static inline const char* inputb_name(void)
+{
 	return inputb_state.name;
 }
 

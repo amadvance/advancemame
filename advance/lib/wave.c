@@ -39,7 +39,8 @@ typedef struct {
 	unsigned wBitsPerSample; // Sample size
 } record_fmt_specific_PCM;
 
-static int read_u16(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num) {
+static int read_u16(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num)
+{
 	unsigned count = 0;
 	while (count<num) {
 		if (*data_begin + 2 > data_end)
@@ -52,7 +53,8 @@ static int read_u16(const unsigned char** data_begin, const unsigned char* data_
 	return 0;
 }
 
-static int read_u32(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num) {
+static int read_u32(const unsigned char** data_begin, const unsigned char* data_end, unsigned* p, size_t num)
+{
 	unsigned count = 0;
 	while (count<num) {
 		if (*data_begin + 4 > data_end)
@@ -65,28 +67,32 @@ static int read_u32(const unsigned char** data_begin, const unsigned char* data_
 	return 0;
 }
 
-static int read_tag(const unsigned char** data_begin, const unsigned char* data_end, char* p) {
+static int read_tag(const unsigned char** data_begin, const unsigned char* data_end, char* p)
+{
 	if (*data_begin + 4 > data_end)
 		return -1;
-	memcpy(p,*data_begin,4);
+	memcpy(p, *data_begin, 4);
 	*data_begin += 4;
 	return 0;
 }
 
-static int skip(const unsigned char** data_begin, const unsigned char* data_end, size_t num) {
+static int skip(const unsigned char** data_begin, const unsigned char* data_end, size_t num)
+{
 	if (*data_begin + num > data_end)
 		return -1;
 	*data_begin += num;
 	return 0;
 }
 
-static int read_id(const unsigned char** data_begin, const unsigned char* data_end, record_id* p) {
+static int read_id(const unsigned char** data_begin, const unsigned char* data_end, record_id* p)
+{
 	return read_tag(data_begin, data_end, p->id )==0
 		&& read_u32(data_begin, data_end, &p->size, 1)==0
 		? 0 : -1;
 }
 
-static int read_fmt(const unsigned char** data_begin, const unsigned char* data_end, record_fmt* p) {
+static int read_fmt(const unsigned char** data_begin, const unsigned char* data_end, record_fmt* p)
+{
 	return read_u16( data_begin, data_end, &p->wFormatTag, 1)==0 &&
 		read_u16( data_begin, data_end, &p->wChannels, 1)==0 &&
 		read_u32( data_begin, data_end, &p->dwSamplesPerSec, 1)==0 &&
@@ -95,15 +101,17 @@ static int read_fmt(const unsigned char** data_begin, const unsigned char* data_
 		? 0 : -1;
 }
 
-static int read_fmt_PCM(const unsigned char** data_begin, const unsigned char* data_end, record_fmt_specific_PCM* p) {
+static int read_fmt_PCM(const unsigned char** data_begin, const unsigned char* data_end, record_fmt_specific_PCM* p)
+{
 	return read_u16( data_begin, data_end, &p->wBitsPerSample, 1 ) == 0
 		? 0 : -1;
 }
 
-static int fread_u16(adv_fz* f, unsigned* p, size_t num) {
+static int fread_u16(adv_fz* f, unsigned* p, size_t num)
+{
 	unsigned count = 0;
 	while (count<num) {
-		unsigned char b0,b1;
+		unsigned char b0, b1;
 		if (fzread(&b0, 1, 1, f) != 1 || fzread(&b1, 1, 1, f) != 1)
 			return -1;
 		*p = b0 | (unsigned)b1 << 8;
@@ -113,10 +121,11 @@ static int fread_u16(adv_fz* f, unsigned* p, size_t num) {
 	return 0;
 }
 
-static int fread_u32(adv_fz* f, unsigned* p, size_t num) {
+static int fread_u32(adv_fz* f, unsigned* p, size_t num)
+{
 	unsigned count = 0;
 	while (count<num) {
-		unsigned char b0,b1,b2,b3;
+		unsigned char b0, b1, b2, b3;
 		if (fzread( &b0, 1, 1, f ) != 1 || fzread(&b1, 1, 1, f ) != 1 ||
 		    fzread( &b2, 1, 1, f ) != 1 || fzread(&b3, 1, 1, f ) != 1)
 			return -1;
@@ -127,29 +136,33 @@ static int fread_u32(adv_fz* f, unsigned* p, size_t num) {
 	return 0;
 }
 
-static int fread_tag(adv_fz* f, char* p) {
+static int fread_tag(adv_fz* f, char* p)
+{
 	return fzread( p, 4, 1, f ) == 1
 		? 0 : -1;
 }
 
-static int fskip(adv_fz* f, size_t num) {
+static int fskip(adv_fz* f, size_t num)
+{
 	unsigned count = 0;
 	while (count<num) {
 		char ch;
-		if (fzread(&ch,1,1,f) != 1)
+		if (fzread(&ch, 1, 1, f) != 1)
 			return -1;
 		++count;
 	}
 	return 0;
 }
 
-static int fread_id(adv_fz* f, record_id* p) {
+static int fread_id(adv_fz* f, record_id* p)
+{
 	return fread_tag( f, p->id )==0
 		&& fread_u32(f, &p->size, 1)==0
 		? 0 : -1;
 }
 
-static int fread_fmt(adv_fz* f, record_fmt* p) {
+static int fread_fmt(adv_fz* f, record_fmt* p)
+{
 	return fread_u16(f, &p->wFormatTag, 1)==0 &&
 		fread_u16(f, &p->wChannels, 1)==0 &&
 		fread_u32(f, &p->dwSamplesPerSec, 1)==0 &&
@@ -158,7 +171,8 @@ static int fread_fmt(adv_fz* f, record_fmt* p) {
 		? 0 : -1;
 }
 
-static int fread_fmt_PCM(adv_fz* f, record_fmt_specific_PCM* p) {
+static int fread_fmt_PCM(adv_fz* f, record_fmt_specific_PCM* p)
+{
 	return fread_u16( f, &p->wBitsPerSample, 1 )==0
 		? 0 : -1;
 }
@@ -172,7 +186,8 @@ static int fread_fmt_PCM(adv_fz* f, record_fmt_specific_PCM* p) {
  * \param data_size Where to put the number of samples.
  * \param data_freq Where to put the frequency.
  */
-int wave_memory(const unsigned char** data_begin, const unsigned char* data_end, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
+int wave_memory(const unsigned char** data_begin, const unsigned char* data_end, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq)
+{
 	record_id riff_id;
 	char wave_id[4];
 	record_id fmt_id;
@@ -244,7 +259,8 @@ int wave_memory(const unsigned char** data_begin, const unsigned char* data_end,
  * \param data_size Where to put the number of samples.
  * \param data_freq Where to put the frequency. 
  */
-int wave_file(adv_fz* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
+int wave_file(adv_fz* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq)
+{
 	record_id riff_id;
 	char wave_id[4];
 	record_id fmt_id;

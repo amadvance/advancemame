@@ -38,7 +38,8 @@ using namespace std;
 // ------------------------------------------------------------------------
 // game
 
-game::game() {
+game::game()
+{
 	flag = 0;
 	play = play_perfect;
 	play_best = play_not;
@@ -55,7 +56,8 @@ game::game() {
 	coin = 0;
 }
 
-game::game(const string& Aname) : name(Aname) {
+game::game(const string& Aname) : name(Aname)
+{
 	flag = 0;
 	play = play_perfect;
 	play_best = play_not;
@@ -75,7 +77,7 @@ game::game(const string& Aname) : name(Aname) {
 game::game(const game& A) :
 	flag(A.flag),
 	play(A.play), play_best(A.play_best),
-	name(A.name), romof(A.romof),cloneof(A.cloneof),
+	name(A.name), romof(A.romof), cloneof(A.cloneof),
 	description(A.description), info(A.info), year(A.year),
 	manufacturer(A.manufacturer), software_path(A.software_path),
 	sizex(A.sizex), sizey(A.sizey),
@@ -93,17 +95,19 @@ game::game(const game& A) :
 {
 }
 
-game::~game() {
+game::~game()
+{
 }
 
-void game::name_set(const std::string& A) {
+void game::name_set(const std::string& A)
+{
 	name = A;
 }
 
 void game::auto_description_set(const std::string& A) const {
 	if (!is_user_description_set()) {
 		if (A.length() >= 4 && A[0]=='T' && A[1]=='h' && A[2]=='e' && A[3]==' ') {
-			description = A.substr(4,A.length() - 4) + ", The";
+			description = A.substr(4, A.length() - 4) + ", The";
 		} else {
 			description = A;
 		}
@@ -118,7 +122,7 @@ const game& game::clone_best_get() const {
 	const game* r = this;
 	for(pgame_container::const_iterator i = clone_bag_get().begin();i!=clone_bag_get().end();++i) {
 		const game* rr = &(*i)->clone_best_get();
-		if (game_by_play_less()(*r,*rr)) {
+		if (game_by_play_less()(*r, *rr)) {
 			r = rr;
 		}
 	}
@@ -262,9 +266,9 @@ bool game::preview_dir_set(const string& dir, void (game::*preview_set)(const re
 bool game::preview_list_set(const string& list, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const {
 	int i = 0;
 	while (i<list.length()) {
-		string dir = token_get(list,i,":");
-		token_skip(list,i,":");
-		if (preview_dir_set(dir,preview_set,ext0,ext1))
+		string dir = token_get(list, i, ":");
+		token_skip(list, i, ":");
+		if (preview_dir_set(dir, preview_set, ext0, ext1))
 			return true;
 	}
 	return false;
@@ -278,9 +282,9 @@ bool game::preview_software_list_set(const string& list, void (game::*preview_se
 
 	int i = 0;
 	while (i<list.length()) {
-		string dir = token_get(list,i,":");
-		token_skip(list,i,":");
-		if (preview_dir_set(dir + "/" + bios,preview_set,ext0,ext1))
+		string dir = token_get(list, i, ":");
+		token_skip(list, i, ":");
+		if (preview_dir_set(dir + "/" + bios, preview_set, ext0, ext1))
 			return true;
 	}
 	return false;
@@ -295,7 +299,7 @@ bool game::preview_find_down(resource& path, const resource& (game::*preview_get
 
 	for(pgame_container::const_iterator i=clone_bag_get().begin();i!=clone_bag_get().end();++i) {
 		if (!(*i)->software_get() && (*i)->name_get() != exclude) {
-			if ((*i)->preview_find_down(path,preview_get,string())) {
+			if ((*i)->preview_find_down(path, preview_get, string())) {
 				return true;
 			}
 		}
@@ -305,10 +309,10 @@ bool game::preview_find_down(resource& path, const resource& (game::*preview_get
 }
 
 bool game::preview_find_up(resource& path, const resource& (game::*preview_get)() const, const string& exclude) const {
-	if (preview_find_down(path,preview_get,exclude))
+	if (preview_find_down(path, preview_get, exclude))
 		return true;
 	if (parent_get())
-		if (parent_get()->preview_find_up(path,preview_get,name_get()))
+		if (parent_get()->preview_find_up(path, preview_get, name_get()))
 			return true;
 	return false;
 }
@@ -320,7 +324,7 @@ bool game::preview_find(resource& path, const resource& (game::*preview_get)() c
 			return true;
 		}
 	} else {
-		if (preview_find_up(path,preview_get,string()))
+		if (preview_find_up(path, preview_get, string()))
 			return true;
 	}
 	return false;
@@ -329,7 +333,8 @@ bool game::preview_find(resource& path, const resource& (game::*preview_get)() c
 // ------------------------------------------------------------------------
 // game_set
 
-void game_set::cache(merge_t merge) {
+void game_set::cache(merge_t merge)
+{
 	for(iterator i=begin();i!=end();++i) {
 		// erase the clone list
 		i->clone_bag_erase();
@@ -381,7 +386,7 @@ void game_set::cache(merge_t merge) {
 	for(iterator i=begin();i!=end();++i) {
 		const game* j = i->parent_get();
 		while (j!=0) {
-			j->clone_bag_get().insert(j->clone_bag_get().end(),&*i);
+			j->clone_bag_get().insert(j->clone_bag_get().end(), &*i);
 			j = j->parent_get();
 		}
 	}
@@ -393,13 +398,13 @@ void game_set::cache(merge_t merge) {
 
 	// compute the derived tree_present
 	for(iterator i=begin();i!=end();++i) {
-		bool present = is_tree_rom_of_present(i->name_get(),merge);
+		bool present = is_tree_rom_of_present(i->name_get(), merge);
 		i->flag_set(present, game::flag_tree_present);
 	}
 
 	// specific emulator cache
 	for(iterator i=begin();i!=end();++i) {
-		i->emulator_get()->cache(*this,*i);
+		i->emulator_get()->cache(*this, *i);
 	}
 }
 
@@ -450,7 +455,7 @@ bool game_set::is_game_tag(const string& name, const string& tag) const {
 	while (i!=end()) {
 		if (i->name_get().length() >= 1+tag.length()
 			&& i->name_get()[i->name_get().length() - tag.length() - 1]=='/'
-			&& i->name_get().substr(i->name_get().length() - tag.length(),tag.length()).compare(tag) == 0)
+			&& i->name_get().substr(i->name_get().length() - tag.length(), tag.length()).compare(tag) == 0)
 			return true;
 		i = find( game( i->romof_get() ) );
 	}
@@ -501,7 +506,8 @@ bool game_set::is_game_rom_of(const string& name_son, const string& name_parent)
 	return false;
 }
 
-bool game_set::preview_zip_set(const string& zip, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
+bool game_set::preview_zip_set(const string& zip, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
+{
 	bool almost_one = false;
 	adv_zip* d = openzip(cpath_export(slash_remove(zip)));
 	if (!d)
@@ -532,7 +538,8 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 	return almost_one;
 }
 
-bool game_set::preview_dir_set(const string& dir, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
+bool game_set::preview_dir_set(const string& dir, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
+{
 	bool almost_one = false;
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
 	if (!d)
@@ -559,21 +566,23 @@ bool game_set::preview_dir_set(const string& dir, const string& emulator_name, v
 	return almost_one;
 }
 
-bool game_set::preview_list_set(const string& list, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
+bool game_set::preview_list_set(const string& list, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
+{
 	bool almost_one = false;
 	int i = 0;
 
 	while (i<list.length()) {
-		string dir = token_get(list,i,":");
-		if (preview_dir_set(dir,emulator_name,preview_set,ext0,ext1))
+		string dir = token_get(list, i, ":");
+		if (preview_dir_set(dir, emulator_name, preview_set, ext0, ext1))
 			almost_one = true;
-		token_skip(list,i,":");
+		token_skip(list, i, ":");
 	}
 
 	return almost_one;
 }
 
-bool game_set::preview_software_dir_set(const string& dir, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
+bool game_set::preview_software_dir_set(const string& dir, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
+{
 	bool almost_one = false;
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
 	if (!d)
@@ -586,7 +595,7 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 
 		// check for directory
 		struct stat st;
-		if (stat(cpath_export(path),&st)!=0)
+		if (stat(cpath_export(path), &st)!=0)
 			continue;
 		if (!S_ISDIR(st.st_mode))
 			continue;
@@ -596,7 +605,7 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 		const_iterator j = find( name );
 		if (j!=end() && !j->software_get()) {
 			// search in the directory
-			if (preview_dir_set(path,emulator_name + "/" + file,preview_set,ext0,ext1))
+			if (preview_dir_set(path, emulator_name + "/" + file, preview_set, ext0, ext1))
 				almost_one = true;
 		}
 	}
@@ -605,13 +614,14 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 	return almost_one;
 }
 
-bool game_set::preview_software_list_set(const string& list, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
+bool game_set::preview_software_list_set(const string& list, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1)
+{
 	bool almost_one = false;
 	int i = 0;
 	while (i<list.length()) {
-		string dir = token_get(list,i,":");
-		token_skip(list,i,":");
-		if (preview_software_dir_set(dir,emulator_name,preview_set,ext0,ext1))
+		string dir = token_get(list, i, ":");
+		token_skip(list, i, ":");
+		if (preview_software_dir_set(dir, emulator_name, preview_set, ext0, ext1))
 			almost_one = true;
 	}
 	return almost_one;
@@ -620,10 +630,11 @@ bool game_set::preview_software_list_set(const string& list, const string& emula
 // -------------------------------------------------------------------------
 // Sort category
 
-string sort_item_root_name(const game& g) {
+string sort_item_root_name(const game& g)
+{
 	const game& root = g.root_get();
 
-	string pre = root.description_get().substr(0,1);
+	string pre = root.description_get().substr(0, 1);
 
 	if (pre.length()) {
 		if (!isalpha(pre[0]))
@@ -635,8 +646,9 @@ string sort_item_root_name(const game& g) {
 	return pre;
 }
 
-string sort_item_name(const game& g) {
-	string pre = g.description_get().substr(0,1);
+string sort_item_name(const game& g)
+{
+	string pre = g.description_get().substr(0, 1);
 
 	if (pre.length()) {
 		if (isdigit(pre[0]))
@@ -648,51 +660,60 @@ string sort_item_name(const game& g) {
 	return pre;
 }
 
-string sort_item_manufacturer(const game& g) {
+string sort_item_manufacturer(const game& g)
+{
 	return g.manufacturer_get();
 }
 
-string sort_item_year(const game& g) {
+string sort_item_year(const game& g)
+{
 	if (!g.year_get().length())
 		return "<unknown>";
 	else
 		return g.year_get();
 }
 
-string sort_item_time(const game& g) {
+string sort_item_time(const game& g)
+{
 	(void)g;
 	return string();
 }
 
-string sort_item_coin(const game& g) {
+string sort_item_coin(const game& g)
+{
 	(void)g;
 	return string();
 }
 
-string sort_item_group(const game& g) {
+string sort_item_group(const game& g)
+{
 	return g.group_get()->name_get();
 }
 
-string sort_item_type(const game& g) {
+string sort_item_type(const game& g)
+{
 	return g.type_get()->name_get();
 }
 
-string sort_item_size(const game& g) {
+string sort_item_size(const game& g)
+{
 	(void)g;
 	return string();
 }
 
-string sort_item_res(const game& g) {
+string sort_item_res(const game& g)
+{
 	if (g.sizex_get() && g.sizey_get()) {
 		char buffer[32];
-		sprintf(buffer,"%dx%d", g.sizex_get(), g.sizey_get());
+		sprintf(buffer, "%dx%d", g.sizex_get(), g.sizey_get());
 		return buffer;
 	} else {
 		return "<unknown>";
 	}
 }
 
-string sort_item_info(const game& g) {
+string sort_item_info(const game& g)
+{
 	if (g.info_get().length())
 		return g.info_get();
 	else

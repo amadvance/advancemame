@@ -40,8 +40,9 @@
 /**
  * Find the nearest value.
  */
-unsigned crtc_step(double v, unsigned st) {
-	unsigned il,ih;
+unsigned crtc_step(double v, unsigned st)
+{
+	unsigned il, ih;
 	double vl = floor(v);
 	il = (unsigned)vl;
 	il -= il % st;
@@ -58,7 +59,8 @@ unsigned crtc_step(double v, unsigned st) {
  * The pixel clock limits are NOT checked.
  * \return 0 if successful
  */
-adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor) {
+adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
+{
 	double hclock;
 	double vclock;
 	double factor;
@@ -145,7 +147,8 @@ adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor) {
 /**
  * Check if the exact mode is available.
  */
-static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const adv_monitor* monitor) {
+static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const adv_monitor* monitor)
+{
 	if (!monitor_hvclock_check(monitor, req_vclock * req_vtotal, req_vclock))
 		return -1;
 	return 0;
@@ -154,7 +157,8 @@ static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const a
 /**
  * Find the nearest vclock available.
  */
-static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const adv_monitor* monitor) {
+static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const adv_monitor* monitor)
+{
 	double vclock;
 	double best_vclock = 0;
 	int best_found = 0;
@@ -226,12 +230,13 @@ static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vcloc
 /**
  * Find the nearest vtotal available.
  */
-static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const adv_monitor* monitor) {
+static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const adv_monitor* monitor)
+{
 	int vtotal;
 	unsigned best_vtotal = 0;
 	double best_vclock = 0;
 	int best_found = 0;
-	int i,j;
+	int i, j;
 
 	vtotal = *req_vtotal;
 
@@ -287,7 +292,8 @@ static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclo
 /**
  * Find the nearest vtotal available without changing the vclock
  */
-static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const adv_monitor* monitor) {
+static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const adv_monitor* monitor)
+{
 	int vtotal;
 	unsigned best_vtotal = 0;
 	int best_found = 0;
@@ -338,7 +344,8 @@ static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, doubl
  *   - with different vtotal if CRTC_ADJUST_VTOTAL and not CRTC_ADJUST_VCLOCK
  *   - with different vtotal and vclock if if CRTC_ADJUST_VTOTAL and CRTC_ADJUST_VCLOCK
  */
-adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const adv_monitor* monitor, unsigned cap, unsigned adjust) {
+adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const adv_monitor* monitor, unsigned cap, unsigned adjust)
+{
 	int best_found = 0;
 	double best_vclock = 0;
 	double best_factor = 0;
@@ -347,21 +354,21 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
         if ((adjust & CRTC_ADJUST_EXACT) != 0) {
 		/* exact match */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
-			if (crtc_find_exact(*req_vtotal,*req_vclock,monitor)==0) {
+			if (crtc_find_exact(*req_vtotal, *req_vclock, monitor)==0) {
 				*req_factor = 1;
 				return 0;
 			}
 		}
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
-			if (crtc_find_exact(*req_vtotal * 2,*req_vclock,monitor)==0) {
+			if (crtc_find_exact(*req_vtotal * 2, *req_vclock, monitor)==0) {
 				*req_factor = 2;
 				return 0;
 			}
 		}
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
-			if (crtc_find_exact(*req_vtotal / 2,*req_vclock,monitor)==0) {
+			if (crtc_find_exact(*req_vtotal / 2, *req_vclock, monitor)==0) {
 				*req_factor = 0.5;
 				return 0;
 			}
@@ -372,7 +379,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		/* best vclock */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal, &try_vclock, monitor)==0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 1;
 					best_vclock = try_vclock;
@@ -383,7 +390,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal * 2,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal * 2, &try_vclock, monitor)==0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 2;
 					best_vclock = try_vclock;
@@ -394,7 +401,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal / 2,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal / 2, &try_vclock, monitor)==0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 0.5;
 					best_vclock = try_vclock;
@@ -414,7 +421,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		/* best vtotal */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			unsigned try_vtotal = *req_vtotal;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal,*req_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 1;
 					best_vtotal = try_vtotal;
@@ -425,7 +432,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			unsigned try_vtotal = *req_vtotal * 2;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal,*req_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 2;
 					best_vtotal = try_vtotal / 2;
@@ -436,7 +443,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			unsigned try_vtotal = *req_vtotal / 2;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal,*req_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 0.5;
 					best_vtotal = try_vtotal * 2;
@@ -457,7 +464,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal;
-			if (crtc_find_nearest_vtotal(&try_vtotal,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 1;
 					best_vclock = try_vclock;
@@ -470,7 +477,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal * 2;
-			if (crtc_find_nearest_vtotal(&try_vtotal,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 2;
 					best_vclock = try_vclock;
@@ -483,7 +490,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal / 2;
-			if (crtc_find_nearest_vtotal(&try_vtotal,&try_vclock,monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 0.5;
 					best_vclock = try_vclock;
@@ -505,7 +512,8 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 }
 
 /** Change the horizontal resolution. */
-void crtc_hsize_set(adv_crtc* crtc, unsigned hsize) {
+void crtc_hsize_set(adv_crtc* crtc, unsigned hsize)
+{
 	unsigned new_hde = crtc_step(hsize, CRTC_HSTEP);
 	unsigned new_ht = crtc_step(crtc->ht * (double)new_hde / crtc->hde, CRTC_HSTEP);
 
@@ -522,7 +530,8 @@ void crtc_hsize_set(adv_crtc* crtc, unsigned hsize) {
 }
 
 /** Change the vertical resolution. */
-void crtc_vsize_set(adv_crtc* crtc, unsigned vsize) {
+void crtc_vsize_set(adv_crtc* crtc, unsigned vsize)
+{
 	unsigned new_vde = crtc_step(vsize, CRTC_VSTEP);
 	unsigned new_vt = crtc_step(crtc->vt * (double)new_vde / crtc->vde, CRTC_VSTEP);
 
@@ -536,17 +545,20 @@ void crtc_vsize_set(adv_crtc* crtc, unsigned vsize) {
 }
 
 /** Set the pixel clock. */
-void crtc_pclock_set(adv_crtc* crtc, double pclock) {
+void crtc_pclock_set(adv_crtc* crtc, double pclock)
+{
 	crtc->pixelclock = pclock;
 }
 
 /** Set the horz clock. */
-void crtc_hclock_set(adv_crtc* crtc, double hclock) {
+void crtc_hclock_set(adv_crtc* crtc, double hclock)
+{
 	crtc->pixelclock = hclock * crtc->ht;
 }
 
 /** Set the vert clock. */
-void crtc_vclock_set(adv_crtc* crtc, double vclock) {
+void crtc_vclock_set(adv_crtc* crtc, double vclock)
+{
 	double factor = 1;
 	if (crtc_is_interlace(crtc))
 		factor /= 2;
@@ -559,7 +571,8 @@ void crtc_vclock_set(adv_crtc* crtc, double vclock) {
  * Return the HClock value of the CRTC.
  * \note This value DO NOT depend on the doublescan and interlace flag
  */
-double crtc_hclock_get(const adv_crtc* crtc) {
+double crtc_hclock_get(const adv_crtc* crtc)
+{
 	if (crtc_is_tvpal(crtc))
 		return 15625;
 	else if (crtc_is_tvntsc(crtc))
@@ -572,7 +585,8 @@ double crtc_hclock_get(const adv_crtc* crtc) {
  * Return the VClock value of the CRTC.
  * \note This value depends on the doublescan and interlace flag
  */
-double crtc_vclock_get(const adv_crtc* crtc) {
+double crtc_vclock_get(const adv_crtc* crtc)
+{
 	if (crtc_is_tvpal(crtc))
 		return 50;
 	else if (crtc_is_tvntsc(crtc))
@@ -589,7 +603,7 @@ double crtc_vclock_get(const adv_crtc* crtc) {
 	}
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
@@ -599,36 +613,39 @@ double crtc_vclock_get(const adv_crtc* crtc) {
  * Compare two CRTC.
  * Only the effective CRTC values are compared. The name, and the other
  * user entries are not checked.
- * \return like strcmp -1,0,1
+ * \return like strcmp -1, 0, 1
  */
-int crtc_compare(const adv_crtc* a,const adv_crtc* b) {
-	COMPARE(a->vde,b->vde);
-	COMPARE(a->hde,b->hde);
-	COMPARE(crtc_is_doublescan(a),crtc_is_doublescan(b));
-	COMPARE(crtc_is_interlace(a),crtc_is_interlace(b));
-	COMPARE(crtc_is_singlescan(a),crtc_is_singlescan(b));
-	COMPARE(crtc_is_nhsync(a),crtc_is_nhsync(b));
-	COMPARE(crtc_is_phsync(a),crtc_is_phsync(b));
-	COMPARE(crtc_is_nvsync(a),crtc_is_nvsync(b));
-	COMPARE(crtc_is_pvsync(a),crtc_is_pvsync(b));
-	COMPARE(crtc_is_tvpal(a),crtc_is_tvpal(b));
-	COMPARE(crtc_is_tvntsc(a),crtc_is_tvntsc(b));
-	COMPARE(crtc_is_notv(a),crtc_is_notv(b));
-	COMPARE(a->vt,b->vt);
-	COMPARE(a->ht,b->ht);
-	COMPARE(a->hrs,b->hrs);
-	COMPARE(a->hre,b->hre);
-	COMPARE(a->vrs,b->vrs);
-	COMPARE(a->vre,b->vre);
+int crtc_compare(const adv_crtc* a, const adv_crtc* b)
+{
+	COMPARE(a->vde, b->vde);
+	COMPARE(a->hde, b->hde);
+	COMPARE(crtc_is_doublescan(a), crtc_is_doublescan(b));
+	COMPARE(crtc_is_interlace(a), crtc_is_interlace(b));
+	COMPARE(crtc_is_singlescan(a), crtc_is_singlescan(b));
+	COMPARE(crtc_is_nhsync(a), crtc_is_nhsync(b));
+	COMPARE(crtc_is_phsync(a), crtc_is_phsync(b));
+	COMPARE(crtc_is_nvsync(a), crtc_is_nvsync(b));
+	COMPARE(crtc_is_pvsync(a), crtc_is_pvsync(b));
+	COMPARE(crtc_is_tvpal(a), crtc_is_tvpal(b));
+	COMPARE(crtc_is_tvntsc(a), crtc_is_tvntsc(b));
+	COMPARE(crtc_is_notv(a), crtc_is_notv(b));
+	COMPARE(a->vt, b->vt);
+	COMPARE(a->ht, b->ht);
+	COMPARE(a->hrs, b->hrs);
+	COMPARE(a->hre, b->hre);
+	COMPARE(a->vrs, b->vrs);
+	COMPARE(a->vre, b->vre);
 
 	return 0;
 }
 
-adv_bool crtc_clock_check(const adv_monitor* monitor, const adv_crtc* crtc) {
+adv_bool crtc_clock_check(const adv_monitor* monitor, const adv_crtc* crtc)
+{
 	return monitor_clock_check(monitor, crtc_pclock_get(crtc), crtc_hclock_get(crtc), crtc_vclock_get(crtc));
 }
 
-int crtc_scan_get(const adv_crtc* crtc) {
+int crtc_scan_get(const adv_crtc* crtc)
+{
 	if (crtc_is_doublescan(crtc))
 		return 1;
 	else if (crtc_is_interlace(crtc))
@@ -641,7 +658,8 @@ int crtc_scan_get(const adv_crtc* crtc) {
  * Reset the crtc to standard values.
  * Only the "name", "user_flags" and "container_next" value are saved.
  */
-void crtc_reset(adv_crtc* crtc) {
+void crtc_reset(adv_crtc* crtc)
+{
 	crtc->flags = 0;
 	crtc->pixelclock = 0;
 	crtc->hde = 0;
@@ -663,17 +681,20 @@ void crtc_reset(adv_crtc* crtc) {
  * Reset the crtc to standard values.
  * Also the "name", "user_flags" and "container_next" value are cleared.
  */
-void crtc_reset_all(adv_crtc* crtc) {
-	memset(crtc,0, sizeof(adv_crtc));
+void crtc_reset_all(adv_crtc* crtc)
+{
+	memset(crtc, 0, sizeof(adv_crtc));
 	crtc_reset(crtc);
 }
 
-void crtc_name_set(adv_crtc* crtc, const char* name) {
+void crtc_name_set(adv_crtc* crtc, const char* name)
+{
 	memset(crtc->name, 0, sizeof(crtc->name));
 	strncpy(crtc->name, name, sizeof(crtc->name) - 1);
 }
 
-void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y) {
+void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y)
+{
 	crtc->hde = size_x;
 	crtc->hrs = crtc->hde;
 	crtc->hre = crtc->hde;
@@ -688,6 +709,7 @@ void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y) {
 	sprintf(crtc->name, "%dx%d", size_x, size_y);
 }
 
-adv_bool crtc_is_fake(const adv_crtc* crtc) {
+adv_bool crtc_is_fake(const adv_crtc* crtc)
+{
 	return crtc->pixelclock == 0;
 }

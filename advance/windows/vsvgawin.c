@@ -92,12 +92,14 @@ static struct svgawin_option_struct svgawin_option;
 /***************************************************************************/
 /* Internal */
 
-static unsigned char* svgawin_svgalib_write_line(unsigned y) {
+static unsigned char* svgawin_svgalib_write_line(unsigned y)
+{
 	assert( svgawin_state.lock_active );
 	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
 }
 
-static unsigned char* svgawin_sdl_write_line(unsigned y) {
+static unsigned char* svgawin_sdl_write_line(unsigned y)
+{
 	assert( svgawin_state.lock_active );
 	return (unsigned char*)svgawin_state.surface->pixels + adv_svgalib_scanline_get() * y;;
 }
@@ -212,10 +214,11 @@ static adv_device DEVICE[] = {
 
 #include "icondef.dat"
 
-static void SDL_WM_DefIcon(void) {
+static void SDL_WM_DefIcon(void)
+{
 	SDL_Surface* surface;
 	SDL_Color colors[ICON_PALETTE];
-	unsigned i,x,y;
+	unsigned i, x, y;
 
 	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
 	if (!surface) {
@@ -246,7 +249,8 @@ static void SDL_WM_DefIcon(void) {
 	SDL_FreeSurface(surface);
 }
 
-static adv_error sdl_init(int device_id) {
+static adv_error sdl_init(int device_id)
+{
 	char buf[64];
 	unsigned j;
 
@@ -263,22 +267,23 @@ static adv_error sdl_init(int device_id) {
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
 		SDL_WM_DefIcon();
 	}
 
-	if (SDL_VideoDriverName(buf,sizeof(buf))) {
+	if (SDL_VideoDriverName(buf, sizeof(buf))) {
 		log_std(("video:svgawin: SDL driver %s\n", buf));
 	}
 
 	return 0;
 }
 
-static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) {
+static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg)
+{
 	unsigned dw;
 	unsigned base_class;
 
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+	if (adv_svgalib_pci_read_dword(bus_device_func, 0x8, &dw)!=0)
 		return 0;
 
 	base_class = (dw >> 16) & 0xFFFF;
@@ -292,11 +297,12 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 	return 0;
 }
 
-static void probe(void) {
+static void probe(void)
+{
 	int found;
 	found = 0;
 
-	adv_svgalib_pci_scan_device(probe_callback,&found);
+	adv_svgalib_pci_scan_device(probe_callback, &found);
 
 	if (!found)
 		log_std(("video:svgawin: No PCI/AGP boards found\n"));
@@ -320,7 +326,8 @@ static void probe(void) {
 	}
 }
 
-static adv_error svgalib_init(int device_id) {
+static adv_error svgalib_init(int device_id)
+{
 	unsigned i;
 	const char* name;
 	const adv_device* j;
@@ -349,7 +356,8 @@ static adv_error svgalib_init(int device_id) {
 	log_std(("video:svgawin: found driver %s\n", adv_svgalib_driver_get()));
 
 	svgawin_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC |
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	if (adv_svgalib_state.has_bit8)
 		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
@@ -377,6 +385,12 @@ adv_error svgawin_init(int device_id)
 
 	if (sizeof(svgawin_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:svgawin: Only fullscreen output is supported\n"));
+		error_nolog_cat("svgawin: Only fullscreen output is supported\n");
+		return -1;
+	}
 
 	if (!svgawin_option.initialized) {
 		svgawin_default();
@@ -407,18 +421,21 @@ adv_error svgawin_init(int device_id)
 	return 0;
 }
 
-static void sdl_done(void) {
+static void sdl_done(void)
+{
 	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
 		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	}
 }
 
-static void svgalib_done(void) {
+static void svgalib_done(void)
+{
 	adv_svgalib_done();
 }
 
-void svgawin_done(void) {
+void svgawin_done(void)
+{
 	assert( svgawin_is_active() );
 	assert( !svgawin_mode_is_active() );
 
@@ -433,20 +450,24 @@ void svgawin_done(void) {
 	svgawin_state.active = 0;
 }
 
-adv_bool svgawin_is_active(void) {
+adv_bool svgawin_is_active(void)
+{
 	 return svgawin_state.active != 0;
 }
 
-adv_bool svgawin_mode_is_active(void) {
+adv_bool svgawin_mode_is_active(void)
+{
 	return svgawin_state.mode_active != 0;
 }
 
-unsigned svgawin_flags(void) {
+unsigned svgawin_flags(void)
+{
 	assert( svgawin_is_active() );
 	return svgawin_state.cap;
 }
 
-void svgawin_write_lock(void) {
+void svgawin_write_lock(void)
+{
 	assert( !svgawin_state.lock_active );
 
 	if (svgawin_option.stub != STUB_NONE) {
@@ -460,7 +481,8 @@ void svgawin_write_lock(void) {
 	svgawin_state.lock_active = 1;
 }
 
-void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) {
+void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
+{
 	assert( svgawin_state.lock_active );
 
 	if (svgawin_option.stub != STUB_NONE) {
@@ -471,7 +493,8 @@ void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size
 	svgawin_state.lock_active = 0;
 }
 
-static void sdl_mode_done(void) {
+static void sdl_mode_done(void)
+{
 	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
 		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -480,7 +503,8 @@ static void sdl_mode_done(void) {
 	svgawin_state.surface = 0;
 }
 
-static void windows_restore(void) {
+static void windows_restore(void)
+{
 	DEVMODE mode;
 
 	memset(&mode, 0, sizeof(mode));
@@ -503,7 +527,8 @@ static void svgalib_mode_done(void)
 	adv_svgalib_linear_unmap();
 }
 
-void svgawin_mode_done(adv_bool restore) {
+void svgawin_mode_done(adv_bool restore)
+{
 	assert( svgawin_is_active() );
 	assert( svgawin_mode_is_active() );
 
@@ -535,7 +560,8 @@ void svgawin_mode_done(adv_bool restore) {
 	svgawin_state.mode_active = 0;
 }
 
-static adv_error sdl_mode_set(const svgawin_video_mode* mode) {
+static adv_error sdl_mode_set(const svgawin_video_mode* mode)
+{
 	const SDL_VideoInfo* info;
 	unsigned x, y, bits;
 	unsigned flags;
@@ -550,7 +576,7 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode) {
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
 		SDL_WM_DefIcon();
 	}
 
@@ -665,7 +691,8 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 	return 0;
 }
 
-adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
+adv_error svgawin_mode_set(const svgawin_video_mode* mode)
+{
 	assert( svgawin_is_active() );
 	assert( !svgawin_mode_is_active() );
 
@@ -704,7 +731,7 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
 
 	/* final integrity check */
 	if (svgawin_write_line(0) == MAP_FAILED) {
-		svgawin_write_unlock(0,0,0,0);
+		svgawin_write_unlock(0, 0, 0, 0);
 		goto err_svgalib;
 	}
 
@@ -712,7 +739,7 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
 	memset(svgawin_write_line(0), 0, adv_svgalib_scanline_get() * mode->crtc.vde);
 
 	log_std(("video:svgawin: unlock the video memory\n"));
-	svgawin_write_unlock(0,0,0,0);
+	svgawin_write_unlock(0, 0, 0, 0);
 	
 	svgawin_state.mode_active = 1;
 
@@ -735,7 +762,8 @@ err:
 	return -1;
 }
 
-adv_error svgawin_mode_change(const svgawin_video_mode* mode) {
+adv_error svgawin_mode_change(const svgawin_video_mode* mode)
+{
 	assert(svgawin_is_active() && svgawin_mode_is_active());
 
 	log_std(("video:svgawin: svgawin_mode_change()\n"));
@@ -770,39 +798,46 @@ adv_error svgawin_mode_change(const svgawin_video_mode* mode) {
 	return 0;
 }
 
-unsigned svgawin_virtual_x(void) {
+unsigned svgawin_virtual_x(void)
+{
 	unsigned size = adv_svgalib_scanline_get() / adv_svgalib_pixel_get();
 	size = size & ~0x7;
 	return size;
 }
 
-unsigned svgawin_virtual_y(void) {
+unsigned svgawin_virtual_y(void)
+{
 	return adv_svgalib_linear_size_get() / adv_svgalib_scanline_get();
 }
 
-unsigned svgawin_adjust_bytes_per_page(unsigned bytes_per_page) {
+unsigned svgawin_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
-unsigned svgawin_bytes_per_scanline(void) {
+unsigned svgawin_bytes_per_scanline(void)
+{
 	return adv_svgalib_scanline_get();
 }
 
-adv_color_def svgawin_color_def(void) {
+adv_color_def svgawin_color_def(void)
+{
 	if (adv_svgalib_pixel_get() == 1)
 		return color_def_make(adv_color_type_palette);
 	else
-		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len,adv_svgalib_state.mode.red_pos,adv_svgalib_state.mode.green_len,adv_svgalib_state.mode.green_pos,adv_svgalib_state.mode.blue_len,adv_svgalib_state.mode.blue_pos);
+		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
 }
 
-void svgawin_wait_vsync(void) {
+void svgawin_wait_vsync(void)
+{
 	assert(svgawin_is_active() && svgawin_mode_is_active());
 
 	adv_svgalib_wait_vsync();
 }
 
-adv_error svgawin_scroll(unsigned offset, adv_bool waitvsync) {
+adv_error svgawin_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(svgawin_is_active() && svgawin_mode_is_active());
 
 	if (waitvsync)
@@ -813,7 +848,8 @@ adv_error svgawin_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error svgawin_scanline_set(unsigned byte_length) {
+adv_error svgawin_scanline_set(unsigned byte_length)
+{
 	assert(svgawin_is_active() && svgawin_mode_is_active());
 
 	adv_svgalib_scanline_set(byte_length);
@@ -821,7 +857,8 @@ adv_error svgawin_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-adv_error svgawin_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error svgawin_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	if (waitvsync)
 		adv_svgalib_wait_vsync();
 		
@@ -867,9 +904,9 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 {
 	assert( svgawin_is_active() );
 
-	log_std(("video:svgawin: svgawin_mode_generate(x:%d,y:%d)\n", crtc->hde, crtc->vde));
+	log_std(("video:svgawin: svgawin_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
-	if (video_mode_generate_check("svgawin",svgawin_flags(), 8, 2048, crtc, flags)!=0)
+	if (video_mode_generate_check("svgawin", svgawin_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
 	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK), 0, 0) != 0) {
@@ -883,21 +920,24 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int svgawin_mode_compare(const svgawin_video_mode* a, const svgawin_video_mode* b) {
+int svgawin_mode_compare(const svgawin_video_mode* a, const svgawin_video_mode* b)
+{
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
-void svgawin_crtc_container_insert_default(adv_crtc_container* cc) {
+void svgawin_crtc_container_insert_default(adv_crtc_container* cc)
+{
 }
 
-void svgawin_default(void) {
+void svgawin_default(void)
+{
 	svgawin_option.initialized = 1;
 	svgawin_option.divide_clock = 0;
 	svgawin_option.stub = 0;
@@ -909,7 +949,8 @@ static adv_conf_enum_int OPTION_STUB[] = {
 { "fullscreen", STUB_FULLSCREEN }
 };
 
-void svgawin_reg(adv_conf* context) {
+void svgawin_reg(adv_conf* context)
+{
 	assert( !svgawin_is_active() );
 
 	conf_bool_register_default(context, "device_svgawin_divideclock", 0);
@@ -918,7 +959,8 @@ void svgawin_reg(adv_conf* context) {
 	svgawin_option.initialized = 1;
 }
 
-adv_error svgawin_load(adv_conf* context) {
+adv_error svgawin_load(adv_conf* context)
+{
 	assert( !svgawin_is_active() );
 
 	svgawin_option.divide_clock = conf_bool_get_default(context, "device_svgawin_divideclock");
@@ -932,27 +974,33 @@ adv_error svgawin_load(adv_conf* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error svgawin_mode_set_void(const void* mode) {
+static adv_error svgawin_mode_set_void(const void* mode)
+{
 	return svgawin_mode_set((const svgawin_video_mode*)mode);
 }
 
-static adv_error svgawin_mode_change_void(const void* mode) {
+static adv_error svgawin_mode_change_void(const void* mode)
+{
 	return svgawin_mode_change((const svgawin_video_mode*)mode);
 }
 
-static adv_error svgawin_mode_import_void(adv_mode* mode, const void* svgawin_mode) {
+static adv_error svgawin_mode_import_void(adv_mode* mode, const void* svgawin_mode)
+{
 	return svgawin_mode_import(mode, (const svgawin_video_mode*)svgawin_mode);
 }
 
-static adv_error svgawin_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+static adv_error svgawin_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
 	return svgawin_mode_generate((svgawin_video_mode*)mode, crtc, flags);
 }
 
-static int svgawin_mode_compare_void(const void* a, const void* b) {
+static int svgawin_mode_compare_void(const void* a, const void* b)
+{
 	return svgawin_mode_compare((const svgawin_video_mode*)a, (const svgawin_video_mode*)b);
 }
 
-static unsigned svgawin_mode_size(void) {
+static unsigned svgawin_mode_size(void)
+{
 	return sizeof(svgawin_video_mode);
 }
 

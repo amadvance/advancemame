@@ -225,8 +225,9 @@ struct r128_reg_t {
 	DWORD htotal_cntl;
 };
 
-static void r128_BIOS_read(unsigned offset, void* buffer, unsigned length) {
-	pci_BIOS_read(buffer,offset,length);
+static void r128_BIOS_read(unsigned offset, void* buffer, unsigned length)
+{
+	pci_BIOS_read(buffer, offset, length);
 }
 
 int r128_detect(void)
@@ -251,7 +252,7 @@ int r128_detect(void)
 	}
 
 	for(i=0;r128_id_list[i].name;++i) {
-		if (pci_find_device(0x00001002,r128_id_list[i].value,0,&r128_bus_device_func)==0)
+		if (pci_find_device(0x00001002, r128_id_list[i].value, 0, &r128_bus_device_func)==0)
 			break;
 	}
 
@@ -273,10 +274,10 @@ int r128_detect(void)
 		return 0;
 	}
 
-	r128_BIOS_read(0x48,(BYTE*)&bios_header, sizeof(bios_header));
+	r128_BIOS_read(0x48, (BYTE*)&bios_header, sizeof(bios_header));
 	CARD_LOG(("r128: header at 0x%04x\n", (unsigned)bios_header));
 
-	r128_BIOS_read(bios_header + 0x30,(BYTE*)&pll_info_block, sizeof(pll_info_block));
+	r128_BIOS_read(bios_header + 0x30, (BYTE*)&pll_info_block, sizeof(pll_info_block));
 	CARD_LOG(("r128: PLL information at 0x%04x\n", (unsigned)pll_info_block));
 
 	r128_BIOS_read(pll_info_block + 0x0e, (BYTE*)&r128_pll.reference_freq, sizeof(r128_pll.reference_freq));
@@ -289,7 +290,7 @@ int r128_detect(void)
 
 	pci_BIOS_address_unmap();
 
-	if (pci_MMIO_address_map(r128_bus_device_func,0x18,0xFFFFFF00)!=0) {
+	if (pci_MMIO_address_map(r128_bus_device_func, 0x18, 0xFFFFFF00)!=0) {
 		CARD_LOG(( "r128: pci_MMIO_address_map error\n"));
 		return 0;
 	}
@@ -433,13 +434,13 @@ static void r128_pll_all_set(struct r128_reg_t* restore)
 	R128OUTPLLP(R128_PPLL_CNTL, R128_PPLL_RESET | R128_PPLL_ATOMIC_UPDATE_EN | R128_PPLL_VGA_ATOMIC_UPDATE_EN, 0xffff);
 
 	r128_pll_wait_for_read_update_complete();
-	R128OUTPLLP(R128_PPLL_REF_DIV,restore->ppll_ref_div, ~R128_PPLL_REF_DIV_MASK);
+	R128OUTPLLP(R128_PPLL_REF_DIV, restore->ppll_ref_div, ~R128_PPLL_REF_DIV_MASK);
 	r128_pll_write_update();
 	
 	r128_pll_wait_for_read_update_complete();
 	R128OUTPLLP(R128_PPLL_DIV_3, restore->ppll_div_3, ~R128_PPLL_FB3_DIV_MASK);
 	r128_pll_write_update();
-	R128OUTPLLP(R128_PPLL_DIV_3,restore->ppll_div_3, ~R128_PPLL_POST3_DIV_MASK);
+	R128OUTPLLP(R128_PPLL_DIV_3, restore->ppll_div_3, ~R128_PPLL_POST3_DIV_MASK);
 	r128_pll_write_update();
 	
 	r128_pll_wait_for_read_update_complete();
@@ -472,7 +473,7 @@ int r128_set(const card_crtc* _cp, const card_mode* cm, const card_mode* co)
 	card_crtc cp = *_cp;
 	struct r128_reg_t reg;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("r128: incompatible mode\n"));
 		return 0;
 	}
@@ -483,14 +484,14 @@ int r128_set(const card_crtc* _cp, const card_mode* cm, const card_mode* co)
 	}
 
 	CARD_LOG(("r128: clock requested:%.2f MHz\n", (double)cp.dotclockHz / 1000000 ));
-	cp.dotclockHz = r128_pll_init(&reg,cp.dotclockHz);
+	cp.dotclockHz = r128_pll_init(&reg, cp.dotclockHz);
 	if (cp.dotclockHz<0) {
 		CARD_LOG(("r128: clock out of range\n"));
 		return 0;
 	}
 	CARD_LOG(("r128: clock selected:%.2f MHz\n", (double)cp.dotclockHz / 1000000 ));
 
-	r128_crtc_init(&reg,&cp,cm);
+	r128_crtc_init(&reg, &cp, cm);
 
 	r128_signal_disable();
 	r128_crtc_all_set(&reg);

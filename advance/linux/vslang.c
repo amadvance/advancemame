@@ -65,24 +65,29 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Functions */
 
-static unsigned char* slang_linear_write_line(unsigned y) {
+static unsigned char* slang_linear_write_line(unsigned y)
+{
 	return slang_state.ptr + slang_state.size_x * y * 2;
 }
 
-adv_bool slang_is_active(void) {
+adv_bool slang_is_active(void)
+{
 	return slang_state.active != 0;
 }
 
-adv_bool slang_mode_is_active(void) {
+adv_bool slang_mode_is_active(void)
+{
 	return slang_state.mode_active != 0;
 }
 
-unsigned slang_flags(void) {
+unsigned slang_flags(void)
+{
 	assert( slang_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_TEXT;
+	return VIDEO_DRIVER_FLAGS_MODE_TEXT | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-adv_error slang_init(int device_id) {
+adv_error slang_init(int device_id, adv_output output)
+{
 	assert( !slang_is_active() );
 
 	log_std(("video:slang: slang_init()\n"));
@@ -90,6 +95,12 @@ adv_error slang_init(int device_id) {
 	if (getenv("DISPLAY")) {
 		log_std(("video:vslang: DISPLAY set\n"));
 		error_nolog_cat("vslang: Unsupported in X\n");
+		return -1;
+	}
+
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:slang: Only fullscreen output is supported\n"));
+		error_nolog_cat("slang: Only fullscreen output is supported\n");
 		return -1;
 	}
 
@@ -106,7 +117,8 @@ adv_error slang_init(int device_id) {
 	return 0;
 }
 
-void slang_done(void) {
+void slang_done(void)
+{
 	assert(slang_is_active() && !slang_mode_is_active() );
 
 	log_std(("video:slang: slang_done()\n"));
@@ -155,15 +167,18 @@ void slang_mode_done(adv_bool restore)
 	slang_state.mode_active = 0;
 }
 
-unsigned slang_virtual_x(void) {
+unsigned slang_virtual_x(void)
+{
 	return slang_state.size_x * slang_state.font_size_x;
 }
 
-unsigned slang_virtual_y(void) {
+unsigned slang_virtual_y(void)
+{
 	return slang_state.size_y  * slang_state.font_size_y;
 }
 
-unsigned slang_bytes_per_scanline(void) {
+unsigned slang_bytes_per_scanline(void)
+{
 	return slang_state.size_x * 2;
 }
 
@@ -191,7 +206,8 @@ static const char* COLOR[16] = {
 static unsigned color_map[COLOR_MAX];
 static unsigned color_mac = 1; /* the first color is reserved */
 
-static unsigned getattr(unsigned dos_attr) {
+static unsigned getattr(unsigned dos_attr)
+{
 	unsigned i;
 	for(i=1;i<color_mac && i<COLOR_MAX;++i)
 		if (color_map[i] == dos_attr)
@@ -206,8 +222,9 @@ static unsigned getattr(unsigned dos_attr) {
 		return 0;
 }
 
-void slang_wait_vsync(void) {
-	int x,y;
+void slang_wait_vsync(void)
+{
+	int x, y;
 	unsigned old_a;
 
 	assert(slang_is_active() && slang_mode_is_active());
@@ -255,7 +272,8 @@ adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 	return 0;
 }
 
-adv_error slang_mode_grab(slang_video_mode* mode) {
+adv_error slang_mode_grab(slang_video_mode* mode)
+{
 	assert( slang_is_active() );
 
 	mode->font_size_x = 8;
@@ -274,66 +292,79 @@ adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsi
 	return -1;
 }
 
-unsigned slang_font_size_x(void) {
+unsigned slang_font_size_x(void)
+{
 	return slang_state.font_size_x;
 }
 
-unsigned slang_font_size_y(void) {
+unsigned slang_font_size_y(void)
+{
 	return slang_state.font_size_y;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int slang_mode_compare(const slang_video_mode* a, const slang_video_mode* b) {
-	COMPARE(a->font_size_y,b->font_size_y);
-	COMPARE(a->font_size_x,b->font_size_x);
+int slang_mode_compare(const slang_video_mode* a, const slang_video_mode* b)
+{
+	COMPARE(a->font_size_y, b->font_size_y);
+	COMPARE(a->font_size_x, b->font_size_x);
 	return 0;
 }
 
-void slang_default(void) {
+void slang_default(void)
+{
 }
 
-void slang_reg(adv_conf* context) {
+void slang_reg(adv_conf* context)
+{
 	assert( !slang_is_active() );
 }
 
-adv_error slang_load(adv_conf* context) {
+adv_error slang_load(adv_conf* context)
+{
 	assert( !slang_is_active() );
 	return 0;
 }
 
-adv_color_def slang_color_def(void) {
+adv_color_def slang_color_def(void)
+{
 	return color_def_make(adv_color_type_text);
 }
 
 /***************************************************************************/
 /* Driver */
 
-static adv_error slang_mode_set_void(const void* mode) {
+static adv_error slang_mode_set_void(const void* mode)
+{
 	return slang_mode_set((const slang_video_mode*)mode);
 }
 
-static adv_error slang_mode_import_void(adv_mode* mode, const void* slang_mode) {
+static adv_error slang_mode_import_void(adv_mode* mode, const void* slang_mode)
+{
 	return slang_mode_import(mode, (const slang_video_mode*)slang_mode);
 }
 
-static adv_error slang_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+static adv_error slang_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
 	return slang_mode_generate((slang_video_mode*)mode, crtc, flags);
 }
 
-static int slang_mode_compare_void(const void* a, const void* b) {
+static int slang_mode_compare_void(const void* a, const void* b)
+{
 	return slang_mode_compare((const slang_video_mode*)a, (const slang_video_mode*)b);
 }
 
-static unsigned slang_mode_size(void) {
+static unsigned slang_mode_size(void)
+{
 	return sizeof(slang_video_mode);
 }
 
-static adv_error slang_mode_grab_void(void* mode) {
+static adv_error slang_mode_grab_void(void* mode)
+{
 	return slang_mode_grab((slang_video_mode*)mode);
 }
 

@@ -82,11 +82,12 @@ static void neomagic_pll_set(void)
 	card_out(0x3C2, d0);
 }
 
-static void neomagic_clock_set(int pll_mul, int pll_div, int pll_p) {
+static void neomagic_clock_set(int pll_mul, int pll_div, int pll_p)
+{
 	if (neomagic_card->clock_type == NEOMAGIC_CLOCK_128) {
 		BYTE num = (pll_mul - 1) | (pll_p << 7);
 		BYTE den = pll_div - 1;
-		card_graph_set(0x9B,num);
+		card_graph_set(0x9B, num);
 		card_graph_set(0x9F, den);
 	} else if (neomagic_card->clock_type == NEOMAGIC_CLOCK_256) {
 		BYTE num_l = pll_mul - 1;
@@ -105,13 +106,15 @@ static void neomagic_clock_set(int pll_mul, int pll_div, int pll_p) {
 	neomagic_pll_set();
 }
 
-static void neomagic_unlock(void) {
+static void neomagic_unlock(void)
+{
 	card_unlock();
-	card_graph_set(0x09,0x26);
+	card_graph_set(0x09, 0x26);
 }
 
-static void neomagic_lock(void) {
-	card_graph_set(0x09,0x00);
+static void neomagic_lock(void)
+{
+	card_graph_set(0x09, 0x00);
 	card_lock();
 }
 
@@ -125,7 +128,8 @@ static void neomagic_doublescan_set(int flag)
 	}
 }
 
-const char* neomagic_driver(void) {
+const char* neomagic_driver(void)
+{
 	return neomagic_card->name;
 }
 
@@ -139,7 +143,7 @@ int neomagic_detect(void)
 	}
 
 	for(i=0;neomagic_id_list[i].name;++i) {
-		if (pci_find_device(0x000010c8,neomagic_id_list[i].value,0,&neomagic_bus_device_func)==0)
+		if (pci_find_device(0x000010c8, neomagic_id_list[i].value, 0, &neomagic_bus_device_func)==0)
 			break;
 	}
 
@@ -166,9 +170,9 @@ void neomagic_reset(void)
 int neomagic_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int pll_mul,pll_div,pll_p;
+	int pll_mul, pll_div, pll_p;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("neomagic: incompatible mode\n"));
 		return 0;
 	}

@@ -973,11 +973,17 @@ Configuration
 	:sound_latency TIME
 
 	Options:
-		TIME - Latency in seconds from 0.01 to 2.0.
-			(default 0.1)
+		TIME - Latency in seconds from 0.01 to 2.0
+			(default 0.1).
 
 	If in the game play you hear some sound ticks you can try to
 	increase the latency.
+
+	The default value is relatively high because it should work also
+	with high frame skip rate. Supposing a skip of 6 consecutive frames
+	the sound buffer should contain 6 * 1/60 = 0.1 seconds of samples.
+	If you always play at full frame rate you can safely decrease
+	the latency down to 0.02 seconds.
 
   Input Configuration Options
 

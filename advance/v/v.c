@@ -49,13 +49,15 @@
 /***************************************************************************/
 /* crtc */
 
-static int crtc_select_by_addr(const adv_crtc* a, void* b) {
+static int crtc_select_by_addr(const adv_crtc* a, void* b)
+{
 	return a==b;
 }
 
-static int crtc_select_by_compare(const adv_crtc* a, void* _b) {
+static int crtc_select_by_compare(const adv_crtc* a, void* _b)
+{
 	const adv_crtc* b = (const adv_crtc*)_b;
-	return crtc_compare(a,b)==0;
+	return crtc_compare(a, b)==0;
 }
 
 /***************************************************************************/
@@ -72,7 +74,8 @@ int the_mode_index = MODE_FLAGS_INDEX_PALETTE8;
 /***************************************************************************/
 /* Common information screens */
 
-static void draw_text_help(void) {
+static void draw_text_help(void)
+{
 	int x = 0;
 	int y = 0;
 	int dx = text_size_x();
@@ -80,11 +83,11 @@ static void draw_text_help(void) {
 
 	text_clear();
 
-	y = draw_text_para(x,y,dx,dy,
+	y = draw_text_para(x, y, dx, dy,
 " HELP"
-	,COLOR_REVERSE);
+	, COLOR_REVERSE);
 
-	y = draw_text_para(x,y,dx,dy-y,
+	y = draw_text_para(x, y, dx, dy-y,
 "F2    Save the selected modes\n"
 "F5    Create a new modeline (favourite modes with the specified size)\n"
 "F6    Create a new modeline (favourite modes with the specified clock)\n"
@@ -110,7 +113,7 @@ static void draw_text_help(void) {
 "n/m   Change the tv mode\n"
 "\n"
 "Press ESC"
-	,COLOR_NORMAL);
+	, COLOR_NORMAL);
 
 	video_wait_vsync();
 
@@ -120,7 +123,8 @@ static void draw_text_help(void) {
 	} while (inputb_get()==INPUTB_NONE);
 }
 
-static void draw_text_error(void) {
+static void draw_text_error(void)
+{
 	int x = 0;
 	int y = 0;
 	int dx = text_size_x();
@@ -128,24 +132,24 @@ static void draw_text_error(void) {
 	
 	text_clear();
 
-	draw_text_center(x,y,dx,
+	draw_text_center(x, y, dx,
 "ERROR! An error occoured in your last action!"
-	,COLOR_REVERSE);
+	, COLOR_REVERSE);
 	++y;
 
 	++y;
-	y = draw_text_para(x,y,dx,dy,
+	y = draw_text_para(x, y, dx, dy,
 "Your last action generated an error. Probably you have requested an "
 "unsupported feature by your hardware or software."
-	,COLOR_NORMAL);
+	, COLOR_NORMAL);
 
 	if (*error_get()) {
-		y = draw_text_para(x,y,dx,dy-y,"\nThe video software report this error:",COLOR_NORMAL);
+		y = draw_text_para(x, y, dx, dy-y, "\nThe video software report this error:", COLOR_NORMAL);
 		log_std(("v: error \"%s\"\n", error_get() ));
-		y = draw_text_para(x,y,dx,dy-y, error_get(),COLOR_ERROR);
+		y = draw_text_para(x, y, dx, dy-y, error_get(), COLOR_ERROR);
 	}
 
-	y = draw_text_para(x,y,dx,dy-y,"\nPress ESC",COLOR_NORMAL);
+	y = draw_text_para(x, y, dx, dy-y, "\nPress ESC", COLOR_NORMAL);
 
 	video_wait_vsync();
 
@@ -164,41 +168,47 @@ int menu_rel_max;
 int menu_base_max;
 int menu_max;
 
-static adv_crtc* menu_pos(int pos) {
+static adv_crtc* menu_pos(int pos)
+{
 	if (pos < 0 || pos >= menu_max)
 		return 0;
 
-	return crtc_container_pos(&the_modes,pos);
+	return crtc_container_pos(&the_modes, pos);
 }
 
-static adv_crtc* menu_current(void) {
+static adv_crtc* menu_current(void)
+{
 	return menu_pos(menu_base + menu_rel);
 }
 
-static void menu_modify(void) {
+static void menu_modify(void)
+{
 	the_modes_modified = 1;
 }
 
-static void menu_insert(adv_crtc* crtc) {
+static void menu_insert(adv_crtc* crtc)
+{
 	crtc->user_flags |= MODE_FLAGS_USER_BIT0;
 
 	the_modes_modified = 1;
 
-	crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
+	crtc_container_insert_sort(&the_modes, crtc, crtc_compare);
 
 	menu_max = crtc_container_max(&the_modes);
 }
 
-static void menu_remove(adv_crtc* crtc) {
+static void menu_remove(adv_crtc* crtc)
+{
 
 	the_modes_modified = 1;
 
-	crtc_container_remove(&the_modes,crtc_select_by_addr,crtc);
+	crtc_container_remove(&the_modes, crtc_select_by_addr, crtc);
 
 	menu_max = crtc_container_max(&the_modes);
 }
 
-static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
+static void menu_item_draw(int x, int y, int dx, int pos, int selected)
+{
 	char buffer[256];
 
 	adv_crtc* crtc = menu_pos(pos);
@@ -220,14 +230,14 @@ static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 		} else {
 			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
-				if (crtc_clock_check(&the_monitor,crtc)) {
+				if (crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_MARK;
 				} else {
 					color = COLOR_MARK_BAD;
 				}
 			} else {
 				tag = ' ';
-				if (crtc_clock_check(&the_monitor,crtc)) {
+				if (crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_NORMAL;
 				} else {
 					color = COLOR_BAD;
@@ -235,11 +245,11 @@ static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 			}
 		}
 
-		sprintf(vfreq,"%6.2f",(double)crtc_vclock_get(crtc));
+		sprintf(vfreq, "%6.2f", (double)crtc_vclock_get(crtc));
 
-		sprintf(hfreq,"%6.2f",(double)crtc_hclock_get(crtc) / 1E3);
+		sprintf(hfreq, "%6.2f", (double)crtc_hclock_get(crtc) / 1E3);
 
-		sprintf(buffer," %c %4d %4d %s %s %s",
+		sprintf(buffer, " %c %4d %4d %s %s %s",
 			tag,
 			crtc->hde,
 			crtc->vde,
@@ -248,29 +258,31 @@ static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 			crtc->name
 		);
 
-		draw_text_left(x,y,dx,buffer,color);
+		draw_text_left(x, y, dx, buffer, color);
 
 	} else {
-		draw_text_fill(x,y,' ',dx,COLOR_NORMAL);
+		draw_text_fill(x, y, ' ', dx, COLOR_NORMAL);
 	}
 }
 
-static void menu_draw(int x, int y, int dx, int dy) {
+static void menu_draw(int x, int y, int dx, int dy)
+{
 	unsigned i;
 	for(i=0;i<dy;++i) {
 		if (menu_base + i < menu_max) {
-			menu_item_draw(x,y+i,dx, menu_base + i, i == menu_rel);
+			menu_item_draw(x, y+i, dx, menu_base + i, i == menu_rel);
 		} else
-			draw_text_fill(x,y+i,' ',dx,COLOR_NORMAL);
+			draw_text_fill(x, y+i, ' ', dx, COLOR_NORMAL);
 	}
 }
 
 /***************************************************************************/
 /* Draw information bars */
 
-static void format_info(char* buffer0, char* buffer1, char* buffer2, adv_crtc* crtc) {
-	double HD,HF,HS,HB;
-	double VD,VF,VS,VB;
+static void format_info(char* buffer0, char* buffer1, char* buffer2, adv_crtc* crtc)
+{
+	double HD, HF, HS, HB;
+	double VD, VF, VS, VB;
 	double f;
 
 	HD = crtc->hde;
@@ -293,35 +305,37 @@ static void format_info(char* buffer0, char* buffer1, char* buffer2, adv_crtc* c
 	VS *= f;
 	VB *= f;
 
-	sprintf(buffer0,"plz clock  dsen rtst rten totl  disp  front sync  back  pclock");
-	sprintf(buffer1,"h%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f %8.4f", crtc_is_nhsync(crtc) ? '-' : '+', crtc_hclock_get(crtc) / 1E3, crtc->hde,crtc->hrs,crtc->hre,crtc->ht,HD,HF,HS,HB, crtc_pclock_get(crtc) / 1E6);
-	sprintf(buffer2,"v%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f%s%s%s%s", crtc_is_nvsync(crtc) ? '-' : '+', crtc_vclock_get(crtc), crtc->vde,crtc->vrs,crtc->vre,crtc->vt,VD,VF,VS,VB, crtc_is_doublescan(crtc) ? " doublescan" : "", crtc_is_interlace(crtc) ? " interlace" : "", crtc_is_tvpal(crtc) ? " tvpal" : "", crtc_is_tvntsc(crtc) ? " tvntsc" : "");
+	sprintf(buffer0, "plz clock  dsen rtst rten totl  disp  front sync  back  pclock");
+	sprintf(buffer1, "h%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f %8.4f", crtc_is_nhsync(crtc) ? '-' : '+', crtc_hclock_get(crtc) / 1E3, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, HD, HF, HS, HB, crtc_pclock_get(crtc) / 1E6);
+	sprintf(buffer2, "v%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f%s%s%s%s", crtc_is_nvsync(crtc) ? '-' : '+', crtc_vclock_get(crtc), crtc->vde, crtc->vrs, crtc->vre, crtc->vt, VD, VF, VS, VB, crtc_is_doublescan(crtc) ? " doublescan" : "", crtc_is_interlace(crtc) ? " interlace" : "", crtc_is_tvpal(crtc) ? " tvpal" : "", crtc_is_tvntsc(crtc) ? " tvntsc" : "");
 }
 
-static void draw_text_info(int x, int y, int dx, int dy, int pos) {
+static void draw_text_info(int x, int y, int dx, int dy, int pos)
+{
 	char buffer[3][256];
 
 	adv_crtc* crtc = menu_pos(pos);
-	format_info(buffer[0],buffer[1],buffer[2],crtc);
+	format_info(buffer[0], buffer[1], buffer[2], crtc);
 
-	draw_text_left(x,y+0,dx,buffer[0],COLOR_INFO_TITLE);
-	draw_text_left(x,y+1,dx,buffer[1],COLOR_INFO_NORMAL);
-	draw_text_left(x,y+2,dx,buffer[2],COLOR_INFO_NORMAL);
+	draw_text_left(x, y+0, dx, buffer[0], COLOR_INFO_TITLE);
+	draw_text_left(x, y+1, dx, buffer[1], COLOR_INFO_NORMAL);
+	draw_text_left(x, y+2, dx, buffer[2], COLOR_INFO_NORMAL);
 
 	if (crtc) {
-		if (!crtc_clock_check(&the_monitor,crtc)) {
-			draw_text_left(x+dx-14,y,14," OUT OF RANGE ", COLOR_ERROR);
+		if (!crtc_clock_check(&the_monitor, crtc)) {
+			draw_text_left(x+dx-14, y, 14, " OUT OF RANGE ", COLOR_ERROR);
 		}
 	} else {
-		draw_text_fillrect(x,y,' ',dx,dy,COLOR_INFO_NORMAL);
+		draw_text_fillrect(x, y, ' ', dx, dy, COLOR_INFO_NORMAL);
 	}
 }
 
-static void draw_text_index(int x, int y, int dx) {
+static void draw_text_index(int x, int y, int dx)
+{
 	int i;
 	int pos = x;
 
-	pos += draw_text_string(pos,y,"Type ",COLOR_TITLE);
+	pos += draw_text_string(pos, y, "Type ", COLOR_TITLE);
 
 	for(i=0;i<8;++i) {
 		const char* text;
@@ -342,154 +356,157 @@ static void draw_text_index(int x, int y, int dx) {
 			color = COLOR_SELECTED;
 		else
 			color = COLOR_NORMAL;
-		pos += draw_text_string(pos,y," ",color);
-		pos += draw_text_string(pos,y,text,color);
-		pos += draw_text_string(pos,y," ",color);
+		pos += draw_text_string(pos, y, " ", color);
+		pos += draw_text_string(pos, y, text, color);
+		pos += draw_text_string(pos, y, " ", color);
 	}
 
-	draw_text_fillrect(pos,y,' ',dx - (pos - x),1,COLOR_NORMAL);
+	draw_text_fillrect(pos, y, ' ', dx - (pos - x), 1, COLOR_NORMAL);
 }
 
-static void draw_text_bar(int x, int by1, int by2, int dx) {
+static void draw_text_bar(int x, int by1, int by2, int dx)
+{
 	char buffer[256];
 	unsigned i;
 
-	sprintf(buffer," AdvanceVIDEO Config - " __DATE__ );
+	sprintf(buffer, " AdvanceVIDEO Config - " __DATE__ );
 
-	draw_text_left(x,by1,dx,buffer,COLOR_BAR);
+	draw_text_left(x, by1, dx, buffer, COLOR_BAR);
 
-	strcpy(buffer,"");
+	strcpy(buffer, "");
 	for(i=0;i<video_driver_vector_max();++i) {
 		if (video_driver_vector_pos(i) != 0) {
 			if (*buffer)
-				strcat(buffer,"/");
+				strcat(buffer, "/");
 			strcat(buffer, video_driver_vector_pos(i)->name);
 		}
 	}
 
-	draw_text_left(x + dx - strlen(buffer),by1,strlen(buffer),buffer,COLOR_BAR);
+	draw_text_left(x + dx - strlen(buffer), by1, strlen(buffer), buffer, COLOR_BAR);
 
 	sprintf(buffer, " #    x    y hclock vclock name");
-	draw_text_left(x,by1+2,dx,buffer,COLOR_TITLE);
+	draw_text_left(x, by1+2, dx, buffer, COLOR_TITLE);
 
-	sprintf(buffer," F1 Help  F2 Save  SPACE Select  TAB Rename  ENTER Test  ESC Exit");
-	draw_text_left(x,by2,dx,buffer,COLOR_BAR);
+	sprintf(buffer, " F1 Help  F2 Save  SPACE Select  TAB Rename  ENTER Test  ESC Exit");
+	draw_text_left(x, by2, dx, buffer, COLOR_BAR);
 }
 
 /***************************************************************************/
 /* Test screen */
 
-static int test_default_command(int x, int y) {
-	draw_string(x,y,"ENTER  Save & Exit",DRAW_COLOR_WHITE);
+static int test_default_command(int x, int y)
+{
+	draw_string(x, y, "ENTER  Save & Exit", DRAW_COLOR_WHITE);
 	++y;
-	draw_string(x,y,"ESC    Exit",DRAW_COLOR_WHITE);
+	draw_string(x, y, "ESC    Exit", DRAW_COLOR_WHITE);
 	++y;
 
 	return y;
 }
 
-static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_measured_clock, int print_key) {
+static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_measured_clock, int print_key)
+{
 	char buffer[256];
 
-	sprintf(buffer,"Horz  Vert");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "Horz  Vert");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	if (print_clock) {
-		sprintf(buffer,"%4.1f %5.1f %sClock Requested [kHz Hz]", crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc), print_key ? "     " : "");
-		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+		sprintf(buffer, "%4.1f %5.1f %sClock Requested [kHz Hz]", crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc), print_key ? "     " : "");
+		draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 		++y;
 	}
 
 	if (print_measured_clock) {
-		sprintf(buffer,"     %5.1f %sClock Measured [Hz]", video_measured_vclock(), print_key ? "     " : "");
-		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+		sprintf(buffer, "     %5.1f %sClock Measured [Hz]", video_measured_vclock(), print_key ? "     " : "");
+		draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 		++y;
 	}
 
-	sprintf(buffer,"%4d  %4d %sDisplay End",crtc->hde,crtc->vde, print_key ? "[qa] " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "%4d  %4d %sDisplay End", crtc->hde, crtc->vde, print_key ? "[qa] " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"%4d  %4d %sRetrace Start",crtc->hrs,crtc->vrs, print_key ? "[ed] " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "%4d  %4d %sRetrace Start", crtc->hrs, crtc->vrs, print_key ? "[ed] " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 	if (!(crtc->hde<=crtc->hrs)) {
-		sprintf(buffer,"HDE<=HRS");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "HDE<=HRS");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 	if (!(crtc->vde<=crtc->vrs)) {
-		sprintf(buffer,"VDE<=VRS");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "VDE<=VRS");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 
-	sprintf(buffer,"%4d  %4d %sRetrace End",crtc->hre,crtc->vre, print_key ? "[rf] " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "%4d  %4d %sRetrace End", crtc->hre, crtc->vre, print_key ? "[rf] " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 	if (!(crtc->hrs<crtc->hre)) {
-		sprintf(buffer,"HRS<HRE");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "HRS<HRE");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 	if (!(crtc->vrs<crtc->vre)) {
-		sprintf(buffer,"VRE<VRE");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "VRE<VRE");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 
-	sprintf(buffer,"%4d  %4d %sTotal",crtc->ht,crtc->vt, print_key ? "[yh] " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "%4d  %4d %sTotal", crtc->ht, crtc->vt, print_key ? "[yh] " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 	if (!(crtc->hre<=crtc->ht)) {
-		sprintf(buffer,"HRE<=HT");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "HRE<=HT");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 	if (!(crtc->vre<=crtc->vt)) {
-		sprintf(buffer,"VRE<=VT");
-		draw_string(x,y,buffer,DRAW_COLOR_RED);
+		sprintf(buffer, "VRE<=VT");
+		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
 
-	sprintf(buffer,"   %c     %c %sPolarization", crtc_is_nhsync(crtc) ? '-' : '+', crtc_is_nvsync(crtc) ? '-' : '+', print_key ? "[uj] " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "   %c     %c %sPolarization", crtc_is_nhsync(crtc) ? '-' : '+', crtc_is_nvsync(crtc) ? '-' : '+', print_key ? "[uj] " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"      %4s %sDoublescan", crtc_is_doublescan(crtc) ? "on" : "off", print_key ? "[x]  " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "      %4s %sDoublescan", crtc_is_doublescan(crtc) ? "on" : "off", print_key ? "[x]  " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"      %4s %sInterlaced", crtc_is_interlace(crtc) ? "on" : "off", print_key ? "[c]  " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "      %4s %sInterlaced", crtc_is_interlace(crtc) ? "on" : "off", print_key ? "[c]  " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"      %4s %sTV PAL", crtc_is_tvpal(crtc) ? "on" : "off", print_key ? "[n]  " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "      %4s %sTV PAL", crtc_is_tvpal(crtc) ? "on" : "off", print_key ? "[n]  " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"      %4s %sTV NTSC", crtc_is_tvntsc(crtc) ? "on" : "off", print_key ? "[m]  " : "");
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "      %4s %sTV NTSC", crtc_is_tvntsc(crtc) ? "on" : "off", print_key ? "[m]  " : "");
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	if (print_clock) {
-		sprintf(buffer,"%4.2f      %sPixelclock [MHz]", (double)crtc->pixelclock / 1E6, print_key ? "[v]  " : "");
-		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+		sprintf(buffer, "%4.2f      %sPixelclock [MHz]", (double)crtc->pixelclock / 1E6, print_key ? "[v]  " : "");
+		draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 		++y;
 	}
 
 	if (print_key) {
 		++y;
-		draw_string(x,y,"Q...U  Inc horz (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x, y, "Q...U  Inc horz (SHIFT dec)", DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"A...J  Inc vert (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x, y, "A...J  Inc vert (SHIFT dec)", DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"I,K    Inc horz/vert size (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x, y, "I, K    Inc horz/vert size (SHIFT dec)", DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"XCV    Flip flag",DRAW_COLOR_WHITE);
+		draw_string(x, y, "XCV    Flip flag", DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"ARROWS Center",DRAW_COLOR_WHITE);
+		draw_string(x, y, "ARROWS Center", DRAW_COLOR_WHITE);
 		++y;
 	}
 
@@ -497,173 +514,182 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 }
 
 #ifdef USE_VIDEO_VGALINE
-static int test_vgaline(int x, int y, vgaline_video_mode* mode) {
+static int test_vgaline(int x, int y, vgaline_video_mode* mode)
+{
 	char buffer[256];
 	draw_test_default();
 
 	if (video_is_text()) {
-		sprintf(buffer,"vgaline %s %dx%d %dx%d", index_name(video_index()), video_size_x(), video_size_y(), video_size_x() / video_font_size_x(), video_size_y() / video_font_size_y());
-		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+		sprintf(buffer, "vgaline %s %dx%d %dx%d", index_name(video_index()), video_size_x(), video_size_y(), video_size_x() / video_font_size_x(), video_size_y() / video_font_size_y());
+		draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 		++y;
 	} else {
-		sprintf(buffer,"vgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+		sprintf(buffer, "vgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+		draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 		++y;
 	}
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_VBELINE
-static int test_vbeline(int x, int y, vbeline_video_mode* mode) {
+static int test_vbeline(int x, int y, vbeline_video_mode* mode)
+{
 	char buffer[256];
 	vbe_ModeInfoBlock info;
 
 	draw_test_default();
 
-	sprintf(buffer,"vbeline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "vbeline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	vbe_mode_info_get(&info, mode->mode);
 
-	sprintf(buffer,"based on vbe mode 0x%x %dx%dx%d", mode->mode, info.XResolution, info.YResolution, info.BitsPerPixel);
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "based on vbe mode 0x%x %dx%dx%d", mode->mode, info.XResolution, info.YResolution, info.BitsPerPixel);
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_SVGALINE
-static int test_svgaline(int x, int y, svgaline_video_mode* mode) {
+static int test_svgaline(int x, int y, svgaline_video_mode* mode)
+{
 	char buffer[256];
 
 	draw_test_default();
 
-	sprintf(buffer,"svgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "svgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_SVGAWIN
-static int test_svgawin(int x, int y, svgawin_video_mode* mode) {
+static int test_svgawin(int x, int y, svgawin_video_mode* mode)
+{
 	char buffer[256];
 
 	draw_test_default();
 
-	sprintf(buffer,"svgawin %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "svgawin %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 
 #ifdef USE_VIDEO_SVGALIB
-static int test_svgalib(int x, int y, svgalib_video_mode* mode) {
+static int test_svgalib(int x, int y, svgalib_video_mode* mode)
+{
 	char buffer[256];
 
 	draw_test_default();
 
-	sprintf(buffer,"svgalib %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "svgalib %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_FB
-static int test_fb(int x, int y, fb_video_mode* mode) {
+static int test_fb(int x, int y, fb_video_mode* mode)
+{
 	char buffer[256];
 
 	draw_test_default();
 
-	sprintf(buffer,"fb %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "fb %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_crtc(x,y,&mode->crtc,1,1,1);
-	y = test_default_command(x,y);
+	y = test_crtc(x, y, &mode->crtc, 1, 1, 1);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_SDL
-static int test_sdl(int x, int y, sdl_video_mode* mode) {
+static int test_sdl(int x, int y, sdl_video_mode* mode)
+{
 	char buffer[256];
 
 	draw_test_default();
 
-	sprintf(buffer,"sdl %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "sdl %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	y = test_default_command(x,y);
+	y = test_default_command(x, y);
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_VGA
-static int test_vga(int x, int y, vga_video_mode* mode) {
+static int test_vga(int x, int y, vga_video_mode* mode)
+{
 	char buffer[256];
 	struct tweak_crtc info;
 	adv_crtc crtc;
 
 	draw_test_default();
 
-	sprintf(buffer,"vga %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "vga %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
-	tweak_crtc_get(&info,tweak_reg_read,0);
-	if (crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
+	tweak_crtc_get(&info, tweak_reg_read, 0);
+	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock())==0) {
 		++y;
-		y = test_crtc(x,y,&crtc,0,1,0);
+		y = test_crtc(x, y, &crtc, 0, 1, 0);
 	}
 
 	++y;
-	y = test_default_command(x,y);
+	y = test_default_command(x, y);
 
 	return y;
 }
 #endif
 
 #ifdef USE_VIDEO_VBE
-static int test_vbe(int x, int y, vbe_video_mode* mode) {
+static int test_vbe(int x, int y, vbe_video_mode* mode)
+{
 	char buffer[256];
 	struct vga_info info;
 	struct vga_regs regs;
@@ -671,68 +697,70 @@ static int test_vbe(int x, int y, vbe_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"vbe %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
-	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, "vbe %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
 	vga_mode_get(&regs);
-	vga_regs_info_get(&regs,&info);
-	if (crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
+	vga_regs_info_get(&regs, &info);
+	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock())==0) {
 		++y;
-		y = test_crtc(x,y,&crtc,0,1,0);
+		y = test_crtc(x, y, &crtc, 0, 1, 0);
 	}
 
 	++y;
-	y = test_default_command(x,y);
+	y = test_default_command(x, y);
 
 	return y;
 }
 #endif
 
-static int test_draw(int x, int y, adv_mode* mode) {
+static int test_draw(int x, int y, adv_mode* mode)
+{
 	if (0) ;
 #ifdef USE_VIDEO_VGA
 	else if (video_current_driver() == &video_vga_driver)
-		y = test_vga(x,y,(vga_video_mode*)mode->driver_mode);
+		y = test_vga(x, y, (vga_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_VGALINE
 	else if (video_current_driver() == &video_vgaline_driver)
-		y = test_vgaline(x,y,(vgaline_video_mode*)mode->driver_mode);
+		y = test_vgaline(x, y, (vgaline_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_SVGALINE
 	else if (video_current_driver() == &video_svgaline_driver)
-		y = test_svgaline(x,y,(svgaline_video_mode*)mode->driver_mode);
+		y = test_svgaline(x, y, (svgaline_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_SVGAWIN
 	else if (video_current_driver() == &video_svgawin_driver)
-		y = test_svgawin(x,y,(svgawin_video_mode*)mode->driver_mode);
+		y = test_svgawin(x, y, (svgawin_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_VBE
 	else if (video_current_driver() == &video_vbe_driver)
-		y = test_vbe(x,y,(vbe_video_mode*)mode->driver_mode);
+		y = test_vbe(x, y, (vbe_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_VBELINE
 	else if (video_current_driver() == &video_vbeline_driver)
-		y = test_vbeline(x,y,(vbeline_video_mode*)mode->driver_mode);
+		y = test_vbeline(x, y, (vbeline_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_SVGALIB
 	else if (video_current_driver() == &video_svgalib_driver)
-		y = test_svgalib(x,y,(svgalib_video_mode*)mode->driver_mode);
+		y = test_svgalib(x, y, (svgalib_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_FB
 	else if (video_current_driver() == &video_fb_driver)
-		y = test_fb(x,y,(fb_video_mode*)mode->driver_mode);
+		y = test_fb(x, y, (fb_video_mode*)mode->driver_mode);
 #endif
 #ifdef USE_VIDEO_SDL
 	else if (video_current_driver() == &video_sdl_driver)
-		y = test_sdl(x,y,(sdl_video_mode*)mode->driver_mode);
+		y = test_sdl(x, y, (sdl_video_mode*)mode->driver_mode);
 #endif
 	return y;
 }
 
-static int test_exe_crtc(int userkey, adv_crtc* crtc) {
+static int test_exe_crtc(int userkey, adv_crtc* crtc)
+{
 	int modify = 0;
 	unsigned pred_t;
 	int xdelta;
@@ -924,7 +952,8 @@ static int test_exe_crtc(int userkey, adv_crtc* crtc) {
 /***************************************************************************/
 /* Menu command */
 
-static void cmd_type(int key) {
+static void cmd_type(int key)
+{
 	if (key == INPUTB_RIGHT) {
 		switch (the_mode_index) {
 			case MODE_FLAGS_INDEX_TEXT : the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
@@ -950,7 +979,8 @@ static void cmd_type(int key) {
 	}
 }
 
-static void cmd_select(void) {
+static void cmd_select(void)
+{
 	adv_crtc* crtc;
 
 	crtc = menu_current();
@@ -962,7 +992,8 @@ static void cmd_select(void) {
 	menu_modify();
 }
 
-static int cmd_offvideo_test(int userkey) {
+static int cmd_offvideo_test(int userkey)
+{
 	adv_crtc* crtc;
 	adv_crtc crtc_save;
 	int modify = 0;
@@ -973,7 +1004,7 @@ static int cmd_offvideo_test(int userkey) {
 
 	crtc_save = *crtc;
 
-	modify = test_exe_crtc(userkey,crtc);
+	modify = test_exe_crtc(userkey, crtc);
 
 	if (!modify) {
 		sound_warn();
@@ -982,8 +1013,8 @@ static int cmd_offvideo_test(int userkey) {
 
 	menu_modify();
 
-	if (strcmp(crtc->name,DEFAULT_TEXT_MODE)==0) {
-		if (!crtc_clock_check(&the_monitor,crtc) && crtc_clock_check(&the_monitor,&crtc_save)) {
+	if (strcmp(crtc->name, DEFAULT_TEXT_MODE)==0) {
+		if (!crtc_clock_check(&the_monitor, crtc) && crtc_clock_check(&the_monitor, &crtc_save)) {
 			*crtc = crtc_save;
 			sound_error();
 			return 0;
@@ -994,7 +1025,8 @@ static int cmd_offvideo_test(int userkey) {
 	return 0;
 }
 
-static int cmd_onvideo_test(void) {
+static int cmd_onvideo_test(void)
+{
 	adv_crtc* crtc;
 	adv_mode mode;
 	int done ;
@@ -1008,10 +1040,10 @@ static int cmd_onvideo_test(void) {
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor,crtc))
+	if (!crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc,the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1034,8 +1066,8 @@ static int cmd_onvideo_test(void) {
 
 		if (dirty) {
 			video_write_lock();
-			test_draw(1,1,&mode);
-			video_write_unlock(0,0,0,0);
+			test_draw(1, 1, &mode);
+			video_write_unlock(0, 0, 0, 0);
 			dirty = 0;
 		}
 
@@ -1059,14 +1091,14 @@ static int cmd_onvideo_test(void) {
 		}
 
 		if (!done) {
-			modify = test_exe_crtc(userkey,crtc);
+			modify = test_exe_crtc(userkey, crtc);
 
 			if (modify) {
 				the_modes_modified = 1;
 				dirty = 1;
 
-				if (crtc_clock_check(&the_monitor,crtc)
-					&& video_mode_generate(&mode,crtc,the_mode_index)==0) {
+				if (crtc_clock_check(&the_monitor, crtc)
+					&& video_mode_generate(&mode, crtc, the_mode_index)==0) {
 					if (video_mode_set(&mode) != 0) {
 						/* abort */
 						*crtc = crtc_save;
@@ -1091,7 +1123,8 @@ static int cmd_onvideo_test(void) {
 	return 0;
 }
 
-static int cmd_onvideo_calib(void) {
+static int cmd_onvideo_calib(void)
+{
 	adv_mode mode;
 	adv_crtc* crtc;
 	unsigned speed;
@@ -1108,10 +1141,10 @@ static int cmd_onvideo_calib(void) {
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor,crtc))
+	if (!crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc,the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1125,13 +1158,13 @@ static int cmd_onvideo_calib(void) {
 	/* draw_graphics_out_of_screen(0); */
 	draw_graphics_clear();
 
-	speed = draw_graphics_speed(0,0,video_size_x(),video_size_y());
-	draw_graphics_calib(0,0,video_size_x(),video_size_y());
+	speed = draw_graphics_speed(0, 0, video_size_x(), video_size_y());
+	draw_graphics_calib(0, 0, video_size_x(), video_size_y());
 
-	sprintf(buffer," %.2f MB/s", speed / (double)(1024*1024));
-	draw_string(0,0,buffer,DRAW_COLOR_WHITE);
+	sprintf(buffer, " %.2f MB/s", speed / (double)(1024*1024));
+	draw_string(0, 0, buffer, DRAW_COLOR_WHITE);
 
-	video_write_unlock(0,0,0,0);
+	video_write_unlock(0, 0, 0, 0);
 
 	video_wait_vsync();
 
@@ -1143,7 +1176,8 @@ static int cmd_onvideo_calib(void) {
 	return 0;
 }
 
-static int cmd_onvideo_animate(void) {
+static int cmd_onvideo_animate(void)
+{
 	adv_mode mode;
 	adv_crtc* crtc;
 	unsigned i;
@@ -1160,10 +1194,10 @@ static int cmd_onvideo_animate(void) {
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor,crtc))
+	if (!crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc, the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1203,7 +1237,8 @@ static int cmd_onvideo_animate(void) {
 	return 0;
 }
 
-static void cmd_gotopos(int i) {
+static void cmd_gotopos(int i)
+{
 	if (i >= menu_max)
 		i = menu_max - 1;
 	if (i<0)
@@ -1221,10 +1256,11 @@ static void cmd_gotopos(int i) {
 	}
 }
 
-static int cmd_input_key(const char* tag, const char* keys) {
-	draw_text_fill(0,text_size_y()-1,' ',text_size_x(),COLOR_REVERSE);
-	draw_text_string(2,text_size_y()-1,tag,COLOR_REVERSE);
-	draw_text_string(2+strlen(tag),text_size_y()-1,keys,COLOR_INPUT);
+static int cmd_input_key(const char* tag, const char* keys)
+{
+	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
+	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
+	draw_text_string(2+strlen(tag), text_size_y()-1, keys, COLOR_INPUT);
 
 	while (1) {
 		int i;
@@ -1245,18 +1281,20 @@ static int cmd_input_key(const char* tag, const char* keys) {
 	}
 }
 
-static int cmd_input_string(const char* tag, char* buffer, unsigned length) {
-	draw_text_fill(0,text_size_y()-1,' ',text_size_x(),COLOR_REVERSE);
-	draw_text_string(2,text_size_y()-1,tag,COLOR_REVERSE);
+static int cmd_input_string(const char* tag, char* buffer, unsigned length)
+{
+	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
+	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
 
-	if (draw_text_read(2 + strlen(tag),text_size_y()-1,buffer,length,COLOR_INPUT) == INPUTB_ENTER) {
+	if (draw_text_read(2 + strlen(tag), text_size_y()-1, buffer, length, COLOR_INPUT) == INPUTB_ENTER) {
 		return 0;
 	}
 
 	return -1;
 }
 
-static void cmd_rename(void) {
+static void cmd_rename(void)
+{
 	adv_crtc* crtc;
 	char buffer[128];
 
@@ -1264,16 +1302,17 @@ static void cmd_rename(void) {
 	if (!crtc)
 		return;
 
-	strcpy(buffer,"");
-	if (cmd_input_string(" Name : ",buffer, MODE_NAME_MAX)!=0)
+	strcpy(buffer, "");
+	if (cmd_input_string(" Name : ", buffer, MODE_NAME_MAX)!=0)
 		return;
 
-	strcpy(crtc->name,buffer);
+	strcpy(crtc->name, buffer);
 
 	menu_modify();
 }
 
-static void cmd_copy(void) {
+static void cmd_copy(void)
+{
 	adv_crtc* crtc;
 	adv_crtc copy;
 
@@ -1282,12 +1321,13 @@ static void cmd_copy(void) {
 		return;
 
 	copy = *crtc;
-	strcpy(copy.name,"duplicated");
+	strcpy(copy.name, "duplicated");
 
 	menu_insert(&copy);
 }
 
-static int cmd_modeline_create(int favourite_vtotal) {
+static int cmd_modeline_create(int favourite_vtotal)
+{
 	adv_crtc crtc;
 	char buffer[80];
 	double freq = 0;
@@ -1295,19 +1335,19 @@ static int cmd_modeline_create(int favourite_vtotal) {
 	unsigned y;
 	adv_error res;
 
-	strcpy(crtc.name,"format_created");
+	strcpy(crtc.name, "format_created");
 
-	strcpy(buffer,"");
-	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ",buffer,10)!=0)
+	strcpy(buffer, "");
+	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
 		return 0;
-	freq = strtod(buffer,0);
+	freq = strtod(buffer, 0);
 	if (freq < 10 || freq > 200) {
 		error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
 		return -1;
 	}
 
-	strcpy(buffer,"");
-	if (cmd_input_string(" X resolution [pixel] : ",buffer,10)!=0)
+	strcpy(buffer, "");
+	if (cmd_input_string(" X resolution [pixel] : ", buffer, 10)!=0)
 		return 0;
 	x = atoi(buffer);
 	if (x < 64 || x > 2048) {
@@ -1315,8 +1355,8 @@ static int cmd_modeline_create(int favourite_vtotal) {
 		return -1;
 	}
 
-	strcpy(buffer,"");
-	if (cmd_input_string(" Y resolution [pixel] : ",buffer,10)!=0)
+	strcpy(buffer, "");
+	if (cmd_input_string(" Y resolution [pixel] : ", buffer, 10)!=0)
 		return 0;
 	y = atoi(buffer);
 	if (y < 64 || y > 2048) {
@@ -1344,7 +1384,8 @@ static int cmd_modeline_create(int favourite_vtotal) {
 	return 0;
 }
 
-static int cmd_mode_clock(void) {
+static int cmd_mode_clock(void)
+{
 	adv_crtc* crtc;
 	char buffer[80];
 	double freq = 0;
@@ -1353,15 +1394,15 @@ static int cmd_mode_clock(void) {
 	if (i >= menu_max)
 		return 0;
 
-	crtc = crtc_container_pos(&the_modes,i);
+	crtc = crtc_container_pos(&the_modes, i);
 
-	strcpy(buffer,"");
+	strcpy(buffer, "");
 
-	switch (cmd_input_key(" Set Vertical/Horizontal/Pixel clock ? ","vhp")) {
+	switch (cmd_input_key(" Set Vertical/Horizontal/Pixel clock ? ", "vhp")) {
 		case 0 :
-			if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ",buffer,10)!=0)
+			if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
 				return 0;
-			freq = strtod(buffer,0);
+			freq = strtod(buffer, 0);
 			if (freq < 10 || freq > 200) {
 				error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
 				return -1;
@@ -1373,9 +1414,9 @@ static int cmd_mode_clock(void) {
 				crtc->pixelclock *= 2;
 			break;
 		case 1 :
-			if (cmd_input_string(" Horizontal clock [kHz] (example 31.5) : ",buffer,10)!=0)
+			if (cmd_input_string(" Horizontal clock [kHz] (example 31.5) : ", buffer, 10)!=0)
 				return 0;
-			freq = strtod(buffer,0) * 1E3;
+			freq = strtod(buffer, 0) * 1E3;
 			if (freq < 10*1E3 || freq > 100*1E3) {
 				error_set("Invalid horizontal clock value, usually in the range 15.0 - 80.0 [kHz]");
 				return -1;
@@ -1383,9 +1424,9 @@ static int cmd_mode_clock(void) {
 			crtc->pixelclock = freq * crtc->ht;
 			break;
 		case 2 :
-			if (cmd_input_string(" Pixel clock [MHz] (example 14.0) : ",buffer,10)!=0)
+			if (cmd_input_string(" Pixel clock [MHz] (example 14.0) : ", buffer, 10)!=0)
 				return 0;
-			freq = strtod(buffer,0) * 1E6;
+			freq = strtod(buffer, 0) * 1E6;
 			if (freq < 1*1E6 || freq > 300*1E6) {
 				error_set("Invalid pixel clock value, usually in the range 1.0 - 300.0 [MHz]");
 				return -1;
@@ -1400,7 +1441,8 @@ static int cmd_mode_clock(void) {
 	return 0;
 }
 
-static void cmd_del(void) {
+static void cmd_del(void)
+{
 	adv_crtc* crtc;
 
 	crtc = menu_current();
@@ -1410,15 +1452,16 @@ static void cmd_del(void) {
 	menu_remove(crtc);
 }
 
-static void cmd_save(void) {
+static void cmd_save(void)
+{
 	adv_crtc_container selected;
 	adv_crtc_container_iterator i;
 	crtc_container_init(&selected);
 
-	for(crtc_container_iterator_begin(&i,&the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for(crtc_container_iterator_begin(&i, &the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
 		if (crtc->user_flags & MODE_FLAGS_USER_BIT0)
-			crtc_container_insert(&selected,crtc);
+			crtc_container_insert(&selected, crtc);
 	}
 
 	crtc_container_save(the_config, &selected);
@@ -1427,13 +1470,14 @@ static void cmd_save(void) {
 	the_modes_modified = 0;
 }
 
-static int cmd_exit(void) {
+static int cmd_exit(void)
+{
 	if (the_modes_modified) {
 		int res;
 
 		sound_warn();
 
-		res = cmd_input_key(" Save before exiting : ","yn");
+		res = cmd_input_key(" Save before exiting : ", "yn");
 		if (res < 0)
 			return 0;
 
@@ -1464,7 +1508,8 @@ static int cmd_exit(void) {
 #define BAR_DX (text_size_x())
 
 /* Menu */
-static int menu_run(void) {
+static int menu_run(void)
+{
 	int done;
 	int userkey;
 
@@ -1478,10 +1523,10 @@ static int menu_run(void) {
 
 	done = 0;
 	while (!done) {
-		draw_text_index(BAR_X,BAR_Y1+1,BAR_DX);
-		draw_text_bar(BAR_X,BAR_Y1,BAR_Y2,BAR_DX);
-		draw_text_info(INFO_X,INFO_Y,INFO_DX,INFO_DY,menu_base + menu_rel);
-		menu_draw(MENU_X,MENU_Y,MENU_DX,MENU_DY);
+		draw_text_index(BAR_X, BAR_Y1+1, BAR_DX);
+		draw_text_bar(BAR_X, BAR_Y1, BAR_Y2, BAR_DX);
+		draw_text_info(INFO_X, INFO_Y, INFO_DX, INFO_DY, menu_base + menu_rel);
+		menu_draw(MENU_X, MENU_Y, MENU_DX, MENU_DY);
 
 		video_wait_vsync();
 
@@ -1501,7 +1546,7 @@ static int menu_run(void) {
 				int i = menu_base + menu_rel - 1;
 				if (i<0)
 					i = 0;
-				while (i>0 && !(crtc_container_pos(&the_modes,i)->user_flags & MODE_FLAGS_USER_BIT0))
+				while (i>0 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
 					--i;
 				cmd_gotopos( i );
 				break;
@@ -1510,7 +1555,7 @@ static int menu_run(void) {
 				int i = menu_base + menu_rel + 1;
 				if (i >= menu_max)
 					i = menu_max - 1;
-				while (i < menu_max - 1 && !(crtc_container_pos(&the_modes,i)->user_flags & MODE_FLAGS_USER_BIT0))
+				while (i < menu_max - 1 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
 					++i;
 				cmd_gotopos( i );
 				break;
@@ -1620,7 +1665,8 @@ int the_advance_vga_active; /* if AdvanceVGA is active */
 #define VGA_RUT_ACK1 0xAD17
 #define VGA_RUT_ACK2 0x175A
 
-static void msdos_rut(void) {
+static void msdos_rut(void)
+{
 	__dpmi_regs r;
 	unsigned i;
 
@@ -1630,7 +1676,7 @@ static void msdos_rut(void) {
 		r.x.bx = 0;
 		r.x.cx = 0;
 		r.x.dx = 0;
-		__dpmi_int(0x2f,&r);
+		__dpmi_int(0x2f, &r);
 		if (r.h.al == 0xFF && r.x.cx == VBE_RUT_ACK1 && r.x.dx == VBE_RUT_ACK2) {
 			the_advance_vbe_active = 1;
 			break;
@@ -1643,7 +1689,7 @@ static void msdos_rut(void) {
 		r.x.bx = 0;
 		r.x.cx = 0;
 		r.x.dx = 0;
-		__dpmi_int(0x2f,&r);
+		__dpmi_int(0x2f, &r);
 		if (r.h.al == 0xFF && r.x.cx == VGA_RUT_ACK1 && r.x.dx == VGA_RUT_ACK2) {
 			the_advance_vga_active = 1;
 			break;
@@ -1658,10 +1704,11 @@ static void msdos_rut(void) {
 
 void adv_svgalib_log_va(const char *text, va_list arg)
 {
-	log_va(text,arg);
+	log_va(text, arg);
 }
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	target_err_va(desc, arg);
@@ -1675,11 +1722,13 @@ static adv_conf_conv STANDARD[] = {
 { "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
-void os_signal(int signum) {
+void os_signal(int signum)
+{
 	os_default_signal(signum);
 }
 
-int os_main(int argc, char* argv[]) {
+int os_main(int argc, char* argv[])
+{
 	adv_crtc_container selected;
 	adv_crtc_container_iterator i;
 	const char* opt_rc;
@@ -1719,34 +1768,34 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	for(j=1;j<argc;++j) {
-		if (target_option(argv[j],"rc") && j+1<argc) {
+		if (target_option(argv[j], "rc") && j+1<argc) {
 			opt_rc = argv[++j];
-		} else if (target_option(argv[j],"log")) {
+		} else if (target_option(argv[j], "log")) {
 			opt_log = 1;
-		} else if (target_option(argv[j],"logsync")) {
+		} else if (target_option(argv[j], "logsync")) {
 			opt_logsync = 1;
-		} else if (target_option(argv[j],"nosound")) {
+		} else if (target_option(argv[j], "nosound")) {
 			the_sound_flag = 0;
-		} else if (target_option(argv[j],"advmamev")) {
+		} else if (target_option(argv[j], "advmamev")) {
 			the_advance = advance_mame;
-		} else if (target_option(argv[j],"advmessv")) {
+		} else if (target_option(argv[j], "advmessv")) {
 			the_advance = advance_mess;
-		} else if (target_option(argv[j],"advpacv")) {
+		} else if (target_option(argv[j], "advpacv")) {
 			the_advance = advance_pac;
-		} else if (target_option(argv[j],"advmenuv")) {
+		} else if (target_option(argv[j], "advmenuv")) {
 			the_advance = advance_menu;
 #ifdef __MSDOS__
-		} else if (target_option(argv[j],"vgav")) {
+		} else if (target_option(argv[j], "vgav")) {
 			the_advance = advance_vga;
-		} else if (target_option(argv[j],"vbev")) {
+		} else if (target_option(argv[j], "vbev")) {
 			the_advance = advance_vbe;
 #endif
 #ifdef __WIN32__
-		} else if (target_option(argv[j],"videowv")) {
+		} else if (target_option(argv[j], "videowv")) {
 			the_advance = advance_videow;
 #endif
 		} else {
-			target_err("Unknown option %s\n",argv[j]);
+			target_err("Unknown option %s\n", argv[j]);
 			goto err;
 		}
 	}
@@ -1787,7 +1836,7 @@ int os_main(int argc, char* argv[]) {
 		}
 	}
 
-	if (access(opt_rc,R_OK)!=0) {
+	if (access(opt_rc, R_OK)!=0) {
 		target_err("Configuration file %s not found\n", opt_rc);
 		goto err_os;
 	}
@@ -1798,10 +1847,10 @@ int os_main(int argc, char* argv[]) {
 	if (opt_log || opt_logsync) {
 		const char* log = "advv.log";
 		remove(log);
-		log_init(log,opt_logsync);
+		log_init(log, opt_logsync);
         }
 
-	log_std(("v: %s %s\n",__DATE__,__TIME__));
+	log_std(("v: %s %s\n", __DATE__, __TIME__));
 
 	section_map[0] = "";
 	conf_section_set(the_config, section_map, 1);
@@ -1853,13 +1902,13 @@ int os_main(int argc, char* argv[]) {
 		goto err_input;
 	}
 
-	log_std(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
+	log_std(("v: pclock %.3f - %.3f\n", (double)the_monitor.pclock.low, (double)the_monitor.pclock.high));
 	for(j=0;j<MONITOR_RANGE_MAX;++j)
 		if (the_monitor.hclock[j].low)
-			log_std(("v: hclock %.3f - %.3f\n",(double)the_monitor.hclock[j].low,(double)the_monitor.hclock[j].high));
+			log_std(("v: hclock %.3f - %.3f\n", (double)the_monitor.hclock[j].low, (double)the_monitor.hclock[j].high));
 	for(j=0;j<MONITOR_RANGE_MAX;++j)
 		if (the_monitor.vclock[j].low)
-			log_std(("v: vclock %.3f - %.3f\n",(double)the_monitor.vclock[j].low,(double)the_monitor.vclock[j].high));
+			log_std(("v: vclock %.3f - %.3f\n", (double)the_monitor.vclock[j].low, (double)the_monitor.vclock[j].high));
 
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);
@@ -1901,9 +1950,9 @@ int os_main(int argc, char* argv[]) {
 
 	/* sort */
 	crtc_container_init(&the_modes);
-	for(crtc_container_iterator_begin(&i,&selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for(crtc_container_iterator_begin(&i, &selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
-		crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
+		crtc_container_insert_sort(&the_modes, crtc, crtc_compare);
 	}
 	crtc_container_done(&selected);
 
@@ -1916,13 +1965,13 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	/* union set */
-	for(crtc_container_iterator_begin(&i,&selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for(crtc_container_iterator_begin(&i, &selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
-		int has = crtc_container_has(&the_modes,crtc,crtc_compare) != 0;
+		int has = crtc_container_has(&the_modes, crtc, crtc_compare) != 0;
 		if (has)
-			crtc_container_remove(&the_modes,crtc_select_by_compare,crtc);
+			crtc_container_remove(&the_modes, crtc_select_by_compare, crtc);
 		crtc->user_flags |= MODE_FLAGS_USER_BIT0;
-		crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
+		crtc_container_insert_sort(&the_modes, crtc, crtc_compare);
 	}
 	crtc_container_done(&selected);
 
@@ -1958,7 +2007,7 @@ int os_main(int argc, char* argv[]) {
 
 	os_done();
 
-	conf_save(the_config,0);
+	conf_save(the_config, 0);
 
 	conf_done(the_config);
 

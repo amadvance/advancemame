@@ -46,28 +46,31 @@
 /** Last parse error */
 static char video_mode_parse_error[1024];
 
-static adv_error parse_int(int* r, const char** begin, const char* end) {
+static adv_error parse_int(int* r, const char** begin, const char* end)
+{
 	char* e;
-	*r = strtol(*begin,&e,10);
+	*r = strtol(*begin, &e, 10);
 	if (e==*begin || e > end) {
-		sprintf(video_mode_parse_error,"Error in value");
+		sprintf(video_mode_parse_error, "Error in value");
 		return -1;
 	}
 	*begin = e;
 	return 0;
 }
 
-static void parse_separator(const char* separator, const char** begin, const char* end) {
-	while (*begin < end && strchr(separator,**begin))
+static void parse_separator(const char* separator, const char** begin, const char* end)
+{
+	while (*begin < end && strchr(separator, **begin))
 		++*begin;
 }
 
-static adv_error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end) {
+static adv_error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end)
+{
 	unsigned pos = 0;
 
-	while (*begin < end && !strchr(separator,**begin)) {
+	while (*begin < end && !strchr(separator, **begin)) {
 		if (pos + 2 > size) {
-			sprintf(video_mode_parse_error,"Token too long");
+			sprintf(video_mode_parse_error, "Token too long");
 			return -1;
 		}
 		token[pos] = **begin;
@@ -75,19 +78,20 @@ static adv_error parse_token(char* token, unsigned size, const char* separator, 
 		++*begin;
 	}
 	if (!pos) {
-		sprintf(video_mode_parse_error,"Expected token");
+		sprintf(video_mode_parse_error, "Expected token");
 		return -1;
 	}
 	token[pos] = 0;
 	return 0;
 }
 
-static adv_error parse_quote(char* token, unsigned size, const char** begin, const char* end) {
+static adv_error parse_quote(char* token, unsigned size, const char** begin, const char* end)
+{
 	if (*begin == end || **begin != '"')
 		return -1;
 	++*begin;
 
-	if (parse_token(token,size,"\"",begin,end)!=0)
+	if (parse_token(token, size, "\"", begin, end)!=0)
 		return -1;
 
 	if (*begin == end || **begin != '"')
@@ -97,11 +101,12 @@ static adv_error parse_quote(char* token, unsigned size, const char** begin, con
 	return 0;
 }
 
-static adv_error parse_double(double* r, const char** begin, const char* end) {
+static adv_error parse_double(double* r, const char** begin, const char* end)
+{
 	char* e;
-	*r = strtod(*begin,&e);
+	*r = strtod(*begin, &e);
 	if (e==*begin || e > end) {
-		sprintf(video_mode_parse_error,"Error in value");
+		sprintf(video_mode_parse_error, "Error in value");
 		return -1;
 	}
 	*begin = e;
@@ -111,84 +116,85 @@ static adv_error parse_double(double* r, const char** begin, const char* end) {
 /***************************************************************************/
 /* Video crtc container */
 
-static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end) {
+static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
+{
 	int v;
 	double d;
 
-	if (parse_double(&d,&begin,end))
+	if (parse_double(&d, &begin, end))
 		return -1;
 	crtc->pixelclock = d * 1E6;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->hde = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->hrs = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->hre = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->ht = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->vde = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->vrs = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->vre = v;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&v,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->vt = v;
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	while (begin != end) {
 		char token[32];
-		if (parse_token(token,sizeof(token)," \t",&begin,end))
+		if (parse_token(token, sizeof(token), " \t", &begin, end))
 			return -1;
-		if (strcasecmp(token,"doublescan")==0) {
+		if (strcasecmp(token, "doublescan")==0) {
 			crtc_doublescan_set(crtc);
-		} else if (strcasecmp(token,"+hsync")==0) {
+		} else if (strcasecmp(token, "+hsync")==0) {
 			crtc_phsync_set(crtc);
-		} else if (strcasecmp(token,"-hsync")==0) {
+		} else if (strcasecmp(token, "-hsync")==0) {
 			crtc_nhsync_set(crtc);
-		} else if (strcasecmp(token,"+vsync")==0) {
+		} else if (strcasecmp(token, "+vsync")==0) {
 			crtc_pvsync_set(crtc);
-		} else if (strcasecmp(token,"-vsync")==0) {
+		} else if (strcasecmp(token, "-vsync")==0) {
 			crtc_nvsync_set(crtc);
-		} else if (strcasecmp(token,"interlaced")==0) { /* LEGACY for the old modelines */
+		} else if (strcasecmp(token, "interlaced")==0) { /* LEGACY for the old modelines */
 			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token,"interlace")==0) {
+		} else if (strcasecmp(token, "interlace")==0) {
 			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token,"tvpal")==0) {
+		} else if (strcasecmp(token, "tvpal")==0) {
 			crtc_tvpal_set(crtc);
-		} else if (strcasecmp(token,"tvntsc")==0) {
+		} else if (strcasecmp(token, "tvntsc")==0) {
 			crtc_tvntsc_set(crtc);
 		} else {
 			if (token[0]=='#')
 				return 0; /* comment */
-			sprintf(video_mode_parse_error,"Unknown token '%s'",token);
+			sprintf(video_mode_parse_error, "Unknown token '%s'", token);
 			return -1;
 		}
-		parse_separator(" \t",&begin,end);
+		parse_separator(" \t", &begin, end);
 	}
 
 	return 0;
@@ -202,34 +208,36 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end) 
  *  - ==0 on success
  *  - !=0 on error
  */
-adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end) {
+adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end)
+{
 
 	/* defaults */
 	crtc_reset_all(crtc);
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 
 	if (begin != end && *begin == '"') {
-		if (parse_quote(crtc->name,CRTC_NAME_MAX,&begin,end))
+		if (parse_quote(crtc->name, CRTC_NAME_MAX, &begin, end))
 			return -1;
 	} else {
-		if (parse_token(crtc->name,CRTC_NAME_MAX," \t",&begin,end))
+		if (parse_token(crtc->name, CRTC_NAME_MAX, " \t", &begin, end))
 			return -1;
 	}
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	if (begin == end) {
-		sprintf(video_mode_parse_error,"Missing modeline data");
+		sprintf(video_mode_parse_error, "Missing modeline data");
 		return -1;
 	}
 
-	if (parse_crtc(crtc,begin,end) != 0)
+	if (parse_crtc(crtc, begin, end) != 0)
 		return -1;
 
 	return 0;
 }
 
-void crtc_print(char* buffer, const adv_crtc* crtc) {
+void crtc_print(char* buffer, const adv_crtc* crtc)
+{
 	const char* flag1 = crtc_is_nhsync(crtc) ? " -hsync" : " +hsync";
 	const char* flag2 = crtc_is_nvsync(crtc) ? " -vsync" : " +vsync";
 	const char* flag3 = crtc_is_doublescan(crtc) ? " doublescan" : "";
@@ -237,12 +245,12 @@ void crtc_print(char* buffer, const adv_crtc* crtc) {
 	const char* flag5 = crtc_is_tvpal(crtc) ? " tvpal" : "";
 	const char* flag6 = crtc_is_tvntsc(crtc) ? " tvntsc" : "";
 
-	if (strchr(crtc->name,' ')!=0)
+	if (strchr(crtc->name, ' ')!=0)
 		sprintf(buffer, "\"%s\"", crtc->name);
 	else
 		sprintf(buffer, "%s", crtc->name);
 
-	sprintf(buffer + strlen(buffer)," %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
+	sprintf(buffer + strlen(buffer), " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
 		(double)crtc->pixelclock / 1E6,
 		crtc->hde, crtc->hrs, crtc->hre, crtc->ht,
 		crtc->vde, crtc->vrs, crtc->vre, crtc->vt,
@@ -251,7 +259,8 @@ void crtc_print(char* buffer, const adv_crtc* crtc) {
 }
 
 /* Load the list of video mode */
-adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc) {
+adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc)
+{
 	adv_conf_iterator i;
 	int error = 0;
 
@@ -259,12 +268,12 @@ adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc) {
 	while (!conf_iterator_is_end(&i)) {
 		adv_crtc crtc;
 		const char* s = conf_iterator_string_get(&i);
-		if (crtc_parse(&crtc,s, s + strlen(s)) == 0) {
-			crtc_container_insert(cc,&crtc);
+		if (crtc_parse(&crtc, s, s + strlen(s)) == 0) {
+			crtc_container_insert(cc, &crtc);
 		} else {
 			if (!error) {
 				error = 1;
-				error_set("%s in argument '%s' for option 'device_video_modeline'",video_mode_parse_error,s);
+				error_set("%s in argument '%s' for option 'device_video_modeline'", video_mode_parse_error, s);
 			}
 		}
 		conf_iterator_next(&i);
@@ -274,44 +283,48 @@ adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc) {
 }
 
 /* Save the list of video mode */
-void crtc_container_save(adv_conf* context, adv_crtc_container* cc) {
+void crtc_container_save(adv_conf* context, adv_crtc_container* cc)
+{
 	adv_crtc_container_iterator i;
-	conf_remove(context,"","device_video_modeline");
-	crtc_container_iterator_begin(&i,cc);
+	conf_remove(context, "", "device_video_modeline");
+	crtc_container_iterator_begin(&i, cc);
 	while (!crtc_container_iterator_is_end(&i)) {
 		char buffer[1024];
-		crtc_print(buffer,crtc_container_iterator_get(&i));
-		conf_string_set(context,"","device_video_modeline",buffer);
+		crtc_print(buffer, crtc_container_iterator_get(&i));
+		conf_string_set(context, "", "device_video_modeline", buffer);
 		crtc_container_iterator_next(&i);
 	}
 }
 
-void crtc_container_register(adv_conf* context) {
-	conf_string_register_multi(context,"device_video_modeline");
+void crtc_container_register(adv_conf* context)
+{
+	conf_string_register_multi(context, "device_video_modeline");
 }
 
-void crtc_container_clear(adv_conf* context) {
-	conf_remove(context,"","device_video_modeline");
+void crtc_container_clear(adv_conf* context)
+{
+	conf_remove(context, "", "device_video_modeline");
 }
 
 /***************************************************************************/
 /* Monitor */
 
-static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin, const char* end, double mult)
+{
 	unsigned i = 0;
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	while (begin < end) {
 		double v0;
 		if (i==MONITOR_RANGE_MAX) {
 			return -1;
 		}
-		if (parse_double(&v0,&begin,end))
+		if (parse_double(&v0, &begin, end))
 			return -1;
-		parse_separator(" \t",&begin,end);
+		parse_separator(" \t", &begin, end);
 		if (*begin=='-') {
 			double v1;
 			++begin;
-			if (parse_double(&v1,&begin,end))
+			if (parse_double(&v1, &begin, end))
 				return -1;
 			if (v0 < 0 || v0 > v1 || v1 > 300) {
 				return -1;
@@ -330,11 +343,11 @@ static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin
 				++i;
 			}
 		}
-		parse_separator(" \t",&begin,end);
+		parse_separator(" \t", &begin, end);
 		if (*begin==',') {
 			++begin;
 		}
-		parse_separator(" \t",&begin,end);
+		parse_separator(" \t", &begin, end);
 	}
 	if (i==0)
 		return -1; /* empty */
@@ -346,20 +359,21 @@ static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin
 	return 0;
 }
 
-static adv_error monitor_single_parse(adv_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_single_parse(adv_monitor_range* range, const char* begin, const char* end, double mult)
+{
 	double v0;
 	double v1;
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 
-	if (parse_double(&v0,&begin,end))
+	if (parse_double(&v0, &begin, end))
 		return -1;
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	if (*begin!='-')
 		return -1;
 	++begin;
-	if (parse_double(&v1,&begin,end))
+	if (parse_double(&v1, &begin, end))
 		return -1;
 	if (v0 < 0 || v0 > v1 || v1 > 300) {
 		return -1;
@@ -368,7 +382,7 @@ static adv_error monitor_single_parse(adv_monitor_range* range, const char* begi
 	range->low = mult * v0;
 	range->high = mult * v1;
 
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 
 	if (begin != end)
 		return -1;
@@ -382,30 +396,31 @@ void monitor_print(char* buffer, const adv_monitor_range* range_begin, const adv
 	while (range_begin != range_end) {
 		if (range_begin->low != 0 && range_begin->high != 0) {
 			if (*buffer)
-				strcat(buffer,", ");
+				strcat(buffer, ", ");
 			if (range_begin->low == range_begin->high) {
-				sprintf(buffer+strlen(buffer),"%g", range_begin->low / mult);
+				sprintf(buffer+strlen(buffer), "%g", range_begin->low / mult);
 			} else {
-				sprintf(buffer+strlen(buffer),"%g-%g",range_begin->low / mult, range_begin->high / mult);
+				sprintf(buffer+strlen(buffer), "%g-%g", range_begin->low / mult, range_begin->high / mult);
 			}
 		}
 		++range_begin;
 	}
 
 	if (!*buffer)
-		strcpy(buffer,"0");
+		strcpy(buffer, "0");
 }
 
-adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v) {
-	if (monitor_single_parse(&monitor->pclock,p,p+strlen(p),1E6)!=0) {
+adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v)
+{
+	if (monitor_single_parse(&monitor->pclock, p, p+strlen(p), 1E6)!=0) {
 		error_set("Invalid monitor 'pclock' specification");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->hclock,h,h+strlen(h),1E3)!=0) {
+	if (monitor_range_parse(monitor->hclock, h, h+strlen(h), 1E3)!=0) {
 		error_set("Invalid monitor 'hclock' specification");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->vclock,v,v+strlen(v),1)!=0) {
+	if (monitor_range_parse(monitor->vclock, v, v+strlen(v), 1)!=0) {
 		error_set("Invalid monitor 'vclock' specification");
 		return -1;
 	}
@@ -419,7 +434,8 @@ adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, cons
  *   - <0 on error
  *   - >0 on configuration missing, video_monitor_is_empty(monitor)!=0
  */
-adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
+adv_error monitor_load(adv_conf* context, adv_monitor* monitor)
+{
 	adv_error p_present;
 	adv_error h_present;
 	adv_error v_present;
@@ -427,9 +443,9 @@ adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
 	const char* h;
 	const char* v;
 
-	p_present = conf_string_get(context,"device_video_pclock",&p);
-	h_present = conf_string_get(context,"device_video_hclock",&h);
-	v_present = conf_string_get(context,"device_video_vclock",&v);
+	p_present = conf_string_get(context, "device_video_pclock", &p);
+	h_present = conf_string_get(context, "device_video_hclock", &h);
+	v_present = conf_string_get(context, "device_video_vclock", &v);
 
 	if (p_present!=0 && h_present!=0 && v_present!=0) {
 		monitor_reset(monitor);
@@ -441,8 +457,8 @@ adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
 		error_set("Missing option 'device_video_pclock'");
 		return -1;
 	}
-	if (monitor_single_parse(&monitor->pclock,p,p+strlen(p),1E6)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_pclock'",p);
+	if (monitor_single_parse(&monitor->pclock, p, p+strlen(p), 1E6)!=0) {
+		error_set("Invalid argument '%s' for option 'device_video_pclock'", p);
 		return -1;
 	}
 
@@ -450,8 +466,8 @@ adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
 		error_set("Missing option 'device_video_hclock'");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->hclock,h,h+strlen(h),1000)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_hclock'",h);
+	if (monitor_range_parse(monitor->hclock, h, h+strlen(h), 1000)!=0) {
+		error_set("Invalid argument '%s' for option 'device_video_hclock'", h);
 		return -1;
 	}
 
@@ -459,71 +475,74 @@ adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
 		error_set("Missing option 'device_video_vclock'");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->vclock,v,v+strlen(v),1)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_vclock'",v);
+	if (monitor_range_parse(monitor->vclock, v, v+strlen(v), 1)!=0) {
+		error_set("Invalid argument '%s' for option 'device_video_vclock'", v);
 		return -1;
 	}
 
 	return 0;
 }
 
-void monitor_save(adv_conf* context, const adv_monitor* monitor) {
+void monitor_save(adv_conf* context, const adv_monitor* monitor)
+{
 	char buffer[1024];
 
-	monitor_print(buffer,&monitor->pclock,&monitor->pclock + 1,1E6);
-	conf_string_set(context,"","device_video_pclock",buffer);
+	monitor_print(buffer, &monitor->pclock, &monitor->pclock + 1, 1E6);
+	conf_string_set(context, "", "device_video_pclock", buffer);
 
-	monitor_print(buffer,monitor->hclock,monitor->hclock + MONITOR_RANGE_MAX,1E3);
-	conf_string_set(context,"","device_video_hclock",buffer);
+	monitor_print(buffer, monitor->hclock, monitor->hclock + MONITOR_RANGE_MAX, 1E3);
+	conf_string_set(context, "", "device_video_hclock", buffer);
 
-	monitor_print(buffer,monitor->vclock,monitor->vclock + MONITOR_RANGE_MAX,1);
-	conf_string_set(context,"","device_video_vclock",buffer);
+	monitor_print(buffer, monitor->vclock, monitor->vclock + MONITOR_RANGE_MAX, 1);
+	conf_string_set(context, "", "device_video_vclock", buffer);
 }
 
-void monitor_register(adv_conf* context) {
-	conf_string_register(context,"device_video_pclock");
-	conf_string_register(context,"device_video_hclock");
-	conf_string_register(context,"device_video_vclock");
+void monitor_register(adv_conf* context)
+{
+	conf_string_register(context, "device_video_pclock");
+	conf_string_register(context, "device_video_hclock");
+	conf_string_register(context, "device_video_vclock");
 }
 
 /***************************************************************************/
 /* Generate */
 
-static adv_error parse_generate(const char* begin, const char* end, adv_generate* data) {
+static adv_error parse_generate(const char* begin, const char* end, adv_generate* data)
+{
 	double d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hactive = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hfront = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hsync = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hback = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vactive = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vfront = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vsync = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vback = d;
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	if (begin != end)
 		return -1;
 
@@ -546,47 +565,48 @@ static adv_error parse_generate(const char* begin, const char* end, adv_generate
 	return 0;
 }
 
-static adv_error parse_generate_interpolate(const char* begin, const char* end, adv_generate_interpolate* interpolate) {
+static adv_error parse_generate_interpolate(const char* begin, const char* end, adv_generate_interpolate* interpolate)
+{
 	double d;
 	adv_generate* data = &interpolate->gen;
 
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	interpolate->hclock = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hactive = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hfront = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hsync = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->hback = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vactive = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vfront = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vsync = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->vback = d;
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	if (begin != end)
 		return -1;
 
@@ -595,19 +615,21 @@ static adv_error parse_generate_interpolate(const char* begin, const char* end, 
 	return 0;
 }
 
-static void out_generate_interpolate(char* buffer, const adv_generate_interpolate* interpolate) {
+static void out_generate_interpolate(char* buffer, const adv_generate_interpolate* interpolate)
+{
 	adv_generate out = interpolate->gen;
 
 	generate_normalize(&out);
 
-	sprintf(buffer,"%d %g %g %g %g %g %g %g %g",
+	sprintf(buffer, "%d %g %g %g %g %g %g %g %g",
 		interpolate->hclock,
 		out.hactive, out.hfront, out.hsync, out.hback,
 		out.vactive, out.vfront, out.vsync, out.vback);
 }
 
-adv_error generate_parse(adv_generate* generate, const char* g) {
-	if (parse_generate(g,g+strlen(g),generate)!=0) {
+adv_error generate_parse(adv_generate* generate, const char* g)
+{
+	if (parse_generate(g, g+strlen(g), generate)!=0) {
 		error_set("Invalid specification");
 		return -1;
 	}
@@ -615,7 +637,8 @@ adv_error generate_parse(adv_generate* generate, const char* g) {
 	return 0;
 }
 
-static int generate_interpolate_cmp(const void* e0, const void* e1) {
+static int generate_interpolate_cmp(const void* e0, const void* e1)
+{
 	const adv_generate_interpolate* ee0 = (const adv_generate_interpolate*)e0;
 	const adv_generate_interpolate* ee1 = (const adv_generate_interpolate*)e1;
 	if (ee0->hclock < ee1->hclock)
@@ -625,7 +648,8 @@ static int generate_interpolate_cmp(const void* e0, const void* e1) {
 	return 0;
 }
 
-adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_set* interpolate) {
+adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_set* interpolate)
+{
 	adv_conf_iterator i;
 	unsigned mac = 0;
 
@@ -633,8 +657,8 @@ adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_
 	while (!conf_iterator_is_end(&i)) {
 		const char* s = conf_iterator_string_get(&i);
 
-		if (parse_generate_interpolate(s,s+strlen(s),&interpolate->map[mac])!=0) {
-			error_set("Invalid argument '%s' in option 'device_video_format'",s);
+		if (parse_generate_interpolate(s, s+strlen(s), &interpolate->map[mac])!=0) {
+			error_set("Invalid argument '%s' in option 'device_video_format'", s);
 			return -1;
 		}
 
@@ -657,59 +681,63 @@ adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_
 	return 0;
 }
 
-void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate_set* interpolate) {
+void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate_set* interpolate)
+{
 	unsigned i;
-	conf_remove(context,"","device_video_format");
+	conf_remove(context, "", "device_video_format");
 	for(i=0;i<interpolate->mac;++i) {
 		char buffer[1024];
-		out_generate_interpolate(buffer,&interpolate->map[i]);
-		conf_string_set(context,"","device_video_format",buffer);
+		out_generate_interpolate(buffer, &interpolate->map[i]);
+		conf_string_set(context, "", "device_video_format", buffer);
 	}
 }
 
-void generate_interpolate_clear(adv_conf* context) {
-	conf_remove(context,"","device_video_format");
+void generate_interpolate_clear(adv_conf* context)
+{
+	conf_remove(context, "", "device_video_format");
 }
 
-void generate_interpolate_register(adv_conf* context) {
+void generate_interpolate_register(adv_conf* context)
+{
 	conf_string_register_multi(context, "device_video_format");
 }
 
 /***************************************************************************/
 /* GTF */
 
-static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data) {
+static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data)
+{
 	double d;
 	int i;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->margin_frac = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&i,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&i, &begin, end))
 		return -1;
 	data->v_min_frontporch_lines = i;
-	parse_separator(" \t",&begin,end);
-	if (parse_int(&i,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_int(&i, &begin, end))
 		return -1;
 	data->v_sync_lines = i;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->h_sync_frac = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->v_min_sync_backporch_time = d / 1E6;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->m = d;
-	parse_separator(" \t",&begin,end);
-	if (parse_double(&d,&begin,end))
+	parse_separator(" \t", &begin, end);
+	if (parse_double(&d, &begin, end))
 		return -1;
 	data->c = d;
-	parse_separator(" \t",&begin,end);
+	parse_separator(" \t", &begin, end);
 	if (begin != end)
 		return -1;
 
@@ -727,8 +755,9 @@ static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data) {
 	return 0;
 }
 
-adv_error gtf_parse(adv_gtf* gtf, const char* g) {
-	if (parse_gtf(g,g+strlen(g),gtf)!=0) {
+adv_error gtf_parse(adv_gtf* gtf, const char* g)
+{
+	if (parse_gtf(g, g+strlen(g), gtf)!=0) {
 		error_set("Invalid 'gtf' specification");
 		return -1;
 	}
@@ -736,26 +765,28 @@ adv_error gtf_parse(adv_gtf* gtf, const char* g) {
 	return 0;
 }
 
-adv_error gtf_load(adv_conf* context, adv_gtf* gtf) {
+adv_error gtf_load(adv_conf* context, adv_gtf* gtf)
+{
 	const char* s;
 
-	if (conf_string_get(context,"device_video_gtf",&s) != 0) {
+	if (conf_string_get(context, "device_video_gtf", &s) != 0) {
 		error_set("Missing option 'device_video_gtf'");
 		return 1;
 	}
 
-	if (parse_gtf(s,s+strlen(s),gtf)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_gtf'",s);
+	if (parse_gtf(s, s+strlen(s), gtf)!=0) {
+		error_set("Invalid argument '%s' for option 'device_video_gtf'", s);
 		return -1;
 	}
 
 	return 0;
 }
 
-void gtf_save(adv_conf* context, const adv_gtf* gtf) {
+void gtf_save(adv_conf* context, const adv_gtf* gtf)
+{
 	char buffer[1024];
 
-	sprintf(buffer,"%g %d %d %g %g %g %g",
+	sprintf(buffer, "%g %d %d %g %g %g %g",
 		gtf->margin_frac,
 		gtf->v_min_frontporch_lines,
 		gtf->v_sync_lines,
@@ -768,11 +799,13 @@ void gtf_save(adv_conf* context, const adv_gtf* gtf) {
 	conf_string_set(context, "", "device_video_gtf", buffer);
 }
 
-void gtf_clear(adv_conf* context) {
+void gtf_clear(adv_conf* context)
+{
 	conf_remove(context, "", "device_video_gtf");
 }
 
-void gtf_register(adv_conf* context) {
+void gtf_register(adv_conf* context)
+{
 	conf_string_register(context, "device_video_gtf");
 }
 

@@ -39,80 +39,96 @@
 /***************************************************************************/
 /* Init */
 
-int target_init(void) {
+int target_init(void)
+{
 	return 0;
 }
 
-void target_done(void) {
+void target_done(void)
+{
 	target_flush();
 }
 
 /***************************************************************************/
 /* Scheduling */
 
-void target_yield(void) {
+void target_yield(void)
+{
 }
 
-void target_idle(void) {
+void target_idle(void)
+{
 	SDL_Delay(1);
 }
 
-void target_usleep(unsigned us) {
+void target_usleep(unsigned us)
+{
 }
 
 /***************************************************************************/
 /* Hardware */
 
-void target_port_set(unsigned addr, unsigned value) {
+void target_port_set(unsigned addr, unsigned value)
+{
 }
 
-unsigned target_port_get(unsigned addr) {
+unsigned target_port_get(unsigned addr)
+{
 	return 0;
 }
 
-void target_writeb(unsigned addr, unsigned char c) {
+void target_writeb(unsigned addr, unsigned char c)
+{
 }
 
-unsigned char target_readb(unsigned addr) {
+unsigned char target_readb(unsigned addr)
+{
 	return 0;
 }
 
 /***************************************************************************/
 /* Mode */
 
-void target_mode_reset(void) {
+void target_mode_reset(void)
+{
 	/* nothing */
 }
 
 /***************************************************************************/
 /* Sound */
 
-void target_sound_error(void) {
+void target_sound_error(void)
+{
 	/* nothing */
 }
 
-void target_sound_warn(void) {
+void target_sound_warn(void)
+{
 	/* nothing */
 }
 
-void target_sound_signal(void) {
+void target_sound_signal(void)
+{
 	/* nothing */
 }
 
 /***************************************************************************/
 /* APM */
 
-int target_apm_shutdown(void) {
+int target_apm_shutdown(void)
+{
 	/* nothing */
 	return 0;
 }
 
-int target_apm_standby(void) {
+int target_apm_standby(void)
+{
 	/* nothing */
 	return 0;
 }
 
-int target_apm_wakeup(void) {
+int target_apm_wakeup(void)
+{
 	/* nothing */
 	return 0;
 }
@@ -120,22 +136,24 @@ int target_apm_wakeup(void) {
 /***************************************************************************/
 /* System */
 
-int target_system(const char* cmd) {
+int target_system(const char* cmd)
+{
 	if (system(cmd) != 0)
 		return -1;
 		
 	return 0;
 }
 
-int target_spawn(const char* file, const char** argv) {
+int target_spawn(const char* file, const char** argv)
+{
 	char cmdline[4096];
 	unsigned i;
 
 	*cmdline = 0;
 	for(i=0;argv[i];++i) {
 		if (i)
-			strcat(cmdline," ");
-		if (strchr(argv[i],' ') != 0) {
+			strcat(cmdline, " ");
+		if (strchr(argv[i], ' ') != 0) {
 			strcat(cmdline, "\"");
 			strcat(cmdline, argv[i]);
 			strcat(cmdline, "\"");
@@ -150,15 +168,18 @@ int target_spawn(const char* file, const char** argv) {
 	return 0;
 }
 
-int target_mkdir(const char* file) {
+int target_mkdir(const char* file)
+{
 	return mkdir(file);
 }
 
-void target_sync(void) {
+void target_sync(void)
+{
 	/* nothing */
 }
 
-int target_search(char* path, unsigned path_size, const char* file) {
+int target_search(char* path, unsigned path_size, const char* file)
+{
 	strcpy(path, file);
 	if (access(path, F_OK) != 0) {
 		return -1;
@@ -167,40 +188,47 @@ int target_search(char* path, unsigned path_size, const char* file) {
 	return 0;
 }
 
-void target_out_va(const char* text, va_list arg) {
+void target_out_va(const char* text, va_list arg)
+{
 	vfprintf(stdout, text, arg);
 }
 
-void target_err_va(const char *text, va_list arg) {
+void target_err_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_nfo_va(const char *text, va_list arg) {
+void target_nfo_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_out(const char *text, ...) {
+void target_out(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_out_va(text, arg);
 	va_end(arg);
 }
 
-void target_err(const char *text, ...) {
+void target_err(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_err_va(text, arg);
 	va_end(arg);
 }
 
-void target_nfo(const char *text, ...) {
+void target_nfo(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_nfo_va(text, arg);
 	va_end(arg);
 }
 
-void target_flush(void) {
+void target_flush(void)
+{
 	fflush(stdout);
 	fflush(stderr);
 }

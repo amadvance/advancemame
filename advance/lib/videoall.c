@@ -45,7 +45,8 @@
  *  - USE_VIDEO_VBE
  *  - USE_VIDEO_NONE
  */
-void video_reg_driver_all(adv_conf* context) {
+void video_reg_driver_all(adv_conf* context)
+{
 #ifdef USE_VIDEO_SVGALIB
 	video_reg_driver(context, &video_svgalib_driver);
 #endif

@@ -42,17 +42,19 @@
 /***************************************************************************/
 /* fread/fwrite */
 
-static void write_be_u32(uint8* v, unsigned i) {
+static void write_be_u32(uint8* v, unsigned i)
+{
 	v[0] = (i >> 24) & 0xFF;
 	v[1] = (i >> 16) & 0xFF;
 	v[2] = (i >> 8) & 0xFF;
 	v[3] = i & 0xFF;
 }
 
-static size_t fwrite_le_u16(unsigned* p, size_t num, FILE* f) {
+static size_t fwrite_le_u16(unsigned* p, size_t num, FILE* f)
+{
 	unsigned count = 0;
 	while (count<num) {
-		unsigned char b0,b1;
+		unsigned char b0, b1;
 		b0 = *p & 0xFF;
 		b1 = (*p >> 8) & 0xFF;
 		if (fwrite(&b0, 1, 1, f) != 1 || fwrite(&b1, 1, 1, f) != 1) 
@@ -64,10 +66,11 @@ static size_t fwrite_le_u16(unsigned* p, size_t num, FILE* f) {
 }
 
 
-static size_t fwrite_le_u32(unsigned* p, size_t num, FILE* f) {
+static size_t fwrite_le_u32(unsigned* p, size_t num, FILE* f)
+{
 	unsigned count = 0;
 	while (count<num) {
-		unsigned char b0,b1,b2,b3;
+		unsigned char b0, b1, b2, b3;
 		b0 = *p & 0xFF;
 		b1 = (*p >> 8) & 0xFF;
 		b2 = (*p >> 16) & 0xFF;
@@ -84,7 +87,8 @@ static size_t fwrite_le_u32(unsigned* p, size_t num, FILE* f) {
 /***************************************************************************/
 /* Wave */
 
-static size_t fwrite_tag(char* p, FILE* f) {
+static size_t fwrite_tag(char* p, FILE* f)
+{
 	return fwrite( p, 1, 4, f ) == 4;
 }
 
@@ -95,7 +99,8 @@ typedef struct {
 	unsigned size;
 } record_id;
 
-static size_t fwrite_id( record_id* p, FILE* f) {
+static size_t fwrite_id( record_id* p, FILE* f)
+{
 	return fwrite_tag( p->id, f ) && fwrite_le_u32( &p->size, 1, f );
 }
 
@@ -112,7 +117,8 @@ typedef struct {
 	unsigned wBlockAlign; /* Data block size */
 } record_fmt;
 
-static size_t fwrite_fmt( record_fmt* p, FILE* f) {
+static size_t fwrite_fmt( record_fmt* p, FILE* f)
+{
 	return fwrite_le_u16( &p->wFormatTag, 1, f ) &&
 		fwrite_le_u16( &p->wChannels, 1, f ) &&
 		fwrite_le_u32( &p->dwSamplesPerSec, 1, f ) &&
@@ -126,11 +132,13 @@ typedef struct {
 	unsigned wBitsPerSample; /* Sample size */
 } record_fmt_specific_PCM;
 
-static size_t fwrite_fmt_PCM( record_fmt_specific_PCM* p, FILE* f) {
+static size_t fwrite_fmt_PCM( record_fmt_specific_PCM* p, FILE* f)
+{
 	return fwrite_le_u16( &p->wBitsPerSample, 1, f);
 }
 
-static size_t fwrite_header(int speed, int bit, int channel, int size, FILE* f) {
+static size_t fwrite_header(int speed, int bit, int channel, int size, FILE* f)
+{
 	record_id riff_id;
 	char wave_id[4];
 	record_id fmt_id;
@@ -146,11 +154,11 @@ static size_t fwrite_header(int speed, int bit, int channel, int size, FILE* f) 
 	else
 		size_byte = 4;
 	
-	memcpy(riff_id.id,"RIFF",4);
+	memcpy(riff_id.id, "RIFF", 4);
 	riff_id.size = 0x24 + size;
 	if (!fwrite_id( &riff_id, f )) return 0;
 	
-	memcpy(wave_id,"WAVE",4);
+	memcpy(wave_id, "WAVE", 4);
 	if (!fwrite_tag( wave_id, f )) return 0;
 
 	memcpy(fmt_id.id, "fmt ", 4);
@@ -174,17 +182,18 @@ static size_t fwrite_header(int speed, int bit, int channel, int size, FILE* f) 
 	return 1;
 }
 
-static size_t fwrite_header_size(int size, FILE* f) {
+static size_t fwrite_header_size(int size, FILE* f)
+{
 	unsigned dsize;
 
 	dsize = 0x24 + size;
-	if (fseek(f,4,SEEK_SET)!=0) 
+	if (fseek(f, 4, SEEK_SET)!=0) 
 		return 0;
 	if (!fwrite_le_u32( &dsize, 1, f)) 
 		return 0;
 
 	dsize = size;
-	if (fseek(f,0x28,SEEK_SET)!=0) 
+	if (fseek(f, 0x28, SEEK_SET)!=0) 
 		return 0;
 	if (!fwrite_le_u32( &dsize, 1, f)) 
 		return 0;
@@ -210,7 +219,8 @@ static unsigned SOUND_FREQUENCY_MAP[] = {
 	0
 };
 
-static void sound_cancel(struct advance_record_context* context) {
+static void sound_cancel(struct advance_record_context* context)
+{
 
 	if (!context->state.sound_active_flag)
 		return;
@@ -221,7 +231,8 @@ static void sound_cancel(struct advance_record_context* context) {
 	remove(context->state.sound_file);
 }
 
-static int sound_start(struct advance_record_context* context, const char* file, double frequency, int stereo) {
+static int sound_start(struct advance_record_context* context, const char* file, double frequency, int stereo)
+{
 	unsigned* f;
 
 	if (context->state.sound_active_flag)
@@ -250,7 +261,7 @@ static int sound_start(struct advance_record_context* context, const char* file,
 	if (stereo)
 		context->state.sound_sample_size *= 2;
 
-	strcpy(context->state.sound_file,file);
+	strcpy(context->state.sound_file, file);
 
 	context->state.sound_f = fopen(context->state.sound_file, "wb");
 	if (!context->state.sound_f) {
@@ -275,7 +286,8 @@ static int sound_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int sound_update(struct advance_record_context* context, const short* map, unsigned mac) {
+static int sound_update(struct advance_record_context* context, const short* map, unsigned mac)
+{
 	if (!context->state.sound_active_flag)
 		return -1;
 
@@ -295,7 +307,8 @@ err:
 }
 
 /* Save and stop the current file recording */
-static int sound_stop(struct advance_record_context* context, unsigned* time) {
+static int sound_stop(struct advance_record_context* context, unsigned* time)
+{
 
 	if (!context->state.sound_active_flag)
 		return -1;
@@ -335,7 +348,8 @@ static int sound_stop(struct advance_record_context* context, unsigned* time) {
 static uint8 MNG_Signature[] = "\x8A\x4D\x4E\x47\x0D\x0A\x1A\x0A";
 static uint8 PNG_Signature[] = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
 
-static void png_orientation_size(unsigned* width, unsigned* height, unsigned orientation) {
+static void png_orientation_size(unsigned* width, unsigned* height, unsigned orientation)
+{
 	if (orientation & OSD_ORIENTATION_SWAP_XY) {
 		SWAP(unsigned, *width, *height);
 	}
@@ -387,18 +401,21 @@ static int png_write_chunk(FILE* f, unsigned chunk_type, uint8* chunk_data, unsi
 	return 0;
 }
 
-static int png_write_header(FILE* f) {
+static int png_write_header(FILE* f)
+{
 	if (fwrite(PNG_Signature, 8, 1, f) != 1)
 		return -1;
 
 	return 0;
 }
 
-static int png_write_footer(FILE* f) {
+static int png_write_footer(FILE* f)
+{
 	return 0;
 }
 
-static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned frequency, unsigned orientation) {
+static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned frequency, unsigned orientation)
+{
 	uint8 mhdr[28];
 	unsigned simplicity;
 
@@ -425,7 +442,8 @@ static int mng_write_header(FILE* f, unsigned width, unsigned height, unsigned f
 	return 0;
 }
 
-static int mng_write_footer(FILE* f) {
+static int mng_write_footer(FILE* f)
+{
 
 	if (png_write_chunk(f, MNG_CN_MEND, 0, 0)!=0)
 		return -1;
@@ -434,7 +452,8 @@ static int mng_write_footer(FILE* f) {
 }
 
 #ifdef USE_MNG_LC
-static int mng_write_image_frame(FILE* f, unsigned tick) {
+static int mng_write_image_frame(FILE* f, unsigned tick)
+{
 	uint8 fram[10];
 	unsigned fi;
 
@@ -457,7 +476,8 @@ static int mng_write_image_frame(FILE* f, unsigned tick) {
 }
 #endif
 
-static int png_write_image_header(FILE* f, unsigned width, unsigned height, unsigned bit_depth, unsigned color_type, unsigned orientation) {
+static int png_write_image_header(FILE* f, unsigned width, unsigned height, unsigned bit_depth, unsigned color_type, unsigned orientation)
+{
 	uint8 ihdr[13];
 
 	png_orientation_size(&width, &height, orientation);
@@ -477,14 +497,16 @@ static int png_write_image_header(FILE* f, unsigned width, unsigned height, unsi
 	return 0;
 }
 
-static int png_write_image_footer(FILE* f) {
+static int png_write_image_footer(FILE* f)
+{
 	if (png_write_chunk(f, PNG_CN_IEND, 0, 0)!=0)
 		return -1;
 
 	return 0;
 }
 
-static int png_write_data(FILE* f, unsigned width, unsigned height, const uint8* ptr, unsigned bytes_per_pixel, unsigned bytes_per_scanline, int fast) {
+static int png_write_data(FILE* f, unsigned width, unsigned height, const uint8* ptr, unsigned bytes_per_pixel, unsigned bytes_per_scanline, int fast)
+{
 	uint8* z_ptr;
 	uint8* f_ptr;
 	unsigned long z_size;
@@ -532,11 +554,12 @@ err_free:
 	return -1;
 }
 
-static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation) {
+static int png_write_image_32rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation)
+{
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
-	unsigned i,j;
+	unsigned i, j;
 	int pixel_pitch = 4;
 	int line_pitch = bytes_per_scanline;
 
@@ -574,11 +597,12 @@ err:
 	return -1;
 }
 
-static int png_write_image_15rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation) {
+static int png_write_image_15rgb(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, int fast, unsigned orientation)
+{
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
-	unsigned i,j;
+	unsigned i, j;
 	int pixel_pitch = 2;
 	int line_pitch = bytes_per_scanline;
 
@@ -618,11 +642,12 @@ err:
 	return -1;
 }
 
-static int png_write_image_16pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation) {
+static int png_write_image_16pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation)
+{
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
-	unsigned i,j;
+	unsigned i, j;
 	int pixel_pitch = 2;
 	int line_pitch = bytes_per_scanline;
 
@@ -659,12 +684,13 @@ err:
 	return -1;
 }
 
-static int png_write_image_16palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation) {
+static int png_write_image_16palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, int fast, unsigned orientation)
+{
 	uint8 palette[3*256];
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
-	unsigned i,j;
+	unsigned i, j;
 	int pixel_pitch = 2;
 	int line_pitch = bytes_per_scanline;
 
@@ -711,7 +737,8 @@ err:
 /* Video */
 
 /* Cancel a video recording */
-static void video_cancel(struct advance_record_context* context) {
+static void video_cancel(struct advance_record_context* context)
+{
 	if (!context->state.video_active_flag)
 		return;
 
@@ -721,7 +748,8 @@ static void video_cancel(struct advance_record_context* context) {
 	remove(context->state.video_file);
 }
 
-static void video_freq_step(unsigned* base, unsigned* step, double freq) {
+static void video_freq_step(unsigned* base, unsigned* step, double freq)
+{
 	unsigned b = 0;
 	unsigned s;
 	double err;
@@ -748,7 +776,8 @@ static void video_freq_step(unsigned* base, unsigned* step, double freq) {
 	*step = s;
 }
 
-static int video_start(struct advance_record_context* context, const char* file, double frequency, unsigned width, unsigned height, unsigned orientation) {
+static int video_start(struct advance_record_context* context, const char* file, double frequency, unsigned width, unsigned height, unsigned orientation)
+{
 	unsigned mng_frequency;
 	unsigned mng_step;
 
@@ -758,7 +787,7 @@ static int video_start(struct advance_record_context* context, const char* file,
 	context->state.video_frequency = frequency;
 	context->state.video_sample_counter = 0;
 
-	strcpy(context->state.video_file,file);
+	strcpy(context->state.video_file, file);
 
 	context->state.video_f = fopen(context->state.video_file, "wb");
 	if (!context->state.video_f) {
@@ -795,7 +824,8 @@ static int video_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+{
 	unsigned color_type;
 
 	if (!context->state.video_active_flag)
@@ -859,7 +889,8 @@ err:
 }
 
 /* Save and stop the current file recording */
-static int video_stop(struct advance_record_context* context, unsigned* time) {
+static int video_stop(struct advance_record_context* context, unsigned* time)
+{
 	if (!context->state.video_active_flag)
 		return -1;
 
@@ -885,14 +916,16 @@ err:
 /*************************************************************************************/
 /* Snapshot */
 
-static int snapshot_start(struct advance_record_context* context, const char* file) {
+static int snapshot_start(struct advance_record_context* context, const char* file)
+{
 	context->state.snapshot_active_flag = 1;
 	strcpy(context->state.snapshot_file, file);
 
 	return 0;
 }
 
-static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+{
 	const char* file = context->state.snapshot_file;
 	FILE* f;
 	unsigned color_type;
@@ -965,18 +998,19 @@ err:
 /*************************************************************************************/
 /* OSD */
 
-static void advance_record_next(struct advance_record_context* context, const mame_game* game, char* path_wav, char* path_mng) {
+static void advance_record_next(struct advance_record_context* context, const mame_game* game, char* path_wav, char* path_mng)
+{
 	unsigned counter = 0;
 
-	sprintf(path_wav,"%s/%.8s.wav", context->config.dir, mame_game_name(game));
-	sprintf(path_mng,"%s/%.8s.mng", context->config.dir, mame_game_name(game));
+	sprintf(path_wav, "%s/%.8s.wav", context->config.dir, mame_game_name(game));
+	sprintf(path_mng, "%s/%.8s.mng", context->config.dir, mame_game_name(game));
 
-	if (access(path_wav,F_OK)==0 || access(path_mng,F_OK)==0) {
+	if (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0) {
 		do {
-			sprintf(path_wav,"%s/%.4s%04d.wav", context->config.dir, mame_game_name(game), counter);
-			sprintf(path_mng,"%s/%.4s%04d.mng", context->config.dir, mame_game_name(game), counter);
+			sprintf(path_wav, "%s/%.4s%04d.wav", context->config.dir, mame_game_name(game), counter);
+			sprintf(path_mng, "%s/%.4s%04d.mng", context->config.dir, mame_game_name(game), counter);
 			++counter;
-		} while (access(path_wav,F_OK)==0 || access(path_mng,F_OK)==0);
+		} while (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0);
 	}
 }
 
@@ -1059,20 +1093,21 @@ void osd_record_stop(void)
 #endif
 
 	if (sound_time != 0 || video_time != 0) {
-		mame_ui_message("Stop recording %d/%d [s]",sound_time,video_time);
+		mame_ui_message("Stop recording %d/%d [s]", sound_time, video_time);
 	}
 }
 
-static void advance_snapshot_next(struct advance_record_context* context, const mame_game* game, char* path_png) {
+static void advance_snapshot_next(struct advance_record_context* context, const mame_game* game, char* path_png)
+{
 	unsigned counter = 0;
 
-	sprintf(path_png,"%s/%.8s.png", context->config.dir, mame_game_name(game));
+	sprintf(path_png, "%s/%.8s.png", context->config.dir, mame_game_name(game));
 
-	if (access(path_png,F_OK)==0) {
+	if (access(path_png, F_OK)==0) {
 		do {
-			sprintf(path_png,"%s/%.4s%04d.png", context->config.dir, mame_game_name(game), counter);
+			sprintf(path_png, "%s/%.4s%04d.png", context->config.dir, mame_game_name(game), counter);
 			++counter;
-		} while (access(path_png,F_OK)==0);
+		} while (access(path_png, F_OK)==0);
 	}
 }
 
@@ -1082,7 +1117,7 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 	const mame_game* game = CONTEXT.game;
 	char path_png[FILE_MAXPATH];
 
-	log_std(("osd: osd_save_snapshot(x1:%d,y1:%d,x2:%d,y2:%d)\n", x1, y1, x2, y2));
+	log_std(("osd: osd_save_snapshot(x1:%d, y1:%d, x2:%d, y2:%d)\n", x1, y1, x2, y2));
 
 	advance_snapshot_next(context, game, path_png);
 
@@ -1092,33 +1127,38 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 /*************************************************************************************/
 /* Advance */
 
-int advance_record_sound_is_active(struct advance_record_context* context) {
+int advance_record_sound_is_active(struct advance_record_context* context)
+{
 	return context->state.sound_active_flag
 		&& context->state.sound_sample_counter / context->state.sound_frequency < context->config.sound_time;
 }
 
-int advance_record_video_is_active(struct advance_record_context* context) {
+int advance_record_video_is_active(struct advance_record_context* context)
+{
 	return context->state.video_active_flag
 		&& context->state.video_sample_counter / context->state.video_frequency < context->config.video_time;
 }
 
-int advance_record_snapshot_is_active(struct advance_record_context* context) {
+int advance_record_snapshot_is_active(struct advance_record_context* context)
+{
 	return context->state.snapshot_active_flag;
 }
 
-void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count) {
+void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count)
+{
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	sound_update(context,sample_buffer,sample_count);
+	sound_update(context, sample_buffer, sample_count);
 
 #ifdef USE_SMP
 	pthread_mutex_unlock(&context->state.access_mutex);
 #endif
 }
 
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+{
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
@@ -1130,7 +1170,8 @@ void advance_record_video_update(struct advance_record_context* context, const v
 #endif
 }
 
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+{
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
@@ -1142,7 +1183,8 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 #endif
 }
 
-int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context) {
+int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
+{
 	strcpy(context->config.dir, conf_string_get_default(cfg_context, "dir_snap"));
 	context->config.sound_time = conf_int_get_default(cfg_context, "record_sound_time");
 	context->config.video_time = conf_int_get_default(cfg_context, "record_video_time");
@@ -1161,7 +1203,8 @@ int advance_record_config_load(struct advance_record_context* context, adv_conf*
 	return 0;
 }
 
-int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context) {
+int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context)
+{
 	conf_int_register_limit_default(cfg_context, "record_sound_time", 1, 1000000, 15);
 	conf_int_register_limit_default(cfg_context, "record_video_time", 1, 1000000, 15);
 	conf_bool_register_default(cfg_context, "record_sound", 1);
@@ -1169,14 +1212,15 @@ int advance_record_init(struct advance_record_context* context, adv_conf* cfg_co
 	conf_int_register_limit_default(cfg_context, "record_video_interleave", 1, 30, 2);
 
 #ifdef USE_SMP
-	if (pthread_mutex_init(&context->state.access_mutex,NULL) != 0)
+	if (pthread_mutex_init(&context->state.access_mutex, NULL) != 0)
 		return -1;
 #endif
 
 	return 0;
 }
 
-void advance_record_done(struct advance_record_context* context) {
+void advance_record_done(struct advance_record_context* context)
+{
 	sound_cancel(context);
 	video_cancel(context);
 

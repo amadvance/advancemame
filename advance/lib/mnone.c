@@ -38,7 +38,7 @@ static adv_device DEVICE[] = {
 
 adv_error mouseb_none_init(int mouseb_id)
 {
-	log_std(("mouseb:none: mouseb_none_init(id:%d)\n",mouseb_id));
+	log_std(("mouseb:none: mouseb_none_init(id:%d)\n", mouseb_id));
 
 	return 0;
 }

@@ -174,44 +174,52 @@ typedef struct vga_internal_struct {
 
 extern vga_internal vga_state;
 
-static __inline__ unsigned vga_virtual_x(void) {
+static inline unsigned vga_virtual_x(void)
+{
 	return vga_state.info.virtual_x;
 }
 
-static __inline__ unsigned vga_virtual_y(void) {
+static inline unsigned vga_virtual_y(void)
+{
 	return vga_state.info.virtual_y;
 }
 
-static __inline__ unsigned vga_bytes_per_scanline(void) {
+static inline unsigned vga_bytes_per_scanline(void)
+{
 	return vga_state.info.bytes_per_scanline;
 }
 
-static __inline__ unsigned vga_address(void) {
+static inline unsigned vga_address(void)
+{
 	return vga_state.info.memory_address;
 }
 
-static __inline__ unsigned vga_adjust_bytes_per_page(unsigned bytes_per_page) {
+static inline unsigned vga_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	return (bytes_per_page + 0xFF) & ~0xFF;
 }
 
 /**
  * Return the active font x size.
  */
-static __inline__ unsigned vga_font_size_x(void) {
+static inline unsigned vga_font_size_x(void)
+{
 	return vga_state.info.char_size_x;
 }
 
 /**
  * Return the active font y size.
  */
-static __inline__ unsigned vga_font_size_y(void) {
+static inline unsigned vga_font_size_y(void)
+{
 	return vga_state.info.char_size_y;
 }
 
 /**
  * Check if unchained mode is active.
  */
-static __inline__ adv_bool vga_unchained_is_active(void) {
+static inline adv_bool vga_unchained_is_active(void)
+{
 	return !vga_state.info.is_linear;
 }
 

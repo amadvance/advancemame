@@ -101,7 +101,7 @@ static void mx_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(mx_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_mx_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -656,6 +656,7 @@ static int mx_init(int force, int par1, int par2)
           BankIdx=0x2e;
        break;
     };
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = mx_memory;
     cardspecs->maxPixelClock4bpp = 75000;	

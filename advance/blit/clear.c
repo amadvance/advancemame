@@ -40,10 +40,11 @@
 
 /* Clear screen
  * in:
- *   x,y destination pos
+ *   x, y destination pos
  *   src data source
  */
-static void video_chained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src) {
+static void video_chained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src)
+{
 	unsigned j;
 	unsigned pre_count;
 	unsigned post_count;
@@ -63,21 +64,22 @@ static void video_chained8_clear(unsigned x, unsigned y, unsigned dx, unsigned d
 		unsigned i;
 		for(i=pre_count;i;--i) {
 			P8DER0(dst) = mask;
-			PADD(dst,1);
+			PADD(dst, 1);
 		}
 		for(i=inner_count;i;--i) {
 			P32DER0(dst) = mask;
-			PADD(dst,4);
+			PADD(dst, 4);
 		}
 		for(i=post_count;i;--i) {
 			P8DER0(dst) = mask;
-			PADD(dst,1);
+			PADD(dst, 1);
 		}
 		++y;
 	}
 }
 
-static void video_chained16_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src) {
+static void video_chained16_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+{
 	unsigned j;
 	unsigned pre_count;
 	unsigned post_count;
@@ -97,23 +99,24 @@ static void video_chained16_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 		unsigned i;
 		if (pre_count) {
 			P8DER0(dst) = mask;
-			P8DER(dst,1) = mask >> 8;
-			PADD(dst,2);
+			P8DER(dst, 1) = mask >> 8;
+			PADD(dst, 2);
 		}
 		for(i=inner_count;i;--i) {
 			P32DER0(dst) = mask;
-			PADD(dst,4);
+			PADD(dst, 4);
 		}
 		if (post_count) {
 			P8DER0(dst) = mask;
-			P8DER(dst,1) = mask >> 8;
+			P8DER(dst, 1) = mask >> 8;
 			/* dst += 2; */
 		}
 		++y;
 	}
 }
 
-static void video_chained24_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src) {
+static void video_chained24_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+{
 	unsigned j;
 	unsigned inner_count;
 	uint8 mask0;
@@ -130,15 +133,16 @@ static void video_chained24_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 		unsigned i;
 		for(i=inner_count;i;--i) {
 			P8DER0(dst) = mask0;
-			P8DER(dst,1) = mask1;
-			P8DER(dst,2) = mask2;
-			PADD(dst,3);
+			P8DER(dst, 1) = mask1;
+			P8DER(dst, 2) = mask2;
+			PADD(dst, 3);
 		}
 		++y;
 	}
 }
 
-static void video_chained32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src) {
+static void video_chained32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+{
 	unsigned j;
 	unsigned inner_count;
 	unsigned mask;
@@ -151,13 +155,14 @@ static void video_chained32_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 		unsigned i;
 		for(i=inner_count;i;--i) {
 			P32DER0(dst) = mask;
-			PADD(dst,4);
+			PADD(dst, 4);
 		}
 		++y;
 	}
 }
 
-static void video_unchained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src) {
+static void video_unchained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src)
+{
 	unsigned p;
 	uint32 mask;
 
@@ -193,37 +198,38 @@ static void video_unchained8_clear(unsigned x, unsigned y, unsigned dx, unsigned
 			unsigned i;
 			for(i=pre_count;i;--i) {
 				P8DER0(dst) = mask;
-				PADD(dst,1);
+				PADD(dst, 1);
 			}
 			for(i=inner_count;i;--i) {
 				P32DER0(dst) = mask;
-				PADD(dst,4);
+				PADD(dst, 4);
 			}
 			for(i=post_count;i;--i) {
 				P8DER0(dst) = mask;
-				PADD(dst,1);
+				PADD(dst, 1);
 			}
 		}
 	}
 }
 
 /* Clear the screen */
-void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src) {
+void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src)
+{
 	switch (video_bytes_per_pixel()) {
 		case 1 :
 			if (video_is_unchained())
-				video_unchained8_clear(dst_x,dst_y,dst_dx,dst_dy,src);
+				video_unchained8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			else
-				video_chained8_clear(dst_x,dst_y,dst_dx,dst_dy,src);
+				video_chained8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 2 :
-			video_chained16_clear(dst_x,dst_y,dst_dx,dst_dy,src);
+			video_chained16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 3 :
-			video_chained24_clear(dst_x,dst_y,dst_dx,dst_dy,src);
+			video_chained24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 4 :
-			video_chained32_clear(dst_x,dst_y,dst_dx,dst_dy,src);
+			video_chained32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 	}
 }

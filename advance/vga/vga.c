@@ -63,13 +63,14 @@ unsigned long VGA_GRAPH_PIXELCLOCK[] = {
 #define VGA_DOTCLOCK_PIVOT_1 (VGA_DOTCLOCK_LOW/2 + VGA_DOTCLOCK_HIGH/4)
 #define VGA_DOTCLOCK_PIVOT_2 (VGA_DOTCLOCK_LOW/2 + VGA_DOTCLOCK_HIGH/2)
 
-void vga_mode_set(const card_crtc* param) {
+void vga_mode_set(const card_crtc* param)
+{
 	STACK_DECL card_crtc cp;
 	unsigned pixel_per_clock;
 	unsigned font_rows;
 	int text_mode;
 
-	memcpy(&cp,param,sizeof(card_crtc));
+	memcpy(&cp, param, sizeof(card_crtc));
 
 	if (card_graph_get(0x06) & 0x1)
 		text_mode = 0;
@@ -127,7 +128,7 @@ void vga_mode_set(const card_crtc* param) {
 			regs.x.ax = 0x1104;
 			regs.x.bx = 0;
 		}
-		int_32_addr_call(int_10_old,&regs);
+		int_32_addr_call(int_10_old, &regs);
 	}
 
 	card_signal_disable();
@@ -166,10 +167,10 @@ void vga_mode_set(const card_crtc* param) {
 		card_crtc_set(0xB, end );
 
 		/* DOS cursor shape */
-		*(uint16 far*)MK_FP(0x40,0x60) = start + (end << 8);
+		*(uint16 far*)MK_FP(0x40, 0x60) = start + (end << 8);
 
 		/* DOS font height */
-		*(uint16 far*)MK_FP(0x40,0x85) = font_rows;
+		*(uint16 far*)MK_FP(0x40, 0x85) = font_rows;
 	}
 
 	card_signal_enable();
@@ -199,7 +200,8 @@ static mode_info* mode_active;
 
 static unsigned mode_number_generator = VGA_CUSTOM_MODE;
 
-int is_clock(unsigned long* map, unsigned long clock) {
+int is_clock(unsigned long* map, unsigned long clock)
+{
 	while (*map) {
 		long err = *map - clock;
 		if (err < 0)
@@ -211,16 +213,18 @@ int is_clock(unsigned long* map, unsigned long clock) {
 	return 0;
 }
 
-int is_graph_mode(unsigned x, unsigned y, unsigned long clock) {
+int is_graph_mode(unsigned x, unsigned y, unsigned long clock)
+{
 	if ((unsigned long)x * y > 256*1024UL)
 		return 0;
-	if (!is_clock(VGA_GRAPH_PIXELCLOCK,clock))
+	if (!is_clock(VGA_GRAPH_PIXELCLOCK, clock))
 		return 0;
 
 	return 1;
 }
 
-int is_text_mode(unsigned x, unsigned y, unsigned long clock) {
+int is_text_mode(unsigned x, unsigned y, unsigned long clock)
+{
 	(void)x;
 
 	switch (y) {
@@ -231,14 +235,15 @@ int is_text_mode(unsigned x, unsigned y, unsigned long clock) {
 		default:
 			return 0;
 	}
-	if (!is_clock(VGA_TEXT_PIXELCLOCK,clock))
+	if (!is_clock(VGA_TEXT_PIXELCLOCK, clock))
 		return 0;
 
 	return 1;
 }
 
-int is_mode_3(unsigned x, unsigned y, unsigned long clock) {
-	if (!is_text_mode(x,y,clock))
+int is_mode_3(unsigned x, unsigned y, unsigned long clock)
+{
+	if (!is_text_mode(x, y, clock))
 		return 0;
 
 	switch (x) {
@@ -250,8 +255,9 @@ int is_mode_3(unsigned x, unsigned y, unsigned long clock) {
 	}
 }
 
-int is_mode_1(unsigned x, unsigned y, unsigned long clock) {
-	if (!is_text_mode(x,y,clock))
+int is_mode_1(unsigned x, unsigned y, unsigned long clock)
+{
+	if (!is_text_mode(x, y, clock))
 		return 0;
 
 	switch (x) {
@@ -266,11 +272,13 @@ int is_mode_1(unsigned x, unsigned y, unsigned long clock) {
 #define VGA_DOTCLOCK_LOW 25175000
 #define VGA_DOTCLOCK_HIGH 28322000
 
-int is_mode_13(unsigned x, unsigned y, unsigned long clock) {
-	return is_graph_mode(x,y,clock) && x == 320 && y == 200;
+int is_mode_13(unsigned x, unsigned y, unsigned long clock)
+{
+	return is_graph_mode(x, y, clock) && x == 320 && y == 200;
 }
 
-int is_less_mode(mode_info* a, mode_info* b) {
+int is_less_mode(mode_info* a, mode_info* b)
+{
 	unsigned long sa = (unsigned long)a->param.HDisp * a->param.VDisp;
 	unsigned long sb = (unsigned long)b->param.HDisp * b->param.VDisp;
 	if (sa < sb)
@@ -286,69 +294,70 @@ int is_less_mode(mode_info* a, mode_info* b) {
 
 const char* cfg_separator = " \t";
 
-int modeline_load(char far* buffer, mode_info* mode_ptr) {
+int modeline_load(char far* buffer, mode_info* mode_ptr)
+{
 	char far* s;
 
-	s = strtok(buffer,cfg_separator);
+	s = strtok(buffer, cfg_separator);
 	if (!s) return -1;
 
-	if (strcmp(s,"device_video_modeline")!=0)
+	if (strcmp(s, "device_video_modeline")!=0)
 		return -1;
 
 	/* skip the name */
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
 	if (!(s[0]>='0' && s[0]<='9'))
 		return -1;
-	mode_ptr->param.dotclockHz = strtold(s,1000000L);
+	mode_ptr->param.dotclockHz = strtold(s, 1000000L);
 	if (!mode_ptr->param.dotclockHz)
 		return -1;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.HDisp = mode_ptr->width = strtol(s,10);
+	mode_ptr->param.HDisp = mode_ptr->width = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.HSStart = strtol(s,10);
+	mode_ptr->param.HSStart = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.HSEnd = strtol(s,10);
+	mode_ptr->param.HSEnd = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.HTotal = strtol(s,10);
+	mode_ptr->param.HTotal = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.VDisp = mode_ptr->height = strtol(s,10);
+	mode_ptr->param.VDisp = mode_ptr->height = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.VSStart = strtol(s,10);
+	mode_ptr->param.VSStart = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.VSEnd = strtol(s,10);
+	mode_ptr->param.VSEnd = strtol(s, 10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0, cfg_separator);
 	if (!s) return -1;
-	mode_ptr->param.VTotal = strtol(s,10);
+	mode_ptr->param.VTotal = strtol(s, 10);
 
-	while ((s = strtok(0,cfg_separator))!=0) {
+	while ((s = strtok(0, cfg_separator))!=0) {
 		if (s[0]=='#')
 			break;
-		else if (strcmp(s,"doublescan")==0)
+		else if (strcmp(s, "doublescan")==0)
 			mode_ptr->param.doublescan = 1;
-		else if (strcmp(s,"interlaced")==0 || strcmp(s,"interlace")==0)
+		else if (strcmp(s, "interlaced")==0 || strcmp(s, "interlace")==0)
 			mode_ptr->param.interlace = 1;
-		else if (strcmp(s,"-hsync")==0)
+		else if (strcmp(s, "-hsync")==0)
 			mode_ptr->param.hpolarity = 1;
-		else if (strcmp(s,"-vsync")==0)
+		else if (strcmp(s, "-vsync")==0)
 			mode_ptr->param.vpolarity = 1;
 	}
 
@@ -386,14 +395,15 @@ int modeline_load(char far* buffer, mode_info* mode_ptr) {
 	return 0;
 }
 
-int mode_load(const char far* file) {
+int mode_load(const char far* file)
+{
 	STACK_DECL char buffer[256];
 	STACK_DECL mode_info info;
 	STACK_DECL mode_info info_1;
 	STACK_DECL mode_info info_3;
 	STACK_DECL mode_info info_13;
 
-	int handle = open(file,O_RDONLY);
+	int handle = open(file, O_RDONLY);
 	if (handle == -1) {
 		cputs("Configuration file ");
 		cputs(file);
@@ -403,32 +413,32 @@ int mode_load(const char far* file) {
 
 	mode_max = 0;
 
-	memset(&info_1,0,sizeof(mode_info));
-	memset(&info_3,0,sizeof(mode_info));
-	memset(&info_13,0,sizeof(mode_info));
+	memset(&info_1, 0, sizeof(mode_info));
+	memset(&info_3, 0, sizeof(mode_info));
+	memset(&info_13, 0, sizeof(mode_info));
 
 	while (gets(handle, buffer, sizeof(buffer))) {
-		memset(&info,0,sizeof(mode_info));
+		memset(&info, 0, sizeof(mode_info));
 
-		if (modeline_load(buffer,&info)==0) {
+		if (modeline_load(buffer, &info)==0) {
 
-			if (is_graph_mode(info.width,info.height,info.param.dotclockHz) && mode_max + 3 < MODE_MAX) {
+			if (is_graph_mode(info.width, info.height, info.param.dotclockHz) && mode_max + 3 < MODE_MAX) {
 				info.effective_mode = 0x13;
 				info.reported_mode = mode_number_generator++;
-				memcpy(mode_map + mode_max,&info,sizeof(mode_info));
+				memcpy(mode_map + mode_max, &info, sizeof(mode_info));
 				++mode_max;
 			}
 
-			if (is_mode_1(info.width,info.height,info.param.dotclockHz) && is_less_mode(&info_1,&info)) {
-				memcpy(&info_1,&info,sizeof(mode_info));
+			if (is_mode_1(info.width, info.height, info.param.dotclockHz) && is_less_mode(&info_1, &info)) {
+				memcpy(&info_1, &info, sizeof(mode_info));
 			}
 
-			if (is_mode_3(info.width,info.height,info.param.dotclockHz) && is_less_mode(&info_3,&info)) {
-				memcpy(&info_3,&info,sizeof(mode_info));
+			if (is_mode_3(info.width, info.height, info.param.dotclockHz) && is_less_mode(&info_3, &info)) {
+				memcpy(&info_3, &info, sizeof(mode_info));
 			}
 
-			if (is_mode_13(info.width,info.height,info.param.dotclockHz) && is_less_mode(&info_13,&info)) {
-				memcpy(&info_13,&info,sizeof(mode_info));
+			if (is_mode_13(info.width, info.height, info.param.dotclockHz) && is_less_mode(&info_13, &info)) {
+				memcpy(&info_13, &info, sizeof(mode_info));
 			}
 		}
 	}
@@ -438,21 +448,21 @@ int mode_load(const char far* file) {
 	if (info_1.width) {
 		info_1.effective_mode = 0x1;
 		info_1.reported_mode = 0x1;
-		memcpy(mode_map + mode_max,&info_1,sizeof(mode_info));
+		memcpy(mode_map + mode_max, &info_1, sizeof(mode_info));
 		++mode_max;
 	}
 
 	if (info_3.width) {
 		info_3.effective_mode = 0x3;
 		info_3.reported_mode = 0x3;
-		memcpy(mode_map + mode_max,&info_3,sizeof(mode_info));
+		memcpy(mode_map + mode_max, &info_3, sizeof(mode_info));
 		++mode_max;
 	}
 
 	if (info_13.width) {
 		info_13.effective_mode = 0x13;
 		info_13.reported_mode = 0x13;
-		memcpy(mode_map + mode_max,&info_13,sizeof(mode_info));
+		memcpy(mode_map + mode_max, &info_13, sizeof(mode_info));
 		++mode_max;
 	}
 
@@ -464,35 +474,36 @@ int mode_load(const char far* file) {
 	return 1;
 }
 
-void mode_print(void) {
+void mode_print(void)
+{
 	unsigned i;
 
 	cputs("\r\nAvailable modes:\r\n");
 	for(i=0;i<mode_max;++i) {
 		unsigned v;
 		cputs("        ");
-		cputu(mode_map[i].reported_mode,4,' ',16);
+		cputu(mode_map[i].reported_mode, 4, ' ', 16);
 		cputs("h ");
 		if (mode_map[i].effective_mode != 0x13) {
 			cputs(" text ");
 		} else {
 			cputs(" graph");
 		}
-		cputu(mode_map[i].width,4,' ',10);
+		cputu(mode_map[i].width, 4, ' ', 10);
 		cputs("x");
-		cputu(mode_map[i].height,4,' ',10);
+		cputu(mode_map[i].height, 4, ' ', 10);
 		cputs(" ");
 
 		v = mode_map[i].param.dotclockHz / (mode_map[i].param.HTotal * 100L);
-		cputu(v / 10,2,' ',10);
+		cputu(v / 10, 2, ' ', 10);
 		cputs(".");
-		cputu(v % 10,1,' ',10);
+		cputu(v % 10, 1, ' ', 10);
 		cputs(" kHz/");
 
 		v = 10L * mode_map[i].param.dotclockHz / (mode_map[i].param.HTotal * (long)mode_map[i].param.VTotal);
-		cputu(v / 10,2,' ',10);
+		cputu(v / 10, 2, ' ', 10);
 		cputs(".");
-		cputu(v % 10,1,' ',10);
+		cputu(v % 10, 1, ' ', 10);
 		cputs(" Hz ");
 
 		cputs("\r\n");
@@ -502,7 +513,8 @@ void mode_print(void) {
 /***************************************************************************/
 /* init/done */
 
-int vga_init(const char far* file) {
+int vga_init(const char far* file)
+{
 	mode_active = 0;
 
 	if (!mode_load(file)) {
@@ -512,7 +524,8 @@ int vga_init(const char far* file) {
 	return 1;
 }
 
-void vga_done(void) {
+void vga_done(void)
+{
 }
 
 /***************************************************************************/
@@ -521,7 +534,8 @@ void vga_done(void) {
 unsigned vga_service_call_00;
 unsigned vga_service_call_auto;
 
-void vga_service_00(regs_32 far * regs) {
+void vga_service_00(regs_32 far * regs)
+{
 	unsigned req_mode;
 	mode_info* mode_ptr;
 
@@ -531,7 +545,7 @@ void vga_service_00(regs_32 far * regs) {
 		if (mode_ptr->reported_mode == req_mode)
 			break;
 	if (mode_ptr == mode_map + mode_max) {
-		int_32_addr_call(int_10_old,regs);
+		int_32_addr_call(int_10_old, regs);
 		return;
 	}
 
@@ -539,7 +553,7 @@ void vga_service_00(regs_32 far * regs) {
 	mode_active = mode_ptr;
 
 	regs->h.al = mode_active->effective_mode;
-	int_32_addr_call(int_10_old,regs);
+	int_32_addr_call(int_10_old, regs);
 	regs->h.al = req_mode;
 
 	vga_mode_set(&mode_active->param);
@@ -550,14 +564,15 @@ void vga_service_00(regs_32 far * regs) {
 --------V-M00400049--------------------------
 MEM 0040h:0049h - VIDEO - CURRENT VIDEO MODE
 Size:	BYTE
-SeeAlso: MEM 0040h:004Ah,INT 10/AH=00h
+SeeAlso: MEM 0040h:004Ah, INT 10/AH=00h
 */
-void vga_update_mode(void) {
+void vga_update_mode(void)
+{
 	mode_info* mode_ptr;
 	uint8 req_mode;
 
 	/* current video mode */
-	req_mode = *(uint8 far*)MK_FP(0x0040,0x0049);
+	req_mode = *(uint8 far*)MK_FP(0x0040, 0x0049);
 
 	if (req_mode == 0x13) {
 		unsigned hde;
@@ -616,24 +631,27 @@ extern int vga_disable;
 /* Ensure no double call */
 static vga_trap_in = 0;
 
-void int_10_trap(regs_32 far * int_10_regs) {
+void int_10_trap(regs_32 far * int_10_regs)
+{
 	++vga_trap_in;
 	if (vga_trap_in == 1 && int_10_regs->h.ah == 0x00) {
 		vga_service_00(int_10_regs);
 	} else {
-		int_32_addr_call(int_10_old,int_10_regs);
+		int_32_addr_call(int_10_old, int_10_regs);
 	}
 	--vga_trap_in;
 }
 
-void int_21_hook(void) {
+void int_21_hook(void)
+{
 	++vga_trap_in;
 	if (vga_trap_in == 1)
 		vga_update_mode();
 	--vga_trap_in;
 }
 
-void int_8_hook(void) {
+void int_8_hook(void)
+{
 	++vga_trap_in;
 	if (vga_trap_in == 1)
 		vga_update_mode();
@@ -646,7 +664,8 @@ void int_8_hook(void) {
 uint16 TSR_RUTACK1 = 0xAD17;
 uint16 TSR_RUTACK2 = 0x175A;
 
-int far _cdecl tsr_remote(void far * arg) {
+int far _cdecl tsr_remote(void far * arg)
+{
 	if (arg) {
 		vga_disable = 0;
 	} else {
@@ -655,7 +674,8 @@ int far _cdecl tsr_remote(void far * arg) {
 	return 0;
 }
 
-uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
+uint16 _pascal tsr(int (*remote)(void far* arg), char far* args)
+{
 	int arg_adjust = 0;
 	int arg_unload = 0;
 	int arg_load = 0;
@@ -664,34 +684,34 @@ uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
 	char far* tok;
 	STACK_DECL char buffer[128];
 
-	strcpy(buffer,"vga.rc");
+	strcpy(buffer, "vga.rc");
 
-	tok = strtok(args," \t");
+	tok = strtok(args, " \t");
 	while (tok) {
-		if (optionmatch(tok,"l")) {
+		if (optionmatch(tok, "l")) {
 			arg_load = 1;
-		} else if (optionmatch(tok,"u")) {
+		} else if (optionmatch(tok, "u")) {
 			arg_unload = 1;
-		} else if (optionmatch(tok,"a")) {
+		} else if (optionmatch(tok, "a")) {
 			arg_adjust = 1;
-		} else if (optionmatch(tok,"e")) {
+		} else if (optionmatch(tok, "e")) {
 			arg_enable = 1;
-		} else if (optionmatch(tok,"d")) {
+		} else if (optionmatch(tok, "d")) {
 			arg_disable = 1;
-		} else if (optionmatch(tok,"c")) {
-			tok = strtok(0," \t");
+		} else if (optionmatch(tok, "c")) {
+			tok = strtok(0, " \t");
 			if (!tok) {
 				cputs("Missing config file path\r\n");
 				return TSR_FAILURE;
 			}
-			strcpy(buffer,tok);
+			strcpy(buffer, tok);
 		} else {
 			cputs("Unknown option ");
 			cputs(tok);
 			cputs("\r\n");
 			return TSR_FAILURE;
 		}
-		tok = strtok(0," \t");
+		tok = strtok(0, " \t");
 	}
 
 	if (arg_unload + arg_load + arg_adjust + arg_enable > 1
@@ -747,7 +767,7 @@ uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
 			cputs("You can enable/disable video output if " OEM_PRODUCT_STR " isn't loaded\r\n");
 			return TSR_FAILURE;
 		}
-		remote( arg_enable ? MK_FP(0,1) : 0);
+		remote( arg_enable ? MK_FP(0, 1) : 0);
 		return TSR_SUCCESS;
 	}
 
@@ -768,7 +788,8 @@ uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
 	return TSR_SUCCESS;
 }
 
-uint16 _pascal tsr_init_0(void) {
+uint16 _pascal tsr_init_0(void)
+{
 	if (!vga_disable) {
 		cputs(OEM_PRODUCT_STR " by " OEM_VENDOR_STR " v" OEM_VERSION_STR "\r\n");
 		mode_print();
@@ -777,24 +798,27 @@ uint16 _pascal tsr_init_0(void) {
 	return TSR_SUCCESS;
 }
 
-uint16 _pascal tsr_init_1(void) {
+uint16 _pascal tsr_init_1(void)
+{
 	return TSR_SUCCESS;
 }
 
-void _pascal tsr_done_0(void) {
+void _pascal tsr_done_0(void)
+{
 	vga_done();
 }
 
-void _pascal tsr_done_1(void) {
+void _pascal tsr_done_1(void)
+{
 	cputs(OEM_PRODUCT_STR " unloaded\r\n");
 
 	if (vga_service_call_00 || vga_service_call_auto) {
 		cputs("\r\nVGA calls:\r\n");
 		cputs("        ");
-		cputu(vga_service_call_00,6,' ',10);
+		cputu(vga_service_call_00, 6, ' ', 10);
 		cputs(" Mode Set\r\n");
 		cputs("        ");
-		cputu(vga_service_call_auto,6,' ',10);
+		cputu(vga_service_call_auto, 6, ' ', 10);
 		cputs(" Mode Adjust\r\n");
 	}
 }

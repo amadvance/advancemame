@@ -65,7 +65,7 @@ static unsigned char scan2keycode[128] = {
 	KEYB_1_PAD, KEYB_2_PAD, KEYB_3_PAD, KEYB_0_PAD, KEYB_PERIOD_PAD, /* 79-83 */
 	0, 0, KEYB_LESS, KEYB_F11, KEYB_F12, 0, 0, 0, 0, 0, 0, 0, /* 84-95 */
 	KEYB_ENTER_PAD, KEYB_RCONTROL, KEYB_SLASH_PAD, KEYB_PRTSCR, /* 96-99 */
-	KEYB_ALTGR, KEYB_PAUSE, KEYB_HOME, KEYB_UP, KEYB_PGUP, KEYB_LEFT,/* 100-105 */
+	KEYB_ALTGR, KEYB_PAUSE, KEYB_HOME, KEYB_UP, KEYB_PGUP, KEYB_LEFT, /* 100-105 */
 	KEYB_RIGHT, KEYB_END, KEYB_DOWN, KEYB_PGDN, KEYB_INSERT, /* 106-110 */
 	KEYB_DEL, 0, 0, 0, 0, 0, 0, 0, KEYB_PAUSE, 0, 0, 0, 0, 0, /* 111-124 */
 	KEYB_LWIN, KEYB_RWIN, KEYB_MENU /* 125-127 */
@@ -88,7 +88,7 @@ static struct keyb_raw_context raw_state;
 
 adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 {
-	log_std(("keyb:raw: keyb_raw_init(id:%d,disable_special:%d)\n", keyb_id, (int)disable_special));
+	log_std(("keyb:raw: keyb_raw_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
@@ -167,7 +167,7 @@ void keyb_raw_poll()
 
 	log_debug(("keyb:svgalib: keyb_svgalib_poll()\n"));
 
-	while ((1==read(raw_state.kbd_fd,&c,1)) && (c)) {
+	while ((1==read(raw_state.kbd_fd, &c, 1)) && (c)) {
 		raw_state.keystate[scan2keycode[c & 0x7f]] = (c & 0x80) ? 0 : 1;
 	}
 }

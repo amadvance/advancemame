@@ -100,7 +100,8 @@ static struct os_context OS;
 
 os_clock_t OS_CLOCKS_PER_SEC = 1000000LL;
 
-os_clock_t os_clock(void) {
+os_clock_t os_clock(void)
+{
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec * 1000000LL + tv.tv_usec;
@@ -109,20 +110,24 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-int os_init(adv_conf* context) {
-	memset(&OS,0,sizeof(OS));
+int os_init(adv_conf* context)
+{
+	memset(&OS, 0, sizeof(OS));
 
 	return 0;
 }
 
-void os_done(void) {
+void os_done(void)
+{
 }
 
-static void os_quit_signal(int signum) {
+static void os_quit_signal(int signum)
+{
 	OS.is_quit = 1;
 }
 
-int os_inner_init(const char* title) {
+int os_inner_init(const char* title)
+{
 	const char* display;
 	os_clock_t start, stop;
 	struct utsname uts;
@@ -133,17 +138,17 @@ int os_inner_init(const char* title) {
 	if (uname(&uts) != 0) {
 		log_std(("ERROR: uname failed\n"));
 	} else {
-		log_std(("os: sys %s\n",uts.sysname));
-		log_std(("os: release %s\n",uts.release));
-		log_std(("os: version %s\n",uts.version));
-		log_std(("os: machine %s\n",uts.machine));
+		log_std(("os: sys %s\n", uts.sysname));
+		log_std(("os: release %s\n", uts.release));
+		log_std(("os: version %s\n", uts.version));
+		log_std(("os: machine %s\n", uts.machine));
 	}
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
-#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
-	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
 #else
 	log_std(("os: compiler unknown\n"));
 #endif
@@ -153,22 +158,22 @@ int os_inner_init(const char* title) {
 	stop = os_clock();
 	while (stop == start)
 		stop = os_clock();
-	log_std(("os: clock delta %ld\n",(unsigned long)(stop - start)));
+	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
 
 	usleep(10000);
 	start = os_clock();
 	usleep(1000);
 	stop = os_clock();
-	log_std(("os: 0.001 delay, effective %g\n",(stop - start) / (double)OS_CLOCKS_PER_SEC ));
+	log_std(("os: 0.001 delay, effective %g\n", (stop - start) / (double)OS_CLOCKS_PER_SEC ));
 
-	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n",sysconf(_SC_CLK_TCK)));
-	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n",sysconf(_SC_NPROCESSORS_CONF)));
-	log_std(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n",sysconf(_SC_NPROCESSORS_ONLN)));
-	log_std(("os: sysconf(_SC_PHYS_PAGES) %ld\n",sysconf(_SC_PHYS_PAGES)));
-	log_std(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n",sysconf(_SC_AVPHYS_PAGES)));
-	log_std(("os: sysconf(_SC_CHAR_BIT) %ld\n",sysconf(_SC_CHAR_BIT)));
-	log_std(("os: sysconf(_SC_LONG_BIT) %ld\n",sysconf(_SC_LONG_BIT)));
-	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n",sysconf(_SC_WORD_BIT)));
+	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
+	log_std(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n", sysconf(_SC_NPROCESSORS_CONF)));
+	log_std(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n", sysconf(_SC_NPROCESSORS_ONLN)));
+	log_std(("os: sysconf(_SC_PHYS_PAGES) %ld\n", sysconf(_SC_PHYS_PAGES)));
+	log_std(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n", sysconf(_SC_AVPHYS_PAGES)));
+	log_std(("os: sysconf(_SC_CHAR_BIT) %ld\n", sysconf(_SC_CHAR_BIT)));
+	log_std(("os: sysconf(_SC_LONG_BIT) %ld\n", sysconf(_SC_LONG_BIT)));
+	log_std(("os: sysconf(_SC_WORD_BIT) %ld\n", sysconf(_SC_WORD_BIT)));
 
 	display = getenv("DISPLAY");
 	if (display)
@@ -254,7 +259,8 @@ int os_inner_init(const char* title) {
 	return 0;
 }
 
-void* os_internal_svgalib_get(void) {
+void* os_internal_svgalib_get(void)
+{
 #if defined(USE_SVGALIB)
 	if (OS.svgalib_active)
 		return &OS.svgalib_active;
@@ -262,7 +268,8 @@ void* os_internal_svgalib_get(void) {
 	return 0;
 }
 
-void* os_internal_slang_get(void) {
+void* os_internal_slang_get(void)
+{
 #if defined(USE_SLANG)
 	if (OS.slang_active)
 		return &OS.slang_active;
@@ -270,7 +277,8 @@ void* os_internal_slang_get(void) {
 	return 0;
 }
 
-void* os_internal_x_get(void) {
+void* os_internal_x_get(void)
+{
 #if defined(USE_X)
 	if (OS.x_active)
 		return OS.x_display;
@@ -278,7 +286,8 @@ void* os_internal_x_get(void) {
 	return 0;
 }
 
-void* os_internal_sdl_get(void) {
+void* os_internal_sdl_get(void)
+{
 #if defined(USE_SDL)
 	if (OS.sdl_active)
 		return &OS.sdl_active;
@@ -286,7 +295,8 @@ void* os_internal_sdl_get(void) {
 	return 0;
 }
 
-void os_inner_done(void) {
+void os_inner_done(void)
+{
 #ifdef USE_X
 	if (OS.x_display) {
 		log_std(("os: XCloseDisplay()\n"));
@@ -318,11 +328,13 @@ void os_inner_done(void) {
 #endif
 }
 
-const char* os_internal_title_get(void) {
+const char* os_internal_title_get(void)
+{
 	return OS.title;
 }
 
-void os_poll(void) {
+void os_poll(void)
+{
 #ifdef USE_SDL
 	SDL_Event event;
 
@@ -332,7 +344,7 @@ void os_poll(void) {
 
 	log_debug(("os: SDL_PollEvent()\n"));
 	while (SDL_PollEvent(&event)) {
-		log_debug(("os: SDL_PollEvent() -> event.type:%d\n",(int)event.type));
+		log_debug(("os: SDL_PollEvent() -> event.type:%d\n", (int)event.type));
 		switch (event.type) {
 			case SDL_KEYDOWN :
 #ifdef USE_KEYBOARD_SDL
@@ -400,13 +412,14 @@ void os_led_set(unsigned mask)
 /***************************************************************************/
 /* Signal */
 
-int os_is_quit(void) {
+int os_is_quit(void)
+{
 	return OS.is_quit;
 }
 
 void os_default_signal(int signum)
 {
-	log_std(("os: signal %d\n",signum));
+	log_std(("os: signal %d\n", signum));
 
 #if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW)
 	log_std(("os: keyb_abort\n"));
@@ -453,7 +466,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (os_main(argc,argv) != 0) {
+	if (os_main(argc, argv) != 0) {
 		file_done();
 		target_done();
 		return EXIT_FAILURE;

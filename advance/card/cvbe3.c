@@ -30,11 +30,13 @@
 
 #include "board.h"
 
-const char* vbe3_driver(void) {
+const char* vbe3_driver(void)
+{
 	return "Generic VBE3 board";
 }
 
-int vbe3_detect(void) {
+int vbe3_detect(void)
+{
 	return 1;
 }
 
@@ -42,7 +44,8 @@ int vbe3_detect(void) {
 #define HBASE 1
 #define VBASE 2
 
-int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co) {
+int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
+{
 	card_crtc cp = *_cp;
 
 	unsigned hde; /* horizontal display end */
@@ -52,7 +55,7 @@ int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 	unsigned y_add;
 	unsigned r;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("vbe3: incompatible mode\n"));
 		return 0;
 	}
@@ -73,11 +76,11 @@ int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 	} else if (hde == 32*co->width) {
 		x_mul = 32*HBASE;
 	} else {
-		CARD_LOG(("vbe3: HDE doesn't match, width:%d, hde:%d\n",co->width,hde));
+		CARD_LOG(("vbe3: HDE doesn't match, width:%d, hde:%d\n", co->width, hde));
 		return 0;
 	}
 
-	CARD_LOG(("vbe3: width:%d, hde:%d, x_mul:%d\n",co->width,hde,x_mul));
+	CARD_LOG(("vbe3: width:%d, hde:%d, x_mul:%d\n", co->width, hde, x_mul));
 
 	vde = card_crtc_get(0x12);
 	r = card_crtc_get(0x7);
@@ -109,11 +112,11 @@ int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 		y_mul = 4*VBASE;
 		y_add = 1;
 	} else {
-		CARD_LOG(("vbe3: VDE doesn't match, height:%d, vde:%d\n",co->height,vde));
+		CARD_LOG(("vbe3: VDE doesn't match, height:%d, vde:%d\n", co->height, vde));
 		return 0;
 	}
 
-	CARD_LOG(("vbe3: height:%d, vde:%d, y_mul:%d, y_add:%d\n",co->height,vde,y_mul,y_add));
+	CARD_LOG(("vbe3: height:%d, vde:%d, y_mul:%d, y_add:%d\n", co->height, vde, y_mul, y_add));
 
 	/* The values in the cp structure already have the values modified */
 	/* for the doublescan and interlaced flag. This change is also done */
@@ -138,7 +141,7 @@ int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 	cp.VBEnd = cp.VBEnd * y_mul / VBASE + y_add;
 	cp.VTotal = cp.VTotal * y_mul / VBASE + y_add;
 
-	CARD_LOG(("vbe3: final hde:%d, vde:%d\n",cp.HDisp,cp.VDisp));
+	CARD_LOG(("vbe3: final hde:%d, vde:%d\n", cp.HDisp, cp.VDisp));
 
 	card_signal_disable();
 	card_crtc_all_set(&cp);
@@ -147,5 +150,6 @@ int vbe3_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 	return 1;
 }
 
-void vbe3_reset(void) {
+void vbe3_reset(void)
+{
 }

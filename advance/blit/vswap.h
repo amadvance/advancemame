@@ -34,7 +34,8 @@
 #include "blit.h"
 
 #if defined(USE_ASM_i586)
-static __inline__ unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count) {
+static inline unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
 	switch (state) {
 	case 0 :
 		internal_copy8_mmx(dst, src, count);
@@ -54,7 +55,8 @@ static __inline__ unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* b
 	return state;
 }
 
-static __inline__ unsigned internal_swapodd8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count) {
+static inline unsigned internal_swapodd8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
 	switch (state) {
 	case 0 :
 		internal_copy8_mmx(dst, src, count);
@@ -75,7 +77,8 @@ static __inline__ unsigned internal_swapodd8_step1_mmx(unsigned state, uint8* bu
 }
 #endif
 
-static __inline__ unsigned internal_swapeven8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count) {
+static inline unsigned internal_swapeven8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
 	switch (state) {
 	case 0 :
 		internal_copy8_def(dst, src, count);
@@ -95,7 +98,8 @@ static __inline__ unsigned internal_swapeven8_step1_def(unsigned state, uint8* b
 	return state;
 }
 
-static __inline__ unsigned internal_swapodd8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count) {
+static inline unsigned internal_swapodd8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
 	switch (state) {
 	case 0 :
 		internal_copy8_def(dst, src, count);
@@ -119,99 +123,117 @@ static __inline__ unsigned internal_swapodd8_step1_def(unsigned state, uint8* bu
 /* swap8 */
 
 #if defined(USE_ASM_i586)
-static void video_line_swapeven8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count);
+static void video_line_swapeven8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
 }
 
-static void video_line_swapodd8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count);
+static void video_line_swapodd8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
 }
 #endif
 
-static void video_line_swapeven8_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count);
+static void video_line_swapeven8_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
 }
 
-static void video_line_swapodd8_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count);
+static void video_line_swapodd8_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
 }
 
-static void video_stage_swapeven8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_even,sdx,sdp,1,sdx,1);
+static void video_stage_swapeven8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_even, sdx, sdp, 1, sdx, 1);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapeven8_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapeven8_step1), 0);
 }
 
-static void video_stage_swapodd8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_odd,sdx,sdp,1,sdx,1);
+static void video_stage_swapodd8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_odd, sdx, sdp, 1, sdx, 1);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapodd8_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapodd8_step1), 0);
 }
 
 /****************************************************************************/
 /* swap16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_swapeven16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 2);
+static void video_line_swapeven16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
 }
 
-static void video_line_swapodd16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 2);
+static void video_line_swapodd16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
 }
 #endif
 
-static void video_line_swapeven16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 2);
+static void video_line_swapeven16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
 }
 
-static void video_line_swapodd16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 2);
+static void video_line_swapodd16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
 }
 
-static void video_stage_swapeven16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_even,sdx,sdp,2,sdx,2);
+static void video_stage_swapeven16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_even, sdx, sdp, 2, sdx, 2);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapeven16_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapeven16_step1), 0);
 }
 
-static void video_stage_swapodd16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_odd,sdx,sdp,2,sdx,2);
+static void video_stage_swapodd16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_odd, sdx, sdp, 2, sdx, 2);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapodd16_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapodd16_step1), 0);
 }
 
 /****************************************************************************/
 /* swap32 */
 
 #if defined(USE_ASM_i586)
-static void video_line_swapeven32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 4);
+static void video_line_swapeven32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
 }
 
-static void video_line_swapodd32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 4);
+static void video_line_swapodd32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
 }
 #endif
 
-static void video_line_swapeven32_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 4);
+static void video_line_swapeven32_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
 }
 
-static void video_line_swapodd32_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable,(uint8*)stage->buffer_extra,(uint8*)dst,(const uint8*)src,stage->slice.count * 4);
+static void video_line_swapodd32_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
 }
 
-static void video_stage_swapeven32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_even,sdx,sdp,4,sdx,4);
+static void video_stage_swapeven32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_even, sdx, sdp, 4, sdx, 4);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapeven32_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapeven32_step1), 0);
 }
 
-static void video_stage_swapodd32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_swap_odd,sdx,sdp,4,sdx,4);
+static void video_stage_swapodd32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_swap_odd, sdx, sdp, 4, sdx, 4);
 	STAGE_EXTRA(stage);
-	STAGE_PUT(stage,BLITTER(video_line_swapodd32_step1),0);
+	STAGE_PUT(stage, BLITTER(video_line_swapodd32_step1), 0);
 }
 
 #endif

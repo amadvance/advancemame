@@ -262,11 +262,13 @@ typedef struct vbe_internal_struct {
 	vbe_ModeInfoBlock mode_info;
 } vbe_internal;
 
-static inline unsigned vbe_rgb_nibble(unsigned value, int shift, unsigned mask) {
+static inline unsigned vbe_rgb_nibble(unsigned value, int shift, unsigned mask)
+{
 	return (shift >= 0 ? value << shift : value >> -shift) & mask;
 }
 
-static inline unsigned vbe_rgb_invnibble(unsigned value, int shift, unsigned mask) {
+static inline unsigned vbe_rgb_invnibble(unsigned value, int shift, unsigned mask)
+{
 	value &= mask;
 	return shift >= 0 ? value >> shift : value << -shift;
 }
@@ -280,50 +282,60 @@ extern vbe_internal vbe_state;
 /* Return the offset for accessing in writing the video memory */
 extern unsigned char* (*vbe_write_line)(unsigned y);
 
-static inline adv_bool vbe_is_active(void) {
+static inline adv_bool vbe_is_active(void)
+{
 	return vbe_state.active != 0;
 }
 
-static inline adv_bool vbe_mode_is_active(void) {
+static inline adv_bool vbe_mode_is_active(void)
+{
 	return vbe_state.mode_active != 0;
 }
 
-static inline adv_bool vbe_linear_is_active(void) {
+static inline adv_bool vbe_linear_is_active(void)
+{
 	return vbe_state.linear_active != 0;
 }
 
-static inline unsigned vbe_virtual_x(void) {
+static inline unsigned vbe_virtual_x(void)
+{
 	return vbe_state.virtual_x;
 }
 
-static inline unsigned vbe_virtual_y(void) {
+static inline unsigned vbe_virtual_y(void)
+{
 	return vbe_state.virtual_y;
 }
 
-static inline unsigned vbe_bytes_per_scanline(void) {
+static inline unsigned vbe_bytes_per_scanline(void)
+{
 	return vbe_state.bytes_per_scanline;
 }
 
 unsigned vbe_adjust_bytes_per_page(unsigned bytes_per_page);
 
-static inline adv_color_def vbe_color_def(void) {
+static inline adv_color_def vbe_color_def(void)
+{
 	if (vbe_state.mode_info.MemoryModel == vbeMemPK) {
 		return color_def_make(adv_color_type_palette);
 	} else {
-		return color_def_make_from_rgb_maskshift(vbe_state.rgb_red_mask,vbe_state.rgb_red_shift,vbe_state.rgb_green_mask,vbe_state.rgb_green_shift,vbe_state.rgb_blue_mask,vbe_state.rgb_blue_shift);
+		return color_def_make_from_rgb_maskshift(vbe_state.rgb_red_mask, vbe_state.rgb_red_shift, vbe_state.rgb_green_mask, vbe_state.rgb_green_shift, vbe_state.rgb_blue_mask, vbe_state.rgb_blue_shift);
 	}
 }
 
-static inline adv_bool vbe_pm_is_active(void) {
+static inline adv_bool vbe_pm_is_active(void)
+{
 	return vbe_state.pm_active != 0;
 }
 
-static inline unsigned vbe_font_size_x(void) {
+static inline unsigned vbe_font_size_x(void)
+{
 	assert( vbe_mode_is_active() );
 	return vbe_state.mode_info.XCharSize;
 }
 
-static inline unsigned vbe_font_size_y(void) {
+static inline unsigned vbe_font_size_y(void)
+{
 	assert( vbe_mode_is_active() );
 	return vbe_state.mode_info.YCharSize;
 }

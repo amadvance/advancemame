@@ -460,6 +460,26 @@ Configuration
 			low end driver allow it (default).
 		no - Disable completly the bit depth.
 
+    device_video_output
+	Select the output mode.
+
+	:device_video_output auto | window | fullscreen | zoom
+
+	Options:
+		auto - Automatically choose (default).
+		window - Use a window.
+		fullscreen - Use a fullscreen display.
+		zoom - Zoom the image to fullscreen using the
+			video board hardware. This mode uses a
+			YUV overlay available only in some environment,
+			like xv in X Window and DirectX in Windows.
+			The specific format used is YUY2.
+
+	Please note that with the zoom mode in AdvanceMAME, if the original
+	image is in the RGB format instead of a palette format, the program
+	need to convert it to the YUY2 format before displaying it.
+	It requires some time.
+
     device_video_fastchange
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video
@@ -550,27 +570,13 @@ Configuration
 	Divide the pixelclock using the VGA sequencer. It should help to support 
 	lower pixel clocks on some boards.
 
-	The use of this option is discouraged, it's present only for testing.	
+	The use of this option is discouraged, it's present only for testing.
 
 	:device_svgawin_divideclock yes | no
 
 	Options:
 		yes - Divide the clock by 2.
 		no - Don't divide the clock (default).
-
-  SDL Configuration Options
-	The following are the common video configuration options
-	available only for the `sdl' video driver.
-
-    device_sdl_fullscreen
-	Force the use of a fullscreen mode also if a Window Manager
-	is present.
-
-	:device_sdl_fullscreen yes | no
-
-	Options:
-		yes - Try to use a fullscreen mode.
-		no - Try to use a windowed mode (default).
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

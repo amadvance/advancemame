@@ -14,9 +14,9 @@ enum {
     TGUI9660,
     TGUI9680,
     PROVIDIA9682,
-    PROVIDIA9685,
     CYBER9382,
     CYBER9385,
+    PROVIDIA9685,
     CYBER9388,
     CYBER9397,
     CYBER9397DVD,
@@ -52,6 +52,24 @@ enum {
 			 (chip == BLADE3D) || \
 			 (chip == CYBERBLADEXP) || \
 			 (chip == CYBERBLADEXPm))
+
+#define IsCyber ((chip == CYBER9397) || \
+			 (chip == CYBER9397DVD) || \
+			 (chip == CYBER9525DVD) || \
+			 (chip == CYBER9382) || \
+			 (chip == CYBER9385) || \
+			 (chip == CYBER9388) || \
+			 (chip == CYBER9520) || \
+			 (chip == CYBERBLADEE4)  || \
+			 (chip == CYBERBLADEI7D)  || \
+			 (chip == CYBERBLADEI1)  || \
+			 (chip == CYBERBLADEI1D)  || \
+			 (chip == CYBERBLADEAI1)  || \
+			 (chip == CYBERBLADEAI1D)  || \
+			 (chip == CYBERBLADEXP) || \
+			 (chip == CYBERBLADEXPm))
+
+
 
 #if 0
 #define INB(addr) (*(unsigned char *)(__svgalib_vgammbase+addr))
@@ -104,6 +122,7 @@ enum {
 #define CRTHiOrd 0x27
 #define AddColReg 0x29
 #define InterfaceSel 0x2A
+#define HorizOverflow 0x2B
 #define GETest 0x2D
 #define Performance 0x2F
 #define GraphEngReg 0x36
@@ -149,4 +168,188 @@ enum {
 #define HorStretch   0x53
 #define BiosMode     0x5c
 #define BiosReg      0x5d
+
+#define SHADOW_ENABLE(oldval) \
+	do {\
+		OUTB(0x3CE, CyberControl); \
+		oldval = INB(0x3CF);\
+		OUTB(0x3CF,oldval | (1 << 6));\
+	} while (0)
+#define SHADOW_RESTORE(val) \
+    do {\
+		OUTB(0x3CE, CyberControl); \
+		OUTB(0x3CF,val); \
+	} while (0);
+static int ClockLimit[] = {
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	80000,
+	90000,
+	90000,
+	135000,
+	135000,
+	170000,
+	170000,
+	170000,
+	170000,
+	170000,
+	170000,
+	170000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+};
+
+static int ClockLimit16bpp[] = {
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	40000,
+	45000,
+	45000,
+	90000,
+	90000,
+	135000,
+	135000,
+	170000,
+	170000,
+	170000,
+	170000,
+	170000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+	230000,
+}; 
+
+static int ClockLimit24bpp[] = {
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	40000,
+	40000,
+	70000,
+	70000,
+	70000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+};
+
+static int ClockLimit32bpp[] = {
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	25180,
+	40000,
+	40000,
+	70000,
+	70000,
+	70000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+	115000,
+};
 

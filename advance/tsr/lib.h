@@ -62,7 +62,7 @@ struct region {
 int _pascal region_enter(struct region far* pregion);
 void _pascal region_leave(struct region far* pregion);
 
-#define MK_FP( seg,ofs ) ((void _seg * )((uint16)(seg)) + (void near *)((uint16)(ofs)))
+#define MK_FP( seg, ofs ) ((void _seg * )((uint16)(seg)) + (void near *)((uint16)(ofs)))
 #define FP_SEG( fp ) ((uint16)(void _seg *)(void far *)(fp))
 #define FP_OFF( fp ) ((uint16)(fp))
 

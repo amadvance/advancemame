@@ -44,8 +44,8 @@ typedef signed int INT32;
 __extension__ typedef signed long long INT64;
 
 /* Combine two 32-bit integers into a 64-bit integer */
-#define COMBINE_64_32_32(A,B) ((((UINT64)(A))<<32) | (UINT32)(B))
-#define COMBINE_U64_U32_U32(A,B) COMBINE_64_32_32(A,B)
+#define COMBINE_64_32_32(A, B) ((((UINT64)(A))<<32) | (UINT32)(B))
+#define COMBINE_U64_U32_U32(A, B) COMBINE_64_32_32(A, B)
 
 /* Return upper 32 bits of a 64-bit integer */
 #define HI32_32_64(A) (((UINT64)(A)) >> 32)
@@ -55,23 +55,23 @@ __extension__ typedef signed long long INT64;
 #define LO32_32_64(A) ((A) & 0xffffffff)
 #define LO32_U32_U64(A) LO32_32_64(A)
 
-#define DIV_64_64_32(A,B) ((A)/(B))
-#define DIV_U64_U64_U32(A,B) ((A)/(UINT32)(B))
+#define DIV_64_64_32(A, B) ((A)/(B))
+#define DIV_U64_U64_U32(A, B) ((A)/(UINT32)(B))
 
-#define MOD_32_64_32(A,B) ((A)%(B))
-#define MOD_U32_U64_U32(A,B) ((A)%(UINT32)(B))
+#define MOD_32_64_32(A, B) ((A)%(B))
+#define MOD_U32_U64_U32(A, B) ((A)%(UINT32)(B))
 
-#define MUL_64_32_32(A,B) ((A)*(INT64)(B))
-#define MUL_U64_U32_U32(A,B) ((A)*(UINT64)(UINT32)(B))
+#define MUL_64_32_32(A, B) ((A)*(INT64)(B))
+#define MUL_U64_U32_U32(A, B) ((A)*(UINT64)(UINT32)(B))
 
 /* Common register (native endianess) */
 typedef union {
 #if defined(LSB_FIRST)
-        struct { UINT8 l,h,h2,h3; } b;
-        struct { UINT16 l,h; } w;
+        struct { UINT8 l, h, h2, h3; } b;
+        struct { UINT16 l, h; } w;
 #elif defined(MSB_FIRST)
-        struct { UINT8 h3,h2,h,l; } b;
-        struct { UINT16 h,l; } w;
+        struct { UINT8 h3, h2, h, l; } b;
+        struct { UINT16 h, l; } w;
 #else
 #error LSB_FIRST and MSB_FIRST not defined
 #endif

@@ -28,7 +28,7 @@
  *  Brandon Long <blong@fiction.net> 10/22/97 for mutt 0.87.1
  *    Ok, added some minimal floating point support, which means this
  *    probably requires libm on most operating systems.  Don't yet
- *    support the exponent (e,E) and sigfig (g,G).  Also, fmtint()
+ *    support the exponent (e, E) and sigfig (g, G).  Also, fmtint()
  *    was pretty badly broken, it just wasn't being exercised in ways
  *    which showed it, so that's been fixed.  Also, formated the code
  *    to mutt conventions, and removed dead code left over from the
@@ -73,7 +73,7 @@
 # define HAVE_STDARGS    /* let's hope that works everywhere (mj) */
 # define VA_LOCAL_DECL   va_list ap
 # define VA_START(f)     va_start(ap, f)
-# define VA_SHIFT(v,t)  ;   /* no-op for ANSI */
+# define VA_SHIFT(v, t)  ;   /* no-op for ANSI */
 # define VA_END          va_end(ap)
 #else
 # if defined(HAVE_VARARGS_H)
@@ -81,7 +81,7 @@
 #  undef HAVE_STDARGS
 #  define VA_LOCAL_DECL   va_list ap
 #  define VA_START(f)     va_start(ap)      /* f is ignored! */
-#  define VA_SHIFT(v,t) v = va_arg(ap,t)
+#  define VA_SHIFT(v, t) v = va_arg(ap, t)
 #  define VA_END        va_end(ap)
 # else
 /*XX ** NO VARARGS ** XX*/
@@ -136,7 +136,7 @@ static void dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c );
 #define DP_C_LDOUBLE 3
 
 #define char_to_int(p) (p - '0')
-#define MAX(p,q) ((p >= q) ? p : q)
+#define MAX(p, q) ((p >= q) ? p : q)
 
 static void dopr (char *buffer, size_t maxlen, const char *format, va_list args)
 {
@@ -712,7 +712,7 @@ int vsnprintf (char *str, size_t count, const char *fmt, va_list args)
 #ifndef HAVE_SNPRINTF
 /* VARARGS3 */
 #ifdef HAVE_STDARGS
-int snprintf (char *str,size_t count,const char *fmt,...)
+int snprintf (char *str, size_t count, const char *fmt, ...)
 #else
 int snprintf (va_alist) va_dcl
 #endif

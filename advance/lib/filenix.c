@@ -61,38 +61,40 @@ static struct file_context FL;
 /***************************************************************************/
 /* Init */
 
-static void strcatslash(char* str) {
+static void strcatslash(char* str)
+{
 	if (str[0] && str[strlen(str)-1] !='/')
-		strcat(str,"/");
+		strcat(str, "/");
 }
 
-int file_init(void) {
+int file_init(void)
+{
 	char* home;
 
-	memset(&FL,0,sizeof(FL));
+	memset(&FL, 0, sizeof(FL));
 
 	/* root */
-	strcpy(FL.root_dir,PREFIX);
+	strcpy(FL.root_dir, PREFIX);
 	strcatslash(FL.root_dir);
-	strcat(FL.root_dir,"share/advance");
+	strcat(FL.root_dir, "share/advance");
 
 	/* home */
 	home = getenv("HOME");
 	if (!home || !*home) {
 		/* use the root dir as home dir */
-		strcpy(FL.home_dir,FL.root_dir);
+		strcpy(FL.home_dir, FL.root_dir);
 		/* clear the root dir */
 		FL.root_dir[0] = 0;
 	} else {
-		strcpy(FL.home_dir,home);
+		strcpy(FL.home_dir, home);
 		strcatslash(FL.home_dir);
-		strcat(FL.home_dir,".advance");
+		strcat(FL.home_dir, ".advance");
 	}
 
 	if (FL.home_dir[0]) {
 		struct stat st;
 
-		if (stat(FL.home_dir,&st) == 0) {
+		if (stat(FL.home_dir, &st) == 0) {
 			if (!S_ISDIR(st.st_mode)) {
 				target_err("Failure: A file named %s exists\n", FL.home_dir);
 				return -1;
@@ -108,94 +110,107 @@ int file_init(void) {
 	return 0;
 }
 
-void file_done(void) {
+void file_done(void)
+{
 }
 
 /***************************************************************************/
 /* File System */
 
-char file_dir_separator(void) {
+char file_dir_separator(void)
+{
 	return ':';
 }
 
-char file_dir_slash(void) {
+char file_dir_slash(void)
+{
 	return '/';
 }
 
-const char* file_abs(const char* dir, const char* file) {
+const char* file_abs(const char* dir, const char* file)
+{
 	/* TODO implement the complete . and .. management */
 	if (file[0] == '/') {
-		strcpy(FL.file_abs,file);
+		strcpy(FL.file_abs, file);
 	} else {
 		strcpy(FL.file_abs, dir);
 		if (FL.file_abs[strlen(FL.file_abs)-1] != '/')
-			strcat(FL.file_abs,"/");
+			strcat(FL.file_abs, "/");
 		strcat(FL.file_abs, file);
 	}
 	return FL.file_abs;
 }
 
-const char* file_import(const char* path) {
+const char* file_import(const char* path)
+{
 	return path;
 }
 
-const char* file_export(const char* path) {
+const char* file_export(const char* path)
+{
 	return path;
 }
 
-int file_mkdir(const char* dir) {
+int file_mkdir(const char* dir)
+{
 	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 /***************************************************************************/
 /* Files */
 
-const char* file_config_file_root(const char* file) {
+const char* file_config_file_root(const char* file)
+{
 	if (FL.root_dir[0]) {
 		if (file[0] == '/')
-			sprintf(FL.file_root_buffer,"%s",file);
+			sprintf(FL.file_root_buffer, "%s", file);
 		else
 			/* if relative add the root data dir */
-			sprintf(FL.file_root_buffer,"%s/%s",FL.root_dir,file);
+			sprintf(FL.file_root_buffer, "%s/%s", FL.root_dir, file);
 		return FL.file_root_buffer;
 	} else {
 		return 0;
 	}
 }
 
-const char* file_config_file_home(const char* file) {
+const char* file_config_file_home(const char* file)
+{
 	if (file[0] == '/')
-		sprintf(FL.file_home_buffer,"%s",file);
+		sprintf(FL.file_home_buffer, "%s", file);
 	else
 		/* if relative add the home data dir */
-		sprintf(FL.file_home_buffer,"%s/%s",FL.home_dir,file);
+		sprintf(FL.file_home_buffer, "%s/%s", FL.home_dir, file);
 	return FL.file_home_buffer;
 }
 
-const char* file_config_file_legacy(const char* file) {
+const char* file_config_file_legacy(const char* file)
+{
 	return 0;
 }
 
-const char* file_config_dir_multidir(const char* tag) {
+const char* file_config_dir_multidir(const char* tag)
+{
 	assert( tag[0] != '/' );
 	if (FL.root_dir[0])
-		sprintf(FL.dir_buffer,"%s/%s:%s/%s",FL.home_dir,tag,FL.root_dir,tag);
+		sprintf(FL.dir_buffer, "%s/%s:%s/%s", FL.home_dir, tag, FL.root_dir, tag);
 	else
-		sprintf(FL.dir_buffer,"%s/%s",FL.home_dir,tag);
+		sprintf(FL.dir_buffer, "%s/%s", FL.home_dir, tag);
 	return FL.dir_buffer;
 }
 
-const char* file_config_dir_singledir(const char* tag) {
+const char* file_config_dir_singledir(const char* tag)
+{
 	assert( tag[0] != '/' );
-	sprintf(FL.dir_buffer,"%s/%s",FL.home_dir,tag);
+	sprintf(FL.dir_buffer, "%s/%s", FL.home_dir, tag);
 	return FL.dir_buffer;
 }
 
-const char* file_config_dir_singlefile(void) {
+const char* file_config_dir_singlefile(void)
+{
 	if (FL.root_dir[0])
-		sprintf(FL.dir_buffer,"%s:%s",FL.home_dir,FL.root_dir);
+		sprintf(FL.dir_buffer, "%s:%s", FL.home_dir, FL.root_dir);
 	else
-		sprintf(FL.dir_buffer,"%s",FL.home_dir);
+		sprintf(FL.dir_buffer, "%s", FL.home_dir);
 	return FL.dir_buffer;
 }
 

@@ -289,7 +289,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	nLen = wcslen(szCmdLine)+128+1;
 	bufp = (wchar_t *)alloca(nLen*2);
 	GetModuleFileName(NULL, bufp, 128);
-	wcsncpy(bufp+wcslen(bufp), szCmdLine,nLen-wcslen(bufp));
+	wcsncpy(bufp+wcslen(bufp), szCmdLine, nLen-wcslen(bufp));
 	nLen = wcslen(bufp)+1;
 	cmdline = (char *)alloca(nLen);
 	if ( cmdline == NULL ) {

@@ -57,7 +57,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 {
 	unsigned i;
 
-	log_std(("josytickb:svgalib: joystickb_svgalib_init(id:%d)\n",joystickb_id));
+	log_std(("josytickb:svgalib: joystickb_svgalib_init(id:%d)\n", joystickb_id));
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("joystickb:svgalib: svgalib not initialized\n"));
@@ -138,7 +138,7 @@ const char* joystickb_svgalib_stick_name_get(unsigned j, unsigned s)
 
 	(void)j;
 
-	sprintf(svgalib_state.stick_name,"S%d",s+1);
+	sprintf(svgalib_state.stick_name, "S%d", s+1);
 
 	return svgalib_state.stick_name;
 }
@@ -149,12 +149,12 @@ const char* joystickb_svgalib_stick_axe_name_get(unsigned j, unsigned s, unsigne
 
 	assert(j < joystickb_svgalib_count_get());
 	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j,s) );
+	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
 
 	(void)j;
 	(void)s;
 
-	sprintf(svgalib_state.axe_name,"A%d",a+1);
+	sprintf(svgalib_state.axe_name, "A%d", a+1);
 
 	return svgalib_state.axe_name;
 }
@@ -168,7 +168,7 @@ const char* joystickb_svgalib_button_name_get(unsigned j, unsigned b)
 
 	(void)j;
 
-	sprintf(svgalib_state.button_name,"B%d",b+1);
+	sprintf(svgalib_state.button_name, "B%d", b+1);
 
 	return svgalib_state.button_name;
 }
@@ -190,9 +190,9 @@ unsigned joystickb_svgalib_stick_axe_digital_get(unsigned j, unsigned s, unsigne
 
 	assert(j < joystickb_svgalib_count_get());
 	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j,s) );
+	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
 
-	r = joystick_getaxis(j,a);
+	r = joystick_getaxis(j, a);
 	if (d)
 		return r < -64;
 	else
@@ -208,9 +208,9 @@ int joystickb_svgalib_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
 
 	assert(j < joystickb_svgalib_count_get());
 	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j,s) );
+	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
 
-	r = joystick_getaxis(j,a);
+	r = joystick_getaxis(j, a);
 	if (r > 64) /* adjust the upper limit from 127 to 128 */
 		++r;
 	return r;

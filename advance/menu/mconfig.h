@@ -42,53 +42,64 @@ enum game_sort_t {
 	sort_by_info
 };
 
-inline bool sort_by_root_name_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_leveldesc_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_root_name_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_leveldesc_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_name_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_name_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_manufacturer_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_manufacturer_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_manufacturer_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_manufacturer_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_year_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_year_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_year_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_year_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_res_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_res_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_res_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_res_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_time_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_time_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_time_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_time_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_coin_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_coin_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_coin_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_coin_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_group_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_group_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_group_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_group_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_type_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_type_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_type_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_type_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_size_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_size_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_size_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_size_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_info_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_info_less,pgame_by_desc_less,pgame_by_name_less);
+inline bool sort_by_info_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_info_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
 typedef bool (*pgame_sort_func)(const game*, const game*);
 
-typedef std::set<const game*,pgame_sort_func> pgame_sort_set;
+typedef std::set<const game*, pgame_sort_func> pgame_sort_set;
 
 /// Type of mode.
 enum show_t {

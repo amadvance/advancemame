@@ -39,7 +39,8 @@
  *  - USE_KEYBOARD_RAW
  *  - USE_KEYBOARD_NONE
  */
-void keyb_reg_driver_all(adv_conf* context) {
+void keyb_reg_driver_all(adv_conf* context)
+{
 #ifdef USE_KEYBOARD_ALLEGRO
 	keyb_reg_driver(context, &keyb_allegro_driver);
 #endif

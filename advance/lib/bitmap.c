@@ -35,7 +35,8 @@
  * \param bit Bits per pixel.
  * \return The allocated bitmap or 0 on error.
  */
-adv_bitmap* bitmap_alloc(unsigned width, unsigned height, unsigned bit) {
+adv_bitmap* bitmap_alloc(unsigned width, unsigned height, unsigned bit)
+{
 	adv_bitmap* bmp = (adv_bitmap*)malloc(sizeof(adv_bitmap));
 	if (!bmp)
 		return 0;
@@ -60,7 +61,8 @@ adv_bitmap* bitmap_alloc(unsigned width, unsigned height, unsigned bit) {
  * \param bmp Bitmap to duplicate.
  * \return The allocated bitmap or 0 on error.
  */
-adv_bitmap* bitmap_dup(adv_bitmap* bmp) {
+adv_bitmap* bitmap_dup(adv_bitmap* bmp)
+{
 	unsigned i;
 
 	adv_bitmap* r = (adv_bitmap*)malloc(sizeof(adv_bitmap));
@@ -79,7 +81,7 @@ adv_bitmap* bitmap_dup(adv_bitmap* bmp) {
 	r->ptr = r->heap;
 
 	for(i=0;i<r->size_y;++i)
-		memcpy(bitmap_line(r,i), bitmap_line(bmp,i), r->size_x * r->bytes_per_pixel);
+		memcpy(bitmap_line(r, i), bitmap_line(bmp, i), r->size_x * r->bytes_per_pixel);
 
 	return r;
 }
@@ -94,7 +96,8 @@ adv_bitmap* bitmap_dup(adv_bitmap* bmp) {
  * \param ptr Pointer at the first pixel.
  * \param scanline Bytes per scanline.
  */
-adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline) {
+adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline)
+{
 	adv_bitmap* bmp = (adv_bitmap*)malloc(sizeof(adv_bitmap));
 	assert( bmp );
 
@@ -111,7 +114,8 @@ adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsig
 /**
  * Create a palettized bitmap allocated externally.
  */
-adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size) {
+adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size)
+{
 	if (pixel == 1) {
 		unsigned char* p = pal_ptr;
 		unsigned n = pal_size / 3;
@@ -133,7 +137,8 @@ adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned
 /**
  * Deallocated a bitmap.
  */
-void bitmap_free(adv_bitmap* bmp) {
+void bitmap_free(adv_bitmap* bmp)
+{
 	if (bmp)
 		free(bmp->heap);
 	free(bmp);
@@ -145,7 +150,8 @@ void bitmap_free(adv_bitmap* bmp) {
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-uint8* bitmap_line(adv_bitmap* bmp, unsigned y) {
+uint8* bitmap_line(adv_bitmap* bmp, unsigned y)
+{
 	return bmp->ptr + y * bmp->bytes_per_scanline;
 }
 
@@ -156,7 +162,8 @@ uint8* bitmap_line(adv_bitmap* bmp, unsigned y) {
  * \param y Y.
  * \param v Pixel value.
  */
-void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v) {
+void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v)
+{
 	uint8* ptr = bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
 	switch (bmp->bytes_per_pixel) {
 		case 1 :
@@ -185,12 +192,13 @@ void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v) {
  * \param bmp B itmap.
  * \param orientation_mask Subset of the ORIENTATION flags.
  */
-void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask) {
+void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask)
+{
 	if (orientation_mask & ORIENTATION_FLIP_XY) {
 		adv_bitmap* newbmp;
 
 		/* new ptr */
-		newbmp = bitmap_alloc(bmp->size_y,bmp->size_x,bmp->bytes_per_pixel * 8);
+		newbmp = bitmap_alloc(bmp->size_y, bmp->size_x, bmp->bytes_per_pixel * 8);
 		assert( newbmp );
 
 		{
@@ -274,13 +282,13 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask) {
 
 	if (orientation_mask & ORIENTATION_MIRROR_Y) {
 		unsigned bytes_per_scanline = bmp->bytes_per_scanline;
-		uint8* y0 = bitmap_line(bmp,0);
-		uint8* y1 = bitmap_line(bmp,bmp->size_y - 1);
+		uint8* y0 = bitmap_line(bmp, 0);
+		uint8* y1 = bitmap_line(bmp, bmp->size_y - 1);
 		void* buf = malloc(bytes_per_scanline);
 		for(;y0<y1; y0 += bytes_per_scanline, y1 -= bytes_per_scanline) {
-			memcpy(buf,y0,bytes_per_scanline);
-			memcpy(y0,y1,bytes_per_scanline);
-			memcpy(y1,buf,bytes_per_scanline);
+			memcpy(buf, y0, bytes_per_scanline);
+			memcpy(y0, y1, bytes_per_scanline);
+			memcpy(y1, buf, bytes_per_scanline);
 		}
 		free(buf);
 	}
@@ -289,9 +297,9 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask) {
 		if (bmp->bytes_per_pixel == 1) {
 			unsigned y;
 			for(y=0;y<bmp->size_y;++y) {
-				uint8* x0 = (uint8*)bitmap_line(bmp,y);
+				uint8* x0 = (uint8*)bitmap_line(bmp, y);
 				uint8* x1 = x0 + bmp->size_x - 1;
-				for(;x0<x1;++x0,--x1) {
+				for(;x0<x1;++x0, --x1) {
 					uint8 t = *x0;
 					*x0 = *x1;
 					*x1 = t;
@@ -300,9 +308,9 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask) {
 		} else {
 			unsigned y;
 			for(y=0;y<bmp->size_y;++y) {
-				uint16* x0 = (uint16*)bitmap_line(bmp,y);
+				uint16* x0 = (uint16*)bitmap_line(bmp, y);
 				uint16* x1 = x0 + bmp->size_x - 1;
-				for(;x0<x1;++x0,--x1) {
+				for(;x0<x1;++x0, --x1) {
 					uint16 t = *x0;
 					*x0 = *x1;
 					*x1 = t;
@@ -331,10 +339,11 @@ static unsigned count_sort[COUNT_SORT_MAX];
 #define REDUCE_RED_TO_INDEX(i) ((i >> 4) & 0xF)
 #define REDUCE_GREEN_TO_INDEX(i) (i & 0xF0)
 #define REDUCE_BLUE_TO_INDEX(i) ((((unsigned)i) << 4) & 0xF00)
-#define REDUCE_COLOR_TO_INDEX(r,g,b) (REDUCE_RED_TO_INDEX(r) | REDUCE_GREEN_TO_INDEX(g) | REDUCE_BLUE_TO_INDEX(b))
+#define REDUCE_COLOR_TO_INDEX(r, g, b) (REDUCE_RED_TO_INDEX(r) | REDUCE_GREEN_TO_INDEX(g) | REDUCE_BLUE_TO_INDEX(b))
 
 #if 0
-static void countsort(struct color_node* indexin[], struct color_node* indexout[], unsigned bit, unsigned skipbit) {
+static void countsort(struct color_node* indexin[], struct color_node* indexout[], unsigned bit, unsigned skipbit)
+{
 	unsigned max = 1 << bit;
 	unsigned mask = max - 1;
 	unsigned i;
@@ -361,7 +370,8 @@ static void countsort(struct color_node* indexin[], struct color_node* indexout[
 /**
  * Count sort of the lower 8 bit.
  */
-static void countsort80(struct color_node* indexin[], struct color_node* indexout[]) {
+static void countsort80(struct color_node* indexin[], struct color_node* indexout[])
+{
 	unsigned i;
 
 	for(i=0;i<=256;i++)
@@ -385,7 +395,8 @@ static void countsort80(struct color_node* indexin[], struct color_node* indexou
 /**
  * Count sort of the higher 8 bit.
  */
-static void countsort88(struct color_node* indexin[], struct color_node* indexout[]) {
+static void countsort88(struct color_node* indexin[], struct color_node* indexout[])
+{
 	unsigned i;
 
 	for(i=0;i<=256;i++)
@@ -413,8 +424,9 @@ static void countsort88(struct color_node* indexin[], struct color_node* indexou
  * \param size Size of the new palette.
  * \param bmp Bitmap at 24 bit.
  */
-unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp) {
-	unsigned i,y;
+unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp)
+{
+	unsigned i, y;
 	unsigned res_size;
 	static struct color_node map[REDUCE_INDEX_MAX];
 	static struct color_node* index1[REDUCE_INDEX_MAX];
@@ -432,7 +444,7 @@ unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size,
 	/* count */
 	for(y=0;y<bmp->size_y;++y) {
 		unsigned x;
-		uint8* line = (uint8*)bitmap_line((adv_bitmap* )bmp,y);
+		uint8* line = (uint8*)bitmap_line((adv_bitmap* )bmp, y);
 		for(x=0;x<bmp->size_x;++x) {
 			unsigned j;
 			j = REDUCE_COLOR_TO_INDEX( line[0], line[1], line[2] );
@@ -442,8 +454,8 @@ unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size,
 	}
 
 	/* sort */
-	countsort80(index1,index2);
-	countsort88(index2,index1);
+	countsort80(index1, index2);
+	countsort88(index2, index1);
 
 	/* create palette */
 	for(i=0;i<size && index1[REDUCE_INDEX_MAX - i - 1]->count;++i) {
@@ -488,17 +500,18 @@ unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size,
 /**
  * Resize a bitmap.
  * \param bmp Bitmap to resize.
- * \param x,y Start position of the bitmap range.
- * \param dx,dy Size the bitmap range.
- * \param sx,sy Size of the resized bitmap.
+ * \param x, y Start position of the bitmap range.
+ * \param dx, dy Size the bitmap range.
+ * \param sx, sy Size of the resized bitmap.
  * \param orientation_mask Orientation operations.
  * \return Resized bitmap, or 0 on error.
  */
-adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation_mask) {
+adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation_mask)
+{
 	adv_bitmap* newbmp;
 	unsigned* map_x;
 	unsigned* map_y;
-	unsigned i,j;
+	unsigned i, j;
 
 	if (!sx || !sy || !dx || !dy)
 		return 0;
@@ -562,35 +575,36 @@ adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, 
 /**
  * Add a border at a bitmap.
  * \param bmp Bitmap.
- * \param x0,x1,y0,y1 Size of the border.
+ * \param x0, x1, y0, y1 Size of the border.
  * \param color Color of the border.
  * \return Modified bitmap, or 0 on error.
  */
-adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color) {
+adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color)
+{
 	adv_bitmap* newbmp;
-	unsigned i,j;
+	unsigned i, j;
 	unsigned sx = bmp->size_x;
 	unsigned sy = bmp->size_y;
 	unsigned tx = sx+x0+x1;
 	unsigned ty = sy+y0+y1;
 
 	/* new ptr */
-	newbmp = bitmap_alloc(tx,ty,bmp->bytes_per_pixel * 8);
+	newbmp = bitmap_alloc(tx, ty, bmp->bytes_per_pixel * 8);
 	assert( newbmp );
 
 	if (bmp->bytes_per_pixel == 1) {
 		// 8 bit
 		for(j=0;j<y0;++j) {
 			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp,j);
+			dst = (uint8*)bitmap_line(newbmp, j);
 			for(i=0;i<tx;++i)
 				*dst++ = color;
 		}
 		for(j=0;j<sy;++j) {
 			uint8* src;
 			uint8* dst;
-			src = (uint8*)bitmap_line(bmp,j);
-			dst = (uint8*)bitmap_line(newbmp,j+y0);
+			src = (uint8*)bitmap_line(bmp, j);
+			dst = (uint8*)bitmap_line(newbmp, j+y0);
 			for(i=0;i<x0;++i)
 				*dst++ = color;
 			for(i=0;i<sx;++i)
@@ -600,7 +614,7 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 		}
 		for(j=0;j<y1;++j) {
 			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp,j+y0+sy);
+			dst = (uint8*)bitmap_line(newbmp, j+y0+sy);
 			for(i=0;i<tx;++i)
 				*dst++ = color;
 		}
@@ -611,7 +625,7 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 		unsigned c2 = (color >> 16) & 0xFF;
 		for(j=0;j<y0;++j) {
 			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp,j);
+			dst = (uint8*)bitmap_line(newbmp, j);
 			for(i=0;i<tx;++i) {
 				*dst++ = c0;
 				*dst++ = c1;
@@ -621,8 +635,8 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 		for(j=0;j<sy;++j) {
 			uint8* src;
 			uint8* dst;
-			src = (uint8*)bitmap_line(bmp,j);
-			dst = (uint8*)bitmap_line(newbmp,j+y0);
+			src = (uint8*)bitmap_line(bmp, j);
+			dst = (uint8*)bitmap_line(newbmp, j+y0);
 			for(i=0;i<x0;++i) {
 				*dst++ = c0;
 				*dst++ = c1;
@@ -642,7 +656,7 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
 		}
 		for(j=0;j<y1;++j) {
 			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp,j+y0+sy);
+			dst = (uint8*)bitmap_line(newbmp, j+y0+sy);
 			for(i=0;i<tx;++i) {
 				*dst++ = c0;
 				*dst++ = c1;
@@ -660,7 +674,8 @@ adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned
  * \param _cx Where to put the width of the border found.
  * \param _cy Where to put the height of the border found.
  */
-void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
+void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy)
+{
 	unsigned yu = 0;
 	unsigned yd = bmp->size_y - 1;
 
@@ -668,11 +683,11 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
 	unsigned cy = bmp->size_y / 2;
 
 	if (bmp->bytes_per_pixel == 1) {
-		uint8 c = *(uint8*)bitmap_line(bmp,0);
+		uint8 c = *(uint8*)bitmap_line(bmp, 0);
 		while (yu < yd && cx) {
 			unsigned i;
-			uint8* pu = (uint8*)bitmap_line(bmp,yu);
-			uint8* pd = (uint8*)bitmap_line(bmp,yd);
+			uint8* pu = (uint8*)bitmap_line(bmp, yu);
+			uint8* pd = (uint8*)bitmap_line(bmp, yd);
 
 			i = 0;
 			while (i < cx && pu[i]==c && pu[bmp->size_x - i -1]==c)
@@ -691,11 +706,11 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
 			--yd;
 		}
 	} else if (bmp->bytes_per_pixel == 2) {
-		uint16 c = *(uint16*)bitmap_line(bmp,0);
+		uint16 c = *(uint16*)bitmap_line(bmp, 0);
 		while (yu < yd && cx) {
 			unsigned i;
-			uint16* pu = (uint16*)bitmap_line(bmp,yu);
-			uint16* pd = (uint16*)bitmap_line(bmp,yd);
+			uint16* pu = (uint16*)bitmap_line(bmp, yu);
+			uint16* pd = (uint16*)bitmap_line(bmp, yd);
 
 			i = 0;
 			while (i < cx && pu[i]==c && pu[bmp->size_x - i -1]==c)
@@ -714,7 +729,7 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
 			--yd;
 		}
 	} else if (bmp->bytes_per_pixel == 3) {
-		uint8* dot = (uint8*)bitmap_line(bmp,0);
+		uint8* dot = (uint8*)bitmap_line(bmp, 0);
 		uint8 c0 = dot[0];
 		uint8 c1 = dot[1];
 		uint8 c2 = dot[2];
@@ -722,8 +737,8 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
 			unsigned i;
 			unsigned i3;
 			unsigned si3;
-			uint8* pu = (uint8*)bitmap_line(bmp,yu);
-			uint8* pd = (uint8*)bitmap_line(bmp,yd);
+			uint8* pu = (uint8*)bitmap_line(bmp, yu);
+			uint8* pd = (uint8*)bitmap_line(bmp, yd);
 
 			i = 0;
 			i3 = 0;
@@ -766,11 +781,12 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy) {
  * \param src Source bitmap.
  * \param color_map Conversion table.
  */
-void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
-	unsigned cx,cy;
+void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint8* dst_ptr = bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			*dst_ptr = color_map[*src_ptr];
 			dst_ptr += 1;
@@ -785,11 +801,12 @@ void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
  * \param src Source bitmap.
  * \param color_map Conversion table. 
  */
-void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
-	unsigned cx,cy;
+void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint16* dst_ptr = (uint16*)bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint16* dst_ptr = (uint16*)bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			unsigned color = color_map[*src_ptr];
 			*dst_ptr = color;
@@ -805,11 +822,12 @@ void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
  * \param src Source bitmap.
  * \param color_map Conversion table. 
  */
-void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
-	unsigned cx,cy;
+void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint32* dst_ptr = (uint32*)bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint32* dst_ptr = (uint32*)bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			unsigned color = color_map[*src_ptr];
 			*dst_ptr = color;
@@ -823,13 +841,14 @@ void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map) {
  * Convert a 24 bit bitmap to a palettized 8 bit version.
  * The conversion map must be computed with bitmap_reduction().
  */
-void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map) {
-	unsigned cx,cy;
+void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint8* dst_ptr = bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
-			unsigned color = convert_map[REDUCE_COLOR_TO_INDEX(src_ptr[0],src_ptr[1],src_ptr[2])];
+			unsigned color = convert_map[REDUCE_COLOR_TO_INDEX(src_ptr[0], src_ptr[1], src_ptr[2])];
 			*dst_ptr = color;
 			dst_ptr += 1;
 			src_ptr += 3;
@@ -844,7 +863,8 @@ void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map
  * \param src Source bitmap.
  * \param src_def Source RGB definition.
  */
-void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def) {
+void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def)
+{
 	unsigned cx, cy;
 	union adv_color_def_union def;
 	unsigned dst_red_mask, dst_green_mask, dst_blue_mask;
@@ -856,14 +876,14 @@ void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_col
 
 	def.ordinal = dst_def;
 
-	rgb_maskshift_get(&dst_red_mask,&dst_red_shift,def.nibble.red_len,def.nibble.red_pos);
-	rgb_maskshift_get(&dst_green_mask,&dst_green_shift,def.nibble.green_len,def.nibble.green_pos);
-	rgb_maskshift_get(&dst_blue_mask,&dst_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
+	rgb_maskshift_get(&dst_red_mask, &dst_red_shift, def.nibble.red_len, def.nibble.red_pos);
+	rgb_maskshift_get(&dst_green_mask, &dst_green_shift, def.nibble.green_len, def.nibble.green_pos);
+	rgb_maskshift_get(&dst_blue_mask, &dst_blue_shift, def.nibble.blue_len, def.nibble.blue_pos);
 
 	def.ordinal = dst_def;
-	rgb_maskshift_get(&src_red_mask,&src_red_shift,def.nibble.red_len,def.nibble.red_pos);
-	rgb_maskshift_get(&src_green_mask,&src_green_shift,def.nibble.green_len,def.nibble.green_pos);
-	rgb_maskshift_get(&src_blue_mask,&src_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
+	rgb_maskshift_get(&src_red_mask, &src_red_shift, def.nibble.red_len, def.nibble.red_pos);
+	rgb_maskshift_get(&src_green_mask, &src_green_shift, def.nibble.green_len, def.nibble.green_pos);
+	rgb_maskshift_get(&src_blue_mask, &src_blue_shift, def.nibble.blue_len, def.nibble.blue_pos);
 
 	mix_red_shift = src_red_shift - dst_red_shift;
 	mix_green_shift = src_green_shift - dst_green_shift;
@@ -873,8 +893,8 @@ void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_col
 	mix_blue_mask = rgb_shift(src_blue_mask, mix_blue_shift) & dst_blue_mask;
 
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint8* dst_ptr = bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
 
 		for(cx=0;cx<src->size_x;++cx) {
 			unsigned v;
@@ -932,11 +952,12 @@ void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_col
  * Convert a 24 bit bitmap to a 8 bit bitmap.
  * The current RGB format is used.
  */
-void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src) {
-	unsigned cx,cy;
+void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint8* dst_ptr = bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
@@ -949,11 +970,12 @@ void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src) {
  * Convert a 24 bit bitmap to a 16 bit bitmap.
  * The current RGB format is used.
  */
-void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src) {
-	unsigned cx,cy;
+void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint16* dst_ptr = (uint16*)bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint16* dst_ptr = (uint16*)bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
@@ -966,11 +988,12 @@ void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src) {
  * Convert a 24 bit bitmap to a 32 bit bitmap.
  * The current RGB format is used.
  */
-void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src) {
-	unsigned cx,cy;
+void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint32* dst_ptr = (uint32*)bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint32* dst_ptr = (uint32*)bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
@@ -982,11 +1005,12 @@ void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src) {
 /**
  * Convert a 32 bit bitmap to a 24 bit bitmap removing the alpha channel.
  */
-void bitmap_cvt_32to24(adv_bitmap* dst, adv_bitmap* src) {
-	unsigned cx,cy;
+void bitmap_cvt_32to24(adv_bitmap* dst, adv_bitmap* src)
+{
+	unsigned cx, cy;
 	for(cy=0;cy<src->size_y;++cy) {
-		uint8* src_ptr = bitmap_line(src,cy);
-		uint8* dst_ptr = bitmap_line(dst,cy);
+		uint8* src_ptr = bitmap_line(src, cy);
+		uint8* dst_ptr = bitmap_line(dst, cy);
 		for(cx=0;cx<src->size_x;++cx) {
 			dst_ptr[0] = src_ptr[0];
 			dst_ptr[1] = src_ptr[1];

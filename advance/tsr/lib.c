@@ -24,7 +24,8 @@
 /* Standard */
 
 #ifdef LIB_TOUPPER
-char _pascal toupper(char c) {
+char _pascal toupper(char c)
+{
 	if (c>='a' && c<='z')
 		return c - 'a' + 'A';
 	else
@@ -33,7 +34,8 @@ char _pascal toupper(char c) {
 #endif
 
 #ifdef LIB_TOLOWER
-char _pascal tolower(char c) {
+char _pascal tolower(char c)
+{
 	if (c>='A' && c<='Z')
 		return c - 'A' + 'a';
 	else
@@ -42,7 +44,8 @@ char _pascal tolower(char c) {
 #endif
 
 #ifdef LIB_ABS
-int abs(int v) {
+int abs(int v)
+{
 	if (v<0)
 		return -v;
 	else
@@ -51,7 +54,8 @@ int abs(int v) {
 #endif
 
 #ifdef LIB_LABS
-long labs(long v) {
+long labs(long v)
+{
 	if (v<0)
 		return -v;
 	else
@@ -60,31 +64,34 @@ long labs(long v) {
 #endif
 
 #ifdef LIB_MEMCPY
-void _pascal memcpy(void far * dst, const void far * src, unsigned count) {
+void _pascal memcpy(void far * dst, const void far * src, unsigned count)
+{
 	asm push ds
 	asm cld
-	asm les di,[dst]
-	asm lds si,[src]
-	asm mov cx,[count]
+	asm les di, [dst]
+	asm lds si, [src]
+	asm mov cx, [count]
 	asm rep movsb
 	asm pop ds
 }
 #endif
 
 #ifdef LIB_MEMSET
-void _pascal memset(void far * dst, unsigned src, unsigned count) {
+void _pascal memset(void far * dst, unsigned src, unsigned count)
+{
 	asm push ds
 	asm cld
-	asm les di,[dst]
-	asm mov al,byte ptr [src]
-	asm mov cx,[count]
+	asm les di, [dst]
+	asm mov al, byte ptr [src]
+	asm mov cx, [count]
 	asm rep stosb
 	asm pop ds
 }
 #endif
 
 #ifdef LIB_MEMCMP
-int _pascal memcmp(const void far * s1, const void far * s2,unsigned count) {
+int _pascal memcmp(const void far * s1, const void far * s2, unsigned count)
+{
 	unsigned i;
 	for(i=0;i<count;++i) {
 		if ((((unsigned char far *)s1)[i])<(((unsigned char far *)s2)[i])) return -1;
@@ -95,8 +102,9 @@ int _pascal memcmp(const void far * s1, const void far * s2,unsigned count) {
 #endif
 
 #ifdef LIB_STRCMP
-int _pascal strcmp(const char far * s1, const char far * s2) {
-	unsigned char c1,c2;
+int _pascal strcmp(const char far * s1, const char far * s2)
+{
+	unsigned char c1, c2;
 	c1 = *s1;
 	c2 = *s2;
 	while (c1 && c1==c2) {
@@ -112,8 +120,9 @@ int _pascal strcmp(const char far * s1, const char far * s2) {
 #endif
 
 #ifdef LIB_STRCASECMP
-int _pascal strcasecmp(const char far * s1, const char far * s2) {
-	unsigned char c1,c2;
+int _pascal strcasecmp(const char far * s1, const char far * s2)
+{
+	unsigned char c1, c2;
 	c1 = toupper(*s1);
 	c2 = toupper(*s2);
 	while (c1 && c1==c2) {
@@ -129,13 +138,15 @@ int _pascal strcasecmp(const char far * s1, const char far * s2) {
 #endif
 
 #ifdef LIB_OPTIONMATCH
-int optionmatch(const char far* arg, const char far* opt) {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+int optionmatch(const char far* arg, const char far* opt)
+{
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
 }
 #endif
 
 #ifdef LIB_STRNCPY
-void _pascal strncpy(char far *s1, const char far *s2, unsigned maxlen) {
+void _pascal strncpy(char far *s1, const char far *s2, unsigned maxlen)
+{
 	unsigned i = 0;
 	while (i<maxlen && s2[i]) {
 		s1[i] = s2[i];
@@ -147,7 +158,8 @@ void _pascal strncpy(char far *s1, const char far *s2, unsigned maxlen) {
 #endif
 
 #ifdef LIB_STRLEN
-unsigned _pascal strlen(const char far * s1) {
+unsigned _pascal strlen(const char far * s1)
+{
 	unsigned i = 0;
 	while (s1[i]) {
 		++i;
@@ -157,7 +169,8 @@ unsigned _pascal strlen(const char far * s1) {
 #endif
 
 #ifdef LIB_STRCPY
-void _pascal strcpy(char far* s1, const char far* s2) {
+void _pascal strcpy(char far* s1, const char far* s2)
+{
 	unsigned i = 0;
 	while (s2[i]) {
 		s1[i] = s2[i];
@@ -168,7 +181,8 @@ void _pascal strcpy(char far* s1, const char far* s2) {
 #endif
 
 #ifdef LIB_STRCHR
-const char far* _pascal strchr(const char far* str, int c) {
+const char far* _pascal strchr(const char far* str, int c)
+{
 	while (*str) {
 		if (*str == c)
 			return str;
@@ -181,14 +195,15 @@ const char far* _pascal strchr(const char far* str, int c) {
 #ifdef LIB_STRTOK
 static char far* strtok_ptr = 0;
 
-char far* _pascal strtok(char far* str, const char far* sep) {
+char far* _pascal strtok(char far* str, const char far* sep)
+{
 	char far* start;
 
 	if (str)
 		strtok_ptr = str;
 
 	/* skip separator */
-	while (*strtok_ptr && strchr(sep,*strtok_ptr)!=0)
+	while (*strtok_ptr && strchr(sep, *strtok_ptr)!=0)
 		++strtok_ptr;
 
 	/* check for the end */
@@ -199,7 +214,7 @@ char far* _pascal strtok(char far* str, const char far* sep) {
 	start = strtok_ptr;
 
 	/* scan */
-	while (*strtok_ptr && strchr(sep,*strtok_ptr)==0)
+	while (*strtok_ptr && strchr(sep, *strtok_ptr)==0)
 		++strtok_ptr;
 
 	if (*strtok_ptr) {
@@ -212,7 +227,8 @@ char far* _pascal strtok(char far* str, const char far* sep) {
 #endif
 
 #ifdef LIB_STRTOL
-long _pascal strtol(const char far* s, unsigned radix) {
+long _pascal strtol(const char far* s, unsigned radix)
+{
 	long v = 0;
 	int sign = 0;
 	if (*s=='-') {
@@ -236,7 +252,8 @@ long _pascal strtol(const char far* s, unsigned radix) {
 #endif
 
 #ifdef LIB_STRTOU
-unsigned _pascal strtou(const char far* s, unsigned radix) {
+unsigned _pascal strtou(const char far* s, unsigned radix)
+{
 	unsigned v = 0;
 	while (*s>='0' && *s<='9' || *s>='a' && *s<='f' || *s>='A' && *s<='F') {
 		v *= radix;
@@ -253,7 +270,8 @@ unsigned _pascal strtou(const char far* s, unsigned radix) {
 #endif
 
 #ifdef LIB_STRTOLD
-long _pascal strtold(const char far* s, long multiplier) {
+long _pascal strtold(const char far* s, long multiplier)
+{
 	long v = 0;
 	int sign = 0;
 	if (*s=='-') {
@@ -281,7 +299,8 @@ long _pascal strtold(const char far* s, long multiplier) {
 #endif
 
 #ifdef LIB_STRTOD
-double _pascal strtod(const char far* s) {
+double _pascal strtod(const char far* s)
+{
 	double v = 0;
 	int sign = 0;
 	if (*s=='-') {
@@ -316,11 +335,12 @@ double _pascal strtod(const char far* s) {
 // return:
 //   ==0 no, enter
 //   ==1 ok, enter
-int _pascal sem_enter(uint16 far* psem) {
-	asm les bx,[psem]
-	asm mov ax,1
-	asm xchg ax,[es:bx]
-	asm cmp ax,0
+int _pascal sem_enter(uint16 far* psem)
+{
+	asm les bx, [psem]
+	asm mov ax, 1
+	asm xchg ax, [es:bx]
+	asm cmp ax, 0
 	asm je ok
 	return 0;
 ok:
@@ -328,7 +348,8 @@ ok:
 }
 
 // leave from a critical section
-void _pascal sem_leave(uint16 far* psem) {
+void _pascal sem_leave(uint16 far* psem)
+{
 	*psem = 0;
 }
 #endif
@@ -338,7 +359,8 @@ void _pascal sem_leave(uint16 far* psem) {
 // return:
 //   ==0 no, NOT enter
 //   !=0 ok, enter
-int _pascal region_enter(struct region far* pregion) {
+int _pascal region_enter(struct region far* pregion)
+{
 	uint16 flags = disable();
 	if (sem_enter(&pregion->sem)) {
 		pregion->flags = flags;
@@ -349,7 +371,8 @@ int _pascal region_enter(struct region far* pregion) {
 	}
 }
 
-void _pascal region_leave(struct region far* pregion) {
+void _pascal region_leave(struct region far* pregion)
+{
 	uint16 flags = pregion->flags;
 	sem_leave(&pregion->sem);
 	restore(flags);
@@ -360,7 +383,8 @@ void _pascal region_leave(struct region far* pregion) {
 // Disable interrupt
 // return:
 //   flags to be passed to enable
-uint16 _pascal disable() {
+uint16 _pascal disable()
+{
 	asm pushf
 	asm pop ax
 	asm cli
@@ -372,7 +396,8 @@ uint16 _pascal disable() {
 // Abilita interrupt
 // return:
 //   flags to be passed to enable
-uint16 _pascal enable() {
+uint16 _pascal enable()
+{
 	asm pushf
 	asm pop ax
 	asm sti
@@ -381,55 +406,61 @@ uint16 _pascal enable() {
 #endif
 
 #ifdef LIB_OUTPORTB
-void _pascal outportb(int port, uint8 value) {
-	asm mov al,[value]
-	asm mov dx,[port]
-	asm out dx,al
+void _pascal outportb(int port, uint8 value)
+{
+	asm mov al, [value]
+	asm mov dx, [port]
+	asm out dx, al
 }
 #endif
 
 #ifdef LIB_INPORTB
-uint8 _pascal inportb(int port) {
+uint8 _pascal inportb(int port)
+{
 	uint8 value;
-	asm mov dx,[port]
-	asm in al,dx
-	asm mov [value],al
+	asm mov dx, [port]
+	asm in al, dx
+	asm mov [value], al
 	return value;
 }
 #endif
 
 #ifdef LIB_OUTPORTW
-void _pascal outportw(int port, uint16 value) {
-	asm mov ax,[value]
-	asm mov dx,[port]
-	asm out dx,ax
+void _pascal outportw(int port, uint16 value)
+{
+	asm mov ax, [value]
+	asm mov dx, [port]
+	asm out dx, ax
 }
 #endif
 
 #ifdef LIB_INPORTW
-uint16 _pascal inportw(int port) {
+uint16 _pascal inportw(int port)
+{
 	uint16 value;
-	asm mov dx,[port]
-	asm in ax,dx
-	asm mov [value],ax
+	asm mov dx, [port]
+	asm in ax, dx
+	asm mov [value], ax
 	return value;
 }
 #endif
 
 #ifdef LIB_OUTPORTL
-void _pascal outportl(int port, uint32 value) {
-	asm mov eax,[value]
-	asm mov dx,[port]
-	asm out dx,eax
+void _pascal outportl(int port, uint32 value)
+{
+	asm mov eax, [value]
+	asm mov dx, [port]
+	asm out dx, eax
 }
 #endif
 
 #ifdef LIB_INPORTL
-uint32 _pascal inportl(int port) {
+uint32 _pascal inportl(int port)
+{
 	uint32 value;
-	asm mov dx,[port]
-	asm in eax,dx
-	asm mov [value],eax
+	asm mov dx, [port]
+	asm in eax, dx
+	asm mov [value], eax
 	return value;
 }
 #endif
@@ -438,16 +469,17 @@ uint32 _pascal inportl(int port) {
 /* Timer */
 
 #ifdef LIB_DELAY
-static unsigned near readtimer() {
+static unsigned near readtimer()
+{
 	asm cli
-	asm mov  al,0h
-	asm out  43h,al
+	asm mov  al, 0h
+	asm out  43h, al
 	asm nop
-	asm in   al,40h
-	asm mov  bl,al
+	asm in   al, 40h
+	asm mov  bl, al
 	asm nop
-	asm in   al,40h
-	asm mov  bh,al
+	asm in   al, 40h
+	asm mov  bh, al
 	asm not  bx
 	asm sti
 	return _BX;
@@ -455,7 +487,8 @@ static unsigned near readtimer() {
 
 #define DELAY_MULTIPLIER 1193UL
 
-void _pascal delay( unsigned milliseconds ) {
+void _pascal delay( unsigned milliseconds )
+{
 	unsigned long stop;
 	unsigned cur, prev;
 
@@ -478,7 +511,8 @@ void _pascal delay( unsigned milliseconds ) {
 
 #ifdef LIB_SOUND
 /* Outputs a sound of a specified frequency to the speaker */
-void _pascal sound(unsigned frequency) {
+void _pascal sound(unsigned frequency)
+{
 	asm     mov     bx,  frequency
 	asm     mov     ax,  34DDh
 	asm     mov     dx,  0012h
@@ -504,8 +538,9 @@ void _pascal sound(unsigned frequency) {
 
 #ifdef LIB_NOSOUND
 /* Turns the speaker off */
-void _pascal nosound() {
-	asm     in      al,61H
+void _pascal nosound()
+{
+	asm     in      al, 61H
 	asm     and     al, 0fcH
 	asm     out     61H, al
 }
@@ -515,22 +550,25 @@ void _pascal nosound() {
 /* BIOS */
 
 #ifdef LIB_CPUTC
-void _pascal cputc(unsigned char c) {
-	asm mov ah,0Eh
-	asm mov al,[c]
-	asm mov bx,7
+void _pascal cputc(unsigned char c)
+{
+	asm mov ah, 0Eh
+	asm mov al, [c]
+	asm mov bx, 7
 	asm int 10h
 }
 #endif
 
 #ifdef LIB_CPUTS
-void _pascal cputs(const char far * s) {
+void _pascal cputs(const char far * s)
+{
 	while (*s) cputc(*s++);
 }
 #endif
 
 #ifdef LIB_CPUTUL
-void _pascal cputul(unsigned long n, unsigned w, char pad, unsigned base) {
+void _pascal cputul(unsigned long n, unsigned w, char pad, unsigned base)
+{
 	char s[32];
 	unsigned l = 0;
 	while (n) {
@@ -545,7 +583,8 @@ void _pascal cputul(unsigned long n, unsigned w, char pad, unsigned base) {
 #endif
 
 #ifdef LIB_CPUTU
-void _pascal cputu(unsigned n, unsigned w, char pad, unsigned base) {
+void _pascal cputu(unsigned n, unsigned w, char pad, unsigned base)
+{
 	char s[32];
 	unsigned l = 0;
 	while (n) {
@@ -560,7 +599,8 @@ void _pascal cputu(unsigned n, unsigned w, char pad, unsigned base) {
 #endif
 
 #ifdef LIB_CPUTI
-void _pascal cputi(int n, unsigned w, char pad, unsigned base) {
+void _pascal cputi(int n, unsigned w, char pad, unsigned base)
+{
 	char s[32];
 	unsigned l = 0;
 	int sign = n<0;
@@ -578,33 +618,36 @@ void _pascal cputi(int n, unsigned w, char pad, unsigned base) {
 #endif
 
 #ifdef LIB_WHEREX
-unsigned _pascal wherex() {
-	asm mov ah,3h
-	asm mov bh,0
+unsigned _pascal wherex()
+{
+	asm mov ah, 3h
+	asm mov bh, 0
 	asm int 10h
-	asm mov dh,0
-	asm mov ax,dx
+	asm mov dh, 0
+	asm mov ax, dx
 	return _AX;
 }
 #endif
 
 #ifdef LIB_WHEREY
-unsigned _pascal wherey() {
-	asm mov ah,3h
-	asm mov bh,0
+unsigned _pascal wherey()
+{
+	asm mov ah, 3h
+	asm mov bh, 0
 	asm int 10h
-	asm shr dx,8
-	asm mov ax,dx
+	asm shr dx, 8
+	asm mov ax, dx
 	return _AX;
 }
 #endif
 
 #ifdef LIB_GOTOXY
-void _pascal gotoxy(unsigned x, unsigned y) {
-	asm mov ah,2h
-	asm mov bh,0
-	asm mov dl,[x]
-	asm mov dh,[y]
+void _pascal gotoxy(unsigned x, unsigned y)
+{
+	asm mov ah, 2h
+	asm mov bh, 0
+	asm mov dl, [x]
+	asm mov dh, [y]
 	asm int 10h
 }
 #endif
@@ -617,10 +660,11 @@ uint16 errno;
 #endif
 
 #ifdef LIB_PSPSEG
-uint16 _pascal pspseg() {
-	asm mov ah,62h
+uint16 _pascal pspseg()
+{
+	asm mov ah, 62h
 	asm int 21h
-	asm mov ax,bx
+	asm mov ax, bx
 	return _AX;
 }
 #endif
@@ -643,13 +687,15 @@ Offset  Size  Description (Table 0604)
 // Return the environment segment
 // return:
 //   On old DOS can be 0
-uint16 _pascal envseg() {
-	return *((uint16 far *)MK_FP(pspseg(),0x2C));
+uint16 _pascal envseg()
+{
+	return *((uint16 far *)MK_FP(pspseg(), 0x2C));
 }
 #endif
 
 #ifdef LIB_ENV
-const char far* _pascal env() {
+const char far* _pascal env()
+{
 	uint16 seg = envseg();
 	if (seg)
 		return (const char far *)MK_FP(seg, 0);
@@ -660,7 +706,8 @@ const char far* _pascal env() {
 
 #ifdef LIB_FREEENV
 /* Release the environment segment */
-int _pascal freeenv() {
+int _pascal freeenv()
+{
 	return freemem( envseg() );
 }
 #endif
@@ -669,7 +716,8 @@ int _pascal freeenv() {
 // Compute the environment size
 // return:
 //   0 if invalid
-unsigned _pascal envsize() {
+unsigned _pascal envsize()
+{
 	unsigned i;
 	const char far * e = env();
 	if (!e) return 0;
@@ -688,7 +736,8 @@ unsigned _pascal envsize() {
 
 #ifdef LIB_EXEC_PATHNAME
 /* Full pathname of program owning this environment */
-const char far* _pascal exec_pathname() {
+const char far* _pascal exec_pathname()
+{
 	unsigned size = envsize();
 	if (!size) return 0;
 	const char far * e = env();
@@ -697,46 +746,50 @@ const char far* _pascal exec_pathname() {
 #endif
 
 #ifdef LIB_FREEMEM
-int _pascal freemem(uint16 memseg) {
-	asm mov ax,[memseg]
-	asm mov es,ax
-	asm mov ah,49h
+int _pascal freemem(uint16 memseg)
+{
+	asm mov ax, [memseg]
+	asm mov es, ax
+	asm mov ah, 49h
 	asm int 21h
 	asm jc error
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_ALLOCMEM
-int _pascal allocmem(unsigned size, uint16 far* segp) {
-	asm mov ah,48h
-	asm mov bx,size
+int _pascal allocmem(unsigned size, uint16 far* segp)
+{
+	asm mov ah, 48h
+	asm mov bx, size
 	asm int 21h
 	asm jc error
-	asm les bx,[segp]
-	asm mov [es:bx],ax
+	asm les bx, [segp]
+	asm mov [es:bx], ax
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_PUTC
 /* dos put char */
-void _pascal putc(char c) {
-	asm mov ah,0x02
-	asm mov dl,c
+void _pascal putc(char c)
+{
+	asm mov ah, 0x02
+	asm mov dl, c
 	asm int 0x21
 }
 #endif
 
 #ifdef LIB_PUTS
 /* dos put string */
-void _pascal puts(const char * s) {
+void _pascal puts(const char * s)
+{
 	while (*s) putc(*(s++));
 }
 #endif
@@ -745,72 +798,77 @@ void _pascal puts(const char * s) {
 /* File */
 
 #ifdef LIB_CREAT
-int _pascal creat(const char far* file, unsigned attrib) {
-	asm mov ah,03Ch
-	asm mov cx,[attrib]
+int _pascal creat(const char far* file, unsigned attrib)
+{
+	asm mov ah, 03Ch
+	asm mov cx, [attrib]
 	asm push ds
-	asm lds dx,[file]
+	asm lds dx, [file]
 	asm int 21h
 	asm pop ds
 	asm jc error
 	return _AX;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_OPEN
-int _pascal open(const char far* file, unsigned access) {
-	asm mov ah,3Dh
-	asm mov al,[byte ptr access]
-	asm mov cl,0
+int _pascal open(const char far* file, unsigned access)
+{
+	asm mov ah, 3Dh
+	asm mov al, [byte ptr access]
+	asm mov cl, 0
 	asm push ds
-	asm lds dx,[file]
+	asm lds dx, [file]
 	asm int 21h
 	asm pop ds
 	asm jc error
 	return _AX;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_CLOSE
-int _pascal close(int handle) {
-	asm mov ah,03Eh
-	asm mov bx,[handle]
+int _pascal close(int handle)
+{
+	asm mov ah, 03Eh
+	asm mov bx, [handle]
 	asm int 21h
 	asm jc error
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_READ
-int _pascal read(int handle, void far * buf, int len) {
-	asm mov ah,3Fh
-	asm mov bx,[handle]
-	asm mov cx,[len]
+int _pascal read(int handle, void far * buf, int len)
+{
+	asm mov ah, 3Fh
+	asm mov bx, [handle]
+	asm mov cx, [len]
 	asm push ds
-	asm lds dx,[buf]
+	asm lds dx, [buf]
 	asm int 21h
 	asm pop ds
 	asm jc error
 	return _AX;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_FGETC
-int _pascal fgetc(int handle) {
+int _pascal fgetc(int handle)
+{
 	char c;
-	if (read(handle,&c,1)<=0)
+	if (read(handle, &c, 1)<=0)
 		return EOF;
 	else
 		return c;
@@ -818,7 +876,8 @@ int _pascal fgetc(int handle) {
 #endif
 
 #ifdef LIB_GETS
-char far* _pascal gets(int handle, char far * buf, int len) {
+char far* _pascal gets(int handle, char far * buf, int len)
+{
 	char far * p = buf;
 	if (!len)
 		return 0;
@@ -844,45 +903,48 @@ char far* _pascal gets(int handle, char far * buf, int len) {
 #endif
 
 #ifdef LIB_WRITE
-int _pascal write(int handle,const void far * buf, int len) {
-	asm mov ah,40h
-	asm mov bx,[handle]
-	asm mov cx,[len]
+int _pascal write(int handle, const void far * buf, int len)
+{
+	asm mov ah, 40h
+	asm mov bx, [handle]
+	asm mov cx, [len]
 	asm push ds
-	asm lds dx,[buf]
+	asm lds dx, [buf]
 	asm int 21h
 	asm pop ds
 	asm jc error
 	return _AX;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_LSEEK
-long _pascal lseek(int handle, long off, int fromwhere) {
-	asm mov ah,42h
-	asm mov al,[byte ptr fromwhere]
-	asm mov bx,[word ptr handle]
-	asm mov dx,[word ptr off]
-	asm mov cx,[word ptr off+2]
+long _pascal lseek(int handle, long off, int fromwhere)
+{
+	asm mov ah, 42h
+	asm mov al, [byte ptr fromwhere]
+	asm mov bx, [word ptr handle]
+	asm mov dx, [word ptr off]
+	asm mov cx, [word ptr off+2]
 	asm int 21h
 	asm jc error
 	return (long)((void _seg *)(_DX) + (void near *)(_AX));
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_FILELENGTH
-long _pascal filelength(int handle) {
-	long pos = lseek(handle,0,SEEK_CUR);
+long _pascal filelength(int handle)
+{
+	long pos = lseek(handle, 0, SEEK_CUR);
 	if (pos>=0) {
-		long end = lseek(handle,0,SEEK_END);
+		long end = lseek(handle, 0, SEEK_END);
 		if (end>=0)
-			if (lseek(handle,pos,SEEK_SET)>=0)
+			if (lseek(handle, pos, SEEK_SET)>=0)
 				return end;
 	}
 	return -1;
@@ -890,66 +952,70 @@ long _pascal filelength(int handle) {
 #endif
 
 #ifdef LIB_GETFTIME
-int _pascal getftime(int handle, ftime far* ftimep) {
-	asm mov ax,5700h
-	asm mov bx,[handle]
+int _pascal getftime(int handle, ftime far* ftimep)
+{
+	asm mov ax, 5700h
+	asm mov bx, [handle]
 	asm int 21h
 	asm jc error
-	asm les bx,[ftimep]
-	asm mov [es:bx],cx
-	asm mov [es:bx+2],dx
+	asm les bx, [ftimep]
+	asm mov [es:bx], cx
+	asm mov [es:bx+2], dx
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_SETFTIME
-int _pascal setftime(int handle, const ftime far* ftimep) {
-	asm mov ax,5701h
-	asm les bx,[ftimep]
-	asm mov cx,[es:bx]
-	asm mov dx,[es:bx+2]
-	asm mov bx,[handle]
+int _pascal setftime(int handle, const ftime far* ftimep)
+{
+	asm mov ax, 5701h
+	asm les bx, [ftimep]
+	asm mov cx, [es:bx]
+	asm mov dx, [es:bx+2]
+	asm mov bx, [handle]
 	asm int 21h
 	asm jc error
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_GEFATTR
-int _pascal getfattr(const char far *path, unsigned far *attribp) {
-	asm mov ax,4300h
+int _pascal getfattr(const char far *path, unsigned far *attribp)
+{
+	asm mov ax, 4300h
 	asm push ds
-	asm lds dx,[path]
+	asm lds dx, [path]
 	asm int 21h
 	asm pop ds
 	asm jc error
-	asm les bx,[attribp]
-	asm mov [es:bx],cx
+	asm les bx, [attribp]
+	asm mov [es:bx], cx
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
 
 #ifdef LIB_SETFATTR
-int _pascal setfattr(const char far *path, unsigned attrib) {
-	asm mov ax,4301h
-	asm mov cx,[attrib]
+int _pascal setfattr(const char far *path, unsigned attrib)
+{
+	asm mov ax, 4301h
+	asm mov cx, [attrib]
 	asm push ds
-	asm lds dx,[path]
+	asm lds dx, [path]
 	asm int 21h
 	asm pop ds
 	asm jc error
 	return 0;
 error:
-	asm mov [errno],ax
+	asm mov [errno], ax
 	return -1;
 }
 #endif
@@ -959,7 +1025,8 @@ error:
 
 #ifdef LIB_JUL2DATE
 // Converte un numero giuliano in data
-void _pascal jul2date(long jul, date far* datep) {
+void _pascal jul2date(long jul, date far* datep)
+{
 	long day, month, year, tmp;
 
 	tmp = jul-1721119L;
@@ -991,7 +1058,8 @@ void _pascal jul2date(long jul, date far* datep) {
 //   day giorno della data da convertire (1-31)
 //   month mese della data da convertire (1-12).
 //   year anno della data da convertire (19xx|2xxx)
-long _pascal date2jul(const date far* datep) {
+long _pascal date2jul(const date far* datep)
+{
 	long cent, day, month, year;
 
 	if (datep->da_mon > 2) {
@@ -1010,25 +1078,27 @@ long _pascal date2jul(const date far* datep) {
 #endif
 
 #ifdef LIB_GETTIME
-void _pascal gettime(time far *timep) {
-	asm mov ah,2Ch
+void _pascal gettime(time far *timep)
+{
+	asm mov ah, 2Ch
 	asm int 21h
-	asm les bx,[timep]
-	asm mov [byte ptr es:bx],cl
-	asm mov [byte ptr es:bx+1],ch
-	asm mov [byte ptr es:bx+2],dl
-	asm mov [byte ptr es:bx+3],dh
+	asm les bx, [timep]
+	asm mov [byte ptr es:bx], cl
+	asm mov [byte ptr es:bx+1], ch
+	asm mov [byte ptr es:bx+2], dl
+	asm mov [byte ptr es:bx+3], dh
 }
 #endif
 
 #ifdef LIB_GETDATE
-void _pascal getdate(date far *datep) {
-	asm mov ah,2Ah
+void _pascal getdate(date far *datep)
+{
+	asm mov ah, 2Ah
 	asm int 21h
-	asm les bx,[datep]
-	asm mov [word ptr es:bx],cx
-	asm mov [byte ptr es:bx+2],dl
-	asm mov [byte ptr es:bx+3],dh
+	asm les bx, [datep]
+	asm mov [word ptr es:bx], cx
+	asm mov [byte ptr es:bx+2], dl
+	asm mov [byte ptr es:bx+3], dh
 }
 #endif
 
@@ -1037,27 +1107,30 @@ void _pascal getdate(date far *datep) {
 
 #ifdef LIB_IRQ_ADDR_CALL
 /* Call an IRQ */
-void _pascal irq_addr_call(void far * addr) {
+void _pascal irq_addr_call(void far * addr)
+{
 	asm pushf
 	asm call [dword ptr addr]
 }
 #endif
 
 #ifdef LIB_GETVECT
-void far* _pascal getvect(int intr) {
-	asm mov ah,035h
-	asm mov al,[byte ptr intr]
+void far* _pascal getvect(int intr)
+{
+	asm mov ah, 035h
+	asm mov al, [byte ptr intr]
 	asm int 21h
-	asm mov ax,bx
-	asm mov dx,es
-	return MK_FP(_DX,_AX);
+	asm mov ax, bx
+	asm mov dx, es
+	return MK_FP(_DX, _AX);
 }
 #endif
 
 #ifdef LIB_SETVECT
-void _pascal setvect(int intr, void far * func) {
-	asm mov ah,025h
-	asm mov al,[byte ptr intr]
+void _pascal setvect(int intr, void far * func)
+{
+	asm mov ah, 025h
+	asm mov al, [byte ptr intr]
 	asm push ds
 	asm lds dx, dword ptr func
 	asm int 21h
@@ -1066,14 +1139,16 @@ void _pascal setvect(int intr, void far * func) {
 #endif
 
 #ifdef LIB_REGS_32_PRESET
-void _pascal regs_32_preset(regs_32 far* regs) {
+void _pascal regs_32_preset(regs_32 far* regs)
+{
 	regs->d.es = _DS;
 }
 #endif
 
 #ifdef LIB_REGS_32_ZERO
-void _pascal regs_32_zero(regs_32 far* regs) {
-	memset(regs,0,sizeof(regs_32));
+void _pascal regs_32_zero(regs_32 far* regs)
+{
+	memset(regs, 0, sizeof(regs_32));
 	regs_32_preset(regs);
 }
 #endif
@@ -1081,27 +1156,28 @@ void _pascal regs_32_zero(regs_32 far* regs) {
 #ifdef LIB_INT_32_ADDR_CALL
 static uint32 int_addr;
 
-void _pascal int_32_addr_call(void far* addr, regs_32 far* regs) {
+void _pascal int_32_addr_call(void far* addr, regs_32 far* regs)
+{
 	/* asm push bp */ /* saved automatically */
 	asm push esi
 	asm push edi
 	asm push ds
 	asm push fs
 
-	asm mov eax,[dword ptr addr]
-	asm mov [dword ptr int_addr],eax
+	asm mov eax, [dword ptr addr]
+	asm mov [dword ptr int_addr], eax
 
-	asm lfs bp,[regs]
-	asm mov ax,[fs:bp+6*4+2]
+	asm lfs bp, [regs]
+	asm mov ax, [fs:bp+6*4+2]
 	asm push ax
 	asm popf
-	asm mov eax,[fs:bp+0*4]
-	asm mov ebx,[fs:bp+1*4]
-	asm mov ecx,[fs:bp+2*4]
-	asm mov edx,[fs:bp+3*4]
-	asm mov esi,[fs:bp+4*4]
-	asm mov edi,[fs:bp+5*4]
-	asm mov es,[fs:bp+6*4]
+	asm mov eax, [fs:bp+0*4]
+	asm mov ebx, [fs:bp+1*4]
+	asm mov ecx, [fs:bp+2*4]
+	asm mov edx, [fs:bp+3*4]
+	asm mov esi, [fs:bp+4*4]
+	asm mov edi, [fs:bp+5*4]
+	asm mov es, [fs:bp+6*4]
 
 	asm push fs
 	asm push bp
@@ -1110,16 +1186,16 @@ void _pascal int_32_addr_call(void far* addr, regs_32 far* regs) {
 	asm pop bp
 	asm pop fs
 
-	asm mov [fs:bp+0*4],eax
-	asm mov [fs:bp+1*4],ebx
-	asm mov [fs:bp+2*4],ecx
-	asm mov [fs:bp+3*4],edx
-	asm mov [fs:bp+4*4],esi
-	asm mov [fs:bp+5*4],edi
-	asm mov [fs:bp+6*4],es
+	asm mov [fs:bp+0*4], eax
+	asm mov [fs:bp+1*4], ebx
+	asm mov [fs:bp+2*4], ecx
+	asm mov [fs:bp+3*4], edx
+	asm mov [fs:bp+4*4], esi
+	asm mov [fs:bp+5*4], edi
+	asm mov [fs:bp+6*4], es
 	asm pushf
 	asm pop ax
-	asm mov [fs:bp+6*4+2],ax
+	asm mov [fs:bp+6*4+2], ax
 
 	asm pop fs
 	asm pop ds
@@ -1130,7 +1206,8 @@ void _pascal int_32_addr_call(void far* addr, regs_32 far* regs) {
 #endif
 
 #ifdef LIB_INT_32_CALL
-void _pascal int_32_call(unsigned num, regs_32 far* regs) {
-	int_32_addr_call(getvect(num),regs);
+void _pascal int_32_call(unsigned num, regs_32 far* regs)
+{
+	int_32_addr_call(getvect(num), regs);
 }
 #endif

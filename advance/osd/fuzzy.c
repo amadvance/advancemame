@@ -42,7 +42,8 @@
  * \param penality - current penality for a skipped "b" char
  * \return the FUZZY match, lower is better
  */
-static int fuzzy_internal(const char* a, const char* b, int* bs, int upper_limit, int almostone, int penality) {
+static int fuzzy_internal(const char* a, const char* b, int* bs, int upper_limit, int almostone, int penality)
+{
 	if (upper_limit <= 0) {
 		return upper_limit;
 	} else if (!*a) {
@@ -50,16 +51,16 @@ static int fuzzy_internal(const char* a, const char* b, int* bs, int upper_limit
 	} else if (!*b) {
 		return strlen(a) * FUZZY_UNIT_A;
 	} else if (*a == *b) {
-		int missing = fuzzy_internal(a+1,b+1,bs+1,upper_limit,1,*bs != 0);
+		int missing = fuzzy_internal(a+1, b+1, bs+1, upper_limit, 1, *bs != 0);
 		if (almostone && penality)
 			missing += FUZZY_UNIT_B;
 		return missing;
 	} else {
 		int missing_skip;
-		int missing_next = fuzzy_internal(a,b+1,bs+1,upper_limit,almostone,1);
+		int missing_next = fuzzy_internal(a, b+1, bs+1, upper_limit, almostone, 1);
 		if (missing_next < upper_limit)
 			upper_limit = missing_next;
-		missing_skip = FUZZY_UNIT_A + fuzzy_internal(a+1,b,bs,upper_limit - FUZZY_UNIT_A,almostone,penality);
+		missing_skip = FUZZY_UNIT_A + fuzzy_internal(a+1, b, bs, upper_limit - FUZZY_UNIT_A, almostone, penality);
 		if (missing_skip < missing_next)
 			return missing_skip;
 		else
@@ -74,7 +75,8 @@ static int fuzzy_internal(const char* a, const char* b, int* bs, int upper_limit
  * \param upper_limit - maximum value returned
  * \return the FUZZY match, lower is better
  */
-int fuzzy(const char* a, const char* b, int upper_limit) {
+int fuzzy(const char* a, const char* b, int upper_limit)
+{
 	char B[256];
 	char A[256];
 	char AA[256];
@@ -101,7 +103,7 @@ int fuzzy(const char* a, const char* b, int upper_limit) {
 	a = A;
 	aa = AA;
 	while (*a) {
-		if (strchr(B,*a))
+		if (strchr(B, *a))
 			*aa++ = *a;
 		else
 			skip += FUZZY_UNIT_A;
@@ -113,7 +115,7 @@ int fuzzy(const char* a, const char* b, int upper_limit) {
 	bbs = BBS;
 	*bbs = 0;
 	while (*b) {
-		if (strchr(A,*b)) {
+		if (strchr(A, *b)) {
 			*bb++ = *b;
 			++bbs;
 			*bbs = 0;
@@ -124,5 +126,5 @@ int fuzzy(const char* a, const char* b, int upper_limit) {
 	}
 	*bb = 0;
 
-	return skip + fuzzy_internal(AA,BB,BBS+1,upper_limit - skip,0,0);
+	return skip + fuzzy_internal(AA, BB, BBS+1, upper_limit - skip, 0, 0);
 }

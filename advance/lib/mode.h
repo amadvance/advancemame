@@ -133,7 +133,8 @@ typedef struct vmode_struct {
  *   - ==0 on error
  *   - !=0 bits_per_pixel
  */
-static inline unsigned index_bits_per_pixel(unsigned index) {
+static inline unsigned index_bits_per_pixel(unsigned index)
+{
 	switch (index) {
 	case MODE_FLAGS_INDEX_PALETTE8 : return 8;
 	case MODE_FLAGS_INDEX_BGR8 : return 8;
@@ -153,7 +154,8 @@ static inline unsigned index_bits_per_pixel(unsigned index) {
  *   - ==0 on error
  *   - !=0 bits_per_pixel
  */
-static inline unsigned index_bytes_per_pixel(unsigned index) {
+static inline unsigned index_bytes_per_pixel(unsigned index)
+{
 	switch (index) {
 	case MODE_FLAGS_INDEX_PALETTE8 : return 1;
 	case MODE_FLAGS_INDEX_BGR8 : return 1;
@@ -170,7 +172,8 @@ static inline unsigned index_bytes_per_pixel(unsigned index) {
 /**
  * Get the index name.
  */
-static inline const char* index_name(unsigned index) {
+static inline const char* index_name(unsigned index)
+{
 	switch (index) {
 	case MODE_FLAGS_INDEX_PALETTE8 : return "palette8";
 	case MODE_FLAGS_INDEX_BGR8 : return "bgr8";
@@ -190,7 +193,8 @@ static inline const char* index_name(unsigned index) {
  *   - ==0 on error
  *   - !=0 bits_per_pixel
  */
-static inline adv_bool index_is_rgb(unsigned index) {
+static inline adv_bool index_is_rgb(unsigned index)
+{
 	switch (index & MODE_FLAGS_INDEX_MASK) {
 	case MODE_FLAGS_INDEX_BGR8 :
 	case MODE_FLAGS_INDEX_BGR15 :
@@ -206,63 +210,72 @@ static inline adv_bool index_is_rgb(unsigned index) {
 /**
  * Get the name of a video mode.
  */
-static inline const char* mode_name(const adv_mode* mode) {
+static inline const char* mode_name(const adv_mode* mode)
+{
 	return mode->name;
 }
 
 /**
  * Get the driver of a video mode.
  */
-static inline const struct adv_video_driver_struct* mode_driver(const adv_mode* mode) {
+static inline const struct adv_video_driver_struct* mode_driver(const adv_mode* mode)
+{
 	return mode->driver;
 }
 
 /**
  * Get the vertical clock of a video mode.
  */
-static inline double mode_vclock(const adv_mode* mode) {
+static inline double mode_vclock(const adv_mode* mode)
+{
 	return mode->vclock;
 }
 
 /**
  * Get the horizontal clock of a video mode.
  */
-static inline double mode_hclock(const adv_mode* mode) {
+static inline double mode_hclock(const adv_mode* mode)
+{
 	return mode->hclock;
 }
 
 /**
  * Get the width of a video mode.
  */
-static inline unsigned mode_size_x(const adv_mode* mode) {
+static inline unsigned mode_size_x(const adv_mode* mode)
+{
 	return mode->size_x;
 }
 
 /**
  * Get the height of a video mode.
  */
-static inline unsigned mode_size_y(const adv_mode* mode) {
+static inline unsigned mode_size_y(const adv_mode* mode)
+{
 	return mode->size_y;
 }
 
 /**
  * Get the bits per pixel of a video mode.
  */
-static inline unsigned mode_bits_per_pixel(const adv_mode* mode) {
+static inline unsigned mode_bits_per_pixel(const adv_mode* mode)
+{
 	return index_bits_per_pixel(mode->flags & MODE_FLAGS_INDEX_MASK);
 }
 
 /**
  * Get the bytes per pixel of a video mode.
  */
-static inline unsigned mode_bytes_per_pixel(const adv_mode* mode) {
+static inline unsigned mode_bytes_per_pixel(const adv_mode* mode)
+{
 	return index_bytes_per_pixel(mode->flags & MODE_FLAGS_INDEX_MASK);
 }
 
 /**
  * Get the flags of a video mode.
  */
-static inline unsigned mode_flags(const adv_mode* mode) {
+static inline unsigned mode_flags(const adv_mode* mode)
+{
 	return mode->flags;
 }
 
@@ -270,7 +283,8 @@ static inline unsigned mode_flags(const adv_mode* mode) {
  * Get the index mode of a video mode.
  * \return One of the MODE_FLAGS_INDEX_* flags.
  */
-static inline unsigned mode_index(const adv_mode* mode) {
+static inline unsigned mode_index(const adv_mode* mode)
+{
 	return mode_flags(mode) & MODE_FLAGS_INDEX_MASK;
 }
 
@@ -278,42 +292,48 @@ static inline unsigned mode_index(const adv_mode* mode) {
  * Get the memory mode of a video mode.
  * \return One of the MODE_FLAGS_MEMORY_* flags.
  */
-static inline unsigned mode_memory(const adv_mode* mode) {
+static inline unsigned mode_memory(const adv_mode* mode)
+{
 	return mode_flags(mode) & MODE_FLAGS_MEMORY_MASK;
 }
 
 /**
  * Check if a video mode is a text mode.
  */
-static inline adv_bool mode_is_text(const adv_mode* mode) {
+static inline adv_bool mode_is_text(const adv_mode* mode)
+{
 	return mode_index(mode) == MODE_FLAGS_INDEX_TEXT;
 }
 
 /**
  * Check if a video mode is a graphics mode.
  */
-static inline adv_bool mode_is_graphics(const adv_mode* mode) {
+static inline adv_bool mode_is_graphics(const adv_mode* mode)
+{
 	return !mode_is_text(mode);
 }
 
 /**
  * Check if a video mode is a linear mode.
  */
-static inline adv_bool mode_is_linear(const adv_mode* mode) {
+static inline adv_bool mode_is_linear(const adv_mode* mode)
+{
 	return mode_memory(mode) == MODE_FLAGS_MEMORY_LINEAR;
 }
 
 /**
  * Check if a video mode is a unchained mode.
  */
-static inline adv_bool mode_is_unchained(const adv_mode* mode) {
+static inline adv_bool mode_is_unchained(const adv_mode* mode)
+{
 	return mode_memory(mode) == MODE_FLAGS_MEMORY_UNCHAINED;
 }
 
 /**
  * Check if a video mode is a banked mode.
  */
-static inline adv_bool mode_is_banked(const adv_mode* mode) {
+static inline adv_bool mode_is_banked(const adv_mode* mode)
+{
 	return mode_memory(mode) == MODE_FLAGS_MEMORY_BANKED;
 }
 
@@ -324,7 +344,8 @@ static inline adv_bool mode_is_banked(const adv_mode* mode) {
  *   - 0 singlescan
  *   - 1 doublescan
  */
-static inline int mode_scan(const adv_mode* mode) {
+static inline int mode_scan(const adv_mode* mode)
+{
 	return mode->scan;
 }
 

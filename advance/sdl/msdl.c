@@ -49,7 +49,7 @@ static adv_device DEVICE[] = {
 
 adv_error mouseb_sdl_init(int mouseb_id)
 {
-	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n",mouseb_id));
+	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n", mouseb_id));
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("mouseb:sdl: not supported without the SDL video driver\n"));
@@ -128,17 +128,20 @@ void mouseb_sdl_reg(adv_conf* context)
 {
 }
 
-void mouseb_sdl_event_move(int x, int y) {
+void mouseb_sdl_event_move(int x, int y)
+{
 	sdl_state.x += x;
 	sdl_state.y += y;
 }
 
-void mouseb_sdl_event_press(unsigned code) {
+void mouseb_sdl_event_press(unsigned code)
+{
 	if (code < 3)
 		sdl_state.button_map[code] = 1;
 }
 
-void mouseb_sdl_event_release(unsigned code) {
+void mouseb_sdl_event_release(unsigned code)
+{
 	if (code < 3)
 		sdl_state.button_map[code] = 0;
 }

@@ -103,7 +103,7 @@ public:
 	virtual void attrib_run() = 0;
 	virtual void attrib_load();
 	virtual void attrib_save();
-	virtual bool attrib_set(const std::string& value0,const std::string& value1);
+	virtual bool attrib_set(const std::string& value0, const std::string& value1);
 	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 
 	virtual bool filter(const game& g) const;
@@ -179,7 +179,7 @@ public:
 
 	virtual void attrib_load();
 	virtual void attrib_save();
-	virtual bool attrib_set(const std::string& value0,const std::string& value1);
+	virtual bool attrib_set(const std::string& value0, const std::string& value1);
 	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
@@ -213,7 +213,7 @@ public:
 	virtual void attrib_run();
 	virtual void attrib_load();
 	virtual void attrib_save();
-	virtual bool attrib_set(const std::string& value0,const std::string& value1);
+	virtual bool attrib_set(const std::string& value0, const std::string& value1);
 	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
@@ -319,7 +319,7 @@ public:
 	virtual void attrib_run();
 	virtual void attrib_load();
 	virtual void attrib_save();
-	virtual bool attrib_set(const std::string& value0,const std::string& value1);
+	virtual bool attrib_set(const std::string& value0, const std::string& value1);
 	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
@@ -362,7 +362,8 @@ public:
 typedef std::list<emulator*> pemulator_container;
 typedef std::list<std::string> emulator_container;
 
-inline bool pgame_by_time_less(const game* A, const game* B) {
+inline bool pgame_by_time_less(const game* A, const game* B)
+{
 	unsigned vA;
 	unsigned vB;
 	if (A->emulator_get()->tree_get())
@@ -376,7 +377,8 @@ inline bool pgame_by_time_less(const game* A, const game* B) {
 	return vA > vB;
 }
 
-inline bool pgame_by_coin_less(const game* A, const game* B) {
+inline bool pgame_by_coin_less(const game* A, const game* B)
+{
 	unsigned vA;
 	unsigned vB;
 	if (A->emulator_get()->tree_get())

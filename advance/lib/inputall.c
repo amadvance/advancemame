@@ -38,7 +38,8 @@
  *  - USE_INPUT_SLANG
  *  - USE_INPUT_NONE
  */
-void inputb_reg_driver_all(adv_conf* context) {
+void inputb_reg_driver_all(adv_conf* context)
+{
 #ifdef USE_INPUT_DOS
 	inputb_reg_driver(context, &inputb_dos_driver);
 #endif

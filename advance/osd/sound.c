@@ -86,7 +86,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 
-	log_std(("osd: osd2_sound_init(sample_rate:%d,stereo_flag:%d)\n", *sample_rate, stereo_flag));
+	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
 	assert(context->state.active_flag == 0);
 
@@ -95,7 +95,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 
 	/* disable the sound with the none driver in the release build, */
 	/* in the debug build use the none driver */
-	if (strcmp(sound_name(),"none")==0) {
+	if (strcmp(sound_name(), "none")==0) {
 		/* returning !=0 force MAME to disable the sound */
 		/* the osd2_sound_done isn't called */
 		return -1;
@@ -149,7 +149,7 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 	log_debug(("advance: sound play %d\n", sample_count));
 
 	if (context->state.active_flag) {
-		sound_play(sample_buffer,sample_count);
+		sound_play(sample_buffer, sample_count);
 
 		if (!video_context->state.pause_flag)
 			advance_record_sound_update(record_context, sample_buffer, sample_count);
@@ -175,7 +175,8 @@ int advance_sound_latency_diff(struct advance_sound_context* context)
 	}
 }
 
-int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context) {
+int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
+{
 	conf_bool_register_default(cfg_context, "sound_stereo", 1);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
@@ -188,7 +189,8 @@ int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_cont
 	return 0;
 }
 
-void advance_sound_done(struct advance_sound_context* context) {
+void advance_sound_done(struct advance_sound_context* context)
+{
 }
 
 struct sound_device {

@@ -76,7 +76,7 @@ static struct keyb_pair {
 
 adv_error inputb_dos_init(int inputb_id)
 {
-	log_std(("input:dos: inputb_dos_init(id:%d)\n",inputb_id));
+	log_std(("input:dos: inputb_dos_init(id:%d)\n", inputb_id));
 
 	return 0;
 }

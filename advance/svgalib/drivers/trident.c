@@ -26,7 +26,7 @@ static void unlock(void);
 static void lock(void);
 
 static int memory, chip, NewClockCode;
-static float frequency;
+static int frequency;
 static int is_linear, linear_base, mmio_base;
 
 static CardSpecs *cardspecs;
@@ -58,7 +58,7 @@ static void getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -90,6 +90,7 @@ static int saveregs(unsigned char regs[])
     INB_3x4(LinearAddReg);
     INB_3x4(CRTCModuleTest);
     INB_3x4(CRTHiOrd);
+    INB_3x4(HorizOverflow);
     INB_3x4(Performance);
     INB_3x4(InterfaceSel);
     INB_3x4(DRAMControl);
@@ -106,28 +107,28 @@ static int saveregs(unsigned char regs[])
     if (chip >= PROVIDIA9685) INB_3x4(Enhancement0);
     if (chip >= BLADE3D)      INB_3x4(RAMDACTiming);
     if (chip == CYBERBLADEE4) INB_3x4(New32);
-#if 0
-    if (pTrident->IsCyber) {
-	uint8_t tmp;
-	INB_3CE(VertStretch);
-	INB_3CE(HorStretch);
-	INB_3CE(BiosMode);
-	INB_3CE(BiosReg);	
-    	INB_3CE(CyberControl);
-    	INB_3CE(CyberEnhance);
-	SHADOW_ENABLE(tmp);
-	INB_3x4(0x0);
-	INB_3x4(0x3);
-	INB_3x4(0x4);
-	INB_3x4(0x5);
-	INB_3x4(0x6);
-	INB_3x4(0x7);
-	INB_3x4(0x10);
-	INB_3x4(0x11);
-	INB_3x4(0x16);
-	SHADOW_RESTORE(tmp);
-    }
-#endif
+
+    if (IsCyber) {
+		uint8_t tmp;
+		INB_3CE(VertStretch);
+		INB_3CE(HorStretch);
+		INB_3CE(BiosMode);
+		INB_3CE(BiosReg);	
+		INB_3CE(CyberControl);
+		INB_3CE(CyberEnhance);
+		SHADOW_ENABLE(tmp);
+		INB_3x4(0x0);
+		INB_3x4(0x3);
+		INB_3x4(0x4);
+		INB_3x4(0x5);
+		INB_3x4(0x6);
+		INB_3x4(0x7);
+		INB_3x4(0x10);
+		INB_3x4(0x11);
+		INB_3x4(0x16);
+		SHADOW_RESTORE(tmp);
+	}
+
     /* save cursor registers */
     INB_3x4(CursorControl);
 
@@ -144,26 +145,26 @@ static int saveregs(unsigned char regs[])
 
     tridentReg->tridentRegsClock[0x00] = INB(0x3CC);
     if (Is3Dchip) {
-	OUTB(0x3C4, ClockLow);
-	tridentReg->tridentRegsClock[0x01] = INB(0x3C5);
-	OUTB(0x3C4, ClockHigh);
-	tridentReg->tridentRegsClock[0x02] = INB(0x3C5);
+		OUTB(0x3C4, ClockLow);
+		tridentReg->tridentRegsClock[0x01] = INB(0x3C5);
+		OUTB(0x3C4, ClockHigh);
+		tridentReg->tridentRegsClock[0x02] = INB(0x3C5);
 #if 0
-	if (pTrident->MCLK > 0) {
-	    OUTB(0x3C4, MCLKLow);
-	    tridentReg->tridentRegsClock[0x03] = INB(0x3C5);
-	    OUTB(0x3C4, MCLKHigh);
-	    tridentReg->tridentRegsClock[0x04] = INB(0x3C5);
-	}
+		if (pTrident->MCLK > 0) {
+			OUTB(0x3C4, MCLKLow);
+			tridentReg->tridentRegsClock[0x03] = INB(0x3C5);
+			OUTB(0x3C4, MCLKHigh);
+			tridentReg->tridentRegsClock[0x04] = INB(0x3C5);
+		}
 #endif
     } else {
-	tridentReg->tridentRegsClock[0x01] = INB(0x43C8);
-	tridentReg->tridentRegsClock[0x02] = INB(0x43C9);
+		tridentReg->tridentRegsClock[0x01] = INB(0x43C8);
+		tridentReg->tridentRegsClock[0x02] = INB(0x43C9);
 #if 0
-	if (pTrident->MCLK > 0) {
-	    tridentReg->tridentRegsClock[0x03] = INB(0x43C6);
-	    tridentReg->tridentRegsClock[0x04] = INB(0x43C7);
-	}
+		if (pTrident->MCLK > 0) {
+			tridentReg->tridentRegsClock[0x03] = INB(0x43C6);
+			tridentReg->tridentRegsClock[0x04] = INB(0x43C7);
+		}
 #endif
     }
 
@@ -209,6 +210,7 @@ static void setregs(const unsigned char regs[], int mode)
     OUTW_3C4(NewMode2);
     OUTW_3x4(CursorControl);
     OUTW_3x4(CRTHiOrd);
+    OUTW_3x4(HorizOverflow);
     OUTW_3x4(AddColReg);
     OUTW_3x4(GraphEngReg);
     OUTW_3x4(Performance);
@@ -229,58 +231,50 @@ static void setregs(const unsigned char regs[], int mode)
     if (chip >= BLADE3D)      OUTW_3x4(RAMDACTiming);
     if (chip == CYBERBLADEE4) OUTW_3x4(New32);
 #if 0
-    if (pTrident->IsCyber) {
-	uint8_t tmp;
+	if (IsCyber) {
+		uint8_t tmp;
 
-	OUTW_3CE(VertStretch);
-	OUTW_3CE(HorStretch);
-	OUTW_3CE(BiosMode);
-	OUTW_3CE(BiosReg);	
-    	OUTW_3CE(CyberControl);
-    	OUTW_3CE(CyberEnhance);
-	SHADOW_ENABLE(tmp);
-	OUTW_3x4(0x0);
-	OUTW_3x4(0x3);
-	OUTW_3x4(0x4);
-	OUTW_3x4(0x5);
-	OUTW_3x4(0x6);
-	OUTW_3x4(0x7);	
-	OUTW_3x4(0x10);
-	OUTW_3x4(0x11); 
-	OUTW_3x4(0x16);
-	SHADOW_RESTORE(tmp);
-    }
+		OUTW_3CE(VertStretch);
+		OUTW_3CE(HorStretch);
+		OUTW_3CE(BiosMode);
+		OUTW_3CE(BiosReg);	
+		OUTW_3CE(CyberControl);
+		OUTW_3CE(CyberEnhance);
+		SHADOW_ENABLE(tmp);
+		OUTW_3x4(0x0);
+		OUTW_3x4(0x3);
+		OUTW_3x4(0x4);
+		OUTW_3x4(0x5);
+		OUTW_3x4(0x6);
+		OUTW_3x4(0x7);	
+		OUTW_3x4(0x10);
+		OUTW_3x4(0x11); 
+		OUTW_3x4(0x16);
+		SHADOW_RESTORE(tmp);
+	}
 #endif
-    
+	
     if (Is3Dchip) {
-	{
-            __svgalib_outseq(ClockLow, tridentReg->tridentRegsClock[0x01]);
-            __svgalib_outseq(ClockHigh, tridentReg->tridentRegsClock[0x02]);
-	}
+        __svgalib_outseq(ClockLow, tridentReg->tridentRegsClock[0x01]);
+        __svgalib_outseq(ClockHigh, tridentReg->tridentRegsClock[0x02]);
+
 #if 0
-	if (pTrident->MCLK > 0) {
-	    OUTW(0x3C4,(tridentReg->tridentRegsClock[0x03])<<8 | MCLKLow);
-	    OUTW(0x3C4,(tridentReg->tridentRegsClock[0x04])<<8 | MCLKHigh);
-	}
+		if (pTrident->MCLK > 0) {
+			OUTW(0x3C4,(tridentReg->tridentRegsClock[0x03])<<8 | MCLKLow);
+			OUTW(0x3C4,(tridentReg->tridentRegsClock[0x04])<<8 | MCLKHigh);
+		}
 #endif
     } else {
-	{
 	    OUTB(0x43C8, tridentReg->tridentRegsClock[0x01]);
 	    OUTB(0x43C9, tridentReg->tridentRegsClock[0x02]);
-	}
 #if 0
-	if (pTrident->MCLK > 0) {
-	    OUTB(0x43C6, tridentReg->tridentRegsClock[0x03]);
-	    OUTB(0x43C7, tridentReg->tridentRegsClock[0x04]);
-	}
+		if (pTrident->MCLK > 0) {
+			OUTB(0x43C6, tridentReg->tridentRegsClock[0x03]);
+			OUTB(0x43C7, tridentReg->tridentRegsClock[0x04]);
+		}
 #endif
     }
-#ifdef READOUT
-    if (!pTrident->DontSetClock)
-#endif
-    {
 	OUTB(0x3C2, tridentReg->tridentRegsClock[0x00]);
-    }
     
     if (chip > PROVIDIA9685) {
     	OUTB(0x3C4, Protection);
@@ -329,12 +323,13 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 	int freq, ffreq;
 	int m, n, k;
 	int p, q, r, s; 
-	int endn, endm, endk, startk=0;
+	int endn, endm, endk, startk=0, startn;
 
 	p = q = r = s = 0;
 
 	if (NewClockCode)
-	{
+	{	
+		startn = 64;
 		endn = 255;
 		endm = 63;
 		endk = 2;
@@ -344,6 +339,7 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 	}
 	else
 	{
+		startn = 32;
 		endn = 121;
 		endm = 31;
 		endk = 1;
@@ -353,10 +349,10 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
  	freq = clock;
 
 	for (k=startk;k<=endk;k++)
-	  for (n=0;n<=endn;n++)
+	  for (n=startn;n<=endn;n++)
 	    for (m=1;m<=endm;m++)
 	    {
-		ffreq = ( ( ((n + 8) * frequency) / ((m + 2) * powerup[k]) ) * 1000);
+		ffreq =  ( ((n + 8) * frequency) / ((m + 2) * powerup[k]) ) ;
 		if ((ffreq > freq - clock_diff) && (ffreq < freq + clock_diff)) 
 		{
 /*
@@ -364,6 +360,7 @@ static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
  * most 9440 boards seem to cope. 96xx/Cyber chips don't need this limit
  * so, I'm gonna remove it and it allows lower clocks < 25.175 too !
  */
+#define STRICT 1
 #ifdef STRICT
 			if ( (n+8)*100/(m+2) < 978 && (n+8)*100/(m+2) > 349 ) {
 #endif
@@ -412,7 +409,7 @@ static void initializemode(unsigned char *moderegs,
     clock=modetiming->pixelClock;
 
     OUTB(0x3C4, 0x11);
-    protect = INB(0x3C4);
+    protect = INB(0x3C5);
     OUTB(0x3C5, 0x92);
 
     OUTB(0x3C4, 0x0B); tmp=INB(0x3C5); /* Ensure we are in New Mode */
@@ -431,191 +428,145 @@ static void initializemode(unsigned char *moderegs,
  				     ((modetiming->CrtcVSyncStart & 0x400) >> 5) |
  				     (((modetiming->CrtcVDisplay - 1) & 0x400) >> 6)|
  				     0x08;
+	    
+	pReg->tridentRegs3x4[HorizOverflow] = ((modetiming->CrtcHTotal & 0x800) >> 11) |
+	                 ((modetiming->CrtcHSyncStart & 0x800)>>7);
 
 #if 0
-    if (pTrident->IsCyber) {
-	Bool LCDActive;
-#ifdef READOUT
-	Bool ShadowModeActive;
-#endif
-	int i = pTrident->lcdMode;
-#ifdef READOUT
-	OUTB(0x3CE, CyberControl);
-	ShadowModeActive = ((INB(0x3CF) & 0x81) == 0x81);
-#endif
-	OUTB(0x3CE, FPConfig);
-	LCDActive = (INB(0x3CF) & 0x10);
+	if (IsCyber) {
+		Bool LCDActive;
+		int i = pTrident->lcdMode;
+		
+		LCDActive = (INB(0x3CF) & 0x10);
 	
-	OUTB(0x3CE, CyberEnhance); 
-	pReg->tridentRegs3CE[CyberEnhance] = INB(0x3CF) & 0x8F;
-	if (mode->CrtcVDisplay > 768)
-	    pReg->tridentRegs3CE[CyberEnhance] |= 0x30;
-	else
-	if (mode->CrtcVDisplay > 600)
-	    pReg->tridentRegs3CE[CyberEnhance] |= 0x20;
-	else
-	if (mode->CrtcVDisplay > 480)
-	    pReg->tridentRegs3CE[CyberEnhance] |= 0x10;
+		/* for now */
+		LCDActive=0;
+		i=0xff;
+		
+		OUTB(0x3CE, CyberEnhance); 
+		pReg->tridentRegs3CE[CyberEnhance] = INB(0x3CF) & 0x8F;
+		
+		if (mode->CrtcVDisplay > 768)
+			pReg->tridentRegs3CE[CyberEnhance] |= 0x30;
+		else
+		
+		if (mode->CrtcVDisplay > 600)
+			pReg->tridentRegs3CE[CyberEnhance] |= 0x20;
+		else
+		if (mode->CrtcVDisplay > 480)
+			pReg->tridentRegs3CE[CyberEnhance] |= 0x10;
 
-	OUTB(0x3CE, CyberControl);
-	pReg->tridentRegs3CE[CyberControl] = INB(0x3CF);
+		OUTB(0x3CE, CyberControl);
+		pReg->tridentRegs3CE[CyberControl] = INB(0x3CF);
 
-	OUTB(0x3CE,HorStretch);
-	pReg->tridentRegs3CE[HorStretch] = INB(0x3CF);
-	OUTB(0x3CE,VertStretch);
-	pReg->tridentRegs3CE[VertStretch] = INB(0x3CF);
+		OUTB(0x3CE,HorStretch);
+		pReg->tridentRegs3CE[HorStretch] = INB(0x3CF);
+		OUTB(0x3CE,VertStretch);
+		pReg->tridentRegs3CE[VertStretch] = INB(0x3CF);
 
-#ifdef READOUT
-	if ((!((pReg->tridentRegs3CE[VertStretch] & 1) ||
-	       (pReg->tridentRegs3CE[HorStretch] & 1)))
-	    && (!LCDActive || ShadowModeActive)) 
-	  {
-	    unsigned char tmp;
-	    
-	    SHADOW_ENABLE(tmp);
-	    OUTB(vgaIOBase + 4,0);
-	    pReg->tridentRegs3x4[0x0] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,3);
-	    pReg->tridentRegs3x4[0x3] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,4);
-	    pReg->tridentRegs3x4[0x4] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,5);
-  	    pReg->tridentRegs3x4[0x5] = INB(vgaIOBase + 5);
-  	    OUTB(vgaIOBase + 4,0x6);
-  	    pReg->tridentRegs3x4[0x6] = INB(vgaIOBase + 5);
-  	    SHADOW_RESTORE(tmp);
- 	} else
-#endif
- 	{
- 	    if (i != 0xff) {
-  		pReg->tridentRegs3x4[0x0] = LCD[i].shadow_0;
-  		pReg->tridentRegs3x4[0x3] = LCD[i].shadow_3;
-  		pReg->tridentRegs3x4[0x4] = LCD[i].shadow_4;
-  		pReg->tridentRegs3x4[0x5] = LCD[i].shadow_5;
-  		pReg->tridentRegs3x4[0x6] = LCD[i].shadow_6;
- 		xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,
- 			       "Overriding Horizontal timings.\n");
-  	    }
-  	}
- 
- 	if (i != 0xff) {
- 	    pReg->tridentRegs3x4[0x7] = LCD[i].shadow_7;
- 	    pReg->tridentRegs3x4[0x10] = LCD[i].shadow_10;
- 	    pReg->tridentRegs3x4[0x11] = LCD[i].shadow_11;
- 	    pReg->tridentRegs3x4[0x16] = LCD[i].shadow_16;
- 	    if (LCDActive) 
- 		pReg->tridentRegs3x4[CRTHiOrd] = LCD[i].shadow_HiOrd;
+		if (i != 0xff) {
+			pReg->tridentRegs3x4[0x0] = LCD[i].shadow_0;
+			pReg->tridentRegs3x4[0x3] = LCD[i].shadow_3;
+			pReg->tridentRegs3x4[0x4] = LCD[i].shadow_4;
+			pReg->tridentRegs3x4[0x5] = LCD[i].shadow_5;
+			pReg->tridentRegs3x4[0x6] = LCD[i].shadow_6;
+		}
+	 
+		if (i != 0xff) {
+			pReg->tridentRegs3x4[0x7] = LCD[i].shadow_7;
+			pReg->tridentRegs3x4[0x10] = LCD[i].shadow_10;
+			pReg->tridentRegs3x4[0x11] = LCD[i].shadow_11;
+			pReg->tridentRegs3x4[0x16] = LCD[i].shadow_16;
+			if (LCDActive) 
+			pReg->tridentRegs3x4[CRTHiOrd] = LCD[i].shadow_HiOrd;
 
-	    fullSize = (pScrn->currentMode->HDisplay == LCD[i].display_x) 
-	        && (pScrn->currentMode->VDisplay == LCD[i].display_y);
- 	}
- 	
-  	/* copy over common bits from normal VGA */
-  	
-  	pReg->tridentRegs3x4[0x7] &= ~0x4A;
-	pReg->tridentRegs3x4[0x7] |= (vgaReg->CRTC[0x7] & 0x4A);
+			fullSize = (pScrn->currentMode->HDisplay == LCD[i].display_x) 
+				&& (pScrn->currentMode->VDisplay == LCD[i].display_y);
+		}
+		
+		/* copy over common bits from normal VGA */
+		
+		pReg->tridentRegs3x4[0x7] &= ~0x4A;
+		pReg->tridentRegs3x4[0x7] |= (vgaReg->CRTC[0x7] & 0x4A);
 
-	if (LCDActive && fullSize) {	
-	    regp->CRTC[0] = pReg->tridentRegs3x4[0];
-	    regp->CRTC[3] = pReg->tridentRegs3x4[3];
-	    regp->CRTC[4] = pReg->tridentRegs3x4[4];
-	    regp->CRTC[5] = pReg->tridentRegs3x4[5];
-	    regp->CRTC[6] = pReg->tridentRegs3x4[6];
-	    regp->CRTC[7] = pReg->tridentRegs3x4[7];
-	    regp->CRTC[0x10] = pReg->tridentRegs3x4[0x10];
-	    regp->CRTC[0x11] = pReg->tridentRegs3x4[0x11];
-	    regp->CRTC[0x16] = pReg->tridentRegs3x4[0x16];
-	}
-	if (LCDActive && !fullSize) {
-	  /* 
-	   * If the LCD is active and we don't fill the entire screen
-	   * and the previous mode was stretched we may need help from
-	   * the BIOS to set all registers for the unstreched mode.
-	   */
-	    pTrident->doInit =  ((pReg->tridentRegs3CE[HorStretch] & 1)
-				|| (pReg->tridentRegs3CE[VertStretch] & 1));
-	    pReg->tridentRegs3CE[CyberControl] |= 0x81;
-	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow on\n");
-	    isShadow = TRUE;
-	} else {
-	    pReg->tridentRegs3CE[CyberControl] &= 0x7E;
-	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow off\n");
-	}
+		if (LCDActive && fullSize) {	
+			regp->CRTC[0] = pReg->tridentRegs3x4[0];
+			regp->CRTC[3] = pReg->tridentRegs3x4[3];
+			regp->CRTC[4] = pReg->tridentRegs3x4[4];
+			regp->CRTC[5] = pReg->tridentRegs3x4[5];
+			regp->CRTC[6] = pReg->tridentRegs3x4[6];
+			regp->CRTC[7] = pReg->tridentRegs3x4[7];
+			regp->CRTC[0x10] = pReg->tridentRegs3x4[0x10];
+			regp->CRTC[0x11] = pReg->tridentRegs3x4[0x11];
+			regp->CRTC[0x16] = pReg->tridentRegs3x4[0x16];
+		}
+		if (LCDActive && !fullSize) {
+		  /* 
+		   * If the LCD is active and we don't fill the entire screen
+		   * and the previous mode was stretched we may need help from
+		   * the BIOS to set all registers for the unstreched mode.
+		   */
+			pTrident->doInit =  ((pReg->tridentRegs3CE[HorStretch] & 1)
+					|| (pReg->tridentRegs3CE[VertStretch] & 1));
+			pReg->tridentRegs3CE[CyberControl] |= 0x81;
+			xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow on\n");
+			isShadow = TRUE;
+		} else {
+			pReg->tridentRegs3CE[CyberControl] &= 0x7E;
+			xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow off\n");
+		}
 
 
-	if (pTrident->CyberShadow) {
-	    pReg->tridentRegs3CE[CyberControl] &= 0x7E;
-	    isShadow = FALSE;
-	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Forcing Shadow off\n");
-	}
-
- 	xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"H-timing shadow registers:"
- 		       " 0x%2.2x           0x%2.2x 0x%2.2x 0x%2.2x\n",
- 		       pReg->tridentRegs3x4[0], pReg->tridentRegs3x4[3],
- 		       pReg->tridentRegs3x4[4], pReg->tridentRegs3x4[5]);
- 	xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"H-timing registers:       "
- 		       " 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x\n",
- 		       regp->CRTC[0], regp->CRTC[1], regp->CRTC[2],
-		       regp->CRTC[3], regp->CRTC[4], regp->CRTC[5]);
- 	xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"V-timing shadow registers: "
- 		       "0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x"
-		       "           0x%2.2x (0x%2.2x)\n",
-		       pReg->tridentRegs3x4[6], pReg->tridentRegs3x4[7],
- 		       pReg->tridentRegs3x4[0x10],pReg->tridentRegs3x4[0x11],
- 		       pReg->tridentRegs3x4[0x16],
- 		       pReg->tridentRegs3x4[CRTHiOrd]);
- 	xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"V-timing registers:        "
- 		       "0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x "
-		       "0x%2.2x 0x%2.2x 0x%2.2x\n",
- 		       regp->CRTC[6], regp->CRTC[7], regp->CRTC[0x10],
-		       regp->CRTC[0x11],regp->CRTC[0x12],
- 		       regp->CRTC[0x14],regp->CRTC[0x16]);
- 	
-	
-	/* disable stretching, enable centering */
-	pReg->tridentRegs3CE[VertStretch] &= 0xFC;
-	pReg->tridentRegs3CE[VertStretch] |= 0x80;
-	pReg->tridentRegs3CE[HorStretch] &= 0xFC;
-	pReg->tridentRegs3CE[HorStretch] |= 0x80;
+		if (pTrident->CyberShadow) {
+			pReg->tridentRegs3CE[CyberControl] &= 0x7E;
+			isShadow = FALSE;
+			xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Forcing Shadow off\n");
+		}
+		
+		/* disable stretching, enable centering */
+		pReg->tridentRegs3CE[VertStretch] &= 0xFC;
+		pReg->tridentRegs3CE[VertStretch] |= 0x80;
+		pReg->tridentRegs3CE[HorStretch] &= 0xFC;
+		pReg->tridentRegs3CE[HorStretch] |= 0x80;
 #if 1
-	{
-  	    int mul = pScrn->bitsPerPixel >> 3; 
-	    int val;
-	    
-	    if (!mul) mul = 1;
-	    
-	    /* this is what my BIOS does */ 
-	    val = (pScrn->currentMode->HDisplay * mul / 8) + 16;
+		{
+			int mul = pScrn->bitsPerPixel >> 3; 
+			int val;
+			
+			if (!mul) mul = 1;
+			
+			/* this is what my BIOS does */ 
+			val = (pScrn->currentMode->HDisplay * mul / 8) + 16;
 
-	    pReg->tridentRegs3x4[PreEndControl] = ((val >> 8) < 2 ? 2 :0)
-	      | ((val >> 8) & 0x01);
-	    pReg->tridentRegs3x4[PreEndFetch] = val & 0xff;
-	}
+			pReg->tridentRegs3x4[PreEndControl] = ((val >> 8) < 2 ? 2 :0)
+			  | ((val >> 8) & 0x01);
+			pReg->tridentRegs3x4[PreEndFetch] = val & 0xff;
+		}
 #else
-	OUTB(vgaIOBase + 4,PreEndControl);
-	pReg->tridentRegs3x4[PreEndControl] = INB(vgaIOBase + 5);
-	OUTB(vgaIOBase + 4,PreEndFetch);
-	pReg->tridentRegs3x4[PreEndFetch] = INB(vgaIOBase + 5);
+		OUTB(vgaIOBase + 4,PreEndControl);
+		pReg->tridentRegs3x4[PreEndControl] = INB(vgaIOBase + 5);
+		OUTB(vgaIOBase + 4,PreEndFetch);
+		pReg->tridentRegs3x4[PreEndFetch] = INB(vgaIOBase + 5);
 #endif
-	/* set mode */
-	pReg->tridentRegs3CE[BiosMode] = TridentFindMode(
-	    pScrn->currentMode->HDisplay,
-	    pScrn->currentMode->VDisplay,
-	    pScrn->depth);
-	xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 1, "Setting BIOS Mode: %x\n",
-		       pReg->tridentRegs3CE[BiosMode]);
-	
-	/* no stretch */
-	pReg->tridentRegs3CE[BiosReg] = 0;
+		/* set mode */
+		pReg->tridentRegs3CE[BiosMode] = TridentFindMode(
+			pScrn->currentMode->HDisplay,
+			pScrn->currentMode->VDisplay,
+			pScrn->depth);
+		xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 1, "Setting BIOS Mode: %x\n",
+				   pReg->tridentRegs3CE[BiosMode]);
+		
+		/* no stretch */
+		pReg->tridentRegs3CE[BiosReg] = 0;
 
-	if (pTrident->CyberStretch) {
-	    pReg->tridentRegs3CE[VertStretch] |= 0x01;
-	    pReg->tridentRegs3CE[HorStretch] |= 0x01;
-	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Enabling StretchMode\n");
-	}
+		if (pTrident->CyberStretch) {
+			pReg->tridentRegs3CE[VertStretch] |= 0x01;
+			pReg->tridentRegs3CE[HorStretch] |= 0x01;
+			xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Enabling StretchMode\n");
+		}
     }
-#endif /* is cyber */
-    
+#endif
+	
     /* Calculate skew offsets for video overlay */
 #if 0
     {
@@ -798,7 +749,7 @@ static void initializemode(unsigned char *moderegs,
     	pReg->tridentRegs3x4[LinearAddReg] |= 0x20; 
 #endif
     } else {
-	pReg->tridentRegs3CE[MiscExtFunc] |= 0x04;
+		pReg->tridentRegs3CE[MiscExtFunc] |= 0x04;
     }
     
     pReg->tridentRegs3x4[CRTCModuleTest] = 
@@ -809,10 +760,9 @@ static void initializemode(unsigned char *moderegs,
     pReg->tridentRegs3x4[Performance] = INB(0x3D5) | 0x10;
     OUTB(0x3D4, DRAMControl);
     pReg->tridentRegs3x4[DRAMControl] = INB(0x3D5) | 0x10;
-#if 0
-    if (pTrident->IsCyber && !pTrident->MMIOonly)
-	pReg->tridentRegs3x4[DRAMControl] |= 0x20;
-#endif
+
+    if (IsCyber) pReg->tridentRegs3x4[DRAMControl] |= 0x20;
+
     OUTB(0x3D4, AddColReg);
     pReg->tridentRegs3x4[AddColReg] = INB(0x3D5) & 0xEF;
     pReg->tridentRegs3x4[AddColReg] |= (offset & 0x100) >> 4;
@@ -1174,7 +1124,7 @@ static int init(int force, int par1, int par2)
     int found=0;
     char *chipnames[]={
         "9420", "9430", "9440", "9320", "9660", "9680",
-        "9682", "9685", "9382", "9385", "9388", "9397",
+        "9682", "9382", "9385", "9685", "9388", "9397",
         "9397DVD", "9520", "9525", "975", "985", "Blade3D",
         "CyberBladeI7", "CyberBladeI7D", "CyberBladeI1",
         "CyberBladeI1D", "CyberBladeAI1", "CyberBladeAI1D",
@@ -1364,18 +1314,19 @@ static int init(int force, int par1, int par2)
             memory=1024;
     }
 
-    if(__svgalib_incrtc(TVinterface) & 0x80) frequency = 17.73448; else frequency = 14.31818;
-
+    if(__svgalib_incrtc(TVinterface) & 0x80) frequency = 17734; else frequency = 14318;
+	frequency = 14318;
+	
     if (__svgalib_driver_report) {
-	fprintf(stderr,"Using Trident driver, %s with %iKB.\n", chipnames[chip],memory);
+		fprintf(stderr,"Using Trident driver, %s with %iKB.\n", chipnames[chip],memory);
     };
 
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = memory;
-    cardspecs->maxPixelClock8bpp = 160000;	
-    cardspecs->maxPixelClock16bpp = 160000;	
-    cardspecs->maxPixelClock24bpp = 160000;
-    cardspecs->maxPixelClock32bpp = 160000;
+    cardspecs->maxPixelClock8bpp = ClockLimit[chip+12];
+    cardspecs->maxPixelClock16bpp = ClockLimit16bpp[chip+12];	
+    cardspecs->maxPixelClock24bpp = ClockLimit24bpp[chip+12];
+    cardspecs->maxPixelClock32bpp = ClockLimit32bpp[chip+12];
     cardspecs->flags = INTERLACE_DIVIDE_VERT | CLOCK_PROGRAMMABLE;
     cardspecs->maxHorizontalCrtc = 2040;
     cardspecs->maxPixelClock4bpp = 0;

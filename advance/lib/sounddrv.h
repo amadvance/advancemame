@@ -108,7 +108,7 @@ void sound_abort(void);
 static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
-	sound_state.driver_current->play(sample_map,sample_count);
+	sound_state.driver_current->play(sample_map, sample_count);
 }
 
 static inline unsigned sound_buffered(void) {

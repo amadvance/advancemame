@@ -30,14 +30,17 @@
 
 #include "thread.h"
 
-void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max) {
-	func(arg,0,1);
+void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max)
+{
+	func(arg, 0, 1);
 }
 
-int thread_init(void) {
+int thread_init(void)
+{
 	return 0;
 }
 
-void thread_done(void) {
+void thread_done(void)
+{
 }
 

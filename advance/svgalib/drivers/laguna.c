@@ -86,7 +86,7 @@ static void laguna_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(laguna_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_laguna_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -656,7 +656,8 @@ static int laguna_init(int force, int par1, int par2)
             cardspecs->maxPixelClock24bpp = 170000;
             cardspecs->maxPixelClock32bpp = 135100;
     }
-    cardspecs->flags = INTERLACE_DIVIDE_VERT | CLOCK_PROGRAMMABLE;
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
+	cardspecs->flags = INTERLACE_DIVIDE_VERT | CLOCK_PROGRAMMABLE;
     cardspecs->maxHorizontalCrtc = 4088;
     cardspecs->nClocks =0;
     cardspecs->mapClock = laguna_map_clock;

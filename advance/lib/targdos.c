@@ -50,52 +50,62 @@
 /***************************************************************************/
 /* Init */
 
-adv_error target_init(void) {
+adv_error target_init(void)
+{
 	return 0;
 }
 
-void target_done(void) {
+void target_done(void)
+{
 }
 
 /***************************************************************************/
 /* Scheduling */
 
-void target_yield(void) {
+void target_yield(void)
+{
 	/* clear the keyboard BIOS buffer */
 	while (kbhit())
 		getkey();
 }
 
-void target_idle(void) {
+void target_idle(void)
+{
 	target_yield();
 }
 
-void target_usleep(unsigned us) {
+void target_usleep(unsigned us)
+{
 }
 
 /***************************************************************************/
 /* Hardware */
 
-void target_port_set(unsigned addr, unsigned value) {
-	outportb(addr,value);
+void target_port_set(unsigned addr, unsigned value)
+{
+	outportb(addr, value);
 }
 
-unsigned target_port_get(unsigned addr) {
+unsigned target_port_get(unsigned addr)
+{
 	return inportb(addr);
 }
 
-void target_writeb(unsigned addr, unsigned char c) {
+void target_writeb(unsigned addr, unsigned char c)
+{
 	_farpokeb( _dos_ds, addr, c);
 }
 
-unsigned char target_readb(unsigned addr) {
+unsigned char target_readb(unsigned addr)
+{
 	return _farpeekb(_dos_ds, addr);
 }
 
 /***************************************************************************/
 /* Mode */
 
-void target_mode_reset(void) {
+void target_mode_reset(void)
+{
 	/* Restore the default text mode */
 	__dpmi_regs r;
 	r.x.ax = 0x3;
@@ -105,19 +115,22 @@ void target_mode_reset(void) {
 /***************************************************************************/
 /* Sound */
 
-void target_sound_error(void) {
+void target_sound_error(void)
+{
 	sound(100);
 	delay(120);
 	nosound();
 }
 
-void target_sound_warn(void) {
+void target_sound_warn(void)
+{
 	sound(900);
 	delay(10);
 	nosound();
 }
 
-void target_sound_signal(void) {
+void target_sound_signal(void)
+{
 	unsigned i;
 	for(i=0;i<10;++i) {
 		sound(800);
@@ -130,7 +143,8 @@ void target_sound_signal(void) {
 /***************************************************************************/
 /* APM */
 
-adv_error target_apm_shutdown(void) {
+adv_error target_apm_shutdown(void)
+{
 	__dpmi_regs regs;
 
 	sync();
@@ -139,7 +153,7 @@ adv_error target_apm_shutdown(void) {
 
 	regs.x.ax = 0x5300;
 	regs.x.bx = 0x0000;
-	__dpmi_int(0x15,&regs);
+	__dpmi_int(0x15, &regs);
 	if ((regs.x.flags & 1)!=0 || regs.x.bx != 0x504D) {
 		/* APM BIOS not found */
 		return -1;
@@ -153,7 +167,7 @@ adv_error target_apm_shutdown(void) {
 	/* APM connection */
 	regs.x.ax = 0x5301;
 	regs.x.bx = 0x0000;
-	__dpmi_int(0x15,&regs);
+	__dpmi_int(0x15, &regs);
 	if ((regs.x.flags & 1) != 0) {
 		/* APM real mode connection failed */
 		return -1;
@@ -163,7 +177,7 @@ adv_error target_apm_shutdown(void) {
 	regs.x.ax = 0x530E;
 	regs.x.bx = 0x0000;
 	regs.x.cx = 0x0102;
-	__dpmi_int(0x15,&regs);
+	__dpmi_int(0x15, &regs);
 	if ((regs.x.flags & 1) != 0) {
 		/* APM notify version failed */
 	}
@@ -172,12 +186,13 @@ adv_error target_apm_shutdown(void) {
 	regs.x.ax = 0x5307;
 	regs.x.bx = 0x0001;
 	regs.x.cx = 0x0003;
-	__dpmi_int(0x15,&regs);
+	__dpmi_int(0x15, &regs);
 
 	return -1;
 }
 
-adv_error target_apm_standby(void) {
+adv_error target_apm_standby(void)
+{
 	unsigned mode;
 	__dpmi_regs r;
 
@@ -213,7 +228,8 @@ adv_error target_apm_standby(void) {
 	return 0;
 }
 
-adv_error target_apm_wakeup(void) {
+adv_error target_apm_wakeup(void)
+{
 	__dpmi_regs r;
 
 	r.x.ax = 0x4F10;
@@ -241,7 +257,8 @@ adv_error target_apm_wakeup(void) {
 /***************************************************************************/
 /* System */
 
-adv_error target_system(const char* cmd) {
+adv_error target_system(const char* cmd)
+{
 	int r;
 	__djgpp_exception_toggle();
 	r = system(cmd);
@@ -249,23 +266,27 @@ adv_error target_system(const char* cmd) {
 	return r;
 }
 
-adv_error target_spawn(const char* file, const char** argv) {
+adv_error target_spawn(const char* file, const char** argv)
+{
 	int r;
 	__djgpp_exception_toggle();
-	r = spawnvp(P_WAIT,file,(char**)argv);
+	r = spawnvp(P_WAIT, file, (char**)argv);
 	__djgpp_exception_toggle();
 	return r;
 }
 
-adv_error target_mkdir(const char* file) {
+adv_error target_mkdir(const char* file)
+{
 	return mkdir(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
-void target_sync(void) {
+void target_sync(void)
+{
 	sync();
 }
 
-adv_error target_search(char* path, unsigned path_size, const char* file) {
+adv_error target_search(char* path, unsigned path_size, const char* file)
+{
 	const char* path_env;
 	char* path_list;
 	char* dir;
@@ -275,7 +296,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 	/* if it's an absolute path */
 	if (file[0] == '/' || file[0] == file_dir_slash() || (file[0] != 0 && file[1] == ':')) {
 		strcpy(path, file);
-		if (access(path,F_OK) == 0) {
+		if (access(path, F_OK) == 0) {
 			log_std(("dos: target_search() return %s\n", path));
 			return 0;
 		}
@@ -297,11 +318,11 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 
 		/* add the leading slash */
 		if (path[0] && path[strlen(path)-1] != '\\')
-			strcat(path,"\\");
+			strcat(path, "\\");
 
-		strcat(path,file);
+		strcat(path, file);
 
-		if (access(path,F_OK) == 0) {
+		if (access(path, F_OK) == 0) {
 			log_std(("dos: target_search() return %s\n", path));
 			return 0;
 		}
@@ -333,7 +354,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 
 			strcat(path, file);
 
-			if (access(path,F_OK) == 0) {
+			if (access(path, F_OK) == 0) {
 				free(path_list);
 				log_std(("dos: target_search() return %s\n", path));
 				return 0;
@@ -350,43 +371,51 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 	return -1;
 }
 
-void target_out_va(const char* text, va_list arg) {
+void target_out_va(const char* text, va_list arg)
+{
 	vfprintf(stdout, text, arg);
 }
 
-void target_err_va(const char *text, va_list arg) {
+void target_err_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_nfo_va(const char *text, va_list arg) {
+void target_nfo_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_out(const char *text, ...) {
+void target_out(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_out_va(text, arg);
 	va_end(arg);
 }
 
-void target_err(const char *text, ...) {
+void target_err(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_err_va(text, arg);
 	va_end(arg);
 }
 
-void target_nfo(const char *text, ...) {
+void target_nfo(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_nfo_va(text, arg);
 	va_end(arg);
 }
 
-void target_flush(void) {
+void target_flush(void)
+{
 }
 
-void target_signal(int signum) {
+void target_signal(int signum)
+{
 	if (signum == SIGINT) {
 		cprintf("Break pressed\n\r");
 		exit(EXIT_FAILURE);
@@ -410,13 +439,15 @@ void target_signal(int signum) {
 	}
 }
 
-void target_crash(void) {
+void target_crash(void)
+{
 	unsigned* i = (unsigned*)0;
 	++*i;
 	abort();
 }
 
-adv_bool target_option(const char* arg, const char* opt) {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+adv_bool target_option(const char* arg, const char* opt)
+{
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
 }
 

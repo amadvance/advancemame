@@ -51,7 +51,7 @@ static int video_load(const char* file)
 	int present;
 	FILE* f;
 	
-	f = fopen(file,"r");
+	f = fopen(file, "r");
 	if (!f) {
 		printf("Configuration file %s not found.\n", file);
 		return -1;
@@ -60,22 +60,22 @@ static int video_load(const char* file)
 	found = 0;
 	present = 0;
 	while (!found && fgets(buffer, sizeof(buffer), f)) {
-		char* s = strtok(buffer," \t\n\r");
+		char* s = strtok(buffer, " \t\n\r");
 
-		if (s && strcmp(s,"device_video")==0) {
+		if (s && strcmp(s, "device_video")==0) {
 			const char* tag;
 			
 			present = 1;
 
-			tag = strtok(0," \t\n\r");
+			tag = strtok(0, " \t\n\r");
 			while (!found && tag) {
 	
-				if (strcmp(tag,"svgawin")==0) {
+				if (strcmp(tag, "svgawin")==0) {
 					if (adv_svgalib_detect("auto") == 0) {
 						found = 1;
 						break;
 					}
-				} else if (strncmp(tag,"svgawin/",8)==0) {
+				} else if (strncmp(tag, "svgawin/", 8)==0) {
 					if (adv_svgalib_detect(tag + 8) == 0) {
 						found = 1;
 						break;
@@ -86,7 +86,7 @@ static int video_load(const char* file)
 					return -1;
 				}
 
-				tag = strtok(0," \t\n\r");
+				tag = strtok(0, " \t\n\r");
 			}
 		}
 	}
@@ -155,54 +155,54 @@ static int modeline_load(mode_info* mode_ptr)
 	char* endp;
 
 	/* skip the name */
-	name = strtok(0," \t\r\n");
+	name = strtok(0, " \t\r\n");
 	if (!name) goto err;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
 
-	mode_ptr->pixelclock = strtod(s,&endp) * 1E6;
+	mode_ptr->pixelclock = strtod(s, &endp) * 1E6;
 	if (*endp) goto err_name;
 	if (!mode_ptr->pixelclock) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hde = strtol(s,&endp,10);
+	mode_ptr->hde = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hrs = strtol(s,&endp,10);
+	mode_ptr->hrs = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->hre = strtol(s,&endp,10);
+	mode_ptr->hre = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->ht = strtol(s,&endp,10);
+	mode_ptr->ht = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vde = strtol(s,&endp,10);
+	mode_ptr->vde = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vrs = strtol(s,&endp,10);
+	mode_ptr->vrs = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vre = strtol(s,&endp,10);
+	mode_ptr->vre = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
-	s = strtok(0," \t\r\n");
+	s = strtok(0, " \t\r\n");
 	if (!s) goto err_name;
-	mode_ptr->vt = strtol(s,&endp,10);
+	mode_ptr->vt = strtol(s, &endp, 10);
 	if (*endp) goto err_name;
 
 	mode_ptr->doublescan = 0;
@@ -210,16 +210,16 @@ static int modeline_load(mode_info* mode_ptr)
 	mode_ptr->nhsync = 0;
 	mode_ptr->nvsync = 0;
 
-	while ((s = strtok(0," \t\r\n"))!=0) {
+	while ((s = strtok(0, " \t\r\n"))!=0) {
 		if (s[0]=='#')
 			break;
-		else if (strcmp(s,"doublescan")==0)
+		else if (strcmp(s, "doublescan")==0)
 			mode_ptr->doublescan = 1;
-		else if (strcmp(s,"interlaced")==0 || strcmp(s,"interlace")==0)
+		else if (strcmp(s, "interlaced")==0 || strcmp(s, "interlace")==0)
 			mode_ptr->interlace = 1;
-		else if (strcmp(s,"-hsync")==0)
+		else if (strcmp(s, "-hsync")==0)
 			mode_ptr->nhsync = 1;
-		else if (strcmp(s,"-vsync")==0)
+		else if (strcmp(s, "-vsync")==0)
 			mode_ptr->nvsync = 1;
 	}
 
@@ -239,7 +239,7 @@ static int mode_load(const char* file, unsigned x, unsigned y, mode_info* mode_p
 	int found;
 	FILE* f;
 
-	f = fopen(file,"r");
+	f = fopen(file, "r");
 	if (!f) {
 		printf("Configuration file %s not found.\n", file);
 		return -1;
@@ -247,9 +247,9 @@ static int mode_load(const char* file, unsigned x, unsigned y, mode_info* mode_p
 
 	found = 0;
 	while (fgets(buffer, sizeof(buffer), f)) {
-		char* s = strtok(buffer," \t\r\n");
+		char* s = strtok(buffer, " \t\r\n");
 
-		if (s && strcmp(s,"device_video_modeline")==0) {
+		if (s && strcmp(s, "device_video_modeline")==0) {
 			
 			if (modeline_load(mode_ptr)!=0) {
 				fclose(f);
@@ -310,14 +310,14 @@ static int save(const char* file)
 
 	adv_svgalib_save(regs);
 
-	f = fopen(file,"wb");
+	f = fopen(file, "wb");
 	if (!f) {
-		printf("Error opening file %s.\n",file);
+		printf("Error opening file %s.\n", file);
 		return -1;
 	}
 
-	if (fwrite(regs,sizeof(regs),1,f) != 1) {
-		printf("Error writing file %s.\n",file);
+	if (fwrite(regs, sizeof(regs), 1, f) != 1) {
+		printf("Error writing file %s.\n", file);
 		return -1;
 	}
 
@@ -331,14 +331,14 @@ static int restore(const char* file)
 	unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 	FILE* f;
 
-	f = fopen(file,"rb");
+	f = fopen(file, "rb");
 	if (!f) {
-		printf("Error opening file %s.\n",file);
+		printf("Error opening file %s.\n", file);
 		return -1;
 	}
 
-	if (fread(regs,sizeof(regs),1,f) != 1) {
-		printf("Error reading file %s.\n",file);
+	if (fread(regs, sizeof(regs), 1, f) != 1) {
+		printf("Error reading file %s.\n", file);
 		return -1;
 	}
 
@@ -356,7 +356,7 @@ static int set(const char* config, const char* spec)
 	unsigned y;
 	unsigned bits;
 
-	if (sscanf(spec,"%dx%dx%d",&x,&y,&bits) != 3) {
+	if (sscanf(spec, "%dx%dx%d", &x, &y, &bits) != 3) {
 		printf("Invalid mode specification.\n");
 		return -1;
 	}
@@ -367,11 +367,11 @@ static int set(const char* config, const char* spec)
 	}
 
 	mode.bits_per_pixel = bits;
-	if (mode_load(config,x,y,&mode) != 0) {
+	if (mode_load(config, x, y, &mode) != 0) {
 		return -1;
 	}
 
-	if (change(x,y,bits) != 0) {
+	if (change(x, y, bits) != 0) {
 		return -1;
 	}
 
@@ -406,7 +406,7 @@ static int adjust(const char* config)
 	y = mode_information.VisScreenHeight;
 
 	mode.bits_per_pixel = bits;
-	if (mode_load(config,x,y,&mode) != 0) {
+	if (mode_load(config, x, y, &mode) != 0) {
 		return -1;
 	}
 
@@ -441,7 +441,7 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 	unsigned dw;
 	unsigned base_class;
 
-	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+	if (adv_svgalib_pci_read_dword(bus_device_func, 0x8, &dw)!=0)
 		return 0;
 
 	base_class = (dw >> 16) & 0xFFFF;
@@ -462,7 +462,7 @@ static void probe(void)
 	
 	printf("Board\n");
 	found = 0;
-	adv_svgalib_pci_scan_device(probe_callback,&found);
+	adv_svgalib_pci_scan_device(probe_callback, &found);
 	if (!found)
 		printf("ISA (?)\n");
 	printf("\n");
@@ -542,14 +542,15 @@ static void help(void)
 
 int optionmatch(const char* arg, const char* opt) 
 {
-	return (arg[0] == '-' || arg[0] == '/') && stricmp(arg+1,opt) == 0;
+	return (arg[0] == '-' || arg[0] == '/') && stricmp(arg+1, opt) == 0;
 }
 
 void adv_svgalib_log_va(const char *text, va_list arg)
 {
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	OSVERSIONINFO version_information;
 	int i;
 	int arg_adjust = 0;
@@ -581,32 +582,32 @@ int main(int argc, char* argv[]) {
 	}
 
 	for(i=1;i<argc;++i) {
-		if (optionmatch(argv[i],"w") && i+1<argc) {
+		if (optionmatch(argv[i], "w") && i+1<argc) {
 			arg_save = argv[i+1];
 			++i;
-		} else if (optionmatch(argv[i],"r") && i+1<argc) {
+		} else if (optionmatch(argv[i], "r") && i+1<argc) {
 			arg_restore = argv[i+1];
 			++i;
-		} else if (optionmatch(argv[i],"s") && i+1<argc) {
+		} else if (optionmatch(argv[i], "s") && i+1<argc) {
 			arg_mode = argv[i+1];
 			++i;
-		} else if (optionmatch(argv[i],"c") && i+1<argc) {
+		} else if (optionmatch(argv[i], "c") && i+1<argc) {
 			arg_config = argv[i+1];
 			++i;
-		} else if (optionmatch(argv[i],"n") && i+1<argc) {
+		} else if (optionmatch(argv[i], "n") && i+1<argc) {
 			arg_scanline = atoi(argv[i+1]);
 			++i;
-		} else if (optionmatch(argv[i],"a")) {
+		} else if (optionmatch(argv[i], "a")) {
 			arg_adjust = 1;
-		} else if (optionmatch(argv[i],"m")) {
+		} else if (optionmatch(argv[i], "m")) {
 			arg_mouse = 1;
-		} else if (optionmatch(argv[i],"e")) {
+		} else if (optionmatch(argv[i], "e")) {
 			arg_enable = 1;
-		} else if (optionmatch(argv[i],"d")) {
+		} else if (optionmatch(argv[i], "d")) {
 			arg_disable = 1;
-		} else if (optionmatch(argv[i],"p")) {
+		} else if (optionmatch(argv[i], "p")) {
 			arg_probe = 1;
-		} else if (optionmatch(argv[i],"o")) {
+		} else if (optionmatch(argv[i], "o")) {
 			arg_winrestore = 1;
 		} else {
 			printf("Unknown option %s.\n", argv[i]);

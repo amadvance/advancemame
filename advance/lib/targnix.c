@@ -46,83 +46,99 @@
 /***************************************************************************/
 /* Init */
 
-adv_error target_init(void) {
+adv_error target_init(void)
+{
 	return 0;
 }
 
-void target_done(void) {
+void target_done(void)
+{
 }
 
 /***************************************************************************/
 /* Scheduling */
 
-void target_yield(void) {
+void target_yield(void)
+{
 	sched_yield();
 }
 
-void target_idle(void) {
+void target_idle(void)
+{
 	struct timespec req;
 	req.tv_sec = 0;
 	req.tv_nsec = 1000000; /* 1 ms */
 	nanosleep(&req, 0);
 }
 
-void target_usleep(unsigned us) {
+void target_usleep(unsigned us)
+{
 }
 
 /***************************************************************************/
 /* Hardware */
 
-void target_port_set(unsigned addr, unsigned value) {
+void target_port_set(unsigned addr, unsigned value)
+{
 }
 
-unsigned target_port_get(unsigned addr) {
+unsigned target_port_get(unsigned addr)
+{
 	return 0;
 }
 
-void target_writeb(unsigned addr, unsigned char c) {
+void target_writeb(unsigned addr, unsigned char c)
+{
 }
 
-unsigned char target_readb(unsigned addr) {
+unsigned char target_readb(unsigned addr)
+{
 	return 0;
 }
 
 /***************************************************************************/
 /* Mode */
 
-void target_mode_reset(void) {
+void target_mode_reset(void)
+{
 	/* nothing */
 }
 
 /***************************************************************************/
 /* Sound */
 
-void target_sound_error(void) {
+void target_sound_error(void)
+{
 	/* nothing */
 }
 
-void target_sound_warn(void) {
+void target_sound_warn(void)
+{
 	/* nothing */
 }
 
-void target_sound_signal(void) {
+void target_sound_signal(void)
+{
 	/* nothing */
 }
 
 /***************************************************************************/
 /* APM */
 
-adv_error target_apm_shutdown(void) {
+adv_error target_apm_shutdown(void)
+{
 	system("/sbin/poweroff");
 	return 0;
 }
 
-adv_error target_apm_standby(void) {
+adv_error target_apm_standby(void)
+{
 	/* nothing */
 	return 0;
 }
 
-adv_error target_apm_wakeup(void) {
+adv_error target_apm_wakeup(void)
+{
 	/* nothing */
 	return 0;
 }
@@ -130,19 +146,21 @@ adv_error target_apm_wakeup(void) {
 /***************************************************************************/
 /* System */
 
-adv_error target_system(const char* cmd) {
-	log_std(("linux: system %s\n",cmd));
+adv_error target_system(const char* cmd)
+{
+	log_std(("linux: system %s\n", cmd));
 
 	return system(cmd);
 }
 
-adv_error target_spawn(const char* file, const char** argv) {
+adv_error target_spawn(const char* file, const char** argv)
+{
 	int pid, status;
 	int i;
 
-	log_std(("linux: spawn %s\n",file));
+	log_std(("linux: spawn %s\n", file));
 	for(i=0;argv[i];++i)
-		log_std(("linux: spawn arg%d %s\n",i,argv[i]));
+		log_std(("linux: spawn arg%d %s\n", i, argv[i]));
 
 	pid = fork();
 	if (pid == -1)
@@ -166,15 +184,18 @@ adv_error target_spawn(const char* file, const char** argv) {
 	}
 }
 
-adv_error target_mkdir(const char* file) {
+adv_error target_mkdir(const char* file)
+{
 	return mkdir(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
-void target_sync(void) {
+void target_sync(void)
+{
 	sync();
 }
 
-adv_error target_search(char* path, unsigned path_size, const char* file) {
+adv_error target_search(char* path, unsigned path_size, const char* file)
+{
 	const char* path_env;
 	char* path_list;
 	char* dir;
@@ -185,7 +206,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 	if (file[0] == file_dir_slash()) {
 		strcpy(path, file);
 
-		if (access(path,F_OK) == 0) {
+		if (access(path, F_OK) == 0) {
 			log_std(("linux: target_search() return %s\n", path));
 			return 0;
 		}
@@ -220,7 +241,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 
 			strcat(path, file);
 
-			if (access(path,F_OK) == 0) {
+			if (access(path, F_OK) == 0) {
 				free(path_list);
 				log_std(("linux: target_search() return %s\n", path));
 				return 0;
@@ -237,45 +258,53 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 	return -1;
 }
 
-void target_out_va(const char* text, va_list arg) {
+void target_out_va(const char* text, va_list arg)
+{
 	vfprintf(stdout, text, arg);
 }
 
-void target_err_va(const char *text, va_list arg) {
+void target_err_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_nfo_va(const char *text, va_list arg) {
+void target_nfo_va(const char *text, va_list arg)
+{
 	vfprintf(stderr, text, arg);
 }
 
-void target_out(const char *text, ...) {
+void target_out(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_out_va(text, arg);
 	va_end(arg);
 }
 
-void target_err(const char *text, ...) {
+void target_err(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_err_va(text, arg);
 	va_end(arg);
 }
 
-void target_nfo(const char *text, ...) {
+void target_nfo(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_nfo_va(text, arg);
 	va_end(arg);
 }
 
-void target_flush(void) {
+void target_flush(void)
+{
 	fflush(stdout);
 	fflush(stderr);
 }
 
-static void target_backtrace(void) {
+static void target_backtrace(void)
+{
 	void* buffer[256];
 	char** symbols;
 	int size;
@@ -283,9 +312,9 @@ static void target_backtrace(void) {
 
 	/* The programm need to be compiled without CFLAGS=-fomit-frame-pointer */
 	/* and with LDFLAGS=-rdynamic */
-	size = backtrace(buffer,256);
+	size = backtrace(buffer, 256);
 
-	symbols = backtrace_symbols(buffer,size);
+	symbols = backtrace_symbols(buffer, size);
 
 	if (size > 1) {
 		printf("Stack backtrace:\n");
@@ -298,33 +327,36 @@ static void target_backtrace(void) {
 	free(symbols);
 }
 
-void target_signal(int signum) {
+void target_signal(int signum)
+{
 	if (signum == SIGINT) {
-		fprintf(stderr,"Break pressed\n\r");
+		fprintf(stderr, "Break pressed\n\r");
 		exit(EXIT_FAILURE);
 	} else if (signum == SIGQUIT) {
-		fprintf(stderr,"Quit pressed\n\r");
+		fprintf(stderr, "Quit pressed\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr,"Signal %d.\n", signum);
-		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
+		fprintf(stderr, "Signal %d.\n", signum);
+		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
 
 		target_backtrace();
 
 		if (signum == SIGILL) {
-			fprintf(stderr,"Are you using the correct binary ?\n");
+			fprintf(stderr, "Are you using the correct binary ?\n");
 		}
 
 		_exit(EXIT_FAILURE);
 	}
 }
 
-void target_crash(void) {
+void target_crash(void)
+{
 	unsigned* i = (unsigned*)0;
 	++*i;
 	abort();
 }
 
-adv_bool target_option(const char* arg, const char* opt) {
-	return arg[0] == '-' && strcasecmp(arg+1,opt) == 0;
+adv_bool target_option(const char* arg, const char* opt)
+{
+	return arg[0] == '-' && strcasecmp(arg+1, opt) == 0;
 }

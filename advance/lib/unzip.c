@@ -59,7 +59,8 @@ static int ecd_find_sig(char *buffer, int buflen, int *offset)
 */
 #define ECD_READ_BUFFER_SIZE 1024
 
-static int ecd_read(adv_zip* zip, char** data, unsigned* size) {
+static int ecd_read(adv_zip* zip, char** data, unsigned* size)
+{
 	char* buf;
 	int buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
 	int buf_pos_aligned = buf_pos & ~(ECD_READ_BUFFER_SIZE-1);
@@ -115,7 +116,8 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size) {
 	}
 }
 
-adv_zip* openzip(const char* zipfile) {
+adv_zip* openzip(const char* zipfile)
+{
 	char* ezdata = 0;
 	unsigned ezsize = 0;
 
@@ -153,7 +155,7 @@ adv_zip* openzip(const char* zipfile) {
 	}
 
 	/* read ecd data */
-	if (ecd_read(zip,&ezdata,&ezsize)!=0) {
+	if (ecd_read(zip, &ezdata, &ezsize)!=0) {
 		fclose(zip->fp);
 		free(zip);
 		return 0;
@@ -239,7 +241,8 @@ adv_zip* openzip(const char* zipfile) {
 	return zip;
 }
 
-adv_zipent* readzip(adv_zip* zip) {
+adv_zipent* readzip(adv_zip* zip)
+{
 	unsigned i;
 
 	/* end of directory */
@@ -287,7 +290,8 @@ adv_zipent* readzip(adv_zip* zip) {
 	return &zip->ent;
 }
 
-void closezip(adv_zip* zip) {
+void closezip(adv_zip* zip)
+{
 	/* release all */
 	free(zip->ent.name);
 	free(zip->cd);
@@ -297,7 +301,8 @@ void closezip(adv_zip* zip) {
 	free(zip);
 }
 
-void rewindzip(adv_zip* zip) {
+void rewindzip(adv_zip* zip)
+{
 	zip->cd_pos = 0;
 }
 
@@ -306,7 +311,8 @@ void rewindzip(adv_zip* zip) {
 	==0 success
 	<0 error
 */
-static int seekcompresszip(adv_zip* zip, adv_zipent* ent) {
+static int seekcompresszip(adv_zip* zip, adv_zipent* ent)
+{
 	char buf[ZIP_LO_FIXED];
 	long offset;
 
@@ -334,8 +340,9 @@ static int seekcompresszip(adv_zip* zip, adv_zipent* ent) {
 	return 0;
 }
 
-int readcompresszip(adv_zip* zip, adv_zipent* ent, char* data) {
-	int err = seekcompresszip(zip,ent);
+int readcompresszip(adv_zip* zip, adv_zipent* ent, char* data)
+{
+	int err = seekcompresszip(zip, ent);
 	if (err!=0)
 		return err;
 

@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.2.2
+	The option `video_depth' is now removed. The video bit depth is
+	choosen automatically. If you need to exclude some depth you can
+	use the new `device_color_*' options.
+
 AdvanceMENU 2.2.1
 	The `group' and `type' menus are now accessible only from the
 	main menu. The `group' and `type' events now automatically switch

@@ -90,7 +90,8 @@ extern struct simulate SIMULATE_KEY[];
 void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_to_play);
 void hardware_simulate_input_idle(struct simulate* SIMULATE, unsigned time_to_play);
 
-static __inline__ int hardware_is_input_simulated(const struct simulate* SIMULATE, int type) {
+static inline int hardware_is_input_simulated(const struct simulate* SIMULATE, int type)
+{
 	if (SIMULATE[0].time_to_play != 0 && SIMULATE[0].type == type)
 		return 1;
 #if SIMULATE_MAX > 1

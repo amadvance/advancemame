@@ -270,7 +270,8 @@ static void laguna_clock_set(int Num, int DeN, int PS)
 	laguna_mmio_outw(0xC0, d0);
 }
 
-const char* laguna_driver(void) {
+const char* laguna_driver(void)
+{
 	return "Cirrus Logic GD5462/GD5464/GD5465 Laguna";
 }
 
@@ -284,15 +285,15 @@ int laguna_detect(void)
 	}
 
 	while (1) {
-		if (pci_find_device(0x00001013,0x000000D0,0,&laguna_bus_device_func)==0) {
+		if (pci_find_device(0x00001013, 0x000000D0, 0, &laguna_bus_device_func)==0) {
 			CARD_LOG(("laguna: CL-GD5462 Found\n"));
 			break;
 		}
-		if (pci_find_device(0x00001013,0x000000D4,0,&laguna_bus_device_func)==0) {
+		if (pci_find_device(0x00001013, 0x000000D4, 0, &laguna_bus_device_func)==0) {
 			CARD_LOG(("laguna: CL-GD5464 Found\n"));
 			break;
 		}
-		if (pci_find_device(0x00001013,0x000000D6,0,&laguna_bus_device_func)==0) {
+		if (pci_find_device(0x00001013, 0x000000D6, 0, &laguna_bus_device_func)==0) {
 			CARD_LOG(("laguna: CL-GD5465 Found\n"));
 			break;
 		}
@@ -300,12 +301,12 @@ int laguna_detect(void)
 		return 0;
 	}
 
-	if (pci_MMIO_address_map(laguna_bus_device_func,0x14,0xffff8000)!=0) {
+	if (pci_MMIO_address_map(laguna_bus_device_func, 0x14, 0xffff8000)!=0) {
 		CARD_LOG(( "laguna: pci_MMIO_address_map error\n"));
 		return 0;
 	}
 
-	if (pci_read_dword(laguna_bus_device_func,0x10,&reg)!=0) {
+	if (pci_read_dword(laguna_bus_device_func, 0x10, &reg)!=0) {
 		CARD_LOG(( "laguna: pci_read_dword\n"));
 		return 0;
 	}
@@ -342,9 +343,9 @@ void laguna_reset(void)
 int laguna_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int Num,DeN,PS;
+	int Num, DeN, PS;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("laguna: incompatible mode\n"));
 		return 0;
 	}

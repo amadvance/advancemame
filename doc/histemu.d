@@ -9,6 +9,13 @@ AdvanceMAME Version 0.62.2 2002/12
 	) Fixed some issues in the ./configure scripts.
 	) Removed the blinking cursor in the Linux `fb' video
 		driver [Kari Hautio].
+	) Added support for YUV overlay in the SDL driver with a new
+		zoom mode. With this driver the image is zoomed
+		by the video board.
+	) Upgraded at the SVGALIB 1.9.17 library.
+
+AdvanceMESS Version 0.62.0.0 2002/12
+	) All from AdvanceMAME 0.62.2.
 
 AdvanceMAME Version 0.62.1 2002/11
 	) Fixed the abort bug on the DOS and Windows versions for the

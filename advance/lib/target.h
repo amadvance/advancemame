@@ -213,35 +213,35 @@ adv_error target_search(char* path, unsigned path_size, const char* file);
 /**
  * Output an information message like target_out().
  */
-void target_out_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void target_out_va(const char *text, va_list arg) __attribute__((format(printf, 1, 0)));
 
 /**
  * Output an information message.
  * \note The display of the messages may be delayed.
  */
-void target_out(const char *text, ...) __attribute__((format(printf,1,2)));
+void target_out(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
 /**
  * Output an error message like target_err().
  */
-void target_err_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void target_err_va(const char *text, va_list arg) __attribute__((format(printf, 1, 0)));
 
 /**
  * Output an error message.
  * \note The display of the messages may be delayed.
  */
-void target_err(const char *text, ...) __attribute__((format(printf,1,2)));
+void target_err(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
 /**
  * Output a notification message like target_nfo().
  */
-void target_nfo_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void target_nfo_va(const char *text, va_list arg) __attribute__((format(printf, 1, 0)));
 
 /**
  * Output a notification message.
  * \note These messages may be not printed.
  */
-void target_nfo(const char *text, ...) __attribute__((format(printf,1,2)));
+void target_nfo(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
 /**
  * Ensure that any delayed message is printed.

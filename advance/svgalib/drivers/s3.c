@@ -405,7 +405,7 @@ static void s3_getmodeinfo(int mode, vga_modeinfo * modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
     	modeinfo->flags |= CAPABLE_LINEAR;
     	if (s3_linear_addr)
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 #endif
 

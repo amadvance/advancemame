@@ -38,7 +38,7 @@ static adv_device DEVICE[] = {
 
 adv_error keyb_none_init(int keyb_id, adv_bool disable_special)
 {
-	log_std(("keyb:none: keyb_none_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	log_std(("keyb:none: keyb_none_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	return 0;
 }

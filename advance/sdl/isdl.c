@@ -53,7 +53,7 @@ static adv_device DEVICE[] = {
 
 adv_error inputb_sdl_init(int inputb_id)
 {
-	log_std(("inputb:sdl: inputb_sdl_init(id:%d)\n",inputb_id));
+	log_std(("inputb:sdl: inputb_sdl_init(id:%d)\n", inputb_id));
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("inputb:sdl: not supported without the SDL video driver\n"));
@@ -96,7 +96,7 @@ unsigned inputb_sdl_get(void)
 
 	switch (r) {
 	case SDLK_LAST : return INPUTB_NONE;
-	case SDLK_COMMA : return ',';
+	case SDLK_COMMA : return ', ';
 	case SDLK_PERIOD : return '.';
 	case SDLK_a : return 'a' + upper;
 	case SDLK_b : return 'b' + upper;
@@ -167,7 +167,8 @@ unsigned inputb_sdl_get(void)
 	return INPUTB_NONE;
 }
 
-void inputb_sdl_event_press(unsigned code) {
+void inputb_sdl_event_press(unsigned code)
+{
 	log_debug(("inputb:sdl: inputb_sdl_event_press(%d)\n", code));
 
 	if (code == SDLK_RSHIFT || code == SDLK_LSHIFT)
@@ -178,7 +179,8 @@ void inputb_sdl_event_press(unsigned code) {
 	}
 }
 
-void inputb_sdl_event_release(unsigned code) {
+void inputb_sdl_event_release(unsigned code)
+{
 	log_debug(("inputb:sdl: inputb_sdl_event_release(%d)\n", code));
 
 	if (code == SDLK_RSHIFT || code == SDLK_LSHIFT) {

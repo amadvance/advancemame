@@ -37,11 +37,12 @@ using namespace std;
 // --------------------------------------------------------------------------
 // Run
 
-int run_sub(config_state& rs, bool silent) {
+int run_sub(config_state& rs, bool silent)
+{
 
 	log_std(("menu: text_init4 call\n"));
 
-	if (!text_init4(rs.video_font_path,rs.video_orientation_effective)) {
+	if (!text_init4(rs.video_font_path, rs.video_orientation_effective)) {
 		return TEXT_KEY_ESC;
 	}
 
@@ -54,7 +55,7 @@ int run_sub(config_state& rs, bool silent) {
 	while (!done) {
 		emulator* emu;
 
-		key = run_menu(rs,(rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0, silent);
+		key = run_menu(rs, (rs.video_orientation_effective & TEXT_ORIENTATION_SWAP_XY) != 0, silent);
 
 		// don't replay the sound and clip
 		silent = true;
@@ -165,7 +166,8 @@ int run_sub(config_state& rs, bool silent) {
 	return key;
 }
 
-int run_main(config_state& rs, bool is_first, bool silent) {
+int run_main(config_state& rs, bool is_first, bool silent)
+{
 	log_std(("menu: text_init3 call\n"));
 
 	if (!text_init3(rs.video_gamma, rs.video_brightness,
@@ -184,9 +186,9 @@ int run_main(config_state& rs, bool is_first, bool silent) {
 
 	// play start background sounds
 	if (is_first) {
-		play_background_effect(rs.sound_background_begin,PLAY_PRIORITY_EVENT,false);
+		play_background_effect(rs.sound_background_begin, PLAY_PRIORITY_EVENT, false);
 	} else {
-		play_background_effect(rs.sound_background_stop,PLAY_PRIORITY_EVENT,false);
+		play_background_effect(rs.sound_background_stop, PLAY_PRIORITY_EVENT, false);
 	}
 
 	// play start foreground sounds
@@ -253,11 +255,11 @@ int run_main(config_state& rs, bool is_first, bool silent) {
 
 	if (is_terminate) {
 		play_foreground_effect_end(rs.sound_foreground_end);
-		play_background_effect(rs.sound_background_end,PLAY_PRIORITY_END,false);
+		play_background_effect(rs.sound_background_end, PLAY_PRIORITY_END, false);
 	}
 	if (is_run) {
 		play_foreground_effect_start(rs.sound_foreground_start);
-		play_background_effect(rs.sound_background_start,PLAY_PRIORITY_END,false);
+		play_background_effect(rs.sound_background_start, PLAY_PRIORITY_END, false);
 	}
 
 	// wait for the sound end
@@ -280,7 +282,8 @@ int run_main(config_state& rs, bool is_first, bool silent) {
 //---------------------------------------------------------------------------
 // run_all
 
-int run_all(adv_conf* config_context, config_state& rs) {
+int run_all(adv_conf* config_context, config_state& rs)
+{
 	bool done = false;
 	bool is_first = true;
 	bool silent = false;
@@ -320,7 +323,7 @@ int run_all(adv_conf* config_context, config_state& rs) {
 					rs.save(config_context);
 
 					// run the game
-					rs.current_clone->emulator_get()->run(*rs.current_clone,rs.video_orientation_effective,key == TEXT_KEY_IDLE_0);
+					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, key == TEXT_KEY_IDLE_0);
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -343,10 +346,11 @@ int run_all(adv_conf* config_context, config_state& rs) {
 
 extern "C" void adv_svgalib_log_va(const char *text, va_list arg)
 {
-	log_va(text,arg);
+	log_va(text, arg);
 }
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	target_err_va(desc, arg);
@@ -451,14 +455,23 @@ static adv_conf_conv STANDARD[] = {
 /* 2.2.0 */
 { "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 }, /* rename */
 /* 2.2.2 */
-{ "*", "video_depth", "*", "", "", "", 0 } /* remove */
+{ "*", "video_depth", "*", "", "", "", 0 }, /* remove */
+{ "*", "device_sdl_fullscreen", "yes", "%s", "device_video_output", "fullscreen", 0 }, /* rename */
+{ "*", "device_sdl_fullscreen", "no", "%s", "device_video_output", "window", 0 }, /* rename */
+{ "*", "device_video_8bit", "*", "%s", "device_color_palette8", "%s", 0 }, /* rename */
+{ "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
+{ "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
+{ "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
+{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 } /* rename */
 };
 
-void os_signal(int signum) {
+void os_signal(int signum)
+{
 	os_default_signal(signum);
 }
 
-int os_main(int argc, char* argv[]) {
+int os_main(int argc, char* argv[])
+{
 	config_state rs;
 	adv_conf* config_context;
 	bool opt_verbose;
@@ -485,13 +498,13 @@ int os_main(int argc, char* argv[]) {
 
 #ifdef __MSDOS__
 	/* LEGACY (to be removed) */
-	if (file_config_file_legacy("mm.cfg")!=0 && access(file_config_file_legacy("mm.cfg"),R_OK)==0 && access(file_config_file_home("advmenu.rc"),R_OK)!=0) {
+	if (file_config_file_legacy("mm.cfg")!=0 && access(file_config_file_legacy("mm.cfg"), R_OK)==0 && access(file_config_file_home("advmenu.rc"), R_OK)!=0) {
 		if (conf_input_file_load_adv(config_context, 0, file_config_file_legacy("mm.cfg"), file_config_file_home("advmenu.rc"), 1, 0, CONV, sizeof(CONV)/sizeof(CONV[0]), error_callback, 0) != 0)
 			goto err_init;
 		conf_sort(config_context);
 		conf_uncomment(config_context);
-		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
+		if (conf_save(config_context, 1) != 0) {
+			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
 		target_out("Configuration file '%s' created from '%s'.\n", file_config_file_home("advmenu.rc"), file_config_file_legacy("mm.cfg"));
@@ -508,18 +521,18 @@ int os_main(int argc, char* argv[]) {
 	opt_remove = false;
 	opt_default = false;
 	for(int i=1;i<argc;++i) {
-		if (target_option(argv[i],"verbose")) {
+		if (target_option(argv[i], "verbose")) {
 			opt_verbose = true;
-		} else if (target_option(argv[i],"remove")) {
+		} else if (target_option(argv[i], "remove")) {
 			opt_remove = true;
-		} else if (target_option(argv[i],"default")) {
+		} else if (target_option(argv[i], "default")) {
 			opt_default = true;
-		} else if (target_option(argv[i],"log")) {
+		} else if (target_option(argv[i], "log")) {
 			opt_log = true;
-		} else if (target_option(argv[i],"logsync")) {
+		} else if (target_option(argv[i], "logsync")) {
 			opt_logsync = true;
 		} else {
-			target_err("Unknown option '%s'.\n",argv[i]);
+			target_err("Unknown option '%s'.\n", argv[i]);
 			goto err_init;
 		}
 	}
@@ -532,7 +545,7 @@ int os_main(int argc, char* argv[]) {
 		}
 	}
 
-	log_std(("menu: %s %s\n",__DATE__,__TIME__));
+	log_std(("menu: %s %s\n", __DATE__, __TIME__));
 
 	if (file_config_file_root("advmenu.rc") != 0)
 		if (conf_input_file_load_adv(config_context, 2, file_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
@@ -544,13 +557,13 @@ int os_main(int argc, char* argv[]) {
 	section_map[0] = "";
 	conf_section_set(config_context, section_map, 1);
 
-	if (!(file_config_file_root("advmenu.rc") != 0 && access(file_config_file_root("advmenu.rc"),R_OK)==0)
-		&& !(file_config_file_home("advmenu.rc") != 0 && access(file_config_file_home("advmenu.rc"),R_OK)==0)) {
+	if (!(file_config_file_root("advmenu.rc") != 0 && access(file_config_file_root("advmenu.rc"), R_OK)==0)
+		&& !(file_config_file_home("advmenu.rc") != 0 && access(file_config_file_home("advmenu.rc"), R_OK)==0)) {
 		config_state::conf_default(config_context);
-		conf_set_default_if_missing(config_context,"");
+		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
-		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
+		if (conf_save(config_context, 1) != 0) {
+			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
 		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
@@ -559,8 +572,8 @@ int os_main(int argc, char* argv[]) {
 
 	if (opt_default) {
 		config_state::conf_default(config_context);
-		conf_set_default_if_missing(config_context,"");
-		if (conf_save(config_context,1) != 0) {
+		conf_set_default_if_missing(config_context, "");
+		if (conf_save(config_context, 1) != 0) {
 			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
@@ -569,16 +582,16 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (opt_remove) {
-		conf_remove_if_default(config_context,"");
-		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
+		conf_remove_if_default(config_context, "");
+		if (conf_save(config_context, 1) != 0) {
+			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
-	if (!rs.load(config_context,opt_verbose)) {
+	if (!rs.load(config_context, opt_verbose)) {
 		goto err_init;
 	}
 	if (!text_load(config_context)) {
@@ -603,7 +616,7 @@ int os_main(int argc, char* argv[]) {
 	// set the modifiable data
 	rs.restore_load();
 
-	key = run_all(config_context,rs);
+	key = run_all(config_context, rs);
 
 	// restore or set the changed data
 	if (rs.restore == restore_none) {

@@ -74,41 +74,47 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Functions */
 
-static adv_bool fb_is_active(void) {
+static adv_bool fb_is_active(void)
+{
 	return fb_state.active != 0;
 }
 
-static adv_bool fb_mode_is_active(void) {
+static adv_bool fb_mode_is_active(void)
+{
 	return fb_state.mode_active != 0;
 }
 
-static unsigned fb_flags(void) {
+static unsigned fb_flags(void)
+{
 	assert( fb_is_active() );
 	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-static unsigned char* fb_linear_write_line(unsigned y) {
+static unsigned char* fb_linear_write_line(unsigned y)
+{
 	return fb_state.ptr + fb_state.bytes_per_scanline * y;
 }
 
-static void fb_log(void) {
+static void fb_log(void)
+{
 	double v;
 
-	log_std(("video:fb: id %s\n",fb_state.fixinfo.id));
-	log_std(("video:fb: smem_start:%08x, smem_len:%08x\n",(unsigned)fb_state.fixinfo.smem_start,(unsigned)fb_state.fixinfo.smem_len));
-	log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n",(unsigned)fb_state.fixinfo.mmio_start,(unsigned)fb_state.fixinfo.mmio_len));
-	log_std(("video:fb: type:%d, type_aux:%d, visual:%d\n",(unsigned)fb_state.fixinfo.type,(unsigned)fb_state.fixinfo.type_aux,(unsigned)fb_state.fixinfo.visual));
-	log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n",(unsigned)fb_state.fixinfo.xpanstep,(unsigned)fb_state.fixinfo.ypanstep,(unsigned)fb_state.fixinfo.ywrapstep));
-	log_std(("video:fb: line_length:%d\n",(unsigned)fb_state.fixinfo.line_length));
-	log_std(("video:fb: accel:%d\n",(unsigned)fb_state.fixinfo.accel));
+	log_std(("video:fb: id %s\n", fb_state.fixinfo.id));
+	log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fb_state.fixinfo.smem_start, (unsigned)fb_state.fixinfo.smem_len));
+	log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fb_state.fixinfo.mmio_start, (unsigned)fb_state.fixinfo.mmio_len));
+	log_std(("video:fb: type:%d, type_aux:%d, visual:%d\n", (unsigned)fb_state.fixinfo.type, (unsigned)fb_state.fixinfo.type_aux, (unsigned)fb_state.fixinfo.visual));
+	log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fb_state.fixinfo.xpanstep, (unsigned)fb_state.fixinfo.ypanstep, (unsigned)fb_state.fixinfo.ywrapstep));
+	log_std(("video:fb: line_length:%d\n", (unsigned)fb_state.fixinfo.line_length));
+	log_std(("video:fb: accel:%d\n", (unsigned)fb_state.fixinfo.accel));
 	log_std(("video:fb: xres:%d, yres:%d\n", (unsigned)fb_state.varinfo.xres, (unsigned)fb_state.varinfo.yres));
 	log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual));
 	log_std(("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset));
 	log_std(("video:fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)fb_state.varinfo.bits_per_pixel, (unsigned)fb_state.varinfo.grayscale));
 	log_std(("video:fb: nonstd:%d, activate:%x\n", (unsigned)fb_state.varinfo.nonstd, (unsigned)fb_state.varinfo.activate));
-	log_std(("video:fb: height:%d, width:%d\n",fb_state.varinfo.height,fb_state.varinfo.width));
-	log_std(("video:fb: accel_flags:%d\n",fb_state.varinfo.accel_flags));
+	log_std(("video:fb: height:%d, width:%d\n", fb_state.varinfo.height, fb_state.varinfo.width));
+	log_std(("video:fb: accel_flags:%d\n", fb_state.varinfo.accel_flags));
 	log_std(("video:fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
 		(unsigned)fb_state.varinfo.pixclock,
 		(unsigned)fb_state.varinfo.left_margin,
@@ -118,7 +124,7 @@ static void fb_log(void) {
 		(unsigned)fb_state.varinfo.hsync_len,
 		(unsigned)fb_state.varinfo.vsync_len
 	));
-	log_std(("video:fb: sync:%x, vmode:%x\n",(unsigned)fb_state.varinfo.sync,(unsigned)fb_state.varinfo.vmode));
+	log_std(("video:fb: sync:%x, vmode:%x\n", (unsigned)fb_state.varinfo.sync, (unsigned)fb_state.varinfo.vmode));
 
 	v = 1000000000000LL / (double)fb_state.varinfo.pixclock;
 	v /= fb_state.varinfo.xres + fb_state.varinfo.left_margin + fb_state.varinfo.right_margin + fb_state.varinfo.hsync_len;
@@ -127,7 +133,8 @@ static void fb_log(void) {
 	log_std(("video:fb: expected vclock:%g\n", v));
 }
 
-adv_error fb_init(int device_id) {
+adv_error fb_init(int device_id, adv_output output)
+{
 	const char* fb;
 
 	assert( !fb_is_active() );
@@ -143,11 +150,17 @@ adv_error fb_init(int device_id) {
 		return -1;
 	}
 
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:fb: Only fullscreen output is supported\n"));
+		error_nolog_cat("fb: Only fullscreen output is supported\n");
+		return -1;
+	}
+
 	fb = getenv("FRAMEBUFFER");
 	if (!fb)
 		fb = "/dev/fb0";
 
-	if (access(fb,R_OK | W_OK)!=0) {
+	if (access(fb, R_OK | W_OK)!=0) {
 		log_std(("video:fb: R/W access denied at the frame buffer %s\n", fb));
 		error_nolog_cat("fb: R/W access denied at the frame buffer %s\n", fb);
 		return -1;
@@ -165,7 +178,8 @@ adv_error fb_init(int device_id) {
 	return 0;
 }
 
-void fb_done(void) {
+void fb_done(void)
+{
 	assert(fb_is_active() && !fb_mode_is_active() );
 
 	log_std(("video:fb: fb_done()\n"));
@@ -187,7 +201,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	memset(&fb_state.varinfo,0,sizeof(fb_state.varinfo));
+	memset(&fb_state.varinfo, 0, sizeof(fb_state.varinfo));
 
 	fb_state.varinfo.xres = mode->crtc.hde;
 	fb_state.varinfo.yres = mode->crtc.vde;
@@ -308,7 +322,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	return 0;
 }
 
-void fb_mode_done(adv_bool restore) {
+void fb_mode_done(adv_bool restore)
+{
 	assert( fb_is_active() && fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_done()\n"));
@@ -328,32 +343,38 @@ void fb_mode_done(adv_bool restore) {
 	fb_state.mode_active = 0;
 }
 
-unsigned fb_virtual_x(void) {
+unsigned fb_virtual_x(void)
+{
 	assert(fb_is_active() && fb_mode_is_active());
 
 	return fb_state.varinfo.xres_virtual;
 }
 
-unsigned fb_virtual_y(void) {
+unsigned fb_virtual_y(void)
+{
 	assert(fb_is_active() && fb_mode_is_active());
 
 	return fb_state.varinfo.yres_virtual;
 }
 
-unsigned fb_bytes_per_scanline(void) {
+unsigned fb_bytes_per_scanline(void)
+{
 	return fb_state.bytes_per_scanline;
 }
 
-unsigned fb_adjust_bytes_per_page(unsigned bytes_per_page) {
+unsigned fb_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	return bytes_per_page;
 }
 
-adv_color_def fb_color_def(void) {
+adv_color_def fb_color_def(void)
+{
 	assert(fb_is_active() && fb_mode_is_active());
 	return color_def_make_from_index(fb_state.index);
 }
 
-void fb_wait_vsync(void) {
+void fb_wait_vsync(void)
+{
 	struct fb_vblank blank;
 
 	assert(fb_is_active() && fb_mode_is_active());
@@ -373,7 +394,8 @@ void fb_wait_vsync(void) {
 	} while ((blank.flags & FB_VBLANK_VSYNCING) == 0);
 }
 
-adv_error fb_scroll(unsigned offset, adv_bool waitvsync) {
+adv_error fb_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(fb_is_active() && fb_mode_is_active());
 
 	if (waitvsync)
@@ -390,13 +412,15 @@ adv_error fb_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error fb_scanline_set(unsigned byte_length) {
+adv_error fb_scanline_set(unsigned byte_length)
+{
 	assert(fb_is_active() && fb_mode_is_active());
 
 	return -1;
 }
 
-adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	__u16 r[256], g[256], b[256], t[256];
 	struct fb_cmap cmap;
 	unsigned i;
@@ -452,7 +476,7 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 {
 	assert( fb_is_active() );
 
-	if (video_mode_generate_check("fb",fb_flags(),8,2048,crtc,flags)!=0)
+	if (video_mode_generate_check("fb", fb_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
 	mode->crtc = *crtc;
@@ -461,25 +485,29 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b) {
-	COMPARE(a->index,b->index);
-	return crtc_compare(&a->crtc,&b->crtc);
+int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b)
+{
+	COMPARE(a->index, b->index);
+	return crtc_compare(&a->crtc, &b->crtc);
 }
 
-void fb_default(void) {
+void fb_default(void)
+{
 }
 
-void fb_reg(adv_conf* context) {
+void fb_reg(adv_conf* context)
+{
 	assert( !fb_is_active() );
 }
 
-adv_error fb_load(adv_conf* context) {
+adv_error fb_load(adv_conf* context)
+{
 	assert( !fb_is_active() );
 	return 0;
 }
@@ -487,23 +515,28 @@ adv_error fb_load(adv_conf* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error fb_mode_set_void(const void* mode) {
+static adv_error fb_mode_set_void(const void* mode)
+{
 	return fb_mode_set((const fb_video_mode*)mode);
 }
 
-static adv_error fb_mode_import_void(adv_mode* mode, const void* fb_mode) {
+static adv_error fb_mode_import_void(adv_mode* mode, const void* fb_mode)
+{
 	return fb_mode_import(mode, (const fb_video_mode*)fb_mode);
 }
 
-static adv_error fb_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
-	return fb_mode_generate((fb_video_mode*)mode,crtc,flags);
+static adv_error fb_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
+	return fb_mode_generate((fb_video_mode*)mode, crtc, flags);
 }
 
-static int fb_mode_compare_void(const void* a, const void* b) {
+static int fb_mode_compare_void(const void* a, const void* b)
+{
 	return fb_mode_compare((const fb_video_mode*)a, (const fb_video_mode*)b);
 }
 
-static unsigned fb_mode_size(void) {
+static unsigned fb_mode_size(void)
+{
 	return sizeof(fb_video_mode);
 }
 

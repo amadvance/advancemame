@@ -365,6 +365,10 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG) 
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
+$(OBJ)/src/memory.o: $(srcdir)/src/memory.c
+	$(ECHO) $@ $(MSG) 
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
@@ -481,6 +485,10 @@ ifeq ($(CONF_COMPRESS),yes)
 endif
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
+
+$(OBJ)/memory.o: $(EMUSRC)/memory.c
+	$(ECHO) $@ $(MSG) "(without -O3)"
+	$(CC) $(subst -O3,-O2,$(CFLAGS)) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)

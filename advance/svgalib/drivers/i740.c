@@ -118,7 +118,7 @@ static void i740_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(i740_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_i740_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -824,7 +824,9 @@ static int i740_init(int force, int par1, int par2)
     if (__svgalib_driver_report) {
 	fprintf(stderr,"Using I740 driver, %iKB.\n",i740_memory);
     };
-
+    
+	__svgalib_modeinfo_linearset |= IS_LINEAR;
+	
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = i740_memory;
     cardspecs->maxPixelClock4bpp = 75000;	

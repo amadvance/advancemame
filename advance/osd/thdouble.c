@@ -51,7 +51,7 @@ static pthread_t thread_id; /**< ID of the companion thread. */
 static int thread_inuse; /**< Reentrant check. */
 static pthread_cond_t thread_cond; /**< Start/Stop condition. */
 static pthread_mutex_t thread_mutex; /**< Access mutex. */
-static void (*thread_func)(void*,int,int); /**< Function to call. */
+static void (*thread_func)(void*, int, int); /**< Function to call. */
 static void* thread_arg; /**< Argument of the function to call. */
 
 static void* thread_proc(void* arg) 
@@ -59,7 +59,7 @@ static void* thread_proc(void* arg)
 	pthread_mutex_lock(&thread_mutex);
 
 	while (1) {
-		void (*func)(void*,int,int);
+		void (*func)(void*, int, int);
 
 		/* wait for the start signal */
 		while (!thread_func && !thread_exit)
@@ -74,7 +74,7 @@ static void* thread_proc(void* arg)
 		pthread_mutex_unlock(&thread_mutex);
 
 		/* call the secondary function */
-		func(thread_arg,1,2);
+		func(thread_arg, 1, 2);
 
 		/* signal the end */
 		pthread_mutex_lock(&thread_mutex);
@@ -89,9 +89,9 @@ int thread_init(void)
 {
 	thread_exit = 0;
 
-	if (pthread_mutex_init(&thread_mutex,NULL) != 0)
+	if (pthread_mutex_init(&thread_mutex, NULL) != 0)
 		return -1;
-	if (pthread_cond_init(&thread_cond,NULL) != 0)
+	if (pthread_cond_init(&thread_cond, NULL) != 0)
 		return -1;
 	if (pthread_create(&thread_id, NULL, thread_proc, 0) != 0)
 		return -1;
@@ -115,17 +115,17 @@ void thread_done(void)
 void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max) 
 {
 	if (!thread_is_active()) {
-		func(arg,0,1);
+		func(arg, 0, 1);
 		return;
 	}
 
 	if (max <= 1) {
-		func(arg,0,1);
+		func(arg, 0, 1);
 		return;
 	}
 
 	if (thread_inuse) {
-		func(arg,0,1);
+		func(arg, 0, 1);
 		return;
 	}
 
@@ -138,7 +138,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 	pthread_mutex_unlock(&thread_mutex);
   
 	/* call the primary function */
-	func(arg,0,2);
+	func(arg, 0, 2);
 
 	pthread_mutex_lock(&thread_mutex);
 	while (thread_func)

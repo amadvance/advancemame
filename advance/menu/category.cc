@@ -31,16 +31,20 @@ using namespace std;
 // ------------------------------------------------------------------------
 // category
 
-category::category(const category& A) : name(A.name), state(A.state), undefined(false) {
+category::category(const category& A) : name(A.name), state(A.state), undefined(false)
+{
 }
 
-category::~category() {
+category::~category()
+{
 }
 
-category::category(const string& Aname) : name(Aname), state(false), undefined(false) {
+category::category(const string& Aname) : name(Aname), state(false), undefined(false)
+{
 }
 
-category::category(const string& Aname, bool Aundefined) : name(Aname), state(false), undefined(Aundefined) {
+category::category(const string& Aname, bool Aundefined) : name(Aname), state(false), undefined(Aundefined)
+{
 }
 
 // ------------------------------------------------------------------------
@@ -49,21 +53,23 @@ category::category(const string& Aname, bool Aundefined) : name(Aname), state(fa
 #define CATEGORY_UNDEFINED "<undefined>"
 
 pcategory_container::pcategory_container()  {
-	category* c = new category(CATEGORY_UNDEFINED,true);
+	category* c = new category(CATEGORY_UNDEFINED, true);
 	undefined = c;
 	pcategory_container_base::insert(c);
 }
 
-pcategory_container::~pcategory_container() {
+pcategory_container::~pcategory_container()
+{
 }
 
-const category* pcategory_container::insert(const std::string& name) {
+const category* pcategory_container::insert(const std::string& name)
+{
 	if (name.length() == 0 || name == CATEGORY_UNDEFINED)
 		return undefined;
 
 	category* c = new category(name);
 
-	pair<pcategory_container_base::iterator,bool> i = pcategory_container_base::insert(c);
+	pair<pcategory_container_base::iterator, bool> i = pcategory_container_base::insert(c);
 
 	if (i.second) {
 		// inserted
@@ -76,13 +82,14 @@ const category* pcategory_container::insert(const std::string& name) {
 	return *i.first;
 }
 
-const category* pcategory_container::insert_double(const string& name, category_container& cat_include) {
+const category* pcategory_container::insert_double(const string& name, category_container& cat_include)
+{
 	if (name.length() == 0 || name == CATEGORY_UNDEFINED)
 		return undefined;
 
 	category* c = new category(name);
 
-	pair<pcategory_container_base::iterator,bool> i = pcategory_container_base::insert(c);
+	pair<pcategory_container_base::iterator, bool> i = pcategory_container_base::insert(c);
 
 	if (i.second) {
 		// inserted

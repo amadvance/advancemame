@@ -106,8 +106,9 @@ adv_error inc_str_catc(adv_string* str, char c);
  *  - ==0 if ok
  *  - !=0 if error, errno set
  */
-static inline adv_error inc_str_cat(adv_string* str, const char* s) {
-	return inc_str_catm(str,s,strlen(s));
+static inline adv_error inc_str_cat(adv_string* str, const char* s)
+{
+	return inc_str_catm(str, s, strlen(s));
 }
 
 /**

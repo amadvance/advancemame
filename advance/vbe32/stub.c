@@ -37,10 +37,11 @@ int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
 
 int _stklen = 32768; /* 32-bit stack size */
 
-static int detect(void) {
+static int detect(void)
+{
 	__dpmi_regs regs;
 
-	memset(&regs,0,sizeof(regs));
+	memset(&regs, 0, sizeof(regs));
 	regs.x.ax = 0x4F14;
 
 	if (__dpmi_int(0x10, &regs) != 0) {
@@ -100,7 +101,8 @@ ret:
 	return;
 }
 
-static int install(void) {
+static int install(void)
+{
 	_go32_dpmi_seginfo info;
 	info.pm_offset = (unsigned)&handler;
 
@@ -112,8 +114,9 @@ static int install(void) {
 	return 0;
 }
 
-int optionmatch(const char* arg, const char* opt) {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+int optionmatch(const char* arg, const char* opt)
+{
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
 }
 
 int main(int argc, char* argv[])
@@ -124,20 +127,20 @@ int main(int argc, char* argv[])
 
 	printf(OEM_PRODUCT_STR " by " OEM_VENDOR_STR " v" OEM_VERSION_STR "\n");
 
-	strcpy(config,"vbe.rc");
+	strcpy(config, "vbe.rc");
 
 	arg_load = 0;
 	for(i=1;i<argc;++i) {
 		const char* tok = argv[i];
-		if (optionmatch(tok,"l")) {
+		if (optionmatch(tok, "l")) {
 			arg_load = 1;
-		} else if (optionmatch(tok,"c")) {
+		} else if (optionmatch(tok, "c")) {
 			tok = argv[++i];
 			if (!tok) {
 				printf("Missing config file path\n");
 				exit(EXIT_FAILURE);
 			}
-			strcpy(config,tok);
+			strcpy(config, tok);
 		} else {
 			printf("Unknown option %s\n", tok);
 			exit(EXIT_FAILURE);

@@ -88,7 +88,7 @@
 
 /* Software strecth (enumeration) */
 #define STRETCH_NONE 0 /**< not at all */
-#define STRETCH_INTEGER_XY 1 /**< only integer strech x2,x3,... */
+#define STRETCH_INTEGER_XY 1 /**< only integer strech x2, x3, ... */
 #define STRETCH_INTEGER_X_FRACTIONAL_Y 2 /**< integer on x, fractional on y */
 #define STRETCH_FRACTIONAL_XY 3 /**< fractional on x and y */
 
@@ -131,7 +131,7 @@
 #define VIDEO_CRTC_MAX 256
 
 /** Macro SWAP utility */
-#define SWAP(type,x,y) \
+#define SWAP(type, x, y) \
 	{ \
 		type temp; \
 		temp = x; \
@@ -171,6 +171,7 @@ struct advance_video_config_context {
 	adv_crtc_container crtc_bag; /**< All the modelines. */
 	char section_name[256]; /**< Section used to store the option for the game. */
 	char section_resolution[256]; /**< Section used to store the option for the resolution. */
+	char section_resolutionclock[256]; /**< Section used to store the option for the resolution/freq. */
 	char section_orientation[256]; /**< Section used to store the option for the orientation. */
 	int smp_flag; /**< Use threads */
 	int crash_flag; /**< If enable the crash menu entry. */
@@ -570,7 +571,8 @@ void advance_fileio_done(void);
 int advance_fileio_config_load(adv_conf* context, struct mame_option* option);
 
 /* Timer */
-static __inline__ double advance_timer(void) {
+static inline double advance_timer(void)
+{
 	return os_clock() / (double)OS_CLOCKS_PER_SEC;
 }
 

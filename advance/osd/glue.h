@@ -145,19 +145,23 @@ typedef uint32 osd_mask_t;
 /* must match MAME rgb_t. */
 typedef uint32 osd_rgb_t;
 
-static inline uint8 osd_rgb_red(osd_rgb_t v) {
+static inline uint8 osd_rgb_red(osd_rgb_t v)
+{
 	return (v >> 16) & 0xFF;
 }
 
-static inline uint8 osd_rgb_green(osd_rgb_t v) {
+static inline uint8 osd_rgb_green(osd_rgb_t v)
+{
 	return (v >> 8) & 0xFF;
 }
 
-static inline uint8 osd_rgb_blue(osd_rgb_t v) {
+static inline uint8 osd_rgb_blue(osd_rgb_t v)
+{
 	return v & 0xFF;
 }
 
-static inline osd_rgb_t osd_rgb(uint8 r, uint8 g, uint8 b) {
+static inline osd_rgb_t osd_rgb(uint8 r, uint8 g, uint8 b)
+{
 	return (((unsigned)r) << 16) | (((unsigned)g) << 8) | b;
 }
 

@@ -56,10 +56,18 @@ typedef struct {
     uint32_t     cap0_trig_cntl;
     uint32_t     cap1_trig_cntl;
     uint32_t     bus_cntl;
+    uint32_t     bus_cntl1;
+    uint32_t     mem_cntl;
     uint32_t     config_cntl;
     uint32_t     mem_vga_wp_sel;
     uint32_t     mem_vga_rp_sel;
     uint32_t     surface_cntl;
+    uint32_t	 dac_cntl2;
+    uint32_t	 crtc_more_cntl;
+    uint32_t	 dac_ext_cntl;
+    uint32_t	 grph_buf_cntl;
+    uint32_t	 vga_buf_cntl;
+
 				/* Other registers to save for VT switches */
     uint32_t     dp_datatype;
     uint32_t     gen_reset_cntl;
@@ -190,10 +198,19 @@ static void R128RestoreCommonRegisters(R128SavePtr restore)
     OUTREG(R128_CAP0_TRIG_CNTL,       restore->cap0_trig_cntl);
     OUTREG(R128_CAP1_TRIG_CNTL,       restore->cap1_trig_cntl);
     OUTREG(R128_BUS_CNTL,             restore->bus_cntl);
+    OUTREG(R128_BUS_CNTL1,            restore->bus_cntl1);
     OUTREG(R128_CONFIG_CNTL,          restore->config_cntl);
     OUTREG(R128_MEM_VGA_WP_SEL,	      restore->mem_vga_wp_sel);
     OUTREG(R128_MEM_VGA_RP_SEL,	      restore->mem_vga_rp_sel);
-    OUTREG(RADEON_SURFACE_CNTL,	      restore->surface_cntl);
+
+    if(chiptype == Rage128) {
+        OUTREG(RADEON_SURFACE_CNTL,   restore->surface_cntl);
+        OUTREG(RADEON_DAC_CNTL2,     restore->dac_cntl2);
+        OUTREG(RADEON_CRTC_MORE_CNTL,restore->crtc_more_cntl);
+        OUTREG(RADEON_DAC_EXT_CNTL,  restore->dac_ext_cntl);
+        OUTREG(RADEON_GRPH_BUF_CNTL, restore->grph_buf_cntl);
+        OUTREG(RADEON_VGA_BUF_CNTL,  restore->vga_buf_cntl);
+    }
 
 }
 
@@ -395,7 +412,7 @@ static void R128RestoreMode(R128SavePtr restore)
     if(chiptype == Rage128) {
 	R128RestoreDDARegisters(restore);
     }
-    	R128RestorePalette(restore);
+    R128RestorePalette(restore);
 }
 
 /* Read common registers. */
@@ -414,11 +431,20 @@ static void R128SaveCommonRegisters(R128SavePtr save)
     save->cap0_trig_cntl     = INREG(R128_CAP0_TRIG_CNTL);
     save->cap1_trig_cntl     = INREG(R128_CAP1_TRIG_CNTL);
     save->bus_cntl           = INREG(R128_BUS_CNTL);
+    save->bus_cntl1          = INREG(R128_BUS_CNTL1);
+    save->mem_cntl           = INREG(R128_MEM_CNTL);
     save->config_cntl        = INREG(R128_CONFIG_CNTL);
     save->mem_vga_wp_sel     = INREG(R128_MEM_VGA_WP_SEL);
     save->mem_vga_rp_sel     = INREG(R128_MEM_VGA_RP_SEL);
-	if(chiptype==Radeon)
+
+    if(chiptype==Radeon) {
     	save->surface_cntl   = INREG(RADEON_SURFACE_CNTL);
+        save->dac_cntl2	     = INREG(RADEON_DAC_CNTL2);
+        save->crtc_more_cntl = INREG(RADEON_CRTC_MORE_CNTL);
+        save->dac_ext_cntl   = INREG(RADEON_DAC_EXT_CNTL);
+        save->grph_buf_cntl  = INREG(RADEON_GRPH_BUF_CNTL);
+        save->vga_buf_cntl  =  INREG(RADEON_VGA_BUF_CNTL);
+    }
 }
 
 /* Read CRTC registers. */
@@ -521,6 +547,7 @@ static void R128InitCommonRegisters(R128SavePtr save)
     save->mem_vga_rp_sel     = 0;
     save->config_cntl        = INREG(R128_CONFIG_CNTL);
     save->bus_cntl           = BusCntl;
+    save->bus_cntl1          = INREG(R128_BUS_CNTL1);
     if(chiptype == Radeon) {
         if(save->bus_cntl & RADEON_BUS_READ_BURST) 
             save->bus_cntl |=RADEON_BUS_RD_DISCARD_EN;
@@ -633,7 +660,14 @@ static Bool R128InitCrtcRegisters(R128SavePtr save,
     
     if(chiptype == Radeon) {
         save->crtc_pitch |= save->crtc_pitch<<16;
-        save->surface_cntl = RADEON_SURF_TRANSLATION_DIS;        
+        save->surface_cntl = RADEON_SURF_TRANSLATION_DIS;
+
+        save->dac_cntl2	     = INREG(RADEON_DAC_CNTL2);
+        save->crtc_more_cntl = INREG(RADEON_CRTC_MORE_CNTL);
+        save->dac_ext_cntl   = INREG(RADEON_DAC_EXT_CNTL);
+        save->grph_buf_cntl  = INREG(RADEON_GRPH_BUF_CNTL);
+        save->vga_buf_cntl   =  INREG(RADEON_VGA_BUF_CNTL);
+
     }
 
 #ifdef __PPC
@@ -971,7 +1005,7 @@ static void r128_getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(r128_linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_r128_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -1378,7 +1412,9 @@ fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     if (__svgalib_driver_report) {
 	fprintf(stderr,"Using ATI %s driver, %iKB.\n",chipnames[chiptype],r128_memory);
     };
-
+    
+	__svgalib_modeinfo_linearset |= IS_LINEAR;
+	
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = r128_memory;
     cardspecs->maxPixelClock4bpp = 75000;	

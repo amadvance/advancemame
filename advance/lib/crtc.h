@@ -107,64 +107,76 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 double crtc_hclock_get(const adv_crtc* crtc);
 double crtc_vclock_get(const adv_crtc* crtc);
 
-static inline double crtc_pclock_get(const adv_crtc* crtc) {
+static inline double crtc_pclock_get(const adv_crtc* crtc)
+{
 	return crtc->pixelclock;
 }
 
 int crtc_scan_get(const adv_crtc* crtc);
 
 /** Check if a CRTC specification is interlaced. */
-static inline  adv_bool crtc_is_interlace(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_interlace(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_INTERLACE) != 0;
 }
 
 /** Check if a CRTC specification is doublescan. */
-static inline  adv_bool crtc_is_doublescan(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_doublescan(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_DOUBLESCAN) != 0;
 }
 
 /** Check if a CRTC specification is singlescan. */
-static inline  adv_bool crtc_is_singlescan(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_singlescan(const adv_crtc* crtc)
+{
 	return !crtc_is_doublescan(crtc) && !crtc_is_interlace(crtc);
 }
 
 /** Check if a CRTC specification is tvpal. */
-static inline  adv_bool crtc_is_tvpal(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_tvpal(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_TVPAL) != 0;
 }
 
 /** Check if a CRTC specification is tvntsc. */
-static inline  adv_bool crtc_is_tvntsc(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_tvntsc(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_TVNTSC) != 0;
 }
 
 /** Check if a CRTC specification is notv. */
-static inline  adv_bool crtc_is_notv(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_notv(const adv_crtc* crtc)
+{
 	return !crtc_is_tvpal(crtc) && !crtc_is_tvntsc(crtc);
 }
 
 /** Check if a CRTC specification is negative horizontal sync. */
-static inline  adv_bool crtc_is_nhsync(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_nhsync(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_NHSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive horizontal sync. */
-static inline  adv_bool crtc_is_phsync(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_phsync(const adv_crtc* crtc)
+{
 	return !crtc_is_nhsync(crtc);
 }
 
 /** Check if a CRTC specification is negative vertical sync. */
-static inline  adv_bool crtc_is_nvsync(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_nvsync(const adv_crtc* crtc)
+{
 	return (crtc->flags & CRTC_FLAGS_NVSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive vertical sync. */
-static inline  adv_bool crtc_is_pvsync(const adv_crtc* crtc) {
+static inline  adv_bool crtc_is_pvsync(const adv_crtc* crtc)
+{
 	return !crtc_is_nvsync(crtc);
 }
 
 /** Return the name of the CRTC specification. */
-static inline const char* crtc_name_get(const adv_crtc* crtc) {
+static inline const char* crtc_name_get(const adv_crtc* crtc)
+{
 	return crtc->name;
 }
 
@@ -174,48 +186,59 @@ void crtc_reset_all(adv_crtc* crtc);
 /**
  * Set the specified flag in the CRTC specification.
  */
-static inline void crtc_flags_set(adv_crtc* crtc, unsigned flag, unsigned mask) {
+static inline void crtc_flags_set(adv_crtc* crtc, unsigned flag, unsigned mask)
+{
 	crtc->flags &= ~mask;
 	crtc->flags |= flag;
 }
 
-static inline void crtc_nhsync_set(adv_crtc* crtc) {
+static inline void crtc_nhsync_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_NHSYNC, CRTC_FLAGS_NHSYNC);
 }
 
-static inline void crtc_phsync_set(adv_crtc* crtc) {
+static inline void crtc_phsync_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_NHSYNC);
 }
 
-static inline void crtc_nvsync_set(adv_crtc* crtc) {
+static inline void crtc_nvsync_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_NVSYNC, CRTC_FLAGS_NVSYNC);
 }
 
-static inline void crtc_pvsync_set(adv_crtc* crtc) {
+static inline void crtc_pvsync_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_NVSYNC);
 }
 
-static inline void crtc_singlescan_set(adv_crtc* crtc) {
+static inline void crtc_singlescan_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static inline void crtc_doublescan_set(adv_crtc* crtc) {
+static inline void crtc_doublescan_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_DOUBLESCAN, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static inline void crtc_interlace_set(adv_crtc* crtc) {
+static inline void crtc_interlace_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_INTERLACE, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static inline void crtc_notv_set(adv_crtc* crtc) {
+static inline void crtc_notv_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
-static inline void crtc_tvpal_set(adv_crtc* crtc) {
+static inline void crtc_tvpal_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_TVPAL, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
-static inline void crtc_tvntsc_set(adv_crtc* crtc) {
+static inline void crtc_tvntsc_set(adv_crtc* crtc)
+{
 	crtc_flags_set(crtc, CRTC_FLAGS_TVNTSC, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
@@ -230,14 +253,16 @@ void crtc_vsize_set(adv_crtc* crtc, unsigned vsize);
 /**
  * Return the horizontal size in pixel of the CRTC specification.
  */
-static inline  unsigned crtc_hsize_get(const adv_crtc* crtc) {
+static inline  unsigned crtc_hsize_get(const adv_crtc* crtc)
+{
 	return crtc->hde;
 }
 
 /**
  * Return the vertical size in pixel of the CRTC specification.
  */
-static inline  unsigned crtc_vsize_get(const adv_crtc* crtc) {
+static inline  unsigned crtc_vsize_get(const adv_crtc* crtc)
+{
 	return crtc->vde;
 }
 

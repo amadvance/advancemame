@@ -63,7 +63,8 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-static void sound_sdl_callback(void *userdata, Uint8 *stream, int len) {
+static void sound_sdl_callback(void *userdata, Uint8 *stream, int len)
+{
 	struct sound_sdl_context* state = (struct sound_sdl_context*)userdata;
 	unsigned samples_count;
 	sound_sample_t* samples_buffer;
@@ -92,7 +93,7 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 {
 	char name[64];
 
-	log_std(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",(unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
+	log_std(("sound:sdl: sound_sdl_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", (unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
 
 	if (!sdl_option.initialized) {
 		sound_sdl_default();
@@ -107,7 +108,7 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 		return -1;
 	}
 
-	if (SDL_AudioDriverName(name,sizeof(name))) {
+	if (SDL_AudioDriverName(name, sizeof(name))) {
 		log_std(("sound:sdl: driver %s\n", name));
 	}
 
@@ -122,7 +123,7 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 
 	if (SDL_OpenAudio(&sdl_state.info, 0) != 0) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		log_std(("sound:sdl: SDL_OpenAudio(%d,AUDIO_S16LSB,%d,%d) failed, %s\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError()));
+		log_std(("sound:sdl: SDL_OpenAudio(%d, AUDIO_S16LSB, %d, %d) failed, %s\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError()));
 		return -1;
 	}
 
@@ -135,7 +136,8 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	return 0;
 }
 
-void sound_sdl_done(void) {
+void sound_sdl_done(void)
+{
 	log_std(("sound:sdl: sound_sdl_done()\n"));
 
 	if (sdl_state.active_flag) {
@@ -145,22 +147,26 @@ void sound_sdl_done(void) {
 	}
 }
 
-void sound_sdl_stop(void) {
+void sound_sdl_stop(void)
+{
 	log_std(("sound:sdl: sound_sdl_stop()\n"));
 
 	SDL_PauseAudio(1);
 }
 
-unsigned sound_sdl_buffered(void) {
+unsigned sound_sdl_buffered(void)
+{
 	return sdl_state.fifo_mac / sdl_state.info.channels;
 }
 
-void sound_sdl_volume(double volume) {
-	log_std(("sound:sdl: sound_sdl_volume(volume:%g)\n",(double)volume));
+void sound_sdl_volume(double volume)
+{
+	log_std(("sound:sdl: sound_sdl_volume(volume:%g)\n", (double)volume));
 	/* no hardware volume control with SDL */
 }
 
-void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
+void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count)
+{
 	unsigned i;
 	unsigned count = sample_count * sdl_state.info.channels;
 
@@ -193,7 +199,8 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	SDL_UnlockAudio();
 }
 
-adv_error sound_sdl_start(double silence_time) {
+adv_error sound_sdl_start(double silence_time)
+{
 	sound_sample_t buf[256];
 	unsigned sample;
 	unsigned i;
@@ -212,7 +219,7 @@ adv_error sound_sdl_start(double silence_time) {
 		if (run > 256)
 			run = 256;
 		sample -= run;
-		sound_sdl_play(buf,run / sdl_state.info.channels);
+		sound_sdl_play(buf, run / sdl_state.info.channels);
 	}
 
 	SDL_PauseAudio(0);
@@ -220,7 +227,8 @@ adv_error sound_sdl_start(double silence_time) {
 	return 0;
 }
 
-unsigned sound_sdl_flags(void) {
+unsigned sound_sdl_flags(void)
+{
 	return 0;
 }
 
@@ -239,7 +247,8 @@ static adv_conf_enum_int OPTION[] = {
 { "16384", 16384 }
 };
 
-adv_error sound_sdl_load(adv_conf* context) {
+adv_error sound_sdl_load(adv_conf* context)
+{
 	sdl_option.samples = conf_int_get_default(context, "device_sdl_samples");
 
 	sdl_option.initialized = 1;
@@ -247,7 +256,8 @@ adv_error sound_sdl_load(adv_conf* context) {
 	return 0;
 }
 
-void sound_sdl_reg(adv_conf* context) {
+void sound_sdl_reg(adv_conf* context)
+{
 	unsigned def_samples;
 
 #ifdef __WIN32__
@@ -260,7 +270,8 @@ void sound_sdl_reg(adv_conf* context) {
 	conf_int_register_enum_default(context, "device_sdl_samples", conf_enum(OPTION), def_samples);
 }
 
-void sound_sdl_default(void) {
+void sound_sdl_default(void)
+{
 	sdl_option.samples = 512;
 	sdl_option.initialized = 1;
 }

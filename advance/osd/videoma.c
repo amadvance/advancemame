@@ -62,17 +62,17 @@
 /*
 	Description of the various coordinate systems and variables :
 
-	game_[width,height]
+	game_[width, height]
 		Size of the game screen (after any flipxy or swapxy).
-	game_used_[width,height]
+	game_used_[width, height]
 		Size of the used part of the game screen.
-	game_used_[pos_x,pos_y]
+	game_used_[pos_x, pos_y]
 		Position of the used part of the game screen.
-	game_visible_[width,height] (old gfx_display_columns, gfx_display_lines)
+	game_visible_[width, height] (old gfx_display_columns, gfx_display_lines)
 		Size of the visible part of the game screen. Can be smaller
 		than game_used_* if the video mode is too small. game_visible_
 		is always internal of the game_used part.
-	game_visible_[pos_x,pos_y] (old skipcolumns,skiplines)
+	game_visible_[pos_x, pos_y] (old skipcolumns, skiplines)
 		Position of the visible part in the game screen (not
 		in the game_used part).
 	screen_visible_*
@@ -91,8 +91,8 @@
 		The aspect of a standard horizontal PC monitor.
 
 	arcade_aspect_ratio
-		Sono le le dimensioni dello schermo di un arcade 4,3
-		se orizzontale e 3,4 se verticale
+		Sono le le dimensioni dello schermo di un arcade 4, 3
+		se orizzontale e 3, 4 se verticale
 
 	game_aspect_ratio
 		E' la dimensione in pixel ARCADE di un quadrato (a vista)
@@ -100,7 +100,7 @@
 		FIX.game_width, FIX.game_height.
 
 		E' la combinazione di arcade_aspect_ratio con la particolare
-		risoluzione FIX.game_width,FIX.game_height.
+		risoluzione FIX.game_width, FIX.game_height.
 
 	arcade_aspect_ratio_x   game_aspect_ratio_x   game_use_size_x
 	--------------------- * ------------------- = -----------
@@ -112,7 +112,7 @@
 		mode->size_x, mode->size_y.
 
 		E' la combinazione di pc_aspect_ratio con la particolare
-		risoluzione mode->size_x,mode->size_y.
+		risoluzione mode->size_x, mode->size_y.
 
 	pc_aspect_ratio_x   screen_aspect_ratio_x   screen_size_x
 	----------------- * --------------------- = -------------
@@ -139,7 +139,8 @@
 /***************************************************************************/
 /* Save */
 
-void advance_video_save(struct advance_video_context* context, const char* section) {
+void advance_video_save(struct advance_video_context* context, const char* section)
+{
 	conf_string_set(context->state.cfg_context, section, "display_mode", context->config.resolution);
 	if (!context->state.game_vector_flag) {
 		conf_int_set(context->state.cfg_context, section, "display_resizeeffect", context->config.combine);
@@ -152,13 +153,13 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 		{
 			if (context->config.skipcolumns>=0) {
 				char buffer[32];
-				sprintf(buffer,"%d",context->config.skipcolumns);
+				sprintf(buffer, "%d", context->config.skipcolumns);
 				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", buffer);
 			} else
 				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", "auto");
 			if (context->config.skiplines>=0) {
 				char buffer[32];
-				sprintf(buffer,"%d",context->config.skiplines);
+				sprintf(buffer, "%d", context->config.skiplines);
 				conf_string_set(context->state.cfg_context, section, "display_skiplines", buffer);
 			} else
 				conf_string_set(context->state.cfg_context, section, "display_skiplines", "auto");
@@ -170,7 +171,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 		conf_bool_set(context->state.cfg_context, section, "display_vsync", context->config.vsync_flag);
 	}
 
-	mame_ui_message("Video options saved in %s/",section);
+	mame_ui_message("Video options saved in %s/", section);
 }
 
 /***************************************************************************/
@@ -202,7 +203,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
 
-		crtc_vclock_set(crtc,context->state.game_fps);
+		crtc_vclock_set(crtc, context->state.game_fps);
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
 			crtc_vclock_set(crtc, 2 * context->state.game_fps);
@@ -230,7 +231,8 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 /**
  * Update the skip state.
  */
-static void video_update_skip(struct advance_video_context* context) {
+static void video_update_skip(struct advance_video_context* context)
+{
 	context->state.skip_warming_up_flag = 1;
 
 	if (context->config.frameskip_factor >= 1.0) {
@@ -306,7 +308,7 @@ static void video_update_sync(struct advance_video_context* context)
 		/* disable the vsync flag if the frame rate is wrong */
 		if (context->state.mode_vclock < reference * 0.97
 			|| context->state.mode_vclock > reference * 1.03) {
-			log_std(("advance:video: vsync disabled because the vclock is too different %g %g\n",reference,context->state.mode_vclock));
+			log_std(("advance:video: vsync disabled because the vclock is too different %g %g\n", reference, context->state.mode_vclock));
 			context->state.vsync_flag = 0;
 		}
 	}
@@ -428,7 +430,8 @@ static int video_update_index(struct advance_video_context* context)
  * Create the video mode from the crtc.
  * \return 0 on success
  */
-static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc) {
+static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
+{
 	if (video_mode_generate(mode, crtc, context->state.mode_index)!=0) {
 		log_std(("ERROR: video_mode_generate failed '%s'\n", error_get()));
 		return -1;
@@ -440,7 +443,8 @@ static int video_make_mode(struct advance_video_context* context, adv_mode* mode
 /**
  * Clear all the screens.
  */
-static void video_invalidate_screen(void) {
+static void video_invalidate_screen(void)
+{
 	unsigned i;
 	adv_pixel color;
 
@@ -485,12 +489,13 @@ static int video_init_mode(struct advance_video_context* context, adv_mode* mode
 
 	video_invalidate_screen();
 
-	log_std(("advance:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n",video_name(),video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
+	log_std(("advance:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n", video_name(), video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
 
 	return 0;
 }
 
-static void video_done_mode(struct advance_video_context* context, int restore) {
+static void video_done_mode(struct advance_video_context* context, int restore)
+{
 	assert( context->state.mode_flag );
 
 	/* clear all the video memory used */
@@ -516,11 +521,11 @@ static int video_update_mode(struct advance_video_context* context, adv_mode* mo
 	}
 
 	if (!context->state.mode_flag
-		|| video_mode_compare(mode,video_current_mode())!=0
+		|| video_mode_compare(mode, video_current_mode())!=0
 	) {
 		if (context->state.mode_flag)
 			video_done_mode(context, 0);
-		if (video_init_mode(context,mode) != 0) {
+		if (video_init_mode(context, mode) != 0) {
 			return -1;
 		}
 	}
@@ -532,7 +537,8 @@ static int video_update_mode(struct advance_video_context* context, adv_mode* mo
  * Update the panning state.
  * \precondition The video configuration in the context must be already initialized.
  */
-static void video_update_pan(struct advance_video_context* context) {
+static void video_update_pan(struct advance_video_context* context)
+{
 	unsigned pos_x;
 	unsigned pos_y;
 	unsigned size_x;
@@ -562,10 +568,10 @@ static void video_update_pan(struct advance_video_context* context) {
 		context->state.game_visible_pos_y = context->state.game_used_size_y - context->state.game_visible_size_y;
 	}
 
-	log_std(("advance:video: game_visible_pos_x %d\n",context->state.game_visible_pos_x));
-	log_std(("advance:video: game_visible_pos_y %d\n",context->state.game_visible_pos_y));
-	log_std(("advance:video: game_visible_size_x %d\n",context->state.game_visible_size_x));
-	log_std(("advance:video: game_visible_size_y %d\n",context->state.game_visible_size_y));
+	log_std(("advance:video: game_visible_pos_x %d\n", context->state.game_visible_pos_x));
+	log_std(("advance:video: game_visible_pos_y %d\n", context->state.game_visible_pos_y));
+	log_std(("advance:video: game_visible_size_x %d\n", context->state.game_visible_size_x));
+	log_std(("advance:video: game_visible_size_y %d\n", context->state.game_visible_size_y));
 
 	pos_x = context->state.game_visible_pos_x;
 	pos_y = context->state.game_visible_pos_y;
@@ -589,9 +595,9 @@ static void video_update_pan(struct advance_video_context* context) {
 		SWAP(unsigned, size_x, size_y);
 	}
 
-	log_std(("advance:video: mame_ui_area_set(min_x:%d,min_y:%d,max_x:%d,max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1,pos_y+size_y-1));
+	log_std(("advance:video: mame_ui_area_set(min_x:%d, min_y:%d, max_x:%d, max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1));
 
-	mame_ui_area_set(pos_x, pos_y, pos_x+size_x-1,pos_y+size_y-1);
+	mame_ui_area_set(pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1);
 }
 
 /**
@@ -730,7 +736,8 @@ static void video_invalidate_color(struct advance_video_context* context)
  *  - !=0 ok
  *  - ==0 error
  */
-static adv_bool is_crtc_acceptable(struct advance_video_context* context, const adv_crtc* crtc) {
+static adv_bool is_crtc_acceptable(struct advance_video_context* context, const adv_crtc* crtc)
+{
 	adv_mode mode;
 	adv_crtc temp_crtc;
 	unsigned flags[] = { MODE_FLAGS_INDEX_PALETTE8, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_YUY2, 0 };
@@ -739,7 +746,7 @@ static adv_bool is_crtc_acceptable(struct advance_video_context* context, const 
 	mode_reset(&mode);
 
 	/* try to adjust the crtc if required */
-	if (video_make_crtc(context,&temp_crtc,crtc) != 0)
+	if (video_make_crtc(context, &temp_crtc, crtc) != 0)
 		return 0;
 
 	i = flags;
@@ -764,7 +771,8 @@ static adv_bool is_crtc_acceptable(struct advance_video_context* context, const 
  *  - !=0 ok
  *  - ==0 error
  */
-static int is_crtc_acceptable_preventive(struct advance_video_context* context, const adv_crtc* crtc) {
+static int is_crtc_acceptable_preventive(struct advance_video_context* context, const adv_crtc* crtc)
+{
 	adv_mode mode;
 	adv_crtc temp_crtc = *crtc;
 	unsigned flags[] = { MODE_FLAGS_INDEX_PALETTE8, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_YUY2, 0 };
@@ -801,11 +809,12 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 	return 0;
 }
 
-static void video_update_visible(struct advance_video_context* context, const adv_crtc* crtc) {
+static void video_update_visible(struct advance_video_context* context, const adv_crtc* crtc)
+{
 
 	assert( crtc );
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_WINDOW)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		/* only for window */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
@@ -819,15 +828,15 @@ static void video_update_visible(struct advance_video_context* context, const ad
 
 		screen_aspect_ratio_x = crtc_hsize_get(crtc) * context->config.monitor_aspect_y;
 		screen_aspect_ratio_y = crtc_vsize_get(crtc) * context->config.monitor_aspect_x;
-		video_aspect_reduce(&screen_aspect_ratio_x,&screen_aspect_ratio_y);
+		video_aspect_reduce(&screen_aspect_ratio_x, &screen_aspect_ratio_y);
 
 		arcade_aspect_ratio_x = context->state.game_used_size_x * context->state.game_aspect_y;
 		arcade_aspect_ratio_y = context->state.game_used_size_y * context->state.game_aspect_x;
-		video_aspect_reduce(&arcade_aspect_ratio_x,&arcade_aspect_ratio_y);
+		video_aspect_reduce(&arcade_aspect_ratio_x, &arcade_aspect_ratio_y);
 
 		factor_x = screen_aspect_ratio_x * arcade_aspect_ratio_x;
 		factor_y = screen_aspect_ratio_y * arcade_aspect_ratio_y;
-		video_aspect_reduce(&factor_x,&factor_y);
+		video_aspect_reduce(&factor_x, &factor_y);
 
 		/* compute screen_visible size */
 		if (context->config.monitor_aspect_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * context->config.monitor_aspect_y) {
@@ -920,12 +929,13 @@ static void video_update_visible(struct advance_video_context* context, const ad
  * Compare the resolution name.
  * \return ==0 if equal
  */
-static int video_resolution_cmp(const char* resolution, const char* name) {
+static int video_resolution_cmp(const char* resolution, const char* name)
+{
 	int rl;
 	int nl;
 
 	/* match the exact mode name */
-	if (strcmp(resolution,name)==0)
+	if (strcmp(resolution, name)==0)
 		return 0;
 
 	/* LEGACY (to be removed) */
@@ -933,9 +943,9 @@ static int video_resolution_cmp(const char* resolution, const char* name) {
 	rl = strlen(resolution);
 	nl = strlen(name);
 	if (rl > nl
-		&& strncmp(resolution,name,nl)==0
+		&& strncmp(resolution, name, nl)==0
 		&& resolution[nl]=='-'
-		&& strspn(resolution+nl,"-0123456789x")==strlen(resolution+nl))
+		&& strspn(resolution+nl, "-0123456789x")==strlen(resolution+nl))
 		return 0;
 
 	return -1;
@@ -944,7 +954,8 @@ static int video_resolution_cmp(const char* resolution, const char* name) {
 /**
  * Select the current video configuration.
  */
-static int video_update_crtc(struct advance_video_context* context) {
+static int video_update_crtc(struct advance_video_context* context)
+{
 	adv_crtc_container_iterator i;
 	const adv_crtc* crtc = 0;
 	int j;
@@ -954,9 +965,9 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	log_std(("advance:mode:select\n"));
 
-	for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
-		if (is_crtc_acceptable(context,crtc)) {
+		if (is_crtc_acceptable(context, crtc)) {
 			if (context->state.crtc_mac < VIDEO_CRTC_MAX) {
 				context->state.crtc_map[context->state.crtc_mac] = crtc;
 				++context->state.crtc_mac;
@@ -978,10 +989,10 @@ static int video_update_crtc(struct advance_video_context* context) {
 		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
-	if (strcmp(context->config.resolution,"auto")!=0) {
+	if (strcmp(context->config.resolution, "auto")!=0) {
 		int i;
 		for(i=0;i<context->state.crtc_mac;++i) {
-			if (video_resolution_cmp(context->config.resolution,crtc_name_get(context->state.crtc_map[i])) == 0
+			if (video_resolution_cmp(context->config.resolution, crtc_name_get(context->state.crtc_map[i])) == 0
 				&& is_crtc_acceptable(context, context->state.crtc_map[i]))
 			{
 				crtc = context->state.crtc_map[i];
@@ -1019,7 +1030,8 @@ static int video_update_crtc(struct advance_video_context* context) {
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
  */
-static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, int force_scanline, int force_interlace) {
+static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, int force_scanline, int force_interlace)
+{
 	char buffer[256];
 	adv_crtc crtc;
 	int err = -1;
@@ -1058,15 +1070,15 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 	if (err != 0)
 		return 0;
 
-	if (!crtc_clock_check(&context->config.monitor,&crtc))
+	if (!crtc_clock_check(&context->config.monitor, &crtc))
 		return 0;
 
-	strcpy(crtc.name,name);
+	strcpy(crtc.name, name);
 
-	crtc_print(buffer,&crtc);
-	log_std(("advance:generate: modeline \"%s\"\n",buffer));
+	crtc_print(buffer, &crtc);
+	log_std(("advance:generate: modeline \"%s\"\n", buffer));
 
-	ret = crtc_container_insert(&context->config.crtc_bag,&crtc);
+	ret = crtc_container_insert(&context->config.crtc_bag, &crtc);
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
 		log_std(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
@@ -1081,25 +1093,27 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
  * The fake video modes are for exclusive use with video driver with a fake mode set,
  * i.e. drivers for a window manager.
  */
-static void video_init_crtc_make_fake(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y) {
+static void video_init_crtc_make_fake(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y)
+{
 	char buffer[256];
 
 	adv_crtc crtc;
 	crtc_fake_set(&crtc, size_x, size_y);
 
-	strcpy(crtc.name,name);
-	crtc_print(buffer,&crtc);
+	strcpy(crtc.name, name);
+	crtc_print(buffer, &crtc);
 
-	log_std(("advance:generate: fake \"%s\"\n",buffer));
+	log_std(("advance:generate: fake \"%s\"\n", buffer));
 
-	crtc_container_insert(&context->config.crtc_bag,&crtc);
+	crtc_container_insert(&context->config.crtc_bag, &crtc);
 }
 
 /**
  * Compute and insert in the main list a new modeline guessing the specified parameters.
  * This is mainly used for vector games.
  */
-static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock) {
+static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock)
+{
 	char buffer[256];
 	adv_crtc crtc;
 	int err = -1;
@@ -1117,7 +1131,7 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 	if (err != 0)
 		return;
 
-	if (!crtc_clock_check(&context->config.monitor,&crtc))
+	if (!crtc_clock_check(&context->config.monitor, &crtc))
 		return;
 
 	/* adjust the horizontal size */
@@ -1127,15 +1141,16 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	crtc_hsize_set(&crtc, size_x);
 
-	strcpy(crtc.name,name);
+	strcpy(crtc.name, name);
 
-	crtc_print(buffer,&crtc);
-	log_std(("advance:generate: modeline \"%s\"\n",buffer));
+	crtc_print(buffer, &crtc);
+	log_std(("advance:generate: modeline \"%s\"\n", buffer));
 
-	crtc_container_insert(&context->config.crtc_bag,&crtc);
+	crtc_container_insert(&context->config.crtc_bag, &crtc);
 }
 
-static unsigned best_step(unsigned value, unsigned step) {
+static unsigned best_step(unsigned value, unsigned step)
+{
 	if (value % step != 0)
 		value = value + step - value % step;
 	return value;
@@ -1234,7 +1249,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		context->state.game_colors = req->colors;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_WINDOW) != 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 		best_size_x = context->state.game_used_size_x;
 		best_size_y = context->state.game_used_size_y;
 		best_size_2x = 2 * context->state.game_used_size_x;
@@ -1320,19 +1335,19 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 			if (video_is_programmable(context) && context->config.interpolate.mac > 0) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
-				crtc = video_init_crtc_make_raster(context, "generate",best_size_x, best_size_y, best_vclock, 0, 0);
+				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_vclock, 0, 0);
 				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-scanline",best_size_x, best_size_y, best_vclock, 1, 0);
+					video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_vclock, 1, 0);
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-interlace",best_size_x, best_size_y, best_vclock, 0, 1);
-				crtc = video_init_crtc_make_raster(context, "generate-double",best_size_2x, best_size_2y, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_vclock, 0, 1);
+				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_vclock, 0, 0);
 				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-double-scanline",best_size_2x, best_size_2y, best_vclock, 1, 0);
+					video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_vclock, 1, 0);
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-double-interlace",best_size_2x, best_size_2y, best_vclock, 0, 1);
-				video_init_crtc_make_raster(context, "generate-triple",best_size_3x, best_size_3y, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_vclock, 0, 1);
+				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, best_vclock, 0, 0);
 			}
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_INFO_ZOOM) != 0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
 				/* generate modes for a zoom driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
@@ -1341,7 +1356,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		}
 	}
 
-	log_std(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n",best_size_x,best_size_y,best_size_2x,best_size_2y,best_size_3x,best_size_3y,best_bits,(double)best_vclock));
+	log_std(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_bits, (double)best_vclock));
 
 	if (context->state.game_vector_flag) {
 		context->config.stretch = STRETCH_NONE;
@@ -1365,7 +1380,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	return 0;
 }
 
-static void video_done_state(struct advance_video_context* context) {
+static void video_done_state(struct advance_video_context* context)
+{
 }
 
 /**
@@ -1405,7 +1421,7 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 
 	/* initialize the palette */
 	for(i=0;i<context->state.palette_total;++i) {
-		context->state.palette_map[i] = osd_rgb(0,0,0);
+		context->state.palette_map[i] = osd_rgb(0, 0, 0);
 	}
 	for(i=0;i<context->state.palette_total;++i) {
 		context->state.palette_index_map[i] = 0;
@@ -1429,7 +1445,8 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 /**
  * Deinitialize the color mode.
  */
-static void video_done_color(struct advance_video_context* context) {
+static void video_done_color(struct advance_video_context* context)
+{
 	free(context->state.palette_dirty_map);
 	context->state.palette_dirty_map = 0;
 	free(context->state.palette_map);
@@ -1441,14 +1458,14 @@ static void video_done_color(struct advance_video_context* context) {
 /***************************************************************************/
 /* Frame */
 
-static __inline__ void video_frame_resolution(struct advance_video_context* context, unsigned input)
+static inline void video_frame_resolution(struct advance_video_context* context, unsigned input)
 {
 	int modify = 0;
 	int show = 0;
 	
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
-		if (strcmp(context->config.resolution,"auto")==0) {
+		if (strcmp(context->config.resolution, "auto")==0) {
 			if (context->state.crtc_mac > 0) {
 				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[0]));
 				modify = 1;
@@ -1465,7 +1482,7 @@ static __inline__ void video_frame_resolution(struct advance_video_context* cont
 		}
 	} else if (input == OSD_INPUT_MODE_PRED) {
 		show = 1;
-		if (strcmp(context->config.resolution,"auto")!=0) {
+		if (strcmp(context->config.resolution, "auto")!=0) {
 			unsigned i;
 			for(i=0;i<context->state.crtc_mac;++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
@@ -1481,7 +1498,7 @@ static __inline__ void video_frame_resolution(struct advance_video_context* cont
 	}
 
 	if (modify) {
-		log_std(("advance:video: select mode %s\n",context->config.resolution));
+		log_std(("advance:video: select mode %s\n", context->config.resolution));
 
 		/* update all the complete state, the configuration is choosen by the name */
 		advance_video_change(context);
@@ -1492,7 +1509,7 @@ static __inline__ void video_frame_resolution(struct advance_video_context* cont
 	}
 }
 
-static __inline__ void video_frame_pan(struct advance_video_context* context, unsigned input)
+static inline void video_frame_pan(struct advance_video_context* context, unsigned input)
 {
 	int modify = 0;
 
@@ -1531,7 +1548,7 @@ static __inline__ void video_frame_pan(struct advance_video_context* context, un
 	}
 }
 
-static __inline__ void video_frame_blit(struct advance_video_context* context, unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp)
+static inline void video_frame_blit(struct advance_video_context* context, unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp)
 {
 	unsigned combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
 	if (context->state.game_rgb_flag) {
@@ -1552,7 +1569,8 @@ static __inline__ void video_frame_blit(struct advance_video_context* context, u
 	}
 }
 
-static __inline__ void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap) {
+static inline void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
+{
 	unsigned combine;
 
 	/* check if the pipeline is already allocated */
@@ -1579,7 +1597,7 @@ static __inline__ void video_frame_pipeline(struct advance_video_context* contex
 
 	/* adjust for the blit orientation */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
-		SWAP(int,context->state.blit_src_dw,context->state.blit_src_dp);
+		SWAP(int, context->state.blit_src_dw, context->state.blit_src_dp);
 	}
 
 	context->state.blit_src_offset = context->state.game_used_pos_x * context->state.blit_src_dp + context->state.game_used_pos_y * context->state.blit_src_dw;
@@ -1631,7 +1649,8 @@ static __inline__ void video_frame_pipeline(struct advance_video_context* contex
 	context->state.blit_pipeline_flag = 1;
 }
 
-static __inline__ void video_frame_put(struct advance_video_context* context, const struct osd_bitmap* bitmap, unsigned x, unsigned y) {
+static inline void video_frame_put(struct advance_video_context* context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
+{
 	unsigned dst_x;
 	unsigned dst_y;
 	unsigned src_offset;
@@ -1648,7 +1667,7 @@ static __inline__ void video_frame_put(struct advance_video_context* context, co
 	video_blit_pipeline(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 }
 
-static __inline__ void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
+static inline void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
 {
 	update_start();
 
@@ -1658,7 +1677,8 @@ static __inline__ void video_frame_screen(struct advance_video_context* context,
 	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 }
 
-static __inline__ void video_frame_palette(struct advance_video_context* context) {
+static inline void video_frame_palette(struct advance_video_context* context)
+{
 	if (context->state.palette_is_dirty) {
 		unsigned i;
 
@@ -1710,7 +1730,8 @@ static __inline__ void video_frame_palette(struct advance_video_context* context
 	}
 }
 
-static void event_compare(unsigned previous, unsigned current, int id) {
+static void event_compare(unsigned previous, unsigned current, int id)
+{
 	if (previous != current) {
 		if (current) {
 			hardware_script_start(id);
@@ -1720,7 +1741,8 @@ static void event_compare(unsigned previous, unsigned current, int id) {
 	}
 }
 
-void video_frame_event(struct advance_video_context* context, int leds_status, int turbo_status, unsigned input) {
+void video_frame_event(struct advance_video_context* context, int leds_status, int turbo_status, unsigned input)
+{
 	unsigned event_mask = 0;
 
 	event_mask |= leds_status & 0x7;
@@ -1752,7 +1774,8 @@ void video_frame_event(struct advance_video_context* context, int leds_status, i
 	context->state.event_mask_old = event_mask;
 }
 
-static int video_skip_dec(struct advance_video_context* context) {
+static int video_skip_dec(struct advance_video_context* context)
+{
 	if (context->state.skip_level_full >= SYNC_MAX) {
 		context->state.skip_level_full = SYNC_MAX - 1;
 		context->state.skip_level_skip = 1;
@@ -1771,7 +1794,8 @@ static int video_skip_dec(struct advance_video_context* context) {
 	return 0;
 }
 
-static int video_skip_inc(struct advance_video_context* context) {
+static int video_skip_inc(struct advance_video_context* context)
+{
 	if (context->state.skip_level_skip > 1) {
 		context->state.skip_level_full = 1;
 		--context->state.skip_level_skip;
@@ -1790,7 +1814,8 @@ static int video_skip_inc(struct advance_video_context* context) {
 	return 0;
 }
 
-static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context) {
+static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
+{
 	double step = context->state.skip_step;
 	double full;
 	double skip;
@@ -1813,9 +1838,9 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 	}
 
 	log_debug(("advance:skip: step %g [sec]\n", step));
-	log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n",estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
-	log_debug(("advance:skip: mame_full %g [sec], mame_skip %g [sec], osd_full %g [sec], osd_skip %g [sec]\n",estimate_context->estimate_mame_full,estimate_context->estimate_mame_skip,estimate_context->estimate_osd_full,estimate_context->estimate_osd_skip));
-	log_debug(("advance:skip: common_full %g [sec], common_skip %g [sec]\n",estimate_context->estimate_common_full,estimate_context->estimate_common_skip));
+	log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n", estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
+	log_debug(("advance:skip: mame_full %g [sec], mame_skip %g [sec], osd_full %g [sec], osd_skip %g [sec]\n", estimate_context->estimate_mame_full, estimate_context->estimate_mame_skip, estimate_context->estimate_osd_full, estimate_context->estimate_osd_skip));
+	log_debug(("advance:skip: common_full %g [sec], common_skip %g [sec]\n", estimate_context->estimate_common_full, estimate_context->estimate_common_skip));
 	log_debug(("advance:skip: full %g [sec], skip %g [sec]\n", full, skip));
 
 	if (full < step) {
@@ -1839,10 +1864,11 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		}
 	}
 
-	log_debug(("advance:skip: cycle %d/%d\n",context->state.skip_level_full,context->state.skip_level_skip));
+	log_debug(("advance:skip: cycle %d/%d\n", context->state.skip_level_full, context->state.skip_level_skip));
 }
 
-static double video_frame_wait(double current, double expected) {
+static double video_frame_wait(double current, double expected)
+{
 	while (current < expected) {
 		double diff = expected - current;
 
@@ -1854,7 +1880,8 @@ static double video_frame_wait(double current, double expected) {
 	return current;
 }
 
-static void video_frame_sync(struct advance_video_context* context) {
+static void video_frame_sync(struct advance_video_context* context)
+{
 	double current;
 	double expected;
 
@@ -1922,7 +1949,8 @@ static void video_frame_sync(struct advance_video_context* context) {
 	}
 }
 
-static void video_frame_sync_free(struct advance_video_context* context) {
+static void video_frame_sync_free(struct advance_video_context* context)
+{
 	double current;
 
 	current = advance_timer();
@@ -1942,7 +1970,8 @@ static void video_frame_sync_free(struct advance_video_context* context) {
 	}
 }
 
-static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, int skip_flag) {
+static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, int skip_flag)
+{
 	if (!skip_flag) {
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
@@ -1956,7 +1985,8 @@ static void video_sync_update(struct advance_video_context* context, struct adva
 	}
 }
 
-static void video_frame_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context) {
+static void video_frame_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
+{
 
 	if (context->state.skip_warming_up_flag) {
 		context->state.skip_flag = 0;
@@ -1997,15 +2027,16 @@ static void video_frame_skip(struct advance_video_context* context, struct advan
 			if (!context->state.fastest_flag
 				&& !context->state.measure_flag
 				&& (context->state.turbo_flag || context->config.frameskip_auto_flag)) {
-				video_skip_recompute(context,estimate_context);
+				video_skip_recompute(context, estimate_context);
 			}
 		}
 
-		log_debug(("advance:skip: skip %d, frame %d/%d/%d\n",context->state.skip_flag,context->state.skip_level_counter,context->state.skip_level_full,context->state.skip_level_skip));
+		log_debug(("advance:skip: skip %d, frame %d/%d/%d\n", context->state.skip_flag, context->state.skip_level_counter, context->state.skip_level_full, context->state.skip_level_skip));
 	}
 }
 
-static void video_frame_skip_none(struct advance_video_context* context, struct advance_estimate_context* estimate_context) {
+static void video_frame_skip_none(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
+{
 	context->state.skip_step = 1.0 / context->state.game_fps;
 	context->state.skip_flag = 0;
 	context->state.skip_level_counter = 0;
@@ -2014,18 +2045,20 @@ static void video_frame_skip_none(struct advance_video_context* context, struct 
 	context->state.skip_warming_up_flag = 1;
 }
 
-static void video_skip_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context) {
+static void video_skip_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context)
+{
 	if (!context->state.sync_throttle_flag
 		|| advance_record_video_is_active(record_context)
 		|| advance_record_snapshot_is_active(record_context)
 	) {
-		video_frame_skip_none(context,estimate_context);
+		video_frame_skip_none(context, estimate_context);
 	} else {
-		video_frame_skip(context,estimate_context);
+		video_frame_skip(context, estimate_context);
 	}
 }
 
-static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, int leds_status, unsigned input, int skip_flag) {
+static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, int leds_status, unsigned input, int skip_flag)
+{
 
 	/* events */
 	video_frame_event(context, leds_status, context->state.turbo_flag, input);
@@ -2116,7 +2149,8 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 	}
 }
 
-static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, int skip_flag) {
+static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, int skip_flag)
+{
 
 	/* bitmap */
 	if (!skip_flag) {
@@ -2223,7 +2257,8 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	}
 }
 
-static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, int skip_flag) {
+static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, int skip_flag)
+{
 	if (context->state.debugger_flag) {
 		video_frame_debugger(context, debug, debug_palette, debug_palette_size);
 	} else {
@@ -2258,7 +2293,8 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 
 #ifdef USE_SMP
 
-static struct osd_bitmap* bitmap_duplicate(struct osd_bitmap* old, const struct osd_bitmap* current) {
+static struct osd_bitmap* bitmap_duplicate(struct osd_bitmap* old, const struct osd_bitmap* current)
+{
 	if (current) {
 		if (!old)
 			old = malloc(sizeof(struct osd_bitmap));
@@ -2277,7 +2313,8 @@ static struct osd_bitmap* bitmap_duplicate(struct osd_bitmap* old, const struct 
 	return old;
 }
 
-static void bitmap_free(struct osd_bitmap* bitmap) {
+static void bitmap_free(struct osd_bitmap* bitmap)
+{
 	if (bitmap)
 		free(bitmap);
 }
@@ -2288,7 +2325,8 @@ static void bitmap_free(struct osd_bitmap* bitmap) {
  * Precomputation of the frame before updating.
  * Mainly used to duplicate the data for the video thread.
  */
-static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag) {
+static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+{
 #ifdef USE_SMP
 	/* don't use the thread if the debugger is active */
 	if (context->config.smp_flag && !context->state.debugger_flag) {
@@ -2329,7 +2367,8 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
-static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context,struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag) {
+static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+{
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag) {
 		pthread_mutex_lock(&context->state.thread_video_mutex);
@@ -2355,7 +2394,8 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 /**
  * Main video thread function.
  */
-static void* video_thread(void* void_context) {
+static void* video_thread(void* void_context)
+{
 	struct advance_video_context* context = &CONTEXT.video;
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
 	struct advance_estimate_context* estimate_context = &CONTEXT.estimate;
@@ -2419,7 +2459,8 @@ static void* video_thread(void* void_context) {
 /**
  * Initialize and start the video thread.
  */
-static int video_init_thread(struct advance_video_context* context) {
+static int video_init_thread(struct advance_video_context* context)
+{
 #ifdef USE_SMP
 	context->state.thread_exit_flag = 0;
 	context->state.thread_state_ready_flag = 0;
@@ -2430,9 +2471,9 @@ static int video_init_thread(struct advance_video_context* context) {
 	context->state.thread_state_sample_max = 0;
 	context->state.thread_state_sample_buffer = 0;
 	context->state.thread_state_skip_flag = 0;
-	if (pthread_mutex_init(&context->state.thread_video_mutex,NULL) != 0)
+	if (pthread_mutex_init(&context->state.thread_video_mutex, NULL) != 0)
 		return -1;
-	if (pthread_cond_init(&context->state.thread_video_cond,NULL) != 0)
+	if (pthread_cond_init(&context->state.thread_video_cond, NULL) != 0)
 		return -1;
 	if (pthread_create(&context->state.thread_id, NULL, video_thread, NULL) != 0)
 		return -1;
@@ -2443,7 +2484,8 @@ static int video_init_thread(struct advance_video_context* context) {
 /**
  * Terminate and deallocate the video thread.
  */
-static void video_done_thread(struct advance_video_context* context) {
+static void video_done_thread(struct advance_video_context* context)
+{
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 	context->state.thread_exit_flag = 1;
@@ -2478,7 +2520,8 @@ int thread_is_active(void)
 /**
  * Update the state after a configuration change from the user interface.
  */
-int advance_video_change(struct advance_video_context* context) {
+int advance_video_change(struct advance_video_context* context)
+{
 	adv_mode mode;
 
 #ifdef USE_SMP
@@ -2510,7 +2553,7 @@ int advance_video_change(struct advance_video_context* context) {
 
 	video_update_pan(context);
 
-	if (video_update_mode(context,&mode) != 0) {
+	if (video_update_mode(context, &mode) != 0) {
 		goto err;
 	}
 
@@ -2549,7 +2592,7 @@ int osd2_video_init(struct osd_video_option* req)
 	log_std(("osd: vector_flag %d\n", req->vector_flag));
 	log_std(("osd: fps %g\n", req->fps));
     
-	if (video_init_state(context,req) != 0) {
+	if (video_init_state(context, req) != 0) {
 		return -1;
 	}
 
@@ -2559,7 +2602,7 @@ int osd2_video_init(struct osd_video_option* req)
 	}
 
 	if (video_update_crtc(context) != 0) {
-		if (strcmp(context->config.resolution,"auto")==0)
+		if (strcmp(context->config.resolution, "auto")==0)
 			target_err("No video modes available for the current game.\n");
 		else
 			target_err("The specified 'display_mode %s' doesn't exist.\n", context->config.resolution);
@@ -2583,7 +2626,7 @@ int osd2_video_init(struct osd_video_option* req)
 
 	video_update_pan(context);
 
-	if (video_update_mode(context,&mode) != 0) {
+	if (video_update_mode(context, &mode) != 0) {
 		target_err("%s\n", error_get());
 		return -1;
 	}
@@ -2622,10 +2665,10 @@ void osd2_video_done(void)
 	keyb_done();
 
 	if (context->config.restore_flag || context->state.measure_flag) {
-		video_done_mode(context,1);
+		video_done_mode(context, 1);
 		video_mode_restore();
 	} else {
-		video_done_mode(context,0);
+		video_done_mode(context, 0);
 		if (video_mode_is_active())
 			video_mode_done(0);
 	}
@@ -2644,10 +2687,11 @@ void osd2_video_done(void)
 	}
 }
 
-void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
+void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+{
 	struct advance_video_context* context = &CONTEXT.video;
 
-	log_std(("osd: osd2_area(%d,%d,%d,%d)\n",x1,y1,x2,y2));
+	log_std(("osd: osd2_area(%d, %d, %d, %d)\n", x1, y1, x2, y2));
 
 	context->state.game_used_pos_x = x1;
 	context->state.game_used_pos_y = y1;
@@ -2700,7 +2744,7 @@ void osd_pause(int paused)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	log_std(("osd: osd_pause(paused:%d)\n",paused));
+	log_std(("osd: osd_pause(paused:%d)\n", paused));
 
 	context->state.pause_flag = paused != 0;
 }
@@ -2783,7 +2827,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	video_frame_prepare(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
 
 	/* update the local info */
-	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record,game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
+	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
 
 	/* estimate the time */
 	advance_estimate_mame_begin(&CONTEXT.estimate);
@@ -2791,7 +2835,8 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	return latency_diff;
 }
 
-void osd2_info(char* buffer, unsigned size) {
+void osd2_info(char* buffer, unsigned size)
+{
 	unsigned skip;
 	unsigned rate;
 
@@ -2802,15 +2847,15 @@ void osd2_info(char* buffer, unsigned size) {
 	skip = 100 * context->state.skip_level_full / (context->state.skip_level_full + context->state.skip_level_skip);
 
 	if (context->state.fastest_flag) {
-		sprintf(buffer,"%7s %3d%% - %3d%%","startup",skip,rate);
+		sprintf(buffer, "%7s %3d%% - %3d%%", "startup", skip, rate);
 	} else if (!context->state.sync_throttle_flag) {
-		sprintf(buffer,"%7s 100%% - %3d%%","free",rate);
+		sprintf(buffer, "%7s 100%% - %3d%%", "free", rate);
 	} else if (context->state.turbo_flag) {
-		sprintf(buffer,"%7s %3d%% - %3d%%","turbo",skip,rate);
+		sprintf(buffer, "%7s %3d%% - %3d%%", "turbo", skip, rate);
 	} else if (context->config.frameskip_auto_flag) {
-		sprintf(buffer,"%7s %3d%% - %3d%%","auto",skip,rate);
+		sprintf(buffer, "%7s %3d%% - %3d%%", "auto", skip, rate);
 	} else {
-		sprintf(buffer,"%7s %3d%% - %3d%%","fix",skip,rate);
+		sprintf(buffer, "%7s %3d%% - %3d%%", "fix", skip, rate);
 	}
 }
 
@@ -2818,7 +2863,8 @@ void osd2_info(char* buffer, unsigned size) {
 /* Init/Done/Load */
 
 /* Adjust the orientation with the requested rol/ror/flipx/flipy operations */
-static unsigned video_orientation_compute(unsigned orientation, int rol, int ror, int flipx, int flipy) {
+static unsigned video_orientation_compute(unsigned orientation, int rol, int ror, int flipx, int flipy)
+{
 	if (ror) {
 		/* if only one of the components is inverted, switch them */
 		if ((orientation & OSD_ORIENTATION_ROT180) == OSD_ORIENTATION_FLIP_X || (orientation & OSD_ORIENTATION_ROT180) == OSD_ORIENTATION_FLIP_Y)
@@ -2845,7 +2891,8 @@ static unsigned video_orientation_compute(unsigned orientation, int rol, int ror
 }
 
 /** Compute the inverse orientation */
-static unsigned video_orientation_inverse(unsigned orientation) {
+static unsigned video_orientation_inverse(unsigned orientation)
+{
 	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
 		int flipx = (orientation & OSD_ORIENTATION_FLIP_X) != 0;
 		int flipy = (orientation & OSD_ORIENTATION_FLIP_Y) != 0;
@@ -2927,7 +2974,8 @@ static adv_conf_enum_int OPTION_INDEX[] = {
 { "yuy2", MODE_FLAGS_INDEX_YUY2 }
 };
 
-int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context) {
+int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context)
+{
 	/* save the configuration */
 	context->state.cfg_context = cfg_context;
 
@@ -2982,7 +3030,8 @@ static const char* GAME_BLIT_COMBINE_MAX[] = {
 0
 };
 
-static void video_config_mode(struct advance_video_context* context, struct mame_option* option) {
+static void video_config_mode(struct advance_video_context* context, struct mame_option* option)
+{
 	adv_crtc_container_iterator i;
 	adv_crtc* best_crtc = 0;
 	int best_size;
@@ -3002,10 +3051,10 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	/* set the debugger size */
 	option->debug_width = 640;
 	option->debug_height = 480;
-	for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		/* if a specific mode is chosen, size the debugger like it */
-		if (is_crtc_acceptable_preventive(context,crtc)
+		if (is_crtc_acceptable_preventive(context, crtc)
 			&& video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0) {
 			option->debug_width = crtc_hsize_get(crtc);
 			option->debug_height = crtc_vsize_get(crtc);
@@ -3033,10 +3082,10 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		/* select the size of the mode near at the 640x480 size */
 		best_crtc = 0;
 		best_size = 0;
-		for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			adv_crtc* crtc = crtc_container_iterator_get(&i);
-			if (is_crtc_acceptable_preventive(context,crtc)
-				&& (strcmp(context->config.resolution,"auto")==0
+			if (is_crtc_acceptable_preventive(context, crtc)
+				&& (strcmp(context->config.resolution, "auto")==0
 					|| video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0
 					)
 				) {
@@ -3074,7 +3123,8 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	}
 }
 
-int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option) {
+int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option)
+{
 	const char* s;
 	int err;
 	unsigned i;
@@ -3085,9 +3135,10 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 
 	context->config.game_orientation = mame_game_orientation(option->game);
 
-	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX,option->game);
+	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
 	strcpy(context->config.section_name, mame_game_name(option->game));
 	strcpy(context->config.section_resolution, mame_game_resolution(option->game));
+	strcpy(context->config.section_resolutionclock, mame_game_resolutionclock(option->game));
 	if ((context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) != 0)
 		strcpy(context->config.section_orientation, "vertical");
 	else
@@ -3104,14 +3155,14 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	context->config.monitor_aspect_y = conf_int_get_default(cfg_context, "display_aspecty");
 
 	s = conf_string_get_default(cfg_context, "display_skiplines");
-	if (strcmp(s,"auto")==0) {
+	if (strcmp(s, "auto")==0) {
 		context->config.skiplines = -1;
 	} else {
 		context->config.skiplines = atoi(s);
 	}
 
 	s = conf_string_get_default(cfg_context, "display_skipcolumns");
-	if (strcmp(s,"auto")==0) {
+	if (strcmp(s, "auto")==0) {
 		context->config.skipcolumns = -1;
 	} else {
 		context->config.skipcolumns = atoi(s);
@@ -3152,14 +3203,14 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
-	strcpy(context->config.resolution,s);
+	strcpy(context->config.resolution, s);
 
 	context->config.index = conf_int_get_default(cfg_context, "display_color");
 	context->config.restore_flag = conf_bool_get_default(cfg_context, "display_restore");
 	context->config.aspect_expansion_factor = conf_float_get_default(cfg_context, "display_expand");
 
 	s = conf_string_get_default(cfg_context, "display_frameskip");
-	if (strcmp(s,"auto")==0) {
+	if (strcmp(s, "auto")==0) {
 		context->config.frameskip_auto_flag = 1;
 		context->config.frameskip_factor = 1.0;
 	} else {
@@ -3186,13 +3237,13 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	}
 	if (err == 0) {
 		/* print the clock ranges */
-		log_std(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
+		log_std(("advance:video: pclock %.3f - %.3f\n", (double)context->config.monitor.pclock.low, (double)context->config.monitor.pclock.high));
 		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.hclock[i].low)
-				log_std(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
+				log_std(("advance:video: hclock %.3f - %.3f\n", (double)context->config.monitor.hclock[i].low, (double)context->config.monitor.hclock[i].high));
 		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.vclock[i].low)
-				log_std(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
+				log_std(("advance:video: vclock %.3f - %.3f\n", (double)context->config.monitor.vclock[i].low, (double)context->config.monitor.vclock[i].high));
 	}
 	if (err > 0) {
 		monitor_reset(&context->config.monitor);
@@ -3234,7 +3285,7 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	}
 
 	if (crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
-		target_err("%s\n",error_get());
+		target_err("%s\n", error_get());
 		target_err("Invalid modeline.\n");
 		return -1;
 	}
@@ -3242,7 +3293,8 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	return 0;
 }
 
-void advance_video_done(struct advance_video_context* context) {
+void advance_video_done(struct advance_video_context* context)
+{
 	crtc_container_done(&context->config.crtc_bag);
 }
 
@@ -3259,7 +3311,7 @@ int advance_video_inner_init(struct advance_video_context* context, struct mame_
 		return -1;
 	}
 
-	video_config_mode(context,option);
+	video_config_mode(context, option);
 	return 0;
 }
 

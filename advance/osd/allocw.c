@@ -57,7 +57,8 @@ unsigned malloc_start_counter;
 unsigned malloc_last_check;
 static unsigned malloc_counter;
 
-static int malloc_check(void* _d) {
+static int malloc_check(void* _d)
+{
 	unsigned char* d;
 	struct malloc_header* h;
 	struct malloc_footer* f;
@@ -78,11 +79,13 @@ static int malloc_check(void* _d) {
 	return 1;
 }
 
-void malloc_init(void) {
+void malloc_init(void)
+{
 	malloc_start_counter = malloc_counter;
 }
 
-void malloc_done(void) {
+void malloc_done(void)
+{
 	struct malloc_header* i;
 	int bad;
 
@@ -104,10 +107,11 @@ void malloc_done(void) {
 		}
 		i = i->next;
 	} while (i != base);
-	printf("\nEnd, %d bad blocks\n",bad);
+	printf("\nEnd, %d bad blocks\n", bad);
 }
 
-static void malloc_insert(struct malloc_header* h) {
+static void malloc_insert(struct malloc_header* h)
+{
 	if (!base) {
 		base = h;
 		h->pred = base;
@@ -120,7 +124,8 @@ static void malloc_insert(struct malloc_header* h) {
 	}
 }
 
-static void malloc_remove(struct malloc_header* h) {
+static void malloc_remove(struct malloc_header* h)
+{
 	if (base == h) {
 		base = base->next;
 	}
@@ -134,13 +139,14 @@ static void malloc_remove(struct malloc_header* h) {
 
 extern void* __real_malloc(size_t size);
 
-void* __wrap_malloc(size_t size) {
+void* __wrap_malloc(size_t size)
+{
 	unsigned char* p;
 	unsigned dsize;
 
 	++malloc_counter;
 	if (malloc_counter == malloc_abort_counter) {
-		fprintf(stderr,"malloc[%d]: abort\n", malloc_counter);
+		fprintf(stderr, "malloc[%d]: abort\n", malloc_counter);
 		abort();
 	}
 
@@ -158,7 +164,7 @@ void* __wrap_malloc(size_t size) {
 		d = p + sizeof(struct malloc_header);
 		f = (struct malloc_footer*)(d + dsize);
 
-		memset(d,0x5A,dsize);
+		memset(d, 0x5A, dsize);
 
 		h->counter = malloc_counter;
 		h->size = dsize;
@@ -168,7 +174,7 @@ void* __wrap_malloc(size_t size) {
 		malloc_insert(h);
 
 		if (!malloc_check(d)) {
-			fprintf(stderr,"malloc[%d]: bad alloc\n", malloc_counter);
+			fprintf(stderr, "malloc[%d]: bad alloc\n", malloc_counter);
 			/* abort(); */
 			return 0;
 		}
@@ -179,12 +185,13 @@ void* __wrap_malloc(size_t size) {
 
 extern void __real_free(void* p);
 
-void __wrap_free(void* _d) {
+void __wrap_free(void* _d)
+{
 	unsigned char* d = (unsigned char*)_d;
 
 	++malloc_counter;
 	if (malloc_counter == malloc_abort_counter) {
-		fprintf(stderr,"free[%d]: abort\n", malloc_counter);
+		fprintf(stderr, "free[%d]: abort\n", malloc_counter);
 		abort();
 	}
 
@@ -196,7 +203,7 @@ void __wrap_free(void* _d) {
 		h = (struct malloc_header*)(d - sizeof(struct malloc_header));
 
 		if (!malloc_check(d)) {
-			fprintf(stderr,"free[%d]: bad block counter %d, size %d, mask %x, expected mask %x\n", malloc_counter, h->counter, h->size, h->mask, h->counter ^ h->size);
+			fprintf(stderr, "free[%d]: bad block counter %d, size %d, mask %x, expected mask %x\n", malloc_counter, h->counter, h->size, h->mask, h->counter ^ h->size);
 			/* abort(); */
 			return;
 		}
@@ -209,12 +216,13 @@ void __wrap_free(void* _d) {
 
 extern void* __real_realloc(void* p, size_t size);
 
-void* __wrap_realloc(void* _d, size_t size) {
+void* __wrap_realloc(void* _d, size_t size)
+{
 	unsigned char* d = (unsigned char*)_d;
 
 	++malloc_counter;
 	if (malloc_counter == malloc_abort_counter) {
-		fprintf(stderr,"realloc[%d]: abort\n", malloc_counter);
+		fprintf(stderr, "realloc[%d]: abort\n", malloc_counter);
 		abort();
 	}
 
@@ -226,7 +234,7 @@ void* __wrap_realloc(void* _d, size_t size) {
 		unsigned dsize;
 
 		if (!malloc_check(d)) {
-			fprintf(stderr,"realloc[%d]: bad block\n", malloc_counter);
+			fprintf(stderr, "realloc[%d]: bad block\n", malloc_counter);
 			/* abort(); */
 			return 0;
 		}
@@ -256,7 +264,7 @@ void* __wrap_realloc(void* _d, size_t size) {
 			malloc_insert(h);
 
 			if (!malloc_check(d)) {
-				fprintf(stderr,"realloc[%d]: bad alloc\n", malloc_counter);
+				fprintf(stderr, "realloc[%d]: bad alloc\n", malloc_counter);
 				/* abort(); */
 				return 0;
 			}
@@ -268,7 +276,8 @@ void* __wrap_realloc(void* _d, size_t size) {
 
 extern char* __real_strdup(char* s);
 
-char* __wrap_strdup(char* s) {
+char* __wrap_strdup(char* s)
+{
 	unsigned len;
 	char* ptr;
 
@@ -279,7 +288,7 @@ char* __wrap_strdup(char* s) {
 	if (!ptr)
 		return 0;
 
-	memcpy(ptr,s,len+1);
+	memcpy(ptr, s, len+1);
 
 	return ptr;
 }

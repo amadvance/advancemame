@@ -61,7 +61,8 @@ static unsigned update_page_max;
  *   - 2 A double buffer is used if the current video mode supports the asyncronous page set.
  *   - 3 A triple buffer is used if the current video mode supports the syncronous page set.
  */
-void update_init(unsigned max_buffer) {
+void update_init(unsigned max_buffer)
+{
 	unsigned pages = (video_virtual_y() * video_bytes_per_scanline()) / video_bytes_per_page();
 	if (pages > max_buffer)
 		pages = max_buffer;
@@ -82,26 +83,29 @@ void update_init(unsigned max_buffer) {
 /**
  * Deinizialize the update system.
  */
-void update_done(void) {
+void update_done(void)
+{
 	assert( is_update_draw_allowed == 0 );
 
 	/* display the first page */
 	if (update_page_max!=1) {
-		video_display_set_async(0,0);
+		video_display_set_async(0, 0);
 	}
 }
 
 /**
  * Get the number of pages.
  */
-unsigned update_page_max_get(void) {
+unsigned update_page_max_get(void)
+{
 	return update_page_max;
 }
 
 /**
  * Get the horizontal position of the page in drawing.
  */
-unsigned update_x_get(void) {
+unsigned update_x_get(void)
+{
 	unsigned x;
 	assert( is_update_draw_allowed );
 	x = (update_offset % video_bytes_per_scanline()) / video_bytes_per_pixel();
@@ -113,7 +117,8 @@ unsigned update_x_get(void) {
 /**
  * Get the vertical position of the page in drawing.
  */
-unsigned update_y_get(void) {
+unsigned update_y_get(void)
+{
 	assert( is_update_draw_allowed );
 	return update_offset / video_bytes_per_scanline();
 }
@@ -121,7 +126,8 @@ unsigned update_y_get(void) {
 /**
  * Get the number of the page in drawing.
  */
-unsigned update_page_get(void) {
+unsigned update_page_get(void)
+{
 	assert( is_update_draw_allowed );
 	return update_page;
 }
@@ -130,7 +136,8 @@ unsigned update_page_get(void) {
  * Start drawing to page.
  * After this call you can call update_x_get() and update_y_get().
  */
-void update_start(void) {
+void update_start(void)
+{
 	assert( is_update_draw_allowed == 0 );
 	is_update_draw_allowed = 1;
 	/* compute coordinate for drawing */
@@ -145,10 +152,11 @@ void update_start(void) {
 
 /**
  * End drawing a page.
- * \param x,y,size_x,size_y Updated range of the screeb. These coordinates are absolute in the screen, not relative at the page.
+ * \param x, y, size_x, size_y Updated range of the screeb. These coordinates are absolute in the screen, not relative at the page.
  * \param wait_retrace If a wait is required.
  */
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace) {
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace)
+{
 	assert( is_update_draw_allowed );
 	is_update_draw_allowed = 0;
 

@@ -35,7 +35,8 @@ extern "C" {
 static unsigned malloc_counter = 1;
 static unsigned malloc_total = 0;
 
-static void fill(void* _p, unsigned size) {
+static void fill(void* _p, unsigned size)
+{
 	unsigned char* p = (unsigned char*)_p;
 	unsigned i;
 
@@ -52,32 +53,38 @@ typedef struct {
 	unsigned counter;
 } footer;
 
-static void* wrap2real(void* _w) {
+static void* wrap2real(void* _w)
+{
 	unsigned char* w = (unsigned char*)_w;
 	return w - sizeof(header);
 }
 
-static void* real2wrap(void* _r) {
+static void* real2wrap(void* _r)
+{
 	unsigned char* r = (unsigned char*)_r;
 	return r + sizeof(header);
 }
 
-static header* wrap2header(void* w) {
+static header* wrap2header(void* w)
+{
 	return (header*)wrap2real(w);
 }
 
-static footer* wrap2footer(void* _w, unsigned wsize) {
+static footer* wrap2footer(void* _w, unsigned wsize)
+{
 	unsigned char* w = (unsigned char*)_w;
 	return (footer*)(w + wsize);
 }
 
-static unsigned wrapsize2realsize(unsigned wsize) {
+static unsigned wrapsize2realsize(unsigned wsize)
+{
 	return wsize + sizeof(header) + sizeof(footer);
 }
 
-static void wrapcheck(void* w) {
+static void wrapcheck(void* w)
+{
 	header* h = wrap2header(w);
-	footer* f = wrap2footer(w,h->wsize);
+	footer* f = wrap2footer(w, h->wsize);
 	if (h->counter != f->counter) {
 		sound(200);
 		delay(1000);
@@ -89,7 +96,8 @@ static void wrapcheck(void* w) {
 
 extern void* __real_malloc(size_t size);
 
-void* __wrap_malloc(size_t wsize) {
+void* __wrap_malloc(size_t wsize)
+{
 	unsigned rsize = wrapsize2realsize(wsize);
 	void* r = __real_malloc(rsize);
 
@@ -98,7 +106,7 @@ void* __wrap_malloc(size_t wsize) {
 	} else {
 		void* w = real2wrap(r);
 		header* h = wrap2header(w);
-		footer* f = wrap2footer(w,wsize);
+		footer* f = wrap2footer(w, wsize);
 		h->wsize = wsize;
 		h->counter = malloc_counter;
 		f->counter = malloc_counter;
@@ -111,14 +119,15 @@ void* __wrap_malloc(size_t wsize) {
 
 extern void __real_free(void* p);
 
-void __wrap_free(void* w) {
+void __wrap_free(void* w)
+{
 	if (!w) {
 		return;
 	} else {
 		void* r = wrap2real(w);
 		unsigned rsize = wrapsize2realsize(wrap2header(w)->wsize);
 		wrapcheck(w);
-		fill(r,rsize);
+		fill(r, rsize);
 		__real_free(r);
 		--malloc_total;
 	}
@@ -126,7 +135,8 @@ void __wrap_free(void* w) {
 
 extern void* __real_realloc(void* p, size_t size);
 
-void* __wrap_realloc(void* w, size_t wsize) {
+void* __wrap_realloc(void* w, size_t wsize)
+{
 	if (!w) {
 		return __wrap_malloc(wsize);
 	} else {
@@ -134,7 +144,7 @@ void* __wrap_realloc(void* w, size_t wsize) {
 		unsigned wsizeold = wrap2header(w)->wsize;
 		unsigned rsize = wrapsize2realsize(wsize);
 		wrapcheck(w);
-		r = __real_realloc(r,rsize);
+		r = __real_realloc(r, rsize);
 		if (!r) {
 			return 0;
 		} else {
@@ -144,7 +154,7 @@ void* __wrap_realloc(void* w, size_t wsize) {
 			if (wsizeold < wsize)
 				fill(((unsigned char*)w) + wsizeold, wsize - wsizeold);
 			h = wrap2header(w);
-			f = wrap2footer(w,wsize);
+			f = wrap2footer(w, wsize);
 			h->wsize = wsize;
 			h->counter = malloc_counter;
 			f->counter = malloc_counter;

@@ -11,6 +11,8 @@ AdvanceMENU Version 2.2.2 2002/12
 	) Fixed some issues in the ./configure scripts.
 	) Removed the blinking cursor in the Linux `fb' video
 		driver [Kari Hautio].
+	) Removed the option `video_depth'.
+	) Upgraded at the SVGALIB 1.9.17 library.
 
 AdvanceMENU Version 2.2.1 2002/11
 	) Reduced the startup load time.

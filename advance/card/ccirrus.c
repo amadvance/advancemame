@@ -62,7 +62,7 @@ Return: AX = controller type in bits 13-0 (see #00029)
 	BL = silicon revision number (bit 7 set if not available)
 	BH = ???
 		bit 2 set if using CL-GD 6340 LCD interface
-SeeAlso: AH=12h/BL=81h,AH=12h/BL=82h,AH=12h/BL=85h,AH=12h/BL=9Ah,AH=12h/BL=A1h
+SeeAlso: AH=12h/BL=81h, AH=12h/BL=82h, AH=12h/BL=85h, AH=12h/BL=9Ah, AH=12h/BL=A1h
 
 (Table 00029)
 Values for Cirrus Logic video controller type:
@@ -182,12 +182,13 @@ static struct cirrus_id cirrus_id_list[] = {
 { 0x0042, "Cirrus Logic CL-GD7543 (Viking)", CIRRUS_CONF_UNSUPPORTED },
 { 0x0043, "Cirrus Logic CL-GD7541 (Nordic Lite)", CIRRUS_CONF_UNSUPPORTED },
 { 0x0050, "Cirrus Logic CL-GD5452 (Northstar)", CIRRUS_CONF_GENERIC },
-{ 0,0, CIRRUS_CONF_UNSUPPORTED }
+{ 0, 0, CIRRUS_CONF_UNSUPPORTED }
 };
 
 static struct cirrus_id* cirrus_card = 0;
 
-const char* cirrus_driver(void) {
+const char* cirrus_driver(void)
+{
 	return cirrus_card->name;
 }
 
@@ -337,10 +338,10 @@ void cirrus_reset(void)
 int cirrus_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int pll_mul,pll_div,pll_p;
+	int pll_mul, pll_div, pll_p;
 	unsigned d0;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("cirrus: incompatible mode\n"));
 		return 0;
 	}
@@ -352,7 +353,7 @@ int cirrus_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, co
 3C4h index  7  (R/W):  Extended Sequencer Mode
 bit    0  Enable High-Resolution 256 Color modes if set.
 	For the 5429 this disables the Set/Reset logic (3CEh index 0 and 1)
-	1-2  (542x,02)  or
+	1-2  (542x, 02)  or
 	1-3  (543x) Select CRTC Character Clock Divider.
 		0: Normal operation
 		1: Clock/2 for 16bit pixels. In this mode the video clock is
@@ -378,7 +379,7 @@ bit    0  Enable High-Resolution 256 Color modes if set.
 		and the 2MB buffer is mapped at an even MB block.
 		When in planar modes or using x8 or x16 addressing (3CEh index 0Bh
 		bit 1 set) or if less than the max amount of memory is installed
-		the memory block will wrap so that there are 2,4,8... instances
+		the memory block will wrap so that there are 2, 4, 8... instances
 */
 	d0 = (card_seq_get(0x7) & 0xE) >> 1;
 	CARD_LOG(("cirrus: clock divider:%d\n", d0));
@@ -388,7 +389,7 @@ bit    0  Enable High-Resolution 256 Color modes if set.
 	}
 
 	d0 = card_divider_get();
-	CARD_LOG(("cirrus: seqdiv:%d\n",d0));
+	CARD_LOG(("cirrus: seqdiv:%d\n", d0));
 	if (d0 == 2) {
 		CARD_LOG(("cirrus: clear seqdiv\n"));
 		card_divider_set(1);
@@ -397,7 +398,7 @@ bit    0  Enable High-Resolution 256 Color modes if set.
 	}
 
 	d0 = card_crtc_get(0x13);
-	CARD_LOG(("cirrus: offset:%d\n",d0));
+	CARD_LOG(("cirrus: offset:%d\n", d0));
 
 	cp.dotclockHz = card_clock_compute(cp.dotclockHz, cirrus_card->mul_min,  cirrus_card->mul_max, cirrus_card->div_min,  cirrus_card->div_max, cirrus_card->p_min,  cirrus_card->p_max, cirrus_card->ref, cirrus_card->vco_min,  cirrus_card->vco_max, &pll_mul, &pll_div, &pll_p, 0);
 	if (cp.dotclockHz < 0)

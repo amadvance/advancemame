@@ -334,7 +334,7 @@ static int ati_dsp_set(int nAdd)
 			else
 				/* Standard video memory speed (usually 60MHz)*/
 				dsp_xclks_per_qw = 2189+offset;
-			card_log("ati: DSP value %d (8bit)\n",dsp_xclks_per_qw);
+			card_log("ati: DSP value %d (8bit)\n", dsp_xclks_per_qw);
 			break;
 		case  3: /* 16 bit colour */
 		case  4: /* either 555 or 565 */
@@ -344,10 +344,10 @@ static int ati_dsp_set(int nAdd)
 			else
 				/* Standard video memory speed (usually 60MHz)*/
 				dsp_xclks_per_qw = 3679+offset;
-			card_log("ati: DSP value %d (16bit)\n",dsp_xclks_per_qw);
+			card_log("ati: DSP value %d (16bit)\n", dsp_xclks_per_qw);
 			break;
 		default: /* any other colour depth */
-			card_log("ati: Unsupported colour depth for ATI driver (%d)\n",(int)inportb (_mach64_gen_cntrl+1));
+			card_log("ati: Unsupported colour depth for ATI driver (%d)\n", (int)inportb (_mach64_gen_cntrl+1));
 			return 0;
 	}
 
@@ -718,7 +718,7 @@ bit  0-15  Cfg_Chip_Type. Product Type Code. 0D7h for the 88800GX,
 	old = inportl(_mach64_config_stat0);
 	MemType = old & CFG_MEM_TYPE_xT;
 
-	card_log("ati: Video Memory  Type %d\n",MemType);
+	card_log("ati: Video Memory  Type %d\n", MemType);
 
 	/* only bail out here if the clock's wrong  */
 	/* so we can collect as much info as possible about the card  */
@@ -737,14 +737,14 @@ bit  0-15  Cfg_Chip_Type. Product Type Code. 0D7h for the 88800GX,
 int ati_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int n,extdiv,P;
+	int n, extdiv, P;
 	int nOffSet;
 	long int temp;
 	long int gen;
-	int temp1,temp2,temp3;
+	int temp1, temp2, temp3;
 	int nActualMHz;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("ati: incompatible mode\n"));
 		return 0;
 	}
@@ -794,7 +794,7 @@ int ati_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const
 	temp2 = inportb (_mach64_clock_reg + 2);
 
 	outportb (_mach64_clock_reg + 1, ((VCLK0_FB_DIV + CXClk) << 2) | PLL_WR_EN);
-	outportb (_mach64_clock_reg +2,n);
+	outportb (_mach64_clock_reg +2, n);
 
 	outportb (_mach64_clock_reg + 1, (VCLK_POST_DIV << 2) | PLL_WR_EN);
 	outportb (_mach64_clock_reg + 2, (temp2 & ~(0x03 << (2 * CXClk))) | (P << (2 * CXClk)));
@@ -814,8 +814,8 @@ int ati_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const
 	/* reset the DAC */
 	inportb (_mach64_dac_cntl);
 
-	card_log("ati: H total %d, H display %d, H sync offset %d\n",cp.HTotal / 8,cp.HDisp / 8,cp.HSStart / 8);
-	card_log("ati: V total %d, V display %d, V sync offset %d\n",cp.VTotal,cp.VDisp,cp.VSStart);
+	card_log("ati: H total %d, H display %d, H sync offset %d\n", cp.HTotal / 8, cp.HDisp / 8, cp.HSStart / 8);
+	card_log("ati: V total %d, V display %d, V sync offset %d\n", cp.VTotal, cp.VDisp, cp.VSStart);
 
 	/* now setup the CRTC timings */
 	outportb (_mach64_crtc_h_total, cp.HTotal / 8);  /* h total */ /* in clock unit */
@@ -831,22 +831,22 @@ int ati_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const
 	/* make sure sync is negative */
 	temp = inportl(_mach64_crtc_h_sync);
 	temp |= CRTC_H_SYNC_NEG;
-	outportl (_mach64_crtc_h_sync,temp);
+	outportl (_mach64_crtc_h_sync, temp);
 
 	temp = inportl(_mach64_crtc_v_sync);
 	temp |= CRTC_V_SYNC_NEG;
-	outportl (_mach64_crtc_v_sync,temp);
+	outportl (_mach64_crtc_v_sync, temp);
 
 	/* clear any overscan */
-	outportb (_mach64_over_left_right,0);
-	outportb (_mach64_over_left_right+2,0);
-	outportb (_mach64_over_top_bott,0);
-	outportb (_mach64_over_top_bott+2,0);
+	outportb (_mach64_over_left_right, 0);
+	outportb (_mach64_over_left_right+2, 0);
+	outportb (_mach64_over_top_bott, 0);
+	outportb (_mach64_over_top_bott+2, 0);
 
 	/* set memory for each line */
 	temp = inportl(_mach64_off_pitch);
 	temp &= 0xfffff;
-	outportl (_mach64_off_pitch,temp|(nOffSet<<22));
+	outportl (_mach64_off_pitch, temp|(nOffSet<<22));
 
 	/* max out the FIFO */
 	gen |= (15<<16);
@@ -864,7 +864,7 @@ int ati_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const
 		gen &=~ CRTC_Enable_Doubling;
 
 	/* set the display going again */
-	outportl (_mach64_gen_cntrl,gen);
+	outportl (_mach64_gen_cntrl, gen);
 
 	/* finally select and strobe the clock */
 	outportb (_mach64_clock_reg, CXClk | CLOCK_STROBE);

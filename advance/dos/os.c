@@ -71,19 +71,20 @@ static struct os_context OS;
 
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 
-const char* __wrap_get_config_string(const char *section, const char *name, const char *def) {
+const char* __wrap_get_config_string(const char *section, const char *name, const char *def)
+{
 	char allegro_name[256];
 	const char* result;
 
-	log_std(("allegro: get_config_string(%s,%s,%s)\n",section,name,def));
+	log_std(("allegro: get_config_string(%s, %s, %s)\n", section, name, def));
 
 	/* disable the emulation of the third mouse button */
-	if (strcmp(name,"emulate_three")==0)
+	if (strcmp(name, "emulate_three")==0)
 		return "no";
 
 	if (!OS.allegro_conf)
 		return def;
-	sprintf(allegro_name,"allegro_%s",name);
+	sprintf(allegro_name, "allegro_%s", name);
 	conf_section_set(OS.allegro_conf, 0, 0);
 	if (conf_is_registered(OS.allegro_conf, allegro_name)
 		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
@@ -92,16 +93,17 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 		return def;
 }
 
-int __wrap_get_config_int(const char *section, const char *name, int def) {
+int __wrap_get_config_int(const char *section, const char *name, int def)
+{
 	char allegro_name[256];
 	const char* result;
 
-	log_std(("allegro: get_config_int(%s,%s,%d)\n",section,name,def));
+	log_std(("allegro: get_config_int(%s, %s, %d)\n", section, name, def));
 
 	if (!OS.allegro_conf)
 		return def;
 	conf_section_set(OS.allegro_conf, 0, 0);
-	sprintf(allegro_name,"allegro_%s",name);
+	sprintf(allegro_name, "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name)
 		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
 		return atoi(result);
@@ -109,18 +111,19 @@ int __wrap_get_config_int(const char *section, const char *name, int def) {
 		return def;
 }
 
-int __wrap_get_config_id(const char *section, const char *name, int def) {
+int __wrap_get_config_id(const char *section, const char *name, int def)
+{
 	char allegro_name[256];
 	const char* result;
 
-	log_std(("allegro: get_config_id(%s,%s,%d)\n",section,name,def));
+	log_std(("allegro: get_config_id(%s, %s, %d)\n", section, name, def));
 
 	if (!OS.allegro_conf)
 		return def;
-	conf_section_set(OS.allegro_conf, 0,0);
-	sprintf(allegro_name,"allegro_%s",name);
+	conf_section_set(OS.allegro_conf, 0, 0);
+	sprintf(allegro_name, "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name)
-		&& conf_string_get(OS.allegro_conf, allegro_name,&result) == 0)
+		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
 	{
 		unsigned v;
 		v = ((unsigned)(unsigned char)result[3]);
@@ -132,14 +135,15 @@ int __wrap_get_config_id(const char *section, const char *name, int def) {
 		return def;
 }
 
-void __wrap_set_config_string(const char *section, const char *name, const char *val) {
+void __wrap_set_config_string(const char *section, const char *name, const char *val)
+{
 	char allegro_name[128];
 
-	log_std(("allegro: set_config_string(%s,%s,%s)\n",section,name,val));
+	log_std(("allegro: set_config_string(%s, %s, %s)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name,"allegro_%s",name);
+	sprintf(allegro_name, "allegro_%s", name);
 	if (val) {
 		if (!conf_is_registered(OS.allegro_conf, allegro_name))
 			conf_string_register(OS.allegro_conf, allegro_name);
@@ -149,30 +153,32 @@ void __wrap_set_config_string(const char *section, const char *name, const char 
 	}
 }
 
-void __wrap_set_config_int(const char *section, const char *name, int val) {
+void __wrap_set_config_int(const char *section, const char *name, int val)
+{
 	char allegro_name[128];
 	char buffer[16];
 
-	log_std(("allegro: set_config_int(%s,%s,%d)\n",section,name,val));
+	log_std(("allegro: set_config_int(%s, %s, %d)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name,"allegro_%s",name);
+	sprintf(allegro_name, "allegro_%s", name);
 	if (!conf_is_registered(OS.allegro_conf, allegro_name))
 		conf_string_register(OS.allegro_conf, allegro_name);
-	sprintf(buffer,"%d",val);
+	sprintf(buffer, "%d", val);
 	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
 }
 
-void __wrap_set_config_id(const char *section, const char *name, int val) {
+void __wrap_set_config_id(const char *section, const char *name, int val)
+{
 	char allegro_name[128];
 	char buffer[16];
 
-	log_std(("allegro: set_config_id(%s,%s,%d)\n",section,name,val));
+	log_std(("allegro: set_config_id(%s, %s, %d)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name,"allegro_%s",name);
+	sprintf(allegro_name, "allegro_%s", name);
 	if (!conf_is_registered(OS.allegro_conf, allegro_name))
 		conf_string_register(OS.allegro_conf, allegro_name);
 	buffer[3] = ((unsigned)val) & 0xFF;
@@ -195,7 +201,8 @@ void __wrap_set_config_id(const char *section, const char *name, int val) {
 os_clock_t OS_CLOCKS_PER_SEC;
 
 #ifndef USE_TICKER_FIXED
-static void ticker_measure(os_clock_t* map, unsigned max) {
+static void ticker_measure(os_clock_t* map, unsigned max)
+{
 	clock_t start;
 	clock_t stop;
 	os_clock_t tstart;
@@ -225,7 +232,8 @@ static void ticker_measure(os_clock_t* map, unsigned max) {
 	}
 }
 
-static int ticker_cmp(const void *e1, const void *e2) {
+static int ticker_cmp(const void *e1, const void *e2)
+{
 	const os_clock_t* t1 = (const os_clock_t*)e1;
 	const os_clock_t* t2 = (const os_clock_t*)e2;
 
@@ -235,7 +243,8 @@ static int ticker_cmp(const void *e1, const void *e2) {
 }
 #endif
 
-static void os_clock_setup(void) {
+static void os_clock_setup(void)
+{
 #ifdef USE_TICKER_FIXED
 	/* only for debugging */
 	OS_CLOCKS_PER_SEC = USE_TICKER_FIXED;
@@ -244,12 +253,12 @@ static void os_clock_setup(void) {
 	double error;
 	int i;
 
-	ticker_measure(v,7);
+	ticker_measure(v, 7);
 
-	qsort(v,7,sizeof(os_clock_t),ticker_cmp);
+	qsort(v, 7, sizeof(os_clock_t), ticker_cmp);
 
 	for(i=0;i<7;++i)
-		log_std(("os: clock estimate %g\n",(double)v[i]));
+		log_std(("os: clock estimate %g\n", (double)v[i]));
 
 	OS_CLOCKS_PER_SEC = v[3]; /* median value */
 
@@ -262,7 +271,8 @@ static void os_clock_setup(void) {
 #endif
 }
 
-os_clock_t os_clock(void) {
+os_clock_t os_clock(void)
+{
 	os_clock_t r;
 
 	__asm__ __volatile__ (
@@ -276,8 +286,9 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-int os_init(adv_conf* context) {
-	memset(&OS,0,sizeof(OS));
+int os_init(adv_conf* context)
+{
+	memset(&OS, 0, sizeof(OS));
 
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	OS.allegro_conf = context;
@@ -286,13 +297,15 @@ int os_init(adv_conf* context) {
 	return 0;
 }
 
-void os_done(void) {
+void os_done(void)
+{
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
 	OS.allegro_conf = 0;
 #endif
 }
 
-static void os_align(void) {
+static void os_align(void)
+{
 	char* m[32];
 	unsigned i;
 
@@ -308,15 +321,16 @@ static void os_align(void) {
 	}
 }
 
-int os_inner_init(const char* title) {
+int os_inner_init(const char* title)
+{
 
 	log_std(("os: sys DOS\n"));
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
-#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
-	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
 #else
 	log_std(("os: compiler unknown\n"));
 #endif
@@ -344,17 +358,20 @@ int os_inner_init(const char* title) {
 	return 0;
 }
 
-void os_inner_done(void) {
+void os_inner_done(void)
+{
 	allegro_exit();
 }
 
-void os_poll(void) {
+void os_poll(void)
+{
 }
 
 /***************************************************************************/
 /* Led */
 
-void os_led_set(unsigned mask) {
+void os_led_set(unsigned mask)
+{
 	unsigned allegro_mask = 0;
 
 	if ((mask & OS_LED_NUMLOCK) != 0)
@@ -370,13 +387,14 @@ void os_led_set(unsigned mask) {
 /***************************************************************************/
 /* Signal */
 
-int os_is_quit(void) {
+int os_is_quit(void)
+{
 	return 0;
 }
 
 void os_default_signal(int signum)
 {
-	log_std(("os: signal %d\n",signum));
+	log_std(("os: signal %d\n", signum));
 
 #if defined(USE_VIDEO_SVGALINE) || defined(USE_VIDEO_VBELINE) || defined(USE_VIDEO_VBE)
 	log_std(("os: video_abort\n"));
@@ -446,7 +464,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (os_main(argc,argv) != 0) {
+	if (os_main(argc, argv) != 0) {
 		file_done();
 		target_done();
 		return EXIT_FAILURE;

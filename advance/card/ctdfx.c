@@ -167,7 +167,8 @@ static void tdfx_clock_set(int pll_mul, int pll_div, int pll_p)
 	card_outl(tdfx_io_base + 0x40, d0);
 }
 
-const char* tdfx_driver(void) {
+const char* tdfx_driver(void)
+{
 	return "3dfx Voodoo3/Voodoo5/Banshee";
 }
 
@@ -187,7 +188,7 @@ int tdfx_detect(void)
 	}
 
 	for(i=0;tdfx_id_list[i].name;++i) {
-		if (pci_find_device(0x0000121A,tdfx_id_list[i].value,0,&tdfx_bus_device_func)==0)
+		if (pci_find_device(0x0000121A, tdfx_id_list[i].value, 0, &tdfx_bus_device_func)==0)
 			break;
 	}
 
@@ -204,7 +205,7 @@ int tdfx_detect(void)
 
 	tdfx_card = tdfx_id_list + i;
 
-	if (pci_read_dword(tdfx_bus_device_func,0x18,&reg)!=0) {
+	if (pci_read_dword(tdfx_bus_device_func, 0x18, &reg)!=0) {
 		CARD_LOG(( "3dfx: pci_read_dword\n"));
 		return 0;
 	}
@@ -223,10 +224,10 @@ void tdfx_reset(void)
 int tdfx_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int pll_mul,pll_div,pll_p;
+	int pll_mul, pll_div, pll_p;
 	DWORD d0;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("3dfx: incompatible mode\n"));
 		return 0;
 	}
@@ -258,7 +259,7 @@ int tdfx_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, cons
 	tdfx_ext_set(&cp);
 	tdfx_dac_mode_set(0);
 	tdfx_clock_set(pll_mul, pll_div, pll_p);
-	tdfx_screen_size_set(&cp,cm);
+	tdfx_screen_size_set(&cp, cm);
 
 	card_signal_enable();
 

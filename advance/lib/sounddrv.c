@@ -36,16 +36,19 @@
 #include <stdio.h>
 #include <string.h>
 
-void sound_default(void) {
+void sound_default(void)
+{
 	sound_state.is_initialized_flag = 1;
 	strcpy(sound_state.name, "auto");
 }
 
-void sound_reg(adv_conf* context, adv_bool auto_detect) {
+void sound_reg(adv_conf* context, adv_bool auto_detect)
+{
 	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
-void sound_reg_driver(adv_conf* context, sound_driver* driver) {
+void sound_reg_driver(adv_conf* context, sound_driver* driver)
+{
 	assert( sound_state.driver_mac < SOUND_DRIVER_MAX );
 
 	sound_state.driver_map[sound_state.driver_mac] = driver;
@@ -56,7 +59,8 @@ void sound_reg_driver(adv_conf* context, sound_driver* driver) {
 	++sound_state.driver_mac;
 }
 
-adv_error sound_load(adv_conf* context) {
+adv_error sound_load(adv_conf* context)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -82,14 +86,15 @@ adv_error sound_load(adv_conf* context) {
 	}
 
 	if (!at_least_one) {
-		device_error("device_sound",sound_state.name,(const adv_driver**)sound_state.driver_map,sound_state.driver_mac);
+		device_error("device_sound", sound_state.name, (const adv_driver**)sound_state.driver_map, sound_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
+adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
+{
 	unsigned i;
 
 	assert(sound_state.driver_current == 0);
@@ -108,9 +113,9 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const adv_device* dev;
 
-		dev = device_match(sound_state.name,(const adv_driver*)sound_state.driver_map[i], 1);
+		dev = device_match(sound_state.name, (const adv_driver*)sound_state.driver_map[i], 1);
 
-		if (dev && sound_state.driver_map[i]->init(dev->id,rate,stereo_flag,buffer_time) == 0) {
+		if (dev && sound_state.driver_map[i]->init(dev->id, rate, stereo_flag, buffer_time) == 0) {
 			sound_state.driver_current = sound_state.driver_map[i];
 			break;
 		}
@@ -126,7 +131,8 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	return 0;
 }
 
-void sound_done(void) {
+void sound_done(void)
+{
 	assert( sound_state.driver_current );
 	assert( sound_state.is_active_flag );
 
@@ -136,7 +142,8 @@ void sound_done(void) {
 	sound_state.is_active_flag = 0;
 }
 
-void sound_abort(void) {
+void sound_abort(void)
+{
 	if (sound_state.is_active_flag) {
 		if (sound_state.is_playing_flag)
 			sound_stop();

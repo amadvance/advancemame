@@ -38,16 +38,19 @@
 
 struct keyb_state_struct keyb_state;
 
-void keyb_default(void) {
+void keyb_default(void)
+{
 	keyb_state.is_initialized_flag = 1;
 	strcpy(keyb_state.name, "auto");
 }
 
-void keyb_reg(adv_conf* context, adv_bool auto_detect) {
+void keyb_reg(adv_conf* context, adv_bool auto_detect)
+{
 	conf_string_register_default(context, "device_keyboard", auto_detect ? "auto" : "none");
 }
 
-void keyb_reg_driver(adv_conf* context, keyb_driver* driver) {
+void keyb_reg_driver(adv_conf* context, keyb_driver* driver)
+{
 	assert( keyb_state.driver_mac < KEYB_DRIVER_MAX );
 
 	keyb_state.driver_map[keyb_state.driver_mac] = driver;
@@ -58,7 +61,8 @@ void keyb_reg_driver(adv_conf* context, keyb_driver* driver) {
 	++keyb_state.driver_mac;
 }
 
-adv_error keyb_load(adv_conf* context) {
+adv_error keyb_load(adv_conf* context)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -84,14 +88,15 @@ adv_error keyb_load(adv_conf* context) {
 	}
 
 	if (!at_least_one) {
-		device_error("device_keyboard",keyb_state.name,(const adv_driver**)keyb_state.driver_map,keyb_state.driver_mac);
+		device_error("device_keyboard", keyb_state.name, (const adv_driver**)keyb_state.driver_map, keyb_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error keyb_init(adv_bool disable_special) {
+adv_error keyb_init(adv_bool disable_special)
+{
 	unsigned i;
 
 	assert(keyb_state.driver_current == 0);
@@ -110,7 +115,7 @@ adv_error keyb_init(adv_bool disable_special) {
 
 		dev = device_match(keyb_state.name, (const adv_driver*)keyb_state.driver_map[i], 0);
 
-		if (dev && keyb_state.driver_map[i]->init(dev->id,disable_special) == 0) {
+		if (dev && keyb_state.driver_map[i]->init(dev->id, disable_special) == 0) {
 			keyb_state.driver_current = keyb_state.driver_map[i];
 			break;
 		}
@@ -126,7 +131,8 @@ adv_error keyb_init(adv_bool disable_special) {
 	return 0;
 }
 
-void keyb_done(void) {
+void keyb_done(void)
+{
 	assert( keyb_state.driver_current );
 	assert( keyb_state.is_active_flag );
 
@@ -136,7 +142,8 @@ void keyb_done(void) {
 	keyb_state.is_active_flag = 0;
 }
 
-void keyb_abort(void) {
+void keyb_abort(void)
+{
 	if (keyb_state.is_active_flag) {
 		keyb_done();
 	}

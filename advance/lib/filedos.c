@@ -61,68 +61,74 @@ static struct file_context FL;
 /***************************************************************************/
 /* Init */
 
-int file_init(void) {
-	memset(&FL,0,sizeof(FL));
+int file_init(void)
+{
+	memset(&FL, 0, sizeof(FL));
 
 	FL.universal_mac = 0;
 
 	return 0;
 }
 
-void file_done(void) {
+void file_done(void)
+{
 }
 
 /***************************************************************************/
 /* File System */
 
-char file_dir_separator(void) {
+char file_dir_separator(void)
+{
 	return ';';
 }
 
-char file_dir_slash(void) {
+char file_dir_slash(void)
+{
 	return '\\';
 }
 
-const char* file_abs(const char* dir, const char* file) {
+const char* file_abs(const char* dir, const char* file)
+{
 	/* TODO implement the complete . and .. management */
 	if (file[0] == '\\' || (file[0] != 0 && file[1]==':')) {
-		strcpy(FL.file_abs,file);
+		strcpy(FL.file_abs, file);
 	} else {
 		strcpy(FL.file_abs, dir);
 		if (FL.file_abs[strlen(FL.file_abs)-1] != '\\')
-			strcat(FL.file_abs,"\\");
+			strcat(FL.file_abs, "\\");
 		strcat(FL.file_abs, file);
 	}
 	return FL.file_abs;
 }
 
-static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end) {
+static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end)
+{
 	int need_slash;
 
 	if (end - begin == 2 && begin[1]==':') {
 		/* only drive spec */
-		memcpy(dst_begin,"/dos/",5);
+		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 2;
 		need_slash = 1;
 	} else if (end - begin >= 3 && begin[1]==':' && (begin[2]=='\\' || begin[2]=='/')) {
 		/* absolute path */
-		memcpy(dst_begin,"/dos/",5);
+		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 3;
 		need_slash = 1;
 	} else if (end - begin >= 3 && begin[1]==':') {
 		/* drive + relative path, assume it's an absolute path */
-		memcpy(dst_begin,"/dos/",5);
+		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 2;
 		need_slash = 1;
 	} else if (end - begin >= 1 && (begin[0]=='\\' || begin[0]=='/')) {
 		/* absolute path on the current drive */
-		memcpy(dst_begin,"/dos/",5);
+		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 #ifdef __MSDOS__
 		*dst_begin++ = getdisk() + 'a';
@@ -153,15 +159,16 @@ static char* import_conv(char* dst_begin, char* dst_end, const char* begin, cons
 	return dst_begin;
 }
 
-static char* export_conv(char* dst_begin, char* dst_end, const char* begin, const char* end) {
+static char* export_conv(char* dst_begin, char* dst_end, const char* begin, const char* end)
+{
 
-	if (end - begin == 6 && memcmp(begin,"/dos/",5)==0) {
+	if (end - begin == 6 && memcmp(begin, "/dos/", 5)==0) {
 		/* root dir */
 		*dst_begin++ = begin[5];
 		*dst_begin++ = ':';
 		*dst_begin++ = '\\';
 		begin += 6;
-	} else if (end - begin >= 7 && memcmp(begin,"/dos/",5)==0) {
+	} else if (end - begin >= 7 && memcmp(begin, "/dos/", 5)==0) {
 		/* absolute path */
 		*dst_begin++ = begin[5];
 		*dst_begin++ = ':';
@@ -183,7 +190,8 @@ static char* export_conv(char* dst_begin, char* dst_end, const char* begin, cons
 	return dst_begin;
 }
 
-const char* file_import(const char* path) {
+const char* file_import(const char* path)
+{
 	char* buffer = FL.universal_map[FL.universal_mac];
 	const char* begin = path;
 	char* dst_begin = buffer;
@@ -192,7 +200,7 @@ const char* file_import(const char* path) {
 	FL.universal_mac = (FL.universal_mac + 1) % UNIVERSAL_MAX;
 
 	while (*begin) {
-		const char* end = strchr(begin,';');
+		const char* end = strchr(begin, ';');
 		if (!end)
 			end = begin + strlen(begin);
 		if (dst_begin != buffer)
@@ -208,7 +216,8 @@ const char* file_import(const char* path) {
 	return buffer;
 }
 
-const char* file_export(const char* path) {
+const char* file_export(const char* path)
+{
 	char* buffer = FL.universal_map[FL.universal_mac];
 	const char* begin = path;
 	char* dst_begin = buffer;
@@ -217,7 +226,7 @@ const char* file_export(const char* path) {
 	FL.universal_mac = (FL.universal_mac + 1) % UNIVERSAL_MAX;
 
 	while (*begin) {
-		const char* end = strchr(begin,':');
+		const char* end = strchr(begin, ':');
 		if (!end)
 			end = begin + strlen(begin);
 		if (dst_begin != buffer)
@@ -233,7 +242,8 @@ const char* file_export(const char* path) {
 	return buffer;
 }
 
-int file_mkdir(const char* dir) {
+int file_mkdir(const char* dir)
+{
 #ifdef __WIN32__
 	return mkdir(dir);
 #else
@@ -244,28 +254,34 @@ int file_mkdir(const char* dir) {
 /***************************************************************************/
 /* Files */
 
-const char* file_config_file_root(const char* file) {
+const char* file_config_file_root(const char* file)
+{
 	return 0;
 }
 
-const char* file_config_file_home(const char* file) {
-	sprintf(FL.file_home_buffer,"%s",file);
+const char* file_config_file_home(const char* file)
+{
+	sprintf(FL.file_home_buffer, "%s", file);
 	return FL.file_home_buffer;
 }
 
-const char* file_config_file_legacy(const char* file) {
-	sprintf(FL.file_legacy_buffer,"%s",file);
+const char* file_config_file_legacy(const char* file)
+{
+	sprintf(FL.file_legacy_buffer, "%s", file);
 	return FL.file_legacy_buffer;
 }
 
-const char* file_config_dir_multidir(const char* tag) {
+const char* file_config_dir_multidir(const char* tag)
+{
 	return tag;
 }
 
-const char* file_config_dir_singledir(const char* tag) {
+const char* file_config_dir_singledir(const char* tag)
+{
 	return tag;
 }
 
-const char* file_config_dir_singlefile(void) {
+const char* file_config_dir_singlefile(void)
+{
 	return ".";
 }

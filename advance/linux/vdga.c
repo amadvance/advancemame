@@ -47,7 +47,7 @@ Xlib functions. The problem is that you lose the Vsync capability.
 /*
 --- xf86vmode.c.ori	2001-08-06 22:51:03.000000000 +0200
 +++ xf86vmode.c	2002-08-18 16:07:53.000000000 +0200
-@@ -752,6 +751,10 @@
+@@ -752, 6 +751, 10 @@
      VidModeSetModeValue(mode, VIDMODE_V_SYNCEND, stuff->vsyncend);
      VidModeSetModeValue(mode, VIDMODE_V_TOTAL, stuff->vtotal);
      VidModeSetModeValue(mode, VIDMODE_FLAGS, stuff->flags);
@@ -58,7 +58,7 @@ Xlib functions. The problem is that you lose the Vsync capability.
  
      if (stuff->privsize)
  	ErrorF("AddModeLine - Privates in request have been ignored\n");
-@@ -1108,6 +1112,8 @@
+@@ -1108, 6 +1112, 8 @@
      VidModeSetModeValue(modetmp, VIDMODE_V_SYNCEND, stuff->vsyncend);
      VidModeSetModeValue(modetmp, VIDMODE_V_TOTAL, stuff->vtotal);
      VidModeSetModeValue(modetmp, VIDMODE_FLAGS, stuff->flags);
@@ -114,7 +114,8 @@ unsigned char* (*dga_write_line)(unsigned y);
 /* Internal */
 
 /* TODO
-static unsigned char* dga_linear_write_line(unsigned y) {
+static unsigned char* dga_linear_write_line(unsigned y)
+{
 	return dga_state.ptr + dga_state.bytes_per_scanline * y;
 }
 */
@@ -127,7 +128,8 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error dga_init(int device_id) {
+adv_error dga_init(int device_id)
+{
 	/* assume that vga_init() is already called */
 	assert( !dga_is_active() );
 
@@ -162,15 +164,18 @@ void dga_done(void)
 	dga_state.active = 0;
 }
 
-adv_bool dga_is_active(void) {
+adv_bool dga_is_active(void)
+{
 	return dga_state.active != 0;
 }
 
-adv_bool dga_mode_is_active(void) {
+adv_bool dga_mode_is_active(void)
+{
 	return dga_state.mode_active != 0;
 }
 
-unsigned dga_flags(void) {
+unsigned dga_flags(void)
+{
 	assert( dga_is_active() );
 	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 }
@@ -193,7 +198,8 @@ typedef enum {
 	V_CLKDIV2 = 0x4000
 } ModeFlags;
 
-static void dga_print(void) {
+static void dga_print(void)
+{
 	unsigned i;
 	XDGAMode* modes;
 	int num_modes;
@@ -312,7 +318,8 @@ adv_error dga_mode_set(const dga_video_mode* mode)
 	return -1;
 }
 
-adv_error dga_mode_change(const dga_video_mode* mode) {
+adv_error dga_mode_change(const dga_video_mode* mode)
+{
 	assert( dga_is_active() && dga_mode_is_active() );
 
 	log_std(("video:dga: dga_mode_change()\n"));
@@ -338,37 +345,44 @@ void dga_mode_done(adv_bool restore)
 	dga_state.mode_active = 0;
 }
 
-unsigned dga_virtual_x(void) {
+unsigned dga_virtual_x(void)
+{
 	unsigned size = dga_state.bytes_per_scanline / dga_state.bytes_per_pixel;
 	size = size & ~0x7;
 	return size;
 }
 
-unsigned dga_virtual_y(void) {
+unsigned dga_virtual_y(void)
+{
 	return dga_state.memory_size / dga_state.bytes_per_scanline;
 }
 
-unsigned dga_adjust_bytes_per_page(unsigned bytes_per_page) {
+unsigned dga_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
-unsigned dga_bytes_per_scanline(void) {
+unsigned dga_bytes_per_scanline(void)
+{
 	return dga_state.bytes_per_scanline;
 }
 
-video_rgb_def dga_rgb_def(void) {
-	return video_rgb_def_make(dga_state.red_len,dga_state.red_pos,dga_state.green_len,dga_state.green_pos,dga_state.blue_len,dga_state.blue_pos);
+video_rgb_def dga_rgb_def(void)
+{
+	return video_rgb_def_make(dga_state.red_len, dga_state.red_pos, dga_state.green_len, dga_state.green_pos, dga_state.blue_len, dga_state.blue_pos);
 }
 
-void dga_wait_vsync(void) {
+void dga_wait_vsync(void)
+{
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
 	vga_waitretrace();
 */
 }
 
-adv_error dga_scroll(unsigned offset, adv_bool waitvsync) {
+adv_error dga_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
 	if (waitvsync)
@@ -379,7 +393,8 @@ adv_error dga_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error dga_scanline_set(unsigned byte_length) {
+adv_error dga_scanline_set(unsigned byte_length)
+{
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
 	vga_setlogicalwidth(byte_length);
@@ -396,7 +411,8 @@ adv_error dga_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 /* TODO
 	if (waitvsync)
 		vga_waitretrace();
@@ -444,7 +460,7 @@ adv_error dga_mode_generate(dga_video_mode* mode, const adv_crtc* crtc, unsigned
 {
 	assert( dga_is_active() );
 
-	if (video_mode_generate_check("dga",dga_flags(),8,2048,crtc,bits,flags)!=0)
+	if (video_mode_generate_check("dga", dga_flags(), 8, 2048, crtc, bits, flags)!=0)
 		return -1;
 
 	mode->crtc = *crtc;
@@ -453,25 +469,29 @@ adv_error dga_mode_generate(dga_video_mode* mode, const adv_crtc* crtc, unsigned
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int dga_mode_compare(const dga_video_mode* a, const dga_video_mode* b) {
-	COMPARE(a->bits_per_pixel,b->bits_per_pixel);
-	return video_crtc_compare(&a->crtc,&b->crtc);
+int dga_mode_compare(const dga_video_mode* a, const dga_video_mode* b)
+{
+	COMPARE(a->bits_per_pixel, b->bits_per_pixel);
+	return video_crtc_compare(&a->crtc, &b->crtc);
 }
 
-void dga_default(void) {
+void dga_default(void)
+{
 }
 
-void dga_reg(adv_conf* context) {
+void dga_reg(adv_conf* context)
+{
 	assert( !dga_is_active() );
 }
 
-adv_error dga_load(adv_conf* context) {
+adv_error dga_load(adv_conf* context)
+{
 	assert( !dga_is_active() );
 	return 0;
 }
@@ -479,27 +499,33 @@ adv_error dga_load(adv_conf* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error dga_mode_set_void(const void* mode) {
+static adv_error dga_mode_set_void(const void* mode)
+{
 	return dga_mode_set((const dga_video_mode*)mode);
 }
 
-static adv_error dga_mode_change_void(const void* mode) {
+static adv_error dga_mode_change_void(const void* mode)
+{
 	return dga_mode_change((const dga_video_mode*)mode);
 }
 
-static adv_error dga_mode_import_void(adv_mode* mode, const void* dga_mode) {
+static adv_error dga_mode_import_void(adv_mode* mode, const void* dga_mode)
+{
 	return dga_mode_import(mode, (const dga_video_mode*)dga_mode);
 }
 
-static adv_error dga_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return dga_mode_generate((dga_video_mode*)mode,crtc,bits,flags);
+static adv_error dga_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+{
+	return dga_mode_generate((dga_video_mode*)mode, crtc, bits, flags);
 }
 
-static int dga_mode_compare_void(const void* a, const void* b) {
+static int dga_mode_compare_void(const void* a, const void* b)
+{
 	return dga_mode_compare((const dga_video_mode*)a, (const dga_video_mode*)b);
 }
 
-static unsigned dga_mode_size(void) {
+static unsigned dga_mode_size(void)
+{
 	return sizeof(dga_video_mode);
 }
 

@@ -41,12 +41,13 @@ extern int the_blit_mmx; /* defined in blit.c, !=0 if MMX is available */
 
 /* Fast multiplication, return a*b/2^32 */
 #define vec_mult osd_vec_mult
-static __inline__ int osd_vec_mult(int a, int b) {
+static inline int osd_vec_mult(int a, int b)
+{
 	int r;
 	__asm__ __volatile__ (
-		"movl %1,%0\n"
+		"movl %1, %0\n"
 		"imull %2\n"
-		"movl %%edx,%%eax\n"
+		"movl %%edx, %%eax\n"
 		: "=&a" (r)
 		: "mr" (a), "mr" (b)
 		:  "%edx", "%cc"
@@ -69,7 +70,7 @@ static void osd_pdo16(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT8* 
 		count = count % 8;
 
 		__asm__ __volatile__(
-			"movq (%4),%%mm3\n"
+			"movq (%4), %%mm3\n"
 
 			".p2align 4\n"
 			"0:\n"
@@ -78,13 +79,13 @@ static void osd_pdo16(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT8* 
 			"movq (%2), %%mm1\n"
 			"movq 8(%2), %%mm2\n"
 			"por %%mm3, %%mm0\n"
-			"movq %%mm1,(%1)\n"
-			"movq %%mm2,8(%1)\n"
-			"movq %%mm0,(%0)\n"
+			"movq %%mm1, (%1)\n"
+			"movq %%mm2, 8(%1)\n"
+			"movq %%mm0, (%0)\n"
 
-			"addl $8,%0\n"
-			"addl $16,%1\n"
-			"addl $16,%2\n"
+			"addl $8, %0\n"
+			"addl $16, %1\n"
+			"addl $16, %2\n"
 
 			"decl %3\n"
 			"jnz 0b\n"
@@ -117,11 +118,11 @@ static void osd_pdo16pal(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT
 		count = count % 8;
 
 		__asm__ __volatile__(
-			"movd %0,%%mm5\n"
-			"movq (%1),%%mm7\n"
-			"movq %%mm5,%%mm6\n"
-			"psllq $32,%%mm5\n"
-			"por %%mm5,%%mm6\n"
+			"movd %0, %%mm5\n"
+			"movq (%1), %%mm7\n"
+			"movq %%mm5, %%mm6\n"
+			"psllq $32, %%mm5\n"
+			"por %%mm5, %%mm6\n"
 			:
 			: "r" (pal), "r" (mmx_8to64_map + code)
 		);
@@ -136,13 +137,13 @@ static void osd_pdo16pal(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT
 			"paddw %%mm6, %%mm1\n"
 			"paddw %%mm6, %%mm2\n"
 			"por %%mm7, %%mm0\n"
-			"movq %%mm1,(%1)\n"
-			"movq %%mm2,8(%1)\n"
-			"movq %%mm0,(%0)\n"
+			"movq %%mm1, (%1)\n"
+			"movq %%mm2, 8(%1)\n"
+			"movq %%mm0, (%0)\n"
 
-			"addl $8,%0\n"
-			"addl $16,%1\n"
-			"addl $16,%2\n"
+			"addl $8, %0\n"
+			"addl $16, %1\n"
+			"addl $16, %2\n"
 
 			"decl %3\n"
 			"jnz 0b\n"
@@ -178,10 +179,10 @@ static void osd_pdo16np(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT8
 			"0:\n"
 
 			"movq (%1), %%mm1\n"
-			"movq %%mm1,(%0)\n"
+			"movq %%mm1, (%0)\n"
 
-			"addl $8,%0\n"
-			"addl $8,%1\n"
+			"addl $8, %0\n"
+			"addl $8, %1\n"
 
 			"decl %2\n"
 			"jnz 0b\n"
@@ -273,10 +274,10 @@ static void osd_pdt16(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mask_
 			"movq %%mm4, 8(%2)\n"
 			"movq %%mm0, (%0)\n"
 
-			"addl $8,%0\n"
-			"addl $8,%1\n"
-			"addl $16,%2\n"
-			"addl $16,%3\n"
+			"addl $8, %0\n"
+			"addl $8, %1\n"
+			"addl $16, %2\n"
+			"addl $16, %3\n"
 
 			"decl %4\n"
 			"jnz 0b\n"
@@ -313,12 +314,12 @@ static void osd_pdt16pal(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* ma
 		count = count % 8;
 
 		__asm__ __volatile__(
-			"movd %0,%%mm4\n"
+			"movd %0, %%mm4\n"
 			"movq (%1), %%mm6\n"
-			"movq %%mm4,%%mm5\n"
+			"movq %%mm4, %%mm5\n"
 			"movq (%2), %%mm7\n"
-			"psllq $32,%%mm4\n"
-			"por %%mm4,%%mm5\n"
+			"psllq $32, %%mm4\n"
+			"por %%mm4, %%mm5\n"
 			:
 			: "r" (pal), "r" (mmx_8to64_map + mask), "r" (mmx_8to64_map + value)
 		);
@@ -352,10 +353,10 @@ static void osd_pdt16pal(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* ma
 			"movq %%mm4, 8(%2)\n"
 			"movq %%mm0, (%0)\n"
 
-			"addl $8,%0\n"
-			"addl $8,%1\n"
-			"addl $16,%2\n"
-			"addl $16,%3\n"
+			"addl $8, %0\n"
+			"addl $8, %1\n"
+			"addl $16, %2\n"
+			"addl $16, %3\n"
 
 			"decl %4\n"
 			"jnz 0b\n"
@@ -417,9 +418,9 @@ static void osd_pdt16np(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mas
 			"por %%mm3, %%mm4\n"
 			"movq %%mm4, 8(%1)\n"
 
-			"addl $8,%0\n"
-			"addl $16,%1\n"
-			"addl $16,%2\n"
+			"addl $8, %0\n"
+			"addl $16, %1\n"
+			"addl $16, %2\n"
 
 			"decl %3\n"
 			"jnz 0b\n"
@@ -445,7 +446,7 @@ static void osd_pdt16np(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mas
 }
 
 #define osd_pend osd_pend
-static __inline__ void osd_pend(void)
+static inline void osd_pend(void)
 {
 	if (the_blit_mmx) {
 		__asm__ __volatile__ (

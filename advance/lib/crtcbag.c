@@ -34,7 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-adv_bool crtc_container_is_empty(const adv_crtc_container* cc) {
+adv_bool crtc_container_is_empty(const adv_crtc_container* cc)
+{
 	return cc->base == 0;
 }
 
@@ -42,14 +43,16 @@ adv_bool crtc_container_is_empty(const adv_crtc_container* cc) {
  * Inizialize the video crtc container.
  * \note The container MUST be deinitialized.
  */
-void crtc_container_init(adv_crtc_container* cc) {
+void crtc_container_init(adv_crtc_container* cc)
+{
 	cc->base = 0;
 }
 
 /**
  * Deinizialize the video crtc container
  */
-void crtc_container_done(adv_crtc_container* cc) {
+void crtc_container_done(adv_crtc_container* cc)
+{
 	adv_crtc* p = cc->base;
 	while (p) {
 		adv_crtc* todelete = p;
@@ -64,10 +67,11 @@ void crtc_container_done(adv_crtc_container* cc) {
  *   - ==0 if not found
  *   - !=0 the first found
  */
-const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b)) {
+const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b))
+{
 	adv_crtc* p = cc->base;
 	while (p) {
-		if (compare(p,vm)==0)
+		if (compare(p, vm)==0)
 			return p;
 		p = p->container_next;
 	}
@@ -81,8 +85,9 @@ const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, i
  * \param select Selection function.
  * \param arg Arg passed at the selection function.
  */
-void crtc_container_remove(adv_crtc_container* cc, adv_bool (*select)(const adv_crtc*, void*), void* arg) {
-	while (cc->base && select(cc->base,arg)) {
+void crtc_container_remove(adv_crtc_container* cc, adv_bool (*select)(const adv_crtc*, void*), void* arg)
+{
+	while (cc->base && select(cc->base, arg)) {
 		adv_crtc* todelete = cc->base;
 		cc->base = cc->base->container_next;
 		free(todelete);
@@ -90,7 +95,7 @@ void crtc_container_remove(adv_crtc_container* cc, adv_bool (*select)(const adv_
 	if (cc->base) {
 		adv_crtc* p = cc->base;
 		while (p->container_next) {
-			if (select(p->container_next,arg)) {
+			if (select(p->container_next, arg)) {
 				adv_crtc* todelete = p->container_next;
 				p->container_next = p->container_next->container_next;
 				free(todelete);
@@ -103,7 +108,8 @@ void crtc_container_remove(adv_crtc_container* cc, adv_bool (*select)(const adv_
 /**
  * Insert a crtc in the container.
  */
-const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm) {
+const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm)
+{
 	adv_crtc* p = malloc(sizeof(adv_crtc));
 	*p = *vm;
 	p->container_next = cc->base;
@@ -114,11 +120,12 @@ const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm
 /**
  * Insert a crtc in a sorted container.
  */
-const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc,  const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b)) {
-	if (cc->base && compare(cc->base,vm)<=0) {
+const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc,  const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b))
+{
+	if (cc->base && compare(cc->base, vm)<=0) {
 		adv_crtc* p = cc->base;
 		adv_crtc* c;
-		while (p->container_next && compare(p->container_next,vm)<=0) {
+		while (p->container_next && compare(p->container_next, vm)<=0) {
 			p = p->container_next;
 		}
 		c = malloc(sizeof(adv_crtc));
@@ -135,19 +142,23 @@ const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc,  const adv_cr
 	}
 }
 
-void crtc_container_iterator_begin(adv_crtc_container_iterator* cci, adv_crtc_container* cc) {
+void crtc_container_iterator_begin(adv_crtc_container_iterator* cci, adv_crtc_container* cc)
+{
 	cci->base = cc->base;
 }
 
-void crtc_container_iterator_next(adv_crtc_container_iterator* cci) {
+void crtc_container_iterator_next(adv_crtc_container_iterator* cci)
+{
 	cci->base = cci->base->container_next;
 }
 
-adv_bool crtc_container_iterator_is_end(adv_crtc_container_iterator* cci) {
+adv_bool crtc_container_iterator_is_end(adv_crtc_container_iterator* cci)
+{
 	return cci->base == 0;
 }
 
-adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci) {
+adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci)
+{
 	return cci->base;
 }
 
@@ -186,14 +197,14 @@ static const char* MODELINE_VGA[] = {
 "pal_vga_small_336x276x8 7.0805 336 356 404 452 276 284 285 312 -hsync -vsync",
 
 /* from VGA2PAL */
-/*"pal_vga_text_vga2pal 14.16 643 700 828 896 256 276 280 311 -hsync -vsync",*/
+/*"pal_vga_text_vga2pal 14.16 643 700 828 896 256 276 280 311 -hsync -vsync", */
 
 /* NTSC SMALL resolutions, manual */
 "ntsc_vga_small_304x228 6.2938 304 320 372 400 228 235 238 262 -hsync -vsync",
 "ntsc_vga_small_336x228 7.0805 336 356 404 452 228 235 238 262 -hsync -vsync",
 
 /* from VGA2NTSC */
-/* "ntsc_vga_text_vga2ntsc 14.16 640 736 800 904 200 220 229 263 -hsync -vsync",*/
+/* "ntsc_vga_text_vga2ntsc 14.16 640 736 800 904 200 220 229 263 -hsync -vsync", */
 
 #include "vgamode.dat"
 
@@ -231,43 +242,49 @@ static const char* MODELINE_SVGA[] = {
 0
 };
 
-static adv_error crtc_container_insert_default(adv_crtc_container* cc, const char** modes) {
+static adv_error crtc_container_insert_default(adv_crtc_container* cc, const char** modes)
+{
 	while (*modes) {
 		adv_crtc crtc;
-		if (crtc_parse(&crtc,*modes,*modes + strlen(*modes))!=0)
+		if (crtc_parse(&crtc, *modes, *modes + strlen(*modes))!=0)
 			return -1;
-		crtc_container_insert(cc,&crtc);
+		crtc_container_insert(cc, &crtc);
 		++modes;
 	}
 	return 0;
 }
 
-adv_error crtc_container_insert_default_bios_vga(adv_crtc_container* cc) {
-	return crtc_container_insert_default(cc,BIOS_VGA);
+adv_error crtc_container_insert_default_bios_vga(adv_crtc_container* cc)
+{
+	return crtc_container_insert_default(cc, BIOS_VGA);
 }
 
-adv_error crtc_container_insert_default_bios_vbe(adv_crtc_container* cc) {
-	return crtc_container_insert_default(cc,BIOS_VBE);
+adv_error crtc_container_insert_default_bios_vbe(adv_crtc_container* cc)
+{
+	return crtc_container_insert_default(cc, BIOS_VBE);
 }
 
 /**
  * Insert some standard video modes than can be made with a standard VGA.
  */
-adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc) {
-	return crtc_container_insert_default(cc,MODELINE_VGA);
+adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc)
+{
+	return crtc_container_insert_default(cc, MODELINE_VGA);
 }
 
 /**
  * Insert some standard video modes than can be made with a complete programmable SVGA.
  */
-adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc) {
-	return crtc_container_insert_default(cc,MODELINE_SVGA);
+adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc)
+{
+	return crtc_container_insert_default(cc, MODELINE_SVGA);
 }
 
 /**
  * Insert the standard video modes of the first active video driver.
  */
-void crtc_container_insert_default_system(adv_crtc_container* cc) {
+void crtc_container_insert_default_system(adv_crtc_container* cc)
+{
 	if (video_driver_vector_max() > 0) {
 		const adv_video_driver* driver = video_driver_vector_pos(0);
 		if (driver->crtc_container_insert_default) {

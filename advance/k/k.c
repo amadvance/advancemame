@@ -30,11 +30,13 @@
 
 static int done;
 
-void sigint(int signum) {
+void sigint(int signum)
+{
 	done = 1;
 }
 
-void run(void) {
+void run(void)
+{
 	char cmd[256];
 	int esc_pressed_before;
 	int esc_count;
@@ -42,7 +44,7 @@ void run(void) {
 
 	printf("Press ESC three times or Break to exit\n");
 
-	signal(SIGINT,sigint);
+	signal(SIGINT, sigint);
 
 	last = os_clock();
 	esc_pressed_before = 0;
@@ -65,12 +67,12 @@ void run(void) {
 			}
 		}
 
-		if (strcmp(cmd,newcmd)!=0) {
+		if (strcmp(cmd, newcmd)!=0) {
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
 			last = current;
-			strcpy(cmd,newcmd);
-			printf("(%6.1f ms) [%3d] %s\n",period,count,cmd);
+			strcpy(cmd, newcmd);
+			printf("(%6.1f ms) [%3d] %s\n", period, count, cmd);
 		}
 
 		if (count == 1 && esc_pressed) {
@@ -90,7 +92,8 @@ void run(void) {
 	}
 }
 
-static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
+static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
+{
 	va_list arg;
 	va_start(arg, desc);
 	vfprintf(stderr, desc, arg);
@@ -100,11 +103,13 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-void os_signal(int signum) {
+void os_signal(int signum)
+{
 	os_default_signal(signum);
 }
 
-int os_main(int argc, char* argv[]) {
+int os_main(int argc, char* argv[])
+{
 	adv_conf* context;
         const char* section_map[1];
 
@@ -120,7 +125,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	if (argc > 1) {
-		fprintf(stderr,"Unknown argument '%s'\n",argv[1]);
+		fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
 		goto err_os;
 	}
 

@@ -37,23 +37,23 @@
 /* internal double */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double8_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_double8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
 		"punpcklbw %%mm0, %%mm0\n"
 		"punpckhbw %%mm1, %%mm1\n"
-		"movq %%mm0,(%1)\n"
-		"movq %%mm1,8(%1)\n"
-		"addl $8,%0\n"
-		"addl $16,%1\n"
+		"movq %%mm0, (%1)\n"
+		"movq %%mm1, 8(%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -65,23 +65,23 @@ static __inline__ void internal_double8_mmx(uint8* dst, const uint8* src, unsign
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double16_mmx(uint16* dst, const uint16* src, unsigned count)
+static inline void internal_double16_mmx(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
 		"punpcklwd %%mm0, %%mm0\n"
-		"movq %%mm0,(%1)\n"
+		"movq %%mm0, (%1)\n"
 		"punpckhwd %%mm1, %%mm1\n"
-		"movq %%mm1,8(%1)\n"
-		"addl $8,%0\n"
-		"addl $16,%1\n"
+		"movq %%mm1, 8(%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -93,23 +93,23 @@ static __inline__ void internal_double16_mmx(uint16* dst, const uint16* src, uns
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double32_mmx(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_double32_mmx(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
 		"punpckldq %%mm0, %%mm0\n"
-		"movq %%mm0,(%1)\n"
+		"movq %%mm0, (%1)\n"
 		"punpckhdq %%mm1, %%mm1\n"
-		"movq %%mm1,8(%1)\n"
-		"addl $8,%0\n"
-		"addl $16,%1\n"
+		"movq %%mm1, 8(%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -121,25 +121,25 @@ static __inline__ void internal_double32_mmx(uint32* dst, const uint32* src, uns
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
 	__asm__ __volatile__ (
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movl (%0),%%eax\n"
+		"movl (%0), %%eax\n"
 		"movl %%eax, %%edx\n"
 		"bswap %%eax\n"
-		"xchgw %%ax,%%dx\n"
+		"xchgw %%ax, %%dx\n"
 		"roll $8, %%eax\n"
-		"movl %%eax,(%1)\n"
+		"movl %%eax, (%1)\n"
 		"rorl $8, %%edx\n"
-		"movl %%edx,4(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"movl %%edx, 4(%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -149,7 +149,8 @@ static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsign
 	);
 }
 #else
-static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsigned count) {
+static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
+{
 	unsigned rest = count % 2;
 
 	count /= 2;
@@ -173,23 +174,23 @@ static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsign
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
+static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
 	__asm__ __volatile__ (
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movl (%0),%%eax\n"
+		"movl (%0), %%eax\n"
 		"movl %%eax, %%edx\n"
 		"roll $16, %%eax\n"
-		"xchgw %%ax,%%dx\n"
-		"movl %%eax,(%1)\n"
-		"movl %%edx,4(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"xchgw %%ax, %%dx\n"
+		"movl %%eax, (%1)\n"
+		"movl %%edx, 4(%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -199,7 +200,8 @@ static __inline__ void internal_double16_def(uint16* dst, const uint16* src, uns
 	);
 }
 #else
-static __inline__ void internal_double16_def(uint16* dst, const uint16* src, unsigned count) {
+static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
+{
 	while (count) {
 		P32DER0(dst) = src[0] /* ENDIAN */
 			| (unsigned)src[0] << 16;
@@ -211,7 +213,7 @@ static __inline__ void internal_double16_def(uint16* dst, const uint16* src, uns
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
@@ -219,11 +221,11 @@ static __inline__ void internal_double32_def(uint32* dst, const uint32* src, uns
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movl (%0),%%eax\n"
-		"movl %%eax,(%1)\n"
-		"movl %%eax,4(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"movl (%0), %%eax\n"
+		"movl %%eax, (%1)\n"
+		"movl %%eax, 4(%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -233,7 +235,8 @@ static __inline__ void internal_double32_def(uint32* dst, const uint32* src, uns
 	);
 }
 #else
-static __inline__ void internal_double32_def(uint32* dst, const uint32* src, unsigned count) {
+static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
+{
 	while (count) {
 		dst[0] = src[0];
 		dst[1] = src[0];

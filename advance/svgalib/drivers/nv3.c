@@ -86,7 +86,7 @@ static void nv3_getmodeinfo(int mode, vga_modeinfo *modeinfo)
    if (modeinfo->bytesperpixel >= 1) {
 	modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_nv3_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
    }
 }
 
@@ -681,8 +681,11 @@ static int nv3_init(int force, int par1, int par2)
 	chip = par2;
     };
 
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
+
     __svgalib_mmio_base=MMIOBASE;
     __svgalib_mmio_size=8*1024*1024;
+
     map_mmio();
     
     if(!force){

@@ -43,13 +43,14 @@
 /***************************************************************************/
 /* Local */
 
-static adv_bool partial_match(const char* s, const char* partial) {
+static adv_bool partial_match(const char* s, const char* partial)
+{
 	const char* p = s;
 	while (1) {
 		if (memcmp(p, partial, strlen(partial))==0)
 			return 1;
 
-		p = strchr(p,'_');
+		p = strchr(p, '_');
 		if (!p)
 			return 0;
 
@@ -59,10 +60,11 @@ static adv_bool partial_match(const char* s, const char* partial) {
 	return 0;
 }
 
-static adv_bool glob_match(const char* s, const char* glob) {
+static adv_bool glob_match(const char* s, const char* glob)
+{
 	while (*s && *glob) {
 		if (*glob=='*') {
-			if (glob_match(s,glob+1))
+			if (glob_match(s, glob+1))
 				return 1;
 			++s;
 		} else if (*glob != *s) {
@@ -77,15 +79,16 @@ static adv_bool glob_match(const char* s, const char* glob) {
 	return !*s && !*glob;
 }
 
-static char* glob_subst(const char* format, char* own_s) {
-	if (strcmp(format,"%s")==0) {
+static char* glob_subst(const char* format, char* own_s)
+{
+	if (strcmp(format, "%s")==0) {
 		return own_s;
 	} else {
-		char* token = strstr(format,"%s");
+		char* token = strstr(format, "%s");
 		/* assume no more than one %s token */
 		if (token) {
 			char* n = malloc(strlen(format) + strlen(own_s) - 1);
-			sprintf(n,format,own_s);
+			sprintf(n, format, own_s);
 			free(own_s);
 			return n;
 		} else {
@@ -95,7 +98,8 @@ static char* glob_subst(const char* format, char* own_s) {
 	}
 }
 
-static void option_insert(adv_conf* context, struct adv_conf_option_struct* option) {
+static void option_insert(adv_conf* context, struct adv_conf_option_struct* option)
+{
 	if (context->option_list) {
 		option->pred = context->option_list->pred;
 		option->next = context->option_list;
@@ -108,7 +112,8 @@ static void option_insert(adv_conf* context, struct adv_conf_option_struct* opti
 	}
 }
 
-static struct adv_conf_option_struct* option_alloc(void) {
+static struct adv_conf_option_struct* option_alloc(void)
+{
 	struct adv_conf_option_struct* option;
 
 	option = (struct adv_conf_option_struct*)malloc(sizeof(struct adv_conf_option_struct));
@@ -119,7 +124,8 @@ static struct adv_conf_option_struct* option_alloc(void) {
 	return option;
 }
 
-static void option_free(struct adv_conf_option_struct* option) {
+static void option_free(struct adv_conf_option_struct* option)
+{
 	free(option->tag);
 	switch (option->type) {
 		case conf_type_string :
@@ -134,11 +140,12 @@ static void option_free(struct adv_conf_option_struct* option) {
 	free(option);
 }
 
-static struct adv_conf_option_struct* option_search_tag(adv_conf* context, const char* tag) {
+static struct adv_conf_option_struct* option_search_tag(adv_conf* context, const char* tag)
+{
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
-			if (strcmp(option->tag,tag)==0)
+			if (strcmp(option->tag, tag)==0)
 				return option;
 			option = option->next;
 		} while (option != context->option_list);
@@ -150,15 +157,16 @@ static struct adv_conf_option_struct* option_search_tag(adv_conf* context, const
  * Search a option for partial match.
  * The search complete with success only if an unique option is found.
  */
-static struct adv_conf_option_struct* option_search_tag_partial(adv_conf* context, const char* tag) {
+static struct adv_conf_option_struct* option_search_tag_partial(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* found = 0;
 
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
-			if (partial_match(option->tag,tag)) {
+			if (partial_match(option->tag, tag)) {
 				if (found) {
-					/* printf("conf: multiple match %s and %s for %s\n",found->tag,option->tag,tag); */
+					/* printf("conf: multiple match %s and %s for %s\n", found->tag, option->tag, tag); */
 					return 0; /* multiple match */
 				}
 				found = option;
@@ -171,7 +179,8 @@ static struct adv_conf_option_struct* option_search_tag_partial(adv_conf* contex
 	return found;
 }
 
-static struct adv_conf_input_struct* input_alloc(void) {
+static struct adv_conf_input_struct* input_alloc(void)
+{
 	struct adv_conf_input_struct* input = (struct adv_conf_input_struct*)malloc(sizeof(struct adv_conf_input_struct));
 	input->file_in = 0;
 	input->file_out = 0;
@@ -180,7 +189,8 @@ static struct adv_conf_input_struct* input_alloc(void) {
 	return input;
 }
 
-static void input_free(struct adv_conf_input_struct* input) {
+static void input_free(struct adv_conf_input_struct* input)
+{
 	unsigned i;
 	free(input->file_in);
 	free(input->file_out);
@@ -196,7 +206,8 @@ static void input_free(struct adv_conf_input_struct* input) {
 	free(input);
 }
 
-static void input_insert(adv_conf* context, struct adv_conf_input_struct* input) {
+static void input_insert(adv_conf* context, struct adv_conf_input_struct* input)
+{
 	if (context->input_list) {
 		input->pred = context->input_list->pred;
 		input->next = context->input_list;
@@ -209,7 +220,8 @@ static void input_insert(adv_conf* context, struct adv_conf_input_struct* input)
 	}
 }
 
-static struct adv_conf_input_struct* input_searchbest_writable(adv_conf* context) {
+static struct adv_conf_input_struct* input_searchbest_writable(adv_conf* context)
+{
 	if (context->input_list) {
 		struct adv_conf_input_struct* best_input = 0;
 		struct adv_conf_input_struct* input = context->input_list;
@@ -229,7 +241,8 @@ static struct adv_conf_input_struct* input_searchbest_writable(adv_conf* context
 	return 0;
 }
 
-static struct adv_conf_value_struct* value_alloc(struct adv_conf_option_struct* option) {
+static struct adv_conf_value_struct* value_alloc(struct adv_conf_option_struct* option)
+{
 	struct adv_conf_value_struct* value = (struct adv_conf_value_struct*)malloc(sizeof(struct adv_conf_value_struct));
 
 	value->option = option;
@@ -246,7 +259,8 @@ static struct adv_conf_value_struct* value_alloc(struct adv_conf_option_struct* 
 	return value;
 }
 
-static void value_free(struct adv_conf_value_struct* value) {
+static void value_free(struct adv_conf_value_struct* value)
+{
 	if (value->option) {
 		switch (value->option->type) {
 			case conf_type_string : free(value->data.string_value); break;
@@ -259,7 +273,8 @@ static void value_free(struct adv_conf_value_struct* value) {
 	free(value);
 }
 
-static void value_insert(adv_conf* context, struct adv_conf_value_struct* value) {
+static void value_insert(adv_conf* context, struct adv_conf_value_struct* value)
+{
 	if (context->value_list) {
 		value->pred = context->value_list->pred;
 		value->next = context->value_list;
@@ -274,24 +289,26 @@ static void value_insert(adv_conf* context, struct adv_conf_value_struct* value)
 	context->is_modified = 1;
 }
 
-static int value_cmp(struct adv_conf_value_struct* a, struct adv_conf_value_struct* b) {
+static int value_cmp(struct adv_conf_value_struct* a, struct adv_conf_value_struct* b)
+{
 	int r;
 
-	r = strcmp(a->section,b->section);
+	r = strcmp(a->section, b->section);
 	if (r)
 		return r;
 
-	r = strcmp(a->option->tag,b->option->tag);
+	r = strcmp(a->option->tag, b->option->tag);
 	return r;
 }
 
-static void value_insert_sort(adv_conf* context, struct adv_conf_value_struct* value) {
+static void value_insert_sort(adv_conf* context, struct adv_conf_value_struct* value)
+{
 	if (context->value_list) {
 		struct adv_conf_value_struct* i = context->value_list;
-		if (value_cmp(i,value) <= 0) {
+		if (value_cmp(i, value) <= 0) {
 			do {
 				i = i->next;
-			} while (i != context->value_list && value_cmp(i,value) <= 0);
+			} while (i != context->value_list && value_cmp(i, value) <= 0);
 		} else {
 			context->value_list = value;
 		}
@@ -308,7 +325,8 @@ static void value_insert_sort(adv_conf* context, struct adv_conf_value_struct* v
 	context->is_modified = 1;
 }
 
-static void value_remove(adv_conf* context, struct adv_conf_value_struct* value) {
+static void value_remove(adv_conf* context, struct adv_conf_value_struct* value)
+{
 	if (context->value_list == value) {
 		context->value_list = value->next;
 	}
@@ -324,14 +342,15 @@ static void value_remove(adv_conf* context, struct adv_conf_value_struct* value)
 	value_free(value);
 }
 
-static struct adv_conf_value_struct* value_searchbest_sectiontag(adv_conf* context, const char* section, const char* tag) {
+static struct adv_conf_value_struct* value_searchbest_sectiontag(adv_conf* context, const char* section, const char* tag)
+{
 	if (context->value_list) {
 		struct adv_conf_value_struct* best_value = 0;
 		struct adv_conf_value_struct* value = context->value_list;
 
 		do {
-			if (strcmp(value->section,section)==0
-				&& strcmp(value->option->tag,tag)==0) {
+			if (strcmp(value->section, section)==0
+				&& strcmp(value->option->tag, tag)==0) {
 				if (!best_value || best_value->input->priority < value->input->priority) {
 					best_value = value;
 				}
@@ -345,14 +364,15 @@ static struct adv_conf_value_struct* value_searchbest_sectiontag(adv_conf* conte
 	return 0;
 }
 
-static struct adv_conf_value_struct* value_search_inputsectiontag(adv_conf* context, struct adv_conf_input_struct* input, const char* section, const char* tag) {
+static struct adv_conf_value_struct* value_search_inputsectiontag(adv_conf* context, struct adv_conf_input_struct* input, const char* section, const char* tag)
+{
 	if (context->value_list) {
 		struct adv_conf_value_struct* value = context->value_list;
 
 		do {
 			if (value->input == input
-				&& strcmp(value->section,section)==0
-				&& strcmp(value->option->tag,tag)==0) {
+				&& strcmp(value->section, section)==0
+				&& strcmp(value->option->tag, tag)==0) {
 				return value;
 			}
 			value = value->next;
@@ -362,7 +382,8 @@ static struct adv_conf_value_struct* value_search_inputsectiontag(adv_conf* cont
 	return 0;
 }
 
-static struct adv_conf_value_struct* value_searchbest_tag(adv_conf* context, const char** section_map, unsigned section_mac, const char* tag) {
+static struct adv_conf_value_struct* value_searchbest_tag(adv_conf* context, const char** section_map, unsigned section_mac, const char* tag)
+{
 	unsigned i;
 
 	for(i=0;i<section_mac;++i) {
@@ -375,14 +396,15 @@ static struct adv_conf_value_struct* value_searchbest_tag(adv_conf* context, con
 	return 0;
 }
 
-static struct adv_conf_value_struct* value_searchbest_from(adv_conf* context, struct adv_conf_value_struct* like_value) {
+static struct adv_conf_value_struct* value_searchbest_from(adv_conf* context, struct adv_conf_value_struct* like_value)
+{
 	struct adv_conf_value_struct* value = like_value->next;
 
 	while (value != context->value_list) {
 
 		if (value->option == like_value->option
 			&& value->input == like_value->input
-			&& strcmp(value->section,like_value->section)==0) {
+			&& strcmp(value->section, like_value->section)==0) {
 			return value;
 		}
 
@@ -400,7 +422,8 @@ static struct adv_conf_value_struct* value_searchbest_from(adv_conf* context, st
  * You can have more than one configuration context active at the same time.
  * \return A new configuration context. It must be deallocated calling conf_done().
  */
-adv_conf* conf_init(void) {
+adv_conf* conf_init(void)
+{
 	adv_conf* context = malloc(sizeof(adv_conf));
 
 	context->option_list = 0;
@@ -421,7 +444,8 @@ adv_conf* conf_init(void) {
  * After this function you can reinitialize calling the conf_init() function.
  * \param context Configuration context to deallocate.
  */
-void conf_done(adv_conf* context) {
+void conf_done(adv_conf* context)
+{
 	unsigned i;
 
 	if (context->value_list) {
@@ -466,7 +490,8 @@ void conf_done(adv_conf* context) {
  * \param context Configuration context to use.
  * \param tag Tag to search.
  */
-adv_bool conf_is_registered(adv_conf* context, const char* tag) {
+adv_bool conf_is_registered(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_search_tag(context, tag);
 	return option != 0;
 }
@@ -478,7 +503,8 @@ adv_bool conf_is_registered(adv_conf* context, const char* tag) {
  * \param context Configuration context to use.
  * \param tag Tag of the value.
  */
-void conf_bool_register(adv_conf* context, const char* tag) {
+void conf_bool_register(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -499,7 +525,8 @@ void conf_bool_register(adv_conf* context, const char* tag) {
  * \param tag Tag of the value.
  * \param def Default value.
  */
-void conf_bool_register_default(adv_conf* context, const char* tag, adv_bool def) {
+void conf_bool_register_default(adv_conf* context, const char* tag, adv_bool def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -520,7 +547,8 @@ void conf_bool_register_default(adv_conf* context, const char* tag, adv_bool def
  * \param context Configuration context to use.
  * \param tag Tag of the value.
  */
-void conf_int_register(adv_conf* context, const char* tag) {
+void conf_int_register(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -543,7 +571,8 @@ void conf_int_register(adv_conf* context, const char* tag) {
  * \param tag Tag of the value.
  * \param def Default value.
  */
-void conf_int_register_default(adv_conf* context, const char* tag, int def) {
+void conf_int_register_default(adv_conf* context, const char* tag, int def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -568,7 +597,8 @@ void conf_int_register_default(adv_conf* context, const char* tag, int def) {
  * \param limit_low Low limit of the numerical value.
  * \param limit_high High limit of the numerical value.
  */
-void conf_int_register_limit(adv_conf* context, const char* tag, int limit_low, int limit_high) {
+void conf_int_register_limit(adv_conf* context, const char* tag, int limit_low, int limit_high)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -595,7 +625,8 @@ void conf_int_register_limit(adv_conf* context, const char* tag, int limit_low, 
  * \param limit_low Low limit of the numerical value.
  * \param limit_high High limit of the numerical value.
  */
-void conf_int_register_limit_default(adv_conf* context, const char* tag, int limit_low, int limit_high, int def) {
+void conf_int_register_limit_default(adv_conf* context, const char* tag, int limit_low, int limit_high, int def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -620,7 +651,8 @@ void conf_int_register_limit_default(adv_conf* context, const char* tag, int lim
  * \param context Configuration context to use.
  * \param tag Tag of the value.
  */
-void conf_float_register(adv_conf* context, const char* tag) {
+void conf_float_register(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -642,7 +674,8 @@ void conf_float_register(adv_conf* context, const char* tag) {
  * \param tag Tag of the value.
  * \param def Default value.
  */
-void conf_float_register_default(adv_conf* context, const char* tag, double def) {
+void conf_float_register_default(adv_conf* context, const char* tag, double def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -667,7 +700,8 @@ void conf_float_register_default(adv_conf* context, const char* tag, double def)
  * \param limit_low Low limit of the numerical value.
  * \param limit_high High limit of the numerical value.
  */
-void conf_float_register_limit_default(adv_conf* context, const char* tag, double limit_low, double limit_high, double def) {
+void conf_float_register_limit_default(adv_conf* context, const char* tag, double limit_low, double limit_high, double def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -691,7 +725,8 @@ void conf_float_register_limit_default(adv_conf* context, const char* tag, doubl
  * \param context Configuration context to use.
  * \param tag Tag of the value.
  */
-void conf_string_register(adv_conf* context, const char* tag) {
+void conf_string_register(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -712,7 +747,8 @@ void conf_string_register(adv_conf* context, const char* tag) {
  * \param context Configuration context to use.
  * \param tag Tag of the value.
  */
-void conf_string_register_multi(adv_conf* context, const char* tag) {
+void conf_string_register_multi(adv_conf* context, const char* tag)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -734,7 +770,8 @@ void conf_string_register_multi(adv_conf* context, const char* tag) {
  * \param tag Tag of the value.
  * \param def Default value.
  */
-void conf_string_register_default(adv_conf* context, const char* tag, const char* def) {
+void conf_string_register_default(adv_conf* context, const char* tag, const char* def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -759,7 +796,8 @@ void conf_string_register_default(adv_conf* context, const char* tag, const char
  * \param enum_map Vector for the enumeration value. The tag can assume only one of these values.
  * \param enum_mac Elements in the enumeration vector.
  */
-void conf_string_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_string* enum_map, unsigned enum_mac, const char* def) {
+void conf_string_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_string* enum_map, unsigned enum_mac, const char* def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -786,7 +824,8 @@ void conf_string_register_enum_default(adv_conf* context, const char* tag, adv_c
  * \param enum_map Vector for the enumeration value. The tag can assume only one of these values.
  * \param enum_mac Elements in the enumeration vector.
  */
-void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_int* enum_map, unsigned enum_mac, int def) {
+void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_int* enum_map, unsigned enum_mac, int def)
+{
 	struct adv_conf_option_struct* option = option_alloc();
 
 	assert(option_search_tag(context, tag) == 0);
@@ -812,13 +851,14 @@ void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf
  * On error the value struct is not modified.
  */
 
-static adv_error import_bool(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context) {
-	if (strcmp(own_value,"yes")==0) {
+static adv_error import_bool(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+{
+	if (strcmp(own_value, "yes")==0) {
 		value->data.bool_value = 1;
 		free(value->format);
 		value->format = own_value;
 		return 0;
-	} else if (strcmp(own_value,"no")==0) {
+	} else if (strcmp(own_value, "no")==0) {
 		value->data.bool_value = 0;
 		free(value->format);
 		value->format = own_value;
@@ -831,7 +871,8 @@ static adv_error import_bool(struct adv_conf_value_struct* value, char* own_valu
 	}
 }
 
-static adv_error import_int(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context) {
+static adv_error import_int(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+{
 	if (value->option->data.base_int.has_enum) {
 		unsigned i;
 		adv_string valid;
@@ -841,7 +882,7 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 
 		/* try comparing the string */
 		for(i=0;i<value->option->data.base_int.enum_mac;++i) {
-			if (strcmp(value->option->data.base_int.enum_map[i].value,own_value)==0) {
+			if (strcmp(value->option->data.base_int.enum_map[i].value, own_value)==0) {
 				value->data.int_value = value->option->data.base_int.enum_map[i].map;
 				free(value->format);
 				value->format = own_value;
@@ -864,13 +905,13 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 		}
 
 		inc_str_init(&valid);
-		inc_str_cat(&valid,"Valid values are ");
+		inc_str_cat(&valid, "Valid values are ");
 		for(i=0;i<value->option->data.base_int.enum_mac;++i) {
 			if (i)
-				inc_str_cat(&valid,", ");
-			inc_str_cat(&valid,"'");
-			inc_str_cat(&valid,value->option->data.base_int.enum_map[i].value);
-			inc_str_cat(&valid,"'");
+				inc_str_cat(&valid, ", ");
+			inc_str_cat(&valid, "'");
+			inc_str_cat(&valid, value->option->data.base_int.enum_map[i].value);
+			inc_str_cat(&valid, "'");
 		}
 		own_valid = inc_str_alloc(&valid);
 		inc_str_done(&valid);
@@ -890,7 +931,7 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 				&& (r < value->option->data.base_int.limit_low || r > value->option->data.base_int.limit_high))
 			) {
 				char valid[128];
-				sprintf(valid,"Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
+				sprintf(valid, "Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
 				if (error)
 					error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 				free(own_value);
@@ -905,7 +946,8 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 	}
 }
 
-static adv_error import_float(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context) {
+static adv_error import_float(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+{
 	char* endp;
 
 	double r = strtod(own_value, &endp);
@@ -916,7 +958,7 @@ static adv_error import_float(struct adv_conf_value_struct* value, char* own_val
 			&& (r < value->option->data.base_float.limit_low || r > value->option->data.base_float.limit_high)
 		)) {
 		char valid[128];
-		sprintf(valid,"Valid arguments are float from %g to %g", value->option->data.base_float.limit_low, value->option->data.base_float.limit_high);
+		sprintf(valid, "Valid arguments are float from %g to %g", value->option->data.base_float.limit_low, value->option->data.base_float.limit_high);
 		if (error)
 			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid, "Out of range argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 		free(own_value);
@@ -930,7 +972,8 @@ static adv_error import_float(struct adv_conf_value_struct* value, char* own_val
 	return 0;
 }
 
-static adv_error import_string(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context) {
+static adv_error import_string(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+{
 	unsigned i;
 	char* own_valid;
 	adv_string valid;
@@ -945,7 +988,7 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 
 	/* try comparing the string */
 	for(i=0;i<value->option->data.base_string.enum_mac;++i) {
-		if (strcmp(value->option->data.base_string.enum_map[i].value,own_value)==0) {
+		if (strcmp(value->option->data.base_string.enum_map[i].value, own_value)==0) {
 			free(value->data.string_value);
 			value->data.string_value = own_value;
 			free(value->format);
@@ -977,7 +1020,8 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 /**
  * Import a value. The value item is NOT initialized before the call.
  */
-static adv_error value_import(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context) {
+static adv_error value_import(struct adv_conf_value_struct* value, char* own_value, conf_error_callback* error, void* error_context)
+{
 	switch (value->option->type) {
 		case conf_type_bool : return import_bool(value, own_value, error, error_context);
 		case conf_type_int : return import_int(value, own_value, error, error_context);
@@ -992,7 +1036,8 @@ static adv_error value_import(struct adv_conf_value_struct* value, char* own_val
 /***************************************************************************/
 /* Load */
 
-static adv_error value_make_raw(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, char* own_section, char* own_comment, char* own_value, char* own_format, conf_error_callback* error, void* error_context) {
+static adv_error value_make_raw(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, char* own_section, char* own_comment, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
+{
 	struct adv_conf_value_struct* value;
 
 	value = value_alloc(option);
@@ -1012,7 +1057,8 @@ static adv_error value_make_raw(adv_conf* context, struct adv_conf_input_struct*
 	return 0;
 }
 
-static adv_error value_make_own(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, char* own_section, char* own_comment, char* own_value, char* own_format, conf_error_callback* error, void* error_context) {
+static adv_error value_make_own(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, char* own_section, char* own_comment, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
+{
 	/* check for not multi options */
 	if (!option->is_multi) {
 		if (value_search_inputsectiontag(context, input, own_section, option->tag)) {
@@ -1032,7 +1078,8 @@ err_free:
 	return -1;
 }
 
-static adv_error value_make_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context) {
+static adv_error value_make_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context)
+{
 	char* own_section;
 	char* own_comment;
 	char* own_value;
@@ -1059,7 +1106,8 @@ err:
 }
 
 /** Insert if it doesn't exist whithout error checks. Return the existing value if any. */
-static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context) {
+static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context)
+{
 	/* check for not multi options */
 	if (!option->is_multi) {
 		struct adv_conf_value_struct* value_exist = value_search_inputsectiontag(context, input, section, option->tag);
@@ -1072,14 +1120,15 @@ static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* 
 	return value_make_dup(context, input, option, section, comment, value, format, error, error_context);
 }
 
-static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_struct* input, char** global_section, char* own_comment, char* own_sectiontag, char* own_value, char* own_format, conf_error_callback* error, void* error_context) {
+static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_struct* input, char** global_section, char* own_comment, char* own_sectiontag, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
+{
 	struct adv_conf_option_struct* option;
 	char* slash;
 	char* own_section;
 	char* own_tag;
 	adv_bool autoreg;
 
-	slash = strrchr(own_sectiontag,'/');
+	slash = strrchr(own_sectiontag, '/');
 	if (slash!=0) {
 		*slash = 0;
 		own_section = strdup(own_sectiontag);
@@ -1102,16 +1151,16 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	if (input->conv_mac) {
 		unsigned conv;
 		for(conv=0;conv<input->conv_mac;++conv)
-			if (glob_match(own_section,input->conv_map[conv].section_glob)
-				&& glob_match(own_tag,input->conv_map[conv].tag_glob)
-				&& glob_match(own_value,input->conv_map[conv].value_glob)
+			if (glob_match(own_section, input->conv_map[conv].section_glob)
+				&& glob_match(own_tag, input->conv_map[conv].tag_glob)
+				&& glob_match(own_value, input->conv_map[conv].value_glob)
 			)
 				break;
 		if (conv < input->conv_mac) {
 			autoreg = input->conv_map[conv].autoreg;
-			own_section = glob_subst(input->conv_map[conv].section_result,own_section);
-			own_tag = glob_subst(input->conv_map[conv].tag_result,own_tag);
-			own_value = glob_subst(input->conv_map[conv].value_result,own_value);
+			own_section = glob_subst(input->conv_map[conv].section_result, own_section);
+			own_tag = glob_subst(input->conv_map[conv].tag_result, own_tag);
+			own_value = glob_subst(input->conv_map[conv].value_result, own_value);
 			free(own_format);
 			own_format = strdup(own_value);
 		}
@@ -1180,7 +1229,8 @@ err:
 	return -1;
 }
 
-static adv_error input_section_insert(adv_conf* context, struct adv_conf_input_struct* input, char** global_section, char* own_comment, char* own_tag, char* own_value, char* own_format) {
+static adv_error input_section_insert(adv_conf* context, struct adv_conf_input_struct* input, char** global_section, char* own_comment, char* own_tag, char* own_value, char* own_format)
+{
 	char* own_section;
 
 	/* remove [] */
@@ -1198,7 +1248,8 @@ static adv_error input_section_insert(adv_conf* context, struct adv_conf_input_s
 	return 0;
 }
 
-static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struct* input, FILE* f, char** global_section, adv_bool multi_line, conf_error_callback* error, void* error_context) {
+static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struct* input, FILE* f, char** global_section, adv_bool multi_line, conf_error_callback* error, void* error_context)
+{
 	int c;
 
 	enum state_type {
@@ -1323,7 +1374,7 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 					state = state_value;
 					copy |= copy_in_format;
 				} else {
-					ungetc(c,f);
+					ungetc(c, f);
 					state = state_value;
 					c = '\\';
 					copy |= copy_in_value;
@@ -1334,22 +1385,22 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 		}
 
 		if ((copy & copy_in_comment) != 0) {
-			if (inc_str_catc(&icomment,c) != 0)
+			if (inc_str_catc(&icomment, c) != 0)
 				goto err_done;
 		}
 
 		if ((copy & copy_in_tag) != 0) {
-			if (inc_str_catc(&itag,c) != 0)
+			if (inc_str_catc(&itag, c) != 0)
 				goto err_done;
 		}
 
 		if ((copy & copy_in_value) != 0) {
-			if (inc_str_catc(&ivalue,c) != 0)
+			if (inc_str_catc(&ivalue, c) != 0)
 				goto err_done;
 		}
 
 		if ((copy & copy_in_format) != 0) {
-			if (inc_str_catc(&iformat,c) != 0)
+			if (inc_str_catc(&iformat, c) != 0)
 				goto err_done;
 		}
 
@@ -1403,12 +1454,13 @@ err_done:
 	return -1;
 }
 
-static adv_error input_load(adv_conf* context, struct adv_conf_input_struct* input, adv_bool multi_line, conf_error_callback* error, void* error_context) {
+static adv_error input_load(adv_conf* context, struct adv_conf_input_struct* input, adv_bool multi_line, conf_error_callback* error, void* error_context)
+{
 	FILE* f;
 
 	char* global_section;
 
-	f = fopen(input->file_in,"rt");
+	f = fopen(input->file_in, "rt");
 	if (!f)
 		goto err;
 
@@ -1451,10 +1503,11 @@ err:
  *   - ==0 if ok
  *   - !=0 if not ok and error callback called
  */
-adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* file_in, const char* file_out, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context) {
+adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* file_in, const char* file_out, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)
+{
 	struct adv_conf_input_struct* input;
 
-	adv_bool is_file_in_exist = file_in != 0 && access(file_in,F_OK) == 0;
+	adv_bool is_file_in_exist = file_in != 0 && access(file_in, F_OK) == 0;
 
 	/* ignore if don't exist and is not writable */
 	if (!is_file_in_exist && !file_out)
@@ -1515,7 +1568,8 @@ adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* 
  *   - ==0 if ok
  *   - !=0 if not ok and error callback called
  */
-adv_error conf_input_file_load(adv_conf* context, int priority, const char* file, conf_error_callback* error, void* error_context) {
+adv_error conf_input_file_load(adv_conf* context, int priority, const char* file, conf_error_callback* error, void* error_context)
+{
 	return conf_input_file_load_adv(context, priority, file, file, 0, 1, 0, 0, error, error_context);
 }
 
@@ -1531,7 +1585,8 @@ adv_error conf_input_file_load(adv_conf* context, int priority, const char* file
  * \param error Callback called for every error.
  * \param error_context Argument for the error callback.
  */
-adv_error conf_input_args_load(adv_conf* context, int priority, const char* section, int* argc, char* argv[], conf_error_callback* error, void* error_context) {
+adv_error conf_input_args_load(adv_conf* context, int priority, const char* section, int* argc, char* argv[], conf_error_callback* error, void* error_context)
+{
 	int i;
 	struct adv_conf_input_struct* input = input_alloc();
 
@@ -1540,7 +1595,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 	input->file_in = strdup("commandline");
 	input->file_out = 0;
 
-	input_insert(context,input);
+	input_insert(context, input);
 
 	i = 0;
 	while (i<*argc) {
@@ -1633,22 +1688,24 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 /***************************************************************************/
 /* Save */
 
-static void value_save(struct adv_conf_value_struct* value, const char** global_section, FILE* f) {
-	if (strcmp(*global_section,value->section) != 0) {
+static void value_save(struct adv_conf_value_struct* value, const char** global_section, FILE* f)
+{
+	if (strcmp(*global_section, value->section) != 0) {
 #if 0
 		/* print an extra newline before a section change */
 		if (*value->comment == 0)
-			fprintf(f,"\n");
+			fprintf(f, "\n");
 #endif
 		*global_section = value->section;
 	}
 	if (*value->section)
-		fprintf(f,"%s%s/%s %s\n",value->comment,value->section,value->option->tag,value->format);
+		fprintf(f, "%s%s/%s %s\n", value->comment, value->section, value->option->tag, value->format);
 	else
-		fprintf(f,"%s%s %s\n",value->comment,value->option->tag,value->format);
+		fprintf(f, "%s%s %s\n", value->comment, value->option->tag, value->format);
 }
 
-static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input) {
+static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input)
+{
 	FILE* f;
 	const char* global_section;
 
@@ -1658,7 +1715,7 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 
 	global_section = "";
 
-	f = fopen(input->file_out,"wt");
+	f = fopen(input->file_out, "wt");
 	if (!f)
 		goto err;
 
@@ -1666,7 +1723,7 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 		struct adv_conf_value_struct* value = context->value_list;
 		do {
 			if (value->input == input) {
-				value_save(value,&global_section,f);
+				value_save(value, &global_section, f);
 			}
 			value = value->next;
 		} while (value != context->value_list);
@@ -1684,7 +1741,8 @@ err:
  * \param context Configuration context to use.
  * \param force Force the rewrite also if the configuration file are unchanged.
  */
-adv_error conf_save(adv_conf* context, adv_bool force) {
+adv_error conf_save(adv_conf* context, adv_bool force)
+{
 
 	/* only if necessary */
 	if (!force && !context->is_modified)
@@ -1710,7 +1768,8 @@ adv_error conf_save(adv_conf* context, adv_bool force) {
  * The files must be explicitly saved calling conf_save().
  * \param context Configuration context to use.
  */
-void conf_uncomment(adv_conf* context) {
+void conf_uncomment(adv_conf* context)
+{
 	struct adv_conf_value_struct* value = context->value_list;
 
 	if (value) {
@@ -1729,7 +1788,8 @@ void conf_uncomment(adv_conf* context) {
  * The files must be explicitly saved calling conf_save().
  * \param context Configuration context to use.
  */
-void conf_sort(adv_conf* context) {
+void conf_sort(adv_conf* context)
+{
 	struct adv_conf_value_struct* value_list = context->value_list;
 	struct adv_conf_value_struct* value = value_list;
 
@@ -1738,7 +1798,7 @@ void conf_sort(adv_conf* context) {
 	if (value_list) {
 		do {
 			struct adv_conf_value_struct* value_next = value->next;
-			value_insert_sort(context,value);
+			value_insert_sort(context, value);
 			value = value_next;
 		} while (value != value_list);
 	}
@@ -1758,7 +1818,8 @@ void conf_sort(adv_conf* context) {
  * \param section_map Section vector.
  * \param section_mac Elements in the section vector.
  */
-void conf_section_set(adv_conf* context, const char** section_map, unsigned section_mac) {
+void conf_section_set(adv_conf* context, const char** section_map, unsigned section_mac)
+{
 	unsigned i;
 
 	for(i=0;i<context->section_mac;++i)
@@ -1772,19 +1833,21 @@ void conf_section_set(adv_conf* context, const char** section_map, unsigned sect
 }
 
 #ifdef NDEBUG
-#define assert_option(context,tag,type) \
+#define assert_option(context, tag, type) \
 	do { } while (0)
-#define assert_option_def(context,tag,type,has_def) \
+#define assert_option_def(context, tag, type, has_def) \
 	do { } while (0)
 #else
-static void assert_option(adv_conf* context, const char* tag, enum adv_conf_enum type) {
+static void assert_option(adv_conf* context, const char* tag, enum adv_conf_enum type)
+{
 	struct adv_conf_option_struct* option = option_search_tag(context, tag);
 
 	assert(option);
 	assert(option->type == type);
 }
 
-static void assert_option_def(adv_conf* context, const char* tag, enum adv_conf_enum type, adv_bool has_def) {
+static void assert_option_def(adv_conf* context, const char* tag, enum adv_conf_enum type, adv_bool has_def)
+{
 	struct adv_conf_option_struct* option = option_search_tag(context, tag);
 
 	assert(option);
@@ -1813,10 +1876,11 @@ static void assert_option_def(adv_conf* context, const char* tag, enum adv_conf_
  * \param tag Tag to search.
  * \return The value got.
  */
-adv_bool conf_bool_get_default(adv_conf* context, const char* tag) {
+adv_bool conf_bool_get_default(adv_conf* context, const char* tag)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_bool,1);
+	assert_option_def(context, tag, conf_type_bool, 1);
 
 	if (!value)
 		return option_search_tag(context, tag)->data.base_bool.def;
@@ -1836,10 +1900,11 @@ adv_bool conf_bool_get_default(adv_conf* context, const char* tag) {
  *   - ==0 if a value is found
  *   - !=0 if not found
  */
-adv_error conf_bool_get(adv_conf* context, const char* tag, adv_bool* result) {
+adv_error conf_bool_get(adv_conf* context, const char* tag, adv_bool* result)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_bool,0);
+	assert_option_def(context, tag, conf_type_bool, 0);
 
 	if (!value)
 		return -1;
@@ -1859,10 +1924,11 @@ adv_error conf_bool_get(adv_conf* context, const char* tag, adv_bool* result) {
  * \param tag Tag to search.
  * \return The value got.
  */
-adv_bool conf_int_get_default(adv_conf* context, const char* tag) {
+adv_bool conf_int_get_default(adv_conf* context, const char* tag)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_int,1);
+	assert_option_def(context, tag, conf_type_int, 1);
 
 	if (!value)
 		return option_search_tag(context, tag)->data.base_int.def;
@@ -1882,10 +1948,11 @@ adv_bool conf_int_get_default(adv_conf* context, const char* tag) {
  *   - ==0 if a value is found
  *   - !=0 if not found
  */
-adv_error conf_int_get(adv_conf* context, const char* tag, int* result) {
+adv_error conf_int_get(adv_conf* context, const char* tag, int* result)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_int,0);
+	assert_option_def(context, tag, conf_type_int, 0);
 
 	if (!value)
 		return -1;
@@ -1905,10 +1972,11 @@ adv_error conf_int_get(adv_conf* context, const char* tag, int* result) {
  * \param tag Tag to search.
  * \return The value got.
  */
-double conf_float_get_default(adv_conf* context, const char* tag) {
+double conf_float_get_default(adv_conf* context, const char* tag)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_float,1);
+	assert_option_def(context, tag, conf_type_float, 1);
 
 	if (!value)
 		return option_search_tag(context, tag)->data.base_float.def;
@@ -1928,10 +1996,11 @@ double conf_float_get_default(adv_conf* context, const char* tag) {
  *   - ==0 if a value is found
  *   - !=0 if not found
  */
-adv_error conf_float_get(adv_conf* context, const char* tag, double* result) {
+adv_error conf_float_get(adv_conf* context, const char* tag, double* result)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_float,0);
+	assert_option_def(context, tag, conf_type_float, 0);
 
 	if (!value)
 		return -1;
@@ -1951,10 +2020,11 @@ adv_error conf_float_get(adv_conf* context, const char* tag, double* result) {
  * \param tag Tag to search.
  * \return The value got.
  */
-const char* conf_string_get_default(adv_conf* context, const char* tag) {
+const char* conf_string_get_default(adv_conf* context, const char* tag)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
-	assert_option_def(context, tag,conf_type_string,1);
+	assert_option_def(context, tag, conf_type_string, 1);
 
 	if (!value)
 		return option_search_tag(context, tag)->data.base_string.def;
@@ -1974,7 +2044,8 @@ const char* conf_string_get_default(adv_conf* context, const char* tag) {
  *   - ==0 if a value is found
  *   - !=0 if not found
  */
-adv_error conf_string_get(adv_conf* context, const char* tag, const char** result) {
+adv_error conf_string_get(adv_conf* context, const char* tag, const char** result)
+{
 	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
 	assert_option_def(context, tag, conf_type_string, 0);
@@ -1997,7 +2068,8 @@ adv_error conf_string_get(adv_conf* context, const char* tag, const char** resul
  *   - ==0 if a value is found
  *   - !=0 if not found
  */
-adv_error conf_string_section_get(adv_conf* context, const char* section, const char* tag, const char** result) {
+adv_error conf_string_section_get(adv_conf* context, const char* section, const char* tag, const char** result)
+{
 	struct adv_conf_value_struct* value = value_searchbest_sectiontag(context, section, tag);
 
 	assert_option_def(context, tag, conf_type_string, 0);
@@ -2021,7 +2093,8 @@ adv_error conf_string_section_get(adv_conf* context, const char* section, const 
  * \param context Configuration context to use.
  * \param tag Tag to search.
  */
-void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* tag) {
+void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* tag)
+{
 	i->context = context;
 	i->value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 }
@@ -2031,7 +2104,8 @@ void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* ta
  * You can call this function only if conf_iterator_is_end() return false.
  * \param i Iterator to use.
  */
-void conf_iterator_next(adv_conf_iterator* i) {
+void conf_iterator_next(adv_conf_iterator* i)
+{
 	assert(i && i->value);
 
 	i->value = value_searchbest_from(i->context, i->value);
@@ -2044,7 +2118,8 @@ void conf_iterator_next(adv_conf_iterator* i) {
  *  - == 0 The iterator is not at the end.
  *  - != 0 The iterator is at the end.
  */
-adv_bool conf_iterator_is_end(const adv_conf_iterator* i) {
+adv_bool conf_iterator_is_end(const adv_conf_iterator* i)
+{
 	assert(i);
 
 	return i->value == 0;
@@ -2056,7 +2131,8 @@ adv_bool conf_iterator_is_end(const adv_conf_iterator* i) {
  * \param i Iterator to use.
  * \return Pointer at the value.
  */
-const char* conf_iterator_string_get(const adv_conf_iterator* i) {
+const char* conf_iterator_string_get(const adv_conf_iterator* i)
+{
 	assert(i && i->value && i->value->option->type == conf_type_string);
 
 	return i->value->data.string_value;
@@ -2076,7 +2152,8 @@ const char* conf_iterator_string_get(const adv_conf_iterator* i) {
  * \param tag Tag of the option.
  * \param result Where to put the value of the option.
  */
-adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* result) {
+adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* result)
+{
 	struct adv_conf_input_struct* input;
 	struct adv_conf_option_struct* option;
 
@@ -2100,7 +2177,8 @@ adv_error conf_set(adv_conf* context, const char* section, const char* tag, cons
  * \param tag Tag of the option.
  * \param result Where to put the value of the option.
  */
-adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag, adv_bool result) {
+adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag, adv_bool result)
+{
 	const char* result_string;
 
 	assert_option(context, tag, conf_type_bool);
@@ -2119,7 +2197,8 @@ adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag,
  * \param tag Tag of the option.
  * \param result Where to put the value of the option.
  */
-adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, int result) {
+adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, int result)
+{
 	const char* result_string;
 	char result_buffer[CONF_NUM_BUFFER_MAX];
 	struct adv_conf_option_struct* option;
@@ -2131,7 +2210,7 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
 		return -1;
 
 	if (!option->data.base_int.has_enum) {
-		sprintf(result_buffer,"%d",(int)result);
+		sprintf(result_buffer, "%d", (int)result);
 		result_string = result_buffer;
 	} else {
 		unsigned i;
@@ -2158,13 +2237,14 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
  * \param tag Tag of the option.
  * \param result Where to put the value of the option.
  */
-adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double result) {
+adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double result)
+{
 	char result_buffer[CONF_NUM_BUFFER_MAX];
 	const char* result_string;
 
 	assert_option(context, tag, conf_type_float);
 
-	sprintf(result_buffer,"%g",(double)result);
+	sprintf(result_buffer, "%g", (double)result);
         result_string = result_buffer;
 
 	return conf_set(context, section, tag, result_string);
@@ -2179,7 +2259,8 @@ adv_error conf_float_set(adv_conf* context, const char* section, const char* tag
  * \param tag Tag of the option.
  * \param result Where to put the value of the option.
  */
-adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* result) {
+adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* result)
+{
 	const char* result_string;
 
 	assert_option(context, tag, conf_type_string);
@@ -2199,7 +2280,8 @@ adv_error conf_string_set(adv_conf* context, const char* section, const char* ta
  *   - ==0 if a value is found and removed
  *   - !=0 if not found
  */
-adv_error conf_remove(adv_conf* context, const char* section, const char* tag) {
+adv_error conf_remove(adv_conf* context, const char* section, const char* tag)
+{
 	struct adv_conf_value_struct* value;
 	struct adv_conf_input_struct* input;
 
@@ -2226,7 +2308,8 @@ adv_error conf_remove(adv_conf* context, const char* section, const char* tag) {
  * \param buffer Destination buffer used for int/float values.
  * \return 0 if the option has not a default.
  */
-static const char* option_default_get(struct adv_conf_option_struct* option, char* buffer) {
+static const char* option_default_get(struct adv_conf_option_struct* option, char* buffer)
+{
 	switch (option->type) {
 		case conf_type_bool :
 			if (!option->data.base_bool.has_def)
@@ -2236,7 +2319,7 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 			if (!option->data.base_int.has_def)
 				return 0;
 			if (!option->data.base_int.has_enum) {
-				sprintf(buffer,"%d",(int)option->data.base_int.def);
+				sprintf(buffer, "%d", (int)option->data.base_int.def);
 				return buffer;
 			} else {
 				unsigned i;
@@ -2250,7 +2333,7 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 		case conf_type_float :
 			if (!option->data.base_float.has_def)
 				return 0;
-			sprintf(buffer,"%g",(double)option->data.base_float.def);
+			sprintf(buffer, "%g", (double)option->data.base_float.def);
 			return buffer;
 		case conf_type_string :
 			if (!option->data.base_string.has_def)
@@ -2262,13 +2345,14 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 	}
 }
 
-static const char* value_get(struct adv_conf_value_struct* value, char* buffer) {
+static const char* value_get(struct adv_conf_value_struct* value, char* buffer)
+{
 	switch (value->option->type) {
 		case conf_type_bool :
 			return value->data.bool_value ? "yes" : "no";
 		case conf_type_int :
 			if (!value->option->data.base_int.has_enum) {
-				sprintf(buffer,"%d",(int)value->data.int_value);
+				sprintf(buffer, "%d", (int)value->data.int_value);
 				return buffer;
 			} else {
 				unsigned i;
@@ -2280,7 +2364,7 @@ static const char* value_get(struct adv_conf_value_struct* value, char* buffer) 
 				return 0;
 			}
 		case conf_type_float :
-			sprintf(buffer,"%g",(double)value->data.float_value);
+			sprintf(buffer, "%g", (double)value->data.float_value);
 			return buffer;
 		case conf_type_string :
 			return value->data.string_value;
@@ -2297,7 +2381,8 @@ static const char* value_get(struct adv_conf_value_struct* value, char* buffer) 
  * \param section Section of the option.
  * \param tag Tag of the option.
  */
-adv_error conf_set_default(adv_conf* context, const char* section, const char* tag) {
+adv_error conf_set_default(adv_conf* context, const char* section, const char* tag)
+{
 	struct adv_conf_input_struct* input;
 	struct adv_conf_option_struct* option;
 	const char* result_string;
@@ -2324,14 +2409,15 @@ adv_error conf_set_default(adv_conf* context, const char* section, const char* t
  * \param context Configuration context to use.
  * \param section Section of the options.
  */
-void conf_set_default_if_missing(adv_conf* context, const char* section) {
+void conf_set_default_if_missing(adv_conf* context, const char* section)
+{
 
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
-			struct adv_conf_value_struct* value = value_searchbest_sectiontag(context,section,option->tag);
+			struct adv_conf_value_struct* value = value_searchbest_sectiontag(context, section, option->tag);
 			if (!value)
-				conf_set_default(context,section,option->tag);
+				conf_set_default(context, section, option->tag);
 			option = option->next;
 		} while (option != context->option_list);
 	}
@@ -2347,14 +2433,14 @@ void conf_remove_if_default(adv_conf* context, const char* section)
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
-			struct adv_conf_value_struct* value = value_searchbest_sectiontag(context,section,option->tag);
+			struct adv_conf_value_struct* value = value_searchbest_sectiontag(context, section, option->tag);
 			if (value) {
 				char result_buffer[CONF_NUM_BUFFER_MAX];
 				char default_buffer[CONF_NUM_BUFFER_MAX];
-				const char* result_string = value_get(value,result_buffer);
-				const char* default_string = option_default_get(option,default_buffer);
+				const char* result_string = value_get(value, result_buffer);
+				const char* default_string = option_default_get(option, default_buffer);
 				assert(result_string);
-				if (default_string && strcmp(result_string,default_string)==0) {
+				if (default_string && strcmp(result_string, default_string)==0) {
 					value_remove(context, value);
 				}
 			}

@@ -60,23 +60,27 @@ static struct os_context OS;
 
 os_clock_t OS_CLOCKS_PER_SEC = 1000;
 
-os_clock_t os_clock(void) {
+os_clock_t os_clock(void)
+{
 	return SDL_GetTicks();
 }
 
 /***************************************************************************/
 /* Init */
 
-int os_init(adv_conf* context) {
-	memset(&OS,0,sizeof(OS));
+int os_init(adv_conf* context)
+{
+	memset(&OS, 0, sizeof(OS));
 
 	return 0;
 }
 
-void os_done(void) {
+void os_done(void)
+{
 }
 
-int os_inner_init(const char* title) {
+int os_inner_init(const char* title)
+{
 	SDL_version compiled;
 	os_clock_t start, stop;
 
@@ -85,8 +89,8 @@ int os_inner_init(const char* title) {
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
-#define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
-	log_std(("os: compiler GNU %s\n",COMPILER(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)));
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
 #else
 	log_std(("os: compiler unknown\n"));
 #endif
@@ -112,7 +116,7 @@ int os_inner_init(const char* title) {
 	stop = os_clock();
 	while (stop == start)
 		stop = os_clock();
-	log_std(("os: clock delta %ld\n",(unsigned long)(stop - start)));
+	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
 
 	/* set the titlebar */
 	strcpy(OS.title, title);
@@ -128,12 +132,14 @@ int os_inner_init(const char* title) {
 	return 0;
 }
 
-void os_inner_done(void) {
+void os_inner_done(void)
+{
 	log_std(("os: SDL_Quit()\n"));
 	SDL_Quit();
 }
 
-void os_poll(void) {
+void os_poll(void)
+{
 	SDL_Event event;
 
 	/* The event queue works only with the video initialized */
@@ -193,7 +199,8 @@ void os_poll(void) {
 	}
 }
 
-const char* os_internal_title_get(void) {
+const char* os_internal_title_get(void)
+{
 	return OS.title;
 }
 
@@ -207,7 +214,8 @@ void os_led_set(unsigned mask)
 /***************************************************************************/
 /* Signal */
 
-int os_is_quit(void) {
+int os_is_quit(void)
+{
 	return OS.is_quit;
 }
 
@@ -254,7 +262,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (os_main(argc,argv) != 0) {
+	if (os_main(argc, argv) != 0) {
 		file_done();
 		target_done();
 		return EXIT_FAILURE;

@@ -55,11 +55,11 @@
 /**************************************************************************/
 /* internal */
 
-#include "driver.h"
-
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned long uint32_t;
+
+#include "driver.h"
 
 void ADV_SVGALIB_CALL adv_svgalib_log_va(const char *text, va_list arg);
 

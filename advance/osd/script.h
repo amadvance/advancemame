@@ -106,7 +106,8 @@ union script_exp_data {
 
 #define SCRIPT_EXP_TYPE_MASK 0xF00
 
-static __inline__ int script_exp_type_get(unsigned type) {
+static inline int script_exp_type_get(unsigned type)
+{
 	return type & SCRIPT_EXP_TYPE_MASK;
 }
 
@@ -169,7 +170,8 @@ struct script_exp* script_exp_make_op3fee(int type, const char* arg0, struct scr
 #define SCRIPT_CMD_TYPE_2ECD 0x500
 #define SCRIPT_CMD_TYPE_MASK 0xF00
 
-static __inline__ int script_cmd_type_get(unsigned type) {
+static inline int script_cmd_type_get(unsigned type)
+{
 	return type & SCRIPT_CMD_TYPE_MASK;
 }
 
@@ -249,7 +251,7 @@ struct script_state {
 
 /* Port callback */
 unsigned char script_port_read(int address);
-void script_port_write(int address,unsigned char value);
+void script_port_write(int address, unsigned char value);
 
 /* Error callback */
 void script_error(const char* s);
@@ -260,7 +262,7 @@ void script_free(struct script_cmd* script);
 
 struct script_state* script_run_alloc(void);
 void script_run_free(struct script_state* state);
-void script_run_restart(struct script_state* state,struct script_cmd* cmd);
+void script_run_restart(struct script_state* state, struct script_cmd* cmd);
 int script_run_end(const struct script_state* state);
 
 /* Unit time (1 second) for the idle call */

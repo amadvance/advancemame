@@ -30,11 +30,13 @@
 
 #include "emu.h"
 
-static __inline__ double estimate_merge(double estimator, double v) {
+static inline double estimate_merge(double estimator, double v)
+{
 	return 0.95 * estimator + 0.05 * v;
 }
 
-void advance_estimate_init(struct advance_estimate_context* context, double step) {
+void advance_estimate_init(struct advance_estimate_context* context, double step)
+{
 	context->estimate_mame_flag = 0;
 	context->estimate_osd_flag = 0;
 	context->estimate_frame_flag = 0;
@@ -49,73 +51,80 @@ void advance_estimate_init(struct advance_estimate_context* context, double step
 	context->estimate_common_full = 0.001 * step;
 }
 
-void advance_estimate_mame_end(struct advance_estimate_context* context, int skip_flag) {
+void advance_estimate_mame_end(struct advance_estimate_context* context, int skip_flag)
+{
 	double current = advance_timer();
 
 	if (context->estimate_mame_flag) {
 		double previous;
 		previous = current - context->estimate_mame_last;
 		if (skip_flag)
-			context->estimate_mame_skip = estimate_merge(context->estimate_mame_skip,previous);
+			context->estimate_mame_skip = estimate_merge(context->estimate_mame_skip, previous);
 		else
-			context->estimate_mame_full = estimate_merge(context->estimate_mame_full,previous);
+			context->estimate_mame_full = estimate_merge(context->estimate_mame_full, previous);
 	}
 }
 
-void advance_estimate_osd_begin(struct advance_estimate_context* context) {
+void advance_estimate_osd_begin(struct advance_estimate_context* context)
+{
 	double current = advance_timer();
 
 	context->estimate_osd_flag = 1;
 	context->estimate_osd_last = current;
 }
 
-void advance_estimate_osd_end(struct advance_estimate_context* context, int skip_flag) {
+void advance_estimate_osd_end(struct advance_estimate_context* context, int skip_flag)
+{
 	double current = advance_timer();
 
 	if (context->estimate_osd_flag) {
 		double previous;
 		previous = current - context->estimate_osd_last;
 		if (skip_flag)
-			context->estimate_osd_skip = estimate_merge(context->estimate_osd_skip,previous);
+			context->estimate_osd_skip = estimate_merge(context->estimate_osd_skip, previous);
 		else
-			context->estimate_osd_full = estimate_merge(context->estimate_osd_full,previous);
+			context->estimate_osd_full = estimate_merge(context->estimate_osd_full, previous);
 	}
 }
 
-void advance_estimate_common_begin(struct advance_estimate_context* context) {
+void advance_estimate_common_begin(struct advance_estimate_context* context)
+{
 	double current = advance_timer();
 
 	context->estimate_common_flag = 1;
 	context->estimate_common_last = current;
 }
 
-void advance_estimate_common_end(struct advance_estimate_context* context, int skip_flag) {
+void advance_estimate_common_end(struct advance_estimate_context* context, int skip_flag)
+{
 	double current = advance_timer();
 
 	if (context->estimate_common_flag) {
 		double previous;
 		previous = current - context->estimate_common_last;
 		if (skip_flag)
-			context->estimate_common_skip = estimate_merge(context->estimate_common_skip,previous);
+			context->estimate_common_skip = estimate_merge(context->estimate_common_skip, previous);
 		else
-			context->estimate_common_full = estimate_merge(context->estimate_common_full,previous);
+			context->estimate_common_full = estimate_merge(context->estimate_common_full, previous);
 	}
 }
 
-void advance_estimate_mame_begin(struct advance_estimate_context* context) {
+void advance_estimate_mame_begin(struct advance_estimate_context* context)
+{
 	double current = advance_timer();
 
 	context->estimate_mame_flag = 1;
 	context->estimate_mame_last = current;
 }
 
-void advance_estimate_frame(struct advance_estimate_context* context) {
+void advance_estimate_frame(struct advance_estimate_context* context)
+{
 	double current = advance_timer();
 
 	if (context->estimate_frame_flag) {
 		double previous;
 		previous = current - context->estimate_frame_last;
-		context->estimate_frame = estimate_merge(context->estimate_frame,previous);
+		context->estimate_frame = estimate_merge(context->estimate_frame, previous);
 	}
 
 	context->estimate_frame_flag = 1;

@@ -36,14 +36,16 @@
 /**
  * Clear a monitor clock specification.
  */
-void monitor_reset(adv_monitor* monitor) {
+void monitor_reset(adv_monitor* monitor)
+{
 	memset(monitor, 0, sizeof(adv_monitor));
 }
 
 /**
  * Check if monitor clock specification is empty.
  */
-adv_bool monitor_is_empty(const adv_monitor* monitor) {
+adv_bool monitor_is_empty(const adv_monitor* monitor)
+{
 	int i;
 	for(i=0;i<MONITOR_RANGE_MAX;++i)
 		if (monitor->hclock[i].low != 0 || monitor->hclock[i].high != 0)
@@ -59,7 +61,8 @@ adv_bool monitor_is_empty(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \param hclock Horizontal clock.
  */
-adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock) {
+adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock)
+{
 	const double monitor_hfix_error = 0.02;
 	const double monitor_hrange_error = 0.01;
 	unsigned i;
@@ -88,7 +91,8 @@ adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock) {
  * \param monitor Monitor clock specification.
  * \param vclock Horizontal clock.
  */
-adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock) {
+adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock)
+{
 	const double monitor_vfix_error = 0.02;
 	const double monitor_vrange_error = 0.01;
 	unsigned i;
@@ -115,7 +119,8 @@ adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock) {
  * \param monitor Monitor clock specification.
  * \param pclock Horizontal clock.
  */
-adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock) {
+adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock)
+{
 	if (monitor->pclock.low <= pclock && pclock <= monitor->pclock.high)
 		return 1;
 
@@ -130,10 +135,11 @@ adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock) {
  * \param hclock Horizontal clock.
  * \param vclock Vertical clock.
  */
-adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock) {
-	return monitor_pclock_check(monitor,pclock)
-		&& monitor_hclock_check(monitor,hclock)
-		&& monitor_vclock_check(monitor,vclock);
+adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock)
+{
+	return monitor_pclock_check(monitor, pclock)
+		&& monitor_hclock_check(monitor, hclock)
+		&& monitor_vclock_check(monitor, vclock);
 }
 
 /**
@@ -142,9 +148,10 @@ adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double h
  * \param hclock Horizontal clock.
  * \param vclock Vertical clock.
  */
-adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock) {
-	return monitor_hclock_check(monitor,hclock)
-		&& monitor_vclock_check(monitor,vclock);
+adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock)
+{
+	return monitor_hclock_check(monitor, hclock)
+		&& monitor_vclock_check(monitor, vclock);
 }
 
 /**
@@ -152,7 +159,8 @@ adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_hclock_min(const adv_monitor* monitor) {
+double monitor_hclock_min(const adv_monitor* monitor)
+{
 	double min = 0;
 	unsigned i;
 	for(i=0;i<MONITOR_RANGE_MAX;++i)
@@ -166,7 +174,8 @@ double monitor_hclock_min(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_hclock_max(const adv_monitor* monitor) {
+double monitor_hclock_max(const adv_monitor* monitor)
+{
 	double max = 0;
 	unsigned i;
 	for(i=0;i<MONITOR_RANGE_MAX;++i)
@@ -180,7 +189,8 @@ double monitor_hclock_max(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_vclock_min(const adv_monitor* monitor) {
+double monitor_vclock_min(const adv_monitor* monitor)
+{
 	double min = 0;
 	unsigned i;
 	for(i=0;i<MONITOR_RANGE_MAX;++i)
@@ -194,7 +204,8 @@ double monitor_vclock_min(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_vclock_max(const adv_monitor* monitor) {
+double monitor_vclock_max(const adv_monitor* monitor)
+{
 	double max = 0;
 	unsigned i;
 	for(i=0;i<MONITOR_RANGE_MAX;++i)
@@ -208,7 +219,8 @@ double monitor_vclock_max(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_pclock_min(const adv_monitor* monitor) {
+double monitor_pclock_min(const adv_monitor* monitor)
+{
 	return monitor->pclock.low;
 }
 
@@ -217,6 +229,7 @@ double monitor_pclock_min(const adv_monitor* monitor) {
  * \param monitor Monitor clock specification.
  * \return Clock in Hz.
  */
-double monitor_pclock_max(const adv_monitor* monitor) {
+double monitor_pclock_max(const adv_monitor* monitor)
+{
 	return monitor->pclock.high;
 }

@@ -89,12 +89,12 @@ void text_put(int x, int y, char c, int color);
 /***************************************************************************/
 /* Draw interface */
 
-#define DRAW_COLOR_BLACK draw_color(0,0,0)
-#define DRAW_COLOR_GRAY draw_color(196,196,196)
-#define DRAW_COLOR_WHITE draw_color(255,255,255)
-#define DRAW_COLOR_RED draw_color(255,0,0)
-#define DRAW_COLOR_GREEN draw_color(0,255,0)
-#define DRAW_COLOR_BLUE draw_color(0,0,255)
+#define DRAW_COLOR_BLACK draw_color(0, 0, 0)
+#define DRAW_COLOR_GRAY draw_color(196, 196, 196)
+#define DRAW_COLOR_WHITE draw_color(255, 255, 255)
+#define DRAW_COLOR_RED draw_color(255, 0, 0)
+#define DRAW_COLOR_GREEN draw_color(0, 255, 0)
+#define DRAW_COLOR_BLUE draw_color(0, 0, 255)
 
 unsigned draw_color(unsigned r, unsigned g, unsigned b);
 void draw_char(int x, int y, char c, unsigned color);

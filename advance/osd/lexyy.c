@@ -427,13 +427,14 @@ char *yytext;
 
 extern int script_input(char* buf, int max_size);
 
-void script_flush(void) {
+void script_flush(void)
+{
 	yy_delete_buffer(YY_CURRENT_BUFFER);
 }
 
-#define YY_INPUT(buf,result,max_size) \
+#define YY_INPUT(buf, result, max_size) \
 	{ \
-		int script_cc = script_input(buf,max_size); \
+		int script_cc = script_input(buf, max_size); \
 		if (!script_cc) \
 			result = YY_NULL; \
 		else \
@@ -529,7 +530,7 @@ YY_MALLOC_DECL
  * is returned in "result".
  */
 #ifndef YY_INPUT
-#define YY_INPUT(buf,result,max_size) \
+#define YY_INPUT(buf, result, max_size) \
 	if ( yy_current_buffer->yy_is_interactive ) \
 		{ \
 		int c = '*', n; \
@@ -684,9 +685,9 @@ YY_RULE_SETUP
 #line 63 "parser.l"
 {
 		if (yytext[0]=='0' && yytext[1]=='b')
-			yylval.val = strtol( yytext+2,0,2 );
+			yylval.val = strtol( yytext+2, 0, 2 );
 		else
-			yylval.val = strtol( yytext,0,0 );
+			yylval.val = strtol( yytext, 0, 0 );
 		return VAL;
 	}
 	YY_BREAK

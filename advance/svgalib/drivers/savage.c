@@ -28,7 +28,8 @@ And XFree 4.1.0 driver by Kevin Brosius.
 
 typedef struct {     
 
-   unsigned char SR08, SR0A, SR0F, SR10, SR11, SR12, SR13, SR15, SR18, SR29; /* SR9-SR1C, ext seq. */
+   unsigned char SR08, SR0A, SR0E, SR0F, SR10, SR11, SR12, SR13;
+   unsigned char SR15, SR18, SR1B, SR29, SR30;
    unsigned char SR54, SR55, SR56, SR57;
    unsigned char Clock;
 //   unsigned char s3DacRegs[0x101];
@@ -80,7 +81,7 @@ static void getmodeinfo(int mode, vga_modeinfo *modeinfo)
     if (modeinfo->bytesperpixel >= 1) {
 	if(linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
     }
 }
 
@@ -195,6 +196,7 @@ static int saveregs(unsigned char regs[])
         save->CR6D = __svgalib_incrtc(0x6d);
 
    /* Save sequencer extended regs for DCLK PLL programming */
+    save->SR0E = __svgalib_inseq(0x0E);
     save->SR10 = __svgalib_inseq(0x10);
     save->SR11 = __svgalib_inseq(0x11);
     save->SR12 = __svgalib_inseq(0x12);
@@ -202,7 +204,6 @@ static int saveregs(unsigned char regs[])
 
     if(chipset>=SAVAGE3D) 
         save->SR29 = __svgalib_inseq(0x29);
-
 
     if((chipset==TRIO3D2X)||(chipset==VIRGEGX2)||(chipset==VIRGEMX)) {
         save->SR29 = __svgalib_inseq(0x29);
@@ -213,7 +214,14 @@ static int saveregs(unsigned char regs[])
     }
         
     save->SR15 = __svgalib_inseq(0x15);
-    save->SR18 = __svgalib_inseq(0x18);
+
+	if(chipset>=SAVAGE3D) 
+    	save->SR30 = __svgalib_inseq(0x30);
+
+	save->SR18 = __svgalib_inseq(0x18);
+
+	if(chipset>=SAVAGE3D) 
+    	save->SR1B = __svgalib_inseq(0x1B);
 
     if(chipset<=TRIO3D) {
         save->SR0A = __svgalib_inseq(0x0a);
@@ -370,16 +378,23 @@ static void setregs(const unsigned char regs[], int mode)
 
     __svgalib_outseq(0x18, restore->SR18);
 
+    if(chipset>=SAVAGE3D)
+        __svgalib_outseq(0x1B, restore->SR1B);
+
     tmp = __svgalib_inseq(0x15) & ~0x21;
     __svgalib_outseq(0x15, tmp | 0x03);
     __svgalib_outseq(0x15, tmp | 0x23);
     __svgalib_outseq(0x15, tmp | 0x03);
     __svgalib_outseq(0x15, restore->SR15);
     
+	usleep(100);
+	
     if(chipset<=TRIO3D) {
         __svgalib_outseq(0x0a, restore->SR0A);
         __svgalib_outseq(0x0f, restore->SR0F);
-    }
+    } else if (chipset >= SAVAGE3D) {
+		__svgalib_outseq(0x30, restore->SR30);
+	}
 
     __svgalib_outseq(0x08, restore->SR08);
 
@@ -589,6 +604,9 @@ static void initializemode(unsigned char *moderegs,
    
     new->SR10 = 255; /* This is a reserved value, so we use as flag */
     new->SR11 = 255;
+
+	new->SR1B = 0;
+	new->SR30 = __svgalib_inseq(0x30);
 
     switch( modeinfo->colorBits ) {
         case 8:
@@ -875,6 +893,8 @@ static int test(void)
         case 0x8c10:
         case 0x8c12:
         case 0x9102:
+		case 0x8d03:
+		case 0x8d04:
             init(0,0,0);
             return 1;
             break;
@@ -1191,6 +1211,9 @@ static int init(int force, int par1, int par2)
             break;
         case 0x8a22:
         case 0x8a23:
+
+		case 0x8d03:
+		case 0x8d04:
             chipset = SAVAGE4;
             break;
         case 0x9102:
@@ -1249,7 +1272,6 @@ static int init(int force, int par1, int par2)
     if (__svgalib_driver_report) {
 	fprintf(stderr,"Using SAVAGE driver, %iKB. Chipset: %s\n",memory, chipnames[chipset]);
     };
-
     cardspecs = malloc(sizeof(CardSpecs));
     cardspecs->videoMemory = memory;
     cardspecs->maxPixelClock4bpp = 0;	

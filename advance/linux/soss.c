@@ -60,7 +60,7 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	int i;
 	audio_buf_info info;
 
-	log_std(("sound:oss: sound_oss_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",sound_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:oss: sound_oss_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
 	if (stereo_flag) {
 		oss_state.sample_length = 4;
@@ -72,7 +72,7 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 
 	oss_state.handle = open("/dev/dsp", O_WRONLY | O_NONBLOCK, 0);
 	if (!oss_state.handle) {
-		log_std(("sound:oss: open(/dev/dep,O_WRONLY | O_NONBLOCK,0) failed\n"));
+		log_std(("sound:oss: open(/dev/dep, O_WRONLY | O_NONBLOCK, 0) failed\n"));
 		goto err;
 	}
 
@@ -91,13 +91,13 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	else
 		i = 1;
 	if (ioctl(oss_state.handle, SNDCTL_DSP_CHANNELS, &i) < 0) {
-		log_std(("sound:oss: ioctl(SNDCTL_DSP_CHANNELS, %d) failed\n",i));
+		log_std(("sound:oss: ioctl(SNDCTL_DSP_CHANNELS, %d) failed\n", i));
 		goto err_close;
 	}
 
 	i = *rate;
 	if (ioctl(oss_state.handle, SNDCTL_DSP_SPEED, &i) < 0) {
-		log_std(("sound:oss: ioctl(SNDCTL_DSP_SPEED, %d) failed\n",i));
+		log_std(("sound:oss: ioctl(SNDCTL_DSP_SPEED, %d) failed\n", i));
 		goto err_close;
 	}
 	oss_state.rate = i;
@@ -107,7 +107,7 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 		++i;
 	i |= 0x7fff << 16; /* do not limit the number of framents, ignore the buffer_time arg */
 	if (ioctl(oss_state.handle, SNDCTL_DSP_SETFRAGMENT, &i) < 0) {
-		log_std(("sound:oss: ioctl(SNDCTL_DSP_SETFRAGMENT,%d:%d) failed\n",i >> 16,i & 0xFFFF));
+		log_std(("sound:oss: ioctl(SNDCTL_DSP_SETFRAGMENT, %d:%d) failed\n", i >> 16, i & 0xFFFF));
 		goto err_close;
 	}
 
@@ -116,7 +116,7 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 		goto err_close;
 	}
 
-	log_std(("sound:oss: sound getospace() = fragsize %d, fragtotal %d, freebytes %d\n",(int)info.fragsize,(int)info.fragstotal,(int)info.bytes));
+	log_std(("sound:oss: sound getospace() = fragsize %d, fragtotal %d, freebytes %d\n", (int)info.fragsize, (int)info.fragstotal, (int)info.bytes));
 
 	*rate = oss_state.rate;
 
@@ -131,7 +131,8 @@ err:
 	return -1;
 }
 
-void sound_oss_done(void) {
+void sound_oss_done(void)
+{
 	log_std(("sound:oss: sound_oss_done()\n"));
 
 	if (oss_state.active_flag) {
@@ -140,12 +141,14 @@ void sound_oss_done(void) {
 	}
 }
 
-void sound_oss_stop(void) {
+void sound_oss_stop(void)
+{
 	log_std(("sound:oss: sound_oss_stop()\n"));
 	/* TODO OSS sound stop */
 }
 
-unsigned sound_oss_buffered(void) {
+unsigned sound_oss_buffered(void)
+{
 	unsigned bytes_buffered;
 	audio_buf_info info;
 
@@ -154,39 +157,42 @@ unsigned sound_oss_buffered(void) {
 		return 0;
 	}
 
-	log_debug(("sound:oss: getospace() = fragsize %d, fragtotal %d, freebytes %d\n",(int)info.fragsize,(int)info.fragstotal,(int)info.bytes));
+	log_debug(("sound:oss: getospace() = fragsize %d, fragtotal %d, freebytes %d\n", (int)info.fragsize, (int)info.fragstotal, (int)info.bytes));
 
 	bytes_buffered = info.fragstotal * info.fragsize - info.bytes;
 
 	return bytes_buffered / oss_state.sample_length;
 }
 
-void sound_oss_volume(double volume) {
-	log_std(("sound:oss: sound_oss_volume(volume:%g)\n",(double)volume));
+void sound_oss_volume(double volume)
+{
+	log_std(("sound:oss: sound_oss_volume(volume:%g)\n", (double)volume));
 	/* TODO OSS volume control */
 }
 
-void sound_oss_play(const short* sample_map, unsigned sample_count) {
+void sound_oss_play(const short* sample_map, unsigned sample_count)
+{
 	int r;
 
-	log_debug(("sound:oss: sound_oss_play(count:%d)\n",sample_count));
+	log_debug(("sound:oss: sound_oss_play(count:%d)\n", sample_count));
 
 	/* calling write with a 0 size result in wrong output */
 	if (sample_count) {
 		r = write(oss_state.handle, sample_map, sample_count * oss_state.sample_length);
 
 		if (r != sample_count * oss_state.sample_length) {
-			log_std(("sound:oss: sound WRITE ERROR %d\n",r));
+			log_std(("sound:oss: sound WRITE ERROR %d\n", r));
 		}
 	}
 }
 
-adv_error sound_oss_start(double silence_time) {
+adv_error sound_oss_start(double silence_time)
+{
 	short buf[256];
 	unsigned sample;
 	unsigned i;
 
-	log_std(("sound:oss: sound_oss_start(silence_time:%g)\n",silence_time));
+	log_std(("sound:oss: sound_oss_start(silence_time:%g)\n", silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = 0x8000;
@@ -200,21 +206,24 @@ adv_error sound_oss_start(double silence_time) {
 		if (run > 256)
 			run = 256;
 		sample -= run;
-		sound_oss_play(buf,run / oss_state.channel);
+		sound_oss_play(buf, run / oss_state.channel);
 	}
 
 	return 0;
 }
 
-unsigned sound_oss_flags(void) {
+unsigned sound_oss_flags(void)
+{
 	return 0;
 }
 
-adv_error sound_oss_load(adv_conf* context) {
+adv_error sound_oss_load(adv_conf* context)
+{
 	return 0;
 }
 
-void sound_oss_reg(adv_conf* context) {
+void sound_oss_reg(adv_conf* context)
+{
 }
 
 /***************************************************************************/

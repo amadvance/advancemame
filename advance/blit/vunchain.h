@@ -36,7 +36,8 @@
 /****************************************************************************/
 /* unchained8 */
 
-static void video_line_unchained8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4; /* 4 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 	unsigned p;
@@ -47,7 +48,8 @@ static void video_line_unchained8_step1(const struct video_stage_horz_struct* st
 	}
 }
 
-static void video_line_unchained8_step2(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4; /* 4 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 	unsigned p;
@@ -58,7 +60,8 @@ static void video_line_unchained8_step2(const struct video_stage_horz_struct* st
 	}
 }
 
-static void video_line_unchained8(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4; /* 4 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 	unsigned p;
@@ -69,20 +72,24 @@ static void video_line_unchained8(const struct video_stage_horz_struct* stage, v
 	}
 }
 
-static void video_line_unchained8_step1_plane(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_step1_plane(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	internal_unchained8(dst, src, stage->slice.count / 4);
 }
 
-static void video_line_unchained8_step2_plane(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_step2_plane(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	internal_unchained8_step2(dst, src, stage->slice.count / 4);
 }
 
-static void video_line_unchained8_plane(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_plane(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	internal_unchained8_step(dst, src, stage->slice.count / 4, stage->sdp);
 }
 
-static void video_stage_unchained8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_unchained,sdx,sdp,1,sdx,0);
+static void video_stage_unchained8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_unchained, sdx, sdp, 1, sdx, 0);
 
 	stage->plane_num = 4;
 	stage->put_plain = video_line_unchained8_step1;
@@ -102,7 +109,8 @@ static void video_stage_unchained8_set(struct video_stage_horz_struct* stage, un
 /****************************************************************************/
 /* unchained8_palette16to8 */
 
-static void video_line_unchained8_palette16to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_palette16to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4; /* 4 is the number of plane iteration */
 	uint16* src16 = (uint16*)src;
 	unsigned p;
@@ -113,12 +121,14 @@ static void video_line_unchained8_palette16to8_step1(const struct video_stage_ho
 	}
 }
 
-static void video_line_unchained8_palette16to8_step1_plane(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_palette16to8_step1_plane(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	internal_unchained8_palette16to8(dst, src, stage->slice.count / 4, stage->palette);
 }
 
-static void video_stage_unchained8_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette) {
-	STAGE_SIZE(stage,pipe_unchained_palette16to8,sdx,2,2,sdx,0);
+static void video_stage_unchained8_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_unchained_palette16to8, sdx, 2, 2, sdx, 0);
 
 	stage->palette = palette;
 	stage->plane_num = 4;
@@ -131,7 +141,8 @@ static void video_stage_unchained8_palette16to8_set(struct video_stage_horz_stru
 /****************************************************************************/
 /* unchained8_double */
 
-static void video_line_unchained8_double_step1(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_double_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2; /* 2 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 
@@ -142,7 +153,8 @@ static void video_line_unchained8_double_step1(const struct video_stage_horz_str
 	internal_unchained8_double(dst, src8 + 1, inner_count);
 }
 
-static void video_line_unchained8_double_step2(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_double_step2(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2; /* 2 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 
@@ -153,7 +165,8 @@ static void video_line_unchained8_double_step2(const struct video_stage_horz_str
 	internal_unchained8_double_step2(dst, src8 + 2, inner_count);
 }
 
-static void video_line_unchained8_double(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_double(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2; /* 2 is the number of plane iterations */
 	uint8* src8 = (uint8*)src;
 
@@ -164,8 +177,9 @@ static void video_line_unchained8_double(const struct video_stage_horz_struct* s
 	internal_unchained8_double_step(dst, src8 + stage->sdp, inner_count, stage->sdp);
 }
 
-static void video_stage_unchained8_double_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_unchained_x_double,sdx,sdp,1,sdx,0);
+static void video_stage_unchained8_double_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_unchained_x_double, sdx, sdp, 1, sdx, 0);
 
 	stage->put_plain = video_line_unchained8_double_step1;
 	if (stage->sdp == 1)
@@ -179,19 +193,21 @@ static void video_stage_unchained8_double_set(struct video_stage_horz_struct* st
 /****************************************************************************/
 /* unchained8_double_palette16to8 */
 
-static void video_line_unchained8_double_palette16to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_unchained8_double_palette16to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2; /* 2 is the number of plane iterations */
 	uint16* src16 = (uint16*)src;
 
 	video_unchained_plane_mask_set(0x3);
-	internal_unchained8_double_palette16to8(dst, src16, inner_count,stage->palette);
+	internal_unchained8_double_palette16to8(dst, src16, inner_count, stage->palette);
 
 	video_unchained_plane_mask_set(0xC);
-	internal_unchained8_double_palette16to8(dst, src16 + 1, inner_count,stage->palette);
+	internal_unchained8_double_palette16to8(dst, src16 + 1, inner_count, stage->palette);
 }
 
-static void video_stage_unchained8_double_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette) {
-	STAGE_SIZE(stage,pipe_unchained_x_double_palette16to8,sdx,2,2,sdx,0);
+static void video_stage_unchained8_double_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_unchained_x_double_palette16to8, sdx, 2, 2, sdx, 0);
 
 	stage->palette = palette;
 	stage->put_plain = video_line_unchained8_double_palette16to8_step1;

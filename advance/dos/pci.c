@@ -35,7 +35,8 @@
 
 #define CF 0x1 /* carry flag */
 
-int pci_detect(void) {
+int pci_detect(void)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b101;
 	r.d.edi = 0x00000000;
@@ -45,7 +46,8 @@ int pci_detect(void) {
 	return 0;
 }
 
-int pci_find_device(unsigned vendor, unsigned device, unsigned index, unsigned STACK_PTR * bus_device_func) {
+int pci_find_device(unsigned vendor, unsigned device, unsigned index, unsigned STACK_PTR * bus_device_func)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b102;
 	r.d.ecx = device;
@@ -60,7 +62,8 @@ int pci_find_device(unsigned vendor, unsigned device, unsigned index, unsigned S
 	return 0;
 }
 
-int pci_read_byte(unsigned bus_device_func, unsigned reg, BYTE STACK_PTR* value) {
+int pci_read_byte(unsigned bus_device_func, unsigned reg, BYTE STACK_PTR* value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b108;
 	r.d.ebx = bus_device_func;
@@ -74,7 +77,8 @@ int pci_read_byte(unsigned bus_device_func, unsigned reg, BYTE STACK_PTR* value)
 	return 0;
 }
 
-int pci_read_word(unsigned bus_device_func, unsigned reg, WORD STACK_PTR* value) {
+int pci_read_word(unsigned bus_device_func, unsigned reg, WORD STACK_PTR* value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b109;
 	r.d.ebx = bus_device_func;
@@ -88,7 +92,8 @@ int pci_read_word(unsigned bus_device_func, unsigned reg, WORD STACK_PTR* value)
 	return 0;
 }
 
-int pci_read_dword(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value) {
+int pci_read_dword(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b10a;
 	r.d.ebx = bus_device_func;
@@ -102,7 +107,8 @@ int pci_read_dword(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* valu
 	return 0;
 }
 
-int pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value) {
+int pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value)
+{
 	DWORD ori;
 	DWORD mask;
 	DWORD len;
@@ -128,7 +134,8 @@ int pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, DWORD ST
 	return 0;
 }
 
-int pci_write_byte(unsigned bus_device_func, unsigned reg, BYTE value) {
+int pci_write_byte(unsigned bus_device_func, unsigned reg, BYTE value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b10b;
 	r.d.ebx = bus_device_func;
@@ -142,7 +149,8 @@ int pci_write_byte(unsigned bus_device_func, unsigned reg, BYTE value) {
 	return 0;
 }
 
-int pci_write_word(unsigned bus_device_func, unsigned reg, WORD value) {
+int pci_write_word(unsigned bus_device_func, unsigned reg, WORD value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b10c;
 	r.d.ebx = bus_device_func;
@@ -156,7 +164,8 @@ int pci_write_word(unsigned bus_device_func, unsigned reg, WORD value) {
 	return 0;
 }
 
-int pci_write_dword(unsigned bus_device_func, unsigned reg, DWORD value) {
+int pci_write_dword(unsigned bus_device_func, unsigned reg, DWORD value)
+{
 	__dpmi_regs r;
 	r.d.eax = 0x0000b10d;
 	r.d.ebx = bus_device_func;
@@ -170,7 +179,8 @@ int pci_write_dword(unsigned bus_device_func, unsigned reg, DWORD value) {
 	return 0;
 }
 
-int pci_bus_max(unsigned* bus_max) {
+int pci_bus_max(unsigned* bus_max)
+{
 	__dpmi_regs r;
 
 	r.d.eax = 0x0000b101;
@@ -184,10 +194,11 @@ int pci_bus_max(unsigned* bus_max) {
 	return 0;
 }
 
-int pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg) {
+int pci_scan_device(int (*callback)(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg), void* arg)
+{
 	__dpmi_regs r;
 	unsigned bus;
-	unsigned i,j;
+	unsigned i, j;
 
 	r.d.eax = 0x0000b101;
 	r.d.edi = 0x00000000;
@@ -205,13 +216,13 @@ int pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,uns
 			unsigned device;
 			unsigned vendor;
 
-			if (pci_read_dword(bus_device_func,0,&dw)!=0)
+			if (pci_read_dword(bus_device_func, 0, &dw)!=0)
 				continue;
 
 			vendor = dw & 0xFFFF;
 			device = (dw >> 16) & 0xFFFF;
 
-			r = callback(bus_device_func,vendor,device,arg);
+			r = callback(bus_device_func, vendor, device, arg);
 			if (r!=0)
 				return r;
 		}

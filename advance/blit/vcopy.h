@@ -36,8 +36,9 @@
 /****************************************************************************/
 /* copy8 */
 
-static void video_stage_copy8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_x_copy,sdx,sdp,1,sdx,1);
+static void video_stage_copy8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_x_copy, sdx, sdp, 1, sdx, 1);
 
 	stage->put_plain = BLITTER(video_line_stretchx8_11_step1);
 	if (sdp == 1)
@@ -51,16 +52,18 @@ static void video_stage_copy8_set(struct video_stage_horz_struct* stage, unsigne
 /****************************************************************************/
 /* copy16 */
 
-static void video_stage_copy16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_x_copy,sdx,sdp,2,sdx,2);
-	STAGE_PUT(stage,BLITTER(video_line_stretchx16_11_step2),BLITTER(video_line_stretchx16_11));
+static void video_stage_copy16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_x_copy, sdx, sdp, 2, sdx, 2);
+	STAGE_PUT(stage, BLITTER(video_line_stretchx16_11_step2), BLITTER(video_line_stretchx16_11));
 }
 
 /****************************************************************************/
 /* copy32 */
 
-static void video_stage_copy32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_x_copy,sdx,sdp,4,sdx,4);
+static void video_stage_copy32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_x_copy, sdx, sdp, 4, sdx, 4);
 
 	stage->put_plain = BLITTER(video_line_stretchx32_11_step4);
 	if (sdp == 4)

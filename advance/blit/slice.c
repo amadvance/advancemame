@@ -30,7 +30,8 @@
 
 #include "slice.h"
 
-void slice_set(adv_slice* slice, unsigned sd, unsigned dd) {
+void slice_set(adv_slice* slice, unsigned sd, unsigned dd)
+{
 	if (sd < dd) {
 		/* expansion */
 		slice->whole = dd / sd;
@@ -56,9 +57,10 @@ void slice_set(adv_slice* slice, unsigned sd, unsigned dd) {
 	}
 }
 
-void slice_vector(unsigned* map, unsigned sd, unsigned dd) {
+void slice_vector(unsigned* map, unsigned sd, unsigned dd)
+{
 	adv_slice slice;
-	unsigned i,j;
+	unsigned i, j;
 
 	slice_set(&slice, sd, dd);
 
@@ -121,7 +123,8 @@ struct run_slice {
 	int count;
 };
 
-void run_slice_init(struct run_slice* r, int S, int D) {
+void run_slice_init(struct run_slice* r, int S, int D)
+{
 	if (S > D) {
 		/* reduction */
 		--S;
@@ -143,7 +146,8 @@ void run_slice_init(struct run_slice* r, int S, int D) {
 
 #define TEST
 
-void test_red(int S, int D) {
+void test_red(int S, int D)
+{
 	int total = 0;
 	int step = 0;
 	struct run_slice r;
@@ -153,7 +157,7 @@ void test_red(int S, int D) {
 	if (S <= D)
 		return;
 
-	run_slice_init(&r,S,D);
+	run_slice_init(&r, S, D);
 
 	error_t = r.error_t;
 	count = r.count;
@@ -174,10 +178,11 @@ void test_red(int S, int D) {
 	}
 
 	if (total != S || step != D)
-		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
+		printf("error_t: tot %d, stp %d, src %d, dst %d\n", total, step, S, D);
 }
 
-void test_exp(int S, int D) {
+void test_exp(int S, int D)
+{
 	int total = 0;
 	int step = 0;
 	struct run_slice r;
@@ -187,7 +192,7 @@ void test_exp(int S, int D) {
 	if (S >= D)
 		return;
 
-	run_slice_init(&r,S,D);
+	run_slice_init(&r, S, D);
 
 	error_t = r.error_t;
 	count = r.count;
@@ -205,17 +210,18 @@ void test_exp(int S, int D) {
 	}
 
 	if (total != D || step != S)
-		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
+		printf("error_t: tot %d, stp %d, src %d, dst %d\n", total, step, S, D);
 }
 
-int main() {
-	int i,j;
+int main()
+{
+	int i, j;
 	for(i=2;i<3000;++i)
 		for(j=2;j<3000;++j) {
 			if (i > j)
-				test_red(i,j);
+				test_red(i, j);
 			if (i < j)
-				test_exp(i,j);
+				test_exp(i, j);
 		}
 	return 0;
 }

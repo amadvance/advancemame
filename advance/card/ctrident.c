@@ -138,7 +138,8 @@ static unsigned trident_bus_device_func;
 
 static struct trident_id* trident_card; /* card detected */
 
-static void trident_doublescan_set(int flag) {
+static void trident_doublescan_set(int flag)
+{
 	if (flag == 0){
 		card_crtc_set(0x09, card_bitmov(card_crtc_get(0x09), 7, 0, 0));
 	} else {
@@ -146,7 +147,8 @@ static void trident_doublescan_set(int flag) {
 	}
 }
 
-static void trident_double_logical_line_width_set(int flag) {
+static void trident_double_logical_line_width_set(int flag)
+{
 	DWORD d0;
 
 	if (flag != 0) flag = 1;
@@ -155,7 +157,8 @@ static void trident_double_logical_line_width_set(int flag) {
 	card_graph_set(MiscInternalControlReg, (BYTE)d0);
 }
 
-static void trident_interlaced_set(int flag) {
+static void trident_interlaced_set(int flag)
+{
 	BYTE status;
 
 	status = card_crtc_get(CRTCModuleTest) & 0x04;
@@ -172,7 +175,8 @@ static void trident_interlaced_set(int flag) {
 	}
 }
 
-static void trident_ext_set(const card_crtc STACK_PTR* cp) {
+static void trident_ext_set(const card_crtc STACK_PTR* cp)
+{
 	BYTE d0;
 	int d1;
 	int interlaceoffset;
@@ -206,7 +210,8 @@ static void trident_ext_set(const card_crtc STACK_PTR* cp) {
 	card_polarity_set(cp->hpolarity, cp->vpolarity);
 }
 
-static void trident_clock_divider_set(int d0) {
+static void trident_clock_divider_set(int d0)
+{
 	BYTE d1;
 	BYTE d2;
 
@@ -235,7 +240,8 @@ static void trident_clock_divider_set(int d0) {
 	card_seq_set(NewMode2, d2);
 }
 
-static void trident_clock_set(int Num, int DeN, int PS, int PCDiv) {
+static void trident_clock_set(int Num, int DeN, int PS, int PCDiv)
+{
 	BYTE d0;
 	BYTE d1;
 	BYTE d2;
@@ -270,7 +276,8 @@ static void trident_clock_set(int Num, int DeN, int PS, int PCDiv) {
 	card_out(0x3C2, d0); /* use vclk2 */
 }
 
-static void trident_new_mode_set(void) {
+static void trident_new_mode_set(void)
+{
 	/* Reading from index Bh selects new mode registers. */
 	BYTE d0;
 	d0 = card_seq_get(OldNewModeControl);
@@ -279,20 +286,23 @@ static void trident_new_mode_set(void) {
 }
 
 #if 0
-static void trident_old_mode_set(void) {
+static void trident_old_mode_set(void)
+{
 	/* Writing to index Bh selects old mode registers. */
-	card_seq_set(OldNewModeControl,0);
+	card_seq_set(OldNewModeControl, 0);
 }
 #endif
 
-static void trident_unlock(void) {
+static void trident_unlock(void)
+{
 	trident_new_mode_set();
 	/* card_seq_set(Protection, 0x87); */ /* VSyncMAME */
 	card_seq_set(NewMode1, 0xC0 ^ 0x02);
 	card_crtc_set(CRTCModuleTest, card_crtc_get(CRTCModuleTest) & 0xBF);
 }
 
-static void trident_set_hsync_skew_in_misc(int flag) {
+static void trident_set_hsync_skew_in_misc(int flag)
+{
 	DWORD d0;
 
 	if (flag == 0) {
@@ -305,11 +315,13 @@ static void trident_set_hsync_skew_in_misc(int flag) {
 	card_graph_set(MiscInternalControlReg, (BYTE)d0);
 }
 
-const char* trident_driver(void) {
+const char* trident_driver(void)
+{
 	return trident_card->name;
 }
 
-int trident_detect(void) {
+int trident_detect(void)
+{
 	int i;
 
 #if 0 /* fake detect */
@@ -323,7 +335,7 @@ int trident_detect(void) {
 	}
 
 	for(i=0;trident_id_list[i].name;++i) {
-		if (pci_find_device(0x00001023,trident_id_list[i].value,0,&trident_bus_device_func)==0) {
+		if (pci_find_device(0x00001023, trident_id_list[i].value, 0, &trident_bus_device_func)==0) {
 			unsigned revision;
 			if (trident_id_list[i].revision == (unsigned)(-1))
 				break;
@@ -350,10 +362,12 @@ int trident_detect(void) {
 	return 1;
 }
 
-void trident_reset(void) {
+void trident_reset(void)
+{
 }
 
-static int trident_pll_validate(int pll_mul, int pll_div, int pll_p) {
+static int trident_pll_validate(int pll_mul, int pll_div, int pll_p)
+{
 	int mul_invalid[] = {
 		/* these are hardware values, the constant 8 must be added to get the real multiplicator value */
 		 0, 1, 2, 3, 4, 5, 6, 7,
@@ -377,11 +391,12 @@ static int trident_pll_validate(int pll_mul, int pll_div, int pll_p) {
 	return 0;
 }
 
-int trident_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co) {
+int trident_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
+{
 	card_crtc cp = *_cp;
 	int pll_mul, pll_div, pll_p, pll_s;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("trident: incompatible mode\n"));
 		return 0;
 	}
@@ -393,13 +408,13 @@ int trident_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, c
 		cp.dotclockHz *= 2;
 		CARD_LOG(("trident: double the dotclock for 16 bit mode\n"));
 /*
-3CEh index 0Fh (R/W): Miscellaneous Extended Functions (8900CL/D,9200 +)
+3CEh index 0Fh (R/W): Miscellaneous Extended Functions (8900CL/D, 9200 +)
       3  If set character clocks are 16pixels wide rather than 8
 */
 		d0 = card_graph_get(0xF);
 		if ((d0 & 0x8)==0) {
 			d0 |= 0x8;
-			card_graph_set(0xF,d0);
+			card_graph_set(0xF, d0);
 			CARD_LOG(("trident: set 16 pixel wide\n"));
 		}
 	}
@@ -416,7 +431,7 @@ int trident_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, c
 		else
 			break;
 	}
-	CARD_LOG(("trident: using divisor %d/10, clock multiplied by %d/10\n",pll_s,pll_s));
+	CARD_LOG(("trident: using divisor %d/10, clock multiplied by %d/10\n", pll_s, pll_s));
 	cp.dotclockHz = cp.dotclockHz * pll_s / 10;
 
 	cp.dotclockHz = card_clock_compute(cp.dotclockHz, trident_card->mul_min, trident_card->mul_max, trident_card->div_min, trident_card->div_max, trident_card->p_min, trident_card->p_max, trident_card->ref, trident_card->vco_min, trident_card->vco_max, &pll_mul, &pll_div, &pll_p, trident_pll_validate);

@@ -53,76 +53,77 @@ static uint32 rgb8888tobgr332_mask[RGB_8888TO332_MASK_MAX] = {
 	0x00000003, 0x00000003  /* b */
 };
 
-static void video_line_bgr8888tobgr332_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr332_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 8;
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm5\n"
-		"movq 8(%3),%%mm6\n"
-		"movq 16(%3),%%mm7\n"
+		"movq (%3), %%mm5\n"
+		"movq 8(%3), %%mm6\n"
+		"movq 16(%3), %%mm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"movq %%mm0,%%mm2\n"
-		"psrlq $16,%%mm0\n"
-		"psrlq $11,%%mm1\n"
-		"psrlq $6,%%mm2\n"
-		"pand %%mm5,%%mm0\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm0\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"movq %%mm0, %%mm2\n"
+		"psrlq $16, %%mm0\n"
+		"psrlq $11, %%mm1\n"
+		"psrlq $6, %%mm2\n"
+		"pand %%mm5, %%mm0\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm0\n"
 
-		"movq 8(%0),%%mm3\n"
-		"movq %%mm3,%%mm1\n"
-		"movq %%mm3,%%mm2\n"
-		"psrlq $16,%%mm3\n"
-		"psrlq $11,%%mm1\n"
-		"psrlq $6,%%mm2\n"
-		"pand %%mm5,%%mm3\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm3\n"
+		"movq 8(%0), %%mm3\n"
+		"movq %%mm3, %%mm1\n"
+		"movq %%mm3, %%mm2\n"
+		"psrlq $16, %%mm3\n"
+		"psrlq $11, %%mm1\n"
+		"psrlq $6, %%mm2\n"
+		"pand %%mm5, %%mm3\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm3\n"
 
-		"packuswb %%mm3,%%mm0\n"
+		"packuswb %%mm3, %%mm0\n"
 
-		"movq 16(%0),%%mm4\n"
-		"movq %%mm4,%%mm1\n"
-		"movq %%mm4,%%mm2\n"
-		"psrlq $16,%%mm4\n"
-		"psrlq $11,%%mm1\n"
-		"psrlq $6,%%mm2\n"
-		"pand %%mm5,%%mm4\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm4\n"
+		"movq 16(%0), %%mm4\n"
+		"movq %%mm4, %%mm1\n"
+		"movq %%mm4, %%mm2\n"
+		"psrlq $16, %%mm4\n"
+		"psrlq $11, %%mm1\n"
+		"psrlq $6, %%mm2\n"
+		"pand %%mm5, %%mm4\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm4\n"
 
-		"movq 24(%0),%%mm3\n"
-		"movq %%mm3,%%mm1\n"
-		"movq %%mm3,%%mm2\n"
-		"psrlq $16,%%mm3\n"
-		"psrlq $11,%%mm1\n"
-		"psrlq $6,%%mm2\n"
-		"pand %%mm5,%%mm3\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm3\n"
+		"movq 24(%0), %%mm3\n"
+		"movq %%mm3, %%mm1\n"
+		"movq %%mm3, %%mm2\n"
+		"psrlq $16, %%mm3\n"
+		"psrlq $11, %%mm1\n"
+		"psrlq $6, %%mm2\n"
+		"pand %%mm5, %%mm3\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm3\n"
 
-		"packuswb %%mm3,%%mm4\n"
+		"packuswb %%mm3, %%mm4\n"
 
-		"packuswb %%mm4,%%mm0\n"
+		"packuswb %%mm4, %%mm0\n"
 
-		"movq %%mm0,(%1)\n"
-		"addl $32,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -147,7 +148,8 @@ static void video_line_bgr8888tobgr332_step4_mmx(const struct video_stage_horz_s
 }
 #endif
 
-static void video_line_bgr8888tobgr332_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr332_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count / 4;
 	uint32* src32 = (uint32*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -171,9 +173,10 @@ static void video_line_bgr8888tobgr332_step4_def(const struct video_stage_horz_s
 	}
 }
 
-static void video_stage_bgr8888tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr8888tobgr332,sdx,sdp,4,sdx,1);
-	STAGE_PUT(stage,BLITTER(video_line_bgr8888tobgr332_step4),0);
+static void video_stage_bgr8888tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr8888tobgr332, sdx, sdp, 4, sdx, 1);
+	STAGE_PUT(stage, BLITTER(video_line_bgr8888tobgr332_step4), 0);
 }
 
 /****************************************************************************/
@@ -196,46 +199,47 @@ static uint32 rgb8888tobgr565_mask[RGB_8888TO565_MASK_MAX] = {
 	0x0000001F, 0x0000001F  /* b */
 };
 
-static void video_line_bgr8888tobgr565_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr565_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 4;
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm5\n"
-		"movq 8(%3),%%mm6\n"
-		"movq 16(%3),%%mm7\n"
+		"movq (%3), %%mm5\n"
+		"movq 8(%3), %%mm6\n"
+		"movq 16(%3), %%mm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"movq %%mm0,%%mm2\n"
-		"psrld $5,%%mm1\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm0\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"movq %%mm0, %%mm2\n"
+		"psrld $5, %%mm1\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm0\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
 
-		"movq 8(%0),%%mm3\n"
-		"movq %%mm3,%%mm4\n"
-		"movq %%mm3,%%mm2\n"
-		"psrld $5,%%mm4\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm3\n"
-		"pand %%mm6,%%mm4\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm4\n"
+		"movq 8(%0), %%mm3\n"
+		"movq %%mm3, %%mm4\n"
+		"movq %%mm3, %%mm2\n"
+		"psrld $5, %%mm4\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm3\n"
+		"pand %%mm6, %%mm4\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm4\n"
 
-		"packuswb %%mm3,%%mm0\n"
-		"packssdw %%mm4,%%mm1\n"
-		"por %%mm1,%%mm0\n"
+		"packuswb %%mm3, %%mm0\n"
+		"packssdw %%mm4, %%mm1\n"
+		"por %%mm1, %%mm0\n"
 
-		"movq %%mm0,(%1)\n"
-		"addl $16,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -259,7 +263,8 @@ static void video_line_bgr8888tobgr565_step4_mmx(const struct video_stage_horz_s
 }
 #endif
 
-static void video_line_bgr8888tobgr565_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr565_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count / 2;
 	uint32* src32 = (uint32*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -277,9 +282,10 @@ static void video_line_bgr8888tobgr565_step4_def(const struct video_stage_horz_s
 	}
 }
 
-static void video_stage_bgr8888tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr8888tobgr565,sdx,sdp,4,sdx,2);
-	STAGE_PUT(stage,BLITTER(video_line_bgr8888tobgr565_step4),0);
+static void video_stage_bgr8888tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr8888tobgr565, sdx, sdp, 4, sdx, 2);
+	STAGE_PUT(stage, BLITTER(video_line_bgr8888tobgr565_step4), 0);
 }
 
 /****************************************************************************/
@@ -302,48 +308,49 @@ static uint32 rgb8888tobgr555_mask[RGB_8888TO555_MASK_MAX] = {
 	0x0000001F, 0x0000001F  /* b */
 };
 
-static void video_line_bgr8888tobgr555_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr555_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 4;
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm5\n"
-		"movq 8(%3),%%mm6\n"
-		"movq 16(%3),%%mm7\n"
+		"movq (%3), %%mm5\n"
+		"movq 8(%3), %%mm6\n"
+		"movq 16(%3), %%mm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"movq %%mm0,%%mm2\n"
-		"psrld $9,%%mm0\n"
-		"psrld $6,%%mm1\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm0\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm0\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"movq %%mm0, %%mm2\n"
+		"psrld $9, %%mm0\n"
+		"psrld $6, %%mm1\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm0\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm0\n"
 
-		"movq 8(%0),%%mm3\n"
-		"movq %%mm3,%%mm1\n"
-		"movq %%mm3,%%mm2\n"
-		"psrld $9,%%mm3\n"
-		"psrld $6,%%mm1\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm3\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm3\n"
+		"movq 8(%0), %%mm3\n"
+		"movq %%mm3, %%mm1\n"
+		"movq %%mm3, %%mm2\n"
+		"psrld $9, %%mm3\n"
+		"psrld $6, %%mm1\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm3\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm3\n"
 
-		"packssdw %%mm3,%%mm0\n"
+		"packssdw %%mm3, %%mm0\n"
 
-		"movq %%mm0,(%1)\n"
-		"addl $16,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -368,7 +375,8 @@ static void video_line_bgr8888tobgr555_step4_mmx(const struct video_stage_horz_s
 }
 #endif
 
-static void video_line_bgr8888tobgr555_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr8888tobgr555_step4_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count / 2;
 	uint32* src32 = (uint32*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -386,9 +394,10 @@ static void video_line_bgr8888tobgr555_step4_def(const struct video_stage_horz_s
 	}
 }
 
-static void video_stage_bgr8888tobgr555_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr8888tobgr555,sdx,sdp,4,sdx,2);
-	STAGE_PUT(stage,BLITTER(video_line_bgr8888tobgr555_step4),0);
+static void video_stage_bgr8888tobgr555_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr8888tobgr555, sdx, sdp, 4, sdx, 2);
+	STAGE_PUT(stage, BLITTER(video_line_bgr8888tobgr555_step4), 0);
 }
 
 /****************************************************************************/
@@ -411,48 +420,49 @@ static uint32 rgb555tobgr332_mask[RGB_555TO332_MASK_MAX] = {
 	0x00030003, 0x00030003  /* b */
 };
 
-static void video_line_bgr555tobgr332_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr332_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 8;
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm5\n"
-		"movq 8(%3),%%mm6\n"
-		"movq 16(%3),%%mm7\n"
+		"movq (%3), %%mm5\n"
+		"movq 8(%3), %%mm6\n"
+		"movq 16(%3), %%mm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"movq %%mm0,%%mm2\n"
-		"psrld $7,%%mm0\n"
-		"psrld $5,%%mm1\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm0\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm0\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"movq %%mm0, %%mm2\n"
+		"psrld $7, %%mm0\n"
+		"psrld $5, %%mm1\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm0\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm0\n"
 
-		"movq 8(%0),%%mm3\n"
-		"movq %%mm3,%%mm1\n"
-		"movq %%mm3,%%mm2\n"
-		"psrld $7,%%mm3\n"
-		"psrld $5,%%mm1\n"
-		"psrld $3,%%mm2\n"
-		"pand %%mm5,%%mm3\n"
-		"pand %%mm6,%%mm1\n"
-		"pand %%mm7,%%mm2\n"
-		"por %%mm2,%%mm1\n"
-		"por %%mm1,%%mm3\n"
+		"movq 8(%0), %%mm3\n"
+		"movq %%mm3, %%mm1\n"
+		"movq %%mm3, %%mm2\n"
+		"psrld $7, %%mm3\n"
+		"psrld $5, %%mm1\n"
+		"psrld $3, %%mm2\n"
+		"pand %%mm5, %%mm3\n"
+		"pand %%mm6, %%mm1\n"
+		"pand %%mm7, %%mm2\n"
+		"por %%mm2, %%mm1\n"
+		"por %%mm1, %%mm3\n"
 
-		"packuswb %%mm3,%%mm0\n"
+		"packuswb %%mm3, %%mm0\n"
 
-		"movq %%mm0,(%1)\n"
-		"addl $16,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -477,7 +487,8 @@ static void video_line_bgr555tobgr332_step2_mmx(const struct video_stage_horz_st
 }
 #endif
 
-static void video_line_bgr555tobgr332_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr332_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count / 4;
 	uint16* src16 = (uint16*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -501,9 +512,10 @@ static void video_line_bgr555tobgr332_step2_def(const struct video_stage_horz_st
 	}
 }
 
-static void video_stage_bgr555tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr555tobgr332,sdx,sdp,2,sdx,1);
-	STAGE_PUT(stage,BLITTER(video_line_bgr555tobgr332_step2),0);
+static void video_stage_bgr555tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr555tobgr332, sdx, sdp, 2, sdx, 1);
+	STAGE_PUT(stage, BLITTER(video_line_bgr555tobgr332_step2), 0);
 }
 
 /****************************************************************************/
@@ -523,26 +535,27 @@ static uint32 rgb555tobgr565_mask[RGB_555TO565_MASK_MAX] = {
 	0x001F001F, 0x001F001F /* b */
 };
 
-static void video_line_bgr555tobgr565_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr565_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 4;
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm2\n"
-		"movq 8(%3),%%mm3\n"
+		"movq (%3), %%mm2\n"
+		"movq 8(%3), %%mm3\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0),%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"pslld $1,%%mm0\n"
-		"pand %%mm2,%%mm0\n"
-		"pand %%mm3,%%mm1\n"
-		"por %%mm1,%%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%0\n"
-		"addl $8,%1\n"
+		"movq (%0), %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"pslld $1, %%mm0\n"
+		"pand %%mm2, %%mm0\n"
+		"pand %%mm3, %%mm1\n"
+		"por %%mm1, %%mm0\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -565,7 +578,8 @@ static void video_line_bgr555tobgr565_step2_mmx(const struct video_stage_horz_st
 }
 #endif
 
-static void video_line_bgr555tobgr565_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr565_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count / 2;
 	uint32* src32 = (uint32*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -579,9 +593,10 @@ static void video_line_bgr555tobgr565_step2_def(const struct video_stage_horz_st
 	}
 }
 
-static void video_stage_bgr555tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr555tobgr565,sdx,sdp,2,sdx,2);
-	STAGE_PUT(stage,BLITTER(video_line_bgr555tobgr565_step2),0);
+static void video_stage_bgr555tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr555tobgr565, sdx, sdp, 2, sdx, 2);
+	STAGE_PUT(stage, BLITTER(video_line_bgr555tobgr565_step2), 0);
 }
 
 /****************************************************************************/
@@ -604,33 +619,34 @@ static uint32 rgb555tobgr8888_mask[RGB_555TO8888_MASK_MAX] = {
 	0x00F80000, 0x00F80000 /* b */
 };
 
-static void video_line_bgr555tobgr8888_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr8888_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	unsigned rest = count % 2;
 
 	__asm__ __volatile__(
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
-		"movq (%3),%%mm3\n"
-		"movq 8(%3),%%mm4\n"
-		"movq 16(%3),%%mm5\n"
+		"movq (%3), %%mm3\n"
+		"movq 8(%3), %%mm4\n"
+		"movq 16(%3), %%mm5\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movd (%0),%%mm0\n"
-		"punpcklwd %%mm0,%%mm0\n"
-		"movq %%mm0,%%mm1\n"
-		"movq %%mm0,%%mm2\n"
-		"pslld $3,%%mm0\n"
-		"pslld $6,%%mm1\n"
-		"pslld $9,%%mm2\n"
-		"pand %%mm3,%%mm0\n"
-		"pand %%mm4,%%mm1\n"
-		"pand %%mm5,%%mm2\n"
-		"por %%mm1,%%mm0\n"
-		"por %%mm2,%%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"movd (%0), %%mm0\n"
+		"punpcklwd %%mm0, %%mm0\n"
+		"movq %%mm0, %%mm1\n"
+		"movq %%mm0, %%mm2\n"
+		"pslld $3, %%mm0\n"
+		"pslld $6, %%mm1\n"
+		"pslld $9, %%mm2\n"
+		"pand %%mm3, %%mm0\n"
+		"pand %%mm4, %%mm1\n"
+		"pand %%mm5, %%mm2\n"
+		"por %%mm1, %%mm0\n"
+		"por %%mm2, %%mm0\n"
+		"movq %%mm0, (%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -654,7 +670,8 @@ static void video_line_bgr555tobgr8888_step2_mmx(const struct video_stage_horz_s
 }
 #endif
 
-static void video_line_bgr555tobgr8888_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_bgr555tobgr8888_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	uint16* src16 = (uint16*)src;
 	uint32* dst32 = (uint32*)dst;
@@ -669,15 +686,17 @@ static void video_line_bgr555tobgr8888_step2_def(const struct video_stage_horz_s
 	}
 }
 
-static void video_stage_bgr555tobgr8888_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr555tobgr8888,sdx,sdp,2,sdx,4);
-	STAGE_PUT(stage,BLITTER(video_line_bgr555tobgr8888_step2),0);
+static void video_stage_bgr555tobgr8888_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr555tobgr8888, sdx, sdp, 2, sdx, 4);
+	STAGE_PUT(stage, BLITTER(video_line_bgr555tobgr8888_step2), 0);
 }
 
 /****************************************************************************/
 /* rgb888 to bgr8888 */
 
-static void video_line_rgb888tobgr8888_step3(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_rgb888tobgr8888_step3(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
@@ -704,7 +723,8 @@ static void video_line_rgb888tobgr8888_step3(const struct video_stage_horz_struc
 	}
 }
 
-static void video_line_rgb888tobgr8888_step4(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_rgb888tobgr8888_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
@@ -731,7 +751,8 @@ static void video_line_rgb888tobgr8888_step4(const struct video_stage_horz_struc
 	}
 }
 
-static void video_line_rgb888tobgr8888_step(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_rgb888tobgr8888_step(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
@@ -748,8 +769,9 @@ static void video_line_rgb888tobgr8888_step(const struct video_stage_horz_struct
 	}
 }
 
-static void video_stage_rgb888tobgr8888_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_rgb888tobgr8888,sdx,sdp,3,sdx,4);
+static void video_stage_rgb888tobgr8888_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_rgb888tobgr8888, sdx, sdp, 3, sdx, 4);
 
 	stage->put_plain = video_line_rgb888tobgr8888_step3;
 	if (sdp == 3)
@@ -761,118 +783,156 @@ static void video_stage_rgb888tobgr8888_set(struct video_stage_horz_struct* stag
 }
 
 /****************************************************************************/
-/* bgr555 to yuy2 */
-
-static void video_line_bgr555toyuy2_step2(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	unsigned count = stage->slice.count;
-	uint16* src16 = (uint16*)src;
-	uint8* dst8 = (uint8*)dst;
-
-	while (count) {
-		/* ENDIAN */
-		unsigned b = (src16[0] << 3) & 0xFC;
-		unsigned g = (src16[0] >> 2) & 0xFC;
-		unsigned r = (src16[0] >> 7) & 0xFC;
-
-		unsigned y = ((9797*r + 19234*g + 3735*b) >> 15) & 0xFF;
-		unsigned u = ((18513 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23363 * (int)(r-y) >> 15) + 128) & 0xFF;
-
-		dst8[0] = y;
-		dst8[1] = u;
-		dst8[2] = y;
-		dst8[3] = v;
-
-		dst8 += 4;
-		src16 += 1;
-		--count;
-	}
-}
-
-static void video_line_bgr555toyuy2_step(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	unsigned count = stage->slice.count;
-	uint16* src16 = (uint16*)src;
-	uint8* dst8 = (uint8*)dst;
-	int step1 = stage->sdp;
-
-	while (count) {
-		/* ENDIAN */
-		unsigned b = (src16[0] << 3) & 0xFC;
-		unsigned g = (src16[0] >> 2) & 0xFC;
-		unsigned r = (src16[0] >> 7) & 0xFC;
-
-		unsigned y = ((9797*r + 19234*g + 3735*b) >> 15) & 0xFF;
-		unsigned u = ((18513 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23363 * (int)(r-y) >> 15) + 128) & 0xFF;
-
-		dst8[0] = y;
-		dst8[1] = u;
-		dst8[2] = y;
-		dst8[3] = v;
-
-		dst8 += 4;
-		PADD(src16, step1);
-		--count;
-	}
-}
-
-static void video_stage_bgr555toyuy2_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr555toyuy2,sdx,sdp,2,sdx,4);
-
-	stage->put_plain = video_line_bgr555toyuy2_step2;
-	if (sdp == 4)
-		stage->put = video_line_bgr555toyuy2_step2;
-	else
-		stage->put = video_line_bgr555toyuy2_step;
-}
-
-/****************************************************************************/
 /* bgr8888 to yuy2 */
 
-static void video_line_bgr8888toyuy2_step4(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	unsigned count = stage->slice.count;
+#if defined(USE_ASM_i586)
+/*
+	Y =  0.299  R + 0.587  G + 0.114  B
+	U = -0.1687 R - 0.3313 G + 0.5    B + 128
+	V =  0.5    R - 0.4187 G - 0.0813 B + 128
+*/
+
+static uint32 bgr32toyuy2_coeff[] = {
+	/*uuuuyyyy    vvvvyyyy */
+	0x0080001d, 0xffec001d, /* b */
+	0xffac0096, 0xff950096, /* g */
+	0xffd5004c, 0x0080004c, /* r */
+	0x80000000, 0x80000000  /* add */
+};
+
+static inline void bgr32toyuy2_mmx(void* dst, const void* src0, const void* src1)
+{
+	__asm__ __volatile__ (
+
+#if 0
+/* Basic single pixel implementation */
+
+		/* mm0 = 0 a 0 r 0 g 0 b */
+
+		/* transpose */
+		"movq %%mm2, %%mm1\n"
+		"punpcklwd %%mm2, %%mm1\n"
+		"punpckhwd %%mm2, %%mm2\n"
+		"movq %%mm1, %%mm0\n"
+		"punpckldq %%mm2, %%mm2\n"
+		"punpckldq %%mm1, %%mm0\n"
+		"punpckhdq %%mm1, %%mm1\n"
+
+		/* mm0 = 0 b 0 b 0 b 0 b */
+		/* mm1 = 0 g 0 g 0 g 0 g */
+		/* mm2 = 0 r 0 r 0 r 0 r */
+
+		/* multiply */
+		"pmullw 0(%3), %%mm0\n"
+		"pmullw 8(%3), %%mm1\n"
+		"pmullw 16(%3), %%mm2\n"
+
+		/* add the component without saturation */
+		"paddw %%mm1, %%mm0\n"
+		"paddw 24(%3), %%mm2\n"
+		"paddw %%mm2, %%mm0\n"
+
+		/* reduce the precision */
+		"psrlw $8, %%mm0\n"
+
+		/* mm0 = 0 v 0 y 0 u 0 y */
+#endif
+
+/* Fast double pixel implementation */
+		"movd (%0), %%mm2\n"
+		"movd (%1), %%mm5\n"
+		"pxor %%mm0, %%mm0\n"
+		"punpcklbw %%mm0, %%mm2\n"
+		"movq %%mm2, %%mm1\n"
+		"punpcklwd %%mm2, %%mm1\n"
+		"punpckhwd %%mm2, %%mm2\n"
+		"movq %%mm1, %%mm0\n"
+		"punpckldq %%mm2, %%mm2\n"
+		"punpckldq %%mm1, %%mm0\n"
+		"pmullw 0(%3), %%mm0\n"
+		"pxor %%mm3, %%mm3\n"
+		"punpckhdq %%mm1, %%mm1\n"
+		"punpcklbw %%mm3, %%mm5\n"
+		"pmullw 8(%3), %%mm1\n"
+		"movq %%mm5, %%mm4\n"
+		"punpcklwd %%mm5, %%mm4\n"
+		"punpckhwd %%mm5, %%mm5\n"
+		"pmullw 16(%3), %%mm2\n"
+		"movq %%mm4, %%mm3\n"
+		"punpckldq %%mm5, %%mm5\n"
+		"punpckldq %%mm4, %%mm3\n"
+		"punpckhdq %%mm4, %%mm4\n"
+		"pmullw 0(%3), %%mm3\n"
+		"paddw %%mm1, %%mm0\n"
+		"paddw 24(%3), %%mm2\n"
+		"pmullw 8(%3), %%mm4\n"
+		"paddw %%mm2, %%mm0\n"
+		"pmullw 16(%3), %%mm5\n"
+		"psrlw $8, %%mm0\n"
+		"paddw %%mm4, %%mm3\n"
+		"paddw 24(%3), %%mm5\n"
+		"paddw %%mm5, %%mm3\n"
+		"psrlw $8, %%mm3\n"
+		"packuswb %%mm3, %%mm0\n"
+		"movq %%mm0, (%2)\n"
+
+		:
+		: "r" (src0), "r" (src1), "r" (dst), "r" (bgr32toyuy2_coeff)
+		: "cc", "memory"
+	);
+}
+
+static void video_line_bgr8888toyuy2_step_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	unsigned count = stage->slice.count / 2;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
+	int step1 = stage->sdp;
 
 	while (count) {
-		unsigned b = src8[0];
-		unsigned g = src8[1];
-		unsigned r = src8[2];
+		bgr32toyuy2_mmx(dst8, src8, src8 + step1);
 
-		unsigned y = ((9797*r + 19234*g + 3735*b) >> 15) & 0xFF;
-		unsigned u = ((18513 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23363 * (int)(r-y) >> 15) + 128) & 0xFF;
-
-		dst8[0] = y;
-		dst8[1] = u;
-		dst8[2] = y;
-		dst8[3] = v;
-
-		dst8 += 4;
-		src8 += 4;
+		dst8 += 8;
+		src8 += step1 * 2;
 		--count;
 	}
 }
 
-static void video_line_bgr8888toyuy2_step(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+#endif
+
+static inline void bgr32toyuy2_def(void* dst, const void* src)
+{
+	const uint8* src8 = (const uint8*)src;
+	uint8* dst8 = (uint8*)dst;
+
+	unsigned b = src8[0];
+	unsigned g = src8[1];
+	unsigned r = src8[2];
+
+/*
+	Y = 0.299R + 0.587G + 0.114B
+	U = 0.492 (B - Y)
+	V = 0.877 (R - Y)
+*/
+	unsigned y = ((19595*r + 38469*g + 7471*b) >> 16) & 0xFF;
+	unsigned u = ((32243 * (int)(b-y) + 8388608) >> 16) & 0xFF;
+	unsigned v = ((57475 * (int)(r-y) + 8388608) >> 16) & 0xFF;
+
+	dst8[0] = y;
+	dst8[1] = u;
+	dst8[2] = y;
+	dst8[3] = v;
+}
+
+static void video_line_bgr8888toyuy2_step_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
 
 	while (count) {
-		unsigned b = src8[0];
-		unsigned g = src8[1];
-		unsigned r = src8[2];
-
-		unsigned y = ((9797*r + 19234*g + 3735*b) >> 15) & 0xFF;
-		unsigned u = ((18513 * (int)(b-y) >> 15) + 128) & 0xFF;
-		unsigned v = ((23363 * (int)(r-y) >> 15) + 128) & 0xFF;
-
-		dst8[0] = y;
-		dst8[1] = u;
-		dst8[2] = y;
-		dst8[3] = v;
+		bgr32toyuy2_def(dst8, src8);
 
 		dst8 += 4;
 		src8 += step1;
@@ -880,14 +940,77 @@ static void video_line_bgr8888toyuy2_step(const struct video_stage_horz_struct* 
 	}
 }
 
-static void video_stage_bgr8888toyuy2_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE_SIZE(stage,pipe_bgr8888toyuy2,sdx,sdp,4,sdx,4);
+static void video_stage_bgr8888toyuy2_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr8888toyuy2, sdx, sdp, 4, sdx, 4);
+	STAGE_PUT(stage, BLITTER(video_line_bgr8888toyuy2_step), BLITTER(video_line_bgr8888toyuy2_step));
+}
 
-	stage->put_plain = video_line_bgr8888toyuy2_step4;
-	if (sdp == 4)
-		stage->put = video_line_bgr8888toyuy2_step4;
-	else
-		stage->put = video_line_bgr8888toyuy2_step;
+/****************************************************************************/
+/* bgr555 to yuy2 */
+
+#if defined(USE_ASM_i586)
+
+static void video_line_bgr555toyuy2_step_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	unsigned count = stage->slice.count / 2;
+	uint16* src16 = (uint16*)src;
+	uint8* dst8 = (uint8*)dst;
+	int step1 = stage->sdp;
+
+	while (count) {
+		uint32 p0;
+		uint32 p1;
+
+		/* ENDIAN */
+		p0 = ((src16[0] << 3) & 0x000000F8)
+			| ((src16[0] << 6) & 0x0000F800)
+			| ((src16[0] << 9) & 0x00F80000);
+
+		PADD(src16, step1);
+
+		p1 = ((src16[0] << 3) & 0x000000F8)
+			| ((src16[0] << 6) & 0x0000F800)
+			| ((src16[0] << 9) & 0x00F80000);
+
+		PADD(src16, step1);
+
+		bgr32toyuy2_mmx(dst8, &p0, &p1);
+
+		dst8 += 8;
+		--count;
+	}
+}
+
+#endif
+
+static void video_line_bgr555toyuy2_step_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	unsigned count = stage->slice.count;
+	uint16* src16 = (uint16*)src;
+	uint8* dst8 = (uint8*)dst;
+	int step1 = stage->sdp;
+
+	while (count) {
+		uint32 src32;
+
+		/* ENDIAN */
+		src32 = ((src16[0] << 3) & 0x000000F8)
+			| ((src16[0] << 6) & 0x0000F800)
+			| ((src16[0] << 9) & 0x00F80000);
+
+		bgr32toyuy2_def(dst8, &src32);
+
+		dst8 += 4;
+		PADD(src16, step1);
+		--count;
+	}
+}
+
+static void video_stage_bgr555toyuy2_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_bgr555toyuy2, sdx, sdp, 2, sdx, 4);
+	STAGE_PUT(stage, BLITTER(video_line_bgr555toyuy2_step), BLITTER(video_line_bgr555toyuy2_step));
 }
 
 #endif

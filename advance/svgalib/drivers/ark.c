@@ -146,7 +146,7 @@ static void ark_getmodeinfo(int mode, vga_modeinfo * modeinfo)
     modeinfo->flags &= ~HAVE_RWPAGE;
     modeinfo->flags |= CAPABLE_LINEAR;
     if ((__svgalib_inSR(0x12) & 0x03) != 0)
-	modeinfo->flags |= IS_LINEAR;
+	modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
 }
 
 
@@ -505,8 +505,8 @@ static int ark_test(void)
 
 static void ark_setpage(int page)
 {
-    outw(SEQ_I, 0x15 + (page << 8));	/* Aperture Write index. */
-    outw(SEQ_I, 0x16 + (page << 8));	/* Aperture Read index. */
+    __svgalib_outseq(0x15, page);
+    __svgalib_outseq(0x16, page);
 }
 
 
@@ -514,14 +514,13 @@ static void ark_setpage(int page)
 
 static void ark_setdisplaystart(int address)
 {
-    outw(CRT_IC, 0x0d + ((address >> 2) & 0x00ff) * 256);	/* sa2-sa9 */
-    outw(CRT_IC, 0x0c + ((address >> 2) & 0xff00));	/* sa10-sa17 */
-    port_in(0x3da);			/* set ATC to addressing mode */
+    __svgalib_outcrtc(0x0d, (address >> 2) & 0xff);
+    __svgalib_outcrtc(0x0c, (address >> 10) & 0xff);
+    inb(0x3da);			/* set ATC to addressing mode */
     outb(ATT_IW, 0x13 + 0x20);	/* select ATC reg 0x13 */
     outb(ATT_IW, (port_in(ATT_R) & 0xf0) | ((address & 3) << 1));
     /* write sa0-1 to bits 1-2 */
-    outb(__svgalib_CRT_I, 0x40);
-    outb(__svgalib_CRT_D, (address & 0x1C0000) >> 18);	/* sa18-sa20 */
+    __svgalib_outcrtc(0x40, (address >> 18) & 0x07);
 }
 
 
@@ -530,7 +529,7 @@ static void ark_setdisplaystart(int address)
 
 static void ark_setlogicalwidth(int width)
 {
-    outw(CRT_IC, 0x13 + (width >> 3) * 256);	/* lw3-lw11 */
+    __svgalib_outcrtc(0x13, (width >> 3));
     outb(__svgalib_CRT_I, 0x41);
     outb(__svgalib_CRT_D, (port_in(__svgalib_CRT_D) & ~0x08) | ((width >> 3) & 0x100));
 }

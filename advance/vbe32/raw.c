@@ -29,8 +29,8 @@
 #define FILL    0x00
 
 static unsigned char wrapper[] = {
-/* 00 */ 0x8b, 0x06,			/*     mov eax,[esi]            */
-/* 03 */ 0x26, 0x89, 0x47, 0x2a,	/*     mov es:[edi+42],eax      */
+/* 00 */ 0x8b, 0x06,			/*     mov eax, [esi]            */
+/* 03 */ 0x26, 0x89, 0x47, 0x2a,	/*     mov es:[edi+42], eax      */
 /* 06 */ 0x06,                          /*     push    es               */
 /* 07 */ 0x1e,                          /*     push    ds               */
 /* 08 */ 0x06,                          /*     push    es               */

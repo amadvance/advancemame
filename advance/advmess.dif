@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2002-11-15 21:28:50.000000000 +0100
++++ srcmess/advance.pat	2002-12-15 14:55:48.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
 --- srcmess.ori/cpu/i8085/i8085.c	2002-07-21 18:24:54.000000000 +0200
-+++ srcmess/cpu/i8085/i8085.c	2002-11-15 21:28:50.000000000 +0100
++++ srcmess/cpu/i8085/i8085.c	2002-12-15 14:55:48.000000000 +0100
 @@ -74,10 +74,16 @@
   * 
   *****************************************************************************/
@@ -24,8 +24,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
---- srcmess.ori/cpu/m68000/make68k.c	2002-07-06 19:37:00.000000000 +0200
-+++ srcmess/cpu/m68000/make68k.c	2002-11-15 21:28:50.000000000 +0100
+--- srcmess.ori/cpu/m68000/make68k.c	2002-10-28 21:48:50.000000000 +0100
++++ srcmess/cpu/m68000/make68k.c	2002-12-15 14:55:48.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -74,7 +74,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
 --- srcmess.ori/cpu/z80/z80.c	2002-05-22 03:49:32.000000000 +0200
-+++ srcmess/cpu/z80/z80.c	2002-11-15 21:28:50.000000000 +0100
++++ srcmess/cpu/z80/z80.c	2002-12-15 14:55:48.000000000 +0100
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -93,8 +93,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2002-07-06 19:37:02.000000000 +0200
-+++ srcmess/cpuexec.c	2002-11-15 21:28:50.000000000 +0100
+--- srcmess.ori/cpuexec.c	2002-10-21 15:02:41.000000000 +0200
++++ srcmess/cpuexec.c	2002-12-15 14:55:48.000000000 +0100
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
@@ -110,12 +110,12 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	2002-07-06 19:37:18.000000000 +0200
-+++ srcmess/info.c	2002-11-15 21:28:50.000000000 +0100
-@@ -648,10 +648,39 @@
- 	fprintf(out, L2P "palettesize %d" L2N, driver.total_colors);
+--- srcmess.ori/info.c	2002-11-02 23:44:07.000000000 +0100
++++ srcmess/info.c	2002-12-15 15:00:04.000000000 +0100
+@@ -742,10 +742,39 @@
+ 	fprintf(out, SELECT(L2P "palettesize %d" L2N, "\t\t\t<palettesize>%d</palettesize>\n"), driver.total_colors);
  
- 	fprintf(out, L2E L1N);
+ 	fprintf(out, SELECT(L2E L1N, "\t\t</driver>\n"));
  }
  
 +#ifdef MESS
@@ -152,7 +152,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  {
  
  #ifndef MESS
-@@ -691,10 +720,13 @@
+@@ -785,10 +814,13 @@
  	print_game_video(out,game);
  	print_game_sound(out,game);
  	print_game_input(out,game);
@@ -162,13 +162,13 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
 +	print_game_device(out,game);
 +#endif
  
- 	fprintf(out, L1E);
+ 	fprintf(out, SELECT(L1E, "\t</game>\n"));
  }
  
  #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2002-10-13 17:18:54.000000000 +0200
-+++ srcmess/inptport.c	2002-11-15 21:28:50.000000000 +0100
+--- srcmess.ori/inptport.c	2002-12-09 13:57:46.000000000 +0100
++++ srcmess/inptport.c	2002-12-15 14:55:48.000000000 +0100
 @@ -151,10 +151,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -218,8 +218,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.h srcmess/inptport.h
---- srcmess.ori/inptport.h	2002-10-13 17:18:54.000000000 +0200
-+++ srcmess/inptport.h	2002-11-15 21:28:50.000000000 +0100
+--- srcmess.ori/inptport.h	2002-10-13 17:18:55.000000000 +0200
++++ srcmess/inptport.h	2002-12-15 14:55:48.000000000 +0100
 @@ -84,10 +84,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -237,8 +237,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	2002-07-06 19:37:18.000000000 +0200
-+++ srcmess/input.c	2002-11-15 21:31:32.000000000 +0100
+--- srcmess.ori/input.c	2002-06-30 20:57:54.000000000 +0200
++++ srcmess/input.c	2002-12-15 14:55:48.000000000 +0100
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -266,9 +266,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.c srcmess/mame.c
---- srcmess.ori/mame.c	2002-11-04 03:55:18.000000000 +0100
-+++ srcmess/mame.c	2002-11-15 21:28:50.000000000 +0100
-@@ -1019,34 +1019,20 @@
+--- srcmess.ori/mame.c	2002-12-09 13:57:46.000000000 +0100
++++ srcmess/mame.c	2002-12-15 14:57:30.000000000 +0100
+@@ -953,26 +953,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -276,21 +276,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  {
 -	double x_scale, y_scale, scale;
 -
--	/* based on the orientation, compute the scale values */
- 	if (Machine->orientation & ORIENTATION_SWAP_XY)
- 	{
--		x_scale = (double)gfx_width / (double)(*height);
--		y_scale = (double)gfx_height / (double)(*width);
-+		*width = gfx_height;
-+		*height = gfx_width*9/16;
- 	}
- 	else
- 	{
--		x_scale = (double)gfx_width / (double)(*width);
--		y_scale = (double)gfx_height / (double)(*height);
-+		*width = gfx_width;
-+		*height = gfx_height;
- 	}
+-	/* compute the scale values */
+-	x_scale = (double)gfx_width / (double)(*width);
+-	y_scale = (double)gfx_height / (double)(*height);
 -	
 -	/* pick the smaller scale factor */
 -	scale = (x_scale < y_scale) ? x_scale : y_scale;
@@ -302,17 +290,27 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
 -	/* round to the nearest 4 pixel value */
 -	*width &= ~3;
 -	*height &= ~3;
++	if (Machine->orientation & ORIENTATION_SWAP_XY)
++	{
++		*width = gfx_height;
++		*height = gfx_width*9/16;
++	}
++	else
++	{
++		*width = gfx_width;
++		*height = gfx_height;
++	}
  }
  
  
  
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.h srcmess/mame.h
---- srcmess.ori/mame.h	2002-10-29 05:14:26.000000000 +0100
-+++ srcmess/mame.h	2002-11-15 21:28:50.000000000 +0100
-@@ -357,8 +357,9 @@
- const struct performance_info *mame_get_performance_info(void);
- 
+--- srcmess.ori/mame.h	2002-12-09 13:57:46.000000000 +0100
++++ srcmess/mame.h	2002-12-15 14:55:48.000000000 +0100
+@@ -350,8 +350,9 @@
+ /* return the index of the given CPU, or -1 if not found */
+ int mame_find_cpu_index(const char *tag);
  
  #ifdef MESS
  #include "mess.h"
@@ -321,9 +319,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2002-09-27 05:08:54.000000000 +0200
-+++ srcmess/osdepend.h	2002-11-16 18:33:54.000000000 +0100
-@@ -404,10 +404,36 @@
+--- srcmess.ori/osdepend.h	2002-12-09 13:57:49.000000000 +0100
++++ srcmess/osdepend.h	2002-12-15 14:55:48.000000000 +0100
+@@ -399,10 +399,36 @@
  #include "osd_mess.h"
  #endif
  
@@ -362,7 +360,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.c srcmess/ui_text.c
 --- srcmess.ori/ui_text.c	2002-10-28 22:59:32.000000000 +0100
-+++ srcmess/ui_text.c	2002-11-15 21:28:50.000000000 +0100
++++ srcmess/ui_text.c	2002-12-15 14:55:48.000000000 +0100
 @@ -256,10 +256,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -380,7 +378,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/ui_text.h srcmess/ui_text.h
 --- srcmess.ori/ui_text.h	2002-10-28 22:59:32.000000000 +0100
-+++ srcmess/ui_text.h	2002-11-15 21:28:50.000000000 +0100
++++ srcmess/ui_text.h	2002-12-15 14:55:48.000000000 +0100
 @@ -222,10 +222,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -397,9 +395,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2002-11-04 03:55:18.000000000 +0100
-+++ srcmess/usrintrf.c	2002-11-15 21:32:26.000000000 +0100
-@@ -663,12 +663,16 @@
+--- srcmess.ori/usrintrf.c	2002-12-09 13:57:53.000000000 +0100
++++ srcmess/usrintrf.c	2002-12-15 14:58:22.000000000 +0100
+@@ -843,12 +843,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -417,32 +415,32 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	}
  	count = i;
  
- 	visible = Machine->uiheight / (3 * Machine->uifontheight / 2) - 1;
-@@ -736,15 +740,27 @@
- 				dt[curr_dt].y = topoffs + (3*i+1)*Machine->uifontheight/2;
+ 	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
+@@ -916,15 +920,27 @@
+ 				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
  				curr_dt++;
  			}
  			else
  			{
 -				dt[curr_dt].text = items[item];
 -				dt[curr_dt].color = UI_COLOR_NORMAL;
--				dt[curr_dt].x = (Machine->uiwidth - Machine->uifontwidth * strlen(items[item])) / 2;
--				dt[curr_dt].y = topoffs + (3*i+1)*Machine->uifontheight/2;
+-				dt[curr_dt].x = (uirotwidth - uirotcharwidth * strlen(items[item])) / 2;
+-				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
 -				curr_dt++;
-+				unsigned y = topoffs + (3*i+1)*Machine->uifontheight/2;
++				unsigned y = topoffs + (3*i+1)*uirotcharheight/2;
 +				int color = (flag && flag[item]) ? UI_COLOR_INVERSE : UI_COLOR_NORMAL;
 +				len = strlen(items[item]);
 +				if (len > maxlen - 3) {
 +					unsigned x;
 +					const char* dot = "...";
 +					len = maxlen - 3;
-+					x = (Machine->uiwidth - Machine->uifontwidth * len) / 2;
++					x = (uirotwidth - uirotcharwidth * len) / 2;
 +					ui_text_ex(bitmap,items[item],items[item] + len - 3,x,y,color);
-+					ui_text_ex(bitmap,dot,dot+3,x + Machine->uifontwidth * (len - 3),y,color);
++					ui_text_ex(bitmap,dot,dot+3,x + uirotcharwidth * (len - 3),y,color);
 +				} else {
 +					dt[curr_dt].text = items[item];
 +					dt[curr_dt].color = color;
-+					dt[curr_dt].x = (Machine->uiwidth - Machine->uifontwidth * len) / 2;
++					dt[curr_dt].x = (uirotwidth - uirotcharwidth * len) / 2;
 +					dt[curr_dt].y = y;
 +					curr_dt++;
 +				}
@@ -451,7 +449,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	}
  
  	i = selected - topitem;
-@@ -1866,13 +1882,13 @@
+@@ -2041,13 +2057,13 @@
  		in++;
  	}
  
@@ -467,7 +465,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -1885,15 +1901,17 @@
+@@ -2060,15 +2076,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -485,7 +483,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -1912,10 +1930,18 @@
+@@ -2087,10 +2105,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -504,7 +502,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -1963,10 +1989,21 @@
+@@ -2138,10 +2164,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -526,7 +524,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -1999,10 +2036,21 @@
+@@ -2174,10 +2211,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -548,7 +546,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2853,15 +2901,15 @@
+@@ -3028,15 +3076,15 @@
  
  
  #ifndef MESS
@@ -566,7 +564,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -2934,10 +2982,11 @@
+@@ -3111,10 +3159,11 @@
  #endif
  #endif
  #endif
@@ -578,7 +576,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -2994,10 +3043,13 @@
+@@ -3173,10 +3222,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -592,7 +590,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3048,10 +3100,11 @@
+@@ -3227,10 +3279,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -604,7 +602,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  				break;
  
  			case UI_RESET:
-@@ -3489,10 +3542,63 @@
+@@ -3668,10 +3721,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -668,7 +666,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	int file = 0;
  
  	mame_pause(1);
-@@ -3608,17 +3714,42 @@
+@@ -3787,17 +3893,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -713,7 +711,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -3729,10 +3860,14 @@
+@@ -3908,10 +4039,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -728,7 +726,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -3741,11 +3876,11 @@
+@@ -3920,11 +4055,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);

@@ -92,13 +92,14 @@ struct bitmap_header_t {
  * \param bitmap_mask Where to put the mask bitmap. 
  * \return The loaded bitmap or 0 on error.
  */
-adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask) {
+adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask)
+{
 	adv_bitmap* bitmap;
 	struct icon_header_t header;
 	struct icon_entry_t* entry;
 	int i;
 
-	if (fzread(&header,sizeof(struct icon_header_t),1,f)!=1) /* ENDIAN */
+	if (fzread(&header, sizeof(struct icon_header_t), 1, f)!=1) /* ENDIAN */
 		goto out;
 
 	if (header.reserved != 0)
@@ -114,13 +115,13 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 	if (!entry)
 		goto out;
 
-	if (fzread(entry,sizeof(struct icon_entry_t),header.count,f)!=header.count) /* ENDIAN */
+	if (fzread(entry, sizeof(struct icon_entry_t), header.count, f)!=header.count) /* ENDIAN */
 		goto out_entry;
 
 	for(i=0;i<header.count;++i) {
 		struct bitmap_header_t bitmap_header;
 		uint32 size;
-		unsigned j,y;
+		unsigned j, y;
 		unsigned colors;
 
 		if (entry[i].color == 0) {
@@ -138,19 +139,19 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		if (entry[i].planes != 1 && entry[i].planes != 0) /* 0 is out of standard but acceptable */
 			continue; /* unsupported */
 
-		if (fzseek(f,entry[i].offset,SEEK_SET)!=0)
+		if (fzseek(f, entry[i].offset, SEEK_SET)!=0)
 			goto out_entry;
 
-		if (fzread(&size,sizeof(uint32),1,f)!=1) /* ENDIAN */
+		if (fzread(&size, sizeof(uint32), 1, f)!=1) /* ENDIAN */
 			goto out_entry;
 
-		memset(&bitmap_header,0,sizeof(struct bitmap_header_t));
+		memset(&bitmap_header, 0, sizeof(struct bitmap_header_t));
 		if (size > sizeof(struct bitmap_header_t))
 			bitmap_header.size = sizeof(struct bitmap_header_t);
 		else
 			bitmap_header.size = size;
 		
-		if (fzread(&bitmap_header.width,bitmap_header.size - 4,1,f)!=1) /* ENDIAN */
+		if (fzread(&bitmap_header.width, bitmap_header.size - 4, 1, f)!=1) /* ENDIAN */
 			goto out_entry;
 
 		if (size > bitmap_header.size)
@@ -172,7 +173,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 
 		for(j=0;j<colors;++j) {
 			struct icon_rgb_t color; 
-			if (fzread(&color,sizeof(struct icon_rgb_t),1,f)!=1)
+			if (fzread(&color, sizeof(struct icon_rgb_t), 1, f)!=1)
 				goto out_entry;
 			rgb[j].red = color.red;
 			rgb[j].green = color.green;
@@ -192,7 +193,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 			/* read bitmap xor data (8 bit per pixel) */
 			for(y=0;y<bitmap->size_y;++y) {
 				uint8* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
-				if (fzread(line,bitmap->size_x*bitmap->bytes_per_pixel,1,f)!=1)
+				if (fzread(line, bitmap->size_x*bitmap->bytes_per_pixel, 1, f)!=1)
 					goto out_bitmap_mask;
 			}
 		} else if (colors == 16) {
@@ -200,7 +201,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 			for(y=0;y<bitmap->size_y;++y) {
 				int k;
 				uint8* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
-				if (fzread(line,bitmap->size_x / 2,1,f)!=1)
+				if (fzread(line, bitmap->size_x / 2, 1, f)!=1)
 					goto out_bitmap_mask;
 				/* convert */
 				for(k=bitmap->size_x-1;k>=0;--k) {

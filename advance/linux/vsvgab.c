@@ -70,25 +70,31 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Functions */
 
-static adv_bool svgalib_is_active(void) {
+static adv_bool svgalib_is_active(void)
+{
 	return svgalib_state.active != 0;
 }
 
-static adv_bool svgalib_mode_is_active(void) {
+static adv_bool svgalib_mode_is_active(void)
+{
 	return svgalib_state.mode_active != 0;
 }
 
-static unsigned svgalib_flags(void) {
+static unsigned svgalib_flags(void)
+{
 	assert( svgalib_is_active() );
 	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-static unsigned char* svgalib_linear_write_line(unsigned y) {
+static unsigned char* svgalib_linear_write_line(unsigned y)
+{
 	return svgalib_state.ptr + svgalib_state.bytes_per_scanline * y;
 }
 
-adv_error svgalib_init(int device_id) {
+adv_error svgalib_init(int device_id, adv_output output)
+{
 	int res;
 
 	/* assume that vga_init() is already called */
@@ -102,6 +108,12 @@ adv_error svgalib_init(int device_id) {
 	if (getenv("DISPLAY")) {
 		log_std(("video:svgalib: DISPLAY set\n"));
 		error_nolog_cat("svgalib: Unsupported in X\n");
+		return -1;
+	}
+
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:svgalib: Only fullscreen output is supported\n"));
+		error_nolog_cat("svgalib: Only fullscreen output is supported\n");
 		return -1;
 	}
 
@@ -123,7 +135,8 @@ adv_error svgalib_init(int device_id) {
 	return 0;
 }
 
-void svgalib_done(void) {
+void svgalib_done(void)
+{
 	assert(svgalib_is_active() && !svgalib_mode_is_active() );
 
 	log_std(("video:svgalib: svgalib_done()\n"));
@@ -179,7 +192,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	log_std(("video:svgalib: vga_addtiming(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\n",
+	log_std(("video:svgalib: vga_addtiming(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d)\n",
 		mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags
 	));
 
@@ -217,7 +230,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	log_std(("video:svgalib: vga_addmode(%d,%d,%d,%d,%d) = %d\n",mode->crtc.hde,mode->crtc.vde,colors,bytes_per_scanline,bytes_per_pixel,res));
+	log_std(("video:svgalib: vga_addmode(%d, %d, %d, %d, %d) = %d\n", mode->crtc.hde, mode->crtc.vde, colors, bytes_per_scanline, bytes_per_pixel, res));
 
 	if (!vga_hasmode(res)) {
 		error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
@@ -239,7 +252,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	log_std(("video:svgalib: vga_setmode(%d)\n",svgalib_state.mode_number));
+	log_std(("video:svgalib: vga_setmode(%d)\n", svgalib_state.mode_number));
 	res = vga_setmode(svgalib_state.mode_number);
 	if (res != 0) {
 		error_set("Error in vga_setmode()");
@@ -313,7 +326,8 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	return 0;
 }
 
-adv_error svgalib_mode_change(const svgalib_video_mode* mode) {
+adv_error svgalib_mode_change(const svgalib_video_mode* mode)
+{
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
 	log_std(("video:svgalib: svgalib_mode_change()\n"));
@@ -322,7 +336,8 @@ adv_error svgalib_mode_change(const svgalib_video_mode* mode) {
 	return svgalib_mode_set(mode);
 }
 
-void svgalib_mode_done(adv_bool restore) {
+void svgalib_mode_done(adv_bool restore)
+{
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
 	log_std(("video:svgalib: svgalib_mode_done()\n"));
@@ -336,35 +351,42 @@ void svgalib_mode_done(adv_bool restore) {
 	}
 }
 
-unsigned svgalib_virtual_x(void) {
+unsigned svgalib_virtual_x(void)
+{
 	unsigned size = svgalib_state.bytes_per_scanline / svgalib_state.bytes_per_pixel;
 	size = size & ~0x7;
 	return size;
 }
 
-unsigned svgalib_virtual_y(void) {
+unsigned svgalib_virtual_y(void)
+{
 	return svgalib_state.memory_size / svgalib_state.bytes_per_scanline;
 }
 
-unsigned svgalib_adjust_bytes_per_page(unsigned bytes_per_page) {
+unsigned svgalib_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
-unsigned svgalib_bytes_per_scanline(void) {
+unsigned svgalib_bytes_per_scanline(void)
+{
 	return svgalib_state.bytes_per_scanline;
 }
 
-adv_color_def svgalib_color_def(void) {
+adv_color_def svgalib_color_def(void)
+{
 	return color_def_make_from_index(svgalib_state.index);
 }
 
-void svgalib_wait_vsync(void) {
+void svgalib_wait_vsync(void)
+{
 	assert(svgalib_is_active() && svgalib_mode_is_active());
 	vga_waitretrace();
 }
 
-adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync) {
+adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(svgalib_is_active() && svgalib_mode_is_active());
 
 	if (waitvsync)
@@ -375,7 +397,8 @@ adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error svgalib_scanline_set(unsigned byte_length) {
+adv_error svgalib_scanline_set(unsigned byte_length)
+{
 	vga_modeinfo* modeinfo;
 	assert(svgalib_is_active() && svgalib_mode_is_active());
 
@@ -392,7 +415,8 @@ adv_error svgalib_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-adv_error svgalib_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error svgalib_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	if (waitvsync)
 		vga_waitretrace();
 
@@ -432,7 +456,7 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 {
 	assert( svgalib_is_active() );
 
-	if (video_mode_generate_check("svgalib",svgalib_flags(),8,2048,crtc,flags)!=0)
+	if (video_mode_generate_check("svgalib", svgalib_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
 	mode->crtc = *crtc;
@@ -441,25 +465,29 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b) {
+int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b)
+{
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
-void svgalib_default(void) {
+void svgalib_default(void)
+{
 }
 
-void svgalib_reg(adv_conf* context) {
+void svgalib_reg(adv_conf* context)
+{
 	assert( !svgalib_is_active() );
 }
 
-adv_error svgalib_load(adv_conf* context) {
+adv_error svgalib_load(adv_conf* context)
+{
 	assert( !svgalib_is_active() );
 	return 0;
 }
@@ -467,27 +495,33 @@ adv_error svgalib_load(adv_conf* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error svgalib_mode_set_void(const void* mode) {
+static adv_error svgalib_mode_set_void(const void* mode)
+{
 	return svgalib_mode_set((const svgalib_video_mode*)mode);
 }
 
-static adv_error svgalib_mode_change_void(const void* mode) {
+static adv_error svgalib_mode_change_void(const void* mode)
+{
 	return svgalib_mode_change((const svgalib_video_mode*)mode);
 }
 
-static adv_error svgalib_mode_import_void(adv_mode* mode, const void* svgalib_mode) {
+static adv_error svgalib_mode_import_void(adv_mode* mode, const void* svgalib_mode)
+{
 	return svgalib_mode_import(mode, (const svgalib_video_mode*)svgalib_mode);
 }
 
-static adv_error svgalib_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+static adv_error svgalib_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
 	return svgalib_mode_generate((svgalib_video_mode*)mode, crtc, flags);
 }
 
-static int svgalib_mode_compare_void(const void* a, const void* b) {
+static int svgalib_mode_compare_void(const void* a, const void* b)
+{
 	return svgalib_mode_compare((const svgalib_video_mode*)a, (const svgalib_video_mode*)b);
 }
 
-static unsigned svgalib_mode_size(void) {
+static unsigned svgalib_mode_size(void)
+{
 	return sizeof(svgalib_video_mode);
 }
 

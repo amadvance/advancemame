@@ -205,7 +205,8 @@ static void savage_clock_set(BYTE Num, BYTE DeN, BYTE PS, BYTE SeqDiv)
 	card_seq_set(0x15, d0 | 0x03);
 }
 
-const char* savage_driver(void) {
+const char* savage_driver(void)
+{
 	return "Savage 3D/3DM/4";
 }
 
@@ -217,15 +218,15 @@ int savage_detect(void)
 	}
 
 	while (1) {
-		if (pci_find_device(0x00005333,0x00008A20,0,&savage_bus_device_func)==0) {
+		if (pci_find_device(0x00005333, 0x00008A20, 0, &savage_bus_device_func)==0) {
 			CARD_LOG(("savage: Savage3D found\n"));
 			break;
 		}
-		if (pci_find_device(0x00005333,0x00008A21,0,&savage_bus_device_func)==0) {
+		if (pci_find_device(0x00005333, 0x00008A21, 0, &savage_bus_device_func)==0) {
 			CARD_LOG(("savage: Savage3DM found\n"));
 			break;
 		}
-		if (pci_find_device(0x00005333,0x00008A22,0,&savage_bus_device_func)==0) {
+		if (pci_find_device(0x00005333, 0x00008A22, 0, &savage_bus_device_func)==0) {
 			CARD_LOG(("savage: Savage4 found\n"));
 			break;
 		}
@@ -242,9 +243,9 @@ void savage_reset(void)
 int savage_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int Num,DeN,PS,SeqDiv;
+	int Num, DeN, PS, SeqDiv;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("savage: incompatible mode\n"));
 		return 0;
 	}

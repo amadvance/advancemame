@@ -51,7 +51,8 @@ struct pcx_decode_state {
 	uint8 value;
 };
 
-static void pcx_decode(uint8* buffer, unsigned size, adv_fz* f, struct pcx_decode_state* state, unsigned delta) {
+static void pcx_decode(uint8* buffer, unsigned size, adv_fz* f, struct pcx_decode_state* state, unsigned delta)
+{
 	while (size) {
 		unsigned run;
 		if (!state->count) {
@@ -77,7 +78,8 @@ static void pcx_decode(uint8* buffer, unsigned size, adv_fz* f, struct pcx_decod
 	}
 }
 
-static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state) {
+static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state)
+{
 	while (size) {
 		unsigned run;
 		if (!state->count) {
@@ -106,12 +108,13 @@ static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state)
  * \param rgb_max Where to put the number of palette entries.
  * \return The loaded bitmap or 0 on error.
  */
-adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max) {
+adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
+{
 	struct pcx_header h;
 	adv_bitmap* bitmap;
 	unsigned width, height, depth;
 
-	if (fzread(&h,sizeof(h),1,f)!=1) { /* ENDIAN */
+	if (fzread(&h, sizeof(h), 1, f)!=1) { /* ENDIAN */
 		goto out;
 	}
 
@@ -139,10 +142,10 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max) {
 
 		for(y=0;y<height;++y) {
 			struct pcx_decode_state state;
-			uint8* dst_off = bitmap_line(bitmap,y);
+			uint8* dst_off = bitmap_line(bitmap, y);
 			state.count = 0;
-			pcx_decode(dst_off,width,f,&state,1);
-			pcx_ignore(h.bytes_per_line - width,f,&state);
+			pcx_decode(dst_off, width, f, &state, 1);
+			pcx_ignore(h.bytes_per_line - width, f, &state);
 			if (state.count!=0)
 				goto out_bitmap;
 		}
@@ -160,14 +163,14 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max) {
 		unsigned y;
 		for(y=0;y<height;++y) {
 			struct pcx_decode_state state;
-			uint8* dst_off = bitmap_line(bitmap,y);
+			uint8* dst_off = bitmap_line(bitmap, y);
 			state.count = 0;
-			pcx_decode(dst_off,width,f,&state,3);
-			pcx_ignore(h.bytes_per_line - width,f,&state);
-			pcx_decode(dst_off + 1,width,f,&state,3);
-			pcx_ignore(h.bytes_per_line - width,f,&state);
-			pcx_decode(dst_off + 2,width,f,&state,3);
-			pcx_ignore(h.bytes_per_line - width,f,&state);
+			pcx_decode(dst_off, width, f, &state, 3);
+			pcx_ignore(h.bytes_per_line - width, f, &state);
+			pcx_decode(dst_off + 1, width, f, &state, 3);
+			pcx_ignore(h.bytes_per_line - width, f, &state);
+			pcx_decode(dst_off + 2, width, f, &state, 3);
+			pcx_ignore(h.bytes_per_line - width, f, &state);
 			if (state.count!=0)
 				goto out_bitmap;
 		}

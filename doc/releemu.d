@@ -1,11 +1,15 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
-AdvanceMAME 0.62.2
+AdvanceMAME 0.62.2 / AdvanceMESS 0.62.0.0
 	The display_rgb and display_depth options are gone. They are now
 	substituted with the new display_color option.
 	The device_video_*bit options are now substituted by the
 	new device_color_* options.
+
+	The option device_sdl_fullscreen is now substituted with the
+	device_video_output option which is also used to enable a new
+	`zoom' mode. Check the advv.txt file for other details.
 
 AdvanceMAME 0.62.1
 	The .CHD files are searched as default in the "image" directory.

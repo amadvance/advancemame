@@ -42,7 +42,8 @@ static unsigned max_rgb_mask_2;
 static int max_rgb_shift_1;
 static int max_rgb_shift_2;
 
-static void internal_max_rgb_set(void) {
+static void internal_max_rgb_set(void)
+{
 	unsigned mask_0;
 	unsigned mask_1;
 	unsigned mask_2;
@@ -84,13 +85,15 @@ static void internal_max_rgb_set(void) {
 	assert( max_rgb_shift_1 >= 0 && max_rgb_shift_2 >= 0);
 }
 
-static __inline__ unsigned internal_max_rgb_value(unsigned v) {
+static inline unsigned internal_max_rgb_value(unsigned v)
+{
 	return (v & max_rgb_mask_0)
 		+ ((v << max_rgb_shift_1) & max_rgb_mask_1)
 		+ ((v << max_rgb_shift_2) & max_rgb_mask_2);
 }
 
-static __inline__ void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count) {
+static inline void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
@@ -100,7 +103,8 @@ static __inline__ void internal_max_rgb8_vert_self(uint8* dst, const uint8* src,
 	}
 }
 
-static __inline__ void internal_max_rgb8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1) {
+static inline void internal_max_rgb8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
@@ -110,7 +114,8 @@ static __inline__ void internal_max_rgb8_vert_self_step(uint8* dst, const uint8*
 	}
 }
 
-static __inline__ void internal_max_rgb16_vert_self(uint16* dst, const uint16* src, unsigned count) {
+static inline void internal_max_rgb16_vert_self(uint16* dst, const uint16* src, unsigned count)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
@@ -120,17 +125,19 @@ static __inline__ void internal_max_rgb16_vert_self(uint16* dst, const uint16* s
 	}
 }
 
-static __inline__ void internal_max_rgb16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1) {
+static inline void internal_max_rgb16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
-		PADD(src,step1);
+		PADD(src, step1);
 		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb32_vert_self(uint32* dst, const uint32* src, unsigned count) {
+static inline void internal_max_rgb32_vert_self(uint32* dst, const uint32* src, unsigned count)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
@@ -140,11 +147,12 @@ static __inline__ void internal_max_rgb32_vert_self(uint32* dst, const uint32* s
 	}
 }
 
-static __inline__ void internal_max_rgb32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1) {
+static inline void internal_max_rgb32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1)
+{
 	while (count) {
 		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
 			dst[0] = src[0];
-		PADD(src,step1);
+		PADD(src, step1);
 		++dst;
 		--count;
 	}
@@ -153,7 +161,8 @@ static __inline__ void internal_max_rgb32_vert_self_step(uint32* dst, const uint
 /***************************************************************************/
 /* internal_max */
 
-static __inline__ void internal_max8_vert_self(uint8* dst, const uint8* src, unsigned count) {
+static inline void internal_max8_vert_self(uint8* dst, const uint8* src, unsigned count)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
@@ -163,7 +172,8 @@ static __inline__ void internal_max8_vert_self(uint8* dst, const uint8* src, uns
 	}
 }
 
-static __inline__ void internal_max8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1) {
+static inline void internal_max8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
@@ -173,7 +183,8 @@ static __inline__ void internal_max8_vert_self_step(uint8* dst, const uint8* src
 	}
 }
 
-static __inline__ void internal_max16_vert_self(uint16* dst, const uint16* src, unsigned count) {
+static inline void internal_max16_vert_self(uint16* dst, const uint16* src, unsigned count)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
@@ -183,17 +194,19 @@ static __inline__ void internal_max16_vert_self(uint16* dst, const uint16* src, 
 	}
 }
 
-static __inline__ void internal_max16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1) {
+static inline void internal_max16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
-		PADD(src,step1);
+		PADD(src, step1);
 		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max32_vert_self(uint32* dst, const uint32* src, unsigned count) {
+static inline void internal_max32_vert_self(uint32* dst, const uint32* src, unsigned count)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
@@ -203,11 +216,12 @@ static __inline__ void internal_max32_vert_self(uint32* dst, const uint32* src, 
 	}
 }
 
-static __inline__ void internal_max32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1) {
+static inline void internal_max32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1)
+{
 	while (count) {
 		if (dst[0] < src[0])
 			dst[0] = src[0];
-		PADD(src,step1);
+		PADD(src, step1);
 		++dst;
 		--count;
 	}

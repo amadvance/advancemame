@@ -56,7 +56,7 @@ static adv_device DEVICE[] = {
 
 adv_error inputb_slang_init(int inputb_id)
 {
-	log_std(("inputb:slang: inputb_slang_init(id:%d)\n",inputb_id));
+	log_std(("inputb:slang: inputb_slang_init(id:%d)\n", inputb_id));
 
 	if (!os_internal_slang_get()) {
 		log_std(("inputb:slang: slang not initialized\n"));
@@ -141,45 +141,45 @@ unsigned inputb_slang_get(void)
 	}
 	map[mac] = 0;
 
-	if (strcmp(map,"\033[A")==0)
+	if (strcmp(map, "\033[A")==0)
 		return INPUTB_UP;
-	if (strcmp(map,"\033[B")==0)
+	if (strcmp(map, "\033[B")==0)
 		return INPUTB_DOWN;
-	if (strcmp(map,"\033[D")==0)
+	if (strcmp(map, "\033[D")==0)
 		return INPUTB_LEFT;
-	if (strcmp(map,"\033[C")==0)
+	if (strcmp(map, "\033[C")==0)
 		return INPUTB_RIGHT;
-	if (strcmp(map,"\033[1~")==0)
+	if (strcmp(map, "\033[1~")==0)
 		return INPUTB_HOME;
-	if (strcmp(map,"\033[4~")==0)
+	if (strcmp(map, "\033[4~")==0)
 		return INPUTB_END;
-	if (strcmp(map,"\033[5~")==0)
+	if (strcmp(map, "\033[5~")==0)
 		return INPUTB_PGUP;
-	if (strcmp(map,"\033[6~")==0)
+	if (strcmp(map, "\033[6~")==0)
 		return INPUTB_PGDN;
-	if (strcmp(map,"\033[[A")==0)
+	if (strcmp(map, "\033[[A")==0)
 		return INPUTB_F1;
-	if (strcmp(map,"\033[[B")==0)
+	if (strcmp(map, "\033[[B")==0)
 		return INPUTB_F2;
-	if (strcmp(map,"\033[[C")==0)
+	if (strcmp(map, "\033[[C")==0)
 		return INPUTB_F3;
-	if (strcmp(map,"\033[[D")==0)
+	if (strcmp(map, "\033[[D")==0)
 		return INPUTB_F4;
-	if (strcmp(map,"\033[[E")==0)
+	if (strcmp(map, "\033[[E")==0)
 		return INPUTB_F5;
-	if (strcmp(map,"\033[17~")==0)
+	if (strcmp(map, "\033[17~")==0)
 		return INPUTB_F6;
-	if (strcmp(map,"\033[18~")==0)
+	if (strcmp(map, "\033[18~")==0)
 		return INPUTB_F7;
-	if (strcmp(map,"\033[19~")==0)
+	if (strcmp(map, "\033[19~")==0)
 		return INPUTB_F8;
-	if (strcmp(map,"\033[20~")==0)
+	if (strcmp(map, "\033[20~")==0)
 		return INPUTB_F9;
-	if (strcmp(map,"\033[21~")==0)
+	if (strcmp(map, "\033[21~")==0)
 		return INPUTB_F10;
-	if (strcmp(map,"\r")==0 || strcmp(map,"\n")==0)
+	if (strcmp(map, "\r")==0 || strcmp(map, "\n")==0)
 		return INPUTB_ENTER;
-	if (strcmp(map,"\x7F")==0)
+	if (strcmp(map, "\x7F")==0)
 		return INPUTB_BACKSPACE;
 
 	if (mac != 1)

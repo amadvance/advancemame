@@ -69,7 +69,8 @@ static struct svgaline_option_struct svgaline_option;
 /***************************************************************************/
 /* Internal */
 
-static unsigned char* svgaline_linear_write_line(unsigned y) {
+static unsigned char* svgaline_linear_write_line(unsigned y)
+{
 	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
 }
 
@@ -181,7 +182,8 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-adv_error svgaline_init(int device_id) {
+adv_error svgaline_init(int device_id, adv_output output)
+{
 	unsigned i;
 	const char* name;
 	const adv_device* j;
@@ -190,6 +192,12 @@ adv_error svgaline_init(int device_id) {
 
 	if (sizeof(svgaline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	if (output != adv_output_auto && output != adv_output_fullscreen) {
+		log_std(("video:svgaline: Only fullscreen output is supported\n"));
+		error_nolog_cat("svgaline: Only fullscreen output is supported\n");
+		return -1;
+	}
 
 	j = DEVICE;
 	while (j->name && j->id != device_id)
@@ -215,7 +223,8 @@ adv_error svgaline_init(int device_id) {
 	log_std(("video:svgaline: found driver %s\n", adv_svgalib_driver_get()));
 
 	svgaline_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	if (adv_svgalib_state.has_bit8)
 		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
@@ -239,7 +248,8 @@ adv_error svgaline_init(int device_id) {
 	return 0;
 }
 
-void svgaline_done(void) {
+void svgaline_done(void)
+{
 	assert(svgaline_is_active() && !svgaline_mode_is_active() );
 
 	svgaline_state.active = 0;
@@ -247,15 +257,18 @@ void svgaline_done(void) {
 	adv_svgalib_done();
 }
 
-adv_bool svgaline_is_active(void) {
+adv_bool svgaline_is_active(void)
+{
 	return svgaline_state.active != 0;
 }
 
-adv_bool svgaline_mode_is_active(void) {
+adv_bool svgaline_mode_is_active(void)
+{
 	return svgaline_state.mode_active != 0;
 }
 
-unsigned svgaline_flags(void) {
+unsigned svgaline_flags(void)
+{
 	assert( svgaline_is_active() );
 	return svgaline_state.cap;
 }
@@ -296,7 +309,8 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 	return 0;
 }
 
-adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
+adv_error svgaline_mode_change(const svgaline_video_mode* mode)
+{
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	adv_svgalib_unset();
@@ -308,7 +322,8 @@ adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	return svgaline_mode_set(mode);
 }
 
-void svgaline_mode_done(adv_bool restore) {
+void svgaline_mode_done(adv_bool restore)
+{
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	adv_svgalib_unset();
@@ -321,39 +336,46 @@ void svgaline_mode_done(adv_bool restore) {
 	svgaline_state.mode_active = 0;
 }
 
-unsigned svgaline_virtual_x(void) {
+unsigned svgaline_virtual_x(void)
+{
 	unsigned size = adv_svgalib_scanline_get() / adv_svgalib_pixel_get();
 	size = size & ~0x7;
 	return size;
 }
 
-unsigned svgaline_virtual_y(void) {
+unsigned svgaline_virtual_y(void)
+{
 	return adv_svgalib_linear_size_get() / adv_svgalib_scanline_get();
 }
 
-unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
+unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page)
+{
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
-unsigned svgaline_bytes_per_scanline(void) {
+unsigned svgaline_bytes_per_scanline(void)
+{
 	return adv_svgalib_scanline_get();
 }
 
-adv_color_def svgaline_color_def(void) {
+adv_color_def svgaline_color_def(void)
+{
 	if (adv_svgalib_pixel_get() == 1)
 		return color_def_make(adv_color_type_palette);
 	else
-		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len,adv_svgalib_state.mode.red_pos,adv_svgalib_state.mode.green_len,adv_svgalib_state.mode.green_pos,adv_svgalib_state.mode.blue_len,adv_svgalib_state.mode.blue_pos);
+		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
 }
 
-void svgaline_wait_vsync(void) {
+void svgaline_wait_vsync(void)
+{
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	adv_svgalib_wait_vsync();
 }
 
-adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync) {
+adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync)
+{
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	if (waitvsync)
@@ -364,14 +386,16 @@ adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error svgaline_scanline_set(unsigned byte_length) {
+adv_error svgaline_scanline_set(unsigned byte_length)
+{
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	adv_svgalib_scanline_set(byte_length);
 	return 0;
 }
 
-adv_error svgaline_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error svgaline_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync)
+{
 	if (waitvsync)
 		adv_svgalib_wait_vsync();
 
@@ -411,7 +435,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 {
 	assert( svgaline_is_active() );
 
-	log_std(("video:svgaline: svgaline_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
+	log_std(("video:svgaline: svgaline_mode_generate(x:%d, y:%d, bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
 
 	if (video_mode_generate_check("svgaline", svgaline_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
@@ -427,23 +451,26 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 	return 0;
 }
 
-#define COMPARE(a,b) \
+#define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
 	if (a > b) \
 		return 1
 
-int svgaline_mode_compare(const svgaline_video_mode* a, const svgaline_video_mode* b) {
+int svgaline_mode_compare(const svgaline_video_mode* a, const svgaline_video_mode* b)
+{
 	COMPARE(a->index, b->index);
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
-void svgaline_default(void) {
+void svgaline_default(void)
+{
 	svgaline_option.initialized = 1;
 	svgaline_option.divide_clock = 0;
 }
 
-void svgaline_reg(adv_conf* context) {
+void svgaline_reg(adv_conf* context)
+{
 	assert( !svgaline_is_active() );
 
 	conf_bool_register_default(context, "device_svgaline_divideclock", 0);
@@ -451,7 +478,8 @@ void svgaline_reg(adv_conf* context) {
 	svgaline_option.initialized = 1;
 }
 
-adv_error svgaline_load(adv_conf* context) {
+adv_error svgaline_load(adv_conf* context)
+{
 	assert( !svgaline_is_active() );
 
 	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divideclock");
@@ -464,27 +492,33 @@ adv_error svgaline_load(adv_conf* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error svgaline_mode_set_void(const void* mode) {
+static adv_error svgaline_mode_set_void(const void* mode)
+{
 	return svgaline_mode_set((const svgaline_video_mode*)mode);
 }
 
-static adv_error svgaline_mode_change_void(const void* mode) {
+static adv_error svgaline_mode_change_void(const void* mode)
+{
 	return svgaline_mode_change((const svgaline_video_mode*)mode);
 }
 
-static adv_error svgaline_mode_import_void(adv_mode* mode, const void* svgaline_mode) {
+static adv_error svgaline_mode_import_void(adv_mode* mode, const void* svgaline_mode)
+{
 	return svgaline_mode_import(mode, (const svgaline_video_mode*)svgaline_mode);
 }
 
-static adv_error svgaline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+static adv_error svgaline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags)
+{
 	return svgaline_mode_generate((svgaline_video_mode*)mode, crtc, flags);
 }
 
-static int svgaline_mode_compare_void(const void* a, const void* b) {
+static int svgaline_mode_compare_void(const void* a, const void* b)
+{
 	return svgaline_mode_compare((const svgaline_video_mode*)a, (const svgaline_video_mode*)b);
 }
 
-static unsigned svgaline_mode_size(void) {
+static unsigned svgaline_mode_size(void)
+{
 	return sizeof(svgaline_video_mode);
 }
 

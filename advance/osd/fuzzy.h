@@ -41,10 +41,10 @@
 
 /*
  * Examples: "A string", "B string" -> penality
- * "123","xxx1xxx23xxx" -> 1*UNIT_B
- * "123","xxx1xxx2xxxxx3xxx" -> 2*UNIT_B
- * "123","xxx1xxx2xxxxx" -> 1*UNIT_B+1*UNIT_A
- * "123","xxx1xxx3xxxxx" -> 1*UNIT_B+1*UNIT_A
+ * "123", "xxx1xxx23xxx" -> 1*UNIT_B
+ * "123", "xxx1xxx2xxxxx3xxx" -> 2*UNIT_B
+ * "123", "xxx1xxx2xxxxx" -> 1*UNIT_B+1*UNIT_A
+ * "123", "xxx1xxx3xxxxx" -> 1*UNIT_B+1*UNIT_A
  */
 
 int fuzzy(const char* a, const char* b, int upper_limit);

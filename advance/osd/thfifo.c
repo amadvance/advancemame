@@ -63,7 +63,7 @@ struct group_t {
 struct work_t {
 	struct group_t* group; /**< Part of this group. */
 
-	void (*func)(void*,int,int); /**< Function to call. */
+	void (*func)(void*, int, int); /**< Function to call. */
 	void* arg; /**< Argument of the function. */
 	unsigned num; /**< Argument of the function. */
 	unsigned max; /**< Argument of the function. */
@@ -83,7 +83,8 @@ static pthread_t* work_map; /**< Vector of thread id. */
 static unsigned work_max; /**< Number of thread created. */
 
 /** Push an element in the work fifo. */
-static void work_fifo_push(struct work_t* work) {
+static void work_fifo_push(struct work_t* work)
+{
 	if (work_fifo == 0) {
 		work_fifo = work;
 		work_fifo->next = work_fifo;
@@ -98,12 +99,14 @@ static void work_fifo_push(struct work_t* work) {
 }
 
 /** Check if the work fifo is empty. */
-static int work_fifo_isempty(void) {
+static int work_fifo_isempty(void)
+{
 	return work_fifo == 0;
 }
 
 /** Pop an element from the work fifo. */
-static struct work_t* work_fifo_pop(void) {
+static struct work_t* work_fifo_pop(void)
+{
 	struct work_t* work;
 	if (work_fifo == work_fifo->next) {
 		work = work_fifo;
@@ -144,7 +147,7 @@ static void* group_func(void* arg)
 		pthread_mutex_unlock(&work_mutex);
 
 		/* call the function */
-		work->func(work->arg,work->num,work->max);
+		work->func(work->arg, work->num, work->max);
 
 		/* signal the stop condition */
 		pthread_mutex_lock(&work->group->mutex);
@@ -157,7 +160,8 @@ static void* group_func(void* arg)
 }
 
 /** Return the number of threads to start for an optimal load. */
-unsigned work_free_get(void) {
+unsigned work_free_get(void)
+{
 	unsigned running;
 	unsigned ready;
 
@@ -176,20 +180,23 @@ unsigned work_free_get(void) {
 }
 
 /** Initialize a group of work items. */
-void group_init(struct group_t* group) {
+void group_init(struct group_t* group)
+{
 	pthread_mutex_init(&group->mutex, NULL);
 	pthread_cond_init(&group->isempty, NULL);
 	group->count = 0;
 }
 
 /** Destroy a group of work items. */
-void group_destroy(struct group_t* group) {
+void group_destroy(struct group_t* group)
+{
 	pthread_mutex_destroy(&group->mutex);
 	pthread_cond_destroy(&group->isempty);
 }
 
 /** Insert a work item in the group and start it. */
-void group_put(struct group_t* group, struct work_t* work) {
+void group_put(struct group_t* group, struct work_t* work)
+{
 	pthread_mutex_lock(&group->mutex);
 	++group->count;
 	pthread_mutex_unlock(&group->mutex);
@@ -202,7 +209,8 @@ void group_put(struct group_t* group, struct work_t* work) {
 }
 
 /** Wait the conclusion of all the work items of the group. */
-void group_wait(struct group_t* group) {
+void group_wait(struct group_t* group)
+{
 	/* we will probably wait */
 	pthread_mutex_lock(&work_mutex);
 	--work_running;
@@ -259,7 +267,7 @@ void thread_done(void)
 	pthread_mutex_unlock(&work_mutex);
 
 	for(i=0;i<work_max;++i)
-		pthread_join(work_map[i],NULL);
+		pthread_join(work_map[i], NULL);
 
 	pthread_mutex_destroy(&work_mutex);
 	pthread_cond_destroy(&work_notempty);
@@ -278,7 +286,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 	unsigned i;
 
 	if (!thread_is_active()) {
-		func(arg,0,1);
+		func(arg, 0, 1);
 		return;
 	}
 
@@ -292,7 +300,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 		max = limit;
 
 	if (max <= 1) {
-		func(arg,0,1);
+		func(arg, 0, 1);
 		return;
 	}
 
@@ -306,7 +314,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 		group_put(&group, &work[i]);
 	}
 
-	func(arg,0,max);
+	func(arg, 0, max);
 
 	group_wait(&group);
 

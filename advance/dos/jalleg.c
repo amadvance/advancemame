@@ -57,7 +57,7 @@ static adv_device DEVICE[] = {
 	{ "sidewinderag", JOY_TYPE_SIDEWINDER_AG, "Sidewinder Aggressive" },
 	{ "gamepadpro", JOY_TYPE_GAMEPAD_PRO, "GamePad Pro" },
 	{ "grip", JOY_TYPE_GRIP, "GrIP" },
-	{ "grip4",JOY_TYPE_GRIP4, "GrIP 4-way" },
+	{ "grip4", JOY_TYPE_GRIP4, "GrIP 4-way" },
 	{ "sneslpt1", JOY_TYPE_SNESPAD_LPT1, "SNESpad LPT1" },
 	{ "sneslpt2", JOY_TYPE_SNESPAD_LPT2, "SNESpad LPT2" },
 	{ "sneslpt3", JOY_TYPE_SNESPAD_LPT3, "SNESpad LPT3" },
@@ -78,7 +78,7 @@ static adv_device DEVICE[] = {
  *      1 - data            10 (conport 1, 3, 4, 5, 6), 13 (conport 2)
  *      2 - command         2
  *      3 - 9V(shock)       +9V power supply terminal for Dual Shock
- *      4 - gnd             18,19 also -9V and/or -5V power supply terminal
+ *      4 - gnd             18, 19 also -9V and/or -5V power supply terminal
  *      5 - V+              5, 6, 7, 8, 9 through diodes, or +5V power supply terminal
  *      6 - att             3 (conport 1, 2), 5 (conport 3), 6 (conport 4), 7 (conport 5), 8 (conport 6)
  *      7 - clock           4
@@ -190,7 +190,7 @@ static adv_device DEVICE[] = {
 
 adv_error joystickb_allegro_init(int id)
 {
-	log_std(("joystickb:allegro: joystickb_allegro_init(id:%d)\n",id));
+	log_std(("joystickb:allegro: joystickb_allegro_init(id:%d)\n", id));
 
 	allegro_state.id = id;
 
@@ -264,7 +264,7 @@ const char* joystickb_allegro_stick_axe_name_get(unsigned j, unsigned s, unsigne
 
 	assert(j < joystickb_allegro_count_get());
 	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j,s) );
+	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
 
 	return joy[j].stick[s].axis[a].name;
 }
@@ -296,7 +296,7 @@ unsigned joystickb_allegro_stick_axe_digital_get(unsigned j, unsigned s, unsigne
 
 	assert(j < joystickb_allegro_count_get());
 	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j,s) );
+	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
 
 	jai = &joy[j].stick[s].axis[a];
 	if (d)
@@ -313,7 +313,7 @@ int joystickb_allegro_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
 
 	assert(j < joystickb_allegro_count_get());
 	assert(s < joystickb_allegro_stick_count_get(j) );
-	assert(a < joystickb_allegro_stick_axe_count_get(j,s) );
+	assert(a < joystickb_allegro_stick_axe_count_get(j, s) );
 
 	return joy[j].stick[s].axis[a].pos;
 }
@@ -338,7 +338,7 @@ const char* joystickb_allegro_calib_next(void)
 		if (joy[allegro_state.calibration_target].flags & JOYFLAG_CALIBRATE) {
 			if (!allegro_state.calibration_first) {
 				if (calibrate_joystick(allegro_state.calibration_target) != 0) {
-					log_std(("joystickb:allegro: joystick error in calibration %d\n",allegro_state.calibration_target));
+					log_std(("joystickb:allegro: joystick error in calibration %d\n", allegro_state.calibration_target));
 					/* stop on error */
 					return 0;
 				}
@@ -350,7 +350,7 @@ const char* joystickb_allegro_calib_next(void)
 				const char* msg;
 
 				msg = calibrate_joystick_name(allegro_state.calibration_target);
-				log_std(("joystickb:allegro: joystick calibration msg %s\n",msg));
+				log_std(("joystickb:allegro: joystick calibration msg %s\n", msg));
 				return msg;
 			}
 		} else {

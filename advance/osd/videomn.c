@@ -54,14 +54,14 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 
 	menu_item[total] = strdup("Auto");
 	entry[total] = 0;
-	flag[total] = strcmp("auto",context->config.resolution)==0;
+	flag[total] = strcmp("auto", context->config.resolution)==0;
 	++total;
 
 	for(i=0;i<context->state.crtc_mac;++i) {
 		const adv_crtc* crtc = context->state.crtc_map[i];
 		entry[total] = crtc;
-		menu_item[total] = strdup(mode_desc(context,crtc));
-		flag[total] = strcmp(crtc_name_get(crtc),context->config.resolution)==0;
+		menu_item[total] = strdup(mode_desc(context, crtc));
+		flag[total] = strcmp(crtc_name_get(crtc), context->config.resolution)==0;
 		++total;
 	}
 
@@ -72,7 +72,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	menu_item[total] = 0;
 	flag[total] = 0;
 
-	mame_ui_menu(menu_item,0,flag,selected,0);
+	mame_ui_menu(menu_item, 0, flag, selected, 0);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -88,7 +88,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	{
 		if (selected == total - 1) selected = -1;
 		else if (selected == 0) {
-			strcpy(context->config.resolution,"auto");
+			strcpy(context->config.resolution, "auto");
 			advance_video_change(context);
 
 			/* show at screen the new configuration name */
@@ -96,7 +96,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 
 			mame_ui_refresh();
 		} else {
-			strcpy(context->config.resolution,crtc_name_get(entry[selected]));
+			strcpy(context->config.resolution, crtc_name_get(entry[selected]));
 			advance_video_change(context);
 			
 			mame_ui_refresh();
@@ -136,21 +136,21 @@ static int video_pipeline_menu(struct advance_video_context* context, int select
 
 	total = 0;
 
-	for(i=1,stage=video_pipeline_begin(&context->state.blit_pipeline);stage!=video_pipeline_end(&context->state.blit_pipeline);++stage,++i) {
+	for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline);stage!=video_pipeline_end(&context->state.blit_pipeline);++stage, ++i) {
 		if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-			sprintf(buffer,"(%d) %s",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+			sprintf(buffer, "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 			++i;
 			menu_item[total] = strdup(buffer);
 			flag[total] = 0;
 			++total;
 		}
-		sprintf(buffer,"(%d) %s, p %d, dp %d",i,pipe_name(stage->type),stage->sbpp,stage->sdp);
+		sprintf(buffer, "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
 		++total;
 	}
 	if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-		sprintf(buffer,"(%d) %s",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+		sprintf(buffer, "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 		++i;
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
@@ -164,7 +164,7 @@ static int video_pipeline_menu(struct advance_video_context* context, int select
 	menu_item[total] = 0;
 	flag[total] = 0;
 
-	mame_ui_menu(menu_item,0,flag,selected,0);
+	mame_ui_menu(menu_item, 0, flag, selected, 0);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -216,6 +216,7 @@ int osd2_menu(int selected, unsigned input)
 	int effect_index;
 	int save_game_index;
 	int save_resolution_index;
+	int save_resolutionclock_index;
 	int save_all_index;
 	int pipeline_index;
 	int magnify_index;
@@ -236,8 +237,8 @@ int osd2_menu(int selected, unsigned input)
 	{
 		int ret = 0;
 		switch (context->state.menu_sub_active) {
-			case 1 : ret = video_mode_menu(context,context->state.menu_sub_selected,input); break;
-			case 2 : ret = video_pipeline_menu(context,context->state.menu_sub_selected,input); break;
+			case 1 : ret = video_mode_menu(context, context->state.menu_sub_selected, input); break;
+			case 2 : ret = video_pipeline_menu(context, context->state.menu_sub_selected, input); break;
 		}
 		switch (ret) {
 			case -1 : return -1; /* hide interface */
@@ -249,7 +250,7 @@ int osd2_menu(int selected, unsigned input)
 
 	total = 0;
 
-	sprintf(mode_buffer,"%dx%dx%d %.1f/%.1f/%.1f",
+	sprintf(mode_buffer, "%dx%dx%d %.1f/%.1f/%.1f",
 		video_size_x(),
 		video_size_y(),
 		video_bits_per_pixel(),
@@ -264,7 +265,7 @@ int osd2_menu(int selected, unsigned input)
 
 	resolution_index = total;
 	menu_item[total] = "Mode";
-	if (strcmp(context->config.resolution,"auto")==0)
+	if (strcmp(context->config.resolution, "auto")==0)
 		menu_subitem[total] = "auto";
 	else
 		menu_subitem[total] = "custom";
@@ -272,7 +273,7 @@ int osd2_menu(int selected, unsigned input)
 	++total;
 
 	if (!context->state.game_vector_flag) {
-		if (strcmp(context->config.resolution,"auto")==0) {
+		if (strcmp(context->config.resolution, "auto")==0) {
 			magnify_index = total;
 			if (mode_current_magnify(context))
 				menu_item[total] = "Magnify [yes]";
@@ -492,10 +493,20 @@ int osd2_menu(int selected, unsigned input)
 	if (context->state.game_vector_flag)
 		menu_item[total] = mame_ui_gettext("Save for all vector games");
 	else
-		menu_item[total] = mame_ui_gettext("Save for this game resolution");
+		menu_item[total] = mame_ui_gettext("Save for this game size");
 	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
+
+	if (!context->state.game_vector_flag) {
+		save_resolutionclock_index = total;
+		menu_item[total] = mame_ui_gettext("Save for this game size/freq");
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
+	} else {
+		save_resolutionclock_index = -1;
+	}
 
 	if (!context->state.game_vector_flag) {
 		save_all_index = total;
@@ -539,7 +550,7 @@ int osd2_menu(int selected, unsigned input)
 	else
 		arrowize = 0;
 
-	mame_ui_menu(menu_item,menu_subitem,flag,selected,arrowize);
+	mame_ui_menu(menu_item, menu_subitem, flag, selected, arrowize);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -562,11 +573,13 @@ int osd2_menu(int selected, unsigned input)
 			context->state.menu_sub_active = 2;
 			mame_ui_refresh();
 		} else if (selected == save_game_index) {
-			advance_video_save(context,context->config.section_name);
+			advance_video_save(context, context->config.section_name);
 		} else if (selected == save_resolution_index) {
-			advance_video_save(context,context->config.section_resolution);
+			advance_video_save(context, context->config.section_resolution);
+		} else if (selected == save_resolutionclock_index) {
+			advance_video_save(context, context->config.section_resolutionclock);
 		} else if (selected == save_all_index) {
-			advance_video_save(context,"");
+			advance_video_save(context, "");
 		} else if (selected == crash_index) {
 			target_crash();
 		}

@@ -345,15 +345,16 @@ const char* crcfile;
 const char* pcrcfile;
 #endif
 
-void logerror(const char *text,...)
+void logerror(const char *text, ...)
 {
 	va_list arg;
-	va_start(arg,text);
-	log_va(text,arg);
+	va_start(arg, text);
+	log_va(text, arg);
 	va_end(arg);
 }
 
-const char* mame_game_resolution(const mame_game* game) {
+const char* mame_game_resolution(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
 	expand_machine_driver(driver->drv, &machine);
@@ -367,14 +368,15 @@ const char* mame_game_resolution(const mame_game* game) {
 			dx = machine.default_visible_area.max_x - machine.default_visible_area.min_x + 1;
 			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
 		}
-		sprintf(GLUE.resolution_buffer,"%dx%d",dx,dy);
+		sprintf(GLUE.resolution_buffer, "%dx%d", dx, dy);
 	} else {
-		strcpy(GLUE.resolution_buffer,"vector");
+		strcpy(GLUE.resolution_buffer, "vector");
 	}
 	return GLUE.resolution_buffer;
 }
 
-const char* mame_game_resolutionclock(const mame_game* game) {
+const char* mame_game_resolutionclock(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
 	expand_machine_driver(driver->drv, &machine);
@@ -390,21 +392,23 @@ const char* mame_game_resolutionclock(const mame_game* game) {
 			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
 		}
 		clock = floor(machine.frames_per_second);
-		sprintf(GLUE.resolutionclock_buffer,"%dx%dx%d",dx,dy,clock);
+		sprintf(GLUE.resolutionclock_buffer, "%dx%dx%d", dx, dy, clock);
 	} else {
-		strcpy(GLUE.resolutionclock_buffer,"vector");
+		strcpy(GLUE.resolutionclock_buffer, "vector");
 	}
 	return GLUE.resolutionclock_buffer;
 }
 
-double mame_game_fps(const mame_game* game) {
+double mame_game_fps(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
 	expand_machine_driver(driver->drv, &machine);
 	return machine.frames_per_second;
 }
 
-unsigned mame_game_orientation(const mame_game* game) {
+unsigned mame_game_orientation(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	unsigned orientation = 0;
 
@@ -418,37 +422,43 @@ unsigned mame_game_orientation(const mame_game* game) {
 	return orientation;
 }
 
-const char* mame_game_name(const mame_game* game) {
+const char* mame_game_name(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	return driver->name;
 }
 
-const char* mame_game_description(const mame_game* game) {
+const char* mame_game_description(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	return driver->description;
 }
 
-const mame_game* mame_game_at(unsigned i) {
+const mame_game* mame_game_at(unsigned i)
+{
 	return (const mame_game*)drivers[i];
 }
 
-void mame_print_info(FILE* out) {
+void mame_print_info(FILE* out)
+{
 	print_mame_info( out, drivers );
 }
 
-int mame_is_game_vector(const mame_game* game) {
+int mame_is_game_vector(const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
 	expand_machine_driver(driver->drv, &machine);
 	return (machine.video_attributes & VIDEO_TYPE_VECTOR) != 0;
 }
 
-int mame_is_game_in_list(const char* list[], const mame_game* game) {
+int mame_is_game_in_list(const char* list[], const mame_game* game)
+{
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	while (driver && driver->name) {
 		unsigned i;
 		for(i=0;list[i];++i) {
-			if (strcmp(driver->name,list[i])==0)
+			if (strcmp(driver->name, list[i])==0)
 				return 1;
 		}
 		driver = driver->clone_of;
@@ -456,11 +466,12 @@ int mame_is_game_in_list(const char* list[], const mame_game* game) {
 	return 0;
 }
 
-const struct mame_game* mame_playback_look(const char* file) {
+const struct mame_game* mame_playback_look(const char* file)
+{
 	INP_HEADER inp_header;
 	void* playback;
 
-	playback= osd_fopen(0,file,OSD_FILETYPE_INPUTLOG,0);
+	playback= osd_fopen(0, file, OSD_FILETYPE_INPUTLOG, 0);
 	if (!playback) {
 		target_err("Error opening the input playback file '%s'.\n", file);
 		return 0;
@@ -483,7 +494,7 @@ const struct mame_game* mame_playback_look(const char* file) {
 		const struct mame_game* game = mame_game_at(0);
 
 		for(i=0;game!=0;++i) {
-			if (strcmp(mame_game_name(game),inp_header.name) == 0) {
+			if (strcmp(mame_game_name(game), inp_header.name) == 0) {
 				break;
 			}
 			game = mame_game_at(i+1);
@@ -498,7 +509,8 @@ const struct mame_game* mame_playback_look(const char* file) {
 	}
 }
 
-int mame_game_run(struct advance_context* context, const struct mame_option* advance) {
+int mame_game_run(struct advance_context* context, const struct mame_option* advance)
+{
 	int r;
 	int game_index;
 
@@ -519,13 +531,6 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.debug_width = advance->debug_width;
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;
-#ifdef MESS
-	options.norotate = 1;
-	options.ror = 0;
-	options.rol = 0;
-	options.flipx = 0;
-	options.flipy = 0;
-#endif
 	options.ui_orientation = advance->ui_orientation;
 	options.antialias = advance->antialias;
 	options.translucency = advance->translucency;
@@ -541,14 +546,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.savegame = advance->savegame;
 
 	if (advance->language_file[0])
-		options.language_file = osd_fopen(0,advance->language_file,OSD_FILETYPE_LANGUAGE,0);
+		options.language_file = osd_fopen(0, advance->language_file, OSD_FILETYPE_LANGUAGE, 0);
 	else
 		options.language_file = 0;
 
 	if (advance->record_file[0]) {
 		INP_HEADER inp_header;
 
-		options.record = osd_fopen(0,advance->record_file,OSD_FILETYPE_INPUTLOG,1);
+		options.record = osd_fopen(0, advance->record_file, OSD_FILETYPE_INPUTLOG, 1);
 		if (!options.record) {
 			target_err("Error opening the input record file '%s'.\n", advance->record_file);
 			return -1;
@@ -571,7 +576,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (advance->playback_file[0]) {
 		INP_HEADER inp_header;
 
-		options.playback = osd_fopen(0,advance->playback_file,OSD_FILETYPE_INPUTLOG,0);
+		options.playback = osd_fopen(0, advance->playback_file, OSD_FILETYPE_INPUTLOG, 0);
 		if (!options.playback) {
 			target_err("Error opening the input playback file '%s'.\n", advance->playback_file);
 			return -1;
@@ -591,7 +596,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 			const struct mame_game* game = mame_game_at(0);
 
 			for(i=0;game!=0;++i) {
-				if (strcmp(mame_game_name(game),inp_header.name) == 0) {
+				if (strcmp(mame_game_name(game), inp_header.name) == 0) {
 					break;
 				}
 				game = mame_game_at(i+1);
@@ -623,7 +628,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	{
 		const struct GameDriver* driver = (const struct GameDriver*)context->game;
 
-		sprintf(GLUE.crc_file,"%s%c%s.crc",advance->crc_dir,file_dir_slash(),driver->name);
+		sprintf(GLUE.crc_file, "%s%c%s.crc", advance->crc_dir, file_dir_slash(), driver->name);
 		crcfile = GLUE.crc_file;
 
 		log_std(("mess: file_crc %s\n", crcfile));
@@ -631,9 +636,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		if (driver->clone_of
 			&& driver->clone_of->name
 			&& (driver->clone_of->flags & NOT_A_DRIVER) == 0) {
-			sprintf(GLUE.parent_crc_file,"%s%c%s.crc",advance->crc_dir,file_dir_slash(),driver->clone_of->name);
+			sprintf(GLUE.parent_crc_file, "%s%c%s.crc", advance->crc_dir, file_dir_slash(), driver->clone_of->name);
 		} else {
-			strcpy(GLUE.parent_crc_file,"");
+			strcpy(GLUE.parent_crc_file, "");
 		}
 		pcrcfile = GLUE.parent_crc_file;
 
@@ -663,28 +668,33 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 /***************************************************************************/
 /* MAME user interface */
 
-void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	set_ui_visarea(x1,y1,x2,y2);
+void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+{
+	set_ui_visarea(x1, y1, x2, y2);
 }
 
-void mame_ui_message(const char* s, ...) {
+void mame_ui_message(const char* s, ...)
+{
 	va_list arg;
 	char buffer[256];
-	va_start(arg,s);
-	vsprintf(buffer,s,arg);
+	va_start(arg, s);
+	vsprintf(buffer, s, arg);
 	usrintf_showmessage(buffer);
 	va_end(arg);
 }
 
-void mame_ui_text(const char* s, unsigned x, unsigned y) {
+void mame_ui_text(const char* s, unsigned x, unsigned y)
+{
 	ui_text(GLUE.bitmap, s, x, y);
 }
 
-void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem) {
-	ui_displaymenu(GLUE.bitmap,items,subitems,flag,selected,arrowize_subitem);
+void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
+{
+	ui_displaymenu(GLUE.bitmap, items, subitems, flag, selected, arrowize_subitem);
 }
 
-void mame_ui_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
+void mame_ui_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+{
 	struct rectangle rec;
 
 	rec.min_x = x1;
@@ -695,15 +705,18 @@ void mame_ui_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
 	save_screen_snapshot(GLUE.bitmap, &rec);
 }
 
-const char* mame_ui_gettext(const char* text) {
+const char* mame_ui_gettext(const char* text)
+{
 	return text;
 }
 
-void mame_ui_refresh(void) {
+void mame_ui_refresh(void)
+{
 	schedule_full_refresh();
 }
 
-void mame_ui_swap(void) {
+void mame_ui_swap(void)
+{
 	struct mame_bitmap tmp;
 
 	if (!Machine->scrbitmap)
@@ -719,23 +732,25 @@ void mame_ui_swap(void) {
 			int temp = width; width = height; height = temp;
 		}
 
-		GLUE.bitmap_alt = bitmap_alloc_depth(width,height,depth);
+		GLUE.bitmap_alt = bitmap_alloc_depth(width, height, depth);
 	}
 
 	/* swap the contents of the two bitmap */
-	memcpy(&tmp,Machine->scrbitmap,sizeof(struct mame_bitmap));
-	memcpy(Machine->scrbitmap,GLUE.bitmap_alt,sizeof(struct mame_bitmap));
-	memcpy(GLUE.bitmap_alt,&tmp,sizeof(struct mame_bitmap));
+	memcpy(&tmp, Machine->scrbitmap, sizeof(struct mame_bitmap));
+	memcpy(Machine->scrbitmap, GLUE.bitmap_alt, sizeof(struct mame_bitmap));
+	memcpy(GLUE.bitmap_alt, &tmp, sizeof(struct mame_bitmap));
 
 	/* redraw all */
 	schedule_full_refresh();
 }
 
-void mame_ui_gamma_factor_set(double gamma) {
+void mame_ui_gamma_factor_set(double gamma)
+{
 	palette_set_global_gamma(palette_get_global_gamma() * gamma);
 }
 
-void mame_ui_show_info_temp(void) {
+void mame_ui_show_info_temp(void)
+{
 	ui_show_fps_temp(2);
 }
 
@@ -788,10 +803,10 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 		GLUE.option.color_def = 0;
 		GLUE.option.rgb_flag = 0;
 	} else if (GLUE.option.bits_per_pixel == 15) {
-		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(2,5,10,5,5,5,0);
+		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0);
 		GLUE.option.rgb_flag = 1;
 	} else if (GLUE.option.bits_per_pixel == 32) {
-		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(4,8,16,8,8,8,0);
+		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 		GLUE.option.rgb_flag = 1;
 	} else
 		return -1;
@@ -818,18 +833,20 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	return 0;
 }
 
-void osd_close_display(void) {
+void osd_close_display(void)
+{
 	log_std(("osd: osd_close_display()\n"));
 
 	if (GLUE.video_flag)
 		osd2_video_done();
 }
 
-int osd_menu(struct mame_bitmap *bitmap, int selected) {
+int osd_menu(struct mame_bitmap *bitmap, int selected)
+{
 	unsigned input;
 	int r;
 
-	log_pedantic(("osd: osd_menu(%d)\n",selected));
+	log_pedantic(("osd: osd_menu(%d)\n", selected));
 
 	/* save the bitmap */
 	GLUE.bitmap = bitmap;
@@ -844,16 +861,16 @@ int osd_menu(struct mame_bitmap *bitmap, int selected) {
 	if (input_ui_pressed(IPT_UI_CONFIGURE))
 		input |= OSD_INPUT_CONFIGURE;
 	/* continous input */
-	if (input_ui_pressed_repeat(IPT_UI_UP,8))
+	if (input_ui_pressed_repeat(IPT_UI_UP, 8))
 		input |= OSD_INPUT_UP;
-	if (input_ui_pressed_repeat(IPT_UI_DOWN,8))
+	if (input_ui_pressed_repeat(IPT_UI_DOWN, 8))
 		input |= OSD_INPUT_DOWN;
-	if (input_ui_pressed_repeat(IPT_UI_LEFT,8))
+	if (input_ui_pressed_repeat(IPT_UI_LEFT, 8))
 		input |= OSD_INPUT_LEFT;
-	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
+	if (input_ui_pressed_repeat(IPT_UI_RIGHT, 8))
 		input |= OSD_INPUT_RIGHT;
 
-	r = osd2_menu(selected,input);
+	r = osd2_menu(selected, input);
 	if (r < 0)
 		return -1;
 	else
@@ -863,7 +880,8 @@ int osd_menu(struct mame_bitmap *bitmap, int selected) {
 /**
  * Compute the sound samples required for the next frame.
  */
-static unsigned glue_sound_sample(void) {
+static unsigned glue_sound_sample(void)
+{
 
 	int samples = GLUE.sound_step - GLUE.sound_latency;
 
@@ -880,7 +898,8 @@ static unsigned glue_sound_sample(void) {
 	return GLUE.sound_last_count;
 }
 
-void osd_update_video_and_audio(struct mame_display *display) {
+void osd_update_video_and_audio(struct mame_display *display)
+{
 	struct osd_bitmap game;
 	struct osd_bitmap debug;
 	struct osd_bitmap* pgame;
@@ -1012,7 +1031,8 @@ void osd_update_video_and_audio(struct mame_display *display) {
 	profiler_mark(PROFILER_END);
 }
 
-int osd_start_audio_stream(int stereo) {
+int osd_start_audio_stream(int stereo)
+{
 	unsigned rate = Machine->sample_rate;
 
 	log_std(("osd: osd_start_audio_stream(sample_rate:%d, stereo_flag:%d)\n", rate, stereo));
@@ -1048,7 +1068,8 @@ int osd_start_audio_stream(int stereo) {
 	return glue_sound_sample();
 }
 
-void osd_stop_audio_stream(void) {
+void osd_stop_audio_stream(void)
+{
 	log_std(("osd: osd_stop_audio_stream()\n"));
 
 	if (GLUE.sound_flag) {
@@ -1059,7 +1080,8 @@ void osd_stop_audio_stream(void) {
 	}
 }
 
-int osd_update_audio_stream(short* buffer) {
+int osd_update_audio_stream(short* buffer)
+{
 	log_debug(("osd: osd_update_audio_stream()\n"));
 
 	if (GLUE.sound_flag) {
@@ -1075,34 +1097,40 @@ int osd_update_audio_stream(short* buffer) {
 	}
 }
 
-void osd_save_snapshot(struct mame_bitmap *bitmap, const struct rectangle *bounds) {
+void osd_save_snapshot(struct mame_bitmap *bitmap, const struct rectangle *bounds)
+{
 	/* save the bitmap */
 	GLUE.bitmap = bitmap;
 
 	osd2_save_snapshot(bounds->min_x, bounds->min_y, bounds->max_x, bounds->max_y);
 }
 
-cycles_t osd_cycles(void) {
+cycles_t osd_cycles(void)
+{
 	return os_clock();
 }
 
-cycles_t osd_cycles_per_second(void) {
+cycles_t osd_cycles_per_second(void)
+{
 	return OS_CLOCKS_PER_SEC;
 }
 
 /* Filter the user interface input state */
-int osd_input_ui_filter(int result, int type) {
-	return result || hardware_is_input_simulated(SIMULATE_EVENT,type);
+int osd_input_ui_filter(int result, int type)
+{
+	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
 }
 
 /* Filter the main exit request */
-int osd_input_exit_filter(int result) {
-	return advance_input_exit_filter(&CONTEXT.input,&CONTEXT.safequit,result);
+int osd_input_exit_filter(int result)
+{
+	return advance_input_exit_filter(&CONTEXT.input, &CONTEXT.safequit, result);
 }
 
 /* Filter the input port state */
-int osd_input_port_filter(int result, int type) {
-	return result || hardware_is_input_simulated(SIMULATE_EVENT,type);
+int osd_input_port_filter(int result, int type)
+{
+	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
 }
 
 const char *osd_get_fps_text(const struct performance_info *performance)
@@ -1153,7 +1181,8 @@ static const char* DEVICES[] = {
 	0
 };
 
-static void mess_init(adv_conf* context) {
+static void mess_init(adv_conf* context)
+{
 	const char** i;
 
 	options.image_count = 0;
@@ -1165,7 +1194,7 @@ static void mess_init(adv_conf* context) {
 	while (*i) {
 		char buffer[256];
 
-		sprintf(buffer,"dev_%s", *i);
+		sprintf(buffer, "dev_%s", *i);
 
 		conf_string_register_multi(context, buffer);
 
@@ -1173,7 +1202,8 @@ static void mess_init(adv_conf* context) {
 	}
 }
 
-static int mess_config_load(adv_conf* context) {
+static int mess_config_load(adv_conf* context)
+{
 	const char** i;
 
 	i = DEVICES;
@@ -1181,7 +1211,7 @@ static int mess_config_load(adv_conf* context) {
 		adv_conf_iterator j;
 		char buffer[256];
 
-		sprintf(buffer,"dev_%s", *i);
+		sprintf(buffer, "dev_%s", *i);
 
 		conf_iterator_begin(&j, context, buffer);
 		while (!conf_iterator_is_end(&j)) {
@@ -1199,7 +1229,7 @@ static int mess_config_load(adv_conf* context) {
 
 			/* register the devices with its arg */
 			if (register_device(id, arg) != 0) {
-				log_std(("ERROR: calling register_device(type:%d,arg:%s)\n", id, arg));
+				log_std(("ERROR: calling register_device(type:%d, arg:%s)\n", id, arg));
 				return -1;
 			}
 
@@ -1212,12 +1242,14 @@ static int mess_config_load(adv_conf* context) {
 	return 0;
 }
 
-static void mess_done(void) {
+static void mess_done(void)
+{
 }
 
 #endif
 
-int mame_init(struct advance_context* context, adv_conf* cfg_context) {
+int mame_init(struct advance_context* context, adv_conf* cfg_context)
+{
 
 	/* Clear the MAIN context */
 	memset(context, 0, sizeof(struct advance_context));
@@ -1226,7 +1258,7 @@ int mame_init(struct advance_context* context, adv_conf* cfg_context) {
 	memset(&GLUE, 0, sizeof(GLUE));
 
 	/* Clear the MAME global struct */
-	memset(&options,0,sizeof(options));
+	memset(&options, 0, sizeof(options));
 
 	conf_bool_register_default(cfg_context, "display_artwork", 1);
 	conf_bool_register_default(cfg_context, "display_artwork_crop", 0);
@@ -1261,13 +1293,15 @@ int mame_init(struct advance_context* context, adv_conf* cfg_context) {
 	return 0;
 }
 
-void mame_done(struct advance_context* context) {
+void mame_done(struct advance_context* context)
+{
 #ifdef MESS
 	mess_done();
 #endif
 }
 
-int mame_config_load(adv_conf* cfg_context, struct mame_option* option) {
+int mame_config_load(adv_conf* cfg_context, struct mame_option* option)
+{
 	char* s;
 
 	option->artwork_flag = conf_bool_get_default(cfg_context, "display_artwork");
@@ -1306,8 +1340,8 @@ int mame_config_load(adv_conf* cfg_context, struct mame_option* option) {
 		if (*s == file_dir_separator())
 			*s = ';';
 
-	strcpy(option->history_file, conf_string_get_default(cfg_context,"misc_historyfile"));
-	strcpy(option->info_file, conf_string_get_default(cfg_context,"misc_infofile"));
+	strcpy(option->history_file, conf_string_get_default(cfg_context, "misc_historyfile"));
+	strcpy(option->info_file, conf_string_get_default(cfg_context, "misc_infofile"));
 
 #ifdef MESS
 	if (mess_config_load(cfg_context) != 0) {

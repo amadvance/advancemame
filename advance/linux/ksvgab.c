@@ -167,7 +167,7 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 	struct keyb_pair* i;
 	unsigned j;
 
-	log_std(("keyb:svgalib: keyb_svgalib_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	log_std(("keyb:svgalib: keyb_svgalib_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("keyb:svgalib: svgalib not initialized\n"));
@@ -213,7 +213,7 @@ unsigned keyb_svgalib_get(unsigned code)
 
 	assert( code < KEYB_MAX);
 
-	log_debug(("keyb:svgalib: keyb_svgalib_get(code:%d)\n",code));
+	log_debug(("keyb:svgalib: keyb_svgalib_get(code:%d)\n", code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -221,7 +221,7 @@ unsigned keyb_svgalib_get(unsigned code)
 
 	svgalib_code = svgalib_state.map_os_to_code[code];
 
-	log_debug(("keyb:svgalib: keyb_svgalib_get() svgalib_code:%d\n",svgalib_code));
+	log_debug(("keyb:svgalib: keyb_svgalib_get() svgalib_code:%d\n", svgalib_code));
 
 	if (!svgalib_code)
 		return 0;

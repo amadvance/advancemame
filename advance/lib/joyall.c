@@ -38,7 +38,8 @@
  *  - USE_JOYSTICK_SDL
  *  - USE_JOYSTICK_NONE
  */
-void joystickb_reg_driver_all(adv_conf* context) {
+void joystickb_reg_driver_all(adv_conf* context)
+{
 #ifdef USE_JOYSTICK_ALLEGRO
 	joystickb_reg_driver(context, &joystickb_allegro_driver);
 #endif

@@ -177,15 +177,15 @@ static struct KeyboardInfo input_key_map[] = {
 #define DIGITAL_JOY_STICK_GET(i) (((i) >> 5) & 0x7)
 #define DIGITAL_JOY_AXE_GET(i) (((i) >> 8) & 0x7)
 #define DIGITAL_JOY_DIR_GET(i) (((i) >> 11) & 0x1)
-#define DIGITAL_JOY(joy,stick,axe,dir) (DIGITAL_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (dir) << 11)
+#define DIGITAL_JOY(joy, stick, axe, dir) (DIGITAL_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (dir) << 11)
 
 #define DIGITAL_JOY_BUTTON_DEV_GET(i) (((i) >> 2) & 0x7)
 #define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 5) & 0xF)
-#define DIGITAL_JOY_BUTTON(joy,button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 2 | (button) << 5)
+#define DIGITAL_JOY_BUTTON(joy, button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 2 | (button) << 5)
 
 #define DIGITAL_MOUSE_BUTTON_DEV_GET(i) (((i) >> 2) & 0x7)
 #define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 5) & 0xF)
-#define DIGITAL_MOUSE_BUTTON(mouse,button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 2 | (button) << 5)
+#define DIGITAL_MOUSE_BUTTON(mouse, button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 2 | (button) << 5)
 
 /* The ANALOG value can be changed without limitation */
 #define ANALOG_TYPE_NONE 0
@@ -196,13 +196,13 @@ static struct KeyboardInfo input_key_map[] = {
 #define ANALOG_MOUSE_DEV_GET(i) (((i) >> 2) & 0x7)
 #define ANALOG_MOUSE_AXE_GET(i) (((i) >> 5) & 0x7)
 #define ANALOG_MOUSE_NEGATE_GET(i) (((i) >> 8) & 0x1)
-#define ANALOG_MOUSE(dev,axe,negate) (ANALOG_TYPE_MOUSE | (dev) << 2 | (axe) << 5 | (negate) << 8)
+#define ANALOG_MOUSE(dev, axe, negate) (ANALOG_TYPE_MOUSE | (dev) << 2 | (axe) << 5 | (negate) << 8)
 
 #define ANALOG_JOY_DEV_GET(i) (((i) >> 2) & 0x7)
 #define ANALOG_JOY_STICK_GET(i) (((i) >> 5) & 0x7)
 #define ANALOG_JOY_AXE_GET(i) (((i) >> 8) & 0x7)
 #define ANALOG_JOY_NEGATE_GET(i) (((i) >> 11) & 0x1)
-#define ANALOG_JOY(joy,stick,axe,negate) (ANALOG_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (negate) << 11)
+#define ANALOG_JOY(joy, stick, axe, negate) (ANALOG_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (negate) << 11)
 
 /** Max number of joystick different input. */
 #define INPUT_MAX 512
@@ -219,46 +219,46 @@ static struct JoystickInfo input_joy_map[INPUT_MAX] = {
 static char input_joyname_map[INPUT_MAX][INPUT_NAME_MAX];
 
 static int input_joyequiv_map[][2] = {
-	{ DIGITAL_JOY(0,0,0,1), JOYCODE_1_LEFT },
-	{ DIGITAL_JOY(0,0,0,0), JOYCODE_1_RIGHT },
-	{ DIGITAL_JOY(0,0,1,1), JOYCODE_1_UP },
-	{ DIGITAL_JOY(0,0,1,0), JOYCODE_1_DOWN },
-	{ DIGITAL_JOY_BUTTON(0,0), JOYCODE_1_BUTTON1 },
-	{ DIGITAL_JOY_BUTTON(0,1), JOYCODE_1_BUTTON2 },
-	{ DIGITAL_JOY_BUTTON(0,2), JOYCODE_1_BUTTON3 },
-	{ DIGITAL_JOY_BUTTON(0,3), JOYCODE_1_BUTTON4 },
-	{ DIGITAL_JOY_BUTTON(0,4), JOYCODE_1_BUTTON5 },
-	{ DIGITAL_JOY_BUTTON(0,5), JOYCODE_1_BUTTON6 },
-	{ DIGITAL_JOY(1,0,0,1), JOYCODE_2_LEFT },
-	{ DIGITAL_JOY(1,0,0,0), JOYCODE_2_RIGHT },
-	{ DIGITAL_JOY(1,0,1,1), JOYCODE_2_UP },
-	{ DIGITAL_JOY(1,0,1,0), JOYCODE_2_DOWN },
-	{ DIGITAL_JOY_BUTTON(1,0), JOYCODE_2_BUTTON1 },
-	{ DIGITAL_JOY_BUTTON(1,1), JOYCODE_2_BUTTON2 },
-	{ DIGITAL_JOY_BUTTON(1,2), JOYCODE_2_BUTTON3 },
-	{ DIGITAL_JOY_BUTTON(1,3), JOYCODE_2_BUTTON4 },
-	{ DIGITAL_JOY_BUTTON(1,4), JOYCODE_2_BUTTON5 },
-	{ DIGITAL_JOY_BUTTON(1,5), JOYCODE_2_BUTTON6 },
-	{ DIGITAL_JOY(2,0,0,1), JOYCODE_3_LEFT },
-	{ DIGITAL_JOY(2,0,0,0), JOYCODE_3_RIGHT },
-	{ DIGITAL_JOY(2,0,1,1), JOYCODE_3_UP },
-	{ DIGITAL_JOY(2,0,1,0), JOYCODE_3_DOWN },
-	{ DIGITAL_JOY_BUTTON(2,0), JOYCODE_3_BUTTON1 },
-	{ DIGITAL_JOY_BUTTON(2,1), JOYCODE_3_BUTTON2 },
-	{ DIGITAL_JOY_BUTTON(2,2), JOYCODE_3_BUTTON3 },
-	{ DIGITAL_JOY_BUTTON(2,3), JOYCODE_3_BUTTON4 },
-	{ DIGITAL_JOY_BUTTON(2,4), JOYCODE_3_BUTTON5 },
-	{ DIGITAL_JOY_BUTTON(2,5), JOYCODE_3_BUTTON6 },
-	{ DIGITAL_JOY(3,0,0,1), JOYCODE_4_LEFT },
-	{ DIGITAL_JOY(3,0,0,0), JOYCODE_4_RIGHT },
-	{ DIGITAL_JOY(3,0,1,1), JOYCODE_4_UP },
-	{ DIGITAL_JOY(3,0,1,0), JOYCODE_4_DOWN },
-	{ DIGITAL_JOY_BUTTON(3,0), JOYCODE_4_BUTTON1 },
-	{ DIGITAL_JOY_BUTTON(3,1), JOYCODE_4_BUTTON2 },
-	{ DIGITAL_JOY_BUTTON(3,2), JOYCODE_4_BUTTON3 },
-	{ DIGITAL_JOY_BUTTON(3,3), JOYCODE_4_BUTTON4 },
-	{ DIGITAL_JOY_BUTTON(3,4), JOYCODE_4_BUTTON5 },
-	{ DIGITAL_JOY_BUTTON(3,5), JOYCODE_4_BUTTON6 }
+	{ DIGITAL_JOY(0, 0, 0, 1), JOYCODE_1_LEFT },
+	{ DIGITAL_JOY(0, 0, 0, 0), JOYCODE_1_RIGHT },
+	{ DIGITAL_JOY(0, 0, 1, 1), JOYCODE_1_UP },
+	{ DIGITAL_JOY(0, 0, 1, 0), JOYCODE_1_DOWN },
+	{ DIGITAL_JOY_BUTTON(0, 0), JOYCODE_1_BUTTON1 },
+	{ DIGITAL_JOY_BUTTON(0, 1), JOYCODE_1_BUTTON2 },
+	{ DIGITAL_JOY_BUTTON(0, 2), JOYCODE_1_BUTTON3 },
+	{ DIGITAL_JOY_BUTTON(0, 3), JOYCODE_1_BUTTON4 },
+	{ DIGITAL_JOY_BUTTON(0, 4), JOYCODE_1_BUTTON5 },
+	{ DIGITAL_JOY_BUTTON(0, 5), JOYCODE_1_BUTTON6 },
+	{ DIGITAL_JOY(1, 0, 0, 1), JOYCODE_2_LEFT },
+	{ DIGITAL_JOY(1, 0, 0, 0), JOYCODE_2_RIGHT },
+	{ DIGITAL_JOY(1, 0, 1, 1), JOYCODE_2_UP },
+	{ DIGITAL_JOY(1, 0, 1, 0), JOYCODE_2_DOWN },
+	{ DIGITAL_JOY_BUTTON(1, 0), JOYCODE_2_BUTTON1 },
+	{ DIGITAL_JOY_BUTTON(1, 1), JOYCODE_2_BUTTON2 },
+	{ DIGITAL_JOY_BUTTON(1, 2), JOYCODE_2_BUTTON3 },
+	{ DIGITAL_JOY_BUTTON(1, 3), JOYCODE_2_BUTTON4 },
+	{ DIGITAL_JOY_BUTTON(1, 4), JOYCODE_2_BUTTON5 },
+	{ DIGITAL_JOY_BUTTON(1, 5), JOYCODE_2_BUTTON6 },
+	{ DIGITAL_JOY(2, 0, 0, 1), JOYCODE_3_LEFT },
+	{ DIGITAL_JOY(2, 0, 0, 0), JOYCODE_3_RIGHT },
+	{ DIGITAL_JOY(2, 0, 1, 1), JOYCODE_3_UP },
+	{ DIGITAL_JOY(2, 0, 1, 0), JOYCODE_3_DOWN },
+	{ DIGITAL_JOY_BUTTON(2, 0), JOYCODE_3_BUTTON1 },
+	{ DIGITAL_JOY_BUTTON(2, 1), JOYCODE_3_BUTTON2 },
+	{ DIGITAL_JOY_BUTTON(2, 2), JOYCODE_3_BUTTON3 },
+	{ DIGITAL_JOY_BUTTON(2, 3), JOYCODE_3_BUTTON4 },
+	{ DIGITAL_JOY_BUTTON(2, 4), JOYCODE_3_BUTTON5 },
+	{ DIGITAL_JOY_BUTTON(2, 5), JOYCODE_3_BUTTON6 },
+	{ DIGITAL_JOY(3, 0, 0, 1), JOYCODE_4_LEFT },
+	{ DIGITAL_JOY(3, 0, 0, 0), JOYCODE_4_RIGHT },
+	{ DIGITAL_JOY(3, 0, 1, 1), JOYCODE_4_UP },
+	{ DIGITAL_JOY(3, 0, 1, 0), JOYCODE_4_DOWN },
+	{ DIGITAL_JOY_BUTTON(3, 0), JOYCODE_4_BUTTON1 },
+	{ DIGITAL_JOY_BUTTON(3, 1), JOYCODE_4_BUTTON2 },
+	{ DIGITAL_JOY_BUTTON(3, 2), JOYCODE_4_BUTTON3 },
+	{ DIGITAL_JOY_BUTTON(3, 3), JOYCODE_4_BUTTON4 },
+	{ DIGITAL_JOY_BUTTON(3, 4), JOYCODE_4_BUTTON5 },
+	{ DIGITAL_JOY_BUTTON(3, 5), JOYCODE_4_BUTTON6 }
 };
 
 /*
@@ -276,12 +276,12 @@ static void input_keyboard_update(struct advance_input_context* context)
 		assert( sizeof(last) == sizeof(context->state.key_current) );
 		assert( sizeof(last) == sizeof(context->state.key_old) );
 
-		if (memcmp(last,context->state.key_old,sizeof(last))==0) {
+		if (memcmp(last, context->state.key_old, sizeof(last))==0) {
 			/* if keyboard state is stable, copy it over */
-			memcpy(context->state.key_current,last,sizeof(last));
+			memcpy(context->state.key_current, last, sizeof(last));
 		} else {
 			/* save the new copy */
-			memcpy(context->state.key_old,last,sizeof(last));
+			memcpy(context->state.key_old, last, sizeof(last));
 		}
 
 	} else {
@@ -289,7 +289,7 @@ static void input_keyboard_update(struct advance_input_context* context)
 	}
 }
 
-static __inline__ int input_is_key_pressed(struct advance_input_context* context, int keycode)
+static inline int input_is_key_pressed(struct advance_input_context* context, int keycode)
 {
 	if (keycode >= KEYB_MAX)
 		return 0;
@@ -299,7 +299,7 @@ static __inline__ int input_is_key_pressed(struct advance_input_context* context
 
 static void input_init(struct advance_input_context* context)
 {
-	unsigned i,j,k,w;
+	unsigned i, j, k, w;
 	unsigned mac;
 	char buf[256];
 
@@ -342,11 +342,11 @@ static void input_init(struct advance_input_context* context)
 	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
-				sprintf(buf,"MOUSE%d B%d",i+1,j+1);
-				strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
+				sprintf(buf, "MOUSE%d B%d", i+1, j+1);
+				strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i,j);
+				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i, j);
 				++mac;
 			}
 		}
@@ -354,22 +354,22 @@ static void input_init(struct advance_input_context* context)
 
 	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
 		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<joystickb_stick_axe_count_get(i,j) && k<INPUT_AXE_MAX;++k) {
+			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf,"J%d %s %s -", i+1, joystickb_stick_name_get(i,j), joystickb_stick_axe_name_get(i,j,k));
-					strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
+					sprintf(buf, "J%d %s %s -", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i,j,k,0);
+					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
 					++mac;
 				}
 
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf,"J%d %s %s +", i+1, joystickb_stick_name_get(i,j), joystickb_stick_axe_name_get(i,j,k));
-					strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
+					sprintf(buf, "J%d %s %s +", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i,j,k,1);
+					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 1);
 					++mac;
 				}
 			}
@@ -377,11 +377,11 @@ static void input_init(struct advance_input_context* context)
 
 		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
-				sprintf(buf,"J%d %s",i+1, joystickb_button_name_get(i,j));
-				strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
+				sprintf(buf, "J%d %s", i+1, joystickb_button_name_get(i, j));
+				strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i,j);
+				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i, j);
 				++mac;
 			}
 		}
@@ -405,7 +405,8 @@ static void input_init(struct advance_input_context* context)
 	}
 }
 
-static __inline__ void input_something_pressed(struct advance_input_context* context) {
+static inline void input_something_pressed(struct advance_input_context* context)
+{
 	context->state.input_on_this_frame_flag = 1;
 }
 
@@ -416,7 +417,8 @@ static char* input_map_axe_desc[INPUT_PLAYER_AXE_MAX] = {
 	"x", "y", "z", "pedal"
 };
 
-int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context) {
+int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
+{
 	unsigned i;
 
 	conf_bool_register_default(cfg_context, "input_hotkey", 1);
@@ -428,8 +430,8 @@ int advance_input_init(struct advance_input_context* context, adv_conf* cfg_cont
 		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
 			char tag[32];
 			char def[32];
-			sprintf(tag,"input_map[%d,%s]",i,input_map_axe_desc[j]);
-			sprintf(def,"joystick[%d,0,%d]",i,j);
+			sprintf(tag, "input_map[%d, %s]", i, input_map_axe_desc[j]);
+			sprintf(def, "joystick[%d, 0, %d]", i, j);
 			conf_string_register_default(cfg_context, tag, def);
 		}
 	}
@@ -438,12 +440,12 @@ int advance_input_init(struct advance_input_context* context, adv_conf* cfg_cont
 		char tag[32];
 		char def[32];
 
-		sprintf(tag,"input_map[%d,trakx]",i);
-		sprintf(def,"mouse[%d,0]",i);
+		sprintf(tag, "input_map[%d, trakx]", i);
+		sprintf(def, "mouse[%d, 0]", i);
 		conf_string_register_default(cfg_context, tag, def);
 
-		sprintf(tag,"input_map[%d,traky]",i);
-		sprintf(def,"mouse[%d,1]",i);
+		sprintf(tag, "input_map[%d, traky]", i);
+		sprintf(def, "mouse[%d, 1]", i);
 		conf_string_register_default(cfg_context, tag, def);
 	}
 
@@ -457,7 +459,8 @@ int advance_input_init(struct advance_input_context* context, adv_conf* cfg_cont
 	return 0;
 }
 
-void advance_input_done(struct advance_input_context* context) {
+void advance_input_done(struct advance_input_context* context)
+{
 }
 
 int advance_input_inner_init(struct advance_input_context* context)
@@ -475,11 +478,11 @@ int advance_input_inner_init(struct advance_input_context* context)
 
 	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
 	for(i=0;i<mouseb_count_get();++i) {
-		log_std(("advance:mouse: %d, buttons %d\n",i,mouseb_button_count_get(i)));
+		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
 	}
 	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
 	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n",i,joystickb_button_count_get(i),joystickb_stick_count_get(i),joystickb_stick_axe_count_get(i,0)));
+		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i), joystickb_stick_axe_count_get(i, 0)));
 	}
 
 	input_init(context);
@@ -494,24 +497,26 @@ err:
 	return -1;
 }
 
-void advance_input_inner_done(struct advance_input_context* context) {
+void advance_input_inner_done(struct advance_input_context* context)
+{
 	mouseb_done();
 	joystickb_done();
 }
 
-static void input_mouse_update(struct advance_input_context* context) {
-	unsigned i,j;
+static void input_mouse_update(struct advance_input_context* context)
+{
+	unsigned i, j;
 
 	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
 		int v0, v1;
 
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			context->state.mouse_button_current[i][j] = mouseb_button_get(i,j);
+			context->state.mouse_button_current[i][j] = mouseb_button_get(i, j);
 			if (context->state.mouse_button_current[i][j])
 				input_something_pressed(context);
 		}
 
-		mouseb_pos_get(i,&v0,&v1);
+		mouseb_pos_get(i, &v0, &v1);
 
 		context->state.mouse_analog_current[i][0] = v0;
 		context->state.mouse_analog_current[i][1] = v1;
@@ -521,18 +526,19 @@ static void input_mouse_update(struct advance_input_context* context) {
 	}
 }
 
-static void input_joystick_update(struct advance_input_context* context) {
-	unsigned i,j,k,w;
+static void input_joystick_update(struct advance_input_context* context)
+{
+	unsigned i, j, k, w;
 
 	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
 		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<joystickb_stick_axe_count_get(i,j) && k<INPUT_AXE_MAX;++k) {
-				context->state.joystick_analog_current[i][j][k] = joystickb_stick_axe_analog_get(i,j,k);
+			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
+				context->state.joystick_analog_current[i][j][k] = joystickb_stick_axe_analog_get(i, j, k);
 				if (context->state.joystick_analog_current[i][j][k])
 					input_something_pressed(context);
 
 				for(w=0;w<2 && w<INPUT_DIR_MAX;++w) {
-					context->state.joystick_digital_current[i][j][k][w] = joystickb_stick_axe_digital_get(i,j,k,w);
+					context->state.joystick_digital_current[i][j][k][w] = joystickb_stick_axe_digital_get(i, j, k, w);
 					if (context->state.joystick_digital_current[i][j][k][w])
 						input_something_pressed(context);
 				}
@@ -540,7 +546,7 @@ static void input_joystick_update(struct advance_input_context* context) {
 		}
 
 		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			context->state.joystick_button_current[i][j] = joystickb_button_get(i,j);
+			context->state.joystick_button_current[i][j] = joystickb_button_get(i, j);
 			if (context->state.joystick_button_current[i][j])
 				input_something_pressed(context);
 		}
@@ -576,23 +582,25 @@ void advance_input_update(struct advance_input_context* context, int is_pause)
 	}
 }
 
-static void parse_skip(int* p, const char* s, const char* sep) {
-	while (s[*p] && strchr(sep,s[*p])!=0)
+static void parse_skip(int* p, const char* s, const char* sep)
+{
+	while (s[*p] && strchr(sep, s[*p])!=0)
 		++*p;
 }
 
-static const char* parse_token(char* c, int* p, char* s, const char* sep, const char* ignore) {
+static const char* parse_token(char* c, int* p, char* s, const char* sep, const char* ignore)
+{
 	int v;
 
-	while (s[*p] && strchr(ignore,s[*p])!=0)
+	while (s[*p] && strchr(ignore, s[*p])!=0)
 		++*p;
 
 	v = *p;
 
-	while (s[*p] && strchr(sep,s[*p])==0 && strchr(ignore,s[*p])==0)
+	while (s[*p] && strchr(sep, s[*p])==0 && strchr(ignore, s[*p])==0)
 		++*p;
 
-	while (s[*p] && strchr(ignore,s[*p])!=0)
+	while (s[*p] && strchr(ignore, s[*p])!=0)
 		++*p;
 
 	*c = s[*p];
@@ -604,7 +612,8 @@ static const char* parse_token(char* c, int* p, char* s, const char* sep, const 
 	return s + v;
 }
 
-static int parse_joystick(int* map, char* s) {
+static int parse_joystick(int* map, char* s)
+{
 	unsigned p;
 	unsigned mac;
 	unsigned i;
@@ -616,7 +625,7 @@ static int parse_joystick(int* map, char* s) {
 	/* parse */
 	mac = 0;
 	p = 0;
-	parse_skip(&p,s," \t");
+	parse_skip(&p, s, " \t");
 	while (s[p]) {
 		char c;
 		const char* t;
@@ -625,26 +634,26 @@ static int parse_joystick(int* map, char* s) {
 		const char* v2;
 		int joy, stick, axe, negate;
 
-		t = parse_token(&c,&p,s,"["," \t");
-		if (strcmp(t,"joystick")!=0 && strcmp(t,"-joystick")!=0)
+		t = parse_token(&c, &p, s, "[", " \t");
+		if (strcmp(t, "joystick")!=0 && strcmp(t, "-joystick")!=0)
 			return -1;
 		if (c!='[')
 			return -1;
 
-		if (strcmp(t,"joystick")==0)
+		if (strcmp(t, "joystick")==0)
 			negate = 0;
 		else
 			negate = 1;
 
-		v0 = parse_token(&c,&p,s,","," \t");
+		v0 = parse_token(&c, &p, s, ", ", " \t");
 		if (c!=',')
 			return -1;
 
-		v1 = parse_token(&c,&p,s,","," \t");
+		v1 = parse_token(&c, &p, s, ", ", " \t");
 		if (c!=',')
 			return -1;
 
-		v2 = parse_token(&c,&p,s,"]"," \t");
+		v2 = parse_token(&c, &p, s, "]", " \t");
 		if (c!=']')
 			return -1;
 
@@ -662,16 +671,17 @@ static int parse_joystick(int* map, char* s) {
 		if (mac >= INPUT_MAP_MAX)
 			return -1;
 
-		map[mac] = ANALOG_JOY(joy,stick,axe,negate);
+		map[mac] = ANALOG_JOY(joy, stick, axe, negate);
 		++mac;
 
-		parse_skip(&p,s," \t");
+		parse_skip(&p, s, " \t");
 	}
 
 	return 0;
 }
 
-static int parse_mouse(int* map, char* s) {
+static int parse_mouse(int* map, char* s)
+{
 	unsigned p;
 	unsigned mac;
 	unsigned i;
@@ -683,7 +693,7 @@ static int parse_mouse(int* map, char* s) {
 	/* parse */
 	mac = 0;
 	p = 0;
-	parse_skip(&p,s," \t");
+	parse_skip(&p, s, " \t");
 	while (s[p]) {
 		char c;
 		const char* t;
@@ -691,22 +701,22 @@ static int parse_mouse(int* map, char* s) {
 		const char* v1;
 		int mouse, axe, negate;
 
-		t = parse_token(&c,&p,s,"["," \t");
-		if (strcmp(t,"mouse")!=0 && strcmp(t,"-mouse")!=0)
+		t = parse_token(&c, &p, s, "[", " \t");
+		if (strcmp(t, "mouse")!=0 && strcmp(t, "-mouse")!=0)
 			return -1;
 		if (c!='[')
 			return -1;
 
-		if (strcmp(t,"mouse")==0)
+		if (strcmp(t, "mouse")==0)
 			negate = 0;
 		else
 			negate = 1;
 
-		v0 = parse_token(&c,&p,s,","," \t");
+		v0 = parse_token(&c, &p, s, ", ", " \t");
 		if (c!=',')
 			return -1;
 
-		v1 = parse_token(&c,&p,s,"]"," \t");
+		v1 = parse_token(&c, &p, s, "]", " \t");
 		if (c!=']')
 			return -1;
 
@@ -721,18 +731,19 @@ static int parse_mouse(int* map, char* s) {
 		if (mac >= INPUT_MAP_MAX)
 			return -1;
 
-		map[mac] = ANALOG_MOUSE(mouse,axe,negate);
+		map[mac] = ANALOG_MOUSE(mouse, axe, negate);
 		++mac;
 
-		parse_skip(&p,s," \t");
+		parse_skip(&p, s, " \t");
 	}
 
 	return 0;
 }
 
-int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context) {
+int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
+{
 	const char* s;
-	unsigned i,j,k;
+	unsigned i, j, k;
 
 	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
 	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
@@ -742,19 +753,19 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
 			char tag[32];
 			char* d;
-			sprintf(tag,"input_map[%d,%s]",i,input_map_axe_desc[j]);
+			sprintf(tag, "input_map[%d, %s]", i, input_map_axe_desc[j]);
 
 			s = conf_string_get_default(cfg_context, tag);
 			d = strdup(s);
-			if (parse_joystick(context->config.analog_map[i][j],d)!=0) {
+			if (parse_joystick(context->config.analog_map[i][j], d)!=0) {
 				free(d);
 				printf("Invalid argument '%s' for option '%s'\n", s, tag);
-				printf("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
+				printf("Valid format is [-]joystick[JOYSTICK, STICK, AXE] ...\n");
 				return -1;
 			}
 			free(d);
 
-			log_std(("advance: input analog mapping player:%d axe:%d (%s) : ",i, j, input_map_axe_desc[j]));
+			log_std(("advance: input analog mapping player:%d axe:%d (%s) : ", i, j, input_map_axe_desc[j]));
 			for(k=0;k<INPUT_MAP_MAX;++k) {
 				unsigned v = context->config.analog_map[i][j][k];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
@@ -763,9 +774,9 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 					unsigned a = ANALOG_JOY_AXE_GET(v);
 					int negate = ANALOG_JOY_NEGATE_GET(v);
 					if (negate)
-						log_std((" -joystick[%d,%d,%d]",j,s,a));
+						log_std((" -joystick[%d, %d, %d]", j, s, a));
 					else
-						log_std((" joystick[%d,%d,%d]",j,s,a));
+						log_std((" joystick[%d, %d, %d]", j, s, a));
 				} else {
 					break;
 				}
@@ -778,13 +789,13 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 		char tag[32];
 		char* d;
 
-		sprintf(tag,"input_map[%d,trakx]",i);
+		sprintf(tag, "input_map[%d, trakx]", i);
 		s = conf_string_get_default(cfg_context, tag);
 		d = strdup(s);
 		if (parse_mouse(context->config.trakx_map[i], d)!=0) {
 			free(d);
 			printf("Invalid argument '%s' for option '%s'\n", s, tag);
-			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
+			printf("Valid format is [-]mouse[MOUSE, AXE] ...\n");
 			return -1;
 		}
 		free(d);
@@ -797,22 +808,22 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 				unsigned a = ANALOG_MOUSE_AXE_GET(v);
 				int negate = ANALOG_MOUSE_NEGATE_GET(v);
 				if (negate)
-					log_std((" -mouse[%d,%d]",m,a));
+					log_std((" -mouse[%d, %d]", m, a));
 				else
-					log_std((" mouse[%d,%d]",m,a));
+					log_std((" mouse[%d, %d]", m, a));
 			} else {
 				break;
 			}
 		}
 		log_std(("\n"));
 
-		sprintf(tag,"input_map[%d,traky]",i);
+		sprintf(tag, "input_map[%d, traky]", i);
 		s = conf_string_get_default(cfg_context, tag);
 		d = strdup(s);
 		if (parse_mouse(context->config.traky_map[i], d)!=0) {
 			free(d);
 			printf("Invalid argument '%s' for option '%s'\n", s, tag);
-			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
+			printf("Valid format is [-]mouse[MOUSE, AXE] ...\n");
 			return -1;
 		}
 		free(d);
@@ -825,9 +836,9 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 				unsigned a = ANALOG_MOUSE_AXE_GET(v);
 				int negate = ANALOG_MOUSE_NEGATE_GET(v);
 				if (negate)
-					log_std((" -mouse[%d,%d]",m,a));
+					log_std((" -mouse[%d, %d]", m, a));
 				else
-					log_std((" mouse[%d,%d]",m,a));
+					log_std((" mouse[%d, %d]", m, a));
 			} else {
 				break;
 			}
@@ -850,7 +861,8 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 	return 0;
 }
 
-int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory) {
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory)
+{
 	if (context->state.input_forced_exit_flag)
 		return 2;
 
@@ -883,12 +895,12 @@ int osd_is_key_pressed(int keycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
-	if (input_is_key_pressed(context,keycode)) {
+	if (input_is_key_pressed(context, keycode)) {
 		input_something_pressed(context);
 		return 1;
 	}
 
-	if (hardware_is_input_simulated(SIMULATE_KEY,keycode)) {
+	if (hardware_is_input_simulated(SIMULATE_KEY, keycode)) {
 		return 1;
 	}
 
@@ -942,10 +954,10 @@ int osd_is_joy_pressed(int joycode)
 }
 
 /* return a value in the range -128 .. 128 (yes, 128, not 127) */
-void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
+void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
 {
 	struct advance_input_context* context = &CONTEXT.input;
-	unsigned i,n;
+	unsigned i, n;
 
 	/* the variable analogjoy_input is ignored */
 

@@ -38,16 +38,19 @@
 
 struct joystickb_state_struct joystickb_state;
 
-void joystickb_default(void) {
+void joystickb_default(void)
+{
 	joystickb_state.is_initialized_flag = 1;
 	strcpy(joystickb_state.name, "none");
 }
 
-void joystickb_reg(adv_conf* context, adv_bool auto_detect) {
+void joystickb_reg(adv_conf* context, adv_bool auto_detect)
+{
 	conf_string_register_default(context, "device_joystick", auto_detect ? "auto" : "none");
 }
 
-void joystickb_reg_driver(adv_conf* context, joystickb_driver* driver) {
+void joystickb_reg_driver(adv_conf* context, joystickb_driver* driver)
+{
 	assert( joystickb_state.driver_mac < JOYSTICK_DRIVER_MAX );
 
 	joystickb_state.driver_map[joystickb_state.driver_mac] = driver;
@@ -58,7 +61,8 @@ void joystickb_reg_driver(adv_conf* context, joystickb_driver* driver) {
 	++joystickb_state.driver_mac;
 }
 
-adv_error joystickb_load(adv_conf* context) {
+adv_error joystickb_load(adv_conf* context)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -84,14 +88,15 @@ adv_error joystickb_load(adv_conf* context) {
 	}
 
 	if (!at_least_one) {
-		device_error("device_joystick",joystickb_state.name,(const adv_driver**)joystickb_state.driver_map,joystickb_state.driver_mac);
+		device_error("device_joystick", joystickb_state.name, (const adv_driver**)joystickb_state.driver_map, joystickb_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error joystickb_init(void) {
+adv_error joystickb_init(void)
+{
 	unsigned i;
 
 	assert(joystickb_state.driver_current == 0);
@@ -126,7 +131,8 @@ adv_error joystickb_init(void) {
 	return 0;
 }
 
-void joystickb_done(void) {
+void joystickb_done(void)
+{
 	assert( joystickb_state.driver_current );
 	assert( joystickb_state.is_active_flag );
 
@@ -136,7 +142,8 @@ void joystickb_done(void) {
 	joystickb_state.is_active_flag = 0;
 }
 
-void joystickb_abort(void) {
+void joystickb_abort(void)
+{
 	if (joystickb_state.is_active_flag) {
 		joystickb_done();
 	}

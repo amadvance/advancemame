@@ -412,7 +412,8 @@ static long sis_clock_get(long vclk, int STACK_PTR *Num, int STACK_PTR *Div, int
 	return vclk;
 }
 
-const char* sis_driver(void) {
+const char* sis_driver(void)
+{
 	switch (sis_device) {
 		case SiS6326 : return "Sis6326";
 		case SiS620 : return "Sis620";
@@ -434,37 +435,37 @@ int sis_detect(void)
 	}
 
 	while (1) {
-		if (pci_find_device(0x00001039,0x00000620,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00000620, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS620 found\n"));
 			sis_device = SiS620;
 			break;
 		}
 
-		if (pci_find_device(0x00001039,0x00000530,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00000530, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS530 found\n"));
 			sis_device = SiS530;
 			break;
 		}
 
-		if (pci_find_device(0x00001039,0x00006326,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00006326, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS6326 found\n"));
 			sis_device = SiS6326;
 			break;
 		}
 
-		if (pci_find_device(0x00001039,0x00000300,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00000300, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS300 found\n"));
 			sis_device = SiS300;
 			break;
 		}
 
-		if (pci_find_device(0x00001039,0x00000630,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00000630, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS630 found\n"));
 			sis_device = SiS630;
 			break;
 		}
 
-		if (pci_find_device(0x00001039,0x00000540,0,&SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00000540, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS540 found\n"));
 			sis_device = SiS540;
 			break;
@@ -484,9 +485,9 @@ int sis_detect(void)
 int sis_set(const card_crtc STACK_PTR* _cp, const card_mode STACK_PTR* cm, const card_mode STACK_PTR* co)
 {
 	card_crtc cp = *_cp;
-	int Num,DeN,Div,PS,SeqDiv;
+	int Num, DeN, Div, PS, SeqDiv;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("sis: incompatible mode\n"));
 		return 0;
 	}

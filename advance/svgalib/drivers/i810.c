@@ -102,7 +102,7 @@ static void getmodeinfo(int mode, vga_modeinfo *modeinfo)
 #ifdef USE_GTT
 	if(linear_base)modeinfo->flags |= CAPABLE_LINEAR;
         if (__svgalib_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR;
+	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
 #endif
     }
 }
@@ -715,6 +715,7 @@ static int init(int force, int par1, int par2)
     ioctl(__svgalib_mem_fd, SVGALIB_HELPER_IOCGI810GTTE, &cur_base);
     cur_base &= ~1 ;
     __svgalib_banked_mem_base=linear_base;
+    __svgalib_modeinfo_linearset |= IS_LINEAR;
 #else
     linear_base=0;
     __svgalib_banked_mem_base=0xa0000;

@@ -46,7 +46,8 @@
 
 int yylex(void);
 
-void yyerror(const char* s) {
+void yyerror(const char* s)
+{
 	script_error(s);
 }
 
@@ -146,10 +147,10 @@ static const short yyrline[] = { 0,
 #define YYNSTATES 76
 #define YYMAXUTOK 267
 
-static const char * const yytname[] = {   "$","error","$undefined.","OP_LAND",
-"OP_LOR","'&'","'|'","'^'","'<'","'>'","OP_E","OP_LE","OP_GE","OP_SL","OP_SR",
-"'+'","'-'","'~'","'!'","WAIT","DELAY","VAL","STRING","'('","')'","','","'{'",
-"'}'","';'","script","cmd_list","exp","cmd", NULL
+static const char * const yytname[] = {   "$", "error", "$undefined.", "OP_LAND",
+"OP_LOR", "'&'", "'|'", "'^'", "'<'", "'>'", "OP_E", "OP_LE", "OP_GE", "OP_SL", "OP_SR",
+"'+'", "'-'", "'~'", "'!'", "WAIT", "DELAY", "VAL", "STRING", "'('", "')'", "', '", "'{'",
+"'}'", "';'", "script", "cmd_list", "exp", "cmd", NULL
 };
 static const short yytoknum[] = { 0,
    256,     2,   257,   258,    38,   124,    94,    60,    62,   259,
@@ -187,14 +188,14 @@ static const short yydefgoto[] = {    73,
 };
 
 static const short yypact[] = {   232,
-   247,   247,   -20,   -18,-32768,   -19,   247,   232,   232,    36,
--32768,    -6,-32768,-32768,   247,   247,   239,   232,   112,   199,
+   247,   247,   -20,   -18, -32768,   -19,   247,   232,   232,    36,
+-32768,    -6, -32768, -32768,   247,   247,   239,   232,   112,   199,
 -32768,   247,   247,   247,   247,   247,   247,   247,   247,   247,
-   247,   247,   247,   247,   247,-32768,   239,   134,   156,-32768,
-    66,   210,-32768,-32768,   198,   198,    45,    45,    45,    -4,
-    -4,    -4,    -4,    -4,     4,     4,-32768,-32768,    89,     9,
-    10,    39,   247,-32768,-32768,-32768,-32768,   232,   178,   221,
--32768,-32768,    67,    83,-32768
+   247,   247,   247,   247,   247, -32768,   239,   134,   156, -32768,
+    66,   210, -32768, -32768,   198,   198,    45,    45,    45,    -4,
+    -4,    -4,    -4,    -4,     4,     4, -32768, -32768,    89,     9,
+    10,    39,   247, -32768, -32768, -32768, -32768,   232,   178,   221,
+-32768, -32768,    67,    83, -32768
 };
 
 static const short yypgoto[] = {-32768,
@@ -441,7 +442,7 @@ int yydebug;			/*  nonzero means print parse trace	*/
    of type size_t, but it can handle unsigned int.  */
 
 #if __GNUC__ > 1		/* GNU C and GNU C++ define this.  */
-#define __yy_memcpy(TO,FROM,COUNT)	__builtin_memcpy(TO,FROM,COUNT)
+#define __yy_memcpy(TO, FROM, COUNT)	__builtin_memcpy(TO, FROM, COUNT)
 #else				/* not GNU C or C++ */
 #ifndef __cplusplus
 
@@ -827,13 +828,13 @@ case 3:
     break;}
 case 4:
 {
-		yyval.exp = script_exp_make_op1v(SCRIPT_EXP_VALUE,yyvsp[0].val);
+		yyval.exp = script_exp_make_op1v(SCRIPT_EXP_VALUE, yyvsp[0].val);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 5:
 {
-		yyval.exp = script_exp_make_op1s(SCRIPT_EXP_VARIABLE,yyvsp[0].str);
+		yyval.exp = script_exp_make_op1s(SCRIPT_EXP_VARIABLE, yyvsp[0].str);
 		free((char*)yyvsp[0].str);
 		if (!yyval.exp) YYERROR;
 	;
@@ -845,156 +846,156 @@ case 6:
     break;}
 case 7:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_ADD,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_ADD, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 8:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SUB,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SUB, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 9:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_AND,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_AND, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 10:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_OR,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_OR, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 11:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_XOR,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_XOR, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 12:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_L,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_L, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 13:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_G,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_G, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 14:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_E,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_E, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 15:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LE,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LE, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 16:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_GE,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_GE, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 17:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SL,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SL, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 18:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SR,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_SR, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 19:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LAND,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LAND, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 20:
 {
-		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LOR,yyvsp[-2].exp,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op2ee(SCRIPT_EXP_LOR, yyvsp[-2].exp, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 21:
 {
-		yyval.exp = script_exp_make_op1e(SCRIPT_EXP_LNOT,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op1e(SCRIPT_EXP_LNOT, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 22:
 {
-		yyval.exp = script_exp_make_op1e(SCRIPT_EXP_NOT,yyvsp[0].exp);
+		yyval.exp = script_exp_make_op1e(SCRIPT_EXP_NOT, yyvsp[0].exp);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 23:
 {
-		yyval.exp = script_exp_make_op1f(SCRIPT_EXP_F0,yyvsp[-2].str);
+		yyval.exp = script_exp_make_op1f(SCRIPT_EXP_F0, yyvsp[-2].str);
 		free((char*)yyvsp[-2].str);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 24:
 {
-		yyval.exp = script_exp_make_op2fe(SCRIPT_EXP_F1,yyvsp[-3].str,yyvsp[-1].exp);
+		yyval.exp = script_exp_make_op2fe(SCRIPT_EXP_F1, yyvsp[-3].str, yyvsp[-1].exp);
 		free((char*)yyvsp[-3].str);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 25:
 {
-		yyval.exp = script_exp_make_op3fee(SCRIPT_EXP_F2,yyvsp[-5].str,yyvsp[-3].exp,yyvsp[-1].exp);
+		yyval.exp = script_exp_make_op3fee(SCRIPT_EXP_F2, yyvsp[-5].str, yyvsp[-3].exp, yyvsp[-1].exp);
 		free((char*)yyvsp[-5].str);
 		if (!yyval.exp) YYERROR;
 	;
     break;}
 case 26:
 {
-		yyval.cmd = script_cmd_make_op2sc("inner",yyvsp[-1].cmd);
+		yyval.cmd = script_cmd_make_op2sc("inner", yyvsp[-1].cmd);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
 case 27:
 {
-		yyval.cmd = script_cmd_make_op3sec(yyvsp[-6].str,yyvsp[-4].exp,yyvsp[-1].cmd);
+		yyval.cmd = script_cmd_make_op3sec(yyvsp[-6].str, yyvsp[-4].exp, yyvsp[-1].cmd);
 		free((char*)yyvsp[-6].str);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
 case 28:
 {
-		yyval.cmd = script_cmd_make_op2sc(yyvsp[-3].str,yyvsp[-1].cmd);
+		yyval.cmd = script_cmd_make_op2sc(yyvsp[-3].str, yyvsp[-1].cmd);
 		free((char*)yyvsp[-3].str);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
 case 29:
 {
-		yyval.cmd = script_cmd_make_op2se("wait",yyvsp[-2].exp);
+		yyval.cmd = script_cmd_make_op2se("wait", yyvsp[-2].exp);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
 case 30:
 {
-		yyval.cmd = script_cmd_make_op2se("delay",yyvsp[-2].exp);
+		yyval.cmd = script_cmd_make_op2se("delay", yyvsp[-2].exp);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
 case 31:
 {
-		yyval.cmd = script_cmd_make_op2se("evaluate",yyvsp[-1].exp);
+		yyval.cmd = script_cmd_make_op2se("evaluate", yyvsp[-1].exp);
 		if (!yyval.cmd) YYERROR;
 	;
     break;}
@@ -1225,7 +1226,8 @@ yyerrhandle:
 const char* script_input_begin;
 const char* script_input_end;
 
-int script_input(char* buf, int max_size) {
+int script_input(char* buf, int max_size)
+{
 	(void)max_size;
 	if (script_input_begin == script_input_end) {
 		return 0;
@@ -1235,7 +1237,8 @@ int script_input(char* buf, int max_size) {
 	}
 }
 
-struct script_cmd* script_parse(const char* text) {
+struct script_cmd* script_parse(const char* text)
+{
 	int r;
 	script_input_begin = text;
 	script_input_end = script_input_begin + strlen(script_input_begin);
@@ -1246,11 +1249,11 @@ struct script_cmd* script_parse(const char* text) {
 	if (r!=0) {
 		if (r == STRING) {
 			char buffer[256];
-			sprintf(buffer,"Unexpected token '%s'",yylval.str);
+			sprintf(buffer, "Unexpected token '%s'", yylval.str);
 			yyerror(buffer);
 		} else if (r<255) {
 			char buffer[256];
-			sprintf(buffer,"Unexpected token '%c'",(char)r);
+			sprintf(buffer, "Unexpected token '%c'", (char)r);
 			yyerror(buffer);
 		} else {
 			yyerror("Unexpected token");

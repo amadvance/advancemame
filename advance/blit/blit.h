@@ -264,35 +264,40 @@ void video_pipeline_done(struct video_pipeline_struct* pipeline);
 /**
  * Get the number of the horizontal stage in a blit pipeline.
  */
-static __inline__ unsigned video_pipeline_size(const struct video_pipeline_struct* pipeline) {
+static inline unsigned video_pipeline_size(const struct video_pipeline_struct* pipeline)
+{
 	return pipeline->stage_mac;
 }
 
 /**
  * Get the first horizontal stage of a blit pipeline.
  */
-static __inline__ const struct video_stage_horz_struct* video_pipeline_begin(const struct video_pipeline_struct* pipeline) {
+static inline const struct video_stage_horz_struct* video_pipeline_begin(const struct video_pipeline_struct* pipeline)
+{
 	return pipeline->stage_map;
 }
 
 /**
  * Get the last horizontal stage in a blit pipeline.
  */
-static __inline__ const struct video_stage_horz_struct* video_pipeline_end(const struct video_pipeline_struct* pipeline) {
+static inline const struct video_stage_horz_struct* video_pipeline_end(const struct video_pipeline_struct* pipeline)
+{
 	return pipeline->stage_map + pipeline->stage_mac;
 }
 
 /**
  * Get vertical stage of a blit pipeline.
  */
-static __inline__ const struct video_stage_vert_struct* video_pipeline_vert(const struct video_pipeline_struct* pipeline) {
+static inline const struct video_stage_vert_struct* video_pipeline_vert(const struct video_pipeline_struct* pipeline)
+{
 	return &pipeline->stage_vert;
 }
 
 /**
  * Get the horizontal pivot stage of a blit pipeline.
  */
-static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(const struct video_pipeline_struct* pipeline) {
+static inline const struct video_stage_horz_struct* video_pipeline_pivot(const struct video_pipeline_struct* pipeline)
+{
 	return video_pipeline_vert(pipeline)->stage_pivot;
 }
 
@@ -364,7 +369,8 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_rgb_def Source RGB format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine) {
+static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
+{
 	struct video_pipeline_struct pipeline;
 
 	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_color_def, combine) != 0)
@@ -395,7 +401,8 @@ static __inline__ adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsign
  * \param src_dp Source pixel step expressed in bytes.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine) {
+static inline void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
+{
 	struct video_pipeline_struct pipeline;
 
 	video_stretch_palette_hw_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, combine);
@@ -420,7 +427,8 @@ static __inline__ void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, 
  * \param palette Palette data.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine) {
+static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine)
+{
 	struct video_pipeline_struct pipeline;
 
 	video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette, combine);
@@ -445,7 +453,8 @@ static __inline__ void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, u
  * \param palette Palette data.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine) {
+static inline void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine)
+{
 	struct video_pipeline_struct pipeline;
 
 	video_stretch_palette_16_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette, combine);

@@ -53,82 +53,98 @@ static struct target_context TARGET;
 /***************************************************************************/
 /* Init */
 
-adv_error target_init(void) {
+adv_error target_init(void)
+{
 	memset(&TARGET, 0, sizeof(TARGET));
 	return 0;
 }
 
-void target_done(void) {
+void target_done(void)
+{
 	target_flush();
 }
 
 /***************************************************************************/
 /* Scheduling */
 
-void target_yield(void) {
+void target_yield(void)
+{
 	Sleep(0);
 }
 
-void target_idle(void) {
+void target_idle(void)
+{
 	Sleep(1);
 }
 
-void target_usleep(unsigned us) {
+void target_usleep(unsigned us)
+{
 }
 
 /***************************************************************************/
 /* Hardware */
 
-void target_port_set(unsigned addr, unsigned value) {
+void target_port_set(unsigned addr, unsigned value)
+{
 }
 
-unsigned target_port_get(unsigned addr) {
+unsigned target_port_get(unsigned addr)
+{
 	return 0;
 }
 
-void target_writeb(unsigned addr, unsigned char c) {
+void target_writeb(unsigned addr, unsigned char c)
+{
 }
 
-unsigned char target_readb(unsigned addr) {
+unsigned char target_readb(unsigned addr)
+{
 	return 0;
 }
 
 /***************************************************************************/
 /* Mode */
 
-void target_mode_reset(void) {
+void target_mode_reset(void)
+{
 	/* nothing */
 }
 
 /***************************************************************************/
 /* Sound */
 
-void target_sound_error(void) {
+void target_sound_error(void)
+{
 	/* MessageBeep(MB_ICONASTERISK); */
 }
 
-void target_sound_warn(void) {
+void target_sound_warn(void)
+{
 	/* MessageBeep(MB_ICONQUESTION); */
 }
 
-void target_sound_signal(void) {
+void target_sound_signal(void)
+{
 	/* MessageBeep(MB_OK); */
 }
 
 /***************************************************************************/
 /* APM */
 
-adv_error target_apm_shutdown(void) {
+adv_error target_apm_shutdown(void)
+{
 	/* nothing */
 	return 0;
 }
 
-adv_error target_apm_standby(void) {
+adv_error target_apm_standby(void)
+{
 	/* nothing */
 	return 0;
 }
 
-adv_error target_apm_wakeup(void) {
+adv_error target_apm_wakeup(void)
+{
 	/* nothing */
 	return 0;
 }
@@ -136,14 +152,15 @@ adv_error target_apm_wakeup(void) {
 /***************************************************************************/
 /* System */
 
-static int exec(char* cmdline) {
+static int exec(char* cmdline)
+{
 	DWORD exitcode;
 	PROCESS_INFORMATION process;
 	STARTUPINFO startup;
 
 	log_std(("win: CreateProcess(%s)\n", cmdline));
 
-	memset(&startup,0, sizeof(startup));
+	memset(&startup, 0, sizeof(startup));
 	startup.cb = sizeof(startup);
 	if (!CreateProcess(0, cmdline, 0, 0, FALSE, CREATE_NO_WINDOW, 0, 0, &startup, &process)) {
 		log_std(("win: CreateProcess() failed %d\n", (unsigned)GetLastError()));
@@ -188,7 +205,8 @@ static int exec(char* cmdline) {
 	return exitcode;
 }
 
-adv_error target_system(const char* cmd) {
+adv_error target_system(const char* cmd)
+{
 	char cmdline[4096];
 	char* comspec;
 
@@ -198,22 +216,23 @@ adv_error target_system(const char* cmd) {
 		return -1;
 	}
 
-	strcpy(cmdline,comspec);
-	strcat(cmdline," /C ");
-	strcat(cmdline,cmd);
+	strcpy(cmdline, comspec);
+	strcat(cmdline, " /C ");
+	strcat(cmdline, cmd);
 
 	return exec(cmdline);
 }
 
-adv_error target_spawn(const char* file, const char** argv) {
+adv_error target_spawn(const char* file, const char** argv)
+{
 	char cmdline[4096];
 	unsigned i;
 
 	*cmdline = 0;
 	for(i=0;argv[i];++i) {
 		if (i)
-			strcat(cmdline," ");
-		if (strchr(argv[i],' ') != 0) {
+			strcat(cmdline, " ");
+		if (strchr(argv[i], ' ') != 0) {
 			strcat(cmdline, "\"");
 			strcat(cmdline, argv[i]);
 			strcat(cmdline, "\"");
@@ -225,15 +244,18 @@ adv_error target_spawn(const char* file, const char** argv) {
 	return exec(cmdline);
 }
 
-adv_error target_mkdir(const char* file) {
+adv_error target_mkdir(const char* file)
+{
 	return mkdir(file);
 }
 
-void target_sync(void) {
+void target_sync(void)
+{
 	/* nothing */
 }
 
-adv_error target_search(char* path, unsigned path_size, const char* file) {
+adv_error target_search(char* path, unsigned path_size, const char* file)
+{
 	char* part;
 	DWORD len;
 
@@ -258,46 +280,53 @@ adv_error target_search(char* path, unsigned path_size, const char* file) {
 /***************************************************************************/
 /* Stream */
 
-void target_out_va(const char* text, va_list arg) {
+void target_out_va(const char* text, va_list arg)
+{
 	unsigned len = strlen(TARGET.buffer_out);
 	/* euristic */
 	if (len + strlen(text) < BUFFER_SIZE * 2 / 3)
 		vsprintf(TARGET.buffer_out + len, text, arg);
 }
 
-void target_err_va(const char *text, va_list arg) {
+void target_err_va(const char *text, va_list arg)
+{
 	unsigned len = strlen(TARGET.buffer_err);
 	/* euristic */
 	if (len + strlen(text) < BUFFER_SIZE * 2 / 3)
 		vsprintf(TARGET.buffer_err + len, text, arg);
 }
 
-void target_nfo_va(const char *text, va_list arg) {
+void target_nfo_va(const char *text, va_list arg)
+{
 	/* nothing */
 }
 
-void target_out(const char *text, ...) {
+void target_out(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_out_va(text, arg);
 	va_end(arg);
 }
 
-void target_err(const char *text, ...) {
+void target_err(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_err_va(text, arg);
 	va_end(arg);
 }
 
-void target_nfo(const char *text, ...) {
+void target_nfo(const char *text, ...)
+{
 	va_list arg;
 	va_start(arg, text);
 	target_nfo_va(text, arg);
 	va_end(arg);
 }
 
-void target_flush(void) {
+void target_flush(void)
+{
 	MSG msg;
 
 	/* flush the message queue, otherwise the MessageBox may be not displayed */
@@ -319,31 +348,35 @@ void target_flush(void) {
 	}
 }
 
-static void target_backtrace(void) {
+static void target_backtrace(void)
+{
 }
 
-void target_signal(int signum) {
+void target_signal(int signum)
+{
 	if (signum == SIGINT) {
-		fprintf(stderr,"Break pressed\n\r");
+		fprintf(stderr, "Break pressed\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr,"Signal %d.\n",signum);
-		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
+		fprintf(stderr, "Signal %d.\n", signum);
+		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
 
 		if (signum == SIGILL) {
-			fprintf(stderr,"Are you using the correct binary ?\n");
+			fprintf(stderr, "Are you using the correct binary ?\n");
 		}
 
 		_exit(EXIT_FAILURE);
 	}
 }
 
-void target_crash(void) {
+void target_crash(void)
+{
 	unsigned* i = (unsigned*)0;
 	++*i;
 	abort();
 }
 
-adv_bool target_option(const char* arg, const char* opt) {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+adv_bool target_option(const char* arg, const char* opt)
+{
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
 }

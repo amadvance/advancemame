@@ -42,14 +42,16 @@
 
 #include <wchar.h>
 
-static inline wchar_t towlower(wchar_t c) {
+static inline wchar_t towlower(wchar_t c)
+{
 	if (c >= 'A' && c <= 'Z')
 		return c - 'A' + 'a';
 	else
 		return c;
 }
 
-static inline wchar_t towupper(wchar_t c) {
+static inline wchar_t towupper(wchar_t c)
+{
 	if (c >= 'a' && c <= 'z')
 		return c - 'a' + 'A';
 	else
@@ -59,23 +61,26 @@ static inline wchar_t towupper(wchar_t c) {
 
 #ifndef __WIN32__
 #define strcmpi strcmpi /* For some #ifdef */
-static inline int strcmpi(const char* a, const char* b) {
-	return strcasecmp(a,b);
+static inline int strcmpi(const char* a, const char* b)
+{
+	return strcasecmp(a, b);
 }
 #endif
 
 #ifndef __WIN32__
 #define strncmpi strncmpi /* For some #ifdef */
-static inline int strncmpi(const char* a, const char* b, size_t count) {
-	return strncasecmp(a,b,count);
+static inline int strncmpi(const char* a, const char* b, size_t count)
+{
+	return strncasecmp(a, b, count);
 }
 #endif
 
-static inline void osd_mkdir(const char* dir) {
+static inline void osd_mkdir(const char* dir)
+{
 #ifdef __WIN32__
 	mkdir(dir);
 #else
-	mkdir(dir,S_IRWXU | S_IRGRP | S_IROTH);
+	mkdir(dir, S_IRWXU | S_IRGRP | S_IROTH);
 #endif
 }
 

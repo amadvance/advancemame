@@ -38,7 +38,7 @@ static adv_device DEVICE[] = {
 
 adv_error inputb_none_init(int inputb_id)
 {
-	log_std(("inputb:none: inputb_none_init(id:%d)\n",inputb_id));
+	log_std(("inputb:none: inputb_none_init(id:%d)\n", inputb_id));
 
 	return 0;
 }

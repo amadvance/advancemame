@@ -36,11 +36,13 @@
 #include <math.h>
 #include <string.h>
 
-const char* mode_current_name(const struct advance_video_context* context) {
+const char* mode_current_name(const struct advance_video_context* context)
+{
 	return crtc_name_get(context->state.crtc_selected);
 }
 
-int mode_current_magnify(const struct advance_video_context* context) {
+int mode_current_magnify(const struct advance_video_context* context)
+{
 	if (context->state.game_visible_size_x * 2 <= context->state.mode_visible_size_x
 		&& context->state.game_visible_size_y * 2 <= context->state.mode_visible_size_y)
 		return 1;
@@ -49,7 +51,8 @@ int mode_current_magnify(const struct advance_video_context* context) {
 }
 
 /* Return the stretch used by the video configuration */
-int mode_current_stretch(const struct advance_video_context* context) {
+int mode_current_stretch(const struct advance_video_context* context)
+{
 	if (context->state.mode_visible_size_x == context->state.game_visible_size_x
 		&& context->state.mode_visible_size_y == context->state.game_visible_size_y)
 		return STRETCH_NONE;
@@ -62,7 +65,8 @@ int mode_current_stretch(const struct advance_video_context* context) {
 }
 
 /* Return the description of a video configuration */
-const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc) {
+const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc)
+{
 	static char buffer[128];
 	double factor_x = (double)crtc_hsize_get(crtc) / context->state.mode_best_size_x;
 	double factor_y = (double)crtc_vsize_get(crtc) / context->state.mode_best_size_y;
@@ -73,12 +77,13 @@ const char* mode_desc(struct advance_video_context* context, const adv_crtc* crt
 		c = 'i';
 	else
 		c = 's';
-	sprintf(buffer,"%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
+	sprintf(buffer, "%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
 	return buffer;
 }
 
 /* Compute the MCD of two number (Euclide) */
-static unsigned long long aspect_MCD(unsigned long long m, unsigned long long n) {
+static unsigned long long aspect_MCD(unsigned long long m, unsigned long long n)
+{
 	while (n) {
 		unsigned long long r = m % n;
 		m = n;
@@ -88,8 +93,9 @@ static unsigned long long aspect_MCD(unsigned long long m, unsigned long long n)
 }
 
 /* Reduce a fraction */
-void video_aspect_reduce(unsigned long long* a, unsigned long long* b) {
-	unsigned long long r = aspect_MCD(*a,*b);
+void video_aspect_reduce(unsigned long long* a, unsigned long long* b)
+{
+	unsigned long long r = aspect_MCD(*a, *b);
 	*a /= r;
 	*b /= r;
 }
@@ -99,7 +105,8 @@ void video_aspect_reduce(unsigned long long* a, unsigned long long* b) {
 
 /* Less is better */
 
-static int score_compare_scanline(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
+static int score_compare_scanline(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
+{
 	int as;
 	int bs;
 
@@ -139,7 +146,8 @@ static int score_compare_scanline(const struct advance_video_context* context, c
 	return 0;
 }
 
-static int score_compare_size(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
+static int score_compare_size(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
+{
 	int r;
 	unsigned best_size_x;
 	unsigned best_size_y;
@@ -175,7 +183,8 @@ static int score_compare_size(const struct advance_video_context* context, const
 }
 
 /* Scale the rate removing any integer factor */
-double video_rate_scale_down(double rate, double reference) {
+double video_rate_scale_down(double rate, double reference)
+{
 	double divisor = 1;
 	while (rate / divisor >= 1.41 * reference) /* sqrt(2) */
 		divisor = divisor + 1;
@@ -185,7 +194,8 @@ double video_rate_scale_down(double rate, double reference) {
 /**
  * Compare the clock of a video configuration.
  */
-static int score_compare_frequency(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
+static int score_compare_frequency(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
+{
 	double freq_a;
 	double freq_b;
 	double err_a;
@@ -212,7 +222,8 @@ static int score_compare_frequency(const struct advance_video_context* context, 
 /**
  * Compare two video configuration.
  */
-static int score_compare_crtc(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
+static int score_compare_crtc(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b)
+{
 	int r;
 
 	r = score_compare_size(context, a, b);
@@ -228,7 +239,7 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 		if (r) return r;
 	}
 
-	if (strcmp(crtc_name_get(a),crtc_name_get(b))!=0)
+	if (strcmp(crtc_name_get(a), crtc_name_get(b))!=0)
 		log_std(("video config compare indecision for %s, %s\n", crtc_name_get(a), crtc_name_get(b)));
 
 	return 0;
@@ -237,13 +248,15 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 /* Context variable needed by qsort */
 static const struct advance_video_context* the_context;
 
-static int void_score_compare_crtc(const void* a, const void* b) {
+static int void_score_compare_crtc(const void* a, const void* b)
+{
 	return score_compare_crtc(the_context, *(const adv_crtc**)a, *(const adv_crtc**)b);
 }
 
-void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac) {
+void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac)
+{
 	the_context = context;
-	qsort(map,mac,sizeof(map[0]),void_score_compare_crtc);
+	qsort(map, mac, sizeof(map[0]), void_score_compare_crtc);
 }
 
 

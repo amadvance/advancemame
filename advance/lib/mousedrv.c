@@ -38,16 +38,19 @@
 
 struct mouseb_state_struct mouseb_state;
 
-void mouseb_default(void) {
+void mouseb_default(void)
+{
 	mouseb_state.is_initialized_flag = 1;
 	strcpy(mouseb_state.name, "none");
 }
 
-void mouseb_reg(adv_conf* context, adv_bool auto_detect) {
+void mouseb_reg(adv_conf* context, adv_bool auto_detect)
+{
 	conf_string_register_default(context, "device_mouse", auto_detect ? "auto" : "none");
 }
 
-void mouseb_reg_driver(adv_conf* context, mouseb_driver* driver) {
+void mouseb_reg_driver(adv_conf* context, mouseb_driver* driver)
+{
 	assert( mouseb_state.driver_mac < MOUSE_DRIVER_MAX );
 
 	mouseb_state.driver_map[mouseb_state.driver_mac] = driver;
@@ -58,7 +61,8 @@ void mouseb_reg_driver(adv_conf* context, mouseb_driver* driver) {
 	++mouseb_state.driver_mac;
 }
 
-adv_error mouseb_load(adv_conf* context) {
+adv_error mouseb_load(adv_conf* context)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -84,14 +88,15 @@ adv_error mouseb_load(adv_conf* context) {
 	}
 
 	if (!at_least_one) {
-		device_error("device_mouse",mouseb_state.name,(const adv_driver**)mouseb_state.driver_map,mouseb_state.driver_mac);
+		device_error("device_mouse", mouseb_state.name, (const adv_driver**)mouseb_state.driver_map, mouseb_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error mouseb_init(void) {
+adv_error mouseb_init(void)
+{
 	unsigned i;
 
 	assert(mouseb_state.driver_current == 0);
@@ -126,7 +131,8 @@ adv_error mouseb_init(void) {
 	return 0;
 }
 
-void mouseb_done(void) {
+void mouseb_done(void)
+{
 	assert( mouseb_state.driver_current );
 	assert( mouseb_state.is_active_flag );
 
@@ -136,7 +142,8 @@ void mouseb_done(void) {
 	mouseb_state.is_active_flag = 0;
 }
 
-void mouseb_abort(void) {
+void mouseb_abort(void)
+{
 	if (mouseb_state.is_active_flag) {
 		mouseb_done();
 	}

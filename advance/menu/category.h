@@ -52,14 +52,16 @@ public:
 
 	bool undefined_get() const { return undefined; }
 
-	bool operator<(const category& A) const { return case_less(name,A.name); }
+	bool operator<(const category& A) const { return case_less(name, A.name); }
 };
 
-inline bool pgame_by_group_less(const game* A, const game* B) {
+inline bool pgame_by_group_less(const game* A, const game* B)
+{
 	return *A->group_derived_get() < *B->group_derived_get();
 }
 
-inline bool pgame_by_type_less(const game* A, const game* B) {
+inline bool pgame_by_type_less(const game* A, const game* B)
+{
 	return *A->type_derived_get() < *B->type_derived_get();
 }
 
@@ -68,13 +70,13 @@ inline bool pgame_by_type_less(const game* A, const game* B) {
 
 typedef std::set<std::string> category_container;
 
-struct pcategory_less : std::binary_function<const category*,const category*,bool> {
+struct pcategory_less : std::binary_function<const category*, const category*, bool> {
 	bool operator()(const category* A, const category* B) const {
 		return *A < *B;
 	}
 };
 
-typedef std::set<category*,pcategory_less> pcategory_container_base;
+typedef std::set<category*, pcategory_less> pcategory_container_base;
 
 class pcategory_container : public pcategory_container_base {
 	const category* undefined;

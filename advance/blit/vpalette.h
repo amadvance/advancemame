@@ -36,7 +36,8 @@
 /****************************************************************************/
 /* palette8to8 */
 
-static void video_line_palette8to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to8_step1(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
@@ -50,7 +51,8 @@ static void video_line_palette8to8_step1(const struct video_stage_horz_struct* s
 	}
 }
 
-static void video_line_palette8to8(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to8(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
 	unsigned* palette = stage->palette;
@@ -65,40 +67,42 @@ static void video_line_palette8to8(const struct video_stage_horz_struct* stage, 
 	}
 }
 
-static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette8to8,sdx,sdp,1,sdx,1);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,video_line_palette8to8_step1,video_line_palette8to8);
+static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette8to8, sdx, sdp, 1, sdx, 1);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, video_line_palette8to8_step1, video_line_palette8to8);
 }
 
 /****************************************************************************/
 /* palette8to16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzbl (%0),%%eax\n"
-		"movzbl 1(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl 1(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
 		"punpcklwd %%mm1, %%mm0\n"
-		"movzbl 2(%0),%%eax\n"
-		"movzbl 3(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm2\n"
-		"movd (%3,%%edx,4),%%mm3\n"
+		"movzbl 2(%0), %%eax\n"
+		"movzbl 3(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm2\n"
+		"movd (%3, %%edx, 4), %%mm3\n"
 		"punpcklwd %%mm3, %%mm2\n"
 		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -109,7 +113,8 @@ static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_stru
 }
 #endif
 
-static void video_line_palette8to16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to16_step1_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2;
 	unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
@@ -123,7 +128,8 @@ static void video_line_palette8to16_step1_def(const struct video_stage_horz_stru
 	}
 }
 
-static void video_line_palette8to16(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to16(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
@@ -139,16 +145,18 @@ static void video_line_palette8to16(const struct video_stage_horz_struct* stage,
 	}
 }
 
-static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette8to16,sdx,sdp,1,sdx,2);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,BLITTER(video_line_palette8to16_step1),video_line_palette8to16);
+static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette8to16, sdx, sdp, 1, sdx, 2);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, BLITTER(video_line_palette8to16_step1), video_line_palette8to16);
 }
 
 /****************************************************************************/
 /* palette8to32 */
 
-static void video_line_palette8to32_step4(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to32_step4(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	unsigned* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
@@ -162,7 +170,8 @@ static void video_line_palette8to32_step4(const struct video_stage_horz_struct* 
 	}
 }
 
-static void video_line_palette8to32(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette8to32(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
 	unsigned* palette = stage->palette;
@@ -177,54 +186,56 @@ static void video_line_palette8to32(const struct video_stage_horz_struct* stage,
 	}
 }
 
-static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette8to32,sdx,sdp,1,sdx,4);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,video_line_palette8to32_step4,video_line_palette8to32);
+static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette8to32, sdx, sdp, 1, sdx, 4);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, video_line_palette8to32_step4, video_line_palette8to32);
 }
 
 /****************************************************************************/
 /* palette16to8 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl 2(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl 2(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
 		"punpcklbw %%mm1, %%mm0\n"
-		"movzwl 4(%0),%%eax\n"
-		"movzwl 6(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm2\n"
-		"movd (%3,%%edx,4),%%mm3\n"
+		"movzwl 4(%0), %%eax\n"
+		"movzwl 6(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm2\n"
+		"movd (%3, %%edx, 4), %%mm3\n"
 		"punpcklbw %%mm3, %%mm2\n"
 		"punpcklwd %%mm2, %%mm0\n"
 
-		"movzwl 8(%0),%%eax\n"
-		"movzwl 10(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm4\n"
-		"movd (%3,%%edx,4),%%mm5\n"
+		"movzwl 8(%0), %%eax\n"
+		"movzwl 10(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm4\n"
+		"movd (%3, %%edx, 4), %%mm5\n"
 		"punpcklbw %%mm5, %%mm4\n"
-		"movzwl 12(%0),%%eax\n"
-		"movzwl 14(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm6\n"
-		"movd (%3,%%edx,4),%%mm7\n"
+		"movzwl 12(%0), %%eax\n"
+		"movzwl 14(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm6\n"
+		"movd (%3, %%edx, 4), %%mm7\n"
 		"punpcklbw %%mm7, %%mm6\n"
 		"punpcklwd %%mm6, %%mm4\n"
 
 		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $16,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -236,7 +247,8 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 }
 #endif
 
-static void video_line_palette16to8_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to8_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4;
 	unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
@@ -254,51 +266,52 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $3,%2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
+		"addl %4, %0\n"
 		"punpcklbw %%mm1, %%mm0\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm2\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm3\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm2\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm3\n"
+		"addl %4, %0\n"
 		"punpcklbw %%mm3, %%mm2\n"
 		"punpcklwd %%mm2, %%mm0\n"
 
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm4\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm5\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm4\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm5\n"
+		"addl %4, %0\n"
 		"punpcklbw %%mm5, %%mm4\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm6\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm7\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm6\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm7\n"
+		"addl %4, %0\n"
 		"punpcklbw %%mm7, %%mm6\n"
 		"punpcklwd %%mm6, %%mm4\n"
 
 		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -310,7 +323,8 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 }
 #endif
 
-static void video_line_palette16to8_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to8_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 4;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
@@ -322,48 +336,50 @@ static void video_line_palette16to8_def(const struct video_stage_horz_struct* st
 	while (inner_count) {
 		/* ENDIAN */
 		*dst32++ = palette[P16DER0(src)]
-			| palette[P16DER(src,line_index1)] << 8
-			| palette[P16DER(src,line_index2)] << 16
-			| palette[P16DER(src,line_index3)] << 24;
-		PADD(src,line_index4);
+			| palette[P16DER(src, line_index1)] << 8
+			| palette[P16DER(src, line_index2)] << 16
+			| palette[P16DER(src, line_index3)] << 24;
+		PADD(src, line_index4);
 		--inner_count;
 	}
 }
 
-static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette16to8,sdx,sdp,2,sdx,1);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,BLITTER(video_line_palette16to8_step2),BLITTER(video_line_palette16to8));
+static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette16to8, sdx, sdp, 2, sdx, 1);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, BLITTER(video_line_palette16to8_step2), BLITTER(video_line_palette16to8));
 }
 
 /****************************************************************************/
 /* palette16to16 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl 2(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl 2(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
 		"punpcklwd %%mm1, %%mm0\n"
-		"movzwl 4(%0),%%eax\n"
-		"movzwl 6(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm2\n"
-		"movd (%3,%%edx,4),%%mm3\n"
+		"movzwl 4(%0), %%eax\n"
+		"movzwl 6(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm2\n"
+		"movd (%3, %%edx, 4), %%mm3\n"
 		"punpcklwd %%mm3, %%mm2\n"
 		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -374,7 +390,8 @@ static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_palette16to16_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to16_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2;
 	unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
@@ -389,33 +406,34 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $2,%2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
+		"addl %4, %0\n"
 		"punpcklwd %%mm1, %%mm0\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm2\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm3\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm2\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm3\n"
+		"addl %4, %0\n"
 		"punpcklwd %%mm3, %%mm2\n"
 		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -426,7 +444,8 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 }
 #endif
 
-static void video_line_palette16to16_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to16_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count / 2;
 	int line_index1 = stage->sdp;
 	int line_index2 = line_index1 + line_index1;
@@ -435,40 +454,42 @@ static void video_line_palette16to16_def(const struct video_stage_horz_struct* s
 
 	while (inner_count) {
 		/* ENDIAN */
-		*dst32++ = palette[P16DER0(src)] | palette[P16DER(src,line_index1)] << 16;
-		PADD(src,line_index2);
+		*dst32++ = palette[P16DER0(src)] | palette[P16DER(src, line_index1)] << 16;
+		PADD(src, line_index2);
 		--inner_count;
 	}
 }
 
-static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette16to16,sdx,sdp,2,sdx,2);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,BLITTER(video_line_palette16to16_step2),BLITTER(video_line_palette16to16));
+static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette16to16, sdx, sdp, 2, sdx, 2);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, BLITTER(video_line_palette16to16_step2), BLITTER(video_line_palette16to16));
 }
 
 /****************************************************************************/
 /* palette16to32 */
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl 2(%0),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl 2(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
 		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $4,%0\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $4, %0\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -479,7 +500,8 @@ static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_palette16to32_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to32_step2_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	unsigned* palette = stage->palette;
 	uint16* src16 = (uint16*)src;
@@ -494,25 +516,26 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 }
 
 #if defined(USE_ASM_i586)
-static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned count = stage->slice.count;
 
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
-		"shrl $1,%2\n"
+		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movzwl (%0),%%eax\n"
-		"movzwl (%0,%4),%%edx\n"
-		"movd (%3,%%eax,4),%%mm0\n"
-		"addl %4,%0\n"
-		"movd (%3,%%edx,4),%%mm1\n"
-		"addl %4,%0\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%mm0\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%mm1\n"
+		"addl %4, %0\n"
 		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0,(%1)\n"
-		"addl $8,%1\n"
+		"movq %%mm0, (%1)\n"
+		"addl $8, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -523,7 +546,8 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 }
 #endif
 
-static void video_line_palette16to32_def(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+static void video_line_palette16to32_def(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
 	unsigned inner_count = stage->slice.count;
 	int line_index1 = stage->sdp;
 	unsigned* palette = stage->palette;
@@ -532,15 +556,16 @@ static void video_line_palette16to32_def(const struct video_stage_horz_struct* s
 	while (inner_count) {
 		/* ENDIAN */
 		*dst32++ = palette[P16DER0(src)];
-		PADD(src,line_index1);
+		PADD(src, line_index1);
 		--inner_count;
 	}
 }
 
-static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_SIZE(stage,pipe_palette16to32,sdx,sdp,2,sdx,4);
-	STAGE_PALETTE(stage,palette);
-	STAGE_PUT(stage,BLITTER(video_line_palette16to32_step2),BLITTER(video_line_palette16to32));
+static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette)
+{
+	STAGE_SIZE(stage, pipe_palette16to32, sdx, sdp, 2, sdx, 4);
+	STAGE_PALETTE(stage, palette);
+	STAGE_PUT(stage, BLITTER(video_line_palette16to32_step2), BLITTER(video_line_palette16to32));
 }
 
 #endif

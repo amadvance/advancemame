@@ -34,7 +34,8 @@ resource::resource(const resource& A) :
 	path(A.path), offset(A.offset), size_compressed(A.size_compressed), size_uncompressed(A.size_uncompressed), compressed(A.compressed), collection(A.collection) {
 }
 
-resource::resource() {
+resource::resource()
+{
 	offset = 0;
 	size_uncompressed = 0;
 	size_compressed = 0;
@@ -42,7 +43,8 @@ resource::resource() {
 	collection = false;
 }
 
-resource::resource(const string& Apath) {
+resource::resource(const string& Apath)
+{
 	path = Apath;
 	offset = 0;
 	size_uncompressed = 0;
@@ -51,7 +53,8 @@ resource::resource(const string& Apath) {
 	collection = false;
 }
 
-resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize, bool Acollection) {
+resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize, bool Acollection)
+{
 	path = Apath;
 	offset = Aoffset;
 	size_uncompressed = Asize;
@@ -60,7 +63,8 @@ resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize, bool A
 	collection = Acollection;
 }
 
-resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool Acollection) {
+resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool Acollection)
+{
 	path = Apath;
 	offset = Aoffset;
 	size_uncompressed = Asize_uncompressed;
@@ -69,7 +73,8 @@ resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize_compres
 	collection = Acollection;
 }
 
-resource& resource::operator=(const resource& A) {
+resource& resource::operator=(const resource& A)
+{
 	path = A.path;
 	offset = A.offset;
 	size_compressed = A.size_compressed;
@@ -100,7 +105,7 @@ string resource::archive_get() const {
 bool resource::is_present() const {
 	if (!is_valid())
 		return false;
-	if (access(cpath_export(archive_get()),F_OK | R_OK)!=0)
+	if (access(cpath_export(archive_get()), F_OK | R_OK)!=0)
 		return false;
 	return true;
 }
@@ -113,10 +118,10 @@ adv_fz* resource::open() const {
 	if (!is_valid())
 		return 0;
 	if (compressed) {
-		return fzopenzipcompressed(cpath_export(archive_get()),offset,size_compressed,size_uncompressed);
+		return fzopenzipcompressed(cpath_export(archive_get()), offset, size_compressed, size_uncompressed);
 	} else {
 		if (is_collection())
-			return fzopenzipuncompressed(cpath_export(archive_get()),offset,size_uncompressed);
+			return fzopenzipuncompressed(cpath_export(archive_get()), offset, size_uncompressed);
 		else
 			return fzopen(cpath_export(archive_get()), "rb");
 	}

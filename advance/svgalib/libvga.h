@@ -118,13 +118,13 @@ struct info {
 extern int __svgalib_CRT_I;		/* current CRT index register address */
 extern int __svgalib_CRT_D;		/* current CRT data register address */
 extern int __svgalib_IS1_R;		/* current input status register address */
-extern unsigned char * BANKED_POINTER, * LINEAR_POINTER;
-extern unsigned char * MMIO_POINTER;
-extern unsigned char * SPARSE_MMIO;
-extern unsigned long int __svgalib_banked_mem_base, __svgalib_banked_mem_size;
-extern unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
-extern unsigned long int __svgalib_linear_mem_base, __svgalib_linear_mem_size;
-extern unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
+extern uint8_t * BANKED_POINTER, * LINEAR_POINTER;
+extern uint8_t *MMIO_POINTER;
+extern uint8_t *SPARSE_MMIO;
+extern unsigned long __svgalib_banked_mem_base, __svgalib_banked_mem_size;
+extern unsigned long __svgalib_mmio_base, __svgalib_mmio_size;
+extern unsigned long __svgalib_linear_mem_base, __svgalib_linear_mem_size;
+extern unsigned long __svgalib_mmio_base, __svgalib_mmio_size;
 extern struct info CI;		/* current video parameters */
 extern int COL;			/* current color            */
 extern int CM;			/* current video mode       */
@@ -183,7 +183,6 @@ extern void __svgalib_delay(void);
 extern int __svgalib_addmode(int xdim, int ydim, int cols, int xbytes, int bytespp);
 extern void __svgalib_waitvtactive(void);
 extern void __svgalib_open_devconsole(void);
-extern void __svgalib_flipaway(void);
 extern void (*__svgalib_mouse_eventhandler) (int, int, int, int, int, int, int);
 extern void (*__svgalib_keyboard_eventhandler) (int, int);
 extern void __joystick_flip_vc(int acquire);
@@ -208,12 +207,12 @@ extern void __svgalib_releasevt_signal(int n);
 extern void __svgalib_acquirevt_signal(int n);
 #endif
 
-#define gr_readb(off)		(((volatile unsigned char *)GM)[(off)])
-#define gr_readw(off)		(*(volatile unsigned short*)((GM)+(off)))
-#define gr_readl(off)		(*(volatile unsigned long*)((GM)+(off)))
+#define gr_readb(off)		(((volatile uint8_t *)GM)[(off)])
+#define gr_readw(off)		(*(volatile uint16_t*)((GM)+(off)))
+#define gr_readl(off)		(*(volatile uint32_t*)((GM)+(off)))
 #define gr_writeb(v,off)	(GM[(off)] = (v))
-#define gr_writew(v,off)	(*(unsigned short*)((GM)+(off)) = (v))
-#define gr_writel(v,off)	(*(unsigned long*)((GM)+(off)) = (v))
+#define gr_writew(v,off)	(*(uint16_t*)((GM)+(off)) = (v))
+#define gr_writel(v,off)	(*(uint32_t*)((GM)+(off)) = (v))
 
 extern void port_out(int value, int port);
 extern void port_outw(int value, int port);
@@ -268,6 +267,11 @@ extern unsigned char *__svgalib_give_graph_blue(void);
 #define DTP(x)
 #endif
 
+#ifdef DEBUG
+#define DPRINTF(args...) fprintf(stderr, args)
+#else
+#define DPRINTF(...)
+#endif
 
 #endif /* _LIBVGA_H */
 

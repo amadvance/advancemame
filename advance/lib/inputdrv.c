@@ -38,16 +38,19 @@
 
 struct inputb_state_struct inputb_state;
 
-void inputb_default(void) {
+void inputb_default(void)
+{
 	inputb_state.is_initialized_flag = 1;
 	strcpy(inputb_state.name, "none");
 }
 
-void inputb_reg(adv_conf* context, adv_bool auto_detect) {
+void inputb_reg(adv_conf* context, adv_bool auto_detect)
+{
 	conf_string_register_default(context, "device_input", auto_detect ? "auto" : "none");
 }
 
-void inputb_reg_driver(adv_conf* context, inputb_driver* driver) {
+void inputb_reg_driver(adv_conf* context, inputb_driver* driver)
+{
 	assert( inputb_state.driver_mac < INPUT_DRIVER_MAX );
 
 	inputb_state.driver_map[inputb_state.driver_mac] = driver;
@@ -58,7 +61,8 @@ void inputb_reg_driver(adv_conf* context, inputb_driver* driver) {
 	++inputb_state.driver_mac;
 }
 
-adv_error inputb_load(adv_conf* context) {
+adv_error inputb_load(adv_conf* context)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -84,14 +88,15 @@ adv_error inputb_load(adv_conf* context) {
 	}
 
 	if (!at_least_one) {
-		device_error("device_input",inputb_state.name,(const adv_driver**)inputb_state.driver_map,inputb_state.driver_mac);
+		device_error("device_input", inputb_state.name, (const adv_driver**)inputb_state.driver_map, inputb_state.driver_mac);
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error inputb_init(void) {
+adv_error inputb_init(void)
+{
 	unsigned i;
 
 	assert(inputb_state.driver_current == 0);
@@ -126,7 +131,8 @@ adv_error inputb_init(void) {
 	return 0;
 }
 
-void inputb_done(void) {
+void inputb_done(void)
+{
 	assert( inputb_state.driver_current );
 	assert( inputb_state.is_active_flag );
 
@@ -136,7 +142,8 @@ void inputb_done(void) {
 	inputb_state.is_active_flag = 0;
 }
 
-void inputb_abort(void) {
+void inputb_abort(void)
+{
 	if (inputb_state.is_active_flag) {
 		inputb_done();
 	}

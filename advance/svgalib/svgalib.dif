@@ -1,6 +1,6 @@
 diff -u -b ../../../svgalib/driver.h ./driver.h
---- ../../../svgalib/driver.h	2002-07-06 18:54:20.000000000 +0200
-+++ ./driver.h	2002-10-29 23:31:22.000000000 +0100
+--- ../../../svgalib/driver.h	2002-12-13 20:21:08.000000000 +0100
++++ ./driver.h	2002-12-13 20:23:25.000000000 +0100
 @@ -12,8 +12,8 @@
  
  #include <stdio.h>
@@ -12,8 +12,8 @@ diff -u -b ../../../svgalib/driver.h ./driver.h
  #include "accel.h"
  #include "io.h"
 diff -u -b ../../../svgalib/endianes.h ./endianes.h
---- ../../../svgalib/endianes.h	2001-05-29 12:00:22.000000000 +0200
-+++ ./endianes.h	2002-11-12 20:34:44.000000000 +0100
+--- ../../../svgalib/endianes.h	2002-12-13 20:21:08.000000000 +0100
++++ ./endianes.h	2002-12-13 20:23:25.000000000 +0100
 @@ -1,14 +1,12 @@
 -#include <endian.h>
 -#include <byteswap.h>
@@ -38,16 +38,16 @@ diff -u -b ../../../svgalib/endianes.h ./endianes.h
  
  #endif
 diff -u -b ../../../svgalib/io.h ./io.h
---- ../../../svgalib/io.h	2002-07-06 21:24:58.000000000 +0200
-+++ ./io.h	2002-08-19 23:16:52.000000000 +0200
+--- ../../../svgalib/io.h	2002-12-13 20:21:08.000000000 +0100
++++ ./io.h	2002-12-13 20:23:25.000000000 +0100
 @@ -1,4 +1,3 @@
 -#include <stdint.h>
  
  #ifndef __alpha__
  
 diff -u -b ../../../svgalib/libvga.h ./libvga.h
---- ../../../svgalib/libvga.h	2002-07-24 21:23:54.000000000 +0200
-+++ ./libvga.h	2002-10-29 23:34:18.000000000 +0100
+--- ../../../svgalib/libvga.h	2002-12-13 20:21:08.000000000 +0100
++++ ./libvga.h	2002-12-13 20:23:25.000000000 +0100
 @@ -9,11 +9,9 @@
  #define _LIBVGA_H
  
@@ -63,9 +63,9 @@ diff -u -b ../../../svgalib/libvga.h ./libvga.h
  /* --------------------- Macro definitions shared by library modules */
  
 diff -u -b ../../../svgalib/vga.h ./vga.h
---- ../../../svgalib/vga.h	2002-07-08 17:21:08.000000000 +0200
-+++ ./vga.h	2002-10-24 23:29:10.000000000 +0200
-@@ -550,8 +550,8 @@
+--- ../../../svgalib/vga.h	2002-12-13 20:21:09.000000000 +0100
++++ ./vga.h	2002-12-13 20:23:25.000000000 +0100
+@@ -551,8 +551,8 @@
   * NULL is a valid argument for any of the ptrs.
   */
  
@@ -77,8 +77,8 @@ diff -u -b ../../../svgalib/vga.h ./vga.h
  /*
   * valid values for what ( | is valid to combine them )
 diff -u -b ../../../svgalib/drivers/apm.c drivers/apm.c
---- ../../../svgalib/drivers/apm.c	2002-04-30 10:37:42.000000000 +0200
-+++ drivers/apm.c	2002-11-12 21:51:28.000000000 +0100
+--- ../../../svgalib/drivers/apm.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/apm.c	2002-12-13 20:23:25.000000000 +0100
 @@ -33,8 +33,8 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -90,18 +90,9 @@ diff -u -b ../../../svgalib/drivers/apm.c drivers/apm.c
  
  #define APMREG_SAVE(i) (VGA_TOTAL_REGS+i)
  #define APM_TOTAL_REGS (VGA_TOTAL_REGS + 38)
-@@ -588,7 +588,7 @@
-     
-     munmap(p, 0x1000);
-     
--    __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,
-+    __svgalib_vgammbase=(unsigned)mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,
-                 __svgalib_linear_mem_base+0xfff000);
- 
-     __svgalib_mm_io_mapio();
 diff -u -b ../../../svgalib/drivers/ark.c drivers/ark.c
---- ../../../svgalib/drivers/ark.c	2002-04-21 00:32:26.000000000 +0200
-+++ drivers/ark.c	2002-11-12 21:51:34.000000000 +0100
+--- ../../../svgalib/drivers/ark.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/ark.c	2002-12-13 20:23:25.000000000 +0100
 @@ -34,7 +34,7 @@
  #include "timing.h"
  #include "ramdac/ramdac.h"
@@ -112,8 +103,8 @@ diff -u -b ../../../svgalib/drivers/ark.c drivers/ark.c
  
  
 diff -u -b ../../../svgalib/drivers/banshee.c drivers/banshee.c
---- ../../../svgalib/drivers/banshee.c	2002-06-15 13:42:42.000000000 +0200
-+++ drivers/banshee.c	2002-11-12 21:51:34.000000000 +0100
+--- ../../../svgalib/drivers/banshee.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/banshee.c	2002-12-13 20:23:25.000000000 +0100
 @@ -9,12 +9,12 @@
  #include "vga.h"
  #include "libvga.h"
@@ -130,8 +121,8 @@ diff -u -b ../../../svgalib/drivers/banshee.c drivers/banshee.c
  
  #define BANSHEEREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u -b ../../../svgalib/drivers/et6000.c drivers/et6000.c
---- ../../../svgalib/drivers/et6000.c	2002-06-14 23:54:34.000000000 +0200
-+++ drivers/et6000.c	2002-11-12 21:51:34.000000000 +0100
+--- ../../../svgalib/drivers/et6000.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/et6000.c	2002-12-13 20:23:25.000000000 +0100
 @@ -12,7 +12,7 @@
  #include "libvga.h"
  #include "driver.h"
@@ -142,8 +133,8 @@ diff -u -b ../../../svgalib/drivers/et6000.c drivers/et6000.c
  #include "vgapci.h"
  
 diff -u -b ../../../svgalib/drivers/g400.c drivers/g400.c
---- ../../../svgalib/drivers/g400.c	2002-07-13 11:05:10.000000000 +0200
-+++ drivers/g400.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/g400.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/g400.c	2002-12-13 20:23:25.000000000 +0100
 @@ -18,12 +18,12 @@
  #include "driver.h"
  #include "timing.h"
@@ -161,8 +152,8 @@ diff -u -b ../../../svgalib/drivers/g400.c drivers/g400.c
  #define SKREG_SAVE(i) (VGA_TOTAL_REGS+i)
  #define G400_TOTAL_REGS (VGA_TOTAL_REGS + 32 + 176 + 4 + 32)
 diff -u -b ../../../svgalib/drivers/i740.c drivers/i740.c
---- ../../../svgalib/drivers/i740.c	2002-07-06 21:06:32.000000000 +0200
-+++ drivers/i740.c	2002-11-15 00:13:52.000000000 +0100
+--- ../../../svgalib/drivers/i740.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/i740.c	2002-12-13 20:23:25.000000000 +0100
 @@ -15,10 +15,10 @@
  #include "driver.h"
  #include "timing.h"
@@ -195,8 +186,8 @@ diff -u -b ../../../svgalib/drivers/i740.c drivers/i740.c
  
      f_vco = f_target * (1 << p);
 diff -u -b ../../../svgalib/drivers/i810.c drivers/i810.c
---- ../../../svgalib/drivers/i810.c	2002-07-07 14:24:40.000000000 +0200
-+++ drivers/i810.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/i810.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/i810.c	2002-12-13 20:23:25.000000000 +0100
 @@ -3,7 +3,8 @@
    written by Matan Ziv-Av.
  */
@@ -235,8 +226,8 @@ diff -u -b ../../../svgalib/drivers/i810.c drivers/i810.c
      
      found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
 diff -u -b ../../../svgalib/drivers/laguna.c drivers/laguna.c
---- ../../../svgalib/drivers/laguna.c	2002-07-13 11:08:58.000000000 +0200
-+++ drivers/laguna.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/laguna.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/laguna.c	2002-12-13 20:23:25.000000000 +0100
 @@ -18,7 +18,7 @@
  #include "driver.h"
  #include "timing.h"
@@ -247,8 +238,8 @@ diff -u -b ../../../svgalib/drivers/laguna.c drivers/laguna.c
  
  #include "lagunaio.h"
 diff -u -b ../../../svgalib/drivers/millenni.c drivers/millenni.c
---- ../../../svgalib/drivers/millenni.c	2002-07-13 11:06:02.000000000 +0200
-+++ drivers/millenni.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/millenni.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/millenni.c	2002-12-13 20:23:25.000000000 +0100
 @@ -10,9 +10,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -262,8 +253,8 @@ diff -u -b ../../../svgalib/drivers/millenni.c drivers/millenni.c
  
  static int mil_init(int, int, int);
 diff -u -b ../../../svgalib/drivers/mx.c drivers/mx.c
---- ../../../svgalib/drivers/mx.c	2002-04-30 10:34:50.000000000 +0200
-+++ drivers/mx.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/mx.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/mx.c	2002-12-13 20:23:25.000000000 +0100
 @@ -24,7 +24,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -274,8 +265,8 @@ diff -u -b ../../../svgalib/drivers/mx.c drivers/mx.c
  
  #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u -b ../../../svgalib/drivers/nv3.c drivers/nv3.c
---- ../../../svgalib/drivers/nv3.c	2002-08-19 21:54:44.000000000 +0200
-+++ drivers/nv3.c	2002-11-12 21:52:04.000000000 +0100
+--- ../../../svgalib/drivers/nv3.c	2002-12-13 20:21:30.000000000 +0100
++++ drivers/nv3.c	2002-12-13 20:23:25.000000000 +0100
 @@ -27,7 +27,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -286,8 +277,8 @@ diff -u -b ../../../svgalib/drivers/nv3.c drivers/nv3.c
  #include "nvreg.h"
  #include "vgapci.h"
 diff -u -b ../../../svgalib/drivers/pm2.c drivers/pm2.c
---- ../../../svgalib/drivers/pm2.c	2002-07-07 14:27:30.000000000 +0200
-+++ drivers/pm2.c	2002-08-19 23:18:54.000000000 +0200
+--- ../../../svgalib/drivers/pm2.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/pm2.c	2002-12-13 20:23:25.000000000 +0100
 @@ -12,9 +12,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -309,8 +300,8 @@ diff -u -b ../../../svgalib/drivers/pm2.c drivers/pm2.c
      
      if (__svgalib_driver_report) {
 diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
---- ../../../svgalib/drivers/r128.c	2002-07-07 14:26:40.000000000 +0200
-+++ drivers/r128.c	2002-11-12 21:51:36.000000000 +0100
+--- ../../../svgalib/drivers/r128.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/r128.c	2002-12-13 20:23:25.000000000 +0100
 @@ -13,9 +13,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -323,7 +314,7 @@ diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
  #include "r128_reg.h"
  
  static enum { Rage128=0, Radeon } chiptype; /* r128io needs to know */
-@@ -773,7 +773,6 @@
+@@ -807,7 +807,6 @@
      };
  
      if (freq > pll->max_pll_freq)      freq = pll->max_pll_freq;
@@ -331,7 +322,7 @@ diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
  
      for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
  	save->pll_output_freq = post_div->divider * freq;
-@@ -781,6 +780,11 @@
+@@ -815,6 +814,11 @@
  	    && save->pll_output_freq <= pll->max_pll_freq) break;
      }
  
@@ -343,7 +334,7 @@ diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
      save->dot_clock_freq = freq;
      save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
  				   pll->reference_freq);
-@@ -817,7 +821,6 @@
+@@ -851,7 +855,6 @@
      };
  
      if (freq > pll->max_pll_freq)      freq = pll->max_pll_freq;
@@ -351,7 +342,7 @@ diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
  
      for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
  	save->pll_output_freq = post_div->divider * freq;
-@@ -825,6 +828,11 @@
+@@ -859,6 +862,11 @@
  	    && save->pll_output_freq <= pll->max_pll_freq) break;
      }
  
@@ -364,8 +355,8 @@ diff -u -b ../../../svgalib/drivers/r128.c drivers/r128.c
      save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
  				   pll->reference_freq);
 diff -u -b ../../../svgalib/drivers/rage.c drivers/rage.c
---- ../../../svgalib/drivers/rage.c	2002-04-27 18:58:00.000000000 +0200
-+++ drivers/rage.c	2002-11-12 21:51:38.000000000 +0100
+--- ../../../svgalib/drivers/rage.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/rage.c	2002-12-13 20:23:25.000000000 +0100
 @@ -38,7 +38,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -376,8 +367,8 @@ diff -u -b ../../../svgalib/drivers/rage.c drivers/rage.c
  #include "rage.h"
  
 diff -u -b ../../../svgalib/drivers/renditio.c drivers/renditio.c
---- ../../../svgalib/drivers/renditio.c	2002-06-14 19:23:54.000000000 +0200
-+++ drivers/renditio.c	2002-11-12 21:51:38.000000000 +0100
+--- ../../../svgalib/drivers/renditio.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/renditio.c	2002-12-13 20:23:25.000000000 +0100
 @@ -12,13 +12,13 @@
  #include "driver.h"
  #include "timing.h"
@@ -395,8 +386,8 @@ diff -u -b ../../../svgalib/drivers/renditio.c drivers/renditio.c
  typedef struct {
      uint8_t  memendian;
 diff -u -b ../../../svgalib/drivers/s3.c drivers/s3.c
---- ../../../svgalib/drivers/s3.c	2002-07-25 16:01:46.000000000 +0200
-+++ drivers/s3.c	2002-11-12 21:52:10.000000000 +0100
+--- ../../../svgalib/drivers/s3.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/s3.c	2002-12-13 20:23:25.000000000 +0100
 @@ -95,9 +95,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -446,8 +437,8 @@ diff -u -b ../../../svgalib/drivers/s3.c drivers/s3.c
  }
  
 diff -u -b ../../../svgalib/drivers/savage.c drivers/savage.c
---- ../../../svgalib/drivers/savage.c	2002-07-07 10:48:14.000000000 +0200
-+++ drivers/savage.c	2002-11-12 21:51:38.000000000 +0100
+--- ../../../svgalib/drivers/savage.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/savage.c	2002-12-13 20:23:25.000000000 +0100
 @@ -18,10 +18,10 @@
  #include "driver.h"
  #include "timing.h"
@@ -462,7 +453,7 @@ diff -u -b ../../../svgalib/drivers/savage.c drivers/savage.c
  
  #define SAVAGEREG_SAVE(i) (VGA_TOTAL_REGS+i)
  #define TOTAL_REGS (VGA_TOTAL_REGS + 64)
-@@ -511,7 +511,7 @@
+@@ -526,7 +526,7 @@
          {31,  0, 4, 170000},
          {31,  0, 3, 135000},
          {31,  0, 4, 220000},
@@ -471,7 +462,7 @@ diff -u -b ../../../svgalib/drivers/savage.c drivers/savage.c
          {31,  0, 4, 170000},
          {31,  0, 4, 170000},
          {127, 0, 4, 180000},
-@@ -525,7 +525,7 @@
+@@ -540,7 +540,7 @@
      vgaS3VPtr new = (vgaS3VPtr)(moderegs+VGA_TOTAL_REGS);
     
      if(modeinfo->bitsPerPixel==16) {
@@ -481,8 +472,8 @@ diff -u -b ../../../svgalib/drivers/savage.c drivers/savage.c
              modetiming->HSyncStart *=2;
              modetiming->HSyncEnd *=2;
 diff -u -b ../../../svgalib/drivers/sis.c drivers/sis.c
---- ../../../svgalib/drivers/sis.c	2002-07-13 12:15:58.000000000 +0200
-+++ drivers/sis.c	2002-11-12 21:51:38.000000000 +0100
+--- ../../../svgalib/drivers/sis.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/sis.c	2002-12-13 20:23:25.000000000 +0100
 @@ -32,9 +32,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -504,8 +495,8 @@ diff -u -b ../../../svgalib/drivers/sis.c drivers/sis.c
         sis_linear_base=buf[4]&0xffffff00;
         pci_id=(buf[0]>>16)&0xffff;
 diff -u -b ../../../svgalib/drivers/trident.c drivers/trident.c
---- ../../../svgalib/drivers/trident.c	2002-07-20 19:47:28.000000000 +0200
-+++ drivers/trident.c	2002-11-12 21:51:38.000000000 +0100
+--- ../../../svgalib/drivers/trident.c	2002-12-13 20:21:31.000000000 +0100
++++ drivers/trident.c	2002-12-13 20:23:25.000000000 +0100
 @@ -13,11 +13,11 @@
  #include "driver.h"
  #include "timing.h"
@@ -521,7 +512,7 @@ diff -u -b ../../../svgalib/drivers/trident.c drivers/trident.c
  
  #define TOTAL_REGS (VGA_TOTAL_REGS + 500)
  
-@@ -707,6 +707,7 @@
+@@ -658,6 +658,7 @@
      		pReg->tridentRegsDAC[0x00] |= 0x20;	/* mux mode */
  	    }	
  #endif
@@ -530,8 +521,8 @@ diff -u -b ../../../svgalib/drivers/trident.c drivers/trident.c
  
  
 diff -u -b ../../../svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
---- ../../../svgalib/ramdac/ibmrgb52.c	2002-04-10 14:57:56.000000000 +0200
-+++ ramdac/ibmrgb52.c	2002-08-19 22:00:28.000000000 +0200
+--- ../../../svgalib/ramdac/ibmrgb52.c	2002-12-13 20:21:25.000000000 +0100
++++ ramdac/ibmrgb52.c	2002-12-13 20:23:25.000000000 +0100
 @@ -15,7 +15,7 @@
  #include "driver.h"		/* for __svgalib_driver_report */
  #include "ramdac.h"
@@ -542,8 +533,8 @@ diff -u -b ../../../svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
  #define IBMRGB52x_STATESIZE	0x101
  
 diff -u -b ../../../svgalib/clockchi/icd2061a.c clockchi/icd2061a.c
---- ../../../svgalib/clockchi/icd2061a.c	2002-04-10 14:57:56.000000000 +0200
-+++ clockchi/icd2061a.c	2002-08-19 22:00:28.000000000 +0200
+--- ../../../svgalib/clockchi/icd2061a.c	2002-12-13 20:21:22.000000000 +0100
++++ clockchi/icd2061a.c	2002-12-13 20:23:25.000000000 +0100
 @@ -13,7 +13,7 @@
  #include "timing.h"
  #include "libvga.h"

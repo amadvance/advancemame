@@ -38,7 +38,7 @@ static adv_device DEVICE[] = {
 
 adv_error joystickb_none_init(int joystickb_id)
 {
-	log_std(("joystickb:none: joystickb_none_init(id:%d)\n",joystickb_id));
+	log_std(("joystickb:none: joystickb_none_init(id:%d)\n", joystickb_id));
 
 	return 0;
 }

@@ -62,7 +62,7 @@ static int pci_BIOS_address_map_plain(unsigned long phys_address) {
 /* Map the specified address and check the signature */
 static int pci_BIOS_address_map_check(unsigned long phys_address) {
 	unsigned char tmp[2];
-	log_std(("pci: check bios addr %08lx\n",(unsigned long)phys_address));
+	log_std(("pci: check bios addr %08lx\n", (unsigned long)phys_address));
 	if (!phys_address) {
 		log_std(("pci: null bios pointer\n"));
 		return -1;
@@ -76,7 +76,7 @@ static int pci_BIOS_address_map_check(unsigned long phys_address) {
 		return -1;
 	}
 
-	pci_BIOS_read(tmp,0,2);
+	pci_BIOS_read(tmp, 0, 2);
 
 	if (tmp[0]!=0x55 || tmp[1]!=0xAA) {
 		pci_BIOS_address_unmap();
@@ -84,7 +84,7 @@ static int pci_BIOS_address_map_check(unsigned long phys_address) {
 		return -1;
 	}
 
-	log_std(("pci: bios found at %08lx\n",(unsigned long)phys_address));
+	log_std(("pci: bios found at %08lx\n", (unsigned long)phys_address));
 	return 0;
 }
 
@@ -92,10 +92,10 @@ static int pci_BIOS_address_map_check(unsigned long phys_address) {
 int pci_BIOS_address_map(unsigned bus_device_func) {
 	DWORD orig;
 	DWORD addr;
-	if (pci_read_dword(bus_device_func,0x30,&orig) != 0)
+	if (pci_read_dword(bus_device_func, 0x30, &orig) != 0)
 		return -1;
 
-	log_std(("pci: bios reported addr %08lx\n",(unsigned long)orig));
+	log_std(("pci: bios reported addr %08lx\n", (unsigned long)orig));
 	addr = orig & 0xfffe0000;
 
 	if (pci_BIOS_address_map_check(addr)!=0) {
@@ -110,7 +110,7 @@ int pci_BIOS_address_map(unsigned bus_device_func) {
 
 void pci_BIOS_address_unmap(void) {
 	map_remove_selector(&pci_BIOS_selector);
-	map_remove_linear_mapping(pci_BIOS_physical_address,pci_BIOS_physical_size);
+	map_remove_linear_mapping(pci_BIOS_physical_address, pci_BIOS_physical_size);
 	pci_BIOS_selector = 0;
 	pci_BIOS_linear_address = 0;
 	pci_BIOS_physical_address = 0;
@@ -121,7 +121,7 @@ void pci_BIOS_read(void* dest, unsigned offset, unsigned len) {
 	if (!pci_BIOS_selector)
 		log_std(("pci: BUG! BIOS selector out of order\n"));
 
-	movedata(pci_BIOS_selector,offset,_my_ds(),(unsigned long)dest,len);
+	movedata(pci_BIOS_selector, offset, _my_ds(), (unsigned long)dest, len);
 }
 
 /***************************************************************************/
@@ -140,15 +140,15 @@ int pci_MMIO_address_map(unsigned bus_device_func, unsigned reg, unsigned long m
 	DWORD orig;
 	pci_MMIO_register = reg;
 	pci_MMIO_bus_device_func = bus_device_func;
-	if (pci_read_dword(pci_MMIO_bus_device_func,pci_MMIO_register,&orig) != 0)
+	if (pci_read_dword(pci_MMIO_bus_device_func, pci_MMIO_register, &orig) != 0)
 		return -1;
 	if (!orig) {
 		log_std(("pci: MMIO address null\n"));
 		return -1;
 	}
-	log_std(("pci: MMIO orig %08lx\n",(unsigned long)orig));
+	log_std(("pci: MMIO orig %08lx\n", (unsigned long)orig));
 	addr = orig & (0xFFFFFFF0 & mask);
-	log_std(("pci: MMIO addr %08lx\n",(unsigned long)addr));
+	log_std(("pci: MMIO addr %08lx\n", (unsigned long)addr));
 	pci_MMIO_physical_address = addr;
 	pci_MMIO_physical_size = 0x10000;
 	if (map_create_linear_mapping(&pci_MMIO_linear_address, pci_MMIO_physical_address, pci_MMIO_physical_size) != 0) {
@@ -163,7 +163,7 @@ int pci_MMIO_address_map(unsigned bus_device_func, unsigned reg, unsigned long m
 
 void pci_MMIO_address_unmap(void) {
 	map_remove_selector(&pci_MMIO_selector);
-	map_remove_linear_mapping(pci_MMIO_physical_address,pci_MMIO_physical_size);
+	map_remove_linear_mapping(pci_MMIO_physical_address, pci_MMIO_physical_size);
 	pci_MMIO_selector = 0;
 	pci_MMIO_linear_address = 0;
 	pci_MMIO_physical_address = 0;

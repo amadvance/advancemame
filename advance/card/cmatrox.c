@@ -240,7 +240,8 @@ static void matrox_ext_set(card_crtc STACK_PTR* cp)
 	matrox_interlace_set(cp->interlace, cp->HSStart, cp->HSEnd, cp->HTotal, cp->interlaceratio);
 }
 
-static void matrox_pll_s_compute(int pll_mul, int pll_div, int STACK_PTR* s_s) {
+static void matrox_pll_s_compute(int pll_mul, int pll_div, int STACK_PTR* s_s)
+{
 	long vco = matrox_card->ref * 1000L * pll_mul / pll_div;
 
 	/* From XFree 4.0.0 */
@@ -305,7 +306,8 @@ static void matrox_doublescan_set(int flag)
 	card_crtc_set(0x09, d0);
 }
 
-const char* matrox_driver(void) {
+const char* matrox_driver(void)
+{
 	return matrox_card->name;
 }
 
@@ -324,7 +326,7 @@ int matrox_detect(void)
 	}
 
 	for(i=0;matrox_id_list[i].name;++i) {
-		if (pci_find_device(0x0000102B,matrox_id_list[i].value,0,&matrox_bus_device_func)==0)
+		if (pci_find_device(0x0000102B, matrox_id_list[i].value, 0, &matrox_bus_device_func)==0)
 			break;
 	}
 
@@ -341,7 +343,7 @@ int matrox_detect(void)
 
 	matrox_card = matrox_id_list + i;
 
-	if (pci_MMIO_address_map(matrox_bus_device_func,0x14,0xFFFFC000)!=0) {
+	if (pci_MMIO_address_map(matrox_bus_device_func, 0x14, 0xFFFFC000)!=0) {
 		CARD_LOG(( "matrox: pci_address_map error\n"));
 		return 0;
 	}
@@ -360,20 +362,20 @@ int matrox_set(const card_crtc* _cp, const card_mode* cm, const card_mode* co)
 	int pll_mul, pll_div, pll_p, pll_s;
 	int hzoom;
 
-	if (!card_compatible_mode(cm,co)) {
+	if (!card_compatible_mode(cm, co)) {
 		CARD_LOG(("matrox: incompatible mode\n"));
 		return 0;
 	}
 
 	hzoom = matrox_zoom_compute(&cp);
-	CARD_LOG(("matrox: horizontal zoom ratio %d\n",hzoom));
+	CARD_LOG(("matrox: horizontal zoom ratio %d\n", hzoom));
 	matrox_crtc_adjust(&cp, hzoom);
 
 	cp.dotclockHz = card_clock_compute(cp.dotclockHz, matrox_card->mul_min, matrox_card->mul_max, matrox_card->div_min, matrox_card->div_max, matrox_card->p_min, matrox_card->p_max, matrox_card->ref, matrox_card->vco_min, matrox_card->vco_max, &pll_mul, &pll_div, &pll_p, 0);
 	if (cp.dotclockHz < 0)
 		return 0;
 
-	matrox_pll_s_compute(pll_mul,pll_div,&pll_s);
+	matrox_pll_s_compute(pll_mul, pll_div, &pll_s);
 
 	card_signal_disable();
 	card_generic_all_set(&cp);

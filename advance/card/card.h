@@ -109,7 +109,7 @@ void card_char_size_x_set(unsigned);
 void card_char_size_y_set(unsigned);
 void card_pll_set(unsigned);
 unsigned card_pll_get(void);
-long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, int div_max, int p_min, int p_max, long ref, long vco_min, long vco_max, int STACK_PTR* s_mul, int STACK_PTR* s_div, int STACK_PTR* s_p, int (*validate)(int,int,int));
+long card_clock_compute(long dotclock, int mul_min, int mul_max, int div_min, int div_max, int p_min, int p_max, long ref, long vco_min, long vco_max, int STACK_PTR* s_mul, int STACK_PTR* s_div, int STACK_PTR* s_p, int (*validate)(int, int, int));
 int card_compatible_mode(const card_mode STACK_PTR* mode0, const card_mode STACK_PTR* mode1);
 
 /***************************************************************************/
@@ -121,7 +121,7 @@ int card_compatible_mode(const card_mode STACK_PTR* mode0, const card_mode STACK
 
 #else
 
-void card_log(const char *text,...) __attribute__((format(printf,1,2)));
+void card_log(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
 #define CARD_LOG(a) card_log a
 

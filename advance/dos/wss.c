@@ -46,10 +46,11 @@
 #define osd_cycles() os_clock()
 #define osd_cycles_per_second() OS_CLOCKS_PER_SEC
 
-__attribute__((format(printf,1,0))) static void logerror_(const char *text,...) {
+__attribute__((format(printf, 1, 0))) static void logerror_(const char *text, ...)
+{
 	va_list arg;
-	va_start(arg,text);
-	log_va(text,arg);
+	va_start(arg, text);
+	log_va(text, arg);
 	va_end(arg);
 }
     
@@ -950,7 +951,7 @@ static DMA_S mydma[] =
 
    /* channel 1 */
    { 0x05, 0x01, DMA1_PAGE, DMA1_ADDR, DMA1_CNT,
-	 DMA1_SNGL,DMA1_MODE,DMA1_CLRFF,0x49,0x45 },
+	 DMA1_SNGL, DMA1_MODE, DMA1_CLRFF, 0x49, 0x45 },
 
    /* channel 2 */
    { 0x06, 0x02, DMA2_PAGE, DMA2_ADDR, DMA2_CNT,
@@ -979,7 +980,7 @@ static DMA_S mydma[] =
 
 
 
-__inline__ BYTE get_8bit_pcm_value(long value)
+inline BYTE get_8bit_pcm_value(long value)
 {
 	BYTE d0;
 
@@ -3620,7 +3621,7 @@ static int get_ultra16(void)
 	if(get_ultrasnd() == FALSE) return FALSE;
 
 	if (wsscfg != NULL) {
-		sscanf(wsscfg, "%x,%d,%d,%d,%d",
+		sscanf(wsscfg, "%x, %d, %d, %d, %d",
 			&max_port, &max_pdma, &max_irq, &max_type, &max_cdrom);
 	}
 	if( (max_port < 0) || (max_pdma < 0) || (max_type < 0) || (max_irq < 0) ) return FALSE;
@@ -4203,7 +4204,7 @@ static int get_ultrasnd(void)
 
 	char *wsscfg = getenv("ULTRASND");
 	if (wsscfg != NULL) {
-		sscanf(wsscfg, "%x,%d,%d,%d,%d",
+		sscanf(wsscfg, "%x, %d, %d, %d, %d",
 			&wd.isa_port, &wd.isa_dma, &wd.isa_hdma, &wd.irq, &midiirq);
 	}
 	if( (wd.isa_port < 0) || (wd.isa_dma < 0) || (wd.isa_hdma < 0) || (wd.irq < 0) ) return FALSE;
