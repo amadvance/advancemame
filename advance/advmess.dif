@@ -171,7 +171,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
 --- srcmess.ori/info.c	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/info.c	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/info.c	2003-08-15 09:26:28.000000000 +0200
 @@ -811,10 +811,46 @@
  	fprintf(out, SELECT(L2P "palettesize %d" L2N, " palettesize=\"%d\""), driver.total_colors);
  
@@ -192,7 +192,7 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
 +		fprintf(out, "%s", SELECT("", ">\n"));
 +
 +		while (*ext) {
-+			/* some drivers put the extension separated by a , */
++			/* some drivers have the extension separated by a , */
 +			char* ext_list = strdup(ext);
 +			char* ext_item = strtok(ext_list, ",");
 +			while (ext_item && ext_item[0]) {
@@ -233,29 +233,34 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
  }
  
  #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
-@@ -943,11 +982,11 @@
+@@ -943,11 +982,15 @@
  {
  	fprintf(out,
  		"<?xml version=\"1.0\"?>\n"
  		"<!DOCTYPE " XML_ROOT " [\n"
  		"<!ELEMENT " XML_ROOT " (" XML_TOP "+)>\n"
--		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
++#ifdef MESS
 +		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?, device*)>\n"
++#else
+ 		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
++#endif
  		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
  		"\t\t<!ATTLIST " XML_TOP " runnable (yes|no) \"yes\">\n"
  		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
  		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
  		"\t\t<!ATTLIST " XML_TOP " sampleof CDATA #IMPLIED>\n"
-@@ -1010,10 +1049,14 @@
+@@ -1010,10 +1053,16 @@
  		"\t\t<!ELEMENT driver EMPTY>\n"
  		"\t\t\t<!ATTLIST driver status (good|preliminary|test) #REQUIRED>\n"
  		"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"
  		"\t\t\t<!ATTLIST driver sound (good|imperfect|preliminary) #REQUIRED>\n"
  		"\t\t\t<!ATTLIST driver palettesize CDATA #REQUIRED>\n"
++#ifdef MESS
 +		"\t\t<!ELEMENT device (extension*)>\n"
 +		"\t\t\t<!ATTLIST device name CDATA #REQUIRED>\n"
 +		"\t\t\t<!ELEMENT extension EMPTY>\n"
 +		"\t\t\t\t<!ATTLIST extension name CDATA #REQUIRED>\n"
++#endif
  		"]>\n\n"
  		"<" XML_ROOT ">\n"
  	);

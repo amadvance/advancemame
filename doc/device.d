@@ -137,7 +137,8 @@ Video Drivers
 	setting the FRAMEBUFFER environment variable.
 
 	The generic Frame Buffer `vesafb' driver cannot be used because
-	it doesn't allow the creation of new video modes.
+	it doesn't allow the creation of new video modes. If it's your
+	only option you can use it through the SDL library.
 
     sdl - System SDL modes
 	This driver works in Linux, Windows and Mac OS X and is able to
@@ -229,7 +230,7 @@ Input Drivers
 	It supports more than one keyboard at the same time.
 
 	For USB devices this driver doesn't requires any configuration.
-	It's able to autodetect all the present harware.
+	It's able to autodetect all the present hardware.
 
     raw - Linux Kernel keyboard
 	This driver works in Linux and it uses directly the Linux kernel
@@ -271,13 +272,13 @@ Input Drivers
 	It supports more than one joystick at the same time.
 
 	For USB devices this driver doesn't requires any configuration.
-	It's able to autodetect all the present harware.
+	It's able to autodetect all the present hardware.
 
 	This driver is also able to correctly report the type of devices
 	found. You should for example expect to have the gas pedal mapped
 	on the gas control of the game.
 
-	Details on how to build the Parellel Port hardware interfaces are
+	Details on how to build the Parallel Port hardware interfaces are
 	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
 
 	The joysticks are searched on the /dev/input/eventX devices.
@@ -287,7 +288,7 @@ Input Drivers
 
 	It supports only one joystick.
 
-	Details on how to build the Parellel Port hardware interfaces for
+	Details on how to build the Parallel Port hardware interfaces for
 	SNES, PSX, N64 and other pads are in the Allegro sources.
 
     sdl - SDL joystick
@@ -317,7 +318,7 @@ Input Drivers
 	It supports more than one mouse at the same time.
 
 	For USB devices this driver doesn't requires any configuration.
-	It's able to autodetect all the present harware.
+	It's able to autodetect all the present hardware.
 
 	The mouses are searched on the /dev/input/eventX devices.
 

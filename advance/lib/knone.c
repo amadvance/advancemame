@@ -71,7 +71,7 @@ adv_bool keyb_none_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:none: keyb_none_has()\n"));
 
-	return key_name(code) != 0;
+	return key_is_defined(code);
 }
 
 unsigned keyb_none_get(unsigned keyboard, unsigned code)

@@ -272,8 +272,10 @@ Configuration
 	file `advmenu.rc' in the current directory.
 
 	In Linux and Mac OS X the configuration options are read from the
-	file `advmenu.rc' in the $root and the $home directory.
-	The $root directory is `$DATA/advance/', where $DATA is the
+	file `advmenu.rc' in the $host, $data and
+	the $home directory.
+	The $host directory is always `/etc'.
+	The $data directory is `$DATA/advance/', where $DATA is the
 	data directory configured with the `configure' script.
 	Generally it's `/usr/local/share'.
 	The $home directory is `$ADVANCE', where $ADVANCE is the value of the
@@ -282,19 +284,17 @@ Configuration
 	is `$HOME/.advance' where $HOME is the value of the HOME environment
 	variable.
 	If both the ADVANCE and HOME environment variables are missing the
-	$root directory became also the $home directory.
+	$data directory became also the $home directory.
 
-	The options in the $root directory overwrite the options in
-	the $home directory or on the command line.
+	The priority of the options is in the order : $host, $home and $data.
 
 	The $home directory is also used to write all the information
-	by the program. The files in the $root directory are only read.
+	by the program. The files in the $host and $data directory are only read.
 
 	You can include an additional configuration files with the `include'
 	option. In DOS and Windows the files are searched in the current directory.
 	In Linux and Mac OS X the files are searched in the $home directory if
-	they are expressed as a relative path. You can force the search in
-	the current directory using the `./' prefix.
+	they are expressed as a relative path.
 	To include more than one file you must separe the names with `;' in
 	DOS and Windows, and with `:' in Linux and Mac OS X.
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,30 +29,28 @@
  */
 
 /** \file
- * Implementation required for portability.
+ * Safe string functions.
  */
 
-#include "portable.h"
+#ifndef __SNSTRING_H
+#define __SNSTRING_H
 
-#include <stdio.h>
+#include <sys/types.h>
 
-#ifdef __MSDOS__
-int snprintf(char* str, size_t count, const char* fmt, ...)
-{
-	int r;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	/* Note that the snprintf implementation of "Patrick Powell 1995" has */
-	/* various bugs on %f, %g and %e for example snprintf("%f",1.01) -> 1.1 */
-	va_list arg;
-	va_start(arg, fmt);
-	r = vsprintf(str, fmt, arg);
-	va_end(arg);
+void sncpy(char* dst, size_t len, const char* src);
+void sncpyn(char* dst, size_t len, const char* src, size_t src_len);
+void sncat(char* dst, size_t len, const char* src);
+void sncatf(char* str, size_t count, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore);
+void sskip(int* p, const char* s, const char* sep);
 
-	return r;
-}
-
-int vsnprintf(char* str, size_t count, const char* fmt, va_list arg)
-{
-	return vsprintf(str, fmt, arg);
+#ifdef __cplusplus
 }
 #endif
+
+#endif
+

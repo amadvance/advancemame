@@ -1,12 +1,14 @@
 #############################################################################
-# User configuration
+# Manual configuration
+#
+# You you have run the ./configure script you don't need to edit this file.
 #
 
 # Installation prefix (only for Unix):
 PREFIX=@prefix@
 
 # Select the emu executable (mame by default)
-# The available choices are: mame, neomame, cpmame, mess, pac
+# The available choices are: mame, neomame, cpmame, mess
 #CONF_EMU=mame
 
 # Uncomment the host operating system.
@@ -14,7 +16,7 @@ PREFIX=@prefix@
 #
 # The unix host uses:
 #   SVGALIB, Frame Buffer, SDL for the video
-#   SLang, SDL for the text
+#   tty, SDL for the text
 #   ALSA, OSS, SDL for the sound
 #   SVGALIB, KEVENT, KRAW, SDL for the keyboard
 #   SVGALIB, JEVENT, SDL for the joystick
@@ -22,8 +24,8 @@ PREFIX=@prefix@
 #   pthread for the Multiprocessor support
 #
 # The dos host uses:
-#   SVGALIB, VBEtweak, VGAtweak, VBE for the video
-#   VGAtweak for the text
+#   SVGALINE, VBELINE, VGALINE, VBE for the video
+#   VGALINE for the text
 #   SEAL, Allegro and VSYNC for the sound
 #   Allegro for the keyboard
 #   Allegro for the joystick
@@ -58,7 +60,7 @@ PREFIX=@prefix@
 #CONF_LIB_JEVENT=yes
 #CONF_LIB_MEVENT=yes
 
-# Select the optimization flags: (optimized build for 386 by default)
+# Select the optimization flags: (optimized build for Pentium by default)
 # Optimized build for Pentium
 #CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for Pentium Pro, Pentium II, Pentium III, Celeron
@@ -74,8 +76,8 @@ PREFIX=@prefix@
 # Debug build
 #CONF_CFLAGS_OPT=-O0 -g -Wall -Wno-sign-compare -Wno-unused
 
-# Select the optimization linker flags: (not debug link by default)
-# Not debug build
+# Select the optimization linker flags: (optimized link by default)
+# Optimized build
 #CONF_LDFLAGS=-s
 # Debug/Profile build
 #CONF_LDFLAGS=-g
@@ -87,7 +89,10 @@ PREFIX=@prefix@
 #CONF_DEBUG=no
 
 #############################################################################
-# Global configuration
+# Automatic configuration
+#
+# Setup by the ./configure script
+#
 
 ifndef CONF
 CONF=@CONF@
@@ -118,7 +123,7 @@ CONF_DEBUG=@CONF_DEBUG@
 endif
 
 #############################################################################
-# Global configuration with autotection (it works only for Linux/DOS/Windows)
+# Completing manual configuration with defaults
 #
 
 # Automatic EMU detection by source
@@ -132,13 +137,12 @@ ifneq ($(wildcard srcmess),)
 CONF_EMU = mess
 endif
 endif
-ifeq ($(CONF_EMU),)
-ifneq ($(wildcard srcpac),)
-CONF_EMU = pac
-endif
-endif
 
+# Automatic BUILD environment detection
 ifndef CONF_BUILD
+ifdef CONF_HOST
+CONF_BUILD=$(CONF_HOST)
+else
 UNAME := $(shell uname)
 ifneq (,$(findstring Linux,$(UNAME)))
 CONF_BUILD=unix
@@ -150,11 +154,14 @@ CONF_BUILD=windows
 endif
 endif
 endif
+endif
 
+# Automatic HOST environment detection
 ifndef CONF_HOST
 CONF_HOST=$(CONF_BUILD)
 endif
 
+# Automatic libraries and other options setting
 ifndef CONF_LIB_SVGALIB
 CONF_LIB_SVGALIB=yes
 endif
@@ -212,7 +219,7 @@ CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -march=pentium -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS
@@ -232,7 +239,7 @@ DATADIR=$(PREFIX)/share/advance
 endif
 
 #############################################################################
-# Extra configuration (common for ./configure and autotected)
+# Extra configuration (common for ./configure and manual)
 
 # Enable the creation of the map files
 ifndef CONF_MAP
@@ -250,7 +257,7 @@ CONF_WHOLESRC=no
 endif
 
 ############################################################################
-# Tools configuration
+# Tools configuration for ./configure
 
 ifeq ($(CONF),yes)
 srcdir=@srcdir@
@@ -280,7 +287,7 @@ CFLAGS_BUILD=@CFLAGS_BUILD@
 endif
 
 #############################################################################
-# Tools configuration by autotected (it work only for Linux/Dos/Windows)
+# Tools configuration for manual
 #
 
 ifneq ($(CONF),yes)
@@ -389,7 +396,9 @@ endif
 
 endif
 
-# Common
+#############################################################################
+# Common tools configuration
+
 INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755
 INSTALL_MAN_DIR = $(INSTALL) -d -o root -g root -m 755
 INSTALL_DATA_DIR = $(INSTALL) -d -o root -g bin -m 755
@@ -441,9 +450,6 @@ EMUSRC=$(srcdir)/srcnone
 endif
 ifeq ($(CONF_EMU),mess)
 EMUSRC=$(srcdir)/srcmess
-endif
-ifeq ($(CONF_EMU),pac)
-EMUSRC=$(srcdir)/srcpac
 endif
 ifeq ($(EMUSRC),)
 EMUSRC=$(srcdir)/src

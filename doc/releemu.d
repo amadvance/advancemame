@@ -17,7 +17,7 @@ AdvanceMAME 0.71.2
 
 	The `input_map' option now can remap also all the digital
 	inputs like keys, buttons and digital joystick.
-	This feature is similar at the official MAME ctrl remmapping,
+	This feature is similar at the official MAME ctrl remapping,
 	but it allow to select any type of digital input, not only
 	the inputs known by MAME. For example you can map the
 	`bookmark' key (present only on some keyboards) also if

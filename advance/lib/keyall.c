@@ -29,6 +29,7 @@
  */
 
 #include "keyall.h"
+#include "snstring.h"
 #include "portable.h"
 
 /**

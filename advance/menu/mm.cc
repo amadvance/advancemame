@@ -548,7 +548,7 @@ int os_main(int argc, char* argv[])
 	int_reg(config_context);
 	play_reg(config_context);
 
-	if (conf_input_args_load(config_context, 2, "", &argc, argv, error_callback, 0) != 0)
+	if (conf_input_args_load(config_context, 3, "", &argc, argv, error_callback, 0) != 0)
 		goto err_init;
 
 	opt_verbose = false;
@@ -591,20 +591,25 @@ int os_main(int argc, char* argv[])
 
 	log_std(("menu: %s %s\n", __DATE__, __TIME__));
 
-	if (file_config_file_root("advmenu.rc") != 0) {
-		if (conf_input_file_load_adv(config_context, 3, file_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (file_config_file_host("advmenu.rc") != 0) {
+		if (conf_input_file_load_adv(config_context, 4, file_config_file_host("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_init;
 		}
 	}
 
-	if (conf_input_file_load_adv(config_context, 0, file_config_file_home("advmenu.rc"), file_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_data("advmenu.rc") != 0) {
+		if (conf_input_file_load_adv(config_context, 0, file_config_file_data("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_init;
+		}
+	}
+
+	if (conf_input_file_load_adv(config_context, 1, file_config_file_home("advmenu.rc"), file_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_init;
 
 	section_map[0] = "";
 	conf_section_set(config_context, section_map, 1);
 
-	if (!(file_config_file_root("advmenu.rc") != 0 && access(file_config_file_root("advmenu.rc"), R_OK)==0)
-		&& !(file_config_file_home("advmenu.rc") != 0 && access(file_config_file_home("advmenu.rc"), R_OK)==0)) {
+	if (access(file_config_file_home("advmenu.rc"), R_OK)!=0) {
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
@@ -635,7 +640,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	/* setup the include configuration file */
-	if (include_load(config_context, 1, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (include_load(config_context, 2, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_init;
 	}
 

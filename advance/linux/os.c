@@ -33,6 +33,7 @@
 #include "log.h"
 #include "target.h"
 #include "file.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <stdlib.h>

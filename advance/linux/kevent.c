@@ -39,12 +39,13 @@
 #include <errno.h>
 #include <string.h>
 #include <linux/input.h>
+#include <sys/kd.h>
 
 #define EVENT_KEYBOARD_MAX 8
 #define EVENT_KEYBOARD_DEVICE_MAX 32
 
 struct keyboard_item_context {
-	int f;
+	int fe; /**< Handle of the event interface. */
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	adv_bool state[KEY_MAX];
@@ -56,6 +57,10 @@ struct keyb_event_context {
 	unsigned map_up_to_low[KEYB_MAX];
 	unsigned mac;
 	struct keyboard_item_context map[EVENT_KEYBOARD_MAX];
+	int fc; /**< Handle of the console interface. */
+	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
+	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
+
 };
 
 static struct keyb_pair {
@@ -274,14 +279,22 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-static adv_error keyb_setup(struct keyboard_item_context* item, int f)
+static void keyb_event_clear(void)
+{
+	unsigned i, j;
+
+	for(i=0;i<event_state.mac;++i) {
+		for(j=0;j<KEY_MAX;++j) {
+			event_state.map[i].state[j] = 0;
+		}
+	}
+}
+
+static adv_error keyb_event_setup(struct keyboard_item_context* item, int f)
 {
 	unsigned i;
 
-	item->f = f;
-
-	for(i=0;i<KEY_MAX;++i)
-		item->state[i] = 0;
+	item->fe = f;
 
 	memset(item->key_bitmask, 0, sizeof(item->key_bitmask));
 	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
@@ -330,7 +343,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 			continue;
 		}
 
-		if (keyb_setup(&event_state.map[event_state.mac], f) != 0) {
+		if (keyb_event_setup(&event_state.map[event_state.mac], f) != 0) {
 			event_close(f);
 			continue;
 		}
@@ -339,7 +352,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	}
 
 	if (!event_state.mac) {
-		error_set("No keyboard found on /dev/input/event*.\n");
+		error_set("No keyboard found.\n");
 		return -1;
 	}
 
@@ -353,7 +366,7 @@ void keyb_event_done(void)
 	log_std(("keyb:event: keyb_event_done()\n"));
 
 	for(i=0;i<event_state.mac;++i)
-		event_close(event_state.map[i].f);
+		event_close(event_state.map[i].fe);
 
 	event_state.mac = 0;
 }
@@ -362,12 +375,56 @@ adv_error keyb_event_enable(adv_bool graphics)
 {
 	log_std(("keyb:event: keyb_event_enable(graphics:%d)\n", (int)graphics));
 
+#if defined(USE_VIDEO_SDL)
+	if (os_internal_sdl_is_video_active()) {
+		error_set("The event keyboard driver cannot be used with the SDL video driver\n");
+		return -1;
+	}
+#endif
+
+	event_state.passive_flag = 0;
+#ifdef USE_VIDEO_SVGALIB
+	/* SVGALIB already set the terminal in KD_GRAPHICS mode and */
+	/* it waits on a signal on a vt switch */
+	if (os_internal_svgalib_is_video_mode_active()) {
+		event_state.passive_flag = 1;
+	}
+#endif
+
+	event_state.graphics_flag = graphics;
+
+	event_state.fc = open("/dev/tty", O_RDONLY);
+	if (event_state.fc == -1) {
+		error_set("Error enabling the event keyboard driver. Function open(/dev/tty) failed.\n");
+		return -1;
+	}
+
+	if (!event_state.passive_flag && event_state.graphics_flag) {
+		/* set the console in graphics mode, it only disable the cursor and the echo */
+		log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
+		if (ioctl(event_state.fc, KDSETMODE, KD_GRAPHICS) < 0) {
+			/* ignore error */
+			log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+		}
+	}
+
+	keyb_event_clear();
+
 	return 0;
 }
 
 void keyb_event_disable(void)
 {
 	log_std(("keyb:event: keyb_event_disable()\n"));
+
+	if (!event_state.passive_flag && event_state.graphics_flag) {
+		if (ioctl(event_state.fc, KDSETMODE, KD_TEXT) < 0) {
+			/* ignore error */
+			log_std(("keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+		}
+	}
+
+	close(event_state.fc);
 }
 
 unsigned keyb_event_count_get(void)
@@ -444,7 +501,7 @@ void keyb_event_poll(void)
 
 	for(i=0;i<event_state.mac;++i) {
 		struct keyboard_item_context* item = event_state.map + i;
-		while (event_read(item->f, &type, &code, &value) == 0) {
+		while (event_read(item->fe, &type, &code, &value) == 0) {
 			if (type == EV_KEY) {
 				if (code < KEY_MAX)
 					item->state[code] = value != 0;

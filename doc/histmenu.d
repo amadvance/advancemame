@@ -7,6 +7,10 @@ AdvanceMENU Version 2.2.10 2003/09
 	) Added a new `include' option to include additionally
 		configuration files.
 	) Added support for png images with alpha channel.
+	) In Linux the host configuration files are now read in /etc,
+		the files in */share/advance have now less priority
+		of the user specified options. They can be used
+		to set default options.
 
 AdvanceMENU Version 2.2.9 2003/07
 	) Added support for importing the XML output of AdvanceMESS 0.71.0.0.

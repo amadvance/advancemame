@@ -29,8 +29,10 @@
  */
 
 #include "crtc.h"
+
 #include "video.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <math.h>

@@ -325,9 +325,6 @@ endif
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS
 endif
-ifeq ($(CONF_EMU),pac)
-EMUCFLAGS += -DPAC
-endif
 
 ifeq ($(CONF_HOST),unix)
 EMUCFLAGS += \
@@ -367,6 +364,7 @@ EMUOBJS += \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/blit/slice.o \
 	$(OBJ)/advance/lib/portable.o \
+	$(OBJ)/advance/lib/snstring.o \
 	$(OBJ)/advance/lib/log.o \
 	$(OBJ)/advance/lib/video.o \
 	$(OBJ)/advance/lib/rgb.o \
@@ -589,11 +587,6 @@ advance/advmame.dif:
 	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
-advance/advpac.dif:
-	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive srcpac.ori srcpac > advance/advpac.dif
-	ls -l advance/advpac.dif
-
 advance/advmess.dif:
 	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
@@ -627,11 +620,7 @@ EMU_ADVANCE_SRC = \
 ifeq ($(CONF_EMU),mess)
 EMU_ADVANCE_SRC += $(srcdir)/advance/advmess.dif $(srcdir)/advance/mess.dif
 else
-ifeq ($(CONF_EMU),pac)
-EMU_ADVANCE_SRC += $(srcdir)/advance/advpac.dif
-else
 EMU_ADVANCE_SRC += $(srcdir)/advance/advmame.dif
-endif
 endif
 
 EMU_CONTRIB_SRC = \
@@ -645,11 +634,6 @@ ifeq ($(CONF_EMU),mess)
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/advmess.1 \
 	$(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
-endif
-ifeq ($(CONF_EMU),pac)
-EMU_SUPPORT_SRC += \
-	$(srcdir)/support/advpac.1 \
-	$(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 
 EMU_DOC_SRC = \
@@ -769,10 +753,6 @@ ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/advmess.1
 endif
-ifeq ($(CONF_EMU),pac)
-EMU_ROOT_BIN += \
-	$(srcdir)/support/advpac.1
-endif
 endif
 ifeq ($(CONF_HOST),dos)
 EMU_ROOT_BIN += \
@@ -784,9 +764,6 @@ EMU_ROOT_BIN += \
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
-ifeq ($(CONF_EMU),pac)
-EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
-endif
 endif
 ifeq ($(CONF_HOST),windows)
 EMU_ROOT_BIN += \
@@ -796,9 +773,6 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/zlib.dll
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
-endif
-ifeq ($(CONF_EMU),pac)
-EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 endif
 

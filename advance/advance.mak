@@ -4,11 +4,7 @@
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.72.0.0
 else
-ifeq ($(CONF_EMU),pac)
-EMUVERSION = 0.58.x
-else
 EMUVERSION = 0.72.0
-endif
 endif
 MENUVERSION = 2.2.10
 CABVERSION = 1.1.4
@@ -42,9 +38,6 @@ INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 ifeq ($(CONF_EMU),mess)
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
-endif
-ifeq ($(CONF_EMU),pac)
-INSTALL_MANFILES += $(srcdir)/support/advpac.1
 endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
@@ -382,9 +375,6 @@ cpmame:
 mess:
 	$(MAKE) CONF=no CONF_EMU=mess emu
 
-pacmame:
-	$(MAKE) CONF=no CONF_EMU=pac emu
-
 wholemame:
 	$(MAKE) CONF=no dist
 	$(MAKE) CONF=no CONF_WHOLESRC=yes dist
@@ -418,10 +408,6 @@ wholemess:
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
-wholepac:
-	$(MAKE) CONF=no CONF_EMU=pac dist
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
-
 wholemenu:
 	$(MAKE) CONF=no distmenu
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distmenubin
@@ -443,12 +429,6 @@ distmess:
 
 distmessbin:
 	$(MAKE) CONF=no CONF_EMU=mess distbin
-
-distpac:
-	$(MAKE) CONF=no CONF_EMU=pac dist
-
-distpacbin:
-	$(MAKE) CONF=no CONF_EMU=pac distbin
 
 distmame:
 	$(MAKE) CONF=no CONF_EMU=mame dist

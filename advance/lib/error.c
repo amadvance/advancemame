@@ -40,6 +40,7 @@
 #endif
 
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <ctype.h>

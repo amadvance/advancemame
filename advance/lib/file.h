@@ -120,20 +120,31 @@ const char* file_export(const char* path);
 /* Config */
 
 /**
- * Complete path of a file in the root data directory.
- * If the path is relative, the root directory is added. If the
+ * Complete path of a file in the host directory.
+ * If the path is relative, the host directory is added. If the
  * path is absolute the path isn't changed.
+ * In *nix system the host dir is /etc, on dos system it isn't supported.
  * \note The arg and the returned value are in the OS depended format.
- * \return The complete path or 0 if the root dir is not supported.
+ * \return The complete path or 0 if the host dir is not supported.
  */
-const char* file_config_file_root(const char* file);
+const char* file_config_file_host(const char* file);
+
+/**
+ * Complete path of a file in the data directory.
+ * If the path is relative, the data directory is added. If the
+ * path is absolute the path isn't changed.
+ * In *nix system the host dir is generally share/advance on dos system it isn't supported.
+ * \note The arg and the returned value are in the OS depended format.
+ * \return The complete path or 0 if the data dir is not supported.
+ */
+const char* file_config_file_data(const char* file);
 
 /**
  * Complete path of a file in the home data directory.
  * If the path is relative, the home directory is added. If the
  * path is absolute the path isn't changed.
  * \note The arg and the returned value are in the OS format.
- * \return The complete path.
+ * \return The complete path. It's always != 0.
  */
 const char* file_config_file_home(const char* file);
 

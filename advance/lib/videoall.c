@@ -30,6 +30,7 @@
 
 #include "videoall.h"
 #include "video.h"
+#include "snstring.h"
 #include "portable.h"
 
 /**

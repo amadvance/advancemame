@@ -28,14 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "mame2.h"
+
 #include "emu.h"
+
 #include "unzip.h"
 #include "conf.h"
 #include "fz.h"
 #include "log.h"
 #include "target.h"
-
-#include "mame2.h"
+#include "snstring.h"
 
 #include <zlib.h>
 

@@ -29,10 +29,12 @@
  */
 
 #include "video.h"
+
 #include "generate.h"
 #include "gtf.h"
 #include "crtcbag.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <stdio.h>

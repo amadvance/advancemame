@@ -30,6 +30,7 @@
 
 #include "vnone.h"
 #include "video.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <stdlib.h>

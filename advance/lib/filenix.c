@@ -48,10 +48,11 @@
 
 struct file_context {
 	char file_abs_buffer[FILE_MAXPATH]; /**< Absolute path returned by file_abs_buffer. */
-	char root_dir_buffer[FILE_MAXPATH]; /**< Root directory. */
+	char data_dir_buffer[FILE_MAXPATH]; /**< Data directory. */
 	char home_dir_buffer[FILE_MAXPATH]; /**< Home directory. */
 	char dir_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
-	char file_root_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
+	char file_host_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
+	char file_data_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_home_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 };
 
@@ -67,7 +68,7 @@ adv_error file_init(void)
 	memset(&FL, 0, sizeof(FL));
 
 	/* root */
-	snprintf(FL.root_dir_buffer, sizeof(FL.root_dir_buffer), "%s", DATADIR);
+	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", DATADIR);
 
 	/* home */
 
@@ -86,10 +87,10 @@ adv_error file_init(void)
 				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s.advance", home);
 		} else {
 			/* use ROOT */
-			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", FL.root_dir_buffer);
+			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", FL.data_dir_buffer);
 
 			/* clear the root dir */
-			FL.root_dir_buffer[0] = 0;
+			FL.data_dir_buffer[0] = 0;
 		}
 	}
 
@@ -139,9 +140,7 @@ adv_error file_dir_make(const char* dir)
 
 adv_bool file_path_is_abs(const char* file)
 {
-	return file[0] == '/'
-		|| (file[0] == '.' && file[1] == '/')
-		|| (file[0] == '.' && file[1] == '.' && file[2] == '/');
+	return file[0] == '/';
 }
 
 const char* file_abs(const char* dir, const char* file)
@@ -171,15 +170,25 @@ const char* file_export(const char* path)
 /***************************************************************************/
 /* Files */
 
-const char* file_config_file_root(const char* file)
+const char* file_config_file_host(const char* file)
 {
-	if (FL.root_dir_buffer[0]) {
+	if (file[0] == '/')
+		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s", file);
+	else
+		/* if relative add the root data dir */
+		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "/etc/%s", file);
+	return FL.file_host_buffer;
+}
+
+const char* file_config_file_data(const char* file)
+{
+	if (FL.data_dir_buffer[0]) {
 		if (file[0] == '/')
-			snprintf(FL.file_root_buffer, sizeof(FL.file_root_buffer), "%s", file);
+			snprintf(FL.file_data_buffer, sizeof(FL.file_data_buffer), "%s", file);
 		else
 			/* if relative add the root data dir */
-			snprintf(FL.file_root_buffer, sizeof(FL.file_root_buffer), "%s/%s", FL.root_dir_buffer, file);
-		return FL.file_root_buffer;
+			snprintf(FL.file_data_buffer, sizeof(FL.file_data_buffer), "%s/%s", FL.data_dir_buffer, file);
+		return FL.file_data_buffer;
 	} else {
 		return 0;
 	}
@@ -203,8 +212,8 @@ const char* file_config_file_legacy(const char* file)
 const char* file_config_dir_multidir(const char* tag)
 {
 	assert( tag[0] != '/' );
-	if (FL.root_dir_buffer[0])
-		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s/%s:%s/%s", FL.home_dir_buffer, tag, FL.root_dir_buffer, tag);
+	if (FL.data_dir_buffer[0])
+		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s/%s:%s/%s", FL.home_dir_buffer, tag, FL.data_dir_buffer, tag);
 	else
 		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s/%s", FL.home_dir_buffer, tag);
 	return FL.dir_buffer;
@@ -219,8 +228,8 @@ const char* file_config_dir_singledir(const char* tag)
 
 const char* file_config_dir_singlefile(void)
 {
-	if (FL.root_dir_buffer[0])
-		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s:%s", FL.home_dir_buffer, FL.root_dir_buffer);
+	if (FL.data_dir_buffer[0])
+		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s:%s", FL.home_dir_buffer, FL.data_dir_buffer);
 	else
 		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s", FL.home_dir_buffer);
 	return FL.dir_buffer;

@@ -573,7 +573,7 @@ bool config_state::load_iterator_game(adv_conf* config_context, const string& ta
 			if (ignored_count < 10)
 				target_err("Ignoring info for game '%s'.\n", game.c_str());
 			else if (ignored_count == 10)
-				target_err("And also for other games\n");
+				target_err("And also for other games.\n");
 		}
 
 		conf_iterator_next(&i);

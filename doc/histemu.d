@@ -30,6 +30,10 @@ AdvanceMAME Version 0.72.0 2003/09
 		vt pressing ALT+Fx.
 	) The Linux version of the advv and advcfg utilities have now
 		a better keyboard input handling.
+	) In Linux the host configuration files are now read in /etc,
+		the files in */share/advance have now less priority
+		of the user specified options. They can be used
+		to set default options.
 
 AdvanceMESS Version 0.72.0.0 2003/09
 	) All from AdvanceMAME 0.72.0.

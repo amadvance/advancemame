@@ -32,6 +32,7 @@
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #ifdef USE_VIDEO_SDL

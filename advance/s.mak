@@ -6,6 +6,7 @@ SCFLAGS += \
 	-I$(srcdir)/advance/mpglib
 SOBJS += \
 	$(SOBJ)/lib/portable.o \
+	$(SOBJ)/lib/snstring.o \
 	$(SOBJ)/lib/log.o \
 	$(SOBJ)/lib/conf.o \
 	$(SOBJ)/lib/incstr.o \

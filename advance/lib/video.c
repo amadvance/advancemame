@@ -29,11 +29,13 @@
  */
 
 #include "video.h"
+
 #include "log.h"
 #include "target.h"
 #include "os.h"
 #include "error.h"
 #include "rgb.h"
+#include "snstring.h"
 #include "portable.h"
    
 #include <ctype.h>

@@ -255,7 +255,7 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 /* Parse error callback */
 void script_error(const char* s)
 {
-	target_err("Error compiling the script: %s\n", STATE.script_text);
+	target_err("Error compiling the script: '%s'.\n", STATE.script_text);
 	target_err("%s\n", s);
 }
 

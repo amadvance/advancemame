@@ -33,6 +33,7 @@
 #include "oslinux.h"
 #include "error.h"
 #include "event.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <unistd.h>

@@ -13,6 +13,7 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/v
 CFGOBJS += \
 	$(CFGOBJ)/lib/portable.o \
+	$(CFGOBJ)/lib/snstring.o \
 	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
 	$(CFGOBJ)/lib/rgb.o \

@@ -30,6 +30,7 @@
 
 #include "emu.h"
 #include "target.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <string.h>

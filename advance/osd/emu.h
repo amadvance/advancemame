@@ -61,17 +61,6 @@
 #define ADVANCE_NAME "advmess"
 #define ADVANCE_NAME_LEGACY "mess"
 
-#elif defined(PAC)
-
-#define ADVANCE_COPY \
-	"AdvancePAC - Copyright (C) 2002-2003 by Andrea Mazzoleni\n" \
-	"PacMAME - Copyright (C) 2001-2003 by Brian Glam\n" \
-	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
-
-#define ADVANCE_TITLE "AdvancePAC"
-#define ADVANCE_NAME "advpac"
-#define ADVANCE_NAME_LEGACY "pacmame"
-
 #else
 
 #define ADVANCE_COPY \

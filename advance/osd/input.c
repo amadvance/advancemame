@@ -28,13 +28,14 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "emu.h"
-#include "log.h"
-#include "target.h"
-#include "error.h"
-
 #include "mame2.h"
 
+#include "emu.h"
+
+#include "log.h"
+#include "target.h"
+#include "snstring.h"
+#include "error.h"
 #include "hscript.h"
 #include "conf.h"
 #include "os.h"
@@ -1414,8 +1415,8 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			d = strdup(s);
 			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE]\n");
+				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE].\n");
 				return -1;
 			}
 			free(d);
@@ -1433,8 +1434,8 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			d = strdup(s);
 			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is [-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE]\n");
+				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Valid format is [-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE].\n");
 				return -1;
 			}
 			free(d);
@@ -1456,8 +1457,8 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			context->config.digital_map[i].port = p->port;
 			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is keyboard[KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON]\n");
+				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Valid format is keyboard[KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
 				return -1;
 			}
 			++i;

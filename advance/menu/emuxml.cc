@@ -61,9 +61,9 @@ struct state_t {
 static void process_error(struct state_t* state, const char* tag, const char* msg)
 {
 	if (*tag)
-		target_err("Error reading at line %d for element/attribute `%s' for %s\n", XML_GetCurrentLineNumber(state->parser), tag, msg);
+		target_err("Error reading at line %d for element/attribute `%s' for %s.\n", XML_GetCurrentLineNumber(state->parser), tag, msg);
 	else
-		target_err("Error reading at line %d for %s\n", XML_GetCurrentLineNumber(state->parser), msg);
+		target_err("Error reading at line %d for %s.\n", XML_GetCurrentLineNumber(state->parser), msg);
 	state->error = 1;
 }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002 Kari Hautio <rusa@iki.fi>
+ * Copyright (C) 2002 Kari Hautio
  * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
@@ -181,6 +181,15 @@ static adv_device DEVICE[] = {
 
 static struct keyb_raw_context raw_state;
 
+static void keyb_raw_clear(void)
+{
+	unsigned i;
+
+	for(i=0;i<256;++i) {
+		raw_state.state[i] = 0;
+	}
+}
+
 adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
@@ -199,9 +208,6 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
 		raw_state.map_up_to_low[i->up_code] = i->low_code;
 	}
-	for(j=0;j<256;++j) {
-		raw_state.state[j] = 0;
-	}
 
 	raw_state.disable_special_flag = disable_special;
 
@@ -213,7 +219,7 @@ void keyb_raw_done(void)
 	log_std(("keyb:raw: keyb_raw_done()\n"));
 }
 
-adv_error keyb_raw_enable(adv_bool graphics_mode)
+adv_error keyb_raw_enable(adv_bool graphics)
 {
 	log_std(("keyb:raw: keyb_raw_enable()\n"));
 
@@ -233,7 +239,7 @@ adv_error keyb_raw_enable(adv_bool graphics_mode)
 	}
 #endif
 
-	raw_state.graphics_flag = graphics_mode;
+	raw_state.graphics_flag = graphics;
 
 	raw_state.f = open("/dev/tty", O_RDONLY);
 	if (raw_state.f == -1) {
@@ -287,7 +293,7 @@ adv_error keyb_raw_enable(adv_bool graphics_mode)
 		}
 	}
 
-	memset(raw_state.state, 0, sizeof(raw_state.state));
+	keyb_raw_clear();
 
 	return 0;
 }
@@ -490,10 +496,7 @@ static void keyb_raw_vt_switch(unsigned char code)
 		}
 	}
 
-	/* need to clear keystates */
-	for(i=0;i<256;++i) {
-		raw_state.state[i] = 0;
-	}
+	keyb_raw_clear();
 }
 
 void keyb_raw_poll(void)

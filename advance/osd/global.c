@@ -31,6 +31,7 @@
 #include "emu.h"
 #include "glue.h"
 #include "log.h"
+#include "snstring.h"
 #include "target.h"
 
 #include "mame2.h"
@@ -56,7 +57,7 @@ int osd_display_loading_rom_message(const char* name, struct rom_load_data* romd
 	if (!romdata && name) {
 		/* it's a message */
 		if (!context->config.quiet_flag || strstr(name,"ERROR")!=0) {
-			target_err("%s",name);
+			target_err("%s", name);
 		}
 	}
 

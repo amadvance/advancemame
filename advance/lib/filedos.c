@@ -260,7 +260,12 @@ const char* file_export(const char* path)
 /***************************************************************************/
 /* Files */
 
-const char* file_config_file_root(const char* file)
+const char* file_config_file_host(const char* file)
+{
+	return 0;
+}
+
+const char* file_config_file_data(const char* file)
 {
 	return 0;
 }

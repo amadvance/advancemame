@@ -47,6 +47,7 @@
 #include "videoall.h"
 #include "keydrv.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <stdlib.h>
@@ -1357,7 +1358,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		if (video_is_programmable(context)) {
 			if (monitor_is_empty(&context->config.monitor)) {
 				target_err("Missing options `device_video_p/h/vclock'.\n");
-				target_err("Please read the file `install.txt' and `advv.txt'.\n");
+				target_err("Please read the file `install.txt' and `device.txt'.\n");
 				return -1;
 			}
 		}
@@ -3420,7 +3421,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		char* e;
 		context->config.fps_fixed = strtod(s,&e);
 		if (context->config.fps_fixed < 10 || context->config.fps_fixed > 300 || *e) {
-			target_err("Invalid argument '%s' for option 'misc_fps'\n", s);
+			target_err("Invalid argument '%s' for option 'misc_fps'.\n", s);
 			return -1;
 		}
 	}
@@ -3445,7 +3446,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		context->config.frameskip_auto_flag = 0;
 		context->config.frameskip_factor = strtod(s, &e);
 		if (context->config.frameskip_factor < 0.0 || context->config.frameskip_factor > 1.0 || *e) {
-			target_err("Invalid argument '%s' for option 'display_frameskip'\n", s);
+			target_err("Invalid argument '%s' for option 'display_frameskip'.\n", s);
 			return -1;
 		}
 	}
@@ -3460,7 +3461,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	err = monitor_load(cfg_context, &context->config.monitor);
 	if (err<0) {
 		target_err("%s\n", error_get());
-		target_err("Please read the file `install.txt' and `advv.txt'.\n");
+		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
 	}
 	if (err == 0) {
@@ -3481,7 +3482,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
 	if (err<0) {
 		target_err("%s\n", error_get());
-		target_err("Please read the file `install.txt' and `advv.txt'.\n");
+		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
 	} else if (err>0) {
 		if (monitor_hclock_check(&context->config.monitor, 15720)) {

@@ -44,6 +44,7 @@
 #include "keyall.h"
 #include "joyall.h"
 #include "mouseall.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <signal.h>
@@ -357,7 +358,7 @@ int os_main(int argc, char* argv[])
 	char* opt_gamename;
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
-	adv_conf* cfg_context;
+	adv_conf* config_context;
 	const char* section_map[5];
 
 	opt_info = 0;
@@ -376,46 +377,52 @@ int os_main(int argc, char* argv[])
 		goto err;
 	}
 
-	cfg_context = conf_init();
-	if (!cfg_context) {
+	config_context = conf_init();
+	if (!config_context) {
 		target_err("Error initializing the configuration support.\n");
 		goto err_thread;
 	}
 
-	if (os_init(cfg_context)!=0) {
+	if (os_init(config_context)!=0) {
 		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
 
 	/* include file */
-	conf_string_register_default(cfg_context, "include", "");
+	conf_string_register_default(config_context, "include", "");
 
-	if (mame_init(context, cfg_context)!=0)
+	if (mame_init(context, config_context)!=0)
 		goto err_os;
-	if (advance_global_init(&context->global, cfg_context)!=0)
+	if (advance_global_init(&context->global, config_context)!=0)
 		goto err_os;
-	if (advance_video_init(&context->video, cfg_context)!=0)
+	if (advance_video_init(&context->video, config_context)!=0)
 		goto err_os;
-	if (advance_sound_init(&context->sound, cfg_context)!=0)
+	if (advance_sound_init(&context->sound, config_context)!=0)
 		goto err_os;
-	if (advance_input_init(&context->input, cfg_context)!=0)
+	if (advance_input_init(&context->input, config_context)!=0)
 		goto err_os;
-	if (advance_record_init(&context->record, cfg_context)!=0)
+	if (advance_record_init(&context->record, config_context)!=0)
 		goto err_os;
-	if (advance_fileio_init(cfg_context)!=0)
+	if (advance_fileio_init(config_context)!=0)
 		goto err_os;
-	if (advance_safequit_init(&context->safequit, cfg_context)!=0)
+	if (advance_safequit_init(&context->safequit, config_context)!=0)
 		goto err_os;
-	if (hardware_script_init(cfg_context)!=0)
+	if (hardware_script_init(config_context)!=0)
 		goto err_os;
 
-	if (file_config_file_root(ADVANCE_NAME ".rc")!=0) {
-		if (conf_input_file_load_adv(cfg_context, 3, file_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (file_config_file_host(ADVANCE_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(config_context, 4, file_config_file_host(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_os;
 		}
 	}
 
-	if (conf_input_file_load_adv(cfg_context, 0, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_data(ADVANCE_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(config_context, 0, file_config_file_data(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_os;
+		}
+	}
+
+	if (conf_input_file_load_adv(config_context, 1, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
 
 	/* check if the configuration file is writable */
@@ -425,7 +432,7 @@ int os_main(int argc, char* argv[])
 		context->global.state.is_config_writable = access(file_config_file_home("."), W_OK)==0;
 	}
 
-	if (conf_input_args_load(cfg_context, 2, "", &argc, argv, error_callback, 0) != 0)
+	if (conf_input_args_load(config_context, 3, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
 	option.debug_flag = 0;
@@ -489,11 +496,10 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
-	if (!(file_config_file_root(ADVANCE_NAME ".rc") != 0 && access(file_config_file_root(ADVANCE_NAME ".rc"), R_OK)==0)
-		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)==0)) {
-		conf_set_default_if_missing(cfg_context, "");
-		conf_sort(cfg_context);
-		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
+	if (access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)!=0) {
+		conf_set_default_if_missing(config_context, "");
+		conf_sort(config_context);
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -501,8 +507,8 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_default) {
-		conf_set_default_if_missing(cfg_context, "");
-		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
+		conf_set_default_if_missing(config_context, "");
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -510,8 +516,8 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_remove) {
-		conf_remove_if_default(cfg_context, "");
-		if (conf_save(cfg_context, 1, 0, error_callback, 0) != 0) {
+		conf_remove_if_default(config_context, "");
+		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -537,9 +543,9 @@ int os_main(int argc, char* argv[])
 		/* differ because a specific option for the game may be present in the */
 		/* configuration */
 		section_map[0] = "";
-		conf_section_set(cfg_context, section_map, 1);
+		conf_section_set(config_context, section_map, 1);
 
-		if (advance_fileio_config_load(cfg_context, &option) != 0)
+		if (advance_fileio_config_load(config_context, &option) != 0)
 			goto err_os;
 
 		option.game = mame_playback_look(option.playback_file_buffer);
@@ -560,35 +566,35 @@ int os_main(int argc, char* argv[])
 	else
 		section_map[3] = "horizontal";
 	section_map[4] = "";
-	conf_section_set(cfg_context, section_map, 5);
+	conf_section_set(config_context, section_map, 5);
 	for(i=0;i<5;++i)
 		log_std(("advance: use configuration section '%s'\n", section_map[i]));
 
 	/* setup the include configuration file */
-	if (include_load(cfg_context, 1, conf_string_get_default(cfg_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (include_load(config_context, 2, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_os;
 	}
 
 	log_std(("advance: *_load()\n"));
 
 	/* load all the options */
-	if (mame_config_load(cfg_context, &option) != 0)
+	if (mame_config_load(config_context, &option) != 0)
 		goto err_os;
-	if (advance_global_config_load(&context->global, cfg_context)!=0)
+	if (advance_global_config_load(&context->global, config_context)!=0)
 		goto err_os;
-	if (advance_video_config_load(&context->video, cfg_context, &option) != 0)
+	if (advance_video_config_load(&context->video, config_context, &option) != 0)
 		goto err_os;
-	if (advance_sound_config_load(&context->sound, cfg_context, &option) != 0)
+	if (advance_sound_config_load(&context->sound, config_context, &option) != 0)
 		goto err_os;
-	if (advance_input_config_load(&context->input, cfg_context) != 0)
+	if (advance_input_config_load(&context->input, config_context) != 0)
 		goto err_os;
-	if (advance_record_config_load(&context->record, cfg_context) != 0)
+	if (advance_record_config_load(&context->record, config_context) != 0)
 		goto err_os;
-	if (advance_fileio_config_load(cfg_context, &option) != 0)
+	if (advance_fileio_config_load(config_context, &option) != 0)
 		goto err_os;
-	if (advance_safequit_config_load(&context->safequit, cfg_context) != 0)
+	if (advance_safequit_config_load(&context->safequit, config_context) != 0)
 		goto err_os;
-	if (hardware_script_config_load(cfg_context) != 0)
+	if (hardware_script_config_load(config_context) != 0)
 		goto err_os;
 
 	if (!context->global.config.quiet_flag) {
@@ -605,7 +611,7 @@ int os_main(int argc, char* argv[])
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
-	if (advance_input_inner_init(&context->input, cfg_context) != 0)
+	if (advance_input_inner_init(&context->input, config_context) != 0)
 		goto err_inner_video;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
 		goto err_inner_input;
@@ -654,11 +660,11 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: conf_save()\n"));
 
 	/* save the configuration only if modified, ignore the error but print the message */
-	conf_save(cfg_context, 0, context->global.config.quiet_flag, error_callback, 0);
+	conf_save(config_context, 0, context->global.config.quiet_flag, error_callback, 0);
 
 	log_std(("advance: conf_done()\n"));
 
-	conf_done(cfg_context);
+	conf_done(config_context);
 
 	thread_done();
 
@@ -666,7 +672,7 @@ int os_main(int argc, char* argv[])
 
 done_os:
 	os_done();
-	conf_done(cfg_context);
+	conf_done(config_context);
 	return 0;
 
 err_inner_script:
@@ -682,7 +688,7 @@ err_os_inner:
 err_os:
 	os_done();
 err_conf:
-	conf_done(cfg_context);
+	conf_done(config_context);
 err_thread:
 	thread_done();
 err:

@@ -36,6 +36,7 @@
 #include "file.h"
 #include "hscript.h"
 #include "glue.h"
+#include "snstring.h"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -1496,7 +1497,7 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 		}
 
 		if (option->ram == 0 || *e) {
-			target_err("Invalid argument '%s' for option 'misc_ramsize'\n", s);
+			target_err("Invalid argument '%s' for option 'misc_ramsize'.\n", s);
 			return -1;
 		}
 	}

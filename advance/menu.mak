@@ -33,6 +33,7 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/resource.o \
 	$(MENUOBJ)/menu/text.o \
 	$(MENUOBJ)/lib/portable.o \
+	$(MENUOBJ)/lib/snstring.o \
 	$(MENUOBJ)/lib/log.o \
 	$(MENUOBJ)/lib/mng.o \
 	$(MENUOBJ)/lib/bitmap.o \

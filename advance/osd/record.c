@@ -30,9 +30,10 @@
 
 #include "emu.h"
 #include "log.h"
-#include "portable.h"
 #include "endianrw.h"
+#include "snstring.h"
 #include "wave.h"
+#include "portable.h"
 
 #include <zlib.h>
 

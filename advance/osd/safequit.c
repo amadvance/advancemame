@@ -2,7 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Ian Patterson
- * Copyright (C) 1999-2003 Andrea Mazzoleni
+ * Copyright (C) 2002-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,13 +29,14 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "emu.h"
-#include "log.h"
-
 #include "mame2.h"
 
-#include <ctype.h>
+#include "emu.h"
 
+#include "log.h"
+#include "snstring.h"
+
+#include <ctype.h>
 
 static adv_error advance_safequit_insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
 {
@@ -46,7 +47,7 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 	struct safequit_entry* entry = &context->state.entry_map[context->state.entry_mac];
 
 	if (context->state.entry_mac >= SAFEQUIT_ENTRY_MAX) {
-		target_err("Too many entries on the safequit database.\n");
+		target_err("Too many entries on the event database.\n");
 		return -1;
 	}
 
@@ -134,7 +135,7 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 	return 0;
 
 err:
-	target_err("Error parsing the safequit line %d for game '%s'.\n", line, game);
+	target_err("Error parsing the event database line %d for game '%s'.\n", line, game);
 	return -1;
 }
 
@@ -149,7 +150,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 
 	f = mame_fopen(NULL, file, FILETYPE_HISTORY, 0);
 	if (!f) {
-		target_err("Error opening the safequit database %s.\n", file);
+		target_err("Error opening the event database %s.\n", file);
 		goto err;
 	}
 
