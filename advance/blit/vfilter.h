@@ -111,4 +111,183 @@ static void video_stage_filter32_set(struct video_stage_horz_struct* stage, unsi
 	STAGE_PUT(stage, BLITTER(video_line_filter32_step4), video_line_filter32_step);
 }
 
+/****************************************************************************/
+/* interlacefilter */
+
+#if defined(USE_ASM_i586)
+static inline unsigned internal_interlacefilter8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy8_mmx(buffer, src, count);
+		internal_copy8_mmx(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean8_vert_self_mmx(buffer, src, count);
+		internal_copy8_mmx(dst, buffer, count);
+		internal_copy8_mmx(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+
+static inline unsigned internal_interlacefilter16_step1_mmx(unsigned state, uint16* buffer, uint16* dst, const uint16* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy16_mmx(buffer, src, count);
+		internal_copy16_mmx(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean16_vert_self_mmx(buffer, src, count);
+		internal_copy16_mmx(dst, buffer, count);
+		internal_copy16_mmx(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+
+static inline unsigned internal_interlacefilter32_step1_mmx(unsigned state, uint32* buffer, uint32* dst, const uint32* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy32_mmx(buffer, src, count);
+		internal_copy32_mmx(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean32_vert_self_mmx(buffer, src, count);
+		internal_copy32_mmx(dst, buffer, count);
+		internal_copy32_mmx(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+#endif
+
+static inline unsigned internal_interlacefilter8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy8_def(buffer, src, count);
+		internal_copy8_def(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean8_vert_self_def(buffer, src, count);
+		internal_copy8_def(dst, buffer, count);
+		internal_copy8_def(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+
+static inline unsigned internal_interlacefilter16_step1_def(unsigned state, uint16* buffer, uint16* dst, const uint16* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy16_def(buffer, src, count);
+		internal_copy16_def(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean16_vert_self_def(buffer, src, count);
+		internal_copy16_def(dst, buffer, count);
+		internal_copy16_def(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+
+static inline unsigned internal_interlacefilter32_step1_def(unsigned state, uint32* buffer, uint32* dst, const uint32* src, unsigned count)
+{
+	switch (state) {
+	case 0 :
+		internal_copy32_def(buffer, src, count);
+		internal_copy32_def(dst, buffer, count);
+		state = 1;
+		break;
+	case 1 :
+		internal_mean32_vert_self_def(buffer, src, count);
+		internal_copy32_def(dst, buffer, count);
+		internal_copy32_def(buffer, src, count);
+		state = 1;
+		break;
+	}
+	return state;
+}
+
+#if defined(USE_ASM_i586)
+static void video_line_interlacefilter8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+}
+#endif
+
+/****************************************************************************/
+/* interlacefilter8 */
+
+static void video_line_interlacefilter8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+}
+
+static void video_stage_interlacefilter8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_interlace_filter, sdx, sdp, 1, sdx, 1);
+	STAGE_EXTRA(stage);
+	STAGE_PUT(stage, BLITTER(video_line_interlacefilter8_step1), 0);
+}
+
+/****************************************************************************/
+/* interlacefilter16 */
+
+#if defined(USE_ASM_i586)
+static void video_line_interlacefilter16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+}
+#endif
+
+static void video_line_interlacefilter16_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+}
+
+static void video_stage_interlacefilter16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_interlace_filter, sdx, sdp, 2, sdx, 2);
+	STAGE_EXTRA(stage);
+	STAGE_PUT(stage, BLITTER(video_line_interlacefilter16_step1), 0);
+}
+
+/****************************************************************************/
+/* interlacefilter32 */
+
+#if defined(USE_ASM_i586)
+static void video_line_interlacefilter32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+}
+#endif
+
+static void video_line_interlacefilter32_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+}
+
+static void video_stage_interlacefilter32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
+{
+	STAGE_SIZE(stage, pipe_interlace_filter, sdx, sdp, 4, sdx, 4);
+	STAGE_EXTRA(stage);
+	STAGE_PUT(stage, BLITTER(video_line_interlacefilter32_step1), 0);
+}
+
 #endif

@@ -7,6 +7,8 @@ cheat.c
 cheat.h
 common.c
 common.h
+config.c
+config.h
 core.mak
 cpuexec.c
 cpuexec.h

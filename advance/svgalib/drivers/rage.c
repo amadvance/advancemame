@@ -1291,7 +1291,11 @@ static int rage_init(int force, int par1, int par2)
    } else
 #endif
 	{
+#if 0
 	   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xe4100000);
+#else
+	   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xc0000);
+#endif
 
 	   i=BIOSWord(0x48);
 	   j=BIOSWord(i+0x10);

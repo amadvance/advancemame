@@ -201,7 +201,7 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 	}
 
 	if (!crtc_clock_check(&context->config.monitor, crtc)) {
-		log_std(("ERROR:emu:video: checking the final clock"));
+		log_std(("ERROR:emu:video: checking the final clock %g/%g/%g\n", (double)crtc->pixelclock / 1E6, crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc)));
 		return -1;
 	}
 
@@ -1764,6 +1764,9 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 	case EFFECT_INTERLACE_ODD :
 		combine |= VIDEO_COMBINE_SWAP_ODD;
 		break;
+	case EFFECT_INTERLACE_FILTER :
+		combine |= VIDEO_COMBINE_INTERLACE_FILTER;
+		break;
 	}
 
 	switch (context->state.combine) {
@@ -2531,7 +2534,7 @@ static void advance_video_update(struct advance_video_context* context, struct a
 	}
 }
 
-static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
+static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 	/* Do a yield immediatly before time the syncronization. */
 	/* If a schedule will be done, it's better to have it now when */
@@ -2547,7 +2550,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 
 	/* all the update */
 	advance_video_update(context, record_context, game, debug, debug_palette, debug_palette_size, input, skip_flag);
-	advance_sound_update(sound_context, record_context, context, sample_buffer, sample_count);
+	advance_sound_update(sound_context, record_context, context, sample_buffer, sample_count, sample_recount);
 
 	/* estimate the time */
 	advance_estimate_osd_end(estimate_context, skip_flag);
@@ -2590,7 +2593,7 @@ static void bitmap_free(struct osd_bitmap* bitmap)
  * Precomputation of the frame before updating.
  * Mainly used to duplicate the data for the video thread.
  */
-static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
+static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	/* don't use the thread if the debugger is active */
@@ -2624,6 +2627,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 
 		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample );
 		context->state.thread_state_sample_count = sample_count;
+		context->state.thread_state_sample_count = sample_recount;
 
 		advance_estimate_common_end(estimate_context, skip_flag);
 
@@ -2632,7 +2636,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
-static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
+static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag) {
@@ -2648,10 +2652,10 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
 	} else {
-		video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
+		video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 	}
 #else
-	video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
+	video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 #endif
 }
 
@@ -2705,6 +2709,7 @@ static void* video_thread(void* void_context)
 			context->state.thread_state_input,
 			context->state.thread_state_sample_buffer,
 			context->state.thread_state_sample_count,
+			context->state.thread_state_sample_recount,
 			context->state.thread_state_skip_flag
 		);
 
@@ -3010,7 +3015,6 @@ void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 	if (size_x != context->state.game_used_size_x
 		|| size_y != context->state.game_used_size_y) {
 		log_std(("ERROR:emu:video: change in the game area size. From %dx%d to %dx%d\n", context->state.game_used_size_x, context->state.game_used_size_y, size_x, size_y));
-		return;
 	}
 
 	context->state.game_used_pos_x = pos_x;
@@ -3119,6 +3123,20 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	/* current error of video/sound syncronization */
 	int latency_diff;
 
+	/* effective number of sound samples to output */
+	int sample_recount;
+
+#if USE_INTERNALRESAMPLE
+	/* adjust the output sample count to correct the syncronization error */
+	/* the / 16 division is a low pass filter to improve the stability */
+	sample_recount = sample_count - CONTEXT.video.state.latency_diff / 16;
+	if (sample_recount < 16) {
+		/* doesn't allow an invalid value */
+		sample_recount = 16;
+	}
+	latency_diff = 0;
+#else
+	/* ask the MAME core to adjust the number of generated samples */
 	if (advance_record_sound_is_active(&CONTEXT.record)) {
 		/* if recording is active does't skip any samples */
 		latency_diff = 0;
@@ -3127,6 +3145,8 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		/* the / 16 division is a low pass filter to improve the stability */
 		latency_diff = CONTEXT.video.state.latency_diff / 16;
 	}
+	sample_recount = sample_count;
+#endif
 
 	/* update the global info */
 	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, led, input, skip_flag);
@@ -3138,10 +3158,10 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	advance_estimate_mame_end(&CONTEXT.estimate, skip_flag);
 
 	/* prepare the frame */
-	video_frame_prepare(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
+	video_frame_prepare(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* update the local info */
-	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, skip_flag);
+	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* estimate the time */
 	advance_estimate_mame_begin(&CONTEXT.estimate);
@@ -3281,7 +3301,8 @@ static adv_conf_enum_int OPTION_RGBEFFECT[] = {
 static adv_conf_enum_int OPTION_INTERLACEEFFECT[] = {
 { "none", EFFECT_NONE },
 { "odd", EFFECT_INTERLACE_ODD },
-{ "even", EFFECT_INTERLACE_EVEN }
+{ "even", EFFECT_INTERLACE_EVEN },
+{ "filter", EFFECT_INTERLACE_FILTER }
 };
 
 static adv_conf_enum_int OPTION_INDEX[] = {

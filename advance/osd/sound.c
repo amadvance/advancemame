@@ -203,15 +203,155 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 	context->state.adjust_mult = new_mult;
 }
 
+static void sound_scale(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count, unsigned sample_recount)
+{
+	adv_slice slice;
+	unsigned i, j;
+
+	log_std(("SOUND: %d %d %d\n", channel, sample_count, sample_recount));
+
+	slice_set(&slice, sample_count, sample_recount);
+
+	if (channel == 1) {
+		if (sample_count < sample_recount) {
+			/* expansion */
+			int count = slice.count;
+			int error = slice.error;
+			while (count) {
+				unsigned run = slice.whole;
+				if ((error += slice.up) > 0) {
+					++run;
+					error -= slice.down;
+				}
+
+				while (run) {
+					output_sample[0] = input_sample[0];
+					output_sample += 1;
+					--run;
+				}
+				input_sample += 1;
+
+				--count;
+			}
+		} else {
+			/* reduction */
+			int count = slice.count;
+			int error = slice.error;
+			while (count) {
+				unsigned run = slice.whole;
+				if ((error += slice.up) > 0) {
+					++run;
+					error -= slice.down;
+				}
+
+				output_sample[0] = input_sample[0];
+				output_sample += 1;
+				input_sample += run;
+
+				--count;
+			}
+		}
+	} else if (channel == 2) {
+		if (sample_count < sample_recount) {
+			/* expansion */
+			int count = slice.count;
+			int error = slice.error;
+			while (count) {
+				unsigned run = slice.whole;
+				if ((error += slice.up) > 0) {
+					++run;
+					error -= slice.down;
+				}
+
+				while (run) {
+					output_sample[0] = input_sample[0];
+					output_sample[1] = input_sample[1];
+					output_sample += 2;
+					--run;
+				}
+				input_sample += 2;
+
+				--count;
+			}
+		} else {
+			/* reduction */
+			int count = slice.count;
+			int error = slice.error;
+			while (count) {
+				unsigned run = slice.whole;
+				if ((error += slice.up) > 0) {
+					++run;
+					error -= slice.down;
+				}
+
+				output_sample[0] = input_sample[0];
+				output_sample[1] = input_sample[1];
+				output_sample += 2;
+				input_sample += 2*run;
+
+				--count;
+			}
+		}
+	}
+}
+
+static void sound_play_recount(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
+{
+	unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	if (sample_count != sample_recount) {
+		short* sample_re = (short*)malloc(sample_recount * context->state.output_bytes_per_sample);
+
+		sound_scale(context, output_channel, sample_buffer, sample_re, sample_count, sample_recount);
+
+		soundb_play(sample_re, sample_recount);
+
+		free(sample_re);
+	} else {
+		soundb_play(sample_buffer, sample_count);
+	}
+}
+
+static void sound_play_adjust_own(struct advance_sound_context* context, short* sample_buffer, unsigned sample_count, unsigned sample_recount)
+{
+	unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	if (context->config.adjust_flag) {
+		sound_adjust(context, output_channel, sample_buffer, sample_buffer, sample_count);
+
+		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
+	} else {
+		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
+	}
+}
+
+static void sound_play_adjust_const(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
+{
+	unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	if (context->config.adjust_flag) {
+		short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
+
+		sound_adjust(context, output_channel, sample_buffer, sample_mix, sample_count);
+
+		sound_play_recount(context, sample_mix, sample_count, sample_recount);
+
+		free(sample_mix);
+	} else {
+		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
+	}
+}
+
 /**
  * Update the sound stream.
  * It must NEVER block.
- * \param sample_buffer buffer of sample in signed 16 bit format
- * \param sample_count number of samples (not multiplied by 2 if stereo)
+ * \param sample_buffer Buffer of sample in signed 16 bit format.
+ * \param sample_count Number of samples (not multiplied by 2 if stereo).
+ * \param sample_diff Correction of the number of sample to output.
  */
-void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count)
+void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
 {
-	log_debug(("advance: sound play %d\n", sample_count));
+	log_debug(("advance: sound play count:%d, diff:%d\n", sample_count, sample_recount));
 
 	if (context->state.active_flag) {
 		if (context->state.input_mode != context->state.output_mode) {
@@ -260,28 +400,11 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 				memset(sample_mix, 0, sample_count * context->state.output_bytes_per_sample);
 			}
 
-			if (context->config.adjust_flag) {
-				unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
-				sound_adjust(context, output_channel, sample_mix, sample_mix, sample_count);
-			}
-
-			soundb_play(sample_mix, sample_count);
+			sound_play_adjust_own(context, sample_mix, sample_count, sample_recount);
 
 			free(sample_mix);
-
 		} else {
-			if (context->config.adjust_flag) {
-				unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
-				short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
-
-				sound_adjust(context, output_channel, sample_buffer, sample_mix, sample_count);
-
-				soundb_play(sample_mix, sample_count);
-
-				free(sample_mix);
-			} else {
-				soundb_play(sample_buffer, sample_count);
-			}
+			sound_play_adjust_const(context, sample_buffer, sample_count, sample_recount);
 		}
 
 		if (!video_context->state.pause_flag)
@@ -293,7 +416,7 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
  * Return the current sound latency error.
  * If this value is positive the stream needs less samples.
  * If this values is negative the stream needs more samples.
- * \param extra_latency Extra latency time for the skipped samples.
+ * \param extra_latency Extra latency time (in seconds) required.
  * \return Error in samples
  */
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency)

@@ -83,6 +83,7 @@ enum video_stage_enum {
 	pipe_x_rgb_scantriplevert, /**< Vertical triple scanline. */
 	pipe_swap_even, /**< Swap every two even rows. */
 	pipe_swap_odd, /**< Swap every two odd rows. */
+	pipe_interlace_filter, /**< Interlace filter. */
 	pipe_palette8to8, /**< Palette conversion 8 -\> 8. */
 	pipe_palette8to16, /**< Palette conversion 8 -\> 16. */
 	pipe_palette8to32, /**< Palette conversion 8 -\> 32. */
@@ -203,6 +204,7 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_SWAP_ODD 0x10000 /**< Swap every two odd line. */
 #define VIDEO_COMBINE_X_MAX 0x20000 /**< Horizontal stretch using the max effect */
 #define VIDEO_COMBINE_X_MEAN 0x40000 /**< Horizontal stretch using the mean effect */
+#define VIDEO_COMBINE_INTERLACE_FILTER 0x80000 /**< Vertical filter for interlace. */
 /*@}*/
 
 struct video_stage_vert_struct;

@@ -444,7 +444,7 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
  	
 diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
 --- ../svgalib.ori/drivers/rage.c	2003-10-13 17:40:51.000000000 +0200
-+++ drivers/rage.c	2003-10-13 21:57:44.000000000 +0200
++++ drivers/rage.c	2003-11-25 18:37:25.000000000 +0100
 @@ -33,12 +33,12 @@
  #include <sys/mman.h>
  #include "vga.h"
@@ -468,7 +468,7 @@ diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
     if(biosparams) {
  	  fref=biosparam[1];
  	  ATIClockToProgram=biosparam[0];
-@@ -1287,7 +1288,9 @@
+@@ -1287,8 +1288,14 @@
  	  Nadj=0;
  	  Madj=0;
  	  fref*=2; /* X says double for all chips */
@@ -476,9 +476,14 @@ diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
 +   } else
 +#endif
 +	{
++#if 0
  	   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xe4100000);
++#else
++	   BIOS=mmap(0,32*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,0xc0000);
++#endif
  
  	   i=BIOSWord(0x48);
+ 	   j=BIOSWord(i+0x10);
 diff -u ../svgalib.ori/drivers/renditio.c drivers/renditio.c
 --- ../svgalib.ori/drivers/renditio.c	2003-10-13 17:40:51.000000000 +0200
 +++ drivers/renditio.c	2003-10-13 17:41:42.000000000 +0200

@@ -232,14 +232,6 @@ License FAQ
 	The MAME License isn't an Open Source license as defined
 	on http://www.opensource.org. So, it was rejected.
 
-  AdvanceMAME contains MAME ?
-	No. The AdvanceMAME source distribution doesn't contain
-	the MAME sources.
-
-	Anyway, to generate the AdvanceMAME binary you need the MAME
-	sources. And you also need the Allegro, SEAL and zlib
-	sources.
-
   Which is the license of the AdvanceMAME source ?
 	The AdvanceMAME project is released under the GPL license.
 

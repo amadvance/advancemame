@@ -110,18 +110,19 @@
 /** Special additional effect (enumeration). */
 /*@{*/
 #define EFFECT_NONE 0
-#define EFFECT_RGB_TRIAD3PIX VIDEO_COMBINE_X_RGB_TRIAD3PIX
-#define EFFECT_RGB_TRIADSTRONG3PIX VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX
-#define EFFECT_RGB_TRIAD6PIX VIDEO_COMBINE_X_RGB_TRIAD6PIX
-#define EFFECT_RGB_TRIADSTRONG6PIX VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX
-#define EFFECT_RGB_TRIAD16PIX VIDEO_COMBINE_X_RGB_TRIAD16PIX
-#define EFFECT_RGB_TRIADSTRONG16PIX VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX
-#define EFFECT_RGB_SCANDOUBLEHORZ VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ
-#define EFFECT_RGB_SCANTRIPLEHORZ VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ
-#define EFFECT_RGB_SCANDOUBLEVERT VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT
-#define EFFECT_RGB_SCANTRIPLEVERT VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT
-#define EFFECT_INTERLACE_EVEN VIDEO_COMBINE_SWAP_EVEN
-#define EFFECT_INTERLACE_ODD VIDEO_COMBINE_SWAP_ODD
+#define EFFECT_RGB_TRIAD3PIX 1
+#define EFFECT_RGB_TRIADSTRONG3PIX 2
+#define EFFECT_RGB_TRIAD6PIX 3
+#define EFFECT_RGB_TRIADSTRONG6PIX 4
+#define EFFECT_RGB_TRIAD16PIX 5
+#define EFFECT_RGB_TRIADSTRONG16PIX 6
+#define EFFECT_RGB_SCANDOUBLEHORZ 7
+#define EFFECT_RGB_SCANTRIPLEHORZ 8
+#define EFFECT_RGB_SCANDOUBLEVERT 9
+#define EFFECT_RGB_SCANTRIPLEVERT 10
+#define EFFECT_INTERLACE_EVEN 11
+#define EFFECT_INTERLACE_ODD 12
+#define EFFECT_INTERLACE_FILTER 13
 /*@}*/
 
 /** Rotate mode (enumeration). */
@@ -261,6 +262,7 @@ struct advance_video_state_context {
 	struct osd_bitmap* thread_state_game; /**< Thread game bitmap to draw. */
 	short* thread_state_sample_buffer; /**< Thread game sound to play. */
 	unsigned thread_state_sample_count;
+	unsigned thread_state_sample_recount;
 	unsigned thread_state_sample_max;
 	unsigned thread_state_led; /**< Thread game led to set. */
 	unsigned thread_state_input; /**< Thread input to process. */
@@ -418,6 +420,16 @@ adv_bool advance_record_snapshot_is_active(struct advance_record_context* contex
 #define SOUND_MODE_SURROUND 2
 /*@}*/
 
+/**
+ * Define to 1 to use internal resample instead of the changing MAME core sample generation.
+ * Some MAME drivers don't support an arbitrary number of sample generation, some others
+ * may change the behaviour of the game in dependency of the number of sample requested
+ * desyncronizing any input recording.
+ * For these reasons it's better to always ask at the MAME core the same number of
+ * sound sample for every frame.
+ */
+#define USE_INTERNALRESAMPLE 1
+
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
@@ -448,7 +460,7 @@ struct advance_sound_context {
 adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
 void advance_sound_done(struct advance_sound_context* context);
 adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
-void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count);
+void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount);
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 
 /***************************************************************************/

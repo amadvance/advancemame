@@ -19,7 +19,7 @@ Description
 	* Automatic creation of `perfect' video modes with the correct
 		size and clock.
 	* A lot of video boards supported for direct hardware registers
-		programming. (see the card*.txt file)
+		programming. (see the card*.txt files)
 	* Support for 8, 15, 16 and 32 bits video modes.
 	* Real hardware scanlines.
 	* Software video image stretching by fractional factors, for
@@ -413,10 +413,14 @@ Configuration
 		:	... \
 		:	LAST_LINE
 
-	When you run a game every option is read in three different
+	When you run a game every option is read in different
 	sections in the following order:
 
 		`game' - The short game name, like `pacman'.
+		`parent' - If present, the parent name of the game,
+			like `puckman'.
+		`bios' - If present, the bios name of the game,
+			like `neogeo'.
 		`resolutionclock' - The resolution and the clock of the
 			game, like `244x288x60' for raster games or
 			`vector' for vector games. If the vertical clock
@@ -425,7 +429,7 @@ Configuration
 		`resolution' - The resolution of the game, like
 			`244x288' for raster games or `vector' for
 			vector games.
-		`orientation' - The game orientation. Or `vertical'
+		`orientation' - The game orientation. `vertical'
 			or `horizontal'.
 		`' - The default empty section.
 
@@ -878,14 +882,27 @@ Configuration
 
     display_interlaceeffect
 	This option enables some special operations on interlaced modes.
-	On not interlaced modes the effect is always disabled.
+	On not interlaced modes the effects are always disabled.
 
-	:display_interlaceeffect none | even | odd
+	:display_interlaceeffect none | even | odd | filter
 
 	Options:
 		none - No effect (default).
 		even - Swap the even rows.
 		odd - Swap the odd rows.
+		filter - Apply a vertical filter.
+
+	The effects operate on the rows in the following way:
+
+		:Row Even Odd Filter
+		: A   A   A    A
+		: B   B   A   B+A
+		: C   A   C   C+B
+		: D   D   B   D+C
+		: E   C   E   E+D
+		: F   F   D   F+E
+		: G   E   G   G+F
+		: H   H   F   H+G
 
     display_brightness
 	Select the image brightness factor.
@@ -1052,13 +1069,14 @@ Configuration
 	So, you need to use a latency greater than zero to play these
 	games.
 
-    sound_fillup
-	Automatically increase the volume of games with a too lower one.
+    sound_normalize
+	Automatically increase the sound volume of games with a too
+	lower one.
 
 	:sound_normalize yes | no
 
 	Options:
-		yes - Enable the effect (default):
+		yes - Enable the effect (default).
 		no - Disable the effect.
 
   Input Configuration Options
@@ -1416,7 +1434,8 @@ Configuration
 		:misc_ramsize 1024k
 
     misc_difficulty
-	Selects the game difficulty.
+	Selects the game difficulty. This option works only with games
+	which select difficulty with dip switches.
 
 	misc_difficulty none | easiest | easy | normal | hard | hardest
 
@@ -1500,19 +1519,6 @@ Configuration
 	seconds used. Useful for benchmarking.
 
 	:misc_timetorun SECONDS
-
-    misc_internaldepth
-	Control the size of the internal MAME bitmap.
-
-	:misc_internaldepth auto | 15 | 16 | 32
-
-	Options:
-		auto - Automatic (default).
-		15 - 15 bit RGB mode.
-		16 - 16 bit Palette mode.
-		32 - 32 bit RGB mode.
-
-	The use of this option is discouraged. Use the default value.
 
   Support Files Configuration Options
 	The AdvanceMAME emulator needs also some support files:
@@ -1600,6 +1606,33 @@ Configuration
 
 	Options:
 		FILE - Event file to load (default event.dat).
+
+  Debugging Configuration Options
+	The use of these options is discouraged. They are present only
+	for testing pourpuse.
+
+    misc_internaldepth
+	Control the bits per pixel of the internal MAME bitmap.
+
+	:misc_internaldepth auto | 15 | 16 | 32
+
+	Options:
+		auto - Automatic (default).
+		15 - 15 bit RGB mode.
+		16 - 16 bit Palette mode.
+		32 - 32 bit RGB mode.
+
+    misc_crash
+	Crash the program. It can be used to ensure that the correct video
+	mode is restored on aborting conditions.
+
+	:misc_crash yes | no
+
+	Options:
+		no - Don't crash the program (default).
+		yes - Add a "Crash" menu entry in the video menu.
+			If selected the program crash with a Segmentation
+			Fault.
 
 Signals
 	The program intercepts the following signals:

@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-#define MIXER_BUFFER_MAX (44100*3) /**< Max samples in the buffer */
+#define MIXER_BUFFER_MAX 131072 /**< Max samples in the buffer */
 #define MIXER_PAGE_SIZE 4096 /**< Size of the buffer read from disk */
 
 /**
@@ -77,7 +77,7 @@ struct mixer_channel_struct {
 struct mixer_channel_struct mixer_map[MIXER_CHANNEL_MAX];
 
 static short mixer_raw_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer used to call sound_play() (*2 for stereo). */
-static int mixer_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer for the mixed samples (*2 for stereo). */
+static int mixer_buffer[MIXER_CHANNEL_MAX][MIXER_BUFFER_MAX * 2]; /**< Buffer for the mixed samples (*2 for stereo). */
 static unsigned mixer_buffer_pos; /**< Position to play in the buffer in samples. */
 static unsigned mixer_latency_size; /**< Required latency in samples. */
 static unsigned mixer_buffer_size; /**< Required buffer in samples. */
@@ -130,6 +130,9 @@ static void mixer_channel_free(unsigned channel)
 	}
 
 	mixer_map[channel].type = mixer_none;
+
+	/* clear any stored data */
+	memset(mixer_buffer[channel], 0, sizeof(mixer_buffer[channel]));
 }
 
 static inline void mixer_channel_abort(unsigned channel)
@@ -216,11 +219,21 @@ static void mixer_pump(unsigned buffered)
 			run = MIXER_BUFFER_MAX - mixer_buffer_pos;
 
 		for(i=0;i<run;++i) {
-			int c0 = mixer_buffer[(mixer_buffer_pos+i)*2];
-			int c1 = mixer_buffer[(mixer_buffer_pos+i)*2+1];
+			unsigned pos;
+			unsigned k;
 
-			mixer_buffer[(mixer_buffer_pos+i)*2] = 0;
-			mixer_buffer[(mixer_buffer_pos+i)*2+1] = 0;
+			int c0 = 0;
+			int c1 = 0;
+
+			pos = (mixer_buffer_pos+i)*2;
+
+			for(k=0;k<MIXER_CHANNEL_MAX;++k) {
+				c0 += mixer_buffer[k][pos];
+				c1 += mixer_buffer[k][pos+1];
+
+				mixer_buffer[k][pos] = 0;
+				mixer_buffer[k][pos+1] = 0;
+			}
 
 			c0 /= mixer_ndivider; /* divider must be a signed int */
 			c1 /= mixer_ndivider;
@@ -291,8 +304,8 @@ static void mixer_channel_mix_stereo16(unsigned channel, const unsigned char* da
 		c0 = s16le2int(data);
 		c1 = s16le2int(data + 2);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[pos*2] += c0;
-			mixer_buffer[pos*2 + 1] += c1;
+			mixer_buffer[channel][pos*2] += c0;
+			mixer_buffer[channel][pos*2 + 1] += c1;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -315,8 +328,8 @@ static void mixer_channel_mix_mono16(unsigned channel, const unsigned char* data
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c = s16le2int(data);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[pos*2] += c;
-			mixer_buffer[pos*2 + 1] += c;
+			mixer_buffer[channel][pos*2] += c;
+			mixer_buffer[channel][pos*2 + 1] += c;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -340,8 +353,8 @@ static void mixer_channel_mix_stereo8(unsigned channel, const unsigned char* dat
 		c0 = u8le2int(data);
 		c1 = u8le2int(data + 1);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[pos*2] += c0;
-			mixer_buffer[pos*2 + 1] += c1;
+			mixer_buffer[channel][pos*2] += c0;
+			mixer_buffer[channel][pos*2 + 1] += c1;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -364,8 +377,8 @@ static void mixer_channel_mix_mono8(unsigned channel, const unsigned char* data,
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c = u8le2int(data);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[pos*2] += c;
-			mixer_buffer[pos*2 + 1] += c;
+			mixer_buffer[channel][pos*2] += c;
+			mixer_buffer[channel][pos*2 + 1] += c;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -911,6 +924,9 @@ adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double
 	assert(ndivider > 0);
 
 	log_std(("mixer: mixer_init(rate:%d, nchannel:%d, ndivider:%d, buffer:%g, latency:%g)\n", rate, nchannel, ndivider, buffer_time, latency_time));
+
+	/* clear the buffers */
+	memset(mixer_buffer, 0, sizeof(mixer_buffer));
 
 	for(i=0;i<MIXER_CHANNEL_MAX;++i)
 		mixer_map[i].type = mixer_none;

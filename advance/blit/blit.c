@@ -858,6 +858,7 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_x_rgb_scantriplevert : return "vscanline x3";
 		case pipe_swap_even : return "swap even";
 		case pipe_swap_odd : return "swap odd";
+		case pipe_interlace_filter : return "vfilter";
 		case pipe_palette8to8 : return "palette 8>8";
 		case pipe_palette8to16 : return "palette 8>16";
 		case pipe_palette8to32 : return "palette 8>32";
@@ -951,6 +952,7 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 		case pipe_x_rgb_scantriplevert :
 		case pipe_swap_even :
 		case pipe_swap_odd :
+		case pipe_interlace_filter :
 			return 1;
 		default:
 			return 0;
@@ -982,6 +984,7 @@ static adv_bool pipe_is_fastwrite(const struct video_stage_horz_struct* stage)
 			case pipe_x_rgb_scantriplevert : return is_plain;
 			case pipe_swap_even : return 1;
 			case pipe_swap_odd : return 1;
+			case pipe_interlate_filter : return 1;
 			case pipe_palette8to16 : return is_plain;
 			case pipe_palette16to8 : return 1;
 			case pipe_palette16to16 : return 1;
@@ -2981,7 +2984,9 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		if (combine_y == VIDEO_COMBINE_Y_MEAN
 			|| combine_y == VIDEO_COMBINE_Y_FILTER
 			|| (combine & VIDEO_COMBINE_X_FILTER)!=0
-			|| (combine & VIDEO_COMBINE_X_MEAN)!=0)
+			|| (combine & VIDEO_COMBINE_X_MEAN)!=0
+			|| (combine & VIDEO_COMBINE_INTERLACE_FILTER)!=0
+		)
 			internal_mean_set(target);
 
 		if (combine_y == VIDEO_COMBINE_Y_MAX
@@ -3230,6 +3235,15 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		src_dp = bytes_per_pixel;
 	}
 #endif
+
+	if ((combine & VIDEO_COMBINE_INTERLACE_FILTER)!=0) {
+		switch (bytes_per_pixel) {
+			case 1 : video_stage_interlacefilter8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 2 : video_stage_interlacefilter16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 4 : video_stage_interlacefilter32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+		}
+		src_dp = bytes_per_pixel;
+	}
 
 	if ((combine & VIDEO_COMBINE_SWAP_EVEN)!=0) {
 		switch (bytes_per_pixel) {

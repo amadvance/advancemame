@@ -54,10 +54,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifdef __MSDOS__
-#include <dpmi.h> /* for _go32_dpmi_remaining_virtual_memory() */
-#endif
-
 struct advance_context CONTEXT;
 
 /***************************************************************************/
@@ -439,7 +435,9 @@ int os_main(int argc, char* argv[])
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
 	adv_conf* config_context;
-	const char* section_map[5];
+	const char* section_map[16];
+	unsigned section_mac;
+	const mame_game* parent;
 
 	opt_info = 0;
 	opt_xml = 0;
@@ -646,16 +644,23 @@ int os_main(int argc, char* argv[])
 	}
 
 	/* set the used section */
-	section_map[0] = mame_game_name(option.game);
-	section_map[1] = mame_game_resolutionclock(option.game);
-	section_map[2] = mame_game_resolution(option.game);
+	section_mac = 0;
+	parent = option.game;
+	while (parent && section_mac<4) {
+		const char* name = mame_game_name(parent);
+		if (name && name[0])
+			section_map[section_mac++] = name;
+		parent = mame_game_parent(parent);
+	}
+	section_map[section_mac++] = mame_game_resolutionclock(option.game);
+	section_map[section_mac++] = mame_game_resolution(option.game);
 	if ((mame_game_orientation(option.game) & OSD_ORIENTATION_SWAP_XY) != 0)
-		section_map[3] = "vertical";
+		section_map[section_mac++] = "vertical";
 	else
-		section_map[3] = "horizontal";
-	section_map[4] = "";
-	conf_section_set(config_context, section_map, 5);
-	for(i=0;i<5;++i)
+		section_map[section_mac++] = "horizontal";
+	section_map[section_mac++] = "";
+	conf_section_set(config_context, section_map, section_mac);
+	for(i=0;i<section_mac;++i)
 		log_std(("advance: use configuration section '%s'\n", section_map[i]));
 
 	/* setup the include configuration file */

@@ -33,6 +33,9 @@
 
 #include "blit.h"
 
+/****************************************************************************/
+/* swap */
+
 #if defined(USE_ASM_i586)
 static inline unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {

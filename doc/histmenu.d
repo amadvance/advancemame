@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.15 2003/11
+	) The mixer now uses a separate buffer for any sound effects.
+		This should decrease the sound overlapping of too long
+		sound buffers.
+
 AdvanceMENU Version 2.2.14 2003/11
 	) All the snapshots and animated clips are now reduced in size
 		using the AdvanceMAME `mean' effect.

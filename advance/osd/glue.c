@@ -314,6 +314,8 @@ struct advance_glue_context {
 	double sound_step; /**< Number of sound samples for a single frame. This is the ideal value. */
 	unsigned sound_last_count; /** Number of sound samples for the last frame. */
 	int sound_latency; /**< Current samples in excess. Updated at every frame. */
+	double sound_speed; /**< Current speed adjustment. */
+	double sound_fps; /**< Current fps speed. */
 
 	short* sound_silence_buffer; /**< Buffer filled of silence. */
 	unsigned sound_silence_count; /**< Number of samples for the silence buffer. */
@@ -429,6 +431,12 @@ const char* mame_game_name(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	return driver->name;
+}
+
+const mame_game* mame_game_parent(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	return (const mame_game*)driver->clone_of;
 }
 
 const char* mame_game_description(const mame_game* game)
@@ -684,6 +692,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	assert( drivers[game_index] != 0);
 	if (!drivers[game_index])
 		return -1;
+
+	GLUE.sound_speed = context->video.config.fps_speed_factor;
+	GLUE.sound_fps = context->video.config.fps_fixed;
 
 	r = run_game(game_index);
 
@@ -1141,7 +1152,10 @@ static unsigned glue_sound_sample(void)
 
 	/* Correction for a generic sound buffer underflow. */
 	/* Generally happen that the DMA buffer underflow reporting */
-	/* a very full state instead of an empty one. */
+	/* a fill state instead of an empty one. */
+
+	/* The value of 16 is a standard value which should not generated problems */
+	/* on the MAME core */
 	if (samples < 0) {
 		log_std(("WARNING:glue: negative sound samples %d adjusted to 16\n", samples));
 		samples = 16;
@@ -1273,11 +1287,21 @@ int osd_start_audio_stream(int stereo)
 
 	log_std(("osd: osd_start_audio_stream return %d rate\n", rate));
 
-	/* adjust the rate */
+#if USE_INTERNALRESAMPLE
+	/* don't change the MAME sample rate to the effective address, MAME */
+	/* will use onlt the nominal sample rate */
+#else
+	/* adjust the MAME sample rate to the effective value */
 	Machine->sample_rate = rate;
+#endif
 
 	GLUE.sound_flag = 1;
-	GLUE.sound_step = rate / (double)Machine->drv->frames_per_second;
+
+	/* compute the rate, any adjustement in the video speed will */
+	/* not change the sound speed */
+	if (GLUE.sound_fps == 0)
+		GLUE.sound_fps = Machine->drv->frames_per_second;
+	GLUE.sound_step = rate / (GLUE.sound_fps * GLUE.sound_speed);
 	GLUE.sound_latency = 0;
 
 	GLUE.sound_silence_count = 2 * GLUE.sound_step; /* double size for safety */
@@ -1289,7 +1313,7 @@ int osd_start_audio_stream(int stereo)
 		memset(GLUE.sound_silence_buffer, 0, 2 * GLUE.sound_silence_count);
 	}
 
-	return glue_sound_sample();
+	return GLUE.sound_step;
 }
 
 void osd_stop_audio_stream(void)

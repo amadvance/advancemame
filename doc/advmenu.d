@@ -67,8 +67,8 @@ Options
 
 Emulators
 	The program supports many type of emulators. The emulators
-	AdvanceMAME, AdvanceMESS, MAME, Xmame, DMAME,
-	DMESS and DRAINE are directly supported  and the only thing
+	AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+	DMESS and DRAINE are directly supported and the only thing
 	you should do is to run the AdvanceMENU program in the same
 	directory of the emulator.
 
@@ -895,18 +895,25 @@ Configuration
 
 	Options:
 		MENU - Name of the menu entry.
-		SCRIPT - Commands to execute.
+		SCRIPT - Commands to execute. If you need to insert more
+			command rows you can end the line with the \ char.
 
 	In the script text some macro are substituted with information of
-	the current game :
+	the selected game:
 		%s -  The game name. For example "pacman".
 		%p - The complete path of the rom. For
 			example "c:\emu\roms\pacman.zip".
 		%f - The rom name with the extension. For
 			example "pacman.zip".
 
+	If no game is selected the macro text isn't substituted.
+
 	Examples:
-		:ui_command "Joystick/GamePad" \
+		:ui_command "Delete Hiscore" \
+		:	rm ~/.advance/hi/%s.hi
+		:ui_command "Delete Cfg" \
+		:	rm ~/.advance/cfg/%s.cfg
+		:ui_command "Enable GamePad" \
 		:	rmmod analog \
 		:	sleep 1 \
 		:	modprobe analog js=gamepad

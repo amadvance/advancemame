@@ -1,6 +1,18 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.77.1 2003/12
+	) The audio/video syncroniziation is now done by AdvanceMAME
+		without using the internal MAME core support. This should
+		solve all the sound distorsion problems present in some game
+		and all the input recording desyncronizations.
+	) The `display_interlaceffect' option has now a new `filter' value
+		which operates like the old `filtery' effect.
+	) The configuration options are also read in the parent game and bios
+		sections.
+	) Fixed a segmentation fault bug on the DOS SVGALIB driver for
+		ATI Rage boards.
+
 AdvanceMAME Version 0.77.0 2003/11
 	) Added support for ACT Labs Lightgun in the Linux event driver.
 	) Fixed the order of the joystick buttons on the Linux event driver.

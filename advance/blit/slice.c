@@ -108,7 +108,6 @@ void slice_vector(unsigned* map, unsigned sd, unsigned dd)
 	}
 }
 
-
 #if 0
 
 /* Run-length slice test program */
