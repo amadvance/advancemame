@@ -29,6 +29,7 @@
 #include "readinfo.h"
 #include "unzip.h"
 #include "target.h"
+#include "portable.h"
 #include "log.h"
 
 #include <dirent.h>

@@ -317,8 +317,8 @@ endif
 ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i586-pc-msdosdjgpp
-#CROSSDIR = /usr/local/gcc-2.95.3-i586-pc-msdosdjgpp
-CROSSDIR = /usr/local/gcc-3.2.2-i586-pc-msdosdjgpp
+CROSSDIR = /usr/local/gcc-2.95.3-i586-pc-msdosdjgpp
+#CROSSDIR = /usr/local/gcc-3.2.2-i586-pc-msdosdjgpp
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++

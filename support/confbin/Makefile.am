@@ -18,29 +18,28 @@ pkgdata_DOC = \
 EXTRA_DIST = \
 	autogen.sh
 
-docdir = @prefix@/doc
-pkgdocdir = $(docdir)/@PACKAGE@
+pkgdir = @prefix@/share/@PACKAGE@
 man1dir = $(mandir)/man1
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(pkgdocdir)
+	$(mkinstalldirs) $(DESTDIR)$(pkgdir)/doc
 	@for i in $(pkgdata_DOC); do \
-		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir)/$$i"; \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir); \
+		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(pkgdir)/doc"; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdir)/doc; \
 	done
 	$(mkinstalldirs) $(DESTDIR)$(man1dir)
 	@for i in $(pkgdata_MAN); do \
-		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(man1dir)/$$i"; \
+		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(man1dir)"; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(man1dir); \
 	done
 
-uninstall-data-local:
+uninstall-local:
 	@for i in $(pkgdata_DOC); do \
-		echo " rm -f $(DESTDIR)$(pkgdocdir)/$$i"; \
-		rm -f $(DESTDIR)$(pkgdocdir)/$$i; \
+		echo " rm -f $(DESTDIR)$(pkgdir)/$$i"; \
+		rm -f $(DESTDIR)$(pkgdir)/$$i; \
 	done
 	@for i in $(pkgdata_MAN); do \
-		echo " rm -f $(DESTDIR)$(pkgmandir)/$$i"; \
-		rm -f $(DESTDIR)$(pkgmandir)/$$i; \
+		echo " rm -f $(DESTDIR)$(man1dir)/$$i"; \
+		rm -f $(DESTDIR)$(man1dir)/$$i; \
 	done
 

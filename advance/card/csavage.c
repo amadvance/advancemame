@@ -163,11 +163,11 @@ static long savage_clock_get(long vclk, int STACK_PTR *Num, int STACK_PTR *DeN, 
 		d0 += 1;
 	}
 	CARD_LOG(("savage: Num %3d, DeN %3d, PS %1d, SeqDiv %1d\n", *Num, *DeN, *PS, *SeqDiv));
-	CARD_LOG(("savage: 14.318 * (Num/DeN) : %lf\n", 14.318 *((*Num)/(*DeN))));
-	CARD_LOG(("savage: 14.318 * (Num/DeN)/(PS*SeqDiv) : %lf\n", 14.318 * ((double)(*Num)/(*DeN)) / ((*PS) * (*SeqDiv))));
+	CARD_LOG(("savage: 14.318 * (Num/DeN) : %f\n", 14.318 *((*Num)/(*DeN))));
+	CARD_LOG(("savage: 14.318 * (Num/DeN)/(PS*SeqDiv) : %f\n", 14.318 * ((double)(*Num)/(*DeN)) / ((*PS) * (*SeqDiv))));
 
 	vclk = 14318000 * ((double)(*Num)/(*DeN) / ((*PS) * (*SeqDiv)));
-	CARD_LOG(("savage: vclk : %lf\n", (double)vclk / 1000000.0));
+	CARD_LOG(("savage: vclk : %f\n", (double)vclk / 1000000.0));
 
 	return vclk;
 }

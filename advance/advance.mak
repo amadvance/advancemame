@@ -370,7 +370,7 @@ wholemame:
 	$(MAKE) CONF=no dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
 
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
@@ -389,7 +389,7 @@ wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist
@@ -399,7 +399,7 @@ wholemenu:
 	$(MAKE) CONF=no distmenu
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distmenubin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=dos distmenubin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
 
 wholecab:
 	$(MAKE) CONF=no distcab

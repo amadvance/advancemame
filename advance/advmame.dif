@@ -144,6 +144,38 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/dynax.c src/drivers/dynax.c
+--- src.ori/drivers/dynax.c	2003-04-06 16:26:58.000000000 +0200
++++ src/drivers/dynax.c	2003-04-11 20:02:13.000000000 +0200
+@@ -1770,10 +1770,12 @@
+ 	ROM_LOAD( "prom1.6b",  0x200, 0x200, 0xe38eb360 )
+ ROM_END
+ 
+ static DRIVER_INIT( maya )
+ {
++	int i;
++	data8_t	*gfx;
+ 	/* Address lines scrambling on 1 z80 rom */
+ 	data8_t	*rom = memory_region(REGION_CPU1) + 0x28000,
+ 			*end = rom + 0x10000;
+ 	for (;rom < end; rom+=8)
+ 	{
+@@ -1784,13 +1786,13 @@
+ 		rom[0] = temp[0];	rom[1] = temp[4];	rom[2] = temp[1];	rom[3] = temp[5];
+ 		rom[4] = temp[2];	rom[5] = temp[6];	rom[6] = temp[3];	rom[7] = temp[7];
+ 	}
+ 
+ 	/* Address lines scrambling on the blitter data roms */
+-	data8_t	*gfx = memory_region(REGION_GFX1);
++	gfx = memory_region(REGION_GFX1);
+ 	rom = memory_region(REGION_USER1);
+-	int i;
++
+ 	for (i = 0; i < 0xc0000; i++)
+ 		gfx[i] = rom[BITSWAP24(i,23,22,21,20,19,18,14,15, 16,17,13,12,11,10,9,8, 7,6,5,4,3,2,1,0)];
+ }
+ 
+ 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	2003-03-10 15:13:42.000000000 +0100
 +++ src/drivers/neogeo.c	2003-04-09 20:37:49.000000000 +0200
@@ -306,14 +338,13 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/info.c src/info.c
 --- src.ori/info.c	2003-02-28 11:29:31.000000000 +0100
-+++ src/info.c	2003-04-09 20:54:32.000000000 +0200
-@@ -929,10 +929,12 @@
++++ src/info.c	2003-04-09 20:55:37.000000000 +0200
+@@ -929,10 +929,11 @@
  	PRINT_RESOURCE(decocass);
  	PRINT_RESOURCE(playch10);
  	PRINT_RESOURCE(pgm);
  	PRINT_RESOURCE(skns);
  	PRINT_RESOURCE(stvbios);
-+	PRINT_RESOURCE(stvbios);
 +	PRINT_RESOURCE(konamigx);
  #endif
  #endif
@@ -618,6 +649,28 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /* OPN LFO waveform table */
  static INT32 OPN_LFO_wave[LFO_ENT];
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/multipcm.c src/sound/multipcm.c
+--- src.ori/sound/multipcm.c	2003-04-06 11:50:23.000000000 +0200
++++ src/sound/multipcm.c	2003-04-11 19:36:24.000000000 +0200
+@@ -209,16 +209,16 @@
+ 	char buf[2][40];
+ 	const char *name[2];
+ 	int vol[2];
+ 	struct MultiPCM_interface *intf;
+ 
+-	intf = msound->sound_interface;
+-
+ 	// make volume table
+ 	double	max=255.0;
+ 	double	db=(48.0/128);
+ 
++	intf = msound->sound_interface;
++
+ 	for (i = 0; i < 128; i++)
+ 	{
+ 		voltbl[i]=max;
+ 		max /= pow(10.0,db/20.0);
+ 	}
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-03-31 06:43:57.000000000 +0200
 +++ src/ui_text.c	2003-04-09 20:37:49.000000000 +0200
@@ -1036,3 +1089,76 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/seta2.c src/vidhrdw/seta2.c
+--- src.ori/vidhrdw/seta2.c	2003-03-18 21:00:45.000000000 +0100
++++ src/vidhrdw/seta2.c	2003-04-11 19:59:19.000000000 +0200
+@@ -310,15 +310,15 @@
+ 				int flipy = (attr & 0x0008);
+ 				int color = (attr & 0xffe0) >> 5;
+ 
+ 				int sizex = use_global_size ? global_sizex : sx;
+ 				int sizey = use_global_size ? global_sizey : sy;
++				int x,y;
++
+ 				sizex = (1 << ((sizex & 0x0c00)>> 10))-1;
+ 				sizey = (1 << ((sizey & 0x0c00)>> 10))-1;
+ 
+-				int x,y;
+-
+ 				sx += xoffs;
+ 				sy += yoffs;
+ 
+ 				sx = (sx & 0x1ff) - (sx & 0x200);
+ 				sy &= 0x1ff;
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/x86drc.h src/x86drc.h
+--- src.ori/x86drc.h	2003-03-29 12:58:28.000000000 +0100
++++ src/x86drc.h	2003-04-11 19:48:14.000000000 +0200
+@@ -725,38 +725,38 @@
+ #define _fnstcw_m16abs(addr) \
+ do { OP1(0xd9); MODRM_MABS(7, addr); } while (0)
+ 
+ 
+ 
+-#define _fabs(addr) \
++#define _fabs() \
+ do { OP1(0xd9); OP1(0xe1); } while (0)
+ 
+-#define _faddp(addr) \
++#define _faddp() \
+ do { OP1(0xde); OP1(0xc1); } while (0)
+ 
+-#define _fchs(addr) \
++#define _fchs() \
+ do { OP1(0xd9); OP1(0xe0); } while (0)
+ 
+-#define _fcompp(addr) \
++#define _fcompp() \
+ do { OP1(0xde); OP1(0xd9); } while (0)
+ 
+-#define _fdivp(addr) \
++#define _fdivp() \
+ do { OP1(0xde); OP1(0xf9); } while (0)
+ 
+-#define _fmulp(addr) \
++#define _fmulp() \
+ do { OP1(0xde); OP1(0xc9); } while (0)
+ 
+-#define _fsqrt(addr) \
++#define _fsqrt() \
+ do { OP1(0xd9); OP1(0xfa); } while (0)
+ 
+-#define _fsubp(addr) \
++#define _fsubp() \
+ do { OP1(0xde); OP1(0xe9); } while (0)
+ 
+-#define _fsubrp(addr) \
++#define _fsubrp() \
+ do { OP1(0xde); OP1(0xe1); } while (0)
+ 
+-#define _fucompp(addr) \
++#define _fucompp() \
+ do { OP1(0xda); OP1(0xe9); } while (0)
+ 
+ 
+ 
+ #define _fld1() \

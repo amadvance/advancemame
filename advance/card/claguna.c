@@ -236,10 +236,10 @@ static long laguna_clock_get(long vclk, int STACK_PTR *Num, int STACK_PTR *DeN, 
 		d0 += 1;
 	}
 	CARD_LOG(("Num %3d, DeN %3d, PS %1d\n", *Num, *DeN, *PS));
-	CARD_LOG(("14.318 * (Num/DeN) : %lf\n", 14.318 *((*Num)/(*DeN))));
-	CARD_LOG(("14.318 * (Num/DeN)/PS : %lf\n", 14.318 * ((double)(*Num)/(*DeN))/(*PS)));
+	CARD_LOG(("14.318 * (Num/DeN) : %f\n", 14.318 *((*Num)/(*DeN))));
+	CARD_LOG(("14.318 * (Num/DeN)/PS : %f\n", 14.318 * ((double)(*Num)/(*DeN))/(*PS)));
 	vclk = 14318000 * ((double)(*Num)/(*DeN) / (*PS));
-	CARD_LOG(("vclk : %lf\n", (double)vclk / 1000000.0));
+	CARD_LOG(("vclk : %f\n", (double)vclk / 1000000.0));
 
 	return vclk;
 }
