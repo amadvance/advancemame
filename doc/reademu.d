@@ -26,8 +26,8 @@ Name
 	Mac OS X.
 
 	This package contains :
-		advmame - The AdvanceMAME emulator (only in the advanvemame-* package).
-		advmess - The AdvanceMESS emulator (only in the advanvemess-* package).
+		advmame - The AdvanceMAME emulator (only in the advancemame-* package).
+		advmess - The AdvanceMESS emulator (only in the advancemess-* package).
 		advcfg - The automatic video configurator.
 		advv - The manual video configurator and tester.
 		advm - The mouse tester.
