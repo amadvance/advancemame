@@ -116,8 +116,8 @@ static struct key_entry KEY[] = {
 { "right", KEYB_RIGHT },
 { "up", KEYB_UP },
 { "down", KEYB_DOWN },
-{ "slash", KEYB_SLASH_PAD },
-{ "asterisk", KEYB_ASTERISK },
+{ "slash_pad", KEYB_SLASH_PAD },
+{ "asterisk_pad", KEYB_ASTERISK },
 { "minus_pad", KEYB_MINUS_PAD },
 { "plus_pad", KEYB_PLUS_PAD },
 { "period_pad", KEYB_PERIOD_PAD },
@@ -249,7 +249,7 @@ const char* key_name(unsigned code)
 		if (i->code == code)
 			return i->name;
 
-	snprintf(key_name_buffer, sizeof(key_name_buffer), "code_%d", code);
+	snprintf(key_name_buffer, sizeof(key_name_buffer), "scan%d", code);
 
 	return key_name_buffer;
 }
@@ -266,9 +266,10 @@ unsigned key_code(const char* name)
 		if (strcmp(name, i->name)==0)
 			return i->code;
 
-	if (name[0] != 0 && strspn(name, "0123456789") == strlen(name)) {
+	if (strlen(name)>=5 && strncmp(name, "scan", 4) == 0 && strspn(name+4, "0123456789") == strlen(name+4)) {
 		int v;
-		v = atoi(name);
+
+		v = atoi(name + 4);
 
 		if (v >= 0 && v < KEYB_MAX)
 			return v;

@@ -95,37 +95,39 @@
 
 void advance_video_save(struct advance_video_context* context, const char* section)
 {
-	conf_string_set(context->state.cfg_context, section, "display_mode", context->config.resolution_buffer);
+	adv_conf* cfg_context = CONTEXT.cfg;
+
+	conf_string_set(cfg_context, section, "display_mode", context->config.resolution_buffer);
 	if (!context->state.game_vector_flag) {
-		conf_int_set(context->state.cfg_context, section, "display_resizeeffect", context->config.combine);
-		conf_int_set(context->state.cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
-		conf_int_set(context->state.cfg_context, section, "display_resize", context->config.stretch);
-		conf_int_set(context->state.cfg_context, section, "display_magnify", context->config.magnify_factor);
-		conf_int_set(context->state.cfg_context, section, "display_index", context->config.index);
+		conf_int_set(cfg_context, section, "display_resizeeffect", context->config.combine);
+		conf_int_set(cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
+		conf_int_set(cfg_context, section, "display_resize", context->config.stretch);
+		conf_int_set(cfg_context, section, "display_magnify", context->config.magnify_factor);
+		conf_int_set(cfg_context, section, "display_index", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
 			|| context->state.game_visible_size_y < context->state.game_used_size_y)
 		{
 			if (context->config.skipcolumns>=0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skipcolumns);
-				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", buffer);
+				conf_string_set(cfg_context, section, "display_skipcolumns", buffer);
 			} else
-				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", "auto");
+				conf_string_set(cfg_context, section, "display_skipcolumns", "auto");
 			if (context->config.skiplines>=0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skiplines);
-				conf_string_set(context->state.cfg_context, section, "display_skiplines", buffer);
+				conf_string_set(cfg_context, section, "display_skiplines", buffer);
 			} else
-				conf_string_set(context->state.cfg_context, section, "display_skiplines", "auto");
+				conf_string_set(cfg_context, section, "display_skiplines", "auto");
 		} else {
-			conf_remove(context->state.cfg_context, section, "display_skipcolumns");
-			conf_remove(context->state.cfg_context, section, "display_skiplines");
+			conf_remove(cfg_context, section, "display_skipcolumns");
+			conf_remove(cfg_context, section, "display_skiplines");
 		}
-		conf_bool_set(context->state.cfg_context, section, "display_scanlines", context->config.scanlines_flag);
-		conf_bool_set(context->state.cfg_context, section, "display_vsync", context->config.vsync_flag);
+		conf_bool_set(cfg_context, section, "display_scanlines", context->config.scanlines_flag);
+		conf_bool_set(cfg_context, section, "display_vsync", context->config.vsync_flag);
 	}
 
-	mame_ui_message("Video options saved in %s/", section);
+	advance_global_message(&CONTEXT.global, "Video options saved in %s/", section);
 }
 
 /***************************************************************************/
@@ -468,6 +470,27 @@ static void video_invalidate_color(struct advance_video_context* context)
 	}
 }
 
+static void video_done_pipeline(struct advance_video_context* context)
+{
+	/* destroy the pipeline */
+	if (context->state.blit_pipeline_flag) {
+		video_pipeline_done(&context->state.blit_pipeline_video);
+		video_pipeline_done(&context->state.buffer_pipeline_video);
+		context->state.blit_pipeline_flag = 0;
+	}
+
+	if (context->state.buffer_ptr) {
+		free(context->state.buffer_ptr);
+		context->state.buffer_ptr = 0;
+	}
+}
+
+static void video_invalidate_pipeline(struct advance_video_context* context)
+{
+	/* destroy the pipeline, this force the pipeline update at th enext draw */
+	video_done_pipeline(context);
+}
+
 /**
  * Set the video mode.
  * The mode is copyed in the context if it is set with success.
@@ -488,6 +511,7 @@ static adv_error video_init_vidmode(struct advance_video_context* context, adv_m
 
 	/* initialize the blit pipeline */
 	context->state.blit_pipeline_flag = 0;
+	context->state.buffer_ptr = 0;
 
 	/* inizialize the update system */
 	update_init( context->config.triplebuf_flag!=0 ? 3 : 1 );
@@ -508,10 +532,7 @@ static void video_done_vidmode(struct advance_video_context* context, adv_bool r
 	if (restore)
 		video_invalidate_screen();
 
-	if (context->state.blit_pipeline_flag) {
-		video_pipeline_done(&context->state.blit_pipeline);
-		context->state.blit_pipeline_flag = 0;
-	}
+	video_done_pipeline(context);
 
 	update_done();
 
@@ -520,11 +541,7 @@ static void video_done_vidmode(struct advance_video_context* context, adv_bool r
 
 static adv_error video_update_vidmode(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_key)
 {
-	/* destroy the pipeline, this force the pipeline update */
-	if (context->state.blit_pipeline_flag) {
-		video_pipeline_done(&context->state.blit_pipeline);
-		context->state.blit_pipeline_flag = 0;
-	}
+	video_invalidate_pipeline(context);
 
 	if (!context->state.mode_flag
 		|| video_mode_compare(mode, video_current_mode())!=0
@@ -590,6 +607,8 @@ static void video_update_pan(struct advance_video_context* context)
 	log_std(("emu:video: game_visible_pos_y %d\n", context->state.game_visible_pos_y));
 	log_std(("emu:video: game_visible_size_x %d\n", context->state.game_visible_size_x));
 	log_std(("emu:video: game_visible_size_y %d\n", context->state.game_visible_size_y));
+
+	/* configure the MAME UI also if it isn't really used */
 
 	pos_x = context->state.game_visible_pos_x;
 	pos_y = context->state.game_visible_pos_y;
@@ -1263,8 +1282,6 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	unsigned long long arcade_aspect_x;
 	unsigned long long arcade_aspect_y;
 
-	log_std(("emu:video: blit_orientation %d\n", context->config.blit_orientation));
-
 	context->state.pause_flag = 0;
 	context->state.crtc_selected = 0;
 	context->state.gamma_effect_factor = 1;
@@ -1525,7 +1542,7 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 	log_std(("emu:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
 
 	context->state.palette_dirty_map = (osd_mask_t*)malloc(context->state.palette_dirty_total * sizeof(osd_mask_t));
-	context->state.palette_map = (osd_rgb_t*)malloc(context->state.palette_total * sizeof(osd_rgb_t));
+	context->state.palette_map = (adv_color_rgb*)malloc(context->state.palette_total * sizeof(osd_rgb_t));
 
 	/* create the software palette */
 	/* it will not be used if a hardware palette is present, but a runtime mode change may require it */
@@ -1535,7 +1552,9 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 
 	/* initialize the palette */
 	for(i=0;i<context->state.palette_total;++i) {
-		context->state.palette_map[i] = osd_rgb(0, 0, 0);
+		context->state.palette_map[i].red = 0;
+		context->state.palette_map[i].green = 0;
+		context->state.palette_map[i].blue = 0;
 	}
 	for(i=0;i<context->state.palette_total;++i) {
 		context->state.palette_index32_map[i] = 0;
@@ -1624,7 +1643,7 @@ static void video_frame_resolution(struct advance_video_context* context, unsign
 	}
 
 	if (show) {
-		mame_ui_message(context->config.resolution_buffer);
+		advance_global_message(&CONTEXT.global, "%s", context->config.resolution_buffer);
 	}
 }
 
@@ -1667,32 +1686,34 @@ static void video_frame_pan(struct advance_video_context* context, unsigned inpu
 	}
 }
 
-static void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
+static void video_update_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
 	char buffer[256];
 	const struct video_stage_horz_struct* stage;
 	unsigned i;
 	unsigned pixel;
+	unsigned size;
+	int intermediate_game_used_pos_x;
+	int intermediate_game_used_pos_y;
+	int intermediate_game_used_size_x;
+	int intermediate_game_used_size_y;
+	int intermediate_game_visible_size_x;
+	int intermediate_game_visible_size_y;
+	int intermediate_mode_visible_size_x;
+	int intermediate_mode_visible_size_y;
 
-	/* check if the pipeline is already allocated */
+
+	/* check if the pipeline is already updated */
 	if (context->state.blit_pipeline_flag)
 		return;
 
 	assert( *mode_name(&context->state.mode) );
 
-	/* screen position */
-	context->state.blit_dst_x = (video_size_x() - context->state.mode_visible_size_x) / 2;
-	context->state.blit_dst_y = (video_size_y() - context->state.mode_visible_size_y) / 2;
-
-	pixel = ALIGN / video_bytes_per_pixel();
-	context->state.blit_dst_x = (context->state.blit_dst_x + pixel-1) & ~(pixel-1);
-
-	/* source increment */
+	/* source for direct blit */
 	context->state.blit_src_dw = bitmap->bytes_per_scanline;
 	context->state.blit_src_dp = context->state.game_bytes_per_pixel;
 
-	/* adjust for the blit orientation */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
 		SWAP(int, context->state.blit_src_dw, context->state.blit_src_dp);
 	}
@@ -1709,7 +1730,52 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 		context->state.blit_src_dp = -context->state.blit_src_dp;
 	}
 
-	/* compute the source x position aligment */
+	/* the game variable have the final orientation, it may differ from the */
+	/* buffer intermediate orientation used with the bufferized blit */
+	context->state.buffer_size_x = video_size_x();
+	context->state.buffer_size_y = video_size_y();
+	intermediate_game_used_pos_x = context->state.game_used_pos_x;
+	intermediate_game_used_pos_y = context->state.game_used_pos_y;
+	intermediate_game_used_size_x = context->state.game_used_size_x;
+	intermediate_game_used_size_y = context->state.game_used_size_y;
+	intermediate_game_visible_size_x = context->state.game_visible_size_x;
+	intermediate_game_visible_size_y = context->state.game_visible_size_y;
+	intermediate_mode_visible_size_x = context->state.mode_visible_size_x;
+	intermediate_mode_visible_size_y = context->state.mode_visible_size_y;
+
+	if (context->config.user_orientation & OSD_ORIENTATION_SWAP_XY) {
+		SWAP(unsigned, context->state.buffer_size_x, context->state.buffer_size_y);
+		SWAP(int, intermediate_game_used_pos_x, intermediate_game_used_pos_y);
+		SWAP(int, intermediate_game_used_size_x, intermediate_game_used_size_y);
+		SWAP(int, intermediate_game_visible_size_x, intermediate_game_visible_size_y);
+		SWAP(int, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y);
+	}
+
+	log_std(("emu:video: buffer_size_x %d\n", context->state.buffer_size_x));
+	log_std(("emu:video: buffer_size_y %d\n", context->state.buffer_size_y));
+	log_std(("emu:video: intermediate_mode_visible_size_x %d\n", intermediate_mode_visible_size_x));
+	log_std(("emu:video: intermediate_mode_visible_size_y %d\n", intermediate_mode_visible_size_y));
+
+	context->state.buffer_src_dw = bitmap->bytes_per_scanline;
+	context->state.buffer_src_dp = context->state.game_bytes_per_pixel;
+
+	if (context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) {
+		SWAP(int, context->state.buffer_src_dw, context->state.buffer_src_dp);
+	}
+
+	context->state.buffer_src_offset = intermediate_game_used_pos_x * context->state.buffer_src_dp + intermediate_game_used_pos_y * context->state.buffer_src_dw;
+
+	if (context->config.game_orientation & OSD_ORIENTATION_FLIP_Y) {
+		context->state.buffer_src_offset += (intermediate_game_used_size_y - 1) * context->state.buffer_src_dw;
+		context->state.buffer_src_dw = -context->state.buffer_src_dw;
+	}
+
+	if (context->config.game_orientation & OSD_ORIENTATION_FLIP_X) {
+		context->state.buffer_src_offset += (intermediate_game_used_size_x - 1) * context->state.buffer_src_dp;
+		context->state.buffer_src_dp = -context->state.buffer_src_dp;
+	}
+
+	/* check the copy alignment */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
 		/* alignement not requiried */
 		context->state.game_visible_pos_x_increment = 1;
@@ -1720,6 +1786,13 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 			context->state.game_visible_pos_x_increment = 1;
 		}
 	}
+
+	log_std(("emu:video: blit_offset %d\n", context->state.blit_src_offset));
+	log_std(("emu:video: blit_dw %d\n", context->state.blit_src_dw));
+	log_std(("emu:video: blit_dp %d\n", context->state.blit_src_dp));
+	log_std(("emu:video: buffer_offset %d\n", context->state.buffer_src_offset));
+	log_std(("emu:video: buffer_dw %d\n", context->state.buffer_src_dw));
+	log_std(("emu:video: buffer_dp %d\n", context->state.buffer_src_dp));
 
 	/* adjust the source position */
 	context->state.game_visible_pos_x = context->state.game_visible_pos_x - context->state.game_visible_pos_x % context->state.game_visible_pos_x_increment;
@@ -1818,21 +1891,33 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 		break;
 	}
 
+	free(context->state.buffer_ptr);
+
+	video_pipeline_init(&context->state.blit_pipeline_video);
+	video_pipeline_init(&context->state.buffer_pipeline_video);
+
+	size = context->state.buffer_size_x * context->state.buffer_size_y * video_bytes_per_pixel();
+	context->state.buffer_ptr = malloc(size);
+
+	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_size_x * video_bytes_per_pixel(), video_color_def());
+
 	if (context->state.game_rgb_flag) {
-		adv_error res;
-		res = video_stretch_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine);
-		assert(res == 0);
+		video_pipeline_direct(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine);
+		video_pipeline_direct(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.game_color_def, combine);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 			assert(context->state.game_bytes_per_pixel == 2);
-			video_stretch_palette_16hw_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
+			video_pipeline_palette16hw(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
+			video_pipeline_palette16hw(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, combine);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
-					video_stretch_palette_8_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
+					video_pipeline_palette8(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
+					video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 					break;
 				case 2 :
-					video_stretch_palette_16_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
+					video_pipeline_palette16(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
+					video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 					break;
 				default :
 					assert(0);
@@ -1844,30 +1929,96 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 	context->state.blit_pipeline_flag = 1;
 }
 
-static void video_frame_put(struct advance_video_context* context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
+static void video_frame_put(struct advance_video_context* context, struct advance_ui_context* ui_context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
 {
-	unsigned dst_x;
-	unsigned dst_y;
 	unsigned src_offset;
+	unsigned dst_x, dst_y;
 
 	/* screen position */
-	dst_x = context->state.blit_dst_x + x;
-	dst_y = context->state.blit_dst_y + y;
 
-	log_debug(("osd:frame dst_xxdst_y:%dx%d, dst_dxxdst_dy:%dx%d, xxy:%dx%d, dxxdy:%dx%d, dpxdw:%dx%d\n", dst_x, dst_y, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_pos_x, context->state.game_visible_pos_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dp, context->state.blit_src_dw));
+	dst_x = (video_size_x() - context->state.mode_visible_size_x) / 2;
+	dst_y = (video_size_y() - context->state.mode_visible_size_y) / 2;
 
-	/* compute the source pointer */
-	src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
+	log_debug(("osd:frame dst_dxxdst_dy:%dx%d, xxy:%dx%d, dxxdy:%dx%d, dpxdw:%dx%d\n", context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_pos_x, context->state.game_visible_pos_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dp, context->state.blit_src_dw));
 
-	video_pipeline_blit(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
+	if (advance_ui_active(ui_context)) {
+		int buf_dw;
+		int buf_dp;
+		unsigned char* buf_ptr;
+		int intermediate_game_visible_pos_x;
+		int intermediate_game_visible_pos_y;
+		int final_size_x;
+		int final_size_y;
+
+		final_size_x = context->state.buffer_size_x;
+		final_size_y = context->state.buffer_size_y;
+		intermediate_game_visible_pos_x = context->state.game_visible_pos_x;
+		intermediate_game_visible_pos_y = context->state.game_visible_pos_y;
+
+		if (context->config.user_orientation & OSD_ORIENTATION_SWAP_XY) {
+			SWAP(unsigned, dst_x, dst_y);
+			SWAP(int, intermediate_game_visible_pos_x, intermediate_game_visible_pos_y);
+		}
+
+		/* compute the source pointer */
+		src_offset = context->state.buffer_src_offset + intermediate_game_visible_pos_y * context->state.buffer_src_dw + intermediate_game_visible_pos_x * context->state.buffer_src_dp;
+
+		log_std(("buffer_src_offset %d\n", src_offset));
+
+		memset(context->state.buffer_ptr, 0, context->state.buffer_size_x * context->state.buffer_size_y * video_bytes_per_pixel());
+
+		video_pipeline_blit(&context->state.buffer_pipeline_video, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
+
+		advance_ui_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_size_x * video_bytes_per_pixel(), video_color_def(), context->state.palette_map, context->state.palette_total);
+
+		buf_ptr = context->state.buffer_ptr;
+		buf_dw = final_size_x * video_bytes_per_pixel();
+		buf_dp = video_bytes_per_pixel();
+
+		if (context->config.user_orientation & OSD_ORIENTATION_SWAP_XY) {
+			SWAP(int, buf_dw, buf_dp);
+			SWAP(int, final_size_x, final_size_y);
+		}
+
+		if (context->config.user_orientation & OSD_ORIENTATION_FLIP_Y) {
+			buf_ptr += (final_size_y - 1) * buf_dw;
+			buf_dw = -buf_dw;
+		}
+
+		if (context->config.user_orientation & OSD_ORIENTATION_FLIP_X) {
+			buf_ptr += (final_size_x - 1) * buf_dp;
+			buf_dp = -buf_dp;
+		}
+
+		log_std(("buffer_offset %d\n", buf_ptr - context->state.buffer_ptr));
+		log_std(("buffer_dw %d\n", buf_dw));
+		log_std(("buffer_dp %d\n", buf_dp));
+		log_std(("buffer_size_x %d\n", context->state.buffer_size_x));
+		log_std(("buffer_size_y %d\n", context->state.buffer_size_y));
+
+		video_stretch_direct(x, y, video_size_x(), video_size_y(), buf_ptr, final_size_x, final_size_y, buf_dw, buf_dp, video_color_def(), 0);
+	} else {
+		unsigned pixel;
+
+		pixel = ALIGN / video_bytes_per_pixel();
+		dst_x = (dst_x + pixel-1) & ~(pixel-1);
+
+		dst_x += x;
+		dst_y += y;
+
+		/* compute the source pointer */
+		src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
+
+		video_pipeline_blit(&context->state.blit_pipeline_video, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
+	}
 }
 
-static void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
+static void video_frame_screen(struct advance_video_context* context, struct advance_ui_context* ui_context, const struct osd_bitmap *bitmap, unsigned input)
 {
 	update_start();
 
-	video_frame_pipeline(context, bitmap);
-	video_frame_put(context, bitmap, update_x_get(), update_y_get());
+	video_update_pipeline(context, bitmap);
+	video_frame_put(context, ui_context, bitmap, update_x_get(), update_y_get());
 
 	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 }
@@ -1898,22 +2049,18 @@ static void video_frame_palette(struct advance_video_context* context)
 					if ((m & t) != 0) {
 						unsigned p = i * osd_mask_size + j;
 
-						osd_rgb_t c = context->state.palette_map[p];
+						adv_color_rgb c = context->state.palette_map[p];
 
 						/* update the palette */
 						if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 							/* hardware */
 							/* note: trying to concatenate palette update */
 							/* generate flickering!, one color at time is ok! */
-							adv_color_rgb adjusted_palette;
-							adjusted_palette.red = osd_rgb_red(c);
-							adjusted_palette.green = osd_rgb_green(c);
-							adjusted_palette.blue = osd_rgb_blue(c);
-							video_palette_set(&adjusted_palette, p, 1, 0);
+							video_palette_set(&c, p, 1, 0);
 						} else {
 							/* software */
 							adv_pixel pixel;
-							video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
+							video_pixel_make(&pixel, c.red, c.green, c.blue);
 							switch (video_bytes_per_pixel()) {
 							case 4 :
 								context->state.palette_index32_map[p] = pixel;
@@ -2090,17 +2237,17 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		double v = (step - skip) / (full - step);
 		double f = (full - skip) / step;
 		if (v >= 1) {
-			/* The use of ceil() instead of floor() generates a frame rate a little lower than 100% */
+			/* The use of ceil() instead of floor() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
-			context->state.skip_level_full = ceil( v );
+			context->state.skip_level_full = floor( v );
 			context->state.skip_level_skip = 1;
 			if (context->state.skip_level_full >= SYNC_MAX)
 				context->state.skip_level_full = SYNC_MAX - 1;
 		} else {
 			context->state.skip_level_full = 1;
-			/* The use of floor() instead of ceil() generates a frame rate a little lower than 100% */
+			/* The use of floor() instead of ceil() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
-			context->state.skip_level_skip = floor( 1 / v );
+			context->state.skip_level_skip = ceil( 1 / v );
 			if (context->state.skip_level_skip >= SYNC_MAX)
 				context->state.skip_level_skip = SYNC_MAX - 1;
 		}
@@ -2335,7 +2482,7 @@ static void video_skip_update(struct advance_video_context* context, struct adva
 	}
 }
 
-static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, int leds_status, unsigned input, adv_bool skip_flag)
+static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, int leds_status, unsigned input, adv_bool skip_flag)
 {
 
 	/* events */
@@ -2425,14 +2572,24 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		context->state.debugger_flag = !context->state.debugger_flag;
 		video_invalidate_screen();
 	}
+
+	if (input == OSD_INPUT_COCKTAIL) {
+		context->config.blit_orientation ^= OSD_ORIENTATION_FLIP_Y | OSD_ORIENTATION_FLIP_X;
+
+		video_invalidate_pipeline(context);
+	}
+
+	if (input == OSD_INPUT_HELP) {
+		advance_ui_help(ui_context);
+	}
 }
 
-static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, adv_bool skip_flag)
+static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap *bitmap, unsigned input, adv_bool skip_flag)
 {
 	/* bitmap */
 	if (!skip_flag) {
 		video_frame_palette(context);
-		video_frame_screen(context, bitmap, input);
+		video_frame_screen(context, ui_context, bitmap, input);
 
 		if (advance_record_video_is_active(record_context)
 			&& !context->state.pause_flag) {
@@ -2517,7 +2674,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 
 	if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 		/* TODO set the hardware palette for the debugger */
-		video_stretch_palette_16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
+		video_stretch_palette16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
 	} else {
 		uint8* palette8_raw;
 		uint16* palette16_raw;
@@ -2537,7 +2694,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 			palette8_raw[i] = pixel;
 		}
 
-		video_stretch_palette_8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette8_raw, palette16_raw, palette32_raw, VIDEO_COMBINE_Y_MAX);
+		video_stretch_palette8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette8_raw, palette16_raw, palette32_raw, VIDEO_COMBINE_Y_MAX);
 
 		free(palette32_raw);
 		free(palette16_raw);
@@ -2545,16 +2702,16 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	}
 }
 
-static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, adv_bool skip_flag)
+static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, adv_bool skip_flag)
 {
 	if (context->state.debugger_flag) {
 		video_frame_debugger(context, debug, debug_palette, debug_palette_size);
 	} else {
-		video_frame_game(context, record_context, game, input, skip_flag);
+		video_frame_game(context, record_context, ui_context, game, input, skip_flag);
 	}
 }
 
-static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
+static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 	/* Do a yield immediatly before time the syncronization. */
 	/* If a schedule will be done, it's better to have it now when */
@@ -2569,7 +2726,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	advance_estimate_osd_begin(estimate_context);
 
 	/* all the update */
-	advance_video_update(context, record_context, game, debug, debug_palette, debug_palette_size, input, skip_flag);
+	advance_video_update(context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, input, skip_flag);
 	advance_sound_update(sound_context, record_context, context, sample_buffer, sample_count, sample_recount);
 
 	/* estimate the time */
@@ -2656,7 +2813,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
-static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
+static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag) {
@@ -2672,10 +2829,10 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
 	} else {
-		video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+		video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 	}
 #else
-	video_frame_update_now(context, sound_context, estimate_context, record_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+	video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 #endif
 }
 
@@ -2689,6 +2846,7 @@ static void* video_thread(void* void_context)
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
 	struct advance_estimate_context* estimate_context = &CONTEXT.estimate;
 	struct advance_record_context* record_context = &CONTEXT.record;
+	struct advance_ui_context* ui_context = &CONTEXT.ui;
 
 	log_std(("advance:thread: start\n"));
 
@@ -2721,6 +2879,7 @@ static void* video_thread(void* void_context)
 			sound_context,
 			estimate_context,
 			record_context,
+			ui_context,
 			context->state.thread_state_game,
 			0,
 			0,
@@ -3042,6 +3201,7 @@ void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 	context->state.game_used_size_x = size_x;
 	context->state.game_used_size_y = size_y;
 
+	video_invalidate_pipeline(context);
 	video_update_pan(context);
 }
 
@@ -3072,8 +3232,11 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	}
 
 	context->state.palette_dirty_flag = 1;
-	for(i=0;i<size;++i)
-		context->state.palette_map[i] = palette[i];
+	for(i=0;i<size;++i) {
+		context->state.palette_map[i].red = osd_rgb_red(palette[i]);
+		context->state.palette_map[i].green = osd_rgb_green(palette[i]);
+		context->state.palette_map[i].blue = osd_rgb_blue(palette[i]);
+	}
 	for(i=0;i<dirty_size;++i)
 		context->state.palette_dirty_map[i] |= mask[i];
 }
@@ -3218,7 +3381,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 #endif
 
 	/* update the global info */
-	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, led, input, skip_flag);
+	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, led, input, skip_flag);
 	video_skip_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.record);
 	advance_input_update(&CONTEXT.input, &CONTEXT.safequit, CONTEXT.video.state.pause_flag);
 
@@ -3230,7 +3393,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	video_frame_prepare(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* update the local info */
-	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, &CONTEXT.ui, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* estimate the time */
 	advance_estimate_mame_begin(&CONTEXT.estimate);
@@ -3389,7 +3552,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	unsigned i;
 
 	/* save the configuration */
-	context->state.cfg_context = cfg_context;
+	cfg_context = cfg_context;
 
 	/* other initialization */
 	context->state.av_sync_mac = 0;
@@ -3573,8 +3736,6 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	unsigned i;
 	adv_bool ror, rol, flipx, flipy;
 
-	assert( cfg_context == context->state.cfg_context );
-
 	context->config.game_orientation = mame_game_orientation(option->game);
 
 	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
@@ -3615,10 +3776,14 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	flipx = conf_bool_get_default(cfg_context, "display_flipx");
 	flipy = conf_bool_get_default(cfg_context, "display_flipy");
 
-	/* enable the blit orientation */
+	/* orientation */
 	context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, rol, ror, flipx, flipy);
-	/* enable the ui orientation */
+	context->config.user_orientation = video_orientation_compute(0, rol, ror, flipx, flipy);
 	option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
+
+	log_std(("emu:video: orientation game %04x\n", context->config.game_orientation));
+	log_std(("emu:video: orientation user %04x\n", context->config.user_orientation));
+	log_std(("emu:video: orientation blit %04x\n", context->config.blit_orientation));
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");

@@ -1317,7 +1317,7 @@ Configuration
 		f4, f5, f6, f7, f8, f9, f10, f11, f12, esc, backquote, minus,
 		equals, backspace, tab, openbrace, closebrace, enter, semicolon,
 		quote, backslash, less, comma, period, slash, space, insert,
-		del, home, end, pgup, pgdn, left, right, up, down, slash, asterisk,
+		del, home, end, pgup, pgdn, left, right, up, down, slash_pad, asterisk_pad,
 		minus_pad, plus_pad, period_pad, enter_pad, prtscr, pause, lshift,
 		rshift, lcontrol, rcontrol, lalt, ralt, lwin, rwin, menu, scrlock,
 		numlock, capslock, stop, again, props, undo, front, copy, open,
@@ -1388,6 +1388,63 @@ Configuration
 	Examples:
 		:input_name keyboard[0,lcontrol] P1Blue
 		:input_name joystick_digital[0,stick,x,right] P1JoyRight
+
+  User Interface Configuration Options
+	This section describes the options used for the user interface.
+
+    ui_helpimage
+	Select the image to display on help request. The image must be a
+	PNG file containing only two color: black and white. The black
+	color must be used as background, the white color as foreground.
+
+	ui_helpimage auto | FILE
+
+	Options:
+		auto - Use the internal help image. With this option all the
+			ui_helptag options are ingnored.
+		FILE - Load an arbitrary image from a file.
+
+    ui_helptag
+	Select the highlight range for any digital input. When the user
+	press a key/button the corrispettive range is higlighted.
+	A different color for any player is used in the image.
+
+	ui_helptag (keyboard[KEYBOARD,KEY]
+	:	| mouse_button[MOUSE,MOUSE_BUTTON]
+	:	| joystick_button[JOY,JOY_BUTTON]
+	:	| joystick_digital[JOY,CONTROL,AXE,DIR])
+	:	X Y DX DY
+
+	Options:
+		keyboard/mouse_*/joystick_* - One digital input. Like the
+			input_map option.
+		X, Y - The upper/left position in the image of the input range.
+		DX, DY - The size in pixel of the input range.
+
+	Examples:
+		ui_helptag keyboard[0,esc] 6 5 12 12
+		ui_helptag keyboard[0,f1] 26 5 12 12
+		ui_helptag keyboard[0,f2] 38 5 12 12
+		ui_helptag keyboard[0,f3] 50 5 12 12
+		ui_helptag keyboard[0,f4] 62 5 12 12
+		ui_helptag keyboard[0,f5] 81 5 12 12
+		ui_helptag keyboard[0,f6] 93 5 12 12
+		ui_helptag keyboard[0,f7] 105 5 12 12
+		ui_helptag keyboard[0,f8] 117 5 12 12
+		ui_helptag keyboard[0,f9] 137 5 12 12
+		ui_helptag keyboard[0,f10] 149 5 12 12
+
+    ui_font
+	Select the font to use for the user interface. The formats GRX,
+	PSF and RAW are supported. You can find a collection of fonts in
+	the `contrib' directory.
+
+	ui_font auto | FILE
+
+	Options:
+		auto - Automatically select the internal
+			font (default).
+		FILE - Load an arbitrary font from a file.
 
   Record Configuration Options
 	This section describes the options used for the recording

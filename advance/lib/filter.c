@@ -24,17 +24,17 @@
 #include <math.h>
 #include <stdlib.h>
 
-unsigned filter_order_get(const adv_filter* f)
+unsigned adv_filter_order_get(const adv_filter* f)
 {
 	return f->order;
 }
 
-unsigned filter_delay_get(const adv_filter* f)
+unsigned adv_filter_delay_get(const adv_filter* f)
 {
 	return (f->order-1) / 2;
 }
 
-void filter_state_reset(adv_filter* f, adv_filter_state* s)
+void adv_filter_state_reset(adv_filter* f, adv_filter_state* s)
 {
 	int i;
 	s->prev_mac = 0;
@@ -43,7 +43,7 @@ void filter_state_reset(adv_filter* f, adv_filter_state* s)
 	}
 }
 
-adv_filter_real filter_extract(adv_filter* f, adv_filter_state* s)
+adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s)
 {
 	unsigned order = f->order;
 	unsigned midorder = f->order / 2;
@@ -81,7 +81,7 @@ adv_filter_real filter_extract(adv_filter* f, adv_filter_state* s)
 #endif
 }
 
-void filter_lpfir_set(adv_filter*f, double freq, unsigned order)
+void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 {
 	unsigned midorder = (order - 1) / 2;
 	unsigned i;

@@ -1030,85 +1030,7 @@ void mame_mame::cache(const game_set& gar, const game& g) const {
 
 bool mame_mame::load_data(const game_set& gar)
 {
-	load_game_cfg_dir(gar, cfg_path_get());
 	return true;
-}
-
-bool mame_mame::load_game_coin(const string& file, unsigned& total_coin) const {
-	FILE* f = fopen(cpath_export(file), "rb");
-	if (!f)
-		goto out;
-
-	char header[8];
-	if (fread(header, 8, 1, f)!=1)
-		goto out_err;
-
-	if (memcmp(header, "MAMECFG\x8", 8)!=0)
-		goto out_err;
-
-	unsigned count;
-	if (!fread_uint32be(count, f))
-		goto out_err;
-
-	for(unsigned j=0;j<2;++j) {
-		for(unsigned i=0;i<count;++i) {
-			if (!fskip(8, f))
-				goto out_err;
-			unsigned key_count;
-			if (!fread_uint16be(key_count, f))
-				goto out_err;
-			if (!fskip(key_count*4, f))
-				goto out_err;
-		}
-	}
-
-	unsigned coin;
-	coin = 0;
-	for(unsigned i=0;i<4;++i) {
-		unsigned coin_partial;
-		if (!fread_uint32be(coin_partial, f))
-			goto out_err;
-		coin += coin_partial;
-	}
-
-	total_coin = coin;
-
-	// ignore others info
-
-	fclose(f);
-	return true;
-
-out_err:
-	fclose(f);
-out:
-	return false;
-}
-
-void mame_mame::load_game_cfg_dir(const game_set& gar, const string& dir) const {
-	DIR* d = opendir(cpath_export(dir));
-	if (!d) {
-		target_err("Error opening the '%s' .cfg files directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
-		return;
-	}
-
-	struct dirent* dd;
-
-	while ((dd = readdir(d))!=0) {
-		string file = file_import(dd->d_name);
-		if (file_ext(file) == ".cfg") {
-			string name = user_name_get() + "/" + file_basename(file);
-			game_set::const_iterator j = gar.find(game(name));
-			if (j != gar.end() && !j->is_coin_set()) {
-				unsigned coin;
-				if (load_game_coin(slash_add(dir) + file, coin )) {
-					j->coin_set(coin);
-				}
-			}
-			// ignore error
-		}
-	}
-
-	closedir(d);
 }
 
 bool mame_mame::load_software(game_set&, bool quiet)
@@ -1119,17 +1041,6 @@ bool mame_mame::load_software(game_set&, bool quiet)
 bool mame_mame::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
-
-	unsigned coin_pre;
-	bool coin_pre_set;
-	unsigned coin_post;
-	bool coin_post_set = false;
-
-	string cfg_file = slash_add(cfg_path_get()) + g.bios_get().name_without_emulator_get() + ".cfg";
-
-	coin_pre_set = load_game_coin(cfg_file, coin_pre);
-	if (!coin_pre_set)
-		coin_pre = 0;
 
 	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
 	argc = compile(g, argv, argc, "%s", orientation);
@@ -1171,16 +1082,12 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, diffi
 	time_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
-	coin_post_set = load_game_coin(cfg_file, coin_post);
-
 	for(int i=0;i<argc;++i)
 		free(const_cast<char*>(argv[i]));
 
 	if (ret) {
 		g.time_set( g.time_get() + duration );
-		if (coin_post_set && coin_post >= coin_pre) {
-			g.coin_set( g.coin_get() + coin_post - coin_pre );
-		}
+		g.session_set( g.session_get() + 1 );
 	}
 
 	return ret;
@@ -1212,7 +1119,6 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_string_register(context, "rompath");
 	conf_string_register(context, "snap");
-	conf_string_register(context, "cfg");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 0, 0, 0, 0, 0) != 0) {
 		conf_done(context);
@@ -1233,16 +1139,9 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("snap"), exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "directory", "cfg", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs(list_import("cfg"), exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 
@@ -1293,7 +1192,6 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_string_register(context, "rompath");
 	conf_string_register(context, "snapshot_directory");
-	conf_string_register(context, "cfg_directory");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
 		conf_done(context);
@@ -1314,16 +1212,9 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "", "cfg_directory", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs(list_import(file_config_dir_singledir("cfg")), exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 
@@ -1405,12 +1296,9 @@ bool xmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("."), dir_cwd());
 	}
 
-	emu_cfg_path = list_abs(list_import(home_dir + "/cfg"), dir_cwd());
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 
@@ -1461,7 +1349,6 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_string_register(context, "dir_rom");
 	conf_string_register(context, "dir_snap");
-	conf_string_register(context, "dir_cfg");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
 		conf_done(context);
@@ -1482,16 +1369,9 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "", "dir_cfg", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs(list_import(file_config_dir_singledir("cfg")), exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 
@@ -1542,7 +1422,6 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 
 	conf_string_register(context, "dir_rom");
 	conf_string_register(context, "dir_snap");
-	conf_string_register(context, "dir_cfg");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
 		conf_done(context);
@@ -1563,16 +1442,9 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "", "dir_cfg", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs(list_import(file_config_dir_singledir("cfg")), exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 
@@ -1710,7 +1582,6 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 	context = conf_init();
 
 	conf_string_register(context, "snap");
-	conf_string_register(context, "cfg");
 	conf_string_register(context, "biospath");
 	conf_string_register(context, "softwarepath");
 
@@ -1737,16 +1608,9 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs("snap", exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "directory", "cfg", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs("cfg", exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
 	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
@@ -2022,7 +1886,6 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "dir_rom");
 	conf_string_register(context, "dir_image");
 	conf_string_register(context, "dir_snap");
-	conf_string_register(context, "dir_cfg");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
 		conf_done(context);
@@ -2047,16 +1910,9 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
 	}
 
-	if (conf_string_section_get(context, "", "dir_cfg", &s)==0) {
-		emu_cfg_path = list_abs(list_import(s), exe_dir_get());
-	} else {
-		emu_cfg_path = list_abs(list_import(file_config_dir_singledir("cfg")), exe_dir_get());
-	}
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
 	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
@@ -2765,12 +2621,9 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 		emu_snap_path = list_abs(list_import("screens"), exe_dir_get());
 	}
 
-	emu_cfg_path = "";
-
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
-	log_std(("%s: emu_cfg_path %s\n", user_name_get().c_str(), cpath_export(emu_cfg_path) ));
 
 	conf_done(context);
 

@@ -1,6 +1,22 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.78.0 2004/01
+	) Added a new `help' button which display an arbitrary image with
+		the player buttons highlighted. You can customize the image
+		and the keys/buttons highlight with the options `ui_helptag'
+		and `ui_helpimage'. The default key is F1.
+	) Added a new `cocktail' button which flip the game screen for
+		a cocktail monitor. The default key is the slash on the
+		keypad.
+	) A new MAME like user interface completly independent of the MAME core.
+		It allows to use an arbitrary font and to prevent the user
+		interface to appears on the snapshot and video recording functions.
+	) Removed the .cfg file support. All the input customization are now
+		in the .rc file.
+	) Fixed the screen position on games with a moving display area.
+		For example invaders in cocktail mode.
+
 AdvanceMAME Version 0.77.2 2003/12
 	) Games with unemulated protection are now reported as not working.
 		For example Choplifter.

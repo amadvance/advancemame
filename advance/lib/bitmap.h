@@ -28,6 +28,7 @@
 #include "endianrw.h"
 #include "extra.h"
 #include "rgb.h"
+#include "fz.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,11 +49,11 @@ typedef struct adv_bitmap_struct {
 /** \addtogroup BitMap */
 /*@{*/
 
-adv_bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
-adv_bitmap* bitmap_dup(adv_bitmap* src);
-adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
-adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
-void bitmap_free(adv_bitmap* bmp);
+adv_bitmap* adv_bitmap_alloc(unsigned x, unsigned y, unsigned bit);
+adv_bitmap* adv_bitmap_dup(adv_bitmap* src);
+adv_bitmap* adv_bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
+adv_bitmap* adv_bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
+void adv_bitmap_free(adv_bitmap* bmp);
 
 /**
  * Get the pointer of a bitmap line.
@@ -60,7 +61,7 @@ void bitmap_free(adv_bitmap* bmp);
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-static inline uint8* bitmap_line(adv_bitmap* bmp, unsigned y)
+static inline uint8* adv_bitmap_line(adv_bitmap* bmp, unsigned y)
 {
 	return bmp->ptr + y * bmp->bytes_per_scanline;
 }
@@ -72,7 +73,7 @@ static inline uint8* bitmap_line(adv_bitmap* bmp, unsigned y)
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-static inline uint8* bitmap_pixel(adv_bitmap* bmp, unsigned x, unsigned y)
+static inline uint8* adv_bitmap_pixel(adv_bitmap* bmp, unsigned x, unsigned y)
 {
 	return bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
 }
@@ -84,9 +85,10 @@ static inline uint8* bitmap_pixel(adv_bitmap* bmp, unsigned x, unsigned y)
  * \param y Y.
  * \param v Pixel value.
  */
-static inline void bitmap_pixel_put(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v)
+static inline void adv_bitmap_pixel_put(adv_bitmap* bmp, int x, int y, unsigned v)
 {
-	cpu_uint_write(bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel, v);
+	if (x >= 0 && x < bmp->size_x && y >= 0 && y < bmp->size_y)
+		cpu_uint_write(adv_bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel, v);
 }
 
 /**
@@ -96,14 +98,17 @@ static inline void bitmap_pixel_put(adv_bitmap* bmp, unsigned x, unsigned y, uns
  * \param y Y.
  * \param v Pixel value.
  */
-static inline unsigned bitmap_pixel_get(adv_bitmap* bmp, unsigned x, unsigned y)
+static inline unsigned adv_bitmap_pixel_get(adv_bitmap* bmp, unsigned x, unsigned y)
 {
-	return cpu_uint_read(bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel);
+	if (x >= 0 && x < bmp->size_x && y >= 0 && y < bmp->size_y)
+		return cpu_uint_read(adv_bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel);
+	else
+		return 0;
 }
 
-adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation);
-adv_bitmap* bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask, adv_color_def def);
-void bitmap_cutoff(adv_bitmap* bitmap, unsigned* cx, unsigned* cy);
+adv_bitmap* adv_bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation);
+adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask, adv_color_def def);
+void adv_bitmap_cutoff(adv_bitmap* bitmap, unsigned* cx, unsigned* cy);
 
 /** \name Orientation
  * Orientation operation on a bitmap.
@@ -113,7 +118,7 @@ void bitmap_cutoff(adv_bitmap* bitmap, unsigned* cx, unsigned* cy);
 #define ORIENTATION_MIRROR_X 0x02 /**< Mirror on the X axe. */
 #define ORIENTATION_MIRROR_Y 0x04 /**< Mirror on the Y axe. */
 
-void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
+void adv_bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
 /*@}*/
 
 /**
@@ -126,14 +131,16 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
  */
 #define REDUCE_INDEX_MAX (1U << (3*REDUCE_COLOR_BIT))
 
-unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp);
+unsigned adv_bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp);
 
-void bitmap_cvt_reduce_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map);
+void adv_bitmap_cvt_reduce_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map);
 
-void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
-void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
+void adv_bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
+void adv_bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
 
-void bitmap_put(adv_bitmap* dst, unsigned x, unsigned y, adv_bitmap* src);
+void adv_bitmap_put(adv_bitmap* dst, int x, int y, adv_bitmap* src);
+void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned color);
+adv_bitmap* adv_bitmap_load(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f);
 
 /*@}*/
 

@@ -47,31 +47,31 @@ typedef struct adv_filter_state_struct {
 /**
  * Get the order of the filter.
  */
-unsigned filter_order_get(const adv_filter* f);
+unsigned adv_filter_order_get(const adv_filter* f);
 
 /**
  * Get the output delay of the filter.
  */
-unsigned filter_delay_get(const adv_filter* f);
+unsigned adv_filter_delay_get(const adv_filter* f);
 
 /**
  * Setup a FIR Low Pass filter.
  * The effective filter order may differ than the requested value. You must
- * read it using the filter_order_get() function.
+ * read it using the adv_filter_order_get() function.
  * \param freq Cut frecuenty of the filter. 0 < freq <= 0.5.
  * \param order Order of the filter. It must be odd.
  */
-void filter_lpfir_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_lpfir_set(adv_filter* f, double freq, unsigned order);
 
 /**
  * Reset the filter state.
  */
-void filter_state_reset(adv_filter* f, adv_filter_state* s);
+void adv_filter_state_reset(adv_filter* f, adv_filter_state* s);
 
 /**
  * Insert a value in the filter state.
  */
-static inline void filter_insert(adv_filter* f, adv_filter_state* s, adv_filter_real x)
+static inline void adv_filter_insert(adv_filter* f, adv_filter_state* s, adv_filter_real x)
 {
 	/* next position */
 	++s->prev_mac;
@@ -88,6 +88,6 @@ static inline void filter_insert(adv_filter* f, adv_filter_state* s, adv_filter_
  * equal at the filter order.
  * The output delay is of (order-1)/2 samples.
  */
-adv_filter_real filter_extract(adv_filter* f, adv_filter_state* s);
+adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s);
 
 #endif

@@ -386,7 +386,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 			sncatf(buffer, sizeof(buffer), "-%d", context->state.coin);
 		}
 
-		mame_ui_text(buffer, 0, 0);
+		/* mame_ui_text(buffer, 0, 0); */ /* TODO */
 	}
 }
 

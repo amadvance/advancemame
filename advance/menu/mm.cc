@@ -516,7 +516,11 @@ static adv_conf_conv STANDARD[] = {
 { "*", "loop", "no", "%s", "ui_clip", "single", 0 }, /* rename */
 /* 2.2.15 */
 { "*", "device_video_output", "zoom", "%s", "%s", "overlay", 0 }, /* rename */
-{ "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 } /* rename */
+{ "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 }, /* rename */
+/* 2.2.17 */
+{ "*", "device_video_overlay", "*", "%s", "device_video_overlaysize", "%s", 0 }, /* rename */
+{ "*", "sort", "coin", "%s", "%s", "play", 0 }, /* rename */
+{ "*", "sort", "timepercoin", "%s", "%s", "timeperplay", 0 } /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

@@ -46,6 +46,11 @@
 
 #include <time.h>
 
+#include "input.h"
+
+/**************************************************************************/
+/* MAME/OS equivalence */
+
 /**
  * Equivalence from a system code and a MAME code.
  */
@@ -53,28 +58,6 @@ struct input_equiv {
 	int os_code;
 	int mame_code;
 };
-
-/** Max input name. */
-#define INPUT_NAME_MAX 64
-
-/**************************************************************************/
-/* Digital */
-
-/* The DIGITAL values are also saved in the .cfg file. If you change them */
-/* the cfg become invalid. */
-#define DIGITAL_TYPE_SPECIAL 0 /* Special codes */
-#define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSDDDTTT */
-#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBDDDTTT */
-#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBDDDTTT */
-#define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKBBBTTT */
-#define DIGITAL_TYPE_GET(i) ((i) & 0x7)
-
-/**************************************************************************/
-/* Keyboard */
-
-#define DIGITAL_KBD_BOARD_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_KBD_KEY_GET(i) (((i) >> 6) & 0x3FF)
-#define DIGITAL_KBD(board, key) (DIGITAL_TYPE_KBD | (board) << 3 | (key) << 6)
 
 /**
  * Equivalence from system key code and MAME key code.
@@ -185,47 +168,6 @@ static struct input_equiv input_keyequiv_map[] = {
 };
 
 /**
- * Used to store the key names.
- */
-static char input_keyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
-
-/**
- * Used to store the key list.
- */
-static struct KeyboardInfo input_key_map[INPUT_DIGITAL_MAX];
-
-/**************************************************************************/
-/* Joystick/Mouse */
-
-/*
- * T - Type
- * D - Device number
- * S - Stick number
- * A - Axe number
- * D - Direction
- * B - Button number
- */
-
-/* Warning! Check the INPUT_*_MAX, they must match with the following macros. */
-
-#define DIGITAL_JOY_DEV_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_JOY_STICK_GET(i) (((i) >> 6) & 0x7)
-#define DIGITAL_JOY_AXE_GET(i) (((i) >> 9) & 0x7)
-#define DIGITAL_JOY_DIR_GET(i) (((i) >> 12) & 0x1)
-#define DIGITAL_JOY(joy, stick, axe, dir) (DIGITAL_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (dir) << 12)
-
-#define DIGITAL_JOY_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xF)
-#define DIGITAL_JOY_BUTTON(joy, button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 3 | (button) << 6)
-
-#define DIGITAL_MOUSE_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xF)
-#define DIGITAL_MOUSE_BUTTON(mouse, button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 3 | (button) << 6)
-
-/** Max number of joystick/mouse digital input. */
-#define INPUT_JOYMOUSE_MAX 1024
-
-/**
  * Equivalence from system joystick/mouse code and MAME joystick/mouse code.
  */
 static struct input_equiv input_joyequiv_map[] = {
@@ -271,44 +213,34 @@ static struct input_equiv input_joyequiv_map[] = {
 { DIGITAL_JOY_BUTTON(3, 5), JOYCODE_4_BUTTON6 }
 };
 
+/**************************************************************************/
+/* MAME input map */
+
 /**
- * Used to store the joystick/mouse list.
+ * Used to store the key list for MAME.
  */
-static struct JoystickInfo input_joy_map[INPUT_JOYMOUSE_MAX + 1];
+static struct KeyboardInfo input_key_map[INPUT_DIGITAL_MAX];
+
+/**
+ * Used to store the joystick/mouse list for MAME.
+ */
+static struct JoystickInfo input_joy_map[INPUT_DIGITAL_MAX];
+
+/**************************************************************************/
+/* Names */
+
+/** Max input name. */
+#define INPUT_NAME_MAX 64
+
+/**
+ * Used to store the key names.
+ */
+static char input_keyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
 
 /**
  * Used to store the joystick/mouse names.
  */
-static char input_joyname_map[INPUT_JOYMOUSE_MAX + 1][INPUT_NAME_MAX];
-
-/**************************************************************************/
-/* Analog */
-
-/* The ANALOG value can be changed without limitation. */
-#define ANALOG_TYPE_SPECIAL DIGITAL_TYPE_SPECIAL
-#define ANALOG_TYPE_MOUSE 5 /* Mouse - NAAADDDTTT */
-#define ANALOG_TYPE_JOY 6 /* Joy - NAAASSSDDDTTT */
-#define ANALOG_TYPE_BALL 7 /* Ball - NAAADDDTTT */
-#define ANALOG_TYPE_GET(i) DIGITAL_TYPE_GET(i)
-
-/* Analog Mouse */
-#define ANALOG_MOUSE_DEV_GET(i) (((i) >> 3) & 0x7)
-#define ANALOG_MOUSE_AXE_GET(i) (((i) >> 6) & 0x7)
-#define ANALOG_MOUSE_NEGATE_GET(i) (((i) >> 9) & 0x1)
-#define ANALOG_MOUSE(dev, axe, negate) (ANALOG_TYPE_MOUSE | (dev) << 3 | (axe) << 6 | (negate) << 9)
-
-/* Analog Joy */
-#define ANALOG_JOY_DEV_GET(i) (((i) >> 3) & 0x7)
-#define ANALOG_JOY_STICK_GET(i) (((i) >> 6) & 0x7)
-#define ANALOG_JOY_AXE_GET(i) (((i) >> 9) & 0x7)
-#define ANALOG_JOY_NEGATE_GET(i) (((i) >> 12) & 0x1)
-#define ANALOG_JOY(joy, stick, axe, negate) (ANALOG_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (negate) << 12)
-
-/* Analog Joy/ball */
-#define ANALOG_BALL_DEV_GET(i) (((i) >> 3) & 0x7)
-#define ANALOG_BALL_AXE_GET(i) (((i) >> 6) & 0x7)
-#define ANALOG_BALL_NEGATE_GET(i) (((i) >> 9) & 0x1)
-#define ANALOG_BALL(joy, axe, negate) (ANALOG_TYPE_BALL | (joy) << 3 | (axe) << 6 | (negate) << 9)
+static char input_joyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
 
 static char* input_analog_map_desc[INPUT_ANALOG_MAX] = {
 	"x", "y", "z", "pedal"
@@ -317,19 +249,6 @@ static char* input_analog_map_desc[INPUT_ANALOG_MAX] = {
 static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
 	"trakx", "traky"
 };
-
-/**************************************************************************/
-/* Special */
-
-#define DIGITAL_SPECIAL(code) (DIGITAL_TYPE_SPECIAL | (code) << 3)
-
-#define DIGITAL_SPECIAL_NONE DIGITAL_SPECIAL(1)
-#define DIGITAL_SPECIAL_OR DIGITAL_SPECIAL(2)
-#define DIGITAL_SPECIAL_NOT DIGITAL_SPECIAL(3)
-#define DIGITAL_SPECIAL_AUTO DIGITAL_SPECIAL(4)
-
-#define ANALOG_SPECIAL_NONE DIGITAL_SPECIAL_NONE
-#define ANALOG_SPECIAL_AUTO DIGITAL_SPECIAL_AUTO
 
 /**************************************************************************/
 /* Parse */
@@ -506,15 +425,10 @@ static adv_error parse_key(int* v, const char* s, unsigned keyboard)
 {
 	unsigned i;
 
-	if (strlen(s)>=5 && strncmp(s, "scan", 4) == 0 && strspn(s+4, "0123456789") == strlen(s+4)) {
-		return parse_int(v, s+4);
-	}
+	*v = key_code(s);
 
-	for(i=0;i<KEYB_MAX;++i) {
-		if (strcmp(key_name(i), s) == 0) {
-			*v = i;
-			return 0;
-		}
+	if (*v >= 0 && *v < KEYB_MAX) {
+		return 0;
 	}
 
 	error_set("Invalid key '%s'", s);
@@ -524,6 +438,10 @@ static adv_error parse_key(int* v, const char* s, unsigned keyboard)
 
 static adv_error parse_direction(int* v, const char* s)
 {
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
 	if (strcmp(s,"left")==0 || strcmp(s,"up")==0) {
 		*v = 1;
 		return 0;
@@ -1086,6 +1004,55 @@ static adv_error parse_digital(unsigned* map, char* s)
 	return 0;
 }
 
+static void output_digital(char* buffer, unsigned buffer_size, unsigned* seq_map, unsigned seq_max)
+{
+	unsigned i;
+
+	sncpy(buffer, buffer_size, "");
+
+	for(i=0;i<seq_max;++i) {
+		unsigned v = seq_map[i];
+
+		if (v == DIGITAL_SPECIAL_NONE) {
+			break;
+		} else if (v == DIGITAL_SPECIAL_OR) {
+			if (buffer[0] != 0)
+				sncat(buffer, buffer_size, " ");
+			sncat(buffer, buffer_size, "or");
+		} else if (v == DIGITAL_SPECIAL_NOT) {
+			if (buffer[0] != 0)
+				sncat(buffer, buffer_size, " ");
+			sncat(buffer, buffer_size, "not");
+		} else {
+			switch (DIGITAL_TYPE_GET(v)) {
+			case DIGITAL_TYPE_KBD :
+				if (buffer[0] != 0)
+					sncat(buffer, buffer_size, " ");
+				sncatf(buffer, buffer_size, "keyboard[%d,%s]", DIGITAL_KBD_BOARD_GET(v), key_name(DIGITAL_KBD_KEY_GET(v)) );
+				break;
+			case DIGITAL_TYPE_JOY :
+				if (buffer[0] != 0)
+					sncat(buffer, buffer_size, " ");
+				sncatf(buffer, buffer_size, "joystick_digital[%d,%d,%d,%d]", DIGITAL_JOY_DEV_GET(v), DIGITAL_JOY_STICK_GET(v), DIGITAL_JOY_AXE_GET(v), DIGITAL_JOY_DIR_GET(v));
+				break;
+			case DIGITAL_TYPE_JOY_BUTTON :
+				if (buffer[0] != 0)
+					sncat(buffer, buffer_size, " ");
+				sncatf(buffer, buffer_size, "joystick_button[%d,%d]", DIGITAL_JOY_BUTTON_DEV_GET(v), DIGITAL_JOY_BUTTON_BUTTON_GET(v));
+				break;
+			case DIGITAL_TYPE_MOUSE_BUTTON :
+				if (buffer[0] != 0)
+					sncat(buffer, buffer_size, " ");
+				sncatf(buffer, buffer_size, "mouse_button[%d,%d]", DIGITAL_MOUSE_BUTTON_DEV_GET(v), DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
+				break;
+			default:
+				log_std(("ERROR:input: unknown input type %d (type:%d) in digital\n", v, DIGITAL_TYPE_GET(v)));
+				break;
+			}
+		}
+	}
+}
+
 static adv_error parse_inputname(char* s)
 {
 	char c;
@@ -1269,6 +1236,186 @@ static adv_error parse_inputname(char* s)
 	return 0;
 }
 
+adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
+{
+	char c;
+	int p;
+	const char* t;
+	const char* argv[4];
+	unsigned argc;
+	int i;
+	unsigned code;
+	const char* sx;
+	const char* sy;
+	const char* sdx;
+	const char* sdy;
+	unsigned x, y, dx, dy;
+
+	p = 0;
+	sskip(&p, s, " \t");
+
+	/* parse until first [ */
+	t = stoken(&c, &p, s, "[ \t", " \t");
+	if (c!='[') {
+		error_set("Missing [ in '%s'", t);
+		return -1;
+	}
+
+	/* get all arguments */
+	argc = 0;
+	while (s[p]) {
+		argv[argc] = stoken(&c, &p, s, ",] \t", " \t");
+		if (c == ',' || c == ']') {
+			if (argc == 4) {
+				error_set("Too many arguments for '%s'", t);
+				return -1;
+			}
+			++argc;
+			if (c == ']')
+				break;
+		} else {
+			error_set("Missing ] in '%s'", t);
+			return -1;
+		}
+	}
+	if (c!=']') {
+		error_set("Missing ] in '%s'", t);
+		return -1;
+	}
+
+	/* skip spaces */
+	sskip(&p, s, " \t");
+
+	/* get the pos */
+	sx = stoken(&c, &p, s, " \t", " \t");
+	sskip(&p, s, " \t");
+	sy = stoken(&c, &p, s, " \t", " \t");
+	sskip(&p, s, " \t");
+	sdx = stoken(&c, &p, s, " \t", " \t");
+	sskip(&p, s, " \t");
+	sdy = stoken(&c, &p, s, " \t", " \t");
+
+	if (parse_int(&x, sx) != 0
+		|| parse_int(&y, sy) != 0
+		|| parse_int(&dx, sdx) != 0
+		|| parse_int(&dy, sdy) != 0) {
+		error_set("Invalid help coordinate '%s %s %s %s'", sx, sy, sdx, sdy);
+		return -1;
+	}
+
+	/* parse arguments */
+	if (strcmp(t, "keyboard") == 0) {
+		int board, key;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&board, argv[0]) != 0
+			|| parse_key(&key, argv[1], board) != 0)
+			return -1;
+
+		if (board < 0 || board >= INPUT_KEYBOARD_MAX) {
+			error_set("Invalid keyboard '%d'", board);
+			return -1;
+		}
+		if (key < 0 || key >= KEYB_MAX) {
+			error_set("Invalid key '%d'", key);
+			return -1;
+		}
+
+		code = DIGITAL_KBD(board, key);
+	} else if (strcmp(t, "joystick_digital") == 0) {
+		int joystick, stick, axe, dir;
+
+		if (argc != 4) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+	        if (parse_int(&joystick, argv[0]) != 0
+			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
+			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
+			|| parse_direction(&dir, argv[3]) != 0)
+			return -1;
+
+		if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+			error_set("Invalid joystick '%d'", joystick);
+			return -1;
+		}
+		if (stick < 0 || stick >= INPUT_STICK_MAX) {
+			error_set("Invalid stick '%d'", stick);
+			return -1;
+		}
+		if (axe < 0 || axe >= INPUT_AXE_MAX) {
+			error_set("Invalid joystick axe '%d'", axe);
+			return -1;
+		}
+
+		code = DIGITAL_JOY(joystick, stick, axe, dir);
+	} else if (strcmp(t, "joystick_button") == 0) {
+		int joystick, button;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&joystick, argv[0]) != 0
+			|| parse_joystick_button(&button, argv[1], joystick) != 0)
+			return -1;
+
+		if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+			error_set("Invalid joystick '%d'", joystick);
+			return -1;
+		}
+		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			error_set("Invalid joystick button '%d'", button);
+			return -1;
+		}
+
+		code = DIGITAL_JOY_BUTTON(joystick, button);
+	} else if (strcmp(t, "mouse_button") == 0) {
+		int mouse, button;
+
+		if (argc != 2) {
+			error_set("Wrong number of arguments for '%s'", t);
+			return -1;
+		}
+
+		if (parse_int(&mouse, argv[0]) != 0
+			|| parse_mouse_button(&button, argv[1], mouse) != 0)
+			return -1;
+
+		if (mouse < 0 || mouse >= INPUT_MOUSE_MAX) {
+			error_set("Invalid mouse '%d'", mouse);
+			return -1;
+		}
+		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			error_set("Invalid mouse button '%d'", button);
+			return -1;
+		}
+
+		code = DIGITAL_MOUSE_BUTTON(mouse, button);
+	} else {
+		error_set("Unknown input type '%s'", t);
+		return -1;
+	}
+
+	if (context->config.help_mac < INPUT_HELP_MAX) {
+		context->config.help_map[context->config.help_mac].code = code;
+		context->config.help_map[context->config.help_mac].x = x;
+		context->config.help_map[context->config.help_mac].y = y;
+		context->config.help_map[context->config.help_mac].dx = dx;
+		context->config.help_map[context->config.help_mac].dy = dy;
+		++context->config.help_mac;
+	}
+
+	return 0;
+}
+
+
 /**************************************************************************/
 /* Input */
 
@@ -1277,11 +1424,6 @@ static inline void input_something_pressed(struct advance_input_context* context
 	context->state.input_on_this_frame_flag = 1;
 }
 
-/*
- * Since the keyboard controller is slow, it is not capable of reporting multiple
- * key presses fast enough. We have to delay them in order not to lose special moves
- * tied to simultaneous button presses.
- */
 static void input_keyboard_update(struct advance_input_context* context)
 {
 	unsigned char last[INPUT_KEYBOARD_MAX][KEYB_MAX];
@@ -1294,6 +1436,10 @@ static void input_keyboard_update(struct advance_input_context* context)
 	}
 
 	if (context->config.steadykey_flag) {
+		/* since the keyboard controller is slow, it is not capable of reporting multiple */
+		/* key presses fast enough. We have to delay them in order not to lose special moves */
+		/* tied to simultaneous button presses. */
+
 		if (memcmp(last, context->state.key_old, size)!=0) {
 			/* store the new copy */
 			memcpy(context->state.key_old, last, size);
@@ -1360,7 +1506,7 @@ static void input_setup_config(struct advance_input_context* context)
 		/* A better approach is not possible due limitations of the */
 		/* MAME input interface */
 
-		/* To check the MAME behaviour see the update_analog_port() */
+		/* To check the present MAME behaviour see the update_analog_port() */
 		/* function in the inpport.c file */
 
 		j = 0; /* X_AXIS (in osdepend.h) */
@@ -1593,7 +1739,7 @@ static void input_setup_list(struct advance_input_context* context)
 	/* add the available mouse buttons */
 	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			if (mac+1 < INPUT_JOYMOUSE_MAX) {
+			if (mac+1 < INPUT_DIGITAL_MAX) {
 				if (i == 0)
 					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
 				else
@@ -1609,7 +1755,7 @@ static void input_setup_list(struct advance_input_context* context)
 	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
 		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
 			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
-				if (mac+1 < INPUT_JOYMOUSE_MAX) {
+				if (mac+1 < INPUT_DIGITAL_MAX) {
 					if (i == 0)
 						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
 					else
@@ -1618,7 +1764,7 @@ static void input_setup_list(struct advance_input_context* context)
 					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
 					++mac;
 				}
-				if (mac+1 < INPUT_JOYMOUSE_MAX) {
+				if (mac+1 < INPUT_DIGITAL_MAX) {
 					if (i == 0)
 						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
 					else
@@ -1631,7 +1777,7 @@ static void input_setup_list(struct advance_input_context* context)
 		}
 
 		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			if (mac+1 < INPUT_JOYMOUSE_MAX) {
+			if (mac+1 < INPUT_DIGITAL_MAX) {
 				if (i == 0)
 					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
 				else
@@ -1827,7 +1973,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	context->config.digital_mac = i;
 
 	log_std(("emu:input: input_name start\n"));
-	for (conf_iterator_begin(&k, cfg_context, "input_name");!conf_iterator_is_end(&k);conf_iterator_next(&k)) {
+	for(conf_iterator_begin(&k, cfg_context, "input_name");!conf_iterator_is_end(&k);conf_iterator_next(&k)) {
 		char* d = strdup(conf_iterator_string_get(&k));
 
 		log_std(("emu:input: input_name '%s'\n", d));
@@ -1851,9 +1997,9 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 
 	log_std(("emu:input: osd_customize_inputport_defaults()\n"));
 
-	while (i->type != IPT_END) {
-		unsigned port = i->type & (IPF_PLAYERMASK | ~IPF_MASK);
+	while (i != 0 && i->type != IPT_END) {
 		unsigned j;
+		unsigned port = mame_port_convert(&i[-1].type, i[0].type);
 
 		for(j=0;j<context->config.digital_mac;++j)
 			if (context->config.digital_map[j].port == port)
@@ -1970,6 +2116,80 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 
 		++i;
 	}
+}
+
+void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const struct mame_port* p;
+
+	log_std(("emu:input: osd2_customize_inputport_post_defaults(%d)\n", type));
+
+	p = mame_port_list();
+	while (p->name) {
+		if (p->port == type) {
+			char tag_buffer[64];
+			char value_buffer[512];
+			char* d;
+
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+			if (seq[0] == DIGITAL_SPECIAL_AUTO || seq[0] == DIGITAL_SPECIAL_NONE) {
+				log_std(("emu:input: customize port %s auto\n", tag_buffer));
+
+				conf_remove(cfg_context, "", tag_buffer);
+			} else {
+				output_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+				log_std(("emu:input: customize port %s %s\n", tag_buffer, value_buffer));
+
+				conf_string_set(cfg_context, "", tag_buffer, value_buffer);
+			}
+
+			break;
+		}
+
+		++p;
+	}
+}
+
+void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const mame_game* game = CONTEXT.game;
+	const struct mame_port* p;
+
+	log_std(("emu:input: osd2_customize_inputport_post_game(%d)\n", type));
+
+	p = mame_port_list();
+	while (p->name) {
+		if (p->port == type) {
+			char tag_buffer[64];
+			char value_buffer[512];
+			char* d;
+
+			log_std(("emu:input: setup port %s\n", p->name));
+
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+			if (seq[0] == DIGITAL_SPECIAL_AUTO || seq[0] == DIGITAL_SPECIAL_NONE) {
+				log_std(("emu:input: customize port %s/%s auto\n", mame_game_name(game), tag_buffer));
+
+				conf_remove(cfg_context, mame_game_name(game), tag_buffer);
+			} else {
+				output_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+				log_std(("emu:input: customize port %s/%s %s\n", mame_game_name(game), tag_buffer, value_buffer));
+
+				conf_string_set(cfg_context, mame_game_name(game), tag_buffer, value_buffer);
+			}
+
+			break;
+		}
+
+		++p;
+	}
+
 }
 
 /***************************************************************************/
@@ -2232,6 +2452,59 @@ int advance_input_exit_filter(struct advance_input_context* context, struct adva
 	return 0;
 }
 
+adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code)
+{
+	unsigned type;
+
+	assert(context->state.active_flag != 0);
+
+	type = DIGITAL_TYPE_GET(code);
+
+	switch (type) {
+	case DIGITAL_TYPE_KBD : {
+		unsigned b = DIGITAL_KBD_BOARD_GET(code);
+		unsigned k = DIGITAL_KBD_KEY_GET(code);
+		if (b < INPUT_KEYBOARD_MAX && k < KEYB_MAX) {
+			if (context->state.key_current[b][k])
+				return 1;
+			/* simulate keys on all the keyboards */
+			if (hardware_is_input_simulated(SIMULATE_KEY, k)) {
+				return 1;
+			}
+			return 0;
+		}
+		break;
+		}
+	case DIGITAL_TYPE_JOY : {
+		unsigned j = DIGITAL_JOY_DEV_GET(code);
+		unsigned s = DIGITAL_JOY_STICK_GET(code);
+		unsigned a = DIGITAL_JOY_AXE_GET(code);
+		unsigned d = DIGITAL_JOY_DIR_GET(code);
+		if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX)
+			return context->state.joystick_digital_current[j][s][a][d];
+		break;
+		}
+	case DIGITAL_TYPE_JOY_BUTTON : {
+		unsigned j = DIGITAL_JOY_BUTTON_DEV_GET(code);
+		unsigned b = DIGITAL_JOY_BUTTON_BUTTON_GET(code);
+		if (j < INPUT_JOY_MAX && b < INPUT_BUTTON_MAX)
+			return context->state.joystick_button_current[j][b];
+		break;
+		}
+	case DIGITAL_TYPE_MOUSE_BUTTON : {
+		unsigned m = DIGITAL_MOUSE_BUTTON_DEV_GET(code);
+		unsigned b = DIGITAL_MOUSE_BUTTON_BUTTON_GET(code);
+		if (m < INPUT_MOUSE_MAX && b < INPUT_BUTTON_MAX)
+			return context->state.mouse_button_current[m][b];
+		break;
+		}
+	}
+
+	log_std(("ERROR:emu:input: pressed(code:0x%08x) is not a correct code\n", code));
+
+	return 0;
+}
+
 /***************************************************************************/
 /* OSD interface */
 
@@ -2254,34 +2527,10 @@ const struct KeyboardInfo* osd_get_key_list(void)
 int osd_is_key_pressed(int keycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
-	unsigned type;
 
 	log_debug(("emu:input: osd_is_key_pressed(keycode:0x%08x)\n", keycode));
 
-	assert(context->state.active_flag != 0);
-
-	type = DIGITAL_TYPE_GET(keycode);
-
-	switch (type) {
-	case DIGITAL_TYPE_KBD : {
-		unsigned b = DIGITAL_KBD_BOARD_GET(keycode);
-		unsigned k = DIGITAL_KBD_KEY_GET(keycode);
-		if (b < INPUT_KEYBOARD_MAX && k < KEYB_MAX) {
-			if (context->state.key_current[b][k])
-				return 1;
-			/* simulate keys on all the keyboards */
-			if (hardware_is_input_simulated(SIMULATE_KEY, k)) {
-				return 1;
-			}
-			return 0;
-		}
-		break;
-		}
-	}
-
-	log_std(("ERROR:emu:input: osd_is_key_pressed(keycode:0x%08x) is not a correct code\n", keycode));
-
-	return 0;
+	return advance_input_digital_pressed(context, keycode);
 }
 
 int osd_readkey_unicode(int flush)
@@ -2309,43 +2558,10 @@ const struct JoystickInfo* osd_get_joy_list(void)
 int osd_is_joy_pressed(int joycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
-	unsigned type;
 
 	log_debug(("emu:input: osd_is_joy_pressed(joycode:0x%08x)\n", joycode));
 
-	assert(context->state.active_flag != 0);
-
-	type = DIGITAL_TYPE_GET(joycode);
-
-	switch (type) {
-	case DIGITAL_TYPE_JOY : {
-		unsigned j = DIGITAL_JOY_DEV_GET(joycode);
-		unsigned s = DIGITAL_JOY_STICK_GET(joycode);
-		unsigned a = DIGITAL_JOY_AXE_GET(joycode);
-		unsigned d = DIGITAL_JOY_DIR_GET(joycode);
-		if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX)
-			return context->state.joystick_digital_current[j][s][a][d];
-		break;
-		}
-	case DIGITAL_TYPE_JOY_BUTTON : {
-		unsigned j = DIGITAL_JOY_BUTTON_DEV_GET(joycode);
-		unsigned b = DIGITAL_JOY_BUTTON_BUTTON_GET(joycode);
-		if (j < INPUT_JOY_MAX && b < INPUT_BUTTON_MAX)
-			return context->state.joystick_button_current[j][b];
-		break;
-		}
-	case DIGITAL_TYPE_MOUSE_BUTTON : {
-		unsigned m = DIGITAL_MOUSE_BUTTON_DEV_GET(joycode);
-		unsigned b = DIGITAL_MOUSE_BUTTON_BUTTON_GET(joycode);
-		if (m < INPUT_MOUSE_MAX && b < INPUT_BUTTON_MAX)
-			return context->state.mouse_button_current[m][b];
-		break;
-		}
-	}
-
-	log_std(("ERROR:emu:input: osd_is_joy_pressed(joycode:0x%08x) is not a correct code\n", joycode));
-
-	return 0;
+	return advance_input_digital_pressed(context, joycode);
 }
 
 /**

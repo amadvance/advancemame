@@ -788,7 +788,9 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 		for(i=0;i<size;++i)
 			data[i] = i;
 
-		video_stretch_pipeline_init(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_color_def(), 0);
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_direct(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_color_def(), 0);
 
 		/* fill the cache */
 		video_pipeline_blit(&pipeline, s_x, s_y, data);

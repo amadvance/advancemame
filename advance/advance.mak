@@ -4,9 +4,9 @@
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.77.0.1
 else
-EMUVERSION = 0.77.2
+EMUVERSION = 0.78.0
 endif
-MENUVERSION = 2.2.16
+MENUVERSION = 2.2.17
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -36,6 +36,7 @@ ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 ifneq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
+INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 INSTALL_MANFILES += $(DOCOBJ)/advdev.1

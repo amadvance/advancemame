@@ -363,28 +363,28 @@ void video_blit_done(void);
 /* pipeline blit */
 
 /**
- * Initialize a pipeline for a stretch blit.
+ * Setup a pipeline for a stretch blit.
  * Check the video_stretch() for more details.
  */
-adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine);
+void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine);
 
 /**
- * Initialize a pipeline for a stretch blit with an hardware palette.
+ * Setup a pipeline for a stretch blit with an hardware palette.
  * Check the video_stretch_palette_16hw() for more details.
  */
-void video_stretch_palette_16hw_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine);
+void video_pipeline_palette16hw(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine);
 
 /**
- * Initialize a pipeline for a stretch blit with a software 8 bit palette.
+ * Setup a pipeline for a stretch blit with a software 8 bit palette.
  * Check the video_stretch_palette_8() for more details.
  */
-void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine);
+void video_pipeline_palette8(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine);
 
 /**
- * Initialize a pipeline for a stretch blit with a software 16 bit palette.
+ * Setup a pipeline for a stretch blit with a software 16 bit palette.
  * Check the video_stretch_palette_16() for more details.
  */
-void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine);
+void video_pipeline_palette16(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine);
 
 /**
  * Blit using a precomputed pipeline.
@@ -413,18 +413,17 @@ void video_pipeline_blit(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_rgb_def Source RGB format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
+static inline void video_stretch_direct(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
-	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_color_def, combine) != 0)
-		return -1;
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_direct(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_color_def, combine);
 
 	video_pipeline_blit(&pipeline, dst_x, dst_y, src);
 
 	video_pipeline_done(&pipeline);
-
-	return 0;
 }
 
 /**
@@ -441,11 +440,13 @@ static inline adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned d
  * \param src_dp Source pixel step expressed in bytes.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_16hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
+static inline void video_stretch_palette16hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
-	video_stretch_palette_16hw_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, combine);
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_palette16hw(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, combine);
 
 	video_pipeline_blit(&pipeline, dst_x, dst_y, src);
 
@@ -467,11 +468,13 @@ static inline void video_stretch_palette_16hw(unsigned dst_x, unsigned dst_y, un
  * \param palette8, palette16, palette32 Palette data in different format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
+static inline void video_stretch_palette8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
-	video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette8, palette16, palette32, combine);
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_palette8(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette8, palette16, palette32, combine);
 
 	video_pipeline_blit(&pipeline, dst_x, dst_y, src);
 
@@ -493,11 +496,13 @@ static inline void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsig
  * \param palette8, palette16, palette32 Palette data in different format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static inline void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
+static inline void video_stretch_palette16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
 	struct video_pipeline_struct pipeline;
 
-	video_stretch_palette_16_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette8, palette16, palette32, combine);
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_palette16(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, palette8, palette16, palette32, combine);
 
 	video_pipeline_blit(&pipeline, dst_x, dst_y, src);
 

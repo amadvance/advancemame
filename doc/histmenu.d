@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.17 2004/01
+
 AdvanceMENU Version 2.2.16 2003/12
 	) The menu is now more aggressive using CPU power. It helps
 		playing video clips at more than 50 Hz and with

@@ -65,12 +65,25 @@ int osd_display_loading_rom_message(const char* name, struct rom_load_data* romd
 }
 
 /**
- *
+ * Display a message.
+ * This function can be called also from the video thread.
  */
-void advance_global_message(struct advance_global_context* context, const char* msg)
+void advance_global_message(struct advance_global_context* context, const char* text, ...)
 {
-	log_std(("advance:global: set msg %s\n", msg));
-	sncpy(context->state.msg, MESSAGE_MAX, msg);
+	va_list arg;
+	va_start(arg, text);
+	advance_global_message_va(context, text, arg);
+	va_end(arg);
+}
+
+/**
+ * Display a message.
+ * This function can be called also from the video thread.
+ */
+void advance_global_message_va(struct advance_global_context* context, const char* text, va_list arg)
+{
+	vsnprintf(context->state.message_buffer, sizeof(context->state.message_buffer), text, arg);
+	log_std(("advance:global: set msg %s\n", context->state.message_buffer));
 }
 
 /**
@@ -81,10 +94,10 @@ void osd2_message(void)
 	struct advance_global_context* context = &CONTEXT.global;
 
 	/* display the stored message */
-	if (context->state.msg[0]) {
-		log_std(("advance:global: display msg %s\n", context->state.msg));
-		mame_ui_message("%s", context->state.msg);
-		context->state.msg[0] = 0;
+	if (context->state.message_buffer[0]) {
+		log_std(("advance:global: display msg %s\n", context->state.message_buffer));
+		advance_ui_message(&CONTEXT.ui, "%s", context->state.message_buffer);
+		context->state.message_buffer[0] = 0;
 	}
 }
 
@@ -94,7 +107,7 @@ const char* NAME_MEDIUM[] = { "Medium", "Normal", "Normal?", 0 };
 const char* NAME_HARD[] = { "Hard", "Harder", "Difficult", "Hard?", 0 };
 const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 
-void osd_customize_inputport_current(struct InputPort* current)
+void osd_customize_inputport_game(struct InputPort* current)
 {
 	struct advance_global_context* context = &CONTEXT.global;
 
@@ -105,6 +118,8 @@ void osd_customize_inputport_current(struct InputPort* current)
 	struct InputPort* begin;
 	struct InputPort* end;
 	struct InputPort* i;
+
+	log_std(("emu:global: osd_customize_inputport_game()\n"));
 
 	names = 0;
 	names_secondary = 0;

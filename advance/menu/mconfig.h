@@ -50,10 +50,10 @@ enum game_sort_t {
 	sort_by_manufacturer,
 	sort_by_type,
 	sort_by_size,
-	sort_by_coin,
+	sort_by_session,
 	sort_by_res,
 	sort_by_info,
-	sort_by_timepercoin
+	sort_by_timepersession
 };
 
 inline bool sort_by_root_name_func(const game* A, const game* B)
@@ -86,14 +86,14 @@ inline bool sort_by_time_func(const game* A, const game* B)
 	return pgame_combine_less(A, B, pgame_by_time_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_coin_func(const game* A, const game* B)
+inline bool sort_by_session_func(const game* A, const game* B)
 {
-	return pgame_combine_less(A, B, pgame_by_coin_less, pgame_by_desc_less, pgame_by_name_less);
+	return pgame_combine_less(A, B, pgame_by_session_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
-inline bool sort_by_timepercoin_func(const game* A, const game* B)
+inline bool sort_by_timepersession_func(const game* A, const game* B)
 {
-	return pgame_combine_less(A, B, pgame_by_timepercoin_less, pgame_by_desc_less, pgame_by_name_less);
+	return pgame_combine_less(A, B, pgame_by_timepersession_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
 inline bool sort_by_group_func(const game* A, const game* B)
@@ -181,7 +181,7 @@ typedef std::list<script> script_container;
 
 struct config_state {
 
-	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
+	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& session, const std::string& desc);
 	bool load_iterator_game(adv_conf* config_context, const std::string& tag);
 	bool load_iterator_import(adv_conf* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
 	bool load_iterator_script(adv_conf* config_context, const std::string& tag);

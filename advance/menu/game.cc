@@ -54,7 +54,7 @@ game::game()
 	group = 0;
 	parent = 0;
 	emu = 0;
-	coin = 0;
+	session = 0;
 }
 
 game::game(const string& Aname) : name(Aname)
@@ -72,7 +72,7 @@ game::game(const string& Aname) : name(Aname)
 	group = 0;
 	parent = 0;
 	emu = 0;
-	coin = 0;
+	session = 0;
 }
 
 game::game(const game& A) :
@@ -84,7 +84,7 @@ game::game(const game& A) :
 	sizex(A.sizex), sizey(A.sizey),
 	aspectx(A.aspectx), aspecty(A.aspecty),
 	group(A.group), type(A.type), time(A.time),
-	coin(A.coin),
+	session(A.session),
 	size(A.size),
 	rzs(A.rzs),
 	clone_bag(A.clone_bag),
@@ -164,10 +164,10 @@ const game& game::clone_best_get() const {
 	return *r;
 }
 
-unsigned game::coin_tree_get() const {
-	unsigned r = coin_get();
+unsigned game::session_tree_get() const {
+	unsigned r = session_get();
 	for(pgame_container::const_iterator i = clone_bag_get().begin();i!=clone_bag_get().end();++i) {
-		r += (*i)->coin_tree_get();
+		r += (*i)->session_tree_get();
 	}
 	return r;
 }
@@ -714,7 +714,7 @@ string sort_item_time(const game& g)
 	return string();
 }
 
-string sort_item_coin(const game& g)
+string sort_item_session(const game& g)
 {
 	(void)g;
 	return string();
@@ -755,7 +755,7 @@ string sort_item_info(const game& g)
 		return "<undefined>";
 }
 
-string sort_item_timepercoin(const game& g)
+string sort_item_timepersession(const game& g)
 {
 	(void)g;
 	return string();

@@ -42,6 +42,7 @@
 #include "generate.h"
 #include "crtcbag.h"
 #include "blit.h"
+#include "font.h"
 
 #include <time.h>
 #ifdef USE_SMP
@@ -137,12 +138,15 @@
 
 /** Macro SWAP utility. */
 #define SWAP(type, x, y) \
-	{ \
+	do { \
 		type temp; \
 		temp = x; \
 		x = y; \
 		y = temp; \
-	}
+	} while (0)
+
+#define FLIP(orientation, h, v) \
+	(((orientation) & OSD_ORIENTATION_SWAP_XY) == 0 ? (h) : (v))
 
 /** Configuration for the video part. */
 struct advance_video_config_context {
@@ -156,8 +160,9 @@ struct advance_video_config_context {
 	adv_bool scanlines_flag; /**< If hardware scanlines are active */
 	int stretch; /**< Type of stretch. One of STRETCH_*. */
 	int adjust; /**< Type of hardware stretch. One of ADJUST_*. */
-	int blit_orientation; /**< Blit orientation mask. Mask of ORIENTATION_*. */
-	int game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
+	unsigned blit_orientation; /**< Blit orientation mask. Mask of ORIENTATION_*. */
+	unsigned user_orientation; /**< User orientation mask. Mask of ORIENTATION_*. */
+	unsigned game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
 	int combine; /**< Special combine effect. Mask of COMBINE_*. */
 	int rgb_effect; /**< Special additional effect. Mask of EFFECT_*. */
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
@@ -191,10 +196,16 @@ struct advance_video_config_context {
 /** Number of frames on which distribuite the audio/video syncronization error. */
 #define AUDIOVIDEO_DISTRIBUTE_COUNT 16
 
+struct ui_menu_entry {
+	char text_buffer[128];
+	char option_buffer[128];
+	adv_bool flag;
+	adv_bool arrow_left_flag;
+	adv_bool arrow_right_flag;
+};
+
 /** State for the video part. */
 struct advance_video_state_context {
-	adv_conf* cfg_context; /**< Context of the current configuration. */
-
 	int av_sync_map[AUDIOVIDEO_MEASURE_MAX]; /**< Circular buffer of the most recent audio/video syncronization measures. */
 	unsigned av_sync_mac; /**< Current position in the ::av_sync_map buffer. */
 
@@ -236,7 +247,7 @@ struct advance_video_state_context {
 	/* Palette */
 	unsigned palette_total; /**< Number of entry in the palette. */
 	unsigned palette_dirty_total; /**< Number of entry in the palette dirty. */
-	osd_rgb_t* palette_map; /**< Current palette RGB triplets. */
+	adv_color_rgb* palette_map; /**< Current palette RGB triplets. */
 	osd_mask_t* palette_dirty_map; /**< If the palette is dirty this is the list of dirty colors. */
 	adv_bool palette_dirty_flag; /**< If the current palette dirty, it need to be updated. */
 	uint32* palette_index32_map; /**< Software palette at 32 bit. */
@@ -295,11 +306,18 @@ struct advance_video_state_context {
 	adv_bool vsync_flag; /**< Vsync is active flag. */
 
 	/* Blit info */
-	int blit_src_dp; /**< Source pixel step. */
-	int blit_src_dw; /**< Source row step. */
-	unsigned blit_dst_x; /**< Destination x pos. */
-	unsigned blit_dst_y; /**< Destination y pos. */
-	int blit_src_offset; /**< Pointer at the first used pixel of the bitmap. */
+	int blit_src_dp; /**< Source pixel step of the game bitmap. */
+	int blit_src_dw; /**< Source row step of the game bitmap. */
+	int blit_src_offset; /**< Pointer at the first pixel of the game bitmap. */
+
+	/* Buffer info */
+	int buffer_src_dp; /**< Source pixel step of the game bitmap. */
+	int buffer_src_dw; /**< Source row step of the game bitmap. */
+	int buffer_src_offset; /**< Pointer at the first pixel of the game bitmap. */
+
+	unsigned char* buffer_ptr; /**< Buffer used for bufferized output. */
+	unsigned buffer_size_x; /**< Width of the buffer image. */
+	unsigned buffer_size_y; /**< Height of the buffer image. */
 
 	int combine; /**< One of the COMBINE_ effect. */
 	int rgb_effect; /**< One of the EFFECT_ effect. */
@@ -318,7 +336,8 @@ struct advance_video_state_context {
 
 	/* Blit pipeline */
 	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
-	struct video_pipeline_struct blit_pipeline; /**< Put pipeline for the whole put. */
+	struct video_pipeline_struct blit_pipeline_video; /**< Put pipeline to video. */
+	struct video_pipeline_struct buffer_pipeline_video; /**< Put pipeline to buffer. */
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
 	adv_crtc crtc_effective; /**< Current modified crtc. */
@@ -411,8 +430,8 @@ void advance_record_done(struct advance_record_context* context);
 adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
 
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 
 adv_bool advance_record_sound_is_active(struct advance_record_context* context);
 adv_bool advance_record_video_is_active(struct advance_record_context* context);
@@ -599,7 +618,17 @@ void advance_safequit_update(struct advance_safequit_context* context);
 #define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
 #define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
 
+#define INPUT_HELP_MAX 512 /**< Max number of help entry. */
+
 /*@}*/
+
+struct help_entry {
+	unsigned code;
+	unsigned x;
+	unsigned y;
+	unsigned dx;
+	unsigned dy;
+};
 
 struct analog_map_entry {
 	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
@@ -621,7 +650,7 @@ struct advance_input_config_context {
 
 	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
 	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
-	unsigned digital_mac; /**< Number of digital map. */
+	unsigned digital_mac; /**< Number of digital entries. */
 	struct digital_map_entry digital_map[INPUT_DIGITAL_MAX]; /**< Mapping of the digital controls. */
 };
 
@@ -658,14 +687,10 @@ void advance_input_inner_done(struct advance_input_context* context);
 void advance_input_update(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool is_pause);
 adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
-
 void advance_input_force_exit(struct advance_input_context* context);
 
 /***************************************************************************/
 /* Global */
-
-/** Max length of a stored message. */
-#define MESSAGE_MAX 256
 
 /** Difficult level (enumeration). */
 /*@{*/
@@ -685,7 +710,7 @@ struct advance_global_config_context {
 
 struct advance_global_state_context {
 	adv_bool is_config_writable; /**< Is the configuration file writable ? */
-	char msg[MESSAGE_MAX]; /**< Next message to be displayed. */
+	char message_buffer[256]; /**< Next message to be displayed. */
 };
 
 struct advance_global_context {
@@ -693,7 +718,8 @@ struct advance_global_context {
 	struct advance_global_state_context state;
 };
 
-void advance_global_message(struct advance_global_context* context, const char* msg);
+void advance_global_message_va(struct advance_global_context* context, const char* text, va_list arg);
+void advance_global_message(struct advance_global_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
 
 adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context);
 adv_error advance_global_config_load(struct advance_global_context* context, adv_conf* cfg_context);
@@ -716,10 +742,67 @@ void advance_fileio_done(struct advance_fileio_context* context);
 adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option);
 
 /***************************************************************************/
+/* UI */
+
+struct advance_ui_config_context {
+	unsigned help_mac; /**< Number of help entries. */
+	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
+	char help_image_buffer[256]; /**< File name of the help image. */
+	char ui_font_buffer[256]; /**< File name of the font. */
+};
+
+struct advance_ui_state_context {
+	adv_bool ui_extra_flag; /**< Extra frame to be drawn to clear the off game border. */
+	adv_bool ui_message_flag; /**< User interface message display flag. */
+	unsigned ui_message_counter; /**< User interface message display counter. */
+	char ui_message_buffer[256]; /**< User interface message buffer. */
+	adv_bool ui_help_flag; /**< User interface help display flag. */
+	adv_font* ui_font; /**< User interface font. */
+	adv_bool ui_menu_flag;
+	struct ui_menu_entry* ui_menu_map;
+	unsigned ui_menu_mac;
+	unsigned ui_menu_sel;
+	adv_bool ui_osd_flag;
+	char ui_osd_buffer[256];
+	int ui_osd_value;
+	int ui_osd_max;
+	int ui_osd_min;
+	int ui_osd_def;
+	adv_bool ui_scroll_flag;
+	char* ui_scroll_begin;
+	char* ui_scroll_end;
+	unsigned ui_scroll_pos;
+
+	adv_bitmap* help_image; /**< Help image. */
+	adv_color_rgb help_rgb_map[256];
+	unsigned help_rgb_max;
+};
+
+struct advance_ui_context {
+	struct advance_ui_config_context config;
+	struct advance_ui_state_context state;
+};
+
+void advance_ui_message_va(struct advance_ui_context* context, const char* text, va_list arg);
+void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
+void advance_ui_help(struct advance_ui_context* context);
+void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
+void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
+void advance_ui_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
+adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
+adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* cfg_context, struct mame_option* option);
+void advance_ui_done(struct advance_ui_context* context);
+adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context);
+void advance_ui_inner_done(struct advance_ui_context* context);
+adv_bool advance_ui_active(struct advance_ui_context* context);
+adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
+
+/***************************************************************************/
 /* State */
 
 struct advance_context {
 	const mame_game* game;
+	adv_conf* cfg; /**< Context of the current configuration. */
 	struct advance_global_context global;
 	struct advance_video_context video;
 	struct advance_estimate_context estimate;
@@ -728,6 +811,7 @@ struct advance_context {
 	struct advance_record_context record;
 	struct advance_safequit_context safequit;
 	struct advance_fileio_context fileio;
+	struct advance_ui_context ui;
 };
 
 /**
@@ -740,7 +824,7 @@ extern struct advance_context CONTEXT;
 /* Interface */
 
 /* Glue */
-adv_error mame_init(struct advance_context* context, adv_conf* cfg_context);
+adv_error mame_init(struct advance_context* context);
 void mame_done(struct advance_context* context);
 adv_error mame_config_load(adv_conf* context, struct mame_option* option);
 int mame_game_run(struct advance_context* context, const struct mame_option* option);

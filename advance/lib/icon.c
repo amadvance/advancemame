@@ -205,7 +205,7 @@ static adv_error icon_bitmap_header_read(adv_fz* fz, struct icon_bitmap_header_t
  * \param bitmap_mask Where to put the mask bitmap. 
  * \return The loaded bitmap or 0 on error.
  */
-adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask)
+adv_bitmap* adv_icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask)
 {
 	adv_bitmap* bitmap;
 	struct icon_header_t header;
@@ -283,18 +283,18 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		}
 		*rgb_max = colors;
 
-		bitmap = bitmap_alloc(entry[i].width, entry[i].height, 8);
+		bitmap = adv_bitmap_alloc(entry[i].width, entry[i].height, 8);
 		if (!bitmap)
 			goto out_entry;
 
-		*bitmap_mask = bitmap_alloc(entry[i].width, entry[i].height, 8);
+		*bitmap_mask = adv_bitmap_alloc(entry[i].width, entry[i].height, 8);
 		if (!*bitmap_mask)
 			goto out_bitmap;
 
 		if (colors == 256) {
 			/* read bitmap xor data (8 bit per pixel) */
 			for(y=0;y<bitmap->size_y;++y) {
-				unsigned char* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
+				unsigned char* line = adv_bitmap_line(bitmap, bitmap->size_y - y - 1);
 				if (fzread(line, bitmap->size_x*bitmap->bytes_per_pixel, 1, f)!=1)
 					goto out_bitmap_mask;
 			}
@@ -302,7 +302,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 			/* read bitmap xor data (4 bit per pixel) */
 			for(y=0;y<bitmap->size_y;++y) {
 				int k;
-				unsigned char* line = bitmap_line(bitmap, bitmap->size_y - y - 1);
+				unsigned char* line = adv_bitmap_line(bitmap, bitmap->size_y - y - 1);
 				if (fzread(line, bitmap->size_x / 2, 1, f)!=1)
 					goto out_bitmap_mask;
 				/* convert */
@@ -318,7 +318,7 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		/* read bitmap mask data (1 bit per pixel) */
 		for(y=0;y<bitmap->size_y;++y) {
 			unsigned x ;
-			unsigned char* line = bitmap_line(*bitmap_mask, bitmap->size_y - y - 1);
+			unsigned char* line = adv_bitmap_line(*bitmap_mask, bitmap->size_y - y - 1);
 			x = 0;
 			while (x < bitmap->size_x) {
 				unsigned bc;
@@ -349,9 +349,9 @@ adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 	goto out_entry;
 
 out_bitmap_mask:
-	bitmap_free(*bitmap_mask);
+	adv_bitmap_free(*bitmap_mask);
 out_bitmap:
-	bitmap_free(bitmap);
+	adv_bitmap_free(bitmap);
 out_entry:
 	free(entry);
 out:

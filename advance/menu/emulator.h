@@ -52,7 +52,6 @@ protected:
 	std::string emu_rom_path;
 	std::string emu_software_path;
 	std::string emu_snap_path;
-	std::string emu_cfg_path;
 
 	// user definable (in OS format)
 	std::string user_rom_path;
@@ -137,7 +136,6 @@ public:
 	// from the emulator.cfg
 	const std::string& software_path_get() const { return emu_software_path; }
 	const std::string& snap_path_get() const { return emu_snap_path; }
-	const std::string& cfg_path_get() const { return emu_cfg_path; }
 
 	// final value
 	std::string config_rom_path_get() const { return config_rom_path; }
@@ -222,9 +220,6 @@ protected:
 	tristate_t exclude_playchoice_orig;
 	bool support_difficulty;
 	bool support_attenuation;
-
-	void load_game_cfg_dir(const game_set& gar, const std::string& dir) const;
-	bool load_game_coin(const std::string& file, unsigned& total_coin) const;
 public:
 	mame_mame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg, bool Asupport_difficulty, bool Asupport_attenuation);
 
@@ -396,22 +391,22 @@ inline bool pgame_by_time_less(const game* A, const game* B)
 	return vA > vB;
 }
 
-inline bool pgame_by_coin_less(const game* A, const game* B)
+inline bool pgame_by_session_less(const game* A, const game* B)
 {
 	unsigned vA;
 	unsigned vB;
 	if (A->emulator_get()->tree_get())
-		vA = A->coin_tree_get();
+		vA = A->session_tree_get();
 	else
-		vA = A->coin_get();
+		vA = A->session_get();
 	if (B->emulator_get()->tree_get())
-		vB = B->coin_tree_get();
+		vB = B->session_tree_get();
 	else
-		vB = B->coin_get();
+		vB = B->session_get();
 	return vA > vB;
 }
 
-inline bool pgame_by_timepercoin_less(const game* A, const game* B)
+inline bool pgame_by_timepersession_less(const game* A, const game* B)
 {
 	unsigned tA;
 	unsigned tB;
@@ -421,17 +416,17 @@ inline bool pgame_by_timepercoin_less(const game* A, const game* B)
 	unsigned vB;
 	if (A->emulator_get()->tree_get()) {
 		tA = A->time_tree_get();
-		cA = A->coin_tree_get();
+		cA = A->session_tree_get();
 	} else {
 		tA = A->time_get();
-		cA = A->coin_get();
+		cA = A->session_get();
 	}
 	if (B->emulator_get()->tree_get()) {
 		tB = B->time_tree_get();
-		cB = B->coin_tree_get();
+		cB = B->session_tree_get();
 	} else {
 		tB = B->time_get();
-		cB = B->coin_get();
+		cB = B->session_get();
 	}
 
 	if (cA)

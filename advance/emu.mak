@@ -352,6 +352,7 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
 	$(OBJ)/advance/osd/global.o \
+	$(OBJ)/advance/osd/videoui.o \
 	$(OBJ)/advance/osd/videoma.o \
 	$(OBJ)/advance/osd/videocf.o \
 	$(OBJ)/advance/osd/videomn.o \
@@ -378,6 +379,11 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/conf.o \
 	$(OBJ)/advance/lib/incstr.o \
 	$(OBJ)/advance/lib/fz.o \
+	$(OBJ)/advance/lib/font.o \
+	$(OBJ)/advance/lib/fontdef.o \
+	$(OBJ)/advance/lib/bitmap.o \
+	$(OBJ)/advance/lib/filter.o \
+	$(OBJ)/advance/lib/png.o \
 	$(OBJ)/advance/lib/unzip.o \
 	$(OBJ)/advance/lib/videoio.o \
 	$(OBJ)/advance/lib/update.o \
@@ -403,6 +409,13 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/mnone.o \
 	$(OBJ)/advance/lib/error.o \
 	$(OBJ)/advance/lib/wave.o
+
+EMUCHDMANOBJS = \
+	$(OBJ)/chdman.o \
+	$(OBJ)/chd.o \
+	$(OBJ)/sha1.o \
+	$(OBJ)/md5.o \
+	$(OBJ)/version.o
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)
@@ -525,6 +538,10 @@ $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(
 	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
+
+$(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS)
+	$(ECHO) $@ $(MSG)
+	$(LD) $(LDFLAGS) -o $@ $(EMUCHDMANOBJS) $(ZLIBS)
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -723,6 +740,7 @@ endif
 
 EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
+	$(OBJ)/chdman$(EXE) \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
 ifneq ($(CONF_EMU),mess)

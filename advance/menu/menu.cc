@@ -286,12 +286,12 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 
 	if (g) {
 		ostringstream os;
-		unsigned coin;
+		unsigned session;
 		if (g->emulator_get()->tree_get())
-			coin = g->coin_tree_get();
+			session = g->session_tree_get();
 		else
-			coin = g->coin_get();
-		os << setw(3) << setfill(' ') << coin << "c";
+			session = g->session_get();
+		os << setw(3) << setfill(' ') << session << "p";
 		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
@@ -367,14 +367,14 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		case sort_by_name : draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_root_name : draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_time : draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_coin : draw_tag_right("coin", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_session : draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_year : draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_manufacturer : draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_type : draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-		case sort_by_timepercoin : draw_tag_right("timepercoin", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_timepersession : draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	switch (difficulty) {
@@ -1778,7 +1778,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	log_std(("menu: insert begin\n"));
 
 	bool list_mode = rs.mode_effective == mode_list || rs.mode_effective == mode_list_mixed;
-	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_coin || rs.sort_effective == sort_by_timepercoin) {
+	if (!list_mode || rs.sort_effective == sort_by_name || rs.sort_effective == sort_by_time || rs.sort_effective == sort_by_size || rs.sort_effective == sort_by_session || rs.sort_effective == sort_by_timepersession) {
 		gc.reserve(gss.size());
 		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
 			gc.insert(gc.end(), new menu_entry(*i, 0));
@@ -1940,9 +1940,9 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			psc = new pgame_sort_set(sort_by_time_func);
 			category_func = sort_item_time;
 			break;
-		case sort_by_coin :
-			psc = new pgame_sort_set(sort_by_coin_func);
-			category_func = sort_item_coin;
+		case sort_by_session :
+			psc = new pgame_sort_set(sort_by_session_func);
+			category_func = sort_item_session;
 			break;
 		case sort_by_group :
 			psc = new pgame_sort_set(sort_by_group_func);
@@ -1964,9 +1964,9 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			psc = new pgame_sort_set(sort_by_info_func);
 			category_func = sort_item_info;
 			break;
-		case sort_by_timepercoin :
-			psc = new pgame_sort_set(sort_by_timepercoin_func);
-			category_func = sort_item_timepercoin;
+		case sort_by_timepersession :
+			psc = new pgame_sort_set(sort_by_timepersession_func);
+			category_func = sort_item_timepersession;
 			break;
 		default:
 			return INT_KEY_NONE;

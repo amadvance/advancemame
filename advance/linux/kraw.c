@@ -399,7 +399,7 @@ void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 
 void keyb_raw_led_set(unsigned keyboard, unsigned led_mask)
 {
-	log_debug(("keyb:raw: keyb_raw_led_set(keyboard:%d,mask:%d)\n", led_mask));
+	log_debug(("keyb:raw: keyb_raw_led_set(keyboard:%d,mask:%d)\n", keyboard, led_mask));
 
 	/* TODO led support */
 }

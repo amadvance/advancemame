@@ -517,7 +517,7 @@ err:
 	return -1;
 }
 
-static adv_error png_write_image_2pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
+static adv_error png_write_image_2pal(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, adv_color_rgb* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
 {
 	uint8* i_ptr;
 	unsigned i_size;
@@ -540,9 +540,9 @@ static adv_error png_write_image_2pal(FILE* f, const uint8* ptr, unsigned bytes_
 
 			pixel = cpu_uint16_read(ptr);
 
-			p[0] = osd_rgb_red(rgb[pixel]);
-			p[1] = osd_rgb_green(rgb[pixel]);
-			p[2] = osd_rgb_blue(rgb[pixel]);
+			p[0] = rgb[pixel].red;
+			p[1] = rgb[pixel].green;
+			p[2] = rgb[pixel].blue;
 
 			p += 3;
 			ptr += pixel_pitch;
@@ -563,7 +563,7 @@ err:
 	return -1;
 }
 
-static adv_error png_write_image_2palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, osd_rgb_t* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
+static adv_error png_write_image_2palsmall(FILE* f, const uint8* ptr, unsigned bytes_per_scanline, unsigned width, unsigned height, adv_color_rgb* rgb, unsigned rgb_max, adv_bool fast, unsigned orientation)
 {
 	uint8 palette[3*256];
 	uint8* i_ptr;
@@ -577,9 +577,9 @@ static adv_error png_write_image_2palsmall(FILE* f, const uint8* ptr, unsigned b
 		goto err;
 
 	for (i=0;i<rgb_max;++i) {
-		palette[i*3] = osd_rgb_red(rgb[i]);
-		palette[i*3+1] = osd_rgb_green(rgb[i]);
-		palette[i*3+2] = osd_rgb_blue(rgb[i]);
+		palette[i*3] = rgb[i].red;
+		palette[i*3+1] = rgb[i].green;
+		palette[i*3+2] = rgb[i].blue;
 	}
 
 	png_orientation(&ptr, &width, &height, &pixel_pitch, &line_pitch, orientation);
@@ -712,7 +712,7 @@ static adv_error video_start(struct advance_record_context* context, const char*
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static adv_error video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+static adv_error video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
 	unsigned color_type;
 
@@ -819,7 +819,7 @@ static adv_error snapshot_start(struct advance_record_context* context, const ch
 	return 0;
 }
 
-static adv_error snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+static adv_error snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
 	const char* file = context->state.snapshot_file_buffer;
 	FILE* f;
@@ -959,8 +959,7 @@ void osd_record_start(void)
 
 	advance_record_next(context, game, path_wav, FILE_MAXPATH, path_mng, FILE_MAXPATH);
 
-	if (context->config.sound_flag && !context->config.video_flag)
-		mame_ui_message("Start recording");
+	advance_global_message(&CONTEXT.global, "Start recording");
 
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
@@ -1008,9 +1007,8 @@ void osd_record_stop(void)
 	pthread_mutex_unlock(&context->state.access_mutex);
 #endif
 
-	if (sound_time != 0 || video_time != 0) {
-		mame_ui_message("Stop recording %d/%d [s]", sound_time, video_time);
-	}
+	if (sound_time != 0 || video_time != 0)
+		advance_global_message(&CONTEXT.global, "Stop recording %d/%d [s]", sound_time, video_time);
 }
 
 static void advance_snapshot_next(struct advance_record_context* context, const mame_game* game, char* path_png, unsigned size)
@@ -1081,7 +1079,7 @@ void advance_record_sound_update(struct advance_record_context* context, const s
 #endif
 }
 
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
@@ -1094,7 +1092,7 @@ void advance_record_video_update(struct advance_record_context* context, const v
 #endif
 }
 
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);

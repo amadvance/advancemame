@@ -148,7 +148,7 @@ Symbols
 	the `simulate_event(EVENT,TIME)' and `event(EVENT)' 
 	commands :
 		EVENT - ui_mode_next, ui_mode_pred, ui_record_start,
-			ui_record_stop, ui_turbo, ui_configure,
+			ui_record_stop, ui_turbo, ui_cocktail, ui_configure,
 			ui_on_screen_display, ui_pause, ui_reset_machine,
 			ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc,
 			ui_throttle, ui_show_fps, ui_snapshot, ui_toggle_cheat,
@@ -177,7 +177,7 @@ Symbols
 			key_period, key_slash, key_space, key_insert, key_del,
 			key_home, key_end, key_pgup, key_pgdn, key_left,
 			key_right, key_up, key_down, key_slash_pad,
-			key_asterisk, key_minus_pad, key_plus_pad,
+			key_asterisk_pad, key_minus_pad, key_plus_pad,
 			key_period_pad, key_enter_pad, key_prtscr, key_pause,
 			key_lshift, key_rshift, key_lcontrol, key_rcontrol,
 			key_lalt, key_ralt, key_scrlock, key_numlock,

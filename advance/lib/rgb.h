@@ -136,6 +136,7 @@ static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos)
 }
 
 unsigned video_color_dist(const adv_color_rgb* A, const adv_color_rgb* B);
+unsigned video_color_find(unsigned r, unsigned g, unsigned b, const adv_color_rgb* palette_map, unsigned palette_mac);
 
 /**
  * Shift a value.

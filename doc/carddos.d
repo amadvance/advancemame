@@ -849,6 +849,7 @@ SVGALINE
 		+OEM AccelGraphics Inc (Kubota Pacific) {1040} : AccelStar II (*)
 
   S3 Inc. (5333)
+	+82C270-294 Savage/MX [8c11] 
 	+86C240 ViRGE/MXC [8c02] 
 	+86C260 ViRGE/M3/MX [8c00] 
 	+86C260 ViRGE/M5/MX [8c01] 
@@ -859,6 +860,8 @@ SVGALINE
 		+86C270/74/90/94 Savage/MX/IX/MX+MV/IX+MV 
 		+OEM IBM {1014} : Thinkpad T Series Model 2647 Integrated Video 
 		+OEM Samsung Electronics Co Ltd {144d} : 86C270 GT8000 Series 
+	+86C278 Savage/IX [8c13] 
+		+OEM Toshiba America Information Systems {1179} : Magnia Z310 
 	+86C280 ViRGE/MX+ Macrovision [8c03] 
 	+86C325 ViRGE [5631] 
 	+86C357 ViRGE/GX2, 86C359 ViRGE/GX2+ [8a10] 
@@ -901,14 +904,9 @@ SVGALINE
 		+OEM Number 9 Computer Company {105d} : SR9 Pro+ SGRAM 
 	+86C410 Savage 2000 [9102] 
 		+OEM Diamond Multimedia Systems {1092} : Viper II Z200 
-	+86C420 ProSavage DDR [8d04] 
-		+ProSavage DDR 
-		+OEM Fujitsu Ltd {10cf} : 86C420 ProSavage DDR 
-		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6390 Integrated Video 
 	+86C732 Trio32, 86C764 Trio64, 86C765 Trio64V+ Rev 01 [8811] 
 	+86C988 ViRGE/VX [883d] 
 	+TrioV Family [8903] 
-	+VT8751 [ProSavageDDR P4M266] [8d03] 
 
 VBELINE
 	These are the OLD DOS drivers based on the VBE BIOS of the
@@ -917,74 +915,6 @@ VBELINE
 	of MAMEDOS.
 	Some of them require the presence of an updated VBE BIOS like
 	the Scitech Display Doctor.
-
-  ATI Technologies (1002)
-	+Mach64 ST [5354] 
-		+Mach 64 reference 
-		+Mach64 ST Reference 
-	+Rage 128 4x [5348] 
-	+Rage 128 4x [534e] 
-	+Rage 128 GL AGP 2x [5246] 
-		+All-in-Wonder 128 AGP 
-		+Magnum/Xpert 128/Xpert 99 
-		+Magnum/Xpert 128/Xpert 99/Xpert 2000 
-		+Rage Fury 
-		+Rage Fury/Xpert 128/Xpert 2000 
-	+Rage 128 GL PCI [5245] 
-		+All-in-Wonder 128 PCI 
-		+Xpert 128 
-	+Rage 128 PA/Pro PCI [5041] 
-	+Rage 128 PB/Pro AGP 2x [5042] 
-	+Rage 128 PC/Pro AGP 4x [5043] 
-	+Rage 128 PD/Pro PCI (TMDS) [5044] 
-		+All-in-Wonder 128 Pro PCI 
-	+Rage 128 PE/Pro AGP 2x (TMDS) [5045] 
-	+Rage 128 PF/Pro AGP 4x (TMDS) [5046] 
-		+All-in-Wonder 128 Pro AGP 
-		+Rage Fury MAXX AGP 4x (TMDS) (Extra device??) 
-		+Rage Fury MAXX AGP 4x (TMDS) (VGA device) 
-		+Rage Fury Pro 
-		+Rage Fury Pro/Xpert 2000 Pro 
-	+Rage 128 PG/Pro PCI [5047] 
-	+Rage 128 PH/Pro AGP 2x [5048] 
-	+Rage 128 PI/Pro AGP 4x [5049] 
-	+Rage 128 PJ/Pro PCI (TMDS) [504a] 
-	+Rage 128 PK/Pro AGP 2x (TMDS) [504b] 
-	+Rage 128 PL/Pro AGP 4x (TMDS) [504c] 
-	+Rage 128 PM/Pro PCI [504d] 
-	+Rage 128 PN/Pro AGP 2x [504e] 
-	+Rage 128 PO/Pro AGP 4x [504f] 
-	+Rage 128 PP/Pro PCI (TMDS) [5050] 
-		+Xpert 128 
-	+Rage 128 PQ/Pro AGP 2x (TMDS) [5051] 
-	+Rage 128 PR/Pro AGP 4x (TMDS) [5052] 
-	+Rage 128 PS/Pro PCI [5053] 
-	+Rage 128 PT/Pro AGP 2x [5054] 
-	+Rage 128 PU/Pro AGP 4x [5055] 
-	+Rage 128 PV/Pro PCI (TMDS) [5056] 
-	+Rage 128 PW/Pro AGP 2x (TMDS) [5057] 
-	+Rage 128 PX/Pro AGP 4x (TMDS) [5058] 
-	+Rage 128 RG [5247] 
-	+Rage 128 RK/VR PCI [524b] 
-	+Rage 128 RL/VR AGP 2x [524c] 
-		+Xpert 99 
-		+Xpert 99/Xpert 2000 
-	+Rage 128 SE/4x PCI [5345] 
-	+Rage 128 SF/4x AGP 2x [5346] 
-		+RAGE 128 16MB VGA TVOUT AMC PAL 
-	+Rage 128 SG/4x AGP 4x [5347] 
-	+Rage 128 SK/4x PCI [534b] 
-	+Rage 128 SL/4x AGP 2x [534c] 
-	+Rage 128 SM/4x AGP 4x [534d] 
-		+Xpert 2000 
-		+Xpert 99/Xpert 2000 
-	+Rage Mobility 128 AGP 4x [4d46] 
-		+OEM Dell Computer Corp {1028} : Rage Mobility 128 AGP 4x in Dell Inspiron 8000 Laptop 
-	+Rage Mobility 128 AGP [4d4c] 
-	+Rage Mobility M3 AGP 2x [4c46] 
-		+OEM Dell Computer Corp {1028} : Latitude C600 
-		+OEM IBM {1014} : Rage Mobility M3 AGP 2x 
-	+Rage Mobility M3 AGP [4c45] 
 
   Cirrus Logic (1013)
 	+CL-GD5460/62 [00d0] 

@@ -46,7 +46,7 @@ extern "C" {
 /***************************************************************************/
 /* Log */
 
-void log_va(const char* text, va_list arg) __attribute__((format(printf, 1, 0)));
+void log_va(const char* text, va_list arg);
 void log_f(const char* text, ...) __attribute__((format(printf, 1, 2)));
 void log_f_modeline_cb(const char* text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);
 void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);

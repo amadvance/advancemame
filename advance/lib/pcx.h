@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max);
+adv_bitmap* adv_pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max);
 
 #ifdef __cplusplus
 };

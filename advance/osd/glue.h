@@ -129,13 +129,24 @@ const struct mame_game* mame_playback_look(const char* file);
 
 struct mame_port {
 	const char* name; /**< Name of the port. */
+	const char* desc; /**< Description. */
 	unsigned port; /**< Port value. */
 };
 
 struct mame_port* mame_port_list(void);
+int mame_port_player(unsigned port);
+unsigned mame_port_convert(unsigned* type_pred, unsigned type);
 
 /***************************************************************************/
 /* MAME callback interface */
+
+#define MAME_INPUT_MAP_MAX 16
+
+struct mame_digital_map_entry {
+	unsigned port; /**< Digital port. */
+	unsigned seq[MAME_INPUT_MAP_MAX]; /**< Sequence assigned. */
+	adv_bool port_state; /**< State of the port. */
+};
 
 /** New ports. */
 #define MAME_PORT_INTERNAL 0x70000000
@@ -159,16 +170,13 @@ int mame_ui_port_pressed(unsigned port);
 unsigned mame_ui_code_from_oskey(unsigned oscode);
 unsigned mame_ui_code_from_osjoystick(unsigned oscode);
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-void mame_ui_text(const char* s, unsigned x, unsigned y);
-void mame_ui_message(const char* s, ...);
-void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
-const char* mame_ui_gettext(const char* text);
 void mame_ui_refresh(void);
 void mame_ui_swap(void);
 void mame_ui_gamma_factor_set(double gamma);
 void mame_ui_show_info_temp(void);
 unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr);
 unsigned mame_ui_frames_per_second(void);
+void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max);
 
 /***************************************************************************/
 /* OSD interface */
@@ -274,6 +282,8 @@ typedef unsigned osd_input;
 #define OSD_INPUT_START2 0x02000000
 #define OSD_INPUT_START3 0x04000000
 #define OSD_INPUT_START4 0x08000000
+#define OSD_INPUT_COCKTAIL 0x10000000
+#define OSD_INPUT_HELP 0x20000000
 
 int osd2_video_init(struct osd_video_option* option);
 void osd2_video_done(void);
@@ -287,6 +297,8 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void osd2_info(char* buffer, unsigned size);
 void osd2_debugger_focus(int debugger_has_focus);
 void osd2_message(void);
+void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max);
+void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);

@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 #include "bitmap.h"
+#include "fz.h"
 
 /**
  * Max number of chars in a font.
@@ -46,16 +47,23 @@ typedef struct adv_font_struct {
 /** \addtogroup Font */
 /*@{*/
 
-adv_font* font_import_raw(unsigned char* data, unsigned data_size);
-adv_font* font_import_grx(unsigned char* data);
+adv_font* adv_font_load(adv_fz* f);
+void adv_font_free(adv_font* font);
 
-adv_font* font_load(const char* file);
-void font_free(adv_font* font);
+unsigned adv_font_sizex(adv_font* font);
+unsigned adv_font_sizex_char(adv_font* font, char c);
+unsigned adv_font_sizex_string(adv_font* font, const char* begin, const char* end);
+unsigned adv_font_sizey(adv_font* font);
+unsigned adv_font_sizey_char(adv_font* font, char c);
+unsigned adv_font_sizey_string(adv_font* font, const char* begin, const char* end);
+const char* adv_font_sizex_limit(adv_font* font, const char* begin, const char* end, unsigned limit);
 
-unsigned font_size_x(adv_font* font);
-unsigned font_size_y(adv_font* font);
+void adv_font_orientation(adv_font* font, unsigned orientation_mask);
 
-void font_orientation(adv_font* font, unsigned orientation_mask);
+void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back);
+void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back);
+void adv_font_puttrasp_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front);
+void adv_font_puttrasp_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front);
 
 /*@}*/
 

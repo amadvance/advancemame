@@ -19,6 +19,7 @@
  */
 
 #include "font.h"
+#include "fz.h"
 
 #include "fontdef.dat"
 
@@ -26,12 +27,23 @@
  * Return the default font.
  * \param height Height in pixel of the required font. The effective height may differs.
  */
-adv_font* font_default(unsigned height) {
-	if (height >= 17)
-		return font_import_grx(FONT_HELV17);
-	if (height >= 15)
-		return font_import_grx(FONT_HELV15);
-	if (height >= 13)
-		return font_import_grx(FONT_HELV13);
-	return font_import_grx(FONT_HELV11);
+adv_font* adv_font_default(unsigned height) {
+	adv_fz* f;
+	adv_font* font;
+
+	if (height >= 17) {
+		f = fzopenmemory(FONT_HELV17, sizeof(FONT_HELV17));
+	} else if (height >= 15) {
+		f = fzopenmemory(FONT_HELV15, sizeof(FONT_HELV15));
+	} else if (height >= 13) {
+		f = fzopenmemory(FONT_HELV13, sizeof(FONT_HELV13));
+	} else {
+		f = fzopenmemory(FONT_HELV11, sizeof(FONT_HELV11));
+	}
+
+	font = adv_font_load(f);
+
+	fzclose(f);
+
+	return font;
 }

@@ -149,7 +149,7 @@ static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state)
  * \param rgb_max Where to put the number of palette entries.
  * \return The loaded bitmap or 0 on error.
  */
-adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
+adv_bitmap* adv_pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 {
 	struct pcx_header_t h;
 	adv_bitmap* bitmap;
@@ -172,7 +172,7 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 	height = h.y_max - h.y_min + 1;
 	depth = h.planes * 8;
 
-	bitmap = bitmap_alloc(width, height, depth);
+	bitmap = adv_bitmap_alloc(width, height, depth);
 	if (!bitmap) {
 		goto out;
 	}
@@ -183,7 +183,7 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 
 		for(y=0;y<height;++y) {
 			struct pcx_decode_state state;
-			uint8* dst_off = bitmap_line(bitmap, y);
+			uint8* dst_off = adv_bitmap_line(bitmap, y);
 			state.count = 0;
 			pcx_decode(dst_off, width, f, &state, 1);
 			pcx_ignore(h.bytes_per_line - width, f, &state);
@@ -204,7 +204,7 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 		unsigned y;
 		for(y=0;y<height;++y) {
 			struct pcx_decode_state state;
-			uint8* dst_off = bitmap_line(bitmap, y);
+			uint8* dst_off = adv_bitmap_line(bitmap, y);
 			state.count = 0;
 			pcx_decode(dst_off, width, f, &state, 3);
 			pcx_ignore(h.bytes_per_line - width, f, &state);
@@ -220,7 +220,7 @@ adv_bitmap* pcx_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max)
 	return bitmap;
 
 out_bitmap:
-	bitmap_free(bitmap);
+	adv_bitmap_free(bitmap);
 out:
 	return 0;
 }

@@ -385,8 +385,6 @@ Configuration
 	Examples for DOS and Windows:
 		:emulator "advmame" advmame "advmame\advmame.exe" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 		:emulator "mame" mame "mame\mame.exe" "-nohws"
-		:emulator "neomame" mame "neomame\neomame.exe" ""
-		:emulator "cpsmame" mame "cpsmame\cpsmame.exe" ""
 		:emulator "mess" dmess "mess\mess.exe" ""
 		:emulator "raine" raine "raine\raine.exe" ""
 		:emulator "myraine" raine "raine\raine2.bat" ""
@@ -480,14 +478,14 @@ Configuration
     sort
 	Select the order of the games displayed.
 
-	:sort parent | name | time | coin | year | manufacturer
+	:sort parent | name | time | play | year | manufacturer
 	:	| type | group | size | resolution | info
 
 	Options:
 		parent - Game parent name.
 		name - Game name.
 		time - Time played.
-		coin - Coins used.
+		play - Play times.
 		year - Game year release.
 		manufacturer - Game manufacturer.
 		type - Game type.
@@ -578,9 +576,9 @@ Configuration
 	Contains various information of the know games.
 	A `game' option is added automatically at the configuration
 	files for any rom found. It's used to keep some game
-	information like the time and coins used.
+	information like the play time.
 
-	:game "EMULATOR/GAME" "GROUP" "TYPE" TIME COIN "DESC"
+	:game "EMULATOR/GAME" "GROUP" "TYPE" TIME PLAY "DESC"
 
 	Options:
 		EMULATOR - Name of the emulator.
@@ -589,7 +587,7 @@ Configuration
 		GROUP - Name of the group of the game or empty "".
 		TYPE - Name of the type of the game or empty "".
 		TIME - Time played in seconds.
-		COIN - Coins used.
+		PLAY - Number of play.
 		DESC - User description or empty "".
 
 	The GROUP, TYPE and Description argument overwrite any
@@ -637,10 +635,10 @@ Configuration
 	Select a font file. The formats GRX, PSF and RAW are supported.
 	You can find a collection of fonts in the `contrib' directory.
 
-	:video_font none | "FONT_FILE"
+	:video_font auto | "FONT_FILE"
 
 	Options:
-		none - Use the built-in font (default).
+		auto - Use the built-in font (default).
 		FONT_FILE - Font file path.
 
     video_orientation
@@ -1082,7 +1080,7 @@ Configuration
 			backspace, tab, openbrace, closebrace, enter,
 			semicolon, quote, backslash, less, comma, period,
 			slash, space, insert, del, home, end, pgup, pgdn, left,
-			right, up, down, slash, asterisk, minus_pad,
+			right, up, down, slash_pad, asterisk_pad, minus_pad,
 			plus_pad, period_pad, enter_pad, prtscr, pause,
 			lshift, rshift, lcontrol, rcontrol, lalt, ralt,
 			lwin, rwin, menu, scrlock, numlock, capslock.

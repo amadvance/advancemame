@@ -48,8 +48,8 @@ void run_sort(config_state& rs)
 	ch.insert( ch.end(), choice("Parent name", sort_by_root_name) );
 	ch.insert( ch.end(), choice("Name", sort_by_name) );
 	ch.insert( ch.end(), choice("Time played", sort_by_time) );
-	ch.insert( ch.end(), choice("Coins", sort_by_coin) );
-	ch.insert( ch.end(), choice("Time per coin", sort_by_timepercoin) );
+	ch.insert( ch.end(), choice("Play", sort_by_session) );
+	ch.insert( ch.end(), choice("Time per play", sort_by_timepersession) );
 	ch.insert( ch.end(), choice("Group", sort_by_group) );
 	ch.insert( ch.end(), choice("Type", sort_by_type) );
 	ch.insert( ch.end(), choice("Manufacturer", sort_by_manufacturer) );
@@ -995,17 +995,17 @@ string stat_perc(unsigned v, unsigned t)
 void run_stat(config_state& rs)
 {
 	unsigned total_count = 0;
-	unsigned total_coin = 0;
+	unsigned total_session = 0;
 	unsigned total_time = 0;
 	unsigned select_count = 0;
-	unsigned select_coin = 0;
+	unsigned select_session = 0;
 	unsigned select_time = 0;
-	const game* most_coin_map[STAT_MAX] = { 0, 0, 0 };
+	const game* most_session_map[STAT_MAX] = { 0, 0, 0 };
 	const game* most_time_map[STAT_MAX] = { 0, 0, 0 };
-	const game* most_timepercoin_map[STAT_MAX] = { 0, 0, 0 };
-	unsigned most_coin_val[STAT_MAX] = { 0, 0, 0 };
+	const game* most_timepersession_map[STAT_MAX] = { 0, 0, 0 };
+	unsigned most_session_val[STAT_MAX] = { 0, 0, 0 };
 	unsigned most_time_val[STAT_MAX] = { 0, 0, 0 };
-	unsigned most_timepercoin_val[STAT_MAX] = { 0, 0, 0 };
+	unsigned most_timepersession_val[STAT_MAX] = { 0, 0, 0 };
 	unsigned n;
 
 	int y = 2*int_font_dy_get();
@@ -1024,25 +1024,25 @@ void run_stat(config_state& rs)
 
 	// select and sort
 	for(game_set::const_iterator i=rs.gar.begin();i!=rs.gar.end();++i) {
-		unsigned coin;
+		unsigned session;
 		unsigned time;
-		unsigned timepercoin;
+		unsigned timepersession;
 
 		if (i->emulator_get()->tree_get())
-			coin = i->coin_tree_get();
+			session = i->session_tree_get();
 		else
-			coin = i->coin_get();
+			session = i->session_get();
 		if (i->emulator_get()->tree_get())
 			time = i->time_tree_get();
 		else
 			time = i->time_get();
-		if (coin)
-			timepercoin = time / coin;
+		if (session)
+			timepersession = time / session;
 		else
-			timepercoin = 0;
+			timepersession = 0;
 
 		total_count += 1;
-		total_coin += coin;
+		total_session += session;
 		total_time += time;
 
 		// emulator
@@ -1062,12 +1062,12 @@ void run_stat(config_state& rs)
 			continue;
 
 		select_count += 1;
-		select_coin += coin;
+		select_session += session;
 		select_time += time;
 
-		stat_insert(most_coin_map, most_coin_val, &*i, coin);
+		stat_insert(most_session_map, most_session_val, &*i, session);
 		stat_insert(most_time_map, most_time_val, &*i, time);
-		stat_insert(most_timepercoin_map, most_timepercoin_val, &*i, timepercoin);
+		stat_insert(most_timepersession_map, most_timepersession_val, &*i, timepersession);
 	}
 
 	int_put(xt, y, "Total", COLOR_HELP_TAG);
@@ -1085,10 +1085,10 @@ void run_stat(config_state& rs)
 
 	{
 		y += int_font_dy_get();
-		int_put(xn, y, "Coins", COLOR_HELP_TAG);
-		int_put(xt, y, stat_int(total_coin), COLOR_HELP_NORMAL);
-		int_put(xs, y, stat_int(select_coin), COLOR_HELP_NORMAL);
-		int_put(xp, y, stat_perc(select_coin, total_coin), COLOR_HELP_NORMAL);
+		int_put(xn, y, "Play", COLOR_HELP_TAG);
+		int_put(xt, y, stat_int(total_session), COLOR_HELP_NORMAL);
+		int_put(xs, y, stat_int(select_session), COLOR_HELP_NORMAL);
+		int_put(xp, y, stat_perc(select_session, total_session), COLOR_HELP_NORMAL);
 	}
 
 	{
@@ -1114,28 +1114,28 @@ void run_stat(config_state& rs)
 		}
 	}
 
-	if (n>0 && most_coin_map[0]) {
+	if (n>0 && most_session_map[0]) {
 		ostringstream os;
 		y += int_font_dy_get();
 		y += int_font_dy_get();
-		int_put(xn, y, "Most coins", COLOR_HELP_TAG);
-		for(unsigned i=0;i<n && most_coin_map[i];++i) {
+		int_put(xn, y, "Most play", COLOR_HELP_TAG);
+		for(unsigned i=0;i<n && most_session_map[i];++i) {
 			y += int_font_dy_get();
-			int_put(xn, y, stat_int(most_coin_val[i]), COLOR_HELP_NORMAL);
-			int_put(xs, y, stat_perc(most_coin_val[i], select_coin), COLOR_HELP_NORMAL);
-			int_put(xt, y, most_coin_map[i]->description_get(), COLOR_HELP_NORMAL);
+			int_put(xn, y, stat_int(most_session_val[i]), COLOR_HELP_NORMAL);
+			int_put(xs, y, stat_perc(most_session_val[i], select_session), COLOR_HELP_NORMAL);
+			int_put(xt, y, most_session_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
 
-	if (n>0 && most_timepercoin_map[0]) {
+	if (n>0 && most_timepersession_map[0]) {
 		ostringstream os;
 		y += int_font_dy_get();
 		y += int_font_dy_get();
-		int_put(xn, y, "Most time per coin", COLOR_HELP_TAG);
-		for(unsigned i=0;i<n && most_timepercoin_map[i];++i) {
+		int_put(xn, y, "Most time per play", COLOR_HELP_TAG);
+		for(unsigned i=0;i<n && most_timepersession_map[i];++i) {
 			y += int_font_dy_get();
-			int_put(xn, y, stat_time(most_timepercoin_val[i]), COLOR_HELP_NORMAL);
-			int_put(xt, y, most_timepercoin_map[i]->description_get(), COLOR_HELP_NORMAL);
+			int_put(xn, y, stat_time(most_timepersession_val[i]), COLOR_HELP_NORMAL);
+			int_put(xt, y, most_timepersession_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
 

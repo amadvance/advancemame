@@ -80,7 +80,7 @@ class game;
 typedef std::list<const game*> pgame_container;
 
 class game {
-	static const unsigned flag_coin_set = 0x1;
+	static const unsigned flag_session_set = 0x1;
 	static const unsigned flag_time_set = 0x2;
 	static const unsigned flag_user_description_set = 0x4;
 	static const unsigned flag_user_type_set = 0x8;
@@ -114,7 +114,7 @@ class game {
 	mutable const category* type;
 	mutable unsigned time;
 
-	mutable int coin;
+	mutable int session;
 
 	mutable unsigned size; // cached size in bytes of the roms
 
@@ -202,10 +202,10 @@ public:
 
 	unsigned time_get() const { return time; }
 	unsigned time_tree_get() const;
-	void coin_set(unsigned A) const { flag |= flag_coin_set; coin = A; }
-	bool is_coin_set() const { return flag_get(flag_coin_set); }
-	unsigned coin_tree_get() const;
-	unsigned coin_get() const { return coin; }
+	void session_set(unsigned A) const { flag |= flag_session_set; session = A; }
+	bool is_session_set() const { return flag_get(flag_session_set); }
+	unsigned session_tree_get() const;
+	unsigned session_get() const { return session; }
 	void size_set(unsigned Asize) const { size = Asize; }
 	unsigned size_get() const { return size; }
 	void sizex_set(unsigned A) { sizex = A; }
@@ -434,12 +434,12 @@ std::string sort_item_name(const game& g);
 std::string sort_item_manufacturer(const game& g);
 std::string sort_item_year(const game& g);
 std::string sort_item_time(const game& g);
-std::string sort_item_coin(const game& g);
+std::string sort_item_session(const game& g);
 std::string sort_item_group(const game& g);
 std::string sort_item_type(const game& g);
 std::string sort_item_size(const game& g);
 std::string sort_item_res(const game& g);
 std::string sort_item_info(const game& g);
-std::string sort_item_timepercoin(const game& g);
+std::string sort_item_timepersession(const game& g);
 
 #endif

@@ -92,7 +92,7 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	{ FILETYPE_NVRAM, "dir_nvram" , "nvram", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE, "dir_hi", "hi", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE_DB, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for hiscore.dat */
-	{ FILETYPE_CONFIG, "dir_cfg", "cfg", FILEIO_MODE_SINGLE, 0, 0 },
+	/* { FILETYPE_CONFIG, "dir_cfg", "cfg", FILEIO_MODE_SINGLE, 0, 0 }, */
 	{ FILETYPE_INPUTLOG, "dir_inp", "inp", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_STATE, "dir_sta", "sta", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_MEMCARD, "dir_memcard", "memcard", FILEIO_MODE_SINGLE, 0, 0 },
@@ -127,7 +127,7 @@ int osd_get_path_count(int pathtype)
 
 	i = fileio_find(pathtype);
 	if (!i) {
-		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		log_std(("WARNING:fileio: file type %d unknown\n", pathtype));
 		return 0;
 	}
 
@@ -144,7 +144,7 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 
 	i = fileio_find(pathtype);
 	if (!i) {
-		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		log_std(("WARNING:fileio: file type %d unknown\n", pathtype));
 		return PATH_NOT_FOUND;
 	}
 
@@ -197,7 +197,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 	i = fileio_find(pathtype);
 	if (!i) {
-		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		log_std(("WARNING:fileio: file type %d unknown\n", pathtype));
 		return 0;
 	}
 
@@ -393,7 +393,7 @@ int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 
 	i = fileio_find(pathtype);
 	if (!i) {
-		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		log_std(("WARNING:fileio: file type %d unknown\n", pathtype));
 		return -1;
 	}
 

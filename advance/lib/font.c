@@ -33,43 +33,106 @@ static adv_bitmap null_char = { 0, 0, 0, 0, 0, 0 };
  * Get the Y size of the font.
  * The height of the 'A' letter is used.
  */
-unsigned font_size_y(adv_font* font)
+unsigned adv_font_sizey(adv_font* font)
 {
-	if (font->data['A'])
-		return font->data['A']->size_y;
+	return adv_font_sizey_char(font, 'A');
+}
+
+/**
+ * Get the Y size of the font.
+ * The height of the 'A' letter is used.
+ */
+unsigned adv_font_sizey_char(adv_font* font, char c)
+{
+	if (font->data[(unsigned char)c])
+		return font->data[(unsigned char)c]->size_y;
 	else
 		return 0;
+}
+
+/**
+ * Get the Y size of the font.
+ * The width of the specified string is used.
+ */
+unsigned adv_font_sizey_string(adv_font* font, const char* begin, const char* end)
+{
+	unsigned size = 0;
+	while (begin != end) {
+		size += adv_font_sizey_char(font, *begin);
+		++begin;
+	}
+	return size;
 }
 
 /**
  * Get the X size of the font.
  * The width of the 'A' letter is used.
  */
-unsigned font_size_x(adv_font* font)
+unsigned adv_font_sizex(adv_font* font)
 {
-	if (font->data['A'])
-		return font->data['A']->size_x;
+	return adv_font_sizex_char(font, 'A');
+}
+
+/**
+ * Get the X size of the font.
+ * The width of the specified letter is used.
+ */
+unsigned adv_font_sizex_char(adv_font* font, char c)
+{
+	if (font->data[(unsigned char)c])
+		return font->data[(unsigned char)c]->size_x;
 	else
 		return 0;
 }
 
 /**
+ * Get the X size of the font.
+ * The width of the specified string is used.
+ */
+unsigned adv_font_sizex_string(adv_font* font, const char* begin, const char* end)
+{
+	unsigned size = 0;
+	while (begin != end) {
+		size += adv_font_sizex_char(font, *begin);
+		++begin;
+	}
+	return size;
+}
+
+/**
+ * Get the number of displayed chars.
+ */
+const char* adv_font_sizex_limit(adv_font* font, const char* begin, const char* end, unsigned limit)
+{
+	unsigned size = 0;
+
+	while (begin != end) {
+		size += adv_font_sizex_char(font, *begin);
+		if (size > limit)
+			return begin;
+		++begin;
+	}
+
+	return begin;
+}
+
+/**
  * Free a font.
  */
-void font_free(adv_font* adv_font)
+void adv_font_free(adv_font* adv_font)
 {
 	if (adv_font) {
 		int i;
 		for(i=0;i<BITMAP_FONT_MAX;++i) {
 			if (adv_font->data[i] && adv_font->data[i]!=&null_char) {
-				bitmap_free(adv_font->data[i]);
+				adv_bitmap_free(adv_font->data[i]);
 			}
 		}
 		free(adv_font);
 	}
 }
 
-static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned width, unsigned height)
+static int load_adv_font_data_fixed(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned width, unsigned height)
 {
 	unsigned i;
 
@@ -80,7 +143,7 @@ static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsig
 		unsigned x, y;
 		adv_bitmap* bitmap;
 
-		bitmap = bitmap_alloc(width, height, 8);
+		bitmap = adv_bitmap_alloc(width, height, 8);
 		if (!bitmap) {
 			return -1;
 		}
@@ -89,7 +152,7 @@ static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsig
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
 				int set = begin[x/8] & (1 << (7-(x % 8)));
-				bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
+				adv_bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
 			begin += (width+7)/8;
 		}
@@ -101,7 +164,7 @@ static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsig
 	return 0;
 }
 
-static int load_font_data_size(unsigned count, unsigned* width, unsigned height)
+static int load_adv_font_data_size(unsigned count, unsigned* width, unsigned height)
 {
 	unsigned size = 0;
 	unsigned i;
@@ -110,7 +173,7 @@ static int load_font_data_size(unsigned count, unsigned* width, unsigned height)
 	return size;
 }
 
-static int load_font_data(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned* wtable, unsigned height)
+static int load_adv_font_data(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned* wtable, unsigned height)
 {
 	unsigned i;
 
@@ -122,7 +185,7 @@ static int load_font_data(adv_font* load_font, unsigned char* begin, unsigned st
 		adv_bitmap* bitmap;
 		unsigned width = wtable[i-start];
 
-		bitmap = bitmap_alloc(width, height, 8);
+		bitmap = adv_bitmap_alloc(width, height, 8);
 		if (!bitmap) {
 			return -1;
 		}
@@ -131,7 +194,7 @@ static int load_font_data(adv_font* load_font, unsigned char* begin, unsigned st
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
 				int set = begin[x/8] & (1 << (7-(x % 8)));
-				bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
+				adv_bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
 			begin += (width+7)/8;
 		}
@@ -236,14 +299,13 @@ psf_separator = unicode = 0xFFFF
 
 */
 
-static adv_font* load_font_psf(const char* file)
+static adv_font* load_adv_font_psf(adv_fz* f)
 {
 	unsigned char header[2];
 	unsigned char c;
 	unsigned size;
 	unsigned height;
 	unsigned width;
-	FILE* f;
 	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
@@ -255,55 +317,47 @@ static adv_font* load_font_psf(const char* file)
 		goto out;
 	}
 
-	f = fopen(file, "rb");
-	if (!f) {
+	if (fzread(header, 2, 1, f)!=1) {
 		goto out_font;
 	}
 
-	if (fread(header, 2, 1, f)!=1) {
-		goto out_close;
-	}
-
 	if (header[0] != 0x36 || header[1] != 0x4) {
-		goto out_close;
+		goto out_font;
 	}
 
-	if (fread(&c, 1, 1, f)!=1) {
-		goto out_close;
+	if (fzread(&c, 1, 1, f)!=1) {
+		goto out_font;
 	}
 
 	size = c & 0x1 ? 512 : 256;
 
-	if (fread(&c, 1, 1, f)!=1) {
-		goto out_close;
+	if (fzread(&c, 1, 1, f)!=1) {
+		goto out_font;
 	}
 
 	height = c;
 	if (height < 8 || height > 32) {
-		goto out_close;
+		goto out_font;
 	}
 
 	data_size = size * height;
 	data = malloc(data_size);
 	if (!data)
-		goto out_close;
+		goto out_font;
 
-	if (fread(data, data_size, 1, f)!=1)
+	if (fzread(data, data_size, 1, f)!=1)
 		goto out_data;
 
-	if (load_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
+	if (load_adv_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
 		goto out_data;
 	}
 
 	free(data);
-	fclose(f);
 
 	return load_font;
 
 out_data:
 	free(data);
-out_close:
-	fclose(f);
 out_font:
 	free(load_font);
 out:
@@ -381,13 +435,12 @@ char_data =     {BYTE}*<fontheight>
 # scanlines font.
 */
 
-static adv_font* load_font_raw(const char* file)
+static adv_font* load_adv_font_raw(adv_fz* f)
 {
 	unsigned height;
 	unsigned width;
 	unsigned size;
-	FILE* f;
-	struct stat st;
+	unsigned file_size;
 	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
@@ -397,88 +450,38 @@ static adv_font* load_font_raw(const char* file)
 		goto out;
 	}
 
-	f = fopen(file, "rb");
-	if (!f) {
+	file_size = fzsize(f);
+
+	if (file_size % 256 != 0) {
 		goto out_font;
-	}
-
-	if (fstat(fileno(f), &st)!=0) {
-		goto out_close;
-	}
-
-	if (st.st_size % 256 != 0) {
-		goto out_close;
 	}
 
 	size = 256;
 	width = 8;
-	height = st.st_size / 256;
+	height = file_size / 256;
 	if (height < 8 || height > 32) {
-		goto out_close;
+		goto out_font;
 	}
 
 	data_size = size * height;
 	data = malloc(data_size);
 	if (!data) {
-		goto out_close;
+		goto out_font;
 	}
 
-	if (fread(data, data_size, 1, f)!=1) {
+	if (fzread(data, data_size, 1, f)!=1) {
 		goto out_data;
 	}
 
-	if (load_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
+	if (load_adv_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
 		goto out_data;
 	}
 
 	free(data);
-	fclose(f);
 
 	return load_font;
 out_data:
 	free(data);
-out_close:
-	fclose(f);
-out_font:
-	free(load_font);
-out:
-	return 0;
-}
-
-/**
- * Inport a RAW font from a memory area.
- * \param data Font data.
- * \param data_size Size of the font data.
- * \return Font allocated.
- */
-adv_font* font_import_raw(unsigned char* data, unsigned data_size)
-{
-	unsigned height;
-	unsigned width;
-	unsigned size;
-	adv_font* load_font;
-
-	if (data_size % 256 != 0)
-		goto out;
-
-	size = 256;
-	width = 8;
-	height = data_size / 256;
-	if (height < 8 || height > 32) {
-		goto out;
-	}
-
-	load_font = malloc(sizeof(adv_font));
-	if (!load_font) {
-		goto out;
-	}
-	memset(load_font, 0, sizeof(adv_font));
-
-	if (load_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
-		goto out_font;
-	}
-
-	return load_font;
 out_font:
 	free(load_font);
 out:
@@ -490,12 +493,11 @@ out:
 
 #define GRX_FONT_MAGIC 0x19590214L
 
-static adv_font* load_font_grx(const char* file)
+static adv_font* load_adv_font_grx(adv_fz* f)
 {
 	unsigned height;
 	unsigned width;
 	unsigned size, start, stop, isfixed;
-	FILE* f;
 	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
@@ -503,19 +505,14 @@ static adv_font* load_font_grx(const char* file)
 	unsigned char header[56];
 
 	load_font = malloc(sizeof(adv_font));
-	if (!load_font) {
+	if (!load_font)
 		goto out;
-	}
 
-	f = fopen(file, "rb");
-	if (!f)
+	if (fzread(header, 56, 1, f)!=1)
 		goto out_font;
 
-	if (fread(header, 56, 1, f)!=1)
-		goto out_close;
-
 	if (le_uint32_read(header) != GRX_FONT_MAGIC)
-		goto out_close;
+		goto out_font;
 
 	width = le_uint16_read(header+8);
 	height = le_uint16_read(header+10);
@@ -529,14 +526,14 @@ static adv_font* load_font_grx(const char* file)
 		unsigned i;
 		wtable = malloc(sizeof(unsigned) * size);
 		if (!wtable)
-			goto out_close;
+			goto out_font;
 		for(i=0;i<size;++i) {
 			unsigned char wsize[2];
-			if (fread(wsize, 2, 1, f)!=1)
-				goto out_close;
+			if (fzread(wsize, 2, 1, f)!=1)
+				goto out_font;
 			wtable[i] = le_uint16_read(wsize);
 		}
-		data_size = load_font_data_size(size, wtable, height);
+		data_size = load_adv_font_data_size(size, wtable, height);
 	} else {
 		wtable = 0;
 		data_size = ((width+7)/8)*height*size;
@@ -546,93 +543,25 @@ static adv_font* load_font_grx(const char* file)
 	if (!data)
 		goto out_table;
 
-	if (fread(data, data_size, 1, f)!=1)
+	if (fzread(data, data_size, 1, f)!=1)
 		goto out_data;
 
 	if (!isfixed) {
-		if (load_font_data(load_font, data, start, size, wtable, height)!=0) {
+		if (load_adv_font_data(load_font, data, start, size, wtable, height)!=0) {
 			goto out_data;
 		}
 	} else {
-		if (load_font_data_fixed(load_font, data, start, size, width, height)!=0) {
+		if (load_adv_font_data_fixed(load_font, data, start, size, width, height)!=0) {
 			goto out_data;
 		}
 	}
 
 	free(data);
 	free(wtable);
-	fclose(f);
 
 	return load_font;
 out_data:
 	free(data);
-out_table:
-	free(wtable);
-out_close:
-	fclose(f);
-out_font:
-	free(load_font);
-out:
-	return 0;
-}
-
-/**
- * Inport a GRX font from a memory area.
- * \param data Font data.
- * \return Font allocated.
- */
-adv_font* font_import_grx(unsigned char* data)
-{
-	unsigned height;
-	unsigned width;
-	unsigned size, start, stop, isfixed;
-	adv_font* load_font;
-	unsigned* wtable;
-
-	load_font = malloc(sizeof(adv_font));
-	if (!load_font) {
-		goto out;
-	}
-
-	if (le_uint32_read(data) != GRX_FONT_MAGIC)
-		goto out_font;
-
-	width = le_uint16_read(data+8);
-	height = le_uint16_read(data+10);
-	start = le_uint16_read(data+12);
-	stop = le_uint16_read(data+14);
-	isfixed = le_uint16_read(data+16);
-
-	size = stop - start + 1;
-
-	data += 56;
-
-	if (!isfixed) {
-		unsigned i;
-		wtable = malloc(sizeof(unsigned) * size);
-		if (!wtable)
-			goto out_font;
-		for(i=0;i<size;++i) {
-			wtable[i] = le_uint16_read(data);
-			data += 2;
-		}
-	} else {
-		wtable = 0;
-	}
-
-	if (!isfixed) {
-		if (load_font_data(load_font, data, start, size, wtable, height)!=0) {
-			goto out_table;
-		}
-	} else {
-		if (load_font_data_fixed(load_font, data, start, size, width, height)!=0) {
-			goto out_table;
-		}
-	}
-
-	free(wtable);
-
-	return load_font;
 out_table:
 	free(wtable);
 out_font:
@@ -651,19 +580,26 @@ out:
  *  - PSF
  *  - RAW
  */
-adv_font* font_load(const char* file)
+adv_font* adv_font_load(adv_fz* f)
 {
 	adv_font* load_font;
+	long pos;
 
-	load_font = load_font_grx(file);
+	pos = fztell(f);
+
+	load_font = load_adv_font_grx(f);
 	if (load_font)
 		return load_font;
 
-	load_font = load_font_psf(file);
+	fzseek(f, pos, SEEK_SET); /* ignore error */
+
+	load_font = load_adv_font_psf(f);
 	if (load_font)
 		return load_font;
 
-	load_font = load_font_raw(file);
+	fzseek(f, pos, SEEK_SET); /* ignore error */
+
+	load_font = load_adv_font_raw(f);
 	if (load_font)
 		return load_font;
 
@@ -671,11 +607,11 @@ adv_font* font_load(const char* file)
 }
 
 #if 0
-int font_set(adv_font* font)
+int adv_font_set(adv_font* font)
 {
-	unsigned font_dx, font_dy;
+	unsigned adv_font_dx, adv_font_dy;
 	unsigned i;
-	uint8* font_data;
+	uint8* adv_font_data;
 
 	if (!video_mode_is_active())
 		return -1;
@@ -683,38 +619,38 @@ int font_set(adv_font* font)
 	if (!video_is_text())
 		return -1;
 
-	font_dx = font_size_x(font);
-	font_dy = font_size_y(font);
+	adv_font_dx = adv_font_size_x(font);
+	adv_font_dy = adv_font_size_y(font);
 
-	if (font_dx!=8 || font_dy>32)
+	if (adv_font_dx!=8 || adv_font_dy>32)
 		return -1;
 
-	font_data = (uint8*)malloc(BITMAP_FONT_MAX * font_dy);
+	adv_font_data = (uint8*)malloc(BITMAP_FONT_MAX * adv_font_dy);
 	for(i=0;i<BITMAP_FONT_MAX;++i) {
 		if (font->data[i]) {
 			unsigned y;
-			for(y=0;y<font_dy;++y) {
+			for(y=0;y<adv_font_dy;++y) {
 				unsigned x;
 				uint8 mask = 0;
-				uint8* row = bitmap_line(font->data[i], y);
-				for(x=0;x<font_dx;++x) {
+				uint8* row = adv_bitmap_line(font->data[i], y);
+				for(x=0;x<adv_font_dx;++x) {
 					mask <<= 1;
 					if (row[x])
 						mask |= 1;
 				}
-				font_data[i*font_dy+y] = mask;
+				adv_font_data[i*adv_font_dy+y] = mask;
 			}
 		} else {
 			unsigned y;
-			for(y=0;y<font_dy;++y) {
-				font_data[i*font_dy+y] = 0;
+			for(y=0;y<adv_font_dy;++y) {
+				adv_font_data[i*adv_font_dy+y] = 0;
 			}
 		}
 	}
 
-	vga_font_set(font_data, font_dy);
+	vga_adv_font_set(adv_font_data, adv_font_dy);
 
-	free(font_data);
+	free(adv_font_data);
 	return 0;
 }
 #endif
@@ -724,13 +660,80 @@ int font_set(adv_font* font)
  * \param font Font to change.
  * \param orientation_mask Orientation operation to apply.
  */
-void font_orientation(adv_font* font, unsigned orientation_mask)
+void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 {
 	if (orientation_mask) {
 		unsigned i;
 		for(i=0;i<BITMAP_FONT_MAX;++i) {
 			if (font->data[i])
-				bitmap_orientation(font->data[i], orientation_mask);
+				adv_bitmap_orientation(font->data[i], orientation_mask);
 		}
+	}
+}
+
+void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back)
+{
+	adv_bitmap* src;
+	unsigned cy;
+
+	src = font->data[(unsigned char)c];
+	if (!src)
+		return;
+
+	for(cy=0;cy<src->size_y;++cy) {
+		unsigned char* src_ptr = adv_bitmap_line(src, cy);
+		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
+		unsigned dp = dst->bytes_per_pixel;
+		unsigned cx;
+		for(cx=0;cx<src->size_x;++cx) {
+			unsigned v = *src_ptr ? color_front : color_back;
+			cpu_uint_write(dst_ptr, dp, v);
+			dst_ptr += dp;
+			src_ptr += 1;
+		}
+		++y;
+	}
+}
+
+void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back)
+{
+	while (begin != end) {
+		adv_font_put_char(font, dst, x, y, *begin, color_front, color_back);
+		x += adv_font_sizex_char(font, *begin);
+		++begin;
+	}
+}
+
+void adv_font_puttrasp_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front)
+{
+	adv_bitmap* src;
+	unsigned cy;
+
+	src = font->data[(unsigned char)c];
+	if (!src)
+		return;
+
+	for(cy=0;cy<src->size_y;++cy) {
+		unsigned char* src_ptr = adv_bitmap_line(src, cy);
+		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
+		unsigned dp = dst->bytes_per_pixel;
+		unsigned cx;
+		for(cx=0;cx<src->size_x;++cx) {
+			if (*src_ptr) {
+				cpu_uint_write(dst_ptr, dp, color_front);
+			}
+			dst_ptr += dp;
+			src_ptr += 1;
+		}
+		++y;
+	}
+}
+
+void adv_font_puttrasp_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front)
+{
+	while (begin != end) {
+		adv_font_puttrasp_char(font, dst, x, y, *begin, color_front);
+		x += adv_font_sizex_char(font, *begin);
+		++begin;
 	}
 }

@@ -34,7 +34,7 @@ extern "C" {
 
 #include "font.h"
 
-adv_font* font_default(unsigned height);
+adv_font* adv_font_default(unsigned height);
 
 #ifdef __cplusplus
 }

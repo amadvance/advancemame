@@ -1541,6 +1541,7 @@ SVGALIB
 		+OEM AccelGraphics Inc (Kubota Pacific) {1040} : AccelStar II (*)
 
   S3 Inc. (5333)
+	+82C270-294 Savage/MX [8c11] 
 	+86C240 ViRGE/MXC [8c02] 
 	+86C260 ViRGE/M3/MX [8c00] 
 	+86C260 ViRGE/M5/MX [8c01] 
@@ -1551,6 +1552,8 @@ SVGALIB
 		+86C270/74/90/94 Savage/MX/IX/MX+MV/IX+MV 
 		+OEM IBM {1014} : Thinkpad T Series Model 2647 Integrated Video 
 		+OEM Samsung Electronics Co Ltd {144d} : 86C270 GT8000 Series 
+	+86C278 Savage/IX [8c13] 
+		+OEM Toshiba America Information Systems {1179} : Magnia Z310 
 	+86C280 ViRGE/MX+ Macrovision [8c03] 
 	+86C325 ViRGE [5631] 
 	+86C357 ViRGE/GX2, 86C359 ViRGE/GX2+ [8a10] 
@@ -1593,14 +1596,9 @@ SVGALIB
 		+OEM Number 9 Computer Company {105d} : SR9 Pro+ SGRAM 
 	+86C410 Savage 2000 [9102] 
 		+OEM Diamond Multimedia Systems {1092} : Viper II Z200 
-	+86C420 ProSavage DDR [8d04] 
-		+ProSavage DDR 
-		+OEM Fujitsu Ltd {10cf} : 86C420 ProSavage DDR 
-		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6390 Integrated Video 
 	+86C732 Trio32, 86C764 Trio64, 86C765 Trio64V+ Rev 01 [8811] 
 	+86C988 ViRGE/VX [883d] 
 	+TrioV Family [8903] 
-	+VT8751 [ProSavageDDR P4M266] [8d03] 
 
 
 	This list is automatically generated from the `pcidevs.txt' and `pci.ids'

@@ -469,11 +469,11 @@ Video Drivers Configuration
 	needs to convert it to the YUY2 format before displaying it.
 	It requires some time.
 
-    device_video_overlay
+    device_video_overlaysize
 	Select the favorite horizontal size to use with the `overlay' output
 	mode. The program selects the nearest available video mode.
 
-	device_video_overlay SIZE
+	device_video_overlaysize SIZE
 
 	Options:
 		SIZE - The favorite horizontal size (default 1024).

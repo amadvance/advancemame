@@ -3332,20 +3332,15 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	}
 }
 
-adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
+void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)
 {
-	adv_color_def dst_color_def = video_color_def();
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	video_pipeline_init(pipeline);
+	adv_color_def dst_color_def = pipeline->target.color_def;
+	unsigned bytes_per_pixel = pipeline->target.bytes_per_pixel;
 
 	/* conversion */
 	if (src_color_def != dst_color_def) {
 		/* only conversion from rgb are supported */
-		if (color_def_type_get(src_color_def) != adv_color_type_rgb) {
-			video_pipeline_done(pipeline);
-			return -1;
-		}
+		assert(color_def_type_get(src_color_def) == adv_color_type_rgb);
 
 #if 1
 		/* optimized conversion */
@@ -3466,15 +3461,11 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 	video_stage_stretchy_set(&pipeline->target, video_pipeline_vert_mutable(pipeline), pipeline, dst_dy, src_dy, src_dw, combine);
 
 	video_pipeline_realize(pipeline, src_dx, src_dp, bytes_per_pixel);
-
-	return 0;
 }
 
-void video_stretch_palette_16hw_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
+void video_pipeline_palette16hw(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	video_pipeline_init(pipeline);
+	unsigned bytes_per_pixel = pipeline->target.bytes_per_pixel;
 
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
@@ -3499,11 +3490,9 @@ void video_stretch_palette_16hw_pipeline_init(struct video_pipeline_struct* pipe
 	video_pipeline_realize(pipeline, src_dx, src_dp, bytes_per_pixel);
 }
 
-void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
+void video_pipeline_palette8(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	video_pipeline_init(pipeline);
+	unsigned bytes_per_pixel = pipeline->target.bytes_per_pixel;
 
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
@@ -3526,11 +3515,9 @@ void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipelin
 	video_pipeline_realize(pipeline, src_dx, src_dp, bytes_per_pixel);
 }
 
-void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
+void video_pipeline_palette16(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	video_pipeline_init(pipeline);
+	unsigned bytes_per_pixel = pipeline->target.bytes_per_pixel;
 
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {

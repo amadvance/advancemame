@@ -43,6 +43,8 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include "input.h"
+
 /* Used in os_inline.h */
 __extension__ unsigned long long mmx_8to64_map[256] = {
 	0x0000000000000000ULL,
@@ -349,14 +351,6 @@ extern char* mameinfo_filename;
 const char* crcfile;
 const char* pcrcfile;
 #endif
-
-void logerror(const char *text, ...)
-{
-	va_list arg;
-	va_start(arg, text);
-	log_va(text, arg);
-	va_end(arg);
-}
 
 const char* mame_game_resolution(const mame_game* game)
 {
@@ -709,159 +703,391 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 }
 
 /* Single port */
-#define S(name, NAME) \
-	{ name, IPT_##NAME }, \
+#define S(name, desc, NAME) \
+	{ name, desc, IPT_##NAME },
+
+#define SU(name, NAME) \
+	{ name, name, IPT_##NAME },
 
 /* Player port */
-#define P(name, NAME) \
-	{ "p1_" name, IPT_##NAME | IPF_PLAYER1 }, \
-	{ "p2_" name, IPT_##NAME | IPF_PLAYER2 }, \
-	{ "p3_" name, IPT_##NAME | IPF_PLAYER3 }, \
-	{ "p4_" name, IPT_##NAME | IPF_PLAYER4 },
+#define P(name, desc, NAME) \
+	{ "p1_" name, "Player 1 " desc, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p2_" name, "Player 2 " desc,  IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p3_" name, "Player 3 " desc,  IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p4_" name, "Player 4 " desc,  IPT_##NAME | IPF_PLAYER4 },
 
 /* Player port with extension */
-#define PE(name1, name2, NAME) \
-	{ "p1_" name1, IPT_##NAME | IPF_PLAYER1 }, \
-	{ "p1_" name2, (IPT_##NAME | IPF_PLAYER1) + IPT_EXTENSION }, \
-	{ "p2_" name1, IPT_##NAME | IPF_PLAYER2 }, \
-	{ "p2_" name2, (IPT_##NAME | IPF_PLAYER2) + IPT_EXTENSION }, \
-	{ "p3_" name1, IPT_##NAME | IPF_PLAYER3 }, \
-	{ "p3_" name2, (IPT_##NAME | IPF_PLAYER3) + IPT_EXTENSION }, \
-	{ "p4_" name1, IPT_##NAME | IPF_PLAYER4 }, \
-	{ "p4_" name2, (IPT_##NAME | IPF_PLAYER4) + IPT_EXTENSION }, \
+#define PE(name1, name2, desc1, desc2, NAME) \
+	{ "p1_" name1, "Player 1 " desc1, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p1_" name2, "Player 1 " desc2, (IPT_##NAME | IPF_PLAYER1) | IPF_UNUSED }, \
+	{ "p2_" name1, "Player 2 " desc1, IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p2_" name2, "Player 2 " desc2, (IPT_##NAME | IPF_PLAYER2) | IPF_UNUSED }, \
+	{ "p3_" name1, "Player 3 " desc1, IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p3_" name2, "Player 3 " desc2, (IPT_##NAME | IPF_PLAYER3) | IPF_UNUSED }, \
+	{ "p4_" name1, "Player 4 " desc1, IPT_##NAME | IPF_PLAYER4 }, \
+	{ "p4_" name2, "Player 4 " desc2, (IPT_##NAME | IPF_PLAYER4) | IPF_UNUSED },
 
+/** Mame ports. */
 static struct mame_port PORT[] = {
-	/* same order of IPT_ declaration in inptport.h */
 
 	/* JOYSTICK */
-	P("up", JOYSTICK_UP)
-	P("down", JOYSTICK_DOWN)
-	P("left", JOYSTICK_LEFT)
-	P("right", JOYSTICK_RIGHT)
+	P("up", "Up", JOYSTICK_UP)
+	P("down", "Down", JOYSTICK_DOWN)
+	P("left", "Left", JOYSTICK_LEFT)
+	P("right", "Right", JOYSTICK_RIGHT)
 
 	/* BUTTON */
-	P("button1", BUTTON1)
-	P("button2", BUTTON2)
-	P("button3", BUTTON3)
-	P("button4", BUTTON4)
-	P("button5", BUTTON5)
-	P("button6", BUTTON6)
-	P("button7", BUTTON7)
-	P("button8", BUTTON8)
-	P("button9", BUTTON9)
-	P("button10", BUTTON10)
+	P("button1", "Button 1", BUTTON1)
+	P("button2", "Button 2", BUTTON2)
+	P("button3", "Button 3", BUTTON3)
+	P("button4", "Button 4", BUTTON4)
+	P("button5", "Button 5", BUTTON5)
+	P("button6", "Button 6", BUTTON6)
+	P("button7", "Button 7", BUTTON7)
+	P("button8", "Button 8", BUTTON8)
+	P("button9", "Button 9", BUTTON9)
+	P("button10", "Button 10", BUTTON10)
 
 	/* PADDLE */
-	PE("paddle_left", "paddle_right", PADDLE)
-	PE("paddle_up", "paddle_down", PADDLE_V)
+	PE("paddle_left", "paddle_right", "Paddle Left", "Paddle Right", PADDLE)
+	PE("paddle_up", "paddle_down", "Paddle Up", "Paddle Down", PADDLE_V)
 
 	/* DIAL */
-	PE("dial_left", "dial_right", DIAL)
-	PE("dial_up", "dial_down", DIAL_V)
+	PE("dial_left", "dial_right", "Dial Left", "Dial Right", DIAL)
+	PE("dial_up", "dial_down", "Dial Up", "Dial Down", DIAL_V)
 
 	/* TRACKBALL */
-	PE("trackball_left", "trackball_right", TRACKBALL_X)
-	PE("trackball_up", "trackball_down", TRACKBALL_Y)
+	PE("trackball_left", "trackball_right", "Trackball Left", "Trackball Right", TRACKBALL_X)
+	PE("trackball_up", "trackball_down", "Trackball Up", "Trackball Down", TRACKBALL_Y)
 
 	/* AD_STICK */
-	PE("stick_left", "stick_right", AD_STICK_X)
-	PE("stick_up", "stick_down", AD_STICK_Y)
-	PE("stick_forward", "stick_backward", AD_STICK_Z)
+	PE("stick_left", "stick_right", "Stick Left", "Stick Right", AD_STICK_X)
+	PE("stick_up", "stick_down", "Stick Up", "Stick Down", AD_STICK_Y)
+	PE("stick_forward", "stick_backward",  "Stick Forward", "Stick Backward", AD_STICK_Z)
 
 	/* LIGHTGUN */
-	PE("lightgun_left", "lightgun_right", LIGHTGUN_X)
-	PE("lightgun_up", "lightgun_down", LIGHTGUN_Y)
+	PE("lightgun_left", "lightgun_right", "Lightgun Left", "Lightgun Right", LIGHTGUN_X)
+	PE("lightgun_up", "lightgun_down", "Lightgun Up", "Lightgun Down", LIGHTGUN_Y)
 
 	/* PEDAL */
-	PE("pedal1", "pedal1_autorelease", PEDAL)
-	PE("pedal2", "pedal2_autorelease", PEDAL2)
+	PE("pedal1", "pedal1_autorelease", "Pedal 1", "Pedal 1 Release", PEDAL)
+	PE("pedal2", "pedal2_autorelease", "Pedal 2", "Pedal 2 Release", PEDAL2)
 
 	/* START */
-	S("start1", START1)
-	S("start2", START2)
-	S("start3", START3)
-	S("start4", START4)
+	S("start1", "Player 1 Start", START1)
+	S("start2", "Player 2 Start", START2)
+	S("start3", "Player 3 Start", START3)
+	S("start4", "Player 4 Start", START4)
 
 	/* COIN */
-	S("coin1", COIN1)
-	S("coin2", COIN2)
-	S("coin3", COIN3)
-	S("coin4", COIN4)
+	S("coin1", "Player 1 Coin", COIN1)
+	S("coin2", "Player 2 Coin", COIN2)
+	S("coin3", "Player 3 Coin", COIN3)
+	S("coin4", "Player 4 Coin", COIN4)
 
 	/* SERVICEK */
-	S("service_coin1", SERVICE1)
-	S("service_coin2", SERVICE2)
-	S("service_coin3", SERVICE3)
-	S("service_coin4", SERVICE4)
+	S("service_coin1", "Service 1 Coin", SERVICE1)
+	S("service_coin2", "Service 2 Coin", SERVICE2)
+	S("service_coin3", "Service 3 Coin", SERVICE3)
+	S("service_coin4", "Service 4 Coin", SERVICE4)
 
 	/* SERVICE */
-	S("service", SERVICE)
+	S("service", "Service", SERVICE)
 
 	/* TILT */
-	S("tilt", TILT)
+	S("tilt", "Tilt", TILT)
 
 	/* UI specific of AdvanceMAME */
-	S("ui_mode_next", UI_MODE_NEXT)
-	S("ui_mode_pred", UI_MODE_PRED)
-	S("ui_record_start", UI_RECORD_START)
-	S("ui_record_stop", UI_RECORD_STOP)
-	S("ui_turbo", UI_TURBO)
+	S("ui_mode_next", "Next Mode", UI_MODE_NEXT)
+	S("ui_mode_pred", "Pred Mode", UI_MODE_PRED)
+	S("ui_record_start", "Record Start", UI_RECORD_START)
+	S("ui_record_stop", "Record Stop", UI_RECORD_STOP)
+	S("ui_turbo", "Turbo", UI_TURBO)
+	S("ui_cocktail", "Cocktail", UI_COCKTAIL)
+	S("ui_help", "Help", UI_HELP)
 
 	/* UI */
-	S("ui_configure", UI_CONFIGURE)
-	S("ui_on_screen_display", UI_ON_SCREEN_DISPLAY)
-	S("ui_pause", UI_PAUSE)
-	S("ui_reset_machine", UI_RESET_MACHINE)
-	S("ui_show_gfx", UI_SHOW_GFX)
-	S("ui_frameskip_dec", UI_FRAMESKIP_DEC)
-	S("ui_frameskip_inc", UI_FRAMESKIP_INC)
-	S("ui_throttle", UI_THROTTLE)
-	S("ui_show_fps", UI_SHOW_FPS)
-	S("ui_snapshot", UI_SNAPSHOT)
-	S("ui_toggle_cheat", UI_TOGGLE_CHEAT)
-	S("ui_up", UI_UP)
-	S("ui_down", UI_DOWN)
-	S("ui_left", UI_LEFT)
-	S("ui_right", UI_RIGHT)
-	S("ui_select", UI_SELECT)
-	S("ui_cancel", UI_CANCEL)
-	S("ui_pan_up", UI_PAN_UP)
-	S("ui_pan_down", UI_PAN_DOWN)
-	S("ui_pan_left", UI_PAN_LEFT)
-	S("ui_pan_right", UI_PAN_RIGHT)
-	S("ui_show_profiler", UI_SHOW_PROFILER)
-	S("ui_toggle_ui", UI_TOGGLE_UI)
-	S("ui_toggle_debug", UI_TOGGLE_DEBUG)
-	S("ui_save_state", UI_SAVE_STATE)
-	S("ui_load_state", UI_LOAD_STATE)
-	S("ui_add_cheat", UI_ADD_CHEAT)
-	S("ui_delete_cheat", UI_DELETE_CHEAT)
-	S("ui_save_cheat", UI_SAVE_CHEAT)
-	S("ui_watch_value", UI_WATCH_VALUE)
+	S("ui_configure", "Configure", UI_CONFIGURE)
+	S("ui_on_screen_display", "On Screen Display", UI_ON_SCREEN_DISPLAY)
+	S("ui_pause", "Pause", UI_PAUSE)
+	S("ui_reset_machine", "Reset", UI_RESET_MACHINE)
+	S("ui_show_gfx", "Graphics", UI_SHOW_GFX)
+	S("ui_frameskip_dec", "Frameskip Dev", UI_FRAMESKIP_DEC)
+	S("ui_frameskip_inc", "Frameskip Inc", UI_FRAMESKIP_INC)
+	S("ui_throttle", "Throttle", UI_THROTTLE)
+	S("ui_show_fps", "Show FPS", UI_SHOW_FPS)
+	S("ui_snapshot", "Snapshot", UI_SNAPSHOT)
+	S("ui_toggle_cheat", "Cheat", UI_TOGGLE_CHEAT)
+	S("ui_up", "UI Up", UI_UP)
+	S("ui_down", "UI Down", UI_DOWN)
+	S("ui_left", "UI Left", UI_LEFT)
+	S("ui_right", "UI Right", UI_RIGHT)
+	S("ui_select", "UI Select", UI_SELECT)
+	S("ui_cancel", "UI Cancel", UI_CANCEL)
+	S("ui_pan_up", "Pan Up", UI_PAN_UP)
+	S("ui_pan_down", "Pan Down", UI_PAN_DOWN)
+	S("ui_pan_left", "Pan Left", UI_PAN_LEFT)
+	S("ui_pan_right", "Pan Right", UI_PAN_RIGHT)
+	S("ui_show_profiler", "Profiler", UI_SHOW_PROFILER)
+	S("ui_toggle_ui", "User Interface", UI_TOGGLE_UI)
+	S("ui_toggle_debug", "Debug", UI_TOGGLE_DEBUG)
+	S("ui_save_state", "Save State", UI_SAVE_STATE)
+	S("ui_load_state", "Load State", UI_LOAD_STATE)
+	SU("ui_add_cheat", UI_ADD_CHEAT)
+	SU("ui_delete_cheat", UI_DELETE_CHEAT)
+	SU("ui_save_cheat", UI_SAVE_CHEAT)
+	SU("ui_watch_value", UI_WATCH_VALUE)
 
 	/* specific of AdvanceMAME */
-	S("safequit", MAME_PORT_SAFEQUIT)
-	S("event1", MAME_PORT_EVENT1)
-	S("event2", MAME_PORT_EVENT2)
-	S("event3", MAME_PORT_EVENT3)
-	S("event4", MAME_PORT_EVENT4)
-	S("event5", MAME_PORT_EVENT5)
-	S("event6", MAME_PORT_EVENT6)
-	S("event7", MAME_PORT_EVENT7)
-	S("event8", MAME_PORT_EVENT8)
-	S("event9", MAME_PORT_EVENT9)
-	S("event10", MAME_PORT_EVENT10)
-	S("event11", MAME_PORT_EVENT11)
-	S("event12", MAME_PORT_EVENT12)
-	S("event13", MAME_PORT_EVENT13)
-	S("event14", MAME_PORT_EVENT14)
+	SU("safequit", MAME_PORT_SAFEQUIT)
+	SU("event1", MAME_PORT_EVENT1)
+	SU("event2", MAME_PORT_EVENT2)
+	SU("event3", MAME_PORT_EVENT3)
+	SU("event4", MAME_PORT_EVENT4)
+	SU("event5", MAME_PORT_EVENT5)
+	SU("event6", MAME_PORT_EVENT6)
+	SU("event7", MAME_PORT_EVENT7)
+	SU("event8", MAME_PORT_EVENT8)
+	SU("event9", MAME_PORT_EVENT9)
+	SU("event10", MAME_PORT_EVENT10)
+	SU("event11", MAME_PORT_EVENT11)
+	SU("event12", MAME_PORT_EVENT12)
+	SU("event13", MAME_PORT_EVENT13)
+	SU("event14", MAME_PORT_EVENT14)
 
-	{ 0, 0 }
+	{ 0, 0, 0 }
 };
 
 struct mame_port* mame_port_list(void)
 {
 	return PORT;
+}
+
+int mame_port_player(unsigned port)
+{
+	unsigned code = port & ~IPF_MASK;
+
+	switch (code) {
+	case IPT_START1 : return 1;
+	case IPT_START2 : return 2;
+	case IPT_START3 : return 3;
+	case IPT_START4 : return 4;
+	case IPT_START5 : return 5;
+	case IPT_START6 : return 6;
+	case IPT_START7 : return 7;
+	case IPT_START8 : return 8;
+	case IPT_COIN1 : return 1;
+	case IPT_COIN2 : return 2;
+	case IPT_COIN3 : return 3;
+	case IPT_COIN4 : return 4;
+	case IPT_COIN5 : return 5;
+	case IPT_COIN6 : return 6;
+	case IPT_COIN7 : return 7;
+	case IPT_COIN8 : return 8;
+	case IPT_SERVICE1 :
+	case IPT_SERVICE2 :
+	case IPT_SERVICE3 :
+	case IPT_SERVICE4 :
+	case IPT_SERVICE :
+	case IPT_TILT :
+	case IPT_DIPSWITCH_NAME :
+	case IPT_DIPSWITCH_SETTING : return 0;
+	}
+
+	if (code >= IPT_VBLANK)
+		return 0;
+
+	switch (port & IPF_PLAYERMASK) {
+	case IPF_PLAYER1 : return 1;
+	case IPF_PLAYER2 : return 2;
+	case IPF_PLAYER3 : return 3;
+	case IPF_PLAYER4 : return 4;
+	case IPF_PLAYER5 : return 5;
+	case IPF_PLAYER6 : return 6;
+	case IPF_PLAYER7 : return 7;
+	case IPF_PLAYER8 : return 8;
+	}
+
+	return 0;
+}
+
+static void port_convert_seq(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max)
+{
+	unsigned j;
+	j = 0;
+	while (j<mame_max && mame_seq[j] != CODE_NONE) {
+		unsigned c;
+		unsigned type;
+		switch (mame_seq[j]) {
+		case CODE_OR :
+			c = DIGITAL_SPECIAL_OR;
+			break;
+		case CODE_NOT :
+			c = DIGITAL_SPECIAL_NOT;
+			break;
+		case CODE_DEFAULT :
+			c = DIGITAL_SPECIAL_AUTO;
+			break;
+		default:
+			if (mame_seq[j] >= CODE_NONE) {
+				log_std(("ERROR:emu:glue: unable to convert %d\n", mame_seq[j]));
+				c = DIGITAL_SPECIAL_NONE;
+			} else {
+				c = code_to_oscode(mame_seq[j], &type);
+				if (type == CODE_TYPE_NONE)
+					c = DIGITAL_SPECIAL_NONE;
+			}
+			break;
+		}
+		if (j<max) {
+			seq[j] = c;
+		}
+		++j;
+	}
+	while (j<max) {
+		seq[j] = DIGITAL_SPECIAL_NONE;
+		++j;
+	}
+}
+
+/**
+ * Convert a mame port value to the uniqe format.
+ * If the MAME port has the value IPT_EXTENSION, the real port value is
+ * the previous. In this case is added the IPF_UNUSED flag.
+ * The port value contains also the IPF_PLAYER flags.
+ */
+unsigned mame_port_convert(unsigned* type_pred, unsigned type)
+{
+	unsigned mask = type & ~IPF_MASK;
+	if (mask == IPT_EXTENSION) {
+		return (*type_pred & (~IPF_MASK | IPF_PLAYERMASK)) | IPF_UNUSED;
+	} else {
+		return type & (~IPF_MASK | IPF_PLAYERMASK);
+	}
+}
+
+/** List of ports reported at the user interface commmands */
+static unsigned PORT_REPORT[] = {
+	IPT_UI_MODE_NEXT,
+	IPT_UI_MODE_PRED,
+	IPT_UI_RECORD_START,
+	IPT_UI_RECORD_STOP,
+	IPT_UI_TURBO,
+	IPT_UI_COCKTAIL,
+	IPT_UI_HELP,
+	IPT_UI_CONFIGURE,
+	IPT_UI_ON_SCREEN_DISPLAY,
+	IPT_UI_PAUSE,
+	IPT_UI_RESET_MACHINE,
+	/* IPT_UI_SHOW_GFX, */
+	IPT_UI_FRAMESKIP_DEC,
+	IPT_UI_FRAMESKIP_INC,
+	IPT_UI_THROTTLE,
+	IPT_UI_SHOW_FPS,
+	IPT_UI_SNAPSHOT,
+	IPT_UI_TOGGLE_CHEAT,
+	IPT_UI_UP,
+	IPT_UI_DOWN,
+	IPT_UI_LEFT,
+	IPT_UI_RIGHT,
+	IPT_UI_SELECT,
+	IPT_UI_CANCEL,
+	IPT_UI_PAN_UP, IPT_UI_PAN_DOWN, IPT_UI_PAN_LEFT, IPT_UI_PAN_RIGHT,
+	/* IPT_UI_SHOW_PROFILER, */
+	IPT_UI_TOGGLE_UI,
+	/* IPT_UI_TOGGLE_DEBUG, */
+	IPT_UI_SAVE_STATE,
+	IPT_UI_LOAD_STATE,
+	/* IPT_UI_ADD_CHEAT,
+	IPT_UI_DELETE_CHEAT,
+	IPT_UI_SAVE_CHEAT,
+	IPT_UI_WATCH_VALUE,
+	IPT_UI_EDIT_CHEAT, */
+	IPT_UI_TOGGLE_CROSSHAIR,
+	0
+};
+
+void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max)
+{
+	unsigned digital_mac;
+	struct InputPort* i;
+	struct ipd* j;
+
+	extern struct ipd inputport_defaults[];
+
+	digital_mac = 0;
+
+	/* get the default ports */
+	j = inputport_defaults;
+	while (j != 0 && j->type != IPT_END) {
+		if (digital_mac < digital_max) {
+			unsigned port = mame_port_convert(&j[-1].type, j[0].type);
+			unsigned k;
+
+			/* only a subset */
+			for(k=0;PORT_REPORT[k] != 0;++k)
+				if (PORT_REPORT[k] == port)
+					break;
+
+			if (PORT_REPORT[k]) {
+				InputSeq* seq = input_port_type_seq(port);
+
+				digital_map[digital_mac].port = port;
+				digital_map[digital_mac].port_state = seq_pressed(seq);
+
+				port_convert_seq(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
+
+				++digital_mac;
+			}
+		}
+		++j;
+	}
+
+	/* get the game ports */
+	i = Machine->input_ports;
+	while (i != 0 && i->type != IPT_END) {
+		if (digital_mac < digital_max) {
+			InputSeq* seq = input_port_seq(i);
+
+			digital_map[digital_mac].port = mame_port_convert(&i[-1].type, i[0].type);
+			digital_map[digital_mac].port_state = seq_pressed(seq);
+
+			port_convert_seq(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
+
+			++digital_mac;
+		}
+		++i;
+	}
+
+	*pdigital_mac = digital_mac;
+}
+
+void osd_customize_inputport_post_game(struct InputPort* current)
+{
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned type;
+
+	log_std(("emu:input: osd_customize_inputport_post_game()\n"));
+
+	port_convert_seq(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+
+	type = mame_port_convert(&current[-1].type, current[0].type);
+
+	osd2_customize_inputport_post_game(type, seq, MAME_INPUT_MAP_MAX);
+}
+
+void osd_customize_inputport_post_defaults(struct ipd* current)
+{
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned type;
+
+	log_std(("emu:input: osd_customize_inputport_post_defaults()\n"));
+
+	port_convert_seq(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+
+	type = mame_port_convert(&current[-1].type, current[0].type);
+
+	osd2_customize_inputport_post_defaults(type, seq, MAME_INPUT_MAP_MAX);
 }
 
 /***************************************************************************/
@@ -924,6 +1150,7 @@ int mame_ui_port_pressed(unsigned port)
 	seq = input_port_type_seq(port);
 	if (!seq)
 		return 0;
+
 	return seq_pressed(seq);
 }
 
@@ -946,31 +1173,6 @@ unsigned mame_ui_code_from_osjoystick(unsigned oscode)
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
 	set_ui_visarea(x1, y1, x2, y2);
-}
-
-void mame_ui_message(const char* s, ...)
-{
-	va_list arg;
-	char buffer[256];
-	va_start(arg, s);
-	vsnprintf(buffer, sizeof(buffer), s, arg);
-	usrintf_showmessage(buffer);
-	va_end(arg);
-}
-
-void mame_ui_text(const char* s, unsigned x, unsigned y)
-{
-	ui_text(GLUE.bitmap, s, x, y);
-}
-
-void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
-{
-	ui_displaymenu(GLUE.bitmap, items, subitems, flag, selected, arrowize_subitem);
-}
-
-const char* mame_ui_gettext(const char* text)
-{
-	return text;
 }
 
 void mame_ui_refresh(void)
@@ -1020,6 +1222,14 @@ void mame_ui_show_info_temp(void)
 /***************************************************************************/
 /* OSD */
 
+void logerror(const char* text, ...)
+{
+	va_list arg;
+	va_start(arg, text);
+	log_va(text, arg);
+	va_end(arg);
+}
+
 int osd_init(void)
 {
 	return 0;
@@ -1027,6 +1237,17 @@ int osd_init(void)
 
 void osd_exit(void)
 {
+}
+
+void osd_die(const char* text,...)
+{
+	va_list arg;
+	va_start(arg, text);
+	log_va(text, arg);
+	va_end(arg);
+
+	/* raise a SIGABRT signal */
+	abort();
 }
 
 /***************************************************************************/
@@ -1426,7 +1647,7 @@ static const char* DEVICES[] = {
 	0
 };
 
-static int mess_printf_callback(const char *fmt, va_list arg)
+static int mess_printf_callback(const char* fmt, va_list arg)
 {
 	target_err_va(fmt, arg);
 	return 0;
@@ -1529,49 +1750,45 @@ static void mess_done(void)
 
 #endif
 
-adv_error mame_init(struct advance_context* context, adv_conf* cfg_context)
+adv_error mame_init(struct advance_context* context)
 {
-
-	/* Clear the MAIN context */
-	memset(context, 0, sizeof(struct advance_context));
-
 	/* Clear the GLUE context */
 	memset(&GLUE, 0, sizeof(GLUE));
 
 	/* Clear the MAME global struct */
 	memset(&options, 0, sizeof(options));
 
-	conf_bool_register_default(cfg_context, "display_artwork_backdrop", 1);
-	conf_bool_register_default(cfg_context, "display_artwork_overlay", 1);
-	conf_bool_register_default(cfg_context, "display_artwork_bezel", 0);
-	conf_bool_register_default(cfg_context, "display_artwork_crop", 1);
-	conf_bool_register_default(cfg_context, "sound_samples", 1);
+	conf_bool_register_default(context->cfg, "display_artwork_backdrop", 1);
+	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
+	conf_bool_register_default(context->cfg, "display_artwork_bezel", 0);
+	conf_bool_register_default(context->cfg, "display_artwork_crop", 1);
+	conf_bool_register_default(context->cfg, "sound_samples", 1);
 
-	conf_bool_register_default(cfg_context, "display_antialias", 1);
-	conf_bool_register_default(cfg_context, "display_translucency", 1);
-	conf_float_register_limit_default(cfg_context, "display_beam", 1.0, 16.0, 1.0);
-	conf_float_register_limit_default(cfg_context, "display_flicker", 0.0, 100.0, 0.0);
-	conf_float_register_limit_default(cfg_context, "display_intensity", 0.5, 3.0, 1.5);
+	conf_bool_register_default(context->cfg, "display_antialias", 1);
+	conf_bool_register_default(context->cfg, "display_translucency", 1);
+	conf_float_register_limit_default(context->cfg, "display_beam", 1.0, 16.0, 1.0);
+	conf_float_register_limit_default(context->cfg, "display_flicker", 0.0, 100.0, 0.0);
+	conf_float_register_limit_default(context->cfg, "display_intensity", 0.5, 3.0, 1.5);
 
-	conf_float_register_limit_default(cfg_context, "display_gamma", 0.5, 2.0, 1.0);
-	conf_float_register_limit_default(cfg_context, "display_brightness", 0.1, 10.0, 1.0);
-	conf_int_register_enum_default(cfg_context, "misc_internaldepth", conf_enum(OPTION_DEPTH), 0);
+	conf_float_register_limit_default(context->cfg, "display_gamma", 0.5, 2.0, 1.0);
+	conf_float_register_limit_default(context->cfg, "display_brightness", 0.1, 10.0, 1.0);
+	conf_int_register_enum_default(context->cfg, "misc_internaldepth", conf_enum(OPTION_DEPTH), 0);
 
-	conf_bool_register_default(cfg_context, "misc_cheat", 0);
-	conf_string_register_default(cfg_context, "misc_languagefile", "english.lng");
-	conf_string_register_default(cfg_context, "misc_cheatfile", "cheat.dat" );
-	conf_string_register_default(cfg_context, "misc_historyfile", "history.dat");
+	conf_bool_register_default(context->cfg, "misc_cheat", 0);
+	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");
+	conf_string_register_default(context->cfg, "misc_cheatfile", "cheat.dat" );
+	conf_string_register_default(context->cfg, "misc_historyfile", "history.dat");
 
-	conf_string_register_default(cfg_context, "misc_bios", "default");
+	conf_string_register_default(context->cfg, "misc_bios", "default");
 
 #ifdef MESS
-	conf_string_register_default(cfg_context, "misc_infofile", "sysinfo.dat");
+	conf_string_register_default(context->cfg, "misc_infofile", "sysinfo.dat");
 #else
-	conf_string_register_default(cfg_context, "misc_infofile", "mameinfo.dat");
+	conf_string_register_default(context->cfg, "misc_infofile", "mameinfo.dat");
 #endif
 
 #ifdef MESS
-	mess_init(cfg_context);
+	mess_init(context->cfg);
 #endif
 
 	return 0;
@@ -1734,6 +1951,10 @@ int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 		input |= OSD_INPUT_MODE_PRED;
 	if (input_ui_pressed(IPT_UI_MODE_NEXT))
 		input |= OSD_INPUT_MODE_NEXT;
+	if (input_ui_pressed(IPT_UI_COCKTAIL))
+		input |= OSD_INPUT_COCKTAIL;
+	if (input_ui_pressed(IPT_UI_HELP))
+		input |= OSD_INPUT_HELP;
 	/* continous input */
 	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
 		input |= OSD_INPUT_PAN_RIGHT;

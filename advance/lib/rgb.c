@@ -342,6 +342,38 @@ unsigned video_color_dist(const adv_color_rgb* A, const adv_color_rgb* B)
 }
 
 /**
+ * Find the nearest color in a palette.
+ */
+unsigned video_color_find(unsigned r, unsigned g, unsigned b, const adv_color_rgb* palette_map, unsigned palette_mac)
+{
+	unsigned dist;
+	unsigned index;
+	unsigned i;
+	adv_color_rgb c;
+
+	c.red = r;
+	c.green = g;
+	c.blue = b;
+
+	dist = video_color_dist(&c, palette_map);
+	index = 0;
+
+	for(i=1;i<palette_mac;++i) {
+		unsigned new_dist = video_color_dist(&c, palette_map + i);
+
+		if (new_dist == 0)
+			return i;
+
+		if (new_dist < dist) {
+			index = i;
+			dist = new_dist;
+		}
+	}
+
+	return index;
+}
+
+/**
  * Adjust a 8 bit channel computed from a n bit value.
  * The value is adjusted to save the black and white colors.
  * \param value 8 bit value with lower bits at 0.

@@ -769,18 +769,22 @@ bool int_enable(const string& font, unsigned orientation)
 
 	// load the font
 	real_font_map = 0;
-	if (font != "none") {
-		real_font_map = font_load(cpath_export(font));
+	if (font != "none" && font != "auto") {
+		adv_fz* f = fzopen(cpath_export(font), "rb");
+		if (f) {
+			real_font_map = adv_font_load(f);
+			fzclose(f);
+		}
 	}
 	if (!real_font_map)
-		real_font_map = font_default(video_size_y() / 25);
+		real_font_map = adv_font_default(video_size_y() / 25);
 
 	// set the orientation
-	font_orientation(real_font_map, int_orientation);
+	adv_font_orientation(real_font_map, int_orientation);
 
 	// compute font size
-	real_font_dx = font_size_x(real_font_map);
-	real_font_dy = font_size_y(real_font_map);
+	real_font_dx = adv_font_sizex(real_font_map);
+	real_font_dy = adv_font_sizey(real_font_map);
 
 	video_buffer_pixel_size = video_bytes_per_pixel();
 	video_buffer_line_size = video_size_x() * video_bytes_per_pixel();
@@ -795,7 +799,7 @@ bool int_enable(const string& font, unsigned orientation)
 }
 
 void int_disable() {
-	font_free(real_font_map);
+	adv_font_free(real_font_map);
 	operator delete(video_buffer);
 }
 
@@ -850,7 +854,7 @@ void cell_pos_t::redraw()
 {
 	video_write_lock();
 
-	video_stretch(real_x, real_y, real_dx, real_dy, video_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
+	video_stretch_direct(real_x, real_y, real_dx, real_dy, video_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
 
 	video_write_unlock(real_x, real_y, real_dx, real_dy);
 }
@@ -964,7 +968,7 @@ void cell_pos_t::gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned 
 		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
 	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x);
+		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x);
 		buffer += ptr_d;
 	}
 }
@@ -985,7 +989,7 @@ void cell_pos_t::gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned
 		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
 	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 2);
+		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 2);
 		buffer += ptr_d;
 	}
 }
@@ -1006,7 +1010,7 @@ void cell_pos_t::gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned
 		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
 	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 4);
+		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 4);
 		buffer += ptr_d;
 	}
 }
@@ -1110,7 +1114,10 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 
 	struct video_pipeline_struct pipeline;
 
-	// write
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+
 	if (bitmap->bytes_per_pixel == 1) {
 		uint32 palette32[256];
 		uint16 palette16[256];
@@ -1121,13 +1128,11 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 			palette16[i] = p;
 			palette8[i] = p;
 		}
-		video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else {
 		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
-		video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
 	}
-
-	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
 
 	video_pipeline_blit(&pipeline, dst_x, dst_y, ptr);
 
@@ -1187,7 +1192,7 @@ backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned
 backdrop_data::~backdrop_data()
 {
 	if (map)
-		bitmap_free(map);
+		adv_bitmap_free(map);
 }
 
 void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& background)
@@ -1199,7 +1204,7 @@ void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_
 			count[i] = 0;
 
 		for(unsigned y=0;y<bitmap->size_y;++y) {
-			uint8* line = bitmap_line(bitmap, y);
+			uint8* line = adv_bitmap_line(bitmap, y);
 			for(unsigned x=0;x<bitmap->size_x;++x)
 				++count[line[x]];
 		}
@@ -1212,7 +1217,7 @@ void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_
 		if (count[index] != 0) {
 			unsigned substitute = 0;
 			for(unsigned y=0;y<bitmap->size_y;++y) {
-				uint8* line = bitmap_line(bitmap, y);
+				uint8* line = adv_bitmap_line(bitmap, y);
 				for(unsigned x=0;x<bitmap->size_x;++x)
 					if (line[x] == index)
 						line[x] = substitute;
@@ -1229,8 +1234,8 @@ void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_
 	rgb[index].alpha = 0;
 
 	for(unsigned y=0;y<bitmap->size_y;++y) {
-		uint8* line = bitmap_line(bitmap, y);
-		uint8* line_mask = bitmap_line(bitmap_mask, y);
+		uint8* line = adv_bitmap_line(bitmap, y);
+		uint8* line_mask = adv_bitmap_line(bitmap_mask, y);
 		for(unsigned x=0;x<bitmap->size_x;++x) {
 			if (!line_mask[x])
 				line[x] = index;
@@ -1263,7 +1268,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 			return 0;
 		}
 
-		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		adv_bitmap* bitmap = adv_bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
@@ -1281,7 +1286,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		adv_fz* f = res.open();
 		if (!f)
 			return 0;
-		adv_bitmap* bitmap = pcx_load(f, rgb, rgb_max);
+		adv_bitmap* bitmap = adv_pcx_load(f, rgb, rgb_max);
 		fzclose(f);
 		return bitmap;
 	}
@@ -1291,7 +1296,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!f)
 			return 0;
 		adv_bitmap* bitmap_mask;
-		adv_bitmap* bitmap = icon_load(f, rgb, rgb_max, &bitmap_mask);
+		adv_bitmap* bitmap = adv_icon_load(f, rgb, rgb_max, &bitmap_mask);
 		if (!bitmap) {
 			fzclose(f);
 			return 0;
@@ -1299,7 +1304,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 
 		icon_apply(bitmap, bitmap_mask, rgb, rgb_max, background);
 
-		bitmap_free(bitmap_mask);
+		adv_bitmap_free(bitmap_mask);
 		fzclose(f);
 		return bitmap;
 	}
@@ -1335,7 +1340,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 			return 0;
 		}
 
-		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		adv_bitmap* bitmap = adv_bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
@@ -1347,8 +1352,8 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		free(pal_ptr);
 
 		// duplicate the bitmap, it must exists also after destroying the mng context
-		adv_bitmap* dup_bitmap = bitmap_dup(bitmap);
-		bitmap_free(bitmap);
+		adv_bitmap* dup_bitmap = adv_bitmap_dup(bitmap);
+		adv_bitmap_free(bitmap);
 		bitmap = dup_bitmap;
 
 		mng_done(mng);
@@ -1394,9 +1399,13 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 	if (dst_dy < dy)
 		combine |= VIDEO_COMBINE_Y_MEAN;
 
-	adv_bitmap* raw_bitmap = bitmap_alloc(dst_dx, dst_dy, video_bits_per_pixel());
+	adv_bitmap* raw_bitmap = adv_bitmap_alloc(dst_dx, dst_dy, video_bits_per_pixel());
 
 	struct video_pipeline_struct pipeline;
+
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_target(&pipeline, raw_bitmap->ptr, raw_bitmap->bytes_per_scanline, video_color_def());
 
 	if (bitmap->bytes_per_pixel == 1) {
 		uint32 palette32[256];
@@ -1409,20 +1418,18 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 			palette8[i] = p;
 		}
 
-		video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else {
 		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
 
-		video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
 	}
-
-	video_pipeline_target(&pipeline, raw_bitmap->ptr, raw_bitmap->bytes_per_scanline, video_color_def());
 
 	video_pipeline_blit(&pipeline, 0, 0, ptr);
 
 	video_pipeline_done(&pipeline);
 
-	bitmap_free(bitmap);
+	adv_bitmap_free(bitmap);
 	bitmap = raw_bitmap;
 
 	return bitmap;
@@ -1674,7 +1681,7 @@ adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 
 	double delay = tick / (double)mng_frequency_get(mng_context);
 
-	adv_bitmap* bitmap = bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+	adv_bitmap* bitmap = adv_bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 	if (!bitmap) {
 		free(dat_ptr);
 		free(pal_ptr);
@@ -2062,7 +2069,7 @@ bool cell_manager::idle_update(int index)
 #endif
 		cell->pos.redraw();
 
-	bitmap_free(bitmap);
+	adv_bitmap_free(bitmap);
 
 	// ensure to fill the audio buffer
 	play_poll();
@@ -2254,7 +2261,7 @@ static void int_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_p
 	adv_bitmap* src = real_font_map->data[bitmap];
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
-		unsigned char* src_ptr = bitmap_line(src, cy);
+		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
 			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
@@ -2271,7 +2278,7 @@ static void int_put16rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_
 	adv_bitmap* src = real_font_map->data[bitmap];
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
-		unsigned char* src_ptr = bitmap_line(src, cy);
+		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned short* dst_ptr = (unsigned short*)buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
 			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
@@ -2288,7 +2295,7 @@ static void int_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_
 	adv_bitmap* src = real_font_map->data[bitmap];
 	unsigned char* buffer = video_buffer + x * video_buffer_pixel_size + y * video_buffer_line_size;
 	for(unsigned cy=0;cy<src->size_y;++cy) {
-		unsigned char* src_ptr = bitmap_line(src, cy);
+		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned* dst_ptr = (unsigned*)buffer;
 		for(unsigned cx=0;cx<src->size_x;++cx) {
 			unsigned color = *src_ptr ? pixel_foreground : pixel_background;
@@ -2463,6 +2470,10 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 	struct video_pipeline_struct pipeline;
 	unsigned combine = VIDEO_COMBINE_X_MEAN | VIDEO_COMBINE_Y_MEAN;
 
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+
 	if (pix_pixel == 1) {
 		uint32 palette32[256];
 		uint16 palette16[256];
@@ -2473,13 +2484,12 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 			palette16[i] = p;
 			palette8[i] = p;
 		}
-		video_stretch_palette_8_pipeline_init(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, palette8, palette16, palette32, combine);
+		video_pipeline_palette8(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, palette8, palette16, palette32, combine);
 	} else {
 		adv_color_def def = png_color_def(pix_pixel);
-		video_stretch_pipeline_init(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, def, combine);
-	}
 
-	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+		video_pipeline_direct(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, def, combine);
+	}
 
 	video_pipeline_blit(&pipeline, 0, 0, pix_ptr);
 

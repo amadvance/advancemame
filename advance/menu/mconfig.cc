@@ -36,14 +36,14 @@ static adv_conf_enum_int OPTION_SORT[] = {
 { "name", sort_by_name },
 { "parent", sort_by_root_name },
 { "time", sort_by_time },
-{ "coin", sort_by_coin },
+{ "play", sort_by_session },
 { "year", sort_by_year },
 { "manufacturer", sort_by_manufacturer },
 { "type", sort_by_type },
 { "size", sort_by_size },
 { "resolution", sort_by_res },
 { "info", sort_by_info },
-{ "timepercoin", sort_by_timepercoin }
+{ "timeperplay", sort_by_timepersession }
 };
 
 static adv_conf_enum_int OPTION_RESTORE[] = {
@@ -313,7 +313,7 @@ static bool config_load_background_list(const string& list, path_container& c)
 	return almost_one;
 }
 
-bool config_state::load_game(const string& name, const string& group_name, const string& type_name, const string& time, const string& coin, const string& desc)
+bool config_state::load_game(const string& name, const string& group_name, const string& type_name, const string& time, const string& session, const string& desc)
 {
 	game_set::const_iterator i = gar.find( game( name ) );
 	if (i==gar.end())
@@ -328,8 +328,8 @@ bool config_state::load_game(const string& name, const string& group_name, const
 	if (time.length()!=0 && isdigit(time[0]))
 		i->time_set(atoi(time.c_str()));
 
-	if (coin.length()!=0 && isdigit(coin[0]))
-		i->coin_set(atoi(coin.c_str()));
+	if (session.length()!=0 && isdigit(session[0]))
+		i->session_set(atoi(session.c_str()));
 
 	return true;
 }
@@ -581,7 +581,7 @@ bool config_state::load_iterator_game(adv_conf* config_context, const string& ta
 		string group = arg_get(s, j);
 		string type = arg_get(s, j);
 		string time = arg_get(s, j);
-		string coin = arg_get(s, j);
+		string session = arg_get(s, j);
 		string desc = arg_get(s, j);
 
 		if (j != s.length()) {
@@ -594,7 +594,7 @@ bool config_state::load_iterator_game(adv_conf* config_context, const string& ta
 			return false;
 		}
 
-		if (!load_game(game, group, type, time, coin, desc)) {
+		if (!load_game(game, group, type, time, session, desc)) {
 			++ignored_count;
 			if (ignored_count < 10)
 				target_err("Ignoring info for game '%s'.\n", game.c_str());
@@ -606,7 +606,7 @@ bool config_state::load_iterator_game(adv_conf* config_context, const string& ta
 	}
 
 	if (ignored_count > 0)
-		target_err("You may lose the game coins and time information.\n");
+		target_err("You may lose the game sessions and time information.\n");
 
 	return true;
 }
@@ -986,15 +986,16 @@ void config_state::conf_default(adv_conf* config_context)
 		}
 		if (target_search(path, FILE_MAXPATH, "xmame") == 0) {
 			conf_set(config_context, "", "emulator", "\"xmame\" xmame \"xmame\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "xmame.x11") == 0) {
-			conf_set(config_context, "", "emulator", "\"xmame.x11\" xmame \"xmame.x11\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "xmame.SDL") == 0) {
-			conf_set(config_context, "", "emulator", "\"xmame.SDL\" xmame \"xmame.SDL\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "xmame.svgalib") == 0) {
-			conf_set(config_context, "", "emulator", "\"xmame.svgalib\" xmame \"xmame.svgalib\" \"\"");
+		} else {
+			if (target_search(path, FILE_MAXPATH, "xmame.x11") == 0) {
+				conf_set(config_context, "", "emulator", "\"xmame.x11\" xmame \"xmame.x11\" \"\"");
+			}
+			if (target_search(path, FILE_MAXPATH, "xmame.SDL") == 0) {
+				conf_set(config_context, "", "emulator", "\"xmame.SDL\" xmame \"xmame.SDL\" \"\"");
+			}
+			if (target_search(path, FILE_MAXPATH, "xmame.svgalib") == 0) {
+				conf_set(config_context, "", "emulator", "\"xmame.svgalib\" xmame \"xmame.svgalib\" \"\"");
+			}
 		}
 #endif
 	}
@@ -1105,7 +1106,7 @@ bool config_state::save(adv_conf* config_context) const {
 			|| i->is_user_group_set()
 			|| i->is_user_type_set()
 			|| i->is_time_set()
-			|| i->is_coin_set()
+			|| i->is_session_set()
 			|| (i->is_user_description_set() && i->description_get().length()!=0)
 		) {
 			ostringstream f;
@@ -1123,7 +1124,7 @@ bool config_state::save(adv_conf* config_context) const {
 
 			f << " " << i->time_get();
 
-			f << " " << i->coin_get();
+			f << " " << i->session_get();
 
 			f << " \"";
 			if (i->is_user_description_set()) {

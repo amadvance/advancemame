@@ -134,8 +134,7 @@ Configuring
 
 	The configure script automatically detects the emulator to compile
 	checking the installed sources. You can force a specific emulator,
-	or an emulator variant like `neomame' or `cpmame' with the
-	`--with-emu=' option.
+	with the `--with-emu=' option.
 
     DOS/Windows
 	In DOS/Windows you need to manually rename the `Makefile.in' file
