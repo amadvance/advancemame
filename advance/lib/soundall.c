@@ -40,7 +40,7 @@
  *  - USE_SOUND_SDL
  *  - USE_SOUND_NONE
  */
-void sound_reg_driver_all(struct conf_context* context) {
+void sound_reg_driver_all(adv_conf* context) {
 #ifdef USE_SOUND_SEAL
 	sound_reg_driver(context, &sound_seal_driver);
 #endif

@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 int wave_memory(const unsigned char** data_begin, const unsigned char* data_end, unsigned* data_channel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq);
-int wave_file(FZ* f, unsigned* data_channel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq);
+int wave_file(adv_fz* f, unsigned* data_channel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq);
 
 #ifdef __cplusplus
 }

@@ -29,77 +29,141 @@
 #define MIXER_BUFFER_MAX (44100*3) /**< Max samples in the buffer */
 #define MIXER_PAGE_SIZE 4096 /**< Size of the buffer read from disk */
 
-enum mixer_type {
+/**
+ * Mixer stream.
+ */
+enum mixer_enum {
 	mixer_none,
 	mixer_raw_memory,
 	mixer_raw_file,
 	mixer_mp3_file
 };
 
+/**
+ * Mixer channel.
+ */
 struct mixer_channel_struct {
-	enum mixer_type type;
+	enum mixer_enum type; /**< Type of the stream. */
 
-	unsigned rate; /**< Sample rate */
-	unsigned nchannel; /**< Number of channel */
-	unsigned bit; /**< Number of bits */
-	int loop; /** Loop */
+	unsigned rate; /**< Sample rate. */
+	unsigned nchannel; /**< Number of channel. */
+	unsigned bit; /**< Number of bits. */
+	adv_bool loop; /**< Looping flag. */
 
-	FZ* file; /**< File buffer */
-	const char* data; /**< Memory buffer */
+	adv_fz* file; /**< File buffer. */
+	const unsigned char* data; /**< Memory buffer. */
 
-	unsigned start; /**< Start position in the file buffer */
-	unsigned end; /**< End position in the file buffer */
-	unsigned pos; /**< Current position in the file buffer */
+	unsigned start; /**< Start position in the file buffer. */
+	unsigned end; /**< End position in the file buffer. */
+	unsigned pos; /**< Current position in the file buffer. */
+
 	/**
 	 * Set when the input stream is empty.
 	 * Note that pos==end doesn't necessary imply empty. For example the
 	 * MP3 stream may have some cached data not already used.
 	 */
-	int empty;
+	adv_bool empty;
 
-	unsigned count; /**< Current samples in the mixer buffer */
-	unsigned silence_count; /**< Current silence samples in the mixer buffer */
+	unsigned count; /**< Current samples in the mixer buffer. */
+	unsigned silence_count; /**< Current silence samples in the mixer buffer. */
 
-	int pivot; /**< Pivot for resampling */
-	int up; /**< Resampling pivot increment step */
-	int down; /**< Resampling pivot decrement step */
+	int pivot; /**< Pivot for resampling. */
+	int up; /**< Resampling pivot increment step. */
+	int down; /**< Resampling pivot decrement step. */
 
-	struct mp3_mpstr mp3; /**< MP3 state */
+	struct mp3_mpstr mp3; /**< MP3 state. */
 };
 
 struct mixer_channel_struct mixer_map[MIXER_CHANNEL_MAX];
 
-static short mixer_raw_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer used to call sound_play() (*2 for stereo) */
-static int mixer_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer for the mixed samples (*2 for stereo) */
-static unsigned mixer_buffer_pos; /**< Position to play in the buffer in samples */
-static unsigned mixer_latency_size; /**< Required latency in samples */
-static unsigned mixer_buffer_size; /**< Required buffer in samples */
-static unsigned mixer_rate; /**< Current sample rate */
-static unsigned mixer_nchannel; /**< Number of active channels */
-static int mixer_ndivider; /**< Divider of the channel value */
+static short mixer_raw_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer used to call sound_play() (*2 for stereo). */
+static int mixer_buffer[MIXER_BUFFER_MAX * 2]; /**< Buffer for the mixed samples (*2 for stereo). */
+static unsigned mixer_buffer_pos; /**< Position to play in the buffer in samples. */
+static unsigned mixer_latency_size; /**< Required latency in samples. */
+static unsigned mixer_buffer_size; /**< Required buffer in samples. */
+static unsigned mixer_rate; /**< Current sample rate. */
+static unsigned mixer_nchannel; /**< Number of active channels. */
+static int mixer_ndivider; /**< Divider of the channel value. */
 
 /****************************************************************************/
 /* Mixing */
 
-/** Check if the channel input is empty */
-static int mixer_channel_input_is_empty(unsigned channel) {
+static void mixer_channel_alloc(unsigned channel, enum mixer_enum type, adv_bool loop) {
+	memset(&mixer_map[channel],0,sizeof(mixer_map[channel]));
+
+	mixer_map[channel].type = type;
+	mixer_map[channel].loop = loop;
+
+	mixer_map[channel].start = 0;
+	mixer_map[channel].end = 0;
+	mixer_map[channel].pos = 0;
+	mixer_map[channel].empty = 0;
+
+	mixer_map[channel].count = 0;
+	mixer_map[channel].silence_count = 0;
+}
+
+static void mixer_channel_set(unsigned channel, unsigned rate, unsigned nchannel, unsigned bit) {
+	mixer_map[channel].rate = rate;
+	mixer_map[channel].nchannel = nchannel;
+	mixer_map[channel].bit = bit;
+
+	mixer_map[channel].pivot = 0;
+	mixer_map[channel].up = mixer_rate;
+	mixer_map[channel].down = rate;
+}
+
+static void mixer_channel_free(unsigned channel) {
+	switch (mixer_map[channel].type) {
+		case mixer_raw_file :
+			fzclose(mixer_map[channel].file);
+			break;
+		case mixer_mp3_file :
+			fzclose(mixer_map[channel].file);
+			mp3_done(&mixer_map[channel].mp3);
+			break;
+		default:
+			break;
+	}
+
+	mixer_map[channel].type = mixer_none;
+}
+
+static inline void mixer_channel_abort(unsigned channel) {
+	if (mixer_map[channel].type != mixer_none)
+		mixer_channel_free(channel);
+}
+
+/**
+ * Check if the channel input stream is empty.
+ */
+static adv_bool mixer_channel_input_is_empty(unsigned channel) {
 	return mixer_map[channel].type == mixer_none
 		|| mixer_map[channel].empty != 0;
 }
 
-/** Check if the channel output is empty */
-static int mixer_channel_output_is_empty(unsigned channel) {
+/**
+ * Check if the channel output is empty.
+ * This function ensure that also the latency time is expired and which the sound
+ * was effectively played.
+ */
+static adv_bool mixer_channel_output_is_empty(unsigned channel) {
 	return mixer_map[channel].type == mixer_none
 		|| (mixer_map[channel].count == 0 && mixer_map[channel].silence_count > mixer_latency_size);
 }
 
-/** Check if the channel data is empty */
-static int mixer_channel_data_is_empty(unsigned channel) {
+/**
+ * Check if the channel buffered data is empty.
+ */
+static adv_bool mixer_channel_data_is_empty(unsigned channel) {
 	return mixer_map[channel].type == mixer_none
 		|| (mixer_map[channel].count == 0);
 }
 
-static int mixer_channel_is_active(unsigned channel) {
+/**
+ * Check if the channel is active in some way.
+ */
+static adv_bool mixer_channel_is_active(unsigned channel) {
 	return mixer_map[channel].type != mixer_none
 		&& (!mixer_channel_input_is_empty(channel) || !mixer_channel_output_is_empty(channel));
 }
@@ -113,10 +177,13 @@ static void mixer_pump(unsigned buffered) {
 		count = 0;
 
 	for(i=0;i<mixer_nchannel;++i) {
-		if (mixer_channel_is_active(i)
-			&& mixer_map[i].count
-			&& count > mixer_map[i].count) {
-			count = mixer_map[i].count;
+		if (mixer_channel_is_active(i)) {
+			if (mixer_map[i].count && count > mixer_map[i].count) {
+				count = mixer_map[i].count;
+			}
+		} else {
+			/* close any file left open */
+			mixer_channel_abort(i);
 		}
 	}
 
@@ -191,57 +258,11 @@ static void mixer_channel_need(unsigned channel, unsigned* min, unsigned* max) {
 	assert( *min <= *max );
 }
 
-static void mixer_channel_alloc(unsigned channel, enum mixer_type type, int loop) {
-	memset(&mixer_map[channel],0,sizeof(mixer_map[channel]));
-
-	mixer_map[channel].type = type;
-	mixer_map[channel].loop = loop;
-
-	mixer_map[channel].start = 0;
-	mixer_map[channel].end = 0;
-	mixer_map[channel].pos = 0;
-	mixer_map[channel].empty = 0;
-
-	mixer_map[channel].count = 0;
-	mixer_map[channel].silence_count = 0;
-}
-
-static void mixer_channel_set(unsigned channel, unsigned rate, unsigned nchannel, unsigned bit) {
-	mixer_map[channel].rate = rate;
-	mixer_map[channel].nchannel = nchannel;
-	mixer_map[channel].bit = bit;
-
-	mixer_map[channel].pivot = 0;
-	mixer_map[channel].up = mixer_rate;
-	mixer_map[channel].down = rate;
-}
-
-static void mixer_channel_free(unsigned channel) {
-	switch (mixer_map[channel].type) {
-		case mixer_raw_file :
-			fzclose(mixer_map[channel].file);
-			break;
-		case mixer_mp3_file :
-			fzclose(mixer_map[channel].file);
-			mp3_done(&mixer_map[channel].mp3);
-			break;
-		default:
-			break;
-	}
-
-	mixer_map[channel].type = mixer_none;
-}
-
-static void mixer_channel_abort(unsigned channel) {
-	if (mixer_map[channel].type != mixer_none)
-		mixer_channel_free(channel);
-}
-
-static __inline__ int s16le2int(const unsigned char* data) {
+static inline int s16le2int(const unsigned char* data) {
 	return ((int)(char)data[1] << 8) | (unsigned char)data[0];
 }
 
-static __inline__ int u8le2int(const unsigned char* data) {
+static inline int u8le2int(const unsigned char* data) {
 	return ((int)(char)(data[0] - 128)) << 8;
 }
 
@@ -373,7 +394,14 @@ static void mixer_channel_loop_check(unsigned channel) {
 /***************************************************************************/
 /* WAV */
 
-int mixer_play_file_wav(unsigned channel, FZ* file, int loop) {
+/**
+ * Play a WAV file.
+ * If the channel is playing, it's before stopped.
+ * \param channel Channel to use.
+ * \param file File to play.
+ * \param loop If loop the playing.
+ */
+adv_error mixer_play_file_wav(unsigned channel, adv_fz* file, adv_bool loop) {
 	unsigned rate;
 	unsigned bit;
 	unsigned nchannel;
@@ -396,7 +424,14 @@ int mixer_play_file_wav(unsigned channel, FZ* file, int loop) {
 	return 0;
 }
 
-int mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const unsigned char* end, int loop) {
+/**
+ * Play a WAV memory file.
+ * If the channel is playing, it's before stopped.
+ * \param channel Channel to use.
+ * \param begin,end Memory range to use.
+ * \param loop If loop the playing.
+ */
+adv_error mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const unsigned char* end, adv_bool loop) {
 	const unsigned char* start;
 	unsigned rate;
 	unsigned bit;
@@ -421,12 +456,12 @@ int mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const un
 	return 0;
 }
 
-static int mixer_raw_pump(unsigned channel) {
+static adv_error mixer_raw_pump(unsigned channel) {
 	unsigned nmin;
 	unsigned nmax;
 	unsigned run;
 	unsigned sample_size;
-	char data[MIXER_PAGE_SIZE];
+	unsigned char data[MIXER_PAGE_SIZE];
 
 	if (mixer_channel_input_is_empty(channel))
 		return -1;
@@ -516,7 +551,7 @@ static unsigned mp3_read_data(unsigned channel, unsigned char* data, unsigned ma
 	return run;
 }
 
-static int mp3_skip(unsigned channel, unsigned size_to_skip, unsigned char* data, unsigned* pos, unsigned* run) {
+static adv_error mp3_skip(unsigned channel, unsigned size_to_skip, unsigned char* data, unsigned* pos, unsigned* run) {
 	/* skip data */
 	while (size_to_skip) {
 		if (*run >= size_to_skip) {
@@ -535,7 +570,7 @@ static int mp3_skip(unsigned channel, unsigned size_to_skip, unsigned char* data
 	return 0;
 }
 
-static int mp3_read(unsigned char* c, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
+static adv_error mp3_read(unsigned char* c, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
 	if (!*run) {
 		*pos = 0;
 		*run = mp3_read_data(channel,data,MIXER_PAGE_SIZE);
@@ -551,7 +586,7 @@ static int mp3_read(unsigned char* c, unsigned channel, unsigned char* data, uns
 	return 0;
 }
 
-static int mp3_read_id(unsigned char* id, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
+static adv_error mp3_read_id(unsigned char* id, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
 	if (mp3_read(id+0, channel, data, pos, run) != 0)
 		return -1;
 	if (mp3_read(id+1, channel, data, pos, run) != 0)
@@ -563,7 +598,7 @@ static int mp3_read_id(unsigned char* id, unsigned channel, unsigned char* data,
 	return 0;
 }
 
-static int mp3_read_le32(unsigned* v, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
+static adv_error mp3_read_le32(unsigned* v, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run) {
 	unsigned char id[4];
 	if (mp3_read_id(id, channel, data, pos, run) != 0)
 		return -1;
@@ -571,7 +606,7 @@ static int mp3_read_le32(unsigned* v, unsigned channel, unsigned char* data, uns
 	return 0;
 }
 
-static int mp3_first_read_stream(unsigned channel) {
+static adv_error mp3_first_read_stream(unsigned channel) {
 	unsigned char data[MIXER_PAGE_SIZE];
 	unsigned pos = 0;
 	unsigned run = mp3_read_data(channel,data,MIXER_PAGE_SIZE);
@@ -636,7 +671,7 @@ static int mp3_first_read_stream(unsigned channel) {
 }
 
 /* Read some data from the mp3 file stream */
-static int mp3_read_stream(unsigned channel) {
+static adv_error mp3_read_stream(unsigned channel) {
 	if (mixer_map[channel].pos == mixer_map[channel].start) {
 		return mp3_first_read_stream(channel);
 	} else {
@@ -653,7 +688,7 @@ static int mp3_read_stream(unsigned channel) {
 	}
 }
 
-static int mixer_mp3_pump(unsigned channel) {
+static adv_error mixer_mp3_pump(unsigned channel) {
 	unsigned char buffer[2304*4]; /* 2304 samples for MP3 frame */
 	unsigned nmin;
 	unsigned nmax;
@@ -723,7 +758,14 @@ static int mixer_mp3_pump(unsigned channel) {
 	return 0;
 }
 
-int mixer_play_file_mp3(unsigned channel, FZ* file, int loop)
+/**
+ * Play a MP3 file.
+ * If the channel is playing, it's before stopped.
+ * \param channel Channel to use.
+ * \param file File to play.
+ * \param loop If loop the playing.
+ */
+adv_error mixer_play_file_mp3(unsigned channel, adv_fz* file, adv_bool loop)
 {
 	mixer_channel_abort(channel);
 
@@ -740,7 +782,7 @@ int mixer_play_file_mp3(unsigned channel, FZ* file, int loop)
 }
 
 static void mixer_channel_pump(unsigned channel) {
-	int r;
+	adv_error r;
 
 	switch (mixer_map[channel].type) {
 		case mixer_none :
@@ -762,25 +804,38 @@ static void mixer_channel_pump(unsigned channel) {
 /***************************************************************************/
 /* Main */
 
-int mixer_is_playing(unsigned channel) {
+/**
+ * Check if a channel is playing.
+ */
+adv_bool mixer_is_playing(unsigned channel) {
 	return mixer_channel_is_active(channel);
 }
 
-int mixer_is_pushing(unsigned channel) {
+/**
+ * Check if a channel is pushing data.
+ * Pushing mean that it's still reading data from stream or if it has some data buffered.
+ * A channel needs at least the latency time before to became inactive after it stop pushing.
+ */
+adv_bool mixer_is_pushing(unsigned channel) {
 	return mixer_map[channel].type != mixer_none
 		&& (!mixer_channel_input_is_empty(channel) || !mixer_channel_data_is_empty(channel));
 }
 
+/**
+ * Stop playing a channel.
+ */
 void mixer_stop(unsigned channel) {
-	/* move at the end */
-	if (mixer_is_pushing(channel)) {
-		mixer_map[channel].empty = 1;
-	}
+	mixer_channel_abort(channel);
 }
 
 /***************************************************************************/
 /* Main */
 
+/**
+ * Poll the mixer.
+ * This function must be called frequently. At least more frequently than the
+ * buffer_time specified in the mixer_init() function.
+ */
 void mixer_poll(void) {
 	unsigned i;
 
@@ -790,12 +845,18 @@ void mixer_poll(void) {
 	mixer_pump( sound_buffered() );
 }
 
-void mixer_reg(struct conf_context* context) {
+/**
+ * Register the mixer configuration options.
+ */
+void mixer_reg(adv_conf* context) {
 	sound_reg(context, 1);
 	sound_reg_driver_all(context);
 }
 
-int mixer_load(struct conf_context* context) {
+/**
+ * Load the mixer configuration options.
+ */
+adv_error mixer_load(adv_conf* context) {
 	if (sound_load(context)!=0) {
 		return -1;
 	}
@@ -803,7 +864,18 @@ int mixer_load(struct conf_context* context) {
 	return 0;
 }
 
-int mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffer_time, double latency_time) {
+/**
+ * Initialize the mixer.
+ * \param rate Output rate.
+ * \param nchannel Number of channels.
+ * \param ndivider Integer divider of the to apply to all the channels. Generally it's the channel number.
+ * \param buffer_time Size of the buffer in seconds.
+ * Any stopped sound become not audible only after the specified buffer time.
+ * \param latency_time Size of the latency in seconds.
+ * Any played sound is audible only after the specified latency time.
+ * The latency time must be less than the buffer time.
+ */
+adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffer_time, double latency_time) {
 	unsigned i;
 
 	assert(nchannel <= MIXER_CHANNEL_MAX);
@@ -823,7 +895,9 @@ int mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffe
 	if (buffer_time < latency_time)
 		goto err;
 
-	/* 2.0 is to increase the lower driver latency */
+	/* *2.0 is to increase a the lower adv_driver buffer */
+	/* the value is guessed with some tries, don't change it */
+	/* without testing on all the drivers */
 	if (sound_init(&mixer_rate, 1, 2.0 * latency_time) != 0)
 		goto err;
 
@@ -846,6 +920,9 @@ err:
 	return -1;
 }
 
+/**
+ * Deinitialize the mixer.
+ */
 void mixer_done(void) {
 	unsigned i;
 
@@ -860,6 +937,9 @@ void mixer_done(void) {
 	mp3_lib_done();
 }
 
+/**
+ * Set the mixer volume.
+ */
 void mixer_volume(double volume) {
 	sound_volume(volume);
 }

@@ -39,23 +39,23 @@ extern "C" {
 /**
  * Font.
  */
-struct bitmapfont {
-	struct bitmap* data[BITMAP_FONT_MAX]; /**< A bitmap for every ASCII char. */
-};
+typedef struct adv_font_struct {
+	adv_bitmap* data[BITMAP_FONT_MAX]; /**< A bitmap for every ASCII char. */
+} adv_font;
 
 /** \addtogroup Font */
 /*@{*/
 
-struct bitmapfont* bitmapfont_inport_raw(unsigned char* data, unsigned data_size);
-struct bitmapfont* bitmapfont_inport_grx(unsigned char* data);
+adv_font* font_import_raw(unsigned char* data, unsigned data_size);
+adv_font* font_import_grx(unsigned char* data);
 
-struct bitmapfont* bitmapfont_load(const char* file);
-void bitmapfont_free(struct bitmapfont* font);
+adv_font* font_load(const char* file);
+void font_free(adv_font* font);
 
-unsigned bitmapfont_size_x(struct bitmapfont* font);
-unsigned bitmapfont_size_y(struct bitmapfont* font);
+unsigned font_size_x(adv_font* font);
+unsigned font_size_y(adv_font* font);
 
-void bitmapfont_orientation(struct bitmapfont* font, unsigned orientation_mask);
+void font_orientation(adv_font* font, unsigned orientation_mask);
 
 /*@}*/
 

@@ -55,7 +55,7 @@ extern "C" {
 /** \addtogroup Input */
 /*@{*/
 
-void inputb_reg_driver_all(struct conf_context* context);
+void inputb_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

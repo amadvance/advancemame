@@ -197,7 +197,7 @@ static DWORD get_played_sample_count(void);
 static void calc_next_req(void);
 
 
-/* error message func */
+/* adv_error message func */
 
 #define ERROR_MESSAGE_BUFFER_SIZE	1024
 static int error_message_pointer = 0;
@@ -779,7 +779,7 @@ static BOOL vds_helper_lock(DWORD buffer_addr, DWORD *physical_addr_table, int p
 	vds_available = is_vds_available();
 
 	if(_dma_allocate_mem4k(&sel, &dos_addr) == FALSE){
-		set_error_message("vds_helper_lock: _dma_allocate_mem4k() error.\n");
+		set_error_message("vds_helper_lock: _dma_allocate_mem4k() adv_error.\n");
 		return FALSE;
 	}
 	memset(&dds, 0, sizeof(dds));
@@ -800,13 +800,13 @@ static BOOL vds_helper_lock(DWORD buffer_addr, DWORD *physical_addr_table, int p
 			r.x.es = dos_addr >> 4;
 			__dpmi_int(0x4B, &r);
 			if((r.x.flags & 0x01) != 0){
-				set_error_message("vds_helper_lock: LOCK DMA BUFFER REGION error\n");
+				set_error_message("vds_helper_lock: LOCK DMA BUFFER REGION adv_error\n");
 				__dpmi_free_dos_memory(sel);
 				return FALSE;
 			}
 			copy_from_dos_memory(dos_addr, (BYTE*)&dds, sizeof(dds));
 			if(dds.Buffer_ID != 0){
-				set_error_message("vds_helper_lock: Buffer_ID allocated. error\n");
+				set_error_message("vds_helper_lock: Buffer_ID allocated. adv_error\n");
 				__dpmi_free_dos_memory(sel);
 				return FALSE;
 			}
@@ -835,7 +835,7 @@ static BOOL vds_helper_unlock(DWORD buffer_addr, DWORD *physical_addr_table, int
 	vds_available = is_vds_available();
 
 	if(_dma_allocate_mem4k(&sel, &dos_addr) == FALSE){
-		set_error_message("vds_helper_unlock: _dma_allocate_mem4k() error.\n");
+		set_error_message("vds_helper_unlock: _dma_allocate_mem4k() adv_error.\n");
 		return FALSE;
 	}
 	memset(&dds, 0, sizeof(dds));
@@ -858,7 +858,7 @@ static BOOL vds_helper_unlock(DWORD buffer_addr, DWORD *physical_addr_table, int
 			r.x.es = dos_addr >> 4;
 			__dpmi_int(0x4B, &r);
 			if((r.x.flags & 0x01) != 0){
-				set_error_message("vds_helper_unlock: UNLOCK DMA BUFFER REGION error\n");
+				set_error_message("vds_helper_unlock: UNLOCK DMA BUFFER REGION adv_error\n");
 				__dpmi_free_dos_memory(sel);
 				return FALSE;
 			}
@@ -1319,10 +1319,10 @@ static void via686_exit(void)
 {
 	via686_channel_reset();
 	if(vds_helper_unlock(get_address_dosmem64k_for_dma(), &g_dosmem64k_phys_table[0], 16) == FALSE){
-		set_error_message("vds_helper_unlock error\n");
+		set_error_message("vds_helper_unlock adv_error\n");
 	}
 	if(vds_helper_unlock(get_address_dosmem4k(), &g_dosmem4k_phys_table[0], 1) == FALSE){
-		set_error_message("vds_helper_unlock error\n");
+		set_error_message("vds_helper_unlock adv_error\n");
 	}
 	free_dosmem64k_for_dma();
 	free_dosmem4k();
@@ -1441,24 +1441,24 @@ static BOOL via686_start(int rate, BOOL initialize)
 
 	/* playing buffer in dos memory */
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("VIA686: allocate_dosmem64k_for_dma() error.\n");
-		printf("error\n");
+		set_error_message("VIA686: allocate_dosmem64k_for_dma() adv_error.\n");
+		printf("adv_error\n");
 		return FALSE;
 	}
 	/* get physical address every 4KB */
 	if(vds_helper_lock(get_address_dosmem64k_for_dma(), &g_dosmem64k_phys_table[0], 16) == FALSE){
-		set_error_message("VIA686: vds_helper_lock() error.\n");
+		set_error_message("VIA686: vds_helper_lock() adv_error.\n");
 		return FALSE;
 	}
 
 	/* scatter/gather table  buffer in dos memory */
 	if(allocate_dosmem4k() == FALSE){
-		set_error_message("VIA686: allocate_dosmem4k() error.\n");
+		set_error_message("VIA686: allocate_dosmem4k() adv_error.\n");
 		return FALSE;
 	}
 	/* get physical address */
 	if(vds_helper_lock(get_address_dosmem4k(), &g_dosmem4k_phys_table[0], 1) == FALSE){
-		set_error_message("VIA686: vds_helper_lock() error.\n");
+		set_error_message("VIA686: vds_helper_lock() adv_error.\n");
 		return FALSE;
 	}
 
@@ -1543,7 +1543,7 @@ static BOOL via686_start_no_chip_init(int rate)
 #define ICH_REG_PI_LVI			0x05	/* byte - last valid index */
 #define   ICH_REG_LVI_MASK		0x1f
 #define ICH_REG_PI_SR			0x06	/* byte - status register */
-#define   ICH_FIFOE 		0x10	/* FIFO error */
+#define   ICH_FIFOE 		0x10	/* FIFO adv_error */
 #define   ICH_BCIS			0x08	/* buffer completion interrupt status */
 #define   ICH_LVBCI 		0x04	/* last valid buffer completion interrupt */
 #define   ICH_CELV			0x02	/* current equals last valid */
@@ -1553,7 +1553,7 @@ static BOOL via686_start_no_chip_init(int rate)
 #define   ICH_REG_PIV_MASK		0x1f	/* mask */
 #define ICH_REG_PI_CR			0x0b	/* byte - control register */
 #define   ICH_IOCE			0x10	/* interrupt on completion enable */
-#define   ICH_FEIE			0x08	/* fifo error interrupt enable */
+#define   ICH_FEIE			0x08	/* fifo adv_error interrupt enable */
 #define   ICH_LVBIE 		0x04	/* last valid buffer interrupt enable */
 #define   ICH_RESETREGS 		0x02	/* reset busmaster registers */
 #define   ICH_STARTBM			0x01	/* start busmaster operation */
@@ -1743,10 +1743,10 @@ static void intel_ich_exit(void)
 {
 	intel_ich_stop();
 	if(vds_helper_unlock(get_address_dosmem64k_for_dma(), &g_dosmem64k_phys_table[0], 16) == FALSE){
-		set_error_message("vds_helper_unlock error\n");
+		set_error_message("vds_helper_unlock adv_error\n");
 	}
 	if(vds_helper_unlock(get_address_dosmem4k(), &g_dosmem4k_phys_table[0], 1) == FALSE){
-		set_error_message("vds_helper_unlock error\n");
+		set_error_message("vds_helper_unlock adv_error\n");
 	}
 	free_dosmem64k_for_dma();
 	free_dosmem4k();
@@ -1863,24 +1863,24 @@ static BOOL intel_ich_start(int rate, BOOL initialize)
 
 	/* playing buffer in dos memory */
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("Intel_ICH: allocate_dosmem64k_for_dma() error.\n");
-		printf("error\n");
+		set_error_message("Intel_ICH: allocate_dosmem64k_for_dma() adv_error.\n");
+		printf("adv_error\n");
 		return FALSE;
 	}
 	/* get physical address every 4KB */
 	if(vds_helper_lock(get_address_dosmem64k_for_dma(), &g_dosmem64k_phys_table[0], 16) == FALSE){
-		set_error_message("Intel_ICH: vds_helper_lock() error.\n");
+		set_error_message("Intel_ICH: vds_helper_lock() adv_error.\n");
 		return FALSE;
 	}
 
 	/* scatter/gather table buffer in dos memory */
 	if(allocate_dosmem4k() == FALSE){
-		set_error_message("Intel_ICH: allocate_dosmem4k() error.\n");
+		set_error_message("Intel_ICH: allocate_dosmem4k() adv_error.\n");
 		return FALSE;
 	}
 	/* get physical address */
 	if(vds_helper_lock(get_address_dosmem4k(), &g_dosmem4k_phys_table[0], 1) == FALSE){
-		set_error_message("Intel_ICH: vds_helper_lock() error.\n");
+		set_error_message("Intel_ICH: vds_helper_lock() adv_error.\n");
 		return FALSE;
 	}
 
@@ -2387,7 +2387,7 @@ static int sb100_interrupt_driven_start(int rate)
 	}
 
 	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2479,7 +2479,7 @@ static int sb201_interrupt_driven_start(int rate)
 	}
 
 	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2565,7 +2565,7 @@ static int sbpro_interrupt_driven_start(int rate)
 	}
 
 	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2742,7 +2742,7 @@ static int wdm_sbpro_start(int rate)
 	}
 
 	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2824,7 +2824,7 @@ static int sb201_start(int rate)
 	}
 
 	if(allocate_dosmem64k_for_dma(_8BITMONO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2889,7 +2889,7 @@ static int sbpro_start(int rate)
 		return FALSE;
 	}
 	if(allocate_dosmem64k_for_dma(_8BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -2972,7 +2972,7 @@ static int sb16_start(int rate)
 		return FALSE;
 	}
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	unmask_irq(wd.irq);
@@ -3493,7 +3493,7 @@ static int wss_start(int rate)
 		return FALSE;
 	}
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 
@@ -3729,7 +3729,7 @@ static int soundscape_get_init_config()
    /* read all of the necessary config info ... */
    if (get_ini_config_entry("Product", str, fp)) {
 	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
+	  set_error_message("adv_error in SNDSCAPE.INI.");
 	  return FALSE;
    }
 #if 0
@@ -3749,7 +3749,7 @@ static int soundscape_get_init_config()
 
    if (get_ini_config_entry("WavePort", str, fp)) {
 	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
+	  set_error_message("adv_error in SNDSCAPE.INI.");
 	  return FALSE;
    }
 
@@ -3767,7 +3767,7 @@ static int soundscape_get_init_config()
 #endif
    if (get_ini_config_entry("SBIRQ", str, fp)) {
 	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
+	  set_error_message("adv_error in SNDSCAPE.INI.");
 	  return FALSE;
    }
 
@@ -3778,7 +3778,7 @@ static int soundscape_get_init_config()
 
    if (get_ini_config_entry("DMA", str, fp)) {
 	  fclose(fp);
-	  set_error_message("error in SNDSCAPE.INI.");
+	  set_error_message("adv_error in SNDSCAPE.INI.");
 	  return FALSE;
    }
 
@@ -4327,7 +4327,7 @@ static int ultrasound_start(int rate)
 		return FALSE;
 	}
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	g_dmacnt_shift_count = 1;
@@ -4507,7 +4507,7 @@ static int ess_start(int rate)
 	wd.pcm_format = _16BITSTEREO;
 
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	/* switch to AudioDrive extended mode */
@@ -4585,7 +4585,7 @@ static char device_name_eternal_silence[] = "Eternal Silence";
 static int eternal_silence_start(int rate)
 {
 	if(allocate_dosmem64k_for_dma(_16BITSTEREO) == FALSE){
-		set_error_message("allocate_dosmem64k_for_dma() error.\n");
+		set_error_message("allocate_dosmem64k_for_dma() adv_error.\n");
 		return FALSE;
 	}
 	es_tick_per_hz = osd_cycles_per_second() / rate;

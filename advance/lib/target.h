@@ -52,6 +52,8 @@
 extern "C" {
 #endif
 
+#include "extra.h"
+
 /** \addtogroup Target */
 /*@{*/
 
@@ -68,7 +70,7 @@ extern "C" {
  * Initialize the target system.
  * It's called in the main() function.
  */
-int target_init(void);
+adv_error target_init(void);
 
 /** 
  * Deinitialize the target system.
@@ -157,19 +159,19 @@ void target_sound_signal(void);
  * Shutdown the system.
  * \return ==0 (or never return) if success
  */
-int target_apm_shutdown(void);
+adv_error target_apm_shutdown(void);
 
 /**
  * Put the system in standby mode.
  * \return ==0 if success
  */
-int target_apm_standby(void);
+adv_error target_apm_standby(void);
 
 /**
  * Restore the system after a standby.
  * \return ==0 if success
  */
-int target_apm_wakeup(void);
+adv_error target_apm_wakeup(void);
 
 /***************************************************************************/
 /* System */
@@ -178,22 +180,22 @@ int target_apm_wakeup(void);
  * Execute an external program with pipe support.
  * \return Like system().
  */
-int target_system(const char* cmd);
+adv_error target_system(const char* cmd);
 
 /**
  * Execute an external program.
  * \return Like spawn().
  */
-int target_spawn(const char* file, const char** argv);
+adv_error target_spawn(const char* file, const char** argv);
 
 /**
  * Create a directory.
  * \return like mkdir
  */
-int target_mkdir(const char* file);
+adv_error target_mkdir(const char* file);
 
 /**
- * Flush the flisystem cache.
+ * Flush the filesystem cache.
  */
 void target_sync(void);
 
@@ -203,7 +205,7 @@ void target_sync(void);
  *   == 0 ok
  *   != 0 not found or error
  */
-int target_search(char* path, unsigned path_size, const char* file);
+adv_error target_search(char* path, unsigned path_size, const char* file);
 
 /***************************************************************************/
 /* Stream */
@@ -255,6 +257,11 @@ void target_signal(int signum);
  * Crash the process.
  */
 void target_crash(void);
+
+/**
+ * Compare an arg with an option.
+ */
+adv_bool target_option(const char* arg, const char* opt);
 
 /*@}*/
 

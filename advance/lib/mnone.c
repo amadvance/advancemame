@@ -31,12 +31,12 @@
 #include "mnone.h"
 #include "log.h"
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "No mouse" },
 { 0, 0, 0 }
 };
 
-error mouseb_none_init(int mouseb_id)
+adv_error mouseb_none_init(int mouseb_id)
 {
 	log_std(("mouseb:none: mouseb_none_init(id:%d)\n",mouseb_id));
 
@@ -93,12 +93,12 @@ unsigned mouseb_none_flags(void)
 	return 0;
 }
 
-error mouseb_none_load(struct conf_context* context)
+adv_error mouseb_none_load(adv_conf* context)
 {
 	return 0;
 }
 
-void mouseb_none_reg(struct conf_context* context)
+void mouseb_none_reg(adv_conf* context)
 {
 }
 

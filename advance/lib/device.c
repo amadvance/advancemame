@@ -36,10 +36,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-static const device* device_match_one(const char* tag, const driver* drv, boolean allow_none) {
+static const adv_device* device_match_one(const char* tag, const adv_driver* drv, adv_bool allow_none) {
 	char tag_driver[DEVICE_NAME_MAX];
 	char* tag_device;
-	const device* i;
+	const adv_device* i;
 
 	strcpy(tag_driver,tag);
 	tag_device = strchr(tag_driver,'/');
@@ -76,21 +76,21 @@ static const device* device_match_one(const char* tag, const driver* drv, boolea
 }
 
 /**
- * Check if a device name match the user specification.
+ * Check if a adv_device name match the user specification.
  * \param tag user specification.
- * \param drv device to check.
- * \param allow_none if true allows the "none" driver also if it
- *   isn't specified. Otherwise the "none" driver is used only if explictly
+ * \param drv adv_device to check.
+ * \param allow_none if true allows the "none" adv_driver also if it
+ *   isn't specified. Otherwise the "none" adv_driver is used only if explictly
  *   specified. It isn't used from "auto".
  */
-const device* device_match(const char* tag, const driver* drv, boolean allow_none) {
+const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	strcpy(buffer, tag);
 
 	tag_one = strtok(buffer," \t");
 	while (tag_one) {
-		const device* dev = device_match_one(tag_one,drv,allow_none);
+		const adv_device* dev = device_match_one(tag_one,drv,allow_none);
 		if (dev)
 			return dev;
 		tag_one = strtok(NULL," \t");
@@ -99,10 +99,10 @@ const device* device_match(const char* tag, const driver* drv, boolean allow_non
 	return 0;
 }
 
-void device_error(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac) {
+void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac) {
 	unsigned i,j;
 
-	log_std(("device: device_error %s %s\n",option,arg));
+	log_std(("adv_device: device_error %s %s\n",option,arg));
 
 	target_err("Invalid argument '%s' for option '%s'\n",arg,option);
 	target_err("Valid values are:\n");
@@ -121,7 +121,7 @@ void device_error(const char* option, const char* arg, const driver** driver_map
 	}
 }
 
-error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore) {
+adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	unsigned i,j;

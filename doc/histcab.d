@@ -1,7 +1,9 @@
 Name
-	advcab - History For AdvanceCAB Emulators
+	advcab - History For AdvanceCAB
 
-AdvanceCAB Version 0.11.3 2002/09 (not yet released)
+AdvanceCAB Version 1.0.0 2002/10
+	) Added the VBE32 utility. It's a new 32 bit VBE BIOS
+		which supports all the new video boards.
 
 AdvanceCAB Version 0.11.2 2002/07
 	) Recompiled the `advv' utility with the new

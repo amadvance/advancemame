@@ -58,7 +58,7 @@ extern "C" {
 /** \addtogroup Mouse */
 /*@{*/
 
-void mouseb_reg_driver_all(struct conf_context* context);
+void mouseb_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

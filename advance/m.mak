@@ -2,8 +2,7 @@
 # M
 
 MCFLAGS += \
-	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/lib
 MOBJDIRS += \
 	$(MOBJ) \
 	$(MOBJ)/m \

@@ -41,7 +41,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 {
 	const char *menu_item[VIDEO_CRTC_MAX + 2];
 	char flag[VIDEO_CRTC_MAX + 2];
-	const video_crtc* entry[VIDEO_CRTC_MAX + 2];
+	const adv_crtc* entry[VIDEO_CRTC_MAX + 2];
 	int i;
 	int total;
 
@@ -58,7 +58,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	++total;
 
 	for(i=0;i<context->state.crtc_mac;++i) {
-		const video_crtc* crtc = context->state.crtc_map[i];
+		const adv_crtc* crtc = context->state.crtc_map[i];
 		entry[total] = crtc;
 		menu_item[total] = strdup(mode_desc(context,crtc));
 		flag[total] = strcmp(crtc_name_get(crtc),context->config.resolution)==0;
@@ -334,7 +334,7 @@ int osd2_menu(int selected, unsigned input)
 		++total;
 
 		rgb_index = total;
-		if (video_index() == VIDEO_FLAGS_INDEX_RGB)
+		if (video_index() == MODE_FLAGS_INDEX_RGB)
 			menu_item[total] = "Rgb [rgb]";
 		else
 			menu_item[total] = "Rgb [palette]";

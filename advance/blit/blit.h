@@ -53,7 +53,7 @@ struct video_slice {
 	int up; /**< Up step. */
 	int down; /**< Down step. */
 	int count; /**< Number of segment. */
-	int error; /**< Start error. */
+	int error; /**< Start error_t. */
 };
 
 /**
@@ -67,9 +67,9 @@ struct video_slice {
 \code
 	while (count) {
 		unsigned run = whole;
-		if ((error += up) > 0) {
+		if ((error_t += up) > 0) {
 			++run;
-			error -= down;
+			error_t -= down;
 		}
 
 		... draw a segment of "run" pixel ...
@@ -338,7 +338,7 @@ static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(con
 /**
  * Initialize the blit system.
  */
-error video_blit_init(void);
+adv_error video_blit_init(void);
 
 /**
  * Deinitialize the blit system.
@@ -352,7 +352,7 @@ void video_blit_done(void);
  * Initialize a pipeline for a stretch blit.
  * Check the video_stretch() for more details.
  */
-error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine);
+adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_rgb_def src_rgb_def, unsigned combine);
 
 /**
  * Initialize a pipeline for a stretch blit with an hardware palette.
@@ -400,7 +400,7 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_rgb_def Source RGB format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
+static __inline__ adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_rgb_def src_rgb_def, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
 	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_rgb_def, combine) != 0)

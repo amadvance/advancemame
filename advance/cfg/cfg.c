@@ -29,6 +29,8 @@
 #include "inputall.h"
 #include "log.h"
 #include "file.h"
+#include "conf.h"
+#include "target.h"
 
 #ifdef USE_VIDEO_VBELINE
 #include "scrvbe.h"
@@ -42,8 +44,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "option.h"
-
 /***************************************************************************/
 /* Common variable */
 
@@ -54,7 +54,7 @@ enum advance_t {
 /***************************************************************************/
 /* Draw */
 
-int draw_test(int x, int y, const char* s, video_crtc* crtc, int modify) {
+int draw_test(int x, int y, const char* s, adv_crtc* crtc, int modify) {
 	char buffer[256];
 
 	draw_test_default();
@@ -148,7 +148,7 @@ enum monitor_enum {
 struct monitor_data_struct {
 	enum monitor_enum type;
 	const char* name;
-	video_generate generate;
+	adv_generate generate;
 };
 
 int monitor_y;
@@ -163,7 +163,7 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 			draw_text_left(0,monitor_y,text_size_x(),"format = ? ? ? ? ? ? ? ?",COLOR_NORMAL);
 		} else {
 			char buffer[256];
-			video_generate generate = p->generate;
+			adv_generate generate = p->generate;
 			sprintf(buffer,"format = %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f",
 				generate.hactive, generate.hfront, generate.hsync, generate.hback,
 				generate.vactive, generate.vfront, generate.vsync, generate.vback);
@@ -172,7 +172,7 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 	}
 }
 
-static int cmd_monitor(struct conf_context* config, video_generate* generate, enum monitor_enum* type, video_generate_interpolate_set* interpolate) {
+static int cmd_monitor(adv_conf* config, adv_generate* generate, enum monitor_enum* type, adv_generate_interpolate_set* interpolate) {
 	unsigned mac = 0;
 	unsigned i;
 	int res;
@@ -260,7 +260,7 @@ static int cmd_monitor(struct conf_context* config, video_generate* generate, en
 	return 0;
 }
 
-static int cmd_monitor_custom(video_generate* generate) {
+static int cmd_monitor_custom(adv_generate* generate) {
 	int done;
 	char buffer[64];
 	text_clear();
@@ -290,7 +290,7 @@ static int cmd_monitor_custom(video_generate* generate) {
 struct model_data_struct {
 	const char* manufacturer;
 	const char* model;
-	video_monitor monitor;
+	adv_monitor monitor;
 };
 
 int model_y;
@@ -308,10 +308,10 @@ static void entry_model(int x, int y, int dx, void* data, int n, int selected) {
 			monitor_print(buffer + strlen(buffer), &p->monitor.pclock, &p->monitor.pclock + 1, 1E6);
 			draw_text_left(0,model_y,text_size_x(),buffer,COLOR_NORMAL);
 			strcpy(buffer,"hclock = ");
-			monitor_print(buffer + strlen(buffer), p->monitor.hclock, p->monitor.hclock + VIDEO_MONITOR_RANGE_MAX, 1E3);
+			monitor_print(buffer + strlen(buffer), p->monitor.hclock, p->monitor.hclock + MONITOR_RANGE_MAX, 1E3);
 			draw_text_left(0,model_y+1,text_size_x(),buffer,COLOR_NORMAL);
 			strcpy(buffer,"vclock = ");
-			monitor_print(buffer + strlen(buffer), p->monitor.vclock, p->monitor.vclock + VIDEO_MONITOR_RANGE_MAX, 1);
+			monitor_print(buffer + strlen(buffer), p->monitor.vclock, p->monitor.vclock + MONITOR_RANGE_MAX, 1);
 			draw_text_left(0,model_y+2,text_size_x(),buffer,COLOR_NORMAL);
 		}
 	} else {
@@ -327,14 +327,14 @@ static int entry_model_separator(void* data, int n) {
 
 extern const char* MONITOR[];
 
-static int cmd_model(struct conf_context* config, video_monitor* monitor) {
+static int cmd_model(adv_conf* config, adv_monitor* monitor) {
 	unsigned max = 3000;
 	struct model_data_struct* data = malloc(max*sizeof(struct model_data_struct));
 	unsigned mac = 0;
 	int res;
 	int y;
 	const char** i;
-	video_monitor previous_monitor;
+	adv_monitor previous_monitor;
 
 	if (monitor_load(config, &previous_monitor)==0) {
 		data[mac].model = strdup("Previous");
@@ -414,7 +414,7 @@ static int cmd_model(struct conf_context* config, video_monitor* monitor) {
 	return 0;
 }
 
-static int cmd_model_custom(video_monitor* monitor) {
+static int cmd_model_custom(adv_monitor* monitor) {
 	int state;
 	char pbuffer[64];
 	char hbuffer[64];
@@ -483,22 +483,22 @@ static int cmd_model_custom(video_monitor* monitor) {
 		return 0;
 }
 
-static int video_crtc_check(const video_crtc* crtc) {
+static int video_crtc_check(const adv_crtc* crtc) {
 	return crtc->hde <= crtc->hrs && crtc->hrs < crtc->hre && crtc->hre <= crtc->ht
 		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
 }
 
-static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor, int only_h_center) {
+static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_monitor* monitor, int only_h_center) {
 	int done = 0;
 	int modify = 1;
 	int first = 1;
 	int userkey = INPUTB_ESC;
-	video_crtc current = *crtc;
+	adv_crtc current = *crtc;
 
 	double hclock = crtc->pixelclock / crtc->ht;
 
-	video_mode mode;
-	video_mode_reset(&mode);
+	adv_mode mode;
+	mode_reset(&mode);
 
 	while (!done) {
 		unsigned pred_t;
@@ -507,7 +507,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 			if (crtc_adjust_clock(&current, monitor)==0
 				&& video_crtc_check(&current)
 				&& crtc_clock_check(monitor,&current)
-				&& video_mode_generate(&mode, &current, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
+				&& video_mode_generate(&mode, &current, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)==0) {
 				video_mode_done(1);
 				if (video_mode_set(&mode)!=0) {
 					text_done();
@@ -623,16 +623,16 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 	return userkey == INPUTB_ENTER ? 0 : -1;
 }
 
-static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor) {
-	video_crtc current = *crtc;
+static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv_monitor* monitor) {
+	adv_crtc current = *crtc;
 
-	video_mode mode;
-	video_mode_reset(&mode);
+	adv_mode mode;
+	mode_reset(&mode);
 
 	if (crtc_adjust_clock(&current, monitor)==0
 		&& video_crtc_check(&current)
 		&& crtc_clock_check(monitor,&current)
-		&& video_mode_generate(&mode, &current, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
+		&& video_mode_generate(&mode, &current, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)==0) {
 		video_mode_done(1);
 		if (video_mode_set(&mode)!=0) {
 			text_done();
@@ -646,9 +646,9 @@ static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const v
 	}
 }
 
-static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const video_generate* generate, const video_monitor* monitor, unsigned y, unsigned bits, double horz_clock, int only_h_center) {
+static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const adv_generate* generate, const adv_monitor* monitor, unsigned y, unsigned bits, double horz_clock, int only_h_center) {
 	unsigned x;
-	video_crtc crtc;
+	adv_crtc crtc;
 
 	crtc_reset(&crtc);
 
@@ -698,7 +698,7 @@ static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const 
 	return 0;
 }
 
-static int cmd_interpolate_one(video_generate_interpolate_set* interpolate, const video_generate* generate, const video_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
 	int y;
 	double ty;
 	double hclock, vclock;
@@ -727,10 +727,10 @@ static int cmd_interpolate_one(video_generate_interpolate_set* interpolate, cons
 	return 0;
 }
 
-static int cmd_interpolate_two(video_generate_interpolate_set* interpolate, const video_generate* generate, const video_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
 	int y;
 	double ty,vclock,hclock;
-	video_generate current = *generate;
+	adv_generate current = *generate;
 
 	interpolate->mac = 2;
 
@@ -786,7 +786,7 @@ enum interpolate_enum {
 struct interpolate_data_struct {
 	int selected;
 	unsigned type;
-	video_crtc crtc;
+	adv_crtc crtc;
 	unsigned x;
 	unsigned y;
 	int valid;
@@ -822,12 +822,12 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, int selec
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 }
 
-static void interpolate_create(struct interpolate_data_struct* data, unsigned mac, const video_generate* generate, const video_monitor* monitor, double vclock) {
+static void interpolate_create(struct interpolate_data_struct* data, unsigned mac, const adv_generate* generate, const adv_monitor* monitor, double vclock) {
 	unsigned i;
 
 	for(i=0;i<mac;++i) {
 		if (data[i].type == interpolate_mode) {
-			video_crtc* crtc = &data[i].crtc;
+			adv_crtc* crtc = &data[i].crtc;
 			unsigned x;
 			unsigned y;
 
@@ -844,15 +844,15 @@ static void interpolate_create(struct interpolate_data_struct* data, unsigned ma
 	}
 }
 
-static void interpolate_update(video_generate_interpolate_set* interpolate, struct interpolate_data_struct* data, unsigned mac, const video_generate* generate, const video_monitor* monitor, double vclock) {
+static void interpolate_update(adv_generate_interpolate_set* interpolate, struct interpolate_data_struct* data, unsigned mac, const adv_generate* generate, const adv_monitor* monitor, double vclock) {
 	unsigned i;
 	interpolate->mac = 0;
 
 	for(i=0;i<mac;++i) {
 		if (data[i].type == interpolate_mode && data[i].selected && data[i].valid) {
 			if (interpolate->mac < GENERATE_INTERPOLATE_MAX) {
-				video_generate_interpolate* entry = &interpolate->map[interpolate->mac];
-				const video_crtc* crtc = &data[i].crtc;
+				adv_generate_interpolate* entry = &interpolate->map[interpolate->mac];
+				const adv_crtc* crtc = &data[i].crtc;
 
 				entry->hclock = crtc->pixelclock / crtc->ht;
 				entry->gen.hactive = crtc->hde;
@@ -886,13 +886,13 @@ static void interpolate_update(video_generate_interpolate_set* interpolate, stru
 	}
 }
 
-int interpolate_test(const char* msg, video_crtc* crtc, const video_monitor* monitor, int bits) {
+int interpolate_test(const char* msg, adv_crtc* crtc, const adv_monitor* monitor, int bits) {
 	int res;
 
-	video_mode mode;
-	video_mode_reset(&mode);
+	adv_mode mode;
+	mode_reset(&mode);
 
-	if (video_mode_generate(&mode, crtc, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, crtc, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
 		return -1;
 	}
 
@@ -909,7 +909,7 @@ int interpolate_test(const char* msg, video_crtc* crtc, const video_monitor* mon
 	return res;
 }
 
-static int cmd_interpolate_many(video_generate_interpolate_set* interpolate, const video_generate* generate, const video_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_many(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
 	unsigned mac = 0;
 	int res;
 	int ymin,ymax,ymins,ymaxs;
@@ -1137,17 +1137,17 @@ static void entry_test(int x, int y, int dx, void* data, int n, int selected) {
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 }
 
-int cmd_test_mode(video_generate_interpolate_set* interpolate, const video_monitor* monitor, int x, int y, double vclock, int bits, unsigned cap, int calib) {
-	video_crtc crtc;
+int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int x, int y, double vclock, int bits, unsigned cap, int calib) {
+	adv_crtc crtc;
 
-	video_mode mode;
-	video_mode_reset(&mode);
+	adv_mode mode;
+	mode_reset(&mode);
 
 	if (generate_find_interpolate_double(&crtc, x, y, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
 		return -1;
 	}
 
-	if (video_mode_generate(&mode, &crtc, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, &crtc, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
 		return -1;
 	}
 
@@ -1230,13 +1230,13 @@ static int cmd_test_custom(int* x, int* y, double* vclock) {
 		return 0;
 }
 
-static int cmd_test(video_generate_interpolate_set* interpolate, const video_monitor* monitor, int bits) {
+static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int bits) {
 	unsigned mac = 0;
 	int res;
 	int ymin,ymax,ymins,ymaxs;
 	double ty;
 	int y;
-	video_generate generate;
+	adv_generate generate;
 	int base;
 	int pos;
 
@@ -1368,7 +1368,7 @@ static int cmd_test(video_generate_interpolate_set* interpolate, const video_mon
 /***************************************************************************/
 /* Save */
 
-void cmd_save(struct conf_context* config, const video_generate_interpolate_set* interpolate, const video_monitor* monitor, int type)
+void cmd_save(adv_conf* config, const adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int type)
 {
 	switch (the_advance) {
 	case advance_mame :
@@ -1403,7 +1403,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-static struct conf_conv STANDARD[] = {
+static adv_conf_conv STANDARD[] = {
 { "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
@@ -1412,11 +1412,11 @@ void os_signal(int signum) {
 }
 
 int os_main(int argc, char* argv[]) {
-	video_generate generate;
-	video_generate_interpolate_set interpolate;
+	adv_generate generate;
+	adv_generate_interpolate_set interpolate;
 	enum monitor_enum type;
 	enum adjust_enum adjust_type;
-	video_monitor monitor;
+	adv_monitor monitor;
 	int state;
 	unsigned bits;
 	const char* opt_rc;
@@ -1424,7 +1424,7 @@ int os_main(int argc, char* argv[]) {
 	int opt_logsync;
 	const char* section_map[1];
 	unsigned j;
-	struct conf_context* config = 0;
+	adv_conf* config = 0;
 	unsigned bit_flag;
 
 	state = 0;
@@ -1448,7 +1448,7 @@ int os_main(int argc, char* argv[]) {
 	inputb_reg_driver_all(config);
 
 	monitor_register(config);
-	video_crtc_container_register(config);
+	crtc_container_register(config);
 	generate_interpolate_register(config);
 	conf_string_register(config,"display_mode");
 	conf_string_register(config,"display_adjust");
@@ -1457,21 +1457,21 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	for(j=1;j<argc;++j) {
-		if (optionmatch(argv[j],"rc") && j+1<argc) {
+		if (target_option(argv[j],"rc") && j+1<argc) {
 			opt_rc = argv[++j];
-		} else if (optionmatch(argv[j],"log")) {
+		} else if (target_option(argv[j],"log")) {
 			opt_log = 1;
-		} else if (optionmatch(argv[j],"logsync")) {
+		} else if (target_option(argv[j],"logsync")) {
 			opt_logsync = 1;
-		} else if (optionmatch(argv[j],"advmamec")) {
+		} else if (target_option(argv[j],"advmamec")) {
 			the_advance = advance_mame;
-		} else if (optionmatch(argv[j],"advmessc")) {
+		} else if (target_option(argv[j],"advmessc")) {
 			the_advance = advance_mess;
-		} else if (optionmatch(argv[j],"advpacc")) {
+		} else if (target_option(argv[j],"advpacc")) {
 			the_advance = advance_pac;
-		} else if (optionmatch(argv[j],"advmenuc")) {
+		} else if (target_option(argv[j],"advmenuc")) {
 			the_advance = advance_menu;
-		} else if (optionmatch(argv[j],"bit") && j+1<argc) {
+		} else if (target_option(argv[j],"bit") && j+1<argc) {
 			bits = atoi(argv[++j]);
 		} else {
 			fprintf(stderr,"Unknown option %s.\n",argv[j]);

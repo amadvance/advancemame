@@ -47,146 +47,215 @@ extern "C" {
 /***************************************************************************/
 /* Video mode */
 
-/* Flags for memory */
-#define VIDEO_FLAGS_MEMORY_LINEAR 0x0001
-#define VIDEO_FLAGS_MEMORY_UNCHAINED 0x0002
-#define VIDEO_FLAGS_MEMORY_BANKED 0x0004
-#define VIDEO_FLAGS_MEMORY_MASK 0x000F
+/** \name Flags memory
+ * Flags describing the memory of a video mode.
+ */
+/*@{*/
+#define MODE_FLAGS_MEMORY_LINEAR 0x0001 /**< The memory is linear. */
+#define MODE_FLAGS_MEMORY_UNCHAINED 0x0002 /**< The memory is unchained (Xmode). */
+#define MODE_FLAGS_MEMORY_BANKED 0x0004 /**< The memory is banked. */
+#define MODE_FLAGS_MEMORY_MASK 0x000F /**< Mask. */
+/*@}*/
 
-/* Flags for triple buffer support */
-#define VIDEO_FLAGS_SYNC_SETPAGE 0x0020
+/** \name Flags sync
+ * Flags describing the sync support of a video mode.
+ */
+/*@{*/
+#define MODE_FLAGS_SCROLL_SYNC  0x0020 /**< The syncronous (triple buffer) setpage command is supported. */
+#define MODE_FLAGS_SCROLL_ASYNC 0x0040 /**< The asyncronous (double buffer) setpage command is supported. */
+#define MODE_FLAGS_SCROLL_MASK  0x00F0 /**< Mask. */
+/*@}*/
 
-/* Flags for double buffer support */
-#define VIDEO_FLAGS_ASYNC_SETPAGE 0x0040
+/** \name Flags index
+ * Flags describing the color index of a video mode.
+ */
+/*@{*/
+#define MODE_FLAGS_INDEX_RGB 0x0100 /**< RGB mode. */
+#define MODE_FLAGS_INDEX_PACKED 0x0200 /**< Palette mode. */
+#define MODE_FLAGS_INDEX_TEXT 0x0300 /**< Text mode. */
+#define MODE_FLAGS_INDEX_MASK 0x0F00 /**< Mask. */
+/*@}*/
 
-/* Flags for color mode */
-#define VIDEO_FLAGS_INDEX_RGB 0x0100 /* RGB mode */
-#define VIDEO_FLAGS_INDEX_PACKED 0x0200 /* Palette mode */
-#define VIDEO_FLAGS_INDEX_TEXT 0x0300 /* Text mode */
-#define VIDEO_FLAGS_INDEX_MASK 0x0F00
+/** \name Flags type
+ * Flags describing the type of a video mode.
+ */
+/*@{*/
+#define MODE_FLAGS_TYPE_TEXT 0x1000 /**< Text mode. */
+#define MODE_FLAGS_TYPE_GRAPHICS 0x2000 /**< Graphics mode. */
+#define MODE_FLAGS_TYPE_MASK 0xF000 /**< Mask. */
+/*@}*/
 
-/* Flags for text or graphics mode */
-#define VIDEO_FLAGS_TYPE_TEXT 0x1000 /* Text mode */
-#define VIDEO_FLAGS_TYPE_GRAPHICS 0x2000 /* Graphics mode */
-#define VIDEO_FLAGS_TYPE_MASK 0xF000
+/** \name Flags user
+ * Flags for the user.
+ */
+/*@{*/
+#define MODE_FLAGS_USER_BIT0 0x10000000 /**< First user flag. */
+#define MODE_FLAGS_USER_MASK 0xF0000000 /**< Mask. */
+/*@}*/
 
-/* Users flags */
-#define VIDEO_FLAGS_USER_BIT0 0x10000000
-#define VIDEO_FLAGS_USER_BIT1 0x20000000
-#define VIDEO_FLAGS_USER_BIT2 0x40000000
-#define VIDEO_FLAGS_USER_BIT3 0x80000000
-#define VIDEO_FLAGS_USER_MASK 0xF0000000
-
-/** Max size of a driver video mode */
-#define VIDEO_DRIVER_MODE_SIZE_MAX (sizeof(video_crtc)+16)
+/**
+ * Max size of a driver video mode
+ */
+#define MODE_DRIVER_MODE_SIZE_MAX (sizeof(adv_crtc)+16)
 
 /**
  * Max length of video mode name.
  */
 #define MODE_NAME_MAX 128
 
-struct video_driver_struct;
+struct adv_video_driver_struct;
 
-typedef struct video_mode_struct {
-	unsigned flags;
-	char name[MODE_NAME_MAX];
-	unsigned size_x;
-	unsigned size_y;
-	double vclock; /**< Vertical freq, ==0 if not computable */
-	double hclock; /**< Horiz freq, ==0 if not computable */
+/**
+ * Video mode specification.
+ */
+typedef struct vmode_struct {
+	unsigned flags; /**< Flags. */
+	char name[MODE_NAME_MAX]; /**< Name. */
+	unsigned size_x; /**< Width. */
+	unsigned size_y; /**< Height. */
+	double vclock; /**< Vertical freq, ==0 if not computable. */
+	double hclock; /**< Horiz freq, ==0 if not computable. */
 	int scan; /**< Scan mode. 0=singlescan, 1=doublescan, -1=interlace. */
 	unsigned bits_per_pixel; /**< graph=8,15,16,24,32, text=0 */
 
-	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX]; /**< Driver mode information */
-	struct video_driver_struct* driver; /**< Video driver of the mode */
-} video_mode;
+	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX]; /**< Driver mode information. */
+	struct adv_video_driver_struct* driver; /**< Video driver of the mode. */
+} adv_mode;
 
-/** Name of the video mode. */
-static __inline__  const char* video_mode_name(const video_mode* mode) {
+/**
+ * Get the name of a video mode.
+ */
+static inline const char* mode_name(const adv_mode* mode) {
 	return mode->name;
 }
 
-/** Driver of the video mode. */
-static __inline__  const struct video_driver_struct* video_mode_driver(const video_mode* mode) {
+/**
+ * Get the driver of a video mode.
+ */
+static inline const struct adv_video_driver_struct* mode_driver(const adv_mode* mode) {
 	return mode->driver;
 }
 
-/** Vertical clock of the video mode. */
-static __inline__  double video_mode_vclock(const video_mode* mode) {
+/**
+ * Get the vertical clock of a video mode.
+ */
+static inline double mode_vclock(const adv_mode* mode) {
 	return mode->vclock;
 }
 
-/** Horizontal clock of the video mode. */
-static __inline__  double video_mode_hclock(const video_mode* mode) {
+/**
+ * Get the horizontal clock of a video mode.
+ */
+static inline double mode_hclock(const adv_mode* mode) {
 	return mode->hclock;
 }
 
-/** Horizontal size of the video mode. */
-static __inline__  unsigned video_mode_size_x(const video_mode* mode) {
+/**
+ * Get the width of a video mode.
+ */
+static inline unsigned mode_size_x(const adv_mode* mode) {
 	return mode->size_x;
 }
 
-/** Vertical size of the video mode. */
-static __inline__  unsigned video_mode_size_y(const video_mode* mode) {
+/**
+ * Get the height of a video mode.
+ */
+static inline unsigned mode_size_y(const adv_mode* mode) {
 	return mode->size_y;
 }
 
-static __inline__  unsigned video_mode_bits_per_pixel(const video_mode* mode) {
+/**
+ * Get the bits per pixel of a video mode.
+ */
+static inline unsigned mode_bits_per_pixel(const adv_mode* mode) {
 	return mode->bits_per_pixel;
 }
 
-static __inline__  unsigned video_mode_bytes_per_pixel(const video_mode* mode) {
-	return (video_mode_bits_per_pixel(mode) + 7) / 8;
-}
-
-static __inline__  unsigned video_mode_flags(const video_mode* mode) {
-	return mode->flags;
-}
-
-static __inline__  unsigned video_mode_index(const video_mode* mode) {
-	return video_mode_flags(mode) & VIDEO_FLAGS_INDEX_MASK;
-}
-
-static __inline__  unsigned video_mode_type(const video_mode* mode) {
-	return video_mode_flags(mode) & VIDEO_FLAGS_TYPE_MASK;
-}
-
-static __inline__  unsigned video_mode_memory(const video_mode* mode) {
-	return video_mode_flags(mode) & VIDEO_FLAGS_MEMORY_MASK;
-}
-
-static __inline__  boolean video_mode_is_text(const video_mode* mode) {
-	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_TEXT;
-}
-
-static __inline__  boolean video_mode_is_graphics(const video_mode* mode) {
-	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_GRAPHICS;
-}
-
-static __inline__  boolean video_mode_is_linear(const video_mode* mode) {
-	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_LINEAR;
-}
-
-static __inline__  boolean video_mode_is_unchained(const video_mode* mode) {
-	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_UNCHAINED;
-}
-
-static __inline__  boolean video_mode_is_banked(const video_mode* mode) {
-	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_BANKED;
+/**
+ * Get the bytes per pixel of a video mode.
+ */
+static inline unsigned mode_bytes_per_pixel(const adv_mode* mode) {
+	return (mode_bits_per_pixel(mode) + 7) / 8;
 }
 
 /**
- * Return the line scan.
+ * Get the flags of a video mode.
+ */
+static inline unsigned mode_flags(const adv_mode* mode) {
+	return mode->flags;
+}
+
+/**
+ * Get the index mode of a video mode.
+ * \return One of the MODE_FLAGS_INDEX_* flags.
+ */
+static inline unsigned mode_index(const adv_mode* mode) {
+	return mode_flags(mode) & MODE_FLAGS_INDEX_MASK;
+}
+
+/**
+ * Get the type of a video mode.
+ * \return One of the MODE_FLAGS_TYPE_* flags.
+ */
+static inline unsigned mode_type(const adv_mode* mode) {
+	return mode_flags(mode) & MODE_FLAGS_TYPE_MASK;
+}
+
+/**
+ * Get the memory mode of a video mode.
+ * \return One of the MODE_FLAGS_MEMORY_* flags.
+ */
+static inline unsigned mode_memory(const adv_mode* mode) {
+	return mode_flags(mode) & MODE_FLAGS_MEMORY_MASK;
+}
+
+/**
+ * Check if a video mode is a text mode.
+ */
+static inline adv_bool mode_is_text(const adv_mode* mode) {
+	return mode_type(mode) == MODE_FLAGS_TYPE_TEXT;
+}
+
+/**
+ * Check if a video mode is a graphics mode.
+ */
+static inline adv_bool mode_is_graphics(const adv_mode* mode) {
+	return mode_type(mode) == MODE_FLAGS_TYPE_GRAPHICS;
+}
+
+/**
+ * Check if a video mode is a linear mode.
+ */
+static inline adv_bool mode_is_linear(const adv_mode* mode) {
+	return mode_memory(mode) == MODE_FLAGS_MEMORY_LINEAR;
+}
+
+/**
+ * Check if a video mode is a unchained mode.
+ */
+static inline adv_bool mode_is_unchained(const adv_mode* mode) {
+	return mode_memory(mode) == MODE_FLAGS_MEMORY_UNCHAINED;
+}
+
+/**
+ * Check if a video mode is a banked mode.
+ */
+static inline adv_bool mode_is_banked(const adv_mode* mode) {
+	return mode_memory(mode) == MODE_FLAGS_MEMORY_BANKED;
+}
+
+/**
+ * Get the line scan of a video mode.
  * \return
  *   - -1 interlace
  *   - 0 singlescan
  *   - 1 doublescan
  */
-static __inline__  int video_mode_scan(const video_mode* mode) {
+static inline int mode_scan(const adv_mode* mode) {
 	return mode->scan;
 }
 
-void video_mode_reset(video_mode* mode);
+void mode_reset(adv_mode* mode);
 
 #ifdef __cplusplus
 }

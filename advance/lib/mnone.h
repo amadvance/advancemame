@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Mouse driver "none".
+ * Mouse adv_driver "none".
  */
 
 #ifndef __MNONE_H
@@ -45,8 +45,8 @@ extern "C" {
 /*@{*/
 
 /**
- * Mouse driver "none".
- * This driver implement a null mouse. No event is generated.
+ * Mouse adv_driver "none".
+ * This adv_driver implement a null mouse. No event is generated.
  */
 extern mouseb_driver mouseb_none_driver;
 

@@ -35,7 +35,7 @@
 #include <string.h>
 
 /* Normalize the values */
-void generate_normalize(video_generate* generate) {
+void generate_normalize(adv_generate* generate) {
 	double ht = generate->hactive + generate->hfront +  generate->hsync + generate->hback;
 	double vt = generate->vactive + generate->vfront +  generate->vsync + generate->vback;
 	/* prevent division by 0 for LCD monitor */
@@ -54,7 +54,7 @@ void generate_normalize(video_generate* generate) {
 }
 
 /* Set default value for a VGA monitor */
-void generate_default_vga(video_generate* generate) {
+void generate_default_vga(adv_generate* generate) {
 	generate->hactive = 640;
 	generate->hfront = 16;
 	generate->hsync = 96;
@@ -78,27 +78,27 @@ void generate_default_vga(video_generate* generate) {
 	dst->vback = c-b; \
 	dst->vfront = d-c-a
 
-void generate_default_atari_standard(video_generate* generate) {
+void generate_default_atari_standard(adv_generate* generate) {
 	hmodeline(generate,46.9,4.7,11.9,63.6);
 	vmodeline(generate,15.3,0.2,1.2,16.7);
 }
 
-void generate_default_atari_extended(video_generate* generate) {
+void generate_default_atari_extended(adv_generate* generate) {
 	hmodeline(generate,48,3.9,11.9,60.6);
 	vmodeline(generate,17.4,0.2,1.2,18.9);
 }
 
-void generate_default_atari_medium(video_generate* generate) {
+void generate_default_atari_medium(adv_generate* generate) {
 	hmodeline(generate,32,4,7.2,40);
 	vmodeline(generate,15.4,0.2,1.2,16.7);
 }
 
-void generate_default_atari_vga(video_generate* generate) {
+void generate_default_atari_vga(adv_generate* generate) {
 	hmodeline(generate,25.6,4,5.7,31.7);
 	vmodeline(generate,12.2,0.2,1.1,14.3);
 }
 
-void generate_default_pal(video_generate* generate) {
+void generate_default_pal(adv_generate* generate) {
 	generate->hactive = 52.00;
 	generate->hfront = 1.65;
 	generate->hsync = 4.70;
@@ -109,7 +109,7 @@ void generate_default_pal(video_generate* generate) {
 	generate->vback = 18;
 }
 
-void generate_default_ntsc(video_generate* generate) {
+void generate_default_ntsc(adv_generate* generate) {
 	generate->hactive = 52.60;
 	generate->hfront = 1.50;
 	generate->hsync = 4.70;
@@ -120,7 +120,7 @@ void generate_default_ntsc(video_generate* generate) {
 	generate->vback = 14;
 }
 
-void generate_default_lcd(video_generate* generate) {
+void generate_default_lcd(adv_generate* generate) {
 	/* No generation for LCD monitor */
 	generate->hactive = 0;
 	generate->hfront = 0;
@@ -132,8 +132,8 @@ void generate_default_lcd(video_generate* generate) {
 	generate->vback = 0;
 }
 
-error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust) {
-	video_generate norm = *generate;
+adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate* generate, unsigned capability, unsigned adjust) {
+	adv_generate norm = *generate;
 	unsigned vtotal;
 	double factor;
 
@@ -189,8 +189,8 @@ error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vcl
 	return 0;
 }
 
-error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
-	video_generate norm = interpolate->map[0].gen;
+adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
+	adv_generate norm = interpolate->map[0].gen;
 	unsigned vtotal;
 	double factor;
 
@@ -250,8 +250,8 @@ error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize
 	return 0;
 }
 
-error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
-	error err;
+adv_error generate_find_interpolate_double(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
+	adv_error err;
 
 	err = generate_find_interpolate(crtc, hsize, vsize, vclock, monitor, interpolate, capability, adjust);
 
@@ -281,7 +281,7 @@ static double pos(double v) {
 		return v;
 }
 
-static void generate_interpolate_from2(video_generate* generate, unsigned hclock, const video_generate_interpolate* e0, const video_generate_interpolate* e1) {
+static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, const adv_generate_interpolate* e0, const adv_generate_interpolate* e1) {
 	if (e1->hclock != e0->hclock) {
 		double f1 = (hclock - (double)e0->hclock) / (e1->hclock - (double)e0->hclock);
 		double f0 = 1 - f1;
@@ -307,16 +307,16 @@ static void generate_interpolate_from2(video_generate* generate, unsigned hclock
 	generate_normalize(generate);
 }
 
-void generate_interpolate_h(video_generate* generate, unsigned hclock, const video_generate_interpolate_set* interpolate) {
+void generate_interpolate_h(adv_generate* generate, unsigned hclock, const adv_generate_interpolate_set* interpolate) {
 	unsigned i;
 
-	const video_generate_interpolate* e0 = 0;
-	const video_generate_interpolate* e1 = 0;
+	const adv_generate_interpolate* e0 = 0;
+	const adv_generate_interpolate* e1 = 0;
 
 	assert( interpolate->mac );
 
 	for(i=0;i<interpolate->mac;++i) {
-		const video_generate_interpolate* e = interpolate->map + i;
+		const adv_generate_interpolate* e = interpolate->map + i;
 		if (e->hclock <= hclock && (!e0 || e0->hclock < e->hclock))
 			e0 = e;
 		if (e->hclock >= hclock && (!e1 || e1->hclock > e->hclock))
@@ -334,7 +334,7 @@ void generate_interpolate_h(video_generate* generate, unsigned hclock, const vid
 	}
 }
 
-static void generate_crtc_h(video_crtc* crtc, unsigned hsize, unsigned vsize, const video_generate* generate_norm)
+static void generate_crtc_h(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_norm)
 {
 	crtc->hde = crtc_step((double)hsize, CRTC_HSTEP);
 	crtc->ht = crtc_step(crtc->hde / generate_norm->hactive, CRTC_HSTEP);
@@ -345,7 +345,7 @@ static void generate_crtc_h(video_crtc* crtc, unsigned hsize, unsigned vsize, co
 		crtc->hre = crtc->hrs + CRTC_HSTEP;
 }
 
-static void generate_crtc_v(video_crtc* crtc, unsigned hsize, unsigned vsize, const video_generate* generate_norm)
+static void generate_crtc_v(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_norm)
 {
 	crtc->vde = crtc_step((double)vsize, CRTC_VSTEP);
 	crtc->vt = crtc_step(crtc->vde / generate_norm->vactive, CRTC_VSTEP);
@@ -357,8 +357,8 @@ static void generate_crtc_v(video_crtc* crtc, unsigned hsize, unsigned vsize, co
 }
 
 /* Generate the CRTC values */
-void generate_crtc(video_crtc* crtc, unsigned hsize, unsigned vsize, const video_generate* generate_free) {
-	video_generate generate_norm = *generate_free;
+void generate_crtc(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_free) {
+	adv_generate generate_norm = *generate_free;
 
 	generate_normalize(&generate_norm);
 
@@ -366,10 +366,10 @@ void generate_crtc(video_crtc* crtc, unsigned hsize, unsigned vsize, const video
 	generate_crtc_v(crtc,hsize,vsize,&generate_norm);
 }
 
-void generate_interpolate_reset(video_generate_interpolate_set* interpolate) {
+void generate_interpolate_reset(adv_generate_interpolate_set* interpolate) {
 	interpolate->mac = 0;
 }
 
-boolean generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate) {
+adv_bool generate_interpolate_is_empty(const adv_generate_interpolate_set* interpolate) {
 	return interpolate->mac == 0;
 }

@@ -168,9 +168,9 @@ struct advance_video_config_context {
 	int frameskip_auto_flag; /**< boolean. */
 	unsigned depth; /**< Depth of the video mode, ==0 if auto. */
 	double aspect_expansion_factor; /**< Expansion factor of the aspect. */
-	video_monitor monitor; /**< Monitor specifications. */
-	video_generate_interpolate_set interpolate; /**< Video mode generator specifications. */
-	video_crtc_container crtc_bag; /**< All the modelines. */
+	adv_monitor monitor; /**< Monitor specifications. */
+	adv_generate_interpolate_set interpolate; /**< Video mode generator specifications. */
+	adv_crtc_container crtc_bag; /**< All the modelines. */
 	char section_name[256]; /**< Section used to store the option for the game. */
 	char section_resolution[256]; /**< Section used to store the option for the resolution. */
 	char section_orientation[256]; /**< Section used to store the option for the orientation. */
@@ -180,7 +180,7 @@ struct advance_video_config_context {
 
 /* Internal options for the video part */
 struct advance_video_state_context {
-	struct conf_context* cfg_context; /**< Context of the current configuration. */
+	adv_conf* cfg_context; /**< Context of the current configuration. */
 
 	/* Game info */
 	int game_vector_flag; /**< If is a vector game. */
@@ -197,13 +197,13 @@ struct advance_video_state_context {
 	int game_bytes_per_pixel; /**< Game bytes per pixel. */
 	int game_colors; /**< Number of colors used by the game. */
 	int game_rgb_flag; /**< If the bitmap contains direct RGB colors. */
-	video_rgb_def game_rgb_def; /**< Game color format. */
+	adv_rgb_def game_rgb_def; /**< Game color format. */
 
 	int debugger_flag; /**< Debugger show flag. */
 
 	double gamma_effect_factor; /**< Gamma value required by the display effect. */
 
-	video_mode mode; /**< Video mode. */
+	adv_mode mode; /**< Video mode. */
 	int mode_flag; /**< If the mode is set */
 	int mode_rgb_flag; /**< If is a rgb video mode. */
 	int mode_bits_per_pixel; /**< Bits per pixel. */
@@ -298,9 +298,9 @@ struct advance_video_state_context {
 	int blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
 	struct video_pipeline_struct blit_pipeline; /**< Put pipeline for the whole put. */
 
-	const video_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
-	video_crtc crtc_effective; /**< Current modified crtc. */
-	const video_crtc* crtc_map[VIDEO_CRTC_MAX];
+	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
+	adv_crtc crtc_effective; /**< Current modified crtc. */
+	const adv_crtc* crtc_map[VIDEO_CRTC_MAX];
 	unsigned crtc_mac;
 
 	/* Event */
@@ -320,20 +320,20 @@ struct advance_video_context {
 
 void video_aspect_reduce(unsigned long long* a, unsigned long long* b);
 double video_rate_scale_down(double rate, double reference);
-int crtc_scanline(const video_crtc* crtc);
-void crtc_sort(const struct advance_video_context* context, const video_crtc** map, unsigned mac);
+int crtc_scanline(const adv_crtc* crtc);
+void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac);
 
 const char* mode_current_name(const struct advance_video_context* context);
 int mode_current_magnify(const struct advance_video_context* context);
 int mode_current_stretch(const struct advance_video_context* context);
-const char* mode_desc(struct advance_video_context* context, const video_crtc* crtc);
+const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc);
 int mode_current_stretch(const struct advance_video_context* context);
 
-int advance_video_init(struct advance_video_context* context, struct conf_context* cfg_context);
+int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context);
 void advance_video_done(struct advance_video_context* context);
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option);
 void advance_video_inner_done(struct advance_video_context* context);
-int advance_video_config_load(struct advance_video_context* context, struct conf_context* cfg_context, struct mame_option* option);
+int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option);
 int advance_video_change(struct advance_video_context* context);
 void advance_video_save(struct advance_video_context* context, const char* section);
 
@@ -382,13 +382,13 @@ struct advance_record_context {
 	struct advance_record_state_context state;
 };
 
-int advance_record_init(struct advance_record_context* context, struct conf_context* cfg_context);
+int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context);
 void advance_record_done(struct advance_record_context* context);
-int advance_record_config_load(struct advance_record_context* context, struct conf_context* cfg_context);
+int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
 
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
 
 int advance_record_sound_is_active(struct advance_record_context* context);
 int advance_record_video_is_active(struct advance_record_context* context);
@@ -418,9 +418,9 @@ struct advance_sound_context {
 	struct advance_sound_state_context state;
 };
 
-int advance_sound_init(struct advance_sound_context* context, struct conf_context* cfg_context);
+int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
 void advance_sound_done(struct advance_sound_context* context);
-int advance_sound_config_load(struct advance_sound_context* context, struct conf_context* cfg_context, struct mame_option* game_options);
+int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count);
 int advance_sound_latency_diff(struct advance_sound_context* context);
 
@@ -472,11 +472,11 @@ struct advance_safequit_context {
 	struct advance_safequit_state state;
 };
 
-int advance_safequit_init(struct advance_safequit_context* context, struct conf_context* cfg_context);
+int advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context);
 void advance_safequit_done(struct advance_safequit_context* context);
 int advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
 void advance_safequit_inner_done(struct advance_safequit_context* context);
-int advance_safequit_config_load(struct advance_safequit_context* context, struct conf_context* cfg_context);
+int advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
 int advance_safequit_can_exit(struct advance_safequit_context* context);
 void advance_safequit_update(struct advance_safequit_context* context);
 
@@ -529,12 +529,12 @@ struct advance_input_context {
 	struct advance_input_state state;
 };
 
-int advance_input_init(struct advance_input_context* context, struct conf_context* cfg_context);
+int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
 void advance_input_done(struct advance_input_context* context);
 int advance_input_inner_init(struct advance_input_context* context);
 void advance_input_inner_done(struct advance_input_context* context);
 void advance_input_update(struct advance_input_context* context, int is_pause);
-int advance_input_config_load(struct advance_input_context* context, struct conf_context* cfg_context);
+int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory);
 
 /***************************************************************************/
@@ -560,15 +560,15 @@ extern struct advance_context CONTEXT;
 /* Interface */
 
 /* Glue */
-int mame_init(struct advance_context* context, struct conf_context* cfg_context);
+int mame_init(struct advance_context* context, adv_conf* cfg_context);
 void mame_done(struct advance_context* context);
-int mame_config_load(struct conf_context* context, struct mame_option* option);
+int mame_config_load(adv_conf* context, struct mame_option* option);
 int mame_game_run(struct advance_context* context, const struct mame_option* option);
 
 /* Fileio */
-int advance_fileio_init(struct conf_context* context);
+int advance_fileio_init(adv_conf* context);
 void advance_fileio_done(void);
-int advance_fileio_config_load(struct conf_context* context, struct mame_option* option);
+int advance_fileio_config_load(adv_conf* context, struct mame_option* option);
 
 /* Timer */
 static __inline__ double advance_timer(void) {

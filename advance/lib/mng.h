@@ -19,7 +19,7 @@
  */
 
 /** \file
- * MNG file support.
+ * adv_mng file support.
  */
 
 #ifndef __MNG_H
@@ -49,9 +49,9 @@ extern "C" {
 /*@}*/
 
 /**
- * MNG context.
+ * adv_mng context.
  */
-struct mng_context {
+typedef struct mng_struct {
 	int end_flag; /**< End flag. */
 	unsigned pixel; /**< Bytes per pixel. */
 	unsigned char* dat_ptr; /**< Current image buffer. */
@@ -74,28 +74,28 @@ struct mng_context {
 	unsigned frame_tick; /**< Ticks for a generic frame. */
 	unsigned frame_width; /**< Frame width. */
 	unsigned frame_height; /**< Frame height. */
-};
+} adv_mng;
 
-int mng_read_signature(FZ* f);
-int mng_write_signature(FZ* f, unsigned* count);
+adv_error mng_read_signature(adv_fz* f);
+adv_error mng_write_signature(adv_fz* f, unsigned* count);
 
 /** \addtogroup VideoFile */
 /*@{*/
 
-struct mng_context* mng_init(FZ* f);
-void mng_done(struct mng_context* mng);
-int mng_read(
-	struct mng_context* mng,
+adv_mng* mng_init(adv_fz* f);
+void mng_done(adv_mng* mng);
+adv_error mng_read(
+	adv_mng* mng,
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
 	unsigned* tick,
-	FZ* f
+	adv_fz* f
 );
-unsigned mng_frequency_get(struct mng_context* mng);
-unsigned mng_width_get(struct mng_context* mng);
-unsigned mng_height_get(struct mng_context* mng);
+unsigned mng_frequency_get(adv_mng* mng);
+unsigned mng_width_get(adv_mng* mng);
+unsigned mng_height_get(adv_mng* mng);
 
 /*@}*/
 

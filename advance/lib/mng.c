@@ -27,15 +27,15 @@
 #include <string.h>
 
 /**************************************************************************************/
-/* MNG */
+/* adv_mng */
 
 static unsigned char MNG_Signature[] = "\x8A\x4D\x4E\x47\x0D\x0A\x1A\x0A";
 
 /**
- * Read the MNG file signature.
+ * Read the adv_mng file signature.
  * \param f File to read. 
  */
-int mng_read_signature(FZ* f)
+adv_error mng_read_signature(adv_fz* f)
 {
 	unsigned char signature[8];
 
@@ -45,7 +45,7 @@ int mng_read_signature(FZ* f)
 	}
 
 	if (memcmp(signature,MNG_Signature,8)!=0) {
-		error_set("Invalid MNG signature");
+		error_set("Invalid adv_mng signature");
 		return -1;
 	}
 
@@ -53,11 +53,11 @@ int mng_read_signature(FZ* f)
 }
 
 /**
- * Write the MNG file signature.
+ * Write the adv_mng file signature.
  * \param f File to write.
  * \param count Pointer at the number of bytes written. It may be 0.
  */
-int mng_write_signature(FZ* f, unsigned* count)
+adv_error mng_write_signature(adv_fz* f, unsigned* count)
 {
 	if (fzwrite(MNG_Signature, 8, 1, f) != 1) {
 		error_set("Error writing the signature");
@@ -70,7 +70,7 @@ int mng_write_signature(FZ* f, unsigned* count)
 	return 0;
 }
 
-static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ihdr, unsigned ihdr_size)
+static adv_error mng_read_ihdr(adv_mng* mng, adv_fz* f, const unsigned char* ihdr, unsigned ihdr_size)
 {
 	unsigned type;
 	unsigned char* data;
@@ -201,7 +201,7 @@ err:
 	return -1;
 }
 
-static int mng_read_defi(struct mng_context* mng, unsigned char* defi, unsigned defi_size)
+static adv_error mng_read_defi(adv_mng* mng, unsigned char* defi, unsigned defi_size)
 {
 	unsigned id;
 
@@ -235,7 +235,7 @@ static int mng_read_defi(struct mng_context* mng, unsigned char* defi, unsigned 
 	return 0;
 }
 
-static int mng_read_move(struct mng_context* mng, FZ* f, unsigned char* move, unsigned move_size)
+static adv_error mng_read_move(adv_mng* mng, adv_fz* f, unsigned char* move, unsigned move_size)
 {
 	unsigned id;
 
@@ -270,7 +270,7 @@ static int mng_read_move(struct mng_context* mng, FZ* f, unsigned char* move, un
 	return 0;
 }
 
-static void mng_delta_replacement(struct mng_context* mng, unsigned pos_x, unsigned pos_y, unsigned width, unsigned height)
+static void mng_delta_replacement(adv_mng* mng, unsigned pos_x, unsigned pos_y, unsigned width, unsigned height)
 {
 	unsigned i;
 	unsigned bytes_per_run = width * mng->pixel;
@@ -285,7 +285,7 @@ static void mng_delta_replacement(struct mng_context* mng, unsigned pos_x, unsig
 	}
 }
 
-static void mng_delta_addition(struct mng_context* mng, unsigned pos_x, unsigned pos_y, unsigned width, unsigned height)
+static void mng_delta_addition(adv_mng* mng, unsigned pos_x, unsigned pos_y, unsigned width, unsigned height)
 {
 	unsigned i,j;
 	unsigned bytes_per_run = width * mng->pixel;
@@ -302,7 +302,7 @@ static void mng_delta_addition(struct mng_context* mng, unsigned pos_x, unsigned
 	}
 }
 
-static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, unsigned dhdr_size)
+static adv_error mng_read_delta(adv_mng* mng, adv_fz* f, unsigned char* dhdr, unsigned dhdr_size)
 {
 	unsigned type;
 	unsigned char* data;
@@ -464,7 +464,7 @@ err:
 }
 
 static void mng_import(
-	struct mng_context* mng,
+	adv_mng* mng,
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
@@ -493,8 +493,8 @@ static void mng_import(
 }
 
 /**
- * Read a MNG image.
- * \param mng MNG context previously returned by mng_init().
+ * Read a adv_mng image.
+ * \param mng adv_mng context previously returned by mng_init().
  * \param pix_width Where to put the image width.
  * \param pix_height Where to put the image height.
  * \param pix_pixel Where to put the image bytes per pixel.
@@ -511,14 +511,14 @@ static void mng_import(
  *   - == 1 end of the mng stream
  *   - < 0 error
  */
-int mng_read(
-	struct mng_context* mng,
+adv_error mng_read(
+	adv_mng* mng,
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
 	unsigned* tick,
-	FZ* f
+	adv_fz* f
 ) {
 	unsigned type;
 	unsigned char* data;
@@ -614,20 +614,20 @@ err:
 }
 
 /**
- * Inizialize a MNG reading stream.
+ * Inizialize a adv_mng reading stream.
  * \param f File to read.
- * \return Return the MNG context. It must be destroied calling mng_done(). On error return 0.
+ * \return Return the adv_mng context. It must be destroied calling mng_done(). On error return 0.
  */
-struct mng_context* mng_init(FZ* f)
+adv_mng* mng_init(adv_fz* f)
 {
-	struct mng_context* mng;
+	adv_mng* mng;
 
 	unsigned type;
 	unsigned char* data;
 	unsigned size;
 	unsigned simplicity;
 
-	mng = malloc(sizeof(struct mng_context));
+	mng = malloc(sizeof(adv_mng));
 	if (!mng)
 		goto err;
 
@@ -681,10 +681,10 @@ err:
 }
 
 /**
- * Destory a MNG context.
- * \param mng MNG context previously returned by mng_init().
+ * Destory a adv_mng context.
+ * \param mng adv_mng context previously returned by mng_init().
  */
-void mng_done(struct mng_context* mng)
+void mng_done(adv_mng* mng)
 {
 	free(mng->dat_ptr);
 	free(mng->dlt_ptr);
@@ -692,29 +692,29 @@ void mng_done(struct mng_context* mng)
 }
 
 /**
- * Get the base frequency of the MNG.
+ * Get the base frequency of the adv_mng.
  * This value can be used to convert the number of tick per frame in a time.
- * \param mng MNG context.
+ * \param mng adv_mng context.
  * \return Frequency in Hz.
  */
-unsigned mng_frequency_get(struct mng_context* mng) {
+unsigned mng_frequency_get(adv_mng* mng) {
 	return mng->frame_frequency;
 }
 
 /**
  * Get the width of the frame.
- * \param mng MNG context.
+ * \param mng adv_mng context.
  * \return Width in pixel.
  */
-unsigned mng_width_get(struct mng_context* mng) {
+unsigned mng_width_get(adv_mng* mng) {
 	return mng->frame_width;
 }
 
 /**
  * Get the height of the frame.
- * \param mng MNG context.
+ * \param mng adv_mng context.
  * \return height in pixel.
  */
-unsigned mng_height_get(struct mng_context* mng) {
+unsigned mng_height_get(adv_mng* mng) {
 	return mng->frame_height;
 }

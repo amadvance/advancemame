@@ -154,12 +154,12 @@ static struct keyb_pair {
 
 static struct keyb_allegro_context allegro_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "Allegro keyboard" },
 { 0, 0, 0 }
 };
 
-error keyb_allegro_init(int keyb_id, boolean disable_special)
+adv_error keyb_allegro_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -252,12 +252,12 @@ unsigned keyb_allegro_flags(void)
 	return 0;
 }
 
-error keyb_allegro_load(struct conf_context* context)
+adv_error keyb_allegro_load(adv_conf* context)
 {
 	return 0;
 }
 
-void keyb_allegro_reg(struct conf_context* context)
+void keyb_allegro_reg(adv_conf* context)
 {
 }
 

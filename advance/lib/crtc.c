@@ -58,7 +58,7 @@ unsigned crtc_step(double v, unsigned st) {
  * The pixel clock limits are NOT checked.
  * \return 0 if successful
  */
-error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
+adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor) {
 	double hclock;
 	double vclock;
 	double factor;
@@ -80,7 +80,7 @@ error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 		return 0;
 
 	/* check for every hclock limit */
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
+	for(i=0;i<MONITOR_RANGE_MAX;++i) {
 		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
 			double try_hclock, try_vclock;
 
@@ -107,7 +107,7 @@ error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 	}
 
 	/* check for every vclock limit */
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
+	for(i=0;i<MONITOR_RANGE_MAX;++i) {
 		if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
 			double try_hclock, try_vclock;
 
@@ -145,7 +145,7 @@ error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 /**
  * Check if the exact mode is available.
  */
-static error crtc_find_exact(unsigned req_vtotal, double req_vclock, const video_monitor* monitor) {
+static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const adv_monitor* monitor) {
 	if (!monitor_hvclock_check(monitor, req_vclock * req_vtotal, req_vclock))
 		return -1;
 	return 0;
@@ -154,7 +154,7 @@ static error crtc_find_exact(unsigned req_vtotal, double req_vclock, const video
 /**
  * Find the nearest vclock available.
  */
-static error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const video_monitor* monitor) {
+static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const adv_monitor* monitor) {
 	double vclock;
 	double best_vclock = 0;
 	int best_found = 0;
@@ -163,7 +163,7 @@ static error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, c
 	vclock = *req_vclock;
 
 	/* check for every hclock limit */
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
+	for(i=0;i<MONITOR_RANGE_MAX;++i) {
 		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
 			double try_hclock, try_vclock;
 
@@ -190,7 +190,7 @@ static error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, c
 	}
 
 	/* check for every vclock limit */
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
+	for(i=0;i<MONITOR_RANGE_MAX;++i) {
 		if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
 			double try_hclock, try_vclock;
 
@@ -226,7 +226,7 @@ static error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, c
 /**
  * Find the nearest vtotal available.
  */
-static error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const video_monitor* monitor) {
+static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const adv_monitor* monitor) {
 	int vtotal;
 	unsigned best_vtotal = 0;
 	double best_vclock = 0;
@@ -236,10 +236,10 @@ static error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, 
 	vtotal = *req_vtotal;
 
 	/* check for every hclock limit */
-	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j) {
+	for(j=0;j<MONITOR_RANGE_MAX;++j) {
 		if (monitor->hclock[j].low != 0 && monitor->hclock[j].high != 0) {
 			/* check for every vclock limit */
-			for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
+			for(i=0;i<MONITOR_RANGE_MAX;++i) {
 				if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
 					int try_vtotal;
 					double try_hclock;
@@ -287,7 +287,7 @@ static error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, 
 /**
  * Find the nearest vtotal available without changing the vclock
  */
-static error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const video_monitor* monitor) {
+static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const adv_monitor* monitor) {
 	int vtotal;
 	unsigned best_vtotal = 0;
 	int best_found = 0;
@@ -296,7 +296,7 @@ static error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double re
 	vtotal = *req_vtotal;
 
 	/* check for every hclock limit */
-	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j) {
+	for(j=0;j<MONITOR_RANGE_MAX;++j) {
 		if (monitor->hclock[j].low != 0 && monitor->hclock[j].high != 0) {
 			int try_vtotal;
 			double try_hclock;
@@ -338,7 +338,7 @@ static error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double re
  *   - with different vtotal if CRTC_ADJUST_VTOTAL and not CRTC_ADJUST_VCLOCK
  *   - with different vtotal and vclock if if CRTC_ADJUST_VTOTAL and CRTC_ADJUST_VCLOCK
  */
-error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust) {
+adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const adv_monitor* monitor, unsigned cap, unsigned adjust) {
 	int best_found = 0;
 	double best_vclock = 0;
 	double best_factor = 0;
@@ -505,7 +505,7 @@ error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, co
 }
 
 /** Change the horizontal resolution. */
-void crtc_hsize_set(video_crtc* crtc, unsigned hsize) {
+void crtc_hsize_set(adv_crtc* crtc, unsigned hsize) {
 	unsigned new_hde = crtc_step(hsize, CRTC_HSTEP);
 	unsigned new_ht = crtc_step(crtc->ht * (double)new_hde / crtc->hde, CRTC_HSTEP);
 
@@ -522,7 +522,7 @@ void crtc_hsize_set(video_crtc* crtc, unsigned hsize) {
 }
 
 /** Change the vertical resolution. */
-void crtc_vsize_set(video_crtc* crtc, unsigned vsize) {
+void crtc_vsize_set(adv_crtc* crtc, unsigned vsize) {
 	unsigned new_vde = crtc_step(vsize, CRTC_VSTEP);
 	unsigned new_vt = crtc_step(crtc->vt * (double)new_vde / crtc->vde, CRTC_VSTEP);
 
@@ -536,17 +536,17 @@ void crtc_vsize_set(video_crtc* crtc, unsigned vsize) {
 }
 
 /** Set the pixel clock. */
-void crtc_pclock_set(video_crtc* crtc, double pclock) {
+void crtc_pclock_set(adv_crtc* crtc, double pclock) {
 	crtc->pixelclock = pclock;
 }
 
 /** Set the horz clock. */
-void crtc_hclock_set(video_crtc* crtc, double hclock) {
+void crtc_hclock_set(adv_crtc* crtc, double hclock) {
 	crtc->pixelclock = hclock * crtc->ht;
 }
 
 /** Set the vert clock. */
-void crtc_vclock_set(video_crtc* crtc, double vclock) {
+void crtc_vclock_set(adv_crtc* crtc, double vclock) {
 	double factor = 1;
 	if (crtc_is_interlace(crtc))
 		factor /= 2;
@@ -559,7 +559,7 @@ void crtc_vclock_set(video_crtc* crtc, double vclock) {
  * Return the HClock value of the CRTC.
  * \note This value DO NOT depend on the doublescan and interlace flag
  */
-double crtc_hclock_get(const video_crtc* crtc) {
+double crtc_hclock_get(const adv_crtc* crtc) {
 	if (crtc_is_tvpal(crtc))
 		return 15625;
 	else if (crtc_is_tvntsc(crtc))
@@ -572,7 +572,7 @@ double crtc_hclock_get(const video_crtc* crtc) {
  * Return the VClock value of the CRTC.
  * \note This value depends on the doublescan and interlace flag
  */
-double crtc_vclock_get(const video_crtc* crtc) {
+double crtc_vclock_get(const adv_crtc* crtc) {
 	if (crtc_is_tvpal(crtc))
 		return 50;
 	else if (crtc_is_tvntsc(crtc))
@@ -601,7 +601,7 @@ double crtc_vclock_get(const video_crtc* crtc) {
  * user entries are not checked.
  * \return like strcmp -1,0,1
  */
-int video_crtc_compare(const video_crtc* a,const video_crtc* b) {
+int crtc_compare(const adv_crtc* a,const adv_crtc* b) {
 	COMPARE(a->vde,b->vde);
 	COMPARE(a->hde,b->hde);
 	COMPARE(crtc_is_doublescan(a),crtc_is_doublescan(b));
@@ -624,11 +624,11 @@ int video_crtc_compare(const video_crtc* a,const video_crtc* b) {
 	return 0;
 }
 
-boolean crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc) {
+adv_bool crtc_clock_check(const adv_monitor* monitor, const adv_crtc* crtc) {
 	return monitor_clock_check(monitor, crtc_pclock_get(crtc), crtc_hclock_get(crtc), crtc_vclock_get(crtc));
 }
 
-int crtc_scan_get(const video_crtc* crtc) {
+int crtc_scan_get(const adv_crtc* crtc) {
 	if (crtc_is_doublescan(crtc))
 		return 1;
 	else if (crtc_is_interlace(crtc))
@@ -641,7 +641,7 @@ int crtc_scan_get(const video_crtc* crtc) {
  * Reset the crtc to standard values.
  * Only the "name", "user_flags" and "container_next" value are saved.
  */
-void crtc_reset(video_crtc* crtc) {
+void crtc_reset(adv_crtc* crtc) {
 	crtc->flags = 0;
 	crtc->pixelclock = 0;
 	crtc->hde = 0;
@@ -663,17 +663,17 @@ void crtc_reset(video_crtc* crtc) {
  * Reset the crtc to standard values.
  * Also the "name", "user_flags" and "container_next" value are cleared.
  */
-void crtc_reset_all(video_crtc* crtc) {
-	memset(crtc,0, sizeof(video_crtc));
+void crtc_reset_all(adv_crtc* crtc) {
+	memset(crtc,0, sizeof(adv_crtc));
 	crtc_reset(crtc);
 }
 
-void crtc_name_set(video_crtc* crtc, const char* name) {
+void crtc_name_set(adv_crtc* crtc, const char* name) {
 	memset(crtc->name, 0, sizeof(crtc->name));
 	strncpy(crtc->name, name, sizeof(crtc->name) - 1);
 }
 
-void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y) {
+void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y) {
 	crtc->hde = size_x;
 	crtc->hrs = crtc->hde;
 	crtc->hre = crtc->hde;
@@ -688,6 +688,6 @@ void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y) {
 	sprintf(crtc->name, "%dx%d", size_x, size_y);
 }
 
-boolean crtc_is_fake(const video_crtc* crtc) {
+adv_bool crtc_is_fake(const adv_crtc* crtc) {
 	return crtc->pixelclock == 0;
 }

@@ -45,7 +45,7 @@ extern "C" {
 /*@{*/
 
 const char* error_get(void);
-boolean error_unsupported_get(void);
+adv_bool error_unsupported_get(void);
 
 void error_set(const char* error, ...) __attribute__((format(printf,1,2)));
 void error_unsupported_set(const char* error, ...) __attribute__((format(printf,1,2)));

@@ -60,7 +60,7 @@ struct os_context {
 	 * before calling any Allegro functions.
 	 * Link with --wrap get_config_string --wrap get_config_int --wrap set_config_string --wrap set_config_int --wrap get_config_id --wrap set_config_id.
 	 */
-	struct conf_context* allegro_conf;
+	adv_conf* allegro_conf;
 #endif
 };
 
@@ -143,7 +143,7 @@ void __wrap_set_config_string(const char *section, const char *name, const char 
 	if (val) {
 		if (!conf_is_registered(OS.allegro_conf, allegro_name))
 			conf_string_register(OS.allegro_conf, allegro_name);
-		conf_string_set(OS.allegro_conf, "", allegro_name, val); /* ignore error */
+		conf_string_set(OS.allegro_conf, "", allegro_name, val); /* ignore adv_error */
 	} else {
 		conf_remove(OS.allegro_conf, "", allegro_name);
 	}
@@ -161,7 +161,7 @@ void __wrap_set_config_int(const char *section, const char *name, int val) {
 	if (!conf_is_registered(OS.allegro_conf, allegro_name))
 		conf_string_register(OS.allegro_conf, allegro_name);
 	sprintf(buffer,"%d",val);
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
+	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore adv_error */
 }
 
 void __wrap_set_config_id(const char *section, const char *name, int val) {
@@ -180,7 +180,7 @@ void __wrap_set_config_id(const char *section, const char *name, int val) {
 	buffer[1] = (((unsigned)val) >> 16) & 0xFF;
 	buffer[0] = (((unsigned)val) >> 24) & 0xFF;
 	buffer[4] = 0;
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
+	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore adv_error */
 }
 
 #endif
@@ -241,7 +241,7 @@ static void os_clock_setup(void) {
 	OS_CLOCKS_PER_SEC = USE_TICKER_FIXED;
 #else
 	os_clock_t v[7];
-	double error;
+	double adv_error;
 	int i;
 
 	ticker_measure(v,7);
@@ -254,11 +254,11 @@ static void os_clock_setup(void) {
 	OS_CLOCKS_PER_SEC = v[3]; /* median value */
 
 	if (v[0])
-		error = (v[6] - v[0]) / (double)v[0];
+		adv_error = (v[6] - v[0]) / (double)v[0];
 	else
-		error = 0;
+		adv_error = 0;
 
-	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], error * 100.0));
+	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], adv_error * 100.0));
 #endif
 }
 
@@ -276,7 +276,7 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-int os_init(struct conf_context* context) {
+int os_init(adv_conf* context) {
 	memset(&OS,0,sizeof(OS));
 
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER

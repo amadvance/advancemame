@@ -48,23 +48,23 @@ extern "C" {
 /* Driver */
 
 /**
- * Mouse driver.
- * This struct abstract all the driver funtionalities.
+ * Mouse adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
 typedef struct mouseb_driver_struct {
-	const char* name; /**< Name of the driver */
-	const device* device_map;  /**< Vector of supported devices. 0 terminated. */
+	const char* name; /**< Name of the adv_driver */
+	const adv_device* device_map;  /**< Vector of supported devices. 0 terminated. */
 
 	/** Load the configuration options. Call before init() */
-	error (*load)(struct conf_context* context);
+	adv_error (*load)(adv_conf* context);
 
 	/** Register the load options. Call before load(). */
-	void (*reg)(struct conf_context* context);
+	void (*reg)(adv_conf* context);
 
-	error (*init)(int device_id); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the adv_driver */
+	void (*done)(void); /**< Deinitialize the adv_driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
 
 	unsigned (*count_get)(void);
 	unsigned (*button_count_get)(unsigned mouse);
@@ -79,19 +79,19 @@ typedef struct mouseb_driver_struct {
 #define MOUSE_DRIVER_MAX 8
 
 /**
- * State of the driver system.
+ * State of the adv_driver system.
  */
 struct mouseb_state_struct {
-	boolean is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
-	boolean is_active_flag; /**< If the keyb_init() function was called. */
+	adv_bool is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
+	adv_bool is_active_flag; /**< If the keyb_init() function was called. */
 	unsigned driver_mac; /**< Number of registered drivers. */
 	mouseb_driver* driver_map[MOUSE_DRIVER_MAX]; /**< Registered drivers. */
-	mouseb_driver* driver_current; /**< Current driver active. 0 if none. */
-	char name[DEVICE_NAME_MAX]; /**< Name of the driver to use. */
+	mouseb_driver* driver_current; /**< Current adv_driver active. 0 if none. */
+	char name[DEVICE_NAME_MAX]; /**< Name of the adv_driver to use. */
 };
 
 /**
- * Global state of the driver system.
+ * Global state of the adv_driver system.
  */
 extern struct mouseb_state_struct mouseb_state;
 
@@ -101,48 +101,48 @@ extern struct mouseb_state_struct mouseb_state;
 #define MOUSE_DRIVER_FLAGS_USER_BIT0 0x10000
 #define MOUSE_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
-void mouseb_reg(struct conf_context* config_context, boolean auto_detect);
-void mouseb_reg_driver(struct conf_context* config_context, mouseb_driver* driver);
-error mouseb_load(struct conf_context* config_context);
-error mouseb_init(void);
+void mouseb_reg(adv_conf* config_context, adv_bool auto_detect);
+void mouseb_reg_driver(adv_conf* config_context, mouseb_driver* adv_driver);
+adv_error mouseb_load(adv_conf* config_context);
+adv_error mouseb_init(void);
 void mouseb_done(void);
 void mouseb_abort(void);
 
-static __inline__ unsigned mouseb_count_get(void) {
+static inline unsigned mouseb_count_get(void) {
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->count_get();
 }
 
-static __inline__ unsigned mouseb_button_count_get(unsigned mouse) {
+static inline unsigned mouseb_button_count_get(unsigned mouse) {
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->button_count_get(mouse);
 }
 
-static __inline__ void mouseb_pos_get(unsigned mouse, int* x, int* y) {
+static inline void mouseb_pos_get(unsigned mouse, int* x, int* y) {
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->pos_get(mouse, x, y);
 }
 
-static __inline__ unsigned mouseb_button_get(unsigned mouse, unsigned button) {
+static inline unsigned mouseb_button_get(unsigned mouse, unsigned button) {
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->button_get(mouse, button);
 }
 
-static __inline__ void mouseb_poll(void) {
+static inline void mouseb_poll(void) {
 	assert( mouseb_state.is_active_flag );
 
 	mouseb_state.driver_current->poll();
 }
 
 /**
- * Get the driver/device name.
+ * Get the adv_driver/adv_device name.
  * \return Pointer at a static buffer.
  */
-static __inline__ const char* mouseb_name(void) {
+static inline const char* mouseb_name(void) {
 	return mouseb_state.name;
 }
 

@@ -406,7 +406,7 @@ void script_error(const char* s) {
 	target_err("%s\n",s);
 }
 
-int hardware_script_init(struct conf_context* context) {
+int hardware_script_init(adv_conf* context) {
 
 	conf_string_register_default(context, "script_video", "wait(!event()); set(kdb,0);");
 	conf_string_register_default(context, "script_emulation", "");
@@ -519,7 +519,7 @@ void hardware_script_terminate(int id) {
 	hardware_script_idle_single(id,time_to_play);
 }
 
-int hardware_script_config_load(struct conf_context* context) {
+int hardware_script_config_load(adv_conf* context) {
 	const char* s;
 
 	s = conf_string_get_default(context, "script_video");

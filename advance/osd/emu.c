@@ -141,7 +141,7 @@ static const mame_game* select_game(const char* gamename) {
 
 #ifdef __MSDOS__
 /* LEGACY (to be removed) */
-static struct conf_conv CONV[] = {
+static adv_conf_conv CONV[] = {
 { "config", "steadykey", "*", "", "input_%s", "%s", 0 },
 { "config", "idleexit", "*", "", "input_%s", "%s", 0 },
 { "config", "safeexit", "*", "", "input_%s", "%s", 0 },
@@ -387,7 +387,7 @@ static struct conf_conv CONV[] = {
 };
 #endif
 
-static struct conf_conv STANDARD[] = {
+static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
 #endif
@@ -459,7 +459,7 @@ int os_main(int argc, char* argv[])
 	int opt_remove;
 	char* opt_gamename;
 	struct advance_context* context = &CONTEXT;
-	struct conf_context* cfg_context;
+	adv_conf* cfg_context;
 	const char* section_map[5];
 
 	opt_info = 0;
@@ -627,7 +627,7 @@ int os_main(int argc, char* argv[])
 	section_map[4] = "";
 	conf_section_set(cfg_context, section_map, 5);
 	for(i=0;i<5;++i)
-		log_std(("advance: use configuration section '%s'", section_map[i]));
+		log_std(("advance: use configuration section '%s'\n", section_map[i]));
 
 	log_std(("advance: *_load()\n"));
 

@@ -16,7 +16,7 @@ Description
 	At the startup the configuration file `vbe.rc', created with
 	the utility `vbev', is read and all the `modeline' present
 	are activated. The format of this configuration file is
-	specified in the document `mv.txt'.
+	specified in the document `advv.txt'.
 
 	These are some example rc files:
 
@@ -100,7 +100,7 @@ Limitations
 Application Problems
 	Some applications are able to use only some common resolutions
 	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
-	may be completly ignored.
+	may be completly ignored or crash the application.
 
 	Others applications may get in trouble if the list of avaliable
 	VBE modes contains duplicate resolutions or is too big.

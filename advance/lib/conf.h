@@ -42,82 +42,111 @@ extern "C" {
 #include "extra.h"
 
 /**
+ * Specify a string for an enumeration value.
+ * The string tag assumes only the specified string value.
+ */
+typedef struct adv_conf_enum_string_struct {
+	const char* value; /** String to print in the configuration file and value to use. */
+} adv_conf_enum_string;
+
+/**
+ * Specify a string-int pair for an enumeration value.
+ * The int tag assumes the specified int value when is set to the specified string value.
+ */
+typedef struct adv_conf_enum_int_struct {
+	const char* value; /**< String to print in the configuration file. */
+	int map; /**< Value to use. */
+} adv_conf_enum_int;
+
+/**
  * Type of a configuration item.
  */
-enum conf_type {
+enum adv_conf_enum {
 	conf_type_bool,
 	conf_type_int,
 	conf_type_float,
 	conf_type_string
 };
 
-struct conf_option {
-	enum conf_type type; /**< Type of the configuration item */
+/**
+ * Configuration input.
+ * This struct contains a single configuration option.
+ */
+struct adv_conf_option_struct {
+	enum adv_conf_enum type; /**< Type of the configuration item */
 
-	boolean is_multi; /**< Support multi definition */
+	adv_bool is_multi; /**< Support multi definition */
 
 	char* tag; /**< Name of the option. [heap] */
 
 	union {
 		struct {
-			boolean has_def;
-			boolean def;
+			adv_bool has_def;
+			adv_bool def;
 		} base_bool;
 		struct {
-			boolean has_def;
+			adv_bool has_def;
 			int def;
-			boolean has_limit;
+			adv_bool has_limit;
 			int limit_low;
 			int limit_high;
-			boolean has_enum;
-			struct conf_enum_int* enum_map;
+			adv_bool has_enum;
+			adv_conf_enum_int* enum_map;
 			unsigned enum_mac;
 		} base_int;
 		struct {
-			boolean has_def;
+			adv_bool has_def;
 			double def;
-			boolean has_limit;
+			adv_bool has_limit;
 			double limit_low;
 			double limit_high;
 		} base_float;
 		struct {
-			boolean has_def;
+			adv_bool has_def;
 			char* def; /**< [heap] */
-			boolean has_enum;
-			struct conf_enum_string* enum_map;
+			adv_bool has_enum;
+			adv_conf_enum_string* enum_map;
 			unsigned enum_mac;
 		} base_string;
 	} data;
 
-	struct conf_option* pred; /**< Pred entry on the list. */
-	struct conf_option* next; /**< Next entry on the list. */
+	struct adv_conf_option_struct* pred; /**< Pred entry on the list. */
+	struct adv_conf_option_struct* next; /**< Next entry on the list. */
 };
 
-struct conf_input {
+/**
+ * Configuration input.
+ * This struct contains a single configuration file.
+ */
+struct adv_conf_input_struct {
 	char* file_in; /**< File path for input. [heap] */
 	char* file_out; /**< File path for output. [heap]. ==0 for readonly. */
 
-	struct conf_conv* conv_map; /**< Vector of conversion */
+	struct adv_conf_conv_struct* conv_map; /**< Vector of conversion */
 	unsigned conv_mac; /** Number of conversion */
 
-	boolean ignore_unknown_flag; /**< If the unknown options must be ignored */
+	adv_bool ignore_unknown_flag; /**< If the unknown options must be ignored */
 
 	int priority; /**< Priority of the file. Bigger is more */
 
-	struct conf_input* pred; /**< Pred entry on the list. */
-	struct conf_input* next; /**< Next entry on the list. */
+	struct adv_conf_input_struct* pred; /**< Pred entry on the list. */
+	struct adv_conf_input_struct* next; /**< Next entry on the list. */
 };
 
-struct conf_value {
-	struct conf_option* option; /**< Registration entry of the value. */
-	struct conf_input* input; /**< File where the value lives. */
+/**
+ * Configuration value.
+ * This struct contains a single configuration value.
+ */
+struct adv_conf_value_struct {
+	struct adv_conf_option_struct* option; /**< Registration entry of the value. */
+	struct adv_conf_input_struct* input; /**< File where the value lives. */
 
 	char* section; /**< Section of the value */
 	char* comment; /**< Comment before the value */
 	char* format; /**< Formatted text of the value */
 
 	union {
-		boolean bool_value;
+		adv_bool bool_value;
 		int int_value;
 		double float_value;
 		char* string_value; /* [heap] */
@@ -125,35 +154,35 @@ struct conf_value {
 		int enum_int_value;
 	} data;
 
-	struct conf_value* pred; /**< Pred entry on the list. */
-	struct conf_value* next; /**< Next entry on the list. */
+	struct adv_conf_value_struct* pred; /**< Pred entry on the list. */
+	struct adv_conf_value_struct* next; /**< Next entry on the list. */
 };
 
 /**
  * Configuration context.
  * This struct contains the status of the configuration system.
  */
-struct conf_context {
-	struct conf_option* option_list; /**< List of option. */
-	struct conf_input* input_list; /**< List of input. */
-	struct conf_value* value_list; /**< List of value. */
+typedef struct adv_conf_struct {
+	struct adv_conf_option_struct* option_list; /**< List of option. */
+	struct adv_conf_input_struct* input_list; /**< List of input. */
+	struct adv_conf_value_struct* value_list; /**< List of value. */
 
 	char** section_map; /**< Vector of section to search. [heap] */
 	unsigned section_mac; /**< Size of the vector of sections */
 
-	boolean is_modified; /**< If the configuration need to be saved */
-};
+	adv_bool is_modified; /**< If the configuration need to be saved */
+} adv_conf;
 
 /** \addtogroup Configuration */
 /*@{*/
 
-struct conf_context* conf_init(void);
-void conf_done(struct conf_context* context);
+adv_conf* conf_init(void);
+void conf_done(adv_conf* context);
 
-void conf_sort(struct conf_context* context);
-void conf_uncomment(struct conf_context* context);
+void conf_sort(adv_conf* context);
+void conf_uncomment(adv_conf* context);
 
-error conf_save(struct conf_context* context, boolean force);
+adv_error conf_save(adv_conf* context, adv_bool force);
 
 /**
  * Type of error reading a configuration file.
@@ -179,91 +208,74 @@ typedef void conf_error_callback(void* context, enum conf_callback_error error, 
  * Conversion specification.
  * This struct can be used to specify a conversion filter reading the options.
  */
-struct conf_conv {
+typedef struct adv_conf_conv_struct {
 	char* section_glob; /**< Option to recognize. * any char. */
 	char* tag_glob; /**< Option to recognize. * any char. */
 	char* value_glob; /**< Value to recognize. * any char. */
 	char* section_result; /**< Conversion. %s for the whole original record. */
 	char* tag_result; /**< Conversion. %s for the whole original record. Setting an empty tag automatically ignore the option. */
 	char* value_result; /**< Conversion. %s for the whole original record. */
-	boolean autoreg; /**< Auto registration. */
-};
+	adv_bool autoreg; /**< Auto registration. */
+} adv_conf_conv;
 
-error conf_input_file_load(struct conf_context* context, int priority, const char* file, conf_error_callback* error, void* error_context);
-error conf_input_file_load_adv(struct conf_context* context, int priority, const char* file_in, const char* file_out, boolean ignore_unknown, boolean multi_line, const struct conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context);
-error conf_input_args_load(struct conf_context* context, int priority, const char* section, int* argc, char* argv[], conf_error_callback* error, void* error_context);
+adv_error conf_input_file_load(adv_conf* context, int priority, const char* file, conf_error_callback* error, void* error_context);
+adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* file_in, const char* file_out, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context);
+adv_error conf_input_args_load(adv_conf* context, int priority, const char* section, int* argc, char* argv[], conf_error_callback* error, void* error_context);
 
 #define conf_size(v) sizeof(v)/sizeof(v[0])
 #define conf_enum(v) v, sizeof(v)/sizeof(v[0])
 
-/**
- * Specify a string for an enumeration value.
- * The string tag assumes only the specified string value.
- */
-struct conf_enum_string {
-	const char* value; /** String to print in the configuration file and value to use. */
-};
-
-/**
- * Specify a string-int pair for an enumeration value.
- * The int tag assumes the specified int value when is set to the specified string value.
- */
-struct conf_enum_int {
-	const char* value; /**< String to print in the configuration file. */
-	int map; /**< Value to use. */
-};
-
-boolean conf_is_registered(struct conf_context* context, const char* tag);
-void conf_bool_register(struct conf_context* context, const char* tag);
-void conf_bool_register_default(struct conf_context* context, const char* tag, boolean def);
-void conf_int_register(struct conf_context* context, const char* tag);
-void conf_int_register_default(struct conf_context* context, const char* tag, int def);
-void conf_int_register_limit(struct conf_context* context, const char* tag, int limit_low, int limit_high);
-void conf_int_register_limit_default(struct conf_context* context, const char* tag, int limit_low, int limit_high, int def);
-void conf_int_register_enum_default(struct conf_context* context, const char* tag, struct conf_enum_int* enum_map, unsigned enum_mac, int def);
-void conf_float_register(struct conf_context* context, const char* tag);
-void conf_float_register_default(struct conf_context* context, const char* tag, double def);
-void conf_float_register_limit_default(struct conf_context* context, const char* tag, double limit_low, double limit_high, double def);
-void conf_string_register(struct conf_context* context, const char* tag);
-void conf_string_register_multi(struct conf_context* context, const char* tag);
-void conf_string_register_default(struct conf_context* context, const char* tag, const char* def);
-void conf_string_register_enum_default(struct conf_context* context, const char* tag, struct conf_enum_string* enum_map, unsigned enum_mac, const char* def);
+adv_bool conf_is_registered(adv_conf* context, const char* tag);
+void conf_bool_register(adv_conf* context, const char* tag);
+void conf_bool_register_default(adv_conf* context, const char* tag, adv_bool def);
+void conf_int_register(adv_conf* context, const char* tag);
+void conf_int_register_default(adv_conf* context, const char* tag, int def);
+void conf_int_register_limit(adv_conf* context, const char* tag, int limit_low, int limit_high);
+void conf_int_register_limit_default(adv_conf* context, const char* tag, int limit_low, int limit_high, int def);
+void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_int* enum_map, unsigned enum_mac, int def);
+void conf_float_register(adv_conf* context, const char* tag);
+void conf_float_register_default(adv_conf* context, const char* tag, double def);
+void conf_float_register_limit_default(adv_conf* context, const char* tag, double limit_low, double limit_high, double def);
+void conf_string_register(adv_conf* context, const char* tag);
+void conf_string_register_multi(adv_conf* context, const char* tag);
+void conf_string_register_default(adv_conf* context, const char* tag, const char* def);
+void conf_string_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_string* enum_map, unsigned enum_mac, const char* def);
 
 /**
  * Iterator for multi value options.
  */
-typedef struct conf_iterator_struct {
-	struct conf_context* context; /**< Parent context. */
-	struct conf_value* value; /**< Value. */
-} conf_iterator;
+typedef struct adv_conf_iterator_struct {
+	adv_conf* context; /**< Parent context. */
+	struct adv_conf_value_struct* value; /**< Value. */
+} adv_conf_iterator;
 
-void conf_iterator_begin(conf_iterator* i, struct conf_context* context, const char* tag);
-void conf_iterator_next(conf_iterator* i);
-boolean conf_iterator_is_end(const conf_iterator* i);
-const char* conf_iterator_string_get(const conf_iterator* i);
+void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* tag);
+void conf_iterator_next(adv_conf_iterator* i);
+adv_bool conf_iterator_is_end(const adv_conf_iterator* i);
+const char* conf_iterator_string_get(const adv_conf_iterator* i);
 
-void conf_section_set(struct conf_context* context, const char** section_map, unsigned section_mac);
+void conf_section_set(adv_conf* context, const char** section_map, unsigned section_mac);
 
-boolean conf_bool_get_default(struct conf_context* context, const char* tag);
-int conf_int_get_default(struct conf_context* context, const char* tag);
-double conf_float_get_default(struct conf_context* context, const char* tag);
-const char* conf_string_get_default(struct conf_context* context, const char* tag);
-error conf_bool_get(struct conf_context* context, const char* tag, boolean* result);
-error conf_int_get(struct conf_context* context, const char* tag, int* result);
-error conf_float_get(struct conf_context* context, const char* tag, double* result);
-error conf_string_get(struct conf_context* context, const char* tag, const char** result);
-error conf_string_section_get(struct conf_context* context, const char* section, const char* tag, const char** result);
+adv_bool conf_bool_get_default(adv_conf* context, const char* tag);
+int conf_int_get_default(adv_conf* context, const char* tag);
+double conf_float_get_default(adv_conf* context, const char* tag);
+const char* conf_string_get_default(adv_conf* context, const char* tag);
+adv_error conf_bool_get(adv_conf* context, const char* tag, adv_bool* result);
+adv_error conf_int_get(adv_conf* context, const char* tag, int* result);
+adv_error conf_float_get(adv_conf* context, const char* tag, double* result);
+adv_error conf_string_get(adv_conf* context, const char* tag, const char** result);
+adv_error conf_string_section_get(adv_conf* context, const char* section, const char* tag, const char** result);
 
-error conf_bool_set(struct conf_context* context, const char* section, const char* tag, boolean value);
-error conf_int_set(struct conf_context* context, const char* section, const char* tag, int value);
-error conf_float_set(struct conf_context* context, const char* section, const char* tag, double value);
-error conf_string_set(struct conf_context* context, const char* section, const char* tag, const char* value);
-error conf_set(struct conf_context* context, const char* section, const char* tag, const char* value);
-error conf_set_default(struct conf_context* context, const char* section, const char* tag);
-void conf_set_default_if_missing(struct conf_context* context, const char* section);
+adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag, adv_bool value);
+adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, int value);
+adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double value);
+adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* value);
+adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* value);
+adv_error conf_set_default(adv_conf* context, const char* section, const char* tag);
+void conf_set_default_if_missing(adv_conf* context, const char* section);
 
-void conf_remove_if_default(struct conf_context* context, const char* section);
-error conf_remove(struct conf_context* context, const char* section, const char* tag);
+void conf_remove_if_default(adv_conf* context, const char* section);
+adv_error conf_remove(adv_conf* context, const char* section, const char* tag);
 
 /*@}*/
 

@@ -26,8 +26,6 @@ distlib:
 	cp $(WINDOWS_SRC) $(LIB_DIST_DIR_SRC)/advance/windows
 	mkdir $(LIB_DIST_DIR_SRC)/advance/sdl
 	cp $(SDL_SRC) $(LIB_DIST_DIR_SRC)/advance/sdl
-	mkdir $(LIB_DIST_DIR_SRC)/advance/common
-	cp $(COMMON_SRC) $(LIB_DIST_DIR_SRC)/advance/common
 	mkdir $(LIB_DIST_DIR_SRC)/advance/lib
 	cp $(LIB_SRC) $(LIB_DIST_DIR_SRC)/advance/lib
 	mkdir $(LIB_DIST_DIR_SRC)/advance/blit

@@ -3,8 +3,7 @@
 
 SCFLAGS += \
 	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/mpglib \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/mpglib
 SOBJS += \
 	$(SOBJ)/lib/log.o \
 	$(SOBJ)/lib/conf.o \

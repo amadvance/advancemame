@@ -11,7 +11,7 @@ EMUVERSION = 0.61.4
 endif
 endif
 MENUVERSION = 2.1.3
-CABVERSION = 0.11.3
+CABVERSION = 1.0.0
 
 ############################################################################
 # Common dir
@@ -139,10 +139,6 @@ SVGALIBCLOCKCHI_SRC = \
 SVGALIBRAMDAC_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.c) \
 	$(wildcard $(srcdir)/advance/svgalib/ramdac/*.h)
-
-COMMON_SRC = \
-	$(wildcard $(srcdir)/advance/common/*.c) \
-	$(wildcard $(srcdir)/advance/common/*.h)
 
 V_SRC = \
 	$(wildcard $(srcdir)/advance/v/*.c) \

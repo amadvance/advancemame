@@ -49,11 +49,11 @@ unsigned update_y_get(void);
 unsigned update_page_max_get(void);
 unsigned update_page_get(void);
 
-void update_init(int max_buffer);
+void update_init(unsigned max_buffer);
 void update_done(void);
 
 void update_start(void);
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, boolean wait_retrace);
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace);
 
 #ifdef __cplusplus
 }

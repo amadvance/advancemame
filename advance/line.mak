@@ -1,8 +1,6 @@
 ############################################################################
 # Line
 
-LINECFLAGS += \
-	-I$(srcdir)/advance/common
 LINEOBJDIRS = \
 	$(LINEOBJ) \
 	$(LINEOBJ)/line

@@ -39,26 +39,26 @@
 /***************************************************************************/
 /* Video crtc container extension */
 
-video_crtc* video_crtc_container_pos(video_crtc_container* vmc, unsigned pos) {
-	video_crtc_container_iterator i;
-	video_crtc_container_iterator_begin(&i,vmc);
-	while (pos && !video_crtc_container_iterator_is_end(&i)) {
+adv_crtc* crtc_container_pos(adv_crtc_container* vmc, unsigned pos) {
+	adv_crtc_container_iterator i;
+	crtc_container_iterator_begin(&i,vmc);
+	while (pos && !crtc_container_iterator_is_end(&i)) {
 		--pos;
-		video_crtc_container_iterator_next(&i);
+		crtc_container_iterator_next(&i);
 	}
-	if (video_crtc_container_iterator_is_end(&i))
+	if (crtc_container_iterator_is_end(&i))
 		return 0;
 	else
-		return video_crtc_container_iterator_get(&i);
+		return crtc_container_iterator_get(&i);
 }
 
-unsigned video_crtc_container_max(video_crtc_container* vmc) {
+unsigned crtc_container_max(adv_crtc_container* vmc) {
 	unsigned pos = 0;
-	video_crtc_container_iterator i;
-	video_crtc_container_iterator_begin(&i,vmc);
-	while (!video_crtc_container_iterator_is_end(&i)) {
+	adv_crtc_container_iterator i;
+	crtc_container_iterator_begin(&i,vmc);
+	while (!crtc_container_iterator_is_end(&i)) {
 		++pos;
-		video_crtc_container_iterator_next(&i);
+		crtc_container_iterator_next(&i);
 	}
 	return pos;
 }
@@ -90,19 +90,19 @@ void sound_signal(void) {
 /* Monitor */
 
 /* Video monitor specifications */
-video_monitor the_monitor;
+adv_monitor the_monitor;
 
 /* Video mode generator specifications */
-video_generate_interpolate_set the_interpolate;
+adv_generate_interpolate_set the_interpolate;
 
-video_gtf the_gtf;
+adv_gtf the_gtf;
 
 /***************************************************************************/
 /* Text output */
 
-video_crtc_container the_modes; /* main video mode container */
+adv_crtc_container the_modes; /* main video mode container */
 int the_modes_modified; /* container need to be saved */
-video_mode the_default_mode;  /* Default video mode */
+adv_mode the_default_mode;  /* Default video mode */
 int the_default_mode_flag = 0; /* Default video mode set */
 
 unsigned text_size_x(void) {
@@ -121,7 +121,7 @@ void text_clear(void) {
 }
 
 /* Compare function to get the best video mode to display the program screen */
-int text_video_crtc_compare(const video_crtc* a, const video_crtc* b) {
+int text_crtc_compare(const adv_crtc* a, const adv_crtc* b) {
 	/* bigger is better */
 	if (a->hde < b->hde)
 		return -1;
@@ -135,16 +135,16 @@ int text_video_crtc_compare(const video_crtc* a, const video_crtc* b) {
 }
 
 static int text_default_set(void) {
-	video_crtc_container_iterator i;
+	adv_crtc_container_iterator i;
 
 	/* search for the default mode */
 	if (!the_default_mode_flag) {
-		for(video_crtc_container_iterator_begin(&i,&the_modes);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-			const video_crtc* crtc = video_crtc_container_iterator_get(&i);
-			video_mode mode;
+		for(crtc_container_iterator_begin(&i,&the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+			const adv_crtc* crtc = crtc_container_iterator_get(&i);
+			adv_mode mode;
 			if (strcmp(crtc->name,DEFAULT_TEXT_MODE)==0) {
 				if (crtc_clock_check(&the_monitor,crtc)
-					&& video_mode_generate(&mode,crtc,0,VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT)==0) {
+					&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
 					the_default_mode = mode;
 					the_default_mode_flag = 1;
 				}
@@ -154,13 +154,13 @@ static int text_default_set(void) {
 
 	/* search the best mode */
 	if (!the_default_mode_flag) {
-		video_crtc default_crtc;
-		for(video_crtc_container_iterator_begin(&i,&the_modes);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-			const video_crtc* crtc = video_crtc_container_iterator_get(&i);
-			video_mode mode;
+		adv_crtc default_crtc;
+		for(crtc_container_iterator_begin(&i,&the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+			const adv_crtc* crtc = crtc_container_iterator_get(&i);
+			adv_mode mode;
 			if (crtc_clock_check(&the_monitor,crtc)
-				&& video_mode_generate(&mode,crtc,0,VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT)==0) {
-				if (!the_default_mode_flag || text_video_crtc_compare(crtc,&default_crtc)>0) {
+				&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
+				if (!the_default_mode_flag || text_crtc_compare(crtc,&default_crtc)>0) {
 					the_default_mode = mode;
 					default_crtc = *crtc;
 					the_default_mode_flag = 1;
@@ -171,9 +171,9 @@ static int text_default_set(void) {
 
 	/* use the current mode */
 	if (!the_default_mode_flag) {
-		video_mode mode;
+		adv_mode mode;
 		if (video_mode_grab(&mode) == 0
-			&& video_mode_is_text(&mode)) {
+			&& mode_is_text(&mode)) {
 			the_default_mode = mode;
 			the_default_mode_flag = 1;
 		}
@@ -316,7 +316,7 @@ static unsigned char draw_font[] = {
 
 unsigned draw_color(unsigned r, unsigned g, unsigned b) {
 	if (video_is_graphics()) {
-		video_rgb c;
+		adv_rgb c;
 		video_rgb_make(&c,r,g,b);
 		return c;
 	} else if (video_is_text()) {
@@ -484,8 +484,8 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 
 /* Set the default color palette */
 void draw_graphics_palette(void) {
-	if (video_type() == VIDEO_FLAGS_TYPE_GRAPHICS) {
-		if (video_index() == VIDEO_FLAGS_INDEX_PACKED) {
+	if (video_type() == MODE_FLAGS_TYPE_GRAPHICS) {
+		if (video_index() == MODE_FLAGS_INDEX_PACKED) {
 			video_index_packed_to_rgb(0);
 		}
 	}
@@ -540,7 +540,7 @@ static void draw_graphics_ellipse(int xc, int yc, int a0, int b0, unsigned color
 /* Draw the animation screen */
 void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counter, int do_clear) {
 	if (video_is_graphics()) {
-		video_rgb c;
+		adv_rgb c;
 
 		int dx = s_dx / (4*8);
 		int dy = s_dy / (3*8);
@@ -577,7 +577,7 @@ void draw_graphics_clear(void) {
 #if 0
 void draw_graphics_out_of_screen(int do_clear) {
 	if (video_is_graphics()) {
-		video_rgb c;
+		adv_rgb c;
 
 		/* draw out of screen data */
 		if (do_clear)
@@ -597,7 +597,7 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 	draw_graphics_palette();
 
 	if (video_is_graphics()) {
-		video_rgb c;
+		adv_rgb c;
 
 		unsigned dx = s_dx*3/5;
 		unsigned dy = s_dy*4/5;
@@ -767,7 +767,7 @@ void draw_test_default(void) {
 	draw_graphics_palette();
 
 	if (video_is_graphics()) {
-		video_rgb c;
+		adv_rgb c;
 
 		/* draw out of screen data */
 		video_rgb_make(&c,255,0,0);

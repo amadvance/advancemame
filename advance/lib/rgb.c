@@ -36,27 +36,27 @@ static char rgb_name_buffer[64];
 
 /**
  * Compute a RGB value with a specific format
- * \param r,g,b RGB values 0-255
- * \param def RGB format
- * \return RGB nibble
+ * \param r,g,b RGB values 0-255.
+ * \param def RGB format definition.
+ * \return RGB nibble as ordinal value.
  */
-video_rgb video_rgb_make_from_def(unsigned r, unsigned g, unsigned b, video_rgb_def def)
+adv_rgb rgb_make_from_def(unsigned r, unsigned g, unsigned b, adv_rgb_def def)
 {
-	union video_rgb_def_union rgb;
+	union adv_rgb_def_union rgb;
 	rgb.ordinal = def;
-	return video_rgb_nibble_insert(r, video_rgb_shift_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos), video_rgb_mask_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos))
-		| video_rgb_nibble_insert(g, video_rgb_shift_make_from_def(rgb.nibble.green_len,rgb.nibble.green_pos), video_rgb_mask_make_from_def(rgb.nibble.green_len,rgb.nibble.green_pos))
-		| video_rgb_nibble_insert(b, video_rgb_shift_make_from_def(rgb.nibble.blue_len,rgb.nibble.blue_pos), video_rgb_mask_make_from_def(rgb.nibble.blue_len,rgb.nibble.blue_pos));
+	return rgb_nibble_insert(r, rgb_shift_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos), rgb_mask_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos))
+		| rgb_nibble_insert(g, rgb_shift_make_from_def(rgb.nibble.green_len,rgb.nibble.green_pos), rgb_mask_make_from_def(rgb.nibble.green_len,rgb.nibble.green_pos))
+		| rgb_nibble_insert(b, rgb_shift_make_from_def(rgb.nibble.blue_len,rgb.nibble.blue_pos), rgb_mask_make_from_def(rgb.nibble.blue_len,rgb.nibble.blue_pos));
 }
 
 /**
- * Get a textual description of a RGB nibble definition.
+ * Get a textual description of a RGB format definition.
  * Return a string description in the format red_len/red_pos,green_len/green_pos,blue_len/blue_pos.
  * \return Pointer at a static buffer.
  */
-const char* video_rgb_def_name_make(video_rgb_def def)
+const char* rgb_def_name_make(adv_rgb_def def)
 {
-	union video_rgb_def_union rgb;
+	union adv_rgb_def_union rgb;
 	rgb.ordinal = def;
 	sprintf(rgb_name_buffer,"%d/%d,%d/%d,%d/%d",
 		rgb.nibble.red_len,rgb.nibble.red_pos,
@@ -69,7 +69,7 @@ const char* video_rgb_def_name_make(video_rgb_def def)
 /**
  * Compute the size in bit of the mask.
  */
-static unsigned video_rgb_len_get_from_mask(unsigned mask)
+static unsigned rgb_len_get_from_mask(unsigned mask)
 {
 	unsigned len = 0;
 	if (!mask)
@@ -93,9 +93,9 @@ static unsigned video_rgb_len_get_from_mask(unsigned mask)
  * \param blue_pos Bit position blue channel.
  * \return RGB format.
  */
-video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
+adv_rgb_def rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
 {
-	union video_rgb_def_union def;
+	union adv_rgb_def_union def;
 	def.ordinal = 0;
 
 	def.nibble.red_len = red_len;
@@ -110,23 +110,25 @@ video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned gr
 
 /**
  * Make an arbitary RGB format definition from a maskshift specification.
+ * \param red_mask,green_mask,blue_mask Bit mask.
+ * \param red_shift,green_shift,blue_shift Shift.
  */
-video_rgb_def video_rgb_def_make_from_maskshift(unsigned red_mask, unsigned red_shift, unsigned green_mask, unsigned green_shift, unsigned blue_mask, unsigned blue_shift)
+adv_rgb_def rgb_def_make_from_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift)
 {
-	unsigned red_len = video_rgb_len_get_from_mask(red_mask);
-	unsigned green_len = video_rgb_len_get_from_mask(green_mask);
-	unsigned blue_len = video_rgb_len_get_from_mask(blue_mask);
+	unsigned red_len = rgb_len_get_from_mask(red_mask);
+	unsigned green_len = rgb_len_get_from_mask(green_mask);
+	unsigned blue_len = rgb_len_get_from_mask(blue_mask);
 	unsigned red_pos = 8 + red_shift - red_len;
 	unsigned green_pos = 8 + green_shift - green_len;
 	unsigned blue_pos = 8 + blue_shift - blue_len;
 
-	return video_rgb_def_make(red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
+	return rgb_def_make(red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
 }
 
 /**
- * Compute the distance of two color.
+ * Compute the distance of two colors.
  */
-unsigned video_color_dist(const video_color* A, const video_color* B)
+unsigned video_color_dist(const adv_color* A, const adv_color* B)
 {
 	int r, g, b;
 	r = (int)A->red - B->red;
@@ -135,3 +137,19 @@ unsigned video_color_dist(const video_color* A, const video_color* B)
 	return r*r + g*g + b*b;
 }
 
+/**
+ * Adjust a 8 bit channel computed from a n bit value.
+ * The value is adjusted to save the black and white colors.
+ * \param value 8 bit value with lower bits at 0.
+ * \param len Original number of bit of the channel value before the 8 bit expansion.
+ * \return Adjusted 8 bit channel value.
+ */
+unsigned rgb_approx(unsigned value, unsigned len)
+{
+	unsigned fill = len;
+	while (fill < 8) {
+		value |= value >> fill;
+		fill *= 2;
+	}
+	return value;
+}

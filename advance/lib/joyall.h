@@ -58,7 +58,7 @@ extern "C" {
 /** \addtogroup Joystick */
 /*@{*/
 
-void joystickb_reg_driver_all(struct conf_context* context);
+void joystickb_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

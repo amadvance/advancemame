@@ -38,14 +38,14 @@
 #define FIFO_MAX 32768
 
 struct sdl_option_struct {
-	boolean initialized;
+	adv_bool initialized;
 	unsigned samples;
 };
 
 static struct sdl_option_struct sdl_option;
 
 struct sound_sdl_context {
-	boolean active_flag;
+	adv_bool active_flag;
 
 	SDL_AudioSpec info;
 
@@ -58,7 +58,7 @@ struct sound_sdl_context {
 
 static struct sound_sdl_context sdl_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SDL sound" },
 { 0, 0, 0 }
 };
@@ -88,7 +88,7 @@ static void sound_sdl_callback(void *userdata, Uint8 *stream, int len) {
 	}
 }
 
-error sound_sdl_init(int sound_id, unsigned* rate, boolean stereo_flag, double buffer_time)
+adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
 {
 	char name[64];
 
@@ -193,7 +193,7 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	SDL_UnlockAudio();
 }
 
-error sound_sdl_start(double silence_time) {
+adv_error sound_sdl_start(double silence_time) {
 	sound_sample_t buf[256];
 	unsigned sample;
 	unsigned i;
@@ -224,7 +224,7 @@ unsigned sound_sdl_flags(void) {
 	return 0;
 }
 
-static struct conf_enum_int OPTION[] = {
+static adv_conf_enum_int OPTION[] = {
 { "512", 512 },
 { "1024", 1024 },
 { "1536", 1536 },
@@ -239,7 +239,7 @@ static struct conf_enum_int OPTION[] = {
 { "16384", 16384 }
 };
 
-error sound_sdl_load(struct conf_context* context) {
+adv_error sound_sdl_load(adv_conf* context) {
 	sdl_option.samples = conf_int_get_default(context, "device_sdl_samples");
 
 	sdl_option.initialized = 1;
@@ -247,7 +247,7 @@ error sound_sdl_load(struct conf_context* context) {
 	return 0;
 }
 
-void sound_sdl_reg(struct conf_context* context) {
+void sound_sdl_reg(adv_conf* context) {
 	unsigned def_samples;
 
 #ifdef __WIN32__

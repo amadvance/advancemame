@@ -43,16 +43,16 @@
 /* Options */
 
 struct sdl_option_struct {
-	boolean initialized;
-	boolean fullscreen;
+	adv_bool initialized;
+	adv_bool fullscreen;
 };
 
 static struct sdl_option_struct sdl_option;
 
 typedef struct sdl_internal_struct {
-	boolean active; /**< !=0 if present. */
-	boolean mode_active; /**< !=0 if mode set. */
-	boolean lock_active; /**< !=0 if lock active. */
+	adv_bool active; /**< !=0 if present. */
+	adv_bool mode_active; /**< !=0 if mode set. */
+	adv_bool lock_active; /**< !=0 if lock active. */
 	unsigned flags; /**< Precomputed driver flags. */
 	SDL_Surface* surface;
 } sdl_internal;
@@ -61,7 +61,7 @@ static sdl_internal sdl_state;
 
 unsigned char* (*sdl_write_line)(unsigned y);
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", 1, "SDL video" },
 { 0, 0, 0 }
 };
@@ -116,9 +116,9 @@ static void SDL_WM_DefIcon(void) {
 	SDL_FreeSurface(surface);
 }
 
-error sdl_init(int device_id) {
+adv_error sdl_init(int device_id) {
 	char name[64];
-	const device* i;
+	const adv_device* i;
 	unsigned j;
 	SDL_Rect** map;
 	const SDL_VideoInfo* info;
@@ -230,11 +230,11 @@ void sdl_done(void) {
 	sdl_state.active = 0;
 }
 
-boolean sdl_is_active(void) {
+adv_bool sdl_is_active(void) {
 	 return sdl_state.active != 0;
 }
 
-boolean sdl_mode_is_active(void) {
+adv_bool sdl_mode_is_active(void) {
 	return sdl_state.mode_active != 0;
 }
 
@@ -270,7 +270,7 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) 
 	sdl_state.lock_active = 0;
 }
 
-error sdl_mode_set(const sdl_video_mode* mode) {
+adv_error sdl_mode_set(const sdl_video_mode* mode) {
 	const SDL_VideoInfo* info;
 
 	assert( sdl_is_active() );
@@ -350,7 +350,7 @@ error sdl_mode_set(const sdl_video_mode* mode) {
 	return 0;
 }
 
-void sdl_mode_done(boolean restore) {
+void sdl_mode_done(adv_bool restore) {
 	assert( sdl_is_active() );
 	assert( sdl_mode_is_active() );
 
@@ -387,8 +387,8 @@ unsigned sdl_bytes_per_scanline(void) {
 	return sdl_state.surface->pitch;
 }
 
-video_rgb_def sdl_rgb_def(void) {
-	return video_rgb_def_make(
+adv_rgb_def sdl_rgb_def(void) {
+	return rgb_def_make(
 		8 - sdl_state.surface->format->Rloss, sdl_state.surface->format->Rshift,
 		8 - sdl_state.surface->format->Gloss, sdl_state.surface->format->Gshift,
 		8 - sdl_state.surface->format->Bloss, sdl_state.surface->format->Bshift
@@ -399,7 +399,7 @@ void sdl_wait_vsync(void) {
 	/* not available */
 }
 
-error sdl_scroll(unsigned offset, boolean waitvsync) {
+adv_error sdl_scroll(unsigned offset, adv_bool waitvsync) {
 	assert(sdl_is_active() && sdl_mode_is_active());
 
 	if (offset != 0)
@@ -408,7 +408,7 @@ error sdl_scroll(unsigned offset, boolean waitvsync) {
 	return 0;
 }
 
-error sdl_scanline_set(unsigned byte_length) {
+adv_error sdl_scanline_set(unsigned byte_length) {
 	assert(sdl_is_active() && sdl_mode_is_active());
 
 	if (byte_length != sdl_state.surface->pitch)
@@ -417,7 +417,7 @@ error sdl_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-error sdl_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
+adv_error sdl_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	SDL_Color sdl_pal[256];
 	unsigned i;
 
@@ -441,28 +441,28 @@ error sdl_palette8_set(const video_color* palette, unsigned start, unsigned coun
  * Import information for one video mode.
  * \return 0 if successful
  */
-error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
+adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode) {
 	log_std(("video:sdl: sdl_mode_import()\n"));
 
 	sprintf(mode->name,"sdl_%dx%dx%d",sdl_mode->size_x, sdl_mode->size_y, sdl_mode->bits_per_pixel);
 	*DRIVER(mode) = *sdl_mode;
 
 	mode->driver = &video_sdl_driver;
-	mode->flags = (mode->flags & VIDEO_FLAGS_USER_MASK);
+	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK);
 	switch (sdl_mode->bits_per_pixel) {
 		case 8 :
-			mode->flags |= VIDEO_FLAGS_INDEX_PACKED | VIDEO_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
 			break;
 		case 15 :
 		case 16 :
 		case 24 :
 		case 32 :
-			mode->flags |= VIDEO_FLAGS_INDEX_RGB | VIDEO_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
 			break;
 		default :
 			return -1;
 	}
-	mode->flags |= VIDEO_FLAGS_MEMORY_LINEAR;
+	mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
 
 	mode->size_x = sdl_mode->size_x;
 	mode->size_y = sdl_mode->size_y;
@@ -477,7 +477,7 @@ error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
 	return 0;
 }
 
-error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
 	unsigned suggested_bits;
 
 	log_std(("video:sdl: sdl_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
@@ -517,7 +517,7 @@ int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b) {
 	return 0;
 }
 
-void sdl_crtc_container_insert_default(video_crtc_container* cc) {
+void sdl_crtc_container_insert_default(adv_crtc_container* cc) {
 	unsigned i;
 	SDL_Rect** map;
 
@@ -530,9 +530,9 @@ void sdl_crtc_container_insert_default(video_crtc_container* cc) {
 		/* all resolutions available */
 	} else {
 		for(i=0;map[i];++i) {
-			video_crtc crtc;
+			adv_crtc crtc;
 			crtc_fake_set(&crtc, map[i]->w, map[i]->h);
-			video_crtc_container_insert(cc, &crtc);
+			crtc_container_insert(cc, &crtc);
 		}
 	}
 }
@@ -543,13 +543,13 @@ void sdl_default(void) {
 	sdl_option.initialized = 1;
 }
 
-void sdl_reg(struct conf_context* context) {
+void sdl_reg(adv_conf* context) {
 	assert( !sdl_is_active() );
 
 	conf_bool_register_default(context, "device_sdl_fullscreen", 0);
 }
 
-error sdl_load(struct conf_context* context) {
+adv_error sdl_load(adv_conf* context) {
 	/* Options must be loaded before initialization */
 	assert( !sdl_is_active() );
 
@@ -563,15 +563,15 @@ error sdl_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static error sdl_mode_set_void(const void* mode) {
+static adv_error sdl_mode_set_void(const void* mode) {
 	return sdl_mode_set((const sdl_video_mode*)mode);
 }
 
-static error sdl_mode_import_void(video_mode* mode, const void* sdl_mode) {
+static adv_error sdl_mode_import_void(adv_mode* mode, const void* sdl_mode) {
 	return sdl_mode_import(mode, (const sdl_video_mode*)sdl_mode);
 }
 
-static error sdl_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error sdl_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
 	return sdl_mode_generate((sdl_video_mode*)mode, crtc, bits, flags);
 }
 
@@ -583,7 +583,7 @@ static unsigned sdl_mode_size(void) {
 	return sizeof(sdl_video_mode);
 }
 
-video_driver video_sdl_driver = {
+adv_video_driver video_sdl_driver = {
 	"sdl",
 	DEVICE,
 	sdl_load,

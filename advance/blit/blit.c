@@ -286,7 +286,7 @@ static void video_buffer_done(void) {
 /***************************************************************************/
 /* init/done */
 
-error video_blit_init(void) {
+adv_error video_blit_init(void) {
 	unsigned i;
 
 	if (blit_set_mmx() != 0) {
@@ -822,7 +822,7 @@ static void video_stage_stretchy_max_x1(const struct video_stage_vert_struct* st
 
 			while (run) {
 				src_buffer = video_pipeline_run_partial(stage_begin, stage_pivot, src);
-				if (video_index() == VIDEO_FLAGS_INDEX_RGB)
+				if (video_index() == MODE_FLAGS_INDEX_RGB)
 					stage_max_rgb_vert_self(stage_pivot,buffer,src_buffer);
 				else
 					stage_max_vert_self(stage_pivot,buffer,src_buffer);
@@ -1435,7 +1435,7 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 	if (combine_y == VIDEO_COMBINE_Y_NONE)
 		video_stage_planey_set(stage_vert);
 
-	if (video_index() == VIDEO_FLAGS_INDEX_RGB) {
+	if (video_index() == MODE_FLAGS_INDEX_RGB) {
 		if (combine_y == VIDEO_COMBINE_Y_MEAN || combine_y == VIDEO_COMBINE_Y_FILTER || (combine & VIDEO_COMBINE_X_FILTER)!=0)
 			internal_mean_set();
 
@@ -1689,20 +1689,20 @@ static __inline__ void video_pipeline_make(struct video_pipeline_struct* pipelin
 	}
 }
 
-error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
-	video_rgb_def dst_rgb_def = video_current_rgb_def_get();
+adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_rgb_def src_rgb_def, unsigned combine) {
+	adv_rgb_def dst_rgb_def = video_current_rgb_def_get();
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
 	video_pipeline_init(pipeline);
 
 	/* conversion */
 	if (src_rgb_def != dst_rgb_def) {
-		if (src_rgb_def == video_rgb_def_make(8,16,8,8,8,0)
-			|| src_rgb_def == video_rgb_def_make(8,0,8,8,8,16)) {
+		if (src_rgb_def == rgb_def_make(8,16,8,8,8,0)
+			|| src_rgb_def == rgb_def_make(8,0,8,8,8,16)) {
 			/* 24 bit conversion and rotation */
-			if (src_rgb_def == video_rgb_def_make(8,0,8,8,8,16)) {
+			if (src_rgb_def == rgb_def_make(8,0,8,8,8,16)) {
 				video_stage_rgbRGB888to8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
-				src_rgb_def = video_rgb_def_make(8,16,8,8,8,0);
+				src_rgb_def = rgb_def_make(8,16,8,8,8,0);
 				src_dp = 4;
 			}
 			/* rotation */
@@ -1711,33 +1711,33 @@ error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsign
 				src_dp = 4;
 			}
 			/* conversion */
-			if (dst_rgb_def == video_rgb_def_make(3,5,3,2,2,0)) {
+			if (dst_rgb_def == rgb_def_make(3,5,3,2,2,0)) {
 				video_stage_rgb8888to332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
-			} else if (dst_rgb_def == video_rgb_def_make(5,10,5,5,5,0)) {
+			} else if (dst_rgb_def == rgb_def_make(5,10,5,5,5,0)) {
 				video_stage_rgb8888to555_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
-			} else if (dst_rgb_def == video_rgb_def_make(5,11,6,5,5,0)) {
+			} else if (dst_rgb_def == rgb_def_make(5,11,6,5,5,0)) {
 				video_stage_rgb8888to565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			} else {
 				video_pipeline_done(pipeline);
 				return -1;
 			}
-		} else if (src_rgb_def == video_rgb_def_make(5,10,5,5,5,0)) {
+		} else if (src_rgb_def == rgb_def_make(5,10,5,5,5,0)) {
 			/* rotation */
 			if (src_dp != 2) {
 				video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			}
 			/* conversion */
-			if (dst_rgb_def == video_rgb_def_make(3,5,3,2,2,0)) {
+			if (dst_rgb_def == rgb_def_make(3,5,3,2,2,0)) {
 				video_stage_rgb555to332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
-			} else if (dst_rgb_def == video_rgb_def_make(5,11,6,5,5,0)) {
+			} else if (dst_rgb_def == rgb_def_make(5,11,6,5,5,0)) {
 				video_stage_rgb555to565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
-			} else if (dst_rgb_def == video_rgb_def_make(8,16,8,8,8,0)) {
+			} else if (dst_rgb_def == rgb_def_make(8,16,8,8,8,0)) {
 				video_stage_rgb555to8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else {

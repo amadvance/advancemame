@@ -46,7 +46,7 @@ struct sound_vsync_context {
 
 static struct sound_vsync_context vsync_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "sb", 1, "Sound Blaster" },
 { "sbwin", 9, "Sound Blaster (Windows)" },
 { "ac97", 3, "AC97" },
@@ -59,7 +59,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-error sound_vsync_init(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time) {
+adv_error sound_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	log_std(("sound:vsync: sound_vsync_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	if (stereo_flag) {
@@ -104,7 +104,7 @@ unsigned sound_vsync_buffered(void) {
 	return w_get_latency();
 }
 
-error sound_vsync_start(double silence_time) {
+adv_error sound_vsync_start(double silence_time) {
 	unsigned sample_count;
 
 	log_std(("sound:vsync: sound_vsync_start(silence_time:%g)\n",silence_time));
@@ -156,11 +156,11 @@ unsigned sound_vsync_flags(void) {
 	return 0;
 }
 
-error sound_vsync_load(struct conf_context* context) {
+adv_error sound_vsync_load(adv_conf* context) {
 	return 0;
 }
 
-void sound_vsync_reg(struct conf_context* context) {
+void sound_vsync_reg(adv_conf* context) {
 }
 
 /***************************************************************************/

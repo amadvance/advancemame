@@ -50,7 +50,7 @@ static void internal_max_rgb_set(void) {
 	unsigned shift_1;
 	unsigned shift_2;
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	if (video_state.rgb_red_shift >= video_state.rgb_green_shift &&
 		video_state.rgb_red_shift >= video_state.rgb_blue_shift) {

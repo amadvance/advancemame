@@ -46,7 +46,7 @@
 /** Last parse error */
 static char video_mode_parse_error[1024];
 
-static error parse_int(int* r, const char** begin, const char* end) {
+static adv_error parse_int(int* r, const char** begin, const char* end) {
 	char* e;
 	*r = strtol(*begin,&e,10);
 	if (e==*begin || e > end) {
@@ -62,7 +62,7 @@ static void parse_separator(const char* separator, const char** begin, const cha
 		++*begin;
 }
 
-static error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end) {
+static adv_error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end) {
 	unsigned pos = 0;
 
 	while (*begin < end && !strchr(separator,**begin)) {
@@ -82,7 +82,7 @@ static error parse_token(char* token, unsigned size, const char* separator, cons
 	return 0;
 }
 
-static error parse_quote(char* token, unsigned size, const char** begin, const char* end) {
+static adv_error parse_quote(char* token, unsigned size, const char** begin, const char* end) {
 	if (*begin == end || **begin != '"')
 		return -1;
 	++*begin;
@@ -97,7 +97,7 @@ static error parse_quote(char* token, unsigned size, const char** begin, const c
 	return 0;
 }
 
-static error parse_double(double* r, const char** begin, const char* end) {
+static adv_error parse_double(double* r, const char** begin, const char* end) {
 	char* e;
 	*r = strtod(*begin,&e);
 	if (e==*begin || e > end) {
@@ -111,7 +111,7 @@ static error parse_double(double* r, const char** begin, const char* end) {
 /***************************************************************************/
 /* Video crtc container */
 
-static error parse_crtc(video_crtc* crtc, const char* begin, const char* end) {
+static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end) {
 	int v;
 	double d;
 
@@ -202,7 +202,7 @@ static error parse_crtc(video_crtc* crtc, const char* begin, const char* end) {
  *  - ==0 on success
  *  - !=0 on error
  */
-error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end) {
+adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end) {
 
 	/* defaults */
 	crtc_reset_all(crtc);
@@ -229,7 +229,7 @@ error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end) {
 	return 0;
 }
 
-void video_crtc_print(char* buffer, const video_crtc* crtc) {
+void crtc_print(char* buffer, const adv_crtc* crtc) {
 	const char* flag1 = crtc_is_nhsync(crtc) ? " -hsync" : " +hsync";
 	const char* flag2 = crtc_is_nvsync(crtc) ? " -vsync" : " +vsync";
 	const char* flag3 = crtc_is_doublescan(crtc) ? " doublescan" : "";
@@ -251,16 +251,16 @@ void video_crtc_print(char* buffer, const video_crtc* crtc) {
 }
 
 /* Load the list of video mode */
-error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc) {
-	conf_iterator i;
+adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc) {
+	adv_conf_iterator i;
 	int error = 0;
 
 	conf_iterator_begin(&i, context, "device_video_modeline");
 	while (!conf_iterator_is_end(&i)) {
-		video_crtc crtc;
+		adv_crtc crtc;
 		const char* s = conf_iterator_string_get(&i);
-		if (video_crtc_parse(&crtc,s, s + strlen(s)) == 0) {
-			video_crtc_container_insert(cc,&crtc);
+		if (crtc_parse(&crtc,s, s + strlen(s)) == 0) {
+			crtc_container_insert(cc,&crtc);
 		} else {
 			if (!error) {
 				error = 1;
@@ -274,35 +274,35 @@ error video_crtc_container_load(struct conf_context* context, video_crtc_contain
 }
 
 /* Save the list of video mode */
-void video_crtc_container_save(struct conf_context* context, video_crtc_container* cc) {
-	video_crtc_container_iterator i;
+void crtc_container_save(adv_conf* context, adv_crtc_container* cc) {
+	adv_crtc_container_iterator i;
 	conf_remove(context,"","device_video_modeline");
-	video_crtc_container_iterator_begin(&i,cc);
-	while (!video_crtc_container_iterator_is_end(&i)) {
+	crtc_container_iterator_begin(&i,cc);
+	while (!crtc_container_iterator_is_end(&i)) {
 		char buffer[1024];
-		video_crtc_print(buffer,video_crtc_container_iterator_get(&i));
+		crtc_print(buffer,crtc_container_iterator_get(&i));
 		conf_string_set(context,"","device_video_modeline",buffer);
-		video_crtc_container_iterator_next(&i);
+		crtc_container_iterator_next(&i);
 	}
 }
 
-void video_crtc_container_register(struct conf_context* context) {
+void crtc_container_register(adv_conf* context) {
 	conf_string_register_multi(context,"device_video_modeline");
 }
 
-void video_crtc_container_clear(struct conf_context* context) {
+void crtc_container_clear(adv_conf* context) {
 	conf_remove(context,"","device_video_modeline");
 }
 
 /***************************************************************************/
 /* Monitor */
 
-static error monitor_range_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin, const char* end, double mult) {
 	unsigned i = 0;
 	parse_separator(" \t",&begin,end);
 	while (begin < end) {
 		double v0;
-		if (i==VIDEO_MONITOR_RANGE_MAX) {
+		if (i==MONITOR_RANGE_MAX) {
 			return -1;
 		}
 		if (parse_double(&v0,&begin,end))
@@ -338,7 +338,7 @@ static error monitor_range_parse(video_monitor_range* range, const char* begin, 
 	}
 	if (i==0)
 		return -1; /* empty */
-	while (i<VIDEO_MONITOR_RANGE_MAX) {
+	while (i<MONITOR_RANGE_MAX) {
 		range[i].low = 0;
 		range[i].high = 0;
 		++i;
@@ -346,7 +346,7 @@ static error monitor_range_parse(video_monitor_range* range, const char* begin, 
 	return 0;
 }
 
-static error monitor_single_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_single_parse(adv_monitor_range* range, const char* begin, const char* end, double mult) {
 	double v0;
 	double v1;
 
@@ -376,7 +376,7 @@ static error monitor_single_parse(video_monitor_range* range, const char* begin,
 	return 0;
 }
 
-void monitor_print(char* buffer, const video_monitor_range* range_begin, const video_monitor_range* range_end, double mult)
+void monitor_print(char* buffer, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult)
 {
 	*buffer = 0;
 	while (range_begin != range_end) {
@@ -396,7 +396,7 @@ void monitor_print(char* buffer, const video_monitor_range* range_begin, const v
 		strcpy(buffer,"0");
 }
 
-error monitor_parse(video_monitor* monitor, const char* p, const char* h, const char* v) {
+adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v) {
 	if (monitor_single_parse(&monitor->pclock,p,p+strlen(p),1E6)!=0) {
 		error_set("Invalid monitor 'pclock' specification");
 		return -1;
@@ -412,16 +412,17 @@ error monitor_parse(video_monitor* monitor, const char* p, const char* h, const 
 	return 0;
 }
 
-/* Load the monitor configuration
+/**
+ * Load the monitor configuration
  * return:
- *   ==0 success
- *   <0 error
- *   >0 configuration missing, video_monitor_is_empty(monitor)!=0
+ *   - ==0 on success
+ *   - <0 on error
+ *   - >0 on configuration missing, video_monitor_is_empty(monitor)!=0
  */
-error monitor_load(struct conf_context* context, video_monitor* monitor) {
-	error p_present;
-	error h_present;
-	error v_present;
+adv_error monitor_load(adv_conf* context, adv_monitor* monitor) {
+	adv_error p_present;
+	adv_error h_present;
+	adv_error v_present;
 	const char* p;
 	const char* h;
 	const char* v;
@@ -466,20 +467,20 @@ error monitor_load(struct conf_context* context, video_monitor* monitor) {
 	return 0;
 }
 
-void monitor_save(struct conf_context* context, const video_monitor* monitor) {
+void monitor_save(adv_conf* context, const adv_monitor* monitor) {
 	char buffer[1024];
 
 	monitor_print(buffer,&monitor->pclock,&monitor->pclock + 1,1E6);
 	conf_string_set(context,"","device_video_pclock",buffer);
 
-	monitor_print(buffer,monitor->hclock,monitor->hclock + VIDEO_MONITOR_RANGE_MAX,1E3);
+	monitor_print(buffer,monitor->hclock,monitor->hclock + MONITOR_RANGE_MAX,1E3);
 	conf_string_set(context,"","device_video_hclock",buffer);
 
-	monitor_print(buffer,monitor->vclock,monitor->vclock + VIDEO_MONITOR_RANGE_MAX,1);
+	monitor_print(buffer,monitor->vclock,monitor->vclock + MONITOR_RANGE_MAX,1);
 	conf_string_set(context,"","device_video_vclock",buffer);
 }
 
-void monitor_register(struct conf_context* context) {
+void monitor_register(adv_conf* context) {
 	conf_string_register(context,"device_video_pclock");
 	conf_string_register(context,"device_video_hclock");
 	conf_string_register(context,"device_video_vclock");
@@ -488,7 +489,7 @@ void monitor_register(struct conf_context* context) {
 /***************************************************************************/
 /* Generate */
 
-static error parse_generate(const char* begin, const char* end, video_generate* data) {
+static adv_error parse_generate(const char* begin, const char* end, adv_generate* data) {
 	double d;
 	parse_separator(" \t",&begin,end);
 	if (parse_double(&d,&begin,end))
@@ -545,9 +546,9 @@ static error parse_generate(const char* begin, const char* end, video_generate* 
 	return 0;
 }
 
-static error parse_generate_interpolate(const char* begin, const char* end, video_generate_interpolate* interpolate) {
+static adv_error parse_generate_interpolate(const char* begin, const char* end, adv_generate_interpolate* interpolate) {
 	double d;
-	video_generate* data = &interpolate->gen;
+	adv_generate* data = &interpolate->gen;
 
 	parse_separator(" \t",&begin,end);
 	if (parse_double(&d,&begin,end))
@@ -594,8 +595,8 @@ static error parse_generate_interpolate(const char* begin, const char* end, vide
 	return 0;
 }
 
-static void out_generate_interpolate(char* buffer, const video_generate_interpolate* interpolate) {
-	video_generate out = interpolate->gen;
+static void out_generate_interpolate(char* buffer, const adv_generate_interpolate* interpolate) {
+	adv_generate out = interpolate->gen;
 
 	generate_normalize(&out);
 
@@ -605,7 +606,7 @@ static void out_generate_interpolate(char* buffer, const video_generate_interpol
 		out.vactive, out.vfront, out.vsync, out.vback);
 }
 
-error generate_parse(video_generate* generate, const char* g) {
+adv_error generate_parse(adv_generate* generate, const char* g) {
 	if (parse_generate(g,g+strlen(g),generate)!=0) {
 		error_set("Invalid specification");
 		return -1;
@@ -615,8 +616,8 @@ error generate_parse(video_generate* generate, const char* g) {
 }
 
 static int generate_interpolate_cmp(const void* e0, const void* e1) {
-	const video_generate_interpolate* ee0 = (const video_generate_interpolate*)e0;
-	const video_generate_interpolate* ee1 = (const video_generate_interpolate*)e1;
+	const adv_generate_interpolate* ee0 = (const adv_generate_interpolate*)e0;
+	const adv_generate_interpolate* ee1 = (const adv_generate_interpolate*)e1;
 	if (ee0->hclock < ee1->hclock)
 		return -1;
 	if (ee0->hclock > ee1->hclock)
@@ -624,8 +625,8 @@ static int generate_interpolate_cmp(const void* e0, const void* e1) {
 	return 0;
 }
 
-error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate) {
-	conf_iterator i;
+adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_set* interpolate) {
+	adv_conf_iterator i;
 	unsigned mac = 0;
 
 	conf_iterator_begin(&i, context, "device_video_format");
@@ -649,14 +650,14 @@ error generate_interpolate_load(struct conf_context* context, video_generate_int
 	}
 
 	/* sort */
-	qsort(interpolate->map, mac, sizeof(video_generate_interpolate), generate_interpolate_cmp);
+	qsort(interpolate->map, mac, sizeof(adv_generate_interpolate), generate_interpolate_cmp);
 
 	interpolate->mac = mac;
 
 	return 0;
 }
 
-void generate_interpolate_save(struct conf_context* context, const video_generate_interpolate_set* interpolate) {
+void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate_set* interpolate) {
 	unsigned i;
 	conf_remove(context,"","device_video_format");
 	for(i=0;i<interpolate->mac;++i) {
@@ -666,18 +667,18 @@ void generate_interpolate_save(struct conf_context* context, const video_generat
 	}
 }
 
-void generate_interpolate_clear(struct conf_context* context) {
+void generate_interpolate_clear(adv_conf* context) {
 	conf_remove(context,"","device_video_format");
 }
 
-void generate_interpolate_register(struct conf_context* context) {
+void generate_interpolate_register(adv_conf* context) {
 	conf_string_register_multi(context, "device_video_format");
 }
 
 /***************************************************************************/
 /* GTF */
 
-static error parse_gtf(const char* begin, const char* end, video_gtf* data) {
+static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data) {
 	double d;
 	int i;
 	parse_separator(" \t",&begin,end);
@@ -726,7 +727,7 @@ static error parse_gtf(const char* begin, const char* end, video_gtf* data) {
 	return 0;
 }
 
-error gtf_parse(video_gtf* gtf, const char* g) {
+adv_error gtf_parse(adv_gtf* gtf, const char* g) {
 	if (parse_gtf(g,g+strlen(g),gtf)!=0) {
 		error_set("Invalid 'gtf' specification");
 		return -1;
@@ -735,7 +736,7 @@ error gtf_parse(video_gtf* gtf, const char* g) {
 	return 0;
 }
 
-error gtf_load(struct conf_context* context, video_gtf* gtf) {
+adv_error gtf_load(adv_conf* context, adv_gtf* gtf) {
 	const char* s;
 
 	if (conf_string_get(context,"device_video_gtf",&s) != 0) {
@@ -751,7 +752,7 @@ error gtf_load(struct conf_context* context, video_gtf* gtf) {
 	return 0;
 }
 
-void gtf_save(struct conf_context* context, const video_gtf* gtf) {
+void gtf_save(adv_conf* context, const adv_gtf* gtf) {
 	char buffer[1024];
 
 	sprintf(buffer,"%g %d %d %g %g %g %g",
@@ -767,11 +768,11 @@ void gtf_save(struct conf_context* context, const video_gtf* gtf) {
 	conf_string_set(context, "", "device_video_gtf", buffer);
 }
 
-void gtf_clear(struct conf_context* context) {
+void gtf_clear(adv_conf* context) {
 	conf_remove(context, "", "device_video_gtf");
 }
 
-void gtf_register(struct conf_context* context) {
+void gtf_register(adv_conf* context) {
 	conf_string_register(context, "device_video_gtf");
 }
 
@@ -800,7 +801,7 @@ typedef struct tagBITMAPINFOHEADER {
 	uint32 biClrImportant __attribute__ ((packed));
 } BITMAPINFOHEADER;
 
-error video_snapshot_save(const char* snapshot_name, int start_x, int start_y) {
+adv_error video_snapshot_save(const char* snapshot_name, int start_x, int start_y) {
 	BITMAPFILEHEADER bmfh;
 	BITMAPINFOHEADER bmih;
 	FILE* f;
@@ -834,12 +835,12 @@ error video_snapshot_save(const char* snapshot_name, int start_x, int start_y) {
 
 	for(y=video_size_y()-1;y>=0;--y) {
 		unsigned count = 0;
-		if (video_index() == VIDEO_FLAGS_INDEX_PACKED) {
+		if (video_index() == MODE_FLAGS_INDEX_PACKED) {
 			unsigned x;
 			uint8* line = video_write_line(y + start_y);
 			for(x=0;x<video_size_x();++x) {
 				uint8 color = line[x + start_x];
-				video_color* palette = video_palette_get() + line[color];
+				adv_color* palette = video_palette_get() + line[color];
 				uint8 b;
 				b = palette->blue;
 				fwrite(&b,1,1,f);

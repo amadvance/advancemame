@@ -42,12 +42,12 @@ struct mouseb_sdl_context {
 
 static struct mouseb_sdl_context sdl_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SDL mouse" },
 { 0, 0, 0 }
 };
 
-error mouseb_sdl_init(int mouseb_id)
+adv_error mouseb_sdl_init(int mouseb_id)
 {
 	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n",mouseb_id));
 
@@ -119,12 +119,12 @@ unsigned mouseb_sdl_flags(void)
 	return 0;
 }
 
-error mouseb_sdl_load(struct conf_context* context)
+adv_error mouseb_sdl_load(adv_conf* context)
 {
 	return 0;
 }
 
-void mouseb_sdl_reg(struct conf_context* context)
+void mouseb_sdl_reg(adv_conf* context)
 {
 }
 

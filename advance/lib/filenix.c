@@ -44,7 +44,7 @@
 #include <sys/wait.h>
 
 #ifndef PREFIX
-#error Macro PREFIX undefined
+#adv_error Macro PREFIX undefined
 #endif
 
 struct file_context {

@@ -46,43 +46,33 @@
 /** Max number of devices */
 #define DEVICE_MAX 8
 
-/** Max length of a device name or a list of names */
+/** Max length of a adv_device name or a list of names */
 #define DEVICE_NAME_MAX 256
 
 /**
  * Device minimal information.
  * This structure define the common entries for all the devices.
- * A device is always part of a driver. Generally a driver supports
- * more than one device.
+ * A adv_device is always part of a adv_driver. Generally a adv_driver supports
+ * more than one adv_device.
  */
-struct device_struct {
-	const char *name; /** Name of the device. */
-	int id; /** Identifier of the device. This identifier must be passed at the driver init() function. */
-	const char* desc; /** Description of the device. */
-};
-
-/**
- * Device driver typedef.
- */
-typedef struct device_struct device;
+typedef struct adv_device_struct {
+	const char *name; /** Name of the adv_device. */
+	int id; /** Identifier of the adv_device. This identifier must be passed at the adv_driver init() function. */
+	const char* desc; /** Description of the adv_device. */
+} adv_device;
 
 /**
  * Driver minimal information.
  * This structure define the common entries for all the drivers.
  */
-struct driver_struct {
-	const char *name; /** Name of the driver. */
-	const device* device_map; /** List of supported device. */
-};
+typedef struct adv_driver_struct {
+	const char *name; /** Name of the adv_driver. */
+	const adv_device* device_map; /** List of supported adv_device. */
+} adv_driver;
 
-/**
- * Driver typedef.
- */
-typedef struct driver_struct driver;
-
-const device* device_match(const char* tag, const driver* drv, boolean allow_none);
-error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore);
-void device_error(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac);
+const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none);
+adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore);
+void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac);
 
 #endif
 

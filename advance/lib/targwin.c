@@ -53,7 +53,7 @@ static struct target_context TARGET;
 /***************************************************************************/
 /* Init */
 
-int target_init(void) {
+adv_error target_init(void) {
 	memset(&TARGET, 0, sizeof(TARGET));
 	return 0;
 }
@@ -118,17 +118,17 @@ void target_sound_signal(void) {
 /***************************************************************************/
 /* APM */
 
-int target_apm_shutdown(void) {
+adv_error target_apm_shutdown(void) {
 	/* nothing */
 	return 0;
 }
 
-int target_apm_standby(void) {
+adv_error target_apm_standby(void) {
 	/* nothing */
 	return 0;
 }
 
-int target_apm_wakeup(void) {
+adv_error target_apm_wakeup(void) {
 	/* nothing */
 	return 0;
 }
@@ -188,7 +188,7 @@ static int exec(char* cmdline) {
 	return exitcode;
 }
 
-int target_system(const char* cmd) {
+adv_error target_system(const char* cmd) {
 	char cmdline[4096];
 	char* comspec;
 
@@ -205,7 +205,7 @@ int target_system(const char* cmd) {
 	return exec(cmdline);
 }
 
-int target_spawn(const char* file, const char** argv) {
+adv_error target_spawn(const char* file, const char** argv) {
 	char cmdline[4096];
 	unsigned i;
 
@@ -225,7 +225,7 @@ int target_spawn(const char* file, const char** argv) {
 	return exec(cmdline);
 }
 
-int target_mkdir(const char* file) {
+adv_error target_mkdir(const char* file) {
 	return mkdir(file);
 }
 
@@ -233,7 +233,7 @@ void target_sync(void) {
 	/* nothing */
 }
 
-int target_search(char* path, unsigned path_size, const char* file) {
+adv_error target_search(char* path, unsigned path_size, const char* file) {
 	char* part;
 	DWORD len;
 
@@ -342,4 +342,8 @@ void target_crash(void) {
 	unsigned* i = (unsigned*)0;
 	++*i;
 	abort();
+}
+
+adv_bool target_option(const char* arg, const char* opt) {
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
 }

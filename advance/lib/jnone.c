@@ -31,12 +31,12 @@
 #include "jnone.h"
 #include "log.h"
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "No joystick" },
 { 0, 0, 0 }
 };
 
-error joystickb_none_init(int joystickb_id)
+adv_error joystickb_none_init(int joystickb_id)
 {
 	log_std(("joystickb:none: joystickb_none_init(id:%d)\n",joystickb_id));
 
@@ -158,12 +158,12 @@ unsigned joystickb_none_flags(void)
 	return 0;
 }
 
-error joystickb_none_load(struct conf_context* context)
+adv_error joystickb_none_load(adv_conf* context)
 {
 	return 0;
 }
 
-void joystickb_none_reg(struct conf_context* context)
+void joystickb_none_reg(adv_conf* context)
 {
 }
 

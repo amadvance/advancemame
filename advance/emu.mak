@@ -4,7 +4,6 @@
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/osd \
 	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/common \
 	-I$(srcdir)/advance/blit
 
 OBJDIRS += \
@@ -133,8 +132,9 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/dos/malleg.o \
 	$(OBJ)/advance/dos/snprintf.o \
 	$(OBJ)/advance/card/card.o \
-	$(OBJ)/advance/card/pci.o \
-	$(OBJ)/advance/card/map.o \
+	$(OBJ)/advance/dos/pci.o \
+	$(OBJ)/advance/dos/pcimap.o \
+	$(OBJ)/advance/dos/map.o \
 	$(OBJ)/advance/card/board.o \
 	$(OBJ)/advance/svgalib/libdos.o \
 	$(OBJ)/advance/svgalib/accel.o \
@@ -670,8 +670,6 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 	cp $(SDL_SRC) $(EMU_DIST_DIR_SRC)/advance/sdl
 	mkdir $(EMU_DIST_DIR_SRC)/advance/osd
 	cp $(SRCOSD) $(EMU_DIST_DIR_SRC)/advance/osd
-	mkdir $(EMU_DIST_DIR_SRC)/advance/common
-	cp $(COMMON_SRC) $(EMU_DIST_DIR_SRC)/advance/common
 	mkdir $(EMU_DIST_DIR_SRC)/advance/lib
 	cp $(LIB_SRC) $(EMU_DIST_DIR_SRC)/advance/lib
 	mkdir $(EMU_DIST_DIR_SRC)/advance/blit

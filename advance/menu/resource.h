@@ -57,7 +57,7 @@ public:
 	const std::string& path_get() const;
 	std::string archive_get() const;
 
-	FZ* open() const;
+	adv_fz* open() const;
 };
 
 #endif

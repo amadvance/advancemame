@@ -35,6 +35,8 @@
 #ifndef __FZ_H
 #define __FZ_H
 
+#include "extra.h"
+
 #include <stdio.h>
 #include <zlib.h>
 
@@ -42,53 +44,55 @@
 extern "C" {
 #endif
 
-enum fz_type {
-	fz_file, /* real file, eventually only a part */
-	fz_memory, /* memory */
-	fz_file_compressed /* compressed file, eventually only a part */
+/**
+ * Types of files supported.
+ */
+enum adv_fz_enum {
+	fz_file, /**< Real file, eventually only a part. */
+	fz_memory, /**< Memory image of a file. */
+	fz_file_compressed /**< ZLIB compressed file, eventually only a part. */
 };
 
 /**
  * Compressed file context.
  */
-typedef struct fz {
-	unsigned type; /* type of file, fz_* */
-	unsigned virtual_pos; /* current position on the virtual file */
-	unsigned virtual_size; /* size */
+typedef struct adv_fz_struct {
+	unsigned type; /**< Type of file. One of the ::adv_fz_enum. */
+	unsigned virtual_pos; /**< Current position on the virtual file. */
+	unsigned virtual_size; /**< Size. */
 
-	unsigned real_offset; /* starting position on the real file */
-	unsigned real_size; /* real size of the intersting file */
+	unsigned real_offset; /**< Starting position on the real file. */
+	unsigned real_size; /**< Real size of the intersting file. */
 
-	/* memory */
+	/** Memory used by the file. */
 	const unsigned char* data;
 
-	/* file */
+	/** Handler used by the file. */
 	FILE* f;
 
-	/* compression */
-	z_stream z;
-	unsigned char* zbuffer;
-	unsigned remaining;
-} FZ;
+	z_stream z; /**< Compressed stream. */
+	unsigned char* zbuffer; /**< Buffer used for reading a compressed stream. */
+	unsigned remaining; /**< Remainig bytes of a compressed stream. */
+} adv_fz;
 
 /** \addtogroup CompressedFile */
 /*@{*/
 
-FZ* fzopen(const char* file, const char* mode);
-FZ* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size);
-FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed);
-FZ* fzopenmemory(const unsigned char* data, unsigned size);
+adv_fz* fzopen(const char* file, const char* mode);
+adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size);
+adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed);
+adv_fz* fzopenmemory(const unsigned char* data, unsigned size);
 
-unsigned fzread(void *buffer, unsigned size, unsigned number, FZ* f);
-unsigned fzwrite(const void *buffer, unsigned size, unsigned number, FZ* f);
-int fzclose(FZ* f);
-long fztell(FZ* f);
-long fzsize(FZ* f);
-int fzseek(FZ* f, long offset, int mode);
-int fzgetc(FZ* f);
-int fzungetc(int c, FZ* f);
-char* fzgets(char *s, int n, FZ* f);
-int fzeof(FZ* f);
+unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f);
+unsigned fzwrite(const void *buffer, unsigned size, unsigned number, adv_fz* f);
+adv_error fzclose(adv_fz* f);
+long fztell(adv_fz* f);
+long fzsize(adv_fz* f);
+adv_error fzseek(adv_fz* f, long offset, int mode);
+int fzgetc(adv_fz* f);
+adv_error fzungetc(int c, adv_fz* f);
+char* fzgets(char *s, int n, adv_fz* f);
+adv_error fzeof(adv_fz* f);
 
 /*@}*/
 

@@ -26,8 +26,8 @@
 
 #include <string>
 
-void play_reg(struct conf_context* cfg_context);
-bool play_load(struct conf_context* config_context);
+void play_reg(adv_conf* cfg_context);
+bool play_load(adv_conf* config_context);
 bool play_init();
 void play_done();
 

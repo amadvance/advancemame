@@ -2,8 +2,7 @@
 # I
 
 ICFLAGS += \
-	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/lib
 IOBJDIRS += \
 	$(IOBJ) \
 	$(IOBJ)/i \

@@ -102,7 +102,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	}
 #endif
 
-	/* 2.0 is to increase a the lower driver latency */
+	/* *2.0 is to increase a the lower driver buffer */
 	/* the value is guessed with some tries, don't change it */
 	/* without testing on all the drivers */
 	if (sound_init(sample_rate, stereo_flag, 2.0 * context->config.latency_time) != 0) {
@@ -175,7 +175,7 @@ int advance_sound_latency_diff(struct advance_sound_context* context)
 	}
 }
 
-int advance_sound_init(struct advance_sound_context* context, struct conf_context* cfg_context) {
+int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context) {
 	conf_bool_register_default(cfg_context, "sound_stereo", 1);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
@@ -197,7 +197,7 @@ struct sound_device {
 	const char* desc;
 };
 
-int advance_sound_config_load(struct advance_sound_context* context, struct conf_context* cfg_context, struct mame_option* option)
+int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	context->config.stereo_flag = conf_bool_get_default(cfg_context, "sound_stereo");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");

@@ -13,7 +13,6 @@ Copyright (C) 1999-2002 Andrea Mazzoleni
 #include "vgaio.h"
 #include "ramdac/ramdac.h"
 
-#include "card.h"
 #include "map.h"
 #include "pci.h"
 
@@ -27,17 +26,17 @@ Copyright (C) 1999-2002 Andrea Mazzoleni
 #error This module is for MSDOS only
 #endif
 
-card_crtc libdos_crtc;
+struct libdos_crtc_struct libdos_crtc;
+struct libdos_mode_struct libdos_mode;
 int libdos_tvpal;
 int libdos_tvntsc;
-card_mode libdos_mode;
 int libdos_mode_number;
 int libdos_divideclock; /* if set uses the VGA sequencer register to divide the dot clock by 2 */
 
 /**************************************************************************/
 /* os */
 
-void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset) {
+void* libdos_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset) {
 	unsigned long linear;
 
 	(void)prot;
@@ -55,30 +54,134 @@ void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned o
 	if (map_create_linear_mapping(&linear, offset, length)!=0)
 		return MAP_FAILED;
 
-	card_log("card: mmap %x -> %lx, size %x\n", offset, linear, length);
-
 	linear += __djgpp_conventional_base;
 
 	return (void*)linear;
 }
 
-int munmap(void* start, unsigned length) {
+int libdos_munmap(void* start, unsigned length) {
 	unsigned long offset;
 
 	offset = (unsigned)start;
 
 	offset -= __djgpp_conventional_base;
 
-	card_log("card: munmap %lx, size %x\n", offset, length);
-
 	map_remove_linear_mapping(offset,length);
 
 	return 0;
 }
 
-int iopl(int perm) {
+int libdos_iopl(int perm) {
 	(void)perm;
 	return 0;
+}
+
+/**************************************************************************/
+/* heap */
+
+#define HEAP_SIZE 8192
+
+static unsigned char heap[HEAP_SIZE];
+
+struct heap_slot {
+	struct heap_slot* prev;
+	struct heap_slot* next;
+	int used;
+	unsigned size;
+};
+
+#define SLOT_SIZE sizeof(struct heap_slot)
+
+struct heap_slot* heap_list;
+
+struct heap_slot* heap_slot_from(void* p) {
+	unsigned char* raw = (unsigned char*)p - SLOT_SIZE;
+	return (struct heap_slot*)raw;
+}
+
+unsigned char* heap_slot_to(struct heap_slot* h) {
+	unsigned char* raw = (unsigned char*)h + SLOT_SIZE;
+	return raw;
+}
+
+unsigned heap_slot_begin(struct heap_slot* h) {
+	return (unsigned char*)h - (unsigned char*)heap;
+}
+
+unsigned heap_slot_size(struct heap_slot* h) {
+	return h->size + SLOT_SIZE;
+}
+
+unsigned heap_slot_end(struct heap_slot* h) {
+	return heap_slot_begin(h) + heap_slot_size(h);
+}
+
+void heap_init(void) {
+	heap_list = (struct heap_slot*)heap;
+	heap_list->prev = heap_list;
+	heap_list->next = heap_list;
+	heap_list->used = 0;
+	heap_list->size = HEAP_SIZE - SLOT_SIZE;
+}
+
+void* libdos_malloc(unsigned size) {
+	struct heap_slot* h = heap_list;
+	struct heap_slot* n;
+
+	if (size % SLOT_SIZE)
+		size = size + SLOT_SIZE - size % SLOT_SIZE;
+
+	while (h->used || h->size <= size + SLOT_SIZE) {
+		h = h->next;
+		if (h == heap_list)
+			return 0;
+	}
+
+	n = (struct heap_slot*)((unsigned char*)h + size + SLOT_SIZE);
+	n->prev = h;
+	n->next = h->next;
+	n->next->prev = n;
+	n->prev->next = n;
+	n->used = 0;
+	n->size = h->size - size - SLOT_SIZE;
+	h->used = 1;
+	h->size = size;
+
+	return heap_slot_to(h);
+}
+
+void libdos_free(void* ptr) {
+	struct heap_slot* h = heap_slot_from(ptr);
+
+	if (h->prev->used == 0 && heap_slot_end(h->prev) == heap_slot_begin(h)
+		&& h->next->used == 0 && heap_slot_end(h) == heap_slot_begin(h->next)
+	) {
+		/* cat to prev and next */
+		h->prev->size += heap_slot_size(h) + heap_slot_size(h->next);
+		h->next->next->prev = h->prev;
+		h->prev->next = h->next->next;
+	} else if (h->prev->used == 0 && heap_slot_end(h->prev) == heap_slot_begin(h)) {
+		/* cat to prev */
+		h->prev->size += heap_slot_size(h);
+		h->prev->next = h->next;
+		h->next->prev = h->prev;
+	} else if (h->next->used == 0 && heap_slot_end(h) == heap_slot_begin(h->next)) {
+		/* cat to next */
+		h->used = 0;
+		h->size += heap_slot_size(h->next);
+		h->next->next->prev = h;
+		h->next = h->next->next;
+	} else {
+		/* keep in list */
+		h->used = 0;
+	}
+}
+
+void* libdos_calloc(unsigned n, unsigned size) {
+	void* r = libdos_malloc(n * size);
+	if (r)
+		memset(r, 0, n*size);
+	return r;
 }
 
 /**************************************************************************/
@@ -953,7 +1056,7 @@ int __svgalib_getmodetiming(ModeTiming* modetiming, ModeInfo* modeinfo, CardSpec
 		return 1;
 
 	/* clock check */
-	if (libdos_crtc.dotclockHz / 1000 > maxclock)
+	if (libdos_crtc.pixelclock / 1000 > maxclock)
 		return 1;
 
 	/* interlace check */
@@ -969,11 +1072,11 @@ int __svgalib_getmodetiming(ModeTiming* modetiming, ModeInfo* modeinfo, CardSpec
 		modetiming->flags |= DOUBLESCAN;
 	if (libdos_crtc.interlace)
 		modetiming->flags |= INTERLACED;
-	if (libdos_crtc.hpolarity)
+	if (libdos_crtc.nhsync)
 		modetiming->flags |= NHSYNC;
 	else
 		modetiming->flags |= PHSYNC;
-	if (libdos_crtc.vpolarity)
+	if (libdos_crtc.nvsync)
 		modetiming->flags |= NVSYNC;
 	else
 		modetiming->flags |= PVSYNC;
@@ -982,14 +1085,14 @@ int __svgalib_getmodetiming(ModeTiming* modetiming, ModeInfo* modeinfo, CardSpec
 	if (libdos_tvntsc)
 		modetiming->flags |= TVMODE | TVNTSC;
 
-	modetiming->pixelClock = libdos_crtc.dotclockHz / 1000;
+	modetiming->pixelClock = libdos_crtc.pixelclock / 1000;
 
 	/*
 	 * We know a close enough clock is available; the following is the
 	 * exact clock that fits the mode. This is probably different
 	 * from the best matching clock that will be programmed.
 	 */
-	desiredclock = cardspecs->mapClock(modeinfo->bitsPerPixel,libdos_crtc.dotclockHz / 1000);
+	desiredclock = cardspecs->mapClock(modeinfo->bitsPerPixel,libdos_crtc.pixelclock / 1000);
 
 	/* Fill in the best-matching clock that will be programmed. */
 	modetiming->selectedClockNo = findclock(desiredclock, cardspecs);
@@ -1003,27 +1106,27 @@ int __svgalib_getmodetiming(ModeTiming* modetiming, ModeInfo* modeinfo, CardSpec
 	} else
 		modetiming->programmedClock = cardspecs->clocks[modetiming->selectedClockNo];
 
-	modetiming->HDisplay = libdos_crtc.HDisp;
-	modetiming->HSyncStart = libdos_crtc.HSStart;
-	modetiming->HSyncEnd = libdos_crtc.HSEnd;
-	modetiming->HTotal = libdos_crtc.HTotal;
-	if (cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.HTotal) != libdos_crtc.HTotal) {
+	modetiming->HDisplay = libdos_crtc.hde;
+	modetiming->HSyncStart = libdos_crtc.hrs;
+	modetiming->HSyncEnd = libdos_crtc.hre;
+	modetiming->HTotal = libdos_crtc.ht;
+	if (cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.ht) != libdos_crtc.ht) {
 		/* Horizontal CRTC timings are scaled in some way. */
-		modetiming->CrtcHDisplay = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.HDisp);
-		modetiming->CrtcHSyncStart = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.HSStart);
-		modetiming->CrtcHSyncEnd = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.HSEnd);
-		modetiming->CrtcHTotal = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.HTotal);
+		modetiming->CrtcHDisplay = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.hde);
+		modetiming->CrtcHSyncStart = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.hrs);
+		modetiming->CrtcHSyncEnd = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.hre);
+		modetiming->CrtcHTotal = cardspecs->mapHorizontalCrtc(modeinfo->bitsPerPixel, modetiming->programmedClock, libdos_crtc.ht);
 		modetiming->flags |= HADJUSTED;
 	} else {
-		modetiming->CrtcHDisplay = libdos_crtc.HDisp;
-		modetiming->CrtcHSyncStart = libdos_crtc.HSStart;
-		modetiming->CrtcHSyncEnd = libdos_crtc.HSEnd;
-		modetiming->CrtcHTotal = libdos_crtc.HTotal;
+		modetiming->CrtcHDisplay = libdos_crtc.hde;
+		modetiming->CrtcHSyncStart = libdos_crtc.hrs;
+		modetiming->CrtcHSyncEnd = libdos_crtc.hre;
+		modetiming->CrtcHTotal = libdos_crtc.ht;
 	}
-	modetiming->VDisplay = libdos_crtc.VDisp;
-	modetiming->VSyncStart = libdos_crtc.VSStart;
-	modetiming->VSyncEnd = libdos_crtc.VSEnd;
-	modetiming->VTotal = libdos_crtc.VTotal;
+	modetiming->VDisplay = libdos_crtc.vde;
+	modetiming->VSyncStart = libdos_crtc.vrs;
+	modetiming->VSyncEnd = libdos_crtc.vre;
+	modetiming->VTotal = libdos_crtc.vt;
 	if (modetiming->flags & DOUBLESCAN){
 		modetiming->VDisplay <<= 1;
 		modetiming->VSyncStart <<= 1;
@@ -1056,30 +1159,32 @@ int __svgalib_getmodetiming(ModeTiming* modetiming, ModeInfo* modeinfo, CardSpec
 
 void libdos_init(int divide_clock_with_sequencer)
 {
+	heap_init();
+
 	libdos_divideclock = divide_clock_with_sequencer;
 
 	__svgalib_chipset = UNDEFINED;
 	__svgalib_driverspecs = &__svgalib_vga_driverspecs;
-	__svgalib_inmisc=__svgalib_vga_inmisc;
-	__svgalib_outmisc=__svgalib_vga_outmisc;
-	__svgalib_incrtc=__svgalib_vga_incrtc;
-	__svgalib_outcrtc=__svgalib_vga_outcrtc;
-	__svgalib_inseq=__svgalib_vga_inseq;
-	__svgalib_outseq=__svgalib_vga_outseq;
-	__svgalib_ingra=__svgalib_vga_ingra;
-	__svgalib_outgra=__svgalib_vga_outgra;
-	__svgalib_inatt=__svgalib_vga_inatt;
-	__svgalib_outatt=__svgalib_vga_outatt;
-	__svgalib_attscreen=__svgalib_vga_attscreen;
-	__svgalib_inpal=__svgalib_vga_inpal;
-	__svgalib_outpal=__svgalib_vga_outpal;
-	__svgalib_inis1=__svgalib_vga_inis1;
+	__svgalib_inmisc = __svgalib_vga_inmisc;
+	__svgalib_outmisc = __svgalib_vga_outmisc;
+	__svgalib_incrtc = __svgalib_vga_incrtc;
+	__svgalib_outcrtc = __svgalib_vga_outcrtc;
+	__svgalib_inseq = __svgalib_vga_inseq;
+	__svgalib_outseq = __svgalib_vga_outseq;
+	__svgalib_ingra = __svgalib_vga_ingra;
+	__svgalib_outgra = __svgalib_vga_outgra;
+	__svgalib_inatt = __svgalib_vga_inatt;
+	__svgalib_outatt = __svgalib_vga_outatt;
+	__svgalib_attscreen = __svgalib_vga_attscreen;
+	__svgalib_inpal = __svgalib_vga_inpal;
+	__svgalib_outpal = __svgalib_vga_outpal;
+	__svgalib_inis1 = __svgalib_vga_inis1;
 }
 
-void libdos_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc) {
-
+void libdos_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
+{
 	/* mode */
-	memset(&libdos_mode,0,sizeof(card_mode));
+	memset(&libdos_mode,0,sizeof(libdos_mode));
 	libdos_mode.width = hde;
 	libdos_mode.height = vde;
 	libdos_mode.bits_per_pixel = bits_per_pixel;
@@ -1119,31 +1224,24 @@ void libdos_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned 
 	libdos_tvntsc = tvntsc;
 
 	/* crtc */
-	libdos_crtc.HDisp = hde;
-	libdos_crtc.HSStart = hrs;
-	libdos_crtc.HSEnd = hre;
-	libdos_crtc.HTotal = ht;
+	libdos_crtc.hde = hde;
+	libdos_crtc.hrs = hrs;
+	libdos_crtc.hre = hre;
+	libdos_crtc.ht = ht;
 
-	libdos_crtc.VDisp = vde;
-	libdos_crtc.VSStart = vrs;
-	libdos_crtc.VSEnd = vre;
-	libdos_crtc.VTotal = vt;
-
-	/* blank (not used) */
-	libdos_crtc.HBStart = 0;
-	libdos_crtc.HBEnd = 0;
-	libdos_crtc.VBStart = 0;
-	libdos_crtc.VBEnd = 0;
+	libdos_crtc.vde = vde;
+	libdos_crtc.vrs = vrs;
+	libdos_crtc.vre = vre;
+	libdos_crtc.vt = vt;
 
 	/* the SVGALIB interface already divide and double the vertical value for doublescan and interlace */
 
-	libdos_crtc.hpolarity = hsync;
-	libdos_crtc.vpolarity = vsync;
+	libdos_crtc.nhsync = hsync;
+	libdos_crtc.nvsync = vsync;
 	libdos_crtc.doublescan = doublescan;
 	libdos_crtc.interlace = interlace;
-	libdos_crtc.interlaceratio = 50;
 
-	libdos_crtc.dotclockHz = pixelclock;
+	libdos_crtc.pixelclock = pixelclock;
 	libdos_mode_number = 15;
 
 	__svgalib_infotable[libdos_mode_number].xdim = libdos_mode.width;
@@ -1156,26 +1254,13 @@ void libdos_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned 
 	__svgalib_cur_info = __svgalib_infotable[__svgalib_cur_mode];
 }
 
-void libdos_mode_done(void) {
-	__svgalib_inmisc=__svgalib_vga_inmisc;
-	__svgalib_outmisc=__svgalib_vga_outmisc;
-	__svgalib_incrtc=__svgalib_vga_incrtc;
-	__svgalib_outcrtc=__svgalib_vga_outcrtc;
-	__svgalib_inseq=__svgalib_vga_inseq;
-	__svgalib_outseq=__svgalib_vga_outseq;
-	__svgalib_ingra=__svgalib_vga_ingra;
-	__svgalib_outgra=__svgalib_vga_outgra;
-	__svgalib_inatt=__svgalib_vga_inatt;
-	__svgalib_outatt=__svgalib_vga_outatt;
-	__svgalib_attscreen=__svgalib_vga_attscreen;
-	__svgalib_inpal=__svgalib_vga_inpal;
-	__svgalib_outpal=__svgalib_vga_outpal;
-	__svgalib_inis1=__svgalib_vga_inis1;
-
+void libdos_mode_done(void)
+{
 	__svgalib_cur_mode = 0;
 	__svgalib_cur_info = __svgalib_infotable[__svgalib_cur_mode];
 }
 
-void libdos_done(void) {
+void libdos_done(void)
+{
 }
 

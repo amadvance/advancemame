@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitmap** bitmap_mask);
+adv_bitmap* icon_load(adv_fz* f, adv_color* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask);
 
 #ifdef __cplusplus
 };

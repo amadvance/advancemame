@@ -6,7 +6,7 @@ struct run_slice {
 	int whole;
 	int up;
 	int down;
-	int error;
+	int error_t;
 	int count;
 };
 
@@ -18,14 +18,14 @@ void run_slice_init(struct run_slice* r, int S, int D) {
 		r->whole = S / D;
 		r->up = (S % D) * 2;
 		r->down = D * 2;
-		r->error = 0;
+		r->error_t = 0;
 		r->count = D + 1;
 	} else {
 		/* expansion */
 		r->whole = D / S;
 		r->up = (D % S) * 2;
 		r->down = S * 2;
-		r->error = 0;
+		r->error_t = 0;
 		r->count = S;
 	}
 }
@@ -36,7 +36,7 @@ void test_red(int S, int D) {
 	int total = 0;
 	int step = 0;
 	struct run_slice r;
-	int error;
+	int error_t;
 	int count;
 
 	if (S <= D)
@@ -44,15 +44,15 @@ void test_red(int S, int D) {
 
 	run_slice_init(&r,S,D);
 
-	error = r.error;
+	error_t = r.error_t;
 	count = r.count;
 
 	while (count) {
 		unsigned run = r.whole;
 
-		if ((error += r.up) > 0) {
+		if ((error_t += r.up) > 0) {
 			++run;
-			error -= r.down;
+			error_t -= r.down;
 		}
 #ifndef TEST
 		printf("%d|",run);
@@ -69,14 +69,14 @@ void test_red(int S, int D) {
 #endif
 
 	if (total != S || step != D)
-		printf("error: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
+		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
 }
 
 void test_exp(int S, int D) {
 	int total = 0;
 	int step = 0;
 	struct run_slice r;
-	int error;
+	int error_t;
 	int count;
 
 	if (S >= D)
@@ -84,15 +84,15 @@ void test_exp(int S, int D) {
 
 	run_slice_init(&r,S,D);
 
-	error = r.error;
+	error_t = r.error_t;
 	count = r.count;
 
 	while (count) {
 		unsigned run = r.whole;
 
-		if ((error += r.up) > 0) {
+		if ((error_t += r.up) > 0) {
 			++run;
-			error -= r.down;
+			error_t -= r.down;
 		}
 #ifndef TEST
 		printf("%d|",run);
@@ -106,7 +106,7 @@ void test_exp(int S, int D) {
 #endif
 
 	if (total != D || step != S)
-		printf("error: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
+		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
 }
 
 int main() {

@@ -108,7 +108,7 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-int os_init(struct conf_context* context) {
+int os_init(adv_conf* context) {
 	memset(&OS,0,sizeof(OS));
 
 	return 0;

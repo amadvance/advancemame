@@ -47,12 +47,12 @@ struct mouseb_svgalib_context {
 
 static struct mouseb_svgalib_context svgalib_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SVGALIB mouse" },
 { 0, 0, 0 }
 };
 
-error mouseb_svgalib_init(int mouseb_id)
+adv_error mouseb_svgalib_init(int mouseb_id)
 {
 	struct MouseCaps mouse_caps;
 	unsigned i;
@@ -162,12 +162,12 @@ unsigned mouseb_svgalib_flags(void)
 	return 0;
 }
 
-error mouseb_svgalib_load(struct conf_context* context)
+adv_error mouseb_svgalib_load(adv_conf* context)
 {
 	return 0;
 }
 
-void mouseb_svgalib_reg(struct conf_context* context)
+void mouseb_svgalib_reg(adv_conf* context)
 {
 }
 

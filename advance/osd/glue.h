@@ -193,7 +193,7 @@ struct osd_video_option {
 	unsigned bits_per_pixel; /* depth in bit of the bitmap */
 
 	int rgb_flag; /* !=0 if the bitmap already contains RGB values */
-	video_rgb_def rgb_def; /* RGB format */
+	adv_rgb_def rgb_def; /* RGB format */
 
 	int vector_flag;
 

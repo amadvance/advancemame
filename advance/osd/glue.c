@@ -786,10 +786,10 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 		GLUE.option.rgb_def = 0;
 		GLUE.option.rgb_flag = 0;
 	} else if (GLUE.option.bits_per_pixel == 15) {
-		GLUE.option.rgb_def = video_rgb_def_make(5,10,5,5,5,0);
+		GLUE.option.rgb_def = rgb_def_make(5,10,5,5,5,0);
 		GLUE.option.rgb_flag = 1;
 	} else if (GLUE.option.bits_per_pixel == 32) {
-		GLUE.option.rgb_def = video_rgb_def_make(8,16,8,8,8,0);
+		GLUE.option.rgb_def = rgb_def_make(8,16,8,8,8,0);
 		GLUE.option.rgb_flag = 1;
 	} else
 		return -1;
@@ -1123,7 +1123,7 @@ const char *osd_get_fps_text(const struct performance_info *performance)
 /***************************************************************************/
 /* Config */
 
-static struct conf_enum_int OPTION_DEPTH[] = {
+static adv_conf_enum_int OPTION_DEPTH[] = {
 { "auto", 0 },
 { "8", 8 },
 { "15", 15 },
@@ -1134,7 +1134,7 @@ static struct conf_enum_int OPTION_DEPTH[] = {
 #ifdef MESS
 extern const struct Devices devices[]; /* from mess device.c */
 
-static void mess_init(struct conf_context* context) {
+static void mess_init(CONF* context) {
 	const struct Devices* i;
 
 	options.image_count = 0;
@@ -1151,7 +1151,7 @@ static void mess_init(struct conf_context* context) {
 	}
 }
 
-static void mess_config_load(struct conf_context* context) {
+static void mess_config_load(CONF* context) {
 	const struct Devices* i;
 
 	i = devices;
@@ -1181,7 +1181,7 @@ static void mess_done(void) {
 
 #endif
 
-int mame_init(struct advance_context* context, struct conf_context* cfg_context) {
+int mame_init(struct advance_context* context, adv_conf* cfg_context) {
 
 	/* Clear the MAIN context */
 	memset(context, 0, sizeof(struct advance_context));
@@ -1231,7 +1231,7 @@ void mame_done(struct advance_context* context) {
 #endif
 }
 
-int mame_config_load(struct conf_context* cfg_context, struct mame_option* option) {
+int mame_config_load(adv_conf* cfg_context, struct mame_option* option) {
 	char* s;
 
 	option->artwork_flag = conf_bool_get_default(cfg_context, "display_artwork");

@@ -80,7 +80,7 @@ struct sound_seal_context {
 
 static struct sound_seal_context seal_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", AUDIO_DEVICE_MAPPER, "SEAL sound" },
 { "sb", 1, "Sound Blaster" },
 { "pas", 3, "Pro Audio Spectrum" },
@@ -91,7 +91,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-error sound_seal_init(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time) {
+adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	unsigned i;
 	AUDIOINFO info;
 	AUDIOCAPS caps;
@@ -105,7 +105,7 @@ error sound_seal_init(int device_id, unsigned* rate, boolean stereo_flag, double
 	}
 
 	if (AInitialize() != AUDIO_ERROR_NONE) {
-		log_std(("sound:seal: error in AInitialize\n"));
+		log_std(("sound:seal: adv_error in AInitialize\n"));
 		return -1;
 	}
 
@@ -113,7 +113,7 @@ error sound_seal_init(int device_id, unsigned* rate, boolean stereo_flag, double
 		UINT id = device_id;
 
 		if (APingAudio(&id) != AUDIO_ERROR_NONE) {
-			log_std(("sound:seal: error in APingAudio\n"));
+			log_std(("sound:seal: adv_error in APingAudio\n"));
 			return -1;
 		}
 
@@ -139,7 +139,7 @@ error sound_seal_init(int device_id, unsigned* rate, boolean stereo_flag, double
 	}
 
 	if (AOpenAudio(&info) != AUDIO_ERROR_NONE) {
-		log_std(("sound:seal: error in AOpenAudio\n"));
+		log_std(("sound:seal: adv_error in AOpenAudio\n"));
 		return -1;
 	}
 
@@ -222,7 +222,7 @@ unsigned sound_seal_buffered(void) {
 	return missing;
 }
 
-static boolean sound_seal_overflow(unsigned pos, unsigned length) {
+static adv_bool sound_seal_overflow(unsigned pos, unsigned length) {
 	unsigned play_pos;
 
 	play_pos = sound_seal_current();
@@ -256,7 +256,7 @@ static void sound_seal_update(void) {
 }
 #endif
 
-error sound_seal_start(double silence_time) {
+adv_error sound_seal_start(double silence_time) {
 	unsigned i;
 
 	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n",silence_time));
@@ -402,11 +402,11 @@ unsigned sound_seal_flags(void) {
 	return 0;
 }
 
-error sound_seal_load(struct conf_context* context) {
+adv_error sound_seal_load(adv_conf* context) {
 	return 0;
 }
 
-void sound_seal_reg(struct conf_context* context) {
+void sound_seal_reg(adv_conf* context) {
 }
 
 /***************************************************************************/

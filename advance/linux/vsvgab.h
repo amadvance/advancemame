@@ -43,47 +43,47 @@ extern "C" {
 
 typedef struct svgalib_video_mode_struct {
 	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	video_crtc crtc; /**< CRTC values */
+	adv_crtc crtc; /**< CRTC values */
 } svgalib_video_mode;
 
-error svgalib_init(int device_id);
+adv_error svgalib_init(int device_id);
 void svgalib_done(void);
 
-boolean svgalib_is_active(void);
-boolean svgalib_mode_is_active(void);
+adv_bool svgalib_is_active(void);
+adv_bool svgalib_mode_is_active(void);
 
 unsigned svgalib_flags(void);
 
-error svgalib_mode_set(const svgalib_video_mode* mode);
-error svgalib_mode_change(const svgalib_video_mode* mode);
-void svgalib_mode_done(boolean restore);
+adv_error svgalib_mode_set(const svgalib_video_mode* mode);
+adv_error svgalib_mode_change(const svgalib_video_mode* mode);
+void svgalib_mode_done(adv_bool restore);
 
 unsigned svgalib_virtual_x(void);
 unsigned svgalib_virtual_y(void);
 unsigned svgalib_bytes_per_scanline(void);
 unsigned svgalib_adjust_bytes_per_page(unsigned bytes_per_page);
-video_rgb_def svgalib_rgb_def(void);
+adv_rgb_def svgalib_rgb_def(void);
 
 extern unsigned char* (*svgalib_write_line)(unsigned y);
 
 void svgalib_wait_vsync(void);
-error svgalib_scroll(unsigned offset, boolean waitvsync);
-error svgalib_scanline_set(unsigned byte_length);
-error svgalib_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
+adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync);
+adv_error svgalib_scanline_set(unsigned byte_length);
+adv_error svgalib_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
-error svgalib_mode_import(video_mode* mode, const svgalib_video_mode* svgalib_mode);
-error svgalib_mode_generate(svgalib_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error svgalib_mode_import(adv_mode* mode, const svgalib_video_mode* svgalib_mode);
+adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
 int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b);
 
 void svgalib_default(void);
-void svgalib_reg(struct conf_context* context);
-error svgalib_load(struct conf_context* context);
+void svgalib_reg(adv_conf* context);
+adv_error svgalib_load(adv_conf* context);
 
 /**
  * Video driver "svgalib".
  * \ingroup Video
  */
-extern video_driver video_svgalib_driver;
+extern adv_video_driver video_svgalib_driver;
 
 #ifdef __cplusplus
 }

@@ -35,26 +35,26 @@ extern "C" {
 /** \addtogroup Mixer */
 /*@{*/
 
-#define MIXER_CHANNEL_MAX 8 /**< Max number of channels */
+#define MIXER_CHANNEL_MAX 8 /**< Max number of channels. */
 
-void mixer_reg(struct conf_context* context);
-int mixer_load(struct conf_context* context);
+void mixer_reg(adv_conf* context);
+adv_error mixer_load(adv_conf* context);
 
-int mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffer_time, double latency_time);
+adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffer_time, double latency_time);
 void mixer_done(void);
 
 void mixer_poll(void);
 
 void mixer_volume(double volume);
 
-int mixer_play_file_wav(unsigned channel, FZ* file, int loop);
-int mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const unsigned char* end, int loop);
-int mixer_play_file_mp3(unsigned channel, FZ* file, int loop);
+adv_error mixer_play_file_wav(unsigned channel, adv_fz* file, int loop);
+adv_error mixer_play_memory_wav(unsigned channel, const unsigned char* begin, const unsigned char* end, int loop);
+adv_error mixer_play_file_mp3(unsigned channel, adv_fz* file, int loop);
 
 void mixer_stop(unsigned channel);
 
-int mixer_is_pushing(unsigned channel);
-int mixer_is_playing(unsigned channel);
+adv_bool mixer_is_pushing(unsigned channel);
+adv_bool mixer_is_playing(unsigned channel);
 
 /*@}*/
 

@@ -165,7 +165,7 @@ static int ConditionSatisfied(ActionEntry * action)
 	return 0;
 }
 
-int advance_safequit_init(struct advance_safequit_context* context, struct conf_context* cfg_context) {
+int advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context) {
 	conf_bool_register_default(cfg_context, "misc_safequit", 1);
 	conf_bool_register_default(cfg_context, "misc_safequitdebug", 0);
 	conf_string_register_default(cfg_context, "misc_safequitfile", "safequit.dat");
@@ -193,7 +193,7 @@ void advance_safequit_inner_done(struct advance_safequit_context* context)
 {
 }
 
-int advance_safequit_config_load(struct advance_safequit_context* context, struct conf_context* cfg_context) {
+int advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context) {
 	context->config.safe_exit_flag = conf_bool_get_default(cfg_context, "misc_safequit");
 	context->config.debug_flag = conf_bool_get_default(cfg_context, "misc_safequitdebug");
 	strcpy(context->config.file, conf_string_get_default(cfg_context, "misc_safequitfile"));

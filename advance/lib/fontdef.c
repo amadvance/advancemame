@@ -26,12 +26,12 @@
  * Return the default font.
  * \param height Height in pixel of the required font. The effective height may differs.
  */
-struct bitmapfont* font_default(unsigned height) {
+adv_font* font_default(unsigned height) {
 	if (height >= 17)
-		return bitmapfont_inport_grx(FONT_HELV17);
+		return font_import_grx(FONT_HELV17);
 	if (height >= 15)
-		return bitmapfont_inport_grx(FONT_HELV15);
+		return font_import_grx(FONT_HELV15);
 	if (height >= 13)
-		return bitmapfont_inport_grx(FONT_HELV13);
-	return bitmapfont_inport_grx(FONT_HELV11);
+		return font_import_grx(FONT_HELV13);
+	return font_import_grx(FONT_HELV11);
 }

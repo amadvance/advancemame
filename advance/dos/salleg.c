@@ -39,7 +39,7 @@
 #include "allegro2.h"
 
 struct sound_allegro_context {
-	boolean active_flag;
+	adv_bool active_flag;
 
 	unsigned channel;
 	unsigned rate;
@@ -54,7 +54,7 @@ struct sound_allegro_context {
 
 static struct sound_allegro_context allegro_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", DIGI_AUTODETECT, "Allegro sound" },
 { "sb10", DIGI_SB10, "Sound Blaster 1.0" },
 { "sb15", DIGI_SB15, "Sound Blaster 1.5" },
@@ -77,7 +77,7 @@ int __wrap__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voic
 	return __real__mixer_init(bufsize, freq, stereo, is16bit, voices);
 }
 
-error sound_allegro_init(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time) {
+adv_error sound_allegro_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	log_std(("sound:allegro: sound_allegro_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	if (stereo_flag) {
@@ -142,7 +142,7 @@ unsigned sound_allegro_buffered(void) {
 	return missing;
 }
 
-static boolean sound_allegro_overflow(unsigned pos, unsigned length) {
+static adv_bool sound_allegro_overflow(unsigned pos, unsigned length) {
 	unsigned play_pos;
 
 	play_pos = sound_allegro_current();
@@ -150,7 +150,7 @@ static boolean sound_allegro_overflow(unsigned pos, unsigned length) {
 	return pos <= play_pos && play_pos < pos + length;
 }
 
-error sound_allegro_start(double silence_time) {
+adv_error sound_allegro_start(double silence_time) {
 	unsigned i;
 
 	log_std(("sound:allegro: sound_allegro_start(silence_time:%g)\n",silence_time));
@@ -250,11 +250,11 @@ unsigned sound_allegro_flags(void) {
 	return 0;
 }
 
-error sound_allegro_load(struct conf_context* context) {
+adv_error sound_allegro_load(adv_conf* context) {
 	return 0;
 }
 
-void sound_allegro_reg(struct conf_context* context) {
+void sound_allegro_reg(adv_conf* context) {
 }
 
 /***************************************************************************/

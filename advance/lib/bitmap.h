@@ -22,9 +22,6 @@
  * Bitmap.
  */
 
-/** \addtogroup BitMap */
-/*@{*/
-
 #ifndef __BITMAP_H
 #define __BITMAP_H
 
@@ -35,55 +32,69 @@
 extern "C" {
 #endif
 
-struct bitmap {
-	unsigned size_x;
-	unsigned size_y;
-	unsigned bytes_per_pixel;
-	unsigned bytes_per_scanline;
+/**
+ * Bitmap.
+ */
+typedef struct adv_bitmap_struct {
+	unsigned size_x; /**< Width of the bitmap. */
+	unsigned size_y; /**< height of the bitmap. */
+	unsigned bytes_per_pixel; /**< Bytes per pixel of the bitmap. */
+	unsigned bytes_per_scanline; /**< Bytes per scanline of the bitmap. */
 	uint8* ptr; /**< Pointer at the first pixel. */
 	uint8* heap; /**< Pointer at the allocated data. */
-};
+} adv_bitmap;
 
-struct bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
-struct bitmap* bitmap_dup(struct bitmap* src);
-struct bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
-struct bitmap* bitmappalette_import(video_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
-void bitmap_free(struct bitmap* bmp);
-uint8* bitmap_line(struct bitmap* bmp, unsigned line);
-void bitmap_putpixel(struct bitmap* bmp, unsigned x, unsigned y, unsigned v);
-struct bitmap* bitmap_resize(struct bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation);
-void bitmap_cutoff(struct bitmap* bitmap, unsigned* _cx, unsigned* _cy);
-struct bitmap* bitmap_addborder(struct bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color);
+/** \addtogroup BitMap */
+/*@{*/
 
-// Orientation flags
-#define ORIENTATION_FLIP_XY 0x01
-#define ORIENTATION_MIRROR_X 0x02
-#define ORIENTATION_MIRROR_Y 0x04
+adv_bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
+adv_bitmap* bitmap_dup(adv_bitmap* src);
+adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
+adv_bitmap* bitmappalette_import(adv_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
+void bitmap_free(adv_bitmap* bmp);
+uint8* bitmap_line(adv_bitmap* bmp, unsigned line);
+void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v);
+adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation);
+void bitmap_cutoff(adv_bitmap* bitmap, unsigned* _cx, unsigned* _cy);
+adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color);
 
-void bitmap_orientation(struct bitmap* bmp, unsigned orientation_mask);
+/** \name Orientation
+ * Orientation operation on a bitmap.
+ */
+/*@{*/
+#define ORIENTATION_FLIP_XY 0x01 /**< Swap the X and Y axes. */
+#define ORIENTATION_MIRROR_X 0x02 /**< Mirror on the X axe. */
+#define ORIENTATION_MIRROR_Y 0x04 /**< Mirror on the Y axe. */
 
-#define BITMAP_COLOR_BIT 4U
-#define BITMAP_INDEX_MAX (1U << (3*BITMAP_COLOR_BIT))
+void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
+/*@}*/
 
-#define BITMAP_INDEX_TO_RED(i) ((i << 4) & 0xF0)
-#define BITMAP_INDEX_TO_GREEN(i) (i & 0xF0)
-#define BITMAP_INDEX_TO_BLUE(i) ((i >> 4) & 0xF0)
+/**
+ * Number of bit for channel in the color reduction.
+ */
+#define REDUCE_COLOR_BIT 4U
 
-#define BITMAP_RED_TO_INDEX(i) ((i >> 4) & 0xF)
-#define BITMAP_GREEN_TO_INDEX(i) (i & 0xF0)
-#define BITMAP_BLUE_TO_INDEX(i) ((((unsigned)i) << 4) & 0xF00)
-#define BITMAP_COLOR_TO_INDEX(r,g,b) (BITMAP_RED_TO_INDEX(r) | BITMAP_GREEN_TO_INDEX(g) | BITMAP_BLUE_TO_INDEX(b))
+/**
+ * Size of the conversion table for the color reduction.
+ */
+#define REDUCE_INDEX_MAX (1U << (3*REDUCE_COLOR_BIT))
 
-unsigned bitmap_reduction(unsigned* convert, video_color* palette, unsigned size, const struct bitmap* bmp);
+unsigned bitmap_reduce(unsigned* convert, adv_color* palette, unsigned size, const adv_bitmap* bmp);
 
-void bitmap_cvt_8to8(struct bitmap* dst, struct bitmap* src, unsigned* color_map);
-void bitmap_cvt_24to8rgb(struct bitmap* dst, struct bitmap* src);
-void bitmap_cvt_24to8idx(struct bitmap* dst, struct bitmap* src, unsigned* convert_map);
-void bitmap_cvt_8to16(struct bitmap* dst, struct bitmap* src, unsigned* color_map);
-void bitmap_cvt_24to16(struct bitmap* dst, struct bitmap* src);
-void bitmap_cvt_32to24(struct bitmap* dst, struct bitmap* src);
-void bitmap_cvt_8to32(struct bitmap* dst, struct bitmap* src, unsigned* color_map);
-void bitmap_cvt_24to32(struct bitmap* dst, struct bitmap* src);
+void bitmap_cvt(adv_bitmap* dst, adv_rgb_def dst_def, adv_bitmap* src, adv_rgb_def src_def);
+
+void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
+void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
+void bitmap_cvt_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
+
+void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map);
+
+void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src);
+void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src);
+void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src);
+void bitmap_cvt_32to24(adv_bitmap* dst, adv_bitmap* src);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
@@ -91,4 +102,4 @@ void bitmap_cvt_24to32(struct bitmap* dst, struct bitmap* src);
 
 #endif
 
-/*@}*/
+

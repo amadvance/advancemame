@@ -27,8 +27,6 @@
 
 #include <string.h>
 
-#include "option.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -41,7 +39,7 @@ void sigint(int signum) {
 }
 
 void run(unsigned channel, const char* file) {
-	FZ* f;
+	adv_fz* f;
 	const char* ext;
 
 	ext = strrchr(file,'.');
@@ -86,7 +84,7 @@ void os_signal(int signum) {
 
 int os_main(int argc, char* argv[]) {
 	int keyboard_id;
-	struct conf_context* context;
+	adv_conf* context;
 	const char* s;
         const char* section_map[1];
 	int i;

@@ -12,6 +12,11 @@ VBE_SRC = \
 	$(wildcard advance/vbe/*.c) \
 	$(wildcard advance/vbe/*.h)
 
+VBE32_SRC = \
+	advance/vbe32/makefile \
+	$(wildcard advance/vbe32/*.c) \
+	$(wildcard advance/vbe32/*.h)
+
 VGA_SRC = \
 	advance/vga/makefile \
 	$(wildcard advance/vga/*.asm) \
@@ -45,6 +50,7 @@ CAB_ADVANCE_SRC = \
 CAB_DOC_SRC = \
 	doc/license.d \
 	doc/vbe.d \
+	doc/vbe32.d \
 	doc/vga.d \
 	doc/video.d \
 	doc/off.d \
@@ -56,19 +62,27 @@ CAB_DOC_SRC = \
 CAB_DOC_BIN = \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/vbe.txt \
+	$(DOCOBJ)/vbe32.txt \
 	$(DOCOBJ)/vga.txt \
 	$(DOCOBJ)/video.txt \
 	$(DOCOBJ)/off.txt \
 	$(DOCOBJ)/portio.txt \
 	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/histcab.txt \
+	$(DOCOBJ)/readcab.txt \
+	$(DOCOBJ)/relecab.txt \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/vbe.html \
+	$(DOCOBJ)/vbe32.html \
 	$(DOCOBJ)/vga.html \
 	$(DOCOBJ)/video.html \
 	$(DOCOBJ)/off.html \
 	$(DOCOBJ)/portio.html \
 	$(DOCOBJ)/advv.html \
-	$(RCSRC) \
+	$(DOCOBJ)/histcab.html \
+	$(DOCOBJ)/readcab.html \
+	$(DOCOBJ)/relecab.html \
+	$(RCSRC)
 
 CAB_SUPPORT_SRC = \
 	$(RCSRC) \
@@ -82,6 +96,7 @@ CAB_CONTRIB_SRC = \
 
 CAB_ROOT_BIN = \
 	advance/vbe/vbe.com \
+	advance/vbe32/vbe32.exe \
 	advance/vga/vga.exe \
 	advance/video/video.exe \
 	advance/off/off.com \
@@ -90,6 +105,7 @@ CAB_ROOT_BIN = \
 	support/videobis.pcx \
 	support/vbev.bat \
 	support/vgav.bat \
+	support/cwsdpmi.exe \
 	$(VOBJ)/advv$(EXE)
 
 CAB_DIST_DIR_SRC = tmpcab
@@ -104,14 +120,14 @@ distcab: $(RCSRC)
 	cp $(CAB_SUPPORT_SRC) $(CAB_DIST_DIR_SRC)/support
 	mkdir $(CAB_DIST_DIR_SRC)/advance
 	cp $(CAB_ADVANCE_SRC) $(CAB_DIST_DIR_SRC)/advance
-	mkdir $(CAB_DIST_DIR_SRC)/advance/common
-	cp $(COMMON_SRC) $(CAB_DIST_DIR_SRC)/advance/common
 	mkdir $(CAB_DIST_DIR_SRC)/advance/card
 	cp $(CARD_SRC) $(CAB_DIST_DIR_SRC)/advance/card
 	mkdir $(CAB_DIST_DIR_SRC)/advance/tsr
 	cp $(TSR_SRC) $(CAB_DIST_DIR_SRC)/advance/tsr
 	mkdir $(CAB_DIST_DIR_SRC)/advance/vbe
 	cp $(VBE_SRC) $(CAB_DIST_DIR_SRC)/advance/vbe
+	mkdir $(CAB_DIST_DIR_SRC)/advance/vbe32
+	cp $(VBE32_SRC) $(CAB_DIST_DIR_SRC)/advance/vbe32
 	mkdir $(CAB_DIST_DIR_SRC)/advance/vga
 	cp $(VGA_SRC) $(CAB_DIST_DIR_SRC)/advance/vga
 	mkdir $(CAB_DIST_DIR_SRC)/advance/video
@@ -131,10 +147,10 @@ distcab: $(RCSRC)
 
 distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)
-	cp $(DOCOBJ)/readcab.txt $(MENU_DIST_DIR_BIN)/readme.txt
-	cp $(DOCOBJ)/relecab.txt $(MENU_DIST_DIR_BIN)/release.txt
-	cp $(DOCOBJ)/histcab.txt $(MENU_DIST_DIR_BIN)/history.txt
-	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/copying.txt
+	cp $(DOCOBJ)/readcab.txt $(CAB_DIST_DIR_BIN)/readme.txt
+	cp $(DOCOBJ)/relecab.txt $(CAB_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/histcab.txt $(CAB_DIST_DIR_BIN)/history.txt
+	cp $(srcdir)/COPYING $(CAB_DIST_DIR_BIN)/copying.txt
 	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)/doc
 	cp $(CAB_DOC_BIN) $(CAB_DIST_DIR_BIN)/doc

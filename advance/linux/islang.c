@@ -44,12 +44,12 @@ struct inputb_slang_context {
 
 static struct inputb_slang_context slang_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "sLang input" },
 { 0, 0, 0 }
 };
 
-error inputb_slang_init(int inputb_id)
+adv_error inputb_slang_init(int inputb_id)
 {
 	log_std(("inputb:slang: inputb_slang_init(id:%d)\n",inputb_id));
 
@@ -89,7 +89,7 @@ static int slang_getkey(void)
 	return 0;
 }
 
-boolean inputb_slang_hit(void)
+adv_bool inputb_slang_hit(void)
 {
 	log_debug(("inputb:slang: inputb_slang_count_get()\n"));
 
@@ -180,12 +180,12 @@ unsigned inputb_slang_flags(void)
 	return 0;
 }
 
-error inputb_slang_load(struct conf_context* context)
+adv_error inputb_slang_load(adv_conf* context)
 {
 	return 0;
 }
 
-void inputb_slang_reg(struct conf_context* context)
+void inputb_slang_reg(adv_conf* context)
 {
 }
 

@@ -136,8 +136,8 @@ enum restore_t {
 struct config_state {
 
 	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
-	bool load_iterator_game(struct conf_context* config_context, const std::string& tag);
-	bool load_iterator_import(struct conf_context* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
+	bool load_iterator_game(adv_conf* config_context, const std::string& tag);
+	bool load_iterator_import(adv_conf* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
 
 	void import_desc(const game& g, const std::string& text);
 	void import_info(const game& g, const std::string& text);
@@ -251,14 +251,14 @@ public:
 	config_state();
 	~config_state();
 
-	bool load(struct conf_context* config_context, bool opt_verbose);
-	bool save(struct conf_context* config_context) const;
+	bool load(adv_conf* config_context, bool opt_verbose);
+	bool save(adv_conf* config_context) const;
 
 	void restore_load();
 	void restore_save();
 
-	static void conf_register(struct conf_context* config_context);
-	static void conf_default(struct conf_context* config_context);
+	static void conf_register(adv_conf* config_context);
+	static void conf_default(adv_conf* config_context);
 };
 
 // ------------------------------------------------------------------------

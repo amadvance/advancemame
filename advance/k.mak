@@ -2,8 +2,7 @@
 # K
 
 KCFLAGS += \
-	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/lib
 KOBJDIRS += \
 	$(KOBJ) \
 	$(KOBJ)/k \

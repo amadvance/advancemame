@@ -100,7 +100,7 @@ static int read_fmt_PCM(const unsigned char** data_begin, const unsigned char* d
 		? 0 : -1;
 }
 
-static int fread_u16(FZ* f, unsigned* p, size_t num) {
+static int fread_u16(adv_fz* f, unsigned* p, size_t num) {
 	unsigned count = 0;
 	while (count<num) {
 		unsigned char b0,b1;
@@ -113,7 +113,7 @@ static int fread_u16(FZ* f, unsigned* p, size_t num) {
 	return 0;
 }
 
-static int fread_u32(FZ* f, unsigned* p, size_t num) {
+static int fread_u32(adv_fz* f, unsigned* p, size_t num) {
 	unsigned count = 0;
 	while (count<num) {
 		unsigned char b0,b1,b2,b3;
@@ -127,12 +127,12 @@ static int fread_u32(FZ* f, unsigned* p, size_t num) {
 	return 0;
 }
 
-static int fread_tag(FZ* f, char* p) {
+static int fread_tag(adv_fz* f, char* p) {
 	return fzread( p, 4, 1, f ) == 1
 		? 0 : -1;
 }
 
-static int fskip(FZ* f, size_t num) {
+static int fskip(adv_fz* f, size_t num) {
 	unsigned count = 0;
 	while (count<num) {
 		char ch;
@@ -143,13 +143,13 @@ static int fskip(FZ* f, size_t num) {
 	return 0;
 }
 
-static int fread_id(FZ* f, record_id* p) {
+static int fread_id(adv_fz* f, record_id* p) {
 	return fread_tag( f, p->id )==0
 		&& fread_u32(f, &p->size, 1)==0
 		? 0 : -1;
 }
 
-static int fread_fmt(FZ* f, record_fmt* p) {
+static int fread_fmt(adv_fz* f, record_fmt* p) {
 	return fread_u16(f, &p->wFormatTag, 1)==0 &&
 		fread_u16(f, &p->wChannels, 1)==0 &&
 		fread_u32(f, &p->dwSamplesPerSec, 1)==0 &&
@@ -158,7 +158,7 @@ static int fread_fmt(FZ* f, record_fmt* p) {
 		? 0 : -1;
 }
 
-static int fread_fmt_PCM(FZ* f, record_fmt_specific_PCM* p) {
+static int fread_fmt_PCM(adv_fz* f, record_fmt_specific_PCM* p) {
 	return fread_u16( f, &p->wBitsPerSample, 1 )==0
 		? 0 : -1;
 }
@@ -244,7 +244,7 @@ int wave_memory(const unsigned char** data_begin, const unsigned char* data_end,
  * \param data_size Where to put the number of samples.
  * \param data_freq Where to put the frequency. 
  */
-int wave_file(FZ* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
+int wave_file(adv_fz* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
 	record_id riff_id;
 	char wave_id[4];
 	record_id fmt_id;

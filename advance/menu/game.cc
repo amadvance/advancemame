@@ -201,13 +201,13 @@ const game& game::root_get() const {
 }
 
 bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const {
-	ZIP* d = openzip(cpath_export(slash_remove(zip)));
+	adv_zip* d = openzip(cpath_export(slash_remove(zip)));
 	if (!d)
 		return false;
 
 	string game_name = name_without_emulator_get();
 
-	struct zipent* dd;
+	adv_zipent* dd;
 	while ((dd = readzip(d))!=0) {
 		string file = dd->name;
 		string ext = file_ext(file);
@@ -503,11 +503,11 @@ bool game_set::is_game_rom_of(const string& name_son, const string& name_parent)
 
 bool game_set::preview_zip_set(const string& zip, const string& emulator_name, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) {
 	bool almost_one = false;
-	ZIP* d = openzip(cpath_export(slash_remove(zip)));
+	adv_zip* d = openzip(cpath_export(slash_remove(zip)));
 	if (!d)
 		return almost_one;
 
-	struct zipent* dd;
+	adv_zipent* dd;
 	while ((dd = readzip(d))!=0) {
 		string file = dd->name;
 		string ext = file_ext(file);

@@ -35,7 +35,7 @@ using namespace std;
 // --------------------------------------------------------------------------
 // Configuration init
 
-static struct conf_enum_int OPTION_SORT[] = {
+static adv_conf_enum_int OPTION_SORT[] = {
 { "group", sort_by_group },
 { "name", sort_by_name },
 { "parent", sort_by_root_name },
@@ -49,13 +49,13 @@ static struct conf_enum_int OPTION_SORT[] = {
 { "info", sort_by_info }
 };
 
-static struct conf_enum_int OPTION_RESTORE[] = {
+static adv_conf_enum_int OPTION_RESTORE[] = {
 { "save_at_exit", restore_none },
 { "restore_at_exit", restore_exit },
 { "restore_at_idle", restore_idle }
 };
 
-static struct conf_enum_int OPTION_MODE[] = {
+static adv_conf_enum_int OPTION_MODE[] = {
 { "list", mode_list },
 { "list_mixed", mode_list_mixed },
 { "tile_small", mode_tile_small },
@@ -70,7 +70,7 @@ static struct conf_enum_int OPTION_MODE[] = {
 { "text", mode_text }
 };
 
-static struct conf_enum_int OPTION_SAVER[] = {
+static adv_conf_enum_int OPTION_SAVER[] = {
 { "snap", saver_snap },
 { "play", saver_play },
 { "flyers", saver_flyer },
@@ -79,19 +79,19 @@ static struct conf_enum_int OPTION_SAVER[] = {
 { "none", saver_off }
 };
 
-static struct conf_enum_int OPTION_PREVIEW[] = {
+static adv_conf_enum_int OPTION_PREVIEW[] = {
 { "snap", preview_snap },
 { "flyers", preview_flyer },
 { "cabinets", preview_cabinet },
 { "titles", preview_title }
 };
 
-static struct conf_enum_int OPTION_EVENTMODE[] = {
+static adv_conf_enum_int OPTION_EVENTMODE[] = {
 { "fast", 1 },
 { "wait", 0 }
 };
 
-static struct conf_enum_int OPTION_MERGE[] = {
+static adv_conf_enum_int OPTION_MERGE[] = {
 { "none", merge_no },
 { "differential", merge_differential },
 { "parent", merge_parent },
@@ -99,7 +99,7 @@ static struct conf_enum_int OPTION_MERGE[] = {
 { "disable", merge_disable }
 };
 
-static struct conf_enum_int OPTION_DEPTH[] = {
+static adv_conf_enum_int OPTION_DEPTH[] = {
 { "8", 8 },
 { "15", 15 },
 { "16", 16 },
@@ -161,7 +161,7 @@ static bool config_split(const string& s, string& a0, string& a1, string& a2, st
 	return true;
 }
 
-void config_state::conf_register(struct conf_context* config_context) {
+void config_state::conf_register(adv_conf* config_context) {
 	conf_string_register_multi(config_context, "emulator");
 	conf_string_register_multi(config_context, "emulator_roms");
 	conf_string_register_multi(config_context, "emulator_roms_filter");
@@ -321,8 +321,8 @@ static bool config_emulator_attrib_load(const string& name, pemulator_container&
 	}
 }
 
-static bool config_load_iterator(struct conf_context* config_context, const string& tag, bool (*func)(const string& s)) {
-	conf_iterator i;
+static bool config_load_iterator(adv_conf* config_context, const string& tag, bool (*func)(const string& s)) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0 = conf_iterator_string_get(&i);
@@ -335,8 +335,8 @@ static bool config_load_iterator(struct conf_context* config_context, const stri
 	return true;
 }
 
-static bool config_load_iterator_emu_set(struct conf_context* config_context, const string& tag, pemulator_container& emu, void (emulator::*set)(const string& s)) {
-	conf_iterator i;
+static bool config_load_iterator_emu_set(adv_conf* config_context, const string& tag, pemulator_container& emu, void (emulator::*set)(const string& s)) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string s,a0,a1;
@@ -352,8 +352,8 @@ static bool config_load_iterator_emu_set(struct conf_context* config_context, co
 	return true;
 }
 
-static bool config_load_iterator_emu_attrib(struct conf_context* config_context, const string& tag, pemulator_container& emu) {
-	conf_iterator i;
+static bool config_load_iterator_emu_attrib(adv_conf* config_context, const string& tag, pemulator_container& emu) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string s,a0,a1,a2;
@@ -369,7 +369,7 @@ static bool config_load_iterator_emu_attrib(struct conf_context* config_context,
 	return true;
 }
 
-static bool config_load_skip(struct conf_context* config_context, unsigned& mask) {
+static bool config_load_skip(adv_conf* config_context, unsigned& mask) {
 	string s;
 	int i;
 
@@ -393,8 +393,8 @@ static bool config_load_skip(struct conf_context* config_context, unsigned& mask
 	return true;
 }
 
-static bool config_load_iterator_emu(struct conf_context* config_context, const string& tag, pemulator_container& emu) {
-	conf_iterator i;
+static bool config_load_iterator_emu(adv_conf* config_context, const string& tag, pemulator_container& emu) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0,a1,a2,a3;
@@ -437,8 +437,8 @@ static bool config_load_iterator_emu(struct conf_context* config_context, const 
 	return true;
 }
 
-static bool config_load_iterator_pcategory(struct conf_context* config_context, const string& tag, pcategory_container& cat) {
-	conf_iterator i;
+static bool config_load_iterator_pcategory(adv_conf* config_context, const string& tag, pcategory_container& cat) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0;
@@ -451,8 +451,8 @@ static bool config_load_iterator_pcategory(struct conf_context* config_context, 
 	return true;
 }
 
-bool config_state::load_iterator_import(struct conf_context* config_context, const string& tag, void (config_state::*set)(const game&, const string&), bool opt_verbose) {
-	conf_iterator i;
+bool config_state::load_iterator_import(adv_conf* config_context, const string& tag, void (config_state::*set)(const game&, const string&), bool opt_verbose) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0,a1,a2,a3;
@@ -491,8 +491,8 @@ bool config_state::load_iterator_import(struct conf_context* config_context, con
 	return true;
 }
 
-static bool config_load_iterator_category(struct conf_context* config_context, const string& tag, category_container& cat) {
-	conf_iterator i;
+static bool config_load_iterator_category(adv_conf* config_context, const string& tag, category_container& cat) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0;
@@ -505,8 +505,8 @@ static bool config_load_iterator_category(struct conf_context* config_context, c
 	return true;
 }
 
-static bool config_load_iterator_emu_include(struct conf_context* config_context, const string& tag, emulator_container& emu) {
-	conf_iterator i;
+static bool config_load_iterator_emu_include(adv_conf* config_context, const string& tag, emulator_container& emu) {
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string a0;
@@ -519,10 +519,10 @@ static bool config_load_iterator_emu_include(struct conf_context* config_context
 	return true;
 }
 
-bool config_state::load_iterator_game(struct conf_context* config_context, const string& tag) {
+bool config_state::load_iterator_game(adv_conf* config_context, const string& tag) {
 	unsigned ignored_count = 0;
 
-	conf_iterator i;
+	adv_conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
 	while (!conf_iterator_is_end(&i)) {
 		string s = conf_iterator_string_get(&i);
@@ -561,7 +561,7 @@ bool config_state::load_iterator_game(struct conf_context* config_context, const
 	return true;
 }
 
-static bool config_load_orientation(struct conf_context* config_context, unsigned& mask) {
+static bool config_load_orientation(adv_conf* config_context, unsigned& mask) {
 	string s;
 	int i;
 
@@ -585,7 +585,7 @@ static bool config_load_orientation(struct conf_context* config_context, unsigne
 	return true;
 }
 
-bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
+bool config_state::load(adv_conf* config_context, bool opt_verbose) {
 	string a0,a1;
 
 	preview_mask = 0;
@@ -850,8 +850,8 @@ void config_state::import_group(const game& g, const string& text) {
 	g.auto_group_set(group.insert_double(text,include_group_orig));
 }
 
-void config_state::conf_default(struct conf_context* config_context) {
-	conf_iterator i;
+void config_state::conf_default(adv_conf* config_context) {
+	adv_conf_iterator i;
 
 	conf_iterator_begin(&i, config_context, "emulator");
 	if (conf_iterator_is_end(&i)) {
@@ -954,7 +954,7 @@ static string config_out(const string& a0) {
 	return "\"" + a0 + "\"";
 }
 
-bool config_state::save(struct conf_context* config_context) const {
+bool config_state::save(adv_conf* config_context) const {
 	conf_int_set(config_context,"","mode",mode_orig);
 	conf_int_set(config_context,"","menu_base",menu_base_orig);
 	conf_int_set(config_context,"","menu_rel",menu_rel_orig);

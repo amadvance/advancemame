@@ -48,39 +48,48 @@ extern "C" {
 /***************************************************************************/
 /* Monitor */
 
-typedef struct video_monitor_range_struct {
-	double low;
-	double high;
-} video_monitor_range;
+/**
+ * Clock range for the monitor specification.
+ */
+typedef struct adv_monitor_range_struct {
+	double low; /**< Lower clock limit. */
+	double high; /**< High clock limit. */
+} adv_monitor_range;
 
-#define VIDEO_MONITOR_RANGE_MAX 8
+/**
+ * Max number of clock ranges in a monitor specification.
+ */
+#define MONITOR_RANGE_MAX 8
 
-typedef struct video_monitor_struct {
-	video_monitor_range hclock[VIDEO_MONITOR_RANGE_MAX];
-	video_monitor_range vclock[VIDEO_MONITOR_RANGE_MAX];
-	video_monitor_range pclock;
-} video_monitor;
+/**
+ * Monitor clock specification.
+ */
+typedef struct adv_monitor_struct {
+	adv_monitor_range hclock[MONITOR_RANGE_MAX]; /**< Supported horizontal clocks. */
+	adv_monitor_range vclock[MONITOR_RANGE_MAX]; /**< Supported vertical clocks. */
+	adv_monitor_range pclock; /**< Supported pixel clocks. */
+} adv_monitor;
 
-boolean monitor_hclock_check(const video_monitor* monitor, double hclock);
-boolean monitor_vclock_check(const video_monitor* monitor, double vclock);
-boolean monitor_pclock_check(const video_monitor* monitor, double pclock);
-boolean monitor_hvclock_check(const video_monitor* monitor, double hclock, double vclock);
-boolean monitor_clock_check(const video_monitor* monitor, double pclock, double hclock, double vclock);
+adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock);
+adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock);
+adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock);
+adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock);
+adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock);
 
-double monitor_hclock_min(const video_monitor* monitor);
-double monitor_hclock_max(const video_monitor* monitor);
-double monitor_vclock_min(const video_monitor* monitor);
-double monitor_vclock_max(const video_monitor* monitor);
-double monitor_pclock_min(const video_monitor* monitor);
-double monitor_pclock_max(const video_monitor* monitor);
+double monitor_hclock_min(const adv_monitor* monitor);
+double monitor_hclock_max(const adv_monitor* monitor);
+double monitor_vclock_min(const adv_monitor* monitor);
+double monitor_vclock_max(const adv_monitor* monitor);
+double monitor_pclock_min(const adv_monitor* monitor);
+double monitor_pclock_max(const adv_monitor* monitor);
 
-void monitor_reset(video_monitor* monitor);
-boolean monitor_is_empty(const video_monitor* monitor);
-void monitor_print(char* buffer, const video_monitor_range* range_begin, const video_monitor_range* range_end, double mult);
-error monitor_parse(video_monitor* monitor, const char* p, const char* h, const char* v);
-error monitor_load(struct conf_context* context, video_monitor* monitor);
-void monitor_save(struct conf_context* context, const video_monitor* monitor);
-void monitor_register(struct conf_context* context);
+void monitor_reset(adv_monitor* monitor);
+adv_bool monitor_is_empty(const adv_monitor* monitor);
+void monitor_print(char* buffer, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult);
+adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v);
+adv_error monitor_load(adv_conf* context, adv_monitor* monitor);
+void monitor_save(adv_conf* context, const adv_monitor* monitor);
+void monitor_register(adv_conf* context);
 
 #ifdef __cplusplus
 }

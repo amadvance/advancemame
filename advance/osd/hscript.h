@@ -55,9 +55,9 @@
 
 void hardware_script_set(int id, const char* script);
 
-int hardware_script_config_load(struct conf_context* context);
+int hardware_script_config_load(adv_conf* context);
 
-int hardware_script_init(struct conf_context* context);
+int hardware_script_init(adv_conf* context);
 void hardware_script_done(void);
 int hardware_script_inner_init(void);
 void hardware_script_inner_done(void);

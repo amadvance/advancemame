@@ -133,7 +133,7 @@ immediately following the compressed data and in the central directory. */
 /**
  * ZIP entry context.
  */
-struct zipent {
+typedef struct adv_zipent_struct {
 	uint32 cent_file_header_sig;
 	uint8 version_made_by;
 	uint8 host_os;
@@ -154,12 +154,12 @@ struct zipent {
 	uint32 external_file_attrib;
 	uint32 offset_lcl_hdr_frm_frst_disk;
 	char* name; /**< Name of the entry. 0 terminated. */
-};
+} adv_zipent;
 
 /**
  * ZIP file context.
  */
-typedef struct ZIP_struct {
+typedef struct adv_zip_struct {
 	char* zip; /**< Zip name. */
 	FILE* fp; /**< Zip handler. */
 	long length; /**< Length of zip file. */
@@ -171,7 +171,7 @@ typedef struct ZIP_struct {
 
 	unsigned cd_pos; /** Current position in cent_dir. */
 
-	struct zipent ent; /**< Buffer for readzip. */
+	adv_zipent ent; /**< Buffer for readzip. */
 
 	/* end_of_cent_dir */
 	uint32 end_of_cent_dir_sig;
@@ -184,7 +184,7 @@ typedef struct ZIP_struct {
 	uint16 zipfile_comment_length;
 
 	char* zipfile_comment; /**< Comment as pointer in the ecd. */
-} ZIP;
+} adv_zip;
 
 /** \addtogroup ZIPFile */
 /*@{*/
@@ -195,12 +195,12 @@ typedef struct ZIP_struct {
  *  - !=0 success, zip stream
  *  - ==0 error
  */
-ZIP* openzip(const char* path);
+adv_zip* openzip(const char* path);
 
 /**
  * Closes a zip stream.
  */
-void closezip(ZIP* zip);
+void closezip(adv_zip* zip);
 
 /**
  * Reads the current entry from a zip stream.
@@ -209,14 +209,14 @@ void closezip(ZIP* zip);
  *  - !=0 success
  *  - ==0 error
  */
-struct zipent* readzip(ZIP* zip);
+adv_zipent* readzip(adv_zip* zip);
 
 /**
  * Resets a zip stream to the first entry.
- * \note The ZIP file must be opened and not suspended.
+ * \note The adv_zip file must be opened and not suspended.
  * \param zip opened zip
  */
-void rewindzip(ZIP* zip);
+void rewindzip(adv_zip* zip);
 
 /**
  * Read compressed data from a zip entry.
@@ -227,7 +227,7 @@ void rewindzip(ZIP* zip);
  *  - ==0 success
  *  - <0 error
  */
-int readcompresszip(ZIP* zip, struct zipent* ent, char* data);
+int readcompresszip(adv_zip* zip, adv_zipent* ent, char* data);
 
 /*@}*/
 

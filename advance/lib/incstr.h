@@ -32,9 +32,10 @@
  * Incremental string.
  */
 
-
 #ifndef __INCSTR_H
 #define __INCSTR_H
+
+#include "extra.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -52,7 +53,7 @@
 /**
  * Incremental string.
  */
-struct inc_str {
+typedef struct adv_string_struct {
 	char buffer_map0[1 << STR_MIN]; /**< First substring */
 	char* buffer_map[STR_MAX]; /**< Vector of substring */
 	unsigned buffer_mac; /**< Number of substrings */
@@ -60,7 +61,7 @@ struct inc_str {
 	unsigned current_max; /**< Total space in the current substring */
 	char* current; /**< Current substring */
 	unsigned result_mac; /**< Current length */
-};
+} adv_string;
 
 /** \addtogroup String */
 /*@{*/
@@ -69,12 +70,12 @@ struct inc_str {
 /**
  * Initialize the string.
  */
-void inc_str_init(struct inc_str* str);
+void inc_str_init(adv_string* str);
 
 /**
  * Deinitialize the string.
  */
-void inc_str_done(struct inc_str* str);
+void inc_str_done(adv_string* str);
 
 /**
  * Cat a string.
@@ -85,7 +86,7 @@ void inc_str_done(struct inc_str* str);
  *  - ==0 if ok
  *  - !=0 if error, errno set
  */
-int inc_str_catm(struct inc_str* str, const char* s, unsigned len);
+adv_error inc_str_catm(adv_string* str, const char* s, unsigned len);
 
 /**
  * Cat a string.
@@ -95,7 +96,7 @@ int inc_str_catm(struct inc_str* str, const char* s, unsigned len);
  *  - ==0 if ok
  *  - !=0 if error, errno set
  */
-int inc_str_catc(struct inc_str* str, char c);
+adv_error inc_str_catc(adv_string* str, char c);
 
 /**
  * Cat a string.
@@ -105,7 +106,7 @@ int inc_str_catc(struct inc_str* str, char c);
  *  - ==0 if ok
  *  - !=0 if error, errno set
  */
-static __inline__ int inc_str_cat(struct inc_str* str, const char* s) {
+static inline adv_error inc_str_cat(adv_string* str, const char* s) {
 	return inc_str_catm(str,s,strlen(s));
 }
 
@@ -113,13 +114,13 @@ static __inline__ int inc_str_cat(struct inc_str* str, const char* s) {
  * Get the current string.
  * \return pointer to the string in the heap. It must be freed when unused.
  */
-char* inc_str_alloc(struct inc_str* str);
+char* inc_str_alloc(adv_string* str);
 
 /**
  * Get the current length of the string.
  * \return the length of the current string.
  */
-unsigned inc_str_len(struct inc_str* str);
+unsigned inc_str_len(adv_string* str);
 
 /*@}*/
 

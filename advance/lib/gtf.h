@@ -45,7 +45,7 @@
 extern "C" {
 #endif
 
-typedef struct video_gtf_struct {
+typedef struct adv_gtf_struct {
 	double margin_frac; /* margin as fract of active */
 	unsigned v_min_frontporch_lines; /* minimum front porch in lines */
 	unsigned v_sync_lines; /* width of V sync in lines */
@@ -53,20 +53,20 @@ typedef struct video_gtf_struct {
 	double v_min_sync_backporch_time; /* minimum vertical sync + back time (seconds) */
 	double m; /* blanking formula gradient */
 	double c; /* blanking formula offset */
-} video_gtf;
+} adv_gtf;
 
 #define GTF_ADJUST_EXACT CRTC_ADJUST_EXACT
 #define GTF_ADJUST_VCLOCK CRTC_ADJUST_VCLOCK
 #define GTF_ADJUST_VTOTAL CRTC_ADJUST_VTOTAL
-error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust);
+adv_error gtf_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust);
 
-void gtf_default_vga(video_gtf* gtf);
+void gtf_default_vga(adv_gtf* gtf);
 
-error gtf_parse(video_gtf* gtf, const char* g);
-error gtf_load(struct conf_context* context, video_gtf* gtf);
-void gtf_save(struct conf_context* context, const video_gtf* gtf);
-void gtf_clear(struct conf_context* context);
-void gtf_register(struct conf_context* context);
+adv_error gtf_parse(adv_gtf* gtf, const char* g);
+adv_error gtf_load(adv_conf* context, adv_gtf* gtf);
+void gtf_save(adv_conf* context, const adv_gtf* gtf);
+void gtf_clear(adv_conf* context);
+void gtf_register(adv_conf* context);
 
 #ifdef __cplusplus
 }

@@ -105,7 +105,7 @@ void os_signal(int signum) {
 }
 
 int os_main(int argc, char* argv[]) {
-	struct conf_context* context;
+	adv_conf* context;
         const char* section_map[1];
 
 	context = conf_init();

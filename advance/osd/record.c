@@ -795,7 +795,7 @@ static int video_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 	unsigned color_type;
 
 	if (!context->state.video_active_flag)
@@ -892,7 +892,7 @@ static int snapshot_start(struct advance_record_context* context, const char* fi
 	return 0;
 }
 
-static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 	const char* file = context->state.snapshot_file;
 	FILE* f;
 	unsigned color_type;
@@ -1118,7 +1118,7 @@ void advance_record_sound_update(struct advance_record_context* context, const s
 #endif
 }
 
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
@@ -1130,7 +1130,7 @@ void advance_record_video_update(struct advance_record_context* context, const v
 #endif
 }
 
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, video_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
@@ -1142,7 +1142,7 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 #endif
 }
 
-int advance_record_config_load(struct advance_record_context* context, struct conf_context* cfg_context) {
+int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context) {
 	strcpy(context->config.dir, conf_string_get_default(cfg_context, "dir_snap"));
 	context->config.sound_time = conf_int_get_default(cfg_context, "record_sound_time");
 	context->config.video_time = conf_int_get_default(cfg_context, "record_video_time");
@@ -1161,7 +1161,7 @@ int advance_record_config_load(struct advance_record_context* context, struct co
 	return 0;
 }
 
-int advance_record_init(struct advance_record_context* context, struct conf_context* cfg_context) {
+int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context) {
 	conf_int_register_limit_default(cfg_context, "record_sound_time", 1, 1000000, 15);
 	conf_int_register_limit_default(cfg_context, "record_video_time", 1, 1000000, 15);
 	conf_bool_register_default(cfg_context, "record_sound", 1);

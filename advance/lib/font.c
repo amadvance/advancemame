@@ -27,13 +27,13 @@
 #include <string.h>
 #include <sys/stat.h>
 
-static struct bitmap null_char = { 0,0,0,0,0,0 };
+static adv_bitmap null_char = { 0,0,0,0,0,0 };
 
 /**
  * Get the Y size of the font.
  * The height of the 'A' letter is used.
  */
-unsigned bitmapfont_size_y(struct bitmapfont* font) {
+unsigned font_size_y(adv_font* font) {
 	if (font->data['A'])
 		return font->data['A']->size_y;
 	else
@@ -44,7 +44,7 @@ unsigned bitmapfont_size_y(struct bitmapfont* font) {
  * Get the X size of the font.
  * The width of the 'A' letter is used.
  */
-unsigned bitmapfont_size_x(struct bitmapfont* font) {
+unsigned font_size_x(adv_font* font) {
 	if (font->data['A'])
 		return font->data['A']->size_x;
 	else
@@ -54,33 +54,33 @@ unsigned bitmapfont_size_x(struct bitmapfont* font) {
 /**
  * Free a font.
  */
-void bitmapfont_free(struct bitmapfont* bitmapfont) {
-	if (bitmapfont) {
+void font_free(adv_font* adv_font) {
+	if (adv_font) {
 		int i;
 		for(i=0;i<BITMAP_FONT_MAX;++i) {
-			if (bitmapfont->data[i] && bitmapfont->data[i]!=&null_char) {
-				bitmap_free(bitmapfont->data[i]);
+			if (adv_font->data[i] && adv_font->data[i]!=&null_char) {
+				bitmap_free(adv_font->data[i]);
 			}
 		}
-		free(bitmapfont);
+		free(adv_font);
 	}
 }
 
-static int load_bitmapfont_data_fixed(struct bitmapfont* load_bitmapfont, unsigned char* begin, unsigned start, unsigned count, unsigned width, unsigned height) {
+static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned width, unsigned height) {
 	unsigned i;
 
 	for(i=0;i<start;++i)
-		load_bitmapfont->data[i] = &null_char;
+		load_font->data[i] = &null_char;
 
 	for(;i<start+count;++i) {
 		unsigned x,y;
-		struct bitmap* bitmap;
+		adv_bitmap* bitmap;
 
 		bitmap = bitmap_alloc(width,height,8);
 		if (!bitmap) {
 			return -1;
 		}
-		load_bitmapfont->data[i] = bitmap;
+		load_font->data[i] = bitmap;
 
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
@@ -92,12 +92,12 @@ static int load_bitmapfont_data_fixed(struct bitmapfont* load_bitmapfont, unsign
 	}
 
 	for(;i<BITMAP_FONT_MAX;++i)
-		load_bitmapfont->data[i] = &null_char;
+		load_font->data[i] = &null_char;
 
 	return 0;
 }
 
-static int load_bitmapfont_data_size(unsigned count, unsigned* width, unsigned height) {
+static int load_font_data_size(unsigned count, unsigned* width, unsigned height) {
 	unsigned size = 0;
 	unsigned i;
 	for(i=0;i<count;++i)
@@ -105,22 +105,22 @@ static int load_bitmapfont_data_size(unsigned count, unsigned* width, unsigned h
 	return size;
 }
 
-static int load_bitmapfont_data(struct bitmapfont* load_bitmapfont, unsigned char* begin, unsigned start, unsigned count, unsigned* wtable, unsigned height) {
+static int load_font_data(adv_font* load_font, unsigned char* begin, unsigned start, unsigned count, unsigned* wtable, unsigned height) {
 	unsigned i;
 
 	for(i=0;i<start;++i)
-		load_bitmapfont->data[i] = &null_char;
+		load_font->data[i] = &null_char;
 
 	for(;i<start+count;++i) {
 		unsigned x,y;
-		struct bitmap* bitmap;
+		adv_bitmap* bitmap;
 		unsigned width = wtable[i-start];
 
 		bitmap = bitmap_alloc(width,height,8);
 		if (!bitmap) {
 			return -1;
 		}
-		load_bitmapfont->data[i] = bitmap;
+		load_font->data[i] = bitmap;
 
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
@@ -132,7 +132,7 @@ static int load_bitmapfont_data(struct bitmapfont* load_bitmapfont, unsigned cha
 	}
 
 	for(;i<BITMAP_FONT_MAX;++i)
-		load_bitmapfont->data[i] = &null_char;
+		load_font->data[i] = &null_char;
 
 	return 0;
 }
@@ -230,21 +230,21 @@ psf_separator = unicode = 0xFFFF
 
 */
 
-static struct bitmapfont* load_bitmapfont_psf(const char* file) {
+static adv_font* load_font_psf(const char* file) {
 	unsigned char header[2];
 	unsigned char c;
 	unsigned size;
 	unsigned height;
 	unsigned width;
 	FILE* f;
-	struct bitmapfont* load_bitmapfont;
+	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
 
 	width = 8;
 
-	load_bitmapfont = malloc(sizeof(struct bitmapfont));
-	if (!load_bitmapfont) {
+	load_font = malloc(sizeof(adv_font));
+	if (!load_font) {
 		goto out;
 	}
 
@@ -284,21 +284,21 @@ static struct bitmapfont* load_bitmapfont_psf(const char* file) {
 	if (fread(data,data_size,1,f)!=1)
 		goto out_data;
 
-	if (load_bitmapfont_data_fixed(load_bitmapfont,data,0,size,width,height)!=0) {
+	if (load_font_data_fixed(load_font,data,0,size,width,height)!=0) {
 		goto out_data;
 	}
 
 	free(data);
 	fclose(f);
 
-	return load_bitmapfont;
+	return load_font;
 
 out_data:
 	free(data);
 out_close:
 	fclose(f);
 out_font:
-	free(load_bitmapfont);
+	free(load_font);
 out:
 	return 0;
 }
@@ -374,13 +374,13 @@ char_data =     {BYTE}*<fontheight>
 # scanlines font.
 */
 
-static struct bitmapfont* load_bitmapfont_raw(const char* file) {
+static adv_font* load_font_raw(const char* file) {
 	unsigned height;
 	unsigned width;
 	unsigned size;
 	FILE* f;
 	struct stat st;
-	struct bitmapfont* load_bitmapfont;
+	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
 
@@ -399,8 +399,8 @@ static struct bitmapfont* load_bitmapfont_raw(const char* file) {
 		goto out;
 	}
 
-	load_bitmapfont = malloc(sizeof(struct bitmapfont));
-	if (!load_bitmapfont) {
+	load_font = malloc(sizeof(adv_font));
+	if (!load_font) {
 		goto out;
 	}
 
@@ -417,20 +417,20 @@ static struct bitmapfont* load_bitmapfont_raw(const char* file) {
 	if (fread(data,data_size,1,f)!=1)
 		goto out_data;
 
-	if (load_bitmapfont_data_fixed(load_bitmapfont,data,0,size,width,height)!=0) {
+	if (load_font_data_fixed(load_font,data,0,size,width,height)!=0) {
 		goto out_data;
 	}
 
 	free(data);
 	fclose(f);
 
-	return load_bitmapfont;
+	return load_font;
 out_data:
 	free(data);
 out_close:
 	fclose(f);
 out_font:
-	free(load_bitmapfont);
+	free(load_font);
 out:
 	return 0;
 }
@@ -441,11 +441,11 @@ out:
  * \param data_size Size of the font data.
  * \return Font allocated.
  */
-struct bitmapfont* bitmapfont_inport_raw(unsigned char* data, unsigned data_size) {
+adv_font* font_import_raw(unsigned char* data, unsigned data_size) {
 	unsigned height;
 	unsigned width;
 	unsigned size;
-	struct bitmapfont* load_bitmapfont;
+	adv_font* load_font;
 
 	if (data_size % 256 != 0)
 		goto out;
@@ -457,19 +457,19 @@ struct bitmapfont* bitmapfont_inport_raw(unsigned char* data, unsigned data_size
 		goto out;
 	}
 
-	load_bitmapfont = malloc(sizeof(struct bitmapfont));
-	if (!load_bitmapfont) {
+	load_font = malloc(sizeof(adv_font));
+	if (!load_font) {
 		goto out;
 	}
-	memset(load_bitmapfont,0,sizeof(struct bitmapfont));
+	memset(load_font,0,sizeof(adv_font));
 
-	if (load_bitmapfont_data_fixed(load_bitmapfont,data,0,size,width,height)!=0) {
+	if (load_font_data_fixed(load_font,data,0,size,width,height)!=0) {
 		goto out_font;
 	}
 
-	return load_bitmapfont;
+	return load_font;
 out_font:
-	free(load_bitmapfont);
+	free(load_font);
 out:
 	return 0;
 }
@@ -479,19 +479,19 @@ out:
 
 #define GRX_FONT_MAGIC 0x19590214L
 
-static struct bitmapfont* load_bitmapfont_grx(const char* file) {
+static adv_font* load_font_grx(const char* file) {
 	unsigned height;
 	unsigned width;
 	unsigned size,start,stop,isfixed;
 	FILE* f;
-	struct bitmapfont* load_bitmapfont;
+	adv_font* load_font;
 	unsigned char* data;
 	unsigned data_size;
 	unsigned* wtable;
 	unsigned char header[56];
 
-	load_bitmapfont = malloc(sizeof(struct bitmapfont));
-	if (!load_bitmapfont) {
+	load_font = malloc(sizeof(adv_font));
+	if (!load_font) {
 		goto out;
 	}
 
@@ -524,7 +524,7 @@ static struct bitmapfont* load_bitmapfont_grx(const char* file) {
 				goto out_close;
 			wtable[i] = le_uint16_read(wsize);
 		}
-		data_size = load_bitmapfont_data_size(size,wtable,height);
+		data_size = load_font_data_size(size,wtable,height);
 	} else {
 		wtable = 0;
 		data_size = ((width+7)/8)*height*size;
@@ -538,11 +538,11 @@ static struct bitmapfont* load_bitmapfont_grx(const char* file) {
 		goto out_data;
 
 	if (!isfixed) {
-		if (load_bitmapfont_data(load_bitmapfont,data,start,size,wtable,height)!=0) {
+		if (load_font_data(load_font,data,start,size,wtable,height)!=0) {
 			goto out_data;
 		}
 	} else {
-		if (load_bitmapfont_data_fixed(load_bitmapfont,data,start,size,width,height)!=0) {
+		if (load_font_data_fixed(load_font,data,start,size,width,height)!=0) {
 			goto out_data;
 		}
 	}
@@ -551,7 +551,7 @@ static struct bitmapfont* load_bitmapfont_grx(const char* file) {
 	free(wtable);
 	fclose(f);
 
-	return load_bitmapfont;
+	return load_font;
 out_data:
 	free(data);
 out_table:
@@ -559,7 +559,7 @@ out_table:
 out_close:
 	fclose(f);
 out_font:
-	free(load_bitmapfont);
+	free(load_font);
 out:
 	return 0;
 }
@@ -569,15 +569,15 @@ out:
  * \param data Font data.
  * \return Font allocated.
  */
-struct bitmapfont* bitmapfont_inport_grx(unsigned char* data) {
+adv_font* font_import_grx(unsigned char* data) {
 	unsigned height;
 	unsigned width;
 	unsigned size,start,stop,isfixed;
-	struct bitmapfont* load_bitmapfont;
+	adv_font* load_font;
 	unsigned* wtable;
 
-	load_bitmapfont = malloc(sizeof(struct bitmapfont));
-	if (!load_bitmapfont) {
+	load_font = malloc(sizeof(adv_font));
+	if (!load_font) {
 		goto out;
 	}
 
@@ -608,22 +608,22 @@ struct bitmapfont* bitmapfont_inport_grx(unsigned char* data) {
 	}
 
 	if (!isfixed) {
-		if (load_bitmapfont_data(load_bitmapfont,data,start,size,wtable,height)!=0) {
+		if (load_font_data(load_font,data,start,size,wtable,height)!=0) {
 			goto out_table;
 		}
 	} else {
-		if (load_bitmapfont_data_fixed(load_bitmapfont,data,start,size,width,height)!=0) {
+		if (load_font_data_fixed(load_font,data,start,size,width,height)!=0) {
 			goto out_table;
 		}
 	}
 
 	free(wtable);
 
-	return load_bitmapfont;
+	return load_font;
 out_table:
 	free(wtable);
 out_font:
-	free(load_bitmapfont);
+	free(load_font);
 out:
 	return 0;
 }
@@ -638,26 +638,26 @@ out:
  *  - PSF
  *  - RAW
  */
-struct bitmapfont* bitmapfont_load(const char* file) {
-	struct bitmapfont* load_bitmapfont;
+adv_font* font_load(const char* file) {
+	adv_font* load_font;
 
-	load_bitmapfont = load_bitmapfont_grx(file);
-	if (load_bitmapfont)
-		return load_bitmapfont;
+	load_font = load_font_grx(file);
+	if (load_font)
+		return load_font;
 
-	load_bitmapfont = load_bitmapfont_psf(file);
-	if (load_bitmapfont)
-		return load_bitmapfont;
+	load_font = load_font_psf(file);
+	if (load_font)
+		return load_font;
 
-	load_bitmapfont = load_bitmapfont_raw(file);
-	if (load_bitmapfont)
-		return load_bitmapfont;
+	load_font = load_font_raw(file);
+	if (load_font)
+		return load_font;
 
 	return 0;
 }
 
 #if 0
-int bitmapfont_set(struct bitmapfont* font) {
+int font_set(adv_font* font) {
 	unsigned font_dx, font_dy;
 	unsigned i;
 	uint8* font_data;
@@ -668,8 +668,8 @@ int bitmapfont_set(struct bitmapfont* font) {
 	if (!video_is_text())
 		return -1;
 
-	font_dx = bitmapfont_size_x(font);
-	font_dy = bitmapfont_size_y(font);
+	font_dx = font_size_x(font);
+	font_dy = font_size_y(font);
 
 	if (font_dx!=8 || font_dy>32)
 		return -1;
@@ -709,7 +709,7 @@ int bitmapfont_set(struct bitmapfont* font) {
  * \param font Font to change.
  * \param orientation_mask Orientation operation to apply.
  */
-void bitmapfont_orientation(struct bitmapfont* font, unsigned orientation_mask) {
+void font_orientation(adv_font* font, unsigned orientation_mask) {
 	if (orientation_mask) {
 		unsigned i;
 		for(i=0;i<BITMAP_FONT_MAX;++i) {

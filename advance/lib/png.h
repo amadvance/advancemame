@@ -25,6 +25,7 @@
 #ifndef __PNG_H
 #define __PNG_H
 
+#include "extra.h"
 #include "fz.h"
 
 #ifdef __cplusplus
@@ -39,19 +40,19 @@ extern "C" {
 #define PNG_CN_IEND 0x49454E44
 /*@}*/
 
-int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type);
-int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count);
+adv_error png_read_chunk(adv_fz* f, unsigned char** data, unsigned* size, unsigned* type);
+adv_error png_write_chunk(adv_fz* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count);
 
-int png_read_signature(FZ* f);
-int png_write_signature(FZ* f, unsigned* count);
+adv_error png_read_signature(adv_fz* f);
+adv_error png_write_signature(adv_fz* f, unsigned* count);
 
-int png_read_iend(FZ* f, const unsigned char* data, unsigned data_size, unsigned type);
-int png_read_ihdr(
+adv_error png_read_iend(adv_fz* f, const unsigned char* data, unsigned data_size, unsigned type);
+adv_error png_read_ihdr(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
-	FZ* f, const unsigned char* data, unsigned data_size
+	adv_fz* f, const unsigned char* data, unsigned data_size
 );
 
 void png_expand_4(unsigned width, unsigned height, unsigned char* ptr);
@@ -64,12 +65,12 @@ void png_unfilter_32(unsigned width, unsigned height, unsigned char* ptr, unsign
 /** \addtogroup VideoFile */
 /*@{*/
 
-int png_read(
+adv_error png_read(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
-	FZ* f
+	adv_fz* f
 );
 
 /*@}*/

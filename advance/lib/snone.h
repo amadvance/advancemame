@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Sound driver "none".
+ * Sound adv_driver "none".
  */
 
 #ifndef __SNONE_H
@@ -45,8 +45,8 @@ extern "C" {
 /*@{*/
 
 /**
- * Sound driver "none".
- * This driver implement a null sound. No output is generated.
+ * Sound adv_driver "none".
+ * This adv_driver implement a null sound. No output is generated.
  */
 extern sound_driver sound_none_driver;
 

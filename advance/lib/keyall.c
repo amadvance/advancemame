@@ -38,7 +38,7 @@
  *  - USE_KEYBOARD_SDL
  *  - USE_KEYBOARD_NONE
  */
-void keyb_reg_driver_all(struct conf_context* context) {
+void keyb_reg_driver_all(adv_conf* context) {
 #ifdef USE_KEYBOARD_ALLEGRO
 	keyb_reg_driver(context, &keyb_allegro_driver);
 #endif

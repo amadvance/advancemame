@@ -48,40 +48,40 @@ extern "C" {
 /***************************************************************************/
 /* Video crtc container */
 
-typedef struct video_crtc_container_struct {
-	video_crtc* base;
-} video_crtc_container;
+typedef struct adv_crtc_container_struct {
+	adv_crtc* base;
+} adv_crtc_container;
 
-int video_crtc_compare(const video_crtc* a,const video_crtc* b);
+int crtc_compare(const adv_crtc* a,const adv_crtc* b);
 
-void video_crtc_container_init(video_crtc_container* cc);
-void video_crtc_container_done(video_crtc_container* cc);
+void crtc_container_init(adv_crtc_container* cc);
+void crtc_container_done(adv_crtc_container* cc);
 
-error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc);
-void video_crtc_container_save(struct conf_context* context, video_crtc_container* cc);
-void video_crtc_container_clear(struct conf_context* context);
-void video_crtc_container_register(struct conf_context* context);
+adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc);
+void crtc_container_save(adv_conf* context, adv_crtc_container* cc);
+void crtc_container_clear(adv_conf* context);
+void crtc_container_register(adv_conf* context);
 
-const video_crtc* video_crtc_container_has(video_crtc_container* cc, const video_crtc* vm, int (*compare)(const video_crtc* a,const video_crtc* b));
-void video_crtc_container_remove(video_crtc_container* cc, boolean (*modeselect)(const video_crtc*, void*), void*);
-const video_crtc* video_crtc_container_insert(video_crtc_container* cc, const video_crtc* vm);
-const video_crtc* video_crtc_container_insert_sort(video_crtc_container* cc, const video_crtc* vm, int (*compare)(const video_crtc* a,const video_crtc* b));
-boolean video_crtc_container_is_empty(const video_crtc_container* cc);
+const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b));
+void crtc_container_remove(adv_crtc_container* cc, adv_bool (*modeselect)(const adv_crtc*, void*), void*);
+const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm);
+const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a,const adv_crtc* b));
+adv_bool crtc_container_is_empty(const adv_crtc_container* cc);
 
-typedef struct video_crtc_container_iterator_struct {
-	video_crtc* base;
-} video_crtc_container_iterator;
+typedef struct adv_crtc_container_iterator_struct {
+	adv_crtc* base;
+} adv_crtc_container_iterator;
 
-void video_crtc_container_iterator_begin(video_crtc_container_iterator* cci, video_crtc_container* cc);
-void video_crtc_container_iterator_next(video_crtc_container_iterator* cci);
-boolean video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci);
-video_crtc* video_crtc_container_iterator_get(video_crtc_container_iterator* cci);
+void crtc_container_iterator_begin(adv_crtc_container_iterator* cci, adv_crtc_container* cc);
+void crtc_container_iterator_next(adv_crtc_container_iterator* cci);
+adv_bool crtc_container_iterator_is_end(adv_crtc_container_iterator* cci);
+adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci);
 
-error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc);
-error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc);
-error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc);
-error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc);
-void video_crtc_container_insert_default_system(video_crtc_container* cc);
+adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc);
+adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc);
+adv_error crtc_container_insert_default_bios_vga(adv_crtc_container* cc);
+adv_error crtc_container_insert_default_bios_vbe(adv_crtc_container* cc);
+void crtc_container_insert_default_system(adv_crtc_container* cc);
 
 #ifdef __cplusplus
 }

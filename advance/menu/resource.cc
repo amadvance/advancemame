@@ -109,7 +109,7 @@ bool resource::is_collection() const {
 	return collection;
 }
 
-FZ* resource::open() const {
+adv_fz* resource::open() const {
 	if (!is_valid())
 		return 0;
 	if (compressed) {

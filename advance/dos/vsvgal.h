@@ -43,46 +43,46 @@ extern "C" {
 
 typedef struct svgaline_video_mode_struct {
 	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	video_crtc crtc; /**< CRTC values */
+	adv_crtc crtc; /**< CRTC values */
 } svgaline_video_mode;
 
-error svgaline_init(int device_id);
+adv_error svgaline_init(int device_id);
 void svgaline_done(void);
 
-boolean svgaline_is_active(void);
-boolean svgaline_mode_is_active(void);
+adv_bool svgaline_is_active(void);
+adv_bool svgaline_mode_is_active(void);
 
 unsigned svgaline_flags(void);
 
-error svgaline_mode_set(const svgaline_video_mode* mode);
-void svgaline_mode_done(boolean restore);
+adv_error svgaline_mode_set(const svgaline_video_mode* mode);
+void svgaline_mode_done(adv_bool restore);
 
 unsigned svgaline_virtual_x(void);
 unsigned svgaline_virtual_y(void);
 unsigned svgaline_bytes_per_scanline(void);
 unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page);
-video_rgb_def svgaline_rgb_def(void);
+adv_rgb_def svgaline_rgb_def(void);
 
 extern unsigned char* (*svgaline_write_line)(unsigned y);
 
 void svgaline_wait_vsync(void);
-error svgaline_scroll(unsigned offset, boolean waitvsync);
-error svgaline_scanline_set(unsigned byte_length);
-error svgaline_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
+adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync);
+adv_error svgaline_scanline_set(unsigned byte_length);
+adv_error svgaline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
-error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* svgaline_mode);
-error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgaline_mode);
+adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
 int svgaline_mode_compare(const svgaline_video_mode* a, const svgaline_video_mode* b);
 
 void svgaline_default(void);
-void svgaline_reg(struct conf_context* context);
-error svgaline_load(struct conf_context* context);
+void svgaline_reg(adv_conf* context);
+adv_error svgaline_load(adv_conf* context);
 
 /**
  * Video driver "svgaline".
  * \ingroup Video
  */
-extern video_driver video_svgaline_driver;
+extern adv_video_driver video_svgaline_driver;
 
 #ifdef __cplusplus
 }

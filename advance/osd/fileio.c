@@ -49,7 +49,7 @@
 
 /** File handle used by all the osd_* functions. */
 struct fileio_handle {
-	FZ* f; /**< File opened. */
+	adv_fz* f; /**< File opened. */
 
 	unsigned crc; /**< Current crc value of the file. */
 	int is_crc_set; /**< If the crc was computed. */
@@ -188,8 +188,8 @@ static int item_open_raw(const char* file, const char* ext, const char* mode, st
 }
 
 static int item_open_zip(const char* zip_file, const char* file, const char* ext, struct fileio_handle* h) {
-	ZIP* zip;
-	struct zipent* ent;
+	adv_zip* zip;
+	adv_zipent* ent;
 	int found;
 	char file_complete[FILE_MAXPATH];
 
@@ -965,7 +965,7 @@ static void path_free(char** dir_map, unsigned dir_mac) {
 	free(dir_map);
 }
 
-int advance_fileio_init(struct conf_context* context) {
+int advance_fileio_init(adv_conf* context) {
 
 	struct fileio_item* i;
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
@@ -1001,7 +1001,7 @@ void advance_fileio_done(void) {
 	}
 }
 
-int advance_fileio_config_load(struct conf_context* context, struct mame_option* option) {
+int advance_fileio_config_load(adv_conf* context, struct mame_option* option) {
 	struct fileio_item* i;
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
 		/* free a previously loaded value */

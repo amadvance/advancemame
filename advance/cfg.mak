@@ -4,8 +4,7 @@
 CFGCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/v \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/v
 CFGOBJDIRS += \
 	$(CFGOBJ) \
 	$(CFGOBJ)/cfg \
@@ -97,8 +96,9 @@ CFGOBJS += \
 	$(CFGOBJ)/dos/scrvga.o \
 	$(CFGOBJ)/dos/idos.o \
 	$(CFGOBJ)/card/card.o \
-	$(CFGOBJ)/card/pci.o \
-	$(CFGOBJ)/card/map.o \
+	$(CFGOBJ)/dos/pci.o \
+	$(CFGOBJ)/dos/pcimap.o \
+	$(CFGOBJ)/dos/map.o \
 	$(CFGOBJ)/card/board.o \
 	$(CFGOBJ)/svgalib/libdos.o \
 	$(CFGOBJ)/svgalib/accel.o \

@@ -51,7 +51,7 @@ struct mouseb_allegro_context {
 
 static struct mouseb_allegro_context allegro_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "Allegro mouse" },
 { 0, 0, 0 }
 };
@@ -88,7 +88,7 @@ static void mouse2_get(int* x, int* y) {
 /***************************************************************************/
 /* Allegro Mouse */
 
-error mouseb_allegro_init(int mouseb_id)
+adv_error mouseb_allegro_init(int mouseb_id)
 {
 	int err;
 
@@ -192,12 +192,12 @@ unsigned mouseb_allegro_flags(void)
 	return 0;
 }
 
-error mouseb_allegro_load(struct conf_context* context)
+adv_error mouseb_allegro_load(adv_conf* context)
 {
 	return 0;
 }
 
-void mouseb_allegro_reg(struct conf_context* context)
+void mouseb_allegro_reg(adv_conf* context)
 {
 }
 

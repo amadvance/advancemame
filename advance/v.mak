@@ -3,8 +3,7 @@
 
 VCFLAGS += \
 	-I$(srcdir)/advance/lib \
-	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/blit
 VOBJS += \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
@@ -97,8 +96,9 @@ VOBJS += \
 	$(VOBJ)/dos/scrvga.o \
 	$(VOBJ)/dos/idos.o \
 	$(VOBJ)/card/card.o \
-	$(VOBJ)/card/pci.o \
-	$(VOBJ)/card/map.o \
+	$(VOBJ)/dos/pci.o \
+	$(VOBJ)/dos/map.o \
+	$(VOBJ)/dos/pcimap.o \
 	$(VOBJ)/card/board.o \
 	$(VOBJ)/svgalib/libdos.o \
 	$(VOBJ)/svgalib/accel.o \

@@ -9,11 +9,11 @@ Copyright (C) 1999-2002 Andrea Mazzoleni
 #ifndef __LIBDOS_H
 #define __LIBDOS_H
 
-#include "card.h"
-
 #ifndef __MSDOS__
 #error This module is for MSDOS only
 #endif
+
+#include "driver.h"
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -28,9 +28,12 @@ typedef unsigned long uint32_t;
 
 #include <sys/mman.h>
 
-void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
-int munmap(void* start, unsigned length);
-int iopl(int perm);
+void* libdos_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
+int libdos_munmap(void* start, unsigned length);
+int libdos_iopl(int perm);
+void* libdos_malloc(unsigned size);
+void* libdos_calloc(unsigned n, unsigned size);
+void libdos_free(void*);
 
 /**************************************************************************/
 /* driver */
@@ -110,8 +113,36 @@ void libdos_done(void);
 void libdos_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc);
 void libdos_mode_done(void);
 
-extern card_crtc libdos_crtc;
-extern card_mode libdos_mode;
+struct libdos_crtc_struct {
+	unsigned hde, hrs, hre, ht;
+	unsigned vde, vrs, vre, vt;
+
+	int nhsync;
+	int nvsync;
+	int doublescan;
+	int interlace;
+	unsigned pixelclock;
+} card_crtc;
+
+struct libdos_mode_struct {
+	unsigned width; /* Size of the mode */
+	unsigned height;
+
+	unsigned bits_per_pixel; /* Bits per pixel */
+	unsigned bytes_per_pixel; /* Bytes per pixel */
+	unsigned bytes_per_scanline; /* Bytes per scanline */
+
+	/* Rgb format */
+	unsigned red_len;
+	unsigned red_pos;
+	unsigned green_len;
+	unsigned green_pos;
+	unsigned blue_len;
+	unsigned blue_pos;
+};
+
+extern struct libdos_crtc_struct libdos_crtc;
+extern struct libdos_mode_struct libdos_mode;
 extern int libdos_mode_number;
 
 #endif

@@ -31,10 +31,9 @@
 #include "inputall.h"
 #include "log.h"
 #include "file.h"
+#include "target.h"
 
 #include <string.h>
-
-#include "option.h"
 
 #include <math.h>
 #include <string.h>
@@ -50,13 +49,13 @@
 /***************************************************************************/
 /* crtc */
 
-static int video_crtc_select_by_addr(const video_crtc* a, void* b) {
+static int crtc_select_by_addr(const adv_crtc* a, void* b) {
 	return a==b;
 }
 
-static int video_crtc_select_by_compare(const video_crtc* a, void* _b) {
-	const video_crtc* b = (const video_crtc*)_b;
-	return video_crtc_compare(a,b)==0;
+static int crtc_select_by_compare(const adv_crtc* a, void* _b) {
+	const adv_crtc* b = (const adv_crtc*)_b;
+	return crtc_compare(a,b)==0;
 }
 
 /***************************************************************************/
@@ -66,7 +65,7 @@ enum advance_t {
 	advance_mame, advance_mess, advance_pac, advance_menu, advance_vbe, advance_vga
 } the_advance; /* The current operating mode */
 
-struct conf_context* the_config;
+adv_conf* the_config;
 
 #ifdef __MSDOS__
 int the_advance_vbe_active; /* if AdvanceVBE is active */
@@ -74,7 +73,7 @@ int the_advance_vga_active; /* if AdvanceVGA is active */
 #endif
 
 int the_mode_bit = 8;
-int the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB;
+int the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB;
 
 /***************************************************************************/
 /* Common information screens */
@@ -175,14 +174,14 @@ int menu_rel_max;
 int menu_base_max;
 int menu_max;
 
-static video_crtc* menu_pos(int pos) {
+static adv_crtc* menu_pos(int pos) {
 	if (pos < 0 || pos >= menu_max)
 		return 0;
 
-	return video_crtc_container_pos(&the_modes,pos);
+	return crtc_container_pos(&the_modes,pos);
 }
 
-static video_crtc* menu_current(void) {
+static adv_crtc* menu_current(void) {
 	return menu_pos(menu_base + menu_rel);
 }
 
@@ -190,29 +189,29 @@ static void menu_modify(void) {
 	the_modes_modified = 1;
 }
 
-static void menu_insert(video_crtc* crtc) {
-	crtc->user_flags |= VIDEO_FLAGS_USER_BIT0;
+static void menu_insert(adv_crtc* crtc) {
+	crtc->user_flags |= MODE_FLAGS_USER_BIT0;
 
 	the_modes_modified = 1;
 
-	video_crtc_container_insert_sort(&the_modes,crtc,video_crtc_compare);
+	crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
 
-	menu_max = video_crtc_container_max(&the_modes);
+	menu_max = crtc_container_max(&the_modes);
 }
 
-static void menu_remove(video_crtc* crtc) {
+static void menu_remove(adv_crtc* crtc) {
 
 	the_modes_modified = 1;
 
-	video_crtc_container_remove(&the_modes,video_crtc_select_by_addr,crtc);
+	crtc_container_remove(&the_modes,crtc_select_by_addr,crtc);
 
-	menu_max = video_crtc_container_max(&the_modes);
+	menu_max = crtc_container_max(&the_modes);
 }
 
 static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 	char buffer[256];
 
-	video_crtc* crtc = menu_pos(pos);
+	adv_crtc* crtc = menu_pos(pos);
 
 	if (crtc) {
 		char tag;
@@ -221,7 +220,7 @@ static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 		char hfreq[8];
 
 		if (selected) {
-			if (crtc->user_flags & VIDEO_FLAGS_USER_BIT0) {
+			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
 				color = COLOR_SELECTED_MARK;
 			} else {
@@ -229,7 +228,7 @@ static void menu_item_draw(int x, int y, int dx, int pos, int selected) {
 				color = COLOR_SELECTED;
 			}
 		} else {
-			if (crtc->user_flags & VIDEO_FLAGS_USER_BIT0) {
+			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
 				if (crtc_clock_check(&the_monitor,crtc)) {
 					color = COLOR_MARK;
@@ -279,7 +278,7 @@ static void menu_draw(int x, int y, int dx, int dy) {
 /***************************************************************************/
 /* Draw information bars */
 
-static void format_info(char* buffer0, char* buffer1, char* buffer2, video_crtc* crtc) {
+static void format_info(char* buffer0, char* buffer1, char* buffer2, adv_crtc* crtc) {
 	double HD,HF,HS,HB;
 	double VD,VF,VS,VB;
 	double f;
@@ -312,7 +311,7 @@ static void format_info(char* buffer0, char* buffer1, char* buffer2, video_crtc*
 static void draw_text_info(int x, int y, int dx, int dy, int pos) {
 	char buffer[3][256];
 
-	video_crtc* crtc = menu_pos(pos);
+	adv_crtc* crtc = menu_pos(pos);
 	format_info(buffer[0],buffer[1],buffer[2],crtc);
 
 	draw_text_left(x,y+0,dx,buffer[0],COLOR_INFO_TITLE);
@@ -416,7 +415,7 @@ static int test_default_command(int x, int y) {
 	return y;
 }
 
-static int test_crtc(int x, int y, video_crtc* crtc, int print_clock, int print_measured_clock, int print_key) {
+static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_measured_clock, int print_key) {
 	char buffer[256];
 
 	sprintf(buffer,"Horz  Vert");
@@ -631,7 +630,7 @@ static int test_fb(int x, int y, fb_video_mode* mode) {
 static int test_vga(int x, int y, vga_video_mode* mode) {
 	char buffer[256];
 	struct tweak_crtc info;
-	video_crtc crtc;
+	adv_crtc crtc;
 
 	draw_test_default();
 
@@ -642,7 +641,7 @@ static int test_vga(int x, int y, vga_video_mode* mode) {
 	++y;
 
 	tweak_crtc_get(&info,tweak_reg_read,0);
-	if (video_crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
+	if (crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
 		++y;
 		y = test_crtc(x,y,&crtc,0,1,0);
 	}
@@ -659,7 +658,7 @@ static int test_vbe(int x, int y, vbe_video_mode* mode) {
 	char buffer[256];
 	struct vga_info info;
 	struct vga_regs regs;
-	video_crtc crtc;
+	adv_crtc crtc;
 
 	draw_test_default();
 
@@ -671,7 +670,7 @@ static int test_vbe(int x, int y, vbe_video_mode* mode) {
 
 	vga_mode_get(&regs);
 	vga_regs_info_get(&regs,&info);
-	if (video_crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
+	if (crtc_import(&crtc,&info,video_size_x(),video_size_y(),video_measured_vclock())==0) {
 		++y;
 		y = test_crtc(x,y,&crtc,0,1,0);
 	}
@@ -683,7 +682,7 @@ static int test_vbe(int x, int y, vbe_video_mode* mode) {
 }
 #endif
 
-static int test_draw(int x, int y, video_mode* mode) {
+static int test_draw(int x, int y, adv_mode* mode) {
 	if (0) ;
 #ifdef USE_VIDEO_VGA
 	else if (video_current_driver() == &video_vga_driver)
@@ -716,7 +715,7 @@ static int test_draw(int x, int y, video_mode* mode) {
 	return y;
 }
 
-static int test_exe_crtc(int userkey, video_crtc* crtc) {
+static int test_exe_crtc(int userkey, adv_crtc* crtc) {
 	int modify = 0;
 	unsigned pred_t;
 	int xdelta;
@@ -911,42 +910,42 @@ static int test_exe_crtc(int userkey, video_crtc* crtc) {
 static void cmd_type(int key) {
 	if (key == INPUTB_RIGHT) {
 		switch (the_mode_bit) {
-			case 0 : the_mode_bit = 8; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 8 : the_mode_bit = 15; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 15 : the_mode_bit = 16; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 16 : the_mode_bit = 24; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 24 : the_mode_bit = 32; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 32 : the_mode_bit = 0; the_mode_type = VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT; break;
-			default: the_mode_bit = 0; the_mode_type = VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT; break;
+			case 0 : the_mode_bit = 8; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 8 : the_mode_bit = 15; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 15 : the_mode_bit = 16; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 16 : the_mode_bit = 24; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 24 : the_mode_bit = 32; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 32 : the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
+			default: the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
 		}
 	} else {
 		switch (the_mode_bit) {
-			case 15 : the_mode_bit = 8; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 16 : the_mode_bit = 15; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 24 : the_mode_bit = 16; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 32 : the_mode_bit = 24; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 0 : the_mode_bit = 32; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
-			case 8 : the_mode_bit = 0; the_mode_type = VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT; break;
-			default: the_mode_bit = 0; the_mode_type = VIDEO_FLAGS_TYPE_TEXT | VIDEO_FLAGS_INDEX_TEXT; break;
+			case 15 : the_mode_bit = 8; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 16 : the_mode_bit = 15; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 24 : the_mode_bit = 16; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 32 : the_mode_bit = 24; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 0 : the_mode_bit = 32; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
+			case 8 : the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
+			default: the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
 		}
 	}
 }
 
 static void cmd_select(void) {
-	video_crtc* crtc;
+	adv_crtc* crtc;
 
 	crtc = menu_current();
 	if (!crtc)
 		return;
 
-	crtc->user_flags = crtc->user_flags ^ VIDEO_FLAGS_USER_BIT0;
+	crtc->user_flags = crtc->user_flags ^ MODE_FLAGS_USER_BIT0;
 
 	menu_modify();
 }
 
 static int cmd_offvideo_test(int userkey) {
-	video_crtc* crtc;
-	video_crtc crtc_save;
+	adv_crtc* crtc;
+	adv_crtc crtc_save;
 	int modify = 0;
 
 	crtc = menu_current();
@@ -977,14 +976,14 @@ static int cmd_offvideo_test(int userkey) {
 }
 
 static int cmd_onvideo_test(void) {
-	video_crtc* crtc;
-	video_mode mode;
+	adv_crtc* crtc;
+	adv_mode mode;
 	int done ;
-	video_crtc crtc_save;
+	adv_crtc crtc_save;
 	int dirty = 1;
 	int crtc_save_modified;
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
 	crtc = menu_current();
 	if (!crtc)
@@ -1010,8 +1009,8 @@ static int cmd_onvideo_test(void) {
 		int userkey;
 		int modify = 0;
 
-		video_crtc last_crtc = *crtc;
-		video_mode last_mode = mode;
+		adv_crtc last_crtc = *crtc;
+		adv_mode last_mode = mode;
 		int vm_last_modified = the_modes_modified;
 
 		if (dirty) {
@@ -1069,14 +1068,14 @@ static int cmd_onvideo_test(void) {
 }
 
 static int cmd_onvideo_calib(void) {
-	video_mode mode;
-	video_crtc* crtc;
+	adv_mode mode;
+	adv_crtc* crtc;
 	unsigned speed;
 	char buffer[128];
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
-	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
+	if ((the_mode_type & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
 		error_set("Command supported only in graphics mode");
 		return -1;
 	}
@@ -1114,14 +1113,14 @@ static int cmd_onvideo_calib(void) {
 }
 
 static int cmd_onvideo_animate(void) {
-	video_mode mode;
-	video_crtc* crtc;
+	adv_mode mode;
+	adv_crtc* crtc;
 	unsigned i;
 	int counter;
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
-	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
+	if ((the_mode_type & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
 		error_set("Command supported only in graphics mode");
 		return -1;
 	}
@@ -1219,7 +1218,7 @@ static int cmd_input_string(const char* tag, char* buffer, unsigned length) {
 }
 
 static void cmd_rename(void) {
-	video_crtc* crtc;
+	adv_crtc* crtc;
 	char buffer[128];
 
 	crtc = menu_current();
@@ -1236,8 +1235,8 @@ static void cmd_rename(void) {
 }
 
 static void cmd_copy(void) {
-	video_crtc* crtc;
-	video_crtc copy;
+	adv_crtc* crtc;
+	adv_crtc copy;
 
 	crtc = menu_current();
 	if (!crtc)
@@ -1250,12 +1249,12 @@ static void cmd_copy(void) {
 }
 
 static int cmd_modeline_create(int favourite_vtotal) {
-	video_crtc crtc;
+	adv_crtc crtc;
 	char buffer[80];
 	double freq = 0;
 	unsigned x;
 	unsigned y;
-	error res;
+	adv_error res;
 
 	strcpy(crtc.name,"format_created");
 
@@ -1308,7 +1307,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 
 /*
 static int cmd_modeline_create_gtf(void) {
-	video_crtc crtc;
+	adv_crtc crtc;
 	char buffer[80];
 	double freq = 0;
 	unsigned x;
@@ -1355,7 +1354,7 @@ static int cmd_modeline_create_gtf(void) {
 */
 
 static int cmd_mode_clock(void) {
-	video_crtc* crtc;
+	adv_crtc* crtc;
 	char buffer[80];
 	double freq = 0;
 
@@ -1363,7 +1362,7 @@ static int cmd_mode_clock(void) {
 	if (i >= menu_max)
 		return 0;
 
-	crtc = video_crtc_container_pos(&the_modes,i);
+	crtc = crtc_container_pos(&the_modes,i);
 
 	strcpy(buffer,"");
 
@@ -1411,7 +1410,7 @@ static int cmd_mode_clock(void) {
 }
 
 static void cmd_del(void) {
-	video_crtc* crtc;
+	adv_crtc* crtc;
 
 	crtc = menu_current();
 	if (!crtc)
@@ -1421,18 +1420,18 @@ static void cmd_del(void) {
 }
 
 static void cmd_save(void) {
-	video_crtc_container selected;
-	video_crtc_container_iterator i;
-	video_crtc_container_init(&selected);
+	adv_crtc_container selected;
+	adv_crtc_container_iterator i;
+	crtc_container_init(&selected);
 
-	for(video_crtc_container_iterator_begin(&i,&the_modes);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-		const video_crtc* crtc = video_crtc_container_iterator_get(&i);
-		if (crtc->user_flags & VIDEO_FLAGS_USER_BIT0)
-			video_crtc_container_insert(&selected,crtc);
+	for(crtc_container_iterator_begin(&i,&the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		const adv_crtc* crtc = crtc_container_iterator_get(&i);
+		if (crtc->user_flags & MODE_FLAGS_USER_BIT0)
+			crtc_container_insert(&selected,crtc);
 	}
 
-	video_crtc_container_save(the_config, &selected);
-	video_crtc_container_done(&selected);
+	crtc_container_save(the_config, &selected);
+	crtc_container_done(&selected);
 
 	the_modes_modified = 0;
 }
@@ -1481,7 +1480,7 @@ static int menu_run(void) {
 	menu_base = 0;
 	menu_rel = 0;
 	menu_rel_max = MENU_DY;
-	menu_max = video_crtc_container_max(&the_modes);
+	menu_max = crtc_container_max(&the_modes);
 	menu_base_max = menu_max -  menu_rel_max;
 	if (menu_base_max < 0)
 		menu_base_max = 0;
@@ -1508,7 +1507,7 @@ static int menu_run(void) {
 				int i = menu_base + menu_rel - 1;
 				if (i<0)
 					i = 0;
-				while (i>0 && !(video_crtc_container_pos(&the_modes,i)->user_flags & VIDEO_FLAGS_USER_BIT0))
+				while (i>0 && !(crtc_container_pos(&the_modes,i)->user_flags & MODE_FLAGS_USER_BIT0))
 					--i;
 				cmd_gotopos( i );
 				break;
@@ -1517,7 +1516,7 @@ static int menu_run(void) {
 				int i = menu_base + menu_rel + 1;
 				if (i >= menu_max)
 					i = menu_max - 1;
-				while (i < menu_max - 1 && !(video_crtc_container_pos(&the_modes,i)->user_flags & VIDEO_FLAGS_USER_BIT0))
+				while (i < menu_max - 1 && !(crtc_container_pos(&the_modes,i)->user_flags & MODE_FLAGS_USER_BIT0))
 					++i;
 				cmd_gotopos( i );
 				break;
@@ -1675,7 +1674,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-static struct conf_conv STANDARD[] = {
+static adv_conf_conv STANDARD[] = {
 { "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
@@ -1684,8 +1683,8 @@ void os_signal(int signum) {
 }
 
 int os_main(int argc, char* argv[]) {
-	video_crtc_container selected;
-	video_crtc_container_iterator i;
+	adv_crtc_container selected;
+	adv_crtc_container_iterator i;
 	const char* opt_rc;
 	int opt_log;
 	int opt_logsync;
@@ -1708,7 +1707,7 @@ int os_main(int argc, char* argv[]) {
 
 	video_reg(the_config, 1);
 	monitor_register(the_config);
-	video_crtc_container_register(the_config);
+	crtc_container_register(the_config);
 	generate_interpolate_register(the_config);
 	gtf_register(the_config);
 
@@ -1716,25 +1715,25 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	for(j=1;j<argc;++j) {
-		if (optionmatch(argv[j],"rc") && j+1<argc) {
+		if (target_option(argv[j],"rc") && j+1<argc) {
 			opt_rc = argv[++j];
-		} else if (optionmatch(argv[j],"log")) {
+		} else if (target_option(argv[j],"log")) {
 			opt_log = 1;
-		} else if (optionmatch(argv[j],"logsync")) {
+		} else if (target_option(argv[j],"logsync")) {
 			opt_logsync = 1;
-		} else if (optionmatch(argv[j],"nosound")) {
+		} else if (target_option(argv[j],"nosound")) {
 			the_sound_flag = 0;
-		} else if (optionmatch(argv[j],"advmamev")) {
+		} else if (target_option(argv[j],"advmamev")) {
 			the_advance = advance_mame;
-		} else if (optionmatch(argv[j],"advmessv")) {
+		} else if (target_option(argv[j],"advmessv")) {
 			the_advance = advance_mess;
-		} else if (optionmatch(argv[j],"advpacv")) {
+		} else if (target_option(argv[j],"advpacv")) {
 			the_advance = advance_pac;
-		} else if (optionmatch(argv[j],"advmenuv")) {
+		} else if (target_option(argv[j],"advmenuv")) {
 			the_advance = advance_menu;
-		} else if (optionmatch(argv[j],"vgav")) {
+		} else if (target_option(argv[j],"vgav")) {
 			the_advance = advance_vga;
-		} else if (optionmatch(argv[j],"vbev")) {
+		} else if (target_option(argv[j],"vbev")) {
 			the_advance = advance_vbe;
 		} else {
 			fprintf(stderr,"Unknown option %s\n",argv[j]);
@@ -1849,10 +1848,10 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	log_std(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
-	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j)
+	for(j=0;j<MONITOR_RANGE_MAX;++j)
 		if (the_monitor.hclock[j].low)
 			log_std(("v: hclock %.3f - %.3f\n",(double)the_monitor.hclock[j].low,(double)the_monitor.hclock[j].high));
-	for(j=0;j<VIDEO_MONITOR_RANGE_MAX;++j)
+	for(j=0;j<MONITOR_RANGE_MAX;++j)
 		if (the_monitor.vclock[j].low)
 			log_std(("v: vclock %.3f - %.3f\n",(double)the_monitor.vclock[j].low,(double)the_monitor.vclock[j].high));
 
@@ -1881,44 +1880,44 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	/* all mode */
-	video_crtc_container_init(&selected);
+	crtc_container_init(&selected);
 
 	if (the_advance == advance_vbe) {
-		video_crtc_container_insert_default_modeline_svga(&selected);
-		video_crtc_container_insert_default_bios_vga(&selected); /* for text modes */
+		crtc_container_insert_default_modeline_svga(&selected);
+		crtc_container_insert_default_bios_vga(&selected); /* for text modes */
 	} else if (the_advance == advance_vga) {
-		video_crtc_container_insert_default_modeline_vga(&selected);
+		crtc_container_insert_default_modeline_vga(&selected);
 	} else {
-		video_crtc_container_insert_default_modeline_vga(&selected);
-		video_crtc_container_insert_default_modeline_svga(&selected);
+		crtc_container_insert_default_modeline_vga(&selected);
+		crtc_container_insert_default_modeline_svga(&selected);
 	}
 
 	/* sort */
-	video_crtc_container_init(&the_modes);
-	for(video_crtc_container_iterator_begin(&i,&selected);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-		video_crtc* crtc = video_crtc_container_iterator_get(&i);
-		video_crtc_container_insert_sort(&the_modes,crtc,video_crtc_compare);
+	crtc_container_init(&the_modes);
+	for(crtc_container_iterator_begin(&i,&selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		adv_crtc* crtc = crtc_container_iterator_get(&i);
+		crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
 	}
-	video_crtc_container_done(&selected);
+	crtc_container_done(&selected);
 
 	/* load selected */
-	video_crtc_container_init(&selected);
+	crtc_container_init(&selected);
 
-	if (video_crtc_container_load(the_config, &selected) != 0) {
+	if (crtc_container_load(the_config, &selected) != 0) {
 		fprintf(stderr,error_get());
 		goto err_input;
 	}
 
 	/* union set */
-	for(video_crtc_container_iterator_begin(&i,&selected);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-		video_crtc* crtc = video_crtc_container_iterator_get(&i);
-		int has = video_crtc_container_has(&the_modes,crtc,video_crtc_compare) != 0;
+	for(crtc_container_iterator_begin(&i,&selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		adv_crtc* crtc = crtc_container_iterator_get(&i);
+		int has = crtc_container_has(&the_modes,crtc,crtc_compare) != 0;
 		if (has)
-			video_crtc_container_remove(&the_modes,video_crtc_select_by_compare,crtc);
-		crtc->user_flags |= VIDEO_FLAGS_USER_BIT0;
-		video_crtc_container_insert_sort(&the_modes,crtc,video_crtc_compare);
+			crtc_container_remove(&the_modes,crtc_select_by_compare,crtc);
+		crtc->user_flags |= MODE_FLAGS_USER_BIT0;
+		crtc_container_insert_sort(&the_modes,crtc,crtc_compare);
 	}
-	video_crtc_container_done(&selected);
+	crtc_container_done(&selected);
 
 	the_modes_modified = 0;
 
@@ -1932,7 +1931,7 @@ int os_main(int argc, char* argv[]) {
 
 	text_done();
 
-	video_crtc_container_done(&the_modes);
+	crtc_container_done(&the_modes);
 
 	inputb_done();
 

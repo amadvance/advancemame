@@ -34,9 +34,9 @@
 // -------------------------------------------------------------------------
 // Interface
 
-void text_init(struct conf_context* config_context);
+void text_init(adv_conf* config_context);
 void text_done();
-bool text_load(struct conf_context* config_context);
+bool text_load(adv_conf* config_context);
 bool text_init2(unsigned video_size, unsigned video_depth, const std::string& sound_event_key);
 void text_done2();
 bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep,unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
@@ -136,7 +136,7 @@ int text_dy_get();
 #define TEXT_KEY_LOCK (32 << 16)
 
 bool text_key_in(const std::string& s);
-void text_key_out(struct conf_context* config_context, const char* tag);
+void text_key_out(adv_conf* config_context, const char* tag);
 
 // -------------------------------------------------------------------------
 // Colors
@@ -161,6 +161,6 @@ extern unsigned COLOR_MENU_ICON;
 extern unsigned COLOR_MENU_CURSOR;
 
 bool text_color_in(const std::string& s);
-void text_color_out(struct conf_context* config_context, const char* tag);
+void text_color_out(adv_conf* config_context, const char* tag);
 
 #endif

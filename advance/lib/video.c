@@ -55,15 +55,15 @@
 video_internal video_state;
 
 struct video_option_struct {
-	boolean initialized; /**< Initialized flag. */
-	boolean scan_single; /**< Allow singlescan modes. */
-	boolean scan_double; /**< Allow doublescan modes. */
-	boolean scan_interlace; /**< Allow interlace modes. */
-	boolean fast_change; /**< Allow the fast change. */
-	boolean mode_8bit; /**< Allow 8 bit modes. */
-	boolean mode_15bit; /**< Allow 15 bit modes. */
-	boolean mode_16bit; /**< Allow 16 bit modes. */
-	boolean mode_32bit; /**< Allow 32 bit modes. */
+	adv_bool initialized; /**< Initialized flag. */
+	adv_bool scan_single; /**< Allow singlescan modes. */
+	adv_bool scan_double; /**< Allow doublescan modes. */
+	adv_bool scan_interlace; /**< Allow interlace modes. */
+	adv_bool fast_change; /**< Allow the fast change. */
+	adv_bool mode_8bit; /**< Allow 8 bit modes. */
+	adv_bool mode_15bit; /**< Allow 15 bit modes. */
+	adv_bool mode_16bit; /**< Allow 16 bit modes. */
+	adv_bool mode_32bit; /**< Allow 32 bit modes. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
@@ -127,7 +127,7 @@ void video_default(void)
 /**
  * Register the configuration options.
  */
-void video_reg(struct conf_context* context, boolean auto_detect)
+void video_reg(adv_conf* context, adv_bool auto_detect)
 {
 	conf_string_register_default(context, "device_video", auto_detect ? "auto" : "none");
 	conf_bool_register_default(context, "device_video_singlescan", 1);
@@ -141,18 +141,18 @@ void video_reg(struct conf_context* context, boolean auto_detect)
 }
 
 /**
- * Register a video driver.
+ * Register a video adv_driver.
  * \note Call before video_init().
  */
-void video_reg_driver(struct conf_context* context, video_driver* driver)
+void video_reg_driver(adv_conf* context, adv_video_driver* adv_driver)
 {
 	assert( !video_is_active() );
 
 	assert( video_state.driver_mac < DEVICE_MAX );
 
-	log_std(("video: register driver %s\n", driver->name));
+	log_std(("video: register adv_driver %s\n", adv_driver->name));
 
-	video_state.driver_map[video_state.driver_mac] = driver;
+	video_state.driver_map[video_state.driver_mac] = adv_driver;
 	video_state.driver_map[video_state.driver_mac]->reg(context);
 
 	++video_state.driver_mac;
@@ -172,10 +172,10 @@ unsigned video_driver_vector_max(void) {
 }
 
 /**
- * Return the 'n video driver.
+ * Return the 'n video adv_driver.
  * This function automatically skip disabled drivers.
  */
-const video_driver* video_driver_vector_pos(unsigned i) {
+const adv_video_driver* video_driver_vector_pos(unsigned i) {
 	unsigned count = 0;
 	unsigned j;
 	for(j=0;j<video_state.driver_mac;++j) {
@@ -191,7 +191,7 @@ const video_driver* video_driver_vector_pos(unsigned i) {
 /**
  * Inizialize the video system.
  */
-error video_init(void)
+adv_error video_init(void)
 {
 	unsigned i;
 	int at_least_one;
@@ -211,29 +211,29 @@ error video_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a video driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a video adv_driver. The following are the errors:\n");
 
-	/* enable all the video driver */
+	/* enable all the video adv_driver */
 	/* backward order is used to respect the dependencies */
 	at_least_one = 0;
 	for(i=0;i<video_state.driver_mac;++i) {
 		unsigned j = video_state.driver_mac - 1 - i;
-		const device* dev;
+		const adv_device* dev;
 
-		assert(video_state.driver_map[j]->mode_size() <= VIDEO_DRIVER_MODE_SIZE_MAX);
+		assert(video_state.driver_map[j]->mode_size() <= MODE_DRIVER_MODE_SIZE_MAX);
 
-		dev = device_match(video_option.name, (const driver*)video_state.driver_map[j], 0);
+		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[j], 0);
 
 		if (dev && video_state.driver_map[j]->init(dev->id) == 0) {
-			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
+			log_std(("video: select adv_driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
-			video_state.driver_map[j] = 0; /* deactivate the driver */
+			video_state.driver_map[j] = 0; /* deactivate the adv_driver */
 		}
 	}
 
 	if (!at_least_one) {
-		log_std(("video: no video driver activated\n"));
+		log_std(("video: no video adv_driver activated\n"));
 		return -1;
 	}
 
@@ -261,7 +261,7 @@ void video_done(void)
 	if (video_mode_is_active())
 		video_mode_done(1);
 
-	/* disable all the video driver */
+	/* disable all the video adv_driver */
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
 			video_state.driver_map[i]->done();
@@ -271,7 +271,7 @@ void video_done(void)
 	/* disable */
 	video_state.active = 0;
 
-	/* reset the driver list */
+	/* reset the adv_driver list */
 	video_state.driver_mac = 0;
 }
 
@@ -294,15 +294,15 @@ void video_abort(void)
 /**
  * Load the video configuration.
  * \param context Configuration context to use.
- * \param driver_ignore List of driver name to ignore (separated by space).
+ * \param driver_ignore List of adv_driver name to ignore (separated by space).
  */
-error video_load(struct conf_context* context, const char* driver_ignore)
+adv_error video_load(adv_conf* context, const char* driver_ignore)
 {
 	unsigned i;
 	int at_least_one;
 
 	if (video_state.driver_mac == 0) {
-		error_set("No video driver registered\n");
+		error_set("No video adv_driver registered\n");
 		return -1;
 	}
 
@@ -321,16 +321,16 @@ error video_load(struct conf_context* context, const char* driver_ignore)
 
 	strcpy(video_option.name, conf_string_get_default(context, "device_video"));
 
-	if (device_check("device_video", video_option.name, (const driver**)video_state.driver_map, video_state.driver_mac, driver_ignore) != 0) {
+	if (device_check("device_video", video_option.name, (const adv_driver**)video_state.driver_map, video_state.driver_mac, driver_ignore) != 0) {
 		return -1;
 	}
 
-	/* load the specific driver options */
+	/* load the specific adv_driver options */
 	at_least_one = 0;
 	for(i=0;i<video_state.driver_mac;++i) {
-		const device* dev;
+		const adv_device* dev;
 
-		dev = device_match(video_option.name, (const driver*)video_state.driver_map[i], 0);
+		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;
@@ -340,7 +340,7 @@ error video_load(struct conf_context* context, const char* driver_ignore)
 	}
 
 	if (!at_least_one) {
-		device_error("device_video", video_option.name, (const driver**)video_state.driver_map, video_state.driver_mac);
+		device_error("device_video", video_option.name, (const adv_driver**)video_state.driver_map, video_state.driver_mac);
 		return -1;
 	}
 
@@ -388,18 +388,18 @@ unsigned video_internal_flags(void)
  * Compare two video mode.
  * \return Like strcmp.
  */
-int video_mode_compare(const video_mode* a, const video_mode* b)
+int video_mode_compare(const adv_mode* a, const adv_mode* b)
 {
-	COMPARE(video_mode_driver(a),video_mode_driver(b));
+	COMPARE(mode_driver(a), mode_driver(b));
 
-	return video_mode_driver(a)->mode_compare(a->driver_mode,b->driver_mode);
+	return mode_driver(a)->mode_compare(a->driver_mode,b->driver_mode);
 }
 
 /**
  * Unset a video mode.
  * \param restore If the previous video mode must be restored.
  */
-void video_mode_done(boolean restore)
+void video_mode_done(adv_bool restore)
 {
 	assert( video_mode_is_active() );
 
@@ -410,33 +410,36 @@ void video_mode_done(boolean restore)
 	video_state.mode_active = 0;
 }
 
-void video_mode_reset(video_mode* mode) {
-	memset(mode,0,sizeof(video_mode));
+/**
+ * Reset the variable describing a video mode.
+ */
+void mode_reset(adv_mode* mode) {
+	memset(mode,0,sizeof(adv_mode));
 	strcpy(mode->name, "unamed");
 }
 
-static void video_state_rgb_set_from_def(video_rgb_def _def);
+static void video_state_rgb_set_from_def(adv_rgb_def _def);
 static void video_state_rgb_clear(void);
 
 /**
  * Set a video mode.
  */
-error video_mode_set(video_mode* mode)
+adv_error video_mode_set(adv_mode* mode)
 {
 	assert( video_is_active() );
 
-	log_std(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n",video_mode_name(mode),video_mode_size_x(mode),video_mode_size_y(mode),video_mode_bits_per_pixel(mode),(double)video_mode_hclock(mode) / 1E3,(double)video_mode_vclock(mode)));
+	log_std(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), mode_bits_per_pixel(mode), (double)mode_hclock(mode) / 1E3,(double)mode_vclock(mode)));
 
 	video_state.old_mode_required = 1; /* the mode will change */
 
-	/* check for a mode change without a driver change */
+	/* check for a mode change without a adv_driver change */
 	if (video_mode_is_active()
 		&& video_option.fast_change
-		&& video_mode_driver(mode)->mode_change != 0
-		&& video_current_driver() == video_mode_driver(mode)
+		&& mode_driver(mode)->mode_change != 0
+		&& video_current_driver() == mode_driver(mode)
 	) {
 		/* change the mode */
-		if (video_mode_driver(mode)->mode_change( &mode->driver_mode ) != 0) {
+		if (mode_driver(mode)->mode_change( &mode->driver_mode ) != 0) {
 			video_state.mode_active = 0;
 			video_write_line = 0;
 			return -1;
@@ -446,7 +449,7 @@ error video_mode_set(video_mode* mode)
 			video_mode_done(1);
 
 		/* set the mode */
-		if (video_mode_driver(mode)->mode_set( &mode->driver_mode ) != 0)
+		if (mode_driver(mode)->mode_set( &mode->driver_mode ) != 0)
 			return -1;
 	}
 
@@ -457,7 +460,7 @@ error video_mode_set(video_mode* mode)
 	video_state.rgb_def = video_current_driver()->rgb_def();
 	video_write_line = *video_current_driver()->write_line;
 
-	if (video_type() == VIDEO_FLAGS_TYPE_GRAPHICS && video_index() == VIDEO_FLAGS_INDEX_RGB) {
+	if (video_type() == MODE_FLAGS_TYPE_GRAPHICS && video_index() == MODE_FLAGS_INDEX_RGB) {
 		video_state_rgb_set_from_def(video_state.rgb_def);
 	} else {
 		video_state_rgb_clear();
@@ -486,9 +489,9 @@ error video_mode_set(video_mode* mode)
 /**
  * Grab the current video mode.
  */
-error video_mode_grab(video_mode* mode)
+adv_error video_mode_grab(adv_mode* mode)
 {
-	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX];
+	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX];
 	unsigned i;
 
 	for(i=0;i<video_state.driver_mac;++i) {
@@ -509,24 +512,24 @@ error video_mode_grab(video_mode* mode)
  * \param bits Required bits per pixel of the new video mode.
  * \param flags Required flags of the new video mode.
  */
-error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
 {
-	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX];
+	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX];
 	unsigned i;
 
 	/* store the error prefix */
-	error_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
+	error_nolog_set("No adv_driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every adv_driver:\n");
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
-			/* mask out the driver flags with the user requested limitations */
+			/* mask out the adv_driver flags with the user requested limitations */
 			unsigned driver_flags = video_state.driver_map[i]->flags() & video_internal_flags();
 
 			/* allow always faked crtc */
 			if (crtc_is_fake(crtc)
 				|| video_mode_generate_check(video_state.driver_map[i]->name,driver_flags,8,4096,crtc,bits,flags)==0) {
 				if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
-					log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
+					log_std(("video: using adv_driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 					return 0;
 				}
 			}
@@ -536,27 +539,27 @@ error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsigned bit
 	return -1;
 }
 
-error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const video_crtc* crtc, unsigned bits, unsigned flags)
+adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags)
 {
 	if (crtc->hde % hstep != 0 || crtc->hrs % hstep != 0 || crtc->hre % hstep != 0 || crtc->ht % hstep != 0) {
-		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n",driver,hstep);
+		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n",adv_driver,hstep);
 		return -1;
 	}
 	if (crtc->ht >= hvmax || crtc->vt >= hvmax) {
-		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n",driver,hvmax);
+		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n",adv_driver,hvmax);
 		return -1;
 	}
 
-	switch (flags & VIDEO_FLAGS_TYPE_MASK) {
-		case VIDEO_FLAGS_TYPE_GRAPHICS :
+	switch (flags & MODE_FLAGS_TYPE_MASK) {
+		case MODE_FLAGS_TYPE_GRAPHICS :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)==0) {
-				error_nolog_cat("%s: Graphics modes not supported\n",driver);
+				error_nolog_cat("%s: Graphics modes not supported\n",adv_driver);
 				return -1;
 			}
 			break;
-		case VIDEO_FLAGS_TYPE_TEXT :
+		case MODE_FLAGS_TYPE_TEXT :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text modes not supported\n",driver);
+				error_nolog_cat("%s: Text modes not supported\n",adv_driver);
 				return -1;
 			}
 			break;
@@ -566,50 +569,50 @@ error video_mode_generate_check(const char* driver, unsigned driver_flags, unsig
 
 	if (crtc_is_interlace(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) == 0) {
-			error_nolog_cat("%s: Interlace not supported\n", driver);
+			error_nolog_cat("%s: Interlace not supported\n", adv_driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_doublescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
-			error_nolog_cat("%s: Doublescan not supported\n", driver);
+			error_nolog_cat("%s: Doublescan not supported\n", adv_driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_singlescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) == 0) {
-			error_nolog_cat("%s: Singlescan not supported\n", driver);
+			error_nolog_cat("%s: Singlescan not supported\n", adv_driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvpal(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL) == 0) {
-			error_nolog_cat("%s: TV-PAL not supported\n", driver);
+			error_nolog_cat("%s: TV-PAL not supported\n", adv_driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvntsc(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC) == 0) {
-			error_nolog_cat("%s: TV-NTSC not supported\n", driver);
+			error_nolog_cat("%s: TV-NTSC not supported\n", adv_driver);
 			return -1;
 		}
 	}
 
-	switch (flags & VIDEO_FLAGS_INDEX_MASK) {
-		case VIDEO_FLAGS_INDEX_RGB :
-		case VIDEO_FLAGS_INDEX_PACKED :
-			if ((flags & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
-				error_nolog_cat("%s: Graph mode index supported only in graphics modes\n",driver);
+	switch (flags & MODE_FLAGS_INDEX_MASK) {
+		case MODE_FLAGS_INDEX_RGB :
+		case MODE_FLAGS_INDEX_PACKED :
+			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
+				error_nolog_cat("%s: Graph mode index supported only in graphics modes\n",adv_driver);
 				return -1;
 			}
 			break;
-		case VIDEO_FLAGS_INDEX_TEXT :
-			if ((flags & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_TEXT) {
-				error_nolog_cat("%s: Text mode index supported only in text modes\n",driver);
+		case MODE_FLAGS_INDEX_TEXT :
+			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_TEXT) {
+				error_nolog_cat("%s: Text mode index supported only in text modes\n",adv_driver);
 				return -1;
 			}
 			break;
@@ -620,42 +623,42 @@ error video_mode_generate_check(const char* driver, unsigned driver_flags, unsig
 	switch (bits) {
 		case 0 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text mode bit depth not supported\n", driver);
+				error_nolog_cat("%s: Text mode bit depth not supported\n", adv_driver);
 				return -1;
 			}
 			break;
 		case 8 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 				return -1;
 			}
 			break;
 		case 15 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 				return -1;
 			}
 			break;
 		case 16 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 				return -1;
 			}
 			break;
 		case 24 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 				return -1;
 			}
 			break;
 		case 32 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 				return -1;
 			}
 			break;
 		default:
-			error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+			error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
 			return -1;
 	}
 
@@ -811,7 +814,7 @@ unsigned video_font_size_y(void)
 /***************************************************************************/
 /* Put */
 
-static __inline__ void video_chained_put_pixel(unsigned x, unsigned y, unsigned color)
+static inline void video_chained_put_pixel(unsigned x, unsigned y, unsigned color)
 {
 	switch (video_bytes_per_pixel()) {
 		case 1 :
@@ -833,7 +836,7 @@ static __inline__ void video_chained_put_pixel(unsigned x, unsigned y, unsigned 
 	}
 }
 
-static __inline__ void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color)
+static inline void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color)
 {
 	video_unchained_plane_set(x % 4);
 	*(uint8*)(video_write_line(y) + x / 4) = color;
@@ -845,7 +848,7 @@ void video_put_char(unsigned x, unsigned y, char c, unsigned color)
 	*(uint16*)(video_write_line(y) + 2*x) = (color << 8) | (unsigned char)c;
 }
 
-static __inline__ void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
+static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
 {
 	if (video_is_unchained())
 		video_unchained_put_pixel(x,y,color);
@@ -863,48 +866,14 @@ void video_put_pixel(unsigned x, unsigned y, unsigned color)
 /****************************************************************************/
 /* Color */
 
-static unsigned video_rgb_approx(unsigned value, unsigned len)
+static void video_state_rgb_set_from_def(adv_rgb_def _def)
 {
-	unsigned fill = len;
-	while (fill < 8) {
-		value |= value >> fill;
-		fill *= 2;
-	}
-	return value;
-}
-
-unsigned video_red_get_approx(unsigned rgb)
-{
-	return video_rgb_approx(video_red_get(rgb), video_state.rgb_red_len);
-}
-
-unsigned video_green_get_approx(unsigned rgb)
-{
-	return video_rgb_approx(video_green_get(rgb), video_state.rgb_green_len);
-}
-
-unsigned video_blue_get_approx(unsigned rgb)
-{
-	return video_rgb_approx(video_blue_get(rgb), video_state.rgb_blue_len);
-}
-
-/**
- * Compute shift and mask value.
- */
-static __inline__ void video_rgb_maskshift_get(unsigned* mask, int* shift, unsigned len, unsigned pos)
-{
-	*mask = ((1 << len) - 1) << pos;
-	*shift = pos + len - 8;
-}
-
-static void video_state_rgb_set_from_def(video_rgb_def _def)
-{
-	union video_rgb_def_union def;
+	union adv_rgb_def_union def;
 	def.ordinal = _def;
 
-	video_rgb_maskshift_get(&video_state.rgb_red_mask,&video_state.rgb_red_shift,def.nibble.red_len,def.nibble.red_pos);
-	video_rgb_maskshift_get(&video_state.rgb_green_mask,&video_state.rgb_green_shift,def.nibble.green_len,def.nibble.green_pos);
-	video_rgb_maskshift_get(&video_state.rgb_blue_mask,&video_state.rgb_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
+	rgb_maskshift_get(&video_state.rgb_red_mask,&video_state.rgb_red_shift,def.nibble.red_len,def.nibble.red_pos);
+	rgb_maskshift_get(&video_state.rgb_green_mask,&video_state.rgb_green_shift,def.nibble.green_len,def.nibble.green_pos);
+	rgb_maskshift_get(&video_state.rgb_blue_mask,&video_state.rgb_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
 
 	video_state.rgb_def = def.ordinal;
 	video_state.rgb_red_len = def.nibble.red_len;
@@ -943,7 +912,7 @@ void video_index_packed_to_rgb(int waitvsync)
 	unsigned bit_g;
 	unsigned bit_b;
 
-	video_color* palette;
+	adv_color* palette;
 	unsigned i;
 	unsigned colors = 1 << video_bits_per_pixel();
 
@@ -951,9 +920,9 @@ void video_index_packed_to_rgb(int waitvsync)
 	bit_r = (video_bits_per_pixel() - bit_b) / 2;
 	bit_g = video_bits_per_pixel() - bit_b - bit_r;
 
-	video_state_rgb_set_from_def(video_rgb_def_make(bit_r,bit_b+bit_g,bit_g,bit_b,bit_b,0));
+	video_state_rgb_set_from_def(rgb_def_make(bit_r,bit_b+bit_g,bit_g,bit_b,bit_b,0));
 
-	palette = malloc(colors * sizeof(video_color));
+	palette = malloc(colors * sizeof(adv_color));
 	assert( palette );
 
 	for(i=0;i<colors;++i) {
@@ -967,18 +936,18 @@ void video_index_packed_to_rgb(int waitvsync)
 	free(palette);
 
 	/* set RGB */
-	video_state.mode.flags &= ~VIDEO_FLAGS_INDEX_MASK;
-	video_state.mode.flags |= VIDEO_FLAGS_INDEX_RGB;
+	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
+	video_state.mode.flags |= MODE_FLAGS_INDEX_RGB;
 }
 
-int video_index_rgb_to_packed_is_available(void)
+adv_bool video_index_rgb_to_packed_is_available(void)
 {
-	return video_index() == VIDEO_FLAGS_INDEX_RGB && video_bytes_per_pixel() == 1;
+	return video_index() == MODE_FLAGS_INDEX_RGB && video_bytes_per_pixel() == 1;
 }
 
-int video_index_packed_to_rgb_is_available(void)
+adv_bool video_index_packed_to_rgb_is_available(void)
 {
-	return video_index() == VIDEO_FLAGS_INDEX_PACKED;
+	return video_index() == MODE_FLAGS_INDEX_PACKED;
 }
 
 /**
@@ -992,17 +961,17 @@ void video_index_rgb_to_packed(void)
 	video_state_rgb_clear();
 
 	/* set PACKED */
-	video_state.mode.flags &= ~VIDEO_FLAGS_INDEX_MASK;
-	video_state.mode.flags |= VIDEO_FLAGS_INDEX_PACKED;
+	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
+	video_state.mode.flags |= MODE_FLAGS_INDEX_PACKED;
 }
 
 /** Last active palette. */
-static video_color video_palette[256];
+static adv_color video_palette[256];
 
 /**
  * Get the current palette.
  */
-video_color* video_palette_get(void)
+adv_color* video_palette_get(void)
 {
 	return video_palette;
 }
@@ -1014,15 +983,15 @@ video_color* video_palette_get(void)
  * \param count number of color to set
  * \param waitvsync if !=0 wait a vertical retrace
  */
-error video_palette_set(video_color* palette, unsigned start, unsigned count, int waitvsync)
+adv_error video_palette_set(adv_color* palette, unsigned start, unsigned count, int waitvsync)
 {
 	assert( video_mode_is_active() );
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_PACKED );
+	assert( video_index() == MODE_FLAGS_INDEX_PACKED );
 	assert( count <= 256 );
 
 	/* update the static palette */
-	memcpy(video_palette + start, palette, count * sizeof(video_color));
+	memcpy(video_palette + start, palette, count * sizeof(adv_color));
 
 	return video_current_driver()->palette8_set(palette,start,count,waitvsync);
 }

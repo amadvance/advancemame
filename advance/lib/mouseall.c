@@ -38,7 +38,7 @@
  *  - USE_MOUSE_SDL
  *  - USE_MOUSE_NONE
  */
-void mouseb_reg_driver_all(struct conf_context* context) {
+void mouseb_reg_driver_all(adv_conf* context) {
 #ifdef USE_MOUSE_ALLEGRO
 	mouseb_reg_driver(context, &mouseb_allegro_driver);
 #endif

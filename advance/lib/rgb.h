@@ -44,84 +44,115 @@ extern "C" {
 /** \addtogroup Color */
 /*@{*/
 
-/** \name RGB
- * Basic RGB types.
- */
-/*@{*/
-
 /**
  * RGB color.
  */
 typedef struct video_color_struct {
-	uint8 blue __attribute__ ((packed));
-	uint8 green __attribute__ ((packed));
-	uint8 red __attribute__ ((packed));
-	uint8 alpha __attribute__ ((packed));
-} video_color;
+	uint8 blue __attribute__ ((packed)); /**< Blue channel. From 0 to 255. */
+	uint8 green __attribute__ ((packed)); /**< Green channel. From 0 to 255. */
+	uint8 red __attribute__ ((packed)); /**< Red channel. From 0 to 255. */
+	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
+} adv_color;
 
 /**
  * RGB as ordinal value.
+ * The effective format is not defined. It depends on the current context.
  */
-typedef unsigned video_rgb;
+typedef unsigned adv_rgb;
 
 /**
- * RGB nibble.
+ * RGB definition as bit nibble.
  */
-struct video_rgb_def_bits {
-	unsigned red_len : 4; /* bit used for the red channel */
-	unsigned red_pos : 5; /* shift for the red channel */
-	unsigned green_len : 4;
-	unsigned green_pos : 5;
-	unsigned blue_len : 4;
-	unsigned blue_pos : 5;
+struct adv_rgb_def_bits {
+	unsigned red_len : 4; /**< Bits for the red channel. */
+	unsigned red_pos : 5; /**< Shift for the red channel. */
+	unsigned green_len : 4; /**< Bits for the green channel. */
+	unsigned green_pos : 5; /**< Shift for the green channel. */
+	unsigned blue_len : 4; /**< Bits for the blue channel. */
+	unsigned blue_pos : 5; /**< Shift for the blue channel. */
 	/* 5*3+4*3 = 27 bit */
-	unsigned dummy : 5;
+	unsigned dummy : 5; /**< Unused bit. */
 };
 
 /**
- * RGB nibble as ordinal value.
+ * RGB definition as ordinal value.
  */
-typedef unsigned video_rgb_def;
+typedef unsigned adv_rgb_def;
 
 /**
- * RGB nibble multiformat.
+ * RGB definition as union.
  */
-union video_rgb_def_union {
-	video_rgb_def ordinal;
-	struct video_rgb_def_bits nibble;
+union adv_rgb_def_union {
+	adv_rgb_def ordinal;
+	struct adv_rgb_def_bits nibble;
 };
 
-const char* video_rgb_def_name_make(video_rgb_def rgb_def);
-video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-video_rgb_def video_rgb_def_make_from_maskshift(unsigned red_mask, unsigned red_shift, unsigned green_mask, unsigned green_shift, unsigned blue_mask, unsigned blue_shift);
-video_rgb video_rgb_make_from_def(unsigned r, unsigned g, unsigned b, video_rgb_def def);
+const char* rgb_def_name_make(adv_rgb_def rgb_def);
+adv_rgb_def rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
+adv_rgb_def rgb_def_make_from_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
+adv_rgb rgb_make_from_def(unsigned r, unsigned g, unsigned b, adv_rgb_def def);
 
-static __inline__ unsigned video_rgb_shift_make_from_def(unsigned len, unsigned pos) {
+/**
+ * Get a channel shift from the RGB definition.
+ * This value is the number of bit to shift left a 8 bit channel value to match
+ * the specified RGB definition. It may be a negative number.
+ */
+static inline int rgb_shift_make_from_def(unsigned len, unsigned pos) {
 	return pos + len - 8;
 }
 
-static __inline__ unsigned video_rgb_mask_make_from_def(unsigned len, unsigned pos) {
+/**
+ * Get a channel mask from the RGB definition.
+ * This value is the mask bit of the specified channel RGB definition. 
+ */
+static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos) {
 	return ((1 << len) - 1) << pos;
 }
 
-unsigned video_color_dist(const video_color* A, const video_color* B);
+unsigned video_color_dist(const adv_color* A, const adv_color* B);
 
-static __inline__ unsigned video_rgb_shift(unsigned value, int shift) {
+/**
+ * Shift a value.
+ * \param value Value to shift.
+ * \param shift Number of bit to shift right. If negative the value is shifted left.
+ */
+static inline unsigned rgb_shift(unsigned value, int shift) {
 	if (shift >= 0)
 		return value >> shift;
 	else
 		return value << -shift;
 }
 
-static __inline__ unsigned video_rgb_nibble_insert(unsigned value, int shift, unsigned mask) {
-	return video_rgb_shift(value,-shift) & mask;
+/**
+ * Convert a 8 bit channel to a specific subformat channel.
+ * \param value 8 bit channel.
+ * \param shift Shift for the channel. Generally computed with rgb_shift_make_from_def().
+ * \param mask Mask for the channel. Generally computed with rgb_mask_make_from_def().
+ */
+static inline unsigned rgb_nibble_insert(unsigned value, int shift, unsigned mask) {
+	return rgb_shift(value,-shift) & mask;
 }
 
-static __inline__ unsigned video_rgb_nibble_extract(unsigned value, int shift, unsigned mask) {
-	return video_rgb_shift(value & mask,shift);
+/**
+ * Convert a specific subformat channel to a 8 bit channel.
+ * \param value Subformat channel.
+ * \param shift Shift for the channel. Generally computed with rgb_shift_make_from_def().
+ * \param mask Mask for the channel. Generally computed with rgb_mask_make_from_def().
+ */
+static inline unsigned rgb_nibble_extract(unsigned value, int shift, unsigned mask) {
+	return rgb_shift(value & mask,shift);
 }
 
-/*@}*/
+unsigned rgb_approx(unsigned value, unsigned len);
+
+/**
+ * Compute the shift and mask values.
+ */
+static inline void rgb_maskshift_get(unsigned* mask, int* shift, unsigned len, unsigned pos)
+{
+	*mask = ((1 << len) - 1) << pos;
+	*shift = pos + len - 8;
+}
 
 /*@}*/
 

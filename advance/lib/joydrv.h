@@ -54,23 +54,23 @@ extern "C" {
 #define JOYSTICK_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
 /**
- * Joystick driver.
- * This struct abstract all the driver funtionalities.
+ * Joystick adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
 typedef struct joystickb_driver_struct {
-	const char* name; /**< Name of the driver */
-	const device* device_map; /**< List of supported devices */
+	const char* name; /**< Name of the adv_driver */
+	const adv_device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	error (*load)(struct conf_context* context);
+	adv_error (*load)(adv_conf* context);
 
 	/** Register the load options. Call before load(). */
-	void (*reg)(struct conf_context* context);
+	void (*reg)(adv_conf* context);
 
-	error (*init)(int device_id); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the adv_driver */
+	void (*done)(void); /**< Deinitialize the adv_driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
 
 	unsigned (*count_get)(void);
 	unsigned (*stick_count_get)(unsigned j);
@@ -90,8 +90,8 @@ typedef struct joystickb_driver_struct {
 #define JOYSTICK_DRIVER_MAX 8
 
 struct joystickb_state_struct {
-	boolean is_initialized_flag;
-	boolean is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	joystickb_driver* driver_map[JOYSTICK_DRIVER_MAX];
 	joystickb_driver* driver_current;
@@ -100,96 +100,96 @@ struct joystickb_state_struct {
 
 extern struct joystickb_state_struct joystickb_state;
 
-void joystickb_reg(struct conf_context* config_context, boolean auto_detect);
-void joystickb_reg_driver(struct conf_context* config_context, joystickb_driver* driver);
-error joystickb_load(struct conf_context* config_context);
-error joystickb_init(void);
+void joystickb_reg(adv_conf* config_context, adv_bool auto_detect);
+void joystickb_reg_driver(adv_conf* config_context, joystickb_driver* adv_driver);
+adv_error joystickb_load(adv_conf* config_context);
+adv_error joystickb_init(void);
 void joystickb_done(void);
 void joystickb_abort(void);
 
-static __inline__ unsigned joystickb_count_get(void) {
+static inline unsigned joystickb_count_get(void) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->count_get();
 }
 
-static __inline__ unsigned joystickb_stick_count_get(unsigned j) {
+static inline unsigned joystickb_stick_count_get(unsigned j) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_count_get(j);
 }
 
-static __inline__ unsigned joystickb_stick_axe_count_get(unsigned j, unsigned s) {
+static inline unsigned joystickb_stick_axe_count_get(unsigned j, unsigned s) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_count_get(j,s);
 }
 
-static __inline__ unsigned joystickb_button_count_get(unsigned j) {
+static inline unsigned joystickb_button_count_get(unsigned j) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_count_get(j);
 }
 
-static __inline__ const char* joystickb_stick_name_get(unsigned j, unsigned s) {
+static inline const char* joystickb_stick_name_get(unsigned j, unsigned s) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_name_get(j,s);
 }
 
-static __inline__ const char* joystickb_stick_axe_name_get(unsigned j, unsigned s, unsigned a) {
+static inline const char* joystickb_stick_axe_name_get(unsigned j, unsigned s, unsigned a) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_name_get(j,s,a);
 }
 
-static __inline__ const char* joystickb_button_name_get(unsigned j, unsigned b) {
+static inline const char* joystickb_button_name_get(unsigned j, unsigned b) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_name_get(j,b);
 }
 
-static __inline__ unsigned joystickb_button_get(unsigned j, unsigned b) {
+static inline unsigned joystickb_button_get(unsigned j, unsigned b) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_get(j, b);
 }
 
-static __inline__ unsigned joystickb_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d) {
+static inline unsigned joystickb_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_digital_get(j,s,a,d);
 }
 
-static __inline__ int joystickb_stick_axe_analog_get(unsigned j, unsigned s, unsigned a) {
+static inline int joystickb_stick_axe_analog_get(unsigned j, unsigned s, unsigned a) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_analog_get(j,s,a);
 }
 
-static __inline__ void joystickb_calib_start(void) {
+static inline void joystickb_calib_start(void) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->calib_start();
 }
 
-static __inline__ const char* joystickb_calib_next(void) {
+static inline const char* joystickb_calib_next(void) {
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->calib_next();
 }
 
-static __inline__ void joystickb_poll(void) {
+static inline void joystickb_poll(void) {
 	assert( joystickb_state.is_active_flag );
 
 	joystickb_state.driver_current->poll();
 }
 
 /**
- * Get the driver/device name.
+ * Get the adv_driver/adv_device name.
  * \return Pointer at a static buffer.
  */
-static __inline__ const char* joystickb_name(void) {
+static inline const char* joystickb_name(void) {
 	return joystickb_state.name;
 }
 

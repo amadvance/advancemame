@@ -50,7 +50,7 @@
 /***************************************************************************/
 /* Init */
 
-int target_init(void) {
+adv_error target_init(void) {
 	return 0;
 }
 
@@ -130,7 +130,7 @@ void target_sound_signal(void) {
 /***************************************************************************/
 /* APM */
 
-int target_apm_shutdown(void) {
+adv_error target_apm_shutdown(void) {
 	__dpmi_regs regs;
 
 	sync();
@@ -177,7 +177,7 @@ int target_apm_shutdown(void) {
 	return -1;
 }
 
-int target_apm_standby(void) {
+adv_error target_apm_standby(void) {
 	unsigned mode;
 	__dpmi_regs r;
 
@@ -213,7 +213,7 @@ int target_apm_standby(void) {
 	return 0;
 }
 
-int target_apm_wakeup(void) {
+adv_error target_apm_wakeup(void) {
 	__dpmi_regs r;
 
 	r.x.ax = 0x4F10;
@@ -241,7 +241,7 @@ int target_apm_wakeup(void) {
 /***************************************************************************/
 /* System */
 
-int target_system(const char* cmd) {
+adv_error target_system(const char* cmd) {
 	int r;
 	__djgpp_exception_toggle();
 	r = system(cmd);
@@ -249,7 +249,7 @@ int target_system(const char* cmd) {
 	return r;
 }
 
-int target_spawn(const char* file, const char** argv) {
+adv_error target_spawn(const char* file, const char** argv) {
 	int r;
 	__djgpp_exception_toggle();
 	r = spawnvp(P_WAIT,file,(char**)argv);
@@ -257,7 +257,7 @@ int target_spawn(const char* file, const char** argv) {
 	return r;
 }
 
-int target_mkdir(const char* file) {
+adv_error target_mkdir(const char* file) {
 	return mkdir(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
@@ -265,7 +265,7 @@ void target_sync(void) {
 	sync();
 }
 
-int target_search(char* path, unsigned path_size, const char* file) {
+adv_error target_search(char* path, unsigned path_size, const char* file) {
 	const char* path_env;
 	char* path_list;
 	char* dir;
@@ -415,3 +415,8 @@ void target_crash(void) {
 	++*i;
 	abort();
 }
+
+adv_bool target_option(const char* arg, const char* opt) {
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+}
+

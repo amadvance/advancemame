@@ -28,6 +28,8 @@
 #ifndef __ENDIAN_H
 #define __ENDIAN_H
 
+#include "extra.h"
+
 /***************************************************************************/
 /* Endian */
 
@@ -50,14 +52,32 @@ static inline unsigned be_uint16_read(const void* ptr) {
 	return (unsigned)ptr8[1] | (unsigned)ptr8[0] << 8;
 }
 
+static inline unsigned le_uint24_read(const void* ptr) {
+	const unsigned char* ptr8 = (const unsigned char*)ptr;
+	return (unsigned)ptr8[0] | (unsigned)ptr8[1] << 8 | (unsigned)ptr8[2] << 16;
+}
+
+static inline unsigned be_uint24_read(const void* ptr) {
+	const unsigned char* ptr8 = (const unsigned char*)ptr;
+	return (unsigned)ptr8[2] | (unsigned)ptr8[1] << 8 | (unsigned)ptr8[0] << 16;
+}
+
 static inline unsigned le_uint32_read(const void* ptr) {
+#ifdef USE_LSB
+	return *(uint32*)ptr;
+#else
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned)ptr8[0] | (unsigned)ptr8[1] << 8 | (unsigned)ptr8[2] << 16 | (unsigned)ptr8[3] << 24;
+#endif
 }
 
 static inline unsigned be_uint32_read(const void* ptr) {
+#ifdef USE_MSB
+	return *(uint32*)ptr;
+#else
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned)ptr8[3] | (unsigned)ptr8[2] << 8 | (unsigned)ptr8[1] << 16 | (unsigned)ptr8[0] << 24;
+#endif
 }
 /*@}*/
 
@@ -82,20 +102,42 @@ static inline void be_uint16_write(void* ptr, unsigned v) {
 	ptr8[0] = (v >> 8) & 0xFF;
 }
 
+static inline void le_uint24_write(void* ptr, unsigned v) {
+	unsigned char* ptr8 = (unsigned char*)ptr;
+	ptr8[0] = v & 0xFF;
+	ptr8[1] = (v >> 8) & 0xFF;
+	ptr8[2] = (v >> 16) & 0xFF;
+}
+
+static inline void be_uint24_write(void* ptr, unsigned v) {
+	unsigned char* ptr8 = (unsigned char*)ptr;
+	ptr8[2] = v & 0xFF;
+	ptr8[1] = (v >> 8) & 0xFF;
+	ptr8[0] = (v >> 16) & 0xFF;
+}
+
 static inline void le_uint32_write(void* ptr, unsigned v) {
+#ifdef USE_LSB
+	*(uint32*)ptr = v;
+#else
 	unsigned char* ptr8 = (unsigned char*)ptr;
 	ptr8[0] = v & 0xFF;
 	ptr8[1] = (v >> 8) & 0xFF;
 	ptr8[2] = (v >> 16) & 0xFF;
 	ptr8[3] = (v >> 24) & 0xFF;
+#endif
 }
 
 static inline void be_uint32_write(void* ptr, unsigned v) {
+#ifdef USE_MSB
+	*(uint32*)ptr = v;
+#else
 	unsigned char* ptr8 = (unsigned char*)ptr;
 	ptr8[3] = v & 0xFF;
 	ptr8[2] = (v >> 8) & 0xFF;
 	ptr8[1] = (v >> 16) & 0xFF;
 	ptr8[0] = (v >> 24) & 0xFF;
+#endif
 }
 /*@}*/
 

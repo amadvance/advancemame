@@ -33,103 +33,136 @@
 
 #include <assert.h>
 
-/* Position for drawing */
-static unsigned video_update_offset;
+/**
+ * Position for drawing.
+ */
+static unsigned update_offset;
 
-/* Screen in drawing */
-static unsigned _video_update_page;
+/**
+ * Page in drawing.
+ */
+static unsigned update_page;
 
-/* Draw possible (boolean) */
-static int video_update_draw_allowed;
+/**
+ * It's draw possible.
+ */
+static adv_bool is_update_draw_allowed;
 
-/* Pages used */
-static unsigned _video_update_page_max;
+/**
+ * Pages used.
+ */
+static unsigned update_page_max;
 
-/* Inizialize */
-void update_init(int max_buffer) {
-	int pages = (video_virtual_y() * video_bytes_per_scanline()) / video_bytes_per_page();
+/**
+ * Inizialize the update system.
+ * This function must be called after the mode was set.
+ * \param max_buffer Max number of buffer to use.
+ *   - 1 A single buffer is used.
+ *   - 2 A double buffer is used if the current video mode supports the asyncronous page set.
+ *   - 3 A triple buffer is used if the current video mode supports the syncronous page set.
+ */
+void update_init(unsigned max_buffer) {
+	unsigned pages = (video_virtual_y() * video_bytes_per_scanline()) / video_bytes_per_page();
 	if (pages > max_buffer)
 		pages = max_buffer;
 
-	_video_update_page = 0;
+	update_page = 0;
 
-	if (pages >= 3 && (video_flags() & VIDEO_FLAGS_SYNC_SETPAGE)) {
-		_video_update_page_max = 3;
-	} else if (pages >= 2 && (video_flags() & VIDEO_FLAGS_ASYNC_SETPAGE)) {
-		_video_update_page_max = 2;
+	if (pages >= 3 && (video_flags() & MODE_FLAGS_SCROLL_SYNC)) {
+		update_page_max = 3;
+	} else if (pages >= 2 && (video_flags() & MODE_FLAGS_SCROLL_ASYNC)) {
+		update_page_max = 2;
 	} else {
-		_video_update_page_max = 1;
+		update_page_max = 1;
 	}
 
-	video_update_draw_allowed = 0;
+	is_update_draw_allowed = 0;
 }
 
-/* Return the number of pages used */
-unsigned update_page_max_get(void) {
-	return _video_update_page_max;
-}
-
-/* Deinizialize */
+/**
+ * Deinizialize the update system.
+ */
 void update_done(void) {
-	assert( video_update_draw_allowed == 0 );
+	assert( is_update_draw_allowed == 0 );
 
 	/* display the first page */
-	if (_video_update_page_max!=1) {
+	if (update_page_max!=1) {
 		video_display_set_async(0,0);
 	}
 }
 
-/* Relative position of the page in drawing */
+/**
+ * Get the number of pages.
+ */
+unsigned update_page_max_get(void) {
+	return update_page_max;
+}
+
+/**
+ * Get the horizontal position of the page in drawing.
+ */
 unsigned update_x_get(void) {
 	unsigned x;
-	assert( video_update_draw_allowed );
-	x = (video_update_offset % video_bytes_per_scanline()) / video_bytes_per_pixel();
+	assert( is_update_draw_allowed );
+	x = (update_offset % video_bytes_per_scanline()) / video_bytes_per_pixel();
 	if (video_is_unchained())
 		x *= 4;
 	return x;
 }
 
+/**
+ * Get the vertical position of the page in drawing.
+ */
 unsigned update_y_get(void) {
-	assert( video_update_draw_allowed );
-	return video_update_offset / video_bytes_per_scanline();
+	assert( is_update_draw_allowed );
+	return update_offset / video_bytes_per_scanline();
 }
 
-/* Page in drawing */
+/**
+ * Get the number of the page in drawing.
+ */
 unsigned update_page_get(void) {
-	assert( video_update_draw_allowed );
-	return _video_update_page;
+	assert( is_update_draw_allowed );
+	return update_page;
 }
 
-/* Start drawing to page */
+/**
+ * Start drawing to page.
+ * After this call you can call update_x_get() and update_y_get().
+ */
 void update_start(void) {
-	assert( video_update_draw_allowed == 0 );
-	video_update_draw_allowed = 1;
+	assert( is_update_draw_allowed == 0 );
+	is_update_draw_allowed = 1;
 	/* compute coordinate for drawing */
-	if (_video_update_page_max!=1) {
-		video_update_offset = _video_update_page * video_bytes_per_page();
+	if (update_page_max!=1) {
+		update_offset = update_page * video_bytes_per_page();
 	} else {
-		video_update_offset = 0;
+		update_offset = 0;
 	}
 
 	video_write_lock();
 }
 
-/* End drawing to page */
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, boolean wait_retrace) {
-	assert( video_update_draw_allowed );
-	video_update_draw_allowed = 0;
+/**
+ * End drawing a page.
+ * \param x,y,size_x,size_y Updated range of the screeb. These coordinates are absolute in the screen, not relative at the page.
+ * \param wait_retrace If a wait is required.
+ */
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace) {
+	assert( is_update_draw_allowed );
+	is_update_draw_allowed = 0;
 
 	video_write_unlock(x, y, size_x, size_y);
 
-	if (_video_update_page_max!=1) {
+	if (update_page_max!=1) {
 		unsigned offset;
-		offset = _video_update_page * video_bytes_per_page();
-		video_display_set_async(offset,wait_retrace);
+		offset = update_page * video_bytes_per_page();
+		video_display_set_async(offset, wait_retrace);
 
 		/* next page to draw */
-		++_video_update_page;
-		if (_video_update_page == _video_update_page_max)
-			_video_update_page = 0;
+		++update_page;
+		if (update_page == update_page_max)
+			update_page = 0;
 	} else {
 		if (wait_retrace)
 			video_wait_vsync();

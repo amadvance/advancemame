@@ -38,7 +38,7 @@ static unsigned char PNG_Signature[] = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
  * \param size Where to put the size of the chunk.
  * \param type Where to put the type of the chunk. 
  */
-int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type)
+adv_error png_read_chunk(adv_fz* f, unsigned char** data, unsigned* size, unsigned* type)
 {
 	unsigned char cl[4];
 	unsigned char ct[4];
@@ -93,7 +93,7 @@ err:
  * \param size Size of the chunk.
  * \param count Pointer at the number of bytes written. It may be 0.
  */
-int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count)
+adv_error png_write_chunk(adv_fz* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count)
 {
 	unsigned char v[4];
 	unsigned crc;
@@ -136,7 +136,7 @@ int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned si
  * Read the PNG file signature.
  * \param f File to read.
  */
-int png_read_signature(FZ* f)
+adv_error png_read_signature(adv_fz* f)
 {
 	unsigned char signature[8];
 
@@ -158,7 +158,7 @@ int png_read_signature(FZ* f)
  * \param f File to write.
  * \param count Pointer at the number of bytes written. It may be 0.
  */
-int png_write_signature(FZ* f, unsigned* count)
+adv_error png_write_signature(adv_fz* f, unsigned* count)
 {
 	if (fzwrite(PNG_Signature, 8, 1, f) != 1) {
 		error_set("Error writing the signature");
@@ -524,7 +524,7 @@ void png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsigned
  * \param data_size Size of the data chunk.
  * \param type Type of the data chunk.
  */
-int png_read_iend(FZ* f, const unsigned char* data, unsigned data_size, unsigned type)
+adv_error png_read_iend(adv_fz* f, const unsigned char* data, unsigned data_size, unsigned type)
 {
 	if (type == PNG_CN_IEND)
 		return 0;
@@ -578,12 +578,12 @@ int png_read_iend(FZ* f, const unsigned char* data, unsigned data_size, unsigned
  * \param data Pointer at the IHDR chunk. This chunk is not deallocated.
  * \param data_size Size of the IHDR chuck.
  */
-int png_read_ihdr(
+adv_error png_read_ihdr(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
-	FZ* f, const unsigned char* data, unsigned data_size
+	adv_fz* f, const unsigned char* data, unsigned data_size
 ) {
 	unsigned char* ptr;
 	unsigned ptr_size;
@@ -794,12 +794,12 @@ err:
  * \param pal_size Where to put the palette size in number of colors. Set to 0 if the image is RGB.
  * \param f File to read.
  */
-int png_read(
+adv_error png_read(
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
 	unsigned char** pal_ptr, unsigned* pal_size,
-	FZ* f
+	adv_fz* f
 ) {
 	unsigned char* data;
 	unsigned type;

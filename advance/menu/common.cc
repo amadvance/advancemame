@@ -165,8 +165,8 @@ string strip_comment(const string& s) {
 }
 
 bool file_findinzip_byname(const string& zip_file, const string& name, string& file, unsigned& crc) {
-	ZIP* zip;
-	struct zipent* ent;
+	adv_zip* zip;
+	adv_zipent* ent;
 
 	if (access(cpath_export(zip_file),F_OK)!=0)
 		return false;
@@ -191,8 +191,8 @@ bool file_findinzip_byname(const string& zip_file, const string& name, string& f
 }
 
 bool file_findinzip_byfile(const string& zip_file, const string& name, string& file, unsigned& crc) {
-	ZIP* zip;
-	struct zipent* ent;
+	adv_zip* zip;
+	adv_zipent* ent;
 
 	if (access(cpath_export(zip_file),F_OK)!=0)
 		return false;

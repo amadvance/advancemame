@@ -31,12 +31,12 @@
 #include "inone.h"
 #include "log.h"
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "No input" },
 { 0, 0, 0 }
 };
 
-error inputb_none_init(int inputb_id)
+adv_error inputb_none_init(int inputb_id)
 {
 	log_std(("inputb:none: inputb_none_init(id:%d)\n",inputb_id));
 
@@ -48,7 +48,7 @@ void inputb_none_done(void)
 	log_std(("inputb:none: inputb_none_done()\n"));
 }
 
-boolean inputb_none_hit(void)
+adv_bool inputb_none_hit(void)
 {
 	log_debug(("inputb:none: inputb_none_pos_get()\n"));
 
@@ -67,12 +67,12 @@ unsigned inputb_none_flags(void)
 	return 0;
 }
 
-error inputb_none_load(struct conf_context* context)
+adv_error inputb_none_load(adv_conf* context)
 {
 	return 0;
 }
 
-void inputb_none_reg(struct conf_context* context)
+void inputb_none_reg(adv_conf* context)
 {
 }
 

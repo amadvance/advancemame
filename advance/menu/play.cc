@@ -71,7 +71,7 @@ static bool play_file(unsigned channel, const resource& res, bool loop) {
 	string ext = file_ext(res.path_get());
 
 	if (ext == ".mp3") {
-		FZ* f = res.open();
+		adv_fz* f = res.open();
 		if (!f)
 			return false;
 
@@ -80,7 +80,7 @@ static bool play_file(unsigned channel, const resource& res, bool loop) {
 			return false;
 		}
 	} else if (ext == ".wav") {
-		FZ* f = res.open();
+		adv_fz* f = res.open();
 		if (!f)
 			return false;
 
@@ -101,14 +101,10 @@ static void play_wait(unsigned channel) {
 	}
 }
 
-static void play_stop(unsigned channel) {
-	mixer_stop(channel);
-}
-
 // --------------------------------------------------------------------------
 // Public
 
-void play_reg(struct conf_context* context) {
+void play_reg(adv_conf* context) {
 	mixer_reg(context);
 	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
@@ -116,7 +112,7 @@ void play_reg(struct conf_context* context) {
 	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
 }
 
-bool play_load(struct conf_context* context) {
+bool play_load(adv_conf* context) {
 	int attenuation;
 
 	if (mixer_load(context)!=0) {
@@ -251,7 +247,7 @@ void play_background_stop(unsigned priority) {
 		return;
 
 	play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
-	play_stop(CHANNEL_BACKGROUND);
+	mixer_stop(CHANNEL_BACKGROUND);
 }
 
 void play_background_wait() {

@@ -102,7 +102,7 @@ static unsigned vbe_adjust_scanline_size(unsigned size) {
  *   *pixel_length length in pixel
  *   *scanlines number of scanlines
  */
-static error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length, unsigned* scanlines) {
+static adv_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length, unsigned* scanlines) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -132,7 +132,7 @@ static error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length, uns
  *   Update correctly      vbe_state
  *   Length is incremented to an acceptable value
  */
-error vbe_scanline_set(unsigned byte_length) {
+adv_error vbe_scanline_set(unsigned byte_length) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -178,11 +178,11 @@ error vbe_scanline_set(unsigned byte_length) {
  * note:
  *   Length is incremented to an acceptable value
  */
-error vbe_scanline_pixel_set(unsigned pixel_length) {
+adv_error vbe_scanline_pixel_set(unsigned pixel_length) {
 	return vbe_scanline_set(pixel_length * vbe_state.bytes_per_pixel);
 }
 
-error vbe_scanline_pixel_request(unsigned pixel_length) {
+adv_error vbe_scanline_pixel_request(unsigned pixel_length) {
 	if (pixel_length > vbe_state.virtual_x) {
 		if (vbe_scanline_pixel_set(pixel_length) != 0) {
 			return -1;
@@ -209,7 +209,7 @@ static unsigned char* vbe_linear_write_line(unsigned y) {
  * return:
  *      0 on successfull
  */
-static error vbe_linear_init(void) {
+static adv_error vbe_linear_init(void) {
 	unsigned long linear;
 
 	assert( vbe_mode_is_active() );
@@ -315,7 +315,7 @@ static __inline__ void vbe_pm_call_ptr(uint32 addr, uint32 ebx, uint32 ecx, uint
  * note:
  *   Call after the mode set
  */
-static error vbe_pm_init(void) {
+static adv_error vbe_pm_init(void) {
 	__dpmi_regs r;
 	unsigned len;
 
@@ -438,7 +438,7 @@ static unsigned char* vbe_text_write_line(unsigned y) {
 /***************************************************************************/
 /* Mode */
 
-void vbe_mode_done(boolean restore) {
+void vbe_mode_done(adv_bool restore) {
 	assert( vbe_mode_is_active() );
 
 	if (vbe_linear_is_active())
@@ -459,7 +459,7 @@ void vbe_mode_done(boolean restore) {
 }
 
 #if 0 /* not used */
-static error vbe_dac_set(unsigned width) {
+static adv_error vbe_dac_set(unsigned width) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -499,7 +499,7 @@ static void vbe_rgb_data(int* shift, unsigned* mask, unsigned posbit, unsigned m
  *   inizialize linear frambuffer if requested
  *   if fail, video mode can be bronken
  */
-error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
+adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 	vbe_ModeInfoBlock info;
 	__dpmi_regs r;
 
@@ -593,7 +593,7 @@ error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 				log_std(("vbe: try setting 8 bit palette\n"));
 				if (vbe_dac_set(8)!=0) {
 					log_std(("vbe: set 8 bit palette FAILED\n"));
-					/* ignore error, if failed the default is 6 bit */
+					/* ignore adv_error, if failed the default is 6 bit */
 				}
 			}
 #endif
@@ -602,7 +602,7 @@ error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 		/* inizialize pm interface */
 		if (vbe_state.info.VESAVersion >= 0x200) {
 			if (vbe_pm_init() != 0) {
-				/* ignore error, don't use pm interface */
+				/* ignore adv_error, don't use pm interface */
 			}
 		}
 
@@ -633,7 +633,7 @@ error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 
 /* Get the current graphics mode
  */
-error vbe_mode_get(unsigned* mode) {
+adv_error vbe_mode_get(unsigned* mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -693,7 +693,7 @@ static void dosmodezcpy(unsigned* dst, unsigned segoff, unsigned len) {
  * return:
  *      0 on successfull
  */
-error vbe_init(void) {
+adv_error vbe_init(void) {
 	__dpmi_regs r;
 	char oem_string[256];
 	char oem_vendor[256];
@@ -711,7 +711,7 @@ error vbe_init(void) {
 
 		ret = __dpmi_allocate_dos_memory(size / 16, &ret_selector_or_max);
 		if (ret == -1) {
-			log_std(("vbe: error allocationg the VBE stack\n"));
+			log_std(("vbe: adv_error allocationg the VBE stack\n"));
 			error_set("Error allocatiog the VBE stack");
 			return -1;
 		}
@@ -796,7 +796,7 @@ error vbe_init(void) {
 	for(i=0;vbe_mode_map[i]!=0xFFFF;++i) {
 		vbe_ModeInfoBlock info;
 		if (vbe_mode_info_get(&info, vbe_mode_map[i])!=0) {
-			log_std(("vbe: error getting info for mode %x\n",(unsigned)vbe_mode_map[i]));
+			log_std(("vbe: adv_error getting info for mode %x\n",(unsigned)vbe_mode_map[i]));
 		} else {
 			if (!(info.ModeAttributes & vbeMdGraphMode)) {
 				log_std(("vbe: mode %4xh %4dx%4d text\n",vbe_mode_map[i],info.XResolution,info.YResolution));
@@ -845,7 +845,7 @@ unsigned vbe_adjust_bytes_per_page(unsigned bytes_per_page) {
  * note:
  *   VBE 3.0 information are always filled, also if VBE is less than 3.0
  */
-error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
+adv_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -937,7 +937,7 @@ error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	return 0;
 }
 
-error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
+adv_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	memset(info,0,sizeof(vbe_ModeInfoBlock));
 	if (mode == 0x13) {
 		info->ModeAttributes = vbeMdAvailable | vbeMdTTYOutput | vbeMdColorMode | vbeMdGraphMode | vbeMdDoubleScan;
@@ -966,7 +966,7 @@ error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 }
 
 
-error vbe_scroll(unsigned offset, boolean waitvsync) {
+adv_error vbe_scroll(unsigned offset, adv_bool waitvsync) {
 	assert( vbe_is_active() && vbe_mode_is_active() );
 
 #ifndef VBE_BOGUS
@@ -1011,7 +1011,7 @@ error vbe_scroll(unsigned offset, boolean waitvsync) {
 	return 0;
 }
 
-error vbe_request_scroll(unsigned offset) {
+adv_error vbe_request_scroll(unsigned offset) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1037,7 +1037,7 @@ error vbe_request_scroll(unsigned offset) {
  * note:
  *   This function is not supported by protected mode interface
  */
-error vbe_poll_scroll(unsigned* done) {
+adv_error vbe_poll_scroll(unsigned* done) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1076,7 +1076,7 @@ void vbe_wait_vsync(void) {
 #define VBE_PIXELCLOCK_MIN (1*1000*1000)
 
 /* Return the next avaliable pixel clock */
-error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
 	unsigned newpixelclock = *pixelclock + VBE_PIXELCLOCK_DELTA;
 	while (newpixelclock < VBE_PIXELCLOCK_MAX) {
 		unsigned testpixelclock = newpixelclock;
@@ -1093,7 +1093,7 @@ error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
 }
 
 /* Return the pred avaliable pixel clock */
-error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
 	unsigned newpixelclock = *pixelclock - VBE_PIXELCLOCK_DELTA;
 	while (newpixelclock > VBE_PIXELCLOCK_MIN) {
 		unsigned testpixelclock = newpixelclock;
@@ -1116,7 +1116,7 @@ error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
  * out:
  *   *pixelclock nearest pixelclock in Hz
  */
-error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1145,7 +1145,7 @@ error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
  * note:
  *   Prefferred are not real-protected switch required method
  */
-error vbe_palette_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
+adv_error vbe_palette_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned mode = waitvsync ? 0x80 : 0x0;
 
 	assert( vbe_is_active() && vbe_mode_is_active() );
@@ -1168,7 +1168,7 @@ error vbe_palette_set(const video_color* palette, unsigned start, unsigned count
 
 		log_debug(("vbe: palette set (%d bit) with VBE bios\n",(unsigned)vbe_state.palette_width));
 
-		dosmemput(palette, count * sizeof(video_color), __tb);
+		dosmemput(palette, count * sizeof(adv_color), __tb);
 
 		r.x.ax = 0x4F07;
 		r.x.bx = mode;
@@ -1196,7 +1196,7 @@ unsigned vbe_mode_iterator_get(vbe_mode_iterator* vmi) {
 	return vbe_mode_map[vmi->mode_ptr];
 }
 
-boolean vbe_mode_iterator_end(vbe_mode_iterator* vmi) {
+adv_bool vbe_mode_iterator_end(vbe_mode_iterator* vmi) {
 	return vbe_mode_map[vmi->mode_ptr] == 0xFFFF;
 }
 
@@ -1204,7 +1204,7 @@ void vbe_mode_iterator_next(vbe_mode_iterator* vmi) {
 	vmi->mode_ptr += 1;
 }
 
-error vbe_save_state(unsigned* psize, void** pptr) {
+adv_error vbe_save_state(unsigned* psize, void** pptr) {
 	__dpmi_regs r;
 	unsigned size;
 	void* ptr;
@@ -1247,7 +1247,7 @@ error vbe_save_state(unsigned* psize, void** pptr) {
 	return 0;
 }
 
-error vbe_restore_state(unsigned size, void* ptr) {
+adv_error vbe_restore_state(unsigned size, void* ptr) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));

@@ -7,6 +7,8 @@ AdvanceMENU Version 2.1.3 2002/09 (not yet released)
 		native drivers.
 	) Better ./configure script. It detects and automatically 
 		enables all the available libraries.
+	) Fixed a nasty bug on the DOS svgaline drivers in the
+		libdos_mode_done() function.
 
 AdvanceMENU Version 2.1.2 2002/09
 	) Added the support of the VSyncMAME audio drivers. This add

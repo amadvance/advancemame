@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Video driver definitions.
+ * Video adv_driver definitions.
  */
 
 /** \addtogroup Video */
@@ -50,7 +50,7 @@
 /* Driver */
 
 /** \name Mode Flags
- * Video driver flags for the mode type.
+ * Video adv_driver flags for the mode type.
  */
 /*@{*/
 #define VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT 0x1 /**< Support 8 bit modes. */
@@ -64,7 +64,7 @@
 /*@}*/
 
 /** \name Programmable Flags
- * Video driver flags for the mode programmable capabilities.
+ * Video adv_driver flags for the mode programmable capabilities.
  */
 /*@{*/
 #define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN 0x100 /**< Single scan mode. */
@@ -79,7 +79,7 @@
 /*@}*/
 
 /** \name Info Flags
- * Video driver flags for generic information.
+ * Video adv_driver flags for generic information.
  */
 /*@{*/
 #define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT 0x10000 /**< 8 bit depth is the preferred choice. */
@@ -92,7 +92,7 @@
 /*@}*/
 
 /** \name User Flags
- * Video driver flags for the user.
+ * Video adv_driver flags for the user.
  */
 /*@{*/
 #define VIDEO_DRIVER_FLAGS_USER_BIT0 0x1000000 /**< First user flags. */
@@ -100,27 +100,27 @@
 /*@}*/
 
 /**
- * Video driver.
- * This struct abstract all the driver funtionalities.
+ * Video adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
-typedef struct video_driver_struct {
-	const char* name; /**< Name of the main driver */
-	const device* device_map; /**< List of supported devices */
+typedef struct adv_video_driver_struct {
+	const char* name; /**< Name of the main adv_driver */
+	const adv_device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	error (*load)(struct conf_context* context);
+	adv_error (*load)(adv_conf* context);
 
 	/** Register the load options. Call before load(). */
-	void (*reg)(struct conf_context* context);
+	void (*reg)(adv_conf* context);
 
-	error (*init)(int id); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*init)(int id); /**< Initialize the adv_driver */
+	void (*done)(void); /**< Deinitialize the adv_driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
 
-	error (*mode_set)(const void* mode); /**< Set a video mode */
-	error (*mode_change)(const void* mode); /**< Change the video mode */
-	void (*mode_done)(boolean restore); /**< Reset a video mode */
+	adv_error (*mode_set)(const void* mode); /**< Set a video mode */
+	adv_error (*mode_change)(const void* mode); /**< Change the video mode */
+	void (*mode_done)(adv_bool restore); /**< Reset a video mode */
 
 	/* Information of the current video mode */
 	unsigned (*virtual_x)(void);
@@ -129,7 +129,7 @@ typedef struct video_driver_struct {
 	unsigned (*font_size_y)(void);
 	unsigned (*bytes_per_scanline)(void);
 	unsigned (*adjust_bytes_per_page)(unsigned bytes_per_page);
-	video_rgb_def (*rgb_def)(void);
+	adv_rgb_def (*rgb_def)(void);
 
 	void (*write_lock)(void); /**< Grant access in writing. */
 	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y); /**< Remove the lock for writing. */
@@ -137,21 +137,21 @@ typedef struct video_driver_struct {
 
 	/* Operations on the current video mode */
 	void (*wait_vsync)(void);
-	error (*scroll)(unsigned offset, int waitvsync);
-	error (*scanline_set)(unsigned byte_length);
-	error (*palette8_set)(const video_color* palette, unsigned start, unsigned count, int waitvsync);
+	adv_error (*scroll)(unsigned offset, int waitvsync);
+	adv_error (*scanline_set)(unsigned byte_length);
+	adv_error (*palette8_set)(const adv_color* palette, unsigned start, unsigned count, int waitvsync);
 	void (*unchained_plane_mask_set)(unsigned plane_mask);
 
-	/** Return the size of the driver video mode struct */
+	/** Return the size of the adv_driver video mode struct */
 	unsigned (*mode_size)(void);
-	error (*mode_grab)(void* mode);
-	error (*mode_generate)(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-	error (*mode_import)(video_mode* mode, const void* driver_mode);
+	adv_error (*mode_grab)(void* mode);
+	adv_error (*mode_generate)(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+	adv_error (*mode_import)(adv_mode* mode, const void* driver_mode);
 	int (*mode_compare)(const void* a, const void* b);
 
 	/** Insert a set of default modelines */
-	void (*crtc_container_insert_default)(video_crtc_container* cc);
-} video_driver;
+	void (*crtc_container_insert_default)(adv_crtc_container* cc);
+} adv_video_driver;
 
 #endif
 

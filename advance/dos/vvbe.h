@@ -47,17 +47,17 @@ typedef struct vbe_video_mode_struct {
 
 unsigned vbe_flags(void);
 
-error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode);
-error vbe_mode_grab(vbe_video_mode* mode);
-error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
+adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode);
+adv_error vbe_mode_grab(vbe_video_mode* mode);
+adv_error vbe_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b);
 
 /**
  * Video driver "vbe".
  * \ingroup Video
  */
-extern video_driver video_vbe_driver;
+extern adv_video_driver video_vbe_driver;
 
 #ifdef __cplusplus
 }

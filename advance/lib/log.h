@@ -35,6 +35,8 @@
 #ifndef __LOG_H
 #define __LOG_H
 
+#include "extra.h"
+
 #include <stdarg.h>
 
 #ifdef __cplusplus
@@ -44,28 +46,60 @@ extern "C" {
 /***************************************************************************/
 /* Log */
 
+void log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
+void log_f(const char *text, ...) __attribute__((format(printf,1,2)));
+void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);
+void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);
+
 /** \addtogroup Log */
 /*@{*/
 
-int log_init(const char* file, int sync_flag);
+adv_error log_init(const char* file, adv_bool sync_flag);
 void log_done(void);
 void log_abort(void);
 
-void log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
-void log_f(const char *text, ...) __attribute__((format(printf,1,2)));
-
-void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
-void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
-
+/**
+ * Print something in the standard log file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command.
+ */
 #define log_std(a) log_f a
+
+/**
+ * Print a modeline with blanking information in the standard log file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command. 
+ */
 #define log_std_modeline_cb(a) log_f_modeline_cb a
+
+/**
+ * Print a modeline in the standard log file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command. 
+ */
 #define log_std_modeline_c(a) log_f_modeline_c a
 
+/**
+ * Print a log entry in the debug output file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command.  
+ */
 #ifndef NDEBUG
 #define log_debug(a) log_f a
 #else
 #define log_debug(a) do { } while (0)
 #endif
+
+/**
+ * Print something in the pedantic log file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command.  
+ */
 #define log_pedantic(a) do { } while (0)
 
 /*@}*/

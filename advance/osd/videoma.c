@@ -185,7 +185,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
  * Adjust the CRTC value.
  * \return 0 on success
  */
-static int video_make_crtc(struct advance_video_context* context, video_crtc* crtc, const video_crtc* original_crtc)
+static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc, const adv_crtc* original_crtc)
 {
 	*crtc = *original_crtc;
 
@@ -395,8 +395,8 @@ static int video_update_depthindex(struct advance_video_context* context) {
  * Create the video mode from the crtc.
  * \return 0 on success
  */
-static int video_make_mode(struct advance_video_context* context, video_mode* mode, const video_crtc* crtc) {
-	if (video_mode_generate(mode,crtc,context->state.mode_bits_per_pixel,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc) {
+	if (video_mode_generate(mode,crtc,context->state.mode_bits_per_pixel,MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
 		return -1;
 	}
 
@@ -424,7 +424,7 @@ static void video_invalidate_screen(void) {
  * The mode is copyed in the context if it is set with success.
  * \return 0 on success
  */
-static int video_init_mode(struct advance_video_context* context, video_mode* mode)
+static int video_init_mode(struct advance_video_context* context, adv_mode* mode)
 {
 	assert( !context->state.mode_flag );
 
@@ -437,11 +437,11 @@ static int video_init_mode(struct advance_video_context* context, video_mode* mo
 	context->state.mode = *mode;
 
 	if (context->state.mode_rgb_flag
-		&& video_index() == VIDEO_FLAGS_INDEX_PACKED) {
+		&& video_index() == MODE_FLAGS_INDEX_PACKED) {
 		video_index_packed_to_rgb(0);
 	}
 	if (!context->state.mode_rgb_flag
-		&& video_index() == VIDEO_FLAGS_INDEX_RGB) {
+		&& video_index() == MODE_FLAGS_INDEX_RGB) {
 		video_index_rgb_to_packed();
 	}
 
@@ -475,7 +475,7 @@ static void video_done_mode(struct advance_video_context* context, int restore) 
 	context->state.mode_flag = 0;
 }
 
-static int video_update_mode(struct advance_video_context* context, video_mode* mode) {
+static int video_update_mode(struct advance_video_context* context, adv_mode* mode) {
 
 	/* destroy the pipeline, this force the pipeline update */
 	if (context->state.blit_pipeline_flag) {
@@ -493,11 +493,11 @@ static int video_update_mode(struct advance_video_context* context, video_mode* 
 		}
 	} else {
 		if (context->state.mode_rgb_flag
-			&& video_index() == VIDEO_FLAGS_INDEX_PACKED) {
+			&& video_index() == MODE_FLAGS_INDEX_PACKED) {
 			video_index_packed_to_rgb(0);
 		}
 		if (!context->state.mode_rgb_flag
-			&& video_index() == VIDEO_FLAGS_INDEX_RGB) {
+			&& video_index() == MODE_FLAGS_INDEX_RGB) {
 			video_index_rgb_to_packed();
 		}
 	}
@@ -688,12 +688,12 @@ static void video_invalidate_color(struct advance_video_context* context)
  *  - !=0 ok
  *  - ==0 error
  */
-static int is_crtc_acceptable(struct advance_video_context* context, const video_crtc* crtc) {
-	video_mode mode;
-	video_crtc temp_crtc;
+static int is_crtc_acceptable(struct advance_video_context* context, const adv_crtc* crtc) {
+	adv_mode mode;
+	adv_crtc temp_crtc;
 	unsigned bit;
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
 	/* try to adjust the crtc if required */
 	if (video_make_crtc(context,&temp_crtc,crtc) != 0)
@@ -710,7 +710,7 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
 		bit = 32;
 	if (!bit)
 		return 0;
-	if (video_mode_generate(&mode, &temp_crtc, bit, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, &temp_crtc, bit, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
 		/* generally this fail due the limitation of the video drivers */
 		/* for example the vgaline drivers accepts only some clocks */
 		return 0;
@@ -728,12 +728,12 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
  *  - !=0 ok
  *  - ==0 error
  */
-static int is_crtc_acceptable_preventive(struct advance_video_context* context, const video_crtc* crtc) {
-	video_mode mode;
-	video_crtc temp_crtc = *crtc;
+static int is_crtc_acceptable_preventive(struct advance_video_context* context, const adv_crtc* crtc) {
+	adv_mode mode;
+	adv_crtc temp_crtc = *crtc;
 	unsigned bit;
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 1; /* always ok if the driver is not programmable */
@@ -762,7 +762,7 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 		bit = 32;
 	if (!bit)
 		return 0;
-	if (video_mode_generate(&mode, &temp_crtc, bit, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, &temp_crtc, bit, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
 		/* generally this fail due the limitation of the video drivers */
 		/* for example the vgaline drivers accepts only some clocks */
 		return 0;
@@ -771,7 +771,7 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 	return 1;
 }
 
-static void video_update_visible(struct advance_video_context* context, const video_crtc* crtc) {
+static void video_update_visible(struct advance_video_context* context, const adv_crtc* crtc) {
 
 	assert( crtc );
 
@@ -915,8 +915,8 @@ static int video_resolution_cmp(const char* resolution, const char* name) {
  * Select the current video configuration.
  */
 static int video_update_crtc(struct advance_video_context* context) {
-	video_crtc_container_iterator i;
-	const video_crtc* crtc = 0;
+	adv_crtc_container_iterator i;
+	const adv_crtc* crtc = 0;
 	int j;
 
 	/* build the vector of config pointer */
@@ -924,8 +924,8 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	log_std(("advance:mode:select\n"));
 
-	for(video_crtc_container_iterator_begin(&i,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-		video_crtc* crtc = video_crtc_container_iterator_get(&i);
+	for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		if (is_crtc_acceptable(context,crtc)) {
 			if (context->state.crtc_mac < VIDEO_CRTC_MAX) {
 				context->state.crtc_map[context->state.crtc_mac] = crtc;
@@ -933,7 +933,7 @@ static int video_update_crtc(struct advance_video_context* context) {
 			}
 		} else {
 			char buffer[256];
-			video_crtc_print(buffer, crtc);
+			crtc_print(buffer, crtc);
 			log_std(("advance:excluded: modeline:\"%s\"\n", buffer));
 		}
 	}
@@ -944,7 +944,7 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	for(j=0;j<context->state.crtc_mac;++j) {
 		char buffer[256];
-		video_crtc_print(buffer, context->state.crtc_map[j]);
+		crtc_print(buffer, context->state.crtc_map[j]);
 		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
@@ -980,7 +980,7 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	{
 		char buffer[256];
-		video_crtc_print(buffer, crtc);
+		crtc_print(buffer, crtc);
 		log_std(("advance:selected: modeline:\"%s\"\n", buffer));
 	}
 
@@ -993,11 +993,11 @@ static int video_update_crtc(struct advance_video_context* context) {
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
  */
-static const video_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, int force_scanline, int force_interlace) {
+static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, int force_scanline, int force_interlace) {
 	char buffer[256];
-	video_crtc crtc;
+	adv_crtc crtc;
 	int err = -1;
-	const video_crtc* ret;
+	const adv_crtc* ret;
 
 	if (force_scanline) {
 		/* use only single scanline modes */
@@ -1037,10 +1037,10 @@ static const video_crtc* video_init_crtc_make_raster(struct advance_video_contex
 
 	strcpy(crtc.name,name);
 
-	video_crtc_print(buffer,&crtc);
+	crtc_print(buffer,&crtc);
 	log_std(("advance:generate: modeline \"%s\"\n",buffer));
 
-	ret = video_crtc_container_insert(&context->config.crtc_bag,&crtc);
+	ret = crtc_container_insert(&context->config.crtc_bag,&crtc);
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
 		log_std(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
@@ -1058,15 +1058,15 @@ static const video_crtc* video_init_crtc_make_raster(struct advance_video_contex
 static void video_init_crtc_make_fake(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y) {
 	char buffer[256];
 
-	video_crtc crtc;
+	adv_crtc crtc;
 	crtc_fake_set(&crtc, size_x, size_y);
 
 	strcpy(crtc.name,name);
-	video_crtc_print(buffer,&crtc);
+	crtc_print(buffer,&crtc);
 
 	log_std(("advance:generate: fake \"%s\"\n",buffer));
 
-	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
+	crtc_container_insert(&context->config.crtc_bag,&crtc);
 }
 
 /**
@@ -1075,7 +1075,7 @@ static void video_init_crtc_make_fake(struct advance_video_context* context, con
  */
 static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock) {
 	char buffer[256];
-	video_crtc crtc;
+	adv_crtc crtc;
 	int err = -1;
 
 	/* try with a perfect mode */
@@ -1103,10 +1103,10 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	strcpy(crtc.name,name);
 
-	video_crtc_print(buffer,&crtc);
+	crtc_print(buffer,&crtc);
 	log_std(("advance:generate: modeline \"%s\"\n",buffer));
 
-	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
+	crtc_container_insert(&context->config.crtc_bag,&crtc);
 }
 
 static unsigned best_step(unsigned value, unsigned step) {
@@ -1281,7 +1281,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
 			&& context->config.interpolate.mac > 0
 		) {
-			const video_crtc* crtc;
+			const adv_crtc* crtc;
 			crtc = video_init_crtc_make_raster(context, "generate",best_size_x, best_size_y, best_vclock, 0, 0);
 			if (!crtc || !crtc_is_singlescan(crtc))
 				video_init_crtc_make_raster(context, "generate-scanline",best_size_x, best_size_y, best_vclock, 1, 0);
@@ -1367,9 +1367,9 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 
 	/* set the rgb format for rgb games */
 	if (context->state.game_rgb_flag && req->rgb_components) {
-		req->rgb_components[0] = video_rgb_make_from_def(0xFF, 0x00, 0x00, context->state.game_rgb_def);
-		req->rgb_components[1] = video_rgb_make_from_def(0x00, 0xFF, 0x00, context->state.game_rgb_def);
-		req->rgb_components[2] = video_rgb_make_from_def(0x00, 0x00, 0xFF, context->state.game_rgb_def);
+		req->rgb_components[0] = rgb_make_from_def(0xFF, 0x00, 0x00, context->state.game_rgb_def);
+		req->rgb_components[1] = rgb_make_from_def(0x00, 0xFF, 0x00, context->state.game_rgb_def);
+		req->rgb_components[2] = rgb_make_from_def(0x00, 0x00, 0xFF, context->state.game_rgb_def);
 	}
 
 	return 0;
@@ -1508,7 +1508,7 @@ static __inline__ void video_frame_pipeline(struct advance_video_context* contex
 	if (context->state.blit_pipeline_flag)
 		return;
 
-	assert( *video_mode_name(&context->state.mode) );
+	assert( *mode_name(&context->state.mode) );
 
 	/* screen position */
 	context->state.blit_dst_x = (video_size_x() - context->state.mode_visible_size_x) / 2;
@@ -1649,14 +1649,14 @@ static __inline__ void video_frame_palette(struct advance_video_context* context
 							/* hardware */
 							/* note: trying to concatenate palette update */
 							/* generate flickering!, one color at time is ok! */
-							video_color adjusted_palette;
+							adv_color adjusted_palette;
 							adjusted_palette.red = osd_rgb_red(c);
 							adjusted_palette.green = osd_rgb_green(c);
 							adjusted_palette.blue = osd_rgb_blue(c);
 							video_palette_set(&adjusted_palette, p, 1, 0);
 						} else {
 							/* software */
-							video_rgb rgb;
+							adv_rgb rgb;
 							video_rgb_make(&rgb, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
 							context->state.palette_index_map[p] = rgb;
 						}
@@ -2168,7 +2168,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 
 		for(i=0;i<palette_size;++i) {
 			osd_rgb_t c = palette[i];
-			video_rgb rgb;
+			adv_rgb rgb;
 			video_rgb_make(&rgb, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
 			palette_raw[i] = rgb;
 		}
@@ -2424,13 +2424,13 @@ static void video_done_thread(struct advance_video_context* context) {
  * Update the state after a configuration change from the user interface.
  */
 int advance_video_change(struct advance_video_context* context) {
-	video_mode mode;
+	adv_mode mode;
 
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 #endif
 
-	video_mode_reset(&mode);
+	mode_reset(&mode);
 
 	if (video_update_depthindex(context) != 0) {
 		goto err;
@@ -2482,8 +2482,8 @@ int osd2_video_init(struct osd_video_option* req)
 	struct advance_video_context* context = &CONTEXT.video;
 	struct advance_input_context* input_context = &CONTEXT.input;
 
-	video_mode mode;
-	video_mode_reset(&mode);
+	adv_mode mode;
+	mode_reset(&mode);
 
 	log_std(("osd: osd_video_init\n"));
 
@@ -2795,14 +2795,14 @@ static unsigned video_orientation_inverse(unsigned orientation) {
 /***************************************************************************/
 /* Config */
 
-static struct conf_enum_int OPTION_RESIZE[] = {
+static adv_conf_enum_int OPTION_RESIZE[] = {
 { "none", STRETCH_NONE },
 { "integer", STRETCH_INTEGER_XY },
 { "fractional", STRETCH_FRACTIONAL_XY },
 { "mixed", STRETCH_INTEGER_X_FRACTIONAL_Y }
 };
 
-static struct conf_enum_int OPTION_RESIZEEFFECT[] = {
+static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "auto", COMBINE_AUTO },
 { "none", COMBINE_NONE },
 { "max", COMBINE_MAX },
@@ -2813,7 +2813,7 @@ static struct conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "scale2x", COMBINE_SCALE2X }
 };
 
-static struct conf_enum_int OPTION_ADJUST[] = {
+static adv_conf_enum_int OPTION_ADJUST[] = {
 { "none", ADJUST_NONE },
 { "x", ADJUST_ADJUST_X },
 { "clock", ADJUST_ADJUST_CLOCK },
@@ -2821,14 +2821,14 @@ static struct conf_enum_int OPTION_ADJUST[] = {
 { "generate", ADJUST_GENERATE }
 };
 
-static struct conf_enum_int OPTION_ROTATE[] = {
+static adv_conf_enum_int OPTION_ROTATE[] = {
 { "auto", ROTATE_AUTO },
 { "none", ROTATE_NONE },
 { "core", ROTATE_CORE },
 { "blit", ROTATE_BLIT }
 };
 
-static struct conf_enum_int OPTION_RGBEFFECT[] = {
+static adv_conf_enum_int OPTION_RGBEFFECT[] = {
 { "none", EFFECT_NONE },
 { "triad3dot", EFFECT_RGB_TRIAD3PIX },
 { "triad6dot", EFFECT_RGB_TRIAD6PIX },
@@ -2842,13 +2842,13 @@ static struct conf_enum_int OPTION_RGBEFFECT[] = {
 { "scan3vert", EFFECT_RGB_SCANTRIPLEVERT }
 };
 
-static struct conf_enum_int OPTION_INTERLACEEFFECT[] = {
+static adv_conf_enum_int OPTION_INTERLACEEFFECT[] = {
 { "none", EFFECT_NONE },
 { "odd", EFFECT_INTERLACE_ODD },
 { "even", EFFECT_INTERLACE_EVEN }
 };
 
-static struct conf_enum_int OPTION_DEPTH[] = {
+static adv_conf_enum_int OPTION_DEPTH[] = {
 { "auto", 0 },
 { "8", 8 },
 { "15", 15 },
@@ -2856,7 +2856,7 @@ static struct conf_enum_int OPTION_DEPTH[] = {
 { "32", 32 }
 };
 
-int advance_video_init(struct advance_video_context* context, struct conf_context* cfg_context) {
+int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context) {
 	/* save the configuration */
 	context->state.cfg_context = cfg_context;
 
@@ -2892,14 +2892,14 @@ int advance_video_init(struct advance_video_context* context, struct conf_contex
 #endif
 
 	monitor_register(cfg_context);
-	video_crtc_container_register(cfg_context);
+	crtc_container_register(cfg_context);
 	generate_interpolate_register(cfg_context);
 
 	video_reg(cfg_context, 1);
 	video_reg_driver_all(cfg_context);
 
 	/* load graphics modes */
-	video_crtc_container_init(&context->config.crtc_bag);
+	crtc_container_init(&context->config.crtc_bag);
 
 	return 0;
 }
@@ -2910,27 +2910,27 @@ static const char* GAME_BLIT_COMBINE_MAX[] = {
 };
 
 static void video_config_mode(struct advance_video_context* context, struct mame_option* option) {
-	video_crtc_container_iterator i;
-	video_crtc* best_crtc = 0;
+	adv_crtc_container_iterator i;
+	adv_crtc* best_crtc = 0;
 	int best_size;
 
 	/* insert some default modeline if no generate option is present and the modeline set is empty */
 	if ((context->config.adjust & ADJUST_GENERATE) == 0
-		&& video_crtc_container_is_empty(&context->config.crtc_bag)) {
+		&& crtc_container_is_empty(&context->config.crtc_bag)) {
 
 		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
-			video_crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
-			video_crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
+			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
+			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
 		} else {
-			video_crtc_container_insert_default_system(&context->config.crtc_bag);
+			crtc_container_insert_default_system(&context->config.crtc_bag);
 		}
 	}
 
 	/* set the debugger size */
 	option->debug_width = 640;
 	option->debug_height = 480;
-	for(video_crtc_container_iterator_begin(&i,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-		video_crtc* crtc = video_crtc_container_iterator_get(&i);
+	for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		/* if a specific mode is chosen, size the debugger like it */
 		if (is_crtc_acceptable_preventive(context,crtc)
 			&& video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0) {
@@ -2961,8 +2961,8 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		/* select the size of the mode near at the 640x480 size */
 		best_crtc = 0;
 		best_size = 0;
-		for(video_crtc_container_iterator_begin(&i,&context->config.crtc_bag);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-			video_crtc* crtc = video_crtc_container_iterator_get(&i);
+		for(crtc_container_iterator_begin(&i,&context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+			adv_crtc* crtc = crtc_container_iterator_get(&i);
 			if (is_crtc_acceptable_preventive(context,crtc)
 				&& (strcmp(context->config.resolution,"auto")==0
 					|| video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0
@@ -3002,7 +3002,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	}
 }
 
-int advance_video_config_load(struct advance_video_context* context, struct conf_context* cfg_context, struct mame_option* option) {
+int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option) {
 	const char* s;
 	int err;
 	unsigned i;
@@ -3131,10 +3131,10 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	if (err == 0) {
 		/* print the clock ranges */
 		log_std(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
-		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
+		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.hclock[i].low)
 				log_std(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
-		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
+		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.vclock[i].low)
 				log_std(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
 	}
@@ -3177,7 +3177,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 		return -1;
 	}
 
-	if (video_crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
+	if (crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
 		target_err("%s\n",error_get());
 		target_err("Invalid modeline.\n");
 		return -1;
@@ -3187,7 +3187,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 }
 
 void advance_video_done(struct advance_video_context* context) {
-	video_crtc_container_done(&context->config.crtc_bag);
+	crtc_container_done(&context->config.crtc_bag);
 }
 
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)

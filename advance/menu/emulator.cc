@@ -149,7 +149,7 @@ bool emulator::attrib_set(const string& value0, const string& value1) {
 	return true;
 }
 
-void emulator::attrib_get(struct conf_context* config_context, const char* section, const char* tag) {
+void emulator::attrib_get(adv_conf* config_context, const char* section, const char* tag) {
 	conf_string_set(config_context,section,tag, attrib_compile("missing", tristate(exclude_missing_orig)).c_str() );
 }
 
@@ -510,7 +510,7 @@ bool mame_info::attrib_set(const std::string& value0, const std::string& value1)
 	return true;
 }
 
-void mame_info::attrib_get(struct conf_context* config_context, const char* section, const char* tag) {
+void mame_info::attrib_get(adv_conf* config_context, const char* section, const char* tag) {
 	emulator::attrib_get(config_context, section, tag);
 	conf_string_set(config_context,section,tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str() );
 	conf_string_set(config_context,section,tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str() );
@@ -855,7 +855,7 @@ bool mame_mame::attrib_set(const std::string& value0, const std::string& value1)
 	return true;
 }
 
-void mame_mame::attrib_get(struct conf_context* config_context, const char* section, const char* tag) {
+void mame_mame::attrib_get(adv_conf* config_context, const char* section, const char* tag) {
 	mame_info::attrib_get(config_context, section, tag);
 
 	conf_string_set(config_context,section,tag, attrib_compile("neogeo", tristate(exclude_neogeo_orig)).c_str() );
@@ -1029,7 +1029,7 @@ string dmame::type_get() const {
 
 bool dmame::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.cfg";
 
@@ -1108,7 +1108,7 @@ string wmame::type_get() const {
 
 bool wmame::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.ini";
 
@@ -1187,7 +1187,7 @@ string xmame::type_get() const {
 
 bool xmame::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	char* home = getenv("HOME");
 	if (!home || !*home)
@@ -1272,7 +1272,7 @@ string advmame::type_get() const {
 
 bool advmame::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advmame.rc")),exe_dir_get());
 
@@ -1351,7 +1351,7 @@ string advpac::type_get() const {
 
 bool advpac::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advpac.rc")),exe_dir_get());
 
@@ -1462,7 +1462,7 @@ bool dmess::load_data(const game_set& gar) {
 
 bool dmess::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "mess.cfg";
 
@@ -1765,7 +1765,7 @@ bool advmess::load_data(const game_set& gar) {
 
 bool advmess::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advmess.rc")),exe_dir_get());
 
@@ -1992,8 +1992,8 @@ bool advmess::compile_ext(const game& g, unsigned& argc, const char* argv[], con
 ///
 // Scan the zip file for any supported file.
 bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], const string& zip_file) const {
-	ZIP* zip;
-	struct zipent* ent;
+	adv_zip* zip;
+	adv_zipent* ent;
 	bool something_found = false;
 
 	if (access(cpath_export(zip_file),F_OK)!=0)
@@ -2215,7 +2215,7 @@ bool raine_info::attrib_set(const std::string& value0, const std::string& value1
 	return true;
 }
 
-void raine_info::attrib_get(struct conf_context* config_context, const char* section, const char* tag) {
+void raine_info::attrib_get(adv_conf* config_context, const char* section, const char* tag) {
 	emulator::attrib_get(config_context, section, tag);
 	conf_string_set(config_context,section,tag, attrib_compile("clone", tristate(exclude_clone_orig)).c_str() );
 	conf_string_set(config_context,section,tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str() );
@@ -2438,7 +2438,7 @@ string draine::type_get() const {
 
 bool draine::load_cfg(const game_set& gar) {
 	const char* s;
-	struct conf_context* context;
+	adv_conf* context;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "config/raine.cfg";
 

@@ -31,12 +31,12 @@
 #include "knone.h"
 #include "log.h"
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "No keyboard" },
 { 0, 0, 0 }
 };
 
-error keyb_none_init(int keyb_id, boolean disable_special)
+adv_error keyb_none_init(int keyb_id, adv_bool disable_special)
 {
 	log_std(("keyb:none: keyb_none_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
 
@@ -76,12 +76,12 @@ unsigned keyb_none_flags(void)
 	return 0;
 }
 
-error keyb_none_load(struct conf_context* context)
+adv_error keyb_none_load(adv_conf* context)
 {
 	return 0;
 }
 
-void keyb_none_reg(struct conf_context* context)
+void keyb_none_reg(adv_conf* context)
 {
 }
 

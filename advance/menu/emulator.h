@@ -24,6 +24,7 @@
 #include "game.h"
 #include "crc.h"
 #include "choice.h"
+#include "conf.h"
 
 #include <time.h>
 
@@ -103,7 +104,7 @@ public:
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0,const std::string& value1);
-	virtual void attrib_get(struct conf_context* config_context, const char* section, const char* tag);
+	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
@@ -179,7 +180,7 @@ public:
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0,const std::string& value1);
-	virtual void attrib_get(struct conf_context* config_context, const char* section, const char* tag);
+	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 	virtual bool tree_get() const;
@@ -213,7 +214,7 @@ public:
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0,const std::string& value1);
-	virtual void attrib_get(struct conf_context* config_context, const char* section, const char* tag);
+	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 
@@ -319,7 +320,7 @@ public:
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0,const std::string& value1);
-	virtual void attrib_get(struct conf_context* config_context, const char* section, const char* tag);
+	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 	virtual bool tree_get() const;

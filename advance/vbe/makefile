@@ -7,10 +7,11 @@
 # Directories
 CARD = ..\card
 TSR = ..\tsr
+DOS = ..\dos
 
 # Macro
 CC = bcc
-CFLAGS = -c -mt! -O1 -3 -B -f- -I. -I$(CARD) -I$(TSR) \
+CFLAGS = -c -mt! -O1 -3 -B -f- -I. -I$(CARD) -I$(TSR) -I$(DOS) \
 	-D__PCIREAL__ -DNDEBUG
 # -c Compile only
 # -mt! Model TINY (CS==DS!=SS)
@@ -29,6 +30,9 @@ ASMFLAGS = -I. -I$(TSR)
 all: vbe.com
 
 {$(TSR)}.c.obj:
+	$(CC) $(CFLAGS) $<
+
+{$(DOS)}.c.obj:
 	$(CC) $(CFLAGS) $<
 
 {$(TSR)}.asm.obj:

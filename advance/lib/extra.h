@@ -49,7 +49,6 @@
 /** \defgroup String String */
 /** \defgroup Info Info */
 /** \defgroup Mixer Mixer */
-/** \defgroup RGB RGB */
 /*@}*/
 /** \defgroup Stream Streams */
 /*@{*/
@@ -96,14 +95,14 @@ extern "C" {
  *  - <0 is not ok
  *  - >0 special conditions
  */
-typedef int error;
+typedef int adv_error;
 
 /**
- * Type used to check the result of a boolean operation.
+ * Type used to check the result of a adv_bool operation.
  *  - ==0 false
  *  - !=0 true
  */
-typedef int boolean;
+typedef int adv_bool;
 
 typedef unsigned char uint8; /**< Unsigned 8 bit integer. */
 typedef signed char int8; /**< Signed 8 bit integer. */

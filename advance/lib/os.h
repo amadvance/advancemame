@@ -50,7 +50,7 @@ extern "C" {
 /**
  * Initialize the OS.
  */
-int os_init(struct conf_context* context);
+int os_init(adv_conf* context);
 
 /**
  * Deinitialize the OS.

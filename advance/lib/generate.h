@@ -45,7 +45,7 @@
 extern "C" {
 #endif
 
-typedef struct video_generate_struct {
+typedef struct adv_generate_struct {
 	double hactive;
 	double hfront;
 	double hsync;
@@ -54,54 +54,54 @@ typedef struct video_generate_struct {
 	double vfront;
 	double vsync;
 	double vback;
-} video_generate;
+} adv_generate;
 
-typedef struct video_generate_interpolate_struct {
+typedef struct adv_generate_interpolate_struct {
 	unsigned hclock;
-	video_generate gen;
-} video_generate_interpolate;
+	adv_generate gen;
+} adv_generate_interpolate;
 
 #define GENERATE_INTERPOLATE_MAX 8
 
-typedef struct video_generate_interpolate_set_struct {
+typedef struct adv_generate_interpolate_set_struct {
 	unsigned mac;
-	video_generate_interpolate map[GENERATE_INTERPOLATE_MAX];
-} video_generate_interpolate_set;
+	adv_generate_interpolate map[GENERATE_INTERPOLATE_MAX];
+} adv_generate_interpolate_set;
 
-void generate_crtc(video_crtc* crtc, unsigned hsize, unsigned vsize, const video_generate* generate);
-void generate_crtc_change_horz(video_crtc* crtc, unsigned hsize);
-void generate_crtc_change_vert(video_crtc* crtc, unsigned vsize);
+void generate_crtc(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate);
+void generate_crtc_change_horz(adv_crtc* crtc, unsigned hsize);
+void generate_crtc_change_vert(adv_crtc* crtc, unsigned vsize);
 
-void generate_pixel_clock(video_crtc* crtc, double clock);
-void generate_horz_clock(video_crtc* crtc, double clock);
-void generate_vert_clock(video_crtc* crtc, double clock);
+void generate_pixel_clock(adv_crtc* crtc, double clock);
+void generate_horz_clock(adv_crtc* crtc, double clock);
+void generate_vert_clock(adv_crtc* crtc, double clock);
 
 #define GENERATE_ADJUST_EXACT CRTC_ADJUST_EXACT
 #define GENERATE_ADJUST_VCLOCK CRTC_ADJUST_VCLOCK
 #define GENERATE_ADJUST_VTOTAL CRTC_ADJUST_VTOTAL
-error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust);
-error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
-error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
+adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate* generate, unsigned capability, unsigned adjust);
+adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
+adv_error generate_find_interpolate_double(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
 
-void generate_default_vga(video_generate* generate);
-void generate_default_atari_standard(video_generate* generate);
-void generate_default_atari_extended(video_generate* generate);
-void generate_default_atari_medium(video_generate* generate);
-void generate_default_atari_vga(video_generate* generate);
-void generate_default_pal(video_generate* generate);
-void generate_default_ntsc(video_generate* generate);
-void generate_default_lcd(video_generate* generate);
+void generate_default_vga(adv_generate* generate);
+void generate_default_atari_standard(adv_generate* generate);
+void generate_default_atari_extended(adv_generate* generate);
+void generate_default_atari_medium(adv_generate* generate);
+void generate_default_atari_vga(adv_generate* generate);
+void generate_default_pal(adv_generate* generate);
+void generate_default_ntsc(adv_generate* generate);
+void generate_default_lcd(adv_generate* generate);
 
-void generate_normalize(video_generate* generate);
-void generate_interpolate_h(video_generate* monitor, unsigned hclock, const video_generate_interpolate_set* interpolate);
+void generate_normalize(adv_generate* generate);
+void generate_interpolate_h(adv_generate* monitor, unsigned hclock, const adv_generate_interpolate_set* interpolate);
 
-void generate_interpolate_reset(video_generate_interpolate_set* interpolate);
-boolean generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate);
-error generate_parse(video_generate* generate, const char* g);
-error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate);
-void generate_interpolate_save(struct conf_context* context, const video_generate_interpolate_set* interpolate);
-void generate_interpolate_clear(struct conf_context* context);
-void generate_interpolate_register(struct conf_context* context);
+void generate_interpolate_reset(adv_generate_interpolate_set* interpolate);
+adv_bool generate_interpolate_is_empty(const adv_generate_interpolate_set* interpolate);
+adv_error generate_parse(adv_generate* generate, const char* g);
+adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_set* interpolate);
+void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate_set* interpolate);
+void generate_interpolate_clear(adv_conf* context);
+void generate_interpolate_register(adv_conf* context);
 
 #ifdef __cplusplus
 }

@@ -9,12 +9,17 @@
 #define _LIBVGA_H
 
 #include <string.h>
-
-//typedef unsigned int CARD32;
-//typedef unsigned short CARD16;
-//typedef unsigned char CARD8;
+#include <stdlib.h>
 
 #include "libdos.h"
+
+/* override system functions */
+#define malloc libdos_malloc
+#define calloc libdos_calloc
+#define free libdos_free
+#define mmap libdos_mmap
+#define munmap libdos_munmap
+#define iopl libdos_iopl
 
 /* --------------------- Macro definitions shared by library modules */
 

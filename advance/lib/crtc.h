@@ -58,7 +58,7 @@ extern "C" {
 
 #define CRTC_NAME_MAX 128
 
-typedef struct video_crtc_struct {
+typedef struct adv_crtc_struct {
 	/** \name Horizontal
 	 * Horizontal CRTC values.
 	 * Normalized 1 unit==1 pixel
@@ -86,10 +86,10 @@ typedef struct video_crtc_struct {
 
 	char name[CRTC_NAME_MAX]; /**< Name. */
 
-	struct video_crtc_struct* container_next; /**< Used by the container. */
+	struct adv_crtc_struct* container_next; /**< Used by the container. */
 
 	unsigned user_flags; /**< Flags for the user. */
-} video_crtc;
+} adv_crtc;
 
 /* Allowed steps in CRTC values */
 #define CRTC_HSTEP 8
@@ -97,159 +97,159 @@ typedef struct video_crtc_struct {
 
 unsigned crtc_step(double v, unsigned st);
 
-error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor);
+adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor);
 
 #define CRTC_ADJUST_EXACT 0x0001 /**< Find the exact modes */
 #define CRTC_ADJUST_VCLOCK 0x0002 /**< Find also modes with different vclock */
 #define CRTC_ADJUST_VTOTAL 0x0004 /**< Find also modes with different vtotal */
-error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust);
+adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const adv_monitor* monitor, unsigned cap, unsigned adjust);
 
-double crtc_hclock_get(const video_crtc* crtc);
-double crtc_vclock_get(const video_crtc* crtc);
+double crtc_hclock_get(const adv_crtc* crtc);
+double crtc_vclock_get(const adv_crtc* crtc);
 
-static __inline__ double crtc_pclock_get(const video_crtc* crtc) {
+static inline double crtc_pclock_get(const adv_crtc* crtc) {
 	return crtc->pixelclock;
 }
 
-int crtc_scan_get(const video_crtc* crtc);
+int crtc_scan_get(const adv_crtc* crtc);
 
 /** Check if a CRTC specification is interlaced. */
-static __inline__  boolean crtc_is_interlace(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_interlace(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_INTERLACE) != 0;
 }
 
 /** Check if a CRTC specification is doublescan. */
-static __inline__  boolean crtc_is_doublescan(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_doublescan(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_DOUBLESCAN) != 0;
 }
 
 /** Check if a CRTC specification is singlescan. */
-static __inline__  boolean crtc_is_singlescan(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_singlescan(const adv_crtc* crtc) {
 	return !crtc_is_doublescan(crtc) && !crtc_is_interlace(crtc);
 }
 
 /** Check if a CRTC specification is tvpal. */
-static __inline__  boolean crtc_is_tvpal(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_tvpal(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_TVPAL) != 0;
 }
 
 /** Check if a CRTC specification is tvntsc. */
-static __inline__  boolean crtc_is_tvntsc(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_tvntsc(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_TVNTSC) != 0;
 }
 
 /** Check if a CRTC specification is notv. */
-static __inline__  boolean crtc_is_notv(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_notv(const adv_crtc* crtc) {
 	return !crtc_is_tvpal(crtc) && !crtc_is_tvntsc(crtc);
 }
 
 /** Check if a CRTC specification is negative horizontal sync. */
-static __inline__  boolean crtc_is_nhsync(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_nhsync(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_NHSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive horizontal sync. */
-static __inline__  boolean crtc_is_phsync(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_phsync(const adv_crtc* crtc) {
 	return !crtc_is_nhsync(crtc);
 }
 
 /** Check if a CRTC specification is negative vertical sync. */
-static __inline__  boolean crtc_is_nvsync(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_nvsync(const adv_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_NVSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive vertical sync. */
-static __inline__  boolean crtc_is_pvsync(const video_crtc* crtc) {
+static inline  adv_bool crtc_is_pvsync(const adv_crtc* crtc) {
 	return !crtc_is_nvsync(crtc);
 }
 
 /** Return the name of the CRTC specification. */
-static __inline__ const char* crtc_name_get(const video_crtc* crtc) {
+static inline const char* crtc_name_get(const adv_crtc* crtc) {
 	return crtc->name;
 }
 
-void crtc_reset(video_crtc* crtc);
-void crtc_reset_all(video_crtc* crtc);
+void crtc_reset(adv_crtc* crtc);
+void crtc_reset_all(adv_crtc* crtc);
 
 /**
  * Set the specified flag in the CRTC specification.
  */
-static __inline__ void crtc_flags_set(video_crtc* crtc, unsigned flag, unsigned mask) {
+static inline void crtc_flags_set(adv_crtc* crtc, unsigned flag, unsigned mask) {
 	crtc->flags &= ~mask;
 	crtc->flags |= flag;
 }
 
-static __inline__ void crtc_nhsync_set(video_crtc* crtc) {
+static inline void crtc_nhsync_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_NHSYNC, CRTC_FLAGS_NHSYNC);
 }
 
-static __inline__ void crtc_phsync_set(video_crtc* crtc) {
+static inline void crtc_phsync_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_NHSYNC);
 }
 
-static __inline__ void crtc_nvsync_set(video_crtc* crtc) {
+static inline void crtc_nvsync_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_NVSYNC, CRTC_FLAGS_NVSYNC);
 }
 
-static __inline__ void crtc_pvsync_set(video_crtc* crtc) {
+static inline void crtc_pvsync_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_NVSYNC);
 }
 
-static __inline__ void crtc_singlescan_set(video_crtc* crtc) {
+static inline void crtc_singlescan_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static __inline__ void crtc_doublescan_set(video_crtc* crtc) {
+static inline void crtc_doublescan_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_DOUBLESCAN, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static __inline__ void crtc_interlace_set(video_crtc* crtc) {
+static inline void crtc_interlace_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_INTERLACE, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
 }
 
-static __inline__ void crtc_notv_set(video_crtc* crtc) {
+static inline void crtc_notv_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, 0, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
-static __inline__ void crtc_tvpal_set(video_crtc* crtc) {
+static inline void crtc_tvpal_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_TVPAL, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
-static __inline__ void crtc_tvntsc_set(video_crtc* crtc) {
+static inline void crtc_tvntsc_set(adv_crtc* crtc) {
 	crtc_flags_set(crtc, CRTC_FLAGS_TVNTSC, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
-void crtc_name_set(video_crtc* crtc, const char* name);
+void crtc_name_set(adv_crtc* crtc, const char* name);
 
-void crtc_vclock_set(video_crtc* crtc, double vclock);
-void crtc_hclock_set(video_crtc* crtc, double hclock);
-void crtc_pclock_set(video_crtc* crtc, double pclock);
-void crtc_hsize_set(video_crtc* crtc, unsigned hsize);
-void crtc_vsize_set(video_crtc* crtc, unsigned vsize);
+void crtc_vclock_set(adv_crtc* crtc, double vclock);
+void crtc_hclock_set(adv_crtc* crtc, double hclock);
+void crtc_pclock_set(adv_crtc* crtc, double pclock);
+void crtc_hsize_set(adv_crtc* crtc, unsigned hsize);
+void crtc_vsize_set(adv_crtc* crtc, unsigned vsize);
 
 /**
  * Return the horizontal size in pixel of the CRTC specification.
  */
-static __inline__  unsigned crtc_hsize_get(const video_crtc* crtc) {
+static inline  unsigned crtc_hsize_get(const adv_crtc* crtc) {
 	return crtc->hde;
 }
 
 /**
  * Return the vertical size in pixel of the CRTC specification.
  */
-static __inline__  unsigned crtc_vsize_get(const video_crtc* crtc) {
+static inline  unsigned crtc_vsize_get(const adv_crtc* crtc) {
 	return crtc->vde;
 }
 
-boolean crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc);
+adv_bool crtc_clock_check(const adv_monitor* monitor, const adv_crtc* crtc);
 
-int video_crtc_compare(const video_crtc* A, const video_crtc* B);
+int crtc_compare(const adv_crtc* A, const adv_crtc* B);
 
-error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end);
-void video_crtc_print(char* buffer, const video_crtc* crtc);
+adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end);
+void crtc_print(char* buffer, const adv_crtc* crtc);
 
-void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y);
-boolean crtc_is_fake(const video_crtc* crtc);
+void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y);
+adv_bool crtc_is_fake(const adv_crtc* crtc);
 
 #ifdef __cplusplus
 }

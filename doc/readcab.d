@@ -9,8 +9,9 @@ Name
 		http://advancemame.sourceforge.net
 
 	This package contains :
-		vga - VGA mode remapper
-		vbe - VBE mode remapper
+		vga - VGA bios wrapper
+		vbe - VBE bios wrapper
+		vbe32 - VBE bios
 		off - Shutdown the PC
 		video - Video control
 		portio - Input/output on hardware ports

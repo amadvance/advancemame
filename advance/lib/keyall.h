@@ -58,7 +58,7 @@ extern "C" {
 /** \addtogroup Keyboard */
 /*@{*/
 
-void keyb_reg_driver_all(struct conf_context* context);
+void keyb_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

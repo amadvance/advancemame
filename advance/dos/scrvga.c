@@ -182,7 +182,7 @@ void vga_regs_offset_set(struct vga_regs* regs, unsigned value) {
 	regs->crtc[0x13] = mask(value,0,8);
 }
 
-void vga_regs_chained_set(struct vga_regs* regs, boolean chained) {
+void vga_regs_chained_set(struct vga_regs* regs, adv_bool chained) {
 	if (chained) {
 		/* turn on the Chain-4 bit */
 		regs->seq[0x4] = setregmask( 1, 3, 1, regs->seq[0x4]);
@@ -511,7 +511,7 @@ void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count)
 	}
 }
 
-error vga_palette6_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
+adv_error vga_palette6_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned i;
 
 	if (waitvsync)
@@ -529,7 +529,7 @@ error vga_palette6_set(const video_color* palette, unsigned start, unsigned coun
 	return 0;
 }
 
-error vga_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
+adv_error vga_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned i;
 
 	if (waitvsync)
@@ -595,7 +595,7 @@ void vga_unchained_plane_set(unsigned plane) {
 	vga_unchained_plane_mask_set( 1 << plane );
 }
 
-void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, boolean set) {
+void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, adv_bool set) {
 	unsigned addr = 0xa0000 + slot * 8192;
 
 	unsigned char seq_2 = vga_inb(VGAREG_SEQ_ADDR, 2);
@@ -643,7 +643,7 @@ void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, boolean set
 	vga_outb(VGAREG_GRACON_ADDR, 0x6, gracon_6); /* map start */
 }
 
-unsigned vga_font_map_get(boolean bit) {
+unsigned vga_font_map_get(adv_bool bit) {
 	unsigned c = vga_inb(VGAREG_SEQ_ADDR, 0x3);
 
 	if (bit)
@@ -665,7 +665,7 @@ void vga_font_map_set(unsigned bit_0_slot, unsigned bit_1_slot) {
 	vga_outb(VGAREG_SEQ_ADDR, 0x0, 0x3); /* reset off */
 }
 
-void vga_font_size_set(boolean use_512) {
+void vga_font_size_set(adv_bool use_512) {
 
 	if (use_512)
 		/* disable intensity bit */
@@ -709,14 +709,14 @@ unsigned vga_dotclock_nearest_get(unsigned dotclock) {
 	return vga_dotclock[best];
 }
 
-static unsigned vga_regs_clock_multiplier_get(boolean is_text) {
+static unsigned vga_regs_clock_multiplier_get(adv_bool is_text) {
 	if (is_text)
 		return 1;
 	else
 		return 2;
 }
 
-unsigned vga_pixelclock_nearest_get(unsigned pixelclock, boolean is_text) {
+unsigned vga_pixelclock_nearest_get(unsigned pixelclock, adv_bool is_text) {
 	unsigned multiplier;
 
 	multiplier = vga_regs_clock_multiplier_get(is_text);
@@ -731,7 +731,7 @@ unsigned vga_pixelclock_nearest_get(unsigned pixelclock, boolean is_text) {
 }
 
 /* Return the next avaliable pixel clock */
-unsigned vga_pixelclock_next_get(unsigned pixelclock, boolean is_text) {
+unsigned vga_pixelclock_next_get(unsigned pixelclock, adv_bool is_text) {
 	unsigned i;
 	unsigned multiplier;
 
@@ -752,7 +752,7 @@ unsigned vga_pixelclock_next_get(unsigned pixelclock, boolean is_text) {
 }
 
 /* Return the pred avaliable pixel clock */
-unsigned vga_pixelclock_pred_get(unsigned pixelclock, boolean is_text) {
+unsigned vga_pixelclock_pred_get(unsigned pixelclock, adv_bool is_text) {
 	unsigned i;
 	unsigned multiplier;
 

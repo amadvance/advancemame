@@ -49,16 +49,16 @@ extern "C" {
 /* Driver */
 
 /**
- * Keyboard driver.
- * This struct abstract all the driver funtionalities.
+ * Keyboard adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
 typedef struct keyb_driver_struct {
-	const char* name; /**< Name of the driver. */
-	const device* device_map; /**< Vector of supported devices. 0 terminated. */
+	const char* name; /**< Name of the adv_driver. */
+	const adv_device* device_map; /**< Vector of supported devices. 0 terminated. */
 	
-	error (*load)(struct conf_context* context);
-	void (*reg)(struct conf_context* context);
-	error (*init)(int device_id, boolean disable_special);
+	adv_error (*load)(adv_conf* context);
+	void (*reg)(adv_conf* context);
+	adv_error (*init)(int device_id, adv_bool disable_special);
 	void (*done)(void);
 	unsigned (*flags)(void);
 	unsigned (*get)(unsigned code);
@@ -72,81 +72,78 @@ typedef struct keyb_driver_struct {
 #define KEYB_DRIVER_MAX 8
 
 /**
- * State of the driver system.
+ * State of the adv_driver system.
  */
 struct keyb_state_struct {
-	boolean is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
-	boolean is_active_flag; /**< If the keyb_init() function was called. */
+	adv_bool is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
+	adv_bool is_active_flag; /**< If the keyb_init() function was called. */
 	unsigned driver_mac; /**< Number of registered drivers. */
 	keyb_driver* driver_map[KEYB_DRIVER_MAX]; /**< Registered drivers. */
-	keyb_driver* driver_current; /**< Current driver active. 0 if none. */
-	char name[DEVICE_NAME_MAX]; /**< Name of the driver to use. */
+	keyb_driver* driver_current; /**< Current adv_driver active. 0 if none. */
+	char name[DEVICE_NAME_MAX]; /**< Name of the adv_driver to use. */
 };
 
 /**
- * Global state of the driver system.
+ * Global state of the adv_driver system.
  */
 extern struct keyb_state_struct keyb_state;
 
 /** \addtogroup Keyboard */
 /*@{*/
 
-/** \name User Flags
- * Capabilities flags of the keyboard drivers.
+/** \name Flags user
+ * Flags for the user.
  */
 /*@{*/
-/** First user flag. */
-#define KEYB_DRIVER_FLAGS_USER_BIT0 0x10000
-/** User flag mask. */
-#define KEYB_DRIVER_FLAGS_USER_MASK 0xFFFF0000
+#define KEYB_DRIVER_FLAGS_USER_BIT0 0x10000 /**< First user flag. */
+#define KEYB_DRIVER_FLAGS_USER_MASK 0xFFFF0000 /**< Mask. */
 /*@}*/
 
-
 /**
- * Register the load option of the keyboard driver.
+ * Register the load option of the keyboard adv_driver.
  * \param config_context Configuration context to use.
- * \param auto_detect Enable the autodetection if no keyboard driver is specified.
+ * \param auto_detect Enable the autodetection if no keyboard adv_driver is specified.
  */
-void keyb_reg(struct conf_context* config_context, boolean auto_detect);
+void keyb_reg(adv_conf* config_context, adv_bool auto_detect);
 
 /**
- * Register the load options of the specified driver.
+ * Register the load options of the specified adv_driver.
  * Call before load().
  * \param config_context Configuration context to use.
- * \param driver Driver to register.
+ * \param adv_driver Driver to register.
  */
-void keyb_reg_driver(struct conf_context* config_context, keyb_driver* driver);
+void keyb_reg_driver(adv_conf* config_context, keyb_driver* adv_driver);
 
 /**
  * Load the configuration options.
  * Call before init().
  * \param config_context Configuration context to use.
  */
-error keyb_load(struct conf_context* config_context);
+adv_error keyb_load(adv_conf* config_context);
 
 /**
- * Initialize the keyboard driver.
+ * Initialize the keyboard adv_driver.
  * \param disable_special Disable the special OS keys combinations.
  */
-error keyb_init(boolean disable_special);
+adv_error keyb_init(adv_bool disable_special);
 
 /**
- * Deinitialize the keyboard driver.
+ * Deinitialize the keyboard adv_driver.
  * Call it only after a succesful keyb_init().
  */
 void keyb_done(void);
 
 /**
- * Abort the keyboard driver.
+ * Abort the keyboard adv_driver.
  * This function can be called from a signal handler, also if the keyboard
- * driver isn't initialized.
+ * adv_driver isn't initialized.
  */
 void keyb_abort(void);
 
 /**
- * Return the capabilities flag of the keyboard driver.
+ * Return the capabilities flag of the keyboard adv_driver.
  */
-static __inline__ unsigned keyb_flags(void) {
+static inline unsigned keyb_flags(void) {
 	assert( keyb_state.is_active_flag );
 
 	return keyb_state.driver_current->flags();
@@ -159,7 +156,7 @@ static __inline__ unsigned keyb_flags(void) {
  *  - == 0 not pressed
  *  - != 0 pressed
  */
-static __inline__ unsigned keyb_get(unsigned code) {
+static inline unsigned keyb_get(unsigned code) {
 	assert( keyb_state.is_active_flag );
 
 	return keyb_state.driver_current->get(code);
@@ -169,7 +166,7 @@ static __inline__ unsigned keyb_get(unsigned code) {
  * Get the status of all the keys.
  * \param code_map The destination vector of KEYB_MAX elements.
  */
-static __inline__ void keyb_all_get(unsigned char* code_map) {
+static inline void keyb_all_get(unsigned char* code_map) {
 	assert( keyb_state.is_active_flag );
 
 	keyb_state.driver_current->all_get(code_map);
@@ -180,17 +177,17 @@ static __inline__ void keyb_all_get(unsigned char* code_map) {
  * This function must be called periodically to ensure that
  * the keyboard events are processed.
  */
-static __inline__ void keyb_poll(void) {
+static inline void keyb_poll(void) {
 	assert( keyb_state.is_active_flag );
 
 	keyb_state.driver_current->poll();
 }
 
 /**
- * Get the driver/device name.
+ * Get the adv_driver/adv_device name.
  * \return Pointer at a static buffer.
  */
-static __inline__ const char* keyb_name(void) {
+static inline const char* keyb_name(void) {
 	return keyb_state.name;
 }
 

@@ -416,7 +416,7 @@ static char* input_map_axe_desc[INPUT_PLAYER_AXE_MAX] = {
 	"x", "y", "z", "pedal"
 };
 
-int advance_input_init(struct advance_input_context* context, struct conf_context* cfg_context) {
+int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context) {
 	unsigned i;
 
 	conf_bool_register_default(cfg_context, "input_hotkey", 1);
@@ -730,7 +730,7 @@ static int parse_mouse(int* map, char* s) {
 	return 0;
 }
 
-int advance_input_config_load(struct advance_input_context* context, struct conf_context* cfg_context) {
+int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context) {
 	const char* s;
 	unsigned i,j,k;
 

@@ -153,12 +153,12 @@ static struct keyb_pair {
 
 static struct keyb_sdl_context sdl_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SDL keyboard" },
 { 0, 0, 0 }
 };
 
-error keyb_sdl_init(int keyb_id, boolean disable_special)
+adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -239,12 +239,12 @@ unsigned keyb_sdl_flags(void)
 	return 0;
 }
 
-error keyb_sdl_load(struct conf_context* context)
+adv_error keyb_sdl_load(adv_conf* context)
 {
 	return 0;
 }
 
-void keyb_sdl_reg(struct conf_context* context)
+void keyb_sdl_reg(adv_conf* context)
 {
 }
 

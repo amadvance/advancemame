@@ -28,8 +28,6 @@
 
 using namespace std;
 
-#include "option.h"
-
 // **************************************************************************
 // clock
 
@@ -847,6 +845,10 @@ void help() {
 	cout << "\t/vga             Generic VGA monitor" << endl;
 	cout << "\t/svga60          Generic SVGA multisync 60 Hz monitor" << endl;
 	cout << "\t/svga57          Generic SVGA multisync 57 Hz monitor" << endl;
+}
+
+int optionmatch(const char* arg, const char* opt) {
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
 }
 
 int main(int argc, char* argv[]) {

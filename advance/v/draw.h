@@ -43,8 +43,8 @@
 /***************************************************************************/
 /* Video crtc container extension */
 
-video_crtc* video_crtc_container_pos(video_crtc_container* vmc, unsigned pos);
-unsigned video_crtc_container_max(video_crtc_container* vmc);
+adv_crtc* crtc_container_pos(adv_crtc_container* vmc, unsigned pos);
+unsigned crtc_container_max(adv_crtc_container* vmc);
 
 /***************************************************************************/
 /* Sound */
@@ -59,28 +59,28 @@ void sound_signal(void);
 /* Monitor */
 
 /* Video monitor specifications */
-extern video_monitor the_monitor;
+extern adv_monitor the_monitor;
 
 /* Video mode generator specifications */
-extern video_generate_interpolate_set the_interpolate;
+extern adv_generate_interpolate_set the_interpolate;
 
-extern video_gtf the_gtf;
+extern adv_gtf the_gtf;
 
 /***************************************************************************/
 /* Text output */
 
 #define DEFAULT_TEXT_MODE "default_text"
 
-extern video_crtc_container the_modes; /* main video mode container */
+extern adv_crtc_container the_modes; /* main video mode container */
 extern int the_modes_modified; /* container need to be saved */
-extern video_mode the_default_mode;  /* Default video mode */
+extern adv_mode the_default_mode;  /* Default video mode */
 extern int the_default_mode_flag; /* Default video mode set */
 
 unsigned text_size_x(void);
 unsigned text_size_y(void);
 void text_clear(void);
 void text_set_font(void);
-int text_video_crtc_compare(const video_crtc* a, const video_crtc* b);
+int text_crtc_compare(const adv_crtc* a, const adv_crtc* b);
 void text_init(void);
 void text_reset(void);
 void text_done(void);

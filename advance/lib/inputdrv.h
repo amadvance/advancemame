@@ -84,33 +84,33 @@ extern "C" {
 #define INPUT_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
 /**
- * Input driver.
- * This struct abstract all the driver funtionalities.
+ * Input adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
 typedef struct inputb_driver_struct {
-	const char* name; /**< Name of the driver */
-	const device* device_map; /**< List of supported devices */
+	const char* name; /**< Name of the adv_driver */
+	const adv_device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	error (*load)(struct conf_context* context);
+	adv_error (*load)(adv_conf* context);
 
 	/** Register the load options. Call before load(). */
-	void (*reg)(struct conf_context* context);
+	void (*reg)(adv_conf* context);
 
-	error (*init)(int device_id); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the adv_driver */
+	void (*done)(void); /**< Deinitialize the adv_driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
 
-	boolean (*hit)(void);
+	adv_bool (*hit)(void);
 	unsigned (*get)(void);
 } inputb_driver;
 
 #define INPUT_DRIVER_MAX 8
 
 struct inputb_state_struct {
-	boolean is_initialized_flag;
-	boolean is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	inputb_driver* driver_map[INPUT_DRIVER_MAX];
 	inputb_driver* driver_current;
@@ -119,30 +119,30 @@ struct inputb_state_struct {
 
 extern struct inputb_state_struct inputb_state;
 
-void inputb_reg(struct conf_context* config_context, boolean auto_detect);
-void inputb_reg_driver(struct conf_context* config_context, inputb_driver* driver);
-error inputb_load(struct conf_context* config_context);
-error inputb_init(void);
+void inputb_reg(adv_conf* config_context, adv_bool auto_detect);
+void inputb_reg_driver(adv_conf* config_context, inputb_driver* adv_driver);
+adv_error inputb_load(adv_conf* config_context);
+adv_error inputb_init(void);
 void inputb_done(void);
 void inputb_abort(void);
 
-static __inline__ boolean inputb_hit(void) {
+static inline adv_bool inputb_hit(void) {
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->hit();
 }
 
-static __inline__ unsigned inputb_get(void) {
+static inline unsigned inputb_get(void) {
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->get();
 }
 
 /**
- * Get the driver/device name.
+ * Get the adv_driver/adv_device name.
  * \return Pointer at a static buffer.
  */
-static __inline__ const char* inputb_name(void) {
+static inline const char* inputb_name(void) {
 	return inputb_state.name;
 }
 

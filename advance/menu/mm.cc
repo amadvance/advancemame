@@ -26,7 +26,6 @@
 #include "log.h"
 #include "target.h"
 #include "os.h"
-#include "option.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -281,7 +280,7 @@ int run_main(config_state& rs, bool is_first, bool silent) {
 //---------------------------------------------------------------------------
 // run_all
 
-int run_all(struct conf_context* config_context, config_state& rs) {
+int run_all(adv_conf* config_context, config_state& rs) {
 	bool done = false;
 	bool is_first = true;
 	bool silent = false;
@@ -359,7 +358,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 
 #ifdef __MSDOS__
 /* LEGACY (to be removed) */
-static struct conf_conv CONV[] = {
+static adv_conf_conv CONV[] = {
 { "", "video_mode_reset", "*", "", "video_restore", "%s", 0 },
 { "", "video_font", "no", "", "%s", "none", 0 },
 { "", "merge", "no", "", "%s", "none", 0 },
@@ -396,7 +395,7 @@ static struct conf_conv CONV[] = {
 };
 #endif
 
-static struct conf_conv STANDARD[] = {
+static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
 #endif
@@ -457,7 +456,7 @@ void os_signal(int signum) {
 
 int os_main(int argc, char* argv[]) {
 	config_state rs;
-	struct conf_context* config_context;
+	adv_conf* config_context;
 	bool opt_verbose;
 	bool opt_log;
 	bool opt_default;
@@ -505,15 +504,15 @@ int os_main(int argc, char* argv[]) {
 	opt_remove = false;
 	opt_default = false;
 	for(int i=1;i<argc;++i) {
-		if (optionmatch(argv[i],"verbose")) {
+		if (target_option(argv[i],"verbose")) {
 			opt_verbose = true;
-		} else if (optionmatch(argv[i],"remove")) {
+		} else if (target_option(argv[i],"remove")) {
 			opt_remove = true;
-		} else if (optionmatch(argv[i],"default")) {
+		} else if (target_option(argv[i],"default")) {
 			opt_default = true;
-		} else if (optionmatch(argv[i],"log")) {
+		} else if (target_option(argv[i],"log")) {
 			opt_log = true;
-		} else if (optionmatch(argv[i],"logsync")) {
+		} else if (target_option(argv[i],"logsync")) {
 			opt_logsync = true;
 		} else {
 			target_err("Unknown option '%s'.\n",argv[i]);

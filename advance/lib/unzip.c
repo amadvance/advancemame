@@ -59,7 +59,7 @@ static int ecd_find_sig(char *buffer, int buflen, int *offset)
 */
 #define ECD_READ_BUFFER_SIZE 1024
 
-static int ecd_read(ZIP* zip, char** data, unsigned* size) {
+static int ecd_read(adv_zip* zip, char** data, unsigned* size) {
 	char* buf;
 	int buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
 	int buf_pos_aligned = buf_pos & ~(ECD_READ_BUFFER_SIZE-1);
@@ -115,12 +115,12 @@ static int ecd_read(ZIP* zip, char** data, unsigned* size) {
 	}
 }
 
-ZIP* openzip(const char* zipfile) {
+adv_zip* openzip(const char* zipfile) {
 	char* ezdata = 0;
 	unsigned ezsize = 0;
 
 	/* allocate */
-	ZIP* zip = (ZIP*)malloc( sizeof(ZIP) );
+	adv_zip* zip = (adv_zip*)malloc( sizeof(adv_zip) );
 	if (!zip) {
 		return 0;
 	}
@@ -239,7 +239,7 @@ ZIP* openzip(const char* zipfile) {
 	return zip;
 }
 
-struct zipent* readzip(ZIP* zip) {
+adv_zipent* readzip(adv_zip* zip) {
 	unsigned i;
 
 	/* end of directory */
@@ -277,7 +277,7 @@ struct zipent* readzip(ZIP* zip) {
 	memcpy(zip->ent.name, zip->cd+zip->cd_pos+ZIP_CO_filename, zip->ent.filename_length);
 	zip->ent.name[zip->ent.filename_length] = 0;
 
-	/* convert to lower case, the DOS ZIP are case insensitive */
+	/* convert to lower case, the DOS adv_zip are case insensitive */
 	for(i=0;zip->ent.name[i];++i)
 		zip->ent.name[i] = tolower(zip->ent.name[i]);
 
@@ -287,7 +287,7 @@ struct zipent* readzip(ZIP* zip) {
 	return &zip->ent;
 }
 
-void closezip(ZIP* zip) {
+void closezip(adv_zip* zip) {
 	/* release all */
 	free(zip->ent.name);
 	free(zip->cd);
@@ -297,16 +297,16 @@ void closezip(ZIP* zip) {
 	free(zip);
 }
 
-void rewindzip(ZIP* zip) {
+void rewindzip(adv_zip* zip) {
 	zip->cd_pos = 0;
 }
 
 /* Seek zip->fp to compressed data
    return:
 	==0 success
-	<0 error
+	<0 adv_error
 */
-static int seekcompresszip(ZIP* zip, struct zipent* ent) {
+static int seekcompresszip(adv_zip* zip, adv_zipent* ent) {
 	char buf[ZIP_LO_FIXED];
 	long offset;
 
@@ -334,7 +334,7 @@ static int seekcompresszip(ZIP* zip, struct zipent* ent) {
 	return 0;
 }
 
-int readcompresszip(ZIP* zip, struct zipent* ent, char* data) {
+int readcompresszip(adv_zip* zip, adv_zipent* ent, char* data) {
 	int err = seekcompresszip(zip,ent);
 	if (err!=0)
 		return err;

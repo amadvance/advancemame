@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-struct bitmap* pcx_load(FZ* f, video_color* rgb, unsigned* rgb_max);
+adv_bitmap* pcx_load(adv_fz* f, adv_color* rgb, unsigned* rgb_max);
 
 #ifdef __cplusplus
 };

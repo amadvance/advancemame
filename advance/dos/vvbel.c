@@ -57,10 +57,10 @@ typedef struct vbeline_chipset_struct {
 } vbeline_chipset;
 
 typedef struct vbeline_internal_struct {
-	boolean active; /* !=0 if present */
+	adv_bool active; /* !=0 if present */
 	vbeline_chipset* driver;
-	boolean mode_active; /* !=0 if mode set */
-	boolean enable_vbe; /**< !=0 if vbe_init() was called */
+	adv_bool mode_active; /* !=0 if mode set */
+	adv_bool enable_vbe; /**< !=0 if vbe_init() was called */
 
 	unsigned size_x;
 	unsigned size_y;
@@ -89,7 +89,7 @@ unsigned char* (*vbeline_write_line)(unsigned y);
 #define VBELINE_OPTION_CHOICE_800 8
 
 struct vbeline_option_struct {
-	boolean initialized;
+	adv_bool initialized;
 	double clock_16bit_multiplier;
 	double clock_8bit_multiplier;
 	double clock_multiplier;
@@ -103,7 +103,7 @@ static struct vbeline_option_struct vbeline_option;
 
 #define VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", 1, "VBELINE video" },
 { "laguna", 2, "Cirrus Laguna" },
 { "3dfx", 3, "3dfx" },
@@ -148,7 +148,7 @@ static void vbeline_card_old_setup(card_mode* co, const vbe_ModeInfoBlock* info)
 	co->bits_per_pixel = info->BitsPerPixel;
 }
 
-static void vbeline_card_setup(card_crtc* cp, card_mode* cm, const vbe_ModeInfoBlock* info, const video_crtc* crtc, unsigned mode) {
+static void vbeline_card_setup(card_crtc* cp, card_mode* cm, const vbe_ModeInfoBlock* info, const adv_crtc* crtc, unsigned mode) {
 
 	/* a lot of values are NOT initialized */
 	memset(cm,0,sizeof(card_mode));
@@ -211,10 +211,10 @@ void card_log(const char* text,...) {
 /***************************************************************************/
 /* Public */
 
-error vbeline_init(int device_id) {
+adv_error vbeline_init(int device_id) {
 	unsigned i;
 	const char* name;
-	const device* j;
+	const adv_device* j;
 
 	assert( !vbeline_is_active() );
 
@@ -281,11 +281,11 @@ void vbeline_done(void) {
 	vbeline_state.active = 0;
 }
 
-boolean vbeline_is_active(void) {
+adv_bool vbeline_is_active(void) {
 	return vbeline_state.active != 0;
 }
 
-boolean vbeline_mode_is_active(void) {
+adv_bool vbeline_mode_is_active(void) {
 	return vbeline_state.mode_active != 0;
 }
 
@@ -386,9 +386,9 @@ static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_C
 	return 0;
 }
 
-error vbeline_mode_set(const vbeline_video_mode* mode) {
+adv_error vbeline_mode_set(const vbeline_video_mode* mode) {
 	unsigned mode_request = mode->mode;
-	video_crtc crtc_request = mode->crtc;
+	adv_crtc crtc_request = mode->crtc;
 	vbe_CRTCInfoBlock vbe3_crtc_request;
 	vbe_ModeInfoBlock vbe_info_request;
 
@@ -454,7 +454,7 @@ error vbeline_mode_set(const vbeline_video_mode* mode) {
 	}
 
 	if (vbeline_state.driver->set(&cp,&cm,&co) <= 0) {
-		log_std(("vbeline: error in the video driver mode set\n"));
+		log_std(("vbeline: adv_error in the video driver mode set\n"));
 		vbe_mode_done(1);
 		error_set("Error in the video driver mode set");
 		return -1;
@@ -474,7 +474,7 @@ error vbeline_mode_set(const vbeline_video_mode* mode) {
 	return 0;
 }
 
-void vbeline_mode_done(boolean restore) {
+void vbeline_mode_done(adv_bool restore) {
 	assert( vbeline_is_active() );
 	assert( vbeline_mode_is_active() );
 
@@ -488,7 +488,7 @@ void vbeline_mode_done(boolean restore) {
 	vbeline_state.mode_active = 0;
 }
 
-error vbeline_mode_change(const vbeline_video_mode* mode) {
+adv_error vbeline_mode_change(const vbeline_video_mode* mode) {
 	vbeline_mode_done(0);
 
 	return vbeline_mode_set(mode);
@@ -506,8 +506,8 @@ void vbeline_wait_vsync(void) {
 	vbe_wait_vsync();
 }
 
-error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
-	video_color vbe_pal[256];
+adv_error vbeline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+	adv_color vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
 	if (shift) {
@@ -564,7 +564,7 @@ unsigned vbeline_mode_size(void) {
 
 #define DRIVER(mode) ((vbeline_video_mode*)(&mode->driver_mode))
 
-error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode) {
+adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_mode) {
 	vbe_ModeInfoBlock info;
 
 	strcpy(mode->name, vbeline_mode->crtc.name);
@@ -623,27 +623,27 @@ error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mo
 	}
 
 	mode->driver = &video_vbeline_driver;
-	mode->flags = VIDEO_FLAGS_ASYNC_SETPAGE |
-		(mode->flags & VIDEO_FLAGS_USER_MASK);
+	mode->flags = MODE_FLAGS_SCROLL_ASYNC |
+		(mode->flags & MODE_FLAGS_USER_MASK);
 	if ((info.ModeAttributes & vbeMdTripleBuffer) != 0)
-		mode->flags |= VIDEO_FLAGS_SYNC_SETPAGE;
+		mode->flags |= MODE_FLAGS_SCROLL_SYNC;
 	switch (info.MemoryModel) {
 		case vbeMemTXT :
-			mode->flags |= VIDEO_FLAGS_INDEX_TEXT | VIDEO_FLAGS_TYPE_TEXT;
+			mode->flags |= MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_TYPE_TEXT;
 			break;
 		case vbeMemPK :
-			mode->flags |= VIDEO_FLAGS_INDEX_PACKED | VIDEO_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
 			break;
 		case vbeMemRGB :
-			mode->flags |= VIDEO_FLAGS_INDEX_RGB | VIDEO_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
 			break;
 		default :
 			return -1;
 	}
 	if (DRIVER(mode)->mode & vbeLinearBuffer)
-		mode->flags |= VIDEO_FLAGS_MEMORY_LINEAR;
+		mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
 	else
-		mode->flags |= VIDEO_FLAGS_MEMORY_BANKED;
+		mode->flags |= MODE_FLAGS_MEMORY_BANKED;
 
 	mode->size_x = DRIVER(mode)->crtc.hde;
 	mode->size_y = DRIVER(mode)->crtc.vde;
@@ -806,7 +806,7 @@ static int vbeline_search_target_mode(unsigned req_x, unsigned req_y, unsigned b
 	return -1;
 }
 
-error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
 	int number;
 	unsigned model;
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
@@ -816,11 +816,11 @@ error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, un
 	if (video_mode_generate_check("vbeline",vbeline_flags(),8,2048,crtc,bits,flags)!=0)
 		return -1;
 
-	switch (flags & VIDEO_FLAGS_INDEX_MASK) {
-		case VIDEO_FLAGS_INDEX_RGB :
+	switch (flags & MODE_FLAGS_INDEX_MASK) {
+		case MODE_FLAGS_INDEX_RGB :
 			model = vbeMemRGB;
 			break;
-		case VIDEO_FLAGS_INDEX_PACKED :
+		case MODE_FLAGS_INDEX_PACKED :
 			model = vbeMemPK;
 			break;
 		default:
@@ -852,7 +852,7 @@ error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, un
 
 int vbeline_mode_compare(const vbeline_video_mode* a, const vbeline_video_mode* b) {
 	COMPARE(a->mode,b->mode);
-	return video_crtc_compare(&a->crtc,&b->crtc);
+	return crtc_compare(&a->crtc,&b->crtc);
 }
 
 void vbeline_default(void) {
@@ -864,7 +864,7 @@ void vbeline_default(void) {
 	vbeline_option.initialized = 1;
 }
 
-static struct conf_enum_int OPTION_CHOICE[] = {
+static adv_conf_enum_int OPTION_CHOICE[] = {
 { "bigger", VBELINE_OPTION_CHOICE_BIGGER },
 { "smaller", VBELINE_OPTION_CHOICE_SMALLER },
 { "smaller_upto640", VBELINE_OPTION_CHOICE_SMALLER_UPTO640 },
@@ -876,9 +876,9 @@ static struct conf_enum_int OPTION_CHOICE[] = {
 { "320", VBELINE_OPTION_CHOICE_320 }
 };
 
-static struct conf_enum_string OPTION_DRIVER[CARD_MAX + 2];
+static adv_conf_enum_string OPTION_DRIVER[CARD_MAX + 2];
 
-void vbeline_reg(struct conf_context* context) {
+void vbeline_reg(adv_conf* context) {
 	unsigned i;
 
 	assert( !vbeline_is_active() );
@@ -894,7 +894,7 @@ void vbeline_reg(struct conf_context* context) {
 	conf_float_register_limit_default(context, "device_vbeline_16bit_clock_multiplier", 0.25, 4.0, 1.0);
 }
 
-error vbeline_load(struct conf_context* context) {
+adv_error vbeline_load(adv_conf* context) {
 
 	/* Options must be loaded before initialization */
 	assert( !vbeline_is_active() );
@@ -912,19 +912,19 @@ error vbeline_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static error vbeline_mode_change_void(const void* mode) {
+static adv_error vbeline_mode_change_void(const void* mode) {
 	return vbeline_mode_change((const vbeline_video_mode*)mode);
 }
 
-static error vbeline_mode_set_void(const void* mode) {
+static adv_error vbeline_mode_set_void(const void* mode) {
 	return vbeline_mode_set((const vbeline_video_mode*)mode);
 }
 
-static error vbeline_mode_import_void(video_mode* mode, const void* vbeline_mode) {
+static adv_error vbeline_mode_import_void(adv_mode* mode, const void* vbeline_mode) {
 	return vbeline_mode_import(mode, (const vbeline_video_mode*)vbeline_mode);
 }
 
-static error vbeline_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error vbeline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
 	return vbeline_mode_generate((vbeline_video_mode*)mode, crtc, bits, flags);
 }
 
@@ -932,7 +932,7 @@ static int vbeline_mode_compare_void(const void* a, const void* b) {
 	return vbeline_mode_compare((const vbeline_video_mode*)a, (const vbeline_video_mode*)b);
 }
 
-video_driver video_vbeline_driver = {
+adv_video_driver video_vbeline_driver = {
 	"vbeline",
 	DEVICE,
 	vbeline_load,

@@ -59,27 +59,27 @@ extern "C" {
 typedef short sound_sample_t;
 
 /**
- * Sound driver.
- * This struct abstract all the driver funtionalities.
+ * Sound adv_driver.
+ * This struct abstract all the adv_driver funtionalities.
  */
 typedef struct sound_driver_struct {
-	const char* name; /**< Name of the driver */
-	const device* device_map; /**< List of supported devices */
+	const char* name; /**< Name of the adv_driver */
+	const adv_device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	error (*load)(struct conf_context* context);
+	adv_error (*load)(adv_conf* context);
 
 	/** Register the load options. Call before load(). */
-	void (*reg)(struct conf_context* context);
+	void (*reg)(adv_conf* context);
 
-	error (*init)(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time); /**< Initialize the driver */
-	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the adv_driver */
+	void (*done)(void); /**< Deinitialize the adv_driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
 
 	void (*play)(const sound_sample_t* sample_map, unsigned sample_count);
 	unsigned (*buffered)(void);
-	error (*start)(double silence_time);
+	adv_error (*start)(double silence_time);
 	void (*stop)(void);
 	void (*volume)(double v);
 } sound_driver;
@@ -87,9 +87,9 @@ typedef struct sound_driver_struct {
 #define SOUND_DRIVER_MAX 8
 
 struct sound_state_struct {
-	boolean is_initialized_flag;
-	boolean is_active_flag;
-	boolean is_playing_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
+	adv_bool is_playing_flag;
 	unsigned driver_mac;
 	sound_driver* driver_map[SOUND_DRIVER_MAX];
 	sound_driver* driver_current;
@@ -98,26 +98,26 @@ struct sound_state_struct {
 
 struct sound_state_struct sound_state;
 
-void sound_reg(struct conf_context* config_context, boolean auto_detect);
-void sound_reg_driver(struct conf_context* config_context, sound_driver* driver);
-error sound_load(struct conf_context* config_context);
-error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
+void sound_reg(adv_conf* config_context, adv_bool auto_detect);
+void sound_reg_driver(adv_conf* config_context, sound_driver* adv_driver);
+adv_error sound_load(adv_conf* config_context);
+adv_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
 void sound_done(void);
 void sound_abort(void);
 
-static __inline__ void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
+static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->play(sample_map,sample_count);
 }
 
-static __inline__ unsigned sound_buffered(void) {
+static inline unsigned sound_buffered(void) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	return sound_state.driver_current->buffered();
 }
 
-static __inline__ void sound_stop(void) {
+static inline void sound_stop(void) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->stop();
@@ -125,7 +125,7 @@ static __inline__ void sound_stop(void) {
 	sound_state.is_playing_flag = 0;
 }
 
-static __inline__ error sound_start(double silence_time) {
+static inline adv_error sound_start(double silence_time) {
 	assert( sound_state.is_active_flag && !sound_state.is_playing_flag );
 
 	if (sound_state.driver_current->start(silence_time) != 0)
@@ -140,17 +140,17 @@ static __inline__ error sound_start(double silence_time) {
  * Set the output volume.
  * \param v Volume. 1 is the maximum. 0 is silence.
  */
-static __inline__ void sound_volume(double v) {
+static inline void sound_volume(double v) {
 	assert( sound_state.is_active_flag );
 
 	sound_state.driver_current->volume(v);
 }
 
 /**
- * Get the driver/device name.
+ * Get the adv_driver/adv_device name.
  * \return Pointer at a static buffer.
  */
-static __inline__ const char* sound_name(void) {
+static inline const char* sound_name(void) {
 	return sound_state.name;
 }
 

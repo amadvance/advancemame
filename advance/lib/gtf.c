@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static error gtf_find_nomargin(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
+static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust) {
 	unsigned vtotal;
 	double factor;
 
@@ -100,7 +100,7 @@ static error gtf_find_nomargin(video_crtc* crtc, unsigned hsize, unsigned vsize,
 	return 0;
 }
 
-error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
+adv_error gtf_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust) {
 	unsigned vmargin = crtc_step( vsize * gtf->margin_frac, CRTC_VSTEP );
 	unsigned hmargin = crtc_step( hsize * gtf->margin_frac, CRTC_HSTEP );
 
@@ -119,7 +119,7 @@ error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, 
 	return 0;
 }
 
-void gtf_default_vga(video_gtf* gtf) {
+void gtf_default_vga(adv_gtf* gtf) {
 	/* from MPGLib */
 	gtf->margin_frac = 0.018;
 	gtf->v_min_frontporch_lines = 1;

@@ -28,6 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "log.h"
 #include "target.h"
 
 #include <stdio.h>
@@ -37,11 +38,15 @@
 
 struct log_context {
 	FILE* msg;
-	int msg_sync_flag;
+	adv_bool msg_sync_flag;
 };
 
 static struct log_context LOG;
 
+/**
+ * Print something with the printv format in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
 void log_va(const char *text, va_list arg) {
 	if (LOG.msg) {
 		vfprintf(LOG.msg,text,arg);
@@ -53,6 +58,10 @@ void log_va(const char *text, va_list arg) {
 	}
 }
 
+/**
+ * Print something with the printf format in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
 void log_f(const char *text, ...) {
 	va_list arg;
 	va_start(arg, text);
@@ -60,7 +69,12 @@ void log_f(const char *text, ...) {
 	va_end(arg);
 }
 
-void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+
+/**
+ * Print a modeline with blanking information in the log file.
+ * This function must not be called directly. One of the log_* macro must be used. 
+ */
+void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
 {
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
@@ -74,7 +88,11 @@ void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, uns
 	);
 }
 
-void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+/**
+ * Print a modeline in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
+void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
 {
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
@@ -88,7 +106,12 @@ void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsi
 	);
 }
 
-int log_init(const char* file, int sync_flag) {
+/** 
+ * Initialize the log system.
+ * \param file Log file. The file is overwritten.
+ * \param sync_flag If set the file and the filesystem is flushed at every write. The function target_sync() is called.
+ */
+adv_error log_init(const char* file, adv_bool sync_flag) {
 
 	LOG.msg_sync_flag = sync_flag;
 	LOG.msg = 0;
@@ -102,6 +125,9 @@ int log_init(const char* file, int sync_flag) {
 	return 0;
 }
 
+/** 
+ * Deinitialize the log system.
+ */
 void log_done(void) {
 	if (LOG.msg) {
 		fclose(LOG.msg);
@@ -109,6 +135,11 @@ void log_done(void) {
 	}
 }
 
+/**
+ * Abort the logging.
+ * This function ensure that the log file is flushed. 
+ * It can be called in a signal handler in any condition.
+ */
 void log_abort(void) {
 	if (LOG.msg) {
 		fclose(LOG.msg);

@@ -51,7 +51,7 @@ static char error_buffer[ERROR_DESC_MAX];
 /**
  * Flag set if an unsupported PNG feature is found.
  */
-static boolean error_unsupported_flag;
+static adv_bool error_unsupported_flag;
 
 /**
  * Get the current error description.
@@ -111,7 +111,7 @@ void error_unsupported_set(const char* text, ...)
  *  - ==0 Not found.
  *  - !=0 Unsupported feature found.
  */
-boolean error_unsupported_get(void)
+adv_bool error_unsupported_get(void)
 {
 	return error_unsupported_flag;
 }

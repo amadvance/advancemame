@@ -77,7 +77,7 @@ extern "C" {
 /** \addtogroup Video */
 /*@{*/
 
-void video_reg_driver_all(struct conf_context* context);
+void video_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

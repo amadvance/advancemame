@@ -45,12 +45,12 @@ struct joystickb_sdl_context {
 
 static struct joystickb_sdl_context sdl_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SDL joystick" },
 { 0, 0, 0 }
 };
 
-error joystickb_sdl_init(int joystickb_id)
+adv_error joystickb_sdl_init(int joystickb_id)
 {
 	unsigned i;
 
@@ -231,12 +231,12 @@ unsigned joystickb_sdl_flags(void)
 	return 0;
 }
 
-error joystickb_sdl_load(struct conf_context* context)
+adv_error joystickb_sdl_load(adv_conf* context)
 {
 	return 0;
 }
 
-void joystickb_sdl_reg(struct conf_context* context)
+void joystickb_sdl_reg(adv_conf* context)
 {
 }
 

@@ -51,7 +51,7 @@ struct pcx_decode_state {
 	uint8 value;
 };
 
-static void pcx_decode(uint8* buffer, unsigned size, FZ* f, struct pcx_decode_state* state, unsigned delta) {
+static void pcx_decode(uint8* buffer, unsigned size, adv_fz* f, struct pcx_decode_state* state, unsigned delta) {
 	while (size) {
 		unsigned run;
 		if (!state->count) {
@@ -77,7 +77,7 @@ static void pcx_decode(uint8* buffer, unsigned size, FZ* f, struct pcx_decode_st
 	}
 }
 
-static void pcx_ignore(unsigned size, FZ* f, struct pcx_decode_state* state) {
+static void pcx_ignore(unsigned size, adv_fz* f, struct pcx_decode_state* state) {
 	while (size) {
 		unsigned run;
 		if (!state->count) {
@@ -106,9 +106,9 @@ static void pcx_ignore(unsigned size, FZ* f, struct pcx_decode_state* state) {
  * \param rgb_max Where to put the number of palette entries.
  * \return The loaded bitmap or 0 on error.
  */
-struct bitmap* pcx_load(FZ* f, video_color* rgb, unsigned* rgb_max) {
+adv_bitmap* pcx_load(adv_fz* f, adv_color* rgb, unsigned* rgb_max) {
 	struct pcx_header h;
-	struct bitmap* bitmap;
+	adv_bitmap* bitmap;
 	unsigned width, height, depth;
 
 	if (fzread(&h,sizeof(h),1,f)!=1) { /* ENDIAN */

@@ -157,12 +157,12 @@ static struct keyb_pair {
 
 static struct keyb_svgalib_context svgalib_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SVGALIB keyboard" },
 { 0, 0, 0 }
 };
 
-error keyb_svgalib_init(int keyb_id, boolean disable_special)
+adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -257,12 +257,12 @@ unsigned keyb_svgalib_flags(void)
 	return 0;
 }
 
-error keyb_svgalib_load(struct conf_context* context)
+adv_error keyb_svgalib_load(adv_conf* context)
 {
 	return 0;
 }
 
-void keyb_svgalib_reg(struct conf_context* context)
+void keyb_svgalib_reg(adv_conf* context)
 {
 }
 

@@ -40,7 +40,7 @@ struct sound_none_context {
 
 static struct sound_none_context none_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", 0, "No sound" },
 { 0, 0, 0 }
 };
@@ -84,11 +84,11 @@ unsigned sound_none_flags(void) {
 	return 0;
 }
 
-int sound_none_load(struct conf_context* context) {
+int sound_none_load(adv_conf* context) {
 	return 0;
 }
 
-void sound_none_reg(struct conf_context* context) {
+void sound_none_reg(adv_conf* context) {
 }
 
 /***************************************************************************/

@@ -4,8 +4,7 @@
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/mpglib \
-	-I$(srcdir)/advance/common
+	-I$(srcdir)/advance/mpglib
 MENUOBJDIRS += \
 	$(MENUOBJ) \
 	$(MENUOBJ)/menu \
@@ -181,8 +180,9 @@ MENUOBJS += \
 	$(MENUOBJ)/dos/kalleg.o \
 	$(MENUOBJ)/dos/jalleg.o \
 	$(MENUOBJ)/card/card.o \
-	$(MENUOBJ)/card/pci.o \
-	$(MENUOBJ)/card/map.o \
+	$(MENUOBJ)/dos/pci.o \
+	$(MENUOBJ)/dos/pcimap.o \
+	$(MENUOBJ)/dos/map.o \
 	$(MENUOBJ)/card/board.o \
 	$(MENUOBJ)/svgalib/libdos.o \
 	$(MENUOBJ)/svgalib/accel.o \
@@ -431,8 +431,6 @@ distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histm
 	cp $(SDL_SRC) $(MENU_DIST_DIR_SRC)/advance/sdl
 	mkdir $(MENU_DIST_DIR_SRC)/advance/menu
 	cp $(MENU_SRC) $(MENU_DIST_DIR_SRC)/advance/menu
-	mkdir $(MENU_DIST_DIR_SRC)/advance/common
-	cp $(COMMON_SRC) $(MENU_DIST_DIR_SRC)/advance/common
 	mkdir $(MENU_DIST_DIR_SRC)/advance/lib
 	cp $(LIB_SRC) $(MENU_DIST_DIR_SRC)/advance/lib
 	mkdir $(MENU_DIST_DIR_SRC)/advance/blit

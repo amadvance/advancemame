@@ -64,7 +64,7 @@ extern "C" {
 /** \addtogroup Sound */
 /*@{*/
 
-void sound_reg_driver_all(struct conf_context* context);
+void sound_reg_driver_all(adv_conf* context);
 
 /*@}*/
 

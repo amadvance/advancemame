@@ -62,7 +62,7 @@ int mode_current_stretch(const struct advance_video_context* context) {
 }
 
 /* Return the description of a video configuration */
-const char* mode_desc(struct advance_video_context* context, const video_crtc* crtc) {
+const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc) {
 	static char buffer[128];
 	double factor_x = (double)crtc_hsize_get(crtc) / context->state.mode_best_size_x;
 	double factor_y = (double)crtc_vsize_get(crtc) / context->state.mode_best_size_y;
@@ -99,7 +99,7 @@ void video_aspect_reduce(unsigned long long* a, unsigned long long* b) {
 
 /* Less is better */
 
-static int score_compare_scanline(const struct advance_video_context* context, const video_crtc* a, const video_crtc* b) {
+static int score_compare_scanline(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
 	int as;
 	int bs;
 
@@ -139,7 +139,7 @@ static int score_compare_scanline(const struct advance_video_context* context, c
 	return 0;
 }
 
-static int score_compare_size(const struct advance_video_context* context, const video_crtc* a, const video_crtc* b) {
+static int score_compare_size(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
 	int r;
 	unsigned best_size_x;
 	unsigned best_size_y;
@@ -185,7 +185,7 @@ double video_rate_scale_down(double rate, double reference) {
 /**
  * Compare the clock of a video configuration.
  */
-static int score_compare_frequency(const struct advance_video_context* context, const video_crtc* a, const video_crtc* b) {
+static int score_compare_frequency(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
 	double freq_a;
 	double freq_b;
 	double err_a;
@@ -212,7 +212,7 @@ static int score_compare_frequency(const struct advance_video_context* context, 
 /**
  * Compare two video configuration.
  */
-static int score_compare_crtc(const struct advance_video_context* context, const video_crtc* a, const video_crtc* b) {
+static int score_compare_crtc(const struct advance_video_context* context, const adv_crtc* a, const adv_crtc* b) {
 	int r;
 
 	r = score_compare_size(context, a, b);
@@ -238,10 +238,10 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 static const struct advance_video_context* the_context;
 
 static int void_score_compare_crtc(const void* a, const void* b) {
-	return score_compare_crtc(the_context, *(const video_crtc**)a, *(const video_crtc**)b);
+	return score_compare_crtc(the_context, *(const adv_crtc**)a, *(const adv_crtc**)b);
 }
 
-void crtc_sort(const struct advance_video_context* context, const video_crtc** map, unsigned mac) {
+void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac) {
 	the_context = context;
 	qsort(map,mac,sizeof(map[0]),void_score_compare_crtc);
 }

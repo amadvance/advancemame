@@ -48,12 +48,12 @@ struct joystickb_svgalib_context {
 
 static struct joystickb_svgalib_context svgalib_state;
 
-static device DEVICE[] = {
+static adv_device DEVICE[] = {
 { "auto", -1, "SVGALIB joystick" },
 { 0, 0, 0 }
 };
 
-error joystickb_svgalib_init(int joystickb_id)
+adv_error joystickb_svgalib_init(int joystickb_id)
 {
 	unsigned i;
 
@@ -239,12 +239,12 @@ unsigned joystickb_svgalib_flags(void)
 	return 0;
 }
 
-error joystickb_svgalib_load(struct conf_context* context)
+adv_error joystickb_svgalib_load(adv_conf* context)
 {
 	return 0;
 }
 
-void joystickb_svgalib_reg(struct conf_context* context)
+void joystickb_svgalib_reg(adv_conf* context)
 {
 }
 

@@ -821,7 +821,7 @@ static uint32 rgb_triad16pix_mask[RGB_TRIAD16PIX_MASK_MAX];
 static void internal_rgb_triad16pix_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_0_0, 0, 0x0000); /* factor 2^0 = 100% */
@@ -1137,7 +1137,7 @@ static uint32 rgb_triad6pix_mask[RGB_TRIAD6PIX_MASK_MAX];
 static void internal_rgb_triad6pix_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_0_0, 0, 0x14); /* factor 2^0 = 100% */
@@ -1363,7 +1363,7 @@ static uint32 rgb_triad3pix_mask[RGB_TRIAD3PIX_MASK_MAX];
 static void internal_rgb_triad3pix_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_0_0, 0, 0x41); /* factor 2^0 = 100% */
@@ -1543,7 +1543,7 @@ static uint32 rgb_scandouble_mask[RGB_SCANDOUBLE_MASK_MAX];
 static void internal_rgb_scandouble_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
@@ -1634,7 +1634,7 @@ static uint32 rgb_scandoublevert_mask[RGB_SCANDOUBLEVERT_MASK_MAX];
 static void internal_rgb_scandoublevert_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, 0, 0x70); /* factor 2^0 = 100% */
@@ -1699,7 +1699,7 @@ static uint32 rgb_scantriple_mask[RGB_SCANTRIPLE_MASK_MAX];
 static void internal_rgb_scantriple_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
@@ -1865,7 +1865,7 @@ static uint32 rgb_scantriplevert_mask[RGB_SCANTRIPLEVERT_MASK_MAX];
 static void internal_rgb_scantriplevert_set(void) {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
-	assert( video_index() == VIDEO_FLAGS_INDEX_RGB );
+	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	/* type 0 */
 	rgb_raw_mask3_compute(bytes_per_pixel, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0, 0, 0x700); /* factor 2^0 = 100% */
