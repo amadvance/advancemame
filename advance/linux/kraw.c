@@ -49,16 +49,21 @@
 
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
+#define RAW_MAX 128
+
 struct keyb_raw_context {
 	struct termios oldkbdtermios;
 	struct termios newkbdtermios;
 	int oldkbmode;
 	int f; /**< Handle. */
 	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
-	unsigned char state[256]; /**< Key state. */
+	unsigned char state[RAW_MAX]; /**< Key state. */
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
 	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
+	adv_bool first_flag; /**< First key hack enabled. */
+	unsigned char first_code; /**< First key pressed. */
+	adv_bool first_state; /**< State of processing the first key. */
 };
 
 static struct keyb_pair {
@@ -185,7 +190,7 @@ static void keyb_raw_clear(void)
 {
 	unsigned i;
 
-	for(i=0;i<256;++i) {
+	for(i=0;i<RAW_MAX;++i) {
 		raw_state.state[i] = 0;
 	}
 }
@@ -284,6 +289,8 @@ adv_error keyb_raw_enable(adv_bool graphics)
 			goto err_mode;
 		}
 	}
+
+	raw_state.first_state = 0;
 
 	keyb_raw_clear();
 
@@ -507,15 +514,56 @@ void keyb_raw_poll(void)
 		unsigned char c;
 		unsigned char code;
 		adv_bool pressed;
+		int size;
 
-		if (read(raw_state.f, &c, 1) != 1) {
+		size = read(raw_state.f, &c, 1);
+
+		if (size == -1 && errno == EAGAIN) {
+			break;
+		}
+
+		if (size == 0) {
+			break;
+		}
+
+		if (size != 1) {
+			keyb_raw_clear();
+			log_std(("ERROR:keyb:raw: invalid read size %d on key, errno %d (%s)\n", size, errno, strerror(errno)));
 			break;
 		}
 
 		code = c & 0x7f;
 		pressed = (c & 0x80) == 0;
 
-		raw_state.state[code] = pressed;
+		log_std(("keyb:raw: read %02x -> %d, %d\n", (unsigned)c, (unsigned)code, (int)pressed));
+
+		/* This is an HACK to solve a strange problem which happen */
+		/* with AdvanceCD. The first key pressed in AdvanceMENU returning */
+		/* from AdvanceMAME get two press, instead of a press and a release */
+		/* It happen only on the first run of AdvanceMENU on the first terminal. */
+		/* With Linux 2.4.22, it also happen with the SVGALIB 1.9.17 keyboard driver */
+		if (raw_state.first_flag) {
+			switch (raw_state.first_state) {
+			case 0 :
+				if (pressed) {
+					raw_state.first_code = code;
+					raw_state.first_state = 1;
+				}
+				break;
+			case 1 :
+				if (code == raw_state.first_code && pressed) {
+					log_std(("keyb:raw: HACK for first key code %d\n", (unsigned)code));
+					pressed = 0;
+					raw_state.first_state = 2;
+				}
+				break;
+			case 2 :
+				break;
+			}
+		}
+
+		if (code < RAW_MAX)
+			raw_state.state[code] = pressed;
 
 		keyb_raw_vt_switch(code);
 	}
@@ -528,11 +576,14 @@ unsigned keyb_raw_flags(void)
 
 adv_error keyb_raw_load(adv_conf* context)
 {
+	raw_state.first_flag = conf_bool_get_default(context, "device_raw_firstkeyhack");
+
 	return 0;
 }
 
 void keyb_raw_reg(adv_conf* context)
 {
+	conf_bool_register_default(context, "device_raw_firstkeyhack", 0);
 }
 
 /***************************************************************************/

@@ -803,7 +803,7 @@ adv_error keyb_event_enable(adv_bool graphics)
 
 	event_state.graphics_flag = graphics;
 
-	event_state.fc = open("/dev/tty", O_RDONLY);
+	event_state.fc = open("/dev/tty", O_RDONLY | O_NONBLOCK);
 	if (event_state.fc == -1) {
 		error_set("Error enabling the event keyboard driver. Function open(/dev/tty) failed.\n");
 		goto err;
