@@ -247,8 +247,16 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 	border_x = step_x;
 	border_y = step_y / 2;
 
+	/* remove unprintable chars */
+	i = begin;
+	while (i != end) {
+		if (!((*i >= ' ' && *i <='~') || *i =='\n'))
+			*i = ' ';
+		++i;
+	}
+
 	/* count size_r and compute width and wrap long line */
-	limit_x = dst->size_x - 2 * border_x;
+	limit_x = dst->size_x - 4 * border_x;
 	size_r = 0;
 	size_x = 0;
 	i = begin;
@@ -259,7 +267,9 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 
 		width = 0;
 		while (j != end && *j != '\n') {
-			unsigned char_width = adv_font_sizex_char(context->state.ui_font, *j);
+			unsigned char_width;
+
+			char_width = adv_font_sizex_char(context->state.ui_font, *j);
 			if (width + char_width > limit_x) {
 				char* b = j;
 				/* search first space backward */
@@ -421,6 +431,11 @@ void advance_ui_direct_slow(struct advance_ui_context* context, int flag)
 	context->state.ui_direct_slow_flag = flag;
 }
 
+void advance_ui_direct_fast(struct advance_ui_context* context, int flag)
+{
+	context->state.ui_direct_fast_flag = flag;
+}
+
 void advance_ui_help(struct advance_ui_context* context)
 {
 	context->state.ui_help_flag = !context->state.ui_help_flag;
@@ -490,7 +505,8 @@ adv_bool advance_ui_buffer_active(struct advance_ui_context* context)
 adv_bool advance_ui_direct_active(struct advance_ui_context* context)
 {
 	return context->state.ui_direct_text_flag
-		|| context->state.ui_direct_slow_flag;
+		|| context->state.ui_direct_slow_flag
+		|| context->state.ui_direct_fast_flag;
 }
 
 /**************************************************************************/
@@ -513,7 +529,7 @@ static void ui_message_update(struct advance_ui_context* context, adv_bitmap* ds
 		context->state.ui_message_flag = 0;
 	}
 
-	ui_messagebox_center(context, dst, dst->size_x / 2, dst->size_x / 2, context->state.ui_message_buffer, context->state.ui_message_buffer + strlen(context->state.ui_message_buffer), color->f, color->b, color->def);
+	ui_messagebox_center(context, dst, dst->size_x / 2, dst->size_y / 2, context->state.ui_message_buffer, context->state.ui_message_buffer + strlen(context->state.ui_message_buffer), color->f, color->b, color->def);
 }
 
 #define UI_MAP_MAX 256
@@ -717,6 +733,33 @@ static void ui_direct_slow_update(struct advance_ui_context* context, adv_bitmap
 	context->state.ui_direct_slow_flag = 0;
 }
 
+static void ui_direct_fast_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+{
+	int pos_x, pos_y;
+	int size_x, size_y;
+	int i;
+	unsigned m;
+
+	size_x = dst->size_x / 20;
+	size_y = dst->size_y * 4 / 3 / 20;
+	if (size_y % 2 == 0)
+		++size_y; /* make it odd */
+
+	pos_x = dst->size_x - 1 - size_x - size_x / 4;
+	pos_y = size_y / 4;
+
+	m = size_y/2;
+	if (!m)
+		m = 1;
+	for(i=0;i<=m;++i) {
+		unsigned l = (size_x * i + m - 1) / m + 1;
+		adv_bitmap_clear(dst, pos_x, pos_y + i, l, 1, color->p3.p);
+		adv_bitmap_clear(dst, pos_x, pos_y + size_y - 1 - i, l, 1, color->p3.p);
+	}
+
+	context->state.ui_direct_slow_flag = 0;
+}
+
 static void ui_setup_color(struct ui_color_set* color, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
 {
 	color->def = color_def;
@@ -806,6 +849,10 @@ void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, uns
 		ui_direct_slow_update(context, dst, &color);
 	}
 
+	if (context->state.ui_direct_fast_flag) {
+		ui_direct_fast_update(context, dst, &color);
+	}
+
 	if (context->state.ui_direct_text_flag) {
 		ui_direct_text_update(context, dst, &color);
 	}
@@ -828,6 +875,7 @@ adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_cont
 	context->state.ui_scroll_end = 0;
 	context->state.ui_direct_text_flag = 0;
 	context->state.ui_direct_slow_flag = 0;
+	context->state.ui_direct_fast_flag = 0;
 	context->state.ui_font = 0;
 	context->state.ui_font_oriented = 0;
 

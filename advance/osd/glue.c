@@ -429,7 +429,10 @@ const char* mame_game_name(const mame_game* game)
 const mame_game* mame_game_parent(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
-	return (const mame_game*)driver->clone_of;
+	if (driver->clone_of!=0 && driver->clone_of->name!=0 && driver->clone_of->name[0]!=0)
+		return (const mame_game*)driver->clone_of;
+	else
+		return 0;
 }
 
 const char* mame_game_description(const mame_game* game)
@@ -515,7 +518,10 @@ void mame_print_xml(FILE* out)
 	print_mame_xml(out, drivers);
 }
 
-int mame_is_game_vector(const mame_game* game)
+/**
+ * Check if a game use a vector display.
+ */
+adv_bool mame_is_game_vector(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
@@ -523,15 +529,16 @@ int mame_is_game_vector(const mame_game* game)
 	return (machine.video_attributes & VIDEO_TYPE_VECTOR) != 0;
 }
 
-int mame_is_game_in_list(const char* list[], const mame_game* game)
+/**
+ * Check if the specified game name, is the game specified or a parent.
+ */
+adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	while (driver && driver->name) {
 		unsigned i;
-		for(i=0;list[i];++i) {
-			if (strcmp(driver->name, list[i])==0)
-				return 1;
-		}
+		if (driver->name[0]!=0 && strcmp(driver->name, relative)==0)
+			return 1;
 		driver = driver->clone_of;
 	}
 	return 0;
@@ -784,6 +791,34 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	return r;
 }
 
+/**
+ * Mask used to store the player number.
+ * WARNING: The code assume this define. Check all before changing it.
+ */
+#define GLUE_PORT_PLAYER_MASK IPF_PLAYERMASK
+
+/**
+ * Mask used to store the port type.
+ * WARNING: The code assume this define. Check all before changing it.
+ */
+#define GLUE_PORT_TYPE_MASK ~IPF_MASK
+
+/**
+ * Mask used to store the key code.
+ */
+#define GLUE_PORT_KEYBOARD_SHIFT 8
+#define GLUE_PORT_KEYBOARD_MASK 0xff00
+
+/**
+ * Mask used to store the secondary (EXTENSION) flag.
+ */
+#define GLUE_PORT_SECONDARY_MASK 0x80000000
+
+/**
+ * Max number of port.
+ */
+#define GLUE_PORT_MAX 1024
+
 /* Single port */
 #define S(name, desc, NAME) \
 	{ name, desc, IPT_##NAME },
@@ -801,22 +836,211 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 /* Player port with extension */
 #define PE(name1, name2, desc1, desc2, NAME) \
 	{ "p1_" name1, "Player 1 " desc1, IPT_##NAME | IPF_PLAYER1 }, \
-	{ "p1_" name2, "Player 1 " desc2, (IPT_##NAME | IPF_PLAYER1) | IPF_UNUSED }, \
+	{ "p1_" name2, "Player 1 " desc2, (IPT_##NAME | IPF_PLAYER1) | GLUE_PORT_SECONDARY_MASK }, \
 	{ "p2_" name1, "Player 2 " desc1, IPT_##NAME | IPF_PLAYER2 }, \
-	{ "p2_" name2, "Player 2 " desc2, (IPT_##NAME | IPF_PLAYER2) | IPF_UNUSED }, \
+	{ "p2_" name2, "Player 2 " desc2, (IPT_##NAME | IPF_PLAYER2) | GLUE_PORT_SECONDARY_MASK }, \
 	{ "p3_" name1, "Player 3 " desc1, IPT_##NAME | IPF_PLAYER3 }, \
-	{ "p3_" name2, "Player 3 " desc2, (IPT_##NAME | IPF_PLAYER3) | IPF_UNUSED }, \
+	{ "p3_" name2, "Player 3 " desc2, (IPT_##NAME | IPF_PLAYER3) | GLUE_PORT_SECONDARY_MASK }, \
 	{ "p4_" name1, "Player 4 " desc1, IPT_##NAME | IPF_PLAYER4 }, \
-	{ "p4_" name2, "Player 4 " desc2, (IPT_##NAME | IPF_PLAYER4) | IPF_UNUSED },
+	{ "p4_" name2, "Player 4 " desc2, (IPT_##NAME | IPF_PLAYER4) | GLUE_PORT_SECONDARY_MASK },
+
+#define K(name) \
+	{ "key_" name, "Key " name, { name } },
+
+#define KR1(name, re1) \
+	{ "key_" name, "Key " name, { re1 } },
+
+#define KR2(name, re1, re2) \
+	{ "key_" name, "Key " name, { re1, re2 } },
+
+#define KR3(name, re1, re2, re3) \
+	{ "key_" name, "Key " name, { re1, re2, re3 } },
+
+#define KR4(name, re1, re2, re3, re4) \
+	{ "key_" name, "Key " name, { re1, re2, re3, re4 } },
+
+#ifdef MESS
+struct glue_keyboard_name {
+	const char* name;
+	char desc[64];
+	const char* glob[8];
+};
+
+/**
+ * Keyboard name definitions.
+ * This list defines some common names used in keyboards.
+ * Note that the order of definition is relevant on the recognition of
+ * the key from it's free form description on the MESS driver port list.
+ */
+static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
+	K("q")
+	K("w")
+	K("e")
+	K("r")
+	K("t")
+	K("y")
+	K("u")
+	K("i")
+	K("o")
+	K("p")
+	K("a")
+	K("s")
+	K("d")
+	K("f")
+	K("g")
+	K("h")
+	K("j")
+	K("k")
+	K("l")
+	K("z")
+	K("x")
+	K("c")
+	K("v")
+	K("b")
+	K("n")
+	K("m")
+
+	KR4("pad_0", "keypad*0", "0*keypad", "0*kp", "kp*0")
+	KR4("pad_1", "keypad*1", "1*keypad", "1*kp", "kp*1")
+	KR4("pad_2", "keypad*2", "2*keypad", "2*kp", "kp*2")
+	KR4("pad_3", "keypad*3", "3*keypad", "3*kp", "kp*3")
+	KR4("pad_4", "keypad*4", "4*keypad", "4*kp", "kp*4")
+	KR4("pad_5", "keypad*5", "5*keypad", "5*kp", "kp*5")
+	KR4("pad_6", "keypad*6", "6*keypad", "6*kp", "kp*6")
+	KR4("pad_7", "keypad*7", "7*keypad", "7*kp", "kp*7")
+	KR4("pad_8", "keypad*8", "8*keypad", "8*kp", "kp*8")
+	KR4("pad_9", "keypad*9", "9*keypad", "9*kp", "kp*9")
+	KR4("pad_enter", "keypad*enter", "enter*keypad", "enter*kp", "kp*enter")
+
+	K("0")
+	K("1")
+	K("2")
+	K("3")
+	K("4")
+	K("5")
+	K("6")
+	K("7")
+	K("8")
+	K("9")
+
+	KR2("esc", "esc", "escape")
+	KR2("enter", "enter", "return")
+	KR2("backspace", "back*space", "clr")
+	K("tab")
+	KR2("space", "space", "?space?")
+	KR2("ins", "ins", "insert")
+	KR2("del", "del", "delete")
+	K("home")
+	K("end")
+	K("fctn")
+	K("restore")
+	K("store")
+	K("play")
+	K("print")
+	K("hold")
+	K("rew")
+	K("record")
+	KR2("break", "break", "brk")
+	K("graph")
+	K("pause")
+	K("menu")
+	K("stop")
+	K("again")
+	K("undo")
+	K("move")
+	K("copy")
+	K("open")
+	K("edit")
+	K("paste")
+	K("find")
+	K("cut")
+	K("help")
+	K("menu")
+	K("back")
+	K("forward")
+	KR2("capslock", "caps*lock", "shift*lock")
+	KR1("scrlock", "scroll*lock")
+	KR1("numlock", "num*lock")
+	K("quickload")
+	KR2("pgup", "pgup", "page*up")
+	KR2("pgdn", "pgdn", "page*down")
+
+	KR2("backquote", "backquote", "`")
+	KR2("minus", "minus", "-")
+	KR2("plus", "plus", "+")
+	KR2("asterisk", "asterisk", "\\*")
+	KR2("equals", "equals", "=")
+	KR2("openbrace", "openbrace", "(")
+	KR2("closebrace", "closebrace", ")")
+	KR2("semicolon", "semicolon", ";")
+	KR2("quote", "quote", "'")
+	KR2("backslash", "backslash", "\\\\")
+	KR2("less", "less", "<")
+	KR2("comma", "comma", ",")
+	KR2("period", "period", ".")
+	KR2("slash", "slash", "/")
+	KR2("colon", "colon", ":")
+	KR2("pound", "pound", "£")
+	KR2("doublequote", "doublequote", "\"")
+
+	KR3("lshift", "lshift", "left?shift", "shift?left")
+	KR3("rshift", "rshift", "right?shift", "shift?right")
+	KR4("lctrl", "lctrl", "lcontrol", "left?ctrl", "ctrl?left")
+	KR4("rctrl", "rctrl", "rcontrol", "right?ctrl", "ctrl?right")
+	KR3("lalt", "lalt", "left?alt", "alt?left")
+	KR3("ralt", "ralt", "right?alt", "alt?right")
+	KR2("ctrl", "ctrl", "control")
+	K("alt")
+	K("shift")
+
+	/* it's safe to have directions as last entries to prevent incorrect */
+	/* recognition of "ctrl left" or similar */
+	KR2("left", "left", "cursor*left")
+	KR2("right", "right", "cursor*right")
+	KR2("up", "up", "cursor*up")
+	KR2("down", "down", "cursor*down")
+
+	K("f1")
+	K("f2")
+	K("f3")
+	K("f4")
+	K("f5")
+	K("f6")
+	K("f7")
+	K("f8")
+	K("f9")
+	K("f10")
+	K("f11")
+	K("f12")
+	K("f13")
+	K("f14")
+	K("f15")
+	K("f16")
+	K("f17")
+	K("f18")
+	K("f19")
+	K("f20")
+	K("f21")
+	K("f22")
+	K("f23")
+	K("f24")
+	{ 0 }
+};
+#endif
 
 /**
  * Input ports.
  * The port number are in a special uniq format which allow to have different
  * values for port which requires a double specification.
  * The MAME internal format use the IPT_EXTENSION flag to mask such ports which
- * doesn' allow an uniq identification.
+ * doesn't allow an unique identification.
  */
-static struct mame_port PORT[] = {
+static struct mame_port GLUE_PORT[GLUE_PORT_MAX];
+
+/**
+ * Constant input ports.
+ */
+static struct mame_port GLUE_PORT_STD[] = {
 
 	/* JOYSTICK */
 	P("up", "Up", JOYSTICK_UP)
@@ -909,6 +1133,7 @@ static struct mame_port PORT[] = {
 	S("ui_turbo", "Turbo", UI_TURBO)
 	S("ui_cocktail", "Cocktail", UI_COCKTAIL)
 	S("ui_help", "Help", UI_HELP)
+	S("ui_startup", "Startup", UI_STARTUP_END)
 
 	/* UI */
 	S("ui_configure", "Configure", UI_CONFIGURE)
@@ -968,21 +1193,21 @@ static struct mame_port PORT[] = {
  */
 struct mame_port* mame_port_list(void)
 {
-	return PORT;
+	return GLUE_PORT;
 }
 
 struct mame_port* mame_port_find(unsigned port)
 {
 	struct mame_port* i;
-	for(i=PORT;i->name;++i)
+	for(i=mame_port_list();i->name;++i)
 		if (i->port == port)
 			return i;
 	return 0;
 }
 
 /**
- * Return the player number of a port.
- * \param port Port type. It's a port in the uniq format, not the MAME format.
+ * Return the player number of a unique port.
+ * \param port Port type. It's a port in the unique format, not the MAME format.
  */
 int mame_port_player(unsigned port)
 {
@@ -1120,22 +1345,89 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 	}
 }
 
+#ifdef MESS
+static unsigned glue_keyboard_find(const char* name)
+{
+	int i;
+	char name_buffer[64];
+	unsigned name_len;
+	unsigned j, k;
+
+	if (!name) {
+		log_std(("ERROR:glue: keyboard port without a name\n"));
+		return 0;
+	}
+
+	/* hack for MESS c128 driver */
+	if (strncmp(name,"(64)", 4) == 0)
+		name += 4;
+
+	sncpy(name_buffer, sizeof(name_buffer), name);
+
+	/* comparison is in lower case */
+	strlwr(name_buffer);
+
+	/* search for exact (or pattern) match */
+	for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
+		for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
+			if (sglob(name_buffer, GLUE_KEYBOARD_STD[j].glob[k])) {
+				log_std(("glue: map key '%s' to control '%s'\n", name, GLUE_KEYBOARD_STD[j].name));
+				return IPT_KEYBOARD | (j << GLUE_PORT_KEYBOARD_SHIFT);
+			}
+		}
+	}
+
+	i = 0;
+	name_len = strlen(name_buffer);
+	while (i < name_len) {
+		char c;
+		const char* t;
+
+		sskip(&i, name_buffer, " ");
+		t = stoken(&c, &i, name_buffer, " ",  "");
+
+		for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
+			for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
+				if (sglob(t, GLUE_KEYBOARD_STD[j].glob[k])) {
+					log_std(("glue: map key '%s' to control '%s'\n", name, GLUE_KEYBOARD_STD[j].name));
+					return IPT_KEYBOARD | (j << GLUE_PORT_KEYBOARD_SHIFT);
+				}
+			}
+		}
+	}
+
+	log_std(("WARNING:glue: keyboard port '%s' not recognized\n", name));
+
+	return 0;
+}
+#endif
+
 /**
- * Convert a MAME port value to the uniq format.
+ * Convert a MAME port value to the unique format.
  * If the MAME port has the value IPT_EXTENSION, the real port value is
- * the previous. In this case is added the IPF_UNUSED flag to differentiate it.
+ * the previous. In this case is added the GLUE_PORT_SECONDARY_MASK flag to differentiate it.
  * The port value contains also the IPF_PLAYER flags.
  */
-unsigned glue_port_convert(unsigned* type_pred, unsigned type)
+unsigned glue_port_convert(unsigned* type_pred, unsigned type, const char* name)
 {
 	unsigned mask = type & ~IPF_MASK;
-	if (mask == IPT_EXTENSION) {
-		return (*type_pred & (~IPF_MASK | IPF_PLAYERMASK)) | IPF_UNUSED;
-	} else {
-		return type & (~IPF_MASK | IPF_PLAYERMASK);
+#ifdef MESS
+	if (mask == IPT_KEYBOARD) {
+		return glue_keyboard_find(name);
 	}
+#endif
+	if (mask == IPT_EXTENSION) {
+		return (*type_pred & (~IPF_MASK | IPF_PLAYERMASK)) | GLUE_PORT_SECONDARY_MASK;
+	}
+
+	return type & (~IPF_MASK | IPF_PLAYERMASK);
 }
 
+/**
+ * Convert a port from the unique format to the MAME format.
+ * The conversion works only for not game specific ports, i.e. only for
+ * the MAME user interface ports.
+ */
 struct ipd* glue_port_convertback(unsigned port)
 {
 	struct ipd* j;
@@ -1153,7 +1445,7 @@ struct ipd* glue_port_convertback(unsigned port)
 	}
 
 	if (j->type != IPT_END) {
-		if ((port & IPF_UNUSED) != 0)
+		if ((port & GLUE_PORT_SECONDARY_MASK) != 0)
 			++j;
 		return j;
 	}
@@ -1161,7 +1453,10 @@ struct ipd* glue_port_convertback(unsigned port)
 	return 0;
 }
 
-/** List of ports reported at the user interface commmands */
+/**
+ * List of default ports reported at the user interface commmands.
+ * These are the MAME user interface port normally not defined in the game driver.
+ */
 static unsigned PORT_REPORT_DEFAULT[] = {
 	IPT_UI_MODE_NEXT,
 	IPT_UI_MODE_PRED,
@@ -1170,6 +1465,7 @@ static unsigned PORT_REPORT_DEFAULT[] = {
 	IPT_UI_TURBO,
 	IPT_UI_COCKTAIL,
 	IPT_UI_HELP,
+	IPT_UI_STARTUP_END,
 	IPT_UI_CONFIGURE,
 	IPT_UI_ON_SCREEN_DISPLAY,
 	IPT_UI_PAUSE,
@@ -1203,7 +1499,8 @@ static unsigned PORT_REPORT_DEFAULT[] = {
 };
 
 /**
- * List of ports reported at the user interface commmands.
+ * List of game ports reported at the user interface commmands.
+ * These are the game specific ports defined in the game driver.
  * Note that the player information is omitted.
  */
 static unsigned PORT_REPORT_GAME[] = {
@@ -1239,7 +1536,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	j = inputport_defaults;
 	while (j != 0 && j->type != IPT_END) {
 		if (digital_mac < digital_max) {
-			unsigned port = glue_port_convert(&j[-1].type, j[0].type);
+			unsigned port = glue_port_convert(&j[-1].type, j[0].type, j[0].name);
 			unsigned k;
 
 			/* only a subset */
@@ -1265,7 +1562,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	i = Machine->input_ports;
 	while (i != 0 && i->type != IPT_END) {
 		if (digital_mac < digital_max) {
-			unsigned port = glue_port_convert(&i[-1].type, i[0].type);
+			unsigned port = glue_port_convert(&i[-1].type, i[0].type, i[0].name);
 			unsigned k;
 
 			/* only a subset */
@@ -1290,53 +1587,6 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	*pdigital_mac = digital_mac;
 }
 
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
-
-	/* no specific OS customization */
-}
-
-void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current)
-{
-	unsigned def_seq[MAME_INPUT_MAP_MAX];
-	unsigned seq[MAME_INPUT_MAP_MAX];
-	unsigned type;
-
-	log_std(("emu:glue: osd_customize_inputport_post_game()\n"));
-
-	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
-	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
-
-	type = glue_port_convert(&current[-1].type, current[0].type);
-
-	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
-		osd2_customize_inputport_post_game(type, seq, MAME_INPUT_MAP_MAX);
-	} else {
-		osd2_customize_inputport_post_game(type, 0, 0);
-	}
-}
-
-void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current)
-{
-	unsigned seq[MAME_INPUT_MAP_MAX];
-	unsigned def_seq[MAME_INPUT_MAP_MAX];
-	unsigned type;
-
-	log_std(("emu:glue: osd_customize_inputport_post_defaults()\n"));
-
-	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
-	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
-
-	type = glue_port_convert(&current[-1].type, current[0].type);
-
-	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
-		osd2_customize_inputport_post_defaults(type, seq, MAME_INPUT_MAP_MAX);
-	} else {
-		osd2_customize_inputport_post_defaults(type, 0, 0);
-	}
-}
-
 void mame_name_adjust(char* dst, unsigned size, const char* s)
 {
 	unsigned i;
@@ -1354,63 +1604,6 @@ void mame_name_adjust(char* dst, unsigned size, const char* s)
 			if (dst[0])
 				require_space = 1;
 		}
-	}
-}
-
-void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current)
-{
-	char name_buffer[256];
-	char tag_buffer[256];
-	char value_buffer[256];
-	struct InputPort* v;
-	const char* tag;
-	unsigned type;
-
-	log_std(("emu:glue: osd_customize_switchport_post_game()\n"));
-
-	switch (current->type & ~IPF_MASK) {
-	case IPT_DIPSWITCH_NAME :
-		tag = "input_dipswitch";
-		type = IPT_DIPSWITCH_SETTING;
-		break;
-#ifdef MESS
-	case IPT_CONFIG_NAME :
-		tag = "input_configswitch";
-		type = IPT_CONFIG_SETTING;
-		break;
-#endif
-	default:
-		log_std(("WARNING:emu:glue: Unknown switchport %d\n", current->type & ~IPF_MASK));
-		return;
-	}
-
-	if (current->name == DEF_STR( Unused ) || current->name == DEF_STR( Unknown )) {
-		log_std(("WARNING:emu:glue: Ignoring named Unknown/Unused switchport %d\n", current->type & ~IPF_MASK));
-		return;
-	}
-
-	mame_name_adjust(name_buffer, sizeof(name_buffer), current->name);
-
-	v = current + 1;
-	while ((v->type & ~IPF_MASK) == type) {
-		if ((v->default_value & current->mask) == (current->default_value & current->mask)) {
-			break;
-		}
-		++v;
-	}
-
-	if ((v->type & ~IPF_MASK) != type) {
-		log_std(("ERROR:emu:glue: Unknown switchport %s value %d\n", name_buffer, current->default_value));
-		return;
-	}
-
-	snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
-
-	if ((def->default_value & current->mask) != (current->default_value & current->mask)) {
-		mame_name_adjust(value_buffer, sizeof(value_buffer), v->name);
-		osd2_customize_port_post_game(tag_buffer, value_buffer);
-	} else {
-		osd2_customize_port_post_game(tag_buffer, 0);
 	}
 }
 
@@ -1451,29 +1644,61 @@ struct mame_analog* mame_analog_find(unsigned type)
 	return 0;
 }
 
-void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current)
+const char* mame_software_name(const mame_game* game, adv_conf* context)
 {
-	char value_buffer[256];
-	char default_buffer[256];
-	char name_buffer[256];
-	char tag_buffer[256];
+#ifdef MESS
+	const char** i;
+	static char buffer[256];
 
-	log_std(("emu:glue: osd_customize_analogport_post_game()\n"));
+	i = DEVICES;
+	while (*i) {
+		adv_conf_iterator j;
+		char software_buffer[256];
+		const char* s;
 
-	if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), current->type) != 0) {
-		return;
+		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
+
+		s = 0;
+		conf_iterator_begin(&j, context, buffer);
+		while (!conf_iterator_is_end(&j)) {
+			const char* arg;
+			int p;
+			char c;
+
+			arg = conf_iterator_string_get(&j);
+
+			sncpy(software_buffer, sizeof(software_buffer), arg);
+
+			/* convert user input to lower case */
+			for(p=0;software_buffer[p];++p)
+				software_buffer[p] = tolower(software_buffer[p]);
+
+			p = 0;
+			s = stoken(&c, &p, software_buffer, ".=", "");
+
+			if (s && s[0]) {
+				break;
+			}
+
+			conf_iterator_next(&j);
+		}
+
+		if (!conf_iterator_is_end(&j)) {
+			const char* n = mame_game_name(game);
+			if (s && s[0] && n && n[0]) {
+				snprintf(GLUE.software_buffer, sizeof(GLUE.software_buffer), "%s[%s]", n, s);
+				return GLUE.software_buffer;
+			}
+		}
+
+		++i;
 	}
 
-	advance_input_print_analogvalue(value_buffer, sizeof(value_buffer), IP_GET_DELTA(current), IP_GET_SENSITIVITY(current), (current->type & IPF_REVERSE) != 0, (current->type & IPF_CENTER) != 0);
-	advance_input_print_analogvalue(default_buffer, sizeof(default_buffer), IP_GET_DELTA(def), IP_GET_SENSITIVITY(def), (def->type & IPF_REVERSE) != 0, (def->type & IPF_CENTER) != 0);
+	return 0;
 
-	snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
-
-	if (strcmp(value_buffer, default_buffer) != 0) {
-		osd2_customize_port_post_game(tag_buffer, value_buffer);
-	} else {
-		osd2_customize_port_post_game(tag_buffer, 0);
-	}
+#else
+	return 0;
+#endif
 }
 
 /***************************************************************************/
@@ -1616,8 +1841,15 @@ void osd_die(const char* text,...)
 	abort();
 }
 
-/***************************************************************************/
-/* Display */
+void* osd_alloc_executable(size_t size)
+{
+	return malloc(size);
+}
+
+void osd_free_executable(void* p)
+{
+	free(p);
+}
 
 int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_components)
 {
@@ -1964,8 +2196,272 @@ int osd_input_port_filter(int result, int type)
 	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
 }
 
+static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
+{
+	const char * exit_menu_item[8];
+	char flag[8];
+
+	int sel;
+	int total;
+
+	sel = selected - 1;
+
+	total = 0;
+
+	exit_menu_item[total] = "Continue";
+	flag[total] = 0;
+	++total;
+
+	exit_menu_item[total] = "Exit";
+	flag[total] = 0;
+	++total;
+
+	exit_menu_item[total] = 0;
+	flag[total] = 0;
+
+	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
+
+	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
+		sel = (sel + 1) % total;
+	}
+
+	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
+		sel = (sel + total - 1) % total;
+	}
+
+	if (input_ui_pressed(IPT_UI_SELECT)) {
+		if (sel == 1)
+			sel = -2;
+		if (sel == 0)
+			sel = -1;
+	}
+
+	if (input_ui_pressed(IPT_UI_CANCEL)) {
+		sel = -1;
+	}
+
+	if (sel == -1 || sel == -2)
+	{
+		/* tell updatescreen() to clean after us */
+		schedule_full_refresh();
+	}
+
+	return sel + 1;
+}
+
+int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
+{
+	unsigned input;
+
+	if (!is_menu_active) {
+		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
+		if (res > 1)
+			return 1;
+		if (res != 0) {
+			osd_sound_enable(0);
+			osd_pause(1);
+
+			res = 1;
+			while (res > 0) {
+				res = on_exit_menu(bitmap, res);
+				update_video_and_audio();
+			}
+
+			osd_pause(0);
+			osd_sound_enable(1);
+
+			if (res < 0)
+				return 1;
+		}
+	}
+
+	input = 0;
+
+	/* one shot input */
+	if (input_ui_pressed(IPT_UI_THROTTLE))
+		input |= OSD_INPUT_THROTTLE;
+	if (input_ui_pressed(IPT_UI_FRAMESKIP_DEC))
+		input |= OSD_INPUT_FRAMESKIP_DEC;
+	if (input_ui_pressed(IPT_UI_FRAMESKIP_INC))
+		input |= OSD_INPUT_FRAMESKIP_INC;
+	if (input_ui_pressed(IPT_UI_TOGGLE_DEBUG))
+		input |= OSD_INPUT_TOGGLE_DEBUG;
+	if (input_ui_pressed(IPT_UI_MODE_PRED))
+		input |= OSD_INPUT_MODE_PRED;
+	if (input_ui_pressed(IPT_UI_MODE_NEXT))
+		input |= OSD_INPUT_MODE_NEXT;
+	if (input_ui_pressed(IPT_UI_COCKTAIL))
+		input |= OSD_INPUT_COCKTAIL;
+	if (input_ui_pressed(IPT_UI_HELP))
+		input |= OSD_INPUT_HELP;
+	if (input_ui_pressed(IPT_UI_SHOW_FPS))
+		input |= OSD_INPUT_SHOW_FPS;
+	if (input_ui_pressed(IPT_UI_STARTUP_END))
+		input |= OSD_INPUT_STARTUP_END;
+	/* continous input */
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
+		input |= OSD_INPUT_PAN_RIGHT;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_LEFT)))
+		input |= OSD_INPUT_PAN_LEFT;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_UP)))
+		input |= OSD_INPUT_PAN_UP;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_DOWN)))
+		input |= OSD_INPUT_PAN_DOWN;
+	if (seq_pressed(input_port_type_seq(IPT_UI_TURBO)))
+		input |= OSD_INPUT_TURBO;
+	if (seq_pressed(input_port_type_seq(IPT_COIN1)))
+		input |= OSD_INPUT_COIN1;
+	if (seq_pressed(input_port_type_seq(IPT_COIN2)))
+		input |= OSD_INPUT_COIN2;
+	if (seq_pressed(input_port_type_seq(IPT_COIN3)))
+		input |= OSD_INPUT_COIN3;
+	if (seq_pressed(input_port_type_seq(IPT_COIN4)))
+		input |= OSD_INPUT_COIN4;
+	if (seq_pressed(input_port_type_seq(IPT_START1)))
+		input |= OSD_INPUT_START1;
+	if (seq_pressed(input_port_type_seq(IPT_START2)))
+		input |= OSD_INPUT_START2;
+	if (seq_pressed(input_port_type_seq(IPT_START3)))
+		input |= OSD_INPUT_START3;
+	if (seq_pressed(input_port_type_seq(IPT_START4)))
+		input |= OSD_INPUT_START4;
+
+	GLUE.input = input;
+
+	return 0;
+}
+
+void osd_customize_inputport_defaults(struct ipd* defaults)
+{
+	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
+
+	/* no specific OS customization */
+}
+
+void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current)
+{
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned type;
+
+	log_std(("emu:glue: osd_customize_inputport_post_game()\n"));
+
+	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	type = glue_port_convert(&current[-1].type, current[0].type, current[0].name);
+
+	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		osd2_customize_inputport_post_game(type, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		osd2_customize_inputport_post_game(type, 0, 0);
+	}
+}
+
+void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current)
+{
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned type;
+
+	log_std(("emu:glue: osd_customize_inputport_post_defaults()\n"));
+
+	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	type = glue_port_convert(&current[-1].type, current[0].type, current[0].name);
+
+	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		osd2_customize_inputport_post_defaults(type, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		osd2_customize_inputport_post_defaults(type, 0, 0);
+	}
+}
+
+void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current)
+{
+	char name_buffer[256];
+	char tag_buffer[256];
+	char value_buffer[256];
+	struct InputPort* v;
+	const char* tag;
+	unsigned type;
+
+	log_std(("emu:glue: osd_customize_switchport_post_game()\n"));
+
+	switch (current->type & ~IPF_MASK) {
+	case IPT_DIPSWITCH_NAME :
+		tag = "input_dipswitch";
+		type = IPT_DIPSWITCH_SETTING;
+		break;
+#ifdef MESS
+	case IPT_CONFIG_NAME :
+		tag = "input_configswitch";
+		type = IPT_CONFIG_SETTING;
+		break;
+#endif
+	default:
+		log_std(("WARNING:emu:glue: Unknown switchport %d\n", current->type & ~IPF_MASK));
+		return;
+	}
+
+	if (current->name == DEF_STR( Unused ) || current->name == DEF_STR( Unknown )) {
+		log_std(("WARNING:emu:glue: Ignoring named Unknown/Unused switchport %d\n", current->type & ~IPF_MASK));
+		return;
+	}
+
+	mame_name_adjust(name_buffer, sizeof(name_buffer), current->name);
+
+	v = current + 1;
+	while ((v->type & ~IPF_MASK) == type) {
+		if ((v->default_value & current->mask) == (current->default_value & current->mask)) {
+			break;
+		}
+		++v;
+	}
+
+	if ((v->type & ~IPF_MASK) != type) {
+		log_std(("ERROR:emu:glue: Unknown switchport %s value %d\n", name_buffer, current->default_value));
+		return;
+	}
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
+
+	if ((def->default_value & current->mask) != (current->default_value & current->mask)) {
+		mame_name_adjust(value_buffer, sizeof(value_buffer), v->name);
+		osd2_customize_port_post_game(tag_buffer, value_buffer);
+	} else {
+		osd2_customize_port_post_game(tag_buffer, 0);
+	}
+}
+
+void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current)
+{
+	char value_buffer[256];
+	char default_buffer[256];
+	char name_buffer[256];
+	char tag_buffer[256];
+
+	log_std(("emu:glue: osd_customize_analogport_post_game()\n"));
+
+	if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), current->type) != 0) {
+		return;
+	}
+
+	advance_input_print_analogvalue(value_buffer, sizeof(value_buffer), IP_GET_DELTA(current), IP_GET_SENSITIVITY(current), (current->type & IPF_REVERSE) != 0, (current->type & IPF_CENTER) != 0);
+	advance_input_print_analogvalue(default_buffer, sizeof(default_buffer), IP_GET_DELTA(def), IP_GET_SENSITIVITY(def), (def->type & IPF_REVERSE) != 0, (def->type & IPF_CENTER) != 0);
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
+
+	if (strcmp(value_buffer, default_buffer) != 0) {
+		osd2_customize_port_post_game(tag_buffer, value_buffer);
+	} else {
+		osd2_customize_port_post_game(tag_buffer, 0);
+	}
+}
+
 /***************************************************************************/
-/* Config */
+/* Initialization */
 
 static adv_conf_enum_int OPTION_DEPTH[] = {
 { "auto", 0 },
@@ -2098,70 +2594,46 @@ static void mess_done(void)
 
 #endif
 
-const char* mame_software_name(const mame_game* game, adv_conf* context)
-{
-#ifdef MESS
-	const char** i;
-	static char buffer[256];
-
-	i = DEVICES;
-	while (*i) {
-		adv_conf_iterator j;
-		char software_buffer[256];
-		const char* s;
-
-		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
-
-		s = 0;
-		conf_iterator_begin(&j, context, buffer);
-		while (!conf_iterator_is_end(&j)) {
-			const char* arg;
-			int p;
-			char c;
-
-			arg = conf_iterator_string_get(&j);
-
-			sncpy(software_buffer, sizeof(software_buffer), arg);
-
-			/* convert user input to lower case */
-			for(p=0;software_buffer[p];++p)
-				software_buffer[p] = tolower(software_buffer[p]);
-
-			p = 0;
-			s = stoken(&c, &p, software_buffer, ".=", "");
-
-			if (s && s[0]) {
-				break;
-			}
-
-			conf_iterator_next(&j);
-		}
-
-		if (!conf_iterator_is_end(&j)) {
-			const char* n = mame_game_name(game);
-			if (s && s[0] && n && n[0]) {
-				snprintf(GLUE.software_buffer, sizeof(GLUE.software_buffer), "%s[%s]", n, s);
-				return GLUE.software_buffer;
-			}
-		}
-
-		++i;
-	}
-
-	return 0;
-
-#else
-	return 0;
-#endif
-}
-
 adv_error mame_init(struct advance_context* context)
 {
-	/* Clear the GLUE context */
+	unsigned i, j;
+
+	/* clear the GLUE context */
 	memset(&GLUE, 0, sizeof(GLUE));
 
-	/* Clear the MAME global struct */
+	/* clear the MAME global struct */
 	memset(&options, 0, sizeof(options));
+
+	/* setup the port list */
+	j = 0;
+
+	/* check that port masks not overlap */
+	assert( (GLUE_PORT_PLAYER_MASK ^ GLUE_PORT_TYPE_MASK ^ GLUE_PORT_SECONDARY_MASK ^ GLUE_PORT_KEYBOARD_MASK) == (GLUE_PORT_PLAYER_MASK | GLUE_PORT_TYPE_MASK | GLUE_PORT_SECONDARY_MASK | GLUE_PORT_KEYBOARD_MASK) );
+
+	/* add the constant ports */
+	for(i=0;GLUE_PORT_STD[i].name;++i) {
+		if (j+1<GLUE_PORT_MAX) {
+			GLUE_PORT[j] = GLUE_PORT_STD[i];
+			++j;
+		}
+	}
+
+#ifdef MESS
+	/* add the keyboard names */
+	for(i=0;GLUE_KEYBOARD_STD[i].name;++i) {
+		if (j+1<GLUE_PORT_MAX) {
+			GLUE_PORT[j].name = GLUE_KEYBOARD_STD[i].name;
+			GLUE_PORT[j].desc = GLUE_KEYBOARD_STD[i].desc;
+			GLUE_PORT[j].port = IPT_KEYBOARD | (i << GLUE_PORT_KEYBOARD_SHIFT);
+			++j;
+		}
+	}
+#endif
+
+	/* mark the end */
+	GLUE_PORT[j].name = 0;
+	GLUE_PORT[j].desc = 0;
+	GLUE_PORT[j].port = 0;
 
 	conf_bool_register_default(context->cfg, "display_artwork_backdrop", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
@@ -2182,12 +2654,17 @@ adv_error mame_init(struct advance_context* context)
 	conf_bool_register_default(context->cfg, "misc_cheat", 0);
 	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");
 	conf_string_register_default(context->cfg, "misc_cheatfile", "cheat.dat" );
+
+#ifdef MESS
+	conf_string_register_default(context->cfg, "misc_historyfile", "sysinfo.dat");
+#else
 	conf_string_register_default(context->cfg, "misc_historyfile", "history.dat");
+#endif
 
 	conf_string_register_default(context->cfg, "misc_bios", "default");
 
 #ifdef MESS
-	conf_string_register_default(context->cfg, "misc_infofile", "sysinfo.dat");
+	conf_string_register_default(context->cfg, "misc_infofile", "messinfo.dat");
 #else
 	conf_string_register_default(context->cfg, "misc_infofile", "mameinfo.dat");
 #endif
@@ -2260,139 +2737,6 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 		return -1;
 	}
 #endif
-
-	return 0;
-}
-
-static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
-{
-	const char * exit_menu_item[8];
-	char flag[8];
-
-	int sel;
-	int total;
-
-	sel = selected - 1;
-
-	total = 0;
-
-	exit_menu_item[total] = "Continue";
-	flag[total] = 0;
-	++total;
-
-	exit_menu_item[total] = "Exit";
-	flag[total] = 0;
-	++total;
-
-	exit_menu_item[total] = 0;
-	flag[total] = 0;
-
-	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
-
-	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
-		sel = (sel + 1) % total;
-	}
-
-	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
-		sel = (sel + total - 1) % total;
-	}
-
-	if (input_ui_pressed(IPT_UI_SELECT)) {
-		if (sel == 1)
-			sel = -2;
-		if (sel == 0)
-			sel = -1;
-	}
-
-	if (input_ui_pressed(IPT_UI_CANCEL)) {
-		sel = -1;
-	}
-
-	if (sel == -1 || sel == -2)
-	{
-		/* tell updatescreen() to clean after us */
-		schedule_full_refresh();
-	}
-
-	return sel + 1;
-}
-
-int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
-{
-	unsigned input;
-
-	if (!is_menu_active) {
-		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
-		if (res > 1)
-			return 1;
-		if (res != 0) {
-			osd_sound_enable(0);
-			osd_pause(1);
-
-			res = 1;
-			while (res > 0) {
-				res = on_exit_menu(bitmap, res);
-				update_video_and_audio();
-			}
-
-			osd_pause(0);
-			osd_sound_enable(1);
-
-			if (res < 0)
-				return 1;
-		}
-	}
-
-	input = 0;
-
-	/* one shot input */
-	if (input_ui_pressed(IPT_UI_THROTTLE))
-		input |= OSD_INPUT_THROTTLE;
-	if (input_ui_pressed(IPT_UI_FRAMESKIP_DEC))
-		input |= OSD_INPUT_FRAMESKIP_DEC;
-	if (input_ui_pressed(IPT_UI_FRAMESKIP_INC))
-		input |= OSD_INPUT_FRAMESKIP_INC;
-	if (input_ui_pressed(IPT_UI_TOGGLE_DEBUG))
-		input |= OSD_INPUT_TOGGLE_DEBUG;
-	if (input_ui_pressed(IPT_UI_MODE_PRED))
-		input |= OSD_INPUT_MODE_PRED;
-	if (input_ui_pressed(IPT_UI_MODE_NEXT))
-		input |= OSD_INPUT_MODE_NEXT;
-	if (input_ui_pressed(IPT_UI_COCKTAIL))
-		input |= OSD_INPUT_COCKTAIL;
-	if (input_ui_pressed(IPT_UI_HELP))
-		input |= OSD_INPUT_HELP;
-	if (input_ui_pressed(IPT_UI_SHOW_FPS))
-		input |= OSD_INPUT_SHOW_FPS;
-	/* continous input */
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
-		input |= OSD_INPUT_PAN_RIGHT;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_LEFT)))
-		input |= OSD_INPUT_PAN_LEFT;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_UP)))
-		input |= OSD_INPUT_PAN_UP;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_DOWN)))
-		input |= OSD_INPUT_PAN_DOWN;
-	if (seq_pressed(input_port_type_seq(IPT_UI_TURBO)))
-		input |= OSD_INPUT_TURBO;
-	if (seq_pressed(input_port_type_seq(IPT_COIN1)))
-		input |= OSD_INPUT_COIN1;
-	if (seq_pressed(input_port_type_seq(IPT_COIN2)))
-		input |= OSD_INPUT_COIN2;
-	if (seq_pressed(input_port_type_seq(IPT_COIN3)))
-		input |= OSD_INPUT_COIN3;
-	if (seq_pressed(input_port_type_seq(IPT_COIN4)))
-		input |= OSD_INPUT_COIN4;
-	if (seq_pressed(input_port_type_seq(IPT_START1)))
-		input |= OSD_INPUT_START1;
-	if (seq_pressed(input_port_type_seq(IPT_START2)))
-		input |= OSD_INPUT_START2;
-	if (seq_pressed(input_port_type_seq(IPT_START3)))
-		input |= OSD_INPUT_START3;
-	if (seq_pressed(input_port_type_seq(IPT_START4)))
-		input |= OSD_INPUT_START4;
-
-	GLUE.input = input;
 
 	return 0;
 }

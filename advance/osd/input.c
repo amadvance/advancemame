@@ -1275,7 +1275,7 @@ adv_error advance_input_parse_analogname(unsigned* type, const char* buffer)
 	struct mame_analog* i;
 
 	if (strlen(buffer) < 3) {
-		log_std(("WARNING:emu:glue: unknown analog name %s\n", buffer));
+		log_std(("WARNING:emu:input: unknown analog name %s\n", buffer));
 		return -1;
 	}
 
@@ -1283,7 +1283,7 @@ adv_error advance_input_parse_analogname(unsigned* type, const char* buffer)
 		if (strcmp(i->name, buffer)==0)
 			break;
 	if (!i->name) {
-		log_std(("WARNING:emu:glue: unknown analog name %s\n", buffer));
+		log_std(("WARNING:emu:input: unknown analog name %s\n", buffer));
 		return -1;
 	}
 
@@ -1340,7 +1340,7 @@ int advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned 
 
 	a = mame_analog_find(type & (~IPF_MASK | IPF_PLAYERMASK));
 	if (!a) {
-		log_std(("WARNING:emu:glue: unknown analog port %d\n", type & (~IPF_MASK | IPF_PLAYERMASK)));
+		log_std(("WARNING:emu:input: unknown analog port %d\n", type & (~IPF_MASK | IPF_PLAYERMASK)));
 		return -1;
 	}
 
@@ -2125,7 +2125,10 @@ void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned s
 	const mame_game* game = CONTEXT.game;
 	const struct mame_port* p;
 
-	log_std(("emu:input: osd2_customize_inputport_post_game(%d)\n", type));
+	if (seq)
+		log_std(("emu:input: osd2_customize_inputport_post_game(%d, set)\n", type));
+	else
+		log_std(("emu:input: osd2_customize_inputport_post_game(%d, clear)\n", type));
 
 	p = mame_port_list();
 	while (p->name) {
@@ -2153,6 +2156,10 @@ void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned s
 		}
 
 		++p;
+	}
+
+	if (!p->name) {
+		log_std(("WARNING:emu:input: customization for unknown port %d not saved\n", type));
 	}
 }
 

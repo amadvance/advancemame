@@ -1,15 +1,4 @@
 ############################################################################
-# Common version
-
-ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.81.0.0
-else
-EMUVERSION = 0.81.1
-endif
-MENUVERSION = 2.3.3
-CABVERSION = 1.1.4
-
-############################################################################
 # Common dir
 
 OBJ = obj/$(CONF_EMU)/$(BINARYDIR)
@@ -43,6 +32,7 @@ INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
 ifeq ($(CONF_EMU),mess)
+INSTALL_DATAFILES += $(srcdir)/support/sysinfo.dat
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
 endif
 endif

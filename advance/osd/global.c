@@ -41,28 +41,8 @@
 #include "lcd.h"
 #endif
 
-/**
- * Function called while loading ROMs.
- * It's called with romdata == 0 to print a message.
- * \return
- *  - !=0 to abort loading
- *  - ==0 on success
- */
-int osd_display_loading_rom_message(const char* name, struct rom_load_data* romdata)
-{
-	struct advance_global_context* context = &CONTEXT.global;
-
-	log_std(("osd: osd_display_loading_rom_message(name:%s)\n", name));
-
-	if (!romdata && name) {
-		/* it's a message */
-		if (!context->config.quiet_flag || strstr(name,"ERROR")!=0) {
-			target_err("%s", name);
-		}
-	}
-
-	return 0;
-}
+/***************************************************************************/
+/* Advance */
 
 /**
  * Display a message.
@@ -96,6 +76,32 @@ void advance_global_lcd(struct advance_global_context* context, unsigned row, co
 		adv_lcd_display(context->state.lcd, row, text, context->config.lcd_speed);
 	}
 #endif
+}
+
+/***************************************************************************/
+/* OSD */
+
+/**
+ * Function called while loading ROMs.
+ * It's called with romdata == 0 to print a message.
+ * \return
+ *  - !=0 to abort loading
+ *  - ==0 on success
+ */
+int osd_display_loading_rom_message(const char* name, struct rom_load_data* romdata)
+{
+	struct advance_global_context* context = &CONTEXT.global;
+
+	log_std(("osd: osd_display_loading_rom_message(name:%s)\n", name));
+
+	if (!romdata && name) {
+		/* it's a message */
+		if (!context->config.quiet_flag || strstr(name,"ERROR")!=0) {
+			target_err("%s", name);
+		}
+	}
+
+	return 0;
 }
 
 /**
@@ -152,9 +158,11 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 
 			end = i;
 
+			/* set only one */
 			break;
+		} else {
+			++i;
 		}
-		++i;
 	}
 
 	if (!value) {
@@ -256,6 +264,115 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 	log_std(("emu:global: difficulty dip switch set to '%s'\n", level->name));
 }
 
+static void customize_freeplay(struct advance_global_context* context, struct InputPort* current)
+{
+	struct InputPort* i;
+	adv_bool atleastone;
+
+	if (!context->config.freeplay_flag)
+		return;
+
+	atleastone = 0;
+
+	i = current;
+	while ((i->type & ~IPF_MASK) != IPT_END) {
+		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME) {
+			struct InputPort* value;
+			struct InputPort* freeplay_exact;
+			struct InputPort* freeplay_in;
+
+			/* the value is stored in the NAME item */
+			value = i;
+
+			freeplay_exact = 0;
+			freeplay_in = 0;
+
+			++i;
+
+			/* read the value */
+			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+				if (!freeplay_exact && sglob(i->name, "Free?Play")) {
+					freeplay_exact = i;
+				} else if (!freeplay_in && sglob(i->name, "*Free?Play*")) {
+					freeplay_in = i;
+				}
+				++i;
+			}
+
+			if (freeplay_exact == 0 && freeplay_in != 0) {
+				freeplay_exact = freeplay_in;
+			}
+
+			if (freeplay_exact) {
+				/* set the difficulty */
+				value->default_value = freeplay_exact->default_value & value->mask;
+				atleastone = 1;
+			}
+		} else {
+			++i;
+		}
+	}
+
+	if (atleastone) {
+		log_std(("emu:global: freeplay dip switch set\n"));
+	}
+}
+
+static void customize_mutedemo(struct advance_global_context* context, struct InputPort* current)
+{
+	struct InputPort* i;
+	adv_bool atleastone;
+
+	if (!context->config.mutedemo_flag)
+		return;
+
+	atleastone = 0;
+
+	i = current;
+	while ((i->type & ~IPF_MASK) != IPT_END) {
+		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME) {
+			struct InputPort* value;
+			struct InputPort* exact;
+
+			adv_bool match_name = strcmp(i->name, "Demo Sounds") == 0
+				|| strcmp(i->name, "Demo Music") == 0;
+
+			/* the value is stored in the NAME item */
+			value = i;
+
+			exact = 0;
+
+			++i;
+
+			/* read the value */
+			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+				if (match_name) {
+					if (!exact && strcmp(i->name, "Off")==0) {
+						exact = i;
+					}
+				} else {
+					if (!exact && strcmp(i->name, "Demo Sounds Off")==0) {
+						exact = i;
+					}
+				}
+				++i;
+			}
+
+			if (exact) {
+				/* set the difficulty */
+				value->default_value = exact->default_value & value->mask;
+				atleastone = 1;
+			}
+		} else {
+			++i;
+		}
+	}
+
+	if (atleastone) {
+		log_std(("emu:global: mutedemo dip switch set\n"));
+	}
+}
+
 static void customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
 {
 	struct InputPort* i;
@@ -341,7 +458,7 @@ static void customize_input(struct advance_global_context* context, adv_conf* cf
 	while (i->type != IPT_END) {
 		struct mame_port* p;
 
-		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type));
+		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type, i[0].name));
 		if (p != 0) {
 			char tag_buffer[64];
 			const char* value;
@@ -378,6 +495,8 @@ void osd_customize_inputport_pre_game(struct InputPort* current)
 	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
 
 	customize_difficulty(context, current);
+	customize_freeplay(context, current);
+	customize_mutedemo(context, current);
 
 	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
 #ifdef MESS
@@ -398,7 +517,7 @@ void osd_customize_inputport_pre_defaults(struct ipd* defaults)
 	while (i->type != IPT_END) {
 		struct mame_port* p;
 
-		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type));
+		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type, i[0].name));
 		if (p != 0) {
 			char tag_buffer[64];
 			const char* value;
@@ -440,6 +559,9 @@ void osd2_customize_port_post_game(const char* tag, const char* value)
 	}
 }
 
+/***************************************************************************/
+/* Initialization */
+
 static adv_conf_enum_int OPTION_DIFFICULTY[] = {
 { "none", DIFFICULTY_NONE },
 { "easiest", DIFFICULTY_EASIEST },
@@ -453,6 +575,8 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 {
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
+	conf_bool_register_default(cfg_context, "misc_freeplay", 0);
+	conf_bool_register_default(cfg_context, "misc_mutedemo", 0);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
 
 #ifdef USE_LCD
@@ -470,6 +594,8 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 
 	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
+	context->config.freeplay_flag = conf_bool_get_default(cfg_context, "misc_freeplay");
+	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");
 
 #ifdef USE_LCD

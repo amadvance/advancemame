@@ -43,6 +43,11 @@
 
 #include "SDL.h"
 
+/**
+ * Base for the volume adjustment.
+ */
+#define SDL_VOLUME_BASE 32768
+
 #define FIFO_MAX 32768
 
 struct sdl_option_struct {
@@ -63,7 +68,7 @@ struct soundb_sdl_context {
 
 	adv_bool underflow_flag;
 
-	int volume; /**< Volume adjustmennt. 256 == 1.0 */
+	int volume; /**< Volume adjustement. SDL_VOLUME_BASE == full volume. */
 };
 
 static struct soundb_sdl_context sdl_state;
@@ -117,7 +122,7 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	sdl_state.underflow_flag = 0;
 	sdl_state.fifo_pos = 0;
 	sdl_state.fifo_mac = 0;
-	sdl_state.volume = 256;
+	sdl_state.volume = SDL_VOLUME_BASE;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
 		error_set("Function SDL_InitSubSystem(SDL_INIT_AUDIO) failed, %s.\n", SDL_GetError());
@@ -183,11 +188,11 @@ void soundb_sdl_volume(double volume)
 {
 	log_std(("sound:sdl: soundb_sdl_volume(volume:%g)\n", (double)volume));
 
-	sdl_state.volume = volume * 256;
+	sdl_state.volume = volume * SDL_VOLUME_BASE;
 	if (sdl_state.volume < 0)
 		sdl_state.volume = 0;
-	if (sdl_state.volume > 256)
-		sdl_state.volume = 256;
+	if (sdl_state.volume > SDL_VOLUME_BASE)
+		sdl_state.volume = SDL_VOLUME_BASE;
 }
 
 void soundb_sdl_play(const adv_sample* sample_map, unsigned sample_count)
@@ -213,7 +218,7 @@ void soundb_sdl_play(const adv_sample* sample_map, unsigned sample_count)
 	i = (sdl_state.fifo_pos + sdl_state.fifo_mac) % FIFO_MAX;
 	sdl_state.fifo_mac += count;
 
-	if (sdl_state.volume == 256) {
+	if (sdl_state.volume == SDL_VOLUME_BASE) {
 		while (count) {
 			sdl_state.fifo_map[i] = *sample_map;
 			i = (i+1) % FIFO_MAX;
@@ -222,7 +227,7 @@ void soundb_sdl_play(const adv_sample* sample_map, unsigned sample_count)
 		}
 	} else {
 		while (count) {
-			sdl_state.fifo_map[i] = (int)*sample_map * sdl_state.volume / 256;
+			sdl_state.fifo_map[i] = (int)*sample_map * sdl_state.volume / SDL_VOLUME_BASE;
 			i = (i+1) % FIFO_MAX;
 			--count;
 			++sample_map;

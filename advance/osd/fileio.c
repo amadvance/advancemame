@@ -296,11 +296,9 @@ int osd_fseek(osd_file* file, INT64 offset, int whence)
 	adv_fz* h = (adv_fz*)file;
 	int r;
 
-	log_std(("osd: osd_fseek(%p, offset:%d, whence:%d)\n", file, (int)offset, (int)whence));
-
 	r = fzseek(h, offset, whence);
 
-	log_std(("osd: osd_fseek() -> %d\n", (int)r));
+	log_std(("osd: osd_fseek(%p, offset:%d, whence:%d)-> %d\n", file, (int)offset, (int)whence, (int)r));
 
 	return r;
 }
@@ -310,11 +308,9 @@ UINT64 osd_ftell(osd_file* file)
 	adv_fz* h = (adv_fz*)file;
 	UINT64 r;
 
-	log_std(("osd: osd_ftell(%p)\n", file));
-
 	r = fztell(h);
 
-	log_std(("osd: osd_ftell() -> %d\n", (int)r));
+	log_std(("osd: osd_ftell(%p) -> %d\n", file, (int)r));
 
 	return r;
 }
@@ -322,8 +318,13 @@ UINT64 osd_ftell(osd_file* file)
 int osd_feof(osd_file* file)
 {
 	adv_fz* h = (adv_fz*)file;
+	int r;
 
-	return fzeof(h);
+	r = fzeof(h);
+
+	log_debug(("osd: osd_feof(%p) -> %d\n", file, (int)r));
+
+	return r;
 }
 
 UINT32 osd_fread(osd_file* file, void* buffer, UINT32 length)
@@ -331,11 +332,9 @@ UINT32 osd_fread(osd_file* file, void* buffer, UINT32 length)
 	adv_fz* h = (adv_fz*)file;
 	UINT32 r;
 
-	log_pedantic(("osd: osd_fread(length:%d)\n", (int)length));
-
 	r = fzread(buffer, 1, length, h);
 
-	log_pedantic(("osd: osd_fread() -> %d\n", (int)r));
+	log_debug(("osd: osd_fread(%p, length:%d) -> %d\n", file, (int)length, (int)r));
 
 	return r;
 }
@@ -345,11 +344,9 @@ UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 	adv_fz* h = (adv_fz*)file;
 	UINT32 r;
 
-	log_pedantic(("osd: osd_fwrite(length:%d)\n", (int)length));
-
 	r = fzwrite(buffer, 1, length, h);
 
-	log_pedantic(("osd: osd_fwrite() -> %d\n", (int)r));
+	log_debug(("osd: osd_fwrite(%p, length:%d) -> %d\n", file, (int)length,(int)r));
 
 	return r;
 }

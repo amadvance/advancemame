@@ -535,7 +535,7 @@ static void start_handler(void* data, const XML_Char* name, const XML_Char** att
 bool mame_info::load_xml(istream& is, game_set& gar)
 {
 	struct state_t state;
-	char buf[4096];
+	char buf[16384];
 
 	state.parser = XML_ParserCreate(NULL);
 	if (!state.parser) {

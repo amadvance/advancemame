@@ -201,10 +201,7 @@ struct advance_video_config_context {
 };
 
 /** Number of measures of the audio/video syncronization. */
-#define AUDIOVIDEO_MEASURE_MAX 16
-
-/** Number of frames on which distribuite the audio/video syncronization error. */
-#define AUDIOVIDEO_DISTRIBUTE_COUNT 16
+#define AUDIOVIDEO_MEASURE_MAX 17
 
 struct ui_menu_entry {
 	char text_buffer[128];
@@ -303,8 +300,10 @@ struct advance_video_state_context {
 	adv_bool thread_state_skip_flag; /**< Thread frame skip_flag to use. */
 #endif
 
+	unsigned frame_counter; /**< Counter of number of frames. */
+
 	/* Fastest startup */
-	unsigned fastest_counter; /**< Startup frame counter (it isn't reset during the game play) */
+	unsigned fastest_limit; /**< Startup frame counter limit. */
 	adv_bool fastest_flag; /**< Fastest active flag. */
 
 	/* Measure */
@@ -469,81 +468,6 @@ adv_bool advance_record_snapshot_is_active(struct advance_record_context* contex
 adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 
 /***************************************************************************/
-/* Sound */
-
-/** Sound mode (enumeration). */
-/*@{*/
-#define SOUND_MODE_AUTO -1
-#define SOUND_MODE_MONO 0
-#define SOUND_MODE_STEREO 1
-#define SOUND_MODE_SURROUND 2
-/*@}*/
-
-struct advance_sound_config_context {
-	double latency_time; /**< Requested minimum latency in seconds */
-	int mode; /**< Channel mode. */
-	int attenuation; /**< Sound attenuation in db (0 == full volume). */
-	adv_bool adjust_flag; /**< Adjust the sound volume. */
-};
-
-struct advance_sound_state_context {
-	adv_bool active_flag; /**< Flag for active sound. */
-	double volume; /**< Current volume. [0 - 1]. */
-	unsigned latency_min; /**< Expected minum latency in samples. */
-	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
-	unsigned rate; /**< Current sample rate */
-	int input_mode; /**< Input mode format. */
-	int output_mode; /**< Output mode format. */
-	unsigned input_bytes_per_sample; /**< Input data sample size. */
-	unsigned output_bytes_per_sample; /**< Output data sample size. */
-	unsigned snapshot_counter; /**< Current snapshot counter */
-	int adjust_limit; /**< Current high sample value. */
-	unsigned adjust_mult; /**< Sample multiplicator. */
-};
-
-struct advance_sound_context {
-	struct advance_sound_config_context config;
-	struct advance_sound_state_context state;
-};
-
-adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
-void advance_sound_done(struct advance_sound_context* context);
-adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
-void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount);
-int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
-
-/***************************************************************************/
-/* Estimate */
-
-struct advance_estimate_context {
-	double estimate_mame_full; /**< Estimate time for a MAME full frame */
-	double estimate_mame_skip; /**< Estimate time for a MAME skip frame */
-	double estimate_osd_full; /**< Estimate time for a OSD full frame */
-	double estimate_osd_skip; /**< Estimate time for a OSD skip frame */
-	double estimate_common_full;
-	double estimate_common_skip;
-	double estimate_frame; /**< Estimate time for a MAME+OSD frame */
-	adv_bool estimate_mame_flag; /**< If last time at point 1 is set */
-	adv_bool estimate_osd_flag; /**< If last time at point 2 is set */
-	adv_bool estimate_frame_flag; /**< If last time at point 3 is set */
-	adv_bool estimate_common_flag;
-	double estimate_mame_last; /**< Last time at point 1 */
-	double estimate_osd_last; /**< Last time at point 2 */
-	double estimate_frame_last; /**< Last time at point 3 */
-	double estimate_common_last;
-};
-
-void advance_estimate_init(struct advance_estimate_context* context, double step);
-
-void advance_estimate_mame_begin(struct advance_estimate_context* context);
-void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag);
-void advance_estimate_osd_begin(struct advance_estimate_context* context);
-void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag);
-void advance_estimate_frame(struct advance_estimate_context* context);
-void advance_estimate_common_begin(struct advance_estimate_context* context);
-void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag);
-
-/***************************************************************************/
 /* SafeQuit */
 
 #define SAFEQUIT_ENTRY_MAX 256
@@ -609,8 +533,92 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 void advance_safequit_inner_done(struct advance_safequit_context* context);
 adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
 adv_bool advance_safequit_can_exit(struct advance_safequit_context* context);
-adv_bool advance_safequit_event_mask(struct advance_safequit_context* context);
+unsigned advance_safequit_event_mask(struct advance_safequit_context* context);
 void advance_safequit_update(struct advance_safequit_context* context);
+
+/***************************************************************************/
+/* Sound */
+
+/** Sound mode (enumeration). */
+/*@{*/
+#define SOUND_MODE_AUTO -1
+#define SOUND_MODE_MONO 0
+#define SOUND_MODE_STEREO 1
+#define SOUND_MODE_SURROUND 2
+/*@}*/
+
+struct advance_sound_config_context {
+	double latency_time; /**< Requested minimum latency in seconds */
+	int mode; /**< Channel mode. */
+	int attenuation; /**< Sound attenuation in db (0 == full volume). */
+	adv_bool adjust_flag; /**< Adjust the sound volume. */
+	adv_bool mutedemo_flag; /**< Mute on demo. */
+	adv_bool mutestartup_flag; /**< Mute on startup. */
+};
+
+struct advance_sound_state_context {
+	adv_bool active_flag; /**< Flag for active sound. */
+	double volume; /**< Current volume. [0 - 1]. */
+	unsigned latency_min; /**< Expected minum latency in samples. */
+	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
+	unsigned rate; /**< Current sample rate */
+	int input_mode; /**< Input mode format. */
+	int output_mode; /**< Output mode format. */
+	unsigned input_bytes_per_sample; /**< Input data sample size. */
+	unsigned output_bytes_per_sample; /**< Output data sample size. */
+	unsigned snapshot_counter; /**< Current snapshot counter */
+
+	unsigned adjust_power_counter; /**< Sample counter for the power computation. */
+	unsigned adjust_power_counter_limit; /**< Limit for the counter. */
+	long long adjust_power_accumulator; /**< Power accumulator. */
+	long long adjust_power; /**< Current max normalized power. */
+	unsigned adjust_mult; /**< Sample multiplicator. */
+
+	adv_bool mute_flag; /**< Mute state. */
+};
+
+struct advance_sound_context {
+	struct advance_sound_config_context config;
+	struct advance_sound_state_context state;
+};
+
+adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
+void advance_sound_done(struct advance_sound_context* context);
+adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
+void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power);
+int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
+int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
+
+/***************************************************************************/
+/* Estimate */
+
+struct advance_estimate_context {
+	double estimate_mame_full; /**< Estimate time for a MAME full frame */
+	double estimate_mame_skip; /**< Estimate time for a MAME skip frame */
+	double estimate_osd_full; /**< Estimate time for a OSD full frame */
+	double estimate_osd_skip; /**< Estimate time for a OSD skip frame */
+	double estimate_common_full;
+	double estimate_common_skip;
+	double estimate_frame; /**< Estimate time for a MAME+OSD frame */
+	adv_bool estimate_mame_flag; /**< If last time at point 1 is set */
+	adv_bool estimate_osd_flag; /**< If last time at point 2 is set */
+	adv_bool estimate_frame_flag; /**< If last time at point 3 is set */
+	adv_bool estimate_common_flag;
+	double estimate_mame_last; /**< Last time at point 1 */
+	double estimate_osd_last; /**< Last time at point 2 */
+	double estimate_frame_last; /**< Last time at point 3 */
+	double estimate_common_last;
+};
+
+void advance_estimate_init(struct advance_estimate_context* context, double step);
+
+void advance_estimate_mame_begin(struct advance_estimate_context* context);
+void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag);
+void advance_estimate_osd_begin(struct advance_estimate_context* context);
+void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag);
+void advance_estimate_frame(struct advance_estimate_context* context);
+void advance_estimate_common_begin(struct advance_estimate_context* context);
+void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag);
 
 /***************************************************************************/
 /* Input */
@@ -718,7 +726,9 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 
 struct advance_global_config_context {
 	int difficulty; /**< Difficulty level. */
+	adv_bool freeplay_flag; /**< Free play switch. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
+	adv_bool mutedemo_flag; /**< Mute demo mode. */
 	double pause_brightness; /**< Display brightness when paused. */
 	char lcd_server_buffer[256]; /**< Server (address:port) for the LCD output. */
 	int lcd_timeout; /**< LCD timeout in ms. */
@@ -804,6 +814,7 @@ struct advance_ui_state_context {
 	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
 	char ui_direct_buffer[256]; /**< Direct text on screen message. */
 	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
+	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
 
 	adv_bitmap* help_image; /**< Help image. */
 	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
@@ -819,6 +830,7 @@ void advance_ui_message_va(struct advance_ui_context* context, const char* text,
 void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
 void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
+void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
 void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
 void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);

@@ -443,7 +443,7 @@ adv_error video_init(void)
 
 	error_cat_set(0,0);
 
-	log_std(("video: video_init report:\n%s\n", error_get()));
+	log_std(("video: video_init report (multiline):\n%s\n", error_get()));
 
 	if (!at_least_one) {
 		log_std(("video: no video driver activated\n"));
@@ -873,20 +873,6 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	if (crtc_is_singlescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) == 0) {
 			error_nolog_set("Mode singlescan not supported.\n");
-			return -1;
-		}
-	}
-
-	if (crtc_is_tvpal(crtc)) {
-		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL) == 0) {
-			error_nolog_set("Mode TV-PAL not supported.\n");
-			return -1;
-		}
-	}
-
-	if (crtc_is_tvntsc(crtc)) {
-		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC) == 0) {
-			error_nolog_set("Mode TV-NTSC not supported.\n");
 			return -1;
 		}
 	}

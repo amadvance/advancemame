@@ -52,8 +52,6 @@ extern "C" {
 #define CRTC_FLAGS_NVSYNC 0x2 /**< Negative vertical sync. */
 #define CRTC_FLAGS_DOUBLESCAN 0x4 /**< Double Scan. */
 #define CRTC_FLAGS_INTERLACE 0x8 /**< Interlaced. */
-#define CRTC_FLAGS_TVPAL 0x10 /**< Video mode converted to the PAL format with an hardware scan converter. */
-#define CRTC_FLAGS_TVNTSC 0x20 /**< Video mode converted to the NTSC format with an hardware scan converter. */
 /*@}*/
 
 #define CRTC_NAME_MAX 128
@@ -132,24 +130,6 @@ static inline  adv_bool crtc_is_singlescan(const adv_crtc* crtc)
 	return !crtc_is_doublescan(crtc) && !crtc_is_interlace(crtc);
 }
 
-/** Check if a CRTC specification is tvpal. */
-static inline  adv_bool crtc_is_tvpal(const adv_crtc* crtc)
-{
-	return (crtc->flags & CRTC_FLAGS_TVPAL) != 0;
-}
-
-/** Check if a CRTC specification is tvntsc. */
-static inline  adv_bool crtc_is_tvntsc(const adv_crtc* crtc)
-{
-	return (crtc->flags & CRTC_FLAGS_TVNTSC) != 0;
-}
-
-/** Check if a CRTC specification is notv. */
-static inline  adv_bool crtc_is_notv(const adv_crtc* crtc)
-{
-	return !crtc_is_tvpal(crtc) && !crtc_is_tvntsc(crtc);
-}
-
 /** Check if a CRTC specification is negative horizontal sync. */
 static inline  adv_bool crtc_is_nhsync(const adv_crtc* crtc)
 {
@@ -225,21 +205,6 @@ static inline void crtc_doublescan_set(adv_crtc* crtc)
 static inline void crtc_interlace_set(adv_crtc* crtc)
 {
 	crtc_flags_set(crtc, CRTC_FLAGS_INTERLACE, CRTC_FLAGS_INTERLACE | CRTC_FLAGS_DOUBLESCAN);
-}
-
-static inline void crtc_notv_set(adv_crtc* crtc)
-{
-	crtc_flags_set(crtc, 0, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
-}
-
-static inline void crtc_tvpal_set(adv_crtc* crtc)
-{
-	crtc_flags_set(crtc, CRTC_FLAGS_TVPAL, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
-}
-
-static inline void crtc_tvntsc_set(adv_crtc* crtc)
-{
-	crtc_flags_set(crtc, CRTC_FLAGS_TVNTSC, CRTC_FLAGS_TVPAL | CRTC_FLAGS_TVNTSC);
 }
 
 void crtc_name_set(adv_crtc* crtc, const char* name);

@@ -32,6 +32,7 @@
 
 #include "conf.h"
 #include "incstr.h"
+#include "snstring.h"
 #include "log.h"
 #include "target.h"
 
@@ -81,25 +82,6 @@ static adv_bool partial_match(const char* s, const char* partial)
 
 		++p; /* skip the '_' */
 	}
-}
-
-static adv_bool glob_match(const char* s, const char* glob)
-{
-	while (*s && *glob) {
-		if (*glob=='*') {
-			if (glob_match(s, glob+1))
-				return 1;
-			++s;
-		} else if (*glob != *s) {
-			return 0;
-		} else {
-			++glob;
-			++s;
-		}
-	}
-	while (*glob == '*')
-		++glob;
-	return !*s && !*glob;
 }
 
 static char* glob_subst(const char* format, char* own_s)
@@ -1244,9 +1226,9 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 		unsigned conv;
 		/* use the conversion map to substitute options */
 		for(conv=0;conv<input->conv_mac;++conv) {
-			if (glob_match(own_section, input->conv_map[conv].section_glob)
-				&& glob_match(own_tag, input->conv_map[conv].tag_glob)
-				&& glob_match(own_value, input->conv_map[conv].value_glob)
+			if (sglob(own_section, input->conv_map[conv].section_glob)
+				&& sglob(own_tag, input->conv_map[conv].tag_glob)
+				&& sglob(own_value, input->conv_map[conv].value_glob)
 			) {
 				autoreg = input->conv_map[conv].autoreg;
 				own_section = glob_subst(input->conv_map[conv].section_result, own_section);

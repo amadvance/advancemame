@@ -2,7 +2,7 @@
 # Menu build
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
-$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/advance.mak $(srcdir)/Makefile
+$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
 
 MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
 
@@ -465,6 +465,7 @@ MENU_SRC = \
 
 MENU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/version.mak \
 	$(srcdir)/advance/menu.mak \
 	$(srcdir)/advance/v.mak \
 	$(srcdir)/advance/cfg.mak \

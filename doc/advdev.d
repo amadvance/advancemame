@@ -859,9 +859,9 @@ Sound Drivers Configuration
 	Example:
 		:device_alsa_device dmix
 
-	If you want to configure the ALSA library to as `default' device the
-	`dmix' device for all the applications, you can create the `.asoundrc'
-	in your home directory with the following content:
+	If you want to configure the ALSA library to remap the `default' device
+	to the `dmix' device for all the applications, you can create
+	the `.asoundrc' file in your home directory with the following content:
 
 		:pcm.!default {
 		:	type plug
@@ -890,7 +890,7 @@ Sound Drivers Configuration
 		:}
 
 	Note that the suggested `.asoundrc' on the ALSA web site has a lower
-	`buffer_size' value. For AdvanceMAME a bigger buffer is required.
+	`buffer_size' value (4096). For AdvanceMAME a bigger buffer is required.
 
     device_alsa_mixer
 	Select the alsa mixer device.
@@ -900,8 +900,9 @@ Sound Drivers Configuration
 	Options:
 		DEVICE - Mixer device. The special 'channel' value is
 			used to adjust the volume changing the samples
-			instead of using the mixer. Other values are used to
-			select the ALSA mixer. (default 'channel').
+			instead of using the card mixer. Other values
+			like `default' are used to select the ALSA mixer.
+			(default 'channel').
 
   sdl Configuration Options
     device_sdl_samples
@@ -1001,6 +1002,11 @@ Input Drivers Configuration
 
 	Options for Windows:
 		sdl - SDL joystick interface.
+
+	For the `allegro/psxlpt*', `allegro/db9lpt*', `allegro/tgxlpt*'
+	drivers you can see the source file `advance/dos/jalleg.c'
+	for instructions on how to build the lpt interface. See also
+	the Allegro library source distribution.
 
     device_mouse
 	Selects the mouse driver.

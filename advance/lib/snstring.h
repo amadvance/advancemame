@@ -35,6 +35,8 @@
 #ifndef __SNSTRING_H
 #define __SNSTRING_H
 
+#include "extra.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,6 +52,7 @@ void sncatc(char* dst, size_t len, char src);
 void sncatf(char* str, size_t count, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore);
 void sskip(int* p, const char* s, const char* sep);
+adv_bool sglob(const char* s, const char* glob);
 
 /*@}*/
 

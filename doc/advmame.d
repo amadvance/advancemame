@@ -57,6 +57,7 @@ Keys
 	P - Pause.
 	PAD * - Turbo mode until pressed.
 	PAD / - Cocktail mode (flip the screen vertically).
+	PAD - - Mark the current time as the startup time of the game.
 	CTRL + ENTER - Start the sound and video recording.
 	ENTER - Stop the sound and video recording.
 	, - Previous video mode.
@@ -235,9 +236,10 @@ Features
 	You can force a specific video mode with the option
 	`display_mode'.
 
-  Per Game options
-	All the options are customizable for the single game or for
-	a group of games.
+  Per game/resolution/frequency/orientation options
+	All the options are customizable in the configuration file for
+	the single game or for a subset of games defined by the game
+	resolution, frequency and orientation.
 
   Scripts
 	AdvanceMAME supports a basic script language capable to
@@ -266,12 +268,13 @@ Features
 	frame rate, skip the game startup process at the maximum speed,
 	or skip the game animations pressing a key.
 
-	Press `asterick_pad' to enable the `turbo' mode.
+	Press `asterick_pad' to enable the `turbo' mode. Press `minus_pad'
+	to mark the time of the real game start. The next time the game is
+	started, it will execute very fast until this time.
 
 	More details are in the description of the `sync_fps', `sync_speed',
 	`sync_turbospeed' and `sync_startuptime' options.
 
-  Throttle Synchronization
 	The video and audio synchronization uses an advanced algorithm
 	which ensure always the best performance.
 
@@ -285,8 +288,14 @@ Features
 	If the underline Operand System allow that, AdvanceMAME release
 	the CPU when it isn't used after computing each frame reducing the
 	CPU occupation. For example this happen on Linux 2.6 which has a
-	3ms delay granularity, but not in Linux 2.4 and Windows which have
-	a 20ms granularity.
+	3ms delay granularity, but not in Linux 2.4 which has a 20ms
+	granularity.
+
+  Volume Control
+	The audio volume is automatically adjusted to ensure that all the
+	emulated games have the same volume power.
+
+	More details are in the description of the `sound_normalize' option.
 
   Exit Control
 	If you have a real Arcade Cabinet you can configure AdvanceMAME
@@ -318,9 +327,11 @@ Features
 	AdvanceMAME displays the user interface directly on the screen
 	instead on the game image.
 
-	This mean that the interface doesn't have applied the same video
+	This means that the interface doesn't have applied the same video
 	effects of the game, it isn't limited on the game area, it
 	isn't recorded on video clips and you can customize the font.
+
+	Also, True Type fonts with alpha blending are supported.
 
 	More details are in the description of the `ui_*' options.
 
@@ -358,10 +369,20 @@ Features
 
 	Press `slash_pad' to flip the screen.
 
+  Dip Switches Control
+	You can customize with specialized options the game difficulty and
+	the game freeplay. These options are smart enough to solve
+	common ambiguities and errors in the game dip switches definitions.
+
+	More details are in the description of the `misc_diffucilty' and
+	`misc_freeplay' options.
+
   LCD
 	AdvanceMAME is able to talk to a `lcdproc' server located anywhere
 	in internet to display arbitrary information on a real or simulated
 	LCD display.
+
+
 
 Use Cases
 	This section describes some useful cases for AdvanceMAME
@@ -1403,9 +1424,10 @@ Configuration
 		p1_pedal2_autorelease, p2_pedal2, p2_pedal2_autorelease, p3_pedal2, p3_pedal2_autorelease, 
 		p4_pedal2, p4_pedal2_autorelease, start1, start2, start3, start4,
 		coin1, coin2, coin3, coin4, service_coin1, service_coin2, service_coin3, 
-		service_coin4, service, tilt, ui_mode_next, ui_mode_pred, ui_record_start, 
-		ui_record_stop, ui_turbo, ui_configure, ui_on_screen_display, 
-		ui_pause, ui_reset_machine, ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc, 
+		service_coin4, service, tilt, start, select,
+		ui_mode_next, ui_mode_pred, ui_record_start, ui_record_stop, ui_turbo,
+		ui_cocktail, ui_help, ui_startup, ui_configure, ui_on_screen_display,
+		ui_pause, ui_reset_machine, ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc,
 		ui_throttle, ui_show_fps, ui_snapshot, ui_toggle_cheat, ui_up, 
 		ui_down, ui_left, ui_right, ui_select, ui_cancel, ui_pan_up, 
 		ui_pan_down, ui_pan_left, ui_pan_right, ui_show_profiler, ui_toggle_ui, 
@@ -1713,10 +1735,13 @@ Configuration
 	Selects the time in seconds of the duration of the startup
 	speed up.
 
-	:sync_startuptime TIME
+	:sync_startuptime auto | TIME
 
 	Options:
-		TIME - Time in seconds (default 6).
+		auto - Use an internal table to select the
+			startup time from the game name (default).
+			On the unknown game the used value is 0.
+		TIME - Time in seconds.
 
 	Use 0 seconds to disable the startup turbo effect.
 
@@ -1818,6 +1843,27 @@ Configuration
 		normal - Normal game play.
 		hard - Hard game play.
 		hardest - Hardest game play.
+
+    misc_freeplay
+	Selects the freeplay mode if the game support it. This option works
+	only with games which select the freeplay mode with dip switches.
+
+	:misc_freeplay yes | no
+
+	Options:
+		no - Don't change the default mode (default).
+		yes - Activate the freeplay.
+
+    misc_mutedemo
+	Selects the demo sound mode if the game support it. This option use
+	the dip switches of the game and also the event database to detect
+	if the game is in demo mode.
+
+	:misc_mutedemo yes | no
+
+	Options:
+		no - Don't change the default mode (default).
+		yes - Mute the demo sounds.
 
     misc_smp
 	Enables the "Symmetric Multi-Processing" (SMP).

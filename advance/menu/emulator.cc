@@ -367,7 +367,7 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 		arg = subs(arg, "%s", g.name_without_emulator_get());
 		const path_container& pc = g.rom_zip_set_get();
 
-		if (pc.size()) {
+		if (!pc.empty()) {
 			string path = *pc.begin();
 			arg = subs(arg, "%p", path_export(path));
 			arg = subs(arg, "%f", path_export(file_file(path)));

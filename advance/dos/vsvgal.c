@@ -246,10 +246,6 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
 	if (adv_svgalib_state.has_interlace)
 		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-	if (adv_svgalib_state.has_tvpal)
-		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
-	if (adv_svgalib_state.has_tvntsc)
-		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
 
 	svgaline_state.active = 1;
 
@@ -308,7 +304,7 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 		memcpy(svgaline_state.original, svgaline_state.saved, sizeof(svgaline_state.original));
 	}
 
-	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
+	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), 0, 0) != 0) {
 		adv_svgalib_linear_unmap();
 		error_set("Generic error setting the svgaline mode");
 		return -1;

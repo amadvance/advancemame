@@ -5,7 +5,7 @@ diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
 --- srcmess.ori/common.c	2004-01-28 19:03:52.000000000 +0100
-+++ srcmess/common.c	2004-04-13 13:56:03.000000000 +0200
++++ srcmess/common.c	2004-05-02 22:03:54.000000000 +0200
 @@ -754,10 +754,11 @@
  	the given filename
  -------------------------------------------------*/
@@ -176,7 +176,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive srcmess.ori/fileio.c srcmess/fileio.c
 --- srcmess.ori/fileio.c	2004-04-05 15:38:01.000000000 +0200
-+++ srcmess/fileio.c	2004-04-13 13:56:03.000000000 +0200
++++ srcmess/fileio.c	2004-05-05 18:29:54.000000000 +0200
 @@ -73,10 +73,11 @@
  	UINT64 offset;
  	UINT64 length;
@@ -320,8 +320,8 @@ diff -U 5 --new-file --recursive srcmess.ori/fileio.c srcmess/fileio.c
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
 --- srcmess.ori/inptport.c	2004-03-09 00:01:32.000000000 +0100
-+++ srcmess/inptport.c	2004-04-13 13:56:03.000000000 +0200
-@@ -201,10 +201,15 @@
++++ srcmess/inptport.c	2004-05-05 18:42:05.000000000 +0200
+@@ -201,10 +201,16 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -332,12 +332,13 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
 +	{ IPT_UI_TURBO,             "Turbo", SEQ_DEF_1(KEYCODE_ASTERISK) },
 +	{ IPT_UI_COCKTAIL,          "Cocktail", SEQ_DEF_1(KEYCODE_SLASH_PAD) },
 +	{ IPT_UI_HELP,              "Help", SEQ_DEF_1(KEYCODE_F1_REAL) },
++	{ IPT_UI_STARTUP_END,       "Startup End", SEQ_DEF_1(KEYCODE_MINUS_PAD) },
  	{ IPT_UI_TOGGLE_CHEAT,      "Toggle Cheat",			SEQ_DEF_1(KEYCODE_F6) },
  	{ IPT_UI_UP,                "UI Up",				SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -212,10 +217,12 @@
+@@ -212,10 +218,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -350,7 +351,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -431,265 +438,265 @@
+@@ -431,265 +439,265 @@
  	{ IPT_JOYSTICKLEFT_UP     | IPF_PLAYER8, "P8 Left/Up",     SEQ_DEF_0 },
  	{ IPT_JOYSTICKLEFT_DOWN   | IPF_PLAYER8, "P8 Left/Down",   SEQ_DEF_0 },
  	{ IPT_JOYSTICKLEFT_LEFT   | IPF_PLAYER8, "P8 Left/Left",   SEQ_DEF_0 },
@@ -800,7 +801,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{ IPT_START | IPF_PLAYER2, "P2 Start",        SEQ_DEF_3(KEYCODE_2, CODE_OR, JOYCODE_2_START) },
  	{ IPT_START | IPF_PLAYER3, "P3 Start",        SEQ_DEF_3(KEYCODE_3, CODE_OR, JOYCODE_3_START) },
  	{ IPT_START | IPF_PLAYER4, "P4 Start",        SEQ_DEF_3(KEYCODE_4, CODE_OR, JOYCODE_4_START) },
-@@ -1581,10 +1588,13 @@
+@@ -1581,10 +1589,13 @@
  	config_file *cfg;
  
  	osd_customize_inputport_defaults(inputport_defaults);
@@ -814,7 +815,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{
  		config_read_default_ports(cfg, inputport_defaults);
  		config_close(cfg);
-@@ -1638,10 +1648,13 @@
+@@ -1638,10 +1649,13 @@
  
  getout:
  		config_close(cfg);
@@ -828,7 +829,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		int i;
  		for (i = 0; i < MAX_INPUT_PORTS; i++)
  			input_analog_init[i] = 1;
-@@ -2140,14 +2153,16 @@
+@@ -2140,14 +2154,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -849,7 +850,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2503,11 +2518,11 @@
+@@ -2503,11 +2519,11 @@
  				}
  				else
  				{
@@ -864,8 +865,8 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
 --- srcmess.ori/inptport.h	2004-03-27 23:44:01.000000000 +0100
-+++ srcmess/inptport.h	2004-04-13 13:56:03.000000000 +0200
-@@ -85,10 +85,17 @@
++++ srcmess/inptport.h	2004-05-05 18:41:42.000000000 +0200
+@@ -85,10 +85,18 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -878,6 +879,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
 +	IPT_UI_TURBO,
 +	IPT_UI_COCKTAIL,
 +	IPT_UI_HELP,
++	IPT_UI_STARTUP_END,
  	IPT_UI_CONFIGURE,
  	IPT_UI_ON_SCREEN_DISPLAY,
  	IPT_UI_PAUSE,
@@ -1224,7 +1226,7 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
 --- srcmess.ori/usrintrf.c	2004-04-01 18:32:00.000000000 +0200
-+++ srcmess/usrintrf.c	2004-04-13 13:57:38.000000000 +0200
++++ srcmess/usrintrf.c	2004-05-03 15:33:45.000000000 +0200
 @@ -835,10 +835,13 @@
  #pragma mark BOXES & LINES
  #endif
@@ -1488,7 +1490,21 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  /* Display text entry for current driver from history.dat and mameinfo.dat. */
  static int displayhistory (struct mame_bitmap *bitmap, int selected)
-@@ -3079,16 +3144,16 @@
+@@ -2856,11 +2921,13 @@
+ 		{
+ 			/* try to load entry */
+ 			if (load_driver_history (Machine->gamedrv, buf, bufsize) == 0)
+ 			{
+ 				scroll = 0;
++#if 0 /* AdvanceMAME: The text is internally wrapped */
+ 				wordwrap_text_buffer (buf, maxcols);
++#endif
+ 				strcat(buf,"\n\t");
+ 				strcat(buf,ui_getstring (UI_lefthilight));
+ 				strcat(buf," ");
+ 				strcat(buf,ui_getstring (UI_returntomain));
+ 				strcat(buf," ");
+@@ -3079,16 +3146,16 @@
  
  
  #ifndef MESS
@@ -1507,7 +1523,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3202,10 +3267,11 @@
+@@ -3202,10 +3269,11 @@
  	}
  #endif
  #endif
@@ -1519,7 +1535,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3272,10 +3338,13 @@
+@@ -3272,10 +3340,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -1533,7 +1549,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  #ifndef MMSND
  			case UI_MEMCARD:
  				res = memcard_menu(bitmap, sel >> SEL_BITS);
-@@ -3328,10 +3397,11 @@
+@@ -3328,10 +3399,11 @@
  			case UI_CONFIGURATION:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -1545,7 +1561,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3368,10 +3438,13 @@
+@@ -3368,10 +3440,13 @@
  
  *********************************************************************/
  
@@ -1559,7 +1575,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3393,10 +3466,11 @@
+@@ -3393,10 +3468,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -1571,7 +1587,27 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3749,10 +3823,13 @@
+@@ -3426,17 +3502,17 @@
+ 	if (increment)
+ 	{
+ 		attenuation = osd_get_mastervolume();
+ 		attenuation += increment;
+ 		if (attenuation > 0) attenuation = 0;
+-		if (attenuation < -32) attenuation = -32;
++		if (attenuation < -40) attenuation = -40;
+ 		osd_set_mastervolume(attenuation);
+ 	}
+ 	attenuation = osd_get_mastervolume();
+ 
+ 	sprintf(buf,"%s %3ddB", ui_getstring (UI_volume), attenuation);
+-	displayosd(bitmap,buf,100 * (attenuation + 32) / 32,100);
++	displayosd(bitmap,buf,100 * (attenuation + 40) / 40,100);
+ }
+ 
+ static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
+ {
+ 	static void *driver = 0;
+@@ -3749,10 +3825,13 @@
  *********************************************************************/
  
  
@@ -1585,7 +1621,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3772,10 +3849,11 @@
+@@ -3772,10 +3851,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -1597,7 +1633,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -3897,10 +3975,11 @@
+@@ -3897,10 +3977,11 @@
  	return show_profiler;
  }
  
@@ -1609,7 +1645,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	int done = 0;
  	int y = 0;
  
-@@ -3938,32 +4017,35 @@
+@@ -3938,32 +4019,35 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1650,7 +1686,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4079,10 +4161,14 @@
+@@ -4079,10 +4163,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1665,7 +1701,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4091,11 +4177,11 @@
+@@ -4091,11 +4179,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1678,7 +1714,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4174,16 +4260,18 @@
+@@ -4174,16 +4262,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);

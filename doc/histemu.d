@@ -1,18 +1,30 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.81.2 2004/05
+AdvanceMAME Version 0.82.0 2004/05
+	) Added a new "Startup End" key (minus on numeric pad) to store
+		in the configuration file the startuptime required for
+		the current game. Simply press it when the game start.
+	) The `sync_startuptime' now has an `auto' value which use an
+		internal table to select the correct startup time.
 	) The sound normalization is now computed using the normalized
-		power of the audio.
+		power of the audio and not the maximum value.
+	) Added a new option `misc_freeplay' to enable the freeplay mode
+		changing the game dipswitches.
+	) Added a new option `misc_mutedemo' to mute the sound on game demo.
 	) Improved the audio/video syncronization. It should fixes the problems
 		on system which are not able to return the correct number of
 		samples in the audio board buffer.
-	) The `sync_resample' default value is now to use internal
-		resampling.
+	) The `sync_resample' default value is now set to use
+		internal resampling.
 	) Fixed the loading of .rc files from the /etc directory.
 	) Improved the loading speed of the history/mameinfo databases in
-		Linux using the not locked file API.
-	) The history/mameinfo are now wrapped to fit the whole screen.
+		Linux using the unlocked file API.
+	) The history/mameinfo text is now wrapped to fit the whole screen.
+	) Added a new `device_alsa_mixer' option to control the sound mixing.
+		The default is to use an internal mixer to change the volume.
+	) Documented in the `advdev.txt' file how use the ALSA `dmix' plug
+		for a software mixing from multiple programs.
 
 AdvanceMESS Version 0.81.0.1 2004/05
 	) The customization of keyboard ports are now saved in the

@@ -202,7 +202,7 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 	}
 
 	if (!crtc_clock_check(&context->config.monitor, crtc)) {
-		log_std(("ERROR:emu:video: checking the final clock %g/%g/%g\n", (double)crtc->pixelclock / 1E6, crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc)));
+		log_std(("emu:video: failed check on the final clock %g/%g/%g\n", (double)crtc->pixelclock / 1E6, crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc)));
 		return -1;
 	}
 
@@ -287,8 +287,8 @@ static void video_update_sync(struct advance_video_context* context)
 		}
 
 		/* disable the vsync flag if the frame rate is wrong */
-		if (context->state.mode_vclock < reference * 0.96
-			|| context->state.mode_vclock > reference * 1.04) {
+		if (context->state.mode_vclock < reference * 0.97
+			|| context->state.mode_vclock > reference * 1.03) {
 			log_std(("emu:video: vsync disabled because the vclock is too different %g %g\n", reference, context->state.mode_vclock));
 			context->state.vsync_flag = 0;
 		}
@@ -1317,7 +1317,9 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	context->state.menu_sub_flag = 0;
 	context->state.menu_sub_selected = 0;
 
-	context->state.fastest_counter = 0; /* initialize the fastest frame counter */
+	context->state.frame_counter = 0;
+
+	context->state.fastest_limit = 0; /* initialize the fastest frame counter */
 	context->state.fastest_flag = 0; /* not active until the first reset call */
 
 	context->state.measure_counter = 0; /* initialize the measure frame counter */
@@ -1640,7 +1642,7 @@ static void video_frame_resolution(struct advance_video_context* context, unsign
 
 	sncpy(new_resolution, MODE_NAME_MAX, context->config.resolution_buffer);
 
-	if (input == OSD_INPUT_MODE_NEXT) {
+	if ((input & OSD_INPUT_MODE_NEXT) != 0) {
 		show = 1;
 		if (strcmp(new_resolution, "auto")==0) {
 			if (context->state.crtc_mac > 1) {
@@ -1657,7 +1659,7 @@ static void video_frame_resolution(struct advance_video_context* context, unsign
 				modify = 1;
 			}
 		}
-	} else if (input == OSD_INPUT_MODE_PRED) {
+	} else if ((input & OSD_INPUT_MODE_PRED) != 0) {
 		show = 1;
 		if (strcmp(new_resolution, "auto")!=0) {
 			unsigned i;
@@ -1686,28 +1688,28 @@ static void video_frame_pan(struct advance_video_context* context, unsigned inpu
 {
 	adv_bool modify = 0;
 
-	if (input == OSD_INPUT_PAN_RIGHT) {
+	if ((input & OSD_INPUT_PAN_RIGHT) != 0) {
 		if (context->state.game_visible_pos_x + context->state.game_visible_size_x + context->state.game_visible_pos_x_increment <= context->state.game_used_size_x) {
 			context->state.game_visible_pos_x += context->state.game_visible_pos_x_increment;
 			modify = 1;
 		}
 	}
 
-	if (input == OSD_INPUT_PAN_LEFT) {
+	if ((input & OSD_INPUT_PAN_LEFT) != 0) {
 		if (context->state.game_visible_pos_x >= context->state.game_visible_pos_x_increment) {
 			context->state.game_visible_pos_x -= context->state.game_visible_pos_x_increment;
 			modify = 1;
 		}
 	}
 
-	if (input == OSD_INPUT_PAN_UP) {
+	if ((input & OSD_INPUT_PAN_UP) != 0) {
 		if (context->state.game_visible_pos_y + context->state.game_visible_size_y < context->state.game_used_pos_y + context->state.game_used_size_y) {
 			context->state.game_visible_pos_y++;
 			modify = 1;
 		}
 	}
 
-	if (input == OSD_INPUT_PAN_DOWN) {
+	if ((input & OSD_INPUT_PAN_DOWN) != 0) {
 		if (context->state.game_visible_pos_y > context->state.game_used_pos_y) {
 			context->state.game_visible_pos_y--;
 			modify = 1;
@@ -2078,7 +2080,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 			buffer_flag = 1;
 	}
 
-	if (buffer_flag || ui_buffer_active) {
+	if (buffer_flag) {
 		int buf_dw;
 		int buf_dp;
 		unsigned char* buf_ptr;
@@ -2384,7 +2386,7 @@ static void video_time(struct advance_video_context* context, struct advance_est
 		*skip = *full;
 }
 
-/* Define to optimize for full CPU usage instead of full speed */
+/* Define to optimize for full CPU usage (reduce the wait time) instead of full speed */
 /* #define USE_FULLCPU */
 
 static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
@@ -2528,16 +2530,16 @@ static void video_frame_sync(struct advance_video_context* context)
 		context->state.sync_skip_counter = 0;
 
 		/* take only a part of the error, this increase the stability */
-		context->state.sync_pivot *= 0.95;
+		context->state.sync_pivot *= 0.99;
 
 		/* adjust with the previous error */
 		expected += context->state.sync_pivot;
 
 		/* the vsync is used only if all the frames are displayed */
 		if (context->state.vsync_flag && context->state.skip_level_full == SYNC_MAX) {
-			/* wait until the retrace is near (2% early), otherwise if the */
+			/* wait until the retrace is near (3% early), otherwise if the */
 			/* mode has a double freq the retrace may be the wrong one. */
-			double early = 0.02 / video_measured_vclock();
+			double early = 0.03 / video_measured_vclock();
 
 			if (current < expected - early) {
 				current = video_frame_wait(current, expected - early);
@@ -2547,16 +2549,17 @@ static void video_frame_sync(struct advance_video_context* context)
 					double after;
 					video_wait_vsync();
 					after = advance_timer();
-					if (after - current > 1.1 / video_measured_vclock()) {
+					
+					if (after - current > 1.05 / (double)video_measured_vclock()) {
 						log_std(("ERROR:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
-					} else {
-						if (after - current > 2 * early ) {
-							log_std(("WARNING:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
-						}
-						/* if a sync complete correctly reset the error to 0 */
-						/* in this case the vsync is used for the correct clocking */
-						expected = after;
+					} else if (after - current > 1.05 * early) {
+						log_std(("WARNING:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
 					}
+					
+					/* if a sync complete correctly reset the error to 0 */
+					/* in this case the vsync is used for the correct clocking */
+					expected = after;
+					
 					current = after;
 				} else {
 					log_std(("ERROR:emu:video: sync delay too big\n"));
@@ -2615,9 +2618,9 @@ static void video_frame_sync_free(struct advance_video_context* context)
 static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, adv_bool skip_flag)
 {
 	if (!skip_flag) {
-		double full;
-		double skip;
 		double delay;
+
+		adv_bool warming_up = context->state.sync_warming_up_flag;
 
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
@@ -2626,14 +2629,10 @@ static void video_sync_update(struct advance_video_context* context, struct adva
 		else
 			video_frame_sync_free(context);
 
-		video_time(context, estimate_context, &full, &skip);
+		/* this is the time of a single frame, the frame time measure */
+		/* is not used because it is not constant */
 
-		/* if we sync the full frame computation cannot be lower than the frame time */
-		if (full < context->state.skip_step)
-			full = context->state.skip_step;
-
-		/* compute for how much time the sound may not be updated */
-		delay = context->state.skip_level_skip * skip + full;
+		delay = context->state.skip_step;
 
 		context->state.latency_diff = advance_sound_latency_diff(sound_context, delay);
 	} else {
@@ -2711,8 +2710,22 @@ static void video_skip_update(struct advance_video_context* context, struct adva
 	}
 }
 
-static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, int leds_status, unsigned input, adv_bool skip_flag)
+static adv_bool video_is_normal_speed(struct advance_video_context* context)
 {
+	adv_bool normal_speed;
+
+	normal_speed = !context->state.turbo_flag
+		&& !context->state.fastest_flag
+		&& !context->state.measure_flag
+		&& context->state.sync_throttle_flag;
+
+	return normal_speed;
+}
+
+static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, adv_conf* cfg_context, int leds_status, unsigned input, adv_bool skip_flag)
+{
+	/* increment the number of frames */
+	++context->state.frame_counter;
 
 	/* events */
 	video_frame_event(context, safequit_context, leds_status, context->state.turbo_flag, input);
@@ -2737,7 +2750,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		return;
 	}
 
-	if (input == OSD_INPUT_THROTTLE) {
+	if ((input & OSD_INPUT_THROTTLE) != 0) {
 		context->state.sync_throttle_flag = !context->state.sync_throttle_flag;
 
 		video_update_skip(context);
@@ -2749,7 +2762,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		}
 	}
 
-	if (input == OSD_INPUT_FRAMESKIP_INC) {
+	if ((input & OSD_INPUT_FRAMESKIP_INC) != 0) {
 		if (context->config.frameskip_auto_flag) {
 			context->config.frameskip_auto_flag = 0;
 			video_update_skip(context);
@@ -2764,7 +2777,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		}
 	}
 
-	if (input == OSD_INPUT_FRAMESKIP_DEC) {
+	if ((input & OSD_INPUT_FRAMESKIP_DEC) != 0) {
 		if (context->config.frameskip_auto_flag) {
 			context->config.frameskip_auto_flag = 0;
 			video_update_skip(context);
@@ -2779,7 +2792,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		}
 	}
 
-	if (input == OSD_INPUT_SHOW_FPS) {
+	if ((input & OSD_INPUT_SHOW_FPS) != 0) {
 		context->state.info_flag = !context->state.info_flag;
 		context->state.info_counter = 0;
 
@@ -2788,13 +2801,13 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 	}
 
 	if (context->state.turbo_flag) {
-		if (input != OSD_INPUT_TURBO) {
+		if ((input & OSD_INPUT_TURBO) == 0) {
 			context->state.turbo_flag = 0;
 			video_update_skip(context);
 			video_update_sync(context);
 		}
 	} else {
-		if (input == OSD_INPUT_TURBO) {
+		if ((input & OSD_INPUT_TURBO) != 0) {
 			context->state.turbo_flag = 1;
 			video_update_skip(context);
 			video_update_sync(context);
@@ -2802,9 +2815,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 	}
 
 	if (context->state.fastest_flag) {
-		if (context->state.fastest_counter > 0)
-			--context->state.fastest_counter;
-		if (context->state.fastest_counter == 0) {
+		if (context->state.frame_counter > context->state.fastest_limit) {
 			context->state.fastest_flag = 0;
 
 			video_update_skip(context);
@@ -2813,22 +2824,43 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 			hardware_script_start(HARDWARE_SCRIPT_PLAY);
 		}
 	}
-
-	if (input == OSD_INPUT_TOGGLE_DEBUG) {
+	
+	if ((input & OSD_INPUT_TOGGLE_DEBUG) != 0) {
 		context->state.debugger_flag = !context->state.debugger_flag;
 		video_invalidate_screen();
 	}
 
-	if (input == OSD_INPUT_COCKTAIL) {
+	if ((input & OSD_INPUT_COCKTAIL) != 0) {
 		context->config.blit_orientation ^= OSD_ORIENTATION_FLIP_Y | OSD_ORIENTATION_FLIP_X;
 		context->config.user_orientation ^= OSD_ORIENTATION_FLIP_Y | OSD_ORIENTATION_FLIP_X;
 
 		video_invalidate_pipeline(context);
 	}
 
-	if (input == OSD_INPUT_HELP) {
+	if ((input & OSD_INPUT_HELP) != 0) {
 		advance_ui_help(ui_context);
 	}
+
+	if ((input & OSD_INPUT_STARTUP_END) != 0) {
+		double time = floor(context->state.frame_counter / context->state.game_fps);
+
+		if (time >= 2 && time <= 180) {
+			char buffer[32];
+			int time_int = time;
+			context->config.fastest_time = time_int;
+			snprintf(buffer, sizeof(buffer), "%d", time_int);
+			conf_string_set(cfg_context, context->config.section_name_buffer, "sync_startuptime", buffer);
+			advance_global_message(&CONTEXT.global, "Startup time of %d seconds saved", time_int);
+		} else if (time > 180) {
+			advance_global_message(&CONTEXT.global, "Startup time TOO LONG");
+		} else if (time < 2) {
+			context->config.fastest_time = 0;
+			conf_remove(cfg_context, context->config.section_name_buffer, "sync_startuptime");
+			advance_global_message(&CONTEXT.global, "Startup time cleared");
+		}
+	}
+	
+	advance_ui_direct_fast(ui_context, context->state.fastest_flag || context->state.turbo_flag);
 
 	advance_ui_direct_slow(ui_context, context->state.skip_level_disable_flag);
 
@@ -2958,9 +2990,18 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 {
 	unsigned size_x;
 	unsigned size_y;
+	uint8* palette8_raw;
+	uint16* palette16_raw;
+	uint32* palette32_raw;
+	unsigned i;
 
 	if (!bitmap || !palette) {
 		log_std(("ERROR:emu:video: null debugger bitmap\n"));
+		return;
+	}
+
+	if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
+		log_std(("ERROR:emu:video: debugger not supported in palette mode\n"));
 		return;
 	}
 
@@ -2968,34 +3009,24 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	size_x = video_size_x();
 	size_y = video_size_y();
 
-	if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-		/* TODO set the debugger palette, currently not used because debugger is always rgb. */
-		video_stretch_palette16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAXMIN | VIDEO_COMBINE_X_MAXMIN);
-	} else {
-		uint8* palette8_raw;
-		uint16* palette16_raw;
-		uint32* palette32_raw;
-		unsigned i;
+	palette32_raw = (uint32*)malloc(palette_size * sizeof(uint32));
+	palette16_raw = (uint16*)malloc(palette_size * sizeof(uint16));
+	palette8_raw = (uint8*)malloc(palette_size * sizeof(uint8));
 
-		palette32_raw = (uint32*)malloc(palette_size * sizeof(uint32));
-		palette16_raw = (uint16*)malloc(palette_size * sizeof(uint16));
-		palette8_raw = (uint8*)malloc(palette_size * sizeof(uint8));
-
-		for(i=0;i<palette_size;++i) {
-			osd_rgb_t c = palette[i];
-			adv_pixel pixel;
-			video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
-			palette32_raw[i] = pixel;
-			palette16_raw[i] = pixel;
-			palette8_raw[i] = pixel;
-		}
-
-		video_stretch_palette8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette8_raw, palette16_raw, palette32_raw, VIDEO_COMBINE_Y_MAXMIN | VIDEO_COMBINE_X_MAXMIN);
-
-		free(palette32_raw);
-		free(palette16_raw);
-		free(palette8_raw);
+	for(i=0;i<palette_size;++i) {
+		osd_rgb_t c = palette[i];
+		adv_pixel pixel;
+		video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
+		palette32_raw[i] = pixel;
+		palette16_raw[i] = pixel;
+		palette8_raw[i] = pixel;
 	}
+
+	video_stretch_palette8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette8_raw, palette16_raw, palette32_raw, VIDEO_COMBINE_Y_MAXMIN | VIDEO_COMBINE_X_MAXMIN);
+
+	free(palette32_raw);
+	free(palette16_raw);
+	free(palette8_raw);
 }
 
 static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, adv_bool skip_flag)
@@ -3007,9 +3038,9 @@ static void advance_video_update(struct advance_video_context* context, struct a
 	}
 }
 
-static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
+static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
-	/* Do a yield immediatly before time the syncronization. */
+	/* Do a yield immediatly before the time syncronization. */
 	/* If a schedule will be done, it's better to have it now when */
 	/* we need to wait the syncronization point. Obviously it may happen */
 	/* to lose the precise time, but it will happen anyway if the system is busy. */
@@ -3021,9 +3052,11 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);
 
-	/* all the update */
+	/* update the video for the new frame */
 	advance_video_update(context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, input, skip_flag);
-	advance_sound_update(sound_context, record_context, context, sample_buffer, sample_count, sample_recount);
+
+	/* update the audio buffer for the new frame */
+	advance_sound_update(sound_context, record_context, context, safequit_context, sample_buffer, sample_count, sample_recount, video_is_normal_speed(context));
 
 	/* estimate the time */
 	advance_estimate_osd_end(estimate_context, skip_flag);
@@ -3109,7 +3142,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
-static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
+static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag) {
@@ -3125,10 +3158,10 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
 	} else {
-		video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+		video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, safequit_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 	}
 #else
-	video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+	video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, safequit_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 #endif
 }
 
@@ -3143,6 +3176,7 @@ static void* video_thread(void* void_context)
 	struct advance_estimate_context* estimate_context = &CONTEXT.estimate;
 	struct advance_record_context* record_context = &CONTEXT.record;
 	struct advance_ui_context* ui_context = &CONTEXT.ui;
+	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
 
 	log_std(("advance:thread: start\n"));
 
@@ -3176,6 +3210,7 @@ static void* video_thread(void* void_context)
 			estimate_context,
 			record_context,
 			ui_context,
+			safequit_context,
 			context->state.thread_state_game,
 			0,
 			0,
@@ -3573,9 +3608,11 @@ void osd_reset(void)
 	hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
 	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
 
+	context->state.frame_counter = 0;
+
 	/* initialize the fastest state */
-	context->state.fastest_counter = context->config.fastest_time * context->state.game_fps;
-	context->state.fastest_flag = context->state.fastest_counter != 0;
+	context->state.fastest_limit = context->config.fastest_time * context->state.game_fps;
+	context->state.fastest_flag = context->state.fastest_limit != 0;
 
 	/* initialize the measure state */
 	context->state.measure_counter = context->config.measure_time * context->state.game_fps;
@@ -3612,6 +3649,23 @@ int osd_skip_this_frame(void)
 		return context->state.skip_flag;
 }
 
+static int int_compare(const void* void_a, const void* void_b)
+{
+	int* a = (int*)void_a;
+	int* b = (int*)void_b;
+	if (*a < *b)
+		return -1;
+	if (*a > *b)
+		return 1;
+	return 0;
+}
+
+/* Number of step, and maximum correction allowed, for small latency errors */
+#define AUDIOVIDEO_NEAR_STEP_COUNT 16
+
+/* Number of frames on which distribute the latency error */
+#define AUDIOVIDEO_DISTRIBUTE_COUNT 4
+
 int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count)
 {
 	struct advance_video_context* context = &CONTEXT.video;
@@ -3626,9 +3680,10 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	int sample_recount;
 
 	unsigned i;
-	unsigned av_c_pos;
-	unsigned av_c_neg;
 	int sample_limit;
+	int latency_limit;
+
+	adv_bool normal_speed = video_is_normal_speed(&CONTEXT.video);
 
 	/* store the current audio video syncronization error measured in sound samples */
 	context->state.av_sync_map[context->state.av_sync_mac] = context->state.latency_diff;
@@ -3639,33 +3694,46 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	else
 		++context->state.av_sync_mac;
 
-	/* count the positive and negative errors */
-	av_c_pos = 0;
-	av_c_neg = 0;
-	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i) {
-		if (context->state.av_sync_map[i] >= AUDIOVIDEO_DISTRIBUTE_COUNT)
-			++av_c_pos;
-		if (context->state.av_sync_map[i] <= -AUDIOVIDEO_DISTRIBUTE_COUNT)
-			++av_c_neg;
-	}
+	/* get the latency limit, the computation is different if the error */
+	/* is bigger or lower than the limit */
+	latency_limit = advance_sound_latency(&CONTEXT.sound, 0) / 2;
 
-	/* try to correct the error only if the sign is constant on the most recent frames, */
-	/* otherwise it may contiously jumping from positive to negative values if */
-	/* the sound driver is not able to report the EXACT number of sample in the DMA */
-	/* buffer of the sound board. */
-	if (av_c_pos == AUDIOVIDEO_MEASURE_MAX || av_c_neg == AUDIOVIDEO_MEASURE_MAX) {
-		/* adjust the output sample count to correct the syncronization error, */
-		/* the error is distributed on AUDIOVIDEO_DISTRIBUTE_COUNT frames */
-		latency_diff = context->state.latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
+	if (normal_speed) {
+		int latency_median;
+
+		/* latency errors sorted */
+		int median_map[AUDIOVIDEO_MEASURE_MAX];
+
+		/* sort the last errors values */
+		for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i) {
+			median_map[i] = context->state.av_sync_map[i];
+		}
+		qsort(median_map, AUDIOVIDEO_MEASURE_MAX, sizeof(median_map[0]), int_compare);
+
+		/* get the median value from the most recent errors */
+		latency_median = median_map[AUDIOVIDEO_MEASURE_MAX/2];
+
+		/* if playing at normal speed */
+		if (latency_median >= -latency_limit && latency_median <= latency_limit) {
+			/* if the error is small (in the latency_limit), use a small correction */
+			latency_diff = latency_median / (latency_limit / AUDIOVIDEO_NEAR_STEP_COUNT);
+		} else if (latency_median > latency_limit) {
+			/* if the error is big, use a stronger correction */
+			latency_diff = AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median - latency_limit) / AUDIOVIDEO_DISTRIBUTE_COUNT;
+		} else {
+			latency_diff = -AUDIOVIDEO_NEAR_STEP_COUNT + (latency_median + latency_limit) / AUDIOVIDEO_DISTRIBUTE_COUNT;
+		}
+
+		if (latency_diff <= -AUDIOVIDEO_NEAR_STEP_COUNT || latency_diff >= AUDIOVIDEO_NEAR_STEP_COUNT) {
+			/* report the big error */
+			log_std(("WARNING:emu:video: audio/video syncronization correction of %d samples\n", latency_diff));
+		} else if (latency_diff <= -3 || latency_diff >= 3) {
+			/* report the error, an error of 1,2 samples is the normal condition */
+			log_std(("emu:video: audio/video syncronization correction of %d samples\n", latency_diff));
+		}
 	} else {
-		/* doesn't correct the error if present */
-		latency_diff = 0;
-	}
-
-	/* report the error, an error of 1 sample is the normal condition on good */
-	/* drivers and hardware */
-	if (latency_diff < -1 || latency_diff > 1) {
-		log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
+		/* adjust without any check on sound distortion */
+		latency_diff = context->state.latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
 	}
 
 	if (context->config.internalresample_flag) {
@@ -3684,11 +3752,12 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 			sample_recount = sample_limit;
 		}
 
+		/* ask always at the core to use the nominal sample rate */
 		latency_diff = 0;
 	} else {
 		/* ask the MAME core to adjust the number of generated samples */
 		if (advance_record_sound_is_active(&CONTEXT.record)) {
-			/* if recording is active does't skip any samples */
+			/* if recording is active doesn't skip any samples */
 			latency_diff = 0;
 		}
 
@@ -3696,7 +3765,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	}
 
 	/* update the global info */
-	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, led, input, skip_flag);
+	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, CONTEXT.cfg, led, input, skip_flag);
 	video_skip_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.record);
 	advance_input_update(&CONTEXT.input, &CONTEXT.safequit, CONTEXT.video.state.pause_flag);
 
@@ -3708,7 +3777,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	video_frame_prepare(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* update the local info */
-	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, &CONTEXT.ui, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+	video_frame_update(&CONTEXT.video, &CONTEXT.sound, &CONTEXT.estimate, &CONTEXT.record, &CONTEXT.ui, &CONTEXT.safequit, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
 
 	/* estimate the time */
 	advance_estimate_mame_begin(&CONTEXT.estimate);
@@ -3829,13 +3898,11 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 {
 	unsigned i;
 
-	/* save the configuration */
-	cfg_context = cfg_context;
-
 	/* other initialization */
 	context->state.av_sync_mac = 0;
 	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i)
 		context->state.av_sync_map[i] = 0;
+	context->state.latency_diff = 0;
 
 	conf_bool_register_default(cfg_context, "display_scanlines", 0);
 	conf_bool_register_default(cfg_context, "display_vsync", 1);
@@ -3857,11 +3924,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_float_register_limit_default(cfg_context, "sync_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "sync_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "misc_crash", 0);
-#ifdef MESS
-	conf_int_register_limit_default(cfg_context, "sync_startuptime", 0, 180, 0);
-#else
-	conf_int_register_limit_default(cfg_context, "sync_startuptime", 0, 180, 6);
-#endif
+	conf_string_register_default(cfg_context, "sync_startuptime", "auto");
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
 	conf_int_register_enum_default(cfg_context, "display_color", conf_enum(OPTION_INDEX), 0);
@@ -3892,6 +3955,14 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 static const char* GAME_BLIT_COMBINE_MAX[] = {
 #include "blitmax.h"
 0
+};
+
+static struct game_startup_struct {
+	const char* name;
+	int time;
+} GAME_STARTUP[] = {
+#include "startup.h"
+{ 0 }
 };
 
 static void video_config_mode(struct advance_video_context* context, struct mame_option* option)
@@ -4019,12 +4090,16 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	adv_error err;
 	int i;
 	adv_bool ror, rol, flipx, flipy;
+	double d;
 
 	context->config.debug_flag = option->debug_flag;
 
 	context->config.game_orientation = mame_game_orientation(option->game);
 
-	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
+	for(i=0;GAME_BLIT_COMBINE_MAX[i] != 0;++i)
+		if (mame_is_game_relative(GAME_BLIT_COMBINE_MAX[i], option->game))
+			break;
+	context->config.inlist_combinemax_flag = GAME_BLIT_COMBINE_MAX[i] != 0;
 	s = mame_software_name(option->game, cfg_context);
 	if (s==0 || s[0]==0)
 		s = mame_game_name(option->game);
@@ -4094,7 +4169,25 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		}
 	}
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "sync_speed");
-	context->config.fastest_time = conf_int_get_default(cfg_context, "sync_startuptime");
+
+	s = conf_string_get_default(cfg_context, "sync_startuptime");
+	if (strcmp(s, "auto") == 0) {
+		for(i=0;GAME_STARTUP[i].name != 0;++i)
+			if (mame_is_game_relative(GAME_STARTUP[i].name, option->game))
+				break;
+		if (GAME_STARTUP[i].name != 0)
+			d = GAME_STARTUP[i].time;
+		else
+			d = 0;
+	} else {
+		char* e;
+		d = strtod(s, &e);
+		if (*e != 0 || d < 1 || d > 180) {
+			target_err("Invalid argument '%s' for option 'sync_startuptime'.\n", s);
+			return -1;
+		}
+	}
+	context->config.fastest_time = d;
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
@@ -4127,7 +4220,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #endif
 
 	i = conf_int_get_default(cfg_context, "sync_resample");
-	if (i == 1)
+	if (i == -1)
 		context->config.internalresample_flag = 1;
 	else
 		context->config.internalresample_flag = 0;

@@ -39,6 +39,68 @@
 #define ZIP_LO_FIXED 0x1E /* size of fixed data structure */
 
 /**************************************************************************/
+/* unlocked interface for streams (faster than locked) */
+
+static FILE* fopen_lock(const char* name, const char* mode)
+{
+	FILE* f;
+
+	f = fopen(name, mode);
+
+#if HAVE_FLOCKFILE
+	if (f)
+		flockfile(f);
+#endif
+
+	return f;
+}
+
+static int fclose_lock(FILE *f)
+{
+#if HAVE_FUNLOCKFILE
+	funlockfile(f);
+#endif
+
+	return fclose(f);
+}
+
+static size_t fread_lock(void* data, size_t size, size_t count, FILE* f)
+{
+#if HAVE_FREAD_UNLOCKED
+	return fread_unlocked(data, size, count, f);
+#else
+	return fread(data, size, count, f);
+#endif
+}
+
+static size_t fwrite_lock(const void* data, size_t size, size_t count, FILE* f)
+{
+#if HAVE_FWRITE_UNLOCKED
+	return fwrite_unlocked(data, size, count, f);
+#else
+	return fwrite(data, size, count, f);
+#endif
+}
+
+static int feof_lock(FILE* f)
+{
+#if HAVE_FEOF_UNLOCKED
+	return feof_unlocked(f);
+#else
+	return feof(f);
+#endif
+}
+
+static int fgetc_lock(FILE* f)
+{
+#if HAVE_FEOF_UNLOCKED
+	return fgetc_unlocked(f);
+#else
+	return fgetc(f);
+#endif
+}
+
+/**************************************************************************/
 /* fz interface */
 
 #define INFLATE_INPUT_BUFFER_MAX 4096
@@ -66,7 +128,7 @@ adv_error fzgrow(adv_fz* f, unsigned size)
 unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
 {
 	if (f->type == fz_file) {
-		return fread(buffer, size, number, f->f);
+		return fread_lock(buffer, size, number, f->f);
 	} else {
 		unsigned total_size;
 
@@ -98,7 +160,7 @@ unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
 					if (run > f->remaining)
 						run = f->remaining;
 					f->z.next_in = f->zbuffer;
-					run = fread(f->zbuffer, 1, run, f->f);
+					run = fread_lock(f->zbuffer, 1, run, f->f);
 					f->remaining -= run;
 					/* add an extra byte at the end, required by the zlib library */
 					if (run && !f->remaining)
@@ -130,7 +192,7 @@ unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
 unsigned fzwrite(const void *buffer, unsigned size, unsigned number, adv_fz* f)
 {
 	if (f->type == fz_file) {
-		return fwrite(buffer, size, number, f->f);
+		return fwrite_lock(buffer, size, number, f->f);
 	} else if (f->type == fz_memory_write) {
 		unsigned total_size;
 
@@ -179,7 +241,7 @@ adv_fz* fzopen(const char* file, const char* mode)
 		return 0;
 
 	f->type = fz_file;
-	f->f = fopen(file, mode);
+	f->f = fopen_lock(file, mode);
 	if (!f->f) {
 		free(f);
 		return 0;
@@ -200,9 +262,10 @@ adv_fz* fzopennullwrite(const char* file, const char* mode)
 
 	f->type = fz_memory_write;
 	f->virtual_pos = 0;
-	f->f = fopen(file, "rb");
+	f->f = fopen_lock(file, "rb");
 	if (f->f) {
 		struct stat st;
+
 		if (fstat(fileno(f->f), &st) != 0) {
 			goto err_close;
 		}
@@ -214,11 +277,11 @@ adv_fz* fzopennullwrite(const char* file, const char* mode)
 
 		f->virtual_size = st.st_size;
 
-		if (fread(f->data_write, st.st_size, 1, f->f) != 1) {
+		if (fread_lock(f->data_write, st.st_size, 1, f->f) != 1) {
 			goto err_data;
 		}
 
-		fclose(f->f);
+		fclose_lock(f->f);
 		f->f = 0;
 	} else {
 		if (strchr(mode, 'w')!=0 || strchr(mode, 'a')!=0) {
@@ -236,7 +299,7 @@ adv_fz* fzopennullwrite(const char* file, const char* mode)
 err_data:
 	free(f->data_write);
 err_close:
-	fclose(f->f);
+	fclose_lock(f->f);
 err_free:
 	free(f);
 err:
@@ -262,19 +325,19 @@ adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size)
 	f->type = fz_file;
 	f->virtual_pos = 0;
 	f->virtual_size = size;
-	f->f = fopen(file, "rb");
+	f->f = fopen_lock(file, "rb");
 	if (!f->f) {
 		free(f);
 		return 0;
 	}
 
 	if (fseek(f->f, offset, SEEK_SET) != 0) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
-	if (fread(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
-		fclose(f->f);
+	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
@@ -288,7 +351,7 @@ adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size)
 	f->real_size = size;
 
 	if (fseek(f->f, f->real_offset, SEEK_SET) != 0) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
@@ -349,19 +412,19 @@ adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_com
 	f->type = fz_file_compressed;
 	f->virtual_pos = 0;
 	f->virtual_size = size_uncompressed;
-	f->f = fopen(file, "rb");
+	f->f = fopen_lock(file, "rb");
 	if (!f->f) {
 		free(f);
 		return 0;
 	}
 
 	if (fseek(f->f, offset, SEEK_SET) != 0) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
-	if (fread(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
-		fclose(f->f);
+	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
@@ -375,7 +438,7 @@ adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_com
 	f->real_size = size_compressed;
 
 	if (fseek(f->f, f->real_offset, SEEK_SET) != 0) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
@@ -411,14 +474,14 @@ adv_fz* fzopenmemory(const unsigned char* data, unsigned size)
 adv_error fzclose(adv_fz* f)
 {
 	if (f->type == fz_file) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 	} else if (f->type == fz_file_part) {
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 	} else if (f->type == fz_file_compressed) {
 		compressed_done(f);
-		fclose(f->f);
+		fclose_lock(f->f);
 		free(f);
 	} else if (f->type == fz_memory_read) {
 		free(f);
@@ -432,10 +495,15 @@ adv_error fzclose(adv_fz* f)
 	return 0;
 }
 
-static int fzgetc_binary(adv_fz* f)
+/**
+ * Read a char from the file.
+ * The semantic is like the C fgetc() function.
+ * It assume to read a binary file without any "\r", "\n" conversion.
+ */
+int fzgetc(adv_fz* f)
 {
 	if (f->type == fz_file) {
-		return fgetc(f->f);
+		return fgetc_lock(f->f);
 	} else {
 		unsigned char r;
 		if (fzread(&r, 1, 1, f)==1)
@@ -445,20 +513,6 @@ static int fzgetc_binary(adv_fz* f)
 	}
 }
 
-/**
- * Read a char from the file.
- * The semantic is like the C fgetc() function.
- */
-int fzgetc(adv_fz* f)
-{
-	int c = fzgetc_binary(f);
-
-	/* ignore any carrige return */
-	while (c == '\r')
-		c = fzgetc_binary(f);
-
-	return c;
-}
 
 /**
  * Unread a char from the file.
@@ -516,7 +570,7 @@ char* fzgets(char *s, int n, adv_fz* f)
 adv_error fzeof(adv_fz* f)
 {
 	if (f->type == fz_file) {
-		return feof(f->f);
+		return feof_lock(f->f);
 	} else {
 		return f->virtual_pos >= f->virtual_size;
 	}

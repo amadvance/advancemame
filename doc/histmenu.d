@@ -3,8 +3,12 @@ Name
 
 AdvanceMENU Version 2.3.4 2004/05
 	) The program doesn't try to effectively load the
-		"none" image file used to disabled the image
+		"none" image file used to disable the image
 		loading.
+	) Added a new `device_alsa_mixer' option to control the sound mixing.
+		The default is to use an internal mixer to change to volume.
+	) Documented in the `advdev.txt' file how use the ALSA `dmix' plug
+		for a software mixing from multiple programs.
 
 AdvanceMENU Version 2.3.3 2004/04
 	) Updated the expat library to version 1.95.7.

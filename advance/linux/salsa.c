@@ -41,18 +41,25 @@
 
 #include <alsa/asoundlib.h>
 
+/**
+ * Base for the volume adjustment.
+ */
+#define ALSA_VOLUME_BASE 32768
+
 struct alsa_option_struct {
-	adv_bool initialized;
-	char device_buffer[256];
+	adv_bool initialized; /**< Options initialized. */
+	char device_buffer[256]; /**< Output card device. */
+	char mixer_buffer[256]; /**< Mixer card device. */
 };
 
 static struct alsa_option_struct alsa_option;
 
 struct soundb_alsa_context {
-	unsigned channel;
-	unsigned rate;
-	unsigned sample_length;
-	snd_pcm_t* handle;
+	unsigned channel; /**< Number of channels (1 or 2). */
+	unsigned rate; /**< Playing ratein Hz. */
+	unsigned sample_length; /**< Sample (for all channels) length in bytes. */
+	snd_pcm_t* handle; /**< Alsa handle. */
+	int volume; /**< Volume adjustement. ALSA_VOLUME_BASE == full volume. */
 };
 
 static struct soundb_alsa_context alsa_state;
@@ -102,6 +109,8 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	if (!alsa_option.initialized) {
 		soundb_alsa_default();
 	}
+
+	alsa_state.volume = ALSA_VOLUME_BASE;
 
 	if (stereo_flag) {
 		alsa_state.sample_length = 4;
@@ -166,10 +175,14 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 			log_std(("ERROR:sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
 			goto err_close;
 		} else {
-			log_std(("sound:alsa: set_buffer_size_near(%d) ok\n", (unsigned)buffer_size));
+			log_std(("sound:alsa: set_buffer_size_near() -> %d\n", (unsigned)buffer_size));
 		}
 	} else {
-		log_std(("sound:alsa: set_buffer_size_min(%d) ok\n", (unsigned)buffer_size));
+		log_std(("sound:alsa: set_buffer_size_min() -> %d\n", (unsigned)buffer_size));
+	}
+
+	if (buffer_size < alsa_state.rate * buffer_time) {
+		log_std(("ERROR:sound:alsa: audio buffer TOO SMALL\n"));
 	}
 
 	r = snd_pcm_hw_params(alsa_state.handle, hw_params);
@@ -242,12 +255,20 @@ unsigned soundb_alsa_buffered(void)
 	return buffered;
 }
 
-void soundb_alsa_volume(double volume)
+static void alsa_volume_channel(double volume)
+{
+	alsa_state.volume = volume * ALSA_VOLUME_BASE;
+	if (alsa_state.volume < 0)
+		alsa_state.volume = 0;
+	if (alsa_state.volume > ALSA_VOLUME_BASE)
+		alsa_state.volume = ALSA_VOLUME_BASE;
+}
+
+static void alsa_volume_mixer(double volume)
 {
 	snd_mixer_t* handle;
 	snd_mixer_elem_t* elem;
 	snd_mixer_selem_id_t* sid;
-	const char* card = "default";
 	unsigned c;
 	long pmin, pmax;
 	long v;
@@ -265,7 +286,7 @@ void soundb_alsa_volume(double volume)
 		goto err;
 	}
 
-	r = snd_mixer_attach(handle, card);
+	r = snd_mixer_attach(handle, alsa_option.mixer_buffer);
 	if (r < 0) {
 		log_std(("ERROR:sound:alsa: Mixer attach error: %s\n", snd_strerror(r)));
 		goto err_close;
@@ -338,6 +359,14 @@ err:
 	return;
 }
 
+void soundb_alsa_volume(double volume)
+{
+	if (strcmp(alsa_option.mixer_buffer, "channel") == 0)
+		alsa_volume_channel(volume);
+	else
+		alsa_volume_mixer(volume);
+}
+
 void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 {
 	int r;
@@ -346,11 +375,29 @@ void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 
 	/* calling write with a 0 size result in wrong output */
 	while (sample_count) {
-		r = snd_pcm_writei(alsa_state.handle, sample_map, sample_count);
+		if (alsa_state.volume == ALSA_VOLUME_BASE) {
+			/* write directly */
+			r = snd_pcm_writei(alsa_state.handle, sample_map, sample_count);
+		} else {
+			/* adjust the volume and write */
+			const unsigned buf_size = 2048;
+			adv_sample buf_map[buf_size];
+			unsigned run;
+			unsigned i;
+
+			run = sample_count * alsa_state.channel;
+			if (run > buf_size)
+				run = buf_size;
+
+			for(i=0;i<run;++i)
+				buf_map[i] = (int)sample_map[i] * alsa_state.volume / ALSA_VOLUME_BASE;
+
+			r = snd_pcm_writei(alsa_state.handle, buf_map, run / alsa_state.channel);
+		}
 
 		if (r < 0) {
 			if (r == -EAGAIN) {
-				/* internal buffer full */
+				/* audio buffer full, it should never happen */
 				log_std(("WARNING:sound:alsa: snd_pcm_writei() failed: internal buffer full\n"));
 				/* retry */
 				continue;
@@ -411,6 +458,7 @@ unsigned soundb_alsa_flags(void)
 adv_error soundb_alsa_load(adv_conf* context)
 {
 	sncpy(alsa_option.device_buffer, sizeof(alsa_option.device_buffer), conf_string_get_default(context, "device_alsa_device"));
+	sncpy(alsa_option.mixer_buffer, sizeof(alsa_option.mixer_buffer), conf_string_get_default(context, "device_alsa_mixer"));
 
 	alsa_option.initialized = 1;
 
@@ -420,11 +468,13 @@ adv_error soundb_alsa_load(adv_conf* context)
 void soundb_alsa_reg(adv_conf* context)
 {
 	conf_string_register_default(context, "device_alsa_device", "default");
+	conf_string_register_default(context, "device_alsa_mixer", "channel");
 }
 
 void soundb_alsa_default(void)
 {
 	sncpy(alsa_option.device_buffer, sizeof(alsa_option.device_buffer), "default");
+	sncpy(alsa_option.mixer_buffer, sizeof(alsa_option.mixer_buffer), "channel");
 
 	alsa_option.initialized = 1;
 }
@@ -446,5 +496,4 @@ soundb_driver soundb_alsa_driver = {
 	soundb_alsa_stop,
 	soundb_alsa_volume
 };
-
 

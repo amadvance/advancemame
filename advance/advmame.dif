@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2004-04-04 13:20:01.000000000 +0200
++++ src/advance.pat	2004-05-11 15:42:41.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2004-01-28 19:03:52.000000000 +0100
-+++ src/common.c	2004-04-04 13:20:01.000000000 +0200
++++ src/common.c	2004-05-11 15:42:41.000000000 +0200
 @@ -754,10 +754,11 @@
  	the given filename
  -------------------------------------------------*/
@@ -68,27 +68,9 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  		if (!options.gui_host && !options.skip_warnings && !bailing)
  		{
  			int k;
-diff -U 5 --new-file --recursive src.ori/cpu/e132xs/e132xs.c src/cpu/e132xs/e132xs.c
---- src.ori/cpu/e132xs/e132xs.c	2004-04-01 18:34:18.000000000 +0200
-+++ src/cpu/e132xs/e132xs.c	2004-04-04 13:20:01.000000000 +0200
-@@ -1004,12 +1004,13 @@
- 			h_clear = 0;
- 		}
- 
- 		if( GET_T && GET_P && !e132xs.delay_pc ) /* Not in a Delayed Branch instructions */
- 		{
-+			UINT32 addr;
- 			SET_P(0); // here?
--			UINT32 addr = get_trap_addr(TRACE_EXCEPTION);
-+			addr = get_trap_addr(TRACE_EXCEPTION);
- 			execute_exception(addr);
- 		}
- 
- 		PC += 2;
- 
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2004-01-28 19:01:20.000000000 +0100
-+++ src/cpu/i8085/i8085.c	2004-04-04 13:20:01.000000000 +0200
++++ src/cpu/i8085/i8085.c	2004-05-11 15:42:49.000000000 +0200
 @@ -110,10 +110,16 @@
   * 
   *****************************************************************************/
@@ -107,9 +89,9 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
---- src.ori/cpu/m68000/make68k.c	2004-01-28 19:01:20.000000000 +0100
-+++ src/cpu/m68000/make68k.c	2004-04-04 13:20:01.000000000 +0200
-@@ -188,11 +188,11 @@
+--- src.ori/cpu/m68000/make68k.c	2004-05-06 18:22:10.000000000 +0200
++++ src/cpu/m68000/make68k.c	2004-05-11 15:42:49.000000000 +0200
+@@ -191,11 +191,11 @@
  
  
  #define NORMAL 0
@@ -122,7 +104,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  #define PREF "_"
  #endif
  
-@@ -249,17 +249,17 @@
+@@ -252,17 +252,17 @@
  
  
  
@@ -142,7 +124,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
  static char SavedRegs[] = "-B--S-B";
  
-@@ -8037,11 +8037,11 @@
+@@ -8040,11 +8040,11 @@
  	fprintf(fp, "\t\tDW   0,0,0\n\n");
  
  
@@ -157,7 +139,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2004-03-06 15:43:42.000000000 +0100
-+++ src/cpu/z80/z80.c	2004-04-04 13:20:01.000000000 +0200
++++ src/cpu/z80/z80.c	2004-05-11 15:42:49.000000000 +0200
 @@ -82,10 +82,16 @@
  #include "cpuintrf.h"
  #include "state.h"
@@ -176,8 +158,8 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2004-04-01 18:31:58.000000000 +0200
-+++ src/cpuexec.c	2004-04-04 13:20:01.000000000 +0200
+--- src.ori/cpuexec.c	2004-05-06 18:22:10.000000000 +0200
++++ src/cpuexec.c	2004-05-11 15:42:49.000000000 +0200
 @@ -307,10 +307,13 @@
  	watchdog_counter = -1;
  
@@ -194,7 +176,7 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
 --- src.ori/drivers/multi32.c	2004-01-23 09:32:58.000000000 +0100
-+++ src/drivers/multi32.c	2004-04-04 13:20:01.000000000 +0200
++++ src/drivers/multi32.c	2004-05-11 15:42:49.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -210,7 +192,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
 --- src.ori/drivers/namcos11.c	2004-03-06 15:43:38.000000000 +0100
-+++ src/drivers/namcos11.c	2004-04-04 13:20:01.000000000 +0200
++++ src/drivers/namcos11.c	2004-05-11 15:42:49.000000000 +0200
 @@ -656,11 +656,11 @@
  #if defined( MAME_DEBUG )
  	MDRV_SCREEN_SIZE( 1024, 1024 )
@@ -226,7 +208,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1_1024x1024 )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
 --- src.ori/drivers/psikyo4.c	2004-01-23 09:32:58.000000000 +0100
-+++ src/drivers/psikyo4.c	2004-04-04 13:20:01.000000000 +0200
++++ src/drivers/psikyo4.c	2004-05-11 15:42:49.000000000 +0200
 @@ -412,13 +412,13 @@
  	MDRV_NVRAM_HANDLER(93C56)
  
@@ -257,9 +239,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  MACHINE_DRIVER_END
  
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
---- src.ori/drivers/stv.c	2004-04-01 18:32:00.000000000 +0200
-+++ src/drivers/stv.c	2004-04-04 13:20:01.000000000 +0200
-@@ -3676,11 +3676,15 @@
+--- src.ori/drivers/stv.c	2004-04-27 19:42:36.000000000 +0200
++++ src/drivers/stv.c	2004-05-11 15:42:49.000000000 +0200
+@@ -3678,11 +3678,15 @@
  	MDRV_NVRAM_HANDLER(93C46) /* Actually 93c45 */
  
  	/* video hardware */
@@ -275,154 +257,10 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  
  	MDRV_VIDEO_START(stv_vdp2)
  	MDRV_VIDEO_UPDATE(stv_vdp2)
-diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2004-04-01 18:32:00.000000000 +0200
-+++ src/fileio.c	2004-04-04 13:20:01.000000000 +0200
-@@ -72,10 +72,11 @@
- 	UINT64 offset;
- 	UINT64 length;
- 	UINT8 eof;
- 	UINT8 type;
- 	char hash[HASH_BUF_SIZE];
-+	int back_char; /* Buffered char for unget. EOF for empty. */
- };
- 
- 
- 
- /***************************************************************************
-@@ -353,10 +354,13 @@
- 	mame_fread
- ***************************************************************************/
- 
- UINT32 mame_fread(mame_file *file, void *buffer, UINT32 length)
- {
-+	/* flush any buffered char */
-+	file->back_char = EOF;
-+
- 	/* switch off the file type */
- 	switch (file->type)
- 	{
- 		case PLAIN_FILE:
- 			return osd_fread(file->file, buffer, length);
-@@ -386,10 +390,13 @@
- 	mame_fwrite
- ***************************************************************************/
- 
- UINT32 mame_fwrite(mame_file *file, const void *buffer, UINT32 length)
- {
-+	/* flush any buffered char */
-+	file->back_char = EOF;
-+
- 	/* switch off the file type */
- 	switch (file->type)
- 	{
- 		case PLAIN_FILE:
- 			return osd_fwrite(file->file, buffer, length);
-@@ -406,10 +413,13 @@
- 
- int mame_fseek(mame_file *file, INT64 offset, int whence)
- {
- 	int err = 0;
- 
-+	/* flush any buffered char */
-+	file->back_char = EOF;
-+
- 	/* switch off the file type */
- 	switch (file->type)
- 	{
- 		case PLAIN_FILE:
- 			return osd_fseek(file->file, offset, whence);
-@@ -508,10 +518,16 @@
- 
- int mame_fgetc(mame_file *file)
- {
- 	unsigned char buffer;
- 
-+	if (file->back_char != EOF) {
-+		buffer = file->back_char;
-+		file->back_char = EOF;
-+		return buffer;
-+	}
-+
- 	/* switch off the file type */
- 	switch (file->type)
- 	{
- 		case PLAIN_FILE:
- 			if (osd_fread(file->file, &buffer, 1) == 1)
-@@ -535,38 +551,13 @@
- 	mame_ungetc
- ***************************************************************************/
- 
- int mame_ungetc(int c, mame_file *file)
- {
--	/* switch off the file type */
--	switch (file->type)
--	{
--		case PLAIN_FILE:
--			if (osd_feof(file->file))
--			{
--				if (osd_fseek(file->file, 0, SEEK_CUR))
--					return c;
--			}
--			else
--			{
--				if (osd_fseek(file->file, -1, SEEK_CUR))
--					return c;
--			}
--			return EOF;
--
--		case RAM_FILE:
--		case ZIPPED_FILE:
--			if (file->eof)
--				file->eof = 0;
--			else if (file->offset > 0)
--			{
--				file->offset--;
--				return c;
--			}
--			return EOF;
--	}
--	return EOF;
-+	file->back_char = c;
-+  
-+	return c;
- }
- 
- 
- 
- /***************************************************************************
-@@ -624,10 +615,14 @@
- 	mame_feof
- ***************************************************************************/
- 
- int mame_feof(mame_file *file)
- {
-+	/* check for buffered chars */
-+	if (file->back_char != EOF)
-+		return 0;
-+
- 	/* switch off the file type */
- 	switch (file->type)
- 	{
- 		case PLAIN_FILE:
- 			return osd_feof(file->file);
-@@ -877,10 +872,12 @@
- 	LOG(("generic_fopen(%d, %s, %s, %s, %X)\n", pathc, gamename, filename, extension, flags));
- 
- 	/* reset the file handle */
- 	memset(&file, 0, sizeof(file));
- 
-+	file.back_char = EOF;
-+
- 	/* check for incompatible flags */
- 	if ((flags & FILEFLAG_OPENWRITE) && (flags & FILEFLAG_HASH))
- 		fprintf(stderr, "Can't use HASH option with WRITE option in generic_fopen!\n");
- 
- 	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2004-04-01 18:31:56.000000000 +0200
-+++ src/inptport.c	2004-04-04 13:20:01.000000000 +0200
-@@ -201,10 +201,15 @@
++++ src/inptport.c	2004-05-11 15:42:53.000000000 +0200
+@@ -201,10 +201,16 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -433,12 +271,13 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 +	{ IPT_UI_TURBO,             "Turbo", SEQ_DEF_1(KEYCODE_ASTERISK) },
 +	{ IPT_UI_COCKTAIL,          "Cocktail", SEQ_DEF_1(KEYCODE_SLASH_PAD) },
 +	{ IPT_UI_HELP,              "Help", SEQ_DEF_1(KEYCODE_F1_REAL) },
++	{ IPT_UI_STARTUP_END,       "Startup End", SEQ_DEF_1(KEYCODE_MINUS_PAD) },
  	{ IPT_UI_TOGGLE_CHEAT,      "Toggle Cheat",			SEQ_DEF_1(KEYCODE_F6) },
  	{ IPT_UI_UP,                "UI Up",				SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -212,10 +217,12 @@
+@@ -212,10 +218,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -451,7 +290,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -431,265 +438,265 @@
+@@ -431,265 +439,265 @@
  	{ IPT_JOYSTICKLEFT_UP     | IPF_PLAYER8, "P8 Left/Up",     SEQ_DEF_0 },
  	{ IPT_JOYSTICKLEFT_DOWN   | IPF_PLAYER8, "P8 Left/Down",   SEQ_DEF_0 },
  	{ IPT_JOYSTICKLEFT_LEFT   | IPF_PLAYER8, "P8 Left/Left",   SEQ_DEF_0 },
@@ -899,7 +738,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{ IPT_START | IPF_PLAYER2, "P2 Start",        SEQ_DEF_3(KEYCODE_2, CODE_OR, JOYCODE_2_START) },
  	{ IPT_START | IPF_PLAYER3, "P3 Start",        SEQ_DEF_3(KEYCODE_3, CODE_OR, JOYCODE_3_START) },
  	{ IPT_START | IPF_PLAYER4, "P4 Start",        SEQ_DEF_3(KEYCODE_4, CODE_OR, JOYCODE_4_START) },
-@@ -1581,10 +1588,13 @@
+@@ -1581,10 +1589,13 @@
  	config_file *cfg;
  
  	osd_customize_inputport_defaults(inputport_defaults);
@@ -913,7 +752,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{
  		config_read_default_ports(cfg, inputport_defaults);
  		config_close(cfg);
-@@ -1638,10 +1648,13 @@
+@@ -1638,10 +1649,13 @@
  
  getout:
  		config_close(cfg);
@@ -927,7 +766,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		int i;
  		for (i = 0; i < MAX_INPUT_PORTS; i++)
  			input_analog_init[i] = 1;
-@@ -2140,14 +2153,16 @@
+@@ -2140,14 +2154,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -948,7 +787,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2503,11 +2518,11 @@
+@@ -2503,11 +2519,11 @@
  				}
  				else
  				{
@@ -963,8 +802,8 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  #endif
 diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	2004-04-01 18:32:00.000000000 +0200
-+++ src/inptport.h	2004-04-04 13:20:01.000000000 +0200
-@@ -85,10 +85,17 @@
++++ src/inptport.h	2004-05-11 15:42:53.000000000 +0200
+@@ -85,10 +85,18 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -977,6 +816,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
 +	IPT_UI_TURBO,
 +	IPT_UI_COCKTAIL,
 +	IPT_UI_HELP,
++	IPT_UI_STARTUP_END,
  	IPT_UI_CONFIGURE,
  	IPT_UI_ON_SCREEN_DISPLAY,
  	IPT_UI_PAUSE,
@@ -984,7 +824,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2004-01-23 09:32:40.000000000 +0100
-+++ src/input.c	2004-04-04 13:20:01.000000000 +0200
++++ src/input.c	2004-05-11 15:42:53.000000000 +0200
 @@ -12,15 +12,10 @@
  #include <assert.h>
  
@@ -1102,7 +942,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  		{
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 --- src.ori/input.h	2003-12-24 16:31:10.000000000 +0100
-+++ src/input.h	2004-04-04 13:20:01.000000000 +0200
++++ src/input.h	2004-05-11 15:42:53.000000000 +0200
 @@ -121,18 +121,33 @@
  #define KEYCODE_OTHER CODE_OTHER
  #define JOYCODE_OTHER CODE_OTHER
@@ -1139,7 +979,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  int code_pressed(InputCode code);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2004-04-01 18:32:00.000000000 +0200
-+++ src/mame.c	2004-04-04 13:20:01.000000000 +0200
++++ src/mame.c	2004-05-11 15:42:53.000000000 +0200
 @@ -996,26 +996,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -1178,9 +1018,9 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/mamedbg.c src/mamedbg.c
---- src.ori/mamedbg.c	2004-04-01 18:32:00.000000000 +0200
-+++ src/mamedbg.c	2004-04-04 13:20:01.000000000 +0200
-@@ -2309,11 +2309,11 @@
+--- src.ori/mamedbg.c	2004-04-27 19:42:38.000000000 +0200
++++ src/mamedbg.c	2004-05-11 15:42:53.000000000 +0200
+@@ -2322,11 +2322,11 @@
  		win_create(WIN_CMDS(i), 1,
  			cmds.min_x,cmds.min_y,
  			cmds.max_x+1-cmds.min_x,cmds.max_y+1-cmds.min_y,
@@ -1193,7 +1033,7 @@ diff -U 5 --new-file --recursive src.ori/mamedbg.c src/mamedbg.c
  
  /**************************************************************************
   * dbg_close_windows
-@@ -3300,11 +3300,11 @@
+@@ -3304,11 +3304,11 @@
  		win_set_title( WIN_CMDS(active_cpu), "%s%s", dbg_info_once, hist_info );
  		dbg_info_once = NULL;
  	}
@@ -1207,9 +1047,9 @@ diff -U 5 --new-file --recursive src.ori/mamedbg.c src/mamedbg.c
  
  /**************************************************************************
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2003-12-24 16:31:12.000000000 +0100
-+++ src/osdepend.h	2004-04-04 13:20:01.000000000 +0200
-@@ -399,10 +399,48 @@
+--- src.ori/osdepend.h	2004-04-27 19:42:40.000000000 +0200
++++ src/osdepend.h	2004-05-11 15:42:53.000000000 +0200
+@@ -406,10 +406,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -1259,9 +1099,9 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
---- src.ori/rules.mak	2004-04-01 18:34:18.000000000 +0200
-+++ src/rules.mak	2004-04-04 13:22:06.000000000 +0200
-@@ -1064,16 +1064,16 @@
+--- src.ori/rules.mak	2004-05-06 18:22:10.000000000 +0200
++++ src/rules.mak	2004-05-11 15:42:53.000000000 +0200
+@@ -1084,16 +1084,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o3.o
@@ -1284,7 +1124,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring SPC700@,$(CPUS)))
-@@ -1081,11 +1081,11 @@
+@@ -1101,11 +1101,11 @@
  SPCD = cpu/spc700
  OBJDIRS += $(OBJ)/$(SPCD)
  CPUDEFS += -DHAS_SPC700=1
@@ -1297,7 +1137,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring E132XS@,$(CPUS)))
-@@ -1140,13 +1140,13 @@
+@@ -1171,13 +1171,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -1316,7 +1156,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-12-24 16:31:12.000000000 +0100
-+++ src/ui_text.c	2004-04-04 13:20:01.000000000 +0200
++++ src/ui_text.c	2004-05-11 15:42:53.000000000 +0200
 @@ -199,10 +199,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -1334,7 +1174,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-12-24 16:31:12.000000000 +0100
-+++ src/ui_text.h	2004-04-04 13:20:01.000000000 +0200
++++ src/ui_text.h	2004-05-11 15:42:53.000000000 +0200
 @@ -168,10 +168,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -1352,7 +1192,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2004-04-01 18:32:00.000000000 +0200
-+++ src/usrintrf.c	2004-04-04 13:22:58.000000000 +0200
++++ src/usrintrf.c	2004-05-11 15:42:53.000000000 +0200
 @@ -835,10 +835,13 @@
  #pragma mark BOXES & LINES
  #endif
@@ -1616,7 +1456,21 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  /* Display text entry for current driver from history.dat and mameinfo.dat. */
  static int displayhistory (struct mame_bitmap *bitmap, int selected)
-@@ -3079,16 +3144,16 @@
+@@ -2856,11 +2921,13 @@
+ 		{
+ 			/* try to load entry */
+ 			if (load_driver_history (Machine->gamedrv, buf, bufsize) == 0)
+ 			{
+ 				scroll = 0;
++#if 0 /* AdvanceMAME: The text is internally wrapped */
+ 				wordwrap_text_buffer (buf, maxcols);
++#endif
+ 				strcat(buf,"\n\t");
+ 				strcat(buf,ui_getstring (UI_lefthilight));
+ 				strcat(buf," ");
+ 				strcat(buf,ui_getstring (UI_returntomain));
+ 				strcat(buf," ");
+@@ -3079,16 +3146,16 @@
  
  
  #ifndef MESS
@@ -1635,7 +1489,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3202,10 +3267,11 @@
+@@ -3202,10 +3269,11 @@
  	}
  #endif
  #endif
@@ -1647,7 +1501,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3272,10 +3338,13 @@
+@@ -3272,10 +3340,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -1661,7 +1515,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  #ifndef MMSND
  			case UI_MEMCARD:
  				res = memcard_menu(bitmap, sel >> SEL_BITS);
-@@ -3328,10 +3397,11 @@
+@@ -3328,10 +3399,11 @@
  			case UI_CONFIGURATION:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -1673,7 +1527,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3368,10 +3438,13 @@
+@@ -3368,10 +3440,13 @@
  
  *********************************************************************/
  
@@ -1687,7 +1541,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3393,10 +3466,11 @@
+@@ -3393,10 +3468,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -1699,7 +1553,27 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3749,10 +3823,13 @@
+@@ -3426,17 +3502,17 @@
+ 	if (increment)
+ 	{
+ 		attenuation = osd_get_mastervolume();
+ 		attenuation += increment;
+ 		if (attenuation > 0) attenuation = 0;
+-		if (attenuation < -32) attenuation = -32;
++		if (attenuation < -40) attenuation = -40;
+ 		osd_set_mastervolume(attenuation);
+ 	}
+ 	attenuation = osd_get_mastervolume();
+ 
+ 	sprintf(buf,"%s %3ddB", ui_getstring (UI_volume), attenuation);
+-	displayosd(bitmap,buf,100 * (attenuation + 32) / 32,100);
++	displayosd(bitmap,buf,100 * (attenuation + 40) / 40,100);
+ }
+ 
+ static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
+ {
+ 	static void *driver = 0;
+@@ -3749,10 +3825,13 @@
  *********************************************************************/
  
  
@@ -1713,7 +1587,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3772,10 +3849,11 @@
+@@ -3772,10 +3851,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -1725,7 +1599,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -3897,10 +3975,11 @@
+@@ -3897,10 +3977,11 @@
  	return show_profiler;
  }
  
@@ -1737,7 +1611,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int done = 0;
  	int y = 0;
  
-@@ -3938,32 +4017,35 @@
+@@ -3938,32 +4019,35 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1778,7 +1652,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4079,10 +4161,14 @@
+@@ -4079,10 +4163,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1793,7 +1667,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4091,11 +4177,11 @@
+@@ -4091,11 +4179,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1806,7 +1680,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4174,16 +4260,18 @@
+@@ -4174,16 +4262,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);
@@ -1827,7 +1701,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	{
 diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/vidhrdw/cave.c	2004-04-04 13:20:01.000000000 +0200
++++ src/vidhrdw/cave.c	2004-05-11 15:42:53.000000000 +0200
 @@ -1424,10 +1424,13 @@
  VIDEO_UPDATE( cave )
  {
@@ -1843,8 +1717,8 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
---- src.ori/vidhrdw/voodoo.c	2003-12-24 16:31:12.000000000 +0100
-+++ src/vidhrdw/voodoo.c	2004-04-04 13:20:01.000000000 +0200
+--- src.ori/vidhrdw/voodoo.c	2004-04-27 19:42:40.000000000 +0200
++++ src/vidhrdw/voodoo.c	2004-05-11 15:42:53.000000000 +0200
 @@ -11,11 +11,11 @@
  #include "cpu/mips/mips3.h"
  #include <math.h>
@@ -1859,9 +1733,9 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #else
  #include <float.h>
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
---- src.ori/x86drc.c	2004-01-23 09:33:00.000000000 +0100
-+++ src/x86drc.c	2004-04-04 13:20:01.000000000 +0200
-@@ -587,10 +587,11 @@
+--- src.ori/x86drc.c	2004-04-27 19:42:40.000000000 +0200
++++ src/x86drc.c	2004-05-11 15:42:53.000000000 +0200
+@@ -583,10 +583,11 @@
  
  
  /*------------------------------------------------------------------
@@ -1873,7 +1747,7 @@ diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
  	UINT32 features = 0;
  #ifdef _MSC_VER
  	__asm 
-@@ -616,10 +617,11 @@
+@@ -612,10 +613,11 @@
  	: "%ebx", "%ecx", "%edx"	/* clobbers ebx, ecx and edx */
  	);
  #endif /* MSC_VER */

@@ -58,14 +58,84 @@ static adv_device DEVICE[] = {
 	{ "gamepadpro", JOY_TYPE_GAMEPAD_PRO, "GamePad Pro" },
 	{ "grip", JOY_TYPE_GRIP, "GrIP" },
 	{ "grip4", JOY_TYPE_GRIP4, "GrIP 4-way" },
+
+/* From Allegro 4.0.1
+ *      Joystick driver for the SNES controller.
+ *
+ *      By Kerry High, based on sample code by Earle F. Philhower, III.
+ *
+ *      Mucked about with until it works better by Paul Hampson.
+ *
+ *      Lower CPU usage by Paul Hampson, based on the Linux implementation
+ *      by Vojtech Pavlik.
+ */
 	{ "sneslpt1", JOY_TYPE_SNESPAD_LPT1, "SNESpad LPT1" },
 	{ "sneslpt2", JOY_TYPE_SNESPAD_LPT2, "SNESpad LPT2" },
 	{ "sneslpt3", JOY_TYPE_SNESPAD_LPT3, "SNESpad LPT3" },
-/*
+
+/* From Allegro 4.0.1
+ *      Joystick driver for PSX controllers.
+ *
+ *      By Richard Davies.
+ *
  *      Based on sample code by Earle F. Philhower, III. from DirectPad
  *      Pro 4.9, for use with the DirectPad Pro parallel port interface.
  *
  *      See <http://www.ziplabel.com/dpadpro> for interface details.
+ *
+ *      Original parallel port interface and code by Juan Berrocal.
+ *
+ *      Digital, Analog, Dual Force (control), NegCon and Mouse
+ *      information by T. Fujita. Dual Shock (vibrate) information by
+ *      Dark Fader. Multi tap, G-con45 and Jogcon information by me
+ *      (the weird stuff ;)
+ *
+ *      This driver recognises Digital, Analog, Dual Shock, Mouse, negCon,
+ *      G-con45, Jogcon, Konami Lightgun and Multi tap devices.
+ *
+ *      Digital, Dual Shock, neGcon, G-con45, Jogcon and Multi tap devices
+ *      have all been tested. The Analog (green mode or joystick), Mouse
+ *      and Konami Lightgun devices have not. The position data is likely
+ *      to be broken for the Konami Lightgun, and may also be broken for
+ *      the Mouse.
+ *
+ *      The G-con45 needs to be connected to (and pointed at) a TV type
+ *      monitor connected to your computer. The composite video out on my
+ *      video card works fine for this.
+ *
+ *      The Sony Dual Shock or Namco Jogcon will reset themselves (to
+ *      digital mode) after not being polled for 5 seconds. This is normal,
+ *      the same thing happens on a Playstation, it's meant to stop any
+ *      vibration in case the host machine crashes. However, if this
+ *      happens to a Jogcon controller the mode button is disabled. To
+ *      reenable the mode button on the Jogcon hold down the Start and
+ *      Select buttons at the same time. Other mode switching controllers
+ *      may have similar quirks.
+ *
+ *      Some people may have problems with the psx poll delay set at 3
+ *      causing them twitchy controls (this depends on the controllers
+ *      more than anything else).
+ *
+ *      It may be worthwhile to add calibration to some of the analog
+ *      controls, although most controller types aren't really meant to
+ *      be calibrated:
+ *
+ *      - My Dual Shock controller centres really badly; most of them do.
+ *      - My neGcon centres really well (+/- 1).
+ *      - The G-con45 needs calibration for it's centre aim and velocity.
+ *      - The Jogcon calibrates itself when initialised.
+ *
+ *      To Do List:
+ *
+ *      - Verify Analog Joystick (Green mode) works.
+ *      - Verify Mouse position works.
+ *      - Verify MegaTap interface.
+ *      - Add calibration for the G-con45, Dual Shock and neGcon controllers.
+ *      - Implement Konami Lightgun aim.
+ *      - Implement Jogcon force feedback.
+ *      - Implement unsupported controllers (Ascii Sphere? Beat Mania Decks?)
+ *
+ *      If you can help with any of these then please let me know.
  *
  *
  *       -----------------------
@@ -78,7 +148,7 @@ static adv_device DEVICE[] = {
  *      1 - data            10 (conport 1, 3, 4, 5, 6), 13 (conport 2)
  *      2 - command         2
  *      3 - 9V(shock)       +9V power supply terminal for Dual Shock
- *      4 - gnd             18, 19 also -9V and/or -5V power supply terminal
+ *      4 - gnd             18,19 also -9V and/or -5V power supply terminal
  *      5 - V+              5, 6, 7, 8, 9 through diodes, or +5V power supply terminal
  *      6 - att             3 (conport 1, 2), 5 (conport 3), 6 (conport 4), 7 (conport 5), 8 (conport 6)
  *      7 - clock           4
@@ -96,7 +166,11 @@ static adv_device DEVICE[] = {
 	{ "psxlpt1", JOY_TYPE_PSXPAD_LPT1, "PSXpad LPT1" },
 	{ "psxlpt2", JOY_TYPE_PSXPAD_LPT2, "PSXpad LPT2" },
 	{ "psxlpt3", JOY_TYPE_PSXPAD_LPT3, "PSXpad LPT3" },
-/*
+
+/* From Allegro 4.0.1
+ *      Joystick driver for N64 controllers.
+ *
+ *      By Richard Davies, based on sample code by Earle F. Philhower, III.
  *
  *      This driver supports upto four N64 controllers. The analog stick
  *      calibrates itself when the controller is powered up (in hardware).
@@ -112,11 +186,18 @@ static adv_device DEVICE[] = {
 	{ "n64lpt1", JOY_TYPE_N64PAD_LPT1, "N64pad LPT1" },
 	{ "n64lpt2", JOY_TYPE_N64PAD_LPT2, "N64pad LPT2" },
 	{ "n64lpt3", JOY_TYPE_N64PAD_LPT3, "N64pad LPT3" },
-/*
+
+/* From Allegro 4.0.1
+ *      Drivers for multisystem joysticks (Atari, Commodore 64 etc.)
+ *      with 9-pin connectors.
+ *
+ *      By Fabrizio Gennari.
+ *
+ *      JOY_TYPE_DB9_LPT[123]
  *
  *      Supports 2 two-button joysticks. Port 1 is compatible with Linux
  *      joy-db9 driver (multisystem 2-button), and port 2 is compatible
- *       with Atari interface for DirectPad Pro.
+ *      with Atari interface for DirectPad Pro.
  *
  *      Based on joy-db9 driver for Linux by Vojtech Pavlik
  *      and on Atari interface for DirectPad Pro by Earle F. Philhower, III
@@ -158,11 +239,7 @@ static adv_device DEVICE[] = {
  *       * The parallel port should not require pull-up resistors
  *         (however, newer ones don't)
  *
- */
-	{ "db9lpt1", JOY_TYPE_DB9_LPT1, "DB9 LPT1" },
-	{ "db9lpt2", JOY_TYPE_DB9_LPT2, "DB9 LPT2" },
-	{ "db9lpt3", JOY_TYPE_DB9_LPT3, "DB9 LPT3" },
-/*
+ *      JOY_TYPE_TURBOGRAFX_LPT[123]
  *
  *      Supports up to 7 joysticks, each one with up to 5 buttons.
  *
@@ -178,9 +255,13 @@ static adv_device DEVICE[] = {
  *
  *      * Autofire will not work
  */
+	{ "db9lpt1", JOY_TYPE_DB9_LPT1, "DB9 LPT1" },
+	{ "db9lpt2", JOY_TYPE_DB9_LPT2, "DB9 LPT2" },
+	{ "db9lpt3", JOY_TYPE_DB9_LPT3, "DB9 LPT3" },
 	{ "tgxlpt1", JOY_TYPE_TURBOGRAFX_LPT1, "TGX-LPT1" },
 	{ "tgxlpt2", JOY_TYPE_TURBOGRAFX_LPT2, "TGX LPT2" },
 	{ "tgxlpt3", JOY_TYPE_TURBOGRAFX_LPT3, "TGX LPT3" },
+
 	{ "segaisa", JOY_TYPE_IFSEGA_ISA, "IF-SEGA/ISA" },
 	{ "segapci", JOY_TYPE_IFSEGA_PCI, "IF-SEGA2/PCI" },
 	{ "segapcifast", JOY_TYPE_IFSEGA_PCI_FAST, "IF-SEGA2/PCI (normal)" },

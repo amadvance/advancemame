@@ -574,12 +574,7 @@ void crtc_vclock_set(adv_crtc* crtc, double vclock)
  */
 double crtc_hclock_get(const adv_crtc* crtc)
 {
-	if (crtc_is_tvpal(crtc))
-		return 15625;
-	else if (crtc_is_tvntsc(crtc))
-		return 15720;
-	else
-		return (double)crtc->pixelclock / crtc->ht;
+	return (double)crtc->pixelclock / crtc->ht;
 }
 
 /**
@@ -588,20 +583,14 @@ double crtc_hclock_get(const adv_crtc* crtc)
  */
 double crtc_vclock_get(const adv_crtc* crtc)
 {
-	if (crtc_is_tvpal(crtc))
-		return 50;
-	else if (crtc_is_tvntsc(crtc))
-		return 59.94;
-	else {
-		double vclock = (double)crtc->pixelclock / (crtc->ht * crtc->vt);
+	double vclock = (double)crtc->pixelclock / (crtc->ht * crtc->vt);
 
-		if (crtc_is_interlace(crtc))
-			vclock *= 2;
-		if (crtc_is_doublescan(crtc))
-			vclock /= 2;
+	if (crtc_is_interlace(crtc))
+		vclock *= 2;
+	if (crtc_is_doublescan(crtc))
+		vclock /= 2;
 
-		return vclock;
-	}
+	return vclock;
 }
 
 #define COMPARE(a, b) \
@@ -627,9 +616,6 @@ int crtc_compare(const adv_crtc* a, const adv_crtc* b)
 	COMPARE(crtc_is_phsync(a), crtc_is_phsync(b));
 	COMPARE(crtc_is_nvsync(a), crtc_is_nvsync(b));
 	COMPARE(crtc_is_pvsync(a), crtc_is_pvsync(b));
-	COMPARE(crtc_is_tvpal(a), crtc_is_tvpal(b));
-	COMPARE(crtc_is_tvntsc(a), crtc_is_tvntsc(b));
-	COMPARE(crtc_is_notv(a), crtc_is_notv(b));
 	COMPARE(a->vt, b->vt);
 	COMPARE(a->ht, b->ht);
 	COMPARE(a->hrs, b->hrs);
@@ -672,7 +658,6 @@ void crtc_reset(adv_crtc* crtc)
 	crtc->vre = 0;
 	crtc->vt = 0;
 
-	crtc_notv_set(crtc);
 	crtc_singlescan_set(crtc);
 	crtc_nhsync_set(crtc);
 	crtc_nvsync_set(crtc);

@@ -1,4 +1,4 @@
-; EVENT.DAT Version 0.3
+; EVENT.DAT Version 0.4
 ;
 ; Data for the "Event" and "Safe Quit" systems of AdvanceMAME
 ;
@@ -15,6 +15,9 @@
 ; <gamename>:
 ; <event>:<cpu>:<address>:<action>:<mask>:<result>
 ; [repeat the above as many times as necessary]
+;
+; The rule apply to "gamename" and any clone. To override the definition
+; for a clone put it after (and not before) the parent definition.
 ;
 ; For <action> = match
 ; Load <gamename> and get the value inside <address> on CPU <cpu> RAM area.
@@ -59,6 +62,11 @@
 ;
 ; HISTORY
 ;
+; Version 0.4
+; * Remove the clone name specifications, they are now automatic.
+; * Added a few games.
+; * Removed all the empty specifications.
+;
 ; Version 0.3
 ; * Renamed in event.dat
 ; * Renamed action 00 in "match" and 01 in "nomatch".
@@ -78,144 +86,25 @@
 ; send your submissions to mamebugfinder@hotmail.com
 ;
 
-; ******* 1942.c
 1942:
-1942a:
-1942b:
 zerocoin:0:e011:match:ff:00
 demomode:0:e000:match:ff:00
 
-; ******* 1943.c
 1943:
-1943j:
 1943kai:
 zerocoin:0:e312:match:ff:00
 demomode:0:e310:match:ff:00
-
-; ******* 8080bw.c TODO
-seawolf:
-
-gunfight:
-
-tornbase:
-
-280zzzap:
-
-maze:
-
-boothill:
-
-checkmat:
-
-desertgu:
-
-dplay:
-
-lagunar:
-
-gmissile:
-
-m4:
-
-clowns:
-
-einnings:
-
-shuffle:
-
-dogpatch:
-
-spcenctr:
-
-phantom2:
-
-bowler:
 
 invaders:
 zerocoin:0:20eb:match:ff:00
 demomode:0:20e7:match:01:00
 demomode:0:20ef:match:01:00
 
-blueshrk:
-
-invad2ct:
-
-sitv:
-sicv:
-sisv:
-sisv2:
-
-galxwars:
-starw:
-
-lrescue:
-grescue:
-desterth:
-
-invadpt2:
-invaddlx:
-
-schaser:
-schasrcv:
-
-lupin3:
-
-polaris:
-polarisa:
-
-ballbomb:
-
-sheriff:
-bandido:
-
-helifire:
-helifira:
-
-spacefev:
-sfeverbw:
-
-earthinv:
-spaceatt:
-sinvzen:
-sinvemag:
-alieninv:
-spceking:
-spcewars:
-spacewr3:
-invaderl:
-jspecter:
-cosmicmo:
-superinv:
-
-moonbase:
-
-invrvnge:
-invrvnga:
-
-spclaser:
-laser:
-spcewarl:
-
-rollingc:
-
-ozmawars:
-solfight:
-spaceph:
-
-yosakdon:
-
-; ******* amidar.c
-600:
 amidar:
-amidaro:
-amidaru:
-amigo:
-turpin:
 turtles:
 zerocoin:0:8002:match:ff:00
 demomode:0:8006:match:ff:00
 
-; ******* argus.c
 argus:
 zerocoin:0:e021:match:ff:00
 demomode:0:e000:match:f0:00
@@ -228,26 +117,16 @@ valtric:
 zerocoin:0:e018:match:ff:00
 demomode:0:e001:match:0f:00
 
-; ******* atetris.c
-atetcktl:
-atetckt2:
 atetris:
-atetrisa:
-atetrisb:
 zerocoin:0:0051:match:ff:00
 demomode:0:00c2:match:ff:00
 
-; ******* bagman.c
 ; In bagman and clones, when you start a 2 players game the address
 ; where the game stores the play mode takes more than 4 seconds
 ; to be updated after pressing 2P start.
 ; In sbagman this time is reduced to a little more than a second.
 bagman:
-bagmans:
-bagmans2:
-bagnard:
 sbagman:
-sbagmans:
 zerocoin:0:6000:match:ff:00
 demomode:0:6210:match:ff:00
 
@@ -255,16 +134,13 @@ pickin:
 zerocoin:0:7000:match:ff:00
 demomode:0:7053:match:ff:00
 
-; ******* bankp.c
 bankp:
 zerocoin:0:e009:match:ff:00
 demomode:0:e001:match:e0:00
 
-; ******* berzerk.c
 ; Needs more work, this game is tricky - probably
 ; stores accurate information only inside registers
 ; berzerk:
-; berzerk1:
 ; zerocoin:0:08a3:match:ff:00
 ; demomode:0:42f8:match:10:10
 
@@ -274,42 +150,26 @@ demomode:0:e001:match:e0:00
 ; zerocoin:0:f8ca:match:ff:00
 ; demomode:0:4056:match:ff:00
 
-; ******* bionicc.c
 bionicc:
-bionicc2:
-topsecrt:
 zerocoin:0:ffc551:match:ff:00
 demomode:0:ffc56a:match:ff:00
 
-; ******* blktiger.c
 ; This game doesn't accept coins during gameplay (as of MAME 0.37 beta 15),
 ; only when in demo mode, in "press start" or in the continue screens.
 ; Oddly, the service coin is accepted (key 9).
-bktigerb:
-blkdrgnb:
-blkdrgon:
 blktiger:
 zerocoin:0:e1ff:match:ff:00
 demomode:0:f3c0:match:0f:00
 
-; ******* bombjack.c
-bombjac2:
 bombjack:
 zerocoin:0:8017:match:ff:00
 demomode:0:8070:match:ff:00
 
-; ******* bosco.c
 bosco:
-boscomd:
-boscomdo:
-boscoo:
-boscoo2:
 zerocoin:0:8bc0:match:ff:00
 demomode:0:83ae:match:ff:01
 
-; ******* brkthru.c
 brkthru:
-brkthruj:
 zerocoin:0:0406:match:ff:00
 demomode:0:0401:match:ff:00
 
@@ -317,23 +177,15 @@ darwin:
 zerocoin:0:1b63:match:ff:00
 demomode:0:107c:match:ff:00
 
-; ******* cabal.c
-; cabal:    ; Game not working
-; cabal2:   ; Game not working
-cabalbl:
+cabal:
 zerocoin:0:040028:match:ff:00
 demomode:0:040042:match:80:00
 
-; ******* centiped.c
-centipb2:
-centipd2:
-centipdb:
 centiped:
 ; This game takes more than a second to register a coin.
 zerocoin:0:00c8:match:ff:00
 demomode:0:0086:match:ff:00
 
-; ******* circus.c
 ; This game doesn't accept coins during gameplay (as of MAME 0.37 beta 15),
 ; only when in demo mode or in "press start" screen.
 circus:
@@ -346,8 +198,6 @@ crash:
 zerocoin:0:0013:match:ff:00
 demomode:0:0002:match:ff:00
 
-; ripcord:  ; Game not working
-
 robotbwl:
 ; This game doesn't accept coins during gameplay (as of MAME 0.37 beta 15),
 ; only when in demo mode or in "press start" screen.
@@ -358,49 +208,34 @@ robotbwl:
 ; zerocoin:0:0027:match:ff:00
 demomode:0:002b:match:80:00
 
-; ******* circusc.c
 circusc:
-circusc2:
-circuscc:
-circusce:
 zerocoin:0:2002:match:ff:00
 demomode:0:2022:match:ff:00
 
-; ******* congo.c
 congo:
-tiptop:
 zerocoin:0:8012:match:ff:00
 demomode:0:8005:match:ff:01
 
-; ******* cps1.c
 1941:
-1941j:
 zerocoin:0:ff0d59:match:ff:00
 demomode:0:ff0d82:match:ff:00
 
 3wonders:
-3wonderu:
-wonder3:
 zerocoin:0:ff0d59:match:ff:00
 demomode:0:ff0d82:match:ff:00
 
-area88:
 unsquad:
 zerocoin:0:ff0ffe:match:ff:00
 demomode:0:ff10d5:match:ff:00
 
-captcomj:
 captcomm:
-captcomu:
 zerocoin:0:ffa850:match:ff:00
 demomode:0:ffa860:match:ff:00
 
 cawing:
-cawingj:
 zerocoin:0:ff82ab:match:ff:00
 demomode:0:ff82ae:match:ff:00
 
-chikij:
 mtwins:
 zerocoin:0:ff0f3e:match:ff:00
 demomode:0:ff0f66:match:ff:00
@@ -409,81 +244,55 @@ cworld2j:
 zerocoin:0:ff0ee3:match:ff:00
 demomode:0:ff10c9:match:ff:00
 
-daimakai:
 ghouls:
-ghoulsu:
 zerocoin:0:ff0647:match:ff:00
 demomode:0:ff06ce:match:ff:00
 
 dino:
-dinoj:
 zerocoin:0:ff846a:match:ff:00
 demomode:0:ff84cc:match:ff:00
-; Not necessary for adjustment
 
-dwj:
+dw:
 zerocoin:0:ff81a3:match:ff:00
 demomode:0:ff8155:match:ff:00
 
 ffight:
-ffightj:
-ffightu:
 zerocoin:0:ff804d:match:ff:00
 demomode:0:ffd47e:match:ff:00
 
 forgottn:
-lostwrld:
 zerocoin:0:ffb263:match:ff:00
 demomode:0:ff80b0:match:ff:00
 
 knights:
-knightsj:
-knightsu:
 zerocoin:0:ffa450:match:ff:00
 demomode:0:ffa4a5:match:ff:00
 
 kod:
-kodb:
-kodj:
-kodu:
 zerocoin:0:ff1068:match:ff:00
 demomode:0:ff0e47:match:ff:00
 
-mbomberj:
 slammast:
-slammasu:
 zerocoin:0:ffcb58:match:ff:00
 demomode:0:ffcb51:match:ff:00
 
-mbombrd:
-mbombrdj:
-zerocoin:0:ffcaec:match:ff:00
-demomode:0:ffcae5:match:ff:00
-
 megaman:
-rockmanj:
 zerocoin:0:ff8068:match:ff:00
 demomode:0:ff80a1:match:ff:00
 
 mercs:
-mercsj:
-mercsu:
 zerocoin:0:ff0f5f:match:ff:00
 demomode:0:ff0e7a:match:ff:00
 
 msword:
-mswordj:
-mswordu:
 zerocoin:0:ffa86a:match:ff:00
 demomode:0:ffa851:match:ff:00
 
 nemo:
-nemoj:
 zerocoin:0:ff82ab:match:ff:00
 demomode:0:ff82ae:match:ff:00
 
 pang3:
-pang3j:
 zerocoin:0:ff8b65:match:ff:00
 demomode:0:ff8b67:match:ff:00
 
@@ -492,13 +301,10 @@ zerocoin:0:ff80b0:match:ff:00
 demomode:0:ff8105:match:ff:00
 
 punisher:
-punishrj:
-punishru:
 zerocoin:0:ff5b15:match:ff:00
 demomode:0:ff524d:match:ff:00
 
 qad:
-qadj:
 zerocoin:0:ffe01d:match:ff:00
 demomode:0:ffe01b:match:ff:00
 
@@ -507,46 +313,24 @@ zerocoin:0:ff8050:match:ff:00
 demomode:0:ff8058:match:ff:00
 
 sf2:
-sf2j:
-sf2ja:
-sf2jc:
-sf2ub:
-sf2ue:
-sf2ui:
 zerocoin:0:ff82dd:match:ff:00
 demomode:0:ff82e4:match:ff:00
 
-sf2accp2:
 sf2ce:
-sf2cej:
-sf2ceua:
-sf2ceub:
-sf2rb:
-sf2rb2:
-sf2red:
-sf2t:
-sf2tj:
-sf2ua:
-sf2v004:
 zerocoin:0:ff82d9:match:ff:00
 demomode:0:ff82e0:match:ff:00
 ; This one is for adjustment
 demomode:0:ff0029:nomatch:ff:00
 
 strider:
-striderj:
-stridrja:
 zerocoin:0:ff0c57:match:ff:00
 demomode:0:ff0c84:match:ff:00
 
 varth:
-varthj:
-varthu:
 zerocoin:0:ff82ab:match:ff:00
 demomode:0:ff82ae:match:ff:00
 
 willow:
-willowj:
 ; This game doesn't accept coins during gameplay (as of MAME 0.37 beta 15),
 ; only when in demo mode, in "press start" or in the continue screens.
 ; Oddly, the service coin is accepted (key 9).
@@ -554,72 +338,50 @@ zerocoin:0:ff82a2:match:ff:00
 demomode:0:ff0071:match:ff:00
 
 wof:
-wofa:
-wofj:
-wofu:
 zerocoin:0:ff62f7:match:ff:00
 demomode:0:ff63aa:match:ff:00
 
-; ******* cps2.c
 19xx:
-19xxh:
-19xxj:
 zerocoin:0:ff4d15:match:ff:00
 demomode:0:ff40c1:match:ff:00
 
 armwar:
-armwara:
-pgear:
-pgearr1:
 zerocoin:0:ff805e:match:ff:00
 demomode:0:ff81da:match:ff:00
 
 avsp:
-avspa:
-avspe:
-avspj:
 zerocoin:0:ff818c:match:ff:00
 demomode:0:ff81bf:match:ff:00
 ; This one is for adjustment
 demomode:0:ff81ab:match:ff:00
 
-cscluba:
-csclubj:
+csclub:
 zerocoin:0:ff8ae9:match:ff:00
 demomode:0:ff8bdb:match:ff:00
 ; This one is for adjustment
 demomode:0:ff8be0:nomatch:ff:ff
 
-cybotsj:
+cybots:
 zerocoin:0:ff80b6:match:ff:00
 demomode:0:ff80ff:match:ff:00
 
 ddsom:
-ddsomj:
 zerocoin:0:ff8450:match:ff:00
 demomode:0:ff8030:match:ff:00
 ; This one is for adjustment
 demomode:0:ffffcd:nomatch:ff:01
 
 ddtod:
-ddtoda:
-ddtodj:
-ddtodr1:
 zerocoin:0:ff858a:match:ff:00
 demomode:0:ff804a:match:ff:00
 ; This one is for adjustment
 demomode:0:fff774:nomatch:ff:01
 
 dstlk:
-vampa:
-vampj:
-vampja:
 zerocoin:0:ff81d0:match:ff:00
 demomode:0:ff0091:match:ff:00
 
 msh:
-mshh:
-mshj:
 zerocoin:0:ff4c09:match:ff:00
 demomode:0:ff4880:match:ff:00
 
@@ -628,87 +390,51 @@ zerocoin:0:ff8d67:match:ff:00
 demomode:0:ff8281:match:ff:00
 
 sfa:
-sfaer1:
-sfzh:
-sfzj:
-sfzjr1:
-sfzjr2:
 zerocoin:0:ff8170:match:ff:00
 demomode:0:ff81a8:match:ff:00
 
 sfa2:
-sfz2aj:
-sfz2j:
 zerocoin:0:ff8076:match:ff:00
 demomode:0:ff80a8:match:ff:00
 ; This one is for adjustment
 demomode:0:ff032f:match:ff:00
 
 sfa3:
-sfa3r1:
-sfz3j:
-sfz3jr1:
 zerocoin:0:ff8076:match:ff:00
 demomode:0:ff80a8:match:ff:00
 ; This one is for adjustment
 demomode:0:ff8082:match:ff:00
 
-slam2e:
-smbomber:
-zerocoin:0:ff726e:match:ff:00
-demomode:0:ff7417:match:ff:00
-
 spf2t:
-spf2xj:
 zerocoin:0:ff8076:match:ff:00
 demomode:0:ff80a8:match:ff:00
 
 ssf2:
-ssf2a:
-ssf2j:
-ssf2jr1:
-ssf2jr2:
-ssf2t:
-ssf2ta:
-ssf2tu:
-ssf2xj:
 demomode:0:ff82e9:match:ff:00
 demomode:0:ff82f0:match:ff:00
 
 vsav:
-vsavj:
 zerocoin:0:ff8076:match:ff:00
 demomode:0:ff80a8:match:ff:00
 ; This one is for adjustment
 demomode:0:ff8082:nomatch:ff:01
 
 mshvsf:
-mshvsfa:
-mshvsfa1:
-mshvsfh:
-mshvsfj:
-mshvsfj1:
 zerocoin:0:ff4c75:match:ff:00
 demomode:0:ff4900:match:ff:00
 ; Not necessary for adjustment
 
 xmcota:
-xmcotaj:
-xmcotaj1:
-xmcotajr:
 zerocoin:0:ff4bdd:match:ff:00
 demomode:0:ff4880:match:ff:00
 ; Not necessary for adjustment
 
 xmvsf:
-xmvsfa:
-xmvsfj:
 zerocoin:0:ff545f:match:ff:00
 demomode:0:ff5100:match:ff:00
 ; This one is for adjustment
 demomode:0:ff5100:nomatch:ff:ff
 
-; ******* crimfght.c
 crimfght:
 ; Needs special attention, to correctly identify zerocoin and demomode in
 ; this game was a hard task. Here's what I got so far:
@@ -730,120 +456,75 @@ demomode:0:5c42:match:ff:72
 demomode:0:5c62:match:ff:72
 demomode:0:5c82:match:ff:72
 
-crimfgt2:
-crimfgtj:
+crimfght:
 zerocoin:0:0400:match:ff:00
 demomode:0:052b:match:ff:00
 demomode:0:052c:match:ff:00
 
-; ******* digdug.c
 digdug:
-digdugat:
-digdugb:
-dzigzag:
 zerocoin:0:85a5:match:ff:00
 demomode:0:8657:match:ff:43
 
-; ******* ddragon.c
-; ddragn2u: ; Already in source but not in driver.c (why?)
 ddragon:
-ddragon2:
-ddragonb:
-ddragonu:
 zerocoin:0:0021:match:ff:00
 demomode:0:0026:match:ff:00
 
-; ******* ddragon3.c
 ctribe:
-ctribeb:
 zerocoin:0:1c0003:match:ff:00
 demomode:0:1c0015:match:ff:00
 
-ddrago3b:
 ddragon3:
 zerocoin:0:1c002f:match:ff:00
 demomode:0:1c1d46:match:ff:00
 
-; ******* dkong.c
-dkjrbl:
-dkjrjp:
-dkngjrjp:
 dkong:
-dkongjp:
-dkongjpo:
-dkongjr:
-radarscp:
 zerocoin:0:6001:match:ff:00
 demomode:0:6005:match:ff:01
 
 dkong3:
-dkong3j:
 zerocoin:0:6004:match:ff:00
 demomode:0:6005:match:ff:01
 
-herbiedk:
+huncholy:
 zerocoin:0:1e50:match:ff:00
 demomode:0:1e6e:match:ff:00
 
-; herocast: ; Game not working
-
-hunchbkd:
+hunchbak:
 zerocoin:0:1d98:match:ff:00
 demomode:0:1dbd:match:ff:00
 
-; ******* espial.c
 espial:
-espiale:
 zerocoin:0:5802:match:ff:00
 demomode:0:5825:match:ff:b0
 
-; ******* exedexes.c
 exedexes:
-savgbees:
 zerocoin:0:e61f:match:ff:00
 demomode:0:f007:match:ff:00
 demomode:0:f087:match:ff:00
 
-; ******* exerion.c
 exerion:
-exerionb:
-exeriont:
 zerocoin:0:6001:match:ff:00
 demomode:0:6010:match:ff:00
 
-; ******* frogger.c
 frogger:
-froggrmc:
-frogseg1:
-frogseg2:
 zerocoin:0:83e1:match:ff:00
 demomode:0:83fe:match:ff:00
 
-; ******* funkybee.c
 funkybee:
-skylancr:
 zerocoin:0:8000:match:ff:00
 demomode:0:801c:match:ff:30
 
-; ******* galaga.c
 galaga:
-galaga84:
-galagab2:
-galagads:
-galagamw:
-gallag:
-nebulbee:
 zerocoin:0:99b5:match:ff:00
 demomode:0:98f2:match:ff:00
 
-; ******* galaxian.c TODO
 azurian:
 ; Needs more work, this game is tricky - probably
 ; stores accurate information only inside registers
 zerocoin:0:40b0:match:ff:00
 demomode:0:0000:match:ff:00
 
-batman2:
+phoenix:
 zerocoin:0:428f:match:ff:00
 demomode:0:42a2:match:ff:00
 
@@ -851,76 +532,42 @@ blkhole:
 zerocoin:0:4003:match:ff:00
 demomode:0:40f0:match:ff:00
 
-checkmaj:
 checkman:
 ; Needs more work, this game is tricky - probably
 ; stores accurate information only inside registers
 ; Not perfect but usable, for 1 player only
 zerocoin:0:8008:match:ff:00
 demomode:0:8107:match:ff:03
-;demomode:0:8107:match:ff:00
 demomode:0:810f:match:ff:00
 demomode:0:8155:nomatch:13:12
 
-devilfsg:
+devilfsh:
 zerocoin:0:4002:match:ff:00
 demomode:0:4005:nomatch:02:02
 
-eagle:
-eagle2:
-fantazia:
-mooncrs2:
-mooncrsb:
 mooncrst:
-; mooncrgx: ; Game not working
-smooncrs:
 zerocoin:0:8032:match:ff:00
 demomode:0:8035:match:01:00
 
-mooncrsg:
-zerocoin:0:8032:match:ff:00
-demomode:0:8038:match:01:00
-
-exodus:
 redufo:
 zerocoin:0:4002:match:ff:00
 demomode:0:4005:nomatch:02:02
 demomode:0:4005:nomatch:04:04
 
-galap1:
-galap4:
-galapx:
-galaxiaj:
 galaxian:
-galmidw:
-galturbo:
-superg:
-swarm:
-zerotime:
 zerocoin:0:4002:match:ff:00
 demomode:0:4005:nomatch:02:02
 demomode:0:4005:nomatch:04:04
 
-ghostmun:
-pacmanbl:
-zerocoin:0:426e:match:ff:00
-demomode:0:4200:nomatch:02:02
-
-gteikob2:
-gteikokb:
-gteikoku:
-spacbatt:
 uniwars:
 zerocoin:0:4002:match:ff:00
 demomode:0:4005:nomatch:02:02
 demomode:0:4005:nomatch:04:04
 
 jumpbug:
-jumpbugb:
 zerocoin:0:4214:match:ff:00
 demomode:0:4107:match:ff:08
 
-kingbalj:
 kingball:
 zerocoin:0:8315:match:ff:00
 demomode:0:8317:match:ff:01
@@ -930,7 +577,6 @@ zerocoin:0:4178:match:ff:00
 demomode:0:41c6:match:ff:00
 
 moonal2:
-moonal2b:
 zerocoin:0:8002:match:ff:00
 demomode:0:8005:nomatch:02:02
 demomode:0:8005:nomatch:04:04
@@ -939,106 +585,59 @@ moonqsr:
 zerocoin:0:8032:match:ff:00
 demomode:0:8038:match:01:00
 
-omega:
-
-orbitron:
-
-pisces:
-
-scramblb:
-
-streakng:
-
-warofbug:
-
-zigzag:
-zigzag2:
-
-; ******* gberet.c
 gberet:
-gberetb:
-rushatck:
 zerocoin:0:db1f:match:ff:00
 demomode:0:db1e:match:ff:00
 
-; ******* gng.c
 diamond:
 zerocoin:0:04a5:match:ff:00
 demomode:0:049b:match:ff:00
 
 gng:
-gnga:
-gngt:
-makaimur:
-makaimuc:
-makaimug:
 zerocoin:0:0023:match:ff:00
 demomode:0:0028:match:ff:00
 
-; ******* gyruss.c
 gyruss:
-gyrussce:
-venus:
 zerocoin:0:9406:match:ff:00
 demomode:0:9669:match:ff:00
 
-; ******* kangaroo.c
 fnkyfish:
 zerocoin:0:e02f:match:ff:00
 demomode:0:e03c:match:ff:ff
 
-kangaroa:
-kangarob:
 kangaroo:
 zerocoin:0:e02f:match:ff:00
 demomode:0:e029:nomatch:ff:00
 
-; ******* ladybug.c
 ladybug:
-ladybugb:
 snapjack:
 cavenger:
 zerocoin:0:605e:match:ff:00
 demomode:0:605f:match:01:00
 
-; ******* lwings.c
-avenger2:
 avengers:
-buraiken:
 zerocoin:0:c030:match:ff:00
 demomode:0:c000:match:04:00
 
 lwings:
-lwings2:
-lwingsjp:
 trojan:
-trojanj:
-trojanr:
-sctionza:
 sectionz:
 zerocoin:0:c030:match:ff:00
 demomode:0:c000:match:02:00
 
-; ******* m62.c
 battroad:
 zerocoin:0:ed00:match:ff:00
 demomode:0:efff:match:ff:10
 
 kidniki:
-yanchamr:
 zerocoin:0:e013:match:ff:00
 demomode:0:e002:match:80:00
 
-kungfub:
-kungfub2:
-kungfud:
 kungfum:
-spartanx:
 zerocoin:0:e913:match:ff:00
 demomode:0:e001:match:ff:00
 
 ldrun:
-ldruna:
 zerocoin:0:e5b2:match:ff:00
 demomode:0:e5a7:match:ff:01
 
@@ -1055,7 +654,6 @@ lotlot:
 zerocoin:0:e848:match:ff:00
 demomode:0:e841:match:80:00
 
-spelnkrj:
 spelunkr:
 zerocoin:0:e023:match:ff:00
 demomode:0:e000:match:ff:00
@@ -1064,114 +662,22 @@ spelunk2:
 zerocoin:0:e043:match:ff:00
 demomode:0:e011:match:ff:00
 
-; ******* m72.c TODO
-airduel:
-
-bchopper:
-mrheli:
-
-dbreed:
-
-dkgenm72:
-dkgensan:
-
-gallop:
-
-hharry:
-hharryu:
-
-imgfight:
-
-kengo:
-
-loht:
-
-majtitle:
-
 nspirit:
-nspiritj:
-; This game needs master conditions
 zerocoin:0:a392a:match:ff:00
 
-poundfor:
-poundfou:
-
 rtype:
-rtypeu:
 zerocoin:0:42f06:match:ff:00
 demomode:0:42f32:match:ff:00
 demomode:0:42f3a:match:ff:00
 demomode:0:429d8:match:10:00
 
-rtypepj:
-zerocoin:0:42f02:match:ff:00
-demomode:0:42f2e:match:ff:00
-demomode:0:42f36:match:ff:00
-demomode:0:40014:match:ff:fe
-
 rtype2:
-rtype2j:
-; This game needs master conditions
 zerocoin:0:e37ec:match:ff:00
-
-xmultipl:
-
-; ******* megasys1.c TODO
-64street:
-64streej:
-
-astyanax:
 
 avspirit:
 zerocoin:0:078f8b:match:ff:00
 demomode:0:079579:nomatch:1c:10
 
-phantasm:
-zerocoin:0:0f8f87:match:ff:00
-demomode:0:0f9575:nomatch:1c:10
-
-
-bigstrik:
-
-chimerab:
-
-cybattlr:
-
-edf:
-
-hachoo:
-
-iganinju:
-
-jitsupro:
-
-kickoff:
-
-lomakai:
-makaiden:
-
-lordofk:
-
-p47:
-p47j:
-
-peekaboo:
-
-plusalph:
-
-rodland:
-rodlandj:
-rodlndjb:
-
-soldamj:
-
-stdragon:
-
-tshingen:
-tshingna:
-
-
-; ******* mpatrol.c
 mpatrol:
 zerocoin:0:e048:match:ff:00
 demomode:0:e046:match:90:00
@@ -1180,188 +686,26 @@ mpatrolw:
 zerocoin:0:e04a:match:ff:00
 demomode:0:e048:match:90:00
 
-; ******* mrdo.c
 mrdo:
-mrdofix:
-mrdot:
-mrdoy:
-mrdu:
-mrlo:
-yankeedo:
 zerocoin:0:e006:match:ff:00
 demomode:0:e000:match:80:00
 
-; ******* neogeo.c
-; All Neo-Geo games use the same addresses
-2020bb:
-2020bbh:
-3countb:
-alpham2:
-androdun:
-aodk:
-aof:
-aof2:
-aof3:
-bakatono:
-bjourney:
-blazstar:
-breakers:
-breakrev:
-bstars:
-bstars2:
-burningf:
-burningh:
-crsword:
-ctomaday:
-cyberlip:
-doubledr:
-eightman:
-fatfursp:
-fatfury1:
-fatfury2:
-fatfury3:
-fbfrenzy:
-fightfev:
-flipshot:
-galaxyfg:
-ganryu:
-ganryud:
-garou:
-garouo:
-garoup:
-goalx3:
-gowcaizr:
-gpilots:
-gururin:
-irrmaze:
-janshin:
-joyjoy:
-kabukikl:
-karnovr:
-kizuna:
-kof2000n:
-kof94:
-kof95:
-kof96:
-kof97:
-kof98:
-kof99:
-kof99n:
-kof99nd:
-kof99p:
-kotm:
-kotm2:
-lastblad:
-lastbld2:
-lbowling:
-legendos:
-lresort:
-magdrop2:
-magdrop3:
-maglord:
-maglordh:
-mahretsu:
-marukodq:
-miexchng:
-minasan:
-mosyougi:
-mslug:
-mslug2:
-mslugx:
-mutnat:
-nam1975:
-ncombat:
-ncommand:
-neobombe:
-neocup98:
-neodrift:
-neomrdo:
-ninjamas:
-nitd:
-nitdd:
-overtop:
-panicbom:
-pbobbl2n:
-pbobblen:
-pgoal:
-popbounc:
-preisle2:
-preisl2d:
-pspikes2:
-pulstar:
-puzzldpr:
-puzzledp:
-quizdai2:
-quizdais:
-quizkof:
-ragnagrd:
-rbff1:
-rbff2:
-rbffspec:
-ridhero:
-ridheroh:
-roboarmy:
-s1945p:
-s1945pd:
-samsho:
-samsho2:
-samsho3:
-samsho4:
-savagere:
-sdodgeb:
-sengokh:
-sengoku:
-sengoku2:
-sengoku3:
-sengok3d:
-shocktr2:
-shocktrj:
-shocktro:
-socbrawl:
-sonicwi2:
-sonicwi3:
-spinmast:
-ssideki:
-ssideki2:
-ssideki3:
-ssideki4:
-stakwin:
-stakwin2:
-strhoop:
-superspy:
-tophuntr:
-tpgolf:
-trally:
-turfmast:
-twinspri:
-tws96:
-viewpoin:
-wakuwak7:
-wh1:
-wh2:
-wh2j:
-whp:
-wjammers:
-zedblade:
+neogeo:
 zerocoin:0:d00034:match:ff:00
 demomode:0:10fdb6:match:ff:00
 demomode:0:10fdb7:match:ff:00
 ; This one is for adjustment
 demomode:0:320000:nomatch:ff:01
 
-; ******* pacman.c
 alibaba:
 zerocoin:0:4e6e:match:ff:00
 demomode:0:4e00:match:02:00
 
-beastf:
-theglobp:
+suprglob:
 zerocoin:0:4c36:match:ff:00
 demomode:0:4c14:match:ff:01
 
 crush:
-crush2:
-maketrax:
 zerocoin:0:4c1e:match:ff:00
 demomode:0:4cae:match:ff:00
 
@@ -1371,27 +715,10 @@ paintrlr:
 zerocoin:0:4c1e:match:ff:00
 demomode:0:4c20:match:03:00
 
-; Can't find anything for this game
-; dremshpr:
-
 eyes:
-eyes2:
 zerocoin:0:4ce3:match:ff:00
 demomode:0:4cdc:match:01:00
 
-hangly:
-hangly2:
-npacmod:
-mspacatk:
-mspacman:
-pacgal:
-pacheart:
-pacman:
-pacmanjp:
-pacmanm:
-pacmod:
-pacplus:
-piranha:
 puckman:
 zerocoin:0:4e6e:match:ff:00
 demomode:0:4e00:match:02:00
@@ -1409,7 +736,6 @@ zerocoin:0:4c9d:match:ff:00
 demomode:0:4c96:match:0f:00
 
 ponpoko:
-ponpokov:
 zerocoin:0:4e6e:match:ff:00
 demomode:0:4c46:match:ff:00
 
@@ -1417,114 +743,42 @@ shootbul:
 zerocoin:0:4d77:match:ff:00
 demomode:0:4c66:match:ff:01
 
-; Needs more work, this game is tricky - probably
-; stores accurate information only inside registers
-; vanvan:
-; vanvans:
-; zerocoin:0:4269:nomatch:70:30
-; demomode:0:4e68:match:20:00
-
-; ******* pbaction.c
 pbaction:
-pbactio2:
 zerocoin:0:c013:match:ff:00
 demomode:0:c000:match:07:00
 
-; ******* pengo.c
 pengo:
-pengo2:
-pengo2u:
-penta:
 zerocoin:0:8808:match:ff:00
 demomode:0:8819:match:ff:00
 
-
-; ******* phoenix.c
 phoenix:
-phoenix3:
-phoenixa:
-phoenixc:
-phoenixt:
-pleiadbl:
-pleiadce:
 pleiads:
 zerocoin:0:438f:match:ff:00
 demomode:0:43a2:match:ff:00
 
-; survival: ; Game not working
-
-; ******* powerins.c
-zerocoin:0:18fe48:match:ff:00
-demomode:0:180300:match:ff:00
-
-; ******* prehisle.c
-gensitou:
 prehisle:
-prehislu:
 zerocoin:0:070053:match:ff:00
 zerocoin:0:07341f:match:ff:00
 demomode:0:070051:match:10:00
 
-; ******* psychic5.c
 psychic5:
 zerocoin:0:fc80:match:ff:00
 demomode:0:fc90:match:ff:00
 
-; ******* rallyx.c
 nrallyx:
 rallyx:
-rallyxm:
 zerocoin:0:8024:match:ff:00
 demomode:0:8021:match:ff:00
 
-; ******* scobra.c TODO
-anteater:
-
-armorcar:
-armorca2:
-
-billiard:
-hustler:
-hustlerb:
-
-calipso:
-
-darkplnt:
-
-losttmbh:
-losttomb:
-
-minefld:
-
-moonwar:
-moonwara:
-
-rescue:
-
 scobra:
-scobrab:
-scobras:
 zerocoin:0:8002:match:ff:00
 demomode:0:8006:match:ff:00
 
-spdcoin:
-
-stratgys:
-stratgyx:
-
-superbon:
-
-tazmani2:
-tazmania:
-
-; ******* senjyo.c
 baluba:
 zerocoin:0:8018:match:ff:00
 demomode:0:8000:match:ff:00
 
-megaforc:
 starforc:
-starfore:
 zerocoin:0:8037:match:ff:00
 demomode:0:8018:match:ff:00
 
@@ -1532,135 +786,28 @@ senjyo:
 zerocoin:0:8010:match:ff:00
 demomode:0:8025:match:ff:00
 
-; ******* shaolins.c
 kicker:
-shaolins:
 zerocoin:0:2a21:match:ff:00
 demomode:0:2a02:match:ff:01
 
-; ******* system1.c TODO
-4dwarrio:
-
-; blckgalb: ; Game not working
-; blockgal: ; Game not working
-
-brain:
-
-bullfgt:
-bullfgtj:
-
-; chplft:   ; Game not working
-chplftb:
-chplftbl:
-
-; dakkochn: ; Game not working
-
-flicky:
-flicky2:
-
-; gardia:   ; Game not working
-; gardiab:  ; Game not working
-
-hvymetal:
-
-imsorry:
-imsorryj:
-
-mrviking:
-mrvikinj:
-
-myhero:
-myheroj:
-myherok:
-
-nprinces:
-nprincsb:
-nprincsu:
-seganinj:
-seganinu:
-
-pitfall2:
-pitfallu:
-
-; shtngmst: ; Game not working
-
-swat:
-
-teddybb:
-
-tokisens:
-
-regulus:
-regulusu:
-
-starjack:
-starjacs:
-
-; ufosensi: ; Game not working
-
-upndown:
-
-wbdeluxe:
 wboy:
-wboy2:
-wboy2u:
-wboy3:
-wboyo:
-wboyu:
 zerocoin:0:c016:match:ff:00
 demomode:0:c005:match:01:01
 
-wbml:
-; wbmlj:    ; Game not working
-; wbmlj2:   ; Game not working
-wbmlju:
-
-; ******* taitosj.c TODO
-alpine:
-alpinea:
-
-bioatack:
-
-elevatob:
 elevator:
 zerocoin:0:80a2:match:ff:00
 demomode:0:87fd:nomatch:04:04
 
-frontlin:
-
-hwrace:
-
-jungleh:
 junglek:
-junglhbr:
-junglkj2:
 zerocoin:0:8169:match:ff:00
 demomode:0:8000:nomatch:02:02
 
-; kikstart  ; Game not working
-
-sfposeid:
-
-spaceskr:
-
-timetunl:
-
-tinstar:
-
-waterski:
-
-wwester1:
-wwestern:
-
-; ******* tecmo.c
 gemini:
 zerocoin:0:c012:match:ff:00
 demomode:0:c303:match:ff:00
 demomode:0:c343:match:ff:00
 
 rygar:
-rygar2:
-rygarj:
 zerocoin:0:c03a:match:ff:00
 demomode:0:c190:match:ff:00
 demomode:0:c029:nomatch:03:00
@@ -1668,13 +815,10 @@ demomode:0:c029:nomatch:02:02
 demomode:0:cffe:match:08:00
 
 silkworm:
-silkwrm2:
 zerocoin:0:d021:match:ff:00
 demomode:0:d009:match:ff:00
 
-; ******* tigeroad.c
 f1dream:
-f1dreamb:
 zerocoin:0:ffce52:match:ff:00
 demomode:0:ffc060:match:ff:00
 
@@ -1683,24 +827,19 @@ toramich:
 zerocoin:0:ffc116:match:ff:00
 demomode:0:ffc08d:match:ff:01
 
-; ******* tmnt.c
 blswhstl:
-detatwin:
 zerocoin:0:204025:match:ff:00
 demomode:0:0000:match:ff:00
 
 glfgreat:
-glfgretj:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
 
 lgtnfght:
-trigon:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
 
 mia:
-mia2:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
 
@@ -1708,60 +847,18 @@ punkshot:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
 
-punksht2:
-punkshtj:
-zerocoin:0:0000:match:ff:00
-demomode:0:0000:match:ff:00
-
 qgakumon:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
-
-ssrdruac:
-ssrdruda:
-ssriders:
-zerocoin:0:0000:match:ff:00
-demomode:0:0000:match:ff:00
-
-ssrdrabd:
-ssrdrebd:
-ssrdrebc:
-ssrdrjbd:
-ssrdrubc:
-zerocoin:0:104044:match:ff:00
-demomode:0:104001:match:ff:01
 
 thndrx2:
 zerocoin:0:0000:match:ff:00
 demomode:0:0000:match:ff:00
 
 tmnt:
-tmntu:
-tmht:
-tmntj:
 zerocoin:0:0600b7:match:ff:00
 demomode:0:0600a3:match:ff:00
 
-tmht2p:
-tmnt2pj:
-tmnt2po:
-zerocoin:0:060320:match:ff:00
-demomode:0:0600a3:match:ff:00
-
-tmnt2:
-zerocoin:0:1040b5:match:ff:00
-demomode:0:1040b6:match:ff:00
-
-tmnt2a:
-zerocoin:0:104320:match:ff:00
-demomode:0:1040b6:match:ff:00
-
-tmnt22p:
-zerocoin:0:104101:match:ff:00
-zerocoin:0:104109:match:ff:00
-demomode:0:1040b6:match:ff:00
-
-; ******* vendetta.c
 vendetta:
 zerocoin:0:3cff:match:ff:00
 zerocoin:0:3d00:match:ff:00
@@ -1773,15 +870,7 @@ zerocoin:0:3e1f:match:ff:00
 zerocoin:0:3e20:match:ff:00
 demomode:0:3df2:match:ff:00
 
-vendeta2:
-vendetas:
-vendettj:
-zerocoin:0:2826:match:ff:00
-zerocoin:0:3d31:match:ff:00
-
-; ******* wiz.c
 scion:
-scionc:
 zerocoin:0:c020:match:ff:00
 demomode:0:c7ff:match:10:10
 
@@ -1790,13 +879,10 @@ zerocoin:0:c0ac:match:ff:00
 demomode:0:c7ff:match:f0:00
 
 wiz:
-wizt:
 zerocoin:0:c003:match:ff:00
 demomode:0:c066:match:a2:00
 
-; ******* wmstunit.c
 mk:
-mkr4:
 zerocoin:0:0028021c:match:ff:00
 demomode:0:0020a240:match:ff:00
 demomode:0:0020a29c:match:ff:00
@@ -1804,11 +890,6 @@ demomode:0:0020a29c:match:ff:00
 demomode:0:00300004:match:ff:00
 
 mk2:
-mk2r14:
-mk2r32:
-mk2r42:
-mk2r91:
-mk2chal:
 zerocoin:0:0028021c:match:ff:00
 demomode:0:0020c03e:match:ff:00
 demomode:0:0020c1b8:match:ff:00
@@ -1817,21 +898,7 @@ nbajam:
 zerocoin:0:00280480:match:ff:00
 demomode:0:0021ca68:match:ff:00
 
-nbajamte:
-nbajamt1:
-nbajamt2:
-nbajamt3:
-zerocoin:0:00280498:match:ff:00
-demomode:0:0021cc5a:match:ff:00
-
-nbajamr2:
-zerocoin:0:00280480:match:ff:00
-demomode:0:0021ca5c:match:ff:00
-
-; ******* wmswolfu.c
 mk3:
-mk3r10:
-mk3r20:
 zerocoin:0:00280354:match:ff:00
 demomode:0:0020c130:match:ff:00
 demomode:0:0020c2a6:match:ff:00
@@ -1839,10 +906,6 @@ demomode:0:0020c2a6:match:ff:00
 nbahangt:
 zerocoin:0:00280510:match:ff:00
 demomode:0:00226452:match:ff:00
-
-nbamaxht:
-zerocoin:0:00280510:match:ff:00
-demomode:0:0022645e:match:ff:00
 
 openice:
 zerocoin:0:002804b0:match:ff:00
@@ -1880,71 +943,30 @@ wwfmania:
 zerocoin:0:00280528:match:ff:00
 demomode:0:0021e44c:match:ff:00
 
-; ******* wmsyunit.c
 hiimpact:
 zerocoin:0:00211e45:match:ff:30
 demomode:0:00211e89:match:ff:00
-
-; Can't find anything for these games
-; mkla1:
-; mkla2:
-; mkla3:
-; mkla4:
-
-; Needs more work, this game is tricky - probably
-; stores accurate information only inside registers
-; narc:
-; narc3:
-; zerocoin:0:002035d5:match:30:00
-; demomode:0:002017b6:match:ff:00
 
 shimpact:
 zerocoin:0:00211c5b:match:ff:30
 demomode:0:00211c9f:match:ff:00
 
-; Can't find anything for these games
-; smashtv:
-; smashtv4:
-; smashtv5:
-; smashtv6:
-; zerocoin:0:00210ccb:match:ff:30 ; Faulty (takes too long to update after pressing start)
-
-; Can't find anything for this game
-; strkforc:
-
 term2:
 zerocoin:0:0021cd9b:match:ff:30
 demomode:0:0021cd84:match:ff:00
 
-totcarn:
-totcarnp:
-; Faulty (takes too long to update after pressing start)
-zerocoin:0:0020fc83:match:ff:30
-demomode:0:0021ed14:match:ff:00
-
 trog:
-trog3:
-trogp:
 zerocoin:0:0021e129:match:ff:30
 demomode:0:0021e446:match:ff:00
 
-
-; ******* extras
-
-; ******* dec0.c
-secretag:
 slyspy:
 zerocoin:0:30601b:match:ff:00
 demomode:0:30600c:match:ff:ff
 
-; ******* cclimber.c
 ckong:
 zerocoin:0:6001:match:ff:00
 demomode:0:6005:match:03:01
 
-; ******* atarig1.c
-pitfigh3:
-pitfighb:
 pitfight:
 zerocoin:0:ffc021:match:ff:00
 demomode:0:ffc11a:match:ff:00
@@ -1952,19 +974,14 @@ demomode:0:ffc11a:match:ff:00
 demomode:0:fe820b:nomatch:ff:1e
 
 hydra:
-hydrap:
 zerocoin:0:ff8021:match:ff:00
 demomode:0:ff8229:match:ff:01
-
-; FALTA FAZER
-; -=-=-=-=-=-
 
 crimec:
 zerocoin:0:a02341:match:ff:00
 demomode:0:a02399:match:ff:40
 
 baddudes:
-drgninja:
 zerocoin:0:ffa8bf:match:ff:00
 demomode:0:ff8215:match:ff:40
 
@@ -1981,4 +998,39 @@ zerocoin:0:ff8dc5:match:0f:00
 demomode:0:ff8000:nomatch:0f:02
 demomode:0:ff8000:nomatch:0f:06
 demomode:0:ff8000:nomatch:0f:07
+
+galaga88:
+zerocoin:0:4039:match:ff:00
+demomode:0:4845:match:ff:01
+
+vulgus:
+zerocoin:0:e022:match:ff:00
+demomode:0:e520:match:ff:00
+
+timeplt:
+zerocoin:0:a986:match:ff:00
+demomode:0:ad30:match:ff:00
+
+sonson:
+zerocoin:0:0026:match:ff:00
+demomode:0:0099:match:ff:01
+
+metrocrs:
+zerocoin:1:0080:match:ff:00
+demomode:1:00c3:match:ff:11
+
+terracre:
+zerocoin:0:2023a:match:ff:00
+demomode:0:20232:match:ff:ff
+
+gemini:
+zerocoin:0:c012:match:ff:00
+
+magmax:
+zerocoin:0:18cd4:match:ff:00
+demomode:0:18b48:match:ff:01
+
+scramble:
+zerocoin:0:4002:match:ff:00
+demomode:0:400b:nomatch:ff:00
 

@@ -1,9 +1,0 @@
-#!/bin/bash
-
-src=../../../svgalib
-
-diff -u -B -b $src . | grep -v "^Only" | grep -v "^Common" | grep -v "^Binary" > svgalib.dif
-diff -u -B -b $src/drivers drivers | grep -v "^Only" | grep -v "^Common" | grep -v "^Binary" >> svgalib.dif
-diff -u -B -b $src/ramdac ramdac | grep -v "^Only" | grep -v "^Common" | grep -v "^Binary" >> svgalib.dif
-diff -u -B -b $src/clockchi clockchi | grep -v "^Only" | grep -v "^Common" | grep -v "^Binary" >> svgalib.dif
-

@@ -21,6 +21,7 @@
 #include "portable.h"
 
 #include "font.h"
+#include "log.h"
 #include "video.h"
 #include "endianrw.h"
 
@@ -646,6 +647,8 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 
 	if (fzread(mem_buf, mem_size, 1, f) != 1)
 		goto err_mem;
+
+	log_std(("font: init freetype2 library %d.%d.%d\n", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH));
 
 	e = FT_Init_FreeType(&freetype);
 	if (e != 0)

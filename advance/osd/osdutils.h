@@ -131,6 +131,10 @@ int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #define vsnprintf _vsnprintf
 #endif
 
+#ifdef __WIN32__
+#define logb(a) floor(log(a) / 0.69314718055994530942 /* log(2) */ )
+#endif
+
 #ifdef __cplusplus
 }
 #endif

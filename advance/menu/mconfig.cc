@@ -152,6 +152,21 @@ static bool config_path_import(const string& s, string& a0)
 	return true;
 }
 
+static bool config_path(const string& s, string& a0)
+{
+	if (!arg_split(s, a0)) {
+		config_error_a(s);
+		return false;
+	}
+
+	if (a0 == "none" || a0 == "default")
+		return true;
+
+	a0 = file_config_file_home(a0.c_str());
+
+	return true;
+}
+
 static bool config_split(const string& s, string& a0)
 {
 	if (!arg_split(s, a0)) {
@@ -697,9 +712,12 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	current_backdrop = resource();
 	current_sound = resource();
 
-	ui_back = file_config_file_home(conf_string_get_default(config_context, "ui_background"));
-	ui_help = file_config_file_home(conf_string_get_default(config_context, "ui_help"));
-	ui_exit = file_config_file_home(conf_string_get_default(config_context, "ui_exit"));
+	if (!config_path(conf_string_get_default(config_context, "ui_background"), ui_back))
+		return false;
+	if (!config_path(conf_string_get_default(config_context, "ui_help"), ui_help))
+		return false;
+	if (!config_path(conf_string_get_default(config_context, "ui_exit"), ui_exit))
+		return false;
 	ui_left = conf_int_get_default(config_context, "ui_skipleft");
 	ui_right = conf_int_get_default(config_context, "ui_skipright");
 	ui_top = conf_int_get_default(config_context, "ui_skiptop");
@@ -738,7 +756,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	repeat = atoi( a0.c_str() );
 	repeat_rep = atoi( a1.c_str() );
 	video_size = conf_int_get_default(config_context, "display_size");
-	video_font_path = file_config_file_home(conf_string_get_default(config_context, "ui_font"));
+	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
+		return false;
 	if (!config_split(conf_string_get_default(config_context, "ui_fontsize"), a0, a1))
 		return false;
 	video_fonty = atoi( a0.c_str());

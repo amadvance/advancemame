@@ -151,8 +151,6 @@ adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, un
 		return -1;
 	}
 
-	crtc_notv_set(crtc);
-
 	if (y_mul >= 2)
 		crtc_doublescan_set(crtc);
 	else

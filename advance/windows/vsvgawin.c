@@ -379,10 +379,6 @@ static adv_error svgalib_init(int device_id)
 		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
 	if (adv_svgalib_state.has_interlace)
 		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-	if (adv_svgalib_state.has_tvpal)
-		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
-	if (adv_svgalib_state.has_tvntsc)
-		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
 
 	return 0;
 }
@@ -679,7 +675,7 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 		return -1;
 	}
 
-	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
+	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), 0, 0) != 0) {
 		adv_svgalib_linear_unmap();
 		error_set("Generic error setting the svgawin mode\n.");
 		return -1;

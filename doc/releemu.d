@@ -6,6 +6,13 @@ AdvanceMAME 0.80.2
 	It should fix any remaining problem of distorted sound present on
 	some specific systems.
 
+	This version adds a new "Startup End" key which is normally mapped
+	as the minus key on the numeric pad. When you press this key the
+	current game time is marked as the game startup time and
+	saved in the configuration file with the `sync_startuptime' option.
+	The next time you start the game, it will execute very fast
+	until the startup time is reached.
+
 AdvanceMAME 0.80.0
 	This version adds support for TrueType (TTF) fonts with alpha blending
 	using the FreeType2 library. If you compile from source, you must

@@ -74,8 +74,12 @@ typedef struct fb_internal_struct {
 
 	unsigned flags;
 
+	double freq; /**< Expected vertical frequency. */
+
 	enum fb_wait_enum wait; /**< Wait mode. */
 	unsigned wait_error; /**< Wait try with error. */
+	target_clock_t wait_last; /**< Last vsync. */
+
 } fb_internal;
 
 #define WAIT_ERROR_MAX 2 /**< Max number of errors of consecutive allowed. */
@@ -115,8 +119,6 @@ static unsigned char* fb_linear_write_line(unsigned y)
 
 static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 {
-	double v;
-
 	if (fix) {
 		log_std(("video:fb: fix info\n"));
 		log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fix->smem_start, (unsigned)fix->smem_len));
@@ -193,13 +195,6 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->reserved[4],
 			(unsigned)var->reserved[5]
 		));
-		v = var->pixclock;
-		v *= var->xres + var->left_margin + var->right_margin + var->hsync_len;
-		v *= var->yres + var->upper_margin + var->lower_margin + var->vsync_len;
-		if (v != 0) {
-			v = 1000000000000LL / v;
-			log_std(("video:fb: expected vclock:%g\n", v));
-		}
 	}
 }
 
@@ -745,6 +740,15 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		goto err_restore;
 	}
 
+	fb_state.freq = fb_state.varinfo.pixclock;
+	fb_state.freq *= fb_state.varinfo.xres + fb_state.varinfo.left_margin + fb_state.varinfo.right_margin + fb_state.varinfo.hsync_len;
+	fb_state.freq *= fb_state.varinfo.yres + fb_state.varinfo.upper_margin + fb_state.varinfo.lower_margin + fb_state.varinfo.vsync_len;
+	if (fb_state.freq != 0) {
+		fb_state.freq = 1000000000000LL / fb_state.freq;
+	}
+
+	log_std(("video:fb: frequency %g\n", fb_state.freq));
+
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
 	/* check the validity of the resulting video mode */
@@ -787,6 +791,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		goto err_restore;
 	}
 
+	fb_state.wait_last = 0;
 	fb_state.wait = fb_wait_detect; /* reset the wait mode */
 	fb_state.wait_error = 0;
 
@@ -933,19 +938,72 @@ static adv_error fb_wait_vsync_vga(void)
 
 	counter = 0;
 
-	while ((target_port_get(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
+	while ((target_port_get(0x3da) & 0x8) != 0) {
+		if (counter > VSYNC_LIMIT) {
+			log_std(("ERROR:fb: wait timeout\n"));
+			return -1;
+		}
 		++counter;
-
-	while ((target_port_get(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
-		++counter;
-
-	if (counter >= VSYNC_LIMIT) {
-		log_std(("ERROR:fb: wait timeout\n"));
-		return -1;
 	}
+
+	while ((target_port_get(0x3da) & 0x8) == 0) {
+		if (counter > VSYNC_LIMIT) {
+			log_std(("ERROR:fb: wait timeout\n"));
+			return -1;
+		}
+		++counter;
+	}
+
+	fb_state.wait_last = target_clock();
 
 	return 0;
 }
+
+#if 0
+static adv_error fb_wait_vsync_vga_clocked(void)
+{
+	unsigned counter;
+	target_clock_t now, max_duration, limit;
+
+	assert(fb_is_active() && fb_mode_is_active());
+
+	now = target_clock();
+
+	if (fb_state.freq) {
+		max_duration = 1.1 * TARGET_CLOCKS_PER_SEC / fb_state.freq;
+	} else {
+		max_duration = TARGET_CLOCKS_PER_SEC / 25;
+	}
+
+	if (fb_state.wait_last != 0 && fb_state.wait_last + max_duration > now) {
+		limit = fb_state.wait_last + max_duration;
+	} else {
+		limit = now + max_duration;
+	}
+
+	counter = 0;
+
+	while ((target_port_get(0x3da) & 0x8) != 0) {
+		if (counter > VSYNC_LIMIT || target_clock() > limit) {
+			log_std(("ERROR:fb: wait timeout\n"));
+			return -1;
+		}
+		++counter;
+	}
+
+	while ((target_port_get(0x3da) & 0x8) == 0) {
+		if (counter > VSYNC_LIMIT || target_clock() > limit) {
+			log_std(("ERROR:fb: wait timeout\n"));
+			return -1;
+		}
+		++counter;
+	}
+
+	fb_state.wait_last = target_clock();
+
+	return 0;
+}
+#endif
 
 void fb_wait_vsync(void)
 {

@@ -112,7 +112,7 @@ static void play_wait(unsigned channel)
 void play_reg(adv_conf* context)
 {
 	mixer_reg(context);
-	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
+	conf_int_register_limit_default(context, "sound_volume", -40, 0, 0);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
 	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.1);
 	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
@@ -153,8 +153,8 @@ void play_attenuation_set(int attenuation)
 {
 	double volume;
 
-	if (attenuation <= -32) {
-		play_attenuation = -32;
+	if (attenuation <= -40) {
+		play_attenuation = -40;
 		volume = 0;
 	} else {
 		play_attenuation = attenuation;

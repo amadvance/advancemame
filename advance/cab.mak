@@ -59,6 +59,7 @@ CAB_ROOT_SRC = \
 
 CAB_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/version.mak \
 	$(srcdir)/advance/cab.mak \
 	$(srcdir)/advance/d2.mak
 

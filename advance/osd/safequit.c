@@ -35,7 +35,7 @@
 
 #include "advance.h"
 
-static adv_error advance_safequit_insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
+static adv_error insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
 {
 	char c;
 	int i;
@@ -141,7 +141,6 @@ static adv_error advance_safequit_insert_database(struct advance_safequit_contex
 	entry->frame_count = 0;
 
 	if (insert) {
-		log_std(("advance:safequit: entry %d:%d:%x:%d:%x:%x\n", (unsigned)entry->event, (unsigned)entry->cpu, (unsigned)entry->address, (unsigned)entry->action, (unsigned)entry->mask, (unsigned)entry->result));
 		++context->state.entry_mac;
 	}
 
@@ -152,12 +151,13 @@ err:
 	return -1;
 }
 
-static adv_error advance_safequit_load_database(struct advance_safequit_context* context, const char* name, const char* game_name)
+static adv_error advance_safequit_load_database(struct advance_safequit_context* context, const char* name, const mame_game* game)
 {
 	FILE* f;
 	char buffer[2048];
 	char game_name_buffer[32];
 	unsigned line = 1;
+	unsigned i;
 	adv_bool match;
 	adv_bool def;
 	const char* file;
@@ -202,18 +202,25 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 			sncpy(game_name_buffer, sizeof(game_name_buffer), buffer);
 			if (!def)
 				match = 0;
-			if (strcmp(game_name_buffer, game_name) == 0)
+			if (mame_is_game_relative(game_name_buffer, game)) {
+				context->state.entry_mac = 0; /* clear any previous entry */
 				match = 1;
+			}
 			def = 1;
 		} else if (len > 0) {
 			/* entry def */
-			if (advance_safequit_insert_database(context, buffer, line, game_name_buffer, match) != 0)
+			if (insert_database(context, buffer, line, game_name_buffer, match) != 0)
 				goto err_close;
 			def = 0;
 		}
 
 		++line;
 		buffer[0] = 0;
+	}
+
+	for(i=0;i<context->state.entry_mac;++i) {
+		struct safequit_entry* entry = &context->state.entry_map[i];
+		log_std(("advance:safequit: entry %d:%d:%x:%d:%x:%x\n", (unsigned)entry->event, (unsigned)entry->cpu, (unsigned)entry->address, (unsigned)entry->action, (unsigned)entry->mask, (unsigned)entry->result));
 	}
 
 	fclose(f);
@@ -265,10 +272,9 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 	context->state.status = 0;
 	context->state.coin_set = 0;
 
-	if (!context->config.safe_exit_flag)
-		return 0;
+	/* load always the database, also if the safeexit flag is not set */
 
-	if (advance_safequit_load_database(context, context->config.file_buffer, mame_game_name(option->game)) != 0)
+	if (advance_safequit_load_database(context, context->config.file_buffer, option->game) != 0)
 		return -1;
 
 	return 0;
@@ -327,47 +333,58 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	unsigned i;
 	unsigned pred_coin;
 	adv_bool pred_coin_set;
+	char buffer[64];
 
 	pred_coin = context->state.coin;
 	pred_coin_set = context->state.coin_set;
 
 	context->state.coin = 0;
 	context->state.coin_set = 0;
-	context->state.status = 0xffffffff;
 
-	for(i=0;i<context->state.entry_mac;++i) {
-		struct safequit_entry* entry = &context->state.entry_map[i];
-		unsigned char result = mame_ui_cpu_read(entry->cpu, entry->address);
+	if (context->state.entry_mac) {
 
-		advance_safequit_event(context, entry, result);
-		advance_safequit_coin(context, entry, result, pred_coin, pred_coin_set);
+		context->state.status = 0xffffffff;
+		for(i=0;i<context->state.entry_mac;++i) {
+			struct safequit_entry* entry = &context->state.entry_map[i];
+			unsigned char result = mame_ui_cpu_read(entry->cpu, entry->address);
+
+			advance_safequit_event(context, entry, result);
+			advance_safequit_coin(context, entry, result, pred_coin, pred_coin_set);
+		}
+
+		if (context->config.debug_flag) {
+
+			buffer[0] = (context->state.status & 0x01) ? 'Z' : '_';
+			buffer[1] = (context->state.status & 0x02) ? 'D' : '_';
+			buffer[2] = (context->state.status & 0x04) ? '1' : '_';
+			buffer[3] = (context->state.status & 0x08) ? '2' : '_';
+			buffer[4] = (context->state.status & 0x10) ? '3' : '_';
+			buffer[5] = (context->state.status & 0x20) ? '4' : '_';
+			buffer[6] = (context->state.status & 0x40) ? '5' : '_';
+			buffer[7] = (context->state.status & 0x80) ? '6' : '_';
+			buffer[8] = (context->state.status & 0x100) ? '7' : '_';
+			buffer[9] = (context->state.status & 0x200) ? '8' : '_';
+			buffer[10] = (context->state.status & 0x400) ? '9' : '_';
+			buffer[11] = (context->state.status & 0x800) ? 'a' : '_';
+			buffer[12] = (context->state.status & 0x1000) ? 'b' : '_';
+			buffer[13] = (context->state.status & 0x2000) ? 'c' : '_';
+			buffer[14] = (context->state.status & 0x4000) ? 'd' : '_';
+			buffer[15] = (context->state.status & 0x8000) ? 'e' : '_';
+			buffer[16] = 0;
+
+			if (context->state.coin_set) {
+				sncatf(buffer, sizeof(buffer), "-%02x", context->state.coin);
+			}
+		}
+	} else {
+		context->state.status = 0x0;
+
+		if (context->config.debug_flag) {
+			sncpy(buffer, sizeof(buffer), "no event definition");
+		}
 	}
 
 	if (context->config.debug_flag) {
-		char buffer[64];
-
-		buffer[0] = (context->state.status & 0x01) ? 'Z' : '_';
-		buffer[1] = (context->state.status & 0x02) ? 'D' : '_';
-		buffer[2] = (context->state.status & 0x04) ? '1' : '_';
-		buffer[3] = (context->state.status & 0x08) ? '2' : '_';
-		buffer[4] = (context->state.status & 0x10) ? '3' : '_';
-		buffer[5] = (context->state.status & 0x20) ? '4' : '_';
-		buffer[6] = (context->state.status & 0x40) ? '5' : '_';
-		buffer[7] = (context->state.status & 0x80) ? '6' : '_';
-		buffer[8] = (context->state.status & 0x100) ? '7' : '_';
-		buffer[9] = (context->state.status & 0x200) ? '8' : '_';
-		buffer[10] = (context->state.status & 0x400) ? '9' : '_';
-		buffer[11] = (context->state.status & 0x800) ? 'a' : '_';
-		buffer[12] = (context->state.status & 0x1000) ? 'b' : '_';
-		buffer[13] = (context->state.status & 0x2000) ? 'c' : '_';
-		buffer[14] = (context->state.status & 0x4000) ? 'd' : '_';
-		buffer[15] = (context->state.status & 0x8000) ? 'e' : '_';
-		buffer[16] = 0;
-
-		if (context->state.coin_set) {
-			sncatf(buffer, sizeof(buffer), "-%02x", context->state.coin);
-		}
-
 		advance_ui_message(&CONTEXT.ui, buffer);
 	}
 }
@@ -383,7 +400,7 @@ adv_bool advance_safequit_can_exit(struct advance_safequit_context* context)
 	return (context->state.status & 0x3) == 3;
 }
 
-adv_bool advance_safequit_event_mask(struct advance_safequit_context* context)
+unsigned advance_safequit_event_mask(struct advance_safequit_context* context)
 {
 	if (context->state.entry_mac == 0)
 		return 0;

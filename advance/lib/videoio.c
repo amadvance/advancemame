@@ -183,9 +183,9 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
 		} else if (strcasecmp(token, "interlace")==0) {
 			crtc_interlace_set(crtc);
 		} else if (strcasecmp(token, "tvpal")==0) {
-			crtc_tvpal_set(crtc);
+			/* ignore */
 		} else if (strcasecmp(token, "tvntsc")==0) {
-			crtc_tvntsc_set(crtc);
+			/* ignore */
 		} else {
 			if (token[0]=='#')
 				return 0; /* comment */
@@ -239,8 +239,6 @@ void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc)
 	const char* flag2 = crtc_is_nvsync(crtc) ? " -vsync" : " +vsync";
 	const char* flag3 = crtc_is_doublescan(crtc) ? " doublescan" : "";
 	const char* flag4 = crtc_is_interlace(crtc) ? " interlace" : "";
-	const char* flag5 = crtc_is_tvpal(crtc) ? " tvpal" : "";
-	const char* flag6 = crtc_is_tvntsc(crtc) ? " tvntsc" : "";
 
 	*buffer = 0;
 
@@ -249,11 +247,11 @@ void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc)
 	else
 		sncatf(buffer, size, "%s", crtc->name);
 
-	sncatf(buffer, size, " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
+	sncatf(buffer, size, " %g %d %d %d %d %d %d %d %d%s%s%s%s",
 		(double)crtc->pixelclock / 1E6,
 		crtc->hde, crtc->hrs, crtc->hre, crtc->ht,
 		crtc->vde, crtc->vrs, crtc->vre, crtc->vt,
-		flag1, flag2, flag3, flag4, flag5, flag6
+		flag1, flag2, flag3, flag4
 	);
 }
 

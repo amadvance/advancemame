@@ -243,10 +243,6 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 		flags |= SVGALIB_NVSYNC;
 	else
 		flags |= SVGALIB_PVSYNC;
-	if (crtc_is_tvpal(&mode->crtc))
-		flags |= SVGALIB_TVMODE | SVGALIB_TVPAL;
-	if (crtc_is_tvntsc(&mode->crtc))
-		flags |= SVGALIB_TVMODE | SVGALIB_TVNTSC;
 
 	res = vga_addtiming(mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags);
 	if (res != 1) {

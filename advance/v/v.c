@@ -304,7 +304,7 @@ static void format_info(char* buffer0, char* buffer1, char* buffer2, unsigned si
 
 	snprintf(buffer0, size, "plz clock  dsen rtst rten totl  disp  front sync  back  pclock");
 	snprintf(buffer1, size, "h%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f %8.4f", crtc_is_nhsync(crtc) ? '-' : '+', crtc_hclock_get(crtc) / 1E3, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, HD, HF, HS, HB, crtc_pclock_get(crtc) / 1E6);
-	snprintf(buffer2, size, "v%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f%s%s%s%s", crtc_is_nvsync(crtc) ? '-' : '+', crtc_vclock_get(crtc), crtc->vde, crtc->vrs, crtc->vre, crtc->vt, VD, VF, VS, VB, crtc_is_doublescan(crtc) ? " doublescan" : "", crtc_is_interlace(crtc) ? " interlace" : "", crtc_is_tvpal(crtc) ? " tvpal" : "", crtc_is_tvntsc(crtc) ? " tvntsc" : "");
+	snprintf(buffer2, size, "v%c %7.3f%5d%5d%5d%5d %6.3f%6.3f%6.3f%6.3f%s%s", crtc_is_nvsync(crtc) ? '-' : '+', crtc_vclock_get(crtc), crtc->vde, crtc->vrs, crtc->vre, crtc->vt, VD, VF, VS, VB, crtc_is_doublescan(crtc) ? " doublescan" : "", crtc_is_interlace(crtc) ? " interlace" : "");
 }
 
 static void draw_text_info(int x, int y, int dx, int dy, int pos)
@@ -487,14 +487,6 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 	++y;
 
 	snprintf(buffer, sizeof(buffer), "      %4s %sInterlaced", crtc_is_interlace(crtc) ? "on" : "off", print_key ? "[c]  " : "");
-	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
-	++y;
-
-	snprintf(buffer, sizeof(buffer), "      %4s %sTV PAL", crtc_is_tvpal(crtc) ? "on" : "off", print_key ? "[n]  " : "");
-	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
-	++y;
-
-	snprintf(buffer, sizeof(buffer), "      %4s %sTV NTSC", crtc_is_tvntsc(crtc) ? "on" : "off", print_key ? "[m]  " : "");
 	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
 
@@ -936,22 +928,6 @@ static adv_bool test_exe_crtc(int userkey, adv_crtc* crtc)
 		case 'V' :
 			modify = 1;
 			crtc->pixelclock -= 100000;
-			break;
-		case 'n' :
-		case 'N' :
-			modify = 1;
-			if (crtc_is_tvpal(crtc))
-				crtc_notv_set(crtc);
-			else
-				crtc_tvpal_set(crtc);
-			break;
-		case 'm' :
-		case 'M' :
-			modify = 1;
-			if (crtc_is_tvntsc(crtc))
-				crtc_notv_set(crtc);
-			else
-				crtc_tvntsc_set(crtc);
 			break;
 	}
 	return modify;

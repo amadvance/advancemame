@@ -128,8 +128,8 @@ unsigned mame_game_players(const mame_game* game);
 void mame_print_init(void);
 void mame_print_info(FILE* out);
 void mame_print_xml(FILE* out);
-int mame_is_game_in_list(const char* list[], const mame_game* game);
-int mame_is_game_vector(const mame_game* game);
+adv_bool mame_is_game_vector(const mame_game* game);
+adv_bool mame_is_game_relative(const char* relative, const mame_game* game);
 const struct mame_game* mame_playback_look(const char* file);
 
 struct mame_port {
@@ -154,7 +154,7 @@ struct mame_analog* mame_analog_find(unsigned port);
 /***************************************************************************/
 /* Conversion */
 
-unsigned glue_port_convert(unsigned* type_pred, unsigned type);
+unsigned glue_port_convert(unsigned* type_pred, unsigned type, const char* name);
 void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max);
 void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsigned mame_max);
 
@@ -303,6 +303,7 @@ typedef unsigned osd_input;
 #define OSD_INPUT_COCKTAIL 0x10000000
 #define OSD_INPUT_HELP 0x20000000
 #define OSD_INPUT_SHOW_FPS 0x40000000
+#define OSD_INPUT_STARTUP_END 0x80000000
 
 int osd2_video_init(struct osd_video_option* option);
 void osd2_video_done(void);

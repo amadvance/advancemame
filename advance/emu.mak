@@ -23,8 +23,8 @@ $(OBJ)/advance/linux/file.o: $(srcdir)/Makefile
 ifndef DATADIR
 DATADIR=$(datadir)/advance
 endif
-ifndef SYSCONDIR
-SYSCONDIR=$(sysconfdir)
+ifndef SYSCONFDIR
+SYSCONFDIR=$(sysconfdir)
 endif
 
 OBJDIRS += \
@@ -355,7 +355,7 @@ endif
 # EMU build
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
-$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/advance.mak $(srcdir)/Makefile
+$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
 
 EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
 
@@ -677,6 +677,7 @@ EMU_ROOT_SRC = \
 
 EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/version.mak \
 	$(srcdir)/advance/emu.mak \
 	$(srcdir)/advance/v.mak \
 	$(srcdir)/advance/cfg.mak \
@@ -700,7 +701,8 @@ EMU_CONTRIB_SRC = \
 ifeq ($(CONF_EMU),mess)
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/advmess.1 \
-	$(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
+	$(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat \
+	$(srcdir)/support/sysinfo.dat
 else
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/event.dat
@@ -801,7 +803,10 @@ EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifneq ($(CONF_EMU),mess)
+ifeq ($(CONF_EMU),mess)
+EMU_ROOT_BIN += \
+	$(srcdir)/support/sysinfo.dat
+else
 EMU_ROOT_BIN += \
 	$(OBJ)/chdman$(EXE) \
 	$(srcdir)/support/event.dat

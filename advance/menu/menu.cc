@@ -713,7 +713,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			if (!play_background_is_active()) {
 				sound_done = true;
 				rs.current_sound = resource();
-				if (rs.sound_background.size() != 0) {
+				if (!rs.sound_background.empty()) {
 					string path = file_select_random(rs.sound_background);
 					log_std(("menu: play background music '%s'\n", path.c_str()));
 					play_background_effect(path, PLAY_PRIORITY_BACKGROUND, false);
@@ -1839,7 +1839,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 	}
 
-	if (gc.size() == 0) {
+	if (gc.empty()) {
 		gc.insert(gc.end(), new menu_entry("<empty>"));
 	}
 
