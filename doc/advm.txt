@@ -1,0 +1,15 @@
+NAME
+	advm - The mouse tester
+
+SYNOPSYS
+	advm [-device_mouse DEVICE]
+
+DESCRIPTION
+	The `advm' utility tests the mouse.
+
+	Check the `advmame.txt' file for the description of the
+	`device_mouse' option.
+
+VERSION
+	2001/12/15 - Andrea Mazzoleni - First revision
+

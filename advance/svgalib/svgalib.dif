@@ -1,0 +1,612 @@
+diff -u /mame/svgalib/endianes.h ./endianes.h
+--- /mame/svgalib/endianes.h	Tue May 29 11:00:22 2001
++++ ./endianes.h	Sun Jun 16 22:44:26 2002
+@@ -1,14 +1,16 @@
+-#include <endian.h>
+-#include <byteswap.h>
++#ifndef __ENDIANES_H
++#define __ENDIANES_H
+ 
+-#if __BYTE_ORDER == __BIG_ENDIAN
+-
+-#define LE32(x) bswap_32(x)
+-#define BE32(x) (x)
++#ifndef __MSDOS__
++#error This module is for MSDOS only
++#endif
+ 
+-#else /* little endian */
++static __inline__ unsigned LE32(unsigned _val) {
++	return _val;
++}
+ 
+-#define LE32(x) (x)
+-#define BE32(x) bswap_32(x)
++static __inline__ unsigned BE32(unsigned _val) {
++	return (_val << 24) | ((_val&0xff00) << 8) | ((_val&0xff0000) >> 8) | (_val >> 24);
++}
+ 
+ #endif
+diff -u /mame/svgalib/libvga.h ./libvga.h
+--- /mame/svgalib/libvga.h	Sat Apr 27 11:26:26 2002
++++ ./libvga.h	Sun Jun 16 23:12:42 2002
+@@ -17,6 +17,8 @@
+ typedef unsigned short CARD16;
+ typedef unsigned char CARD8;
+ 
++#include "libdos.h"
++
+ /* --------------------- Macro definitions shared by library modules */
+ 
+ /* VGA index register ports */
+diff -u /mame/svgalib/drivers/apm.c drivers/apm.c
+--- /mame/svgalib/drivers/apm.c	Tue Apr 30 09:37:42 2002
++++ drivers/apm.c	Sun Jun 16 22:45:40 2002
+@@ -33,8 +33,8 @@
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "vgammvgaio.h"
+-#include "interface.h"
++#include "vgammvga.h"
++#include "interfac.h"
+ 
+ #define APMREG_SAVE(i) (VGA_TOTAL_REGS+i)
+ #define APM_TOTAL_REGS (VGA_TOTAL_REGS + 38)
+@@ -386,7 +386,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(APM_TOTAL_REGS);
++    moderegs = calloc(APM_TOTAL_REGS,1);
+ 
+     apm_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/ark.c drivers/ark.c
+--- /mame/svgalib/drivers/ark.c	Sat Apr 20 23:32:26 2002
++++ drivers/ark.c	Sun Jun 16 22:45:04 2002
+@@ -34,7 +34,7 @@
+ #include "timing.h"
+ #include "ramdac/ramdac.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "accel.h"
+ 
+ 
+@@ -467,7 +467,7 @@
+ 	free(modeinfo);
+ 	return 1;
+     }
+-    moderegs = malloc(ARK_TOTAL_REGS);
++    moderegs = calloc(ARK_TOTAL_REGS,1);
+ 
+     ark_initializemode(moderegs, modetiming, modeinfo);
+     free(modetiming);
+@@ -876,8 +876,6 @@
+ 	else if ((id == 0x13) || (id == 0x14) || (id == 0x20))
+ 	    ark_chip = ARK2000PV;
+ 	else {
+-	    fprintf(stderr,"svgalib: ark: Unknown chiptype %d.\n",
+-		   id);
+ 	    return -1;
+ 	}
+ 	val = __svgalib_inSR(0x10);
+diff -u /mame/svgalib/drivers/banshee.c drivers/banshee.c
+--- /mame/svgalib/drivers/banshee.c	Tue Apr 30 09:38:40 2002
++++ drivers/banshee.c	Sun Jun 16 22:45:58 2002
+@@ -9,12 +9,12 @@
+ #include "vga.h"
+ #include "libvga.h"
+ #include "driver.h"
+-#include "vgarelvgaio.h"
++#include "vgarelvg.h"
+ 
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ 
+ #define BANSHEEREG_SAVE(i) (VGA_TOTAL_REGS+i)
+@@ -305,7 +305,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(BANSHEE_TOTAL_REGS);
++    moderegs = calloc(BANSHEE_TOTAL_REGS,1);
+ 
+     banshee_initializemode(moderegs, &modetiming, modeinfo, mode);
+ 
+diff -u /mame/svgalib/drivers/et6000.c drivers/et6000.c
+--- /mame/svgalib/drivers/et6000.c	Wed Apr 10 13:57:56 2002
++++ drivers/et6000.c	Sun Jun 16 22:45:04 2002
+@@ -8,13 +8,11 @@
+ #include <fcntl.h>
+ #include <sys/types.h>
+ #include <sys/mman.h>
+-#include <asm/page.h>
+ #include "vga.h"
+ #include "libvga.h"
+ #include "driver.h"
+-#include <linux/pci.h>
+ #include "timing.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgaregs.h"
+ #include "vgapci.h"
+ 
+@@ -690,7 +688,7 @@
+ 	free(modeinfo);
+ 	return(1);
+       }
+-    moderegs = malloc(ET6000_TOTAL_REGS);
++    moderegs = calloc(ET6000_TOTAL_REGS,1);
+     et6000_initializemode(moderegs,modetiming,modeinfo,mode);
+     cursor_doublescan = modetiming->flags & DOUBLESCAN ?1:0;
+ #ifdef DBG
+diff -u /mame/svgalib/drivers/g400.c drivers/g400.c
+--- /mame/svgalib/drivers/g400.c	Tue Apr 30 09:36:26 2002
++++ drivers/g400.c	Sun Jun 16 22:46:18 2002
+@@ -19,12 +19,12 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "mga.h"
+ #define SECONDCRTC 0
+-#include "mga_g450pll.c"
+-#include "vgammvgaio.h"
++#include "mga_g450.c"
++#include "vgammvga.h"
+ 
+ #define SKREG_SAVE(i) (VGA_TOTAL_REGS+i)
+ #define G400_TOTAL_REGS (VGA_TOTAL_REGS + 32 + 176 + 4 + 32)
+@@ -597,7 +597,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(G400_TOTAL_REGS);
++    moderegs = calloc(G400_TOTAL_REGS,1);
+ 
+     g400_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/i740.c drivers/i740.c
+--- /mame/svgalib/drivers/i740.c	Tue Apr 30 09:36:32 2002
++++ drivers/i740.c	Sun Jun 16 22:46:32 2002
+@@ -15,10 +15,10 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "i740_reg.h"
+-#include "vgammvgaio.h"
++#include "vgammvga.h"
+ 
+ typedef struct {
+     unsigned char DisplayControl;
+@@ -576,7 +576,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(I740_TOTAL_REGS);
++    moderegs = calloc(I740_TOTAL_REGS,1);
+ 
+     i740_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/i810.c drivers/i810.c
+--- /mame/svgalib/drivers/i810.c	Fri May  3 19:41:36 2002
++++ drivers/i810.c	Sun Jun 16 23:00:30 2002
+@@ -3,7 +3,7 @@
+   written by Matan Ziv-Av.
+ */
+ 
+-#define USE_GTT 1
++/* #define USE_GTT 1 */
+ 
+ #include <stdlib.h>
+ #include <stdio.h>		
+@@ -22,7 +22,7 @@
+ #include "i810_wmark.c"
+ #include "vgammvgaio.h"
+ #include <sys/ioctl.h>
+-#include "svgalib_helper.h"
++/* #include "svgalib_helper.h" */
+ 
+ typedef struct {
+ /* 00 */
+@@ -489,7 +489,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(I810_TOTAL_REGS);
++    moderegs = calloc(I810_TOTAL_REGS,1);
+ 
+     initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/laguna.c drivers/laguna.c
+--- /mame/svgalib/drivers/laguna.c	Sun May 19 12:54:58 2002
++++ drivers/laguna.c	Sun Jun 16 22:46:50 2002
+@@ -19,7 +19,7 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ 
+ #include "lagunaio.h"
+@@ -399,7 +399,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(LAGUNA_TOTAL_REGS);
++    moderegs = calloc(LAGUNA_TOTAL_REGS,1);
+ 
+     laguna_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/millenni.c drivers/millenni.c
+--- /mame/svgalib/drivers/millenni.c	Tue Apr 30 09:35:06 2002
++++ drivers/millenni.c	Sun Jun 16 22:47:00 2002
+@@ -11,9 +11,9 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "vgammvgaio.h"
++#include "vgammvga.h"
+ #include "mga.h"
+ 
+ static int mil_init(int, int, int);
+@@ -696,7 +696,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(MIL_TOTAL_REGS + 60);
++    moderegs = calloc(MIL_TOTAL_REGS + 60,1);
+ 
+     mil_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/mx.c drivers/mx.c
+--- /mame/svgalib/drivers/mx.c	Tue Apr 30 09:34:50 2002
++++ drivers/mx.c	Sun Jun 16 22:47:08 2002
+@@ -24,7 +24,7 @@
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ 
+ #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
+@@ -370,7 +370,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(MX_TOTAL_REGS);
++    moderegs = calloc(MX_TOTAL_REGS,1);
+ 
+     mx_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/nv3.c drivers/nv3.c
+--- /mame/svgalib/drivers/nv3.c	Wed May  1 00:13:24 2002
++++ drivers/nv3.c	Sun Jun 16 23:31:30 2002
+@@ -27,7 +27,7 @@
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "nv3ref.h"
+ #include "nvreg.h"
+ #include "vgapci.h"
+@@ -411,7 +411,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(NV3_TOTAL_REGS);
++    moderegs = calloc(NV3_TOTAL_REGS,1);
+ 
+     nv3_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/pm2.c drivers/pm2.c
+--- /mame/svgalib/drivers/pm2.c	Fri Jun  7 23:09:30 2002
++++ drivers/pm2.c	Sun Jun 16 23:11:26 2002
+@@ -12,9 +12,9 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "glint_regs.h"
++#include "glint_re.h"
+ #include "pm2io.h"
+ 
+ #define REG_SAVE(i) (VGA_TOTAL_REGS+i)
+@@ -763,7 +763,6 @@
+         case cPM2V:
+             __svgalib_pm2_driverspecs.cursor = pm2v_cursor;
+             break;
+-        default:
+     }
+     
+     if (__svgalib_driver_report) {
+diff -u /mame/svgalib/drivers/r128.c drivers/r128.c
+--- /mame/svgalib/drivers/r128.c	Wed Jun 12 13:02:54 2002
++++ drivers/r128.c	Sun Jun 16 22:47:24 2002
+@@ -13,9 +13,9 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "endianess.h"
++#include "endianes.h"
+ #include "r128_reg.h"
+ 
+ static enum { Rage128=0, Radeon } chiptype; /* r128io needs to know */
+@@ -773,7 +773,6 @@
+     };
+ 
+     if (freq > pll->max_pll_freq)      freq = pll->max_pll_freq;
+-    if (freq * 12 < pll->min_pll_freq) freq = pll->min_pll_freq / 12;
+ 
+     for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
+ 	save->pll_output_freq = post_div->divider * freq;
+@@ -781,6 +780,11 @@
+ 	    && save->pll_output_freq <= pll->max_pll_freq) break;
+     }
+ 
++	if (!post_div->divider) {
++		post_div = post_divs + 6;
++		save->pll_output_freq = post_div->divider * freq;
++	}
++
+     save->dot_clock_freq = freq;
+     save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
+ 				   pll->reference_freq);
+@@ -1075,7 +1079,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(R128_TOTAL_REGS);
++    moderegs = calloc(R128_TOTAL_REGS,1);
+ 
+     r128_initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/rage.c drivers/rage.c
+--- /mame/svgalib/drivers/rage.c	Sat Apr 27 17:57:58 2002
++++ drivers/rage.c	Sun Jun 16 22:45:04 2002
+@@ -38,7 +38,7 @@
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "rage.h"
+ 
+@@ -880,7 +880,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(MAX_REGS);
++    moderegs = calloc(MAX_REGS,1);
+     
+     ATINewHWPtr=(ATIHWPtr)(moderegs+VGA_TOTAL_REGS); 
+ 
+diff -u /mame/svgalib/drivers/renditio.c drivers/renditio.c
+--- /mame/svgalib/drivers/renditio.c	Sat Apr 20 23:45:32 2002
++++ drivers/renditio.c	Sun Jun 16 22:45:04 2002
+@@ -12,13 +12,13 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "v2kregs.h"
+ 
+ static int io_base;
+ 
+-#include "renditionio.h"
++#include "renditio.h"
+ 
+ typedef struct {
+     CARD8  memendian;
+@@ -360,7 +360,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(TOTAL_REGS);
++    moderegs = calloc(TOTAL_REGS,1);
+ 
+     initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/s3.c drivers/s3.c
+--- /mame/svgalib/drivers/s3.c	Wed Apr 10 13:57:56 2002
++++ drivers/s3.c	Sun Jun 16 22:45:04 2002
+@@ -95,9 +95,9 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "ramdac/ramdac.h"
+-#include "clockchip/clockchip.h"
++#include "clockchi/clockchi.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "8514a.h"
+ #include "vgapci.h"
+ 
+@@ -566,7 +566,7 @@
+     __svgalib_outCR(0x39, regs[EXT + 0x39 - 0x30] = cr39);
+     __svgalib_outCR(0x38, regs[EXT + 0x38 - 0x30] = cr38);
+ #if 0
+-#include "ramdac/IBMRGB52x.h"
++#include "ramdac/ibmrgb52.h"
+ 
+     do {
+ 	unsigned char m, n, df;
+@@ -1090,7 +1090,7 @@
+ {
+     ModeInfo *modeinfo;
+     ModeTiming *modetiming;
+-    unsigned char moderegs[S3_TOTAL_REGS];
++    unsigned char* moderegs;
+     int res;
+ 
+     if (IS_IN_STANDARD_VGA_DRIVER(mode)) {
+@@ -1126,12 +1126,17 @@
+     modeinfo->lineWidth = s3_adjlinewidth(modeinfo->lineWidth);
+     CI.xbytes = modeinfo->lineWidth;
+ 
++    moderegs = calloc(S3_TOTAL_REGS,1);
++
+     s3_initializemode(moderegs, modetiming, modeinfo);
+     free(modeinfo);
+     free(modetiming);
+ 
+     __svgalib_setregs(moderegs);	/* Set standard regs. */
+     s3_setregs(moderegs, mode);	/* Set extended regs. */
++
++    free(moderegs);
++
+     return 0;
+ }
+ 
+diff -u /mame/svgalib/drivers/savage.c drivers/savage.c
+--- /mame/svgalib/drivers/savage.c	Sat Apr 20 10:07:36 2002
++++ drivers/savage.c	Sun Jun 16 22:45:04 2002
+@@ -18,10 +18,10 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "endianess.h"
+-#include "vgammvgaio.h"
++#include "endianes.h"
++#include "vgammvga.h"
+ 
+ #define SAVAGEREG_SAVE(i) (VGA_TOTAL_REGS+i)
+ #define TOTAL_REGS (VGA_TOTAL_REGS + 64)
+@@ -511,7 +511,7 @@
+         {31,  0, 4, 170000},
+         {31,  0, 3, 135000},
+         {31,  0, 4, 220000},
+-        {31,  0, 3, 135000},
++        {31,  0, 4, 135000},
+         {31,  0, 4, 170000},
+         {31,  0, 4, 170000},
+         {127, 0, 4, 180000},
+@@ -525,7 +525,7 @@
+     vgaS3VPtr new = (vgaS3VPtr)(moderegs+VGA_TOTAL_REGS);
+    
+     if(modeinfo->bitsPerPixel==16) {
+-        if((chipset==VIRGE)|| (chipset==TRIO64)) {
++        if((chipset==VIRGE)|| (chipset==TRIO64) || (chipset==VIRGEDX)) {
+             modetiming->HDisplay *=2;
+             modetiming->HSyncStart *=2;
+             modetiming->HSyncEnd *=2;
+@@ -813,7 +813,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(TOTAL_REGS);
++    moderegs = calloc(TOTAL_REGS,1);
+ 
+     initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/drivers/sis.c drivers/sis.c
+--- /mame/svgalib/drivers/sis.c	Tue Apr 30 09:34:24 2002
++++ drivers/sis.c	Sun Jun 16 22:47:42 2002
+@@ -32,9 +32,9 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "vgarelvgaio.h"
++#include "vgarelvg.h"
+ 
+ #define SISREG_SAVE(i) (VGA_TOTAL_REGS+i)
+ #define SIS_TOTAL_REGS (VGA_TOTAL_REGS + 64 + 40 + 20)
+@@ -486,7 +486,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(SIS_TOTAL_REGS);
++    moderegs = calloc(SIS_TOTAL_REGS,1);
+     
+     if(chip>=SIS_300) 
+         sis_300_initializemode(moderegs, modetiming, modeinfo, mode); else
+diff -u /mame/svgalib/drivers/trident.c drivers/trident.c
+--- /mame/svgalib/drivers/trident.c	Wed Apr 10 13:57:56 2002
++++ drivers/trident.c	Sun Jun 16 22:45:04 2002
+@@ -13,11 +13,11 @@
+ #include "driver.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+ #include "trident.h"
+-#include "vgammvgaio.h"
+-#include "endianess.h"
++#include "vgammvga.h"
++#include "endianes.h"
+ 
+ #define TOTAL_REGS (VGA_TOTAL_REGS + 500)
+ 
+@@ -706,6 +706,7 @@
+     		pReg->tridentRegsDAC[0x00] |= 0x20;	/* mux mode */
+ 	    }	
+ #endif
++	    break;
+     }
+ 
+ 
+@@ -886,7 +887,7 @@
+ 	return 1;
+     }
+ 
+-    moderegs = malloc(TOTAL_REGS);
++    moderegs = calloc(TOTAL_REGS,1);
+ 
+     initializemode(moderegs, modetiming, modeinfo, mode);
+     free(modetiming);
+diff -u /mame/svgalib/ramdac/ibmrgb52.c ramdac/ibmrgb52.c
+--- /mame/svgalib/ramdac/ibmrgb52.c	Wed Apr 10 13:57:56 2002
++++ ramdac/ibmrgb52.c	Sun Jun 16 22:45:04 2002
+@@ -15,7 +15,7 @@
+ #include "driver.h"		/* for __svgalib_driver_report */
+ #include "ramdac.h"
+ 
+-#include "IBMRGB52x.h"
++#include "ibmrgb52.h"
+ 
+ #define IBMRGB52x_STATESIZE	0x101
+ 
+diff -u /mame/svgalib/clockchi/icd2061a.c clockchi/icd2061a.c
+--- /mame/svgalib/clockchi/icd2061a.c	Wed Apr 10 13:57:56 2002
++++ clockchi/icd2061a.c	Sun Jun 16 22:45:04 2002
+@@ -13,7 +13,7 @@
+ #include "timing.h"
+ #include "libvga.h"
+ #include "ramdac/ramdac.h"
+-#include "clockchip.h"
++#include "clockchi.h"
+ #include "driver.h"
+ #include "vga.h"
+ 

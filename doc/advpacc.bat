@@ -1,0 +1,1 @@
+advcfg -advpacc %1

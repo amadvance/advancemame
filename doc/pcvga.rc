@@ -1,0 +1,71 @@
+# Example configuration file for PC VGA Monitors
+
+device_video_pclock 10-50
+device_video_hclock 31.5
+device_video_vclock 55-100
+
+# pc_31.5
+# format H 0.8 0.02 0.12 0.06
+# format V 0.914286 0.0190476 0.00380952 0.0628571
+# fixed horz clock 31469
+
+# VGA text modes
+device_video_modeline pc_31.5_vga_text40_8x8 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_text40_9x8 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_text80_8x8 25.1752 640 656 752 800 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_text80_9x8 28.3221 720 738 846 900 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_text40_8x16 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+device_video_modeline pc_31.5_vga_text40_9x16 14.161 360 368 422 450 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+device_video_modeline pc_31.5_vga_text80_8x16 25.1752 640 656 752 800 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+device_video_modeline pc_31.5_vga_text80_9x16 28.3221 720 738 846 900 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+
+# VGA best fit modes
+device_video_modeline pc_31.5_vga_160x120 6.2938 160 164 188 200 120 122 123 131 +hsync -vsync doublescan # H 31469 [Hz], V 120.111 [Hz]
+device_video_modeline pc_31.5_vga_176x132 7.04906 176 184 210 224 132 134 135 144 +hsync -vsync doublescan # H 31469 [Hz], V 109.267 [Hz]
+device_video_modeline pc_31.5_vga_320x240 12.5876 320 328 376 400 240 245 246 262 -hsync -vsync doublescan # H 31469 [Hz], V 60.0553 [Hz]
+device_video_modeline pc_31.5_vga_360x270 14.161 360 368 422 450 270 275 276 295 +hsync -vsync # H 31469 [Hz], V 106.675 [Hz]
+
+# VGA standard modes
+device_video_modeline pc_31.5_vga_320x200 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_360x200 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan # H 31469 [Hz], V 71.847 [Hz]
+device_video_modeline pc_31.5_vga_360x240 14.161 360 368 422 450 240 245 246 262 -hsync -vsync doublescan # H 31469 [Hz], V 60.0553 [Hz]
+device_video_modeline pc_31.5_vga_320x400 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+device_video_modeline pc_31.5_vga_360x400 14.161 360 368 422 450 400 408 410 437 -hsync +vsync # H 31469 [Hz], V 72.0114 [Hz]
+device_video_modeline pc_31.5_vga_320x480 12.5876 320 328 376 400 480 490 492 525 -hsync -vsync # H 31469 [Hz], V 59.941 [Hz]
+device_video_modeline pc_31.5_vga_360x480 14.161 360 368 422 450 480 490 492 525 -hsync -vsync # H 31469 [Hz], V 59.941 [Hz]
+
+# SVGA best fit modes
+
+# SVGA standard modes
+device_video_modeline pc_31.5_240x180 9.31482 240 240 280 296 180 184 185 197 -hsync +vsync doublescan # H 31469 [Hz], V 79.8706 [Hz]
+device_video_modeline pc_31.5_256x192 10.0701 256 264 304 320 192 196 197 210 -hsync +vsync doublescan # H 31469 [Hz], V 74.9262 [Hz]
+device_video_modeline pc_31.5_272x204 10.5736 272 272 312 336 204 208 209 223 -hsync +vsync doublescan # H 31469 [Hz], V 70.5583 [Hz]
+device_video_modeline pc_31.5_288x216 11.3288 288 296 336 360 216 220 221 236 -hsync +vsync doublescan # H 31469 [Hz], V 66.6716 [Hz]
+device_video_modeline pc_31.5_304x228 11.8323 304 312 352 376 228 232 233 249 -hsync -vsync doublescan # H 31469 [Hz], V 63.1908 [Hz]
+device_video_modeline pc_31.5_320x240 12.5876 320 328 376 400 240 245 246 262 -hsync -vsync doublescan # H 31469 [Hz], V 60.0553 [Hz]
+device_video_modeline pc_31.5_336x252 13.0911 336 344 392 416 252 258 259 276 -hsync -vsync doublescan # H 31469 [Hz], V 57.0091 [Hz]
+device_video_modeline pc_31.5_344x258 13.5946 344 352 408 432 258 263 264 282 +hsync -vsync # H 31469 [Hz], V 111.592 [Hz]
+device_video_modeline pc_31.5_352x264 13.8464 352 360 416 440 264 270 271 289 +hsync -vsync # H 31469 [Hz], V 108.889 [Hz]
+device_video_modeline pc_31.5_368x276 14.3499 368 376 432 456 276 282 283 302 +hsync -vsync # H 31469 [Hz], V 104.202 [Hz]
+device_video_modeline pc_31.5_384x224 15.1051 384 392 448 480 224 229 230 245 -hsync -vsync doublescan # H 31469 [Hz], V 64.2224 [Hz]
+device_video_modeline pc_31.5_384x288 15.1051 384 392 448 480 288 294 295 315 +hsync -vsync # H 31469 [Hz], V 99.9016 [Hz]
+device_video_modeline pc_31.5_400x300 15.6086 400 408 464 496 300 306 307 328 +hsync -vsync # H 31469 [Hz], V 95.9421 [Hz]
+device_video_modeline pc_31.5_416x312 16.3639 416 424 488 520 312 318 320 341 +hsync -vsync # H 31469 [Hz], V 92.2845 [Hz]
+device_video_modeline pc_31.5_432x324 16.8674 432 440 504 536 324 330 332 354 +hsync -vsync # H 31469 [Hz], V 88.8955 [Hz]
+device_video_modeline pc_31.5_448x336 17.6226 448 456 528 560 336 343 344 367 +hsync -vsync # H 31469 [Hz], V 85.7466 [Hz]
+device_video_modeline pc_31.5_464x348 18.1261 464 472 544 576 348 356 357 381 +hsync -vsync # H 31469 [Hz], V 82.5958 [Hz]
+device_video_modeline pc_31.5_480x360 18.8814 480 488 560 600 360 368 369 394 -hsync +vsync # H 31469 [Hz], V 79.8706 [Hz]
+device_video_modeline pc_31.5_496x372 19.3849 496 504 576 616 372 380 381 407 -hsync +vsync # H 31469 [Hz], V 77.3194 [Hz]
+device_video_modeline pc_31.5_512x384 20.1402 512 528 600 640 384 392 394 420 -hsync +vsync # H 31469 [Hz], V 74.9262 [Hz]
+device_video_modeline pc_31.5_544x408 21.3989 544 560 640 680 408 416 418 446 -hsync +vsync # H 31469 [Hz], V 70.5583 [Hz]
+device_video_modeline pc_31.5_576x432 22.6577 576 592 680 720 432 441 442 472 -hsync +vsync # H 31469 [Hz], V 66.6716 [Hz]
+device_video_modeline pc_31.5_608x456 23.9164 608 624 712 760 456 466 468 499 -hsync -vsync # H 31469 [Hz], V 63.0641 [Hz]
+device_video_modeline pc_31.5_640x480 25.1752 640 656 752 800 480 490 492 525 -hsync -vsync # H 31469 [Hz], V 59.941 [Hz]
+device_video_modeline pc_31.5_672x504 26.434 672 688 792 840 504 514 516 551 -hsync -vsync # H 31469 [Hz], V 57.1125 [Hz]
+device_video_modeline pc_31.5_688x516 26.9375 688 704 808 856 516 526 529 564 -hsync -vsync # H 31469 [Hz], V 55.7961 [Hz]
+device_video_modeline pc_31.5_704x528 27.6927 704 720 824 880 528 539 541 577 -hsync -vsync # H 31469 [Hz], V 54.539 [Hz]
+device_video_modeline pc_31.5_736x552 28.9515 736 752 864 920 552 564 566 604 -hsync -vsync # H 31469 [Hz], V 52.101 [Hz]
+device_video_modeline pc_31.5_768x576 30.2102 768 784 904 960 576 588 590 630 -hsync -vsync # H 31469 [Hz], V 49.9508 [Hz]
+device_video_modeline pc_31.5_800x600 31.469 800 816 936 1000 600 612 615 656 -hsync -vsync # H 31469 [Hz], V 47.971 [Hz]
+device_video_modeline pc_31.5_1024x768 40.2803 1024 1048 1200 1280 768 784 787 840 -hsync -vsync interlace # H 31469 [Hz], V 74.9262 [Hz]
+

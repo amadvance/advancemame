@@ -1,0 +1,1121 @@
+NAME
+	advmenu - The AdvanceMENU frontend
+
+SYNOPSYS
+	advmenu [-default] [-remove] [-log] [-logsync]
+
+DESCRIPTION
+	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
+	AdvanceMESS, AdvancePAC, MAME, MESS, RAINE and other emulators.
+
+	Simply run it in the same directory of the emulator and press
+	`f1' to get the help screen or `~' for the main menu.
+
+	Press `tab' to change the display mode. Press `space' to change
+	the preview mode.
+
+	To run a game press `enter'. Press `esc' to exit.
+
+	To configure all the video support for special configurations
+	like TVs or Arcade Monitors, check the `device_video_*' option
+	described below.
+
+OPTIONS
+	-default
+		Add to the configuration file all the missing options
+		with default values.
+
+	-remove
+		Remove from the configuration file all the options
+		with default values.
+
+	-log
+		Create the file `advmenu.log' with a lot of internal
+		information. Very useful for bug report.
+
+	-logsync
+		Like the -log option but the file `advmenu.log' is
+		updated at every write. Useful for creating the log when
+		the program crash.
+
+	-verbose
+		Print some startup information.
+
+EMULATOR
+	The program supports 5 type of emulators. The emulators
+	AdvanceMAME, AdvancePAC, AdvanceMESS, MAME, MESS and RAINE
+	are supported directly and the only thing you should do is
+	to run the AdvanceMENU program in the same directory of the
+	emulator.
+
+	All the other emulators are supported with the type `generic'.
+
+	Please note that only the DOS version of the MAME, MESS and
+	Raine emulators are supported natively. The Windows version
+	of these emulators can work only with the `generic' emulator
+	support.
+
+EMULATOR `Generic'
+	For every emulator defined of type `generic' these actions are
+	taken:
+
+    Info
+	No additional rom information is needed. Only the name and the
+	size of the rom file are used.
+
+    Config
+	You should specify all emulator information and directories
+	with the `emulator' and `emulator_*' options in the
+	`advmenu.rc' file.
+
+	You need to use at least the `emulator' and `emulator_roms'
+	options to inform AdvanceMENU how to run the emulator and where
+	to find the roms.
+
+	For example:
+		emulator "snes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
+		emulator_roms "snes9x" "c:\game\snes9x\roms"
+		emulator_roms_filter "snes9x" "*.smc;*.sfc;*.fig;*.1"
+
+		emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
+		emulator_roms "zsnes" "c:\game\zsnes\roms"
+		emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"
+
+	The various %f, %p, ... macros are explained in the `emulator'
+	option description.
+
+    Roms
+	The roms are searched in the path specified with the
+	`emulator_roms' option in the `advmenu.rc' file. For every file
+	found (with any extension) a game is added in the menu.
+	You can filter the files with the `emulator_roms_filter' option.
+
+    Snapshots
+	All the snapshots are searched in the directories specified with
+	the `emulator_*' options using the same name of the rom file.
+
+EMULATOR `AdvanceMAME'
+	For every emulator defined of type `advmame' these actions
+	are taken:
+
+    Info
+	The roms informations are gathered from the file `advmame.lst'.
+	If this file doesn't exist, it's created automatically with
+	emulator `-listinfo' command.
+
+    Roms
+	The directories specified in the `dir_rom' option in the
+	`advmame.rc' file are used to detect the list of the
+	available roms.
+
+    Others
+	The directories specified in `dir_snap', `dir_cfg' are used to
+	detect the list of available snapshots and .cfg files.
+
+EMULATOR `AdvancePAC'
+	Exactly like the `advmame' emulator type with the exception
+	of the use of the `advpac.rc' configuration file instead of
+	`advmame.rc'.
+
+EMULATOR `AdvanceMESS'
+	For every emulator defined of type `advmess' these actions are
+	taken:
+
+    Info
+	The rom information is gathered from the file `advmess.lst'.
+	If this file doesn't exist, it's created automatically with
+	emulator `-listinfo' command.
+
+    Bios
+	The directories specified in the `dir_rom' option in the
+	`advmess.rc' file are used to detect the list of the
+	available bioses.
+
+    Software
+	All the directories listed in the option `dir_image' are
+	read and all the files found in the `machine' directories
+	are inserted as software if the extension is recognized as a
+	valid device extension for the current `machine' of it's a
+	`zip' file.
+	For example if the `dir_image' options is `c:\software',
+	AdvanceMENU scans the directories `c:\software\ti99_4a',
+	`c:\software\sms', `c:\software\gameboy'...
+	Files in the main directory `c:\software' are NOT checked.
+
+	When you select to run a zip file, the zip file is opened and
+	all the files in the zip with a valid name and with a recognized
+	device extension are added at the AdvanceMESS command line.
+	A file is considered to have a valid name if has the same name
+	of the zip of if it has the name of the zip with an additional
+	char. For example in the file `alpiner.zip' the files
+	`alpiner.bin', `alpinerc.bin' and `alpinerg.bin' have a valid
+	name. This feature can be used to group all the required roms
+	to play a software in a single zip file.
+
+	The file extension is also used to correctly select the device
+	type when calling AdvanceMESS.
+
+    Snapshots
+	The directory specified in `dir_snap' is used to detect the
+	list of available snapshots.
+	At any exit of AdvanceMESS if a new snapshot is created, this
+	file is moved to the correct `snap\system' directory renaming
+	it as the software started.
+	For example, suppose that you run the `ti99_4a' system with the
+	software `alpiner'. If you press F12 during the emulation, the
+	file `snap\ti99_4a.png' is created. When you return to
+	AdvanceMENU the file is moved automatically to
+	`snap\ti99_4a\alpiner.png'.
+
+EMULATOR `MAME' (Only the DOS version is supported)
+	For every emulator defined of type `mame' these actions
+	are taken:
+
+    Info
+	The roms informations are gathered from the file `mame.lst'.
+	If this file doesn't exist, it's created automatically with
+	emulator `-listinfo' command.
+
+    Roms
+	The directories specified in the `rompath' option in the
+	`mame.cfg' file are used to detect the list of the available
+	roms.
+
+    Others
+	The directories specified in `snap', `cfg' are used to
+	detect the list of available snapshots and MAME .cfg files.
+
+EMULATOR `MESS' (Only the DOS version is supported)
+	For every emulator defined of type `mess' these actions are
+	taken:
+
+    Info
+	The roms informations are gathered from the file `mess.lst'.
+	If this file doesn't exist, it's created automatically with
+	emulator `-listinfo' command.
+
+    Bios
+	The directories specified in the `biospath' option in the
+	`mess.cfg' file are used to detect the list of the available
+	bioses.
+
+    Software
+	All the directories listed in the option `softwarepath' are
+	read and all the `zip' files found in the `subsystem'
+	directories are inserted as software.
+	For example if the `softwarepath' options is `c:\software',
+	AdvanceMENU scans the directories `c:\software\ti99_4a',
+	`c:\software\sms', `c:\software\gameboy'...
+	Zips in the main directory `c:\software' are NOT checked.
+
+	When you select one of these entries the zip is opened and is
+	searched the first file with the same name of the zip but
+	different extension. This file is used as the argument of the
+	`-cart' option when running `mess'.
+	AdvanceMENU is NOT able to use other supports like `-flop'.
+
+    Aliases
+	All the aliases present if the `mess.cfg' are inserted as
+	software entries. When you select one of these entries the
+	`mess' option `-alias' is used to start the game.
+
+    Descriptions
+	You can set an arbitrary description on an alias specification
+	adding it on the same line of the alias after the comment char
+	'#' using this format :
+
+		ALIAS = ALIAS_DEF # DESCRIPTION | YEAR | MANUFACTURER
+
+	for example:
+
+		[ti99_4a]
+		ti-inva = -cart ti-invac.bin -cart ti-invag.bin # Invaders | 1982 | Texas Instrument
+
+    Snapshots
+	At any exit of MESS if a new snapshot is created, this file
+	is moved to the correct `snap\system' directory renaming it as
+	the software started.
+	For example, suppose that you run the `ti99_4a' system with the
+	software `alpiner'. If you press F12 during the emulation, the
+	file `snap\ti99_4a.png' is created. When you return to
+	AdvanceMENU the file is moved automatically to
+	`snap\ti99_4a\alpiner.png'.
+
+EMULATOR `Raine' (Only the DOS version is supported)
+	For every emulator defined of type `raine' these actions are
+	taken:
+
+    Info
+	The roms informations are gathered from the file `raine.lst'.
+	If this file doesn't exist, it's created automatically with
+	emulator `-gameinfo' command.
+
+    Roms
+	All the directories specified in the `rom_dir_?' options are
+	used to detect the list of the available roms.
+
+    Snapshots
+	The directory specified in `screenshots' is used to detect the
+	list of available snapshots.
+
+CONFIGURATION
+	The file `advmenu.rc' is used to save the current state of the
+	frontend. It's read at startup and saved at exit. You can
+	prevent the automatic save at the exit with the `config' option.
+
+	The Linux version reads configuration options from the file
+	$prefix/share/advmame/advmenu.rc and from the file
+	$home/.advmame/advmenu.rc. Where $prefix is the installation
+	directory and $home is the user home directory.
+	The options in the $prefix directory overwrite the options in
+	the $home.
+
+	You can force the creation of a default `advmenu.rc' with the
+	command `advmenu -default'.
+
+	In DOS the directory name separator is '\' and the
+	multidirectory separator is ';'. In Linux the directory name
+	separator is '/' and the multidirectory separator is ':'.
+
+GLOBAL CONFIGURATION OPTION
+
+    "config"
+	This option selects if and when the configuration modified by
+	the user at runtime should be saved.
+
+	config save_at_exit | restore_at_exit | restore_at_idle
+
+	Options:
+		save_at_exit - Save any changes before exiting
+			(default).
+		restore_at_exit - Don't save the changes. At the next
+			run, restore the previous configuration.
+		restore_at_idle - Restore the previous configuration
+			after the `idle' time.
+
+	You can manually save the configuration at runtime from the
+	main menu.
+
+    "emulator"
+	This option can be used to select which emulators to use in
+	the frontend. You can specify a multiple emulator support.
+
+	WARNING - Before playing with this option, you should do a
+	backup copy of your current `advmenu.rc' becase when you remove
+	an emulator, all the game information for that emulator (like
+	the time played) is lost.
+
+	emulator "EMULATOR_NAME" (generic | advmame | mame | mess | raine) "EXECUTABLE" "ARGUMENTS"
+
+	Options:
+		EMULATOR_NAME - The name for the emulator. It must be
+			different for every emulator defined.
+		generic - It's a generic emulator.
+		advmame - It's a AdvanceMAME emulator.
+		mame - It's a MAME emulator.
+		mess - It's a MESS emulator.
+		raine - It's a Raine emulator.
+		EXECUTABLE - The executable path of the emulator.
+			You can also use a batch file.
+			If you specify the complete path of the
+			executable the program is able to generate
+			the listing file.
+		ARGUMENTS - The arguments to be passed to the emulator.
+			The arguments are needed only for the `generic'
+			emulator.  For the others, AdvanceMENU is
+			programmed with the required arguments to run a
+			game. However, you may wish to add extra
+			arguments.
+
+			The string `%s' is automatically changed to the
+			game name; the string `%p' is the complete path
+			of the rom; and the string `%f' is the rom name
+			with the extension.
+
+			For example :
+				%s - pacman
+				%p - c:\emu\roms\pacman.zip
+				%f - pacman.zip
+
+	Examples for DOS:
+		emulator "advmame" advmame "advmame\advmame.exe" ""
+		emulator "mame" mame "mame\mame.exe" "-soundcard 1"
+		emulator "neomame" mame "neomame\neomame.exe" ""
+		emulator "cpsmame" mame "cpsmame\cpsmame.exe" ""
+		emulator "mess" mess "mess\mess.exe" ""
+		emulator "raine" raine "raine\raine.exe" ""
+		emulator "myraine" raine "raine\raine2.bat" ""
+		emulator "snes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
+		emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
+
+	Examples for Linux:
+		emulator "advmame" advmame "advmame" ""
+
+    "emulator_TAG"
+	Select additional directories for the emulators. These
+	directories are used in addition to any other directory
+	defined in the emulator config file. The preview images and
+	sounds files are also searched also in any `.zip' file present
+	in these directories.
+
+	emulator_roms "NAME" "LIST"
+	emulator_roms_filter "NAME" "LIST"
+	emulator_altss "NAME" "LIST"
+	emulator_flyers "NAME" "LIST"
+	emulator_cabinets "NAME" "LIST"
+	emulator_marquees "NAME" "LIST"
+	emulator_icons "NAME" "LIST"
+	emulator_titles "NAME" "LIST"
+
+	Commands:
+		roms - List of directories used for the roms. This
+			option is used only for the `generic' emulator
+			type. All the other emulators use the
+			emulator-specific config file to set the rom
+			path.
+		roms_filter - List of pattern for the file to list.
+			An empty pattern means all files.
+		altss - Snapshot directory, used for snap images and
+			sounds.
+		flyers - Flyers directory.
+		cabinets - Cabinets directory.
+		marquees - Marquees directory.
+		icons - Icons directory.
+		titles - Titles directory.
+
+	Options:
+		NAME - The name for the emulator. Must be the same
+			name of a defined emulator
+		LIST - List of directories or patterns separated by `;'
+
+	Examples:
+		emulator_roms "snes9x" "c:\game\snes9x\roms"
+		emulator_roms_filter "snes9x" "*.smc;*.sfc;*.fig;*.1"
+		emulator_roms "zsnes" "c:\game\zsnes\roms"
+		emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"
+
+    "mode"
+	Select the menu mode shown.
+
+	mode full | full_mixed | text | list | list_mixed | tile_small
+		| tile_normal | tile_big | tile_enormous | tile_giant
+		| tile_icon | tile_marquee
+
+	Options:
+		full - Full screen preview.
+		full_mixed - Full screen preview with 4 images.
+		text - Game list.
+		list - Game list and preview of the selected game (default).
+		list_mixed - Game list and 4 preview of the selected game.
+		tile_small - Show the preview of 4x3 games.
+		tile_normal - Show the preview of 5x6 games.
+		tile_big - Show the preview of 8x6 games.
+		tile_enormous - Show the preview of 12x9 games.
+		tile_giant - Show the preview of 16x12 games.
+		tile_icon - Special mode for icon preview.
+		tile_marquee - Special mode for marquee preview.
+
+    "mode_skip"
+	Select the undesidered modes to skip when you press `tab'.
+
+	mode_skip (full | full_mixed | list | list_mixed | tile_small
+		| tile_normal | tile_big | tile_enormous | tile_giant
+		| tile_icon | tile_marquee)*
+
+	Options:
+		- You can enter multiple selections or an empty list.
+
+	Examples:
+		mode_skip tile_giant
+		mode_skip full full_mixed list tile_small tile_giant
+		mode_skip
+
+    "sort"
+	Select the order of the games displayed.
+
+	sort parent | name | time | coin | year | manufacturer
+		| type | group | size | resolution
+
+	Options:
+		parent - Game parent name.
+		name - Game name.
+		time - Time played.
+		coin - Coins used.
+		year - Game year release.
+		manufacturer - Game manufacturer.
+		type - Game type.
+		group - Game group.
+		size - Size of the game rom.
+		resolution - Resolution of the game display.
+
+    "preview"
+	Select the type of the images diplayed.
+
+	preview snap | titles | flyers | cabinets
+
+	Options:
+		snap - Files in the "snap" and "altss" dir.
+		flyers - Files in the "flyers" dir.
+		cabinets - Files in the "cabinets" dir.
+		titles - Files in the "titles" dir.
+
+	The "icons" and "marquees" images can be selected with the
+	special `mode' options `tile_icon' and `tile_marquee'.
+
+    "preview_expand"
+	Enlarge the screen area used by the vertical games on horizontal
+	tile (and horizontal games in vertical tile).
+	
+	preview_expand FACTOR
+	
+	Options:
+		FACTOR - Expansion float factor from 1.0 to 3.0
+			(default 1.15)
+
+	Example:
+		preview_expand 1.15
+
+    "preview_default_*"
+	Select the default images. When an image for the selected game
+	is not found, a default image can be displayed.
+
+	preview_default "IMAGE_PATH"
+	preview_default_snap "IMAGE_PATH"
+	preview_default_flyer "IMAGE_PATH"
+	preview_default_cabinet "IMAGE_PATH"
+	preview_default_icon "IMAGE_PATH"
+	preview_default_marquee "IMAGE_PATH"
+	preview_default_title "IMAGE_PATH"
+
+	Commands:
+		default - Select the default image for all preview
+			modes.
+		default_TAG - Select the default image for a single
+			preview mode.
+
+	Options:
+		IMAGE_PATH - The complete PATH of the image.
+
+	Examples:
+		preview_default "C:\MAME\DEFAULT.PNG"
+		preview_default_marquee "C:\MAME\DEFMAR.PNG"
+		preview_default_icon "C:\MAME\DEFMAR.PNG"
+
+    "icon_space"
+	Control the space between the icons. The `icon' mode is
+	available only if you set the option `icons' in the
+	emulator config file.
+
+	icon_space SPACE
+
+	Options:
+		SPACE - The number of pixel between icons (default 43)
+
+    "merge"
+	Select the expected format of your romset. It's used to test
+	the existence of the correct zips needed to run the games.
+
+	merge none | differential | parent | any | disable
+
+	Options:
+		none - Every clone zip contains all the needed roms.
+		differential - Every clone zip contains only
+			the unique roms (default).
+		parent - All the roms are in the parent zip.
+		any - Any of the above, use this if you have
+			a rom set that is organized poorly.
+		disable - Check disabled.
+
+    "game"
+	Contains various information of the know games.
+	A `game' option is added automatically at the configuration
+	files for any rom found. It's used to keep some game
+	imformation like the time and coins used.
+
+	game "EMULATOR/GAME" "GROUP" "TYPE" TIME COIN "DESCRIPTION"
+
+	Options:
+		EMULATOR - Name of the emulator.
+		GAME - Short name of the game, generally the
+			rom name without the extension.
+		GROUP - Name of the group of the game or empty "".
+		TYPE - Name of the type of the game or empty "".
+		TIME - Time played in seconds.
+		COIN - Coins used.
+		DESCRIPTION - User description or empty "".
+
+	The GROUP, TYPE and DESCRIPTION argument overwrite any
+	other value import with the `group_impot', `type_import',
+	and `desc_import' options. The imported values take effect
+	only if the GROUP, TYPE and DESCRIPTION are empty.
+
+	Example:
+		game "advmame/puckman" "Very Good" "Arcade" 1231 21 "Pac-Man Japanese"
+		game "advmame/1943" "" "" 121 4 "1943 !!"
+
+VIDEO CONFIGURATION OPTIONS
+
+    "device_video_*"
+	All the `device_video_*' options defined in the `advv.txt'
+	file can be used.
+
+    "video_size"
+	Select the desired size of the video mode.
+
+	video_size X_SIZE
+
+	Options:
+		X_SIZE - Width in pixels of the video mode. The nearest
+			available video mode is chosen (default 1024).
+
+    "video_depth"
+	Select the desired bit depth of the video mode.
+
+	video_depth 8 | 15 | 16 | 32
+
+    "video_restore"
+	Select whether to reset in the text mode before running the
+	emulator.
+
+	video_restore yes | no
+
+	Options:
+		yes - Switch to text mode (default).
+		no - Maintain the current graphics mode.
+
+    "video_font"
+	Select a font file. The formats GRX, PSF and RAW are supported.
+	You can find a collection of fonts in the `contrib' directory.
+
+	video_font none | "FONT_FILE"
+
+	Options:
+		none - Use the built-in font (default).
+		FONT_FILE - Font file path.
+
+    "video_orientation"
+	Select the desired orientation of the screen.
+
+	video_orientation (flip_xy | mirror_x | mirror_y)*
+
+	Options:
+		mirror_x - Mirror in the horizontal direction.
+		mirror_y - Mirror in the vertical direction.
+		flip_xy - Swap the x and y axes.
+
+	Example:
+		video_orientation flip_xy mirror_x
+
+    "video_brightness"
+	Select the image brightness factor.
+
+	video_brightness FACTOR
+
+	Options:
+		FACTOR - Brightness float factor (default 1.0).
+
+	Example:
+		video_brightness 0.9
+
+    "video_gamma"
+	Select the image gamma correction factor.
+
+	video_gamma FACTOR
+
+	Options:
+		FACTOR - Gamma float factor (default 1.0).
+
+	Example:
+		video_gamma 0.9
+
+SOUND CONFIGURATION OPTIONS
+
+    "device_sound"
+	Select the sound card model.
+
+	device_sound auto | none | DEVICE
+
+	Options:
+		none - No sound.
+		auto - Automatic detection (default).
+
+	Options for the DOS version:
+		seal - SEAL automatic detection.
+		seal/sb - Sound Blaster.
+		seal/pas - Pro Audio Spectrum.
+		seal/gusmax - Gravis Ultrasound Max.
+		seal/gus - Gravis Ultrasound.
+		seal/wss - Windows Sound System.
+		seal/ess - Ensoniq Soundscape.
+		allegro - Allegro automatic detection.
+		allegro/sb10 - Sound Blaster 1.0.
+		allegro/sb15 - Sound Blaster 1.5.
+		allegro/sb20 - Sound Blaster 2.0.
+		allegro/sbpro - Sound Blaster Pro.
+		allegro/sb16 - Sound Blaster 16.
+		allegro/audio - ESS AudioDrive.
+		allegro/wss - Windows Sound System.
+		allegro/ess - Ensoniq Soundscape.
+
+	Options for the Linux version:
+		oss - OSS automatic detection.
+
+    "sound_volume"
+	Sets the startup volume.
+
+	sound_volume VOLUME
+
+	Options:
+		VOLUME - The volume is an attenuation in dB. The dB is
+			a negative value from -20 to 0.
+
+	Example:
+		sound_volume -12
+
+    "sound_latency"
+	Sets the audio latency.
+
+	sound_latency TIME
+
+	Options:
+		TIME - Latency in seconds from 0.05 to 1.5.
+			(default 0.1)
+
+    "sound_buffer"
+	Sets the size of the lookahead audio buffer for decoding.
+
+	sound_buffer TIME
+
+	Options:
+		TIME - Buffer size in seconds from 0.05 to 1.5.
+			(default 0.1)
+
+    "sound_foreground_EVENT"
+	Select the sounds played in foreground for the various events.
+
+	sound_foregroun_begin none | default | FILE
+	sound_foregroun_end none | default | FILE
+	sound_foregroun_key none | default | FILE
+	sound_foregroun_start none | default | FILE
+	sound_foregroun_stop none | default | FILE
+
+	Commands:
+		begin - Sound played at AdvanceMENU startup.
+		end - Sound played at AdvanceMENU exit.
+		start - Sound played at emulator startup.
+		stop - Sound played at emulator exit.
+		key - Sound played when a key is pressed.
+
+	Options:
+		none - No sound.
+		default - Use the default sound.
+		FILE - Path of the sound file (.wav or .mp3).
+
+    "sound_background_EVENT"
+	Select the sounds played in background for the various events.
+
+	sound_background_begin none | FILE
+	sound_background_end none | FILE
+	sound_background_start none | FILE
+	sound_background_stop none | FILE
+	sound_background_loop none | default | FILE
+
+	Commands:
+		begin - Sound played at AdvanceMENU startup.
+		end - Sound played at AdvanceMENU exit.
+		start - Sound played at emulator startup.
+		stop - Sound played at emulator exit.
+		loop - Sound played in loop if no other background.
+			sound is available.
+
+	Options:
+		none - No sound
+		default - Use the default sound
+		FILE - Path of the sound file (.wav or .mp3)
+
+    "sound_background_loop_dir"
+	Select the background music directory to search for MP3 and WAV
+	files.
+
+	Music tracks will be played in random order.
+
+	Multiple directories may be specified by separating each with a
+	semicolon `;' in DOS and with a doublecolon `:' in Linux.
+
+	Note that this directory must be used only for your music.
+	The emulated game recordings, played when the cursor is moved on
+	the game, are stored in the snap directory defined in your
+	`mame.rc' or with the `emulator_altss' option.
+
+	sound_background_loop_dir "DIR"
+
+	Options:
+		DIR - Directory for .mp3 and .wav files.
+
+	Examples:
+		sound_background_loop_dir C:\MP3\POP;C:\MP3\ROCK
+
+INPUT CONFIGURATION OPTIONS
+
+    "device_joystick"
+	Enables or disables joystick support.
+
+	device_joystick auto | none | DEVICE
+
+	Options:
+		none - No joystick (default).
+		auto - Automatic detection.
+
+	The DOS version uses the Allegro library for joystick support.
+	The Linux version uses always the Kernel joystick interface.
+
+	Options for DOS Allegro library:
+		standard - Standard joystick.
+		dual - Dual joysticks.
+		4button - 4-button joystick.
+		6button - 6-button joystick.
+		8button - 8-button joystick.
+		fspro - CH Flightstick Pro.
+		wingex - Logitech Wingman Extreme.
+		sidewinder - Sidewinder.
+		sidewinderag - Sidewinder Aggressive.
+		gamepadpro - GamePad Pro.
+		grip - GrIP.
+		grip4 - GrIP 4-way.
+		sneslpt1 - SNESpad LPT1.
+		sneslpt2 - SNESpad LPT2.
+		sneslpt3 - SNESpad LPT3.
+		psxlpt1 - PSXpad LPT1.
+		psxlpt2 - PSXpad LPT2.
+		psxlpt3 - PSXpad LPT3.
+		n64lpt1 - N64pad LPT1.
+		n64lpt2 - N64pad LPT2.
+		n64lpt3 - N64pad LPT3.
+		db9lpt1 - DB9 LPT1.
+		db9lpt2 - DB9 LPT2.
+		db9lpt3 - DB9 LPT3.
+		tgxlpt1 - TGX-LPT1.
+		tgxlpt2 - TGX LPT2.
+		tgxlpt3 - TGX LPT3.
+		segaisa - IF-SEGA/ISA.
+		segapci - IF-SEGA2/PCI.
+		segapcifast - IF-SEGA2/PCI (normal).
+		wingwarrior - Wingman Warrior.
+
+    "device_mouse"
+	Enables or disables mouse support.
+
+	device_mouse auto | none
+
+	Options:
+		none - No mouse (default).
+		auto - Automatic detection.
+
+	The DOS version uses standard DOS service for the first mouse 
+	and the special `optimous' driver for a second mouse.
+	The `optimous' driver is available in the `contrib/' directory.
+	The Linux version uses `svgalib' mouse support. So you must 
+	configure the correct mouse in `svgalib' configuration file.
+
+    "mouse_delta"
+	Select the mouse/trackball sensitivity. Increase the value for
+	slower movement. Decrease it for a faster movement.
+
+	mouse_delta STEP
+
+	Options:
+		STEP - Mouse/trackball position step (default 100).
+
+OTHER CONFIGURATION OPTIONS
+
+    "idle_start"
+	Automatically start a random game after some time of inactivity.
+	You can also configure the AdvanceMAME option `input_idleexit'
+	in the file `advmame.rc' to create a continuous demo mode.
+
+	idle_start START_TIMEOUT REPEAT_TIMEOUT
+
+	Options:
+		START_TIMEOUT - Number of seconds to wait for the
+			first run. 0 means do nothing (default).
+		REPEAT_TIMEOUT - Number of seconds to wait for the
+			next run. 0 means do nothing (default).
+
+	Example:
+		idle_start 400 60
+
+	Use "idle_start 0 0" to completely disable it.
+
+    "idle_screensaver"
+	Start the default screen saver. Actually it is a slide show of
+	the available snapshots.
+
+	idle_screensaver START_TIMEOUT REPEAT_TIMEOUT
+
+	Options:
+		START_TIMEOUT - Number of seconds to wait for the
+			first run. 0 means do nothing (default).
+		REPEAT_TIMEOUT - Number of seconds to wait for the
+			next run. 0 means do nothing (default).
+
+	Example:
+		idle_screensaver 40 5
+
+	Use "idle_screensaver 0 0" to completely disable it.
+
+    "idle_screensaver_preview"
+	Select the preview type to use. Like the preview option.
+
+	idle_screensaver_preview none | play | snap | flyers
+		| cabinets | titles
+
+	Options:
+		none - Shutdown the monitor using the VESA/PM services
+			if available. Otherwise use a black image.
+		snap, flyers, cabinets, titles - Start a mute slide show
+			of the specified image type (default snap).
+		play - Start a snap slide show using the animated
+			snapshots and the game sounds. The static
+			snapshots are ignored.
+
+    "group"
+    "type"
+	Select the available `group' and `type' category names and
+	which of them to show.
+
+	group "STRING"
+	type "STRING"
+	group_include "STRING"
+	type_include "STRING"
+
+	Commands:
+		group, type - Define a category.
+		group_include, type_include - Show a category.
+
+	Options:
+		STRING - name of the category
+
+    "group_import"
+    "type_import"
+    "desc_import"
+	Select the automatic import of the groups / types / descriptions
+	from an external file. The file formats supported are CATINI,
+	MacMAME and NMS.
+	The files are read in the current directory for the DOS version
+	and in the $home/.advance directory for the Linux version.
+
+	WARNING - These option DON'T OVERWRITE any user explicit
+	choices made with the `game' option.
+
+	group_import (none | ini | mac) "EMULATOR" "FILE" ["SECTION"]
+	type_import (none | ini | mac) "EMULATOR" "FILE" ["SECTION"]
+	desc_import (none | nms) "EMULATOR" "FILE"
+
+	Options:
+		none - Don't import.
+		ini - Import in CATLIST format.
+		mac - Import in the MacMAME format.
+		nms - Import in the NMS format.
+		EMULATOR - The emulator tag name as specified in
+			the `emulator' option.
+		FILE - The file name.
+		SECTION - The section name (only for the `ini' format).
+
+	Examples:
+		group_import ini "advmame" "catver.ini" "Category"
+		type_import mac "advmame" "Genre 37b14.txt"
+		desc_import nms "raine" "raine.nms"
+
+	The CATLIST files can be downloaded at :
+		http://www.mameworld.net/catlist/
+
+	The MacMAME files can downloaded at:
+		http://www.tznet.com/cmader/categories.html
+
+    "lock"
+	Lock or Unlock the user interface. When locked, the user can
+	only browse and run games. Options can't be changed and the user
+	cannot exit.
+
+	lock yes | no
+
+    "event_assign"
+	Used to customize the input keyboard codes that trigger menu
+	events.
+
+	event EVENT KEY_EXPRESSION
+
+	Options:
+		EVENT - one of the following :
+			up, down, left, right - Movement.
+			home, end, pgup, pgdn - Movement.
+			mode - Change the display mode.
+			help - Show a little help.
+			group - Select a game group.
+			type - Select a game type.
+			exclude - Exclude some games.
+			sort - Sort games.
+			setgroup - Select the group of the current game
+			settype - Select the type of the current game
+			runclone - Run a game clone.
+			enter - Main action, start.
+			esc - Back action, exit & cancel.
+			shutdown - Exit and shutdown.
+			space - Change action, select & deselect.
+			ins - Select all.
+			del - Deselect all.
+			command - The file command menu.
+			menu - The main menu.
+			emulator - The emulator menu.
+			rotate - Rotate the screen of 90ø.
+			lock - Lock/unlock the user interface.
+		KEY_EXPRESSION - Definition of the key expression that
+			generates the event. It's a combination of
+			the scancode of the keys, and of the operators
+			`not', `or'. The `and' operator is implicit
+			between consecutive scancodes.
+
+	Expression:
+		SCANCODE - The decimal value of the key scancode.
+		not - Prefix operator, high precedence.
+		or - Infix operator, medium precedence.
+		and - Infix implicit operator, low precedence.
+
+	Example:
+		event_assign menu 90 or 35
+			-> 90 or 35
+		event_assign emulator 91 23 or not 21 33
+			-> (91 and 23) or ((not 21) and 33)
+
+	You can use the utility `advk' to get the key scancodes.
+
+    "event_repeat"
+	Select the repeat rate of the various events.
+
+	event_repeat FIRST_TIME NEXT_TIME
+
+	Options:
+		FIRST_TIME - Time of the first repeat in ms.
+		NEXT_TIME - Time of the next repeats in ms.
+
+    "event_mode"
+	Select whether to wait for a complete screen update before
+	processing the next event.
+
+	event_mode wait | fast
+
+	Options:
+		wait - The screen is redrawn before processing
+			the next event.
+		fast - If an event is waiting, the screen drawing
+			is interrupted (default).
+
+    "event_alpha"
+	Used to disable the use of alphanumeric keys for fast moving.
+	It's useful disable it if you have a keyboard encoder or a
+	keyboard hack with some buttons remapped to alphanumeric keys.
+
+	event_alpha yes | no
+
+	Options:
+		yes - Enable (default).
+		no - Disable.
+
+    "event_exit_press"
+	Number of times you need to press the exit key to exit from
+	the program.
+
+	event_exit_press 0 | 1 | 2 | 3
+
+	Options:
+		0 - Exit is disabled.
+		1 - Exit after the first press (default).
+		2 - Exit after two consecutive presses.
+		3 - Exit after three consecutive presses.
+
+	Example:
+		event_exit_press 3
+
+    "msg_run"
+	One line message displayed when a game is chosen. The
+	message is displayed only if the option `video_restore' is
+	set to `no'.
+
+	msg_run "MESSAGE"
+
+	Options:
+		MESSAGE - Message to display
+
+	Example:
+		msg_run "Run game"
+
+    "color"
+	Colors used.
+
+	color TAG FOREGROUND BACKGROUND
+
+	Options:
+		TAG - One of the following :
+			help - Help.
+			help_tag - Help highlight.
+			submenu_bar - Submenu title.
+			submenu_item - Submenu entry.
+			submenu_item_select - Submenu selected entry.
+			menu_item - Menu entry.
+			menu_hidden - Menu hidden entry.
+			menu_tag - Menu highlight entry.
+			menu_item_select - Menu selected entry.
+			menu_hidden_select - Menu hidden selected entry.
+			menu_tag_select - Menu selected highlight.
+			bar - Title.
+			bar_tag - Title highlight.
+			bar_hidden - Title hidden text.
+			grid - Scrollbar marker and grid.
+			backdrop - Backdrop outline and missing backdrop.
+			icon - Icon outline and missing icon.
+			cursor - Flashing cursor.
+		FOREGROUND - Foreground color. One of the following :
+			black, blue, green, cyan, red, magenta, brown,
+			lightgray, gray, lightblue, lightgreen
+			lightcyan, lightred, lightmagenta, yellow,
+			white.
+		BACKGROUND - Background color. Like foreground color.
+
+    "misc_quiet"
+	Doesn't print the copyright text message at the startup :
+
+	"AdvanceMENU - Copyright (C) 1999-200X by Andrea Mazzoleni"
+
+	misc_quiet yes | no
+
+FORMATS SUPPORTED
+	This is the list of the file formats supported by AdvanceMENU.
+
+	Images:
+		PNG
+		PCX
+		ICO
+
+	Clips:
+		MNG - The MNG-VLC (Very Low Complexity) sub format
+			without transparency and alpha channel.
+			Or the subformats generated by AdvanceMAME or
+			by the `zmng' compression utility.
+
+	Sounds:
+		MP3
+		WAV - Only 16 bit format.
+
+	Fonts:
+		RAW
+		PSF
+		GRX
+
+	Archives:
+		ZIP
+
+VERSION
+	2001/11/28 - Andrea Mazzoleni - First revision
+	2002/01/14 - Randy Schnedler - Edited for grammar, spelling, clarity
+	2002/01/16 - Andrea Mazzoleni - Various addition
+

@@ -1,0 +1,64 @@
+# Example configuration file for Arcade Medium Resolution (25 kHz) Monitors
+
+device_video_pclock 5-50
+device_video_hclock 25
+device_video_vclock 50-60
+
+# medium
+# format H 0.8 0.02 0.1 0.08
+# format V 0.922156 0.00598802 0.011976 0.0598802
+# fixed horz clock 25000
+
+# VGA text modes
+device_video_modeline medium_vga_text40_8x8 12.6 320 372 422 504 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_text40_9x8 12.6 360 392 442 504 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_text80_8x8 25.15 640 742 844 1006 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_text80_9x8 25.15 720 782 884 1006 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+
+# VGA best fit modes
+device_video_modeline medium_vga_200x384 6.3 200 206 232 252 384 387 392 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_224x384 7.1 224 232 262 284 384 387 392 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_400x384 12.6 400 414 464 504 384 387 392 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_456x384 14.15 456 464 520 566 384 387 392 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+
+# VGA standard modes
+device_video_modeline medium_vga_320x200 12.6 320 372 422 504 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_360x200 12.6 360 392 442 504 200 295 300 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_320x240 12.6 320 372 422 504 240 315 320 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+device_video_modeline medium_vga_360x240 12.6 360 392 442 504 240 315 320 417 -hsync -vsync # H 25000 [Hz], V 59.952 [Hz]
+
+# SVGA best fit modes
+
+# SVGA standard modes
+device_video_modeline medium_240x180 7.4 240 240 272 296 180 181 183 195 -hsync -vsync doublescan # H 25000 [Hz], V 64.1026 [Hz]
+device_video_modeline medium_256x192 8 256 264 296 320 192 193 196 208 -hsync -vsync doublescan # H 25000 [Hz], V 60.0962 [Hz]
+device_video_modeline medium_272x204 8.4 272 272 312 336 204 205 208 221 -hsync -vsync doublescan # H 25000 [Hz], V 56.5611 [Hz]
+device_video_modeline medium_288x216 9 288 296 328 360 216 217 220 234 -hsync -vsync # H 25000 [Hz], V 106.838 [Hz]
+device_video_modeline medium_304x228 9.4 304 312 344 376 228 229 232 247 -hsync -vsync # H 25000 [Hz], V 101.215 [Hz]
+device_video_modeline medium_320x240 10 320 328 368 400 240 241 244 260 -hsync -vsync # H 25000 [Hz], V 96.1538 [Hz]
+device_video_modeline medium_336x252 10.4 336 344 384 416 252 253 257 273 -hsync -vsync # H 25000 [Hz], V 91.5751 [Hz]
+device_video_modeline medium_344x258 10.8 344 352 400 432 258 260 263 280 -hsync -vsync # H 25000 [Hz], V 89.2857 [Hz]
+device_video_modeline medium_352x264 11 352 360 408 440 264 265 269 286 -hsync -vsync # H 25000 [Hz], V 87.4126 [Hz]
+device_video_modeline medium_368x276 11.4 368 376 416 456 276 278 281 299 -hsync -vsync # H 25000 [Hz], V 83.612 [Hz]
+device_video_modeline medium_384x224 12 384 392 440 480 224 226 228 243 -hsync -vsync # H 25000 [Hz], V 102.881 [Hz]
+device_video_modeline medium_384x288 12 384 392 440 480 288 290 293 312 -hsync -vsync # H 25000 [Hz], V 80.1282 [Hz]
+device_video_modeline medium_400x300 12.4 400 408 456 496 300 302 306 325 -hsync -vsync # H 25000 [Hz], V 76.9231 [Hz]
+device_video_modeline medium_416x312 13 416 424 480 520 312 314 318 338 -hsync -vsync # H 25000 [Hz], V 73.9645 [Hz]
+device_video_modeline medium_432x324 13.4 432 440 496 536 324 326 330 351 -hsync -vsync # H 25000 [Hz], V 71.2251 [Hz]
+device_video_modeline medium_448x336 14 448 456 512 560 336 338 342 364 -hsync -vsync # H 25000 [Hz], V 68.6813 [Hz]
+device_video_modeline medium_464x348 14.4 464 472 528 576 348 350 354 377 -hsync -vsync # H 25000 [Hz], V 66.313 [Hz]
+device_video_modeline medium_480x360 15 480 488 552 600 360 362 367 390 -hsync -vsync # H 25000 [Hz], V 64.1026 [Hz]
+device_video_modeline medium_496x372 15.4 496 504 568 616 372 374 379 403 -hsync -vsync # H 25000 [Hz], V 62.0347 [Hz]
+device_video_modeline medium_512x384 16 512 528 592 640 384 386 391 416 -hsync -vsync # H 25000 [Hz], V 60.0962 [Hz]
+device_video_modeline medium_544x408 17 544 560 624 680 408 410 416 442 -hsync -vsync # H 25000 [Hz], V 56.5611 [Hz]
+device_video_modeline medium_576x432 18 576 592 664 720 432 434 440 468 -hsync -vsync # H 25000 [Hz], V 53.4188 [Hz]
+device_video_modeline medium_608x456 19 608 624 696 760 456 459 464 494 -hsync -vsync # H 25000 [Hz], V 50.6073 [Hz]
+device_video_modeline medium_640x480 20 640 656 736 800 480 484 490 521 -hsync -vsync # H 25000 [Hz], V 47.9846 [Hz]
+device_video_modeline medium_672x504 21 672 688 776 840 504 508 514 547 -hsync -vsync # H 25000 [Hz], V 45.7038 [Hz]
+device_video_modeline medium_688x516 21.4 688 704 784 856 516 520 526 560 -hsync -vsync # H 25000 [Hz], V 44.6429 [Hz]
+device_video_modeline medium_704x528 22 704 720 808 880 528 532 539 573 -hsync -vsync # H 25000 [Hz], V 43.63 [Hz]
+device_video_modeline medium_736x552 23 736 752 848 920 552 556 563 599 -hsync -vsync interlace # H 25000 [Hz], V 83.4725 [Hz]
+device_video_modeline medium_768x576 24 768 784 880 960 576 580 588 625 -hsync -vsync interlace # H 25000 [Hz], V 80 [Hz]
+device_video_modeline medium_800x600 25 800 816 920 1000 600 604 612 651 -hsync -vsync interlace # H 25000 [Hz], V 76.8049 [Hz]
+device_video_modeline medium_1024x768 32 1024 1048 1176 1280 768 773 783 833 -hsync -vsync interlace # H 25000 [Hz], V 60.024 [Hz]
+
