@@ -46,6 +46,16 @@ extern "C" {
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
 #define USE_SVGALIB
 void* os_internal_svgalib_get(void);
+int os_internal_svgalib_is_video_active(void);
+int os_internal_svgalib_is_video_mode_active(void);
+#endif
+
+/* Check if FB is used in some way */
+#if defined(USE_VIDEO_FB)
+#define USE_FB
+void* os_internal_fb_get(void);
+int os_internal_fb_is_video_active(void);
+int os_internal_fb_is_video_mode_active(void);
 #endif
 
 /* Check if sLang is used in some way */

@@ -144,7 +144,7 @@ Symbols
 			ui_record_stop, ui_turbo, ui_configure,
 			ui_on_screen_display, ui_pause, ui_reset_machine,
 			ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc,
-			ui_throttle, ui_show_fps, ui_shapshot, ui_toggle_cheat,
+			ui_throttle, ui_show_fps, ui_snapshot, ui_toggle_cheat,
 			ui_up, ui_down, ui_left, ui_right, ui_select,
 			ui_cancel, ui_pan_up, ui_pan_down, ui_pan_left,
 			ui_pan_right, ui_show_profiler, ui_show_colors,

@@ -424,6 +424,8 @@ static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
 	"trakx", "traky"
 };
 
+/**************************************************************************/
+/* Input */
 
 static inline void input_something_pressed(struct advance_input_context* context)
 {
@@ -438,29 +440,27 @@ static inline void input_something_pressed(struct advance_input_context* context
 static void input_keyboard_update(struct advance_input_context* context)
 {
 	unsigned char last[INPUT_KEYBOARD_MAX][KEYB_MAX];
+	unsigned size = KEYB_MAX * keyb_count_get();
 	unsigned i;
 
-	/* clear the state */
-	memset(last, 0, sizeof(last));
-
 	/* read the keys for all the keyboards */
-	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
+	for(i=0;i<keyb_count_get();++i) {
 		keyb_all_get(i, last[i]);
 	}
 
 	if (context->config.steadykey_flag) {
-		if (memcmp(last, context->state.key_old, sizeof(last))!=0) {
+		if (memcmp(last, context->state.key_old, size)!=0) {
 			/* store the new copy */
-			memcpy(context->state.key_old, last, sizeof(last));
+			memcpy(context->state.key_old, last, size);
 			input_something_pressed(context);
 		} else {
-			/* if keyboard state is stable, copy it over */
-			memcpy(context->state.key_current, last, sizeof(last));
+			/* if the keyboard state is stable, copy it */
+			memcpy(context->state.key_current, last, size);
 		}
 	} else {
-		if (memcmp(last, context->state.key_current, sizeof(last))!=0) {
+		if (memcmp(last, context->state.key_current, size)!=0) {
 			/* refresh the new copy */
-			memcpy(context->state.key_current, last, sizeof(last));
+			memcpy(context->state.key_current, last, size);
 			input_something_pressed(context);
 		}
 	}
@@ -615,7 +615,7 @@ static void input_log_config(struct advance_input_context* context)
 	}
 	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
 	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i), joystickb_stick_axe_count_get(i, 0)));
+		log_std(("advance:joystick: %d, buttons %d, stick %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i)));
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
@@ -664,6 +664,41 @@ static void input_log_config(struct advance_input_context* context)
 			log_std(("\n"));
 		}
 	}
+
+#if 0
+	/* print the key list */
+	{
+		j = 0;
+		log_std(("advance: Keys\t\t"));
+		for(i=0;i<KEYB_MAX;++i) {
+			if (key_is_defined(i)) {
+				log_std(("%s, ", key_name(i)));
+				j += 2 + strlen(key_name(i));
+			}
+			if (j > 60) {
+				j = 0;
+				log_std(("\n\t\t"));
+			}
+		}
+		log_std(("\n"));
+	}
+
+	/* print the port list */
+	{
+		struct mame_port* p;
+		j = 0;
+		log_std(("advance: Ports\t\t"));
+		for(p=mame_port_list();p->name;++p) {
+			log_std(("%s, ", p->name));
+			j += 2 + strlen(p->name);
+			if (j > 60) {
+				j = 0;
+				log_std(("\n\t\t"));
+			}
+		}
+		log_std(("\n"));
+	}
+#endif
 }
 
 static void input_init(struct advance_input_context* context)
@@ -699,7 +734,6 @@ static void input_init(struct advance_input_context* context)
 	/* initialize the keyboard state */
 	memset(&context->state.key_old, sizeof(context->state.key_old), 0);
 	memset(&context->state.key_current, sizeof(context->state.key_current), 0);
-
 
 	/* initialize the input state */
 	context->state.input_forced_exit_flag = 0;
@@ -928,10 +962,8 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 	p = mame_port_list();
 	while (p->name) {
 		char tag_buffer[64];
-
 		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 		conf_string_register_default(cfg_context, tag_buffer, "auto");
-
 		++p;
 	}
 

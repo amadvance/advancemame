@@ -141,9 +141,10 @@ void error_set(const char* text, ...)
 	if (error_cat_flag && error_cat_prefix_buffer[0]) {
 		log_std(("%s:", error_cat_prefix_buffer));
 	}
-	log_std((" \""));
+	log_std((" "));
 	log_va(text, arg);
-	log_std(("\"\n"));
+	if (!text[0] || text[strlen(text)-1] != '\n')
+		log_std(("\n"));
 #endif
 
 	va_end(arg);

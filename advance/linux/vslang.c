@@ -96,20 +96,17 @@ adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_c
 	log_std(("video:slang: slang_init()\n"));
 
 	if (getenv("DISPLAY")) {
-		log_std(("video:vslang: DISPLAY set\n"));
-		error_nolog_cat("vslang: Unsupported in X.\n");
+		error_set("Unsupported in X.\n");
 		return -1;
 	}
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:slang: Only fullscreen output is supported\n"));
-		error_nolog_cat("slang: Only fullscreen output is supported.\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
 	if (!os_internal_slang_get()) {
-		log_std(("video:vslang: vslang not initialized\n"));
-		error_nolog_cat("vslang: Unsupported without the slang library.\n");
+		error_set("Unsupported without the slang library.\n");
 		return -1;
 	}
 
@@ -289,7 +286,7 @@ adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsi
 {
 	assert( slang_is_active() );
 
-	error_nolog_cat("slang: Mode generation not supported\n");
+	error_nolog_set("Mode generation not supported.\n");
 
 	/* always fail, no hardware control (only the grabbed mode is used) */
 	return -1;

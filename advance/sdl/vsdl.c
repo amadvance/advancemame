@@ -40,6 +40,10 @@
 #include "ksdl.h"
 #endif
 
+#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB)
+#include "oslinux.h"
+#endif
+
 #include "SDL.h"
 
 #include <stdlib.h>
@@ -166,13 +170,30 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	SDL_Rect** map; /* it must not be released */
 	const SDL_VideoInfo* info;
 	adv_bool has_window_manager;
+	adv_bool initialized_now;
 
 	assert( !sdl_is_active() );
 
 	log_std(("video:sdl: sdl_init(id:%d,output:%d)\n", device_id, (unsigned)output));
 
-	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
-		return -1;
+	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX) {
+		error_set("Invalid structure size.\n");
+		goto err;
+	}
+
+#if defined(USE_VIDEO_SVGALIB)
+	if (os_internal_svgalib_is_video_active()) {
+		error_set("Not compatible with SVGALIB video.\n");
+		goto err;
+	}
+#endif
+
+#if defined(USE_VIDEO_FB)
+	if (os_internal_fb_is_video_active()) {
+		error_set("Not compatible with FrameBuffer video.\n");
+		goto err;
+	}
+#endif
 
 	memset(&sdl_state, 0, sizeof(sdl_state));
 
@@ -185,15 +206,19 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	while (i->name && i->id != device_id)
 		++i;
 	if (!i->name)
-		return -1;
+		goto err;
+
+	initialized_now = 0;
 
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-			error_set("Unable to inizialize the SDL library.\n");
-			return -1;
+			error_set("Unable to intialize the SDL library, %s.\n", SDL_GetError());
+			goto err;
 		}
+
+		initialized_now = 1;
 
 		/* set the window information */
 		SDL_WM_SetCaption(os_internal_sdl_title_get(), os_internal_sdl_title_get());
@@ -256,8 +281,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	}
 
 	if (sdl_state.output == adv_output_window && !has_window_manager) {
-		error_set("Window output not available\n");
-		return -1;
+		error_set("Window output not available.\n");
+		goto err_quit;
 	}
 
 	/* get the list of modes */
@@ -293,8 +318,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
-			error_set("No fullscreen mode available\n");
-			return -1;
+			error_set("No fullscreen mode available.\n");
+			goto err_quit;
 		}
 
 		x = map[0]->w;
@@ -312,8 +337,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
 
 		if ((sdl_state.flags & VIDEO_DRIVER_FLAGS_MODE_MASK) == 0) {
-			error_set("No fullscreen bit depth available\n");
-			return -1;
+			error_set("No fullscreen bit depth available.\n");
+			goto err_quit;
 		}
 	} else if (sdl_state.output == adv_output_zoom) {
 		unsigned mode_x;
@@ -327,8 +352,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
-			error_set("No fullscreen mode available\n");
-			return -1;
+			error_set("No fullscreen mode available.\n");
+			goto err_quit;
 		}
 
 		if (has_window_manager) {
@@ -354,8 +379,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		}
 
 		if (!mode_flag) {
-			error_set(" No fullscreen mode available\n");
-			return -1;
+			error_set("No fullscreen mode available.\n");
+			goto err_quit;
 		}
 
 		sdl_state.zoom_x = mode_x;
@@ -363,12 +388,20 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 
 		log_std(("video:sdl: zoom size %dx%d\n", sdl_state.zoom_x, sdl_state.zoom_y));
 	} else {
-		return -1;
+		error_set("Invalid output mode.\n");
+		goto err_quit;
 	}
 
 	sdl_state.active = 1;
 
 	return 0;
+
+err_quit:
+	if (initialized_now) {
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	}
+err:
+	return -1;
 }
 
 void sdl_done(void)
@@ -436,7 +469,7 @@ static adv_error sdl_overlay_set(const sdl_video_mode* mode)
 	sdl_state.overlay = SDL_CreateYUVOverlay(mode->size_x * 2, mode->size_y, SDL_YUY2_OVERLAY, sdl_state.surface);
 	if (!sdl_state.overlay) {
 		log_std(("video:sdl: SDL_CreateYUVOverlay() failed, %s\n", SDL_GetError()));
-		error_set("Unable to create the SDL overlay");
+		error_set("Unable to create the SDL overlay.");
 		return -1;
 	}
 
@@ -445,7 +478,7 @@ static adv_error sdl_overlay_set(const sdl_video_mode* mode)
 		SDL_FreeYUVOverlay(sdl_state.overlay);
 		sdl_state.overlay = 0;
 		log_std(("ERROR:video:sdl: overlay invalid lock\n"));
-		error_set("Invalid (not lockable) SDL overlay");
+		error_set("Invalid (not lockable) SDL overlay.");
 		return -1;
 	}
 
@@ -459,7 +492,7 @@ static adv_error sdl_overlay_set(const sdl_video_mode* mode)
 		SDL_FreeYUVOverlay(sdl_state.overlay);
 		sdl_state.overlay = 0;
 		log_std(("ERROR:video:sdl: overlay invalid pitches\n"));
-		error_set("Invalid (erroneous pitch) SDL overlay");
+		error_set("Invalid (erroneous pitch) SDL overlay.");
 		return -1;
 	}
 
@@ -480,7 +513,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
 			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
-			error_set("Unable to initialize the SDL video");
+			error_set("Unable to initialize the SDL video, %s", SDL_GetError());
 			return -1;
 		}
 
@@ -525,7 +558,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		sdl_state.surface = SDL_SetVideoMode(sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_ModeFlags());
 		if (!sdl_state.surface) {
 			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE) failed, %s\n", sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_GetError()));
-			error_set("Unable to set the SDL video mode");
+			error_set("Unable to set the SDL video mode.");
 			return -1;
 		}
 
@@ -542,7 +575,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_ModeFlags());
 		if (!sdl_state.surface) {
 			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
-			error_set("Unable to set the SDL video mode");
+			error_set("Unable to set the SDL video mode.");
 			return -1;
 		}
 
@@ -788,7 +821,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	log_std(("video:sdl: sdl_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
 	if (!crtc_is_fake(crtc)) {
-		error_set("Programmable modes not supported.\n");
+		error_nolog_set("Programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -799,7 +832,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	case MODE_FLAGS_INDEX_BGR24 :
 	case MODE_FLAGS_INDEX_BGR32 :
 		if (sdl_state.output == adv_output_zoom) {
-			error_set("Only yuy2 is supported in zoom mode.\n");
+			error_nolog_set("Only yuy2 is supported in zoom mode.\n");
 			return -1;
 		}
 
@@ -810,26 +843,26 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		suggested_bits = SDL_VideoModeOK(request_x, request_y, request_bits, SDL_ModeFlags() );
 
 		if (!suggested_bits) {
-			error_set("No compatible SDL mode found.\n");
+			error_nolog_set("No compatible SDL mode found.\n");
 			return -1;
 		}
 
 		if (suggested_bits != request_bits) {
 			/* if it's a window accepts any bit depths */
 			if (sdl_state.output != adv_output_window) {
-				error_set("No compatible SDL bit depth found.\n");
+				error_nolog_set("No compatible SDL bit depth found.\n");
 				return -1;
 			}
 		}
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
 		if (sdl_state.output != adv_output_zoom) {
-			error_set("yuy2 supported only in zoom mode.\n");
+			error_nolog_set("yuy2 supported only in zoom mode.\n");
 			return -1;
 		}
 		break;
 	default:
-		error_set("Index mode not supported.\n");
+		error_nolog_set("Index mode not supported.\n");
 		return -1;
 	}
 
@@ -957,6 +990,11 @@ adv_video_driver video_sdl_driver = {
 /* Internal interface */
 
 int os_internal_sdl_is_video_active(void)
+{
+	return sdl_is_active();
+}
+
+int os_internal_sdl_is_video_mode_active(void)
 {
 	return sdl_is_active() && sdl_mode_is_active();
 }

@@ -197,8 +197,7 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 		return -1;
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:svgaline: Only fullscreen output is supported\n"));
-		error_nolog_cat("svgaline: Only fullscreen output is supported\n");
+		error_nolog_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -442,7 +441,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 	log_std(("video:svgaline: svgaline_mode_generate(x:%d, y:%d, bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("svgaline: Not programmable modes not supported\n");
+		error_nolog_set("Not programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -450,7 +449,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 		return -1;
 
 	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK), 0, 0) != 0) {
-		error_nolog_cat("video:svgaline: Generic error checking the availability of the video mode\n");
+		error_nolog_set("Generic error checking the availability of the video mode.\n");
 		return -1;
 	}
 

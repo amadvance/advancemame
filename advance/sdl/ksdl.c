@@ -35,14 +35,16 @@
 
 #include "SDL.h"
 
+#define LOW_INVALID ((unsigned)0xFFFFFFFF)
+
 struct keyb_sdl_context {
-	unsigned map_os_to_code[KEYB_MAX];
+	unsigned map_up_to_low[KEYB_MAX];
 	unsigned char state[SDLK_LAST];
 };
 
 static struct keyb_pair {
-	int os;
-	int code;
+	unsigned up_code;
+	unsigned low_code;
 } KEYS[] = {
 { KEYB_A, SDLK_a },
 { KEYB_B, SDLK_b },
@@ -174,10 +176,10 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 	}
 
 	for(j=0;j<KEYB_MAX;++j) {
-		sdl_state.map_os_to_code[j] = 0;
+		sdl_state.map_up_to_low[j] = LOW_INVALID;
 	}
-	for(i=KEYS;i->os != KEYB_MAX;++i) {
-		sdl_state.map_os_to_code[i->os] = i->code;
+	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
+		sdl_state.map_up_to_low[i->up_code] = i->low_code;
 	}
 	for(j=0;j<SDLK_LAST;++j) {
 		sdl_state.state[j] = 0;
@@ -196,9 +198,8 @@ adv_error keyb_sdl_enable(void)
 	log_std(("keyb:sdl: keyb_sdl_enable()\n"));
 
 	/* check that the video mode is a SDL video mode */
-	if (!os_internal_sdl_is_video_active()) {
-		log_std(("keyb:raw: The SDL keyboard driver requires the SDL video driver\n"));
-		error_nolog_set("The SDL keyboard driver requires the SDL video driver\n");
+	if (!os_internal_sdl_is_video_mode_active()) {
+		error_set("The SDL keyboard driver requires the SDL video driver.\n");
 		return -1;
 	}
 
@@ -221,12 +222,14 @@ adv_bool keyb_sdl_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:sdl: keyb_sdl_has()\n"));
 
-	return key_is_standard(code);
+	assert(code < KEYB_MAX);
+
+	return sdl_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_sdl_get(unsigned keyboard, unsigned code)
 {
-	unsigned sdl_code;
+	unsigned low_code;
 
 	assert(keyboard < keyb_sdl_count_get());
 	assert(code < KEYB_MAX);
@@ -237,14 +240,11 @@ unsigned keyb_sdl_get(unsigned keyboard, unsigned code)
 	if (code == KEYB_PAUSE)
 		return 0;
 
-	sdl_code = sdl_state.map_os_to_code[code];
-
-	log_debug(("keyb:sdl: keyb_sdl_get() sdl_code:%d\n", sdl_code));
-
-	if (!sdl_code)
+	low_code = sdl_state.map_up_to_low[code];
+	if (low_code == LOW_INVALID)
 		return 0;
 
-	return sdl_state.state[sdl_code];
+	return sdl_state.state[low_code];
 }
 
 void keyb_sdl_all_get(unsigned keyboard, unsigned char* code_map)
@@ -256,11 +256,11 @@ void keyb_sdl_all_get(unsigned keyboard, unsigned char* code_map)
 	log_debug(("keyb:sdl: keyb_sdl_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
-		unsigned sdl_code = sdl_state.map_os_to_code[i];
-		if (sdl_code)
-			code_map[i] = sdl_state.state[sdl_code];
-		else
+		unsigned low_code = sdl_state.map_up_to_low[i];
+		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
+		else
+			code_map[i] = sdl_state.state[low_code];
 	}
 
 	/* disable the pause key */

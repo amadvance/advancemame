@@ -30,19 +30,21 @@
 
 #include "kalleg.h"
 #include "log.h"
-#include "target.h"
+#include "error.h"
 
 #include "allegro2.h"
 
 #include <sys/exceptn.h>
 
+#define LOW_INVALID ((unsigned)0xFFFFFFFF)
+
 struct keyb_allegro_context {
-	unsigned map_os_to_code[KEYB_MAX];
+	unsigned map_up_to_low[KEYB_MAX];
 };
 
 static struct keyb_pair {
-	int os;
-	int code;
+	unsigned up_code;
+	unsigned low_code;
 } KEYS[] = {
 { KEYB_A, KEY_A },
 { KEYB_B, KEY_B },
@@ -167,15 +169,10 @@ adv_error keyb_allegro_init(int keyb_id, adv_bool disable_special)
 	log_std(("key:allegro: keyb_allegro_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	for(j=0;j<KEYB_MAX;++j) {
-		allegro_state.map_os_to_code[j] = KEY_MAX;
+		allegro_state.map_up_to_low[j] = LOW_INVALID;
 	}
-	for(i=KEYS;i->os != KEYB_MAX;++i) {
-		allegro_state.map_os_to_code[i->os] = i->code;
-	}
-
-	if (install_keyboard() != 0) {
-		log_std(("keyb:allegro: install_keyboard() failed\n"));
-		return -1;
+	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
+		allegro_state.map_up_to_low[i->up_code] = i->low_code;
 	}
 
 	if (disable_special) {
@@ -195,6 +192,23 @@ adv_error keyb_allegro_init(int keyb_id, adv_bool disable_special)
 void keyb_allegro_done(void)
 {
 	log_std(("keyb:allegro: keyb_allegro_done()\n"));
+}
+
+adv_error keyb_allegro_enable(void)
+{
+	log_std(("key:allegro: keyb_allegro_enable()\n"));
+
+	if (install_keyboard() != 0) {
+		error_set("Function install_keyboard() failed.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+void keyb_allegro_disable(void)
+{
+	log_std(("keyb:allegro: keyb_allegro_disable()\n"));
 
 	remove_keyboard();
 }
@@ -202,11 +216,22 @@ void keyb_allegro_done(void)
 unsigned keyb_allegro_count_get(void)
 {
 	log_debug(("keyb:allegro: keyb_allegro_count_get()\n"));
+
+	return 1;
+}
+
+adv_bool keyb_allegro_has(unsigned keyboard, unsigned code)
+{
+	log_debug(("keyb:allegro: keyb_svgalib_has()\n"));
+
+	assert(code < KEYB_MAX);
+
+	return allegro_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_allegro_get(unsigned keyboard, unsigned code)
 {
-	unsigned allegro_code;
+	unsigned low_code;
 
 	assert(keyboard < keyb_event_count_get());
 	assert(code < KEYB_MAX);
@@ -217,14 +242,11 @@ unsigned keyb_allegro_get(unsigned keyboard, unsigned code)
 	if (code == KEYB_PAUSE)
 		return 0;
 
-	allegro_code = allegro_state.map_os_to_code[code];
-
-	log_debug(("keyb:allegro: keyb_allegro_get() allegro_code:%d\n", allegro_code));
-
-	if (allegro_code == KEY_MAX)
+	low_code = allegro_state.map_up_to_low[code];
+	if (low_code == LOW_INVALID)
 		return 0;
 
-	return key[allegro_code];
+	return key[low_code];
 }
 
 void keyb_allegro_all_get(unsigned keyboard, unsigned char* code_map)
@@ -236,11 +258,11 @@ void keyb_allegro_all_get(unsigned keyboard, unsigned char* code_map)
 	log_debug(("keyb:allegro: keyb_allegro_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
-		unsigned allegro_code = allegro_state.map_os_to_code[i];
-		if (allegro_code == KEY_MAX)
+		unsigned low_code = allegro_state.map_up_to_low[i];
+		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
 		else
-			code_map[i] = key[allegro_code];
+			code_map[i] = key[low_code];
 	}
 
 	/* disable the pause key */
@@ -279,8 +301,11 @@ keyb_driver keyb_allegro_driver = {
 	keyb_allegro_reg,
 	keyb_allegro_init,
 	keyb_allegro_done,
+	keyb_allegro_enable,
+	keyb_allegro_disable,
 	keyb_allegro_flags,
 	keyb_allegro_count_get,
+	keyb_allegro_has,
 	keyb_allegro_get,
 	keyb_allegro_all_get,
 	keyb_allegro_poll

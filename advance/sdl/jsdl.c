@@ -31,6 +31,7 @@
 #include "jsdl.h"
 #include "log.h"
 #include "portable.h"
+#include "error.h"
 
 #include "SDL.h"
 
@@ -57,8 +58,10 @@ adv_error joystickb_sdl_init(int joystickb_id)
 
 	log_std(("josytickb:sdl: joystickb_sdl_init(id:%d)\n", joystickb_id));
 
-	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0)
-		return -1;
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
+		error_set("Function SDL_InitSubSystem(SDL_INIT_JOYSTICK) failed, %s.\n", SDL_GetError());
+		goto err;
+	}
 
 	SDL_JoystickEventState(SDL_IGNORE);
 
@@ -66,13 +69,25 @@ adv_error joystickb_sdl_init(int joystickb_id)
 	if (sdl_state.counter > SDL_JOYSTICK_MAX)
 		sdl_state.counter = SDL_JOYSTICK_MAX;
 
+	if (sdl_state.counter == 0) {
+		error_set("No joystick found.\n");
+		goto err_quit;
+	}
+
 	for(i=0;i<sdl_state.counter;++i) {
 		sdl_state.map[i] = SDL_JoystickOpen(i);
-		if (!sdl_state.map[i])
-			return -1;
+		if (!sdl_state.map[i]) {
+			error_set("Function SDL_JoystickOpen(%d) failed, %s.\n", i, SDL_GetError());
+			goto err_quit;
+		}
 	}
 
 	return 0;
+
+err_quit:
+	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+err:
+	return -1;
 }
 
 void joystickb_sdl_done(void)

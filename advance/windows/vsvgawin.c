@@ -272,13 +272,12 @@ static adv_error sdl_init(int device_id)
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:svgawin: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-			log_std(("video:svgawin: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
-			error_nolog_cat("svgawin: Unable to inizialize the SDL library\n");
+			error_set("Unable to inizialize the SDL library, %s.\n", SDL_GetError());
 			return -1;
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_sdl_title_get(), os_internal_sdl_title_get());
 		SDL_WM_DefIcon();
 	}
 
@@ -351,14 +350,12 @@ static adv_error svgalib_init(int device_id)
 	name = j->name;
 
 	if (adv_svgalib_init(svgawin_option.divide_clock) != 0) {
-		log_std(("video:svgawin: error calling adv_svgalib_init()\n"));
-		error_nolog_cat("svgawin: Unable to inizialize the SVGAWIN library\n");
+		error_set("Unable to inizialize the SVGAWIN library.\n");
 		return -1;
 	}
 
 	if (adv_svgalib_detect(name) != 0) {
-		log_std(("video:svgawin: error calling adv_svgalib_detect(%s)\n", name));
-		error_nolog_cat("svgawin: Unable to detect the video board\n");
+		error_set("Unable to detect the video board.\n");
 		return -1;
 	}
 
@@ -400,8 +397,7 @@ adv_error svgawin_init(int device_id, adv_output output, unsigned zoom_size, adv
 		return -1;
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:svgawin: Only fullscreen output is supported\n"));
-		error_nolog_cat("svgawin: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -579,7 +575,7 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_sdl_title_get(), os_internal_sdl_title_get());
 		SDL_WM_DefIcon();
 	}
 
@@ -674,18 +670,18 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 
 	clock = mode->crtc.pixelclock;
 	if (svgawin_option.divide_clock)
-		clock *= 2;	
+		clock *= 2;
 
 	adv_svgalib_linear_map();
 
 	if (svgawin_option.stub != STUB_FULLSCREEN && adv_svgalib_linear_pointer_get() == MAP_FAILED) {
-		error_set("Error mapping the video memory");
+		error_set("Error mapping the video memory\n.");
 		return -1;
 	}
 
 	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
 		adv_svgalib_linear_unmap();
-		error_set("Generic error setting the svgawin mode");
+		error_set("Generic error setting the svgawin mode\n.");
 		return -1;
 	}
 
@@ -910,7 +906,7 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 	log_std(("video:svgawin: svgawin_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("svgawin: Not programmable modes not supported\n");
+		error_nolog_set("Not programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -918,7 +914,7 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 		return -1;
 
 	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK), 0, 0) != 0) {
-		error_nolog_cat("video:svgawin: Generic error checking the availability of the video mode\n");
+		error_nolog_set("Generic error checking the availability of the video mode.\n");
 		return -1;
 	}
 	

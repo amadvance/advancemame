@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,13 +35,15 @@
 
 #include <vgakeyboard.h>
 
+#define LOW_INVALID ((unsigned)0xFFFFFFFF)
+
 struct keyb_svgalib_context {
-	unsigned map_os_to_code[KEYB_MAX];
+	unsigned map_up_to_low[KEYB_MAX];
 };
 
 static struct keyb_pair {
-	int os;
-	int code;
+	unsigned up_code;
+	unsigned low_code;
 } KEYS[] = {
 { KEYB_A, SCANCODE_A },
 { KEYB_B, SCANCODE_B },
@@ -171,10 +173,10 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 	}
 
 	for(j=0;j<KEYB_MAX;++j) {
-		svgalib_state.map_os_to_code[j] = 0;
+		svgalib_state.map_up_to_low[j] = LOW_INVALID;
 	}
-	for(i=KEYS;i->os != KEYB_MAX;++i) {
-		svgalib_state.map_os_to_code[i->os] = i->code;
+	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
+		svgalib_state.map_up_to_low[i->up_code] = i->low_code;
 	}
 
 	return 0;
@@ -200,8 +202,7 @@ adv_error keyb_svgalib_enable(void)
 #endif
 
 	if (keyboard_init() != 0) {
-		log_std(("keyb:svgalib: keyboard_init() failed\n"));
-		error_set("Error enablin the svgalib keyboard driver. Function keyboard_init() failed.\n");
+		error_set("Error enabling the svgalib keyboard driver. Function keyboard_init() failed.\n");
 		return -1;
 	}
 
@@ -226,12 +227,14 @@ adv_bool keyb_svgalib_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:svgalib: keyb_svgalib_has()\n"));
 
-	return key_is_standard(code);
+	assert(code < KEYB_MAX);
+
+	return svgalib_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
 {
-	unsigned svgalib_code;
+	unsigned low_code;
 
 	assert(keyboard < keyb_svgalib_count_get());
 	assert(code < KEYB_MAX);
@@ -242,14 +245,11 @@ unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
 	if (code == KEYB_PAUSE)
 		return 0;
 
-	svgalib_code = svgalib_state.map_os_to_code[code];
-
-	log_debug(("keyb:svgalib: keyb_svgalib_get() svgalib_code:%d\n", svgalib_code));
-
-	if (!svgalib_code)
+	low_code = svgalib_state.map_up_to_low[code];
+	if (low_code == LOW_INVALID)
 		return 0;
 
-	return keyboard_keypressed(svgalib_code);
+	return keyboard_keypressed(low_code);
 }
 
 void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
@@ -261,18 +261,18 @@ void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
 	log_debug(("keyb:svgalib: keyb_svgalib_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
-		unsigned svgalib_code = svgalib_state.map_os_to_code[i];
-		if (svgalib_code)
-			code_map[i] = keyboard_keypressed(svgalib_code);
-		else
+		unsigned low_code = svgalib_state.map_up_to_low[i];
+		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
+		else
+			code_map[i] = keyboard_keypressed(low_code);
 	}
 
 	/* disable the pause key */
 	code_map[KEYB_PAUSE] = 0;
 }
 
-void keyb_svgalib_poll()
+void keyb_svgalib_poll(void)
 {
 	log_debug(("keyb:svgalib: keyb_svgalib_poll()\n"));
 

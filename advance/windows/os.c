@@ -197,7 +197,7 @@ void os_poll(void)
 
 void* os_internal_sdl_get(void)
 {
-	return 1;
+	return &OS;
 }
 
 const char* os_internal_sdl_title_get(void)

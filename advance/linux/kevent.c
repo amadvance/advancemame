@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,18 +46,21 @@
 struct keyboard_item_context {
 	int f;
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
+	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	adv_bool state[KEY_MAX];
 };
 
+#define LOW_INVALID ((unsigned)0xFFFFFFFF)
+
 struct keyb_event_context {
-	unsigned map_os_to_code[KEYB_MAX];
+	unsigned map_up_to_low[KEYB_MAX];
 	unsigned mac;
 	struct keyboard_item_context map[EVENT_KEYBOARD_MAX];
 };
 
 static struct keyb_pair {
-	int os;
-	int code;
+	unsigned up_code;
+	unsigned low_code;
 } KEYS[] = {
 { KEYB_A, KEY_A },
 { KEYB_B, KEY_B },
@@ -280,6 +283,12 @@ static adv_error keyb_setup(struct keyboard_item_context* item, int f)
 	for(i=0;i<KEY_MAX;++i)
 		item->state[i] = 0;
 
+	memset(item->key_bitmask, 0, sizeof(item->key_bitmask));
+	if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(item->key_bitmask)), item->key_bitmask) < 0) {
+		log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -291,10 +300,10 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	for(i=0;i<KEYB_MAX;++i) {
-		event_state.map_os_to_code[i] = 0;
+		event_state.map_up_to_low[i] = LOW_INVALID;
 	}
-	for(j=KEYS;j->os != KEYB_MAX;++j) {
-		event_state.map_os_to_code[j->os] = j->code;
+	for(j=KEYS;j->up_code != KEYB_MAX;++j) {
+		event_state.map_up_to_low[j->up_code] = j->low_code;
 	}
 
 	event_state.mac = 0;
@@ -328,7 +337,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	}
 
 	if (!event_state.mac) {
-		error_set("No keyboard found.\n");
+		error_set("No keyboard found on /dev/input/event*.\n");
 		return -1;
 	}
 
@@ -370,12 +379,23 @@ adv_bool keyb_event_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:event: keyb_event_has()\n"));
 
-	return key_is_defined(code); /* TODO check if a key is really present in the keyboard */
+	assert(keyboard < keyb_event_count_get());
+	assert(code < KEYB_MAX);
+
+	/* remove unknown key */
+	if (event_state.map_up_to_low[code] == LOW_INVALID)
+		return 0;
+
+	/* check if the key is really present in the keyboard */
+	if (!event_test_bit(code, event_state.map[keyboard].key_bitmask))
+		return 0;
+
+	return 1;
 }
 
 unsigned keyb_event_get(unsigned keyboard, unsigned code)
 {
-	unsigned event_code;
+	unsigned low_code;
 
 	assert(keyboard < keyb_event_count_get());
 	assert(code < KEYB_MAX);
@@ -386,14 +406,11 @@ unsigned keyb_event_get(unsigned keyboard, unsigned code)
 	if (code == KEYB_PAUSE)
 		return 0;
 
-	event_code = event_state.map_os_to_code[code];
-
-	log_debug(("keyb:event: keyb_event_get() event_code:%d\n", event_code));
-
-	if (!event_code)
+	low_code = event_state.map_up_to_low[code];
+	if (low_code == LOW_INVALID)
 		return 0;
 
-	return event_state.map[keyboard].state[event_code];
+	return event_state.map[keyboard].state[low_code];
 }
 
 void keyb_event_all_get(unsigned keyboard, unsigned char* code_map)
@@ -405,11 +422,11 @@ void keyb_event_all_get(unsigned keyboard, unsigned char* code_map)
 	log_debug(("keyb:event: keyb_event_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
-		unsigned event_code = event_state.map_os_to_code[i];
-		if (event_code)
-			code_map[i] = event_state.map[keyboard].state[event_code];
-		else
+		unsigned low_code = event_state.map_up_to_low[i];
+		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
+		else
+			code_map[i] = event_state.map[keyboard].state[low_code];
 	}
 
 	/* disable the pause key */

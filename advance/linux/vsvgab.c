@@ -243,7 +243,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	res = vga_addtiming(mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags);
 	if (res != 1) {
-		error_set("Error in vga_addtiming()");
+		error_set("Function vga_addtiming() failed.\n");
 		return -1;
 	}
 
@@ -274,14 +274,14 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 			colors = 1 << 24;
 		break;
 		default:
-			error_set("Invalid index");
+			error_set("Invalid index mode.\n");
 			return -1;
 	}
 	bytes_per_scanline = bytes_per_pixel * mode->crtc.hde;
 
 	res = vga_addmode(mode->crtc.hde, mode->crtc.vde, colors, bytes_per_scanline, bytes_per_pixel);
 	if (res<0) {
-		error_set("Error in vga_addmode()");
+		error_set("Function vga_addmode() failed.\n");
 		return -1;
 	}
 
@@ -289,9 +289,9 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	if (!vga_hasmode(res)) {
 		if (crtc_is_interlace(&mode->crtc)) {
-			error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\nTry also disabling the interlaced modes.");
+			error_set("Function vga_hasmode() failed. Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\nTry also disabling the interlaced modes.\n");
 		} else {
-			error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
+			error_set("Function vga_hasmode() failed. Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
 		}
 		log_std(("video:svgalib: Error in vga_hasmode(%d)\n", res));
 		log_std(("video:svgalib: Have you adjusted the HorizSync and VertRefresh in /etc/vga/libvga.config ?\n"));
@@ -302,25 +302,25 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	modeinfo = vga_getmodeinfo(svgalib_state.mode_number);
 	if (!modeinfo) {
-		error_set("Error in vga_getmodeinfo()");
+		error_set("Function vga_getmodeinfo() failed.\n");
 		return -1;
 	}
 
 	if ((modeinfo->flags & CAPABLE_LINEAR) == 0) {
-		error_set("Linear mode not supported");
+		error_set("Linear mode not supported.\n");
 		return -1;
 	}
 
 	log_std(("video:svgalib: vga_setmode(%d)\n", svgalib_state.mode_number));
 	res = vga_setmode(svgalib_state.mode_number);
 	if (res != 0) {
-		error_set("Error in vga_setmode()");
+		error_set("Function vga_setmode() failed.\n");
 		return -1;
 	}
 
 	res = vga_setlinearaddressing();
 	if (res <= 0) {
-		error_set("Error in vga_setlinearaddressing()");
+		error_set("Function vga_setlinearaddressing() failed.\n");
 		return -1;
 	}
 	svgalib_state.memory_size = res;
@@ -335,7 +335,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	modeinfo = vga_getmodeinfo(svgalib_state.mode_number);
 	if (!modeinfo) {
-		error_set("Error in vga_getmodeinfo()");
+		error_set("Function vga_getmodeinfo() failed.\n");
 		return -1;
 	}
 	svgalib_state.bytes_per_pixel = modeinfo->bytesperpixel;
@@ -476,7 +476,7 @@ adv_error svgalib_scanline_set(unsigned byte_length)
 
 	modeinfo = vga_getmodeinfo(svgalib_state.mode_number);
 	if (!modeinfo) {
-		error_set("Error in vga_getmodeinfo()");
+		error_set("Function vga_getmodeinfo() failed.\n");
 		return -1;
 	}
 	svgalib_state.bytes_per_pixel = modeinfo->bytesperpixel;
@@ -527,7 +527,7 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 	assert( svgalib_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_set("Not programmable modes are not supported.\n");
+		error_nolog_set("Not programmable modes are not supported.\n");
 		return -1;
 	}
 
@@ -640,4 +640,17 @@ adv_video_driver video_svgalib_driver = {
 	svgalib_mode_compare_void,
 	svgalib_crtc_container_insert_default
 };
+
+/***************************************************************************/
+/* Internal interface */
+
+int os_internal_svgalib_is_video_active(void)
+{
+	return svgalib_is_active();
+}
+
+int os_internal_svgalib_is_video_mode_active(void)
+{
+	return svgalib_is_active() && svgalib_mode_is_active();
+}
 

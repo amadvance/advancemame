@@ -382,8 +382,7 @@ adv_error vgaline_init(int device_id, adv_output output, unsigned zoom_size, adv
 		return -1;
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:vgaline: Only fullscreen output is supported\n"));
-		error_nolog_cat("vgaline: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -547,7 +546,7 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 	} else if (crtc->hde % 8 == 0 && crtc->hrs % 2 == 0 && crtc->hre % 2 == 0 && crtc->ht % 2 == 0) {
 		mode->font_x = 8;
 	} else {
-		error_nolog_cat("vgaline: Unsupported horizontal crtc values. Only multiple of 8 or 9 pixels are supported\n");
+		error_nolog_set("Unsupported horizontal crtc values. Only multiple of 8 or 9 pixels are supported.\n");
 		return -1;
 	}
 
@@ -571,7 +570,7 @@ static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const 
 		return -1;
 
 	if (crtc->hde * crtc->vde > 256 * 1024) {
-		error_nolog_cat("vgaline: Mode to big for the VGA memory.\n");
+		error_nolog_set("Mode to big for the VGA memory.\n");
 		return -1;
 	}
 
@@ -590,7 +589,7 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 	assert( vgaline_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("vgaline: Not programmable modes not supported\n");
+		error_nolog_set("Not programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -613,7 +612,7 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 	pixelclock = vga_pixelclock_nearest_get(pixelclock, mode->is_text);
 
 	if (vgaline_acceptable_pixelclock(crtc->pixelclock, pixelclock)!=0) {
-		error_nolog_cat("vgaline: Pixel clock not supported. Nearest supported value is %d Hz\n", pixelclock);
+		error_nolog_set("Pixel clock not supported. Nearest supported value is %d Hz.\n", pixelclock);
 		return -1;
 	}
 

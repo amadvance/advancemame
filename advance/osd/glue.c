@@ -707,14 +707,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 /* Player port with extension */
 #define PE(name1, name2, NAME) \
-	{ "p1_" #name1, IPT_##NAME | IPF_PLAYER1 }, \
-	{ "p1_" #name2, (IPT_##NAME | IPF_PLAYER1) + IPT_EXTENSION }, \
-	{ "p2_" #name1, IPT_##NAME | IPF_PLAYER2 }, \
-	{ "p2_" #name2, (IPT_##NAME | IPF_PLAYER2) + IPT_EXTENSION }, \
-	{ "p3_" #name1, IPT_##NAME | IPF_PLAYER3 }, \
-	{ "p3_" #name2, (IPT_##NAME | IPF_PLAYER3) + IPT_EXTENSION }, \
-	{ "p4_" #name1, IPT_##NAME | IPF_PLAYER4 }, \
-	{ "p4_" #name2, (IPT_##NAME | IPF_PLAYER4) + IPT_EXTENSION }, \
+	{ "p1_" name1, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p1_" name2, (IPT_##NAME | IPF_PLAYER1) + IPT_EXTENSION }, \
+	{ "p2_" name1, IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p2_" name2, (IPT_##NAME | IPF_PLAYER2) + IPT_EXTENSION }, \
+	{ "p3_" name1, IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p3_" name2, (IPT_##NAME | IPF_PLAYER3) + IPT_EXTENSION }, \
+	{ "p4_" name1, IPT_##NAME | IPF_PLAYER4 }, \
+	{ "p4_" name2, (IPT_##NAME | IPF_PLAYER4) + IPT_EXTENSION }, \
 
 static struct mame_port PORT[] = {
 	/* same order of IPT_ declaration in inptport.h */

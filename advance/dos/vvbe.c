@@ -108,8 +108,7 @@ static adv_error vbe_init2(int device_id, adv_output output, unsigned zoom_size,
 		return -1;
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:vbe: Only fullscreen output is supported\n"));
-		error_nolog_cat("vbe: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -317,7 +316,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	assert( vbe_is_active() );
 
 	if (!crtc_is_fake(crtc)) {
-		error_nolog_cat("vbe: Programmable modes not supported\n");
+		error_nolog_set("Programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -353,7 +352,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 		number = vbe_search_target_mode(crtc->hde, crtc->vde, bits, model, vbeflags);
 	}
 	if (number < 0) {
-		error_nolog_cat("vbe: No compatible VBE mode found\n");
+		error_nolog_set("No compatible VBE mode found.\n");
 		return -1;
 	}
 

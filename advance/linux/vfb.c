@@ -447,7 +447,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* get the current info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.oldinfo) != 0) {
-		error_set("Error in FBIOGET_VSCREENINFO");
+		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
 		return -1;
 	}
 
@@ -463,7 +463,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* set the mode */
 	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Error in FBIOPUT_VSCREENINFO");
+		error_set("Function ioctl(FBIOPUT_VSCREENINFO) failed.\n");
 		return -1;
 	}
 
@@ -471,7 +471,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* get the fixed info */
 	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
-		error_set("Error in FBIOGET_FSCREENINFO");
+		error_set("Function ioctl(FBIOGET_FSCREENINFO) failed.\n");
 		return -1;
 	}
 
@@ -479,7 +479,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Error in FBIOGET_VSCREENINFO");
+		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
 		return -1;
 	}
 
@@ -529,7 +529,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		log_std(("video:fb: FBIOPUTCMAP\n"));
 
 		if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
-			error_set("Error in FBIOPUTCMAP");
+			error_set("Function ioctl(FBIOPUTCMAP) failed.\n");
 			return -1;
 		}
 
@@ -554,7 +554,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	);
 
 	if (fb_state.ptr == MAP_FAILED) {
-		error_set("Error in mmap");
+		error_set("Function mmap() failed.\n");
 		return -1;
 	}
 
@@ -587,7 +587,7 @@ void fb_mode_done(adv_bool restore)
 
 	if (restore) {
 		if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.oldinfo) != 0) {
-			error_set("Error in FBIOPUT_VSCREENINFO");
+			error_set("Function ioctl(FBIOPUT_VSCREENINFO) failed.\n");
 		}
 	}
 
@@ -681,7 +681,7 @@ adv_error fb_scroll(unsigned offset, adv_bool waitvsync)
 	fb_state.varinfo.xoffset = (offset % fb_state.bytes_per_scanline) / fb_state.bytes_per_pixel;
 
         if (ioctl(fb_state.fd, FBIOPAN_DISPLAY, &fb_state.varinfo) != 0) {
-		error_set("Error in FBIOPAN_DISPLAY");
+		error_set("Function ioctl(FBIOPAN_DISPLAY) failed.\n");
 		return -1;
 	}
 
@@ -719,7 +719,7 @@ adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned
 	cmap.transp = t;
 
 	if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
-		error_set("Error in FBIOPUTCMAP");
+		error_set("Function ioctl(FBIOPUTCMAP) failed.\n");
 		return -1;
 	}
 
@@ -753,7 +753,7 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 	assert( fb_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_set("Not programmable modes not supported\n");
+		error_nolog_set("Not programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -861,4 +861,17 @@ adv_video_driver video_fb_driver = {
 	fb_mode_compare_void,
 	fb_crtc_container_insert_default
 };
+
+/***************************************************************************/
+/* Internal interface */
+
+int os_internal_fb_is_video_active(void)
+{
+	return fb_is_active();
+}
+
+int os_internal_fb_is_video_mode_active(void)
+{
+	return fb_is_active() && fb_mode_is_active();
+}
 

@@ -56,8 +56,7 @@ adv_error inputb_sdl_init(int inputb_id)
 	log_std(("inputb:sdl: inputb_sdl_init(id:%d)\n", inputb_id));
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("inputb:sdl: not supported without the SDL video driver\n"));
-		error_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		error_set("Not supported without the SDL video driver.\n");
 		return -1; 
 	}
 

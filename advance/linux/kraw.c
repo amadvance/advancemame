@@ -2,7 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Kari Hautio <rusa@iki.fi>
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,27 +44,128 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static unsigned char scan2keycode[128] = {
-	0, KEYB_ESC, KEYB_1, KEYB_2, KEYB_3, KEYB_4, KEYB_5, KEYB_6, KEYB_7, /* 0-8 */
-	KEYB_8, KEYB_9, KEYB_0, KEYB_MINUS, KEYB_EQUALS, KEYB_BACKSPACE, /* 9-14 */
-	KEYB_TAB, KEYB_Q, KEYB_W, KEYB_E, KEYB_R, KEYB_T, KEYB_Y, KEYB_U, /* 15-22 */
-	KEYB_I, KEYB_O, KEYB_P, KEYB_OPENBRACE, KEYB_CLOSEBRACE, /* 23-27 */
-	KEYB_ENTER, KEYB_LCONTROL, KEYB_A, KEYB_S, KEYB_D, KEYB_F, /* 28-33 */
-	KEYB_G, KEYB_H, KEYB_J, KEYB_K, KEYB_L, KEYB_SEMICOLON, /* 34-39 */
-	KEYB_QUOTE, KEYB_BACKQUOTE, KEYB_LSHIFT, KEYB_BACKSLASH, /* 40-43 */
-	KEYB_Z, KEYB_X, KEYB_C, KEYB_V, KEYB_B, KEYB_N, KEYB_M, KEYB_COMMA, /* 44-51 */
-	KEYB_PERIOD, KEYB_SLASH, KEYB_RSHIFT, KEYB_ASTERISK, KEYB_ALT, /* 52-56 */
-	KEYB_SPACE, KEYB_CAPSLOCK, KEYB_F1, KEYB_F2, KEYB_F3, KEYB_F4, /* 57-62 */
-	KEYB_F5, KEYB_F6, KEYB_F7, KEYB_F8, KEYB_F9, KEYB_F10, /* 63-68 */
-	KEYB_NUMLOCK, KEYB_SCRLOCK, KEYB_7_PAD, KEYB_8_PAD, KEYB_9_PAD, /* 69-73 */
-	KEYB_MINUS_PAD, KEYB_4_PAD, KEYB_5_PAD, KEYB_6_PAD, KEYB_PLUS_PAD, /* 74-78 */
-	KEYB_1_PAD, KEYB_2_PAD, KEYB_3_PAD, KEYB_0_PAD, KEYB_PERIOD_PAD, /* 79-83 */
-	0, 0, KEYB_LESS, KEYB_F11, KEYB_F12, 0, 0, 0, 0, 0, 0, 0, /* 84-95 */
-	KEYB_ENTER_PAD, KEYB_RCONTROL, KEYB_SLASH_PAD, KEYB_PRTSCR, /* 96-99 */
-	KEYB_ALTGR, KEYB_PAUSE, KEYB_HOME, KEYB_UP, KEYB_PGUP, KEYB_LEFT, /* 100-105 */
-	KEYB_RIGHT, KEYB_END, KEYB_DOWN, KEYB_PGDN, KEYB_INSERT, /* 106-110 */
-	KEYB_DEL, 0, 0, 0, 0, 0, 0, 0, KEYB_PAUSE, 0, 0, 0, 0, 0, /* 111-124 */
-	KEYB_LWIN, KEYB_RWIN, KEYB_MENU /* 125-127 */
+#define LOW_INVALID ((unsigned)0xFFFFFFFF)
+
+struct keyb_raw_context {
+	struct termios oldkbdtermios;
+	struct termios newkbdtermios;
+	int oldkbmode;
+	int f; /**< Handle. */
+	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
+	unsigned char state[256]; /**< Key state. */
+};
+
+static struct keyb_pair {
+	unsigned up_code;
+	unsigned low_code;
+} KEYS[] = {
+{ KEYB_ESC, 1 },
+{ KEYB_1, 2 },
+{ KEYB_2, 3 },
+{ KEYB_3, 4 },
+{ KEYB_4, 5 },
+{ KEYB_5, 6 },
+{ KEYB_6, 7 },
+{ KEYB_7, 8 },
+{ KEYB_8, 9 },
+{ KEYB_9, 10 },
+{ KEYB_0, 11 },
+{ KEYB_MINUS, 12 },
+{ KEYB_EQUALS, 13 },
+{ KEYB_BACKSPACE, 14 },
+{ KEYB_TAB, 15 },
+{ KEYB_Q, 16 },
+{ KEYB_W, 17 },
+{ KEYB_E, 18 },
+{ KEYB_R, 19 },
+{ KEYB_T, 20 },
+{ KEYB_Y, 21 },
+{ KEYB_U, 22 },
+{ KEYB_I, 23 },
+{ KEYB_O, 24 },
+{ KEYB_P, 25 },
+{ KEYB_OPENBRACE, 26 },
+{ KEYB_CLOSEBRACE, 27 },
+{ KEYB_ENTER, 28 },
+{ KEYB_LCONTROL, 29 },
+{ KEYB_A, 30 },
+{ KEYB_S, 31 },
+{ KEYB_D, 32 },
+{ KEYB_F, 33 },
+{ KEYB_G, 34 },
+{ KEYB_H, 35 },
+{ KEYB_J, 36 },
+{ KEYB_K, 37 },
+{ KEYB_L, 38 },
+{ KEYB_SEMICOLON, 39 },
+{ KEYB_QUOTE, 40 },
+{ KEYB_BACKQUOTE, 41 },
+{ KEYB_LSHIFT, 42 },
+{ KEYB_BACKSLASH, 43 },
+{ KEYB_Z, 44 },
+{ KEYB_X, 45 },
+{ KEYB_C, 46 },
+{ KEYB_V, 47 },
+{ KEYB_B, 48 },
+{ KEYB_N, 49 },
+{ KEYB_M, 50 },
+{ KEYB_COMMA, 51 },
+{ KEYB_PERIOD, 52 },
+{ KEYB_SLASH, 53 },
+{ KEYB_RSHIFT, 54 },
+{ KEYB_ASTERISK, 55 },
+{ KEYB_ALT, 56 },
+{ KEYB_SPACE, 57 },
+{ KEYB_CAPSLOCK, 58 },
+{ KEYB_F1, 59 },
+{ KEYB_F2, 60 },
+{ KEYB_F3, 61 },
+{ KEYB_F4, 62 },
+{ KEYB_F5, 63 },
+{ KEYB_F6, 64 },
+{ KEYB_F7, 65 },
+{ KEYB_F8, 66 },
+{ KEYB_F9, 67 },
+{ KEYB_F10, 68 },
+{ KEYB_NUMLOCK, 69 },
+{ KEYB_SCRLOCK, 70 },
+{ KEYB_7_PAD, 71 },
+{ KEYB_8_PAD, 72 },
+{ KEYB_9_PAD, 73 },
+{ KEYB_MINUS_PAD, 74 },
+{ KEYB_4_PAD, 75 },
+{ KEYB_5_PAD, 76 },
+{ KEYB_6_PAD, 77 },
+{ KEYB_PLUS_PAD, 78 },
+{ KEYB_1_PAD, 79 },
+{ KEYB_2_PAD, 80 },
+{ KEYB_3_PAD, 81 },
+{ KEYB_0_PAD, 82 },
+{ KEYB_PERIOD_PAD, 83 },
+{ KEYB_LESS, 86 },
+{ KEYB_F11, 87 },
+{ KEYB_F12, 88 },
+{ KEYB_ENTER_PAD, 96 },
+{ KEYB_RCONTROL, 97 },
+{ KEYB_SLASH_PAD, 98 },
+{ KEYB_PRTSCR, 99 },
+{ KEYB_ALTGR, 100 },
+{ KEYB_PAUSE, 101 },
+{ KEYB_HOME, 102 },
+{ KEYB_UP, 103 },
+{ KEYB_PGUP, 104 },
+{ KEYB_LEFT, 105 },
+{ KEYB_RIGHT, 106 },
+{ KEYB_END, 107 },
+{ KEYB_DOWN, 108 },
+{ KEYB_PGDN, 109 },
+{ KEYB_INSERT, 110 },
+{ KEYB_DEL, 111 },
+{ KEYB_PAUSE, 119 },
+{ KEYB_LWIN, 125 },
+{ KEYB_RWIN, 126 },
+{ KEYB_MENU, 127 },
+{ KEYB_MAX, 0 }
 };
 
 static adv_device DEVICE[] = {
@@ -72,23 +173,28 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-struct keyb_raw_context {
-	unsigned char keystate[KEYB_MAX];
-	struct termios oldkbdtermios;
-	struct termios newkbdtermios;
-	int oldkbmode;
-	int kbd_fd;
-};
-
 static struct keyb_raw_context raw_state;
 
 adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 {
+	struct keyb_pair* i;
+	unsigned j;
+
 	log_std(("keyb:raw: keyb_raw_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	if (getenv("DISPLAY")) {
 		error_set("Unsupported in X.\n");
 		return -1;
+	}
+
+	for(j=0;j<KEYB_MAX;++j) {
+		raw_state.map_up_to_low[j] = LOW_INVALID;
+	}
+	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
+		raw_state.map_up_to_low[i->up_code] = i->low_code;
+	}
+	for(j=0;j<256;++j) {
+		raw_state.state[j] = 0;
 	}
 
 	return 0;
@@ -110,21 +216,21 @@ adv_error keyb_raw_enable(void)
 	}
 #endif
 
-	raw_state.kbd_fd = open("/dev/tty", O_RDONLY);
-	if (raw_state.kbd_fd == -1) {
+	raw_state.f = open("/dev/tty", O_RDONLY);
+	if (raw_state.f == -1) {
 		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty) failed.\n");
 		return -1;
 	}
 
-	if (ioctl(raw_state.kbd_fd, KDGKBMODE, &raw_state.oldkbmode) != 0) {
+	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.oldkbmode) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
-		close(raw_state.kbd_fd);
+		close(raw_state.f);
 		return -1;
 	}
 
-	if (tcgetattr(raw_state.kbd_fd, &raw_state.oldkbdtermios) != 0) {
+	if (tcgetattr(raw_state.f, &raw_state.oldkbdtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcgetattr() failed.\n");
-		close(raw_state.kbd_fd);
+		close(raw_state.f);
 		return -1;
 	}
 
@@ -135,19 +241,19 @@ adv_error keyb_raw_enable(void)
 	raw_state.newkbdtermios.c_cc[VMIN] = 0; /* Making these 0 seems to have the desired effect. */
 	raw_state.newkbdtermios.c_cc[VTIME] = 0;
 
-	if (tcsetattr(raw_state.kbd_fd, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcsetattr() failed.\n");
-		close(raw_state.kbd_fd);
+		close(raw_state.f);
 		return -1;
 	}
 
-	if (ioctl(raw_state.kbd_fd, KDSKBMODE, K_MEDIUMRAW) != 0) {
+	if (ioctl(raw_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
-		close(raw_state.kbd_fd);
+		close(raw_state.f);
 		return -1;
 	}
 
-	memset(raw_state.keystate, 0, sizeof(raw_state.keystate));
+	memset(raw_state.state, 0, sizeof(raw_state.state));
 
 	return 0;
 }
@@ -156,9 +262,9 @@ void keyb_raw_disable(void)
 {
 	log_std(("keyb:raw: keyb_raw_disable()\n"));
 
-	ioctl(raw_state.kbd_fd, KDSKBMODE, raw_state.oldkbmode);
-	tcsetattr(raw_state.kbd_fd, 0, &raw_state.oldkbdtermios);
-	close(raw_state.kbd_fd);
+	ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode);
+	tcsetattr(raw_state.f, 0, &raw_state.oldkbdtermios);
+	close(raw_state.f);
 }
 
 unsigned keyb_raw_count_get(void)
@@ -172,26 +278,49 @@ adv_bool keyb_raw_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:raw: keyb_raw_has()\n"));
 
-	return key_is_standard(code);
+	assert(code < KEYB_MAX);
+
+	return raw_state.map_up_to_low[code] != LOW_INVALID;
 }
 
 unsigned keyb_raw_get(unsigned keyboard, unsigned code)
 {
+	unsigned low_code;
+
 	assert(keyboard < keyb_raw_count_get());
 	assert(code < KEYB_MAX);
 
 	log_debug(("keyb:raw: keyb_raw_get(keyboard:%d,code:%d)\n", keyboard, code));
 
-	return raw_state.keystate[code];
+	/* disable the pause key */
+	if (code == KEYB_PAUSE)
+		return 0;
+
+	low_code = raw_state.map_up_to_low[code];
+	if (low_code == LOW_INVALID)
+		return 0;
+
+	return raw_state.state[low_code];
 }
 
 void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 {
+	unsigned i;
+
 	assert(keyboard < keyb_raw_count_get());
 
 	log_debug(("keyb:raw: keyb_raw_all_get(keyboard:%d)\n", keyboard));
 
-	memcpy(code_map, raw_state.keystate, KEYB_MAX);
+	for(i=0;i<KEYB_MAX;++i) {
+		unsigned low_code = raw_state.map_up_to_low[i];
+		if (low_code == LOW_INVALID)
+			code_map[i] = 0;
+		else
+			code_map[i] = raw_state.state[low_code];
+	}
+
+	/* disable the pause key */
+	code_map[KEYB_PAUSE] = 0;
 }
 
 void keyb_raw_poll(void)
@@ -200,8 +329,8 @@ void keyb_raw_poll(void)
 
 	log_debug(("keyb:raw: keyb_raw_poll()\n"));
 
-	while ((1==read(raw_state.kbd_fd, &c, 1)) && (c)) {
-		raw_state.keystate[scan2keycode[c & 0x7f]] = (c & 0x80) ? 0 : 1;
+	while ((1 == read(raw_state.f, &c, 1)) && (c)) {
+		raw_state.state[c & 0x7f] = (c & 0x80) ? 0 : 1;
 	}
 }
 

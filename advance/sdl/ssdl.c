@@ -31,6 +31,7 @@
 #include "ssdl.h"
 #include "log.h"
 #include "endianrw.h"
+#include "error.h"
 
 #include <assert.h>
 
@@ -108,8 +109,8 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	sdl_state.volume = 256;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-		log_std(("sound:sdl: SDL_InitSubSystem(SDL_INIT_AUDIO) failed %s\n", SDL_GetError()));
-		return -1;
+		error_set(("Function SDL_InitSubSystem(SDL_INIT_AUDIO) failed, %s.\n", SDL_GetError()));
+		goto err;
 	}
 
 	if (SDL_AudioDriverName(name, sizeof(name))) {
@@ -126,9 +127,8 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	log_std(("sound:sdl: request fragment size %d [samples]\n", sdl_state.info.samples));
 
 	if (SDL_OpenAudio(&sdl_state.info, 0) != 0) {
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		log_std(("sound:sdl: SDL_OpenAudio(%d, AUDIO_S16LSB, %d, %d) failed, %s\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError()));
-		return -1;
+		error_set("Function SDL_OpenAudio(%d, AUDIO_S16LSB, %d, %d) failed, %s.\n", (unsigned)sdl_state.info.freq, (unsigned)sdl_state.info.channels, (unsigned)sdl_state.info.samples, SDL_GetError());
+		goto err_quit;
 	}
 
 	log_std(("sound:sdl: result fragment size %d [samples], buffer size %d [bytes]\n", sdl_state.info.samples, sdl_state.info.size));
@@ -138,6 +138,11 @@ adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 	sdl_state.active_flag = 1;
 
 	return 0;
+
+err_quit:
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+err:
+	return -1;
 }
 
 void sound_sdl_done(void)

@@ -1151,7 +1151,7 @@ Configuration
 	simulation control.
 
 	:input_map[CONTROL] auto | kbd[KEYBOARD,KEY]
-		| mouse[MOUSE,MOUSE_BUTTON] | joystick[JOY,JOY_BUTTON]
+		| mouseb[MOUSE,MOUSE_BUTTON] | joystickb[JOY,JOY_BUTTON]
 		| or | not | ...
 
 	The default is always `auto'.
@@ -1161,7 +1161,8 @@ Configuration
 		KEYBOARD - Number of physical keyboard: 0, 1, 2, 3, ...
 		KEY - Name of physical key.
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
-		MOUSE_BUTTON -
+		MOUSE_BUTTON - Mouse button. A number: 0, 1, 2, 3, ... or
+			a name: left, right, middle, ...
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
 		JOY_BUTTON - Joystick button. A number: 0, 1, 2, 3, ... or
 			a name: trigger, top, thumb, ...
@@ -1169,14 +1170,76 @@ Configuration
 		not - Not operand.
 
 	Controls:
-		p1_left, ...
+		p1_up, p2_up, p3_up, p4_up, p1_down, p2_down, p3_down, p4_down, 
+		p1_left, p2_left, p3_left, p4_left, p1_right, p2_right, p3_right, 
+		p4_right, p1_button1, p2_button1, p3_button1, p4_button1, p1_button2, 
+		p2_button2, p3_button2, p4_button2, p1_button3, p2_button3, p3_button3, 
+		p4_button3, p1_button4, p2_button4, p3_button4, p4_button4, p1_button5, 
+		p2_button5, p3_button5, p4_button5, p1_button6, p2_button6, p3_button6, 
+		p4_button6, p1_button7, p2_button7, p3_button7, p4_button7, p1_button8, 
+		p2_button8, p3_button8, p4_button8, p1_button9, p2_button9, p3_button9, 
+		p4_button9, p1_button10, p2_button10, p3_button10, p4_button10, 
+		p1_paddle_left, p1_paddle_right, p2_paddle_left, p2_paddle_right, 
+		p3_paddle_left, p3_paddle_right, p4_paddle_left, p4_paddle_right, 
+		p1_paddle_up, p1_paddle_down, p2_paddle_up, p2_paddle_down, p3_paddle_up, 
+		p3_paddle_down, p4_paddle_up, p4_paddle_down, p1_dial_left, p1_dial_right, 
+		p2_dial_left, p2_dial_right, p3_dial_left, p3_dial_right, p4_dial_left, 
+		p4_dial_right, p1_dial_up, p1_dial_down, p2_dial_up, p2_dial_down, 
+		p3_dial_up, p3_dial_down, p4_dial_up, p4_dial_down, p1_trackball_left, 
+		p1_trackball_right, p2_trackball_left, p2_trackball_right, p3_trackball_left, 
+		p3_trackball_right, p4_trackball_left, p4_trackball_right, p1_trackball_up, 
+		p1_trackball_down, p2_trackball_up, p2_trackball_down, p3_trackball_up, 
+		p3_trackball_down, p4_trackball_up, p4_trackball_down, p1_stick_left, 
+		p1_stick_right, p2_stick_left, p2_stick_right, p3_stick_left, 
+		p3_stick_right, p4_stick_left, p4_stick_right, p1_stick_up, p1_stick_down, 
+		p2_stick_up, p2_stick_down, p3_stick_up, p3_stick_down, p4_stick_up, 
+		p4_stick_down, p1_stick_forward, p1_stick_backward, p2_stick_forward, 
+		p2_stick_backward, p3_stick_forward, p3_stick_backward, p4_stick_forward, 
+		p4_stick_backward, p1_lightgun_left, p1_lightgun_right, p2_lightgun_left, 
+		p2_lightgun_right, p3_lightgun_left, p3_lightgun_right, p4_lightgun_left, 
+		p4_lightgun_right, p1_lightgun_up, p1_lightgun_down, p2_lightgun_up, 
+		p2_lightgun_down, p3_lightgun_up, p3_lightgun_down, p4_lightgun_up, 
+		p4_lightgun_down, p1_pedal_up, p1_pedal_down, p2_pedal_up, p2_pedal_down, 
+		p3_pedal_up, p3_pedal_down, p4_pedal_up, p4_pedal_down, p1_pedal2_up, 
+		p1_pedal2_down, p2_pedal2_up, p2_pedal2_down, p3_pedal2_up, p3_pedal2_down, 
+		p4_pedal2_up, p4_pedal2_down, start1, start2, start3, start4, 
+		coin1, coin2, coin3, coin4, service_coin1, service_coin2, service_coin3, 
+		service_coin4, service, tilt, ui_mode_next, ui_mode_pred, ui_record_start, 
+		ui_record_stop, ui_turbo, ui_configure, ui_on_screen_display, 
+		ui_pause, ui_reset_machine, ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc, 
+		ui_throttle, ui_show_fps, ui_snapshot, ui_toggle_cheat, ui_up, 
+		ui_down, ui_left, ui_right, ui_select, ui_cancel, ui_pan_up, 
+		ui_pan_down, ui_pan_left, ui_pan_right, ui_show_profiler, ui_toggle_ui, 
+		ui_toggle_debug, ui_save_state, ui_load_state, ui_add_cheat, 
+		ui_delete_cheat, ui_save_cheat, ui_watch_value.
 
 	Keys:
-		left, ...
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
+		v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad, 2_pad,
+		3_pad, 4_pad, 5_pad, 6_pad, 7_pad, 8_pad, 9_pad, f1, f2, f3,
+		f4, f5, f6, f7, f8, f9, f10, f11, f12, esc, backquote, minus,
+		equals, backspace, tab, openbrace, closebrace, enter, semicolon,
+		quote, backslash, less, comma, period, slash, space, insert,
+		del, home, end, pgup, pgdn, left, right, up, down, slash, asterisk,
+		minus_pad, plus_pad, period_pad, enter_pad, prtscr, pause, lshift,
+		rshift, lcontrol, rcontrol, lalt, ralt, lwin, rwin, menu, scrlock,
+		numlock, capslock, stop, again, props, undo, front, copy, open,
+		paste, find, cut, help, calc, setup, sleep, wakeup, file, sendfile,
+		deletefile, xfer, prog1, prog2, www, msdos, coffee, direction,
+		cyclewindows, mail, bookmarks, computer, back, forward, closecd,
+		ejectcd, ejectclosecd, nextsong, playpause, previoussong, stopcd,
+		record, rewind, phone, iso, config, homepage, refresh, exit,
+		move, edit, scrollup, scrolldown, leftparen_pad, rightparen_pad,
+		intl1, intl2, intl3, intl4, intl5, intl6, intl7, intl8, intl9,
+		lang1, lang2, lang3, lang4, lang5, lang6, lang7, lang8, lang9,
+		playcd, pausecd, prog3, prog4, suspend, close, brightnessdown,
+		brightnessup, macro, mute, volumedown, volumeup, power, compose,
+		f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24.
 
 	Examples:
 		input_map[p1_left] kbd[0,left]
 		input_map[p1_right] kbd[0,right]
+		input_map[p1_button1] kdb[0,lshit] or joystickb[0,trigger] or mouseb[0,left]
 
   Record Configuration Options
 	This section describes the options used for the recording

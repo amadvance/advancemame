@@ -281,8 +281,7 @@ adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv
 		return -1;
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:vbeline: Only fullscreen output is supported\n"));
-		error_nolog_cat("vbeline: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -915,7 +914,7 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 	assert( vbeline_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("vbeline: Not programmable modes not supported\n");
+		error_nolog_set("Not programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -944,7 +943,7 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 			model = vbeMemRGB;
 			break;
 		default:
-			error_nolog_cat("vbeline: Invalid index mode\n");
+			error_nolog_set("Invalid index mode.\n");
 			assert(0);
 			return -1;
 	}
@@ -957,7 +956,7 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 		number = vbeline_search_target_mode(mode->crtc.hde, mode->crtc.vde, bits, model);
 	}
 	if (number < 0) {
-		error_nolog_cat("vbeline: No compatible VBE mode found\n");
+		error_nolog_set("No compatible VBE mode found.\n");
 		return -1;
 	}
 
