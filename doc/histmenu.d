@@ -3,7 +3,7 @@ Name
 
 AdvanceMENU Version 2.2.5 2003/03
 	) Fixed the default colors.
-	) Updated with autoconf 2.57
+	) Updated with autoconf 2.57.
 
 AdvanceMENU Version 2.2.4 2003/02
 	) Fixed the CPU detection by the configure script.

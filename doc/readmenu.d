@@ -1,8 +1,8 @@
 Name
 	advmenu - The AdvanceMENU Frontend
 
-	AdvanceMENU is a DOS, Linux and Windows front-end for the AdvanceMANE,
-	AdvanceMESS, AdvancePAC, MAME, MESS, RAINE and any other emulator.
+	AdvanceMENU is a DOS, Linux and Windows front-end for the AdvanceMAME,
+	AdvanceMESS, MAME, MESS, xmame, Raine and any other emulator.
 
 	The official site of AdvanceMENU is :
 

@@ -1,12 +1,12 @@
 Name
-	advmame - The Advance Emulators
+	advmame - The AdvanceMAME/MESS Emulators
 
-	AdvanceMAME/MESS/PAC are unofficial MAME/MESS/PacMAME versions for DOS,
+	AdvanceMAME/MESS are unofficial MAME/MESS versions for DOS,
 	Linux and Windows with an advanced video support for helping the use
 	with TVs, Arcade Monitors, Fixed Frequencies Monitors and also for PC
 	Monitors.
 
-	The official site of AdvanceMAME/MESS/PAC is :
+	The official site of AdvanceMAME/MESS is :
 
 		http://advancemame.sourceforge.net
 
@@ -28,7 +28,6 @@ Name
 	This package contains :
 		advmame - The AdvanceMAME emulator (only in the advanvemame-* package).
 		advmess - The AdvanceMESS emulator (only in the advanvemess-* package).
-		advpac - The AdvancePAC emulator (only in the advanvepac-* package).
 		advcfg - The automatic video configurator.
 		advv - The manual video configurator and tester.
 		advm - The mouse tester.

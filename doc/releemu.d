@@ -1,5 +1,5 @@
 Name
-	release notes - Release Notes For AdvanceMAME/MESS/PAC
+	release notes - Release Notes For AdvanceMAME/MESS
 
 AdvanceMAME 0.63.0
 	The .chd files must now be placed in a subdirectory of the same name.

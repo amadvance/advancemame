@@ -1,8 +1,11 @@
 Name
-	history - History For Advance Emulators
+	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.66.1 2003/03
-	) Updated with autoconf 2.57
+AdvanceMAME Version 0.66.1 2003/04
+	) Updated with autoconf 2.57.
+
+AdvanceMESS Version 0.66.0.0 2003/04
+	) Updated with autoconf 2.57.
 
 AdvanceMAME Version 0.66.0 2003/03
 	) The display_scanlines option is now off as default.

@@ -6,7 +6,7 @@ Synopsys
 
 Description
 	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
-	AdvanceMESS, AdvancePAC, MAME, MESS, RAINE and other emulators.
+	AdvanceMESS, MAME, MESS, xmame, Raine and other emulators.
 
 	Simply run it in the same directory of the emulator and press
 	`f1' to get the help screen or `~' for the main menu.
