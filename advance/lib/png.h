@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -21,18 +21,44 @@
 #ifndef __PNG_H
 #define __PNG_H
 
-#include "bitmap.h"
-#include "video.h"
 #include "fz.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct bitmap* png_load(FZ* f, video_color* rgb, unsigned* rgb_max);
+#define PNG_CN_IHDR 0x49484452
+#define PNG_CN_PLTE 0x504C5445
+#define PNG_CN_IDAT 0x49444154
+#define PNG_CN_IEND 0x49454E44
 
-/* exported for the MNG use */
+const char* png_error_get(void);
+int png_error_unsupported_get(void);
+void png_error(const char* s, ...);
+void png_error_unsupported(const char* s, ...);
+
 int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type);
+int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count);
+
+int png_read_signature(FZ* f);
+int png_write_signature(FZ* f, unsigned* count);
+
+int png_read_iend(FZ* f, const unsigned char* data, unsigned data_size, unsigned type);
+int png_read_ihdr(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	FZ* f, const unsigned char* data, unsigned data_size
+);
+int png_read(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	FZ* f
+);
+
 void png_expand_4(unsigned width, unsigned height, unsigned char* ptr);
 void png_expand_2(unsigned width, unsigned height, unsigned char* ptr);
 void png_expand_1(unsigned width, unsigned height, unsigned char* ptr);

@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -38,7 +38,8 @@ struct bitmap {
 
 struct bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
 struct bitmap* bitmap_dup(struct bitmap* src);
-struct bitmap* bitmap_import(unsigned x, unsigned y, unsigned bit, unsigned bytes_per_scanline, void* ptr, void* heap);
+struct bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
+struct bitmap* bitmappalette_import(video_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
 void bitmap_free(struct bitmap* bmp);
 uint8* bitmap_line(struct bitmap* bmp, unsigned line);
 void bitmap_putpixel(struct bitmap* bmp, unsigned x, unsigned y, unsigned v);

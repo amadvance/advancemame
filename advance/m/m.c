@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -148,7 +148,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 	}
 
-	if (os_inner_init() != 0)
+	if (os_inner_init("AdvanceMOUSE") != 0)
 		goto err_os;
 
 	if (os_mouse_init(mouse_id) != 0)

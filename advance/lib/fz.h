@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -31,8 +31,6 @@
 #ifndef __FZ_H
 #define __FZ_H
 
-#include "videostd.h"
-
 #include <stdio.h>
 #include <zlib.h>
 
@@ -55,22 +53,21 @@ typedef struct fz {
 	unsigned real_size; /* real size of the intersting file */
 
 	/* memory */
-	const uint8* data;
+	const unsigned char* data;
 
 	/* file */
 	FILE* f;
 
 	/* compression */
 	z_stream z;
-	uint8* zbuffer;
+	unsigned char* zbuffer;
 	unsigned remaining;
 } FZ;
 
-FZ* fzopen(const char* file);
-FZ* fzopenmode(const char* file, const char* mode);
+FZ* fzopen(const char* file, const char* mode);
 FZ* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size);
 FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed);
-FZ* fzopenmemory(const uint8* data, unsigned size);
+FZ* fzopenmemory(const unsigned char* data, unsigned size);
 
 unsigned fzread(void *buffer, unsigned size, unsigned number, FZ* f);
 int fzclose(FZ* f);

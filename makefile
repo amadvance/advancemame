@@ -136,6 +136,7 @@ else
 BINARYTAG = $(HOST_TARGET)-$(HOST_SYSTEM)-$(ARCH)
 endif
 BINARYDIR = $(HOST_TARGET)/$(HOST_SYSTEM)/$(ARCH)
+BINARYDIR-HOST = $(HOST_BUILD)
 
 # Check
 ifeq (,$(findstring $(HOST_TARGET),/linux/dos/windows/))
@@ -177,8 +178,6 @@ INSTALL_PROGRAM_STRIP = $(INSTALL) -c -s -o root -g bin -m 555
 INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
 INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 
-OBJ = obj/$(EMU)/$(BINARYDIR)
-
 ifeq ($(HOST_TARGET),linux)
 # Don't compress the linux executables. I like to see the ldd dependencies.
 UPX = @true
@@ -209,6 +208,9 @@ ifeq ($(HOST_BUILD),linux)
 ASM = @nasm
 EXE-HOST =
 CC-HOST = @gcc
+CXX-HOST = @g++
+LD-HOST = @gcc
+LDXX-HOST = @g++
 TOUCH = @touch
 ifeq ($(HOST_TARGET),linux)
 AR = @ar
@@ -225,8 +227,6 @@ SDLLIBS = $(shell sdl-config --libs)
 endif
 ifeq ($(HOST_TARGET),dos)
 # Probably you need to changes these to cross compile:
-DJDIR = /mnt/dos1/djgpp
-LDFLAGS += -L $(DJDIR)/lib
 CROSSTARGET = i586-pc-msdosdjgpp
 CROSSDIR = /usr
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
@@ -254,6 +254,9 @@ ifeq ($(HOST_BUILD),dos)
 ASM = @nasm
 EXE-HOST = .exe
 CC-HOST = @gcc
+LD-HOST = @gcc
+CXX-HOST = @gxx
+LDXX-HOST = @gxx
 AR = @ar
 CC = @gcc
 CXX = @gxx
@@ -266,6 +269,9 @@ ifeq ($(HOST_BUILD),windows)
 ASM = @nasmw
 EXE-HOST = .exe
 CC-HOST = @gcc
+LD-HOST = @gcc
+CXX-HOST = @g++
+LDXX-HOST = @g++
 AR = @ar
 CC = @gcc
 CXX = @g++
@@ -311,7 +317,7 @@ endif
 endif
 
 #############################################################################
-# EMU options
+# EMU
 
 # Automatic EMU detection by source
 ifeq ($(EMU),)
@@ -344,173 +350,43 @@ ifeq ($(EMUSRC),)
 EMUSRC=src
 endif
 
-# Advance makefile
+#############################################################################
+# Advance
+
 include advance/advance.mak
 
-# Only if the EMU source are present
 ifneq ($(wildcard $(EMUSRC)),)
-
-# Target CFLAGS
-ifneq (,$(findstring USE_ASM_i586,$(CFLAGS)))
-EMUCFLAGS += -DX86_ASM
-X86_ASM_68000=1
-#X86_ASM_68020=1
+include advance/emu.mak
 endif
-
-ifneq (,$(findstring USE_LSB,$(CFLAGS)))
-EMUCFLAGS += -DLSB_FIRST
-M68000FLAGS += -DLSB_FIRST
+ifneq ($(wildcard advance/menu),)
+include advance/menu.mak
 endif
-
-ifneq (,$(findstring USE_MSB,$(CFLAGS)))
-EMUCFLAGS += -DMSB_FIRST
-M68000FLAGS += -DMSB_FIRST
+ifneq ($(wildcard advance/tsr),)
+include advance/cab.mak
 endif
-
-EMUCFLAGS += \
-	-I. \
-	-I$(EMUSRC)
-ifeq ($(EMU),mess)
-EMUCFLAGS += \
-	-Imess \
-	-DUNIX
-# -DUNIX is required by the MESS source
+ifneq ($(wildcard advance/v),)
+include advance/v.mak
 endif
-
-EMUCFLAGS += \
-	-I$(EMUSRC)/includes \
-	-I$(OBJ)/cpu/m68000 \
-	-I$(EMUSRC)/cpu/m68000 \
-	-DINLINE="static __inline__" \
-	-Dasm=__asm__
-
-# Map
-ifdef MAP
-TARGETLDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
+ifneq ($(wildcard advance/cfg),)
+include advance/cfg.mak
 endif
-
-ifeq ($(EMU),mess)
-include $(EMUSRC)/core.mak
-include mess/$(EMU).mak
-include $(EMUSRC)/rules.mak
-include mess/rules_ms.mak
-else
-include $(EMUSRC)/core.mak
-include $(EMUSRC)/$(EMU).mak
-include $(EMUSRC)/rules.mak
+ifneq ($(wildcard advance/s),)
+include advance/s.mak
 endif
-
-# Special search paths required by the CPU core rules
-VPATH=$(wildcard $(EMUSRC)/cpu/*)
-
-OBJDIRS += \
-	$(OBJ)/cpu \
-	$(OBJ)/sound \
-	$(OBJ)/drivers \
-	$(OBJ)/machine \
-	$(OBJ)/vidhrdw \
-	$(OBJ)/sndhrdw
-ifeq ($(EMU),mess)
-OBJDIRS += \
-	$(OBJ)/mess \
-	$(OBJ)/mess/systems \
-	$(OBJ)/mess/machine \
-	$(OBJ)/mess/vidhrdw \
-	$(OBJ)/mess/sndhrdw \
-	$(OBJ)/mess/formats \
-	$(OBJ)/mess/tools \
-	$(OBJ)/mess/tools/dat2html \
-	$(OBJ)/mess/tools/mkhdimg \
-	$(OBJ)/mess/tools/messroms \
-	$(OBJ)/mess/tools/imgtool \
-	$(OBJ)/mess/tools/mkimage \
-	$(OBJ)/mess/sound \
-	$(OBJ)/mess/cpu
+ifneq ($(wildcard advance/k),)
+include advance/k.mak
 endif
-
-ifdef DEBUG
-EMUDEFS += -DMAME_DEBUG
-else
-# Required because DBGOBJS is always included
-DBGOBJS =
+ifneq ($(wildcard advance/j),)
+include advance/j.mak
 endif
-
-EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
-
-M68000FLAGS += \
-	$(CFLAGS-HOST) \
-	$(EMUDEFS) \
-	-DINLINE="static __inline__" \
-	-I$(OBJ)/cpu/m68000 \
-	-I$(EMUSRC)/cpu/m68000 \
-	-I$(EMUSRC)
-ifeq ($(EMU),mess)
-M68000FLAGS += \
-	-Imess
+ifneq ($(wildcard advance/m),)
+include advance/m.mak
 endif
-
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
-	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(SYSTEMLDFLAGS) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(TARGETLIBS) $(SYSTEMLIBS) $(EMULIBS) $(DRVLIBS) -o $@
-ifeq ($(COMPRESS),1)
-	$(UPX) $@
-	$(TOUCH) $@
+ifneq ($(wildcard advance/line),)
+include advance/line.mak
 endif
-	$(RM) $(EMUNAME)$(EXE)
-	$(LN) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
-
-$(OBJ)/%.o: $(EMUSRC)/%.c
-	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
-
-$(OBJ)/mess/%.o: mess/%.c
-	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
-
-# Generate C source files for the 68000 emulator
-$(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
-	$(ECHO) $@
-	$(CC) $(M68000FLAGS) -c $*.c -o $@
-
-# Additional rule, because m68kcpu.c includes the generated m68kops.h
-$(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
-
-$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST): $(EMUSRC)/cpu/m68000/m68kmake.c
-	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
-	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $<
-	@$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
-
-# Generate asm source files for the 68000/68020 emulators
-$(OBJ)/cpu/m68000/make68k$(EXE-HOST): $(EMUSRC)/cpu/m68000/make68k.c
-	$(ECHO) $@
-	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/make68k$(EXE-HOST) $<
-
-$(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE-HOST)
-	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE-HOST) $@ $(OBJ)/cpu/m68000/68000tab.asm 00 > /dev/null
-
-$(OBJ)/cpu/m68000/68020.asm: $(OBJ)/cpu/m68000/make68k$(EXE-HOST)
-	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE-HOST) $@ $(OBJ)/cpu/m68000/68020tab.asm 20 > /dev/null
-
-$(OBJ)/cpu/m68000/68000.o: $(OBJ)/cpu/m68000/68000.asm
-	$(ECHO) $@
-	$(ASM) -o $@ $(ASMFLAGS) $(subst -D,-d,$(ASMDEFS)) $<
-
-$(OBJ)/cpu/m68000/68020.o: $(OBJ)/cpu/m68000/68020.asm
-	$(ECHO) $@
-	$(ASM) -o $@ $(ASMFLAGS) $(subst -D,-d,$(ASMDEFS)) $<
-
-$(OBJ)/%.a:
-	$(ECHO) $@
-	$(RM) $@
-	$(AR) cr $@ $^
-
-$(sort $(OBJDIRS)):
-	$(ECHO) $@
-	$(MD) $@
-
-# EMU switch
+ifneq ($(wildcard advance/d2),)
+include advance/d2.mak
 endif
 
 #############################################################################
@@ -540,33 +416,22 @@ flags: obj
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 
-os:
+osdep:
 	rgrep -r MSDOS advance
 	rgrep -r WIN32 advance
 
-#############################################################################
-# SLOCCount
-
-COSTTMP=/tmp/cost
-
 costadvance:
-	-mkdir cost
-	mkdir $(COSTTMP)
-	unzip -o -d $(COSTTMP) advancemame-$(MAMEVERSION).zip
-	unzip -o -d $(COSTTMP) advancemenu-$(MENUVERSION).zip
-	unzip -o -d $(COSTTMP) advancecab-$(CABVERSION).zip
-	rm -r $(COSTTMP)/advance/svgalib
-	rm -r $(COSTTMP)/advance/mpglib
-	rm $(COSTTMP)/advance/menu/playsnd.cc
-	rm $(COSTTMP)/advance/cfg/list.c
-	rm $(COSTTMP)/advance/lib/fontdef.c
-	rm -r $(COSTTMP)/contrib
-	sloccount $(COSTTMP) > cost/advance.txt
-	rm -r $(COSTTMP)
+	sloccount advance/blit advance/card advance/cfg advance/common \
+		advance/dos advance/j advance/k advance/lib advance/line \
+		advance/linux advance/m advance/menu advance/off advance/osd \
+		advance/portio advance/s advance/sdl advance/tsr advance/v \
+		advance/vbe advance/vga advance/video \
+		> cost/advance.txt
 
 costmame:
 	sloccount src > cost/mame.txt
 
 costmess:
 	sloccount mess > cost/mess.txt
+
 

@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -170,7 +170,7 @@ static int item_open_raw(const char* file, const char* ext, const char* mode, st
 
 	h->crc = 0;
 	h->is_crc_set = 0;
-	h->f = fzopenmode(file_complete,mode);
+	h->f = fzopen(file_complete,mode);
 	if (!h->f)
 		return -1;
 

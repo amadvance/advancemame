@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2001 Andrea Mazzoleni
  *
@@ -118,7 +118,7 @@ FZ* resource::open() const {
 		if (is_collection())
 			return fzopenzipuncompressed(cpath_export(archive_get()),offset,size_uncompressed);
 		else
-			return fzopen(cpath_export(archive_get()));
+			return fzopen(cpath_export(archive_get()), "rb");
 	}
 }
 

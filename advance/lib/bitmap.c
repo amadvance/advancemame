@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -68,18 +68,37 @@ struct bitmap* bitmap_dup(struct bitmap* src) {
 	return bmp;
 }
 
-struct bitmap* bitmap_import(unsigned x, unsigned y, unsigned bit, unsigned bytes_per_scanline, void* ptr, void* heap) {
+struct bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline) {
 	struct bitmap* bmp = (struct bitmap*)malloc(sizeof(struct bitmap));
 	assert( bmp );
 
-	bmp->size_x = x;
-	bmp->size_y = y;
-	bmp->bytes_per_pixel = (bit + 7) / 8;
-	bmp->bytes_per_scanline = bytes_per_scanline;
+	bmp->size_x = width;
+	bmp->size_y = height;
+	bmp->bytes_per_pixel = pixel;
+	bmp->bytes_per_scanline = scanline;
 	bmp->ptr = ptr;
-	bmp->heap = heap;
+	bmp->heap = dat_ptr;
 
 	return bmp;
+}
+
+struct bitmap* bitmappalette_import(video_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size) {
+	if (pixel == 1) {
+		unsigned char* p = pal_ptr;
+		unsigned n = pal_size / 3;
+		unsigned i;
+		for(i=0;i<n;++i) {
+			rgb[i].red = *p++;
+			rgb[i].green = *p++;
+			rgb[i].blue = *p++;
+			rgb[i].alpha = 0;
+		}
+		*rgb_max = n;
+	} else {
+		*rgb_max = 0;
+	}
+
+	return bitmap_import(width, height, pixel, dat_ptr, dat_size, ptr, scanline);
 }
 
 void bitmap_free(struct bitmap* bmp) {

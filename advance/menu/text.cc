@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -1549,15 +1549,40 @@ static struct bitmap* text_clip_load(video_color* rgb_map, unsigned* rgb_max) {
 		text_clip_count = 0;
 	}
 
-	double delay;
-	struct bitmap* bitmap = mng_load(text_mng_context, text_clip_f, rgb_map, rgb_max, &delay);
-	if (!bitmap) {
+	unsigned pix_width;
+	unsigned pix_height;
+	unsigned pix_pixel;
+	unsigned char* dat_ptr;
+	unsigned dat_size;
+	unsigned char* pix_ptr;
+	unsigned pix_scanline;
+	unsigned char* pal_ptr;
+	unsigned pal_size;
+	unsigned tick;
+
+	int r = mng_read(text_mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, text_clip_f);
+	if (r != 0) {
 		mng_done(text_mng_context);
 		fzclose(text_clip_f);
 		text_clip_f = 0;
 		text_clip_active = false;
 		return 0;
 	}
+
+	double delay = tick / (double)mng_frequency_get(text_mng_context);
+
+	struct bitmap* bitmap = bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+	if (!bitmap) {
+		free(dat_ptr);
+		free(pal_ptr);
+		mng_done(text_mng_context);
+		fzclose(text_clip_f);
+		text_clip_f = 0;
+		text_clip_active = false;
+		return 0;
+	}
+
+	free(pal_ptr);
 
 	text_clip_wait += (os_clock_t)(delay * OS_CLOCKS_PER_SEC);
 
@@ -1638,8 +1663,34 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 		FZ* f = res.open();
 		if (!f)
 			return 0;
-		struct bitmap* bitmap = png_load(f,rgb,rgb_max);
+
+		unsigned pix_width;
+		unsigned pix_height;
+		unsigned pix_pixel;
+		unsigned char* dat_ptr;
+		unsigned dat_size;
+		unsigned char* pix_ptr;
+		unsigned pix_scanline;
+		unsigned char* pal_ptr;
+		unsigned pal_size;
+
+		int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
+		if (r != 0) {
+			fzclose(f);
+			return 0;
+		}
+
+		struct bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		if (!bitmap) {
+			free(dat_ptr);
+			free(pal_ptr);
+			fzclose(f);
+			return 0;
+		}
+
+		free(pal_ptr);
 		fzclose(f);
+
 		return bitmap;
 	}
 
@@ -1681,29 +1732,49 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 			return 0;
 		}
 
-		double delay;
-		struct bitmap* bitmap = mng_load(mng_context,f,rgb,rgb_max, &delay);
-		if (!bitmap) {
+		unsigned pix_width;
+		unsigned pix_height;
+		unsigned pix_pixel;
+		unsigned char* dat_ptr;
+		unsigned dat_size;
+		unsigned char* pix_ptr;
+		unsigned pix_scanline;
+		unsigned char* pal_ptr;
+		unsigned pal_size;
+		unsigned tick;
+
+		int r = mng_read(mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		if (r != 0) {
 			mng_done(mng_context);
 			fzclose(f);
 			return 0;
 		}
 
-		if (bitmap->bytes_per_pixel == 4) {
-			struct bitmap* dup_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 24);
-			bitmap_cvt_32to24(dup_bitmap, bitmap);
-			free(bitmap);
-			bitmap = dup_bitmap;
-		} else {
-			struct bitmap* dup_bitmap = bitmap_dup(bitmap);
-			free(bitmap);
-			bitmap = dup_bitmap;
+		struct bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		if (!bitmap) {
+			free(dat_ptr);
+			free(pal_ptr);
+			mng_done(mng_context);
+			fzclose(f);
+			return 0;
 		}
 
+		free(pal_ptr);
+
+		// duplicate the bitmap, it must exists also after destroying the mng context
+		struct bitmap* dup_bitmap;
+		if (bitmap->bytes_per_pixel == 4) {
+			dup_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, 24);
+			bitmap_cvt_32to24(dup_bitmap, bitmap);
+		} else {
+			dup_bitmap = bitmap_dup(bitmap);
+		}
+
+		bitmap_free(bitmap);
 		mng_done(mng_context);
 		fzclose(f);
 
-		return bitmap;
+		return dup_bitmap;
 	}
 
 	return 0;

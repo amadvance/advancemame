@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -29,6 +29,7 @@
  */
 
 #include "fz.h"
+#include "endianrw.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -107,7 +108,7 @@ unsigned fzwrite(const void *buffer, unsigned size, unsigned number, FZ* f) {
 	}
 }
 
-FZ* fzopenmode(const char* file, const char* mode) {
+FZ* fzopen(const char* file, const char* mode) {
 	struct stat st;
 	FZ* f = malloc(sizeof(FZ));
 	f->type = fz_file;
@@ -130,17 +131,8 @@ FZ* fzopenmode(const char* file, const char* mode) {
 	return f;
 }
 
-FZ* fzopen(const char* file) {
-	return fzopenmode(file,"rb");
-}
-
-static uint16 zip_read_word(void* _data) {
-	uint8* data = (uint8*)_data;
-	return (uint16)data[0] | (((uint16)data[1]) << 8);
-}
-
 FZ* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size) {
-	uint8 buf[ZIP_LO_FIXED];
+	unsigned char buf[ZIP_LO_FIXED];
 	FZ* f = malloc(sizeof(FZ));
 	unsigned filename_length;
 	unsigned extra_field_length;
@@ -165,8 +157,8 @@ FZ* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size) {
 		free(f);
 		return 0;
 	}
-	filename_length = zip_read_word(buf+ZIP_LO_filename_length);
-	extra_field_length = zip_read_word(buf+ZIP_LO_extra_field_length);
+	filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
+	extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
 
 	/* calculate offset to data and seek there */
 	offset += ZIP_LO_FIXED + filename_length + extra_field_length;
@@ -194,7 +186,7 @@ static void compressed_init(FZ* f) {
 	f->z.next_out = 0;
 	f->z.avail_out = 0;
 
-	f->zbuffer = (uint8*)malloc(INFLATE_INPUT_BUFFER_MAX+1); /* +1 for the extra byte at the end */
+	f->zbuffer = (unsigned char*)malloc(INFLATE_INPUT_BUFFER_MAX+1); /* +1 for the extra byte at the end */
 	f->remaining = f->real_size;
 
 	/*
@@ -214,7 +206,7 @@ static void compressed_done(FZ* f) {
 }
 
 FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed) {
-	uint8 buf[ZIP_LO_FIXED];
+	unsigned char buf[ZIP_LO_FIXED];
 	FZ* f = malloc(sizeof(FZ));
 	unsigned filename_length;
 	unsigned extra_field_length;
@@ -239,8 +231,8 @@ FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compres
 		free(f);
 		return 0;
 	}
-	filename_length = zip_read_word(buf+ZIP_LO_filename_length);
-	extra_field_length = zip_read_word(buf+ZIP_LO_extra_field_length);
+	filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
+	extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
 
 	/* calculate offset to data and seek there */
 	offset += ZIP_LO_FIXED + filename_length + extra_field_length;
@@ -259,7 +251,7 @@ FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compres
 	return f;
 }
 
-FZ* fzopenmemory(const uint8* data, unsigned size) {
+FZ* fzopenmemory(const unsigned char* data, unsigned size) {
 	struct fz* f = malloc(sizeof(struct fz*));
 	f->type = fz_memory;
 	f->virtual_pos = 0;
@@ -291,7 +283,7 @@ static int fzgetc_binary(FZ* f) {
 	if (f->type == fz_file) {
 		return fgetc(f->f);
 	} else {
-		uint8 r;
+		unsigned char r;
 		if (fzread(&r,1,1,f)==1)
 			return r;
 		else
@@ -413,7 +405,7 @@ int fzseek(FZ* f, long offset, int mode) {
 
 			/* read all the data */
 			while (offset > 0) {
-				uint8 buffer[256];
+				unsigned char buffer[256];
 				unsigned run = offset;
 				if (run > 256)
 					run = 256;

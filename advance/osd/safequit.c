@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Ian Patterson
  * Copyright (C) 2002 Andrea Mazzoleni

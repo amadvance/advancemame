@@ -1,5 +1,5 @@
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
@@ -19,54 +19,77 @@
  */
 
 #include "png.h"
-
-#include "os.h"
+#include "endianrw.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 /**************************************************************************************/
 /* PNG */
 
-#define PNG_CN_IHDR 0x49484452
-#define PNG_CN_PLTE 0x504C5445
-#define PNG_CN_IDAT 0x49444154
-#define PNG_CN_IEND 0x49454E44
-
 static unsigned char PNG_Signature[] = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
 
-static unsigned read_be_u32(unsigned char* v) {
-	return v[0] << 24 | v[1] << 16 | v[2] << 8 | v[3];
+char png_error_buf[256];
+int png_error_unsupported_flag;
+
+const char* png_error_get(void)
+{
+	return png_error_buf;
 }
 
-int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type) {
+int png_error_unsupported_get(void)
+{
+	return png_error_unsupported_flag;
+}
+
+void png_error(const char* s, ...)
+{
+	va_list ap;
+	png_error_unsupported_flag = 0;
+	va_start(ap, s);
+	vsprintf(png_error_buf, s, ap);
+	va_end(ap);
+}
+
+void png_error_unsupported(const char* s, ...)
+{
+	va_list ap;
+	png_error_unsupported_flag = 1;
+	va_start(ap, s);
+	vsprintf(png_error_buf, s, ap);
+	va_end(ap);
+}
+
+int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type)
+{
 	unsigned char cl[4];
 	unsigned char ct[4];
 	unsigned char cc[4];
 
 	if (fzread(cl, 4, 1, f) != 1) {
-		log_std(("png: io error\n"));
+		png_error("Error reading the chunk size");
 		goto err;
 	}
 
-	*size = read_be_u32(cl);
+	*size = be_uint32_read(cl);
 
 	if (fzread(ct, 4, 1, f) != 1) {
-		log_std(("png: io error\n"));
+		png_error("Error reading the chunk type");
 		goto err;
 	}
 
-	*type = read_be_u32(ct);
+	*type = be_uint32_read(ct);
 
 	if (*size) {
 		*data = malloc(*size);
 		if (!*data) {
-			log_std(("png: low memory\n"));
+			png_error("Low memory");
 			goto err;
 		}
 
 		if (fzread(*data, *size, 1, f) != 1) {
-			log_std(("png: io error\n"));
+			png_error("Error reading the chunk data");
 			goto err_data;
 		}
 	} else {
@@ -74,7 +97,7 @@ int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type) 
 	}
 
 	if (fzread(cc, 4, 1, f) != 1) {
-		log_std(("png: io error\n"));
+		png_error("Error reading the chunk crc");
 		goto err_data;
 	}
 
@@ -85,7 +108,77 @@ err:
 	return -1;
 }
 
-void png_expand_4(unsigned width, unsigned height, unsigned char* ptr) {
+int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count)
+{
+	unsigned char v[4];
+	unsigned crc;
+
+	be_uint32_write(v, size);
+	if (fzwrite(v, 4, 1, f) != 1) {
+		png_error("Error writing the chunk size");
+		return -1;
+	}
+
+	be_uint32_write(v, type);
+	if (fzwrite(v, 4, 1, f) != 1) {
+		png_error("Error writing the chunk type");
+		return -1;
+	}
+
+	crc = crc32(0, v, 4);
+	if (size > 0) {
+		if (fzwrite(data, size, 1, f) != 1) {
+			png_error("Error writing the chunk data");
+			return -1;
+		}
+
+		crc = crc32(crc, data, size);
+	}
+
+	be_uint32_write(v, crc);
+	if (fzwrite(v, 4, 1, f) != 1) {
+		png_error("Error writing the chunk crc");
+		return -1;
+	}
+
+	if (count)
+		*count += 4 + 4 + size + 4;
+
+	return 0;
+}
+
+int png_read_signature(FZ* f)
+{
+	unsigned char signature[8];
+
+	if (fzread(signature,8,1,f) != 1) {
+		png_error("Error reading the signature");
+		return -1;
+	}
+
+	if (memcmp(signature,PNG_Signature,8)!=0) {
+		png_error("Invalid PNG signature");
+		return -1;
+	}
+
+	return 0;
+}
+
+int png_write_signature(FZ* f, unsigned* count)
+{
+	if (fzwrite(PNG_Signature, 8, 1, f) != 1) {
+		png_error("Error writing the signature");
+		return -1;
+	}
+
+	if (count)
+		*count += 8;
+
+	return 0;
+}
+
+void png_expand_4(unsigned width, unsigned height, unsigned char* ptr)
+{
 	unsigned i,j;
 	unsigned char* p8 = ptr + height * (width + 1) - 1;
 	unsigned char* p4 = ptr + height * (width / 2 + 1) - 1;
@@ -103,7 +196,8 @@ void png_expand_4(unsigned width, unsigned height, unsigned char* ptr) {
 	}
 }
 
-void png_expand_2(unsigned width, unsigned height, unsigned char* ptr) {
+void png_expand_2(unsigned width, unsigned height, unsigned char* ptr)
+{
 	unsigned i,j;
 	unsigned char* p8 = ptr + height * (width + 1) - 1;
 	unsigned char* p2 = ptr + height * (width / 4 + 1) - 1;
@@ -123,7 +217,8 @@ void png_expand_2(unsigned width, unsigned height, unsigned char* ptr) {
 	}
 }
 
-void png_expand_1(unsigned width, unsigned height, unsigned char* ptr) {
+void png_expand_1(unsigned width, unsigned height, unsigned char* ptr)
+{
 	unsigned i,j;
 	unsigned char* p8 = ptr + height * (width + 1) - 1;
 	unsigned char* p1 = ptr + height * (width / 8 + 1) - 1;
@@ -147,7 +242,8 @@ void png_expand_1(unsigned width, unsigned height, unsigned char* ptr) {
 	}
 }
 
-void png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsigned line) {
+void png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsigned line)
+{
 	unsigned i,j;
 
 	for(i=0;i<height;++i) {
@@ -225,7 +321,8 @@ void png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsigned 
 	}
 }
 
-void png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsigned line) {
+void png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsigned line)
+{
 	unsigned i,j;
 
 	for(i=0;i<height;++i) {
@@ -305,7 +402,8 @@ void png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsigned
 	}
 }
 
-void png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsigned line) {
+void png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsigned line)
+{
 	unsigned i,j;
 
 	for(i=0;i<height;++i) {
@@ -386,146 +484,184 @@ void png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsigned
 	}
 }
 
-static int png_read_signature(FZ* f) {
-	unsigned char signature[8];
+/**
+ * Read until the PNG_CN_IEND is found.
+ */
+int png_read_iend(FZ* f, const unsigned char* data, unsigned data_size, unsigned type)
+{
+	if (type == PNG_CN_IEND)
+		return 0;
 
-	if (fzread(signature,8,1,f) != 1) {
+	/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
+	if ((type & 0x20000000) == 0) {
+		char buf[4];
+		be_uint32_write(buf, type);
+		png_error_unsupported("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
 		return -1;
 	}
 
-	if (memcmp(signature,PNG_Signature,8)!=0) {
-		return -1;
+	while (1) {
+		unsigned char* ptr;
+		unsigned ptr_size;
+
+		/* read next */
+		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0) {
+			return -1;
+		}
+
+		free(ptr);
+
+		if (type == PNG_CN_IEND)
+			return 0;
+
+		/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
+		if ((type & 0x20000000) == 0) {
+			char buf[4];
+			be_uint32_write(buf, type);
+			png_error_unsupported("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
+			return -1;
+		}
 	}
 
 	return 0;
 }
 
-struct bitmap* png_load(FZ* f, video_color* rgb, unsigned* rgb_max) {
+/**
+ * Read a from the PNG_CN_IHDR chunk to the PNG_CN_IEND chunk.
+ */
+int png_read_ihdr(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	FZ* f, const unsigned char* data, unsigned data_size
+) {
+	unsigned char* ptr;
+	unsigned ptr_size;
 	unsigned type;
-	unsigned char* data;
-	unsigned size;
-	unsigned char* dat_ptr;
-	unsigned dat_size;
 	unsigned long res_size;
-	unsigned bytes_per_pixel;
+	unsigned pixel;
 	unsigned width;
 	unsigned width_align;
 	unsigned height;
 	unsigned depth;
-	unsigned i;
 	int r;
 	z_stream z;
 
-	if (png_read_signature(f) != 0)
+	*dat_ptr = 0;
+	*pix_ptr = 0;
+	*pal_ptr = 0;
+
+	if (data_size != 13) {
+		png_error("Invalid IHDR size %d instead of 13", data_size);
 		goto err;
+	}
 
-	if (png_read_chunk(f, &data, &size, &type) != 0)
-		goto err;
-
-	if (size != 13)
-		goto err_data;
-
-	width = read_be_u32(data + 0);
-	height = read_be_u32(data + 4);
+	*pix_width = width = be_uint32_read(data + 0);
+	*pix_height = height = be_uint32_read(data + 4);
 
 	depth = data[8];
 	if (data[9] == 3 && depth == 8) {
-		bytes_per_pixel = 1;
+		pixel = 1;
 		width_align = width;
 	} else if (data[9] == 3 && depth == 4) {
-		bytes_per_pixel = 1;
+		pixel = 1;
 		width_align = (width + 1) & ~1;
 	} else if (data[9] == 3 && depth == 2) {
-		bytes_per_pixel = 1;
+		pixel = 1;
 		width_align = (width + 3) & ~3;
 	} else if (data[9] == 3 && depth == 1) {
-		bytes_per_pixel = 1;
+		pixel = 1;
 		width_align = (width + 7) & ~7;
 	} else if (data[9] == 2 && depth == 8) {
-		bytes_per_pixel = 3;
+		pixel = 3;
 		width_align = width;
-	} else
-		goto err_data;
-	if (data[10] != 0) /* compression */
-		goto err_data;
-	if (data[11] != 0) /* filter */
-		goto err_data;
-	if (data[12] != 0) /* interlace */
-		goto err_data;
+	} else {
+		png_error_unsupported("Unsupported bit depth/color type, %d/%d", (unsigned)data[8], (unsigned)data[9]);
+		goto err;
+	}
+	*pix_pixel = pixel;
 
-	free(data);
+	if (data[10] != 0) { /* compression */
+		png_error_unsupported("Unsupported compression, %d instead of 0", (unsigned)data[10]);
+		goto err;
+	}
+	if (data[11] != 0) { /* filter */
+		png_error_unsupported("Unsupported filter, %d instead of 0", (unsigned)data[11]);
+		goto err;
+	}
+	if (data[12] != 0) { /* interlace */
+		png_error_unsupported("Unsupported interlace %d",(unsigned)data[12]);
+		goto err;
+	}
 
-	if (png_read_chunk(f, &data, &size, &type) != 0)
+	if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0)
 		goto err;
 
 	while (type != PNG_CN_PLTE && type != PNG_CN_IDAT) {
-		free(data);
+		free(ptr);
 
-		if (png_read_chunk(f, &data, &size, &type) != 0)
+		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0)
 			goto err;
 	}
 
 	if (type == PNG_CN_PLTE) {
-		unsigned char* p;
-		unsigned n;
-
-		if (bytes_per_pixel != 1)
-			goto err_data;
-
-		if (size > 256*3)
-			goto err_data;
-
-		p = data;
-		n = size / 3;
-		for(i=0;i<n;++i) {
-			rgb[i].red = *p++;
-			rgb[i].green = *p++;
-			rgb[i].blue = *p++;
-			rgb[i].alpha = 0;
+		if (pixel != 1) {
+			png_error("Unexpected PLTE chunk");
+			goto err_ptr;
 		}
-		*rgb_max = n;
 
-		free(data);
+		if (ptr_size > 256*3) {
+			png_error("Invalid palette size in PLTE chunk");
+			goto err_ptr;
+		}
 
-		if (png_read_chunk(f, &data, &size, &type) != 0)
+		*pal_ptr = ptr;
+		*pal_size = ptr_size;
+
+		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0)
 			goto err;
 	} else {
-		if (bytes_per_pixel != 3)
-			goto err_data;
+		if (pixel != 3) {
+			png_error("Missing PLTE chunk");
+			goto err_ptr;
+		}
 
-		*rgb_max = 0;
+		*pal_ptr = 0;
+		*pal_size = 0;
 	}
 
 	while (type != PNG_CN_IDAT) {
-		free(data);
+		free(ptr);
 
-		if (png_read_chunk(f, &data, &size, &type) != 0)
+		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0)
 			goto err;
 	}
 
-	dat_size = height * (width_align * bytes_per_pixel + 1);
-	dat_ptr = malloc(dat_size);
+	*dat_size = height * (width_align * pixel + 1);
+	*dat_ptr = malloc(*dat_size);
+	*pix_scanline = width_align * pixel + 1;
+	*pix_ptr = *dat_ptr + 1;
 
 	z.zalloc = 0;
 	z.zfree = 0;
-	z.next_out = dat_ptr;
-	z.avail_out = dat_size;
+	z.next_out = *dat_ptr;
+	z.avail_out = *dat_size;
 	z.next_in = 0;
 	z.avail_in = 0;
 
 	r = inflateInit(&z);
 
 	while (r == Z_OK && type == PNG_CN_IDAT) {
-		z.next_in = data;
-		z.avail_in = size;
+		z.next_in = ptr;
+		z.avail_in = ptr_size;
 
 		r = inflate(&z, Z_NO_FLUSH);
 
-		free(data);
+		free(ptr);
 
-		if (png_read_chunk(f, &data, &size, &type) != 0) {
+		if (png_read_chunk(f, &ptr, &ptr_size, &type) != 0) {
 			inflateEnd(&z);
-			free(dat_ptr);
 			goto err;
 		}
 	}
@@ -534,54 +670,115 @@ struct bitmap* png_load(FZ* f, video_color* rgb, unsigned* rgb_max) {
 
 	inflateEnd(&z);
 
-	if (r != Z_STREAM_END)
-		goto err_data_ptr;
-
-	if (type == PNG_CN_IDAT)
-		goto err_data_ptr;
-
-	if (depth == 8) {
-		if (res_size != dat_size)
-			goto err_data_ptr;
-
-		if (bytes_per_pixel == 1)
-			png_unfilter_8(width * bytes_per_pixel, height, dat_ptr, width_align * bytes_per_pixel + 1);
-		else
-			png_unfilter_24(width * bytes_per_pixel, height, dat_ptr, width_align * bytes_per_pixel + 1);
-
-	} else if (depth == 4) {
-		if (res_size != height * (width_align / 2 + 1))
-			goto err_data_ptr;
-
-		png_unfilter_8(width_align / 2, height, dat_ptr, width_align / 2 + 1);
-
-		png_expand_4(width_align, height, dat_ptr);
-	} else if (depth == 2) {
-		if (res_size != height * (width_align / 4 + 1))
-			goto err_data_ptr;
-
-		png_unfilter_8(width_align / 4, height, dat_ptr, width_align / 4 + 1);
-
-		png_expand_2(width_align, height, dat_ptr);
-	} else if (depth == 1) {
-		if (res_size != height * (width_align / 8 + 1))
-			goto err_data_ptr;
-
-		png_unfilter_8(width_align / 8, height, dat_ptr, width_align / 8 + 1);
-
-		png_expand_1(width_align, height, dat_ptr);
+	if (r != Z_STREAM_END) {
+		png_error("Invalid compressed data");
+		goto err_ptr;
 	}
 
-	free(data);
+	if (depth == 8) {
+		if (res_size != *dat_size) {
+			png_error("Invalid decompressed size");
+			goto err_ptr;
+		}
 
-	return bitmap_import(width, height, bytes_per_pixel * 8, width_align * bytes_per_pixel + 1, dat_ptr + 1, dat_ptr);
+		if (pixel == 1)
+			png_unfilter_8(width * pixel, height, *dat_ptr, width_align * pixel + 1);
+		else
+			png_unfilter_24(width * pixel, height, *dat_ptr, width_align * pixel + 1);
 
-err_data_ptr:
-	free(dat_ptr);
+	} else if (depth == 4) {
+		if (res_size != height * (width_align / 2 + 1)) {
+			png_error("Invalid decompressed size");
+			goto err_ptr;
+		}
+
+		png_unfilter_8(width_align / 2, height, *dat_ptr, width_align / 2 + 1);
+
+		png_expand_4(width_align, height, *dat_ptr);
+	} else if (depth == 2) {
+		if (res_size != height * (width_align / 4 + 1)) {
+			png_error("Invalid decompressed size");
+			goto err_ptr;
+		}
+
+		png_unfilter_8(width_align / 4, height, *dat_ptr, width_align / 4 + 1);
+
+		png_expand_2(width_align, height, *dat_ptr);
+	} else if (depth == 1) {
+		if (res_size != height * (width_align / 8 + 1)) {
+			png_error("Invalid decompressed size");
+			goto err_ptr;
+		}
+
+		png_unfilter_8(width_align / 8, height, *dat_ptr, width_align / 8 + 1);
+
+		png_expand_1(width_align, height, *dat_ptr);
+	}
+
+	if (png_read_iend(f, ptr, ptr_size, type)!=0) {
+		goto err_ptr;
+	}
+
+	free(ptr);
+	return 0;
+
+err_ptr:
+	free(ptr);
+err:
+	free(*dat_ptr);
+	free(*pal_ptr);
+	return -1;
+}
+
+/**
+ * Read a PNG image.
+ */
+int png_read(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	FZ* f
+) {
+	unsigned char* data;
+	unsigned type;
+	unsigned size;
+
+	if (png_read_signature(f) != 0) {
+		goto err;
+	}
+
+	do {
+		if (png_read_chunk(f, &data, &size, &type) != 0) {
+			goto err;
+		}
+
+		switch (type) {
+			case PNG_CN_IHDR :
+				if (png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, f, data, size) != 0)
+					goto err_data;
+				return 0;
+			default :
+				/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
+				if ((type & 0x20000000) == 0) {
+					char buf[4];
+					be_uint32_write(buf, type);
+					png_error_unsupported("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
+					goto err_data;
+				}
+				/* ignored */
+				break;
+		}
+
+		free(data);
+
+	} while (type != PNG_CN_IEND);
+
+	png_error("Invalid PNG file");
+	return -1;
+
 err_data:
 	free(data);
 err:
-	return 0;
+	return -1;
 }
-
-

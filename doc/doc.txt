@@ -26,6 +26,11 @@ SECTION TITLE
 
 	Other text.
 
+	Dotted list:
+	* Description text text text text text text text
+		text text text text text.
+	* Description
+
 NEXT SECTION TITLE
 -----------------------------------------------------------------------------
 
@@ -34,13 +39,7 @@ NEXT SECTION TITLE
 	The "Text" starts after 1 tab
 	The "item" starts after 2 tab
 
-	3) Wrap at column 72.
-
-	4) Add a new line:
-
-	YYYY/MM/DD - Your Name - Description of the changes
-
-	in the VERSION section.
+	3) Wrap at column 90.
 
 	5) Before doing any changes to a file post a message in the
 	devel list to inform all the developers.
@@ -51,5 +50,5 @@ NEXT SECTION TITLE
 		advancemame-devel@lists.sourceforge.net
 
 COPYRIGHT
-	Copyright (C) 2001 Andrea Mazzoleni
+	This file is Copyright (C) 2001 Andrea Mazzoleni.
 

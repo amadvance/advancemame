@@ -391,7 +391,7 @@ char *yytext;
 #define INITIAL 0
 #line 2 "parser.l"
 /*
- * This file is part of the AdvanceMAME project.
+ * This file is part of the Advance project.
  *
  * Copyright (C) 2001 Andrea Mazzoleni
  *
