@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ using namespace std;
 int run_sub(config_state& rs, bool silent)
 {
 
-	log_std(("menu: int_init4 call\n"));
+	log_std(("menu: int_enable call\n"));
 
 	if (!int_enable(rs.video_fontx, rs.video_fonty, rs.video_font_path, rs.video_orientation_effective)) {
 		return EVENT_ESC;
@@ -206,6 +206,15 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	log_std(("menu: play_fill call\n"));
 	play_fill();
 
+	if (is_first) {
+		if (rs.ui_startup != "none") {
+			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
+				int_clip(rs.ui_startup);
+				int_disable();
+			}
+		}
+	}
+
 	bool done = false;
 	bool is_terminate = false;
 	bool is_run = false;
@@ -258,17 +267,6 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	log_std(("menu: menu stop\n"));
 
 	if (is_terminate) {
-		if (rs.ui_exit != "none") {
-			unsigned x , y;
-			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
-				int_image(rs.ui_exit, x, y);
-				int_update();
-				int_disable();
-			}
-		}
-	}
-
-	if (is_terminate) {
 		play_foreground_effect_end(rs.sound_foreground_end);
 		play_background_effect(rs.sound_background_end, PLAY_PRIORITY_END, false);
 	}
@@ -277,7 +275,23 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		play_background_effect(rs.sound_background_start, PLAY_PRIORITY_END, false);
 	}
 
+	// fill the player buffer
+	log_std(("menu: play_fill call\n"));
+	play_fill();
+	bool wait = true;
+
+	if (is_terminate) {
+		if (rs.ui_exit != "none") {
+			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
+				wait = int_clip(rs.ui_exit);
+				int_disable();
+			}
+		}
+	}
+
 	// wait for the sound end
+	if (!wait)
+		play_foreground_stop();
 	log_std(("menu: wait foreground stop\n"));
 	play_foreground_wait();
 	log_std(("menu: background stop\n"));

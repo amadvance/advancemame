@@ -78,6 +78,7 @@ void int_backdrop_set(int index, const resource& res, bool highlight, unsigned a
 void int_backdrop_clear(int index, bool highlight);
 void int_backdrop_redraw_all();
 
+bool int_clip(const std::string& file);
 void int_clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
 void int_clip_clear(int index);
 void int_clip_start(int index);

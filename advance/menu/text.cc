@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2454,6 +2454,45 @@ void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color)
 		y = video_size_y() - dy - y;
 
 	gen_clear_alpha(x, y, dx, dy, color);
+}
+
+bool int_clip(const string& file)
+{
+	unsigned aspectx = int_dx_get();
+	unsigned aspecty = int_dy_get();
+	resource res = file;
+
+	bool wait = true;
+
+	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_BACKDROP, 1, 0, 0, 0, 1.0, false);
+
+	int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
+
+	if (file.find(".mng") != string::npos) {
+		int_clip_set(0, res, aspectx, aspecty, false);
+
+		int_clip_start(0);
+
+		int_update();
+
+		while (!int_event_waiting() && int_clip_is_active(0)) {
+		}
+
+		int_clip_clear(0);
+	} else {
+		int_backdrop_set(0, res, false, aspectx, aspecty);
+
+		int_update();
+	}
+
+	while (int_event_waiting()) {
+		wait = false;
+		int_event_get(false);
+	}
+
+	int_backdrop_done();
+
+	return wait;
 }
 
 bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)

@@ -889,10 +889,8 @@ Configuration
 	For .MNG files only the first frame is used.
 
     ui_exit
-	Defines an exit background image in .PNG or .MNG format displayed when
-	the emulator exits. The image is stretched to fit the screen.
-	The message is displayed only if the option `display_restoreaatexit'
-	is set to `no'.
+	Defines an exit image/clip in .PNG or .MNG format displayed
+	at the frontexit exit. The image is stretched to fit the screen.
 
 	ui_exit FILE | none
 
@@ -900,10 +898,18 @@ Configuration
 		none - No image (default).
 		FILE - File in .PNG or .MNG format to load.
 
-	For .MNG files only the first frame is used.
+    ui_startup
+	Defines a startup image/clip in .PNG or .MNG format displayed
+	at the frontend startup. The image is stretched to fit the screen.
+
+	ui_startup FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
 
     ui_help
-	Defines an help image in .PNG or .MNG format displayed when the
+	Defines an help image/clip in .PNG or .MNG format displayed when the
 	user press F1. The image is stretched to fit the screen.
 
 	ui_help FILE | none
@@ -911,8 +917,6 @@ Configuration
 	Options:
 		none - No image (default).
 		FILE - File in .PNG or .MNG format to load.
-
-	For .MNG files only the first frame is used.
 
     ui_gamemsg
 	One line message displayed when a game is chosen. The

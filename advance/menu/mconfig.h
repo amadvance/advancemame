@@ -401,7 +401,8 @@ public:
 	unsigned ui_translucency; ///< Translucency.
 	std::string ui_back; ///< User interface background
 	std::string ui_help; ///< User interface help
-	std::string ui_exit; ///< User interface exit image
+	std::string ui_exit; ///< User interface exit image/clip
+	std::string ui_startup; ///< User interface startup image/clip
 	unsigned ui_left; ///< User interface left border
 	unsigned ui_right; ///< User interface right border
 	unsigned ui_top; ///< User interface top border

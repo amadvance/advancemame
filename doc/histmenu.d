@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.7 2005/03
+	) Added a new `ui_startup' option to display a clip/image
+		at the menu startup.
+	) Extended the `ui_help' and `ui_exit' option to
+		allow to display also a clip.
+
 AdvanceMENU Version 2.4.6 2005/02
 	) Before running any external program all the
 		privileges of suid/gid programs are dropped.

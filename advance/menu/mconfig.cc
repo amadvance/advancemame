@@ -308,6 +308,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "ui_background", "none");
 	conf_string_register_default(config_context, "ui_help", "none");
 	conf_string_register_default(config_context, "ui_exit", "none");
+	conf_string_register_default(config_context, "ui_startup", "none");
 	conf_int_register_limit_default(config_context, "ui_skipbottom", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skiptop", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skipleft", 0, 1000, 0);
@@ -768,6 +769,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!config_path(conf_string_get_default(config_context, "ui_help"), ui_help))
 		return false;
 	if (!config_path(conf_string_get_default(config_context, "ui_exit"), ui_exit))
+		return false;
+	if (!config_path(conf_string_get_default(config_context, "ui_startup"), ui_startup))
 		return false;
 	ui_left = conf_int_get_default(config_context, "ui_skipleft");
 	ui_right = conf_int_get_default(config_context, "ui_skipright");

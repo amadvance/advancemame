@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -246,6 +246,12 @@ void play_foreground_wait()
 bool play_foreground_is_active()
 {
 	return mixer_is_playing(CHANNEL_FOREGROUND);
+}
+
+void play_foreground_stop()
+{
+	play_priority[CHANNEL_FOREGROUND] = PLAY_PRIORITY_NONE;
+	mixer_stop(CHANNEL_FOREGROUND);
 }
 
 void play_background_effect(const resource& s, unsigned priority, bool loop)

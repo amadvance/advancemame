@@ -1018,12 +1018,12 @@ int run_submenu(config_state& rs)
 
 void run_help(config_state& rs)
 {
+	bool wait = true;
+
 	int_clear(COLOR_HELP_NORMAL.background);
 
 	if (rs.ui_help != "none") {
-		unsigned x, y;
-
-		int_image(rs.ui_help, x, y);
+		wait = int_clip(rs.ui_help);
 	} else {
 		if (rs.ui_back != "none") {
 			unsigned x, y;
@@ -1155,7 +1155,8 @@ void run_help(config_state& rs)
 		}
 	}
 
-	int_event_get();
+	if (wait)
+		int_event_get();
 }
 
 // ------------------------------------------------------------------------
