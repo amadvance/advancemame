@@ -152,25 +152,28 @@ static struct KeyboardInfo input_key_map[] = {
 /*
  *
  * T - Type
- * J - Joystick number
+ * D - Device number
  * S - Stick number
  * A - Axe number
  * D - Direction
- * M - Mouse number
  * B - Button number
  */
 
-#define CODE_TYPE_JOY_POS 0 /* Joy axe - DAAASSSJJJTT */
-#define CODE_TYPE_JOY_BUTTON 1 /* Joy button - BBBBJJJTT */
-#define CODE_TYPE_MOUSE_BUTTON 2 /* Mouse button - BBBBMMMTT */
+#define CODE_TYPE_JOYPOS 0 /* Joy axe - DAAASSSDDDTT */
+#define CODE_TYPE_JOYBUTTON 1 /* Joy button - BBBBDDDTT */
+#define CODE_TYPE_MOUSEBUTTON 2 /* Mouse button - BBBBDDDTT */
+#define CODE_TYPE_TRAK 3 /* Track - AAADDDTT */
 
 #define CODE_TYPE_GET(i) ((i) & 0x3)
-#define CODE_JOY_GET(i) (((i) >> 2) & 0x7)
-#define CODE_STICK_GET(i) (((i) >> 5) & 0x7)
-#define CODE_AXE_GET(i) (((i) >> 8) & 0x7)
-#define CODE_DIR_GET(i) (((i) >> 11) & 0x1)
-#define CODE_MOUSE_GET(i) (((i) >> 2) & 0x7)
-#define CODE_BUTTON_GET(i) (((i) >> 5) & 0xF)
+#define CODE_JOYPOS_DEV_GET(i) (((i) >> 2) & 0x7)
+#define CODE_JOYPOS_STICK_GET(i) (((i) >> 5) & 0x7)
+#define CODE_JOYPOS_AXE_GET(i) (((i) >> 8) & 0x7)
+#define CODE_JOYPOS_DIR_GET(i) (((i) >> 11) & 0x1)
+#define CODE_JOYPOS_BUTTON_GET(i) (((i) >> 5) & 0xF)
+#define CODE_MOUSEBUTTON_DEV_GET(i) (((i) >> 2) & 0x7)
+#define CODE_MOUSEBUTTON_BUTTON_GET(i) (((i) >> 5) & 0xF)
+#define CODE_TRAK_DEV_GET(i) (((i) >> 2) & 0x7)
+#define CODE_TRAK_AXE_GET(i) (((i) >> 5) & 0x7)
 
 #define CODE_JOY_MAX 8
 #define CODE_STICK_MAX 8
@@ -179,12 +182,11 @@ static struct KeyboardInfo input_key_map[] = {
 #define CODE_MOUSE_MAX 8
 #define CODE_BUTTON_MAX 16
 
-#define CODE_JOY_STICK(joy,stick) (CODE_TYPE_JOY_POS | (joy) << 2 | (stick) << 5)
-#define CODE_JOY_STICK_AXE(joy,stick,axe) (CODE_TYPE_JOY_POS | (joy) << 2 | (stick) << 5 | (axe) << 8)
-#define CODE_JOY_STICK_AXE_DIR(joy,stick,axe,dir) (CODE_TYPE_JOY_POS | (joy) << 2 | (stick) << 5 | (axe) << 8 | (dir) << 11)
-#define CODE_JOY_BUTTON(joy,button) (CODE_TYPE_JOY_BUTTON | (joy) << 2 | (button) << 5)
-#define CODE_MOUSE_BUTTON(mouse,button) (CODE_TYPE_MOUSE_BUTTON | (mouse) << 2 | (button) << 5)
-#define CODE_MOUSE(mouse) (CODE_TYPE_MOUSE_BUTTON | (mouse) << 2)
+#define CODE_JOY_STICK_AXE(joy,stick,axe) (CODE_TYPE_JOYPOS | (joy) << 2 | (stick) << 5 | (axe) << 8)
+#define CODE_JOY_STICK_AXE_DIR(joy,stick,axe,dir) (CODE_TYPE_JOYPOS | (joy) << 2 | (stick) << 5 | (axe) << 8 | (dir) << 11)
+#define CODE_JOYBUTTON(joy,button) (CODE_TYPE_JOYBUTTON | (joy) << 2 | (button) << 5)
+#define CODE_MOUSE_BUTTON(mouse,button) (CODE_TYPE_MOUSEBUTTON | (mouse) << 2 | (button) << 5)
+#define CODE_TRAK(dev,axe) (CODE_TYPE_TRAK | (dev) << 2 | (axe) << 5)
 
 /* Max number of joystick different input */
 #define INPUT_MAX 512
@@ -205,42 +207,42 @@ static int input_joyequiv_map[][2] = {
 	{ CODE_JOY_STICK_AXE_DIR(0,0,0,0), JOYCODE_1_RIGHT },
 	{ CODE_JOY_STICK_AXE_DIR(0,0,1,1), JOYCODE_1_UP },
 	{ CODE_JOY_STICK_AXE_DIR(0,0,1,0), JOYCODE_1_DOWN },
-	{ CODE_JOY_BUTTON(0,0), JOYCODE_1_BUTTON1 },
-	{ CODE_JOY_BUTTON(0,1), JOYCODE_1_BUTTON2 },
-	{ CODE_JOY_BUTTON(0,2), JOYCODE_1_BUTTON3 },
-	{ CODE_JOY_BUTTON(0,3), JOYCODE_1_BUTTON4 },
-	{ CODE_JOY_BUTTON(0,4), JOYCODE_1_BUTTON5 },
-	{ CODE_JOY_BUTTON(0,5), JOYCODE_1_BUTTON6 },
+	{ CODE_JOYBUTTON(0,0), JOYCODE_1_BUTTON1 },
+	{ CODE_JOYBUTTON(0,1), JOYCODE_1_BUTTON2 },
+	{ CODE_JOYBUTTON(0,2), JOYCODE_1_BUTTON3 },
+	{ CODE_JOYBUTTON(0,3), JOYCODE_1_BUTTON4 },
+	{ CODE_JOYBUTTON(0,4), JOYCODE_1_BUTTON5 },
+	{ CODE_JOYBUTTON(0,5), JOYCODE_1_BUTTON6 },
 	{ CODE_JOY_STICK_AXE_DIR(1,0,0,1), JOYCODE_2_LEFT },
 	{ CODE_JOY_STICK_AXE_DIR(1,0,0,0), JOYCODE_2_RIGHT },
 	{ CODE_JOY_STICK_AXE_DIR(1,0,1,1), JOYCODE_2_UP },
 	{ CODE_JOY_STICK_AXE_DIR(1,0,1,0), JOYCODE_2_DOWN },
-	{ CODE_JOY_BUTTON(1,0), JOYCODE_2_BUTTON1 },
-	{ CODE_JOY_BUTTON(1,1), JOYCODE_2_BUTTON2 },
-	{ CODE_JOY_BUTTON(1,2), JOYCODE_2_BUTTON3 },
-	{ CODE_JOY_BUTTON(1,3), JOYCODE_2_BUTTON4 },
-	{ CODE_JOY_BUTTON(1,4), JOYCODE_2_BUTTON5 },
-	{ CODE_JOY_BUTTON(1,5), JOYCODE_2_BUTTON6 },
+	{ CODE_JOYBUTTON(1,0), JOYCODE_2_BUTTON1 },
+	{ CODE_JOYBUTTON(1,1), JOYCODE_2_BUTTON2 },
+	{ CODE_JOYBUTTON(1,2), JOYCODE_2_BUTTON3 },
+	{ CODE_JOYBUTTON(1,3), JOYCODE_2_BUTTON4 },
+	{ CODE_JOYBUTTON(1,4), JOYCODE_2_BUTTON5 },
+	{ CODE_JOYBUTTON(1,5), JOYCODE_2_BUTTON6 },
 	{ CODE_JOY_STICK_AXE_DIR(2,0,0,1), JOYCODE_3_LEFT },
 	{ CODE_JOY_STICK_AXE_DIR(2,0,0,0), JOYCODE_3_RIGHT },
 	{ CODE_JOY_STICK_AXE_DIR(2,0,1,1), JOYCODE_3_UP },
 	{ CODE_JOY_STICK_AXE_DIR(2,0,1,0), JOYCODE_3_DOWN },
-	{ CODE_JOY_BUTTON(2,0), JOYCODE_3_BUTTON1 },
-	{ CODE_JOY_BUTTON(2,1), JOYCODE_3_BUTTON2 },
-	{ CODE_JOY_BUTTON(2,2), JOYCODE_3_BUTTON3 },
-	{ CODE_JOY_BUTTON(2,3), JOYCODE_3_BUTTON4 },
-	{ CODE_JOY_BUTTON(2,4), JOYCODE_3_BUTTON5 },
-	{ CODE_JOY_BUTTON(2,5), JOYCODE_3_BUTTON6 },
+	{ CODE_JOYBUTTON(2,0), JOYCODE_3_BUTTON1 },
+	{ CODE_JOYBUTTON(2,1), JOYCODE_3_BUTTON2 },
+	{ CODE_JOYBUTTON(2,2), JOYCODE_3_BUTTON3 },
+	{ CODE_JOYBUTTON(2,3), JOYCODE_3_BUTTON4 },
+	{ CODE_JOYBUTTON(2,4), JOYCODE_3_BUTTON5 },
+	{ CODE_JOYBUTTON(2,5), JOYCODE_3_BUTTON6 },
 	{ CODE_JOY_STICK_AXE_DIR(3,0,0,1), JOYCODE_4_LEFT },
 	{ CODE_JOY_STICK_AXE_DIR(3,0,0,0), JOYCODE_4_RIGHT },
 	{ CODE_JOY_STICK_AXE_DIR(3,0,1,1), JOYCODE_4_UP },
 	{ CODE_JOY_STICK_AXE_DIR(3,0,1,0), JOYCODE_4_DOWN },
-	{ CODE_JOY_BUTTON(3,0), JOYCODE_4_BUTTON1 },
-	{ CODE_JOY_BUTTON(3,1), JOYCODE_4_BUTTON2 },
-	{ CODE_JOY_BUTTON(3,2), JOYCODE_4_BUTTON3 },
-	{ CODE_JOY_BUTTON(3,3), JOYCODE_4_BUTTON4 },
-	{ CODE_JOY_BUTTON(3,4), JOYCODE_4_BUTTON5 },
-	{ CODE_JOY_BUTTON(3,5), JOYCODE_4_BUTTON6 }
+	{ CODE_JOYBUTTON(3,0), JOYCODE_4_BUTTON1 },
+	{ CODE_JOYBUTTON(3,1), JOYCODE_4_BUTTON2 },
+	{ CODE_JOYBUTTON(3,2), JOYCODE_4_BUTTON3 },
+	{ CODE_JOYBUTTON(3,3), JOYCODE_4_BUTTON4 },
+	{ CODE_JOYBUTTON(3,4), JOYCODE_4_BUTTON5 },
+	{ CODE_JOYBUTTON(3,5), JOYCODE_4_BUTTON6 }
 };
 
 /*
@@ -329,7 +331,7 @@ static void input_init_joystick(void)
 				strncpy(input_joyname_map[mac],buf,INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = CODE_JOY_BUTTON(i,j);
+				input_joy_map[mac].code = CODE_JOYBUTTON(i,j);
 				++mac;
 			}
 		}
@@ -358,25 +360,25 @@ static __inline__ int input_is_joy_pressed(int joycode)
 	unsigned type = CODE_TYPE_GET(joycode);
 
 	switch (type) {
-		case CODE_TYPE_JOY_POS : {
-			unsigned j = CODE_JOY_GET(joycode);
-			unsigned s = CODE_STICK_GET(joycode);
-			unsigned a = CODE_AXE_GET(joycode);
-			unsigned d = CODE_DIR_GET(joycode);
+		case CODE_TYPE_JOYPOS : {
+			unsigned j = CODE_JOYPOS_DEV_GET(joycode);
+			unsigned s = CODE_JOYPOS_STICK_GET(joycode);
+			unsigned a = CODE_JOYPOS_AXE_GET(joycode);
+			unsigned d = CODE_JOYPOS_DIR_GET(joycode);
 			if (j < os_joy_count_get() && s < os_joy_stick_count_get(j) && a < os_joy_stick_axe_count_get(j,s))
 				return os_joy_stick_axe_digital_get(j,s,a,d);
 			break;
 		}
-		case CODE_TYPE_JOY_BUTTON : {
-			unsigned j = CODE_JOY_GET(joycode);
-			unsigned b = CODE_BUTTON_GET(joycode);
+		case CODE_TYPE_JOYBUTTON : {
+			unsigned j = CODE_JOYPOS_DEV_GET(joycode);
+			unsigned b = CODE_JOYPOS_BUTTON_GET(joycode);
 			if (j < os_joy_count_get() && b < os_joy_button_count_get(j))
 				return os_joy_button_get(j,b);
 			break;
 		}
-		case CODE_TYPE_MOUSE_BUTTON : {
-			unsigned m = CODE_MOUSE_GET(joycode);
-			unsigned b = CODE_BUTTON_GET(joycode);
+		case CODE_TYPE_MOUSEBUTTON : {
+			unsigned m = CODE_MOUSEBUTTON_DEV_GET(joycode);
+			unsigned b = CODE_MOUSEBUTTON_BUTTON_GET(joycode);
 			if (m < os_mouse_count_get() && b < os_mouse_button_count_get(m))
 				return os_mouse_button_get(m,b);
 			break;
@@ -419,8 +421,13 @@ int advance_input_init(struct advance_input_context* context, struct conf_contex
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		char tag[32];
 		char def[32];
-		sprintf(tag,"input_map[%d,track]",i);
-		sprintf(def,"mouse[%d]",i);
+
+		sprintf(tag,"input_map[%d,trakx]",i);
+		sprintf(def,"mouse[%d,0]",i);
+		conf_string_register_default(cfg_context, tag, def);
+
+		sprintf(tag,"input_map[%d,traky]",i);
+		sprintf(def,"mouse[%d,1]",i);
 		conf_string_register_default(cfg_context, tag, def);
 	}
 
@@ -477,7 +484,13 @@ void advance_input_update(struct advance_input_context* context, int is_pause)
 
 	input_keyboard_update(context);
 
+	/* forced exit due idle timeout */
 	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * OS_CLOCKS_PER_SEC) {
+		context->state.input_forced_exit_flag = 1;
+	}
+
+	/* forced exit requested by the operating system */
+	if (os_is_term()) {
 		context->state.input_forced_exit_flag = 1;
 	}
 
@@ -519,16 +532,29 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		char tag[32];
 		int mouse;
-		sprintf(tag,"input_map[%d,track]",i);
+		int axe;
+
+		sprintf(tag,"input_map[%d,trakx]",i);
 		s = conf_string_get_default(cfg_context, tag);
-		if (sscanf(s, "mouse[%d]", &mouse)!=1) {
+		if (sscanf(s, "mouse[%d,%d]", &mouse, &axe)!=2) {
 			printf("Invalid argument '%s' for option '%s'\n",s,tag);
-			printf("Valid format is mouse[MOUSE]\n");
+			printf("Valid format is mouse[MOUSE,AXE]\n");
 			return -1;
 		}
 
-		log_std(("advance: input track mapping player:%d <- mouse:%d\n", i, mouse));
-		context->config.trak_map[i] = CODE_MOUSE(mouse);
+		log_std(("advance: input trakx mapping player:%d <- mouse:%d, axe:%d\n", i, mouse, axe));
+		context->config.trakx_map[i] = CODE_TRAK(mouse,axe);
+
+		sprintf(tag,"input_map[%d,traky]",i);
+		s = conf_string_get_default(cfg_context, tag);
+		if (sscanf(s, "mouse[%d,%d]", &mouse, &axe)!=2) {
+			printf("Invalid argument '%s' for option '%s'\n",s,tag);
+			printf("Valid format is mouse[MOUSE,AXE]\n");
+			return -1;
+		}
+
+		log_std(("advance: input traky mapping player:%d <- mouse:%d, axe:%d\n", i, mouse, axe));
+		context->config.traky_map[i] = CODE_TRAK(mouse,axe);
 	}
 
 	s = conf_string_get_default(cfg_context, "device_joystick");
@@ -671,9 +697,9 @@ void osd_analogjoy_read(int player,int analog_axis[MAX_ANALOG_AXES], InputCode a
 			if (i < INPUT_PLAYER_AXE_MAX) {
 
 				unsigned v = context->config.analog_map[player][i];
-				unsigned j = CODE_JOY_GET(v);
-				unsigned s = CODE_STICK_GET(v);
-				unsigned a = CODE_AXE_GET(v);
+				unsigned j = CODE_JOYPOS_DEV_GET(v);
+				unsigned s = CODE_JOYPOS_STICK_GET(v);
+				unsigned a = CODE_JOYPOS_AXE_GET(v);
 
 				if (j < os_joy_count_get()
 					&& s < os_joy_stick_count_get(j)
@@ -731,22 +757,43 @@ void osd_trak_read(int player, int* x, int* y)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
-	if (player < INPUT_PLAYER_MAX) {
-		unsigned v = context->config.trak_map[player];
-		unsigned m = CODE_MOUSE_GET(v);
-
-		if (m < os_mouse_count_get()) {
-			os_mouse_pos_get(m,x,y);
-
-			if (*x || *y)
-				input_something_pressed(context);
-
-			return;
-		}
-	}
-
 	*x = 0;
 	*y = 0;
+
+	if (player < INPUT_PLAYER_MAX) {
+		unsigned vx = context->config.trakx_map[player];
+		unsigned mx = CODE_TRAK_DEV_GET(vx);
+		unsigned ax = CODE_TRAK_AXE_GET(vx);
+		unsigned vy = context->config.traky_map[player];
+		unsigned my = CODE_TRAK_DEV_GET(vy);
+		unsigned ay = CODE_TRAK_AXE_GET(vy);
+
+		if (mx < os_mouse_count_get() && ax < 2) {
+			int v0, v1;
+			os_mouse_pos_get(mx,&v0,&v1);
+
+			if (v0 || v1)
+				input_something_pressed(context);
+
+			if (ax)
+				*x = v0;
+			else
+				*x = v1;
+		}
+
+		if (my < os_mouse_count_get() && ay < 2) {
+			int v0, v1;
+			os_mouse_pos_get(my,&v0,&v1);
+
+			if (v0 || v1)
+				input_something_pressed(context);
+
+			if (ay)
+				*y = v0;
+			else
+				*y = v1;
+		}
+	}
 }
 
 void osd_lightgun_read(int player, int* deltax, int* deltay)

@@ -60,8 +60,8 @@ static __inline__ void internal_copy8_mmx(uint8* dst, uint8* src, unsigned count
 		: "cc"
 	);
 
-	/* Note: the (count) register is masked "+" instead of "" to */
-	/* signal at the compiler that this register is modified and */
+	/* Note: the (count) register is marked "+" instead of "" to */
+	/* inform the compiler that this register is modified and */
 	/* it can't be used to compute the "rest" value */
 
 	while (rest) {
@@ -97,8 +97,8 @@ static __inline__ void internal_copy8_step2_mmx(uint8* dst, uint8* src, unsigned
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (copy8_mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (copy8_mask)
 		: "cc"
 	);
 }
@@ -125,7 +125,7 @@ static __inline__ void internal_copy8_def(uint8* dst, uint8* src, unsigned count
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "cc", "eax"
+		: "cc", "%eax"
 	);
 
 	while (rest) {
@@ -235,8 +235,8 @@ static __inline__ void internal_copy8_step_mmx(uint8* dst, uint8* src, unsigned 
 		"jnz 0b\n"
 		"1:\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "b" (step1)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (step1)
 		: "cc"
 	);
 }
@@ -298,9 +298,9 @@ static __inline__ void internal_copy16_step_mmx(uint16* dst, uint16* src, unsign
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "b" (step1)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (step1)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -374,8 +374,8 @@ static __inline__ void internal_copy32_step_mmx(uint32* dst, uint32* src, unsign
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "b" (step1)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (step1)
 		: "cc"
 	);
 }

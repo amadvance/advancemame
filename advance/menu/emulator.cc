@@ -40,30 +40,30 @@ using namespace std;
 //---------------------------------------------------------------------------
 // emulator
 
-static bool spawn_check(const string& tag, int r, bool ignore_error) {
+static bool spawn_check(int r, bool ignore_error) {
 	if (r == -1) {
 		if (!ignore_error)
-			target_err("error:%s: process not executed (errno: %d)\n", tag.c_str(), (unsigned)errno);
+			target_err("Error process not executed with errno %d.\n", (unsigned)errno);
 		return false;
 	} else if (WIFSTOPPED(r)) {
 		if (!ignore_error)
-			target_err("error:%s: process stopped (signal: %d)\n", tag.c_str(), (unsigned)WSTOPSIG(r));
+			target_err("Error process stopped with signal %d.\n", (unsigned)WSTOPSIG(r));
 		return false;
 	} else if (WIFSIGNALED(r)) {
 		if (!ignore_error)
-			target_err("error:%s: process terminated (signal: %d)\n", tag.c_str(), (unsigned)WTERMSIG(r));
+			target_err("Error process terminated with signal %d.\n", (unsigned)WTERMSIG(r));
 		return false;
 	} else if (WIFEXITED(r)) {
 		if (WEXITSTATUS(r) != 0) {
 			if (!ignore_error)
-				target_err("error:%s: process exited (status: %d)\n", tag.c_str(), (unsigned)WEXITSTATUS(r));
+				target_err("Error process exited with status %d.\n", (unsigned)WEXITSTATUS(r));
 			return false;
 		}
 
 		return true;
 	} else {
 		if (!ignore_error)
-			target_err("error:%s: unknown process error (code: %d)\n", tag.c_str(), (unsigned)r);
+			target_err("Unknown process error code %d.\n", (unsigned)r);
 		return false;
 	}
 }
@@ -107,6 +107,7 @@ bool emulator::is_ready() const {
 
 string emulator::exe_dir_get() const {
 	string dir = file_dir(config_exe_path_get());
+
 	if (dir.length() == 1 && dir[0]=='/')
 		return dir; // save the root slash
 	else
@@ -122,7 +123,7 @@ void emulator::scan_game(const game_set& gar, const string& path, const string& 
 void emulator::scan_dir(const game_set& gar, const string& dir) {
 	DIR* d = opendir(cpath_export(dir));
 	if (!d) {
-		target_err("error:%s: error opening roms directory '%s'\n", user_name_get().c_str(), path_export(dir).c_str());
+		target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
 		return;
 	}
 
@@ -155,7 +156,7 @@ void emulator::scan_dirlist(const game_set& gar, const string& dirlist) {
 void emulator::load_dir(game_set& gar, const string& dir, const string& filterlist) {
 	DIR* d = opendir(cpath_export(dir));
 	if (!d) {
-		target_err("error:%s: error opening roms directory '%s'\n", user_name_get().c_str(), path_export(dir).c_str());
+		target_err("Error in '%s' opening roms directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
 		return;
 	}
 
@@ -238,7 +239,7 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 	else
 		duration = 0;
 
-	bool result = spawn_check(user_name_get(),r,ignore_error);
+	bool result = spawn_check(r,ignore_error);
 
 	text_idle_time_reset();
 
@@ -334,12 +335,75 @@ void emulator::update(const game& g) const {
 		g.preview_sound_set(resource());
 }
 
+bool emulator::validate_config_file(const string& file) const {
+	if (access(cpath_export(file), F_OK) != 0) {
+		target_err("Error opening the '%s' configuration file '%s'. It doesn't exist.\n", user_name_get().c_str(), cpath_export(file));
+		return false;
+	}
+
+	if (access(cpath_export(file), R_OK) != 0) {
+		target_err("Error opening the '%s' configuration file '%s'. It isn't readable.\n", user_name_get().c_str(), cpath_export(file));
+		return false;
+	}
+
+	return true;
+}
+
 //---------------------------------------------------------------------------
 // mame_like
 
-mame_like::mame_like(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
+mame_info::mame_info(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
 	emulator(Aname,Aexe_path,Acmd_arg) {
 }
+
+bool mame_info::load_game(game_set& gar) {
+	struct stat st_info;
+	struct stat st_mame;
+	int err_info;
+	int err_exe;
+
+	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())),dir_cwd());
+
+	err_info = stat(cpath_export(info_file), &st_info);
+	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
+
+	if (file_ext(config_exe_path_get()) != ".bat"
+		&& err_exe==0
+		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)) {
+		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
+
+		char cmd[TARGET_MAXCMD];
+		sprintf(cmd,"%s -listinfo > %s", cpath_export(config_exe_path_get()),cpath_export(info_file));
+
+		int r = target_system(cmd);
+
+		bool result = spawn_check(r,false);
+		if (!result)
+			return false;
+	}
+
+	FILE* f = fopen(cpath_export(info_file),"rt");
+	if (!f) {
+		target_err("Error opening the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
+		target_err("Try running manually the command: '%s -listinfo > %s'.\n", user_name_get().c_str(), user_exe_path.c_str(), cpath_export(info_file));
+		return false;
+	}
+	if (!gar.load(f,this)) {
+		target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
+		return false;
+	}
+
+	fclose(f);
+
+	return true;
+}
+
+void mame_info::update(const game& g) const {
+	emulator::update(g);
+}
+
+//---------------------------------------------------------------------------
+// mame_cfg
 
 static bool fread_uint32be(unsigned& v, FILE* f) {
 	v = 0;
@@ -367,65 +431,16 @@ static bool fskip(unsigned size, FILE* f) {
 	return fseek(f,size,SEEK_CUR)==0;
 }
 
-bool mame_like::load_game(game_set& gar) {
-	struct stat st_info;
-	struct stat st_mame;
-	int err_info;
-	int err_exe;
-
-	string info_file = path_abs(path_import(file_config_file_home( (user_name_get() + ".lst").c_str())),dir_cwd());
-
-	err_info = stat(cpath_export(info_file), &st_info);
-	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
-
-	if (file_ext(config_exe_path_get()) != ".bat"
-		&& err_exe==0
-		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)) {
-		target_out("info:%s: updating the file '%s'\n", user_name_get().c_str(), cpath_export(info_file));
-
-		char cmd[TARGET_MAXCMD];
-		sprintf(cmd,"%s -listinfo > %s", cpath_export(config_exe_path_get()),cpath_export(info_file));
-
-		int r = target_system(cmd);
-
-		bool result = spawn_check(user_name_get(),r,false);
-		if (!result)
-			return false;
-	}
-
-	FILE* f = fopen(cpath_export(info_file),"rt");
-	if (!f) {
-		target_err("error:%s: file '%s' not found!", user_name_get().c_str(), cpath_export(info_file));
-		target_err("error:%s: run manually the command: '%s -listinfo > %s'\n", user_name_get().c_str(), user_exe_path.c_str(), cpath_export(info_file));
-		return false;
-	}
-	if (!gar.load(f,this)) {
-		target_err("error:%s: loading game information from file '%s' at row %d column %d\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
-		return false;
-	}
-
-	fclose(f);
-
-	return true;
+mame_cfg::mame_cfg(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
+	mame_info(Aname,Aexe_path,Acmd_arg) {
 }
 
-void mame_like::update(const game& g) const {
-	emulator::update(g);
-}
-
-//---------------------------------------------------------------------------
-// mame_emu
-
-mame_emu::mame_emu(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_like(Aname,Aexe_path,Acmd_arg) {
-}
-
-bool mame_emu::load_data(const game_set& gar) {
+bool mame_cfg::load_data(const game_set& gar) {
 	load_game_cfg_dir(gar,cfg_path_get());
 	return true;
 }
 
-bool mame_emu::load_game_coin(const string& file, unsigned& total_coin) const {
+bool mame_cfg::load_game_coin(const string& file, unsigned& total_coin) const {
 	FILE* f = fopen(cpath_export(file),"rb");
 	if (!f)
 		goto out;
@@ -475,10 +490,10 @@ out:
 	return false;
 }
 
-void mame_emu::load_game_cfg_dir(const game_set& gar, const string& dir) const {
+void mame_cfg::load_game_cfg_dir(const game_set& gar, const string& dir) const {
 	DIR* d = opendir(cpath_export(dir));
 	if (!d) {
-		target_err("error:%s: error opening cfg directory '%s'\n", user_name_get().c_str(), cpath_export(dir));
+		target_err("Error opening the '%s' .cfg files directory '%s'.\n", user_name_get().c_str(), cpath_export(dir));
 		return;
 	}
 
@@ -502,11 +517,11 @@ void mame_emu::load_game_cfg_dir(const game_set& gar, const string& dir) const {
 	closedir(d);
 }
 
-bool mame_emu::load_software(game_set&) {
+bool mame_cfg::load_software(game_set&) {
 	return true;
 }
 
-bool mame_emu::run(const game& g, bool ignore_error) const {
+bool mame_cfg::run(const game& g, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -548,7 +563,7 @@ bool mame_emu::run(const game& g, bool ignore_error) const {
 // dmame
 
 dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_emu(Aname,Aexe_path,Acmd_arg) {
+	mame_cfg(Aname,Aexe_path,Acmd_arg) {
 }
 
 string dmame::type_get() const {
@@ -559,7 +574,10 @@ bool dmame::load_cfg(const game_set& gar) {
 	const char* s;
 	struct conf_context* context;
 
-	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame_emu.cfg";
+	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.cfg";
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -624,7 +642,7 @@ bool dmame::load_cfg(const game_set& gar) {
 // wmame
 
 wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_emu(Aname,Aexe_path,Acmd_arg) {
+	mame_cfg(Aname,Aexe_path,Acmd_arg) {
 }
 
 string wmame::type_get() const {
@@ -635,7 +653,10 @@ bool wmame::load_cfg(const game_set& gar) {
 	const char* s;
 	struct conf_context* context;
 
-	string config_file = path_abs(path_import(file_config_file_home("mame.ini")),exe_dir_get());
+	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.ini";
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -700,7 +721,7 @@ bool wmame::load_cfg(const game_set& gar) {
 // wmame
 
 xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_emu(Aname,Aexe_path,Acmd_arg) {
+	mame_cfg(Aname,Aexe_path,Acmd_arg) {
 }
 
 string xmame::type_get() const {
@@ -721,6 +742,9 @@ bool xmame::load_cfg(const game_set& gar) {
 	home_dir += ".xmame";
 
 	string config_file = path_import(home_dir + "/xmamerc");
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -782,7 +806,7 @@ bool xmame::load_cfg(const game_set& gar) {
 // advmame
 
 advmame::advmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_emu(Aname,Aexe_path,Acmd_arg) {
+	mame_cfg(Aname,Aexe_path,Acmd_arg) {
 }
 
 string advmame::type_get() const {
@@ -794,6 +818,9 @@ bool advmame::load_cfg(const game_set& gar) {
 	struct conf_context* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advmame.rc")),exe_dir_get());
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -858,7 +885,7 @@ bool advmame::load_cfg(const game_set& gar) {
 // advpac
 
 advpac::advpac(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_emu(Aname,Aexe_path,Acmd_arg) {
+	mame_cfg(Aname,Aexe_path,Acmd_arg) {
 }
 
 string advpac::type_get() const {
@@ -870,6 +897,9 @@ bool advpac::load_cfg(const game_set& gar) {
 	struct conf_context* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advpac.rc")),exe_dir_get());
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -934,7 +964,7 @@ bool advpac::load_cfg(const game_set& gar) {
 // mess
 
 dmess::dmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_like(Aname,Aexe_path,Acmd_arg) {
+	mame_info(Aname,Aexe_path,Acmd_arg) {
 }
 
 string dmess::type_get() const {
@@ -950,6 +980,9 @@ bool dmess::load_cfg(const game_set& gar) {
 	struct conf_context* context;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "mess.cfg";
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -1070,7 +1103,7 @@ void dmess::scan_software(game_container& gac, const game_set& gar) {
 void dmess::scan_alias(game_set& gar, game_container& gac, const string& cfg) {
 	ifstream f(cpath_export(cfg));
 	if (!f) {
-		target_err("error:%s: error opening '%s' for alias\n", user_name_get().c_str(), cpath_export(cfg));
+		target_err("Error opening the '%s' configuration file '%s' for reading the alias.\n", user_name_get().c_str(), cpath_export(cfg));
 		return;
 	}
 
@@ -1130,6 +1163,9 @@ bool dmess::load_software(game_set& gar) {
 	game_container gac;
 
 	string config_file = slash_add(file_dir(config_exe_path_get())) + "mess.cfg";
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	scan_alias(gar,gac,config_file);
 	scan_software(gac,gar);
@@ -1227,7 +1263,7 @@ bool dmess::run(const game& g, bool ignore_error) const {
 // advmess
 
 advmess::advmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_like(Aname,Aexe_path,Acmd_arg) {
+	mame_info(Aname,Aexe_path,Acmd_arg) {
 }
 
 string advmess::type_get() const {
@@ -1243,6 +1279,9 @@ bool advmess::load_cfg(const game_set& gar) {
 	struct conf_context* context;
 
 	string config_file = path_abs(path_import(file_config_file_home("advmess.rc")),exe_dir_get());
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -1638,7 +1677,10 @@ bool draine::load_cfg(const game_set& gar) {
 	const char* s;
 	struct conf_context* context;
 
-	string config_file = slash_add(exe_dir_get()) + "config/raine.cfg";
+	string config_file = slash_add(file_dir(config_exe_path_get())) + "config/raine.cfg";
+
+	if (!validate_config_file(config_file))
+		return false;
 
 	context = conf_init();
 
@@ -1722,26 +1764,26 @@ bool draine::load_game(game_set& gar) {
 	if (file_ext(config_exe_path_get()) != ".bat"
 		&& err_exe==0
 		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime)) {
-		target_out("info:%s: updating the file '%s'\n", user_name_get().c_str(), cpath_export(info_file));
+		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
 		char cmd[TARGET_MAXCMD];
 		sprintf(cmd,"%s -gameinfo > %s",cpath_export(config_exe_path_get()),cpath_export(info_file));
 
 		int r = target_system(cmd);
 
-		bool result = spawn_check(user_name_get(),r,false);
+		bool result = spawn_check(r,false);
 		if (!result)
 			return false;
 	}
 
 	FILE* f = fopen(cpath_export(info_file),"rt");
 	if (!f) {
-		target_err("error:%s: file '%s' not found!", user_name_get().c_str(), cpath_export(info_file));
-		target_err("error:%s: run manually the command: '%s -listinfo > %s'\n", user_name_get().c_str(), user_exe_path.c_str(), cpath_export(info_file));
+		target_err("Error opening the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
+		target_err("Try running manually the command: '%s -listinfo > %s'.\n", user_name_get().c_str(), user_exe_path.c_str(), cpath_export(info_file));
 		return false;
 	}
 	if (!gar.load(f,this)) {
-		target_err("error:%s: loading game information from file '%s' at row %d column %d\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
+		target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
 		return false;
 	}
 

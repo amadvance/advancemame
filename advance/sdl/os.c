@@ -224,13 +224,6 @@ void os_poll(void) {
 	}
 }
 
-void os_idle(void) {
-	SDL_Delay(1);
-}
-
-void os_usleep(unsigned us) {
-}
-
 /***************************************************************************/
 /* Keyboard */
 

@@ -21,6 +21,6 @@ LIBRARIES
 	SEAL - Copyright Carlos Hasan
 	MPGLIB - http://www.mpg123.de - Copyright Michael Hipp
 	zlib - http://www.gzip.org/zlib - Copyright Jean-loup Gailly and Mark Adler
-	sLang - http://www.s-lang.org - Copyright John E. Davis
+	S-Lang - http://www.s-lang.org - Copyright John E. Davis
 	SDL - http://www.libsdl.org - Copyright Sam Lantinga
 

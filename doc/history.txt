@@ -1,13 +1,20 @@
 AdvanceMAME Version 0.61.2 2002/07
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
-		in a Window Manager.
+		in a Window Manager. But it isn't a good choice for
+		a fullscreen use of the program because it can't
+		generate `perfect' video mode.
 	) Added the HOST_SYSTEM section in the makefile.
 	) Added the `windows' target in the Makefile. It use the `sdl'
 		system.
 	) Added the `device_sdl_fullscreen' option to force the use of
 		a fullscreen mode with the SDL library.
 	) Readded the basic `vbe' driver.
+	) Added the MMX detection in the linux and windows targets.
+		Previously the MMX presence was assumed.
+	) Splitted the input_map[,trak] option in the input_map[,trakx]
+		and input_map[,traky] options. Now you can assign
+		different axes from different mouses.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

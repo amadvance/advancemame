@@ -53,6 +53,22 @@ void target_done(void) {
 }
 
 /***************************************************************************/
+/* Scheduling */
+
+void target_yield(void) {
+	/* clear the keyboard BIOS buffer */
+	while (kbhit())
+		getkey();
+}
+
+void target_idle(void) {
+	target_yield();
+}
+
+void target_usleep(unsigned us) {
+}
+
+/***************************************************************************/
 /* Hardware */
 
 void target_port_set(unsigned addr, unsigned value) {
@@ -69,14 +85,6 @@ void target_writeb(unsigned addr, unsigned char c) {
 
 unsigned char target_readb(unsigned addr) {
 	return _farpeekb(_dos_ds, addr);
-}
-
-/***************************************************************************/
-/* MMX */
-
-int target_mmx_get(void) {
-	/* TODO Remove the Allegro dependency */
-	return cpu_mmx;
 }
 
 /***************************************************************************/

@@ -731,7 +731,6 @@ static void video_cancel(struct advance_record_context* context) {
 }
 
 static void video_freq_step(unsigned* base, unsigned* step, double freq) {
-
 	unsigned b = 0;
 	unsigned s;
 	double err;

@@ -58,7 +58,7 @@ static __inline__ void internal_unchained8(uint8* dst, uint8* src, unsigned coun
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "cc", "eax"
+		: "cc", "%eax"
 	);
 
 	switch (rest) {
@@ -108,9 +108,9 @@ static __inline__ void internal_unchained8_step2(uint8* dst, uint8* src, unsigne
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
-		: "cc", "eax"
+		: "cc", "%eax"
 	);
 }
 #else
@@ -154,8 +154,8 @@ static __inline__ void internal_unchained8_double(uint8* dst, uint8* src, unsign
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
 		: "cc", "eax"
 	);
 }

@@ -49,7 +49,7 @@
 
 struct file_context {
 	char file_legacy_buffer[FILE_MAXPATH];
-	char file_home_legacy[FILE_MAXPATH];
+	char file_home_buffer[FILE_MAXPATH];
 	char universal_map[UNIVERSAL_MAX][UNIVERSAL_SIZE];
 	unsigned universal_mac;
 };
@@ -226,8 +226,8 @@ const char* file_config_file_root(const char* file) {
 }
 
 const char* file_config_file_home(const char* file) {
-	sprintf(FL.file_home_legacy,"%s",file);
-	return FL.file_home_legacy;
+	sprintf(FL.file_home_buffer,"%s",file);
+	return FL.file_home_buffer;
 }
 
 const char* file_config_file_legacy(const char* file) {

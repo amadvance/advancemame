@@ -84,7 +84,7 @@ void run(void) {
 		}
 
 		os_poll();
-		os_idle();
+		target_idle();
 	}
 }
 

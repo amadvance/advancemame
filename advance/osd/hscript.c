@@ -466,6 +466,9 @@ void hardware_script_inner_done(void) {
 		script_run_free(STATE.map[i].state);
 		free(STATE.text_map[i]);
 	}
+
+	/* free the lex buffer */
+	script_flush();
 }
 
 void hardware_script_abort(void) {

@@ -36,6 +36,22 @@ MENUOBJ = obj/menu/$(BINARYDIR)
 RCFLAGS += --include-dir advance/lib
 
 ############################################################################
+# EMU
+
+ifeq ($(HOST_TARGET),linux)
+EMUCFLAGS += \
+	-DPI=M_PI \
+	-Dstricmp=strcasecmp \
+	-Dstrnicmp=strncasecmp
+endif
+
+ifeq ($(HOST_TARGET),windows)
+EMUCFLAGS += \
+	-DPI=3.1415927 \
+	-DM_PI=3.1415927
+endif
+
+############################################################################
 # Target and Core
 
 SYSTEMCFLAGS += \
@@ -54,21 +70,11 @@ OBJDIRS += \
 	$(OBJ)/advance/$(HOST_SYSTEM)
 
 ifeq ($(HOST_TARGET),linux)
-TARGETCFLAGS += \
-	-DPI=M_PI \
-	-Dstricmp=strcasecmp \
-	-Dstrnicmp=strncasecmp
 TARGETLIBS += -lm
 ifdef USE_SMP
 TARGETCFLAGS += -DUSE_SMP
 TARGETLIBS += -lpthread
 endif
-endif
-
-ifeq ($(HOST_TARGET),windows)
-TARGETCFLAGS += \
-	-DPI=3.1415927 \
-	-DM_PI=3.1415927
 endif
 
 ifeq ($(HOST_SYSTEM),linux)
@@ -194,14 +200,6 @@ SYSTEMOBJS += \
 SYSTEMCFLAGS += -DNO_STDIO_REDIRECT
 SYSTEMOBJS += $(OBJ)/advance/sdl/sdlmwin.o
 endif
-endif
-
-ifdef WRAPALLOC
-TARGETOSOBJS += $(OBJ)/advance/osd/allocw.o
-TARGETLDFLAGS += -Xlinker --wrap -Xlinker malloc -Xlinker --wrap -Xlinker free -Xlinker --wrap -Xlinker realloc -Xlinker --wrap -Xlinker strdup
-else
-TARGETOSOBJS += $(OBJ)/advance/osd/allocz.o
-TARGETLDFLAGS += -Xlinker --wrap -Xlinker malloc
 endif
 
 ############################################################################
@@ -1089,6 +1087,7 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/game.o \
 	$(MENUOBJ)/menu/mconfig.o \
 	$(MENUOBJ)/menu/menu.o \
+	$(MENUOBJ)/menu/submenu.o \
 	$(MENUOBJ)/menu/mm.o \
 	$(MENUOBJ)/menu/play.o \
 	$(MENUOBJ)/menu/playsnd.o \
@@ -1895,6 +1894,9 @@ linuxsdldistmenubin:
 mame:
 	$(MAKE) EMU=mame emu
 
+mame586:
+	$(MAKE) $(ARCH_PENTIUM) EMU=mame emu
+
 neomame:
 	$(MAKE) EMU=neomame emu
 
@@ -1906,6 +1908,9 @@ messmame:
 
 pacmame:
 	$(MAKE) EMU=pac emu
+
+menu586:
+	$(MAKE) $(ARCH_PENTIUM) menu
 
 wholemame:
 	$(MAKE) dist

@@ -29,6 +29,7 @@
  */
 
 #include "blit.h"
+#include "target.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -39,6 +40,34 @@
 
 #if defined(USE_ASM_i586)
 
+static void blit_cpuid(unsigned level, unsigned* regs) {
+	__asm__ __volatile__(
+		"pushal\n"
+		".byte 0x0F, 0xA2\n"
+		"movl %%eax,(%1)\n"
+		"movl %%ebx,4(%1)\n"
+		"movl %%ecx,8(%1)\n"
+		"movl %%edx,12(%1)\n"
+		"popal\n"
+		:
+		: "a" (level), "D" (regs)
+		: "cc"
+	);
+}
+
+static int blit_has_mmx(void) {
+	unsigned regs[4];
+
+	blit_cpuid(0, regs);
+	if (regs[0] > 0) {
+		blit_cpuid(1, regs);
+		if ((regs[3] & 0x800000) != 0)
+			return 1;
+	}
+
+	return 0;
+}
+
 #if !defined(USE_ASM_MMX)
 
 /* Support the the both condition. MMX present or not */
@@ -46,9 +75,10 @@
 int the_blit_mmx = 0;
 #define BLITTER(name) (the_blit_mmx ? name##_mmx : name##_def)
 
-int video_blit_set_mmx(int mmx_version) {
-	the_blit_mmx = mmx_version;
-	return 1;
+static int blit_set_mmx(void) {
+	the_blit_mmx = blit_has_mmx();
+
+	return 0;
 }
 
 static __inline__ void internal_end(void)
@@ -67,10 +97,11 @@ static __inline__ void internal_end(void)
 #define the_blit_mmx 1
 #define BLITTER(name) (name##_mmx)
 
-int video_blit_set_mmx(int mmx_version) {
-	if (!mmx_version)
-		return 0;
-	return 1;
+static int blit_set_mmx(void) {
+	if (!blit_has_mmx())
+		return -1;
+
+	return 0;
 }
 
 static __inline__ void internal_end(void)
@@ -89,8 +120,8 @@ static __inline__ void internal_end(void)
 #define the_blit_mmx 0
 #define BLITTER(name) (name##_def)
 
-int video_blit_set_mmx(int mmx_version) {
-	return 1;
+static int blit_set_mmx(void) {
+	return 0;
 }
 
 static __inline__ void internal_end(void)
@@ -231,6 +262,30 @@ static void video_buffer_init(void) {
 static void video_buffer_done(void) {
 	assert(fast_buffer_mac == 0);
 	free(fast_buffer);
+}
+
+/***************************************************************************/
+/* init/done */
+
+video_error video_blit_init(void) {
+	unsigned i;
+
+	if (blit_set_mmx() != 0) {
+		target_err("This executable requires an MMX processor.\n");
+		return -1;
+	}
+
+	for(i=0;i<256;++i) {
+		mask8_set_all[i] = i | i << 8 | i << 16 | i << 24;
+	}
+
+	video_buffer_init();
+
+	return 0;
+}
+
+void video_blit_done(void) {
+	video_buffer_done();
 }
 
 /***************************************************************************/
@@ -1376,23 +1431,6 @@ static __inline__ void video_stage_stretchy_11_set(struct video_stage_vert_struc
 
 	/* try to activate the plane put if avaliable */
 	video_stage_planey_set(stage_vert);
-}
-
-/***************************************************************************/
-/* inizialization */
-
-/* Inizialize the stretch system */
-void video_stretch_init(void) {
-	unsigned i;
-	for(i=0;i<256;++i) {
-		mask8_set_all[i] = i | i << 8 | i << 16 | i << 24;
-	}
-	video_buffer_init();
-}
-
-/* Deinizialize */
-void video_stretch_done(void) {
-	video_buffer_done();
 }
 
 /***************************************************************************/

@@ -122,8 +122,8 @@ static __inline__ void internal_mean64_vert_self_mmx(void* dst, void* src, unsig
 		"addl $8,%1\n"
 		"decl %2\n"
 		"jnz 0b\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mean_mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mean_mask)
 		: "cc"
 	);
 }
@@ -253,8 +253,8 @@ static __inline__ void internal_mean8_horz_next_step1_mmx(uint8* dst, uint8* src
 		"paddd %%mm2,%%mm0\n"
 		"movq %%mm0,(%1)\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mean_mask), "r" (mean8_horz_step1_mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mean_mask), "r" (mean8_horz_step1_mask)
 		: "cc"
 	);
 }
@@ -322,8 +322,8 @@ static __inline__ void internal_mean16_horz_next_step2_mmx(uint16* dst, uint16* 
 		"paddd %%mm2,%%mm0\n"
 		"movq %%mm0,(%1)\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mean_mask), "r" (mean16_horz_step2_mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mean_mask), "r" (mean16_horz_step2_mask)
 		: "cc"
 	);
 }
@@ -391,8 +391,8 @@ static __inline__ void internal_mean32_horz_next_step4_mmx(uint32* dst, uint32* 
 		"paddd %%mm2,%%mm0\n"
 		"movq %%mm0,(%1)\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mean_mask), "r" (mean32_horz_step4_mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mean_mask), "r" (mean32_horz_step4_mask)
 		: "cc"
 	);
 }

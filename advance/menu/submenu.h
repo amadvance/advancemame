@@ -18,35 +18,24 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __MENU_H
-#define __MENU_H
+#ifndef __SUBMENU_H
+#define __SUBMENU_H
 
 #include "mconfig.h"
 
-#include <vector>
-
-// ------------------------------------------------------------------------
-// Menu array
-
-class menu_entry {
-	const game* g;
-	std::string desc;
-	unsigned ident;
-public:
-	menu_entry(const game* Ag, unsigned Aident);
-	menu_entry(const std::string& desc);
-
-	bool has_game() const { return g != 0; }
-	const game& game_get() const { return *g; }
-	bool is_selectable() const { return has_game(); }
-	const std::string& desc_get() const { return has_game() ? game_get().description_get() : desc; }
-	unsigned ident_get() const { return ident; }
-
-	std::string category(sort_item_func* category_extract);
-};
-
-typedef std::vector<menu_entry*> menu_array;
-
-int run_menu(config_state& rs, bool flipxy);
+void run_help();
+void run_sort(config_state& rs);
+void run_exclude(config_state& rs);
+void run_type(config_state& rs);
+void run_type_move(config_state& rs);
+void run_group(config_state& rs);
+void run_group_move(config_state& rs);
+void run_clone(config_state& rs);
+void run_command(config_state& rs);
+void run_emu(config_state& rs);
+void run_emu_next(config_state& rs);
+void run_submenu(config_state& rs);
+void run_runinfo(config_state& rs);
+void run_calib(config_state& rs);
 
 #endif

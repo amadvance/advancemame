@@ -120,7 +120,7 @@ ifndef HOST_TARGET
 HOST_TARGET=$(HOST_BUILD)
 endif
 
-# Core environment
+# System environment
 ifndef HOST_SYSTEM
 ifeq ($(HOST_TARGET),windows)
 HOST_SYSTEM=sdl
@@ -137,13 +137,35 @@ BINARYTAG = $(HOST_TARGET)-$(HOST_SYSTEM)-$(ARCH)
 endif
 BINARYDIR = $(HOST_TARGET)/$(HOST_SYSTEM)/$(ARCH)
 
+# Check
+ifeq (,$(findstring $(HOST_TARGET),/linux/dos/windows/))
+$(error Invalid HOST_TARGET=$(HOST_TARGET))
+endif
+ifeq (,$(findstring $(HOST_SYSTEM),/linux/dos/sdl/))
+$(error Invalid HOST_SYSTEM=$(HOST_SYSTEM))
+endif
+ifeq ($(HOST_TARGET),linux)
+ifeq (,$(findstring $(HOST_SYSTEM),/linux/sdl/))
+$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
+endif
+endif
+ifeq ($(HOST_TARGET),dos)
+ifeq (,$(findstring $(HOST_SYSTEM),/dos/))
+$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
+endif
+endif
+ifeq ($(HOST_TARGET),windows)
+ifeq (,$(findstring $(HOST_SYSTEM),/sdl/))
+$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
+endif
+endif
+
 ############################################################################
 # Tool options
 
 MAKE = @make -j 2
 MD = -@mkdir -p
 RM = @rm -f
-UPX = @upx -q -q -q
 ECHO = @echo
 # Don't add the prefix @. This command must be used also in a sheel
 INSTALL = install
@@ -158,6 +180,8 @@ INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 OBJ = obj/$(EMU)/$(BINARYDIR)
 
 ifeq ($(HOST_TARGET),linux)
+# Don't compress the linux executables. I like to see the ldd dependencies.
+UPX = @true
 LN = @ln -s
 EXE =
 ASMFLAGS = -f elf
@@ -165,6 +189,7 @@ CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
 ZLIBS = -lz
 endif
 ifeq ($(HOST_TARGET),dos)
+UPX = @upx -q -q -q
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
@@ -172,6 +197,7 @@ CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
 ZLIBS = -lz
 endif
 ifeq ($(HOST_TARGET),windows)
+UPX = @upx -q -q -q
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
@@ -192,7 +218,7 @@ LD = @gcc
 LDXX = @g++
 ifeq ($(SYMBOLS),1)
 # For the stack backtrace
-LDFLAGS += -rdynamic
+#LDFLAGS += -rdynamic
 endif
 SDLCFLAGS = $(shell sdl-config --cflags)
 SDLLIBS = $(shell sdl-config --libs)

@@ -1927,12 +1927,14 @@ int os_main(int argc, char* argv[]) {
 
 	video_init();
 
-	video_blit_set_mmx(target_mmx_get());
+	if (video_blit_init() != 0) {
+		goto err_video;
+	}
 
 	if (monitor_load(the_config, &the_monitor) != 0) {
 		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
 		printf("%s\n",video_error_description_get());
-		goto err_video;
+		goto err_blit;
 	}
 
 	log_std(("v: pclock %.3f - %.3f\n",(double)the_monitor.pclock.low,(double)the_monitor.pclock.high));
@@ -1948,7 +1950,7 @@ int os_main(int argc, char* argv[]) {
 	if (res<0) {
 		fprintf(stderr,"Error loading the format options from the configuration file %s.\n", opt_rc);
 		fprintf(stderr,"%s\n", video_error_description_get());
-		goto err_video;
+		goto err_blit;
 	}
 	if (res>0) {
 		generate_default_vga(&the_interpolate.map[0].gen);
@@ -1961,7 +1963,7 @@ int os_main(int argc, char* argv[]) {
 	if (res<0) {
 		fprintf(stderr,"Error loading the gtf options from the configuration file %s.\n", opt_rc);
 		fprintf(stderr,"%s\n", video_error_description_get());
-		goto err_video;
+		goto err_blit;
 	}
 	if (res>0) {
 		gtf_default_vga(&the_gtf);
@@ -1993,7 +1995,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_crtc_container_load(the_config, &selected) != 0) {
 		fprintf(stderr,video_error_description_get());
-		goto err_video;
+		goto err_blit;
 	}
 
 	/* union set */
@@ -2021,6 +2023,8 @@ int os_main(int argc, char* argv[]) {
 
 	video_crtc_container_done(&the_modes);
 
+	video_blit_done();
+
 	video_done();
 
 	os_inner_done();
@@ -2039,6 +2043,8 @@ int os_main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 
+err_blit:
+	video_blit_done();
 err_video:
 	video_done();
 	os_inner_done();

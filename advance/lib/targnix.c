@@ -33,6 +33,8 @@
 #include "file.h"
 
 #include <stdlib.h>
+#include <sched.h>
+#include <time.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -51,6 +53,23 @@ void target_done(void) {
 }
 
 /***************************************************************************/
+/* Scheduling */
+
+void target_yield(void) {
+	sched_yield();
+}
+
+void target_idle(void) {
+	struct timespec req;
+	req.tv_sec = 0;
+	req.tv_nsec = 1000000; /* 1 ms */
+	nanosleep(&req, 0);
+}
+
+void target_usleep(unsigned us) {
+}
+
+/***************************************************************************/
 /* Hardware */
 
 void target_port_set(unsigned addr, unsigned value) {
@@ -65,14 +84,6 @@ void target_writeb(unsigned addr, unsigned char c) {
 
 unsigned char target_readb(unsigned addr) {
 	return 0;
-}
-
-/***************************************************************************/
-/* MMX */
-
-int target_mmx_get(void) {
-	/* assume that MMX is always present */
-	return 1;
 }
 
 /***************************************************************************/

@@ -160,7 +160,6 @@ int os_inner_init(const char* title) {
 	signal(SIGSEGV, os_signal);
 	signal(SIGTERM, os_term_signal);
 	signal(SIGHUP, os_signal);
-	signal(SIGKILL, os_signal);
 	signal(SIGPIPE, os_signal);
 	signal(SIGQUIT, os_term_signal);
 	signal(SIGUSR1, os_signal); /* used for malloc failure */
@@ -196,16 +195,6 @@ void os_poll(void) {
 		joystick_update();
 	}
 #endif
-}
-
-void os_idle(void) {
-	struct timespec req;
-	req.tv_sec = 0;
-	req.tv_nsec = 1000000; /* 1 ms */
-	nanosleep(&req, 0);
-}
-
-void os_usleep(unsigned us) {
 }
 
 /***************************************************************************/
@@ -306,6 +295,7 @@ unsigned os_input_get(void) {
 
 	mac = 0;
 	while (mac<max && (mac==0 || OS.input_last)) {
+
 		if (OS.input_last) {
 			map[mac] = OS.input_last;
 			if (mac > 0 && map[mac] == 27) {
@@ -314,8 +304,9 @@ unsigned os_input_get(void) {
 			++mac;
 			OS.input_last = 0;
 		} else {
-			os_idle();
+			target_idle();
 		}
+
 		OS.input_last = vga_getkey();
 	}
 	map[mac] = 0;

@@ -143,6 +143,27 @@ string strip_space(const string& s) {
 	return r;
 }
 
+string strip_comment(const string& s) {
+	bool in = false;
+	bool pred_space = true;
+	string r;
+	for(int i = 0;i<s.length();++i) {
+		if (s[i]=='(' || s[i]=='[') {
+			in = true;
+		} else if (s[i]==')' || s[i]==']') {
+			in = false;
+		} else {
+			if (!in) {
+				if (!isspace(s[i]) || !pred_space) {
+					r += s[i];
+					pred_space = isspace(s[i]);
+				}
+			}
+		}
+	}
+	return r;
+}
+
 bool file_findinzip_byname(const string& zip_file, const string& name, string& file, unsigned& crc) {
 	ZIP* zip;
 	struct zipent* ent;
@@ -456,13 +477,13 @@ string file_read(const string& file) {
 	const char* path = file_config_file_home( file.c_str() );
 
 	if (stat(path,&st)!=0) {
-		target_err("warning: error opening file '%s'\n", path);
+		target_err("Error opening the file '%s'.\n", path);
 		return string("");
 	}
 
 	FILE* f = fopen(path,"rb");
 	if (!f) {
-		target_err("warning: error opening file '%s'\n", path);
+		target_err("Error opening the file '%s'.\n", path);
 		return string("");
 	}
 
@@ -471,7 +492,7 @@ string file_read(const string& file) {
 	if (fread(ssc,st.st_size,1,f)!=1) {
 		operator delete(ssc);
 		fclose(f);
-		target_err("warning: error reading file '%s'\n", path);
+		target_err("Error reading the file '%s'.\n", path);
 		return string("");
 	}
 

@@ -179,7 +179,8 @@ static unsigned backdrop_mac;
 static struct backdrop_t backdrop_map[BACKDROP_MAX];
 
 #define BACKDROP_CACHE_MAX (BACKDROP_MAX*2+1)
-static list<backdrop_data*> backdrop_cache_list;
+typedef list<backdrop_data*> pbackdrop_list;
+static pbackdrop_list* backdrop_cache_list;
 static unsigned backdrop_cache_max;
 
 static double backdrop_expand_factor; // stretch factor
@@ -215,7 +216,7 @@ static bool text_joystick_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_JOY[i].name) {
-		target_err("Invalid argument '%s' for option 'device_joystick'\n",s);
+		target_err("Invalid argument '%s' for option 'device_joystick'.\n",s);
 		target_err("Valid values are:\n");
 		for (i=0;OS_JOY[i].name;++i) {
 			target_err("%8s %s\n", OS_JOY[i].name, OS_JOY[i].desc);
@@ -298,7 +299,7 @@ static bool text_key_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_KEY[i].name) {
-		target_err("Invalid argument '%s' for option 'device_keyboard'\n",s);
+		target_err("Invalid argument '%s' for option 'device_keyboard'.\n",s);
 		target_err("Valid values are:\n");
 		for (i=0;OS_KEY[i].name;++i) {
 			target_err("%8s %s\n", OS_KEY[i].name, OS_KEY[i].desc);
@@ -351,7 +352,7 @@ static bool text_mouse_load(struct conf_context* config_context) {
 		}
 	}
 	if (!OS_MOUSE[i].name) {
-		target_err("Invalid argument '%s' for option 'device_mouse'\n",s);
+		target_err("Invalid argument '%s' for option 'device_mouse'.\n",s);
 		target_err("Valid values are:\n");
 		for (i=0;OS_MOUSE[i].name;++i) {
 			target_err("%8s %s\n", OS_MOUSE[i].name, OS_MOUSE[i].desc);
@@ -457,13 +458,13 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 			// check the clocks only if the driver is programmable
 			if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 				if (!crtc_clock_check(&text_monitor,crtc)) {
-					target_err("The selected mode '%s' is out of your monitor capabilities\n", DEFAULT_GRAPH_MODE);
+					target_err("The selected mode '%s' is out of your monitor capabilities.\n", DEFAULT_GRAPH_MODE);
 					return false;
 				}
 			}
 
 			if (video_mode_generate(&text_current_mode,crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
-				target_err("The selected mode '%s' is out of your video board capabilities\n", DEFAULT_GRAPH_MODE);
+				target_err("The selected mode '%s' is out of your video board capabilities.\n", DEFAULT_GRAPH_MODE);
 				return false;
 			}
 
@@ -566,8 +567,6 @@ void text_init(struct conf_context* config_context) {
 	video_crtc_container_register(config_context);
 
 	video_crtc_container_init(&text_modelines);
-
-	video_stretch_init();
 }
 
 bool text_load(struct conf_context* config_context) {
@@ -621,7 +620,6 @@ bool text_load(struct conf_context* config_context) {
 }
 
 void text_done(void) {
-	video_stretch_done();
 	video_crtc_container_done(&text_modelines);
 	text_mouse_done();
 	text_joystick_done();
@@ -636,6 +634,9 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	text_sound_event_key = sound_event_key;
 
 	video_init();
+
+	if (video_blit_init() != 0)
+		goto out_video;
 
 	// disable generate if the clocks are not available
 	if (!text_has_clock)
@@ -657,7 +658,7 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	}
 
 	if (!text_mode_find(mode_found,text_mode_depth,text_modelines))
-		goto out_video;
+		goto out_blit;
 
 	// if no mode found retry with a different bit depth
 	if (!mode_found) {
@@ -680,23 +681,26 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 		if (bits_per_pixel != text_mode_depth) {
 			text_mode_depth = bits_per_pixel;
 			if (!text_mode_find(mode_found,text_mode_depth,text_modelines))
-				goto out_video;
+				goto out_blit;
 		}
 	}
 
 	if (!mode_found) {
-		target_err("No video modes available\n");
-		goto out_video;
+		target_err("No video modes available for your current configuration.\n");
+		goto out_blit;
 	}
 
 	return true;
 
+out_blit:
+	video_blit_done();
 out_video:
 	video_done();
 	return false;
 }
 
 void text_done2() {
+	video_blit_done();
 	video_done();
 }
 
@@ -1291,12 +1295,14 @@ unsigned text_put_width(const string& s) {
 // Reduce the size of the cache
 static void text_backdrop_cache_reduce() {
 	// limit the cache size
-	while (backdrop_cache_list.size() > backdrop_cache_max) {
-		list<backdrop_data*>::iterator i = backdrop_cache_list.end();
-		--i;
-		backdrop_data* data = *i;
-		backdrop_cache_list.erase(i);
-		delete data;
+	if (backdrop_cache_list) {
+		while (backdrop_cache_list->size() > backdrop_cache_max) {
+			list<backdrop_data*>::iterator i = backdrop_cache_list->end();
+			--i;
+			backdrop_data* data = *i;
+			backdrop_cache_list->erase(i);
+			delete data;
+		}
 	}
 }
 
@@ -1305,7 +1311,7 @@ static void text_backdrop_cache(backdrop_data* data) {
 	if (data) {
 		if (data->has_bitmap()) {
 			// insert the image in the cache
-			backdrop_cache_list.insert(backdrop_cache_list.begin(),data);
+			backdrop_cache_list->insert(backdrop_cache_list->begin(),data);
 		} else {
 			delete data;
 		}
@@ -1314,7 +1320,7 @@ static void text_backdrop_cache(backdrop_data* data) {
 
 static backdrop_data* text_backdrop_cache_find(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty) {
 	// search in the cache
-	for(list<backdrop_data*>::iterator i=backdrop_cache_list.begin();i!=backdrop_cache_list.end();++i) {
+	for(list<backdrop_data*>::iterator i=backdrop_cache_list->begin();i!=backdrop_cache_list->end();++i) {
 		if ((*i)->res_get() == res
 			&& dx == (*i)->target_dx_get()
 			&& dy == (*i)->target_dy_get()) {
@@ -1323,7 +1329,7 @@ static backdrop_data* text_backdrop_cache_find(const resource& res, unsigned dx,
 			backdrop_data* data = *i;
 
 			// remove from the cache
-			backdrop_cache_list.erase(i);
+			backdrop_cache_list->erase(i);
 
 			return data;
 		}
@@ -1389,14 +1395,16 @@ void text_backdrop_done() {
 	}
 	backdrop_mac = 0;
 
-	for(list<backdrop_data*>::iterator i=backdrop_cache_list.begin();i!=backdrop_cache_list.end();++i)
+	for(list<backdrop_data*>::iterator i=backdrop_cache_list->begin();i!=backdrop_cache_list->end();++i)
 		delete *i;
-	backdrop_cache_list.erase(backdrop_cache_list.begin(),backdrop_cache_list.end());
+	delete backdrop_cache_list;
+	backdrop_cache_list = 0;
 }
 
 void text_backdrop_init(unsigned Abackdrop_missing_color, unsigned Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor) {
-	assert(backdrop_mac == 0 && backdrop_cache_list.size() == 0);
+	assert(backdrop_mac == 0);
 
+	backdrop_cache_list = new pbackdrop_list;
 	backdrop_missing_color = Abackdrop_missing_color;
 	backdrop_box_color = Abackdrop_box_color;
 	backdrop_outline = outline;
@@ -2124,7 +2132,7 @@ int seq_pressed(const unsigned* code)
 static int seq_valid(const unsigned* seq)
 {
 	int j;
-	int positive = 0;
+	int positive = 0; // if isn't a completly negative sequence
 	int pred_not = 0;
 	int operand = 0;
 	for(j=0;j<SEQ_MAX;++j)
@@ -2132,7 +2140,7 @@ static int seq_valid(const unsigned* seq)
 		switch (seq[j])
 		{
 			case OP_NONE :
-				break;
+				return positive && operand;
 			case OP_OR :
 				if (!operand || !positive)
 					return 0;
@@ -2154,6 +2162,7 @@ static int seq_valid(const unsigned* seq)
 				break;
 		}
 	}
+
 	return positive && operand;
 }
 
@@ -2431,7 +2440,7 @@ static void text_idle() {
 		if (text_updating_active) {
 			text_clip_idle();
 			text_box_idle();
-			os_idle();
+			target_idle();
 		}
 	}
 

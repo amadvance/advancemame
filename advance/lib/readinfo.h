@@ -36,11 +36,13 @@ enum info_t {
 	info_string      /* c string automatically converted */
 };
 
+void info_init(void);
+void info_done(void);
+
 const char* info_text_get(void);
 enum info_t info_token_get(FILE* f);
 enum info_t info_skip_value(FILE* f);
 
-void info_reset(void);
 unsigned info_row_get(void);
 unsigned info_col_get(void);
 unsigned info_pos_get(void);

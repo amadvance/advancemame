@@ -82,8 +82,8 @@ static __inline__ void internal_rgb_raw128_012carry_mmx(void* dst, void* src, vo
 		"jnz 0b\n"
 		"1:\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask), "r" (carry)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask), "r" (carry)
 		: "cc"
 	);
 }
@@ -119,8 +119,8 @@ static __inline__ void internal_rgb_raw128_01_mmx(void* dst, void* src, void* ma
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask)
 		: "cc"
 	);
 }
@@ -160,8 +160,8 @@ static __inline__ void internal_rgb_raw64_012carry_mmx(void* dst, void* src, voi
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask), "r" (carry)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask), "r" (carry)
 		: "cc"
 	);
 }
@@ -187,8 +187,8 @@ static __inline__ void internal_rgb_raw64_01_mmx(void* dst, void* src, void* mas
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask)
 		: "cc"
 	);
 }
@@ -220,8 +220,8 @@ static __inline__ void internal_rgb_raw64_12carry_mmx(void* dst, void* src, void
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask), "r" (carry)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask), "r" (carry)
 		: "cc"
 	);
 }
@@ -243,8 +243,8 @@ static __inline__ void internal_rgb_raw64_1_mmx(void* dst, void* src, void* mask
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask)
 		: "cc"
 	);
 }
@@ -266,8 +266,8 @@ static __inline__ void internal_rgb_raw64_2_mmx(void* dst, void* src, void* mask
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (count), "r" (mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask)
 		: "cc"
 	);
 }
@@ -331,8 +331,8 @@ static __inline__ void internal_rgb_raw64x3_012nocarry_mmx(void* dst, void* src,
 
 		"1:\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (count), "b" (mask)
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "r" (mask)
 		: "cc"
 	);
 }

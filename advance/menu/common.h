@@ -62,7 +62,9 @@ inline const char* clist_export(const std::string& s) {
 
 std::string slash_add(const std::string& s);
 std::string slash_remove(const std::string& s);
+
 std::string strip_space(const std::string& s);
+std::string strip_comment(const std::string& s);
 
 std::string file_basename(const std::string& s);
 std::string file_ext(const std::string& s);

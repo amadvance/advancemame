@@ -460,7 +460,8 @@ struct advance_input_config {
 	int disable_special_flag; /**< Disable the special OS key sequences */
 
 	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX]; /**< Mapping of the analog control */
-	unsigned trak_map[INPUT_PLAYER_MAX]; /**< Mapping of the trak control */
+	unsigned trakx_map[INPUT_PLAYER_MAX]; /**< Mapping of the trakx control */
+	unsigned traky_map[INPUT_PLAYER_MAX]; /**< Mapping of the traky control */
 };
 
 struct advance_input_state {

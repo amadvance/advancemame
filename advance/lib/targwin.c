@@ -63,6 +63,20 @@ void target_done(void) {
 }
 
 /***************************************************************************/
+/* Scheduling */
+
+void target_yield(void) {
+	Sleep(0);
+}
+
+void target_idle(void) {
+	Sleep(1);
+}
+
+void target_usleep(unsigned us) {
+}
+
+/***************************************************************************/
 /* Hardware */
 
 void target_port_set(unsigned addr, unsigned value) {
@@ -77,14 +91,6 @@ void target_writeb(unsigned addr, unsigned char c) {
 
 unsigned char target_readb(unsigned addr) {
 	return 0;
-}
-
-/***************************************************************************/
-/* MMX */
-
-int target_mmx_get(void) {
-	/* assume that MMX is always present */
-	return 1;
 }
 
 /***************************************************************************/

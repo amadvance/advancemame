@@ -57,8 +57,8 @@ static __inline__ void internal_double8_mmx(uint8* dst, uint8* src, unsigned cou
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
 		: "cc"
 	);
 }
@@ -85,8 +85,8 @@ static __inline__ void internal_double16_mmx(uint16* dst, uint16* src, unsigned 
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
 		: "cc"
 	);
 }
@@ -113,8 +113,8 @@ static __inline__ void internal_double32_mmx(uint32* dst, uint32* src, unsigned 
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
 		: "cc"
 	);
 }
@@ -143,9 +143,9 @@ static __inline__ void internal_double8_def(uint8* dst, uint8* src, unsigned cou
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
-		: "cc", "eax", "edx"
+		: "cc", "%eax", "%edx"
 	);
 }
 #else
@@ -193,9 +193,9 @@ static __inline__ void internal_double16_def(uint16* dst, uint16* src, unsigned 
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
-		: "cc", "eax", "edx"
+		: "cc", "%eax", "%edx"
 	);
 }
 #else
@@ -227,9 +227,9 @@ static __inline__ void internal_double32_def(uint32* dst, uint32* src, unsigned 
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+S" (src), "+D" (dst), "+c" (count)
 		:
-		: "S" (src), "D" (dst), "c" (count)
-		: "cc", "eax", "edx"
+		: "cc", "%eax", "%edx"
 	);
 }
 #else

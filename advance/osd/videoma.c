@@ -448,9 +448,6 @@ static int video_init_mode(struct advance_video_context* context, video_mode* mo
 	/* initialize the blit pipeline */
 	context->state.blit_pipeline_flag = 0;
 
-	/* inizialize the stretch system */
-	video_stretch_init();
-
 	/* inizialize the update system */
 	update_init( context->config.triplebuf_flag!=0 ? 3 : 1 );
 
@@ -473,7 +470,6 @@ static void video_done_mode(struct advance_video_context* context, int restore) 
 		context->state.blit_pipeline_flag = 0;
 	}
 
-	video_stretch_done();
 	update_done();
 
 	context->state.mode_flag = 0;
@@ -945,9 +941,9 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	if (!crtc) {
 		if (strcmp(context->config.resolution,"auto")==0)
-			target_err("No video modes available for this game\n");
+			target_err("No video modes available for the current game.\n");
 		else
-			target_err("The specified 'display_mode %s' does not exist\n",context->config.resolution);
+			target_err("The specified 'display_mode %s' doesn't exist.\n",context->config.resolution);
 		return -1;
 	}
 
@@ -1230,8 +1226,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		/* if the clock is programmable the monitor specification must be present */
 		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (monitor_is_empty(&context->config.monitor)) {
-				target_err("Missing options `device_video_p/h/vclock'\n");
-				target_err("Please read the file `install.txt' and `advv.txt'\n");
+				target_err("Missing options `device_video_p/h/vclock'.\n");
+				target_err("Please read the file `install.txt' and `advv.txt'.\n");
 				return -1;
 			}
 		}
@@ -1816,7 +1812,7 @@ static double video_frame_wait(double current, double expected) {
 	while (current < expected) {
 		double diff = expected - current;
 
-		os_usleep( diff * 1E6 );
+		target_usleep( diff * 1E6 );
 
 		current = advance_timer();
 	}
@@ -2206,11 +2202,10 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	/* the frame syncronization is out of the time estimation */
 	video_sync_update(context, sound_context, skip_flag);
 
-	/* idle */
-#if 0 /* TODO verficare il comportamento di os_idle() */
-	/* doing it after the sync permits to don't lose the video syncs */
-	os_idle();
-#endif
+	/* do a yield immediatly after the syncronization. */
+	/* If a schedule will be done, better to have it now and not */
+	/* when waiting for the next vsync. */
+	target_yield();
 
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);
@@ -2278,8 +2273,8 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		context->state.thread_state_skip_flag = skip_flag;
 
 		if (sample_count > context->state.thread_state_sample_max) {
-			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, sample_count, sound_context->state.bytes_per_sample * sample_count));
-			context->state.thread_state_sample_max = sample_count;
+			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.bytes_per_sample * 2*sample_count));
+			context->state.thread_state_sample_max = 2*sample_count;
 			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.bytes_per_sample * context->state.thread_state_sample_max);
 			assert(context->state.thread_state_sample_buffer);
 		}
@@ -3104,7 +3099,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	err = monitor_load(cfg_context, &context->config.monitor);
 	if (err<0) {
 		target_err("%s\n", video_error_description_get());
-		target_err("Please read the file `install.txt' and `advv.txt'\n");
+		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	}
 	if (err == 0) {
@@ -3125,7 +3120,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
 	if (err<0) {
 		target_err("%s\n", video_error_description_get());
-		target_err("Please read the file `install.txt' and `advv.txt'\n");
+		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	} else if (err>0) {
 		if (monitor_hclock_check(&context->config.monitor, 15720)) {
@@ -3172,18 +3167,22 @@ int advance_video_inner_init(struct advance_video_context* context, struct mame_
 {
 	video_init();
 
-	if (!video_blit_set_mmx(target_mmx_get())) {
-		target_err("This executable version requires an MMX processor\n");
+	if (video_blit_init() != 0) {
+		video_done();
 		return -1;
 	}
 
 	if (video_config_mode(context,option) != 0) {
+		video_blit_done();
+		video_done();
 		return -1;
 	}
 
 	return 0;
 }
 
-void advance_video_inner_done(struct advance_video_context* context) {
+void advance_video_inner_done(struct advance_video_context* context)
+{
+	video_blit_done();
 	video_done();
 }

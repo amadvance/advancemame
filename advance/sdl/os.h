@@ -58,8 +58,6 @@ void os_done(void);
 int os_inner_init(const char* title);
 void os_inner_done(void);
 void os_poll(void);
-void os_idle(void);
-void os_usleep(unsigned us);
 int os_main(int argc, char* argv[]);
 
 /***************************************************************************/

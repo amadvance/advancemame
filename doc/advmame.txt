@@ -997,11 +997,11 @@ INPUT CONFIGURATION OPTIONS
 	input_map[I,J] joystick[A,B,C]
 
 	Options:
-		I - Number of player 0, 1, 2, 3.
-		J - Number of player axe x, y, z, pedal.
-		A - Number of physical joystick 0, 1, 2, 3...
-		B - Number of physical stick of the josytick 0, 1, 2, 3, ...
-		C - Number of physical axe of the stick 0, 1, 2, 3, ...
+		I - Number of player: 0, 1, 2, 3.
+		J - Name of player axe: x, y, z, pedal.
+		A - Number of physical joystick: 0, 1, 2, 3...
+		B - Number of physical stick of the josytick: 0, 1, 2, 3, ...
+		C - Number of physical axe of the stick: 0, 1, 2, 3, ...
 
 	Default:
 		input_map[0,x] joystick[0,0,0]
@@ -1021,21 +1021,26 @@ INPUT CONFIGURATION OPTIONS
 		input_map[3,z] joystick[3,0,2]
 		input_map[3,pedal] joystick[3,0,3]
 
-    "input_map[,track]"
-	Changes the track control mapping. Map the physical A'n mouse
-	on the I'n player track control.
+    "input_map[,trakx|traky]"
+	Changes the trak control mapping. Map the physical A'n mouse
+	on the I'n player trak control.
 
-	input_map[I,track] mouse[A]
+	input_map[I,trakx|traky] mouse[M,A]
 
 	Options:
-		I - Number of player track control 0, 1, 2, 3.
-		A - Number of physical mouse 0, 1, 2, 3...
+		I - Number of player trak control: 0, 1, 2, 3.
+		M - Number of physical mouse: 0, 1, 2, 3...
+		A - Number of physical mouse axe: 0, 1...
 
 	Default:
-		input_map[0,track] mouse[0]
-		input_map[1,track] mouse[1]
-		input_map[2,track] mouse[2]
-		input_map[3,track] mouse[3]
+		input_map[0,trakx] mouse[0,0]
+		input_map[0,traky] mouse[0,1]
+		input_map[1,trakx] mouse[1,0]
+		input_map[1,traky] mouse[1,1]
+		input_map[2,trakx] mouse[2,0]
+		input_map[2,traky] mouse[2,1]
+		input_map[3,trakx] mouse[3,0]
+		input_map[3,traky] mouse[3,1]
 
 RECORD CONFIGURATION OPTIONS
 	This section describes the options used for the recoring

@@ -387,7 +387,9 @@ static char *yy_last_accepting_cpos;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
+#line 1 "parser.l"
 #define INITIAL 0
+#line 2 "parser.l"
 /*
  * This file is part of the AdvanceMAME project.
  *
@@ -406,6 +408,16 @@ char *yytext;
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * In addition, as a special exception, Andrea Mazzoleni
+ * gives permission to link the code of this program with
+ * the MAME library (or with modified versions of MAME that use the
+ * same license as MAME), and distribute linked combinations including
+ * the two.  You must obey the GNU General Public License in all
+ * respects for all of the code used other than MAME.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
  */
 
 #include <string.h>
@@ -414,6 +426,10 @@ char *yytext;
 #include "y_tab.h"
 
 extern int script_input(char* buf, int max_size);
+
+void script_flush(void) {
+	yy_delete_buffer(YY_CURRENT_BUFFER);
+}
 
 #define YY_INPUT(buf,result,max_size) \
 	{ \
@@ -426,6 +442,7 @@ extern int script_input(char* buf, int max_size);
 
 #define YY_NO_UNPUT
 
+#line 446 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -576,8 +593,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
+#line 61 "parser.l"
 
 
+#line 600 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -662,6 +681,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
+#line 63 "parser.l"
 {
 		if (yytext[0]=='0' && yytext[1]=='b')
 			yylval.val = strtol( yytext+2,0,2 );
@@ -672,18 +692,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
+#line 71 "parser.l"
 {
 		return WAIT;
 	}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
+#line 75 "parser.l"
 {
 		return DELAY;
 	}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
+#line 79 "parser.l"
 {
 		yylval.str = strdup( yytext );
 		return STRING;
@@ -691,46 +714,55 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
+#line 84 "parser.l"
 {
 		return OP_LE;
 	}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
+#line 88 "parser.l"
 {
 		return OP_GE;
 	}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
+#line 92 "parser.l"
 {
 		return OP_E;
 	}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
+#line 96 "parser.l"
 {
 		return OP_SL;
 	}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
+#line 100 "parser.l"
 {
 		return OP_SR;
 	}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
+#line 104 "parser.l"
 /* eat up whitespace */
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
+#line 106 "parser.l"
 return yytext[0];
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-YY_FATAL_ERROR( "flex scanner jammed" );
+#line 107 "parser.l"
+ECHO;
 	YY_BREAK
+#line 766 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1616,3 +1648,4 @@ int main()
 	return 0;
 	}
 #endif
+#line 107 "parser.l"

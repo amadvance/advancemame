@@ -20,6 +20,7 @@
 
 #include "mconfig.h"
 #include "menu.h"
+#include "submenu.h"
 #include "text.h"
 #include "play.h"
 #include "os.h"
@@ -142,7 +143,7 @@ int run_main(config_state& rs, bool is_first) {
 	if (!text_init3(rs.video_gamma, rs.video_brightness,
 		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
 		rs.preview_fast, rs.alpha_mode)) {
-		target_err("Error setting the video mode\n");
+		target_err("Error setting the video mode.\n");
 		return TEXT_KEY_ESC;
 	}
 
@@ -275,7 +276,7 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 
 				if (rs.current_clone) {
 					// save before
-					config_save(rs,config_context);
+					rs.save(config_context);
 
 					// run the game
 					rs.current_clone->emulator_get()->run(*rs.current_clone,key == TEXT_KEY_IDLE_0);
@@ -284,7 +285,7 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
 
 					// save after
-					config_save(rs,config_context);
+					rs.save(config_context);
 					
 					// print the messages
 					target_flush();
@@ -383,11 +384,12 @@ int os_main(int argc, char* argv[]) {
 	config_context = conf_init();
 
 	if (os_init(config_context)!=0) {
-		target_err("Error initializing the OS support\n");
+		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
 
-	config_init(config_context);
+	config_state::conf_register(config_context);
+
 	text_init(config_context);
 	play_reg(config_context);
 
@@ -399,10 +401,10 @@ int os_main(int argc, char* argv[]) {
 		conf_sort(config_context);
 		conf_uncomment(config_context);
 		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
+			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		target_out("Configuration file '%s' created from '%s'\n", file_config_file_home("advmenu.rc"), file_config_file_legacy("mm.cfg"));
+		target_out("Configuration file '%s' created from '%s'.\n", file_config_file_home("advmenu.rc"), file_config_file_legacy("mm.cfg"));
 		goto done_init;
 	}
 #endif
@@ -427,7 +429,7 @@ int os_main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[i],"logsync")) {
 			opt_logsync = true;
 		} else {
-			target_err("Unknown option %s\n",argv[i]);
+			target_err("Unknown option '%s'.\n",argv[i]);
 			goto err_init;
 		}
 	}
@@ -435,7 +437,7 @@ int os_main(int argc, char* argv[]) {
 	if (opt_log || opt_logsync) {
 		remove("advmenu.log");
 		if (log_init("advmenu.log", opt_logsync) != 0) {
-			target_err("Error opening the log file 'advmenu.log'\n");
+			target_err("Error opening the log file 'advmenu.log'.\n");
 			goto err_init;
 		}
 	}
@@ -454,39 +456,39 @@ int os_main(int argc, char* argv[]) {
 
 	if (!(file_config_file_root("advmenu.rc") != 0 && access(file_config_file_root("advmenu.rc"),R_OK)==0)
 		&& !(file_config_file_home("advmenu.rc") != 0 && access(file_config_file_home("advmenu.rc"),R_OK)==0)) {
-		config_default(config_context);
+		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context,"");
 		conf_sort(config_context);
 		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
+			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
 	if (opt_default) {
-		config_default(config_context);
+		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context,"");
 		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'\n", file_config_file_home("advmenu.rc"));
+			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
 	if (opt_remove) {
 		conf_remove_if_default(config_context,"");
 		if (conf_save(config_context,1) != 0) {
-			target_err("Error writing the configuration file '%s'\n",file_config_file_home("advmenu.rc"));
+			target_err("Error writing the configuration file '%s'.\n",file_config_file_home("advmenu.rc"));
 			goto err_init;
 		}
-		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
 
-	if (!config_load(rs,config_context,opt_verbose)) {
+	if (!rs.load(config_context,opt_verbose)) {
 		goto err_init;
 	}
 	if (!text_load(config_context)) {
@@ -497,12 +499,12 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (os_inner_init("AdvanceMENU") != 0) {
-		target_err("Error initializing the os support\n");
+		target_err("Error initializing the inner OS support.\n");
 		goto err_init;
 	}
 
 	if (!text_init2(rs.video_size, rs.video_depth, rs.sound_foreground_key)) {
-		target_err("Error initializing the video device\n");
+		target_err("Error initializing the video device.\n");
 		goto err_inner_init;
 	}
 	
@@ -510,13 +512,13 @@ int os_main(int argc, char* argv[]) {
 	target_flush();
 
 	// set the modifiable data
-	config_restore_load(rs);
+	rs.restore_load();
 
 	key = run_all(config_context,rs);
 
 	// restore or set the changed data
 	if (rs.restore == restore_none) {
-		config_restore_save(rs);
+		rs.restore_save();
 	}
 
 	// print the messages before restoring the video
@@ -525,7 +527,7 @@ int os_main(int argc, char* argv[]) {
 	text_done2();
 	
 	// save all the data
-	config_save(rs,config_context);
+	rs.save(config_context);
 
 	if (opt_log || opt_logsync) {
 		log_done();

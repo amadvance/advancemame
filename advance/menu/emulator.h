@@ -74,6 +74,8 @@ protected:
 	bool run_process(time_t& duration, const std::string& dir, int argc, const char** argv, bool ignore_error) const;
 	unsigned compile(const game& g, const char** argv, unsigned argc, const std::string& list) const;
 
+	bool validate_config_file(const std::string& file) const;
+
 public:
 	emulator(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 	virtual ~emulator();
@@ -129,26 +131,26 @@ public:
 	virtual std::string type_get() const = 0;
 };
 
-class mame_like : public emulator {
+class mame_info : public emulator {
 public:
-	mame_like(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool load_game(game_set& gar);
 	virtual void update(const game& g) const;
 };
 
-class mame_emu : public mame_like {
+class mame_cfg : public mame_info {
 	void load_game_cfg_dir(const game_set& gar, const std::string& dir) const;
 	bool load_game_coin(const std::string& file, unsigned& total_coin) const;
 public:
-	mame_emu(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	mame_cfg(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool run(const game& g, bool ignore_error) const;
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar);
 };
 
-class dmame : public mame_emu {
+class dmame : public mame_cfg {
 public:
 	dmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -156,7 +158,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class wmame : public mame_emu {
+class wmame : public mame_cfg {
 public:
 	wmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -164,7 +166,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class xmame : public mame_emu {
+class xmame : public mame_cfg {
 public:
 	xmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -172,7 +174,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class advmame : public mame_emu {
+class advmame : public mame_cfg {
 public:
 	advmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -180,7 +182,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class advpac : public mame_emu {
+class advpac : public mame_cfg {
 public:
 	advpac(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -188,7 +190,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class advmess : public mame_like {
+class advmess : public mame_info {
 	static std::string image_name_get(const std::string& snap_create, const std::string& name);
 	static std::string clip_name_get(const std::string& clip_create, const std::string& name);
 	static std::string sound_name_get(const std::string& sound_create, const std::string& name);
@@ -211,7 +213,7 @@ public:
 	virtual std::string type_get() const;
 };
 
-class dmess : public mame_like {
+class dmess : public mame_info {
 	static std::string image_name_get(const std::string& snap_create, const std::string& name);
 
 	void scan_software_by_sys(game_container& gac, const std::string& software, const std::string& parent);

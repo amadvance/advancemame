@@ -136,6 +136,11 @@ enum restore_t {
 };
 
 struct config_state {
+
+	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
+	bool load_iterator_game(struct conf_context* config_context, const std::string& tag);
+
+public:
 	game_set gar; // main game list
 	category_container group; // main group list
 	category_container type; // main type list
@@ -144,7 +149,7 @@ struct config_state {
 	bool lock_orig;
 
 	pemulator_container emu; // list of supported emulators
-	pemulator_container emu_active; // list of active emulators
+	pemulator_container emu_active; // list of active emulators, a subset of emu.
 	emulator_container include_emu_effective; // emulator listed
 	emulator_container include_emu_orig; // emulator listed
 
@@ -267,13 +272,18 @@ struct config_state {
 	resource current_sound; // sound used for the current game, "" if none
 
 	bool quiet; // quiet mode
-};
 
-void config_init(struct conf_context* config_context);
-bool config_save(const config_state& rs, struct conf_context* config_context);
-bool config_load(config_state& rs, struct conf_context* config_context, bool opt_verbose);
-void config_restore_load(config_state& rs);
-void config_restore_save(config_state& rs);
-void config_default(struct conf_context* config_context);
+	config_state();
+	~config_state();
+
+	bool load(struct conf_context* config_context, bool opt_verbose);
+	bool save(struct conf_context* config_context) const;
+
+	void restore_load();
+	void restore_save();
+
+	static void conf_register(struct conf_context* config_context);
+	static void conf_default(struct conf_context* config_context);
+};
 
 #endif

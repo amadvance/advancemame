@@ -100,7 +100,7 @@ game::~game() {
 void game::auto_description_set(const std::string& A) const {
 	if (!is_user_description_set()) {
 		if (A.length() >= 4 && A[0]=='T' && A[1]=='h' && A[2]=='e' && A[3]==' ') {
-			description = A.substr(4,A.length() - 4) + " <The>";
+			description = A.substr(4,A.length() - 4) + ", The";
 		} else {
 			description = A;
 		}
@@ -254,7 +254,7 @@ bool game::preview_find_down(resource& path, const resource& (game::*preview_get
 
 	for(pgame_container::const_iterator i=clone_bag_get().begin();i!=clone_bag_get().end();++i) {
 		if ((*i)->name_get() != exclude) {
-			if ((*i)->preview_find_down(path,preview_get,"")) {
+			if ((*i)->preview_find_down(path,preview_get,string())) {
 				return true;
 			}
 		}
@@ -279,7 +279,7 @@ bool game::preview_find(resource& path, const resource& (game::*preview_get)() c
 			return true;
 		}
 	} else {
-		if (preview_find_up(path,preview_get,""))
+		if (preview_find_up(path,preview_get,string()))
 			return true;
 	}
 	return false;
@@ -312,6 +312,13 @@ static const char* manufacturer_strip(const char* s) {
 }
 
 bool game_set::load(FILE* f, const emulator* Aemu) {
+	info_init();
+	bool r = internal_load(f,Aemu);
+	info_done();
+	return r;
+}
+
+bool game_set::internal_load(FILE* f, const emulator* Aemu) {
 	info_t token = info_token_get(f);
 	while (token!=info_eof) {
 		if (token != info_symbol) return false;
@@ -454,16 +461,16 @@ void game_set::sync_relationships() {
 		if (i->cloneof_get().length() != 0) {
 			iterator j = find( game(i->cloneof_get()) );
 			if (j == end()) {
-				target_err("warning: missing definition of cloneof '%s' for game '%s'\n", i->cloneof_get().c_str(), i->name_get().c_str());
-				(const_cast<game*>((&*i)))->cloneof_set("");
+				target_err("Missing definition of cloneof '%s' for game '%s'.\n", i->cloneof_get().c_str(), i->name_get().c_str());
+				(const_cast<game*>((&*i)))->cloneof_set(string());
 				i->parent_set( 0 );
 			} else {
 				i->parent_set( &*j );
 
 				while (j != end()) {
 					if (&*j == &*i) {
-						target_err("warning: circular cloneof reference for game '%s'\n", i->name_get().c_str());
-						(const_cast<game*>((&*i)))->cloneof_set("");
+						target_err("Circular cloneof reference for game '%s'.\n", i->name_get().c_str());
+						(const_cast<game*>((&*i)))->cloneof_set(string());
 						i->parent_set( 0 );
 						break;
 					}
@@ -478,13 +485,13 @@ void game_set::sync_relationships() {
 		if (i->romof_get().length() != 0) {
 			game_set::const_iterator j = find( i->romof_get() );
 			if (j == end()) {
-				target_err("warning: missing definition of romof '%s' for game '%s'\n", i->romof_get().c_str(), i->name_get().c_str());
-				(const_cast<game*>((&*i)))->romof_set("");
+				target_err("Missing definition of romof '%s' for game '%s'.\n", i->romof_get().c_str(), i->name_get().c_str());
+				(const_cast<game*>((&*i)))->romof_set(string());
 			} else {
 				while (j != end()) {
 					if (&*j == &*i) {
-						target_err("warning: circular romof reference for game '%s'\n", i->name_get().c_str());
-						(const_cast<game*>((&*i)))->romof_set("");
+						target_err("Circular romof reference for game '%s'.\n", i->name_get().c_str());
+						(const_cast<game*>((&*i)))->romof_set(string());
 						break;
 					}
 					j = find( j->romof_get() );
@@ -742,5 +749,76 @@ void game_set::import_nms(const string& file, const string& emulator, void (game
 			}
 		}
 	}
+}
+
+// -------------------------------------------------------------------------
+// Sort category
+
+string sort_item_root_name(const game& g) {
+	const game& root = g.root_get();
+
+	string pre = root.description_get().substr(0,1);
+
+	if (pre.length()) {
+		if (!isalpha(pre[0]))
+			pre = "0-9";
+		else
+			pre = toupper(pre[0]);
+	}
+
+	return pre;
+}
+
+string sort_item_name(const game& g) {
+	string pre = g.description_get().substr(0,1);
+
+	if (pre.length()) {
+		if (isdigit(pre[0]))
+			pre = "0-9";
+		else
+			pre = toupper(pre[0]);
+	}
+
+	return pre;
+}
+
+string sort_item_manufacturer(const game& g) {
+	return g.manufacturer_get();
+}
+
+string sort_item_year(const game& g) {
+	if (!g.year_get().length())
+		return "unknown";
+	else
+		return g.year_get();
+}
+
+string sort_item_time(const game& g) {
+	(void)g;
+	return string();
+}
+
+string sort_item_coin(const game& g) {
+	(void)g;
+	return string();
+}
+
+string sort_item_group(const game& g) {
+	return g.group_get();
+}
+
+string sort_item_type(const game& g) {
+	return g.type_get();
+}
+
+string sort_item_size(const game& g) {
+	(void)g;
+	return string();
+}
+
+string sort_item_res(const game& g) {
+	char buffer[32];
+	sprintf(buffer,"%dx%d", g.sizex_get(), g.sizey_get());
+	return buffer;
 }
 

@@ -362,7 +362,6 @@ int os_inner_init(const char* title) {
 	signal(SIGSEGV, os_signal);
 	signal(SIGTERM, os_signal);
 	signal(SIGHUP, os_signal);
-	signal(SIGKILL, os_signal);
 	signal(SIGPIPE, os_signal);
 	signal(SIGQUIT, os_signal);
 	signal(SIGUSR1, os_signal); /* used for malloc failure */
@@ -381,15 +380,6 @@ void os_poll(void) {
 
 	if (keyboard_needs_poll())
 		poll_keyboard();
-}
-
-void os_idle(void) {
-	/* clear the keyboard BIOS buffer */
-	while (kbhit())
-		getkey();
-}
-
-void os_usleep(unsigned us) {
 }
 
 /***************************************************************************/

@@ -35,7 +35,7 @@
 
 #include "SDL.h"
 
-#define FIFO_MAX 65536
+#define FIFO_MAX 32768
 
 struct sound_sdl_context {
 	video_bool active_flag;
@@ -85,7 +85,7 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 {
 	char name[64];
 
-	log_std(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",sound_id,*rate,stereo_flag,buffer_time));
+	log_std(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",(unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
 
 	sdl_state.underflow_flag = 0;
 	sdl_state.fifo_pos = 0;
@@ -153,9 +153,9 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	unsigned i;
 	unsigned count = sample_count * sdl_state.info.channels;
 
-	log_debug(("sound:sdl: sound_sdl_play(count:%d), stored %d\n", sample_count, sdl_state.fifo_mac / sdl_state.info.channels));
-
 	SDL_LockAudio();
+
+	log_debug(("sound:sdl: sound_sdl_play(count:%d), stored %d\n", sample_count, sdl_state.fifo_mac / sdl_state.info.channels));
 
 	if (sdl_state.underflow_flag) {
 		sdl_state.underflow_flag = 0;
@@ -177,6 +177,8 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 		++sample_map;
 	}
 
+	log_debug(("sound:sdl: sound_sdl_play() return stored %d\n", sdl_state.fifo_mac / sdl_state.info.channels));
+
 	SDL_UnlockAudio();
 }
 
@@ -185,7 +187,7 @@ video_error sound_sdl_start(double silence_time) {
 	unsigned sample;
 	unsigned i;
 
-	log_std(("sound:sdl: sound_sdl_start(silence_time:%g)\n",silence_time));
+	log_std(("sound:sdl: sound_sdl_start(silence_time:%g)\n", (double)silence_time));
 
 	for(i=0;i<256;++i)
 		buf[i] = sdl_state.info.silence;

@@ -1471,11 +1471,12 @@ int os_main(int argc, char* argv[]) {
 
 	video_init();
 
-	video_blit_set_mmx(target_mmx_get());
-
+	if (video_blit_init() != 0) {
+		goto err_video;
+	}
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		fprintf(stderr,"Your video board isn't supported.\n");
-		goto err_video;
+		goto err_blit;
 	}
 
 	text_init();
@@ -1573,6 +1574,8 @@ int os_main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 
+err_blit:
+	video_blit_done();
 err_video:
 	video_done();
 	os_inner_done();

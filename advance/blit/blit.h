@@ -232,8 +232,8 @@ static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(con
 /***************************************************************************/
 /* blit */
 
-void video_stretch_init(void);
-void video_stretch_done(void);
+video_error video_blit_init(void);
+void video_blit_done(void);
 
 /***************************************************************************/
 /* pipeline blit */
@@ -291,8 +291,6 @@ static __inline__ void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, 
 
 	video_pipeline_done(&pipeline);
 }
-
-int video_blit_set_mmx(int mmx_version);
 
 #define STAGE_EX(stage,_type,_sdx,_sdp,_sbpp,_dbpp,_palette) \
 	stage->type = (_type); \

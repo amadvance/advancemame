@@ -72,6 +72,8 @@ static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, u
 
 #if defined(USE_ASM_i586)
 static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+	unsigned count = stage->slice.count;
+
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -96,9 +98,9 @@ static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_stru
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (stage->slice.count), "b" (stage->palette)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (stage->palette)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -174,6 +176,8 @@ static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, 
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+	unsigned count = stage->slice.count;
+
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -213,9 +217,9 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 		"jnz 0b\n"
 		"1:\n"
 
-		:
-		: "S" (src), "D" (dst), "c" (stage->slice.count), "b" (stage->palette)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (stage->palette)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -286,9 +290,9 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 		"jnz 0b\n"
 		"1:\n"
 
-		:
-		: "S" (src), "D" (dst), "m" (count), "b" (stage->palette), "c" (stage->sdp)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+m" (count)
+		: "b" (stage->palette), "c" (stage->sdp)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -321,6 +325,8 @@ static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, 
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+	unsigned count = stage->slice.count;
+
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -345,9 +351,9 @@ static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_str
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (stage->slice.count), "b" (stage->palette)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (stage->palette)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -396,9 +402,9 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "m" (count), "b" (stage->palette), "c" (stage->sdp)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+m" (count)
+		: "b" (stage->palette), "c" (stage->sdp)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -426,6 +432,8 @@ static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage,
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
+	unsigned count = stage->slice.count;
+
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -444,9 +452,9 @@ static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_str
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "c" (stage->slice.count), "b" (stage->palette)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+c" (count)
+		: "b" (stage->palette)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif
@@ -487,9 +495,9 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		:
-		: "S" (src), "D" (dst), "m" (count), "b" (stage->palette), "c" (stage->sdp)
-		: "cc", "eax", "edx"
+		: "+S" (src), "+D" (dst), "+m" (count)
+		: "b" (stage->palette), "c" (stage->sdp)
+		: "cc", "%eax", "%edx"
 	);
 }
 #endif

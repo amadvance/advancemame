@@ -36,6 +36,10 @@
 
 extern int script_input(char* buf, int max_size);
 
+void script_flush(void) {
+	yy_delete_buffer(YY_CURRENT_BUFFER);
+}
+
 #define YY_INPUT(buf,result,max_size) \
 	{ \
 		int script_cc = script_input(buf,max_size); \

@@ -254,6 +254,7 @@ void script_port_write(int address,unsigned char value);
 /* Error callback */
 void script_error(const char* s);
 
+void script_flush(void);
 struct script_cmd* script_parse(const char* text);
 void script_free(struct script_cmd* script);
 

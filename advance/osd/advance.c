@@ -29,7 +29,6 @@
  */
 
 #include "advance.h"
-#include "alloc.h"
 #include "hscript.h"
 #include "conf.h"
 #include "video.h"
@@ -200,7 +199,7 @@ static const mame_game* select_game(const char* gamename) {
 
 	game_map = malloc(game_count*sizeof(struct game_fuzzy));
 
-	target_err("Game \"%s\" not supported\n", gamename);
+	target_err("Game \"%s\" isn't supported.\n", gamename);
 
 	limit = (strlen(gamename) - 6) * FUZZY_UNIT_A;
 	if (limit < 4*FUZZY_UNIT_A)
@@ -231,6 +230,7 @@ static const mame_game* select_game(const char* gamename) {
 		}
 	}
 
+	free(game_map);
 	return 0;
 }
 
@@ -495,6 +495,8 @@ static struct conf_conv STANDARD[] = {
 /* 0.61.0 */
 { "*", "input_analog[*]", "*", "", "", "", 0 }, /* ignore */
 { "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
+/* 0.61.1 */
+{ "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -527,8 +529,6 @@ int os_main(int argc, char* argv[])
 	struct conf_context* cfg_context;
 	const char* section_map[4];
 
-	malloc_init();
-
 	opt_info = 0;
 	opt_log = 0;
 	opt_logsync = 0;
@@ -541,7 +541,7 @@ int os_main(int argc, char* argv[])
 	cfg_context = conf_init();
 
 	if (os_init(cfg_context)!=0) {
-		target_err("Error initializing the OS support\n");
+		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
 
@@ -599,12 +599,12 @@ int os_main(int argc, char* argv[])
 			opt_info = 1;
 		} else if (argv[i][0]!='-') {
 			if (opt_gamename) {
-				target_err("Multiple game name definition, '%s' and '%s'\n", opt_gamename, argv[i]);
+				target_err("Multiple game name definition, '%s' and '%s'.\n", opt_gamename, argv[i]);
 				goto err_os;
 			}
 			opt_gamename = argv[i];
 		} else {
-			target_err("Unknown command line option '%s'\n",argv[i]);
+			target_err("Unknown command line option '%s'.\n",argv[i]);
 			goto err_os;
 		}
 	}
@@ -638,7 +638,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (!opt_gamename) {
-		target_err("Game not specified\n");
+		target_err("No game specified.\n");
 		goto err_os;
 	}
 
@@ -659,7 +659,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_log || opt_logsync) {
 		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
-			target_err("Error opening the log file '" ADVANCE_NAME ".log'\n");
+			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
 			goto err_os;
 		}
 	}
@@ -753,8 +753,6 @@ int os_main(int argc, char* argv[])
 
 	conf_done(cfg_context);
 
-	log_std(("advance: malloc_done()\n"));
-
 #ifndef NDEBUG
 	{
 		unsigned i;
@@ -764,13 +762,11 @@ int os_main(int argc, char* argv[])
 	}
 #endif
 
-	malloc_done();
 	return r;
 
 done_os:
 	os_done();
 	conf_done(cfg_context);
-	malloc_done();
 	return 0;
 
 err_os_inner:
@@ -779,6 +775,5 @@ err_os:
 	os_done();
 err_conf:
 	conf_done(cfg_context);
-	malloc_done();
 	return -1;
 }

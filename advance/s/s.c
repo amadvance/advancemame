@@ -161,7 +161,7 @@ int os_main(int argc, char* argv[]) {
 			break;
 
 		mixer_poll();
-		os_idle();
+		target_idle();
 	}
 
 	mixer_done();

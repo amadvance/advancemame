@@ -289,6 +289,8 @@ struct game_by_play_less : std::binary_function<game,game,bool> {
 typedef std::set<game,game_by_name_less> game_by_name_set;
 
 class game_set : public game_by_name_set {
+	bool game_set::internal_load(FILE* f, const emulator* Aemu);
+
 public:
 	typedef game_by_name_set::const_iterator const_iterator;
 	typedef game_by_name_set::iterator iterator;
@@ -417,5 +419,22 @@ inline bool pgame_by_clone_less(const game* A, const game* B) {
 inline bool pgame_by_name_less(const game* A, const game* B) {
 	return A->name_get() < B->name_get();
 }
+
+// -------------------------------------------------------------------------
+// Sort category
+
+// Return the element sorted for fast moving
+typedef std::string sort_item_func(const game& g);
+
+std::string sort_item_root_name(const game& g);
+std::string sort_item_name(const game& g);
+std::string sort_item_manufacturer(const game& g);
+std::string sort_item_year(const game& g);
+std::string sort_item_time(const game& g);
+std::string sort_item_coin(const game& g);
+std::string sort_item_group(const game& g);
+std::string sort_item_type(const game& g);
+std::string sort_item_size(const game& g);
+std::string sort_item_res(const game& g);
 
 #endif

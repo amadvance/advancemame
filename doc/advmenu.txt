@@ -105,7 +105,7 @@ EMULATOR `advmame'
 	available roms. In the DOS version of the program the
 	`advmenu.rc' file is searched in the same directory of the
 	emulator. In the Unix version it's searched in the
-	`PREFIX/share/advance' and `HOME/.advance' directories.
+	`HOME/.advance' directory.
 
     Others
 	The directories specified in `dir_snap', `dir_cfg' are used to
