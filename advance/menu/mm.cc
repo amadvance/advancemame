@@ -368,7 +368,13 @@ int run_all(adv_conf* config_context, config_state& rs)
 static void version(void)
 {
 	char report_buffer[128];
-	target_out("AdvanceMENU %s\n\n", VERSION);
+	target_out("AdvanceMENU %s\n", VERSION);
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	target_out("Compiled %s with gcc-%s\n", __DATE__, COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__));
+#endif
+	target_out("\n");
 
 	target_out("Drivers (in priority order):\n");
 	video_report_driver_all(report_buffer, sizeof(report_buffer));

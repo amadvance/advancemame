@@ -1335,9 +1335,10 @@ static int r128_init(int force, int par1, int par2)
         (id==0x4c57) ||
         (id==0x4c59) ||
         (id==0x4c5a) ||
-        ((id>>8)==0x41) ||
-        ((id>>8)==0x49) ||
-        ((id>>8)==0x4E) ||
+        (id==0x4c66) || /* ATI Mobility Radeon 9000, reported working */
+        ((id>>8)==0x41) || /* new boards */
+        ((id>>8)==0x49) || /* new boards */
+        ((id>>8)==0x4E) || /* new boards */
         ((id>>8)==0x51))
         chiptype = Radeon;
 	

@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.74.2 2003/10
+	) Fixed a computation error in the `hq2/3/4x' effects.
+	) Fixed a bug on the `mean' effect introduced in the last version.
+
+AdvanceMESS Version 0.74.0.1 2003/10
+	) All from AdvanceMAME 0.74.2.
+
 AdvanceMAME Version 0.74.1 2003/09
 	) Added the effects `lq4x' and `hq4x'. The `hq2x' and `hq3x' versions
 		are now exactly like the original effects.

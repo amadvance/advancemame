@@ -221,13 +221,13 @@ static int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 		return 0;
 
 	if (interp_bits_per_pixel == 16) {
-		b = ((p1 & 0x1F) - (p2 & 0x1F)) << 3;
-		g = ((p1 & 0x7E0) - (p2 & 0x7E0)) >> 3;
-		r = ((p1 & 0xF800) - (p2 & 0xF800)) >> 8;
+		b = (int)((p1 & 0x1F) - (p2 & 0x1F)) << 3;
+		g = (int)((p1 & 0x7E0) - (p2 & 0x7E0)) >> 3;
+		r = (int)((p1 & 0xF800) - (p2 & 0xF800)) >> 8;
 	} else {
-		b = ((p1 & 0x1F) - (p2 & 0x1F)) << 3;
-		g = ((p1 & 0x3E0) - (p2 & 0x3E0)) >> 2;
-		r = ((p1 & 0x7C00) - (p2 & 0x7C00)) >> 7;
+		b = (int)((p1 & 0x1F) - (p2 & 0x1F)) << 3;
+		g = (int)((p1 & 0x3E0) - (p2 & 0x3E0)) >> 2;
+		r = (int)((p1 & 0x7C00) - (p2 & 0x7C00)) >> 7;
 	}
 
 	y = r + g + b;
@@ -254,9 +254,9 @@ static int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
 		return 0;
 
-	b = (p1 & 0xFF) - (p2 & 0xFF);
-	g = ((p1 & 0xFF00) - (p2 & 0xFF00)) >> 8;
-	r = ((p1 & 0xFF0000) - (p2 & 0xFF0000)) >> 16;
+	b = (int)((p1 & 0xFF) - (p2 & 0xFF));
+	g = (int)((p1 & 0xFF00) - (p2 & 0xFF00)) >> 8;
+	r = (int)((p1 & 0xFF0000) - (p2 & 0xFF0000)) >> 16;
 
 	y = r + g + b;
 	u = r - b;

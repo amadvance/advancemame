@@ -122,7 +122,7 @@ static struct trident_id trident_id_list[] = {
 { 0x939A, -1, "Trident Cyber 939A/DVD", TRIDENT_CONF_NEW_230, 1, 0 },
 { 0x9520, -1, "Trident Cyber 9520", TRIDENT_CONF_NEW_230, 1, 0 },
 { 0x9525, -1, "Trident Cyber 9525/DVD", TRIDENT_CONF_NEW_230, 1, 0 },
-{ 0x9440, -1, "Trident Cyber 9540", TRIDENT_CONF_NEW_230, 0, 0 },
+{ 0x9540, -1, "Trident Cyber 9540", TRIDENT_CONF_NEW_230, 0, 0 },
 { 0x9750, -1, "Trident 3DImage975", TRIDENT_CONF_NEW_230, 1, 0 },
 { 0x9850, -1, "Trident 3DImage985", TRIDENT_CONF_NEW_230, 1, 0 },
 { 0x9880, -1, "Trident Blade3D", TRIDENT_CONF_NEW_230, 1, 0 },

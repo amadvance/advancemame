@@ -937,7 +937,7 @@ void convert_html::option_start(const string& s)
 {
 	os << "<tr valign=\"top\" align=\"left\"><td><strong>" << endl;
 	os << mask(s) << endl;
-	os << "</em></td></tr><tr><td>" << endl;
+	os << "</strong></td></tr><tr><td>" << endl;
 }
 
 void convert_html::option_stop()

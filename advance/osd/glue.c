@@ -762,8 +762,8 @@ static struct mame_port PORT[] = {
 	PE("lightgun_up", "lightgun_down", LIGHTGUN_Y)
 
 	/* PEDAL */
-	PE("pedal_up", "pedal_down", PEDAL)
-	PE("pedal2_up", "pedal2_down", PEDAL2)
+	PE("pedal1", "pedal1_autorelease", PEDAL)
+	PE("pedal2", "pedal2_autorelease", PEDAL2)
 
 	/* START */
 	S("start1", START1)

@@ -153,7 +153,13 @@ static const mame_game* select_game(const char* gamename)
 static void version(void)
 {
 	char report_buffer[128];
-	target_out("%s %s\n\n", ADVANCE_TITLE, VERSION);
+	target_out("%s %s\n", ADVANCE_TITLE, VERSION);
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define COMPILER_RESOLVE(a) #a
+#define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
+	target_out("Compiled %s with gcc-%s\n", __DATE__, COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__));
+#endif
+	target_out("\n");
 
 	target_out("Drivers (in priority order):\n");
 	video_report_driver_all(report_buffer, sizeof(report_buffer));
@@ -342,7 +348,16 @@ static adv_conf_conv STANDARD[] = {
 { "*", "display_resizeeffect", "lq2x", "%s", "display_resizeeffect", "lq", 0 }, /* rename */
 { "*", "display_resizeeffect", "lq3x", "%s", "display_resizeeffect", "lq", 0 }, /* rename */
 { "*", "display_resizeeffect", "hq2x", "%s", "display_resizeeffect", "hq", 0 }, /* rename */
-{ "*", "display_resizeeffect", "hq3x", "%s", "display_resizeeffect", "hq", 0 } /* rename */
+{ "*", "display_resizeeffect", "hq3x", "%s", "display_resizeeffect", "hq", 0 }, /* rename */
+/* 0.74.2 */
+{ "*", "input_map[p1_pedal_up]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p1_pedal_down]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p2_pedal_up]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p2_pedal_down]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p3_pedal_up]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p3_pedal_down]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p4_pedal_up]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_map[p4_pedal_down]", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

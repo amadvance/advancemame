@@ -37,6 +37,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Define if you want to assume fast write in video memory */
+#define USE_MTRR
+
 /***************************************************************************/
 /* mmx */
 
@@ -241,7 +244,7 @@ void* fast_buffer_aligned; /* aligned pointer */
 unsigned fast_buffer_map[FAST_BUFFER_MAX]; /* stack of incremental size used */
 unsigned fast_buffer_mac; /* top of the stack */
 
-static inline void* video_buffer_alloc(unsigned size)
+static void* video_buffer_alloc(unsigned size)
 {
 	unsigned size_aligned = (size + FAST_BUFFER_ALIGN_MASK) & ~FAST_BUFFER_ALIGN_MASK;
 	assert( fast_buffer_mac < FAST_BUFFER_MAX );
@@ -255,7 +258,7 @@ static inline void* video_buffer_alloc(unsigned size)
 }
 
 /* Buffers must be allocated and freed in exact reverse order */
-static inline void video_buffer_free(void* buffer)
+static void video_buffer_free(void* buffer)
 {
 	(void)buffer;
 	--fast_buffer_mac;
@@ -707,7 +710,7 @@ static void video_pipeline_realize(struct video_pipeline_struct* pipeline, int s
 }
 
 /* Run a partial pipeline */
-static inline void* video_pipeline_run_partial(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, const void* src)
+static void* video_pipeline_run_partial(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, const void* src)
 {
 	if (stage_begin == stage_end) {
 		return (void*)src;
@@ -725,7 +728,7 @@ static inline void* video_pipeline_run_partial(const struct video_stage_horz_str
 }
 
 /* Run a partial pipeline and store the result in the specified buffer */
-static inline void* video_pipeline_run_partial_on_buffer(void* dst_buffer, const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, const void* src)
+static void* video_pipeline_run_partial_on_buffer(void* dst_buffer, const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, const void* src)
 {
 	if (stage_begin == stage_end) {
 		return (void*)src;
@@ -751,7 +754,7 @@ static inline void* video_pipeline_run_partial_on_buffer(void* dst_buffer, const
 	}
 }
 
-static inline void video_pipeline_run(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, void* dst, const void* src)
+static void video_pipeline_run(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, void* dst, const void* src)
 {
 	--stage_end;
 	if (stage_begin == stage_end) {
@@ -769,7 +772,7 @@ static inline void video_pipeline_run(const struct video_stage_horz_struct* stag
 	}
 }
 
-static inline void video_pipeline_run_plain(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, void* dst, void* src)
+static void video_pipeline_run_plain(const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, void* dst, void* src)
 {
 	--stage_end;
 	if (stage_begin == stage_end) {
@@ -787,7 +790,7 @@ static inline void video_pipeline_run_plain(const struct video_stage_horz_struct
 	}
 }
 
-static inline void video_pipeline_vert_run(const struct video_pipeline_struct* pipeline, unsigned x, unsigned y, const void* src)
+static void video_pipeline_vert_run(const struct video_pipeline_struct* pipeline, unsigned x, unsigned y, const void* src)
 {
 	/* clear the states */
 	const struct video_stage_horz_struct* begin = video_pipeline_begin(pipeline);
@@ -935,13 +938,16 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 	}
 }
 
-/* The write operation is done writing the biggest register size */
-static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* stage)
+/* Check if the write operation is done writing the biggest register size */
+static adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* stage)
 {
+#ifdef USE_MTRR
+	/* if MTRR is enabled, write is always fast */
+	return 1;
+#else
 	if (the_blit_mmx) {
 		adv_bool is_plain = stage->sbpp == stage->sdp;
 		switch (stage->type) {
-			/* these use the MMX if are plain */
 			case pipe_x_copy : return 1;
 			case pipe_rotation : return 1;
 			case pipe_x_double : return is_plain;
@@ -955,8 +961,8 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			case pipe_x_rgb_scantriplehorz : return is_plain;
 			case pipe_x_rgb_scandoublevert : return is_plain;
 			case pipe_x_rgb_scantriplevert : return is_plain;
-			case pipe_swap_even : return 0;
-			case pipe_swap_odd : return 0;
+			case pipe_swap_even : return 1;
+			case pipe_swap_odd : return 1;
 			case pipe_palette8to8 : return 0;
 			case pipe_palette8to16 : return is_plain;
 			case pipe_palette8to32 : return 0;
@@ -979,7 +985,7 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			case pipe_rgbtorgb : return 0;
 			case pipe_rgbtoyuy2 : return 0;
 			case pipe_x_filter : return is_plain;
-			/* unchained can't use the MMX */
+			/* unchained can't use the MMX, so it's always fastest */
 			case pipe_unchained : return 1;
 			case pipe_unchained_palette16to8 : return 1;
 			case pipe_unchained_x_double : return 1;
@@ -992,6 +998,32 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			default: return 1;
 		}
 	}
+#endif
+}
+
+/* Check if the write operation is done writing the biggest register size */
+static adv_bool stage_vert_is_fastwrite(unsigned stage, unsigned bytes_per_pixel)
+{
+#ifdef USE_MTRR
+	/* if MTRR is enabled, write is always fast */
+	return 1;
+#else
+	if (the_blit_mmx) {
+#ifndef USE_BLIT_TINY
+		switch (stage) {
+		case VIDEO_COMBINE_Y_SCALE2X :
+		case VIDEO_COMBINE_Y_SCALE4X :
+			return 1;
+		default :
+			return 0;
+		}
+#else
+		return 0;
+#endif
+	} else {
+		return bytes_per_pixel >= 4;
+	}
+#endif
 }
 
 /***************************************************************************/
@@ -2741,7 +2773,7 @@ static void video_stage_planey2(const struct video_stage_vert_struct* stage_vert
 }
 
 /* Modify the vertical stage for supporting the separated plane put */
-static inline void video_stage_planey_set(struct video_stage_vert_struct* stage_vert)
+static void video_stage_planey_set(struct video_stage_vert_struct* stage_vert)
 {
 	/* supported only if the pipeline has only one stage and this stage */
 	/* support the plane put */
@@ -2978,7 +3010,7 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 }
 
 /* Inizialize the vertical stage for the no transformation special case */
-static inline void video_stage_stretchy_11_set(struct video_stage_vert_struct* stage_vert, const struct video_pipeline_struct* pipeline, unsigned sdy, int sdw)
+static void video_stage_stretchy_11_set(struct video_stage_vert_struct* stage_vert, const struct video_pipeline_struct* pipeline, unsigned sdy, int sdw)
 {
 	stage_vert->sdy = sdy;
 	stage_vert->sdw = sdw;
@@ -3000,31 +3032,21 @@ static inline void video_stage_stretchy_11_set(struct video_stage_vert_struct* s
 /***************************************************************************/
 /* stretch */
 
-static inline void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned src_dx, int src_dp, unsigned combine)
+static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned src_dx, int src_dp, unsigned combine)
 {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 	struct video_stage_horz_struct* end;
 	unsigned combine_y = combine & VIDEO_COMBINE_Y_MASK;
 
-	/* This flag requires that the last stage isn't a color conversion stage */
+	/* If this flag is set a generic last stage is required */
+	adv_bool require_last;
+
+	/* If this flag is set it's required that the last stage isn't a color conversion stage */
 	/* Some vertical stretchings require a final stage. */
 	/* If a vertical filtering is done in the y stretching the final stage can't */
-	/* be a color conversion, because the filtering works on rgb values */
-	adv_bool require_last_not_conversion = combine_y == VIDEO_COMBINE_Y_MEAN || combine_y == VIDEO_COMBINE_Y_FILTER
-#ifndef USE_BLIT_TINY
-		|| combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
-		|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X
-#endif
-	;
-
-	/* This flag requires a generic last stage */
-#ifndef USE_BLIT_TINY
-	adv_bool require_last = combine_y != VIDEO_COMBINE_Y_SCALE2X && combine_y != VIDEO_COMBINE_Y_SCALE3X && combine_y != VIDEO_COMBINE_Y_SCALE4X
-		&& combine_y != VIDEO_COMBINE_Y_LQ2X && combine_y != VIDEO_COMBINE_Y_LQ3X && combine_y != VIDEO_COMBINE_Y_LQ4X
-		&& combine_y != VIDEO_COMBINE_Y_HQ2X && combine_y != VIDEO_COMBINE_Y_HQ3X && combine_y != VIDEO_COMBINE_Y_HQ4X;
-#else
-	adv_bool require_last = 1;
-#endif
+	/* be a color conversion, because the filtering works on rgb values. */
+	/* This flag has effect only if "require_last" is set. */
+	adv_bool require_last_not_conversion;
 
 	/* in x reduction the filter is applied before */
 	if ((combine & VIDEO_COMBINE_X_FILTER) != 0
@@ -3068,13 +3090,31 @@ static inline void video_pipeline_make(struct video_pipeline_struct* pipeline, u
 		src_dp = bytes_per_pixel;
 	} else
 #endif
-	if (dst_dx != src_dx) {
-		switch (bytes_per_pixel) {
-			case 1 : video_stage_stretchx8_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-			case 2 : video_stage_stretchx16_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-			case 4 : video_stage_stretchx32_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+	{
+#ifndef USE_BLIT_TINY
+		switch (combine_y) {
+		case VIDEO_COMBINE_Y_SCALE2X :
+		case VIDEO_COMBINE_Y_LQ2X :
+		case VIDEO_COMBINE_Y_HQ2X :
+		case VIDEO_COMBINE_Y_SCALE3X :
+		case VIDEO_COMBINE_Y_LQ3X :
+		case VIDEO_COMBINE_Y_HQ3X :
+		case VIDEO_COMBINE_Y_SCALE4X :
+		case VIDEO_COMBINE_Y_LQ4X :
+		case VIDEO_COMBINE_Y_HQ4X :
+			combine_y = VIDEO_COMBINE_Y_NONE;
+			break;
 		}
-		src_dp = bytes_per_pixel;
+#endif
+
+		if (dst_dx != src_dx) {
+			switch (bytes_per_pixel) {
+				case 1 : video_stage_stretchx8_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+				case 2 : video_stage_stretchx16_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+				case 4 : video_stage_stretchx32_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+			}
+			src_dp = bytes_per_pixel;
+		}
 	}
 
 	/* in x expansion the filter is applied after */
@@ -3198,13 +3238,35 @@ static inline void video_pipeline_make(struct video_pipeline_struct* pipeline, u
 		src_dp = bytes_per_pixel;
 	}
 
+	/* set the last stage flags */
+	require_last_not_conversion = combine_y == VIDEO_COMBINE_Y_MEAN || combine_y == VIDEO_COMBINE_Y_FILTER
+#ifndef USE_BLIT_TINY
+		|| combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
+		|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X
+#endif
+	;
+
+#ifndef USE_BLIT_TINY
+	require_last = combine_y != VIDEO_COMBINE_Y_SCALE2X && combine_y != VIDEO_COMBINE_Y_SCALE3X && combine_y != VIDEO_COMBINE_Y_SCALE4X
+		&& combine_y != VIDEO_COMBINE_Y_LQ2X && combine_y != VIDEO_COMBINE_Y_LQ3X && combine_y != VIDEO_COMBINE_Y_LQ4X
+		&& combine_y != VIDEO_COMBINE_Y_HQ2X && combine_y != VIDEO_COMBINE_Y_HQ3X && combine_y != VIDEO_COMBINE_Y_HQ4X;
+#else
+	require_last = 1;
+#endif
+
 	if (bytes_per_pixel == 1 && video_is_unchained()) {
 		video_stage_unchained8_set( video_pipeline_insert(pipeline), dst_dx, src_dp );
 	} else {
-		/* add a dummy stage if required */
-		if ((require_last && video_pipeline_size(pipeline) == 0) /* if the last stage is empty */
-			|| (require_last_not_conversion && require_last && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type)) /* if the last stage is a conversion and a conversion is not allowed as a last stage */
-			|| (video_pipeline_size(pipeline) != 0 && !stage_is_fastwrite(&video_pipeline_end(pipeline)[-1]))  /* if the last stage is a slow memory write stage */
+		/* add a dummy stage if it's required of it improves the speed */
+		if (
+			/* if the last stage is required */
+			(require_last && video_pipeline_size(pipeline) == 0)
+			/* if the last stage is a conversion and a conversion is not allowed as a last stage */
+			|| (require_last_not_conversion && require_last && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type))
+			/* if the last stage is a slow memory write stage */
+			|| (video_pipeline_size(pipeline) != 0 && !stage_is_fastwrite(&video_pipeline_end(pipeline)[-1]))
+			/* if the last stage is a slow memory write vertical stage */
+			|| (video_pipeline_size(pipeline) == 0 && !stage_vert_is_fastwrite(combine_y, bytes_per_pixel))
 		) {
 			switch (bytes_per_pixel) {
 				case 1 : video_stage_copy8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;

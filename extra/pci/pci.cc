@@ -80,6 +80,8 @@ public:
 	entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment);
 
 	bool operator<(const entry_device_group& B) const;
+
+	bool has(unsigned Adevice) const;
 };
 
 entry_device_group::entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment)
@@ -88,11 +90,15 @@ entry_device_group::entry_device_group(unsigned Adevice, unsigned Adevice_mask, 
 }
 
 bool entry_device_group::operator<(const entry_device_group& B) const {
-	unsigned Adevice = device & device_mask;
-	unsigned Bdevice = B.device & B.device_mask;
+	unsigned Adevice = device;
+	unsigned Bdevice = B.device;
 	if (Adevice < Bdevice) return true;
 	if (Adevice > Bdevice) return false;
 	return false;
+}
+
+bool entry_device_group::has(unsigned Adevice) const {
+	return (Adevice & device_mask) == device;
 }
 
 // --------------------------------------------------------------------------
@@ -112,8 +118,18 @@ public:
 
 	mutable entry_device_group_set gs;
 
+	entry_device_group_set::iterator has(unsigned device) const;
+
 	bool operator<(const entry_vendor& B) const;
 };
+
+entry_device_group_set::iterator entry_vendor::has(unsigned device) const
+{
+	for(entry_device_group_set::const_iterator i=gs.begin();i!=gs.end();++i)
+		if (i->has(device))
+			return i;
+	return gs.end();
+}
 
 entry_vendor::entry_vendor(const entry_vendor& A) :
 	vendor(A.vendor), desc(A.desc), gs(A.gs) {
@@ -254,7 +270,7 @@ void process_pcidevs(istream& is, entry_vendor_set& vs, const entry_vendor_set& 
 			device = strtol(v.c_str(),0,16);
 			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
 			if (i != vs.end()) {
-				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				entry_device_group_set::iterator j = i->has(device);
 				if (j != i->gs.end()) {
 					j->ds.insert(entry_device(device,d + " [" + hex(device) + "]",j->comment));
 				}
@@ -263,7 +279,7 @@ void process_pcidevs(istream& is, entry_vendor_set& vs, const entry_vendor_set& 
 			unsigned subdevice = strtol(v.c_str(),0,16);
 			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
 			if (i != vs.end()) {
-				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				entry_device_group_set::iterator j = i->has(device);
 				if (j != i->gs.end()) {
 					entry_device_set::iterator k = j->ds.find(entry_device(device,"",""));
 					if (k != j->ds.end()) {
@@ -337,7 +353,7 @@ void process_pciids(istream& is, entry_vendor_set& vs, const entry_vendor_set& v
 			device = strtol(v.c_str(),0,16);
 			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
 			if (i != vs.end()) {
-				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				entry_device_group_set::iterator j = i->has(device);
 				if (j != i->gs.end()) {
 					j->ds.insert(entry_device(device,d + " [" + hex(device) + "]",j->comment));
 				}
@@ -360,7 +376,7 @@ void process_pciids(istream& is, entry_vendor_set& vs, const entry_vendor_set& v
 			}
 			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
 			if (i != vs.end()) {
-				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				entry_device_group_set::iterator j = i->has(device);
 				if (j != i->gs.end()) {
 					entry_device_set::iterator k = j->ds.find(entry_device(device,"",""));
 					if (k != j->ds.end()) {
@@ -606,6 +622,14 @@ void insert(struct pci_id* pci, entry_vendor_group& device)
 
 void load_vendor(entry_vendor_set& vendor)
 {
+	ifstream fi3("pciextra.txt");
+	if (!fi3) {
+		cerr << "Error opening pciextra.txt" << endl;
+		exit(EXIT_FAILURE);
+	}
+	process_vendor_pcidevs(fi3,vendor);
+	fi3.close();
+
 	ifstream fi1("pcidevs.txt");
 	if (!fi1) {
 		cerr << "Error opening pcidevs.txt" << endl;
@@ -640,6 +664,14 @@ void load_device(entry_vendor_set& device, const entry_vendor_set& vendor)
 	}
 	process_pciids(fi2,device,vendor);
 	fi2.close();
+
+	ifstream fi3("pciextra.txt");
+	if (!fi3) {
+		cerr << "Error opening pciextra.txt" << endl;
+		exit(EXIT_FAILURE);
+	}
+	process_pcidevs(fi3,device,vendor);
+	fi3.close();
 }
 
 int main() {

@@ -188,6 +188,7 @@
 "pisces",
 "pleiads",
 "polaris",
+"polyplay",
 "ponpoko",
 "pooyan",
 "popflame",
