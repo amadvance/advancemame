@@ -1,0 +1,5 @@
+TARGETNAME=svgawin
+TARGETPATH=.\obj
+TARGETTYPE=DRIVER
+INCLUDES=$(BASEDIR)\inc;$(BASEDIR)\inc\ddk
+SOURCES=svgadrv.c svgawin.rc
