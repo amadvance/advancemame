@@ -51,6 +51,9 @@ extern "C" {
 #ifdef USE_KEYBOARD_SDL
 #include "ksdl.h"
 #endif
+#ifdef USE_KEYBOARD_EVENT
+#include "kevent.h"
+#endif
 #ifdef USE_KEYBOARD_RAW
 #include "kraw.h"
 #endif

@@ -519,16 +519,19 @@ void advance_safequit_update(struct advance_safequit_context* context);
 
 /** Max supported input devices. */
 /*@{*/
+#define INPUT_KEYBOARD_MAX 4 /**< Max number of keyboard. */
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
 #define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player. */
 #define INPUT_MAP_MAX 8 /**< Max number of mapping codes. */
 #define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
 #define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
 #define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
-#define INPUT_DIR_MAX 2 /**< Max number of direction for a stick. */
+#define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
 #define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
 #define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
 /*@}*/
+
+#define INPUT_KEY_MAX (KEYB_MAX * INPUT_KEYBOARD_MAX) /**< Max key number. */
 
 struct advance_input_config_context {
 	int input_idle_limit; /**< Limit of no input to exit. */
@@ -541,15 +544,16 @@ struct advance_input_config_context {
 };
 
 struct advance_input_state_context {
-	/* Clock */
+	adv_bool active_flag; /**< Flag for active input. */
+
 	target_clock_t input_current_clock; /**< Current clock. */
 	target_clock_t input_idle_clock; /**< Clock of last input. */
 
 	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
 	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
 
-	unsigned char key_old[KEYB_MAX]; /**< Keyboard previous frame state. */
-	unsigned char key_current[KEYB_MAX]; /**< Keyboard current frame state. */
+	unsigned char key_old[INPUT_KEY_MAX]; /**< Keyboard previous frame state. */
+	unsigned char key_current[INPUT_KEY_MAX]; /**< Keyboard current frame state. */
 
 	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
 	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */

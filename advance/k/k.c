@@ -23,11 +23,24 @@
 #include "keyall.h"
 #include "target.h"
 #include "portable.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
+
+void probe(void)
+{
+	int i, j;
+
+	printf("Keyboards %d\n", keyb_count_get());
+	for(i=0;i<keyb_count_get();++i) {
+		printf("keyboard %d\n", i);
+	}
+
+	printf("\n");
+}
 
 static int done;
 
@@ -55,16 +68,18 @@ void run(void)
 
 	while (esc_count < 3 && !done) {
 		int i;
+		int k;
 		int esc_pressed = 0;
 		unsigned count = 0;
 		*new_msg = 0;
 
+		for(k=0;k<keyb_count_get();++k)
 		for(i=0;i<KEYB_MAX;++i) {
-			if (keyb_get(i)) {
+			if (keyb_get(k,i)) {
 				if (i==KEYB_ESC)
 					esc_pressed = 1;
 				++count;
-				snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s ", key_name(i));
+				snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s[%d] ", key_name(i), k);
 			}
 		}
 
@@ -111,8 +126,14 @@ void os_signal(int signum)
 
 int os_main(int argc, char* argv[])
 {
+	int i;
 	adv_conf* context;
         const char* section_map[1];
+	adv_bool opt_log;
+	adv_bool opt_logsync;
+
+	opt_log = 0;
+	opt_logsync = 0;
 
 	context = conf_init();
 
@@ -125,10 +146,22 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	if (argc > 1) {
-		fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
-		goto err_os;
+	for(i=1;i<argc;++i) {
+		if (target_option(argv[i], "log")) {
+			opt_log = 1;
+		} else if (target_option(argv[i], "logsync")) {
+			opt_logsync = 1;
+		} else {
+			fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
+			goto err_os;
+		}
 	}
+
+	if (opt_log || opt_logsync) {
+		const char* log = "advk.log";
+		remove(log);
+		log_init(log, opt_logsync);
+        }
 
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
@@ -142,10 +175,18 @@ int os_main(int argc, char* argv[])
 	if (keyb_init(0) != 0)
 		goto err_os_inner;
 
+	probe();
 	run();
 
 	keyb_done();
 	os_inner_done();
+
+	log_std(("k: the end\n"));
+
+	if (opt_log || opt_logsync) {
+		log_done();
+	}
+
 	os_done();
 	conf_done(context);
 
@@ -153,6 +194,7 @@ int os_main(int argc, char* argv[])
 
 err_os_inner:
 	os_inner_done();
+	log_done();
 err_os:
 	os_done();
 err_conf:

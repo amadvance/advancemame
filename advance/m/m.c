@@ -23,6 +23,7 @@
 #include "mouseall.h"
 #include "target.h"
 #include "portable.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,11 +32,17 @@
 
 void probe(void)
 {
-	int i;
+	int i, j;
 
 	printf("Mouses %d\n", mouseb_count_get());
 	for(i=0;i<mouseb_count_get();++i) {
-		printf("Mouse %d, buttons %d\n", i, mouseb_button_count_get(i));
+		printf("mouse %d, buttons %d\n", i, mouseb_button_count_get(i));
+		for(j=0;j<mouseb_axe_count_get(i);++j) {
+			printf("\taxe %d [%s]\n", j, mouseb_axe_name_get(i, j));
+		}
+		for(j=0;j<mouseb_button_count_get(i);++j) {
+			printf("\tbutton %d [%s]\n", j, mouseb_button_name_get(i, j));
+		}
 	}
 
 	printf("\n");
@@ -65,8 +72,6 @@ void run(void)
 
 		new_msg[0] = 0;
 		for(i=0;i<mouseb_count_get();++i) {
-			int x, y, z;
-
 			if (i!=0)
 				sncat(new_msg, sizeof(new_msg), "\n");
 
@@ -77,11 +82,17 @@ void run(void)
 				else
 					sncat(new_msg, sizeof(new_msg), "-");
 			}
-			sncat(new_msg, sizeof(new_msg), "], ");
+			sncat(new_msg, sizeof(new_msg), "], [");
 
-			mouseb_pos_get(i, &x, &y, &z);
+			for(j=0;j<mouseb_axe_count_get(i);++j) {
+				int v = mouseb_axe_get(i, j);
 
-			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " [%6d/%6d/%6d]", x, y, z);
+				if (j)
+					sncat(new_msg, sizeof(new_msg), ",");
+
+				snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%6d", v);
+			}
+			sncat(new_msg, sizeof(new_msg), "]");
 		}
 
 		if (strcmp(msg, new_msg)!=0) {
@@ -117,8 +128,14 @@ void os_signal(int signum)
 
 int os_main(int argc, char* argv[])
 {
+	int i;
 	adv_conf* context;
         const char* section_map[1];
+	adv_bool opt_log;
+	adv_bool opt_logsync;
+
+	opt_log = 0;
+	opt_logsync = 0;
 
 	context = conf_init();
 
@@ -131,10 +148,22 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	if (argc > 1) {
-		fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
-		goto err_os;
+	for(i=1;i<argc;++i) {
+		if (target_option(argv[i], "log")) {
+			opt_log = 1;
+		} else if (target_option(argv[i], "logsync")) {
+			opt_logsync = 1;
+		} else {
+			fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
+			goto err_os;
+		}
 	}
+
+	if (opt_log || opt_logsync) {
+		const char* log = "advm.log";
+		remove(log);
+		log_init(log, opt_logsync);
+        }
 
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
@@ -153,6 +182,13 @@ int os_main(int argc, char* argv[])
 
 	mouseb_done();
 	os_inner_done();
+
+	log_std(("m: the end\n"));
+
+	if (opt_log || opt_logsync) {
+		log_done();
+	}
+
 	os_done();
 	conf_done(context);
 
@@ -160,6 +196,7 @@ int os_main(int argc, char* argv[])
 
 err_os_inner:
 	os_inner_done();
+	log_done();
 err_os:
 	os_done();
 err_conf:

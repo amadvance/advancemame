@@ -23,6 +23,7 @@
 #include "joyall.h"
 #include "target.h"
 #include "portable.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,13 +32,19 @@
 
 void probe(void)
 {
-	int i, j;
+	int i, j, k;
 
 	printf("Joysticks %d\n", joystickb_count_get());
 	for(i=0;i<joystickb_count_get();++i) {
-		printf("Joy %d, buttons %d, sticks %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i));
+		printf("joy %d, buttons %d, controls %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i));
 		for(j=0;j<joystickb_stick_count_get(i);++j) {
-			printf("Joy %d, stick %d [%s], axes %d\n", i, j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j));
+			printf("\tcontrol %d [%s], axes %d\n", j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j));
+			for(k=0;k<joystickb_stick_axe_count_get(i,j);++k) {
+				printf("\t\taxe %d [%s]\n", k, joystickb_stick_axe_name_get(i, j, k));
+			}
+		}
+		for(j=0;j<joystickb_button_count_get(i);++j) {
+			printf("\tbutton %d [%s]\n", j, joystickb_button_name_get(i, j));
 		}
 	}
 
@@ -184,8 +191,14 @@ void os_signal(int signum)
 
 int os_main(int argc, char* argv[])
 {
+	int i;
 	adv_conf* context;
         const char* section_map[1];
+	adv_bool opt_log;
+	adv_bool opt_logsync;
+
+	opt_log = 0;
+	opt_logsync = 0;
 
 	context = conf_init();
 
@@ -198,10 +211,22 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	if (argc > 1) {
-		fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
-		goto err_os;
+	for(i=1;i<argc;++i) {
+		if (target_option(argv[i], "log")) {
+			opt_log = 1;
+		} else if (target_option(argv[i], "logsync")) {
+			opt_logsync = 1;
+		} else {
+			fprintf(stderr, "Unknown argument '%s'\n", argv[1]);
+			goto err_os;
+		}
 	}
+
+	if (opt_log || opt_logsync) {
+		const char* log = "advj.log";
+		remove(log);
+		log_init(log, opt_logsync);
+        }
 
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
@@ -221,6 +246,13 @@ int os_main(int argc, char* argv[])
 
 	joystickb_done();
 	os_inner_done();
+
+	log_std(("j: the end\n"));
+
+	if (opt_log || opt_logsync) {
+		log_done();
+	}
+
 	os_done();
 	conf_done(context);
 
@@ -228,6 +260,7 @@ int os_main(int argc, char* argv[])
 
 err_os_inner:
 	os_inner_done();
+	log_done();
 err_os:
 	os_done();
 err_conf:

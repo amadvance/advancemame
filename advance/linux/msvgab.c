@@ -114,38 +114,85 @@ unsigned mouseb_svgalib_count_get(void)
 
 	return 1;
 }
+unsigned mouseb_svgalib_axe_count_get(unsigned mouse)
+{
+	log_debug(("mouseb:svgalib: mouseb_svgalib_axe_count_get()\n"));
 
-unsigned mouseb_svgalib_button_count_get(unsigned m)
+	assert(mouse < mouseb_svgalib_count_get());
+
+	return 2;
+}
+
+const char* mouseb_svgalib_axe_name_get(unsigned mouse, unsigned axe)
+{
+	log_debug(("mouseb:svgalib: mouseb_svgalib_axe_name_get()\n"));
+
+	switch (axe) {
+	case 0 : return "x";
+	case 1 : return "y";
+	}
+
+	return 0;
+}
+
+unsigned mouseb_svgalib_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_button_count_get()\n"));
 
-	assert( m < mouseb_svgalib_count_get());
+	assert(mouse < mouseb_svgalib_count_get());
 
 	return svgalib_state.button_mac;
 }
 
-void mouseb_svgalib_pos_get(unsigned m, int* x, int* y, int* z)
+const char* mouseb_svgalib_button_name_get(unsigned mouse, unsigned button)
 {
-	log_debug(("mouseb:svgalib: mouseb_svgalib_pos_get()\n"));
+	log_debug(("mouseb:svgalib: mouseb_svgalib_button_name_get()\n"));
 
-	assert( m < mouseb_svgalib_count_get());
+	switch (button) {
+	case 0 : return "left";
+	case 1 : return "right";
+	case 2 : return "middle";
+	case 3 : return "forth";
+	case 4 : return "fifth";
+	case 5 : return "sixth";
+	}
 
-	*x = svgalib_state.x;
-	*y = svgalib_state.y;
-	*z = 0;
-
-	svgalib_state.x = 0;
-	svgalib_state.y = 0;
+	return 0;
 }
 
-unsigned mouseb_svgalib_button_get(unsigned m, unsigned b)
+int mouseb_svgalib_axe_get(unsigned mouse, unsigned axe)
+{
+	int r;
+
+	log_debug(("mouseb:svgalib: mouseb_svgalib_pos_get()\n"));
+
+	assert(mouse < mouseb_svgalib_count_get());
+	assert(axe < mouseb_svgalib_axe_count_get(mouse));
+
+	switch (axe) {
+	case 0 :
+		r = svgalib_state.x;
+		svgalib_state.x = 0;
+		break;
+	case 1 :
+		r = svgalib_state.y;
+		svgalib_state.y = 0;
+		break;
+	default:
+		r = 0;
+	}
+
+	return 0;
+}
+
+unsigned mouseb_svgalib_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_button_get()\n"));
 
-	assert( m < mouseb_svgalib_count_get());
-	assert( b < mouseb_svgalib_button_count_get(m) );
+	assert(mouse < mouseb_svgalib_count_get());
+	assert(button < mouseb_svgalib_button_count_get(mouse) );
 
-	return (svgalib_state.button_mask & svgalib_state.button_map[b]) != 0;
+	return (svgalib_state.button_mask & svgalib_state.button_map[button]) != 0;
 }
 
 void mouseb_svgalib_poll(void)
@@ -196,8 +243,11 @@ mouseb_driver mouseb_svgalib_driver = {
 	mouseb_svgalib_done,
 	mouseb_svgalib_flags,
 	mouseb_svgalib_count_get,
+	mouseb_svgalib_axe_count_get,
+	mouseb_svgalib_axe_name_get,
 	mouseb_svgalib_button_count_get,
-	mouseb_svgalib_pos_get,
+	mouseb_svgalib_button_name_get,
+	mouseb_svgalib_axe_get,
 	mouseb_svgalib_button_get,
 	mouseb_svgalib_poll
 };

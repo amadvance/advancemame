@@ -44,6 +44,13 @@ KCFLAGS += \
 KOBJS += \
 	$(KOBJ)/linux/kraw.o
 endif
+ifeq ($(CONF_LIB_KEVENT),yes)
+KCFLAGS += \
+	-DUSE_KEYBOARD_EVENT
+KOBJS += \
+	$(KOBJ)/linux/kevent.o \
+	$(KOBJ)/linux/event.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

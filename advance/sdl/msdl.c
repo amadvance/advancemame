@@ -78,37 +78,78 @@ unsigned mouseb_sdl_count_get(void)
 	return 1;
 }
 
-unsigned mouseb_sdl_button_count_get(unsigned m)
+unsigned mouseb_sdl_axe_count_get(unsigned mouse)
+{
+	log_debug(("mouseb:sdl: mouseb_sdl_axe_count_get()\n"));
+
+	assert(mouse < mouseb_sdl_count_get());
+
+	return 2;
+}
+
+const char* mouseb_sdl_axe_name_get(unsigned mouse, unsigned axe)
+{
+	log_debug(("mouseb:sdl: mouseb_sdl_axe_name_get()\n"));
+
+	switch (axe) {
+	case 0 : return "x";
+	case 1 : return "y";
+	}
+
+	return 0;
+}
+
+unsigned mouseb_sdl_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_button_count_get()\n"));
 
-	assert( m < mouseb_sdl_count_get());
+	assert(mouse < mouseb_sdl_count_get());
 
 	return 3;
 }
 
-void mouseb_sdl_pos_get(unsigned m, int* x, int* y, int* z)
+const char* mouseb_sdl_button_name_get(unsigned mouse, unsigned button)
 {
-	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
+	log_debug(("mouseb:sdl: mouseb_sdl_button_name_get()\n"));
 
-	assert( m < mouseb_sdl_count_get());
+	switch (button) {
+	case 0 : return "left";
+	case 1 : return "right";
+	case 2 : return "middle";
+	case 3 : return "forth";
+	case 4 : return "fifth";
+	case 5 : return "sixth";
+	}
 
-	*x = sdl_state.x;
-	*y = sdl_state.y;
-	*z = 0;
-
-	sdl_state.x = 0;
-	sdl_state.y = 0;
+	return 0;
 }
 
-unsigned mouseb_sdl_button_get(unsigned m, unsigned b)
+int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
+{
+	int r;
+
+	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
+
+	assert(mouse < mouseb_sdl_count_get());
+	assert(axe < mouseb_sdl_axe_count_get());
+
+	switch (axe) {
+	case 0 : r = sdl_state.x; sdl_state.x = 0; break;
+	case 1 : r = sdl_state.y; sdl_state.y = 0; break;
+	default : r = 0;
+	}
+
+	return r;
+}
+
+unsigned mouseb_sdl_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_button_get()\n"));
 
-	assert( m < mouseb_sdl_count_get());
-	assert( b < mouseb_sdl_button_count_get(m) );
+	assert(mouse < mouseb_sdl_count_get());
+	assert(button < mouseb_sdl_button_count_get(mouse) );
 
-	return sdl_state.button_map[b];
+	return sdl_state.button_map[button];
 }
 
 void mouseb_sdl_poll(void)
@@ -160,8 +201,11 @@ mouseb_driver mouseb_sdl_driver = {
 	mouseb_sdl_done,
 	mouseb_sdl_flags,
 	mouseb_sdl_count_get,
+	mouseb_sdl_axe_count_get,
+	mouseb_sdl_axe_name_get,
 	mouseb_sdl_button_count_get,
-	mouseb_sdl_pos_get,
+	mouseb_sdl_button_name_get,
+	mouseb_sdl_axe_get,
 	mouseb_sdl_button_get,
 	mouseb_sdl_poll
 };

@@ -35,6 +35,8 @@
  * The drivers are registered on the basis of the following defines:
  *  - USE_JOYSTICK_ALLEGRO
  *  - USE_JOYSTICK_SVGALIB
+ *  - USE_JOYSTICK_EVENT
+ *  - USE_JOYSTICK_RAW
  *  - USE_JOYSTICK_SDL
  *  - USE_JOYSTICK_NONE
  */
@@ -45,6 +47,12 @@ void joystickb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_JOYSTICK_SVGALIB
 	joystickb_reg_driver(context, &joystickb_svgalib_driver);
+#endif
+#ifdef USE_JOYSTICK_EVENT
+	joystickb_reg_driver(context, &joystickb_event_driver);
+#endif
+#ifdef USE_JOYSTICK_RAW
+	joystickb_reg_driver(context, &joystickb_raw_driver);
 #endif
 #ifdef USE_JOYSTICK_SDL
 	joystickb_reg_driver(context, &joystickb_sdl_driver);

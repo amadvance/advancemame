@@ -73,15 +73,15 @@ typedef struct joystickb_driver_struct {
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
 	unsigned (*count_get)(void);
-	unsigned (*stick_count_get)(unsigned j);
-	unsigned (*stick_axe_count_get)(unsigned j, unsigned s);
-	unsigned (*button_count_get)(unsigned j);
-	const char* (*stick_name_get)(unsigned j, unsigned s);
-	const char* (*stick_axe_name_get)(unsigned j, unsigned s, unsigned a);
-	const char* (*button_name_get)(unsigned j, unsigned b);
-	unsigned (*button_get)(unsigned j, unsigned b);
-	unsigned (*stick_axe_digital_get)(unsigned j, unsigned s, unsigned a, unsigned d);
-	int (*stick_axe_analog_get)(unsigned j, unsigned s, unsigned a);
+	unsigned (*stick_count_get)(unsigned joystick);
+	unsigned (*stick_axe_count_get)(unsigned joystick, unsigned stick);
+	unsigned (*button_count_get)(unsigned joystick);
+	const char* (*stick_name_get)(unsigned joystick, unsigned stick);
+	const char* (*stick_axe_name_get)(unsigned joystick, unsigned stick, unsigned axe);
+	const char* (*button_name_get)(unsigned joystick, unsigned button);
+	unsigned (*button_get)(unsigned joystick, unsigned button);
+	unsigned (*stick_axe_digital_get)(unsigned joystick, unsigned stick, unsigned axe, unsigned d);
+	int (*stick_axe_analog_get)(unsigned joystick, unsigned stick, unsigned axe);
 	void (*calib_start)(void);
 	const char* (*calib_next)(void);
 	void (*poll)(void);
@@ -114,67 +114,67 @@ static inline unsigned joystickb_count_get(void)
 	return joystickb_state.driver_current->count_get();
 }
 
-static inline unsigned joystickb_stick_count_get(unsigned j)
+static inline unsigned joystickb_stick_count_get(unsigned joystick)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_count_get(j);
+	return joystickb_state.driver_current->stick_count_get(joystick);
 }
 
-static inline unsigned joystickb_stick_axe_count_get(unsigned j, unsigned s)
+static inline unsigned joystickb_stick_axe_count_get(unsigned joystick, unsigned stick)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_axe_count_get(j, s);
+	return joystickb_state.driver_current->stick_axe_count_get(joystick, stick);
 }
 
-static inline unsigned joystickb_button_count_get(unsigned j)
+static inline unsigned joystickb_button_count_get(unsigned joystick)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->button_count_get(j);
+	return joystickb_state.driver_current->button_count_get(joystick);
 }
 
-static inline const char* joystickb_stick_name_get(unsigned j, unsigned s)
+static inline const char* joystickb_stick_name_get(unsigned joystick, unsigned stick)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_name_get(j, s);
+	return joystickb_state.driver_current->stick_name_get(joystick, stick);
 }
 
-static inline const char* joystickb_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
+static inline const char* joystickb_stick_axe_name_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_axe_name_get(j, s, a);
+	return joystickb_state.driver_current->stick_axe_name_get(joystick, stick, axe);
 }
 
-static inline const char* joystickb_button_name_get(unsigned j, unsigned b)
+static inline const char* joystickb_button_name_get(unsigned joystick, unsigned button)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->button_name_get(j, b);
+	return joystickb_state.driver_current->button_name_get(joystick, button);
 }
 
-static inline unsigned joystickb_button_get(unsigned j, unsigned b)
+static inline unsigned joystickb_button_get(unsigned joystick, unsigned button)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->button_get(j, b);
+	return joystickb_state.driver_current->button_get(joystick, button);
 }
 
-static inline unsigned joystickb_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
+static inline unsigned joystickb_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_axe_digital_get(j, s, a, d);
+	return joystickb_state.driver_current->stick_axe_digital_get(joystick, stick, axe, d);
 }
 
-static inline int joystickb_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
+static inline int joystickb_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	assert( joystickb_state.is_active_flag );
 
-	return joystickb_state.driver_current->stick_axe_analog_get(j, s, a);
+	return joystickb_state.driver_current->stick_axe_analog_get(joystick, stick, axe);
 }
 
 static inline void joystickb_calib_start(void)

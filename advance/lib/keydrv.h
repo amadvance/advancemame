@@ -61,8 +61,9 @@ typedef struct keyb_driver_struct {
 	adv_error (*init)(int device_id, adv_bool disable_special);
 	void (*done)(void);
 	unsigned (*flags)(void);
-	unsigned (*get)(unsigned code);
-	void (*all_get)(unsigned char* code_map);
+	unsigned (*count_get)(void);
+	unsigned (*get)(unsigned keyboard, unsigned code);
+	void (*all_get)(unsigned keyboard, unsigned char* code_map);
 	void (*poll)(void);
 } keyb_driver;
 
@@ -140,6 +141,14 @@ void keyb_done(void);
  */
 void keyb_abort(void);
 
+static inline unsigned keyb_count_get(void)
+{
+	assert( keyb_state.is_active_flag );
+
+	return keyb_state.driver_current->count_get();
+}
+
+
 /**
  * Return the capabilities flag of the keyboard driver.
  */
@@ -157,22 +166,22 @@ static inline unsigned keyb_flags(void)
  *  - == 0 not pressed
  *  - != 0 pressed
  */
-static inline unsigned keyb_get(unsigned code)
+static inline unsigned keyb_get(unsigned keyboard, unsigned code)
 {
 	assert( keyb_state.is_active_flag );
 
-	return keyb_state.driver_current->get(code);
+	return keyb_state.driver_current->get(keyboard, code);
 }
 
 /**
  * Get the status of all the keys.
  * \param code_map The destination vector of KEYB_MAX elements.
  */
-static inline void keyb_all_get(unsigned char* code_map)
+static inline void keyb_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	assert( keyb_state.is_active_flag );
 
-	keyb_state.driver_current->all_get(code_map);
+	keyb_state.driver_current->all_get(keyboard, code_map);
 }
 
 /**

@@ -1,4 +1,4 @@
-33;1R114RName
+Name
 	device drivers - The Advance device drivers
 
 	This file describes the video, sound, joystick, mouse and keyboard
@@ -185,6 +185,12 @@ Input Drivers
     svgalib - SVGALIB keyboard
 	This driver works in Linux and it uses the SVGALIB library.
 
+    event - Linux Input-Event interface
+	This driver works in Linux and it uses the new style input-event
+	interface of the Linux kernel.
+
+	It supports more than one keyboard at the same time.
+
     raw - Linux Kernel keyboard
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
@@ -202,12 +208,24 @@ Input Drivers
     svgalib - SVGALIB joystick
 	This driver works in Linux and it uses the SVGALIB library.
 
+	It supports more than one joystick at the same time.
+
+    event - Linux Input-Event interface
+	This driver works in Linux and it uses the new style input-event
+	interface of the Linux kernel.
+
+	It supports more than one joystick at the same time.
+
     allegro - Allegro joystick
 	This driver works in DOS and it uses the Allegro library.
+
+	It supports only one joystick.
 
     sdl - SDL joystick
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL joystick interface.
+
+	It supports more than one joystick at the same time.
 
   Available Mouse Drivers
 	The following is the list of all the mouse drivers supported.
@@ -215,17 +233,23 @@ Input Drivers
     svgalib - SVGALIB mouse
 	This driver works in Linux and it uses the SVGALIB library.
 
-	It supports only a single mouse input.
+	It supports only one mouse.
 
 	To use this driver you need to configure correctly the
 	SVGALIB mouse support in the file /etc/vga/libvga.config file.
+
+    event - Linux Input-Event interface
+	This driver works in Linux and it uses the new style input-event
+	interface of the Linux kernel.
+
+	It supports more than one mouse at the same time.
 
     raw - Serial mouse
 	This driver works in Linux and it communicates directly with
 	the configured serial mouses. It's also support USB mouses
 	using the Linux mousedev module.
 
-	It supports up to 4 mouses at the same time.
+	It supports more than one mouse at the same time.
 
 	To use this driver you need to configure correctly the
 	device_raw_* options to specify the mouse types and the mouse
@@ -241,7 +265,7 @@ Input Drivers
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL mouse interface.
 
-	It supports only a single mouse input.
+	It supports only one mouse.
 
 Video Drivers Configuration
 	The following are the video configuration options available for
@@ -689,7 +713,9 @@ Input Drivers Configuration
 	Options for Linux:
 		svgalib - SVGALIB keyboard. This driver is not available
 			if the SDL video output is used.
-		raw - Linux RAW kernel keyboard interface. This driver
+		event - Linux input-event interface. This driver
+			is not available if the SDL video output is used.
+		raw - Linux kernel keyboard interface. This driver
 			is not available if the SDL video output is used.
 		sdl - SDL keyboard. This driver is available
 			only if the SDL video output is used.
@@ -714,6 +740,7 @@ Input Drivers Configuration
 
 	Options for Linux:
 		svgalib - SVGALIB automatic detection.
+		event - Linux input-event interface.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
@@ -774,7 +801,8 @@ Input Drivers Configuration
 
 	Options for Linux:
 		svgalib - SVGALIB automatic detection.
-		raw - RAW automatic detection. It supports up to 4 mouses.
+		event - Linux input-event interface.
+		raw - Direct serial communication.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the

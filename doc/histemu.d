@@ -1,6 +1,18 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.71.2 2003/08
+	) Added a new set of Linux input driver for keyboards, mouses
+		and joysticks based on the Linux input-event interfaces.
+		These drivers remove any limitations on the number of
+		keyboards, mouses and joysticks, and they give the best
+		support for the new USB HID devices.
+	) The `input_map' option now accept the `auto' setting which
+		is able to map the correct input device on the correct
+		game control. This option works best with the new
+		Linux input-device drivers which are able to report
+		correctly the exact type of input control.
+
 AdvanceMAME Version 0.71.1 2003/07
 	) Added a new mouse driver for Linux which supports up to 4 mouses
 		at the same time.

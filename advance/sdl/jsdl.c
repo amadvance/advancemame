@@ -34,11 +34,11 @@
 
 #include "SDL.h"
 
-#define JOYSTICK_MAX 4 /**< Max number of joysticks */
+#define SDL_JOYSTICK_MAX 4 /**< Max number of joysticks */
 
 struct joystickb_sdl_context {
 	unsigned counter; /**< Number of joysticks active */
-	SDL_Joystick* map[JOYSTICK_MAX];
+	SDL_Joystick* map[SDL_JOYSTICK_MAX];
 	char axe_name_buffer[32];
 	char button_name_buffer[32];
 	char stick_name_buffer[32];
@@ -63,8 +63,8 @@ adv_error joystickb_sdl_init(int joystickb_id)
 	SDL_JoystickEventState(SDL_IGNORE);
 
 	sdl_state.counter = SDL_NumJoysticks();
-	if (sdl_state.counter > JOYSTICK_MAX)
-		sdl_state.counter = JOYSTICK_MAX;
+	if (sdl_state.counter > SDL_JOYSTICK_MAX)
+		sdl_state.counter = SDL_JOYSTICK_MAX;
 
 	for(i=0;i<sdl_state.counter;++i) {
 		sdl_state.map[i] = SDL_JoystickOpen(i);
@@ -94,118 +94,136 @@ unsigned joystickb_sdl_count_get(void)
 	return sdl_state.counter;
 }
 
-unsigned joystickb_sdl_stick_count_get(unsigned j)
+unsigned joystickb_sdl_stick_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_count_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
+	assert(joystick < joystickb_sdl_count_get());
 
 	return 1;
 }
 
-unsigned joystickb_sdl_stick_axe_count_get(unsigned j, unsigned s)
+unsigned joystickb_sdl_stick_axe_count_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_count_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(s < joystickb_sdl_stick_count_get(j) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(stick < joystickb_sdl_stick_count_get(joystick) );
 
-	(void)s;
+	(void)stick;
 
-	return SDL_JoystickNumAxes(sdl_state.map[j]);
+	return SDL_JoystickNumAxes(sdl_state.map[joystick]);
 }
 
-unsigned joystickb_sdl_button_count_get(unsigned j)
+unsigned joystickb_sdl_button_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_button_count_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
+	assert(joystick < joystickb_sdl_count_get());
 
-	return SDL_JoystickNumButtons(sdl_state.map[j]);
+	return SDL_JoystickNumButtons(sdl_state.map[joystick]);
 }
 
-const char* joystickb_sdl_stick_name_get(unsigned j, unsigned s)
+const char* joystickb_sdl_stick_name_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_name_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(s < joystickb_sdl_stick_count_get(j) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(stick < joystickb_sdl_stick_count_get(joystick) );
 
-	(void)j;
+	(void)joystick;
 
-	snprintf(sdl_state.stick_name_buffer, sizeof(sdl_state.stick_name_buffer), "S%d", s+1);
+	if (stick == 0)
+		snprintf(sdl_state.stick_name_buffer, sizeof(sdl_state.stick_name_buffer), "stick");
+	else
+		snprintf(sdl_state.stick_name_buffer, sizeof(sdl_state.stick_name_buffer), "stick%d", stick+1);
 
 	return sdl_state.stick_name_buffer;
 }
 
-const char* joystickb_sdl_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
+const char* joystickb_sdl_stick_axe_name_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_name_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(s < joystickb_sdl_stick_count_get(j) );
-	assert(a < joystickb_sdl_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(stick < joystickb_sdl_stick_count_get(joystick) );
+	assert(axe < joystickb_sdl_stick_axe_count_get(joystick, stick) );
 
-	(void)j;
-	(void)s;
+	(void)joystick;
+	(void)stick;
 
-	snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "A%d", a+1);
+	switch (axe) {
+	case 0 : snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "x"); break;
+	case 1 : snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "y"); break;
+	case 2 : snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "z"); break;
+	default: snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "axe%d", axe+1);
+	}
 
 	return sdl_state.axe_name_buffer;
 }
 
-const char* joystickb_sdl_button_name_get(unsigned j, unsigned b)
+const char* joystickb_sdl_button_name_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_button_name_get()\n"));
-	(void)j;
 
-	assert(j < joystickb_sdl_count_get());
-	assert(b < joystickb_sdl_button_count_get(j) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(button < joystickb_sdl_button_count_get(joystick) );
 
-	snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "B%d", b+1);
+	(void)joystick;
+
+	if (button == 0)
+		snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "button");
+	else
+		snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "button%d", button+1);
 
 	return sdl_state.button_name_buffer;
 }
 
-unsigned joystickb_sdl_button_get(unsigned j, unsigned b)
+unsigned joystickb_sdl_button_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_button_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(b < joystickb_sdl_button_count_get(j) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(button < joystickb_sdl_button_count_get(joystick) );
 
-	return SDL_JoystickGetButton(sdl_state.map[j], b) != 0;
+	return SDL_JoystickGetButton(sdl_state.map[joystick], button) != 0;
 }
 
-unsigned joystickb_sdl_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
+unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
 {
 	int r;
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_digital_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(s < joystickb_sdl_stick_count_get(j) );
-	assert(a < joystickb_sdl_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(stick < joystickb_sdl_stick_count_get(joystick) );
+	assert(axe < joystickb_sdl_stick_axe_count_get(joystick, stick) );
 
-	r = SDL_JoystickGetAxis(sdl_state.map[j], a);
+	r = SDL_JoystickGetAxis(sdl_state.map[joystick], axe);
 	if (d)
-		return r < -16384;
+		return r < -8192; /* -1/8 of the whole range 65536 */
 	else
-		return r > 16384;
+		return r > 8192; /* +1/8 of the whole range 65536 */
 
 	return 0;
 }
 
-int joystickb_sdl_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
+int joystickb_sdl_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	int r;
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_analog_get()\n"));
 
-	assert(j < joystickb_sdl_count_get());
-	assert(s < joystickb_sdl_stick_count_get(j) );
-	assert(a < joystickb_sdl_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_sdl_count_get());
+	assert(stick < joystickb_sdl_stick_count_get(joystick) );
+	assert(axe < joystickb_sdl_stick_axe_count_get(joystick, stick) );
 
-	r = SDL_JoystickGetAxis(sdl_state.map[j], a);
-	r = r >> 8; /* adjust the upper limit from -128 to 128 */
+	r = SDL_JoystickGetAxis(sdl_state.map[joystick], axe);
+
+	r /= 256; /* adjust the upper limit from -128 to 128 */
+	if (r < -128)
+		r = -128;
+	if (r > 128)
+		r = 128;
+
 	return r;
 }
 

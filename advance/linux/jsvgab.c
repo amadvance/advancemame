@@ -99,120 +99,132 @@ unsigned joystickb_svgalib_count_get(void)
 	return svgalib_state.counter;
 }
 
-unsigned joystickb_svgalib_stick_count_get(unsigned j)
+unsigned joystickb_svgalib_stick_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_count_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
+	assert(joystick < joystickb_svgalib_count_get());
 
 	return 1;
 }
 
-unsigned joystickb_svgalib_stick_axe_count_get(unsigned j, unsigned s)
+unsigned joystickb_svgalib_stick_axe_count_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_count_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(s < joystickb_svgalib_stick_count_get(j) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(stick < joystickb_svgalib_stick_count_get(joystick) );
 
-	(void)s;
+	(void)stick;
 
-	return joystick_getnumaxes(j);
+	return joystick_getnumaxes(joystick);
 }
 
-unsigned joystickb_svgalib_button_count_get(unsigned j)
+unsigned joystickb_svgalib_button_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_button_count_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
+	assert(joystick < joystickb_svgalib_count_get());
 
-	return joystick_getnumbuttons(j);
+	return joystick_getnumbuttons(joystick);
 }
 
-const char* joystickb_svgalib_stick_name_get(unsigned j, unsigned s)
+const char* joystickb_svgalib_stick_name_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_name_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(s < joystickb_svgalib_stick_count_get(j) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(stick < joystickb_svgalib_stick_count_get(joystick) );
 
-	(void)j;
+	(void)joystick;
 
-	snprintf(svgalib_state.stick_name_buffer, sizeof(svgalib_state.stick_name_buffer), "S%d", s+1);
+	if (stick == 0)
+		snprintf(svgalib_state.stick_name_buffer, sizeof(svgalib_state.stick_name_buffer), "stick");
+	else
+		snprintf(svgalib_state.stick_name_buffer, sizeof(svgalib_state.stick_name_buffer), "stick%d", stick+1);
 
 	return svgalib_state.stick_name_buffer;
 }
 
-const char* joystickb_svgalib_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
+const char* joystickb_svgalib_stick_axe_name_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_name_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(stick < joystickb_svgalib_stick_count_get(joystick) );
+	assert(axe < joystickb_svgalib_stick_axe_count_get(joystick, stick) );
 
-	(void)j;
-	(void)s;
+	(void)joystick;
+	(void)stick;
 
-	snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "A%d", a+1);
+	switch (axe) {
+	case 0 : snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "x"); break;
+	case 1 : snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "y"); break;
+	case 2 : snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "z"); break;
+	default: snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "axe%d", axe+1);
+	}
 
 	return svgalib_state.axe_name_buffer;
 }
 
-const char* joystickb_svgalib_button_name_get(unsigned j, unsigned b)
+const char* joystickb_svgalib_button_name_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_button_name_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(b < joystickb_svgalib_button_count_get(j) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(button < joystickb_svgalib_button_count_get(joystick) );
 
-	(void)j;
+	(void)joystick;
 
-	snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "B%d", b+1);
+	if (button == 0)
+		snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "button");
+	else
+		snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "button%d", button+1);
 
 	return svgalib_state.button_name_buffer;
 }
 
-unsigned joystickb_svgalib_button_get(unsigned j, unsigned b)
+unsigned joystickb_svgalib_button_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_button_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(b < joystickb_svgalib_button_count_get(j) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(button < joystickb_svgalib_button_count_get(joystick) );
 
-	return joystick_getbutton(j, b) != 0;
+	return joystick_getbutton(joystick, button) != 0;
 }
 
-unsigned joystickb_svgalib_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
+unsigned joystickb_svgalib_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
 {
 	int r;
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_digital_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(stick < joystickb_svgalib_stick_count_get(joystick) );
+	assert(axe < joystickb_svgalib_stick_axe_count_get(joystick, stick) );
 
-	r = joystick_getaxis(j, a);
+	r = joystick_getaxis(joystick, axe);
 	if (d)
-		return r < -64;
+		return r < -32; /* -1/8 of the whole range 256 */
 	else
-		return r > 64;
+		return r > 32; /* +1/8 of the whole range 256 */
 
 	return 0;
 }
 
-int joystickb_svgalib_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
+int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	int r;
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_analog_get()\n"));
 
-	assert(j < joystickb_svgalib_count_get());
-	assert(s < joystickb_svgalib_stick_count_get(j) );
-	assert(a < joystickb_svgalib_stick_axe_count_get(j, s) );
+	assert(joystick < joystickb_svgalib_count_get());
+	assert(stick < joystickb_svgalib_stick_count_get(joystick) );
+	assert(axe < joystickb_svgalib_stick_axe_count_get(joystick, stick) );
 
-	r = joystick_getaxis(j, a);
+	r = joystick_getaxis(joystick, axe);
 	if (r > 64) /* adjust the upper limit from 127 to 128 */
 		++r;
+
 	return r;
 }
 

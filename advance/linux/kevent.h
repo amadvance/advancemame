@@ -28,37 +28,27 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "mouseall.h"
+/** \file
+ * Keyboard driver "svgalib".
+ */
+
+#ifndef __KEVENT_H
+#define __KEVENT_H
+
+#include "keydrv.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
- * Register all the mouse drivers.
- * The drivers are registered on the basis of the following defines:
- *  - USE_MOUSE_ALLEGRO
- *  - USE_MOUSE_SVGALIB
- *  - USE_MOUSE_EVENT
- *  - USE_MOUSE_RAW
- *  - USE_MOUSE_SDL
- *  - USE_MOUSE_NONE
+ * Keyboard driver "event".
+ * \ingroup Keyboard
  */
-void mouseb_reg_driver_all(adv_conf* context)
-{
-#ifdef USE_MOUSE_ALLEGRO
-	mouseb_reg_driver(context, &mouseb_allegro_driver);
-#endif
-#ifdef USE_MOUSE_SVGALIB
-	mouseb_reg_driver(context, &mouseb_svgalib_driver);
-#endif
-#ifdef USE_MOUSE_EVENT
-	mouseb_reg_driver(context, &mouseb_event_driver);
-#endif
-#ifdef USE_MOUSE_RAW
-	mouseb_reg_driver(context, &mouseb_raw_driver);
-#endif
-#ifdef USE_MOUSE_SDL
-	mouseb_reg_driver(context, &mouseb_sdl_driver);
-#endif
-#ifdef USE_MOUSE_NONE
-	mouseb_reg_driver(context, &mouseb_none_driver);
-#endif
-}
+extern keyb_driver keyb_event_driver;
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

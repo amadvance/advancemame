@@ -48,14 +48,21 @@ void keyb_none_done(void)
 	log_std(("keyb:none: keyb_none_done()\n"));
 }
 
-unsigned keyb_none_get(unsigned code)
+unsigned keyb_none_count_get(void)
+{
+	log_std(("keyb:none: keyb_none_count_get()\n"));
+
+	return 1;
+}
+
+unsigned keyb_none_get(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:none: keyb_none_get()\n"));
 
 	return 0;
 }
 
-void keyb_none_all_get(unsigned char* code_map)
+void keyb_none_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
 
@@ -96,6 +103,7 @@ keyb_driver keyb_none_driver = {
 	keyb_none_init,
 	keyb_none_done,
 	keyb_none_flags,
+	keyb_none_count_get,
 	keyb_none_get,
 	keyb_none_all_get,
 	keyb_none_poll

@@ -486,8 +486,6 @@ int os_main(int argc, char* argv[])
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
-	if (advance_input_inner_init(&context->input)!=0)
-		goto err_os_inner;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
 		goto err_os_inner;
 	if (hardware_script_inner_init()!=0)
@@ -503,7 +501,6 @@ int os_main(int argc, char* argv[])
 
 	hardware_script_inner_done();
 	advance_safequit_inner_done(&context->safequit);
-	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
 
 	log_std(("advance: os_inner_done()\n"));

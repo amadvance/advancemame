@@ -1084,66 +1084,57 @@ Configuration
 			never exits automatically.
 
     input_map[,x|y|z|pedal]
-	Changes the analog control mapping. Map the physical A'n
-	joystick, B'n stick, C'n axe on the J'n axe of the I'n player.
+	Changes the analog control mapping. Map a joystick/control axe
+	on a player analog control.
 
-	:input_map[I,J] [-]joystick[A,B,C] ...
+	:input_map[PLAYER,CONTROL] auto | [-]joystick[JOY,STICK,AXE] ...
+
+	The default is always `auto'.
 
 	Options:
-		- - Invert the effect of the movement.
-		I - Number of player: 0, 1, 2, 3.
-		J - Name of player axe: x, y, z, pedal.
-		A - Number of physical joystick: 0, 1, 2, 3...
-		B - Number of physical stick of the joystick: 0, 1, 2, 3, ...
-		C - Number of physical axe of the stick: 0, 1, 2, 3, ...
+		- - Invert the direction of the movement.
+		PLAYER - Number of player: 0, 1, 2, 3.
+		CONTROL - Name of player control: x, y, z, pedal.
+		JOY - Number of physical joystick: 0, 1, 2, 3, ...
+		STICK - Number of physical stick of the joystick: 0, 1, 2, 3, ...
+		AXE - Number of physical axe of the stick: 0, 1, 2, 3, ...
 
-	Defaults:
-		input_map[0,x] - joystick[0,0,0]
-		input_map[0,y] - joystick[0,0,1]
-		input_map[0,z] - joystick[0,0,2]
-		input_map[0,pedal] - joystick[0,0,3]
-		input_map[1,x] - joystick[1,0,0]
-		input_map[1,y] - joystick[1,0,1]
-		input_map[1,z] - joystick[1,0,2]
-		input_map[1,pedal] - joystick[1,0,3]
-		input_map[2,x] - joystick[2,0,0]
-		input_map[2,y] - joystick[2,0,1]
-		input_map[2,z] - joystick[2,0,2]
-		input_map[2,pedal] - joystick[2,0,3]
-		input_map[3,x] - joystick[3,0,0]
-		input_map[3,y] - joystick[3,0,1]
-		input_map[3,z] - joystick[3,0,2]
-		input_map[3,pedal] - joystick[3,0,3]
+	Controls:
+		x - This axe is generally used for all the horizontal movements
+			and for steering wheel.
+		y - This axe is generally used for all the vertical movements.
+		z - This axe is generally used for all the in deep movements
+			and for the second pedal (brake).
+		pedal - This axe is generally used for the first pedal (gas).
 
 	Examples:
-		input_map[0,x] - joystick[0,0,0] joystick[0,1,0]
-		input_map[0,y] - joystick[0,0,1] -joystick[0,1,1]
+		input_map[0,x] -joystick[0,0,0] joystick[0,1,0]
+		input_map[0,y] -joystick[0,0,1] -joystick[0,1,1]
 
     input_map[,trakx|traky]
-	Changes the trak control mapping. Map the physical A'n mouse
-	on the I'n player trak control.
+	Changes the trak control mapping. Map a mouse axe on a player
+	track control.
 
-	:input_map[I,trakx|traky] [-]mouse[M,A] ...
+	:input_map[PLAYER,CONTROL] auto | [-]mouse[MOUSE,AXE] ...
+
+	The default is always `auto'.
 
 	Options:
-		- - Invert the effect of the movement.
-		I - Number of player trak control: 0, 1, 2, 3.
-		M - Number of physical mouse: 0, 1, 2, 3...
-		A - Number of physical mouse axe: 0, 1...
+		- - Invert the direction of the movement.
+		PLAYER - Number of player trak control: 0, 1, 2, 3.
+		CONTROL - Name of player control: trackx, tracky.
+		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
+		AXE - Number of physical mouse axe: 0, 1, 2, ...
 
-	Defaults:
-		input_map[0,trakx] - mouse[0,0]
-		input_map[0,traky] - mouse[0,1]
-		input_map[1,trakx] - mouse[1,0]
-		input_map[1,traky] - mouse[1,1]
-		input_map[2,trakx] - mouse[2,0]
-		input_map[2,traky] - mouse[2,1]
-		input_map[3,trakx] - mouse[3,0]
-		input_map[3,traky] - mouse[3,1]
+	Controls:
+		trackx - This axe is generally used for all the horizontal
+			movements with a trackball.
+		tracky - This axe is generally used for all the vertical movements
+			with a trackball.
 
 	Examples:
-		input_map[0,trakx] - mouse[0,0] -mouse[1,0]
-		input_map[0,traky] - mouse[0,1] -mouse[1,1]
+		input_map[0,trakx] -mouse[0,0] -mouse[1,0]
+		input_map[0,traky] -mouse[0,1] -mouse[1,1]
 
   Record Configuration Options
 	This section describes the options used for the recording

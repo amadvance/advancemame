@@ -35,8 +35,9 @@
  * The drivers are registered on the basis of the following defines:
  *  - USE_KEYBOARD_ALLEGRO
  *  - USE_KEYBOARD_SVGALIB
- *  - USE_KEYBOARD_SDL
+ *  - USE_KEYBOARD_EVENT
  *  - USE_KEYBOARD_RAW
+ *  - USE_KEYBOARD_SDL
  *  - USE_KEYBOARD_NONE
  */
 void keyb_reg_driver_all(adv_conf* context)
@@ -47,11 +48,14 @@ void keyb_reg_driver_all(adv_conf* context)
 #ifdef USE_KEYBOARD_SVGALIB
 	keyb_reg_driver(context, &keyb_svgalib_driver);
 #endif
-#ifdef USE_KEYBOARD_SDL
-	keyb_reg_driver(context, &keyb_sdl_driver);
+#ifdef USE_KEYBOARD_EVENT
+	keyb_reg_driver(context, &keyb_event_driver);
 #endif
 #ifdef USE_KEYBOARD_RAW
 	keyb_reg_driver(context, &keyb_raw_driver);
+#endif
+#ifdef USE_KEYBOARD_SDL
+	keyb_reg_driver(context, &keyb_sdl_driver);
 #endif
 #ifdef USE_KEYBOARD_NONE
 	keyb_reg_driver(context, &keyb_none_driver);

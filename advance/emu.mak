@@ -102,6 +102,28 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/mraw.o
 endif
+ifeq ($(CONF_LIB_KEVENT),yes)
+ADVANCECFLAGS += \
+	-DUSE_KEYBOARD_EVENT
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/kevent.o
+endif
+ifeq ($(CONF_LIB_MEVENT),yes)
+ADVANCECFLAGS += \
+	-DUSE_MOUSE_EVENT
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/mevent.o
+endif
+ifeq ($(CONF_LIB_JEVENT),yes)
+ADVANCECFLAGS += \
+	-DUSE_JOYSTICK_EVENT
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/jevent.o
+endif
+ifneq (,$(findstring _EVENT,$(ADVANCECFLAGS)))
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/event.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)
@@ -370,6 +392,7 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/keyall.o \
 	$(OBJ)/advance/lib/keydrv.o \
 	$(OBJ)/advance/lib/knone.o \
+	$(OBJ)/advance/lib/key.o \
 	$(OBJ)/advance/lib/mouseall.o \
 	$(OBJ)/advance/lib/mousedrv.o \
 	$(OBJ)/advance/lib/mnone.o \

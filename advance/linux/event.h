@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,37 +28,22 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "mouseall.h"
+#ifndef __EVENT_H
+#define __EVENT_H
 
-/**
- * Register all the mouse drivers.
- * The drivers are registered on the basis of the following defines:
- *  - USE_MOUSE_ALLEGRO
- *  - USE_MOUSE_SVGALIB
- *  - USE_MOUSE_EVENT
- *  - USE_MOUSE_RAW
- *  - USE_MOUSE_SDL
- *  - USE_MOUSE_NONE
- */
-void mouseb_reg_driver_all(adv_conf* context)
-{
-#ifdef USE_MOUSE_ALLEGRO
-	mouseb_reg_driver(context, &mouseb_allegro_driver);
-#endif
-#ifdef USE_MOUSE_SVGALIB
-	mouseb_reg_driver(context, &mouseb_svgalib_driver);
-#endif
-#ifdef USE_MOUSE_EVENT
-	mouseb_reg_driver(context, &mouseb_event_driver);
-#endif
-#ifdef USE_MOUSE_RAW
-	mouseb_reg_driver(context, &mouseb_raw_driver);
-#endif
-#ifdef USE_MOUSE_SDL
-	mouseb_reg_driver(context, &mouseb_sdl_driver);
-#endif
-#ifdef USE_MOUSE_NONE
-	mouseb_reg_driver(context, &mouseb_none_driver);
-#endif
-}
+#include "extra.h"
 
+int event_open(const char* file, unsigned char* evtype_bitmask);
+void event_close(int f);
+void event_log(int f, unsigned char* evtype_bitmask);
+adv_error event_read(int f, int* type, int* code, int* value);
+
+adv_bool event_is_mouse(unsigned char* evtype_bitmask);
+adv_bool event_is_joystick(unsigned char* evtype_bitmask);
+adv_bool event_is_keyboard(unsigned char* evtype_bitmask);
+
+#define event_test_bit(bit, array) \
+	(array[bit/8] & (1<<(bit%8)))
+
+
+#endif

@@ -207,13 +207,21 @@ void keyb_svgalib_done(void)
 	keyboard_close();
 }
 
-unsigned keyb_svgalib_get(unsigned code)
+unsigned keyb_svgalib_count_get(void)
+{
+	log_std(("keyb:svgalib: keyb_svgalib_count_get(void)\n"));
+
+	return 1;
+}
+
+unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
 {
 	unsigned svgalib_code;
 
-	assert( code < KEYB_MAX);
+	assert(keyboard < keyb_svgalib_count_get());
+	assert(code < KEYB_MAX);
 
-	log_debug(("keyb:svgalib: keyb_svgalib_get(code:%d)\n", code));
+	log_debug(("keyb:svgalib: keyb_svgalib_get(keyboard:%d,code:%d)\n", keyboard, code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -229,11 +237,13 @@ unsigned keyb_svgalib_get(unsigned code)
 	return keyboard_keypressed(svgalib_code);
 }
 
-void keyb_svgalib_all_get(unsigned char* code_map)
+void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
 
-	log_debug(("keyb:svgalib: keyb_svgalib_all_get()\n"));
+	assert(keyboard < keyb_svgalib_count_get());
+
+	log_debug(("keyb:svgalib: keyb_svgalib_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
 		unsigned svgalib_code = svgalib_state.map_os_to_code[i];
@@ -279,6 +289,7 @@ keyb_driver keyb_svgalib_driver = {
 	keyb_svgalib_init,
 	keyb_svgalib_done,
 	keyb_svgalib_flags,
+	keyb_svgalib_count_get,
 	keyb_svgalib_get,
 	keyb_svgalib_all_get,
 	keyb_svgalib_poll

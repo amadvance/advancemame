@@ -601,7 +601,7 @@ AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
 AC_ARG_ENABLE(
 	[kraw],
-	AC_HELP_STRING([--enable-kraw],[enable the use of the RAW keyboard library. (default auto)]),
+	AC_HELP_STRING([--enable-kraw],[enable the use of the RAW keyboard interface. (default auto)]),
 	[ac_lib_kraw=$enableval],
 	[ac_lib_kraw=auto]
 )
@@ -626,7 +626,7 @@ AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
 AC_ARG_ENABLE(
 	[mraw],
-	AC_HELP_STRING([--enable-mraw],[enable the use of the RAW mouse library. (default auto)]),
+	AC_HELP_STRING([--enable-mraw],[enable the use of the RAW mouse interface. (default auto)]),
 	[ac_lib_mraw=$enableval],
 	[ac_lib_mraw=auto]
 )
@@ -651,6 +651,78 @@ if test $ac_lib_mraw = yes; then
 	ac_lib="$ac_lib MRAW"
 fi
 AC_SUBST([CONF_LIB_MRAW],[$ac_lib_mraw])
+
+AC_ARG_ENABLE(
+	[mevent],
+	AC_HELP_STRING([--enable-mevent],[enable the use of the input-event mouse interface. (default auto)]),
+	[ac_lib_mevent=$enableval],
+	[ac_lib_mevent=auto]
+)
+if test $ac_lib_mevent = auto; then
+	AC_MSG_CHECKING([for input-event mouse interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[ac_lib_mevent=yes],[ac_lib_mevent=no])
+	AC_MSG_RESULT([$ac_lib_mevent])
+elif test $ac_lib_mevent = yes; then
+	AC_MSG_CHECKING([for input-event mouse interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[],[AC_MSG_ERROR([the input-event mouse interface is missing])])
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_mevent = yes; then
+	ac_lib="$ac_lib MEVENT"
+fi
+AC_SUBST([CONF_LIB_MEVENT],[$ac_lib_mevent])
+
+AC_ARG_ENABLE(
+	[kevent],
+	AC_HELP_STRING([--enable-kevent],[enable the use of the input-event keyboard interface. (default auto)]),
+	[ac_lib_kevent=$enableval],
+	[ac_lib_kevent=auto]
+)
+if test $ac_lib_kevent = auto; then
+	AC_MSG_CHECKING([for input-event keyboard interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[ac_lib_kevent=yes],[ac_lib_kevent=no])
+	AC_MSG_RESULT([$ac_lib_kevent])
+elif test $ac_lib_kevent = yes; then
+	AC_MSG_CHECKING([for input-event keyboard interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[],[AC_MSG_ERROR([the input-event keyboard interface is missing])])
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_kevent = yes; then
+	ac_lib="$ac_lib KEVENT"
+fi
+AC_SUBST([CONF_LIB_KEVENT],[$ac_lib_kevent])
+
+AC_ARG_ENABLE(
+	[jevent],
+	AC_HELP_STRING([--enable-jevent],[enable the use of the input-event joystick interface. (default auto)]),
+	[ac_lib_jevent=$enableval],
+	[ac_lib_jevent=auto]
+)
+if test $ac_lib_jevent = auto; then
+	AC_MSG_CHECKING([for input-event joystick interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[ac_lib_jevent=yes],[ac_lib_jevent=no])
+	AC_MSG_RESULT([$ac_lib_jevent])
+elif test $ac_lib_jevent = yes; then
+	AC_MSG_CHECKING([for input-event joystick interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
+			int dummy = EVIOCGVERSION;
+		]])],[],[AC_MSG_ERROR([the input-event joystick interface is missing])])
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_jevent = yes; then
+	ac_lib="$ac_lib JEVENT"
+fi
+AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
 # Notify that ./configure was runned
 AC_SUBST([CONF],[yes])

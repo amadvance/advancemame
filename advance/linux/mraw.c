@@ -34,19 +34,50 @@
 #include "error.h"
 #include "portable.h"
 
+#ifdef USE_VIDEO_SDL
+#include "SDL.h"
+#endif
+
 #if defined(USE_SVGALIB)
 #include <vga.h>
 #include <vgamouse.h>
 #endif
 
+#include <errno.h>
+#include <string.h>
+
 /* include the mouse driver */
 #include "ms.c"
 
 #define RAW_MOUSE_MAX 4
+#define RAW_MOUSE_NAME_MAX 128
+#define RAW_MOUSE_BUTTON_MAX 8
+#define RAW_MOUSE_AXE_MAX 8
+
+struct mouse_button_context {
+	unsigned code;
+	int* pvalue;
+	char name[RAW_MOUSE_NAME_MAX];
+};
+
+struct mouse_axe_context {
+	unsigned code;
+	int* pvalue;
+	char name[RAW_MOUSE_NAME_MAX];
+};
+
+struct mouse_item_context {
+	adv_bool active_flag;
+	struct raw_mouse_context context;
+	unsigned button_mac;
+	struct mouse_button_context button_map[RAW_MOUSE_BUTTON_MAX];
+	unsigned axe_mac;
+	struct mouse_axe_context axe_map[RAW_MOUSE_AXE_MAX];
+};
 
 struct mouseb_raw_context {
-	struct raw_mouse_context map[RAW_MOUSE_MAX]; /**< Mouse data. */
-	int opened[RAW_MOUSE_MAX];
+	unsigned mac;
+	struct mouse_item_context map[RAW_MOUSE_MAX];
 };
 
 static struct mouseb_raw_context raw_state;
@@ -56,33 +87,105 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
+static void mouseb_setup(struct mouse_item_context* item)
+{
+	unsigned i;
+	struct button_entry {
+		int code;
+		const char* name;
+	} button_map[] = {
+		{ MOUSE_LEFTBUTTON, "left" },
+		{ MOUSE_RIGHTBUTTON, "right" },
+		{ MOUSE_MIDDLEBUTTON, "middle" },
+		{ MOUSE_FOURTHBUTTON, "four" },
+		{ MOUSE_FIFTHBUTTON, "fifth" },
+		{ MOUSE_SIXTHBUTTON, "sixth" }
+	};
+
+	struct axe_entry {
+		int code;
+		const char* name;
+	} axe_map[] = {
+		{ MOUSE_XDIM, "x" },
+		{ MOUSE_YDIM, "y" },
+		{ MOUSE_ZDIM, "z" },
+		{ MOUSE_RXDIM, "rx" },
+		{ MOUSE_RYDIM, "ry" },
+		{ MOUSE_RZDIM, "rz" }
+	};
+
+	item->button_mac = 0;
+	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+		if ((item->context.info_button & button_map[i].code) != 0) {
+			if (item->button_mac < RAW_MOUSE_BUTTON_MAX) {
+				item->button_map[item->button_mac].code = button_map[i].code;
+				item->button_map[item->button_mac].pvalue = &item->context.button;
+				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
+				++item->button_mac;
+			}
+		}
+	}
+
+	item->axe_mac = 0;
+	for(i=0;i<sizeof(axe_map)/sizeof(axe_map[0]);++i) {
+		if ((item->context.info_button & axe_map[i].code) != 0) {
+			if (item->axe_mac < RAW_MOUSE_AXE_MAX) {
+				item->axe_map[item->axe_mac].code = axe_map[i].code;
+				switch (axe_map[i].code) {
+				case MOUSE_XDIM : item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
+				case MOUSE_YDIM : item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
+				case MOUSE_ZDIM : item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
+				case MOUSE_RXDIM : item->axe_map[item->axe_mac].pvalue = &item->context.rx; break;
+				case MOUSE_RYDIM : item->axe_map[item->axe_mac].pvalue = &item->context.ry; break;
+				case MOUSE_RZDIM : item->axe_map[item->axe_mac].pvalue = &item->context.rz; break;
+				}
+				sncpy(item->axe_map[item->axe_mac].name, sizeof(item->axe_map[item->axe_mac].name), axe_map[i].name);
+				++item->axe_mac;
+			}
+		}
+	}
+}
+
 adv_error mouseb_raw_init(int mouseb_id)
 {
 	unsigned i;
-	adv_bool almost_one;
 
 	log_std(("mouseb:raw: mouseb_raw_init(id:%d)\n", mouseb_id));
 
+#ifdef USE_VIDEO_SDL
+	/* If the SDL video driver is used, also the SDL */
+	/* keyboard input must be used. */
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+		log_std(("mouseb:raw: Incompatible with the SDL video driver\n"));
+		error_nolog_cat("raw: Incompatible with the SDL video driver\n");
+		return -1; 
+	}
+#endif
+
 #if defined(USE_SVGALIB)
-	/* close the SVGALIB mouse device, otherwise it doesn't work. */
+	/* close the SVGALIB mouse device. SVGALIB always call mouse_init(), also */
+	/* if mouse input is not requested */
 	if (os_internal_svgalib_get()) {
 		mouse_close();
 	}
 #endif
 
-	almost_one = 0;
+	raw_state.mac = 0;
 	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		log_std(("mouseb:raw: opening mouse %s\n", raw_state.map[i].dev));
-		if (raw_mouse_init(&raw_state.map[i]) == 0) {
-			raw_state.opened[i] = 1;
-			almost_one = 1;
+		log_std(("mouseb:raw: opening mouse %s\n", raw_state.map[i].context.dev));
+		if (raw_mouse_init(&raw_state.map[i].context) == 0) {
+			mouseb_setup(&raw_state.map[i]);
+			raw_state.map[i].active_flag = 1;
+			raw_state.mac = i + 1;
 		} else {
-			log_std(("mouseb:raw: error opening mouse device\n"));
-			raw_state.opened[i] = 0;
+			log_std(("mouseb:raw: error opening mouse device %s, errno %d (%s)\n", raw_state.map[i].context.dev, errno, strerror(errno)));
+			raw_state.map[i].active_flag = 0;
 		}
 	}
 
-	if (!almost_one) {
+	if (raw_state.mac == 0) {
+		log_std(("mouseb:raw: no mouse found\n"));
+		error_nolog_cat("raw: No mouse found\n");
 		return -1;
 	}
 
@@ -95,102 +198,83 @@ void mouseb_raw_done(void)
 
 	log_std(("mouseb:raw: mouseb_raw_done()\n"));
 
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		if (raw_state.opened[i]) {
-			raw_state.opened[i] = 0;
-			raw_mouse_close(&raw_state.map[i]);
+	for(i=0;i<raw_state.mac;++i) {
+		if (raw_state.map[i].active_flag) {
+			raw_mouse_close(&raw_state.map[i].context);
 		}
 	}
+
+	raw_state.mac = 0;
 }
 
 unsigned mouseb_raw_count_get(void)
 {
-	unsigned i;
-	unsigned mac;
-
 	log_debug(("mouseb:raw: mouseb_raw_count_get()\n"));
 
-	mac = 0;
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		if (raw_state.opened[i]) {
-			mac = i + 1;
-		}
-	}
-
-	return mac;
+	return raw_state.mac;
 }
 
-unsigned mouseb_raw_button_count_get(unsigned m)
+unsigned mouseb_raw_axe_count_get(unsigned mouse)
 {
-	unsigned i;
-	unsigned mb[6] = {
-		MOUSE_LEFTBUTTON,
-		MOUSE_RIGHTBUTTON,
-		MOUSE_MIDDLEBUTTON,
-		MOUSE_FOURTHBUTTON,
-		MOUSE_FIFTHBUTTON,
-		MOUSE_SIXTHBUTTON
-	};
+	log_debug(("mouseb:raw: mouseb_raw_axe_count_get()\n"));
 
+	assert(mouse < mouseb_raw_count_get());
+
+	return raw_state.map[mouse].axe_mac;
+}
+
+const char* mouseb_raw_axe_name_get(unsigned mouse, unsigned axe)
+{
+	log_debug(("mouseb:raw: mouseb_raw_axe_name_get()\n"));
+
+	assert(mouse < mouseb_raw_count_get());
+	assert(axe < mouseb_raw_axe_count_get(mouse));
+
+	return raw_state.map[mouse].axe_map[axe].name;
+}
+
+unsigned mouseb_raw_button_count_get(unsigned mouse)
+{
 	log_debug(("mouseb:raw: mouseb_raw_button_count_get()\n"));
 
-	assert( m < mouseb_raw_count_get());
+	assert(mouse < mouseb_raw_count_get());
 
-	if (m >= RAW_MOUSE_MAX || !raw_state.opened[m])
-		return 0;
-
-	for(i=0;i<6;++i)
-		if ((raw_state.map[m].info_button & mb[i]) == 0)
-			break;
-
-	return i;
+	return raw_state.map[mouse].button_mac;
 }
 
-void mouseb_raw_pos_get(unsigned m, int* x, int* y, int* z)
+const char* mouseb_raw_button_name_get(unsigned mouse, unsigned button)
 {
+	log_debug(("mouseb:raw: mouseb_raw_button_name_get()\n"));
+
+	assert(mouse < mouseb_raw_count_get());
+	assert(button < mouseb_raw_button_count_get(mouse));
+
+	return raw_state.map[mouse].button_map[button].name;
+}
+
+int mouseb_raw_axe_get(unsigned mouse, unsigned axe)
+{
+	int r;
+
 	log_debug(("mouseb:raw: mouseb_raw_pos_get()\n"));
 
-	assert( m < mouseb_raw_count_get());
+	assert(mouse < mouseb_raw_count_get());
+	assert(axe < mouseb_raw_axe_count_get(mouse));
 
-	if (m >= RAW_MOUSE_MAX || !raw_state.opened[m]) {
-		*x = 0;
-		*y = 0;
-		*z = 0;
-		return;
-	}
+	r = *raw_state.map[mouse].axe_map[axe].pvalue;
+	*raw_state.map[mouse].axe_map[axe].pvalue = 0;
 
-	*x = raw_state.map[m].x;
-	*y = raw_state.map[m].y;
-	*z = raw_state.map[m].z;
-
-	raw_state.map[m].x = 0;
-	raw_state.map[m].y = 0;
-	raw_state.map[m].z = 0;
+	return r;
 }
 
-unsigned mouseb_raw_button_get(unsigned m, unsigned b)
+unsigned mouseb_raw_button_get(unsigned mouse, unsigned button)
 {
-	unsigned mb[6] = {
-		MOUSE_LEFTBUTTON,
-		MOUSE_RIGHTBUTTON,
-		MOUSE_MIDDLEBUTTON,
-		MOUSE_FOURTHBUTTON,
-		MOUSE_FIFTHBUTTON,
-		MOUSE_SIXTHBUTTON
-	};
-
 	log_debug(("mouseb:raw: mouseb_raw_button_get()\n"));
 
-	assert( m < mouseb_raw_count_get());
-	assert( b < mouseb_raw_button_count_get(m) );
+	assert(mouse < mouseb_raw_count_get());
+	assert(button < mouseb_raw_button_count_get(mouse) );
 
-	if (m >= RAW_MOUSE_MAX || !raw_state.opened[m])
-		return 0;
-
-	if (b > 6)
-		return 0;
-
-	return (raw_state.map[m].button & mb[b]) != 0;
+	return (raw_state.map[mouse].button_map[button].code & *raw_state.map[mouse].button_map[button].pvalue) != 0;
 }
 
 void mouseb_raw_poll(void)
@@ -200,8 +284,8 @@ void mouseb_raw_poll(void)
 	log_debug(("mouseb:raw: mouseb_raw_poll()\n"));
 
 	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		if (raw_state.opened[i]) {
-			raw_mouse_poll(&raw_state.map[i], 0);
+		if (raw_state.map[i].active_flag) {
+			raw_mouse_poll(&raw_state.map[i].context, 0);
 		}
 	}
 }
@@ -219,31 +303,22 @@ adv_error mouseb_raw_load(adv_conf* context)
 		const char* s;
 
 		snprintf(buf, sizeof(buf), "device_raw_mousetype[%d]", i);
-		raw_state.map[i].type = conf_int_get_default(context, buf);
+		raw_state.map[i].context.type = conf_int_get_default(context, buf);
 
 		/* auto maps to pnp mouse */
-		if (raw_state.map[i].type < 0)
-			raw_state.map[i].type = MOUSE_PNP;
+		if (raw_state.map[i].context.type < 0)
+			raw_state.map[i].context.type = MOUSE_PNP;
 
 		snprintf(buf, sizeof(buf), "device_raw_mousedev[%d]", i);
 		s = conf_string_get_default(context, buf);
 		if (strcmp(s, "auto") == 0) {
 			if (i == 0 && access("/dev/mouse", F_OK) == 0) {
-				sncpy(raw_state.map[i].dev, sizeof(raw_state.map[i].dev), "/dev/mouse");
+				sncpy(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), "/dev/mouse");
 			} else {
-				snprintf(raw_state.map[i].dev, sizeof(raw_state.map[i].dev), "/dev/input/mouse%d", i);
+				snprintf(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), "/dev/input/mouse%d", i);
 			}
 		} else {
-			sncpy(raw_state.map[i].dev, sizeof(raw_state.map[i].dev), s);
-		}
-	}
-
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
-		log_std(("mouseb:raw: mouse %d on device %s\n", i, raw_state.map[i].dev));
-		if (access(raw_state.map[i].dev, F_OK) != 0) {
-			log_std(("mouseb:raw: device %s doesn't exist\n", raw_state.map[i].dev));
-		} else if (access(raw_state.map[i].dev, W_OK | R_OK) != 0) {
-			log_std(("mouseb:raw: access denied on %s\n", raw_state.map[i].dev));
+			sncpy(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), s);
 		}
 	}
 
@@ -295,8 +370,11 @@ mouseb_driver mouseb_raw_driver = {
 	mouseb_raw_done,
 	mouseb_raw_flags,
 	mouseb_raw_count_get,
+	mouseb_raw_axe_count_get,
+	mouseb_raw_axe_name_get,
 	mouseb_raw_button_count_get,
-	mouseb_raw_pos_get,
+	mouseb_raw_button_name_get,
+	mouseb_raw_axe_get,
 	mouseb_raw_button_get,
 	mouseb_raw_poll
 };

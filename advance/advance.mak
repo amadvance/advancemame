@@ -2,12 +2,12 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.71.0.0
+EMUVERSION = 0.71.0.1
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.71.1
+EMUVERSION = 0.71.2
 endif
 endif
 MENUVERSION = 2.2.9

@@ -48,6 +48,12 @@ extern "C" {
 #ifdef USE_JOYSTICK_SVGALIB
 #include "jsvgab.h"
 #endif
+#ifdef USE_JOYSTICK_EVENT
+#include "jevent.h"
+#endif
+#ifdef USE_JOYSTICK_RAW
+#include "jraw.h"
+#endif
 #ifdef USE_JOYSTICK_SDL
 #include "jsdl.h"
 #endif

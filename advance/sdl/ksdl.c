@@ -189,13 +189,21 @@ void keyb_sdl_done(void)
 	log_std(("keyb:sdl: keyb_sdl_done()\n"));
 }
 
-unsigned keyb_sdl_get(unsigned code)
+unsigned keyb_sdl_count_get(void)
+{
+	log_std(("keyb:sdl: keyb_sdl_count_get(void)\n"));
+
+	return 1;
+}
+
+unsigned keyb_sdl_get(unsigned keyboard, unsigned code)
 {
 	unsigned sdl_code;
 
+	assert(keyboard < keyb_sdl_count_get());
 	assert(code < KEYB_MAX);
 
-	log_debug(("keyb:sdl: keyb_sdl_get(code:%d)\n", code));
+	log_debug(("keyb:sdl: keyb_sdl_get(keyboard:%d,code:%d)\n", keyboard, code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -211,11 +219,13 @@ unsigned keyb_sdl_get(unsigned code)
 	return sdl_state.state[sdl_code];
 }
 
-void keyb_sdl_all_get(unsigned char* code_map)
+void keyb_sdl_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
 
-	log_debug(("keyb:sdl: keyb_sdl_all_get()\n"));
+	assert(keyboard < keyb_sdl_count_get());
+
+	log_debug(("keyb:sdl: keyb_sdl_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
 		unsigned sdl_code = sdl_state.map_os_to_code[i];
@@ -229,7 +239,7 @@ void keyb_sdl_all_get(unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
-void keyb_sdl_poll()
+void keyb_sdl_poll(void)
 {
 	log_debug(("keyb:sdl: keyb_sdl_poll()\n"));
 }
@@ -281,6 +291,7 @@ keyb_driver keyb_sdl_driver = {
 	keyb_sdl_init,
 	keyb_sdl_done,
 	keyb_sdl_flags,
+	keyb_sdl_count_get,
 	keyb_sdl_get,
 	keyb_sdl_all_get,
 	keyb_sdl_poll

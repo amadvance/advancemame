@@ -43,6 +43,13 @@ MCFLAGS += \
 MOBJS += \
 	$(MOBJ)/linux/mraw.o
 endif
+ifeq ($(CONF_LIB_MEVENT),yes)
+MCFLAGS += \
+	-DUSE_MOUSE_EVENT
+MOBJS += \
+	$(MOBJ)/linux/mevent.o \
+	$(MOBJ)/linux/event.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

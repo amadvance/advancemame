@@ -48,6 +48,13 @@ JOBJDIRS += \
 JOBJS += \
 	$(JOBJ)/sdl/jsdl.o
 endif
+ifeq ($(CONF_LIB_JEVENT),yes)
+JCFLAGS += \
+	-DUSE_JOYSTICK_EVENT
+JOBJS += \
+	$(JOBJ)/linux/jevent.o \
+	$(JOBJ)/linux/event.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

@@ -151,12 +151,17 @@ void keyb_raw_done(void)
 	close(raw_state.kbd_fd);
 }
 
-unsigned keyb_raw_get(unsigned code)
+unsigned keyb_raw_count_get(void)
+{
+	return 1;
+}
+
+unsigned keyb_raw_get(unsigned k, unsigned code)
 {
 	return raw_state.keystate[code];
 }
 
-void keyb_raw_all_get(unsigned char* code_map)
+void keyb_raw_all_get(unsigned k, unsigned char* code_map)
 { 
 	memcpy(code_map, raw_state.keystate, KEYB_MAX);
 }
@@ -197,6 +202,7 @@ keyb_driver keyb_raw_driver = {
 	keyb_raw_init,
 	keyb_raw_done,
 	keyb_raw_flags,
+	keyb_raw_count_get,
 	keyb_raw_get,
 	keyb_raw_all_get,
 	keyb_raw_poll

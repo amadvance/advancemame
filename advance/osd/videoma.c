@@ -2822,7 +2822,7 @@ int osd2_video_init(struct osd_video_option* req)
 
 	hardware_script_start(HARDWARE_SCRIPT_VIDEO);
 
-	if (keyb_init(input_context->config.disable_special_flag) != 0) {
+	if (advance_input_inner_init(input_context) != 0) {
 		video_done_mode(context, 0);
 		video_mode_restore();
 		target_err("%s\n", error_get());
@@ -2835,10 +2835,11 @@ int osd2_video_init(struct osd_video_option* req)
 void osd2_video_done(void)
 {
 	struct advance_video_context* context = &CONTEXT.video;
+	struct advance_input_context* input_context = &CONTEXT.input;
 
 	log_std(("osd: osd2_video_done\n"));
 
-	keyb_done();
+	advance_input_inner_done(input_context);
 
 	if (context->config.restore_flag || context->state.measure_flag) {
 		video_done_mode(context, 1);
