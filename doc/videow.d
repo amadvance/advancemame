@@ -3,6 +3,7 @@ Name
 
 Synopsys
 	:videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
+	:	[/n SIZE] [/m]
 
 Description
 	The `videow' utility can be used to control the video
@@ -51,6 +52,13 @@ Options
 
 	/p
 		Print some info of the video board.
+
+	/n SIZE
+		Set the length of the scanline in bytes. The program
+		automatically select the smallest scanline size.
+
+	/m
+		Enable the use of the hardware mouse pointer.
 
 Cards
 	The program supports all the `svgawin' drivers listed in the
