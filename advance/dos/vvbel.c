@@ -948,6 +948,8 @@ video_driver video_vbeline_driver = {
 	vbe_bytes_per_scanline,
 	vbe_adjust_bytes_per_page,
 	vbe_rgb_def,
+	0,
+	0,
 	&vbeline_write_line,
 	vbeline_wait_vsync,
 	vbe_scroll,

@@ -50,6 +50,9 @@ void video_reg_driver_all(struct conf_context* context) {
 #ifdef USE_VIDEO_SLANG
 	video_reg_driver(context, &video_slang_driver);
 #endif
+#ifdef USE_VIDEO_SDL
+	video_reg_driver(context, &video_sdl_driver);
+#endif
 #ifdef USE_VIDEO_VBE
 	video_reg_driver(context, &video_vbe_driver);
 #endif

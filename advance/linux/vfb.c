@@ -30,6 +30,7 @@
 
 #include "vfb.h"
 #include "video.h"
+#include "os.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -72,21 +73,21 @@ static unsigned char* fb_linear_write_line(unsigned y) {
 static void fb_log(void) {
 	double v;
 
-	video_log("fb: id %s\n",fb_state.fixinfo.id);
-	video_log("fb: smem_start:%08x, smem_len:%08x\n",(unsigned)fb_state.fixinfo.smem_start,(unsigned)fb_state.fixinfo.smem_len);
-	video_log("fb: mmio_start:%08x, mmio_len:%08x\n",(unsigned)fb_state.fixinfo.mmio_start,(unsigned)fb_state.fixinfo.mmio_len);
-	video_log("fb: type:%d, type_aux:%d, visual:%d\n",(unsigned)fb_state.fixinfo.type,(unsigned)fb_state.fixinfo.type_aux,(unsigned)fb_state.fixinfo.visual);
-	video_log("fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n",(unsigned)fb_state.fixinfo.xpanstep,(unsigned)fb_state.fixinfo.ypanstep,(unsigned)fb_state.fixinfo.ywrapstep);
-	video_log("fb: line_length:%d\n",(unsigned)fb_state.fixinfo.line_length);
-	video_log("fb: accel:%d\n",(unsigned)fb_state.fixinfo.accel);
-	video_log("fb: xres:%d, yres:%d\n", (unsigned)fb_state.varinfo.xres, (unsigned)fb_state.varinfo.yres);
-	video_log("fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual);
-	video_log("fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset);
-	video_log("fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)fb_state.varinfo.bits_per_pixel, (unsigned)fb_state.varinfo.grayscale);
-	video_log("fb: nonstd:%d, activate:%x\n", (unsigned)fb_state.varinfo.nonstd, (unsigned)fb_state.varinfo.activate);
-	video_log("fb: height:%d, width:%d\n",fb_state.varinfo.height,fb_state.varinfo.width);
-	video_log("fb: accel_flags:%d\n",fb_state.varinfo.accel_flags);
-	video_log("fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
+	video_log("video:fb: id %s\n",fb_state.fixinfo.id);
+	video_log("video:fb: smem_start:%08x, smem_len:%08x\n",(unsigned)fb_state.fixinfo.smem_start,(unsigned)fb_state.fixinfo.smem_len);
+	video_log("video:fb: mmio_start:%08x, mmio_len:%08x\n",(unsigned)fb_state.fixinfo.mmio_start,(unsigned)fb_state.fixinfo.mmio_len);
+	video_log("video:fb: type:%d, type_aux:%d, visual:%d\n",(unsigned)fb_state.fixinfo.type,(unsigned)fb_state.fixinfo.type_aux,(unsigned)fb_state.fixinfo.visual);
+	video_log("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n",(unsigned)fb_state.fixinfo.xpanstep,(unsigned)fb_state.fixinfo.ypanstep,(unsigned)fb_state.fixinfo.ywrapstep);
+	video_log("video:fb: line_length:%d\n",(unsigned)fb_state.fixinfo.line_length);
+	video_log("video:fb: accel:%d\n",(unsigned)fb_state.fixinfo.accel);
+	video_log("video:fb: xres:%d, yres:%d\n", (unsigned)fb_state.varinfo.xres, (unsigned)fb_state.varinfo.yres);
+	video_log("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual);
+	video_log("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset);
+	video_log("video:fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)fb_state.varinfo.bits_per_pixel, (unsigned)fb_state.varinfo.grayscale);
+	video_log("video:fb: nonstd:%d, activate:%x\n", (unsigned)fb_state.varinfo.nonstd, (unsigned)fb_state.varinfo.activate);
+	video_log("video:fb: height:%d, width:%d\n",fb_state.varinfo.height,fb_state.varinfo.width);
+	video_log("video:fb: accel_flags:%d\n",fb_state.varinfo.accel_flags);
+	video_log("video:fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
 		(unsigned)fb_state.varinfo.pixclock,
 		(unsigned)fb_state.varinfo.left_margin,
 		(unsigned)fb_state.varinfo.right_margin,
@@ -95,13 +96,13 @@ static void fb_log(void) {
 		(unsigned)fb_state.varinfo.hsync_len,
 		(unsigned)fb_state.varinfo.vsync_len
 	);
-	video_log("fb: sync:%x, vmode:%x\n",(unsigned)fb_state.varinfo.sync,(unsigned)fb_state.varinfo.vmode);
+	video_log("video:fb: sync:%x, vmode:%x\n",(unsigned)fb_state.varinfo.sync,(unsigned)fb_state.varinfo.vmode);
 
 	v = 1000000000000LL / (double)fb_state.varinfo.pixclock;
 	v /= fb_state.varinfo.xres + fb_state.varinfo.left_margin + fb_state.varinfo.right_margin + fb_state.varinfo.hsync_len;
 	v /= fb_state.varinfo.yres + fb_state.varinfo.upper_margin + fb_state.varinfo.lower_margin + fb_state.varinfo.vsync_len;
 
-	video_log("fb: expected vclock:%g\n", v);
+	video_log("video:fb: expected vclock:%g\n", v);
 }
 
 /***************************************************************************/
@@ -116,18 +117,20 @@ video_error fb_init(int device_id) {
 
 	assert( !fb_is_active() );
 
+	os_log(("video:fb: fb_init()\n"));
+
 	fb = getenv("FRAMEBUFFER");
 	if (!fb)
                 fb = "/dev/fb0";
 
 	if (access(fb,W_OK)!=0) {
-		video_log("fb: no access at the frame buffer %s",fb);
+		video_log("video:fb: no access at the frame buffer %s",fb);
 		return -1;
 	}
 
 	fb_state.fd = open(fb, O_RDWR);
 	if (fb_state.fd < 0) {
-		video_log("fb: error opening %s",fb);
+		video_log("video:fb: error opening %s",fb);
 		return -1;
 	}
 
@@ -138,6 +141,8 @@ video_error fb_init(int device_id) {
 
 void fb_done(void) {
 	assert(fb_is_active() && !fb_mode_is_active() );
+
+	os_log(("video:fb: fb_done()\n"));
 
 	close(fb_state.fd);
 
@@ -161,7 +166,7 @@ video_error fb_mode_set(const fb_video_mode* mode)
 {
 	assert( fb_is_active() && !fb_mode_is_active() );
 
-	video_log("fb: fb_mode_set()\n");
+	os_log(("video:fb: fb_mode_set()\n"));
 
 	/* get the current info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.oldinfo) != 0) {
@@ -242,7 +247,7 @@ video_error fb_mode_set(const fb_video_mode* mode)
 
 	fb_log();
 
-	video_log("fb: ioctl(FBIOPUT_VSCREENINFO)\n");
+	video_log("video:fb: ioctl(FBIOPUT_VSCREENINFO)\n");
 
 	/* set the mode */
 	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.varinfo) != 0) {
@@ -288,6 +293,8 @@ video_error fb_mode_set(const fb_video_mode* mode)
 
 void fb_mode_done(video_bool restore) {
 	assert( fb_is_active() && fb_mode_is_active() );
+
+	os_log(("video:fb: fb_mode_done()\n"));
 
 	munmap(fb_state.ptr, fb_state.fixinfo.smem_len);
 
@@ -503,6 +510,8 @@ video_driver video_fb_driver = {
 	fb_bytes_per_scanline,
 	fb_adjust_bytes_per_page,
 	fb_rgb_def,
+	0,
+	0,
 	&fb_write_line,
 	fb_wait_vsync,
 	fb_scroll,

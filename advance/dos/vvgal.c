@@ -352,8 +352,8 @@ static int vgaline_mode_realize(struct vga_regs* regs, const vgaline_video_mode*
 /* Public */
 
 static device DEVICE[] = {
-{ "auto", 1, "VGALINE automatic detection" },
-{ "vga", 2, "Standard VGA" },
+{ "auto", 1, "VGA automatic detection" },
+{ "vga", 2, "VGA (limited hardware programming)" },
 { 0, 0, 0 }
 };
 
@@ -657,6 +657,8 @@ video_driver video_vgaline_driver = {
 	vga_bytes_per_scanline,
 	vga_adjust_bytes_per_page,
 	vgaline_rgb_def,
+	0,
+	0,
 	&vgaline_write_line,
 	vga_wait_vsync,
 	vgaline_scroll,

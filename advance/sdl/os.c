@@ -54,34 +54,28 @@ struct os_fixed {
 	char file_home[OS_MAXPATH];
 };
 
+#define MOUSE_BUTTON_MAX 3 /**< Max number os mouse buttons */
+#define KEY_MAX SDLK_LAST /**< Max number of keys */
+#define JOYSTICK_MAX 4 /**< Max number of joysticks */
+
 struct os_context {
 	FILE* msg;
 	int msg_sync_flag;
 
-#ifdef USE_KEYBOARD_SVGALIB
-	int key_id;
-#endif
+	int key_id; /**< Keyboard identifier */
+	int key_map[KEY_MAX];
 
-#ifdef USE_MOUSE_SVGALIB
-	int mouse_id;
+	int mouse_id; /**< Mouse identifier */
+	int mouse_button_map[3];
 	int mouse_x;
 	int mouse_y;
-	int mouse_button_mask;
-	unsigned mouse_button_mac;
-	unsigned mouse_button_map[16];
-#endif
 
-#ifdef USE_JOYSTICK_SVGALIB
-	int joystick_id;
+	int joystick_id; /**< Joystick identifier */
 	unsigned joystick_counter; /**< Number of joysticks active */
+	SDL_Joystick* joystick_map[JOYSTICK_MAX];
 	char joystick_axe_name[32];
 	char joystick_button_name[32];
 	char joystick_stick_name[32];
-#endif
-
-#ifdef USE_INPUT_SVGALIB
-	unsigned input_last;
-#endif
 
 	int is_term; /**< Is termination requested */
 };
@@ -138,12 +132,10 @@ void os_msg_done(void) {
 /***************************************************************************/
 /* Clock */
 
-os_clock_t OS_CLOCKS_PER_SEC = 1000000LL;
+os_clock_t OS_CLOCKS_PER_SEC = 1000;
 
 os_clock_t os_clock(void) {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000LL + tv.tv_usec;
+	return SDL_GetTicks();
 }
 
 /***************************************************************************/
@@ -218,50 +210,29 @@ static void os_term_signal(int signum) {
 }
 
 int os_inner_init(void) {
-	os_clock_t start, stop;
-	struct utsname uts;
-
-	if (uname(&uts) != 0) {
-		os_log(("ERROR: uname failed\n"));
-	} else {
-		os_log(("os: sys %s\n",uts.sysname));
-		os_log(("os: release %s\n",uts.release));
-		os_log(("os: version %s\n",uts.version));
-		os_log(("os: machine %s\n",uts.machine));
-	}
+	SDL_version compiled;
 
 	os_log(("os: root dir %s\n", OSF.root_dir));
 	os_log(("os: home dir %s\n", OSF.home_dir));
 
-	usleep(10000);
-	start = os_clock();
-	stop = os_clock();
-	while (stop == start)
-		stop = os_clock();
+	/* the SDL_INIT_VIDEO flags must be specified also if the video */
+	/* output isn't used */
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
+		os_log(("sound: SDL_Init() failed, %s\n", SDL_GetError()));
+		return -1;
+	}
 
-	os_log(("os: clock delta %ld\n",(unsigned long)(stop - start)));
+	SDL_VERSION(&compiled);
 
-	usleep(10000);
-	start = os_clock();
+	os_log(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
+	os_log(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
+	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+		os_log(("os: little endian system\n"));
+	else
+		os_log(("os: big endian system\n"));
 
-	usleep(1000);
-	stop = os_clock();
-
-	os_log(("os: 0.001 delay, effective %g\n",(stop - start) / (double)OS_CLOCKS_PER_SEC ));
-
-	os_log(("os: sysconf(_SC_CLK_TCK) %ld\n",sysconf(_SC_CLK_TCK)));
-	os_log(("os: sysconf(_SC_NPROCESSORS_CONF) %ld\n",sysconf(_SC_NPROCESSORS_CONF)));
-	os_log(("os: sysconf(_SC_NPROCESSORS_ONLN) %ld\n",sysconf(_SC_NPROCESSORS_ONLN)));
-	os_log(("os: sysconf(_SC_PHYS_PAGES) %ld\n",sysconf(_SC_PHYS_PAGES)));
-	os_log(("os: sysconf(_SC_AVPHYS_PAGES) %ld\n",sysconf(_SC_AVPHYS_PAGES)));
-	os_log(("os: sysconf(_SC_CHAR_BIT) %ld\n",sysconf(_SC_CHAR_BIT)));
-	os_log(("os: sysconf(_SC_LONG_BIT) %ld\n",sysconf(_SC_LONG_BIT)));
-	os_log(("os: sysconf(_SC_WORD_BIT) %ld\n",sysconf(_SC_WORD_BIT)));
-
-#if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB) || defined(USE_INPUT_SVGALIB)
-	vga_disabledriverreport();
-	vga_init();
-#endif
+	/* set the titlebar */
+	SDL_WM_SetCaption("Advance",0);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -280,40 +251,63 @@ int os_inner_init(void) {
 }
 
 void os_inner_done(void) {
-#ifdef USE_MOUSE_SVGALIB
-	mouse_close(); /* always called */
-#endif
+	SDL_Quit();
 }
 
 void os_poll(void) {
-#ifdef USE_KEYBOARD_SVGALIB
-	if (OS.key_id != KEY_TYPE_NONE) {
-		keyboard_update();
-	}
-#endif
+	SDL_Event event;
 
-#ifdef USE_MOUSE_SVGALIB
-	if (OS.mouse_id != MOUSE_TYPE_NONE) {
-		mouse_setposition(0,0);
-		mouse_update();
-		OS.mouse_x = mouse_getx();
-		OS.mouse_y = mouse_gety();
-		OS.mouse_button_mask = mouse_getbutton();
-	}
-#endif
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_KEYDOWN :
+				if (event.key.keysym.sym < KEY_MAX)
+					OS.key_map[event.key.keysym.sym] = 1;
 
-#ifdef USE_JOYSTICK_SVGALIB
+				/* toggle fullscreen check */
+				if (event.key.keysym.sym == SDLK_RETURN
+					&& (event.key.keysym.mod & KMOD_ALT) != 0) {
+					if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
+						SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+
+						if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
+							SDL_ShowCursor(SDL_DISABLE);
+						} else {
+							SDL_ShowCursor(SDL_ENABLE);
+						}
+					}
+				}
+			break;
+			case SDL_KEYUP :
+				if (event.key.keysym.sym < KEY_MAX)
+					OS.key_map[event.key.keysym.sym] = 0;
+			break;
+			case SDL_MOUSEMOTION :
+				OS.mouse_x += event.motion.xrel;
+				OS.mouse_y += event.motion.yrel;
+			break;
+			case SDL_MOUSEBUTTONDOWN :
+				if (event.button.button > 0
+					&& event.button.button-1 < MOUSE_BUTTON_MAX)
+					OS.mouse_button_map[event.button.button-1] = 1;
+			break;
+			case SDL_MOUSEBUTTONUP :
+				if (event.button.button > 0
+					&& event.button.button-1 < MOUSE_BUTTON_MAX)
+					OS.mouse_button_map[event.button.button-1] = 0;
+			break;
+			case SDL_QUIT :
+				OS.is_term = 1;
+				break;
+		}
+	}
+
 	if (OS.joystick_id != JOYSTICK_TYPE_NONE) {
-		joystick_update();
+		SDL_JoystickUpdate();
 	}
-#endif
 }
 
 void os_idle(void) {
-	struct timespec req;
-	req.tv_sec = 0;
-	req.tv_nsec = 1000000;
-	nanosleep(&req, 0);
+	SDL_Delay(0);
 }
 
 void os_usleep(unsigned us) {
@@ -321,8 +315,6 @@ void os_usleep(unsigned us) {
 
 /***************************************************************************/
 /* Keyboard */
-
-#ifdef USE_KEYBOARD_SVGALIB
 
 struct os_device OS_KEY[] = {
 	{ "none", KEY_TYPE_NONE, "No keyboard" },
@@ -332,36 +324,24 @@ struct os_device OS_KEY[] = {
 
 int os_key_init(int key_id, int disable_special)
 {
+#ifdef USE_KEYBOARD_SDL
 	OS.key_id = key_id;
 
-	if (OS.key_id != KEY_TYPE_NONE) {
-		if (keyboard_init() != 0) {
-			os_log(("ERROR: keyboard_init() failed\n"));
-			return -1;
-		}
-	}
-
-	(void)disable_special; /* TODO disable special key sequence */
-
 	return 0;
+#else
+	return -1;
+#endif
 }
 
 void os_key_done(void)
 {
-	if (OS.key_id != KEY_TYPE_NONE) {
-		keyboard_close();
-	}
-
 	OS.key_id = KEY_TYPE_NONE;
 }
 
 unsigned os_key_get(unsigned code)
 {
 	if (OS.key_id != KEY_TYPE_NONE) {
-		if (code == SCANCODE_BREAK || code == SCANCODE_BREAK_ALTERNATIVE) /* disable the pause key */
-			return 0;
-		else
-			return keyboard_keypressed(code);
+		return OS.key_map[code];
 	} else {
 		return 0;
 	}
@@ -372,9 +352,7 @@ void os_key_all_get(unsigned char* code_map)
 	if (OS.key_id != KEY_TYPE_NONE) {
 		unsigned i;
 		for(i=0;i<OS_KEY_MAX;++i)
-			code_map[i] = keyboard_keypressed(i);
-		code_map[SCANCODE_BREAK] = 0; /* disable the pause key */
-		code_map[SCANCODE_BREAK_ALTERNATIVE] = 0;
+			code_map[i] = OS.key_map[i];
 	} else {
 		unsigned i;
 		for(i=0;i<OS_KEY_MAX;++i)
@@ -384,106 +362,28 @@ void os_key_all_get(unsigned char* code_map)
 
 void os_led_set(unsigned mask)
 {
-	/* TODO drive the led */
 }
-
-#endif
 
 /***************************************************************************/
 /* Input */
 
-#ifdef USE_INPUT_SVGALIB
-
 int os_input_init(void) {
-	OS.input_last = 0;
-	return 0;
+	return -1;
 }
 
 void os_input_done(void) {
 }
 
 int os_input_hit(void) {
-	if (OS.input_last != 0)
-		return 1;
-	OS.input_last = vga_getkey();
-	return OS.input_last != 0;
+	return 0;
 }
 
 unsigned os_input_get(void) {
-	const unsigned max = 32;
-	char map[max+1];
-	unsigned mac;
-	unsigned i;
-
-	mac = 0;
-	while (mac<max && (mac==0 || OS.input_last)) {
-		if (OS.input_last) {
-			map[mac] = OS.input_last;
-			if (mac > 0 && map[mac] == 27) {
-				break;
-			}
-			++mac;
-			OS.input_last = 0;
-		} else {
-			os_idle();
-		}
-		OS.input_last = vga_getkey();
-	}
-	map[mac] = 0;
-
-	if (strcmp(map,"\033[A")==0)
-		return OS_INPUT_UP;
-	if (strcmp(map,"\033[B")==0)
-		return OS_INPUT_DOWN;
-	if (strcmp(map,"\033[D")==0)
-		return OS_INPUT_LEFT;
-	if (strcmp(map,"\033[C")==0)
-		return OS_INPUT_RIGHT;
-	if (strcmp(map,"\033[1~")==0)
-		return OS_INPUT_HOME;
-	if (strcmp(map,"\033[4~")==0)
-		return OS_INPUT_END;
-	if (strcmp(map,"\033[5~")==0)
-		return OS_INPUT_PGUP;
-	if (strcmp(map,"\033[6~")==0)
-		return OS_INPUT_PGDN;
-	if (strcmp(map,"\033[[A")==0)
-		return OS_INPUT_F1;
-	if (strcmp(map,"\033[[B")==0)
-		return OS_INPUT_F2;
-	if (strcmp(map,"\033[[C")==0)
-		return OS_INPUT_F3;
-	if (strcmp(map,"\033[[D")==0)
-		return OS_INPUT_F4;
-	if (strcmp(map,"\033[[E")==0)
-		return OS_INPUT_F5;
-	if (strcmp(map,"\033[17~")==0)
-		return OS_INPUT_F6;
-	if (strcmp(map,"\033[18~")==0)
-		return OS_INPUT_F7;
-	if (strcmp(map,"\033[19~")==0)
-		return OS_INPUT_F8;
-	if (strcmp(map,"\033[20~")==0)
-		return OS_INPUT_F9;
-	if (strcmp(map,"\033[21~")==0)
-		return OS_INPUT_F10;
-	if (strcmp(map,"\r")==0 || strcmp(map,"\n")==0)
-		return OS_INPUT_ENTER;
-	if (strcmp(map,"\x7F")==0)
-		return OS_INPUT_BACKSPACE;
-
-	if (mac != 1)
-		return 0;
-	else
-		return map[0];
+	return 0;
 }
-
-#endif
 
 /***************************************************************************/
 /* Mouse */
-
-#ifdef USE_MOUSE_SVGALIB
 
 struct os_device OS_MOUSE[] = {
 	{ "none", MOUSE_TYPE_NONE, "No mouse" },
@@ -493,49 +393,15 @@ struct os_device OS_MOUSE[] = {
 
 int os_mouse_init(int mouse_id)
 {
+#ifdef USE_MOUSE_SDL
 	OS.mouse_id = mouse_id;
-
-	if (OS.mouse_id != MOUSE_TYPE_NONE) {
-		struct MouseCaps mouse_caps;
-		unsigned i;
-		unsigned buttons[] = {
-			MOUSE_LEFTBUTTON,
-			MOUSE_RIGHTBUTTON,
-			MOUSE_MIDDLEBUTTON,
-			MOUSE_FOURTHBUTTON,
-			MOUSE_FIFTHBUTTON,
-			MOUSE_SIXTHBUTTON,
-			MOUSE_RESETBUTTON,
-			0
-		};
-
-		/* opened internally at the svgalib */
-
-		if (mouse_getcaps(&mouse_caps)!=0) {
-			fprintf(stderr,"Failure: Error getting the mouse capabilities.\n");
-			return -1;
-		}
-
-		mouse_setxrange(-32728,32727);
-		mouse_setyrange(-32728,32727);
-		mouse_setscale(1);
-		mouse_setwrap(MOUSE_NOWRAP);
-
-		OS.mouse_button_mac = 0;
-		for(i=0;buttons[i];++i) {
-			if ((mouse_caps.buttons & buttons[i]) != 0) {
-				OS.mouse_button_map[OS.mouse_button_mac] = buttons[i];
-				++OS.mouse_button_mac;
-			}
-		}
-	}
-
 	return 0;
+#else
+	return -1;
+#endif
 }
 
 void os_mouse_done(void) {
-	/* closed internally at the svgalib */
-
 	OS.mouse_id = MOUSE_TYPE_NONE;
 }
 
@@ -550,7 +416,7 @@ unsigned os_mouse_count_get(void)
 unsigned os_mouse_button_count_get(unsigned mouse)
 {
 	assert( mouse < os_mouse_count_get() );
-	return OS.mouse_button_mac;
+	return MOUSE_BUTTON_MAX;
 }
 
 void os_mouse_pos_get(unsigned mouse, int* x, int* y)
@@ -558,21 +424,19 @@ void os_mouse_pos_get(unsigned mouse, int* x, int* y)
 	assert( mouse < os_mouse_count_get() );
 	*x = OS.mouse_x;
 	*y = OS.mouse_y;
+	OS.mouse_x = 0;
+	OS.mouse_y = 0;
 }
 
 unsigned os_mouse_button_get(unsigned mouse, unsigned button)
 {
 	assert( mouse < os_mouse_count_get() );
 	assert( button < os_mouse_button_count_get(0) );
-	return (OS.mouse_button_mask & OS.mouse_button_map[button]) != 0;
+	return OS.mouse_button_map[button];
 }
-
-#endif
 
 /***************************************************************************/
 /* Joystick */
-
-#ifdef USE_JOYSTICK_SVGALIB
 
 struct os_device OS_JOY[] = {
 	{ "auto", JOYSTICK_TYPE_AUTO, "Automatic detection" },
@@ -582,19 +446,32 @@ struct os_device OS_JOY[] = {
 
 int os_joy_init(int joystick_id)
 {
+#ifdef USE_JOYSTICK_SDL
 	OS.joystick_id = joystick_id;
 
 	if (OS.joystick_id != JOYSTICK_TYPE_NONE) {
 		unsigned i;
-		for(i=0;i<4;++i) {
-			if (joystick_init(i, NULL)<=0) {
-				break;
-			}
+
+		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0)
+			return -1;
+
+		SDL_JoystickEventState(SDL_IGNORE);
+
+		OS.joystick_counter = SDL_NumJoysticks();
+		if (OS.joystick_counter > JOYSTICK_MAX)
+			OS.joystick_counter = JOYSTICK_MAX;
+
+		for(i=0;i<OS.joystick_counter;++i) {
+			OS.joystick_map[i] = SDL_JoystickOpen(i);
+			if (!OS.joystick_map[i])
+				return -1;
 		}
-		OS.joystick_counter = i;
 	}
 
 	return 0;
+#else
+	return -1;
+#endif
 }
 
 void os_joy_done(void)
@@ -602,7 +479,9 @@ void os_joy_done(void)
 	if (OS.joystick_id != JOYSTICK_TYPE_NONE) {
 		unsigned i;
 		for(i=0;i<OS.joystick_counter;++i)
-			joystick_close(i);
+			SDL_JoystickClose(OS.joystick_map[i]);
+
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	}
 
 	OS.joystick_id = JOYSTICK_TYPE_NONE;
@@ -613,7 +492,7 @@ const char* os_joy_name_get(void) {
 }
 
 const char* os_joy_driver_name_get(void) {
-	return "Kernel";
+	return "SDL";
 }
 
 unsigned os_joy_count_get(void) {
@@ -629,12 +508,12 @@ unsigned os_joy_stick_axe_count_get(unsigned j, unsigned s) {
 	assert(j < os_joy_count_get() );
 	assert(s < os_joy_stick_count_get(j) );
 	(void)s;
-	return joystick_getnumaxes(j);
+	return SDL_JoystickNumAxes(OS.joystick_map[j]);
 }
 
 unsigned os_joy_button_count_get(unsigned j) {
 	assert(j < os_joy_count_get() );
-	return joystick_getnumbuttons(j);
+	return SDL_JoystickNumButtons(OS.joystick_map[j]);
 }
 
 const char* os_joy_stick_name_get(unsigned j, unsigned s) {
@@ -659,7 +538,7 @@ const char* os_joy_button_name_get(unsigned j, unsigned b) {
 int os_joy_button_get(unsigned j, unsigned b) {
 	assert(j < os_joy_count_get() );
 	assert(b < os_joy_button_count_get(j) );
-	return joystick_getbutton(j, b) != 0;
+	return SDL_JoystickGetButton(OS.joystick_map[j],b) != 0;
 }
 
 /**
@@ -671,11 +550,11 @@ int os_joy_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
 	assert(j < os_joy_count_get() );
 	assert(s < os_joy_stick_count_get(j) );
 	assert(a < os_joy_stick_axe_count_get(j,s) );
-	r = joystick_getaxis(j,a);
+	r = SDL_JoystickGetAxis(OS.joystick_map[j], a);
 	if (d)
-		return r < -64;
+		return r < -16384;
 	else
-		return r > 64;
+		return r > 16384;
 }
 
 /**
@@ -687,9 +566,8 @@ int os_joy_stick_axe_analog_get(unsigned j, unsigned s, unsigned a) {
 	assert(j < os_joy_count_get() );
 	assert(s < os_joy_stick_count_get(j) );
 	assert(a < os_joy_stick_axe_count_get(j,s) );
-	r = joystick_getaxis(j,a);
-	if (r > 64) /* adjust the upper limit from 127 to 128 */
-		++r;
+	r = SDL_JoystickGetAxis(OS.joystick_map[j], a);
+	r = r >> 8; /* adjust the upper limit from -128 to 128 */
 	return r;
 }
 
@@ -703,8 +581,6 @@ const char* os_joy_calib_next(void)
 	/* no calibration */
 	return 0;
 }
-
-#endif
 
 /***************************************************************************/
 /* Hardware */
@@ -766,7 +642,7 @@ int os_apm_wakeup(void) {
 /* System */
 
 int os_system(const char* cmd) {
-	os_log(("linux: system %s\n",cmd));
+	os_log(("sdl: system %s\n",cmd));
 
 	return system(cmd);
 }
@@ -775,9 +651,9 @@ int os_spawn(const char* file, const char** argv) {
 	int pid, status;
 	int i;
 
-	os_log(("linux: spawn %s\n",file));
+	os_log(("sdl: spawn %s\n",file));
 	for(i=0;argv[i];++i)
-		os_log(("linux: spawn arg %s\n",argv[i]));
+		os_log(("sdl: spawn arg %s\n",argv[i]));
 
 	pid = fork();
 	if (pid == -1)
@@ -869,24 +745,11 @@ int os_is_term(void) {
 	return OS.is_term;
 }
 
-static void os_backtrace(void) {
-	void* buffer[256];
-	char** symbols;
-	int size;
-	int i;
-	size = backtrace(buffer,256);
-	symbols = backtrace_symbols(buffer,size);
-	printf("Stack backtrace:\n");
-	for(i=0;i<size;++i)
-		printf("%s\n", symbols[i]);
-	free(symbols);
-}
-
 void os_default_signal(int signum)
 {
-	os_log(("os: signal %d\n",signum));
+	os_log(("os: signal %d\n", signum));
 
-#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB)
+#if defined(USE_VIDEO_SDL)
 	os_log(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
@@ -894,13 +757,15 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_SOUND_OSS)
+#if defined(USE_SOUND_SDL)
 	os_log(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);
 		sound_abort();
 	}
 #endif
+
+	SDL_Quit();
 
 	os_mode_reset();
 
@@ -920,8 +785,6 @@ void os_default_signal(int signum)
 	} else {
 		fprintf(stderr,"AdvanceMAME signal %d.\n",signum);
 		fprintf(stderr,"%s, %s\n\r", __DATE__, __TIME__);
-
-		os_backtrace();
 
 		if (signum == SIGILL) {
 			fprintf(stderr,"Are you using the correct binary ?\n");

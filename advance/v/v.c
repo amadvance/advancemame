@@ -1229,17 +1229,17 @@ static int cmd_onvideo_animate(void) {
 
 	for(i=0;i<3;++i) {
 		update_start();
-		video_clear(update_x_get(),update_y_get(),video_size_x(),video_size_y(),0);
-		update_stop(1);
+		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
+		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 1);
 	}
 
 	counter = update_page_max_get();
 	while (!os_input_hit()) {
 		update_start();
-		draw_graphics_animate(update_x_get(),update_y_get(),video_size_x(),video_size_y(), counter - update_page_max_get() + 1, 1);
+		draw_graphics_animate(update_x_get(), update_y_get(), video_size_x(), video_size_y(), counter - update_page_max_get() + 1, 1);
 		++counter;
-		draw_graphics_animate(update_x_get(),update_y_get(),video_size_x(),video_size_y(), counter, 0);
-		update_stop(1);
+		draw_graphics_animate(update_x_get(), update_y_get(), video_size_x(), video_size_y(), counter, 0);
+		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 1);
 	}
 
 	video_wait_vsync();

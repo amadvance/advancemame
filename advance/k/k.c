@@ -20,6 +20,7 @@
 
 #include "os.h"
 #include "conf.h"
+#include "key.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +46,8 @@ void run(void) {
 	last = os_clock();
 	esc_pressed_before = 0;
 	esc_count = 0;
-	*cmd = 0;
+	strcpy(cmd, "unknown");
+
 	while (esc_count < 3 && !done) {
 		int i;
 		int esc_pressed = 0;
@@ -58,12 +60,9 @@ void run(void) {
 				if (i==OS_KEY_ESC)
 					esc_pressed = 1;
 				++count;
-				sprintf(newcmd + strlen(newcmd), "%d ", i);
+				sprintf(newcmd + strlen(newcmd), "%s ", key_name(i));
 			}
 		}
-
-		if (!*newcmd)
-			strcpy(newcmd,"none ");
 
 		if (strcmp(cmd,newcmd)!=0) {
 			os_clock_t current = os_clock();

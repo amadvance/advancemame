@@ -850,6 +850,8 @@ video_driver video_svgaline_driver = {
 	svgaline_bytes_per_scanline,
 	svgaline_adjust_bytes_per_page,
 	svgaline_rgb_def,
+	0,
+	0,
 	&svgaline_write_line,
 	svgaline_wait_vsync,
 	svgaline_scroll,

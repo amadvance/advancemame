@@ -28,33 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __SOUNDALL_H
-#define __SOUNDALL_H
+#ifndef __SSDL_H
+#define __SSDL_H
+
+#include "sounddrv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "conf.h"
-#include "sounddrv.h"
-
-#ifdef USE_SOUND_ALLEGRO
-#include "salleg.h"
-#endif
-#ifdef USE_SOUND_SEAL
-#include "sseal.h"
-#endif
-#ifdef USE_SOUND_OSS
-#include "soss.h"
-#endif
-#ifdef USE_SOUND_SDL
-#include "ssdl.h"
-#endif
-#ifdef USE_SOUND_NONE
-#include "snone.h"
-#endif
-
-void sound_reg_driver_all(struct conf_context* context);
+extern sound_driver sound_sdl_driver;
 
 #ifdef __cplusplus
 }

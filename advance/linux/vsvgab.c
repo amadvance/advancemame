@@ -30,6 +30,7 @@
 
 #include "vsvgab.h"
 #include "video.h"
+#include "os.h"
 
 #include <vga.h>
 #include <string.h>
@@ -75,8 +76,9 @@ video_error svgalib_init(int device_id) {
 	int res;
 
 	/* assume that vga_init() is already called */
-	
 	assert( !svgalib_is_active() );
+
+	os_log(("video:svgalib: svgalib_init()\n"));
 
 	/* check the version of the SVGALIB */
 	res = vga_setmode(-1);
@@ -91,6 +93,8 @@ video_error svgalib_init(int device_id) {
 
 void svgalib_done(void) {
 	assert(svgalib_is_active() && !svgalib_mode_is_active() );
+
+	os_log(("video:svgalib: svgalib_done()\n"));
 
 	svgalib_state.active = 0;
 }
@@ -135,6 +139,8 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	assert( svgalib_is_active() && !svgalib_mode_is_active() );
 
+	os_log(("video:svgalib: svgalib_mode_set()\n"));
+
 	flags = 0;
 	if (crtc_is_doublescan(&mode->crtc))
 		flags |= SVGALIB_DOUBLESCAN;
@@ -159,7 +165,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video: vga_addtiming(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\n",
+	video_log("video:svgalib: vga_addtiming(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\n",
 		mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags
 	);
 
@@ -196,7 +202,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video: vga_addmode(%d,%d,%d,%d,%d) = %d\n",mode->crtc.hde,mode->crtc.vde,colors,bytes_per_scanline,bytes_per_pixel,res);
+	video_log("video:svgalib: vga_addmode(%d,%d,%d,%d,%d) = %d\n",mode->crtc.hde,mode->crtc.vde,colors,bytes_per_scanline,bytes_per_pixel,res);
 
 	if (!vga_hasmode(res)) {
 		video_error_description_set("Error in vga_hasmode()");
@@ -216,7 +222,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video: vga_setmode(%d)\n",svgalib_state.mode_number);
+	video_log("video:svgalib: vga_setmode(%d)\n",svgalib_state.mode_number);
 	res = vga_setmode(svgalib_state.mode_number);
 	if (res != 0) {
 		video_error_description_set("Error in vga_setmode()");
@@ -293,6 +299,8 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 video_error svgalib_mode_change(const svgalib_video_mode* mode) {
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
+	os_log(("video:svgalib: svgalib_mode_change()\n"));
+
 	svgalib_state.mode_active = 0; /* fake done */
 	return svgalib_mode_set(mode);
 }
@@ -300,11 +308,13 @@ video_error svgalib_mode_change(const svgalib_video_mode* mode) {
 void svgalib_mode_done(video_bool restore) {
 	assert( svgalib_is_active() && svgalib_mode_is_active() );
 
+	os_log(("video:svgalib: svgalib_mode_done()\n"));
+
 	svgalib_state.mode_active = 0;
 
 	if (restore) {
 		/* a mode reset is required otherwise the other drivers are not unable to set the mode */
-		video_log("video: vga_setmode(TEXT)\n");
+		video_log("video:svgalib: vga_setmode(TEXT)\n");
 		vga_setmode(TEXT);
 	}
 }
@@ -487,6 +497,8 @@ video_driver video_svgalib_driver = {
 	svgalib_bytes_per_scanline,
 	svgalib_adjust_bytes_per_page,
 	svgalib_rgb_def,
+	0,
+	0,
 	&svgalib_write_line,
 	svgalib_wait_vsync,
 	svgalib_scroll,

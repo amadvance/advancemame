@@ -9,9 +9,9 @@
 # Installation prefix (only for Linux):
 PREFIX=/usr/local
 
-# Select the target executable (mame by default)
+# Select the emu executable (mame by default)
 # The available choices are: mame, neomame, cpmame, mess, pac
-#TARGET = mame
+#EMU = mame
 
 # Select the target architecture CFLAGS (i686 by default)
 # The available choices for the -march= option with gcc-2.95 are:
@@ -43,6 +43,15 @@ USE_SMP=1
 # Uncommment the target operating system or the current one is used:
 #HOST_TARGET=linux
 #HOST_TARGET=dos
+
+# Uncomment the system main library to use.
+# The available choices for Linux are : (default is linux)
+#   linux, sdl
+# The available choices for DOS are : (default is dos)
+#   dos
+#HOST_SYSTEM=sdl
+#HOST_SYSTEM=linux
+#HOST_SYSTEM=dos
 
 # Compilation option for the optimized build
 CFLAGS_OPTIMIZE = -O3 -fomit-frame-pointer -fstrict-aliasing
@@ -81,6 +90,15 @@ ifndef HOST_TARGET
 HOST_TARGET=$(HOST_BUILD)
 endif
 
+# Core environment
+ifndef HOST_SYSTEM
+HOST_SYSTEM=$(HOST_TARGET)
+endif
+
+# Binary description
+BINARYTAG = $(HOST_TARGET)-$(HOST_SYSTEM)-$(ARCH)
+BINARYDIR = $(HOST_TARGET)/$(HOST_SYSTEM)/$(ARCH)
+
 ############################################################################
 # Tool options
 
@@ -100,7 +118,7 @@ INSTALL_PROGRAM_STRIP = $(INSTALL) -c -s -o root -g bin -m 555
 INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
 INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 
-OBJ = obj/$(TARGET)/$(HOST_TARGET)/$(ARCH)
+OBJ = obj/$(EMU)/$(BINARYDIR)
 
 ifeq ($(HOST_TARGET),linux)
 LN = @ln -s
@@ -189,103 +207,100 @@ endif
 endif
 
 #############################################################################
-# TARGET options
+# EMU options
 
-# Automatic TARGET detection by source
-ifeq ($(TARGET),)
+# Automatic EMU detection by source
+ifeq ($(EMU),)
 ifneq ($(wildcard src),)
-TARGET = mame
+EMU = mame
 endif
 endif
-ifeq ($(TARGET),)
+ifeq ($(EMU),)
 ifneq ($(wildcard srcmess),)
-TARGET = mess
+EMU = mess
 endif
 endif
-ifeq ($(TARGET),)
+ifeq ($(EMU),)
 ifneq ($(wildcard srcpac),)
-TARGET = pac
+EMU = pac
 endif
 endif
-ifeq ($(TARGET),)
-TARGET = unknow
+ifeq ($(EMU),)
+EMU = unknow
 endif
 
 # Target file name
-TARGETNAME = adv$(TARGET)
+EMUNAME = adv$(EMU)
 
 # Target source directory
-ifeq ($(TARGET),mess)
-TARGETSRC=srcmess
+ifeq ($(EMU),mess)
+EMUSRC=srcmess
 endif
-ifeq ($(TARGET),pac)
-TARGETSRC=srcpac
+ifeq ($(EMU),pac)
+EMUSRC=srcpac
 endif
-ifeq ($(TARGETSRC),)
-TARGETSRC=src
+ifeq ($(EMUSRC),)
+EMUSRC=src
 endif
 
 # Advance makefile
 include advance/advance.mak
 
-# Only if the TARGET source are present
-ifneq ($(wildcard $(TARGETSRC)),)
+# Only if the EMU source are present
+ifneq ($(wildcard $(EMUSRC)),)
 
 # Target CFLAGS
 ifneq (,$(findstring USE_ASM_i586,$(CFLAGS)))
-TARGETCFLAGS += -DX86_ASM
+EMUCFLAGS += -DX86_ASM
 X86_ASM_68000=1
 #X86_ASM_68020=1
 endif
 
 ifneq (,$(findstring USE_LSB,$(CFLAGS)))
-TARGETCFLAGS += -DLSB_FIRST
+EMUCFLAGS += -DLSB_FIRST
 M68000FLAGS += -DLSB_FIRST
 endif
 
 ifneq (,$(findstring USE_MSB,$(CFLAGS)))
-TARGETCFLAGS += -DMSB_FIRST
+EMUCFLAGS += -DMSB_FIRST
 M68000FLAGS += -DMSB_FIRST
 endif
 
-TARGETCFLAGS += \
+EMUCFLAGS += \
 	-I. \
-	-I$(TARGETSRC)
-ifeq ($(TARGET),mess)
-TARGETCFLAGS += \
+	-I$(EMUSRC)
+ifeq ($(EMU),mess)
+EMUCFLAGS += \
 	-Imess \
 	-DUNIX
 # -DUNIX is required by the MESS source
 endif
 
-TARGETCFLAGS += \
-	-I$(TARGETSRC)/includes \
+EMUCFLAGS += \
+	-I$(EMUSRC)/includes \
 	-I$(OBJ)/cpu/m68000 \
-	-I$(TARGETSRC)/cpu/m68000 \
+	-I$(EMUSRC)/cpu/m68000 \
 	-DINLINE="static __inline__" \
 	-Dasm=__asm__
 
-# Target LDFLAGS
+# Map
 ifdef MAP
-TARGETLDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(TARGETNAME).map
+TARGETLDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
 endif
 
-# Target LIBS
-TARGETLIBS += -lz
-
-ifeq ($(TARGET),mess)
-include $(TARGETSRC)/core.mak
-include mess/$(TARGET).mak
-include $(TARGETSRC)/rules.mak
+ifeq ($(EMU),mess)
+include $(EMUSRC)/core.mak
+include mess/$(EMU).mak
+include $(EMUSRC)/rules.mak
 include mess/rules_ms.mak
 else
-include $(TARGETSRC)/core.mak
-include $(TARGETSRC)/$(TARGET).mak
-include $(TARGETSRC)/rules.mak
+include $(EMUSRC)/core.mak
+include $(EMUSRC)/$(EMU).mak
+include $(EMUSRC)/rules.mak
 endif
 
 # Special search paths required by the CPU core rules
-VPATH=$(wildcard $(TARGETSRC)/cpu/*)
+VPATH=$(wildcard $(EMUSRC)/cpu/*)
 
 OBJDIRS += \
 	$(OBJ)/cpu \
@@ -294,7 +309,7 @@ OBJDIRS += \
 	$(OBJ)/machine \
 	$(OBJ)/vidhrdw \
 	$(OBJ)/sndhrdw
-ifeq ($(TARGET),mess)
+ifeq ($(EMU),mess)
 OBJDIRS += \
 	$(OBJ)/mess \
 	$(OBJ)/mess/systems \
@@ -313,43 +328,43 @@ OBJDIRS += \
 endif
 
 ifdef DEBUG
-TARGETDEFS += -DMAME_DEBUG
+EMUDEFS += -DMAME_DEBUG
 else
 # Required because DBGOBJS is always included
 DBGOBJS =
 endif
 
-TARGETDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
+EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
 M68000FLAGS += \
 	$(CFLAGS-HOST) \
-	$(TARGETDEFS) \
+	$(EMUDEFS) \
 	-DINLINE="static __inline__" \
 	-I$(OBJ)/cpu/m68000 \
-	-I$(TARGETSRC)/cpu/m68000 \
-	-I$(TARGETSRC)
-ifeq ($(TARGET),mess)
+	-I$(EMUSRC)/cpu/m68000 \
+	-I$(EMUSRC)
+ifeq ($(EMU),mess)
 M68000FLAGS += \
 	-Imess
 endif
 
-$(OBJ)/$(TARGETNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
+$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(OBJS) $(COREOBJS) $(TARGETOSOBJS) $(TARGETLIBS) $(DRVLIBS) -o $@
+	$(LD) $(LDFLAGS) $(TARGETLDFLAGS) $(SYSTEMLDFLAGS) $(TARGETOSOBJS) $(SYSTEMOBJS) $(EMUOBJS) $(COREOBJS) $(TARGETLIBS) $(SYSTEMLIBS) $(EMULIBS) $(DRVLIBS) -o $@
 ifeq ($(COMPRESS),1)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
-	$(RM) $(TARGETNAME)$(EXE)
-	$(LN) $(OBJ)/$(TARGETNAME)$(EXE) $(TARGETNAME)$(EXE)
+	$(RM) $(EMUNAME)$(EXE)
+	$(LN) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 
-$(OBJ)/%.o: $(TARGETSRC)/%.c
+$(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(TARGETDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/mess/%.o: mess/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(TARGETDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
 $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
@@ -359,13 +374,13 @@ $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
 $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
 
-$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST): $(TARGETSRC)/cpu/m68000/m68kmake.c
+$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST): $(EMUSRC)/cpu/m68000/m68kmake.c
 	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
 	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $<
-	@$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $(OBJ)/cpu/m68000 $(TARGETSRC)/cpu/m68000/m68k_in.c > /dev/null
+	@$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
 
 # Generate asm source files for the 68000/68020 emulators
-$(OBJ)/cpu/m68000/make68k$(EXE-HOST): $(TARGETSRC)/cpu/m68000/make68k.c
+$(OBJ)/cpu/m68000/make68k$(EXE-HOST): $(EMUSRC)/cpu/m68000/make68k.c
 	$(ECHO) $@
 	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/make68k$(EXE-HOST) $<
 
@@ -394,7 +409,7 @@ $(sort $(OBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
-# TARGET switch
+# EMU switch
 endif
 
 #############################################################################
@@ -408,13 +423,15 @@ flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
 	$(ECHO) CFLAGS-HOST=$(CFLAGS-HOST)
+	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
+	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
+	$(ECHO) EMULIBS=$(EMULIBS)
 	$(ECHO) TARGETCFLAGS=$(TARGETCFLAGS)
-	$(ECHO) OSCFLAGS=$(OSCFLAGS)
 	$(ECHO) TARGETLDFLAGS=$(TARGETLDFLAGS)
 	$(ECHO) TARGETLIBS=$(TARGETLIBS)
-	$(ECHO) VCFLAGS=$(VCFLAGS)
-	$(ECHO) VLDFLAGS=$(VLDFLAGS)
-	$(ECHO) VLIBS=$(VLIBS)
+	$(ECHO) SYSTEMCFLAGS=$(SYSTEMCFLAGS)
+	$(ECHO) SYSTEMLDFLAGS=$(SYSTEMLDFLAGS)
+	$(ECHO) SYSTEMLIBS=$(SYSTEMLIBS)
 	$(ECHO) CC=$(CC)
 	$(ECHO) CC-HOST=$(CC-HOST)
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c

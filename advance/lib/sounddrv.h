@@ -46,6 +46,9 @@ extern "C" {
 #define SOUND_DRIVER_FLAGS_USER_BIT0 0x10000
 #define SOUND_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
+/** 16 bit signed sound sample. */
+typedef short sound_sample_t;
+
 struct sound_driver_struct {
 	const char* name; /**< Name of the driver */
 	const device* device_map; /**< List of supported devices */
@@ -61,7 +64,7 @@ struct sound_driver_struct {
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
-	void (*play)(const short* sample_map, unsigned sample_count);
+	void (*play)(const sound_sample_t* sample_map, unsigned sample_count);
 	unsigned (*buffered)(void);
 	video_error (*start)(double silence_time);
 	void (*stop)(void);
@@ -91,7 +94,7 @@ video_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
 void sound_done(void);
 void sound_abort(void);
 
-static __inline__ void sound_play(const short* sample_map, unsigned sample_count) {
+static __inline__ void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->play(sample_map,sample_count);

@@ -40,6 +40,9 @@ void sound_reg_driver_all(struct conf_context* context) {
 #ifdef USE_SOUND_OSS
 	sound_reg_driver(context, &sound_oss_driver);
 #endif
+#ifdef USE_SOUND_SDL
+	sound_reg_driver(context, &sound_sdl_driver);
+#endif
 #ifdef USE_SOUND_NONE
 	sound_reg_driver(context, &sound_none_driver);
 #endif

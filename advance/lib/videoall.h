@@ -63,6 +63,9 @@ extern "C" {
 #ifdef USE_VIDEO_SLANG
 #include "vslang.h"
 #endif
+#ifdef USE_VIDEO_SDL
+#include "vsdl.h"
+#endif
 #ifdef USE_VIDEO_NONE
 #include "vnone.h"
 #endif

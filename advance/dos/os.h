@@ -31,12 +31,8 @@
 #ifndef __OS_H
 #define __OS_H
 
-#ifndef __MSDOS__
-#error This module is for MSDOS only
-#endif
-
 #include "conf.h"
-#include "device.h"
+
 #include "allegro2.h"
 
 #include <time.h>
@@ -52,20 +48,26 @@ extern "C" {
 /***************************************************************************/
 /* Generic */
 
-/** Max path length */
+/** Max path length. */
 #define OS_MAXPATH 256
 
-/** Max path list */
+/** Max path list. */
 #define OS_MAXLIST 8192
 
-/** Max command line length */
+/** Max command line length. */
 #define OS_MAXCMD 512
 
-/** Max number of arguments */
+/** Max number of arguments. */
 #define OS_MAXARG 32
 
+struct os_device {
+	const char *name;
+	int id;
+	const char* desc;
+};
+
 /***************************************************************************/
-/* debug */
+/* Debug */
 
 void os_msg_va(const char *text, va_list arg);
 void os_msg(const char *text, ...);
@@ -87,13 +89,19 @@ void os_msg_done(void);
 
 int os_init(struct conf_context* context);
 void os_done(void);
-
 int os_inner_init(void);
-void os_inner_done();
-
+void os_inner_done(void);
 void os_poll(void);
+void os_idle(void);
+void os_usleep(unsigned us);
+int os_main(int argc, char* argv[]);
 
-extern int os_main(int argc, char* argv[]);
+/***************************************************************************/
+/* Signal */
+
+int os_is_term(void);
+void os_signal(int signum);
+void os_default_signal(int signum);
 
 /***************************************************************************/
 /* Clocks */
@@ -175,7 +183,7 @@ static __inline__ os_clock_t os_clock(void) {
 #define OS_KEY_F11 KEY_F11
 #define OS_KEY_F12 KEY_F12
 #define OS_KEY_ESC KEY_ESC
-#define OS_KEY_TILDE KEY_TILDE
+#define OS_KEY_BACKQUOTE KEY_TILDE
 #define OS_KEY_MINUS KEY_MINUS
 #define OS_KEY_EQUALS KEY_EQUALS
 #define OS_KEY_BACKSPACE KEY_BACKSPACE
@@ -183,12 +191,12 @@ static __inline__ os_clock_t os_clock(void) {
 #define OS_KEY_OPENBRACE KEY_OPENBRACE
 #define OS_KEY_CLOSEBRACE KEY_CLOSEBRACE
 #define OS_KEY_ENTER KEY_ENTER
-#define OS_KEY_COLON KEY_COLON
+#define OS_KEY_SEMICOLON KEY_COLON
 #define OS_KEY_QUOTE KEY_QUOTE
 #define OS_KEY_BACKSLASH KEY_BACKSLASH
-#define OS_KEY_BACKSLASH2 KEY_BACKSLASH2
+#define OS_KEY_LESS KEY_BACKSLASH2
 #define OS_KEY_COMMA KEY_COMMA
-#define OS_KEY_STOP KEY_STOP
+#define OS_KEY_PERIOD KEY_STOP
 #define OS_KEY_SLASH KEY_SLASH
 #define OS_KEY_SPACE KEY_SPACE
 #define OS_KEY_INSERT KEY_INSERT
@@ -205,15 +213,10 @@ static __inline__ os_clock_t os_clock(void) {
 #define OS_KEY_ASTERISK KEY_ASTERISK
 #define OS_KEY_MINUS_PAD KEY_MINUS_PAD
 #define OS_KEY_PLUS_PAD KEY_PLUS_PAD
-#define OS_KEY_DEL_PAD KEY_DEL_PAD
+#define OS_KEY_PERIOD_PAD KEY_DEL_PAD
 #define OS_KEY_ENTER_PAD KEY_ENTER_PAD
 #define OS_KEY_PRTSCR KEY_PRTSCR
 #define OS_KEY_PAUSE KEY_PAUSE
-#define OS_KEY_YEN KEY_YEN
-#define OS_KEY_YEN2 KEY_YEN2
-#define OS_KEY_KANA KEY_KANA
-#define OS_KEY_HENKAN KEY_HENKAN
-#define OS_KEY_MUHENKAN KEY_MUHENKAN
 #define OS_KEY_LSHIFT KEY_LSHIFT
 #define OS_KEY_RSHIFT KEY_RSHIFT
 #define OS_KEY_LCONTROL KEY_LCONTROL
@@ -228,7 +231,7 @@ static __inline__ os_clock_t os_clock(void) {
 #define OS_KEY_CAPSLOCK KEY_CAPSLOCK
 #define OS_KEY_MAX KEY_MAX
 
-extern device OS_KEY[];
+extern struct os_device OS_KEY[];
 
 int os_key_init(int key_id, int disable_special);
 void os_key_done(void);
@@ -299,7 +302,7 @@ unsigned os_input_get(void);
 /***************************************************************************/
 /* Mouse */
 
-extern device OS_MOUSE[];
+extern struct os_device OS_MOUSE[];
 
 int os_mouse_init(int mouse_id);
 void os_mouse_done(void);
@@ -314,7 +317,7 @@ unsigned os_mouse_button_get(unsigned mouse, unsigned button);
 /***************************************************************************/
 /* Joystick */
 
-extern device OS_JOY[];
+extern struct os_device OS_JOY[];
 
 int os_joy_init(int joystick_id);
 void os_joy_done(void);
@@ -397,30 +400,30 @@ static __inline__ int os_mmx_get(void) {
 	return cpu_mmx;
 }
 
-/***************************************************************************/
-/* Library */
-
 void os_mode_reset(void);
 
-void os_signal(int signum);
-void os_default_signal(int signum);
-
-void os_idle(void);
-void os_usleep(unsigned us);
+/***************************************************************************/
+/* Sound */
 
 void os_sound_error(void);
 void os_sound_warn(void);
 void os_sound_signal(void);
 
+/***************************************************************************/
+/* APM */
+
 int os_apm_shutdown(void);
 int os_apm_standby(void);
 int os_apm_wakeup(void);
+
+/***************************************************************************/
+/* System */
 
 int os_system(const char* cmd);
 int os_spawn(const char* file, const char** argv);
 
 /***************************************************************************/
-/* File System */
+/* FileSystem */
 
 char os_dir_separator(void);
 char os_dir_slash(void);
@@ -429,7 +432,7 @@ const char* os_import(const char* path);
 const char* os_export(const char* path);
 
 /***************************************************************************/
-/* Config */
+/* Files */
 
 const char* os_config_file_root(const char* file);
 const char* os_config_file_home(const char* file);

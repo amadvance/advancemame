@@ -217,8 +217,20 @@ static __inline__ unsigned video_flags(void) {
 	return video_mode_flags(video_current_mode());
 }
 
-/** Write line offset of the current video mode. */
+/** Access the memory for writing. */
 extern unsigned char* (*video_write_line)(unsigned y);
+
+/** Grant access in writing. */
+static __inline__ void video_write_lock(void) {
+	if (video_current_driver()->write_lock)
+		video_current_driver()->write_lock();
+}
+
+/** Remove the lock for writing. */
+static __inline__ void video_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) {
+	if (video_current_driver()->write_unlock)
+		video_current_driver()->write_unlock(x, y, size_x, size_y);
+}
 
 /** Write column offset of the current video mode. */
 static __inline__ unsigned video_offset(unsigned x) {

@@ -980,15 +980,23 @@ OTHER CONFIGURATION OPTIONS
 			lock - Lock/unlock the user interface.
 		KEY_EXPRESSION - Definition of the key expression that
 			generates the event. It's a combination of
-			the scancode of the keys, and of the operators
+			the key names or scancode, and of the operators
 			`not', `or'. The `and' operator is implicit
 			between consecutive scancodes.
 
-	Expression:
-		SCANCODE - The decimal value of the key scancode.
-		not - Prefix operator, high precedence.
-		or - Infix operator, medium precedence.
-		and - Infix implicit operator, low precedence.
+	The available key names are :
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
+		s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		0_pad, 1_pad, 2_pad, 3_pad, 4_pad, 5_pad, 6_pad,
+		7_pad, 8_pad, 9_pad, f1, f2, f3, f4, f5, f6, f7, f8,
+		f9, f10, f11, f12, esc, backquote, minus, equals,
+		backspace, tab, openbrace, closebrace, enter,
+		semicolon, quote, backslash, less, comma, period,
+		slash, space, insert, del, home, end, pgup, pgdn, left,
+		right, up, down, slash, asterisk, minus_pad,
+		plus_pad, period_pad, enter_pad, prtscr, pause,
+		lshift, rshift, lcontrol, rcontrol, lalt, ralt,
+		lwin, rwin, menu, scrlock, numlock, capslock.
 
 	Example:
 		event_assign menu 90 or 35
@@ -996,7 +1004,8 @@ OTHER CONFIGURATION OPTIONS
 		event_assign emulator 91 23 or not 21 33
 			-> (91 and 23) or ((not 21) and 33)
 
-	You can use the utility `advk' to get the key scancodes.
+	You can use the utility `advk' to get the key scancodes and
+	names.
 
     "event_repeat"
 	Select the repeat rate of the various events.

@@ -111,8 +111,8 @@ int os_main(int argc, char* argv[]) {
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	if (argc == 1) {
-		fprintf(stderr,"Missing file\n");
+	if (argc <= 1) {
+		fprintf(stderr,"Syntax: advs FILES...\n");
 		goto err_os;
 	}
 
@@ -159,6 +159,7 @@ int os_main(int argc, char* argv[]) {
 				break;
 		if (i==n)
 			break;
+
 		mixer_poll();
 		os_idle();
 	}

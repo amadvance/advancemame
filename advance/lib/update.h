@@ -44,8 +44,9 @@ unsigned update_page_get(void);
 
 void update_init(int max_buffer);
 void update_done(void);
+
 void update_start(void);
-void update_stop(int wait_retrace);
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, video_bool wait_retrace);
 
 #ifdef __cplusplus
 }

@@ -37,7 +37,7 @@
 
 static device DEVICE[] = {
 { "auto", 1, "VBE automatic detection" },
-{ "vbe", 2, "VBE" },
+{ "vbe", 2, "VBE (no hardware programming)" },
 { 0, 0, 0 }
 };
 
@@ -317,6 +317,8 @@ video_driver video_vbe_driver = {
 	vbe_bytes_per_scanline,
 	vbe_adjust_bytes_per_page,
 	vbe_rgb_def,
+	0,
+	0,
 	&vbe_write_line,
 	vbe_wait_vsync,
 	vbe_scroll,

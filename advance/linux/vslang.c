@@ -345,6 +345,8 @@ video_driver video_slang_driver = {
 	slang_bytes_per_scanline,
 	0,
 	slang_rgb_def,
+	0,
+	0,
 	&slang_write_line,
 	slang_wait_vsync,
 	0,

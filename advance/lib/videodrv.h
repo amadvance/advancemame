@@ -91,7 +91,9 @@ struct video_driver_struct {
 	unsigned (*adjust_bytes_per_page)(unsigned bytes_per_page);
 	video_rgb_def (*rgb_def)(void);
 
-	unsigned char* (**write_line)(unsigned y);
+	void (*write_lock)(void); /**< Grant access in writing. */
+	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y); /**< Remove the lock for writing. */
+	unsigned char* (**write_line)(unsigned y); /**< Access the memory for writing. */
 
 	/* Operations on the current video mode */
 	void (*wait_vsync)(void);

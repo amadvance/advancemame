@@ -306,6 +306,8 @@ video_driver video_none_driver = {
 	none_bytes_per_scanline,
 	none_adjust_bytes_per_page,
 	none_rgb_def,
+	0,
+	0,
 	&none_write_line,
 	none_wait_vsync,
 	none_scroll,

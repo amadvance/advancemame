@@ -35,6 +35,7 @@
 #include "blit.h"
 #include "os.h"
 #include "videoall.h"
+#include "key.h"
 
 #include <list>
 #include <iostream>
@@ -942,7 +943,11 @@ static void video_backdrop_box() {
 			unsigned y = back->pos.real_y - backdrop_outline;
 			unsigned dx = back->pos.real_dx + 2*backdrop_outline;
 			unsigned dy = back->pos.real_dy + 2*backdrop_outline;
+
+			video_write_lock();
 			video_box(x,y,dx,dy,backdrop_cursor,color);
+			video_write_unlock(x, y, dx, dy);
+
 			backdrop_box_color = ((backdrop_box_color << 4) & 0xF0) | ((backdrop_box_color >> 4) & 0xF);
 		}
 	}
@@ -1801,12 +1806,15 @@ static void text_backdrop_update(struct backdrop_t* back) {
 			back->pos.redraw = false;
 			text_backdrop_clear(back);
 		}
+
 		if (backdrop_outline)
 			text_box(back->pos.x-backdrop_outline,back->pos.y-backdrop_outline,back->pos.dx+2*backdrop_outline,back->pos.dy+2*backdrop_outline,backdrop_outline,backdrop_missing_color);
 	}
 }
 
 static void text_copy_partial(unsigned y0, unsigned y1) {
+	video_write_lock();
+
 	if (video_is_unchained()) {
 		for(unsigned plane=0;plane<4;++plane) {
 			video_unchained_plane_set(plane);
@@ -1830,6 +1838,8 @@ static void text_copy_partial(unsigned y0, unsigned y1) {
 			buffer += video_buffer_line_size;
 		}
 	}
+
+	video_write_unlock(0, y0, video_size_x(), y1 - y0);
 }
 
 unsigned text_update_pre(bool progressive) {
@@ -1912,33 +1922,33 @@ struct key_cvt {
 #define OP_NOT (OS_KEY_MAX + 2)
 
 static struct key_cvt KEYTAB[] = {
-{"up",TEXT_KEY_UP, { OS_KEY_UP, OS_KEY_MAX } },
-{"down",TEXT_KEY_DOWN, { OS_KEY_DOWN, OS_KEY_MAX } },
-{"left",TEXT_KEY_LEFT, { OS_KEY_LEFT, OS_KEY_MAX } },
-{"right",TEXT_KEY_RIGHT, { OS_KEY_RIGHT, OS_KEY_MAX } },
-{"enter",TEXT_KEY_ENTER, { OS_KEY_ENTER, OS_KEY_MAX } },
+{"up", TEXT_KEY_UP, { OS_KEY_UP, OS_KEY_MAX } },
+{"down", TEXT_KEY_DOWN, { OS_KEY_DOWN, OS_KEY_MAX } },
+{"left", TEXT_KEY_LEFT, { OS_KEY_LEFT, OS_KEY_MAX } },
+{"right", TEXT_KEY_RIGHT, { OS_KEY_RIGHT, OS_KEY_MAX } },
+{"enter", TEXT_KEY_ENTER, { OS_KEY_ENTER, OS_KEY_MAX } },
 {"shutdown", TEXT_KEY_OFF, { OS_KEY_LCONTROL, OS_KEY_ESC, OS_KEY_MAX } },
-{"esc",TEXT_KEY_ESC, { OS_KEY_ESC, OS_KEY_MAX } },
-{"space",TEXT_KEY_SPACE, { OS_KEY_SPACE, OS_KEY_MAX } },
-{"mode",TEXT_KEY_MODE, { OS_KEY_TAB, OS_KEY_MAX } },
-{"home",TEXT_KEY_HOME, { OS_KEY_HOME, OS_KEY_MAX } },
-{"end",TEXT_KEY_END, { OS_KEY_END, OS_KEY_MAX } },
-{"pgup",TEXT_KEY_PGUP, { OS_KEY_PGUP, OS_KEY_MAX } },
-{"pgdn",TEXT_KEY_PGDN, { OS_KEY_PGDN, OS_KEY_MAX } },
-{"help",TEXT_KEY_HELP, { OS_KEY_F1, OS_KEY_MAX } },
-{"group",TEXT_KEY_GROUP, { OS_KEY_F2, OS_KEY_MAX } },
-{"type",TEXT_KEY_TYPE, { OS_KEY_F3, OS_KEY_MAX } },
-{"exclude",TEXT_KEY_EXCLUDE, { OS_KEY_F4, OS_KEY_MAX } },
-{"sort",TEXT_KEY_SORT, { OS_KEY_F5, OS_KEY_MAX } },
-{"setgroup",TEXT_KEY_SETGROUP, { OS_KEY_F9, OS_KEY_MAX } },
-{"settype",TEXT_KEY_SETTYPE, { OS_KEY_F10, OS_KEY_MAX } },
-{"runclone",TEXT_KEY_RUN_CLONE, { OS_KEY_F12, OS_KEY_MAX } },
-{"del",TEXT_KEY_DEL, { OS_KEY_DEL, OS_KEY_MAX } },
-{"ins",TEXT_KEY_INS, { OS_KEY_INSERT, OS_KEY_MAX } },
-{"command",TEXT_KEY_COMMAND, { OS_KEY_F8, OS_KEY_MAX } },
-{"menu", TEXT_KEY_MENU, { OS_KEY_TILDE, OS_KEY_MAX } },
+{"esc", TEXT_KEY_ESC, { OS_KEY_ESC, OS_KEY_MAX } },
+{"space", TEXT_KEY_SPACE, { OS_KEY_SPACE, OS_KEY_MAX } },
+{"mode", TEXT_KEY_MODE, { OS_KEY_TAB, OS_KEY_MAX } },
+{"home", TEXT_KEY_HOME, { OS_KEY_HOME, OS_KEY_MAX } },
+{"end", TEXT_KEY_END, { OS_KEY_END, OS_KEY_MAX } },
+{"pgup", TEXT_KEY_PGUP, { OS_KEY_PGUP, OS_KEY_MAX } },
+{"pgdn", TEXT_KEY_PGDN, { OS_KEY_PGDN, OS_KEY_MAX } },
+{"help", TEXT_KEY_HELP, { OS_KEY_F1, OS_KEY_MAX } },
+{"group", TEXT_KEY_GROUP, { OS_KEY_F2, OS_KEY_MAX } },
+{"type", TEXT_KEY_TYPE, { OS_KEY_F3, OS_KEY_MAX } },
+{"exclude", TEXT_KEY_EXCLUDE, { OS_KEY_F4, OS_KEY_MAX } },
+{"sort", TEXT_KEY_SORT, { OS_KEY_F5, OS_KEY_MAX } },
+{"setgroup", TEXT_KEY_SETGROUP, { OS_KEY_F9, OS_KEY_MAX } },
+{"settype", TEXT_KEY_SETTYPE, { OS_KEY_F10, OS_KEY_MAX } },
+{"runclone", TEXT_KEY_RUN_CLONE, { OS_KEY_F12, OS_KEY_MAX } },
+{"del", TEXT_KEY_DEL, { OS_KEY_DEL, OS_KEY_MAX } },
+{"ins", TEXT_KEY_INS, { OS_KEY_INSERT, OS_KEY_MAX } },
+{"command", TEXT_KEY_COMMAND, { OS_KEY_F8, OS_KEY_MAX } },
+{"menu", TEXT_KEY_MENU, { OS_KEY_BACKQUOTE, OP_OR, OS_KEY_BACKSLASH, OS_KEY_MAX } },
 {"emulator", TEXT_KEY_EMU, { OS_KEY_F6, OS_KEY_MAX } },
-{"snapshot",TEXT_KEY_SNAPSHOT, { OS_KEY_DEL_PAD, OS_KEY_MAX } },
+{"snapshot", TEXT_KEY_SNAPSHOT, { OS_KEY_PERIOD_PAD, OS_KEY_MAX } },
 {"rotate", TEXT_KEY_ROTATE, { OS_KEY_0_PAD, OS_KEY_MAX } },
 {"lock", TEXT_KEY_LOCK, { OS_KEY_SCRLOCK, OS_KEY_MAX } },
 { 0, 0, { 0 } }
@@ -2077,7 +2087,16 @@ static int key_poll() {
 	static os_clock_t key_repeat_last_time = 0;
 	static bool key_repeat_last_counter = 0;
 
-	int r = keyboard_raw_poll();
+	int r = TEXT_KEY_NONE;
+
+	if (r == TEXT_KEY_NONE) {
+		if (os_is_term())
+			r = TEXT_KEY_ESC;
+	}
+
+	if (r == TEXT_KEY_NONE) {
+		r = keyboard_raw_poll();
+	}
 
 	if (r == TEXT_KEY_NONE) {
 		r = text_joystick_button_raw_poll();
@@ -2215,6 +2234,8 @@ static void text_clip_idle() {
 	unsigned combine =  VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 #endif
 
+	video_write_lock();
+
 	if (bitmap->bytes_per_pixel == 1) {
 		video_rgb palette[256];
 		unsigned i;
@@ -2228,6 +2249,8 @@ static void text_clip_idle() {
 
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, rgb_def, combine);
 	}
+
+	video_write_unlock(dst_x, dst_y, dst_dx, dst_dy);
 
 #else
 
@@ -2255,16 +2278,22 @@ static void text_box_idle() {
 static void text_idle() {
 	if (text_key_last == TEXT_KEY_IDLE_0 && text_idle_0_rep && time(0) - text_idle_time > text_idle_0_rep)
 		text_key_saved = TEXT_KEY_IDLE_0;
+
 	if (text_key_last == TEXT_KEY_IDLE_1 && text_idle_1_rep && time(0) - text_idle_time > text_idle_1_rep)
 		text_key_saved = TEXT_KEY_IDLE_1;
+
 	if (text_idle_0 && time(0) - text_idle_time > text_idle_0)
 		text_key_saved = TEXT_KEY_IDLE_0;
+
 	if (text_idle_1 && time(0) - text_idle_time > text_idle_1)
 		text_key_saved = TEXT_KEY_IDLE_1;
 
-	if (text_key_saved == TEXT_KEY_NONE && text_updating_active) {
-		text_clip_idle();
-		text_box_idle();
+	if (text_key_saved == TEXT_KEY_NONE) {
+		if (text_updating_active) {
+			text_clip_idle();
+			text_box_idle();
+			os_idle();
+		}
 	}
 
 	play_poll();
@@ -2368,12 +2397,13 @@ bool text_key_in(const string& s) {
 		} else if (skey == "and") {
 			/* nothing */
 		} else {
-			unsigned key = atoi(skey.c_str());
-			if (!key)
+			unsigned key = key_code(skey.c_str());
+			if (key == OS_KEY_MAX)
 				return false;
 			seq[seq_count++] = key;
 		}
 	}
+
 	seq[seq_count] = OP_NONE;
 
 	if (!seq_valid(seq))
@@ -2398,9 +2428,7 @@ void text_key_out(struct conf_context* config_context, const char* tag) {
 			else if (k == OP_NOT)
 				s += "and";
 			else {
-				char buffer[32];
-				sprintf(buffer, "%d", k);
-				s += buffer;
+				s += key_name(k);
 			}
 		}
 

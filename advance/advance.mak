@@ -5,13 +5,13 @@
 ############################################################################
 # Version
 
-ifeq ($(TARGET),mess)
-TARGETVERSION = 0.56.x
+ifeq ($(EMU),mess)
+EMUVERSION = 0.56.x
 else
-ifeq ($(TARGET),pac)
-TARGETVERSION = 0.58.x
+ifeq ($(EMU),pac)
+EMUVERSION = 0.58.x
 else
-TARGETVERSION = 0.61.1
+EMUVERSION = 0.61.1
 endif
 endif
 MENUVERSION = 1.19.1
@@ -20,104 +20,24 @@ CABVERSION = 0.11.2
 ############################################################################
 # Utilities dir
 
-MOBJ = obj/m/$(HOST_TARGET)/$(ARCH)
-JOBJ = obj/j/$(HOST_TARGET)/$(ARCH)
-KOBJ = obj/k/$(HOST_TARGET)/$(ARCH)
-VOBJ = obj/v/$(HOST_TARGET)/$(ARCH)
-SOBJ = obj/s/$(HOST_TARGET)/$(ARCH)
-CFGOBJ = obj/cfg/$(HOST_TARGET)/$(ARCH)
-LINEOBJ = obj/line/$(HOST_TARGET)/$(ARCH)
-MENUOBJ = obj/menu/$(HOST_TARGET)/$(ARCH)
+MOBJ = obj/m/$(BINARYDIR)
+JOBJ = obj/j/$(BINARYDIR)
+KOBJ = obj/k/$(BINARYDIR)
+VOBJ = obj/v/$(BINARYDIR)
+SOBJ = obj/s/$(BINARYDIR)
+CFGOBJ = obj/cfg/$(BINARYDIR)
+LINEOBJ = obj/line/$(BINARYDIR)
+MENUOBJ = obj/menu/$(BINARYDIR)
 
 ############################################################################
-# Common
+# Target and Core
 
-ifeq ($(HOST_TARGET),linux)
-ifdef PREFIX
-OSCFLAGS += -DPREFIX=\"$(PREFIX)\"
-VCFLAGS += -DPREFIX=\"$(PREFIX)\"
-SCFLAGS += -DPREFIX=\"$(PREFIX)\"
-CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
-JCFLAGS += -DPREFIX=\"$(PREFIX)\"
-KCFLAGS += -DPREFIX=\"$(PREFIX)\"
-MCFLAGS += -DPREFIX=\"$(PREFIX)\"
-MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
-endif
-endif
-
-############################################################################
-# Main target
-
-ifeq ($(TARGET),mess)
-OSCFLAGS += -DMESS
-endif
-
-ifeq ($(TARGET),pac)
-OSCFLAGS += -DPAC
-endif
-
-ifeq ($(HOST_TARGET),linux)
-TARGETCFLAGS += \
-	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
-ifdef USE_SMP
-TARGETCFLAGS += -DUSE_SMP
-TARGETLIBS += -lpthread
-endif
-endif
-
-ifeq ($(HOST_TARGET),dos)
-TARGETCFLAGS += \
-	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
-	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE
-TARGETLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
-TARGETLIBS += -laudio
-endif
-
-OSCFLAGS += \
-	-Iadvance/$(HOST_TARGET)
-
-ifeq ($(HOST_TARGET),linux)
-TARGETCFLAGS += \
-	-DPI=M_PI \
-	-Dstricmp=strcasecmp \
-	-Dstrnicmp=strncasecmp
-endif
-
-ifeq ($(HOST_TARGET),dos)
-OSCFLAGS += \
-	-DUSE_CONFIG_ALLEGRO_WRAPPER \
-	-Iadvance/card \
-	-Iadvance/svgalib \
-	-Iadvance/svgalib/clockchi \
-	-Iadvance/svgalib/ramdac \
-	-Iadvance/svgalib/drivers
-TARGETLDFLAGS += \
-	-Xlinker --wrap -Xlinker get_config_string \
-	-Xlinker --wrap -Xlinker get_config_int \
-	-Xlinker --wrap -Xlinker set_config_string \
-	-Xlinker --wrap -Xlinker set_config_int \
-	-Xlinker --wrap -Xlinker get_config_id \
-	-Xlinker --wrap -Xlinker set_config_id
-endif
-
-OSCFLAGS += \
+SYSTEMCFLAGS += \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/osd \
 	-Iadvance/lib \
 	-Iadvance/common \
-	-Iadvance/blit \
-
-TARGETCFLAGS += -Iadvance/osd
-M68000FLAGS += -Iadvance/osd
-
-ifeq ($(HOST_TARGET),linux)
-TARGETLIBS += -lvga
-endif
-
-ifeq ($(HOST_TARGET),dos)
-TARGETLIBS += -lalleg
-endif
+	-Iadvance/blit
 
 OBJDIRS += \
 	$(OBJ) \
@@ -125,72 +45,70 @@ OBJDIRS += \
 	$(OBJ)/advance/lib \
 	$(OBJ)/advance/osd \
 	$(OBJ)/advance/blit \
-	$(OBJ)/advance/$(HOST_TARGET)
+	$(OBJ)/advance/$(HOST_SYSTEM)
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_TARGET),linux)
+TARGETCFLAGS += \
+	-DPI=M_PI \
+	-Dstricmp=strcasecmp \
+	-Dstrnicmp=strncasecmp
+TARGETLIBS += -lm
+ifdef USE_SMP
+TARGETCFLAGS += -DUSE_SMP
+TARGETLIBS += -lpthread
+endif
+endif
+
+ifeq ($(HOST_SYSTEM),linux)
+SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
+SYSTEMCFLAGS += \
+	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
+	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
+SYSTEMLIBS += -lvga
+SYSTEMOBJS += \
+	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/soss.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vsvgab.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vfb.o
+endif
+
+ifeq ($(HOST_SYSTEM),dos)
+SYSTEMCFLAGS += \
+	-DUSE_CONFIG_ALLEGRO_WRAPPER \
+	-Iadvance/card \
+	-Iadvance/svgalib \
+	-Iadvance/svgalib/clockchi \
+	-Iadvance/svgalib/ramdac \
+	-Iadvance/svgalib/drivers
+SYSTEMCFLAGS += \
+	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
+	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE
+SYSTEMLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
+SYSTEMLIBS += -laudio -lalleg
+SYSTEMLDFLAGS += \
+	-Xlinker --wrap -Xlinker get_config_string \
+	-Xlinker --wrap -Xlinker get_config_int \
+	-Xlinker --wrap -Xlinker set_config_string \
+	-Xlinker --wrap -Xlinker set_config_int \
+	-Xlinker --wrap -Xlinker get_config_id \
+	-Xlinker --wrap -Xlinker set_config_id
 OBJDIRS += \
 	$(OBJ)/advance/card \
 	$(OBJ)/advance/svgalib \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
 	$(OBJ)/advance/svgalib/drivers
-endif
-
-TARGETOSOBJS += \
-	$(OBJ)/advance/osd/advance.o \
-	$(OBJ)/advance/osd/glue.o \
-	$(OBJ)/advance/osd/videoma.o \
-	$(OBJ)/advance/osd/videocf.o \
-	$(OBJ)/advance/osd/videomn.o \
-	$(OBJ)/advance/osd/estimate.o \
-	$(OBJ)/advance/osd/record.o \
-	$(OBJ)/advance/osd/sound.o \
-	$(OBJ)/advance/osd/input.o \
-	$(OBJ)/advance/osd/lexyy.o \
-	$(OBJ)/advance/osd/y_tab.o \
-	$(OBJ)/advance/osd/script.o \
-	$(OBJ)/advance/osd/hscript.o \
-	$(OBJ)/advance/osd/safequit.o \
-	$(OBJ)/advance/osd/fileio.o \
-	$(OBJ)/advance/osd/fuzzy.o \
-	$(OBJ)/advance/blit/blit.o \
-	$(OBJ)/advance/blit/clear.o \
-	$(OBJ)/advance/lib/video.o \
-	$(OBJ)/advance/lib/conf.o \
-	$(OBJ)/advance/lib/incstr.o \
-	$(OBJ)/advance/lib/fz.o \
-	$(OBJ)/advance/lib/videoio.o \
-	$(OBJ)/advance/lib/update.o \
-	$(OBJ)/advance/lib/generate.o \
-	$(OBJ)/advance/lib/crtc.o \
-	$(OBJ)/advance/lib/crtcbag.o \
-	$(OBJ)/advance/lib/monitor.o \
-	$(OBJ)/advance/lib/sounddrv.o \
-	$(OBJ)/advance/lib/snone.o \
-	$(OBJ)/advance/lib/vnone.o \
-	$(OBJ)/advance/lib/device.o \
-	$(OBJ)/advance/lib/videoall.o \
-	$(OBJ)/advance/lib/soundall.o
-
-ifeq ($(HOST_TARGET),linux)
-TARGETOSOBJS += \
-	$(OBJ)/advance/$(HOST_TARGET)/os.o \
-	$(OBJ)/advance/$(HOST_TARGET)/soss.o \
-	$(OBJ)/advance/$(HOST_TARGET)/vsvgab.o \
-	$(OBJ)/advance/$(HOST_TARGET)/vfb.o
-endif
-
-ifeq ($(HOST_TARGET),dos)
-TARGETOSOBJS += \
-	$(OBJ)/advance/$(HOST_TARGET)/os.o \
-	$(OBJ)/advance/$(HOST_TARGET)/sseal.o \
-	$(OBJ)/advance/$(HOST_TARGET)/salleg.o \
-	$(OBJ)/advance/$(HOST_TARGET)/vvgal.o \
-	$(OBJ)/advance/$(HOST_TARGET)/vvbel.o \
-	$(OBJ)/advance/$(HOST_TARGET)/vsvgal.o \
-	$(OBJ)/advance/$(HOST_TARGET)/scrvbe.o \
-	$(OBJ)/advance/$(HOST_TARGET)/scrvga.o \
-	$(OBJ)/advance/$(HOST_TARGET)/snprintf.o \
+SYSTEMOBJS += \
+	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/sseal.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/salleg.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vvgal.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vvbel.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vsvgal.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/scrvbe.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/scrvga.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/snprintf.o \
 	$(OBJ)/advance/card/card.o \
 	$(OBJ)/advance/card/pci.o \
 	$(OBJ)/advance/card/map.o \
@@ -230,6 +148,20 @@ TARGETOSOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/btdacs.o \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+SYSTEMCFLAGS += -DPREFIX=\"$(PREFIX)\"
+SYSTEMCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
+	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
+SYSTEMLIBS += $(shell sdl-config --libs)
+SYSTEMOBJS += \
+	$(OBJ)/advance/$(HOST_SYSTEM)/os.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/vsdl.o \
+	$(OBJ)/advance/$(HOST_SYSTEM)/ssdl.o
 endif
 
 ifdef WRAPALLOC
@@ -276,7 +208,7 @@ INSTALL_IMAGEDIRS += \
 	intvkbd aquarius exidy galaxy svi318 svi328 svi328a apexc mk1 mk2
 
 ifneq ($(wildcard advance/osd),)
-INSTALL_BINFILES += $(OBJ)/$(TARGETNAME)$(EXE)
+INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 INSTALL_DATAFILES += support/safequit.dat
 endif
 ifneq ($(wildcard advance/v),)
@@ -307,7 +239,7 @@ endif
 INSTALL_DOCFILES += $(wildcard doc/*.txt)
 
 all: $(INSTALL_BINFILES)
-emu: $(OBJ)/$(TARGETNAME)$(EXE)
+emu: $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ)/advmenu$(EXE)
 line: $(LINEOBJ)/advline$(EXE)
 cfg: $(CFGOBJ)/advcfg$(EXE)
@@ -330,11 +262,11 @@ CFLAGS_FIX_GCC30 = $(subst -O3,-O1,$(CFLAGS))
 
 $(OBJ)/advance/card/%.o: advance/card/%.c
 	@echo $@ $(MSG_FIX)
-	$(CC) $(CFLAGS_FIX_GCC30) $(OSCFLAGS) $(TARGETCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
 $(OBJ)/advance/svgalib/%.o: advance/svgalib/%.c
 	@echo $@ $(MSG_FIX)
-	$(CC) $(CFLAGS_FIX_GCC30) $(OSCFLAGS) $(TARGETCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS_FIX_GCC30) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
 
 $(MENUOBJ)/card/%.o: advance/card/%.c
 	@echo $@ $(MSG_FIX)
@@ -361,20 +293,13 @@ $(CFGOBJ)/svgalib/%.o: advance/svgalib/%.c
 	$(CC) $(CFLAGS_FIX_GCC30) $(CFGCFLAGS) -c $< -o $@
 
 ############################################################################
-# Main compile rules
-
-$(OBJ)/advance/%.o: advance/%.c
-	@echo $@ $(MSG)
-	$(CC) $(CFLAGS) $(OSCFLAGS) $(TARGETCFLAGS) -c $< -o $@
-
-############################################################################
 # Install
 
 install_data:
 ifdef INSTALL_DATAFILES
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
-ifeq ($(TARGET),mess)
+ifeq ($(EMU),mess)
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
 	@for i in $(INSTALL_IMAGEDIRS); do \
 		$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image/$$i; \
@@ -403,10 +328,70 @@ endif
 install: install_bin install_data install_doc
 
 ############################################################################
+# EMU
+
+ifeq ($(EMU),mess)
+EMUCFLAGS += -DMESS
+endif
+
+ifeq ($(EMU),pac)
+EMUCFLAGS += -DPAC
+endif
+
+EMUCFLAGS += -Iadvance/osd
+M68000FLAGS += -Iadvance/osd
+
+EMUOBJS += \
+	$(OBJ)/advance/osd/advance.o \
+	$(OBJ)/advance/osd/glue.o \
+	$(OBJ)/advance/osd/videoma.o \
+	$(OBJ)/advance/osd/videocf.o \
+	$(OBJ)/advance/osd/videomn.o \
+	$(OBJ)/advance/osd/estimate.o \
+	$(OBJ)/advance/osd/record.o \
+	$(OBJ)/advance/osd/sound.o \
+	$(OBJ)/advance/osd/input.o \
+	$(OBJ)/advance/osd/lexyy.o \
+	$(OBJ)/advance/osd/y_tab.o \
+	$(OBJ)/advance/osd/script.o \
+	$(OBJ)/advance/osd/hscript.o \
+	$(OBJ)/advance/osd/safequit.o \
+	$(OBJ)/advance/osd/fileio.o \
+	$(OBJ)/advance/osd/fuzzy.o \
+	$(OBJ)/advance/blit/blit.o \
+	$(OBJ)/advance/blit/clear.o \
+	$(OBJ)/advance/lib/video.o \
+	$(OBJ)/advance/lib/conf.o \
+	$(OBJ)/advance/lib/incstr.o \
+	$(OBJ)/advance/lib/fz.o \
+	$(OBJ)/advance/lib/videoio.o \
+	$(OBJ)/advance/lib/update.o \
+	$(OBJ)/advance/lib/generate.o \
+	$(OBJ)/advance/lib/crtc.o \
+	$(OBJ)/advance/lib/crtcbag.o \
+	$(OBJ)/advance/lib/monitor.o \
+	$(OBJ)/advance/lib/sounddrv.o \
+	$(OBJ)/advance/lib/snone.o \
+	$(OBJ)/advance/lib/vnone.o \
+	$(OBJ)/advance/lib/device.o \
+	$(OBJ)/advance/lib/videoall.o \
+	$(OBJ)/advance/lib/soundall.o
+
+EMULIBS += -lz
+
+$(OBJ)/advance/osd/%.o: advance/osd/%.c
+	@echo $@ $(MSG)
+	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) $(EMUCFLAGS) -c $< -o $@
+
+$(OBJ)/advance/%.o: advance/%.c
+	@echo $@ $(MSG)
+	$(CC) $(CFLAGS) $(TARGETCFLAGS) $(SYSTEMCFLAGS) -c $< -o $@
+
+############################################################################
 # V
 
 VCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/common
@@ -432,21 +417,22 @@ VOBJDIRS = \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit \
-	$(VOBJ)/$(HOST_TARGET)
+	$(VOBJ)/$(HOST_SYSTEM)
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+VCFLAGS += -DPREFIX=\"$(PREFIX)\"
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
 	-DUSE_INPUT_SVGALIB
 VLIBS = -lslang -lvga
 VOBJS += \
-	$(VOBJ)/$(HOST_TARGET)/os.o \
-	$(VOBJ)/$(HOST_TARGET)/vsvgab.o \
-	$(VOBJ)/$(HOST_TARGET)/vfb.o \
-	$(VOBJ)/$(HOST_TARGET)/vslang.o
+	$(VOBJ)/$(HOST_SYSTEM)/os.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vsvgab.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vfb.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vslang.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
 	-Iadvance/card \
@@ -456,13 +442,13 @@ VCFLAGS += \
 	-Iadvance/svgalib/drivers
 VLIBS = -lalleg
 VOBJS += \
-	$(VOBJ)/$(HOST_TARGET)/os.o \
-	$(VOBJ)/$(HOST_TARGET)/vvgal.o \
-	$(VOBJ)/$(HOST_TARGET)/vvbe.o \
-	$(VOBJ)/$(HOST_TARGET)/vvbel.o \
-	$(VOBJ)/$(HOST_TARGET)/vsvgal.o \
-	$(VOBJ)/$(HOST_TARGET)/scrvbe.o \
-	$(VOBJ)/$(HOST_TARGET)/scrvga.o \
+	$(VOBJ)/$(HOST_SYSTEM)/os.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vvgal.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vvbe.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vvbel.o \
+	$(VOBJ)/$(HOST_SYSTEM)/vsvgal.o \
+	$(VOBJ)/$(HOST_SYSTEM)/scrvbe.o \
+	$(VOBJ)/$(HOST_SYSTEM)/scrvga.o \
 	$(VOBJ)/card/card.o \
 	$(VOBJ)/card/pci.o \
 	$(VOBJ)/card/map.o \
@@ -532,7 +518,7 @@ endif
 # P
 
 SCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/mpglib \
 	-Iadvance/common
@@ -557,26 +543,38 @@ SOBJDIRS = \
 	$(SOBJ)/s \
 	$(SOBJ)/lib \
 	$(SOBJ)/mpglib \
-	$(SOBJ)/$(HOST_TARGET)
+	$(SOBJ)/$(HOST_SYSTEM)
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+SCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SCFLAGS += \
 	-DUSE_SOUND_OSS
 SLIBS = -lz -lm
 SOBJS += \
-	$(SOBJ)/$(HOST_TARGET)/os.o \
-	$(SOBJ)/$(HOST_TARGET)/soss.o
+	$(SOBJ)/$(HOST_SYSTEM)/os.o \
+	$(SOBJ)/$(HOST_SYSTEM)/soss.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 SCFLAGS += \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO
 SLIBS = -laudio -lalleg -lz -lm
 SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJS += \
-	$(SOBJ)/$(HOST_TARGET)/os.o \
-	$(SOBJ)/$(HOST_TARGET)/sseal.o \
-	$(SOBJ)/$(HOST_TARGET)/salleg.o
+	$(SOBJ)/$(HOST_SYSTEM)/os.o \
+	$(SOBJ)/$(HOST_SYSTEM)/sseal.o \
+	$(SOBJ)/$(HOST_SYSTEM)/salleg.o
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+SCFLAGS += -DPREFIX=\"$(PREFIX)\"
+SCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_SOUND_SDL
+SLIBS = -lz -lm $(shell sdl-config --libs)
+SOBJS += \
+	$(SOBJ)/$(HOST_SYSTEM)/os.o \
+	$(SOBJ)/$(HOST_SYSTEM)/ssdl.o
 endif
 
 $(SOBJ)/%.o: advance/%.c
@@ -601,7 +599,7 @@ endif
 # CFG
 
 CFGCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/v \
@@ -612,7 +610,7 @@ CFGOBJDIRS = \
 	$(CFGOBJ)/lib \
 	$(CFGOBJ)/blit \
 	$(CFGOBJ)/v \
-	$(CFGOBJ)/$(HOST_TARGET)
+	$(CFGOBJ)/$(HOST_SYSTEM)
 CFGOBJS = \
 	$(CFGOBJ)/lib/video.o \
 	$(CFGOBJ)/lib/conf.o \
@@ -632,23 +630,25 @@ CFGOBJS = \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
 	-DUSE_INPUT_SVGALIB \
-	-Iadvance/$(HOST_TARGET)
+	-Iadvance/$(HOST_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
-	$(CFGOBJ)/$(HOST_TARGET)/os.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vsvgab.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vfb.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vslang.o
+	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vsvgab.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vfb.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vslang.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
+CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/card \
 	-Iadvance/svgalib \
 	-Iadvance/svgalib/clockchi \
@@ -656,12 +656,12 @@ CFGCFLAGS += \
 	-Iadvance/svgalib/drivers
 CFGLIBS = -lalleg
 CFGOBJS += \
-	$(CFGOBJ)/$(HOST_TARGET)/os.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vvgal.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vvbel.o \
-	$(CFGOBJ)/$(HOST_TARGET)/vsvgal.o \
-	$(CFGOBJ)/$(HOST_TARGET)/scrvbe.o \
-	$(CFGOBJ)/$(HOST_TARGET)/scrvga.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vvgal.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vvbel.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/vsvgal.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/scrvbe.o \
+	$(CFGOBJ)/$(HOST_SYSTEM)/scrvga.o \
 	$(CFGOBJ)/card/card.o \
 	$(CFGOBJ)/card/pci.o \
 	$(CFGOBJ)/card/map.o \
@@ -731,29 +731,40 @@ endif
 # K
 
 KCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 KOBJDIRS = \
 	$(KOBJ) \
 	$(KOBJ)/k \
 	$(KOBJ)/lib \
-	$(KOBJ)/$(HOST_TARGET)
+	$(KOBJ)/$(HOST_SYSTEM)
 KOBJS = \
 	$(KOBJ)/k/k.o \
 	$(KOBJ)/lib/conf.o \
+	$(KOBJ)/lib/key.o \
 	$(KOBJ)/lib/incstr.o
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+KCFLAGS += -DPREFIX=\"$(PREFIX)\"
 KLIBS = -lvga
-KOBJS += $(KOBJ)/$(HOST_TARGET)/os.o
+KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
 KCFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 KLIBS = -lalleg
-KOBJS += $(KOBJ)/$(HOST_TARGET)/os.o
+KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+KCFLAGS += -DPREFIX=\"$(PREFIX)\"
+KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
+KCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_KEYBOARD_SDL
+KLIBS = $(shell sdl-config --libs)
 endif
 
 $(KOBJ)/%.o: advance/%.c
@@ -778,27 +789,28 @@ endif
 # J
 
 JCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 JOBJDIRS = \
 	$(JOBJ) \
 	$(JOBJ)/j \
 	$(JOBJ)/lib \
-	$(JOBJ)/$(HOST_TARGET)
+	$(JOBJ)/$(HOST_SYSTEM)
 JOBJS = \
 	$(JOBJ)/j/j.o \
 	$(JOBJ)/lib/conf.o \
 	$(JOBJ)/lib/incstr.o
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+JCFLAGS += -DPREFIX=\"$(PREFIX)\"
 JCFLAGS += \
 	-DUSE_JOYSTICK_SVGALIB
 JLIBS = -lvga
-JOBJS += $(JOBJ)/$(HOST_TARGET)/os.o
+JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 JCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
@@ -808,7 +820,16 @@ JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
 JLIBS = -lalleg
-JOBJS += $(JOBJ)/$(HOST_TARGET)/os.o
+JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+JCFLAGS += -DPREFIX=\"$(PREFIX)\"
+JCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_JOYSTICK_SDL
+JLIBS += $(shell sdl-config --libs)
+JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 $(JOBJ)/%.o: advance/%.c
@@ -833,27 +854,28 @@ endif
 # M
 
 MCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 MOBJDIRS = \
 	$(MOBJ) \
 	$(MOBJ)/m \
 	$(MOBJ)/lib \
-	$(MOBJ)/$(HOST_TARGET)
+	$(MOBJ)/$(HOST_SYSTEM)
 MOBJS = \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/conf.o \
 	$(MOBJ)/lib/incstr.o
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+MCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MCFLAGS += \
 	-DUSE_MOUSE_SVGALIB
 MLIBS = -lvga
-MOBJS += $(MOBJ)/$(HOST_TARGET)/os.o
+MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 MCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
@@ -863,7 +885,16 @@ MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
 MLIBS = -lalleg
-MOBJS += $(MOBJ)/$(HOST_TARGET)/os.o
+MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+MCFLAGS += -DPREFIX=\"$(PREFIX)\"
+MCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_MOUSE_SDL
+MLIBS += $(shell sdl-config --libs)
+MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
 endif
 
 $(MOBJ)/%.o: advance/%.c
@@ -918,7 +949,7 @@ endif
 # Menu
 
 MENUCFLAGS += \
-	-Iadvance/$(HOST_TARGET) \
+	-Iadvance/$(HOST_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/mpglib \
@@ -929,7 +960,7 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
 	$(MENUOBJ)/mpglib \
-	$(MENUOBJ)/$(HOST_TARGET)
+	$(MENUOBJ)/$(HOST_SYSTEM)
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
@@ -957,6 +988,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/font.o \
 	$(MENUOBJ)/lib/video.o \
 	$(MENUOBJ)/lib/conf.o \
+	$(MENUOBJ)/lib/key.o \
 	$(MENUOBJ)/lib/incstr.o \
 	$(MENUOBJ)/lib/videoio.o \
 	$(MENUOBJ)/lib/update.o \
@@ -981,20 +1013,21 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/tabinit.o
 MENULIBS += -lz
 
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(HOST_SYSTEM),linux)
+MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MENUCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_SVGALIB -DUSE_MOUSE_SVGALIB -DUSE_JOYSTICK_SVGALIB
 MENULIBS += -lvga
 MENUOBJS += \
-	$(MENUOBJ)/$(HOST_TARGET)/os.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vsvgab.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vfb.o \
-	$(MENUOBJ)/$(HOST_TARGET)/soss.o
+	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vsvgab.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vfb.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/soss.o
 endif
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(HOST_SYSTEM),dos)
 MENUCFLAGS += \
 	-Iadvance/card \
 	-Iadvance/svgalib \
@@ -1014,15 +1047,15 @@ MENULDFLAGS += \
 	-Xlinker --wrap -Xlinker set_config_id
 MENULIBS += -lalleg -laudio
 MENUOBJS += \
-	$(MENUOBJ)/$(HOST_TARGET)/os.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vvgal.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vvbe.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vvbel.o \
-	$(MENUOBJ)/$(HOST_TARGET)/vsvgal.o \
-	$(MENUOBJ)/$(HOST_TARGET)/scrvbe.o \
-	$(MENUOBJ)/$(HOST_TARGET)/scrvga.o \
-	$(MENUOBJ)/$(HOST_TARGET)/salleg.o \
-	$(MENUOBJ)/$(HOST_TARGET)/sseal.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vvgal.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vvbe.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vvbel.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vsvgal.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/scrvbe.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/scrvga.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/salleg.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/sseal.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/card/pci.o \
 	$(MENUOBJ)/card/map.o \
@@ -1068,6 +1101,20 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib/ramdac \
 	$(MENUOBJ)/svgalib/clockchi \
 	$(MENUOBJ)/svgalib/drivers
+endif
+
+ifeq ($(HOST_SYSTEM),sdl)
+MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
+MENUCFLAGS += \
+	$(shell sdl-config --cflags) \
+	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
+	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
+MENULIBS += $(shell sdl-config --libs)
+MENUOBJS += \
+	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/vsdl.o \
+	$(MENUOBJ)/$(HOST_SYSTEM)/ssdl.o
 endif
 
 ifdef MAP
@@ -1126,11 +1173,11 @@ advance/advmess.dif: srcmess srcmess.ori
 # Test for a clean makefile
 
 testmake:
-	grep "^#HOST_TARGET" makefile > /dev/null
-	grep "^#DEBUG=1" makefile > /dev/null
-	grep "^#PROFILE=1" makefile > /dev/null
-	grep "^#SYMBOLS" makefile > /dev/null
-	grep "^#MAP=1" makefile > /dev/null
+	!grep "^HOST_TARGET" makefile > /dev/null
+	!grep "^DEBUG" makefile > /dev/null
+	!grep "^PROFILE" makefile > /dev/null
+	!grep "^SYMBOLS" makefile > /dev/null
+	!grep "^MAP" makefile > /dev/null
 	grep "^COMPRESS" makefile > /dev/null
 
 ############################################################################
@@ -1142,10 +1189,10 @@ TARGET_ROOT_SRC = \
 TARGET_ADVANCE_SRC = \
 	advance/advance.mak
 
-ifeq ($(TARGET),mess)
+ifeq ($(EMU),mess)
 TARGET_ADVANCE_SRC += advance/advmess.dif
 else
-ifeq ($(TARGET),pac)
+ifeq ($(EMU),pac)
 TARGET_ADVANCE_SRC += advance/advpac.dif
 else
 TARGET_ADVANCE_SRC += advance/advmame.dif
@@ -1267,7 +1314,7 @@ TARGET_DOC_SRC = \
 TARGET_ROOT_BIN = \
 	$(TARGET_DOC_COMMON) \
 	$(TARGET_SUPPORT_SRC) \
-	$(OBJ)/$(TARGETNAME)$(EXE) \
+	$(OBJ)/$(EMUNAME)$(EXE) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
@@ -1276,17 +1323,17 @@ TARGET_ROOT_BIN = \
 	$(CFGOBJ)/advcfg$(EXE) \
 	$(LINEOBJ)/advline$(EXE)
 
-ifeq ($(TARGET),mess)
+ifeq ($(EMU),mess)
 TARGET_ROOT_BIN += support/advmessv.bat support/advmessc.bat
 TARGET_DOC_SRC += support/advmessv.bat support/advmessc.bat
 endif
-ifeq ($(TARGET),pac)
+ifeq ($(EMU),pac)
 TARGET_ROOT_BIN += support/advpacv.bat support/advpacc.bat
 TARGET_DOC_SRC += support/advpacv.bat support/advpacc.bat
 endif
 
-TARGET_DISTFILE_SRC = advance$(TARGET)-$(TARGETVERSION)
-TARGET_DISTFILE_BIN = advance$(TARGET)-$(TARGETVERSION)-$(HOST_TARGET)-$(ARCH)
+TARGET_DISTFILE_SRC = advance$(EMU)-$(EMUVERSION)
+TARGET_DISTFILE_BIN = advance$(EMU)-$(EMUVERSION)-$(BINARYTAG)
 
 ifeq ($(HOST_TARGET),dos)
 TARGET_DISTDIR_SRC = tmp
@@ -1368,22 +1415,22 @@ endif
 	rm -r $(TARGET_DISTDIR_BIN)
 
 distmess:
-	$(MAKE) TARGET=mess dist
+	$(MAKE) EMU=mess dist
 
 distmessbin:
-	$(MAKE) TARGET=mess distbin
+	$(MAKE) EMU=mess distbin
 
 distpac:
-	$(MAKE) TARGET=pac dist
+	$(MAKE) EMU=pac dist
 
 distpacbin:
-	$(MAKE) TARGET=pac distbin
+	$(MAKE) EMU=pac distbin
 
 distmame:
-	$(MAKE) TARGET=mame dist
+	$(MAKE) EMU=mame dist
 
 distmamebin:
-	$(MAKE) TARGET=mame distbin
+	$(MAKE) EMU=mame distbin
 
 ############################################################################
 # Dist MENU
@@ -1432,7 +1479,7 @@ MENU_ROOT_BIN = \
 	$(CFGOBJ)/advcfg$(EXE)
 
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
-MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(HOST_TARGET)-$(ARCH)
+MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
 
 ifeq ($(HOST_TARGET),dos)
 MENU_DIST_DIR_SRC = tmp
@@ -1616,8 +1663,8 @@ distcabbin: $(CAB_ROOT_BIN)
 	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)/contrib
 	cp -r $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_BIN)/contrib
-	rm -f advancecab-$(CABVERSION)-$(HOST_TARGET)-$(ARCH).zip
-	cd $(CAB_DIST_DIR_BIN) && zip -r ../advancecab-$(CABVERSION)-$(HOST_TARGET)-$(ARCH).zip *
+	rm -f advancecab-$(CABVERSION)-$(BINARYTAG).zip
+	cd $(CAB_DIST_DIR_BIN) && zip -r ../advancecab-$(CABVERSION)-$(BINARYTAG).zip *
 	rm -r $(CAB_DIST_DIR_BIN)
 
 ############################################################################
@@ -1629,16 +1676,16 @@ ARCH_PENTIUM2 = ARCH=i686 CFLAGS_ARCH_OVERRIDE="-march=i686 -DUSE_LSB -DUSE_ASM_
 ARCH_K6 = ARCH=k6 CFLAGS_ARCH_OVERRIDE="-march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX"
 
 dosmame:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mame emu
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mame emu
 
 dosmess:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mess emu
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mess emu
 
 dospac:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=pac emu
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=pac emu
 
 dosmenu:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=mame menu
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=mame menu
 
 dosdistbin: dosdistbinpentium2
 
@@ -1666,19 +1713,19 @@ dosdistmenubink6:
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distmenubin
 
 mame:
-	$(MAKE) TARGET=mame emu
+	$(MAKE) EMU=mame emu
 
 neomame:
-	$(MAKE) TARGET=neomame emu
+	$(MAKE) EMU=neomame emu
 
 cpmame:
-	$(MAKE) TARGET=cpmame emu
+	$(MAKE) EMU=cpmame emu
 
 messmame:
-	$(MAKE) TARGET=mess emu
+	$(MAKE) EMU=mess emu
 
 pacmame:
-	$(MAKE) TARGET=pac emu
+	$(MAKE) EMU=pac emu
 
 wholemame:
 	$(MAKE) dist
@@ -1687,16 +1734,16 @@ wholemame:
 	$(MAKE) $(ARCH_K6) HOST_TARGET=dos MAP=1 distbin
 
 wholemess:
-	$(MAKE) TARGET=mess dist
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=mess MAP=1 distbin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mess MAP=1 distbin
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos TARGET=mess MAP=1 distbin
+	$(MAKE) EMU=mess dist
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=mess MAP=1 distbin
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mess MAP=1 distbin
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos EMU=mess MAP=1 distbin
 
 wholepac:
-	$(MAKE) TARGET=pac dist
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=pac MAP=1 distbin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=pac MAP=1 distbin
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos TARGET=pac MAP=1 distbin
+	$(MAKE) EMU=pac dist
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=pac MAP=1 distbin
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=pac MAP=1 distbin
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos EMU=pac MAP=1 distbin
 
 wholemenu:
 	$(MAKE) distmenu

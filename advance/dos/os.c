@@ -29,7 +29,6 @@
  */
 
 #include "os.h"
-#include "device.h"
 
 #include <signal.h>
 #include <process.h>
@@ -439,10 +438,19 @@ void os_poll(void) {
 		poll_keyboard();
 }
 
+void os_idle(void) {
+	/* clear the keyboard BIOS buffer */
+	while (kbhit())
+		getkey();
+}
+
+void os_usleep(unsigned us) {
+}
+
 /***************************************************************************/
 /* Keyboard */
 
-device OS_KEY[] = {
+struct os_device OS_KEY[] = {
 	{ "none", KEY_TYPE_NONE, "No keyboard" },
 	{ "auto", KEY_TYPE_AUTO, "Automatic detection" },
 	{ 0, 0, 0 }
@@ -501,7 +509,7 @@ unsigned os_input_get(void) {
 /***************************************************************************/
 /* Mouse */
 
-device OS_MOUSE[] = {
+struct os_device OS_MOUSE[] = {
 	{ "auto", MOUSE_TYPE_AUTO, "Automatic detection" },
 	{ "none", MOUSE_TYPE_NONE, "No mouse" },
 	{ 0, 0, 0 }
@@ -595,7 +603,7 @@ unsigned os_mouse_button_get(unsigned mouse, unsigned button)
 /***************************************************************************/
 /* Joystick */
 
-device OS_JOY[] = {
+struct os_device OS_JOY[] = {
 	{ "auto", JOY_TYPE_AUTODETECT, "Automatic detection" },
 	{ "none", JOY_TYPE_NONE, "No joystick" },
 	{ "standard", JOY_TYPE_STANDARD, "Standard joystick" },
@@ -820,7 +828,7 @@ const char* os_joy_calib_next(void)
 }
 
 /***************************************************************************/
-/* Library */
+/* Hardware */
 
 void os_mode_reset(void) {
 	/* Restore the default text mode */
@@ -829,25 +837,8 @@ void os_mode_reset(void) {
 	__dpmi_int(0x10, &r);
 }
 
-/**
- * Wait some time.
- * The BIOS keyboard buffer is cleared.
- */
-void os_idle(void) {
-#if 0 /* not required in DOS and bad sound in Windows */
-	__dpmi_yield();
-#endif
-	/* clear the keyboard BIOS buffer */
-	while (kbhit())
-		getkey();
-}
-
-/**
- * Wait no more than the specified number of us.
- */
-void os_usleep(unsigned us) {
-	/* no wait */
-}
+/***************************************************************************/
+/* Sound */
 
 /**
  * Play a short error sound.
@@ -880,10 +871,9 @@ void os_sound_signal(void) {
 	}
 }
 
-/**
- * Shutdown the system.
- * \return ==0 (or never return) if success
- */
+/***************************************************************************/
+/* APM */
+
 int os_apm_shutdown(void) {
 	__dpmi_regs regs;
 
@@ -931,10 +921,6 @@ int os_apm_shutdown(void) {
 	return -1;
 }
 
-/**
- * Put the system in standby mode.
- * \return ==0 if success
- */
 int os_apm_standby(void) {
 	unsigned mode;
 	__dpmi_regs r;
@@ -971,10 +957,6 @@ int os_apm_standby(void) {
 	return 0;
 }
 
-/**
- * Restore the system after a standby.
- * \return ==0 if success
- */
 int os_apm_wakeup(void) {
 	__dpmi_regs r;
 
@@ -1000,6 +982,9 @@ int os_apm_wakeup(void) {
 	return 0;
 }
 
+/***************************************************************************/
+/* System */
+
 int os_system(const char* cmd) {
 	int r;
 	__djgpp_exception_toggle();
@@ -1015,6 +1000,9 @@ int os_spawn(const char* file, const char** argv) {
 	__djgpp_exception_toggle();
 	return r;
 }
+
+/***************************************************************************/
+/* FileSystem */
 
 char os_dir_separator(void) {
 	return ';';
@@ -1187,7 +1175,11 @@ const char* os_config_dir_singlefile(void) {
 }
 
 /***************************************************************************/
-/* Main */
+/* Signal */
+
+int os_is_term(void) {
+	return 0;
+}
 
 void os_default_signal(int signum)
 {
@@ -1238,6 +1230,9 @@ void os_default_signal(int signum)
 		_exit(EXIT_FAILURE);
 	}
 }
+
+/***************************************************************************/
+/* Main */
 
 static int os_fixed(void)
 {

@@ -50,7 +50,9 @@ void update_init(int max_buffer) {
 	int pages = (video_virtual_y() * video_bytes_per_scanline()) / video_bytes_per_page();
 	if (pages > max_buffer)
 		pages = max_buffer;
+
 	_video_update_page = 0;
+
 	if (pages >= 3 && (video_flags() & VIDEO_FLAGS_SYNC_SETPAGE)) {
 		_video_update_page_max = 3;
 	} else if (pages >= 2 && (video_flags() & VIDEO_FLAGS_ASYNC_SETPAGE)) {
@@ -58,6 +60,7 @@ void update_init(int max_buffer) {
 	} else {
 		_video_update_page_max = 1;
 	}
+
 	video_update_draw_allowed = 0;
 }
 
@@ -107,12 +110,16 @@ void update_start(void) {
 	} else {
 		video_update_offset = 0;
 	}
+
+	video_write_lock();
 }
 
 /* End drawing to page */
-void update_stop(int wait_retrace) {
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, video_bool wait_retrace) {
 	assert( video_update_draw_allowed );
 	video_update_draw_allowed = 0;
+
+	video_write_unlock(x, y, size_x, size_y);
 
 	if (_video_update_page_max!=1) {
 		unsigned offset;

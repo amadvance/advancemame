@@ -392,8 +392,8 @@ static void video_invalidate_screen(void) {
 	/* the entire video memory can't be cleared in some graphics cards (like neomagic -> crash) */
 	for(i=0;i<update_page_max_get();++i) {
 		update_start();
-		video_clear(update_x_get(),update_y_get(),video_size_x(), video_size_y(),0);
-		update_stop(0);
+		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
+		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 	}
 }
 
@@ -1131,7 +1131,9 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
-		fprintf(stderr,"Your video board isn't supported, you can't use the option `display_adjust'\n");
+		fprintf(stderr,"Your current video driver doesn't support hardware programming.\n");
+		fprintf(stderr,"Try changing the video driver with the `device_video' option or\n");
+		fprintf(stderr,"disable the `display_adjust' option.\n");
 		return -1;
 	}
 
@@ -1598,7 +1600,7 @@ static __inline__ void video_frame_screen(struct advance_video_context* context,
 	}
 #endif
 
-	update_stop(0);
+	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 }
 
 static __inline__ void video_frame_palette(struct advance_video_context* context) {
