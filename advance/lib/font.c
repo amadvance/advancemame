@@ -201,7 +201,7 @@ static int adv_font_load_data_fixed(adv_font* font, unsigned char* begin, unsign
 		unsigned x, y;
 		adv_bitmap* bitmap;
 
-		bitmap = adv_bitmap_alloc(width, height, 8);
+		bitmap = adv_bitmap_alloc(width, height, 1);
 		if (!bitmap)
 			return -1;
 
@@ -239,7 +239,7 @@ static int adv_font_load_data(adv_font* font, unsigned char* begin, unsigned sta
 		adv_bitmap* bitmap;
 		unsigned width = wtable[i-start];
 
-		bitmap = adv_bitmap_alloc(width, height, 8);
+		bitmap = adv_bitmap_alloc(width, height, 1);
 		if (!bitmap) {
 			return -1;
 		}
@@ -696,7 +696,7 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 					cx = glyph_bitmap->root.advance.x >> 16;
 					cy = sy;
 
-					bitmap = adv_bitmap_alloc(cx, cy, 8);
+					bitmap = adv_bitmap_alloc(cx, cy, 1);
 					if (!bitmap)
 						goto err_face;
 
@@ -759,7 +759,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 		return 0;
 
 	/* set the 255 char as space like a number */
-	bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 8);
+	bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 1);
 	adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
 	adv_font_set_char(font, ADV_FONT_FIXSPACE, bitmap);
 
@@ -768,7 +768,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 		if (adv_font_sizex_char(font, c) < adv_font_sizex_char(font, '0')) {
 			unsigned x, y;
 			adv_bitmap* src = font->data[(unsigned char)c];
-			bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 8);
+			bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 1);
 			for(y=0;y<bitmap->size_y;++y)
 				for(x=0;x<bitmap->size_x;++x)
 					adv_bitmap_pixel_put(bitmap, x, y, adv_bitmap_pixel_get(src, x, y));
@@ -778,7 +778,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 
 	/* make a fake space if it's null */
 	if (adv_font_sizex_char(font, ' ') == 0) {
-		adv_bitmap* bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, 'I'), adv_font_sizey_char(font, 'I'), 8);
+		adv_bitmap* bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, 'I'), adv_font_sizey_char(font, 'I'), 1);
 		adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
 		adv_font_set_char(font, ' ', bitmap);
 	}
@@ -898,6 +898,12 @@ void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 
 /**
  * Draw a char in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param c Char to draw.
+ * \param color_front Color to use for foreground.
+ * \param color_back Color to use for background.
  */
 void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back)
 {
@@ -905,8 +911,9 @@ void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, un
 	unsigned cy;
 
 	src = font->data[(unsigned char)c];
-	if (!src)
+	if (!src) {
 		return;
+	}
 
 	for(cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
@@ -930,6 +937,12 @@ void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, un
 
 /**
  * Draw a string in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param begin,end String to draw.
+ * \param color_front Color to use for foreground.
+ * \param color_back Color to use for background.
  */
 void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back)
 {
@@ -980,35 +993,30 @@ void adv_font_put_string_oriented(adv_font* font, adv_bitmap* dst, int x, int y,
 
 /**
  * Draw an alpha char in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param c Char to draw.
+ * \param map Map of 256 colors to use for the different alpha values.
  */
-void adv_font_put_char_alpha(adv_font* font, adv_bitmap* dst, int x, int y, char c, const adv_color_rgb* color_front, const adv_color_rgb* color_back, adv_color_def color_def)
+void adv_font_put_char_map(adv_font* font, adv_bitmap* dst, int x, int y, char c, const adv_pixel* map)
 {
 	adv_bitmap* src;
 	unsigned cy;
-	adv_pixel cf;
-	adv_pixel cb;
+	unsigned dp;
 
 	src = font->data[(unsigned char)c];
 	if (!src)
 		return;
 
-	cf = pixel_make_from_def(color_front->red, color_front->green, color_front->blue, color_def);
-	cb = pixel_make_from_def(color_back->red, color_back->green, color_back->blue, color_def);
+	dp = dst->bytes_per_pixel;
 
 	for(cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
-		unsigned dp = dst->bytes_per_pixel;
 		unsigned cx;
 		for(cx=0;cx<src->size_x;++cx) {
-			adv_pixel v;
-			if (*src_ptr == 0)
-				v = cb;
-			else if (*src_ptr == 255)
-				v = cf;
-			else
-				v = alpha_make_from_def(color_front->red, color_front->green, color_front->blue, color_back->red, color_back->green, color_back->blue, *src_ptr, color_def);
-			cpu_uint_write(dst_ptr, dp, v);
+			cpu_uint_write(dst_ptr, dp, map[*src_ptr]);
 			dst_ptr += dp;
 			src_ptr += 1;
 		}
@@ -1018,29 +1026,44 @@ void adv_font_put_char_alpha(adv_font* font, adv_bitmap* dst, int x, int y, char
 
 /**
  * Draw an alpha string in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param begin,end String to draw.
+ * \param map Map of 256 colors to use for the different alpha values.
  */
-void adv_font_put_string_alpha(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, const adv_color_rgb* color_front, const adv_color_rgb* color_back, adv_color_def color_def)
+void adv_font_put_string_map(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, const adv_pixel* map)
 {
 	while (begin != end) {
-		adv_font_put_char_alpha(font, dst, x, y, *begin, color_front, color_back, color_def);
+		adv_font_put_char_map(font, dst, x, y, *begin, map);
 		x += adv_font_sizex_char(font, *begin);
 		++begin;
 	}
 }
 
+/**
+ * Draw a transparent char in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param c Char to draw.
+ * \param color_front Color to use for foreground.
+ */
 void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front)
 {
 	adv_bitmap* src;
 	unsigned cy;
+	unsigned dp;
 
 	src = font->data[(unsigned char)c];
 	if (!src)
 		return;
 
+	dp = dst->bytes_per_pixel;
+
 	for(cy=0;cy<src->size_y;++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
-		unsigned dp = dst->bytes_per_pixel;
 		unsigned cx;
 		for(cx=0;cx<src->size_x;++cx) {
 			if (*src_ptr >= 64) {
@@ -1053,6 +1076,14 @@ void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char
 	}
 }
 
+/**
+ * Draw a transparent string in a bitmap.
+ * \param font Font to use.
+ * \param dst Destination bitmap.
+ * \param x,y Destination position.
+ * \param begin,end String to draw.
+ * \param color_front Color to use for foreground.
+ */
 void adv_font_put_string_trasp(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front)
 {
 	while (begin != end) {

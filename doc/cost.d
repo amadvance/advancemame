@@ -15,11 +15,11 @@ Name
 	non-comment line".
 
 Totals
-	:Total Physical Source Lines of Code (SLOC)                = 110,966
-	:Development Effort Estimate, Person-Years (Person-Months) = 17.20 (206.43)
-	:Schedule Estimate, Years (Months)                         = 1.58 (18.95)
-	:Estimated Average Number of Developers (Effort/Schedule)  = 10.89
-	:Total Estimated Cost to Develop                           = $ 2,323,791
+	:Total Physical Source Lines of Code (SLOC)                = 126,714
+	:Development Effort Estimate, Person-Years (Person-Months) = 19.77 (237.29)
+	:Schedule Estimate, Years (Months)                         = 1.66 (19.98)
+	:Estimated Average Number of Developers (Effort/Schedule)  = 11.88
+	:Total Estimated Cost to Develop                           = $ 2,671,244
 
 	The estimate is computed with the Intermediate COCOMO model in
 	"Organic" mode with an effort factor of 1.47. The effort factor is
@@ -50,51 +50,54 @@ Totals
 
 Projects
 	:SLOC    Project                 SLOC-by-Language
-	:80562   advancemame-0.78.0-diff ansic=78117,cpp=2054,yacc=200,lex=106,sh=85
-	:12884   advancemenu-2.2.17      cpp=12884
-	:6794    advancecomp-1.9         cpp=5882,ansic=814,sh=98
-	:6701    advancecab-1.1.4        ansic=6140,asm=555,sh=6
-	:4031    advancescan-1.8         cpp=4019,sh=12
+	:91814   advancemame-0.86.0-diff ansic=89137,cpp=2264,yacc=211,lex=114,sh=88
+	:13709   advancemenu-2.3.8       cpp=13709
+	:7008    advancecomp-1.12        cpp=6064,ansic=858,sh=86
+	:6695    advancecab-1.1.4        ansic=6140,asm=555
+	:5032    advancescan-1.10        cpp=4930,ansic=102
+	:2456    makebootfat-1.1         ansic=2311,asm=131,sh=14
 
 Directories
 	:SLOC    Directory       SLOC-by-Language
-	:15159   lib             ansic=15159
-	:14554   osd             ansic=14248,yacc=200,lex=106
-	:12884   menu            cpp=12884
-	:12278   blit            ansic=12278
-	:12060   dos             ansic=12060
-	:9426    linux           ansic=9426
-	:6794    comp            cpp=5882,ansic=814,sh=98
-	:4031    scan            cpp=4019,sh=12
-	:3747    card            ansic=3747
-	:2962    svgalib         ansic=2877,sh=85
-	:2563    v               ansic=2563
-	:1931    sdl             ansic=1931
+	:20396   osd             ansic=20071,yacc=211,lex=114
+	:17453   lib             ansic=17453
+	:14487   blit            ansic=14487
+	:13709   menu            cpp=13709
+	:11967   dos             ansic=11967
+	:10110   linux           ansic=10110
+	:7008    comp            cpp=6064,ansic=858,sh=86
+	:5032    scan            cpp=4930,ansic=102
+	:3683    card            ansic=3683
+	:3120    svgalib         ansic=3032,sh=88
+	:2538    v               ansic=2538
+	:2456    makebootfat     ansic=2311,asm=131,sh=14
+	:1952    sdl             ansic=1952
 	:1835    tsr             ansic=1464,asm=371
-	:1587    windows         ansic=1587
-	:1457    cfg             ansic=1457
-	:1092    d2              cpp=1092
+	:1621    windows         ansic=1621
+	:1487    cfg             ansic=1487
+	:1263    d2              cpp=1263
 	:1057    vbe             ansic=986,asm=71
 	:1051    vbe32           ansic=1051
 	:1043    vbew            ansic=1043
-	:962     line            cpp=962
+	:1001    line            cpp=1001
 	:775     vga             ansic=662,asm=113
 	:529     videow          ansic=529
 	:292     video           ansic=292
-	:207     j               ansic=207
-	:167     s               ansic=167
-	:165     k               ansic=165
-	:151     m               ansic=151
-	:94      i               ansic=94
+	:197     j               ansic=197
+	:156     s               ansic=156
+	:155     k               ansic=155
+	:141     m               ansic=141
+	:87      i               ansic=87
 	:66      portio          ansic=66
 	:47      off             ansic=47
 
 Languages
 	:Laguange       SLOC
-	:ansic:        85071 (76.66%)
-	:cpp:          24839 (22.38%)
-	:asm:            555 (0.50%)
-	:sh:             201 (0.18%)
-	:yacc:           200 (0.18%)
-	:lex:            106 (0.10%)
+	:ansic:        98548 (77.77%)
+	:cpp:          26967 (21.28%)
+	:asm:            686 (0.54%)
+	:yacc:           211 (0.17%)
+	:sh:             188 (0.15%)
+	:lex:            114 (0.09%)
+
 

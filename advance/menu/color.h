@@ -29,6 +29,8 @@
 struct int_color {
 	adv_color_rgb foreground;
 	adv_color_rgb background;
+	adv_pixel alpha[256];
+	adv_pixel opaque[256];
 };
 
 extern int_color COLOR_HELP_NORMAL;
@@ -54,5 +56,6 @@ extern int_color COLOR_MENU_CURSOR;
 
 bool color_in(const std::string& s);
 void color_out(adv_conf* config_context, const char* tag);
+void color_setup(adv_color_def opaque_def, adv_color_def alpha_def, unsigned translucency);
 
 #endif

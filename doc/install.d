@@ -159,9 +159,7 @@ Video Hardware
 	You can generally find the range of clocks supported in the
 	monitor manual, generic values are:
 
-		:device_video_pclock 10 - 150
-		:device_video_hclock 30.5 - 60
-		:device_video_vclock 55 - 130
+		:device_video_clock 10 - 150 / 30.5 - 60 / 55 - 130
 
   Fixed Sync Monitors
 	Fixed Sync monitors support only a few fixed horizontal clocks.
@@ -173,9 +171,7 @@ Video Hardware
 
 	The standard clocks for VGA monitors are:
 
-		:device_video_pclock 10 - 50
-		:device_video_hclock 31.5
-		:device_video_vclock 55 - 130
+		:device_video_clock 10 - 50 / 31.5 / 55 - 130
 
 	If the monitor uses separate H/V sync signals you can
 	directly use the VGA sync signals of your PC. If the monitor
@@ -192,32 +188,31 @@ Video Hardware
 
 	You must find the exact clocks supported in the monitor
 	manual.
-	
+
 	Please note that the manuals of some Arcade Monitors
 	incorrectly state a wide range of horizontal frequency
 	like 15 - 31 kHz. Generally these monitors support only
 	the three fixed clocks of 15.75, 25, 31.1 kHz. An example
 	is the Wells-Gardner D9200.
-	Instead, a range of vertical frequency is generally supported,
-	for example 50 - 60 Hz.
   
 	The standard clocks for a Standard Resolution 15 kHz (CGA) are:
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.75
-		:device_video_vclock 60
+		:device_video_clock 5 - 50 / 15.75 / 60
 
 	for a Extended Resolution 16 kHz are:
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 16.5
-		:device_video_vclock 53
+		:device_video_clock 5 - 50 / 16.5 / 53
 
 	for a Medium Resolution 25 kHz (EGA) are:
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 25
-		:device_video_vclock 60
+		:device_video_clock 5 - 50 / 25 / 60
+
+	If your monitor is multistandard, you can use more
+	clock specification separating them with the `;' char.
+
+	For example:
+
+		:device_video_clock 5 - 50 / 15.75 / 60 ; 5 - 50 / 25 / 60
 
 	If the monitor accepts separate H/V sync signals at
 	levels 0 - 5 V you can directly use the VGA sync signal of
@@ -249,22 +244,16 @@ Video Hardware
 
 	Clocks values for PAL TV (European) are:
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62
-		:device_video_vclock 50
+		:device_video_clock 5 - 50 / 15.62 / 50
 
 	for NTSC TV (USA) are:
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.73
-		:device_video_vclock 60
+		:device_video_clock 5 - 50 / 15.73 / 60
 
 	for PAL TV (European) which supports also NTSC TV (USA) modes
 	(common if you use the SCART input):
 
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62, 15.73
-		:device_video_vclock 50, 60
+		:device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
 
     TVs with SCART
 	If your TV has a SCART input, you can use directly the VGA 
@@ -360,9 +349,7 @@ Video Setup
 
 		:display_mode auto
 		:display_adjust generate_yclock
-		:device_video_pclock ?
-		:device_video_hclock ?
-		:device_video_vclock ?
+		:device_video_clock ?
 		:device_video_format ?
 
 	All these options are documented in the `advdev.txt'
@@ -385,8 +372,9 @@ Video Setup
 		:display_adjust x
 
 	) Add in the file `advmame.rc' or `advmenu.rc' the
-		`p/h/vclock' options that specify which horizontal and
-		vertical clocks are supported by your monitor.
+		`device_video_clock' option that specify which
+		pixel, horizontal and vertical clocks are supported
+		by your monitor.
 		Generally these values are specified in the technical
 		page of your monitor manual. You can see the
 		"Video Hardware" chapter in this file for some
@@ -429,16 +417,13 @@ Video Setup
 		Eventually try with shorter ranges. Try for example
 		with:
 
-		:device_video_vclock 55 - 90
-		:device_video_hclock 31 - 50
+		:device_video_clock 10 - 150 / 55 - 90 / 31 - 50
 
 	) If you are using an Arcade Monitor/TV and the image is
 		instable or completely black try increasing the lower
-		pclock limit. Some video boards aren't able to output
-		too low clocks. Instead of 5 try 8, 9, 10, 11, 12, ...
-		Try for example with:
-
-		:device_video_pclock 8 - 50
+		pixel clock limit. Some video boards aren't able to
+		output too low clocks. Instead of 5 try 8, 9, 10,
+		11, 12, ...
 		
 	) If interlaced video modes have swapped rows, try using 
 		the `display_interlaceeffect' option to adjust the 

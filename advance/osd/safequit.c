@@ -187,8 +187,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 	def = 0;
 
 	buffer[0] = 0;
-	while (fgets(buffer, sizeof(buffer), f) != 0)
-	{
+	while (fgets(buffer, sizeof(buffer), f) != 0) {
 		unsigned len = strlen(buffer);
 
 		/* remove spaces at the end */
@@ -273,7 +272,7 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 	context->state.coin_set = 0;
 
 	/* load always the database, also if the safeexit flag is not set */
-
+	/* because the events may be used by the scripts */
 	if (advance_safequit_load_database(context, context->config.file_buffer, option->game) != 0)
 		return -1;
 

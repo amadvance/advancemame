@@ -68,9 +68,10 @@ typedef struct adv_generate_interpolate_set_struct {
 	adv_generate_interpolate map[GENERATE_INTERPOLATE_MAX];
 } adv_generate_interpolate_set;
 
-void generate_crtc(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate);
-void generate_crtc_change_horz(adv_crtc* crtc, unsigned hsize);
-void generate_crtc_change_vert(adv_crtc* crtc, unsigned vsize);
+void generate_crtc_hsize(adv_crtc* crtc, unsigned hsize, const adv_generate* generate);
+void generate_crtc_vsize(adv_crtc* crtc, unsigned vsize, const adv_generate* generate);
+void generate_crtc_htotal(adv_crtc* crtc, unsigned htotal, const adv_generate* generate);
+void generate_crtc_vtotal(adv_crtc* crtc, unsigned vtotal, const adv_generate* generate);
 
 void generate_pixel_clock(adv_crtc* crtc, double clock);
 void generate_horz_clock(adv_crtc* crtc, double clock);
@@ -93,6 +94,7 @@ void generate_default_ntsc(adv_generate* generate);
 void generate_default_lcd(adv_generate* generate);
 
 void generate_normalize(adv_generate* generate);
+void generate_normalize_copy(adv_generate* norm, const adv_generate* generate);
 void generate_interpolate_h(adv_generate* monitor, unsigned hclock, const adv_generate_interpolate_set* interpolate);
 
 void generate_interpolate_reset(adv_generate_interpolate_set* interpolate);

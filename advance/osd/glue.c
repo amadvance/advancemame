@@ -1442,7 +1442,7 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 	prev_not = 0;
 
 	while (j<mame_max && mame_seq[j] != CODE_NONE) {
-		unsigned c;
+		unsigned c = DIGITAL_SPECIAL_NONE;
 		adv_bool c_set;
 
 		switch (mame_seq[j]) {
@@ -1462,9 +1462,9 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 			c = code_to_oscode(mame_seq[j]);
 			if (c != 0) {
 				c_set = 1;
-				prev_not = 0; /* remove a code specific not */
 			} else {
 				c_set = 0;
+				prev_not = 0; /* remove a code specific not */
 				log_std(("WARNING:glue: unable to convert MAME code %d\n", mame_seq[j]));
 			}
 			break;
@@ -1513,7 +1513,7 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 	prev_not = 0;
 
 	while (j<max && seq[j] != DIGITAL_SPECIAL_NONE) {
-		unsigned c;
+		unsigned c = CODE_NONE;
 		adv_bool c_set;
 
 		switch (seq[j]) {
@@ -1535,9 +1535,9 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 			/* file refers at a control now removed */
 			if (c != CODE_NONE) {
 				c_set = 1;
-				prev_not = 0; /* remove a code specific not */
 			} else {
 				c_set = 0;
+				prev_not = 0; /* remove a code specific not */
 				log_std(("WARNING:glue: unable to convert OSD code %d\n", seq[j]));
 			}
 			break;
@@ -2092,22 +2092,22 @@ void mame_name_adjust(char* dst, unsigned size, const char* s)
 	{ "p4_" name, MAME_PORT_PLAYER(IPT_##NAME, 4) },
 
 static struct mame_analog ANALOG[] = {
-	A("paddle_x", PADDLE)
-	A("paddle_y", PADDLE_V)
-	A("stick_x", AD_STICK_X)
-	A("stick_y", AD_STICK_Y)
-	A("stick_z", AD_STICK_Z)
-	A("lightgun_x", LIGHTGUN_X)
-	A("lightgun_y", LIGHTGUN_Y)
+	A("paddlex", PADDLE)
+	A("paddley", PADDLE_V)
+	A("stickx", AD_STICK_X)
+	A("sticky", AD_STICK_Y)
+	A("stickz", AD_STICK_Z)
+	A("lightgunx", LIGHTGUN_X)
+	A("lightguny", LIGHTGUN_Y)
 	A("pedalgas", PEDAL)
 	A("pedalbrake", PEDAL2)
 	A("pedalother", PEDAL3)
-	A("dial_x", DIAL)
-	A("dial_y", DIAL_V)
-	A("trackball_x", TRACKBALL_X)
-	A("trackball_y", TRACKBALL_Y)
-	A("mouse_x", MOUSE_X)
-	A("mouse_y", MOUSE_Y)
+	A("dialx", DIAL)
+	A("dialy", DIAL_V)
+	A("trackballx", TRACKBALL_X)
+	A("trackbally", TRACKBALL_Y)
+	A("mousex", MOUSE_X)
+	A("mousey", MOUSE_Y)
 	{ 0, 0 }
 };
 

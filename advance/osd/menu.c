@@ -678,8 +678,7 @@ static int audio_pipeline_menu(struct advance_sound_context* sound_context, stru
 		++i;
 	}
 
-	if (sound_context->state.sample_mult != SAMPLE_MULT_BASE
-		&& sound_context->state.sample_mult != 0) {
+	if (sound_context->state.sample_mult != 0) {
 		int preamp = 20 * log10((double)sound_context->state.sample_mult / SAMPLE_MULT_BASE);
 		snprintf(buffer, sizeof(buffer), "(%d) preamp %d (dB)", i, preamp);
 		advance_ui_menu_text_insert(&menu, buffer);

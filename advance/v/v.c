@@ -215,9 +215,7 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 		unsigned pos;
 		unsigned color;
 		unsigned color_n;
-		unsigned color_v;
-		unsigned color_h;
-		unsigned color_p;
+		unsigned color_clock;
 		char pfreq_buffer[8];
 		char vfreq_buffer[8];
 		char hfreq_buffer[8];
@@ -227,16 +225,10 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 				tag = 'þ';
 				color = COLOR_SELECTED_MARK;
 				color_n = color;
-				color_v = color;
-				color_h = color;
-				color_p = color;
 			} else {
 				tag = ' ';
 				color = COLOR_SELECTED;
 				color_n = color;
-				color_v = color;
-				color_h = color;
-				color_p = color;
 			}
 		} else {
 			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
@@ -244,30 +236,18 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_MARK;
 					color_n = color;
-					color_v = color;
-					color_h = color;
-					color_p = color;
 				} else {
 					color = COLOR_MARK;
 					color_n = COLOR_MARK_BAD;
-					color_v = monitor_vclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
-					color_h = monitor_hclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
-					color_p = monitor_pclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
 				}
 			} else {
 				tag = ' ';
 				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_NORMAL;
 					color_n = color;
-					color_v = color;
-					color_h = color;
-					color_p = color;
 				} else {
 					color = COLOR_NORMAL;
 					color_n = COLOR_BAD;
-					color_v = monitor_vclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
-					color_h = monitor_hclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
-					color_p = monitor_pclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
 				}
 			}
 		}
@@ -284,9 +264,9 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 
 		pos += draw_text_string(x + pos, y, buffer, color_n);
 
-		pos += draw_text_string(x + pos, y, pfreq_buffer, color_p);
-		pos += draw_text_string(x + pos, y, hfreq_buffer, color_h);
-		pos += draw_text_string(x + pos, y, vfreq_buffer, color_v);
+		pos += draw_text_string(x + pos, y, pfreq_buffer, color_n);
+		pos += draw_text_string(x + pos, y, hfreq_buffer, color_n);
+		pos += draw_text_string(x + pos, y, vfreq_buffer, color_n);
 
 		snprintf(buffer, sizeof(buffer), " %s", crtc->name);
 
@@ -1785,6 +1765,7 @@ int os_main(int argc, char* argv[])
 	int j;
 	adv_error res;
 	char* section_map[1];
+	char buffer[1024];
 
 	opt_rc = 0;
 	opt_log = 0;
@@ -1951,13 +1932,8 @@ int os_main(int argc, char* argv[])
 		goto err_input;
 	}
 
-	log_std(("v: pclock %.3f - %.3f\n", (double)the_monitor.pclock.low, (double)the_monitor.pclock.high));
-	for(j=0;j<MONITOR_RANGE_MAX;++j)
-		if (the_monitor.hclock[j].low)
-			log_std(("v: hclock %.3f - %.3f\n", (double)the_monitor.hclock[j].low, (double)the_monitor.hclock[j].high));
-	for(j=0;j<MONITOR_RANGE_MAX;++j)
-		if (the_monitor.vclock[j].low)
-			log_std(("v: vclock %.3f - %.3f\n", (double)the_monitor.vclock[j].low, (double)the_monitor.vclock[j].high));
+	monitor_print(buffer, sizeof(buffer), &the_monitor);
+	log_std(("v: clock %s\n", buffer));
 
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);

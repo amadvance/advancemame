@@ -1168,5 +1168,15 @@ void osd2_sound_done(void)
 
 	soundb_stop();
 	soundb_done();
+
+	adv_dft_free(&context->state.dft_plan);
+
+	free(context->state.dft_pre_x);
+	free(context->state.dft_pre_X);
+	free(context->state.dft_post_x);
+	free(context->state.dft_post_X);
+	free(context->state.dft_window);
+	free(context->state.dft_equal_loudness);
+	free(context->state.adjust_power_history_map);
 }
 

@@ -158,7 +158,7 @@ void advance_safequit_update(struct advance_safequit_context* context);
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
 
 #define INPUT_ANALOG_MAX 16 /**< Max number of analog controls for player. */
-#define INPUT_DIGITAL_MAX 2048 /**< Max number of digital port definition. */
+#define INPUT_DIGITAL_MAX 4096 /**< Max number of digital ports definition. */
 
 #define INPUT_MAP_MAX 16 /**< Max number of mapping codes. */
 
@@ -181,8 +181,12 @@ struct help_entry {
 	unsigned dy;
 };
 
+#define INPUT_ANALOG_RELATIVE 0
+#define INPUT_ANALOG_ABSOLUTE 1
+
 struct analog_map_entry {
 	unsigned seq[INPUT_MAP_MAX]; /**< Input sequence assigned. */
+	unsigned last; /**< The type of the last input, INPUT_ANALOG_RELATIVE or INPUT_ANALOG_ABSOLUTE.*/
 };
 
 struct advance_input_config_context {
@@ -276,11 +280,37 @@ struct ui_menu {
 	unsigned max;
 };
 
+struct ui_color {
+	adv_pixel p; /**< Pixel color in the video format. */
+	adv_pixel f; /**< Pixel foreground color in the RGBA 32 bit format. */
+	adv_pixel b; /**< Pixel background color in the RGBA 32 bit format. */
+	adv_color_rgb c; /**< Pixel color. */
+};
+
+struct ui_color_set {
+	adv_color_def def;
+	struct ui_color ui_f; /**< User interface foreground. */
+	struct ui_color ui_b; /**< User interface background. */
+	adv_pixel ui_alpha[256]; /**< Alpha scale for UI. */
+	struct ui_color title_f; /**< Title foreground. */
+	struct ui_color title_b; /**< Title background. */
+	adv_pixel title_alpha[256]; /**< Alpha scale for title. */
+	struct ui_color select_f; /**< Selected menu entry foreground. */
+	struct ui_color select_b; /**< Selected menu entry background. */
+	adv_pixel select_alpha[256]; /**< Alpha scale for selected. */
+	struct ui_color help_p1; /**< Help player 1 foreground. */
+	struct ui_color help_p2; /**< Help player 2 foreground. */
+	struct ui_color help_p3; /**< Help player 3 foreground. */
+	struct ui_color help_p4; /**< Help player 4 foreground. */
+	struct ui_color help_u; /**< Help unassigned foreground. */
+};
+
 struct advance_ui_config_context {
 	unsigned help_mac; /**< Number of help entries. */
 	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
 	char help_image_buffer[256]; /**< File name of the help image. */
 	char ui_font_buffer[256]; /**< File name of the font. */
+	unsigned ui_translucency; /**< Translucency factor. */
 	adv_bool ui_speedmark_flag; /**< If display of not the speed mark on screen. */
 	unsigned ui_font_orientation; /**< Orientation for the font. */
 	unsigned ui_font_sizex; /**< X size of the font. */
@@ -319,6 +349,10 @@ struct advance_ui_state_context {
 	adv_bitmap* help_image; /**< Help image. */
 	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
 	unsigned help_rgb_max; /**< Help image palette size. */
+
+	adv_color_def buffer_def; /**< Color definition of the internal bitmap buffer. */
+
+	struct ui_color_set color_map; /**< Current color mapping. */
 };
 
 struct advance_ui_context {
@@ -703,9 +737,12 @@ struct advance_video_state_context {
 	double gamma_effect_factor; /**< Gamma value required by the display effect. */
 
 	adv_mode mode; /**< Video mode. */
-	adv_bool mode_flag; /**< If the mode is set */
+	adv_bool mode_flag; /**< If the mode is set. */
 	unsigned mode_index; /**< Mode index. */
-	double mode_vclock; /**< Vertical clock (normalized) */
+	double mode_vclock; /**< Vertical clock (normalized). */
+	unsigned long long mode_aspect_factor_x; /**< Video mode size aspect factor. */
+	unsigned long long mode_aspect_factor_y; /**< Video mode size aspect factor. */
+	adv_bool mode_aspect_vertgameinhorzscreen; /**< Video mode for a vertical game in horizontal screen. */
 	unsigned mode_best_size_x;
 	unsigned mode_best_size_y;
 	unsigned mode_best_size_2x;

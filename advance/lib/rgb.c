@@ -164,6 +164,24 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
 }
 
 /**
+ * Compute a RGBA value with a specific format
+ * \param r, g, b, a RGBA values [0-255].
+ * \param def_ordinal RGBA format definition.
+ * \return RGBA nibble as ordinal value.
+ */
+adv_pixel alpha_make_from_def(unsigned r, unsigned g, unsigned b, unsigned a, adv_color_def def_ordinal)
+{
+	int alpha_shift;
+	adv_pixel alpha_mask;
+	adv_pixel p;
+
+	alpha_shiftmask_get(&alpha_shift, &alpha_mask, def_ordinal);
+
+	return pixel_make_from_def(r, g, b, def_ordinal)
+		| rgb_nibble_insert(a, alpha_shift, alpha_mask);
+}
+
+/**
  * Compute a RGB value with a specific format
  * \param fr, fg, fb Foreground RGB values [0-255].
  * \param br, bg, bb Background RGB values [0-255].
@@ -171,7 +189,7 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
  * \param def_ordinal RGB format definition.
  * \return RGB nibble as ordinal value.
  */
-adv_pixel alpha_make_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def_ordinal)
+adv_pixel pixel_merge_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def_ordinal)
 {
 	return pixel_make_from_def(
 		(fr*a + (255-a)*br) / 255,
@@ -443,5 +461,28 @@ int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned 
 adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos)
 {
 	return rgb_mask_make_from_def(d_len, d_pos) & rgb_shift(rgb_mask_make_from_def(s_len, s_pos), rgb_conv_shift_get(s_len, s_pos, d_len, d_pos));
+}
+
+/**
+ * Compute the shift and mask values for the alpha channel.
+ */
+void alpha_shiftmask_get(int* shift, unsigned* mask, adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+	unsigned pos;
+	unsigned len;
+
+	def.ordinal = def_ordinal;
+
+	assert(def.nibble.type == adv_color_type_rgb);
+
+	len = def.nibble.alpha_size * 8;
+	if (def.nibble.red_pos == 0 || def.nibble.green_pos == 0 || def.nibble.blue_pos == 0) {
+		pos = color_def_bytes_per_pixel_get(def_ordinal) * 8 - len;
+	} else {
+		pos = 0;
+	}
+
+	rgb_shiftmask_get(shift, mask, len, pos);
 }
 

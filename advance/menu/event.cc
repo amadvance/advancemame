@@ -79,7 +79,7 @@ static struct event_item EVENT_TAB[] = {
 {"sort", EVENT_SORT, { KEYB_F5, KEYB_MAX } },
 {"setgroup", EVENT_SETGROUP, { KEYB_F9, KEYB_MAX } },
 {"settype", EVENT_SETTYPE, { KEYB_F10, KEYB_MAX } },
-{"runclone", EVENT_RUN_CLONE, { KEYB_F12, KEYB_MAX } },
+{"runclone", EVENT_CLONE, { KEYB_F12, KEYB_MAX } },
 {"command", EVENT_COMMAND, { KEYB_F8, KEYB_MAX } },
 {"menu", EVENT_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
 {"emulator", EVENT_EMU, { KEYB_F6, KEYB_MAX } },
@@ -239,8 +239,8 @@ bool event_in(const string& s)
 
 	sevent = arg_get(s, pos);
 
-	if (sevent == "snapshot") /* LEGACY 2.3.7 */
-		return true; /* ignore */
+	if (sevent == "snapshot") // LEGACY 2.3.7
+		return true; // ignore
 
 	unsigned event = string2event(sevent);
 	if (event == EVENT_NONE)
@@ -262,7 +262,7 @@ bool event_in(const string& s)
 			unsigned key;
 			key = key_code(skey.c_str());
 			if (key == KEYB_MAX) {
-				// support the old scan code format only numeric
+				// LEGACY support the old scan code format only numeric
 				if (skey.find_first_not_of("0123456789") == string::npos)
 					key = atoi(skey.c_str());
 				if (key >= KEYB_MAX) {
@@ -306,23 +306,34 @@ void event_out(adv_conf* config_context, const char* tag)
 	}
 }
 
-std::string event_tag(const std::string& s, unsigned key)
+std::string event_name(unsigned event)
 {
+	string s;
+
 	unsigned i;
 	for(i=0;EVENT_TAB[i].name;++i) {
-		if (EVENT_TAB[i].event == key)
+		if (EVENT_TAB[i].event == event)
 			break;
 	}
 
-	if (!EVENT_TAB[i].name || EVENT_TAB[i].seq[0] == KEYB_MAX || EVENT_TAB[i].seq[1] != KEYB_MAX)
+	if (!EVENT_TAB[i].name)
 		return s;
 
-	string n = key_name(EVENT_TAB[i].seq[0]);
+	for(unsigned j=0;j<SEQ_MAX && EVENT_TAB[i].seq[j] != KEYB_MAX;++j) {
+		if (EVENT_TAB[i].seq[j] < KEYB_MAX) {
+			string n = key_name(EVENT_TAB[i].seq[j]);
+			for(unsigned k=0;k<n.length();++k)
+				n[k] = toupper(n[k]);
+			if (s.length()) {
+				s += "+";
+			}
+			s += n;
+		} else {
+			break; // stop at the first sequence
+		}
+	}
 
-	for(unsigned j=0;j<n.length();++j)
-		n[j] = toupper(n[j]);
-
-	return s + "^" + n;
+	return s;
 }
 
 void event_poll()
@@ -373,6 +384,8 @@ static void event_push_norepeat(int event, target_clock_t& time, unsigned& count
 	case EVENT_RIGHT :
 	case EVENT_PGUP :
 	case EVENT_PGDN :
+	case EVENT_IDLE_0 :
+	case EVENT_IDLE_1 :
 		is_repeat = true;
 		break;
 	default:
@@ -449,10 +462,5 @@ void event_setup(const string& press_sound, double delay_repeat_ms, double delay
 int event_last()
 {
 	return event_last_push;
-}
-
-void event_forget()
-{
-	event_last_push = EVENT_NONE;
 }
 

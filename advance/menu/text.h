@@ -38,7 +38,7 @@ void int_unreg();
 bool int_load(adv_conf* config_context);
 bool int_init(unsigned video_size);
 void int_done();
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast);
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency);
 void int_unset(bool reset_video_mode);
 bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientation);
 void int_disable();
@@ -47,27 +47,36 @@ void int_plug();
 void* int_save();
 void int_restore(void* buffer);
 
-bool int_image(const char* file, unsigned& size_x, unsigned& size_y);
-void int_clear();
+bool int_image(const std::string& file, unsigned& scale_x, unsigned& scale_y);
+void int_clear(const adv_color_rgb& color);
 void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color);
+void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color);
 void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color);
 void int_rotate(int& x, int& y, int& dx, int& dy);
 void int_invrotate(int& x, int& y, int& dx, int& dy);
 
-void int_put(int x, int y, char c, const int_color& color);
 unsigned int_put_width(char c);
-void int_put(int x, int y, const std::string& s, const int_color& color);
 unsigned int_put_width(const std::string& s);
-unsigned int_put(int x, int y, int dx, const std::string& s, const int_color& color);
+void int_put(int x, int y, char c, const int_color& color);
+void int_put(int x, int y, const std::string& s, const int_color& color);
 void int_put_filled(int x, int y, int dx, const std::string& s, const int_color& color);
 void int_put_special(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+void int_put_alpha(int x, int y, char c, const int_color& color);
+void int_put_alpha(int x, int y, const std::string& s, const int_color& color);
+void int_put_filled_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
+void int_put_special_alpha(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+
+unsigned int_put(int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
 unsigned int_put_right(int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_right_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
 
 void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip);
 void int_backdrop_done();
 void int_backdrop_pos(int index, int x, int y, int dx, int dy);
 void int_backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty);
 void int_backdrop_clear(int index, bool highlight);
+void int_backdrop_redraw_all();
 
 void int_clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
 void int_clip_clear(int index);
@@ -79,9 +88,8 @@ unsigned int_update_pre(bool progressive = false);
 void int_update_post(unsigned y = 0);
 
 unsigned int_event_get(bool update_background = true);
-int int_event_waiting();
+bool int_event_waiting();
 
-void int_idle_repeat_reset();
 void int_idle_time_reset();
 void int_idle_0_enable(bool state);
 void int_idle_1_enable(bool state);

@@ -54,7 +54,8 @@ enum listsort_t {
 	sort_by_session,
 	sort_by_res,
 	sort_by_info,
-	sort_by_timepersession
+	sort_by_timepersession,
+	sort_by_emulator
 };
 
 inline bool sort_by_root_name_func(const game* A, const game* B)
@@ -116,6 +117,12 @@ inline bool sort_by_info_func(const game* A, const game* B)
 {
 	return pgame_combine_less(A, B, pgame_by_info_less, pgame_by_desc_less, pgame_by_name_less);
 }
+
+inline bool sort_by_emulator_func(const game* A, const game* B)
+{
+	return pgame_combine_less(A, B, pgame_by_emulator_less, pgame_by_leveldesc_less, pgame_by_desc_less);
+}
+
 
 typedef bool (*pgame_sort_func)(const game*, const game*);
 
@@ -381,6 +388,7 @@ public:
 	resource current_backdrop; ///< Image shown for the current game.
 	resource current_sound; ///< Sound played for the current game.
 
+	unsigned ui_translucency; ///< Translucency.
 	std::string ui_back; ///< User interface background
 	std::string ui_help; ///< User interface help
 	std::string ui_exit; ///< User interface exit image

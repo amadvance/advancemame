@@ -59,7 +59,7 @@ typedef struct adv_bitmap_struct {
 /** \addtogroup BitMap */
 /*@{*/
 
-adv_bitmap* adv_bitmap_alloc(unsigned x, unsigned y, unsigned bit);
+adv_bitmap* adv_bitmap_alloc(unsigned x, unsigned y, unsigned bytes_per_pixel);
 adv_bitmap* adv_bitmap_dup(adv_bitmap* src);
 void adv_bitmap_move(adv_bitmap* dst, adv_bitmap* src);
 adv_bitmap* adv_bitmap_import_rgb(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
@@ -86,7 +86,7 @@ static inline uint8* adv_bitmap_line(adv_bitmap* bmp, unsigned y)
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-static inline uint8* adv_bitmap_pixel(adv_bitmap* bmp, unsigned x, unsigned y)
+static inline uint8* adv_bitmap_pixel(const adv_bitmap* bmp, unsigned x, unsigned y)
 {
 	return bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
 }
@@ -146,7 +146,23 @@ adv_bitmap* adv_bitmap_cvt_rgb(adv_color_def dst_def, adv_bitmap* src, adv_color
 adv_bitmap* adv_bitmap_cvt_palettergb(adv_color_def dst_def, adv_bitmap* src, adv_color_rgb* rgb_map, unsigned rgb_max);
 
 void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned color);
+
 void adv_bitmap_box(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned border, unsigned color);
+void adv_bitmap_put(adv_bitmap* dst, int dst_x, int dst_y, const adv_bitmap* src_ptr, int src_x, int src_y, int src_dx, int src_dy);
+
+void adv_bitmap_put_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, const adv_bitmap* back, int back_x, int back_y, const adv_bitmap* src, int src_x, int src_y, int src_dx, int src_dy, adv_color_def src_color_def);
+
+static inline void adv_bitmap_put_alpha(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, const adv_bitmap* src, int src_x, int src_y, int src_dx, int src_dy, adv_color_def src_color_def)
+{
+	adv_bitmap_put_alphaback(dst, dst_x, dst_y, dst_color_def, dst, dst_x, dst_y, src, src_x, src_y, src_dx, src_dy, src_color_def);
+}
+
+void adv_bitmap_clear_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, adv_bitmap* back, int back_x, int back_y, adv_color_rgb src, int src_dx, int src_dy);
+
+static inline void adv_bitmap_clear_alpha(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, adv_color_rgb src, int src_dx, int src_dy)
+{
+	adv_bitmap_clear_alphaback(dst, dst_x, dst_y, dst_color_def, dst, dst_x, dst_y, src, src_dx, src_dy);
+}
 
 adv_bitmap* adv_bitmap_load_png(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f);
 adv_bitmap* adv_bitmap_load_png_rgb(adv_fz* f, adv_color_def def);

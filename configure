@@ -3380,6 +3380,7 @@ fi
   test -n "$ZIP" && break
 done
 
+# Like PROG_CC without cross compiling
 for ac_prog in gcc cc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -3420,7 +3421,8 @@ fi
   test -n "$CC_BUILD" && break
 done
 
-for ac_prog in g++ gxx c++ cxx
+# Like PROG_CXX without cross compiling
+for ac_prog in g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2

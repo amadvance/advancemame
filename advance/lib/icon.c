@@ -291,11 +291,11 @@ adv_bitmap* adv_bitmap_load_icon(adv_color_rgb* rgb, unsigned* rgb_max, adv_bitm
 		}
 		*rgb_max = colors;
 
-		bitmap = adv_bitmap_alloc(entry[i].width, entry[i].height, 8);
+		bitmap = adv_bitmap_alloc(entry[i].width, entry[i].height, 1);
 		if (!bitmap)
 			goto out_entry;
 
-		*bitmap_mask = adv_bitmap_alloc(entry[i].width, entry[i].height, 8);
+		*bitmap_mask = adv_bitmap_alloc(entry[i].width, entry[i].height, 1);
 		if (!*bitmap_mask)
 			goto out_bitmap;
 

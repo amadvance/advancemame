@@ -1,6 +1,17 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.1 2004/09
+	) Added support for translucency in the user interface
+		with the `ui_translucency' option. Note that without
+		a background image you will not see difference.
+	) The sound volume is propagated to the emulator only
+		in console mode (i.e. AdvanceCD).
+	) When using a .bat file to start an emulator the .lst file
+		is now used if the .xml file is missing.
+	) Added a sort by emulator option.
+	) Fixed the screensaver.
+
 AdvanceMENU Version 2.3.8 2004/08
 	) Fixed the renaming of the AdvanceMESS snapshots,
 		clips and sounds. It was broken on

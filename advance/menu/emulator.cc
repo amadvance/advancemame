@@ -391,7 +391,7 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 	return argc;
 }
 
-bool emulator::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool emulator::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
@@ -744,8 +744,7 @@ bool mame_info::is_update_xml()
 	err_xml = stat(cpath_export(xml_file), &st_xml);
 	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
 
-	if (file_ext(config_exe_path_get()) != ".bat"
-		&& err_exe==0
+	if (err_exe==0
 		&& (err_xml!=0 || st_xml.st_mtime < st_mame.st_mtime || st_xml.st_size == 0)
 		&& (err_xml!=0 || access(cpath_export(xml_file), W_OK)==0)
 	) {
@@ -795,6 +794,20 @@ bool mame_info::load_game_xml(game_set& gar)
 	return true;
 }
 
+bool mame_info::is_present_info()
+{
+	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
+
+	return access(cpath_export(info_file), R_OK) == 0;
+}
+
+bool mame_info::is_present_xml()
+{
+	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
+
+	return access(cpath_export(xml_file), R_OK) == 0;
+}
+
 bool mame_info::is_update_info()
 {
 	struct stat st_info;
@@ -807,8 +820,7 @@ bool mame_info::is_update_info()
 	err_info = stat(cpath_export(info_file), &st_info);
 	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
 
-	if (file_ext(config_exe_path_get()) != ".bat"
-		&& err_exe==0
+	if (err_exe==0
 		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)
 		&& (err_info!=0 || access(cpath_export(info_file), W_OK)==0)
 	) {
@@ -863,23 +875,36 @@ bool mame_info::load_game_info(game_set& gar)
 
 bool mame_info::load_game(game_set& gar, bool quiet)
 {
-	if (is_update_xml()) {
-		return load_game_xml(gar);
+	if (file_ext(config_exe_path_get()) == ".bat") {
+		if (is_present_xml()) {
+			return load_game_xml(gar);
+		}
+
+		if (is_present_info()) {
+			return load_game_info(gar);
+		}
+
+		target_err("Impossible to generate the '%s' information file with a BAT file.\n", user_name_get().c_str());
+	} else {
+		if (is_update_xml()) {
+			return load_game_xml(gar);
+		}
+
+		if (is_update_info()) {
+			return load_game_info(gar);
+		}
+
+		if (update_xml()) {
+			return load_game_xml(gar);
+		}
+
+		if (update_info()) {
+			return load_game_info(gar);
+		}
+
+		target_err("Error generating the '%s' information file with -listxml and -listinfo.\n", user_name_get().c_str());
 	}
 
-	if (is_update_info()) {
-		return load_game_info(gar);
-	}
-
-	if (update_xml()) {
-		return load_game_xml(gar);
-	}
-
-	if (update_info()) {
-		return load_game_info(gar);
-	}
-
-	target_err("Error generating the '%s' information file with -listxml and -listinfo.\n", user_name_get().c_str());
 	return false;
 }
 
@@ -1049,7 +1074,7 @@ bool mame_mame::load_software(game_set&, bool quiet)
 	return true;
 }
 
-bool mame_mame::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool mame_mame::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
@@ -1057,7 +1082,7 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, diffi
 	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
 	argc = compile(g, argv, argc, "%s", orientation);
 
-	if (support_difficulty) {
+	if (support_difficulty && set_difficulty) {
 		const char* opt;
 		switch (difficulty) {
 		case difficulty_easiest : opt = "easiest"; break;
@@ -1075,9 +1100,9 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, diffi
 		}
 	}
 
-	if (support_attenuation) {
-		if (attenuation < -32)
-			attenuation = -32;
+	if (support_attenuation && set_attenuation) {
+		if (attenuation < -40)
+			attenuation = -40;
 		if (attenuation > 0)
 			attenuation = 0;
 		argv[argc++] = strdup("-sound_volume");
@@ -1089,7 +1114,6 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, diffi
 
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
-
 
 	time_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
@@ -1845,7 +1869,7 @@ string dmess::image_name_get(const string& snap_create, const string& name)
 	return path_buffer;
 }
 
-bool dmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	string snapshot_rename_dir;
 	string image_create_file;
@@ -2236,7 +2260,7 @@ bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], co
 		return compile_single(g, argc, argv, file);
 }
 
-bool advmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool advmess::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	string snapshot_rename_dir;
 	string image_create_file;
@@ -2735,7 +2759,7 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 	return true;
 }
 
-bool draine::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool draine::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
@@ -2942,12 +2966,12 @@ bool generic::is_runnable() const
 	return emulator::is_runnable();
 }
 
-bool generic::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const
+bool generic::run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const
 {
 	// if empty don't run
 	if (user_exe_path.length()==0)
 		return false;
 
-	return emulator::run(g, bios, orientation, difficulty, attenuation, ignore_error);
+	return emulator::run(g, bios, orientation, set_difficulty, difficulty, set_attenuation, attenuation, ignore_error);
 }
 

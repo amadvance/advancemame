@@ -27,9 +27,6 @@ SVGALINE Drivers
 	+Mobility Radeon 9000 [4c66] 
 	+R200 QT [Radeon 8500] [5154] 
 	+R200 QU [Radeon 9100] [5155] 
-	+R350 AI [Radeon 9800] [4149] 
-	+R350 AK [Fire GL ??] [414b] 
-	+RV350 [Mobility Radeon 9600 M10] [4e52] 
 	+Rade 128 Pro Ultra TU [5455] 
 	+Radeon 7000 Series (RV100) [5159] 
 		+Optimus 7000 
@@ -37,6 +34,7 @@ SVGALINE Drivers
 		+Radeon 7000 Series (RV100) 
 		+Radeon VE 7000 
 		+Radeon VE DDR 
+		+OEM ASUSTeK Computer Inc {1043} : Radeon A7000 
 		+OEM Celestica {18d4} : Radeon 7000 32Mb 
 		+OEM Giga-Byte Technology {1458} : Radeon 7000 PRO MAYA AV Series 
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 7000 
@@ -97,6 +95,7 @@ SVGALINE Drivers
 	+Radeon 9200 Pro (RV280) [5960] 
 		+RADEON 9200 PRO 
 	+Radeon 9200 SE Series (RV280) [5964] 
+		+OEM ASUSTeK Computer Inc {1043} : A9200SE 
 		+OEM Ge-Cube {18bc} : Radeon 9200 SE 128Mb Game Buster 
 		+OEM Giga-Byte Technology {1458} : Radeon 9200 SE 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE 
@@ -104,6 +103,7 @@ SVGALINE Drivers
 	+Radeon 9200 Series (RV280) [5961] 
 		+ALL-IN-WONDER 9200 SERIES 
 		+RADEON 9200 
+		+OEM ASUSTeK Computer Inc {1043} : Radeon A9200LE 
 		+OEM First International Computer Inc {1509} : FIC RADEON 9200 
 		+OEM Ge-Cube {18bc} : GeXcube GC-R9200-C3 
 		+OEM Ge-Cube {18bc} : Radeon 9200 Game Buster 
@@ -111,48 +111,7 @@ SVGALINE Drivers
 		+OEM Giga-Byte Technology {1458} : GIGABYTE RADEON 9200 
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9200 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 
-		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : YUAN SMARTVGA RADEON 9200 
-	+Radeon 9500 Series (R300) [4144] 
-		+Radeon 9500 Series (R300) 
-		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9500 
-	+Radeon 9600 (RV350) [4151] 
-	+Radeon 9600 Series (V350) [4150] 
-		+ALL-IN-WONDER 9600 Series 
-		+Radeon 9600 Series 
-		+OEM Celestica {18d4} : Radeon 9600 Pro 
-		+OEM First International Computer Inc {1509} : A96 Radeon 9600 128M 
-		+OEM First International Computer Inc {1509} : A96P Radeon 9600 Pro 128M 
-		+OEM Ge-Cube {18bc} : GC-R9600PRO Primary 
-		+OEM Giga-Byte Technology {1458} : Giga-Byte GV-R96128D Primary 
-		+OEM Giga-Byte Technology {1458} : Radeon 9600 Pro 
-		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9600 
-		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 
-		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 Pro 
-		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : PowerColor R96A-C3N 
-		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : Radeon 9600 
-	+Radeon 9600 XT (V350) [4152] 
-		+OEM ASUSTeK Computer Inc {1043} : Radeon 9600 XT TVD 
-		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 XT 
-	+Radeon 9600TX (R300) [4e46] 
-	+Radeon 9700 (R300) [4145] 
-	+Radeon 9700 (R300) [4146] 
-	+Radeon 9700/9500 Series (R300) [4e45] 
-		+Radeon 9700/9500 Series (R300) 
-	+Radeon 9700/Pro, 9500 Series (R300) [4e44] 
-		+All-in-Wonder 9700 Series (R300) 
-		+Radeon 9700/9500 Series (R300) 
-		+OEM Hercules {1681} : 3D Prophet 9500 Pro 
-	+Radeon 9800 (R350) (??) [4e49] 
-	+Radeon 9800 Pro (R350) [4e48] 
-		+ALL-IN-WONDER 9800 SERIES 
-	+Radeon 9800 SE (R350) [4148] 
-		+ALL-IN-WONDER 9800 Series 
-	+Radeon 9800 XT (R350) [4e4a] 
-	+Radeon IGP 320 [4136] 
-		+Radeon IGP 320 
-	+Radeon IGP 340 [4137] 
-	+Radeon Mobility M10 NP (RV350) [4e50] 
-	+Radeon Mobility M10 NT (RV350-WS) [4e54] 
+		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : SMARTVGA RADEON 9200 
 	+Radeon Mobility M6 LY [4c59] 
 		+Radeon Mobility 
 		+OEM Acer Inc {1025} : Radeon Mobility 
@@ -431,6 +390,7 @@ SVGALINE Drivers
 		+Millennium G200 SD PCI 
 	+MGA-G400/450 Chipset [0525] 
 		+4Sight II 
+		+G450 Multi-Monitor 
 		+Marvel G400 AGP 
 		+Marvel G450 eTV 
 		+Millennium G400 
@@ -1283,6 +1243,7 @@ VBELINE Drivers
 		+Millennium G200 SD PCI 
 	+MGA-G400/450 Chipset [0525] 
 		+4Sight II 
+		+G450 Multi-Monitor 
 		+Marvel G400 AGP 
 		+Marvel G450 eTV 
 		+Millennium G400 

@@ -478,7 +478,7 @@ EMUCHDMANOBJS += \
 
 $(OBJ)/advance/libexpat.a: $(OBJ)/advance/expat/xmlparse.o $(OBJ)/advance/expat/xmlrole.o $(OBJ)/advance/expat/xmltok.o
 	$(ECHO) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 ifeq ($(CONF_LIB_EXPAT),yes)
 ADVANCELIBS += -lexpat
@@ -499,7 +499,7 @@ $(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o
 	$(OBJ)/advance/zlib/infback.o $(OBJ)/advance/zlib/inftrees.o $(OBJ)/advance/zlib/trees.o \
 	$(OBJ)/advance/zlib/zutil.o $(OBJ)/advance/zlib/uncompr.o $(OBJ)/advance/zlib/compress.o
 	$(ECHO) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 ifeq ($(CONF_LIB_ZLIB),yes)
 ADVANCELIBS += -lz

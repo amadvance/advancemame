@@ -36,8 +36,8 @@ enum advance_t {
 unsigned x_from_y(unsigned y)
 {
 	unsigned x;
-	x = y*2/3;
-	x = (x + 0xf) & ~0xF;
+	x = y * 2 / 3;
+	x = (x + 0xF) & ~0xF;
 	if (x < 256)
 		x = 256;
 	return x;
@@ -158,7 +158,9 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 			draw_text_left(0, monitor_y, text_size_x(), "format = ? ? ? ? ? ? ? ?", COLOR_NORMAL);
 		} else {
 			char buffer[256];
-			adv_generate generate = p->generate;
+			adv_generate generate;
+
+			generate = p->generate;
 			snprintf(buffer, sizeof(buffer), "format = %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f",
 				generate.hactive, generate.hfront, generate.hsync, generate.hback,
 				generate.vactive, generate.vfront, generate.vsync, generate.vback);
@@ -302,15 +304,9 @@ static void entry_model(int x, int y, int dx, void* data, int n, int selected)
 		draw_text_left(x, y, dx, buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 
 		if (selected) {
-			sncpy(buffer, sizeof(buffer), "pclock = ");
-			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), &p->monitor.pclock, &p->monitor.pclock + 1, 1E6);
+			sncpy(buffer, sizeof(buffer), "clock = ");
+			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), &p->monitor);
 			draw_text_left(0, model_y, text_size_x(), buffer, COLOR_NORMAL);
-			sncpy(buffer, sizeof(buffer), "hclock = ");
-			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.hclock, p->monitor.hclock + MONITOR_RANGE_MAX, 1E3);
-			draw_text_left(0, model_y+1, text_size_x(), buffer, COLOR_NORMAL);
-			sncpy(buffer, sizeof(buffer), "vclock = ");
-			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.vclock, p->monitor.vclock + MONITOR_RANGE_MAX, 1);
-			draw_text_left(0, model_y+2, text_size_x(), buffer, COLOR_NORMAL);
 		}
 	} else {
 		snprintf(buffer, sizeof(buffer), "-- %s --", p->manufacturer);
@@ -328,7 +324,7 @@ extern const char* MONITOR[];
 
 static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
 {
-	unsigned max = 3000;
+	unsigned max = 100;
 	struct model_data_struct* data = malloc(max*sizeof(struct model_data_struct));
 	unsigned mac = 0;
 	adv_error res;
@@ -353,8 +349,7 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
 		char buffer[256];
 		char* manufacturer;
 		char* model;
-		char* h;
-		char* v;
+		char* clock;
 
 		sncpy(buffer, sizeof(buffer), *i);
 		while (*buffer && isspace(buffer[strlen(buffer)-1]))
@@ -369,14 +364,13 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
 		} else {
 			manufacturer = strtok(buffer, ":");
 			model = strtok(NULL, ":");
-			h = strtok(NULL, ":");
-			v = strtok(NULL, ":");
-			if (manufacturer && model && h && v && mac < max) {
+			clock = strtok(NULL, "");
+			if (manufacturer && model && clock && mac < max) {
 				data[mac].manufacturer = strdup(manufacturer);
 				data[mac].model = strdup(model);
-				if (monitor_parse(&data[mac].monitor, "5 - 150", h, v)!=0) {
+				if (monitor_parse(&data[mac].monitor, clock)!=0) {
 					video_mode_restore();
-					target_err("Invalid monitor specification %s:%s:%s:%s.", manufacturer, model, h, v);
+					target_err("Invalid monitor specification %s:%s:%s.", manufacturer, model, clock);
 					target_flush();
 					exit(EXIT_FAILURE);
 				}
@@ -420,62 +414,38 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
 static adv_error cmd_model_custom(adv_monitor* monitor)
 {
 	int state;
-	char pbuffer[64];
-	char hbuffer[64];
-	char vbuffer[64];
+	char buffer[256];
 
 	text_clear();
 	draw_text_bar();
-	draw_text_left(0, 2, text_size_x(), "pclock = ", COLOR_NORMAL);
-	draw_text_left(0, 3, text_size_x(), "hclock = ", COLOR_NORMAL);
-	draw_text_left(0, 4, text_size_x(), "vclock = ", COLOR_NORMAL);
-	draw_text_para(0, 6, text_size_x(), text_size_y()-8,
-"Enter the clock specification of your monitor. "
-"Usually you can find them in the last page of your monitor manual. "
-"You can specify a clock range using '-' or a list of values using ','.\n\n"
-"For pclock you can use the range 5 - 150. "
-"Some video boards are unable to use a low pclock like 5 MHz. "
-"Try eventually to use an higher value like 10 or 12.\n"
-"The pclock specification is in MHz, the hclock is in kHz, the vclock is in Hz.\n\n"
+	draw_text_left(0, 2, text_size_x(), "clock = ", COLOR_NORMAL);
+	draw_text_para(0, 4, text_size_x(), text_size_y()-6,
+"Enter the clock specification of your monitor using the format: 'PIXEL_CLOCK / HORZ_CLOCK / VERT_CLOCK'\n\n"
+"The pixel_clock specification is in MHz, the horz_clock is in kHz, the vert_clock is in Hz.\n\n"
+"Usually you can find these value in the last page of your monitor manual. "
+"You can specify a clock range using '-'.\n"
+"If your monitor is multistandard you can put multiple definitions separated with ';'.\n\n"
+"If you don't know the pixel_clock, try using the range 5 - 150. "
+"If your video board is unable to use a low pixel_clock of 5 MHz, try using an higher value like 10 or 12.\n"
 "For example:\n\n"
-"pclock = 5-150 (supported pixel clocks in MHz)\n"
-"hclock = 30.5-60 (supported horizontal clocks in kHz)\n"
-"vclock = 55-130 (supported vertical clocks in Hz)\n"
+"clock = 5-150 / 30.5-60 / 55-130 (Standard SVGA)\n"
 "\nor\n\n"
-"hclock = 12-70\n"
-"hclock = 31.5, 35-50\n"
-"vclock = 50-150\n"
+"clock = 5-100 / 15.63 / 50 ; 5-100 / 15.75 / 60 (Multistandard PAL/NTSC)\n"
 	, COLOR_LOW);
 
-	*pbuffer = 0;
-	*hbuffer = 0;
-	*vbuffer = 0;
+	*buffer = 0;
 	state = 0;
 	while (state >= 0 && state != 4) {
-		draw_text_left(9, 2, 64, pbuffer, COLOR_NORMAL);
-		draw_text_left(9, 3, 64, hbuffer, COLOR_NORMAL);
-		draw_text_left(9, 4, 64, vbuffer, COLOR_NORMAL);
+		draw_text_left(9, 2, 64, buffer, COLOR_NORMAL);
 		switch (state) {
 		case 0 :
-			if (draw_text_read(9, 2, pbuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+			if (draw_text_read(9, 2, buffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
 				state = -1;
-			else
-				state = 1;
-			break;
-		case 1 :
-			if (draw_text_read(9, 3, hbuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
-				state = 0;
-			else
-				state = 2;
-			break;
-		case 2 :
-			if (draw_text_read(9, 4, vbuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
-				state = 1;
 			else
 				state = 3;
 			break;
 		case 3 :
-			if (monitor_parse(monitor, pbuffer, hbuffer, vbuffer) == 0) {
+			if (monitor_parse(monitor, buffer) == 0) {
 				state = 4;
 			} else {
 				state = 0;
@@ -490,7 +460,7 @@ static adv_error cmd_model_custom(adv_monitor* monitor)
 		return 0;
 }
 
-static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const adv_monitor* monitor, int only_h_center)
+static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const adv_monitor* monitor, adv_bool only_center)
 {
 	int done = 0;
 	int modify = 1;
@@ -543,7 +513,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 
 		userkey = inputb_get();
 
-		if (only_h_center) {
+		if (only_center) {
 			switch (userkey) {
 			case INPUTB_LEFT :
 			case INPUTB_RIGHT :
@@ -564,14 +534,14 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 			done = 1;
 			break;
 		case 'i' :
-			current.ht -= current.ht % 8;
-			current.ht -= 8;
+			current.ht -= current.ht % CRTC_HSTEP;
+			current.ht -= CRTC_HSTEP;
 			current.pixelclock = hclock * current.ht;
 			modify = 1;
 			break;
 		case 'I' :
-			current.ht -= current.ht % 8;
-			current.ht += 8;
+			current.ht -= current.ht % CRTC_HSTEP;
+			current.ht += CRTC_HSTEP;
 			current.pixelclock = hclock * current.ht;
 			modify = 1;
 			break;
@@ -584,11 +554,11 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 			modify = 1;
 			break;
 		case INPUTB_HOME :
-			current.hre -= 8;
+			current.hre -= CRTC_HSTEP;
 			modify = 1;
 			break;
 		case INPUTB_END :
-			current.hre += 8;
+			current.hre += CRTC_HSTEP;
 			modify = 1;
 			break;
 		case INPUTB_PGUP :
@@ -600,17 +570,17 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 			modify = 1;
 			break;
 		case INPUTB_LEFT :
-			current.hrs -= current.hrs % 8;
-			current.hrs += 8;
-			current.hre -= current.hre % 8;
-			current.hre += 8;
+			current.hrs -= current.hrs % CRTC_HSTEP;
+			current.hrs += CRTC_HSTEP;
+			current.hre -= current.hre % CRTC_HSTEP;
+			current.hre += CRTC_HSTEP;
 			modify = 1;
 			break;
 		case INPUTB_RIGHT :
-			current.hrs -= current.hrs % 8;
-			current.hrs -= 8;
-			current.hre -= current.hre % 8;
-			current.hre -= 8;
+			current.hrs -= current.hrs % CRTC_HSTEP;
+			current.hrs -= CRTC_HSTEP;
+			current.hre -= current.hre % CRTC_HSTEP;
+			current.hre -= CRTC_HSTEP;
 			modify = 1;
 			break;
 		case INPUTB_DOWN :
@@ -659,33 +629,24 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 	}
 }
 
-static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, const adv_generate* generate, const adv_monitor* monitor, unsigned y, unsigned index, double horz_clock, int only_h_center)
+static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, const adv_generate* generate, const adv_monitor* monitor, unsigned y, unsigned index, double horz_clock, adv_bool only_center)
 {
-	unsigned x;
 	adv_crtc crtc;
+	unsigned x;
+	adv_generate current_gen;
 
-	crtc_reset(&crtc);
+	current_gen = *generate;
 
 	x = x_from_y(y);
 
-	generate_crtc(&crtc, x, y, generate);
+	crtc_reset(&crtc);
+
+	generate_crtc_hsize(&crtc, x, generate);
+	generate_crtc_vsize(&crtc, y, generate);
 	crtc_hclock_set(&crtc, horz_clock);
 
-	/* ensure that pclock is in range */
-	while (crtc_pclock_get(&crtc) > monitor_pclock_max(monitor)) {
-		x = x - 16;
-		x = x & ~0xF;
-		generate_crtc(&crtc, x, y, generate);
-		crtc_hclock_set(&crtc, horz_clock);
-	}
-	while (crtc_pclock_get(&crtc) < monitor_pclock_min(monitor)) {
-		x = x + 16;
-		x = x & ~0xF;
-		generate_crtc(&crtc, x, y, generate);
-		crtc_hclock_set(&crtc, horz_clock);
-	}
-
-	if (crtc_adjust_clock(&crtc, monitor)!=0) {
+	if (crtc_adjust_clock(&crtc, monitor)!=0
+		|| crtc_adjust_size(&crtc, monitor)!=0) {
 		text_done();
 		target_err("Calibration mode unsupported.\n");
 		target_err("%s\n", error_get());
@@ -693,7 +654,18 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 		exit(EXIT_FAILURE);
 	}
 
-	if (adjust(msg, &crtc, index, monitor, only_h_center)!=0)
+	/* recompute the horizontal size after crtc_adjust_size() */
+	generate_crtc_htotal(&crtc, crtc.ht, generate);
+
+	if (!crtc_clock_check(monitor, &crtc)) {
+		text_done();
+		target_err("Calibration mode unsupported.\n");
+		target_err("%s\n", error_get());
+		target_flush();
+		exit(EXIT_FAILURE);
+	}
+
+	if (adjust(msg, &crtc, index, monitor, only_center)!=0)
 		return -1;
 
 	entry->hclock = crtc.pixelclock / crtc.ht;
@@ -712,29 +684,111 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 	return 0;
 }
 
-static adv_error cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+struct monitor_corner {
+	double hclock;
+	unsigned y;
+	int level;
+};
+
+unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct monitor_corner* map, unsigned max, unsigned count)
 {
-	int y;
-	double ty;
-	double hclock, vclock;
+	unsigned i;
+	unsigned mac;
 
-	interpolate->mac = 1;
+	mac = 0;
+	for(i=0;i<monitor->mode_mac;++i) {
+		const adv_monitor_mode* mode = &monitor->mode_map[i];
+		double try_vclock;
+		double try_y;
 
-	if (monitor_vclock_check(monitor, 60))
-		vclock = 60;
-	else if (monitor_vclock_check(monitor, 50))
-		vclock = 50;
-	else
-		vclock = monitor_vclock_min(monitor);
+		if (vclock < mode->vclock.low)
+			try_vclock = mode->vclock.low;
+		else if (vclock > mode->vclock.high)
+			try_vclock = mode->vclock.high;
+		else
+			try_vclock = vclock;
 
-	hclock = monitor_hclock_min(monitor);
+		if (count > 0) { /* low */
+			double try_hclock = mode->hclock.low;
+			int y = ceil(try_hclock / try_vclock);
+			if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
+				&& mac < max) {
+				map[mac].hclock = try_hclock;
+				map[mac].y = y;
+				map[mac].level = -1;
+				++mac;
+			}
+		}
 
-	ty = hclock / vclock;
-	y = floor(ty * generate->vactive / (generate->vactive + generate->vfront + generate->vsync + generate->vback));
+		if (mode->hclock.high != mode->hclock.low) {
+			if (count > 2) { /* mid */
+				double try_hclock = (mode->hclock.low + mode->hclock.high) / 2;
+				int y = floor(try_hclock / try_vclock + 0.5);
+				if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
+					&& mac < max) {
+					map[mac].hclock = try_hclock;
+					map[mac].y = y;
+					map[mac].level = 0;
+					++mac;
+				}
+			}
 
-	if (cmd_adjust("Center and resize the screen (1/1)", interpolate->map + 0, generate, monitor, y, index, hclock, 0)!=0) {
-		text_reset();
-		return -1;
+			if (count > 1) { /* high */
+				double try_hclock = mode->hclock.high;
+				int y = floor(try_hclock / try_vclock);
+				if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
+					&& mac < max) {
+					map[mac].hclock = try_hclock;
+					map[mac].y = y;
+					map[mac].level = 1;
+					++mac;
+				}
+			}
+		}
+	}
+
+	return mac;
+}
+
+static adv_error cmd_interpolate_set(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index, struct monitor_corner* corner_map, unsigned corner_mac)
+{
+	unsigned i;
+	double visible_fraction;
+	adv_generate current_gen;
+
+	current_gen = *generate;
+
+	visible_fraction = current_gen.vactive / (current_gen.vactive + current_gen.vfront + current_gen.vsync + current_gen.vback);
+
+	interpolate->mac = 0;
+
+	for(i=0;i<corner_mac;++i) {
+		char buffer[256];
+		int y;
+		double hclock;
+		adv_bool only_center;
+
+		y = floor(corner_map[i].y * visible_fraction);
+		hclock = corner_map[i].hclock;
+		only_center = corner_map[i].level >= 0;
+
+		if (only_center) {
+			snprintf(buffer, sizeof(buffer), "Center the screen [%d/%d]", i+1, corner_mac);
+		} else {
+			snprintf(buffer, sizeof(buffer), "Center and resize the screen [%d/%d]", i+1, corner_mac);
+		}
+
+		if (cmd_adjust(buffer, interpolate->map + interpolate->mac, &current_gen, monitor, y, index, hclock, only_center)!=0) {
+			text_reset();
+			return -1;
+		}
+
+		/* restart always from the last setting */
+		current_gen = interpolate->map[interpolate->mac].gen;
+
+		++interpolate->mac;
+		if (interpolate->mac == GENERATE_INTERPOLATE_MAX)
+			break;
 	}
 
 	text_reset();
@@ -742,53 +796,34 @@ static adv_error cmd_interpolate_one(adv_generate_interpolate_set* interpolate, 
 	return 0;
 }
 
-static adv_error cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+static adv_error cmd_interpolate_low(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
 {
-	int y;
-	double ty, vclock, hclock;
-	adv_generate current = *generate;
+	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
+	unsigned corner_mac;
 
-	interpolate->mac = 2;
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1);
 
-	if (monitor_vclock_check(monitor, 60))
-		vclock = 60;
-	else if (monitor_vclock_check(monitor, 50))
-		vclock = 50;
-	else
-		vclock = monitor_vclock_min(monitor);
+	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
+}
 
-	ty = monitor_hclock_min(monitor) / vclock;
-	y = ceil(ty * current.vactive / (current.vactive + current.vfront + current.vsync + current.vback));
-	hclock = monitor_hclock_min(monitor);
+static adv_error cmd_interpolate_lowhigh(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+{
+	struct monitor_corner corner_map[MONITOR_MODE_MAX * 2];
+	unsigned corner_mac;
 
-	/* not too small */
-	if (y<192)
-		y = 192;
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 2);
 
-	if (cmd_adjust("Center and resize the screen (1/2)", interpolate->map + 0, &current, monitor, y, index, hclock, 0)!=0) {
-		text_reset();
-		return -1;
-	}
+	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
+}
 
-	/* start from the previous */
-	current = interpolate->map[0].gen;
+static adv_error cmd_interpolate_lowmidhigh(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+{
+	struct monitor_corner corner_map[MONITOR_MODE_MAX * 3];
+	unsigned corner_mac;
 
-	ty = monitor_hclock_max(monitor) / vclock;
-	y = floor(ty * current.vactive / (current.vactive + current.vfront + current.vsync + current.vback));
-	hclock = monitor_hclock_max(monitor);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 3);
 
-	/* not too big */
-	if (y>768)
-		y = 768;
-
-	if (cmd_adjust("Center the screen (2/2)", interpolate->map + 1, &current, monitor, y, index, hclock, 1)!=0) {
-		text_reset();
-		return -1;
-	}
-
-	text_reset();
-
-	return 0;
+	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
 
 /***************************************************************************/
@@ -854,10 +889,17 @@ static void interpolate_create(struct interpolate_data_struct* data, unsigned ma
 			y = data[i].y;
 			x = data[i].x;
 
-			generate_crtc(crtc, x, y, generate);
+			generate_crtc_hsize(crtc, x, generate);
+			generate_crtc_vsize(crtc, y, generate);
 			crtc_vclock_set(crtc, vclock);
 
-			data[i].valid = crtc_adjust_clock(crtc, monitor)==0 && crtc_clock_check(monitor, crtc);
+			if (crtc_adjust_clock(crtc, monitor)!=0
+				|| crtc_adjust_size(crtc, monitor)!=0) {
+				data[i].valid = 0;
+			} else {
+				generate_crtc_htotal(crtc, crtc->ht, generate);
+				data[i].valid = crtc_clock_check(monitor, crtc);
+			}
 		}
 	}
 }
@@ -928,112 +970,14 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 	return res;
 }
 
-static adv_error cmd_interpolate_many(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
-{
-	unsigned mac = 0;
-	adv_error res;
-	int ymin, ymax, ymins, ymaxs;
-	double ty;
-	int y;
-	int base;
-	int pos;
-	struct interpolate_data_struct data[128];
-	double vclock;
-	int key;
-
-	if (monitor_vclock_check(monitor, 60))
-		vclock = 60;
-	else if (monitor_vclock_check(monitor, 50))
-		vclock = 50;
-	else
-		vclock = monitor_vclock_min(monitor);
-
-	ty = monitor_hclock_max(monitor) / vclock;
-	ymaxs = floor(ty * generate->vactive / (generate->vactive + generate->vfront + generate->vsync + generate->vback));
-
-	ymax = ymaxs;
-	ymax = ymax & ~0xf;
-
-	ty = monitor_hclock_min(monitor) / vclock;
-	ymins = ceil(ty * generate->vactive / (generate->vactive + generate->vfront + generate->vsync + generate->vback));
-
-	ymin = ymins;
-	ymin = (ymin + 0xf) & ~0xf;
-
-	mac = 0;
-
-	data[mac].type = interpolate_done;
-	++mac;
-
-	data[mac].selected = 0;
-	data[mac].type = interpolate_mode;
-	data[mac].y = ymin;
-	data[mac].x = x_from_y(ymin);
-	data[mac].valid = 0;
-	ymin += 16;
-	++mac;
-
-	while (ymin <= ymax) {
-		data[mac].selected = 0;
-		data[mac].type = interpolate_mode;
-		data[mac].y = ymin;
-		data[mac].x = x_from_y(ymin);
-		data[mac].valid = 0;
-		ymin += 16;
-		++mac;
-	}
-
-	interpolate_create(data, mac, generate, monitor, vclock);
-
-	base = 0;
-	pos = 0;
-	do {
-		interpolate_update(interpolate, data, mac, generate, monitor, vclock);
-
-		text_clear();
-
-		draw_text_bar();
-
-		y = 2;
-
-		y = draw_text_para(0, y, text_size_x(), 8,
-"Now you must select and adjust some refecence video modes. "
-"You can select them pressing SPACE and adjust them pressing ENTER. "
-"When you set a refecence mode all the near modes are adjusted likely. "
-"\n\n) Select and center horizontally and vertically the first video mode.\n"
-") Select and center horizontally a more high resolution mode.\n"
-") Check some intermediate modes, if they are wrong select and center them.\n"
-		, COLOR_LOW);
-
-		draw_text_string(0, ++y, "Select the video mode to adjust:", COLOR_BOLD);
-		++y;
-
-		res = draw_text_menu(2, y, text_size_x() - 4, text_size_y() - 2 - y, &data, mac, entry_interpolate, 0, &base, &pos, &key);
-
-		if (res >= 0 && data[res].type == interpolate_mode) {
-			if (key == INPUTB_ENTER) {
-				if (data[res].valid) {
-					if (interpolate_test("Center and resize the screen", &data[res].crtc, monitor, index)==0)
-						data[res].selected = 1;
-				}
-			} else
-				data[res].selected = !data[res].selected;
-		}
-	} while (res >= 0 && data[res].type == interpolate_mode);
-
-	if (res<0)
-		return -1;
-
-	return 0;
-}
-
 /***************************************************************************/
 /* Adjust msg */
 
 enum adjust_enum {
 	adjust_previous,
-	adjust_easy,
-	adjust_precise
+	adjust_low,
+	adjust_lowhigh,
+	adjust_lowmidhigh
 };
 
 struct adjust_data_struct {
@@ -1049,11 +993,14 @@ static void entry_adjust(int x, int y, int dx, void* data, int n, adv_bool selec
 	case adjust_previous:
 		snprintf(buffer, sizeof(buffer), "Previous centering settings");
 		break;
-	case adjust_easy:
-		snprintf(buffer, sizeof(buffer), "Easy centering - SUGGESTED - (one or two reference modes)");
+	case adjust_low:
+		snprintf(buffer, sizeof(buffer), "Manual Low centering - SUGGESTED - (low frequency settings)");
 		break;
-	case adjust_precise:
-		snprintf(buffer, sizeof(buffer), "Precise centering - (many reference modes)");
+	case adjust_lowhigh:
+		snprintf(buffer, sizeof(buffer), "Manual Low/High centering (low/high frequency settings)");
+		break;
+	case adjust_lowmidhigh:
+		snprintf(buffer, sizeof(buffer), "Manual Low/Mid/High centering (low/mid/high frequency settings)");
 		break;
 	}
 
@@ -1090,10 +1037,13 @@ adv_error cmd_adjust_msg(int type, enum adjust_enum* adjust_type)
 		++mac;
 	}
 
-	data[mac].type = adjust_easy;
+	data[mac].type = adjust_low;
 	++mac;
 
-	data[mac].type = adjust_precise;
+	data[mac].type = adjust_lowhigh;
+	++mac;
+
+	data[mac].type = adjust_lowmidhigh;
 	++mac;
 
 	draw_text_string(0, ++y, "Select the configuration method:", COLOR_BOLD);
@@ -1262,35 +1212,15 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 {
 	unsigned mac = 0;
 	adv_error res;
-	int ymin, ymax, ymins, ymaxs;
-	double ty;
+	int ymin, ymax;
 	int y;
 	adv_generate generate;
 	int base;
 	int pos;
-
 	struct test_data_struct data[128];
 
-	generate_interpolate_h(&generate, monitor_hclock_max(monitor), interpolate);
-	ty = monitor_hclock_max(monitor) / monitor_vclock_min(monitor);
-	ymaxs = floor(ty * generate.vactive / (generate.vactive + generate.vfront + generate.vsync + generate.vback));
-
-	ymax = ymaxs;
-	/* not too big */
-	if (ymax>768)
-		ymax = 768;
-
-	ymax = ymax & ~0xf;
-
-	generate_interpolate_h(&generate, monitor_hclock_min(monitor), interpolate);
-	ty = monitor_hclock_min(monitor) / monitor_vclock_max(monitor);
-	ymins = ceil(ty * generate.vactive / (generate.vactive + generate.vfront + generate.vsync + generate.vback));
-
-	ymin = ymins;
-	if (ymin < 192)
-		ymin = 192;
-
-	ymin = (ymin + 0xf) & ~0xf;
+	ymin = 192;
+	ymax = 768;
 
 	mac = 0;
 
@@ -1318,25 +1248,11 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 	data[mac].type = test_custom;
 	++mac;
 
-	if (ymin != ymins) {
-		data[mac].type = test_mode;
-		data[mac].y = ymins;
-		data[mac].x = x_from_y(ymins);
-		++mac;
-	}
-
 	while (ymin <= ymax) {
 		data[mac].type = test_mode;
 		data[mac].y = ymin;
 		data[mac].x = x_from_y(ymin);
 		ymin += 16;
-		++mac;
-	}
-
-	if (ymax != ymaxs) {
-		data[mac].type = test_mode;
-		data[mac].y = ymaxs;
-		data[mac].x = x_from_y(ymaxs);
 		++mac;
 	}
 
@@ -1714,13 +1630,12 @@ int os_main(int argc, char* argv[])
 			else {
 				if (adjust_type == adjust_previous) {
 					state = 5;
-				} else if (adjust_type == adjust_easy) {
-					if (monitor_hclock_min(&monitor) == monitor_hclock_max(&monitor))
-						res = cmd_interpolate_one(&interpolate, &generate, &monitor, index);
-					else
-						res = cmd_interpolate_two(&interpolate, &generate, &monitor, index);
-				} else {
-					res = cmd_interpolate_many(&interpolate, &generate, &monitor, index);
+				} else if (adjust_type == adjust_low) {
+					res = cmd_interpolate_low(&interpolate, &generate, &monitor, index);
+				} else if (adjust_type == adjust_lowhigh) {
+					res = cmd_interpolate_lowhigh(&interpolate, &generate, &monitor, index);
+				} else if (adjust_type == adjust_lowmidhigh) {
+					res = cmd_interpolate_lowmidhigh(&interpolate, &generate, &monitor, index);
 				}
 				if (res >= 0)
 					state = 5;

@@ -180,14 +180,14 @@ adv_bitmap* adv_bitmap_load_pcx(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f
 
 	width = h.x_max - h.x_min + 1;
 	height = h.y_max - h.y_min + 1;
-	depth = h.planes * 8;
+	depth = h.planes;
 
 	bitmap = adv_bitmap_alloc(width, height, depth);
 	if (!bitmap) {
 		goto out;
 	}
 
-	if (depth == 8) {
+	if (depth == 1) {
 		unsigned i;
 		unsigned y;
 

@@ -1,6 +1,13 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.87.0
+	This version of AdvanceMAME adds a new `device_video_clock'
+	option which substitutes the previous `device_video_p/h/vclock'
+	options. This new option allows a better support of
+	multi-standard arcade monitor. You can now specify different
+	vertical clocks for different horizontal clocks.
+
 AdvanceMAME 0.85.0
 	This version of AdvanceMAME tries always to use the installed
 	zlib and expat libraries. If you want to use the copy included

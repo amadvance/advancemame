@@ -69,6 +69,17 @@
 		doesn't have the same aspect ratio of the screen.
 */
 
+static unsigned over_step(double double_value, unsigned step)
+{
+	unsigned value;
+
+	value = ceil(double_value);
+
+	if (value % step != 0)
+		value = value + step - value % step;
+	return value;
+}
+
 /**
  * Check if the video output is programmable.
  */
@@ -99,32 +110,62 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 		return 0; /* always ok if the driver is not programmable */
 	}
 
-	/* adjust the X size */
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
-		unsigned best_size_x;
+		unsigned size_x;
+		unsigned size_y;
 
-		if (!context->state.game_vector_flag) {
-			switch (context->config.magnify_factor) {
-			case 1 : best_size_x = context->state.mode_best_size_x; break;
-			case 2 : best_size_x = context->state.mode_best_size_2x; break;
-			case 3 : best_size_x = context->state.mode_best_size_3x; break;
-			case 4 : best_size_x = context->state.mode_best_size_4x; break;
-			default: /* auto setting */
-				if (context->state.mode_best_size_x >= 512 || context->state.mode_best_size_y >= 384)
-					best_size_x = context->state.mode_best_size_x;
-				else if (context->state.mode_best_size_x >= 256 || context->state.mode_best_size_y >= 256)
-					best_size_x = context->state.mode_best_size_2x;
-				else if (context->state.mode_best_size_x >= 192 || context->state.mode_best_size_y >= 192)
-					best_size_x = context->state.mode_best_size_3x;
-				else
-					best_size_x = context->state.mode_best_size_4x;
-				break;
-			}
+		size_y = crtc_vsize_get(crtc);
+
+		if (context->config.stretch != STRETCH_INTEGER_XY
+			&& context->config.stretch != STRETCH_NONE) {
+			/* if a vertical fractional stretch is selected */
+			/* set the horizontal size assuming that the whole vertical */
+			/* is used */
+
+			double factor;
+
+			factor = size_y / (double)context->state.mode_best_size_y;
+
+			if (factor < 1.5)
+				size_x = context->state.mode_best_size_x;
+			else if (factor < 2.5)
+				size_x = context->state.mode_best_size_2x;
+			else if (factor < 3.5)
+				size_x = context->state.mode_best_size_3x;
+			else
+				size_x = context->state.mode_best_size_4x;
 		} else {
-			best_size_x = context->state.mode_best_size_x;
+			/* if a vertical integer stretch is selected */
+			/* set the horizontal size considering the current vertical size */
+			/* to keep the correct aspect ratio */
+
+			long long unsigned factor_x;
+			long long unsigned factor_y;
+
+			factor_x = context->state.mode_aspect_factor_x;
+			factor_y = context->state.mode_aspect_factor_y;
+
+			size_x = over_step((double)size_y * factor_x / factor_y, CRTC_HSTEP);
 		}
 
-		crtc_hsize_set(crtc, best_size_x);
+		crtc_hsize_set(crtc, size_x);
+
+		if (!crtc_clock_check(&context->config.monitor, crtc)) {
+			crtc_hsize_set(crtc, 2 * size_x);
+		}
+
+		if (!crtc_clock_check(&context->config.monitor, crtc)) {
+			crtc_hsize_set(crtc, 3 * size_x);
+		}
+
+		if (!crtc_clock_check(&context->config.monitor, crtc)) {
+			crtc_hsize_set(crtc, 4 * size_x);
+		}
+
+		if (!crtc_clock_check(&context->config.monitor, crtc)) {
+			/* restore the original crtc */
+			*crtc = *original_crtc;
+		}
 	}
 
 	/* adjust the clock */
@@ -145,7 +186,8 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
 			if (crtc_adjust_clock(crtc, &context->config.monitor) != 0) {
-				/* ignore error */
+				/* restore the original crtc */
+				*crtc = *original_crtc;
 			}
 		}
 	}
@@ -604,8 +646,8 @@ void advance_video_update_ui(struct advance_video_context* context, const adv_cr
 	unsigned aspect_y;
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
-		aspect_x = 1;
-		aspect_y = 1;
+		aspect_x = crtc_hsize_get(crtc);
+		aspect_y = crtc_vsize_get(crtc);
 	} else {
 		aspect_x = context->config.monitor_aspect_x;
 		aspect_y = context->config.monitor_aspect_y;
@@ -783,6 +825,8 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		}
 	}
 
+	/* compute the mode visible part assuming a complete fraction stretch */
+	/* some values are overwritten later if the stretch method is different */
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		/* only for window */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
@@ -797,8 +841,8 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 
 /*
 	mode_pixelaspect_x/y
-		It's the size in pixel of a visible square drawn on the current
-		video mode.
+		It's the size in pixel of a visible square drawn
+		on the current video mode.
 
 	monitor_aspect_x   mode_pixelaspect_x   mode_size_x
 	---------------- * ------------------ = -----------
@@ -1166,13 +1210,6 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 	crtc_container_insert(&context->config.crtc_bag, &crtc);
 }
 
-static unsigned best_step(unsigned value, unsigned step)
-{
-	if (value % step != 0)
-		value = value + step - value % step;
-	return value;
-}
-
 /**
  * Initialize the state.
  * \return 0 on success
@@ -1298,8 +1335,14 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		video_aspect_reduce(&arcade_aspect_x, &arcade_aspect_y);
 
 /*
-	arcade_aspect_ratio
-		The aspect of the original arcade game.
+	arcade_aspect
+		The aspect of the original arcade game. It's the
+		measured size of the original arcade display.
+		(Effectively only of the used area of the display).
+
+	monitor_aspect
+		The aspect of the current monitor. It's the
+		measured size of the current monitor.
 
 	game_pixelaspect
 		It's the size in pixel of a visible square drawn on the original
@@ -1319,7 +1362,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	pixelaspect of the original video mode.
 */
 
-		/* compute the game aspect ratio */
+		/* compute the game pixel aspect ratio */
 		context->state.game_pixelaspect_x = context->state.game_used_size_x * arcade_aspect_y;
 		context->state.game_pixelaspect_y = context->state.game_used_size_y * arcade_aspect_x;
 		video_aspect_reduce(&context->state.game_pixelaspect_x, &context->state.game_pixelaspect_y);
@@ -1328,26 +1371,30 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		factor_y = context->config.monitor_aspect_y * context->state.game_pixelaspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
+		context->state.mode_aspect_factor_x = factor_x;
+		context->state.mode_aspect_factor_y = factor_y;
+		context->state.mode_aspect_vertgameinhorzscreen = context->config.monitor_aspect_x * arcade_aspect_y > arcade_aspect_x * context->config.monitor_aspect_y;
+
 		log_std(("emu:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
 		/* compute the best mode */
-		if (context->config.monitor_aspect_x * arcade_aspect_y > arcade_aspect_x * context->config.monitor_aspect_y) {
+		if (context->state.mode_aspect_vertgameinhorzscreen) {
 			best_size_y = context->state.game_used_size_y;
-			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_x = over_step((double)context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_y;
-			best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_2x = over_step((double)2*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_y;
-			best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_3x = over_step((double)3*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_y;
-			best_size_4x = best_step((double)4*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_4x = over_step((double)4*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 		} else {
-			best_size_x = best_step(context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_x = over_step(context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
-			best_size_2x = best_step(2*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_2x = over_step(2*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_3x = best_step(3*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_3x = over_step(3*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_4x = best_step(4*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_4x = over_step(4*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_x * factor_y / factor_x;
 		}
 		best_bits = context->state.game_bits_per_pixel;
@@ -1523,11 +1570,16 @@ static void video_buffer_clear(struct advance_video_context* context)
 	bytes_per_pixel = video_bytes_per_pixel();
 
 	/* clear */
-	for(y=0;y<context->state.buffer_size_y;++y) {
-		unsigned char* p = context->state.buffer_ptr + y * context->state.buffer_bytes_per_scanline;
-		for(x=0;x<context->state.buffer_size_x;++x) {
-			cpu_uint_write(p, bytes_per_pixel, color);
-			p += bytes_per_pixel;
+	if (color == 0) {
+		/* fast clear to 0 */
+		memset(context->state.buffer_ptr, 0, context->state.buffer_size_y * context->state.buffer_bytes_per_scanline);
+	} else {
+		for(y=0;y<context->state.buffer_size_y;++y) {
+			unsigned char* p = context->state.buffer_ptr + y * context->state.buffer_bytes_per_scanline;
+			for(x=0;x<context->state.buffer_size_x;++x) {
+				cpu_uint_write(p, bytes_per_pixel, color);
+				p += bytes_per_pixel;
+			}
 		}
 	}
 }
@@ -1827,6 +1879,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 
 	log_debug(("osd:frame dst_dxxdst_dy:%dx%d, xxy:%dx%d, dxxdy:%dx%d, dpxdw:%dx%d\n", context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_pos_x, context->state.game_visible_pos_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dp, context->state.blit_src_dw));
 
+	/* draw the onscreen direct interface */
 	if (advance_ui_direct_active(ui_context)) {
 		unsigned pos_x = context->state.game_used_pos_x + context->state.game_visible_pos_x;
 		unsigned pos_y = context->state.game_used_pos_y + context->state.game_visible_pos_y;
@@ -1844,9 +1897,10 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		advance_ui_direct_update(ui_context, (unsigned char*)bitmap->ptr + src_offset, size_x, size_y, bitmap->bytes_per_scanline, context->state.game_color_def, context->state.palette_map, context->state.palette_total);
 	}
 
+	/* check if the ui requires a buffered write */
 	ui_buffer_active = advance_ui_buffer_active(ui_context);
 
-	/* use buffer or direct write to screen ? */
+	/* use buffered or direct write to screen ? */
 	buffer_flag = 0;
 
 	/* if ui active use the buffer */
@@ -1869,6 +1923,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 	}
 
 	if (buffer_flag) {
+		/* buffered write on screen */
 		int buf_dw;
 		int buf_dp;
 		unsigned char* buf_ptr;
@@ -1890,8 +1945,11 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		/* compute the source pointer */
 		src_offset = context->state.buffer_src_offset + intermediate_game_visible_pos_y * context->state.buffer_src_dw + intermediate_game_visible_pos_x * context->state.buffer_src_dp;
 
+		/* draw the game image in the buffer */
+		/* the image is rotated to be correctly orientated in this stage to allow an easy ui update */
 		video_pipeline_blit(&context->state.buffer_pipeline_video, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 
+		/* draw the user interface */
 		if (ui_buffer_active) {
 			advance_ui_buffer_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_bytes_per_scanline, video_color_def(), context->state.palette_map, context->state.palette_total);
 		}
@@ -1933,16 +1991,23 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 			buf_dp = -buf_dp;
 		}
 
+		/* blit the buffer */
+		/* the image is rotated to the user requested orientation in this stage */
+		/* the whole buffer is blitted, implying a slowdown for vertical games on horizontal monitors */
 		video_stretch_direct(x, y, video_size_x(), video_size_y(), buf_ptr, final_size_x, final_size_y, buf_dw, buf_dp, video_color_def(), 0);
 
 		if (ui_buffer_active) {
-			/* clear the buffer for the next update (the ui may write over the game area) */
+			/* always clear the buffer for the next update */
+			/* because the ui may write over the game area */
 			video_buffer_clear(context);
 		}
 	} else {
+		/* direct write on screen */
+
 		/* compute the source pointer */
 		src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
 
+		/* blit directly on the video */
 		video_pipeline_blit(&context->state.blit_pipeline_video, dst_x + x, dst_y + y, (unsigned char*)bitmap->ptr + src_offset);
 	}
 

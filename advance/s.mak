@@ -118,7 +118,7 @@ $(SOBJ)/libz.a: $(SOBJ)/zlib/adler32.o $(SOBJ)/zlib/crc32.o $(SOBJ)/zlib/deflate
 	$(SOBJ)/zlib/infback.o $(SOBJ)/zlib/inftrees.o $(SOBJ)/zlib/trees.o \
 	$(SOBJ)/zlib/zutil.o $(SOBJ)/zlib/uncompr.o $(SOBJ)/zlib/compress.o
 	$(ECHO) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 ifeq ($(CONF_LIB_ZLIB),yes)
 SLIBS += -lz

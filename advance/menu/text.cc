@@ -457,26 +457,31 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 // -------------------------------------------------------------------------
 // Visual Interface
 
-static bool int_updating_active; // if updating at the video is possible, or we are in a drawing stage
+static bool int_updating_active; ///< If updating at the video is possible, or we are in a drawing stage.
 
-static double int_gamma; // video gamma
-static double int_brightness; // video brightness
+static double int_gamma; ///< Video gamma.
+static double int_brightness; ///< Video brightness.
 
-static unsigned int_idle_0; // seconds before the first 0 event
-static unsigned int_idle_0_rep; // seconds before the second 0 event
-static unsigned int_idle_1; // seconds before the first 1 event
-static unsigned int_idle_1_rep; // seconds before the second 1 event
-static time_t int_idle_time_current; // last time check in idle
-static bool int_idle_0_state; // idle event 0 enabler
-static bool int_idle_1_state; // idle event 1 enabler
+static unsigned int_idle_0; ///< Seconds before the first 0 event.
+static unsigned int_idle_0_rep; ///< Seconds before the second 0 event.
+static unsigned int_idle_1; ///< Seconds before the first 1 event.
+static unsigned int_idle_1_rep; ///< Seconds before the second 1 event.
+static time_t int_idle_time_current; ///< Last time check in idle.
+static bool int_idle_0_state; ///< Idle event 0 enabler.
+static bool int_idle_1_state; ///< Idle event 1 enabler.
 
-static bool int_wait_for_backdrop; // wait for the backdrop draw completion before accepting events
+static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
 
-static unsigned video_buffer_size; // video buffer size in bytes
-static unsigned video_buffer_line_size; // video buffer scanline size in bytes
-static unsigned video_buffer_pixel_size; // video buffer pixel size in bytes
-static unsigned char* video_buffer; // video buffer in memory
-static adv_bitmap* video_bitmap; // video buffer bitmap in memory
+static unsigned video_buffer_size; ///< Video buffer size in bytes.
+static unsigned video_buffer_line_size; ///< Bideo buffer scanline size in bytes.
+static unsigned video_buffer_pixel_size; ///< Video buffer pixel size in bytes.
+static unsigned char* video_foreground_buffer; ///< Video foreground_buffer in memory.
+static unsigned char* video_background_buffer; ///< Video background buffer in memory.
+static adv_bitmap* video_foreground_bitmap; ///< Video buffer bitmap in memory.
+static adv_bitmap* video_background_bitmap; ///< Video buffer bitmap in memory.
+adv_bool video_alpha_flag; ///< Color translucency enabled.
+adv_color_def video_alpha_color_def; ///< Color definition for the alpha buffers.
+unsigned video_alpha_bytes_per_pixel; ///< Pixel size of the alpha buffers.
 
 void int_reg(adv_conf* config_context)
 {
@@ -526,7 +531,7 @@ bool int_load(adv_conf* config_context)
 		int_has_clock = true;
 	} else {
 		int_has_clock = false;
-		monitor_parse(&int_monitor, "10 - 80", "30.5 - 60", "55 - 90");
+		monitor_parse(&int_monitor, "10 - 150 / 30.5 - 60 / 55 - 90");
 		log_std(("text: clock options not found. Use default SVGA monitor clocks.\n"));
 	}
 
@@ -640,7 +645,7 @@ void int_done()
 	video_done();
 }
 
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast)
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency)
 {
 	int_idle_time_current = time(0);
 	int_idle_0 = idle_0;
@@ -675,6 +680,12 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 		target_err("%s\n", error_get());
 		goto err_mouse;
 	}
+
+	video_alpha_flag = translucency != 255;
+	video_alpha_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0); /* BGRA */
+	video_alpha_bytes_per_pixel = color_def_bytes_per_pixel_get(video_alpha_color_def);
+
+	color_setup(video_color_def(), video_alpha_color_def, translucency);
 
 	if (!int_key_enable()) {
 		video_mode_restore();
@@ -770,10 +781,13 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 	video_buffer_pixel_size = video_bytes_per_pixel();
 	video_buffer_line_size = video_size_x() * video_bytes_per_pixel();
 	video_buffer_size = video_size_y() * video_buffer_line_size;
-	video_buffer = (unsigned char*)operator new(video_buffer_size);
-	video_bitmap = adv_bitmap_import_rgb(video_size_x(), video_size_y(), video_buffer_pixel_size, 0, 0, video_buffer, video_buffer_line_size);
+	video_foreground_buffer = (unsigned char*)operator new(video_buffer_size);
+	video_background_buffer = (unsigned char*)operator new(video_buffer_size);
+	video_foreground_bitmap = adv_bitmap_import_rgb(video_size_x(), video_size_y(), video_buffer_pixel_size, 0, 0, video_foreground_buffer, video_buffer_line_size);
+	video_background_bitmap = adv_bitmap_import_rgb(video_size_x(), video_size_y(), video_buffer_pixel_size, 0, 0, video_background_buffer, video_buffer_line_size);
 
-	int_clear();
+	memset(video_background_buffer, 0, video_buffer_size);
+	memset(video_foreground_buffer, 0, video_buffer_size);
 
 	int_updating_active = false;
 
@@ -783,8 +797,10 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 void int_disable()
 {
 	adv_font_free(int_font);
-	operator delete(video_buffer);
-	adv_bitmap_free(video_bitmap);
+	operator delete(video_foreground_buffer);
+	adv_bitmap_free(video_foreground_bitmap);
+	operator delete(video_background_buffer);
+	adv_bitmap_free(video_background_bitmap);
 }
 
 /**
@@ -794,7 +810,7 @@ void* int_save()
 {
 	void* buffer = operator new(video_buffer_size);
 
-	memcpy(buffer, video_buffer, video_buffer_size);
+	memcpy(buffer, video_foreground_buffer, video_buffer_size);
 
 	return buffer;
 }
@@ -804,7 +820,7 @@ void* int_save()
  */
 void int_restore(void* buffer)
 {
-	memcpy(video_buffer, buffer, video_buffer_size);
+	memcpy(video_foreground_buffer, buffer, video_buffer_size);
 
 	operator delete(buffer);
 }
@@ -836,9 +852,6 @@ static int fast_exit_handler(void)
 // Cell Position
 
 class cell_pos_t {
-	void gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background);
-	void gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background);
-	void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background);
 public:
 	// Position of the cell in the screen
 	int x;
@@ -864,7 +877,7 @@ void cell_pos_t::redraw()
 {
 	video_write_lock();
 
-	video_stretch_direct(real_x, real_y, real_dx, real_dy, video_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
+	video_stretch_direct(real_x, real_y, real_dx, real_dy, video_foreground_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
 
 	video_write_unlock(real_x, real_y, real_dx, real_dy);
 }
@@ -903,146 +916,42 @@ void cell_pos_t::compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitm
 		*ry = real_dy;
 }
 
-
-static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
+static void gen_clear_raw(int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned char* dst_ptr = buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = pixel;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
-static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
-{
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned short* dst_ptr = (unsigned short*)buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = pixel;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
-static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
-{
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned* dst_ptr = (unsigned*)buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = pixel;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
-static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, const adv_color_rgb& color)
-{
-	assert(x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y());
-
 	adv_pixel pixel = video_pixel_get(color.red, color.green, color.blue);
 
-	switch (video_bytes_per_pixel()) {
-	case 1 :
-		gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
-		break;
-	case 2 :
-		gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
-		break;
-	case 4 :
-		gen_clear_raw32rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
-		break;
-	}
+	adv_bitmap_clear(video_foreground_bitmap, x, y, dx, dy, pixel);
 }
 
-void cell_pos_t::gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background)
+static void gen_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
-	unsigned x0 = (real_dx - map->size_x) / 2;
-	unsigned x1 = real_dx -  map->size_x - x0;
-	unsigned y0 = (real_dy - map->size_y) / 2;
-	unsigned y1 = real_dy -  map->size_y - y0;
-	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
-	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
-	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
-	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
-	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
-	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x);
-		buffer += ptr_d;
-	}
-}
-
-void cell_pos_t::gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background)
-{
-	unsigned x0 = (real_dx - map->size_x) / 2;
-	unsigned x1 = real_dx -  map->size_x - x0;
-	unsigned y0 = (real_dy - map->size_y) / 2;
-	unsigned y1 = real_dy -  map->size_y - y0;
-	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
-	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
-	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
-	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
-	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
-	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 2);
-		buffer += ptr_d;
-	}
-}
-
-void cell_pos_t::gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background)
-{
-	unsigned x0 = (real_dx - map->size_x) / 2;
-	unsigned x1 = real_dx -  map->size_x - x0;
-	unsigned y0 = (real_dy - map->size_y) / 2;
-	unsigned y1 = real_dy -  map->size_y - y0;
-	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
-	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
-	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
-	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
-	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
-	for(unsigned cy=0;cy<map->size_y;++cy) {
-		memcpy(buffer, adv_bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 4);
-		buffer += ptr_d;
-	}
+	if (video_alpha_flag)
+		adv_bitmap_clear_alphaback(video_foreground_bitmap, x, y, video_color_def(), video_background_bitmap, x, y, color, dx, dy);
+	else
+		gen_clear_raw(x, y, dx, dy, color);
 }
 
 void cell_pos_t::draw_backdrop(const adv_bitmap* map, const adv_color_rgb& background)
 {
-	switch (video_bytes_per_pixel()) {
-		case 1 :
-			gen_backdrop_raw8(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
-			break;
-		case 2 :
-			gen_backdrop_raw16(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
-			break;
-		case 4 :
-			gen_backdrop_raw32(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
-			break;
-	}
+	unsigned x0 = (real_dx - map->size_x) / 2;
+	unsigned x1 = real_dx -  map->size_x - x0;
+	unsigned y0 = (real_dy - map->size_y) / 2;
+	unsigned y1 = real_dy -  map->size_y - y0;
+	if (x0)
+		gen_clear_alpha(real_x, real_y, x0, real_dy, background);
+	if (x1)
+		gen_clear_alpha(real_x + real_dx - x1, real_y, x1, real_dy, background);
+	if (y0)
+		gen_clear_alpha(real_x, real_y, real_dx, y0, background);
+	if (y1)
+		gen_clear_alpha(real_x, real_y + real_dy - y1, real_dx, y1, background);
+
+	adv_bitmap_put(video_foreground_bitmap, real_x + x0, real_y + y0, map, 0, 0, map->size_x, map->size_y);
 }
 
 void cell_pos_t::clear(const adv_color_rgb& background)
 {
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, real_x, real_y, real_dx, real_dy, background);
+	gen_clear_alpha(real_x, real_y, real_dx, real_dy, background);
 }
 
 void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const adv_color_rgb& background, bool clear)
@@ -1096,8 +1005,8 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
 
 		if (clear) {
-			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y, pre_dx, dst_dy, background);
-			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, background);
+			gen_clear_alpha(dst_x, dst_y, pre_dx, dst_dy, background);
+			gen_clear_alpha(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, background);
 		}
 
 		dst_x += pre_dx;
@@ -1108,8 +1017,8 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
 
 		if (clear) {
-			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y, dst_dx, pre_dy, background);
-			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, background);
+			gen_clear_alpha(dst_x, dst_y, dst_dx, pre_dy, background);
+			gen_clear_alpha(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, background);
 		}
 
 		dst_y += pre_dy;
@@ -1126,7 +1035,7 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 
 	video_pipeline_init(&pipeline);
 
-	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+	video_pipeline_target(&pipeline, video_foreground_buffer, video_buffer_line_size, video_color_def());
 
 	uint32 palette32[256];
 	uint16 palette16[256];
@@ -1156,10 +1065,10 @@ void cell_pos_t::border(int width, const adv_color_rgb& color)
 	int dx = real_dx + width * 2;
 	int dy = real_dy + width * 2;
 
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y, dx, width, color);
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y+dy-width, dx, width, color);
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y+width, width, dy-2*width, color);
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x+dx-width, y+width, width, dy-2*width, color);
+	gen_clear_raw(x, y, dx, width, color);
+	gen_clear_raw(x, y+dy-width, dx, width, color);
+	gen_clear_raw(x, y+width, width, dy-2*width, color);
+	gen_clear_raw(x+dx-width, y+width, width, dy-2*width, color);
 }
 
 // -------------------------------------------------------------------------
@@ -1383,7 +1292,7 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 	if (dst_dy < dy)
 		combine |= VIDEO_COMBINE_Y_MEAN;
 
-	adv_bitmap* raw_bitmap = adv_bitmap_alloc(dst_dx, dst_dy, video_bits_per_pixel());
+	adv_bitmap* raw_bitmap = adv_bitmap_alloc(dst_dx, dst_dy, video_bytes_per_pixel());
 
 	struct video_pipeline_struct pipeline;
 
@@ -1814,6 +1723,7 @@ public:
 	void backdrop_update(int index);
 	unsigned backdrop_topline(int index);
 	void backdrop_box();
+	void backdrop_redraw_all();
 
 	void clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
 	void clip_clear(int index);
@@ -1874,6 +1784,13 @@ cell_manager::~cell_manager()
 
 	delete int_clip_cache;
 	int_clip_cache = 0;
+}
+
+void cell_manager::backdrop_redraw_all()
+{
+	for(int i=0;i<backdrop_mac;++i) {
+		backdrop_map[i].redraw = true;
+	}
 }
 
 // Set the backdrop position and size
@@ -2113,7 +2030,7 @@ bool cell_manager::idle()
 
 #ifdef USE_MULTICLIP_WHOLE
 		video_write_lock();
-		video_stretch(0, 0, video_size_x(), video_size_y(), video_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
+		video_stretch(0, 0, video_size_x(), video_size_y(), video_foreground_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
 		video_write_unlock(0, 0, video_size_x(), video_size_y());
 #endif
 
@@ -2218,6 +2135,12 @@ void int_backdrop_set(int index, const resource& res, bool highlight, unsigned a
 	int_cell->backdrop_set(index, res, highlight, aspectx, aspecty);
 }
 
+void int_backdrop_redraw_all()
+{
+	if (int_cell)
+		int_cell->backdrop_redraw_all();
+}
+
 void int_backdrop_clear(int index, bool highlight)
 {
 	int_cell->backdrop_clear(index, highlight);
@@ -2250,11 +2173,6 @@ bool int_clip_is_active(int index)
 //---------------------------------------------------------------------------
 // Put Interface
 
-static void int_clear_raw(int x, int y, int dx, int dy, const adv_color_rgb& color)
-{
-	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y, dx, dy, color);
-}
-
 unsigned int_put_width(char c)
 {
 	adv_bitmap* src = int_font->data[(unsigned char)c];
@@ -2264,10 +2182,19 @@ unsigned int_put_width(char c)
 		return src->size_x;
 }
 
+unsigned int_put_width(const string& s)
+{
+	unsigned size = 0;
+	for(unsigned i=0;i<s.length();++i)
+		size += int_put_width(s[i]);
+	return size;
+}
+
 void int_put(int x, int y, char c, const int_color& color)
 {
 	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
 		adv_bitmap* src = int_font->data[(unsigned char)c];
+
 		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 			swap(x, y);
 		if (int_orientation & ADV_ORIENTATION_FLIP_X)
@@ -2275,9 +2202,37 @@ void int_put(int x, int y, char c, const int_color& color)
 		if (int_orientation & ADV_ORIENTATION_FLIP_Y)
 			y = video_size_y() - src->size_y - y;
 
-		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() &&  y+src->size_y<=video_size_y());
+		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() && y+src->size_y<=video_size_y());
 
-		adv_font_put_char_alpha(int_font, video_bitmap, x, y, c, &color.foreground, &color.background, video_color_def());
+		adv_font_put_char_map(int_font, video_foreground_bitmap, x, y, c, color.opaque);
+	}
+}
+
+void int_put_alpha(int x, int y, char c, const int_color& color)
+{
+	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
+		adv_bitmap* src = int_font->data[(unsigned char)c];
+
+		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
+			swap(x, y);
+		if (int_orientation & ADV_ORIENTATION_FLIP_X)
+			x = video_size_x() - src->size_x - x;
+		if (int_orientation & ADV_ORIENTATION_FLIP_Y)
+			y = video_size_y() - src->size_y - y;
+
+		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() && y+src->size_y<=video_size_y());
+
+		if (video_alpha_flag) {
+			adv_bitmap* flat = adv_bitmap_alloc(src->size_x, src->size_y, video_alpha_bytes_per_pixel);
+
+			adv_font_put_char_map(int_font, flat, 0, 0, c, color.alpha);
+
+			adv_bitmap_put_alphaback(video_foreground_bitmap, x, y, video_color_def(), video_background_bitmap, x, y, flat, 0, 0, flat->size_x, flat->size_y, video_alpha_color_def);
+
+			adv_bitmap_free(flat);
+		} else {
+			adv_font_put_char_map(int_font, video_foreground_bitmap, x, y, c, color.opaque);
+		}
 	}
 }
 
@@ -2293,6 +2248,20 @@ void int_put_filled(int x, int y, int dx, const string& s, const int_color& colo
 	}
 	if (dx)
 		int_clear(x, y, dx, int_font_dy_get(), color.background);
+}
+
+void int_put_filled_alpha(int x, int y, int dx, const string& s, const int_color& color)
+{
+	for(unsigned i=0;i<s.length();++i) {
+		if (int_put_width(s[i]) <= dx) {
+			int_put_alpha(x, y, s[i], color);
+			x += int_put_width(s[i]);
+			dx -= int_put_width(s[i]);
+		} else
+			break;
+	}
+	if (dx)
+		int_clear_alpha(x, y, dx, int_font_dy_get(), color.background);
 }
 
 void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
@@ -2317,30 +2286,100 @@ void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_
 		int_clear(x, y, dx, int_font_dy_get(), c0.background);
 }
 
-static void int_clear_noclip(int x, int y, int dx, int dy, const adv_color_rgb& color)
+void int_put_special_alpha(bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
 {
-	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
-		swap(x, y);
-		swap(dx, dy);
+	for(unsigned i=0;i<s.length();++i) {
+		if (int_put_width(s[i]) <= dx) {
+			if (s[i]=='(' || s[i]=='[')
+				in = true;
+			if (!in && isupper(s[i])) {
+				int_put_alpha(x, y, s[i], c0);
+			} else {
+				int_put_alpha(x, y, s[i], in ? c1 : c2);
+			}
+			x += int_put_width(s[i]);
+			dx -= int_put_width(s[i]);
+			if (s[i]==')' || s[i]==']')
+				in = false;
+		} else
+			break;
 	}
 
-	if (int_orientation & ADV_ORIENTATION_FLIP_X)
-		x = video_size_x() - dx - x;
-	if (int_orientation & ADV_ORIENTATION_FLIP_Y)
-		y = video_size_y() - dy - y;
-
-	int_clear_raw(x, y, dx, dy, color);
+	if (dx)
+		int_clear_alpha(x, y, dx, int_font_dy_get(), c0.background);
 }
 
-void int_clear() 
+void int_put(int x, int y, const string& s, const int_color& color)
 {
-	// clear the bitmap
+	for(unsigned i=0;i<s.length();++i) {
+		int_put(x, y, s[i], color);
+		x += int_put_width(s[i]);
+	}
+}
+
+void int_put_alpha(int x, int y, const string& s, const int_color& color)
+{
+	for(unsigned i=0;i<s.length();++i) {
+		int_put_alpha(x, y, s[i], color);
+		x += int_put_width(s[i]);
+	}
+}
+
+unsigned int_put(int x, int y, int dx, const string& s, const int_color& color)
+{
+	for(unsigned i=0;i<s.length();++i) {
+		int width = int_put_width(s[i]);
+		if (width > dx)
+			return i;
+		int_put(x, y, s[i], color);
+		x += width;
+		dx -= width;
+	}
+	return s.length();
+}
+
+unsigned int_put_alpha(int x, int y, int dx, const string& s, const int_color& color)
+{
+	for(unsigned i=0;i<s.length();++i) {
+		int width = int_put_width(s[i]);
+		if (width > dx)
+			return i;
+		int_put(x, y, s[i], color);
+		x += width;
+		dx -= width;
+	}
+	return s.length();
+}
+
+unsigned int_put_right(int x, int y, int dx, const string& s, const int_color& color)
+{
+	unsigned size = int_put_width(s);
+	return int_put(x + dx - size, y, dx, s, color);
+}
+
+unsigned int_put_right_alpha(int x, int y, int dx, const string& s, const int_color& color)
+{
+	unsigned size = int_put_width(s);
+	return int_put_alpha(x + dx - size, y, dx, s, color);
+}
+
+void int_clear(const adv_color_rgb& color) 
+{
+	adv_pixel background = video_pixel_get(color.red, color.green, color.blue);
+	adv_pixel overscan;
+
+	// clear the whole bitmap using the overscan color
 	if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
 		&& video_buffer_pixel_size > 1) {
-		memset(video_buffer, 0xFF, video_buffer_size);
+		// fill with white in a window manager environment
+		overscan = video_pixel_get(0xff, 0xff, 0xff);
 	} else {
-		memset(video_buffer, 0x0, video_buffer_size);
+		// fill with black in a full screen environment
+		overscan = video_pixel_get(0, 0, 0);
 	}
+
+	adv_bitmap_clear(video_foreground_bitmap, 0, 0, video_size_x(), video_size_y(), overscan);
+	adv_bitmap_clear(video_background_bitmap, 0, 0, video_size_x(), video_size_y(), background);
 }
 
 void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color)
@@ -2353,6 +2392,7 @@ void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color
 
 void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
+	// clip
 	if (x < 0) {
 		dx += x;
 		x = 0;
@@ -2367,36 +2407,108 @@ void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color)
 	if (y + dy > int_dy_get()) {
 		dy = int_dy_get() - y;
 	}
-	if (dx > 0 && dy > 0)
-		int_clear_noclip(x, y, dx, dy, color);
+	if (dx <= 0 || dy <= 0)
+		return;
+
+	// rotate
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
+		swap(x, y);
+		swap(dx, dy);
+	}
+	if (int_orientation & ADV_ORIENTATION_FLIP_X)
+		x = video_size_x() - dx - x;
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y)
+		y = video_size_y() - dy - y;
+
+	gen_clear_raw(x, y, dx, dy, color);
 }
 
-bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
+void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
-	adv_fz* f = fzopen(file, "rb");
+	// clip
+	if (x < 0) {
+		dx += x;
+		x = 0;
+	}
+	if (y < 0) {
+		dy += y;
+		y = 0;
+	}
+	if (x + dx > int_dx_get()) {
+		dx = int_dx_get() - x;
+	}
+	if (y + dy > int_dy_get()) {
+		dy = int_dy_get() - y;
+	}
+	if (dx <= 0 || dy <= 0)
+		return;
+
+	// rotate
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
+		swap(x, y);
+		swap(dx, dy);
+	}
+	if (int_orientation & ADV_ORIENTATION_FLIP_X)
+		x = video_size_x() - dx - x;
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y)
+		y = video_size_y() - dy - y;
+
+	gen_clear_alpha(x, y, dx, dy, color);
+}
+
+bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
+{
+	adv_fz* f;
+	f = fzopen(file.c_str(), "rb");
 	if (!f) {
-		log_std(("ERROR:text: error opening file %s\n", file));
+		log_std(("ERROR:text: error opening file %s\n", file.c_str()));
 		return false;
 	}
 
 	adv_color_rgb rgb_map[256];
 	unsigned rgb_max;
-#if 1
-	adv_bitmap* bitmap = adv_bitmap_load_png(rgb_map, &rgb_max, f);
-#else
-	adv_bitmap* bitmap = adv_bitmap_load_png_rgb(f, adv_png_color_def(4));
-	if (bitmap) {
-		adv_bitmap* resample;
+	adv_bitmap* bitmap;
 
-		resample = adv_bitmap_resample(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, video_size_x(), video_size_y(), 0, adv_png_color_def(4));
+	if (file.find(".mng") != string::npos) {
+		adv_mng* mng;
 
-		adv_bitmap_free(bitmap);
-		bitmap = resample;
+		mng = adv_mng_init(f);
+		if (mng == 0) {
+			fzclose(f);
+			return false;
+		}
+
+		unsigned pix_width;
+		unsigned pix_height;
+		unsigned pix_pixel;
+		unsigned char* dat_ptr;
+		unsigned dat_size;
+		unsigned char* pix_ptr;
+		unsigned pix_scanline;
+		unsigned char* pal_ptr;
+		unsigned pal_size;
+		unsigned tick;
+
+		int r = adv_mng_read_done(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		if (r != 0) {
+			fzclose(f);
+			return false;
+		}
+
+		bitmap = adv_bitmap_import_palette(rgb_map, &rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		if (!bitmap) {
+			free(dat_ptr);
+			free(pal_ptr);
+			fzclose(f);
+			return false;
+		}
+
+		free(pal_ptr);
+	} else {
+		bitmap = adv_bitmap_load_png(rgb_map, &rgb_max, f);
 	}
-#endif
-
 	if (!bitmap) {
-		log_std(("ERROR:text: error reading file %s\n", file));
+		log_std(("ERROR:text: error reading file %s\n", file.c_str()));
 		fzclose(f);
 		return false;
 	}
@@ -2411,7 +2523,7 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 
 	video_pipeline_init(&pipeline);
 
-	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+	video_pipeline_target(&pipeline, video_background_buffer, video_buffer_line_size, video_color_def());
 
 	uint32 palette32[256];
 	uint16 palette16[256];
@@ -2435,42 +2547,13 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 
 	adv_bitmap_free(bitmap);
 
+	// copy also into the foreground
+	memcpy(video_foreground_buffer, video_background_buffer, video_buffer_size);
+
+	// invalidate all the backdrop if any
+	int_backdrop_redraw_all();
+
 	return true;
-}
-
-void int_put(int x, int y, const string& s, const int_color& color)
-{
-	for(unsigned i=0;i<s.length();++i) {
-		int_put(x, y, s[i], color);
-		x += int_put_width(s[i]);
-	}
-}
-
-unsigned int_put(int x, int y, int dx, const string& s, const int_color& color)
-{
-	for(unsigned i=0;i<s.length();++i) {
-		int width = int_put_width(s[i]);
-		if (width > dx)
-			return i;
-		int_put(x, y, s[i], color);
-		x += width;
-		dx -= width;
-	}
-	return s.length();
-}
-
-unsigned int_put_width(const string& s)
-{
-	unsigned size = 0;
-	for(unsigned i=0;i<s.length();++i)
-		size += int_put_width(s[i]);
-	return size;
-}
-
-unsigned int_put_right(int x, int y, int dx, const string& s, const int_color& color)
-{
-	unsigned size = int_put_width(s);
-	return int_put(x + dx - size, y, dx, s, color);
 }
 
 //---------------------------------------------------------------------------
@@ -2480,7 +2563,7 @@ static void int_copy_partial(unsigned y0, unsigned y1)
 {
 	video_write_lock();
 
-	unsigned char* buffer = video_buffer + y0 * video_buffer_line_size;
+	unsigned char* buffer = video_foreground_buffer + y0 * video_buffer_line_size;
 	for(unsigned y=y0;y<y1;++y) {
 		memcpy(video_write_line(y), buffer, video_buffer_line_size);
 		buffer += video_buffer_line_size;
@@ -2553,11 +2636,6 @@ static void key_poll()
 	int_mouse_move_raw_poll();
 }
 
-void int_idle_repeat_reset()
-{
-	event_forget();
-}
-
 void int_idle_time_reset()
 {
 	int_idle_time_current = time(0);
@@ -2575,17 +2653,34 @@ void int_idle_1_enable(bool state)
 
 static void int_idle()
 {
-	if (int_idle_0_state && event_last() == EVENT_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time_current > int_idle_0_rep)
-		event_push(EVENT_IDLE_0);
+	time_t now = time(0);
+	time_t elapsed = now - int_idle_time_current;
 
-	if (int_idle_1_state && event_last() == EVENT_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time_current > int_idle_1_rep)
-		event_push(EVENT_IDLE_1);
+	if (int_idle_0_state) {
+		if (int_idle_0_rep != 0
+			&& event_last() == EVENT_IDLE_0
+			&& elapsed > int_idle_0_rep
+		) {
+			event_push(EVENT_IDLE_0);
+		} else if (int_idle_0 != 0
+			&& elapsed > int_idle_0
+		) {
+			event_push(EVENT_IDLE_0);
+		}
+	}
 
-	if (int_idle_0_state && int_idle_0 && time(0) - int_idle_time_current > int_idle_0)
-		event_push(EVENT_IDLE_0);
-
-	if (int_idle_1_state && int_idle_1 && time(0) - int_idle_time_current > int_idle_1)
-		event_push(EVENT_IDLE_1);
+	if (int_idle_1_state) {
+		if (int_idle_1_rep != 0
+			&& event_last() == EVENT_IDLE_1
+			&& elapsed > int_idle_1_rep
+		) {
+			event_push(EVENT_IDLE_1);
+		} else if (int_idle_1 != 0
+			&& elapsed > int_idle_1
+		) {
+			event_push(EVENT_IDLE_1);
+		}
+	}
 
 	if (event_peek() == EVENT_NONE) {
 		if (int_updating_active) {
@@ -2609,7 +2704,7 @@ static void int_idle()
 	joystickb_poll();
 }
 
-int int_event_waiting()
+bool int_event_waiting()
 {
 	static target_clock_t key_pressed_last_time = 0;
 
@@ -2641,7 +2736,6 @@ unsigned int_event_get(bool update_background)
 
 	// wait for a keypress, internally a idle call is already done
 	while (!int_event_waiting()) {
-		int_idle();
 	}
 
 	int_idle_time_current = time(0);
@@ -2655,7 +2749,7 @@ unsigned int_event_get(bool update_background)
 		snprintf(name, sizeof(name), "im%d.png", ssn);
 		adv_fz* f = fzopen(name, "wb");
 		if (f) {
-			adv_png_write_def(video_size_x(), video_size_y(), video_color_def(), video_buffer, video_buffer_pixel_size, video_buffer_line_size, 0, 0, 0, f, 0);
+			adv_png_write_def(video_size_x(), video_size_y(), video_color_def(), video_foreground_buffer, video_buffer_pixel_size, video_buffer_line_size, 0, 0, 0, f, 0);
 			fzclose(f);
 		}
 	}

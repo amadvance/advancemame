@@ -421,7 +421,7 @@ endif
 
 $(MENUOBJ)/libexpat.a: $(MENUOBJ)/expat/xmlparse.o $(MENUOBJ)/expat/xmlrole.o $(MENUOBJ)/expat/xmltok.o
 	$(ECHO) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 ifeq ($(CONF_LIB_EXPAT),yes)
 MENULIBS += -lexpat
@@ -442,7 +442,7 @@ $(MENUOBJ)/libz.a: $(MENUOBJ)/zlib/adler32.o $(MENUOBJ)/zlib/crc32.o $(MENUOBJ)/
 	$(MENUOBJ)/zlib/infback.o $(MENUOBJ)/zlib/inftrees.o $(MENUOBJ)/zlib/trees.o \
 	$(MENUOBJ)/zlib/zutil.o $(MENUOBJ)/zlib/uncompr.o $(MENUOBJ)/zlib/compress.o
 	$(ECHO) $@
-	$(AR) cr $@ $^
+	$(AR) crs $@ $^
 
 ifeq ($(CONF_LIB_ZLIB),yes)
 MENULIBS += -lz

@@ -148,6 +148,7 @@ static inline void internal_end(void)
 #include "imax.h"
 #include "imean.h"
 #include "irgb.h"
+#include "icconv.h"
 
 #ifndef USE_BLIT_TINY
 #include "scale2x.h"

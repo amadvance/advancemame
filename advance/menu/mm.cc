@@ -132,7 +132,7 @@ int run_sub(config_state& rs, bool silent)
 					is_run = true;
 				}
 				break;
-			case EVENT_RUN_CLONE :
+			case EVENT_CLONE :
 				// replay the sound and clip
 				silent = false;
 				run_clone(rs);
@@ -176,7 +176,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 {
 	log_std(("menu: int_set call\n"));
 
-	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast)) {
+	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast, rs.ui_translucency)) {
 		return EVENT_ESC;
 	}
 
@@ -246,7 +246,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		switch (key) {
 			case EVENT_IDLE_0 :
 			case EVENT_ENTER :
-			case EVENT_RUN_CLONE :
+			case EVENT_CLONE :
 				if (rs.current_game && rs.current_clone) {
 					done = true;
 					is_run = true;
@@ -261,8 +261,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		if (rs.ui_exit != "none") {
 			unsigned x , y;
 			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
-				int_clear();
-				int_image(rs.ui_exit.c_str(), x, y);
+				int_image(rs.ui_exit, x, y);
 				int_update();
 				int_disable();
 			}
@@ -325,7 +324,7 @@ int run_all(adv_conf* config_context, config_state& rs)
 				break;
 			case EVENT_IDLE_0 :
 			case EVENT_ENTER :
-			case EVENT_RUN_CLONE :
+			case EVENT_CLONE :
 				if (key == EVENT_IDLE_0) {
 					// don't replay the sound and clip
 					silent = true;
@@ -345,12 +344,10 @@ int run_all(adv_conf* config_context, config_state& rs)
 							bios = &rs.current_clone->bios_get();
 						else
 							bios = rs.current_clone;
-						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == EVENT_IDLE_0);
+						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
 					} else {
-						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == EVENT_IDLE_0);
+						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
 					}
-
-					event_forget();
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -535,7 +532,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "video_brightness", "*", "%s", "display_brightness", "%s", 0 }, /* rename */
 { "*", "video_restore", "*", "%s", "display_restoreatgame", "%s", 0 }, /* rename */
 { "*", "run_msg", "*", "%s", "ui_gamemsg", "%s", 0 }, /* rename */
-{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 } /* rename */
+{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 }, /* rename */
+/* 2.4.0 */
+{ "*", "ui_game", "play", "%s", "%s", "snap", 0 } /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

@@ -690,7 +690,7 @@ adv_error video_mode_set(adv_mode* mode)
 
 	assert(video_is_active());
 
-	log_std(("video: mode_set %s %dx%d %s %.1f kHz/%.1f Hz\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), index_name(mode_index(mode)), (double)mode_hclock(mode) / 1E3, (double)mode_vclock(mode)));
+	log_std(("video: mode_set %s %dx%d %s %.2f/%.2f\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), index_name(mode_index(mode)), (double)mode_hclock(mode) / 1E3, (double)mode_vclock(mode)));
 
 	video_state.old_mode_required = 1; /* the mode will change */
 

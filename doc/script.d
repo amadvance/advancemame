@@ -93,12 +93,12 @@ Commands
 	loop forever and the executable will lock! For example the
 	statement :
 
-		:loop { toggle(kdb, 1); }
+		:loop { toggle(0, 1); }
 
 	completely STOP the emulation and you CAN'T EXIT from the program.
 	A correct one is :
 
-		:loop { toggle(kdb, 1); delay(100); }
+		:loop { toggle(0, 1); delay(100); }
 
 Functions
 	These are the available functions:
@@ -126,33 +126,33 @@ Ports
 	External devices can be controlled using the keyboard led
 	or the PC ports, like the parallel port.
 
-	To maintain the same interface the keyboard leds are mapped
-	to the virtual port 0 at the lower 3 bits.
-	All the other ports are mapped to the PC hardware ports.
+	Generally the parallel ports are mapped at the addresses
+	0x378, 0x278 and 0x3bc. To maintain the same interface the
+	keyboard leds are mapped to the virtual port 0 at the
+	lower 3 bits. All the other ports are mapped to the PC
+	hardware ports.
 
 	These are the available functions to read and write the ports:
 
 		set(ADDRESS, VALUE) - Set the port with the specified value.
 		get(ADDRESS) - Return the value of the port
-		on(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) | VALUE).
-		off(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) & ~VALUE).
-		toggle(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) ^ VALUE).
+		on(ADDRESS, VALUE) - Enable the active bits in VALUE.
+			Like set(ADDRESS, get(ADDRESS) | VALUE).
+		off(ADDRESS, VALUE) - Disable the active bits in VALUE.
+			Like set(ADDRESS, get(ADDRESS) & ~VALUE).
+		toggle(ADDRESS, VALUE) - Toggle the active bits in VALUE.
+			Like set(ADDRESS, get(ADDRESS) ^ VALUE).
 
-	In DOS the hardware ports are accessed directly. In Linux they are
-	directly accessed if you are root, otherwise they are accesed using
-	the /dev/port interface. In Windows you cannot access the
-	hardware ports.
+	In DOS the hardware ports are accessed directly. In Linux 386
+	they are directly accessed if you are root, otherwise they
+	are accessed using the /dev/port interface. In Windows you
+	cannot access the hardware ports. On other systems you can
+	access the ports if the inb() and outb() C functions are
+	available on your system.
 
 Symbols
 	This is the complete list of all the predefinite symbols
 	available.
-
-	These are the port symbols available for the
-	`set, get, on, off, toggle' commands :
-		kdb - The address of the virtual keyboard port (0)
-		lpt1 - The address of the lpt1 port (0x378)
-		lpt2 - The address of the lpt2 port (0x278)
-		lpt3 - The address of the lpt2 port (0x3bc)
 
 	These are the event symbols available for the
 	`simulate_event(EVENT, TIME)' and `event(EVENT)'
@@ -216,40 +216,40 @@ Symbols
 Examples
 	This script clears all the keyboard leds at the emulation end :
 
-		:script_video wait(!event()); set(kdb,0);
+		:script_video wait(!event()); set(0,0);
 
 	Activate all the parallel data bits when the game start, flash
 	the bit 0 during the emulation and clear them then the game
 	stop :
 
 		:script_start \
-		:	set(lpt1, 0xff); \
+		:	set(0x378, 0xff); \
 		:	while(event()) { \
-		:		toggle(lpt1, 1); \
+		:		toggle(0x378, 1); \
 		:		delay(500); \
 		:	} \
-		:	set(lpt1, 0);
+		:	set(0x378, 0);
 
 	Map the first MAME led to the first keyboard led:
 
-		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
+		:script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
 
 	Map the second MAME led to the first keyboard led:
 
-		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
+		:script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
 
 	Flash the third keyboard led when the 'turbo' is active :
 
 		:script_turbo \
 		:	while (event()) { \
-		:		toggle(kdb, 0b100); \
+		:		toggle(0, 0b100); \
 		:		delay(500); \
 		:	} \
-		:	off(kdb, 0b100);
+		:	off(0, 0b100);
 
 	Light the third keyboard led when the 'coin1' key is pressed :
 
-		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
+		:script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
 
 	Add 3 coins automatically:
 
@@ -278,23 +278,23 @@ Configuration
 
 	For example:
 
-		:script_video wait(!event()); set(kdb,0);
-		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
-		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
-		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
+		:script_video wait(!event()); set(0,0);
+		:script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
+		:script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
+		:script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
 		:script_turbo \
 		:	while (event()) { \
-		:		toggle(kdb, 0b100); \
+		:		toggle(0, 0b100); \
 		:		delay(500); \
 		:	} \
-		:	off(kdb, 0b100);
+		:	off(0, 0b100);
 		:script_start1 \
-		:	set(lpt1, 0xff); \
+		:	set(0x378, 0xff); \
 		:	while(event()) { \
-		:		toggle(lpt1, 1); \
+		:		toggle(0x378, 1); \
 		:		delay(500); \
 		:	} \
-		:	set(lpt1, 0);
+		:	set(0x378, 0);
 		:script_video loop { \
 		:		lcd(0,"Speed " + info_throttle); \
 		:		delay(1000); \

@@ -37,7 +37,7 @@ Description
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
 		thread architecture (only for Linux).
 	* Sound and video recording in WAV, PNG and MNG files.
-        * Support for up to 4 mice in Linux and 2 in DOS.
+	* Support for up to 4 mice in Linux and 2 in DOS.
 	* Automatic exit after some time of inactivity.
 	* Scripts capabilities to drive external hardware devices
 		like LCDs and lights.
@@ -119,9 +119,6 @@ Options
 	-log
 		A very detailed log of operations is saved in
 		a `.log' file. Very useful for debugging problems.
-
-	-listinfo
-		Outputs the internal MAME database.
 
 	-listxml
 		Outputs the internal MAME database in XML format.
@@ -208,7 +205,7 @@ Features
 
 	There are a lot of video effects: `none', `max', `mean',
 	`filter', `scale', `lq' and `hq'.
-        You can select the favorite effect with the `display_resizeeffect'
+	You can select the favorite effect with the `display_resizeeffect'
 	option.
 
 	The `none' effect simply duplicates and removes rows and lines
@@ -706,7 +703,7 @@ Configuration
   
     device_video_*
 	These options are used to customize the video drivers.
-    
+
 	All the `device_video_*' options described in the `advdev.txt' file 
 	can be used.
 
@@ -757,7 +754,7 @@ Configuration
 			option. The generated modelines will be named `generate-*'.
 			Check the `advdef.txt' file for the description of 
 			the `device_video_format' option or simply use the 
-			`advcfg' utility  to set it up correctly.
+			`advcfg' utility to set it up correctly.
 			If the `device_video_format' option isn't
 			specified a default value for your monitor clock
 			limits is guessed.
@@ -1161,7 +1158,7 @@ Configuration
 	:display_antialias yes | no
 	
 	Options:
-		yes -  Anti-aliasing enabled (default)
+		yes - Anti-aliasing enabled (default)
 		no - Anti-aliasing disabled.
 
     display_beam
@@ -1201,7 +1198,7 @@ Configuration
 
     device_sound_*
 	These options are used to customize the audio drivers.
-    
+
 	All the `device_sound_*' options defined in the `advdev.txt'
 	file can be used.
 
@@ -1374,28 +1371,28 @@ Configuration
 
 	Options:
 		ANALOG - Player analog control. One of:
-			p1_paddle_x, p2_paddle_x, p3_paddle_x, p4_paddle_x,
-			p1_paddle_y, p2_paddle_y, p3_paddle_y, p4_paddle_y,
-			p1_stick_x, p2_stick_x, p3_stick_x, p4_stick_x,
-			p1_stick_y, p2_stick_y, p3_stick_y, p4_stick_y,
-			p1_stick_z, p2_stick_z, p3_stick_z, p4_stick_z,
-			p1_lightgun_x, p2_lightgun_x, p3_lightgun_x, p4_lightgun_x,
-			p1_lightgun_y, p2_lightgun_y, p3_lightgun_y, p4_lightgun_y,
-			p1_pedal1, p2_pedal1, p3_pedal1, p4_pedal1,
-			p1_pedal2, p2_pedal2, p3_pedal2, p4_pedal2,
-			p1_pedal3, p2_pedal3, p3_pedal3, p4_pedal3,
-			p1_dial_x, p2_dial_x, p3_dial_x, p4_dial_x,
-			p1_dial_y, p2_dial_y, p3_dial_y, p4_dial_y,
-			p1_trackball_x, p2_trackball_x, p3_trackball_x, p4_trackball_x,
-			p1_trackball_y, p2_trackball_y, p3_trackball_y, p4_trackball_y,
-			p1_mouse_x, p2_mouse_x, p3_mouse_x, p4_mouse_x,
-			p1_mouse_y, p2_mouse_y, p3_mouse_y, p4_mouse_y.
+			p1_paddlex, p2_paddlex, p3_paddlex, p4_paddlex,
+			p1_paddley, p2_paddley, p3_paddley, p4_paddley,
+			p1_stickx, p2_stickx, p3_stickx, p4_stickx,
+			p1_sticky, p2_sticky, p3_sticky, p4_sticky,
+			p1_stickz, p2_stickz, p3_stickz, p4_stickz,
+			p1_lightgunx, p2_lightgunx, p3_lightgunx, p4_lightgunx,
+			p1_lightguny, p2_lightguny, p3_lightguny, p4_lightguny,
+			p1_pedalgas, p2_pedalgas, p3_pedalgas, p4_pedalgas,
+			p1_pedalbrake, p2_pedalbrake, p3_pedalbrake, p4_pedalbrake,
+			p1_pedalother, p2_pedalother, p3_pedalother, p4_pedalother,
+			p1_dialx, p2_dialx, p3_dialx, p4_dialx,
+			p1_dialy, p2_dialy, p3_dialy, p4_dialy,
+			p1_trackballx, p2_trackballx, p3_trackballx, p4_trackballx,
+			p1_trackbally, p2_trackbally, p3_trackbally, p4_trackbally,
+			p1_mousex, p2_mousex, p3_mousex, p4_mousex,
+			p1_mousey, p2_mousey, p3_mousey, p4_mousey.
 		- - Invert the direction of the movement.
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
 		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
 		AXE - Number or name of physical axe of the
-			control: 0, 1, 2, 3, ...
+			control: 0, 1, 2, 3 ...
 
 	The `joystick' option is used to reference all the analog
 	controls which report an absolute position. For example
@@ -1409,9 +1406,11 @@ Configuration
 	for mouse devices which have only relative analog controls.
 
 	The exact CONTROL and AXE names can be checked interactively
-	using the `advj' and `advm' utility.
+	using the `advj' and `advm' utility. `advj' is used for
+	`joystick[]' and `joystick_ball[]' specifications. `advm' is
+	used for `mouse[]' specifications.
 
-	Generally the CONTROL names for the `joystick' option are:
+	The CONTROL names for the `joystick' option are:
 		stick - Stick.
 		gas - Acceleration pedal.
 		brake - Brake pedal.
@@ -1421,12 +1420,12 @@ Configuration
 		rudder - Rudder.
 		misc - Any other.
 
-	And the AXE names for the `joystick' option are:
+	The AXE names for the `joystick' option are:
 		x, y, z - Movement on the X, Y, Z axe.
 		rx, ry, rz - Rotation on the X, Y, Z axe.
 		mono - For all the control with a single axe.
 
-	And the AXE names for the `joystick_ball' and `mouse'
+	The AXE names for the `joystick_ball' and `mouse'
 	options are:
 		x, y, z - Movement on the X, Y, Z axe.
 		wheel - Vertical wheel.
@@ -1436,32 +1435,38 @@ Configuration
 
 	The ANALOG controls are always formed with a "player" string
 	and with a "control" strings.
-		p1_AXE - Player 1.
-		p2_AXE - Player 2.
-		p3_AXE - Player 3.
-		p4_AXE - Player 4.
-		PLAYER_paddle_x - Paddle in horizontal direction.
-		PLAYER_paddle_y - Paddle in vertical direction.
-		PLAYER_stick_x - Stick in horizontal direction.
-		PLAYER_stick_y - Stick in vertical direction.
+		p1_CONTROL - Player 1.
+		p2_CONTROL - Player 2.
+		p3_CONTROL - Player 3.
+		p4_CONTROL - Player 4.
+		PLAYER_paddlex - Paddle in horizontal direction.
+		PLAYER_paddley - Paddle in vertical direction.
+		PLAYER_stickx - Stick in horizontal direction.
+		PLAYER_sticky - Stick in vertical direction.
 		PLAYER_stick_z - Stick in z axis direction.
-		PLAYER_lightgun_x - Lightgun in horizontal direction.
-		PLAYER_lightgun_y - Lightgun in vertical direction.
+		PLAYER_lightgunx - Lightgun in horizontal direction.
+		PLAYER_lightguny - Lightgun in vertical direction.
 		PLAYER_pedalgas - Gas pedal.
 		PLAYER_pedalbrake - Brake pedal.
 		PLAYER_pedalother - Other pedal.
-		PLAYER_dial_x - Dial in horizontal direction.
-		PLAYER_dial_y - Dial in vertical direction.
-		PLAYER_trackball_x - Trackball in horizontal direction.
-		PLAYER_trackball_y - Trackball in vertical direction.
-		PLAYER_mouse_x - Mouse in horizontal direction.
-		PLAYER_mouse_y - Mouse in vertical direction.
+		PLAYER_dialx - Dial in horizontal direction.
+		PLAYER_dialy - Dial in vertical direction.
+		PLAYER_trackballx - Trackball in horizontal direction.
+		PLAYER_trackbally - Trackball in vertical direction.
+		PLAYER_mousex - Mouse in horizontal direction.
+		PLAYER_mousey - Mouse in vertical direction.
 
 	Examples:
-		:input_map[p1_stick_x] joystick[0,0,0] -joystick[0,1,0]
-		:input_map[p1_stick_y] joystick[0,0,1] -joystick[0,1,1]
-		:input_map[p1_trackball_x] mouse[0,0] -mouse[1,0]
-		:input_map[p1_trackball_y] mouse[0,1] -mouse[1,1]
+		:input_map[p1_stickx] joystick[0,0,x] -joystick[0,1,x]
+		:input_map[p1_sticky] joystick[0,0,y] -joystick[0,1,y]
+		:input_map[p1_trackballx] mouse[0,x] -mouse[1,x]
+		:input_map[p1_trackbally] mouse[0,y] -mouse[1,y]
+
+	If required you can compose the options to get a rotation
+	of 45° of the control. For example:
+
+		:input_map[p1_stickx] mouse[0,x] mouse[0,y]
+		:input_map[p1_sticky] mouse[0,x] -mouse[0,y]
 
     input_map[DIGITAL]
 	Changes the digital control mapping. Maps a sequence of
@@ -1535,10 +1540,17 @@ Configuration
 		p2_lightgun_right, p3_lightgun_left, p3_lightgun_right, p4_lightgun_left, 
 		p4_lightgun_right, p1_lightgun_up, p1_lightgun_down, p2_lightgun_up, 
 		p2_lightgun_down, p3_lightgun_up, p3_lightgun_down, p4_lightgun_up, 
-		p4_lightgun_down, p1_pedal1, p1_pedal1_autorelease, p2_pedal1, p2_pedal1_autorelease,
-		p3_pedal1, p3_pedal1_autorelease, p4_pedal1, p4_pedal1_autorelease, p1_pedal2,
-		p1_pedal2_autorelease, p2_pedal2, p2_pedal2_autorelease, p3_pedal2, p3_pedal2_autorelease, 
-		p4_pedal2, p4_pedal2_autorelease, start1, start2, start3, start4,
+		p4_lightgun_down, p1_pedalgas_push, p1_pedalgas_release, p2_pedalgas_push,
+		p2_pedalgas_release, p3_pedalgas_push, p3_pedalgas_release, p4_pedalgas_push,
+		p4_pedalgas_release, p1_pedalbrake_push, p1_pedalbrake_release, p2_pedalbrake_push,
+		p2_pedalbrake_release, p3_pedalbrake_push, p3_pedalbrake_release,
+		p4_pedalbrake_push, p4_pedalbrake_release, p1_pedalother_release,
+		p2_pedalother_push, p2_pedalother_release, p3_pedalother_push,
+		p3_pedalother_release, p4_pedalother_push, p4_pedalother_release,
+		p1_mouse_left, p1_mouse_right, p2_mouse_left, p2_mouse_right, p3_mouse_left,
+		p3_mouse_right, p4_mouse_left, p4_mouse_right, p1_mouse_up, p1_mouse_down,
+		p2_mouse_up, p2_mouse_down, p3_mouse_up, p3_mouse_down, p4_mouse_up,
+		p4_mouse_down, start1, start2, start3, start4,
 		coin1, coin2, coin3, coin4, service_coin1, service_coin2, service_coin3, 
 		service_coin4, service, tilt, start, select,
 		ui_mode_next, ui_mode_pred, ui_record_start, ui_record_stop, ui_turbo,
@@ -1727,17 +1739,6 @@ Configuration
 
 	The data used for the default image is in the `contrib/help' dir.
 
-    ui_speedmark
-	Enables or disabled the on screen speed mark. If enabled a red square 
-	is displayed if the game is too slow. A red triangle when you press 
-	the `turbo' key or when the game is accelerated for other reasons.
-
-	:ui_speedmark yes | no
-
-	Options:
-		yes - Display the speed mark when required.
-		no - Don't display the speed mark (default).
-
     ui_font
 	Selects a font file. The formats TrueType (TTF), GRX, PSF and
 	RAW are supported. You can find a collection of fonts in the
@@ -1786,6 +1787,18 @@ Configuration
 			and 00FF00 is green.
 		BACKGROUND - Background color. Like foreground color.
 
+    ui_translucency
+	Selects the translucency of the user interface.
+
+	ui_translucency FACTOR
+
+	Options:
+		FACTOR - Translucency factor from 0 to 1
+			(default 0.8).
+
+	The translucency ha no effect on the 8 bits palettized video
+	modes.
+
   Record Configuration Options
 	This section describes the options used for the recording
 	features.
@@ -1832,7 +1845,7 @@ Configuration
 
 	Options:
 		TIME - Time in seconds (default 15).
-	
+
     record_video_interleave
 	Selects how many frames to save with the video recording.
 
@@ -1881,9 +1894,6 @@ Configuration
 	Options:
 		FACTOR - Float speed factor (default 3.0).
 
-	With the `ui_speedmark' option you can enable a visual mark
-	of the current turbo state.
-
     sync_startuptime
 	Selects the time in seconds of the duration of the startup
 	speed up. You can press the `startup' key to save the current
@@ -1897,9 +1907,6 @@ Configuration
 			an internal database (default).
 		none - Disable the startup.
 		TIME - Time in seconds.
-
-	With the `ui_speedmark' option you can enable a visual mark
-	of the current startup state.
 
     sync_resample
 	Selects the audio resampling mode.
@@ -2210,6 +2217,17 @@ Configuration
 	Options:
 		no - Normal operation (default).
 		yes - Sound output without any syncronization.
+
+    debug_speedmark
+	Enables or disabled the on screen speed mark. If enabled a red square 
+	is displayed if the game is too slow. A red triangle when you press 
+	the `turbo' key or when the game is accelerated for other reasons.
+
+	:debug_speedmark yes | no
+
+	Options:
+		yes - Display the speed mark when required.
+		no - Don't display the speed mark (default).
 
 Signals
 	The program intercepts the following signals:

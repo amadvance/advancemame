@@ -27,51 +27,58 @@
 
 using namespace std;
 
-int_color COLOR_HELP_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_HELP_TAG = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_TITLE = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_SELECT = { { 0, 0, 0 }, { 0xFF, 0xFF, 0xBF } };
-int_color COLOR_CHOICE_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
-int_color COLOR_CHOICE_HIDDEN_SELECT = { { 128, 128, 128 }, { 0xFF, 0xFF, 0xBF } };
-int_color COLOR_MENU_NORMAL = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_MENU_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
-int_color COLOR_MENU_TAG = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
-int_color COLOR_MENU_SELECT = { { 0, 0, 0 }, { 0xFF, 0xFF, 0xBF } };
-int_color COLOR_MENU_HIDDEN_SELECT = { { 128, 128, 128 }, { 0xFF, 0xFF, 0xBF } };
-int_color COLOR_MENU_TAG_SELECT = { { 0xF0, 0x7e, 0x24 }, { 0xFF, 0xFF, 0xBF } };
-int_color COLOR_MENU_BAR = { { 0, 0, 0 }, { 255, 255, 255 } };
-int_color COLOR_MENU_BAR_TAG = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
-int_color COLOR_MENU_BAR_HIDDEN = { { 128, 128, 128 }, { 255, 255, 255 } };
-int_color COLOR_MENU_GRID = { { 0xF0, 0x7e, 0x24 }, { 255, 255, 255 } };
-int_color COLOR_MENU_BACKDROP = { { 0, 0, 0 }, { 128, 128, 128 } };
-int_color COLOR_MENU_ICON = { { 255, 255, 255 }, { 255, 255, 255 } };
-int_color COLOR_MENU_CURSOR = { { 128, 128, 128 }, { 255, 255, 255 } };
+#define C_SELECT { 0xFF, 0xFF, 0xAF }
+#define C_NORMAL { 0, 0, 0 }
+#define C_TITLE { 0xF0, 0x7e, 0x24 }
+#define C_BACK { 255, 255, 255 }
+#define C_HIDDEN { 128, 128, 128 }
+
+int_color COLOR_HELP_NORMAL = { C_NORMAL, C_BACK };
+int_color COLOR_HELP_TAG = { C_TITLE, C_BACK };
+int_color COLOR_CHOICE_TITLE = { C_TITLE, C_BACK };
+int_color COLOR_CHOICE_NORMAL = { C_NORMAL, C_BACK };
+int_color COLOR_CHOICE_SELECT = { C_NORMAL, C_SELECT };
+int_color COLOR_CHOICE_HIDDEN = { C_HIDDEN, C_BACK };
+int_color COLOR_CHOICE_HIDDEN_SELECT = { C_HIDDEN, C_SELECT };
+int_color COLOR_MENU_NORMAL = { C_NORMAL, C_BACK };
+int_color COLOR_MENU_HIDDEN = { C_HIDDEN, C_BACK };
+int_color COLOR_MENU_TAG = { C_TITLE, C_BACK };
+int_color COLOR_MENU_SELECT = { C_NORMAL, C_SELECT };
+int_color COLOR_MENU_HIDDEN_SELECT = { C_HIDDEN, C_SELECT };
+int_color COLOR_MENU_TAG_SELECT = { C_TITLE, C_SELECT };
+int_color COLOR_MENU_BAR = { C_NORMAL, C_BACK };
+int_color COLOR_MENU_BAR_TAG = { C_TITLE, C_BACK };
+int_color COLOR_MENU_BAR_HIDDEN = { C_HIDDEN, C_BACK };
+int_color COLOR_MENU_GRID = { C_TITLE, C_BACK };
+int_color COLOR_MENU_BACKDROP = { C_NORMAL, C_HIDDEN };
+int_color COLOR_MENU_ICON = { C_BACK, C_BACK };
+int_color COLOR_MENU_CURSOR = { C_HIDDEN, C_BACK };
 
 static struct {
 	int_color* var;
 	const char* name;
+	bool foreground;
 } COLOR_TAB[] = {
-{ &COLOR_HELP_NORMAL, "help" },
-{ &COLOR_HELP_TAG, "help_tag" },
-{ &COLOR_CHOICE_TITLE, "submenu_bar" },
-{ &COLOR_CHOICE_NORMAL, "submenu_item" },
-{ &COLOR_CHOICE_SELECT, "submenu_item_select" },
-{ &COLOR_CHOICE_HIDDEN, "submenu_hidden" },
-{ &COLOR_CHOICE_HIDDEN_SELECT, "submenu_hidden_select" },
-{ &COLOR_MENU_NORMAL, "menu_item" },
-{ &COLOR_MENU_HIDDEN, "menu_hidden" },
-{ &COLOR_MENU_TAG, "menu_tag" },
-{ &COLOR_MENU_SELECT, "menu_item_select" },
-{ &COLOR_MENU_HIDDEN_SELECT, "menu_hidden_select" },
-{ &COLOR_MENU_TAG_SELECT, "menu_tag_select" },
-{ &COLOR_MENU_BAR, "bar" },
-{ &COLOR_MENU_BAR_TAG, "bar_tag" },
-{ &COLOR_MENU_BAR_HIDDEN, "bar_hidden" },
-{ &COLOR_MENU_GRID, "grid" },
-{ &COLOR_MENU_BACKDROP, "backdrop" },
-{ &COLOR_MENU_ICON, "icon" },
-{ &COLOR_MENU_CURSOR, "cursor" },
+{ &COLOR_HELP_NORMAL, "help", false },
+{ &COLOR_HELP_TAG, "help_tag", false },
+{ &COLOR_CHOICE_TITLE, "submenu_bar", false },
+{ &COLOR_CHOICE_NORMAL, "submenu_item", false },
+{ &COLOR_CHOICE_SELECT, "submenu_item_select", true },
+{ &COLOR_CHOICE_HIDDEN, "submenu_hidden", false },
+{ &COLOR_CHOICE_HIDDEN_SELECT, "submenu_hidden_select", true },
+{ &COLOR_MENU_NORMAL, "menu_item", false },
+{ &COLOR_MENU_HIDDEN, "menu_hidden", false },
+{ &COLOR_MENU_TAG, "menu_tag", false },
+{ &COLOR_MENU_SELECT, "menu_item_select", true },
+{ &COLOR_MENU_HIDDEN_SELECT, "menu_hidden_select", true },
+{ &COLOR_MENU_TAG_SELECT, "menu_tag_select", true },
+{ &COLOR_MENU_BAR, "bar", false },
+{ &COLOR_MENU_BAR_TAG, "bar_tag", false },
+{ &COLOR_MENU_BAR_HIDDEN, "bar_hidden", false },
+{ &COLOR_MENU_GRID, "grid", false },
+{ &COLOR_MENU_BACKDROP, "backdrop", false },
+{ &COLOR_MENU_ICON, "icon", false },
+{ &COLOR_MENU_CURSOR, "cursor", false },
 { 0, 0 }
 };
 
@@ -124,6 +131,7 @@ static adv_color_rgb string2color(const string& s)
 		c.red = hexnibble2int(s[0], s[1]);
 		c.green = hexnibble2int(s[2], s[3]);
 		c.blue = hexnibble2int(s[4], s[5]);
+		c.alpha = 255;
 		return c;
 	}
 
@@ -201,3 +209,73 @@ void color_out(adv_conf* config_context, const char* tag)
 		conf_set(config_context, "", tag, s.c_str());
 	}
 }
+
+static void color_map(int_color& color, adv_color_def opaque_def, adv_color_def alpha_def, unsigned translucency)
+{
+	color.foreground.alpha = 255;
+	color.background.alpha = translucency;
+
+	for(int i=0;i<256;++i) {
+		int cr, cg, cb, ca;
+
+		cr = (color.foreground.red * i + color.background.red * (255-i)) / 255;
+		cg = (color.foreground.green * i + color.background.green * (255-i)) / 255;
+		cb = (color.foreground.blue * i + color.background.blue * (255-i)) / 255;
+		ca = 255;
+
+		color.opaque[i] = alpha_make_from_def(cr, cg, cb, ca, opaque_def);
+
+		// see the AdvanceMAME ui.c file for details on the computation
+
+		double F, B, A;
+		double I, T;
+		double a, b, c;
+
+		I = i / 255.0;
+		T = translucency / 255.0;
+
+		a = I;
+		b = T * (1-I);
+		c = (1-T) * (1-I);
+
+		A = 1 - c;
+		if (A == 0) {
+			F = 0;
+			B = 0;
+		} else {
+			F = a / A;
+			B = b / A;
+		}
+
+		cr = static_cast<int>(color.foreground.red * F + color.background.red * B);
+		cg = static_cast<int>(color.foreground.green * F + color.background.green * B);
+		cb = static_cast<int>(color.foreground.blue * F + color.background.blue * B);
+		ca = static_cast<int>(255 * A);
+
+		if (cr > 255)
+			cr = 255;
+		if (cg > 255)
+			cg = 255;
+		if (cb > 255)
+			cb = 255;
+		if (ca > 255)
+			ca = 255;
+
+		color.alpha[i] = alpha_make_from_def(cr, cg, cb, ca, alpha_def);
+	}
+}
+
+void color_setup(adv_color_def opaque_def, adv_color_def alpha_def, unsigned translucency)
+{
+	for(unsigned i=0;COLOR_TAB[i].name;++i) {
+		unsigned t;
+		if (COLOR_TAB[i].foreground) {
+			t = (translucency + 255) / 2;
+			if (t < 204)
+				t = 204;
+		} else
+			t = translucency;
+		color_map(*COLOR_TAB[i].var, opaque_def, alpha_def, t);
+	}
+}
+

@@ -308,56 +308,6 @@ void crtc_container_clear(adv_conf* context)
 
 static adv_error monitor_range_parse(adv_monitor_range* range, const char* begin, const char* end, double mult)
 {
-	unsigned i = 0;
-	parse_separator(" \t", &begin, end);
-	while (begin < end) {
-		double v0;
-		if (i==MONITOR_RANGE_MAX) {
-			return -1;
-		}
-		if (parse_double(&v0, &begin, end))
-			return -1;
-		parse_separator(" \t", &begin, end);
-		if (*begin=='-') {
-			double v1;
-			++begin;
-			if (parse_double(&v1, &begin, end))
-				return -1;
-			if (v0 < 0 || v0 > v1 || v1 > 300) {
-				return -1;
-			}
-			range[i].low = mult * v0;
-			range[i].high = mult * v1;
-			++i;
-		} else {
-			if (v0 < 0 || v0 > 300) {
-				return -1;
-			}
-			/* the 0 value is used as a null definition */
-			if (v0 > 0) {
-				range[i].low = mult * v0;
-				range[i].high = range[i].low;
-				++i;
-			}
-		}
-		parse_separator(" \t", &begin, end);
-		if (*begin==',') {
-			++begin;
-		}
-		parse_separator(" \t", &begin, end);
-	}
-	if (i==0)
-		return -1; /* empty */
-	while (i<MONITOR_RANGE_MAX) {
-		range[i].low = 0;
-		range[i].high = 0;
-		++i;
-	}
-	return 0;
-}
-
-static adv_error monitor_single_parse(adv_monitor_range* range, const char* begin, const char* end, double mult)
-{
 	double v0;
 	double v1;
 
@@ -367,17 +317,27 @@ static adv_error monitor_single_parse(adv_monitor_range* range, const char* begi
 		return -1;
 
 	parse_separator(" \t", &begin, end);
-	if (*begin!='-')
-		return -1;
-	++begin;
-	if (parse_double(&v1, &begin, end))
-		return -1;
-	if (v0 < 0 || v0 > v1 || v1 > 300) {
-		return -1;
-	}
 
-	range->low = mult * v0;
-	range->high = mult * v1;
+	if (*begin == '-') {
+		++begin;
+
+		parse_separator(" \t", &begin, end);
+
+		if (parse_double(&v1, &begin, end))
+			return -1;
+
+		if (v0 < 0 || v0 > v1 || v1 > 300)
+			return -1;
+
+		range->low = mult * v0;
+		range->high = mult * v1;
+	} else {
+		if (v0 < 0 || v0 > 300)
+			return -1;
+
+		range->low = mult * v0;
+		range->high = range->low;
+	}
 
 	parse_separator(" \t", &begin, end);
 
@@ -387,121 +347,275 @@ static adv_error monitor_single_parse(adv_monitor_range* range, const char* begi
 	return 0;
 }
 
-void monitor_print(char* buffer, unsigned size, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult)
+static adv_error monitor_mode_parse(adv_monitor_mode* mode, const char* begin, const char* end)
 {
-	adv_bool empty = 1;
+	int r;
+	const char* clock_begin;
 
-	*buffer = 0;
+	clock_begin = begin;
+	while (begin != end && *begin != '/')
+		++begin;
+	if (begin == end)
+		return -1;
 
-	while (range_begin != range_end) {
-		if (range_begin->low != 0 && range_begin->high != 0) {
-			if (!empty) {
-				sncatf(buffer, size, ", ");
-			}
-			if (range_begin->low == range_begin->high) {
-				sncatf(buffer, size, "%g", range_begin->low / mult);
-			} else {
-				sncatf(buffer, size, "%g-%g", range_begin->low / mult, range_begin->high / mult);
-			}
-			empty = 0;
-		}
-		++range_begin;
-	}
+	if (monitor_range_parse(&mode->pclock, clock_begin, begin, 1E6) != 0)
+		return -1;
 
-	if (empty) {
-		sncatf(buffer, size, "0");
-	}
+	++begin;
+	clock_begin = begin;
+	while (begin != end && *begin != '/')
+		++begin;
+	if (begin == end)
+		return -1;
+
+	if (monitor_range_parse(&mode->hclock, clock_begin, begin, 1E3) != 0)
+		return -1;
+
+	if (monitor_range_parse(&mode->vclock, begin + 1, end, 1) != 0)
+		return -1;
+
+	return 0;
 }
 
-adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v)
+static int monitor_mode_compare(const void* void_a, const void* void_b)
 {
-	if (monitor_single_parse(&monitor->pclock, p, p+strlen(p), 1E6)!=0) {
-		error_set("Invalid monitor 'pclock' specification");
+	const adv_monitor_mode* a = (const adv_monitor_mode*)void_a;
+	const adv_monitor_mode* b = (const adv_monitor_mode*)void_b;
+
+	if (a->hclock.low < b->hclock.low)
+		return -1;
+	if (a->hclock.low > b->hclock.low)
+		return 1;
+	return 0;
+}
+
+static void monitor_sort(adv_monitor* monitor)
+{
+	qsort(monitor->mode_map, monitor->mode_mac, sizeof(monitor->mode_map[0]), monitor_mode_compare);
+}
+
+static adv_error monitor_phv_parse(adv_monitor_mode* mode, unsigned* mac, const char* begin, const char* end)
+{
+	*mac = 0;
+
+	parse_separator(" \t", &begin, end);
+
+	while (begin != end) {
+		const char* mode_begin = begin;
+
+		while (begin != end && *begin != ';')
+			++begin;
+
+		if (*mac == MONITOR_MODE_MAX)
+			return -1;
+
+		if (monitor_mode_parse(&mode[*mac], mode_begin, begin) != 0)
+			return -1;
+
+		++*mac;
+
+		if (begin != end)
+			++begin;
+
+		parse_separator(" \t", &begin, end);
+	}
+
+	return 0;
+}
+
+adv_error monitor_parse(adv_monitor* monitor, const char* clock)
+{
+	monitor_reset(monitor);
+
+	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock+strlen(clock)) != 0) {
+		error_set("Invalid monitor 'clock' specification");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->hclock, h, h+strlen(h), 1E3)!=0) {
-		error_set("Invalid monitor 'hclock' specification");
+
+	if (monitor->mode_mac == 0) {
+		error_set("Empty monitor 'clock' specification");
 		return -1;
 	}
-	if (monitor_range_parse(monitor->vclock, v, v+strlen(v), 1)!=0) {
-		error_set("Invalid monitor 'vclock' specification");
+
+	monitor_sort(monitor);
+
+	return 0;
+}
+
+adv_error monitor_conversion_legacy(adv_conf* context)
+{
+	char buffer[1024];
+	adv_error p_error;
+	adv_error h_error;
+	adv_error v_error;
+	const char* p;
+	const char* h;
+	const char* v;
+	char* ps;
+	char* hs;
+	char* vs;
+	char c;
+	int pi,hi,vi;
+
+	/* LEGACY support of old device_video_p/h/vclock format */
+	p_error = conf_string_section_get(context, "", "device_video_pclock", &p);
+	h_error = conf_string_section_get(context, "", "device_video_hclock", &h);
+	v_error = conf_string_section_get(context, "", "device_video_vclock", &v);
+
+	/* check if all are missing */
+	if (p_error != 0 && h_error != 0 && v_error != 0)
+		return 0;
+
+	/* partially missing */
+	if (p_error != 0 || h_error != 0 || v_error != 0) {
+		error_set("Missing options 'device_video_p/h/vclock'");
 		return -1;
 	}
+
+	buffer[0] = 0;
+
+	ps = strdup(p);
+	hs = strdup(h);
+	vs = strdup(v);
+
+	/* set the new format */
+	pi = 0;
+	sskip(&pi, ps, " ");
+	while (ps[pi]) {
+		const char* pt;
+
+		pt = stoken(&c, &pi, ps, ",", " ");
+
+		hi = 0;
+		sskip(&hi, hs, " ");
+		while (hs[hi]) {
+			const char* ht;
+
+			ht = stoken(&c, &hi, hs, ",", " ");
+
+			vi = 0;
+			sskip(&vi, vs, " ");
+			while (vs[vi]) {
+				const char* vt;
+
+				vt = stoken(&c, &vi, vs, ",", " ");
+
+				if (*buffer != 0)
+					sncat(buffer, sizeof(buffer), " ; ");
+
+				sncatf(buffer, sizeof(buffer), "%s / %s / %s", pt, ht, vt);
+
+				sskip(&vi, vs, " ");
+			}
+
+			sskip(&hi, hs, " ");
+		}
+
+		sskip(&pi, ps, " ");
+	}
+
+	free(ps);
+	free(hs);
+	free(vs);
+
+	conf_string_set(context, "", "device_video_clock", buffer);
+
+	/* remove the old copy */
+	conf_remove(context, "", "device_video_pclock");
+	conf_remove(context, "", "device_video_hclock");
+	conf_remove(context, "", "device_video_vclock");
+
 	return 0;
 }
 
 /**
- * Load the monitor configuration
- * return:
+ * Load the monitor configuration.
+ * \return
  *   - ==0 on success
  *   - <0 on error
  *   - >0 on configuration missing, video_monitor_is_empty(monitor)!=0
  */
 adv_error monitor_load(adv_conf* context, adv_monitor* monitor)
 {
-	adv_error p_present;
-	adv_error h_present;
-	adv_error v_present;
-	const char* p;
-	const char* h;
-	const char* v;
+	adv_error error;
+	const char* clock;
 
-	p_present = conf_string_get(context, "device_video_pclock", &p);
-	h_present = conf_string_get(context, "device_video_hclock", &h);
-	v_present = conf_string_get(context, "device_video_vclock", &v);
+	/* LEGACY conversion of old format */
+	if (monitor_conversion_legacy(context) != 0)
+		return -1;
 
-	if (p_present!=0 && h_present!=0 && v_present!=0) {
-		monitor_reset(monitor);
-		error_set("Missing options 'device_video_p/h/vclock'");
+	monitor_reset(monitor);
+
+	error = conf_string_get(context, "device_video_clock", &clock);
+
+	if (error != 0) {
+		error_set("Missing options 'device_video_clock'");
 		return 1;
 	}
 
-	if (p_present!=0) {
-		error_set("Missing option 'device_video_pclock'");
-		return -1;
-	}
-	if (monitor_single_parse(&monitor->pclock, p, p+strlen(p), 1E6)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_pclock'", p);
+	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock+strlen(clock)) != 0) {
+		error_set("Invalid argument '%s' for option 'device_video_clock'", clock);
 		return -1;
 	}
 
-	if (h_present!=0) {
-		error_set("Missing option 'device_video_hclock'");
-		return -1;
-	}
-	if (monitor_range_parse(monitor->hclock, h, h+strlen(h), 1000)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_hclock'", h);
-		return -1;
+	if (monitor->mode_mac == 0) {
+		error_set("Empty option 'device_video_clock'");
+		return 1;
 	}
 
-	if (v_present!=0) {
-		error_set("Missing option 'device_video_vclock'");
-		return -1;
-	}
-	if (monitor_range_parse(monitor->vclock, v, v+strlen(v), 1)!=0) {
-		error_set("Invalid argument '%s' for option 'device_video_vclock'", v);
-		return -1;
-	}
+	monitor_sort(monitor);
 
 	return 0;
+}
+
+static void monitor_range_print(char* buffer, unsigned size, const adv_monitor_range* range, double mult)
+{
+	if (range->low == range->high) {
+		snprintf(buffer, size, "%g", (double)range->low / mult);
+	} else {
+		snprintf(buffer, size, "%g-%g", (double)range->low / mult, (double)range->high / mult);
+	}
+}
+
+void monitor_print(char* buffer, unsigned size, const adv_monitor* monitor)
+{
+	unsigned i;
+
+	buffer[0] = 0;
+	for(i=0;i<monitor->mode_mac;++i) {
+		char mode_buffer[1024];
+
+		if (i != 0)
+			sncat(buffer, size, " ; ");
+
+		monitor_range_print(mode_buffer, size, &monitor->mode_map[i].pclock, 1E6);
+		sncat(buffer, size, mode_buffer);
+
+		sncat(buffer, size, " / ");
+
+		monitor_range_print(mode_buffer, sizeof(mode_buffer), &monitor->mode_map[i].hclock, 1E3);
+		sncat(buffer, size, mode_buffer);
+
+		sncat(buffer, size, " / ");
+
+		monitor_range_print(mode_buffer, sizeof(mode_buffer), &monitor->mode_map[i].vclock, 1);
+		sncat(buffer, size, mode_buffer);
+	}
 }
 
 void monitor_save(adv_conf* context, const adv_monitor* monitor)
 {
 	char buffer[1024];
 
-	monitor_print(buffer, sizeof(buffer), &monitor->pclock, &monitor->pclock + 1, 1E6);
-	conf_string_set(context, "", "device_video_pclock", buffer);
-
-	monitor_print(buffer, sizeof(buffer), monitor->hclock, monitor->hclock + MONITOR_RANGE_MAX, 1E3);
-	conf_string_set(context, "", "device_video_hclock", buffer);
-
-	monitor_print(buffer, sizeof(buffer), monitor->vclock, monitor->vclock + MONITOR_RANGE_MAX, 1);
-	conf_string_set(context, "", "device_video_vclock", buffer);
+	monitor_print(buffer, sizeof(buffer), monitor);
+	conf_string_set(context, "", "device_video_clock", buffer);
 }
 
 void monitor_register(adv_conf* context)
 {
+	conf_string_register(context, "device_video_clock");
+
+	/* LEGACY remove old device_video_p/h/vclock */
 	conf_string_register(context, "device_video_pclock");
 	conf_string_register(context, "device_video_hclock");
 	conf_string_register(context, "device_video_vclock");

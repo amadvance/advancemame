@@ -35,6 +35,7 @@
 #include "video.h"
 #include "error.h"
 #include "snstring.h"
+#include "generate.h"
 
 /**
  * Find the nearest value.
@@ -54,8 +55,8 @@ unsigned crtc_step(double v, unsigned st)
 
 /**
  * Adjust the clock to match the monitor specifications.
- * Only the horizontal and vertical clock limits are checked.
- * The pixel clock limits are NOT checked.
+ * The nearest clock at the original value is selected.
+ * Note that the pixel clock limits are NOT checked.
  * \return 0 if successful
  */
 adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
@@ -64,8 +65,8 @@ adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
 	double vclock;
 	double factor;
 	double best_hclock = 0;
-	int best_hclock_found = 0;
-	int i;
+	adv_bool best_hclock_found = 0;
+	int j;
 
 	factor = 1;
 	if (crtc_is_interlace(crtc))
@@ -81,61 +82,113 @@ adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
 		return 0;
 
 	/* check for every hclock limit */
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
-			double try_hclock, try_vclock;
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		double try_hclock, try_vclock;
 
-			/* low limit */
-			try_hclock = monitor->hclock[i].low;
-			try_vclock = try_hclock / crtc->vt * factor;
-			if (monitor_vclock_check(monitor, try_vclock)) {
-				if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
-					best_hclock = try_hclock;
-					best_hclock_found = 1;
-				}
+		/* low limit */
+		try_hclock = mode->hclock.low;
+		try_vclock = try_hclock / crtc->vt * factor;
+		if (monitor_mode_vclock_check(mode, try_vclock)) {
+			if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
+				best_hclock = try_hclock;
+				best_hclock_found = 1;
 			}
+		}
 
-			/* high limit */
-			try_hclock = monitor->hclock[i].high;
-			try_vclock = try_hclock / crtc->vt * factor;
-			if (monitor_vclock_check(monitor, try_vclock)) {
-				if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
-					best_hclock = try_hclock;
-					best_hclock_found = 1;
-				}
+		/* high limit */
+		try_hclock = mode->hclock.high;
+		try_vclock = try_hclock / crtc->vt * factor;
+		if (monitor_mode_vclock_check(mode, try_vclock)) {
+			if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
+				best_hclock = try_hclock;
+				best_hclock_found = 1;
 			}
 		}
 	}
 
 	/* check for every vclock limit */
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
-			double try_hclock, try_vclock;
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		double try_hclock, try_vclock;
 
-			/* low limit */
-			try_vclock = monitor->vclock[i].low;
-			try_hclock = try_vclock * crtc->vt / factor;
-			if (monitor_hclock_check(monitor, try_hclock)) {
-				if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
-					best_hclock = try_hclock;
-					best_hclock_found = 1;
-				}
+		/* low limit */
+		try_vclock = mode->vclock.low;
+		try_hclock = try_vclock * crtc->vt / factor;
+		if (monitor_mode_hclock_check(mode, try_hclock)) {
+			if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
+				best_hclock = try_hclock;
+				best_hclock_found = 1;
 			}
+		}
 
-			/* high limit */
-			try_vclock = monitor->vclock[i].high;
-			try_hclock = try_vclock * crtc->vt / factor;
-			if (monitor_hclock_check(monitor, try_hclock)) {
-				if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
-					best_hclock = try_hclock;
-					best_hclock_found = 1;
-				}
+		/* high limit */
+		try_vclock = mode->vclock.high;
+		try_hclock = try_vclock * crtc->vt / factor;
+		if (monitor_mode_hclock_check(mode, try_hclock)) {
+			if (!best_hclock_found || fabs(try_hclock - hclock) < fabs(best_hclock - hclock)) {
+				best_hclock = try_hclock;
+				best_hclock_found = 1;
 			}
 		}
 	}
 
 	if (best_hclock_found) {
 		crtc->pixelclock = best_hclock * crtc->ht;
+		return 0;
+	} else {
+		error_nolog_set("The video mode is incompatible with the monitor limitations");
+		return -1;
+	}
+}
+
+/**
+ * Adjust the horizontal total size to match the monitor pixel clock specifications.
+ * The nearest size at the original value is selected.
+ * \return 0 if successful
+ */
+adv_error crtc_adjust_size(adv_crtc* crtc, const adv_monitor* monitor)
+{
+	double best_size = 0;
+	adv_bool best_size_found = 0;
+	double hclock;
+	double vclock;
+	unsigned size;
+	int j;
+
+	/* check if already valid */
+	if (crtc_clock_check(monitor, crtc))
+		return 0;
+
+	hclock = crtc_hclock_get(crtc);
+	vclock = crtc_hclock_get(crtc);
+	size = crtc->ht;
+
+	/* check for every hclock limit */
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		if (monitor_mode_hvclock_check(mode, hclock, vclock)) {
+			double pclock;
+			unsigned try_size;
+
+			pclock = mode->pclock.low;
+			try_size = ceil(pclock / hclock);
+			if (!best_size_found || fabs(try_size - size) < fabs(best_size - size)) {
+				best_size = size;
+				best_size_found =  1;
+			}
+
+			pclock = mode->pclock.high;
+			try_size = floor(pclock / hclock);
+			if (!best_size_found || fabs(try_size - size) < fabs(best_size - size)) {
+				best_size = size;
+				best_size_found =  1;
+			}
+		}
+	}
+
+	if (best_size_found) {
+		crtc->ht = best_size;
 		return 0;
 	} else {
 		error_nolog_set("The video mode is incompatible with the monitor limitations");
@@ -161,60 +214,58 @@ static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vcloc
 	double vclock;
 	double best_vclock = 0;
 	int best_found = 0;
-	int i;
+	int j;
 
 	vclock = *req_vclock;
 
 	/* check for every hclock limit */
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
-			double try_hclock, try_vclock;
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		double try_hclock, try_vclock;
 
-			/* low limit */
-			try_hclock = monitor->hclock[i].low;
-			try_vclock = try_hclock / req_vtotal;
-			if (monitor_vclock_check(monitor, try_vclock)) {
-				if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
-					best_vclock = try_vclock;
-					best_found = 1;
-				}
+		/* low limit */
+		try_hclock = mode->hclock.low;
+		try_vclock = try_hclock / req_vtotal;
+		if (monitor_mode_vclock_check(mode, try_vclock)) {
+			if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
+				best_vclock = try_vclock;
+				best_found = 1;
 			}
+		}
 
-			/* high limit */
-			try_hclock = monitor->hclock[i].high;
-			try_vclock = try_hclock / req_vtotal;
-			if (monitor_vclock_check(monitor, try_vclock)) {
-				if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
-					best_vclock = try_vclock;
-					best_found = 1;
-				}
+		/* high limit */
+		try_hclock = mode->hclock.high;
+		try_vclock = try_hclock / req_vtotal;
+		if (monitor_mode_vclock_check(mode, try_vclock)) {
+			if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
+				best_vclock = try_vclock;
+				best_found = 1;
 			}
 		}
 	}
 
 	/* check for every vclock limit */
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
-			double try_hclock, try_vclock;
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		double try_hclock, try_vclock;
 
-			/* low limit */
-			try_vclock = monitor->vclock[i].low;
-			try_hclock = try_vclock * req_vtotal;
-			if (monitor_hclock_check(monitor, try_hclock)) {
-				if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
-					best_vclock = try_vclock;
-					best_found = 1;
-				}
+		/* low limit */
+		try_vclock = mode->vclock.low;
+		try_hclock = try_vclock * req_vtotal;
+		if (monitor_mode_hclock_check(mode, try_hclock)) {
+			if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
+				best_vclock = try_vclock;
+				best_found = 1;
 			}
+		}
 
-			/* high limit */
-			try_vclock = monitor->vclock[i].high;
-			try_hclock = try_vclock * req_vtotal;
-			if (monitor_hclock_check(monitor, try_hclock)) {
-				if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
-					best_vclock = try_vclock;
-					best_found = 1;
-				}
+		/* high limit */
+		try_vclock = mode->vclock.high;
+		try_hclock = try_vclock * req_vtotal;
+		if (monitor_mode_hclock_check(mode, try_hclock)) {
+			if (!best_found || fabs(try_vclock - vclock) < fabs(best_vclock - vclock)) {
+				best_vclock = try_vclock;
+				best_found = 1;
 			}
 		}
 	}
@@ -235,46 +286,40 @@ static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclo
 	unsigned best_vtotal = 0;
 	double best_vclock = 0;
 	int best_found = 0;
-	int i, j;
+	int k;
 
 	vtotal = *req_vtotal;
 
-	/* check for every hclock limit */
-	for(j=0;j<MONITOR_RANGE_MAX;++j) {
-		if (monitor->hclock[j].low != 0 && monitor->hclock[j].high != 0) {
-			/* check for every vclock limit */
-			for(i=0;i<MONITOR_RANGE_MAX;++i) {
-				if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
-					int try_vtotal;
-					double try_hclock;
-					double try_vclock;
+	/* check for every hclock/vclock combination */
+	for(k=0;k<monitor->mode_mac;++k) {
+		const adv_monitor_mode* mode = &monitor->mode_map[k];
+		int try_vtotal;
+		double try_hclock;
+		double try_vclock;
 
-					/* low limit */
-					/* the floor() approximation uses a greater vclock */
-					try_vtotal = floor(monitor->hclock[j].high / monitor->vclock[i].low);
-					try_hclock = monitor->hclock[j].high;
-					try_vclock = try_hclock / try_vtotal;
-					if (monitor_hvclock_check(monitor, try_hclock, try_vclock)) {
-						if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
-							best_vtotal = try_vtotal;
-							best_vclock = try_vclock;
-							best_found = 1;
-						}
-					}
+		/* low limit */
+		/* the floor() approximation uses a greater vclock */
+		try_vtotal = floor(mode->hclock.high / mode->vclock.low);
+		try_hclock = mode->hclock.high;
+		try_vclock = try_hclock / try_vtotal;
+		if (monitor_mode_hvclock_check(mode, try_hclock, try_vclock)) {
+			if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
+				best_vtotal = try_vtotal;
+				best_vclock = try_vclock;
+				best_found = 1;
+			}
+		}
 
-					/* high limit */
-					/* the ceil() approximation uses a lesser vclock */
-					try_vtotal = ceil(monitor->hclock[j].low / monitor->vclock[i].high);
-					try_hclock = monitor->hclock[j].low;
-					try_vclock = try_hclock / try_vtotal;
-					if (monitor_hvclock_check(monitor, try_hclock, try_vclock)) {
-						if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
-							best_vtotal = try_vtotal;
-							best_vclock = try_vclock;
-							best_found = 1;
-						}
-					}
-				}
+		/* high limit */
+		/* the ceil() approximation uses a lesser vclock */
+		try_vtotal = ceil(mode->hclock.low / mode->vclock.high);
+		try_hclock = mode->hclock.low;
+		try_vclock = try_hclock / try_vtotal;
+		if (monitor_mode_hvclock_check(mode, try_hclock, try_vclock)) {
+			if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
+				best_vtotal = try_vtotal;
+				best_vclock = try_vclock;
+				best_found = 1;
 			}
 		}
 	}
@@ -301,29 +346,28 @@ static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, doubl
 	vtotal = *req_vtotal;
 
 	/* check for every hclock limit */
-	for(j=0;j<MONITOR_RANGE_MAX;++j) {
-		if (monitor->hclock[j].low != 0 && monitor->hclock[j].high != 0) {
-			int try_vtotal;
-			double try_hclock;
+	for(j=0;j<monitor->mode_mac;++j) {
+		const adv_monitor_mode* mode = &monitor->mode_map[j];
+		int try_vtotal;
+		double try_hclock;
 
-			/* the floor() approximation uses a lesser hclock */
-			try_vtotal = floor(monitor->hclock[j].high / req_vclock);
-			try_hclock = req_vclock * try_vtotal;
-			if (monitor_hvclock_check(monitor, try_hclock, req_vclock)) {
-				if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
-					best_vtotal = try_vtotal;
-					best_found = 1;
-				}
+		/* the floor() approximation uses a lesser hclock */
+		try_vtotal = floor(mode->hclock.high / req_vclock);
+		try_hclock = req_vclock * try_vtotal;
+		if (monitor_mode_hvclock_check(mode, try_hclock, req_vclock)) {
+			if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
+				best_vtotal = try_vtotal;
+				best_found = 1;
 			}
+		}
 
-			/* the ceil() approximation uses a greater hclock */
-			try_vtotal = ceil(monitor->hclock[j].low / req_vclock);
-			try_hclock = req_vclock * try_vtotal;
-			if (monitor_hvclock_check(monitor, try_hclock, req_vclock)) {
-				if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
-					best_vtotal = try_vtotal;
-					best_found = 1;
-				}
+		/* the ceil() approximation uses a greater hclock */
+		try_vtotal = ceil(mode->hclock.low / req_vclock);
+		try_hclock = req_vclock * try_vtotal;
+		if (monitor_mode_hvclock_check(mode, try_hclock, req_vclock)) {
+			if (!best_found || abs(try_vtotal - vtotal) < abs(best_vtotal - vtotal)) {
+				best_vtotal = try_vtotal;
+				best_found = 1;
 			}
 		}
 	}
@@ -510,37 +554,27 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 	return -1;
 }
 
-/** Change the horizontal resolution. */
+/**
+ * Change the horizontal resolution.
+ * The horizontal clock is maintained.
+ */
 void crtc_hsize_set(adv_crtc* crtc, unsigned hsize)
 {
-	unsigned new_hde = crtc_step(hsize, CRTC_HSTEP);
-	unsigned new_ht = crtc_step(crtc->ht * (double)new_hde / crtc->hde, CRTC_HSTEP);
+	double hclock;
+	adv_generate generate;
 
-	crtc->hrs = crtc_step(crtc->hrs * (double)new_ht / crtc->ht, CRTC_HSTEP);
-	crtc->hre = crtc_step(crtc->hre * (double)new_ht / crtc->ht, CRTC_HSTEP);
-	if (crtc->hrs == crtc->hre)
-		crtc->hre = crtc->hrs + CRTC_HSTEP;
+	hclock = crtc_hclock_get(crtc);
 
-	/* keep the same H clock */
-	crtc->pixelclock = crtc->pixelclock * (double)new_ht / crtc->ht;
+	/* compute the generate value from the current crtc */
+	generate.hactive = crtc->hde;
+	generate.hfront = crtc->hrs - crtc->hde;
+	generate.hsync = crtc->hre - crtc->hrs;
+	generate.hback = crtc->ht - crtc->hre;
 
-	crtc->hde = new_hde;
-	crtc->ht = new_ht;
-}
+	generate_crtc_hsize(crtc, hsize, &generate);
 
-/** Change the vertical resolution. */
-void crtc_vsize_set(adv_crtc* crtc, unsigned vsize)
-{
-	unsigned new_vde = crtc_step(vsize, CRTC_VSTEP);
-	unsigned new_vt = crtc_step(crtc->vt * (double)new_vde / crtc->vde, CRTC_VSTEP);
-
-	crtc->vrs = crtc_step(crtc->vrs * (double)new_vt / crtc->vt, CRTC_VSTEP);
-	crtc->vre = crtc_step(crtc->vre * (double)new_vt / crtc->vt, CRTC_VSTEP);
-	if (crtc->vrs == crtc->vre)
-		crtc->vre = crtc->vrs + CRTC_VSTEP;
-
-	crtc->vde = new_vde;
-	crtc->vt = new_vt;
+	/* restore the previous horizontal clock */
+	crtc_hclock_set(crtc, hclock);
 }
 
 /** Set the pixel clock. */

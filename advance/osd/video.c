@@ -1178,11 +1178,11 @@ static adv_conf_enum_int OPTION_ADJUST[] = {
 { "x", ADJUST_ADJUST_X },
 { "clock", ADJUST_ADJUST_CLOCK },
 { "xclock", ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
-{ "generate_exact", ADJUST_GENERATE },
-{ "generate_y", ADJUST_GENERATE | ADJUST_ADJUST_Y },
-{ "generate_clock", ADJUST_GENERATE | ADJUST_ADJUST_CLOCK },
-{ "generate_yclock", ADJUST_GENERATE | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK | ADJUST_FAVORITE_SIZE_OVER_CLOCK },
-{ "generate_clocky", ADJUST_GENERATE | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK }
+{ "generate_exact", ADJUST_GENERATE | ADJUST_ADJUST_X },
+{ "generate_y", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y },
+{ "generate_clock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
+{ "generate_yclock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK | ADJUST_FAVORITE_SIZE_OVER_CLOCK },
+{ "generate_clocky", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK }
 };
 
 static adv_conf_enum_int OPTION_MAGNIFY[] = {
@@ -1267,8 +1267,8 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "display_color", conf_enum(OPTION_INDEX), 0);
 	conf_bool_register_default(cfg_context, "display_restore", 1);
 	conf_float_register_limit_default(cfg_context, "display_expand", 1.0, 10.0, 1.0);
-	conf_int_register_limit_default(cfg_context, "display_aspectx", 1, INT_MAX, 4);
-	conf_int_register_limit_default(cfg_context, "display_aspecty", 1, INT_MAX, 3);
+	conf_int_register_limit_default(cfg_context, "display_aspectx", 1, 10000, 4);
+	conf_int_register_limit_default(cfg_context, "display_aspecty", 1, 10000, 3);
 
 #ifdef USE_SMP
 	conf_bool_register_default(cfg_context, "misc_smp", 0);
@@ -1486,14 +1486,9 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		return -1;
 	}
 	if (err==0) {
-		/* print the clock ranges */
-		log_std(("emu:video: pclock %.3f - %.3f\n", (double)context->config.monitor.pclock.low, (double)context->config.monitor.pclock.high));
-		for(i=0;i<MONITOR_RANGE_MAX;++i)
-			if (context->config.monitor.hclock[i].low)
-				log_std(("emu:video: hclock %.3f - %.3f\n", (double)context->config.monitor.hclock[i].low, (double)context->config.monitor.hclock[i].high));
-		for(i=0;i<MONITOR_RANGE_MAX;++i)
-			if (context->config.monitor.vclock[i].low)
-				log_std(("emu:video: vclock %.3f - %.3f\n", (double)context->config.monitor.vclock[i].low, (double)context->config.monitor.vclock[i].high));
+		char buffer[1024];
+		monitor_print(buffer, sizeof(buffer), &context->config.monitor);
+		log_std(("emu:video: clock %s\n", buffer));
 	}
 	if (err>0) {
 		monitor_reset(&context->config.monitor);
@@ -1506,13 +1501,13 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
 	} else if (err>0) {
-		if (monitor_hclock_check(&context->config.monitor, 15720)) {
+		if (monitor_clock_check(&context->config.monitor, 7.16E6, 15720, 60)) {
 			/* Arcade Standard Resolution */
 			log_std(("emu:video: default format standard resolution\n"));
 			generate_default_atari_standard(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 15720;
 			context->config.interpolate.mac = 1;
-		} else if (monitor_hclock_check(&context->config.monitor, 25000)) {
+		} else if (monitor_clock_check(&context->config.monitor, 16E6, 25000, 60)) {
 			/* Arcade Medium Resolution */
 			log_std(("emu:video: default format medium resolution\n"));
 			generate_default_atari_medium(&context->config.interpolate.map[0].gen);

@@ -154,7 +154,7 @@ public:
 
 	unsigned preview_set(game_set& gar) const;
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet) = 0;
 	virtual bool load_data(const game_set& gar) = 0;
 	virtual bool load_game(game_set& gar, bool quiet) = 0;
@@ -186,6 +186,8 @@ protected:
 	bool is_update_info();
 	bool update_xml();
 	bool is_update_xml();
+	bool is_present_info();
+	bool is_present_xml();
 public:
 	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -238,7 +240,7 @@ public:
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
 };
@@ -298,7 +300,7 @@ class advmess : public mame_mess {
 public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
@@ -315,7 +317,7 @@ class dmess : public mame_mess {
 public:
 	dmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
@@ -354,7 +356,7 @@ class draine : public raine_info {
 public:
 	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
@@ -375,7 +377,7 @@ public:
 
 	virtual std::string type_get() const;
 
-	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, bool set_difficulty, difficulty_t difficulty, bool set_attenuation, int attenuation, bool ignore_error) const;
 	virtual bool is_present() const;
 	virtual bool is_runnable() const;
 	virtual bool is_empty() const;

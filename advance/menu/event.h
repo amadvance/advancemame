@@ -48,7 +48,7 @@
 #define EVENT_SORT (18 << 16)
 #define EVENT_SETGROUP (19 << 16)
 #define EVENT_SETTYPE (20 << 16)
-#define EVENT_RUN_CLONE (21 << 16)
+#define EVENT_CLONE (21 << 16)
 #define EVENT_IDLE_0 (22 << 16)
 #define EVENT_IDLE_1 (23 << 16)
 #define EVENT_COMMAND (27 << 16)
@@ -61,7 +61,7 @@
 
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);
-std::string event_tag(const std::string& s, unsigned event);
+std::string event_name(unsigned event);
 
 void event_poll();
 void event_push(int event);
@@ -69,7 +69,6 @@ void event_push_repeat(int event);
 int event_pop();
 int event_peek();
 int event_last();
-void event_forget();
 
 void event_setup(const std::string& press_sound, double delay_repeat_ms, double delay_repeat_next_ms, bool alpha_mode);
 

@@ -1,6 +1,29 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.87.0 2004/09
+	) Added support for translucency in the user interface
+		with the `ui_translucency' option.
+	) Added a new `device_video_clock' option which substitutes
+		the old `device_video_p/h/vclock'. This allows
+		a more complete specification of the allowed clocks
+		if you use a multistandard arcade monitor.
+	) The `x', `xclock' and `generate_*' modes of the `display_adjust'
+		option now set a different horizontal resolution if
+		the current resize mode doesn't allow a fractional
+		vertical stretch. This always ensures a correct
+		aspect ratio if you use the `none' and `integer'
+		resize modes.
+	) Improved the support for multiple input device. You should
+		be now able to use a mouse and a joystick at the same
+		time for the same player.
+	) Fixed a library creation problem in MacOS X.
+	) Fixed some issues using `not' input sequence in
+		the .rc file.
+	) Now if you unplug a input controller the settings in
+		the .rc file are not removed.
+	) Fixed the `input_name' option [wpcmame].
+
 AdvanceMAME Version 0.86.0 2004/09
 	) Added an audio spectrum analyzer in the "Audio" menu.
 	) The sound normalization now uses the Fletcher-Munson

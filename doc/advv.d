@@ -18,15 +18,9 @@ Description
 	file used to store the video modes.
 
 	Before running this utility you must add in your configuration
-	file the options:
-
-		:device_video_pclock ?
-		:device_video_hclock ?
-		:device_video_vclock ?
-
-	required to defines the limits of your monitor and video
-	board. You can add them manually or using the `advcfg'
-	utility.
+	file the option `device_video_clock' required to defines
+	the limits of your monitor and video board. You can add them
+	manually or using the `advcfg' utility.
 
 	Check the `advdev.txt' file for more details on these options.
 

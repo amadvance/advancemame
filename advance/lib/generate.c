@@ -41,7 +41,6 @@ void generate_normalize(adv_generate* generate)
 	double ht = generate->hactive + generate->hfront +  generate->hsync + generate->hback;
 	double vt = generate->vactive + generate->vfront +  generate->vsync + generate->vback;
 
-	/* prevent division by 0 for LCD monitor */
 	if (ht) {
 		generate->hactive /= ht;
 		generate->hfront /= ht;
@@ -53,6 +52,35 @@ void generate_normalize(adv_generate* generate)
 		generate->vfront /= vt;
 		generate->vsync /= vt;
 		generate->vback /= vt;
+	}
+}
+
+void generate_normalize_copy(adv_generate* norm, const adv_generate* generate)
+{
+	double ht = generate->hactive + generate->hfront +  generate->hsync + generate->hback;
+	double vt = generate->vactive + generate->vfront +  generate->vsync + generate->vback;
+
+	if (ht) {
+		norm->hactive = generate->hactive / ht;
+		norm->hfront = generate->hfront / ht;
+		norm->hsync = generate->hsync / ht;
+		norm->hback = generate->hback / ht;
+	} else {
+		norm->hactive = 0;
+		norm->hfront = 0;
+		norm->hsync = 0;
+		norm->hback = 0;
+	}
+	if (vt) {
+		norm->vactive = generate->vactive / vt;
+		norm->vfront = generate->vfront / vt;
+		norm->vsync = generate->vsync / vt;
+		norm->vback = generate->vback / vt;
+	} else {
+		norm->vactive = 0;
+		norm->vfront = 0;
+		norm->vsync = 0;
+		norm->vback = 0;
 	}
 }
 
@@ -170,7 +198,7 @@ void generate_default_lcd(adv_generate* generate)
  */
 adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate* generate, unsigned capability, unsigned adjust)
 {
-	adv_generate norm = *generate;
+	adv_generate norm;
 	unsigned vtotal;
 	double factor;
 
@@ -179,7 +207,7 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 	crtc_name_set(crtc, "generate");
 
 	/* use normalized values */
-	generate_normalize(&norm);
+	generate_normalize_copy(&norm, generate);
 
 	/* required */
 	vtotal = crtc_step(vsize / norm.vactive, CRTC_VSTEP);
@@ -199,26 +227,16 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 		return -1;
 
 	/* compute the horizontal crtc */
-	crtc->hde = crtc_step(hsize, CRTC_HSTEP);
-	crtc->ht = crtc_step(crtc->hde / norm.hactive, CRTC_HSTEP);
-	crtc->hrs = crtc_step(crtc->ht * (norm.hactive + norm.hfront), CRTC_HSTEP);
-	crtc->hre = crtc_step(crtc->ht * (norm.hactive + norm.hfront + norm.hsync), CRTC_HSTEP);
-	if (crtc->hrs >= crtc->hre)
-		crtc->hre = crtc->hrs + CRTC_HSTEP;
-	if (crtc->hre >= crtc->ht)
-		crtc->ht = crtc->hre + CRTC_HSTEP;
+	generate_crtc_hsize(crtc, hsize, &norm);
 
 	/* compute the vertical crtc */
-	crtc->vt = crtc_step(vtotal, CRTC_VSTEP);
-	crtc->vde = crtc_step(crtc->vt * norm.vactive, CRTC_VSTEP);
-	if (abs(crtc->vde - vsize) <= CRTC_VSTEP) /* solve precision problem */
+	generate_crtc_vtotal(crtc, vtotal, &norm);
+
+	/* adjust to solve precision problem if possible */
+	if (abs(crtc->vde - vsize) <= CRTC_VSTEP
+		&& crtc_step(vsize, CRTC_VSTEP) <= crtc->vrs) {
 		crtc->vde = crtc_step(vsize, CRTC_VSTEP);
-	crtc->vrs = crtc_step(crtc->vt * (norm.vactive + norm.vfront), CRTC_VSTEP);
-	crtc->vre = crtc_step(crtc->vt * (norm.vactive + norm.vfront + norm.vsync), CRTC_VSTEP);
-	if (crtc->vrs >= crtc->vre)
-		crtc->vre = crtc->vrs + CRTC_VSTEP;
-	if (crtc->vre >= crtc->vt)
-		crtc->vt = crtc->vre + CRTC_VSTEP;
+	}
 
 	/* pixelclock */
 	crtc->pixelclock = vclock * factor * (crtc->vt * crtc->ht);
@@ -340,11 +358,9 @@ void generate_interpolate_h(adv_generate* generate, unsigned hclock, const adv_g
 	if (e0 && e1)
 		generate_interpolate_from2(generate, hclock, e0, e1);
 	else if (e0) {
-		*generate = e0->gen;
-		generate_normalize(generate);
+		generate_normalize_copy(generate, &e0->gen);
 	} else if (e1) {
-		*generate = e1->gen;
-		generate_normalize(generate);
+		generate_normalize_copy(generate, &e1->gen);
 	}
 }
 
@@ -353,7 +369,7 @@ void generate_interpolate_h(adv_generate* generate, unsigned hclock, const adv_g
  */
 adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust)
 {
-	adv_generate norm = interpolate->map[0].gen;
+	adv_generate norm;
 	unsigned vtotal;
 	double factor;
 
@@ -362,7 +378,7 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
 	crtc_name_set(crtc, "generate");
 
 	/* use normalized values */
-	generate_normalize(&norm);
+	generate_normalize_copy(&norm, &interpolate->map[0].gen);
 
 	/* compute the VTOTAL from the first interpolate record */
 	/* this assume that ALL the interpolate record have the same vertical format */
@@ -386,26 +402,16 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
 		return -1;
 
 	/* compute the horizontal crtc */
-	crtc->hde = crtc_step(hsize, CRTC_HSTEP);
-	crtc->ht = crtc_step(crtc->hde / norm.hactive, CRTC_HSTEP);
-	crtc->hrs = crtc_step(crtc->ht * (norm.hactive + norm.hfront), CRTC_HSTEP);
-	crtc->hre = crtc_step(crtc->ht * (norm.hactive + norm.hfront + norm.hsync), CRTC_HSTEP);
-	if (crtc->hrs >= crtc->hre)
-		crtc->hre = crtc->hrs + CRTC_HSTEP;
-	if (crtc->hre >= crtc->ht)
-		crtc->ht = crtc->hre + CRTC_HSTEP;
+	generate_crtc_hsize(crtc, hsize, &norm);
 
 	/* compute the vertical crtc */
-	crtc->vt = crtc_step(vtotal, CRTC_VSTEP);
-	crtc->vde = crtc_step(crtc->vt * norm.vactive, CRTC_VSTEP);
-	if (abs(crtc->vde - vsize) <= CRTC_VSTEP) /* solve precision problem */
+	generate_crtc_vtotal(crtc, vtotal, &norm);
+
+	/* adjust to solve precision problem if possible */
+	if (abs(crtc->vde - vsize) <= CRTC_VSTEP
+		&& crtc_step(vsize, CRTC_VSTEP) <= crtc->vrs) {
 		crtc->vde = crtc_step(vsize, CRTC_VSTEP);
-	crtc->vrs = crtc_step(crtc->vt * (norm.vactive + norm.vfront), CRTC_VSTEP);
-	crtc->vre = crtc_step(crtc->vt * (norm.vactive + norm.vfront + norm.vsync), CRTC_VSTEP);
-	if (crtc->vrs == crtc->vre)
-		crtc->vre = crtc->vrs + CRTC_VSTEP;
-	if (crtc->vre >= crtc->vt)
-		crtc->vt = crtc->vre + CRTC_VSTEP;
+	}
 
 	/* pixelclock */
 	crtc->pixelclock = vclock * factor * (crtc->vt * crtc->ht);
@@ -498,43 +504,92 @@ adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsig
 	return err;
 }
 
-static void generate_crtc_h(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_norm)
+/**
+ * Generate an horizontal crtc from the specified hsize.
+ * \note Only the horizontal crtc values are computed.
+ */
+void generate_crtc_hsize(adv_crtc* crtc, unsigned hsize, const adv_generate* generate)
 {
-	crtc->hde = crtc_step((double)hsize, CRTC_HSTEP);
-	crtc->ht = crtc_step(crtc->hde / generate_norm->hactive, CRTC_HSTEP);
-	crtc->hrs = crtc_step(crtc->ht * (generate_norm->hactive + generate_norm->hfront), CRTC_HSTEP);
-	crtc->hre = crtc_step(crtc->ht * (generate_norm->hactive + generate_norm->hfront + generate_norm->hsync), CRTC_HSTEP);
+	adv_generate generate_norm;
+
+	generate_normalize_copy(&generate_norm, generate);
+
+	crtc->hde = crtc_step(hsize, CRTC_HSTEP);
+	crtc->hrs = crtc_step(crtc->hde * (generate_norm.hactive + generate_norm.hfront) / generate_norm.hactive, CRTC_HSTEP);
+	if (crtc->hde > crtc->hrs)
+		crtc->hrs = crtc->hde;
+	crtc->hre = crtc_step(crtc->hde * (generate_norm.hactive + generate_norm.hfront + generate_norm.hsync) / generate_norm.hactive, CRTC_HSTEP);
 	if (crtc->hrs >= crtc->hre)
 		crtc->hre = crtc->hrs + CRTC_HSTEP;
+	crtc->ht = crtc_step(crtc->hde / generate_norm.hactive, CRTC_HSTEP);
 	if (crtc->hre >= crtc->ht)
 		crtc->ht = crtc->hre + CRTC_HSTEP;
 }
 
-static void generate_crtc_v(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_norm)
+/**
+ * Generate an horizontal crtc from the specified vsize.
+ * \note Only the vertical crtc values are computed.
+ */
+void generate_crtc_vsize(adv_crtc* crtc, unsigned vsize, const adv_generate* generate)
 {
-	crtc->vde = crtc_step((double)vsize, CRTC_VSTEP);
-	crtc->vt = crtc_step(crtc->vde / generate_norm->vactive, CRTC_VSTEP);
-	crtc->vrs = crtc_step(crtc->vt * (generate_norm->vactive + generate_norm->vfront), CRTC_VSTEP);
-	crtc->vre = crtc_step(crtc->vt * (generate_norm->vactive + generate_norm->vfront + generate_norm->vsync), CRTC_VSTEP);
-	if (crtc->vrs == crtc->vre)
+	adv_generate generate_norm;
+
+	generate_normalize_copy(&generate_norm, generate);
+
+	crtc->vde = crtc_step(vsize, CRTC_VSTEP);
+	crtc->vrs = crtc_step(crtc->vde * (generate_norm.vactive + generate_norm.vfront) / generate_norm.vactive, CRTC_VSTEP);
+	if (crtc->vde > crtc->vrs)
+		crtc->vrs = crtc->vde;
+	crtc->vre = crtc_step(crtc->vde * (generate_norm.vactive + generate_norm.vfront + generate_norm.vsync) / generate_norm.vactive, CRTC_VSTEP);
+	if (crtc->vrs >= crtc->vre)
 		crtc->vre = crtc->vrs + CRTC_VSTEP;
+	crtc->vt = crtc_step(crtc->vde / generate_norm.vactive, CRTC_VSTEP);
 	if (crtc->vre >= crtc->vt)
 		crtc->vt = crtc->vre + CRTC_VSTEP;
 }
 
 /**
- * Generate a partical crtc mode without clock information.
- * \note Only the horizontal and vertical crtc values are set.
- * Other crtc values are unchanged.
+ * Generate an horizontal crtc from the specified htotal.
+ * \note Only the horizontal crtc values are computed.
  */
-void generate_crtc(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate)
+void generate_crtc_htotal(adv_crtc* crtc, unsigned htotal, const adv_generate* generate)
 {
-	adv_generate generate_norm = *generate;
+	adv_generate generate_norm;
 
-	generate_normalize(&generate_norm);
+	generate_normalize_copy(&generate_norm, generate);
 
-	generate_crtc_h(crtc, hsize, vsize, &generate_norm);
-	generate_crtc_v(crtc, hsize, vsize, &generate_norm);
+	crtc->ht = crtc_step(htotal, CRTC_HSTEP);
+	crtc->hre = crtc_step(crtc->ht * (generate_norm.hactive + generate_norm.hfront + generate_norm.hsync), CRTC_HSTEP);
+	if (crtc->hre >= crtc->ht)
+		crtc->hre = crtc->ht - CRTC_HSTEP;
+	crtc->hrs = crtc_step(crtc->ht * (generate_norm.hactive + generate_norm.hfront), CRTC_HSTEP);
+	if (crtc->hrs >= crtc->hre)
+		crtc->hrs = crtc->hre - CRTC_HSTEP;
+	crtc->hde = crtc_step(crtc->ht * generate_norm.hactive, CRTC_HSTEP);
+	if (crtc->hde > crtc->hrs)
+		crtc->hde = crtc->hrs;
+}
+
+/**
+ * Generate an horizontal crtc from the specified vtotal.
+ * \note Only the vertical crtc values are computed.
+ */
+void generate_crtc_vtotal(adv_crtc* crtc, unsigned vtotal, const adv_generate* generate)
+{
+	adv_generate generate_norm;
+
+	generate_normalize_copy(&generate_norm, generate);
+
+	crtc->vt = crtc_step(vtotal, CRTC_VSTEP);
+	crtc->vre = crtc_step(crtc->vt * (generate_norm.vactive + generate_norm.vfront + generate_norm.vsync), CRTC_VSTEP);
+	if (crtc->vre >= crtc->vt)
+		crtc->vre = crtc->vt - CRTC_VSTEP;
+	crtc->vrs = crtc_step(crtc->vt * (generate_norm.vactive + generate_norm.vfront), CRTC_VSTEP);
+	if (crtc->vrs >= crtc->vre)
+		crtc->vrs = crtc->vre - CRTC_VSTEP;
+	crtc->vde = crtc_step(crtc->vt * generate_norm.vactive, CRTC_VSTEP);
+	if (crtc->vde > crtc->vrs)
+		crtc->vde = crtc->vrs;
 }
 
 void generate_interpolate_reset(adv_generate_interpolate_set* interpolate)

@@ -44,7 +44,8 @@ static adv_conf_enum_int OPTION_SORT[] = {
 { "size", sort_by_size },
 { "resolution", sort_by_res },
 { "info", sort_by_info },
-{ "timeperplay", sort_by_timepersession }
+{ "timeperplay", sort_by_timepersession },
+{ "emulator", sort_by_emulator }
 };
 
 static adv_conf_enum_int OPTION_MODE[] = {
@@ -85,6 +86,14 @@ static adv_conf_enum_int OPTION_EXIT[] = {
 static adv_conf_enum_int OPTION_SAVER[] = {
 { "snap", saver_snap },
 { "play", saver_play },
+{ "flyers", saver_flyer },
+{ "cabinets", saver_cabinet },
+{ "titles", saver_title },
+{ "none", saver_off }
+};
+
+static adv_conf_enum_int OPTION_GAMESAVER[] = {
+{ "snap", saver_snap },
 { "flyers", saver_flyer },
 { "cabinets", saver_cabinet },
 { "titles", saver_title },
@@ -258,7 +267,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_default(config_context, "menu_rel", 0);
 	conf_string_register_default(config_context, "event_repeat", "500 50");
 	conf_string_register_default(config_context, "ui_gamemsg", "\"Loading\"");
-	conf_int_register_enum_default(config_context, "ui_game", conf_enum(OPTION_SAVER), saver_snap);
+	conf_int_register_enum_default(config_context, "ui_game", conf_enum(OPTION_GAMESAVER), saver_snap);
 	conf_int_register_enum_default(config_context, "difficulty", conf_enum(OPTION_DIFFICULTY), difficulty_none);
 	conf_int_register_enum_default(config_context, "preview", conf_enum(OPTION_PREVIEW), preview_snap);
 	conf_float_register_limit_default(config_context, "preview_expand", 1.0, 3.0, 1.15);
@@ -294,6 +303,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_bool_register_default(config_context, "display_restoreatgame", 1);
 	conf_bool_register_default(config_context, "display_restoreatexit", 1);
 	conf_bool_register_default(config_context, "misc_quiet", 0);
+	conf_float_register_limit_default(config_context, "ui_translucency", 0, 1, 0.6);
 	conf_string_register_default(config_context, "ui_background", "none");
 	conf_string_register_default(config_context, "ui_help", "none");
 	conf_string_register_default(config_context, "ui_exit", "none");
@@ -748,6 +758,10 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	default_mode_orig = (listmode_t)conf_int_get_default(config_context, "mode");
 	default_preview_orig = (listpreview_t)conf_int_get_default(config_context, "preview");
 
+	double d = conf_float_get_default(config_context, "ui_translucency");
+	ui_translucency = static_cast<int>(d * 255);
+	if (ui_translucency > 255)
+		ui_translucency = 255;
 	if (!config_path(conf_string_get_default(config_context, "ui_background"), ui_back))
 		return false;
 	if (!config_path(conf_string_get_default(config_context, "ui_help"), ui_help))
@@ -886,9 +900,9 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 
 	// select the active emulators
 	for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
-		if ((*i)->is_present())
+		if ((*i)->is_present()) {
 			emu_active.insert(emu_active.end(), *i);
-		else {
+		} else {
 			if (!quiet)
 				target_err("Emulator '%s' not found, ignoring it.\n", (*i)->user_exe_path_get().c_str());
 		}
@@ -1374,6 +1388,8 @@ void config_state::sub_enable()
 				break;
 			}
 		}
+	} else if (include_emu_effective.size() == 0 && emu_active.size() == 1) {
+		sub_emu = *emu_active.begin();
 	} else {
 		sub_emu = 0;
 	}

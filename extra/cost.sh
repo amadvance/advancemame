@@ -1,10 +1,11 @@
 #!/bin/bash
 
-EMU=advancemame-0.78.0-diff
-MENU=advancemenu-2.2.17
+EMU=advancemame-0.86.0-diff
+MENU=advancemenu-2.3.8
 CAB=advancecab-1.1.4
-SCAN=advancescan-1.8
-COMP=advancecomp-1.9
+SCAN=advancescan-1.10
+COMP=advancecomp-1.12
+MAKEBOOTFAT=makebootfat-1.1
 
 rm -r -f cost.tmp
 mkdir cost.tmp
@@ -14,6 +15,7 @@ mkdir cost.tmp
 (cd cost.tmp && tar zxf ../../$CAB.tar.gz)
 (cd cost.tmp && tar zxf ../../../advscan/$SCAN.tar.gz)
 (cd cost.tmp && tar zxf ../../../advcomp/$COMP.tar.gz)
+(cd cost.tmp && tar zxf ../../../makebootfat/$MAKEBOOTFAT.tar.gz)
 
 for FILE in \
 	configure config.guess config.sub missing install-sh mkinstalldirs aclocal.m4 \
@@ -28,6 +30,7 @@ for FILE in \
 	advance/svgalib/drivers advance/svgalib/clockchi advance/svgalib/ramdac \
 	advance/mpglib \
 	advance/expat \
+	advance/zlib \
 	advance/osd/y_tab.c advance/osd/lexyy.c \
 	; do
 	rm -f -r cost.tmp/$EMU/$FILE
@@ -50,6 +53,7 @@ for FILE in \
 	; do
 	rm -f -r cost.tmp/$SCAN/$FILE
 	rm -f -r cost.tmp/$COMP/$FILE
+	rm -f -r cost.tmp/$MAKEBOOTFAT/$FILE
 done
 
 sloccount --effort 1.47 1.05 cost.tmp > cost/cost.txt
@@ -57,11 +61,13 @@ sloccount --effort 1.47 1.05 cost.tmp > cost/cost.txt
 mkdir cost.tmp/advance
 mkdir cost.tmp/advance/scan
 mkdir cost.tmp/advance/comp
+mkdir cost.tmp/advance/makebootfat
 cp -a cost.tmp/$EMU/advance/* cost.tmp/advance
 cp -a cost.tmp/$MENU/advance/* cost.tmp/advance
 cp -a cost.tmp/$CAB/advance/* cost.tmp/advance
 cp -a cost.tmp/$SCAN/* cost.tmp/advance/scan
 cp -a cost.tmp/$COMP/* cost.tmp/advance/comp
+cp -a cost.tmp/$MAKEBOOTFAT/* cost.tmp/advance/makebootfat
 
 sloccount --effort 1.47 1.05 cost.tmp/advance > cost/cost-detailed.txt
 

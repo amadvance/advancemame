@@ -39,6 +39,8 @@
 void monitor_reset(adv_monitor* monitor)
 {
 	memset(monitor, 0, sizeof(adv_monitor));
+
+	monitor->mode_mac = 0;
 }
 
 /**
@@ -46,86 +48,69 @@ void monitor_reset(adv_monitor* monitor)
  */
 adv_bool monitor_is_empty(const adv_monitor* monitor)
 {
-	int i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->hclock[i].low != 0 || monitor->hclock[i].high != 0)
-			return 0;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->vclock[i].low != 0 || monitor->vclock[i].high != 0)
-			return 0;
-	return 1;
+	return monitor->mode_mac == 0;
 }
 
-/**
- * Check if a horizontal clock is acceptable.
- * \param monitor Monitor clock specification.
- * \param hclock Horizontal clock.
- */
-adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock)
+adv_bool monitor_mode_hclock_check(const adv_monitor_mode* mode, double hclock)
 {
-	const double monitor_hfix_error = 0.02;
-	const double monitor_hrange_error = 0.01;
-	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
-			if (monitor->hclock[i].low == monitor->hclock[i].high) {
-				/* use a % error */
-				if (monitor->hclock[i].low * (1-monitor_hfix_error) <= hclock && hclock <= monitor->hclock[i].high * (1+monitor_hfix_error))
-					break;
-			} else {
-				/* use 1 unit error */
-				if (monitor->hclock[i].low * (1-monitor_hrange_error) <= hclock && hclock <= monitor->hclock[i].high * (1+monitor_hrange_error))
-					break;
-			}
-		}
+	const double monitor_hfix_error = 0.02; /* allowed error for fixed value. */
+	const double monitor_hrange_error = 0.01; /* allowed error for range value. */
+
+	if (mode->hclock.low == mode->hclock.high) {
+		return mode->hclock.low * (1-monitor_hfix_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_hfix_error);
+	} else {
+		return mode->hclock.low * (1-monitor_hrange_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_hrange_error);
 	}
-	if (i==MONITOR_RANGE_MAX) {
-		error_nolog_set("Horizontal clock of %.2f kHz is out of range of your monitor", (double)hclock / 1E3);
-		return 0;
-	}
-	return 1;
 }
 
-/**
- * Check if a vertical clock is acceptable.
- * \param monitor Monitor clock specification.
- * \param vclock Horizontal clock.
- */
-adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock)
+adv_bool monitor_mode_vclock_check(const adv_monitor_mode* mode, double vclock)
 {
-	const double monitor_vfix_error = 0.02;
-	const double monitor_vrange_error = 0.01;
-	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i) {
-		if (monitor->vclock[i].low != 0 && monitor->vclock[i].high != 0) {
-			if (monitor->vclock[i].low == monitor->vclock[i].high) {
-				if (monitor->vclock[i].low * (1-monitor_vfix_error) <= vclock && vclock <= monitor->vclock[i].high * (1+monitor_vfix_error))
-					break;
-			} else {
-				if (monitor->vclock[i].low * (1-monitor_vrange_error)<= vclock && vclock <= monitor->vclock[i].high * (1+monitor_vrange_error))
-					break;
-			}
-		}
+	const double monitor_vfix_error = 0.02; /* allowed error for fixed value. */
+	const double monitor_vrange_error = 0.01; /* allowed error for range value. */
+
+	if (mode->vclock.low == mode->vclock.high) {
+		return mode->vclock.low * (1-monitor_vfix_error) <= vclock && vclock <= mode->vclock.high * (1+monitor_vfix_error);
+	} else {
+		return mode->vclock.low * (1-monitor_vrange_error)<= vclock && vclock <= mode->vclock.high * (1+monitor_vrange_error);
 	}
-	if (i==MONITOR_RANGE_MAX) {
-		error_nolog_set("Vertical clock of %.2f Hz is out of range of your monitor", (double)vclock);
-		return 0;
-	}
-	return 1;
 }
 
 /**
  * Check if a pixel clock is acceptable.
- * \param monitor Monitor clock specification.
+ * \param mode Monitor mode specification.
  * \param pclock Horizontal clock.
  */
-adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock)
+adv_bool monitor_mode_pclock_check(const adv_monitor_mode* mode, double pclock)
 {
-	if (monitor->pclock.low <= pclock && pclock <= monitor->pclock.high)
+	if (mode->pclock.low <= pclock && pclock <= mode->pclock.high)
 		return 1;
 
-	error_nolog_set("Pixel clock of %.2f Hz is out of range of your video board", (double)pclock);
 	return 0;
+}
+
+/**
+ * Check if a horizontal and vertical clocks are acceptable.
+ * \param mode Monitor mode specification.
+ * \param hclock Horizontal clock.
+ * \param vclock Vertical clock.
+ */
+adv_bool monitor_mode_hvclock_check(const adv_monitor_mode* mode, double hclock, double vclock)
+{
+	return monitor_mode_hclock_check(mode, hclock)
+		&& monitor_mode_vclock_check(mode, vclock);
+}
+
+/**
+ * Check if a horizontal and vertical clocks are acceptable.
+ * \param mode Monitor mode specification.
+ * \param hclock Horizontal clock.
+ * \param vclock Vertical clock.
+ */
+adv_bool monitor_mode_clock_check(const adv_monitor_mode* mode, double pclock, double hclock, double vclock)
+{
+	return monitor_mode_pclock_check(mode, pclock)
+		&& monitor_mode_hclock_check(mode, hclock)
+		&& monitor_mode_vclock_check(mode, vclock);
 }
 
 /**
@@ -137,9 +122,14 @@ adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock)
  */
 adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock)
 {
-	return monitor_pclock_check(monitor, pclock)
-		&& monitor_hclock_check(monitor, hclock)
-		&& monitor_vclock_check(monitor, vclock);
+	unsigned i;
+
+	for(i=0;i<monitor->mode_mac;++i)
+		if (monitor_mode_clock_check(&monitor->mode_map[i], pclock, hclock, vclock))
+			return 1;
+
+	error_nolog_set("Pixel/Horizontal/Vertical clocks of %.2f/%.2f/%.2f MHz/kHz/Hz are out of range of your monitor", (double)pclock / 1E6, (double)hclock / 1E3, (double)vclock);
+	return 0;
 }
 
 /**
@@ -150,86 +140,13 @@ adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double h
  */
 adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock)
 {
-	return monitor_hclock_check(monitor, hclock)
-		&& monitor_vclock_check(monitor, vclock);
-}
-
-/**
- * Return the min horizontal clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_hclock_min(const adv_monitor* monitor)
-{
-	double min = 0;
 	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->hclock[i].low != 0 && (min == 0 || monitor->hclock[i].low < min))
-			min = monitor->hclock[i].low;
-	return min;
+
+	for(i=0;i<monitor->mode_mac;++i)
+		if (monitor_mode_hvclock_check(&monitor->mode_map[i], hclock, vclock))
+			return 1;
+
+	error_nolog_set("Horizontal/Vertical clocks of %.2f/%.2f Hz/kHz are out of range of your monitor", (double)hclock / 1E3, (double)vclock);
+	return 0;
 }
 
-/**
- * Return the max horizontal clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_hclock_max(const adv_monitor* monitor)
-{
-	double max = 0;
-	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->hclock[i].high != 0 && (max == 0 || monitor->hclock[i].high > max))
-			max = monitor->hclock[i].high;
-	return max;
-}
-
-/**
- * Return the min vertical clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_vclock_min(const adv_monitor* monitor)
-{
-	double min = 0;
-	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->vclock[i].low != 0 && (min == 0 || monitor->vclock[i].low < min))
-			min = monitor->vclock[i].low;
-	return min;
-}
-
-/**
- * Return the max vertical clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_vclock_max(const adv_monitor* monitor)
-{
-	double max = 0;
-	unsigned i;
-	for(i=0;i<MONITOR_RANGE_MAX;++i)
-		if (monitor->vclock[i].high != 0 && (max == 0 || monitor->vclock[i].high > max))
-			max = monitor->vclock[i].high;
-	return max;
-}
-
-/**
- * Return the min pixel clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_pclock_min(const adv_monitor* monitor)
-{
-	return monitor->pclock.low;
-}
-
-/**
- * Return the max pixel clock.
- * \param monitor Monitor clock specification.
- * \return Clock in Hz.
- */
-double monitor_pclock_max(const adv_monitor* monitor)
-{
-	return monitor->pclock.high;
-}

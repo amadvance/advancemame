@@ -59,9 +59,9 @@ typedef struct adv_color_rgb_struct {
  * YUV color.
  */
 typedef struct adv_color_yuv_struct {
-	uint8 y __attribute__ ((packed)); /**< Blue channel. From 0 to 255. */
-	uint8 u __attribute__ ((packed)); /**< Green channel. From 0 to 255. */
-	uint8 v __attribute__ ((packed)); /**< Red channel. From 0 to 255. */
+	uint8 y __attribute__ ((packed)); /**< Y channel. From 0 to 255. */
+	uint8 u __attribute__ ((packed)); /**< U channel. From 0 to 255. */
+	uint8 v __attribute__ ((packed)); /**< V channel. From 0 to 255. */
 	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
 } adv_color_yuv;
 
@@ -81,7 +81,7 @@ typedef enum adv_color_type_enum {
 } adv_color_type;
 
 /**
- * RGB/YUV definition as bit nibble.
+ * Color definition as bit nibble.
  */
 struct adv_color_def_bits {
 	unsigned type : 3; /**< Type bit. */
@@ -101,7 +101,7 @@ struct adv_color_def_bits {
 typedef unsigned adv_color_def;
 
 /**
- * color definition as union.
+ * Color definition as union.
  */
 union adv_color_def_union {
 	adv_color_def ordinal;
@@ -118,7 +118,8 @@ adv_color_def color_def_make_rgb_from_sizelenpos(unsigned bytes_per_pixel, unsig
 adv_color_def color_def_make_rgb_from_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask);
 adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
-adv_pixel alpha_make_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def_ordinal);
+adv_pixel pixel_merge_from_def(unsigned fr, unsigned fg, unsigned fb, unsigned br, unsigned bg, unsigned bb, unsigned char a, adv_color_def def);
+adv_pixel alpha_make_from_def(unsigned r, unsigned g, unsigned b, unsigned a, adv_color_def def_ordinal);
 
 /**
  * Get the whole mask of all the color channels.
@@ -239,6 +240,8 @@ static inline void rgb_shiftmask_get(int* shift, unsigned* mask, unsigned len, u
 	*shift = pos + len - 8;
 	*mask = ((1 << len) - 1) << pos;
 }
+
+void alpha_shiftmask_get(int* shift, unsigned* mask, adv_color_def def_ordinal);
 
 int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
 adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);

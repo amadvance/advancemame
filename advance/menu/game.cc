@@ -688,6 +688,12 @@ bool game_set::preview_software_list_set(const string& list, const string& emula
 // -------------------------------------------------------------------------
 // Sort category
 
+bool pgame_by_emulator_less(const game* A, const game* B)
+{
+	assert(A->emulator_get() != 0 && B->emulator_get() != 0);
+	return A->emulator_get()->user_name_get() > B->emulator_get()->user_name_get();
+}
+
 string sort_item_root_name(const game& g)
 {
 	const game& root = g.root_get();
@@ -720,7 +726,11 @@ string sort_item_name(const game& g)
 
 string sort_item_manufacturer(const game& g)
 {
-	return g.manufacturer_get();
+	if (!g.manufacturer_get().length()
+		|| g.manufacturer_get()[0] == '?')
+		return "<unknown>";
+	else
+		return g.manufacturer_get();
 }
 
 string sort_item_year(const game& g)
@@ -733,8 +743,7 @@ string sort_item_year(const game& g)
 
 string sort_item_time(const game& g)
 {
-	(void)g;
-	return string();
+	return g.emulator_get()->user_name_get();
 }
 
 string sort_item_session(const game& g)
@@ -782,5 +791,10 @@ string sort_item_timepersession(const game& g)
 {
 	(void)g;
 	return string();
+}
+
+string sort_item_emulator(const game& g)
+{
+	return g.emulator_get()->user_name_get();
 }
 

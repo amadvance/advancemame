@@ -626,7 +626,8 @@ HEADER
 "\tThe `svgawin' driver is a subset of the Linux SVGALIB library.\n"
 "\n"
 "\tThis driver is experimental. At present it's only tested on Windows\n"
-"\t2000 with a GeForce 2 board. It may not work will all the other boards.\n"
+"\t2000 with a GeForce 2 board. It's supposed to work with GeForge boards,\n"
+"\tit may not work with all the other boards.\n"
 "\n"
 ;
 

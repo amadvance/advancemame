@@ -399,8 +399,7 @@ string dir_cwd()
 {
 	char cwd[FILE_MAXPATH];
 	if (getcwd(cwd, FILE_MAXPATH)==0) {
-		assert(0);
-		return "/"; /* TODO this should never happen */
+		return "/";
 	} else {
 		return file_import(cwd);
 	}

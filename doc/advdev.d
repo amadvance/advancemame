@@ -63,7 +63,7 @@ Video Drivers
 	SVGALIB HorizSync and VertRefresh options in the
 	file /etc/vga/libvga.config file.
 	You must use a range equal or a bit larger than the range
-	specified with the AdvanceMAME hclock and vclock options.
+	specified with the AdvanceMAME `device_video_clock' option.
 
 	This driver is not available in X (when the environment DISPLAY
 	variable is defined).
@@ -527,81 +527,36 @@ Video Drivers Configuration
 	The following are the common video configuration options
 	available for all `generate' video drivers, i.e. all the
 	video drivers with the exception of `sdl' and `vbe'.
-	The `sdl' and `vbe' video drivers simply ignore all these
+	The `sdl' and `vbe' video drivers simply ignore these
 	options.
 
-    device_video_pclock/hclock/vclock
+    device_video_clock
 	Specify the monitor frequency range in term of horizontal and
 	vertical clocks. This option is MANDATORY.
 	Generally these values are specified in the technical page of 
 	your monitor manual. 
 
-	:device_video_pclock P_LOW - P_HIGH
-	:device_video_hclock H_LOW - H_HIGH [, H_LOW - H_HIGH] [, H_FIXED]
-	:device_video_vclock V_LOW - V_HIGH [, V_LOW - V_HIGH] [, V_FIXED]
+	:device_video_clock PIXEL_CLOCK / HORZ_CLOCK / VERT_CLOCK [; ...]
 
 	Options:
-		P_LOW - P_HIGH - Pixel clock range in MHz
+		PIXEL_CLOCK - Pixel clock range in MHz.
 			The lower value is the lower clock generable
 			by your video board. The higher value is the
-			video bandwidth of your monitor. If don't know
-			these values you can start with `pclock 5 - 90'
-			which essentially enable any video mode.
-		H_LOW - H_HIGH - Horizontal clock range in kHz
-		H_FIXED - Horizontal fixed clock in kHz
-		V_LOW - V_HIGH - Vertical clock range in Hz
-		V_FIXED - Vertical fixed clock in Hz
+			video bandwidth of your monitor. If you
+			don't know these values you can start
+			with `5 - 100' which essentially enable any
+			video mode.
+		HORZ_CLOCK - Horizontal clock range in kHz.
+		VERT_CLOCK- Vertical clock range in Hz.
 
-	Example for a Generic PC SVGA multisync monitor:
+	For any range you can specify a single value like `60' or a
+	range of values like `50 - 60'. For multistandard TVs and monitors
+	you can use more clock specifications separating them with `;'.
 
-		:device_video_pclock 10 - 150
-		:device_video_hclock 30.5 - 60
-		:device_video_vclock 55 - 130
+	For example:
+		:device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
 
-	Example for a Generic PC VGA monitor:
-
-		:device_video_pclock 10 - 50
-		:device_video_hclock 31.5
-		:device_video_vclock 55 - 130
-
-	Example for a PAL TV (European):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62
-		:device_video_vclock 50
-
-	Example for PAL TV (European) which supports also NTSC TV
-	(USA) modes (common if you use the SCART input):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62, 15.73
-		:device_video_vclock 50, 60
-
-	Example for a NTSC TV (USA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.73
-		:device_video_vclock 59.94
-
-	Example for a Generic Arcade Monitor Standard Resolution 15 kHz (CGA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.75
-		:device_video_vclock 50 - 60
-
-	Example for a Generic Atari Monitor Extended Resolution 16 kHz:
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 16.5
-		:device_video_vclock 53
-
-	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 25
-		:device_video_vclock 50 - 60
-
-	Check the `install.txt' file for other information.
+	Check the `install.txt' file for examples and other information.
 
     device_video_modeline
 	Define a video modeline. The modeline format is compatible with
@@ -654,7 +609,7 @@ Video Drivers Configuration
 		:31500 0.800 0.020 0.120 0.060 0.914 0.019 0.004 0.063
 
 	Which one of these defaults is used depends on the setting of the 
-	device_video_hclock option.
+	`device_video_clock' option.
 
     device_video_singlescan/doublescan/interlace
 	Limit the use of certain features.

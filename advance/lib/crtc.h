@@ -96,6 +96,7 @@ typedef struct adv_crtc_struct {
 unsigned crtc_step(double v, unsigned st);
 
 adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor);
+adv_error crtc_adjust_size(adv_crtc* crtc, const adv_monitor* monitor);
 
 #define CRTC_ADJUST_EXACT 0x0001 /**< Find the exact modes */
 #define CRTC_ADJUST_VCLOCK 0x0002 /**< Find also modes with different vclock */
@@ -213,7 +214,6 @@ void crtc_vclock_set(adv_crtc* crtc, double vclock);
 void crtc_hclock_set(adv_crtc* crtc, double hclock);
 void crtc_pclock_set(adv_crtc* crtc, double pclock);
 void crtc_hsize_set(adv_crtc* crtc, unsigned hsize);
-void crtc_vsize_set(adv_crtc* crtc, unsigned vsize);
 
 /**
  * Return the horizontal size in pixel of the CRTC specification.

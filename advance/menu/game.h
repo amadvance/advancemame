@@ -336,25 +336,23 @@ inline bool pgame_by_desc_less(const game* A, const game* B)
 	return case_less(A->description_get(), B->description_get());
 }
 
-inline bool pgame_by_rootdesc_less(const game* A, const game* B)
-{
-	while (A->parent_get()) A = A->parent_get();
-	while (B->parent_get()) B = B->parent_get();
-	return pgame_by_desc_less(A, B);
-}
-
+/**
+ * Compare all the description from the parent to the specified games.
+ */
 inline bool pgame_by_leveldesc_less(const game* A, const game* B)
 {
 	const unsigned stack_max = 16;
 	const game* Astack_begin[stack_max];
 	const game** Astack_end = Astack_begin;
+	const game** Astack_limit = Astack_begin + stack_max;
 	const game* Bstack_begin[stack_max];
 	const game** Bstack_end = Bstack_begin;
-	while (A) {
+	const game** Bstack_limit = Bstack_begin + stack_max;
+	while (A != 0 && Astack_end != Astack_limit) {
 		*Astack_end++ = A;
 		A = A->parent_get();
 	}
-	while (B) {
+	while (B != 0 && Bstack_end != Bstack_limit) {
 		*Bstack_end++ = B;
 		B = B->parent_get();
 	}
@@ -385,6 +383,8 @@ inline bool pgame_by_size_less(const game* A, const game* B)
 {
 	return A->size_get() > B->size_get();
 }
+
+bool pgame_by_emulator_less(const game* A, const game* B);
 
 inline bool pgame_by_res_less(const game* A, const game* B)
 {
@@ -440,5 +440,6 @@ std::string sort_item_size(const game& g);
 std::string sort_item_res(const game& g);
 std::string sort_item_info(const game& g);
 std::string sort_item_timepersession(const game& g);
+std::string sort_item_emulator(const game& g);
 
 #endif

@@ -56,37 +56,37 @@ typedef struct adv_monitor_range_struct {
 	double high; /**< High clock limit. */
 } adv_monitor_range;
 
+typedef struct adv_monitor_mode_struct {
+	adv_monitor_range pclock; /**< Supported pixel clocks. */
+	adv_monitor_range hclock; /**< Supported horizontal clocks. */
+	adv_monitor_range vclock; /**< Supported vertical clocks. */
+} adv_monitor_mode;
+
 /**
- * Max number of clock ranges in a monitor specification.
+ * Max number of monitor modes in a monitor specification.
  */
-#define MONITOR_RANGE_MAX 8
+#define MONITOR_MODE_MAX 8
 
 /**
  * Monitor clock specification.
  */
 typedef struct adv_monitor_struct {
-	adv_monitor_range hclock[MONITOR_RANGE_MAX]; /**< Supported horizontal clocks. */
-	adv_monitor_range vclock[MONITOR_RANGE_MAX]; /**< Supported vertical clocks. */
-	adv_monitor_range pclock; /**< Supported pixel clocks. */
+	unsigned mode_mac; /**< Number of supported monitor modes. */
+	adv_monitor_mode mode_map[MONITOR_MODE_MAX]; /**< Supported monitor modes. */
 } adv_monitor;
 
-adv_bool monitor_hclock_check(const adv_monitor* monitor, double hclock);
-adv_bool monitor_vclock_check(const adv_monitor* monitor, double vclock);
-adv_bool monitor_pclock_check(const adv_monitor* monitor, double pclock);
+adv_bool monitor_mode_pclock_check(const adv_monitor_mode* mode, double pclock);
+adv_bool monitor_mode_hclock_check(const adv_monitor_mode* mode, double hclock);
+adv_bool monitor_mode_vclock_check(const adv_monitor_mode* mode, double vclock);
+adv_bool monitor_mode_hvclock_check(const adv_monitor_mode* mode, double hclock, double vclock);
+adv_bool monitor_mode_clock_check(const adv_monitor_mode* mode, double pclock, double hclock, double vclock);
 adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock);
 adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock);
 
-double monitor_hclock_min(const adv_monitor* monitor);
-double monitor_hclock_max(const adv_monitor* monitor);
-double monitor_vclock_min(const adv_monitor* monitor);
-double monitor_vclock_max(const adv_monitor* monitor);
-double monitor_pclock_min(const adv_monitor* monitor);
-double monitor_pclock_max(const adv_monitor* monitor);
-
 void monitor_reset(adv_monitor* monitor);
 adv_bool monitor_is_empty(const adv_monitor* monitor);
-void monitor_print(char* buffer, unsigned size, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult);
-adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v);
+adv_error monitor_parse(adv_monitor* monitor, const char* phv);
+void monitor_print(char* buffer, unsigned size, const adv_monitor* monitor);
 adv_error monitor_load(adv_conf* context, adv_monitor* monitor);
 void monitor_save(adv_conf* context, const adv_monitor* monitor);
 void monitor_register(adv_conf* context);
@@ -98,4 +98,3 @@ void monitor_register(adv_conf* context);
 #endif
 
 /*@}*/
-

@@ -455,7 +455,61 @@ static adv_conf_conv STANDARD[] = {
 /* 0.86.0 */
 { "*", "misc_crash", "*", "%s", "debug_crash", "%s", 0 }, /* rename */
 { "*", "misc_rawsound", "*", "%s", "debug_rawsound", "%s", 0 }, /* rename */
-{ "*", "misc_internaldepth", "*", "%s", "debug_internaldepth", "%s", 0 } /* rename */
+{ "*", "misc_internaldepth", "*", "%s", "debug_internaldepth", "%s", 0 }, /* rename */
+/* 0.86.1 */
+{ "*", "input_setting[p1_paddle_x]", "*", "%s", "input_setting[p1_paddlex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_paddle_x]", "*", "%s", "input_setting[p2_paddlex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_paddle_x]", "*", "%s", "input_setting[p3_paddlex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_paddle_x]", "*", "%s", "input_setting[p4_paddlex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_paddle_y]", "*", "%s", "input_setting[p1_paddley]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_paddle_y]", "*", "%s", "input_setting[p2_paddley]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_paddle_y]", "*", "%s", "input_setting[p3_paddley]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_paddle_y]", "*", "%s", "input_setting[p4_paddley]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_stick_x]", "*", "%s", "input_setting[p1_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_stick_x]", "*", "%s", "input_setting[p2_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_stick_x]", "*", "%s", "input_setting[p3_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_stick_x]", "*", "%s", "input_setting[p4_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_stick_y]", "*", "%s", "input_setting[p1_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_stick_y]", "*", "%s", "input_setting[p2_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_stick_y]", "*", "%s", "input_setting[p3_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_stick_y]", "*", "%s", "input_setting[p4_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_stick_z]", "*", "%s", "input_setting[p1_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_stick_z]", "*", "%s", "input_setting[p2_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_stick_z]", "*", "%s", "input_setting[p3_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_stick_z]", "*", "%s", "input_setting[p4_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_lightgun_x]", "*", "%s", "input_setting[p1_lightgunx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_lightgun_x]", "*", "%s", "input_setting[p2_lightgunx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_lightgun_x]", "*", "%s", "input_setting[p3_lightgunx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_lightgun_x]", "*", "%s", "input_setting[p4_lightgunx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_lightgun_y]", "*", "%s", "input_setting[p1_lightguny]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_lightgun_y]", "*", "%s", "input_setting[p2_lightguny]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_lightgun_y]", "*", "%s", "input_setting[p3_lightguny]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_lightgun_y]", "*", "%s", "input_setting[p4_lightguny]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_dial_x]", "*", "%s", "input_setting[p1_dialx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_dial_x]", "*", "%s", "input_setting[p2_dialx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_dial_x]", "*", "%s", "input_setting[p3_dialx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_dial_x]", "*", "%s", "input_setting[p4_dialx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_dial_y]", "*", "%s", "input_setting[p1_dialy]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_dial_y]", "*", "%s", "input_setting[p2_dialy]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_dial_y]", "*", "%s", "input_setting[p3_dialy]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_dial_y]", "*", "%s", "input_setting[p4_dialy]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_trackball_x]", "*", "%s", "input_setting[p1_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_trackball_x]", "*", "%s", "input_setting[p2_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_trackball_x]", "*", "%s", "input_setting[p3_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_trackball_x]", "*", "%s", "input_setting[p4_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_trackball_y]", "*", "%s", "input_setting[p1_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_trackball_y]", "*", "%s", "input_setting[p2_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_trackball_y]", "*", "%s", "input_setting[p3_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_trackball_y]", "*", "%s", "input_setting[p4_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_mouse_x]", "*", "%s", "input_setting[p1_mousex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_mouse_x]", "*", "%s", "input_setting[p2_mousex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_mouse_x]", "*", "%s", "input_setting[p3_mousex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_mouse_x]", "*", "%s", "input_setting[p4_mousex]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p1_mouse_y]", "*", "%s", "input_setting[p1_mousey]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p2_mouse_y]", "*", "%s", "input_setting[p2_mousey]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p3_mouse_y]", "*", "%s", "input_setting[p3_mousey]", "%s", 0 }, /* rename */
+{ "*", "input_setting[p4_mouse_y]", "*", "%s", "input_setting[p4_mousey]", "%s", 0 }, /* rename */
+{ "*", "ui_speedmark", "*", "%s", "debug_speedmark", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

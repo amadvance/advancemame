@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2004-08-26 22:31:44.000000000 +0200
++++ src/advance.pat	2004-09-22 19:10:40.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2004-07-25 12:42:30.000000000 +0200
-+++ src/common.c	2004-08-26 22:31:44.000000000 +0200
++++ src/common.c	2004-09-22 19:10:40.000000000 +0200
 @@ -765,10 +765,11 @@
  	the given filename
  -------------------------------------------------*/
@@ -68,64 +68,9 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  		if (!options.gui_host && !options.skip_warnings && !bailing)
  		{
  			int k;
-diff -U 5 --new-file --recursive src.ori/cpu/e132xs/e132xs.c src/cpu/e132xs/e132xs.c
---- src.ori/cpu/e132xs/e132xs.c	2004-08-22 21:16:14.000000000 +0200
-+++ src/cpu/e132xs/e132xs.c	2004-08-29 16:12:10.000000000 +0200
-@@ -1753,11 +1753,11 @@
- 
- void e132xs_fcmp(void)
- {
- 	float val1=u2f(SREG);
- 	float val2=u2f(DREG);
--	int unordered=((isunordered(val1,val2))?1:0);
-+	int unordered=isnan(val1)||isnan(val2);
- 	SET_Z(((val1==val2)?1:0)&(unordered^1));
- 	SET_N(((val2<val1)?1:0)|unordered);
- 	SET_C(((val2<val1)?1:0)&(unordered^1));
- 	SET_V(unordered);
- 	// exception when unordered !
-@@ -1770,11 +1770,11 @@
- 	double val1,val2;
- 	v1=COMBINE_U64_U32_U32(SREG,SREGF);
- 	v2=COMBINE_U64_U32_U32(DREG,DREGF);
- 	val1=u2d(v1);
- 	val2=u2d(v2);
--	unordered=((isunordered(val1,val2))?1:0);
-+	unordered=isnan(val1)||isnan(val2);
- 	SET_Z(((val1==val2)?1:0)&(unordered^1));
- 	SET_N(((val2<val1)?1:0)|unordered);
- 	SET_C(((val2<val1)?1:0)&(unordered^1));
- 	SET_V(unordered);
- 	// exception when unordered !
-@@ -1783,11 +1783,11 @@
- 
- void e132xs_fcmpu(void)
- {
- 	float val1=u2f(SREG);
- 	float val2=u2f(DREG);
--	int unordered=((isunordered(val1,val2))?1:0);
-+	int unordered=isnan(val1)||isnan(val2);
- 	SET_Z(((val1==val2)?1:0)&(unordered^1));
- 	SET_N(((val2<val1)?1:0)|unordered);
- 	SET_C(((val2<val1)?1:0)&(unordered^1));
- 	SET_V(unordered);
- }
-@@ -1799,11 +1799,11 @@
- 	int unordered;
- 	v1=COMBINE_U64_U32_U32(SREG,SREGF);
- 	v2=COMBINE_U64_U32_U32(DREG,DREGF);
- 	val1=u2d(v1);
- 	val2=u2d(v2);
--	unordered=((isunordered(val1,val2))?1:0);
-+	unordered=isnan(val1)||isnan(val2);
- 	SET_Z(((val1==val2)?1:0)&(unordered^1));
- 	SET_N(((val2<val1)?1:0)|unordered);
- 	SET_C(((val2<val1)?1:0)&(unordered^1));
- 	SET_V(unordered);
- }
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2004-06-27 18:40:06.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2004-08-26 22:31:44.000000000 +0200
++++ src/cpu/i8085/i8085.c	2004-09-22 19:10:40.000000000 +0200
 @@ -110,10 +110,16 @@
   * 
   *****************************************************************************/
@@ -145,7 +90,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2004-05-06 18:22:10.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2004-08-26 22:31:44.000000000 +0200
++++ src/cpu/m68000/make68k.c	2004-09-22 19:10:40.000000000 +0200
 @@ -191,11 +191,11 @@
  
  
@@ -194,7 +139,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2004-06-27 18:40:08.000000000 +0200
-+++ src/cpu/z80/z80.c	2004-08-26 22:31:44.000000000 +0200
++++ src/cpu/z80/z80.c	2004-09-22 19:10:40.000000000 +0200
 @@ -82,10 +82,16 @@
  #include "cpuintrf.h"
  #include "state.h"
@@ -214,7 +159,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2004-07-24 10:09:40.000000000 +0200
-+++ src/cpuexec.c	2004-08-26 22:31:44.000000000 +0200
++++ src/cpuexec.c	2004-09-22 19:10:40.000000000 +0200
 @@ -307,10 +307,13 @@
  	watchdog_counter = -1;
  
@@ -230,8 +175,8 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
---- src.ori/drivers/multi32.c	2004-07-26 23:33:38.000000000 +0200
-+++ src/drivers/multi32.c	2004-08-26 22:31:44.000000000 +0200
+--- src.ori/drivers/multi32.c	2004-09-21 18:10:34.000000000 +0200
++++ src/drivers/multi32.c	2004-09-22 19:10:40.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -247,7 +192,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
 --- src.ori/drivers/namcos11.c	2004-08-05 21:50:16.000000000 +0200
-+++ src/drivers/namcos11.c	2004-08-26 22:31:44.000000000 +0200
++++ src/drivers/namcos11.c	2004-09-22 19:10:40.000000000 +0200
 @@ -655,11 +655,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -262,9 +207,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
---- src.ori/drivers/namcos12.c	2004-08-22 21:14:04.000000000 +0200
-+++ src/drivers/namcos12.c	2004-08-26 22:31:44.000000000 +0200
-@@ -467,11 +467,11 @@
+--- src.ori/drivers/namcos12.c	2004-09-21 18:10:28.000000000 +0200
++++ src/drivers/namcos12.c	2004-09-22 19:10:40.000000000 +0200
+@@ -469,11 +469,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -278,8 +223,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
---- src.ori/drivers/psikyo4.c	2004-08-22 21:14:04.000000000 +0200
-+++ src/drivers/psikyo4.c	2004-08-26 22:31:44.000000000 +0200
+--- src.ori/drivers/psikyo4.c	2004-09-21 18:10:28.000000000 +0200
++++ src/drivers/psikyo4.c	2004-09-22 19:10:40.000000000 +0200
 @@ -412,13 +412,13 @@
  	MDRV_NVRAM_HANDLER(93C56)
  
@@ -311,7 +256,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
 --- src.ori/drivers/stv.c	2004-08-05 21:56:28.000000000 +0200
-+++ src/drivers/stv.c	2004-08-26 22:31:44.000000000 +0200
++++ src/drivers/stv.c	2004-09-22 19:10:40.000000000 +0200
 @@ -3670,11 +3670,11 @@
  	MDRV_NVRAM_HANDLER(93C46) /* Actually 93c45 */
  
@@ -325,10 +270,29 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  
  	MDRV_VIDEO_START(stv_vdp2)
  	MDRV_VIDEO_UPDATE(stv_vdp2)
+diff -U 5 --new-file --recursive src.ori/drivers/suprgolf.c src/drivers/suprgolf.c
+--- src.ori/drivers/suprgolf.c	2004-09-21 18:10:28.000000000 +0200
++++ src/drivers/suprgolf.c	2004-09-22 20:25:30.000000000 +0200
+@@ -37,13 +37,14 @@
+ 	return suprgolf_rom_bank;
+ }
+ */
+ static WRITE8_HANDLER( rom_bank_select_w )
+ {
++	UINT8 *region_base;
+ 	suprgolf_rom_bank = data;
+ 
+-	UINT8 *region_base = memory_region(REGION_USER1);
++	region_base = memory_region(REGION_USER1);
+ 	printf("ROM_BANK 0x8000 - %X @%X\n",data,activecpu_get_previouspc());
+ 	cpu_setbank(2, region_base + (data&0x3f ) * 0x4000);
+ }
+ 
+ static WRITE8_HANDLER( rom2_bank_select_w )
 diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
---- src.ori/drivers/zn.c	2004-08-05 21:56:40.000000000 +0200
-+++ src/drivers/zn.c	2004-08-26 22:31:44.000000000 +0200
-@@ -611,11 +611,11 @@
+--- src.ori/drivers/zn.c	2004-09-21 18:10:30.000000000 +0200
++++ src/drivers/zn.c	2004-09-22 19:10:40.000000000 +0200
+@@ -613,11 +613,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -341,7 +305,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -646,11 +646,11 @@
+@@ -648,11 +648,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -354,7 +318,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -847,11 +847,11 @@
+@@ -849,11 +849,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -367,7 +331,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1264,11 +1264,11 @@
+@@ -1274,11 +1274,11 @@
  	MDRV_NVRAM_HANDLER( coh1000ta )
  
  	/* video hardware */
@@ -380,7 +344,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1357,11 +1357,11 @@
+@@ -1367,11 +1367,11 @@
  	MDRV_NVRAM_HANDLER( coh1000tb )
  
  	/* video hardware */
@@ -393,7 +357,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1525,11 +1525,11 @@
+@@ -1535,11 +1535,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -406,7 +370,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1735,11 +1735,11 @@
+@@ -1745,11 +1745,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -419,7 +383,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1979,11 +1979,11 @@
+@@ -1989,11 +1989,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -432,7 +396,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2312,11 +2312,11 @@
+@@ -2322,11 +2322,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -445,33 +409,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2559,11 +2559,11 @@
- 	MDRV_NVRAM_HANDLER( at28c16_0 )
- 
- 	/* video hardware */
- 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
- 	MDRV_SCREEN_SIZE( 1024, 1024 )
--	MDRV_VISIBLE_AREA( 0, 639, 0, 479 )
-+	MDRV_VISIBLE_AREA( 0, 512-1, 0, 240-1 )
- 	MDRV_PALETTE_LENGTH( 65536 )
- 
- 	MDRV_PALETTE_INIT( psx )
- 	MDRV_VIDEO_START( psx_type2 )
- 	MDRV_VIDEO_UPDATE( psx )
-@@ -2826,11 +2826,11 @@
- 	MDRV_NVRAM_HANDLER( at28c16_0 )
- 
- 	/* video hardware */
- 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
- 	MDRV_SCREEN_SIZE( 1024, 1024 )
--	MDRV_VISIBLE_AREA( 0, 639, 0, 479 )
-+	MDRV_VISIBLE_AREA( 0, 512-1, 0, 240-1 )
- 	MDRV_PALETTE_LENGTH( 65536 )
- 
- 	MDRV_PALETTE_INIT( psx )
- 	MDRV_VIDEO_START( psx_type2 )
- 	MDRV_VIDEO_UPDATE( psx )
-@@ -2859,11 +2859,11 @@
+@@ -2569,11 +2569,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -484,7 +422,33 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2891,11 +2891,11 @@
+@@ -2836,11 +2836,11 @@
+ 	MDRV_NVRAM_HANDLER( at28c16_0 )
+ 
+ 	/* video hardware */
+ 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
+ 	MDRV_SCREEN_SIZE( 1024, 1024 )
+-	MDRV_VISIBLE_AREA( 0, 639, 0, 479 )
++	MDRV_VISIBLE_AREA( 0, 512-1, 0, 480-1 )
+ 	MDRV_PALETTE_LENGTH( 65536 )
+ 
+ 	MDRV_PALETTE_INIT( psx )
+ 	MDRV_VIDEO_START( psx_type2 )
+ 	MDRV_VIDEO_UPDATE( psx )
+@@ -2869,11 +2869,11 @@
+ 	MDRV_NVRAM_HANDLER( at28c16_0 )
+ 
+ 	/* video hardware */
+ 	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
+ 	MDRV_SCREEN_SIZE( 1024, 1024 )
+-	MDRV_VISIBLE_AREA( 0, 639, 0, 479 )
++	MDRV_VISIBLE_AREA( 0, 320-1, 0, 240-1 )
+ 	MDRV_PALETTE_LENGTH( 65536 )
+ 
+ 	MDRV_PALETTE_INIT( psx )
+ 	MDRV_VIDEO_START( psx_type2 )
+ 	MDRV_VIDEO_UPDATE( psx )
+@@ -2901,11 +2901,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -498,14 +462,14 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2004-08-22 21:16:14.000000000 +0200
-+++ src/inptport.c	2004-08-29 15:23:04.000000000 +0200
+--- src.ori/inptport.c	2004-09-21 18:10:34.000000000 +0200
++++ src/inptport.c	2004-09-22 19:16:45.000000000 +0200
 @@ -824,26 +824,21 @@
- 	
+ 
  	/* start with the raw defaults and ask the OSD to customize them in the backup array */
  	memcpy(inputport_list_backup, inputport_list_defaults, sizeof(inputport_list_backup));
  	osd_customize_inputport_list(inputport_list_backup);
- 	
+ 
 -	/* load the controller-specific info -- note that even though we are still modifying */
 -	/* the inputport_list_backup, token_to_port_type relies on inputport_list being valid */
 -	memcpy(inputport_list, inputport_list_backup, sizeof(inputport_list));
@@ -554,7 +518,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  
  
  /*************************************
-@@ -1320,13 +1319,19 @@
+@@ -1324,12 +1323,18 @@
  {
  	int listnum;
  
@@ -562,7 +526,6 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	for (listnum = 0; inputport_list[listnum].type != IPT_END; listnum++)
 -		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player)
 -			return seq_pressed(&inputport_list[listnum].defaultseq);
--	
 +		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player) {
 +			int pressed = seq_pressed(&inputport_list[listnum].defaultseq);
 +
@@ -571,15 +534,14 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 +
 +			return pressed;
 +		}
-+
+ 
  	return 0;
  }
  
  
- int input_ui_pressed(int code)
-@@ -1336,10 +1341,13 @@
+@@ -1340,10 +1345,13 @@
  profiler_mark(PROFILER_INPUT);
- 	
+ 
  	/* get the status of this key (assumed to be only in the defaults) */
  	pressed = seq_pressed(input_port_default_seq(code, 0, SEQ_TYPE_STANDARD));
  
@@ -591,7 +553,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{
  		/* if this is the first press, leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1369,10 +1377,13 @@
+@@ -1373,10 +1381,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -605,7 +567,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{
  		/* if this is the first press, set a 3x delay and leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1441,10 +1452,13 @@
+@@ -1445,10 +1456,13 @@
  void inputport_vblank_start(void)
  {
  	int ui_visible = setup_active() || onscrd_active();
@@ -619,8 +581,8 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	/* update the digital joysticks first */
  	update_digital_joysticks();
  
-@@ -1475,11 +1489,16 @@
- 			
+@@ -1479,11 +1493,16 @@
+ 
  			/* handle non-analog types, but only when the UI isn't visible */
  			else if (!IS_ANALOG(port) && !ui_visible)
  			{
@@ -637,11 +599,11 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  					/* (MESS-specific) check for disabled keyboard */
  					if (port->type == IPT_KEYBOARD && osd_keyboard_disabled())
  						continue;
-@@ -1607,17 +1626,18 @@
+@@ -1611,17 +1630,18 @@
  			{
  				info->previous = info->current;
  				info->current = 0;
- 				
+ 
  				/* read all the associated ports */
 -				if (info->port[JOYDIR_UP] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_UP], SEQ_TYPE_STANDARD)))
 +				/* AdvanceMAME: Filter all the input ports */
@@ -656,30 +618,29 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 -				if (info->port[JOYDIR_RIGHT] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)))
 +				if (info->port[JOYDIR_RIGHT] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)), info->port[JOYDIR_RIGHT]->type, info->port[JOYDIR_RIGHT]->player, SEQ_TYPE_STANDARD))
  					info->current |= JOYDIR_RIGHT_BIT;
- 				
+ 
  				/* lock out opposing directions (left + right or up + down) */
  				if ((info->current & (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT)) == (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT))
  					info->current &= ~(JOYDIR_UP_BIT | JOYDIR_DOWN_BIT);
-@@ -1728,31 +1748,33 @@
+@@ -1732,12 +1752,12 @@
  		int analog_type, keypressed = 0;
- 			
+ 
  		/* clamp the previous value to the min/max range and remember it */
  		info->previous = info->accum = apply_analog_min_max(info, info->accum);
  
 -		/* get the new raw analog value and its type */
 -		rawvalue = seq_analog_value(input_port_seq(port, SEQ_TYPE_STANDARD), &analog_type);
--		
 +		/* AdvanceMAME: Get the analog input for different players from the osd core. */
 +		rawvalue = osd_get_analog_value(port->type, port->player, &analog_type);
-+
+ 
  		/* if we got it from a relative device, use that as the starting delta */
  		/* also note that the last input was not a digital one */
  		if (analog_type == ANALOG_TYPE_RELATIVE && rawvalue != 0)
  		{
- 			delta = rawvalue;
+@@ -1745,18 +1765,20 @@
  			info->lastdigital = 0;
  		}
- 		
+ 
  		/* if the decrement code sequence is pressed, add the key delta to */
  		/* the accumulated delta; also note that the last input was a digital one */
 -		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)))
@@ -689,7 +650,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  			delta -= (INT32)(port->analog.delta * info->keyscale);
  			keypressed = info->lastdigital = 1;
  		}
- 		
+ 
  		/* same for the increment code sequence */
 -		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)))
 +		/* AdvanceMAME: Filter all the input ports */
@@ -698,11 +659,11 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  			delta += (INT32)(port->analog.delta * info->keyscale);
  			keypressed = info->lastdigital = 1;
  		}
- 		
+ 
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
---- src.ori/input.c	2004-08-22 21:14:00.000000000 +0200
-+++ src/input.c	2004-08-26 22:31:44.000000000 +0200
-@@ -555,11 +555,33 @@
+--- src.ori/input.c	2004-09-21 20:02:10.000000000 +0200
++++ src/input.c	2004-09-22 19:10:40.000000000 +0200
+@@ -603,11 +603,33 @@
  	code_count = 0;
  	free(code_map);
  	code_map = NULL;
@@ -737,9 +698,9 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
   *	Return the analog value of a code.
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
---- src.ori/input.h	2004-08-22 21:14:00.000000000 +0200
-+++ src/input.h	2004-08-26 22:31:44.000000000 +0200
-@@ -431,10 +431,17 @@
+--- src.ori/input.h	2004-09-21 20:02:10.000000000 +0200
++++ src/input.h	2004-09-22 19:10:40.000000000 +0200
+@@ -479,10 +479,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
  };
@@ -757,7 +718,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
   *
   *	Type definitions
   *
-@@ -482,10 +489,13 @@
+@@ -530,10 +537,13 @@
  
  /* single code functions */
  int code_init(void);
@@ -772,9 +733,25 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  int code_pressed_memory_repeat(input_code_t code, int speed);
  input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
---- src.ori/mame.c	2004-08-22 21:14:04.000000000 +0200
-+++ src/mame.c	2004-08-26 22:31:44.000000000 +0200
-@@ -534,10 +534,15 @@
+--- src.ori/mame.c	2004-09-21 18:10:34.000000000 +0200
++++ src/mame.c	2004-09-22 19:21:06.000000000 +0200
+@@ -271,13 +271,15 @@
+ {
+ 	int err = 1;
+ 
+ 	begin_resource_tracking();
+ 
++#if 0 /* AdvanceMAME: Disable checks to reduce the startup time */
+ 	/* validity checks -- perform these in all builds now due to the number of incorrect submissions */
+ 	if (mame_validitychecks())
+ 		return 1;
++#endif
+ 
+ 	/* first give the machine a good cleaning */
+ 	memset(Machine, 0, sizeof(Machine));
+ 
+ 	/* initialize the driver-related variables in the Machine */
+@@ -532,10 +534,15 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
  			/* show info about the game */
@@ -792,7 +769,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2004-07-24 15:05:10.000000000 +0200
-+++ src/osdepend.h	2004-08-26 22:31:44.000000000 +0200
++++ src/osdepend.h	2004-09-22 19:10:40.000000000 +0200
 @@ -347,10 +347,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -844,7 +821,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
 --- src.ori/rules.mak	2004-08-22 21:16:14.000000000 +0200
-+++ src/rules.mak	2004-08-26 22:31:44.000000000 +0200
++++ src/rules.mak	2004-09-22 19:10:40.000000000 +0200
 @@ -1143,16 +1143,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -900,7 +877,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2004-08-22 21:14:00.000000000 +0200
-+++ src/ui_text.c	2004-08-26 22:31:44.000000000 +0200
++++ src/ui_text.c	2004-09-22 19:10:40.000000000 +0200
 @@ -191,10 +191,14 @@
  	"One match found - added to list",
  
@@ -918,7 +895,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2004-07-28 22:26:24.000000000 +0200
-+++ src/ui_text.h	2004-08-26 22:31:44.000000000 +0200
++++ src/ui_text.h	2004-09-22 19:10:40.000000000 +0200
 @@ -185,10 +185,14 @@
  	UI_search_one_match_found_added,
  	
@@ -936,7 +913,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2004-08-05 22:34:08.000000000 +0200
-+++ src/usrintrf.c	2004-08-26 22:31:44.000000000 +0200
++++ src/usrintrf.c	2004-09-22 19:10:40.000000000 +0200
 @@ -821,10 +821,13 @@
  
  
@@ -1279,7 +1256,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	{
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
 --- src.ori/vidhrdw/voodoo.c	2004-07-11 06:28:14.000000000 +0200
-+++ src/vidhrdw/voodoo.c	2004-08-26 22:31:44.000000000 +0200
++++ src/vidhrdw/voodoo.c	2004-09-22 19:10:40.000000000 +0200
 @@ -16,11 +16,11 @@
   *
   *	Math trickery
@@ -1295,7 +1272,7 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #include <float.h>
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
 --- src.ori/x86drc.c	2004-06-27 18:40:38.000000000 +0200
-+++ src/x86drc.c	2004-08-26 22:31:44.000000000 +0200
++++ src/x86drc.c	2004-09-22 19:10:40.000000000 +0200
 @@ -677,10 +677,11 @@
  
  

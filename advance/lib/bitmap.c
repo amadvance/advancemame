@@ -44,10 +44,10 @@
  * Allocate a bitmap.
  * \param width Width.
  * \param height Height.
- * \param bit Bits per pixel.
+ * \param bytes_per_pixel Bytes per pixel.
  * \return The allocated bitmap or 0 on error.
  */
-adv_bitmap* adv_bitmap_alloc(unsigned width, unsigned height, unsigned bit)
+adv_bitmap* adv_bitmap_alloc(unsigned width, unsigned height, unsigned bytes_per_pixel)
 {
 	adv_bitmap* bmp = (adv_bitmap*)malloc(sizeof(adv_bitmap));
 	if (!bmp)
@@ -55,7 +55,7 @@ adv_bitmap* adv_bitmap_alloc(unsigned width, unsigned height, unsigned bit)
 
 	bmp->size_x = width;
 	bmp->size_y = height;
-	bmp->bytes_per_pixel = (bit + 7) / 8;
+	bmp->bytes_per_pixel = bytes_per_pixel;
 	bmp->bytes_per_scanline = (bmp->size_x * bmp->bytes_per_pixel + 3) & ~0x3;
 	bmp->heap = malloc(bmp->bytes_per_scanline * bmp->size_y);
 	if (!bmp->heap) {
@@ -222,7 +222,7 @@ void adv_bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask)
 		uint8* dst;
 
 		/* new ptr */
-		rotated = adv_bitmap_alloc(bmp->size_y, bmp->size_x, bmp->bytes_per_pixel * 8);
+		rotated = adv_bitmap_alloc(bmp->size_y, bmp->size_x, bmp->bytes_per_pixel);
 
 		size_x = rotated->size_x;
 		size_y = rotated->size_y;
@@ -672,7 +672,7 @@ adv_bitmap* adv_bitmap_resize(adv_bitmap* src, unsigned x, unsigned y, unsigned 
 		return 0;
 
 	/* new ptr */
-	dst = adv_bitmap_alloc(dst_dx, dst_dy, src->bytes_per_pixel * 8);
+	dst = adv_bitmap_alloc(dst_dx, dst_dy, src->bytes_per_pixel);
 	map_x = malloc(sizeof(unsigned) * dst_dx);
 	map_y = malloc(sizeof(unsigned) * dst_dy);
 
@@ -1036,7 +1036,7 @@ adv_bitmap* adv_bitmap_cvt_palette(adv_bitmap* src, unsigned* color_map)
 	unsigned sdp, ddp;
 	adv_bitmap* dst;
 
-	dst = adv_bitmap_alloc(src->size_x, src->size_y, src->bytes_per_pixel * 8);
+	dst = adv_bitmap_alloc(src->size_x, src->size_y, src->bytes_per_pixel);
 
 	sdp = src->bytes_per_pixel;
 	ddp = dst->bytes_per_pixel;
@@ -1079,7 +1079,7 @@ adv_bitmap* adv_bitmap_cvt_rgb(adv_color_def dst_def, adv_bitmap* src, adv_color
 	unsigned sdp, ddp;
 	adv_bitmap* dst;
 
-	dst = adv_bitmap_alloc(src->size_x, src->size_y, color_def_bytes_per_pixel_get(dst_def) * 8);
+	dst = adv_bitmap_alloc(src->size_x, src->size_y, color_def_bytes_per_pixel_get(dst_def));
 
 	sdef.ordinal = src_def;
 	ddef.ordinal = dst_def;
@@ -1131,7 +1131,7 @@ adv_bitmap* adv_bitmap_cvt_palettergb(adv_color_def dst_def, adv_bitmap* src, ad
 	unsigned sdp, ddp;
 	adv_bitmap* dst;
 
-	dst = adv_bitmap_alloc(src->size_x, src->size_y, color_def_bytes_per_pixel_get(dst_def) * 8);
+	dst = adv_bitmap_alloc(src->size_x, src->size_y, color_def_bytes_per_pixel_get(dst_def));
 
 	sdp = src->bytes_per_pixel;
 	ddp = dst->bytes_per_pixel;
@@ -1158,6 +1158,50 @@ adv_bitmap* adv_bitmap_cvt_palettergb(adv_color_def dst_def, adv_bitmap* src, ad
 	return dst;
 }
 
+static void bitmap_vclear(adv_bitmap* dst, int x, int y, int dy, unsigned color)
+{
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline;
+
+	dst_ptr = adv_bitmap_pixel(dst, x, y);
+
+	if (dp == 1) {
+		unsigned count = dy;
+		while (count) {
+			*dst_ptr = color;
+			dst_ptr += ds;
+			--count;
+		}
+	} else if (dp == 2) {
+		unsigned count = dy;
+		while (count) {
+			uint16* dst16 = (uint16*)dst_ptr;
+			*dst16 = color;
+			dst_ptr += ds;
+			--count;
+		}
+	} else if (dp == 4) {
+		unsigned count = dy;
+		while (count) {
+			uint32* dst32 = (uint32*)dst_ptr;
+			*dst32 = color;
+			dst_ptr += ds;
+			--count;
+		}
+	} else {
+		unsigned count = dy;
+		while (count) {
+			cpu_uint_write(dst_ptr, dp, color);
+			dst_ptr += ds;
+			--count;
+		}
+	}
+}
+
 /**
  * Clear part of the bitmap.
  * The specified range is clipped if required.
@@ -1166,6 +1210,8 @@ void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned co
 {
 	unsigned cy;
 	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
 
 	if (x < 0) {
 		dx += x;
@@ -1182,16 +1228,49 @@ void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned co
 	if (dx<=0 || dy<=0)
 		return;
 
+	if (dx == 1) {
+		bitmap_vclear(dst, x, y, dy, color);
+		return;
+	}
+
 	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline;
+
+	dst_ptr = adv_bitmap_pixel(dst, x, y);
 
 	for(cy=0;cy<dy;++cy) {
-		uint8* dst_ptr = adv_bitmap_pixel(dst, x, y);
-		unsigned cx;
-		for(cx=0;cx<dx;++cx) {
-			cpu_uint_write(dst_ptr, dp, color);
-			dst_ptr += dp;
+		if (dp == 1) {
+			uint8* dst8 = (uint8*)dst_ptr;
+			unsigned count = dx;
+			while (count) {
+				*dst8++ = color;
+				--count;
+			}
+		} else if (dp == 2) {
+			uint16* dst16 = (uint16*)dst_ptr;
+			unsigned count = dx;
+			while (count) {
+				*dst16++ = color;
+				--count;
+			}
+		} else if (dp == 4) {
+			uint32* dst32 = (uint32*)dst_ptr;
+			unsigned count = dx;
+			while (count) {
+				*dst32++ = color;
+				--count;
+			}
+		} else {
+			uint8* dst8 = (uint8*)dst_ptr;
+			unsigned count = dx;
+			while (count) {
+				cpu_uint_write(dst8, dp, color);
+				dst8 += dp;
+				--count;
+			}
 		}
 		++y;
+		dst_ptr += ds;
 	}
 }
 
@@ -1204,14 +1283,397 @@ void adv_bitmap_box(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned bord
 	if (!border)
 		return;
 
-	/* top */
 	adv_bitmap_clear(dst, x, y, dx, border, color);
-	/* bottom */
 	adv_bitmap_clear(dst, x, y + dy - border, dx, border, color);
-	/* left */
 	adv_bitmap_clear(dst, x, y + 1, border, dy - 2, color);
-	/* right */
 	adv_bitmap_clear(dst, x + dx - border, y + 1, border, dy - 2, color);
+}
+
+/**
+ * Draw a bitmap into another bitmap.
+ * The image is clipped only on the destination boundaries.
+ */
+void adv_bitmap_put(adv_bitmap* dst, int dst_x, int dst_y, const adv_bitmap* src, int src_x, int src_y, int src_dx, int src_dy)
+{
+	unsigned count;
+	unsigned bytes_per_row;
+	unsigned src_ds, dst_ds;
+	uint8* src8;
+	uint8* dst8;
+
+	assert(src->bytes_per_pixel == dst->bytes_per_pixel);
+
+	if (dst_x < 0) {
+		src_dx += dst_x;
+		dst_x = 0;
+	}
+	if (dst_y < 0) {
+		src_dy += dst_y;
+		dst_y = 0;
+	}
+	if (dst_x + src_dx > dst->size_x)
+		src_dx = dst->size_x - dst_x;
+	if (dst_y + src_dy > dst->size_y)
+		src_dy = dst->size_y - dst_y;
+	if (src_dx<=0 || src_dy<=0)
+		return;
+
+	bytes_per_row = src_dx * src->bytes_per_pixel;
+
+	src_ds = src->bytes_per_scanline;
+	dst_ds = dst->bytes_per_scanline;
+
+	src8 = adv_bitmap_pixel(src, src_x, src_y);
+	dst8 = adv_bitmap_pixel(dst, dst_x, dst_y);
+
+	count = src_dy;
+	while (count) {
+		memcpy(dst8, src8, bytes_per_row);
+
+		dst8 += dst_ds;
+		src8 += src_ds;
+		--count;
+	}
+}
+
+static void bitmap_put_alpha_bgra8888(uint8* dst8, unsigned dst_ds, const uint8* back8, unsigned back_ds, const uint8* src8, unsigned src_ds, unsigned dx, unsigned dy)
+{
+	unsigned count_x, count_y;
+	adv_pixel pred_p;
+	adv_pixel pred_op;
+	adv_pixel pred_r;
+
+	src_ds -= dx * 4;
+	dst_ds -= dx * 4;
+	back_ds -= dx * 4;
+
+	pred_p = 0;
+	pred_op = 0;
+	pred_r = 0;
+
+	count_y = dy;
+	while (count_y) {
+		count_x = dx;
+		while (count_x) {
+			adv_pixel p, op;
+
+			p = cpu_uint32_read(src8);
+			op = cpu_uint32_read(back8);
+
+			/* check if equal at the previous one */
+			if (op != pred_op || p != pred_p) {
+#ifdef USE_LSB
+				if (src8[3] == 0) {
+					pred_r = op;
+					cpu_uint32_write(dst8, pred_r);
+				} else if (src8[3] == 255) {
+					pred_r = p;
+					cpu_uint32_write(dst8, pred_r);
+				} else {
+					unsigned char pixel[4];
+					int a = src8[3];
+					pixel[0] = back8[0] + (src8[0] - back8[0]) * a / 256;
+					pixel[1] = back8[1] + (src8[1] - back8[1]) * a / 256;
+					pixel[2] = back8[2] + (src8[2] - back8[2]) * a / 256;
+					pixel[3] = 0;
+					pred_r = cpu_uint32_read(pixel);
+					cpu_uint32_write(dst8, pred_r);
+				}
+#else
+				if (src8[0] == 0) {
+					pred_r = op;
+					cpu_uint32_write(dst8, pred_r);
+				} else if (src8[0] == 255) {
+					pred_r = p;
+					cpu_uint32_write(dst8, pred_r);
+				} else {
+					unsigned char pixel[4];
+					int a = src8[0];
+					pixel[0] = 0;
+					pixel[1] = back8[1] + (src8[1] - back8[1]) * a / 256;
+					pixel[2] = back8[2] + (src8[2] - back8[2]) * a / 256;
+					pixel[3] = back8[3] + (src8[3] - back8[3]) * a / 256;
+					pred_r = cpu_uint32_read(pixel);
+					cpu_uint32_write(dst8, pred_r);
+				}
+#endif
+				pred_p = p;
+				pred_op = op;
+			} else {
+				cpu_uint32_write(dst8, pred_r);
+			}
+
+			src8 += 4;
+			dst8 += 4;
+			back8 += 4;
+			--count_x;
+		}
+
+		src8 += src_ds;
+		dst8 += dst_ds;
+		back8 += back_ds;
+		--count_y;
+	}
+}
+
+static void bitmap_put_alpha(uint8* dst8, unsigned dst_dp, unsigned dst_ds, adv_color_def dst_color_def, const uint8* back8, unsigned back_dp, unsigned back_ds, const uint8* src8, unsigned src_dp, unsigned src_ds, adv_color_def src_color_def, unsigned dx, unsigned dy)
+{
+	unsigned count_x, count_y;
+	int src_alpha_shift;
+	adv_pixel src_alpha_mask;
+	int conv_red_shift, conv_green_shift, conv_blue_shift;
+	adv_pixel conv_red_mask, conv_green_mask, conv_blue_mask;
+	union adv_color_def_union sdef;
+	union adv_color_def_union ddef;
+	adv_pixel pred_p;
+	adv_pixel pred_op;
+	adv_pixel pred_r;
+
+	pred_p = 0;
+	pred_op = 0;
+	pred_r = 0;
+
+	sdef.ordinal = src_color_def;
+	ddef.ordinal = dst_color_def;
+
+	alpha_shiftmask_get(&src_alpha_shift, &src_alpha_mask, src_color_def);
+
+	conv_red_shift = rgb_conv_shift_get(sdef.nibble.red_len, sdef.nibble.red_pos, ddef.nibble.red_len, ddef.nibble.red_pos);
+	conv_red_mask = rgb_conv_mask_get(sdef.nibble.red_len, sdef.nibble.red_pos, ddef.nibble.red_len, ddef.nibble.red_pos);
+	conv_green_shift = rgb_conv_shift_get(sdef.nibble.green_len, sdef.nibble.green_pos, ddef.nibble.green_len, ddef.nibble.green_pos);
+	conv_green_mask = rgb_conv_mask_get(sdef.nibble.green_len, sdef.nibble.green_pos, ddef.nibble.green_len, ddef.nibble.green_pos);
+	conv_blue_shift = rgb_conv_shift_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
+	conv_blue_mask = rgb_conv_mask_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
+
+	src_ds -= dx * src_dp;
+	dst_ds -= dx * dst_dp;
+	back_ds -= dx * dst_dp;
+
+	count_y = dy;
+	while (count_y) {
+		count_x = dx;
+		while (count_x) {
+			adv_pixel p;
+			adv_pixel op;
+
+			p = cpu_uint_read(src8, src_dp);
+			op = cpu_uint_read(back8, back_dp);
+
+			/* check if equal at the previous one */
+			if (op != pred_op || p != pred_p) {
+				int a;
+
+				a = rgb_nibble_extract(p, src_alpha_shift, src_alpha_mask);
+
+				if (a == 0) {
+					pred_r = op;
+					cpu_uint_write(dst8, dst_dp, pred_r);
+				} else if (a == 255) {
+					pred_r = (rgb_shift(p, conv_red_shift) & conv_red_mask)
+						| (rgb_shift(p, conv_green_shift) & conv_green_mask)
+						| (rgb_shift(p, conv_blue_shift) & conv_blue_mask);
+					cpu_uint_write(dst8, dst_dp, pred_r);
+				} else {
+					int r, g, b;
+					int or, og, ob;
+
+					r = rgb_shift(p, conv_red_shift) & conv_red_mask;
+					g = rgb_shift(p, conv_green_shift) & conv_green_mask;
+					b = rgb_shift(p, conv_blue_shift) & conv_blue_mask;
+
+					or = op & conv_red_mask;
+					og = op & conv_green_mask;
+					ob = op & conv_blue_mask;
+
+					or += (r - or) * a / 256;
+					og += (g - og) * a / 256;
+					ob += (b - ob) * a / 256;
+
+					pred_r = (or & conv_red_mask)
+						| (og & conv_green_mask)
+						| (ob & conv_blue_mask);
+
+					cpu_uint_write(dst8, dst_dp, pred_r);
+				}
+
+				pred_p = p;
+				pred_op = op;
+			} else {
+				cpu_uint_write(dst8, dst_dp, pred_r);
+			}
+
+			src8 += src_dp;
+			dst8 += dst_dp;
+			back8 += back_dp;
+			--count_x;
+		}
+
+		src8 += src_ds;
+		dst8 += dst_ds;
+		back8 += back_ds;
+		--count_y;
+	}
+}
+
+/**
+ * Draw an alpha bitmap into another bitmap.
+ * The image is clipped only on the destination boundaries.
+ */
+void adv_bitmap_put_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, const adv_bitmap* back, int back_x, int back_y, const adv_bitmap* src, int src_x, int src_y, int src_dx, int src_dy, adv_color_def src_color_def)
+{
+	uint8* src8;
+	uint8* dst8;
+	uint8* back8;
+
+	if (dst_x < 0) {
+		src_dx += dst_x;
+		back_x += dst_x;
+		dst_x = 0;
+	}
+	if (dst_y < 0) {
+		src_dy += dst_y;
+		back_y += dst_y;
+		dst_y = 0;
+	}
+	if (dst_x + src_dx > dst->size_x)
+		src_dx = dst->size_x - dst_x;
+	if (dst_y + src_dy > dst->size_y)
+		src_dy = dst->size_y - dst_y;
+	if (src_dx<=0 || src_dy<=0)
+		return;
+
+	src8 = adv_bitmap_pixel(src, src_x, src_y);
+	dst8 = adv_bitmap_pixel(dst, dst_x, dst_y);
+	back8 = adv_bitmap_pixel(back, back_x, back_y);
+
+	if (dst_color_def == src_color_def) {
+		bitmap_put_alpha_bgra8888(dst8, dst->bytes_per_scanline,
+			back8, back->bytes_per_scanline,
+			src8, src->bytes_per_scanline,
+			src_dx, src_dy);
+	} else {
+		bitmap_put_alpha(dst8, dst->bytes_per_pixel, dst->bytes_per_scanline, dst_color_def,
+			back8, back->bytes_per_pixel, back->bytes_per_scanline,
+			src8, src->bytes_per_pixel, src->bytes_per_scanline, src_color_def,
+			src_dx, src_dy);
+	}
+}
+
+static void bitmap_clear_alpha(uint8* dst8, unsigned dst_dp, unsigned dst_ds, adv_color_def dst_color_def, const uint8* back8, unsigned back_dp, unsigned back_ds, adv_color_rgb src, unsigned dx, unsigned dy)
+{
+	unsigned count_x, count_y;
+	int conv_red_shift, conv_green_shift, conv_blue_shift;
+	adv_pixel conv_red_mask, conv_green_mask, conv_blue_mask;
+	union adv_color_def_union ddef;
+	adv_pixel pred_op;
+	adv_pixel pred_r;
+	adv_pixel s;
+	int r, g, b, a;
+
+	ddef.ordinal = dst_color_def;
+
+	rgb_shiftmask_get(&conv_red_shift, &conv_red_mask, ddef.nibble.red_len, ddef.nibble.red_pos);
+	rgb_shiftmask_get(&conv_green_shift, &conv_green_mask, ddef.nibble.green_len, ddef.nibble.green_pos);
+	rgb_shiftmask_get(&conv_blue_shift, &conv_blue_mask, ddef.nibble.blue_len, ddef.nibble.blue_pos);
+
+	r = rgb_nibble_insert(src.red, conv_red_shift, conv_red_mask);
+	g = rgb_nibble_insert(src.green, conv_green_shift, conv_green_mask);
+	b = rgb_nibble_insert(src.blue, conv_blue_shift, conv_blue_mask);
+	a = src.alpha;
+
+	pred_op = 0;
+	pred_r = ((r * a / 256) & conv_red_mask)
+		| ((g * a / 256) & conv_green_mask)
+		| ((b * a / 256) & conv_blue_mask);
+
+	dst_ds -= dx * dst_dp;
+	back_ds -= dx * dst_dp;
+
+	count_y = dy;
+	while (count_y) {
+		count_x = dx;
+		while (count_x) {
+			adv_pixel op;
+
+			op = cpu_uint_read(back8, back_dp);
+
+			/* check if equal at the previous one */
+			if (op != pred_op) {
+				int or, og, ob;
+
+				or = op & conv_red_mask;
+				og = op & conv_green_mask;
+				ob = op & conv_blue_mask;
+
+				or += (r - or) * a / 256;
+				og += (g - og) * a / 256;
+				ob += (b - ob) * a / 256;
+
+				pred_r = (or & conv_red_mask)
+					| (og & conv_green_mask)
+					| (ob & conv_blue_mask);
+
+				cpu_uint_write(dst8, dst_dp, pred_r);
+
+				pred_op = op;
+			} else {
+				cpu_uint_write(dst8, dst_dp, pred_r);
+			}
+
+			dst8 += dst_dp;
+			back8 += back_dp;
+			--count_x;
+		}
+
+		dst8 += dst_ds;
+		back8 += back_ds;
+		--count_y;
+	}
+}
+
+/**
+ * Clear part of the bitmap.
+ * The specified range is clipped if required.
+ */
+void adv_bitmap_clear_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_def dst_color_def, adv_bitmap* back, int back_x, int back_y, adv_color_rgb src, int src_dx, int src_dy)
+{
+	uint8* dst8;
+	uint8* back8;
+
+	if (src.alpha == 255) {
+		adv_bitmap_clear(dst, dst_x, dst_y, src_dx, src_dy, pixel_make_from_def(src.red, src.green, src.blue, dst_color_def));
+		return;
+	}
+
+	if (src.alpha == 0) {
+		if (dst != back)
+			adv_bitmap_put(dst, dst_x, dst_y, back, back_x, back_y, src_dx, src_dy);
+		return;
+	}
+
+	if (dst_x < 0) {
+		src_dx += dst_x;
+		back_x += dst_x;
+		dst_x = 0;
+	}
+	if (dst_y < 0) {
+		src_dy += dst_y;
+		back_y += dst_y;
+		dst_y = 0;
+	}
+	if (dst_x + src_dx > dst->size_x)
+		src_dx = dst->size_x - dst_x;
+	if (dst_y + src_dy > dst->size_y)
+		src_dy = dst->size_y - dst_y;
+	if (src_dx<=0 || src_dy<=0)
+		return;
+
+	dst8 = adv_bitmap_pixel(dst, dst_x, dst_y);
+	back8 = adv_bitmap_pixel(back, back_x, back_y);
+
+	bitmap_clear_alpha(dst8, dst->bytes_per_pixel, dst->bytes_per_scanline, dst_color_def,
+		back8, back->bytes_per_pixel, back->bytes_per_scanline,
+		src, src_dx, src_dy);
 }
 
 /**

@@ -126,10 +126,10 @@ struct symbol {
 	const char* name;
 	int value;
 } SYMBOL[] = {
-{ "lpt1", 0x378 },
-{ "lpt2", 0x278 },
-{ "lpt3", 0x3bc },
-{ "kdb", 0 },
+{ "lpt1", 0x378 }, /* LEGACY Removed in 0.87 */
+{ "lpt2", 0x278 }, /* LEGACY Removed in 0.87 */
+{ "lpt3", 0x3bc }, /* LEGACY Removed in 0.87 */
+{ "kdb", 0 }, /* LEGACY Removed in 0.87 */
 { 0, 0 }
 };
 

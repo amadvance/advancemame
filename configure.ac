@@ -105,8 +105,10 @@ AC_CHECK_PROGS(ECHO, echo)
 AC_CHECK_PROGS(TAR, tar)
 AC_CHECK_PROGS(GZIP, gzip)
 AC_CHECK_PROGS(ZIP, zip)
+# Like PROG_CC without cross compiling
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
-AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
+# Like PROG_CXX without cross compiling
+AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC)
 
 # Checks for optimizations
 AC_ARG_ENABLE(

@@ -51,9 +51,7 @@ Configuration
 	If the configuration process completes with success the
 	program adds these options in your configuration file:
 
-		:device_video_pclock ?
-		:device_video_hclock ?
-		:device_video_vclock ?
+		:device_video_clock ?
 		:device_video_format ?
 
 	which define the capabilities of your monitor and video board.

@@ -586,8 +586,9 @@ static adv_error parse_analog(unsigned* map, char* s)
 
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
-				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0)
+				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0) {
 				return -1;
+			}
 
 			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
 				error_set("Invalid joystick '%d'", joystick);
@@ -612,7 +613,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 		} else if (strcmp(t, "mouse")==0 || strcmp(t, "-mouse")==0) {
 			int mouse, axe;
 			adv_bool negate;
-			
+
 			if (c!='[') {
 				error_set("Missing [ in '%s'", t);
 				return -1;
@@ -656,7 +657,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 		} else if (strcmp(t, "joystick_ball")==0 || strcmp(t, "-joystick_ball")==0) {
 			int joystick, axe;
 			adv_bool negate;
-			
+
 			if (c!='[') {
 				error_set("Missing [ in '%s'", t);
 				return -1;
@@ -677,8 +678,9 @@ static adv_error parse_analog(unsigned* map, char* s)
 			}
 
 			if (parse_int(&joystick, v0) != 0
-				|| parse_joystick_rel(&axe, v1, joystick) != 0)
+				|| parse_joystick_rel(&axe, v1, joystick) != 0) {
 				return -1;
+			}
 
 			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
 				error_set("Invalid joystick '%d'", joystick);
@@ -700,7 +702,6 @@ static adv_error parse_analog(unsigned* map, char* s)
 			error_set("Unknown '%s'", t);
 			return -1;
 		}
-
 
 		sskip(&p, s, " \t");
 
@@ -811,8 +812,9 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 			}
 
 			if (parse_int(&board, v0) != 0
-				|| parse_key(&key, v1, board) != 0)
+				|| parse_key(&key, v1, board) != 0) {
 				return -1;
+			}
 
 			if (board < 0 || board >= INPUT_KEYBOARD_MAX) {
 				error_set("Invalid keyboard '%d'", board);
@@ -868,8 +870,9 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
 				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0
-				|| parse_direction(&dir, v3) != 0)
+				|| parse_direction(&dir, v3) != 0) {
 				return -1;
+			}
 
 			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
 				error_set("Invalid joystick '%d'", joystick);
@@ -913,8 +916,9 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 			}
 
 			if (parse_int(&joystick, v0) != 0
-				|| parse_joystick_button(&button, v1, joystick) != 0)
+				|| parse_joystick_button(&button, v1, joystick) != 0) {
 				return -1;
+			}
 
 			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
 				error_set("Invalid joystick '%d'", joystick);
@@ -954,8 +958,9 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 			}
 
 			if (parse_int(&mouse, v0) != 0
-				|| parse_mouse_button(&button, v1, mouse) != 0)
+				|| parse_mouse_button(&button, v1, mouse) != 0) {
 				return -1;
+			}
 
 			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX) {
 				error_set("Invalid mouse '%d'", mouse);
@@ -1152,7 +1157,7 @@ static adv_error parse_inputname(char* s)
 			return -1;
 		}
 
-	        if (parse_int(&joystick, argv[0]) != 0
+		if (parse_int(&joystick, argv[0]) != 0
 			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
 			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
 			|| parse_direction(&dir, argv[3]) != 0)
@@ -1451,7 +1456,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			return -1;
 		}
 
-	        if (parse_int(&joystick, argv[0]) != 0
+		if (parse_int(&joystick, argv[0]) != 0
 			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
 			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
 			|| parse_direction(&dir, argv[3]) != 0)
@@ -1737,76 +1742,112 @@ static void input_setup_list(struct advance_input_context* context)
 	/* fill the code vector */
 	mac = 0;
 
-	/* add the available mouse buttons */
-	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
-		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+	/* add mouse buttons */
+	for(i=0;i<INPUT_MOUSE_MAX;++i) {
+		for(j=0;j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_DIGITAL_MAX) {
-				if (i == 0)
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i, j));
-				else
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i, j));
+				if (i<mouseb_count_get() && j<mouseb_button_count_get(i)) {
+					if (i == 0)
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i, j));
+					else
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i, j));
+				} else {
+					if (i == 0)
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:button%d", j+1);
+					else
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:button%d", i+1, j+1);
+				}
 				input_code_map[mac].name = input_name_map[mac];
 				input_code_map[mac].oscode = DIGITAL_MOUSE_BUTTON(i, j);
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
+			} else {
+				log_std(("emu:input: ERROR full input code vector\n"));
 			}
 		}
 	}
 
-	/* add the available joystick buttons/axes */
-	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
-		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
+	/* add joystick buttons/axes */
+	for(i=0;i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<INPUT_STICK_MAX;++j) {
+			for(k=0;k<INPUT_AXE_MAX;++k) {
 				if (mac+1 < INPUT_DIGITAL_MAX) {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					if (i<joystickb_count_get() && j<joystickb_stick_count_get(i) && k<joystickb_stick_axe_count_get(i, j)) {
+						if (i == 0)
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+						else
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					} else {
+						if (i == 0)
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%d:%d-", j+1, k+1);
+						else
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%d:%d-", i+1, j+1, k+1);
+					}
 					input_code_map[mac].name = input_name_map[mac];
 					input_code_map[mac].oscode = DIGITAL_JOY(i, j, k, 0);
 					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
+				} else {
+					log_std(("emu:input: ERROR full input code vector\n"));
 				}
 				if (mac+1 < INPUT_DIGITAL_MAX) {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					if (i<joystickb_count_get() && j<joystickb_stick_count_get(i) && k<joystickb_stick_axe_count_get(i, j)) {
+						if (i == 0)
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+						else
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					} else {
+						if (i == 0)
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%d:%d+", j+1, k+1);
+						else
+							snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%d:%d+", i+1, j+1, k+1);
+					}
 					input_code_map[mac].name = input_name_map[mac];
 					input_code_map[mac].oscode = DIGITAL_JOY(i, j, k, 1);
 					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
+				} else {
+					log_std(("emu:input: ERROR full input code vector\n"));
 				}
 			}
 		}
 
-		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+		for(j=0;j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_DIGITAL_MAX) {
-				if (i == 0)
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
-				else
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
+				if (i<joystickb_count_get() && j<joystickb_button_count_get(i)) {
+					if (i == 0)
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
+					else
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
+				} else {
+					if (i == 0)
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:button%d", j+1);
+					else
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:button%d", i+1, j+1);
+				}
 				input_code_map[mac].name = input_name_map[mac];
 				input_code_map[mac].oscode = DIGITAL_JOY_BUTTON(i, j);
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
+			} else {
+				log_std(("emu:input: ERROR full input code vector\n"));
 			}
 		}
 	}
 
-	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
+	for(i=0;i<INPUT_KEYBOARD_MAX;++i) {
 		for(j=0;j<KEYB_MAX;++j) {
-			if (keyb_has(i, j)) {
-				if (mac+1 < INPUT_DIGITAL_MAX) {
-					if (i == 0)
-						snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "%s", key_name(j));
-					else
-						snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "k%d:%s", i+1, key_name(j));
-					input_code_map[mac].name = input_name_map[mac];
-					input_code_map[mac].oscode = DIGITAL_KBD(i, j);
-					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
-					++mac;
-				}
+			if (mac+1 < INPUT_DIGITAL_MAX) {
+				if (i == 0)
+					snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "%s", key_name(j));
+				else
+					snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "k%d:%s", i+1, key_name(j));
+				input_code_map[mac].name = input_name_map[mac];
+				input_code_map[mac].oscode = DIGITAL_KBD(i, j);
+				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
+				++mac;
+			} else {
+				log_std(("emu:input: ERROR full input code vector\n"));
 			}
 		}
 	}
@@ -1888,7 +1929,6 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	unsigned i, j;
 	const char* s;
 	const struct mame_port* p;
-	adv_conf_iterator k;
 
 	/* analog */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
@@ -1946,6 +1986,13 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 		++p;
 	}
 
+	return 0;
+}
+
+static adv_error input_load_name(struct advance_input_context* context, adv_conf* cfg_context)
+{
+	adv_conf_iterator k;
+	
 	log_std(("emu:input: input_name start\n"));
 	for(conf_iterator_begin(&k, cfg_context, "input_name");!conf_iterator_is_end(&k);conf_iterator_next(&k)) {
 		char* d = strdup(conf_iterator_string_get(&k));
@@ -2049,6 +2096,11 @@ adv_error advance_input_inner_init(struct advance_input_context* context, adv_co
 	}
 
 	input_setup(context);
+	
+	/* load the customized names */
+	if (input_load_name(context, cfg_context) != 0) {
+		goto err_key;
+	}
 
 	context->state.input_current_clock = target_clock();
 	context->state.input_idle_clock = context->state.input_current_clock;
@@ -2282,86 +2334,125 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 static int advance_input_analog_read(struct advance_input_context* context, unsigned player, unsigned control, int* value)
 {
 	unsigned n;
-	int r;
+	int absolute = 0;
+	int relative = 0;
+	unsigned last;
 
 	adv_bool at_least_one_absolute = 0;
 	adv_bool at_least_one_relative = 0;
 
 	assert(context->state.active_flag != 0);
 
-	r = 0;
+	if (player >= INPUT_PLAYER_MAX || control >= INPUT_ANALOG_MAX) {
+		*value = 0;
+		return ANALOG_TYPE_NONE;
+	}
 
-	if (player < INPUT_PLAYER_MAX) {
-		if (control < INPUT_ANALOG_MAX) {
-			for(n=0;n<INPUT_MAP_MAX;++n) {
-				unsigned v = context->config.analog_map[player][control].seq[n];
-				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
-					unsigned j = ANALOG_JOY_DEV_GET(v);
-					unsigned s = ANALOG_JOY_STICK_GET(v);
-					unsigned a = ANALOG_JOY_AXE_GET(v);
-					adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
-					if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX) {
-						int z;
-						if (negate)
-							r -= context->state.joystick_analog_current[j][s][a];
-						else
-							r += context->state.joystick_analog_current[j][s][a];
-						at_least_one_absolute = 1;
-					}
-				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-					unsigned m = ANALOG_MOUSE_DEV_GET(v);
-					unsigned a = ANALOG_MOUSE_AXE_GET(v);
-					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
-					if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
-						if (negate)
-							r -= context->state.mouse_analog_current[m][a];
-						else
-							r += context->state.mouse_analog_current[m][a];
-						at_least_one_relative = 1;
-					}
-				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
-					unsigned j = ANALOG_BALL_DEV_GET(v);
-					unsigned a = ANALOG_BALL_AXE_GET(v);
-					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
-					if (j < INPUT_JOY_MAX && a < INPUT_AXE_MAX) {
-						if (negate)
-							r -= context->state.ball_analog_current[j][a];
-						else
-							r += context->state.ball_analog_current[j][a];
-						at_least_one_relative = 1;
-					}
-				} else {
-					break;
-				}
+	for(n=0;n<INPUT_MAP_MAX;++n) {
+		unsigned v = context->config.analog_map[player][control].seq[n];
+		if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
+			unsigned j = ANALOG_JOY_DEV_GET(v);
+			unsigned s = ANALOG_JOY_STICK_GET(v);
+			unsigned a = ANALOG_JOY_AXE_GET(v);
+			adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
+			if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX) {
+				int z;
+				if (negate)
+					absolute -= context->state.joystick_analog_current[j][s][a];
+				else
+					absolute += context->state.joystick_analog_current[j][s][a];
+				at_least_one_absolute = 1;
 			}
+		} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+			unsigned m = ANALOG_MOUSE_DEV_GET(v);
+			unsigned a = ANALOG_MOUSE_AXE_GET(v);
+			adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
+			if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
+				if (negate)
+					relative -= context->state.mouse_analog_current[m][a];
+				else
+					relative += context->state.mouse_analog_current[m][a];
+				at_least_one_relative = 1;
+			}
+		} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
+			unsigned j = ANALOG_BALL_DEV_GET(v);
+			unsigned a = ANALOG_BALL_AXE_GET(v);
+			adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
+			if (j < INPUT_JOY_MAX && a < INPUT_AXE_MAX) {
+				if (negate)
+					relative -= context->state.ball_analog_current[j][a];
+				else
+					relative += context->state.ball_analog_current[j][a];
+				at_least_one_relative = 1;
+			}
+		} else {
+			break;
 		}
 	}
 
+	/* adjust from -128..128 to -65536..65536 */
+	absolute *= 512;
+
+	/* limit the range */
+	if (absolute < -65536)
+		absolute = -65536;
+	if (absolute > 65536)
+		absolute = 65536;
+
+	/* adjust from 1 step for pixel to 512 steps for pixels */
+	relative *= 512;
+
+	/* limit the range also if relative to prevent overflow in the MAME code */
+	if (relative < -65536)
+		relative = -65536;
+	if (relative > 65536)
+		relative = 65536;
+
+	last = context->config.analog_map[player][control].last;
+
+	if (last == INPUT_ANALOG_ABSOLUTE && absolute != 0) {
+		*value = absolute;
+		return ANALOG_TYPE_ABSOLUTE;
+	}
+
+	if (last == INPUT_ANALOG_RELATIVE && relative != 0) {
+		*value = relative;
+		return ANALOG_TYPE_RELATIVE;
+	}
+
+	if (absolute != 0) {
+		context->config.analog_map[player][control].last = INPUT_ANALOG_ABSOLUTE;
+		*value = absolute;
+		return ANALOG_TYPE_ABSOLUTE;
+	}
+
+	if (relative != 0) {
+		context->config.analog_map[player][control].last = INPUT_ANALOG_RELATIVE;
+		*value = relative;
+		return ANALOG_TYPE_RELATIVE;
+	}
+
+	if (last == INPUT_ANALOG_ABSOLUTE && at_least_one_absolute) {
+		*value = 0;
+		return ANALOG_TYPE_ABSOLUTE;
+	}
+
+	if (last == INPUT_ANALOG_RELATIVE && at_least_one_relative) {
+		*value = relative;
+		return ANALOG_TYPE_RELATIVE;
+	}
+
 	if (at_least_one_absolute) {
-		/* adjust from -128..128 to -65536..65536 */
-		r *= 512;
-
-		/* limit the range */
-		if (r < -65536)
-			r = -65536;
-		if (r > 65536)
-			r = 65536;
-
-		*value = r;
-
+		*value = 0;
 		return ANALOG_TYPE_ABSOLUTE;
 	}
 
 	if (at_least_one_relative) {
-		/* adjust from 1 step for pixel to 512 steps for pixels */
-		r *= 512;
-
-		*value = r;
-
+		*value = relative;
 		return ANALOG_TYPE_RELATIVE;
 	}
 
-	*value = r;
+	*value = 0;
 	return ANALOG_TYPE_NONE;
 }
 

@@ -24,7 +24,7 @@ Description
 	* Vertical and horizontal orientation.
 	* Support for any TV/Arcade Monitor like AdvanceMAME but it's
 		good also for a normal PC monitor.
-	* Static and Animated image preview (PNG/PCX/ICO/MNG).
+	* Static and Animated image and clip preview (PNG/PCX/ICO/MNG).
 		Up to 192 images at the same time!
 	* Sound preview. (MP3/WAV). You can select a special sound for
 		every game played when the cursor move on it.
@@ -34,6 +34,7 @@ Description
 		start, program exit...
 	* Support for zipped images and sounds archives.
 	* Screen-saver. A slide show of the game images.
+	* Selectable background and help images with translucency.
 
 SubSubIndex
 
@@ -357,7 +358,7 @@ Configuration
 	the time played) is lost.
 
 	:emulator "EMULATOR" (generic | advmame | advmess | mame | dmame
-	:	| dmess | raine) "[-]EXECUTABLE" "ARGUMENTS"
+	:	| dmess | draine) "[-]EXECUTABLE" "ARGUMENTS"
 
 	Options:
 		EMULATOR - The name for the emulator. It must be
@@ -368,7 +369,7 @@ Configuration
 		mame - It's the Window MAME emulator.
 		dmame - It's the DOS MAME emulator.
 		dmess - It's the DOS MESS emulator.
-		raine - It's the DOS Raine emulator.
+		draine - It's the DOS Raine emulator.
 		[-]EXECUTABLE - The executable path of the emulator.
 			In DOS and Windows you can also use a batch (.bat)
 			file, but this prevent the automatic generation of
@@ -377,7 +378,7 @@ Configuration
 			to ignore any error returned by the executable.
 		ARGUMENTS - The arguments to be passed to the emulator.
 			The arguments are required only for the `generic'
-			emulator.  For the others, AdvanceMENU automatically
+			emulator. For the others, AdvanceMENU automatically
 			adds the required arguments to run a
 			game. However, you may wish to add extra
 			arguments.
@@ -404,8 +405,8 @@ Configuration
 		:	"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 		:emulator "MAME" mame "mame\mame.exe" "-nohws"
 		:emulator "MESS" dmess "mess\mess.exe" ""
-		:emulator "Raine" raine "raine\raine.exe" ""
-		:emulator "Custom Raine" raine "raine\raine2.bat" ""
+		:emulator "Raine" draine "raine\raine.exe" ""
+		:emulator "Custom Raine" draine "raine\raine2.bat" ""
 		:emulator "SNes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
 		:emulator "ZSNes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
 
@@ -491,16 +492,19 @@ Configuration
 		EMULATOR/ - Nothing for the default value, or an emulator
 			name for a specific emulator option.
 		parent - Game parent name.
+		emulator - Emulator name.
 		name - Game name.
-		time - Time played.
-		play - Play times.
+		time - Total Time played.
+		play - Total Play times.
+		timeperplay - Time per play.
 		year - Game year release.
 		manufacturer - Game manufacturer.
 		type - Game type.
 		group - Game group.
 		size - Size of the game rom.
 		resolution - Resolution of the game display.
-		info - Information read with `info_import'.
+		info - External information imported with the
+			`info_import' option.
 
     preview
 	Selects the type of the images displayed.
@@ -575,13 +579,16 @@ Configuration
 
     icon_space
 	Selects the space size between icons. The `icon' mode is
-	available only if you set the option `icons' in the
+	available only if you set the option `emulator_icons' in the
 	emulator config file.
 
 	:icon_space SPACE
 
 	Options:
-		SPACE - The number of pixel between icons (default 43)
+		SPACE - The number of pixel between icons (default 43).
+
+	In the icon display the game title is displayed in multiple rows
+	if there is enough space.
 
     merge
 	Selects the expected format of your romset. It's used to test
@@ -710,7 +717,7 @@ Configuration
   
     device_sound_*
 	These options are used to customize the audio drivers.
-    
+
 	All the `device_sound_*' options defined in the `advdev.txt' file can
 	be used.
 
@@ -863,24 +870,42 @@ Configuration
 			the number of rows.
 
     ui_background
-	Defines a background image in the .PNG format. The image is stretched
-	to fit the screen.
+	Defines a background image in .PNG or MNG format. The image is
+	stretched to fit the screen.
 
-	ui_background FILE
+	ui_background FILE | none
 
 	Options:
-		FILE - File in .PNG format to load (default none).
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+	For .MNG files only the first frame is used.
 
     ui_exit
-	Defines an exit background image in the .PNG format displayed when
+	Defines an exit background image in .PNG or .MNG format displayed when
 	the emulator exits. The image is stretched to fit the screen.
 	The message is displayed only if the option `display_restoreaatexit'
 	is set to `no'.
 
-	ui_exit FILE
+	ui_exit FILE | none
 
 	Options:
-		FILE - File in .PNG format to load (default none).
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+	For .MNG files only the first frame is used.
+
+    ui_help
+	Defines an help image in .PNG or .MNG format displayed when the
+	user press F1. The image is stretched to fit the screen.
+
+	ui_help FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+	For .MNG files only the first frame is used.
 
     ui_gamemsg
 	One line message displayed when a game is chosen. The
@@ -899,21 +924,19 @@ Configuration
 
     ui_game
 	Selects the preview type to display when a game is run. The
-	message is displayed only if the option `display_restoreatgame' is
+	preview is displayed only if the option `display_restoreatgame' is
 	set to `no'.
 
-	:ui_game none | snap | flyers | cabinets | titles | FILE
+	:ui_game none | snap | flyers | cabinets | titles
 
 	Options:
 		none - Don't display any preview.
 		snap, flyers, cabinets, titles - Display the
 			specified preview. (default snap).
-		FILE - File in .PNG format to load.
-
 
     ui_skiptop/bottom/left/right
-	Defines the border area of the screen not used by the menu. Generally
-	it's the part of the screen used by the background image.
+	Defines the border area of the screen not used by the menu.
+	Generally it's the part of the screen used by the background image.
 	If a `ui_background' image is specified these values refer at image
 	size before stretching, otherwise they refer at the current video
 	mode size.
@@ -954,15 +977,15 @@ Configuration
 		bar - Title.
 		bar_tag - Title highlight.
 		bar_hidden - Title hidden text.
-		grid - Scrollbar marker and grid.
+		grid - Scrollbar marker and generic background color.
 		backdrop - Backdrop outline and missing backdrop.
 		icon - Icon outline and missing icon.
 		cursor - Flashing cursor.
 
 	Options:
 		FOREGROUND - Foreground color in RRGGBB
-			hex format. For example FF0000 is red
-			and 00FF00 is green.
+			hex format. For example FF0000 is red,
+			00FF00 is green and 0000FF is blue.
 		BACKGROUND - Background color. Like foreground color.
 
     ui_clip
@@ -980,7 +1003,19 @@ Configuration
 			cursor. The sound is not looped.
 		multiloopall - Play all the clips, and loop all the clips.
 			The sound is not looped.
-			
+
+    ui_translucency
+	Selects the translucency of the user interface.
+
+	ui_translucency FACTOR
+
+	Options:
+		FACTOR - Translucency factor from 0 to 1
+			(default 0.6).
+
+	The translucency has effect only if you have a background
+	image.
+
     ui_command
 	Defines the user commands. These commands are executed as 
 	shell scripts. The video mode is not changed, so they must be 
@@ -995,7 +1030,7 @@ Configuration
 
 	In the script text some macro are substituted with information of
 	the selected game:
-		%s -  The game name. For example "pacman".
+		%s - The game name. For example "pacman".
 		%p - The complete path of the rom. For
 			example "c:\emu\roms\pacman.zip".
 		%f - The rom name with the extension. For
@@ -1029,16 +1064,20 @@ Configuration
 	Options:
 		MSG - Message to display (default "Error running the command").
 
-    ui_console
-	Changes the user interface behavior for the use on a game 
-	Console system. Mainly used in AdvanceCD.
-
-	ui_console yes | no
-
     ui_menukey
 	Enables or disables the key names in the menu entries.
 
 	ui_menukey yes | no
+
+    ui_console
+	Changes the user interface behavior for the use on a game 
+	console system. Mainly for AdvanceCD.
+
+	ui_console yes | no
+
+	In console mode the menu is reduced to contains only the
+	minimal commands, and the sound volume is propagated to the
+	emulators if possible.
 
   Other Configuration Options
 
