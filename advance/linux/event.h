@@ -38,12 +38,13 @@ void event_close(int f);
 void event_log(int f, unsigned char* evtype_bitmask);
 adv_error event_read(int f, int* type, int* code, int* value);
 
-adv_bool event_is_mouse(unsigned char* evtype_bitmask);
-adv_bool event_is_joystick(unsigned char* evtype_bitmask);
-adv_bool event_is_keyboard(unsigned char* evtype_bitmask);
+adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask);
+adv_bool event_is_joystick(int f, unsigned char* evtype_bitmask);
+adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask);
 
-#define event_test_bit(bit, array) \
-	(array[bit/8] & (1<<(bit%8)))
-
+static inline adv_bool event_test_bit(unsigned bit, unsigned char* evtype_bitmask)
+{
+	return (evtype_bitmask[bit/8] & (1 << (bit % 8))) != 0;
+}
 
 #endif

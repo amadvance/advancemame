@@ -119,6 +119,7 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 		#endif
 	};
 
+	/* WARNING: It must be syncronized with the list in event.c */
 	struct axe_entry {
 		int code;
 		const char* name;
@@ -237,7 +238,7 @@ adv_error mouseb_event_init(int mouseb_id)
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
-		if (!event_is_mouse(event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_mouse(f, event_state.map[event_state.mac].evtype_bitmask)) {
 			log_std(("mouseb:event: not a mouse on device %s\n", file));
 			event_close(f);
 			continue;

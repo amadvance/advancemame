@@ -288,6 +288,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		#endif
 	};
 
+	/* WARNING: It must be syncronized with the list in event.c */
 	struct stick_entry {
 		struct axe_entry {
 			int code;
@@ -515,7 +516,7 @@ adv_error joystickb_event_init(int joystickb_id)
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
-		if (!event_is_joystick(event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_joystick(f, event_state.map[event_state.mac].evtype_bitmask)) {
 			log_std(("joystickb:event: not a joystick on device %s\n", file));
 			event_close(f);
 			continue;

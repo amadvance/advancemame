@@ -149,9 +149,19 @@ void run(void)
 						digital = '/';
 					else
 						digital = '-';
-					snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " %d/%d [%4d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
+					sncatf(new_msg, sizeof(new_msg), " %d/%d [%4d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
 				}
 			}
+
+			sncat(new_msg, sizeof(new_msg), " [");
+
+			for(j=0;j<joystickb_rel_count_get(i);++j) {
+				if (j != 0)
+					sncat(new_msg, sizeof(new_msg), "/");
+				sncatf(new_msg, sizeof(new_msg), "%d", joystickb_rel_get(i, j));
+			}
+
+			sncat(new_msg, sizeof(new_msg), "]");
 		}
 
 		if (strcmp(msg, new_msg)!=0) {

@@ -1443,22 +1443,133 @@ void event_log(int f, unsigned char* evtype_bitmask)
 	}
 }
 
-adv_bool event_is_joystick(unsigned char* evtype_bitmask)
+static adv_bool event_test_bit_feature(int f, unsigned bit, unsigned char* evtype_bitmask, const int* feature)
 {
-	return event_test_bit(EV_ABS, evtype_bitmask);
+	unsigned i;
+	unsigned char bitmask[64];
+	unsigned bitmax = 64 * 8;
+
+	if (!event_test_bit(bit, evtype_bitmask))
+		return 0;
+
+	memset(bitmask, 0, sizeof(bitmask));
+
+	if (ioctl(f, EVIOCGBIT(bit, sizeof(bitmask)), bitmask) < 0) {
+		log_std(("event: error in ioctl(EVIOCGBIT(0x%x))\n", bit));
+		return 0;
+	}
+
+	for(i=0;feature[i] >= 0;++i)
+		if (event_test_bit(feature[i], bitmask)) {
+			return 1;
+	}
+
+	return 0;
 }
 
-adv_bool event_is_mouse(unsigned char* evtype_bitmask)
+int ABS_FEATURE[] = {
+#ifdef ABS_X
+	ABS_X,
+#endif
+#ifdef ABS_Y
+	ABS_Y,
+#endif
+#ifdef ABS_Z
+	ABS_Z,
+#endif
+#ifdef ABS_RX
+	ABS_RX,
+#endif
+#ifdef ABS_RY
+	ABS_RY,
+#endif
+#ifdef ABS_RZ
+	ABS_RZ,
+#endif
+#ifdef ABS_GAS
+	ABS_GAS,
+#endif
+#ifdef ABS_BRAKE
+	ABS_BRAKE,
+#endif
+#ifdef ABS_WHELL
+	ABS_WHEEL,
+#endif
+#ifdef ABS_HAT0X
+	ABS_HAT0X,
+	ABS_HAT0Y,
+#endif
+#ifdef ABS_HAT1X
+	ABS_HAT1X,
+	ABS_HAT1Y,
+#endif
+#ifdef ABS_HAT2X
+	ABS_HAT2X,
+	ABS_HAT2Y,
+#endif
+#ifdef ABS_HAT3X
+	ABS_HAT3X,
+	ABS_HAT3Y,
+#endif
+#ifdef ABS_THROTTLE
+	ABS_THROTTLE,
+#endif
+#ifdef ABS_RUDDER
+	ABS_RUDDER,
+#endif
+/* ABS_MISC is used by some mouses */
+	-1
+};
+
+int REL_FEATURE[] = {
+#ifdef REL_X
+	REL_X,
+#endif
+#ifdef REL_Y
+	REL_Y,
+#endif
+#ifdef REL_Z
+	REL_Z,
+#endif
+#ifdef REL_WHEEL
+	REL_WHEEL,
+#endif
+#ifdef REL_HWHEEL
+	REL_HWHEEL,
+#endif
+#ifdef REL_DIAL
+	REL_DIAL,
+#endif
+/* REL_MISC is too generic */
+	-1
+};
+
+int KEY_FEATURE[] = {
+#ifdef KEY_1
+	KEY_1,
+#endif
+#ifdef KEY_A
+	KEY_A,
+#endif
+	-1
+};
+
+adv_bool event_is_joystick(int f, unsigned char* evtype_bitmask)
 {
-	return !event_test_bit(EV_ABS, evtype_bitmask)
-		&& event_test_bit(EV_REL, evtype_bitmask);
+	return event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE);
 }
 
-adv_bool event_is_keyboard(unsigned char* evtype_bitmask)
+adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask)
 {
-	return !event_test_bit(EV_ABS, evtype_bitmask)
-		&& !event_test_bit(EV_REL, evtype_bitmask)
-		&& event_test_bit(EV_KEY, evtype_bitmask);
+	return !event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE)
+		&& event_test_bit_feature(f, EV_REL, evtype_bitmask, REL_FEATURE);
+}
+
+adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask)
+{
+	return !event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE)
+		&& !event_test_bit_feature(f, EV_REL, evtype_bitmask, REL_FEATURE)
+		&& event_test_bit_feature(f, EV_KEY, evtype_bitmask, KEY_FEATURE);
 }
 
 adv_error event_read(int f, int* type, int* code, int* value)

@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.89.1 2004/12
+	) Fixed the recognition of some USB mouses and keyboards
+		with the Linux event driver.
+
 AdvanceMAME Version 0.89.0 2004/12
 	) Added a ncurses driver for text mode in Linux.
 

@@ -758,7 +758,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
-		if (!event_is_keyboard(event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_keyboard(f, event_state.map[event_state.mac].evtype_bitmask)) {
 			log_std(("keyb:event: not a keyboard on device %s\n", file));
 			event_close(f);
 			continue;
