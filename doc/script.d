@@ -192,7 +192,8 @@ Examples
 	the bit 0 during the emulation and clear them then the game
 	stop :
 
-		:script_start set(lpt1, 0xff); while(event()) { toggle(lpt1, 1); delay(500); } set(lpt1, 0);
+		:script_start set(lpt1, 0xff); while(event()) { toggle(lpt1, 1); \
+		:	delay(500); } set(lpt1, 0);
 
 	Map the first MAME led to the first keyboard led:
 
@@ -204,7 +205,8 @@ Examples
 
 	Flash the third keyboard led when the 'turbo' is active :
 
-		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } off(kdb, 0b100);
+		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } \
+		:	off(kdb, 0b100);
 
 	Light the third keyboard led when the 'coin1' key is pressed :
 
@@ -212,11 +214,13 @@ Examples
 
 	Add 3 coins automatically:
 
-		:script_play delay(1000); repeat(3) { simulate_event(coin1,100); delay(200); }
+		:script_play delay(1000); repeat(3) { simulate_event(coin1,100); \
+		:	delay(200); }
 
 	Add a coin when the player start:
 
-		:script_start1 wait(!event()); simulate_event(coin1,100); delay(500); simulate_event(start1,100);
+		:script_start1 wait(!event()); simulate_event(coin1,100); \
+		:	delay(500); simulate_event(start1,100);
 
 Configuration
 	The scripts must be inserted in the 'advmame.rc' file.
@@ -227,7 +231,8 @@ Configuration
 		:script_led1 on(kdb, 0b1); wait(!event()); off(kdb, 0b1);
 		:script_led2 on(kdb, 0b10); wait(!event()); off(kdb, 0b10);
 		:script_coin1 on(kdb, 0b100); delay(500); off(kdb, 0b100);
-		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } off(kdb, 0b100);
+		:script_turbo while (event()) { toggle(kdb, 0b100); delay(500); } \
+		:	off(kdb, 0b100);
 		:script_start1 \
 		:	set(lpt1, 0xff); \
 		:	while(event()) { \

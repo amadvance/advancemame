@@ -48,8 +48,17 @@
 #include <sys/io.h>
 #include <linux/fb.h>
 
-/* Define USE_IOPL to use iopl instead of the /dev/port interface */
-#define USE_IOPL
+/* Define USE_DIRECTIO to use direct port io instead of the /dev/port interface in vsync polling */
+#define USE_DIRECTIO
+
+/* Define USE_DISABLEINT to disable interrupt in vsync polling */
+/* NOTE: At present it doesn't work because the vsync measure always fails */
+/* #define USE_DISABLEINT */
+
+/* disable if no ASM allowed */
+#ifndef USE_ASM_i586
+#undef USE_DISABLEINT
+#endif
 
 /***************************************************************************/
 /* State */
@@ -77,7 +86,7 @@ typedef struct fb_internal_struct {
 
 	unsigned flags;
 
-#ifdef USE_IOPL
+#ifdef USE_DIRECTIO
 	adv_bool io_perm_flag; /**< IO Permission granted. */
 #endif
 
@@ -359,8 +368,8 @@ static adv_error fb_detect(void)
 	}
 
 	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
-		log_std(("video:fb: disable interlace modes, not supported by the GeForge hardware\n"));
-		/* the GeForge hardware doesn't support interlace */
+		log_std(("video:fb: disable interlace modes, not supported by the GeForce hardware\n"));
+		/* the GeForce hardware doesn't support interlace */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
 
@@ -470,9 +479,14 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 		goto err_close;
 	}
 
-#ifdef USE_IOPL
+#ifdef USE_DIRECTIO
 	/* get permission on the ports */
 	if (iopl(3) == 0) {
+#ifdef USE_DISABLEINT
+		log_std(("fb: iopl(3) success, using direct io port with interrupt disabled\n"));
+#else
+		log_std(("fb: iopl(3) success, using direct io port\n"));
+#endif
 		fb_state.io_perm_flag = 1;
 	} else {
 		fb_state.io_perm_flag = 0;
@@ -502,8 +516,6 @@ void fb_done(void)
 
 adv_error fb_mode_set(const fb_video_mode* mode)
 {
-	char* term;
-
 	assert( fb_is_active() && !fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_set()\n"));
@@ -630,8 +642,6 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 void fb_mode_done(adv_bool restore)
 {
-	char* term;
-
 	assert( fb_is_active() && fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_done()\n"));
@@ -675,7 +685,7 @@ adv_color_def fb_color_def(void)
 {
 	assert(fb_is_active() && fb_mode_is_active());
 
-	return color_def_make_from_rgb_sizelenpos(
+	return color_def_make_rgb_from_sizelenpos(
 		fb_state.bytes_per_pixel,
 		fb_state.varinfo.red.length, fb_state.varinfo.red.offset,
 		fb_state.varinfo.green.length, fb_state.varinfo.green.offset,
@@ -744,7 +754,7 @@ static adv_error fb_wait_vsync_vga(void)
 
 	assert(fb_is_active() && fb_mode_is_active());
 
-#ifdef USE_IOPL
+#ifdef USE_DIRECTIO
 	if (!fb_state.io_perm_flag) {
 		log_std(("ERROR:fb: wait not allowed, you must be root\n"));
 		return -1;
@@ -753,12 +763,32 @@ static adv_error fb_wait_vsync_vga(void)
 
 	counter = 0;
 
-#ifdef USE_IOPL
+#ifdef USE_DIRECTIO
+
+#ifdef USE_DISABLEINT
+	__asm__ __volatile__(
+		"cli\n"
+		:
+		:
+		: "cc"
+	);
+#endif
+
 	while ((inb(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
 		++counter;
 
 	while ((inb(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
 		++counter;
+
+#ifdef USE_DISABLEINT
+	__asm__ __volatile__(
+		"sti\n"
+		:
+		:
+		: "cc"
+	);
+#endif
+
 #else
 	while ((target_port_get(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
 		++counter;

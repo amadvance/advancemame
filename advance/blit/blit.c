@@ -38,7 +38,7 @@
 #include <string.h>
 
 /* Define if you want to assume fast write in video memory */
-#ifndef __MSDOS__
+#ifndef __MSDOS__ /* OSDEF MSDOS requires a different set of blit functions because the MTRR usually is not active */
 #define USE_MTRR
 #endif
 
@@ -317,8 +317,6 @@ static void video_buffer_done(void)
 
 adv_error video_blit_init(void)
 {
-	unsigned i;
-
 	if (blit_set_mmx() != 0) {
 		error_set("This executable requires an MMX processor.\n");
 		return -1;
@@ -682,18 +680,6 @@ static inline struct video_stage_horz_struct* video_pipeline_insert(struct video
 	struct video_stage_horz_struct* stage = video_pipeline_end_mutable(pipeline);
 	++pipeline->stage_mac;
 	return stage;
-}
-
-static struct video_stage_horz_struct* video_pipeline_substitute(struct video_pipeline_struct* pipeline, struct video_stage_horz_struct* begin, struct video_stage_horz_struct* end)
-{
-	struct video_stage_horz_struct* last = video_pipeline_end_mutable(pipeline);
-	pipeline->stage_mac += 1 - (end - begin);
-	while (end != last) {
-		++begin;
-		memcpy(begin, end, sizeof(struct video_stage_horz_struct));
-		++end;
-	}
-	return begin;
 }
 
 static void video_pipeline_realize(struct video_pipeline_struct* pipeline, int sdx, int sdp, int sbpp)
@@ -3086,7 +3072,6 @@ static void video_stage_stretchy_11_set(struct video_stage_vert_struct* stage_ve
 static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned src_dx, int src_dp, unsigned combine)
 {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
-	struct video_stage_horz_struct* end;
 	unsigned combine_y = combine & VIDEO_COMBINE_Y_MASK;
 
 	/* in x reduction the filter is applied before the resize */
@@ -3342,27 +3327,24 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 		/* only conversion from rgb are supported */
 		assert(color_def_type_get(src_color_def) == adv_color_type_rgb);
 
-#if 1
-		/* optimized conversion */
-
 		/* preconversion */
-		if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 0, 8, 8, 8, 16)) {
+		if (src_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 0, 8, 8, 8, 16)) {
 			video_stage_rgba8888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
-			src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
-		} else if (src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 0, 8, 8, 8, 16)) {
+		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(3, 8, 0, 8, 8, 8, 16)) {
 			video_stage_rgb888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
-			src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
-		} else if (src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 16, 8, 8, 8, 0)) {
+		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(3, 8, 16, 8, 8, 8, 0)) {
 			video_stage_bgr888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
-			src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
 		}
 
 		/* conversion */
-		if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
-			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
+		if (src_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
+			if (dst_color_def == color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
 					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3370,7 +3352,7 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				}
 				video_stage_bgra8888tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
+			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
 					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3378,7 +3360,7 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				}
 				video_stage_bgra8888tobgra5551_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
+			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
 					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3393,8 +3375,8 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
 				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
-		} else if (src_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
-			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
+		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
+			if (dst_color_def == color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3402,7 +3384,7 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				}
 				video_stage_bgra5551tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
+			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3410,7 +3392,7 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				}
 				video_stage_bgra5551tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
+			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
@@ -3434,16 +3416,6 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
 		}
-#else
-		/* generic conversion */
-		if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
-			video_stage_rgbtoyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def);
-			src_dp = 4;
-		} else {
-			video_stage_rgbtorgb_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def);
-			src_dp = color_def_bytes_per_pixel_get(dst_color_def);
-		}
-#endif
 	} else {
 		/* rotation */
 		if (src_dp != bytes_per_pixel) {

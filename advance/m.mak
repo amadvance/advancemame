@@ -85,6 +85,6 @@ $(sort $(MOBJDIRS)):
 
 $(MOBJ)/advm$(EXE) : $(sort $(MOBJDIRS)) $(MOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(MLDFLAGS) $(MOBJS) $(MLIBS) -o $@
+	$(LD) $(MOBJS) $(MLIBS) $(MLDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advm$(EXE)
 	$(LN_S) $@ advm$(EXE)

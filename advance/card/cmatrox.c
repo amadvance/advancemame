@@ -38,9 +38,6 @@
 /* If defined low freq modes are implemented with a zoom effects */
 #define USE_ZOOM
 
-/* Check something regardings the zoom */
-/* #define ZOOMLIMITATION */ /* DISABLED */
-
 struct matrox_id {
 	unsigned value;
 	const char* name;
@@ -168,27 +165,7 @@ static void matrox_crtc_adjust(card_crtc STACK_PTR* cp, int hzoom)
 			cp->VBEnd = cp->VTotal - 1;
 		}
 	}
-
-#ifdef ZOOMLIMITATION
-	if ( matrox_horizontal_total_check(cp->HTotal, hzoom) == 0 ) {
-		cp->HTotal += 8;
-	}
-#endif
 }
-
-#ifdef ZOOMLIMITATION
-static int matrox_horizontal_total_check(int HTotal, int hzoom)
-{
-	int result = 1;
-	int d0;
-
-	d0 = 8 * hzoom;
-	if ( ((HTotal >> 3) % d0) == (d0 - 1) ) {
-		result = 0;
-	}
-	return result;
-}
-#endif
 
 static void matrox_interlace_set(int flag, int HSyncStart, int HSyncEnd, int HTotal, int ratio)
 {
@@ -314,11 +291,6 @@ const char* matrox_driver(void)
 int matrox_detect(void)
 {
 	int i;
-
-#if 0 /* fake detect */
-	matrox_card = matrox_id_list + 8;
-	return 1;
-#endif
 
 	if (pci_detect()!=0) {
 		CARD_LOG(("matrox: PCI BIOS not Installed.\n"));

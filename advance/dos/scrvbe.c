@@ -342,6 +342,8 @@ static adv_error vbe_pm_init(void)
 	vbe_state.pm_switcher = 0;
 	vbe_state.pm_scroller = 0;
 	vbe_state.pm_palette = 0;
+
+	/* disable memory mapped IO */
 	vbe_state.pm_mmio_selector = 0;
 	vbe_state.pm_mmio_address = 0;
 	vbe_state.pm_mmio_size = 0;
@@ -389,32 +391,6 @@ static adv_error vbe_pm_init(void)
 	}
 #endif
 
-#if 0 /* TODO */
-	/* memory mapped IO */
-	if (vbe_state.pm_info->IOPrivInfo) {
-		uint16* p;
-		p = (uint16*)((uint8*)vbe_state.pm_info + vbe_state.pm_info->IOPrivInfo);
-		/* skip the port table */
-		while (*p != 0xFFFF)
-			p++;
-		p++;
-		if (*p != 0xFFFF) {
-			vbe_state.pm_mmio_address = *((uint32*)p);
-			vbe_state.pm_mmio_size = *(p+2);
-			if (physical_init(&vbe_state.pm_mmio_selector, vbe_state.pm_mmio_address, vbe_state.pm_mmio_size ) != 0) {
-				vbe_state.pm_mmio_selector = 0;
-				vbe_state.pm_mmio_address = 0;
-				vbe_state.pm_mmio_size = 0;
-				return -1;
-			}
-		}
-	}
-#else
-	vbe_state.pm_mmio_selector = 0;
-	vbe_state.pm_mmio_address = 0;
-	vbe_state.pm_mmio_size = 0;
-#endif
-
 	/* assume cs==ds */
 	vbe_state.pm_switcher = (unsigned)vbe_state.pm_info + vbe_state.pm_info->setWindow;
 	vbe_state.pm_scroller = (unsigned)vbe_state.pm_info + vbe_state.pm_info->setDisplayStart;
@@ -431,12 +407,6 @@ static void vbe_pm_done(void)
 	assert( vbe_pm_is_active() );
 
 	free( vbe_state.pm_info );
-
-#if 0 /* TODO */
-	if (vbe_state.pm_mmio_selector) {
-		physical_done(vbe_state.pm_mmio_address, vbe_state.pm_mmio_size);
-	}
-#endif
 
 	/* disable */
 	vbe_state.pm_active = 0;
@@ -476,31 +446,6 @@ void vbe_mode_done(adv_bool restore)
 	vbe_state.mode_active = 0;
 }
 
-#if 0 /* not used */
-static adv_error vbe_dac_set(unsigned width)
-{
-	__dpmi_regs r;
-
-	memset(&r, 0, sizeof(r));
-
-	assert( vbe_active() && vbe_mode_active() );
-
-	r.x.ax = 0x4F08;
-	r.h.bl = 0x00;
-	r.h.bh = width;
-	vbe_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
-		error_set("Error %x in the VESA call 4F08 (SetPalette)", (unsigned)r.x.ax);
-		return r.x.ax;
-	}
-
-	vbe_state.palette_width = r.h.bh;
-	log_std(("vbe: palette set to %d bit\n", (unsigned)vbe_state.palette_width));
-
-	return 0;
-}
-#endif
-
 /* Compute shift and mask value */
 static void vbe_rgb_data(int* shift, unsigned* mask, unsigned posbit, unsigned masksize)
 {
@@ -513,7 +458,7 @@ adv_color_def vbe_color_def(void)
 	if (vbe_state.mode_info.MemoryModel == vbeMemPK) {
 		return color_def_make(adv_color_type_palette);
 	} else {
-		return color_def_make_from_rgb_sizeshiftmask(vbe_state.bytes_per_pixel, vbe_state.rgb_red_shift, vbe_state.rgb_red_mask, vbe_state.rgb_green_shift, vbe_state.rgb_green_mask, vbe_state.rgb_blue_shift, vbe_state.rgb_blue_mask);
+		return color_def_make_rgb_from_sizeshiftmask(vbe_state.bytes_per_pixel, vbe_state.rgb_red_shift, vbe_state.rgb_red_mask, vbe_state.rgb_green_shift, vbe_state.rgb_green_mask, vbe_state.rgb_blue_shift, vbe_state.rgb_blue_mask);
 	}
 }
 
@@ -618,15 +563,6 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc)
 		} else {
 			/* update color palette */
 			vbe_state.palette_width = 6; /* VBE default */
-#if 0 /* disabled for no testing possibility */
-			if ((vbe_state.info.Capabilities & vbe8BitDAC) != 0) {
-				log_std(("vbe: try setting 8 bit palette\n"));
-				if (vbe_dac_set(8)!=0) {
-					log_std(("vbe: set 8 bit palette FAILED\n"));
-					/* ignore error, if failed the default is 6 bit */
-				}
-			}
-#endif
 		}
 
 		/* inizialize pm interface */
@@ -1202,11 +1138,6 @@ adv_error vbe_palette_set(const adv_color_rgb* palette, unsigned start, unsigned
 	} else if ((vbe_state.info.Capabilities & vbeNonVGA)==0 && vbe_state.palette_width==6) {
 		log_debug(("vbe: palette set (6 bit) with VGA registers\n"));
 		vga_palette6_set(palette, start, count, waitvsync);
-#if 0 /* if the palette is set to 8 bit the BIOS call must be used */
-	} else if ((vbe_state.info.Capabilities & vbeNonVGA)==0 && vbe_state.palette_width==8) {
-		log_debug(("vbe: palette set (8 bit) with VGA registers\n"));
-		vga_palette8_set(palette, start, count, waitvsync);
-#endif
 	} else {
 		__dpmi_regs r;
 

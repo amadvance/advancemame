@@ -108,7 +108,7 @@ void slice_vector(unsigned* map, unsigned sd, unsigned dd)
 	}
 }
 
-#if 0
+#if 0 /* OSDEF Testing code */
 
 /* Run-length slice test program */
 

@@ -3,11 +3,13 @@
 #include <string>
 #include <cstdlib>
 
+using namespace std;
+
 const char* license =
 "/*\n"
-" * This file is part of the AdvanceMAME project.\n"
+" * This file is part of the Advance project.\n"
 " *\n"
-" * Copyright (C) 1999-2002 Andrea Mazzoleni\n"
+" * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni\n"
 " *\n"
 " * This program is free software; you can redistribute it and/or modify\n"
 " * it under the terms of the GNU General Public License as published by\n"
@@ -26,9 +28,9 @@ const char* license =
 
 const char* license_exception =
 "/*\n"
-" * This file is part of the AdvanceMAME project.\n"
+" * This file is part of the Advance project.\n"
 " *\n"
-" * Copyright (C) 1999-2002 Andrea Mazzoleni\n"
+" * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni\n"
 " *\n"
 " * This program is free software; you can redistribute it and/or modify\n"
 " * it under the terms of the GNU General Public License as published by\n"
@@ -54,6 +56,8 @@ const char* license_exception =
 " * file, but you are not obligated to do so.  If you do not wish to\n"
 " * do so, delete this exception statement from your version.\n"
 " */"; /* No final \n */
+
+
 
 bool process(const char* path, const char* lic) {
 	ifstream fi(path);

@@ -41,12 +41,19 @@
 extern "C" {
 #endif
 
+/** \addtogroup SafeString */
+/*@{*/
+
 void sncpy(char* dst, size_t len, const char* src);
+void sncpyc(char* dst, size_t len, char src);
 void sncpyn(char* dst, size_t len, const char* src, size_t src_len);
 void sncat(char* dst, size_t len, const char* src);
+void sncatc(char* dst, size_t len, char src);
 void sncatf(char* str, size_t count, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore);
 void sskip(int* p, const char* s, const char* sep);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

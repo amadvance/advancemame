@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "emu.h"
 #include "thread.h"
 #include "glue.h"
+#include "input.h"
 
 #include "os.h"
 #include "log.h"
@@ -58,30 +59,30 @@
 #include <limits.h>
 
 /** Max framskip factor */
-#define SYNC_MAX 3
+#define SYNC_MAX 4
 
 /***************************************************************************/
 /*
 	Description of the various coordinate systems and variables :
 	All these values are already postprocessed after any SWAP/FLIP.
 
-	game_area_size_/y
+	game_area_size_x/y
 		Max size of the visible part of the game screen.
 
-	game_used_x/y
-		Current size of the visible part of the game screen.
+	game_used_size_x/y
+		Current size of the used part of the game screen.
 
-	game_used_x_pos_x/y
-		Current position of the visible part in the whole game are.
+	game_used_pos_x/y
+		Current position of the used part in the whole game are.
 
 	game_visible_size_x/y
 		Size of the visible part of the game screen. Can be smaller
-		than game_used_* if the video mode is too small. game_visible_
-		is always internal of the game_used part.
+		than game_used_size_x/y if the video mode is too small.
+		game_visible_ is always internal of the game_used part.
 
 	game_visible_pos_x/y
-		Position of the visible part in the game screen (not
-		in the game_used part).
+		Position of the visible part in the game screen. The coords
+		are referenced on the used game area.
 
 	mode_visible_size_x/y
 		Part of the screen used for drawing. game_visible_* area is
@@ -1327,11 +1328,10 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	}
 
 	context->state.game_rgb_flag = req->rgb_flag;
+	context->state.game_color_def = req->color_def;
 	if (context->state.game_rgb_flag) {
-		context->state.game_color_def = req->color_def;
 		context->state.game_colors = 0;
 	} else {
-		context->state.game_color_def = 0;
 		context->state.game_colors = req->colors;
 	}
 
@@ -1422,7 +1422,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		log_std(("emu:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
 		/* Some video cards require a size multiple of 16. */
-		/* (for example GeForge in doublescan with 8 bit modes) */
+		/* (for example GeForce in doublescan with 8 bit modes) */
 		step_x = 16;
 
 		/* compute the best mode */
@@ -1689,10 +1689,6 @@ static void video_frame_pan(struct advance_video_context* context, unsigned inpu
 static void video_update_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
-	char buffer[256];
-	const struct video_stage_horz_struct* stage;
-	unsigned i;
-	unsigned pixel;
 	unsigned size;
 	int intermediate_game_used_pos_x;
 	int intermediate_game_used_pos_y;
@@ -1702,7 +1698,6 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 	int intermediate_game_visible_size_y;
 	int intermediate_mode_visible_size_x;
 	int intermediate_mode_visible_size_y;
-
 
 	/* check if the pipeline is already updated */
 	if (context->state.blit_pipeline_flag)
@@ -1751,11 +1746,6 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 		SWAP(int, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y);
 	}
 
-	log_std(("emu:video: buffer_size_x %d\n", context->state.buffer_size_x));
-	log_std(("emu:video: buffer_size_y %d\n", context->state.buffer_size_y));
-	log_std(("emu:video: intermediate_mode_visible_size_x %d\n", intermediate_mode_visible_size_x));
-	log_std(("emu:video: intermediate_mode_visible_size_y %d\n", intermediate_mode_visible_size_y));
-
 	context->state.buffer_src_dw = bitmap->bytes_per_scanline;
 	context->state.buffer_src_dp = context->state.game_bytes_per_pixel;
 
@@ -1786,13 +1776,6 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 			context->state.game_visible_pos_x_increment = 1;
 		}
 	}
-
-	log_std(("emu:video: blit_offset %d\n", context->state.blit_src_offset));
-	log_std(("emu:video: blit_dw %d\n", context->state.blit_src_dw));
-	log_std(("emu:video: blit_dp %d\n", context->state.blit_src_dp));
-	log_std(("emu:video: buffer_offset %d\n", context->state.buffer_src_offset));
-	log_std(("emu:video: buffer_dw %d\n", context->state.buffer_src_dw));
-	log_std(("emu:video: buffer_dp %d\n", context->state.buffer_src_dp));
 
 	/* adjust the source position */
 	context->state.game_visible_pos_x = context->state.game_visible_pos_x - context->state.game_visible_pos_x % context->state.game_visible_pos_x_increment;
@@ -1933,15 +1916,36 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 {
 	unsigned src_offset;
 	unsigned dst_x, dst_y;
+	unsigned pixel;
 
 	/* screen position */
 
 	dst_x = (video_size_x() - context->state.mode_visible_size_x) / 2;
 	dst_y = (video_size_y() - context->state.mode_visible_size_y) / 2;
 
+	pixel = ALIGN / video_bytes_per_pixel();
+	dst_x = (dst_x + pixel-1) & ~(pixel-1);
+
 	log_debug(("osd:frame dst_dxxdst_dy:%dx%d, xxy:%dx%d, dxxdy:%dx%d, dpxdw:%dx%d\n", context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_pos_x, context->state.game_visible_pos_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dp, context->state.blit_src_dw));
 
-	if (advance_ui_active(ui_context)) {
+	if (advance_ui_direct_active(ui_context)) {
+		unsigned pos_x = context->state.game_used_pos_x + context->state.game_visible_pos_x;
+		unsigned pos_y = context->state.game_used_pos_y + context->state.game_visible_pos_y;
+		unsigned size_x = context->state.game_visible_size_x;
+		unsigned size_y = context->state.game_visible_size_y;
+
+		/* restore the original orientation */
+		if ((context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+			SWAP(unsigned, pos_x, pos_y);
+			SWAP(unsigned, size_x, size_y);
+		}
+
+		src_offset = pos_x * context->state.game_bytes_per_pixel + pos_y * bitmap->bytes_per_scanline;
+
+		advance_ui_direct_update(ui_context, (unsigned char*)bitmap->ptr + src_offset, size_x, size_y, bitmap->bytes_per_scanline, context->state.game_color_def, context->state.palette_map, context->state.palette_total);
+	}
+
+	if (advance_ui_buffer_active(ui_context)) {
 		int buf_dw;
 		int buf_dp;
 		unsigned char* buf_ptr;
@@ -1963,17 +1967,33 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		/* compute the source pointer */
 		src_offset = context->state.buffer_src_offset + intermediate_game_visible_pos_y * context->state.buffer_src_dw + intermediate_game_visible_pos_x * context->state.buffer_src_dp;
 
-		log_std(("buffer_src_offset %d\n", src_offset));
-
 		memset(context->state.buffer_ptr, 0, context->state.buffer_size_x * context->state.buffer_size_y * video_bytes_per_pixel());
 
 		video_pipeline_blit(&context->state.buffer_pipeline_video, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 
-		advance_ui_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_size_x * video_bytes_per_pixel(), video_color_def(), context->state.palette_map, context->state.palette_total);
+		advance_ui_buffer_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_size_x * video_bytes_per_pixel(), video_color_def(), context->state.palette_map, context->state.palette_total);
 
 		buf_ptr = context->state.buffer_ptr;
 		buf_dw = final_size_x * video_bytes_per_pixel();
 		buf_dp = video_bytes_per_pixel();
+
+#if 0 /* OSDEF: Save interface image, only for debugging. */
+		{
+			struct advance_input_context* input_context = &CONTEXT.input;
+			if (advance_input_digital_pressed(input_context, DIGITAL_KBD(0,KEYB_ENTER_PAD))) {
+				FILE* f;
+				static unsigned in = 1;
+				char buffer[64];
+
+				snprintf(buffer, sizeof(buffer), "im%d.png", in);
+				++in;
+
+				f = fopen(buffer, "wb");
+				advance_record_png_write(f, buf_ptr, context->state.buffer_size_x, context->state.buffer_size_y, buf_dp, buf_dw, video_color_def(), 0, 0, 0);
+				fclose(f);
+			}
+		}
+#endif
 
 		if (context->config.user_orientation & OSD_ORIENTATION_SWAP_XY) {
 			SWAP(int, buf_dw, buf_dp);
@@ -1990,26 +2010,12 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 			buf_dp = -buf_dp;
 		}
 
-		log_std(("buffer_offset %d\n", buf_ptr - context->state.buffer_ptr));
-		log_std(("buffer_dw %d\n", buf_dw));
-		log_std(("buffer_dp %d\n", buf_dp));
-		log_std(("buffer_size_x %d\n", context->state.buffer_size_x));
-		log_std(("buffer_size_y %d\n", context->state.buffer_size_y));
-
 		video_stretch_direct(x, y, video_size_x(), video_size_y(), buf_ptr, final_size_x, final_size_y, buf_dw, buf_dp, video_color_def(), 0);
 	} else {
-		unsigned pixel;
-
-		pixel = ALIGN / video_bytes_per_pixel();
-		dst_x = (dst_x + pixel-1) & ~(pixel-1);
-
-		dst_x += x;
-		dst_y += y;
-
 		/* compute the source pointer */
 		src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
 
-		video_pipeline_blit(&context->state.blit_pipeline_video, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
+		video_pipeline_blit(&context->state.blit_pipeline_video, dst_x + x, dst_y + y, (unsigned char*)bitmap->ptr + src_offset);
 	}
 }
 
@@ -2195,10 +2201,13 @@ static void video_time(struct advance_video_context* context, struct advance_est
 	*full += estimate_context->estimate_common_full;
 	*skip += estimate_context->estimate_common_skip;
 
-	/* correct errors */
+	/* correct errors, it may happen that skip is not measured and it contains an old value */
 	if (*full < *skip)
 		*skip = *full;
 }
+
+/* Define to optimize for full CPU usage instead of full speed */
+/* #define USE_FULLCPU */
 
 static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
 {
@@ -2219,35 +2228,77 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 	log_debug(("advance:skip: common_full %g [sec], common_skip %g [sec]\n", estimate_context->estimate_common_full, estimate_context->estimate_common_skip));
 	log_debug(("advance:skip: full %g [sec], skip %g [sec]\n", full, skip));
 
-	if (full < step) {
+	context->state.skip_level_disable_flag = 0;
+
+	assert(skip <= full);
+
+	if (full <= step) {
 		/* full frame rate */
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
-	} else if (skip > step) {
+	} else if (skip >= step /* (this check is implicit on the next one) */
+		|| skip * SYNC_MAX + full >= step * (SYNC_MAX+1)
+	) {
+		/* if the maximum skip plus one isn't enought use a special management */
+		/* (the plus one is to remove jumping on the compare border) */
 		if (context->state.turbo_flag || context->state.fastest_flag) {
 			/* null frame rate */
 			context->state.skip_level_full = 1;
 			context->state.skip_level_skip = SYNC_MAX - 1;
 		} else {
-			/* full frame rate, there isn't reason to skip, the correct speed is impossible */
-			context->state.skip_level_full = SYNC_MAX;
-			context->state.skip_level_skip = 0;
+			/* mid frame rate, there isn't reason to skip, the correct speed is impossible */
+			/* the full frame rate isn't used to continue measuring the skip time */
+			context->state.skip_level_full = 1;
+			context->state.skip_level_skip = 1;
+			context->state.skip_level_disable_flag = 1; /* signal the special condition */
 		}
 	} else {
-		double v = (step - skip) / (full - step);
-		double f = (full - skip) / step;
-		if (v >= 1) {
+		double full_lose_time = full - step; /* time lost drawing a full frame */
+		double skip_gain_time = step - skip; /* time recovered drawing a skip frame */
+
+		assert(full_lose_time > 0);
+		assert(skip_gain_time > 0);
+
+		if (skip_gain_time >= full_lose_time) {
+			/* compute the number of full frame witch can be draw */
+			/* for any skip frame */
+			double v = skip_gain_time / full_lose_time;
+
+			/* limit value before converting to int to prevent overflow */
+			if (v > SYNC_MAX)
+				v = SYNC_MAX;
+
+#ifdef USE_FULLCPU
 			/* The use of ceil() instead of floor() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
+			context->state.skip_level_full = ceil( v );
+#else
 			context->state.skip_level_full = floor( v );
+#endif
 			context->state.skip_level_skip = 1;
+
+			/* max skip limit */
 			if (context->state.skip_level_full >= SYNC_MAX)
 				context->state.skip_level_full = SYNC_MAX - 1;
 		} else {
+			/* compute the number of skip frames required to */
+			/* recover the extra time of a full frame */
+			double v = full_lose_time / skip_gain_time;
+
+			/* limit value before converting to int to prevent overflow */
+			if (v > SYNC_MAX)
+				v = SYNC_MAX;
+
 			context->state.skip_level_full = 1;
+#ifdef USE_FULLCPU
 			/* The use of floor() instead of ceil() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
-			context->state.skip_level_skip = ceil( 1 / v );
+			context->state.skip_level_skip = floor( v );
+#else
+			context->state.skip_level_skip = ceil( v );
+#endif
+
+			/* max skip limit */
 			if (context->state.skip_level_skip >= SYNC_MAX)
 				context->state.skip_level_skip = SYNC_MAX - 1;
 		}
@@ -2514,7 +2565,10 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		video_update_skip(context);
 		video_update_sync(context);
 
-		mame_ui_show_info_temp();
+		if (!context->state.info_flag) {
+			context->state.info_flag = 1;
+			context->state.info_counter = 2 * context->state.game_fps;
+		}
 	}
 
 	if (input == OSD_INPUT_FRAMESKIP_INC) {
@@ -2526,7 +2580,10 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 				context->config.frameskip_auto_flag = 1;
 		}
 
-		mame_ui_show_info_temp();
+		if (!context->state.info_flag) {
+			context->state.info_flag = 1;
+			context->state.info_counter = 2 * context->state.game_fps;
+		}
 	}
 
 	if (input == OSD_INPUT_FRAMESKIP_DEC) {
@@ -2538,7 +2595,18 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 				context->config.frameskip_auto_flag = 1;
 		}
 
-		mame_ui_show_info_temp();
+		if (!context->state.info_flag) {
+			context->state.info_flag = 1;
+			context->state.info_counter = 2 * context->state.game_fps;
+		}
+	}
+
+	if (input == OSD_INPUT_SHOW_FPS) {
+		context->state.info_flag = !context->state.info_flag;
+		context->state.info_counter = 0;
+
+		if (!context->state.info_flag)
+			mame_ui_refresh();
 	}
 
 	if (context->state.turbo_flag) {
@@ -2575,12 +2643,56 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 
 	if (input == OSD_INPUT_COCKTAIL) {
 		context->config.blit_orientation ^= OSD_ORIENTATION_FLIP_Y | OSD_ORIENTATION_FLIP_X;
+		context->config.user_orientation ^= OSD_ORIENTATION_FLIP_Y | OSD_ORIENTATION_FLIP_X;
 
 		video_invalidate_pipeline(context);
 	}
 
 	if (input == OSD_INPUT_HELP) {
 		advance_ui_help(ui_context);
+	}
+
+	if (context->state.info_flag) {
+		char buffer[256];
+		unsigned skip;
+		unsigned rate;
+		unsigned l;
+
+		if (context->state.info_counter) {
+			--context->state.info_counter;
+			if (!context->state.info_counter) {
+				context->state.info_flag = 0;
+				mame_ui_refresh();
+			}
+		}
+
+		rate = floor( 100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5 );
+		skip = 100 * context->state.skip_level_full / (context->state.skip_level_full + context->state.skip_level_skip);
+
+		if (context->state.fastest_flag) {
+			snprintf(buffer, sizeof(buffer), " %s %3d%% - %3d%%", "startup", skip, rate);
+		} else if (!context->state.sync_throttle_flag) {
+			snprintf(buffer, sizeof(buffer), " %s 100%% - %3d%%", "free", rate);
+		} else if (context->state.turbo_flag) {
+			snprintf(buffer, sizeof(buffer), " %s %3d%% - %3d%%", "turbo", skip, rate);
+		} else if (context->state.skip_level_disable_flag) {
+			snprintf(buffer, sizeof(buffer), " %s %3d%% - %3d%%", "slow", skip, rate);
+		} else if (context->config.frameskip_auto_flag) {
+			snprintf(buffer, sizeof(buffer), " %s %3d%% - %3d%%", "auto", skip, rate);
+		} else {
+			snprintf(buffer, sizeof(buffer), " %s %3d%% - %3d%%", "fix", skip, rate);
+		}
+
+		/* use the fixed space char */
+		/* 100% - 100% */
+		/* 10987654321 */
+		l = strlen(buffer);
+		if (l>=4 && isspace(buffer[l-4]))
+			buffer[l-4] = 255;
+		if (l>=11 && isspace(buffer[l-11]))
+			buffer[l-11] = 255;
+
+		advance_ui_direct(ui_context, buffer);
 	}
 }
 
@@ -2661,8 +2773,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 		return;
 	}
 
-	/* TODO Check if the debugger is working */
-	/* TODO Is it correct to assume an 8 bit bitmap ? */
+	/* TODO Debugger. Check if it work. Is it correct to assume an 8 bit bitmap ? */
 
 	/* max size */
 	size_x = video_size_x();
@@ -2673,7 +2784,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 		size_y = bitmap->size_y;
 
 	if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
-		/* TODO set the hardware palette for the debugger */
+		/* TODO Debugger. Set the hardware palette for the debugger. */
 		video_stretch_palette16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
 	} else {
 		uint8* palette8_raw;
@@ -2866,7 +2977,7 @@ static void* video_thread(void* void_context)
 		if (context->state.thread_exit_flag) {
 			log_std(("advance:thread: stop\n"));
 			pthread_mutex_unlock(&context->state.thread_video_mutex);
-			pthread_exit(0);
+			break;
 		}
 
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
@@ -2902,7 +3013,8 @@ static void* video_thread(void* void_context)
 		/* signal the completion of the operation */
 		pthread_cond_signal(&context->state.thread_video_cond);
 	}
-	
+
+	pthread_exit(0);
 	return 0;
 }
 #endif
@@ -3145,6 +3257,10 @@ void osd2_video_done(void)
 
 	log_std(("osd: osd2_video_done\n"));
 
+	hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
+	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
+	hardware_script_terminate(HARDWARE_SCRIPT_VIDEO);
+
 	keyb_disable();
 
 	if (context->config.restore_flag || context->state.measure_flag) {
@@ -3158,10 +3274,6 @@ void osd2_video_done(void)
 
 	video_done_color(context);
 	video_done_state(context);
-
-	hardware_script_terminate(HARDWARE_SCRIPT_PLAY);
-	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
-	hardware_script_terminate(HARDWARE_SCRIPT_VIDEO);
 
         /* print the speed measure */
 	if (context->state.measure_flag
@@ -3401,30 +3513,6 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	return latency_diff;
 }
 
-void osd2_info(char* buffer, unsigned size)
-{
-	unsigned skip;
-	unsigned rate;
-
-	struct advance_video_context* context = &CONTEXT.video;
-	struct advance_estimate_context* estimate_context = &CONTEXT.estimate;
-
-	rate = floor( 100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5 );
-	skip = 100 * context->state.skip_level_full / (context->state.skip_level_full + context->state.skip_level_skip);
-
-	if (context->state.fastest_flag) {
-		snprintf(buffer, size, "%7s %3d%% - %3d%%", "startup", skip, rate);
-	} else if (!context->state.sync_throttle_flag) {
-		snprintf(buffer, size, "%7s 100%% - %3d%%", "free", rate);
-	} else if (context->state.turbo_flag) {
-		snprintf(buffer, size, "%7s %3d%% - %3d%%", "turbo", skip, rate);
-	} else if (context->config.frameskip_auto_flag) {
-		snprintf(buffer, size, "%7s %3d%% - %3d%%", "auto", skip, rate);
-	} else {
-		snprintf(buffer, size, "%7s %3d%% - %3d%%", "fix", skip, rate);
-	}
-}
-
 /***************************************************************************/
 /* Init/Done/Load */
 
@@ -3454,25 +3542,6 @@ static unsigned video_orientation_compute(unsigned orientation, adv_bool rol, ad
 	}
 
 	return orientation;
-}
-
-/** Compute the inverse orientation */
-static unsigned video_orientation_inverse(unsigned orientation)
-{
-	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
-		adv_bool flipx = (orientation & OSD_ORIENTATION_FLIP_X) != 0;
-		adv_bool flipy = (orientation & OSD_ORIENTATION_FLIP_Y) != 0;
-
-		orientation = OSD_ORIENTATION_SWAP_XY;
-
-		if (flipx)
-			orientation |= OSD_ORIENTATION_FLIP_Y;
-		if (flipy)
-			orientation |= OSD_ORIENTATION_FLIP_X;
-	}
-
-	return orientation;
-
 }
 
 /***************************************************************************/
@@ -3579,7 +3648,11 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_float_register_limit_default(cfg_context, "misc_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "misc_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "misc_crash", 0);
+#ifdef MESS
+	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 0);
+#else
 	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 6);
+#endif
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
 	conf_int_register_enum_default(cfg_context, "display_color", conf_enum(OPTION_INDEX), 0);
@@ -3779,11 +3852,13 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	/* orientation */
 	context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, rol, ror, flipx, flipy);
 	context->config.user_orientation = video_orientation_compute(0, rol, ror, flipx, flipy);
-	option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
+	option->ui_orientation = adv_orientation_rev(context->config.game_orientation);
+	option->direct_orientation = adv_orientation_rev(context->config.game_orientation);
 
 	log_std(("emu:video: orientation game %04x\n", context->config.game_orientation));
 	log_std(("emu:video: orientation user %04x\n", context->config.user_orientation));
 	log_std(("emu:video: orientation blit %04x\n", context->config.blit_orientation));
+	log_std(("emu:video: orientation ui   %04x\n", option->ui_orientation));
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
@@ -3924,3 +3999,4 @@ void advance_video_inner_done(struct advance_video_context* context)
 	video_blit_done();
 	video_done();
 }
+

@@ -238,6 +238,6 @@ $(sort $(VOBJDIRS)):
 
 $(VOBJ)/advv$(EXE) : $(sort $(VOBJDIRS)) $(VOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(VLDFLAGS) $(VOBJS) $(VLIBS) -o $@
+	$(LD) $(VOBJS) $(VLIBS) $(VLDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advv$(EXE)
 	$(LN_S) $@ advv$(EXE)

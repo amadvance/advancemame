@@ -103,18 +103,6 @@ int int_dx_get();
 int int_dy_get();
 
 // -------------------------------------------------------------------------
-// Orientation
-
-#define INT_ORIENTATION_FLIP_X ORIENTATION_MIRROR_X
-#define INT_ORIENTATION_FLIP_Y ORIENTATION_MIRROR_Y
-#define INT_ORIENTATION_SWAP_XY ORIENTATION_FLIP_XY
-
-#define INT_ORIENTATION_ROT0 0
-#define INT_ORIENTATION_ROT90 (INT_ORIENTATION_SWAP_XY | INT_ORIENTATION_FLIP_X)
-#define INT_ORIENTATION_ROT180 (INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y)
-#define INT_ORIENTATION_ROT270 (INT_ORIENTATION_SWAP_XY | INT_ORIENTATION_FLIP_Y)
-
-// -------------------------------------------------------------------------
 // Key
 
 #define INT_KEY_NONE (1 << 16)

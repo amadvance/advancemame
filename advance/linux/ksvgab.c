@@ -197,9 +197,6 @@ void keyb_svgalib_done(void)
 
 adv_error keyb_svgalib_enable(adv_bool graphics)
 {
-	struct keyb_pair* i;
-	unsigned j;
-
 	log_std(("keyb:svgalib: keyb_svgalib_enable(graphics:%d)\n", (int)graphics));
 
 	if (os_internal_wm_active()) {

@@ -30,11 +30,6 @@
 
 #include "extra.h"
 
-/** \def USE_ERROR_SILENT
- * If defined USE_ERROR_SILENT the error functions don't show the error in the log.
- * This macro can be used to reduce the dependencies of the library.
- */
-
 #ifndef USE_ERROR_SILENT
 #include "log.h"
 #endif

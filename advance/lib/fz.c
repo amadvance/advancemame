@@ -177,7 +177,6 @@ static adv_fz* fzalloc(void)
  */
 adv_fz* fzopen(const char* file, const char* mode)
 {
-	struct stat st;
 	adv_fz* f = fzalloc();
 	if (!f)
 		return 0;

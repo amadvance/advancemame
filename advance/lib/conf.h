@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -251,7 +251,9 @@ typedef struct adv_conf_iterator_struct {
 } adv_conf_iterator;
 
 void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* tag);
+void conf_iterator_section_begin(adv_conf_iterator* i, adv_conf* context, const char* section, const char* tag);
 void conf_iterator_next(adv_conf_iterator* i);
+void conf_iterator_remove(adv_conf_iterator* i);
 adv_bool conf_iterator_is_end(const adv_conf_iterator* i);
 const char* conf_iterator_string_get(const adv_conf_iterator* i);
 
@@ -277,6 +279,10 @@ void conf_set_default_if_missing(adv_conf* context, const char* section);
 
 void conf_remove_if_default(adv_conf* context, const char* section);
 adv_error conf_remove(adv_conf* context, const char* section, const char* tag);
+
+adv_error conf_autoreg_string_set(adv_conf* context, const char* section, const char* tag, const char* value);
+adv_error conf_autoreg_string_get(adv_conf* context, const char* tag, const char** result);
+adv_error conf_autoreg_remove(adv_conf* context, const char* section, const char* tag);
 
 /*@}*/
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #define __GLUE_H
 
 #include "video.h"
+#include "bitmap.h"
 
 #include <stdio.h>
 
@@ -74,6 +75,7 @@ struct mame_option {
 	int debug_height;
 
 	unsigned ui_orientation;
+	unsigned direct_orientation;
 	int norotate;
 	int ror;
 	int rol;
@@ -134,8 +136,24 @@ struct mame_port {
 };
 
 struct mame_port* mame_port_list(void);
+struct mame_port* mame_port_find(unsigned port);
 int mame_port_player(unsigned port);
-unsigned mame_port_convert(unsigned* type_pred, unsigned type);
+void mame_name_adjust(char* dst, unsigned size, const char* s);
+
+struct mame_analog {
+	const char* name;
+	unsigned type;
+};
+
+struct mame_analog* mame_analog_list(void);
+struct mame_analog* mame_analog_find(unsigned port);
+
+/***************************************************************************/
+/* Conversion */
+
+unsigned glue_port_convert(unsigned* type_pred, unsigned type);
+void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max);
+void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsigned mame_max);
 
 /***************************************************************************/
 /* MAME callback interface */
@@ -167,13 +185,10 @@ struct mame_digital_map_entry {
 #define IPT_MAME_PORT_EVENT14 (MAME_PORT_INTERNAL + 14)
 
 int mame_ui_port_pressed(unsigned port);
-unsigned mame_ui_code_from_oskey(unsigned oscode);
-unsigned mame_ui_code_from_osjoystick(unsigned oscode);
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void mame_ui_refresh(void);
 void mame_ui_swap(void);
 void mame_ui_gamma_factor_set(double gamma);
-void mame_ui_show_info_temp(void);
 unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr);
 unsigned mame_ui_frames_per_second(void);
 void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max);
@@ -211,13 +226,13 @@ static inline osd_rgb_t osd_rgb(uint8 r, uint8 g, uint8 b)
 }
 
 /** Orientations. */
-#define OSD_ORIENTATION_FLIP_X 0x0001
-#define OSD_ORIENTATION_FLIP_Y 0x0002
-#define OSD_ORIENTATION_SWAP_XY 0x0004
-#define OSD_ORIENTATION_ROT0 0
-#define OSD_ORIENTATION_ROT90 (OSD_ORIENTATION_SWAP_XY | OSD_ORIENTATION_FLIP_X)
-#define OSD_ORIENTATION_ROT180 (OSD_ORIENTATION_FLIP_X | OSD_ORIENTATION_FLIP_Y)
-#define OSD_ORIENTATION_ROT270 (OSD_ORIENTATION_SWAP_XY | OSD_ORIENTATION_FLIP_Y)
+#define OSD_ORIENTATION_FLIP_X ADV_ORIENTATION_FLIP_X
+#define OSD_ORIENTATION_FLIP_Y ADV_ORIENTATION_FLIP_Y
+#define OSD_ORIENTATION_SWAP_XY ADV_ORIENTATION_FLIP_XY
+#define OSD_ORIENTATION_ROT0 ADV_ORIENTATION_ROT0
+#define OSD_ORIENTATION_ROT90 ADV_ORIENTATION_ROT90
+#define OSD_ORIENTATION_ROT180 ADV_ORIENTATION_ROT180
+#define OSD_ORIENTATION_ROT270 ADV_ORIENTATION_ROT270
 
 /* Bitmap */
 struct osd_bitmap {
@@ -284,6 +299,7 @@ typedef unsigned osd_input;
 #define OSD_INPUT_START4 0x08000000
 #define OSD_INPUT_COCKTAIL 0x10000000
 #define OSD_INPUT_HELP 0x20000000
+#define OSD_INPUT_SHOW_FPS 0x40000000
 
 int osd2_video_init(struct osd_video_option* option);
 void osd2_video_done(void);
@@ -299,6 +315,7 @@ void osd2_debugger_focus(int debugger_has_focus);
 void osd2_message(void);
 void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max);
 void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max);
+void osd2_customize_port_post_game(const char* tag, const char* value);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);

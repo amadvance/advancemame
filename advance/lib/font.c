@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +65,23 @@ unsigned adv_font_sizey_string(adv_font* font, const char* begin, const char* en
 }
 
 /**
+ * Get the number of displayed chars.
+ */
+const char* adv_font_sizey_limit(adv_font* font, const char* begin, const char* end, unsigned limit)
+{
+	unsigned size = 0;
+
+	while (begin != end) {
+		size += adv_font_sizey_char(font, *begin);
+		if (size > limit)
+			return begin;
+		++begin;
+	}
+
+	return begin;
+}
+
+/**
  * Get the X size of the font.
  * The width of the 'A' letter is used.
  */
@@ -117,18 +134,33 @@ const char* adv_font_sizex_limit(adv_font* font, const char* begin, const char* 
 }
 
 /**
+ * Set a char in the font.
+ * The specified bitmap is owned by the font.
+ */
+void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap)
+{
+	unsigned i = (unsigned char)c;
+
+	if (font->data[i] && font->data[i]!=&null_char) {
+		adv_bitmap_free(font->data[i]);
+	}
+
+	font->data[i] = bitmap;
+}
+
+/**
  * Free a font.
  */
-void adv_font_free(adv_font* adv_font)
+void adv_font_free(adv_font* font)
 {
-	if (adv_font) {
+	if (font) {
 		int i;
 		for(i=0;i<BITMAP_FONT_MAX;++i) {
-			if (adv_font->data[i] && adv_font->data[i]!=&null_char) {
-				adv_bitmap_free(adv_font->data[i]);
+			if (font->data[i] && font->data[i]!=&null_char) {
+				adv_bitmap_free(font->data[i]);
 			}
 		}
-		free(adv_font);
+		free(font);
 	}
 }
 
@@ -606,7 +638,7 @@ adv_font* adv_font_load(adv_fz* f)
 	return 0;
 }
 
-#if 0
+#if 0 /* OSDEF Reference code */
 int adv_font_set(adv_font* font)
 {
 	unsigned adv_font_dx, adv_font_dy;
@@ -671,6 +703,9 @@ void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 	}
 }
 
+/**
+ * Draw a char in a bitmap.
+ */
 void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back)
 {
 	adv_bitmap* src;
@@ -695,6 +730,9 @@ void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, un
 	}
 }
 
+/**
+ * Draw a string in a bitmap.
+ */
 void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back)
 {
 	while (begin != end) {
@@ -704,7 +742,45 @@ void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const ch
 	}
 }
 
-void adv_font_puttrasp_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front)
+/**
+ * Draw an oriented string in a bitmap.
+ * The font is supposed to be already oriented.
+ */
+void adv_font_put_string_oriented(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back, unsigned orientation)
+{
+	if ((orientation & ADV_ORIENTATION_FLIP_XY) != 0) {
+		if ((orientation & ADV_ORIENTATION_FLIP_X) != 0)
+			x -= adv_font_sizex_char(font, *begin) - 1;
+	} else {
+		if ((orientation & ADV_ORIENTATION_FLIP_Y) != 0)
+			y -= adv_font_sizey_char(font, *begin) - 1;
+	}
+
+	while (begin != end) {
+		if ((orientation & ADV_ORIENTATION_FLIP_XY) != 0) {
+			if ((orientation & ADV_ORIENTATION_FLIP_Y) != 0)
+				y -= adv_font_sizey_char(font, *begin) - 1;
+		} else {
+			if ((orientation & ADV_ORIENTATION_FLIP_X) != 0)
+				x -= adv_font_sizex_char(font, *begin) - 1;
+		}
+		adv_font_put_char(font, dst, x, y, *begin, color_front, color_back);
+		if ((orientation & ADV_ORIENTATION_FLIP_XY) != 0) {
+			if ((orientation & ADV_ORIENTATION_FLIP_Y) != 0)
+				y -= 1;
+			else
+				y += adv_font_sizey_char(font, *begin);
+		} else {
+			if ((orientation & ADV_ORIENTATION_FLIP_X) != 0)
+				x -= 1;
+			else
+				x += adv_font_sizex_char(font, *begin);
+		}
+		++begin;
+	}
+}
+
+void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front)
 {
 	adv_bitmap* src;
 	unsigned cy;
@@ -729,10 +805,10 @@ void adv_font_puttrasp_char(adv_font* font, adv_bitmap* dst, int x, int y, char 
 	}
 }
 
-void adv_font_puttrasp_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front)
+void adv_font_put_string_trasp(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front)
 {
 	while (begin != end) {
-		adv_font_puttrasp_char(font, dst, x, y, *begin, color_front);
+		adv_font_put_char_trasp(font, dst, x, y, *begin, color_front);
 		x += adv_font_sizex_char(font, *begin);
 		++begin;
 	}

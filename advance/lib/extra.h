@@ -41,12 +41,14 @@
 /** \defgroup Configuration Configuration */
 /** \defgroup Crtc Crtc */
 /** \defgroup Generate Crtc Generation */
+/** \defgroup Filter Filter */
 /** \defgroup Font Font */
 /** \defgroup Blit Blit */
 /** \defgroup Monitor Monitor */
 /** \defgroup Update Update */
 /** \defgroup Mode Mode */
-/** \defgroup String String */
+/** \defgroup String Dynamic String */
+/** \defgroup SafeString Safe String */
 /** \defgroup Info Info */
 /** \defgroup Mixer Mixer */
 /*@}*/

@@ -192,16 +192,8 @@ static const char* MODELINE_VGA[] = {
 /* Arcade 15 kHz TEXT resolution, from ArcadeOS */
 /* "arcade_15.75_vga_text 14.16 640 712 792 880 200 225 227 267 -hsync -vsync", */
 
-/* PAL SMALL resolutions */
-"pal_vga_small_304x276x8 6.2938 304 320 372 400 276 284 285 312 -hsync -vsync",
-"pal_vga_small_336x276x8 7.0805 336 356 404 452 276 284 285 312 -hsync -vsync",
-
 /* from VGA2PAL */
 /*"pal_vga_text_vga2pal 14.16 643 700 828 896 256 276 280 311 -hsync -vsync", */
-
-/* NTSC SMALL resolutions, manual */
-"ntsc_vga_small_304x228 6.2938 304 320 372 400 228 235 238 262 -hsync -vsync",
-"ntsc_vga_small_336x228 7.0805 336 356 404 452 228 235 238 262 -hsync -vsync",
 
 /* from VGA2NTSC */
 /* "ntsc_vga_text_vga2ntsc 14.16 640 736 800 904 200 220 229 263 -hsync -vsync", */
@@ -220,22 +212,6 @@ static const char* MODELINE_SVGA[] = {
 /* PC MONITOR AT 48.0 kHz */
 "pc_48.0_512x384 31.10 512 520 552 648 384 385 390 400 doublescan -hsync -vsync",
 "pc_48.0_1024x768 61.44 1024 1040 1128 1280 768 770 780 800 -hsync -vsync",
-
-/* PAL SMALL resolutions */
-"pal_small_368x276 7.375 368 384 424 472 276 285 288 312 -hsync -vsync",
-"pal_small_736x552 14.75 736 776 848 944 552 570 576 625 -hsync -vsync interlace",
-
-/* PAL HORZ resolution */
-"pal_horz_768x288 14.75 768 792 864 944 288 291 294 312 -hsync -vsync",
-"pal_small_horz_736x276 14.75 736 776 848 944 276 285 288 312 -hsync -vsync",
-
-/* NTSC SMALL resolutions */
-"ntsc_small_304x228 6.16773 304 328 352 392 228 238 241 262 -hsync -vsync",
-"ntsc_small_608x456 12.2096 608 640 696 776 456 476 482 525 -hsync -vsync interlace",
-
-/* NTSC HORZ */
-"ntsc_horz_640x242 12.2096 640 664 720 776 242 245 248 262 -hsync -vsync",
-"ntsc_small_horz_608x228 12.2096 608 640 696 776 228 238 241 262 -hsync -vsync",
 
 #include "svgamode.dat"
 

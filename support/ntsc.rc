@@ -16,26 +16,20 @@ device_video_modeline ntsc_vga_text40_9x8 12.5872 360 530 590 800 200 224 227 26
 device_video_modeline ntsc_vga_text80_8x8 12.5872 640 670 730 800 200 224 227 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
 device_video_modeline ntsc_vga_text80_9x8 14.1606 720 754 820 900 200 224 227 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
 
-# VGA best fit modes
-device_video_modeline ntsc_vga_328x242 6.2936 328 340 370 400 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_376x242 7.0803 376 384 416 450 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_664x242 12.5872 664 682 740 800 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_744x242 14.1606 744 766 834 900 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-
-# VGA standard modes
-device_video_modeline ntsc_vga_320x200 6.2936 320 336 364 400 200 224 227 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_360x200 7.0803 360 378 410 450 200 224 227 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_320x240 6.2936 320 336 364 400 240 244 247 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_vga_360x240 7.0803 360 378 410 450 240 244 247 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-
 # SVGA best fit modes
-device_video_modeline ntsc_320x242 6.04186 320 328 352 384 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_640x242 12.0837 640 656 704 768 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
-device_video_modeline ntsc_640x484 12.0837 640 656 704 768 484 490 496 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_320x240 6.04186 320 328 352 384 240 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_640x240 12.0837 640 656 704 768 240 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_640x480 12.0837 640 656 704 768 480 490 496 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
 
-# SVGA standard modes
-device_video_modeline ntsc_320x240 6.04186 320 328 352 384 240 244 247 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+# SVGA standard size modes
 device_video_modeline ntsc_400x300 7.55232 400 408 448 480 300 398 404 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
 device_video_modeline ntsc_512x384 9.69214 512 528 568 616 384 440 446 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
-device_video_modeline ntsc_640x480 12.2096 640 664 720 776 480 488 494 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_256x224 4.90901 256 264 288 312 224 236 239 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_256x240 4.90901 256 264 288 312 240 244 247 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_320x224 6.04186 320 328 352 384 224 236 239 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_512x448 9.69214 512 528 568 616 448 472 478 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_512x480 9.69214 512 528 568 616 480 488 494 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_640x448 12.2096 640 664 720 776 448 472 478 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_720x448 13.72 720 744 808 872 448 472 478 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
+device_video_modeline ntsc_720x480 13.72 720 744 808 872 480 488 494 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
 

@@ -236,16 +236,6 @@ int r128_detect(void)
 	WORD bios_header;
 	WORD pll_info_block;
 
-#if 0 /* fake detect */
-	r128_pll.reference_freq = 2950;
-	r128_pll.reference_div = 65;
-	r128_pll.min_pll_freq = 12500;
-	r128_pll.max_pll_freq = 25000;
-	r128_pll.xclk = 10300;
-	r128_card = r128_id_list + 0;
-	return 1;
-#endif
-
 	if (pci_detect()!=0) {
 		CARD_LOG(("r128: PCI BIOS not installed.\n"));
 		return 0;

@@ -453,9 +453,8 @@ endif
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += \
 	-I$(srcdir)/mess \
-	-DUNIX \
 	-Dvga_init=mess_vga_init
-# -DUNIX is required by the MESS source
+# -Dvga_init=mess_vga_init prevent a name clash with the vga_init SVGALIB function
 endif
 EMUCFLAGS += \
 	-I$(EMUSRC)
@@ -535,13 +534,13 @@ endif
 
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
+	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) -o $@ $(EMUCHDMANOBJS) $(ZLIBS)
+	$(LD) $(EMUCHDMANOBJS) $(ZLIBS) $(LDFLAGS) -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -598,15 +597,15 @@ $(sort $(OBJDIRS)):
 # EMU diff
 
 mamedif:
-	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	find src \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
 messdif:
-	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	find srcmess \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
 	ls -l advance/advmess.dif
-	find mess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	find mess \( -name "*.orig" -o -name "*.ori" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive mess.ori mess > advance/mess.dif
 	ls -l advance/mess.dif
 
@@ -740,11 +739,11 @@ endif
 
 EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
-	$(OBJ)/chdman$(EXE) \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
 ifneq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += \
+	$(OBJ)/chdman$(EXE) \
 	$(srcdir)/support/event.dat
 endif
 ifeq ($(CONF_HOST),unix)

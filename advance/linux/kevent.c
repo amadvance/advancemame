@@ -697,8 +697,6 @@ static void keyb_event_clear(void)
 
 static adv_error keyb_event_setup(struct keyboard_item_context* item, int f)
 {
-	unsigned i;
-
 	item->fe = f;
 
 	memset(item->key_bitmask, 0, sizeof(item->key_bitmask));

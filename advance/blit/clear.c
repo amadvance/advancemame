@@ -165,17 +165,17 @@ static void video_32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uns
 void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src)
 {
 	switch (video_bytes_per_pixel()) {
-		case 1 :
-			video_8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
-			break;
-		case 2 :
-			video_16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
-			break;
-		case 3 :
-			video_24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
-			break;
-		case 4 :
-			video_32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
-			break;
+	case 1 :
+		video_8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+		break;
+	case 2 :
+		video_16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+		break;
+	case 3 :
+		video_24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+		break;
+	case 4 :
+		video_32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+		break;
 	}
 }

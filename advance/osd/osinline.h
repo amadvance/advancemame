@@ -50,7 +50,7 @@ static inline int osd_vec_mult(int a, int b)
 		"movl %%edx, %%eax\n"
 		: "=&a" (r)
 		: "mr" (a), "mr" (b)
-		:  "%edx", "%cc"
+		:  "%edx", "cc"
 	);
 	return r;
 }

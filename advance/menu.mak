@@ -409,7 +409,7 @@ $(sort $(MENUOBJDIRS)):
 
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LDXX) $(LDFLAGS) $(MENULDFLAGS) $(MENUOBJS) $(MENULIBS) -o $@
+	$(LDXX) $(MENUOBJS) $(MENULIBS) $(MENULDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advmenu$(EXE)
 	$(LN_S) $@ advmenu$(EXE)
 

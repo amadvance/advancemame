@@ -235,7 +235,7 @@ static inline void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, co
 /***************************************************************************/
 /* Scale2x MMX implementation */
 
-#if defined(__GNUC__) && defined(__i386__)
+#if defined(USE_ASM_i586)
 
 /*
  * Apply the Scale2x effect at a single row.

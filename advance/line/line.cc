@@ -614,9 +614,17 @@ void compute_default_vga_graph(output& os, const generator& g, const string& nam
 {
 	if ((g.clock_contrains_get() & clock_pixel) == 0) {
 		generator g2 = g;
+#ifdef USE_FINE_MODE
 		g2.h_active_step_set( step( 8 ) );
+#else
+		g2.h_active_step_set( step( 16 ) );
+#endif
 		g2.h_step_set( step( 2 ) );
+#ifdef USE_FINE_MODE
 		g2.v_active_step_set( step( 2 ) );
+#else
+		g2.v_active_step_set( step( 8 ) );
+#endif
 		g2.v_step_set( step( 1 ) );
 
 		for(int i=0;VGA_GRAPH_CLOCK[i];++i) {
@@ -629,9 +637,17 @@ void compute_default_vga_graph(output& os, const generator& g, const string& nam
 void compute_default_svga_graph(output& os, const generator& g, const string& name)
 {
 	generator g2 = g;
+#ifdef USE_FINE_MODE
 	g2.h_active_step_set( step( 8 ) );
+#else
+	g2.h_active_step_set( step( 16 ) );
+#endif
 	g2.h_step_set( step( 8 ) );
+#ifdef USE_FINE_MODE
 	g2.v_active_step_set( step( 2 ) );
+#else
+	g2.v_active_step_set( step( 8 ) );
+#endif
 	g2.v_step_set( step( 1 ) );
 
 	compute_default(os.as(output::output_svga_graph), g2, name);
@@ -764,9 +780,11 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 		|| g.clock_contrains_get() == clock_vert
 		|| g.clock_contrains_get() == clock_pixel) {
 		for(unsigned* i=x_res;*i;++i) {
+			unsigned y;
 			if (*i == 384) // for CPS2 games
 				compute_active(os.as(output::output_svga_graph), g2, name, 384, 224);
-			compute_active(os.as(output::output_svga_graph), g2, name, *i, *i * 3 / 4);
+			y = *i * 3 / 4;
+			compute_active(os.as(output::output_svga_graph), g2, name, *i, y);
 		}
 	} else {
 		compute_active(os.as(output::output_svga_graph), g2, name, 320, 240);
@@ -775,6 +793,20 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 		compute_active(os.as(output::output_svga_graph), g2, name, 640, 480);
 		compute_active(os.as(output::output_svga_graph), g2, name, 800, 600);
 	}
+
+	compute_active(os.as(output::output_svga_graph), g2, name, 256, 224);
+	compute_active(os.as(output::output_svga_graph), g2, name, 256, 240);
+	compute_active(os.as(output::output_svga_graph), g2, name, 320, 224);
+	compute_active(os.as(output::output_svga_graph), g2, name, 320, 240);
+	compute_active(os.as(output::output_svga_graph), g2, name, 512, 448);
+	compute_active(os.as(output::output_svga_graph), g2, name, 512, 480);
+	compute_active(os.as(output::output_svga_graph), g2, name, 640, 448);
+	compute_active(os.as(output::output_svga_graph), g2, name, 640, 480);
+	compute_active(os.as(output::output_svga_graph), g2, name, 640, 512);
+	compute_active(os.as(output::output_svga_graph), g2, name, 720, 448);
+	compute_active(os.as(output::output_svga_graph), g2, name, 720, 480);
+	compute_active(os.as(output::output_svga_graph), g2, name, 720, 512);
+	compute_active(os.as(output::output_svga_graph), g2, name, 720, 576);
 }
 
 void compute_svga_graph_fix(output& os, const generator& g, const string& name, int x, int y)
@@ -1106,6 +1138,7 @@ int main(int argc, char* argv[])
 			if (show_comment)
 				cout << endl;
 
+#if 0 /* VGA graphics mode no more supported */
 			if (show_comment) {
 				if (out.c_format_get())
 					cout << "/* VGA best fit modes */" << endl;
@@ -1118,31 +1151,38 @@ int main(int argc, char* argv[])
 
 			if (show_comment) {
 				if (out.c_format_get())
-					cout << "/* VGA standard modes */" << endl;
+					cout << "/* VGA standard size modes */" << endl;
 				else
-					cout << "# VGA standard modes" << endl;
+					cout << "# VGA standard size modes" << endl;
 			}
 			compute_vga_graph(out, g, name);
 			if (show_comment)
 				cout << endl;
+#endif
 		}
 
 		if (show_svga) {
-			if (show_comment) {
-				if (out.c_format_get())
-					cout << "/* SVGA best fit modes */" << endl;
-				else
-					cout << "# SVGA best fit modes" << endl;
+			switch (g.clock_contrains_get()) {
+			case clock_pixel | clock_horz :
+			case clock_horz | clock_vert :
+			case clock_pixel | clock_horz | clock_vert :
+				if (show_comment) {
+					if (out.c_format_get())
+						cout << "/* SVGA best fit modes */" << endl;
+					else
+						cout << "# SVGA best fit modes" << endl;
+				}
+				compute_default_svga_graph(out, g, name);
+				if (show_comment)
+					cout << endl;
+				break;
 			}
-			compute_default_svga_graph(out, g, name);
-			if (show_comment)
-				cout << endl;
 
 			if (show_comment) {
 				if (out.c_format_get())
-					cout << "/* SVGA standard modes */" << endl;
+					cout << "/* SVGA standard size modes */" << endl;
 				else
-					cout << "# SVGA standard modes" << endl;
+					cout << "# SVGA standard size modes" << endl;
 			}
 			compute_svga_graph(out, g, name);
 			if (show_comment)

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,8 +62,6 @@ static adv_bool partial_match_whole(const char* s, const char* partial)
 
 		++p; /* skip the '_' */
 	}
-
-	return 0;
 }
 
 static adv_bool partial_match(const char* s, const char* partial)
@@ -81,8 +79,6 @@ static adv_bool partial_match(const char* s, const char* partial)
 
 		++p; /* skip the '_' */
 	}
-
-	return 0;
 }
 
 static adv_bool glob_match(const char* s, const char* glob)
@@ -145,7 +141,7 @@ static struct adv_conf_option_struct* option_alloc(void)
 	option = (struct adv_conf_option_struct*)malloc(sizeof(struct adv_conf_option_struct));
 
 	option->tag = 0;
-	option->type = -1;
+	option->type = -1; /* invalid value */
 
 	return option;
 }
@@ -1301,16 +1297,14 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 
 		error(error_context, conf_error_unknown, input->file_in, own_tag, 0, "Unknown option '%s' in file '%s'", own_tag, input->file_in);
 		goto err_free;
-	} else {
-		free(own_tag);
-
-		if (value_make_own(context, input, option, own_section, own_comment, own_value, own_format, error, error_context) != 0)
-			goto err;
-
-		return 0;
 	}
 
-	assert(0);
+	free(own_tag);
+
+	if (value_make_own(context, input, option, own_section, own_comment, own_value, own_format, error, error_context) != 0)
+		goto err;
+
+	return 0;
 
 err_free:
 	free(own_section);
@@ -2003,10 +1997,10 @@ static void assert_option_def(adv_conf* context, const char* tag, enum adv_conf_
 	assert(option->type == type);
 
 	switch (option->type) {
-		case conf_type_bool : assert(option->data.base_bool.has_def == has_def); break;
-		case conf_type_int : assert(option->data.base_int.has_def == has_def); break;
-		case conf_type_float : assert(option->data.base_float.has_def == has_def); break;
-		case conf_type_string : assert(option->data.base_string.has_def == has_def); break;
+		case conf_type_bool : assert(option->data.base_bool.has_def || !has_def); break;
+		case conf_type_int : assert(option->data.base_int.has_def || !has_def); break;
+		case conf_type_float : assert(option->data.base_float.has_def || !has_def); break;
+		case conf_type_string : assert(option->data.base_string.has_def || !has_def); break;
 		default:
 			assert(0);
 			return;
@@ -2249,6 +2243,19 @@ void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* ta
 }
 
 /**
+ * Like conf_iterator_begin() but only in the specified section.
+ * \param i Iterator to initialize.
+ * \param context Configuration context to use.
+ * \param section Section to search.
+ * \param tag Tag to search.
+ */
+void conf_iterator_section_begin(adv_conf_iterator* i, adv_conf* context, const char* section, const char* tag)
+{
+	i->context = context;
+	i->value = value_searchbest_tag(context, &section, 1, tag);
+}
+
+/**
  * Move the iterator to the next position.
  * You can call this function only if conf_iterator_is_end() return false.
  * The next value is searched only on the same file and section of the first value found.
@@ -2259,6 +2266,25 @@ void conf_iterator_next(adv_conf_iterator* i)
 	assert(i && i->value);
 
 	i->value = value_searchbest_from(i->context, i->value);
+}
+
+/**
+ * Move the iterator to the next position and delete the current element.
+ * You can call this function only if conf_iterator_is_end() return false.
+ * The next value is searched only on the same file and section of the first value found.
+ * \param i Iterator to use.
+ */
+void conf_iterator_remove(adv_conf_iterator* i)
+{
+	struct adv_conf_value_struct* value_current;
+
+	assert(i && i->value);
+
+	value_current = i->value;
+
+	i->value = value_searchbest_from(i->context, i->value);
+
+	value_remove(i->context, value_current);
 }
 
 /**
@@ -2600,4 +2626,47 @@ void conf_remove_if_default(adv_conf* context, const char* section)
 	}
 }
 
+/***************************************************************************/
+/* Autoregistration */
+
+/**
+ * Autoregistration version of conf_string_set().
+ * The tag is automatically registered as a string (without default) if
+ * it isn't already registered.
+ */
+adv_error conf_autoreg_string_set(adv_conf* context, const char* section, const char* tag, const char* value)
+{
+	if (!conf_is_registered(context, tag)) {
+		conf_string_register(context, tag);
+	}
+	return conf_string_set(context, section, tag, value);
+}
+
+/**
+ * Autoregistration version of conf_string_get().
+ * The tag is automatically registered as a string (without default) if
+ * it isn't already registered.
+ */
+adv_error conf_autoreg_string_get(adv_conf* context, const char* tag, const char** result)
+{
+	if (!conf_is_registered(context, tag)) {
+		return -1;
+	}
+	return conf_string_get(context, tag, result);
+}
+
+/**
+ * Autoregistration version of conf_remove().
+ * The tag is automatically registered as a string (without default) if
+ * it isn't already registered.
+ */
+adv_error conf_autoreg_remove(adv_conf* context, const char* section, const char* tag)
+{
+	if (conf_is_registered(context, tag)) {
+		return conf_remove(context, section, tag);
+	} else {
+		/* if it isn't registered is surely missing */
+		return 0;
+	}
+}
 

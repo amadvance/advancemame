@@ -237,14 +237,8 @@ static int ati_clock_get(int nTargetMHz, int *N, int *P, int *externaldiv)
 	card_log("ati: Clock range is %.2f - %.2f MHz\n", (double)MinFreq / 100, (double)MaxFreq / 100 );
 
 	/* check clock is in range */
-#if 0
-	if (nActualMHz < MinFreq)
-		return -1;
-		/* nActualMHz = MinFreq; */
-#else
 	if (nActualMHz < MinFreq)
 		card_log("ati: Clock too low\n");
-#endif
 	if (nActualMHz > MaxFreq)
 		return -1;
 
@@ -401,18 +395,6 @@ int ati_detect(void)
 	int ROM_Table_Offset;
 	int Freq_Table_Ptr;
 	int Clock_Type;
-
-#if 0 /* fake detect */
-	RefFreq = 1432;
-	RefDivider = 33;
-	MinFreq = 926;
-	MaxFreq = 22216;
-	VRAMMemClk = 6000;
-	ChipID = 18261;
-	ChipRev = 154;
-	ChipType = 6;
-	return 1;
-#endif
 
 	/* query mach64 BIOS for the I/O base address */
 	r.x.ax = 0xA012;

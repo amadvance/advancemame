@@ -69,13 +69,13 @@ static inline void swap(int& a, int& b)
 
 void int_invrotate(int& x, int& y, int& dx, int& dy)
 {
-	if (int_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
 		x = video_size_x() - x - dx;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
 		y = video_size_y() - y - dy;
 	}
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		swap(x, y);
 		swap(dx, dy);
 	}
@@ -83,21 +83,21 @@ void int_invrotate(int& x, int& y, int& dx, int& dy)
 
 void int_rotate(int& x, int& y, int& dx, int& dy)
 {
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		swap(x, y);
 		swap(dx, dy);
 	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
 		x = video_size_x() - x - dx;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
 		y = video_size_y() - y - dy;
 	}
 }
 
 int int_dx_get()
 {
-	if (int_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return video_size_y();
 	else
 		return video_size_x();
@@ -105,7 +105,7 @@ int int_dx_get()
 
 int int_dy_get()
 {
-	if (int_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return video_size_x();
 	else
 		return video_size_y();
@@ -113,7 +113,7 @@ int int_dy_get()
 
 int int_font_dx_get()
 {
-	if (int_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return real_font_dy;
 	else
 		return real_font_dx;
@@ -121,7 +121,7 @@ int int_font_dx_get()
 
 int int_font_dy_get()
 {
-	if (int_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return real_font_dx;
 	else
 		return real_font_dy;
@@ -861,7 +861,7 @@ void cell_pos_t::redraw()
 
 void cell_pos_t::compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty, double aspect_expand)
 {
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		unsigned t = aspectx;
 		aspectx = aspecty;
 		aspecty = t;
@@ -1047,7 +1047,7 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 	int dy = bitmap->size_y;
 
 	// set the correct orientation
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		int t;
 		t = dp;
 		dp = dw;
@@ -1056,11 +1056,11 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		dx = dy;
 		dy = t;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
 		ptr = ptr + (dx-1) * dp;
 		dp = - dp;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
 		ptr = ptr + (dy-1) * dw;
 		dw = - dw;
 	}
@@ -1118,10 +1118,10 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 
 	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
 
+	uint32 palette32[256];
+	uint16 palette16[256];
+	uint8 palette8[256];
 	if (bitmap->bytes_per_pixel == 1) {
-		uint32 palette32[256];
-		uint16 palette16[256];
-		uint8 palette8[256];
 		for(unsigned i=0;i<rgb_max;++i) {
 			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
 			palette32[i] = p;
@@ -1252,33 +1252,13 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!f)
 			return 0;
 
-		unsigned pix_width;
-		unsigned pix_height;
-		unsigned pix_pixel;
-		unsigned char* dat_ptr;
-		unsigned dat_size;
-		unsigned char* pix_ptr;
-		unsigned pix_scanline;
-		unsigned char* pal_ptr;
-		unsigned pal_size;
-
-		int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
-		if (r != 0) {
-			fzclose(f);
-			return 0;
-		}
-
-		adv_bitmap* bitmap = adv_bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		adv_bitmap* bitmap = adv_bitmap_load_png(rgb, rgb_max, f);
 		if (!bitmap) {
-			free(dat_ptr);
-			free(pal_ptr);
 			fzclose(f);
 			return 0;
 		}
 
-		free(pal_ptr);
 		fzclose(f);
-
 		return bitmap;
 	}
 
@@ -1286,7 +1266,9 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		adv_fz* f = res.open();
 		if (!f)
 			return 0;
-		adv_bitmap* bitmap = adv_pcx_load(f, rgb, rgb_max);
+
+		adv_bitmap* bitmap = adv_bitmap_load_pcx(rgb, rgb_max, f);
+
 		fzclose(f);
 		return bitmap;
 	}
@@ -1296,7 +1278,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!f)
 			return 0;
 		adv_bitmap* bitmap_mask;
-		adv_bitmap* bitmap = adv_icon_load(f, rgb, rgb_max, &bitmap_mask);
+		adv_bitmap* bitmap = adv_bitmap_load_icon(rgb, rgb_max, &bitmap_mask, f);
 		if (!bitmap) {
 			fzclose(f);
 			return 0;
@@ -1340,7 +1322,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 			return 0;
 		}
 
-		adv_bitmap* bitmap = adv_bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		adv_bitmap* bitmap = adv_bitmap_import_palette(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
@@ -1375,7 +1357,7 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 	int dy = bitmap->size_y;
 
 	// set the correct orientation
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		int t;
 		t = dp;
 		dp = dw;
@@ -1384,11 +1366,11 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 		dx = dy;
 		dy = t;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
 		ptr = ptr + (dx-1) * dp;
 		dp = - dp;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
 		ptr = ptr + (dy-1) * dw;
 		dw = - dw;
 	}
@@ -1407,21 +1389,19 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 
 	video_pipeline_target(&pipeline, raw_bitmap->ptr, raw_bitmap->bytes_per_scanline, video_color_def());
 
+	uint32 palette32[256];
+	uint16 palette16[256];
+	uint8 palette8[256];
 	if (bitmap->bytes_per_pixel == 1) {
-		uint32 palette32[256];
-		uint16 palette16[256];
-		uint8 palette8[256];
 		for(unsigned i=0;i<*rgb_max;++i) {
 			adv_pixel p = video_pixel_get(rgb[i].red, rgb[i].green, rgb[i].blue);
 			palette32[i] = p;
 			palette16[i] = p;
 			palette8[i] = p;
 		}
-
 		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else {
 		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
-
 		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
 	}
 
@@ -1681,7 +1661,7 @@ adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 
 	double delay = tick / (double)mng_frequency_get(mng_context);
 
-	adv_bitmap* bitmap = adv_bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+	adv_bitmap* bitmap = adv_bitmap_import_palette(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 	if (!bitmap) {
 		free(dat_ptr);
 		free(pal_ptr);
@@ -1913,14 +1893,14 @@ void cell_manager::pos_set(int index, int x, int y, int dx, int dy)
 	backdrop_map[index].pos.dx = backdrop_map[index].pos.real_dx = dx - 2*backdrop_outline;
 	backdrop_map[index].pos.dy = backdrop_map[index].pos.real_dy = dy - 2*backdrop_outline;
 
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		swap(backdrop_map[index].pos.real_x, backdrop_map[index].pos.real_y);
 		swap(backdrop_map[index].pos.real_dx, backdrop_map[index].pos.real_dy);
 	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
 		backdrop_map[index].pos.real_x = video_size_x() - backdrop_map[index].pos.real_x - backdrop_map[index].pos.real_dx;
 	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
 		backdrop_map[index].pos.real_y = video_size_y() - backdrop_map[index].pos.real_y - backdrop_map[index].pos.real_dy;
 	}
 }
@@ -2310,7 +2290,7 @@ static void int_put32rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_
 unsigned int_put_width(char c)
 {
 	adv_bitmap* src = real_font_map->data[(unsigned char)c];
-	if (int_orientation & ORIENTATION_FLIP_XY)
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return src->size_y;
 	else
 		return src->size_x;
@@ -2320,11 +2300,11 @@ void int_put(int x, int y, char c, const int_color& color)
 {
 	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
 		adv_bitmap* src = real_font_map->data[(unsigned char)c];
-		if (int_orientation & ORIENTATION_FLIP_XY)
+		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 			swap(x, y);
-		if (int_orientation & ORIENTATION_MIRROR_X)
+		if (int_orientation & ADV_ORIENTATION_FLIP_X)
 			x = video_size_x() - src->size_x - x;
-		if (int_orientation & ORIENTATION_MIRROR_Y)
+		if (int_orientation & ADV_ORIENTATION_FLIP_Y)
 			y = video_size_y() - src->size_y - y;
 
 		assert( x>=0 && y>=0 && x+src->size_x<=video_size_x() &&  y+src->size_y<=video_size_y() );
@@ -2385,14 +2365,14 @@ void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_
 
 static void int_clear_noclip(int x, int y, int dx, int dy, const int_rgb& color)
 {
-	if (int_orientation & ORIENTATION_FLIP_XY) {
+	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		swap(x, y);
 		swap(dx, dy);
 	}
 
-	if (int_orientation & ORIENTATION_MIRROR_X)
+	if (int_orientation & ADV_ORIENTATION_FLIP_X)
 		x = video_size_x() - dx - x;
-	if (int_orientation & ORIENTATION_MIRROR_Y)
+	if (int_orientation & ADV_ORIENTATION_FLIP_Y)
 		y = video_size_y() - dy - y;
 
 	int_clear_raw(x, y, dx, dy, color);
@@ -2445,27 +2425,19 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 		return false;
 	}
 
-	unsigned pix_width;
-	unsigned pix_height;
-	unsigned pix_pixel;
-	unsigned char* dat_ptr;
-	unsigned dat_size;
-	unsigned char* pix_ptr;
-	unsigned pix_scanline;
-	unsigned char* pal_ptr;
-	unsigned pal_size;
-
-	int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
-	if (r != 0) {
+	adv_color_rgb rgb_map[256];
+	unsigned rgb_max;
+	adv_bitmap* bitmap = adv_bitmap_load_png(rgb_map, &rgb_max, f);
+	if (!bitmap) {
 		log_std(("ERROR:text: error reading file %s\n", file));
 		fzclose(f);
 		return false;
 	}
 
-	scale_x = pix_width;
-	scale_y = pix_height;
-
 	fzclose(f);
+
+	scale_x = bitmap->size_x;
+	scale_y = bitmap->size_y;
 
 	struct video_pipeline_struct pipeline;
 	unsigned combine = VIDEO_COMBINE_X_MEAN | VIDEO_COMBINE_Y_MEAN;
@@ -2474,26 +2446,27 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 
 	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
 
-	if (pix_pixel == 1) {
-		uint32 palette32[256];
-		uint16 palette16[256];
-		uint8 palette8[256];
-		for(unsigned i=0;i<pal_size;++i) {
-			adv_pixel p = video_pixel_get(pal_ptr[i*3+0], pal_ptr[i*3+1], pal_ptr[i*3+2]);
+	uint32 palette32[256];
+	uint16 palette16[256];
+	uint8 palette8[256];
+	if (bitmap->bytes_per_pixel == 1) {
+		for(unsigned i=0;i<rgb_max;++i) {
+			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
 			palette32[i] = p;
 			palette16[i] = p;
 			palette8[i] = p;
 		}
-		video_pipeline_palette8(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, palette8, palette16, palette32, combine);
+		video_pipeline_palette8(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, palette8, palette16, palette32, combine);
 	} else {
-		adv_color_def def = png_color_def(pix_pixel);
-
-		video_pipeline_direct(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, def, combine);
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		video_pipeline_direct(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, def, combine);
 	}
 
-	video_pipeline_blit(&pipeline, 0, 0, pix_ptr);
+	video_pipeline_blit(&pipeline, 0, 0, bitmap->ptr);
 
 	video_pipeline_done(&pipeline);
+
+	adv_bitmap_free(bitmap);
 
 	return true;
 }
@@ -2992,9 +2965,16 @@ bool int_key_in(const string& s)
 		} else if (skey == "and") {
 			/* nothing */
 		} else {
-			unsigned key = key_code(skey.c_str());
-			if (key == KEYB_MAX)
-				return false;
+			unsigned key;
+			key = key_code(skey.c_str());
+			if (key == KEYB_MAX) {
+				// support the old scan code format only numeric
+				if (skey.find_first_not_of("0123456789") == string::npos)
+					key = atoi(skey.c_str());
+				if (key >= KEYB_MAX) {
+					return false;
+				}
+			}
 			seq[seq_count++] = key;
 		}
 	}

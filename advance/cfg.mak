@@ -242,6 +242,6 @@ $(sort $(CFGOBJDIRS)):
 
 $(CFGOBJ)/advcfg$(EXE) : $(sort $(CFGOBJDIRS)) $(CFGOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(CFGLDFLAGS) $(CFGOBJS) $(CFGLIBS) -o $@
+	$(LD) $(CFGOBJS) $(CFGLIBS) $(CFGLDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advcfg$(EXE)
 	$(LN_S) $@ advcfg$(EXE)

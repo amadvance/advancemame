@@ -116,7 +116,7 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	sdl_state.volume = 256;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-		error_set(("Function SDL_InitSubSystem(SDL_INIT_AUDIO) failed, %s.\n", SDL_GetError()));
+		error_set("Function SDL_InitSubSystem(SDL_INIT_AUDIO) failed, %s.\n", SDL_GetError());
 		goto err;
 	}
 
@@ -291,8 +291,7 @@ void soundb_sdl_reg(adv_conf* context)
 {
 	unsigned def_samples;
 
-#ifdef __WIN32__
-	/* in Windows a shorter value result in a distorced sound with SDL 1.2.4 */
+#ifdef __WIN32__ /* OSDEF Windows requires a special customization of the default number of sound sample with SDL 1.2.4 */
 	def_samples = 2048;
 #else
 	def_samples = 512;

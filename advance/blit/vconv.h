@@ -1009,7 +1009,7 @@ static inline void bgra8888toyuy2_mmx(void* dst, const void* src0, const void* s
 {
 	__asm__ __volatile__ (
 
-#if 0
+#if 0 /* OSDEF Reference code */
 /* Basic single pixel implementation */
 
 		/* mm0 = 0 a 0 r 0 g 0 b */
@@ -1255,7 +1255,7 @@ static void video_line_rgbtoyuy2_step_def(const struct video_stage_horz_struct* 
 
 static void video_stage_rgbtoyuy2_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, adv_color_def sdef)
 {
-	adv_color_def ddef = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+	adv_color_def ddef = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 	STAGE_SIZE(stage, pipe_rgbtoyuy2, sdx, sdp, color_def_bytes_per_pixel_get(sdef), sdx, 4);
 	STAGE_PUT(stage, video_line_rgbtoyuy2_step_def, video_line_rgbtoyuy2_step_def);
 	STAGE_CONVERSION(stage, sdef, ddef);

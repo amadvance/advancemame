@@ -137,8 +137,6 @@ unsigned joystickb_svgalib_stick_axe_digital_get(unsigned joystick, unsigned sti
 		return r < -32; /* -1/8 of the whole range 256 */
 	else
 		return r > 32; /* +1/8 of the whole range 256 */
-
-	return 0;
 }
 
 int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)

@@ -1,11 +1,11 @@
 Name
-	advmenu - The AdvanceMENU Frontend
+	advmenu - The AdvanceMENU Front-end
 
 Synopsis
 	:advmenu [-default] [-remove] [-log] [-logsync] [-version] [-help]
 
 Description
-	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
+	The AdvanceMENU utility is a front-end to run the AdvanceMAME,
 	AdvanceMESS, MAME, MESS, xmame, Raine and other emulators.
 
 	Simply run it in the same directory of the emulator and press
@@ -129,8 +129,8 @@ Emulators
 	of the emulator. In the Unix version it's searched in the
 	`HOME/.advance' directory.
 
-	The directories specified in `dir_snap', `dir_cfg' are used to
-	detect the list of available snapshots and .cfg files.
+	The directory specified in `dir_snap' is used to
+	detect the list of available snapshots.
 
   advmess (The AdvanceMESS emulator)
 	For the `advmess' emulator the rom information is gathered
@@ -184,8 +184,8 @@ Emulators
 	`mame.ini' file are used to detect the list of the available
 	roms.
 
-	The directories specified in `snap_directory', `cfg_directory' are
-	used to detect the list of available snapshots and MAME .cfg files.
+	The directory specified in `snap_directory' is
+	used to detect the list of available snapshots.
 
   xmame (The Unix version of the MAME emulator)
 	For the `xmame' emulator the roms informations are gathered
@@ -196,10 +196,8 @@ Emulators
 	`HOME/.xmame/mamerc' file are used to detect the list of the
 	available roms.
 
-	The directories specified in `screenshotdir' are
+	The directory specified in `screenshotdir' is
 	used to detect the list of available snapshots files.
-	The MAME cfg files are assumed to be in the `HOME/.xmame/cfg'
-	directory.
 
   dmame (The DOS version of the MAME emulator)
 	For the `dmame' emulator the roms informations are gathered
@@ -210,8 +208,8 @@ Emulators
 	`mame.cfg' file are used to detect the list of the available
 	roms.
 
-	The directories specified in `snap', `cfg' are used to
-	detect the list of available snapshots and MAME .cfg files.
+	The directory specified in `snap' is used to
+	detect the list of available snapshots.
 
   dmess (The DOS version of the MESS emulator)
 	For the `dmess' emulator the roms informations are gathered
@@ -248,7 +246,8 @@ Emulators
 
 	For example:
 		:[ti99_4a]
-		:ti-inva = -cart ti-invac.bin -cart ti-invag.bin # Invaders | 1982 | Texas Instrument
+		:ti-inva = -cart ti-invac.bin -cart ti-invag.bin \
+		:	# Invaders | 1982 | Texas Instrument
 
 	At any exit of the emulator if a new snapshot is created, this file
 	is moved to the correct `snap\system' directory renaming it as
@@ -272,7 +271,7 @@ Emulators
 
 Configuration
 	The file `advmenu.rc' is used to save the current state of the
-	frontend. It's read at startup and saved at exit. You can
+	front-end. It's read at startup and saved at exit. You can
 	prevent the automatic save at the exit with the `config' option.
 
 	In DOS and Windows the configuration options are read from the
@@ -303,7 +302,7 @@ Configuration
 	In Linux and Mac OS X the files are searched in the $home directory if
 	they are expressed as a relative path. You can force the search in the
 	current directory prefixing the file with `./'.
-	To include more than one file you must separe the names with `;' in
+	To include more than one file you must divide the names with `;' in
 	DOS and Windows, and with `:' in Linux and Mac OS X.
 
 	You can force the creation of a default configuration file with the
@@ -333,14 +332,15 @@ Configuration
 
     emulator
 	This option can be used to select which emulators to use in
-	the frontend. You can specify a multiple emulator support.
+	the front-end. You can specify a multiple emulator support.
 
 	WARNING! Before playing with this option, you should do a
 	backup copy of your current `advmenu.rc' because when you remove
 	an emulator, all the game information for that emulator (like
 	the time played) is lost.
 
-	:emulator "EMUNAME" (generic | advmame | advmess | mame | dmame | dmess | raine) "[-]EXECUTABLE" "ARGUMENTS"
+	:emulator "EMUNAME" (generic | advmame | advmess | mame | dmame
+	:	| dmess | raine) "[-]EXECUTABLE" "ARGUMENTS"
 
 	Options:
 		EMUNAME - The name for the emulator. It must be
@@ -383,7 +383,8 @@ Configuration
 	types this information is automatically added by AdvanceMENU.
 
 	Examples for DOS and Windows:
-		:emulator "advmame" advmame "advmame\advmame.exe" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
+		:emulator "advmame" advmame "advmame\advmame.exe" \
+		:	"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 		:emulator "mame" mame "mame\mame.exe" "-nohws"
 		:emulator "mess" dmess "mess\mess.exe" ""
 		:emulator "raine" raine "raine\raine.exe" ""
@@ -392,7 +393,8 @@ Configuration
 		:emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
 
 	Examples for Linux and Mac OS X:
-		:emulator "advmame" advmame "advmame" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
+		:emulator "advmame" advmame "advmame" \
+		:	"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 
     emulator_TAG
 	Select additional directories for the emulators. These
@@ -596,7 +598,8 @@ Configuration
 	only if the user GROUP, TYPE and DESC are empty.
 
 	Examples:
-		:game "advmame/puckman" "Very Good" "Arcade" 1231 21 "Pac-Man Japanese"
+		:game "advmame/puckman" "Very Good" "Arcade" \
+		:	1231 21 "Pac-Man Japanese"
 		:game "advmame/1943" "" "" 121 4 "1943 !!"
 
   Video Configuration Options
@@ -714,11 +717,11 @@ Configuration
     sound_foreground_EVENT
 	Select the sounds played in foreground for the various events.
 
-	:sound_foregroun_begin none | default | FILE
-	:sound_foregroun_end none | default | FILE
-	:sound_foregroun_key none | default | FILE
-	:sound_foregroun_start none | default | FILE
-	:sound_foregroun_stop none | default | FILE
+	:sound_foreground_begin none | default | FILE
+	:sound_foreground_end none | default | FILE
+	:sound_foreground_key none | default | FILE
+	:sound_foreground_start none | default | FILE
+	:sound_foreground_stop none | default | FILE
 
 	Commands:
 		begin - Sound played at AdvanceMENU startup.
@@ -912,8 +915,6 @@ Configuration
 	Examples:
 		:ui_command "Delete Hiscore" \
 		:	rm ~/.advance/hi/%s.hi
-		:ui_command "Delete Cfg" \
-		:	rm ~/.advance/cfg/%s.cfg
 		:ui_command "Enable GamePad" \
 		:	rmmod analog \
 		:	sleep 1 \
@@ -1148,7 +1149,7 @@ Configuration
 	:run_preview none | snap | flyers | cabinets | titles
 
 	Options:
-		none - Don't diplay any preview.
+		none - Don't display any preview.
 		snap, flyers, cabinets, titles - Display the
 			specified preview. (default snap).
 

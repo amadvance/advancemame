@@ -20,3 +20,8 @@ hq3x.dat: hq3x
 hq4x.dat: hq4x
 	./hq4x > hq4x.dat
 	./hq4x lq > lq4x.dat
+
+clean:
+	rm -f hq2x hq3x hq4x
+	rm -f hq2x.dat hq3x.dat hq4x.dat
+	rm -f lq2x.dat lq3x.dat lq4x.dat

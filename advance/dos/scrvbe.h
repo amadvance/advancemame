@@ -163,14 +163,6 @@ typedef struct vbe_PMInterface_struct
 	uint16 setDisplayStart __attribute__ ((packed)); /* Offset of Set Display Start call */
 	uint16 setPalette __attribute__ ((packed)); /* Offset of Set Primary Palette */
 	uint16 IOPrivInfo __attribute__ ((packed)); /* Offset of I/O priveledge info */
-#if 0
-	/* UniVBE extensions */
-	uint32 extensionSig __attribute__ ((packed)); /* Identify extension (0xFBADFBAD) */
-	uint32 setWindowLen __attribute__ ((packed)); /* Used to virtualise framebuffer */
-	uint32 setDisplayStartLen __attribute__ ((packed));
-	uint32 setPaletteLen __attribute__ ((packed));
-#endif
-	/* code is located in this space */
 } vbe_PMInterface;
 
 /* VBE 3.0 Protect Mode Info Block */

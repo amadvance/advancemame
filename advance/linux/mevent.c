@@ -305,7 +305,6 @@ const char* mouseb_event_button_name_get(unsigned mouse, unsigned button)
 int mouseb_event_axe_get(unsigned mouse, unsigned axe)
 {
 	int r;
-	struct mouse_item_context* item = event_state.map + mouse;
 
 	log_debug(("mouseb:event: mouseb_event_axe_get()\n"));
 

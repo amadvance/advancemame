@@ -148,7 +148,7 @@ void keyb_done(void);
 /**
  * Enable the keyboard driver.
  * The keyboard driver must be enabled after the video mode set.
- * \param graphics_mode Enable the graphics mode behaviour, disabling echo and cursor.
+ * \param graphics Enable the graphics mode behaviour, disabling echo and cursor.
  */
 adv_error keyb_enable(adv_bool graphics);
 
@@ -164,6 +164,9 @@ void keyb_disable(void);
  */
 void keyb_abort(void);
 
+/**
+ * Get the number of keyboards.
+ */
 unsigned keyb_count_get(void);
 
 /**
@@ -173,12 +176,14 @@ unsigned keyb_flags(void);
 
 /**
  * Check if a keyboard has the specified key.
+ * \param keyboard Keyboard number.
  * \param code One of the KEYB_* codes.
  */
 adv_bool keyb_has(unsigned keyboard, unsigned code);
 
 /**
  * Get the status of the specified key.
+ * \param keyboard Keyboard number.
  * \param code One of the KEYB_* codes.
  * \return
  *  - == 0 not pressed
@@ -188,7 +193,8 @@ unsigned keyb_get(unsigned keyboard, unsigned code);
 
 /**
  * Get the status of all the keys.
- * \param code_map The destination vector of KEYB_MAX elements.
+ * \param keyboard Keyboard number.
+ * \param code_map Destination vector of KEYB_MAX elements.
  */
 void keyb_all_get(unsigned keyboard, unsigned char* code_map);
 
@@ -205,6 +211,7 @@ void keyb_all_get(unsigned keyboard, unsigned char* code_map);
 
 /**
  * Set the led state.
+ * \param keyboard Keyboard number.
  * \param led_mask Mask of the led to enable.
  */
 void keyb_led_set(unsigned keyboard, unsigned led_mask);

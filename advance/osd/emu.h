@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,9 +145,6 @@
 		y = temp; \
 	} while (0)
 
-#define FLIP(orientation, h, v) \
-	(((orientation) & OSD_ORIENTATION_SWAP_XY) == 0 ? (h) : (v))
-
 /** Configuration for the video part. */
 struct advance_video_config_context {
 	adv_bool inlist_combinemax_flag; /**< The game requires the max effect instead of the mean effect for resizing. */
@@ -269,6 +266,7 @@ struct advance_video_state_context {
 	unsigned skip_level_full; /**< Number of frames to draw in the cycle. */
 	unsigned skip_level_skip; /**< Number of frames to skip in the cycle. */
 	unsigned skip_level_sum; /**< Total number of frame in the cycle. */
+	adv_bool skip_level_disable_flag; /**< If skipping was disabled for some reasons. */
 
 	int latency_diff; /**< Current sound latency error in samples. */
 
@@ -304,6 +302,10 @@ struct advance_video_state_context {
 
 	/* Vsync */
 	adv_bool vsync_flag; /**< Vsync is active flag. */
+
+	/* Info */
+	adv_bool info_flag; /**< Show the on screen information. */
+	unsigned info_counter; /**< Back counter for temp info. */
 
 	/* Blit info */
 	int blit_src_dp; /**< Source pixel step of the game bitmap. */
@@ -437,6 +439,8 @@ adv_bool advance_record_sound_is_active(struct advance_record_context* context);
 adv_bool advance_record_video_is_active(struct advance_record_context* context);
 adv_bool advance_record_snapshot_is_active(struct advance_record_context* context);
 
+adv_error advance_record_png_write(FILE* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+
 /***************************************************************************/
 /* Sound */
 
@@ -553,11 +557,6 @@ enum {
 	safequit_action_off = 3
 };
 
-enum {
-	safequit_format_bcd = 0,
-	safequit_format_byte = 1
-};
-
 struct safequit_entry {
 	unsigned char event;
 	unsigned char cpu;
@@ -580,7 +579,6 @@ struct advance_safequit_state_context {
 	unsigned status;
 	unsigned coin; /**< Number of coins. */
 	adv_bool coin_set; /**< If the number of coins is valid. */
-	unsigned coin_format; /**< Format of the coin byte. */
 };
 
 struct advance_safequit_context {
@@ -638,11 +636,6 @@ struct trak_map_entry {
 	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
 };
 
-struct digital_map_entry {
-	unsigned port; /**< Digital port. */
-	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
-};
-
 struct advance_input_config_context {
 	int input_idle_limit; /**< Limit of no input to exit. */
 	adv_bool steadykey_flag; /**< Enable the steady-key management. */
@@ -650,8 +643,6 @@ struct advance_input_config_context {
 
 	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
 	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
-	unsigned digital_mac; /**< Number of digital entries. */
-	struct digital_map_entry digital_map[INPUT_DIGITAL_MAX]; /**< Mapping of the digital controls. */
 };
 
 struct advance_input_state_context {
@@ -688,6 +679,12 @@ void advance_input_update(struct advance_input_context* context, struct advance_
 adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
 void advance_input_force_exit(struct advance_input_context* context);
+adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char* buffer);
+adv_error advance_input_parse_analogname(unsigned* type, const char* buffer);
+adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer);
+adv_error advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type);
+void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center);
+adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code);
 
 /***************************************************************************/
 /* Global */
@@ -749,15 +746,17 @@ struct advance_ui_config_context {
 	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
 	char help_image_buffer[256]; /**< File name of the help image. */
 	char ui_font_buffer[256]; /**< File name of the font. */
+	unsigned ui_font_orientation; /**< Orientation for the font. */
 };
 
 struct advance_ui_state_context {
 	adv_bool ui_extra_flag; /**< Extra frame to be drawn to clear the off game border. */
 	adv_bool ui_message_flag; /**< User interface message display flag. */
-	unsigned ui_message_counter; /**< User interface message display counter. */
+	double ui_message_stop_time; /**< Time to stop thee interface message display. */
 	char ui_message_buffer[256]; /**< User interface message buffer. */
 	adv_bool ui_help_flag; /**< User interface help display flag. */
 	adv_font* ui_font; /**< User interface font. */
+	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
 	adv_bool ui_menu_flag;
 	struct ui_menu_entry* ui_menu_map;
 	unsigned ui_menu_mac;
@@ -773,6 +772,9 @@ struct advance_ui_state_context {
 	char* ui_scroll_end;
 	unsigned ui_scroll_pos;
 
+	adv_bool ui_direct_flag;
+	char ui_direct_buffer[256];
+
 	adv_bitmap* help_image; /**< Help image. */
 	adv_color_rgb help_rgb_map[256];
 	unsigned help_rgb_max;
@@ -785,16 +787,19 @@ struct advance_ui_context {
 
 void advance_ui_message_va(struct advance_ui_context* context, const char* text, va_list arg);
 void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
+void advance_ui_direct(struct advance_ui_context* context, const char* text);
 void advance_ui_help(struct advance_ui_context* context);
 void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
 void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
-void advance_ui_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
+void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
+void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
 adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
 adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* cfg_context, struct mame_option* option);
 void advance_ui_done(struct advance_ui_context* context);
 adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context);
 void advance_ui_inner_done(struct advance_ui_context* context);
-adv_bool advance_ui_active(struct advance_ui_context* context);
+adv_bool advance_ui_buffer_active(struct advance_ui_context* context);
+adv_bool advance_ui_direct_active(struct advance_ui_context* context);
 adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
 
 /***************************************************************************/

@@ -410,7 +410,7 @@ void video_pipeline_blit(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_dy Source size y.
  * \param src_dw Source row step expressed in bytes.
  * \param src_dp Source pixel step expressed in bytes.
- * \param src_rgb_def Source RGB format.
+ * \param src_color_def Source color format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
 static inline void video_stretch_direct(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine)

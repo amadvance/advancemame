@@ -11,13 +11,7 @@ device_video_vclock 55-100
 
 # VGA text modes
 
-# VGA best fit modes
-
-# VGA standard modes
-
-# SVGA best fit modes
-
-# SVGA standard modes
+# SVGA standard size modes
 device_video_modeline pc_mult60_240x180 6.99744 240 240 280 296 180 184 185 197 -hsync -vsync doublescan # H 23640 [Hz], V 60 [Hz]
 device_video_modeline pc_mult60_240x360 13.9949 240 240 280 296 360 368 370 394 -hsync -vsync doublescan # H 47280 [Hz], V 60 [Hz]
 device_video_modeline pc_mult60_256x192 8.064 256 264 304 320 192 196 197 210 -hsync -vsync doublescan # H 25200 [Hz], V 60 [Hz]
@@ -55,4 +49,17 @@ device_video_modeline pc_mult60_736x552 33.3408 736 752 864 920 552 564 566 604 
 device_video_modeline pc_mult60_768x576 36.288 768 784 904 960 576 588 590 630 -hsync -vsync # H 37800 [Hz], V 60 [Hz]
 device_video_modeline pc_mult60_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync # H 39360 [Hz], V 60 [Hz]
 device_video_modeline pc_mult60_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync # H 50400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_256x224 9.408 256 264 304 320 224 229 230 245 -hsync -vsync doublescan # H 29400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_256x448 18.816 256 264 304 320 448 458 460 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_256x240 10.0608 256 264 304 320 240 245 246 262 -hsync -vsync doublescan # H 31440 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_320x224 11.76 320 328 376 400 224 229 230 245 -hsync -vsync doublescan # H 29400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_320x448 23.52 320 328 376 400 448 458 460 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_512x448 37.632 512 528 600 640 448 457 459 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_512x480 20.16 512 528 600 640 480 490 492 525 -hsync -vsync # H 31500 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_640x448 47.04 640 656 752 800 448 457 459 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_640x512 26.88 640 656 752 800 512 523 525 560 -hsync -vsync # H 33600 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_720x448 52.6848 720 736 840 896 448 457 459 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_720x480 28.224 720 736 840 896 480 490 492 525 -hsync -vsync # H 31500 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_720x512 30.1056 720 736 840 896 512 523 525 560 -hsync -vsync # H 33600 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_720x576 33.8688 720 736 840 896 576 588 590 630 -hsync -vsync # H 37800 [Hz], V 60 [Hz]
 

@@ -15,21 +15,7 @@ device_video_modeline extended_vga_text40_9x8 12.573 360 490 540 762 200 248 251
 device_video_modeline extended_vga_text80_8x8 14.157 640 670 724 858 200 248 251 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
 device_video_modeline extended_vga_text80_9x8 25.179 720 982 1080 1526 200 248 251 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
 
-# VGA best fit modes
-device_video_modeline extended_vga_304x286 6.303 304 306 332 382 286 291 295 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_344x286 7.095 344 346 374 430 286 291 295 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_600x286 12.573 600 612 662 762 286 291 295 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_680x286 14.157 680 690 744 858 286 291 295 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-
-# VGA standard modes
-device_video_modeline extended_vga_320x200 7.095 320 336 362 430 200 248 251 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_360x200 12.573 360 490 540 762 200 248 251 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_320x240 7.095 320 336 362 430 240 268 271 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-device_video_modeline extended_vga_360x240 12.573 360 490 540 762 240 268 271 311 -hsync -vsync # H 16500 [Hz], V 53.0547 [Hz]
-
-# SVGA best fit modes
-
-# SVGA standard modes
+# SVGA standard size modes
 device_video_modeline extended_240x180 5.016 240 248 264 304 180 184 186 196 -hsync -vsync # H 16500 [Hz], V 84.1837 [Hz]
 device_video_modeline extended_256x192 5.28 256 256 280 320 192 196 198 209 -hsync -vsync # H 16500 [Hz], V 78.9474 [Hz]
 device_video_modeline extended_272x204 5.676 272 280 296 344 204 208 210 222 -hsync -vsync # H 16500 [Hz], V 74.3243 [Hz]
@@ -61,4 +47,15 @@ device_video_modeline extended_736x552 15.312 736 744 808 928 552 562 568 600 -h
 device_video_modeline extended_768x576 15.972 768 776 840 968 576 586 593 626 -hsync -vsync interlace # H 16500 [Hz], V 52.7157 [Hz]
 device_video_modeline extended_800x600 16.632 800 808 872 1008 600 611 618 652 -hsync -vsync interlace # H 16500 [Hz], V 50.6135 [Hz]
 device_video_modeline extended_1024x768 21.384 1024 1040 1128 1296 768 781 790 834 -hsync -vsync interlace # H 16500 [Hz], V 39.5683 [Hz]
+device_video_modeline extended_256x224 5.28 256 256 280 320 224 228 230 243 -hsync -vsync # H 16500 [Hz], V 67.9012 [Hz]
+device_video_modeline extended_256x240 5.28 256 256 280 320 240 244 247 261 -hsync -vsync # H 16500 [Hz], V 63.2184 [Hz]
+device_video_modeline extended_320x224 6.6 320 320 344 400 224 228 230 243 -hsync -vsync # H 16500 [Hz], V 67.9012 [Hz]
+device_video_modeline extended_512x448 10.692 512 520 560 648 448 456 461 487 -hsync -vsync interlace # H 16500 [Hz], V 67.7618 [Hz]
+device_video_modeline extended_512x480 10.692 512 520 560 648 480 488 493 521 -hsync -vsync interlace # H 16500 [Hz], V 63.3397 [Hz]
+device_video_modeline extended_640x448 13.332 640 648 704 808 448 456 461 487 -hsync -vsync interlace # H 16500 [Hz], V 67.7618 [Hz]
+device_video_modeline extended_640x512 13.332 640 648 704 808 512 521 527 556 -hsync -vsync interlace # H 16500 [Hz], V 59.3525 [Hz]
+device_video_modeline extended_720x448 15.048 720 736 792 912 448 456 461 487 -hsync -vsync interlace # H 16500 [Hz], V 67.7618 [Hz]
+device_video_modeline extended_720x480 15.048 720 736 792 912 480 488 493 521 -hsync -vsync interlace # H 16500 [Hz], V 63.3397 [Hz]
+device_video_modeline extended_720x512 15.048 720 736 792 912 512 521 527 556 -hsync -vsync interlace # H 16500 [Hz], V 59.3525 [Hz]
+device_video_modeline extended_720x576 15.048 720 736 792 912 576 586 593 626 -hsync -vsync interlace # H 16500 [Hz], V 52.7157 [Hz]
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ static void version(void)
 {
 	char report_buffer[128];
 	target_out("%s %s\n", ADVANCE_TITLE, VERSION);
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
 	target_out("Compiled %s with gcc-%s\n", __DATE__, COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__));
@@ -226,6 +226,11 @@ static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
 #endif
+{ "*", "input_dipswitch[*]", "*", "%s", "%s", "%s", 1 }, /* auto register */
+#ifdef MESS
+{ "*", "input_configswitch[*]", "*", "%s", "%s", "%s", 1 }, /* auto register */
+#endif
+
 /* 0.57.1 */
 { "*", "misc_mameinfofile", "*", "%s", "misc_infofile", "%s", 0 }, /* rename */
 { "*", "sound_recordtime", "*", "%s", "record_sound_time", "%s", 0 }, /* rename */
@@ -719,7 +724,7 @@ int os_main(int argc, char* argv[])
 	if (advance_ui_inner_init(&context->ui, context->cfg) != 0)
 		goto err_inner_input;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
-		goto err_inner_input;
+		goto err_inner_ui;
 	if (hardware_script_inner_init()!=0)
 		goto err_inner_safequit;
 

@@ -285,14 +285,6 @@ static void trident_new_mode_set(void)
 	CARD_LOG(("trident: chip version %2Xh\n", d0));
 }
 
-#if 0
-static void trident_old_mode_set(void)
-{
-	/* Writing to index Bh selects old mode registers. */
-	card_seq_set(OldNewModeControl, 0);
-}
-#endif
-
 static void trident_unlock(void)
 {
 	trident_new_mode_set();
@@ -323,11 +315,6 @@ const char* trident_driver(void)
 int trident_detect(void)
 {
 	int i;
-
-#if 0 /* fake detect */
-	trident_card = trident_id_list + 0;
-	return 1;
-#endif
 
 	if (pci_detect()!=0) {
 		CARD_LOG(("trident: PCI BIOS not installed.\n"));

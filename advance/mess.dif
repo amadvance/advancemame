@@ -1,14 +1,25 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2003-09-28 15:06:37.000000000 +0200
++++ mess/advance.pat	2004-01-01 14:11:18.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive mess.ori/includes/psx.h mess/includes/psx.h
---- mess.ori/includes/psx.h	2003-07-10 16:46:25.000000000 +0200
-+++ mess/includes/psx.h	2003-09-28 15:06:37.000000000 +0200
-@@ -1,7 +1,7 @@
+--- mess.ori/includes/psx.h	2003-12-22 01:26:00.000000000 +0100
++++ mess/includes/psx.h	2004-01-01 14:12:42.000000000 +0100
+@@ -1,17 +1,9 @@
  #include "driver.h"
--#include "../src/includes/psx.h"
+ 
+-/*
+- * Modification For OpenVMS By:  Robert Alan Byer
+- *                               byer@mail.ourservers.net
+- *                               December 10, 2003
+- */
+-#if defined(__DECC) && defined(VMS)
+-#  include "../../src/includes/psx.h"
+-#else
+-#  include "../src/includes/psx.h"
+-#endif
++/* AdvanceMAME: The MESS sources are in the srcmess directory and not in src */
 +#include "../srcmess/includes/psx.h"
  
  READ32_HANDLER( psx_cd_r );

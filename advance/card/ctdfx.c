@@ -177,11 +177,6 @@ int tdfx_detect(void)
 	int i;
 	DWORD reg;
 
-#if 0 /* fake detect */
-	tdfx_card = tdfx_id_list + 0;
-	return 1;
-#endif
-
 	if (pci_detect()!=0) {
 		CARD_LOG(("3dfx: PCI BIOS not installed.\n"));
 		return 0;

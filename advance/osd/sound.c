@@ -206,7 +206,6 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 static void sound_scale(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count, unsigned sample_recount)
 {
 	adv_slice slice;
-	unsigned i, j;
 
 	slice_set(&slice, sample_count, sample_recount);
 

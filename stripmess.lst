@@ -3,6 +3,8 @@ artwork.h
 audit.c
 audit.h
 blitgen.c
+chd.c
+chd.h
 cheat.c
 cheat.h
 common.c
@@ -182,6 +184,8 @@ sound/mixer.h
 sound/pokey.c
 sound/pokey.h
 sound/pokey.txt
+sound/psx.c
+sound/psx.h
 sound/qsound.c
 sound/qsound.h
 sound/saa1099.c

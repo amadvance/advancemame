@@ -1,2 +1,7 @@
+all:subs
+
 subs: subs.cc
-	g++ -Wall -O2 subs.cc -o subs
+	g++ -g -Wall -O0 subs.cc -o subs
+
+clean:
+	rm -f subs

@@ -119,6 +119,6 @@ $(sort $(SOBJDIRS)):
 
 $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(SLDFLAGS) $(SOBJS) $(SLIBS) -o $@
+	$(LD) $(SOBJS) $(SLIBS) $(SLDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advs$(EXE)
 	$(LN_S) $@ advs$(EXE)

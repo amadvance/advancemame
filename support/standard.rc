@@ -1,4 +1,4 @@
-# Example configuration file for Arcade Standard Resolution (15 kHz) Monitors
+# Example configuration file for Arcade Standard Resolution (15 kHz) Monitors (CGA)
 
 device_video_pclock 5-50
 device_video_hclock 15.75
@@ -15,21 +15,7 @@ device_video_modeline standard_vga_text40_9x8 12.576 360 536 594 800 200 223 226
 device_video_modeline standard_vga_text80_8x8 14.148 640 720 786 900 200 223 226 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
 device_video_modeline standard_vga_text80_9x8 25.1834 720 1072 1190 1602 200 223 226 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
 
-# VGA best fit modes
-device_video_modeline standard_vga_296x240 6.288 296 326 354 400 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_328x240 7.074 328 366 400 450 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_592x240 12.576 592 650 710 800 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_664x240 14.148 664 732 798 900 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-
-# VGA standard modes
-device_video_modeline standard_vga_320x200 7.074 320 360 394 450 200 223 226 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_360x200 12.576 360 536 594 800 200 223 226 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_320x240 7.074 320 360 394 450 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-device_video_modeline standard_vga_360x240 12.576 360 536 594 800 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
-
-# SVGA best fit modes
-
-# SVGA standard modes
+# SVGA standard size modes
 device_video_modeline standard_240x180 5.15616 240 264 288 328 180 182 184 196 -hsync -vsync # H 15720 [Hz], V 80.2041 [Hz]
 device_video_modeline standard_256x192 5.40768 256 280 304 344 192 195 197 210 -hsync -vsync # H 15720 [Hz], V 74.8571 [Hz]
 device_video_modeline standard_272x204 5.78496 272 296 328 368 204 207 210 223 -hsync -vsync # H 15720 [Hz], V 70.4933 [Hz]
@@ -61,4 +47,15 @@ device_video_modeline standard_736x552 15.72 736 816 888 1000 552 560 567 603 -h
 device_video_modeline standard_768x576 16.3488 768 848 920 1040 576 584 591 629 -hsync -vsync interlace # H 15720 [Hz], V 49.9841 [Hz]
 device_video_modeline standard_800x600 17.1034 800 888 968 1088 600 608 616 655 -hsync -vsync interlace # H 15720 [Hz], V 48 [Hz]
 device_video_modeline standard_1024x768 21.8822 1024 1128 1232 1392 768 778 788 838 -hsync -vsync interlace # H 15720 [Hz], V 37.5179 [Hz]
+device_video_modeline standard_256x224 5.40768 256 280 304 344 224 226 229 244 -hsync -vsync # H 15720 [Hz], V 64.4262 [Hz]
+device_video_modeline standard_256x240 5.40768 256 280 304 344 240 243 246 262 -hsync -vsync # H 15720 [Hz], V 60 [Hz]
+device_video_modeline standard_320x224 6.79104 320 352 384 432 224 226 229 244 -hsync -vsync # H 15720 [Hz], V 64.4262 [Hz]
+device_video_modeline standard_512x448 10.9411 512 568 616 696 448 454 460 489 -hsync -vsync interlace # H 15720 [Hz], V 64.2945 [Hz]
+device_video_modeline standard_512x480 10.9411 512 568 616 696 480 486 493 524 -hsync -vsync interlace # H 15720 [Hz], V 60 [Hz]
+device_video_modeline standard_640x448 13.5821 640 704 768 864 448 454 460 489 -hsync -vsync interlace # H 15720 [Hz], V 64.2945 [Hz]
+device_video_modeline standard_640x512 13.5821 640 704 768 864 512 519 526 559 -hsync -vsync interlace # H 15720 [Hz], V 56.2433 [Hz]
+device_video_modeline standard_720x448 15.3427 720 792 864 976 448 454 460 489 -hsync -vsync interlace # H 15720 [Hz], V 64.2945 [Hz]
+device_video_modeline standard_720x480 15.3427 720 792 864 976 480 486 493 524 -hsync -vsync interlace # H 15720 [Hz], V 60 [Hz]
+device_video_modeline standard_720x512 15.3427 720 792 864 976 512 519 526 559 -hsync -vsync interlace # H 15720 [Hz], V 56.2433 [Hz]
+device_video_modeline standard_720x576 15.3427 720 792 864 976 576 584 591 629 -hsync -vsync interlace # H 15720 [Hz], V 49.9841 [Hz]
 

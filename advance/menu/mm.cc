@@ -63,7 +63,7 @@ int run_sub(config_state& rs, bool silent)
 	while (!done) {
 		emulator* emu;
 
-		key = run_menu(rs, (rs.video_orientation_effective & INT_ORIENTATION_SWAP_XY) != 0, silent);
+		key = run_menu(rs, (rs.video_orientation_effective & ADV_ORIENTATION_FLIP_XY) != 0, silent);
 
 		// don't replay the sound and clip
 		silent = true;
@@ -230,18 +230,18 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		if (!rs.lock_effective)
 		switch (key) {
 			case INT_KEY_ROTATE : {
-					unsigned mirror = rs.video_orientation_effective & (INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y);
-					unsigned flip = rs.video_orientation_effective & INT_ORIENTATION_SWAP_XY;
+					unsigned mirror = rs.video_orientation_effective & (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y);
+					unsigned flip = rs.video_orientation_effective & ADV_ORIENTATION_FLIP_XY;
 					if (mirror == 0) {
-						mirror = INT_ORIENTATION_FLIP_Y;
-					} else if (mirror == INT_ORIENTATION_FLIP_Y) {
-						mirror = INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y;
-					} else if (mirror == (INT_ORIENTATION_FLIP_X | INT_ORIENTATION_FLIP_Y)) {
-						mirror = INT_ORIENTATION_FLIP_X;
+						mirror = ADV_ORIENTATION_FLIP_Y;
+					} else if (mirror == ADV_ORIENTATION_FLIP_Y) {
+						mirror = ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y;
+					} else if (mirror == (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y)) {
+						mirror = ADV_ORIENTATION_FLIP_X;
 					} else {
 						mirror = 0;
 					}
-					flip ^= INT_ORIENTATION_SWAP_XY;
+					flip ^= ADV_ORIENTATION_FLIP_XY;
 					rs.video_orientation_effective = flip | mirror;
 				}
 				break;
@@ -369,7 +369,7 @@ static void version(void)
 {
 	char report_buffer[128];
 	target_out("AdvanceMENU %s\n", VERSION);
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
 	target_out("Compiled %s with gcc-%s\n", __DATE__, COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__));

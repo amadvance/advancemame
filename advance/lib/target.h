@@ -91,6 +91,9 @@ void target_idle(void);
 /**
  * Wait no more than then specified time.
  * Calling this function generally reduces the CPU occupation.
+ * Note that if the requested sleep time is too small the function may return
+ * immediatly. In Linux 2.4 this limit is 20 ms, for Linux 2.6 is 3 ms.
+ * In these cases the CPU occupation is not reduced.
  * \param us Microsencond to wait.
  */
 void target_usleep(unsigned us);

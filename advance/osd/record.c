@@ -819,26 +819,12 @@ static adv_error snapshot_start(struct advance_record_context* context, const ch
 	return 0;
 }
 
-static adv_error snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
+adv_error advance_record_png_write(FILE* f, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
-	const char* file = context->state.snapshot_file_buffer;
-	FILE* f;
 	unsigned color_type;
 
-	if (!context->state.snapshot_active_flag)
-		return -1;
-
-	context->state.snapshot_active_flag = 0;
-
-	f = fopen(file, "wb");
-	if (!f) {
-		log_std(("ERROR: opening file %s\n", file));
-		goto err;
-	}
-
 	if (png_write_header(f) != 0) {
-		log_std(("ERROR: writing header in file %s\n", file));
-		goto err_file;
+		return -1;
 	}
 
 	if (palette_map && palette_max <= 256)
@@ -847,47 +833,63 @@ static adv_error snapshot_update(struct advance_record_context* context, const v
 		color_type = 2;
 
 	if (png_write_image_header(f, video_width, video_height, 8, color_type, orientation) != 0) {
-		log_std(("ERROR: writing image header in file %s\n", file));
-		goto err_file;
+		return -1;
 	}
 
 	if (video_bytes_per_pixel == 2 && palette_map && palette_max <= 256) {
 		if (png_write_image_2palsmall(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
-			goto err_data;
+			return -1;
 	} else if (video_bytes_per_pixel == 4 && !palette_map) {
 		if (png_write_image_4rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 0, orientation)!=0)
-			goto err_data;
+			return -1;
 	} else if (video_bytes_per_pixel == 2 && !palette_map) {
 		if (png_write_image_2rgb(f, video_buffer, video_bytes_per_scanline, video_width, video_height, color_def, 0, orientation)!=0)
-			goto err_data;
+			return -1;
 	} else if (video_bytes_per_pixel == 2 && palette_map) {
 		if (png_write_image_2pal(f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 0, orientation)!=0)
-			goto err_data;
+			return -1;
 	} else {
-		log_std(("ERROR: unknown image format for file %s\n", file));
-		goto err_file;
+		return -1;
 	}
 
 	if (png_write_image_footer(f) != 0) {
-		log_std(("ERROR: writing image footer in file %s\n", file));
-		goto err_file;
+		return -1;
 	}
 
 	if (png_write_footer(f)!=0) {
-		log_std(("ERROR: writing file footer in file %s\n", file));
-		goto err_file;
+		return -1;
+	}
+
+	return 0;
+}
+
+static adv_error snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
+{
+	const char* file = context->state.snapshot_file_buffer;
+	FILE* f;
+
+	if (!context->state.snapshot_active_flag) {
+		return -1;
+	}
+
+	context->state.snapshot_active_flag = 0;
+
+	f = fopen(file, "wb");
+	if (!f) {
+		log_std(("ERROR: opening file %s\n", file));
+		return -1;
+	}
+
+	if (advance_record_png_write(f, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, color_def, palette_map, palette_max, orientation) != 0) {
+		log_std(("ERROR: writing file %s\n", file));
+		fclose(f);
+		remove(file);
+		return -1;
 	}
 
 	fclose(f);
 
 	return 0;
-err_data:
-	log_std(("ERROR: writing image data in file %s\n", file));
-err_file:
-	fclose(f);
-	remove(file);
-err:
-	return -1;
 }
 
 /*************************************************************************************/

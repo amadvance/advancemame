@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -325,8 +325,6 @@ struct advance_glue_context {
 	const short* sound_current_buffer; /**< Last buffer of samples to play. */
 	unsigned sound_current_count; /**< Number of samples in the last buffer. */
 
-	char info_buffer[1024]; /**< Buffer for the reported display info. */
-
 #ifdef MESS
 	char crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the crcfile MESS pointer. */
 	char parent_crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the pcrcfile MESS pointer. */
@@ -547,7 +545,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.color_depth = advance->color_depth;
 	options.vector_width = advance->vector_width;
 	options.vector_height = advance->vector_height;
-	options.ui_orientation = advance->ui_orientation;
+	options.ui_orientation = 0;
+	if ((advance->ui_orientation & OSD_ORIENTATION_SWAP_XY) != 0)
+		options.ui_orientation |= ORIENTATION_SWAP_XY;
+	if ((advance->ui_orientation & OSD_ORIENTATION_FLIP_X) != 0)
+		options.ui_orientation |= ORIENTATION_FLIP_X;
+	if ((advance->ui_orientation & OSD_ORIENTATION_FLIP_Y) != 0)
+		options.ui_orientation |= ORIENTATION_FLIP_Y;
 	options.beam = advance->beam;
 	options.vector_flicker = advance->vector_flicker;
 	options.vector_intensity = advance->vector_intensity;
@@ -569,7 +573,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (advance->bios_buffer[0] == 0 || strcmp(advance->bios_buffer, "default")==0)
 		options.bios = 0;
 	else
-		options.bios = strdup(advance->bios_buffer); /* TODO leak */
+		options.bios = strdup(advance->bios_buffer);
 
 	if (advance->language_file_buffer[0])
 		options.language_file = mame_fopen(0, advance->language_file_buffer, FILETYPE_LANGUAGE, 0);
@@ -692,12 +696,22 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	r = run_game(game_index);
 
-	if (options.language_file)
+	if (options.bios) {
+		free(options.bios);
+		options.bios = 0;
+	}
+	if (options.language_file) {
 		mame_fclose(options.language_file);
-	if (options.record)
+		options.language_file = 0;
+	}
+	if (options.record) {
 		mame_fclose(options.record);
-	if (options.playback)
+		options.record = 0;
+	}
+	if (options.playback) {
 		mame_fclose(options.playback);
+		options.playback = 0;
+	}
 
 	return r;
 }
@@ -727,7 +741,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	{ "p4_" name1, "Player 4 " desc1, IPT_##NAME | IPF_PLAYER4 }, \
 	{ "p4_" name2, "Player 4 " desc2, (IPT_##NAME | IPF_PLAYER4) | IPF_UNUSED },
 
-/** Mame ports. */
+/**
+ * Input ports.
+ * The port number are in a special uniq format which allow to have different
+ * values for port which requires a double specification.
+ * The MAME internal format use the IPT_EXTENSION flag to mask such ports which
+ * doesn' allow an uniq identification.
+ */
 static struct mame_port PORT[] = {
 
 	/* JOYSTICK */
@@ -858,11 +878,28 @@ static struct mame_port PORT[] = {
 	{ 0, 0, 0 }
 };
 
+/**
+ * Return the list of input port.
+ * It's a list in the uniq format, not the MAME format.
+ */
 struct mame_port* mame_port_list(void)
 {
 	return PORT;
 }
 
+struct mame_port* mame_port_find(unsigned port)
+{
+	struct mame_port* i;
+	for(i=PORT;i->name;++i)
+		if (i->port == port)
+			return i;
+	return 0;
+}
+
+/**
+ * Return the player number of a port.
+ * \param port Port type. It's a port in the uniq format, not the MAME format.
+ */
 int mame_port_player(unsigned port)
 {
 	unsigned code = port & ~IPF_MASK;
@@ -911,7 +948,10 @@ int mame_port_player(unsigned port)
 	return 0;
 }
 
-static void port_convert_seq(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max)
+/**
+ * Convert a sequence from the MAME format to the internal format.
+ */
+void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max)
 {
 	unsigned j;
 	j = 0;
@@ -951,12 +991,58 @@ static void port_convert_seq(unsigned* mame_seq, unsigned mame_max, unsigned* se
 }
 
 /**
- * Convert a mame port value to the uniqe format.
+ * Convert a sequence to the MAME format from the internal format.
+ */
+void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsigned mame_max)
+{
+	unsigned j;
+	j = 0;
+	while (j<max && seq[j] != DIGITAL_SPECIAL_NONE) {
+		unsigned c;
+		switch (seq[j]) {
+		case DIGITAL_SPECIAL_OR :
+			c = CODE_OR;
+			break;
+		case DIGITAL_SPECIAL_NOT :
+			c = CODE_NOT;
+			break;
+		case DIGITAL_SPECIAL_AUTO :
+			c = CODE_DEFAULT;
+			break;
+		default:
+			switch (DIGITAL_TYPE_GET(seq[j])) {
+			case DIGITAL_TYPE_KBD :
+				c = keyoscode_to_code(seq[j]);
+				break;
+			case DIGITAL_TYPE_MOUSE_BUTTON :
+			case DIGITAL_TYPE_JOY_BUTTON :
+			case DIGITAL_TYPE_JOY :
+				c = joyoscode_to_code(seq[j]);
+				break;
+			default :
+				c = CODE_NONE;
+				log_std(("ERROR:emu:glue: unable to convert %d\n", seq[j]));
+				break;
+			}
+		}
+		if (j<mame_max) {
+			mame_seq[j] = c;
+		}
+		++j;
+	}
+	while (j<mame_max) {
+		mame_seq[j] = CODE_NONE;
+		++j;
+	}
+}
+
+/**
+ * Convert a MAME port value to the uniq format.
  * If the MAME port has the value IPT_EXTENSION, the real port value is
- * the previous. In this case is added the IPF_UNUSED flag.
+ * the previous. In this case is added the IPF_UNUSED flag to differentiate it.
  * The port value contains also the IPF_PLAYER flags.
  */
-unsigned mame_port_convert(unsigned* type_pred, unsigned type)
+unsigned glue_port_convert(unsigned* type_pred, unsigned type)
 {
 	unsigned mask = type & ~IPF_MASK;
 	if (mask == IPT_EXTENSION) {
@@ -966,8 +1052,33 @@ unsigned mame_port_convert(unsigned* type_pred, unsigned type)
 	}
 }
 
+struct ipd* glue_port_convertback(unsigned port)
+{
+	struct ipd* j;
+	unsigned mame_port;
+
+	extern struct ipd inputport_defaults[];
+
+	mame_port = port & (~IPF_MASK | IPF_PLAYERMASK);
+
+	j = inputport_defaults;
+	while (j->type != IPT_END) {
+		if ((j->type & (~IPF_MASK | IPF_PLAYERMASK)) == mame_port)
+			break;
+		++j;
+	}
+
+	if (j->type != IPT_END) {
+		if ((port & IPF_UNUSED) != 0)
+			++j;
+		return j;
+	}
+
+	return 0;
+}
+
 /** List of ports reported at the user interface commmands */
-static unsigned PORT_REPORT[] = {
+static unsigned PORT_REPORT_DEFAULT[] = {
 	IPT_UI_MODE_NEXT,
 	IPT_UI_MODE_PRED,
 	IPT_UI_RECORD_START,
@@ -1007,6 +1118,26 @@ static unsigned PORT_REPORT[] = {
 	0
 };
 
+/** List of ports reported at the user interface commmands */
+static unsigned PORT_REPORT_GAME[] = {
+	IPT_JOYSTICK_UP, IPT_JOYSTICK_DOWN, IPT_JOYSTICK_LEFT, IPT_JOYSTICK_RIGHT,
+	IPT_JOYSTICKRIGHT_UP, IPT_JOYSTICKRIGHT_DOWN, IPT_JOYSTICKRIGHT_LEFT, IPT_JOYSTICKRIGHT_RIGHT,
+	IPT_JOYSTICKLEFT_UP, IPT_JOYSTICKLEFT_DOWN, IPT_JOYSTICKLEFT_LEFT, IPT_JOYSTICKLEFT_RIGHT,
+	IPT_BUTTON1, IPT_BUTTON2, IPT_BUTTON3, IPT_BUTTON4,
+	IPT_BUTTON5, IPT_BUTTON6, IPT_BUTTON7, IPT_BUTTON8, IPT_BUTTON9, IPT_BUTTON10,
+	IPT_START1, IPT_START2, IPT_START3, IPT_START4,
+	IPT_COIN1, IPT_COIN2, IPT_COIN3, IPT_COIN4,
+	IPT_SERVICE1, IPT_SERVICE2, IPT_SERVICE3, IPT_SERVICE4,
+	IPT_SERVICE, IPT_TILT,
+#ifdef MESS
+	IPT_START, IPT_SELECT,
+#endif
+	0
+};
+
+/**
+ * Get a complete list of input ports and their state.
+ */
 void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max)
 {
 	unsigned digital_mac;
@@ -1021,21 +1152,21 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	j = inputport_defaults;
 	while (j != 0 && j->type != IPT_END) {
 		if (digital_mac < digital_max) {
-			unsigned port = mame_port_convert(&j[-1].type, j[0].type);
+			unsigned port = glue_port_convert(&j[-1].type, j[0].type);
 			unsigned k;
 
 			/* only a subset */
-			for(k=0;PORT_REPORT[k] != 0;++k)
-				if (PORT_REPORT[k] == port)
+			for(k=0;PORT_REPORT_DEFAULT[k] != 0;++k)
+				if (PORT_REPORT_DEFAULT[k] == port)
 					break;
 
-			if (PORT_REPORT[k]) {
-				InputSeq* seq = input_port_type_seq(port);
+			if (PORT_REPORT_DEFAULT[k]) {
+				InputSeq* seq = &j->seq;
 
 				digital_map[digital_mac].port = port;
 				digital_map[digital_mac].port_state = seq_pressed(seq);
 
-				port_convert_seq(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
+				glue_seq_convert(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
 
 				++digital_mac;
 			}
@@ -1047,14 +1178,24 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	i = Machine->input_ports;
 	while (i != 0 && i->type != IPT_END) {
 		if (digital_mac < digital_max) {
-			InputSeq* seq = input_port_seq(i);
+			unsigned port = glue_port_convert(&i[-1].type, i[0].type);
+			unsigned k;
 
-			digital_map[digital_mac].port = mame_port_convert(&i[-1].type, i[0].type);
-			digital_map[digital_mac].port_state = seq_pressed(seq);
+			/* only a subset */
+			for(k=0;PORT_REPORT_GAME[k] != 0;++k)
+				if (PORT_REPORT_GAME[k] == port)
+					break;
 
-			port_convert_seq(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
+			if (PORT_REPORT_GAME[k]) {
+				InputSeq* seq = input_port_seq(i);
 
-			++digital_mac;
+				digital_map[digital_mac].port = port;
+				digital_map[digital_mac].port_state = seq_pressed(seq);
+
+				glue_seq_convert(*seq, SEQ_MAX, digital_map[digital_mac].seq, MAME_INPUT_MAP_MAX);
+
+				++digital_mac;
+			}
 		}
 		++i;
 	}
@@ -1062,32 +1203,185 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	*pdigital_mac = digital_mac;
 }
 
-void osd_customize_inputport_post_game(struct InputPort* current)
+void osd_customize_inputport_defaults(struct ipd* defaults)
 {
-	unsigned seq[MAME_INPUT_MAP_MAX];
-	unsigned type;
+	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
 
-	log_std(("emu:input: osd_customize_inputport_post_game()\n"));
-
-	port_convert_seq(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
-
-	type = mame_port_convert(&current[-1].type, current[0].type);
-
-	osd2_customize_inputport_post_game(type, seq, MAME_INPUT_MAP_MAX);
+	/* no specific OS customization */
 }
 
-void osd_customize_inputport_post_defaults(struct ipd* current)
+void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current)
 {
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
 	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned type;
 
-	log_std(("emu:input: osd_customize_inputport_post_defaults()\n"));
+	log_std(("emu:glue: osd_customize_inputport_post_game()\n"));
 
-	port_convert_seq(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
 
-	type = mame_port_convert(&current[-1].type, current[0].type);
+	type = glue_port_convert(&current[-1].type, current[0].type);
 
-	osd2_customize_inputport_post_defaults(type, seq, MAME_INPUT_MAP_MAX);
+	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		osd2_customize_inputport_post_game(type, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		osd2_customize_inputport_post_game(type, 0, 0);
+	}
+}
+
+void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current)
+{
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned type;
+
+	log_std(("emu:glue: osd_customize_inputport_post_defaults()\n"));
+
+	glue_seq_convert(current->seq, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(def->seq, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	type = glue_port_convert(&current[-1].type, current[0].type);
+
+	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		osd2_customize_inputport_post_defaults(type, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		osd2_customize_inputport_post_defaults(type, 0, 0);
+	}
+}
+
+void mame_name_adjust(char* dst, unsigned size, const char* s)
+{
+	unsigned i;
+	adv_bool require_space = 0;
+
+	dst[0] = 0;
+
+	for(i=0;i<s[i];++i) {
+		if (isalnum(s[i])) {
+			if (require_space)
+				sncatc(dst, size, '_');
+			require_space = 0;
+			sncatc(dst, size, tolower(s[i]));
+		} else {
+			if (dst[0])
+				require_space = 1;
+		}
+	}
+}
+
+void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current)
+{
+	char name_buffer[256];
+	char tag_buffer[256];
+	char value_buffer[256];
+	struct InputPort* v;
+	const char* tag;
+	unsigned type;
+
+	log_std(("emu:glue: osd_customize_switchport_post_game()\n"));
+
+	switch (current->type & ~IPF_MASK) {
+	case IPT_DIPSWITCH_NAME :
+		tag = "input_dipswitch";
+		type = IPT_DIPSWITCH_SETTING;
+		break;
+#ifdef MESS
+	case IPT_CONFIG_NAME :
+		tag = "input_configswitch";
+		type = IPT_CONFIG_SETTING;
+		break;
+#endif
+	default:
+		log_std(("WARNING:emu:glue: Unknown switchport %d\n", current->type & ~IPF_MASK));
+		return;
+	}
+
+	mame_name_adjust(name_buffer, sizeof(name_buffer), current->name);
+
+	v = current + 1;
+	while ((v->type & ~IPF_MASK) == type) {
+		if ((v->default_value & current->mask) == (current->default_value & current->mask)) {
+			break;
+		}
+		++v;
+	}
+
+	if ((v->type & ~IPF_MASK) != type) {
+		log_std(("ERROR:emu:glue: Unknown switchport %s value %d\n", name_buffer, current->default_value));
+		return;
+	}
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
+
+	if ((def->default_value & current->mask) != (current->default_value & current->mask)) {
+		mame_name_adjust(value_buffer, sizeof(value_buffer), v->name);
+		osd2_customize_port_post_game(tag_buffer, value_buffer);
+	} else {
+		osd2_customize_port_post_game(tag_buffer, 0);
+	}
+}
+
+#define A(name, NAME) \
+	{ "p1_" name, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p2_" name, IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p3_" name, IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p4_" name, IPT_##NAME | IPF_PLAYER4 },
+
+static struct mame_analog ANALOG[] = {
+	A("paddle_x", PADDLE)
+	A("paddle_y", PADDLE_V)
+	A("dial_x", DIAL)
+	A("dial_y", DIAL_V)
+	A("trackball_x", TRACKBALL_X)
+	A("trackball_y", TRACKBALL_Y)
+	A("stick_x", AD_STICK_X)
+	A("stick_y", AD_STICK_Y)
+	A("stick_z", AD_STICK_Z)
+	A("lightgun_x", LIGHTGUN_X)
+	A("lightgun_y", LIGHTGUN_Y)
+	A("pedal1", PEDAL)
+	A("pedal2", PEDAL2)
+	{ 0, 0 }
+};
+
+struct mame_analog* mame_analog_list(void)
+{
+	return ANALOG;
+}
+
+struct mame_analog* mame_analog_find(unsigned type)
+{
+	struct mame_analog* i;
+	for(i=ANALOG;i->name;++i)
+		if (i->type == type)
+			return i;
+	return 0;
+}
+
+void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current)
+{
+	char value_buffer[256];
+	char default_buffer[256];
+	char name_buffer[256];
+	char tag_buffer[256];
+
+	log_std(("emu:glue: osd_customize_analogport_post_game()\n"));
+
+	if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), current->type) != 0) {
+		return;
+	}
+
+	advance_input_print_analogvalue(value_buffer, sizeof(value_buffer), IP_GET_DELTA(current), IP_GET_SENSITIVITY(current), (current->type & IPF_REVERSE) != 0, (current->type & IPF_CENTER) != 0);
+	advance_input_print_analogvalue(default_buffer, sizeof(default_buffer), IP_GET_DELTA(def), IP_GET_SENSITIVITY(def), (def->type & IPF_REVERSE) != 0, (def->type & IPF_CENTER) != 0);
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
+
+	if (strcmp(value_buffer, default_buffer) != 0) {
+		osd2_customize_port_post_game(tag_buffer, value_buffer);
+	} else {
+		osd2_customize_port_post_game(tag_buffer, 0);
+	}
 }
 
 /***************************************************************************/
@@ -1112,7 +1406,7 @@ unsigned mame_ui_frames_per_second(void)
 int mame_ui_port_pressed(unsigned port)
 {
 	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
-	InputSeq* seq;
+	struct ipd* i;
 
 	switch (port) {
 	case IPT_MAME_PORT_SAFEQUIT :
@@ -1147,27 +1441,12 @@ int mame_ui_port_pressed(unsigned port)
 		return (advance_safequit_event_mask(safequit_context) & 0x8000) != 0;
 	}
 
-	seq = input_port_type_seq(port);
-	if (!seq)
+	i = glue_port_convertback(port);
+
+	if (!i)
 		return 0;
 
-	return seq_pressed(seq);
-}
-
-/**
- * Convert a os depended key code in a MAME code.
- */
-unsigned mame_ui_code_from_oskey(unsigned oscode)
-{
-	return keyoscode_to_code(oscode);
-}
-
-/**
- * Convert a os depended joystick code in a MAME code.
- */
-unsigned mame_ui_code_from_osjoystick(unsigned oscode)
-{
-	return joyoscode_to_code(oscode);
+	return seq_pressed(&i->seq);
 }
 
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
@@ -1212,11 +1491,6 @@ void mame_ui_swap(void)
 void mame_ui_gamma_factor_set(double gamma)
 {
 	palette_set_global_gamma(palette_get_global_gamma() * gamma);
-}
-
-void mame_ui_show_info_temp(void)
-{
-	ui_show_fps_temp(2);
 }
 
 /***************************************************************************/
@@ -1287,13 +1561,13 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	GLUE.option.fps = params->fps;
 
 	if (GLUE.option.bits_per_pixel == 8 || GLUE.option.bits_per_pixel == 16) {
-		GLUE.option.color_def = 0;
+		GLUE.option.color_def = color_def_make_palette_from_size(GLUE.option.bits_per_pixel / 8);
 		GLUE.option.rgb_flag = 0;
 	} else if (GLUE.option.bits_per_pixel == 15) {
-		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0);
+		GLUE.option.color_def = color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0);
 		GLUE.option.rgb_flag = 1;
 	} else if (GLUE.option.bits_per_pixel == 32) {
-		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+		GLUE.option.color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 		GLUE.option.rgb_flag = 1;
 	} else
 		return -1;
@@ -1596,24 +1870,6 @@ int osd_input_exit_filter(int result)
 int osd_input_port_filter(int result, int type)
 {
 	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
-}
-
-const char *osd_get_fps_text(const struct performance_info *performance)
-{
-	unsigned l;
-
-	osd2_info(GLUE.info_buffer, sizeof(GLUE.info_buffer));
-
-	l = strlen(GLUE.info_buffer);
-
-	/* for vector games, add the number of vector updates */
-	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR) {
-		snprintf(GLUE.info_buffer + l, sizeof(GLUE.info_buffer) - l, "\n%4d vector updates", performance->vector_updates_last_second);
-	} else if (performance->partial_updates_this_frame > 1) {
-		snprintf(GLUE.info_buffer + l, sizeof(GLUE.info_buffer) - l, "\n%4d partial updates", performance->partial_updates_this_frame);
-	}
-	
-	return GLUE.info_buffer;
 }
 
 /***************************************************************************/
@@ -1955,6 +2211,8 @@ int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 		input |= OSD_INPUT_COCKTAIL;
 	if (input_ui_pressed(IPT_UI_HELP))
 		input |= OSD_INPUT_HELP;
+	if (input_ui_pressed(IPT_UI_SHOW_FPS))
+		input |= OSD_INPUT_SHOW_FPS;
 	/* continous input */
 	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
 		input |= OSD_INPUT_PAN_RIGHT;

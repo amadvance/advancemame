@@ -3,14 +3,23 @@
 
 LIB_VERSION = 0.1
 
-doclib:
-	doxygen advance/lib/lib.cfg 2> reference/lib.log
+reference:
+	mkdir reference
 
-docsvgalib:
+doclib: reference
+	doxygen advance/lib/lib.cfg 2> reference/lib.log
+	grep -v "not documented" reference/lib.log > reference/libdoc.log
+
+docsvgalib: reference
 	doxygen advance/svgalib/svgalib.cfg 2> reference/svgalib.log
 
 LIB_ADVANCE_SRC = \
-	advance/lib.mak
+	advance/lib.mak \
+	advance/k.mak \
+	advance/j.mak \
+	advance/m.mak \
+	advance/s.mak \
+	advance/i.mak
 
 LIB_DISTFILE_SRC = advancelib-$(LIB_VERSION)
 LIB_DIST_DIR_SRC = $(LIB_DISTFILE_SRC)
@@ -42,6 +51,16 @@ distlib:
 	cp $(SVGALIBRAMDAC_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/ramdac
 	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/drivers
 	cp $(SVGALIBDRIVERS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/drivers
+	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgados
+	cp $(SVGALIBSVGADOS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgados
+	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin
+	cp $(SVGALIBSVGAWIN_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin
+	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	cp $(SVGALIBSVGAWINSYS_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/sys
+	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	cp $(SVGALIBSVGAWININSTALL_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/install
+	mkdir $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
+	cp $(SVGALIBSVGAWINDRIVER_SRC) $(LIB_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(LIB_DIST_DIR_SRC)/advance/k
 	cp $(K_SRC) $(LIB_DIST_DIR_SRC)/advance/k
 	mkdir $(LIB_DIST_DIR_SRC)/advance/j

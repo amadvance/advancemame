@@ -224,19 +224,11 @@ static int vgaline_mode_graph_realize(struct vga_regs* regs, const adv_crtc* crt
 	/* set char size */
 	vga_regs_char_size_x_set(regs, 8);
 
-#if 0
-	/* set char size to 1 */
-	vga_regs_char_size_y_set(regs, 1);
-
-	/* set double scan as requested */
-	vga_regs_doublescan_set(regs, crtc->doublescan != 0);
-#else
 	/* set char size emulating doublescan */
 	vga_regs_char_size_y_set(regs, crtc_is_doublescan(crtc) ? 2 : 1);
 
 	/* reset double scan */
 	vga_regs_doublescan_set(regs, 0);
-#endif
 
 	/* set dot clock */
 	switch (dotclock) {

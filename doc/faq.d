@@ -206,7 +206,7 @@ Video Configuration FAQ
 	You can display every frame for 1/60 of second and get the tearing
 	effect. Alternatively you can display every frame for 1/70 of second,
 	but after 7 frame you need to display a frame for 2/70 of second to
-	resyncronize with the original game speed.
+	synchronize with the original game speed.
 
 	The only exception is for frequencies which are multiplier of
 	the original game refresh rate.
@@ -227,10 +227,9 @@ License FAQ
 	The source distribution of AdvanceMAME is released with
 	an Open Source license. So, it was accepted.
 
-	The xmame source distribution contains the whole MAME
-	sources and it is released with the "MAME License".
-	The MAME License isn't an Open Source license as defined
-	on http://www.opensource.org. So, it was rejected.
+	The xmame is released with the "MAME License". The MAME
+	License isn't an Open Source license as defined on
+	http://www.opensource.org. So, it was rejected.
 
   Which is the license of the AdvanceMAME source ?
 	The AdvanceMAME project is released under the GPL license.
@@ -246,7 +245,11 @@ License FAQ
 
 	You can more easily think at it as a sort of double license.
 	A GPL or a GPL + exception. You have all the rights of the
-	GPL, and, if you want, plus some others.
+	GPL, and, if you want, some others.
+
+	The only limitation is for AdvanceMAME. AdvanceMAME cannot
+	include external GPL source without the explicit permission
+	of the source copyright holder.
 
   Why the AdvanceMAME license is called GPL if it's different
   than the GPL ?
@@ -258,11 +261,11 @@ License FAQ
 	exception has the validity.
 
 	How to add this sort of exceptions is specifically covered on
-	the OFFICIAL GPL FAQ written by the same people which have
+	the Official GPL FAQ written by the same people which have
 	written the GPL license and which are the copyright holders
 	of the GPL license.
 
-	Specifically, in the OFFICIAL GPL FAQ you can see that in
+	Specifically, in the Official GPL FAQ you can see that in
 	every source files with the license exception you must add
 	the following text :
 
@@ -280,7 +283,7 @@ License FAQ
 	derivative works is the whole source availability.
 	With the GPL you have it.
 	Obviously this assuming that the MAME License isn't changed
-	and keeps its complete validity.
+	and it maintains complete validity.
 
   Does the GPL license allow to link a GPL source with a
   MAME source ?

@@ -180,13 +180,9 @@ static void sis_6326_ext_register_set(card_crtc STACK_PTR *cp)
 	d0 = card_bitmov(d0, 2, (cp->HBStart >> 3) , 8);
 	d0 = card_bitmov(d0, 3, (cp->HSStart >> 3) , 8);
 	d0 = card_bitmov(d0, 4, (cp->HBEnd >> 3) , 6);
-#if 1
 	d0 = card_bitmov(d0, 5, cp->HSStart, 0);
 	d0 = card_bitmov(d0, 6, cp->HSStart, 1);
 	d0 = card_bitmov(d0, 7, cp->HSStart, 2);
-#else
-	d0 = d0 & 0x1F;
-#endif
 	card_seq_set(0x12, d0);
 }
 

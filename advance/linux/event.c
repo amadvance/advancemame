@@ -1324,10 +1324,7 @@ static void event_unknown_log(int f, unsigned e)
 
 int event_open(const char* file, unsigned char* evtype_bitmask)
 {
-	int version;
-	short device_info[4];
 	int f;
-	const char* bus;
 
 	f = open(file, O_RDWR | O_NONBLOCK);
 	if (f == -1) {

@@ -67,7 +67,7 @@ static void* thread_proc(void* arg)
 
 		if (thread_exit) {
 			pthread_mutex_unlock(&thread_mutex);
-			pthread_exit(0);
+			break;
 		}
 
 		func = thread_func;
@@ -83,6 +83,7 @@ static void* thread_proc(void* arg)
 		pthread_cond_signal(&thread_cond);
 	}
 
+	pthread_exit(0);
 	return 0;
 }
 

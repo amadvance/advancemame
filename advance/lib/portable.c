@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-/** \file
- * Implementation required for portability.
- */
-
 #include "portable.h"
 
 #include <stdio.h>

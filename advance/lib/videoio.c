@@ -723,43 +723,51 @@ static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data)
 	if (parse_double(&d, &begin, end))
 		return -1;
 	data->margin_frac = d;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_int(&i, &begin, end))
+		return -1;
+	if (i < 0)
 		return -1;
 	data->v_min_frontporch_lines = i;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_int(&i, &begin, end))
 		return -1;
+	if (i < 1)
+		return -1;
 	data->v_sync_lines = i;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_double(&d, &begin, end))
+		return -1;
+	if (d <= 0)
 		return -1;
 	data->h_sync_frac = d;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_double(&d, &begin, end))
+		return -1;
+	if (d / 1E6 <= 0)
 		return -1;
 	data->v_min_sync_backporch_time = d / 1E6;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_double(&d, &begin, end))
+		return -1;
+	if (d < 0)
 		return -1;
 	data->m = d;
+
 	parse_separator(" \t", &begin, end);
 	if (parse_double(&d, &begin, end))
 		return -1;
+	if (d < 0)
+		return -1;
 	data->c = d;
+
 	parse_separator(" \t", &begin, end);
 	if (begin != end)
-		return -1;
-
-	if (data->v_min_frontporch_lines < 0)
-		return -1;
-	if (data->v_sync_lines < 1)
-		return -1;
-	if (data->h_sync_frac <= 0)
-		return -1;
-	if (data->v_min_sync_backporch_time <= 0)
-		return -1;
-	if (data->m < 0 || data->c < 0)
 		return -1;
 
 	return 0;

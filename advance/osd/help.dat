@@ -43,7 +43,7 @@ const char* HELPTAG[] = {
 "keyboard[0,closebrace] 156 36 12 12",
 "keyboard[0,enter] 168 36 18 12",
 
-"keyboard[0,capslock] 6 48 12 12",
+"keyboard[0,capslock] 6 48 21 12",
 "keyboard[0,a] 27 48 12 12",
 "keyboard[0,s] 39 48 12 12",
 "keyboard[0,d] 51 48 12 12",

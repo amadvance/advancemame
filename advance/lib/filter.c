@@ -74,7 +74,7 @@ adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s)
 	/* central coefficient */
 	y += f->xcoeffs[0] * s->xprev[i];
 
-#ifdef FILTER_USE_INT
+#ifdef USE_FILTER_INT
 	return y >> FILTER_INT_FRACT;
 #else
 	return y;
@@ -86,10 +86,14 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 	unsigned midorder = (order - 1) / 2;
 	unsigned i;
 	double gain;
+	double pi;
 
 	assert( order <= FILTER_ORDER_MAX );
 	assert( order % 2 == 1 );
 	assert( 0 < freq && freq <= 0.5 );
+
+	/* The M_PI constants is not a ISO/POSIX standard */
+	pi = acos(-1);
 
 	if (order > FILTER_ORDER_MAX)
 		order = FILTER_ORDER_MAX;
@@ -100,7 +104,7 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 
 	/* central sample coefficient */
 	gain = 2*freq;
-#ifdef FILTER_USE_INT
+#ifdef USE_FILTER_INT
 	f->xcoeffs[0] = gain * (1 << FILTER_INT_FRACT);
 #else
 	f->xcoeffs[0] = gain;
@@ -112,13 +116,13 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 		unsigned n = i + midorder;
 
 		/* sample value */
-		double c = sin(2*M_PI*freq*i) / (M_PI*i);
+		double c = sin(2*pi*freq*i) / (pi*i);
 
 		/* apply only one window or none */
 		/* double w = 2 - 2*n/(order-1); */ /* Bartlett (triangular) */
-		/* double w = 0.5 * (1 - cos(2*M_PI*n/(order-1))); */ /* Hanning */
-		double w = 0.54 - 0.46 * cos(2*M_PI*n/(order-1)); /* Hamming */
-		/* double w = 0.42 - 0.5 * cos(2*M_PI*n/(order-1)) + 0.08 * cos(4*M_PI*n/(order-1)); */ /* Blackman */
+		/* double w = 0.5 * (1 - cos(2*pi*n/(order-1))); */ /* Hanning */
+		double w = 0.54 - 0.46 * cos(2*pi*n/(order-1)); /* Hamming */
+		/* double w = 0.42 - 0.5 * cos(2*pi*n/(order-1)) + 0.08 * cos(4*pi*n/(order-1)); */ /* Blackman */
 
 		/* apply the window */
 		c *= w;
@@ -127,7 +131,7 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 		gain += 2*c;
 
 		/* set coefficient */
-#ifdef FILTER_USE_INT
+#ifdef USE_FILTER_INT
 		f->xcoeffs[i] = c * (1 << FILTER_INT_FRACT);
 #else
 		f->xcoeffs[i] = c;
@@ -136,7 +140,7 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 
 	/* adjust the gain to be exact 1.0 */
 	for(i=0;i<=midorder;++i) {
-#ifdef FILTER_USE_INT
+#ifdef USE_FILTER_INT
 		f->xcoeffs[i] /= gain;
 #else
 		f->xcoeffs[i] = f->xcoeffs[i] * (double)(1 << FILTER_INT_FRAC) / gain;
@@ -145,7 +149,7 @@ void adv_filter_lpfir_set(adv_filter*f, double freq, unsigned order)
 
 	/* decrease the order if the last coefficients are less than 1% */
 	i = midorder;
-#ifdef FILTER_USE_INT
+#ifdef USE_FILTER_INT
 	while (i > 0 && abs(f->xcoeffs[i]) * 100 < f->xcoeffs[0])
 #else
 	while (i > 0 && fabs(f->xcoeffs[i]) * 100 < f->xcoeffs[0])

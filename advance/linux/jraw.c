@@ -260,8 +260,6 @@ unsigned joystickb_raw_stick_axe_digital_get(unsigned joystick, unsigned stick, 
 		return r < raw_state.map[joystick].stick_map[stick].axe_map[axe].digit_low;
 	else
 		return r > raw_state.map[joystick].stick_map[stick].axe_map[axe].digit_high;
-
-	return 0;
 }
 
 int joystickb_raw_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)

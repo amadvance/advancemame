@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,22 +48,26 @@ typedef struct adv_font_struct {
 /*@{*/
 
 adv_font* adv_font_load(adv_fz* f);
+void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap);
 void adv_font_free(adv_font* font);
 
 unsigned adv_font_sizex(adv_font* font);
 unsigned adv_font_sizex_char(adv_font* font, char c);
 unsigned adv_font_sizex_string(adv_font* font, const char* begin, const char* end);
+const char* adv_font_sizex_limit(adv_font* font, const char* begin, const char* end, unsigned limit);
 unsigned adv_font_sizey(adv_font* font);
 unsigned adv_font_sizey_char(adv_font* font, char c);
 unsigned adv_font_sizey_string(adv_font* font, const char* begin, const char* end);
-const char* adv_font_sizex_limit(adv_font* font, const char* begin, const char* end, unsigned limit);
+const char* adv_font_sizey_limit(adv_font* font, const char* begin, const char* end, unsigned limit);
 
 void adv_font_orientation(adv_font* font, unsigned orientation_mask);
 
 void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front, unsigned color_back);
 void adv_font_put_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back);
-void adv_font_puttrasp_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front);
-void adv_font_puttrasp_string(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front);
+void adv_font_put_string_oriented(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front, unsigned color_back, unsigned orientation);
+void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char c, unsigned color_front);
+void adv_font_put_string_trasp(adv_font* font, adv_bitmap* dst, int x, int y, const char* begin, const char* end, unsigned color_front);
+
 
 /*@}*/
 

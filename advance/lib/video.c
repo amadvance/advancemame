@@ -1189,7 +1189,7 @@ void video_index_packed_to_rgb(int waitvsync)
 	video_state.mode.flags |= MODE_FLAGS_INDEX_PALETTE8;
 
 	/* set the new color definition */
-	video_color_def_adjust(color_def_make_from_rgb_sizelenpos(1, bit_r, bit_b+bit_g, bit_g, bit_b, bit_b, 0));
+	video_color_def_adjust(color_def_make_rgb_from_sizelenpos(1, bit_r, bit_b+bit_g, bit_g, bit_b, bit_b, 0));
 
 	palette = malloc(colors * sizeof(adv_color_rgb));
 	assert( palette );

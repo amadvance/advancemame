@@ -2,7 +2,7 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.77.0.1
+EMUVERSION = 0.78.0.0
 else
 EMUVERSION = 0.78.0
 endif
@@ -28,13 +28,13 @@ DOCOBJ = obj/doc
 ############################################################################
 # Common targets
 
-ifdef ALL
-all_override: $(ALL)
+ifdef ADVANCE_ALL
+all_override: $(ADVANCE_ALL)
 endif
 
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
-ifneq ($(CONF_EMU),mess)
+ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
@@ -223,7 +223,8 @@ SRCOSD = \
 	$(wildcard $(srcdir)/advance/osd/*.c) \
 	$(wildcard $(srcdir)/advance/osd/*.h) \
 	$(wildcard $(srcdir)/advance/osd/*.y) \
-	$(wildcard $(srcdir)/advance/osd/*.l)
+	$(wildcard $(srcdir)/advance/osd/*.l) \
+	$(wildcard $(srcdir)/advance/osd/*.dat)
 
 LINUX_SRC = \
 	$(wildcard $(srcdir)/advance/linux/*.c) \

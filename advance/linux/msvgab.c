@@ -148,9 +148,10 @@ int mouseb_svgalib_axe_get(unsigned mouse, unsigned axe)
 		break;
 	default:
 		r = 0;
+		break;
 	}
 
-	return 0;
+	return r;
 }
 
 unsigned mouseb_svgalib_button_get(unsigned mouse, unsigned button)

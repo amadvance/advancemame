@@ -1,30 +1,31 @@
 diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2003-09-28 15:06:44.000000000 +0200
++++ srcmess/advance.pat	2004-01-01 14:12:52.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2003-08-09 02:53:08.000000000 +0200
-+++ srcmess/common.c	2003-09-28 15:06:44.000000000 +0200
-@@ -733,10 +733,11 @@
- /*-------------------------------------------------
- 	save_screen_snapshot_as - save a snapshot to
+--- srcmess.ori/common.c	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/common.c	2003-12-30 10:17:34.000000000 +0100
+@@ -754,10 +754,11 @@
  	the given filename
  -------------------------------------------------*/
  
-+#if 0 /* AdvanceMAME has its snapshot code */
  void save_screen_snapshot_as(mame_file *fp, struct mame_bitmap *bitmap)
  {
++#if 0 /* AdvanceMAME has its snapshot code */
  	struct rectangle bounds;
  	struct mame_bitmap *osdcopy;
  	UINT32 saved_rgb_components[3];
-@@ -815,17 +816,19 @@
+ 
+ 	/* allow the artwork system to override certain parameters */
+@@ -842,20 +843,24 @@
+ 	memcpy(direct_rgb_components, saved_rgb_components, sizeof(saved_rgb_components));
  
  	/* if the OSD system allocated a bitmap; free it */
  	if (osdcopy)
  		bitmap_free(osdcopy);
- }
 +#endif
+ }
  
  
  
@@ -32,25 +33,29 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  	save_screen_snapshot - save a screen snapshot
  -------------------------------------------------*/
  
-+#if 0 /* AdvanceMAME has its snapshot code */
  void save_screen_snapshot(struct mame_bitmap *bitmap)
  {
++#if 1 /* AdvanceMAME has its snapshot code */
++	osd_save_snapshot();
++#else
  	char name[20];
  	mame_file *fp;
  
-@@ -845,10 +848,11 @@
+ 	/* avoid overwriting existing files */
+ 	/* first of all try with "gamename.png" */
+@@ -872,10 +877,11 @@
+ 	if ((fp = mame_fopen(Machine->gamedrv->name, name, FILETYPE_SCREENSHOT, 1)) != NULL)
  	{
  		save_screen_snapshot_as(fp, bitmap);
  		mame_fclose(fp);
  	}
- }
 +#endif
+ }
  
  
  
  /***************************************************************************
- 
-@@ -1202,11 +1206,11 @@
+@@ -1230,11 +1236,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -64,8 +69,8 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  		{
  			int k;
 diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
---- srcmess.ori/cpu/i8085/i8085.c	2003-09-20 21:32:08.000000000 +0200
-+++ srcmess/cpu/i8085/i8085.c	2003-09-28 15:06:44.000000000 +0200
+--- srcmess.ori/cpu/i8085/i8085.c	2003-10-12 20:51:58.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2004-01-01 14:12:52.000000000 +0100
 @@ -85,10 +85,16 @@
   * 
   *****************************************************************************/
@@ -85,7 +90,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
 --- srcmess.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ srcmess/cpu/m68000/make68k.c	2003-09-28 15:06:44.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2004-01-01 14:12:52.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -133,13 +138,13 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m6
  #else
  
 diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
---- srcmess.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ srcmess/cpu/z80/z80.c	2003-09-28 15:06:44.000000000 +0200
-@@ -80,10 +80,16 @@
- 
- #ifdef Z80_MSX
- #include "z80_msx.h"
- #endif
+--- srcmess.ori/cpu/z80/z80.c	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/cpu/z80/z80.c	2004-01-01 14:13:26.000000000 +0100
+@@ -82,10 +82,16 @@
+ #include "cpuintrf.h"
+ #include "state.h"
+ #include "mamedbg.h"
+ #include "z80.h"
  
 +#if defined(__GNUC__) && __GNUC__ >= 3
 +/* Disable all the asm macro and the big switch */
@@ -153,8 +158,8 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
-+++ srcmess/cpuexec.c	2003-09-28 15:06:44.000000000 +0200
+--- srcmess.ori/cpuexec.c	2003-11-11 22:25:56.000000000 +0100
++++ srcmess/cpuexec.c	2004-01-01 14:12:52.000000000 +0100
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -169,10 +174,154 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive srcmess.ori/fileio.c srcmess/fileio.c
+--- srcmess.ori/fileio.c	2003-11-11 22:25:56.000000000 +0100
++++ srcmess/fileio.c	2003-12-26 13:58:16.000000000 +0100
+@@ -72,10 +72,11 @@
+ 	UINT64 offset;
+ 	UINT64 length;
+ 	UINT8 eof;
+ 	UINT8 type;
+ 	char hash[HASH_BUF_SIZE];
++	int back_char; /* Buffered char for unget. EOF for empty. */
+ };
+ 
+ 
+ 
+ /***************************************************************************
+@@ -353,10 +354,13 @@
+ 	mame_fread
+ ***************************************************************************/
+ 
+ UINT32 mame_fread(mame_file *file, void *buffer, UINT32 length)
+ {
++	/* flush any buffered char */
++	file->back_char = EOF;
++
+ 	/* switch off the file type */
+ 	switch (file->type)
+ 	{
+ 		case PLAIN_FILE:
+ 			return osd_fread(file->file, buffer, length);
+@@ -386,10 +390,13 @@
+ 	mame_fwrite
+ ***************************************************************************/
+ 
+ UINT32 mame_fwrite(mame_file *file, const void *buffer, UINT32 length)
+ {
++	/* flush any buffered char */
++	file->back_char = EOF;
++
+ 	/* switch off the file type */
+ 	switch (file->type)
+ 	{
+ 		case PLAIN_FILE:
+ 			return osd_fwrite(file->file, buffer, length);
+@@ -406,10 +413,13 @@
+ 
+ int mame_fseek(mame_file *file, INT64 offset, int whence)
+ {
+ 	int err = 0;
+ 
++	/* flush any buffered char */
++	file->back_char = EOF;
++
+ 	/* switch off the file type */
+ 	switch (file->type)
+ 	{
+ 		case PLAIN_FILE:
+ 			return osd_fseek(file->file, offset, whence);
+@@ -508,10 +518,16 @@
+ 
+ int mame_fgetc(mame_file *file)
+ {
+ 	unsigned char buffer;
+ 
++	if (file->back_char != EOF) {
++		buffer = file->back_char;
++		file->back_char = EOF;
++		return buffer;
++	}
++
+ 	/* switch off the file type */
+ 	switch (file->type)
+ 	{
+ 		case PLAIN_FILE:
+ 			if (osd_fread(file->file, &buffer, 1) == 1)
+@@ -535,38 +551,13 @@
+ 	mame_ungetc
+ ***************************************************************************/
+ 
+ int mame_ungetc(int c, mame_file *file)
+ {
+-	/* switch off the file type */
+-	switch (file->type)
+-	{
+-		case PLAIN_FILE:
+-			if (osd_feof(file->file))
+-			{
+-				if (osd_fseek(file->file, 0, SEEK_CUR))
+-					return c;
+-			}
+-			else
+-			{
+-				if (osd_fseek(file->file, -1, SEEK_CUR))
+-					return c;
+-			}
+-			return EOF;
+-
+-		case RAM_FILE:
+-		case ZIPPED_FILE:
+-			if (file->eof)
+-				file->eof = 0;
+-			else if (file->offset > 0)
+-			{
+-				file->offset--;
+-				return c;
+-			}
+-			return EOF;
+-	}
+-	return EOF;
++	file->back_char = c;
++  
++	return c;
+ }
+ 
+ 
+ 
+ /***************************************************************************
+@@ -624,10 +615,14 @@
+ 	mame_feof
+ ***************************************************************************/
+ 
+ int mame_feof(mame_file *file)
+ {
++	/* check for buffered chars */
++	if (file->back_char != EOF)
++		return 0;
++
+ 	/* switch off the file type */
+ 	switch (file->type)
+ 	{
+ 		case PLAIN_FILE:
+ 			return osd_feof(file->file);
+@@ -877,10 +872,12 @@
+ 	LOG(("generic_fopen(%d, %s, %s, %s, %X)\n", pathc, gamename, filename, extension, flags));
+ 
+ 	/* reset the file handle */
+ 	memset(&file, 0, sizeof(file));
+ 
++	file.back_char = EOF;
++
+ 	/* check for incompatible flags */
+ 	if ((flags & FILEFLAG_OPENWRITE) && (flags & FILEFLAG_HASH))
+ 		fprintf(stderr, "Can't use HASH option with WRITE option in generic_fopen!\n");
+ 
+ 	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2003-09-14 13:53:06.000000000 +0200
-+++ srcmess/inptport.c	2003-09-28 15:06:44.000000000 +0200
-@@ -200,10 +200,13 @@
+--- srcmess.ori/inptport.c	2003-10-18 21:49:02.000000000 +0200
++++ srcmess/inptport.c	2004-01-04 12:02:18.000000000 +0100
+@@ -201,10 +201,15 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -181,12 +330,14 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
 +	{ IPT_UI_RECORD_START,      "Record Start", SEQ_DEF_2(KEYCODE_ENTER,KEYCODE_LCONTROL) },
 +	{ IPT_UI_RECORD_STOP,       "Record Stop", SEQ_DEF_3(KEYCODE_ENTER,CODE_NOT,KEYCODE_LCONTROL) },
 +	{ IPT_UI_TURBO,             "Turbo", SEQ_DEF_1(KEYCODE_ASTERISK) },
++	{ IPT_UI_COCKTAIL,          "Cocktail", SEQ_DEF_1(KEYCODE_SLASH_PAD) },
++	{ IPT_UI_HELP,              "Help", SEQ_DEF_1(KEYCODE_F1_REAL) },
  	{ IPT_UI_TOGGLE_CHEAT,      "Toggle Cheat",			SEQ_DEF_1(KEYCODE_F6) },
  	{ IPT_UI_UP,                "UI Up",				SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -211,10 +214,12 @@
+@@ -212,10 +217,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -199,7 +350,483 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -2396,14 +2401,16 @@
+@@ -431,265 +438,265 @@
+ 	{ IPT_JOYSTICKLEFT_UP     | IPF_PLAYER8, "P8 Left/Up",     SEQ_DEF_0 },
+ 	{ IPT_JOYSTICKLEFT_DOWN   | IPF_PLAYER8, "P8 Left/Down",   SEQ_DEF_0 },
+ 	{ IPT_JOYSTICKLEFT_LEFT   | IPF_PLAYER8, "P8 Left/Left",   SEQ_DEF_0 },
+ 	{ IPT_JOYSTICKLEFT_RIGHT  | IPF_PLAYER8, "P8 Left/Right",  SEQ_DEF_0 },
+ 
+-	{ IPT_PEDAL                 | IPF_PLAYER1, "P1 Pedal 1",     SEQ_DEF_3(KEYCODE_LCONTROL, CODE_OR, JOYCODE_1_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER1, "P1 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER2, "P2 Pedal 1",     SEQ_DEF_3(KEYCODE_A, CODE_OR, JOYCODE_2_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER2, "P2 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER3, "P3 Pedal 1",     SEQ_DEF_3(KEYCODE_RCONTROL, CODE_OR, JOYCODE_3_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER3, "P3 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER4, "P4 Pedal 1",     SEQ_DEF_1(JOYCODE_4_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER4, "P4 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER5, "P5 Pedal 1",     SEQ_DEF_1(JOYCODE_5_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER5, "P5 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER6, "P6 Pedal 1",     SEQ_DEF_1(JOYCODE_6_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER6, "P6 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER7, "P7 Pedal 1",     SEQ_DEF_1(JOYCODE_7_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER7, "P7 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL                 | IPF_PLAYER8, "P8 Pedal 1",     SEQ_DEF_1(JOYCODE_8_BUTTON1) },
+-	{ (IPT_PEDAL+IPT_EXTENSION) | IPF_PLAYER8, "P8 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-
+-	{ IPT_PEDAL2                 | IPF_PLAYER1, "P1 Pedal 2",     SEQ_DEF_1(JOYCODE_1_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER1, "P1 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER2, "P2 Pedal 2",     SEQ_DEF_1(JOYCODE_2_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER2, "P2 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER3, "P3 Pedal 2",     SEQ_DEF_1(JOYCODE_3_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER3, "P3 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER4, "P4 Pedal 2",     SEQ_DEF_1(JOYCODE_4_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER4, "P4 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER5, "P5 Pedal 2",     SEQ_DEF_1(JOYCODE_5_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER5, "P5 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER6, "P6 Pedal 2",     SEQ_DEF_1(JOYCODE_6_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER6, "P6 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER7, "P7 Pedal 2",     SEQ_DEF_1(JOYCODE_7_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER7, "P7 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-	{ IPT_PEDAL2                 | IPF_PLAYER8, "P8 Pedal 2",     SEQ_DEF_1(JOYCODE_8_DOWN) },
+-	{ (IPT_PEDAL2+IPT_EXTENSION) | IPF_PLAYER8, "P8 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
+-
+-	{ IPT_PADDLE | IPF_PLAYER1,  "Paddle",        SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER1)+IPT_EXTENSION,             "Paddle",        SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT)  },
+-	{ IPT_PADDLE | IPF_PLAYER2,  "Paddle 2",      SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER2)+IPT_EXTENSION,             "Paddle 2",      SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER3,  "Paddle 3",      SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER3)+IPT_EXTENSION,             "Paddle 3",      SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER4,  "Paddle 4",      SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER4)+IPT_EXTENSION,             "Paddle 4",      SEQ_DEF_1(JOYCODE_4_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER5,  "Paddle 5",      SEQ_DEF_1(JOYCODE_5_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER5)+IPT_EXTENSION,             "Paddle 5",      SEQ_DEF_1(JOYCODE_5_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER6,  "Paddle 6",      SEQ_DEF_1(JOYCODE_6_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER6)+IPT_EXTENSION,             "Paddle 6",      SEQ_DEF_1(JOYCODE_6_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER7,  "Paddle 7",      SEQ_DEF_1(JOYCODE_7_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER7)+IPT_EXTENSION,             "Paddle 7",      SEQ_DEF_1(JOYCODE_7_RIGHT) },
+-	{ IPT_PADDLE | IPF_PLAYER8,  "Paddle 8",      SEQ_DEF_1(JOYCODE_8_LEFT) },
+-	{ (IPT_PADDLE | IPF_PLAYER8)+IPT_EXTENSION,             "Paddle 8",      SEQ_DEF_1(JOYCODE_8_RIGHT) },
+-
+-	{ IPT_PADDLE_V | IPF_PLAYER1,  "Paddle V",          SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER1)+IPT_EXTENSION,             "Paddle V",        SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER2,  "Paddle V 2",        SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER2)+IPT_EXTENSION,             "Paddle V 2",      SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER3,  "Paddle V 3",        SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER3)+IPT_EXTENSION,             "Paddle V 3",      SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER4,  "Paddle V 4",        SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER4)+IPT_EXTENSION,             "Paddle V 4",      SEQ_DEF_1(JOYCODE_4_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER5,  "Paddle V 5",        SEQ_DEF_1(JOYCODE_5_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER5)+IPT_EXTENSION,             "Paddle V 5",      SEQ_DEF_1(JOYCODE_5_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER6,  "Paddle V 6",        SEQ_DEF_1(JOYCODE_6_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER6)+IPT_EXTENSION,             "Paddle V 6",      SEQ_DEF_1(JOYCODE_6_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER7,  "Paddle V 7",        SEQ_DEF_1(JOYCODE_7_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER7)+IPT_EXTENSION,             "Paddle V 7",      SEQ_DEF_1(JOYCODE_7_DOWN) },
+-	{ IPT_PADDLE_V | IPF_PLAYER8,  "Paddle V 8",        SEQ_DEF_1(JOYCODE_8_UP) },
+-	{ (IPT_PADDLE_V | IPF_PLAYER8)+IPT_EXTENSION,             "Paddle V 8",      SEQ_DEF_1(JOYCODE_8_DOWN) },
+-
+-	{ IPT_DIAL | IPF_PLAYER1,    "Dial",          SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER1)+IPT_EXTENSION,               "Dial",          SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER2,    "Dial 2",        SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER2)+IPT_EXTENSION,               "Dial 2",      SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER3,    "Dial 3",        SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER3)+IPT_EXTENSION,               "Dial 3",      SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER4,    "Dial 4",        SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER4)+IPT_EXTENSION,               "Dial 4",      SEQ_DEF_1(JOYCODE_4_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER5,    "Dial 5",        SEQ_DEF_1(JOYCODE_5_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER5)+IPT_EXTENSION,               "Dial 5",      SEQ_DEF_1(JOYCODE_5_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER6,    "Dial 6",        SEQ_DEF_1(JOYCODE_6_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER6)+IPT_EXTENSION,               "Dial 6",      SEQ_DEF_1(JOYCODE_6_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER7,    "Dial 7",        SEQ_DEF_1(JOYCODE_7_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER7)+IPT_EXTENSION,               "Dial 7",      SEQ_DEF_1(JOYCODE_7_RIGHT) },
+-	{ IPT_DIAL | IPF_PLAYER8,    "Dial 8",        SEQ_DEF_1(JOYCODE_8_LEFT) },
+-	{ (IPT_DIAL | IPF_PLAYER8)+IPT_EXTENSION,               "Dial 8",      SEQ_DEF_1(JOYCODE_8_RIGHT) },
+-
+-	{ IPT_DIAL_V | IPF_PLAYER1,  "Dial V",          SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER1)+IPT_EXTENSION,             "Dial V",        SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER2,  "Dial V 2",        SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER2)+IPT_EXTENSION,             "Dial V 2",      SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER3,  "Dial V 3",        SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER3)+IPT_EXTENSION,             "Dial V 3",      SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER4,  "Dial V 4",        SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER4)+IPT_EXTENSION,             "Dial V 4",      SEQ_DEF_1(JOYCODE_4_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER5,  "Dial V 5",        SEQ_DEF_1(JOYCODE_5_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER5)+IPT_EXTENSION,             "Dial V 5",      SEQ_DEF_1(JOYCODE_5_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER6,  "Dial V 6",        SEQ_DEF_1(JOYCODE_6_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER6)+IPT_EXTENSION,             "Dial V 6",      SEQ_DEF_1(JOYCODE_6_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER7,  "Dial V 7",        SEQ_DEF_1(JOYCODE_7_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER7)+IPT_EXTENSION,             "Dial V 7",      SEQ_DEF_1(JOYCODE_7_DOWN) },
+-	{ IPT_DIAL_V | IPF_PLAYER8,  "Dial V 8",        SEQ_DEF_1(JOYCODE_8_UP) },
+-	{ (IPT_DIAL_V | IPF_PLAYER8)+IPT_EXTENSION,             "Dial V 8",      SEQ_DEF_1(JOYCODE_8_DOWN) },
++	{ IPT_PEDAL | IPF_PLAYER1, "P1 Pedal 1", SEQ_DEF_3(KEYCODE_LCONTROL, CODE_OR, JOYCODE_1_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "P1 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER2, "P2 Pedal 1", SEQ_DEF_3(KEYCODE_A, CODE_OR, JOYCODE_2_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "P2 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER3, "P3 Pedal 1", SEQ_DEF_3(KEYCODE_RCONTROL, CODE_OR, JOYCODE_3_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "P3 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER4, "P4 Pedal 1", SEQ_DEF_1(JOYCODE_4_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "P4 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER5, "P5 Pedal 1", SEQ_DEF_1(JOYCODE_5_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "P5 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER6, "P6 Pedal 1", SEQ_DEF_1(JOYCODE_6_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "P6 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER7, "P7 Pedal 1", SEQ_DEF_1(JOYCODE_7_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "P7 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL | IPF_PLAYER8, "P8 Pedal 1", SEQ_DEF_1(JOYCODE_8_BUTTON1) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "P8 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++
++	{ IPT_PEDAL2 | IPF_PLAYER1, "P1 Pedal 2", SEQ_DEF_1(JOYCODE_1_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "P1 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER2, "P2 Pedal 2", SEQ_DEF_1(JOYCODE_2_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "P2 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER3, "P3 Pedal 2", SEQ_DEF_1(JOYCODE_3_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "P3 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER4, "P4 Pedal 2", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "P4 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER5, "P5 Pedal 2", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "P5 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER6, "P6 Pedal 2", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "P6 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER7, "P7 Pedal 2", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "P7 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++	{ IPT_PEDAL2 | IPF_PLAYER8, "P8 Pedal 2", SEQ_DEF_1(JOYCODE_8_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "P8 Auto Release <Y/N>", SEQ_DEF_1(KEYCODE_Y) },
++
++	{ IPT_PADDLE | IPF_PLAYER1, "Paddle", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Paddle", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER2, "Paddle 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Paddle 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER3, "Paddle 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Paddle 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER4, "Paddle 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Paddle 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER5, "Paddle 5", SEQ_DEF_1(JOYCODE_5_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Paddle 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER6, "Paddle 6", SEQ_DEF_1(JOYCODE_6_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Paddle 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER7, "Paddle 7", SEQ_DEF_1(JOYCODE_7_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Paddle 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
++	{ IPT_PADDLE | IPF_PLAYER8, "Paddle 8", SEQ_DEF_1(JOYCODE_8_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Paddle 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
++
++	{ IPT_PADDLE_V | IPF_PLAYER1, "Paddle V", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Paddle V", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER2, "Paddle V 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Paddle V 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER3, "Paddle V 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Paddle V 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER4, "Paddle V 4", SEQ_DEF_1(JOYCODE_4_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Paddle V 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER5, "Paddle V 5", SEQ_DEF_1(JOYCODE_5_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Paddle V 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER6, "Paddle V 6", SEQ_DEF_1(JOYCODE_6_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Paddle V 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER7, "Paddle V 7", SEQ_DEF_1(JOYCODE_7_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Paddle V 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_PADDLE_V | IPF_PLAYER8, "Paddle V 8", SEQ_DEF_1(JOYCODE_8_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Paddle V 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
++
++	{ IPT_DIAL | IPF_PLAYER1, "Dial", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Dial", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER2, "Dial 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Dial 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER3, "Dial 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Dial 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER4, "Dial 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Dial 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER5, "Dial 5", SEQ_DEF_1(JOYCODE_5_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Dial 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER6, "Dial 6", SEQ_DEF_1(JOYCODE_6_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Dial 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER7, "Dial 7", SEQ_DEF_1(JOYCODE_7_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Dial 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
++	{ IPT_DIAL | IPF_PLAYER8, "Dial 8", SEQ_DEF_1(JOYCODE_8_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Dial 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
++
++	{ IPT_DIAL_V | IPF_PLAYER1, "Dial V", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Dial V", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER2, "Dial V 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Dial V 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER3, "Dial V 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Dial V 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER4, "Dial V 4", SEQ_DEF_1(JOYCODE_4_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Dial V 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER5, "Dial V 5", SEQ_DEF_1(JOYCODE_5_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Dial V 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER6, "Dial V 6", SEQ_DEF_1(JOYCODE_6_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Dial V 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER7, "Dial V 7", SEQ_DEF_1(JOYCODE_7_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Dial V 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_DIAL_V | IPF_PLAYER8, "Dial V 8", SEQ_DEF_1(JOYCODE_8_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Dial V 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
+ 
+-	{ IPT_TRACKBALL_X | IPF_PLAYER1, "Track X",   SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER1)+IPT_EXTENSION,                 "Track X",   SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_TRACKBALL_X | IPF_PLAYER1, "Track X", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Track X", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER2, "Track X 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER2)+IPT_EXTENSION,                 "Track X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Track X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER3, "Track X 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER3)+IPT_EXTENSION,                 "Track X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Track X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER4, "Track X 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER4)+IPT_EXTENSION,                 "Track X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Track X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER5, "Track X 5", SEQ_DEF_1(JOYCODE_5_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER5)+IPT_EXTENSION,                 "Track X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Track X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER6, "Track X 6", SEQ_DEF_1(JOYCODE_6_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER6)+IPT_EXTENSION,                 "Track X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Track X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER7, "Track X 7", SEQ_DEF_1(JOYCODE_7_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER7)+IPT_EXTENSION,                 "Track X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Track X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
+ 	{ IPT_TRACKBALL_X | IPF_PLAYER8, "Track X 8", SEQ_DEF_1(JOYCODE_8_LEFT) },
+-	{ (IPT_TRACKBALL_X | IPF_PLAYER8)+IPT_EXTENSION,                 "Track X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Track X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
+ 
+-	{ IPT_TRACKBALL_Y | IPF_PLAYER1, "Track Y",   SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER1)+IPT_EXTENSION,                 "Track Y",   SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_TRACKBALL_Y | IPF_PLAYER1, "Track Y", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Track Y", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER2, "Track Y 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER2)+IPT_EXTENSION,                 "Track Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Track Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER3, "Track Y 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER3)+IPT_EXTENSION,                 "Track Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Track Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER4, "Track Y 4", SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER4)+IPT_EXTENSION,                 "Track Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Track Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER5, "Track Y 5", SEQ_DEF_1(JOYCODE_5_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER5)+IPT_EXTENSION,                 "Track Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Track Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER6, "Track Y 6", SEQ_DEF_1(JOYCODE_6_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER6)+IPT_EXTENSION,                 "Track Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Track Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER7, "Track Y 7", SEQ_DEF_1(JOYCODE_7_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER7)+IPT_EXTENSION,                 "Track Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Track Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
+ 	{ IPT_TRACKBALL_Y | IPF_PLAYER8, "Track Y 8", SEQ_DEF_1(JOYCODE_8_UP) },
+-	{ (IPT_TRACKBALL_Y | IPF_PLAYER8)+IPT_EXTENSION,                 "Track Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Track Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
+ 
+-	{ IPT_AD_STICK_X | IPF_PLAYER1, "AD Stick X",   SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER1)+IPT_EXTENSION,                "AD Stick X",   SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_AD_STICK_X | IPF_PLAYER1, "AD Stick X", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "AD Stick X", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER2, "AD Stick X 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER2)+IPT_EXTENSION,                "AD Stick X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "AD Stick X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER3, "AD Stick X 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER3)+IPT_EXTENSION,                "AD Stick X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "AD Stick X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER4, "AD Stick X 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER4)+IPT_EXTENSION,                "AD Stick X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "AD Stick X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER5, "AD Stick X 5", SEQ_DEF_1(JOYCODE_5_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER5)+IPT_EXTENSION,                "AD Stick X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "AD Stick X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER6, "AD Stick X 6", SEQ_DEF_1(JOYCODE_6_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER6)+IPT_EXTENSION,                "AD Stick X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "AD Stick X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER7, "AD Stick X 7", SEQ_DEF_1(JOYCODE_7_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER7)+IPT_EXTENSION,                "AD Stick X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "AD Stick X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
+ 	{ IPT_AD_STICK_X | IPF_PLAYER8, "AD Stick X 8", SEQ_DEF_1(JOYCODE_8_LEFT) },
+-	{ (IPT_AD_STICK_X | IPF_PLAYER8)+IPT_EXTENSION,                "AD Stick X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "AD Stick X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
+ 
+-	{ IPT_AD_STICK_Y | IPF_PLAYER1, "AD Stick Y",   SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER1)+IPT_EXTENSION,                "AD Stick Y",   SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_AD_STICK_Y | IPF_PLAYER1, "AD Stick Y", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "AD Stick Y", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER2, "AD Stick Y 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER2)+IPT_EXTENSION,                "AD Stick Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "AD Stick Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER3, "AD Stick Y 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER3)+IPT_EXTENSION,                "AD Stick Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "AD Stick Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER4, "AD Stick Y 4", SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER4)+IPT_EXTENSION,                "AD Stick Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "AD Stick Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER5, "AD Stick Y 5", SEQ_DEF_1(JOYCODE_5_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER5)+IPT_EXTENSION,                "AD Stick Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "AD Stick Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER6, "AD Stick Y 6", SEQ_DEF_1(JOYCODE_6_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER6)+IPT_EXTENSION,                "AD Stick Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "AD Stick Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER7, "AD Stick Y 7", SEQ_DEF_1(JOYCODE_7_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER7)+IPT_EXTENSION,                "AD Stick Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "AD Stick Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
+ 	{ IPT_AD_STICK_Y | IPF_PLAYER8, "AD Stick Y 8", SEQ_DEF_1(JOYCODE_8_UP) },
+-	{ (IPT_AD_STICK_Y | IPF_PLAYER8)+IPT_EXTENSION,                "AD Stick Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "AD Stick Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
+ 
+-	{ IPT_AD_STICK_Z | IPF_PLAYER1, "AD Stick Z",   SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER1)+IPT_EXTENSION,                "AD Stick Z",   SEQ_DEF_0 },
++	{ IPT_AD_STICK_Z | IPF_PLAYER1, "AD Stick Z", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER1, "AD Stick Z", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER2, "AD Stick Z 2", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER2)+IPT_EXTENSION,                "AD Stick Z 2", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER2, "AD Stick Z 2", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER3, "AD Stick Z 3", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER3)+IPT_EXTENSION,                "AD Stick Z 3", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER3, "AD Stick Z 3", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER4, "AD Stick Z 4", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER4)+IPT_EXTENSION,                "AD Stick Z 4", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER4, "AD Stick Z 4", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER5, "AD Stick Z 5", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER5)+IPT_EXTENSION,                "AD Stick Z 5", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER5, "AD Stick Z 5", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER6, "AD Stick Z 6", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER6)+IPT_EXTENSION,                "AD Stick Z 6", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER6, "AD Stick Z 6", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER7, "AD Stick Z 7", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER7)+IPT_EXTENSION,                "AD Stick Z 7", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER7, "AD Stick Z 7", SEQ_DEF_0 },
+ 	{ IPT_AD_STICK_Z | IPF_PLAYER8, "AD Stick Z 8", SEQ_DEF_0 },
+-	{ (IPT_AD_STICK_Z | IPF_PLAYER8)+IPT_EXTENSION,                "AD Stick Z 8", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER8, "AD Stick Z 8", SEQ_DEF_0 },
+ 
+-	{ IPT_LIGHTGUN_X | IPF_PLAYER1, "Lightgun X",   SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER1)+IPT_EXTENSION,                "Lightgun X",   SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_LIGHTGUN_X | IPF_PLAYER1, "Lightgun X", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Lightgun X", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER2, "Lightgun X 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER2)+IPT_EXTENSION,                "Lightgun X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Lightgun X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER3, "Lightgun X 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER3)+IPT_EXTENSION,                "Lightgun X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Lightgun X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER4, "Lightgun X 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER4)+IPT_EXTENSION,                "Lightgun X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Lightgun X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER5, "Lightgun X 5", SEQ_DEF_1(JOYCODE_5_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER5)+IPT_EXTENSION,                "Lightgun X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Lightgun X 5", SEQ_DEF_1(JOYCODE_5_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER6, "Lightgun X 6", SEQ_DEF_1(JOYCODE_6_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER6)+IPT_EXTENSION,                "Lightgun X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Lightgun X 6", SEQ_DEF_1(JOYCODE_6_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER7, "Lightgun X 7", SEQ_DEF_1(JOYCODE_7_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER7)+IPT_EXTENSION,                "Lightgun X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Lightgun X 7", SEQ_DEF_1(JOYCODE_7_RIGHT) },
+ 	{ IPT_LIGHTGUN_X | IPF_PLAYER8, "Lightgun X 8", SEQ_DEF_1(JOYCODE_8_LEFT) },
+-	{ (IPT_LIGHTGUN_X | IPF_PLAYER8)+IPT_EXTENSION,                "Lightgun X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Lightgun X 8", SEQ_DEF_1(JOYCODE_8_RIGHT) },
+ 
+-	{ IPT_LIGHTGUN_Y | IPF_PLAYER1, "Lightgun Y",   SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER1)+IPT_EXTENSION,                "Lightgun Y",   SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_LIGHTGUN_Y | IPF_PLAYER1, "Lightgun Y", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "Lightgun Y", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER2, "Lightgun Y 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER2)+IPT_EXTENSION,                "Lightgun Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "Lightgun Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER3, "Lightgun Y 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER3)+IPT_EXTENSION,                "Lightgun Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "Lightgun Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER4, "Lightgun Y 4", SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER4)+IPT_EXTENSION,                "Lightgun Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "Lightgun Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER5, "Lightgun Y 5", SEQ_DEF_1(JOYCODE_5_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER5)+IPT_EXTENSION,                "Lightgun Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER5, "Lightgun Y 5", SEQ_DEF_1(JOYCODE_5_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER6, "Lightgun Y 6", SEQ_DEF_1(JOYCODE_6_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER6)+IPT_EXTENSION,                "Lightgun Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER6, "Lightgun Y 6", SEQ_DEF_1(JOYCODE_6_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER7, "Lightgun Y 7", SEQ_DEF_1(JOYCODE_7_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER7)+IPT_EXTENSION,                "Lightgun Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER7, "Lightgun Y 7", SEQ_DEF_1(JOYCODE_7_DOWN) },
+ 	{ IPT_LIGHTGUN_Y | IPF_PLAYER8, "Lightgun Y 8", SEQ_DEF_1(JOYCODE_8_UP) },
+-	{ (IPT_LIGHTGUN_Y | IPF_PLAYER8)+IPT_EXTENSION,                "Lightgun Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER8, "Lightgun Y 8", SEQ_DEF_1(JOYCODE_8_DOWN) },
+ 
+ #ifdef MESS
+-	{ IPT_MOUSE_X | IPF_PLAYER1, "MOUSE X",   SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
+-	{ (IPT_MOUSE_X | IPF_PLAYER1)+IPT_EXTENSION,                "MOUSE X",   SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
++	{ IPT_MOUSE_X | IPF_PLAYER1, "MOUSE X", SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "MOUSE X", SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
+ 	{ IPT_MOUSE_X | IPF_PLAYER2, "MOUSE X 2", SEQ_DEF_3(KEYCODE_D, CODE_OR, JOYCODE_2_LEFT) },
+-	{ (IPT_MOUSE_X | IPF_PLAYER2)+IPT_EXTENSION,                "MOUSE X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "MOUSE X 2", SEQ_DEF_3(KEYCODE_G, CODE_OR, JOYCODE_2_RIGHT) },
+ 	{ IPT_MOUSE_X | IPF_PLAYER3, "MOUSE X 3", SEQ_DEF_3(KEYCODE_J, CODE_OR, JOYCODE_3_LEFT) },
+-	{ (IPT_MOUSE_X | IPF_PLAYER3)+IPT_EXTENSION,                "MOUSE X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "MOUSE X 3", SEQ_DEF_3(KEYCODE_L, CODE_OR, JOYCODE_3_RIGHT) },
+ 	{ IPT_MOUSE_X | IPF_PLAYER4, "MOUSE X 4", SEQ_DEF_1(JOYCODE_4_LEFT) },
+-	{ (IPT_MOUSE_X | IPF_PLAYER4)+IPT_EXTENSION,                "MOUSE X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "MOUSE X 4", SEQ_DEF_1(JOYCODE_4_RIGHT) },
+ 	{ IPT_MOUSE_X | IPF_PLAYER5, "MOUSE X 5", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_X | IPF_PLAYER5)+IPT_EXTENSION,                "MOUSE X 5", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER5, "MOUSE X 5", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_X | IPF_PLAYER6, "MOUSE X 6", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_X | IPF_PLAYER6)+IPT_EXTENSION,                "MOUSE X 6", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER6, "MOUSE X 6", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_X | IPF_PLAYER7, "MOUSE X 7", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_X | IPF_PLAYER7)+IPT_EXTENSION,                "MOUSE X 7", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER7, "MOUSE X 7", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_X | IPF_PLAYER8, "MOUSE X 8", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_X | IPF_PLAYER8)+IPT_EXTENSION,                "MOUSE X 8", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER8, "MOUSE X 8", SEQ_DEF_0 },
+ 
+-	{ IPT_MOUSE_Y | IPF_PLAYER1, "MOUSE Y",   SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER1)+IPT_EXTENSION,                "MOUSE Y",   SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
++	{ IPT_MOUSE_Y | IPF_PLAYER1, "MOUSE Y", SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
++	{ IPT_EXTENSION | IPF_PLAYER1, "MOUSE Y", SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER2, "MOUSE Y 2", SEQ_DEF_3(KEYCODE_R, CODE_OR, JOYCODE_2_UP) },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER2)+IPT_EXTENSION,                "MOUSE Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER2, "MOUSE Y 2", SEQ_DEF_3(KEYCODE_F, CODE_OR, JOYCODE_2_DOWN) },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER3, "MOUSE Y 3", SEQ_DEF_3(KEYCODE_I, CODE_OR, JOYCODE_3_UP) },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER3)+IPT_EXTENSION,                "MOUSE Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER3, "MOUSE Y 3", SEQ_DEF_3(KEYCODE_K, CODE_OR, JOYCODE_3_DOWN) },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER4, "MOUSE Y 4", SEQ_DEF_1(JOYCODE_4_UP) },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER4)+IPT_EXTENSION,                "MOUSE Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
++	{ IPT_EXTENSION | IPF_PLAYER4, "MOUSE Y 4", SEQ_DEF_1(JOYCODE_4_DOWN) },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER5, "MOUSE Y 5", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER5)+IPT_EXTENSION,                "MOUSE Y 5", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER5, "MOUSE Y 5", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER6, "MOUSE Y 6", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER6)+IPT_EXTENSION,                "MOUSE Y 6", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER6, "MOUSE Y 6", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER7, "MOUSE Y 7", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER7)+IPT_EXTENSION,                "MOUSE Y 7", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER7, "MOUSE Y 7", SEQ_DEF_0 },
+ 	{ IPT_MOUSE_Y | IPF_PLAYER8, "MOUSE Y 8", SEQ_DEF_0 },
+-	{ (IPT_MOUSE_Y | IPF_PLAYER8)+IPT_EXTENSION,                "MOUSE Y 8", SEQ_DEF_0 },
++	{ IPT_EXTENSION | IPF_PLAYER8, "MOUSE Y 8", SEQ_DEF_0 },
+ 
+ 	{ IPT_START | IPF_PLAYER1, "P1 Start",        SEQ_DEF_3(KEYCODE_1, CODE_OR, JOYCODE_1_START) },
+ 	{ IPT_START | IPF_PLAYER2, "P2 Start",        SEQ_DEF_3(KEYCODE_2, CODE_OR, JOYCODE_2_START) },
+ 	{ IPT_START | IPF_PLAYER3, "P3 Start",        SEQ_DEF_3(KEYCODE_3, CODE_OR, JOYCODE_3_START) },
+ 	{ IPT_START | IPF_PLAYER4, "P4 Start",        SEQ_DEF_3(KEYCODE_4, CODE_OR, JOYCODE_4_START) },
+@@ -1581,10 +1588,13 @@
+ 	config_file *cfg;
+ 
+ 	osd_customize_inputport_defaults(inputport_defaults);
+ 	memcpy(inputport_defaults_backup,inputport_defaults,sizeof(inputport_defaults));
+ 
++	/* AdvanceMAME: Load user defined customization */
++	osd_customize_inputport_pre_defaults(inputport_defaults);
++
+ 	cfg = config_open(NULL);
+ 	if (cfg)
+ 	{
+ 		config_read_default_ports(cfg, inputport_defaults);
+ 		config_close(cfg);
+@@ -1638,10 +1648,13 @@
+ 
+ getout:
+ 		config_close(cfg);
+ 	}
+ 
++	/* AdvanceMAME: Load user defined customization */
++	osd_customize_inputport_pre_game(Machine->input_ports);
++
+ 	/* All analog ports need initialization */
+ 	{
+ 		int i;
+ 		for (i = 0; i < MAX_INPUT_PORTS; i++)
+ 			input_analog_init[i] = 1;
+@@ -2134,14 +2147,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -220,10 +847,23 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
+@@ -2497,11 +2512,11 @@
+ 				}
+ 				else
+ 				{
+ 					InputSeq* seq;
+ 					seq = input_port_seq(in);
+-					if (seq_pressed(seq))
++					if (osd_input_port_filter(seq_pressed(seq), in->type & (IPF_PLAYERMASK | ~IPF_MASK)))
+ 					{
+ #ifdef MESS
+ 						if (((in->type & ~IPF_MASK) == IPT_KEYBOARD) && osd_keyboard_disabled())
+ 							continue;
+ #endif
 diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
 --- srcmess.ori/inptport.h	2003-09-03 22:06:04.000000000 +0200
-+++ srcmess/inptport.h	2003-09-28 15:06:44.000000000 +0200
-@@ -87,10 +87,15 @@
++++ srcmess/inptport.h	2003-12-30 10:29:59.000000000 +0100
+@@ -87,10 +87,17 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -234,6 +874,8 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
 +	IPT_UI_RECORD_START,
 +	IPT_UI_RECORD_STOP,
 +	IPT_UI_TURBO,
++	IPT_UI_COCKTAIL,
++	IPT_UI_HELP,
  	IPT_UI_CONFIGURE,
  	IPT_UI_ON_SCREEN_DISPLAY,
  	IPT_UI_PAUSE,
@@ -241,8 +883,97 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
 --- srcmess.ori/input.c	2003-09-03 22:06:04.000000000 +0200
-+++ srcmess/input.c	2003-09-28 15:06:44.000000000 +0200
-@@ -812,11 +812,11 @@
++++ srcmess/input.c	2003-12-28 15:29:46.000000000 +0100
+@@ -12,15 +12,10 @@
+ #include <assert.h>
+ 
+ /***************************************************************************/
+ /* Codes */
+ 
+-/* Subtype of codes */
+-#define CODE_TYPE_NONE 0U /* code not assigned */
+-#define CODE_TYPE_KEYBOARD 1U /* keyboard code */
+-#define CODE_TYPE_JOYSTICK 2U /* joystick code */
+-
+ /* Informations for every input code */
+ struct code_info {
+ 	int memory; /* boolean memory */
+ 	unsigned oscode; /* os dependant code */
+ 	unsigned type; /* subtype: CODE_TYPE_KEYBOARD or CODE_TYPE_JOYSTICK */
+@@ -195,12 +190,11 @@
+ 		}
+ 	}
+ 	return 0;
+ }
+ 
+-/* Check if a code is pressed */
+-static int internal_code_pressed(InputCode code)
++unsigned code_to_oscode(InputCode code, unsigned* type)
+ {
+ 	const struct KeyboardInfo *keyinfo;
+ 	const struct JoystickInfo *joyinfo;
+ 
+ 	assert( code < code_mac );
+@@ -209,28 +203,52 @@
+ 	{
+ 		switch (code_map[code].type)
+ 		{
+ 			case CODE_TYPE_KEYBOARD :
+ 				keyinfo = internal_code_find_keyboard(code);
+-				if (keyinfo)
+-					return osd_is_key_pressed(keyinfo->code);
++				if (keyinfo) {
++					*type = CODE_TYPE_KEYBOARD;
++					return keyinfo->code;
++				}
+ 				break;
+ 			case CODE_TYPE_JOYSTICK :
+ 				joyinfo = internal_code_find_joystick(code);
+-				if (joyinfo)
+-					return osd_is_joy_pressed(joyinfo->code);
++				if (joyinfo) {
++					*type = CODE_TYPE_JOYSTICK;
++					return joyinfo->code;
++				}
+ 				break;
+ 		}
+ 	} else {
+ 		switch (code_map[code].type)
+ 		{
+ 			case CODE_TYPE_KEYBOARD :
+-				return osd_is_key_pressed(code_map[code].oscode);
++				*type = CODE_TYPE_KEYBOARD;
++				return code_map[code].oscode;
+ 			case CODE_TYPE_JOYSTICK :
+-				return osd_is_joy_pressed(code_map[code].oscode);
++				*type = CODE_TYPE_JOYSTICK;
++				return code_map[code].oscode;
+ 		}
+ 	}
++
++	*type = CODE_TYPE_NONE;
++	return 0;
++}
++
++/* Check if a code is pressed */
++static int internal_code_pressed(InputCode code)
++{
++	unsigned oscode;
++	unsigned type;
++
++	oscode = code_to_oscode(code, &type);
++
++	switch (type) {
++	case CODE_TYPE_KEYBOARD : return osd_is_key_pressed(oscode);
++	case CODE_TYPE_JOYSTICK : return osd_is_joy_pressed(oscode);
++	}
++
+ 	return 0;
+ }
+ 
+ /* Return the name of the code */
+ static const char* internal_code_name(InputCode code)
+@@ -812,11 +830,11 @@
  {
  	int pressed;
  
@@ -255,7 +986,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
  	{
  		if (ui_map[code].memory == 0)
  		{
-@@ -836,11 +836,11 @@
+@@ -836,11 +854,11 @@
  	static int counter,inputdelay;
  	int pressed;
  
@@ -268,10 +999,47 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
  	{
  		if (ui_map[code].memory == 0)
  		{
+diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
+--- srcmess.ori/input.h	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/input.h	2004-01-04 12:02:39.000000000 +0100
+@@ -121,18 +121,33 @@
+ #define KEYCODE_OTHER CODE_OTHER
+ #define JOYCODE_OTHER CODE_OTHER
+ #define KEYCODE_NONE CODE_NONE
+ #define JOYCODE_NONE CODE_NONE
+ 
++/* AdvanceMAME: Remap the F1 key used by some debug code to an unused key. */
++#ifdef MESS
++#define KEYCODE_F1_REAL KEYCODE_F1
++#else
++#define KEYCODE_F1_REAL (KEYCODE_F2-1)
++#define KEYCODE_F1 KEYCODE_NUMLOCK
++#endif
++
+ /***************************************************************************/
+ /* Single code functions */
+ 
+ int code_init(void);
+ void code_close(void);
+ 
++/* Subtype of codes */
++#define CODE_TYPE_NONE 0U /* code not assigned */
++#define CODE_TYPE_KEYBOARD 1U /* keyboard code */
++#define CODE_TYPE_JOYSTICK 2U /* joystick code */
++
+ InputCode keyoscode_to_code(unsigned oscode);
+ InputCode joyoscode_to_code(unsigned oscode);
++unsigned code_to_oscode(InputCode code, unsigned* type);
++
+ InputCode savecode_to_code(unsigned savecode);
+ unsigned code_to_savecode(InputCode code);
+ 
+ const char *code_name(InputCode code);
+ int code_pressed(InputCode code);
 diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
---- srcmess.ori/mame.c	2003-08-08 19:23:15.000000000 +0200
-+++ srcmess/mame.c	2003-09-28 15:06:44.000000000 +0200
-@@ -986,26 +986,20 @@
+--- srcmess.ori/mame.c	2003-12-26 15:20:21.000000000 +0100
++++ srcmess/mame.c	2004-01-01 14:12:52.000000000 +0100
+@@ -985,26 +985,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -309,9 +1077,9 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
  
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive srcmess.ori/mame.h srcmess/mame.h
---- srcmess.ori/mame.h	2003-09-20 21:31:53.000000000 +0200
-+++ srcmess/mame.h	2003-09-28 15:06:44.000000000 +0200
-@@ -379,8 +379,9 @@
+--- srcmess.ori/mame.h	2003-10-26 02:44:56.000000000 +0200
++++ srcmess/mame.h	2004-01-01 14:12:52.000000000 +0100
+@@ -383,8 +383,9 @@
  /* return the index of the given CPU, or -1 if not found */
  int mame_find_cpu_index(const char *tag);
  
@@ -322,9 +1090,9 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.h srcmess/mame.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2003-08-09 02:53:02.000000000 +0200
-+++ srcmess/osdepend.h	2003-09-28 15:06:44.000000000 +0200
-@@ -391,10 +391,38 @@
+--- srcmess.ori/osdepend.h	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/osdepend.h	2004-01-02 14:39:35.000000000 +0100
+@@ -399,10 +399,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -352,8 +1120,18 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
 +void osd_record_start(void);
 +void osd_record_stop(void);
 +
-+/* customize the inputport after they are read from the .cfg file */
-+void osd_customize_inputport_current(struct InputPort* current);
++void osd_ui_menu(const char** items,const char** subitems, char* flag, int selected, int arrowize_subitem);
++void osd_ui_message(const char* text, int second);
++void osd_ui_osd(const char *text, int percentage, int default_percentage);
++void osd_ui_scroll(const char* text, int* pos);
++
++/* customize the inputport */
++void osd_customize_inputport_pre_game(struct InputPort* current);
++void osd_customize_inputport_pre_defaults(struct ipd* current);
++void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current);
++void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current);
++void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current);
++void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current);
 +
 +/* handle the specific user interface */
 +int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active);
@@ -364,9 +1142,9 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
---- srcmess.ori/rules.mak	2003-09-03 22:06:06.000000000 +0200
-+++ srcmess/rules.mak	2003-09-28 15:06:44.000000000 +0200
-@@ -1010,16 +1010,16 @@
+--- srcmess.ori/rules.mak	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/rules.mak	2004-01-01 14:12:52.000000000 +0100
+@@ -1021,16 +1021,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o3.o
@@ -389,7 +1167,7 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  endif
  
  CPU=$(strip $(findstring SPC700@,$(CPUS)))
-@@ -1070,13 +1070,13 @@
+@@ -1081,13 +1081,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -407,117 +1185,166 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2003-09-03 22:06:06.000000000 +0200
-+++ srcmess/ui_text.c	2003-09-28 15:06:44.000000000 +0200
-@@ -240,10 +240,14 @@
+--- srcmess.ori/ui_text.c	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/ui_text.c	2003-12-30 10:32:00.000000000 +0100
+@@ -199,10 +199,14 @@
  	"Restoration successful",
  	"Select a value",
  	"All values saved",
  	"One match found - added to list",
  
-+	/* addendum */
++	/* AdvanceMAME: Extra user interface commands */
 +	"Center",
 +	"Video",
 +
  	NULL
  };
  
- int uistring_init (mame_file *langfile)
- {
+ 
+ 
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2003-09-03 22:06:06.000000000 +0200
-+++ srcmess/ui_text.h	2003-09-28 15:06:44.000000000 +0200
-@@ -206,10 +206,14 @@
+--- srcmess.ori/ui_text.h	2003-12-26 13:57:23.000000000 +0100
++++ srcmess/ui_text.h	2003-12-26 14:02:22.000000000 +0100
+@@ -168,10 +168,14 @@
  	UI_search_OK,
  	UI_search_select_value,
  	UI_search_all_values_saved,
  	UI_search_one_match_found_added,
  
-+	/* addendum */
++	/* AdvanceMAME: Extra user interface commands */
 +	UI_center,
 +	UI_osdmenu,
 +
- 	UI_last_entry
+ 	UI_last_mame_entry
  };
  
- struct lang_struct
- {
+ #ifdef MESS
+ #include "mui_text.h"
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2003-09-20 21:32:03.000000000 +0200
-+++ srcmess/usrintrf.c	2003-09-28 15:06:44.000000000 +0200
-@@ -858,12 +858,16 @@
- 	while (items[i])
- 	{
- 		len = 3 + strlen(items[i]);
- 		if (subitems && subitems[i])
- 			len += 2 + strlen(subitems[i]);
--		if (len > maxlen && len <= highlen)
--			maxlen = len;
-+		if (len > maxlen) {
-+			if (len <= highlen)
-+				maxlen = len;
-+			else
-+				maxlen = highlen;
-+		}
- 		i++;
+--- srcmess.ori/usrintrf.c	2003-11-11 22:25:56.000000000 +0100
++++ srcmess/usrintrf.c	2004-01-02 20:04:04.000000000 +0100
+@@ -837,10 +837,13 @@
+ #pragma mark BOXES & LINES
+ #endif
+ 
+ void ui_displaymenu(struct mame_bitmap *bitmap,const char **items,const char **subitems,char *flag,int selected,int arrowize_subitem)
+ {
++#if 1 /* AdvanceMAME has its ui code */
++	osd_ui_menu(items, subitems, flag, selected, arrowize_subitem);
++#else
+ 	struct DisplayText dt[256];
+ 	int curr_dt;
+ 	const char *lefthilight = ui_getstring (UI_lefthilight);
+ 	const char *righthilight = ui_getstring (UI_righthilight);
+ 	const char *uparrow = ui_getstring (UI_uparrow);
+@@ -1007,15 +1010,19 @@
+ 		if (long_y + long_dy > uirotheight)
+ 			long_y = topoffs + i * 3*uirotcharheight/2 - long_dy;
+ 
+ 		ui_multitextbox_ex(bitmap,subitems[selected],subitems[selected] + strlen(subitems[selected]), long_max, long_x,long_y,long_dx,long_dy, UI_COLOR_NORMAL);
  	}
- 	count = i;
- 
- 	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
-@@ -931,15 +935,27 @@
- 				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
- 				curr_dt++;
- 			}
- 			else
- 			{
--				dt[curr_dt].text = items[item];
--				dt[curr_dt].color = UI_COLOR_NORMAL;
--				dt[curr_dt].x = (uirotwidth - uirotcharwidth * strlen(items[item])) / 2;
--				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
--				curr_dt++;
-+				unsigned y = topoffs + (3*i+1)*uirotcharheight/2;
-+				int color = (flag && flag[item]) ? UI_COLOR_INVERSE : UI_COLOR_NORMAL;
-+				len = strlen(items[item]);
-+				if (len > maxlen - 3) {
-+					unsigned x;
-+					const char* dot = "...";
-+					len = maxlen - 3;
-+					x = (uirotwidth - uirotcharwidth * len) / 2;
-+					ui_text_ex(bitmap,items[item],items[item] + len - 3,x,y,color);
-+					ui_text_ex(bitmap,dot,dot+3,x + uirotcharwidth * (len - 3),y,color);
-+				} else {
-+					dt[curr_dt].text = items[item];
-+					dt[curr_dt].color = color;
-+					dt[curr_dt].x = (uirotwidth - uirotcharwidth * len) / 2;
-+					dt[curr_dt].y = y;
-+					curr_dt++;
-+				}
- 			}
- 		}
- 	}
- 
- 	i = selected - topitem;
-@@ -1518,11 +1534,11 @@
- 				}
- 			}
- 		}
- 
- 		if (input_ui_pressed(IPT_UI_SNAPSHOT))
--			save_screen_snapshot(bitmap);
-+			osd_save_snapshot();
- 	} while (!input_ui_pressed(IPT_UI_SHOW_GFX) &&
- 			!input_ui_pressed(IPT_UI_CANCEL));
- 
- 	schedule_full_refresh();
++#endif
  }
-@@ -2076,13 +2092,13 @@
+ 
+ 
+ void ui_displaymessagewindow(struct mame_bitmap *bitmap,const char *text)
+ {
++#if 1 /* AdvanceMAME has its ui code */
++	osd_ui_scroll(text, 0);
++#else
+ 	struct DisplayText dt[256];
+ 	int curr_dt;
+ 	char *c,*c2;
+ 	int i,len,maxlen,lines;
+ 	char textcopy[2048];
+@@ -1110,10 +1117,11 @@
+ 	}
+ 
+ 	dt[curr_dt].text = 0;	/* terminate array */
+ 
+ 	displaytext(bitmap,dt);
++#endif
+ }
+ 
+ 
+ 
+ static void showcharset(struct mame_bitmap *bitmap)
+@@ -1647,10 +1655,13 @@
+ 				if (((in+1)->type & ~IPF_MASK) == switch_setting &&
+ 						!(!options.cheat && ((in+1)->type & IPF_CHEAT)))
+ 					entry[sel]->default_value = (in+1)->default_value & entry[sel]->mask;
+ 			}
+ 
++			/* AdvanceMAME: Store the port changes */
++			osd_customize_switchport_post_game(Machine->input_ports_default + (entry[sel] - Machine->input_ports), entry[sel]);
++
+ 			/* tell updatescreen() to clean after us (in case the window changes size) */
+ 			schedule_full_refresh();
+ 		}
+ 	}
+ 
+@@ -1671,10 +1682,13 @@
+ 				if (((in-1)->type & ~IPF_MASK) == switch_setting &&
+ 						!(!options.cheat && ((in-1)->type & IPF_CHEAT)))
+ 					entry[sel]->default_value = (in-1)->default_value & entry[sel]->mask;
+ 			}
+ 
++			/* AdvanceMAME: Store the port changes */
++			osd_customize_switchport_post_game(Machine->input_ports_default + (entry[sel] - Machine->input_ports), entry[sel]);
++
+ 			/* tell updatescreen() to clean after us (in case the window changes size) */
+ 			schedule_full_refresh();
+ 		}
+ 	}
+ 
+@@ -1730,10 +1744,11 @@
+ 	char flag[500];
+ 	int i,sel;
+ 	struct ipd *in;
+ 	int total;
+ 	extern struct ipd inputport_defaults[];
++	extern struct ipd inputport_defaults_backup[];
+ 
+ 	sel = selected - 1;
+ 
+ 
+ 	if (Machine->input_ports == 0)
+@@ -1796,10 +1811,13 @@
+ 			schedule_full_refresh();
+ 
+ 			record_first_insert = ret != 0;
+ 		}
+ 
++		/* AdvanceMAME: Store the port changes */
++		osd_customize_inputport_post_defaults(inputport_defaults_backup + (entry[sel & SEL_MASK] - inputport_defaults), entry[sel & SEL_MASK]);
++
+ 		init_analog_seq();
+ 
+ 		return sel + 1;
+ 	}
+ 
+@@ -1930,10 +1948,13 @@
+ 			schedule_full_refresh();
+ 
+ 			record_first_insert = ret != 0;
+ 		}
+ 
++		/* AdvanceMAME: Store the port changes */
++		osd_customize_inputport_post_game(Machine->input_ports_default + (entry[sel & SEL_MASK] - Machine->input_ports), entry[sel & SEL_MASK]);
++
+ 		init_analog_seq();
+ 
+ 		return sel + 1;
+ 	}
+ 
+@@ -2076,13 +2097,13 @@
  		in++;
  	}
  
  	if (total == 0) return 0;
  
 -	/* Each analog control has 3 entries - key & joy delta, reverse, sensitivity */
-+	/* Each analog control has 4 entries - key & joy delta, reverse, sensitivity */
++	/* Each analog control has 4 entries - key & joy delta, reverse, sensitivity, center */
  
 -#define ENTRIES 3
 +#define ENTRIES 4
@@ -526,7 +1353,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2095,15 +2111,17 @@
+@@ -2095,15 +2116,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -544,7 +1371,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -2122,10 +2140,18 @@
+@@ -2122,10 +2145,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -563,7 +1390,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -2173,10 +2199,21 @@
+@@ -2173,10 +2204,24 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -580,12 +1407,15 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
 +				entry[sel/ENTRIES]->type &= ~IPF_CENTER;
 +				entry[sel/ENTRIES]->type |= center;
 +			}
++
++			/* AdvanceMAME: Store the port changes */
++			osd_customize_analogport_post_game(Machine->input_ports_default + (entry[sel/ENTRIES] - Machine->input_ports), entry[sel/ENTRIES]);
  		}
  	}
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -2209,10 +2246,21 @@
+@@ -2209,10 +2254,24 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -602,12 +1432,61 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
 +				entry[sel/ENTRIES]->type &= ~IPF_CENTER;
 +				entry[sel/ENTRIES]->type |= center;
 +			}
++
++			/* AdvanceMAME: Store the port changes */
++			osd_customize_analogport_post_game(Machine->input_ports_default + (entry[sel/ENTRIES] - Machine->input_ports), entry[sel/ENTRIES]);
  		}
  	}
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -3085,16 +3133,16 @@
+@@ -2516,14 +2575,16 @@
+ 
+ int showgamewarnings(struct mame_bitmap *bitmap)
+ {
+ 	int i;
+ 	char buf[2048];
++	unsigned mask = GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_NO_SOUND;
++
++	if (!options.skip_gameinfo)
++		mask |= GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL;
+ 
+-	if (Machine->gamedrv->flags &
+-			(GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS |
+-			  GAME_NO_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL))
++	if ((Machine->gamedrv->flags & mask) != 0)
+ 	{
+ 		int done;
+ 
+ 		strcpy(buf, ui_getstring (UI_knownproblems));
+ 		strcat(buf, "\n\n");
+@@ -2721,10 +2782,13 @@
+ }
+ 
+ /* Display lines from buffer, starting with line 'scroll', in a width x height text window */
+ static void display_scroll_message (struct mame_bitmap *bitmap, int *scroll, int width, int height, char *buf)
+ {
++#if 1 /* AdvanceMAME has its ui code */
++	osd_ui_scroll(buf, scroll);
++#else
+ 	struct DisplayText dt[256];
+ 	int curr_dt = 0;
+ 	const char *uparrow = ui_getstring (UI_uparrow);
+ 	const char *downarrow = ui_getstring (UI_downarrow);
+ 	char textcopy[2048];
+@@ -2827,10 +2891,11 @@
+ 	}
+ 
+ 	dt[curr_dt].text = 0;	/* terminate array */
+ 
+ 	displaytext(bitmap,dt);
++#endif
+ }
+ 
+ 
+ /* Display text entry for current driver from history.dat and mameinfo.dat. */
+ static int displayhistory (struct mame_bitmap *bitmap, int selected)
+@@ -3083,16 +3148,16 @@
  
  
  #ifndef MESS
@@ -626,7 +1505,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3210,10 +3258,11 @@
+@@ -3208,10 +3273,11 @@
  #endif
  #endif
  #endif
@@ -638,7 +1517,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3280,10 +3329,13 @@
+@@ -3278,10 +3344,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -652,7 +1531,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3338,10 +3390,11 @@
+@@ -3336,10 +3405,11 @@
  			case UI_CONFIGURATION:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -664,19 +1543,93 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -4027,22 +4080,23 @@
+@@ -3376,10 +3446,13 @@
+ 
+ *********************************************************************/
+ 
+ static void displayosd(struct mame_bitmap *bitmap,const char *text,int percentage,int default_percentage)
+ {
++#if 1 /* AdvanceMAME has its ui code */
++	osd_ui_osd(text, percentage, default_percentage);
++#else
+ 	struct DisplayText dt[2];
+ 	int avail;
+ 
+ 
+ 	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
+@@ -3401,10 +3474,11 @@
+ 	dt[0].color = UI_COLOR_NORMAL;
+ 	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
+ 	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
+ 	dt[1].text = 0; /* terminate array */
+ 	displaytext(bitmap,dt);
++#endif
+ }
+ 
+ /* K.Wilkins Feb2003 Additional of Disrete Sound System ADJUSTMENT sliders */
+ #if HAS_DISCRETE
+ static void onscrd_discrete(struct mame_bitmap *bitmap,int increment,int arg)
+@@ -3826,10 +3900,13 @@
+ *********************************************************************/
+ 
+ 
+ static void displaymessage(struct mame_bitmap *bitmap,const char *text)
+ {
++#if 1 /* AdvanceMAME has its ui code */
++	osd_ui_message(text, 0);
++#else
+ 	struct DisplayText dt[2];
+ 	int avail;
+ 
+ 
+ 	if (uirotwidth < uirotcharwidth * strlen(text))
+@@ -3849,10 +3926,11 @@
+ 	dt[0].color = UI_COLOR_NORMAL;
+ 	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
+ 	dt[0].y = uirotheight - 5*uirotcharheight/2;
+ 	dt[1].text = 0; /* terminate array */
+ 	displaytext(bitmap,dt);
++#endif
+ }
+ 
+ 
+ static char messagetext[200];
+ static int messagecounter;
+@@ -3974,10 +4052,11 @@
+ 	return show_profiler;
+ }
+ 
+ void ui_display_fps(struct mame_bitmap *bitmap)
+ {
++#if 0 /* AdvanceMAME has its ui code */
+ 	const char *text, *end;
+ 	char textbuf[256];
+ 	int done = 0;
+ 	int y = 0;
+ 
+@@ -4015,32 +4094,35 @@
+ 	{
+ 		showfpstemp--;
+ 		if (!showfps && showfpstemp == 0)
+ 			schedule_full_refresh();
+ 	}
++#endif
+ }
+ 
+ 
+ 
+ int handle_user_interface(struct mame_bitmap *bitmap)
  {
  #ifdef MESS
  	extern int mess_pause_for_ui;
  #endif
  
--	/* if the user pressed F12, save the screen to a file */
 +	if (osd_handle_user_interface(bitmap, setup_selected != 0) != 0)
 +		return 1;
 +
+ 	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
--		save_screen_snapshot(bitmap);
-+		osd_save_snapshot();
+ 		save_screen_snapshot(bitmap);
 +	if (input_ui_pressed(IPT_UI_RECORD_START))
 +		osd_record_start();
 +	if (input_ui_pressed(IPT_UI_RECORD_STOP))
@@ -695,15 +1648,12 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4153,12 +4207,15 @@
- 				draw_screen();
- 			}
+@@ -4156,10 +4238,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
--				save_screen_snapshot(bitmap);
--
-+				osd_save_snapshot();
+ 				save_screen_snapshot(bitmap);
+ 
 +			if (input_ui_pressed(IPT_UI_RECORD_START))
 +				osd_record_start();
 +			if (input_ui_pressed(IPT_UI_RECORD_STOP))
@@ -713,7 +1663,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4167,11 +4224,11 @@
+@@ -4168,11 +4254,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -726,3 +1676,22 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
+@@ -4251,16 +4337,18 @@
+ 	}
+ 
+ 	if (show_profiler) profiler_show(bitmap);
+ 
+ 
++#if 0 /* AdvanceMAME: The show_fps action is managed by the osd code */
+ 	/* show FPS display? */
+ 	if (input_ui_pressed(IPT_UI_SHOW_FPS))
+ 	{
+ 		/* toggle fps */
+ 		ui_show_fps_set(!ui_show_fps_get());
+ 	}
++#endif
+ 
+ 
+ 	/* if the user pressed F4, show the character set */
+ 	if (input_ui_pressed(IPT_UI_SHOW_GFX))
+ 	{

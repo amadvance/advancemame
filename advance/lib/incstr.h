@@ -66,7 +66,6 @@ typedef struct adv_string_struct {
 /** \addtogroup String */
 /*@{*/
 
-
 /**
  * Initialize the string.
  */
@@ -82,19 +81,13 @@ void inc_str_done(adv_string* str);
  * \param str Destination string.
  * \param s String to cat.
  * \param len Max number of char to cat.
- * \return
- *  - ==0 if ok
- *  - !=0 if error, errno set
  */
-adv_error inc_str_catm(adv_string* str, const char* s, unsigned len);
+adv_error inc_str_catn(adv_string* str, const char* s, unsigned len);
 
 /**
  * Cat a string.
  * \param str Destination string.
  * \param c Char to cat.
- * \return
- *  - ==0 if ok
- *  - !=0 if error, errno set
  */
 adv_error inc_str_catc(adv_string* str, char c);
 
@@ -102,13 +95,10 @@ adv_error inc_str_catc(adv_string* str, char c);
  * Cat a string.
  * \param str Destination string.
  * \param s String to cat. 
- * \return
- *  - ==0 if ok
- *  - !=0 if error, errno set
  */
 static inline adv_error inc_str_cat(adv_string* str, const char* s)
 {
-	return inc_str_catm(str, s, strlen(s));
+	return inc_str_catn(str, s, strlen(s));
 }
 
 /**

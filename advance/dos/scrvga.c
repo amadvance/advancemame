@@ -322,19 +322,12 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info)
 	}
 
 	info->is_linear = mask(regs->seq[0x4], 3, 1);
-#if 1
 	if (mask(regs->crtc[0x14], 6, 1))
 		info->memory_mode = 4; /* dword mode */
 	else if (mask(regs->crtc[0x17], 6, 1)==0)
 		info->memory_mode = 2; /* word mode */
 	else
 		info->memory_mode = 1; /* byte mode */
-#else
-	if (mask(regs->crtc[0x17], 3, 1))
-		info->memory_mode = 4;
-	else
-		info->memory_mode = 2;
-#endif
 	info->clocks_per_scanline = regs->crtc[0x13] * 2 * info->memory_mode / info->bytes_per_clock;
 
 	info->hde = regs->crtc[0x1] + 1;

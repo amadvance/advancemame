@@ -591,8 +591,6 @@ unsigned joystickb_event_stick_axe_digital_get(unsigned joystick, unsigned stick
 		return r < event_state.map[joystick].stick_map[stick].axe_map[axe].digit_low;
 	else
 		return r > event_state.map[joystick].stick_map[stick].axe_map[axe].digit_high;
-
-	return 0;
 }
 
 int joystickb_event_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
@@ -665,7 +663,6 @@ const char* joystickb_event_rel_name_get(unsigned joystick, unsigned rel)
 int joystickb_event_rel_get(unsigned joystick, unsigned rel)
 {
 	int r;
-	struct joystick_item_context* item = event_state.map + joystick;
 
 	log_debug(("joystickb:event: joystickb_event_rel_get()\n"));
 

@@ -133,7 +133,7 @@ B = Y + 1.730 (V - 128)
 /**
  * Compute a RGB value with a specific format
  * \param r, g, b RGB values 0-255.
- * \param def RGB format definition.
+ * \param def_ordinal RGB format definition.
  * \return RGB nibble as ordinal value.
  */
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def_ordinal)
@@ -206,7 +206,7 @@ unsigned color_def_bytes_per_pixel_get(adv_color_def def_ordinal)
 
 	switch (def.nibble.type) {
 	case adv_color_type_palette :
-		return 1;
+		return 1 + def.nibble.alpha_size;
 	case adv_color_type_rgb :
 		return (def.nibble.red_len + def.nibble.green_len + def.nibble.blue_len + 7) / 8 + def.nibble.alpha_size;
 	case adv_color_type_yuy2 :
@@ -267,15 +267,15 @@ adv_color_def color_def_make_from_index(unsigned index)
 	case MODE_FLAGS_INDEX_PALETTE8 :
 		return color_def_make(adv_color_type_palette);
 	case MODE_FLAGS_INDEX_BGR8 :
-		return color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0);
+		return color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0);
 	case MODE_FLAGS_INDEX_BGR15 :
-		return color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0);
+		return color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0);
 	case MODE_FLAGS_INDEX_BGR16 :
-		return color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0);
+		return color_def_make_rgb_from_sizelenpos(2, 5, 11, 6, 5, 5, 0);
 	case MODE_FLAGS_INDEX_BGR24 :
-		return color_def_make_from_rgb_sizelenpos(3, 8, 16, 8, 8, 8, 0);
+		return color_def_make_rgb_from_sizelenpos(3, 8, 16, 8, 8, 8, 0);
 	case MODE_FLAGS_INDEX_BGR32 :
-		return color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+		return color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 	case MODE_FLAGS_INDEX_YUY2 :
 		return color_def_make(adv_color_type_yuy2);
 	default :
@@ -284,8 +284,25 @@ adv_color_def color_def_make_from_index(unsigned index)
 }
 
 /**
- * Make an arbitary RGB format definition.
- * \param bytes_per_pixel Bytes pixe pixel.
+ * Make an arbitrary palette format definition.
+ * \param bytes_per_pixel Bytes per pixel.
+ * \return Color definition format.
+ */
+adv_color_def color_def_make_palette_from_size(unsigned bytes_per_pixel)
+{
+	union adv_color_def_union def;
+
+	def.ordinal = 0;
+
+	def.nibble.type = adv_color_type_palette;
+	def.nibble.alpha_size = bytes_per_pixel - 1;
+
+	return def.ordinal;
+}
+
+/**
+ * Make an arbitrary RGB format definition.
+ * \param bytes_per_pixel Bytes per pixel.
  * \param red_len Bits of the red channel.
  * \param red_pos Bit position red channel.
  * \param green_len Bits of the green channel.
@@ -294,7 +311,7 @@ adv_color_def color_def_make_from_index(unsigned index)
  * \param blue_pos Bit position blue channel.
  * \return Color definition format.
  */
-adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
+adv_color_def color_def_make_rgb_from_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
 {
 	union adv_color_def_union def;
 
@@ -313,11 +330,12 @@ adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsig
 }
 
 /**
- * Make an arbitary RGB format definition from a shiftmask specification.
+ * Make an arbitrary RGB format definition from a shiftmask specification.
+ * \param bytes_per_pixel Bytes per pixel.
  * \param red_mask, green_mask, blue_mask Bit mask.
  * \param red_shift, green_shift, blue_shift Shift.
  */
-adv_color_def color_def_make_from_rgb_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask)
+adv_color_def color_def_make_rgb_from_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask)
 {
 	unsigned red_len = rgb_len_get_from_mask(red_mask);
 	unsigned green_len = rgb_len_get_from_mask(green_mask);
@@ -326,7 +344,7 @@ adv_color_def color_def_make_from_rgb_sizeshiftmask(unsigned bytes_per_pixel, in
 	unsigned green_pos = 8 + green_shift - green_len;
 	unsigned blue_pos = 8 + blue_shift - blue_len;
 
-	return color_def_make_from_rgb_sizelenpos(bytes_per_pixel, red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
+	return color_def_make_rgb_from_sizelenpos(bytes_per_pixel, red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
 }
 
 /**
@@ -417,14 +435,14 @@ adv_color_def png_color_def(unsigned bytes_per_pixel)
 	adv_color_def def;
 #ifdef USE_LSB
 	if (bytes_per_pixel == 3 || bytes_per_pixel == 4)
-		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 0, 8, 8, 8, 16);
+		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 0, 8, 8, 8, 16);
 	else
 		def = color_def_make(adv_color_type_palette);
 #else
 	if (bytes_per_pixel == 3)
-		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 16, 8, 8, 8, 0);
+		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 16, 8, 8, 8, 0);
 	else if (bytes_per_pixel == 4)
-		def = color_def_make_from_rgb_sizelenpos(bytes_per_pixel, 8, 24, 8, 16, 8, 8);
+		def = color_def_make_rgb_from_sizelenpos(bytes_per_pixel, 8, 24, 8, 16, 8, 8);
 	else
 		def = color_def_make(adv_color_type_palette);
 #endif

@@ -25,8 +25,8 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with horizontal
 		Arcade Monitors or TVs.
-	* Special `scale' effects to improve the aspect with modern
-		PC Monitors.
+	* Special `scale', `lq' and `hq' effects to improve the aspect
+		with modern PC Monitors.
 	* Special `blit' effects to improve the image quality in
 		stretching.
 	* Special `rgb' effects to simulate the aspect of a real Arcade
@@ -35,14 +35,15 @@ Description
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
 		thread architecture (only for Linux/Mac OS X).
 	* Sound and video recording in WAV, PNG and MNG files.
-	* Support for up to 4 mouses in Linux and 2 in DOS.
 	* Automatic exit after some time of inactivity.
 	* Scripts capabilities to drive external hardware devices.
+	* Textual configuration files.
 
 Keys
 	In the game play you can use the following keys :
 
 	ESC - Exit.
+	F1 - Help.
 	F2 - Reset the game.
 	F7 - Load a save game.
 	F8 - Previous frameskip value.
@@ -52,6 +53,7 @@ Keys
 	F12 - Save a snapshot.
 	P - Pause.
 	PAD * - Turbo mode until pressed.
+	PAD / - Cocktail mode (flip the screen vertically).
 	CTRL + ENTER - Start the sound and video recording.
 	ENTER - Stop the sound and video recording.
 	, - Previous video mode.
@@ -191,9 +193,9 @@ Features
 	The `none' effect simply duplicates and removes rows and lines
 	when the image is stretched.
 	The `max' effect tries to save the image details displaying the
-	most lighting pixels when some rows are removed.
+	most lighting pixels when some rows or columns are removed.
 	The `mean' effect tries to save the image details displaying the
-	mean color of the pixels in the rows that need to be reduced.
+	mean color of the pixels in the rows and columns that need to be reduced.
 	The `filter' effect applies a generic blur filter computing the
 	mean color in the horizontal and vertical directions. The best
 	results are when the image is stretched almost by a double
@@ -202,7 +204,7 @@ Features
 	The `scale', `lq' and `hq' effects add missing pixels
 	trying to match the image patterns.
 
-	The `max', `mean' and `filter' effects work only in RGB video
+	The `mean' and `filter' effects work only in RGB video
 	modes (not palettized).
 
 	The `scale', `lq' and `hq' effects work only if the image is
@@ -231,15 +233,14 @@ Features
 
   Per Game options
 	All the options are customizable for the single game or for
-	a group of games. You can also save them directly from
-	the `Video Menu'.
+	a group of games.
 
   Scripts
 	AdvanceMAME supports a basic script language capable to
 	control an external hardware through the parallel port
 	or keyboard led signals.
 
-	The scripts are described in the `script.txt' file.
+	More details are in the `script.txt' file.
 
   Aspect Ratio Control
 	AdvanceMAME tries always to display the game with the
@@ -250,8 +251,8 @@ Features
 	It's very useful to display vertical games on an
 	horizontal monitor and vice versa.
 
-	More details are in the description of the
-	`display_expand' option.
+	More details are in the description of the `display_expand'
+	option.
 
   Speed Control
 	AdvanceMAME permits a special speed control of the game
@@ -261,8 +262,27 @@ Features
 	frame rate, skip the game startup process at the maximum speed,
 	or skip the game animations pressing a key.
 
+	Press `asterick_pad' to enable the `turbo' mode.
+
 	More details are in the description of the `misc_fps', `misc_speed',
 	`misc_turbospeed' and `misc_startuptime' options.
+
+  Throttle Synchronization
+	The video and audio synchronization uses an advanced algorithm
+	which ensure always the best performance.
+
+	The program continuously measures the time required to compute a
+	frame and continuously adapt the number of frame to skip and
+	to draw.
+
+	If it detects that you have system too slow to play the game
+	at full speed, it automatically disables any frame skipping.
+
+	If the underline Operand System allow that, AdvanceMAME release
+	the CPU when it isn't used after computing each frame reducing the
+	CPU occupation. For example this happen on Linux 2.6 which has a
+	3ms delay granularity, but not in Linux 2.4 and Windows which have
+	a 20ms granularity.
 
   Exit Control
 	If you have a real Arcade Cabinet you can configure AdvanceMAME
@@ -290,8 +310,53 @@ Features
 	More details are in the description of the `record_*'
 	options.
 
+  User Interface
+	AdvanceMAME displays the user interface directly on the screen
+	instead on the game image.
+
+	This mean that the interface doesn't have applied the same video
+	effects of the game, it isn't limited on the game area, it
+	isn't recorded on video clips and you can customize the font.
+
+	More details are in the description of the `ui_*' options.
+
+  Input Help
+	AdvanceMAME is able to display an help image containing the
+	input mapping of the emulated game. Any input element has a
+	different depending on the assigned player and if it's pressed
+	or not.
+
+	The default image is a standard keyboard, with the used keys
+	highlighted. If you have an Arcade cabinet you can create your
+	personalized control image and select each region to highlight.
+
+	Press `f1' on the game play to display it.
+
+	More details are in the description of the `ui_help*' options.
+
+  Input Text Configuration File
+	All the user customizations are stored in a single textual
+	configuration file and not in a lot of .cfg file like other MAME ports.
+
+	This allow to view, edit and copy any customization manually.
+	They are also more compact because only the difference from the
+	default is saved.
+
+	They are independent of the internal MAME structure, so, when it
+	changes, you don't lose the customizations.
+
+	More details are in the description of the `input_setting',
+	`input_dipswitch', `input_configswitch' options.
+
+  Cocktail
+	For cocktail arcade cabinets you can manually flip vertically the
+	screen for games without cocktail support.
+
+	Press `slash_pad' to flip the screen.
+
 Use Cases
-	This section describes some useful cases for AdvanceMAME.
+	This section describes some useful cases for AdvanceMAME
+	on different video hardware.
 
   With a PC Multi-Sync Monitor
 	On a PC Multi-Sync monitor you can get ANY Resolution at ANY
@@ -322,6 +387,8 @@ Use Cases
 	ONLY a vertical image stretching is required.
 	For example for the game "Pac-Man" on a NTSC TV a video mode
 	of 400x240 (perfect horizontal size) is used.
+	For stretching some special algorithms are used to minimize
+	the lose of details.
 
   With a Multi-format NTSC and PAL TV
 	If your TV supports both formats, AdvanceMAME automatically
@@ -331,7 +398,8 @@ Use Cases
 	of 400x288 PAL (perfect size) is used.
 
 Other Ports
-	This section compares AdvanceMAME with the other MAME ports.
+	This section compares the AdvanceMAME video support with the
+	other MAME ports.
 
   Windows MAME
 	The official Windows MAME generally doesn't use a video mode
@@ -354,14 +422,13 @@ Other Ports
 
   xmame
 	The xmame port has nearly the same video capabilities of
-	AdvanceMAME. The only drawback is that it requires a manual
-	modeline creation. AdvanceMAME uses the latest SVGALIB
-	library on witch you can create modeline dynamically and
-	that doesn't require the root access.
+	AdvanceMAME. The major drawback is that it requires a manual
+	modeline creation. Instead AdvanceMAME is able to create
+	modelines dynamically.
 
-	AdvanceMAME has also some unique features like the `scale',
-	`lq', `hq', `filter' and `rgb' effects, the turbo mode, the
-	scripts, SMP, 8 bit depth, ...
+	AdvanceMAME has also some unique features like `scale',
+	`lq', `hq', `filter' and `rgb' effects, turbo mode,
+	scripts, SMP, 8 bit depth and much more.
 
 Configuration
 	In DOS and Windows the configuration options are read from the
@@ -393,13 +460,13 @@ Configuration
 	In Linux and Mac OS X the files are searched in the $home directory if
 	they are expressed as a relative path. You can force the search in the
 	current directory prefixing the file with `./'.
-	To include more than one file you must separe the names with `;' in
+	To include more than one file you must divide the names with `;' in
 	DOS and Windows, and with `:' in Linux and Mac OS X.
 
 	You can force the creation of a default configuration file with the
 	command line option `-default'.
 
-	In the condiguration file the options are specified in this format :
+	In the configuration file the options are specified in this format :
 
 		:[SECTION/]OPTION VALUE
 
@@ -421,7 +488,7 @@ Configuration
 			like `puckman'.
 		`bios' - If present, the bios name of the game,
 			like `neogeo'.
-		`resolutionclock' - The resolution and the clock of the
+		`resolutionxclock' - The resolution and the clock of the
 			game, like `244x288x60' for raster games or
 			`vector' for vector games. If the vertical clock
 			is a real value, it's rounded downwards to the
@@ -501,7 +568,6 @@ Configuration
 		dir_nvram - Single directory for `nvram' files.
 		dir_memcard - Single directory for `memcard' files.
 		dir_hi - Single directory for `hi' files.
-		dir_cfg - Single directory for `cfg' files.
 		dir_inp - Single directory for `inp' files.
 		dir_sta - Single directory for `sta' files.
 		dir_snap - Single directory for the `snapshot'
@@ -517,7 +583,6 @@ Configuration
 		dir_nvram - nvram
 		dir_memcard - memcard
 		dir_hi - hi
-		dir_cfg - cfg
 		dir_inp - inp
 		dir_sta - sta
 		dir_snap - snap
@@ -532,7 +597,6 @@ Configuration
 		dir_nvram - $home/nvram
 		dir_memcard - $home/memcard
 		dir_hi - $home/hi
-		dir_cfg - $home/cfg
 		dir_inp - $home/inp
 		dir_sta - $home/sta
 		dir_snap - $home/snap
@@ -590,8 +654,8 @@ Configuration
 	of any software stretching improving a lot the game image.
 
 	:display_adjust none | x | clock | xclock | generate_exact
-		| generate_y | generate_clock | generate_clocky
-		| generate_yclock
+	:	| generate_y | generate_clock | generate_clocky
+	:	| generate_yclock
 
 	Options:
 		none - No automatic video mode creation. Use only the
@@ -669,7 +733,7 @@ Configuration
 		bgr32 - RGB 32 bits mode.
 		yuy2 - YUV mode in the YUY2 format.
 
-	Note that the bgr24 color mode isn't really supported.
+	Note that the bgr24 color mode isn't supported.
 
     display_resize
 	Used to suggest the favorite image stretching.
@@ -759,13 +823,13 @@ Configuration
 		FACTOR - Float factor for the fraction of frames
 			to display. From 0 to 1.
 
-	Use F11 to display the speed your computer is actually
+	Use `f11' to display the speed your computer is actually
 	reaching. If it is below 100%, increase the frameskip value.
-	You can press F8/F9 to change frameskip while running the game.
+	You can press `f8/f9' to change frameskip while running the game.
 	When set to auto (default), the frameskip setting is
 	dynamically adjusted during runtime to display the maximum
 	possible frames without dropping below the 100% speed.
-	Pressing F10 you can enable and disable the throttle
+	Pressing `f10' you can enable and disable the throttle
 	synchronization.
 
 	Examples:
@@ -782,7 +846,7 @@ Configuration
 			(default 1.0).
 
 	Examples:
-		:display_expand 1.2
+		:display_expand 1.15
 
     display_aspectx/aspecty
 	Select the aspect of the monitor used.
@@ -813,14 +877,14 @@ Configuration
 
 	Options:
 		auto - Selects automatically the best effect (default).
-			This selection is list based, and may be a lot
+			This selection is list based, and may be
 			incomplete.
-			The `filter' effect is used when the game is
-			stretched by a factor greater or equal to 2.
+			If the scale factor is 2, 3 o 4 the `scale' effect
+			is selected.
 			On the other cases the `mean' or `max' effect
 			is selected.
 		none - Simply removes or duplicates lines as required.
-		max - In merges consecutive columns and rows using the
+		max - In reduction merges consecutive columns and rows using the
 			lightest pixels versus the darkest.
 			In expansion simply duplicates pixels.
 			Supported in both rgb and palette video modes.
@@ -1153,7 +1217,7 @@ Configuration
 		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
 		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
 
-	The CONTROLl and AXE names can be checked using the `advj' utility.
+	The CONTROL and AXE names can be checked using the `advj' utility.
 	Generally the CONTROL names are :
 		stick - Stick.
 		gas - Acceleration pedal.
@@ -1233,10 +1297,8 @@ Configuration
 	:	| joystick_digital[JOY,CONTROL,AXE,DIR]
 	:	| or | not | ...
 
-	The default is always `auto' which uses the standard mapping. If the
-	definition starts with `or', the mapping is concatenated with the `or'
-	operator at the previous mapping. Otherwise, the previous mapping
-	is overwritten.
+	The default is always `auto' which uses the standard mapping.
+	The previous mapping is always overwritten.
 
 	Options:
 		DIGITAL - Player button or analog simulation digital
@@ -1254,7 +1316,7 @@ Configuration
 			0, 1, 2, 3, ...
 		or - Or operand.
 		not - Not operand.
-		auto - Use the mapping defined in the MAME .cfg files.
+		auto - Use the default mapping.
 
 	The DIGITAL controls are:
 		p1_up, p2_up, p3_up, p4_up, p1_down, p2_down, p3_down, p4_down, 
@@ -1359,7 +1421,7 @@ Configuration
 	Examples:
 		:input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]
 		:input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
-		:input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger] or mouse_button[0,left]
+		:input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger]
 
     input_name
 	Change the display name of the specified digital input.
@@ -1386,8 +1448,27 @@ Configuration
 	See input_map for valid KEY, MOUSE_BUTTON, CONTROL, JOY_BUTTON names.
 
 	Examples:
-		:input_name keyboard[0,lcontrol] P1Blue
-		:input_name joystick_digital[0,stick,x,right] P1JoyRight
+		:input_name keyboard[0,lcontrol] Blue
+		:input_name joystick_digital[0,stick,x,right] Right
+
+    input_setting[*]
+	Select some additional settings for analog inputs. These settings can be
+	modified using the "Analog Config" menu present if the game has analog
+	controls.
+
+	:input_setting[NAME] SETTING
+
+    input_dipswitch[*]
+	Select the state of the game dipswitch. These settings can be
+	modified using the "Dipswitch" menu present if the game has dipswitches.
+
+	:input_dipswitch[NAME] SETTING
+
+    input_configswitch[*]
+	Select the state of the game configswitch. These settings can be
+	modified using the "Config" menu present if the game has configswitches.
+
+	:input_configswitch[NAME] SETTING
 
   User Interface Configuration Options
 	This section describes the options used for the user interface.
@@ -1397,19 +1478,19 @@ Configuration
 	PNG file containing only two color: black and white. The black
 	color must be used as background, the white color as foreground.
 
-	ui_helpimage auto | FILE
+	:ui_helpimage auto | FILE
 
 	Options:
 		auto - Use the internal help image. With this option all the
-			ui_helptag options are ingnored.
+			ui_helptag options are ignored.
 		FILE - Load an arbitrary image from a file.
 
     ui_helptag
 	Select the highlight range for any digital input. When the user
-	press a key/button the corrispettive range is higlighted.
+	press a key/button the related range is highlighted.
 	A different color for any player is used in the image.
 
-	ui_helptag (keyboard[KEYBOARD,KEY]
+	:ui_helptag (keyboard[KEYBOARD,KEY]
 	:	| mouse_button[MOUSE,MOUSE_BUTTON]
 	:	| joystick_button[JOY,JOY_BUTTON]
 	:	| joystick_digital[JOY,CONTROL,AXE,DIR])
@@ -1422,24 +1503,26 @@ Configuration
 		DX, DY - The size in pixel of the input range.
 
 	Examples:
-		ui_helptag keyboard[0,esc] 6 5 12 12
-		ui_helptag keyboard[0,f1] 26 5 12 12
-		ui_helptag keyboard[0,f2] 38 5 12 12
-		ui_helptag keyboard[0,f3] 50 5 12 12
-		ui_helptag keyboard[0,f4] 62 5 12 12
-		ui_helptag keyboard[0,f5] 81 5 12 12
-		ui_helptag keyboard[0,f6] 93 5 12 12
-		ui_helptag keyboard[0,f7] 105 5 12 12
-		ui_helptag keyboard[0,f8] 117 5 12 12
-		ui_helptag keyboard[0,f9] 137 5 12 12
-		ui_helptag keyboard[0,f10] 149 5 12 12
+		:ui_helptag keyboard[0,esc] 6 5 12 12
+		:ui_helptag keyboard[0,f1] 26 5 12 12
+		:ui_helptag keyboard[0,f2] 38 5 12 12
+		:ui_helptag keyboard[0,f3] 50 5 12 12
+		:ui_helptag keyboard[0,f4] 62 5 12 12
+		:ui_helptag keyboard[0,f5] 81 5 12 12
+		:ui_helptag keyboard[0,f6] 93 5 12 12
+		:ui_helptag keyboard[0,f7] 105 5 12 12
+		:ui_helptag keyboard[0,f8] 117 5 12 12
+		:ui_helptag keyboard[0,f9] 137 5 12 12
+		:ui_helptag keyboard[0,f10] 149 5 12 12
+
+	The data used for the default image is in the `contrib/help' dir.
 
     ui_font
 	Select the font to use for the user interface. The formats GRX,
 	PSF and RAW are supported. You can find a collection of fonts in
 	the `contrib' directory.
 
-	ui_font auto | FILE
+	:ui_font auto | FILE
 
 	Options:
 		auto - Automatically select the internal
@@ -1476,7 +1559,7 @@ Configuration
 
 	The video clip is saved in the `dir_snap' directory (like the
 	snapshot images) in `.mng' format. The `MNG-LC' (Low Complexity)
-	format is used.
+	subformat is used.
 
 	The clip is saved with a light compression, you should use an
 	external utility to compress better the resulting file.
@@ -1536,11 +1619,10 @@ Configuration
 	Selects the game difficulty. This option works only with games
 	which select difficulty with dip switches.
 
-	misc_difficulty none | easiest | easy | normal | hard | hardest
+	:misc_difficulty none | easiest | easy | normal | hard | hardest
 
 	Options:
-		none - Don't change the default difficulty
-			or the value stored in the .cfg file (default).
+		none - Don't change the default difficulty (default).
 		easiest - Easiest game play.
 		easy - Easy game play.
 		normal - Normal game play.
@@ -1588,7 +1670,7 @@ Configuration
 
     misc_turbospeed
 	Selects the speed factor used when the `turbo' button is
-	pressed. The default `turbo' button is num pad `*'.
+	pressed. The default `turbo' key is `asterisk_pad'.
 
 	:misc_turbospeed FACTOR
 
@@ -1686,7 +1768,7 @@ Configuration
 
 	:misc_safequit yes | no
 
-	If the file `safequit.dat' is found the exit menu is shown only 
+	If the file `event.dat' is found the exit menu is shown only
 	if one or more coins are inserted or if you are playing.
 
     misc_eventdebug
@@ -1708,7 +1790,7 @@ Configuration
 
   Debugging Configuration Options
 	The use of these options is discouraged. They are present only
-	for testing pourpuse.
+	for testing purpose.
 
     misc_internaldepth
 	Control the bits per pixel of the internal MAME bitmap.
@@ -1741,5 +1823,5 @@ Signals
 		SIGHUP - Restart the program.
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni, Filipe Estima.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Filipe Estima.
 

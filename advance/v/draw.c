@@ -28,10 +28,6 @@
 #include "error.h"
 #include "log.h"
 
-#ifdef __MSDOS__
-#include <scrvga.h>
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -627,24 +623,6 @@ void draw_graphics_clear(void)
 		video_clear(0, 0, video_size_x(), video_size_y(), 0);
 	}
 }
-
-/* Draw the out of screen data */
-#if 0
-void draw_graphics_out_of_screen(int do_clear)
-{
-	if (video_is_graphics()) {
-		adv_rgb c;
-
-		/* draw out of screen data */
-		if (do_clear)
-			video_rgb_make(&c, 0, 0, 0);
-		else
-			video_rgb_make(&c, 255, 0, 0);
-
-		video_clear(0, 0, video_virtual_x(), video_virtual_y(), c);
-	}
-}
-#endif
 
 /* Draw a test calibration screen */
 void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy)

@@ -85,7 +85,7 @@ void update_init(unsigned max_buffer)
  */
 void update_done(void)
 {
-	assert( is_update_draw_allowed == 0 );
+	assert(is_update_draw_allowed == 0);
 
 	/* display the first page */
 	if (update_page_max!=1) {
@@ -107,7 +107,7 @@ unsigned update_page_max_get(void)
 unsigned update_x_get(void)
 {
 	unsigned x;
-	assert( is_update_draw_allowed );
+	assert(is_update_draw_allowed);
 	x = (update_offset % video_bytes_per_scanline()) / video_bytes_per_pixel();
 	return x;
 }
@@ -117,7 +117,7 @@ unsigned update_x_get(void)
  */
 unsigned update_y_get(void)
 {
-	assert( is_update_draw_allowed );
+	assert(is_update_draw_allowed);
 	return update_offset / video_bytes_per_scanline();
 }
 
@@ -126,7 +126,7 @@ unsigned update_y_get(void)
  */
 unsigned update_page_get(void)
 {
-	assert( is_update_draw_allowed );
+	assert(is_update_draw_allowed);
 	return update_page;
 }
 
@@ -136,7 +136,7 @@ unsigned update_page_get(void)
  */
 void update_start(void)
 {
-	assert( is_update_draw_allowed == 0 );
+	assert(is_update_draw_allowed == 0);
 	is_update_draw_allowed = 1;
 	/* compute coordinate for drawing */
 	if (update_page_max!=1) {
@@ -155,7 +155,7 @@ void update_start(void)
  */
 void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace)
 {
-	assert( is_update_draw_allowed );
+	assert(is_update_draw_allowed);
 	is_update_draw_allowed = 0;
 
 	video_write_unlock(x, y, size_x, size_y);

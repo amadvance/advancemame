@@ -8,9 +8,7 @@ format V 0.914286 0.0190476 0.00380952 0.0628571
 fixed horz clock 31469
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "pc_31.5_240x180 9.31482 240 240 280 296 180 184 185 197 -hsync +vsync doublescan", /* H 31469 [Hz], V 79.8706 [Hz] */
 "pc_31.5_256x192 10.0701 256 264 304 320 192 196 197 210 -hsync +vsync doublescan", /* H 31469 [Hz], V 74.9262 [Hz] */
 "pc_31.5_272x204 10.5736 272 272 312 336 204 208 209 223 -hsync +vsync doublescan", /* H 31469 [Hz], V 70.5583 [Hz] */
@@ -42,6 +40,17 @@ fixed horz clock 31469
 "pc_31.5_768x576 30.2102 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 31469 [Hz], V 49.9508 [Hz] */
 "pc_31.5_800x600 31.469 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 31469 [Hz], V 47.971 [Hz] */
 "pc_31.5_1024x768 40.2803 1024 1048 1200 1280 768 784 787 840 -hsync -vsync interlace", /* H 31469 [Hz], V 74.9262 [Hz] */
+"pc_31.5_256x224 10.0701 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 31469 [Hz], V 64.2224 [Hz] */
+"pc_31.5_256x240 10.0701 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 31469 [Hz], V 60.0553 [Hz] */
+"pc_31.5_320x224 12.5876 320 328 376 400 224 229 230 245 -hsync -vsync doublescan", /* H 31469 [Hz], V 64.2224 [Hz] */
+"pc_31.5_512x448 20.1402 512 528 600 640 448 457 459 490 -hsync -vsync", /* H 31469 [Hz], V 64.2224 [Hz] */
+"pc_31.5_512x480 20.1402 512 528 600 640 480 490 492 525 -hsync -vsync", /* H 31469 [Hz], V 59.941 [Hz] */
+"pc_31.5_640x448 25.1752 640 656 752 800 448 457 459 490 -hsync -vsync", /* H 31469 [Hz], V 64.2224 [Hz] */
+"pc_31.5_640x512 25.1752 640 656 752 800 512 523 525 560 -hsync -vsync", /* H 31469 [Hz], V 56.1946 [Hz] */
+"pc_31.5_720x448 28.1962 720 736 840 896 448 457 459 490 -hsync -vsync", /* H 31469 [Hz], V 64.2224 [Hz] */
+"pc_31.5_720x480 28.1962 720 736 840 896 480 490 492 525 -hsync -vsync", /* H 31469 [Hz], V 59.941 [Hz] */
+"pc_31.5_720x512 28.1962 720 736 840 896 512 523 525 560 -hsync -vsync", /* H 31469 [Hz], V 56.1946 [Hz] */
+"pc_31.5_720x576 28.1962 720 736 840 896 576 588 590 630 -hsync -vsync", /* H 31469 [Hz], V 49.9508 [Hz] */
 
 /**************************************************************************/
 /* pal */
@@ -58,11 +67,22 @@ fixed vert clock 50
 "pal_768x288 14.75 768 784 864 944 288 291 294 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
 "pal_768x576 14.75 768 784 864 944 576 582 588 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
 
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "pal_320x240 6.125 320 328 360 392 240 267 270 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
 "pal_400x300 7.75 400 416 456 496 300 444 450 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
 "pal_512x384 9.875 512 528 576 632 384 486 492 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
 "pal_640x480 12.25 640 656 712 784 480 534 540 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_256x224 4.875 256 264 288 312 224 259 262 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
+"pal_256x240 4.875 256 264 288 312 240 267 270 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
+"pal_320x224 6.125 320 328 360 392 224 259 262 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
+"pal_512x448 9.875 512 528 576 632 448 518 524 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_512x480 9.875 512 528 576 632 480 534 540 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_640x448 12.25 640 656 712 784 448 518 524 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_640x512 12.25 640 656 712 784 512 550 556 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_720x448 13.875 720 744 808 888 448 518 524 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_720x480 13.875 720 744 808 888 480 534 540 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_720x512 13.875 720 744 808 888 512 550 556 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
+"pal_720x576 13.875 720 744 808 888 576 582 588 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
 
 /**************************************************************************/
 /* ntsc */
@@ -75,15 +95,21 @@ fixed vert clock 59.94
 */
 
 /* SVGA best fit modes */
-"ntsc_320x242 6.04186 320 328 352 384 242 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
-"ntsc_640x242 12.0837 640 656 704 768 242 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
-"ntsc_640x484 12.0837 640 656 704 768 484 490 496 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_320x240 6.04186 320 328 352 384 240 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_640x240 12.0837 640 656 704 768 240 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_640x480 12.0837 640 656 704 768 480 490 496 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
 
-/* SVGA standard modes */
-"ntsc_320x240 6.04186 320 328 352 384 240 244 247 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+/* SVGA standard size modes */
 "ntsc_400x300 7.55232 400 408 448 480 300 398 404 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
 "ntsc_512x384 9.69214 512 528 568 616 384 440 446 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
-"ntsc_640x480 12.2096 640 664 720 776 480 488 494 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_256x224 4.90901 256 264 288 312 224 236 239 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_256x240 4.90901 256 264 288 312 240 244 247 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_320x224 6.04186 320 328 352 384 224 236 239 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_512x448 9.69214 512 528 568 616 448 472 478 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_512x480 9.69214 512 528 568 616 480 488 494 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_640x448 12.2096 640 664 720 776 448 472 478 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_720x448 13.72 720 744 808 872 448 472 478 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
+"ntsc_720x480 13.72 720 744 808 872 480 488 494 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
 
 /**************************************************************************/
 /* standard */
@@ -94,9 +120,7 @@ format V 0.916168 0.011976 0.011976 0.0598802
 fixed horz clock 15720
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "standard_240x180 5.15616 240 264 288 328 180 182 184 196 -hsync -vsync", /* H 15720 [Hz], V 80.2041 [Hz] */
 "standard_256x192 5.40768 256 280 304 344 192 195 197 210 -hsync -vsync", /* H 15720 [Hz], V 74.8571 [Hz] */
 "standard_272x204 5.78496 272 296 328 368 204 207 210 223 -hsync -vsync", /* H 15720 [Hz], V 70.4933 [Hz] */
@@ -128,6 +152,17 @@ fixed horz clock 15720
 "standard_768x576 16.3488 768 848 920 1040 576 584 591 629 -hsync -vsync interlace", /* H 15720 [Hz], V 49.9841 [Hz] */
 "standard_800x600 17.1034 800 888 968 1088 600 608 616 655 -hsync -vsync interlace", /* H 15720 [Hz], V 48 [Hz] */
 "standard_1024x768 21.8822 1024 1128 1232 1392 768 778 788 838 -hsync -vsync interlace", /* H 15720 [Hz], V 37.5179 [Hz] */
+"standard_256x224 5.40768 256 280 304 344 224 226 229 244 -hsync -vsync", /* H 15720 [Hz], V 64.4262 [Hz] */
+"standard_256x240 5.40768 256 280 304 344 240 243 246 262 -hsync -vsync", /* H 15720 [Hz], V 60 [Hz] */
+"standard_320x224 6.79104 320 352 384 432 224 226 229 244 -hsync -vsync", /* H 15720 [Hz], V 64.4262 [Hz] */
+"standard_512x448 10.9411 512 568 616 696 448 454 460 489 -hsync -vsync interlace", /* H 15720 [Hz], V 64.2945 [Hz] */
+"standard_512x480 10.9411 512 568 616 696 480 486 493 524 -hsync -vsync interlace", /* H 15720 [Hz], V 60 [Hz] */
+"standard_640x448 13.5821 640 704 768 864 448 454 460 489 -hsync -vsync interlace", /* H 15720 [Hz], V 64.2945 [Hz] */
+"standard_640x512 13.5821 640 704 768 864 512 519 526 559 -hsync -vsync interlace", /* H 15720 [Hz], V 56.2433 [Hz] */
+"standard_720x448 15.3427 720 792 864 976 448 454 460 489 -hsync -vsync interlace", /* H 15720 [Hz], V 64.2945 [Hz] */
+"standard_720x480 15.3427 720 792 864 976 480 486 493 524 -hsync -vsync interlace", /* H 15720 [Hz], V 60 [Hz] */
+"standard_720x512 15.3427 720 792 864 976 512 519 526 559 -hsync -vsync interlace", /* H 15720 [Hz], V 56.2433 [Hz] */
+"standard_720x576 15.3427 720 792 864 976 576 584 591 629 -hsync -vsync interlace", /* H 15720 [Hz], V 49.9841 [Hz] */
 
 /**************************************************************************/
 /* extended */
@@ -138,9 +173,7 @@ format V 0.920635 0.015873 0.010582 0.0529101
 fixed horz clock 16500
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "extended_240x180 5.016 240 248 264 304 180 184 186 196 -hsync -vsync", /* H 16500 [Hz], V 84.1837 [Hz] */
 "extended_256x192 5.28 256 256 280 320 192 196 198 209 -hsync -vsync", /* H 16500 [Hz], V 78.9474 [Hz] */
 "extended_272x204 5.676 272 280 296 344 204 208 210 222 -hsync -vsync", /* H 16500 [Hz], V 74.3243 [Hz] */
@@ -172,6 +205,17 @@ fixed horz clock 16500
 "extended_768x576 15.972 768 776 840 968 576 586 593 626 -hsync -vsync interlace", /* H 16500 [Hz], V 52.7157 [Hz] */
 "extended_800x600 16.632 800 808 872 1008 600 611 618 652 -hsync -vsync interlace", /* H 16500 [Hz], V 50.6135 [Hz] */
 "extended_1024x768 21.384 1024 1040 1128 1296 768 781 790 834 -hsync -vsync interlace", /* H 16500 [Hz], V 39.5683 [Hz] */
+"extended_256x224 5.28 256 256 280 320 224 228 230 243 -hsync -vsync", /* H 16500 [Hz], V 67.9012 [Hz] */
+"extended_256x240 5.28 256 256 280 320 240 244 247 261 -hsync -vsync", /* H 16500 [Hz], V 63.2184 [Hz] */
+"extended_320x224 6.6 320 320 344 400 224 228 230 243 -hsync -vsync", /* H 16500 [Hz], V 67.9012 [Hz] */
+"extended_512x448 10.692 512 520 560 648 448 456 461 487 -hsync -vsync interlace", /* H 16500 [Hz], V 67.7618 [Hz] */
+"extended_512x480 10.692 512 520 560 648 480 488 493 521 -hsync -vsync interlace", /* H 16500 [Hz], V 63.3397 [Hz] */
+"extended_640x448 13.332 640 648 704 808 448 456 461 487 -hsync -vsync interlace", /* H 16500 [Hz], V 67.7618 [Hz] */
+"extended_640x512 13.332 640 648 704 808 512 521 527 556 -hsync -vsync interlace", /* H 16500 [Hz], V 59.3525 [Hz] */
+"extended_720x448 15.048 720 736 792 912 448 456 461 487 -hsync -vsync interlace", /* H 16500 [Hz], V 67.7618 [Hz] */
+"extended_720x480 15.048 720 736 792 912 480 488 493 521 -hsync -vsync interlace", /* H 16500 [Hz], V 63.3397 [Hz] */
+"extended_720x512 15.048 720 736 792 912 512 521 527 556 -hsync -vsync interlace", /* H 16500 [Hz], V 59.3525 [Hz] */
+"extended_720x576 15.048 720 736 792 912 576 586 593 626 -hsync -vsync interlace", /* H 16500 [Hz], V 52.7157 [Hz] */
 
 /**************************************************************************/
 /* medium */
@@ -182,9 +226,7 @@ format V 0.922156 0.00598802 0.011976 0.0598802
 fixed horz clock 25000
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "medium_240x180 7.4 240 240 272 296 180 181 183 195 -hsync -vsync doublescan", /* H 25000 [Hz], V 64.1026 [Hz] */
 "medium_256x192 8 256 264 296 320 192 193 196 208 -hsync -vsync doublescan", /* H 25000 [Hz], V 60.0962 [Hz] */
 "medium_272x204 8.4 272 272 312 336 204 205 208 221 -hsync -vsync doublescan", /* H 25000 [Hz], V 56.5611 [Hz] */
@@ -216,6 +258,17 @@ fixed horz clock 25000
 "medium_768x576 24 768 784 880 960 576 580 588 625 -hsync -vsync interlace", /* H 25000 [Hz], V 80 [Hz] */
 "medium_800x600 25 800 816 920 1000 600 604 612 651 -hsync -vsync interlace", /* H 25000 [Hz], V 76.8049 [Hz] */
 "medium_1024x768 32 1024 1048 1176 1280 768 773 783 833 -hsync -vsync interlace", /* H 25000 [Hz], V 60.024 [Hz] */
+"medium_256x224 8 256 264 296 320 224 226 228 243 -hsync -vsync", /* H 25000 [Hz], V 102.881 [Hz] */
+"medium_256x240 8 256 264 296 320 240 241 244 260 -hsync -vsync", /* H 25000 [Hz], V 96.1538 [Hz] */
+"medium_320x224 10 320 328 368 400 224 226 228 243 -hsync -vsync", /* H 25000 [Hz], V 102.881 [Hz] */
+"medium_512x448 16 512 528 592 640 448 451 457 486 -hsync -vsync", /* H 25000 [Hz], V 51.4403 [Hz] */
+"medium_512x480 16 512 528 592 640 480 484 490 521 -hsync -vsync", /* H 25000 [Hz], V 47.9846 [Hz] */
+"medium_640x448 20 640 656 736 800 448 451 457 486 -hsync -vsync", /* H 25000 [Hz], V 51.4403 [Hz] */
+"medium_640x512 20 640 656 736 800 512 515 522 555 -hsync -vsync", /* H 25000 [Hz], V 45.045 [Hz] */
+"medium_720x448 22.4 720 736 824 896 448 451 457 486 -hsync -vsync", /* H 25000 [Hz], V 51.4403 [Hz] */
+"medium_720x480 22.4 720 736 824 896 480 484 490 521 -hsync -vsync", /* H 25000 [Hz], V 47.9846 [Hz] */
+"medium_720x512 22.4 720 736 824 896 512 515 522 555 -hsync -vsync", /* H 25000 [Hz], V 45.045 [Hz] */
+"medium_720x576 22.4 720 736 824 896 576 580 588 625 -hsync -vsync interlace", /* H 25000 [Hz], V 80 [Hz] */
 
 /**************************************************************************/
 /* pc_mult60 */
@@ -226,9 +279,7 @@ format V 0.914286 0.0190476 0.00380952 0.0628571
 fixed vert clock 60
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "pc_mult60_240x180 6.99744 240 240 280 296 180 184 185 197 -hsync -vsync doublescan", /* H 23640 [Hz], V 60 [Hz] */
 "pc_mult60_240x360 13.9949 240 240 280 296 360 368 370 394 -hsync -vsync doublescan", /* H 47280 [Hz], V 60 [Hz] */
 "pc_mult60_256x192 8.064 256 264 304 320 192 196 197 210 -hsync -vsync doublescan", /* H 25200 [Hz], V 60 [Hz] */
@@ -266,6 +317,19 @@ fixed vert clock 60
 "pc_mult60_768x576 36.288 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 37800 [Hz], V 60 [Hz] */
 "pc_mult60_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 39360 [Hz], V 60 [Hz] */
 "pc_mult60_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 50400 [Hz], V 60 [Hz] */
+"pc_mult60_256x224 9.408 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 29400 [Hz], V 60 [Hz] */
+"pc_mult60_256x448 18.816 256 264 304 320 448 458 460 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
+"pc_mult60_256x240 10.0608 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 31440 [Hz], V 60 [Hz] */
+"pc_mult60_320x224 11.76 320 328 376 400 224 229 230 245 -hsync -vsync doublescan", /* H 29400 [Hz], V 60 [Hz] */
+"pc_mult60_320x448 23.52 320 328 376 400 448 458 460 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
+"pc_mult60_512x448 37.632 512 528 600 640 448 457 459 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
+"pc_mult60_512x480 20.16 512 528 600 640 480 490 492 525 -hsync -vsync", /* H 31500 [Hz], V 60 [Hz] */
+"pc_mult60_640x448 47.04 640 656 752 800 448 457 459 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
+"pc_mult60_640x512 26.88 640 656 752 800 512 523 525 560 -hsync -vsync", /* H 33600 [Hz], V 60 [Hz] */
+"pc_mult60_720x448 52.6848 720 736 840 896 448 457 459 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
+"pc_mult60_720x480 28.224 720 736 840 896 480 490 492 525 -hsync -vsync", /* H 31500 [Hz], V 60 [Hz] */
+"pc_mult60_720x512 30.1056 720 736 840 896 512 523 525 560 -hsync -vsync", /* H 33600 [Hz], V 60 [Hz] */
+"pc_mult60_720x576 33.8688 720 736 840 896 576 588 590 630 -hsync -vsync", /* H 37800 [Hz], V 60 [Hz] */
 
 /**************************************************************************/
 /* pc_mult57 */
@@ -276,9 +340,7 @@ format V 0.914286 0.0190476 0.00380952 0.0628571
 fixed vert clock 57
 */
 
-/* SVGA best fit modes */
-
-/* SVGA standard modes */
+/* SVGA standard size modes */
 "pc_mult57_240x180 6.64757 240 240 280 296 180 184 185 197 -hsync -vsync doublescan", /* H 22458 [Hz], V 57 [Hz] */
 "pc_mult57_240x360 13.2951 240 240 280 296 360 368 370 394 -hsync -vsync doublescan", /* H 44916 [Hz], V 57 [Hz] */
 "pc_mult57_256x192 7.6608 256 264 304 320 192 196 197 210 -hsync -vsync doublescan", /* H 23940 [Hz], V 57 [Hz] */
@@ -317,5 +379,18 @@ fixed vert clock 57
 "pc_mult57_768x576 34.4736 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 35910 [Hz], V 57 [Hz] */
 "pc_mult57_800x600 37.392 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 37392 [Hz], V 57 [Hz] */
 "pc_mult57_1024x768 61.2864 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 47880 [Hz], V 57 [Hz] */
-
+"pc_mult57_256x224 8.9376 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 27930 [Hz], V 57 [Hz] */
+"pc_mult57_256x448 17.8752 256 264 304 320 448 458 460 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
+"pc_mult57_256x240 9.55776 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 29868 [Hz], V 57 [Hz] */
+"pc_mult57_256x480 19.1155 256 264 304 320 480 490 492 524 -hsync -vsync doublescan", /* H 59736 [Hz], V 57 [Hz] */
+"pc_mult57_320x224 11.172 320 328 376 400 224 229 230 245 -hsync -vsync doublescan", /* H 27930 [Hz], V 57 [Hz] */
+"pc_mult57_320x448 22.344 320 328 376 400 448 458 460 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
+"pc_mult57_512x448 35.7504 512 528 600 640 448 457 459 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
+"pc_mult57_512x480 38.304 512 528 600 640 480 490 492 525 -hsync -vsync doublescan", /* H 59850 [Hz], V 57 [Hz] */
+"pc_mult57_640x448 44.688 640 656 752 800 448 457 459 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
+"pc_mult57_640x512 25.536 640 656 752 800 512 523 525 560 -hsync -vsync", /* H 31920 [Hz], V 57 [Hz] */
+"pc_mult57_720x448 50.0506 720 736 840 896 448 457 459 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
+"pc_mult57_720x480 53.6256 720 736 840 896 480 490 492 525 -hsync -vsync doublescan", /* H 59850 [Hz], V 57 [Hz] */
+"pc_mult57_720x512 28.6003 720 736 840 896 512 523 525 560 -hsync -vsync", /* H 31920 [Hz], V 57 [Hz] */
+"pc_mult57_720x576 32.1754 720 736 840 896 576 588 590 630 -hsync -vsync", /* H 35910 [Hz], V 57 [Hz] */
 

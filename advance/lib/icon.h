@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-adv_bitmap* adv_icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask);
+adv_bitmap* adv_bitmap_load_icon(adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask, adv_fz* f);
 
 #ifdef __cplusplus
 };

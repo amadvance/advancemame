@@ -160,7 +160,7 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 		log_std(("osd: osd_get_path_info() -> directory\n"));
 		return PATH_IS_DIRECTORY;
 	}
-	if (S_ISREG(st.st_mode)); {
+	if (S_ISREG(st.st_mode)) {
 		log_std(("osd: osd_get_path_info() -> file\n"));
 		return PATH_IS_FILE;
 	}

@@ -42,8 +42,8 @@ extern "C" {
 #endif
 
 typedef struct slang_video_mode_struct {
-	unsigned font_size_x; /** Fake font size */
-	unsigned font_size_y;
+	unsigned font_size_x; /** Fake font width. */
+	unsigned font_size_y; /** Fake font height. */
 } slang_video_mode;
 
 /**

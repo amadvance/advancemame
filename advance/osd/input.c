@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  * Copyright (C) 2003 Martin Adrian
  *
  * This program is free software; you can redistribute it and/or modify
@@ -109,7 +109,7 @@ static struct input_equiv input_keyequiv_map[] = {
 { DIGITAL_KBD(0, KEYB_7_PAD), KEYCODE_7_PAD },
 { DIGITAL_KBD(0, KEYB_8_PAD), KEYCODE_8_PAD },
 { DIGITAL_KBD(0, KEYB_9_PAD), KEYCODE_9_PAD },
-{ DIGITAL_KBD(0, KEYB_F1), KEYCODE_F1 },
+{ DIGITAL_KBD(0, KEYB_F1), KEYCODE_F1_REAL },
 { DIGITAL_KBD(0, KEYB_F2), KEYCODE_F2 },
 { DIGITAL_KBD(0, KEYB_F3), KEYCODE_F3 },
 { DIGITAL_KBD(0, KEYB_F4), KEYCODE_F4 },
@@ -267,15 +267,20 @@ static adv_error parse_int(int* v, const char* s)
 	return 0;
 }
 
-static adv_error parse_joystick_stick(int* v, const char* s, unsigned joystick)
+static adv_error parse_joystick_stick(int* v, const char* s, int joystick)
 {
 	unsigned i;
+
+	if (joystick < 0) {
+		error_set("Invalid joystick");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (joystick < 0 || joystick >= joystickb_count_get()) {
+	if (joystick >= joystickb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -291,20 +296,30 @@ static adv_error parse_joystick_stick(int* v, const char* s, unsigned joystick)
 	return -1;
 }
 
-static adv_error parse_joystick_stick_axe(int* v, const char* s, unsigned joystick, unsigned stick)
+static adv_error parse_joystick_stick_axe(int* v, const char* s, int joystick, int stick)
 {
 	unsigned i;
+
+	if (joystick < 0) {
+		error_set("Invalid joystick");
+		return -1;
+	}
+
+	if (stick < 0) {
+		error_set("Invalid stick");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (joystick < 0 || joystick >= joystickb_count_get()) {
+	if (joystick >= joystickb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
 
-	if (stick < 0 || stick >= joystickb_stick_count_get(joystick)) {
+	if (stick >= joystickb_stick_count_get(joystick)) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -321,15 +336,20 @@ static adv_error parse_joystick_stick_axe(int* v, const char* s, unsigned joysti
 	return -1;
 }
 
-static adv_error parse_mouse_axe(int* v, const char* s, unsigned mouse)
+static adv_error parse_mouse_axe(int* v, const char* s, int mouse)
 {
 	unsigned i;
+
+	if (mouse < 0) {
+		error_set("Invalid mouse");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (mouse < 0 || mouse >= mouseb_count_get()) {
+	if (mouse >= mouseb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -346,15 +366,20 @@ static adv_error parse_mouse_axe(int* v, const char* s, unsigned mouse)
 	return -1;
 }
 
-static adv_error parse_joystick_rel(int* v, const char* s, unsigned joystick)
+static adv_error parse_joystick_rel(int* v, const char* s, int joystick)
 {
 	unsigned i;
+
+	if (joystick < 0) {
+		error_set("Invalid joystick");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (joystick < 0 || joystick >= joystickb_count_get()) {
+	if (joystick >= joystickb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -371,15 +396,20 @@ static adv_error parse_joystick_rel(int* v, const char* s, unsigned joystick)
 	return -1;
 }
 
-static adv_error parse_mouse_button(int* v, const char* s, unsigned mouse)
+static adv_error parse_mouse_button(int* v, const char* s, int mouse)
 {
 	unsigned i;
+
+	if (mouse < 0) {
+		error_set("Invalid mouse");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (mouse < 0 || mouse >= mouseb_count_get()) {
+	if (mouse >= mouseb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -396,15 +426,20 @@ static adv_error parse_mouse_button(int* v, const char* s, unsigned mouse)
 	return -1;
 }
 
-static adv_error parse_joystick_button(int* v, const char* s, unsigned joystick)
+static adv_error parse_joystick_button(int* v, const char* s, int joystick)
 {
 	unsigned i;
+
+	if (joystick < 0) {
+		error_set("Invalid joystick");
+		return -1;
+	}
 
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
 
-	if (joystick < 0 || joystick >= joystickb_count_get()) {
+	if (joystick >= joystickb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
@@ -421,9 +456,17 @@ static adv_error parse_joystick_button(int* v, const char* s, unsigned joystick)
 	return -1;
 }
 
-static adv_error parse_key(int* v, const char* s, unsigned keyboard)
+static adv_error parse_key(int* v, const char* s, int keyboard)
 {
-	unsigned i;
+	if (keyboard < 0) {
+		error_set("Invalid keyboard");
+		return -1;
+	}
+
+	if (keyboard >= keyb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
 
 	*v = key_code(s);
 
@@ -457,9 +500,9 @@ static adv_error parse_direction(int* v, const char* s)
 	return -1;
 }
 
-static adv_error parse_analog(int* map, char* s)
+static adv_error parse_analog(unsigned* map, char* s)
 {
-	unsigned p;
+	int p;
 	unsigned mac;
 	unsigned i;
 	adv_bool first;
@@ -561,9 +604,9 @@ static adv_error parse_analog(int* map, char* s)
 	return 0;
 }
 
-static adv_error parse_trak(int* map, char* s)
+static adv_error parse_trak(unsigned* map, char* s)
 {
-	unsigned p;
+	int p;
 	unsigned mac;
 	unsigned i;
 	adv_bool first;
@@ -738,16 +781,16 @@ static adv_error validate_digital(unsigned* map)
 	return 0;
 }
 
-static adv_error parse_digital(unsigned* map, char* s)
+adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char* s)
 {
-	unsigned p;
+	int p;
 	unsigned mac;
 	unsigned i;
 	adv_bool first;
 
 	/* initialize */
-	for(i=0;i<INPUT_MAP_MAX;++i)
-		map[i] = DIGITAL_SPECIAL_NONE;
+	for(i=0;i<seq_max;++i)
+		seq_map[i] = DIGITAL_SPECIAL_NONE;
 
 	/* parse */
 	first = 1;
@@ -771,7 +814,7 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			map[0] = DIGITAL_SPECIAL_AUTO;
+			seq_map[0] = DIGITAL_SPECIAL_AUTO;
 
 			return 0;
 		}
@@ -810,12 +853,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_KBD(board, key);
+			seq_map[mac] = DIGITAL_KBD(board, key);
 			++mac;
 		} else if (strcmp(t, "joystick_digital")==0) {
 			int joystick;
@@ -871,12 +914,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_JOY(joystick, stick, axe, dir);
+			seq_map[mac] = DIGITAL_JOY(joystick, stick, axe, dir);
 			++mac;
 		} else if (strcmp(t, "joystick_button")==0) {
 			int joystick;
@@ -912,12 +955,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_JOY_BUTTON(joystick, button);
+			seq_map[mac] = DIGITAL_JOY_BUTTON(joystick, button);
 			++mac;
 		} else if (strcmp(t, "mouse_button")==0) {
 			int mouse;
@@ -953,12 +996,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_MOUSE_BUTTON(mouse, button);
+			seq_map[mac] = DIGITAL_MOUSE_BUTTON(mouse, button);
 			++mac;
 		} else if (strcmp(t, "or")==0) {
 			if (c=='[') {
@@ -966,12 +1009,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_SPECIAL_OR;
+			seq_map[mac] = DIGITAL_SPECIAL_OR;
 			++mac;
 		} else if (strcmp(t, "not")==0) {
 			if (c=='[') {
@@ -979,12 +1022,12 @@ static adv_error parse_digital(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (mac >= INPUT_MAP_MAX) {
+			if (mac >= seq_max) {
 				error_set("Too long");
 				return -1;
 			}
 
-			map[mac] = DIGITAL_SPECIAL_NOT;
+			seq_map[mac] = DIGITAL_SPECIAL_NOT;
 			++mac;
 		} else {
 			error_set("Unknown '%s'", t);
@@ -996,7 +1039,7 @@ static adv_error parse_digital(unsigned* map, char* s)
 		first = 0;
 	}
 
-	if (validate_digital(map) != 0) {
+	if (validate_digital(seq_map) != 0) {
 		error_set("Wrong use of operators");
 		return -1;
 	}
@@ -1236,6 +1279,95 @@ static adv_error parse_inputname(char* s)
 	return 0;
 }
 
+adv_error advance_input_parse_analogname(unsigned* type, const char* buffer)
+{
+	struct mame_analog* i;
+
+	if (strlen(buffer) < 3) {
+		log_std(("WARNING:emu:glue: unknown analog name %s\n", buffer));
+		return -1;
+	}
+
+	for(i=mame_analog_list();i->name;++i)
+		if (strcmp(i->name, buffer)==0)
+			break;
+	if (!i->name) {
+		log_std(("WARNING:emu:glue: unknown analog name %s\n", buffer));
+		return -1;
+	}
+
+	*type = i->type;
+
+	return 0;
+}
+
+adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer)
+{
+	const char* v0;
+	const char* v1;
+	const char* v2;
+	const char* v3;
+	char c;
+	int p;
+
+	p = 0;
+
+	v0 = stoken(&c, &p, buffer, ",", "");
+	if (c != ',')
+		return -1;
+	v1 = stoken(&c, &p, buffer, ",", "");
+	if (c != ',')
+		return -1;
+	v2 = stoken(&c, &p, buffer, ",", "");
+	if (c != ',')
+		return -1;
+	v3 = stoken(&c, &p, buffer, "", "");
+	if (c != 0)
+		return -1;
+
+	*delta = atoi(v0);
+	*sensitivity = atoi(v1);
+	if (strcmp(v2,"reverse") == 0)
+		*reverse = 1;
+	else if (strcmp(v2,"noreverse") == 0)
+		*reverse = 0;
+	else
+		return -1;
+	if (strcmp(v3,"center") == 0)
+		*center = 1;
+	else if (strcmp(v3,"nocenter") == 0)
+		*center = 0;
+	else
+		return -1;
+
+	return 0;
+}
+
+int advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type)
+{
+	struct mame_analog* a;
+
+	a = mame_analog_find(type & (~IPF_MASK | IPF_PLAYERMASK));
+	if (!a) {
+		log_std(("WARNING:emu:glue: unknown analog port %d\n", type & (~IPF_MASK | IPF_PLAYERMASK)));
+		return -1;
+	}
+
+	snprintf(buffer, buffer_size, "%s", a->name);
+
+	return 0;
+}
+
+void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center)
+{
+	snprintf(buffer, buffer_size, "%d,%d,%s,%s",
+		delta,
+		sensitivity,
+		reverse != 0 ? "reverse" : "noreverse",
+		center != 0 ? "center" : "nocenter"
+	);
+}
+
 adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 {
 	char c;
@@ -1243,13 +1375,12 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 	const char* t;
 	const char* argv[4];
 	unsigned argc;
-	int i;
 	unsigned code;
 	const char* sx;
 	const char* sy;
 	const char* sdx;
 	const char* sdy;
-	unsigned x, y, dx, dy;
+	int x, y, dx, dy;
 
 	p = 0;
 	sskip(&p, s, " \t");
@@ -1691,41 +1822,6 @@ static void input_setup_log(struct advance_input_context* context)
 			log_std(("\n"));
 		}
 	}
-
-#if 0
-	/* print the key list */
-	{
-		j = 0;
-		log_std(("emu:input: Keys\t\t"));
-		for(i=0;i<KEYB_MAX;++i) {
-			if (key_is_defined(i)) {
-				log_std(("%s, ", key_name(i)));
-				j += 2 + strlen(key_name(i));
-			}
-			if (j > 60) {
-				j = 0;
-				log_std(("\n\t\t"));
-			}
-		}
-		log_std(("\n"));
-	}
-
-	/* print the port list */
-	{
-		struct mame_port* p;
-		j = 0;
-		log_std(("emu:input: Ports\t\t"));
-		for(p=mame_port_list();p->name;++p) {
-			log_std(("%s, ", p->name));
-			j += 2 + strlen(p->name);
-			if (j > 60) {
-				j = 0;
-				log_std(("\n\t\t"));
-			}
-		}
-		log_std(("\n"));
-	}
-#endif
 }
 
 static void input_setup_list(struct advance_input_context* context)
@@ -1847,7 +1943,6 @@ static void input_setup_list(struct advance_input_context* context)
 static void input_setup_init(struct advance_input_context* context)
 {
 	unsigned i, j, k, w;
-	unsigned mac;
 
 	/* initialize the mouse state */
 	for(i=0;i<INPUT_MOUSE_MAX;++i) {
@@ -1947,30 +2042,39 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 
 	/* digital */
 	p = mame_port_list();
-	i = 0;
 	while (p->name) {
 		char tag_buffer[64];
-		char* d;
 
 		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
-		s = conf_string_get_default(cfg_context, tag_buffer);
 
-		if (i<INPUT_DIGITAL_MAX) {
-			d = strdup(s);
-			context->config.digital_map[i].port = p->port;
-			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
+		/* get the game option */
+		if (conf_string_get(cfg_context, tag_buffer, &s) == 0) {
+				char* d = strdup(s);
+			unsigned seq[INPUT_MAP_MAX];
+			if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) != 0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
 				target_err("Valid format is keyboard[BOARD,KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
 				return -1;
 			}
-			++i;
+			free(d);
+		}
+
+		/* get the default option */
+		if (conf_string_section_get(cfg_context, "", tag_buffer, &s) == 0) {
+			char* d = strdup(s);
+			unsigned seq[INPUT_MAP_MAX];
+			if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) != 0) {
+				free(d);
+				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
+				target_err("Valid format is keyboard[BOARD,KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
+				return -1;
+			}
 			free(d);
 		}
 
 		++p;
 	}
-	context->config.digital_mac = i;
 
 	log_std(("emu:input: input_name start\n"));
 	for(conf_iterator_begin(&k, cfg_context, "input_name");!conf_iterator_is_end(&k);conf_iterator_next(&k)) {
@@ -1990,134 +2094,6 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	return 0;
 }
 
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	struct advance_input_context* context = &CONTEXT.input;
-	struct ipd* i = defaults;
-
-	log_std(("emu:input: osd_customize_inputport_defaults()\n"));
-
-	while (i != 0 && i->type != IPT_END) {
-		unsigned j;
-		unsigned port = mame_port_convert(&i[-1].type, i[0].type);
-
-		for(j=0;j<context->config.digital_mac;++j)
-			if (context->config.digital_map[j].port == port)
-				break;
-
-		if (j<context->config.digital_mac) {
-			unsigned* seq = context->config.digital_map[j].seq;
-
-			if (seq[0] != DIGITAL_SPECIAL_AUTO) {
-				unsigned k;
-				unsigned y;
-				adv_bool overflow = 0;
-
-				struct mame_port* p = mame_port_list();
-				while (p->name) {
-					if (p->port == port)
-						break;
-					++p;
-				}
-				if (p->name)
-					log_std(("emu:input: customize input %s :", p->name));
-				else
-					log_std(("emu:input: customize input 0x%x :", port));
-
-				k = 0;
-				y = 0;
-
-				if (seq[k] == DIGITAL_SPECIAL_OR) {
-					/* skip the or code */
-					++k;
-
-					if (i->seq[y] != CODE_NONE) {
-						/* go to end */
-						while (y < SEQ_MAX && i->seq[y] != CODE_NONE) {
-							switch (i->seq[y]) {
-							case CODE_OR :
-								log_std((" or"));
-								break;
-							case CODE_NOT :
-								log_std((" not"));
-								break;
-							default:
-								log_std((" mame[code:%d]", (int)i->seq[y]));
-								break;
-							}
-							++y;
-						}
-
-						/* add the OR code if something is present */
-						if (y < SEQ_MAX) {
-							i->seq[y] = CODE_OR;
-							++y;
-						}
-						log_std((" or"));
-					}
-				}
-
-				while (k<SEQ_MAX) {
-					unsigned v;
-					switch (seq[k]) {
-					case DIGITAL_SPECIAL_NONE :
-						v = CODE_NONE;
-						break;
-					case DIGITAL_SPECIAL_OR :
-						v = CODE_OR;
-						log_std((" or"));
-						break;
-					case DIGITAL_SPECIAL_NOT :
-						v = CODE_NOT;
-						log_std((" not"));
-						break;
-					default:
-						switch (DIGITAL_TYPE_GET(seq[k])) {
-						case DIGITAL_TYPE_KBD :
-							v = mame_ui_code_from_oskey(seq[k]);
-							log_std((" keyboard[raw:0x%x,mamekeycode:%d]", seq[k], v));
-							break;
-						case DIGITAL_TYPE_MOUSE_BUTTON :
-							v = mame_ui_code_from_osjoystick(seq[k]);
-							log_std((" mouse_button[raw:0x%x,mamejoycode:%d]", seq[k], v));
-							break;
-						case DIGITAL_TYPE_JOY_BUTTON :
-							v = mame_ui_code_from_osjoystick(seq[k]);
-							log_std((" joystick_button[raw:0x%x,mamejoycode:%d]", seq[k], v));
-							break;
-						case DIGITAL_TYPE_JOY :
-							v = mame_ui_code_from_osjoystick(seq[k]);
-							log_std((" joystick_digital[raw:0x%x,mamejoycode:%d]", seq[k], v));
-							break;
-						default :
-							v = CODE_NONE;
-							break;
-						}
-					}
-					if (y < SEQ_MAX) {
-						i->seq[y] = v;
-						++y;
-					} else {
-						if (v != CODE_NONE)
-							overflow = 1;
-					}
-					++k;
-				}
-				while (y < SEQ_MAX) {
-					i->seq[y] = CODE_NONE;
-					++y;
-				}
-				log_std(("\n"));
-				if (overflow) {
-					log_std(("ERROR:emu:input: input map definition overflow\n"));
-				}
-			}
-		}
-
-		++i;
-	}
-}
-
 void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -2130,12 +2106,11 @@ void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsign
 		if (p->port == type) {
 			char tag_buffer[64];
 			char value_buffer[512];
-			char* d;
 
 			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
-			if (seq[0] == DIGITAL_SPECIAL_AUTO || seq[0] == DIGITAL_SPECIAL_NONE) {
-				log_std(("emu:input: customize port %s auto\n", tag_buffer));
+			if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
+				log_std(("emu:input: customize port default %s\n", tag_buffer));
 
 				conf_remove(cfg_context, "", tag_buffer);
 			} else {
@@ -2166,14 +2141,13 @@ void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned s
 		if (p->port == type) {
 			char tag_buffer[64];
 			char value_buffer[512];
-			char* d;
 
 			log_std(("emu:input: setup port %s\n", p->name));
 
 			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
-			if (seq[0] == DIGITAL_SPECIAL_AUTO || seq[0] == DIGITAL_SPECIAL_NONE) {
-				log_std(("emu:input: customize port %s/%s auto\n", mame_game_name(game), tag_buffer));
+			if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
+				log_std(("emu:input: customize port default %s/%s\n", mame_game_name(game), tag_buffer));
 
 				conf_remove(cfg_context, mame_game_name(game), tag_buffer);
 			} else {
@@ -2189,7 +2163,6 @@ void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned s
 
 		++p;
 	}
-
 }
 
 /***************************************************************************/
@@ -2199,6 +2172,7 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 {
 	unsigned i;
 	struct mame_port* p;
+	struct mame_analog* a;
 
 	conf_bool_register_default(cfg_context, "input_hotkey", 1);
 	conf_bool_register_default(cfg_context, "input_steadykey", 0);
@@ -2233,6 +2207,15 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 		++p;
 	}
 
+	/* analog settings */
+	a = mame_analog_list();
+	while (a->name) {
+		char tag_buffer[64];
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", a->name);
+		conf_string_register(cfg_context, tag_buffer);
+		++a;
+	}
+
 	conf_string_register_multi(cfg_context, "input_name");
 
 	joystickb_reg(cfg_context, 0);
@@ -2243,7 +2226,6 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 	keyb_reg_driver_all(cfg_context);
 
 	context->state.active_flag = 0;
-	context->config.digital_mac = 0;
 
 	return 0;
 }
@@ -2255,8 +2237,6 @@ void advance_input_done(struct advance_input_context* context)
 
 adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context)
 {
-	unsigned i;
-
 	assert(context->state.active_flag == 0);
 
 	if (joystickb_init() != 0) {
@@ -2401,10 +2381,6 @@ void advance_input_update(struct advance_input_context* context, struct advance_
 
 adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
 {
-	const char* s;
-	unsigned i, j;
-	struct mame_port* p;
-
 	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
 	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
 	context->config.input_idle_limit = conf_int_get_default(cfg_context, "input_idleexit");

@@ -1,6 +1,20 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.78.0
+	This release completely removes the .cfg file support. All the
+	customization information are now saved in the main .rc file.
+	This allow to view, edit and copy them directly. They are also more
+	compact because only the difference from the default is saved.
+	And they are independent of the internal MAME structure.
+
+	This release add also a new user interface managed directly by
+	AdvanceMAME which allow better visualization control because the
+	interface isn't draw on the game bitmap, but directly on the screen.
+	This mean that the interface doesn't have the same video effects
+	of the game, it isn't limited on the game area, and it isn't recorded
+	on video clips.
+
 AdvanceMAME 0.77.0
 	This release removes the legacy support for the DOS
 	unchained VGA modes and for the banked VBE modes. It means

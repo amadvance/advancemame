@@ -127,10 +127,18 @@ Configuring
 	and the optimization flags. You can use the --with-sdl-prefix option
 	to search for the SDL library in a specific location.
 
-	If you want to customize the compilation CFLAGS you can put them on the
-	./configure command line, for example:
+	If you want to customize the compilation CFLAGS and LDFLAGS you can put
+	them on the ./configure command line.
 
-		:./configure CFLAGS="-O2 -march=pentium4 -fomit-frame-pointer" LDFLAGS="-s"
+	For example for high optimization on Pentium4:
+
+		:./configure CFLAGS="-O3 -march=pentium4 -fomit-frame-pointer" \
+		:	LDFLAGS="-s"
+
+	If you have the "Intel C Compiler 8" you can try with the command:
+
+		:./configure CC=icc CFLAGS="-I/usr/local/include -O3 -march=pentium4" \
+		:	LDFLAGS="-lsvml"
 
 	The configure script automatically detects the emulator to compile
 	checking the installed sources. You can force a specific emulator,
@@ -159,7 +167,8 @@ Installing
 	Copy manually the compiled executables in a directory of your choice.
 
 Requirements
-	To compile AdvanceMAME you need at least 256 Mbyte of memory.
+	To compile AdvanceMAME you need at least 128 Mbyte of memory, 256 Mbyte
+	are suggested.
 
     Linux
 	To build in Linux you need the following software:

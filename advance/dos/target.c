@@ -148,14 +148,13 @@ void target_mode_reset(void)
 	/* restore the original video mode */
 	struct vga_info info;
 
-#if 0
+	/* normal behaviour for correct BIOS */
 	if (!os_internal_brokenint10_active()) {
 		__dpmi_regs r;
 		r.x.ax = 0x3;
 		__dpmi_int(0x10, &r);
 		return;
 	}
-#endif
 
 #ifdef USE_VIDEO_SVGALINE
 	/* restore the SVGA */
@@ -173,7 +172,7 @@ void target_mode_reset(void)
 			vga_font_copy(vga_font_bios_16, 16, 0, 1);
 		} else if (info.char_size_y>=14) {
 			vga_font_copy(vga_font_bios_14, 14, 0, 1);
-		} else if (info.char_size_y>=8) {
+		} else {
 			vga_font_copy(vga_font_bios_8, 8, 0, 1);
 		}
 

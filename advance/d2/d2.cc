@@ -874,12 +874,20 @@ void convert_html::pre_begin(unsigned level)
 		os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr>";
 		os << "<td width=\"5%\"></td><td width=\"95%\">" << endl;
 	}
+#if 0
 	os << "<font face=\"Courier\">" << endl;
+#else
+	os << "<pre>" << endl;
+#endif
 }
 
 void convert_html::pre_end()
 {
+#if 0
 	os << "</font>" << endl;
+#else
+	os << "</pre>" << endl;
+#endif
 	if (state == state_pre1) {
 		os << "</td></tr></table>" << endl;
 	}
@@ -888,7 +896,11 @@ void convert_html::pre_end()
 
 void convert_html::pre_text(const string& s)
 {
-	os << mask(s) << "<br>" << endl;
+	os << mask(s);
+#if 0
+	os  << "<br>";
+#endif
+	os << "\n";
 }
 
 void convert_html::sep()

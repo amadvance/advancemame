@@ -102,7 +102,6 @@ void target_usleep(unsigned us)
 	struct timeval start_tv;
 	struct timeval stop_tv;
 	struct timespec req;
-	long long start, stop;
 	unsigned requested;
 	unsigned effective;
 
@@ -122,9 +121,8 @@ void target_usleep(unsigned us)
 	effective = (stop_tv.tv_sec - start_tv.tv_sec) * 1000000 + (stop_tv.tv_usec - start_tv.tv_usec);
 
 	if (effective > us) {
-#if 0 /* don't adjust the granularity, it should be measured by the OS code */
-		TARGET.usleep_granularity += effective - us;
-#endif
+		/* don't adjust the granularity, it should be measured by the OS code */
+		/* TARGET.usleep_granularity += effective - us; */
 		log_std(("WARNING:linux: target_usleep() too long, granularity %d [us] (requested %d, tryed %d, effective %d)\n", TARGET.usleep_granularity, us, requested, effective));
 	}
 }

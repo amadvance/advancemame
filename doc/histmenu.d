@@ -2,6 +2,10 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.17 2004/01
+	) Removed the MAME .cfg support. AdvanceMAME doesn't use them
+		anymore.
+	) The DOS version should now restore correctly the video mode at the
+		program exit.
 
 AdvanceMENU Version 2.2.16 2003/12
 	) The menu is now more aggressive using CPU power. It helps

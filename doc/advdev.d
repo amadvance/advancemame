@@ -48,7 +48,7 @@ Video Drivers
 	the SVGALIB library.
 
 	All clocks, all RGB bit depths are available.
-	This driver is generally able to syncronize with the vertical sync
+	This driver is generally able to synchronize with the vertical sync
 	of the video mode.
 
 	To use these modes your video board must be supported
@@ -71,7 +71,7 @@ Video Drivers
 
 	All clocks, all RGB bit depths are available.
 
-	This driver is able to use the Linux fb API to syncronize with
+	This driver is able to use the Linux fb API to synchronize with
 	the vertical sync of the video mode, but generally it isn't possible
 	because the low end drivers don't support this feature.
 	Anyway, if you run the program as root it can use the standard VGA
@@ -278,7 +278,7 @@ Input Drivers
 	This driver works in Linux and it uses the new style input-event
 	interface of the Linux kernel.
 
-	It supports more than one joystick or lightgun at the same time.
+	It supports more than one joystick or light-gun at the same time.
 
 	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
@@ -291,10 +291,14 @@ Input Drivers
 	Paralle Port. Details on how to build these custom interfaces are
 	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
 
-	It has a special support for the ACT Lightgun to fix the wrong
-	behaviour of the lightgun when shooting out of screen.
+	It has a special support for the ACT Light-gun to fix the wrong
+	behavior of the light-gun when shooting out of screen.
 
 	The joysticks are searched on the /dev/input/eventX devices.
+
+	If you have a gameport joystick, the Linux Kernel Joystick driver
+	may prevent a correct video vsync if the joystick polling is too slow.
+	Generally it results in a missing frame every 5-10 seconds.
 
     svgalib - SVGALIB joystick (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
@@ -303,6 +307,10 @@ Input Drivers
 
 	The joysticks are searched on the /dev/jsX devices.
 
+	If you have a gameport joystick, the Linux Kernel Joystick driver
+	may prevent a correct video vsync if the joystick polling is too slow.
+	Generally it results in a missing frame every 5-10 seconds.
+
     raw - Kernel joystick (Linux)
 	This driver works in Linux and it uses directly the Linux kernel
 	joystick interface.
@@ -310,6 +318,10 @@ Input Drivers
 	It supports up to 4 joysticks at the same time.
 
 	The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
+
+	If you have a gameport joystick, the Linux Kernel Joystick driver
+	may prevent a correct video vsync if the joystick polling is too slow.
+	Generally it results in a missing frame every 5-10 seconds.
 
     sdl - SDL joystick (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
@@ -573,7 +585,9 @@ Video Drivers Configuration
 	the format used by the Linux SVGALIB library and by the
 	XFree Window system.
 
-	:device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT [-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace] [tvpal] [tvntsc]
+	:device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT
+	:	[-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace]
+	:	[tvpal] [tvntsc]
 
 	Options:
 		Name - Name of the video mode. You can use the quotes
@@ -592,7 +606,8 @@ Video Drivers Configuration
 			video board scan converter.
 
 	Examples:
-		:device_video_modeline tweak320x240 12.59 320 336 356 400 240 249 254 262 doublescan -hsync -vsync
+		:device_video_modeline tweak320x240 12.59 320 336 356 400 240 \
+		:	249 254 262 doublescan -hsync -vsync
 
 	The `tvpal' and `tvntsc' are available only for the nVidia
 	svgaline driver.
@@ -910,7 +925,7 @@ Input Drivers Configuration
 	:device_raw_mousetype[0,1,2,3] auto | DEVICE
 
 	Devices:
-		auto - Autotection. It works only sometimes, generally
+		auto - Auto detection. It works only sometimes, generally
 			it's better to manually select the type.
 		pnp - Plug And Play serial (3 buttons).
 		ms - Microsoft Mouse serial (3 buttons).

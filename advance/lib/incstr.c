@@ -31,7 +31,6 @@
 #include "incstr.h"
 
 #include <stdlib.h>
-#include <errno.h>
 
 void inc_str_init(adv_string* str)
 {
@@ -53,7 +52,6 @@ void inc_str_done(adv_string* str)
 static adv_error inc_str_step(adv_string* str)
 {
 	if (str->buffer_mac == STR_MAX) {
-		errno = ENOMEM;
 		return -1;
 	}
 
@@ -61,7 +59,6 @@ static adv_error inc_str_step(adv_string* str)
 	str->current_max = 1 << (str->buffer_mac + 1 + STR_MIN);
 	str->current = malloc(str->current_max);
 	if (!str->current) {
-		errno = ENOMEM;
 		return -1;
 	}
 
@@ -71,9 +68,8 @@ static adv_error inc_str_step(adv_string* str)
 	return 0;
 }
 
-adv_error inc_str_catm(adv_string* str, const char* s, unsigned len)
+adv_error inc_str_catn(adv_string* str, const char* s, unsigned len)
 {
-
 	while (1) {
 		unsigned run = str->current_max - str->current_mac;
 		if (run > len)
@@ -120,7 +116,6 @@ char* inc_str_alloc(adv_string* str)
 
 	result = malloc(str->result_mac + 1);
 	if (!result) {
-		errno = ENOMEM;
 		return 0;
 	}
 

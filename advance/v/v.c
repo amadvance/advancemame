@@ -44,10 +44,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef __MSDOS__
-#include <dpmi.h>
-#endif
-
 /***************************************************************************/
 /* Common variable */
 
@@ -1689,6 +1685,8 @@ static int menu_run(void)
 
 #ifdef __MSDOS__
 
+#include <dpmi.h>
+
 adv_bool the_advance_vbe_active; /* if AdvanceVBE is active */
 adv_bool the_advance_vga_active; /* if AdvanceVGA is active */
 
@@ -1835,7 +1833,7 @@ int os_main(int argc, char* argv[])
 
 #ifdef __MSDOS__
 	/* WARNING the MSDOS drivers are registered after the command line management. */
-	/* It implyes taht you cannot specify any driver options on the command line */
+	/* It implyes that you cannot specify any driver options on the command line */
 	msdos_rut();
 
 	if (the_advance == advance_vga) {

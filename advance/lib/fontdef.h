@@ -25,8 +25,8 @@
 /** \addtogroup Font */
 /*@{*/
 
-#ifndef __FONTDEF_
-#define __FONTDEF_
+#ifndef __FONTDEF_H
+#define __FONTDEF_H
 
 #ifdef __cplusplus
 extern "C" {

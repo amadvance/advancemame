@@ -39,14 +39,6 @@
 #include "../../srcmess/osdepend.h"
 #include "../../srcmess/ui_text.h"
 
-#elif defined(PAC)
-
-#include "../../srcpac/mame.h"
-#include "../../srcpac/driver.h"
-#include "../../srcpac/info.h"
-#include "../../srcpac/osdepend.h"
-#include "../../srcpac/ui_text.h"
-
 #else
 
 #include "../../src/mame.h"

@@ -133,7 +133,7 @@ void inputb_done(void);
 /**
  * Enable the input driver.
  * The input driver must be enabled after the video mode set.
- * \param graphics_mode Enable the graphics mode behaviour, disabling echo and cursor.
+ * \param graphics Enable the graphics mode behaviour, disabling echo and cursor.
  */
 adv_error inputb_enable(adv_bool graphics);
 

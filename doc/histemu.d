@@ -9,20 +9,33 @@ AdvanceMAME Version 0.78.0 2004/01
 	) Added a new `cocktail' button which flip the game screen for
 		a cocktail monitor. The default key is the slash on the
 		keypad.
-	) A new MAME like user interface completly independent of the MAME core.
-		It allows to use an arbitrary font and to prevent the user
-		interface to appears on the snapshot and video recording functions.
-	) Removed the .cfg file support. All the input customization are now
-		in the .rc file.
+	) A new MAME like user interface completely independent of the MAME core.
+		This interface doesn't have applied the same video
+		effects of the game, it isn't limited on the game area, it
+		isn't recorded on video clips and you can customize the font.
+	) Removed the .cfg file support. All the input customizations are now
+		saved in the .rc file.
+	) The frame skipping algorithm try now to get the correct speed of the
+		game also if it imply a waste of CPU time.
 	) Fixed the screen position on games with a moving display area.
 		For example invaders in cocktail mode.
+	) The exit menu is always displayed if the `safequit' function is
+		enabled and the `event.dat' file is missing or it doesn't contain
+		information of the game. You can disable it with the option
+		`misc_safequit no'.
+	) The DOS version should now restore correctly the video mode at the
+		program exit.
+	) Fixed the mouse support with the SVGALIB driver.
+
+AdvanceMESS Version 0.78.0.0 2004/01
+	) All from AdvanceMAME 0.78.0.
 
 AdvanceMAME Version 0.77.2 2003/12
 	) Games with unemulated protection are now reported as not working.
 		For example Choplifter.
 	) The DOS version now automatically disable any BIOS call on ATI
 		boards to prevent problems on broken video BIOS.
-	) Improved the frame syncronization algorithm. It uses less
+	) Improved the frame synchronization algorithm. It uses less
 		CPU power if the operating system have a fine sleep
 		granularity like Linux 2.6.x.
 	) Reverted back the S3 Savage/Virge/Trio SVGALIB driver at
@@ -30,10 +43,10 @@ AdvanceMAME Version 0.77.2 2003/12
 		a regression in version 1.9.18.
 
 AdvanceMAME Version 0.77.1 2003/12
-	) The audio/video syncroniziation is now done by AdvanceMAME
+	) The audio/video synchronization is now done by AdvanceMAME
 		without using the internal MAME core support. This should
-		solve all the sound distorsion problems present in some game
-		and all the input recording desyncronizations.
+		solve all the sound distortion problems present in some game
+		and all the input recording desynchronizations.
 	) The `display_interlaceffect' option has now a new `filter' value
 		which operates like the old `filtery' effect.
 	) The configuration options are also read in the parent game and bios

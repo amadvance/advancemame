@@ -223,7 +223,7 @@ static int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 	int r, g, b;
 	int y, u, v;
 
-#if 0 /* assume standard rgb formats */
+#if 0 /* OSDEF Reference code */
 	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
 		return 0;
 
@@ -231,6 +231,7 @@ static int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
 	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
 #else
+	/* assume standard rgb formats */
 	if (p1 == p2)
 		return 0;
 
@@ -268,7 +269,7 @@ static int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	int r, g, b;
 	int y, u, v;
 
-#if 0 /* assume standard rgb formats */
+#if 0 /* OSDEF Reference code */
 	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
 		return 0;
 
@@ -276,6 +277,7 @@ static int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
 	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
 #else
+	/* assume standard rgb formats */
 	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
 		return 0;
 

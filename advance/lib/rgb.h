@@ -111,8 +111,9 @@ unsigned color_def_bytes_per_pixel_get(adv_color_def rgb_def);
 adv_color_type color_def_type_get(adv_color_def rgb_def);
 
 adv_color_def color_def_make(adv_color_type type);
-adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-adv_color_def color_def_make_from_rgb_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask);
+adv_color_def color_def_make_palette_from_size(unsigned bytes_per_pixel);
+adv_color_def color_def_make_rgb_from_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
+adv_color_def color_def_make_rgb_from_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask);
 adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
 

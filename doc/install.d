@@ -6,7 +6,7 @@ First Time Configuration
 	correctly.
 	
 	If you want to run them as standard applications in a Window
-	Manager environemnt like X Window, Windows or Mac OS X Acqua, you
+	Manager environment like X Window, Windows or Mac OS X Acqua, you
 	don't need to configure any video options.
 	
 	If you want to enable the direct programming of the video board
@@ -35,7 +35,7 @@ Video Configuration
 	
 	This features is available in Linux with the SVGALIB and Frame
 	Buffer libraries, in DOS with the SVGALIB library and in Windows with
-	the SVGAWIN library. It isn't availale on Mac OS X and other Unix.
+	the SVGAWIN library. It isn't available on Mac OS X and other Unix.
 
 	To made it possible the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal
@@ -101,7 +101,7 @@ Video Configuration
 	This is the description of the few basic steps required to run
 	the programs in the manual operation mode.
 
-	) For AdvamceMAME add in the in the file `advmame.rc' these options:
+	) For AdvanceMAME add in the in the file `advmame.rc' these options:
 
 		:display_mode auto
 		:display_adjust x
@@ -183,6 +183,9 @@ Video Configuration
 
 	) Press ESC to exit from `advv'
 
+	In the `contrib/modeline' dir are present some .rc file with some
+	example modelines. The same modelines are contained in the `advv'
+	program.
 
   Video Troubleshooting
 	) Delete any old configuration files and restart from scratch.

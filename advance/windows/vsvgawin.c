@@ -826,7 +826,7 @@ adv_color_def svgawin_color_def(void)
 	if (adv_svgalib_pixel_get() == 1)
 		return color_def_make(adv_color_type_palette);
 	else
-		return color_def_make_from_rgb_sizelenpos(adv_svgalib_state.mode.bytes_per_pixel, adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
+		return color_def_make_rgb_from_sizelenpos(adv_svgalib_state.mode.bytes_per_pixel, adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
 }
 
 void svgawin_wait_vsync(void)

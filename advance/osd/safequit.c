@@ -2,7 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Ian Patterson
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -213,7 +213,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		} else if (len > 0) {
 			/* entry def */
 			if (advance_safequit_insert_database(context, buffer, line, game_name_buffer, match) != 0)
-				goto err;
+				goto err_close;
 			def = 0;
 		}
 
@@ -221,7 +221,6 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		buffer[0] = 0;
 	}
 
-done:
 	fclose(f);
 	return 0;
 
@@ -270,7 +269,6 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 	context->state.entry_mac = 0;
 	context->state.status = 0;
 	context->state.coin_set = 0;
-	context->state.coin_format = safequit_format_bcd;
 
 	if (!context->config.safe_exit_flag)
 		return 0;
@@ -312,34 +310,17 @@ void advance_safequit_event(struct advance_safequit_context* context, struct saf
 	}
 }
 
-void advance_safequit_coin(struct advance_safequit_context* context, struct safequit_entry* entry, unsigned char result)
+void advance_safequit_coin(struct advance_safequit_context* context, struct safequit_entry* entry, unsigned char result, unsigned pred_coin, adv_bool pred_coin_set)
 {
 	/* try to use the zerocoin rules to detect the number of coins */
 	if (entry->event == safequit_event_zerocoin
 		&& entry->action == safequit_action_match) {
-		if (entry->result == 0 && (entry->mask == 0xf || entry->mask == 0xff)) {
+		/* general coin counters */
+		if (entry->result == 0) {
 			unsigned v = result & entry->mask;
-			if (context->state.coin_format == safequit_format_bcd) {
-				/* check if the value is in the bcd range */
-				if ((v & 0xf) > 9 || ((v & 0xf0) >> 4) > 9) {
-					context->state.coin_format = safequit_format_byte;
-				} else {
-					v = ((v & 0xf0) >> 4) * 10 + (v & 0xF);
-				}
-				if (context->state.coin_set)
-					context->state.coin += v;
-				else
-					context->state.coin = v;
-				context->state.coin_set = 1;
-			} else if (context->state.coin_format == safequit_format_byte) {
-				if (context->state.coin_set)
-					context->state.coin += v;
-				else
-					context->state.coin = v;
-				context->state.coin_set = 1;
-			}
+			context->state.coin = v;
+			context->state.coin_set = 1;
 		} else if ((result & entry->mask) == entry->result) {
-			/* unknown */
 			context->state.coin_set = 1;
 			context->state.coin = 0;
 		}
@@ -349,7 +330,13 @@ void advance_safequit_coin(struct advance_safequit_context* context, struct safe
 void advance_safequit_update(struct advance_safequit_context* context)
 {
 	unsigned i;
+	unsigned pred_coin;
+	adv_bool pred_coin_set;
 
+	pred_coin = context->state.coin;
+	pred_coin_set = context->state.coin_set;
+
+	context->state.coin = 0;
 	context->state.coin_set = 0;
 	context->state.status = 0xffffffff;
 
@@ -358,7 +345,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 		unsigned char result = mame_ui_cpu_read(entry->cpu, entry->address);
 
 		advance_safequit_event(context, entry, result);
-		advance_safequit_coin(context, entry, result);
+		advance_safequit_coin(context, entry, result, pred_coin, pred_coin_set);
 	}
 
 	if (context->config.debug_flag) {
@@ -383,10 +370,10 @@ void advance_safequit_update(struct advance_safequit_context* context)
 		buffer[16] = 0;
 
 		if (context->state.coin_set) {
-			sncatf(buffer, sizeof(buffer), "-%d", context->state.coin);
+			sncatf(buffer, sizeof(buffer), "-%02x", context->state.coin);
 		}
 
-		/* mame_ui_text(buffer, 0, 0); */ /* TODO */
+		advance_ui_message(&CONTEXT.ui, buffer);
 	}
 }
 
@@ -395,7 +382,10 @@ adv_bool advance_safequit_can_exit(struct advance_safequit_context* context)
 	if (!context->config.safe_exit_flag)
 		return 1;
 
-	return context->state.entry_mac == 0 || (context->state.status & 0x3) == 3;
+	if (context->state.entry_mac == 0)
+		return 0;
+
+	return (context->state.status & 0x3) == 3;
 }
 
 adv_bool advance_safequit_event_mask(struct advance_safequit_context* context)

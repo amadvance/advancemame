@@ -34,7 +34,11 @@
 extern "C" {
 #endif
 
-/* Key definitions. They are chosen like the Allegro library 4.0.1 */
+/** \name Keys
+ * Key definitions.
+ * \note They are chosen like the Allegro library 4.0.1.
+ */
+/*@{*/
 #define KEYB_A 1
 #define KEYB_B 2
 #define KEYB_C 3
@@ -264,6 +268,7 @@ extern "C" {
 /* hole */
 
 #define KEYB_MAX 256
+/*@}*/
 
 const char* key_name(unsigned code);
 unsigned key_code(const char* name);

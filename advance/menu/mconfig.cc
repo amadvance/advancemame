@@ -646,11 +646,11 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 	while (i<s.length()) {
 		string arg = arg_get(s, i);
 		if (arg == "flip_xy")
-			mask ^= INT_ORIENTATION_SWAP_XY;
+			mask ^= ADV_ORIENTATION_FLIP_XY;
 		else if (arg == "mirror_x")
-			mask ^= INT_ORIENTATION_FLIP_X;
+			mask ^= ADV_ORIENTATION_FLIP_X;
 		else if (arg == "mirror_y")
-			mask ^= INT_ORIENTATION_FLIP_Y;
+			mask ^= ADV_ORIENTATION_FLIP_Y;
 		else {
 			config_error_la("video_orientation " + s, arg);
 			return false;
@@ -1086,15 +1086,15 @@ bool config_state::save(adv_conf* config_context) const {
 	}
 
 	string s;
-	if ((video_orientation_orig & INT_ORIENTATION_SWAP_XY) != 0) {
+	if ((video_orientation_orig & ADV_ORIENTATION_FLIP_XY) != 0) {
 		if (s.length()) s += " ";
 		s += "flip_xy";
 	}
-	if ((video_orientation_orig & INT_ORIENTATION_FLIP_X) != 0) {
+	if ((video_orientation_orig & ADV_ORIENTATION_FLIP_X) != 0) {
 		if (s.length()) s += " ";
 		s += "mirror_x";
 	}
-	if ((video_orientation_orig & INT_ORIENTATION_FLIP_Y) != 0) {
+	if ((video_orientation_orig & ADV_ORIENTATION_FLIP_Y) != 0) {
 		if (s.length()) s += " ";
 		s += "mirror_y";
 	}

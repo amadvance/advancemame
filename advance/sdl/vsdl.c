@@ -734,7 +734,7 @@ adv_color_def sdl_color_def(void)
 	case MODE_FLAGS_INDEX_BGR16 :
 	case MODE_FLAGS_INDEX_BGR24 :
 	case MODE_FLAGS_INDEX_BGR32 :
-		return color_def_make_from_rgb_sizelenpos(
+		return color_def_make_rgb_from_sizelenpos(
 			sdl_state.surface->format->BytesPerPixel,
 			8 - sdl_state.surface->format->Rloss, sdl_state.surface->format->Rshift,
 			8 - sdl_state.surface->format->Gloss, sdl_state.surface->format->Gshift,

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,9 @@
  */
 
 #include "emu.h"
+#include "input.h"
 #include "glue.h"
+
 #include "log.h"
 #include "snstring.h"
 #include "target.h"
@@ -107,10 +109,8 @@ const char* NAME_MEDIUM[] = { "Medium", "Normal", "Normal?", 0 };
 const char* NAME_HARD[] = { "Hard", "Harder", "Difficult", "Hard?", 0 };
 const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 
-void osd_customize_inputport_game(struct InputPort* current)
+static void customize_difficulty(struct advance_global_context* context, struct InputPort* current)
 {
-	struct advance_global_context* context = &CONTEXT.global;
-
 	const char** names;
 	const char** names_secondary;
 	struct InputPort* value;
@@ -118,8 +118,6 @@ void osd_customize_inputport_game(struct InputPort* current)
 	struct InputPort* begin;
 	struct InputPort* end;
 	struct InputPort* i;
-
-	log_std(("emu:global: osd_customize_inputport_game()\n"));
 
 	names = 0;
 	names_secondary = 0;
@@ -246,6 +244,188 @@ void osd_customize_inputport_game(struct InputPort* current)
 	value->default_value = level->default_value;
 
 	log_std(("emu:global: difficulty dip switch set to '%s'\n", level->name));
+}
+
+static void customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
+{
+	struct InputPort* i;
+
+	i = current;
+	while (i->type != IPT_END) {
+		if ((i->type & ~IPF_MASK) == ipt_name) {
+			char name_buffer[256];
+			char tag_buffer[256];
+			const char* value;
+			mame_name_adjust(name_buffer, sizeof(name_buffer), i->name);
+			snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
+
+			if (conf_autoreg_string_get(cfg_context, tag_buffer, &value) == 0) {
+				struct InputPort* j;
+				j = i + 1;
+				while ((j->type & ~IPF_MASK) == ipt_setting) {
+					char value_buffer[256];
+					mame_name_adjust(value_buffer, sizeof(value_buffer), j->name);
+					if (strcmp(value_buffer, value) == 0) {
+						/* set the port */
+						i->default_value = j->default_value & i->mask;
+						log_std(("emu:global: dip switch set '%s' to '%s'\n", tag_buffer, value_buffer));
+						break;
+					}
+					++j;
+				}
+			}
+		}
+		++i;
+	}
+}
+
+static void customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+{
+	struct InputPort* i;
+
+	i = current;
+	while (i->type != IPT_END) {
+		char name_buffer[256];
+
+		if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), i->type) == 0) {
+			char tag_buffer[256];
+			const char* value;
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
+
+			if (conf_autoreg_string_get(cfg_context, tag_buffer, &value) == 0) {
+				int delta;
+				int sensitivity;
+				int reverse;
+				int center;
+				char* d;
+
+				d = strdup(value);
+				if (advance_input_parse_analogvalue(&delta, &sensitivity, &reverse, &center, d) == 0) {
+					IP_SET_DELTA(i, delta);
+					IP_SET_SENSITIVITY(i, sensitivity);
+					if (reverse)
+						i->type |= IPF_REVERSE;
+					else
+						i->type &= ~IPF_REVERSE;
+					if (center)
+						i->type |= IPF_CENTER;
+					else
+						i->type &= ~IPF_CENTER;
+					log_std(("emu:global: input set '%s %s'\n", name_buffer, value));
+				} else {
+					log_std(("ERROR:emu:global: unknown '%s %s'\n", tag_buffer, value));
+				}
+				free(d);
+			}
+		}
+
+		++i;
+	}
+}
+
+static void customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+{
+	struct InputPort* i;
+
+	i = current;
+	while (i->type != IPT_END) {
+		struct mame_port* p;
+
+		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type));
+		if (p != 0) {
+			char tag_buffer[64];
+			const char* value;
+
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+			if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
+				char* d = strdup(value);
+				unsigned seq[INPUT_MAP_MAX];
+
+				if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
+					if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+						log_std(("emu:global: input game seq '%s %s'\n", p->name, value));
+						glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq, SEQ_MAX);
+					}
+				} else {
+					log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
+				}
+
+				free(d);
+			}
+		}
+
+		++i;
+	}
+}
+
+void osd_customize_inputport_pre_game(struct InputPort* current)
+{
+	struct advance_global_context* context = &CONTEXT.global;
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const mame_game* game = CONTEXT.game;
+
+	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
+
+	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
+#ifdef MESS
+	customize_switch(context, cfg_context, game, current, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
+#endif
+	customize_difficulty(context, current);
+	customize_analog(context, cfg_context, game, current);
+	customize_input(context, cfg_context, game, current);
+}
+
+void osd_customize_inputport_pre_defaults(struct ipd* defaults)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	struct ipd* i = defaults;
+
+	log_std(("emu:global: osd_customize_inputport_pre_defaults()\n"));
+
+	while (i->type != IPT_END) {
+		struct mame_port* p;
+
+		p = mame_port_find(glue_port_convert(&i[-1].type, i[0].type));
+		if (p != 0) {
+			char tag_buffer[64];
+			const char* value;
+
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
+				char* d = strdup(value);
+				unsigned seq[INPUT_MAP_MAX];
+
+				if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
+					if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+						log_std(("emu:global: input default seq '%s %s'\n", p->name, value));
+						glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq, SEQ_MAX);
+					}
+				} else {
+					log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
+				}
+
+				free(d);
+			}
+		}
+
+		++i;
+	}
+}
+
+void osd2_customize_port_post_game(const char* tag, const char* value)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const mame_game* game = CONTEXT.game;
+
+	log_std(("emu:global: osd2_customize_port_post_game(%s,%s)\n", tag, value));
+
+	if (value) {
+		conf_autoreg_string_set(cfg_context, mame_game_name(game), tag, value);
+	} else {
+		conf_autoreg_remove(cfg_context, mame_game_name(game), tag);
+	}
 }
 
 static adv_conf_enum_int OPTION_DIFFICULTY[] = {

@@ -151,8 +151,6 @@ unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, 
 		return r < -8192; /* -1/8 of the whole range 65536 */
 	else
 		return r > 8192; /* +1/8 of the whole range 65536 */
-
-	return 0;
 }
 
 int joystickb_sdl_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)

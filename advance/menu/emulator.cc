@@ -357,10 +357,10 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 				++opos;
 				string o;
 				switch (orientation) {
-				case INT_ORIENTATION_ROT0 : o = r0; break;
-				case INT_ORIENTATION_ROT90 : o = r90; break;
-				case INT_ORIENTATION_ROT180 : o = r180; break;
-				case INT_ORIENTATION_ROT270 : o = r270; break;
+				case ADV_ORIENTATION_ROT0 : o = r0; break;
+				case ADV_ORIENTATION_ROT90 : o = r90; break;
+				case ADV_ORIENTATION_ROT180 : o = r180; break;
+				case ADV_ORIENTATION_ROT270 : o = r270; break;
 				}
 				arg.erase(ostart, opos - ostart);
 				arg.insert(ostart, o);
@@ -2123,17 +2123,8 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 		string zext = file_ext(zfile);
 
                 if (compile_ext(g, argc, argv, zext)) {
-#if 0 // always use the advmess = extension, MESS 0.64 does't search in the zip.
-			if (!case_equal(zname,name)) {
-				string spec = name + '=' + zfile;
-				argv[argc] = strdup( spec.c_str() );
-			} else {
-				argv[argc] = strdup( zfile.c_str() );
-			}
-#else
 			string spec = name + '=' + zfile;
 			argv[argc] = strdup( spec.c_str() );
-#endif
 			++argc;
 			something_found = true;
 		}
