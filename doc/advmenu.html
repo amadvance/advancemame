@@ -219,43 +219,46 @@ Selectable background and help images with translucency.
 <a href="#5.5.4">5.5.4 ui_exit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.5">5.5.5 ui_help</a><br>
+<a href="#5.5.5">5.5.5 ui_startup</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.6">5.5.6 ui_gamemsg</a><br>
+<a href="#5.5.6">5.5.6 ui_help</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.7">5.5.7 ui_game</a><br>
+<a href="#5.5.7">5.5.7 ui_gamemsg</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.8">5.5.8 ui_skiptop/bottom/left/right</a><br>
+<a href="#5.5.8">5.5.8 ui_game</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.9">5.5.9 ui_topbar/bottombar</a><br>
+<a href="#5.5.9">5.5.9 ui_skiptop/bottom/left/right</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.10">5.5.10 ui_color</a><br>
+<a href="#5.5.10">5.5.10 ui_topbar/bottombar</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.11">5.5.11 ui_clip</a><br>
+<a href="#5.5.11">5.5.11 ui_color</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.12">5.5.12 ui_translucency</a><br>
+<a href="#5.5.12">5.5.12 ui_clip</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.13">5.5.13 ui_command</a><br>
+<a href="#5.5.13">5.5.13 ui_translucency</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.14">5.5.14 ui_command_menu</a><br>
+<a href="#5.5.14">5.5.14 ui_command</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.15">5.5.15 ui_command_error</a><br>
+<a href="#5.5.15">5.5.15 ui_command_menu</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.16">5.5.16 ui_menukey</a><br>
+<a href="#5.5.16">5.5.16 ui_command_error</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.17">5.5.17 ui_console</a><br>
+<a href="#5.5.17">5.5.17 ui_menukey</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.18">5.5.18 ui_console</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#5.6">5.6 Input Configuration Options</a><br>
@@ -1892,10 +1895,8 @@ For .MNG files only the first frame is used.
 <h4><a name="5.5.4">5.5.4</a> 
 ui_exit
 </h4>
-Defines an exit background image in .PNG or .MNG format displayed when
-the emulator exits. The image is stretched to fit the screen.
-The message is displayed only if the option `display_restoreaatexit'
-is set to `no'.
+Defines an exit image/clip in .PNG or .MNG format displayed
+at the frontexit exit. The image is stretched to fit the screen.
 <p>
 ui_exit FILE | none
 <p>
@@ -1912,12 +1913,31 @@ FILE
 File in .PNG or .MNG format to load.
 </td></tr>
 </table>
-<p>
-For .MNG files only the first frame is used.
 <h4><a name="5.5.5">5.5.5</a> 
+ui_startup
+</h4>
+Defines a startup image/clip in .PNG or .MNG format displayed
+at the frontend startup. The image is stretched to fit the screen.
+<p>
+ui_startup FILE | none
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No image (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+File in .PNG or .MNG format to load.
+</td></tr>
+</table>
+<h4><a name="5.5.6">5.5.6</a> 
 ui_help
 </h4>
-Defines an help image in .PNG or .MNG format displayed when the
+Defines an help image/clip in .PNG or .MNG format displayed when the
 user press F1. The image is stretched to fit the screen.
 <p>
 ui_help FILE | none
@@ -1935,9 +1955,7 @@ FILE
 File in .PNG or .MNG format to load.
 </td></tr>
 </table>
-<p>
-For .MNG files only the first frame is used.
-<h4><a name="5.5.6">5.5.6</a> 
+<h4><a name="5.5.7">5.5.7</a> 
 ui_gamemsg
 </h4>
 One line message displayed when a game is chosen. The
@@ -1965,7 +1983,7 @@ Examples:
 ui_gamemsg "Avvio il gioco..."
 </pre>
 </td></tr></table>
-<h4><a name="5.5.7">5.5.7</a> 
+<h4><a name="5.5.8">5.5.8</a> 
 ui_game
 </h4>
 Selects the preview type to display when a game is run. The
@@ -1990,7 +2008,7 @@ Display the
 specified preview. (default snap).
 </td></tr>
 </table>
-<h4><a name="5.5.8">5.5.8</a> 
+<h4><a name="5.5.9">5.5.9</a> 
 ui_skiptop/bottom/left/right
 </h4>
 Defines the border area of the screen not used by the menu.
@@ -2012,14 +2030,14 @@ N
 Number of pixel to skip (default 0).
 </td></tr>
 </table>
-<h4><a name="5.5.9">5.5.9</a> 
+<h4><a name="5.5.10">5.5.10</a> 
 ui_topbar/bottombar
 </h4>
 Enables or disables the top and bottom information bars.
 <p>
 ui_topbar yes | no
 ui_bottombar yes | no
-<h4><a name="5.5.10">5.5.10</a> 
+<h4><a name="5.5.11">5.5.11</a> 
 ui_color
 </h4>
 Selects the user interface colors.
@@ -2147,7 +2165,7 @@ BACKGROUND
 Background color. Like foreground color.
 </td></tr>
 </table>
-<h4><a name="5.5.11">5.5.11</a> 
+<h4><a name="5.5.12">5.5.12</a> 
 ui_clip
 </h4>
 Selects how play the video clips.
@@ -2192,7 +2210,7 @@ Play all the clips, and loop all the clips.
 The sound is not looped.
 </td></tr>
 </table>
-<h4><a name="5.5.12">5.5.12</a> 
+<h4><a name="5.5.13">5.5.13</a> 
 ui_translucency
 </h4>
 Selects the translucency of the user interface.
@@ -2211,7 +2229,7 @@ Translucency factor from 0 to 1
 <p>
 The translucency has effect only if you have a background
 image.
-<h4><a name="5.5.13">5.5.13</a> 
+<h4><a name="5.5.14">5.5.14</a> 
 ui_command
 </h4>
 Defines the user commands. These commands are executed as
@@ -2272,7 +2290,7 @@ ui_command "Enable GamePad" \
 &nbsp;&nbsp;&nbsp;&nbsp;modprobe analog js=gamepad
 </pre>
 </td></tr></table>
-<h4><a name="5.5.14">5.5.14</a> 
+<h4><a name="5.5.15">5.5.15</a> 
 ui_command_menu
 </h4>
 Selects the name of the menu entry for the commands submenu.
@@ -2287,7 +2305,7 @@ MENU
 Name of the menu entry (default "Command").
 </td></tr>
 </table>
-<h4><a name="5.5.15">5.5.15</a> 
+<h4><a name="5.5.16">5.5.16</a> 
 ui_command_error
 </h4>
 Selects the message to display if a command fails.
@@ -2302,13 +2320,13 @@ MSG
 Message to display (default "Error running the command").
 </td></tr>
 </table>
-<h4><a name="5.5.16">5.5.16</a> 
+<h4><a name="5.5.17">5.5.17</a> 
 ui_menukey
 </h4>
 Enables or disables the key names in the menu entries.
 <p>
 ui_menukey yes | no
-<h4><a name="5.5.17">5.5.17</a> 
+<h4><a name="5.5.18">5.5.18</a> 
 ui_console
 </h4>
 Changes the user interface behavior for the use on a game

@@ -3,6 +3,15 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.7 2005/03
+=================================
+
+* Added a new `ui_startup' option to display a clip/image
+  at the menu startup.
+* Extended the `ui_help' and `ui_exit' option to
+  allow to display also a clip.
+
+
 ADVANCEMENU VERSION 2.4.6 2005/02
 =================================
 

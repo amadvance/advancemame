@@ -929,10 +929,8 @@ Options:
 For .MNG files only the first frame is used.
 
 ---- 5.5.4 ui_exit ----
-Defines an exit background image in .PNG or .MNG format displayed when
-the emulator exits. The image is stretched to fit the screen.
-The message is displayed only if the option `display_restoreaatexit'
-is set to `no'.
+Defines an exit image/clip in .PNG or .MNG format displayed
+at the frontexit exit. The image is stretched to fit the screen.
 
 ui_exit FILE | none
 
@@ -940,10 +938,18 @@ Options:
     none - No image (default).
     FILE - File in .PNG or .MNG format to load.
 
-For .MNG files only the first frame is used.
+---- 5.5.5 ui_startup ----
+Defines a startup image/clip in .PNG or .MNG format displayed
+at the frontend startup. The image is stretched to fit the screen.
 
----- 5.5.5 ui_help ----
-Defines an help image in .PNG or .MNG format displayed when the
+ui_startup FILE | none
+
+Options:
+    none - No image (default).
+    FILE - File in .PNG or .MNG format to load.
+
+---- 5.5.6 ui_help ----
+Defines an help image/clip in .PNG or .MNG format displayed when the
 user press F1. The image is stretched to fit the screen.
 
 ui_help FILE | none
@@ -952,9 +958,7 @@ Options:
     none - No image (default).
     FILE - File in .PNG or .MNG format to load.
 
-For .MNG files only the first frame is used.
-
----- 5.5.6 ui_gamemsg ----
+---- 5.5.7 ui_gamemsg ----
 One line message displayed when a game is chosen. The
 message is displayed only if the option `display_restoreatgame' is
 set to `no'.
@@ -969,7 +973,7 @@ Options:
 Examples:
     ui_gamemsg "Avvio il gioco..."
 
----- 5.5.7 ui_game ----
+---- 5.5.8 ui_game ----
 Selects the preview type to display when a game is run. The
 preview is displayed only if the option `display_restoreatgame' is
 set to `no'.
@@ -981,7 +985,7 @@ Options:
     snap, flyers, cabinets, titles - Display the
         specified preview. (default snap).
 
----- 5.5.8 ui_skiptop/bottom/left/right ----
+---- 5.5.9 ui_skiptop/bottom/left/right ----
 Defines the border area of the screen not used by the menu.
 Generally it's the part of the screen used by the background image.
 If a `ui_background' image is specified these values refer at image
@@ -996,13 +1000,13 @@ ui_skipright N
 Options:
     N - Number of pixel to skip (default 0).
 
----- 5.5.9 ui_topbar/bottombar ----
+---- 5.5.10 ui_topbar/bottombar ----
 Enables or disables the top and bottom information bars.
 
 ui_topbar yes | no
 ui_bottombar yes | no
 
----- 5.5.10 ui_color ----
+---- 5.5.11 ui_color ----
 Selects the user interface colors.
 
 ui_color TAG FOREGROUND BACKGROUND
@@ -1035,7 +1039,7 @@ Options:
         00FF00 is green and 0000FF is blue.
     BACKGROUND - Background color. Like foreground color.
 
----- 5.5.11 ui_clip ----
+---- 5.5.12 ui_clip ----
 Selects how play the video clips.
 
 ui_clip none | single | singleloop | multi | multiloop | multiloopall
@@ -1051,7 +1055,7 @@ Options:
     multiloopall - Play all the clips, and loop all the clips.
         The sound is not looped.
 
----- 5.5.12 ui_translucency ----
+---- 5.5.13 ui_translucency ----
 Selects the translucency of the user interface.
 
 ui_translucency FACTOR
@@ -1063,7 +1067,7 @@ Options:
 The translucency has effect only if you have a background
 image.
 
----- 5.5.13 ui_command ----
+---- 5.5.14 ui_command ----
 Defines the user commands. These commands are executed as
 shell scripts. The video mode is not changed, so they must be
 silent.
@@ -1095,7 +1099,7 @@ Examples:
     	sleep 1 \
     	modprobe analog js=gamepad
 
----- 5.5.14 ui_command_menu ----
+---- 5.5.15 ui_command_menu ----
 Selects the name of the menu entry for the commands submenu.
 
 ui_command_menu MENU
@@ -1103,7 +1107,7 @@ ui_command_menu MENU
 Options:
     MENU - Name of the menu entry (default "Command").
 
----- 5.5.15 ui_command_error ----
+---- 5.5.16 ui_command_error ----
 Selects the message to display if a command fails.
 
 ui_command_error MSG
@@ -1111,12 +1115,12 @@ ui_command_error MSG
 Options:
     MSG - Message to display (default "Error running the command").
 
----- 5.5.16 ui_menukey ----
+---- 5.5.17 ui_menukey ----
 Enables or disables the key names in the menu entries.
 
 ui_menukey yes | no
 
----- 5.5.17 ui_console ----
+---- 5.5.18 ui_console ----
 Changes the user interface behavior for the use on a game
 console system. Mainly for AdvanceCD.
 

@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.94.0 2005/03
+	) The install target now create the bin/ directory if
+		it's missing.
+
 AdvanceMAME Version 0.92.1 2005/02
 	) Fixed the recognition of the `sync_resample' option.
 		If you notify sound problem try setting

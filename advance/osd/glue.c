@@ -514,6 +514,7 @@ const mame_game* mame_game_at(unsigned i)
 void mame_print_xml(FILE* out)
 {
 	cpuintrf_init();
+	sndintrf_init();
 	print_mame_xml(out, drivers);
 }
 

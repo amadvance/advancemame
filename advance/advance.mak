@@ -289,6 +289,7 @@ pkgdir = $(datadir)/advance
 pkgdocdir = $(docdir)/advance
 
 installdirs:
+	-$(INSTALL_PROGRAM_DIR) $(bindir)
 	-$(INSTALL_DATA_DIR) $(pkgdir)
 	-$(INSTALL_DATA_DIR) $(pkgdocdir)
 	-$(INSTALL_MAN_DIR) $(mandir)/man1
