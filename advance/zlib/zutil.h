@@ -2,7 +2,6 @@
 #define ZUTIL_H
 
 #define ZLIB_INTERNAL
-
 #include "zlib.h"
 
 #include <stddef.h>
@@ -61,8 +60,6 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #define zmemcmp memcmp
 #define zmemzero(dest, len) memset(dest, 0, len)
 
-        /* diagnostic functions */
-
 #  define Assert(cond,msg)
 #  define Trace(x)
 #  define Tracev(x)
@@ -70,7 +67,6 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #  define Tracec(c,x)
 #  define Tracecv(c,x)
 
-        /* alloc functions */
 
 voidpf zcalloc OF((voidpf opaque, unsigned items, unsigned size));
 void   zcfree  OF((voidpf opaque, voidpf ptr));

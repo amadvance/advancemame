@@ -45,7 +45,9 @@ typedef void const *voidpc;
 typedef void FAR   *voidpf;
 typedef void       *voidp;
 
-#define  z_off_t long
+#include <sys/types.h>
+#include <unistd.h>
+#define  z_off_t off_t
 
 #endif /* ZCONF_H */
 

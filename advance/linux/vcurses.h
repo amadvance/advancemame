@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,33 +28,32 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __EVENT_H
-#define __EVENT_H
+/** \file
+ * Video driver "curses".
+ */
 
-#include "extra.h"
+#ifndef __VCURSES_H
+#define __VCURSES_H
 
-int event_open(const char* file, unsigned char* evtype_bitmask, unsigned evtype_size);
-void event_close(int f);
-void event_log(int f, unsigned char* evtype_bitmask);
-adv_error event_read(int f, int* type, int* code, int* value);
+#include "videodrv.h"
 
-adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask);
-adv_bool event_is_joystick(int f, unsigned char* evtype_bitmask);
-adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct event_location {
-	char file[128];
-	unsigned vendor;
-	unsigned product;
-	unsigned version;
-	unsigned bus;
-};
+typedef struct curses_video_mode_struct {
+	unsigned font_size_x; /** Fake font width. */
+	unsigned font_size_y; /** Fake font height. */
+} curses_video_mode;
 
-unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_bool* eaccess);
+/**
+ * Video driver "curses".
+ * \ingroup Video
+ */
+extern adv_video_driver video_curses_driver;
 
-static inline adv_bool event_test_bit(unsigned bit, unsigned char* evtype_bitmask)
-{
-	return (evtype_bitmask[bit/8] & (1 << (bit % 8))) != 0;
+#ifdef __cplusplus
 }
+#endif
 
 #endif

@@ -1,6 +1,6 @@
-This is an adaption of the zlib-1.2.1.1 library to be directly
+This is an adaption of the zlib-1.2.2 library to be directly
 included in a source project.
 
-The patch zlib-1.2.1.1.diff contains the difference
-from the original library.
+The patch zlib-1.2.2.diff contains the difference from
+the original library.
 

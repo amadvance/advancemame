@@ -196,6 +196,8 @@ adv_error mouseb_event_init(int mouseb_id)
 {
 	unsigned i;
 	adv_bool eacces = 0;
+	struct event_location map[EVENT_MOUSE_DEVICE_MAX];
+	unsigned mac;
 
 	log_std(("mouseb:event: mouseb_event_init(id:%d)\n", mouseb_id));
 
@@ -218,17 +220,16 @@ adv_error mouseb_event_init(int mouseb_id)
 
 	log_std(("mouseb:event: opening mouse from 0 to %d\n", EVENT_MOUSE_DEVICE_MAX));
 
+	mac = event_locate(map, EVENT_MOUSE_DEVICE_MAX, &eacces);
+
 	event_state.mac = 0;
-	for(i=0;i<EVENT_MOUSE_DEVICE_MAX;++i) {
+	for(i=0;i<mac;++i) {
 		int f;
-		char file[128];
 
 		if (event_state.mac >= EVENT_MOUSE_MAX)
 			continue;
 
-		snprintf(file, sizeof(file), "/dev/input/event%d", i);
-
-		f = event_open(file, event_state.map[event_state.mac].evtype_bitmask);
+		f = event_open(map[i].file, event_state.map[event_state.mac].evtype_bitmask, sizeof(event_state.map[event_state.mac].evtype_bitmask));
 		if (f == -1) {
 			if (errno == EACCES) {
 				eacces = 1;
@@ -236,10 +237,8 @@ adv_error mouseb_event_init(int mouseb_id)
 			continue;
 		}
 
-		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
-
 		if (!event_is_mouse(f, event_state.map[event_state.mac].evtype_bitmask)) {
-			log_std(("mouseb:event: not a mouse on device %s\n", file));
+			log_std(("mouseb:event: not a mouse on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}

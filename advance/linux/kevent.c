@@ -727,6 +727,9 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* j;
 	unsigned i;
+	adv_bool eacces = 0;
+	struct event_location map[EVENT_KEYBOARD_DEVICE_MAX];
+	unsigned mac;
 
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
@@ -742,24 +745,21 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 		event_state.map_up_to_low[j->up_code] = j->low_code;
 	}
 
+	mac = event_locate(map, EVENT_KEYBOARD_DEVICE_MAX, &eacces);
+
 	event_state.mac = 0;
-	for(i=0;i<EVENT_KEYBOARD_DEVICE_MAX;++i) {
+	for(i=0;i<mac;++i) {
 		int f;
-		char file[128];
 
 		if (event_state.mac >= EVENT_KEYBOARD_MAX)
 			continue;
 
-		snprintf(file, sizeof(file), "/dev/input/event%d", i);
-
-		f = event_open(file, event_state.map[event_state.mac].evtype_bitmask);
+		f = event_open(map[i].file, event_state.map[event_state.mac].evtype_bitmask, sizeof(event_state.map[event_state.mac].evtype_bitmask));
 		if (f == -1)
 			continue;
 
-		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
-
 		if (!event_is_keyboard(f, event_state.map[event_state.mac].evtype_bitmask)) {
-			log_std(("keyb:event: not a keyboard on device %s\n", file));
+			log_std(("keyb:event: not a keyboard on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}

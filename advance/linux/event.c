@@ -1319,7 +1319,7 @@ static void event_unknown_log(int f, unsigned e)
 	log_std(("\n"));
 }
 
-int event_open(const char* file, unsigned char* evtype_bitmask)
+int event_open(const char* file, unsigned char* evtype_bitmask, unsigned evtype_size)
 {
 	int f;
 
@@ -1333,10 +1333,12 @@ int event_open(const char* file, unsigned char* evtype_bitmask)
 
 	log_std(("event: open device %s\n", file));
 
-	memset(evtype_bitmask, 0, sizeof(evtype_bitmask));
-	if (ioctl(f, EVIOCGBIT(0, EV_MAX), evtype_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(0,%d)) on device %s\n", (int)EV_MAX, file));
-		goto err_close;
+	if (evtype_bitmask) {
+		memset(evtype_bitmask, 0, evtype_size);
+		if (ioctl(f, EVIOCGBIT(0, EV_MAX), evtype_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(0,%d)) on device %s\n", (int)EV_MAX, file));
+			goto err_close;
+		}
 	}
 
 	return f;
@@ -1596,5 +1598,65 @@ adv_error event_read(int f, int* type, int* code, int* value)
 	*value = e.value;
 
 	return 0;
+}
+
+int event_compare(const void* void_a, const void* void_b)
+{
+	const struct event_location* a = (const struct event_location*)void_a;
+	const struct event_location* b = (const struct event_location*)void_b;
+
+	if (a->vendor < b->vendor)
+		return -1;
+	if (a->vendor > b->vendor)
+		return 1;
+	if (a->product < b->product)
+		return -1;
+	if (a->product > b->product)
+		return 1;
+
+	return strcmp(a->file, b->file);
+}
+
+unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_bool* eacces)
+{
+	unsigned event_mac;
+	unsigned i;
+
+	event_mac = 0;
+	for(i=0;i<event_max;++i) {
+		short device_info[4];
+		unsigned char evtype_bitmask[EV_MAX/8 + 1];
+		int f;
+
+		snprintf(event_map[event_mac].file, sizeof(event_map[event_mac].file), "/dev/input/event%d", i);
+
+		f = event_open(event_map[event_mac].file, evtype_bitmask, sizeof(evtype_bitmask));
+		if (f == -1) {
+			if (errno == EACCES) {
+				*eacces = 1;
+			}
+			continue;
+		}
+
+		event_log(f, evtype_bitmask);
+
+		if (ioctl(f, EVIOCGID, &device_info)) {
+			log_std(("event: error in ioctl(EVIOCGID)\n"));
+			event_close(f);
+			continue;
+		}
+
+		event_map[event_mac].vendor = device_info[ID_VENDOR];
+		event_map[event_mac].product = device_info[ID_PRODUCT];
+		event_map[event_mac].version = device_info[ID_VERSION];
+		event_map[event_mac].bus = device_info[ID_BUS];
+		++event_mac;
+
+		event_close(f);
+	}
+
+	qsort(event_map, event_mac, sizeof(event_map[0]), event_compare);
+
+	return event_mac;
 }
 
