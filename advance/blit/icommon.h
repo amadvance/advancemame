@@ -50,6 +50,10 @@
 #define P32DER(p, i) *(uint32*)(((uint8*)p) + i)
 #define P32DER0(p) *(uint32*)p
 
+/* Dereference a uint64* with a byte index */
+#define P64DER(p, i) *(uint64*)(((uint8*)p) + i)
+#define P64DER0(p) *(uint64*)p
+
 /* Suggested in "Intel Optimization" for Pentium II */
 #define ASM_JUMP_ALIGN ".p2align 4\n"
 

@@ -44,7 +44,6 @@ static void video_line_palette8to8_step1(const struct video_stage_horz_struct* s
 	uint8* dst8 = (uint8*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst8++ = palette[src8[0]];
 		src8 += 1;
 		--inner_count;
@@ -60,7 +59,6 @@ static void video_line_palette8to8(const struct video_stage_horz_struct* stage, 
 	uint8* dst8 = (uint8*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst8++ = palette[src8[0]];
 		src8 += line_index1;
 		--inner_count;
@@ -121,8 +119,7 @@ static void video_line_palette8to16_step1_def(const struct video_stage_horz_stru
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[src8[0]] | palette[src8[1]] << 16;
+		*dst32++ = cpu_uint32_make_uint16(palette[src8[0]], palette[src8[1]]);
 		src8 += 2;
 		--inner_count;
 	}
@@ -138,8 +135,7 @@ static void video_line_palette8to16(const struct video_stage_horz_struct* stage,
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[src8[0]] | palette[src8[line_index1]] << 16;
+		*dst32++ = cpu_uint32_make_uint16(palette[src8[0]], palette[src8[line_index1]]);
 		src8 += line_index2;
 		--inner_count;
 	}
@@ -163,7 +159,6 @@ static void video_line_palette8to32_step4(const struct video_stage_horz_struct* 
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst32++ = palette[src8[0]];
 		src8 += 1;
 		--inner_count;
@@ -179,7 +174,6 @@ static void video_line_palette8to32(const struct video_stage_horz_struct* stage,
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst32++ = palette[src8[0]];
 		src8 += line_index1;
 		--inner_count;
@@ -255,11 +249,7 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[src16[0]]
-			| palette[src16[1]] << 8
-			| palette[src16[2]] << 16
-			| palette[src16[3]] << 24;
+		*dst32++ = cpu_uint32_make_uint8(palette[src16[0]], palette[src16[1]], palette[src16[2]], palette[src16[3]]);
 		src16 += 4;
 		--inner_count;
 	}
@@ -334,11 +324,7 @@ static void video_line_palette16to8_def(const struct video_stage_horz_struct* st
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[P16DER0(src)]
-			| palette[P16DER(src, line_index1)] << 8
-			| palette[P16DER(src, line_index2)] << 16
-			| palette[P16DER(src, line_index3)] << 24;
+		*dst32++ = cpu_uint32_make_uint8(palette[P16DER0(src)], palette[P16DER(src, line_index1)], palette[P16DER(src, line_index2)], palette[P16DER(src, line_index3)]);
 		PADD(src, line_index4);
 		--inner_count;
 	}
@@ -398,8 +384,7 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[src16[0]] | palette[src16[1]] << 16;
+		*dst32++ = cpu_uint32_make_uint16(palette[src16[0]], palette[src16[1]]);
 		src16 += 2;
 		--inner_count;
 	}
@@ -453,8 +438,7 @@ static void video_line_palette16to16_def(const struct video_stage_horz_struct* s
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
-		*dst32++ = palette[P16DER0(src)] | palette[P16DER(src, line_index1)] << 16;
+		*dst32++ = cpu_uint32_make_uint16(palette[P16DER0(src)], palette[P16DER(src, line_index1)]);
 		PADD(src, line_index2);
 		--inner_count;
 	}
@@ -508,7 +492,6 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst32++ = palette[src16[0]];
 		src16 += 1;
 		--inner_count;
@@ -554,7 +537,6 @@ static void video_line_palette16to32_def(const struct video_stage_horz_struct* s
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		/* ENDIAN */
 		*dst32++ = palette[P16DER0(src)];
 		PADD(src, line_index1);
 		--inner_count;

@@ -31,6 +31,7 @@
 #include "blit.h"
 #include "log.h"
 #include "error.h"
+#include "endianrw.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -162,7 +163,9 @@ static inline void internal_end(void)
 	stage->plane_put_plain = 0; \
 	stage->plane_put = 0; \
 	stage->put_plain = 0; \
-	stage->put = 0
+	stage->put = 0; \
+	stage->sdef = 0; \
+	stage->ddef = 0
 
 #define STAGE_PUT(stage, _put_plain, _put) \
 	stage->put_plain = (_put_plain); \
@@ -173,6 +176,10 @@ static inline void internal_end(void)
 
 #define STAGE_PALETTE(stage, _palette) \
 	stage->palette = _palette
+
+#define STAGE_FORMAT(stage, _sdef, _ddef) \
+	stage->sdef = _sdef; \
+	stage->ddef = _ddef
 
 #include "vstretch.h"
 #include "vcopy.h"
@@ -667,15 +674,18 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_palette16to8 : return "palette 16>8";
 		case pipe_palette16to16 : return "palette 16>16";
 		case pipe_palette16to32 : return "palette 16>32";
-		case pipe_bgr8888tobgr332 : return "bgr 8888>bgr 332";
-		case pipe_bgr8888tobgr565 : return "bgr 8888>bgr 565";
-		case pipe_bgr8888tobgr555 : return "bgr 8888>bgr 555";
-		case pipe_bgr8888toyuy2 : return "bgr 8888>yuy2";
+		case pipe_bgra8888tobgr332 : return "bgra 8888>bgr 332";
+		case pipe_bgra8888tobgr565 : return "bgra 8888>bgr 565";
+		case pipe_bgra8888tobgr555 : return "bgra 8888>bgr 555";
+		case pipe_bgra8888toyuy2 : return "bgra 8888>yuy2";
 		case pipe_bgr555tobgr332 : return "bgr 555>bgr 332";
 		case pipe_bgr555tobgr565 : return "bgr 555>bgr 565";
-		case pipe_bgr555tobgr8888 : return "bgr 555>bgr 8888";
+		case pipe_bgr555tobgra8888 : return "bgr 555>bgra 8888";
 		case pipe_bgr555toyuy2 : return "bgr 555>yuy2";
-		case pipe_rgb888tobgr8888 : return "rgb 888>bgr 8888";
+		case pipe_rgb888tobgra8888 : return "rgb 888>bgra 8888";
+		case pipe_bgr888tobgra8888 : return "bgr 888>bgra 8888";
+		case pipe_rgbtorgb : return "rgb>rgb";
+		case pipe_rgbtoyuy2 : return "rgb>yuy2";
 		case pipe_y_copy : return "vcopy";
 		case pipe_y_reduction_copy : return "vreduction";
 		case pipe_y_expansion_copy : return "vexpansion";
@@ -706,15 +716,18 @@ static adv_bool pipe_is_conversion(enum video_stage_enum pipe)
 		case pipe_palette16to32 :
 		case pipe_unchained_palette16to8 :
 		case pipe_unchained_x_double_palette16to8 :
-		case pipe_bgr8888tobgr332 :
-		case pipe_bgr8888tobgr565 :
-		case pipe_bgr8888tobgr555 :
-		case pipe_bgr8888toyuy2 :
+		case pipe_bgra8888tobgr332 :
+		case pipe_bgra8888tobgr565 :
+		case pipe_bgra8888tobgr555 :
+		case pipe_bgra8888toyuy2 :
 		case pipe_bgr555tobgr332 :
 		case pipe_bgr555tobgr565 :
-		case pipe_bgr555tobgr8888 :
+		case pipe_bgr555tobgra8888 :
 		case pipe_bgr555toyuy2 :
-		case pipe_rgb888tobgr8888 :
+		case pipe_rgb888tobgra8888 :
+		case pipe_bgr888tobgra8888 :
+		case pipe_rgbtorgb :
+		case pipe_rgbtoyuy2 :
 		case pipe_rotation :
 			return 1;
 		default:
@@ -773,15 +786,18 @@ static inline adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* 
 			case pipe_palette16to8 : return 1;
 			case pipe_palette16to16 : return 1;
 			case pipe_palette16to32 : return 1;
-			case pipe_bgr8888tobgr332 : return is_plain;
-			case pipe_bgr8888tobgr555 : return is_plain;
-			case pipe_bgr8888tobgr565 : return is_plain;
-			case pipe_bgr8888toyuy2 : return 1;
+			case pipe_bgra8888tobgr332 : return is_plain;
+			case pipe_bgra8888tobgr555 : return is_plain;
+			case pipe_bgra8888tobgr565 : return is_plain;
+			case pipe_bgra8888toyuy2 : return 1;
 			case pipe_bgr555tobgr332 : return is_plain;
 			case pipe_bgr555tobgr565 : return is_plain;
-			case pipe_bgr555tobgr8888 : return is_plain;
+			case pipe_bgr555tobgra8888 : return is_plain;
 			case pipe_bgr555toyuy2 : return 1;
-			case pipe_rgb888tobgr8888 : return 0;
+			case pipe_rgb888tobgra8888 : return 0;
+			case pipe_bgr888tobgra8888 : return 0;
+			case pipe_rgbtorgb : return 0;
+			case pipe_rgbtoyuy2 : return 0;
 			case pipe_x_filter : return is_plain;
 			/* unchained can't use the MMX */
 			case pipe_unchained : return 1;
@@ -2138,78 +2154,111 @@ adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, un
 
 	/* conversion */
 	if (src_color_def != dst_color_def) {
-		/* rgb 888 formats */
-		if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)
-			|| src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 16, 8, 8, 8, 0)
-			|| src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 0, 8, 8, 8, 16)
+		/* only conversion from rgb are supported */
+		if (color_def_type_get(src_color_def) != adv_color_type_rgb) {
+			video_pipeline_done(pipeline);
+			return -1;
+		}
+
+#if 1
+		/* optimized conversion */
+
+		/* preconversion */
+		if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 0, 8, 8, 8, 16)
 			|| src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 0, 8, 8, 8, 16)) {
-			/* RGB to BGR and rotation */
-			if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 0, 8, 8, 8, 16)
-				|| src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 0, 8, 8, 8, 16)) {
-				video_stage_rgb888tobgr8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
-				src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
-				src_dp = 4;
-			}
-			/* yuy2 can do rotation itself */
-			if (dst_color_def != color_def_make(adv_color_type_yuy2)) {
+			video_stage_rgb888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+			src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+			src_dp = 4;
+		} else if (src_color_def == color_def_make_from_rgb_sizelenpos(3, 8, 16, 8, 8, 8, 0)) {
+			video_stage_bgr888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+			src_color_def = color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+			src_dp = 4;
+		}
+
+		/* conversion */
+		if (src_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
+			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
 					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 4;
 				}
-			}
-			/* conversion */
-			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
-				video_stage_bgr8888tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
-				video_stage_bgr8888tobgr555_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				/* rotation */
+				if (src_dp != 4) {
+					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					src_dp = 4;
+				}
+				video_stage_bgra8888tobgr555_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
-				video_stage_bgr8888tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				/* rotation */
+				if (src_dp != 4) {
+					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					src_dp = 4;
+				}
+				video_stage_bgra8888tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
-				/* nothing */
 			} else if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
-				video_stage_bgr8888toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else {
-				video_pipeline_done(pipeline);
-				return -1;
+				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
-		/* rgb 555 formats */
 		} else if (src_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
-			/* yuy2 can do rotation itself */
-			if (dst_color_def != color_def_make(adv_color_type_yuy2)) {
+			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
 					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 					src_dp = 2;
 				}
-			}
-			/* conversion */
-			if (dst_color_def == color_def_make_from_rgb_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				video_stage_bgr555tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 1;
-			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
-				/* nothing */
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
+				/* rotation */
+				if (src_dp != 2) {
+					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					src_dp = 2;
+				}
 				video_stage_bgr555tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_from_rgb_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
-				video_stage_bgr555tobgr8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				/* rotation */
+				if (src_dp != 2) {
+					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					src_dp = 2;
+				}
+				video_stage_bgr555tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
 				video_stage_bgr555toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
 				src_dp = 4;
 			} else {
-				video_pipeline_done(pipeline);
-				return -1;
+				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
 		} else {
-			video_pipeline_done(pipeline);
-			return -1;
+			if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
+				video_stage_rgbtoyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def);
+				src_dp = 4;
+			} else {
+				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
+			}
 		}
+#else
+		/* generic conversion */
+		if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
+			video_stage_rgbtoyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def);
+			src_dp = 4;
+		} else {
+			video_stage_rgbtorgb_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def);
+			src_dp = color_def_bytes_per_pixel_get(dst_color_def);
+		}
+#endif
 	} else {
 		/* rotation */
 		if (src_dp != bytes_per_pixel) {

@@ -1,12 +1,15 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMAME Version 2.2.6 2003/05
-	) Added the "-version" command line option.
-	) Removed some "buffer overflow".
+AdvanceMENU Version 2.2.6 2003/05
 	) In Linux you can specify an arbitrary data directory with the
 		$ADVANCE environment variable. This value overwrite the default
 		$HOME/.advance.
+	) Added the "-version" command line option.
+	) Removed some "buffer overflow".
+	) Fixed the mouse handling in Linux with the SVGALIB library
+		[by Fabio Cavallo].
+	) Improved the support for BigEndian targets.
 
 AdvanceMENU Version 2.2.5 2003/03
 	) Fixed the default colors.

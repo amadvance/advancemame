@@ -866,81 +866,70 @@ void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map
 void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def)
 {
 	unsigned cx, cy;
-	union adv_color_def_union def;
-	unsigned dst_red_mask, dst_green_mask, dst_blue_mask;
-	int dst_red_shift, dst_green_shift, dst_blue_shift;
-	unsigned src_red_mask, src_green_mask, src_blue_mask;
-	int src_red_shift, src_green_shift, src_blue_shift;
-	unsigned mix_red_mask, mix_green_mask, mix_blue_mask;
-	int mix_red_shift, mix_green_shift, mix_blue_shift;
+	union adv_color_def_union sdef;
+	union adv_color_def_union ddef;
+	int red_shift, green_shift, blue_shift;
+	adv_pixel red_mask, green_mask, blue_mask;
 
-	def.ordinal = dst_def;
+	sdef.ordinal = src_def;
+	ddef.ordinal = dst_def;
 
-	rgb_maskshift_get(&dst_red_mask, &dst_red_shift, def.nibble.red_len, def.nibble.red_pos);
-	rgb_maskshift_get(&dst_green_mask, &dst_green_shift, def.nibble.green_len, def.nibble.green_pos);
-	rgb_maskshift_get(&dst_blue_mask, &dst_blue_shift, def.nibble.blue_len, def.nibble.blue_pos);
-
-	def.ordinal = dst_def;
-	rgb_maskshift_get(&src_red_mask, &src_red_shift, def.nibble.red_len, def.nibble.red_pos);
-	rgb_maskshift_get(&src_green_mask, &src_green_shift, def.nibble.green_len, def.nibble.green_pos);
-	rgb_maskshift_get(&src_blue_mask, &src_blue_shift, def.nibble.blue_len, def.nibble.blue_pos);
-
-	mix_red_shift = src_red_shift - dst_red_shift;
-	mix_green_shift = src_green_shift - dst_green_shift;
-	mix_blue_shift = src_blue_shift - dst_blue_shift;
-	mix_red_mask = rgb_shift(src_red_mask, mix_red_shift) & dst_red_mask;
-	mix_green_mask = rgb_shift(src_green_mask, mix_green_shift) & dst_green_mask;
-	mix_blue_mask = rgb_shift(src_blue_mask, mix_blue_shift) & dst_blue_mask;
+	red_shift = rgb_conv_shift_get(sdef.nibble.red_len, sdef.nibble.red_pos, ddef.nibble.red_len, ddef.nibble.red_pos);
+	red_mask = rgb_conv_mask_get(sdef.nibble.red_len, sdef.nibble.red_pos, ddef.nibble.red_len, ddef.nibble.red_pos);
+	green_shift = rgb_conv_shift_get(sdef.nibble.green_len, sdef.nibble.green_pos, ddef.nibble.green_len, ddef.nibble.green_pos);
+	green_mask = rgb_conv_mask_get(sdef.nibble.green_len, sdef.nibble.green_pos, ddef.nibble.green_len, ddef.nibble.green_pos);
+	blue_shift = rgb_conv_shift_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
+	blue_mask = rgb_conv_mask_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
 
 	for(cy=0;cy<src->size_y;++cy) {
 		uint8* src_ptr = bitmap_line(src, cy);
 		uint8* dst_ptr = bitmap_line(dst, cy);
 
 		for(cx=0;cx<src->size_x;++cx) {
-			unsigned v;
+			adv_pixel p;
 
 			switch (src->bytes_per_pixel) {
 			default:
 				assert(0);
 			case 1 :
-				v = le_uint8_read(src_ptr);
+				p = cpu_uint8_read(src_ptr);
 				src_ptr += 1;
 				break;
 			case 2 :
-				v = le_uint16_read(src_ptr);
+				p = cpu_uint16_read(src_ptr);
 				src_ptr += 2;
 				break;
 			case 3 :
-				v = le_uint24_read(src_ptr);
+				p = cpu_uint24_read(src_ptr);
 				src_ptr += 3;
 				break;
 			case 4 :
-				v = le_uint32_read(src_ptr);
+				p = cpu_uint32_read(src_ptr);
 				src_ptr += 4;
 				break;
 			}
 
-			v = (rgb_shift(v, mix_red_shift) & mix_red_mask)
-				| (rgb_shift(v, mix_green_shift) & mix_green_mask)
-				| (rgb_shift(v, mix_blue_shift) & mix_blue_mask);
+			p = (rgb_shift(p, red_shift) & red_mask)
+				| (rgb_shift(p, green_shift) & green_mask)
+				| (rgb_shift(p, blue_shift) & blue_mask);
 
 			switch (dst->bytes_per_pixel) {
 			default:
 				assert(0);
 			case 1 :
-				le_uint8_write(dst_ptr, v);
+				cpu_uint8_write(dst_ptr, p);
 				dst_ptr += 1;
 				break;
 			case 2 :
-				le_uint16_write(dst_ptr, v);
+				cpu_uint16_write(dst_ptr, p);
 				dst_ptr += 2;
 				break;
 			case 3 :
-				le_uint24_write(dst_ptr, v);
+				cpu_uint24_write(dst_ptr, p);
 				dst_ptr += 3;
 				break;
 			case 4 :
-				le_uint32_write(dst_ptr, v);
+				cpu_uint32_write(dst_ptr, p);
 				dst_ptr += 4;
 				break;
 			}

@@ -200,6 +200,12 @@ int os_inner_init(const char* title)
 	else
 		log_std(("os: DISPLAY undef\n"));
 
+#ifdef USE_LSB
+	log_std(("os: compiled little endian system\n"));
+#else
+	log_std(("os: compiled big endian system\n"));
+#endif
+
 #if defined(USE_SVGALIB)
 	OS.svgalib_active = 0;
 	if (display == 0) {
@@ -241,9 +247,9 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
 	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
 	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-		log_std(("os: little endian system\n"));
+		log_std(("os: sdl little endian system\n"));
 	else
-		log_std(("os: big endian system\n"));
+		log_std(("os: sdl big endian system\n"));
 #endif
 #if defined(USE_SLANG)
 	OS.slang_active = 0;

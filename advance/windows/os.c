@@ -95,7 +95,13 @@ int os_inner_init(const char* title)
 #else
 	log_std(("os: compiler unknown\n"));
 #endif
-      
+
+#ifdef USE_LSB
+	log_std(("os: compiled little endian system\n"));
+#else
+	log_std(("os: compiled big endian system\n"));
+#endif
+
 	log_std(("os: SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
 		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
@@ -108,10 +114,9 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
 	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
 	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-		log_std(("os: little endian system\n"));
+		log_std(("os: sdl little endian system\n"));
 	else
-		log_std(("os: big endian system\n"));
-
+		log_std(("os: sdl big endian system\n"));
 
 	start = os_clock();
 	stop = os_clock();

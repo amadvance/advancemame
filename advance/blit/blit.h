@@ -91,15 +91,18 @@ enum video_stage_enum {
 	pipe_palette16to8, /**< Palette conversion 16 -\> 8. */
 	pipe_palette16to16, /**< Palette conversion 16 -\> 16. */
 	pipe_palette16to32, /**< Palette conversion 16 -\> 32. */
-	pipe_bgr8888tobgr332, /**< RGB conversion 8888 (bgra) -> 332 (bgr). */
-	pipe_bgr8888tobgr555, /**< RGB conversion 8888 (bgra) -> 555 (bgr). */
-	pipe_bgr8888tobgr565, /**< RGB conversion 8888 (bgra) -> 565 (bgr). */
-	pipe_bgr8888toyuy2, /**< YUY2 conversion 8888 (bgra) -> (yuy2). */
-	pipe_bgr555tobgr332, /**< RGB conversion 555 (bgr) -> 332 (bgr). */
-	pipe_bgr555tobgr565, /**< RGB conversion 555 (bgr) -> 565 (bgr). */
-	pipe_bgr555tobgr8888, /**< RGB conversion 555 (bgr) -> 8888 (bgra). */
-	pipe_bgr555toyuy2, /**< YUY2 conversion 555 (bgra) -> (yuy2). */
-	pipe_rgb888tobgr8888, /**< RGB conversion 888 (rgb) -> 8888 (bgra). */
+	pipe_bgra8888tobgr332, /**< RGB conversion 8888 (bgra) -\> 332 (bgr). */
+	pipe_bgra8888tobgr555, /**< RGB conversion 8888 (bgra) -\> 555 (bgr). */
+	pipe_bgra8888tobgr565, /**< RGB conversion 8888 (bgra) -\> 565 (bgr). */
+	pipe_bgra8888toyuy2, /**< YUY2 conversion 8888 (bgra) -\> (yuy2). */
+	pipe_bgr555tobgr332, /**< RGB conversion 555 (bgr) -\> 332 (bgr). */
+	pipe_bgr555tobgr565, /**< RGB conversion 555 (bgr) -\> 565 (bgr). */
+	pipe_bgr555tobgra8888, /**< RGB conversion 555 (bgr) -\> 8888 (bgra). */
+	pipe_bgr555toyuy2, /**< YUY2 conversion 555 (bgra) -\> (yuy2). */
+	pipe_rgb888tobgra8888, /**< RGB conversion 888 (rgb) -\> 8888 (bgra). */
+	pipe_bgr888tobgra8888, /**< RGB conversion 888 (bgr) -\> 8888 (bgra). */
+	pipe_rgbtorgb, /**< Generic RGB conversion. */
+	pipe_rgbtoyuy2, /**< Generic YUY2 conversion. */
 	pipe_y_copy, /**< Vertical copy. */
 	pipe_y_reduction_copy, /**< Vertical reduction. */
 	pipe_y_expansion_copy, /**< Vertical expansion. */
@@ -143,6 +146,9 @@ struct video_stage_horz_struct {
 	unsigned sdx; /**< Size of the source (in bytes). */
 	unsigned sbpp; /**< Bytes per pixel of the source. */
 
+	adv_color_def sdef; /**< Color definition of the source. */
+	adv_color_def ddef; /**< Color definition of the destination. */
+
 	adv_slice slice; /**< Stretch slice. */
 
 	unsigned* palette; /**< Palette conversion table. */
@@ -153,7 +159,7 @@ struct video_stage_horz_struct {
 	video_stage_hook* plane_put_plain; /**< Hook assuming sdp == sbpp. */
 
 	/* state */
-	unsigned state_mutable; /**< State value zeroed at the startup. */
+	unsigned state_mutable; /**< State value zeroed at the startup. Used to keept the state over rows */
 };
 
 /** \name Effects */

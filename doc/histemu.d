@@ -2,18 +2,19 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.67.1 2003/05
-	) Added the "-version" command line option.
-	) Removed some "buffer overflow".
 	) Added the `scale3x' and `scale4x' effects.
 	) The `magnify' option now accepts the input values 1, 2, 3 and 4.
-	) In Linux you can specify an arbitrary data directory with the
-		$ADVANCE environment variable. This value overwrite the default
-		$HOME/.advance.
 	) The `display_adjust' value `generate' is now renamed `generate_yclock'.
 		A bunch of new `generate_*' values are available for a fine
 		control on the generated modes.
+	) In Linux you can specify an arbitrary data directory with the
+		$ADVANCE environment variable. This value overwrite the default
+		$HOME/.advance.
+	) Added the "-version" command line option.
+	) Removed some "buffer overflow".
 	) Fixed the mouse handling in Linux with the SVGALIB library
 		[by Fabio Cavallo].
+	) Improved the support for BigEndian targets.
 
 AdvanceMAME Version 0.67.0 2003/04
 	) Updated with autoconf 2.57.

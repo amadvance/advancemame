@@ -32,8 +32,8 @@
  * Color.
  */
 
-#ifndef __COLOR_H
-#define __COLOR_H
+#ifndef __RGB_H
+#define __RGB_H
 
 #include "extra.h"
 
@@ -106,10 +106,13 @@ union adv_color_def_union {
 	struct adv_color_def_bits nibble;
 };
 
-const char* color_def_name_make(adv_color_def rgb_def);
+const char* color_def_name_get(adv_color_def rgb_def);
+unsigned color_def_bytes_per_pixel_get(adv_color_def rgb_def);
+adv_color_type color_def_type_get(adv_color_def rgb_def);
+
 adv_color_def color_def_make(adv_color_type type);
 adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-adv_color_def color_def_make_from_rgb_sizemaskshift(unsigned bytes_per_pixel, unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
+adv_color_def color_def_make_from_rgb_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask);
 adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
 
@@ -174,11 +177,14 @@ unsigned rgb_approx(unsigned value, unsigned len);
 /**
  * Compute the shift and mask values.
  */
-static inline void rgb_maskshift_get(unsigned* mask, int* shift, unsigned len, unsigned pos)
+static inline void rgb_shiftmask_get(int* shift, unsigned* mask, unsigned len, unsigned pos)
 {
-	*mask = ((1 << len) - 1) << pos;
 	*shift = pos + len - 8;
+	*mask = ((1 << len) - 1) << pos;
 }
+
+int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
+adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos);
 
 /*@}*/
 

@@ -75,10 +75,7 @@ static inline void internal_unchained8(uint8* dst, const uint8* src, unsigned co
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[4] << 8
-			| (unsigned)src[8] << 16
-			| (unsigned)src[12] << 24;
+		P32DER0(dst) = cpu_uint32_make8(src[0], src[4], src[8], src[12]);
 		dst += 4;
 		src += 16;
 		--count;
@@ -123,10 +120,7 @@ static inline void internal_unchained8_step2(uint8* dst, const uint8* src, unsig
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[8] << 8
-			| (unsigned)src[16] << 16
-			| (unsigned)src[24] << 24;
+		P32DER0(dst) = cpu_uint32_make8(src[0], src[8], src[16], src[24]);
 		dst += 4;
 		src += 32;
 		--count;
@@ -167,7 +161,21 @@ static inline void internal_unchained8_double(uint8* dst, const uint8* src, unsi
 #else
 static inline void internal_unchained8_double(uint8* dst, const uint8* src, unsigned count)
 {
-	/* TODO */
+	unsigned rest = count % 4;
+
+	count /= 4;
+	while (count) {
+		P32DER0(dst) = cpu_uint32_make8(src[0], src[2], src[4], src[6]);
+		dst += 4;
+		src += 8;
+		--count;
+	}
+
+	switch (rest) {
+		case 3 : dst[2] = src[4];
+		case 2 : dst[1] = src[2];
+		case 1 : dst[0] = src[0];
+	}
 }
 #endif
 
@@ -182,10 +190,7 @@ static inline void internal_unchained8_step(uint8* dst, const uint8* src, unsign
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[step1] << 8
-			| (unsigned)src[step2] << 16
-			| (unsigned)src[step3] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[step1], src[step2], src[step3]);
 		dst += 4;
 		src += step4;
 		--count;
@@ -214,10 +219,7 @@ static inline void internal_unchained8_double_step(uint8* dst, const uint8* src,
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[step1] << 8
-			| (unsigned)src[step2] << 16
-			| (unsigned)src[step3] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[step1], src[step2], src[step3]);
 		dst += 4;
 		src += step4;
 		--count;
@@ -236,10 +238,7 @@ static inline void internal_unchained8_palette16to8(uint8* dst, const uint16* sr
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = palette[src[0]] /* ENDIAN */
-			| palette[src[4]] << 8
-			| palette[src[8]] << 16
-			| palette[src[12]] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(palette[src[0]], palette[src[4]], palette[src[8]], palette[src[12]]);
 		dst += 4;
 		src += 16;
 		--count;
@@ -258,10 +257,7 @@ static inline void internal_unchained8_double_palette16to8(uint8* dst, const uin
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = palette[src[0]] /* ENDIAN */
-			| palette[src[2]] << 8
-			| palette[src[4]] << 16
-			| palette[src[6]] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(palette[src[0]], palette[src[2]], palette[src[4]], palette[src[6]]);
 		dst += 4;
 		src += 8;
 		--count;

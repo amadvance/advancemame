@@ -160,21 +160,20 @@ Troubleshooting
 	) If you are using a PC Multisync monitor and the image is
 		instable or the monitor automatically switch off, you have
 		probably entered wrong clock values.
-		Try with a shorter horizontal clock range and check your
-		monitor manual. Try for example with:
+		Check the horizontal and vertical clock ranges supported
+		by your monitor in the monitor manual. Eventually try
+		with shorter ranges. Try for example with:
 
+		:device_video_vclock 55 - 90
 		:device_video_hclock 31 - 50
 
 	) If you are using an Arcade Monitor/TV and the image is
 		instable or completely black try increasing the lower
-		pclock limit. Instead of 5 try 8, 10, 12, ...
+		pclock limit. Some video boards aren't able to output
+		too low clocks. Instead of 5 try 8, 9, 10, 11, 12, ...
 		Try for example with:
 
 		:device_video_pclock 8 - 50
-
-		or
-
-		:device_video_pclock 12 - 50
 
 	) In DOS try forcing the use of the `vbeline' driver instead of the
 		`svgaline' driver with the option:
@@ -195,7 +194,7 @@ Troubleshooting
 		`svgalib' driver with the option:
 
 		:device_video fb slang
-		
+
 	) In Windows try reducing the video hardware acceleration.
 
 Copyright

@@ -142,7 +142,6 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
 
 	switch (def.nibble.type) {
 	case adv_color_type_rgb :
-		/* ENDIAN */
 		return rgb_nibble_insert(r, rgb_shift_make_from_def(def.nibble.red_len, def.nibble.red_pos), rgb_mask_make_from_def(def.nibble.red_len, def.nibble.red_pos))
 			| rgb_nibble_insert(g, rgb_shift_make_from_def(def.nibble.green_len, def.nibble.green_pos), rgb_mask_make_from_def(def.nibble.green_len, def.nibble.green_pos))
 			| rgb_nibble_insert(b, rgb_shift_make_from_def(def.nibble.blue_len, def.nibble.blue_pos), rgb_mask_make_from_def(def.nibble.blue_len, def.nibble.blue_pos));
@@ -171,7 +170,7 @@ adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def 
  * Return a string description in the format red_len/red_pos, green_len/green_pos, blue_len/blue_pos.
  * \return Pointer at a static buffer.
  */
-const char* color_def_name_make(adv_color_def def_ordinal)
+const char* color_def_name_get(adv_color_def def_ordinal)
 {
 	union adv_color_def_union def;
 	def.ordinal = def_ordinal;
@@ -181,7 +180,8 @@ const char* color_def_name_make(adv_color_def def_ordinal)
 		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "palette");
 		return color_name_buffer;
 	case adv_color_type_rgb :
-		snprintf(color_name_buffer, sizeof(color_name_buffer), "rgb %d/%d,%d/%d,%d/%d",
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "rgb %d-%d/%d,%d/%d,%d/%d",
+			color_def_bytes_per_pixel_get(def_ordinal) * 8,
 			def.nibble.red_len, def.nibble.red_pos,
 			def.nibble.green_len, def.nibble.green_pos,
 			def.nibble.blue_len, def.nibble.blue_pos
@@ -194,6 +194,38 @@ const char* color_def_name_make(adv_color_def def_ordinal)
 		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "unknown");
 		return color_name_buffer;
 	}
+}
+
+/**
+ * Get the bytes per pixel of a color definition.
+ */
+unsigned color_def_bytes_per_pixel_get(adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+	def.ordinal = def_ordinal;
+
+	switch (def.nibble.type) {
+	case adv_color_type_palette :
+		return 1;
+	case adv_color_type_rgb :
+		return (def.nibble.red_len + def.nibble.green_len + def.nibble.blue_len + 7) / 8 + def.nibble.alpha_size;
+	case adv_color_type_yuy2 :
+		return 4;
+	case adv_color_type_text :
+		return 2;
+	default:
+		return 0;
+	}
+}
+
+/**
+ * Get the type of a color definition.
+ */
+adv_color_type color_def_type_get(adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+	def.ordinal = def_ordinal;
+	return def.nibble.type;
 }
 
 /**
@@ -281,11 +313,11 @@ adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsig
 }
 
 /**
- * Make an arbitary RGB format definition from a maskshift specification.
+ * Make an arbitary RGB format definition from a shiftmask specification.
  * \param red_mask, green_mask, blue_mask Bit mask.
  * \param red_shift, green_shift, blue_shift Shift.
  */
-adv_color_def color_def_make_from_rgb_sizemaskshift(unsigned bytes_per_pixel, unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift)
+adv_color_def color_def_make_from_rgb_sizeshiftmask(unsigned bytes_per_pixel, int red_shift, unsigned red_mask, int green_shift, unsigned green_mask, int blue_shift, unsigned blue_mask)
 {
 	unsigned red_len = rgb_len_get_from_mask(red_mask);
 	unsigned green_len = rgb_len_get_from_mask(green_mask);
@@ -325,3 +357,22 @@ unsigned rgb_approx(unsigned value, unsigned len)
 	}
 	return value;
 }
+
+/**
+ * Compute the shift required for a color conversion.
+ * The conversion must be done with DST = rgb_shift(SRC, shift) & mask;
+ */
+int rgb_conv_shift_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos)
+{
+	return rgb_shift_make_from_def(s_len, s_pos) - rgb_shift_make_from_def(d_len, d_pos);
+}
+
+/**
+ * Compute the mask required for a color conversion.
+ * The conversion must be done with DST = rgb_shift(SRC, shift) & mask;
+ */
+adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsigned d_pos)
+{
+	return rgb_mask_make_from_def(d_len, d_pos) & rgb_shift(rgb_mask_make_from_def(s_len, s_pos), rgb_conv_shift_get(s_len, s_pos, d_len, d_pos));
+}
+

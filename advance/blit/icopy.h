@@ -148,10 +148,7 @@ static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsign
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[2] << 8
-			| (unsigned)src[4] << 16
-			| (unsigned)src[6] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[2], src[4], src[6]);
 		dst += 4;
 		src += 8;
 		--count;
@@ -257,10 +254,7 @@ static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigne
 
 	count /= 4;
 	while (count) {
-		P32DER0(dst) = src[0] /* ENDIAN */
-			| (unsigned)src[step1] << 8
-			| (unsigned)src[step2] << 16
-			| (unsigned)src[step3] << 24;
+		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[step1], src[step2], src[step3]);
 		dst += 4;
 		src += step4;
 		--count;
@@ -319,8 +313,7 @@ static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsi
 
 	count /= 2;
 	while (count) {
-		P32DER0(dst) = P16DER0(src) /* ENDIAN */
-			| (unsigned)P16DER(src, step1) << 16;
+		P32DER0(dst) = cpu_uint32_make_uint16(P16DER0(src), P16DER(src, step1));
 		dst += 2;
 		PADD(src, step2);
 		--count;
@@ -341,7 +334,6 @@ static inline void internal_copy32_step3(uint32* dst, const uint32* src, unsigne
 
 	while (count >= 2) {
 		dst8[0] = src8[0];
-
 		dst8[1] = src8[1];
 		dst8[2] = src8[2];
 		/* dst8[3] = 0; */
@@ -404,6 +396,8 @@ static inline void internal_copy32_step_def(uint32* dst, const uint32* src, unsi
 /* Set optimized for small counts > 0 */
 static inline void internal_fill8(uint8* dst, unsigned src, unsigned count)
 {
+	assert(count > 0);
+
 	do {
 		*dst++ = src;
 		--count;
@@ -413,6 +407,8 @@ static inline void internal_fill8(uint8* dst, unsigned src, unsigned count)
 /* Set optimized for small counts > 0 */
 static inline void internal_fill16(uint16* dst, unsigned src, unsigned count)
 {
+	assert(count > 0);
+
 	do {
 		*dst++ = src;
 		--count;
@@ -422,6 +418,8 @@ static inline void internal_fill16(uint16* dst, unsigned src, unsigned count)
 /* Set optimized for small counts > 0 */
 static inline void internal_fill32(uint32* dst, unsigned src, unsigned count)
 {
+	assert(count > 0);
+
 	do {
 		*dst++ = src;
 		--count;

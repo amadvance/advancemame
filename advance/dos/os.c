@@ -325,7 +325,6 @@ static void os_align(void)
 
 int os_inner_init(const char* title)
 {
-
 	log_std(("os: sys DOS\n"));
 
 	/* print the compiler version */
@@ -335,6 +334,12 @@ int os_inner_init(const char* title)
 	log_std(("os: compiler GNU %s\n", COMPILER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)));
 #else
 	log_std(("os: compiler unknown\n"));
+#endif
+
+#ifdef USE_LSB
+	log_std(("os: compiled little endian system\n"));
+#else
+	log_std(("os: compiled big endian system\n"));
 #endif
 
 	os_clock_setup();

@@ -117,9 +117,9 @@ static void video_color_def_adjust(adv_color_def def_ordinal)
 	def.ordinal = def_ordinal;
 
 	if (def.nibble.type == adv_color_type_rgb) {
-		rgb_maskshift_get(&video_state.rgb_red_mask, &video_state.rgb_red_shift, def.nibble.red_len, def.nibble.red_pos);
-		rgb_maskshift_get(&video_state.rgb_green_mask, &video_state.rgb_green_shift, def.nibble.green_len, def.nibble.green_pos);
-		rgb_maskshift_get(&video_state.rgb_blue_mask, &video_state.rgb_blue_shift, def.nibble.blue_len, def.nibble.blue_pos);
+		rgb_shiftmask_get(&video_state.rgb_red_shift, &video_state.rgb_red_mask, def.nibble.red_len, def.nibble.red_pos);
+		rgb_shiftmask_get(&video_state.rgb_green_shift, &video_state.rgb_green_mask, def.nibble.green_len, def.nibble.green_pos);
+		rgb_shiftmask_get(&video_state.rgb_blue_shift, &video_state.rgb_blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
 
 		video_state.rgb_red_len = def.nibble.red_len;
 		video_state.rgb_green_len = def.nibble.green_len;
