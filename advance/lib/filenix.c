@@ -71,30 +71,43 @@ adv_error file_init(void)
 	snprintf(FL.root_dir_buffer, sizeof(FL.root_dir_buffer), "%s", DATADIR);
 
 	/* home */
-	home = getenv("HOME");
-	if (!home || !*home) {
-		/* use the root dir as home dir */
-		snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", FL.root_dir_buffer);
 
-		/* clear the root dir */
-		FL.root_dir_buffer[0] = 0;
+	/* try $ADVANCE */
+	home = getenv("ADVANCE");
+	if (home) {
+		snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", home);
 	} else {
-		if (!home[0] || home[strlen(home)-1] != '/')
-			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s/.advance", home);
-		else
-			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s.advance", home);
+		/* try $HOME/.advance */
+		home = getenv("HOME");
+		if (home) {
+			/* add the .advance subdirectory */
+			if (!home[0] || home[strlen(home)-1] != '/')
+				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s/.advance", home);
+			else
+				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s.advance", home);
+		} else {
+			/* use ROOT */
+			snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s", FL.root_dir_buffer);
+
+			/* clear the root dir */
+			FL.root_dir_buffer[0] = 0;
+		}
 	}
 
+	if (!FL.home_dir_buffer[0]) {
+		target_err("Failure: Empty $home directory specification.\nCheck the ADVANCE environment variable.");
+		return -1;
+	}
+
+	/* clear the leading slash if present */
+	if (FL.home_dir_buffer[0] && FL.home_dir_buffer[strlen(FL.home_dir_buffer)-1]=='/')
+		FL.home_dir_buffer[strlen(FL.home_dir_buffer)-1] = 0;
+
+	/* create the dir */
 	if (FL.home_dir_buffer[0]) {
-		struct stat st;
-		if (stat(FL.home_dir_buffer, &st) == 0) {
-			if (!S_ISDIR(st.st_mode)) {
-				target_err("Failure: A file named %s exists\n", FL.home_dir_buffer);
-				return -1;
-			}
-		} else {
-			if (mkdir(FL.home_dir_buffer, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
-				target_err("Failure: Error creating the directory %s.\nTry unsetting the HOME variable.\n", FL.home_dir_buffer);
+		if (mkdir(FL.home_dir_buffer, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
+			if (errno != EEXIST) {
+				target_err("Failure: Error creating the $home directory %s.\nTry setting the ADVANCE environment variable.\n", FL.home_dir_buffer);
 				return -1;
 			}
 		}

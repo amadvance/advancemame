@@ -275,13 +275,16 @@ Configuration
 
 	The Linux version reads configuration options from the file
 	'advmenu.rc' in the $root and the $home directory.
-	The $root directory is PREFIX/share/advance/ where
-	PREFIX is the installation directory configured in the
-	`makefile', generally it's `/usr/local'.
-	The $home directory is HOME/.advance/ where HOME is the
-	value of the HOME environment variable.
-	If the HOME environment variable is missing the $root
-	directory became the $home directory.
+	The $root directory is `$DATA/advance/', where $DATA is the
+	data directory configured with the `configure' script.
+	Generally it's `/usr/local/share'.
+	The $home directory is `$ADVANCE', where $ADVANCE is the value of the
+	ADVANCE environment variable when the program is run.
+	If the ADVANCE environment variable is missing the $home directory
+	is `$HOME/.advance' where $HOME is the value of the HOME environment
+	variable.
+	If both the ADVANCE and HOME environment variables are missing the
+	$root directory became also the $home directory.
 
 	The options in the $root directory overwrite the options in
 	the $home.

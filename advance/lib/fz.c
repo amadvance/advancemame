@@ -138,7 +138,7 @@ adv_fz* fzopen(const char* file, const char* mode)
 		return 0;
 	}
 
-	if (stat(file, &st) != 0) {
+	if (fstat(fileno(f->f), &st) != 0) {
 		f->virtual_size = 0;
 	} else {
 		f->virtual_size = st.st_size;

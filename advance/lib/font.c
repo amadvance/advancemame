@@ -392,21 +392,6 @@ static adv_font* load_font_raw(const char* file)
 	unsigned char* data;
 	unsigned data_size;
 
-	if (stat(file, &st)!=0) {
-		goto out;
-	}
-
-	if (st.st_size % 256 != 0) {
-		goto out;
-	}
-
-	size = 256;
-	width = 8;
-	height = st.st_size / 256;
-	if (height < 8 || height > 32) {
-		goto out;
-	}
-
 	load_font = malloc(sizeof(adv_font));
 	if (!load_font) {
 		goto out;
@@ -417,13 +402,30 @@ static adv_font* load_font_raw(const char* file)
 		goto out_font;
 	}
 
+	if (fstat(fileno(f), &st)!=0) {
+		goto out_close;
+	}
+
+	if (st.st_size % 256 != 0) {
+		goto out_close;
+	}
+
+	size = 256;
+	width = 8;
+	height = st.st_size / 256;
+	if (height < 8 || height > 32) {
+		goto out_close;
+	}
+
 	data_size = size * height;
 	data = malloc(data_size);
-	if (!data)
+	if (!data) {
 		goto out_close;
+	}
 
-	if (fread(data, data_size, 1, f)!=1)
+	if (fread(data, data_size, 1, f)!=1) {
 		goto out_data;
+	}
 
 	if (load_font_data_fixed(load_font, data, 0, size, width, height)!=0) {
 		goto out_data;
