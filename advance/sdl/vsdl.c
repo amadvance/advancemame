@@ -440,12 +440,12 @@ void sdl_write_lock(void)
 	assert( !sdl_state.lock_active );
 
 	if (sdl_state.overlay) {
-		while (SDL_LockYUVOverlay( sdl_state.overlay ) != 0) {
+		while (SDL_LockYUVOverlay(sdl_state.overlay) != 0) {
 			target_yield();
 		}
 	} else if (sdl_state.surface) {
 		if (SDL_MUSTLOCK(sdl_state.surface)) {
-			while (SDL_LockSurface( sdl_state.surface ) != 0) {
+			while (SDL_LockSurface(sdl_state.surface) != 0) {
 				target_yield();
 			}
 		}

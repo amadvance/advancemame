@@ -28,17 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
-#include "conf.h"
-#include "sounddrv.h"
-#include "soundall.h"
-#include "log.h"
+
+#include "advance.h"
 
 #define ADJUST_MULT_BASE 4096
 
@@ -113,6 +107,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 		context->state.output_mode = context->config.mode;
 
 	low_buffer_time = context->config.latency_time;
+
 	/* allow always a big maximum latency. note that this is the upper */
 	/* limit latency, not the effective latency. */
 	if (low_buffer_time < 0.3)

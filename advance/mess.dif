@@ -1,11 +1,160 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2004-03-30 16:33:59.000000000 +0200
++++ mess/advance.pat	2004-04-13 13:55:52.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive mess.ori/expat/expatcfg.h mess/expat/expatcfg.h
+--- mess.ori/expat/expatcfg.h	1970-01-01 01:00:00.000000000 +0100
++++ mess/expat/expatcfg.h	2004-04-13 15:56:09.000000000 +0200
+@@ -0,0 +1,15 @@
++#include <stdlib.h>
++#include <string.h>
++
++#define XML_NS 1
++#define XML_DTD 1
++#define XML_CONTEXT_BYTES 1024
++
++#if defined(USE_LSB) || defined(LSB_FIRST)
++#define BYTEORDER 1234
++#else
++#define BYTEORDER 4321
++#endif
++
++#define HAVE_MEMMOVE
++
+diff -U 5 --new-file --recursive mess.ori/expat/internal.h mess/expat/internal.h
+--- mess.ori/expat/internal.h	2004-03-12 21:40:17.000000000 +0100
++++ mess/expat/internal.h	2004-04-13 15:54:13.000000000 +0200
+@@ -18,56 +18,9 @@
+ 
+    Note: Use of these macros is based on judgement, not hard rules,
+          and therefore subject to change.
+ */
+ 
+-#if defined(__GNUC__) && defined(__i386__)
+-/* We'll use this version by default only where we know it helps.
+-
+-   regparm() generates warnings on Solaris boxes.   See SF bug #692878.
+-
+-   Instability reported with egcs on a RedHat Linux 7.3.
+-   Let's comment out:
+-   #define FASTCALL __attribute__((stdcall, regparm(3)))
+-   and let's try this:
+-*/
+-#define FASTCALL __attribute__((regparm(3)))
+-#define PTRFASTCALL __attribute__((regparm(3)))
+-#endif
+-
+-/* Using __fastcall seems to have an unexpected negative effect under
+-   MS VC++, especially for function pointers, so we won't use it for
+-   now on that platform. It may be reconsidered for a future release
+-   if it can be made more effective.
+-   Likely reason: __fastcall on Windows is like stdcall, therefore
+-   the compiler cannot perform stack optimizations for call clusters.
+-*/
+-
+-/* Make sure all of these are defined if they aren't already. */
+-
+-#ifndef FASTCALL
+ #define FASTCALL
+-#endif
+-
+-#ifndef PTRCALL
+ #define PTRCALL
+-#endif
+-
+-#ifndef PTRFASTCALL
+ #define PTRFASTCALL
+-#endif
+-
+-#ifndef XML_MIN_SIZE
+-#if !defined(__cplusplus) && !defined(inline)
+-#ifdef __GNUC__
+-#define inline __inline
+-#endif /* __GNUC__ */
+-#endif
+-#endif /* XML_MIN_SIZE */
+ 
+-#ifdef __cplusplus
+-#define inline inline
+-#else
+-#ifndef inline
+-#define inline
+-#endif
+-#endif
+diff -U 5 --new-file --recursive mess.ori/expat/xmlparse.c mess/expat/xmlparse.c
+--- mess.ori/expat/xmlparse.c	2004-03-12 21:40:18.000000000 +0100
++++ mess/expat/xmlparse.c	2004-04-13 15:53:31.000000000 +0200
+@@ -5,19 +5,11 @@
+ #include <stddef.h>
+ #include <string.h>                     /* memset(), memcpy() */
+ 
+ #define XML_BUILDING_EXPAT 1
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "expat.h"
+ 
+ #ifdef XML_UNICODE
+ #define XML_ENCODE_MAX XML_UTF16_ENCODE_MAX
+diff -U 5 --new-file --recursive mess.ori/expat/xmlrole.c mess/expat/xmlrole.c
+--- mess.ori/expat/xmlrole.c	2004-03-12 21:40:19.000000000 +0100
++++ mess/expat/xmlrole.c	2004-04-13 15:53:47.000000000 +0200
+@@ -1,18 +1,10 @@
+ /* Copyright (c) 1998, 1999 Thai Open Source Software Center Ltd
+    See the file COPYING for copying permission.
+ */
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "internal.h"
+ #include "xmlrole.h"
+ #include "ascii.h"
+ 
+diff -U 5 --new-file --recursive mess.ori/expat/xmltok.c mess/expat/xmltok.c
+--- mess.ori/expat/xmltok.c	2004-03-12 21:40:20.000000000 +0100
++++ mess/expat/xmltok.c	2004-04-13 15:54:00.000000000 +0200
+@@ -1,18 +1,10 @@
+ /* Copyright (c) 1998, 1999 Thai Open Source Software Center Ltd
+    See the file COPYING for copying permission.
+ */
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "internal.h"
+ #include "xmltok.h"
+ #include "nametab.h"
+ 
 diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
---- mess.ori/inputx.c	2004-03-04 17:24:28.000000000 +0100
-+++ mess/inputx.c	2004-03-30 16:33:59.000000000 +0200
+--- mess.ori/inputx.c	2004-04-04 17:14:23.000000000 +0200
++++ mess/inputx.c	2004-04-13 13:55:52.000000000 +0200
 @@ -1,8 +1,7 @@
  #include <ctype.h>
  #include <assert.h>

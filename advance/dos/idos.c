@@ -28,11 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "idos.h"
 #include "log.h"
 #include "target.h"
-
-#include <string.h>
 
 #include <pc.h>
 #include <keys.h>

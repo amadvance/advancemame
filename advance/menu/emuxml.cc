@@ -1,7 +1,30 @@
+/*
+ * This file is part of the Advance project.
+ *
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details. 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+#include "portable.h"
+
 #include "emulator.h"
 #include "game.h"
-#include "target.h"
-#include "intexpat.h"
+#include "../expat/expat.h"
+
+#include "advance.h"
 
 #include <string>
 #include <iostream>
@@ -344,12 +367,18 @@ static const char* match_gamemachine = "game|machine";
  * Conversion table.
  * Any element/attribute not in this table is ignored.
  */
-static struct conversion_t {
+struct conversion_t {
 	unsigned depth;
 	const char* name[DEPTH_MAX];
 	process_t* process;
-} CONV[] = {
+};
+
+static struct conversion_t CONV1[] = {
 	{ 1, { match_mamemessraine, match_gamemachine, 0, 0, 0 }, process_game },
+	{ 0, { 0, 0, 0, 0, 0 }, 0 }
+};
+
+static struct conversion_t CONV2[] = {
 	{ 2, { match_mamemessraine, match_gamemachine, "runnable", 0, 0 }, process_runnable },
 	{ 2, { match_mamemessraine, match_gamemachine, "name", 0, 0 }, process_name },
 	{ 2, { match_mamemessraine, match_gamemachine, "description", 0, 0 }, process_description },
@@ -358,11 +387,14 @@ static struct conversion_t {
 	{ 2, { match_mamemessraine, match_gamemachine, "cloneof", 0, 0 }, process_cloneof },
 	{ 2, { match_mamemessraine, match_gamemachine, "romof", 0, 0 }, process_romof },
 	{ 2, { match_mamemessraine, match_gamemachine, "rom", 0, 0 }, process_rom },
+	{ 2, { match_mamemessraine, match_gamemachine, "device", 0, 0 }, process_device },
+	{ 0, { 0, 0, 0, 0, 0 }, 0 }
+};
+
+static struct conversion_t CONV3[] = {
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "merge", 0 }, process_rommerge },
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size", 0 }, process_romsize },
-	{ 2, { match_mamemessraine, match_gamemachine, "device", 0, 0 }, process_device },
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "name", 0 }, process_devicename },
-	{ 4, { match_mamemessraine, match_gamemachine, "device", "extension", "name" }, process_deviceextensionname },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "color", 0 }, process_drivercolor },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "sound", 0 }, process_driversound },
@@ -375,34 +407,47 @@ static struct conversion_t {
 	{ 0, { 0, 0, 0, 0, 0 }, 0 }
 };
 
+static struct conversion_t CONV4[] = {
+	{ 4, { match_mamemessraine, match_gamemachine, "device", "extension", "name" }, process_deviceextensionname },
+	{ 0, { 0, 0, 0, 0, 0 }, 0 }
+};
+
 /**
  * Identify the specified element/attribute.
  */
 static struct conversion_t* identify(unsigned depth, const struct level_t* level)
 {
-	unsigned i, j;
+	struct conversion_t* conv;
 
-	if (depth < DEPTH_MAX) {
-		for(i=0;CONV[i].name[0];++i) {
-			if (CONV[i].depth != depth)
-				continue;
-			for(j=0;j<=depth;++j) {
-				if (CONV[i].name[j] == match_mamemessraine) {
-					if (strcmp(level[j].tag, "mame") != 0 && strcmp(level[j].tag, "mess") != 0 && strcmp(level[j].tag, "raine") != 0)
-						break;
-				} else if (CONV[i].name[j] == match_gamemachine) {
-					if (strcmp(level[j].tag, "game") != 0 && strcmp(level[j].tag, "machine") != 0)
-						break;
-				} else {
-					if (strcmp(level[j].tag, CONV[i].name[j]) != 0)
-						break;
-				}
+	switch (depth) {
+	case 1 : conv = CONV1; break;
+	case 2 : conv = CONV2; break;
+	case 3 : conv = CONV3; break;
+	case 4 : conv = CONV4; break;
+	default:
+		return 0;
+	}
+
+	for(unsigned i=0;conv[i].name[0];++i) {
+		bool equal = true;
+
+		// check all the item, backward
+		for(int j=depth;equal && j>=0;--j) {
+			if (conv[i].name[j] == match_mamemessraine) {
+				if (strcmp(level[j].tag, "mame") != 0 && strcmp(level[j].tag, "mess") != 0 && strcmp(level[j].tag, "raine") != 0)
+					equal = false;
+			} else if (conv[i].name[j] == match_gamemachine) {
+				if (strcmp(level[j].tag, "game") != 0 && strcmp(level[j].tag, "machine") != 0)
+					equal = false;
+			} else {
+				if (strcmp(level[j].tag, conv[i].name[j]) != 0)
+					equal = false;
 			}
-			if (j > depth)
-				break;
 		}
-		if (CONV[i].name[0])
-			return &CONV[i];
+
+		// if match return
+		if (equal)
+			return &conv[i];
 	}
 
 	return 0;

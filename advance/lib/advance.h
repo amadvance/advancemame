@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@
 #include "keydrv.h"
 #include "knone.h"
 #include "log.h"
+#include "measure.h"
 #include "mixer.h"
 #include "mng.h"
 #include "mnone.h"
@@ -62,9 +63,11 @@
 #include "os.h"
 #include "pcx.h"
 #include "png.h"
+#include "pngdef.h"
 #include "readinfo.h"
 #include "rgb.h"
 #include "snone.h"
+#include "snstring.h"
 #include "soundall.h"
 #include "sounddrv.h"
 #include "target.h"
@@ -76,8 +79,8 @@
 #include "vnone.h"
 #include "wave.h"
 
-/* from blit */
 #include "clear.h"
 #include "blit.h"
 
 #endif
+

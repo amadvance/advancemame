@@ -18,12 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "resource.h"
 #include "common.h"
-
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
 
 using namespace std;
 

@@ -1,6 +1,16 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.3 2004/04
+	) Updated the expat library to version 1.95.7.
+	) Added support for recent Radeon boards 9600/9700/9800 at
+		the DOS version.
+	) Fixed the background music multi directory specification in Linux.
+	) Fixed the `generic' emulator rom finding.
+	) Added a new `device_alsa_device' option to select the ALSA
+		output device.
+	) Removed the initial audio tick with the ALSA and OSS drivers.
+
 AdvanceMENU Version 2.3.2 2004/03
 	) Renamed the `video_*' options in `display_*' like AdvanceMAME.
 	) Added new `ui_help' and `ui_exit' options to display arbitrary

@@ -40,17 +40,20 @@
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
+/* Define to 1 if you have the `inb' and `outb' functions. */
+#undef HAVE_INOUT
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `iopl' function. */
+#undef HAVE_IOPL
 
 /* Define to 1 if you have the `asound' library (-lasound). */
 #undef HAVE_LIBASOUND
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
-
-/* Define to 1 if you have the `SDL' library (-lSDL). */
-#undef HAVE_LIBSDL
 
 /* Define to 1 if you have the `slang' library (-lslang). */
 #undef HAVE_LIBSLANG

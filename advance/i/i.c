@@ -18,16 +18,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "os.h"
-#include "conf.h"
-#include "inputall.h"
-#include "target.h"
+#include "portable.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <string.h>
-#include <ctype.h>
+#include "advance.h"
 
 static int done;
 

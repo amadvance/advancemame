@@ -1,6 +1,25 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.81.1 2004/04
+	) In Linux the hardware ports are always accessed directly if
+		the program is run as root. Otherwise is used the /dev/port
+		interface.
+	) Removed the green bars when using the video overlay.
+	) Added support for recent Radeon boards 9600/9700/9800 at
+		the DOS version.
+	) Fixed the MNG recording.
+	) The `input_dipswitch[difficulty]' option now always override
+		the `misc_difficulty' option.
+	) Added a new `device_alsa_device' option to select the ALSA
+		output device.
+	) Removed the initial audio tick with the ALSA and OSS drivers.
+
+AdvanceMESS Version 0.81.0.0 2004/04
+	) All from AdvanceMAME 0.81.0.
+
+AdvanceMAME Version 0.81.0 2004/04
+
 AdvanceMESS Version 0.80.0.0 2004/03
 	) You can now specify configuration options for a single software
 		using the format `SYSTEM[SOFTWARE]/OPTION' in the configuration

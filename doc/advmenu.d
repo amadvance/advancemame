@@ -529,13 +529,13 @@ Configuration
 	Selects the default images. When an image for the selected game
 	is not found, a default image can be displayed.
 
-	:preview_default "IMAGE_PATH"
-	:preview_default_snap "IMAGE_PATH"
-	:preview_default_flyer "IMAGE_PATH"
-	:preview_default_cabinet "IMAGE_PATH"
-	:preview_default_icon "IMAGE_PATH"
-	:preview_default_marquee "IMAGE_PATH"
-	:preview_default_title "IMAGE_PATH"
+	:preview_default "FILE"
+	:preview_default_snap "FILE"
+	:preview_default_flyer "FILE"
+	:preview_default_cabinet "FILE"
+	:preview_default_icon "FILE"
+	:preview_default_marquee "FILE"
+	:preview_default_title "FILE"
 
 	Commands:
 		default - Selects the default image for all preview
@@ -544,7 +544,7 @@ Configuration
 			preview mode.
 
 	Options:
-		IMAGE_PATH - The complete PATH of the image.
+		FILE - The complete PATH of the image.
 
 	Examples:
 		:preview_default "C:\MAME\DEFAULT.PNG"
@@ -706,6 +706,8 @@ Configuration
 		TIME - Latency in seconds from 0.01 to 2.0.
 			(default 0.1)
 
+	Increase the value if your hear a choppy audio.
+
     sound_buffer
 	Sets the size of the lookahead audio buffer for decoding.
 
@@ -714,6 +716,8 @@ Configuration
 	Options:
 		TIME - Buffer size in seconds from 0.05 to 2.0.
 			(default 0.1)
+
+	Increase the value if your hear a choppy audio.
 
     sound_foreground_EVENT
 	Selects the sounds played in foreground for the various events.
@@ -750,7 +754,7 @@ Configuration
 		end - Sound played at AdvanceMENU exit.
 		start - Sound played at emulator startup.
 		stop - Sound played at emulator exit.
-		loop - Sound played in loop if no other background.
+		loop - Sound played in loop if no other background
 			sound is available.
 
 	Options:
@@ -760,9 +764,7 @@ Configuration
 
     sound_background_loop_dir
 	Selects the background music directory to search for MP3 and WAV
-	files.
-
-	Music tracks will be played in random order.
+	files. Music tracks will be played in random order.
 
 	Multiple directories may be specified by separating each with a
 	semicolon `;' in DOS and Windows, with a double-colon `:' in Linux

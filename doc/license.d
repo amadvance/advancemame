@@ -1,7 +1,7 @@
 Name
-	license - The AdvanceMAME/MESS License
+	license - The AdvanceMAME License
 
-	The AdvanceMAME/MESS projects are released under the
+	The AdvanceMAME/MESS sources are released under the
 	GNU General Public License (GPL) with this special exception
 	added to every source file :
 
@@ -15,15 +15,16 @@ Name
 		:file, but you are not obligated to do so.  If you do not wish to
 		:do so, delete this exception statement from your version."
 
-	This imply that the precompiled binary version of
-	AdvanceMAME/MESS linked with the MAME sources must also
-	follow the MAME License.
+	This imply that if you distribute a binary version of AdvanceMAME/MESS
+	linked with the MAME and MESS sources you must also follow the MAME
+	License.
+
+	The MAME and MESS sources, covered by the MAME License, are located
+	only in the src/, srcmess/ and mess/ directories. All the other
+	sources are covered by the GPL License.
 
 	A lot of answered questions regarding the license are in the
 	`faq.txt' file.
-
-	The sources covered by the MAME License are located only in the
-	src/, srcmess/ and mess/ directories.
 
 	The following two chapters contain the GPL and the MAME License.
 
@@ -371,7 +372,7 @@ GPL
 	:Public License instead of this License.
 
 MAME
-	This is the MAME Licence.
+	This is the MAME Licence. Note that it isn't an Open Source License.
 
 	:Usage and Distribution License
 	:------------------------------

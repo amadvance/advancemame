@@ -324,6 +324,17 @@ if test $ac_host = unix ; then
 	AC_FUNC_VPRINTF
 	AC_CHECK_FUNCS([strcasecmp strerror])
 	AC_CHECK_FUNCS([uname sysconf backtrace backtrace_symbols])
+	AC_CHECK_FUNCS([iopl])
+	AC_MSG_CHECKING([for port in/out])
+	AC_TRY_LINK([
+			#include <sys/io.h>
+		], [
+			outb(0x80, inb(0x80));
+		],[ac_func_inout=yes],[ac_func_inout=no])
+	AC_MSG_RESULT([$ac_func_inout])
+	if test $ac_func_inout = yes; then
+		AC_DEFINE([HAVE_INOUT],[1],[Define to 1 if you have the `inb' and `outb' functions.])
+	fi
 fi
 
 # Checks for libraries.

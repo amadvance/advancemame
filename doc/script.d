@@ -137,8 +137,10 @@ Ports
 		off(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) & ~VALUE).
 		toggle(ADDRESS, VALUE) - Like set(ADDRESS, get(ADDRESS) ^ VALUE).
 
-	In DOS the hardware ports are accessed directly, in Linux through the
-	/dev/port interface. In Windows they are not supported.
+	In DOS the hardware ports are accessed directly. In Linux they are
+	directly accessed if you are root, otherwise they are accesed using
+	the /dev/port interface. In Windows you cannot access the
+	hardware ports.
 
 Symbols
 	This is the complete list of all the predefinite symbols

@@ -227,7 +227,7 @@ string assign(const string& r, const string& s, assign_set& assign)
 		assign.insert(assign.end(), p);
 		return s;
 	} else {
-#if 0 /* disabled, the resuling code is slower also with a destination in conventional memory */
+#if 0 /* disabled, the resulting code is slower also with a destination in conventional memory */
 		/* use common subexpression, note that the destination is also read and not only written */
 		return i->first;
 #else

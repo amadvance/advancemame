@@ -28,13 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "scrvga.h"
 
 #include <pc.h>
 #include <go32.h>
 #include <sys/farptr.h>
-#include <assert.h>
-#include <stdlib.h>
 
 /***************************************************************************/
 /* Tables */

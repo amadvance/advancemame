@@ -28,23 +28,18 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
 #include "input.h"
 #include "glue.h"
+
+#include "mame2.h"
+
+#include "advance.h"
 #ifdef USE_LCD
 #include "lcd.h"
 #endif
-#include "log.h"
-#include "snstring.h"
-#include "target.h"
-
-#include "mame2.h"
 
 /**
  * Function called while loading ROMs.
@@ -382,11 +377,13 @@ void osd_customize_inputport_pre_game(struct InputPort* current)
 
 	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
 
+	customize_difficulty(context, current);
+
 	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
 #ifdef MESS
 	customize_switch(context, cfg_context, game, current, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
 #endif
-	customize_difficulty(context, current);
+
 	customize_analog(context, cfg_context, game, current);
 	customize_input(context, cfg_context, game, current);
 }

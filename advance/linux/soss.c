@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,6 @@
  * file, but you are not obligated to do so.  If you do not wish to
  * do so, delete this exception statement from your version.
  */
-
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include "portable.h"
 
@@ -143,7 +139,6 @@ void soundb_oss_done(void)
 void soundb_oss_stop(void)
 {
 	log_std(("sound:oss: soundb_oss_stop()\n"));
-	/* TODO implement OSS sound stop */
 }
 
 unsigned soundb_oss_buffered(void)
@@ -166,7 +161,6 @@ unsigned soundb_oss_buffered(void)
 void soundb_oss_volume(double volume)
 {
 	log_std(("sound:oss: soundb_oss_volume(volume:%g)\n", (double)volume));
-	/* TODO implement OSS volume control */
 }
 
 void soundb_oss_play(const adv_sample* sample_map, unsigned sample_count)
@@ -194,7 +188,7 @@ adv_error soundb_oss_start(double silence_time)
 	log_std(("sound:oss: soundb_oss_start(silence_time:%g)\n", silence_time));
 
 	for(i=0;i<256;++i)
-		buf[i] = 0x8000;
+		buf[i] = 0x0;
 
 	sample = silence_time * oss_state.rate * oss_state.channel;
 

@@ -45,7 +45,7 @@
 extern "C" {
 #endif
 
-adv_error png_write_raw_def(
+adv_error adv_png_write_raw_def(
 	unsigned pix_width, unsigned pix_height, adv_color_def pix_def,
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
@@ -55,10 +55,10 @@ adv_error png_write_raw_def(
 
 /** \addtogroup VideoFile */
 /*@{*/
-adv_color_def png_color_def(unsigned bytes_per_pixel);
-adv_bool png_color_def_is_valid(adv_color_def def);
+adv_color_def adv_png_color_def(unsigned bytes_per_pixel);
+adv_bool adv_png_color_def_is_valid(adv_color_def def);
 
-adv_error png_write_def(
+adv_error adv_png_write_def(
 	unsigned pix_width, unsigned pix_height, adv_color_def pix_def,
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,

@@ -18,21 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "category.h"
 #include "game.h"
 #include "emulator.h"
-#include "readinfo.h"
 #include "common.h"
-#include "unzip.h"
-#include "target.h"
+
+#include "advance.h"
 
 #include <iostream>
 #include <sstream>
-
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <ctype.h>
 
 using namespace std;
 

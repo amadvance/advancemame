@@ -28,34 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
 #include "thread.h"
 #include "glue.h"
 #include "input.h"
-
-#include "os.h"
-#include "log.h"
-#include "target.h"
-#include "video.h"
-#include "update.h"
-#include "generate.h"
-#include "measure.h"
-#include "crtcbag.h"
-#include "blit.h"
-#include "clear.h"
 #include "hscript.h"
 #include "script.h"
-#include "conf.h"
-#include "videoall.h"
-#include "keydrv.h"
-#include "error.h"
-#include "snstring.h"
+
+#include "advance.h"
 
 #include <math.h>
 #include <limits.h>
@@ -1739,6 +1721,29 @@ static void video_frame_pan(struct advance_video_context* context, unsigned inpu
 	}
 }
 
+static void video_buffer_clear(struct advance_video_context* context)
+{
+	adv_pixel color;
+	unsigned bytes_per_pixel;
+	unsigned x, y;
+
+	assert( video_mode_is_active() );
+
+	/* on palettized modes it always return 0 */
+	color = video_pixel_get(0, 0, 0);
+
+	bytes_per_pixel = video_bytes_per_pixel();
+
+	/* clear */
+	for(y=0;y<context->state.buffer_size_y;++y) {
+		unsigned char* p = context->state.buffer_ptr + y * context->state.buffer_bytes_per_scanline;
+		for(x=0;x<context->state.buffer_size_x;++x) {
+			cpu_uint_write(p, bytes_per_pixel, color);
+			p += bytes_per_pixel;
+		}
+	}
+}
+
 static void video_update_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
@@ -1930,7 +1935,7 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 	context->state.buffer_ptr = ALIGN_PTR(context->state.buffer_ptr_alloc, 32);
 
 	/* clear */
-	memset(context->state.buffer_ptr, 0, context->state.buffer_size_y * context->state.buffer_bytes_per_scanline);
+	video_buffer_clear(context);
 
 	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_bytes_per_scanline, video_color_def());
 
@@ -2142,7 +2147,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 
 		if (ui_buffer_active) {
 			/* clear the buffer for the next update (the ui may write over the game area) */
-			memset(context->state.buffer_ptr, 0, context->state.buffer_size_y * context->state.buffer_bytes_per_scanline);
+			video_buffer_clear(context);
 		}
 	} else {
 		/* compute the source pointer */
@@ -2170,10 +2175,10 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		if (context->state.pipeline_measure_direct_mac == PIPELINE_MEASURE_MAX
 			&& context->state.pipeline_measure_buffer_mac == PIPELINE_MEASURE_MAX) {
 
-			context->state.pipeline_measure_buffer_result = measure_median(0.00001, 0.5, context->state.pipeline_measure_buffer_map, PIPELINE_MEASURE_MAX);
+			context->state.pipeline_measure_buffer_result = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_buffer_map, PIPELINE_MEASURE_MAX);
 			log_std(("emu:video: measure buffer %g\n", context->state.pipeline_measure_buffer_result));
 
-			context->state.pipeline_measure_direct_result = measure_median(0.00001, 0.5, context->state.pipeline_measure_direct_map, PIPELINE_MEASURE_MAX);
+			context->state.pipeline_measure_direct_result = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_direct_map, PIPELINE_MEASURE_MAX);
 			log_std(("emu:video: measure direct %g\n", context->state.pipeline_measure_direct_result));
 
 			/* select the best */
@@ -2196,6 +2201,7 @@ static void video_frame_screen(struct advance_video_context* context, struct adv
 	update_start();
 
 	video_update_pipeline(context, bitmap);
+
 	video_frame_put(context, ui_context, bitmap, update_x_get(), update_y_get());
 
 	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
@@ -2862,9 +2868,9 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 		/* 10987654321 */
 		l = strlen(buffer);
 		if (l>=4 && isspace(buffer[l-4]))
-			buffer[l-4] = 255;
+			buffer[l-4] = ADV_FONT_FIXSPACE;
 		if (l>=11 && isspace(buffer[l-11]))
-			buffer[l-11] = 255;
+			buffer[l-11] = ADV_FONT_FIXSPACE;
 
 		advance_ui_direct_text(ui_context, buffer);
 

@@ -18,19 +18,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "os.h"
-#include "conf.h"
-#include "keyall.h"
-#include "target.h"
-#include "log.h"
-#include "error.h"
-#include "snstring.h"
 #include "portable.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <string.h>
+#include "advance.h"
 
 void probe(void)
 {

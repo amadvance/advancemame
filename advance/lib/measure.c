@@ -18,10 +18,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "target.h"
@@ -48,7 +44,7 @@ static int double_cmp(const void* _a, const void* _b)
  *   - ==0 Error in the measure.
  *   - !=0 Median time in seconds.
  */
-double measure_median(double low, double high, double* map, unsigned count)
+double adv_measure_median(double low, double high, double* map, unsigned count)
 {
 	unsigned map_start, map_end;
 	unsigned median;
@@ -104,7 +100,7 @@ double measure_median(double low, double high, double* map, unsigned count)
  *   - ==0 Error in the measure.
  *   - !=0 Time in seconds of the event.
  */
-double measure_step(void (*wait)(void), double low, double high, unsigned count)
+double adv_measure_step(void (*wait)(void), double low, double high, unsigned count)
 {
 	double map[MEASURE_COUNT];
 	target_clock_t start, stop;
@@ -127,5 +123,5 @@ double measure_step(void (*wait)(void), double low, double high, unsigned count)
 		++i;
 	}
 
-	return measure_median(low, high, map, count);
+	return adv_measure_median(low, high, map, count);
 }

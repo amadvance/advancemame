@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "os.h"
@@ -225,7 +221,7 @@ static void os_delay(void)
 
 	target_yield();
 
-	delay_time = measure_step(os_wait, 0.0001, 0.2, 7);
+	delay_time = adv_measure_step(os_wait, 0.0001, 0.2, 7);
 
 	if (delay_time > 0) {
 		log_std(("os: sleep granularity %g\n", delay_time));

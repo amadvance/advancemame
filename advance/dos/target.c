@@ -28,11 +28,12 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "target.h"
 #include "log.h"
 #include "file.h"
 #include "snstring.h"
-#include "portable.h"
 #include "osdos.h"
 
 #ifdef USE_VIDEO
@@ -41,19 +42,12 @@
 
 #include "allegro2.h"
 
-#include <sys/wait.h>
-#include <sys/stat.h>
 #include <process.h>
 #include <sys/exceptn.h>
 #include <sys/farptr.h>
 #include <go32.h>
 #include <dpmi.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <dos.h>
-#include <string.h>
-#include <stdio.h>
-#include <signal.h>
 #include <conio.h>
 
 struct target_context {
@@ -131,7 +125,7 @@ unsigned target_port_get(unsigned addr)
 
 void target_writeb(unsigned addr, unsigned char c)
 {
-	_farpokeb( _dos_ds, addr, c);
+	_farpokeb(_dos_ds, addr, c);
 }
 
 unsigned char target_readb(unsigned addr)
@@ -569,10 +563,6 @@ void target_signal(int signum)
 		cprintf("%s, %s\n\r", __DATE__, __TIME__);
 
 		__djgpp_traceback_exit(signum);
-
-		if (signum == SIGILL) {
-			cprintf("Are you using the correct binary for your processor?\n\r");
-		}
 
 		_exit(EXIT_FAILURE);
 	}

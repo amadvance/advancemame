@@ -28,14 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
-#include "log.h"
+
+#include "advance.h"
 
 #include <math.h>
 
@@ -207,7 +204,7 @@ static int score_compare_dim2(
 /**
  * Score modes comparing one dimension.
  * Favorite in order:
- * - Modes which have a the dimensions as an exact multipler of the requested dimension.
+ * - Modes which have one dimension as an exact multipler of the requested dimension.
  * - The nearest size at the requested dimension.
  * - The smaller dimension.
  */
@@ -285,7 +282,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 		best_size_y = context->state.mode_best_size_y;
 	}
 
-	log_std(("emu:video: compare size dim2\n"));
+	log_std(("emu:video: compare size integer multiplier\n"));
 
 	r = score_compare_dim2(
 		crtc_hsize_get(a), crtc_vsize_get(a),
@@ -297,7 +294,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 	if (r)
 		return r;
 
-	log_std(("emu:video: compare size dim1\n"));
+	log_std(("emu:video: compare size near\n"));
 
 	r = score_compare_dim1(
 		crtc_vsize_get(a),
@@ -311,8 +308,6 @@ static int score_compare_size(const struct advance_video_context* context, const
 	/* if adjusted in horizontal size the crtc are equal */
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0)
 		return 0;
-
-	log_std(("emu:video: compare size dim1\n"));
 
 	/* nearest is lower */
 	r = score_compare_dim1(
@@ -386,9 +381,6 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 		if (r) return r;
 	}
 
-	if (strcmp(crtc_name_get(a), crtc_name_get(b))!=0)
-		log_std(("emu:video: compare indecision for %s/%s\n", crtc_name_get(a), crtc_name_get(b)));
-
 	return 0;
 }
 
@@ -419,5 +411,4 @@ void crtc_sort(const struct advance_video_context* context, const adv_crtc** map
 	the_context = context;
 	qsort(map, mac, sizeof(map[0]), void_score_compare_crtc);
 }
-
 

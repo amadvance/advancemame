@@ -22,7 +22,7 @@ Libraries
 	MESS - http://mess.emuverse.com
 	SVGALIB - http://www.svgalib.org
 	Allegro - http://www.allegro.org
-	SEAL - unknown
+	SEAL - dead project
 	MPGLIB - http://www.mpg123.de
 	zlib - http://www.gzip.org/zlib
 	S-Lang - http://www.s-lang.org

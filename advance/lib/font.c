@@ -18,10 +18,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "font.h"
@@ -142,7 +138,7 @@ void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap)
 {
 	unsigned i = (unsigned char)c;
 
-	if (i>=BITMAP_FONT_MAX)
+	if (i>=ADV_FONT_MAX)
 		return;
 
 	if (font->data[i] && font->data[i] != &null_char) {
@@ -164,7 +160,7 @@ static adv_font* adv_font_alloc(void)
 	if (!font)
 		return 0;
 
-	for(i=0;i<BITMAP_FONT_MAX;++i)
+	for(i=0;i<ADV_FONT_MAX;++i)
 		font->data[i] = &null_char;
 
 	return font;
@@ -177,7 +173,7 @@ void adv_font_free(adv_font* font)
 {
 	if (font) {
 		int i;
-		for(i=0;i<BITMAP_FONT_MAX;++i) {
+		for(i=0;i<ADV_FONT_MAX;++i) {
 			if (font->data[i] && font->data[i] != &null_char) {
 				adv_bitmap_free(font->data[i]);
 			}
@@ -666,7 +662,7 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 	sy = (face->size->metrics.height + 63) / 64;
 	sb = (face->size->metrics.ascender + 63) / 64;
 
-	for(i=0;i<BITMAP_FONT_MAX;++i) {
+	for(i=0;i<ADV_FONT_MAX;++i) {
 		e = FT_Load_Char(face, i, FT_LOAD_DEFAULT);
 		if (e == 0) {
 			unsigned x,y;
@@ -752,7 +748,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 	/* set the 255 char as space like a number */
 	bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 8);
 	adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
-	adv_font_set_char(font, 255, bitmap);
+	adv_font_set_char(font, ADV_FONT_FIXSPACE, bitmap);
 
 	/* ensure that every number is wide at least like '0' */
 	for(c='1';c<='9';++c) {
@@ -841,8 +837,8 @@ int adv_font_set(adv_font* font)
 	if (adv_font_dx!=8 || adv_font_dy>32)
 		return -1;
 
-	adv_font_data = (uint8*)malloc(BITMAP_FONT_MAX * adv_font_dy);
-	for(i=0;i<BITMAP_FONT_MAX;++i) {
+	adv_font_data = (uint8*)malloc(ADV_FONT_MAX * adv_font_dy);
+	for(i=0;i<ADV_FONT_MAX;++i) {
 		if (font->data[i]) {
 			unsigned y;
 			for(y=0;y<adv_font_dy;++y) {
@@ -880,7 +876,7 @@ void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 {
 	if (orientation_mask) {
 		unsigned i;
-		for(i=0;i<BITMAP_FONT_MAX;++i) {
+		for(i=0;i<ADV_FONT_MAX;++i) {
 			if (font->data[i])
 				adv_bitmap_orientation(font->data[i], orientation_mask);
 		}
@@ -1060,7 +1056,7 @@ void adv_font_scale(adv_font* font, unsigned fx, unsigned fy)
 {
 	unsigned i;
 
-	for(i=0;i<BITMAP_FONT_MAX;++i) {
+	for(i=0;i<ADV_FONT_MAX;++i) {
 		if (font->data[i] && font->data[i] != &null_char) {
 			adv_bitmap* bitmap;
 

@@ -18,19 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "common.h"
-#include "unzip.h"
 #include "crc.h"
-#include "target.h"
+
+#include "advance.h"
 
 #include <iostream>
-
-#include <stdio.h>
-#include <assert.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 using namespace std;
 

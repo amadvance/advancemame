@@ -18,6 +18,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "text.h"
 #include "emulator.h"
 #include "submenu.h"
@@ -25,18 +27,7 @@
 #include "menu.h"
 #include "game.h"
 
-#include "bitmap.h"
-#include "readinfo.h"
-#include "unzip.h"
-#include "target.h"
-#include "portable.h"
-#include "log.h"
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdio.h>
+#include "advance.h"
 
 #include <fstream>
 #include <sstream>
@@ -2690,11 +2681,13 @@ void generic::attrib_run()
 	}
 }
 
-bool generic::tree_get() const {
+bool generic::tree_get() const
+{
 	return false;
 }
 
-string generic::type_get() const {
+string generic::type_get() const
+{
 	return "generic";
 }
 
@@ -2820,8 +2813,14 @@ bool generic::load_software(game_set&, bool quiet)
 	return true;
 }
 
+bool generic::is_empty() const
+{
+	// allow emulator without roms info definition
+	return false;
+}
+
 bool generic::is_present() const {
-	// if empty enable always
+	// if empty enable always, this allow to create fake listing of mp3 and mng without a real emulator
 	if (user_exe_path.length()==0)
 		return true;
 
@@ -2843,3 +2842,4 @@ bool generic::run(const game& g, const game* bios, unsigned orientation, difficu
 
 	return emulator::run(g, bios, orientation, difficulty, attenuation, ignore_error);
 }
+

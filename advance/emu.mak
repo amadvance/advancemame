@@ -468,7 +468,7 @@ EMUCHDMANOBJS = \
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(EMUCFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG) 
@@ -552,6 +552,7 @@ OBJDIRS += \
 	$(OBJ)/mess \
 	$(OBJ)/mess/systems \
 	$(OBJ)/mess/devices \
+	$(OBJ)/mess/expat \
 	$(OBJ)/mess/machine \
 	$(OBJ)/mess/vidhrdw \
 	$(OBJ)/mess/sndhrdw \

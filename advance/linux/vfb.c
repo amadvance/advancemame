@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "vfb.h"
@@ -50,21 +46,6 @@
 #endif
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
-#endif
-#ifdef HAVE_SYS_IO_H
-#include <sys/io.h>
-#endif
-
-/* Define USE_DIRECTIO to use direct port io instead of the /dev/port interface in vsync polling */
-#define USE_DIRECTIO
-
-/* Define USE_DISABLEINT to disable interrupt in vsync polling */
-/* NOTE: At present it doesn't work because the vsync measure always fails */
-/* #define USE_DISABLEINT */
-
-/* disable if no ASM allowed */
-#ifndef USE_ASM_INLINE
-#undef USE_DISABLEINT
 #endif
 
 /***************************************************************************/
@@ -92,10 +73,6 @@ typedef struct fb_internal_struct {
 	unsigned char* ptr;
 
 	unsigned flags;
-
-#ifdef USE_DIRECTIO
-	adv_bool io_perm_flag; /**< IO Permission granted. */
-#endif
 
 	enum fb_wait_enum wait; /**< Wait mode. */
 	unsigned wait_error; /**< Wait try with error. */
@@ -621,21 +598,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 		goto err_close;
 	}
 
-#ifdef USE_DIRECTIO
-	/* get permission on the ports */
-	if (iopl(3) == 0) {
-#ifdef USE_DISABLEINT
-		log_std(("fb: iopl(3) success, using direct io port with interrupt disabled\n"));
-#else
-		log_std(("fb: iopl(3) success, using direct io port\n"));
-#endif
-		fb_state.io_perm_flag = 1;
-	} else {
-		fb_state.io_perm_flag = 0;
-		log_std(("ERROR:fb: iopl(3) failed\n"));
-	}
-#endif
-
 	fb_state.active = 1;
 
 	return 0;
@@ -969,48 +931,13 @@ static adv_error fb_wait_vsync_vga(void)
 
 	assert(fb_is_active() && fb_mode_is_active());
 
-#ifdef USE_DIRECTIO
-	if (!fb_state.io_perm_flag) {
-		log_std(("ERROR:fb: wait not allowed, you must be root\n"));
-		return -1;
-	}
-#endif
-
 	counter = 0;
 
-#ifdef USE_DIRECTIO
-
-#ifdef USE_DISABLEINT
-	__asm__ __volatile__(
-		"cli\n"
-		:
-		:
-		: "cc"
-	);
-#endif
-
-	while ((inb(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
-		++counter;
-
-	while ((inb(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
-		++counter;
-
-#ifdef USE_DISABLEINT
-	__asm__ __volatile__(
-		"sti\n"
-		:
-		:
-		: "cc"
-	);
-#endif
-
-#else
 	while ((target_port_get(0x3da) & 0x8) != 0 && counter < VSYNC_LIMIT)
 		++counter;
 
 	while ((target_port_get(0x3da) & 0x8) == 0 && counter < VSYNC_LIMIT)
 		++counter;
-#endif
 
 	if (counter >= VSYNC_LIMIT) {
 		log_std(("ERROR:fb: wait timeout\n"));

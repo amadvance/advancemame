@@ -18,13 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "mconfig.h"
 #include "text.h"
-#include "target.h"
+
+#include "advance.h"
 
 #include <sstream>
-
-#include <dirent.h>
 
 using namespace std;
 
@@ -142,6 +143,9 @@ static bool config_path_import(const string& s, string& a0)
 		config_error_a(s);
 		return false;
 	}
+
+	if (a0 == "none" || a0 == "default")
+		return true;
 
 	a0 = path_import(file_config_file_home(a0.c_str()));
 
@@ -286,10 +290,10 @@ static bool config_is_emulator(const pemulator_container& ec, const string& emul
 
 static bool config_load_background_dir(const string& dir, path_container& c)
 {
-	if (dir=="none")
-		return false;
-
 	bool almost_one = false;
+
+	log_std(("menu: load background music dir %s\n", dir.c_str()));
+
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
 	if (!d)
 		return almost_one;
@@ -298,7 +302,11 @@ static bool config_load_background_dir(const string& dir, path_container& c)
 	while ((dd = readdir(d))!=0) {
 		string file = file_import(dd->d_name);
 		if (file_ext(file) == ".mp3" || file_ext(file) == ".wav") {
-			c.insert( c.end(), slash_add(dir) + file);
+			string path = slash_add(dir) + file;
+
+			log_std(("menu: load background music file %s\n", path.c_str()));
+
+			c.insert( c.end(), path);
 		}
 	}
 
@@ -310,11 +318,24 @@ static bool config_load_background_list(const string& list, path_container& c)
 {
 	bool almost_one = false;
 	int i = 0;
+
 	while (i<list.length()) {
-		string dir = token_get(list, i, ";");
-		token_skip(list, i, ";");
-		almost_one = almost_one || config_load_background_dir(dir, c);
+		char sep[2];
+		sep[0] = file_dir_separator();
+		sep[1] = 0;
+
+		string arg = token_get(list, i, sep);
+
+		token_skip(list, i, sep);
+
+		string dir;
+
+		if (config_path_import(arg, dir)) {
+			if (config_load_background_dir(dir, c))
+				almost_one = true;
+		}
 	}
+
 	return almost_one;
 }
 
@@ -776,7 +797,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_path_import(conf_string_get_default(config_context, "sound_background_loop"), sound_background_loop))
 		return false;
-	if (!config_path_import(conf_string_get_default(config_context, "sound_background_loop_dir"), sound_background_loop_dir))
+	if (!config_split(conf_string_get_default(config_context, "sound_background_loop_dir"), sound_background_loop_dir))
 		return false;
 	if (!config_load_iterator_emu(config_context, "emulator", emu))
 		return false;

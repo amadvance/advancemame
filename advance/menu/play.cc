@@ -18,10 +18,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "play.h"
 #include "common.h"
-#include "mixer.h"
-#include "os.h"
+
+#include "advance.h"
 
 #include <iostream>
 #include <iomanip>

@@ -2,7 +2,8 @@
 # J
 
 JCFLAGS += \
-	-I$(srcdir)/advance/lib
+	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/blit
 JOBJDIRS += \
 	$(JOBJ)/j \
 	$(JOBJ)/lib

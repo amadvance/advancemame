@@ -18,27 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "mconfig.h"
 #include "menu.h"
 #include "submenu.h"
 #include "text.h"
 #include "play.h"
-#include "log.h"
-#include "target.h"
-#include "os.h"
-#include "videoall.h"
-#include "soundall.h"
-#include "keyall.h"
-#include "joyall.h"
-#include "mouseall.h"
-#include "snstring.h"
-#include "portable.h"
+
+#include "advance.h"
 
 #include <iostream>
-
-#include <stdio.h>
-#include <assert.h>
-#include <unistd.h>
 
 using namespace std;
 

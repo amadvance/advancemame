@@ -28,22 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
 #include "glue.h"
-#include "mame2.h"
-#include "log.h"
-#include "target.h"
-#include "file.h"
-#include "hscript.h"
-#include "glue.h"
-#include "snstring.h"
 #include "input.h"
+#include "hscript.h"
+
+#include "mame2.h"
+
+#include "advance.h"
 
 #include <math.h>
 

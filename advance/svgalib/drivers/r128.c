@@ -1319,27 +1319,26 @@ static int r128_init(int force, int par1, int par2)
     chiptype=-1;
     id=(buf[0]>>16)&0xffff;
     
-    if( (id==0x4c45) ||
-        (id==0x4c46) ||
-        (id==0x4d46) ||
-        (id==0x4d4c) ||
-        ((id>>8)==0x50) ||
-        ((id>>8)==0x52) ||
-        ((id>>8)==0x53) ||
-        ((id>>8)==0x54))
+    if( (id==0x4c45) || /* Rage Mobility M3 AGP */
+        (id==0x4c46) || /* Rage Mobility M3 AGP 2x */
+        (id==0x4d46) || /* Rage Mobility 128 AGP 4x */
+        (id==0x4d4c) || /* Rage Mobility 128 AGP */
+        ((id>>8)==0x50) || /* Rage 128 */
+        ((id>>8)==0x52) || /* Rage 128 */
+        ((id>>8)==0x53) || /* Rage 128 */
+        ((id>>8)==0x54)) /* Rage 128 */
         chiptype=Rage128;
         
-    if( (id==0x4242) ||
-        (id==0x4c57) ||
-        (id==0x4c59) ||
-        (id==0x4c5a) ||
-        (id==0x4c66) || /* reported working (ATI Radeon Mobility 9000) */
-        ((id>>8)==0x41) ||
-        ((id>>8)==0x49) ||
-        ((id>>8)==0x4E) ||
-        ((id>>8)==0x58) ||
-        ((id>>8)==0x59) ||
-        ((id>>8)==0x51))
+    if( (id==0x4242) || /* Radeon 8500 DV */
+        (id==0x4c57) || /* Radeon Mobility M7 LW */
+        (id==0x4c59) || /* Radeon Mobility M6 LY */
+        (id==0x4c5a) || /* Radeon Mobility M6 LZ */
+        (id==0x4c66) || /* Radeon Mobility 9000 */
+        ((id>>8)==0x41) || /* Radeon 9600 */
+        ((id>>8)==0x49) || /* Radeon 9000 */
+        ((id>>8)==0x4E) || /* Radeon 9700/9800 */
+        ((id>>8)==0x51) || /* Radeon 7000/7200/7500/8500/9100 */
+        ((id>>8)==0x59)) /* Radeon 9200 */
         chiptype = Radeon;
 	
     if(chiptype==-1) return 0;

@@ -28,16 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "vvgal.h"
 #include "video.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 #include <sys/nearptr.h>
 

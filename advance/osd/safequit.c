@@ -29,16 +29,11 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
 
-#include "log.h"
-#include "snstring.h"
+#include "advance.h"
 
 static adv_error advance_safequit_insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
 {

@@ -306,7 +306,11 @@ void soundb_sdl_reg(adv_conf* context)
 
 void soundb_sdl_default(void)
 {
+#ifdef __WIN32__ /* OSDEF Windows requires a special customization of the default number of sound sample with SDL 1.2.4 */
+	sdl_option.samples = 2048;
+#else
 	sdl_option.samples = 512;
+#endif
 	sdl_option.initialized = 1;
 }
 

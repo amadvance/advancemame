@@ -18,31 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "draw.h"
-#include "video.h"
-#include "error.h"
-#include "update.h"
-#include "blit.h"
-#include "clear.h"
-#include "font.h"
-#include "conf.h"
-#include "os.h"
-#include "videoall.h"
-#include "inputall.h"
-#include "log.h"
-#include "file.h"
-#include "target.h"
-#include "snstring.h"
 #include "portable.h"
 
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
+#include "draw.h"
+
+#include "advance.h"
+
 #include <math.h>
-#include <string.h>
-#include <stdio.h>
 
 /***************************************************************************/
 /* Common variable */

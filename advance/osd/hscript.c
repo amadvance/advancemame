@@ -28,22 +28,14 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "hscript.h"
 #include "script.h"
-#include "key.h"
-#include "log.h"
-#include "target.h"
-#include "keydrv.h"
-#include "snstring.h"
-
 #include "glue.h"
 #include "emu.h"
+
+#include "advance.h"
 
 struct hardware_script_pair {
 	int condition;

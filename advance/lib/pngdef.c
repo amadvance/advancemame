@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "pngdef.h"
@@ -44,7 +40,7 @@
  * Get the color definition of a PNG image.
  * \param bytes_per_pixel Size of the pixel.
  */
-adv_color_def png_color_def(unsigned bytes_per_pixel)
+adv_color_def adv_png_color_def(unsigned bytes_per_pixel)
 {
 	adv_color_def def;
 #ifdef USE_LSB
@@ -66,10 +62,10 @@ adv_color_def png_color_def(unsigned bytes_per_pixel)
 /**
  * Check if a color def is supported by PNG format.
  */
-adv_bool png_color_def_is_valid(adv_color_def def)
+adv_bool adv_png_color_def_is_valid(adv_color_def def)
 {
 	unsigned pixel = color_def_bytes_per_pixel_get(def);
-	return def == png_color_def(pixel);
+	return def == adv_png_color_def(pixel);
 }
 
 static adv_error png_write_raw_pal(
@@ -114,7 +110,7 @@ static adv_error png_write_raw_pal(
 		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
 	}
 
-	if (png_write_raw(pix_width, pix_height, 1, i_ptr, 1, 1 * pix_width, palette, rgb_max * 3, 0, 0, fast, f, count) != 0) {
+	if (adv_png_write_raw(pix_width, pix_height, 1, i_ptr, 1, 1 * pix_width, palette, rgb_max * 3, 0, 0, fast, f, count) != 0) {
 		goto err_free;
 	}
 
@@ -161,7 +157,7 @@ static adv_error png_write_raw_paltorgb(
 		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
 	}
 
-	if (png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
+	if (adv_png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
 		goto err_free;
 	}
 
@@ -217,7 +213,7 @@ static adv_error png_write_raw_rgb(
 		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
 	}
 
-	if (png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
+	if (adv_png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
 		goto err_free;
 	}
 
@@ -230,7 +226,7 @@ err:
 	return -1;
 }
 
-adv_error png_write_raw_def(
+adv_error adv_png_write_raw_def(
 	unsigned pix_width, unsigned pix_height, adv_color_def pix_def,
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
@@ -252,9 +248,9 @@ adv_error png_write_raw_def(
 			return png_write_raw_paltorgb(pix_width, pix_height, pixel, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, rgb_ptr, rgb_max, fast, f, count);
 		}
 	} else if (type == adv_color_type_rgb) {
-		if (png_color_def_is_valid(pix_def)) {
+		if (adv_png_color_def_is_valid(pix_def)) {
 			/* write rgb image */
-			return png_write_raw(pix_width, pix_height, pixel, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, 0, 0, 0, 0, fast, f, count);
+			return adv_png_write_raw(pix_width, pix_height, pixel, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, 0, 0, 0, 0, fast, f, count);
 		} else {
 			/* convert from generic rgb to 24 bit rgb */
 			return png_write_raw_rgb(pix_width, pix_height, pix_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, fast, f, count);
@@ -277,18 +273,18 @@ adv_error png_write_raw_def(
  * \param f File to write.
  * \param count Pointer at the incremental counter of bytes written. Use 0 for disabling it.
  */
-adv_error png_write_def(
+adv_error adv_png_write_def(
 	unsigned pix_width, unsigned pix_height, adv_color_def pix_def,
 	const unsigned char* pix_ptr, int pix_pixel_pitch, int pix_scanline_pitch,
 	adv_color_rgb* rgb_ptr, unsigned rgb_max,
 	adv_bool fast,
 	adv_fz* f, unsigned* count
 ) {
-	if (png_write_signature(f, count) != 0) {
+	if (adv_png_write_signature(f, count) != 0) {
 		return -1;
 	}
 
-	return png_write_raw_def(
+	return adv_png_write_raw_def(
 		pix_width, pix_height, pix_def,
 		pix_ptr, pix_pixel_pitch, pix_scanline_pitch,
 		rgb_ptr, rgb_max,

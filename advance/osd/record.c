@@ -28,20 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "emu.h"
-#include "png.h"
-#include "pngdef.h"
-#include "mng.h"
-#include "log.h"
-#include "endianrw.h"
-#include "snstring.h"
-#include "wave.h"
+
+#include "advance.h"
 
 #include <zlib.h>
 
@@ -279,6 +270,13 @@ static adv_error video_start(struct advance_record_context* context, const char*
 		return -1;
 	}
 
+	if (adv_mng_write_signature(context->state.video_f, 0) != 0) {
+		log_std(("ERROR: writing signature in file %s\n", context->state.video_file_buffer));
+		fzclose(context->state.video_f);
+		remove(context->state.video_file_buffer);
+		return -1;
+	}
+
 	video_freq_step(&mng_frequency, &mng_step, frequency / context->config.video_interlace);
 
 	context->state.video_freq_base = mng_frequency;
@@ -289,7 +287,7 @@ static adv_error video_start(struct advance_record_context* context, const char*
 
 	png_orientation_size(&pix_width, &pix_height, orientation);
 
-	if (mng_write_mhdr(pix_width, pix_height, context->state.video_freq_base, 1, context->state.video_f, 0) != 0) {
+	if (adv_mng_write_mhdr(pix_width, pix_height, context->state.video_freq_base, 1, context->state.video_f, 0) != 0) {
 		log_std(("ERROR: writing header in file %s\n", context->state.video_file_buffer));
 		fzclose(context->state.video_f);
 		remove(context->state.video_file_buffer);
@@ -341,12 +339,12 @@ static adv_error video_update(struct advance_record_context* context, const void
 
 	png_orientation(&pix_ptr, &pix_width, &pix_height, &pix_pixel_pitch, &pix_scanline_pitch, orientation);
 
-	if (mng_write_fram(context->state.video_freq_step, context->state.video_f, 0) != 0) {
+	if (adv_mng_write_fram(context->state.video_freq_step, context->state.video_f, 0) != 0) {
 		log_std(("ERROR: writing image frame in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
 
-	if (png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, context->state.video_f, 0)!=0) {
+	if (adv_png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, context->state.video_f, 0)!=0) {
 		log_std(("ERROR: writing image data in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
@@ -366,7 +364,7 @@ static adv_error video_stop(struct advance_record_context* context, unsigned* ti
 
 	context->state.video_active_flag = 0;
 
-	if (mng_write_mend(context->state.video_f, 0)!=0) {
+	if (adv_mng_write_mend(context->state.video_f, 0)!=0) {
 		goto err;
 	}
 
@@ -403,7 +401,7 @@ adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned
 	int pix_pixel_pitch;
 	int pix_scanline_pitch;
 
-	if (png_write_signature(f, 0) != 0) {
+	if (adv_png_write_signature(f, 0) != 0) {
 		return -1;
 	}
 
@@ -415,7 +413,7 @@ adv_error advance_record_png_write(adv_fz* f, const void* video_buffer, unsigned
 
 	png_orientation(&pix_ptr, &pix_width, &pix_height, &pix_pixel_pitch, &pix_scanline_pitch, orientation);
 
-	if (png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, f, 0) != 0) {
+	if (adv_png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, f, 0) != 0) {
 		return -1;
 	}
 

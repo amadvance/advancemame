@@ -3,6 +3,7 @@
 
 SCFLAGS += \
 	-I$(srcdir)/advance/lib \
+	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/mpglib
 SOBJS += \
 	$(SOBJ)/lib/portable.o \

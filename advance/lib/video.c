@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "video.h"
@@ -739,7 +735,7 @@ adv_error video_mode_set(adv_mode* mode)
 		video_fake_text_adjust();
 	}
 
-	vsync_time = measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 11);
+	vsync_time = adv_measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 11);
 
 	if (vsync_time > 0) {
 		video_state.measured_vclock = 1 / vsync_time;

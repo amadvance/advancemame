@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "vsvgawin.h"
 #include "video.h"
 #include "log.h"
@@ -35,20 +37,16 @@
 #include "error.h"
 #include "conf.h"
 #include "snstring.h"
-#include "portable.h"
 
 #ifdef USE_KEYBOARD_SDL
 #include "ksdl.h"
 #endif
 
+#include "SDL.h"
+
 #include <windows.h>
 
 #include "svgalib.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "SDL.h"
 
 /***************************************************************************/
 /* State */

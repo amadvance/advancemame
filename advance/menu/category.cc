@@ -18,13 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "category.h"
 #include "game.h"
 
 #include <iostream>
 #include <fstream>
-
-#include <sys/stat.h>
 
 using namespace std;
 

@@ -28,13 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "jalleg.h"
 #include "log.h"
 #include "device.h"
 
 #include "allegro2.h"
-
-#include <stdio.h>
 
 struct joystickb_allegro_context {
 	int id; /**< Allegro joystick identifier. */

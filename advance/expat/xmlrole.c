@@ -2,7 +2,7 @@
    See the file COPYING for copying permission.
 */
 
-#include "intconfig.h"
+#include "expatcfg.h"
 
 #include "internal.h"
 #include "xmlrole.h"

@@ -18,10 +18,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "video.h"
@@ -1190,7 +1186,7 @@ adv_bitmap* adv_bitmap_load_png(adv_color_rgb* rgb_map, unsigned* rgb_max, adv_f
 	unsigned pal_size;
 	adv_bitmap* bmp;
 
-	if (png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f) != 0) {
+	if (adv_png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f) != 0) {
 		return 0;
 	}
 
@@ -1230,11 +1226,11 @@ adv_bitmap* adv_bitmap_load_png_rgb(adv_fz* f, adv_color_def def)
 		adv_bitmap_free(dst);
 
 		return cvt;
-	} else if (def != png_color_def(dst->bytes_per_pixel)) {
+	} else if (def != adv_png_color_def(dst->bytes_per_pixel)) {
 		/* convert from rgb */
 		adv_bitmap* cvt;
 
-		cvt = adv_bitmap_cvt_rgb(def, dst, png_color_def(dst->bytes_per_pixel));
+		cvt = adv_bitmap_cvt_rgb(def, dst, adv_png_color_def(dst->bytes_per_pixel));
 
 		adv_bitmap_free(dst);
 
@@ -1268,7 +1264,7 @@ adv_bitmap* adv_bitmap_load_png_palette(adv_color_rgb* rgb_map, unsigned* rgb_ma
 		/* convert from rgb */
 		adv_bitmap* cvt;
 
-		cvt = adv_bitmap_cvt_rgbpalette(rgb_map, rgb_max, dst, png_color_def(dst->bytes_per_pixel));
+		cvt = adv_bitmap_cvt_rgbpalette(rgb_map, rgb_max, dst, adv_png_color_def(dst->bytes_per_pixel));
 
 		adv_bitmap_free(dst);
 

@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "pci.h"
 
 /***************************************************************************/

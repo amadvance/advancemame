@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "os.h"
 #include "log.h"
 #include "ksdl.h"
@@ -37,20 +39,11 @@
 #include "file.h"
 #include "ossdl.h"
 #include "snstring.h"
-#include "portable.h"
 #include "measure.h"
 #include "oswin.h"
 
 #include "SDL.h"
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <assert.h>
-#include <errno.h>
-#include <sys/stat.h>
 #include <windows.h>
 
 struct os_context {
@@ -88,7 +81,7 @@ int os_inner_init(const char* title)
 	
 	target_yield();
 
-	delay_time = measure_step(os_wait, 0.0001, 0.2, 7);
+	delay_time = adv_measure_step(os_wait, 0.0001, 0.2, 7);
 
 	if (delay_time > 0) {
 		log_std(("os: sleep granularity %g\n", delay_time));

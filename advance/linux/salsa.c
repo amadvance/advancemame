@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,13 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "salsa.h"
+#include "snstring.h"
 #include "log.h"
 #include "error.h"
 
@@ -43,6 +40,13 @@
 #define ALSA_PCM_NEW_SW_PARAMS_API
 
 #include <alsa/asoundlib.h>
+
+struct alsa_option_struct {
+	adv_bool initialized;
+	char device_buffer[256];
+};
+
+static struct alsa_option_struct alsa_option;
 
 struct soundb_alsa_context {
 	unsigned channel;
@@ -76,8 +80,8 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 	snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size);
 	snd_pcm_hw_params_get_tick_time(hw_params, &tick_time, 0);
 
-	log_std(("sound:alsa: hw period_time %d, period_size %d, periods %d, buffer_time %d, buffer_size %d, tick_time %d\n",
-		(unsigned)period_time, (unsigned)period_size, (unsigned)period_count, (unsigned)buffer_time, (unsigned)buffer_size, (unsigned)tick_time
+	log_std(("sound:alsa: hw period_time %g [us], period_size %d, periods %d, buffer_time %g [us], buffer_size %d, tick_time %g [us]\n",
+		(double)(period_time / 1000000.0), (unsigned)period_size, (unsigned)period_count, (double)(buffer_time / 1000000.0), (unsigned)buffer_size, (double)(tick_time / 1000000.0)
 	));
 
 	snd_pcm_sw_params_get_xfer_align(sw_params, &xfer_align);
@@ -95,6 +99,10 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	log_std(("sound:alsa: soundb_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
+	if (!alsa_option.initialized) {
+		soundb_alsa_default();
+	}
+
 	if (stereo_flag) {
 		alsa_state.sample_length = 4;
 		alsa_state.channel = 2;
@@ -103,9 +111,11 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 		alsa_state.channel = 1;
 	}
 
-	r = snd_pcm_open(&alsa_state.handle, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+	log_std(("sound:alsa: using device %s\n", alsa_option.device_buffer));
+
+	r = snd_pcm_open(&alsa_state.handle, alsa_option.device_buffer, SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't open audio device: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't open audio device %s: %s\n", alsa_option.device_buffer, snd_strerror(r)));
 		goto err;
 	}
 
@@ -114,72 +124,75 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	r = snd_pcm_hw_params_any(alsa_state.handle, hw_params);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't get hardware config: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't get hardware config: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_hw_params_set_access(alsa_state.handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set interleaved access: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set interleaved access: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_hw_params_set_format(alsa_state.handle, hw_params, SND_PCM_FORMAT_S16_LE);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set audio format: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set audio format: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_hw_params_set_channels(alsa_state.handle, hw_params, alsa_state.channel);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set audio channels: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set audio channels: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	alsa_state.rate = *rate;
 	r = snd_pcm_hw_params_set_rate_near(alsa_state.handle, hw_params, &alsa_state.rate, 0);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set audio frequency: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set audio frequency: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
+	log_std(("sound:alsa: selected rate %d\n", alsa_state.rate));
 
 	buffer_size = alsa_state.rate * buffer_time;
 
+	log_std(("sound:alsa: request buffer_size of %d samples\n", (unsigned)buffer_size));
+
 	r = snd_pcm_hw_params_set_buffer_size_min(alsa_state.handle, hw_params, &buffer_size);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
 		r = snd_pcm_hw_params_set_buffer_size_near(alsa_state.handle, hw_params, &buffer_size);
 		if (r < 0) {
-			log_std(("sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+			log_std(("ERROR:sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
 			goto err_close;
 		} else {
-			log_std(("sound:alsa: set_buffer_size_near(%d) succesful\n", (unsigned)buffer_size));
+			log_std(("sound:alsa: set_buffer_size_near(%d) ok\n", (unsigned)buffer_size));
 		}
 	} else {
-		log_std(("sound:alsa: set_buffer_size_min(%d) succesful\n", (unsigned)buffer_size));
+		log_std(("sound:alsa: set_buffer_size_min(%d) ok\n", (unsigned)buffer_size));
 	}
 
 	r = snd_pcm_hw_params(alsa_state.handle, hw_params);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set hw audio parameters: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set hw audio parameters: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_sw_params_current(alsa_state.handle, sw_params);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't get software audio parameters: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't get software audio parameters: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_sw_params_set_xfer_align(alsa_state.handle, sw_params, 1);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set xfer_align: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set xfer_align: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_pcm_sw_params(alsa_state.handle, sw_params);
 	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set sw audio parameters: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Couldn't set sw audio parameters: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
@@ -216,7 +229,11 @@ unsigned soundb_alsa_buffered(void)
 
 	r = snd_pcm_delay(alsa_state.handle, &buffered);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: snd_pcm_delay() failed %d\n", r));
+		if (r == -EPIPE) {
+			log_std(("ERROR:sound:alsa: snd_pcm_delay() failed: %s. Increase the latency with -sound_latency.\n", snd_strerror(r)));
+		} else {
+			log_std(("ERROR:sound:alsa: snd_pcm_delay() failed: %s\n", snd_strerror(r)));
+		}
 		buffered = 0;
 	}
 
@@ -244,30 +261,30 @@ void soundb_alsa_volume(double volume)
 
 	r = snd_mixer_open(&handle, 0);
 	if (r < 0) {
-		log_std(("sound:alsa: Mixer open error: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Mixer open error: %s\n", snd_strerror(r)));
 		goto err;
 	}
 
 	r = snd_mixer_attach(handle, card);
 	if (r < 0) {
-		log_std(("sound:alsa: Mixer attach error: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Mixer attach error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	if ((r = snd_mixer_selem_register(handle, NULL, NULL)) < 0) {
-		log_std(("sound:alsa: Mixer register error: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Mixer register error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_mixer_load(handle);
 	if (r < 0) {
-		log_std(("sound:alsa: Mixer load error: %s\n", snd_strerror(r)));
+		log_std(("ERROR:sound:alsa: Mixer load error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	elem = snd_mixer_find_selem(handle, sid);
 	if (!elem) {
-		log_std(("sound:alsa: Unable to find simple control '%s',%i\n", snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid)));
+		log_std(("ERROR:sound:alsa: Unable to find simple control '%s',%i\n", snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid)));
 		goto err_close;
 	}
 
@@ -332,16 +349,22 @@ void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 		r = snd_pcm_writei(alsa_state.handle, sample_map, sample_count);
 
 		if (r < 0) {
-			log_std(("ERROR:sound:alsa: snd_pcm_writei() failed %d\n", r));
-
 			if (r == -EAGAIN) {
+				/* internal buffer full */
+				log_std(("WARNING:sound:alsa: snd_pcm_writei() failed: internal buffer full\n"));
+				/* retry */
 				continue;
 			}
+
+			if (r == -EPIPE)
+				log_std(("ERROR:sound:alsa: snd_pcm_writei() failed: %s. Increase the latency with -sound_latency.\n", snd_strerror(r)));
+			else
+				log_std(("ERROR:sound:alsa: snd_pcm_writei() failed: %s (%d)\n", snd_strerror(r), r));
 
 			if (r < 0) {
 				r = snd_pcm_prepare(alsa_state.handle);
 				if (r < 0)
-					log_std(("sound:alsa: snd_pcm_prepare() failed %d\n", r));
+					log_std(("ERROR:sound:alsa: snd_pcm_prepare() failed: %s\n", snd_strerror(r)));
 			}
 
 			if (r < 0) {
@@ -363,7 +386,7 @@ adv_error soundb_alsa_start(double silence_time)
 	log_std(("sound:alsa: soundb_alsa_start(silence_time:%g)\n", silence_time));
 
 	for(i=0;i<256;++i)
-		buf[i] = 0x8000;
+		buf[i] = 0x0;
 
 	sample = silence_time * alsa_state.rate * alsa_state.channel;
 
@@ -387,11 +410,23 @@ unsigned soundb_alsa_flags(void)
 
 adv_error soundb_alsa_load(adv_conf* context)
 {
+	sncpy(alsa_option.device_buffer, sizeof(alsa_option.device_buffer), conf_string_get_default(context, "device_alsa_device"));
+
+	alsa_option.initialized = 1;
+
 	return 0;
 }
 
 void soundb_alsa_reg(adv_conf* context)
 {
+	conf_string_register_default(context, "device_alsa_device", "default");
+}
+
+void soundb_alsa_default(void)
+{
+	sncpy(alsa_option.device_buffer, sizeof(alsa_option.device_buffer), "default");
+
+	alsa_option.initialized = 1;
 }
 
 /***************************************************************************/

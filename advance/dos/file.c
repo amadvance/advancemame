@@ -28,15 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "file.h"
 #include "portable.h"
 
-#include <signal.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <assert.h>
-#include <string.h>
+#include "file.h"
+
 #include <dir.h>
 #include <direct.h>
 

@@ -4,15 +4,16 @@ cheatms.c
 cheatms.h
 compcfg.c
 cpu
-crcfile.c
-crcfile.h
 device.c
 device.h
 devices
 eventlst.c
 eventlst.h
+expat
 filemngr.c
 formats
+hashfile.c
+hashfile.h
 image.c
 image.h
 includes
@@ -45,6 +46,8 @@ systems
 tapectrl.c
 tinyms.mak
 tools
+unicode.c
+unicode.h
 utils.c
 utils.h
 videomap.c

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "target.h"
@@ -56,6 +52,21 @@
 #if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
+#if HAVE_SYS_IO_H
+#include <sys/io.h>
+#endif
+
+#if HAVE_IOPL
+#if HAVE_INOUT
+#define USE_DIRECT_PORT
+#endif
+#endif
+
+#if HAVE_BACKTRACE
+#if HAVE_BACKTRACE_SYMBOLS
+#define USE_BACKTRACE
+#endif
+#endif
 
 struct target_context {
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
@@ -65,6 +76,11 @@ struct target_context {
 
 	unsigned col; /**< Number of columns. 0 if not detectable. */
 	unsigned row; /**< Number of rows. 0 if not detectable. */
+
+#ifdef USE_DIRECT_PORT
+	adv_bool io_perm_flag; /**< IO Permission granted. */
+	adv_bool io_perm_iopl_flag; /**< IO iopl called. */
+#endif
 };
 
 static struct target_context TARGET;
@@ -90,6 +106,11 @@ adv_error target_init(void)
 			TARGET.row = wind_struct.ws_row;
 		}
 	}
+#endif
+
+#ifdef USE_DIRECT_PORT
+	TARGET.io_perm_iopl_flag = 0;
+	TARGET.io_perm_flag = 0;
 #endif
 
 	return 0;
@@ -179,7 +200,7 @@ target_clock_t target_clock(void)
 /***************************************************************************/
 /* Hardware */
 
-void target_port_set(unsigned addr, unsigned value)
+static void dev_port_set(unsigned addr, unsigned value)
 {
 	int f;
 	off_t o;
@@ -188,19 +209,18 @@ void target_port_set(unsigned addr, unsigned value)
 
 	f = open("/dev/port", O_WRONLY);
 	if (f == -1) {
-		if (errno != EACCES)
-			log_std(("ERROR:linux: port_set failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
-		return;
+		log_std(("ERROR:linux: port_set failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
+		goto err;
 	}
 
 	o = lseek(f, addr, SEEK_SET);
 	if (o == -1) {
 		log_std(("ERROR:linux: port_set failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
-		return;
+		goto err_close;
 	}
 	if (o != addr) {
 		log_std(("ERROR:linux: port_set failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
-		return;
+		goto err_close;
 	}
 
 	c = value;
@@ -208,17 +228,24 @@ void target_port_set(unsigned addr, unsigned value)
 	s = write(f, &c, 1);
 	if (s == -1) {
 		log_std(("ERROR:linux: port_set failed, error %d in write(0x%x) /dev/port\n", errno, value));
-		return;
+		goto err_close;
 	}
 	if (s != 1) {
 		log_std(("ERROR:linux: port_set failed, erroneous return value %d in write(0x%x) /dev/port\n", (int)s, value));
-		return;
+		goto err_close;
 	}
 
 	close(f);
+
+	return;
+
+err_close:
+	close(f);
+err:
+	return;
 }
 
-unsigned target_port_get(unsigned addr)
+static unsigned dev_port_get(unsigned addr)
 {
 	int f;
 	off_t o;
@@ -227,42 +254,89 @@ unsigned target_port_get(unsigned addr)
 
 	f = open("/dev/port", O_RDONLY);
 	if (f == -1) {
-		if (errno != EACCES)
-			log_std(("ERROR:linux: port_get failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
-		return 0;
+		log_std(("ERROR:linux: port_get failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
+		goto err;
 	}
 
 	o = lseek(f, addr, SEEK_SET);
 	if (o == -1) {
 		log_std(("ERROR:linux: port_get failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
-		return 0;
+		goto err_close;
 	}
 	if (o != addr) {
 		log_std(("ERROR:linux: port_get failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
-		return 0;
+		goto err_close;
 	}
 
 	s = read(f, &c, 1);
 	if (s == -1) {
 		log_std(("ERROR:linux: port_get failed, error %d in read() /dev/port\n", errno));
-		return 0;
+		goto err_close;
 	}
 	if (s != 1) {
 		log_std(("ERROR:linux: port_get failed, erroneous return value %d in read() /dev/port\n", (int)s));
-		return 0;
+		goto err_close;
 	}
 
 	close(f);
 
 	return c;
+
+err_close:
+	close(f);
+err:
+	return 0;
+}
+
+#ifdef USE_DIRECT_PORT
+static adv_bool io_port(void)
+{
+	/* call iopl at the first use */
+	if (!TARGET.io_perm_iopl_flag) {
+		TARGET.io_perm_iopl_flag = 1;
+
+		if (iopl(3) == 0) {
+			TARGET.io_perm_flag = 1;
+			log_std(("linux: iopl(3) success, using direct io port\n"));
+		} else {
+			TARGET.io_perm_flag = 0;
+			log_std(("WARNING:linux: iopl(3) failed, using /dev/port to io port programming\n"));
+		}
+	}
+
+	return TARGET.io_perm_flag;
+}
+#endif
+
+void target_port_set(unsigned addr, unsigned value)
+{
+#ifdef USE_DIRECT_PORT
+	if (io_port()) {
+		outb(addr, value);
+		return;
+	}
+#endif
+	dev_port_set(addr, value);
+}
+
+unsigned target_port_get(unsigned addr)
+{
+#ifdef USE_DIRECT_PORT
+	if (io_port()) {
+		return inb(addr);
+	}
+#endif
+	return dev_port_get(addr);
 }
 
 void target_writeb(unsigned addr, unsigned char c)
 {
+	log_std(("ERROR:linux: write at address 0x%x not allowed, you must be root\n", addr));
 }
 
 unsigned char target_readb(unsigned addr)
 {
+	log_std(("ERROR:linux: read at address 0x%x not allowed, you must be root\n", addr));
 	return 0;
 }
 
@@ -567,7 +641,7 @@ void target_flush(void)
 
 static void target_backtrace(void)
 {
-#if HAVE_BACKTRACE && HAVE_BACKTRACE_SYMBOLS
+#ifdef USE_BACKTRACE
 	void* buffer[256];
 	char** symbols;
 	int size;

@@ -35,13 +35,18 @@ extern "C" {
 /**
  * Max number of chars in a font.
  */
-#define BITMAP_FONT_MAX 256
+#define ADV_FONT_MAX 256
+
+/**
+ * Fixed width space.
+ */
+#define ADV_FONT_FIXSPACE '\x0ff'
 
 /**
  * Font.
  */
 typedef struct adv_font_struct {
-	adv_bitmap* data[BITMAP_FONT_MAX]; /**< A bitmap for every ASCII char. */
+	adv_bitmap* data[ADV_FONT_MAX]; /**< A bitmap for every ASCII char. */
 } adv_font;
 
 /** \addtogroup Font */

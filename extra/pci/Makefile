@@ -1,6 +1,6 @@
-all: pci
+all: pci pcismall.txt
 
-pci: pci.cc fbid.h vbeid.h vgaid.h
+pci: pci.cc fbid.h vbeid.h vgaid.h alsaid.h
 	g++ -g -Wall -O0 pci.cc -o pci
 
 clean:
@@ -11,3 +11,5 @@ clean:
 alsa:
 	awk '{ print "{ " $$2 ", " $$3 ", \"\" }, /* " $$1 " */ " } ' < modules.pcimap > alsaid.h.new
 
+pcismall.txt: pcidevs.txt
+	grep -E "^(D|V)" pcidevs.txt > pcismall.txt

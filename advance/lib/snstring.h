@@ -35,8 +35,6 @@
 #ifndef __SNSTRING_H
 #define __SNSTRING_H
 
-#include <sys/types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

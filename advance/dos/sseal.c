@@ -28,17 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "sseal.h"
 #include "sounddrv.h"
 #include "log.h"
 #include "target.h"
 
-#include <assert.h>
-#include <string.h>
-#include <stdlib.h>
-#include <dos.h>
-
 #include "audio.h"
+
+#include <dos.h>
 
 #ifdef USE_SOUND_INT
 /* from allgro/aintdos.h */

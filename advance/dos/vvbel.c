@@ -28,21 +28,17 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "vvbel.h"
 #include "scrvbe.h"
 #include "video.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 #include "osdos.h"
 
 #include "board.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
 
 /***************************************************************************/
 /* State */

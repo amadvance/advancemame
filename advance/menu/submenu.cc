@@ -18,17 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "submenu.h"
 #include "text.h"
 #include "play.h"
-#include "joydrv.h"
-#include "target.h"
+
+#include "advance.h"
 
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
-
-#include <unistd.h>
 
 using namespace std;
 
@@ -995,9 +995,9 @@ string stat_perc(unsigned v, unsigned t)
 {
 	ostringstream os;
 	if (t)
-		os << v * 100 / t << "%";
+		os << stat_int(v * 100 / t) << "%";
 	else
-		os << "0%";
+		os << stat_int(0) << "%";
 	return os.str();
 }
 
@@ -1022,6 +1022,7 @@ void run_stat(config_state& rs)
 	int xs = (2+1*8)*int_font_dx_get();
 	int xt = (2+2*8)*int_font_dx_get();
 	int xp = (2+3*8)*int_font_dx_get();
+	int xe = (2+4*8)*int_font_dx_get();
 
 	n = (int_dy_get() / int_font_dy_get() - 14) / 3;
 	if (n > STAT_MAX)
@@ -1079,37 +1080,38 @@ void run_stat(config_state& rs)
 		stat_insert(most_timepersession_map, most_timepersession_val, &*i, timepersession);
 	}
 
-	int_put(xt, y, "Total", COLOR_HELP_TAG);
-	int_put(xs, y, "Listed", COLOR_HELP_TAG);
-	int_put(xp, y, "Percentage", COLOR_HELP_TAG);
+	int_put_right(xs, y, xt-xs, "Listed", COLOR_HELP_TAG);
+	int_put_right(xt, y, xp-xt, "Total", COLOR_HELP_TAG);
+	int_put_right(xp, y, xe-xp, "Perc", COLOR_HELP_TAG);
 
 	{
 
 		y += int_font_dy_get();
 		int_put(xn, y, "Games", COLOR_HELP_TAG);
-		int_put(xt, y, stat_int(total_count), COLOR_HELP_NORMAL);
-		int_put(xs, y, stat_int(select_count), COLOR_HELP_NORMAL);
-		int_put(xp, y, stat_perc(select_count, total_count), COLOR_HELP_NORMAL);
+		int_put_right(xs, y, xt-xs, stat_int(select_count), COLOR_HELP_NORMAL);
+		int_put_right(xt, y, xp-xt, stat_int(total_count), COLOR_HELP_NORMAL);
+		int_put_right(xp, y, xe-xp, stat_perc(select_count, total_count), COLOR_HELP_NORMAL);
 	}
 
 	{
 		y += int_font_dy_get();
 		int_put(xn, y, "Play", COLOR_HELP_TAG);
-		int_put(xt, y, stat_int(total_session), COLOR_HELP_NORMAL);
-		int_put(xs, y, stat_int(select_session), COLOR_HELP_NORMAL);
-		int_put(xp, y, stat_perc(select_session, total_session), COLOR_HELP_NORMAL);
+		int_put_right(xs, y, xt-xs, stat_int(select_session), COLOR_HELP_NORMAL);
+		int_put_right(xt, y, xp-xt, stat_int(total_session), COLOR_HELP_NORMAL);
+		int_put_right(xp, y, xe-xp, stat_perc(select_session, total_session), COLOR_HELP_NORMAL);
 	}
 
 	{
 		y += int_font_dy_get();
 		int_put(xn, y, "Time", COLOR_HELP_TAG);
-		int_put(xt, y, stat_time(total_time), COLOR_HELP_NORMAL);
-		int_put(xs, y, stat_time(select_time), COLOR_HELP_NORMAL);
-		int_put(xp, y, stat_perc(select_time, total_time), COLOR_HELP_NORMAL);
+		int_put_right(xs, y, xt-xs, stat_time(select_time), COLOR_HELP_NORMAL);
+		int_put_right(xt, y, xp-xt, stat_time(total_time), COLOR_HELP_NORMAL);
+		int_put_right(xp, y, xe-xp, stat_perc(select_time, total_time), COLOR_HELP_NORMAL);
 	}
 
-	xs = (1+1*5)*int_font_dx_get();
-	xt = (1+2*5)*int_font_dx_get();
+	xs = (1+7)*int_font_dx_get();
+	xe = (1+7+5)*int_font_dx_get();
+	xt = (1+7+5+2)*int_font_dx_get();
 
 	if (n>0 && most_time_map[0]) {
 		y += int_font_dy_get();
@@ -1117,8 +1119,8 @@ void run_stat(config_state& rs)
 		int_put(xn, y, "Most time", COLOR_HELP_TAG);
 		for(unsigned i=0;i<n && most_time_map[i];++i) {
 			y += int_font_dy_get();
-			int_put(xn, y, stat_time(most_time_val[i]), COLOR_HELP_NORMAL);
-			int_put(xs, y, stat_perc(most_time_val[i], select_time), COLOR_HELP_NORMAL);
+			int_put_right(xn, y, xs-xn, stat_time(most_time_val[i]), COLOR_HELP_NORMAL);
+			int_put_right(xs, y, xe-xs, stat_perc(most_time_val[i], select_time), COLOR_HELP_NORMAL);
 			int_put(xt, y, most_time_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
@@ -1130,8 +1132,8 @@ void run_stat(config_state& rs)
 		int_put(xn, y, "Most play", COLOR_HELP_TAG);
 		for(unsigned i=0;i<n && most_session_map[i];++i) {
 			y += int_font_dy_get();
-			int_put(xn, y, stat_int(most_session_val[i]), COLOR_HELP_NORMAL);
-			int_put(xs, y, stat_perc(most_session_val[i], select_session), COLOR_HELP_NORMAL);
+			int_put_right(xn, y, xs-xn, stat_int(most_session_val[i]), COLOR_HELP_NORMAL);
+			int_put_right(xs, y, xe-xs, stat_perc(most_session_val[i], select_session), COLOR_HELP_NORMAL);
 			int_put(xt, y, most_session_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
@@ -1143,7 +1145,7 @@ void run_stat(config_state& rs)
 		int_put(xn, y, "Most time per play", COLOR_HELP_TAG);
 		for(unsigned i=0;i<n && most_timepersession_map[i];++i) {
 			y += int_font_dy_get();
-			int_put(xn, y, stat_time(most_timepersession_val[i]), COLOR_HELP_NORMAL);
+			int_put_right(xn, y, xs-xn, stat_time(most_timepersession_val[i]), COLOR_HELP_NORMAL);
 			int_put(xt, y, most_timepersession_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}

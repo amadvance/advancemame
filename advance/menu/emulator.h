@@ -374,6 +374,7 @@ public:
 	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool is_present() const;
 	virtual bool is_runnable() const;
+	virtual bool is_empty() const;
 };
 
 typedef std::list<emulator*> pemulator_container;

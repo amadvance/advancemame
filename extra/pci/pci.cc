@@ -69,24 +69,31 @@ struct entry_device_by_name : std::binary_function<entry_device,entry_device,boo
 
 typedef set<entry_device,entry_device_by_name> entry_device_set_by_name;
 
+#define EXCLUDE_MAX 16
+
 class entry_device_group {
 public:
 	unsigned device;
 	unsigned device_mask;
+	unsigned exclude[EXCLUDE_MAX];
 
 	mutable string comment;
 	mutable entry_device_set ds;
 
-	entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment);
+	entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment, unsigned* Aexclude);
 
 	bool operator<(const entry_device_group& B) const;
 
 	bool has(unsigned Adevice) const;
 };
 
-entry_device_group::entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment)
+entry_device_group::entry_device_group(unsigned Adevice, unsigned Adevice_mask, const string& Acomment, unsigned* Aexclude)
 	: device(Adevice), device_mask(Adevice_mask), comment(Acomment)
 {
+	if (Aexclude)
+		memcpy(exclude, Aexclude, sizeof(exclude));
+	else
+		memset(exclude, 0, sizeof(exclude));
 }
 
 bool entry_device_group::operator<(const entry_device_group& B) const {
@@ -98,7 +105,16 @@ bool entry_device_group::operator<(const entry_device_group& B) const {
 }
 
 bool entry_device_group::has(unsigned Adevice) const {
-	return (Adevice & device_mask) == device;
+	unsigned i;
+
+	if ((Adevice & device_mask) != device)
+		return false;
+
+	for(i=0;i<EXCLUDE_MAX;++i)
+		if (Adevice == exclude[i])
+			return false;
+
+	return true;
 }
 
 // --------------------------------------------------------------------------
@@ -158,16 +174,16 @@ typedef set<entry_vendor> entry_vendor_set;
 
 class entry_vendor_group {
 public:
-	void insert(unsigned vendor, unsigned device, unsigned mask = 0xFFFF, const string& comment = "");
+	void insert(unsigned vendor, unsigned device, unsigned mask, const string& comment, unsigned* exclude);
 
 	entry_vendor_set vg;
 };
 
-void entry_vendor_group::insert(unsigned vendor, unsigned device, unsigned mask, const string& comment)
+void entry_vendor_group::insert(unsigned vendor, unsigned device, unsigned mask, const string& comment, unsigned* exclude)
 {
 	entry_vendor_set::iterator i;
 	i = vg.insert(entry_vendor(vendor)).first;
-	entry_device_group d(device, mask, comment);
+	entry_device_group d(device, mask, comment, exclude);
 	if (!i->gs.insert(d).second) {
 		cerr << "warning: duplicate id " << hex << vendor << ":" << hex << device << endl;
 	}
@@ -444,7 +460,7 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 "\n"
 
 #define FOOTER \
-"\n" \
+"Information\n" \
 "\tThis list is automatically generated from the `pcidevs.txt' and `pci.ids'\n" \
 "\tfiles available at:\n" \
 "\n" \
@@ -520,7 +536,8 @@ HEADER
 "\tThis exclude the `vesafb' and `sisfb' drivers.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tLinux Kernel 2.4.22.\n"
+"\tLinux Kernel 2.4.22. More recent kernel may have most\n"
+"\trecent models supported.\n"
 "\n"
 ;
 
@@ -626,6 +643,7 @@ struct pci_id_mask {
 	unsigned device;
 	unsigned mask;
 	const char* comment;
+	unsigned exclude[EXCLUDE_MAX];
 };
 
 struct pci_id_mask ID_VBELINE[] = {
@@ -658,7 +676,7 @@ struct pci_id ID_ALSA[] = {
 void insert(struct pci_id_mask* pci, entry_vendor_group& device)
 {
 	while (pci->vendor) {
-		device.insert(pci->vendor, pci->device, pci->mask, pci->comment);
+		device.insert(pci->vendor, pci->device, pci->mask, pci->comment, pci->exclude);
 		++pci;
 	}
 }
@@ -666,7 +684,7 @@ void insert(struct pci_id_mask* pci, entry_vendor_group& device)
 void insert(struct pci_id* pci, entry_vendor_group& device)
 {
 	while (pci->vendor) {
-		device.insert(pci->vendor, pci->device, 0xffff, pci->comment);
+		device.insert(pci->vendor, pci->device, 0xffff, pci->comment, 0);
 		++pci;
 	}
 }

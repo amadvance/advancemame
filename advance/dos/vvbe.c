@@ -28,16 +28,14 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "vvbe.h"
 #include "scrvbe.h"
 #include "video.h"
 #include "log.h"
 #include "error.h"
-#include "portable.h"
 #include "osdos.h"
-
-#include <stdlib.h>
-#include <stdio.h>
 
 static adv_device DEVICE[] = {
 { "auto", 1, "VBE video" },

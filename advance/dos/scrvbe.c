@@ -28,17 +28,16 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "scrvbe.h"
 #include "scrvga.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include "map.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <dpmi.h>
 #include <sys/farptr.h>
 #include <sys/nearptr.h>

@@ -254,16 +254,17 @@ Video FAQ
 	the specified range.
 
 License FAQ
-  Why SourceForge accepted the AdvanceMAME project and not the
-  xmame project ?
-	SourceForge accepts only Open Source licenses.
+  Is MAME Open Source ?
+	No. The MAME License is not an Open Source License as defined
+	at http://www.opensource.org.
 
-	The source distribution of AdvanceMAME is released with
-	an Open Source license. So, it was accepted.
+  Is MAME Free Software ?
+	No. The MAME License is not a Free Software License as defined
+	at http://www.gnu.org.
 
-	The xmame is released with the "MAME License". The MAME
-	License isn't an Open Source license as defined on
-	http://www.opensource.org. So, it was rejected.
+  Is AdvanceMAME Open Source and Free Software ?
+	Yes. AdvanceMAME is released with the GPL License which is
+	an Open Source and a Free Software License.
 
   Which is the license of the AdvanceMAME source ?
 	The AdvanceMAME project is released under the GPL license.
@@ -361,14 +362,25 @@ License FAQ
 	permitted by the simple GPL license.
 
   Which is the license of the AdvanceMAME binary ?
-	The AdvanceMAME DOS binary contains source from AdvanceMAME,
-	MAME, Allegro, SEAL, svgalib and zlib. You must follow ALL
-	these licenses when you use the binary. So, you can do with
-	it only things allowed by ALL these licenses.
+	The AdvanceMAME binary contains source from AdvanceMAME,
+	MAME, Allegro, SEAL, svgalib, zlib and FreeType2. You must
+	follow ALL these licenses when you use the binary.
+	So, you can do with it only things allowed by ALL these licenses.
 
-  Can I sell the AdvanceMAME binary present on the web site ?
+  Can I sell the AdvanceMAME binary ?
 	No. The AdvanceMAME binary contains compiled MAME source and
 	the "MAME License" prohibits selling.
+
+  Why SourceForge accepted the AdvanceMAME project and not the
+  xmame project ?
+	SourceForge accepts only Open Source licenses.
+
+	The source distribution of AdvanceMAME is released with
+	an Open Source license. So, it was accepted.
+
+	The xmame is released with the "MAME License". The MAME
+	License isn't an Open Source license as defined on
+	http://www.opensource.org. So, it was rejected.
 
   Who is the copyright holder of AdvanceMAME ?
 	Andrea Mazzoleni is the copyright holder of AdvanceMAME.

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,21 +28,23 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "log.h"
 #include "target.h"
+#include "snstring.h"
 
 /***************************************************************************/
 /* Log */
 
+#define LOG_BUFFER_SIZE 1024
+
 struct log_context {
 	FILE* msg;
 	adv_bool msg_sync_flag;
+
+	char buffer[LOG_BUFFER_SIZE];
+	unsigned buffer_count;
 };
 
 static struct log_context LOG;
@@ -102,11 +104,27 @@ void log_f(const char* text, ...)
 void log_va(const char* text, va_list arg)
 {
 	if (LOG.msg) {
-		vfprintf(LOG.msg, text, arg);
+		char buffer[LOG_BUFFER_SIZE];
 
-		if (LOG.msg_sync_flag) {
-			fflush(LOG.msg);
-			target_sync();
+		vsnprintf(buffer, sizeof(buffer), text, arg);
+
+		if (strcmp(buffer, LOG.buffer) == 0) {
+			++LOG.buffer_count;
+		} else {
+			if (LOG.buffer_count >= 5) {
+				fprintf(LOG.msg, "log: last message repeated %d times\n", LOG.buffer_count);
+			}
+			LOG.buffer_count = 0;
+			sncpy(LOG.buffer, sizeof(LOG.buffer), buffer);
+		}
+
+		if (LOG.buffer_count < 5) {
+			vfprintf(LOG.msg, text, arg);
+
+			if (LOG.msg_sync_flag) {
+				fflush(LOG.msg);
+				target_sync();
+			}
 		}
 	}
 }
@@ -118,9 +136,10 @@ void log_va(const char* text, va_list arg)
  */
 adv_error log_init(const char* file, adv_bool sync_flag)
 {
-
 	LOG.msg_sync_flag = sync_flag;
 	LOG.msg = 0;
+	LOG.buffer_count = 0;
+	LOG.buffer[0] = 0;
 
 	if (file) {
 		LOG.msg = fopen(file, "w");
@@ -154,3 +173,4 @@ void log_abort(void)
 		LOG.msg = 0;
 	}
 }
+

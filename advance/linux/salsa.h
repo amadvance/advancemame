@@ -47,6 +47,8 @@ extern "C" {
  */
 extern soundb_driver soundb_alsa_driver;
 
+void soundb_alsa_default(void);
+
 #ifdef __cplusplus
 }
 #endif

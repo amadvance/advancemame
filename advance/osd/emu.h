@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __ADVANCE_H
-#define __ADVANCE_H
+#ifndef __EMU_H
+#define __EMU_H
 
 #include "glue.h"
 

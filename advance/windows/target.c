@@ -28,23 +28,20 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "target.h"
 #include "file.h"
 #include "log.h"
 #include "os.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include "SDL.h"
 
 #include <windows.h>
 #include <io.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <signal.h>
 
-#define BUFFER_SIZE 8192
+#define BUFFER_SIZE 16384
 
 struct target_context {
 	char buffer_out[BUFFER_SIZE];
@@ -138,19 +135,23 @@ target_clock_t target_clock(void)
 
 void target_port_set(unsigned addr, unsigned value)
 {
+	log_std(("ERROR:windows: write at port 0x%x not allowed\n", addr));
 }
 
 unsigned target_port_get(unsigned addr)
 {
+	log_std(("ERROR:windows: read at port 0x%x not allowed\n", addr));
 	return 0;
 }
 
 void target_writeb(unsigned addr, unsigned char c)
 {
+	log_std(("ERROR:windows: write at address 0x%x not allowed\n", addr));
 }
 
 unsigned char target_readb(unsigned addr)
 {
+	log_std(("ERROR:windows: read at address 0x%x not allowed\n", addr));
 	return 0;
 }
 
@@ -258,12 +259,12 @@ static int exec(char* cmdline)
 	PROCESS_INFORMATION process;
 	STARTUPINFO startup;
 
-	log_std(("win: CreateProcess(%s)\n", cmdline));
+	log_std(("windows: CreateProcess(%s)\n", cmdline));
 
 	memset(&startup, 0, sizeof(startup));
 	startup.cb = sizeof(startup);
 	if (!CreateProcess(0, cmdline, 0, 0, FALSE, CREATE_NO_WINDOW, 0, 0, &startup, &process)) {
-		log_std(("win: CreateProcess() failed %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:windows: CreateProcess() failed %d\n", (unsigned)GetLastError()));
 		return -1;
 	}
 
@@ -271,7 +272,7 @@ static int exec(char* cmdline)
 	while (1) {
 		MSG msg;
 		if (!GetExitCodeProcess(process.hProcess, &exitcode)) {
-			log_std(("win: GetExitCodeProcess() failed %d\n", (unsigned)GetLastError()));
+			log_std(("ERROR:windows: GetExitCodeProcess() failed %d\n", (unsigned)GetLastError()));
 			exitcode = -1;
 			break;
 		}
@@ -281,7 +282,7 @@ static int exec(char* cmdline)
 		}
 
 		if (os_is_quit()) {
-			log_std(("win: GetExitCodeProcess() aborted due TERM signal\n"));
+			log_std(("ERROR:windows: GetExitCodeProcess() aborted due TERM signal\n"));
 			exitcode = -1;
 			break;
 		}
@@ -297,7 +298,7 @@ static int exec(char* cmdline)
 		Sleep(100);
 	}
 
-	log_std(("win: GetExitCodeProcess() return %d\n", (unsigned)exitcode));
+	log_std(("windows: GetExitCodeProcess() return %d\n", (unsigned)exitcode));
 
 	CloseHandle(process.hProcess);
 	CloseHandle(process.hThread);
@@ -312,7 +313,7 @@ adv_error target_script(const char* script)
 	FILE* f;
 	int r;
 
-	log_std(("win: script\n%s\n", script));
+	log_std(("windows: script\n%s\n", script));
 
 	tmp = getenv("TMP");
 	if (!tmp)
@@ -323,27 +324,27 @@ adv_error target_script(const char* script)
 		sncat(file, FILE_MAXPATH, "\\");
 	sncat(file, FILE_MAXPATH, "advs0000.bat");
 
-	log_std(("win: file %s\n", file));
+	log_std(("windows: file %s\n", file));
 
 	f = fopen(file, "w");
 	if (!f) {
-		log_std(("win: fopen(%s) failed\n", file));
+		log_std(("ERROR:windows: fopen(%s) failed\n", file));
 		goto err;
 	}
 
 	if (fprintf(f, "%s", script) < 0) {
-		log_std(("win: fprintf() failed\n"));
+		log_std(("ERROR:windows: fprintf() failed\n"));
 		goto err_close;
 	}
 
 	if (fclose(f) != 0) {
-		log_std(("win: fclose() failed\n"));
+		log_std(("ERROR:windows: fclose() failed\n"));
 		goto err;
 	}
 
 	r = target_system(file);
 
-	log_std(("win: return %d\n", r));
+	log_std(("windows: return %d\n", r));
 
 	remove(file); /* ignore error */
 
@@ -362,7 +363,7 @@ adv_error target_system(const char* cmd)
 
 	comspec = getenv("COMSPEC");
 	if (!comspec) {
-		log_std(("win: getenv(COMSPEC) failed\n"));
+		log_std(("ERROR:windows: getenv(COMSPEC) failed\n"));
 		return -1;
 	}
 
@@ -410,21 +411,21 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 	char* part;
 	DWORD len;
 
-	log_std(("win: target_search(%s)\n", file));
+	log_std(("windows: target_search(%s)\n", file));
 
 	len = SearchPath(0, file, ".exe", path_size, path, &part);
 
 	if (len > path_size) {
-		log_std(("win: SearchPath() failed due buffer too small\n"));
+		log_std(("ERROR:windows: SearchPath() failed due buffer too small\n"));
 		return -1;
 	}
 
 	if (!len) {
-		log_std(("win: SearchPath() failed %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:windows: SearchPath() failed %d\n", (unsigned)GetLastError()));
 		return -1;
 	}
 
-	log_std(("win: target_search() return %s\n", path));
+	log_std(("windows: target_search() return %s\n", path));
 	return 0;
 }
 
@@ -503,12 +504,8 @@ void target_signal(int signum)
 		fprintf(stderr, "Break\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr, "Signal %d.\n", signum);
+		fprintf(stderr, "Signal %d.\n\r", signum);
 		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
-
-		if (signum == SIGILL) {
-			fprintf(stderr, "Are you using the correct binary ?\n");
-		}
 
 		_exit(EXIT_FAILURE);
 	}

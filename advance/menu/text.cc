@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,39 +18,31 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "advance.h"
+#include "portable.h"
 
 #include "text.h"
-#include "pngdef.h"
 #include "common.h"
 #include "play.h"
+
+#include "advance.h"
 
 #include <list>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <set>
-
-#include <unistd.h>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
 
 using namespace std;
 
-static string int_sound_event_key;
-
-static bool int_alpha_mode;
-
-// Orientation flag
-static unsigned int_orientation = 0;
-
-// Font (already orientation corrected)
-static unsigned real_font_dx;
-static unsigned real_font_dy;
-static adv_font* real_font_map;
-
 // -------------------------------------------------------------------------
-// Size
+// Orientation/Size
+
+static unsigned int_orientation = 0; // orientation flags
+
+static unsigned int_font_dx; // font width
+static unsigned int_font_dy; // font height
+static adv_font* int_font; // font (already orientation corrected)
 
 static inline void swap(unsigned& a, unsigned& b)
 {
@@ -113,45 +105,26 @@ int int_dy_get()
 int int_font_dx_get()
 {
 	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
-		return real_font_dy;
+		return int_font_dy;
 	else
-		return real_font_dx;
+		return int_font_dx;
 }
 
 int int_font_dx_get(const string& s)
 {
 	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
-		return adv_font_sizey_string(real_font_map, s.c_str(), s.c_str() + s.length());
+		return adv_font_sizey_string(int_font, s.c_str(), s.c_str() + s.length());
 	else
-		return adv_font_sizex_string(real_font_map, s.c_str(), s.c_str() + s.length());
+		return adv_font_sizex_string(int_font, s.c_str(), s.c_str() + s.length());
 }
 
 int int_font_dy_get()
 {
 	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
-		return real_font_dx;
+		return int_font_dx;
 	else
-		return real_font_dy;
+		return int_font_dy;
 }
-
-//---------------------------------------------------------------------------
-// Video put
-
-static void video_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color)
-{
-	adv_pixel pixel = video_pixel_get(color.red, color.green, color.blue);
-	video_clear(x, y, dx, width, pixel);
-	video_clear(x, y+dy-width, dx, width, pixel);
-	video_clear(x, y+width, width, dy-2*width, pixel);
-	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
-}
-
-// -----------------------------------------------------------------------
-
-static string int_cfg_file;
-
-// if updating at the video is possible
-static bool int_updating_active;
 
 // -----------------------------------------------------------------------
 // Joystick
@@ -276,9 +249,9 @@ static void int_key_disable()
 // -----------------------------------------------------------------------
 // Mouse
 
-static int int_mouse_delta;
-static int int_mouse_pos_x;
-static int int_mouse_pos_y;
+static int int_mouse_delta; // mouse delta for a movement
+static int int_mouse_pos_x; // mouse x position
+static int int_mouse_pos_y; // mouse y position
 
 static void int_mouse_reg(adv_conf* config_context)
 {
@@ -373,7 +346,7 @@ static int int_mouse_move_raw_poll()
 
 #define DEFAULT_GRAPH_MODE "default_graph" // default video mode
 
-static unsigned int_mode_size;
+static unsigned int_mode_size; // requested mode size
 static adv_mode int_current_mode; // selected video mode
 static adv_monitor int_monitor; // monitor info
 static adv_generate_interpolate_set int_interpolate;
@@ -479,13 +452,19 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 }
 
 // -------------------------------------------------------------------------
-// text
+// Visual Interface
 
-static double int_gamma;
-static double int_brightness;
+static bool int_updating_active; // if updating at the video is possible, or we are in a drawing stage
 
-static int int_key_saved = INT_KEY_NONE;
-static int int_key_last = INT_KEY_NONE;
+static string int_sound_event_key; // sound for a key press
+
+static bool int_alpha_mode; // enabled key to ascii conversion
+
+static double int_gamma; // video gamma
+static double int_brightness; // video brightness
+
+static int int_key_next = INT_KEY_NONE; // next key
+static int int_key_last = INT_KEY_NONE; // last key
 
 static unsigned int_idle_0; // seconds before the first 0 event
 static unsigned int_idle_0_rep; // seconds before the second 0 event
@@ -493,17 +472,17 @@ static unsigned int_idle_1; // seconds before the first 1 event
 static unsigned int_idle_1_rep; // seconds before the second 1 event
 static unsigned int_repeat; // milli seconds before the first key repeat event
 static unsigned int_repeat_rep; // milli seconds before the second key repeat event
-static time_t int_idle_time;
-static bool int_idle_0_state;
-static bool int_idle_1_state;
+static time_t int_idle_time_current; // last time check in idle
+static bool int_idle_0_state; // idle event 0 enabler
+static bool int_idle_1_state; // idle event 1 enabler
 
-static bool int_wait_for_backdrop; // wait for backdrop completion
+static bool int_wait_for_backdrop; // wait for the backdrop draw completion before accepting events
 
-static unsigned video_buffer_size;
-static unsigned video_buffer_line_size;
-static unsigned video_buffer_pixel_size;
-static unsigned char* video_buffer;
-static adv_bitmap* video_bitmap;
+static unsigned video_buffer_size; // video buffer size in bytes
+static unsigned video_buffer_line_size; // video buffer scanline size in bytes
+static unsigned video_buffer_pixel_size; // video buffer pixel size in bytes
+static unsigned char* video_buffer; // video buffer in memory
+static adv_bitmap* video_bitmap; // video buffer bitmap in memory
 
 void int_reg(adv_conf* config_context)
 {
@@ -678,7 +657,7 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 {
 	int_alpha_mode = alpha_mode;
 
-	int_idle_time = time(0);
+	int_idle_time_current = time(0);
 	int_idle_0 = idle_0;
 	int_idle_1 = idle_1;
 	int_idle_0_rep = idle_0_rep;
@@ -787,23 +766,23 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 		font_size_x = font_size_y * video_size_x() * 3 / video_size_y() / 4;
 
 	// load the font
-	real_font_map = 0;
+	int_font = 0;
 	if (font != "none" && font != "auto") {
 		adv_fz* f = fzopen(font.c_str(), "rb");
 		if (f) {
-			real_font_map = adv_font_load(f, font_size_x, font_size_y);
+			int_font = adv_font_load(f, font_size_x, font_size_y);
 			fzclose(f);
 		}
 	}
-	if (!real_font_map)
-		real_font_map = adv_font_default(font_size_x, font_size_y, 0);
+	if (!int_font)
+		int_font = adv_font_default(font_size_x, font_size_y, 0);
 
 	// set the orientation
-	adv_font_orientation(real_font_map, int_orientation);
+	adv_font_orientation(int_font, int_orientation);
 
 	// compute font size
-	real_font_dx = adv_font_sizex(real_font_map);
-	real_font_dy = adv_font_sizey(real_font_map);
+	int_font_dx = adv_font_sizex(int_font);
+	int_font_dy = adv_font_sizey(int_font);
 
 	video_buffer_pixel_size = video_bytes_per_pixel();
 	video_buffer_line_size = video_size_x() * video_bytes_per_pixel();
@@ -819,7 +798,7 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 }
 
 void int_disable() {
-	adv_font_free(real_font_map);
+	adv_font_free(int_font);
 	operator delete(video_buffer);
 	adv_bitmap_free(video_bitmap);
 }
@@ -829,22 +808,24 @@ static int fast_exit_handler(void)
 	if (int_wait_for_backdrop)
 		return 0;
 
+	// update the next key
 	int_keypressed();
-	return int_key_saved == INT_KEY_PGUP
-		|| int_key_saved == INT_KEY_PGDN
-		|| int_key_saved == INT_KEY_INS
-		|| int_key_saved == INT_KEY_DEL
-		|| int_key_saved == INT_KEY_HOME
-		|| int_key_saved == INT_KEY_END
-		|| int_key_saved == INT_KEY_UP
-		|| int_key_saved == INT_KEY_DOWN
-		|| int_key_saved == INT_KEY_LEFT
-		|| int_key_saved == INT_KEY_RIGHT
-		|| int_key_saved == INT_KEY_MODE;
+
+	return int_key_next == INT_KEY_PGUP
+		|| int_key_next == INT_KEY_PGDN
+		|| int_key_next == INT_KEY_INS
+		|| int_key_next == INT_KEY_DEL
+		|| int_key_next == INT_KEY_HOME
+		|| int_key_next == INT_KEY_END
+		|| int_key_next == INT_KEY_UP
+		|| int_key_next == INT_KEY_DOWN
+		|| int_key_next == INT_KEY_LEFT
+		|| int_key_next == INT_KEY_RIGHT
+		|| int_key_next == INT_KEY_MODE;
 }
 
 // -------------------------------------------------------------------------
-// Cell Pos
+// Cell Position
 
 class cell_pos_t {
 	void gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const adv_color_rgb& background);
@@ -1151,7 +1132,7 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		}
 		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else {
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
 		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
 	}
 
@@ -1320,7 +1301,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!f)
 			return 0;
 
-		mng = mng_init(f);
+		mng = adv_mng_init(f);
 		if (mng == 0) {
 			fzclose(f);
 			return 0;
@@ -1337,9 +1318,9 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		unsigned pal_size;
 		unsigned tick;
 
-		int r = mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		int r = adv_mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
 		if (r != 0) {
-			mng_done(mng);
+			adv_mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
@@ -1348,7 +1329,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
-			mng_done(mng);
+			adv_mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
@@ -1360,7 +1341,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		adv_bitmap_free(bitmap);
 		bitmap = dup_bitmap;
 
-		mng_done(mng);
+		adv_mng_done(mng);
 		fzclose(f);
 
 		return bitmap;
@@ -1423,7 +1404,7 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 		}
 		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else {
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
 		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
 	}
 
@@ -1579,7 +1560,7 @@ clip_data::~clip_data()
 {
 	if (f) {
 		fzclose(f);
-		mng_done(mng_context);
+		adv_mng_done(mng_context);
 	}
 }
 
@@ -1587,7 +1568,7 @@ void clip_data::rewind()
 {
 	if (f) {
 		fzclose(f);
-		mng_done(mng_context);
+		adv_mng_done(mng_context);
 		f = 0;
 	}
 
@@ -1649,7 +1630,7 @@ adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 			return 0;
 		}
 
-		mng_context = mng_init(f);
+		mng_context = adv_mng_init(f);
 		if (mng_context == 0) {
 			fzclose(f);
 			f = 0;
@@ -1672,22 +1653,22 @@ adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 	unsigned pal_size;
 	unsigned tick;
 
-	int r = mng_read(mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+	int r = adv_mng_read(mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
 	if (r != 0) {
-		mng_done(mng_context);
+		adv_mng_done(mng_context);
 		fzclose(f);
 		f = 0;
 		running = false;
 		return 0;
 	}
 
-	double delay = tick / (double)mng_frequency_get(mng_context);
+	double delay = tick / (double)adv_mng_frequency_get(mng_context);
 
 	adv_bitmap* bitmap = adv_bitmap_import_palette(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
 	if (!bitmap) {
 		free(dat_ptr);
 		free(pal_ptr);
-		mng_done(mng_context);
+		adv_mng_done(mng_context);
 		fzclose(f);
 		f = 0;
 		active = false;
@@ -1779,7 +1760,7 @@ clip_data* clip_cache::alloc(const resource& res)
 }
 
 //---------------------------------------------------------------------------
-// Backdrop manager
+// Cell Manager
 
 struct cell_t {
 	cell_pos_t pos; ///< Position on the screen.
@@ -1969,6 +1950,15 @@ void cell_manager::backdrop_clear(int index, bool highlight)
 	}
 }
 
+static void box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color)
+{
+	adv_pixel pixel = video_pixel_get(color.red, color.green, color.blue);
+	video_clear(x, y, dx, width, pixel);
+	video_clear(x, y+dy-width, dx, width, pixel);
+	video_clear(x, y+width, width, dy-2*width, pixel);
+	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
+}
+
 void cell_manager::backdrop_box()
 {
 	if (!backdrop_cursor)
@@ -1983,7 +1973,7 @@ void cell_manager::backdrop_box()
 			unsigned dy = back->pos.real_dy + 2*backdrop_outline;
 
 			video_write_lock();
-			video_box(x, y, dx, dy, backdrop_cursor, backdrop_box_color.foreground);
+			box(x, y, dx, dy, backdrop_cursor, backdrop_box_color.foreground);
 			video_write_unlock(x, y, dx, dy);
 
 			adv_color_rgb c = backdrop_box_color.foreground;
@@ -2197,60 +2187,63 @@ bool cell_manager::clip_is_active(int index)
 	}
 }
 
-static class cell_manager* CELL;
+static class cell_manager* int_cell; // global cell manager
+
+//---------------------------------------------------------------------------
+// Backgrop/Clip Interface
 
 void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip)
 {
-	CELL = new cell_manager(back_color, back_box_color, Amac, Ainc, Aoutline, Acursor, expand_factor, multiclip);
+	int_cell = new cell_manager(back_color, back_box_color, Amac, Ainc, Aoutline, Acursor, expand_factor, multiclip);
 }
 
 void int_backdrop_done()
 {
-	delete CELL;
-	CELL = 0;
+	delete int_cell;
+	int_cell = 0;
 }
 
 void int_backdrop_pos(int index, int x, int y, int dx, int dy)
 {
-	CELL->pos_set(index, x, y, dx, dy);
+	int_cell->pos_set(index, x, y, dx, dy);
 }
 
 void int_backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
 {
-	CELL->backdrop_set(index, res, highlight, aspectx, aspecty);
+	int_cell->backdrop_set(index, res, highlight, aspectx, aspecty);
 }
 
 void int_backdrop_clear(int index, bool highlight)
 {
-	CELL->backdrop_clear(index, highlight);
+	int_cell->backdrop_clear(index, highlight);
 }
 
 void int_clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart)
 {
-	CELL->clip_set(index, res, aspectx, aspecty, restart);
+	int_cell->clip_set(index, res, aspectx, aspecty, restart);
 }
 
 void int_clip_clear(int index)
 {
-	CELL->clip_clear(index);
+	int_cell->clip_clear(index);
 }
 
 void int_clip_start(int index)
 {
-	if (CELL)
-		CELL->clip_start(index);
+	if (int_cell)
+		int_cell->clip_start(index);
 }
 
 bool int_clip_is_active(int index)
 {
-	if (CELL)
-		return CELL->clip_is_active(index);
+	if (int_cell)
+		return int_cell->clip_is_active(index);
 	else
 		return true;
 }
 
 //---------------------------------------------------------------------------
-// Text put
+// Put Interface
 
 static void int_clear_raw(int x, int y, int dx, int dy, const adv_color_rgb& color)
 {
@@ -2259,7 +2252,7 @@ static void int_clear_raw(int x, int y, int dx, int dy, const adv_color_rgb& col
 
 unsigned int_put_width(char c)
 {
-	adv_bitmap* src = real_font_map->data[(unsigned char)c];
+	adv_bitmap* src = int_font->data[(unsigned char)c];
 	if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 		return src->size_y;
 	else
@@ -2269,7 +2262,7 @@ unsigned int_put_width(char c)
 void int_put(int x, int y, char c, const int_color& color)
 {
 	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
-		adv_bitmap* src = real_font_map->data[(unsigned char)c];
+		adv_bitmap* src = int_font->data[(unsigned char)c];
 		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
 			swap(x, y);
 		if (int_orientation & ADV_ORIENTATION_FLIP_X)
@@ -2279,7 +2272,7 @@ void int_put(int x, int y, char c, const int_color& color)
 
 		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() &&  y+src->size_y<=video_size_y());
 
-		adv_font_put_char_alpha(real_font_map, video_bitmap, x, y, c, &color.foreground, &color.background, video_color_def());
+		adv_font_put_char_alpha(int_font, video_bitmap, x, y, c, &color.foreground, &color.background, video_color_def());
 	}
 }
 
@@ -2414,7 +2407,7 @@ bool int_image(const char* file, unsigned& scale_x, unsigned& scale_y)
 		}
 		video_pipeline_palette8(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, palette8, palette16, palette32, combine);
 	} else {
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
 		video_pipeline_direct(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, def, combine);
 	}
 
@@ -2463,7 +2456,7 @@ unsigned int_put_right(int x, int y, int dx, const string& s, const int_color& c
 }
 
 //---------------------------------------------------------------------------
-// Update
+// Update Interface
 
 static void int_copy_partial(unsigned y0, unsigned y1)
 {
@@ -2486,24 +2479,24 @@ unsigned int_update_pre(bool progressive)
 
 	int y = 0;
 
-	if (CELL) {
-		for(int i=0;i<CELL->size();++i) {
+	if (int_cell) {
+		for(int i=0;i<int_cell->size();++i) {
 			play_poll();
 
 			// this trick works only if the backdrops positioned are from top to down
 			if (int_orientation == 0 && progressive) {
 				// update progressively the screen
-				int yl = CELL->backdrop_topline(i);
+				int yl = int_cell->backdrop_topline(i);
 				if (yl > y) {
 					int_copy_partial(y, yl);
 					y = yl;
 				}
 			}
 
-			CELL->backdrop_update(i);
+			int_cell->backdrop_update(i);
 		}
 
-		CELL->reduce();
+		int_cell->reduce();
 	}
 
 	return y;
@@ -2515,8 +2508,8 @@ void int_update_post(unsigned y)
 
 	int_copy_partial(y, video_size_y());
 
-	if (CELL) {
-		CELL->backdrop_box();
+	if (int_cell) {
+		int_cell->backdrop_box();
 	}
 
 	play_poll();
@@ -2578,7 +2571,7 @@ static struct key_cvt KEYTAB[] = {
 { 0, 0, { 0 } }
 };
 
-int seq_pressed(const unsigned* code)
+static int seq_pressed(const unsigned* code)
 {
 	int j;
 	int res = 1;
@@ -2783,7 +2776,7 @@ void int_idle_repeat_reset()
 
 void int_idle_time_reset()
 {
-	int_idle_time = time(0);
+	int_idle_time_current = time(0);
 }
 
 void int_idle_0_enable(bool state)
@@ -2798,23 +2791,23 @@ void int_idle_1_enable(bool state)
 
 static void int_idle()
 {
-	if (int_idle_0_state && int_key_last == INT_KEY_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time > int_idle_0_rep)
-		int_key_saved = INT_KEY_IDLE_0;
+	if (int_idle_0_state && int_key_last == INT_KEY_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time_current > int_idle_0_rep)
+		int_key_next = INT_KEY_IDLE_0;
 
-	if (int_idle_1_state && int_key_last == INT_KEY_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time > int_idle_1_rep)
-		int_key_saved = INT_KEY_IDLE_1;
+	if (int_idle_1_state && int_key_last == INT_KEY_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time_current > int_idle_1_rep)
+		int_key_next = INT_KEY_IDLE_1;
 
-	if (int_idle_0_state && int_idle_0 && time(0) - int_idle_time > int_idle_0)
-		int_key_saved = INT_KEY_IDLE_0;
+	if (int_idle_0_state && int_idle_0 && time(0) - int_idle_time_current > int_idle_0)
+		int_key_next = INT_KEY_IDLE_0;
 
-	if (int_idle_1_state && int_idle_1 && time(0) - int_idle_time > int_idle_1)
-		int_key_saved = INT_KEY_IDLE_1;
+	if (int_idle_1_state && int_idle_1 && time(0) - int_idle_time_current > int_idle_1)
+		int_key_next = INT_KEY_IDLE_1;
 
-	if (int_key_saved == INT_KEY_NONE) {
+	if (int_key_next == INT_KEY_NONE) {
 		if (int_updating_active) {
-			if (CELL) {
+			if (int_cell) {
 				// idle only if there is time
-				if (CELL->idle()) {
+				if (int_cell->idle()) {
 					target_idle();
 				} else {
 					// we are late, allow to allocate 100% CPU
@@ -2836,20 +2829,21 @@ int int_keypressed()
 {
 	static target_clock_t key_pressed_last_time = 0;
 
-	if (int_key_saved != INT_KEY_NONE)
+	if (int_key_next != INT_KEY_NONE)
 		return 1;
 
 	target_clock_t now = target_clock();
 
+	// if you ask for keypress, assume a not CPU intensive state
 	int_idle();
 
-	/* don't check too fast */
+	// don't check too frequently
 	if (now - key_pressed_last_time >= TARGET_CLOCKS_PER_SEC / 25) {
 		key_pressed_last_time = now;
 
-		int_key_saved = key_poll();
+		int_key_next = key_poll();
 
-		if (int_key_saved != INT_KEY_NONE)
+		if (int_key_next != INT_KEY_NONE)
 			return 1;
 	}
 
@@ -2861,14 +2855,17 @@ unsigned int_getkey(bool update_background)
 	if (update_background)
 		int_update();
 
-	while (!int_keypressed()) { }
+	// wait for a keypress, internally a idle call is already done
+	while (!int_keypressed()) {
+		int_idle();
+	}
 
-	int_idle_time = time(0);
+	int_idle_time_current = time(0);
 
-	assert( int_key_saved != INT_KEY_NONE);
+	assert( int_key_next != INT_KEY_NONE);
 
 #if 0 /* OSDEF: Save interface image, only for debugging. */
-	if (int_key_saved == INT_KEY_INS) {
+	if (int_key_next == INT_KEY_INS) {
 		char name[256];
 		static int ssn = 0;
 		++ssn;
@@ -2876,14 +2873,14 @@ unsigned int_getkey(bool update_background)
 		snprintf(name, sizeof(name), "im%d.png", ssn);
 		adv_fz* f = fzopen(name, "wb");
 		if (f) {
-			png_write_def(video_size_x(), video_size_y(), video_color_def(), video_buffer, video_buffer_pixel_size, video_buffer_line_size, 0, 0, 0, f, 0);
+			adv_png_write_def(video_size_x(), video_size_y(), video_color_def(), video_buffer, video_buffer_pixel_size, video_buffer_line_size, 0, 0, 0, f, 0);
 			fzclose(f);
 		}
 	}
 #endif
 
-	int_key_last = int_key_saved;
-	int_key_saved = INT_KEY_NONE;
+	int_key_last = int_key_next;
+	int_key_next = INT_KEY_NONE;
 
 	return int_key_last;
 }

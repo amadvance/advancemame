@@ -842,6 +842,38 @@ Sound Drivers Configuration
 	Options Windows:
 		sdl - SDL sound interface.
 
+  alsa Configuration Options
+    device_alsa_device
+	Select the alsa output device.
+
+	:device_alsa_device DEVICE
+
+	Options:
+		DEVICE - Output device (default 'default').
+
+	Other possibile choices generally are 'hw:0,0' for using the
+	frequency and format chosen directly by the hardware, or 'dmix'
+	for allow concurrent access to other applications at the
+	audio card.
+
+	Example:
+		device_alsa_device dmix
+
+  sdl Configuration Options
+    device_sdl_samples
+	Select the size of the audio fragment of the SDL library.
+
+	The use of this option is discouraged, it's present only for testing.
+
+	device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
+
+	Options:
+		SAMPLES - Number of samples of an audio fragment
+			(default 2048 in Windows, 512 otherwise).
+
+	Lower values can be used to reduce the sound latency.
+	Increase the value if your hear a choppy audio.
+
 Input Drivers Configuration
     device_keyboard
 	Selects the keyboard drivers.

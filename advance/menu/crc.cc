@@ -18,13 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "crc.h"
 #include "common.h"
 
-#include <stdlib.h>
-#include <zlib.h>
-
 #include <fstream>
+
+#include <zlib.h>
 
 using namespace std;
 

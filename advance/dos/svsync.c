@@ -28,12 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "svsync.h"
 #include "sounddrv.h"
 #include "log.h"
 #include "target.h"
 
-#include <assert.h>
 #include <dos.h>
 
 #include "wss.h"

@@ -28,19 +28,18 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "vsvgal.h"
 #include "video.h"
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
-#include "portable.h"
 
 #include "svgalib.h"
 
 #include <sys/mman.h>
 #include <sys/nearptr.h>
-#include <signal.h>
-#include <unistd.h>
 #include <dos.h>
 
 /***************************************************************************/

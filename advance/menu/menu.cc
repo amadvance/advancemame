@@ -18,20 +18,18 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "portable.h"
+
 #include "game.h"
 #include "text.h"
 #include "play.h"
 #include "menu.h"
-#include "video.h"
-#include "log.h"
-#include "os.h"
-#include "target.h"
+
+#include "advance.h"
 
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
-
-#include <unistd.h>
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,12 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "os.h"
 #include "log.h"
 #include "target.h"
 #include "file.h"
 #include "conf.h"
-#include "portable.h"
 #include "osdos.h"
 
 #ifdef USE_VIDEO
@@ -42,19 +43,12 @@
 
 #include "allegro2.h"
 
-#include <signal.h>
-#include <time.h>
 #include <process.h>
 #include <conio.h>
 #include <crt0.h>
-#include <stdio.h>
 #include <dos.h>
-#include <dir.h>
 #include <sys/exceptn.h>
 #include <go32.h>
-#include <ctype.h>
-#include <assert.h>
-#include <string.h>
 
 struct os_context {
 #ifdef USE_CONFIG_ALLEGRO_WRAPPER
@@ -343,12 +337,21 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 adv_bool os_internal_brokenint10_active(void)
 {
 #ifdef USE_VIDEO
-	/* ATI bios seem broken. Tested with a Rage 128 (0x50xx) and a Radeon 7000 (0x51xx). */
+	/* ATI bios is broken. Tested with a Rage 128 (0x50xx) and a Radeon 7000 (0x51xx). */
 	/* Also a simple "mode co80" freeze the PC. */
 	/* Allow ATI Rage (not 128) and ATI Match cards */
+
 	unsigned dh = (OS.pci_vga_device >> 8) & 0xFF;
+
 	return OS.pci_vga_vendor == 0x1002 /* ATI */
-		&& (dh == 0x50 || dh == 0x51 || dh == 0x52 || dh == 0x53);
+		&& (dh != 0x43 && dh != 0x45 && dh != 0x46 && dh != 0x47 && dh != 0x56);
+/*
+	0x43 Mach64
+	0x45 Mach64
+	0x46 Mach64
+	0x47 Mach64 / Rage (not 128)
+	0x56 Mach64
+*/
 #else
 	return 0;
 #endif
@@ -504,3 +507,4 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+

@@ -28,12 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+#include "portable.h"
+
 #include "salleg.h"
 #include "sounddrv.h"
 #include "log.h"
 #include "target.h"
 
-#include <assert.h>
 #include <dos.h>
 
 #include "allegro2.h"
