@@ -160,7 +160,7 @@ video_error video_init(void) {
 
 		assert(video_state.driver_map[j]->mode_size() <= VIDEO_DRIVER_MODE_SIZE_MAX);
 
-		dev = device_match(video_option.name,(const driver*)video_state.driver_map[j]);
+		dev = device_match(video_option.name, (const driver*)video_state.driver_map[j], 0);
 
 		if (dev && video_state.driver_map[j]->init(dev->id) == 0) {
 			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
@@ -256,7 +256,7 @@ video_error video_load(struct conf_context* context, const char* driver_ignore) 
 	for(i=0;i<video_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(video_option.name, (const driver*)video_state.driver_map[i]);
+		dev = device_match(video_option.name, (const driver*)video_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;

@@ -1,6 +1,7 @@
 Name
-	authors - Authors
+	authors - The Advance Authors
 
+Authors
 	* Andrea Mazzoleni
 
 Acknowledgments

@@ -41,6 +41,10 @@
 #include <ctype.h>
 #include <unistd.h>
 
+#ifdef __MSDOS__
+#include <dpmi.h>
+#endif
+
 /***************************************************************************/
 /* crtc */
 

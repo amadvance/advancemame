@@ -587,11 +587,15 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	text_mode_depth = depth;
 	text_sound_event_key = sound_event_key;
 
-	if (video_init() != 0)
+	if (video_init() != 0) {
+		target_err("Error initializing the video driver.\n");
 		goto out;
+	}
 
-	if (video_blit_init() != 0)
+	if (video_blit_init() != 0) {
+		target_err("Error initializing the blit driver.\n");
 		goto out_video;
+	}
 
 	// disable generate if the clocks are not available
 	if (!text_has_clock)
@@ -677,17 +681,31 @@ bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_
 	text_gamma = 1.0 / gamma;
 	text_brightness = brightness;
 
-	if (video_mode_set(&text_current_mode) != 0)
+	if (video_mode_set(&text_current_mode) != 0) {
+		video_mode_reset();
+		target_err("Error initializing the video driver.\n");
 		goto out;
+	}
 
-	if (!text_key_init2())
-		goto out_mode;
+	if (!text_key_init2()) {
+		video_mode_reset();
+		target_err("Error initializing the keyboard driver.\n");
+		goto out;
+	}
 
-	if (!text_joystick_init2())
+	if (!text_joystick_init2()) {
+		video_mode_reset();
+		target_err("Error initializing the joystick driver.\n");
+		target_err("Try with the option '-device_joystick none'.\n");
 		goto out_key;
+	}
 
-	if (!text_mouse_init2())
+	if (!text_mouse_init2()) {
+		video_mode_reset();
+		target_err("Error initializing the mouse driver.\n");
+		target_err("Try with the option '-device_mouse none'.\n");
 		goto out_joy;
+	}
 
 	if (video_index() == VIDEO_FLAGS_INDEX_PACKED)
 		palette_set(0,0,0);
@@ -698,8 +716,6 @@ out_joy:
 	text_joystick_done();
 out_key:
 	text_key_done();
-out_mode:
-	video_mode_done(1);
 out:
 	return false;
 }

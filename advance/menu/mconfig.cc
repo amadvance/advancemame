@@ -26,6 +26,10 @@
 
 #include <dirent.h>
 
+#ifdef __MSDOS__
+#include <dpmi.h> /* for _go32_dpmi_* */
+#endif
+
 using namespace std;
 
 // --------------------------------------------------------------------------

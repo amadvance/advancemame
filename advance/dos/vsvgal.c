@@ -348,7 +348,7 @@ static video_error svgaline_test_capability(struct svgaline_chipset_struct* driv
 				case 32 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
 			}
 			driver->cap &= ~cap;
-			video_log("svgaline: mode bit %d not supported, removed\n");
+			video_log("svgaline: mode bit %d not supported, removed\n", bit);
 		}
 
 		libdos_mode_done();
@@ -487,11 +487,11 @@ static video_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	video_log("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size);
 	svgaline_state.linear_pointer = mmap(0, svgaline_state.linear_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, svgaline_state.linear_base);
 
-	video_log("svgaline: svgalib linear pointer %x\n",svgaline_state.linear_pointer);
+	video_log("svgaline: svgalib linear pointer %p\n", svgaline_state.linear_pointer);
 	__svgalib_linear_pointer = svgaline_state.linear_pointer;
 
 	if (__svgalib_mmio_size) {
-		video_log("svgaline: svgalib mmap(mmio) address %x, size %d\n",__svgalib_mmio_base, __svgalib_mmio_size);
+		video_log("svgaline: svgalib mmap(mmio) address %x, size %d\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size);
 		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
 		video_log("svgaline: svgalib mmio pointer %x\n",(unsigned)__svgalib_mmio_pointer);
 	} else

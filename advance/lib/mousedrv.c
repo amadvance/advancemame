@@ -73,7 +73,7 @@ video_error mouseb_load(struct conf_context* context) {
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(mouseb_state.name,(driver*)mouseb_state.driver_map[i]);
+		dev = device_match(mouseb_state.name, (driver*)mouseb_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;
@@ -104,7 +104,7 @@ video_error mouseb_init(void) {
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(mouseb_state.name,(const driver*)mouseb_state.driver_map[i]);
+		dev = device_match(mouseb_state.name, (const driver*)mouseb_state.driver_map[i], 1);
 
 		if (dev && mouseb_state.driver_map[i]->init(dev->id) == 0) {
 			mouseb_state.driver_current = mouseb_state.driver_map[i];

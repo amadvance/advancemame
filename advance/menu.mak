@@ -411,7 +411,7 @@ ifeq ($(CONF_HOST),linux)
 else
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
-	cp $(DOCOBJ)/history.txt $(MENU_DIST_DIR_BIN)/history.txt
+	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/history.txt
 endif
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)/doc

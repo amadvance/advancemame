@@ -73,7 +73,7 @@ video_error joystickb_load(struct conf_context* context) {
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(joystickb_state.name,(driver*)joystickb_state.driver_map[i]);
+		dev = device_match(joystickb_state.name, (driver*)joystickb_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;
@@ -104,7 +104,7 @@ video_error joystickb_init(void) {
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(joystickb_state.name,(const driver*)joystickb_state.driver_map[i]);
+		dev = device_match(joystickb_state.name, (const driver*)joystickb_state.driver_map[i], 1);
 
 		if (dev && joystickb_state.driver_map[i]->init(dev->id) == 0) {
 			joystickb_state.driver_current = joystickb_state.driver_map[i];

@@ -32,11 +32,10 @@
 #include "log.h"
 #include "target.h"
 
-#include <keys.h>
-#include <sys/select.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <string.h>
+
+#include <pc.h>
+#include <keys.h>
 
 static device DEVICE[] = {
 { "auto", -1, "DOS input" },

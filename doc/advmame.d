@@ -41,7 +41,7 @@ Description
 Options
 	This is the list of the available command line options:
 
-	GAME/MACHINE
+	=GAME/MACHINE
 		The game or machine to emulate. If the specified
 		GAME/MACHINE is unknown, a list of possible `guesses'
 		is printed.

@@ -217,6 +217,7 @@ static __inline__ video_bool vga_unchained_is_active(void) {
 void vga_mode_set(const struct vga_regs* regs);
 void vga_mode_get(struct vga_regs* regs);
 void vga_palette_raw_set(const unsigned char* palette, unsigned start, unsigned count);
+void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count);
 video_error vga_palette6_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
 video_error vga_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
 void vga_wait_vsync(void);

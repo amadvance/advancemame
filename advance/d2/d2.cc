@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Advance project.
+ *
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details. 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -62,7 +82,7 @@ enum state_t {
 
 class convert {
 	void step(string& s);
-	bool is_option(const string& s);
+	bool is_option(const string& s, string& a);
 	bool is_tag(const string& s, string& a, string& b);
 	bool is_dot(const string& s, string& a);
 	bool is_pre(const string& s, string& a);
@@ -142,19 +162,20 @@ bool convert::is_dot(const string& s, string& a) {
 	return false;
 }
 
-bool convert::is_option(const string& s) {
+bool convert::is_option(const string& s, string& a) {
 	string r = trim(s);
 
 	if (r.length() > 0 && (r[0] == '-' || r[0] =='/')) {
+		a = s;
 		return true;
-	} else {
-		for(unsigned i=0;i<r.length();++i) {
-			if (islower(r[i]) || isspace(r[i]))
-				return false;
-		}
 	}
 
-	return true;
+	if (r.length() > 0 && (r[0]=='=')) {
+		a = s.substr(1);
+		return true;
+	}
+
+	return false;
 }
 
 bool convert::is_tag(const string& s, string& a, string& b) {
@@ -271,14 +292,15 @@ void convert::step(string& s)
 	}
 
 	if (ns == 8) {
-		if (is_option(s) && state != state_para0) {
+		string a;
+		if (is_option(s,a) && state != state_para0) {
 			if (state != state_option) {
 				option_begin();
 			} else {
 				option_stop();
 			}
 			state = state_option;
-			option_start(s);
+			option_start(a);
 			return;
 		}
 	}
@@ -359,7 +381,7 @@ void convert::step(string& s)
 void convert::run() {
 	string s;
 	state = state_filled;
-	request_separator = true;
+	request_separator = false;
 
 	getline(is, s);
 	if (s == "NAME" || s == "Name") {
@@ -621,6 +643,7 @@ void convert_man::tag_text(const string& s) {
 // convert_html
 
 class convert_html : public convert {
+protected:
 	unsigned level0;
 	unsigned level1;
 	unsigned level2;
@@ -749,7 +772,7 @@ void convert_html::para_begin(unsigned level) {
 
 void convert_html::para_end() {
 	if (state == state_para1) {
-		os << "</tr></td></table>" << endl;
+		os << "</td></tr></table>" << endl;
 	}
 	state = state_filled;
 }
@@ -771,7 +794,7 @@ void convert_html::pre_begin(unsigned level) {
 void convert_html::pre_end() {
 	os << "</font>" << endl;
 	if (state == state_pre1) {
-		os << "</tr></td></table>" << endl;
+		os << "</td></tr></table>" << endl;
 	}
 	state = state_filled;
 }
@@ -858,7 +881,32 @@ void convert_html::tag_text(const string& s) {
 }
 
 //---------------------------------------------------------------------------
-// convert_html
+// convert_frame
+
+class convert_frame : public convert_html {
+public:
+	convert_frame(istream& Ais, ostream& Aos) : convert_html(Ais,Aos) { };
+
+	virtual void header(const string& a, const string& b);
+	virtual void footer();
+};
+
+void convert_frame::header(const string& a, const string& b) {
+	if (b.length()) {
+		os << "<h1><center>" << mask(b) << "</center></h1>" << endl;
+	}
+
+	level0 = 0;
+	level1 = 0;
+	level2 = 0;
+
+}
+
+void convert_frame::footer() {
+}
+
+//---------------------------------------------------------------------------
+// convert_txt
 
 class convert_txt : public convert {
 	bool first_line;
@@ -907,7 +955,8 @@ public:
 	virtual void tag_text(const string& s);
 };
 
-#define I "    "
+#define MI "" // begin
+#define I "    " // tag
 
 string convert_txt::mask(string s) {
 	return s;
@@ -994,6 +1043,7 @@ void convert_txt::para_end() {
 }
 
 void convert_txt::para_text(const string& s) {
+	os << MI;
 	if (state == state_para1)
 		os << I;
 	os << mask(s) << endl;
@@ -1009,6 +1059,7 @@ void convert_txt::pre_end() {
 }
 
 void convert_txt::pre_text(const string& s) {
+	os << MI;
 	if (state == state_pre1)
 		os << I;
 	os << mask(s) << endl;
@@ -1022,6 +1073,8 @@ void convert_txt::line() {
 }
 
 void convert_txt::dot_begin(unsigned level) {
+	if (state == state_separator)
+		sep();
 }
 
 void convert_txt::dot_end() {
@@ -1029,6 +1082,7 @@ void convert_txt::dot_end() {
 }
 
 void convert_txt::dot_start(const string& s) {
+	os << MI;
 	if (state == state_dot1)
 		os << I ;
 	os << "* " << mask(s) << endl;
@@ -1038,12 +1092,15 @@ void convert_txt::dot_stop() {
 }
 
 void convert_txt::dot_text(const string& s) {
+	os << MI;
 	if (state == state_dot1)
 		os << I;
 	os << "  " << mask(s) << endl;
 }
 
 void convert_txt::option_begin() {
+	if (state == state_separator)
+		sep();
 }
 
 void convert_txt::option_end() {
@@ -1051,6 +1108,7 @@ void convert_txt::option_end() {
 }
 
 void convert_txt::option_start(const string& s) {
+	os << MI;
 	os << I << mask(s) << endl;
 }
 
@@ -1058,10 +1116,13 @@ void convert_txt::option_stop() {
 }
 
 void convert_txt::option_text(const string& s) {
+	os << MI;
 	os << I I << mask(s) << endl;
 }
 
 void convert_txt::tag_begin(unsigned level) {
+	if (state == state_separator)
+		sep();
 }
 
 void convert_txt::tag_end() {
@@ -1069,6 +1130,7 @@ void convert_txt::tag_end() {
 }
 
 void convert_txt::tag_start(const string& a, const string& b) {
+	os << MI;
 	if (state == state_tag1)
 		os << I;
 	os << mask(a) << " - " << mask(b) << endl;
@@ -1078,6 +1140,7 @@ void convert_txt::tag_stop() {
 }
 
 void convert_txt::tag_text(const string& s) {
+	os << MI;
 	if (state == state_tag1)
 		os << I ;
 	os << I << mask(s) << endl;
@@ -1088,7 +1151,7 @@ void convert_txt::tag_text(const string& s) {
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
-		cerr << "Syntax: txt2 man | html | txt" << endl;
+		cerr << "Syntax: txt2 man | html | frame | txt" << endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -1098,6 +1161,8 @@ int main(int argc, char* argv[]) {
 
 	if (arg == "html")
 		c = new convert_html(cin,cout);
+	else if (arg == "frame")
+		c = new convert_frame(cin,cout);
 	else if (arg == "man")
 		c = new convert_man(cin,cout);
 	else if (arg == "txt")

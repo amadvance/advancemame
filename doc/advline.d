@@ -76,7 +76,7 @@ Options
 		You can use this option to match the capabilities
 		of your monitor.
 
-	WIDTHxHEIGHT
+	=WIDTHxHEIGHT
 		Set the desidered video mode. If none is specified a
 		default set is generated.
 

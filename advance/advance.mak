@@ -103,6 +103,7 @@ endif
 
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard $(srcdir)/doc/*.d)))
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
+WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
 all: $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
 emu: $(OBJ)/$(EMUNAME)$(EXE)
@@ -115,6 +116,7 @@ j: $(JOBJ)/advj$(EXE)
 m: $(MOBJ)/advm$(EXE)
 line: $(LINEOBJ)/advline$(EXE_BUILD)
 d2: $(D2OBJ)/advd2$(EXE_BUILD)
+web: $(WEB_DOCFILES)
 
 ############################################################################
 # Common SRC

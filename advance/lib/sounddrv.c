@@ -71,7 +71,7 @@ video_error sound_load(struct conf_context* context) {
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(sound_state.name,(driver*)sound_state.driver_map[i]);
+		dev = device_match(sound_state.name,(driver*)sound_state.driver_map[i],1);
 
 		if (dev)
 			at_least_one = 1;
@@ -104,7 +104,7 @@ video_error sound_init(unsigned* rate, video_bool stereo_flag, double buffer_tim
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(sound_state.name,(const driver*)sound_state.driver_map[i]);
+		dev = device_match(sound_state.name,(const driver*)sound_state.driver_map[i], 1);
 
 		if (dev && sound_state.driver_map[i]->init(dev->id,rate,stereo_flag,buffer_time) == 0) {
 			sound_state.driver_current = sound_state.driver_map[i];

@@ -1,6 +1,11 @@
 Name
 	advmenu - History For AdvanceMENU
 
+AdvanceMENU Version 2.0.1 2002/08
+	) Revised the output format of all the documentation. Now
+		it's available as formatted text, html and man pages.
+	) Fixed a bug on the emulator names. Now they can be uppercase.
+
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
@@ -24,7 +29,6 @@ AdvanceMENU Version 2.0.0 2002/08
 	) Added support for the 32 bit graphics output.
 	) The article `The' on the game names is put at the end
 		of the name.
-	) Fixed a bug on the emulator names. Now they can be uppercase.
 
 AdvanceMENU Version 1.19.1 2002/07
 	) Fixed a bug when forcing the use of the vbeline/3dfx driver.

@@ -73,7 +73,7 @@ video_error keyb_load(struct conf_context* context) {
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(keyb_state.name,(driver*)keyb_state.driver_map[i]);
+		dev = device_match(keyb_state.name, (driver*)keyb_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;
@@ -104,7 +104,7 @@ video_error keyb_init(video_bool disable_special) {
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(keyb_state.name,(const driver*)keyb_state.driver_map[i]);
+		dev = device_match(keyb_state.name, (const driver*)keyb_state.driver_map[i], 0);
 
 		if (dev && keyb_state.driver_map[i]->init(dev->id,disable_special) == 0) {
 			keyb_state.driver_current = keyb_state.driver_map[i];

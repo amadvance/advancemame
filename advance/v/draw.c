@@ -23,6 +23,7 @@
 #include "blit.h"
 #include "os.h"
 #include "inputdrv.h"
+#include "target.h"
 
 #ifdef __MSDOS__
 #include <scrvga.h>

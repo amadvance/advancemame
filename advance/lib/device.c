@@ -34,11 +34,17 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
-static const device* device_match_one(const char* tag, const driver* drv) {
+static const device* device_match_one(const char* tag, const driver* drv, video_bool allow_none) {
 	char tag_driver[DEVICE_NAME_MAX];
 	char* tag_device;
 	const device* i;
+
+	if (allow_none && strcmp(drv->name,"none")==0) {
+		assert(drv->device_map->name != 0);
+		return drv->device_map;
+	}
 
 	strcpy(tag_driver,tag);
 	tag_device = strchr(tag_driver,'/');
@@ -65,14 +71,14 @@ static const device* device_match_one(const char* tag, const driver* drv) {
 	return i;
 }
 
-const device* device_match(const char* tag, const driver* drv) {
+const device* device_match(const char* tag, const driver* drv, video_bool allow_none) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	strcpy(buffer, tag);
 
 	tag_one = strtok(buffer," \t");
 	while (tag_one) {
-		const device* dev = device_match_one(tag_one,drv);
+		const device* dev = device_match_one(tag_one,drv,allow_none);
 		if (dev)
 			return dev;
 		tag_one = strtok(NULL," \t");

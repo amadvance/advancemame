@@ -145,14 +145,13 @@ int run_main(config_state& rs, bool is_first) {
 	if (!text_init3(rs.video_gamma, rs.video_brightness,
 		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
 		rs.preview_fast, rs.alpha_mode)) {
-		target_err("Error setting the video mode.\n");
 		return TEXT_KEY_ESC;
 	}
 
 	log_std(("menu: play_init call\n"));
 	if (!play_init()) {
 		text_done3(true);
-		target_err("Error initializing the sound device.\n");
+		target_err("Error initializing the sound mixer.\n");
 		target_err("Try with the option '-device_sound none'.\n");
 		return TEXT_KEY_ESC;
 	}
@@ -506,7 +505,6 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (!text_init2(rs.video_size, rs.video_depth, rs.sound_foreground_key)) {
-		target_err("Error initializing the video device.\n");
 		goto err_inner_init;
 	}
 	

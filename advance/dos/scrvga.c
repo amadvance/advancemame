@@ -1343,6 +1343,19 @@ void vga_palette_raw_set(const unsigned char* palette, unsigned start, unsigned 
 	}
 }
 
+void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count) {
+	unsigned i;
+
+	/* dac */
+	outportb(VGAREG_DAC_WRITE_ADDR, start);
+	for(i=0;i<count;++i) {
+		palette[0] = inportb(VGAREG_DAC_DATA);
+		palette[1] = inportb(VGAREG_DAC_DATA);
+		palette[2] = inportb(VGAREG_DAC_DATA);
+		palette += 3;
+	}
+}
+
 video_error vga_palette6_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync) {
 	unsigned i;
 

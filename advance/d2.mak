@@ -32,6 +32,9 @@ $(DOCOBJ)/%.txt : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
 $(DOCOBJ)/%.html : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
 	$(D2OBJ)/advd2 html < $< > $@
 
+$(DOCOBJ)/%.hh : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
+	$(D2OBJ)/advd2 frame < $< > $@
+
 $(DOCOBJ)/%.1 : $(srcdir)/doc/%.d $(D2OBJ)/advd2$(EXE_BUILD) $(DOCOBJ)
 	$(D2OBJ)/advd2 man < $< > $@
 

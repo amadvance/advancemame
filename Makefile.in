@@ -433,34 +433,34 @@ include $(srcdir)/advance/advance.mak
 ifneq ($(wildcard $(EMUSRC)),)
 include $(srcdir)/advance/emu.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/menu),)
+ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 include $(srcdir)/advance/menu.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/tsr),)
+ifneq ($(wildcard $(srcdir)/advance/cab.mak),)
 include $(srcdir)/advance/cab.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/v),)
+ifneq ($(wildcard $(srcdir)/advance/v.mak),)
 include $(srcdir)/advance/v.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/cfg),)
+ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
 include $(srcdir)/advance/cfg.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/s),)
+ifneq ($(wildcard $(srcdir)/advance/s.mak),)
 include $(srcdir)/advance/s.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/k),)
+ifneq ($(wildcard $(srcdir)/advance/k.mak),)
 include $(srcdir)/advance/k.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/j),)
+ifneq ($(wildcard $(srcdir)/advance/j.mak),)
 include $(srcdir)/advance/j.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/m),)
+ifneq ($(wildcard $(srcdir)/advance/m.mak),)
 include $(srcdir)/advance/m.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/line),)
+ifneq ($(wildcard $(srcdir)/advance/line.mak),)
 include $(srcdir)/advance/line.mak
 endif
-ifneq ($(wildcard $(srcdir)/advance/d2),)
+ifneq ($(wildcard $(srcdir)/advance/d2.mak),)
 include $(srcdir)/advance/d2.mak
 endif
 
