@@ -369,9 +369,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		trasp_map = malloc(sizeof(__u16) * l);
 
 		for (i=0;i<l;++i) {
-			red_map[i] = 65535 * i / red_l;
-			green_map[i] = 65535 * i / green_l;
-			blue_map[i] = 65535 * i / blue_l;
+			red_map[i] = 65535 * i / (red_l-1);
+			green_map[i] = 65535 * i / (green_l-1);
+			blue_map[i] = 65535 * i / (blue_l-1);
 			trasp_map[i] = 0;
 		}
 
