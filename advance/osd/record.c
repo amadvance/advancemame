@@ -263,7 +263,7 @@ static int sound_start(struct advance_record_context* context, const char* file,
 		context->state.sound_sample_size *= 2;
 	context->state.sound_stopped_flag = 0;
 
-	snprintf(context->state.sound_file_buffer, sizeof(context->state.sound_file_buffer), "%s", file);
+	sncpy(context->state.sound_file_buffer, sizeof(context->state.sound_file_buffer), file);
 
 	context->state.sound_f = fopen(context->state.sound_file_buffer, "wb");
 	if (!context->state.sound_f) {
@@ -798,7 +798,7 @@ static int video_start(struct advance_record_context* context, const char* file,
 	context->state.video_sample_counter = 0;
 	context->state.video_stopped_flag = 0;
 
-	snprintf(context->state.video_file_buffer, sizeof(context->state.video_file_buffer), "%s", file);
+	sncpy(context->state.video_file_buffer, sizeof(context->state.video_file_buffer), file);
 
 	context->state.video_f = fopen(context->state.video_file_buffer, "wb");
 	if (!context->state.video_f) {
@@ -937,7 +937,7 @@ static int snapshot_start(struct advance_record_context* context, const char* fi
 {
 	context->state.snapshot_active_flag = 1;
 
-	snprintf(context->state.snapshot_file_buffer, sizeof(context->state.snapshot_file_buffer), "%s", file);
+	sncpy(context->state.snapshot_file_buffer, sizeof(context->state.snapshot_file_buffer), file);
 
 	return 0;
 }
@@ -1224,7 +1224,7 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 
 adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
 {
-	snprintf(context->config.dir_buffer, sizeof(context->config.dir_buffer), "%s", conf_string_get_default(cfg_context, "dir_snap"));
+	sncpy(context->config.dir_buffer, sizeof(context->config.dir_buffer), conf_string_get_default(cfg_context, "dir_snap"));
 	context->config.sound_time = conf_int_get_default(cfg_context, "record_sound_time");
 	context->config.video_time = conf_int_get_default(cfg_context, "record_video_time");
 	context->config.video_flag = conf_bool_get_default(cfg_context, "record_video");

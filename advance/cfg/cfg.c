@@ -122,17 +122,17 @@ static void draw_text_bar(void) {
 	snprintf(buffer,sizeof(buffer)," AdvanceCONFIG - " __DATE__ );
 	draw_text_left(0,0,text_size_x(),buffer,COLOR_BAR);
 
-	strcpy(buffer,"");
+	sncpy(buffer, sizeof(buffer), "");
 	for(i=0;i<video_driver_vector_max();++i) {
 		if (video_driver_vector_pos(i) != 0) {
 			if (*buffer)
-				strcat(buffer,"/");
-			strcat(buffer, video_driver_vector_pos(i)->name);
+				sncat(buffer, sizeof(buffer), "/");
+			sncat(buffer, sizeof(buffer), video_driver_vector_pos(i)->name);
 		}
 	}
 	draw_text_left(text_size_x() - strlen(buffer),0,strlen(buffer),buffer,COLOR_BAR);
 
-	snprintf(buffer,sizeof(buffer)," ENTER Select  ESC Back");
+	snprintf(buffer, sizeof(buffer), " ENTER Select  ESC Back");
 	draw_text_left(0,text_size_y() - 1,text_size_x(),buffer,COLOR_BAR);
 }
 
@@ -310,13 +310,13 @@ static void entry_model(int x, int y, int dx, void* data, int n, int selected) {
 		draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 
 		if (selected) {
-			strcpy(buffer,"pclock = ");
+			sncpy(buffer, sizeof(buffer), "pclock = ");
 			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), &p->monitor.pclock, &p->monitor.pclock + 1, 1E6);
 			draw_text_left(0,model_y,text_size_x(),buffer,COLOR_NORMAL);
-			strcpy(buffer,"hclock = ");
+			sncpy(buffer, sizeof(buffer), "hclock = ");
 			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.hclock, p->monitor.hclock + MONITOR_RANGE_MAX, 1E3);
 			draw_text_left(0,model_y+1,text_size_x(),buffer,COLOR_NORMAL);
-			strcpy(buffer,"vclock = ");
+			sncpy(buffer, sizeof(buffer), "vclock = ");
 			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.vclock, p->monitor.vclock + MONITOR_RANGE_MAX, 1);
 			draw_text_left(0,model_y+2,text_size_x(),buffer,COLOR_NORMAL);
 		}
@@ -362,7 +362,7 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor) {
 		char* h;
 		char* v;
 
-		strcpy(buffer,*i);
+		sncpy(buffer, sizeof(buffer), *i);
 		while (*buffer && isspace(buffer[strlen(buffer)-1]))
 			buffer[strlen(buffer)-1] = 0;
 
@@ -825,10 +825,10 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, adv_bool 
 				range = " - OUT OF RANGE";
 			else
 				range = "";
-			snprintf(buffer,sizeof(buffer),"Mode %4dx%4d %.1f/%.1f %s%s",p->x,p->y,hclock / 1E3,vclock,pivot,range);
+			snprintf(buffer, sizeof(buffer), "Mode %4dx%4d %.1f/%.1f %s%s", p->x, p->y, hclock / 1E3, vclock, pivot, range);
 			break;
 		case interpolate_done :
-			strcpy(buffer,"Done");
+			sncpy(buffer, sizeof(buffer), "Done");
 			break;
 	}
 

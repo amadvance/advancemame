@@ -9,6 +9,7 @@ KOBJDIRS += \
 	$(KOBJ)/lib
 KOBJS += \
 	$(KOBJ)/k/k.o \
+	$(KOBJ)/lib/portable.o \
 	$(KOBJ)/lib/log.o \
 	$(KOBJ)/lib/conf.o \
 	$(KOBJ)/lib/incstr.o \

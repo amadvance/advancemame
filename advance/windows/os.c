@@ -120,7 +120,7 @@ int os_inner_init(const char* title)
 	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
 
 	/* set the titlebar */
-	snprintf(OS.title_buffer, sizeof(OS.title_buffer), "%s", title);
+	sncpy(OS.title_buffer, sizeof(OS.title_buffer), title);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);

@@ -146,19 +146,20 @@ int target_system(const char* cmd)
 
 int target_spawn(const char* file, const char** argv)
 {
-	char cmdline[4096];
+	char cmdline[TARGET_MAXCMD];
 	unsigned i;
 
 	*cmdline = 0;
 	for(i=0;argv[i];++i) {
-		if (i)
-			strcat(cmdline, " ");
+		if (i) {
+			sncat(cmdline, TARGET_MAXCMD, " ");
+		}
 		if (strchr(argv[i], ' ') != 0) {
-			strcat(cmdline, "\"");
-			strcat(cmdline, argv[i]);
-			strcat(cmdline, "\"");
+			sncat(cmdline, TARGET_MAXCMD, "\"");
+			sncat(cmdline, TARGET_MAXCMD, argv[i]);
+			sncat(cmdline, TARGET_MAXCMD, "\"");
 		} else {
-			strcat(cmdline, argv[i]);
+			sncat(cmdline, TARGET_MAXCMD, argv[i]);
 		}
 	}
 
@@ -180,7 +181,7 @@ void target_sync(void)
 
 int target_search(char* path, unsigned path_size, const char* file)
 {
-	snprintf(path, path_size, "%s", file);
+	sncpy(path, path_size, file);
 
 	if (access(path, F_OK) != 0) {
 		return -1;

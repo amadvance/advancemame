@@ -33,6 +33,7 @@
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
+#include "portable.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -736,7 +737,7 @@ adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned
 
 adv_error fb_mode_import(adv_mode* mode, const fb_video_mode* fb_mode)
 {
-	snprintf(mode->name, MODE_NAME_MAX, "%s", fb_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, fb_mode->crtc.name);
 
 	*DRIVER(mode) = *fb_mode;
 

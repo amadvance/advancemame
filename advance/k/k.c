@@ -51,7 +51,7 @@ void run(void)
 	last = os_clock();
 	esc_pressed_before = 0;
 	esc_count = 0;
-	strcpy(msg, "unknown");
+	sncpy(msg, sizeof(msg), "unknown");
 
 	while (esc_count < 3 && !done) {
 		int i;
@@ -72,7 +72,7 @@ void run(void)
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
 			last = current;
-			strcpy(msg, new_msg);
+			sncpy(msg, sizeof(msg), new_msg);
 			printf("(%6.1f ms) [%3d] %s\n", period, count, msg);
 		}
 

@@ -128,16 +128,16 @@ void run(void)
 		for(i=0;i<joystickb_count_get();++i) {
 
 			if (i!=0)
-				strcat(new_msg, "\n");
+				sncat(new_msg, sizeof(new_msg), "\n");
 
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "joy %d, [", i);
 			for(j=0;j<joystickb_button_count_get(i);++j) {
 				if (joystickb_button_get(i, j))
-					strcat(new_msg, "_");
+					sncat(new_msg, sizeof(new_msg), "_");
 				else
-					strcat(new_msg, "-");
+					sncat(new_msg, sizeof(new_msg), "-");
 			}
-			strcat(new_msg, "], ");
+			sncat(new_msg, sizeof(new_msg), "], ");
 			for(j=0;j<joystickb_stick_count_get(i);++j) {
 				for(k=0;k<joystickb_stick_axe_count_get(i, j);++k) {
 					char digital;
@@ -156,7 +156,7 @@ void run(void)
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
 			last = current;
-			strcpy(msg, new_msg);
+			sncpy(msg, sizeof(msg), new_msg);
 			printf("%s (%4.0f ms)\n", msg, period);
 		}
 

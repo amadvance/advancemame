@@ -199,7 +199,7 @@ adv_error advance_safequit_config_load(struct advance_safequit_context* context,
 {
 	context->config.safe_exit_flag = conf_bool_get_default(cfg_context, "misc_safequit");
 	context->config.debug_flag = conf_bool_get_default(cfg_context, "misc_safequitdebug");
-	snprintf(context->config.file_buffer, sizeof(context->config.file_buffer), "%s", conf_string_get_default(cfg_context, "misc_safequitfile"));
+	sncpy(context->config.file_buffer, sizeof(context->config.file_buffer), conf_string_get_default(cfg_context, "misc_safequitfile"));
 
 	return 0;
 }

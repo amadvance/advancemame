@@ -31,6 +31,8 @@
 #include "vslang.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
+
 #include "oslinux.h"
 
 #include <slang/slang.h>
@@ -256,7 +258,7 @@ void slang_wait_vsync(void)
 
 adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 {
-	snprintf(mode->name, MODE_NAME_MAX, "%s", "slang");
+	sncpy(mode->name, MODE_NAME_MAX, "slang");
 
 	*DRIVER(mode) = *slang_mode;
 

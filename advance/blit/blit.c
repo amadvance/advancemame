@@ -1731,7 +1731,7 @@ static inline void video_stage_planey_set(struct video_stage_vert_struct* stage_
 /* stretchy */
 
 /* set the pivot early in the pipeline */
-static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, int require_after_conversion)
+static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, adv_bool require_after_conversion)
 {
 	if (require_after_conversion) {
 		stage_vert->stage_pivot = stage_vert->stage_end;
@@ -1745,7 +1745,7 @@ static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_ve
 }
 
 /* set the pivot late in the pipeline */
-static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, int require_final_stage)
+static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, adv_bool require_final_stage)
 {
 	if (require_final_stage) {
 		assert(stage_vert->stage_begin != stage_vert->stage_end);
@@ -2085,7 +2085,7 @@ static inline void video_pipeline_make(struct video_pipeline_struct* pipeline, u
 	} else {
 		/* add a dummy stage if required */
 		if ((require_last && video_pipeline_size(pipeline) == 0) /* if the last stage is empty */
-			|| (require_last_not_conversion && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type)) /* if the last stage is a conversion and a conversion is not allowed as a last stage */
+			|| (require_last_not_conversion && require_last && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type)) /* if the last stage is a conversion and a conversion is not allowed as a last stage */
 			|| (video_pipeline_size(pipeline) != 0 && !stage_is_fastwrite(&video_pipeline_end(pipeline)[-1]))  /* if the last stage is a slow memory write stage */
 		) {
 			switch (bytes_per_pixel) {

@@ -33,6 +33,7 @@
 #include "log.h"
 #include "oslinux.h"
 #include "error.h"
+#include "portable.h"
 
 #include <vga.h>
 #include <string.h>
@@ -502,7 +503,7 @@ adv_error svgalib_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 
 adv_error svgalib_mode_import(adv_mode* mode, const svgalib_video_mode* svgalib_mode)
 {
-	snprintf(mode->name, MODE_NAME_MAX, "%s", svgalib_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, svgalib_mode->crtc.name);
 
 	*DRIVER(mode) = *svgalib_mode;
 

@@ -43,7 +43,7 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 	char* tag_device;
 	const adv_device* i;
 
-	snprintf(tag_driver, DEVICE_NAME_MAX, "%s", tag);
+	sncpy(tag_driver, DEVICE_NAME_MAX, tag);
 	tag_device = strchr(tag_driver, '/');
 	if (tag_device) {
 		*tag_device = 0;
@@ -90,7 +90,7 @@ const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool 
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 
-	snprintf(buffer, sizeof(buffer), "%s", tag);
+	sncpy(buffer, sizeof(buffer), tag);
 	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
 		const adv_device* dev = device_match_one(tag_one, drv, allow_none);
@@ -132,7 +132,7 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 	unsigned i, j;
 
 	/* check the validity of every item on the argument */
-	snprintf(buffer, sizeof(buffer), "%s", arg);
+	sncpy(buffer, sizeof(buffer), arg);
 	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
 		if (strcmp("auto", tag_one)!=0 && strstr(driver_ignore, tag_one)==0) {

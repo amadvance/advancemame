@@ -177,7 +177,7 @@ adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, un
 	else
 		crtc_pvsync_set(crtc);
 
-	strcpy(crtc->name, "imported");
+	crtc_name_set(crtc, "imported");
 
 	return 0;
 }
@@ -483,7 +483,7 @@ adv_error vgaline_mode_grab(vgaline_video_mode* mode)
 	mode->font_x = info.char_size_x;
 	mode->font_y = info.char_size_y;
 
-	strcpy(mode->crtc.name, "grabbed");
+	crtc_name_set(&mode->crtc, "grabbed");
 
 	return 0;
 }
@@ -492,8 +492,7 @@ adv_error vgaline_mode_grab(vgaline_video_mode* mode)
 
 adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_mode)
 {
-
-	strcpy(mode->name, vgaline_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, vgaline_mode->crtc.name);
 	*DRIVER(mode) = *vgaline_mode;
 
 	/* adjust the pixel clock to an acceptable value */

@@ -91,7 +91,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	{
 		if (selected == total - 1) selected = -1;
 		else if (selected == 0) {
-			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", "auto");
+			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "auto");
 			advance_video_change(context);
 
 			/* show at screen the new configuration name */
@@ -99,7 +99,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 
 			mame_ui_refresh();
 		} else {
-			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(entry[selected]));
+			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(entry[selected]));
 			advance_video_change(context);
 			
 			mame_ui_refresh();

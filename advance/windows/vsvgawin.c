@@ -885,7 +885,7 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 {
 	log_std(("video:svgawin: svgawin_mode_import()\n"));
 
-	snprintf(mode->name, MODE_NAME_MAX, "%s", svgawin_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, svgawin_mode->crtc.name);
 
 	*DRIVER(mode) = *svgawin_mode;
 

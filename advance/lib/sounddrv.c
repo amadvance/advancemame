@@ -42,7 +42,7 @@ struct sound_state_struct sound_state;
 void sound_default(void)
 {
 	sound_state.is_initialized_flag = 1;
-	snprintf(sound_state.name, DEVICE_NAME_MAX, "%s", "auto");
+	sncpy(sound_state.name, DEVICE_NAME_MAX, "auto");
 }
 
 void sound_reg(adv_conf* context, adv_bool auto_detect)
@@ -72,7 +72,7 @@ adv_error sound_load(adv_conf* context)
 	}
 
 	sound_state.is_initialized_flag = 1;
-	snprintf(sound_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_sound"));
+	sncpy(sound_state.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_sound"));
 
 	/* load specific driver options */
 	at_least_one = 0;

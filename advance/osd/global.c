@@ -67,7 +67,7 @@ int osd_display_loading_rom_message(const char* name, struct rom_load_data* romd
 void advance_global_message(struct advance_global_context* context, const char* msg)
 {
 	log_std(("advance:global: set msg %s\n", msg));
-	snprintf(context->state.msg, MESSAGE_MAX, "%s", msg);
+	sncpy(context->state.msg, MESSAGE_MAX, msg);
 }
 
 void osd2_message(void)

@@ -42,7 +42,7 @@ struct inputb_state_struct inputb_state;
 void inputb_default(void)
 {
 	inputb_state.is_initialized_flag = 1;
-	snprintf(inputb_state.name, DEVICE_NAME_MAX, "%s", "none");
+	sncpy(inputb_state.name, DEVICE_NAME_MAX, "none");
 }
 
 void inputb_reg(adv_conf* context, adv_bool auto_detect)
@@ -72,7 +72,7 @@ adv_error inputb_load(adv_conf* context)
 	}
 
 	inputb_state.is_initialized_flag = 1;
-	snprintf(inputb_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_input"));
+	sncpy(inputb_state.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_input"));
 
 	/* load specific driver options */
 	at_least_one = 0;

@@ -9,6 +9,7 @@ IOBJDIRS += \
 	$(IOBJ)/lib
 IOBJS += \
 	$(IOBJ)/i/i.o \
+	$(IOBJ)/lib/portable.o \
 	$(IOBJ)/lib/log.o \
 	$(IOBJ)/lib/conf.o \
 	$(IOBJ)/lib/incstr.o \

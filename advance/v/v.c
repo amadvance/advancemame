@@ -337,9 +337,9 @@ static void draw_text_info(int x, int y, int dx, int dy, int pos)
 	if (crtc) {
 		format_info(buffer[0], buffer[1], buffer[2], 256, crtc);
 	} else {
-		strcpy(buffer[0],"");
-		strcpy(buffer[1],"");
-		strcpy(buffer[2],"");
+		sncpy(buffer[0], sizeof(buffer[0]), "");
+		sncpy(buffer[1], sizeof(buffer[1]), "");
+		sncpy(buffer[2], sizeof(buffer[2]), "");
 	}
 
 	draw_text_left(x, y+0, dx, buffer[0], COLOR_INFO_TITLE);
@@ -398,12 +398,12 @@ static void draw_text_bar(int x, int by1, int by2, int dx)
 
 	draw_text_left(x, by1, dx, buffer, COLOR_BAR);
 
-	strcpy(buffer, "");
+	sncpy(buffer, sizeof(buffer), "");
 	for(i=0;i<video_driver_vector_max();++i) {
 		if (video_driver_vector_pos(i) != 0) {
 			if (*buffer)
-				strcat(buffer, "/");
-			strcat(buffer, video_driver_vector_pos(i)->name);
+				sncat(buffer, sizeof(buffer), "/");
+			sncat(buffer, sizeof(buffer), video_driver_vector_pos(i)->name);
 		}
 	}
 
@@ -1327,11 +1327,11 @@ static void cmd_rename(void)
 	if (!crtc)
 		return;
 
-	strcpy(buffer, "");
+	sncpy(buffer, sizeof(buffer), "");
 	if (cmd_input_string(" Name : ", buffer, MODE_NAME_MAX)!=0)
 		return;
 
-	strcpy(crtc->name, buffer);
+	crtc_name_set(crtc, buffer);
 
 	menu_modify();
 }
@@ -1346,7 +1346,7 @@ static void cmd_copy(void)
 		return;
 
 	copy = *crtc;
-	strcpy(copy.name, "duplicated");
+	crtc_name_set(&copy, "duplicated");
 
 	menu_insert(&copy);
 }
@@ -1360,9 +1360,9 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	unsigned y;
 	adv_error res;
 
-	strcpy(crtc.name, "format_created");
+	crtc_name_set(&crtc, "format_created");
 
-	strcpy(buffer, "");
+	sncpy(buffer, sizeof(buffer), "");
 	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
 		return 0;
 	freq = strtod(buffer, 0);
@@ -1371,7 +1371,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 		return -1;
 	}
 
-	strcpy(buffer, "");
+	sncpy(buffer, sizeof(buffer), "");
 	if (cmd_input_string(" X resolution [pixel] : ", buffer, 10)!=0)
 		return 0;
 	x = atoi(buffer);
@@ -1380,7 +1380,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 		return -1;
 	}
 
-	strcpy(buffer, "");
+	sncpy(buffer, sizeof(buffer), "");
 	if (cmd_input_string(" Y resolution [pixel] : ", buffer, 10)!=0)
 		return 0;
 	y = atoi(buffer);
@@ -1421,8 +1421,7 @@ static adv_error cmd_mode_clock(void)
 
 	crtc = crtc_container_pos(&the_modes, i);
 
-	strcpy(buffer, "");
-
+	sncpy(buffer, sizeof(buffer), "");
 	switch (cmd_input_key(" Set Vertical/Horizontal/Pixel clock ? ", "vhp")) {
 		case 0 :
 			if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)

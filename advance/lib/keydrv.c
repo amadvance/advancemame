@@ -42,7 +42,7 @@ struct keyb_state_struct keyb_state;
 void keyb_default(void)
 {
 	keyb_state.is_initialized_flag = 1;
-	snprintf(keyb_state.name, DEVICE_NAME_MAX, "%s", "auto");
+	sncpy(keyb_state.name, DEVICE_NAME_MAX, "auto");
 }
 
 void keyb_reg(adv_conf* context, adv_bool auto_detect)
@@ -72,7 +72,7 @@ adv_error keyb_load(adv_conf* context)
 	}
 
 	keyb_state.is_initialized_flag = 1;
-	snprintf(keyb_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_keyboard"));
+	sncpy(keyb_state.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_keyboard"));
 
 	/* load specific driver options */
 	at_least_one = 0;

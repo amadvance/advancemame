@@ -221,7 +221,7 @@ static adv_error none_palette8_set(const adv_color_rgb* palette, unsigned start,
 
 static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mode)
 {
-	snprintf(mode->name, MODE_NAME_MAX, "%s", none_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, none_mode->crtc.name);
 
 	*DRIVER(mode) = *none_mode;
 

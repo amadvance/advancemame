@@ -68,16 +68,16 @@ void run(void)
 			int x, y;
 
 			if (i!=0)
-				strcat(new_msg, "\n");
+				sncat(new_msg, sizeof(new_msg), "\n");
 
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "mouse %d, [", i);
 			for(j=0;j<mouseb_button_count_get(i);++j) {
 				if (mouseb_button_get(i, j))
-					strcat(new_msg, "_");
+					sncat(new_msg, sizeof(new_msg), "_");
 				else
-					strcat(new_msg, "-");
+					sncat(new_msg, sizeof(new_msg), "-");
 			}
-			strcat(new_msg, "], ");
+			sncat(new_msg, sizeof(new_msg), "], ");
 
 			mouseb_pos_get(i, &x, &y);
 
@@ -87,7 +87,7 @@ void run(void)
 		if (strcmp(msg, new_msg)!=0) {
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
-			strcpy(msg, new_msg);
+			sncpy(msg, sizeof(msg), new_msg);
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " (%4.0f ms)", period);
 			last = current;
 			printf("%s\n", new_msg);

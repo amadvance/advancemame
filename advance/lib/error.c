@@ -170,8 +170,7 @@ void error_nolog_cat(const char* text, ...)
 	va_start(arg, text);
 	vsnprintf(buffer, sizeof(buffer), text, arg);
 
-	strncat(error_desc_buffer, buffer, ERROR_DESC_MAX);
-	error_desc_buffer[ERROR_DESC_MAX-1] = 0;
+	sncat(error_desc_buffer, sizeof(error_desc_buffer), buffer);
 
 	va_end(arg);
 }

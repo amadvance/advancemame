@@ -31,6 +31,7 @@
 #include "target.h"
 #include "log.h"
 #include "file.h"
+#include "portable.h"
 
 #include <stdlib.h>
 #include <sched.h>
@@ -204,7 +205,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 
 	/* if it's an absolute path */
 	if (file[0] == file_dir_slash()) {
-		strcpy(path, file);
+		sncpy(path, path_size, file);
 
 		if (access(path, F_OK) == 0) {
 			log_std(("linux: target_search() return %s\n", path));
@@ -229,17 +230,16 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 
 		dir = strtok(path_list, separator);
 		while (dir) {
-			unsigned l;
+			sncpy(path, path_size, dir);
 
-			strcpy(path, dir);
-
-			l = strlen(path);
-			if (l>0 && path[l-1] != file_dir_slash()) {
-				path[l] = file_dir_slash();
-				path[l+1] = 0;
+			if (!path[0] || path[strlen(path)-1] != file_dir_slash()) {
+				char slash[2];
+				slash[0] = file_dir_slash();
+				slash[1] = 0;
+				sncat(path, path_size, slash);
 			}
 
-			strcat(path, file);
+			sncat(path, path_size, file);
 
 			if (access(path, F_OK) == 0) {
 				free(path_list);

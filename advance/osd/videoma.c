@@ -1526,13 +1526,13 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 	adv_bool show = 0;
 	char old_buffer[MODE_NAME_MAX];
 
-	snprintf(old_buffer, sizeof(old_buffer), "%s", context->config.resolution_buffer);
+	sncpy(old_buffer, sizeof(old_buffer), context->config.resolution_buffer);
 
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
 		if (strcmp(context->config.resolution_buffer, "auto")==0) {
 			if (context->state.crtc_mac > 1) {
-				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[1]));
+				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[1]));
 				modify = 1;
 			}
 		} else {
@@ -1541,7 +1541,7 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i+1<context->state.crtc_mac) {
-				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[i+1]));
+				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[i+1]));
 				modify = 1;
 			}
 		}
@@ -1553,7 +1553,7 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i>0) {
-				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[i-1]));
+				sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), crtc_name_get(context->state.crtc_map[i-1]));
 				modify = 1;
 			}
 		}
@@ -1567,7 +1567,7 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 
 			/* it fails in some strange conditions, generally when a not supported feature is used */
 			/* for example if a interlaced mode is requested and the lower driver refuses to use it */
-			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", old_buffer);
+			sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), old_buffer);
 			log_std(("emu:video: retrying old_buffer mode %s\n", context->config.resolution_buffer));
 			if (advance_video_change(context) != 0) {
 				return -1;
@@ -3258,13 +3258,13 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.game_orientation = mame_game_orientation(option->game);
 
 	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
-	snprintf(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), "%s", mame_game_name(option->game));
-	snprintf(context->config.section_resolution_buffer, sizeof(context->config.section_resolution_buffer), "%s", mame_game_resolution(option->game));
-	snprintf(context->config.section_resolutionclock_buffer, sizeof(context->config.section_resolutionclock_buffer), "%s", mame_game_resolutionclock(option->game));
+	sncpy(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), mame_game_name(option->game));
+	sncpy(context->config.section_resolution_buffer, sizeof(context->config.section_resolution_buffer), mame_game_resolution(option->game));
+	sncpy(context->config.section_resolutionclock_buffer, sizeof(context->config.section_resolutionclock_buffer), mame_game_resolutionclock(option->game));
 	if ((context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) != 0)
-		snprintf(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "%s", "vertical");
+		sncpy(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "vertical");
 	else
-		snprintf(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "%s", "horizontal");
+		sncpy(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "horizontal");
 
 	context->config.scanlines_flag = conf_bool_get_default(cfg_context, "display_scanlines");
 	context->config.vsync_flag = conf_bool_get_default(cfg_context, "display_vsync");
@@ -3325,7 +3325,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
-	snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", s);
+	sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), s);
 
 	context->config.index = conf_int_get_default(cfg_context, "display_color");
 	context->config.restore_flag = conf_bool_get_default(cfg_context, "display_restore");

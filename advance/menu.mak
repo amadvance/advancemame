@@ -29,6 +29,7 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/playdef.o \
 	$(MENUOBJ)/menu/resource.o \
 	$(MENUOBJ)/menu/text.o \
+	$(MENUOBJ)/lib/portable.o \
 	$(MENUOBJ)/lib/log.o \
 	$(MENUOBJ)/lib/mng.o \
 	$(MENUOBJ)/lib/bitmap.o \

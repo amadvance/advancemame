@@ -5,6 +5,7 @@ VCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit
 VOBJS += \
+	$(VOBJ)/lib/portable.o \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
 	$(VOBJ)/lib/rgb.o \

@@ -145,7 +145,7 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 		return PATH_NOT_FOUND;
 	}
 
-	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], filename));
+	sncpy(path_buffer, sizeof(path_buffer), file_abs(i->dir_map[pathindex], filename));
 
 	log_std(("osd: osd_get_path_info() -> %s\n", path_buffer));
 
@@ -197,7 +197,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		return 0;
 	}
 
-	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], filename));
+	sncpy(path_buffer, sizeof(path_buffer), file_abs(i->dir_map[pathindex], filename));
 
 	split = strchr(path_buffer, '=');
 	if (split != 0) {
@@ -208,7 +208,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 		*split = 0;
 		snprintf(zip_file_buffer, sizeof(zip_file_buffer), "%s.zip", path_buffer);
-		snprintf(file_buffer, sizeof(file_buffer), "%s", split + 1);
+		sncpy(file_buffer, sizeof(file_buffer), split + 1);
 
 		log_std(("osd: osd_fopen() -> %s %s\n", zip_file_buffer, file_buffer));
 
@@ -349,7 +349,7 @@ int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 		return -1;
 	}
 
-	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], dirname));
+	sncpy(path_buffer, sizeof(path_buffer), file_abs(i->dir_map[pathindex], dirname));
 
 	log_std(("osd: osd_create_directory() -> %s\n", path_buffer));
 
@@ -440,14 +440,14 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 			if (S_ISDIR(st.st_mode)) {
 				if (namelength >= strlen(d->d_name) + 1) {
 					*is_dir = 1;
-					snprintf(name, namelength, "%s", d->d_name);
+					sncpy(name, namelength, d->d_name);
 					log_std(("osd: osd_dir_get_entry() -> %s\n", name));
 					return strlen(name);
 				}
 			} else if (match(d->d_name, h->pattern)) {
 				if (namelength >= strlen(d->d_name) + 1) {
 					*is_dir = 0;
-					snprintf(name, namelength, "%s", d->d_name);
+					sncpy(name, namelength, d->d_name);
 					log_std(("osd: osd_dir_get_entry() -> %s\n", name));
 					return strlen(name);
 				}
@@ -695,7 +695,7 @@ adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* opti
 	{
 		const char* s = conf_string_get_default(context, "dir_crc");
 		log_std(("advance:fileio: %s %s\n", "dir_crc", s));
-		snprintf(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), "%s", s);
+		sncpy(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), s);
 	}
 #endif
 

@@ -1366,9 +1366,9 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
 
-	snprintf(option->language_file_buffer, sizeof(option->language_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_languagefile"));
+	sncpy(option->language_file_buffer, sizeof(option->language_file_buffer), conf_string_get_default(cfg_context, "misc_languagefile"));
 
-	snprintf(option->cheat_file_buffer, sizeof(option->cheat_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_cheatfile"));
+	sncpy(option->cheat_file_buffer, sizeof(option->cheat_file_buffer), conf_string_get_default(cfg_context, "misc_cheatfile"));
 
 	/* convert the dir separator char to ';'. */
 	/* the cheat system use always this char in all the operating system */
@@ -1376,8 +1376,8 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 		if (*s == file_dir_separator())
 			*s = ';';
 
-	snprintf(option->history_file_buffer, sizeof(option->history_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_historyfile"));
-	snprintf(option->info_file_buffer, sizeof(option->info_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_infofile"));
+	sncpy(option->history_file_buffer, sizeof(option->history_file_buffer), conf_string_get_default(cfg_context, "misc_historyfile"));
+	sncpy(option->info_file_buffer, sizeof(option->info_file_buffer), conf_string_get_default(cfg_context, "misc_infofile"));
 
 #ifdef MESS
 	if (mess_config_load(cfg_context) != 0) {

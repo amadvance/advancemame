@@ -128,6 +128,12 @@ static inline void strlwr(char* s) {
 }
 #endif
 
+/***************************************************************************/
+/* strzcpy */
+
+void sncpy(char* dst, size_t len, const char* src);
+void sncat(char* dst, size_t len, const char* src);
+
 #ifdef __cplusplus
 }
 #endif

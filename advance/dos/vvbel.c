@@ -657,7 +657,7 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 {
 	vbe_ModeInfoBlock info;
 
-	strcpy(mode->name, vbeline_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, vbeline_mode->crtc.name);
 	*DRIVER(mode) = *vbeline_mode;
 
 	if (!vbeline_is_active()) {

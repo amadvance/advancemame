@@ -33,6 +33,7 @@
 #include "log.h"
 #include "target.h"
 #include "file.h"
+#include "portable.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -274,7 +275,7 @@ int os_inner_init(const char* title)
 #endif
       
 	/* set the titlebar */
-	snprintf(OS.title_buffer, sizeof(OS.title_buffer), "%s", title);
+	sncpy(OS.title_buffer, sizeof(OS.title_buffer), title);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);

@@ -208,7 +208,7 @@ static int exec(char* cmdline)
 
 adv_error target_system(const char* cmd)
 {
-	char cmdline[4096];
+	char cmdline[TARGET_MAXCMD];
 	char* comspec;
 
 	comspec = getenv("COMSPEC");
@@ -217,28 +217,29 @@ adv_error target_system(const char* cmd)
 		return -1;
 	}
 
-	strcpy(cmdline, comspec);
-	strcat(cmdline, " /C ");
-	strcat(cmdline, cmd);
+	sncpy(cmdline, TARGET_MAXCMD, comspec);
+	sncat(cmdline, TARGET_MAXCMD, " /C ");
+	sncat(cmdline, TARGET_MAXCMD, cmd);
 
 	return exec(cmdline);
 }
 
 adv_error target_spawn(const char* file, const char** argv)
 {
-	char cmdline[4096];
+	char cmdline[TARGET_MAXCMD];
 	unsigned i;
 
 	*cmdline = 0;
 	for(i=0;argv[i];++i) {
-		if (i)
-			strcat(cmdline, " ");
+		if (i) {
+			sncat(cmdline, TARGET_MAXCMD, " ");
+		}
 		if (strchr(argv[i], ' ') != 0) {
-			strcat(cmdline, "\"");
-			strcat(cmdline, argv[i]);
-			strcat(cmdline, "\"");
+			sncat(cmdline, TARGET_MAXCMD, "\"");
+			sncat(cmdline, TARGET_MAXCMD, argv[i]);
+			sncat(cmdline, TARGET_MAXCMD, "\"");
 		} else {
-			strcat(cmdline, argv[i]);
+			sncat(cmdline, TARGET_MAXCMD, argv[i]);
 		}
 	}
 

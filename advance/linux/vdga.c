@@ -432,7 +432,7 @@ adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned 
 
 adv_error dga_mode_import(adv_mode* mode, const dga_video_mode* dga_mode)
 {
-	snprintf(mode->name, MODE_NAME_MAX, "%s", dga_mode->crtc.name);
+	sncpy(mode->name, MODE_NAME_MAX, dga_mode->crtc.name);
 
 	*DRIVER(mode) = *dga_mode;
 

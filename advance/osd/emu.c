@@ -595,7 +595,7 @@ int os_main(int argc, char* argv[])
 				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s", argv[i+1]);
 			++i;
 		} else if (strcmp(argv[i], "-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
-			if (strchr(argv[i+1],'.') == 0)
+			if (strchr(argv[i+1], '.') == 0)
 				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s.inp", argv[i+1]);
 			else
 				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s", argv[i+1]);

@@ -32,6 +32,7 @@
 #include "video.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include "svgalib.h"
 
@@ -415,7 +416,7 @@ adv_error svgaline_palette8_set(const adv_color_rgb* palette, unsigned start, un
 
 adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgaline_mode)
 {
-	strcpy(mode->name, svgaline_mode->crtc.name);
+	sncpy(mode->name, svgaline_mode->crtc.name, MODE_NAME_MAX);
 
 	*DRIVER(mode) = *svgaline_mode;
 

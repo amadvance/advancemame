@@ -690,8 +690,7 @@ void crtc_reset_all(adv_crtc* crtc)
 
 void crtc_name_set(adv_crtc* crtc, const char* name)
 {
-	memset(crtc->name, 0, sizeof(crtc->name));
-	strncpy(crtc->name, name, sizeof(crtc->name) - 1);
+	sncpy(crtc->name, CRTC_NAME_MAX, name);
 }
 
 void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y)
