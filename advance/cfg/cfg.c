@@ -1425,6 +1425,33 @@ void os_signal(int signum) {
 	os_default_signal(signum);
 }
 
+void troubleshotting(void)
+{
+	target_err("\n\r");
+	target_err("Ensure to use the 'device_video_output auto' option.\n\r");
+#ifdef USE_VIDEO_SVGAWIN
+	target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n\r");
+#endif
+#if defined(USE_VIDEO_FB) || defined(USE_VIDEO_SVGALIB)
+	{
+		char* term;
+		if (getenv("DISPLAY") != 0) {
+			target_err("Try to run this program in console mode and not in X.\n\r");
+		} else {
+#if defined(USE_VIDEO_FB)
+			target_err("Ensure to have a Frame Buffer driver (other than VESA) in your Linux kernel.\n\r");
+#endif
+#if defined(USE_VIDEO_SVGALIB)
+			target_err("Ensure to have a correctly installed and recent SVGALIB library.\n\r");
+#endif
+		}
+		term = getenv("TERM");
+		if (!term || strcmp(term,"linux")!=0)
+			target_err("Try to run this program in a TERM=linux terminal.\n\r");
+	}
+#endif
+}
+
 int os_main(int argc, char* argv[]) {
 	adv_generate generate;
 	adv_generate_interpolate_set interpolate;
@@ -1549,6 +1576,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_init() != 0) {
 		target_err("%s\n\r", error_get());
+		troubleshotting();
 		goto err_os_inner;
 	}
 
@@ -1558,21 +1586,8 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		target_err("No driver is able to program your video board in this context.\n\r");
-		target_err("Ensure to use the 'device_video_output auto' option.\n\r");
-#ifdef USE_VIDEO_SVGAWIN
-		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n\r");
-#endif
-#if defined(USE_VIDEO_FB) || defined(USE_VIDEO_SVGALIB)
-		{
-			char* term;
-			if (getenv("DISPLAY") != 0)
-				target_err("Try to not run this program in X.\n\r");
-			term = getenv("TERM");
-			if (!term || strcmp(term,"linux")!=0)
-				target_err("Try to run this program in TERM=linux terminal.\n\r");
-		}
-#endif
+		target_err("No video driver is able to program your video board.\n\r");
+		troubleshotting();
 		goto err_blit;
 	}
 
@@ -1588,7 +1603,7 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & bit_flag) == 0) {
-		target_err("Specified bit depth isn't supported.\n\r");
+		target_err("The specified bit depth isn't supported.\n\r");
 		target_err("Try another value with the -bit option.\n\r");
 		goto err_blit;
 	}

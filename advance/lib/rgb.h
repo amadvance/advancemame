@@ -37,6 +37,8 @@
 
 #include "extra.h"
 
+#include <assert.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -106,9 +108,9 @@ union adv_color_def_union {
 	struct adv_color_def_bits nibble;
 };
 
-const char* color_def_name_get(adv_color_def rgb_def);
-unsigned color_def_bytes_per_pixel_get(adv_color_def rgb_def);
-adv_color_type color_def_type_get(adv_color_def rgb_def);
+const char* color_def_name_get(adv_color_def def);
+unsigned color_def_bytes_per_pixel_get(adv_color_def def);
+adv_color_type color_def_type_get(adv_color_def def);
 
 adv_color_def color_def_make(adv_color_type type);
 adv_color_def color_def_make_palette_from_size(unsigned bytes_per_pixel);
@@ -118,8 +120,47 @@ adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
 
 /**
+ * Get the whole mask of all the color channels.
+ */
+static inline adv_pixel rgb_wholemask_make_from_def(adv_color_def def)
+{
+	assert(color_def_type_get(def) == adv_color_type_rgb);
+
+	return pixel_make_from_def(0xFF, 0xFF, 0xFF, def);
+}
+
+/**
+ * Get the highest bit mask of all the color channels.
+ */
+static inline adv_pixel rgb_highmask_make_from_def(adv_color_def def)
+{
+	assert(color_def_type_get(def) == adv_color_type_rgb);
+
+	return pixel_make_from_def(0x80, 0x80, 0x80, def);
+}
+
+/**
+ * Get the lowest bit mask of all the color channels.
+ */
+static inline adv_pixel rgb_lowmask_make_from_def(adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+
+	assert(color_def_type_get(def_ordinal) == adv_color_type_rgb);
+
+	def.ordinal = def_ordinal;
+
+	return pixel_make_from_def(
+		1 << (8-def.nibble.red_len),
+		1 << (8-def.nibble.green_len),
+		1 << (8-def.nibble.blue_len),
+		def_ordinal
+	);
+}
+
+/**
  * Get a channel shift from the RGB definition.
- * This value is the number of bit to shift left a 8 bit channel value to match
+ * This value is the number of bits to shift left a 8 bit channel value to match
  * the specified RGB definition. It may be a negative number.
  */
 static inline int rgb_shift_make_from_def(unsigned len, unsigned pos)

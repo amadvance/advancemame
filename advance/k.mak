@@ -23,7 +23,8 @@ KOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 KCFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 KOBJDIRS += \
 	$(KOBJ)/linux

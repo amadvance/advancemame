@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "interp.h"
 
 #include "rgb.h"
@@ -36,6 +40,7 @@ unsigned interp_mask[2];
 unsigned interp_red_mask, interp_green_mask, interp_blue_mask;
 int interp_red_shift, interp_green_shift, interp_blue_shift;
 unsigned interp_near_mask;
+unsigned interp_highnot_mask;
 
 /***************************************************************************/
 /* diff */
@@ -142,6 +147,8 @@ void interp_set(unsigned color_def)
 
 	interp_mask[0] = interp_red_mask | interp_blue_mask;
 	interp_mask[1] = interp_green_mask;
+
+	interp_highnot_mask = (~rgb_highmask_make_from_def(color_def)) & rgb_wholemask_make_from_def(color_def);
 
 	interp_near_mask = ~(
 			((interp_red_mask >> 5) & interp_red_mask)

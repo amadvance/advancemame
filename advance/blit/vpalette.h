@@ -75,7 +75,7 @@ static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, u
 /****************************************************************************/
 /* palette8to16 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -194,7 +194,7 @@ static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, 
 /****************************************************************************/
 /* palette16to8 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -267,7 +267,7 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -360,7 +360,7 @@ static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, 
 /****************************************************************************/
 /* palette16to16 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -414,7 +414,7 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -482,7 +482,7 @@ static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage,
 /****************************************************************************/
 /* palette16to32 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -526,7 +526,7 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned count = stage->slice.count;
@@ -649,3 +649,4 @@ static void video_stage_imm16to32_set(struct video_stage_horz_struct* stage, uns
 }
 
 #endif
+

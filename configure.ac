@@ -1,5 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([advance],[source])
+AC_CONFIG_HEADERS([advance/lib/osconf.h:advance/lib/osconf.hin])
 AC_CANONICAL_HOST
 AC_PREREQ(2.57)
 AC_COPYRIGHT([Copyright 2004 Andrea Mazzoleni])
@@ -103,10 +104,6 @@ AC_CHECK_PROGS(ZIP, zip)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
 
-# Checks for header files.
-# Checks for typedefs, structures, and compiler characteristics.
-# Checks for library functions.
-
 # Checks for optimizations
 AC_ARG_ENABLE(
 	[debug],
@@ -206,7 +203,7 @@ if test $ac_enable_asm = auto; then
 		if test $ASM = none; then
 			ac_enable_asm=no
 		else
-			CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+			CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_INLINE"
 		fi
 	fi
 elif test $ac_enable_asm = yes; then
@@ -214,11 +211,43 @@ elif test $ac_enable_asm = yes; then
 	if test $ASM = none; then
 		AC_MSG_ERROR([the NASM assembler is required for the "asm" compilation])
 	else
-		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_INLINE"
 	fi
 fi
 
-# Export the architecture CFLAGS
+AC_ARG_ENABLE(
+	[asm-68000],
+	AC_HELP_STRING([--enable-asm-68000],[enable the Pentium assembler 68000 emulator (default no)]),
+	[ac_enable_asm_68000=$enableval],
+	[ac_enable_asm_68000=no]
+)
+if test $ac_enable_asm_68000 = yes; then
+	if test ! $ac_enable_asm = yes; then
+		AC_MSG_ERROR([the Pentium assembler is required for the "asm-68000" compilation])
+	fi
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMU68000"
+fi
+
+AC_ARG_ENABLE(
+	[asm-mips3],
+	AC_HELP_STRING([--enable-asm-mips3],[enable the Pentium assembler MIPS3 emulator (default auto)]),
+	[ac_enable_asm_mips3=$enableval],
+	[ac_enable_asm_mips3=auto]
+)
+if test $ac_enable_asm_mips3 = auto; then
+	if test $ac_enable_asm = yes; then
+		ac_enable_asm_mips3=yes
+	else
+		ac_enable_asm_mips3=no
+	fi
+fi
+if test $ac_enable_asm_mips3 = yes; then
+	if test ! $ac_enable_asm = yes; then
+		AC_MSG_ERROR([the Pentium assembler is required for the "asm-mips3" compilation])
+	fi
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMUMIPS3"
+fi
+
 AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
 # Checks for configuration options.
@@ -270,6 +299,27 @@ AC_ARG_ENABLE(
 )
 AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 
+# Checks for header files.
+# Checks for typedefs, structures, and compiler characteristics.
+# Checks for library functions.
+
+if test $ac_host = unix ; then
+	AC_HEADER_STDC
+	AC_HEADER_SYS_WAIT
+	AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h sched.h netdb.h termios.h])
+	AC_CHECK_HEADERS([sys/utsname.h sys/time.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h])
+	AC_CHECK_HEADERS([netinet/in.h])
+	AC_FUNC_ALLOCA
+	AC_FUNC_FORK
+	AC_PROG_GCC_TRADITIONAL
+	AC_FUNC_MALLOC
+	AC_FUNC_MMAP
+	AC_FUNC_SELECT_ARGTYPES
+	AC_FUNC_SETVBUF_REVERSED
+	AC_FUNC_VPRINTF
+	AC_CHECK_FUNCS([getcwd gettimeofday memset mkdir munmap select strcasecmp strdup strerror strstr uname])
+fi
+
 # Checks for libraries.
 
 ac_lib_video_flag=no
@@ -287,28 +337,7 @@ if test $ac_host = dos; then
 	ac_lib_keyboard_flag=yes
 fi
 
-if test $ac_host = unix ; then
-
-	# Checks for header files.
-	AC_PATH_X
-	AC_HEADER_STDC
-	AC_HEADER_SYS_WAIT
-	AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h sched.h netdb.h termios.h])
-	AC_CHECK_HEADERS([sys/utsname.h sys/time.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h])
-
-	# Checks for library functions.
-	AC_FUNC_ALLOCA
-	AC_FUNC_FORK
-	AC_PROG_GCC_TRADITIONAL
-	AC_FUNC_MALLOC
-	AC_FUNC_MMAP
-	AC_FUNC_SELECT_ARGTYPES
-	AC_FUNC_SETVBUF_REVERSED
-	AC_FUNC_VPRINTF
-	AC_CHECK_FUNCS([getcwd gettimeofday memset mkdir munmap select strcasecmp strdup strerror strstr uname])
-fi
-
-# zlib
+# Checks for zlib
 AC_CHECK_LIB(
 	[z],
 	[adler32],
@@ -318,7 +347,7 @@ AC_CHECK_LIB(
 ZLIBS="-lz"
 AC_SUBST([ZLIBS],[$ZLIBS])
 
-# svgalib
+# Checks for svgalib
 AC_ARG_ENABLE(
 	[svgalib],
 	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
@@ -368,6 +397,7 @@ if test $ac_lib_svgalib = yes; then
 fi
 AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 
+# Checks for fb
 AC_ARG_ENABLE(
 	[fb],
 	AC_HELP_STRING([--enable-fb],[enable the use of the Frame Buffer library. (default auto)]),
@@ -393,6 +423,7 @@ if test $ac_lib_fb = yes; then
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
+# Checks for alsa
 AC_ARG_ENABLE(
 	[alsa],
 	AC_HELP_STRING([--enable-alsa],[enable the use of the ALSA library. (default auto)]),
@@ -436,6 +467,7 @@ if test $ac_lib_alsa = yes; then
 fi
 AC_SUBST([CONF_LIB_ALSA],[$ac_lib_alsa])
 
+# Checks for oss
 AC_ARG_ENABLE(
 	[oss],
 	AC_HELP_STRING([--enable-oss],[enable the use of the OSS library. (default auto)]),
@@ -461,6 +493,7 @@ if test $ac_lib_oss = yes; then
 fi
 AC_SUBST([CONF_LIB_OSS],[$ac_lib_oss])
 
+# Checks for pthread
 AC_ARG_ENABLE(
 	[pthread],
 	AC_HELP_STRING([--enable-pthread],[enable the use of the pthread library (default auto)]),
@@ -489,6 +522,7 @@ if test $ac_lib_pthread = yes; then
 fi
 AC_SUBST([CONF_LIB_PTHREAD],[$ac_lib_pthread])
 
+# Checks for slang
 AC_ARG_ENABLE(
 	[slang],
 	AC_HELP_STRING([--enable-slang],[enable the use of the sLang library (default auto)]),
@@ -518,6 +552,7 @@ if test $ac_lib_slang = yes; then
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 
+# Checks for sdl
 ac_lib_sdl_args=
 ac_lib_sdl_path="$PATH"
 AC_ARG_WITH(
@@ -599,6 +634,7 @@ AC_SUBST([SDLCFLAGS])
 AC_SUBST([SDLLIBS])
 AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 
+# Checks for svgawin
 AC_ARG_ENABLE(
 	[svgawin],
 	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
@@ -630,6 +666,7 @@ if test $ac_lib_svgawin = yes; then
 fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
+# Checks for kraw
 AC_ARG_ENABLE(
 	[kraw],
 	AC_HELP_STRING([--enable-kraw],[enable the use of the raw keyboard interface. (default auto)]),
@@ -665,6 +702,7 @@ if test $ac_lib_kraw = yes; then
 fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
+# Checks for jraw
 AC_ARG_ENABLE(
 	[jraw],
 	AC_HELP_STRING([--enable-jraw],[enable the use of the raw joystick interface. (default auto)]),
@@ -697,6 +735,7 @@ if test $ac_lib_jraw = yes; then
 fi
 AC_SUBST([CONF_LIB_JRAW],[$ac_lib_jraw])
 
+# Checks for mraw
 AC_ARG_ENABLE(
 	[mraw],
 	AC_HELP_STRING([--enable-mraw],[enable the use of the raw mouse interface. (default auto)]),
@@ -725,6 +764,7 @@ if test $ac_lib_mraw = yes; then
 fi
 AC_SUBST([CONF_LIB_MRAW],[$ac_lib_mraw])
 
+# Checks for mevent
 AC_ARG_ENABLE(
 	[mevent],
 	AC_HELP_STRING([--enable-mevent],[enable the use of the event mouse interface. (default auto)]),
@@ -749,6 +789,7 @@ if test $ac_lib_mevent = yes; then
 fi
 AC_SUBST([CONF_LIB_MEVENT],[$ac_lib_mevent])
 
+# Checks for kevent
 AC_ARG_ENABLE(
 	[kevent],
 	AC_HELP_STRING([--enable-kevent],[enable the use of the event keyboard interface. (default auto)]),
@@ -774,6 +815,7 @@ if test $ac_lib_kevent = yes; then
 fi
 AC_SUBST([CONF_LIB_KEVENT],[$ac_lib_kevent])
 
+# Checks for jevent
 AC_ARG_ENABLE(
 	[jevent],
 	AC_HELP_STRING([--enable-jevent],[enable the use of the event joystick interface. (default auto)]),
@@ -798,9 +840,11 @@ if test $ac_lib_jevent = yes; then
 fi
 AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
+# Final
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
+# Print user information
 echo ""
 echo "== Host =="
 echo "Environment :" $host
@@ -813,6 +857,16 @@ if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
+fi
+if test $ac_enable_asm_68000 = yes; then
+	echo "Assembler 68000 emulator for Pentium : yes"
+else
+	echo "Assembler 68000 emulator for Pentium : no"
+fi
+if test $ac_enable_asm_mips3 = yes; then
+	echo "Assembler MIPS3 emulator for Pentium : yes"
+else
+	echo "Assembler MIPS3 emulator for Pentium : no"
 fi
 
 echo ""
@@ -844,4 +898,5 @@ echo "Emulator :" $ac_with_emu
 if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
+
 

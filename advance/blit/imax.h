@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,70 +34,71 @@
 #include "icommon.h"
 
 /***************************************************************************/
-/* internal_max_rgb */
+/* internal_maxmin_rgb */
 
 static unsigned max_rgb_mask_0;
 static unsigned max_rgb_mask_1;
 static unsigned max_rgb_mask_2;
-static int max_rgb_shift_1;
-static int max_rgb_shift_2;
+static unsigned max_rgb_shift_1;
+static unsigned max_rgb_shift_2;
 
-static void internal_max_rgb_set(const struct video_pipeline_target_struct* target)
+#define SWAP(type, x, y) \
+	do { \
+		type temp; \
+		temp = x; \
+		x = y; \
+		y = temp; \
+	} while (0)
+
+static void internal_maxmin_rgb_set(const struct video_pipeline_target_struct* target)
 {
-	/* TODO target */
-
 	unsigned mask_0;
 	unsigned mask_1;
 	unsigned mask_2;
-	unsigned shift_0;
-	unsigned shift_1;
-	unsigned shift_2;
+	int shift_0;
+	int shift_1;
+	int shift_2;
 
-	if (video_state.rgb_red_shift >= video_state.rgb_green_shift &&
-		video_state.rgb_red_shift >= video_state.rgb_blue_shift) {
-		mask_0 = video_state.rgb_red_mask;
-		mask_1 = video_state.rgb_green_mask;
-		mask_2 = video_state.rgb_blue_mask;
-		shift_0 = video_state.rgb_red_shift;
-		shift_1 = video_state.rgb_green_shift;
-		shift_2 = video_state.rgb_blue_shift;
-	} else if (video_state.rgb_green_shift >= video_state.rgb_red_shift &&
-		video_state.rgb_green_shift >= video_state.rgb_blue_shift) {
-		mask_1 = video_state.rgb_red_mask;
-		mask_0 = video_state.rgb_green_mask;
-		mask_2 = video_state.rgb_blue_mask;
-		shift_1 = video_state.rgb_red_shift;
-		shift_0 = video_state.rgb_green_shift;
-		shift_2 = video_state.rgb_blue_shift;
-	} else {
-		mask_2 = video_state.rgb_red_mask;
-		mask_1 = video_state.rgb_green_mask;
-		mask_0 = video_state.rgb_blue_mask;
-		shift_2 = video_state.rgb_red_shift;
-		shift_1 = video_state.rgb_green_shift;
-		shift_0 = video_state.rgb_blue_shift;
+	union adv_color_def_union def;
+
+	def.ordinal = target->color_def;
+
+	rgb_shiftmask_get(&shift_0, &mask_0, def.nibble.red_len, def.nibble.red_pos);
+	rgb_shiftmask_get(&shift_1, &mask_1, def.nibble.green_len, def.nibble.green_pos);
+	rgb_shiftmask_get(&shift_2, &mask_2, def.nibble.blue_len, def.nibble.blue_pos);
+
+	/* shift_0 must be the lowest value */
+	if (shift_0 > shift_1) {
+		SWAP(int, shift_0, shift_1);
+		SWAP(unsigned, mask_0, mask_1);
+	}
+
+	if (shift_0 > shift_2) {
+		SWAP(int, shift_0, shift_2);
+		SWAP(unsigned, mask_0, mask_2);
 	}
 
 	max_rgb_mask_0 = mask_0;
 	max_rgb_mask_1 = mask_1;
 	max_rgb_mask_2 = mask_2;
-	max_rgb_shift_1 = shift_0 - shift_1;
-	max_rgb_shift_2 = shift_0 - shift_2;
 
-	assert( max_rgb_shift_1 >= 0 && max_rgb_shift_2 >= 0);
+	assert(shift_1 - shift_0 > 0 && shift_2 - shift_0 > 0);
+
+	max_rgb_shift_1 = shift_1 - shift_0;
+	max_rgb_shift_2 = shift_2 - shift_0;
 }
 
-static inline unsigned internal_max_rgb_value(unsigned v)
+static inline unsigned internal_lum_rgb_value(unsigned v)
 {
 	return (v & max_rgb_mask_0)
-		+ ((v << max_rgb_shift_1) & max_rgb_mask_1)
-		+ ((v << max_rgb_shift_2) & max_rgb_mask_2);
+		+ ((v & max_rgb_mask_1) >> max_rgb_shift_1)
+		+ ((v & max_rgb_mask_2) >> max_rgb_shift_2);
 }
 
 static inline void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		++src;
 		++dst;
@@ -108,7 +109,7 @@ static inline void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, uns
 static inline void internal_max_rgb8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		src += step1;
 		++dst;
@@ -119,7 +120,7 @@ static inline void internal_max_rgb8_vert_self_step(uint8* dst, const uint8* src
 static inline void internal_max_rgb16_vert_self(uint16* dst, const uint16* src, unsigned count)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		++src;
 		++dst;
@@ -130,7 +131,7 @@ static inline void internal_max_rgb16_vert_self(uint16* dst, const uint16* src, 
 static inline void internal_max_rgb16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		PADD(src, step1);
 		++dst;
@@ -141,7 +142,7 @@ static inline void internal_max_rgb16_vert_self_step(uint16* dst, const uint16* 
 static inline void internal_max_rgb32_vert_self(uint32* dst, const uint32* src, unsigned count)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		++src;
 		++dst;
@@ -152,7 +153,73 @@ static inline void internal_max_rgb32_vert_self(uint32* dst, const uint32* src, 
 static inline void internal_max_rgb32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1)
 {
 	while (count) {
-		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+		if (internal_lum_rgb_value(dst[0]) < internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		PADD(src, step1);
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		src += step1;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb16_vert_self(uint16* dst, const uint16* src, unsigned count)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		PADD(src, step1);
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb32_vert_self(uint32* dst, const uint32* src, unsigned count)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min_rgb32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1)
+{
+	while (count) {
+		if (internal_lum_rgb_value(dst[0]) > internal_lum_rgb_value(src[0]))
 			dst[0] = src[0];
 		PADD(src, step1);
 		++dst;
@@ -161,7 +228,7 @@ static inline void internal_max_rgb32_vert_self_step(uint32* dst, const uint32* 
 }
 
 /***************************************************************************/
-/* internal_max */
+/* internal_maxmin */
 
 static inline void internal_max8_vert_self(uint8* dst, const uint8* src, unsigned count)
 {
@@ -229,4 +296,71 @@ static inline void internal_max32_vert_self_step(uint32* dst, const uint32* src,
 	}
 }
 
+static inline void internal_min8_vert_self(uint8* dst, const uint8* src, unsigned count)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		src += step1;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min16_vert_self(uint16* dst, const uint16* src, unsigned count)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		PADD(src, step1);
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min32_vert_self(uint32* dst, const uint32* src, unsigned count)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
+		--count;
+	}
+}
+
+static inline void internal_min32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1)
+{
+	while (count) {
+		if (dst[0] > src[0])
+			dst[0] = src[0];
+		PADD(src, step1);
+		++dst;
+		--count;
+	}
+}
+
 #endif
+

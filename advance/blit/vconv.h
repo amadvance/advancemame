@@ -46,7 +46,7 @@ enum RGB_8888TO332_MASK {
 	RGB_8888TO332_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgr332_mask[RGB_8888TO332_MASK_MAX] = {
 	0x000000E0, 0x000000E0, /* r */
 	0x0000001C, 0x0000001C, /* g */
@@ -206,7 +206,7 @@ enum RGB_8888TO565_MASK {
 	RGB_8888TO565_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgr565_mask[RGB_8888TO565_MASK_MAX] = {
 	0x00F80000, 0x00F80000, /* r << 8 */
 	0x000007E0, 0x000007E0, /* g */
@@ -324,7 +324,7 @@ enum RGB_8888TO555_MASK {
 	RGB_8888TO555_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgra5551_mask[RGB_8888TO555_MASK_MAX] = {
 	0x00007C00, 0x00007C00, /* r */
 	0x000003E0, 0x000003E0, /* g */
@@ -444,7 +444,7 @@ enum RGB_555TO332_MASK {
 	RGB_555TO332_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgr332_mask[RGB_555TO332_MASK_MAX] = {
 	0x00E000E0, 0x00E000E0, /* r */
 	0x001C001C, 0x001C001C, /* g */
@@ -574,7 +574,7 @@ enum RGB_555TO565_MASK {
 	RGB_555TO565_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgr565_mask[RGB_555TO565_MASK_MAX] = {
 	0xFFC0FFC0, 0xFFC0FFC0, /* rg */
 	0x001F001F, 0x001F001F /* b */
@@ -656,7 +656,7 @@ enum RGB_555TO8888_MASK {
 	RGB_555TO8888_MASK_MAX
 };
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgra8888_mask[RGB_555TO8888_MASK_MAX] = {
 	0x000000F8, 0x000000F8, /* r */
 	0x0000F800, 0x0000F800, /* g */
@@ -986,7 +986,7 @@ static void video_stage_bgr888tobgra8888_set(struct video_stage_horz_struct* sta
 /****************************************************************************/
 /* bgra8888 to yuy2 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 /*
 	Y =  0.299  R + 0.587  G + 0.114  B
 	U = -0.1687 R - 0.3313 G + 0.5    B + 128
@@ -1162,7 +1162,7 @@ static void video_stage_bgra8888toyuy2_set(struct video_stage_horz_struct* stage
 /****************************************************************************/
 /* bgra5551 to yuy2 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static void video_line_bgra5551toyuy2_step_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
@@ -1295,3 +1295,4 @@ static void video_stage_rgbtorgb_set(struct video_stage_horz_struct* stage, unsi
 }
 
 #endif
+

@@ -22,7 +22,8 @@ IOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 ICFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux \
 	-DUSE_INPUT_NONE
 IOBJDIRS += \

@@ -1,7 +1,9 @@
 ############################################################################
 # Menu build
 
-$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/advance.mak
+# Dependencies on VERSION/DATADIR/SYSCONFDIR
+$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/advance.mak $(srcdir)/Makefile
+
 MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
 
 MENUCFLAGS += \
@@ -92,10 +94,15 @@ MENUOBJS += \
 MENULIBS += $(ZLIBS) -lm
 
 ifeq ($(CONF_HOST),unix)
+
+# Dependencies on DATADIR/SYSCONFDIR
+$(MENUOBJ)/linux/file.o: $(srcdir)/Makefile
+
 MENUOBJDIRS += \
 	$(MENUOBJ)/linux
 MENUCFLAGS +=  \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 MENUCFLAGS += \
 	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \

@@ -79,18 +79,18 @@ struct video_state_struct {
 	/* Mode RGB */
 	adv_color_def color_def; /**< Definition of the current RGB mode. */
 
-	unsigned rgb_red_mask; /**< Positioned mask for the RED channel. */
+	unsigned rgb_red_mask; /**< Mask of the channel. */
 	unsigned rgb_green_mask;
 	unsigned rgb_blue_mask;
-	int rgb_red_shift; /**< Shift in bit of the RED channel (shift = pos + len - 8). */
+	int rgb_red_shift; /**< Shift in bit of the channel (shift = pos + len - 8). */
 	int rgb_green_shift;
 	int rgb_blue_shift;
-	unsigned rgb_red_len; /**< Number of bit of the RED channel. */
+	unsigned rgb_red_len; /**< Number of bit of the channel. */
 	unsigned rgb_green_len;
 	unsigned rgb_blue_len;
-	unsigned rgb_mask_bit; /**< Whole mask of the three RGB channel. */
-	unsigned rgb_high_bit; /**< High bits of the three RGB channel. */
-	unsigned rgb_low_bit; /**< Low bits of the three RGB channel. */
+	unsigned rgb_mask_bit; /**< Whole mask of the three channel. */
+	unsigned rgb_high_bit; /**< Highest bits of the three channel. */
+	unsigned rgb_low_bit; /**< Lowest bits of the three channel. */
 
 	unsigned char* fake_text_map; /**< Fake text buffer. */
 	unsigned char* fake_text_last_map; /**< Fake text last buffer. */

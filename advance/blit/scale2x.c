@@ -1,7 +1,7 @@
 /*
- * This file is part of the Advance project.
+ * This file is part of the Scale2x project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,24 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * In addition, as a special exception, Andrea Mazzoleni
- * gives permission to link the code of this program with
- * the MAME library (or with modified versions of MAME that use the
- * same license as MAME), and distribute linked combinations including
- * the two.  You must obey the GNU General Public License in all
- * respects for all of the code used other than MAME.  If you modify
- * this file, you may extend this exception to your version of the
- * file, but you are not obligated to do so.  If you do not wish to
- * do so, delete this exception statement from your version.
  */
 
+/*
+ * This file contains a C and MMX implementation of the Scale2x effect.
+ *
+ * You can find an high level description of the effect at :
+ *
+ * http://scale2x.sourceforge.net/
+ *
+ * Alternatively at the previous license terms, you are allowed to use this
+ * code in your program with these conditions:
+ * - the program is not used in commercial activities.
+ * - the whole source code of the program is released with the binary.
+ * - derivative works of the program are allowed.
+ */
+
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "scale2x.h"
+
+#include <assert.h>
 
 /***************************************************************************/
 /* Scale2x C implementation */
 
-static void scale2x_8_def_single(scale2x_uint8* __restrict__ dst, const scale2x_uint8* __restrict__ src0, const scale2x_uint8* __restrict__ src1, const scale2x_uint8* __restrict__ src2, unsigned count)
+static inline void scale2x_8_def_single(scale2x_uint8* __restrict__ dst, const scale2x_uint8* __restrict__ src0, const scale2x_uint8* __restrict__ src1, const scale2x_uint8* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -51,14 +61,13 @@ static void scale2x_8_def_single(scale2x_uint8* __restrict__ dst, const scale2x_
 	/* central pixels */
 	count -= 2;
 	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst[0] = src0[0];
-		else
+		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
 			dst[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst[1] = src0[0];
-		else
 			dst[1] = src1[0];
+		}
 
 		++src0;
 		++src1;
@@ -75,7 +84,7 @@ static void scale2x_8_def_single(scale2x_uint8* __restrict__ dst, const scale2x_
 	dst[1] = src1[0];
 }
 
-static void scale2x_16_def_single(scale2x_uint16* __restrict__ dst, const scale2x_uint16* __restrict__ src0, const scale2x_uint16* __restrict__ src1, const scale2x_uint16* __restrict__ src2, unsigned count)
+static inline void scale2x_16_def_single(scale2x_uint16* __restrict__ dst, const scale2x_uint16* __restrict__ src0, const scale2x_uint16* __restrict__ src1, const scale2x_uint16* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -93,14 +102,13 @@ static void scale2x_16_def_single(scale2x_uint16* __restrict__ dst, const scale2
 	/* central pixels */
 	count -= 2;
 	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst[0] = src0[0];
-		else
+		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
 			dst[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst[1] = src0[0];
-		else
 			dst[1] = src1[0];
+		}
 
 		++src0;
 		++src1;
@@ -117,7 +125,7 @@ static void scale2x_16_def_single(scale2x_uint16* __restrict__ dst, const scale2
 	dst[1] = src1[0];
 }
 
-static void scale2x_32_def_single(scale2x_uint32* __restrict__ dst, const scale2x_uint32* __restrict__ src0, const scale2x_uint32* __restrict__ src1, const scale2x_uint32* __restrict__ src2, unsigned count)
+static inline void scale2x_32_def_single(scale2x_uint32* __restrict__ dst, const scale2x_uint32* __restrict__ src0, const scale2x_uint32* __restrict__ src1, const scale2x_uint32* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -135,14 +143,13 @@ static void scale2x_32_def_single(scale2x_uint32* __restrict__ dst, const scale2
 	/* central pixels */
 	count -= 2;
 	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst[0] = src0[0];
-		else
+		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
 			dst[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst[1] = src0[0];
-		else
 			dst[1] = src1[0];
+		}
 
 		++src0;
 		++src1;
@@ -164,6 +171,8 @@ static void scale2x_32_def_single(scale2x_uint32* __restrict__ dst, const scale2
  * The function is implemented in C.
  * The pixels over the left and right borders are assumed of the same color of
  * the pixels on the border.
+ * Note that the implementation is optimized to write data sequentially to
+ * maximize the bandwidth on video memory.
  * \param src0 Pointer at the first pixel of the previous row.
  * \param src1 Pointer at the first pixel of the current row.
  * \param src2 Pointer at the first pixel of the next row.
@@ -221,7 +230,7 @@ void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_ui
 /***************************************************************************/
 /* Scale2x MMX implementation */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 /*
  * Apply the Scale2x effect at a single row.
@@ -847,6 +856,8 @@ static inline void scale2x_32_mmx_single(scale2x_uint32* dst, const scale2x_uint
  * instruction before any floating-point operation.
  * The pixels over the left and right borders are assumed of the same color of
  * the pixels on the border.
+ * Note that the implementation is optimized to write data sequentially to
+ * maximize the bandwidth on video memory.
  * \param src0 Pointer at the first pixel of the previous row.
  * \param src1 Pointer at the first pixel of the current row.
  * \param src2 Pointer at the first pixel of the next row.
@@ -860,9 +871,6 @@ void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8
 	if (count % 8 != 0 || count < 16) {
 		scale2x_8_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		assert(count >= 16);
-		assert(count % 8 == 0);
-
 		scale2x_8_mmx_single(dst0, src0, src1, src2, count);
 		scale2x_8_mmx_single(dst1, src2, src1, src0, count);
 	}
@@ -884,9 +892,6 @@ void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_ui
 	if (count % 4 != 0 || count < 8) {
 		scale2x_16_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		assert(count >= 8);
-		assert(count % 4 == 0);
-
 		scale2x_16_mmx_single(dst0, src0, src1, src2, count);
 		scale2x_16_mmx_single(dst1, src2, src1, src0, count);
 	}
@@ -908,12 +913,10 @@ void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_ui
 	if (count % 2 != 0 || count < 4) {
 		scale2x_32_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		assert(count >= 4);
-		assert(count % 2 == 0);
-
 		scale2x_32_mmx_single(dst0, src0, src1, src2, count);
 		scale2x_32_mmx_single(dst1, src2, src1, src0, count);
 	}
 }
 
 #endif
+

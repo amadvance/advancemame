@@ -1,6 +1,41 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.79.0.0 2004/02
+	) All from AdvanceMAME 0.79.1 and MESS 0.79.0.
+
+AdvanceMAME Version 0.79.1 2004/02
+	) Added a new revision of the `scale3x' effect. It now looks good as
+		`scale2x'. Added also a new optimized C version of the `scale2x'
+		effect for not x86 MMX architectures.
+	) The `max' effect now works also in vertical and horizontal expansion.
+	) Fixed some compilation problems on Mac OS X.
+	) General improvement of the video blit speed. The program now
+		evalutes at runtime the best approach to write video
+		memory. Or direct or buffered writing.
+	) Improved the speed of the `lq', `hq', `mean' and `filter' effects
+		using a different method to compute mean pixels.
+	) The `Video Pipeline' menu now display the time used to update
+		the screen.
+	) Fixed the display of help tags of players 2, 3, 4.
+	) Fixed the use of palette 8 bit modes with the FrameBuffer Linux drivers.
+	) Added a workaround to correct the color in the 15 bit RGB modes for
+		the Radeon FrameBuffer Linux 2.4.23 driver.
+	) Fixed a memory leak in the DOS SVGALIB Riva/Radeon driver which
+		caused a crash after some video mode changes at runtime.
+	) The C 68000 emulator is now used as default. You can revert back to
+		the assembler version with the --enable-asm-68000 configure
+		switch. A similar --enable-asm-mips3 switch is present for
+		the MIPS3 assembler emulator.
+	) The default host configuration directory is now /usr/local/etc if you
+		install in /usr/local.
+	) The default documentation directory is now /usr/local/share/doc/advance
+		if you install in /usr/local.
+	) The autoconf defines are now stored in a header file and not in the
+		compiler command line.
+	) The debugger now always use the new `max' effect. It also forces
+		the video mode to be `rgb' to remove any palette problem.
+
 AdvanceMAME Version 0.79.0 2004/02
 	) Added LCD support at the Linux version using the lcdproc library.
 		You can now display arbitrary messages on the LCD using the

@@ -36,7 +36,7 @@
 /****************************************************************************/
 /* swap */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
 	switch (state) {
@@ -125,7 +125,7 @@ static inline unsigned internal_swapodd8_step1_def(unsigned state, uint8* buffer
 /****************************************************************************/
 /* swap8 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_swapeven8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
@@ -164,7 +164,7 @@ static void video_stage_swapodd8_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* swap16 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_swapeven16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
@@ -203,7 +203,7 @@ static void video_stage_swapodd16_set(struct video_stage_horz_struct* stage, uns
 /****************************************************************************/
 /* swap32 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_swapeven32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
@@ -240,3 +240,4 @@ static void video_stage_swapodd32_set(struct video_stage_horz_struct* stage, uns
 }
 
 #endif
+

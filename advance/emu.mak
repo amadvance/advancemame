@@ -15,11 +15,16 @@ OBJDIRS += \
 ADVANCELIBS += $(ZLIBS) -lm
 
 ifeq ($(CONF_HOST),unix)
+
+# Dependencies on DATADIR/SYSCONFDIR
+$(OBJ)/advance/linux/file.o: $(srcdir)/Makefile
+
 OBJDIRS += \
 	$(OBJ)/advance/linux
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/linux \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-DUSE_VIDEO_NONE \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \
@@ -323,7 +328,9 @@ endif
 ############################################################################
 # EMU build
 
-$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/advance.mak
+# Dependencies on VERSION/DATADIR/SYSCONFDIR
+$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/advance.mak $(srcdir)/Makefile
+
 EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
 
 ifeq ($(CONF_EMU),mess)
@@ -442,10 +449,16 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 # EMU MAME specific build
 
 # Target CFLAGS
-ifneq (,$(findstring USE_ASM_i586,$(CFLAGS)))
+ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
 EMUCFLAGS += -DX86_ASM
+endif
+
+ifneq (,$(findstring USE_ASM_EMU68000,$(CFLAGS)))
 X86_ASM_68000=1
 #X86_ASM_68020=1
+endif
+
+ifneq (,$(findstring USE_ASM_EMUMIPS3,$(CFLAGS)))
 X86_MIPS3_DRC=1
 endif
 

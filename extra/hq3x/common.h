@@ -171,7 +171,8 @@ string assign(const string& r, const string& s, assign_set& assign)
 		assign.insert(assign.end(), p);
 		return s;
 	} else {
-#if 0 /* disable common subexpression, you cannot reread the value from the destination */
+#if 0 /* disabled, the resuling code is slower also with a destination in conventional memory */
+		/* use common subexpression, note that the destination is also read and not only written */
 		return i->first;
 #else
 		cerr << "warning: possible common subexpression " << i->first << " = " << s << endl;
@@ -251,6 +252,33 @@ void simplify(unsigned p[10], unsigned maskfull) {
 				p[j+1] = 0;
 			}
 		}
+	}
+}
+
+void discrete(unsigned p[10], unsigned maskfull) {
+	simplify(p, maskfull);
+
+	unsigned max = 0;
+	unsigned total = 0;
+
+	for(unsigned i=0;i<9;++i) {
+		if (p[i+1] > max)
+			max = p[i+1];
+		total += p[i+1];
+	}
+
+	unsigned count = 0;
+
+	for(unsigned i=0;i<9;++i) {
+		if (p[i+1] != max)
+			p[i+1] = 0;
+		else
+			++count;
+	}
+
+	for(unsigned i=0;i<9;++i) {
+		if (p[i+1])
+			p[i+1] += (total - count*max) / count;
 	}
 }
 

@@ -37,3 +37,4 @@ void hq2x_16_def(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* 
 void hq2x_32_def(interp_uint32* dst0, interp_uint32* dst1, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count);
 
 #endif
+

@@ -41,7 +41,7 @@ VBEOBJDIRS += \
 	$(VBEOBJ)/svgalib/ramdac \
 	$(VBEOBJ)/svgalib/drivers
 VBECFLAGS += \
-	-DUSE_ADV_SVGALIB_DOS \
+	-DUSE_ADV_SVGALIB_DOSK \
 	-I$(srcdir)/dos \
 	-I$(srcdir)/svgalib \
 	-I$(srcdir)/svgalib/svgados \

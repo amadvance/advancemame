@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,18 +36,9 @@
 /***************************************************************************/
 /* internal_mean */
 
-/* Notes:
-1) The MEAN_MASK_H variable is the pixel value with the high bit of
-	every rgb nibble at 1, duplicated to fill the 32 bit and negated.
-2) The MEAN_MASK_L variable is the pixel value with the low bit of
-	every rgb nibble at 1 and duplicated to fill the 32 bit
-*/
-
 enum MEAN_MASK {
-	MEAN_MASK_H_0, /* high bit */
+	MEAN_MASK_H_0,
 	MEAN_MASK_H_1,
-	MEAN_MASK_L_0, /* low bit */
-	MEAN_MASK_L_1,
 	MEAN_MASK_MAX
 };
 
@@ -69,55 +60,51 @@ static uint32 expand_nibble(unsigned bytes_per_pixel, unsigned v)
 
 static void internal_mean_set(const struct video_pipeline_target_struct* target)
 {
-	/* TODO target */
+	adv_pixel rgb_h = rgb_highmask_make_from_def(target->color_def);
+	adv_pixel rgb_m = rgb_wholemask_make_from_def(target->color_def);
 
-	adv_pixel rgb_h = video_rgb_high_bit_get();
-	adv_pixel rgb_l = video_rgb_low_bit_get();
-	adv_pixel rgb_m = video_rgb_mask_bit_get();
-
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	mean_mask[MEAN_MASK_L_0] = expand_nibble(bytes_per_pixel, rgb_l);
-	mean_mask[MEAN_MASK_L_1] = mean_mask[MEAN_MASK_L_0];
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	mean_mask[MEAN_MASK_H_0] = expand_nibble(bytes_per_pixel, (~rgb_h) & rgb_m);
 	mean_mask[MEAN_MASK_H_1] = mean_mask[MEAN_MASK_H_0];
 }
 
-/***************************************************************************/
-/* Compute the mean of many pixel and of many rgb nibble at one time */
-
+/**
+ * Compute the mean of two series of rgb pixels.
+ * This function compute (a + b) / 2 for any rgb nibble, using the
+ * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
+ * To extend this formula to a serie of packed nibbles the formula is
+ * implemented as (((v0 ^ v1) >> 1) & MASK) + (v0 & v1) where MASK
+ * is used to clear the high bit of all the packed nibbles.
+ */
 static inline uint32 internal_mean_value(uint32 v0, uint32 v1)
 {
-	return ((v0 >> 1) & mean_mask[MEAN_MASK_H_0]) + ((v1 >> 1) & mean_mask[MEAN_MASK_H_0]) + (v0 & v1 & mean_mask[MEAN_MASK_L_0]);
+	return (((v0 ^ v1) >> 1) & mean_mask[MEAN_MASK_H_0]) + (v0 & v1);
 }
 
 /***************************************************************************/
 /* Compute the mean of dst and src and store the result in dst */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_mean64_vert_self_mmx(void* dst, const void* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
 		"movq (%3), %%mm4\n"
-		"movq 8(%3), %%mm5\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movq (%0), %%mm0\n"
 		"movq (%1), %%mm1\n"
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
+
 		"addl $8, %0\n"
 		"addl $8, %1\n"
 		"decl %2\n"
@@ -197,7 +184,7 @@ static inline void internal_mean32_vert_self_step(uint32* dst32, const uint32* s
 /***************************************************************************/
 /* Compute the mean of src and src+1 and store the result in dst */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint32 mean8_horz_step1_mask[2] = { 0x00000000, 0xFF000000 };
 
 static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* src, unsigned count)
@@ -212,7 +199,6 @@ static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* s
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"
-		"movq 8(%3), %%mm5\n"
 		"movq (%0), %%mm7\n" /* previous value */
 
 		ASM_JUMP_ALIGN
@@ -227,15 +213,13 @@ static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* s
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
+
 		"addl $8, %0\n"
 		"addl $8, %1\n"
 		"decl %2\n"
@@ -251,13 +235,10 @@ static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* s
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
 
@@ -281,7 +262,6 @@ static inline void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"
-		"movq 8(%3), %%mm5\n"
 		"movq (%0), %%mm7\n" /* previous value */
 
 		ASM_JUMP_ALIGN
@@ -296,13 +276,10 @@ static inline void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
 		"addl $8, %0\n"
@@ -320,13 +297,10 @@ static inline void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
 
@@ -350,7 +324,6 @@ static inline void internal_mean32_horz_next_step4_mmx(uint32* dst, const uint32
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"
-		"movq 8(%3), %%mm5\n"
 		"movq (%0), %%mm7\n" /* previous value */
 
 		ASM_JUMP_ALIGN
@@ -365,15 +338,13 @@ static inline void internal_mean32_horz_next_step4_mmx(uint32* dst, const uint32
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
+
 		"addl $8, %0\n"
 		"addl $8, %1\n"
 		"decl %2\n"
@@ -389,13 +360,10 @@ static inline void internal_mean32_horz_next_step4_mmx(uint32* dst, const uint32
 
 		"movq %%mm0, %%mm2\n"
 		"movq %%mm1, %%mm3\n"
-		"psrlq $1, %%mm0\n"
-		"psrlq $1, %%mm1\n"
-		"pand %%mm4, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
+		"pxor %%mm1, %%mm0\n"
 		"pand %%mm3, %%mm2\n"
-		"paddd %%mm1, %%mm0\n"
-		"pand %%mm5, %%mm2\n"
+		"psrlq $1, %%mm0\n"
+		"pand %%mm4, %%mm0\n"
 		"paddd %%mm2, %%mm0\n"
 		"movq %%mm0, (%1)\n"
 
@@ -513,3 +481,4 @@ static inline void internal_mean32_horz_next_step(uint32* dst32, const uint32* s
 }
 
 #endif
+

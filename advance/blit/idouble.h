@@ -36,7 +36,7 @@
 /***************************************************************************/
 /* internal double */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
@@ -64,7 +64,7 @@ static inline void internal_double8_mmx(uint8* dst, const uint8* src, unsigned c
 }
 #endif
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double16_mmx(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
@@ -92,7 +92,7 @@ static inline void internal_double16_mmx(uint16* dst, const uint16* src, unsigne
 }
 #endif
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double32_mmx(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
@@ -120,7 +120,7 @@ static inline void internal_double32_mmx(uint32* dst, const uint32* src, unsigne
 }
 #endif
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
@@ -222,7 +222,7 @@ static inline void internal_quadruple8_step_def(uint8* __restrict__ dst, const u
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
@@ -322,7 +322,7 @@ static inline void internal_quadruple16_step_def(uint16* __restrict__ dst, const
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
@@ -420,3 +420,4 @@ static inline void internal_quadruple32_step_def(uint32* __restrict__ dst, const
 
 
 #endif
+

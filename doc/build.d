@@ -123,6 +123,10 @@ Configuring
 	The default installation prefix is /usr/local. You can change it
 	with the `--prefix=' option.
 
+	The default host configuration directory is /usr/local/etc. You can
+	change it with the `--sysconfdir=' option. Please note that instead
+	of /usr/etc is always used /etc.
+
 	The configure script automatically detects all the available libraries
 	and the optimization flags. You can use the --with-sdl-prefix option
 	to search for the SDL library in a specific location.
@@ -152,8 +156,8 @@ Compiling
 Installing
     Linux/Mac OS X/Generic Unix
 	Run `make install' to install the binaries and the documentation.
-	The binaries are installed in $prefix/bin, the program data in
-	$prefix/share/advance, the documentation in $prefix/share/advance/doc,
+	The binaries are installed in $prefix/bin, the program data files in
+	$prefix/share/advance, the documentation in $prefix/share/doc/advance,
 	and the man pages in $prefix/man/man1.
 
 	The default installation $prefix is /usr/local.

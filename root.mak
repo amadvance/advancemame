@@ -105,6 +105,8 @@ info:
 
 dvi:
 
+install-strip: install
+
 installcheck: install
 
 check:

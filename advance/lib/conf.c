@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "conf.h"
 #include "incstr.h"
 #include "log.h"
@@ -52,6 +56,10 @@ static adv_bool partial_match_whole(const char* s, const char* partial)
 	const char* p = s;
 	unsigned l = strlen(partial);
 
+	/* skip composite option strings */
+	if (strchr(s, '[') != 0)
+		return 0;
+
 	while (1) {
 		if (memcmp(p, partial, l)==0 && (p[l]==0 || p[l]=='_'))
 			return 1;
@@ -68,6 +76,10 @@ static adv_bool partial_match(const char* s, const char* partial)
 {
 	const char* p = s;
 	unsigned l = strlen(partial);
+
+	/* skip composite option strings */
+	if (strchr(s, '[') != 0)
+		return 0;
 
 	while (1) {
 		if (memcmp(p, partial, l)==0)

@@ -41,7 +41,8 @@ CFGOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 CFGCFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 CFGOBJDIRS += \
 	$(CFGOBJ)/linux

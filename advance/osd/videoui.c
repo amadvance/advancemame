@@ -803,11 +803,48 @@ void advance_ui_done(struct advance_ui_context* context)
 
 #include "help.dat"
 
+static void ui_adjustfont(struct advance_ui_context* context)
+{
+	adv_bitmap* bitmap;
+
+	bitmap = adv_bitmap_alloc( adv_font_sizex_char(context->state.ui_font, '1'), adv_font_sizey_char(context->state.ui_font, '1'), 8);
+	adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
+	adv_font_set_char(context->state.ui_font, 255, adv_bitmap_dup(bitmap));
+	adv_font_set_char(context->state.ui_font_oriented, 255, adv_bitmap_dup(bitmap));
+	adv_bitmap_free(bitmap);
+
+	adv_font_orientation(context->state.ui_font_oriented, context->config.ui_font_orientation);
+}
+
+void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width)
+{
+	unsigned size;
+
+	if (strcmp(context->config.ui_font_buffer, "auto") != 0)
+		return;
+
+	adv_font_free(context->state.ui_font);
+	adv_font_free(context->state.ui_font_oriented);
+
+	if (screen_width >= 768)
+		size = 17;
+	else if (screen_width >= 512)
+		size = 15;
+	else if (screen_width >= 320)
+		size = 13;
+	else
+		size = 11;
+
+	context->state.ui_font = adv_font_default(size);
+	context->state.ui_font_oriented = adv_font_default(size);
+
+	ui_adjustfont(context);
+}
+
 adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cfg_context)
 {
 	adv_conf_iterator k;
 	adv_color_def def;
-	adv_bitmap* bitmap;
 
 	if (strcmp(context->config.ui_font_buffer, "auto") == 0) {
 		context->state.ui_font = adv_font_default(13);
@@ -844,13 +881,7 @@ adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cf
 		fzclose(f);
 	}
 
-	bitmap = adv_bitmap_alloc( adv_font_sizex_char(context->state.ui_font, '1'), adv_font_sizey_char(context->state.ui_font, '1'), 8);
-	adv_bitmap_clear(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, 0);
-	adv_font_set_char(context->state.ui_font, 255, adv_bitmap_dup(bitmap));
-	adv_font_set_char(context->state.ui_font_oriented, 255, adv_bitmap_dup(bitmap));
-	adv_bitmap_free(bitmap);
-
-	adv_font_orientation(context->state.ui_font_oriented, context->config.ui_font_orientation);
+	ui_adjustfont(context);
 
 	def = color_def_make_rgb_from_sizelenpos(3, 8, 0, 8, 8, 8, 16);
 
@@ -935,6 +966,9 @@ void advance_ui_inner_done(struct advance_ui_context* context)
 {
 	adv_font_free(context->state.ui_font);
 	context->state.ui_font = 0;
+	adv_font_free(context->state.ui_font_oriented);
+	context->state.ui_font_oriented = 0;
+
 	if (context->state.help_image) {
 		adv_bitmap_free(context->state.help_image);
 		context->state.help_image = 0;

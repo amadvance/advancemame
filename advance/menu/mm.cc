@@ -391,7 +391,7 @@ static void version(void)
 
 	target_out("Directories:\n");
 #ifdef DATADIR
-	target_out("  Data: %s\n", DATADIR);
+	target_out("  Data: %s/advance\n", DATADIR);
 #else
 	target_out("  Data: . (current directory)\n");
 #endif

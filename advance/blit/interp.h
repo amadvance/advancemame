@@ -44,40 +44,124 @@ extern unsigned interp_mask[2];
 extern unsigned interp_red_mask, interp_green_mask, interp_blue_mask;
 extern int interp_red_shift, interp_green_shift, interp_blue_shift;
 extern unsigned interp_near_mask;
+extern unsigned interp_highnot_mask;
+
+/**
+ * Select which method to use for computing pixels.
+ */
+/* #define USE_INTERP_MASK_1 */
+/* #define USE_INTERP_MASK_2 */
+#define USE_INTERP_MASK_3
+#define USE_INTERP_MASK_4
 
 #define INTERP_16_MASK_1(v) ((v) & interp_mask[0])
 #define INTERP_16_MASK_2(v) ((v) & interp_mask[1])
 #define INTERP_16_UNMASK_1(v) ((v) & interp_mask[0])
 #define INTERP_16_UNMASK_2(v) ((v) & interp_mask[1])
+#define INTERP_16_HNMASK interp_highnot_mask
 
-static inline interp_uint16 interp_16_521(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*5 + INTERP_16_MASK_1(p2)*2 + INTERP_16_MASK_1(p3)*1) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*5 + INTERP_16_MASK_2(p2)*2 + INTERP_16_MASK_2(p3)*1) / 8);
-}
+#define INTERP_32_MASK_1(v) ((v) & 0xFF00FFU)
+#define INTERP_32_MASK_2(v) ((v) & 0x00FF00U)
+#define INTERP_32_UNMASK_1(v) ((v) & 0xFF00FFU)
+#define INTERP_32_UNMASK_2(v) ((v) & 0x00FF00U)
+#define INTERP_32_HNMASK (~0x808080U)
 
-static inline interp_uint16 interp_16_332(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+static inline interp_uint16 interp_16_11(interp_uint16 p1, interp_uint16 p2)
 {
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*3 + INTERP_16_MASK_1(p2)*3 + INTERP_16_MASK_1(p3)*2) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*3 + INTERP_16_MASK_2(p2)*3 + INTERP_16_MASK_2(p3)*2) / 8);
-}
-
-static inline interp_uint16 interp_16_611(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*6 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*6 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 8);
-}
-
-static inline interp_uint16 interp_16_71(interp_uint16 p1, interp_uint16 p2)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*7 + INTERP_16_MASK_1(p2)) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*7 + INTERP_16_MASK_2(p2)) / 8);
+#ifdef USE_INTERP_MASK_1
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1) + INTERP_16_MASK_1(p2)) / 2)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1) + INTERP_16_MASK_2(p2)) / 2);
+#else
+	/*
+	 * This function compute (a + b) / 2 for any rgb nibble, using the
+	 * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
+	 * To extend this formula to a serie of packed nibbles the formula is
+	 * implemented as (((v0 ^ v1) >> 1) & MASK) + (v0 & v1) where MASK
+	 * is used to clear the high bit of all the packed nibbles.
+	 */
+	return (((p1 ^ p2) >> 1) & INTERP_16_HNMASK) + (p1 & p2);
+#endif
 }
 
 static inline interp_uint16 interp_16_211(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
 {
+#ifdef USE_INTERP_MASK_2
 	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*2 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 4)
 		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*2 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 4);
+#else
+	return interp_16_11(p1, interp_16_11(p2, p3));
+#endif
+}
+
+static inline interp_uint16 interp_16_31(interp_uint16 p1, interp_uint16 p2)
+{
+#ifdef USE_INTERP_MASK_2
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*3 + INTERP_16_MASK_1(p2)) / 4)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*3 + INTERP_16_MASK_2(p2)) / 4);
+#else
+	return interp_16_11(p1, interp_16_11(p1, p2));
+#endif
+}
+
+static inline interp_uint16 interp_16_521(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*5 + INTERP_16_MASK_1(p2)*2 + INTERP_16_MASK_1(p3)*1) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*5 + INTERP_16_MASK_2(p2)*2 + INTERP_16_MASK_2(p3)*1) / 8);
+#else
+	return interp_16_11(p1, interp_16_11(p2, interp_16_11(p1, p3)));
+#endif
+}
+
+static inline interp_uint16 interp_16_431(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*4 + INTERP_16_MASK_1(p2)*3 + INTERP_16_MASK_1(p3)) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*4 + INTERP_16_MASK_2(p2)*3 + INTERP_16_MASK_2(p3)) / 8);
+#else
+	return interp_16_11(p1, interp_16_11(p2, interp_16_11(p2, p3)));
+#endif
+}
+
+static inline interp_uint16 interp_16_53(interp_uint16 p1, interp_uint16 p2)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*5 + INTERP_16_MASK_1(p2)*3) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*5 + INTERP_16_MASK_2(p2)*3) / 8);
+#else
+	return interp_16_11(p1, interp_16_11(p2, interp_16_11(p1, p2)));
+#endif
+}
+
+static inline interp_uint16 interp_16_332(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*3 + INTERP_16_MASK_1(p2)*3 + INTERP_16_MASK_1(p3)*2) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*3 + INTERP_16_MASK_2(p2)*3 + INTERP_16_MASK_2(p3)*2) / 8);
+#else
+	interp_uint16 t = interp_16_11(p1, p2);
+	return interp_16_11(t, interp_16_11(p3, t));
+#endif
+}
+
+static inline interp_uint16 interp_16_611(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*6 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*6 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 8);
+#else
+	return interp_16_11(p1, interp_16_11(p1, interp_16_11(p2, p3)));
+#endif
+}
+
+static inline interp_uint16 interp_16_71(interp_uint16 p1, interp_uint16 p2)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*7 + INTERP_16_MASK_1(p2)) / 8)
+		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*7 + INTERP_16_MASK_2(p2)) / 8);
+#else
+	return interp_16_11(p1, interp_16_11(p1, interp_16_11(p1, p2)));
+#endif
 }
 
 static inline interp_uint16 interp_16_772(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
@@ -86,34 +170,10 @@ static inline interp_uint16 interp_16_772(interp_uint16 p1, interp_uint16 p2, in
 		| INTERP_16_UNMASK_2(((INTERP_16_MASK_2(p1) + INTERP_16_MASK_2(p2))*7 + INTERP_16_MASK_2(p3)*2) / 16);
 }
 
-static inline interp_uint16 interp_16_11(interp_uint16 p1, interp_uint16 p2)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1) + INTERP_16_MASK_1(p2)) / 2)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1) + INTERP_16_MASK_2(p2)) / 2);
-}
-
-static inline interp_uint16 interp_16_31(interp_uint16 p1, interp_uint16 p2)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*3 + INTERP_16_MASK_1(p2)) / 4)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*3 + INTERP_16_MASK_2(p2)) / 4);
-}
-
 static inline interp_uint16 interp_16_1411(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
 {
 	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*14 + INTERP_16_MASK_1(p2) + INTERP_16_MASK_1(p3)) / 16)
 		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*14 + INTERP_16_MASK_2(p2) + INTERP_16_MASK_2(p3)) / 16);
-}
-
-static inline interp_uint16 interp_16_431(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*4 + INTERP_16_MASK_1(p2)*3 + INTERP_16_MASK_1(p3)) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*4 + INTERP_16_MASK_2(p2)*3 + INTERP_16_MASK_2(p3)) / 8);
-}
-
-static inline interp_uint16 interp_16_53(interp_uint16 p1, interp_uint16 p2)
-{
-	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*5 + INTERP_16_MASK_1(p2)*3) / 8)
-		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*5 + INTERP_16_MASK_2(p2)*3) / 8);
 }
 
 static inline interp_uint16 interp_16_151(interp_uint16 p1, interp_uint16 p2)
@@ -128,39 +188,102 @@ static inline interp_uint16 interp_16_97(interp_uint16 p1, interp_uint16 p2)
 		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*9 + INTERP_16_MASK_2(p2)*7) / 16);
 }
 
-#define INTERP_32_MASK_1(v) ((v) & 0xFF00FFU)
-#define INTERP_32_MASK_2(v) ((v) & 0x00FF00U)
-#define INTERP_32_UNMASK_1(v) ((v) & 0xFF00FFU)
-#define INTERP_32_UNMASK_2(v) ((v) & 0x00FF00U)
-
-static inline interp_uint32 interp_32_521(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+static inline interp_uint32 interp_32_11(interp_uint32 p1, interp_uint32 p2)
 {
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*5 + INTERP_32_MASK_1(p2)*2 + INTERP_32_MASK_1(p3)*1) / 8)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*5 + INTERP_32_MASK_2(p2)*2 + INTERP_32_MASK_2(p3)*1) / 8);
-}
-
-static inline interp_uint32 interp_32_332(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
-{
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*3 + INTERP_32_MASK_1(p2)*3 + INTERP_32_MASK_1(p3)*2) / 8)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*3 + INTERP_32_MASK_2(p2)*3 + INTERP_32_MASK_2(p3)*2) / 8);
+#ifdef USE_INTERP_MASK_1
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) + INTERP_32_MASK_1(p2)) / 2)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1) + INTERP_32_MASK_2(p2)) / 2);
+#else
+	/*
+	 * This function compute (a + b) / 2 for any rgb nibble, using the
+	 * the formula (a + b) / 2 = ((a ^ b) >> 1) + (a & b).
+	 * To extend this formula to a serie of packed nibbles the formula is
+	 * implemented as (((v0 ^ v1) >> 1) & MASK) + (v0 & v1) where MASK
+	 * is used to clear the high bit of all the packed nibbles.
+	 */
+	return (((p1 ^ p2) >> 1) & INTERP_32_HNMASK) + (p1 & p2);
+#endif
 }
 
 static inline interp_uint32 interp_32_211(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
+#ifdef USE_INTERP_MASK_2
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*2 + INTERP_32_MASK_1(p2) + INTERP_32_MASK_1(p3)) / 4)
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*2 + INTERP_32_MASK_2(p2) + INTERP_32_MASK_2(p3)) / 4);
+#else
+	return interp_32_11(p1, interp_32_11(p2, p3));
+#endif
+}
+
+static inline interp_uint32 interp_32_31(interp_uint32 p1, interp_uint32 p2)
+{
+#ifdef USE_INTERP_MASK_2
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*3 + INTERP_32_MASK_1(p2)) / 4)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*3 + INTERP_32_MASK_2(p2)) / 4);
+#else
+	return interp_32_11(p1, interp_32_11(p1, p2));
+#endif
+}
+
+static inline interp_uint32 interp_32_521(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*5 + INTERP_32_MASK_1(p2)*2 + INTERP_32_MASK_1(p3)*1) / 8)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*5 + INTERP_32_MASK_2(p2)*2 + INTERP_32_MASK_2(p3)*1) / 8);
+#else
+	return interp_32_11(p1, interp_32_11(p2, interp_32_11(p1, p3)));
+#endif
+}
+
+static inline interp_uint32 interp_32_431(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*4 + INTERP_32_MASK_1(p2)*3 + INTERP_32_MASK_1(p3)) / 8)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*4 + INTERP_32_MASK_2(p2)*3 + INTERP_32_MASK_2(p3)) / 8);
+#else
+	return interp_32_11(p1, interp_32_11(p2, interp_32_11(p2, p3)));
+#endif
+}
+
+static inline interp_uint32 interp_32_53(interp_uint32 p1, interp_uint32 p2)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*5 + INTERP_32_MASK_1(p2)*3) / 8)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*5 + INTERP_32_MASK_2(p2)*3) / 8);
+#else
+	return interp_32_11(p1, interp_32_11(p2, interp_32_11(p1, p2)));
+#endif
+}
+
+static inline interp_uint32 interp_32_332(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+#ifdef USE_INTERP_MASK_3
+	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*3 + INTERP_32_MASK_1(p2)*3 + INTERP_32_MASK_1(p3)*2) / 8)
+		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*3 + INTERP_32_MASK_2(p2)*3 + INTERP_32_MASK_2(p3)*2) / 8);
+#else
+	interp_uint32 t = interp_32_11(p1, p2);
+	return interp_32_11(t, interp_32_11(p3, t));
+#endif
 }
 
 static inline interp_uint32 interp_32_611(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
+#ifdef USE_INTERP_MASK_3
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*6 + INTERP_32_MASK_1(p2) + INTERP_32_MASK_1(p3)) / 8)
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*6 + INTERP_32_MASK_2(p2) + INTERP_32_MASK_2(p3)) / 8);
+#else
+	return interp_32_11(p1, interp_32_11(p1, interp_32_11(p2, p3)));
+#endif
 }
 
 static inline interp_uint32 interp_32_71(interp_uint32 p1, interp_uint32 p2)
 {
+#ifdef USE_INTERP_MASK_3
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*7 + INTERP_32_MASK_1(p2)) / 8)
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*7 + INTERP_32_MASK_2(p2)) / 8);
+#else
+	return interp_32_11(p1, interp_32_11(p1, interp_32_11(p1, p2)));
+#endif
 }
 
 static inline interp_uint32 interp_32_772(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
@@ -169,34 +292,10 @@ static inline interp_uint32 interp_32_772(interp_uint32 p1, interp_uint32 p2, in
 		| INTERP_32_UNMASK_2(((INTERP_32_MASK_2(p1) + INTERP_32_MASK_2(p2))*7 + INTERP_32_MASK_2(p3)*2) / 16);
 }
 
-static inline interp_uint32 interp_32_11(interp_uint32 p1, interp_uint32 p2)
-{
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1) + INTERP_32_MASK_1(p2)) / 2)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1) + INTERP_32_MASK_2(p2)) / 2);
-}
-
-static inline interp_uint32 interp_32_31(interp_uint32 p1, interp_uint32 p2)
-{
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*3 + INTERP_32_MASK_1(p2)) / 4)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*3 + INTERP_32_MASK_2(p2)) / 4);
-}
-
 static inline interp_uint32 interp_32_1411(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
 {
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*14 + INTERP_32_MASK_1(p2) + INTERP_32_MASK_1(p3)) / 16)
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*14 + INTERP_32_MASK_2(p2) + INTERP_32_MASK_2(p3)) / 16);
-}
-
-static inline interp_uint32 interp_32_431(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
-{
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*4 + INTERP_32_MASK_1(p2)*3 + INTERP_32_MASK_1(p3)) / 8)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*4 + INTERP_32_MASK_2(p2)*3 + INTERP_32_MASK_2(p3)) / 8);
-}
-
-static inline interp_uint32 interp_32_53(interp_uint32 p1, interp_uint32 p2)
-{
-	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*5 + INTERP_32_MASK_1(p2)*3) / 8)
-		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*5 + INTERP_32_MASK_2(p2)*3) / 8);
 }
 
 static inline interp_uint32 interp_32_151(interp_uint32 p1, interp_uint32 p2)
@@ -217,3 +316,4 @@ int interp_32_diff(interp_uint32 p1, interp_uint32 p2);
 void interp_set(unsigned color_def);
 
 #endif
+

@@ -1,6 +1,14 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.1 2004/02
+	) If no preview is available, the preview type is automatically
+		changed to a preview type not empty.
+	) The default host configuration directory is now /usr/local/etc if you
+		install in /usr/local.
+	) The default documentation directory is now /usr/local/share/doc/advance
+		if you install in /usr/local.
+
 AdvanceMENU Version 2.3.0 2004/02
 	) Added a the new entry `multiloopall' at the `ui_clip' option
 		which loops all the clips.

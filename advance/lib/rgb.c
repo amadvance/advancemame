@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "rgb.h"
 #include "mode.h"
 #include "portable.h"
@@ -177,7 +181,7 @@ const char* color_def_name_get(adv_color_def def_ordinal)
 
 	switch (def.nibble.type) {
 	case adv_color_type_palette :
-		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "palette");
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "palette %d", color_def_bytes_per_pixel_get(def_ordinal) * 8);
 		return color_name_buffer;
 	case adv_color_type_rgb :
 		snprintf(color_name_buffer, sizeof(color_name_buffer), "rgb %d-%d/%d,%d/%d,%d/%d",
@@ -189,6 +193,9 @@ const char* color_def_name_get(adv_color_def def_ordinal)
 		return color_name_buffer;
 	case adv_color_type_yuy2 :
 		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "yuy2");
+		return color_name_buffer;
+	case adv_color_type_text :
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "text %d", color_def_bytes_per_pixel_get(def_ordinal) * 8);
 		return color_name_buffer;
 	default:
 		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "unknown");
@@ -265,7 +272,7 @@ adv_color_def color_def_make_from_index(unsigned index)
 {
 	switch (index) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
-		return color_def_make(adv_color_type_palette);
+		return color_def_make_palette_from_size(1);
 	case MODE_FLAGS_INDEX_BGR8 :
 		return color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0);
 	case MODE_FLAGS_INDEX_BGR15 :

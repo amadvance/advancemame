@@ -2,11 +2,11 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.78.0.2
+EMUVERSION = 0.79.0.0
 else
-EMUVERSION = 0.79.0
+EMUVERSION = 0.79.1
 endif
-MENUVERSION = 2.3.0
+MENUVERSION = 2.3.1
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -35,13 +35,13 @@ endif
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_DIRS += $(OBJ)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
+INSTALL_DIRS += $(DOCOBJ)
+INSTALL_MANFILES += $(DOCOBJ)/advmame.1
+INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
-INSTALL_DIRS += $(DOCOBJ)
-INSTALL_MANFILES += $(DOCOBJ)/advmame.1
-INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mess)
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
 endif
@@ -128,6 +128,7 @@ EXPAT_SRC = \
 LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \
 	$(wildcard $(srcdir)/advance/lib/*.h) \
+	$(wildcard $(srcdir)/advance/lib/*.hin) \
 	$(wildcard $(srcdir)/advance/lib/*.ico) \
 	$(wildcard $(srcdir)/advance/lib/*.rc) \
 	$(wildcard $(srcdir)/advance/lib/*.dat) \
@@ -260,99 +261,102 @@ CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.usr \
 	$(srcdir)/root.mak \
-	$(srcdir)/config.guess \
-	$(srcdir)/config.sub \
-	$(srcdir)/configure \
 	$(srcdir)/configure.ac \
+	$(srcdir)/configure \
 	$(srcdir)/configure.msdos \
 	$(srcdir)/configure.windows \
 	$(srcdir)/aclocal.m4 \
+	$(srcdir)/config.guess \
+	$(srcdir)/config.sub \
 	$(srcdir)/install-sh \
-	$(srcdir)/mkinstalldirs \
 	$(srcdir)/missing
 
 CONF_BIN = \
 	$(srcdir)/support/confbin/INSTALL \
 	$(srcdir)/support/confbin/Makefile.am \
 	$(srcdir)/support/confbin/Makefile.in \
-	$(srcdir)/support/confbin/aclocal.m4 \
+	$(srcdir)/support/confbin/configure.ac \
 	$(srcdir)/support/confbin/autogen.sh \
 	$(srcdir)/support/confbin/configure \
-	$(srcdir)/support/confbin/configure.ac \
+	$(srcdir)/support/confbin/aclocal.m4 \
 	$(srcdir)/support/confbin/install-sh \
-	$(srcdir)/support/confbin/missing \
-	$(srcdir)/support/confbin/mkinstalldirs
+	$(srcdir)/support/confbin/missing
 
 ############################################################################
 # Common install
 
+pkgdir = $(datadir)/advance
+pkgdocdir = $(docdir)/advance
+
 installdirs:
-	-$(INSTALL_DATA_DIR) $(DATADIR)
-	-$(INSTALL_DATA_DIR) $(DATADIR)/doc
-	-$(INSTALL_MAN_DIR) $(PREFIX)/man/man1
+	-$(INSTALL_DATA_DIR) $(pkgdir)
+	-$(INSTALL_DATA_DIR) $(pkgdocdir)
+	-$(INSTALL_MAN_DIR) $(mandir)/man1
 ifneq ($(wildcard $(EMUSRC)),)
-	-$(INSTALL_DATA_DIR) $(DATADIR)/rom
-	-$(INSTALL_DATA_DIR) $(DATADIR)/sample
-	-$(INSTALL_DATA_DIR) $(DATADIR)/artwork
-	-$(INSTALL_DATA_DIR) $(DATADIR)/image
-	-$(INSTALL_DATA_DIR) $(DATADIR)/crc
+	-$(INSTALL_DATA_DIR) $(pkgdir)/rom
+	-$(INSTALL_DATA_DIR) $(pkgdir)/sample
+	-$(INSTALL_DATA_DIR) $(pkgdir)/artwork
+	-$(INSTALL_DATA_DIR) $(pkgdir)/image
+	-$(INSTALL_DATA_DIR) $(pkgdir)/crc
 endif
 
 install-data: $(INSTALL_DATAFILES)
 ifdef INSTALL_DATAFILES
 	@for i in $(INSTALL_DATAFILES); do \
-		$(INSTALL_DATA) $$i $(DATADIR); \
+		echo "$(INSTALL_DATA) $$i $(pkgdir)"; \
+		$(INSTALL_DATA) $$i $(pkgdir); \
 	done
 endif
 
 uninstall-data:
 ifdef INSTALL_DATAFILES
 	@for i in $(INSTALL_DATAFILES); do \
-		rm -f $(DATADIR)/$$i; \
+		rm -f $(pkgdir)/$$i; \
 	done
 endif
 
 install-bin: $(INSTALL_BINFILES)
 	@for i in $(INSTALL_BINFILES); do \
-		$(INSTALL_PROGRAM) $$i $(PREFIX)/bin; \
+		echo "$(INSTALL_PROGRAM) $$i $(bindir)"; \
+		$(INSTALL_PROGRAM) $$i $(bindir); \
 	done
 
 uninstall-bin:
 	@for i in $(INSTALL_BINFILES); do \
-		rm -f $(PREFIX)/bin/$$i; \
+		rm -f $(bindir)/$$i; \
 	done
 
 install-doc: $(DOCOBJ) $(INSTALL_DOCFILES)
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
-		$(INSTALL_DATA) $$i $(DATADIR)/doc; \
+		echo "$(INSTALL_DATA) $$i $(pkgdocdir)"; \
+		$(INSTALL_DATA) $$i $(pkgdocdir); \
 	done
 endif
 
 uninstall-doc:
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
-		rm -f $(DATADIR)/doc/$$i; \
+		rm -f $(pkgdocdir)/$$i; \
 	done
 endif
 
 install-man: $(DOCOBJ) $(INSTALL_MANFILES)
 ifdef INSTALL_MANFILES
 	@for i in $(INSTALL_MANFILES); do \
-		$(INSTALL_DATA) $$i $(PREFIX)/man/man1; \
+		echo "$(INSTALL_DATA) $$i $(mandir)/man1"; \
+		$(INSTALL_DATA) $$i $(mandir)/man1; \
 	done
 endif
 
 uninstall-man:
 ifdef INSTALL_MANFILES
 	@for i in $(INSTALL_MANFILES); do \
-		rm -f $(PREFIX)/man/man1/$$i; \
+		rm -f $(mandir)/man1/$$i; \
 	done
 endif
 
 install: installdirs install-bin install-data install-doc install-man
-
-install-strip: install
 
 uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
 
@@ -376,10 +380,10 @@ WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O2 -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 
-ARCH_I386 = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM_BLEND = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM_BLEND_GCCOLD = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=i586 -mcpu=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_I386 = CONF_MAP=yes CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM_BLEND = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM_BLEND_GCCOLD = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=i586 -mcpu=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 
 MANUAL=-f Makefile.usr
 

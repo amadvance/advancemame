@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "font.h"
 #include "video.h"
 #include "endianrw.h"

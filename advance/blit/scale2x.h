@@ -1,7 +1,7 @@
 /*
  * This file is part of the Scale2x project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*
- * This file contains a C and MMX implementation of the Scale2x effect.
- *
- * You can find an high level description of the effect at :
- *
- * http://scale2x.sourceforge.net/
- *
- * Alternatively at the previous license terms, you are allowed to use this
- * code in your program with these conditions:
- * - the program is not used in commercial activities.
- * - the whole source code of the program is released with the binary.
- * - derivative works of the program are allowed.
- */
-
 #ifndef __SCALE2X_H
 #define __SCALE2X_H
-
-#include <assert.h>
 
 typedef unsigned char scale2x_uint8;
 typedef unsigned short scale2x_uint16;
@@ -45,11 +29,22 @@ void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8
 void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count);
 void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count);
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count);
 void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count);
 void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count);
+
+/**
+ * End the use of the MMX instructions.
+ * This function must be called before using any floating-point operations.
+ */
+static inline void scale2x_mmx_emms(void)
+{
+	__asm__ __volatile__ (
+		"emms"
+	);
+}
 
 #endif
 

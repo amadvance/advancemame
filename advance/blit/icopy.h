@@ -36,7 +36,7 @@
 /***************************************************************************/
 /* internal copy */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 8;
@@ -73,7 +73,7 @@ static inline void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned cou
 }
 #endif
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static uint8 copy8_mask[8] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 
 static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsigned count)
@@ -113,7 +113,7 @@ static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsign
 }
 #endif
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 4;
@@ -161,7 +161,7 @@ static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsign
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy16_mmx(uint16* dst, const uint16* src, unsigned count)
 {
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 2*count);
@@ -173,7 +173,7 @@ static inline void internal_copy16_def(uint16* dst, const uint16* src, unsigned 
 	internal_copy8_def((uint8*)dst, (uint8*)src, 2*count);
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy32_mmx(uint32* dst, const uint32* src, unsigned count)
 {
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 4*count);
@@ -185,7 +185,7 @@ static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned 
 	internal_copy8_def((uint8*)dst, (uint8*)src, 4*count);
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step)
 {
 	unsigned rest = count % 8;
@@ -262,7 +262,7 @@ static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigne
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step)
 {
 	unsigned rest = count % 4;
@@ -318,7 +318,7 @@ static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsi
 	}
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step)
 {
 	unsigned rest = count % 2;
@@ -400,7 +400,7 @@ static inline void internal_fill32(uint32* dst, unsigned src, unsigned count)
 /***************************************************************************/
 /* internal zero */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_zero8_mmx(uint8* dst, unsigned count)
 {
 	unsigned rest = count % 8;
@@ -436,7 +436,7 @@ static inline void internal_zero8_def(uint8* dst, unsigned count)
 	memset(dst, 0, count);
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_zero16_mmx(uint16* dst, unsigned count)
 {
 	internal_zero8_mmx((uint8*)dst, 2*count);
@@ -448,7 +448,7 @@ static inline void internal_zero16_def(uint16* dst, unsigned count)
 	internal_zero8_def((uint8*)dst, 2*count);
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline void internal_zero32_mmx(uint32* dst, unsigned count)
 {
 	internal_zero8_mmx((uint8*)dst, 4*count);
@@ -461,3 +461,4 @@ static inline void internal_zero32_def(uint32* dst, unsigned count)
 }
 
 #endif
+

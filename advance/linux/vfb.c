@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "vfb.h"
 #include "video.h"
 #include "log.h"
@@ -58,7 +62,7 @@
 /* #define USE_DISABLEINT */
 
 /* disable if no ASM allowed */
-#ifndef USE_ASM_i586
+#ifndef USE_ASM_INLINE
 #undef USE_DISABLEINT
 #endif
 
@@ -225,7 +229,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->yres_virtual = 2 * vde;
 	var->xoffset = 0;
 	var->yoffset = 0;
-	var->bits_per_pixel = bits_per_pixel;
+	var->bits_per_pixel = (bits_per_pixel + 7) & ~7; /* 15 bits per pixel requires the value 16 */
 	var->grayscale = 0;
 	switch (bits_per_pixel) {
 	case 8 :
@@ -287,6 +291,64 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	}
 }
 
+static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_bits_per_pixel)
+{
+	unsigned r_mask;
+	unsigned g_mask;
+	unsigned b_mask;
+
+	log_std(("video:fb: FBIOGET_VSCREENINFO\n"));
+
+	/* get the variable info */
+	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, var) != 0) {
+		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
+		return -1;
+	}
+
+	r_mask = ((1 << var->red.length) - 1) << var->red.offset;
+	g_mask = ((1 << var->green.length) - 1) << var->green.offset;
+	b_mask = ((1 << var->blue.length) - 1) << var->blue.offset;
+
+	/* if overlapping */
+	if (hint_bits_per_pixel) {
+	if ((r_mask & g_mask) != 0
+		|| (r_mask & b_mask) != 0
+		|| (b_mask & g_mask) != 0
+	) {
+		log_std(("ERROR:video:fb: overlapping RGB nibble %x/%x/%x, try with standard value\n", r_mask, g_mask, b_mask));
+		switch (hint_bits_per_pixel) {
+		case 15 :
+			var->red.length = 5;
+			var->red.offset = 10;
+			var->green.length = 5;
+			var->green.offset = 5;
+			var->blue.length = 5;
+			var->blue.offset = 0;
+			break;
+		case 16 :
+			var->red.length = 5;
+			var->red.offset = 11;
+			var->green.length = 6;
+			var->green.offset = 5;
+			var->blue.length = 5;
+			var->blue.offset = 0;
+			break;
+		case 24 :
+		case 32 :
+			var->red.length = 8;
+			var->red.offset = 16;
+			var->green.length = 8;
+			var->green.offset = 8;
+			var->blue.length = 8;
+			var->blue.offset = 0;
+			break;
+		}
+	}
+	}
+
+	return 0;
+}
+
 static adv_error fb_test(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned bits_per_pixel)
 {
 	log_std(("video:fb: test bit depth %d\n", bits_per_pixel));
@@ -338,13 +400,13 @@ static adv_error fb_detect(void)
 	}
 
 	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 15) != 0
-		|| (var.bits_per_pixel != 15)) {
+		|| (var.bits_per_pixel != 16 || var.green.length != 5)) {
 		log_std(("video:fb: disable 15 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	}
 
 	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 16) != 0
-		|| (var.bits_per_pixel != 16)) {
+		|| (var.bits_per_pixel != 16 || var.green.length != 6)) {
 		log_std(("video:fb: disable 16 bits modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	}
@@ -451,8 +513,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	}
 
 	/* get the variable info */
-	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.");
+	if (fb_getvar(&fb_state.varinfo, 0) != 0) {
 		goto err_close;
 	}
 
@@ -522,11 +583,14 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	log_std(("video:fb: fb_mode_set()\n"));
 
+	log_std(("video:fb: get old\n"));
+
 	/* get the current info */
-	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.oldinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
+	if (fb_getvar(&fb_state.oldinfo, 0) != 0) {
 		return -1;
 	}
+
+	fb_log(0, &fb_state.oldinfo);
 
 	fb_preset(&fb_state.varinfo,
 		mode->crtc.pixelclock,
@@ -536,6 +600,10 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		index_bits_per_pixel(mode->index), FB_ACTIVATE_NOW
 	);
 
+	log_std(("video:fb: set new\n"));
+
+	fb_log(0, &fb_state.varinfo);
+
 	log_std(("video:fb: FBIOPUT_VSCREENINFO\n"));
 
 	/* set the mode */
@@ -543,6 +611,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		error_set("Function ioctl(FBIOPUT_VSCREENINFO) failed.\n");
 		return -1;
 	}
+
+	log_std(("video:fb: get new\n"));
 
 	log_std(("video:fb: FBIOGET_FSCREENINFO\n"));
 
@@ -552,11 +622,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	log_std(("video:fb: FBIOGET_VSCREENINFO\n"));
-
 	/* get the variable info */
-	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.\n");
+	if (fb_getvar(&fb_state.varinfo, index_bits_per_pixel(mode->index)) != 0) {
 		return -1;
 	}
 
@@ -588,9 +655,18 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		trasp_map = malloc(sizeof(__u16) * l);
 
 		for (i=0;i<l;++i) {
-			red_map[i] = 65535 * i / (red_l-1);
-			green_map[i] = 65535 * i / (green_l-1);
-			blue_map[i] = 65535 * i / (blue_l-1);
+			if (i < red_l)
+				red_map[i] = 65535 * i / (red_l-1);
+			else
+				red_map[i] = 65535;
+			if (i < green_l)
+				green_map[i] = 65535 * i / (green_l-1);
+			else
+				green_map[i] = 65535;
+			if (i < blue_l)
+				blue_map[i] = 65535 * i / (blue_l-1);
+			else
+				blue_map[i] = 65535;
 			trasp_map[i] = 0;
 		}
 
@@ -687,12 +763,20 @@ adv_color_def fb_color_def(void)
 {
 	assert(fb_is_active() && fb_mode_is_active());
 
-	return color_def_make_rgb_from_sizelenpos(
-		fb_state.bytes_per_pixel,
-		fb_state.varinfo.red.length, fb_state.varinfo.red.offset,
-		fb_state.varinfo.green.length, fb_state.varinfo.green.offset,
-		fb_state.varinfo.blue.length, fb_state.varinfo.blue.offset
-	);
+	switch (fb_state.index) {
+	case MODE_FLAGS_INDEX_BGR15 :
+	case MODE_FLAGS_INDEX_BGR16 :
+	case MODE_FLAGS_INDEX_BGR24 :
+	case MODE_FLAGS_INDEX_BGR32 :
+		return color_def_make_rgb_from_sizelenpos(
+			fb_state.bytes_per_pixel,
+			fb_state.varinfo.red.length, fb_state.varinfo.red.offset,
+			fb_state.varinfo.green.length, fb_state.varinfo.green.offset,
+			fb_state.varinfo.blue.length, fb_state.varinfo.blue.offset
+		);
+	default:
+		return color_def_make_from_index(fb_state.index);
+	}
 }
 
 /**

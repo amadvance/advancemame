@@ -1,4 +1,3 @@
-
 all: thdouble thcreate thmono thfifo
 
 thfifo: thfifo.c test.h

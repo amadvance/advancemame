@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "crtc.h"
 
 #include "video.h"

@@ -47,10 +47,10 @@ extern "C" {
  * This context must be initialized with the video_slice_init() function.
  */
 typedef struct adv_slice_struct  {
-	int whole; /**< Segment length. */
+	unsigned whole; /**< Segment length. */
 	int up; /**< Up step. */
 	int down; /**< Down step. */
-	int count; /**< Number of segment. */
+	unsigned count; /**< Number of segment. */
 	int error; /**< Start error. */
 } adv_slice;
 

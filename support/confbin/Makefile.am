@@ -18,14 +18,15 @@ pkgdata_DOC = \
 EXTRA_DIST = \
 	autogen.sh
 
-pkgdir = @prefix@/share/@PACKAGE@
+pkgdir = @datadir@/@PACKAGE@
+pkgdocdir = @datadir@/doc/@PACKAGE@
 man1dir = $(mandir)/man1
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(pkgdir)/doc
+	$(mkinstalldirs) $(DESTDIR)$(pkgdocdir)
 	@for i in $(pkgdata_DOC); do \
-		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(pkgdir)/doc"; \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdir)/doc; \
+		echo " $(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir)"; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir); \
 	done
 	$(mkinstalldirs) $(DESTDIR)$(man1dir)
 	@for i in $(pkgdata_MAN); do \

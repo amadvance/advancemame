@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "blit.h"
 #include "log.h"
 #include "error.h"
@@ -37,15 +41,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Define if you want to assume fast write in video memory */
-#ifndef __MSDOS__ /* OSDEF MSDOS requires a different set of blit functions because the MTRR usually is not active */
-#define USE_MTRR
-#endif
-
 /***************************************************************************/
 /* mmx */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static void blit_cpuid(unsigned level, unsigned* regs)
 {
@@ -242,8 +241,8 @@ static inline void internal_end(void)
 /* Total size of the buffers */
 #define FAST_BUFFER_SIZE (256*1024)
 
-/* Align mask */
-#define FAST_BUFFER_ALIGN_MASK 0x1F
+/* Align */
+#define FAST_BUFFER_ALIGN 32
 
 void* fast_buffer; /* raw pointer */
 void* fast_buffer_aligned; /* aligned pointer */
@@ -252,13 +251,13 @@ unsigned fast_buffer_mac; /* top of the stack */
 
 static void* video_buffer_alloc(unsigned size)
 {
-	unsigned size_aligned = (size + FAST_BUFFER_ALIGN_MASK) & ~FAST_BUFFER_ALIGN_MASK;
-	assert( fast_buffer_mac < FAST_BUFFER_MAX );
+	unsigned size_aligned = ALIGN_UNSIGNED(size, FAST_BUFFER_ALIGN);
+	assert(fast_buffer_mac < FAST_BUFFER_MAX);
 
 	++fast_buffer_mac;
 	fast_buffer_map[fast_buffer_mac] = fast_buffer_map[fast_buffer_mac-1] + size_aligned;
 
-	assert( fast_buffer_map[fast_buffer_mac] <= FAST_BUFFER_SIZE);
+	assert(fast_buffer_map[fast_buffer_mac] <= FAST_BUFFER_SIZE);
 
 	return (uint8*)fast_buffer_aligned + fast_buffer_map[fast_buffer_mac-1];
 }
@@ -300,8 +299,8 @@ static void video_buffer_free_wrap(void* buffer)
 
 static void video_buffer_init(void)
 {
-	fast_buffer = malloc(FAST_BUFFER_SIZE + FAST_BUFFER_ALIGN_MASK);
-	fast_buffer_aligned = (void*)(((unsigned)fast_buffer + FAST_BUFFER_ALIGN_MASK) & ~FAST_BUFFER_ALIGN_MASK);
+	fast_buffer = malloc(FAST_BUFFER_SIZE + FAST_BUFFER_ALIGN);
+	fast_buffer_aligned = ALIGN_PTR(fast_buffer, FAST_BUFFER_ALIGN);
 	fast_buffer_mac = 0;
 	fast_buffer_map[0] = 0;
 }
@@ -378,6 +377,40 @@ static void stage_max_rgb_vert_self(const struct video_stage_horz_struct* stage,
 			case 1 : internal_max_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 			case 2 : internal_max_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 			case 4 : internal_max_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		}
+	}
+}
+
+static void stage_min_vert_self(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	if ((int)stage->sbpp == stage->sdp) {
+		switch (stage->sbpp) {
+			case 1 : internal_min8_vert_self(dst, src, stage->sdx); break;
+			case 2 : internal_min16_vert_self(dst, src, stage->sdx); break;
+			case 4 : internal_min32_vert_self(dst, src, stage->sdx); break;
+		}
+	} else {
+		switch (stage->sbpp) {
+			case 1 : internal_min8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+			case 2 : internal_min16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+			case 4 : internal_min32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+		}
+	}
+}
+
+static void stage_min_rgb_vert_self(const struct video_stage_horz_struct* stage, void* dst, void* src)
+{
+	if ((int)stage->sbpp == stage->sdp) {
+		switch (stage->sbpp) {
+			case 1 : internal_min_rgb8_vert_self(dst, src, stage->sdx); break;
+			case 2 : internal_min_rgb16_vert_self(dst, src, stage->sdx); break;
+			case 4 : internal_min_rgb32_vert_self(dst, src, stage->sdx); break;
+		}
+	} else {
+		switch (stage->sbpp) {
+			case 1 : internal_min_rgb8_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+			case 2 : internal_min_rgb16_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
+			case 4 : internal_min_rgb32_vert_self_step(dst, src, stage->sdx, stage->sdp); break;
 		}
 	}
 }
@@ -628,7 +661,7 @@ void video_pipeline_init(struct video_pipeline_struct* pipeline)
 	pipeline->target.line = &video_line;
 	pipeline->target.ptr = 0;
 	pipeline->target.color_def = video_color_def();
-	pipeline->target.bytes_per_pixel = video_bytes_per_pixel();
+	pipeline->target.bytes_per_pixel = color_def_bytes_per_pixel_get(video_color_def());
 	pipeline->target.bytes_per_scanline = video_bytes_per_scanline();
 }
 
@@ -844,7 +877,7 @@ const char* pipe_name(enum video_stage_enum pipe)
 {
 	switch (pipe) {
 		case pipe_x_stretch : return "hstretch";
-		case pipe_x_max : return "hmax";
+		case pipe_x_maxmin : return "hmax";
 		case pipe_x_mean : return "hmean";
 		case pipe_x_double : return "hcopy x2";
 		case pipe_x_triple : return "hcopy x3";
@@ -887,15 +920,9 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_rgbtorgb : return "rgb>rgb";
 		case pipe_rgbtoyuy2 : return "rgb>yuy2";
 		case pipe_y_copy : return "vcopy";
-		case pipe_y_reduction_copy : return "vreduction";
-		case pipe_y_expansion_copy : return "vexpansion";
-		case pipe_y_mean : return "vcopy mean";
-		case pipe_y_reduction_mean : return "vreduction mean";
-		case pipe_y_expansion_mean : return "vexpansion mean";
-		case pipe_y_filter : return "vcopy lowpass";
-		case pipe_y_reduction_filter : return "vreduction low pass";
-		case pipe_y_expansion_filter : return "vexpansion low pass";
-		case pipe_y_reduction_max  : return "vreduction max";
+		case pipe_y_mean : return "vmean";
+		case pipe_y_filter : return "vlowpass";
+		case pipe_y_maxmin : return "vmaxmin";
 		case pipe_y_scale2x : return "scale2x";
 		case pipe_y_scale3x : return "scale3x";
 		case pipe_y_scale4x : return "scale4x";
@@ -967,62 +994,10 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 	}
 }
 
-/* Check if the write operation is done writing the biggest register size */
-static adv_bool pipe_is_fastwrite(const struct video_stage_horz_struct* stage)
-{
-#ifdef USE_MTRR
-	/* if MTRR is enabled, write is always fast */
-	return 1;
-#else
-	if (the_blit_mmx) {
-		adv_bool is_plain = stage->sbpp == stage->sdp;
-		switch (stage->type) {
-			case pipe_x_copy : return 1;
-			case pipe_rotation : return 1;
-			case pipe_x_double : return is_plain;
-			case pipe_x_rgb_triad3pix : return is_plain;
-			case pipe_x_rgb_triad6pix : return is_plain;
-			case pipe_x_rgb_triad16pix : return is_plain;
-			case pipe_x_rgb_triadstrong3pix : return is_plain;
-			case pipe_x_rgb_triadstrong6pix : return is_plain;
-			case pipe_x_rgb_triadstrong16pix : return is_plain;
-			case pipe_x_rgb_scandoublehorz : return is_plain;
-			case pipe_x_rgb_scantriplehorz : return is_plain;
-			case pipe_x_rgb_scandoublevert : return is_plain;
-			case pipe_x_rgb_scantriplevert : return is_plain;
-			case pipe_swap_even : return 1;
-			case pipe_swap_odd : return 1;
-			case pipe_interlace_filter : return 1;
-			case pipe_palette8to16 : return is_plain;
-			case pipe_palette16to8 : return 1;
-			case pipe_palette16to16 : return 1;
-			case pipe_palette16to32 : return 1;
-			case pipe_bgra8888tobgr332 : return is_plain;
-			case pipe_bgra8888tobgra5551 : return is_plain;
-			case pipe_bgra8888tobgr565 : return is_plain;
-			case pipe_bgra8888toyuy2 : return 1;
-			case pipe_bgra5551tobgr332 : return is_plain;
-			case pipe_bgra5551tobgr565 : return is_plain;
-			case pipe_bgra5551tobgra8888 : return is_plain;
-			case pipe_bgra5551toyuy2 : return 1;
-			case pipe_x_filter : return is_plain;
-			default: return 0;
-		}
-	} else {
-		switch (stage->type) {
-			case pipe_x_stretch : return 0;
-			case pipe_x_max : return 0;
-			case pipe_x_mean : return 0;
-			default: return 1;
-		}
-	}
-#endif
-}
-
 /* Check if the write operation is done converting the RGB values */
-static adv_bool combine_is_rgb(unsigned stage)
+static adv_bool combine_is_rgb(unsigned combine)
 {
-	switch (stage) {
+	switch (combine & VIDEO_COMBINE_Y_MASK) {
 	case VIDEO_COMBINE_Y_MEAN :
 	case VIDEO_COMBINE_Y_FILTER :
 #ifndef USE_BLIT_TINY
@@ -1042,9 +1017,12 @@ static adv_bool combine_is_rgb(unsigned stage)
 }
 
 /* Check if the write operation support direct writing without requiring a final stage */
-static adv_bool combine_is_direct(unsigned stage)
+static adv_bool combine_is_direct(unsigned combine)
 {
-	switch (stage) {
+	if ((combine & VIDEO_COMBINE_BUFFER) != 0)
+		return 0;
+
+	switch (combine & VIDEO_COMBINE_Y_MASK) {
 #ifndef USE_BLIT_TINY
 	case VIDEO_COMBINE_Y_SCALE2X :
 	case VIDEO_COMBINE_Y_SCALE3X :
@@ -1062,31 +1040,6 @@ static adv_bool combine_is_direct(unsigned stage)
 	default:
 		return 0;
 	}
-}
-
-/* Check if the write operation is done writing the biggest register size */
-static adv_bool combine_is_fastwrite(unsigned stage, unsigned bytes_per_pixel)
-{
-#ifdef USE_MTRR
-	/* if MTRR is enabled, write is always fast */
-	return 1;
-#else
-	if (the_blit_mmx) {
-#ifndef USE_BLIT_TINY
-		switch (stage) {
-		case VIDEO_COMBINE_Y_SCALE2X :
-		case VIDEO_COMBINE_Y_SCALE4X :
-			return 1;
-		default :
-			return 0;
-		}
-#else
-		return 0;
-#endif
-	} else {
-		return bytes_per_pixel >= 4;
-	}
-#endif
 }
 
 /***************************************************************************/
@@ -1107,11 +1060,11 @@ static void video_stage_stretchy_x1(const struct video_pipeline_target_struct* t
 {
 	unsigned x_off = x * target->bytes_per_pixel;
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* dst;
@@ -1140,11 +1093,11 @@ static void video_stage_stretchy_max_x1(const struct video_pipeline_target_struc
 
 	void* buffer = video_buffer_alloc(stage_vert->stage_begin->sdx * stage_vert->stage_begin->sbpp);
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* dst;
@@ -1197,11 +1150,11 @@ static void video_stage_stretchy_mean_x1(const struct video_pipeline_target_stru
 
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* dst;
@@ -1252,11 +1205,11 @@ static void video_stage_stretchy_filter_x1(const struct video_pipeline_target_st
 	adv_bool buffer_full = 0;
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* dst;
@@ -1317,11 +1270,11 @@ static void video_stage_stretchy_1x(const struct video_pipeline_target_struct* t
 {
 	unsigned x_off = x * target->bytes_per_pixel;
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* buffer;
@@ -1358,11 +1311,11 @@ static void video_stage_stretchy_mean_1x(const struct video_pipeline_target_stru
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 	void* previous_buffer = 0;
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* src_buffer;
@@ -1414,6 +1367,72 @@ static void video_stage_stretchy_mean_1x(const struct video_pipeline_target_stru
 	video_buffer_free(buffer);
 }
 
+static void video_stage_stretchy_min_1x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
+{
+	unsigned x_off = x * target->bytes_per_pixel;
+
+	const struct video_stage_horz_struct* stage_begin = stage_vert->stage_begin;
+	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
+	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
+
+	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
+	adv_bool buffer_set = 0;
+
+	unsigned whole = stage_vert->slice.whole;
+	int up = stage_vert->slice.up;
+	int down = stage_vert->slice.down;
+	int error = stage_vert->slice.error;
+	unsigned count = stage_vert->slice.count;
+
+	while (count) {
+		void* src_buffer;
+		void* dst;
+		unsigned run = whole;
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+
+		src_buffer = video_pipeline_run_partial(stage_begin, stage_pivot, src);
+
+		if (buffer_set) {
+			if (run != whole) {
+				if (color_def_type_get(target->color_def) == adv_color_type_rgb)
+					stage_min_rgb_vert_self(stage_pivot, buffer, src_buffer);
+				else
+					stage_min_vert_self(stage_pivot, buffer, src_buffer);
+				dst = target->line(target, y) + x_off;
+				video_pipeline_run_plain(stage_pivot, stage_end, dst, buffer);
+				++y;
+				--run;
+			}
+			stage_copy(stage_pivot, buffer, src_buffer);
+			while (run) {
+				dst = target->line(target, y) + x_off;
+				video_pipeline_run_plain(stage_pivot, stage_end, dst, buffer);
+				++y;
+				--run;
+			}
+		} else {
+			stage_copy(stage_pivot, buffer, src_buffer);
+			while (run) {
+				dst = target->line(target, y) + x_off;
+				video_pipeline_run_plain(stage_pivot, stage_end, dst, buffer);
+				++y;
+				--run;
+			}
+		}
+
+		buffer_set = 1;
+
+		PADD(src, stage_vert->sdw);
+		--count;
+	}
+
+	video_buffer_free(buffer);
+}
+
+
 /* The effect is applied at every line */
 static void video_stage_stretchy_filter_1x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
 {
@@ -1426,11 +1445,11 @@ static void video_stage_stretchy_filter_1x(const struct video_pipeline_target_st
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 	void* previous_buffer = 0;
 
-	int whole = stage_vert->slice.whole;
+	unsigned whole = stage_vert->slice.whole;
 	int up = stage_vert->slice.up;
 	int down = stage_vert->slice.down;
 	int error = stage_vert->slice.error;
-	int count = stage_vert->slice.count;
+	unsigned count = stage_vert->slice.count;
 
 	while (count) {
 		void* src_buffer;
@@ -2825,9 +2844,9 @@ static void video_stage_stretchy_11(const struct video_pipeline_target_struct* t
 /* stretchy */
 
 /* set the pivot early in the pipeline */
-static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, unsigned combine_y)
+static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, unsigned combine)
 {
-	if (combine_is_rgb(combine_y)) {
+	if (combine_is_rgb(combine)) {
 		stage_vert->stage_pivot = stage_vert->stage_end;
 		while (stage_vert->stage_pivot != stage_vert->stage_begin
 			&& !pipe_is_conversion(stage_vert->stage_pivot[-1].type)) {
@@ -2839,9 +2858,9 @@ static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_ve
 }
 
 /* set the pivot late in the pipeline */
-static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, unsigned combine_y)
+static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, unsigned combine)
 {
-	if (combine_is_direct(combine_y)) {
+	if (combine_is_direct(combine)) {
 		stage_vert->stage_pivot = stage_vert->stage_end;
 	} else {
 		assert(stage_vert->stage_begin != stage_vert->stage_end);
@@ -2870,14 +2889,14 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* scale2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale2x;
 		stage_vert->type = pipe_y_scale2x;
 	} else if (ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_LQ2X) {
 		/* lq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_lq2x;
 		stage_vert->type = pipe_y_lq2x;
 #ifndef USE_BLIT_SMALL
@@ -2885,7 +2904,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* hq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_hq2x;
 		stage_vert->type = pipe_y_hq2x;
 #endif
@@ -2893,14 +2912,14 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* scale3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale3x;
 		stage_vert->type = pipe_y_scale3x;
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_LQ3X) {
 		/* lq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_lq3x;
 		stage_vert->type = pipe_y_lq3x;
 #ifndef USE_BLIT_SMALL
@@ -2908,7 +2927,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* hq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_hq3x;
 		stage_vert->type = pipe_y_hq3x;
 #endif
@@ -2916,14 +2935,14 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* scale4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale4x;
 		stage_vert->type = pipe_y_scale4x;
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_LQ4X) {
 		/* lq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_lq4x;
 		stage_vert->type = pipe_y_lq4x;
 #ifndef USE_BLIT_SMALL
@@ -2931,7 +2950,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		/* hq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_late_set(stage_vert, combine_y);
+		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_hq4x;
 		stage_vert->type = pipe_y_hq4x;
 #endif
@@ -2941,20 +2960,25 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		switch (combine_y) {
+			case VIDEO_COMBINE_Y_MAXMIN :
+				video_stage_pivot_early_set(stage_vert, combine);
+				stage_vert->put = video_stage_stretchy_min_1x;
+				stage_vert->type = pipe_y_maxmin;
+				break;
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_late_set(stage_vert, combine_y);
+				video_stage_pivot_late_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_mean_1x;
-				stage_vert->type = pipe_y_expansion_mean;
+				stage_vert->type = pipe_y_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_late_set(stage_vert, combine_y);
+				video_stage_pivot_late_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_filter_1x;
-				stage_vert->type = pipe_y_expansion_filter;
+				stage_vert->type = pipe_y_filter;
 				break;
 			default:
-				video_stage_pivot_late_set(stage_vert, combine_y);
+				video_stage_pivot_late_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_1x;
-				stage_vert->type = pipe_y_expansion_copy;
+				stage_vert->type = pipe_y_copy;
 				break;
 		}
 	} else if (sdy == ddy) { /* y copy */
@@ -2962,17 +2986,17 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 
 		switch (combine_y) {
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_mean_1x;
 				stage_vert->type = pipe_y_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_filter_1x;
 				stage_vert->type = pipe_y_filter;
 				break;
 			default:
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_11;
 				stage_vert->type = pipe_y_copy;
 				break;
@@ -2981,25 +3005,25 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		switch (combine_y) {
-			case VIDEO_COMBINE_Y_MAX :
-				video_stage_pivot_early_set(stage_vert, combine_y);
+			case VIDEO_COMBINE_Y_MAXMIN :
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_max_x1;
-				stage_vert->type = pipe_y_reduction_max;
+				stage_vert->type = pipe_y_maxmin;
 				break;
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_mean_x1;
-				stage_vert->type = pipe_y_reduction_mean;
+				stage_vert->type = pipe_y_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_filter_x1;
-				stage_vert->type = pipe_y_reduction_filter;
+				stage_vert->type = pipe_y_filter;
 				break;
 			default:
-				video_stage_pivot_early_set(stage_vert, combine_y);
+				video_stage_pivot_early_set(stage_vert, combine);
 				stage_vert->put = video_stage_stretchy_x1;
-				stage_vert->type = pipe_y_reduction_copy;
+				stage_vert->type = pipe_y_copy;
 				break;
 		}
 	}
@@ -3013,9 +3037,9 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		)
 			internal_mean_set(target);
 
-		if (combine_y == VIDEO_COMBINE_Y_MAX
-			|| (combine & VIDEO_COMBINE_X_MAX)!=0)
-			internal_max_rgb_set(target);
+		if (combine_y == VIDEO_COMBINE_Y_MAXMIN
+			|| (combine & VIDEO_COMBINE_X_MAXMIN)!=0)
+			internal_maxmin_rgb_set(target);
 
 #ifndef USE_BLIT_TINY
 		if (combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
@@ -3069,7 +3093,7 @@ static void video_stage_stretchy_11_set(struct video_stage_vert_struct* stage_ve
 /***************************************************************************/
 /* stretch */
 
-static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned src_dx, int src_dp, unsigned combine)
+static void video_pipeline_make(const struct video_pipeline_target_struct* target, struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned src_dx, int src_dp, unsigned combine)
 {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 	unsigned combine_y = combine & VIDEO_COMBINE_Y_MASK;
@@ -3078,9 +3102,9 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	if ((combine & VIDEO_COMBINE_X_FILTER) != 0
 		&& src_dx > dst_dx) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_filter8_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
-			case 2 : video_stage_filter16_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
-			case 4 : video_stage_filter32_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
+			case 1 : video_stage_filter8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+			case 2 : video_stage_filter16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+			case 4 : video_stage_filter32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -3144,23 +3168,23 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		if (dst_dx != src_dx) {
 			if ((combine & VIDEO_COMBINE_X_MEAN) != 0) {
 				switch (bytes_per_pixel) {
-					case 1 : video_stage_meanx8_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 2 : video_stage_meanx16_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 4 : video_stage_meanx32_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+					case 1 : video_stage_meanx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 2 : video_stage_meanx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 4 : video_stage_meanx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
-			} else if ((combine & VIDEO_COMBINE_X_MAX) != 0) {
+			} else if ((combine & VIDEO_COMBINE_X_MAXMIN) != 0) {
 				switch (bytes_per_pixel) {
-					case 1 : video_stage_maxx8_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 2 : video_stage_maxx16_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 4 : video_stage_maxx32_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+					case 1 : video_stage_maxminx8_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 2 : video_stage_maxminx16_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 4 : video_stage_maxminx32_set(target, video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
 			} else {
 				switch (bytes_per_pixel) {
-					case 1 : video_stage_stretchx8_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 2 : video_stage_stretchx16_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
-					case 4 : video_stage_stretchx32_set( video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp ); break;
+					case 1 : video_stage_stretchx8_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 2 : video_stage_stretchx16_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
+					case 4 : video_stage_stretchx32_set(video_pipeline_insert(pipeline), dst_dx, src_dx, src_dp); break;
 				}
 				src_dp = bytes_per_pixel;
 			}
@@ -3171,9 +3195,9 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	if ((combine & VIDEO_COMBINE_X_FILTER)!=0
 		&& src_dx <= dst_dx) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_filter8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_filter16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_filter32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_filter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_filter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_filter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -3181,90 +3205,90 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 #ifndef USE_BLIT_TINY
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD16PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triad16pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triad16pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triad16pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triad16pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triad16pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triad16pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triadstrong16pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triadstrong16pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triadstrong16pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triadstrong16pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triadstrong16pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triadstrong16pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD6PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triad6pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triad6pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triad6pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triad6pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triad6pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triad6pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triadstrong6pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triadstrong6pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triadstrong6pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triadstrong6pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triadstrong6pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triadstrong6pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIAD3PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triad3pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triad3pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triad3pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triad3pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triad3pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triad3pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_triadstrong3pix8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_triadstrong3pix16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_triadstrong3pix32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_triadstrong3pix8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_triadstrong3pix16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_triadstrong3pix32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_scandouble8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_scandouble16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_scandouble32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_scandouble8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_scandouble16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_scandouble32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_scantriple8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_scantriple16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_scantriple32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_scantriple8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_scantriple16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_scantriple32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_scandoublevert8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_scandoublevert16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_scandoublevert32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_scandoublevert8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_scandoublevert16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_scandoublevert32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_rgb_scantriplevert8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_rgb_scantriplevert16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_rgb_scantriplevert32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_rgb_scantriplevert8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_rgb_scantriplevert16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_rgb_scantriplevert32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -3272,27 +3296,27 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 
 	if ((combine & VIDEO_COMBINE_INTERLACE_FILTER)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_interlacefilter8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_interlacefilter16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_interlacefilter32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_interlacefilter8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_interlacefilter16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_interlacefilter32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_SWAP_EVEN)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_swapeven8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_swapeven16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_swapeven32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_swapeven8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_swapeven16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_swapeven32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
 
 	if ((combine & VIDEO_COMBINE_SWAP_ODD)!=0) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_swapodd8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_swapodd16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_swapodd32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_swapodd8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_swapodd16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_swapodd32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -3303,15 +3327,13 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		(!combine_is_direct(combine_y) && video_pipeline_size(pipeline) == 0)
 		/* if the last stage exists and it's a conversion and a conversion is not allowed as a last stage */
 		|| (!combine_is_direct(combine_y) && combine_is_rgb(combine_y) && video_pipeline_size(pipeline) != 0 && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type))
-		/* if the last stage is a slow memory write stage */
-		|| (video_pipeline_size(pipeline) != 0 && !pipe_is_fastwrite(&video_pipeline_end(pipeline)[-1]))
-		/* if the last stage is a slow memory write vertical stage */
-		|| (video_pipeline_size(pipeline) == 0 && !combine_is_fastwrite(combine_y, bytes_per_pixel))
+		/* if a buffer is requested */
+		|| ((combine & VIDEO_COMBINE_BUFFER) != 0)
 	) {
 		switch (bytes_per_pixel) {
-			case 1 : video_stage_copy8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 2 : video_stage_copy16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
-			case 4 : video_stage_copy32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 1 : video_stage_copy8_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 2 : video_stage_copy16_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
+			case 4 : video_stage_copy32_set(video_pipeline_insert(pipeline), dst_dx, src_dp); break;
 		}
 		src_dp = bytes_per_pixel;
 	}
@@ -3329,15 +3351,15 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 
 		/* preconversion */
 		if (src_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 0, 8, 8, 8, 16)) {
-			video_stage_rgba8888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+			video_stage_rgba8888tobgra8888_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
 		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(3, 8, 0, 8, 8, 8, 16)) {
-			video_stage_rgb888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+			video_stage_rgb888tobgra8888_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
 		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(3, 8, 16, 8, 8, 8, 0)) {
-			video_stage_bgr888tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+			video_stage_bgr888tobgra8888_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 			src_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 			src_dp = 4;
 		}
@@ -3347,64 +3369,64 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 			if (dst_color_def == color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
-					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 4;
 				}
-				video_stage_bgra8888tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888tobgr332_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 1;
 			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
-					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 4;
 				}
-				video_stage_bgra8888tobgra5551_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888tobgra5551_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 4) {
-					video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 4;
 				}
-				video_stage_bgra8888tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888tobgr565_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
-				video_stage_bgra8888toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra8888toyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 4;
 			} else {
-				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				video_stage_rgbtorgb_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def);
 				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
 		} else if (src_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 10, 5, 5, 5, 0)) {
 			if (dst_color_def == color_def_make_rgb_from_sizelenpos(1, 3, 5, 3, 2, 2, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
-					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 2;
 				}
-				video_stage_bgra5551tobgr332_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgr332_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 1;
 			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(2, 5, 11, 6, 5, 5, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
-					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 2;
 				}
-				video_stage_bgra5551tobgr565_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgr565_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 2;
 			} else if (dst_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
 				/* rotation */
 				if (src_dp != 2) {
-					video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+					video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 					src_dp = 2;
 				}
-				video_stage_bgra5551tobgra8888_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551tobgra8888_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 4;
 			} else if (dst_color_def == color_def_make(adv_color_type_yuy2)) {
-				video_stage_bgra5551toyuy2_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_bgra5551toyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 				src_dp = 4;
 			} else {
-				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				video_stage_rgbtorgb_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def);
 				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
 		} else {
@@ -3412,7 +3434,7 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 				video_stage_rgbtoyuy2_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def);
 				src_dp = 4;
 			} else {
-				video_stage_rgbtorgb_set( video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def );
+				video_stage_rgbtorgb_set(video_pipeline_insert(pipeline), src_dx, src_dp, src_color_def, dst_color_def);
 				src_dp = color_def_bytes_per_pixel_get(dst_color_def);
 			}
 		}
@@ -3420,15 +3442,15 @@ void video_pipeline_direct(struct video_pipeline_struct* pipeline, unsigned dst_
 		/* rotation */
 		if (src_dp != bytes_per_pixel) {
 			switch (bytes_per_pixel) {
-				case 1 : video_stage_rot8_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
-				case 2 : video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
-				case 4 : video_stage_rot32_set( video_pipeline_insert(pipeline), src_dx, src_dp ); break;
+				case 1 : video_stage_rot8_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+				case 2 : video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
+				case 4 : video_stage_rot32_set(video_pipeline_insert(pipeline), src_dx, src_dp); break;
 			}
 			src_dp = bytes_per_pixel;
 		}
 	}
 
-	video_pipeline_make(pipeline, dst_dx, src_dx, src_dp, combine);
+	video_pipeline_make(&pipeline->target, pipeline, dst_dx, src_dx, src_dp, combine);
 
 	video_stage_stretchy_set(&pipeline->target, video_pipeline_vert_mutable(pipeline), pipeline, dst_dy, src_dy, src_dw, combine);
 
@@ -3440,13 +3462,14 @@ void video_pipeline_palette16hw(struct video_pipeline_struct* pipeline, unsigned
 	unsigned bytes_per_pixel = pipeline->target.bytes_per_pixel;
 
 	/* conversion and rotation */
+
 	switch (bytes_per_pixel) {
 		case 1 :
 			video_stage_imm16to8_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 			break;
 		case 2 :
 			if (src_dp != bytes_per_pixel) {
-				video_stage_rot16_set( video_pipeline_insert(pipeline), src_dx, src_dp );
+				video_stage_rot16_set(video_pipeline_insert(pipeline), src_dx, src_dp);
 			}
 			break;
 		case 4 :
@@ -3455,7 +3478,7 @@ void video_pipeline_palette16hw(struct video_pipeline_struct* pipeline, unsigned
 	}
 	src_dp = bytes_per_pixel;
 
-	video_pipeline_make(pipeline, dst_dx, src_dx, src_dp, combine);
+	video_pipeline_make(&pipeline->target, pipeline, dst_dx, src_dx, src_dp, combine);
 
 	video_stage_stretchy_set(&pipeline->target, video_pipeline_vert_mutable(pipeline), pipeline, dst_dy, src_dy, src_dw, combine);
 
@@ -3469,18 +3492,18 @@ void video_pipeline_palette8(struct video_pipeline_struct* pipeline, unsigned ds
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
 		case 1 :
-			video_stage_palette8to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette8 );
+			video_stage_palette8to8_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette8);
 			break;
 		case 2 :
-			video_stage_palette8to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette16 );
+			video_stage_palette8to16_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette16);
 			break;
 		case 4 :
-			video_stage_palette8to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette32 );
+			video_stage_palette8to32_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette32);
 			break;
 	}
 	src_dp = bytes_per_pixel;
 
-	video_pipeline_make(pipeline, dst_dx, src_dx, src_dp, combine);
+	video_pipeline_make(&pipeline->target, pipeline, dst_dx, src_dx, src_dp, combine);
 
 	video_stage_stretchy_set(&pipeline->target, video_pipeline_vert_mutable(pipeline), pipeline, dst_dy, src_dy, src_dw, combine);
 
@@ -3494,18 +3517,18 @@ void video_pipeline_palette16(struct video_pipeline_struct* pipeline, unsigned d
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
 		case 1 :
-			video_stage_palette16to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette8 );
+			video_stage_palette16to8_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette8);
 			break;
 		case 2 :
-			video_stage_palette16to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette16 );
+			video_stage_palette16to16_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette16);
 			break;
 		case 4 :
-			video_stage_palette16to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette32 );
+			video_stage_palette16to32_set(video_pipeline_insert(pipeline), src_dx, src_dp, palette32);
 			break;
 	}
 	src_dp = bytes_per_pixel;
 
-	video_pipeline_make(pipeline, dst_dx, src_dx, src_dp, combine);
+	video_pipeline_make(&pipeline->target, pipeline, dst_dx, src_dx, src_dp, combine);
 
 	video_stage_stretchy_set(&pipeline->target, video_pipeline_vert_mutable(pipeline), pipeline, dst_dy, src_dy, src_dw, combine);
 

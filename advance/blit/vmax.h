@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,21 +34,109 @@
 #include "blit.h"
 
 /****************************************************************************/
-/* meanx8 */
+/* maxminx8 */
 
-static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx8rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
 		unsigned run = whole;
 		unsigned color = P8DER0(src);
-		unsigned color_max = internal_max_rgb_value(color);
+		unsigned color_max = internal_lum_rgb_value(color);
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P8DER0(src);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
+				--run;
+				while (run) {
+					dst8[0] = color;
+					dst8 += 1;
+					--run;
+				}
+				if (color_max > color_new_max) {
+					color = color_new;
+				}
+				dst8[0] = color;
+				dst8 += 1;
+			} else {
+				internal_fill8(dst8, color, run);
+				dst8 += run;
+			}
+		} else {
+			internal_fill8(dst8, color, run);
+			dst8 += run;
+		}
+		--count;
+	}
+}
+
+static inline void video_line_minx8pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+{
+	int error = stage->slice.error;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint8* dst8 = (uint8*)dst;
+
+	while (count) {
+		unsigned run = whole;
+		unsigned color = P8DER0(src);
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P8DER0(src);
+				--run;
+				while (run) {
+					dst8[0] = color;
+					dst8 += 1;
+					--run;
+				}
+				if (color > color_new) {
+					color = color_new;
+				}
+				dst8[0] = color;
+				dst8 += 1;
+			} else {
+				internal_fill8(dst8, color, run);
+				dst8 += run;
+			}
+		} else {
+			internal_fill8(dst8, color, run);
+			dst8 += run;
+		}
+		--count;
+	}
+}
+
+static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+{
+	int error = stage->slice.error;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint8* dst8 = (uint8*)dst;
+
+	while (count) {
+		unsigned run = whole;
+		unsigned color = P8DER0(src);
+		unsigned color_max = internal_lum_rgb_value(color);
 		if ((error += up) > 0) {
 			++run;
 			error -= down;
@@ -58,7 +146,7 @@ static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_str
 			--run;
 			while (run) {
 				unsigned color_new = P8DER0(src);
-				unsigned color_new_max = internal_max_rgb_value(color_new);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
 				if (color_max < color_new_max) {
 					color = color_new;
 					color_max = color_new_max;
@@ -76,10 +164,10 @@ static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_str
 static inline void video_line_maxx8pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -127,14 +215,41 @@ static void video_line_maxx8pal_x1_step1(const struct video_stage_horz_struct* s
 	video_line_maxx8pal_x1_step(stage, dst, src, 1);
 }
 
-static void video_stage_maxx8_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
+static void video_line_minx8rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx8rgb_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx8rgb_1x_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx8rgb_1x_step(stage, dst, src, 1);
+}
+
+static void video_line_minx8pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx8pal_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx8pal_1x_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx8pal_1x_step(stage, dst, src, 1);
+}
+
+static void video_stage_maxminx8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
 {
 	if (sdx > ddx) {
-		STAGE_SIZE(stage, pipe_x_max, sdx, sdp, 1, ddx, 1);
-		if (index_is_rgb(video_index())) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 1, ddx, 1);
+		if (color_def_type_get(target->color_def) == adv_color_type_rgb) {
 			STAGE_PUT(stage, video_line_maxx8rgb_x1_step1, video_line_maxx8rgb_x1);
 		} else {
 			STAGE_PUT(stage, video_line_maxx8pal_x1_step1, video_line_maxx8pal_x1);
+		}
+	} else if (sdx < ddx) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 1, ddx, 1);
+		if (index_is_rgb(video_index())) {
+			STAGE_PUT(stage, video_line_minx8rgb_1x_step1, video_line_minx8rgb_1x);
+		} else {
+			STAGE_PUT(stage, video_line_minx8pal_1x_step1, video_line_minx8pal_1x);
 		}
 	} else {
 		video_stage_stretchx8_set(stage, ddx, sdx, sdp);
@@ -142,18 +257,106 @@ static void video_stage_maxx8_set(struct video_stage_horz_struct* stage, unsigne
 }
 
 /****************************************************************************/
-/* maxx16 */
+/* maxminx16 */
+
+static inline void video_line_minx16rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+{
+	int error = stage->slice.error;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint16* dst16 = (uint16*)dst;
+
+	while (count) {
+		unsigned run = whole;
+		unsigned color = P16DER0(src);
+		unsigned color_max = internal_lum_rgb_value(color);
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P16DER0(src);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
+				--run;
+				while (run) {
+					dst16[0] = color;
+					dst16 += 1;
+					--run;
+				}
+				if (color_max > color_new_max) {
+					color = color_new;
+				}
+				dst16[0] = color;
+				dst16 += 1;
+			} else {
+				internal_fill16(dst16, color, run);
+				dst16 += run;
+			}
+		} else {
+			internal_fill16(dst16, color, run);
+			dst16 += run;
+		}
+		--count;
+	}
+}
+
+static inline void video_line_minx16pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+{
+	int error = stage->slice.error;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint16* dst16 = (uint16*)dst;
+
+	while (count) {
+		unsigned run = whole;
+		unsigned color = P16DER0(src);
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P16DER0(src);
+				--run;
+				while (run) {
+					dst16[0] = color;
+					dst16 += 1;
+					--run;
+				}
+				if (color > color_new) {
+					color = color_new;
+				}
+				dst16[0] = color;
+				dst16 += 1;
+			} else {
+				internal_fill16(dst16, color, run);
+				dst16 += run;
+			}
+		} else {
+			internal_fill16(dst16, color, run);
+			dst16 += run;
+		}
+		--count;
+	}
+}
 
 static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
 		unsigned run = stage->slice.whole;
 		unsigned color = P16DER0(src);
-		unsigned color_max = internal_max_rgb_value(color);
+		unsigned color_max = internal_lum_rgb_value(color);
 		if ((error += stage->slice.up) > 0) {
 			++run;
 			error -= stage->slice.down;
@@ -162,8 +365,8 @@ static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_st
 		if (count > 1) {
 			--run;
 			while (run) {
-				unsigned color_new = P8DER0(src);
-				unsigned color_new_max = internal_max_rgb_value(color_new);
+				unsigned color_new = P16DER0(src);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
 				if (color_max < color_new_max) {
 					color = color_new;
 					color_max = color_new_max;
@@ -181,7 +384,7 @@ static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_st
 static inline void video_line_maxx16pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -195,7 +398,7 @@ static inline void video_line_maxx16pal_x1_step(const struct video_stage_horz_st
 		if (count > 1) {
 			--run;
 			while (run) {
-				unsigned color_new = P8DER0(src);
+				unsigned color_new = P16DER0(src);
 				if (color < color_new) {
 					color = color_new;
 				}
@@ -229,14 +432,41 @@ static void video_line_maxx16pal_x1_step2(const struct video_stage_horz_struct* 
 	video_line_maxx16pal_x1_step(stage, dst, src, 2);
 }
 
-static void video_stage_maxx16_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
+static void video_line_minx16rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx16rgb_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx16rgb_1x_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx16rgb_1x_step(stage, dst, src, 2);
+}
+
+static void video_line_minx16pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx16pal_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx16pal_1x_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx16pal_1x_step(stage, dst, src, 2);
+}
+
+static void video_stage_maxminx16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
 {
 	if (sdx > ddx) {
-		STAGE_SIZE(stage, pipe_x_max, sdx, sdp, 2, ddx, 2);
-		if (index_is_rgb(video_index())) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 2, ddx, 2);
+		if (color_def_type_get(target->color_def) == adv_color_type_rgb) {
 			STAGE_PUT(stage, video_line_maxx16rgb_x1_step2, video_line_maxx16rgb_x1);
 		} else {
 			STAGE_PUT(stage, video_line_maxx16pal_x1_step2, video_line_maxx16pal_x1);
+		}
+	} else if (sdx < ddx) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 2, ddx, 2);
+		if (color_def_type_get(target->color_def) == adv_color_type_rgb) {
+			STAGE_PUT(stage, video_line_minx16rgb_1x_step2, video_line_minx16rgb_1x);
+		} else {
+			STAGE_PUT(stage, video_line_minx16pal_1x_step2, video_line_minx16pal_1x);
 		}
 	} else {
 		video_stage_stretchx16_set(stage, ddx, sdx, sdp);
@@ -244,22 +474,92 @@ static void video_stage_maxx16_set(struct video_stage_horz_struct* stage, unsign
 }
 
 /****************************************************************************/
-/* maxx32 */
+/* maxminx32 */
 
-static inline void video_line_maxx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx32rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
-		unsigned run = stage->slice.whole;
-		if ((error += stage->slice.up) > 0) {
+		unsigned run = whole;
+		unsigned color = P32DER0(src);
+		unsigned color_max = internal_lum_rgb_value(color);
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
-		internal_fill32(dst, P32DER0(src), run);
-		PADD(dst, run*4);
 		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P32DER0(src);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
+				--run;
+				while (run) {
+					dst32[0] = color;
+					dst32 += 1;
+					--run;
+				}
+				if (color_max > color_new_max) {
+					color = color_new;
+				}
+				dst32[0] = color;
+				dst32 += 1;
+			} else {
+				internal_fill32(dst32, color, run);
+				dst32 += run;
+			}
+		} else {
+			internal_fill32(dst32, color, run);
+			dst32 += run;
+		}
+		--count;
+	}
+}
+
+static inline void video_line_minx32pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+{
+	int error = stage->slice.error;
+	unsigned whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
+	unsigned count = stage->slice.count;
+	uint32* dst32 = (uint32*)dst;
+
+	while (count) {
+		unsigned run = whole;
+		unsigned color = P32DER0(src);
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+		PADD(src, sdp);
+		if (count > 1) {
+			if (run != whole) {
+				unsigned color_new = P32DER0(src);
+				--run;
+				while (run) {
+					dst32[0] = color;
+					dst32 += 1;
+					--run;
+				}
+				if (color > color_new) {
+					color = color_new;
+				}
+				dst32[0] = color;
+				dst32 += 1;
+			} else {
+				internal_fill32(dst32, color, run);
+				dst32 += run;
+			}
+		} else {
+			internal_fill32(dst32, color, run);
+			dst32 += run;
+		}
 		--count;
 	}
 }
@@ -267,13 +567,13 @@ static inline void video_line_maxx32_1x_step(const struct video_stage_horz_struc
 static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
 		unsigned run = stage->slice.whole;
 		unsigned color = P32DER0(src);
-		unsigned color_max = internal_max_rgb_value(color);
+		unsigned color_max = internal_lum_rgb_value(color);
 		if ((error += stage->slice.up) > 0) {
 			++run;
 			error -= stage->slice.down;
@@ -282,8 +582,8 @@ static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_st
 		if (count > 1) {
 			--run;
 			while (run) {
-				unsigned color_new = P8DER0(src);
-				unsigned color_new_max = internal_max_rgb_value(color_new);
+				unsigned color_new = P32DER0(src);
+				unsigned color_new_max = internal_lum_rgb_value(color_new);
 				if (color_max < color_new_max) {
 					color = color_new;
 					color_max = color_new_max;
@@ -301,7 +601,7 @@ static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_st
 static inline void video_line_maxx32pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -315,7 +615,7 @@ static inline void video_line_maxx32pal_x1_step(const struct video_stage_horz_st
 		if (count > 1) {
 			--run;
 			while (run) {
-				unsigned color_new = P8DER0(src);
+				unsigned color_new = P32DER0(src);
 				if (color < color_new) {
 					color = color_new;
 				}
@@ -349,14 +649,41 @@ static void video_line_maxx32pal_x1_step4(const struct video_stage_horz_struct* 
 	video_line_maxx32pal_x1_step(stage, dst, src, 4);
 }
 
-static void video_stage_maxx32_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
+static void video_line_minx32rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx32rgb_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx32rgb_1x_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx32rgb_1x_step(stage, dst, src, 4);
+}
+
+static void video_line_minx32pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx32pal_1x_step(stage, dst, src, stage->sdp);
+}
+
+static void video_line_minx32pal_1x_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+{
+	video_line_minx32pal_1x_step(stage, dst, src, 4);
+}
+
+static void video_stage_maxminx32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
 {
 	if (sdx > ddx) {
-		STAGE_SIZE(stage, pipe_x_max, sdx, sdp, 4, ddx, 4);
-		if (index_is_rgb(video_index())) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 4, ddx, 4);
+		if (color_def_type_get(target->color_def) == adv_color_type_rgb) {
 			STAGE_PUT(stage, video_line_maxx32rgb_x1_step4, video_line_maxx32rgb_x1);
 		} else {
 			STAGE_PUT(stage, video_line_maxx32pal_x1_step4, video_line_maxx32pal_x1);
+		}
+	} else if (sdx < ddx) {
+		STAGE_SIZE(stage, pipe_x_maxmin, sdx, sdp, 4, ddx, 4);
+		if (color_def_type_get(target->color_def) == adv_color_type_rgb) {
+			STAGE_PUT(stage, video_line_minx32rgb_1x_step4, video_line_minx32rgb_1x);
+		} else {
+			STAGE_PUT(stage, video_line_minx32pal_1x_step4, video_line_minx32pal_1x);
 		}
 	} else {
 		video_stage_stretchx32_set(stage, ddx, sdx, sdp);
@@ -364,3 +691,4 @@ static void video_stage_maxx32_set(struct video_stage_horz_struct* stage, unsign
 }
 
 #endif
+

@@ -104,7 +104,7 @@
 /*@{*/
 #define COMBINE_AUTO -1
 #define COMBINE_NONE 0
-#define COMBINE_MAX 1
+#define COMBINE_MAXMIN 1
 #define COMBINE_MEAN 2
 #define COMBINE_FILTER 3
 #define COMBINE_SCALE 6
@@ -196,6 +196,8 @@ struct advance_video_config_context {
 	 * desyncronizing any input recording.
 	 */
 	adv_bool internalresample_flag;
+
+	adv_bool debug_flag; /**< Debugging is possible. */
 };
 
 /** Number of measures of the audio/video syncronization. */
@@ -211,6 +213,8 @@ struct ui_menu_entry {
 	adv_bool arrow_left_flag;
 	adv_bool arrow_right_flag;
 };
+
+#define PIPELINE_MEASURE_MAX 13
 
 /** State for the video part. */
 struct advance_video_state_context {
@@ -330,6 +334,8 @@ struct advance_video_state_context {
 	int buffer_src_offset; /**< Pointer at the first pixel of the game bitmap. */
 
 	unsigned char* buffer_ptr; /**< Buffer used for bufferized output. */
+	unsigned char* buffer_ptr_alloc; /**< Real data allocated. */
+	unsigned buffer_bytes_per_scanline; /**< Byte per scanline in the buffer. */
 	unsigned buffer_size_x; /**< Width of the buffer image. */
 	unsigned buffer_size_y; /**< Height of the buffer image. */
 
@@ -352,6 +358,15 @@ struct advance_video_state_context {
 	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
 	struct video_pipeline_struct blit_pipeline_video; /**< Put pipeline to video. */
 	struct video_pipeline_struct buffer_pipeline_video; /**< Put pipeline to buffer. */
+
+	adv_bool pipeline_measure_flag; /**< !=0 if the time measure is active. */
+	double pipeline_measure_direct_map[PIPELINE_MEASURE_MAX];
+	unsigned pipeline_measure_direct_mac;
+	double pipeline_measure_buffer_map[PIPELINE_MEASURE_MAX];
+	unsigned pipeline_measure_buffer_mac;
+	adv_bool pipeline_measure_bestisdirect_flag;
+	double pipeline_measure_direct_result;
+	double pipeline_measure_buffer_result;
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
 	adv_crtc crtc_effective; /**< Current modified crtc. */
@@ -812,6 +827,7 @@ void advance_ui_inner_done(struct advance_ui_context* context);
 adv_bool advance_ui_buffer_active(struct advance_ui_context* context);
 adv_bool advance_ui_direct_active(struct advance_ui_context* context);
 adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s);
+void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_width);
 
 /***************************************************************************/
 /* State */

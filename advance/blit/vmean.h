@@ -39,10 +39,10 @@
 static inline void video_line_meanx8_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 	unsigned previous_color;
 	adv_bool previous_set;
@@ -77,10 +77,10 @@ static inline void video_line_meanx8_1x_step(const struct video_stage_horz_struc
 static inline void video_line_meanx8_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -144,10 +144,10 @@ static void video_stage_meanx8_set(struct video_stage_horz_struct* stage, unsign
 static inline void video_line_meanx16_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 	unsigned previous_color;
 	adv_bool previous_set;
@@ -182,7 +182,7 @@ static inline void video_line_meanx16_1x_step(const struct video_stage_horz_stru
 static inline void video_line_meanx16_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -246,10 +246,10 @@ static void video_stage_meanx16_set(struct video_stage_horz_struct* stage, unsig
 static inline void video_line_meanx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int whole = stage->slice.whole;
+	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 	unsigned previous_color;
 	adv_bool previous_set;
@@ -268,7 +268,7 @@ static inline void video_line_meanx32_1x_step(const struct video_stage_horz_stru
 		} else {
 			dst32[0] = color;
 		}
-		if (run >= 2) {
+		if (run > 1) {
 			previous_set = 1;
 			internal_fill32(dst32 + 1, color, run - 1);
 			previous_color = color;
@@ -284,7 +284,7 @@ static inline void video_line_meanx32_1x_step(const struct video_stage_horz_stru
 static inline void video_line_meanx32_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
-	int count = stage->slice.count;
+	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -343,3 +343,4 @@ static void video_stage_meanx32_set(struct video_stage_horz_struct* stage, unsig
 }
 
 #endif
+

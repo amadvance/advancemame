@@ -1153,7 +1153,10 @@ static unsigned PORT_REPORT_DEFAULT[] = {
 	0
 };
 
-/** List of ports reported at the user interface commmands */
+/**
+ * List of ports reported at the user interface commmands.
+ * Note that the player information is omitted.
+ */
 static unsigned PORT_REPORT_GAME[] = {
 	IPT_JOYSTICK_UP, IPT_JOYSTICK_DOWN, IPT_JOYSTICK_LEFT, IPT_JOYSTICK_RIGHT,
 	IPT_JOYSTICKRIGHT_UP, IPT_JOYSTICKRIGHT_DOWN, IPT_JOYSTICKRIGHT_LEFT, IPT_JOYSTICKRIGHT_RIGHT,
@@ -1218,7 +1221,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 
 			/* only a subset */
 			for(k=0;PORT_REPORT_GAME[k] != 0;++k)
-				if (PORT_REPORT_GAME[k] == port)
+				if (PORT_REPORT_GAME[k] == (port & ~IPF_PLAYERMASK)) /* compare without player */
 					break;
 
 			if (PORT_REPORT_GAME[k]) {

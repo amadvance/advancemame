@@ -38,7 +38,8 @@ VOBJDIRS += \
 
 ifeq ($(CONF_HOST),unix)
 VCFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 VOBJDIRS += \
 	$(VOBJ)/linux

@@ -36,7 +36,7 @@
 /****************************************************************************/
 /* filter8 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_filter8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean8_horz_next_step1_mmx(dst, src, stage->slice.count);
@@ -62,7 +62,7 @@ static void video_stage_filter8_set(struct video_stage_horz_struct* stage, unsig
 /****************************************************************************/
 /* filter16 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_filter16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean16_horz_next_step2_mmx(dst, src, stage->slice.count);
@@ -88,7 +88,7 @@ static void video_stage_filter16_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* filter32 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_filter32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	internal_mean32_horz_next_step4_mmx(dst, src, stage->slice.count);
@@ -114,7 +114,7 @@ static void video_stage_filter32_set(struct video_stage_horz_struct* stage, unsi
 /****************************************************************************/
 /* interlacefilter */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static inline unsigned internal_interlacefilter8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
 	switch (state) {
@@ -224,7 +224,7 @@ static inline unsigned internal_interlacefilter32_step1_def(unsigned state, uint
 	return state;
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_interlacefilter8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
@@ -249,7 +249,7 @@ static void video_stage_interlacefilter8_set(struct video_stage_horz_struct* sta
 /****************************************************************************/
 /* interlacefilter16 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_interlacefilter16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
@@ -271,7 +271,7 @@ static void video_stage_interlacefilter16_set(struct video_stage_horz_struct* st
 /****************************************************************************/
 /* interlacefilter32 */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 static void video_line_interlacefilter32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	((struct video_stage_horz_struct*)stage)->state_mutable = internal_interlacefilter8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
@@ -291,3 +291,4 @@ static void video_stage_interlacefilter32_set(struct video_stage_horz_struct* st
 }
 
 #endif
+

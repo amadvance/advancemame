@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 /***************************************************************************/
 /* internal_rgb_raw */
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline void internal_rgb_raw128_012carry_mmx(void* dst, const void* src, void* mask, void* carry, unsigned count)
 {
@@ -565,54 +565,88 @@ static inline void internal_rgb_raw32x3_012_def(uint32* dst32, const uint32* src
 	}
 }
 
-static unsigned rgb_raw_pixel_mask_compute(unsigned shift, unsigned sub_mask)
+static unsigned rgb_raw_pixel_mask_compute(const struct video_pipeline_target_struct* target, unsigned shift, unsigned sub_mask)
 {
-	unsigned v = 0;
+	unsigned v;
+	unsigned red_mask;
+	unsigned green_mask;
+	unsigned blue_mask;
+	int red_shift;
+	int green_shift;
+	int blue_shift;
+	adv_pixel low_mask;
 
-	/* TODO target */
+	union adv_color_def_union def;
+
+	def.ordinal = target->color_def;
+
+	rgb_shiftmask_get(&red_shift, &red_mask, def.nibble.red_len, def.nibble.red_pos);
+	rgb_shiftmask_get(&green_shift, &green_mask, def.nibble.green_len, def.nibble.green_pos);
+	rgb_shiftmask_get(&blue_shift, &blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
+
+	v = 0;
+
 	/* red */
 	if (sub_mask & 0x4)
-		v |= video_rgb_red_mask_bit_get() & (video_rgb_red_mask_bit_get() >> shift);
+		v |= red_mask & (red_mask >> shift);
 
 	/* green */
 	if (sub_mask & 0x2)
-		v |= video_rgb_green_mask_bit_get() & (video_rgb_green_mask_bit_get() >> shift);
+		v |= green_mask & (green_mask >> shift);
 
 	/* blue */
 	if (sub_mask & 0x1)
-		v |= video_rgb_blue_mask_bit_get() & (video_rgb_blue_mask_bit_get() >> shift);
+		v |= blue_mask & (blue_mask >> shift);
 
 	return v;
 }
 
-static unsigned rgb_raw_carry_mask_compute(unsigned sub_mask)
+static unsigned rgb_raw_carry_mask_compute(const struct video_pipeline_target_struct* target, unsigned sub_mask)
 {
-	unsigned v = 0;
+	unsigned v;
+	unsigned red_mask;
+	unsigned green_mask;
+	unsigned blue_mask;
+	int red_shift;
+	int green_shift;
+	int blue_shift;
+	adv_pixel low_mask;
 
-	/* TODO target */
+	union adv_color_def_union def;
+
+	def.ordinal = target->color_def;
+
+	rgb_shiftmask_get(&red_shift, &red_mask, def.nibble.red_len, def.nibble.red_pos);
+	rgb_shiftmask_get(&green_shift, &green_mask, def.nibble.green_len, def.nibble.green_pos);
+	rgb_shiftmask_get(&blue_shift, &blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
+
+	low_mask = rgb_lowmask_make_from_def(target->color_def);
+
+	v = 0;
+
 	/* red */
 	if (sub_mask & 0x4)
-		v |= video_rgb_low_bit_get() & video_rgb_red_mask_bit_get();
+		v |= low_mask & red_mask;
 
 	/* green */
 	if (sub_mask & 0x2)
-		v |= video_rgb_low_bit_get() & video_rgb_green_mask_bit_get();
+		v |= low_mask & green_mask;
 
 	/* blue */
 	if (sub_mask & 0x1)
-		v |= video_rgb_low_bit_get() & video_rgb_blue_mask_bit_get();
+		v |= low_mask & blue_mask;
 
 	return v;
 }
 
-static void rgb_raw_mask4_compute(unsigned bytes_per_pixel, uint32* dst, unsigned shift, unsigned mask)
+static void rgb_raw_mask4_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned shift, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_pixel_mask_compute(shift, mask >> 12);
-	unsigned pixel1 = rgb_raw_pixel_mask_compute(shift, mask >> 8);
-	unsigned pixel2 = rgb_raw_pixel_mask_compute(shift, mask >> 4);
-	unsigned pixel3 = rgb_raw_pixel_mask_compute(shift, mask);
+	unsigned pixel0 = rgb_raw_pixel_mask_compute(target, shift, mask >> 12);
+	unsigned pixel1 = rgb_raw_pixel_mask_compute(target, shift, mask >> 8);
+	unsigned pixel2 = rgb_raw_pixel_mask_compute(target, shift, mask >> 4);
+	unsigned pixel3 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 			dst[1] = dst[0];
@@ -636,14 +670,14 @@ static void rgb_raw_mask4_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 	}
 }
 
-static void rgb_raw_carry4_compute(unsigned bytes_per_pixel, uint32* dst, unsigned mask)
+static void rgb_raw_carry4_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_carry_mask_compute(mask >> 12);
-	unsigned pixel1 = rgb_raw_carry_mask_compute(mask >> 8);
-	unsigned pixel2 = rgb_raw_carry_mask_compute(mask >> 4);
-	unsigned pixel3 = rgb_raw_carry_mask_compute(mask);
+	unsigned pixel0 = rgb_raw_carry_mask_compute(target, mask >> 12);
+	unsigned pixel1 = rgb_raw_carry_mask_compute(target, mask >> 8);
+	unsigned pixel2 = rgb_raw_carry_mask_compute(target, mask >> 4);
+	unsigned pixel3 = rgb_raw_carry_mask_compute(target, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 			dst[1] = dst[0];
@@ -667,13 +701,13 @@ static void rgb_raw_carry4_compute(unsigned bytes_per_pixel, uint32* dst, unsign
 	}
 }
 
-static void rgb_raw_mask3_compute(unsigned bytes_per_pixel, uint32* dst, unsigned shift, unsigned mask)
+static void rgb_raw_mask3_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned shift, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_pixel_mask_compute(shift, mask >> 8);
-	unsigned pixel1 = rgb_raw_pixel_mask_compute(shift, mask >> 4);
-	unsigned pixel2 = rgb_raw_pixel_mask_compute(shift, mask);
+	unsigned pixel0 = rgb_raw_pixel_mask_compute(target, shift, mask >> 8);
+	unsigned pixel1 = rgb_raw_pixel_mask_compute(target, shift, mask >> 4);
+	unsigned pixel2 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel0);
 			dst[1] = cpu_uint32_make_uint8(pixel1, pixel2, pixel0, pixel1);
@@ -703,12 +737,12 @@ static void rgb_raw_mask3_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 	}
 }
 
-static void rgb_raw_mask2_compute(unsigned bytes_per_pixel, uint32* dst, unsigned shift, unsigned mask)
+static void rgb_raw_mask2_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned shift, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_pixel_mask_compute(shift, mask >> 4);
-	unsigned pixel1 = rgb_raw_pixel_mask_compute(shift, mask);
+	unsigned pixel0 = rgb_raw_pixel_mask_compute(target, shift, mask >> 4);
+	unsigned pixel1 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 			dst[1] = dst[0];
@@ -726,12 +760,12 @@ static void rgb_raw_mask2_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 	}
 }
 
-static void rgb_raw_carry2_compute(unsigned bytes_per_pixel, uint32* dst, unsigned mask)
+static void rgb_raw_carry2_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_carry_mask_compute(mask >> 4);
-	unsigned pixel1 = rgb_raw_carry_mask_compute(mask);
+	unsigned pixel0 = rgb_raw_carry_mask_compute(target, mask >> 4);
+	unsigned pixel1 = rgb_raw_carry_mask_compute(target, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 			dst[1] = dst[0];
@@ -749,11 +783,11 @@ static void rgb_raw_carry2_compute(unsigned bytes_per_pixel, uint32* dst, unsign
 	}
 }
 
-static void rgb_raw_mask1_compute(unsigned bytes_per_pixel, uint32* dst, unsigned shift, unsigned mask)
+static void rgb_raw_mask1_compute(const struct video_pipeline_target_struct* target, uint32* dst, unsigned shift, unsigned mask)
 {
-	unsigned pixel0 = rgb_raw_pixel_mask_compute(shift, mask);
+	unsigned pixel0 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
-	switch (bytes_per_pixel) {
+	switch (target->bytes_per_pixel) {
 		case 1 :
 			dst[0] = cpu_uint32_make_uint8(pixel0, pixel0, pixel0, pixel0);
 			dst[1] = dst[0];
@@ -848,28 +882,26 @@ static uint32 rgb_triad16pix_mask[RGB_TRIAD16PIX_MASK_MAX];
 
 static void internal_rgb_triad16pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_0_0, 0, 0x0000); /* factor 2^0 = 100% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_1_0, 1, 0x7777); /* factor 2^-1 = 50% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_2_0, 2, 0x7777); /* factor 2^-2 = 25% */
-	rgb_raw_carry4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_c_0, 0x7777); /* carry */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_0_0, 0, 0x0000); /* factor 2^0 = 100% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_1_0, 1, 0x7777); /* factor 2^-1 = 50% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_2_0, 2, 0x7777); /* factor 2^-2 = 25% */
+	rgb_raw_carry4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_c_0, 0x7777); /* carry */
 
 	/* type 1 */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_0_0, 0, 0x2140); /* factor 2^0 = 100% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_1_0, 1, 0x5637); /* factor 2^-1 = 50% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_2_0, 2, 0x5637); /* factor 2^-2 = 25% */
-	rgb_raw_carry4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_c_0, 0x5637); /* carry */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_0_0, 0, 0x2140); /* factor 2^0 = 100% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_1_0, 1, 0x5637); /* factor 2^-1 = 50% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_2_0, 2, 0x5637); /* factor 2^-2 = 25% */
+	rgb_raw_carry4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_1_c_0, 0x5637); /* carry */
 
 	/* type 2 */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_0_0, 0, 0x0214); /* factor 2^0 = 100% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_1_0, 1, 0x7563); /* factor 2^-1 = 50% */
-	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_2_0, 2, 0x7563); /* factor 2^-2 = 25% */
-	rgb_raw_carry4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_c_0, 0x7563); /* carry */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_0_0, 0, 0x0214); /* factor 2^0 = 100% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_1_0, 1, 0x7563); /* factor 2^-1 = 50% */
+	rgb_raw_mask4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_2_0, 2, 0x7563); /* factor 2^-2 = 25% */
+	rgb_raw_carry4_compute(target, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_2_c_0, 0x7563); /* carry */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -1175,46 +1207,44 @@ static uint32 rgb_triad6pix_mask[RGB_TRIAD6PIX_MASK_MAX];
 
 static void internal_rgb_triad6pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_0_0, 0, 0x14); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_1_0, 1, 0x63); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_2_0, 2, 0x63); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_c_0, 0x63); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_0_0, 0, 0x14); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_1_0, 1, 0x63); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_2_0, 2, 0x63); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_c_0, 0x63); /* carry */
 
 	/* type 1 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_0_0, 0, 0x12); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_1_0, 1, 0x65); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_2_0, 2, 0x65); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_c_0, 0x65); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_0_0, 0, 0x12); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_1_0, 1, 0x65); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_2_0, 2, 0x65); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_1_c_0, 0x65); /* carry */
 
 	/* type 2 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_0_0, 0, 0x42); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_1_0, 1, 0x35); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_2_0, 2, 0x35); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_c_0, 0x35); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_0_0, 0, 0x42); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_1_0, 1, 0x35); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_2_0, 2, 0x35); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_2_c_0, 0x35); /* carry */
 
 	/* type 3 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_0_0, 0, 0x41); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_1_0, 1, 0x36); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_2_0, 2, 0x36); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_c_0, 0x36); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_0_0, 0, 0x41); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_1_0, 1, 0x36); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_2_0, 2, 0x36); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_3_c_0, 0x36); /* carry */
 
 	/* type 4 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_0_0, 0, 0x21); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_1_0, 1, 0x56); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_2_0, 2, 0x56); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_c_0, 0x56); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_0_0, 0, 0x21); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_1_0, 1, 0x56); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_2_0, 2, 0x56); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_4_c_0, 0x56); /* carry */
 
 	/* type 5 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_0_0, 0, 0x24); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_1_0, 1, 0x53); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_2_0, 2, 0x53); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_c_0, 0x53); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_0_0, 0, 0x24); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_1_0, 1, 0x53); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_2_0, 2, 0x53); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_5_c_0, 0x53); /* carry */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_triad6pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -1412,28 +1442,26 @@ static uint32 rgb_triad3pix_mask[RGB_TRIAD3PIX_MASK_MAX];
 
 static void internal_rgb_triad3pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_0_0, 0, 0x41); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_1_0, 1, 0x36); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_2_0, 2, 0x36); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_c_0, 0x36); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_0_0, 0, 0x41); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_1_0, 1, 0x36); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_2_0, 2, 0x36); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_c_0, 0x36); /* carry */
 
 	/* type 1 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_0_0, 0, 0x24); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_1_0, 1, 0x53); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_2_0, 2, 0x53); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_c_0, 0x53); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_0_0, 0, 0x24); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_1_0, 1, 0x53); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_2_0, 2, 0x53); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_1_c_0, 0x53); /* carry */
 
 	/* type 2 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_0_0, 0, 0x12); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_1_0, 1, 0x65); /* factor 2^-1 = 50% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_2_0, 2, 0x65); /* factor 2^-2 = 25% */
-	rgb_raw_carry2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_c_0, 0x65); /* carry */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_0_0, 0, 0x12); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_1_0, 1, 0x65); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_2_0, 2, 0x65); /* factor 2^-2 = 25% */
+	rgb_raw_carry2_compute(target, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_2_c_0, 0x65); /* carry */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_triad3pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -1603,18 +1631,16 @@ static uint32 rgb_scandouble_mask[RGB_SCANDOUBLE_MASK_MAX];
 
 static void internal_rgb_scandouble_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_1_0, 1, 0x0); /* factor 2^-1 = 50% */
+	rgb_raw_mask1_compute(target, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
+	rgb_raw_mask1_compute(target, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_1_0, 1, 0x0); /* factor 2^-1 = 50% */
 
 	/* type 1 */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, 0, 0x0); /* factor 2^0 = 100% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_1_0, 1, 0x7); /* factor 2^-1 = 50% */
+	rgb_raw_mask1_compute(target, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, 0, 0x0); /* factor 2^0 = 100% */
+	rgb_raw_mask1_compute(target, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_1_0, 1, 0x7); /* factor 2^-1 = 50% */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_scandouble8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -1699,14 +1725,12 @@ static uint32 rgb_scandoublevert_mask[RGB_SCANDOUBLEVERT_MASK_MAX];
 
 static void internal_rgb_scandoublevert_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, 0, 0x70); /* factor 2^0 = 100% */
-	rgb_raw_mask2_compute(bytes_per_pixel, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_1_0, 1, 0x07); /* factor 2^-1 = 50% */
+	rgb_raw_mask2_compute(target, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, 0, 0x70); /* factor 2^0 = 100% */
+	rgb_raw_mask2_compute(target, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_1_0, 1, 0x07); /* factor 2^-1 = 50% */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline void internal_rgb_scandoublevert8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
@@ -1769,25 +1793,23 @@ static uint32 rgb_scantriple_mask[RGB_SCANTRIPLE_MASK_MAX];
 
 static void internal_rgb_scantriple_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_1_0, 1, 0x0); /* factor 2^-1 = 50% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_2_0, 2, 0x0); /* factor 2^-2 = 25% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_1_0, 1, 0x0); /* factor 2^-1 = 50% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_2_0, 2, 0x0); /* factor 2^-2 = 25% */
 
 	/* type 1 */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_0_0, 0, 0x0); /* factor 2^0 = 100% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_1_0, 1, 0x7); /* factor 2^-1 = 50% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_2_0, 2, 0x0); /* factor 2^-2 = 25% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_0_0, 0, 0x0); /* factor 2^0 = 100% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_1_0, 1, 0x7); /* factor 2^-1 = 50% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_1_2_0, 2, 0x0); /* factor 2^-2 = 25% */
 
 	/* type 2 */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_0_0, 0, 0x0); /* factor 2^0 = 100% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_1_0, 1, 0x0); /* factor 2^-1 = 50% */
-	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_2_0, 2, 0x7); /* factor 2^-2 = 25% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_0_0, 0, 0x0); /* factor 2^0 = 100% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_1_0, 1, 0x0); /* factor 2^-1 = 50% */
+	rgb_raw_mask1_compute(target, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_2_2_0, 2, 0x7); /* factor 2^-2 = 25% */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -1940,15 +1962,13 @@ static uint32 rgb_scantriplevert_mask[RGB_SCANTRIPLEVERT_MASK_MAX];
 
 static void internal_rgb_scantriplevert_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = target->bytes_per_pixel;
-
 	/* type 0 */
-	rgb_raw_mask3_compute(bytes_per_pixel, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0, 0, 0x700); /* factor 2^0 = 100% */
-	rgb_raw_mask3_compute(bytes_per_pixel, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_1_0, 1, 0x070); /* factor 2^-1 = 50% */
-	rgb_raw_mask3_compute(bytes_per_pixel, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_2_0, 2, 0x007); /* factor 2^-2 = 25% */
+	rgb_raw_mask3_compute(target, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0, 0, 0x700); /* factor 2^0 = 100% */
+	rgb_raw_mask3_compute(target, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_1_0, 1, 0x070); /* factor 2^-1 = 50% */
+	rgb_raw_mask3_compute(target, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_2_0, 2, 0x007); /* factor 2^-2 = 25% */
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline void internal_rgb_scantriplevert8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
@@ -1989,7 +2009,7 @@ static void internal_rgb_skipdouble_set(const struct video_pipeline_target_struc
 {
 }
 
-#if defined(USE_ASM_i586)
+#if defined(USE_ASM_INLINE)
 
 static inline unsigned internal_rgb_skipdouble8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
 {
@@ -2060,3 +2080,4 @@ static inline unsigned internal_rgb_skipdouble32_def(unsigned state, uint32* dst
 }
 
 #endif
+

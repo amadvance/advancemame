@@ -1,11 +1,11 @@
 #############################################################################
 # Manual user configuration
 #
-# You you use the ./configure script you don't need to edit this file.
+# If you use the ./configure script you don't need to edit this file.
 #
 
 # Installation prefix (only for Unix):
-PREFIX=/usr/local
+prefix=/usr/local
 
 # Select the emu executable (mame by default)
 # The available choices are: mame, mess
@@ -176,7 +176,7 @@ CONF_LIB_MEVENT=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH
-CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
+CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_INLINE -DUSE_ASM_MIPS3
 endif
 
 ifndef CONF_CFLAGS_OPT
@@ -199,9 +199,12 @@ ifndef CONF_DEFS
 CONF_DEFS=
 endif
 
-ifndef DATADIR
-DATADIR=$(PREFIX)/share/advance
-endif
+srcdir=.
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+bindir=${prefix}/bin
+mandir=${prefix}/man
+docdir=${prefix}/share/doc
 
 #############################################################################
 # Extra configuration common for ./configure and manual
@@ -226,7 +229,6 @@ endif
 # Tools configuration for manual
 #
 
-srcdir=.
 MD = -@mkdir -p
 RM = @rm -f
 ECHO = @echo
@@ -344,3 +346,4 @@ INSTALL_DATA = false
 # Root makefile
 
 include root.mak
+

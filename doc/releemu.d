@@ -1,6 +1,13 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.79.1
+	The host configuration directory is now under the installation prefix
+	as $prefix/etc. This means that if you install in /usr/local the host
+	configuration directory is /usr/local/etc and not /etc.
+	You can customize this directory using the --sysconfdir option of the
+	./configure script.
+
 AdvanceMAME 0.79.0
 	This release changes the manual compilation process in DOS
 	and Windows. You must now use the Makefile.usr file instead of

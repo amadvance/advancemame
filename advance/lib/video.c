@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "video.h"
 
 #include "log.h"
@@ -91,18 +95,12 @@ static void video_color_def_adjust(adv_color_def def_ordinal)
 		rgb_shiftmask_get(&video_state.rgb_red_shift, &video_state.rgb_red_mask, def.nibble.red_len, def.nibble.red_pos);
 		rgb_shiftmask_get(&video_state.rgb_green_shift, &video_state.rgb_green_mask, def.nibble.green_len, def.nibble.green_pos);
 		rgb_shiftmask_get(&video_state.rgb_blue_shift, &video_state.rgb_blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
-
 		video_state.rgb_red_len = def.nibble.red_len;
 		video_state.rgb_green_len = def.nibble.green_len;
 		video_state.rgb_blue_len = def.nibble.blue_len;
-
-		video_state.rgb_mask_bit = video_pixel_get(0xFF, 0xFF, 0xFF);
-		video_state.rgb_high_bit = video_pixel_get(0x80, 0x80, 0x80);
-		video_state.rgb_low_bit = video_pixel_get(
-			1 << (8-video_state.rgb_red_len),
-			1 << (8-video_state.rgb_green_len),
-			1 << (8-video_state.rgb_blue_len)
-		);
+		video_state.rgb_mask_bit = rgb_wholemask_make_from_def(def_ordinal);
+		video_state.rgb_high_bit = rgb_highmask_make_from_def(def_ordinal);
+		video_state.rgb_low_bit = rgb_lowmask_make_from_def(def_ordinal);
 	} else {
 		video_state.rgb_red_shift = 0;
 		video_state.rgb_green_shift = 0;
@@ -455,6 +453,8 @@ adv_error video_init(void)
 	}
 
 	error_cat_set(0,0);
+
+	log_std(("video: video_init report:\n%s\n", error_get()));
 
 	if (!at_least_one) {
 		log_std(("video: no video driver activated\n"));

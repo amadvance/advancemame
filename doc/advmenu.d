@@ -56,8 +56,8 @@ Options
 		Print some startup information.
 
 	-version
-		Print the version number and the low level device drivers
-		supported.
+		Print the version number, the low level device drivers
+		supported and the configuration directories.
 
 	-help
 		Print a short command line help.
@@ -278,12 +278,14 @@ Configuration
 	file `advmenu.rc' in the current directory.
 
 	In Linux and Mac OS X the configuration options are read from the
-	file `advmenu.rc' in the $host, $data and
+	files `advmame.rc' and `advmess.rc' in the $host, $data and
 	the $home directory.
-	The $host directory is always `/etc'.
-	The $data directory is `$DATA/advance/', where $DATA is the
-	data directory configured with the `configure' script.
-	Generally it's `/usr/local/share'.
+	The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
+	`sysconfdir' directory configured with the `configure' script.
+	The default is `/usr/local/etc'.
+	The $data directory is `$DATADIR/advance', where $DATADIR is the
+	`datadir' directory configured with the `configure' script.
+	The default is `/usr/local/share'.
 	The $home directory is `$ADVANCE', where $ADVANCE is the value of the
 	ADVANCE environment variable when the program is run.
 	If the ADVANCE environment variable is missing the $home directory

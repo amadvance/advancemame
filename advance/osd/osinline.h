@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-#ifdef USE_ASM_i586
+#ifdef USE_ASM_INLINE
 
 extern int the_blit_mmx; /* defined in blit.c, !=0 if MMX is available */
 

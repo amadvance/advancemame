@@ -116,8 +116,8 @@ Options
 		specified file.
 
 	-version
-		Print the version number and the low level device drivers
-		supported.
+		Print the version number, the low level device drivers
+		supported and the configuration directories.
 
 	-help
 		Print a short command line help.
@@ -193,10 +193,11 @@ Features
 
 	The `none' effect simply duplicates and removes rows and lines
 	when the image is stretched.
-	The `max' effect tries to save the image details displaying the
-	most lighting pixels when some rows or columns are removed.
+	The `max' effect tries to save the image details checking the luminosity
+	of the pixels in streching. It ensure to have vertical and horizontal lines
+	always of the same thickness.
 	The `mean' effect tries to save the image details displaying the
-	mean color of the pixels in the rows and columns that need to be reduced.
+	mean color of the pixels in streching.
 	The `filter' effect applies a generic blur filter computing the
 	mean color in the horizontal and vertical directions. The best
 	results are when the image is stretched almost by a double
@@ -265,8 +266,8 @@ Features
 
 	Press `asterick_pad' to enable the `turbo' mode.
 
-	More details are in the description of the `misc_fps', `misc_speed',
-	`misc_turbospeed' and `misc_startuptime' options.
+	More details are in the description of the `sync_fps', `sync_speed',
+	`sync_turbospeed' and `sync_startuptime' options.
 
   Throttle Synchronization
 	The video and audio synchronization uses an advanced algorithm
@@ -444,10 +445,12 @@ Configuration
 	In Linux and Mac OS X the configuration options are read from the
 	files `advmame.rc' and `advmess.rc' in the $host, $data and
 	the $home directory.
-	The $host directory is always `/etc'.
-	The $data directory is `$DATA/advance/', where $DATA is the
-	data directory configured with the `configure' script. Generally
-	it's `/usr/local/share'.
+	The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
+	`sysconfdir' directory configured with the `configure' script.
+	The default is `/usr/local/etc'.
+	The $data directory is `$DATADIR/advance', where $DATADIR is the
+	`datadir' directory configured with the `configure' script.
+	The default is `/usr/local/share'.
 	The $home directory is `$ADVANCE', where $ADVANCE is the value of the
 	ADVANCE environment variable when the program is run.
 	If the ADVANCE environment variable is missing the $home directory
@@ -892,11 +895,14 @@ Configuration
 		none - Simply removes or duplicates lines as required.
 		max - In reduction merges consecutive columns and rows using the
 			lightest pixels versus the darkest.
-			In expansion simply duplicates pixels.
+			In expansion duplicate columns and rows using the
+			darkest pixels versus the lightest.
 			Supported in both rgb and palette video modes.
 			It works best for the games with black
 			background or without scrolling. Like "Pac-Man".
-		mean - In reduction merges columns and rows using the
+			This effect ensure to have always rows and columns
+			of the same thickness.
+		mean - In reduction it merges columns and rows using the
 			mean color of the pixels. In expansion it adds
 			columns and rows which are the mean of previous
 			and next lines.
@@ -908,23 +914,23 @@ Configuration
 			It's a simple FIR filter with two points of 
 			equal value.
 			Supported only in rgb video modes.
-		scale - It tries to add the missing pixels
-			matching the original bitmap pattern.
+		scale - It adds the missing pixels matching the
+			original bitmap pattern.
 			It doesn't interpolate pixels and it compares colors
 			for equality.
 			If works only for expansion factor of 2, 3 and 4.
-		lq - It tries to add the missing pixels matching the
+		lq - It adds the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for equality.
 			It works only for expansion factor of 2, 3 and 4,
-			only in rgb modes at 15, 16 and 32 bits.
-		hq - It tries to add the missing pixels matching the
+			and only in rgb modes at 15, 16 and 32 bits per pixel.
+		hq - It adds the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for distance.
 			It works only for expansion factor of 2, 3 and 4,
-			only in rgb modes at 15, 16 and 32 bits.
+			and only in rgb modes at 15, 16 and 32 bits per pixel.
 
     display_rgbeffect
 	This option selects a special effect to simulate the aspect of
@@ -1085,6 +1091,11 @@ Configuration
 	:display_rol yes | no
 	:display_flipx yes | no
 	:display_flipy yes | no
+
+	Examples:
+		To rotate left vertical games:
+
+		:vertical/display_rol yes
 
   Sound Configuration Options
 
@@ -1481,8 +1492,8 @@ Configuration
 
     ui_helpimage
 	Select the image to display on help request. The image must be a
-	PNG file containing only two color: black and white. The black
-	color must be used as background, the white color as foreground.
+	a PNG file. The pixels in black are used as background, any other
+	color is used as foreground.
 
 	:ui_helpimage auto | FILE
 

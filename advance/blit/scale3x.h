@@ -1,7 +1,7 @@
 /*
  * This file is part of the Scale2x project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*
- * This file contains a C implementation of the Scale3x effect.
- *
- * You can find an high level description of the effect at :
- *
- * http://scale2x.sourceforge.net/
- *
- * Alternatively at the previous license terms, you are allowed to use this
- * code in your program with these conditions:
- * - the program is not used in commercial activities.
- * - the whole source code of the program is released with the binary.
- * - derivative works of the program are allowed.
- */
-
 #ifndef __SCALE3X_H
 #define __SCALE3X_H
-
-#include <assert.h>
 
 typedef unsigned char scale3x_uint8;
 typedef unsigned short scale3x_uint16;
@@ -46,3 +30,4 @@ void scale3x_16_def(scale3x_uint16* dst0, scale3x_uint16* dst1, scale3x_uint16* 
 void scale3x_32_def(scale3x_uint32* dst0, scale3x_uint32* dst1, scale3x_uint32* dst2, const scale3x_uint32* src0, const scale3x_uint32* src1, const scale3x_uint32* src2, unsigned count);
 
 #endif
+

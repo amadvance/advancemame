@@ -48,6 +48,14 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
+#elif defined(USE_ADV_SVGALIB_DOSK)
+
+#define ADV_SVGALIB_INTERNAL_HEAP
+#define ADV_SVGALIB_CALL
+#define ADV_SVGALIB_CALL_VARARGS
+#include <sys/types.h>
+#include <sys/mman.h>
+
 #else
 #error No USE_ADV_SVGALIB_* defined
 #endif

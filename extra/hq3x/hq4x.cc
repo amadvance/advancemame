@@ -196,15 +196,24 @@ void Interp8(unsigned p[10], int p1, int p2) {
 
 unsigned DST[4096][N][10];
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
+	int ver = 0;
+	if (argc > 1)
+		ver = atoi(argv[1]);
 
 	for(unsigned i=0;i<256*2*2*2*2;++i) {
 		switch (i & 0xFF) {
 		#include "o4.h"
 		}
-		if (argc>1) {
+		if (ver == 1) {
 			for(unsigned k=0;k<N;++k) {
 				simplify(DST[i][k], i);
+			}
+		}
+		if (ver == 2) {
+			for(unsigned k=0;k<N;++k) {
+				discrete(DST[i][k], i);
 			}
 		}
 	}

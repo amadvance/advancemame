@@ -123,6 +123,16 @@ typedef signed long long int int64; /**< Signed 64 bit integer. */
 #define ALIGN_BIT 3 /**< Number of bit of alignment required. */
 #define ALIGN (1U << ALIGN_BIT) /**< Alignment multiplicator. */
 #define ALIGN_MASK (ALIGN - 1U) /**< Alignment mask. */
+
+/**
+ * Align a unsigned interger at the specified byte size.
+ */
+#define ALIGN_UNSIGNED(v,a) (((v) + ((a)-1)) & ~((a)-1))
+
+/**
+ * Align a void pointer at the specified byte size.
+ */
+#define ALIGN_PTR(v,a) (void*)ALIGN_UNSIGNED((unsigned char*)(v) - (unsigned char*)0, a)
 /*@}*/
 
 /*@}*/

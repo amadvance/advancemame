@@ -52,7 +52,9 @@ struct video_stage_horz_struct;
 
 /**
  * Template for an horizontal pipeline stage.
- * \param stage Stage context.
+ * These functions are called to draw a single image row.
+ * \param stage Stage context. This context contains all the necessary and constant
+ * information for the drawing process.
  * \param dst Destination data.
  * \param src Source data.
  */
@@ -63,7 +65,7 @@ typedef void video_stage_hook(const struct video_stage_horz_struct* stage, void*
  */
 enum video_stage_enum {
 	pipe_x_stretch, /**< Horizontal stretch by a fractional factor. */
-	pipe_x_max, /**< Horizontal stretch by a fractional factor with the max effect. */
+	pipe_x_maxmin, /**< Horizontal stretch by a fractional factor with the maxmin effect. */
 	pipe_x_mean, /**< Horizontal stretch by a fractional factor with the mean effect. */
 	pipe_x_double, /**< Horizontal stretch by double factor. */
 	pipe_x_triple, /**< Horizontal stretch by triple factor. */
@@ -106,15 +108,9 @@ enum video_stage_enum {
 	pipe_rgbtorgb, /**< Generic RGB conversion. */
 	pipe_rgbtoyuy2, /**< Generic YUY2 conversion. */
 	pipe_y_copy, /**< Vertical copy. */
-	pipe_y_reduction_copy, /**< Vertical reduction. */
-	pipe_y_expansion_copy, /**< Vertical expansion. */
-	pipe_y_mean, /**< Vertical copy with the mean effect. */
-	pipe_y_reduction_mean, /**< Vertical reduction with the mean effect. */
-	pipe_y_expansion_mean, /**< Vertical expansion with the mean effect. */
-	pipe_y_filter, /**< Vertical copy with the FIR filter. */
-	pipe_y_expansion_filter, /**< Vertical expansion with the FIR filter. */
-	pipe_y_reduction_filter, /**< Vertical reduction with the FIR filter. */
-	pipe_y_reduction_max, /**< Vertical reduction with the max effect. */
+	pipe_y_mean, /**< Vertical mean. */
+	pipe_y_filter, /**< Vertical FIR filter. */
+	pipe_y_maxmin, /**< Vertical maxmin. */
 	pipe_y_scale2x, /**< Scale2x. */
 	pipe_y_scale3x, /**< Scale3x. */
 	pipe_y_scale4x, /**< Scale4x. */
@@ -136,8 +132,20 @@ const char* pipe_name(enum video_stage_enum pipe_type);
  * Pipeline horizontal trasformation stage.
  */
 struct video_stage_horz_struct {
-	video_stage_hook* put; /**< Hook. */
-	video_stage_hook* put_plain; /**< Hook assuming sdp == sbpp. */
+	/**
+	 * Blit function.
+	 * This function does the configured blit operation on the arguments.
+	 * The only modifiable item on the self struct is the ::state_mutable item
+	 * which is initialized to 0 before the first call on the first row.
+	 */
+	video_stage_hook* put;
+
+	/**
+	 * Blit function assuming a plain draw.
+	 * This function operates like the ::put function but assuming ::sdp == ::sbpp.
+	 * Note that the real ::sdp value must be ignored.
+	 */
+	video_stage_hook* put_plain;
 
 	/* type */
 	enum video_stage_enum type;
@@ -151,26 +159,26 @@ struct video_stage_horz_struct {
 
 	/* source */
 	int sdp; /**< Step in the src for the next pixel (in bytes). */
-	unsigned sdx; /**< Size of the source (in bytes). */
-	unsigned sbpp; /**< Bytes per pixel of the source. */
+	unsigned sdx; /**< Size of the source (in pixels). */
+	unsigned sbpp; /**< Size of the source pixel (in bytes). */
 
 	int red_shift, green_shift, blue_shift; /**< Shifts used for color conversion. */
 	adv_pixel red_mask, green_mask, blue_mask; /**< Masks used for color conversion. */
-	unsigned ssp; /**< Size in bytes of the source pixel. */
-	unsigned dsp; /**< Size in bytes of the destination pixel. */
+	unsigned ssp; /**< Size of the source pixel used for color conversion (in bytes). Equal at ::sbpp. */
+	unsigned dsp; /**< Size of the destintation pixel used for color conversion (in bytes). */
 
-	adv_slice slice; /**< Stretch slice. */
+	adv_slice slice; /**< Slice used in streching. */
 
-	const void* palette; /**< Palette conversion table. The palette size depends on the conversion. */
+	const void* palette; /**< Palette used in conversion. The palette size depends on the conversion. */
 
 	/* state */
-	unsigned state_mutable; /**< State value zeroed at the startup. Used to keept the state over rows */
+	unsigned state_mutable; /**< State value zeroed at the startup. Used to keep the row state. */
 };
 
 /** \name Effects */
 /*@{*/
 #define VIDEO_COMBINE_Y_NONE 0 /**< No effect. */
-#define VIDEO_COMBINE_Y_MAX 0x1 /**< Use the max value in y reductions. */
+#define VIDEO_COMBINE_Y_MAXMIN 0x1 /**< Use the max value in y reductions. */
 #define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
 #define VIDEO_COMBINE_Y_FILTER 0x3 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction. */
 #ifndef USE_BLIT_TINY
@@ -204,9 +212,10 @@ struct video_stage_horz_struct {
 
 #define VIDEO_COMBINE_SWAP_EVEN 0x8000 /**< Swap every two even line. */
 #define VIDEO_COMBINE_SWAP_ODD 0x10000 /**< Swap every two odd line. */
-#define VIDEO_COMBINE_X_MAX 0x20000 /**< Horizontal stretch using the max effect */
+#define VIDEO_COMBINE_X_MAXMIN 0x20000 /**< Horizontal stretch using the max effect */
 #define VIDEO_COMBINE_X_MEAN 0x40000 /**< Horizontal stretch using the mean effect */
 #define VIDEO_COMBINE_INTERLACE_FILTER 0x80000 /**< Vertical filter for interlace. */
+#define VIDEO_COMBINE_BUFFER 0x100000 /**< Output to a memory buffer. */
 /*@}*/
 
 struct video_stage_vert_struct;

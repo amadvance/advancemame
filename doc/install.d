@@ -1,5 +1,73 @@
 Name
-	install - First Time Configuration and Run
+	install - Installation and Configuration
+
+System Requirement
+	To run the Advance programs you first need to install and configure
+	some drivers and libraries on your system.
+
+	More details on the single drivers are present in the `advdev.txt'
+	documentation file.
+
+  Linux
+	To allow the Advance programs to directly control your video board
+	in console mode, you must install and configure the Linux Frame
+	Buffer driver or a recent SVGALIB library.
+
+	The Linux Frame Buffer drivers are always included in the Linux
+	kernel source, but generally they must be explicitely compiled
+	or loaded. Please note that you cannot use the VESA Linux Frame
+	Buffer driver, you must use a driver specific for your video board.
+
+	The SVGALIB library must be installed manually. Generally the Linux
+	distributions contain an old 1.4 version of the library, but the
+	Advance programs you need at least the version 1.9.14 available at:
+
+		:http://www.svgalib.org
+
+	For both the Frame Buffer driver and SVGALIB library some additional
+	patches are available in the `contrib/' directory.
+
+	To allow the Advance programs to display in X you must install the
+	SDL library. Generally it's already present in all the recent
+	distributions.
+
+	To allow the Advance programs to play sounds, you must have
+	installed the OSS or ALSA audio system. Generally at least one
+	is always available in all the Linux distributions.
+	If you have the SDL library, it can also be used for the sound
+	output.
+
+	The Advance programs are able to use the Linux support for
+	input controllers like keyboards, joysticks and mice.
+	If you have the SDL library, it can also be used for the input
+	controllers.
+
+    DOS
+	The Advance programs already contain all the required drivers
+	for video, sound, and input controllers.
+
+	Generally you don't need to install additional software with
+	the exception of a mouse driver if you want to use one.
+
+    Windows
+	To allow the Advance programs to directly control your video board,
+	you must install the included SVGAWIN driver.
+
+	Please note that this driver is EXPERIMENTAL software and it works
+	only for a few set of video boards. More information is present in the
+	`svgawin.txt' documentation file.
+
+	Otherwise the Advance programs are able to display in a window or
+	to use the default video modes using the included SDL library.
+	The SDL library is also used for sound, and input controllers.
+
+    Mac OS X/Generic Unix
+	To allow the Advance programs to work you must install the SDL
+	library. This library is used for video, sound and input controllers.
+
+	The SDL library is available at:
+
+		:http://www.libsdl.org
 
 First Time Configuration
 	All the Advance programs require a configuration step to work
@@ -15,7 +83,7 @@ First Time Configuration
 	To create a default configuration files simply run the first time
 	the application from a command shell and a standard configuration .rc
 	file will be created.
-	In Linux, Mac OS X and other Unix the configuration file is created
+	In Linux, Mac OS X and other Unix, the configuration file is created
 	in the user home directory in the subdirectory .advance. In DOS and
 	Windows the configuration file is created in the current directory.
 
@@ -34,8 +102,9 @@ Video Configuration
 	correct size and aspect ratio.
 	
 	This features is available in Linux with the SVGALIB and Frame
-	Buffer libraries, in DOS with the SVGALIB library and in Windows with
-	the SVGAWIN library. It isn't available on Mac OS X and other Unix.
+	Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
+	and in Windows with the SVGAWIN library.
+	It isn't available on Mac OS X and other Unix.
 
 	To made it possible the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal
@@ -44,6 +113,7 @@ Video Configuration
 	With these info the programs are able to always generate
 	`perfect' video modes for the emulated game.
 
+  Operation Modes
 	The programs support two basic way to generated video modes:
 	the `automatic' and the `manual' operation mode.
 
@@ -66,7 +136,7 @@ Video Configuration
 	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
 	doesn't require not standard video modes.
 
-  Video Automatic Operation Mode
+    Automatic Operation Mode
 	In the automatic operation mode the programs automatically
 	create a `perfect' video mode for the game to be emulated
 	that fit exactly the whole screen with the correct aspect
@@ -92,7 +162,7 @@ Video Configuration
 		:device_video_vclock ?
 		:device_video_format ?
 
-  Video Manual Operation Mode
+    Manual Operation Mode
 	In the manual operation mode the programs scan a list of `good'
 	video modelines created manually and chose the best available.
 	You must in advance create this list of video modelines with the
@@ -213,6 +283,9 @@ Video Configuration
 		the most recent SVGALIB library. The old 1.4.x versions are
 		not supported.
 
+	) If you are using the `fb' driver, ensure to don't use the VESA
+		Frame Buffer. It doesn't work for the Advance programs.
+
 	) If you are using the `fb' driver check the kernel patches
 		in the `contrib/fb' directory.
 
@@ -245,5 +318,5 @@ Video Configuration
 	) Try reducing the video hardware acceleration.
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "clear.h"
 
 #include "icommon.h"
@@ -179,3 +183,4 @@ void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_d
 		break;
 	}
 }
+

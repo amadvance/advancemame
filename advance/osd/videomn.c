@@ -162,6 +162,32 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 		++total;
 	}
 
+	if (context->state.pipeline_measure_flag) {
+		menu_item[total] = strdup("Time measure not completed");
+		flag[total] = 0;
+		++total;
+	} else {
+		snprintf(buffer, sizeof(buffer), "Direct write %.2f ms", context->state.pipeline_measure_direct_result * 1000);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+
+		snprintf(buffer, sizeof(buffer), "Buffer write %.2f ms", context->state.pipeline_measure_buffer_result * 1000);
+		menu_item[total] = strdup(buffer);
+		flag[total] = 0;
+		++total;
+
+		if (context->state.pipeline_measure_bestisdirect_flag) {
+			menu_item[total] = strdup("Using direct write");
+			flag[total] = 0;
+			++total;
+		} else {
+			menu_item[total] = strdup("Using buffered write");
+			flag[total] = 0;
+			++total;
+		}
+	}
+
 	menu_item[total] = "Return to Main Menu";
 	flag[total] = 0;
 	++total;
@@ -396,7 +422,7 @@ int osd2_menu(int selected, unsigned input)
 	combine_index = total;
 	switch (context->state.combine) {
 		case COMBINE_NONE : menu_item[total] = "Resize Effect [no]"; break;
-		case COMBINE_MAX : menu_item[total] = "Resize Effect [max]"; break;
+		case COMBINE_MAXMIN : menu_item[total] = "Resize Effect [max]"; break;
 		case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
 		case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
 		case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
@@ -406,7 +432,7 @@ int osd2_menu(int selected, unsigned input)
 	switch (context->config.combine) {
 		case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
 		case COMBINE_NONE : menu_subitem[total] = "no"; break;
-		case COMBINE_MAX : menu_subitem[total] = "max"; break;
+		case COMBINE_MAXMIN : menu_subitem[total] = "max"; break;
 		case COMBINE_MEAN : menu_subitem[total] = "mean"; break;
 		case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
 		case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
@@ -593,8 +619,8 @@ int osd2_menu(int selected, unsigned input)
 			struct advance_video_config_context config = context->config;
 			switch (config.combine) {
 				case COMBINE_AUTO : config.combine = COMBINE_NONE; break;
-				case COMBINE_NONE : config.combine = COMBINE_MAX; break;
-				case COMBINE_MAX : config.combine = COMBINE_MEAN; break;
+				case COMBINE_NONE : config.combine = COMBINE_MAXMIN; break;
+				case COMBINE_MAXMIN : config.combine = COMBINE_MEAN; break;
 				case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
 				case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
 				case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
@@ -674,8 +700,8 @@ int osd2_menu(int selected, unsigned input)
 			switch (config.combine) {
 				case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
 				case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
-				case COMBINE_MAX : config.combine = COMBINE_NONE; break;
-				case COMBINE_MEAN : config.combine = COMBINE_MAX; break;
+				case COMBINE_MAXMIN : config.combine = COMBINE_NONE; break;
+				case COMBINE_MEAN : config.combine = COMBINE_MAXMIN; break;
 				case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
 				case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
 				case COMBINE_LQ : config.combine = COMBINE_SCALE; break;

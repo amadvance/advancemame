@@ -5,8 +5,13 @@
 # configuration edit the Makefile.usr file and NOT this file.
 #
 
-PREFIX=@prefix@
-DATADIR=$(PREFIX)/share/advance
+prefix=@prefix@
+datadir=@datadir@
+sysconfdir=@sysconfdir@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+mandir=@mandir@
+docdir=@datadir@/doc
 CONF_EMU=@CONF_EMU@
 CONF_BUILD=@CONF_BUILD@
 CONF_HOST=@CONF_HOST@
@@ -82,12 +87,12 @@ SDLLIBS=@SDLLIBS@
 ZLIBS=@ZLIBS@
 ASMFLAGS=@ASMFLAGS@
 CFLAGS_BUILD=@CFLAGS_BUILD@
-INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755
-INSTALL_MAN_DIR = $(INSTALL) -d -o root -g root -m 755
-INSTALL_DATA_DIR = $(INSTALL) -d -o root -g bin -m 755
-INSTALL_PROGRAM = $(INSTALL) -c -o root -g bin -m 555
-INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
-INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
+INSTALL_PROGRAM_DIR = $(INSTALL) -d -m 755
+INSTALL_MAN_DIR = $(INSTALL) -d -m 755
+INSTALL_DATA_DIR = $(INSTALL) -d -m 755
+INSTALL_PROGRAM = $(INSTALL) -c -m 755
+INSTALL_MAN = $(INSTALL) -c -m 644
+INSTALL_DATA = $(INSTALL) -c -m 644
 
 #############################################################################
 # Root makefile

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "file.h"
 #include "target.h"
 
@@ -53,6 +57,10 @@
 
 #ifndef DATADIR
 #error Macro DATADIR undefined
+#endif
+
+#ifndef SYSCONFDIR
+#error Macro SYSCONFDIR undefined
 #endif
 
 struct file_context {
@@ -88,7 +96,7 @@ adv_error file_init(void)
 
 
 	/* root */
-	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", DATADIR);
+	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s/advance", DATADIR);
 
 	/* home */
 
@@ -196,9 +204,16 @@ const char* file_config_file_host(const char* file)
 		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s/%s", FL.current_dir_buffer, file + 2);
 	else if (file[0] == '/')
 		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s", file);
-	else
+	else {
 		/* if relative add the root data dir */
-		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "/etc/%s", file);
+		const char* sysconfdir;
+		/* never use /usr/etc */
+		if (strcmp(SYSCONFDIR, "/usr/etc") == 0)
+			sysconfdir = "/etc";
+		else
+			sysconfdir = SYSCONFDIR;
+		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s/%s", sysconfdir, file);
+	}
 	return FL.file_host_buffer;
 }
 

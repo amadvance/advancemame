@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#if HAVE_CONFIG_H
+#include <osconf.h>
+#endif
+
 #include "target.h"
 #include "log.h"
 
@@ -34,43 +38,25 @@ static int double_cmp(const void* _a, const void* _b)
 	return 0;
 }
 
-#define MEASURE_COUNT 7
-
 /**
- * Measure the time beetween two event.
- * \param wait Function used to wait.
- * \param low Low limit time in second.
- * \param high High limit time in second.
- * \param count Number of measure to try.
+ * Select the median time of series of time measures.
+ * \param low Low limit time in seconds.
+ * \param high High limit time in seconds.
+ * \param map Vector of the measure values. They are value got with the target_clock() functions.
+ * \param count Number of measures.
  * \return
  *   - ==0 Error in the measure.
- *   - !=0 Time in second of the event.
+ *   - !=0 Median time in seconds.
  */
-double measure_step(void (*wait)(void), double low, double high, unsigned count)
+double measure_median(double low, double high, double* map, unsigned count)
 {
-	double map[MEASURE_COUNT];
-	target_clock_t start, stop;
 	unsigned map_start, map_end;
 	unsigned median;
 	unsigned i;
 	double error;
 
-	if (count == 0 || count > MEASURE_COUNT)
-		count = MEASURE_COUNT;
-
 	low *= TARGET_CLOCKS_PER_SEC;
 	high *= TARGET_CLOCKS_PER_SEC;
-
-	i = 0;
-	wait();
-	start = target_clock();
-	while (i < count) {
-		wait();
-		stop = target_clock();
-		map[i] = stop - start;
-		start = stop;
-		++i;
-	}
 
 	qsort(map, count, sizeof(double), double_cmp);
 
@@ -104,4 +90,39 @@ double measure_step(void (*wait)(void), double low, double high, unsigned count)
 	log_std(("advance: median time %g (1/%g) (err %g%%)\n", map[median] / TARGET_CLOCKS_PER_SEC, TARGET_CLOCKS_PER_SEC / map[median], error * 100.0));
 
 	return map[median] / TARGET_CLOCKS_PER_SEC;
+}
+
+#define MEASURE_COUNT 7
+
+/**
+ * Measure the time beetween two events.
+ * \param wait Function used to wait.
+ * \param low Low limit time in seconds.
+ * \param high High limit time in seconds.
+ * \param count Number of measures to try.
+ * \return
+ *   - ==0 Error in the measure.
+ *   - !=0 Time in seconds of the event.
+ */
+double measure_step(void (*wait)(void), double low, double high, unsigned count)
+{
+	double map[MEASURE_COUNT];
+	target_clock_t start, stop;
+	unsigned i;
+
+	if (count == 0 || count > MEASURE_COUNT)
+		count = MEASURE_COUNT;
+
+	i = 0;
+	wait();
+	start = target_clock();
+	while (i < count) {
+		wait();
+		stop = target_clock();
+		map[i] = stop - start;
+		start = stop;
+		++i;
+	}
+
+	return measure_median(low, high, map, count);
 }

@@ -1191,6 +1191,35 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  
  
  /*-------------------------------------------------
+diff -U 5 --new-file --recursive src.ori/mamedbg.c src/mamedbg.c
+--- src.ori/mamedbg.c	2004-01-23 09:33:00.000000000 +0100
++++ src/mamedbg.c	2004-02-07 20:30:00.000000000 +0100
+@@ -2309,11 +2309,11 @@
+ 		win_create(WIN_CMDS(i), 1,
+ 			cmds.min_x,cmds.min_y,
+ 			cmds.max_x+1-cmds.min_x,cmds.max_y+1-cmds.min_y,
+ 			cur_col[E_CMDS], cur_col[E_FRAME], ' ', flags );
+ 
+-		win_set_title(WIN_CMDS(i), "Command (press F1 for help)");
++		win_set_title(WIN_CMDS(i), "Command (press NUMLOCK for help)");
+ 	}
+ }
+ 
+ /**************************************************************************
+  * dbg_close_windows
+@@ -3291,11 +3291,11 @@
+ 		win_set_title( WIN_CMDS(active_cpu), "%s%s", dbg_info_once, hist_info );
+ 		dbg_info_once = NULL;
+ 	}
+ 	else
+ 	{
+-		win_set_title( WIN_CMDS(active_cpu), "Command (press F1 for help)%s", hist_info );
++		win_set_title( WIN_CMDS(active_cpu), "Command (press NUMLOCK for help)%s", hist_info );
+ 	}
+ 	return INVALID;
+ }
+ 
+ /**************************************************************************
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-12-24 16:31:12.000000000 +0100
 +++ src/osdepend.h	2004-01-29 20:49:38.000000000 +0100
@@ -1843,3 +1872,30 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #define TRUNC_TO_INT(f) (float) (floor(f))
  #else
  #include <float.h>
+diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
+--- src.ori/x86drc.c	2004-01-23 09:33:00.000000000 +0100
++++ src/x86drc.c	2004-02-22 10:54:05.000000000 +0100
+@@ -587,10 +587,11 @@
+ 
+ 
+ /*------------------------------------------------------------------
+ 	drc_x86_get_features()
+ ------------------------------------------------------------------*/
++#if 0
+ UINT32 drc_x86_get_features(void)
+ {
+ 	UINT32 features = 0;
+ #ifdef _MSC_VER
+ 	__asm 
+@@ -616,10 +617,11 @@
+ 	: "%ebx", "%ecx", "%edx"	/* clobbers ebx, ecx and edx */
+ 	);
+ #endif /* MSC_VER */
+ 	return features;
+ }
++#endif
+ 
+ 
+ 
+ /*------------------------------------------------------------------
+ 	log_dispatch

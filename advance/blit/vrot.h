@@ -73,3 +73,4 @@ static void video_stage_rot32_set(struct video_stage_horz_struct* stage, unsigne
 }
 
 #endif
+

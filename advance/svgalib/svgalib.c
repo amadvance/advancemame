@@ -2,7 +2,7 @@
  * SVGALIB user interface implementation.
  */
 
-#include "svgaint.h" /* TODO includere svgalib.h e non svgaint.h */
+#include "svgalib.h"
 
 #include "libvga.h"
 #include "timing.h"
@@ -16,7 +16,9 @@ struct adv_svgalib_state_struct adv_svgalib_state;
 /**************************************************************************/
 /* heap */
 
-#define HEAP_SIZE 8192
+#ifdef ADV_SVGALIB_INTERNAL_HEAP
+
+#define HEAP_SIZE 16384
 
 static unsigned char heap[HEAP_SIZE];
 
@@ -71,8 +73,10 @@ void* ADV_SVGALIB_CALL adv_svgalib_malloc(unsigned size) {
 
 	while (h->used || h->size <= size + SLOT_SIZE) {
 		h = h->next;
-		if (h == heap_list)
+		if (h == heap_list) {
+			adv_svgalib_log("ERROR:svgalib: heap full on alloc %d\n", size);
 			return 0;
+		}
 	}
 
 	n = (struct heap_slot*)((unsigned char*)h + size + SLOT_SIZE);
@@ -119,6 +123,33 @@ void ADV_SVGALIB_CALL adv_svgalib_free(void* ptr) {
 		h->used = 0;
 	}
 }
+
+#else
+
+#ifdef malloc
+#error malloc must be the real malloc
+#endif
+
+void* ADV_SVGALIB_CALL adv_svgalib_malloc(unsigned size) {
+	void* r;
+
+	r = malloc(size);
+
+	if (!r) {
+		adv_svgalib_log("ERROR:svgalib: heap full on alloc %d\n", size);
+		return 0;
+	}
+
+	memset(r, 0, size);
+
+	return r;
+}
+
+void ADV_SVGALIB_CALL adv_svgalib_free(void* ptr) {
+	free(ptr);
+}
+
+#endif
 
 void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size) {
 	void* r = adv_svgalib_malloc(n * size);
@@ -718,7 +749,7 @@ void map_mmio() {
 
     if(__svgalib_mmio_size) {
         mmio_mapped=1;
-        MMIO_POINTER=mmap( 0, __svgalib_mmio_size, PROT_READ | PROT_WRITE,
+        MMIO_POINTER=adv_svgalib_mmap( 0, __svgalib_mmio_size, PROT_READ | PROT_WRITE,
             		   MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base + offset);
     } else {
         MMIO_POINTER=NULL;
@@ -734,14 +765,14 @@ void map_linear(unsigned long base, unsigned long size) {
     offset = 0;
 #endif
     
-    LINEAR_POINTER=mmap(0, size,
+    LINEAR_POINTER=adv_svgalib_mmap(0, size,
   	                PROT_READ | PROT_WRITE, MAP_SHARED,
 			__svgalib_mem_fd,
                         base + offset);
 }
 
 void unmap_linear(unsigned long size) {
-    munmap(LINEAR_POINTER, size);
+    adv_svgalib_munmap(LINEAR_POINTER, size);
 }
 
 void __svgalib_delay(void) {
@@ -960,7 +991,7 @@ ModeInfo* __svgalib_createModeInfoStructureForSvgalibMode(int mode)
 	if (mode != adv_svgalib_state.mode_number)
 		return 0;
 
-	modeinfo = malloc(sizeof(ModeInfo));
+	modeinfo = adv_svgalib_malloc(sizeof(ModeInfo));
 	
 	memset(modeinfo,0,sizeof(ModeInfo));
 
@@ -1404,7 +1435,9 @@ int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer, int skip_
 	if (adv_svgalib_open() != 0)
 		return -1;
 
+#ifdef ADV_SVGALIB_INTERNAL_HEAP
 	heap_init();
+#endif
 
 	adv_svgalib_state.divide_clock = divide_clock_with_sequencer;
 	adv_svgalib_state.skip_board = skip_board;
@@ -1774,3 +1807,4 @@ void ADV_SVGALIB_CALL_VARARGS adv_svgalib_log(const char *text, ...) {
 	adv_svgalib_log_va(text, arg);
 	va_end(arg);
 }
+

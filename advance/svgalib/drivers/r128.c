@@ -1036,8 +1036,6 @@ static int r128_modeavailable(int mode)
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
-    modeinfo = __svgalib_createModeInfoStructureForSvgalibMode(mode);
-
     if (IS_IN_STANDARD_VGA_DRIVER(mode))
 	return __svgalib_vga_driverspecs.modeavailable(mode);
 

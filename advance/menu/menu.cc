@@ -864,6 +864,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		effective_preview = rs.preview_effective;
 		if (effective_preview == preview_icon || effective_preview == preview_marquee)
 			effective_preview = preview_snap;
+		// if no image, set another preview
+		if ((effective_preview & rs.preview_mask) == 0) {
+			if ((preview_snap & rs.preview_mask) != 0)
+				effective_preview = preview_snap;
+			else if ((preview_title & rs.preview_mask) != 0)
+				effective_preview = preview_title;
+			else if ((preview_flyer & rs.preview_mask) != 0)
+				effective_preview = preview_flyer;
+		}
 	}
 
 	// cursor
@@ -1459,7 +1468,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (rs.mode_effective == mode_full_mixed || rs.mode_effective == mode_list_mixed) {
 			bool game_horz = true;
 
-			if (rs.mode_effective == mode_list_mixed && (rs.preview_effective == preview_snap || rs.preview_effective == preview_title)) {
+			if (rs.mode_effective == mode_list_mixed && (effective_preview == preview_snap || effective_preview == preview_title)) {
 				if (effective_game) {
 					if (effective_game->aspectx_get() && effective_game->aspecty_get()) {
 						game_horz = effective_game->aspectx_get() > effective_game->aspecty_get();
@@ -1481,17 +1490,17 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					int_backdrop_pos(i, backdrop_map_bis[i].x, backdrop_map_bis[i].y, backdrop_map_bis[i].dx, backdrop_map_bis[i].dy);
 			}
 
-			if (rs.preview_effective == preview_title) {
+			if (effective_preview == preview_title) {
 				backdrop_game_set(effective_game, 0, preview_title, true, false, false, rs);
 				backdrop_game_set(effective_game, 1, preview_snap, false, false, true, rs);
 				backdrop_game_set(effective_game, 2, preview_flyer, false, false, false, rs);
 				backdrop_game_set(effective_game, 3, preview_cabinet, false, false, false, rs);
-			} else if (rs.preview_effective == preview_flyer) {
+			} else if (effective_preview == preview_flyer) {
 				backdrop_game_set(effective_game, 0, preview_flyer, true, false, false, rs);
 				backdrop_game_set(effective_game, 1, preview_snap, false, false, true, rs);
 				backdrop_game_set(effective_game, 2, preview_title, false, false, false, rs);
 				backdrop_game_set(effective_game, 3, preview_cabinet, false, false, false, rs);
-			} else if (rs.preview_effective == preview_cabinet) {
+			} else if (effective_preview == preview_cabinet) {
 				backdrop_game_set(effective_game, 0, preview_cabinet, true, false, false, rs);
 				backdrop_game_set(effective_game, 1, preview_snap, false, false, true, rs);
 				backdrop_game_set(effective_game, 2, preview_title, false, false, false, rs);
@@ -1984,9 +1993,6 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		return INT_KEY_NONE;
 	}
 
-	// recompute the preview mask
-	rs.preview_mask = 0;
-
 	// setup the emulator state
 	for(pemulator_container::iterator i=rs.emu.begin();i!=rs.emu.end();++i) {
 		bool state = false;
@@ -2035,6 +2041,9 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		(*i)->state_set(state);
 	}
 
+	// recompute the preview mask
+	rs.preview_mask = 0;
+
 	// select and sort
 	for(game_set::const_iterator i=rs.gar.begin();i!=rs.gar.end();++i) {
 		// emulator
@@ -2074,14 +2083,20 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		| mode_text | mode_list | mode_list_mixed | mode_tile_small
 		| mode_tile_normal | mode_tile_big | mode_tile_enormous
 		| mode_tile_giant | mode_tile_icon | mode_tile_marquee);
+
+	// remove some modes if now preview are available
 	if ((rs.preview_mask & preview_icon) == 0)
 		rs.mode_mask &= ~mode_tile_icon;
 	if ((rs.preview_mask & preview_marquee) == 0)
 		rs.mode_mask &= ~mode_tile_marquee;
 	rs.preview_mask &= ~(preview_icon | preview_marquee);
+
+	// if no preview at all, enable only textual mode
 	if (rs.preview_mask == 0)
 		rs.mode_mask = mode_text;
-	if (!rs.mode_mask)
+
+	// if no mode at all, enable at least textual mode
+	if (rs.mode_mask == 0)
 		rs.mode_mask = mode_text;
 
 	log_std(("menu: sort end\n"));
