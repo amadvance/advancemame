@@ -78,6 +78,14 @@ void advance_global_lcd(struct advance_global_context* context, unsigned row, co
 #endif
 }
 
+/**
+ * Execute a shell script.
+ */
+int advance_global_script(struct advance_global_context* context, const char* command)
+{
+	return target_script(command);
+}
+
 /***************************************************************************/
 /* Language */
 

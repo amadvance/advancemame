@@ -408,27 +408,49 @@ adv_error target_script(const char* script)
 	char file[FILE_MAXPATH];
 	int f;
 	int r;
+	uid_t euid;
+	gid_t egid;
 
 	log_std(("linux: script\n%s\n", script));
+
+	/* get the effective user/group id */
+	euid = geteuid();
+	egid = getegid();
+
+	/* set the real user id, prevent chroot programs to propagate permissions */
+	if (seteuid(getuid()) != 0) {
+		log_std(("ERROR:linux: script seteuid(getuid()) failed\n"));
+		goto err;
+	}
+
+	/* set the real group id, prevent chroot programs to propagate permissions */
+	if (setegid(getgid()) != 0) {
+		log_std(("ERROR:linux: script setegid(getgid()) failed\n"));
+		goto err;
+	}
 
 	strcpy(file, "/tmp/advscriptXXXXXX");
 	f = mkstemp(file);
 	if (f == -1) {
-		return -1;
+		log_std(("ERROR:linux: mkstemp() failed\n"));
+		goto err_priv;
 	}
 
 	/* set it executable */
 	if (fchmod(f, S_IRWXU) != 0) {
-		close(f);
-		return -1;
+		log_std(("ERROR:linux: script fchmod() failed\n"));
+		goto err_close;
 	}
 
 	if (write(f, script, strlen(script)) != strlen(script)) {
-		close(f);
-		return -1;
+		log_std(("ERROR:linux: script write() failed\n"));
+		goto err_close;
 	}
 
-	close(f);
+	if (close(f) != 0) {
+		log_std(("ERROR:linux: script close()e failed\n"));
+		goto err_priv;
+	}
 
 	r = system(file);
 
@@ -436,7 +458,28 @@ adv_error target_script(const char* script)
 
 	remove(file); /* ignore error */
 
+	/* restore privileges */
+	if (seteuid(euid) != 0) {
+		log_std(("ERROR:linux: script script seteuid(%d) failed\n", (int)euid));
+	}
+	if (setegid(egid) != 0) {
+		log_std(("ERROR:linux: script script setegid(%d) failed\n", (int)egid));
+	}
+
 	return r;
+
+err_close:
+	close(f);
+err_priv:
+	/* restore privileges */
+	if (seteuid(euid) != 0) {
+		log_std(("ERROR:linux: script script seteuid(%d) failed\n", (int)euid));
+	}
+	if (setegid(egid) != 0) {
+		log_std(("ERROR:linux: script script setegid(%d) failed\n", (int)egid));
+	}
+err:
+	return -1;
 }
 
 adv_error target_spawn_redirect(const char* file, const char** argv, const char* output)
@@ -445,14 +488,16 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	int i;
 	int p;
 
-	log_std(("linux: system %s\n", file));
+	log_std(("linux: spawn_redirect %s\n", file));
 	for(i=0;argv[i];++i)
-		log_std(("linux: system arg%d %s\n", i, argv[i]));
-	log_std(("linux: system input %s\n", output));
+		log_std(("linux: spawn_redirect arg%d %s\n", i, argv[i]));
+	log_std(("linux: spawn_redirect input %s\n", output));
 
 	p = fork();
-	if (p == -1)
+	if (p == -1) {
+		log_std(("ERROR:linux: spawn_redirect fork() failed\n"));
 		return -1;
+	}
 
 	if (p == 0) {
 		int f;
@@ -461,17 +506,29 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 		f = open(output, O_WRONLY | O_CREAT | O_TRUNC,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 		if (f == -1) {
-			log_std(("ERROR:linux: system open failed\n"));
+			log_std(("ERROR:linux: spawn_redirect open failed\n"));
 			exit(127);
 		}
 
 		/* remap the output stream */
 		if (dup2(f, STDOUT_FILENO) == -1) {
-			log_std(("ERROR:linux: system dup2 failed\n"));
+			log_std(("ERROR:linux: spawn_redirect dup2 failed\n"));
 			exit(127);
 		}
 
 		close(f);
+
+		/* set the real user id, prevent chroot programs to propagate permissions */
+		if (seteuid(getuid()) != 0) {
+			log_std(("ERROR:linux: spawn seteuid(getuid()) failed\n"));
+			exit(127);
+		}
+
+		/* set the real group id, prevent chroot programs to propagate permissions */
+		if (setegid(getgid()) != 0) {
+			log_std(("ERROR:linux: spawn setegid(getgid()) failed\n"));
+			exit(127);
+		}
 
 		/* exec the program */
 		execvp(file, (char**)argv);
@@ -488,7 +545,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 				break;
 		}
 
-		log_std(("linux: system return %d\n", r));
+		log_std(("linux: spawn_redirect return %d\n", r));
 
 		return r;
 	}
@@ -505,10 +562,24 @@ adv_error target_spawn(const char* file, const char** argv)
 		log_std(("linux: spawn arg%d %s\n", i, argv[i]));
 
 	p = fork();
-	if (p == -1)
+	if (p == -1) {
+		log_std(("ERROR:linux: spawn fork() failed\n"));
 		return -1;
+	}
 
 	if (p == 0) {
+		/* set the real user id, prevent chroot programs to propagate permissions */
+		if (seteuid(getuid()) != 0) {
+			log_std(("ERROR:linux: spawn seteuid(getuid()) failed\n"));
+			exit(127);
+		}
+
+		/* set the real group id, prevent chroot programs to propagate permissions */
+		if (setegid(getgid()) != 0) {
+			log_std(("ERROR:linux: spawn setegid(getgid()) failed\n"));
+			exit(127);
+		}
+
 		/* exec the program */
 		execvp(file, (char**)argv);
 

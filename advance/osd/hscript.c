@@ -250,11 +250,11 @@ static struct script_value* script_function2_get(struct script_value* varg0, uni
 			STATE.seed = STATE.seed * 1103515245 + 12345;
 			r = (STATE.seed / 65536) % arg0;
 		} else {
-			r = 0;
+			r = -1;
 		}
 		break;
 	default :
-		r = 0;
+		r = -1;
 		break;
 	}
 
@@ -269,26 +269,37 @@ static struct script_value* script_function2t_get(struct script_value* varg0, un
 	case 2 : /* log */
 		if (varg0->type == SCRIPT_VALUE_NUM) {
 			log_std(("script: %d\n", varg0->value.num));
+			r = 0;
 		} else if (varg0->type == SCRIPT_VALUE_TEXT) {
 			log_std(("script: %s\n", varg0->value.text));
+			r = 0;
 		} else {
 			log_std(("ERROR:script: invalid type\n"));
+			r = -1;
 		}
-		r = 0;
 		break;
 	case 3 : /* msg */
 		if (varg0->type == SCRIPT_VALUE_NUM) {
 			advance_global_message(&CONTEXT.global, "%d", varg0->value.num);
+			r = 0;
 		} else if (varg0->type == SCRIPT_VALUE_TEXT) {
 			advance_global_message(&CONTEXT.global, "%s", varg0->value.text);
+			r = 0;
 		} else {
 			log_std(("ERROR:script: invalid type\n"));
+			r = -1;
 		}
-
-		r = 0;
+		break;
+	case 5 : /* system */
+		if (varg0->type == SCRIPT_VALUE_TEXT) {
+			r = advance_global_script(&CONTEXT.global, varg0->value.text);
+		} else {
+			log_std(("ERROR:script: invalid type\n"));
+			r = -1;
+		}
 		break;
 	default :
-		r = 0;
+		r = -1;
 		break;
 	}
 
@@ -329,7 +340,7 @@ static struct script_value* script_function3_get(struct script_value* varg0, str
 		r = 0;
 		break;
 	default :
-		r = 0;
+		r = -1;
 		break;
 	}
 
@@ -347,16 +358,17 @@ static struct script_value* script_function3t_get(struct script_value* varg0, st
 			char buffer[32];
 			snprintf(buffer, sizeof(buffer), "%d", varg1->value.num);
 			advance_global_lcd(&CONTEXT.global, arg0, buffer);
+			r = 0;
 		} else if (varg1->type == SCRIPT_VALUE_TEXT) {
 			advance_global_lcd(&CONTEXT.global, arg0, varg1->value.text);
+			r = 0;
 		} else {
 			log_std(("ERROR:script: invalid type\n"));
+			r = -1;
 		}
-
-		r = 0;
 		break;
 	default :
-		r = 0;
+		r = -1;
 		break;
 	}
 
@@ -391,6 +403,9 @@ script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script
 	} else if (strcmp(sym, "rand")==0) {
 		argextra->value = 4;
 		return &script_function2_get;
+	} else if (strcmp(sym, "system")==0) {
+		argextra->value = 5;
+		return &script_function2t_get;
 	}
 	return 0;
 }

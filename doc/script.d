@@ -107,16 +107,18 @@ Functions
 			is active.
 		event(EVENT) - Return 0 if the specified event is
 			not active. Return 1 if the event is active.
-		simulate_event(EVENT,N) - Simulate the specified
-			event for N milli seconds.
-		simulate_key(KEY,N) - Simulate the specified key for
-			N milli seconds.
-		log(VALUE) - Output a value in the log file.
-		msg(VALUE) - Print on screen a value.
-		lcd(ROW, VALUE) - Display a value on the LCD at the
+		simulate_event(EVENT,NUMBER) - Simulate the specified
+			event for NUMBER milli seconds.
+		simulate_key(KEY,NUMBER) - Simulate the specified key for
+			NUMBER milli seconds.
+		log(VALUE) - Output a texr or number value in the log file.
+		msg(VALUE) - Print on screen a a text or number value.
+		system(TEXT) - Execute the specified command TEXT as a
+			shell script. Return the exit code.
+		lcd(ROW_NUMBER, VALUE) - Display a value on the LCD at the
 			specified row. The first row is 0.
-		rand(N) - Generate a random number from 0
-			to N - 1.
+		rand(NUMBER) - Generate a random number from 0
+			to NUMBER - 1.
 
 	The 'event()' command can be used to determine the end of the event
 	that started the script. For example for the 'coin1' event the

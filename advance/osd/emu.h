@@ -977,6 +977,7 @@ struct advance_global_context {
 void advance_global_message_va(struct advance_global_context* context, const char* text, va_list arg);
 void advance_global_message(struct advance_global_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
 void advance_global_lcd(struct advance_global_context* context, unsigned row, const char* text);
+int advance_global_script(struct advance_global_context* context, const char* command);
 
 adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context);
 adv_error advance_global_inner_init(struct advance_global_context* context);

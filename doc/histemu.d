@@ -1,7 +1,11 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.90 2005/01
+AdvanceMAME Version 0.90.1 2005/01
+	) Added a new `system()' script function to execute
+		a shell script.
+
+AdvanceMAME Version 0.90.0 2005/01
 	) Fixed the recognition of some USB mouses and keyboards
 		with the Linux event driver.
 	) The USB devices in Linux now have always the same order
