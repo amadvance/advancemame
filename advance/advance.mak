@@ -1140,8 +1140,7 @@ TARGET_ROOT_SRC = \
 	makefile
 
 TARGET_ADVANCE_SRC = \
-	advance/advance.mak \
-	advance/strip_
+	advance/advance.mak
 
 ifeq ($(TARGET),mess)
 TARGET_ADVANCE_SRC += advance/advmess.dif

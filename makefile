@@ -70,21 +70,15 @@ COMPRESS=1
 
 # Build environment
 HOST := $(shell uname)
-
-# Target environment
-ifndef HOST_TARGET
-ifeq ($(HOST),Linux)
-HOST_TARGET=linux
-else
-HOST_TARGET=dos
-endif
-endif
-
-# Build environment
 ifeq ($(HOST),Linux)
 HOST_BUILD=linux
 else
 HOST_BUILD=dos
+endif
+
+# Target environment
+ifndef HOST_TARGET
+HOST_TARGET=$(HOST_BUILD)
 endif
 
 ############################################################################
@@ -111,20 +105,20 @@ OBJ = obj/$(TARGET)/$(HOST_TARGET)/$(ARCH)
 ifeq ($(HOST_TARGET),linux)
 LN = @ln -s
 EXE =
-ASMPREPROCESSOR = @advance/strip_
 ASMFLAGS = -f elf
+CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
 endif
 ifeq ($(HOST_TARGET),dos)
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
+CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
 endif
 
 ifeq ($(HOST_BUILD),linux)
 EXE-HOST =
 CC-HOST = @gcc
 TOUCH = @touch
-CFLAGS-HOST = -O0
 ifeq ($(HOST_TARGET),linux)
 AR = @ar
 CC = @gcc
@@ -148,20 +142,17 @@ CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
 LDFLAGS += -L $(DJDIR)/lib
-ASMPREPROCESSOR = @true
 endif
 endif
 
 ifeq ($(HOST_BUILD),dos)
 EXE-HOST = .exe
 CC-HOST = @gcc
-CFLAGS-HOST = -O0
 AR = @ar
 CC = @gcc
 CXX = @gxx
 LD = @gcc
 LDXX = @gxx
-ASMPREPROCESSOR = @rem
 TOUCH = @rem
 endif
 
@@ -370,23 +361,21 @@ $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
 
 $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST): $(TARGETSRC)/cpu/m68000/m68kmake.c
 	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST)
-	$(CC-HOST) $(M68000FLAGS) -DDOS -o $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $<
+	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $<
 	@$(OBJ)/cpu/m68000/m68kmake$(EXE-HOST) $(OBJ)/cpu/m68000 $(TARGETSRC)/cpu/m68000/m68k_in.c > /dev/null
 
 # Generate asm source files for the 68000/68020 emulators
 $(OBJ)/cpu/m68000/make68k$(EXE-HOST): $(TARGETSRC)/cpu/m68000/make68k.c
 	$(ECHO) $@
-	$(CC-HOST) $(M68000FLAGS) -DDOS -o $(OBJ)/cpu/m68000/make68k$(EXE-HOST) $<
+	$(CC-HOST) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/make68k$(EXE-HOST) $<
 
 $(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE-HOST)
 	$(ECHO) $@
 	@$(OBJ)/cpu/m68000/make68k$(EXE-HOST) $@ $(OBJ)/cpu/m68000/68000tab.asm 00 > /dev/null
-	$(ASMPREPROCESSOR) $@
 
 $(OBJ)/cpu/m68000/68020.asm: $(OBJ)/cpu/m68000/make68k$(EXE-HOST)
 	$(ECHO) $@
 	@$(OBJ)/cpu/m68000/make68k$(EXE-HOST) $@ $(OBJ)/cpu/m68000/68020tab.asm 20 > /dev/null
-	$(ASMPREPROCESSOR) $@
 
 $(OBJ)/cpu/m68000/68000.o: $(OBJ)/cpu/m68000/68000.asm
 	$(ECHO) $@
@@ -418,6 +407,7 @@ clean:
 flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
+	$(ECHO) CFLAGS-HOST=$(CFLAGS-HOST)
 	$(ECHO) TARGETCFLAGS=$(TARGETCFLAGS)
 	$(ECHO) OSCFLAGS=$(OSCFLAGS)
 	$(ECHO) TARGETLDFLAGS=$(TARGETLDFLAGS)
