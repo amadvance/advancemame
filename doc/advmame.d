@@ -45,43 +45,43 @@ Description
 Keys
 	In the game play you can use the following keys :
 
-	ESC - Exit.
-	F1 - Help.
-	F2 - Reset the game.
-	F7 - Load a save game.
-	F8 - Previous frameskip value.
-	F9 - Next frameskip value or automatic frameskip.
-	F10 - Throttle.
-	F11 - Display frame per second.
-	F12 - Save a snapshot.
-	P - Pause.
-	PAD * - Turbo mode until pressed.
-	PAD / - Cocktail mode (flip the screen vertically).
-	PAD - - Mark the current time as the startup time of the game.
-	CTRL + ENTER - Start the sound and video recording.
-	ENTER - Stop the sound and video recording.
-	, - Previous video mode.
-	. - Next video mode.
-	TILDE - Volume Menu.
-	TAB - Main Menu.
+		ESC - Exit.
+		F1 - Help.
+		F2 - Reset the game.
+		F7 - Load a save game.
+		F8 - Previous frameskip value.
+		F9 - Next frameskip value or automatic frameskip.
+		F10 - Throttle.
+		F11 - Display frame per second.
+		F12 - Save a snapshot.
+		P - Pause.
+		PAD * - Turbo mode until pressed.
+		PAD / - Cocktail mode (flip the screen vertically).
+		PAD - - Mark the current time as the startup time of the game.
+		CTRL + ENTER - Start the sound and video recording.
+		ENTER - Stop the sound and video recording.
+		, - Previous video mode.
+		. - Next video mode.
+		TILDE - Volume Menu.
+		TAB - Main Menu.
 
 	for player 1 you can use the keys:
 
-	1 - Play.
-	5 - Insert coin.
-	ARROW - Move.
-	CTRL - First button.
-	ALT - Second button.
-	SPACE - Third button.
+		1 - Play.
+		5 - Insert coin.
+		ARROW - Move.
+		CTRL - First button.
+		ALT - Second button.
+		SPACE - Third button.
 
 	for player 2 you can use the keys:
 
-	2 - Play.
-	6 - Insert coin.
-	R, F, D, G - Move.
-	A - First button.
-	S - Second button.
-	Q - Third button.
+		2 - Play.
+		6 - Insert coin.
+		R, F, D, G - Move.
+		A - First button.
+		S - Second button.
+		Q - Third button.
 
 Options
 	This is the list of the available command line options:
@@ -653,15 +653,19 @@ Configuration
 		dir_snap - $home/snap
 		dir_crc - $home/crc
 
+	If a not absolute dir is specified, in Linux and Mac OS X
+	it's expanded as "$home/DIR:$data/DIR". In DOS and Windows
+	it's maintained relative.
+
 	For the `dir_rom' and `dir_image' the following file
 	combinations are tried:
 
-	* DIR/GAME/Name.EXT
-	* DIR/GAME.zip/Name.EXT
-	* DIR/GAME/Name.zip/Name.EXT
+	* DIR/GAME/ROM.EXT
+	* DIR/GAME.zip/ROM.EXT
+	* DIR/GAME/ROM.zip/ROM
 
 	Where DIR is every directories specified, GAME is the name of
-	the game or machine emulated, Name if the rom name, EXT if the
+	the game or machine emulated, ROM if the rom name, EXT if the
 	rom extension.
 
 	For the files searched in the `dir_image' option you can also
@@ -1790,7 +1794,7 @@ Configuration
 	To use the LCD support you must install on your system the `lcdproc'
 	program available at:
 
-		http://lcdproc.sourceforge.net
+		+http://lcdproc.sourceforge.net/
 
 	More details and some examples of how to display information on the LCD
 	using the scripts are in the `script.txt' documentation file.
@@ -1864,8 +1868,9 @@ Configuration
 		hardest - Hardest game play.
 
     misc_freeplay
-	Selects the freeplay mode if the game support it. This option works
-	only with games which select the freeplay mode with dip switches.
+	Selects the freeplay mode if the game support it. This
+	option works only with games which select the freeplay mode
+	with dip switches.
 
 	:misc_freeplay yes | no
 
@@ -1874,15 +1879,40 @@ Configuration
 		yes - Activate the freeplay.
 
     misc_mutedemo
-	Selects the demo sound mode if the game support it. This option use
-	the dip switches of the game and also the event database to detect
-	if the game is in demo mode.
+	Selects the demo nosound mode if the game support it. This
+	option uses the dip switches of the game and also the
+	event database to detect if the game is in demo mode.
 
 	:misc_mutedemo yes | no
 
 	Options:
 		no - Don't change the default mode (default).
 		yes - Mute the demo sounds.
+
+    misc_lang
+	Selects the game language and country. This option uses
+	both the dip switches and the clones description to select
+	the correct game to run.
+
+	:misc_lang none | usa | canada | englang | italy | germany
+	:	| spain | austria | norway | france | denmark
+	:	| japan | korea | china | hongkong | taiwan
+
+	Options:
+		none - Don't change the language (default).
+		LANG - If available select this language.
+
+	For example if you run `cadash' with `-lang italy' it's
+	run the clone `cadashi'. If you run `cheesech' with
+	`-lang germany' it's run `cheesech' setting the `Language'
+	dipswitch to `German'.
+
+	If the specified language is not available, european and
+	american languages fallback to english language.
+	Asian languages fallback to japanese language.
+
+	A game clone is selected only if it's a perfectly working
+	clone.
 
     misc_smp
 	Enables the "Symmetric Multi-Processing" (SMP).

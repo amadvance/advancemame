@@ -117,7 +117,7 @@ Use In Windows
 	800x600, 1024x768 and 1280x1024. Any other mode is ignored.
 
 Tests
-	+Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy)
+	+Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy/)
 	+Duke Nukem 3D with the `s3' driver
 	+Quake 1.0 with the `s3' driver
 	+Windows 98 SE with the `s3' driver

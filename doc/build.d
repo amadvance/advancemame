@@ -11,14 +11,14 @@ Preparing The Sources
 	Instead, if you are using one of the `diff' source package you need
 	to complete the sources with the original emulator source.
 
-    AdvanceMAME
+  AdvanceMAME
 	To compile AdvanceMAME you need the MAME source of the same
 	version of AdvanceMAME. Please note that you must use the original emulator
 	source, you cannot use the source of another MAME clone like xmame.
 
 	The original MAME sources can be downloaded from:
 
-		http://www.mame.net
+		+http://www.mame.net/
 
 	To complete the source you need to unzip the original MAME archive
 	in a different directory and copy some files in the AdvanceMAME
@@ -55,7 +55,7 @@ Preparing The Sources
 		:cd src
 		:patch -p1 < ../advance/advmame.dif
 
-    AdvanceMESS
+  AdvanceMESS
 	To compile AdvanceMESS you need the MAME and MESS source of
 	the same version of AdvanceMESS. Please note that you must use the
 	original emulator source, you cannot use the source of another MAME
@@ -63,11 +63,11 @@ Preparing The Sources
 
 	The original MAME sources can be downloaded from:
 
-		http://www.mame.net
+		+http://www.mame.net/
 
 	The original MESS sources can be downloaded from:
 
-		http://mess.emuverse.com
+		+http://www.mess.org/
 
 	To complete the source you need to unzip the original MAME and MESS
 	archives in different directories and copy some files
@@ -114,7 +114,7 @@ Preparing The Sources
 		:patch -p1 < ../advance/mess.dif
 
 Configuring
-    Linux/Mac OS X/Generic Unix
+  Linux/Mac OS X/Generic Unix
 	Run the `./configure' script.
 
 	Generally no extra option is required. You can get the complete
@@ -144,7 +144,7 @@ Configuring
 		:./configure CC=icc CFLAGS="-I/usr/local/include -O3 -march=pentium4" \
 		:	LDFLAGS="-lsvml"
 
-    DOS/Windows
+  DOS/Windows
 	In DOS/Windows you need to manually copy the `Makefile.usr' file as
 	`Makefile' and edit the first section to match your requirements.
 
@@ -154,7 +154,7 @@ Compiling
 	To compile run `make'.
 
 Installing
-    Linux/Mac OS X/Generic Unix
+  Linux/Mac OS X/Generic Unix
 	Run `make install' to install the binaries and the documentation.
 	The binaries are installed in $prefix/bin, the program data files in
 	$prefix/share/advance, the documentation in $prefix/share/doc/advance,
@@ -165,14 +165,14 @@ Installing
 	In Mac OS X please check that the directory $prefix/bin is in the
 	search PATH. Generally /usr/local/bin isn't.
 
-    DOS/Windows
+  DOS/Windows
 	Copy manually the compiled executables in a directory of your choice.
 
 Requirements
 	To compile AdvanceMAME you need at least 128 Mbyte of memory, 256 Mbyte
 	are suggested.
 
-    Linux
+  Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
 		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 (or newer)
@@ -191,7 +191,7 @@ Requirements
 	Other versions should work.
 
 	The SVGALIB 1.4.x versions are NOT supported. Download the latest
-	ALPHA 1.9.x or 2.0.x version from http://www.svgalib.org.
+	ALPHA 1.9.x or 2.0.x version from http://www.svgalib.org/.
 	In the contrib/svgalib directory there are some source patches to
 	fix some problems of the library.
 	Remember to edit the /etc/vga/libvga.conf file with your settings.
@@ -201,7 +201,7 @@ Requirements
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.
 
-    Mac OS X
+  Mac OS X
 	To build in Mac OS X and other Unix you need the following
 	software:
 		:GNU gcc C/C++ 2.95.3 (or newer)
@@ -225,7 +225,7 @@ Requirements
 	library. Generally "./configure --with-sdl-prefix=/usr/local" is
 	enough.
 
-    DOS
+  DOS
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
 		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 [gcc*b.zip gpp*b.zip]
@@ -244,7 +244,7 @@ Requirements
 	The versions 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
-	The patched SEAL library is available at http://www.mame.net
+	The patched SEAL library is available at http://www.mame.net/.
 
 	Ensure to have the DOS version of NASM. If you have the Windows
 	version named `nasmw.exe' you must rename it as `nasm.exe' or
@@ -260,7 +260,7 @@ Requirements
 	You may need to use different paths to the files, especially for
 	collect2.exe.
 
-    Windows
+  Windows
 	To build in Windows you need the following software:
 		:MINGW 1.1 (or newer)
 		:MINGW GNU gcc C/C++ 2.95.3 (or never)
@@ -272,7 +272,7 @@ Requirements
 	The only tested compiler version is 2.95.3. Other versions
 	should work.
 
-    Generic Unix
+  Generic Unix
 	To build in a generic Unix environment you need the following
 	software:
 		:GNU gcc C/C++ 2.95.3 (or newer)

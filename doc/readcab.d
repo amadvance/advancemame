@@ -6,7 +6,7 @@ Name
 
 	The official site of AdvanceCAB is :
 
-		http://advancemame.sourceforge.net
+		+http://advancemame.sourceforge.net/
 
 	This package contains :
 		vga - VGA BIOS wrapper for DOS

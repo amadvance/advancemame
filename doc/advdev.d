@@ -214,7 +214,7 @@ Sound Drivers
 	The source patch and the library source can be downloaded from
 	the MAME site :
 
-		http://www.mame.net
+		+http://www.mame.net/
 
     allegro - Allegro sound (DOS)
 	This driver works in DOS and it uses the Allegro library.
@@ -225,7 +225,7 @@ Sound Drivers
 
 	More info is in the VSyncMAME page :
 
-		http://vsyncmame.mameworld.net
+		+http://vsynchmame.mameworld.net/
 
 Input Drivers
   Available Keyboard Drivers

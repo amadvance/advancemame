@@ -1096,10 +1096,12 @@ Configuration
 		:info_import ini "advmame" "catver.ini" "VerAdded"
 
 	The CATLIST files can be downloaded at :
-		http://www.mameworld.net/catlist/
+
+		+http://www.mameworld.net/catlist/
 
 	The MacMAME files can downloaded at:
-		http://www.tznet.com/cmader/categories.html
+
+		+http://www.tznet.com/cmader/categories.html
 
     lock
 	Lock or Unlock the user interface. When locked, the user can

@@ -1,9 +1,25 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.83.1 2004/06
+AdvanceMAME Version 0.83.1 2004/07
 	) Enabled the MIPS dinamic recompilation in DOS and
 		Windows.
+	) On Linux you can now specify relative directories
+		in the `dir_*' options.
+	) Fixed some problems enabling and disabling SMP at
+		runtime.
+	) Revised the `install' documentation file and the `link'
+		section of the web site.
+	) Added the `misc_lang' option to select the game
+		language.
+
+AdvanceMESS Version 0.83.0.1 2004/06
+	) The input port customizations are now saved
+		for the current software only.
+	) Fixed some issues saving options with software
+		containing spaces in the name.
+	) Fixed input saving for `coleco' system.
+	) All from AdvanceMAME 0.83.1.
 
 AdvanceMAME Version 0.83.0 2004/06
 	) Added the option "ui_speedmark" to enable or disable the onscreen

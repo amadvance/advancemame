@@ -4,7 +4,7 @@ Name
 	This is a cost estimation of the Advance Projects
 	generated using the SLOCCount program by David A. Wheeler from :
 
-		http://www.dwheeler.com/sloccount/
+		+http://www.dwheeler.com/sloccount/
 
 	Only the specifically written for the Advance project are present
 	in this estimation. The sources imported from other projects,

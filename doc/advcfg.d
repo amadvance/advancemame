@@ -11,8 +11,14 @@ Description
 
 	This utility works differently if one of the -advmamec,
 	-advmessc and -advmenuc option is specified.
-	The main difference is the the name of the configuration
+	The main difference is the name of the configuration
 	file used to store the video modes.
+
+	All the video modes used in the configuration process
+	have always negative horizontal and vertical sync polarity.
+
+	Check the `advdev.txt' file for more details on the video
+	drivers supported.
 
 Options
 	-rc RCFILE
@@ -28,23 +34,40 @@ Options
 		log file in presence of a machine crash.
 
 	-advmamec, -advmessc, -advmenuc
-		Select the mode of operation for the programs `advmame',
-		`advmess' and `advmenu'.
+		Select the mode of operation for the programs
+		`advmame', `advmess' and `advmenu'.
 		The default is for `advmame'.
 
 	-bit N
 		Select the bit depth of the test video modes.
-		If omitted the 8 bit modes are used.
+		If omitted 8 bit modes are used.
 		Valid values are 8, 15, 16 and 32.
 
 Configuration
-	Depending one the command line options used one of the `advmame.rc',
-	`advmess.rc' and `advmenu.rc' file is used to load and save
-	the video configuration.
+	Depending one the command line options used one of the
+	`advmame.rc', `advmess.rc' and `advmenu.rc' file is used
+	to load and save the video configuration.
 
-	Check the `advdev.txt' file for more details on the video drivers
-	and video options supported.
+	If the configuration process completes with success the
+	program adds these options in your configuration file:
+
+		:device_video_pclock ?
+		:device_video_hclock ?
+		:device_video_vclock ?
+		:device_video_format ?
+
+	which define the capabilities of your monitor and video board.
+	And for the `advmame' and `advmess' modes also the options:
+
+		:display_mode auto
+		:display_adjust generate_yclock
+
+	which select the `automatic' video mode generation of the
+	emulators.
+
+	All these options are documented in the `advdev.txt'
+	and `advmame.txt' files.
 
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

@@ -73,7 +73,7 @@ Application Problems
 	Add only the best modelines and avoid duplicates.
 
 Tests
-	+Doom Legacy with a GeForce 2 board (http://www.newdoom.com/doomlegacy)
+	+Doom Legacy with a GeForce 2 board (http://www.newdoom.com/doomlegacy/)
 	+Duke Nukem 3D with a GeForce 2 board
 
 Examples

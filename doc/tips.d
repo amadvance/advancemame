@@ -7,12 +7,12 @@ Speed Tips That Don't Reduce The Emulation Quality
 	The following are simple tips to improve the speed of the
 	emulation without any quality degradation.
 
-    Disk Cache
+  Disk Cache
 	Ensure to have a disk cache loaded. If you are using DOS load
 	the SMARTDRV utility. If you are short in memory use a very
 	small cache like 1MB.
 
-    System memory
+  System memory
 	If you are using DOS ensure that you are using the whole
 	system memory. Incorrect configuration may result in upper
 	memory limit of 32/64/128 MB.
@@ -24,17 +24,17 @@ Speed Tips That Don't Reduce The Emulation Quality
 	If this doesn't happen check the DOS faq for a correct DOS
 	configuration.
 
-    Video memory bandwidth
+  Video memory bandwidth
 	Enable the "PCI write combining" feature for your video board
 	"Linear Frame Buffer".
 	In DOS and Windows try with the FASTVID utility from:
 
-		http://www.fastgraphics.com
+		+http://www.fastgraphics.com/
 
 	In Linux you need to activate the MTRR support of your kernel
 	and configure it. Check the documentation in:
 
-		file://usr/src/linux/Documentation/mtrr.txt
+		+file:///usr/src/linux/Documentation/mtrr.txt
 
 	You can test the effects of the changes using the `advv'
 	utility pressing F9 on a standard video mode like
@@ -46,7 +46,7 @@ Speed Tips That Reduce The Emulation Quality
 	The following are simple tips to improve the speed of the
 	emulation with a quality degradation.
 
-    Sound rate
+  Sound rate
 	Select a lower sample rate than the default 44100 with the
 	option :
 
@@ -54,7 +54,7 @@ Speed Tips That Reduce The Emulation Quality
 
 	A more aggressive value is 11025.
 
-    Video depth
+  Video depth
 	Force the use of the 8 bit depth with the option :
 
 		:display_depth 8

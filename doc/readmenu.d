@@ -9,7 +9,7 @@ Name
 
 	The official site of AdvanceMENU is :
 
-		http://advancemame.sourceforge.net
+		+http://advancemame.sourceforge.net/
 
 	This package contains :
 		advmenu - The frontend.

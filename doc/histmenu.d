@@ -1,8 +1,12 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.3.6 2004/06
+AdvanceMENU Version 2.3.6 2004/07
 	) Removed the copyright message box at startup.
+	) On Linux you can now specify relative directories
+		in the `emulator_altss/roms/*' options.
+	) If no game is shown, the reason is explicated at the user.
+	) Improved the xmame support.
 
 AdvanceMENU Version 2.3.5 2004/06
 	) Added volume control at the `oss' audio driver.

@@ -8,9 +8,8 @@ Synopsis
 
 Description
 	The `advv' utility is the main video configuration program
-	for AdvanceMAME, AdvanceMESS, AdvanceMENU, AdvanceVBE and
-	AdvanceVGA.
-	It selects, creates and tweaks video modes interactively.
+	for the Advance programs. It selects, creates and tweaks
+	video modes interactively.
 
 	This utility works differently if one of the -advmamev,
 	-advmessv, -advmenuv, -vbev, -vgav and -videowv options
@@ -18,8 +17,18 @@ Description
 	The main difference is the the name of the configuration
 	file used to store the video modes.
 
-	Check the `advdev.txt' file for more details on the video drivers
-	supported.
+	Before running this utility you must add in your configuration
+	file the options:
+
+		:device_video_pclock ?
+		:device_video_hclock ?
+		:device_video_vclock ?
+
+	required to defines the limits of your monitor and video
+	board. You can add them manually or using the `advcfg'
+	utility.
+
+	Check the `advdev.txt' file for more details on these options.
 
 Options
 	-rc RCFILE
@@ -55,28 +64,35 @@ Use
 	modes in the configuration file. At the next run the emulator
 	will use one of the modelines that you have chosen.
 
-	If you have problem please read the TROUBLESHOOTING chapter in
-	the `install.txt' file.
+	If you have problem please read the `Troubleshooting' chapter
+	in the `install.txt' file.
 
-	If you have correctly configured the `device_p/h/vclock'
+	If you have correctly configured the `device_video_p/h/vclock'
 	options in your configuration file, the video modes out of
 	the frequency range supported by your monitor are displayed
 	in red, and you are prevented to use them.
 
   Creating Video Modes
-	To create a new modeline you should press F5 and you must enter
-	the :
+	To create a new modeline you should press F5 or F6.
+
+	You will be asked for:
 
 	* Vertical clock
 	* Horizontal resolution
 	* Vertical resolution
 
 	If possible, a video mode compatible with your current monitor
-	configuration is created.
+	configuration is created. If a such mode doesn't exist,
+	with F5 are favorite video modes with the specified size,
+	with F6 are favorite video modes with the specified vertical
+	frequency.
 
 	If a the `device_video_format' option is present in your
-	configuration file, the video mode is created with this format.
-	Otherwise a generic VGA monitor format is used.
+	configuration file, the video mode is created with this
+	format. Otherwise the generic VGA monitor format is used.
+
+	All the video modes created have always negative horizontal
+	and vertical sync polarity.
 
   Adjusting Modelines
 	You can modify the modelines in the test screen pressing ENTER
@@ -88,7 +104,7 @@ Use
 	are in the list screen you don't have this limitation.
 
 	If you request a parameter not supported by your hardware
-	you hear an acute short sound.
+	you will hear an acute short sound.
 
 	You can easily change one of the clock values of your modelines
 	pressing F8.
@@ -118,9 +134,6 @@ Configuration
 	`advmess.rc', `advmenu.rc', `vbe.rc', `vga.rc' and
 	`videow.rc' file is used to load and save the video configuration.
 
-	Check the `advdev.txt' file for more details on the video drivers
-	and video options supported.
-
 Copyright
-	This file is Copyright (C) 2003 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
 

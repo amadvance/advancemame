@@ -30,7 +30,7 @@ System Requirements
 	but the Advance programs you need at least the version 1.9.14
 	available at:
 
-		http://www.svgalib.org
+		+http://www.svgalib.org/
 
 	For both the Frame Buffer driver and the SVGALIB library some
 	additional patches are available in the `contrib/' directory.
@@ -74,7 +74,7 @@ System Requirements
 
 	The SDL library is available at:
 
-		http://www.libsdl.org
+		+http://www.libsdl.org/
 
 Installation
 	The suggested way to installing the Advance programs is to start 
@@ -144,7 +144,7 @@ Video Hardware
 	A lot of useful links are available on the AdvanceMAME video
 	link page:
 
-		http://advancemame.sourceforge.net/video-link.html
+		+http://advancemame.sourceforge.net/video-link.html
 
   Multi Sync Monitors
 	Multi Sync monitors support a wide range of horizontal clocks
@@ -351,17 +351,17 @@ Video Setup
 	monitor manual for the vertical and horizontal clocks
 	supported by your monitor.
 
-	The `advcfg' utility add these options in your `advmame.rc'
-	and `advmenu.rc':
+	The `advcfg' utility adds these options in your `advmame.rc' :
 
-		:display_mode auto (only for advmame)
-		:display_adjust generate_yclock (only for advmame)
-		:device_video_pclock (obtained from used input)
-		:device_video_hclock (obtained from used input)
-		:device_video_vclock (obtained from used input)
-		:device_video_format (obtained from used input)
+		:display_mode auto
+		:display_adjust generate_yclock
+		:device_video_pclock ?
+		:device_video_hclock ?
+		:device_video_vclock ?
+		:device_video_format ?
 
-	All these options are documented in the `advdev.txt' file.
+	All these options are documented in the `advdev.txt'
+	and `advmame.txt' files.
 
     Manual Operation Mode
 	In the manual operation mode the programs scan a list of `good'
