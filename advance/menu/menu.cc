@@ -1640,8 +1640,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 			break;
 		default:
-			if (key<0xFF && isalnum(key)) {
-				oldfast.insert(oldfast.length(), 1, key);
+			if (key>32 && key<128 && isalnum(key)) {
+				oldfast.insert(oldfast.length(), 1, (char)key);
 				menu_array::const_iterator i;
 				for(i=gc.begin();i!=gc.end();++i) {
 					if (menu_fast_compare((*i)->desc_get(), oldfast)) {

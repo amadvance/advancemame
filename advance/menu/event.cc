@@ -23,6 +23,7 @@
 #include "event.h"
 #include "common.h"
 #include "play.h"
+#include "log.h"
 
 #include "target.h"
 #include "keydrv.h"
@@ -33,7 +34,6 @@ using namespace std;
 
 static deque<int> event_queue;
 static int event_last_push = EVENT_NONE;
-static int event_last_code = EVENT_NONE;
 static target_clock_t event_last_time;
 static unsigned event_last_counter;
 static bool event_alpha_mode;
@@ -70,7 +70,6 @@ static struct event_item EVENT_TAB[] = {
 {"pgdn", EVENT_PGDN, { KEYB_PGDN, KEYB_MAX } },
 {"del", EVENT_DEL, { KEYB_DEL, KEYB_MAX } },
 {"ins", EVENT_INS, { KEYB_INSERT, KEYB_MAX } },
-
 {"shutdown", EVENT_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
 {"mode", EVENT_MODE, { KEYB_TAB, KEYB_MAX } },
 {"help", EVENT_HELP, { KEYB_F1, KEYB_MAX } },
@@ -342,6 +341,8 @@ void event_push_repeat(int event)
 	if (event == EVENT_NONE)
 		return;
 
+	event_last_push = event;
+
 	event_queue.push_front(event);
 }
 
@@ -393,6 +394,8 @@ static void event_push_filter(int event)
 	if (event == EVENT_NONE)
 		return;
 
+	int last = event_last_push;
+
 	event_last_push = event;
 
 	struct event_item* i;
@@ -405,12 +408,11 @@ static void event_push_filter(int event)
 		event_push_norepeat(event, i->time, i->counter);
 	} else {
 		// for alphanumeric keys
-		if (event_last_code != event) {
+		if (last != event) {
 			event_last_time = 0;
 			event_last_counter = 0;
 		}
 		event_push_norepeat(event, event_last_time, event_last_counter);
-		event_last_code = event;
 	}
 }
 
@@ -439,11 +441,16 @@ void event_poll()
 
 void event_push(int event)
 {
-	for(struct event_item* i=EVENT_TAB;i->name;++i) {
+	struct event_item* i;
+	for(i=EVENT_TAB;i->name;++i) {
 		if (i->event == event) {
 			i->simulate = true;
 			break;
 		}
+	}
+
+	if (!i->name) {
+		log_std(("ERROR:event: unknown event %d\n", event));
 	}
 }
 

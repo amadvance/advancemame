@@ -2662,12 +2662,12 @@ static void int_idle()
 			&& elapsed > int_idle_0_rep
 		) {
 			log_std(("text: push IDLE_0 repeat\n"));
-			event_push(EVENT_IDLE_0);
+			event_push_repeat(EVENT_IDLE_0);
 		} else if (int_idle_0 != 0
 			&& elapsed > int_idle_0
 		) {
 			log_std(("text: push IDLE_0\n"));
-			event_push(EVENT_IDLE_0);
+			event_push_repeat(EVENT_IDLE_0);
 		}
 	}
 
@@ -2677,12 +2677,12 @@ static void int_idle()
 			&& elapsed > int_idle_1_rep
 		) {
 			log_std(("text: push IDLE_1 repeat\n"));
-			event_push(EVENT_IDLE_1);
+			event_push_repeat(EVENT_IDLE_1);
 		} else if (int_idle_1 != 0
 			&& elapsed > int_idle_1
 		) {
 			log_std(("text: push IDLE_1\n"));
-			event_push(EVENT_IDLE_1);
+			event_push_repeat(EVENT_IDLE_1);
 		}
 	}
 

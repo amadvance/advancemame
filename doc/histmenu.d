@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.4 2004/12
+	) Fixed the screensaver and the alphanumeric selection.
+
 AdvanceMENU Version 2.4.3 2004/12
 	) The selection in the Groups/Types/Emulators
 		listing menu is not more intuitive. If only
