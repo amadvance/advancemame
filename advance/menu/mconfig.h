@@ -213,6 +213,9 @@ class config_emulator_state {
 	bool include_type_set_effective; ///< If the type include is set.
 	category_container include_type_effective; ///< Included types.
 
+	bool resetgame_set_unique; ///< If the reset is set.
+	bool resetgame_unique; ///< Reset to text mode before running games.
+
 public:
 	bool load(adv_conf* config_context, const std::string& section);
 	void save(adv_conf* config_context, const std::string& section);
@@ -231,6 +234,7 @@ public:
 	bool preview_has();
 	bool include_group_has();
 	bool include_type_has();
+	bool resetgame_has();
 
 	void sort_unset();
 	void mode_unset();
@@ -243,6 +247,8 @@ public:
 	void preview_set(listpreview_t A);
 	void include_group_set(const category_container& A);
 	void include_type_set(const category_container& A);
+
+	bool resetgame_get();
 };
 
 class config_state {
@@ -276,12 +282,17 @@ class config_state {
 	emulator_container include_emu_orig; ///< Original included emulators.
 	emulator_container include_emu_effective; ///< Included emulators.
 
+	bool default_resetgame_unique; ///< Reset to text mode before running games.
+	bool resetexit; ///< Reset to text mode at exit.
+
 public:
 	listsort_t sort_get();
 	listmode_t mode_get();
 	listpreview_t preview_get();
 	const category_container& include_group_get();
 	const category_container& include_type_get();
+	bool resetgame_get(const game*);
+	bool resetexit_get();
 
 	void sort_set(listsort_t A);
 	void mode_set(listmode_t A);
@@ -310,8 +321,6 @@ public:
 
 	// video
 	unsigned video_size; ///< Preferred video x size.
-	bool video_reset_mode_game; ///< Reset to text mode before running games.
-	bool video_reset_mode_exit; ///< Reset to text mode at exit.
 	std::string video_font_path; ///< Font path, "auto"== default.
 	int video_fontx; ///< Font size, "-1"==auto.
 	int video_fonty; ///< Font size, "-1"==auto.

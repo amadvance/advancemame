@@ -380,7 +380,7 @@ adv_error target_apm_shutdown(void)
 {
 	int r;
 
-	r = system("/sbin/poweroff");
+	r = execl("/sbin/poweroff", "/sbin/poweroff", 0);
 
 	if (!WIFEXITED(r) || WEXITSTATUS(r) != 0)
 		return -1;

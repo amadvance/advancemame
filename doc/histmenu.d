@@ -4,6 +4,8 @@ Name
 AdvanceMENU Version 2.4.6 2005/01
 	) Before running any external program all the
 		privileges of suid/gid programs are dropped.
+	) The option `display_restoreatgame' can now be customized
+		for different emulator.
 
 AdvanceMENU Version 2.4.5 2005/01
 	) Fixed the recognition of some USB mouses and keyboards

@@ -667,9 +667,11 @@ Configuration
 	Selects whether to reset the video mode before running the
 	emulator.
 
-	:display_restoreatgame yes | no
+	:[EMULATOR/]display_restoreatgame yes | no
 
 	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
 		yes - Reset the video mode (default).
 		no - Maintain the current graphics mode.
 

@@ -273,6 +273,7 @@ adv_error conf_int_get(adv_conf* context, const char* tag, int* result);
 adv_error conf_float_get(adv_conf* context, const char* tag, double* result);
 adv_error conf_string_get(adv_conf* context, const char* tag, const char** result);
 adv_error conf_int_section_get(adv_conf* context, const char* section, const char* tag, int* result);
+adv_error conf_bool_section_get(adv_conf* context, const char* section, const char* tag, int* result);
 adv_error conf_string_section_get(adv_conf* context, const char* section, const char* tag, const char** result);
 
 adv_conf_value* conf_value_get(adv_conf* context, const char* tag);

@@ -160,7 +160,7 @@ int run_sub(config_state& rs, bool silent)
 			else
 				rs.current_clone = rs.current_game;
 		}
-		if (!rs.video_reset_mode_game)
+		if (!rs.resetgame_get(rs.current_clone))
 			run_runinfo(rs);
 	}
 
@@ -289,7 +289,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	play_done();
 
 	log_std(("menu: int_unset call\n"));
-	int_unset((is_terminate && rs.video_reset_mode_exit) || (!is_terminate && rs.video_reset_mode_game));
+	int_unset((is_terminate && rs.resetexit_get()) || (!is_terminate && rs.resetgame_get(rs.current_clone)));
 
 	return key;
 }

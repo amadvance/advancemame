@@ -817,8 +817,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	video_gamma = conf_float_get_default(config_context, "display_gamma");
 	video_brightness = conf_float_get_default(config_context, "display_brightness");
-	video_reset_mode_game = conf_bool_get_default(config_context, "display_restoreatgame");
-	video_reset_mode_exit = conf_bool_get_default(config_context, "display_restoreatexit");
+	resetexit = conf_bool_get_default(config_context, "display_restoreatexit");
+	default_resetgame_unique = conf_bool_get_default(config_context, "display_restoreatgame");
 	quiet = conf_bool_get_default(config_context, "misc_quiet");
 	if (!config_split(conf_string_get_default(config_context, "ui_gamemsg"), ui_gamemsg))
 		return false;
@@ -1449,6 +1449,24 @@ const category_container& config_state::include_type_get()
 		return default_include_type_effective;
 }
 
+bool config_state::resetgame_get(const game* g)
+{
+	// In multiple emulator listing, returns always the specific
+	// emulator value depending on the game selected.
+	if (!g)
+		return default_resetgame_unique;
+
+	if (!g->emulator_get()->config_get().resetgame_has())
+		return default_resetgame_unique;
+
+	return g->emulator_get()->config_get().resetgame_get();
+}
+
+bool config_state::resetexit_get()
+{
+	return resetexit;
+}
+
 void config_state::sort_set(listsort_t A)
 {
 	if (sub_has())
@@ -1607,6 +1625,7 @@ void config_import::import(game_set& gar, config_state& config, void (config_sta
 bool config_emulator_state::load(adv_conf* config_context, const string& section)
 {
 	int i;
+	adv_bool b;
 
 	if (conf_int_section_get(config_context, section.c_str(), "sort", &i) == 0) {
 		sort_set_orig = true;
@@ -1643,6 +1662,13 @@ bool config_emulator_state::load(adv_conf* config_context, const string& section
 		include_type_set_orig = true;
 	} else {
 		include_type_set_orig = false;
+	}
+
+	if (conf_bool_section_get(config_context, section.c_str(), "display_restoreatgame", &b) == 0) {
+		resetgame_set_unique = true;
+		resetgame_unique = b;
+	} else {
+		resetgame_set_unique = false;
 	}
 
 	return true;
@@ -1736,6 +1762,11 @@ bool config_emulator_state::include_type_has()
 	return include_type_set_effective;
 }
 
+bool config_emulator_state::resetgame_has()
+{
+	return resetgame_set_unique;
+}
+
 listsort_t config_emulator_state::sort_get()
 {
 	return sort_effective;
@@ -1759,6 +1790,11 @@ const category_container& config_emulator_state::include_group_get()
 const category_container& config_emulator_state::include_type_get()
 {
 	return include_type_effective;
+}
+
+bool config_emulator_state::resetgame_get()
+{
+	return resetgame_unique;
 }
 
 void config_emulator_state::sort_set(listsort_t A)
