@@ -16,9 +16,9 @@ PREFIX=@prefix@
 #   SVGALIB, Frame Buffer, SDL for the video
 #   SLang, SDL for the text
 #   ALSA, OSS, SDL for the sound
-#   SVGALIB, SDL, KRAW for the keyboard
+#   SVGALIB, KRAW, SDL for the keyboard
 #   SVGALIB, SDL for the joystick
-#   SVGALIB, SDL for the mouse
+#   SVGALIB, MRAW, SDL for the mouse
 #   pthread for the Multiprocessor support
 #
 # The dos host uses:
@@ -53,6 +53,7 @@ PREFIX=@prefix@
 #CONF_LIB_PTHREAD=yes
 #CONF_LIB_SLANG=yes
 #CONF_LIB_KRAW=yes
+#CONF_LIB_MRAW=yes
 
 # Select the optimization flags: (optimized build for 386 by default)
 # Optimized build for Pentium
@@ -102,6 +103,7 @@ CONF_LIB_SVGAWIN=@CONF_LIB_SVGAWIN@
 CONF_LIB_PTHREAD=@CONF_LIB_PTHREAD@
 CONF_LIB_SLANG=@CONF_LIB_SLANG@
 CONF_LIB_KRAW=@CONF_LIB_KRAW@
+CONF_LIB_MRAW=@CONF_LIB_MRAW@
 CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
 CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
 CONF_LDFLAGS=@CONF_LDFLAGS@
@@ -181,6 +183,10 @@ endif
 
 ifndef CONF_LIB_KRAW
 CONF_LIB_KRAW=yes
+endif
+
+ifndef CONF_LIB_MRAW
+CONF_LIB_MRAW=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH

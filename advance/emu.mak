@@ -96,6 +96,12 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/kraw.o
 endif
+ifeq ($(CONF_LIB_MRAW),yes)
+ADVANCECFLAGS += \
+	-DUSE_MOUSE_RAW
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/mraw.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

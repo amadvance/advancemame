@@ -42,10 +42,29 @@ extern "C" {
 /***************************************************************************/
 /* Internal */
 
+/* Check if svgalib is used in some way */
+#if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
+#define USE_SVGALIB
 void* os_internal_svgalib_get(void);
+#endif
+
+/* Check if sLang is used in some way */
+#if defined(USE_VIDEO_SLANG) || defined(USE_INPUT_SLANG)
+#define USE_SLANG
 void* os_internal_slang_get(void);
-void* os_internal_sdl_get(void);
+#endif
+
+/* Check if dga is used in some way */
+#if defined(USE_VIDEO_X) || defined(USE_KEYBOARD_X) || defined(USE_MOUSE_X)
+#define USE_X
 void* os_internal_x_get(void);
+#endif
+
+/* Check if SDL is used in some way */
+#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL) || defined(USE_INPUT_SDL)
+#define USE_SDL
+void* os_internal_sdl_get(void);
+#endif
 
 #ifdef __cplusplus
 }

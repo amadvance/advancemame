@@ -46,28 +46,21 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-/* Check if svgalib is used in some way */
-#if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
-#define USE_SVGALIB
+#if defined(USE_SVGALIB)
 #include <vga.h>
 #include <vgamouse.h>
 #endif
 
-/* Check if sLang is used in some way */
-#if defined(USE_VIDEO_SLANG) || defined(USE_INPUT_SLANG)
+#if defined(USE_SLANG)
 #define USE_SLANG
 #include <slang/slang.h>
 #endif
 
-/* Check if dga is used in some way */
-#if defined(USE_VIDEO_X) || defined(USE_KEYBOARD_X) || defined(USE_MOUSE_X)
-#define USE_X
+#if defined(USE_X)
 #include <X11/Xlib.h>
 #endif
 
-/* Check if SDL is used in some way */
-#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL) || defined(USE_INPUT_SDL)
-#define USE_SDL
+#if defined(USE_SDL)
 #include "ossdl.h"
 #include "SDL.h"
 #include "ksdl.h"
@@ -273,41 +266,41 @@ int os_inner_init(const char* title)
 	return 0;
 }
 
+#if defined(USE_SVGALIB)
 void* os_internal_svgalib_get(void)
 {
-#if defined(USE_SVGALIB)
 	if (OS.svgalib_active)
 		return &OS.svgalib_active;
-#endif
 	return 0;
 }
+#endif
 
+#if defined(USE_SLANG)
 void* os_internal_slang_get(void)
 {
-#if defined(USE_SLANG)
 	if (OS.slang_active)
 		return &OS.slang_active;
-#endif
 	return 0;
 }
+#endif
 
+#if defined(USE_X)
 void* os_internal_x_get(void)
 {
-#if defined(USE_X)
 	if (OS.x_active)
 		return OS.x_display;
-#endif
 	return 0;
 }
+#endif
 
+#if defined(USE_SDL)
 void* os_internal_sdl_get(void)
 {
-#if defined(USE_SDL)
 	if (OS.sdl_active)
 		return &OS.sdl_active;
-#endif
 	return 0;
 }
+#endif
 
 void os_inner_done(void)
 {
@@ -334,9 +327,7 @@ void os_inner_done(void)
 #endif
 #ifdef USE_SVGALIB
 	if (OS.svgalib_active) {
-#ifdef USE_MOUSE_SVGALIB
 		mouse_close(); /* always called */
-#endif
 		OS.svgalib_active = 0;
 	}
 #endif
@@ -439,6 +430,14 @@ void os_default_signal(int signum)
 	{
 		extern void keyb_abort(void);
 		keyb_abort();
+	}
+#endif
+
+#if defined(USE_MOUSE_SVGALIB) || defined(USE_MOUSE_SDL) || defined(USE_MOUSE_RAW)
+	log_std(("os: mouseb_abort\n"));
+	{
+		extern void mouseb_abort(void);
+		mouseb_abort();
 	}
 #endif
 

@@ -601,18 +601,18 @@ AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
 AC_ARG_ENABLE(
 	[kraw],
-	AC_HELP_STRING([--enable-kraw],[enable the use of the KRAW keyboard library. (default auto)]),
+	AC_HELP_STRING([--enable-kraw],[enable the use of the RAW keyboard library. (default auto)]),
 	[ac_lib_kraw=$enableval],
 	[ac_lib_kraw=auto]
 )
 if test $ac_lib_kraw = auto; then
-	AC_MSG_CHECKING([for KRAW keyboard interface])
+	AC_MSG_CHECKING([for RAW keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
 			int dummy = K_MEDIUMRAW;
 		]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
 	AC_MSG_RESULT([$ac_lib_kraw])
 elif test $ac_lib_kraw = yes; then
-	AC_MSG_CHECKING([for KRAW keyboard interface])
+	AC_MSG_CHECKING([for RAW keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
 			int dummy = K_MEDIUMRAW;
 		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
@@ -623,6 +623,30 @@ if test $ac_lib_kraw = yes; then
 	ac_lib_keyboard=yes
 fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
+
+AC_ARG_ENABLE(
+	[mraw],
+	AC_HELP_STRING([--enable-mraw],[enable the use of the RAW mouse library. (default auto)]),
+	[ac_lib_mraw=$enableval],
+	[ac_lib_mraw=auto]
+)
+if test $ac_lib_mraw = auto; then
+	AC_MSG_CHECKING([for RAW mouse interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ioctl.h>]], [[
+			int dummy = TIOCMSET;
+		]])],[ac_lib_mraw=yes],[ac_lib_mraw=no])
+	AC_MSG_RESULT([$ac_lib_mraw])
+elif test $ac_lib_mraw = yes; then
+	AC_MSG_CHECKING([for RAW mouse interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ioctl.h>]], [[
+			int dummy = TIOCMSET;
+		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_mraw = yes; then
+	ac_lib="$ac_lib MRAW"
+fi
+AC_SUBST([CONF_LIB_MRAW],[$ac_lib_mraw])
 
 # Notify that ./configure was runned
 AC_SUBST([CONF],[yes])

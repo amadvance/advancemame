@@ -48,6 +48,9 @@ extern "C" {
 #ifdef USE_MOUSE_SVGALIB
 #include "msvgab.h"
 #endif
+#ifdef USE_MOUSE_RAW
+#include "mraw.h"
+#endif
 #ifdef USE_MOUSE_SDL
 #include "msdl.h"
 #endif

@@ -1,13 +1,15 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMESS Version 0.71.0.0 2003/07
-	) All from AdvanceMAME 0.71.0.
-	) Added the `misc_ramsize' option.
-
 AdvanceMAME Version 0.71.1 2003/07
 	) Partially fixed some problems on games with need
 		to changes the game display area at runtime like "orunners".
+	) Added a new mouse driver for Linux which support up to 4 mouses
+		at the same time.
+
+AdvanceMESS Version 0.71.0.0 2003/07
+	) All from AdvanceMAME 0.71.0.
+	) Added the `misc_ramsize' option.
 
 AdvanceMAME Version 0.71.0 2003/07
 	) Added the volume control at the SDL sound driver. It's implemented

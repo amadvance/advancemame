@@ -37,6 +37,12 @@ MLIBS += -lvga
 MOBJS += \
 	$(MOBJ)/linux/msvgab.o
 endif
+ifeq ($(CONF_LIB_MRAW),yes)
+MCFLAGS += \
+	-DUSE_MOUSE_RAW
+MOBJS += \
+	$(MOBJ)/linux/mraw.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

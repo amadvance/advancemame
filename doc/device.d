@@ -709,11 +709,15 @@ Input Drivers Configuration
 
 	Options for Linux:
 		svgalib - SVGALIB automatic detection.
+		raw - RAW automatic detection. It supports up to 4 mouse.
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
 	correct mouse in the SVGALIB configuration file generally
 	placed in /etc/vga/libvga.config.
+
+	If you use the `raw' driver remember to configure also
+	the required device_raw_* options.
 
 	Options for Mac OS X:
 		sdl - SDL automatic detection.
@@ -727,6 +731,46 @@ Input Drivers Configuration
 
 	Options for Windows:
 		sdl - SDL automatic detection.
+
+  raw Configuration Options
+    device_raw_mousetype[0,1,2,3]
+	Select the type of the mouse.
+
+	:device_raw_mousetype[0,1,2,3] auto | DEVICE
+
+	Devices:
+		auto - Autotection. It works only sometimes, generally
+			it's better to manually select the type.
+		gpm - GPM deamon.
+		pnp - Plug And Play serial (3 button).
+		ms - Microsoft Mouse serial.
+		ms3 - Microsoft Intellimouse serial.
+		ps2 - PS/2.
+		imps2 - Microsoft Intellimouse PS/2.
+		exps2 - Microsoft Intellimouse Explorer PS/2 (5 buttons).
+		mman - Logitech MouseMan.
+		msc - Mouse System.
+		mm - Logitech MM Series
+		logi - Logitech old protocol.
+		bm - Bus Mouse.
+		spaceball - Spacetec SpaceBall (6 buttons).
+		wacomgraphire - Wacom Graphire tablet/mouse.
+		drmousee4ds - Digital Research double-wheeled mouse.
+
+    device_raw_mousedev[0,1,2,3]
+	Select the mouse device to use.
+
+	device_raw_mousedev[0,1,2,3] auto | DEVICE
+
+	Options:
+		auto - Map to /dev/mouse or /dev/input/mouseX.
+		DEVICE - Complete path of the mouse device.
+
+	Example:
+		device_raw_mousetype[0] imps2
+		device_raw_mousedev[1] /dev/ttyS0
+		device_raw_mousetype[0] imps2
+		device_raw_mousedev[1] /dev/ttyS1
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
