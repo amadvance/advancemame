@@ -1,0 +1,845 @@
+/*
+ * This file is part of the Advance project.
+ *
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * In addition, as a special exception, Andrea Mazzoleni
+ * gives permission to link the code of this program with
+ * the MAME library (or with modified versions of MAME that use the
+ * same license as MAME), and distribute linked combinations including
+ * the two.  You must obey the GNU General Public License in all
+ * respects for all of the code used other than MAME.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
+ */
+
+#include "vsvgawin.h"
+#include "video.h"
+#include "log.h"
+#include "ossdl.h"
+#include "error.h"
+
+#include <windows.h>
+
+#include "svgalib.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+/***************************************************************************/
+/* State */
+
+/**
+ * Use a stub SDL mode set.
+ * Before setting the video mode a fixed SDL FULLSCREEN HWSURFACE mode is set.
+ */
+#define USE_SVGAWIN_SDL
+
+#ifdef USE_SVGAWIN_SDL
+#include "SDL.h"
+#endif
+
+struct svgawin_chipset_struct {
+	DriverSpecs* drv;
+	int chipset;
+	const char* name;
+	unsigned cap;
+};
+
+typedef struct svgawin_internal_struct {
+	adv_bool active; /**< !=0 if present. */
+	adv_bool mode_active; /**< !=0 if mode set. */
+	adv_bool lock_active; /**< !=0 if lock active. */
+
+	unsigned cap;
+	unsigned char regs_saved[ADV_SVGALIB_STATE_SIZE];
+
+#ifdef USE_SVGAWIN_SDL
+	SDL_Surface* surface;
+#endif
+} svgawin_internal;
+
+static svgawin_internal svgawin_state;
+
+unsigned char* (*svgawin_write_line)(unsigned y);
+
+/***************************************************************************/
+/* Internal */
+
+static unsigned char* svgawin_linear_write_line(unsigned y) {
+	assert( svgawin_state.lock_active );
+	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
+}
+
+/* Keep the same order of svgawin_chipset_struct cards */
+static adv_device DEVICE[] = {
+	{ "auto", -1, "SVGALINE video" },
+#ifdef INCLUDE_NV3_DRIVER
+	{ "nv3", NV3, "nVidia Riva/GeForce" },
+#endif
+#ifdef INCLUDE_TRIDENT_DRIVER
+	{ "trident", TRIDENT, "Trident" },
+#endif
+#ifdef INCLUDE_RENDITION_DRIVER
+	{ "rendition", RENDITION, "Rendition" },
+#endif
+#ifdef INCLUDE_G400_DRIVER
+	{ "g400", G400, "Matrox Mystique/G100/G200/G400/G450" },
+#endif
+#ifdef INCLUDE_PM2_DRIVER
+	{ "pm2", PM2, "Permedia 2" },
+#endif
+#ifdef INCLUDE_SAVAGE_DRIVER
+	{ "savage", SAVAGE, "S3 Savage" },
+#endif
+#ifdef INCLUDE_MILLENNIUM_DRIVER
+	{ "millenium", MILLENNIUM, "Matrox Millennium/Millenium II" },
+#endif
+#ifdef INCLUDE_R128_DRIVER
+	{ "r128", R128, "ATI Rage 128/Radeon" },
+#endif
+#ifdef INCLUDE_BANSHEE_DRIVER
+	{ "banshee", BANSHEE, "3dfx Voodoo Banshee/3/4/5" },
+#endif
+#ifdef INCLUDE_SIS_DRIVER
+	{ "sis", SIS, "SIS" },
+#endif
+#ifdef INCLUDE_I740_DRIVER
+	{ "i740", I740, "Intel i740" },
+#endif
+#ifdef INCLUDE_I810_DRIVER
+	{ "i810", I810, "Intel i810" },
+#endif
+#ifdef INCLUDE_LAGUNA_DRIVER
+	{ "laguna", LAGUNA, "Cirrus Logic Laguna 5462/5464/5465" },
+#endif
+#ifdef INCLUDE_RAGE_DRIVER
+	{ "rage", RAGE, "ATI Rage" },
+#endif
+#ifdef INCLUDE_MX_DRIVER
+	{ "mx", MX, "MX" },
+#endif
+#ifdef INCLUDE_NEO_DRIVER
+	{ "neomagic", NEOMAGIC, "NeoMagic" },
+#endif
+#ifdef INCLUDE_CHIPS_DRIVER
+	{ "chips", CHIPS, "Chips & Technologies" },
+#endif
+#ifdef INCLUDE_MACH64_DRIVER
+	{ "mach64", MACH64, "ATI Mach 64" },
+#endif
+#ifdef INCLUDE_MACH32_DRIVER
+	{ "mach32", MACH32, "ATI Mach 32" },
+#endif
+#ifdef INCLUDE_EGA_DRIVER
+	{ "ega", EGA, "EGA" },
+#endif
+#ifdef INCLUDE_ET6000_DRIVER
+	{ "et6000", ET6000, "ET6000" },
+#endif
+#ifdef INCLUDE_ET4000_DRIVER
+	{ "et4000", ET4000, "ET4000" },
+#endif
+#ifdef INCLUDE_TVGA_DRIVER
+	{ "tvga8900", TVGA8900, "TVGA8900" }
+#endif
+#ifdef INCLUDE_CIRRUS_DRIVER
+	{ "cirrus", CIRRUS, "Cirrus Logic" },
+#endif
+#ifdef INCLUDE_OAK_DRIVER
+	{ "oak", OAK, "OAK" },
+#endif
+#ifdef INCLUDE_PARADISE_DRIVER
+	{ "paradise", PARADISE, "Paradise" },
+#endif
+#ifdef INCLUDE_S3_DRIVER
+	{ "s3", S3, "S3" },
+#endif
+#ifdef INCLUDE_ET3000_DRIVER
+	{ "et3000", ET3000, "ET3000" },
+#endif
+#ifdef INCLUDE_ARK_DRIVER
+	{ "ark", ARK, "ARK" },
+#endif
+#ifdef INCLUDE_GVGA6400_DRIVER
+	{ "gvga6400", GVGA6400, "GVGA6400" },
+#endif
+#ifdef INCLUDE_ATI_DRIVER
+	{ "ati", ATI, "ATI" },
+#endif
+#ifdef INCLUDE_ALI_DRIVER
+	{ "ali", ALI, "ALI" },
+#endif
+#ifdef INCLUDE_APM_DRIVER
+	{ "apm", APM, "APM" },
+#endif
+	{ 0, 0, 0 }
+};
+
+/***************************************************************************/
+/* Public */
+
+#ifdef USE_SVGAWIN_SDL
+#include "icondef.dat"
+
+static void SDL_WM_DefIcon(void) {
+	SDL_Surface* surface;
+	SDL_Color colors[ICON_PALETTE];
+	unsigned i,x,y;
+
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
+	if (!surface) {
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
+		return;
+	}
+
+	for(y=0;y<ICON_SIZE;++y) {
+		unsigned char* p = (unsigned char*)surface->pixels + y * surface->pitch;
+		for(x=0;x<ICON_SIZE;++x)
+			p[x] = icon_pixel[y*ICON_SIZE+x];
+	}
+
+	for(i=0;i<ICON_PALETTE;++i) {
+		colors[i].r = icon_palette[i*3+0];
+		colors[i].g = icon_palette[i*3+1];
+		colors[i].b = icon_palette[i*3+2];
+	}
+
+	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
+		SDL_FreeSurface(surface);
+		return;
+	}
+
+	SDL_WM_SetIcon(surface, icon_mask);
+
+	SDL_FreeSurface(surface);
+}
+
+static adv_error sdl_init(int device_id) {
+	char buf[64];
+	unsigned j;
+
+	assert( !svgawin_is_active() );
+
+	svgawin_state.surface = 0;
+
+	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+		log_std(("video:svgawin: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
+		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
+			log_std(("video:svgawin: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			return -1;
+		}
+
+		/* set the window information */
+		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_DefIcon();
+	}
+
+	if (SDL_VideoDriverName(buf,sizeof(buf))) {
+		log_std(("video:svgawin: SDL driver %s\n", buf));
+	}
+
+	return 0;
+}
+#endif
+
+static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) {
+	unsigned dw;
+	unsigned base_class;
+
+	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+		return 0;
+
+	base_class = (dw >> 16) & 0xFFFF;
+	if (base_class != 0x300 /* DISPLAY | VGA */)
+		return 0;
+
+	*(int*)_arg = 1;
+
+	log_std(("svgawin: PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d\n", vendor, device, bus_device_func >> 8, bus_device_func & 0xFF));
+
+	return 0;
+}
+
+static void probe(void) {
+	int found;
+	found = 0;
+
+	adv_svgalib_pci_scan_device(probe_callback,&found);
+
+	if (!found)
+		log_std(("svgawin: No PCI/AGP boards found\n"));
+
+	log_std(("svgawin: Video driver : %s\n", adv_svgalib_driver_get()));
+
+	log_std(("svgawin: Bit depth : "));
+	if (adv_svgalib_state.has_bit8) log_std(("8 "));
+	if (adv_svgalib_state.has_bit15) log_std(("15 "));
+	if (adv_svgalib_state.has_bit16) log_std(("16 "));
+	if (adv_svgalib_state.has_bit24) log_std(("24 "));
+	if (adv_svgalib_state.has_bit32) log_std(("32 "));
+	log_std(("\n"));
+	if (adv_svgalib_state.has_interlace)
+		log_std(("svgawin: Interlace : yes\n"));
+	else
+		log_std(("svgawin: Interlace : no\n"));
+	log_std(("svgawin: Linear memory : %08x, %d Mbyte\n", adv_svgalib_linear_base_get(), adv_svgalib_linear_size_get() / (1024*1024)));
+	if (adv_svgalib_mmio_size_get()) {
+		log_std(("svgawin: MMIO memory : %08x, %d byte\n", adv_svgalib_mmio_base_get(), adv_svgalib_mmio_size_get()));
+	}
+}
+
+static adv_error svgalib_init(int device_id) {
+	unsigned i;
+	const char* name;
+	const adv_device* j;
+
+	j = DEVICE;
+	while (j->name && j->id != device_id)
+		++j;
+	if (!j->name)
+		return -1;
+	name = j->name;
+
+	if (adv_svgalib_init(0) != 0) {
+		log_std(("svgawin: error calling adv_svgalib_init()\n"));
+		return -1;
+	}
+
+	if (adv_svgalib_detect(name) != 0) {
+		log_std(("svgawin: error calling adv_svgalib_detect(%s)\n", name));
+		return -1;
+	}
+	
+	probe();
+
+	log_std(("svgawin: found driver %s\n", adv_svgalib_driver_get()));
+
+	svgawin_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
+
+	if (adv_svgalib_state.has_bit8)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+	if (adv_svgalib_state.has_bit15)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+	if (adv_svgalib_state.has_bit16)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+	if (adv_svgalib_state.has_bit24)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT;
+	if (adv_svgalib_state.has_bit32)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+	if (adv_svgalib_state.has_interlace)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	if (adv_svgalib_state.has_tvpal)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
+	if (adv_svgalib_state.has_tvntsc)
+		svgawin_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
+
+	return 0;
+}
+
+adv_error svgawin_init(int device_id)
+{
+	log_std(("video:svgawin: svgawin_init()\n"));
+
+	svgawin_state.mode_active = 0;
+	svgawin_state.lock_active = 0;
+
+#ifdef USE_SVGAWIN_SDL
+	if (sdl_init(device_id) != 0)
+		return -1;
+#endif
+
+	if (svgalib_init(device_id) != 0)
+		return -1;
+
+	svgawin_state.active = 1;
+
+	return 0;
+}
+
+#ifdef USE_SVGAWIN_SDL
+static void sdl_done(void) {
+	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	}
+}
+#endif
+
+static void svgalib_done(void) {
+	adv_svgalib_done();
+}
+
+void svgawin_done(void) {
+	assert( svgawin_is_active() );
+	assert( !svgawin_mode_is_active() );
+
+	log_std(("video:svgawin: svgawin_done()\n"));
+
+	svgalib_done();
+
+#ifdef USE_SVGAWIN_SDL
+	sdl_done();
+#endif
+
+	svgawin_state.active = 0;
+}
+
+adv_bool svgawin_is_active(void) {
+	 return svgawin_state.active != 0;
+}
+
+adv_bool svgawin_mode_is_active(void) {
+	return svgawin_state.mode_active != 0;
+}
+
+unsigned svgawin_flags(void) {
+	assert( svgawin_is_active() );
+	return svgawin_state.cap;
+}
+
+void svgawin_write_lock(void) {
+	assert( !svgawin_state.lock_active );
+
+	log_std(("video:svgawin: svgawin_lock()\n"));
+
+#ifdef USE_SVGAWIN_SDL
+	if (SDL_MUSTLOCK(svgawin_state.surface)) {
+		while (SDL_LockSurface( svgawin_state.surface ) != 0) {
+			SDL_Delay(1);
+		}
+	}
+#endif
+
+	svgawin_state.lock_active = 1;
+}
+
+void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) {
+	assert( svgawin_state.lock_active );
+
+	log_std(("video:svgawin: svgawin_unlock()\n"));
+
+#ifdef USE_SVGAWIN_SDL
+	if (SDL_MUSTLOCK(svgawin_state.surface))
+		SDL_UnlockSurface(svgawin_state.surface);
+#endif
+
+	svgawin_state.lock_active = 0;
+}
+
+#ifdef USE_SVGAWIN_SDL
+static adv_error sdl_mode_set(const svgawin_video_mode* mode) {
+	const SDL_VideoInfo* info;
+	unsigned x, y, bits;
+
+	/* reopen the screen if needed */
+	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+		log_std(("video:svgawin: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
+		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
+			log_std(("video:svgawin: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			return -1;
+		}
+
+		/* set the window information */
+		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_DefIcon();
+	}
+
+	info = SDL_GetVideoInfo();
+
+	log_std(("video:svgawin: video hw_available:%d\n", (unsigned)info->hw_available));
+	log_std(("video:svgawin: video wm_available:%d\n", (unsigned)info->wm_available));
+	log_std(("video:svgawin: video blit_hw:%d\n", (unsigned)info->blit_hw));
+	log_std(("video:svgawin: video blit_hw_CC:%d\n", (unsigned)info->blit_hw_CC));
+	log_std(("video:svgawin: video blit_hw_A:%d\n", (unsigned)info->blit_hw_A));
+	log_std(("video:svgawin: video blit_sw:%d\n", (unsigned)info->blit_sw));
+	log_std(("video:svgawin: video blit_sw_CC:%d\n", (unsigned)info->blit_sw_CC));
+	log_std(("video:svgawin: video blit_sw_A:%d\n", (unsigned)info->blit_sw_A));
+	log_std(("video:svgawin: video blit_fill:%d\n", (unsigned)info->blit_fill));
+	log_std(("video:svgawin: video video_mem:%d\n", (unsigned)info->video_mem));
+
+	/* the 640x480 mode is always available */
+	x = 640;
+	y = 480;
+
+	/* the nv3 driver displays incorrectly with 15 bit modes if the same bit depth of the video mode is used */
+	bits = 8;
+
+	log_std(("video:svgawin: call SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE)\n", x, y, bits));
+	svgawin_state.surface = SDL_SetVideoMode(x, y, bits, SDL_FULLSCREEN | SDL_HWSURFACE );
+	if (!svgawin_state.surface) {
+		log_std(("video:svgawin: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE | SDL_FULLSCREEN) failed, %s\n", x, y, bits, SDL_GetError()));
+		return -1;
+	}
+
+	if ((svgawin_state.surface->flags & SDL_FULLSCREEN) == 0) {
+		log_std(("video:svgawin: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE | SDL_FULLSCREEN) failed, no SDL_FULLSCREEN\n", x, y, bits));
+		return -1;
+	}
+
+	SDL_ShowCursor(SDL_DISABLE);
+
+	log_std(("video:svgawin: surface %dx%dx%d\n", (unsigned)svgawin_state.surface->w, (unsigned)svgawin_state.surface->h, (unsigned)svgawin_state.surface->format->BitsPerPixel));
+	if ((svgawin_state.surface->flags & SDL_SWSURFACE) != 0)
+		log_std(("video:svgawin: surface flag SDL_SWSURFACE\n"));
+	if ((svgawin_state.surface->flags & SDL_HWSURFACE) != 0)
+		log_std(("video:svgawin: surface flag SDL_HWSURFACE\n"));
+	if ((svgawin_state.surface->flags & SDL_ASYNCBLIT) != 0)
+		log_std(("video:svgawin: surface flag SDL_ASYNCBLIT\n"));
+	if ((svgawin_state.surface->flags & SDL_ANYFORMAT) != 0)
+		log_std(("video:svgawin: surface flag SDL_ANYFORMAT\n"));
+	if ((svgawin_state.surface->flags & SDL_HWPALETTE) != 0)
+		log_std(("video:svgawin: surface flag SDL_HWPALETTE\n"));
+	if ((svgawin_state.surface->flags & SDL_DOUBLEBUF) != 0)
+		log_std(("video:svgawin: surface flag SDL_DOUBLEBUF\n"));
+	if ((svgawin_state.surface->flags & SDL_FULLSCREEN) != 0)
+		log_std(("video:svgawin: surface flag SDL_FULLSCREEN\n"));
+	if ((svgawin_state.surface->flags & SDL_RESIZABLE) != 0)
+		log_std(("video:svgawin: surface flag SDL_RESIZABLE\n"));
+	if ((svgawin_state.surface->flags & SDL_HWACCEL) != 0)
+		log_std(("video:svgawin: surface flag SDL_HWACCEL\n"));
+	if ((svgawin_state.surface->flags & SDL_SRCCOLORKEY) != 0)
+		log_std(("video:svgawin: surface flag SDL_SRCCOLORKEY\n"));
+	if ((svgawin_state.surface->flags & SDL_SRCALPHA) != 0)
+		log_std(("video:svgawin: surface flag SDL_SRCALPHA\n"));
+	if ((svgawin_state.surface->flags & SDL_PREALLOC) != 0)
+		log_std(("video:svgawin: surface flag SDL_PREALLOC\n"));
+
+	return 0;
+}
+#endif
+
+static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
+{
+	unsigned clock;
+
+	log_std(("svgawin: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
+	log_std_modeline_c(("svgawin: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
+	log_std(("svgawin: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+
+	clock = mode->crtc.pixelclock;
+
+	adv_svgalib_linear_map();
+
+	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
+		adv_svgalib_linear_unmap();
+		error_set("Generic error setting the svgaline mode");
+		return -1;
+	}
+
+	log_std(("svgawin: mode_set done\n"));
+
+	return 0;
+}
+
+adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
+	assert( svgawin_is_active() );
+	assert( !svgawin_mode_is_active() );
+
+	log_std(("video:svgawin: svgawin_mode_set()\n"));
+
+#ifdef USE_SVGAWIN_SDL
+	if (sdl_mode_set(mode) != 0)
+		return -1;
+#else
+	adv_svgalib_save(svgawin_state.regs_saved);
+#endif
+
+	if (svgalib_mode_set(mode) != 0)
+		return -1;
+
+	/* write handler */
+	svgawin_write_line = svgawin_linear_write_line;
+
+	svgawin_state.mode_active = 1;
+
+	return 0;
+}
+
+#ifdef USE_SVGAWIN_SDL
+static void sdl_mode_done(void) {
+	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	}
+
+	svgawin_state.surface = 0;
+}
+#endif
+
+static void windows_restore(void) {
+	DEVMODE mode;
+
+	memset(&mode, 0, sizeof(mode));
+	mode.dmSize = sizeof(mode);
+	mode.dmFields = 0;
+
+	ShowCursor(FALSE);
+
+	if (ChangeDisplaySettings(&mode, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
+		return;
+	}
+
+	ShowCursor(TRUE);
+}
+
+static void svgalib_mode_done(void)
+{
+	adv_svgalib_unset();
+
+	adv_svgalib_linear_unmap();
+}
+
+void svgawin_mode_done(adv_bool restore) {
+	assert( svgawin_is_active() );
+	assert( svgawin_mode_is_active() );
+
+	log_std(("video:svgawin: svgawin_mode_done()\n"));
+
+	svgalib_mode_done();
+
+#ifdef USE_SVGAWIN_SDL
+	sdl_mode_done();
+#else
+	adv_svgalib_restore(svgawin_state.regs_saved);
+	windows_restore();
+#endif
+
+	svgawin_state.mode_active = 0;
+}
+
+adv_error svgawin_mode_change(const svgawin_video_mode* mode) {
+	assert(svgawin_is_active() && svgawin_mode_is_active());
+
+	log_std(("video:svgawin: svgawin_mode_change()\n"));
+
+#ifdef USE_SVGAWIN_SDL
+	svgawin_mode_done(1);
+	return svgawin_mode_set(mode);
+#else
+	svgalib_mode_done();
+
+	svgawin_state.mode_active = 0;
+
+	if (svgalib_mode_set(mode) != 0) {
+		adv_svgalib_restore(svgawin_state.regs_saved);
+		windows_restore();
+		return -1;
+	}
+
+	/* write handler */
+	svgawin_write_line = svgawin_linear_write_line;
+
+	svgawin_state.mode_active = 1;
+#endif
+
+	return 0;
+}
+
+unsigned svgawin_virtual_x(void) {
+	unsigned size = adv_svgalib_scanline_get() / adv_svgalib_pixel_get();
+	size = size & ~0x7;
+	return size;
+}
+
+unsigned svgawin_virtual_y(void) {
+	return adv_svgalib_linear_size_get() / adv_svgalib_scanline_get();
+}
+
+unsigned svgawin_adjust_bytes_per_page(unsigned bytes_per_page) {
+	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
+	return bytes_per_page;
+}
+
+unsigned svgawin_bytes_per_scanline(void) {
+	return adv_svgalib_scanline_get();
+}
+
+adv_rgb_def svgawin_rgb_def(void) {
+	return rgb_def_make(adv_svgalib_state.mode.red_len,adv_svgalib_state.mode.red_pos,adv_svgalib_state.mode.green_len,adv_svgalib_state.mode.green_pos,adv_svgalib_state.mode.blue_len,adv_svgalib_state.mode.blue_pos);
+}
+
+void svgawin_wait_vsync(void) {
+	assert(svgawin_is_active() && svgawin_mode_is_active());
+
+	adv_svgalib_wait_vsync();
+}
+
+adv_error svgawin_scroll(unsigned offset, adv_bool waitvsync) {
+	assert(svgawin_is_active() && svgawin_mode_is_active());
+
+	if (waitvsync)
+		adv_svgalib_wait_vsync();
+		
+	adv_svgalib_scroll_set(offset);
+
+	return 0;
+}
+
+adv_error svgawin_scanline_set(unsigned byte_length) {
+	assert(svgawin_is_active() && svgawin_mode_is_active());
+
+	adv_svgalib_scanline_set(byte_length);
+
+	return 0;
+}
+
+adv_error svgawin_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+	if (waitvsync)
+		adv_svgalib_wait_vsync();
+		
+	while (count) {
+		adv_svgalib_palette_set(start, palette->red, palette->green, palette->blue);
+		++palette;
+		++start;
+		--count;
+	}
+
+	return 0;
+}
+
+#define DRIVER(mode) ((svgawin_video_mode*)(&mode->driver_mode))
+
+/**
+ * Import information for one video mode.
+ * \return 0 if successful
+ */
+adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_mode)
+{
+	log_std(("video:svgawin: svgawin_mode_import()\n"));
+
+	strcpy(mode->name, svgawin_mode->crtc.name);
+
+	*DRIVER(mode) = *svgawin_mode;
+
+	mode->driver = &video_svgawin_driver;
+	mode->flags = MODE_FLAGS_SCROLL_ASYNC
+		| MODE_FLAGS_MEMORY_LINEAR
+		| (mode->flags & MODE_FLAGS_USER_MASK);
+	switch (svgawin_mode->bits_per_pixel) {
+		case 8 : mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS; break;
+		default: mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS; break;
+	}
+
+	mode->size_x = DRIVER(mode)->crtc.hde;
+	mode->size_y = DRIVER(mode)->crtc.vde;
+	mode->vclock = crtc_vclock_get(&DRIVER(mode)->crtc);
+	mode->hclock = crtc_hclock_get(&DRIVER(mode)->crtc);
+	mode->bits_per_pixel = svgawin_mode->bits_per_pixel;
+	mode->scan = crtc_scan_get(&DRIVER(mode)->crtc);
+
+	return 0;
+}
+
+adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+{
+	log_std(("video:svgawin: svgawin_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
+
+	if (video_mode_generate_check("svgawin",svgawin_flags(),8,2048,crtc,bits,flags)!=0)
+		return -1;
+
+	mode->crtc = *crtc;
+	mode->bits_per_pixel = bits;
+
+	return 0;
+}
+
+#define COMPARE(a,b) \
+	if (a < b) \
+		return -1; \
+	if (a > b) \
+		return 1;
+
+int svgawin_mode_compare(const svgawin_video_mode* a, const svgawin_video_mode* b) {
+	COMPARE(a->bits_per_pixel,b->bits_per_pixel);
+	return crtc_compare(&a->crtc,&b->crtc);
+}
+
+void svgawin_crtc_container_insert_default(adv_crtc_container* cc) {
+}
+
+void svgawin_reg(adv_conf* context) {
+}
+
+adv_error svgawin_load(adv_conf* context) {
+	return 0;
+}
+
+/***************************************************************************/
+/* Driver */
+
+static adv_error svgawin_mode_set_void(const void* mode) {
+	return svgawin_mode_set((const svgawin_video_mode*)mode);
+}
+
+static adv_error svgawin_mode_change_void(const void* mode) {
+	return svgawin_mode_change((const svgawin_video_mode*)mode);
+}
+
+static adv_error svgawin_mode_import_void(adv_mode* mode, const void* svgawin_mode) {
+	return svgawin_mode_import(mode, (const svgawin_video_mode*)svgawin_mode);
+}
+
+static adv_error svgawin_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
+	return svgawin_mode_generate((svgawin_video_mode*)mode, crtc, bits, flags);
+}
+
+static int svgawin_mode_compare_void(const void* a, const void* b) {
+	return svgawin_mode_compare((const svgawin_video_mode*)a, (const svgawin_video_mode*)b);
+}
+
+static unsigned svgawin_mode_size(void) {
+	return sizeof(svgawin_video_mode);
+}
+
+adv_video_driver video_svgawin_driver = {
+	"svgawin",
+	DEVICE,
+	svgawin_load,
+	svgawin_reg,
+	svgawin_init,
+	svgawin_done,
+	svgawin_flags,
+	svgawin_mode_set_void,
+	svgawin_mode_change_void,
+	svgawin_mode_done,
+	svgawin_virtual_x,
+	svgawin_virtual_y,
+	0,
+	0,
+	svgawin_bytes_per_scanline,
+	svgawin_adjust_bytes_per_page,
+	svgawin_rgb_def,
+	svgawin_write_lock,
+	svgawin_write_unlock,
+	&svgawin_write_line,
+	svgawin_wait_vsync,
+	svgawin_scroll,
+	svgawin_scanline_set,
+	svgawin_palette8_set,
+	0,
+	svgawin_mode_size,
+	0,
+	svgawin_mode_generate_void,
+	svgawin_mode_import_void,
+	svgawin_mode_compare_void,
+	svgawin_crtc_container_insert_default
+};
+

@@ -38,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /***************************************************************************/
 /* Options */
@@ -54,7 +55,11 @@ typedef struct sdl_internal_struct {
 	adv_bool mode_active; /**< !=0 if mode set. */
 	adv_bool lock_active; /**< !=0 if lock active. */
 	unsigned flags; /**< Precomputed driver flags. */
-	SDL_Surface* surface;
+	SDL_Surface* surface; /**< Screen surface. */
+
+	unsigned char* text_map; /**< Text buffer. */
+	unsigned text_dx; /**< Text columns. */
+	unsigned text_dy; /**< Text rows. */
 } sdl_internal;
 
 static sdl_internal sdl_state;
@@ -65,6 +70,9 @@ static adv_device DEVICE[] = {
 { "auto", 1, "SDL video" },
 { 0, 0, 0 }
 };
+
+/** Bit depth used for the fake text modes. */
+#define SDL_TEXT_BIT 16
 
 static unsigned SDL_ModeFlags(void) {
 	unsigned flags;
@@ -126,7 +134,9 @@ adv_error sdl_init(int device_id) {
 	assert( !sdl_is_active() );
 
 	log_std(("video:sdl: sdl_init()\n"));
-	
+
+	memset(&sdl_state,0, sizeof(sdl_state));
+
 	sdl_state.mode_active = 0;
 	sdl_state.lock_active = 0;
 	sdl_state.surface = 0;
@@ -141,18 +151,20 @@ adv_error sdl_init(int device_id) {
 		sdl_default();
 	}
 
-	log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-		log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
-		return -1;
+	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
+		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
+			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			return -1;
+		}
+
+		/* set the window information */
+		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_DefIcon();
 	}
 
-	/* set the window information */
-	SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
-	SDL_WM_DefIcon();
-
 	if (SDL_VideoDriverName(name,sizeof(name))) {
-		log_std(("video:sdl: driver %s\n", name));
+		log_std(("video:sdl: SDL driver %s\n", name));
 	}
 
 	info = SDL_GetVideoInfo();
@@ -211,6 +223,8 @@ adv_error sdl_init(int device_id) {
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
 	}
 
+	sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_TEXT;
+
 	sdl_state.active = 1;
 
 	return 0;
@@ -242,10 +256,15 @@ unsigned sdl_flags(void) {
 	return sdl_state.flags;
 }
 
-static unsigned char* sdl_linear_write_line(unsigned y) {
+static unsigned char* sdl_linear_write_line_graphics(unsigned y) {
 	assert( sdl_state.lock_active );
 	
 	return (unsigned char*)sdl_state.surface->pixels + (unsigned)sdl_state.surface->pitch * y;
+}
+
+static unsigned char* sdl_linear_write_line_text(unsigned y) {
+	assert(y < sdl_state.text_dy);
+	return sdl_state.text_map + y * sdl_state.text_dx * 2;
 }
 
 void sdl_write_lock(void) {
@@ -304,10 +323,25 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 	log_std(("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill));
 	log_std(("video:sdl: video video_mem:%d\n", (unsigned)info->video_mem));
 
-	sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_ModeFlags() );
-	if (!sdl_state.surface) {
-		log_std(("video:sdl: SDL_SetVideoMode(%d,%d,%d,SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_GetError()));
-		return -1;
+	if (mode->is_text) {
+		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, SDL_TEXT_BIT, 0);
+		if (!sdl_state.surface) {
+			log_std(("video:sdl: SDL_SetVideoMode(%d,%d,0,0) failed, %s\n", mode->size_x, mode->size_y, SDL_GetError()));
+			return -1;
+		}
+		sdl_state.text_dx = mode->size_x / 8;
+		sdl_state.text_dy = mode->size_y / 16;
+		sdl_state.text_map = malloc(sdl_state.text_dx * sdl_state.text_dy * 2);
+		memset(sdl_state.text_map, 0, sdl_state.text_dx * sdl_state.text_dy * 2);
+	} else {
+		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_ModeFlags() );
+		if (!sdl_state.surface) {
+			log_std(("video:sdl: SDL_SetVideoMode(%d,%d,%d,SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_GetError()));
+			return -1;
+		}
+		sdl_state.text_dx = 0;
+		sdl_state.text_dy = 0;
+		sdl_state.text_map = 0;
 	}
 
 	/* disable the mouse cursor on fullscreen mode */
@@ -344,7 +378,11 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 		log_std(("video:sdl: surface flag SDL_PREALLOC\n"));
 
 	/* write handler */
-	sdl_write_line = sdl_linear_write_line;
+	if (mode->is_text) {
+		sdl_write_line = sdl_linear_write_line_text;
+	} else {
+		sdl_write_line = sdl_linear_write_line_graphics;
+	}
 
 	sdl_state.mode_active = 1;
 	return 0;
@@ -367,6 +405,13 @@ void sdl_mode_done(adv_bool restore) {
 	}
 #endif
 
+	sdl_state.surface = 0;
+
+	free(sdl_state.text_map);
+	sdl_state.text_map = 0;
+	sdl_state.text_dx = 0;
+	sdl_state.text_dy = 0;
+
 	sdl_state.mode_active = 0;
 }
 
@@ -378,13 +423,31 @@ unsigned sdl_virtual_y(void) {
 	return sdl_state.surface->h;
 }
 
+unsigned sdl_font_size_x(void) {
+	if (sdl_state.text_map)
+		return 8;
+	else
+		return 0;
+}
+
+unsigned sdl_font_size_y(void) {
+	if (sdl_state.text_map)
+		return 16;
+	else
+		return 0;
+}
+
+
 unsigned sdl_adjust_bytes_per_page(unsigned bytes_per_page) {
 	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 
 unsigned sdl_bytes_per_scanline(void) {
-	return sdl_state.surface->pitch;
+	if (sdl_state.text_map)
+		return sdl_state.text_dx * 2;
+	else
+		return sdl_state.surface->pitch;
 }
 
 adv_rgb_def sdl_rgb_def(void) {
@@ -395,8 +458,97 @@ adv_rgb_def sdl_rgb_def(void) {
 	);
 }
 
+static adv_color sdl_palette[16] = {
+{   0,  0,  0,0 },
+{ 192,  0,  0,0 },
+{   0,192,  0,0 },
+{ 192,192,  0,0 },
+{   0,  0,192,0 },
+{ 192,  0,192,0 },
+{   0,192,192,0 },
+{ 192,192,192,0 },
+{ 128,128,128,0 },
+{ 255,  0,  0,0 },
+{   0,255,  0,0 },
+{ 255,255,  0,0 },
+{   0,  0,255,0 },
+{ 255,  0,255,0 },
+{   0,255,255,0 },
+{ 255,255,255,0 }
+};
+
+#include "sdlfont.dat"
+
+static void SDL_PutPixel(unsigned x, unsigned y, unsigned color) {
+	unsigned bytes_per_scanline = sdl_state.surface->pitch;
+	unsigned bytes_per_pixel = sdl_state.surface->format->BytesPerPixel;
+	unsigned char* p = (unsigned char*)sdl_state.surface->pixels + bytes_per_scanline * y + bytes_per_pixel * x;
+	switch (bytes_per_pixel) {
+		case 1 :
+			p[0] = color;
+			break;
+		case 2 :
+			p[0] = color;
+			p[1] = color >> 8;
+			break;
+		case 3 :
+			p[0] = color;
+			p[1] = color >> 8;
+			p[2] = color >> 16;
+			break;
+		case 4 :
+			p[0] = color;
+			p[1] = color >> 8;
+			p[2] = color >> 16;
+			p[3] = color >> 24;
+			break;
+	}
+}
+
 void sdl_wait_vsync(void) {
-	/* not available */
+	unsigned x, y;
+	unsigned i;
+	unsigned color[16];
+
+	/* not available in graphics mode */
+	if (!sdl_state.text_map)
+		return;
+
+	for(i=0;i<16;++i)
+		color[i] = SDL_MapRGB(sdl_state.surface->format, sdl_palette[i].red, sdl_palette[i].green, sdl_palette[i].blue);
+
+	sdl_write_lock();
+
+	for(y=0;y<sdl_state.text_dy;++y) {
+		for(x=0;x<sdl_state.text_dx;++x) {
+			unsigned cx, cy;
+			unsigned sx, sy;
+			unsigned ch, at;
+			unsigned c0, c1;
+			unsigned char* bit;
+
+			sx = x * 8;
+			sy = y * 16;
+			ch = sdl_state.text_map[(y*sdl_state.text_dx+x)*2];
+			at = sdl_state.text_map[(y*sdl_state.text_dx+x)*2+1];
+			c0 = color[(at >> 4) & 0xF];
+			c1 = color[at & 0xF];
+			bit = FONT + ch * 16;
+
+			for(cy=0;cy<16;++cy) {
+				for(cx=0;cx<8;++cx) {
+					unsigned c;
+					if ((bit[cy] & (0x80 >> cx)) != 0)
+						c = c1;
+					else
+						c = c0;
+					SDL_PutPixel(sx + cx, sy + cy, c);
+				}
+			}
+		}
+	}
+
+	sdl_write_unlock(0,0,0,0);
 }
 
 adv_error sdl_scroll(unsigned offset, adv_bool waitvsync) {
@@ -411,7 +563,7 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync) {
 adv_error sdl_scanline_set(unsigned byte_length) {
 	assert(sdl_is_active() && sdl_mode_is_active());
 
-	if (byte_length != sdl_state.surface->pitch)
+	if (byte_length != sdl_bytes_per_scanline())
 		return -1;
 
 	return 0;
@@ -444,31 +596,40 @@ adv_error sdl_palette8_set(const adv_color* palette, unsigned start, unsigned co
 adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode) {
 	log_std(("video:sdl: sdl_mode_import()\n"));
 
-	sprintf(mode->name,"sdl_%dx%dx%d",sdl_mode->size_x, sdl_mode->size_y, sdl_mode->bits_per_pixel);
+	if (sdl_mode->is_text)
+		sprintf(mode->name,"sdl_text_%dx%dx%d",sdl_mode->size_x, sdl_mode->size_y, sdl_mode->bits_per_pixel);
+	else
+		sprintf(mode->name,"sdl_%dx%dx%d",sdl_mode->size_x, sdl_mode->size_y, sdl_mode->bits_per_pixel);
+
 	*DRIVER(mode) = *sdl_mode;
 
 	mode->driver = &video_sdl_driver;
 	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK);
-	switch (sdl_mode->bits_per_pixel) {
-		case 8 :
-			mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
-			break;
-		case 15 :
-		case 16 :
-		case 24 :
-		case 32 :
-			mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
-			break;
-		default :
-			return -1;
+	if (sdl_mode->is_text) {
+		mode->flags |= MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_MEMORY_LINEAR;
+		mode->bits_per_pixel = 0;
+	} else {
+		switch (sdl_mode->bits_per_pixel) {
+				case 8 :
+				mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
+				break;
+			case 15 :
+			case 16 :
+			case 24 :
+			case 32 :
+				mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
+				break;
+			default :
+				return -1;
+		}
+		mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
+		mode->bits_per_pixel = sdl_mode->bits_per_pixel;
 	}
-	mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
 
 	mode->size_x = sdl_mode->size_x;
 	mode->size_y = sdl_mode->size_y;
 	mode->vclock = 0;
 	mode->hclock = 0;
-	mode->bits_per_pixel = sdl_mode->bits_per_pixel;
 	if (sdl_mode->size_y <= 300)
 		mode->scan = 1; /* assume doublescan */
 	else
@@ -477,25 +638,20 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode) {
 	return 0;
 }
 
-adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error sdl_mode_generate_graphics(sdl_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
 	unsigned suggested_bits;
-
-	log_std(("video:sdl: sdl_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
-
-	if (!crtc_is_fake(crtc) && video_mode_generate_check("sdl",sdl_flags(),8,2048,crtc,bits,flags)!=0)
-		return -1;
 
 	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, bits, SDL_ModeFlags() );
 
 	if (!suggested_bits) {
-		error_nolog_cat("No compatible SDL mode found\n");
+		error_nolog_cat("sdl: No compatible SDL mode found\n");
 		return -1;
 	}
 
 	if (suggested_bits != bits) {
 		/* if a window manager is active accepts any bit depths */
 		if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
-			error_nolog_cat("No compatible SDL bit depth found\n");
+			error_nolog_cat("sdl: No compatible SDL bit depth found\n");
 			return -1;
 		}
 	}
@@ -503,6 +659,50 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	mode->size_x = crtc->hde;
 	mode->size_y = crtc->vde;
 	mode->bits_per_pixel = bits;
+	mode->is_text = 0;
+
+	return 0;
+}
+
+static adv_error sdl_mode_generate_text(sdl_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
+	unsigned suggested_bits;
+
+	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, SDL_TEXT_BIT, 0);
+
+	if (!suggested_bits) {
+		error_nolog_cat("sdl: No compatible SDL mode found\n");
+		return -1;
+	}
+
+	mode->size_x = crtc->hde;
+	mode->size_y = crtc->vde;
+	mode->bits_per_pixel = 0;
+	mode->is_text = 1;
+
+	return 0;
+}
+
+adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+{
+	log_std(("video:sdl: sdl_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
+
+	if (!crtc_is_fake(crtc)) {
+		error_nolog_cat("sdl: Programmable modes not supported\n");
+		return -1;
+	}
+
+	switch (flags & MODE_FLAGS_TYPE_MASK) {
+		case MODE_FLAGS_TYPE_GRAPHICS :
+			if (sdl_mode_generate_graphics(mode, crtc, bits, flags) != 0)
+				return -1;
+			break;
+		case MODE_FLAGS_TYPE_TEXT :
+			if (sdl_mode_generate_text(mode, crtc, flags) != 0)
+				return -1;
+			break;
+		default :
+			return -1;
+	}
 
 	return 0;
 }
@@ -514,9 +714,12 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		return 1;
 
 int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b) {
+	COMPARE(a->is_text,b->is_text)
 	COMPARE(a->size_y,b->size_y)
 	COMPARE(a->size_x,b->size_x)
-	COMPARE(a->bits_per_pixel,b->bits_per_pixel)
+	if (!a->is_text) {
+		COMPARE(a->bits_per_pixel,b->bits_per_pixel)
+	}
 	return 0;
 }
 
@@ -535,6 +738,7 @@ void sdl_crtc_container_insert_default(adv_crtc_container* cc) {
 		for(i=0;map[i];++i) {
 			adv_crtc crtc;
 			crtc_fake_set(&crtc, map[i]->w, map[i]->h);
+			sprintf(crtc.name, "sdl_%dx%d", map[i]->w, map[i]->h);
 			crtc_container_insert(cc, &crtc);
 		}
 	}
@@ -599,8 +803,8 @@ adv_video_driver video_sdl_driver = {
 	sdl_mode_done,
 	sdl_virtual_x,
 	sdl_virtual_y,
-	0,
-	0,
+	sdl_font_size_x,
+	sdl_font_size_y,
 	sdl_bytes_per_scanline,
 	sdl_adjust_bytes_per_page,
 	sdl_rgb_def,

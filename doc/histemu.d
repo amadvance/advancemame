@@ -1,7 +1,11 @@
 Name
 	advmame - History For Advance Emulators
 
-AdvanceMAME Version 0.61.4 2002/10 (not yet released)
+AdvanceMESS Version 0.61.1 2002/11 (not yet released)
+	) Fixed the name of the .nv files
+	) All from AdvanceMAME 0.61.4
+
+AdvanceMAME Version 0.61.4 2002/11 (not yet released)
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
@@ -13,6 +17,9 @@ AdvanceMAME Version 0.61.4 2002/10 (not yet released)
 	) Removed the limitation of 8 bit crtc multiplier in the DOS
 		vgaline driver.
 	) Revised the SVGALIB DOS compatibility layer. Some bugs fixed.
+	) Added the support for the SVGALIB video drivers in Windows NT/2000/XP.
+		This is the first Windows NT/2000/XP version able to directly 
+		program	your video board. Very experimental.
 
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.

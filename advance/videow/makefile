@@ -28,11 +28,11 @@ LDFLAGS = -s
 MSG =
 endif
 
-all: videowin$(EXE)
+all: videow$(EXE)
 
 VIDEOOBJDIRS += \
 	$(VIDEOOBJ) \
-	$(VIDEOOBJ)/videowin \
+	$(VIDEOOBJ)/videow \
 	$(VIDEOOBJ)/svgalib \
 	$(VIDEOOBJ)/svgalib/svgawin \
 	$(VIDEOOBJ)/svgalib/clockchi \
@@ -45,7 +45,7 @@ VIDEOFLAGS += \
 	-I$(srcdir)/svgalib/ramdac \
 	-I$(srcdir)/svgalib/drivers
 VIDEOOBJS += \
-	$(VIDEOOBJ)/videowin/videowin.o \
+	$(VIDEOOBJ)/videow/videow.o \
 	$(VIDEOOBJ)/svgalib/svgalib.o \
 	$(VIDEOOBJ)/svgalib/svgawin/svgawin.o \
 	$(VIDEOOBJ)/svgalib/accel.o \
@@ -90,7 +90,7 @@ $(sort $(VIDEOOBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
-videowin$(EXE) : $(sort $(VIDEOOBJDIRS)) $(VIDEOOBJS)
+videow$(EXE) : $(sort $(VIDEOOBJDIRS)) $(VIDEOOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(VIDEOLDFLAGS) $(VIDEOOBJS) $(VIDEOLIBS) -o $@
 

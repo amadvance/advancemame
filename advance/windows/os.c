@@ -31,6 +31,7 @@
 #include "os.h"
 #include "log.h"
 #include "ksdl.h"
+#include "isdl.h"
 #include "msdl.h"
 #include "target.h"
 #include "file.h"
@@ -144,6 +145,9 @@ void os_poll(void) {
 			case SDL_KEYDOWN :
 #ifdef USE_KEYBOARD_SDL
 				keyb_sdl_event_press(event.key.keysym.sym);
+#endif
+#ifdef USE_INPUT_SDL
+				inputb_sdl_event_press(event.key.keysym.sym);
 #endif
 
 				/* toggle fullscreen check */

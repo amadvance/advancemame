@@ -25,18 +25,19 @@ First Time Configuration
 	This mode of operation should be used only if the `automatic' mode
 	doesn't work.
 
-	Please note that if you are using the `sdl' video driver, the programs
-	aren't able to create or adjust video modes.
+	Please note that if you are using the `sdl' or `vbe' video drivers, 
+	the programs aren't able to create or adjust video modes.
 	In this case you don't need to configure anything because the programs
 	can use only the video modes which your system reports as available.
 
-	The `sdl' video driver is only indicated to use AdvanceMAME in a Window
-	Manager system. Instead it's the prefered choice for AdvanceMENU
-	for the use with a normal PC monitor.
+	The `sdl' and `vbe' video drivers are only indicated to use AdvanceMAME 
+	in a Window Manager system. Instead it's the prefered choice for 
+	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
+	doesn't	require not standard video modes.
 
 Automatic Operation Mode
 	In the automatic operation mode the programs automatically
-	creates a `perfect' video mode for the game to be emulated
+	create a `perfect' video mode for the game to be emulated
 	that fit exactly the whole screen with the correct aspect
 	and frame rate.
 
@@ -184,6 +185,8 @@ Troubleshotting
 		`svgalib' driver with the option:
 
 		:device_video fb slang
+		
+	) In Windows try reducing the video hardware acceleration.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

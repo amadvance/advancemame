@@ -1,16 +1,16 @@
 Name
-	videowin - Video control for Windows NT/2000/XP
+	videow - Video control for Windows NT/2000/XP
 
 Synopsys
-	:videowin [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
+	:videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
 
 Description
-	The `videowin' utility can be used to control the video
+	The `videow' utility can be used to control the video
 	output of the PC in Windows NT/2000/XP.
 
 	It requires the `svgawin' driver installed and running.
 
-	The modelines are read from the file `videowin.rc'.
+	The modelines are read from the file `videow.rc'.
 	The format of this configuration file is specified in the
 	document `advv.txt'.
 
@@ -47,7 +47,7 @@ Options
 
 	/c CONFIG
 		Use an arbitrary configuration file instead of the
-		standard `videowin.rc' file.
+		standard `videow.rc' file.
 
 	/p
 		Print some info of the video board.
@@ -66,7 +66,7 @@ Limitations
 		reset the original video mode.
 
 Troubleshotting
-	Try decreasing the hardware video optimization. For example
+	Try decreasing the video hardware acceleration. For example
 	with the nVidia Windows drivers the mouse pointer disappers if
 	you use full optimization.
 
@@ -76,11 +76,11 @@ Tests
 Examples
 	Set a 640x480 mode with 16 bits per pixel:
 
-		:videowin /s 640x480x16
+		:videow /s 640x480x16
 
 	Adjust the current mode:
 
-		:videowin /a
+		:videow /a
 
 Bugs
 	The configuration file is checked only for the

@@ -1,6 +1,11 @@
 Name
 	advcab - History For AdvanceCAB
 
+AdvanceCAB Version 1.1.1 2002/11 (not yet released)
+	) Added the ADVV utiluty for Windows NT/2000/XP.
+	) Added an new option at the VIDEOWIN utility to enable the
+		hardware mouse pointer.
+
 AdvanceCAB Version 1.1.0 2002/11
 	) Added the VIDEOWIN utility. It's able to set an arbitrary
 		modeline in Windows NT/2000/XP. It supports all the

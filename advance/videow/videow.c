@@ -237,7 +237,7 @@ static void notify(void) {
 }	
 
 static int save(const char* file) {
-	unsigned char regs[MAX_REGS];
+	unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 	FILE* f;
 
 	adv_svgalib_save(regs);
@@ -259,7 +259,7 @@ static int save(const char* file) {
 }
 
 static int restore(const char* file) {
-	unsigned char regs[MAX_REGS];
+	unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 	FILE* f;
 
 	f = fopen(file,"rb");
@@ -432,6 +432,8 @@ static void help(void) {
 "    /r FILE     Read the new mode registers from the specified file.\n"
 "    /d          Disable the hardware video output.\n"
 "    /e          Enable the hardware video output.\n"
+"    /m          Enable the hardware mouse pointer.\n"
+"    /n SIZE     Set the scanline size in bytes.\n"
 "Options:\n"
 "    /c CONFIG  Use this config file instead of videowin.rc\n"
 );
@@ -453,6 +455,8 @@ int main(int argc, char* argv[]) {
 	int arg_disable = 0;
 	int arg_probe = 0;
 	int arg_winrestore = 0;
+	int arg_scanline = 0;
+	int arg_mouse = 0;
 	const char* arg_config = "videowin.rc";
 
 	if (argc <= 1) {
@@ -484,8 +488,13 @@ int main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[i],"c") && i+1<argc) {
 			arg_config = argv[i+1];
 			++i;
+		} else if (optionmatch(argv[i],"n") && i+1<argc) {
+			arg_scanline = atoi(argv[i+1]);
+			++i;
 		} else if (optionmatch(argv[i],"a")) {
 			arg_adjust = 1;
+		} else if (optionmatch(argv[i],"m")) {
+			arg_mouse = 1;
 		} else if (optionmatch(argv[i],"e")) {
 			arg_enable = 1;
 		} else if (optionmatch(argv[i],"d")) {
@@ -543,7 +552,15 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 	}
-	
+
+	if (arg_scanline) {
+		adv_svgalib_scanline_set( arg_scanline );
+	}
+
+	if (arg_mouse) {
+		adv_svgalib_cursor_on();
+	}
+
 	if (arg_enable) {
 		adv_svgalib_on();
 	}
