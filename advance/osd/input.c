@@ -508,7 +508,7 @@ static void input_mouse_update(struct advance_input_context* context)
 	unsigned i, j;
 
 	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
-		int v0, v1;
+		int v0, v1, v2;
 
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			context->state.mouse_button_current[i][j] = mouseb_button_get(i, j);
@@ -516,10 +516,11 @@ static void input_mouse_update(struct advance_input_context* context)
 				input_something_pressed(context);
 		}
 
-		mouseb_pos_get(i, &v0, &v1);
+		mouseb_pos_get(i, &v0, &v1, &v2);
 
 		context->state.mouse_analog_current[i][0] = v0;
 		context->state.mouse_analog_current[i][1] = v1;
+		context->state.mouse_analog_current[i][2] = v2;
 
 		if (v0!=0 || v1!=0)
 			input_something_pressed(context);

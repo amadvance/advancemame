@@ -1299,7 +1299,11 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 
 	context->state.game_vector_flag = req->vector_flag;
 
-	context->state.game_fps = req->fps * context->config.fps_speed_factor;
+	if (context->config.fps_fixed != 0) {
+		context->state.game_fps = context->config.fps_fixed * context->config.fps_speed_factor;
+	} else {
+		context->state.game_fps = req->fps * context->config.fps_speed_factor;
+	}
 	context->state.game_area_size_x = req->area_size_x;
 	context->state.game_area_size_y = req->area_size_y;
 	context->state.game_used_pos_x = req->used_pos_x;
@@ -3196,6 +3200,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_rgbeffect", conf_enum(OPTION_RGBEFFECT), EFFECT_NONE);
 	conf_int_register_enum_default(cfg_context, "display_interlaceeffect", conf_enum(OPTION_INTERLACEEFFECT), EFFECT_NONE);
+	conf_string_register_default(cfg_context, "misc_fps", "auto");
 	conf_float_register_limit_default(cfg_context, "misc_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "misc_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "misc_crash", 0);
@@ -3397,6 +3402,17 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "misc_turbospeed");
+	s = conf_string_get_default(cfg_context, "misc_fps");
+	if (strcmp(s,"auto")==0) {
+		context->config.fps_fixed = 0;
+	} else {
+		char* e;
+		context->config.fps_fixed = strtod(s,&e);
+		if (context->config.fps_fixed < 10 || context->config.fps_fixed > 300 || *e) {
+			target_err("Invalid argument '%s' for option 'misc_fps'\n", s);
+			return -1;
+		}
+	}
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "misc_speed");
 	context->config.fastest_time = conf_int_get_default(cfg_context, "misc_startuptime");
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
@@ -3414,12 +3430,13 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		context->config.frameskip_auto_flag = 1;
 		context->config.frameskip_factor = 1.0;
 	} else {
+		char* e;
 		context->config.frameskip_auto_flag = 0;
-		context->config.frameskip_factor = atof(s);
-		if (context->config.frameskip_factor < 0.0)
-			context->config.frameskip_factor = 0.0;
-		if (context->config.frameskip_factor > 1.0)
-			context->config.frameskip_factor = 1.0;
+		context->config.frameskip_factor = strtod(s, &e);
+		if (context->config.frameskip_factor < 0.0 || context->config.frameskip_factor > 1.0 || *e) {
+			target_err("Invalid argument '%s' for option 'display_frameskip'\n", s);
+			return -1;
+		}
 	}
 
 #ifdef USE_SMP

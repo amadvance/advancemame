@@ -59,26 +59,21 @@ unsigned mouseb_none_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:none: mouseb_none_button_count_get()\n"));
 
-	assert(0);
-
 	return 0;
 }
 
-void mouseb_none_pos_get(unsigned mouse, int* x, int* y)
+void mouseb_none_pos_get(unsigned mouse, int* x, int* y, int* z)
 {
 	log_debug(("mouseb:none: mouseb_none_pos_get()\n"));
 
-	assert(0);
-
 	*x = 0;
 	*y = 0;
+	*z = 0;
 }
 
 unsigned mouseb_none_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:none: mouseb_none_button_get()\n"));
-
-	assert(0);
 
 	return 0;
 }

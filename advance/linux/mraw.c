@@ -146,7 +146,7 @@ unsigned mouseb_raw_button_count_get(unsigned m)
 	return i;
 }
 
-void mouseb_raw_pos_get(unsigned m, int* x, int* y)
+void mouseb_raw_pos_get(unsigned m, int* x, int* y, int* z)
 {
 	log_debug(("mouseb:raw: mouseb_raw_pos_get()\n"));
 
@@ -155,14 +155,17 @@ void mouseb_raw_pos_get(unsigned m, int* x, int* y)
 	if (m >= RAW_MOUSE_MAX || !raw_state.opened[m]) {
 		*x = 0;
 		*y = 0;
+		*z = 0;
 		return;
 	}
 
 	*x = raw_state.map[m].x;
 	*y = raw_state.map[m].y;
+	*z = raw_state.map[m].z;
 
 	raw_state.map[m].x = 0;
 	raw_state.map[m].y = 0;
+	raw_state.map[m].z = 0;
 }
 
 unsigned mouseb_raw_button_get(unsigned m, unsigned b)
@@ -249,15 +252,15 @@ adv_error mouseb_raw_load(adv_conf* context)
 
 static adv_conf_enum_int MOUSE_TYPE[] = {
 { "auto", -1 },
-{ "gpm", MOUSE_GPM },
 { "pnp", MOUSE_PNP },
 { "ms", MOUSE_MICROSOFT },
 { "ms3", MOUSE_INTELLIMOUSE },
 { "ps2", MOUSE_PS2 },
 { "imps2", MOUSE_IMPS2 },
 { "exps2", MOUSE_EXPPS2 },
-{ "mman", MOUSE_LOGIMAN },
 { "msc", MOUSE_MOUSESYSTEMS },
+{ "mscgpm", MOUSE_GPM },
+{ "mman", MOUSE_LOGIMAN },
 { "mm", MOUSE_MMSERIES },
 { "logi", MOUSE_LOGITECH },
 { "bm", MOUSE_BUSMOUSE },

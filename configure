@@ -5437,12 +5437,14 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <sys/ioctl.h>
+#include <termios.h>
 int
 main ()
 {
 
-			int dummy = TIOCMSET;
+			void dummy(void) {
+				tcsetattr(0, TCSAFLUSH, 0);
+			}
 
   ;
   return 0;
@@ -5480,12 +5482,14 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <sys/ioctl.h>
+#include <termios.h>
 int
 main ()
 {
 
-			int dummy = TIOCMSET;
+			void dummy(void) {
+				tcsetattr(0, TCSAFLUSH, 0);
+			}
 
   ;
   return 0;
@@ -5508,8 +5512,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: the KRAW keyboard interface is missing" >&5
-echo "$as_me: error: the KRAW keyboard interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the KRAW mouse interface is missing" >&5
+echo "$as_me: error: the KRAW mouse interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext

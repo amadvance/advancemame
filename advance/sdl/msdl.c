@@ -87,7 +87,7 @@ unsigned mouseb_sdl_button_count_get(unsigned m)
 	return 3;
 }
 
-void mouseb_sdl_pos_get(unsigned m, int* x, int* y)
+void mouseb_sdl_pos_get(unsigned m, int* x, int* y, int* z)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
 
@@ -95,6 +95,8 @@ void mouseb_sdl_pos_get(unsigned m, int* x, int* y)
 
 	*x = sdl_state.x;
 	*y = sdl_state.y;
+	*z = 0;
+
 	sdl_state.x = 0;
 	sdl_state.y = 0;
 }

@@ -352,9 +352,9 @@ static int int_mouse_button_raw_poll()
 static int int_mouse_move_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
-		int x, y;
+		int x, y, z;
 
-		mouseb_pos_get(i, &x, &y);
+		mouseb_pos_get(i, &x, &y, &z);
 
 		int_mouse_pos_x += x;
 		int_mouse_pos_y += y;

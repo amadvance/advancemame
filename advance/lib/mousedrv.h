@@ -68,7 +68,7 @@ typedef struct mouseb_driver_struct {
 
 	unsigned (*count_get)(void);
 	unsigned (*button_count_get)(unsigned mouse);
-	void (*pos_get)(unsigned mouse, int* x, int* y);
+	void (*pos_get)(unsigned mouse, int* x, int* y, int* z);
 	unsigned (*button_get)(unsigned mouse, unsigned button);
 	void (*poll)(void);
 } mouseb_driver;
@@ -122,11 +122,11 @@ static inline unsigned mouseb_button_count_get(unsigned mouse)
 	return mouseb_state.driver_current->button_count_get(mouse);
 }
 
-static inline void mouseb_pos_get(unsigned mouse, int* x, int* y)
+static inline void mouseb_pos_get(unsigned mouse, int* x, int* y, int* z)
 {
 	assert( mouseb_state.is_active_flag );
 
-	return mouseb_state.driver_current->pos_get(mouse, x, y);
+	return mouseb_state.driver_current->pos_get(mouse, x, y, z);
 }
 
 static inline unsigned mouseb_button_get(unsigned mouse, unsigned button)

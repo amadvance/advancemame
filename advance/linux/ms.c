@@ -54,13 +54,6 @@
 #define MOUSE_DRMOUSE4DS 14
 #define MOUSE_EXPPS2 15
 
-/* Logical or the following values to one of the above at will and give that for
-   type in mouse_init (still they make only sense for serial mice) */
-#define MOUSE_CHG_DTR 0x80000000 /* CLEAR (!) the DTR line */
-#define MOUSE_DTR_HIGH 0x40000000 /* when used with MOUSE_CHG_DTR set DTR not clear it */
-#define MOUSE_CHG_RTS 0x20000000 /* CLEAR (!) the RTS line */
-#define MOUSE_RTS_HIGH 0x10000000 /* when used with MOUSE_CHG_RTS set RTS not clear it */
-
 /* MS IntelliMouse has 18 steps, Logitech FirstMouse+ has 24 */
 #define DEFAULT_WHEEL_STEPS 18
 #define DEFAULT_WHEEL_DELTA (360 / DEFAULT_WHEEL_STEPS)
@@ -114,8 +107,6 @@ struct raw_mouse_context {
 	int m_fd;
 	int m_fdmode; /* 0 means don't wait (NDELAY) */
 	int m_modem_ctl;
-	unsigned long m_old_modem_info; /* Settings found on mouse open.. Probably std termios should be restored as well original state of DTR/RTS */
-	char m_modem_info_valid; /*  ==0 means: couldn't get it: old kernel? */
 	int m_wheel_steps; /* Number of steps that make up a full turn of the wheel (for IntelliMouse & co) */
 	int m_wheel_delta; /* Amount to change rotation about the X axis when wheel is turned */
 
@@ -168,7 +159,6 @@ static void raw_mouse_handler(struct raw_mouse_context* context, int button, int
 #include <stdlib.h>
 #include <stdio.h>
 #include <termios.h>
-#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
@@ -289,7 +279,6 @@ static int raw_mouse_init(struct raw_mouse_context* context)
 	context->m_fd = -1;
 	context->m_fdmode = 0;
 	context->m_modem_ctl = 0;
-	context->m_modem_info_valid = 0;
 	context->m_wheel_steps = DEFAULT_WHEEL_STEPS;
 	context->m_wheel_delta = DEFAULT_WHEEL_DELTA;
 	context->e_nu_bytes = 0;
@@ -333,35 +322,9 @@ static int raw_mouse_init(struct raw_mouse_context* context)
 		|| context->type == MOUSE_DRMOUSE4DS || context->type == MOUSE_EXPPS2)
 	context->m_modem_ctl = 0;
 
-    /* If no signal will change there is no need to restore
-       or safe original settings. */
-    if (!context->m_modem_ctl)
-	context->m_modem_info_valid = 0;
-    else {
-	/* Get current modem signals; keep silent on errors.. */
-	context->m_modem_info_valid = !ioctl(context->m_fd,
-				   TIOCMGET, &context->m_old_modem_info);
-
-	if (context->m_modem_info_valid) {
-	    unsigned long param = context->m_old_modem_info;
-
-	    /* Prepare new stat: */
-
-	    /*set DTR as ordered.. */
-	    if (context->m_modem_ctl & MOUSE_CHG_DTR) {
-		param &= ~TIOCM_DTR;
-		if (context->m_modem_ctl & MOUSE_DTR_HIGH)
-		    param |= TIOCM_DTR;
-	    }
-	    /*set RTS as ordered.. */
-	    if (context->m_modem_ctl & MOUSE_CHG_RTS) {
-		param &= ~TIOCM_RTS;
-		if (context->m_modem_ctl & MOUSE_RTS_HIGH)
-		    param |= TIOCM_RTS;
-	    }
-	    if (ioctl(context->m_fd, TIOCMSET, &param))
-		context->m_modem_info_valid = 0;	/* No try to restore if this failed */
-	}
+    if (context->m_modem_ctl) {
+	/* the modem configuration is removed */
+	return -1;
     }
 
     if (context->type == MOUSE_SPACEBALL) {
@@ -509,9 +472,6 @@ static void raw_mouse_close(struct raw_mouse_context* context)
 	write(context->m_fd, "U", 1);
 	raw_mouse_setspeed(context, context->m_baud, 1200, cflag[MOUSE_LOGITECH]);
     }
-    /* Try to restore modem signals if we could get them. */
-    if (context->m_modem_info_valid)
-	ioctl(context->m_fd, TIOCMSET, &context->m_old_modem_info);
 
     close(context->m_fd);
     context->m_fd = -1;

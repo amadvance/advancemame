@@ -124,15 +124,17 @@ unsigned mouseb_svgalib_button_count_get(unsigned m)
 	return svgalib_state.button_mac;
 }
 
-void mouseb_svgalib_pos_get(unsigned m, int* x, int* y)
+void mouseb_svgalib_pos_get(unsigned m, int* x, int* y, int* z)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_pos_get()\n"));
 
 	assert( m < mouseb_svgalib_count_get());
 
 	*x = svgalib_state.x;
-	svgalib_state.x = 0;
 	*y = svgalib_state.y;
+	*z = 0;
+
+	svgalib_state.x = 0;
 	svgalib_state.y = 0;
 }
 

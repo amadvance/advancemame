@@ -250,11 +250,11 @@ Features
 	AdvanceMAME permits a special speed control of the game
 	play.
 
-	You can play the game in a faster way, skip the
-	startup process at the maximum speed, or skip the
-	game animations pressing a key.
+	You can play the game in a faster way, change arbitrarily the
+	frame rate, skip the startup process at the maximum speed, or
+	skip the game animations pressing a key.
 
-	More details are in the description of the `misc_speed',
+	More details are in the description of the `misc_fps', `misc_speed',
 	`misc_turbospeed' and `misc_startuptime' options.
 
   Exit Control
@@ -1268,8 +1268,17 @@ Configuration
 
 	You can enable or disable it also on the runtime Video menu.
 
+    misc_fps
+	Selects an arbitrary frame rate for the game.
+
+	:misc_fps auto | FPS
+
+	Options:
+		auto - Use the original framerate of the game (default).
+		FPS - Use the specified framerate.
+
     misc_speed
-	Selects the speed factor always active. You can play the game
+	Selects a speed factor always active. You can play the game
 	in slowdown or in nightmare mode!
 
 	:misc_speed FACTOR

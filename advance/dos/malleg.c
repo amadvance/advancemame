@@ -142,11 +142,13 @@ unsigned mouseb_allegro_button_count_get(unsigned m)
 	return allegro_state.mouse[m].buttons_counter;
 }
 
-void mouseb_allegro_pos_get(unsigned m, int* x, int* y)
+void mouseb_allegro_pos_get(unsigned m, int* x, int* y, int* z)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_pos_get()\n"));
 
 	assert( m < mouseb_allegro_count_get());
+
+	*z = 0;
 
 	if (allegro_state.mouse[m].skip) {
 		*x = allegro_state.mouse[m].x;

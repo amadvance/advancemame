@@ -741,21 +741,23 @@ Input Drivers Configuration
 	Devices:
 		auto - Autotection. It works only sometimes, generally
 			it's better to manually select the type.
-		gpm - GPM deamon.
-		pnp - Plug And Play serial (3 button).
-		ms - Microsoft Mouse serial.
-		ms3 - Microsoft Intellimouse serial.
-		ps2 - PS/2.
-		imps2 - Microsoft Intellimouse PS/2.
+		pnp - Plug And Play serial (3 buttons).
+		ms - Microsoft Mouse serial (3 buttons).
+		ms3 - Microsoft Intellimouse serial (3 buttons).
+		ps2 - PS/2 (3 buttons).
+		imps2 - Microsoft Intellimouse PS/2 (3 buttons).
 		exps2 - Microsoft Intellimouse Explorer PS/2 (5 buttons).
-		mman - Logitech MouseMan.
 		msc - Mouse System.
-		mm - Logitech MM Series
+		mscgpm - Mouse System compatible with GPM.
+		mman - Logitech MouseMan.
+		mm - Logitech MM series
 		logi - Logitech old protocol.
 		bm - Bus Mouse.
 		spaceball - Spacetec SpaceBall (6 buttons).
 		wacomgraphire - Wacom Graphire tablet/mouse.
 		drmousee4ds - Digital Research double-wheeled mouse.
+
+	Use the legacy devices only you have a very old mouse.
 
     device_raw_mousedev[0,1,2,3]
 	Select the mouse device to use.
@@ -763,14 +765,14 @@ Input Drivers Configuration
 	device_raw_mousedev[0,1,2,3] auto | DEVICE
 
 	Options:
-		auto - Map to /dev/mouse or /dev/input/mouseX.
+		auto - Automatically map to /dev/mouse or /dev/input/mouseX.
 		DEVICE - Complete path of the mouse device.
 
 	Example:
-		device_raw_mousetype[0] imps2
-		device_raw_mousedev[1] /dev/ttyS0
-		device_raw_mousetype[0] imps2
-		device_raw_mousedev[1] /dev/ttyS1
+		device_raw_mousetype[0] ms3
+		device_raw_mousedev[0] /dev/mouse
+		device_raw_mousetype[1] ms
+		device_raw_mousedev[1] /dev/ttyS2
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.

@@ -174,6 +174,7 @@ struct advance_video_config_context {
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */
 	double fps_speed_factor; /**< Additional speed factor over the standard value. Multiplicative factor. */
+	double fps_fixed; /**< Fixed fps. If ==0 use the original fps. */
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
 	int measure_time; /**< Time for the speed measure [seconds]. */
 	adv_bool restore_flag; /**< Reset the video mode at the exit [boolean]. */

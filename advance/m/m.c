@@ -65,7 +65,7 @@ void run(void)
 
 		new_msg[0] = 0;
 		for(i=0;i<mouseb_count_get();++i) {
-			int x, y;
+			int x, y, z;
 
 			if (i!=0)
 				sncat(new_msg, sizeof(new_msg), "\n");
@@ -79,9 +79,9 @@ void run(void)
 			}
 			sncat(new_msg, sizeof(new_msg), "], ");
 
-			mouseb_pos_get(i, &x, &y);
+			mouseb_pos_get(i, &x, &y, &z);
 
-			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " [%6d/%6d]", x, y);
+			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " [%6d/%6d/%6d]", x, y, z);
 		}
 
 		if (strcmp(msg, new_msg)!=0) {

@@ -632,15 +632,19 @@ AC_ARG_ENABLE(
 )
 if test $ac_lib_mraw = auto; then
 	AC_MSG_CHECKING([for RAW mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ioctl.h>]], [[
-			int dummy = TIOCMSET;
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
+			void dummy(void) {
+				tcsetattr(0, TCSAFLUSH, 0);
+			}
 		]])],[ac_lib_mraw=yes],[ac_lib_mraw=no])
 	AC_MSG_RESULT([$ac_lib_mraw])
 elif test $ac_lib_mraw = yes; then
 	AC_MSG_CHECKING([for RAW mouse interface])
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ioctl.h>]], [[
-			int dummy = TIOCMSET;
-		]])],[],[AC_MSG_ERROR([the KRAW keyboard interface is missing])])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]], [[
+			void dummy(void) {
+				tcsetattr(0, TCSAFLUSH, 0);
+			}
+		]])],[],[AC_MSG_ERROR([the KRAW mouse interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mraw = yes; then
