@@ -54,7 +54,7 @@ extern "C" {
 /* Option */
 
 void video_reg(adv_conf* context, adv_bool auto_detect);
-void video_reg_driver(adv_conf* context, adv_video_driver* adv_driver);
+void video_reg_driver(adv_conf* context, adv_video_driver* driver);
 adv_error video_load(adv_conf* context, const char* driver_ignore);
 
 /***************************************************************************/
@@ -63,7 +63,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore);
 typedef struct video_internal_struct {
 	adv_bool active; /**< !=0 if active. */
 
-	unsigned driver_mac; /**< Number of video adv_driver available. */
+	unsigned driver_mac; /**< Number of video driver available. */
 	adv_video_driver* driver_map[DEVICE_MAX]; /**< Video drivers available. */
 
 	adv_bool old_mode_required; /**< If at least one mode is set. */
@@ -115,7 +115,7 @@ static inline const adv_mode* video_current_mode(void) {
 	return &video_state.mode;
 }
 
-/** Video adv_driver of the current mode. */
+/** Video driver of the current mode. */
 static inline const adv_video_driver* video_current_driver(void) {
 	return mode_driver(video_current_mode());
 }
@@ -370,7 +370,7 @@ adv_error video_mode_grab(adv_mode* mode);
 int video_mode_compare(const adv_mode* a, const adv_mode* b);
 
 adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
-adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags);
 unsigned video_mode_generate_driver_flags(void);
 
 void video_mode_print(char* buffer, const adv_mode* vm);

@@ -1,16 +1,30 @@
+#############################################################################
+# User configuration
+#
+
 srcdir = ..
 VBEOBJ = obj
-#CFLAGS = -O2 -Wall -march=i386
-CFLAGS = -O0 -Wall -g
-#LDFLAGS = -s
-LDFLAGS = -g
+DEBUG = no
 ECHO = @echo
 MD = @mkdir
 CC = @gcc
 LD = @gcc
 EXE = .exe
-MSG =
 STUBEDIT = @stubedit
+
+#############################################################################
+#
+#
+
+ifeq ($(DEBUG),yes)
+CFLAGS = -O0 -Wall -g
+LDFLAGS = -g
+MSG = "(debug)"
+else
+CFLAGS = -O1 -Wall -march=i386
+LDFLAGS = -s
+MSG =
+endif
 
 all: vbe32$(EXE)
 
@@ -19,12 +33,14 @@ VBEOBJDIRS += \
 	$(VBEOBJ)/vbe32 \
 	$(VBEOBJ)/dos \
 	$(VBEOBJ)/svgalib \
+	$(VBEOBJ)/svgalib/svgados \
 	$(VBEOBJ)/svgalib/clockchi \
 	$(VBEOBJ)/svgalib/ramdac \
 	$(VBEOBJ)/svgalib/drivers
 VBECFLAGS += \
 	-I$(srcdir)/dos \
 	-I$(srcdir)/svgalib \
+	-I$(srcdir)/svgalib/svgados \
 	-I$(srcdir)/svgalib/clockchi \
 	-I$(srcdir)/svgalib/ramdac \
 	-I$(srcdir)/svgalib/drivers
@@ -35,7 +51,8 @@ VBEOBJS += \
 	$(VBEOBJ)/vbe32/keep.o \
 	$(VBEOBJ)/dos/pci.o \
 	$(VBEOBJ)/dos/map.o \
-	$(VBEOBJ)/svgalib/libdos.o \
+	$(VBEOBJ)/svgalib/svgalib.o \
+	$(VBEOBJ)/svgalib/svgados/svgados.o \
 	$(VBEOBJ)/svgalib/accel.o \
 	$(VBEOBJ)/svgalib/vgaio.o \
 	$(VBEOBJ)/svgalib/vgammvga.o \

@@ -1,7 +1,7 @@
 Name
 	advmame - History For Advance Emulators
 
-AdvanceMAME Version 0.61.4 2002/09 (not yet released)
+AdvanceMAME Version 0.61.4 2002/10 (not yet released)
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
@@ -10,6 +10,10 @@ AdvanceMAME Version 0.61.4 2002/09 (not yet released)
 	) The configuration file now recognizes the SIZEXxSIZEYxFREQ section.
 	) Fixed a nasty bug on the DOS svgaline drivers in the
 		libdos_mode_done() function.
+	) Fixed a precision error checking the clock in the DOS vgaline
+		driver.
+	) Removed the limitation of 8 bit crtc multiplier in the DOS
+		vgaline driver.
 
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.

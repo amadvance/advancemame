@@ -35,8 +35,9 @@
  * Register all the video drivers.
  * The drivers are registered on the basis of the following defines:
  *  - USE_VIDEO_SVGALIB
- *  - USE_VIDEO_FB
  *  - USE_VIDEO_SVGALINE
+ *  - USE_VIDEO_SVGAWIN
+ *  - USE_VIDEO_FB
  *  - USE_VIDEO_VBELINE
  *  - USE_VIDEO_VGALINE
  *  - USE_VIDEO_SLANG
@@ -48,11 +49,14 @@ void video_reg_driver_all(adv_conf* context) {
 #ifdef USE_VIDEO_SVGALIB
 	video_reg_driver(context, &video_svgalib_driver);
 #endif
-#ifdef USE_VIDEO_FB
-	video_reg_driver(context, &video_fb_driver);
-#endif
 #ifdef USE_VIDEO_SVGALINE
 	video_reg_driver(context, &video_svgaline_driver);
+#endif
+#ifdef USE_VIDEO_SVGAWIN
+	video_reg_driver(context, &video_svgawin_driver);
+#endif
+#ifdef USE_VIDEO_FB
+	video_reg_driver(context, &video_fb_driver);
 #endif
 #ifdef USE_VIDEO_VBELINE
 	video_reg_driver(context, &video_vbeline_driver);

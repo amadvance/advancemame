@@ -494,13 +494,14 @@ adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_
 }
 
 static int vgaline_acceptable_pixelclock(unsigned requested, unsigned effective) {
-	int err = requested - effective;
+	int err = (int)requested - (int)effective;
 	if (err < 0)
-		err = -err;
+		err = - err;
 
-	/* 1% adv_error acceptable */
-	if (err * 100 > 1 * (int)requested)
+	/* 1% error acceptable */
+	if (err > (int)requested / 100) {
 		return -1;
+	}
 
 	return 0;
 }
@@ -537,6 +538,11 @@ static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const 
 	if (video_mode_generate_check("vgaline",vgaline_flags(),2,1024,crtc,bits,flags)!=0)
 		return -1;
 
+	if (crtc->hde * crtc->vde > 256 * 1024) {
+		error_nolog_cat("vgaline: Mode to big for the VGA memory.\n");
+		return -1;
+	}
+
 	mode->is_text = 0;
 	mode->crtc = *crtc;
 	mode->font_x = 0;
@@ -569,7 +575,7 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 	/* get the real pixelclock */
 	pixelclock = vga_pixelclock_nearest_get(pixelclock, mode->is_text);
 
-	if (vgaline_acceptable_pixelclock(crtc->pixelclock,pixelclock)!=0) {
+	if (vgaline_acceptable_pixelclock(crtc->pixelclock, pixelclock)!=0) {
 		error_nolog_cat("vgaline: Pixel clock not supported. Nearest supported value is %d Hz\n",pixelclock);
 		return -1;
 	}

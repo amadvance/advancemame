@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Keyboard adv_driver "none".
+ * Keyboard driver "none".
  */
 
 #ifndef __KNONE_H
@@ -45,8 +45,8 @@ extern "C" {
 /*@{*/
 
 /**
- * Keyboard adv_driver "none".
- * This adv_driver implement a null keyboard. No event is generated.
+ * Keyboard driver "none".
+ * This driver implement a null keyboard. No event is generated.
  */
 extern keyb_driver keyb_none_driver;
 

@@ -482,6 +482,9 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 
 	log_std(("video:sdl: sdl_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
 
+	if (!crtc_is_fake(crtc) && video_mode_generate_check("sdl",sdl_flags(),8,2048,crtc,bits,flags)!=0)
+		return -1;
+
 	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, bits, SDL_ModeFlags() );
 
 	if (!suggested_bits) {

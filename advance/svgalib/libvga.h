@@ -11,15 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "libdos.h"
-
-/* override system functions */
-#define malloc libdos_malloc
-#define calloc libdos_calloc
-#define free libdos_free
-#define mmap libdos_mmap
-#define munmap libdos_munmap
-#define iopl libdos_iopl
+#include "svgalib.h"
 
 /* --------------------- Macro definitions shared by library modules */
 

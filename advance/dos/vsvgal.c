@@ -33,7 +33,8 @@
 #include "log.h"
 #include "error.h"
 
-#include "libdos.h"
+#define USE_SVGALIB_EXTERNAL
+#include "svgalib.h"
 
 #include <sys/mman.h>
 #include <sys/nearptr.h>
@@ -81,7 +82,7 @@ static struct svgaline_option_struct svgaline_option;
 /* Internal */
 
 static unsigned char* svgaline_linear_write_line(unsigned y) {
-	return (unsigned char*)svgaline_state.linear_pointer + libdos_mode.bytes_per_scanline * y;
+	return (unsigned char*)svgaline_state.linear_pointer + adv_svgalib_mode.bytes_per_scanline * y;
 }
 
 /* Short names for the most common flags */
@@ -337,9 +338,9 @@ static adv_error svgaline_test_capability(struct svgaline_chipset_struct* driver
 	for(i=0;i<5;++i) {
 		unsigned bit = bit_map[i];
 
-		libdos_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
+		adv_svgalib_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
 
-		if (driver->drv->modeavailable(libdos_mode_number) == 0) {
+		if (driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
 			unsigned cap = 0;
 			switch (bit) {
 				case 8 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT; break;
@@ -352,7 +353,7 @@ static adv_error svgaline_test_capability(struct svgaline_chipset_struct* driver
 			log_std(("svgaline: mode bit %d not supported, removed\n", bit));
 		}
 
-		libdos_mode_done();
+		adv_svgalib_mode_done();
 	}
 
 	if ((driver->cap & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) == 0) {
@@ -362,21 +363,20 @@ static adv_error svgaline_test_capability(struct svgaline_chipset_struct* driver
 
 	/* interlace */
 	if ((driver->cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
-		libdos_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
+		adv_svgalib_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
 
-		if (driver->drv->modeavailable(libdos_mode_number) == 0) {
+		if (driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
 			driver->cap &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 			log_std(("svgaline: interlace not supported, removed\n"));
 		}
 
-		libdos_mode_done();
+		adv_svgalib_mode_done();
 	}
 
 	return 0;
 }
 
 static void svgaline_mode_print(void) {
-
 #ifndef NDEBUG
 	unsigned char driver_regs[MAX_REGS];
 	unsigned i,j,k;
@@ -417,7 +417,9 @@ adv_error svgaline_init(int device_id) {
 		svgaline_default();
 	}
 
-	libdos_init(svgaline_option.divide_clock);
+	if (adv_svgalib_init(svgaline_option.divide_clock) != 0) {
+		return -1;
+	}
 
 	for(i=0;cards[i].name;++i) {
 		if (strcmp(name,"auto")==0 || strcmp(name,cards[i].name)==0) {
@@ -445,7 +447,7 @@ void svgaline_done(void) {
 
 	svgaline_state.active = 0;
 
-	libdos_done();
+	adv_svgalib_done();
 }
 
 adv_bool svgaline_is_active(void) {
@@ -475,7 +477,7 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	if (svgaline_option.divide_clock)
 		clock *= 2;
 
-	libdos_mode_init(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc));
+	adv_svgalib_mode_init(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc));
 
 	if (!__svgalib_linear_mem_size) {
 		error_set("The current driver does't support the linear frame buffer");
@@ -486,14 +488,14 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	svgaline_state.linear_size = __svgalib_linear_mem_size;
 
 	log_std(("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size));
-	svgaline_state.linear_pointer = mmap(0, svgaline_state.linear_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, svgaline_state.linear_base);
+	svgaline_state.linear_pointer = adv_svgalib_mmap(0, svgaline_state.linear_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, svgaline_state.linear_base);
 
 	log_std(("svgaline: svgalib linear pointer %p\n", svgaline_state.linear_pointer));
 	__svgalib_linear_pointer = svgaline_state.linear_pointer;
 
 	if (__svgalib_mmio_size) {
 		log_std(("svgaline: svgalib mmap(mmio) address %x, size %d\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size));
-		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
+		__svgalib_mmio_pointer = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
 		log_std(("svgaline: svgalib mmio pointer %x\n",(unsigned)__svgalib_mmio_pointer));
 	} else
 		__svgalib_mmio_pointer = 0;
@@ -514,8 +516,8 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 
 	log_std(("svgaline: svgalib setmode()\n"));
 
-	if (svgaline_state.driver->drv->setmode(libdos_mode_number, TEXT)) {
-		error_set("Generic adv_error setting the svgaline mode");
+	if (svgaline_state.driver->drv->setmode(adv_svgalib_mode_number, TEXT)) {
+		error_set("Generic error setting the svgaline mode");
 		return -1;
 	}
 
@@ -534,7 +536,7 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	log_std(("svgaline: svgalib linear(LINEAR_ENABLE)\n"));
 
 	if (svgaline_state.driver->drv->linear(LINEAR_ENABLE,svgaline_state.linear_base)!=0) {
-		error_set("Generic adv_error setting the linear mode");
+		error_set("Generic error setting the linear mode");
 		return -1;
 	}
 
@@ -577,7 +579,7 @@ adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 
 	log_std(("svgaline: svgalib unmap(linear)\n"));
 
-	munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
+	adv_svgalib_munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
 	svgaline_state.linear_size = 0;
 	svgaline_state.linear_base = 0;
 	svgaline_state.linear_pointer = 0;
@@ -585,11 +587,11 @@ adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 
 	if (__svgalib_mmio_size) {
 		log_std(("svgaline: svgalib unmap(mmio)\n"));
-		munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
+		adv_svgalib_munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
 		__svgalib_mmio_pointer = 0;
 	}
 
-	libdos_mode_done();
+	adv_svgalib_mode_done();
 
 	svgaline_state.mode_active = 0;
 
@@ -633,7 +635,7 @@ static void svgaline_mode_done_noint(adv_bool restore) {
 
 	log_std(("svgaline: svgalib unmap(linear)\n"));
 
-	munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
+	adv_svgalib_munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
 	svgaline_state.linear_size = 0;
 	svgaline_state.linear_base = 0;
 	svgaline_state.linear_pointer = 0;
@@ -641,11 +643,11 @@ static void svgaline_mode_done_noint(adv_bool restore) {
 
 	if (__svgalib_mmio_size) {
 		log_std(("svgaline: svgalib unmap(mmio)\n"));
-		munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
+		adv_svgalib_munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
 		__svgalib_mmio_pointer = 0;
 	}
 
-	libdos_mode_done();
+	adv_svgalib_mode_done();
 
 	svgaline_state.mode_active = 0;
 }
@@ -658,13 +660,13 @@ void svgaline_mode_done(adv_bool restore) {
 }
 
 unsigned svgaline_virtual_x(void) {
-	unsigned size = libdos_mode.bytes_per_scanline / libdos_mode.bytes_per_pixel;
+	unsigned size = adv_svgalib_mode.bytes_per_scanline / adv_svgalib_mode.bytes_per_pixel;
 	size = size & ~0x7;
 	return size;
 }
 
 unsigned svgaline_virtual_y(void) {
-	return __svgalib_linear_mem_size / libdos_mode.bytes_per_scanline;
+	return __svgalib_linear_mem_size / adv_svgalib_mode.bytes_per_scanline;
 }
 
 unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
@@ -673,11 +675,11 @@ unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
 }
 
 unsigned svgaline_bytes_per_scanline(void) {
-	return libdos_mode.bytes_per_scanline;
+	return adv_svgalib_mode.bytes_per_scanline;
 }
 
 adv_rgb_def svgaline_rgb_def(void) {
-	return rgb_def_make(libdos_mode.red_len,libdos_mode.red_pos,libdos_mode.green_len,libdos_mode.green_pos,libdos_mode.blue_len,libdos_mode.blue_pos);
+	return rgb_def_make(adv_svgalib_mode.red_len,adv_svgalib_mode.red_pos,adv_svgalib_mode.green_len,adv_svgalib_mode.green_pos,adv_svgalib_mode.blue_len,adv_svgalib_mode.blue_pos);
 }
 
 void svgaline_wait_vsync(void) {
@@ -756,15 +758,15 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 		return -1;
 
 	/* try the internal driver */
-	libdos_mode_init(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0);
+	adv_svgalib_mode_init(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0);
 
-	if (svgaline_state.driver->drv->modeavailable(libdos_mode_number) == 0) {
-		error_nolog_cat("svgaline: Generic adv_error checking the availability of the video mode\n");
-		libdos_mode_done();
+	if (svgaline_state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
+		error_nolog_cat("svgaline: Generic error checking the availability of the video mode\n");
+		adv_svgalib_mode_done();
 		return -1;
 	}
 
-	libdos_mode_done();
+	adv_svgalib_mode_done();
 
 	mode->crtc = *crtc;
 	mode->bits_per_pixel = bits;

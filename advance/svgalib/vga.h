@@ -550,8 +550,8 @@ extern "C"
  * NULL is a valid argument for any of the ptrs.
  */
 
-    extern int vga_waitevent(int which, fd_set * in, fd_set * out, fd_set * except,
-			     struct timeval *timeout);
+/*    extern int vga_waitevent(int which, fd_set * in, fd_set * out, fd_set * except,
+			     struct timeval *timeout); */
 
 /*
  * valid values for what ( | is valid to combine them )

@@ -35,7 +35,7 @@
 
 int _crt0_startup_flags = _CRT0_FLAG_LOCK_MEMORY;
 
-int _stklen = 8192; /* 32-bit stack size */
+int _stklen = 32768; /* 32-bit stack size */
 
 static int detect(void) {
 	__dpmi_regs regs;
@@ -112,15 +112,56 @@ static int install(void) {
 	return 0;
 }
 
-int main(void)
+int optionmatch(const char* arg, const char* opt) {
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1,opt) == 0;
+}
+
+int main(int argc, char* argv[])
 {
+	char config[128];
+	int arg_load;
+	unsigned i;
+
 	printf(OEM_PRODUCT_STR " by " OEM_VENDOR_STR " v" OEM_VERSION_STR "\n");
+
+	strcpy(config,"vbe.rc");
+
+	arg_load = 0;
+	for(i=1;i<argc;++i) {
+		const char* tok = argv[i];
+		if (optionmatch(tok,"l")) {
+			arg_load = 1;
+		} else if (optionmatch(tok,"c")) {
+			tok = argv[++i];
+			if (!tok) {
+				printf("Missing config file path\n");
+				exit(EXIT_FAILURE);
+			}
+			strcpy(config,tok);
+		} else {
+			printf("Unknown option %s\n", tok);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	if (!arg_load) {
+		printf(
+		"Usage:\n"
+		"    vbe32 [/l] [/c CONFIG]\n"
+		"Commands:\n"
+		"    /l         Load the TSR\n"
+		"Options:\n"
+		"    /c CONFIG  Use this config file instead of vbe.rc\n"
+		);
+
+		return EXIT_SUCCESS;
+	}
 
 	if (detect() != 0) {
 		exit(EXIT_FAILURE);
 	}
 
-	if (vbe_init() != 0) {
+	if (vbe_init(config) != 0) {
 		exit(EXIT_FAILURE);
 	}
 
@@ -132,8 +173,14 @@ int main(void)
 	__djgpp_exception_toggle();
 	keep(0, 0);
 #else
+	{
+		_go32_dpmi_registers r;
+		r.x.ax = 0x4F02;
+		r.x.bx = 0x4103;
+		vbe_service(&r);
+	}
 	printf("Exit\n");
 #endif
 
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -41,9 +41,9 @@ typedef struct realptr_struct {
 /****************************************************************************/
 /* SVGALIB */
 
-#include "libdos.h"
+#include "svgalib.h"
 
-struct svgaline_chipset_struct {
+struct chipset_struct {
 	DriverSpecs* drv;
 	int chipset;
 	const char* name;
@@ -55,7 +55,7 @@ struct svgaline_chipset_struct {
 #define FLAGS_INTERLACE 1
 #define FLAGS_NOINTERLACE 0
 
-static struct svgaline_chipset_struct cards[] = {
+static struct chipset_struct cards[] = {
 #ifdef INCLUDE_NV3_DRIVER
 	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_ALL },
 #endif
@@ -343,7 +343,7 @@ struct state_context {
 	realptr dos_buffer;
 
 	/** Active driver. */
-	struct svgaline_chipset_struct* driver;
+	struct chipset_struct* driver;
 
 	unsigned char driver_regs[MAX_REGS];
 
@@ -659,6 +659,14 @@ static int driver_init(void) {
 		return -1;
 	}
 
+	/* map the MMIO memory */
+	/* the memory must be always mapped to support the save/restore functions */
+	if (__svgalib_mmio_size) {
+		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
+	} else {
+		__svgalib_mmio_pointer = 0;
+	}
+
 	state.has_bit8 = 1;
 	state.has_bit15 = 1;
 	state.has_bit16 = 1;
@@ -669,9 +677,9 @@ static int driver_init(void) {
 	for(i=0;i<5;++i) {
 		unsigned bit = bit_map[i];
 
-		libdos_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
+		adv_svgalib_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
 
-		if (state.driver->drv->modeavailable(libdos_mode_number) == 0) {
+		if (state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
 			switch (bit) {
 				case 8 : state.has_bit8 = 0; break;
 				case 15 : state.has_bit15 = 0; break;
@@ -681,7 +689,7 @@ static int driver_init(void) {
 			}
 		}
 
-		libdos_mode_done();
+		adv_svgalib_mode_done();
 	}
 
 	if (state.has_bit8 == 0 && state.has_bit15 == 0 && state.has_bit16 == 0 && state.has_bit24 == 0 && state.has_bit32 == 0) {
@@ -693,13 +701,13 @@ static int driver_init(void) {
 	state.has_interlace = 0;
 	if ((state.driver->cap & FLAGS_INTERLACE) != 0) {
 		state.has_interlace = 1;
-		libdos_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
+		adv_svgalib_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
 
-		if (state.driver->drv->modeavailable(libdos_mode_number) == 0) {
+		if (state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
 			state.has_interlace = 0;
 		}
 
-		libdos_mode_done();
+		adv_svgalib_mode_done();
 	}
 
 	printf("Bit depth : ");
@@ -721,7 +729,7 @@ static int driver_init(void) {
 	return 0;
 }
 
-int vbe_init(void) {
+int vbe_init(const char* config) {
 	_go32_dpmi_seginfo info;
 
 	memset(&state,0,sizeof(state));
@@ -731,13 +739,13 @@ int vbe_init(void) {
 	state.mode = 0;
 	state.driver = 0;
 
-	libdos_init(0);
+	adv_svgalib_init(0);
 
 	if (driver_init() != 0) {
 		return -1;
 	}
 
-	if (load("vbe.rc") != 0) {
+	if (load(config) != 0) {
 		return -1;
 	}
 
@@ -767,28 +775,16 @@ static realptr oem_alloc(realptr* base, void* data, unsigned size)
 	return r;
 }
 
-static unsigned stabilize(void) {
-	unsigned k = 1;
+static void stabilize(void) {
 	unsigned i;
-	for(i=1;i<100000;++i)
-		k *= i;
-	return i;
+	for(i=0;i<10000;++i) {
+		inportb(0x80);
+	}
 }
 
 static int mode_set_noint(mode_info* mode)
 {
-	libdos_mode_init(mode->pixelclock, mode->hde, mode->hrs, mode->hre, mode->ht, mode->vde, mode->vrs, mode->vre, mode->vt, mode->doublescan, mode->interlace, mode->nhsync, mode->nvsync, mode->bits_per_pixel, 0, 0);
-
-	if (!__svgalib_linear_mem_size) {
-		return -1;
-	}
-
-	//__svgalib_linear_pointer = mmap(0, __svgalib_linear_mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_linear_mem_base);
-
-	if (__svgalib_mmio_size) {
-		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
-	} else
-		__svgalib_mmio_pointer = 0;
+	adv_svgalib_mode_init(mode->pixelclock, mode->hde, mode->hrs, mode->hre, mode->ht, mode->vde, mode->vrs, mode->vre, mode->vt, mode->doublescan, mode->interlace, mode->nhsync, mode->nvsync, mode->bits_per_pixel, 0, 0);
 
 	if (state.driver->drv->unlock)
 		state.driver->drv->unlock();
@@ -797,7 +793,7 @@ static int mode_set_noint(mode_info* mode)
 
 	vga_screenoff();
 
-	if (state.driver->drv->setmode(libdos_mode_number, TEXT)) {
+	if (state.driver->drv->setmode(adv_svgalib_mode_number, TEXT)) {
 		return -1;
 	}
 
@@ -846,15 +842,7 @@ static void mode_unset_noint(void)
 
 	vga_screenon();
 
-	//munmap(__svgalib_linear_pointer, __svgalib_linear_mem_size);
-	//__svgalib_linear_pointer = 0;
-
-	if (__svgalib_mmio_size) {
-		munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
-		__svgalib_mmio_pointer = 0;
-	}
-
-	libdos_mode_done();
+	adv_svgalib_mode_done();
 
 	state.mode = 0;
 }

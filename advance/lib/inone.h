@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Input adv_driver "none".
+ * Input driver "none".
  */
 
 #ifndef __INONE_H
@@ -45,8 +45,8 @@ extern "C" {
 /*@{*/
 
 /**
- * Input adv_driver "none".
- * This adv_driver implement a null input. No event is generated.
+ * Input driver "none".
+ * This driver implement a null input. No event is generated.
  */
 extern inputb_driver inputb_none_driver;
 

@@ -111,6 +111,7 @@ ADVANCELDFLAGS += \
 OBJDIRS += \
 	$(OBJ)/advance/card \
 	$(OBJ)/advance/svgalib \
+	$(OBJ)/advance/svgalib/svgados \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
 	$(OBJ)/advance/svgalib/drivers
@@ -136,7 +137,8 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/dos/pcimap.o \
 	$(OBJ)/advance/dos/map.o \
 	$(OBJ)/advance/card/board.o \
-	$(OBJ)/advance/svgalib/libdos.o \
+	$(OBJ)/advance/svgalib/svgalib.o \
+	$(OBJ)/advance/svgalib/svgados/svgados.o \
 	$(OBJ)/advance/svgalib/accel.o \
 	$(OBJ)/advance/svgalib/vgaio.o \
 	$(OBJ)/advance/svgalib/vgammvga.o \
@@ -209,6 +211,59 @@ ADVANCEOBJS += \
 # Customize the SDL_main function
 ADVANCECFLAGS += -DNO_STDIO_REDIRECT
 ADVANCEOBJS += $(OBJ)/advance/windows/sdlmain.o
+endif
+ifeq ($(CONF_LIB_SDL),yes)
+OBJDIRS += \
+	$(OBJ)/advance/svgalib \
+	$(OBJ)/advance/svgalib/svgawin \
+	$(OBJ)/advance/svgalib/ramdac \
+	$(OBJ)/advance/svgalib/clockchi \
+	$(OBJ)/advance/svgalib/drivers
+ADVANCECFLAGS += \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/svgawin \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers \
+	-DUSE_VIDEO_SVGAWIN
+ADVANCEOBJS += \
+	$(OBJ)/advance/windows/vsvgawin.o \
+	$(OBJ)/advance/svgalib/svgalib.o \
+	$(OBJ)/advance/svgalib/svgawin/svgawin.o \
+	$(OBJ)/advance/svgalib/accel.o \
+	$(OBJ)/advance/svgalib/vgaio.o \
+	$(OBJ)/advance/svgalib/vgammvga.o \
+	$(OBJ)/advance/svgalib/vgaregs.o \
+	$(OBJ)/advance/svgalib/vgarelvg.o \
+	$(OBJ)/advance/svgalib/drivers/apm.o \
+	$(OBJ)/advance/svgalib/drivers/ark.o \
+	$(OBJ)/advance/svgalib/drivers/banshee.o \
+	$(OBJ)/advance/svgalib/drivers/et6000.o \
+	$(OBJ)/advance/svgalib/drivers/g400.o \
+	$(OBJ)/advance/svgalib/drivers/pm2.o \
+	$(OBJ)/advance/svgalib/drivers/i740.o \
+	$(OBJ)/advance/svgalib/drivers/i810.o \
+	$(OBJ)/advance/svgalib/drivers/laguna.o \
+	$(OBJ)/advance/svgalib/drivers/millenni.o \
+	$(OBJ)/advance/svgalib/drivers/mx.o \
+	$(OBJ)/advance/svgalib/drivers/nv3.o \
+	$(OBJ)/advance/svgalib/drivers/r128.o \
+	$(OBJ)/advance/svgalib/drivers/rage.o \
+	$(OBJ)/advance/svgalib/drivers/s3.o \
+	$(OBJ)/advance/svgalib/drivers/savage.o \
+	$(OBJ)/advance/svgalib/drivers/sis.o \
+	$(OBJ)/advance/svgalib/drivers/trident.o \
+	$(OBJ)/advance/svgalib/drivers/renditio.o \
+	$(OBJ)/advance/svgalib/ramdac/ibmrgb52.o \
+	$(OBJ)/advance/svgalib/ramdac/attdacs.o \
+	$(OBJ)/advance/svgalib/ramdac/icw.o \
+	$(OBJ)/advance/svgalib/ramdac/normal.o \
+	$(OBJ)/advance/svgalib/ramdac/ramdac.o \
+	$(OBJ)/advance/svgalib/ramdac/s3dacs.o \
+	$(OBJ)/advance/svgalib/ramdac/sierra.o \
+	$(OBJ)/advance/svgalib/ramdac/btdacs.o \
+	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
+	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 endif
 endif
 

@@ -49,11 +49,11 @@ extern "C" {
 /* Driver */
 
 /**
- * Keyboard adv_driver.
- * This struct abstract all the adv_driver funtionalities.
+ * Keyboard driver.
+ * This struct abstract all the driver funtionalities.
  */
 typedef struct keyb_driver_struct {
-	const char* name; /**< Name of the adv_driver. */
+	const char* name; /**< Name of the driver. */
 	const adv_device* device_map; /**< Vector of supported devices. 0 terminated. */
 	
 	adv_error (*load)(adv_conf* context);
@@ -72,19 +72,19 @@ typedef struct keyb_driver_struct {
 #define KEYB_DRIVER_MAX 8
 
 /**
- * State of the adv_driver system.
+ * State of the driver system.
  */
 struct keyb_state_struct {
 	adv_bool is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
 	adv_bool is_active_flag; /**< If the keyb_init() function was called. */
 	unsigned driver_mac; /**< Number of registered drivers. */
 	keyb_driver* driver_map[KEYB_DRIVER_MAX]; /**< Registered drivers. */
-	keyb_driver* driver_current; /**< Current adv_driver active. 0 if none. */
-	char name[DEVICE_NAME_MAX]; /**< Name of the adv_driver to use. */
+	keyb_driver* driver_current; /**< Current driver active. 0 if none. */
+	char name[DEVICE_NAME_MAX]; /**< Name of the driver to use. */
 };
 
 /**
- * Global state of the adv_driver system.
+ * Global state of the driver system.
  */
 extern struct keyb_state_struct keyb_state;
 
@@ -100,19 +100,19 @@ extern struct keyb_state_struct keyb_state;
 /*@}*/
 
 /**
- * Register the load option of the keyboard adv_driver.
+ * Register the load option of the keyboard driver.
  * \param config_context Configuration context to use.
- * \param auto_detect Enable the autodetection if no keyboard adv_driver is specified.
+ * \param auto_detect Enable the autodetection if no keyboard driver is specified.
  */
 void keyb_reg(adv_conf* config_context, adv_bool auto_detect);
 
 /**
- * Register the load options of the specified adv_driver.
+ * Register the load options of the specified driver.
  * Call before load().
  * \param config_context Configuration context to use.
- * \param adv_driver Driver to register.
+ * \param driver Driver to register.
  */
-void keyb_reg_driver(adv_conf* config_context, keyb_driver* adv_driver);
+void keyb_reg_driver(adv_conf* config_context, keyb_driver* driver);
 
 /**
  * Load the configuration options.
@@ -122,26 +122,26 @@ void keyb_reg_driver(adv_conf* config_context, keyb_driver* adv_driver);
 adv_error keyb_load(adv_conf* config_context);
 
 /**
- * Initialize the keyboard adv_driver.
+ * Initialize the keyboard driver.
  * \param disable_special Disable the special OS keys combinations.
  */
 adv_error keyb_init(adv_bool disable_special);
 
 /**
- * Deinitialize the keyboard adv_driver.
+ * Deinitialize the keyboard driver.
  * Call it only after a succesful keyb_init().
  */
 void keyb_done(void);
 
 /**
- * Abort the keyboard adv_driver.
+ * Abort the keyboard driver.
  * This function can be called from a signal handler, also if the keyboard
- * adv_driver isn't initialized.
+ * driver isn't initialized.
  */
 void keyb_abort(void);
 
 /**
- * Return the capabilities flag of the keyboard adv_driver.
+ * Return the capabilities flag of the keyboard driver.
  */
 static inline unsigned keyb_flags(void) {
 	assert( keyb_state.is_active_flag );
@@ -184,7 +184,7 @@ static inline void keyb_poll(void) {
 }
 
 /**
- * Get the adv_driver/adv_device name.
+ * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
 static inline const char* keyb_name(void) {

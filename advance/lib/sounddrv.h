@@ -59,11 +59,11 @@ extern "C" {
 typedef short sound_sample_t;
 
 /**
- * Sound adv_driver.
- * This struct abstract all the adv_driver funtionalities.
+ * Sound driver.
+ * This struct abstract all the driver funtionalities.
  */
 typedef struct sound_driver_struct {
-	const char* name; /**< Name of the adv_driver */
+	const char* name; /**< Name of the driver */
 	const adv_device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
@@ -72,10 +72,10 @@ typedef struct sound_driver_struct {
 	/** Register the load options. Call before load(). */
 	void (*reg)(adv_conf* context);
 
-	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the adv_driver */
-	void (*done)(void); /**< Deinitialize the adv_driver */
+	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the driver */
+	void (*done)(void); /**< Deinitialize the driver */
 
-	unsigned (*flags)(void); /**< Get the capabilities of the adv_driver */
+	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
 	void (*play)(const sound_sample_t* sample_map, unsigned sample_count);
 	unsigned (*buffered)(void);
@@ -99,7 +99,7 @@ struct sound_state_struct {
 struct sound_state_struct sound_state;
 
 void sound_reg(adv_conf* config_context, adv_bool auto_detect);
-void sound_reg_driver(adv_conf* config_context, sound_driver* adv_driver);
+void sound_reg_driver(adv_conf* config_context, sound_driver* driver);
 adv_error sound_load(adv_conf* config_context);
 adv_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
 void sound_done(void);
@@ -147,7 +147,7 @@ static inline void sound_volume(double v) {
 }
 
 /**
- * Get the adv_driver/adv_device name.
+ * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
 static inline const char* sound_name(void) {

@@ -33,7 +33,7 @@
 #define TSR_RUTACK1 0xAD17
 #define TSR_RUTACK2 0x17BE
 
-int vbe_init(void);
+int vbe_init(const char* config);
 void vbe_done(void);
 
 void vbe_service(_go32_dpmi_registers* r);

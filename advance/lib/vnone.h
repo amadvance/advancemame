@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Video adv_driver "none".
+ * Video driver "none".
  */
 
 #ifndef __VNONE_H
@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 /**
- * Video adv_driver "none" mode information.
+ * Video driver "none" mode information.
  */
 typedef struct none_video_mode_struct {
 	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
@@ -53,8 +53,8 @@ typedef struct none_video_mode_struct {
 /*@{*/
 
 /**
- * Video adv_driver "none".
- * This adv_driver implement a null video. All the video output is directed to a
+ * Video driver "none".
+ * This driver implement a null video. All the video output is directed to a
  * virtual frame buffer in memory.
  */
 extern adv_video_driver video_none_driver;

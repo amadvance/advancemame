@@ -1,10 +1,6 @@
 #ifndef __ENDIANES_H
 #define __ENDIANES_H
 
-#ifndef __MSDOS__
-#error This module is for MSDOS only
-#endif
-
 static __inline__ unsigned LE32(unsigned _val) {
 	return _val;
 }

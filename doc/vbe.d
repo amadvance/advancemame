@@ -1,17 +1,21 @@
 Name
-	vbe - VBE mode remapper
+	vbe - VBE 16 bit wrapper
 
 Synopsys
 	:vbe [/l] [/u] [/c CONFIG]
 
 Description
 	The `vbe' utility is a TSR (Terminate Stay Resident) VBE BIOS
-	wrapper that substitutes the default list of VBE video modes
-	with a list of the favourite modes which work best with your
-	video hardware without any restrictions in size and frequencies.
+	wrapper. It isn't a complete VBE BIOS. It requires an existing and
+	working VBE BIOS.
+
+	It allow to set an arbitrary video mode list with the favourite
+	modes which work best with your video hardware without any
+	restrictions in size and frequencies.
 
 	With this utility you can play all the DOS games that use the
-	standard VESA VBE 1.2/2.0 services with your TV or Arcade Monitor.
+	standard VESA VBE services with your PC Monitor, TV and Arcade
+	Monitor.
  
 	At the startup the configuration file `vbe.rc', created with
 	the utility `vbev', is read and all the `modeline' present
@@ -26,7 +30,7 @@ Description
 		medium.rc - Arcade Medium Resolution (25 kHz).
 		extended.rc - Arcade Extended Resolution (16.5 kHz).
 		pcvga.rc - VGA PC Monitor.
-		pcmult.rc - SVGA PC Multisync Monitor.
+		pcsvga60.rc - SVGA PC Multisync Monitor.
 
 	All the modelines present in the configuration files are used
 	to create the list of available VBE mode. For every modeline
@@ -118,10 +122,10 @@ Use In Windows
 	800x600, 1024x768 and 1280x1024. Any other mode is ignored.
 
 Tests
-	Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy)
-	Duke Nukem 3D with the `s3' driver
-	Quake 1.0 with the `s3' driver
-	Windows 98 SE with the `s3' driver
+	+Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy)
+	+Duke Nukem 3D with the `s3' driver
+	+Quake 1.0 with the `s3' driver
+	+Windows 98 SE with the `s3' driver
 
 Examples
 	Load it:

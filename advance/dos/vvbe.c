@@ -227,7 +227,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 
 	assert( vbe_is_active() );
 
-	if (video_mode_generate_check("vbe",vbe_flags(),1,2048,crtc,bits,flags)!=0)
+	if (!crtc_is_fake(crtc) && video_mode_generate_check("vbe",vbe_flags(),8,2048,crtc,bits,flags)!=0)
 		return -1;
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {

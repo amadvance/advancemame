@@ -1,5 +1,5 @@
 Name
-	vbe32 - VBE 32 mode remapper
+	vbe32 - VBE 32 bit bios
 
 Synopsys
 	:vbe32 [/l] [/c CONFIG]
@@ -9,8 +9,13 @@ Description
 	VBE BIOS that completly substitutes the original VBE BIOS of your
 	video board.
 
+	It allow to set an arbitrary video mode list with the favourite
+	modes which work best with your video hardware without any
+	restrictions in size and frequencies.
+
 	With this utility you can play all the DOS games that use the
-	standard VESA VBE 2.0 services with your TV or Arcade Monitor.
+	standard VESA VBE services with your PC Monitor, TV and Arcade
+	Monitor.
  
 	At the startup the configuration file `vbe.rc', created with
 	the utility `vbev', is read and all the `modeline' present
@@ -25,7 +30,7 @@ Description
 		medium.rc - Arcade Medium Resolution (25 kHz).
 		extended.rc - Arcade Extended Resolution (16.5 kHz).
 		pcvga.rc - VGA PC Monitor.
-		pcmult.rc - SVGA PC Multisync Monitor.
+		pcsvga60.rc - SVGA PC Multisync Monitor.
 
 	All the modelines present in the configuration files are used
 	to create the list of available VBE mode. For every modeline
@@ -45,17 +50,15 @@ Cards
 	`carddos.txt' file.
 
 Limitations
-	The VBE 1.2 standard isn't supported. This makes the program
-	useless for 16 bit applications. Eventually this support may
-	be added in future.
-
-	The VBE 3.0 standard isn't supported. Eventually this support
-	may be added in future.
-
-	It uses a lot of low memory. Approx 200 kbyte.
-
-	It cannot be unloaded. It's a limitation of the DPMI support
-	not resolvable.
+	* The VBE 1.2 standard isn't supported. This makes the program
+		useless for 16 bit applications. Eventually this support may
+		be added in future.
+	* The VBE 3.0 standard isn't supported. Eventually this support
+		may be added in future.
+	* The VBE protect mode interface isn't supported.
+	* It uses a lot of low memory. Approx 200 kbyte.
+	* It cannot be unloaded. It's a limitation of the DPMI support
+		not resolvable.
 
 Application Problems
 	Some applications are able to use only some common resolutions
@@ -67,8 +70,8 @@ Application Problems
 	Add only the best modelines and avoid duplicates.
 
 Tests
-	Doom Legacy with the `nv3' driver (http://www.newdoom.com/doomlegacy)
-	Duke Nukem 3D with the `nv3' driver
+	+Doom Legacy with the `nv3' driver (http://www.newdoom.com/doomlegacy)
+	+Duke Nukem 3D with the `nv3' driver
 
 Examples
 	Load it:

@@ -141,18 +141,18 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 }
 
 /**
- * Register a video adv_driver.
+ * Register a video driver.
  * \note Call before video_init().
  */
-void video_reg_driver(adv_conf* context, adv_video_driver* adv_driver)
+void video_reg_driver(adv_conf* context, adv_video_driver* driver)
 {
 	assert( !video_is_active() );
 
 	assert( video_state.driver_mac < DEVICE_MAX );
 
-	log_std(("video: register adv_driver %s\n", adv_driver->name));
+	log_std(("video: register driver %s\n", driver->name));
 
-	video_state.driver_map[video_state.driver_mac] = adv_driver;
+	video_state.driver_map[video_state.driver_mac] = driver;
 	video_state.driver_map[video_state.driver_mac]->reg(context);
 
 	++video_state.driver_mac;
@@ -172,7 +172,7 @@ unsigned video_driver_vector_max(void) {
 }
 
 /**
- * Return the 'n video adv_driver.
+ * Return the 'n video driver.
  * This function automatically skip disabled drivers.
  */
 const adv_video_driver* video_driver_vector_pos(unsigned i) {
@@ -211,9 +211,9 @@ adv_error video_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a video adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a video driver. The following are the errors:\n");
 
-	/* enable all the video adv_driver */
+	/* enable all the video driver */
 	/* backward order is used to respect the dependencies */
 	at_least_one = 0;
 	for(i=0;i<video_state.driver_mac;++i) {
@@ -225,15 +225,15 @@ adv_error video_init(void)
 		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[j], 0);
 
 		if (dev && video_state.driver_map[j]->init(dev->id) == 0) {
-			log_std(("video: select adv_driver %s\n", video_state.driver_map[j]->name));
+			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
-			video_state.driver_map[j] = 0; /* deactivate the adv_driver */
+			video_state.driver_map[j] = 0; /* deactivate the driver */
 		}
 	}
 
 	if (!at_least_one) {
-		log_std(("video: no video adv_driver activated\n"));
+		log_std(("video: no video driver activated\n"));
 		return -1;
 	}
 
@@ -261,7 +261,7 @@ void video_done(void)
 	if (video_mode_is_active())
 		video_mode_done(1);
 
-	/* disable all the video adv_driver */
+	/* disable all the video driver */
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
 			video_state.driver_map[i]->done();
@@ -271,7 +271,7 @@ void video_done(void)
 	/* disable */
 	video_state.active = 0;
 
-	/* reset the adv_driver list */
+	/* reset the driver list */
 	video_state.driver_mac = 0;
 }
 
@@ -294,7 +294,7 @@ void video_abort(void)
 /**
  * Load the video configuration.
  * \param context Configuration context to use.
- * \param driver_ignore List of adv_driver name to ignore (separated by space).
+ * \param driver_ignore List of driver name to ignore (separated by space).
  */
 adv_error video_load(adv_conf* context, const char* driver_ignore)
 {
@@ -302,7 +302,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	int at_least_one;
 
 	if (video_state.driver_mac == 0) {
-		error_set("No video adv_driver registered\n");
+		error_set("No video driver registered\n");
 		return -1;
 	}
 
@@ -325,7 +325,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 		return -1;
 	}
 
-	/* load the specific adv_driver options */
+	/* load the specific driver options */
 	at_least_one = 0;
 	for(i=0;i<video_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -432,7 +432,7 @@ adv_error video_mode_set(adv_mode* mode)
 
 	video_state.old_mode_required = 1; /* the mode will change */
 
-	/* check for a mode change without a adv_driver change */
+	/* check for a mode change without a driver change */
 	if (video_mode_is_active()
 		&& video_option.fast_change
 		&& mode_driver(mode)->mode_change != 0
@@ -518,20 +518,17 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 	unsigned i;
 
 	/* store the error prefix */
-	error_nolog_set("No adv_driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every adv_driver:\n");
+	error_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
-			/* mask out the adv_driver flags with the user requested limitations */
+			/* mask out the driver flags with the user requested limitations */
 			unsigned driver_flags = video_state.driver_map[i]->flags() & video_internal_flags();
 
 			/* allow always faked crtc */
-			if (crtc_is_fake(crtc)
-				|| video_mode_generate_check(video_state.driver_map[i]->name,driver_flags,8,4096,crtc,bits,flags)==0) {
-				if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
-					log_std(("video: using adv_driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
-					return 0;
-				}
+			if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
+				log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
+				return 0;
 			}
 		}
 	}
@@ -539,27 +536,27 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 	return -1;
 }
 
-adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags)
+adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags)
 {
 	if (crtc->hde % hstep != 0 || crtc->hrs % hstep != 0 || crtc->hre % hstep != 0 || crtc->ht % hstep != 0) {
-		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n",adv_driver,hstep);
+		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n", driver, hstep);
 		return -1;
 	}
 	if (crtc->ht >= hvmax || crtc->vt >= hvmax) {
-		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n",adv_driver,hvmax);
+		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n", driver, hvmax);
 		return -1;
 	}
 
 	switch (flags & MODE_FLAGS_TYPE_MASK) {
 		case MODE_FLAGS_TYPE_GRAPHICS :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)==0) {
-				error_nolog_cat("%s: Graphics modes not supported\n",adv_driver);
+				error_nolog_cat("%s: Graphics modes not supported\n", driver);
 				return -1;
 			}
 			break;
 		case MODE_FLAGS_TYPE_TEXT :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text modes not supported\n",adv_driver);
+				error_nolog_cat("%s: Text modes not supported\n", driver);
 				return -1;
 			}
 			break;
@@ -569,35 +566,35 @@ adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flag
 
 	if (crtc_is_interlace(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) == 0) {
-			error_nolog_cat("%s: Interlace not supported\n", adv_driver);
+			error_nolog_cat("%s: Interlace not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_doublescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
-			error_nolog_cat("%s: Doublescan not supported\n", adv_driver);
+			error_nolog_cat("%s: Doublescan not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_singlescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) == 0) {
-			error_nolog_cat("%s: Singlescan not supported\n", adv_driver);
+			error_nolog_cat("%s: Singlescan not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvpal(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL) == 0) {
-			error_nolog_cat("%s: TV-PAL not supported\n", adv_driver);
+			error_nolog_cat("%s: TV-PAL not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvntsc(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC) == 0) {
-			error_nolog_cat("%s: TV-NTSC not supported\n", adv_driver);
+			error_nolog_cat("%s: TV-NTSC not supported\n", driver);
 			return -1;
 		}
 	}
@@ -606,13 +603,13 @@ adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flag
 		case MODE_FLAGS_INDEX_RGB :
 		case MODE_FLAGS_INDEX_PACKED :
 			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
-				error_nolog_cat("%s: Graph mode index supported only in graphics modes\n",adv_driver);
+				error_nolog_cat("%s: Graph mode index supported only in graphics modes\n", driver);
 				return -1;
 			}
 			break;
 		case MODE_FLAGS_INDEX_TEXT :
 			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_TEXT) {
-				error_nolog_cat("%s: Text mode index supported only in text modes\n",adv_driver);
+				error_nolog_cat("%s: Text mode index supported only in text modes\n", driver);
 				return -1;
 			}
 			break;
@@ -623,42 +620,42 @@ adv_error video_mode_generate_check(const char* adv_driver, unsigned driver_flag
 	switch (bits) {
 		case 0 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text mode bit depth not supported\n", adv_driver);
+				error_nolog_cat("%s: Text mode bit depth not supported\n", driver);
 				return -1;
 			}
 			break;
 		case 8 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 15 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 16 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 24 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 32 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		default:
-			error_nolog_cat("%s: %d bit depth not supported\n", adv_driver, bits);
+			error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 			return -1;
 	}
 

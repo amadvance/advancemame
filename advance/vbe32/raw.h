@@ -21,6 +21,8 @@
 #ifndef __RAW_H
 #define __RAW_H
 
+#include <dpmi.h>
+
 int _go32_dpmi_allocate_real_mode_callback_raw_with_stack(_go32_dpmi_seginfo *info, __dpmi_regs *regs, unsigned char *stack, unsigned long stack_length);
 
 #endif

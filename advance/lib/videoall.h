@@ -70,6 +70,9 @@ extern "C" {
 #ifdef USE_VIDEO_SDL
 #include "vsdl.h"
 #endif
+#ifdef USE_VIDEO_SVGAWIN
+#include "vsvgawin.h"
+#endif
 #ifdef USE_VIDEO_NONE
 #include "vnone.h"
 #endif

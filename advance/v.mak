@@ -71,6 +71,7 @@ VCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/svgados \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers \
@@ -81,6 +82,7 @@ VOBJDIRS += \
 	$(VOBJ)/dos \
 	$(VOBJ)/card \
 	$(VOBJ)/svgalib \
+	$(VOBJ)/svgalib/svgados \
 	$(VOBJ)/svgalib/ramdac \
 	$(VOBJ)/svgalib/clockchi \
 	$(VOBJ)/svgalib/drivers
@@ -100,7 +102,8 @@ VOBJS += \
 	$(VOBJ)/dos/map.o \
 	$(VOBJ)/dos/pcimap.o \
 	$(VOBJ)/card/board.o \
-	$(VOBJ)/svgalib/libdos.o \
+	$(VOBJ)/svgalib/svgalib.o \
+	$(VOBJ)/svgalib/svgados/svgados.o \
 	$(VOBJ)/svgalib/accel.o \
 	$(VOBJ)/svgalib/vgaio.o \
 	$(VOBJ)/svgalib/vgammvga.o \

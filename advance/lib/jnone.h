@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Joystick adv_driver "none".
+ * Joystick driver "none".
  */
 
 #ifndef __JNONE_H
@@ -45,8 +45,8 @@ extern "C" {
 /*@{*/
 
 /**
- * Joystick adv_driver "none".
- * This adv_driver implement a null joystick. No event is generated.
+ * Joystick driver "none".
+ * This driver implement a null joystick. No event is generated.
  */
 extern joystickb_driver joystickb_none_driver;
 
