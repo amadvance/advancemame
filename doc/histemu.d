@@ -11,6 +11,8 @@ AdvanceMAME Version 0.89.1 2004/12
 		"pci_find_class" function.
 	) Added the missing control code `ui_edit_cheat' and
 		`ui_toggle_crosshair'.
+	) The linux keyboard event driver now recognize the
+		special CTRL+C keypress.
 
 AdvanceMAME Version 0.89.0 2004/12
 	) Added a ncurses driver for text mode in Linux.

@@ -431,7 +431,7 @@ void keyb_raw_led_set(unsigned keyboard, unsigned led_mask)
 #define SCANCODE_F9 67
 #define SCANCODE_F10 68
 
-static void keyb_raw_vt_switch(unsigned char code)
+static void keyb_raw_process(unsigned char code)
 {
 	unsigned i;
 	struct vt_stat vts;
@@ -591,7 +591,7 @@ void keyb_raw_poll(void)
 		if (code < RAW_MAX)
 			raw_state.state[code] = pressed;
 
-		keyb_raw_vt_switch(code);
+		keyb_raw_process(code);
 	}
 }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,6 @@ struct keyb_event_context {
 	struct keyboard_item_context map[EVENT_KEYBOARD_MAX];
 	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
 	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
-
 };
 
 static struct keyb_pair {
@@ -981,6 +980,30 @@ void keyb_event_led_set(unsigned keyboard, unsigned led_mask)
 	/* TODO led support */
 }
 
+static void keyb_event_process(unsigned keyboard, unsigned code)
+{
+	/* check only if required */
+	if (event_state.disable_special_flag)
+		return;
+
+	/* check only if a switch key is pressed/released */
+	switch (code) {
+	case KEY_LEFTCTRL :
+	case KEY_RIGHTCTRL :
+	case KEY_C :
+		break;
+	default:
+		return;
+	}
+
+	/* check for CTRL+C */
+	if ((event_state.map[keyboard].state[KEY_LEFTCTRL] || event_state.map[keyboard].state[KEY_RIGHTCTRL])
+		&& event_state.map[keyboard].state[KEY_C]) {
+		raise(SIGINT);
+		return;
+	}
+}
+
 void keyb_event_poll(void)
 {
 	unsigned i;
@@ -994,6 +1017,7 @@ void keyb_event_poll(void)
 			if (type == EV_KEY) {
 				if (code < KEY_MAX)
 					item->state[code] = value != 0;
+				keyb_event_process(i, code);
 			}
 		}
 	}
