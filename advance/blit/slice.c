@@ -54,9 +54,6 @@ void test_red(int S, int D) {
 			++run;
 			error_t -= r.down;
 		}
-#ifndef TEST
-		printf("%d|",run);
-#endif
 		if (count == 1)
 			total += 1;
 		else
@@ -64,9 +61,6 @@ void test_red(int S, int D) {
 		++step;
 		--count;
 	}
-#ifndef TEST
-	printf("\n");
-#endif
 
 	if (total != S || step != D)
 		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
@@ -94,39 +88,16 @@ void test_exp(int S, int D) {
 			++run;
 			error_t -= r.down;
 		}
-#ifndef TEST
-		printf("%d|",run);
-#endif
 		total += run;
 		++step;
 		--count;
 	}
-#ifndef TEST
-	printf("\n");
-#endif
 
 	if (total != D || step != S)
 		printf("error_t: tot %d, stp %d, src %d, dst %d\n",total,step,S,D);
 }
 
 int main() {
-#ifndef TEST
-	test_exp(23,104);
-	test_exp(23,105);
-	test_exp(23,106);
-	test_exp(23,107);
-	test_exp(23,108);
-	test_exp(23,109);
-	test_exp(23,110);
-	test_exp(23,111);
-	test_exp(23,112);
-	test_exp(23,113);
-	test_exp(23,114);
-	test_exp(23,115);
-	test_exp(23,116);
-	test_exp(23,117);
-	test_exp(23,118);
-#else
 	int i,j;
 	for(i=2;i<3000;++i)
 		for(j=2;j<3000;++j) {
@@ -135,6 +106,5 @@ int main() {
 			if (i < j)
 				test_exp(i,j);
 		}
-#endif
 	return 0;
 }

@@ -400,6 +400,29 @@ void convert::run() {
 		step(s);
 	}
 
+	// end
+	if (state == state_section0 || state == state_section1 || state == state_section2) {
+		section_end();
+	}
+	if (state == state_para0 || state == state_para1) {
+		para_end();
+	}
+	if (state == state_tag0 || state == state_tag1) {
+		tag_stop();
+		tag_end();
+	}
+	if (state == state_option) {
+		option_stop();
+		option_end();
+	}
+	if (state == state_dot0 || state == state_dot1) {
+		dot_stop();
+		dot_end();
+	}
+	if (state == state_pre0 || state == state_pre1) {
+		pre_end();
+	}
+
 	footer();
 }
 

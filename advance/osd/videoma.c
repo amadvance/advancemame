@@ -1340,7 +1340,13 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 		colors = context->state.game_colors;
 	}
 
-	context->state.palette_total = colors;
+	/* TODO This is an hack to resolve some MAME 0.62 problems on the palette management */
+	/* TODO The palette is always set to the biggest size of 65536 */
+	if (colors > 256)
+		context->state.palette_total = 65536;
+	else
+		context->state.palette_total = colors;
+
 	context->state.palette_dirty_total = (context->state.palette_total + osd_mask_size - 1) / osd_mask_size;
 
 	log_std(("advance:video: palette_total %d\n", context->state.palette_total));
@@ -2629,8 +2635,14 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	dirty_size = (size + osd_mask_size - 1) / osd_mask_size;
 
 	if (size > context->state.palette_total || dirty_size > context->state.palette_dirty_total) {
-		log_std(("ERROR: invalid palette access\n"));
-		return;
+		log_std(("ERROR: invalid palette access, size:%d, total:%d, dirty_size:%d, total:%d\n", size, context->state.palette_total, dirty_size, context->state.palette_dirty_total));
+		if (size > context->state.palette_total) {
+			size = context->state.palette_total;
+			dirty_size = (size + osd_mask_size - 1) / osd_mask_size;
+			log_std(("WARNING: invalid palette access, adjusting to size:%d, dirty_size:%d\n", size, dirty_size));
+		} else {
+			return;
+		}
 	}
 
 	context->state.palette_is_dirty = 1;

@@ -3,7 +3,7 @@ Name
 
 AdvanceCAB Version 1.1.3 2002/11
 	) Fixed a the abort bug for the SVGALIB Rage 128/Radeon video
-		boards.
+		boards and probably others.
 
 AdvanceCAB Version 1.1.2 2002/11
 	) The VIDEOW utility now correctly detects the current

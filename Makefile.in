@@ -513,4 +513,7 @@ osdep:
 	rgrep -r WIN32 $(srcdir)/advance
 	rgrep -r OS2 $(srcdir)/advance
 
+def:
+	rgrep -r "#if" $(srcdir)/advance
+
 

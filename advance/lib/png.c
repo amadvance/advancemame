@@ -574,6 +574,8 @@ adv_error png_read_iend(adv_fz* f, const unsigned char* data, unsigned data_size
  * \param pix_scanline Where to put the length of a scanline in bytes.
  * \param pal_ptr Where to put the allocated palette data pointer. Set to 0 if the image is RGB.
  * \param pal_size Where to put the palette size in number of colors. Set to 0 if the image is RGB.
+ * \param rns_ptr Where to put the allocated transparency data pointer. Set to 0 if the image hasn't transparency.
+ * \param rns_size Where to put the transparency size in number of bytes. Set to 0 if the image hasn't transparency.
  * \param f File to read.
  * \param data Pointer at the IHDR chunk. This chunk is not deallocated.
  * \param data_size Size of the IHDR chuck.
@@ -682,6 +684,7 @@ adv_error png_read_ihdr(
 		*pal_size = 0;
 	}
 
+	*rns_size = 0;
 	while (type != PNG_CN_IDAT) {
 		if (type == PNG_CN_tRNS) {
 			*rns_ptr = ptr;
@@ -872,7 +875,8 @@ adv_error png_read(
 
 	r = png_read_rns(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, &rns_ptr, &rns_size, f);
 
-	free(rns_ptr);
+	if (r == 0)
+		free(rns_ptr);
 
 	return r;
 }

@@ -35,6 +35,10 @@
 
 #include <assert.h>
 
+#ifdef USE_ASM_i586
+
+extern int the_blit_mmx; /* defined in blit.c, !=0 if MMX is available */
+
 /* Fast multiplication, return a*b/2^32 */
 #define vec_mult osd_vec_mult
 static __inline__ int osd_vec_mult(int a, int b) {
@@ -50,8 +54,6 @@ static __inline__ int osd_vec_mult(int a, int b) {
 	return r;
 }
 
-#ifdef USE_ASM_MMX
-
 /* TileMap support functions : MMX implementation */
 
 /* Conversion table from 8 bit to 64 bit. */
@@ -63,7 +65,7 @@ static void osd_pdo16(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT8* 
 	unsigned code = mixcode & 0xFF;
 	unsigned count8 = count / 8;
 
-	if (count8) {
+	if (the_blit_mmx && count8) {
 		count = count % 8;
 
 		__asm__ __volatile__(
@@ -111,7 +113,7 @@ static void osd_pdo16pal(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT
 	unsigned code = mixcode & 0xFF;
 	unsigned count8 = count / 8;
 
-	if (count8) {
+	if (the_blit_mmx && count8) {
 		count = count % 8;
 
 		__asm__ __volatile__(
@@ -168,7 +170,7 @@ static void osd_pdo16np(UINT16* cpy_dst, const UINT16* cpy_src, int count, UINT8
 	unsigned code = mixcode & 0xFF;
 	unsigned count4 = count / 4;
 
-	if (count4) {
+	if (the_blit_mmx && count4) {
 		count = count % 4;
 
 		__asm__ __volatile__(
@@ -204,7 +206,7 @@ static void osd_pdt16(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mask_
 	unsigned code = mixcode & 0xFF;
 	unsigned count8 = count / 8;
 
-	if (count8) {
+	if (the_blit_mmx && count8) {
 		count = count % 8;
 
 		__asm__ __volatile__(
@@ -307,7 +309,7 @@ static void osd_pdt16pal(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* ma
 
 	unsigned count8 = count / 8;
 
-	if (count8) {
+	if (the_blit_mmx && count8) {
 		count = count % 8;
 
 		__asm__ __volatile__(
@@ -383,7 +385,7 @@ static void osd_pdt16np(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mas
 {
 	unsigned count8 = count / 8;
 
-	if (count8) {
+	if (the_blit_mmx && count8) {
 		__asm__ __volatile__(
 			"movq (%0), %%mm6\n"
 			"movq (%1), %%mm7\n"
@@ -445,9 +447,11 @@ static void osd_pdt16np(UINT16* cpy_dst, const UINT16* cpy_src, const UINT8* mas
 #define osd_pend osd_pend
 static __inline__ void osd_pend(void)
 {
-	__asm__ __volatile__ (
-		"emms"
-	);
+	if (the_blit_mmx) {
+		__asm__ __volatile__ (
+			"emms"
+		);
+	}
 }
 
 #endif

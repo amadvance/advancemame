@@ -3,8 +3,9 @@ Name
 
 AdvanceMAME Version 0.62.1 2002/11
 	) Fixed the abort bug on the DOS and Windows versions for the
-		SVGALIB Rage 128/Radeon video boards.
-	) Some fixes for the `.chd' and `.dif' images.
+		SVGALIB Rage 128/Radeon video boards and probably others.
+	) Some fixes for the `.chd' games.
+	) Some fixes at the palette management.
 
 AdvanceMAME Version 0.62.0 2002/11
 	) The Windows SVGAWIN driver now use the framebuffer reported by
