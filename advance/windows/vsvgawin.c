@@ -35,6 +35,10 @@
 #include "error.h"
 #include "conf.h"
 
+#ifdef USE_KEYBOARD_SDL
+#include "ksdl.h"
+#endif
+
 #include <windows.h>
 
 #include "svgalib.h"
@@ -504,15 +508,21 @@ void svgawin_mode_done(adv_bool restore) {
 	if (svgawin_option.stub != STUB_FULLSCREEN) {
 		/* restore the register only if required */
 		if (restore) {
+			/* first return to the original Windows mode */
+			windows_restore();			
+			/* set the original registers */
 			adv_svgalib_restore(svgawin_state.regs_saved);
-			windows_restore();
-		}		
+		}
 	}
 	if (svgawin_option.stub != STUB_NONE) {
 		sdl_mode_done();
 	}
 	if (svgawin_option.stub == STUB_FULLSCREEN) {
 		/* on fullscreen stub mode the sdl always reset the screen, so we need to always restore the registers */
+		
+		/* first return to the original Windows mode */
+		windows_restore();			
+		/* set the original registers */
 		adv_svgalib_restore(svgawin_state.regs_saved);
 	}
 
@@ -537,6 +547,11 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode) {
 		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
 		SDL_WM_DefIcon();
 	}
+
+#ifdef USE_KEYBOARD_SDL
+	/* clear all the keyboard state, it depends on the video */
+	keyb_sdl_event_release_all();
+#endif
 
 	info = SDL_GetVideoInfo();
 
