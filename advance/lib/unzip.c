@@ -304,7 +304,7 @@ void rewindzip(adv_zip* zip) {
 /* Seek zip->fp to compressed data
    return:
 	==0 success
-	<0 adv_error
+	<0 error
 */
 static int seekcompresszip(adv_zip* zip, adv_zipent* ent) {
 	char buf[ZIP_LO_FIXED];

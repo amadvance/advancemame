@@ -16,7 +16,7 @@ PREFIX=@prefix@
 #   SVGALIB, Frame Buffer, SDL for the video
 #   SLang, SDL for the text
 #   OSS, SDL for the sound
-#   SVGALIB, SDL for the keyboard
+#   SVGALIB, SDL, KRAW for the keyboard
 #   SVGALIB, SDL for the joystick
 #   SVGALIB, SDL for the mouse
 #   pthread for the Multiprocessor support
@@ -51,6 +51,7 @@ PREFIX=@prefix@
 #CONF_LIB_OSS=yes
 #CONF_LIB_PTHREAD=yes
 #CONF_LIB_SLANG=yes
+#CONF_LIB_KRAW=yes
 
 # Select the optimization flags: (optimized build for 586 by default)
 # The available choices for the -march= option with gcc-2.95.3 are:
@@ -102,7 +103,8 @@ CONF_LIB_OSS=@CONF_LIB_OSS@
 CONF_LIB_SDL=@CONF_LIB_SDL@
 CONF_LIB_SVGAWIN=@CONF_LIB_SVGAWIN@
 CONF_LIB_PTHREAD=@CONF_LIB_PTHREAD@
-CONF_LIB_SLANGD=@CONF_LIB_SLANG@
+CONF_LIB_SLANG=@CONF_LIB_SLANG@
+CONF_LIB_KRAW=@CONF_LIB_KRAW@
 CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
 CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
 CONF_LDFLAGS=@CONF_LDFLAGS@
@@ -175,6 +177,10 @@ endif
      
 ifndef CONF_LIB_SLANG
 CONF_LIB_SLANG=yes
+endif
+
+ifndef CONF_LIB_KRAW
+CONF_LIB_KRAW=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH

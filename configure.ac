@@ -499,6 +499,40 @@ fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
 AC_ARG_ENABLE(
+	[kraw],
+	AC_HELP_STRING([--enable-kraw],[enable the use of the KRAW keyboard library. (default auto)]),
+	[ac_lib_kraw=$withval],
+	[ac_lib_kraw=auto]
+)
+if test $ac_lib_kraw = auto; then
+	if test $ac_host = unix; then
+		AC_MSG_CHECKING([for KRAW keyboard interface])
+		AC_TRY_COMPILE(
+			[#include <sys/kd.h>],
+			[int dummy = K_MEDIUMRAW;],
+			[ac_lib_kraw=yes],
+			[ac_lib_kraw=no]
+		)
+		AC_MSG_RESULT([$ac_lib_kraw])
+	else
+		ac_lib_kraw=no
+	fi
+elif test $ac_lib_fb = yes; then
+	AC_MSG_CHECKING([for KRAW keyboard interface])
+	AC_TRY_COMPILE(
+		[#include <sys/kd.h>],
+		[int dummy = K_MEDIUMRAW;],
+		[],
+		[AC_MSG_ERROR([The KRAW keyboard interface is missing])]
+	)
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_kraw = yes; then
+	ac_lib="$ac_lib KRAW"
+fi
+AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
+
+AC_ARG_ENABLE(
 	[debugger],
 	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),
 	[ac_enable_debugger=$enableval],

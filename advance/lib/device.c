@@ -79,8 +79,8 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
  * Check if a adv_device name match the user specification.
  * \param tag user specification.
  * \param drv adv_device to check.
- * \param allow_none if true allows the "none" adv_driver also if it
- *   isn't specified. Otherwise the "none" adv_driver is used only if explictly
+ * \param allow_none if true allows the "none" driver also if it
+ *   isn't specified. Otherwise the "none" driver is used only if explictly
  *   specified. It isn't used from "auto".
  */
 const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none) {

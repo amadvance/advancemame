@@ -1243,9 +1243,30 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		pos_base_upper = 0;
 
 	// restore the old position
-	int pos_base = rs.menu_base_effective;
-	int pos_rel = rs.menu_rel_effective;
+	int pos_base;
+	int pos_rel;
 
+	if (rs.current_game) {
+		// if a game is selected search the same game
+		int i;
+		i = 0;
+		while (i < gc.size() && gc[i]->has_game() && &gc[i]->game_get() != rs.current_game)
+			++i;
+
+		if (i < gc.size()) {
+			pos_base = rs.menu_base_effective;
+			pos_rel = i - pos_base;
+		} else {
+			pos_base = rs.menu_base_effective;
+			pos_rel = rs.menu_rel_effective;
+		}
+	} else {
+		// otherwise use the old position
+		pos_base = rs.menu_base_effective;
+		pos_rel = rs.menu_rel_effective;
+	}
+
+	// ensure that the position is valid
 	if (pos_base + pos_rel >= gc.size()) {
 		pos_base = pos_base_upper;
 		pos_rel = pos_rel_max - 1;
@@ -1261,6 +1282,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			unsigned rest = pos_base % coln;
 			pos_base -= rest;
 			pos_rel += rest;
+		}
+		while (pos_rel < 0) {
+			pos_base -= coln;
+			pos_rel += coln;
 		}
 		while (pos_rel >= pos_rel_max) {
 			pos_base += coln;

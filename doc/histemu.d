@@ -1,6 +1,12 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.62.2 2002/12
+	) Added a new raw keyboard driver for Linux [Kari Hautio].
+	) Changed the yield behaviour on high system load. Now the
+		yield operation is done before the syncronization point.
+		It should reduce the effective system load.
+
 AdvanceMAME Version 0.62.1 2002/11
 	) Fixed the abort bug on the DOS and Windows versions for the
 		SVGALIB Rage 128/Radeon video boards and probably others.

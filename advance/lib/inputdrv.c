@@ -47,13 +47,13 @@ void inputb_reg(adv_conf* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_input", auto_detect ? "auto" : "none");
 }
 
-void inputb_reg_driver(adv_conf* context, inputb_driver* adv_driver) {
+void inputb_reg_driver(adv_conf* context, inputb_driver* driver) {
 	assert( inputb_state.driver_mac < INPUT_DRIVER_MAX );
 
-	inputb_state.driver_map[inputb_state.driver_mac] = adv_driver;
+	inputb_state.driver_map[inputb_state.driver_mac] = driver;
 	inputb_state.driver_map[inputb_state.driver_mac]->reg(context);
 
-	log_std(("inputb: register adv_driver %s\n", adv_driver->name));
+	log_std(("inputb: register driver %s\n", driver->name));
 
 	++inputb_state.driver_mac;
 }
@@ -69,7 +69,7 @@ adv_error inputb_load(adv_conf* context) {
 	inputb_state.is_initialized_flag = 1;
 	strcpy(inputb_state.name, conf_string_get_default(context, "device_input"));
 
-	/* load specific adv_driver options */
+	/* load specific driver options */
 	at_least_one = 0;
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -103,7 +103,7 @@ adv_error inputb_init(void) {
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a input adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a input driver. The following are the errors:\n");
 
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -119,7 +119,7 @@ adv_error inputb_init(void) {
 	if (!inputb_state.driver_current)
 		return -1;
 
-	log_std(("inputb: select adv_driver %s\n", inputb_state.driver_current->name));
+	log_std(("inputb: select driver %s\n", inputb_state.driver_current->name));
 
 	inputb_state.is_active_flag = 1;
 

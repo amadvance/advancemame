@@ -118,6 +118,12 @@ MENUCFLAGS += \
 MENUOBJS += \
 	$(MENUOBJ)/linux/soss.o
 endif
+ifeq ($(CONF_LIB_KRAW),yes)
+MENUCFLAGS += \
+	-DUSE_KEYBOARD_RAW
+MENUOBJS += \
+	$(MENUOBJ)/linux/kraw.o
+endif
 ifeq ($(CONF_LIB_SDL),yes)
 MENUCFLAGS += \
 	$(SDLCFLAGS) \

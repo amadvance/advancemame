@@ -7,12 +7,13 @@ VBEOBJ = obj
 DEBUG = no
 ECHO = @echo
 MD = @mkdir
-#CC = @i586-pc-msdosdjgpp-gcc
-#LD = @i586-pc-msdosdjgpp-gcc
-CC = @gcc
-LD = @gcc
+CC = @i586-pc-msdosdjgpp-gcc
+LD = @i586-pc-msdosdjgpp-gcc
+STUBEDIT = @i586-pc-msdosdjgpp-stubedit
+#CC = @gcc
+#LD = @gcc
+#STUBEDIT = @stubedit
 EXE = .exe
-STUBEDIT = @stubedit
 
 #############################################################################
 # Rules

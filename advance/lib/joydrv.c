@@ -47,13 +47,13 @@ void joystickb_reg(adv_conf* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_joystick", auto_detect ? "auto" : "none");
 }
 
-void joystickb_reg_driver(adv_conf* context, joystickb_driver* adv_driver) {
+void joystickb_reg_driver(adv_conf* context, joystickb_driver* driver) {
 	assert( joystickb_state.driver_mac < JOYSTICK_DRIVER_MAX );
 
-	joystickb_state.driver_map[joystickb_state.driver_mac] = adv_driver;
+	joystickb_state.driver_map[joystickb_state.driver_mac] = driver;
 	joystickb_state.driver_map[joystickb_state.driver_mac]->reg(context);
 
-	log_std(("joystickb: register adv_driver %s\n", adv_driver->name));
+	log_std(("joystickb: register driver %s\n", driver->name));
 
 	++joystickb_state.driver_mac;
 }
@@ -69,7 +69,7 @@ adv_error joystickb_load(adv_conf* context) {
 	joystickb_state.is_initialized_flag = 1;
 	strcpy(joystickb_state.name, conf_string_get_default(context, "device_joystick"));
 
-	/* load specific adv_driver options */
+	/* load specific driver options */
 	at_least_one = 0;
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -103,7 +103,7 @@ adv_error joystickb_init(void) {
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a joystick adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a joystick driver. The following are the errors:\n");
 
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -119,7 +119,7 @@ adv_error joystickb_init(void) {
 	if (!joystickb_state.driver_current)
 		return -1;
 
-	log_std(("joystickb: select adv_driver %s\n", joystickb_state.driver_current->name));
+	log_std(("joystickb: select driver %s\n", joystickb_state.driver_current->name));
 
 	joystickb_state.is_active_flag = 1;
 

@@ -83,6 +83,12 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/soss.o
 endif
+ifeq ($(CONF_LIB_KRAW),yes)
+ADVANCECFLAGS += \
+	-DUSE_KEYBOARD_RAW
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/kraw.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

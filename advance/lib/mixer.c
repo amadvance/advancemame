@@ -895,7 +895,7 @@ adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double
 	if (buffer_time < latency_time)
 		goto err;
 
-	/* *2.0 is to increase a the lower adv_driver buffer */
+	/* *2.0 is to increase a the lower driver buffer */
 	/* the value is guessed with some tries, don't change it */
 	/* without testing on all the drivers */
 	if (sound_init(&mixer_rate, 1, 2.0 * latency_time) != 0)

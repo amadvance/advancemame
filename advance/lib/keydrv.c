@@ -47,13 +47,13 @@ void keyb_reg(adv_conf* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_keyboard", auto_detect ? "auto" : "none");
 }
 
-void keyb_reg_driver(adv_conf* context, keyb_driver* adv_driver) {
+void keyb_reg_driver(adv_conf* context, keyb_driver* driver) {
 	assert( keyb_state.driver_mac < KEYB_DRIVER_MAX );
 
-	keyb_state.driver_map[keyb_state.driver_mac] = adv_driver;
+	keyb_state.driver_map[keyb_state.driver_mac] = driver;
 	keyb_state.driver_map[keyb_state.driver_mac]->reg(context);
 
-	log_std(("keyb: register adv_driver %s\n", adv_driver->name));
+	log_std(("keyb: register driver %s\n", driver->name));
 
 	++keyb_state.driver_mac;
 }
@@ -69,7 +69,7 @@ adv_error keyb_load(adv_conf* context) {
 	keyb_state.is_initialized_flag = 1;
 	strcpy(keyb_state.name, conf_string_get_default(context, "device_keyboard"));
 
-	/* load specific adv_driver options */
+	/* load specific driver options */
 	at_least_one = 0;
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -103,7 +103,7 @@ adv_error keyb_init(adv_bool disable_special) {
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a keyboard adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a keyboard driver. The following are the errors:\n");
 
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -119,7 +119,7 @@ adv_error keyb_init(adv_bool disable_special) {
 	if (!keyb_state.driver_current)
 		return -1;
 
-	log_std(("keyb: select adv_driver %s\n", keyb_state.driver_current->name));
+	log_std(("keyb: select driver %s\n", keyb_state.driver_current->name));
 
 	keyb_state.is_active_flag = 1;
 

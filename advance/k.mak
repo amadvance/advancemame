@@ -37,6 +37,12 @@ KLIBS += -lvga
 KOBJS += \
 	$(KOBJ)/linux/ksvgab.o
 endif
+ifeq ($(CONF_LIB_KRAW),yes)
+KCFLAGS += \
+	-DUSE_KEYBOARD_RAW 
+KOBJS += \
+	$(KOBJ)/linux/kraw.o
+endif
 endif
 
 ifeq ($(CONF_HOST),dos)

@@ -47,13 +47,13 @@ void mouseb_reg(adv_conf* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_mouse", auto_detect ? "auto" : "none");
 }
 
-void mouseb_reg_driver(adv_conf* context, mouseb_driver* adv_driver) {
+void mouseb_reg_driver(adv_conf* context, mouseb_driver* driver) {
 	assert( mouseb_state.driver_mac < MOUSE_DRIVER_MAX );
 
-	mouseb_state.driver_map[mouseb_state.driver_mac] = adv_driver;
+	mouseb_state.driver_map[mouseb_state.driver_mac] = driver;
 	mouseb_state.driver_map[mouseb_state.driver_mac]->reg(context);
 
-	log_std(("mouseb: register adv_driver %s\n", adv_driver->name));
+	log_std(("mouseb: register driver %s\n", driver->name));
 
 	++mouseb_state.driver_mac;
 }
@@ -69,7 +69,7 @@ adv_error mouseb_load(adv_conf* context) {
 	mouseb_state.is_initialized_flag = 1;
 	strcpy(mouseb_state.name, conf_string_get_default(context, "device_mouse"));
 
-	/* load specific adv_driver options */
+	/* load specific driver options */
 	at_least_one = 0;
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -103,7 +103,7 @@ adv_error mouseb_init(void) {
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a mouse adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a mouse driver. The following are the errors:\n");
 
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -119,7 +119,7 @@ adv_error mouseb_init(void) {
 	if (!mouseb_state.driver_current)
 		return -1;
 
-	log_std(("mouseb: select adv_driver %s\n", mouseb_state.driver_current->name));
+	log_std(("mouseb: select driver %s\n", mouseb_state.driver_current->name));
 
 	mouseb_state.is_active_flag = 1;
 

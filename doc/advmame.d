@@ -993,6 +993,11 @@ Configuration
 		none - No keyboard.
 		auto - Automatic detection (default).
 
+	Options for the Linux version:
+		svgalib - SVGALIB keyboard.
+		sdl - SDL keyboard (available only if the SDL video is used).
+		raw - Linux RAW keyboard interface.
+
     device_mouse
 	Enables or disables mouse support.
 

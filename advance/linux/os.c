@@ -402,7 +402,7 @@ void os_default_signal(int signum)
 {
 	log_std(("os: signal %d\n",signum));
 
-#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL)
+#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW)
 	log_std(("os: keyb_abort\n"));
 	{
 		extern void keyb_abort(void);

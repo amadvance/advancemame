@@ -45,13 +45,13 @@ void sound_reg(adv_conf* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
-void sound_reg_driver(adv_conf* context, sound_driver* adv_driver) {
+void sound_reg_driver(adv_conf* context, sound_driver* driver) {
 	assert( sound_state.driver_mac < SOUND_DRIVER_MAX );
 
-	sound_state.driver_map[sound_state.driver_mac] = adv_driver;
+	sound_state.driver_map[sound_state.driver_mac] = driver;
 	sound_state.driver_map[sound_state.driver_mac]->reg(context);
 
-	log_std(("sound: register adv_driver %s\n", adv_driver->name));
+	log_std(("sound: register driver %s\n", driver->name));
 
 	++sound_state.driver_mac;
 }
@@ -67,7 +67,7 @@ adv_error sound_load(adv_conf* context) {
 	sound_state.is_initialized_flag = 1;
 	strcpy(sound_state.name, conf_string_get_default(context, "device_sound"));
 
-	/* load specific adv_driver options */
+	/* load specific driver options */
 	at_least_one = 0;
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -103,7 +103,7 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a sound adv_driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a sound driver. The following are the errors:\n");
 
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -119,7 +119,7 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	if (!sound_state.driver_current)
 		return -1;
 
-	log_std(("sound: select adv_driver %s\n", sound_state.driver_current->name));
+	log_std(("sound: select driver %s\n", sound_state.driver_current->name));
 
 	sound_state.is_active_flag = 1;
 

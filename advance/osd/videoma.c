@@ -2202,15 +2202,16 @@ static void advance_video_update(struct advance_video_context* context, struct a
 	}
 }
 
-static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag) {
+static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+{
+	/* Do a yield immediatly before time the syncronization. */
+	/* If a schedule will be done, it's better to have it now when */
+	/* we need to wait the syncronization point. Obviously it may happen */
+	/* to lose the precise time, but it will happen anyway if the system is busy. */
+	target_yield();
 
 	/* the frame syncronization is out of the time estimation */
 	video_sync_update(context, sound_context, skip_flag);
-
-	/* do a yield immediatly after the syncronization. */
-	/* If a schedule will be done, it's better to have it now and not */
-	/* when waiting for the next vsync. */
-	target_yield();
 
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);

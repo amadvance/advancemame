@@ -265,13 +265,13 @@ adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc) {
 }
 
 /**
- * Insert the standard video modes of the first active video adv_driver.
+ * Insert the standard video modes of the first active video driver.
  */
 void crtc_container_insert_default_system(adv_crtc_container* cc) {
 	if (video_driver_vector_max() > 0) {
-		const adv_video_driver* adv_driver = video_driver_vector_pos(0);
-		if (adv_driver->crtc_container_insert_default) {
-			adv_driver->crtc_container_insert_default(cc);
+		const adv_video_driver* driver = video_driver_vector_pos(0);
+		if (driver->crtc_container_insert_default) {
+			driver->crtc_container_insert_default(cc);
 		}
 	}
 }

@@ -1,6 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
+ * Copyright (C) 2002 Kari Hautio <Kari.Hautio@nokia.com>
  * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,32 +29,27 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "keyall.h"
+/** \file
+ * Keyboard driver "raw".
+ */
+
+#ifndef __KRAW_H
+#define __KRAW_H
+
+#include "keydrv.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
- * Register all the keyboard drivers.
- * The drivers are registered on the basis of the following defines:
- *  - USE_KEYBOARD_ALLEGRO
- *  - USE_KEYBOARD_SVGALIB
- *  - USE_KEYBOARD_SDL
- *  - USE_KEYBOARD_RAW
- *  - USE_KEYBOARD_NONE
+ * Keyboard driver "raw".
+ * \ingroup Keyboard
  */
-void keyb_reg_driver_all(adv_conf* context) {
-#ifdef USE_KEYBOARD_ALLEGRO
-	keyb_reg_driver(context, &keyb_allegro_driver);
-#endif
-#ifdef USE_KEYBOARD_SVGALIB
-	keyb_reg_driver(context, &keyb_svgalib_driver);
-#endif
-#ifdef USE_KEYBOARD_SDL
-	keyb_reg_driver(context, &keyb_sdl_driver);
-#endif
-#ifdef USE_KEYBOARD_RAW
-	keyb_reg_driver(context, &keyb_raw_driver);
-#endif
-#ifdef USE_KEYBOARD_NONE
-	keyb_reg_driver(context, &keyb_none_driver);
-#endif
-}
+extern keyb_driver keyb_raw_driver;
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -13,7 +13,8 @@ Acknowledgments
 	* Filipe Estima
 	* Shigeaki Sakamaki (Saka)
 	* Ian Patterson
-	* Randy Schnedler
+	* Randy Schnedler (Randy Power)
+	* Kari Hautio
 
 Libraries
 	MAME - http://www.mame.net
