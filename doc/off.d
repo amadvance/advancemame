@@ -1,5 +1,5 @@
-Name
-	off - Shutdown for DOS
+Name{number}
+	off - AdvanceCAB Shutdown For DOS
 
 Description
 	The `off' utility can be used to shutdown an ATX-powered PC.

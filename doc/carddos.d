@@ -1,5 +1,5 @@
-Name
-	carddos - Supported DOS Video Cards
+Name{number}
+	carddos - AdvanceMAME Supported DOS Video Cards
 
 	This is the list of the DOS video cards supported
 	by the Advance programs with the DOS drivers. 

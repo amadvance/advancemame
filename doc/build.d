@@ -1,5 +1,5 @@
-Name
-	build - How To Build
+Name{number}
+	build - AdvanceMAME Build Notes
 
 	This file contains the instructions to build AdvanceMAME,
 	AdvanceMESS and AdvanceMENU from the source archives.

@@ -1,5 +1,5 @@
-Name
-	vbe - VBE 16 bit BIOS wrapper for DOS
+Name{number}
+	vbe - AdvanceCAB VBE 16bit BIOS Wrapper For DOS
 
 Synopsis
 	:vbe [/l] [/u] [/c CONFIG]

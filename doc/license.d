@@ -1,5 +1,5 @@
 Name
-	license - The AdvanceMAME License
+	license - AdvanceMAME License
 
 	The AdvanceMAME/MESS sources are released under the
 	GNU General Public License (GPL) with this special exception

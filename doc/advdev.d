@@ -1,5 +1,5 @@
-Name
-	device drivers - The Advance device drivers
+Name{number}
+	device drivers - AdvanceMAME Device Drivers
 
 	This file describes the video, sound, joystick, mouse
 	and keyboard drivers used by the Advance programs.
@@ -835,7 +835,7 @@ Sound Drivers Configuration
 		vsync/gus - Gravis Ultrasound.
 		vsync/audio - Ensoniq AudioDrive.
 		vsync/wss - Windows Sound System.
-		vsync/ess- Ensoniq Soundscape.
+		vsync/ess - Ensoniq Soundscape.
 
 	Options Windows:
 		sdl - SDL sound interface.

@@ -1,5 +1,5 @@
-Name
-	cardlinux - Supported Linux Video Cards
+Name{number}
+	cardlinux - AdvanceMAME Supported Linux Video Cards
 
 	This is the list of the Linux video cards supported
 	by the Advance programs with the Linux drivers. 

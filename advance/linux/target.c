@@ -439,47 +439,94 @@ adv_error target_script(const char* script)
 	return r;
 }
 
-adv_error target_system(const char* cmd)
+adv_error target_spawn_redirect(const char* file, const char** argv, const char* output)
 {
 	int r;
-
-	log_std(("linux: system %s\n", cmd));
-
-	r = system(cmd);
-
-	log_std(("linux: system(%s) return %d\n", cmd, r));
-
-	return r;
-}
-
-adv_error target_spawn(const char* file, const char** argv)
-{
-	int pid, status;
 	int i;
+	int p;
 
-	log_std(("linux: spawn %s\n", file));
+	log_std(("linux: system %s\n", file));
 	for(i=0;argv[i];++i)
-		log_std(("linux: spawn arg%d %s\n", i, argv[i]));
+		log_std(("linux: system arg%d %s\n", i, argv[i]));
+	log_std(("linux: system input %s\n", output));
 
-	pid = fork();
-	if (pid == -1)
+	p = fork();
+	if (p == -1)
 		return -1;
 
-	if (pid == 0) {
+	if (p == 0) {
+		int f;
+
+		/* open the output file */
+		f = open(output, O_WRONLY | O_CREAT | O_TRUNC,
+			S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		if (f == -1) {
+			log_std(("ERROR:linux: system open failed\n"));
+			exit(127);
+		}
+
+		/* remap the output stream */
+		if (dup2(f, STDOUT_FILENO) == -1) {
+			log_std(("ERROR:linux: system dup2 failed\n"));
+			exit(127);
+		}
+
+		close(f);
+
+		/* exec the program */
 		execvp(file, (char**)argv);
+
 		exit(127);
 	} else {
 		while (1) {
-			if (waitpid(pid, &status, 0) == -1) {
+			if (waitpid(p, &r, 0) == -1) {
 				if (errno != EINTR) {
-					status = -1;
+					r = -1;
 					break;
 				}
 			} else
 				break;
 		}
 
-		return status;
+		log_std(("linux: system return %d\n", r));
+
+		return r;
+	}
+}
+
+adv_error target_spawn(const char* file, const char** argv)
+{
+	int r;
+	int i;
+	int p;
+
+	log_std(("linux: spawn %s\n", file));
+	for(i=0;argv[i];++i)
+		log_std(("linux: spawn arg%d %s\n", i, argv[i]));
+
+	p = fork();
+	if (p == -1)
+		return -1;
+
+	if (p == 0) {
+		/* exec the program */
+		execvp(file, (char**)argv);
+
+		exit(127);
+	} else {
+		while (1) {
+			if (waitpid(p, &r, 0) == -1) {
+				if (errno != EINTR) {
+					r = -1;
+					break;
+				}
+			} else
+				break;
+		}
+
+		log_std(("linux: spawn return %d\n", r));
+
+		return r;
 	}
 }
 

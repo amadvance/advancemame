@@ -1,5 +1,5 @@
-Name
-	advv - The AdvanceVIDEO Manual Configurator
+Name{number}
+	advv - AdvanceMAME Video Manual Configurator
 
 Synopsis
 	:advv [-advmamev] [-advmessv] [-advmenuv]

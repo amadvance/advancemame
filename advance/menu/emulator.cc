@@ -760,11 +760,17 @@ bool mame_info::update_xml()
 
 	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
 
-	ostringstream cmd;
+	const char* argv[TARGET_MAXARG];
+	unsigned argc = 0;
 
-	cmd << cpath_export(config_exe_path_get()) << " -listxml > " << cpath_export(xml_file);
+	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
+	argv[argc++] = strdup("-listxml");
+	argv[argc] = 0;
 
-	int r = target_system(cmd.str().c_str());
+	int r = target_spawn_redirect(argv[0], argv, cpath_export(xml_file));
+
+	for(int i=0;i<argc;++i)
+		free(const_cast<char*>(argv[i]));
 
 	if (!spawn_check(r, false)) {
 		remove(cpath_export(xml_file));
@@ -836,11 +842,17 @@ bool mame_info::update_info()
 
 	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
-	ostringstream cmd;
+	const char* argv[TARGET_MAXARG];
+	unsigned argc = 0;
 
-	cmd << cpath_export(config_exe_path_get()) << " -listinfo > " << cpath_export(info_file);
+	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
+	argv[argc++] = strdup("-listinfo");
+	argv[argc] = 0;
 
-	int r = target_system(cmd.str().c_str());
+	int r = target_spawn_redirect(argv[0], argv, cpath_export(info_file));
+
+	for(int i=0;i<argc;++i)
+		free(const_cast<char*>(argv[i]));
 
 	if (!spawn_check(r, false)) {
 		remove(cpath_export(info_file));
@@ -2633,11 +2645,17 @@ bool raine_info::load_game(game_set& gar, bool quiet)
 	) {
 		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
-		ostringstream cmd;
+		const char* argv[TARGET_MAXARG];
+		unsigned argc = 0;
 
-		cmd << cpath_export(config_exe_path_get()) << " -gameinfo > " << cpath_export(info_file);
+		argv[argc++] = strdup(cpath_export(config_exe_path_get()));
+		argv[argc++] = strdup("-gamenfo");
+		argv[argc] = 0;
 
-		int r = target_system(cmd.str().c_str());
+		int r = target_spawn_redirect(argv[0], argv, cpath_export(info_file));
+
+		for(int i=0;i<argc;++i)
+			free(const_cast<char*>(argv[i]));
 
 		bool result = spawn_check(r, false);
 		if (!result)

@@ -122,6 +122,7 @@ protected:
 	unsigned level0;
 	unsigned level1;
 	unsigned level2;
+	bool numbered;
 public:
 	convert(istream& Ais, ostream& Aos);
 	virtual ~convert();
@@ -171,6 +172,7 @@ public:
 
 convert::convert(istream& Ais, ostream& Aos) : is(Ais), os(Aos)
 {
+	numbered = true;
 };
 
 convert::~convert()
@@ -480,7 +482,7 @@ void convert::index_all(const string& file, unsigned depth)
 		string u;
 		s = token(j, file);
 		u = up(s);
-		if (u != "NAME" && u != "INDEX" && u != "SUBINDEX" && u != "SUBSUBINDEX") {
+		if (u != "NAME" && u != "NAME{NUMBER}" && u != "INDEX" && u != "SUBINDEX" && u != "SUBSUBINDEX") {
 			unsigned level = index_level(s);
 			if (depth >= level) {
 				next(level, index0, index1, index2);
@@ -516,7 +518,8 @@ void convert::run()
 
 	i = 0;
 	s = token(i, file);
-	if (up(s) == "NAME") {
+	if (up(s) == "NAME" || up(s) == "NAME{NUMBER}") {
+		numbered = up(s) == "NAME{NUMBER}";
 		s = token(i, file);
 		unsigned d = s.find(" - ");
 		header(trim(s.substr(0, d)), trim(s.substr(d+3)));
@@ -959,7 +962,7 @@ void convert_html::header(const string& a, const string& b)
 	os << "</head>" << endl;
 	os << "<body>" << endl;
 	if (b.length()) {
-		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
+		os << "<center><" HTML_H1 ">" << mask(b) << "</" HTML_H1 "></center>" << endl;
 	}
 }
 
@@ -1011,16 +1014,20 @@ void convert_html::section_begin(unsigned level)
 {
 	if (level == 0) {
 		os << "<" HTML_H1 ">";
-		os << "<a name=\"" << level0 << "\">";
-		os << level0;
-		os << "</a>";
+		if (numbered) {
+			os << "<a name=\"" << level0 << "\">";
+			os << level0;
+			os << "</a>";
+		}
 		os << " " << endl;
 	} else if (level == 1) {
 		if (level0) {
 			os << "<" HTML_H2 ">";
-			os << "<a name=\"" << level0 << "." << level1 << "\">";
-			os << level0 << "." << level1;
-			os << "</a>";
+			if (numbered) {
+				os << "<a name=\"" << level0 << "." << level1 << "\">";
+				os << level0 << "." << level1;
+				os << "</a>";
+			}
 			os << " " << endl;
 		} else {
 			os << "<" HTML_H2 ">" << endl;
@@ -1028,9 +1035,11 @@ void convert_html::section_begin(unsigned level)
 	} else {
 		if (level0 && level1) {
 			os << "<" HTML_H3 ">";
-			os << "<a name=\"" << level0 << "." << level1 << "." << level2 << "\">";
-			os << level0 << "." << level1 << "." << level2;
-			os << "</a>";
+			if (numbered) {
+				os << "<a name=\"" << level0 << "." << level1 << "." << level2 << "\">";
+				os << level0 << "." << level1 << "." << level2;
+				os << "</a>";
+			}
 			os << " " << endl;
 		} else {
 			os << "<" HTML_H3 ">" << endl;
@@ -1222,7 +1231,7 @@ public:
 void convert_frame::header(const string& a, const string& b)
 {
 	if (b.length()) {
-		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
+		os << "<center><" HTML_H1 ">" << mask(b) << "</" HTML_H1 "></center>" << endl;
 	}
 }
 
@@ -1327,11 +1336,18 @@ void convert_txt::section_text(const string& s)
 	ostringstream ss;
 	if (first_line) {
 		if (state == state_section0) {
-			ss << level0 << " " << up(mask(s));
+			if (numbered)
+				ss << level0 << " ";
+			ss << up(mask(s));
 		} else if (state == state_section1) {
-			ss << level0 << "." << level1 << " " << mask(s);
+			if (numbered)
+				ss << level0 << "." << level1 << " ";
+			ss << mask(s);
 		} else {
-			ss << "---- " << level0 << "." << level1 << "." << level2 << " " << mask(s) << " ----";
+			ss << "---- ";
+			if (numbered)
+				ss << level0 << "." << level1 << "." << level2 << " ";
+			ss << mask(s) << " ----";
 		}
 		first_line = false;
 	} else {

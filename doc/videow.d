@@ -1,5 +1,5 @@
-Name
-	videow - Video control for Windows NT/2000/XP
+Name{number}
+	videow - AdvanceCAB Video Control For Windows 2000/XP
 
 Synopsis
 	:videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]

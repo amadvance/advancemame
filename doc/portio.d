@@ -1,5 +1,5 @@
-Name
-	portio - Input/Output on hardware ports for DOS
+Name{number}
+	portio - AdvanceCAB Hardware Port Input/Output For DOS
 
 Synopsis
 	:portio lpt?

@@ -1,5 +1,5 @@
-Name
-	vga - VGA mode remapper for DOS
+Name{number}
+	vga - AdvanceCAB VGA Mode Remapper For DOS
 
 Synopsis
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]

@@ -1,5 +1,5 @@
 Name
-	cost - Estimated Cost
+	cost - AdvanceMAME Estimated Cost
 
 	This is a cost estimation of the Advance Projects
 	generated using the SLOCCount program by David A. Wheeler from :

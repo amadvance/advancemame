@@ -1,5 +1,5 @@
 Name
-	advcab - The AdvanceCAB collections
+	advcab - AdvanceCAB Utility Collection
 
 	AdvanceCAB is a collection of DOS and Windows utilities to help
 	the use of standard applications with TV and Arcade Monitors.

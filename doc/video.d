@@ -1,5 +1,5 @@
-Name
-	video - Video control for DOS
+Name{number}
+	video - AdvanceCAB Video Control For DOS
 
 Synopsis
 	:video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]

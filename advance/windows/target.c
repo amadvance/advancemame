@@ -281,6 +281,8 @@ adv_error target_apm_wakeup(void)
 /***************************************************************************/
 /* System */
 
+#define EXEC_MAX 2048
+
 static int exec(char* cmdline)
 {
 	DWORD exitcode;
@@ -334,10 +336,22 @@ static int exec(char* cmdline)
 	return exitcode;
 }
 
+static void sncatarg(char* cmd, unsigned size, const char* arg)
+{
+	if (arg[0] != '\"' && strchr(arg, ' ') != 0) {
+		sncat(cmd, size, "\"");
+		sncat(cmd, size, arg);
+		sncat(cmd, size, "\"");
+	} else {
+		sncat(cmd, size, arg);
+	}
+}
+
 adv_error target_script(const char* script)
 {
 	char* tmp;
 	char file[FILE_MAXPATH];
+	const char* argv[2];
 	FILE* f;
 	int r;
 
@@ -345,7 +359,11 @@ adv_error target_script(const char* script)
 
 	tmp = getenv("TMP");
 	if (!tmp)
-		tmp = "\\";
+		tmp = getenv("TEMP");
+	if (!tmp) {
+		log_std(("ERROR:windows: getenv(TMP,TEMP) failed\n"));
+		return -1;
+	}
 
 	sncpy(file, FILE_MAXPATH, tmp);
 	if (file[0] && file[strlen(file)-1] != '\\')
@@ -370,7 +388,10 @@ adv_error target_script(const char* script)
 		goto err;
 	}
 
-	r = target_system(file);
+	argv[0] = file;
+	argv[1] = 0;
+
+	r = target_spawn_redirect(file, argv, "NUL");
 
 	log_std(("windows: return %d\n", r));
 
@@ -384,10 +405,12 @@ err:
 	return -1;
 }
 
-adv_error target_system(const char* cmd)
+adv_error target_spawn_redirect(const char* file, const char** argv, const char* output)
 {
-	char cmdline[TARGET_MAXCMD];
+	char cmdline[EXEC_MAX];
 	char* comspec;
+	unsigned i;
+	int r;
 
 	comspec = getenv("COMSPEC");
 	if (!comspec) {
@@ -395,33 +418,50 @@ adv_error target_system(const char* cmd)
 		return -1;
 	}
 
-	sncpy(cmdline, TARGET_MAXCMD, comspec);
-	sncat(cmdline, TARGET_MAXCMD, " /C ");
-	sncat(cmdline, TARGET_MAXCMD, cmd);
+	*cmdline = 0;
 
-	return exec(cmdline);
+	sncatarg(cmdline, EXEC_MAX, comspec);
+	sncat(cmdline, EXEC_MAX, " /C ");
+
+	for(i=0;argv[i];++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncatarg(cmdline, EXEC_MAX, argv[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " > ");
+	sncatarg(cmdline, EXEC_MAX, output);
+
+	r = exec(cmdline);
+
+	log_std(("windows: system return %d\n", r));
+
+	return r;
 }
 
 adv_error target_spawn(const char* file, const char** argv)
 {
-	char cmdline[TARGET_MAXCMD];
+	char cmdline[EXEC_MAX];
 	unsigned i;
+	int r;
+
+	log_std(("windows: spawn %s\n", file));
+	for(i=0;argv[i];++i)
+		log_std(("windows: spawn arg%d %s\n", i, argv[i]));
 
 	*cmdline = 0;
+
 	for(i=0;argv[i];++i) {
-		if (i) {
-			sncat(cmdline, TARGET_MAXCMD, " ");
-		}
-		if (strchr(argv[i], ' ') != 0) {
-			sncat(cmdline, TARGET_MAXCMD, "\"");
-			sncat(cmdline, TARGET_MAXCMD, argv[i]);
-			sncat(cmdline, TARGET_MAXCMD, "\"");
-		} else {
-			sncat(cmdline, TARGET_MAXCMD, argv[i]);
-		}
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncatarg(cmdline, EXEC_MAX, argv[i]);
 	}
 
-	return exec(cmdline);
+	r = exec(cmdline);
+
+	log_std(("windows: spawn return %d\n", r));
+
+	return r;
 }
 
 adv_error target_mkdir(const char* file)

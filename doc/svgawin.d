@@ -1,5 +1,5 @@
-Name
-	svgawin - SVGAWIN driver installer
+Name{number}
+	svgawin - AdvanceCAB SVGAWIN Driver Installer For Windows 2000/XP
 
 Synopsis
 	:svgawin [/l] [/u]

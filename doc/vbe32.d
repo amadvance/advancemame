@@ -1,5 +1,5 @@
-Name
-	vbe32 - VBE 32 bit BIOS for DOS
+Name{number}
+	vbe32 - AdvanceCAB VBE 32bit BIOS For DOS
 
 Synopsis
 	:vbe32 [/l] [/c CONFIG]

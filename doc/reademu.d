@@ -1,5 +1,5 @@
 Name
-	advmame - The AdvanceMAME/MESS Emulators
+	advmame - AdvanceMAME/MESS Emulator
 
 	AdvanceMAME/MESS are unofficial MAME/MESS versions with an
 	advanced video support for helping the use with TVs, Arcade

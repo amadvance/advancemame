@@ -1,5 +1,5 @@
-Name
-	cardwin - Supported Windows Video Cards
+Name{number}
+	cardwin - AdvanceMAME Supported Windows Video Cards
 
 	This is the list of the Windows video cards supported
 	by the Advance programs with the Windows drivers.

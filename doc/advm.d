@@ -1,5 +1,5 @@
-Name
-	advm - The AdvanceMOUSE Tester
+Name{number}
+	advm - AdvanceMAME Mouse Tester
 
 Synopsis
 	:advm [-device_mouse DEVICE] [-log] [-logsync]

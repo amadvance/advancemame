@@ -1,10 +1,18 @@
 Name
-	authors - The Advance Authors
+	authors - AdvanceMAME Authors
 
 Authors
-	* Andrea Mazzoleni
+	The author of AdvanceMAME and releated utilities is
+	Andrea Mazzoleni.
+
+	You can contact me sending an email at:
+
+		amadvance@users.sourceforge.net
 
 Acknowledgments
+	A lot of other people helped submitting patches, bug reports
+	and generic comments. A special mention to:
+
 	* Nick Bourdo
 	* Prophet of Retrogames
 	* Melanie Burns (Exodus3D)
@@ -17,14 +25,4 @@ Acknowledgments
 	* Kari Hautio
 	* Martin Adrian (wpcmame)
 
-Libraries
-	MAME - http://www.mame.net/
-	MESS - http://mess.emuverse.com/
-	SVGALIB - http://www.svgalib.org/
-	Allegro - http://www.allegro.org/
-	SEAL - dead project
-	MPGLIB - http://www.mpg123.de/
-	zlib - http://www.gzip.org/zlib/
-	S-Lang - http://www.s-lang.org/
-	SDL - http://www.libsdl.org/
 

@@ -1,5 +1,5 @@
-Name
-	faq - The Advance FAQ
+Name{number}
+	faq - AdvanceMAME FAQ
 
 	This is a collection of Frequently Asked Questions.
 

@@ -1,5 +1,5 @@
-Name
-	script - The AdvanceMAME Script Machine
+Name{number}
+	script - AdvanceMAME Script Machine
 
 	AdvanceMAME support a scripting language to control external
 	device like lamps, keyboard leds...

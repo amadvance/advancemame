@@ -67,6 +67,7 @@ struct keyb_event_context {
 	struct termios oldkbdtermios;
 	struct termios newkbdtermios;
 	int oldkbmode;
+	int oldtrmode;
 	int f; /**< Handle of the console interface. */
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX];
@@ -853,7 +854,16 @@ adv_error keyb_event_enable(adv_bool graphics)
 		}
 	}
 
-	if (!event_state.passive_flag && event_state.graphics_flag) {
+	if (event_state.graphics_flag) {
+		if (ioctl(event_state.f, KDGETMODE, &event_state.oldtrmode) != 0) {
+			error_set("Error enabling the event keyboard driver. Function ioctl(KDGETMODE) failed.\n");
+			goto err_mode;
+		}
+
+		if (event_state.oldtrmode == KD_GRAPHICS) {
+			log_std(("WARNING:keyb:event: terminal already in KD_GRAPHICS mode\n"));
+		}
+
 		/* set the console in graphics mode, it only disable the cursor and the echo */
 		log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
 		if (ioctl(event_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
@@ -887,8 +897,8 @@ void keyb_event_disable(void)
 {
 	log_std(("keyb:event: keyb_event_disable()\n"));
 
-	if (!event_state.passive_flag && event_state.graphics_flag) {
-		if (ioctl(event_state.f, KDSETMODE, KD_TEXT) < 0) {
+	if (event_state.graphics_flag) {
+		if (ioctl(event_state.f, KDSETMODE, event_state.oldtrmode) < 0) {
 			/* ignore error */
 			log_std(("ERROR:keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}

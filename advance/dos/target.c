@@ -344,7 +344,11 @@ adv_error target_script(const char* script)
 
 	tmp = getenv("TMP");
 	if (!tmp)
-		tmp = "\\";
+		tmp = getenv("TEMP");
+	if (!tmp) {
+		log_std(("ERROR:dos: getenv(TMP,TEMP) failed\n"));
+		return -1;
+	}
 
 	sncpy(file, FILE_MAXPATH, tmp);
 	if (file[0] && file[strlen(file)-1] != '\\')
@@ -369,7 +373,9 @@ adv_error target_script(const char* script)
 		goto err;
 	}
 
-	r = target_system(file);
+	__djgpp_exception_toggle();
+	r = system(file);
+	__djgpp_exception_toggle();
 
 	log_std(("dos: return %d\n", r));
 
@@ -383,21 +389,40 @@ err:
 	return -1;
 }
 
-adv_error target_system(const char* cmd)
+#define EXEC_MAX 1024
+
+adv_error target_spawn_redirect(const char* file, const char** argv, const char* output)
 {
 	int r;
+	char cmdline[EXEC_MAX];
+	unsigned i;
+
+	*cmdline = 0;
+
+	for(i=0;argv[i];++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncat(cmdline, EXEC_MAX, argv[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " > ");
+	sncat(cmdline, EXEC_MAX, output);
+
 	__djgpp_exception_toggle();
-	r = system(cmd);
+	r = system(cmdline);
 	__djgpp_exception_toggle();
+
 	return r;
 }
 
 adv_error target_spawn(const char* file, const char** argv)
 {
 	int r;
+
 	__djgpp_exception_toggle();
 	r = spawnvp(P_WAIT, file, (char**)argv);
 	__djgpp_exception_toggle();
+
 	return r;
 }
 

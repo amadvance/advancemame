@@ -1,5 +1,5 @@
-Name
-	advmenu - The AdvanceMENU Front-end
+Name{number}
+	advmenu - AdvanceMENU Frontend
 
 Synopsis
 	:advmenu [-default] [-remove] [-cfg FILE]

@@ -1,5 +1,5 @@
-Name
-	advs - The AdvanceSOUND Tester
+Name{number}
+	advs - AdvanceMAME Sound Tester
 
 Synopsis
 	:advs [-device_sound DEVICE] [-sound_samplerate RATE]

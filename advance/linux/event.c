@@ -1613,6 +1613,10 @@ int event_compare(const void* void_a, const void* void_b)
 		return -1;
 	if (a->product > b->product)
 		return 1;
+	if (a->version < b->version)
+		return -1;
+	if (a->version > b->version)
+		return 1;
 
 	return strcmp(a->file, b->file);
 }

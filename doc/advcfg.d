@@ -1,5 +1,5 @@
-Name
-	advcfg - The AdvanceCFG Automatic Configurator
+Name{number}
+	advcfg - AdvanceMAME Automatic Video Configurator
 
 Synopsis
 	:advcfg [-advmamec] [-advmessc] [-advmenuc]

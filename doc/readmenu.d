@@ -1,5 +1,5 @@
 Name
-	advmenu - The AdvanceMENU Frontend
+	advmenu - AdvanceMENU Frontend
 
 	AdvanceMENU is a frontend for the AdvanceMAME, AdvanceMESS, MAME,
 	MESS, xmame, Raine and any other emulator.

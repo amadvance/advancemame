@@ -1,5 +1,5 @@
-Name
-	advline - The AdvanceLINE generator
+Name{number}
+	advline - AdvanceMAME Modeline Generator
 
 Synopsis
 	:advline [/fh A,F,S,B] [/fv A,F,S,B]

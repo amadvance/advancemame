@@ -49,9 +49,6 @@ extern "C" {
 /** \addtogroup Target */
 /*@{*/
 
-/** Max command line length. */
-#define TARGET_MAXCMD 1024
-
 /** Max number of arguments. */
 #define TARGET_MAXARG 64
 
@@ -193,18 +190,24 @@ adv_error target_apm_wakeup(void);
 
 /**
  * Execute a script.
- * \return Like system("./script").
+ * \param script Text of the script to run.
+ * \return Like running a script containing the specified text.
  */
 adv_error target_script(const char* script);
 
 /**
- * Execute an external program with pipe support.
+ * Execute an external program with output redirection.
+ * \param file Program to run.
+ * \param argv Arguments. Use 0 to terminate.
+ * \param output Output stream.
  * \return Like system().
  */
-adv_error target_system(const char* cmd);
+adv_error target_spawn_redirect(const char* file, const char** argv, const char* output);
 
 /**
  * Execute an external program.
+ * \param file Program to run.
+ * \param argv Arguments. Use 0 to terminate.
  * \return Like spawn().
  */
 adv_error target_spawn(const char* file, const char** argv);

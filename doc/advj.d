@@ -1,5 +1,5 @@
-Name
-	advj - The AdvanceJOYSTICK Tester
+Name{number}
+	advj - AdvanceMAME Joystick Tester
 
 Synopsis
 	:advj [-device_joystick DEVICE] [-log] [-logsync]

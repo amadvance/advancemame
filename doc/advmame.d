@@ -1,5 +1,5 @@
-Name
-	advmame, advmess - The AdvanceMAME/MESS Emulator
+Name{number}
+	advmame, advmess - AdvanceMAME/MESS Emulator
 
 Synopsis
 	:advmame GAME [-default] [-remove] [-cfg FILE]

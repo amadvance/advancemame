@@ -1,6 +1,17 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.5 2004/12
+	) Fixed the recognition of some USB mouses and keyboards
+		with the Linux event driver.
+	) The USB devices in Linux now have always the same order
+		in the input_map[] specifications.
+	) Fixed the creation of the .xml file in Windows with
+		directory names containing spaces.
+	) The terminal cursor is now disabled using the Linux
+		SVGALIB driver with the restore_at_game
+		option set to no.
+
 AdvanceMENU Version 2.4.4 2004/12
 	) Fixed the screensaver and the alphanumeric selection.
 

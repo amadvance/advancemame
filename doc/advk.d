@@ -1,5 +1,5 @@
-Name
-	advk - The AdvanceKEYBOARD Tester
+Name{number}
+	advk - AdvanceMAME Keyboard Tester
 
 Synopsis
 	:advk [-device_keyboard DEVICE] [-log] [-logsync]
