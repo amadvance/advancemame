@@ -33,7 +33,11 @@
 
 #include "osdutils.h"
 
-#define OSD_CPU_H /* Some MAME files requires this (sound/fm.c) */
+/**
+ * Some MAME files require this define.
+ * For example sound/fm.h.
+ */
+#define OSD_CPU_H
 
 /* Common types */
 typedef unsigned char UINT8;
@@ -81,3 +85,4 @@ typedef union {
 } PAIR;
 
 #endif
+

@@ -31,7 +31,7 @@ SOBJDIRS += \
 	$(SOBJ)/lib \
 	$(SOBJ)/mpglib
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 SCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -69,7 +69,7 @@ SOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 SCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC
@@ -86,7 +86,7 @@ SOBJS += \
 	$(SOBJ)/dos/svsync.o
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 SCFLAGS += \
 	-I$(srcdir)/advance/windows
 SLIBS += $(ZLIBS) -lm

@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.84.0 2004/07
+	) Added a new rand(N) function at the scripts.
+	) Added a new `misc_hiscorefile' to specify a different
+		name of the hiscore.dat file.
+	) Fixed the advfg utility to found always a valid
+		text modeline.
+
 AdvanceMAME Version 0.83.1 2004/07
 	) Enabled the MIPS dinamic recompilation in DOS and
 		Windows.
@@ -8,7 +15,7 @@ AdvanceMAME Version 0.83.1 2004/07
 		in the `dir_*' options.
 	) Fixed some problems enabling and disabling SMP at
 		runtime.
-	) Revised the `install' documentation file and the `link'
+	) Revised the `install' documentation file and the `video links'
 		section of the web site.
 	) Added the `misc_lang' option to select the game
 		language.

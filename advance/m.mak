@@ -21,7 +21,7 @@ MOBJS += \
 	$(MOBJ)/lib/mnone.o \
 	$(MOBJ)/lib/error.o
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 MCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -54,7 +54,7 @@ MOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \

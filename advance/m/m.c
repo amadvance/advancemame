@@ -122,7 +122,7 @@ int os_main(int argc, char* argv[])
 {
 	int i;
 	adv_conf* context;
-        const char* section_map[1];
+        char* section_map[1];
 	adv_bool opt_log;
 	adv_bool opt_logsync;
 

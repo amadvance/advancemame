@@ -84,7 +84,7 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 		gb = &g.clone_best_get();
 	else
 		gb = &g;
-	if (gb->play_get() == play_perfect && gb->present_tree_get()) {
+	if (gb->play_get() != play_preliminary && gb->present_tree_get()) {
 		color = selected ? COLOR_MENU_SELECT : COLOR_MENU_NORMAL;
 		color_first = selected ? COLOR_MENU_TAG_SELECT : COLOR_MENU_TAG;
 		color_in = selected ? COLOR_MENU_HIDDEN_SELECT : COLOR_MENU_HIDDEN;
@@ -171,7 +171,7 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 		gb = &g.clone_best_get();
 	else
 		gb = &g;
-	if (gb->play_get() == play_perfect && gb->present_tree_get()) {
+	if (gb->play_get() != play_preliminary && gb->present_tree_get()) {
 		color = selected ? COLOR_MENU_SELECT : COLOR_MENU_NORMAL;
 		color_first = selected ? COLOR_MENU_TAG_SELECT : COLOR_MENU_TAG;
 		color_in = selected ? COLOR_MENU_HIDDEN_SELECT : COLOR_MENU_HIDDEN;
@@ -350,12 +350,12 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 
 		if (!gb->present_tree_get())
 			draw_tag_right("MISSING", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
-		else if (gb->play_get() == play_not)
+		else if (gb->play_get() == play_preliminary)
 			draw_tag_right("  ALPHA", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
-		else if (gb->play_get() == play_minor)
-			draw_tag_right("  GAMMA", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
-		else if (gb->play_get() == play_major)
+#if 0 // don't report imperfect games
+		else if (gb->play_get() == play_imperfect)
 			draw_tag_right("   BETA", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+#endif
 		else
 			draw_tag_right("       ", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 	}

@@ -539,9 +539,9 @@ bool mame_info::filter(const game& g) const {
 
 	bool good;
 	if (exclude_clone_effective == exclude)
-		good = bios.play_best_get() == play_perfect;
+		good = bios.play_best_get() != play_preliminary;
 	else
-		good = bios.play_get() == play_perfect;
+		good = bios.play_get() != play_preliminary;
 	if (exclude_bad_effective == exclude && !good)
 		return false;
 	if (exclude_bad_effective == exclude_not && good)
@@ -614,17 +614,9 @@ bool mame_info::load_info(game_set& gar)
 						if (strcmp(info_text_get(), "status")==0) {
 							if (info_token_get() != info_symbol) return false;
 							if (strcmp(info_text_get(), "preliminary")==0)
-								g.play_set(play_not);
-						} else if (strcmp(info_text_get(), "color")==0) {
-							if (info_token_get() != info_symbol) return false;
-							if (strcmp(info_text_get(), "preliminary")==0)
-								if (g.play_get() < play_major)
-									g.play_set(play_major);
-						} else if (strcmp(info_text_get(), "sound")==0) {
-							if (info_token_get() != info_symbol) return false;
-							if (strcmp(info_text_get(), "preliminary")==0)
-								if (g.play_get() < play_minor)
-									g.play_set(play_minor);
+								g.play_set(play_preliminary);
+							if (strcmp(info_text_get(), "imperfect")==0 && g.play_get() < play_imperfect)
+								g.play_set(play_imperfect);
 						} else {
 							if (info_skip_value() == info_error) return false;
 						}
@@ -1387,10 +1379,12 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 
 	emu_software_path = "";
 
+	// the emulator correct path is a single dir, but allows the
+	// menu to load in the multi dir version
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_importsingledir(s, ref_dir_os);
+		emu_snap_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_importsingledir("snap", ref_dir_os);
+		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1463,10 +1457,12 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 
 	emu_software_path = "";
 
+	// the emulator correct path is a single dir, but allows the
+	// menu to load in the multi dir version
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_importsingledir(s, ref_dir_os);
+		emu_snap_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_importsingledir("snap", ref_dir_os);
+		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1937,10 +1933,12 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 		emu_software_path = list_importmultidir("image", ref_dir_os);
 	}
 
+	// the emulator correct path is a single dir, but allows the
+	// menu to load in the multi dir version
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_importsingledir(s, ref_dir_os);
+		emu_snap_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_importsingledir("snap", ref_dir_os);
+		emu_snap_path = list_importmultidir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -2105,8 +2103,8 @@ string advmess::sound_name_get(const string& sound_create, const string& name)
 ///
 // Check if the specified ext is supported.
 // If yes add the required option at the command line
-bool advmess::compile_ext(const game& g, unsigned& argc, const char* argv[], const string& ext) const {
-
+bool advmess::compile_ext(const game& g, unsigned& argc, const char* argv[], const string& ext) const
+{
 	for(machinedevice_container::const_iterator i=g.machinedevice_bag_get().begin();i!=g.machinedevice_bag_get().end();++i) {
 		for(machinedevice_ext_container::const_iterator j=i->ext_bag.begin();j!=i->ext_bag.end();++j) {
 
@@ -2385,9 +2383,9 @@ bool raine_info::filter(const game& g) const {
 
 	bool good;
 	if (exclude_clone_effective == exclude)
-		good = g.play_best_get() == play_perfect;
+		good = g.play_best_get() != play_preliminary;
 	else
-		good = g.play_get() == play_perfect;
+		good = g.play_get() != play_preliminary;
 	if (exclude_bad_effective == exclude && !good)
 		return false;
 	if (exclude_bad_effective == exclude_not && good)
@@ -2454,17 +2452,15 @@ bool raine_info::load_info(game_set& gar)
 						if (strcmp(info_text_get(), "status")==0) {
 							if (info_token_get() != info_symbol) return false;
 							if (strcmp(info_text_get(), "preliminary")==0)
-								g.play_set(play_not);
+								g.play_set(play_preliminary);
 						} else if (strcmp(info_text_get(), "color")==0) {
 							if (info_token_get() != info_symbol) return false;
 							if (strcmp(info_text_get(), "preliminary")==0)
-								if (g.play_get() < play_major)
-									g.play_set(play_major);
+								g.play_set(play_preliminary);
 						} else if (strcmp(info_text_get(), "sound")==0) {
 							if (info_token_get() != info_symbol) return false;
 							if (strcmp(info_text_get(), "preliminary")==0)
-								if (g.play_get() < play_minor)
-									g.play_set(play_minor);
+								g.play_set(play_preliminary);
 						} else {
 							if (info_skip_value() == info_error) return false;
 						}

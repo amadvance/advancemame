@@ -366,6 +366,7 @@ static struct advance_glue_context GLUE;
 extern char* cheatfile;
 extern char* history_filename;
 extern char* mameinfo_filename;
+extern const char *db_filename;
 #ifdef MESS
 const char* crcfile;
 const char* pcrcfile;
@@ -645,9 +646,10 @@ unsigned mame_game_players(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InputPort* input;
-	int nplayer = 1;
+	int nplayer;
 
-	// TODO input_port_allocate occorre liberare la memoria, ne usa molta
+	/* memory management for input_port_allocate */
+	begin_resource_tracking();
 
 	/* create the input port list */
 	input = input_port_allocate(driver->construct_ipt);
@@ -658,6 +660,9 @@ unsigned mame_game_players(const mame_game* game)
 			nplayer = input->player + 1;
 		++input;
 	}
+
+	/* memory management for input_port_allocate */
+	end_resource_tracking();
 
 	return nplayer;
 }
@@ -773,6 +778,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.gui_host = 1; /* this prevents text mode messages that may stop the execution */
 	options.skip_disclaimer = context->global.config.quiet_flag;
 	options.skip_gameinfo = context->global.config.quiet_flag;
+	options.skip_warnings = context->global.config.quiet_flag;
 	options.samplerate = advance->samplerate;
 	options.use_samples = advance->samples_flag;
 	options.use_filter = advance->filter_flag;
@@ -900,6 +906,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	cheatfile = (char*)advance->cheat_file_buffer;
 	history_filename = (char*)advance->history_file_buffer;
+	db_filename = advance->hiscore_file_buffer;
 	mameinfo_filename = (char*)advance->info_file_buffer;
 
 #ifdef MESS
@@ -967,13 +974,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
  * Single port.
  */
 #define S(name, desc, NAME) \
-	{ name, desc, MAME_PORT(IPT_##NAME, 0, 0) },
+	{ name, desc, MAME_PORT_UI(IPT_##NAME) },
 
 /**
  * Unamed single port.
  */
 #define SU(name, NAME) \
-	{ name, name, MAME_PORT(IPT_##NAME, 0, 0) },
+	{ name, name, MAME_PORT_UI(IPT_##NAME) },
 
 /**
  * Player port.
@@ -1426,7 +1433,7 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 			break;
 		default:
 			if (mame_seq[j] >= CODE_NONE) {
-				log_std(("ERROR:emu:glue: unable to convert %d\n", mame_seq[j]));
+				log_std(("ERROR:glue: unable to convert %d\n", mame_seq[j]));
 				c = DIGITAL_SPECIAL_NONE;
 			} else {
 				c = code_to_oscode(mame_seq[j], &type);
@@ -1477,7 +1484,7 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 				break;
 			default :
 				c = CODE_NONE;
-				log_std(("ERROR:emu:glue: unable to convert %d\n", seq[j]));
+				log_std(("ERROR:glue: unable to convert %d\n", seq[j]));
 				break;
 			}
 		}
@@ -2384,14 +2391,22 @@ int osd_input_exit_filter(int result)
  */
 int osd_input_port_filter(int result, unsigned type, unsigned player, unsigned index)
 {
-	unsigned port;
+	if (!result) {
+		unsigned port;
 
-	if (result)
-		return result;
+		/* MAME is'nt able to differentiate from player 1 ports and global ports; */
+		/* both have the player number 0 in the internal InputMap vector */
+		if (type > IPT_ANALOG_END)
+			/* this is a a global port */
+			port = MAME_PORT_INDEX(type, 0, index);
+		else
+			/* this is a specific player port */
+			port = MAME_PORT_INDEX(type, player, index);
 
-	port = MAME_PORT_INDEX(type, player, index);
+		result = hardware_is_input_simulated(SIMULATE_EVENT, port);
+	}
 
-	return hardware_is_input_simulated(SIMULATE_EVENT, port);
+	return result;
 }
 
 static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
@@ -2546,7 +2561,7 @@ void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* 
 	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned port;
 
-	log_std(("emu:glue: osd_customize_inputport_post_game()\n"));
+	log_std(("glue: osd_customize_inputport_post_game()\n"));
 
 	glue_seq_convert(current->seq[index], SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
 	glue_seq_convert(def->seq[index], SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
@@ -2571,7 +2586,7 @@ void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current,
 	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned port;
 
-	log_std(("emu:glue: osd_customize_inputport_post_defaults()\n"));
+	log_std(("glue: osd_customize_inputport_post_defaults()\n"));
 
 	glue_seq_convert(current->seq[index], SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
 	glue_seq_convert(def->seq[index], SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
@@ -2599,7 +2614,7 @@ void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort*
 	const char* tag;
 	unsigned type;
 
-	log_std(("emu:glue: osd_customize_switchport_post_game()\n"));
+	log_std(("glue: osd_customize_switchport_post_game()\n"));
 
 	switch (current->type) {
 	case IPT_DIPSWITCH_NAME :
@@ -2613,13 +2628,12 @@ void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort*
 		break;
 #endif
 	default:
-		log_std(("WARNING:emu:glue: Unknown switchport %d\n", current->type));
+		log_std(("WARNING:glue: unknown switchport %d\n", current->type));
 		return;
 	}
 
-	// TODO comparare il valore e non l'indirizzo
-	if (current->name == DEF_STR( Unused ) || current->name == DEF_STR( Unknown )) {
-		log_std(("WARNING:emu:glue: Ignoring named Unknown/Unused switchport %d\n", current->type));
+	if (strcmp(current->name, DEF_STR(Unused))==0 || strcmp(current->name, DEF_STR(Unknown))==0) {
+		log_std(("WARNING:glue: ignoring named Unknown/Unused switchport %d\n", current->type));
 		return;
 	}
 
@@ -2634,7 +2648,7 @@ void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort*
 	}
 
 	if (v->type != type) {
-		log_std(("ERROR:emu:glue: Unknown switchport %s value %d\n", name_buffer, current->default_value));
+		log_std(("ERROR:glue: Unknown switchport %s value %d\n", name_buffer, current->default_value));
 		return;
 	}
 
@@ -2660,7 +2674,7 @@ void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort*
 	char name_buffer[256];
 	char tag_buffer[256];
 
-	log_std(("emu:glue: osd_customize_analogport_post_game()\n"));
+	log_std(("glue: osd_customize_analogport_post_game()\n"));
 
 	if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), current->type, current->player + 1) != 0) {
 		return;
@@ -2808,7 +2822,7 @@ adv_error mame_init(struct advance_context* context)
 	j = 0;
 
 	/* check that port masks don't overlap */
-	assert( (GLUE_PORT_PLAYER_MASK ^ GLUE_PORT_TYPE_MASK ^ GLUE_PORT_INDEX_MASK) == (GLUE_PORT_PLAYER_MASK | GLUE_PORT_TYPE_MASK | GLUE_PORT_INDEX_MASK) );
+	assert( (MAME_PORT_PLAYER_MASK ^ MAME_PORT_TYPE_MASK ^ MAME_PORT_INDEX_MASK) == (MAME_PORT_PLAYER_MASK | MAME_PORT_TYPE_MASK | MAME_PORT_INDEX_MASK) );
 
 	/* add the constant ports */
 	for(i=0;GLUE_PORT_STD[i].name;++i) {
@@ -2854,6 +2868,8 @@ adv_error mame_init(struct advance_context* context)
 	conf_bool_register_default(context->cfg, "misc_cheat", 0);
 	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");
 	conf_string_register_default(context->cfg, "misc_cheatfile", "cheat.dat" );
+
+	conf_string_register_default(context->cfg, "misc_hiscorefile", "hiscore.dat");
 
 #ifdef MESS
 	conf_string_register_default(context->cfg, "misc_historyfile", "sysinfo.dat");
@@ -2928,6 +2944,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 		if (*s == file_dir_separator())
 			*s = ';';
 
+	sncpy(option->hiscore_file_buffer, sizeof(option->hiscore_file_buffer), conf_string_get_default(cfg_context, "misc_hiscorefile"));
 	sncpy(option->history_file_buffer, sizeof(option->history_file_buffer), conf_string_get_default(cfg_context, "misc_historyfile"));
 	sncpy(option->info_file_buffer, sizeof(option->info_file_buffer), conf_string_get_default(cfg_context, "misc_infofile"));
 
@@ -2940,5 +2957,4 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	return 0;
 }
-
 

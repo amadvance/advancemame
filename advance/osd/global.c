@@ -856,9 +856,6 @@ adv_error advance_global_inner_init(struct advance_global_context* context)
 	}
 #endif
 
-	advance_global_lcd(context, 0, "");
-	advance_global_lcd(context, 1, "riga 1");
-
 	return 0;
 }
 

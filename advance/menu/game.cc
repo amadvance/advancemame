@@ -39,7 +39,7 @@ game::game()
 {
 	flag = 0;
 	play = play_perfect;
-	play_best = play_not;
+	play_best = play_preliminary;
 	sizex = 0;
 	sizey = 0;
 	aspectx = 0;
@@ -57,7 +57,7 @@ game::game(const string& Aname) : name(Aname)
 {
 	flag = 0;
 	play = play_perfect;
-	play_best = play_not;
+	play_best = play_preliminary;
 	sizex = 0;
 	sizey = 0;
 	aspectx = 0;

@@ -610,8 +610,10 @@ int os_main(int argc, char* argv[])
 	bool opt_logsync;
 	bool opt_version;
 	bool opt_help;
+	const char* opt_cfg;
 	int key = 0;
-	const char* section_map[1];
+	char* section_map[1];
+	char cfg_buffer[512];
 
 	srand(time(0));
 
@@ -639,8 +641,12 @@ int os_main(int argc, char* argv[])
 	opt_default = false;
 	opt_version = false;
 	opt_help = false;
+	opt_cfg = 0;
 	for(int i=1;i<argc;++i) {
-		if (target_option_compare(argv[i], "verbose")) {
+		if (target_option_compare(argv[i], "cfg")) {
+			opt_cfg = argv[i+1];
+			++i;
+		} else if (target_option_compare(argv[i], "verbose")) {
 			opt_verbose = true;
 		} else if (target_option_compare(argv[i], "version")) {
 			opt_version = true;
@@ -658,6 +664,12 @@ int os_main(int argc, char* argv[])
 			target_err("Unknown option '%s'.\n", argv[i]);
 			goto err_init;
 		}
+	}
+
+	if (opt_cfg) {
+		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(opt_cfg));
+	} else {
+		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home("advmenu.rc"));
 	}
 
 	if (opt_version) {
@@ -692,13 +704,10 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
-	if (conf_input_file_load_adv(config_context, 1, file_config_file_home("advmenu.rc"), file_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(config_context, 1, cfg_buffer, cfg_buffer, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_init;
 
-	section_map[0] = "";
-	conf_section_set(config_context, section_map, 1);
-
-	if (access(file_config_file_home("advmenu.rc"), F_OK)!=0) {
+	if (access(cfg_buffer, F_OK)!=0) {
 		target_out("Creating a standard configuration file...\n");
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
@@ -706,7 +715,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' created with all the default options.\n", cfg_buffer);
 		goto done_init;
 	}
 
@@ -716,7 +725,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file `%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' updated with all the default options.\n", cfg_buffer);
 		goto done_init;
 	}
 
@@ -725,11 +734,16 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file `%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
+		target_out("Configuration file `%s' updated with all the default options removed.\n", cfg_buffer);
 		goto done_init;
 	}
 
+	/* set the used section */
+	section_map[0] = "";
+	conf_section_set(config_context, section_map, 1);
+
 	/* setup the include configuration file */
+	/* it must be after the final conf_section_set() call */
 	if (include_load(config_context, 2, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_init;
 	}

@@ -163,15 +163,15 @@ adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci)
 
 /** Modes for the VGA BIOS */
 static const char* BIOS_VGA[] = {
-"pc_31.5_bios_vga_text40_8x8 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_31.5_bios_vga_text40_9x8 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_31.5_bios_vga_text80_8x8 25.1752 640 656 752 800 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_31.5_bios_vga_text80_9x8 28.3221 720 738 846 900 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_31.5_bios_vga_text40_8x16 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_31.5_bios_vga_text40_9x16 14.161 360 368 422 450 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_31.5_bios_vga_text80_8x16 25.1752 640 656 752 800 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_31.5_bios_vga_text80_9x16 28.3221 720 738 846 900 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_31.5_bios_vga_320x200 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+"pc_bios_vga_text40_8x8 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+"pc_bios_vga_text40_9x8 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+"pc_bios_vga_text80_8x8 25.1752 640 656 752 800 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+"pc_bios_vga_text80_9x8 28.3221 720 738 846 900 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+"pc_bios_vga_text40_8x16 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+"pc_bios_vga_text40_9x16 14.161 360 368 422 450 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+"pc_bios_vga_text80_8x16 25.1752 640 656 752 800 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+"pc_bios_vga_text80_9x16 28.3221 720 738 846 900 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+"pc_bios_vga_320x200 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
 0
 };
 

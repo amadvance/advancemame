@@ -43,9 +43,6 @@
 /* Define to 1 if you have the `flockfile' function. */
 #undef HAVE_FLOCKFILE
 
-/* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
-
 /* Define to 1 if you have the `fread_unlocked' function. */
 #undef HAVE_FREAD_UNLOCKED
 
@@ -81,10 +78,6 @@
 
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
-
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
-   to 0 otherwise. */
-#undef HAVE_MALLOC
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -190,20 +183,8 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `vfork' function. */
-#undef HAVE_VFORK
-
-/* Define to 1 if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
-
 /* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
-
-/* Define to 1 if `fork' works. */
-#undef HAVE_WORKING_FORK
-
-/* Define to 1 if `vfork' works. */
-#undef HAVE_WORKING_VFORK
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -252,15 +233,6 @@
 #undef inline
 #endif
 
-/* Define to rpl_malloc if the replacement function should be used. */
-#undef malloc
-
-/* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
-
 /* Define to equivalent of C99 restrict keyword, or to nothing if this is not
    supported. Do not define if restrict is supported directly. */
 #undef restrict
-
-/* Define as `fork' if `vfork' does not work. */
-#undef vfork

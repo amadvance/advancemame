@@ -51,6 +51,7 @@ typedef struct adv_bitmap_struct {
 
 adv_bitmap* adv_bitmap_alloc(unsigned x, unsigned y, unsigned bit);
 adv_bitmap* adv_bitmap_dup(adv_bitmap* src);
+void adv_bitmap_move(adv_bitmap* dst, adv_bitmap* src);
 adv_bitmap* adv_bitmap_import_rgb(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
 adv_bitmap* adv_bitmap_import_palette(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
 void adv_bitmap_free(adv_bitmap* bmp);

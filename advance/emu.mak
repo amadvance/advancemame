@@ -14,7 +14,7 @@ OBJDIRS += \
 
 ADVANCELIBS += $(ZLIBS) -lm
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 
 # Dependencies on DATADIR/SYSCONFDIR
 $(OBJ)/advance/linux/file.o: $(srcdir)/Makefile
@@ -151,7 +151,7 @@ ADVANCEOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 OBJDIRS += \
 	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
@@ -251,7 +251,7 @@ ADVANCELIBS += $(FREETYPELIBS)
 endif
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 OBJDIRS += \
 	$(OBJ)/advance/windows \
 	$(OBJ)/advance/dos
@@ -365,21 +365,20 @@ else
 EMUCFLAGS += -DMAME
 endif
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 EMUCFLAGS += \
 	-DPI=M_PI \
 	-Dstricmp=strcasecmp \
 	-Dstrnicmp=strncasecmp
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 EMUCFLAGS += \
 	-DPI=3.1415927 \
 	-DM_PI=3.1415927
 endif
 
 EMUCFLAGS += -I$(srcdir)/advance/osd
-M68000FLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
 	$(OBJ)/advance/osd/emu.o \
@@ -499,12 +498,10 @@ endif
 
 ifneq (,$(findstring USE_LSB,$(CFLAGS)))
 EMUCFLAGS += -DLSB_FIRST
-M68000FLAGS += -DLSB_FIRST
 endif
 
 ifneq (,$(findstring USE_MSB,$(CFLAGS)))
 EMUCFLAGS += -DMSB_FIRST
-M68000FLAGS += -DMSB_FIRST
 endif
 
 ifeq ($(CONF_EMU),mess)
@@ -578,23 +575,16 @@ endif
 
 EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
-M68000FLAGS += \
-	$(CFLAGS_BUILD) \
-	$(EMUDEFS) \
-	-DINLINE="static __inline__" \
-	-I$(OBJ)/cpu/m68000 \
-	-I$(EMUSRC)/cpu/m68000 \
-	-I$(EMUSRC)
-ifeq ($(CONF_EMU),mess)
-M68000FLAGS += \
-	-I$(srcdir)/mess
-endif
-
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
+ifeq ($(CONF_DEBUG),yes)
+	$(RM) $(EMUNAME)d$(EXE)
+	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
+else
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
+endif
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS)
 	$(ECHO) $@ $(MSG)
@@ -602,29 +592,29 @@ $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS)
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/mess/%.o: $(srcdir)/mess/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
 $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
-	$(ECHO) $@
-	$(CC) $(M68000FLAGS) -c $*.c -o $@
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $*.c -o $@
 
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
 $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
 
 $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
 	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
-	$(CC_BUILD) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD) $<
+	$(CC_BUILD) $(CFLAGS_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD) $<
 	@$(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
 
 # Generate asm source files for the 68000/68020 emulators
 $(OBJ)/cpu/m68000/make68k$(EXE_BUILD): $(EMUSRC)/cpu/m68000/make68k.c
 	$(ECHO) $@
-	$(CC_BUILD) $(M68000FLAGS) -o $(OBJ)/cpu/m68000/make68k$(EXE_BUILD) $<
+	$(CC_BUILD) $(CFLAGS_BUILD) -o $(OBJ)/cpu/m68000/make68k$(EXE_BUILD) $<
 
 $(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE_BUILD)
 	$(ECHO) $@
@@ -769,7 +759,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/install.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/cardlinx.txt \
 	$(DOCOBJ)/advk.txt \
@@ -782,7 +772,7 @@ EMU_DOC_BIN += \
 	$(DOCOBJ)/advj.html \
 	$(DOCOBJ)/advm.html
 endif
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/carddos.txt \
 	$(DOCOBJ)/advk.txt \
@@ -795,7 +785,7 @@ EMU_DOC_BIN += \
 	$(DOCOBJ)/advj.html \
 	$(DOCOBJ)/advm.html
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/svgawin.txt \
 	$(DOCOBJ)/cardwin.txt \
@@ -817,7 +807,7 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat
 endif
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
@@ -837,7 +827,7 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/advmess.1
 endif
 endif
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/cwsdpmi.exe \
 	$(KOBJ)/advk$(EXE) \
@@ -848,7 +838,7 @@ ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 EMU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
@@ -950,13 +940,14 @@ else
 	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
 endif
 endif
+	find $(EMU_DIST_DIR_SRC) \( -name "*.dat" \) -type f -exec dtou {} \;
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz
 	tar cfzo $(EMU_DIST_FILE_SRC).tar.gz $(EMU_DIST_DIR_SRC)
 	rm -r $(EMU_DIST_DIR_SRC)
 
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
@@ -972,12 +963,15 @@ endif
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
+	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec dtou {} \;
 	rm -f $(EMU_DIST_FILE_BIN).tar.gz
 	tar cfzo $(EMU_DIST_FILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)
 else
-	rm -f $(EMU_DIST_FILE_BIN).zip
 	find $(EMU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.bat" \) -type f -exec utod {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec utod {} \;
+	rm -f $(EMU_DIST_FILE_BIN).zip
 	cd $(EMU_DIST_DIR_BIN) && zip -r ../$(EMU_DIST_FILE_BIN).zip *
 endif
 	rm -r $(EMU_DIST_DIR_BIN)

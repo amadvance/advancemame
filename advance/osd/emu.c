@@ -484,13 +484,15 @@ int os_main(int argc, char* argv[])
 	int opt_default;
 	int opt_remove;
 	int opt_help;
+	const char* opt_cfg;
 	char* opt_gamename;
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
-	const char* section_map[16];
+	char* section_map[16];
 	unsigned section_mac;
 	const mame_game* parent;
 	char buffer[32];
+	char cfg_buffer[512];
 
 	opt_xml = 0;
 	opt_log = 0;
@@ -500,6 +502,7 @@ int os_main(int argc, char* argv[])
 	opt_remove = 0;
 	opt_version = 0;
 	opt_help = 0;
+	opt_cfg = 0;
 
 	memset(&option, 0, sizeof(option));
 	memset(&CONTEXT, 0, sizeof(CONTEXT));
@@ -544,34 +547,15 @@ int os_main(int argc, char* argv[])
 	if (hardware_script_init(context->cfg)!=0)
 		goto err_os;
 
-	if (file_config_file_host(ADVANCE_NAME ".rc")!=0) {
-		if (conf_input_file_load_adv(context->cfg, 4, file_config_file_host(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
-			goto err_os;
-		}
-	}
-
-	if (file_config_file_data(ADVANCE_NAME ".rc")!=0) {
-		if (conf_input_file_load_adv(context->cfg, 0, file_config_file_data(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
-			goto err_os;
-		}
-	}
-
-	if (conf_input_file_load_adv(context->cfg, 1, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
-		goto err_os;
-
-	/* check if the configuration file is writable */
-	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)) {
-		context->global.state.is_config_writable = access(file_config_file_home(ADVANCE_NAME ".rc"), W_OK)==0;
-	} else {
-		context->global.state.is_config_writable = access(file_config_file_home("."), W_OK)==0;
-	}
-
 	if (conf_input_args_load(context->cfg, 3, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
 	option.debug_flag = 0;
 	for(i=1;i<argc;++i) {
-		if (target_option_compare(argv[i], "default")) {
+		if (target_option_compare(argv[i], "cfg")) {
+			opt_cfg = argv[i+1];
+			++i;
+		} else if (target_option_compare(argv[i], "default")) {
 			opt_default = 1;
 		} else if (target_option_compare(argv[i], "version")) {
 			opt_version = 1;
@@ -615,6 +599,12 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
+	if (opt_cfg) {
+		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(opt_cfg));
+	} else {
+		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(ADVANCE_NAME ".rc"));
+	}
+
 	if (opt_xml) {
 		mame_print_xml(stdout);
 		goto done_os;
@@ -630,6 +620,35 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
+	if (opt_log || opt_logsync) {
+		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
+			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
+			goto err_os;
+		}
+	}
+
+	if (file_config_file_host(ADVANCE_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(context->cfg, 4, file_config_file_host(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_os;
+		}
+	}
+
+	if (file_config_file_data(ADVANCE_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(context->cfg, 0, file_config_file_data(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_os;
+		}
+	}
+
+	if (conf_input_file_load_adv(context->cfg, 1, cfg_buffer, cfg_buffer, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+		goto err_os;
+
+	/* check if the configuration file is writable */
+	if (access(cfg_buffer, F_OK)) {
+		context->global.state.is_config_writable = access(cfg_buffer, W_OK)==0;
+	} else {
+		context->global.state.is_config_writable = 1;
+	}
+
 	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)!=0) {
 		target_out("Creating a standard configuration file...\n");
 		advance_fileio_default_dir();
@@ -640,7 +659,7 @@ int os_main(int argc, char* argv[])
 		}
 		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 
-		/* set the empty section for reading the default options */
+		/* set the empty section for reading the default options to print */
 		section_map[0] = "";
 		conf_section_set(context->cfg, section_map, 1);
 		target_out("\n");
@@ -670,19 +689,11 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
-	if (opt_log || opt_logsync) {
-		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
-			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
-			goto err_os;
-		}
-	}
-
 	/* setup the config system to search option in the global section. */
 	/* It's used to load option before knowning the effective game loaded. */
 	/* It implies that after the game is know the options may */
 	/* differ because a specific option for the game may be present */
 	/* in the configuration */
-
 	section_map[0] = "";
 	conf_section_set(context->cfg, section_map, 1);
 
@@ -709,10 +720,6 @@ int os_main(int argc, char* argv[])
 
 		option.game = select_lang(lang, option.game);
 	}
-
-	/* set the empty section for reading the software */
-	section_map[0] = "";
-	conf_section_set(context->cfg, section_map, 1);
 
 	/* set the used section */
 	section_mac = 0;
@@ -744,10 +751,13 @@ int os_main(int argc, char* argv[])
 	section_map[section_mac++] = strdup(buffer);
 	section_map[section_mac++] = strdup("");
 	conf_section_set(context->cfg, section_map, section_mac);
-	for(i=0;i<section_mac;++i)
+	for(i=0;i<section_mac;++i) {
 		log_std(("emu: use configuration section '%s'\n", section_map[i]));
+		free(section_map[i]);
+	}
 
 	/* setup the include configuration file */
+	/* it must be after the final conf_section_set() call */
 	if (include_load(context->cfg, 2, conf_string_get_default(context->cfg, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_os;
 	}

@@ -262,7 +262,7 @@ void conf_iterator_remove(adv_conf_iterator* i);
 adv_bool conf_iterator_is_end(const adv_conf_iterator* i);
 const char* conf_iterator_string_get(const adv_conf_iterator* i);
 
-void conf_section_set(adv_conf* context, const char** section_map, unsigned section_mac);
+void conf_section_set(adv_conf* context, char** section_map, unsigned section_mac);
 
 adv_bool conf_bool_get_default(adv_conf* context, const char* tag);
 int conf_int_get_default(adv_conf* context, const char* tag);

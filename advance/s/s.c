@@ -81,7 +81,7 @@ int os_main(int argc, char* argv[])
 	int keyboard_id;
 	adv_conf* context;
 	const char* s;
-        const char* section_map[1];
+        char* section_map[1];
 	const char** file_map;
 	unsigned file_mac;
 	int i;

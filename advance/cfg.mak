@@ -39,7 +39,7 @@ CFGOBJS += \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 CFGCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -77,7 +77,7 @@ CFGOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 CFGCFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
@@ -151,7 +151,7 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/clockchi/icd2061a.o
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 CFGCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows

@@ -148,6 +148,7 @@ static void mouseb_setup(struct mouse_item_context* item)
 adv_error mouseb_raw_init(int mouseb_id)
 {
 	unsigned i;
+	adv_bool eacces = 0;
 
 	log_std(("mouseb:raw: mouseb_raw_init(id:%d)\n", mouseb_id));
 
@@ -181,12 +182,18 @@ adv_error mouseb_raw_init(int mouseb_id)
 			if (errno != ENODEV) {
 				log_std(("ERROR:mouseb:raw: error opening device %s, errno %d (%s)\n", raw_state.map[i].context.dev, errno, strerror(errno)));
 			}
+			if (errno == EACCES) {
+				eacces = 1;
+			}
 			raw_state.map[i].active_flag = 0;
 		}
 	}
 
 	if (raw_state.mac == 0) {
-		error_set("No mouse found.\n");
+		if (eacces)
+			error_set("No mouse found. Check the /dev/mouse and /dev/input/mouse* permissions.\n");
+		else
+			error_set("No mouse found.\n");
 		return -1;
 	}
 

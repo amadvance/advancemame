@@ -22,7 +22,7 @@ KOBJS += \
 	$(KOBJ)/lib/knone.o \
 	$(KOBJ)/lib/error.o
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 KCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -55,7 +55,7 @@ KOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 KCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_KEYBOARD_ALLEGRO

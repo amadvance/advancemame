@@ -279,7 +279,7 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
  		"\t\t\t<!ELEMENT extension EMPTY>\n"
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
 --- srcmess.ori/inptport.c	2004-07-11 14:44:04.000000000 +0200
-+++ srcmess/inptport.c	2004-07-12 19:50:32.000000000 +0200
++++ srcmess/inptport.c	2004-07-24 21:00:50.000000000 +0200
 @@ -184,10 +184,18 @@
  	{ IPT_UI_SHOW_PROFILER,		0, "Show Profiler",		{ SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) } },
  #ifdef MESS
@@ -348,13 +348,14 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2035,11 +2051,11 @@
+@@ -2035,11 +2051,12 @@
  				}
  				else
  				{
  					InputSeq* seq;
  					seq = input_port_seq(in, 0);
 -					if (seq_pressed(seq))
++					/* AdvanceMAME: Filter all the input ports */
 +					if (osd_input_port_filter(seq_pressed(seq), in->type, in->player + 1, 0))
  					{
  #ifdef MESS
@@ -538,6 +539,23 @@ diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
  
  const char *code_name(InputCode code);
  int code_pressed(InputCode code);
+diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
+--- srcmess.ori/mame.c	2004-07-06 01:05:43.000000000 +0200
++++ srcmess/mame.c	2004-07-24 21:00:28.000000000 +0200
+@@ -544,10 +544,13 @@
+ 		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
+ 		{
+ 			/* show info about the game */
+ 			if (options.skip_gameinfo || showgameinfo(artwork_get_ui_bitmap()) == 0)
+ 			{
++				/* AdvanceMAME: Update the video, otherwise with all the skip options the program crash */
++				update_video_and_audio();
++
+ 				init_user_interface();
+ 
+ 				/* enable artwork now */
+ 				artwork_enable(1);
+ 
 diff -U 5 --new-file --recursive srcmess.ori/mamedbg.c srcmess/mamedbg.c
 --- srcmess.ori/mamedbg.c	2004-07-11 14:44:04.000000000 +0200
 +++ srcmess/mamedbg.c	2004-07-12 19:50:32.000000000 +0200
@@ -742,7 +760,7 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
 --- srcmess.ori/usrintrf.c	2004-07-11 14:44:04.000000000 +0200
-+++ srcmess/usrintrf.c	2004-07-12 19:50:32.000000000 +0200
++++ srcmess/usrintrf.c	2004-07-24 20:59:18.000000000 +0200
 @@ -826,10 +826,13 @@
  
  
@@ -1002,27 +1020,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2502,14 +2565,16 @@
- 
- int showgamewarnings(struct mame_bitmap *bitmap)
- {
- 	int i;
- 	char buf[2048];
-+	unsigned mask = GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_NO_SOUND;
- 
--	if (Machine->gamedrv->flags &
--			(GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS |
--			  GAME_NO_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL))
-+	if (!options.skip_gameinfo)
-+		mask |= GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL;
-+
-+	if ((Machine->gamedrv->flags & mask) != 0)
- 	{
- 		int done;
- 
- 		strcpy(buf, ui_getstring (UI_knownproblems));
- 		strcat(buf, "\n\n");
-@@ -2707,10 +2772,13 @@
+@@ -2707,10 +2770,13 @@
  }
  
  /* Display lines from buffer, starting with line 'scroll', in a width x height text window */
@@ -1036,7 +1034,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	const char *uparrow = ui_getstring (UI_uparrow);
  	const char *downarrow = ui_getstring (UI_downarrow);
  	char textcopy[2048];
-@@ -2813,10 +2881,11 @@
+@@ -2813,10 +2879,11 @@
  	}
  
  	dt[curr_dt].text = 0;	/* terminate array */
@@ -1048,7 +1046,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  /* Display text entry for current driver from history.dat and mameinfo.dat. */
  static int displayhistory (struct mame_bitmap *bitmap, int selected)
-@@ -2844,11 +2913,13 @@
+@@ -2844,11 +2911,13 @@
  		{
  			/* try to load entry */
  			if (load_driver_history (Machine->gamedrv, buf, bufsize) == 0)
@@ -1062,7 +1060,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				strcat(buf," ");
  				strcat(buf,ui_getstring (UI_returntomain));
  				strcat(buf," ");
-@@ -3067,16 +3138,16 @@
+@@ -3067,16 +3136,16 @@
  
  
  #ifndef MESS
@@ -1081,7 +1079,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3211,10 +3282,11 @@
+@@ -3211,10 +3280,11 @@
  	}
  #endif
  #endif
@@ -1093,7 +1091,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3279,10 +3351,13 @@
+@@ -3279,10 +3349,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -1107,7 +1105,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  #ifndef MMSND
  			case UI_MEMCARD:
  				res = memcard_menu(bitmap, sel >> SEL_BITS);
-@@ -3333,10 +3408,11 @@
+@@ -3333,10 +3406,11 @@
  			case UI_CATEGORIES:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -1119,7 +1117,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3373,10 +3449,13 @@
+@@ -3373,10 +3447,13 @@
  
  *********************************************************************/
  
@@ -1133,7 +1131,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3398,10 +3477,11 @@
+@@ -3398,10 +3475,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -1145,7 +1143,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3431,17 +3511,17 @@
+@@ -3431,17 +3509,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1165,7 +1163,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3754,10 +3834,13 @@
+@@ -3754,10 +3832,13 @@
  *********************************************************************/
  
  
@@ -1179,7 +1177,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3777,10 +3860,11 @@
+@@ -3777,10 +3858,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -1191,7 +1189,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -3902,10 +3986,11 @@
+@@ -3902,10 +3984,11 @@
  	return show_profiler;
  }
  
@@ -1203,7 +1201,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	int done = 0;
  	int y = 0;
  
-@@ -3943,32 +4028,35 @@
+@@ -3943,32 +4026,35 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1244,7 +1242,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4078,10 +4166,14 @@
+@@ -4078,10 +4164,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1259,7 +1257,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4090,11 +4182,11 @@
+@@ -4090,11 +4180,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1272,7 +1270,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4173,16 +4265,18 @@
+@@ -4173,16 +4263,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);

@@ -94,7 +94,7 @@ MENUOBJS += \
 
 MENULIBS += $(ZLIBS) -lm
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 
 # Dependencies on DATADIR/SYSCONFDIR
 $(MENUOBJ)/linux/file.o: $(srcdir)/Makefile
@@ -222,7 +222,7 @@ MENULIBS += $(FREETYPELIBS)
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MENUCFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
@@ -320,7 +320,7 @@ MENULIBS += $(FREETYPELIBS)
 endif
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 MENUCFLAGS += \
 	-I$(srcdir)/advance/windows \
 	-DUSE_VIDEO_RESTORE -DUSE_VIDEO_NONE \
@@ -519,17 +519,17 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
 	$(DOCOBJ)/install.html
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 MENU_DOC_BIN += \
 	$(DOCOBJ)/cardlinx.txt \
 	$(DOCOBJ)/cardlinx.html
 endif
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MENU_DOC_BIN += \
 	$(DOCOBJ)/carddos.txt \
 	$(DOCOBJ)/carddos.html
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 MENU_DOC_BIN += \
 	$(DOCOBJ)/svgawin.txt \
 	$(DOCOBJ)/cardwin.txt \
@@ -541,7 +541,7 @@ MENU_ROOT_BIN = \
 	$(MENUOBJ)/advmenu$(EXE) \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
 	$(DOCOBJ)/advdev.1 \
@@ -549,13 +549,13 @@ MENU_ROOT_BIN += \
 	$(DOCOBJ)/advcfg.1 \
 	$(CONF_BIN)
 endif
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MENU_ROOT_BIN += \
 	$(srcdir)/support/cwsdpmi.exe \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 MENU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
@@ -636,7 +636,7 @@ distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $
 
 distmenubin: $(MENU_ROOT_BIN) $(MENU_DOC_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
@@ -652,7 +652,7 @@ endif
 	cp $(MENU_DOC_BIN) $(MENU_DIST_DIR_BIN)/doc
 	mkdir $(MENU_DIST_DIR_BIN)/contrib
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_BIN)/contrib
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 	rm -f $(MENU_DIST_FILE_BIN).tar.gz
 	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
 else

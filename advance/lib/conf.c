@@ -1956,7 +1956,7 @@ void conf_sort(adv_conf* context)
  * \param section_map Section vector.
  * \param section_mac Elements in the section vector.
  */
-void conf_section_set(adv_conf* context, const char** section_map, unsigned section_mac)
+void conf_section_set(adv_conf* context, char** section_map, unsigned section_mac)
 {
 	unsigned i;
 

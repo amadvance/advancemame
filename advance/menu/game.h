@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,8 +57,8 @@ enum difficulty_t {
 typedef std::list<std::string> machinedevice_ext_container;
 
 struct machinedevice {
-	machinedevice_ext_container ext_bag; //< List of extension of the device
-	std::string name; //< Name of the device option
+	machinedevice_ext_container ext_bag; ///< List of extension of the device.
+	std::string name; ///< Name of the device option.
 };
 
 typedef std::list<machinedevice> machinedevice_container;
@@ -69,10 +69,9 @@ typedef std::list<machinedevice> machinedevice_container;
 std::string game_name_adjust(const std::string& name);
 
 enum play_t {
-	play_perfect, /// Perfect
-	play_minor, /// Minor problems
-	play_major, /// Major problems
-	play_not /// Unusable
+	play_perfect, ///< Perfect
+	play_imperfect, ///< Minor problems
+	play_preliminary ///< Not usable.
 };
 
 class game;

@@ -709,6 +709,9 @@ static void dir_create(const char* dir)
 	}
 }
 
+/**
+ * Create the default directories.
+ */
 void advance_fileio_default_dir(void)
 {
 	struct fileio_item* i;

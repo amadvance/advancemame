@@ -277,6 +277,11 @@ static adv_error none_load(adv_conf* context)
 	return 0;
 }
 
+void none_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	crtc_container_insert_default_modeline_svga(cc);
+}
+
 /***************************************************************************/
 /* Driver */
 
@@ -340,6 +345,6 @@ adv_video_driver video_none_driver = {
 	none_mode_generate_void,
 	none_mode_import_void,
 	none_mode_compare_void,
-	0
+	none_crtc_container_insert_default
 };
 

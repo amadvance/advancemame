@@ -99,6 +99,7 @@ struct mame_option {
 	char playback_file_buffer[MAME_MAXPATH];
 	char cheat_file_buffer[MAME_MAXPATH];
 	char history_file_buffer[MAME_MAXPATH];
+	char hiscore_file_buffer[MAME_MAXPATH];
 	char info_file_buffer[MAME_MAXPATH];
 	char bios_buffer[MAME_MAXBIOS];
 
@@ -216,8 +217,11 @@ struct mame_digital_map_entry {
 #define IPT_MAME_PORT_EVENT13 (MAME_PORT_INTERNAL + 13)
 #define IPT_MAME_PORT_EVENT14 (MAME_PORT_INTERNAL + 14)
 
-#define MAME_PORT(type, player, keyboard) \
-	(((type) << MAME_PORT_TYPE_SHIFT) | ((player) << MAME_PORT_PLAYER_SHIFT) | ((keyboard) << MAME_PORT_INDEX_SHIFT))
+#define MAME_PORT(type, player, index) \
+	(((type) << MAME_PORT_TYPE_SHIFT) | ((player) << MAME_PORT_PLAYER_SHIFT) | ((index) << MAME_PORT_INDEX_SHIFT))
+
+#define MAME_PORT_UI(type) \
+	MAME_PORT(type, 0, 0)
 
 #define MAME_PORT_PLAYER(type, player) \
 	MAME_PORT(type, player, 0)

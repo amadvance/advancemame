@@ -593,14 +593,8 @@ bool int_init(unsigned size, const string& sound_event_key)
 		int_has_generate = false;
 
 	// add modes if the list is empty and no generation is possibile
-	if (!int_has_generate
-		&& crtc_container_is_empty(&int_modelines)) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
-			crtc_container_insert_default_modeline_svga(&int_modelines);
-			crtc_container_insert_default_modeline_vga(&int_modelines);
-		} else {
-			crtc_container_insert_default_active(&int_modelines);
-		}
+	if (!int_has_generate && crtc_container_is_empty(&int_modelines)) {
+		crtc_container_insert_default_active(&int_modelines);
 	}
 
 	// check if the video driver has a default bit depth

@@ -579,9 +579,8 @@ void run_clone(config_state& rs)
 			s << (*j)->description_get() << ", " << (*j)->manufacturer_get() << ", " << (*j)->year_get();
 
 			switch ((*j)->play_get()) {
-			case play_minor : s << " [with minor problems]"; break;
-			case play_major : s << " [not working]"; break;
-			case play_not : s << " [not working]"; break;
+			case play_imperfect : s << " [imperfect]"; break;
+			case play_preliminary : s << " [preliminary]"; break;
 			default: break;
 			}
 

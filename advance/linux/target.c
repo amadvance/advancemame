@@ -382,7 +382,13 @@ void target_sound_signal(void)
 
 adv_error target_apm_shutdown(void)
 {
-	system("/sbin/poweroff");
+	int r;
+
+	r = system("/sbin/poweroff");
+
+	if (!WIFEXITED(r) || WEXITSTATUS(r) != 0)
+		return -1;
+
 	return 0;
 }
 
@@ -430,7 +436,7 @@ adv_error target_script(const char* script)
 
 	r = system(file);
 
-	log_std(("linux: return %d\n", r));
+	log_std(("linux: system(script) return %d\n", r));
 
 	remove(file); /* ignore error */
 
@@ -439,9 +445,15 @@ adv_error target_script(const char* script)
 
 adv_error target_system(const char* cmd)
 {
+	int r;
+
 	log_std(("linux: system %s\n", cmd));
 
-	return system(cmd);
+	r = system(cmd);
+
+	log_std(("linux: system(%s) return %d\n", cmd, r));
+
+	return r;
 }
 
 adv_error target_spawn(const char* file, const char** argv)

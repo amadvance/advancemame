@@ -62,6 +62,8 @@ struct hardware_script_state {
 	char info_manufacturer_buffer[256];
 	char info_year_buffer[256];
 	char info_throttle_buffer[256];
+
+	unsigned seed; /**< Random seed. */
 };
 
 static struct hardware_script_state STATE;
@@ -242,6 +244,15 @@ static struct script_value* script_function2_get(struct script_value* varg0, uni
 	case 1 : /* get */
 		r = script_port_read(arg0);
 		break;
+	case 4 : /* rand */
+		if (arg0 > 0) {
+			/* use an internal pseudo random number generator */
+			STATE.seed = STATE.seed * 1103515245 + 12345;
+			r = (STATE.seed / 65536) % arg0;
+		} else {
+			r = 0;
+		}
+		break;
 	default :
 		r = 0;
 		break;
@@ -377,6 +388,9 @@ script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script
 	} else if (strcmp(sym, "msg")==0) {
 		argextra->value = 3;
 		return &script_function2t_get;
+	} else if (strcmp(sym, "rand")==0) {
+		argextra->value = 4;
+		return &script_function2_get;
 	}
 	return 0;
 }
@@ -454,6 +468,8 @@ int hardware_script_init(adv_conf* context)
 	STATE.info_manufacturer_buffer[0] = 0;
 	STATE.info_year_buffer[0] = 0;
 	STATE.info_throttle_buffer[0] = 0;
+
+	STATE.seed = time(0);
 
 	return 0;
 }

@@ -84,7 +84,7 @@ void os_signal(int signum, void* info, void* context)
 int os_main(int argc, char* argv[])
 {
 	adv_conf* context;
-        const char* section_map[1];
+	char* section_map[1];
 
 	context = conf_init();
 

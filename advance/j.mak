@@ -21,7 +21,7 @@ JOBJS += \
 	$(JOBJ)/lib/jnone.o \
 	$(JOBJ)/lib/error.o
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 JCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -65,7 +65,7 @@ JOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 JCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
@@ -87,7 +87,7 @@ JOBJS += \
 	$(JOBJ)/dos/jalleg.o
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 JCFLAGS += \
 	-I$(srcdir)/advance/windows
 JOBJDIRS += \

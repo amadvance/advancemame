@@ -47,7 +47,7 @@ adv_bitmap* adv_bitmap_alloc(unsigned width, unsigned height, unsigned bit)
 	bmp->size_y = height;
 	bmp->bytes_per_pixel = (bit + 7) / 8;
 	bmp->bytes_per_scanline = (bmp->size_x * bmp->bytes_per_pixel + 3) & ~0x3;
-	bmp->heap = malloc( bmp->bytes_per_scanline * bmp->size_y );
+	bmp->heap = malloc(bmp->bytes_per_scanline * bmp->size_y);
 	if (!bmp->heap) {
 		free(bmp);
 		return 0;
@@ -86,6 +86,22 @@ adv_bitmap* adv_bitmap_dup(adv_bitmap* bmp)
 		memcpy(adv_bitmap_line(r, i), adv_bitmap_line(bmp, i), r->size_x * r->bytes_per_pixel);
 
 	return r;
+}
+
+/**
+ * Move a bitmap.
+ * The destination bitmap will own the src bitmap.
+ * The src bitmap is freed.
+ * \param dst Where to move the bitmap. It mut be a valid allocated bitmap.
+ * \param src Source bitmap. Unusable after this call.
+ */
+void adv_bitmap_move(adv_bitmap* dst, adv_bitmap* src)
+{
+	free(dst->heap);
+
+	*dst = *src;
+
+	free(src);
 }
 
 /**
@@ -187,89 +203,87 @@ unsigned adv_orientation_rev(unsigned orientation_mask)
 void adv_bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask)
 {
 	if (orientation_mask & ADV_ORIENTATION_FLIP_XY) {
-		adv_bitmap* newbmp;
+		adv_bitmap* rotated;
+		unsigned size_x;
+		unsigned size_y;
+		unsigned src_bytes_per_scanline;
+		unsigned dst_bytes_per_scanline;
+		uint8* src;
+		uint8* dst;
 
 		/* new ptr */
-		newbmp = adv_bitmap_alloc(bmp->size_y, bmp->size_x, bmp->bytes_per_pixel * 8);
-		assert( newbmp );
+		rotated = adv_bitmap_alloc(bmp->size_y, bmp->size_x, bmp->bytes_per_pixel * 8);
 
-		{
-			unsigned size_x = newbmp->size_x;
-			unsigned size_y = newbmp->size_y;
-			unsigned src_bytes_per_scanline = bmp->bytes_per_scanline;
-			unsigned dst_bytes_per_scanline = newbmp->bytes_per_scanline;
-			uint8* src = (uint8*)bmp->ptr;
-			uint8* dst = (uint8*)newbmp->ptr;
+		size_x = rotated->size_x;
+		size_y = rotated->size_y;
+		src_bytes_per_scanline = bmp->bytes_per_scanline;
+		dst_bytes_per_scanline = rotated->bytes_per_scanline;
+		src = (uint8*)bmp->ptr;
+		dst = (uint8*)rotated->ptr;
 
-			if (bmp->bytes_per_pixel == 1) {
-				unsigned y;
-				for(y=0;y<size_y;++y) {
-					uint8* srcline = src;
-					uint8* dstline = dst;
-					unsigned x;
-					for(x=0;x<size_x;++x) {
-						*dstline = *srcline;
-						dstline += 1;
-						srcline += src_bytes_per_scanline;
-					}
-					dst += dst_bytes_per_scanline;
-					src += 1;
+		if (bmp->bytes_per_pixel == 1) {
+			unsigned y;
+			for(y=0;y<size_y;++y) {
+				uint8* srcline = src;
+				uint8* dstline = dst;
+				unsigned x;
+				for(x=0;x<size_x;++x) {
+					*dstline = *srcline;
+					dstline += 1;
+					srcline += src_bytes_per_scanline;
 				}
-			} else if (bmp->bytes_per_pixel == 2) {
-				unsigned y;
-				for(y=0;y<size_y;++y) {
-					uint8* srcline = src;
-					uint8* dstline = dst;
-					unsigned x;
-					for(x=0;x<size_x;++x) {
-						dstline[0] = srcline[0];
-						dstline[1] = srcline[1];
-						dstline += 2;
-						srcline += src_bytes_per_scanline;
-					}
-					dst += dst_bytes_per_scanline;
-					src += 2;
+				dst += dst_bytes_per_scanline;
+				src += 1;
+			}
+		} else if (bmp->bytes_per_pixel == 2) {
+			unsigned y;
+			for(y=0;y<size_y;++y) {
+				uint8* srcline = src;
+				uint8* dstline = dst;
+				unsigned x;
+				for(x=0;x<size_x;++x) {
+					dstline[0] = srcline[0];
+					dstline[1] = srcline[1];
+					dstline += 2;
+					srcline += src_bytes_per_scanline;
 				}
-			} else if (bmp->bytes_per_pixel == 3) {
-				unsigned y;
-				for(y=0;y<size_y;++y) {
-					uint8* srcline = src;
-					uint8* dstline = dst;
-					unsigned x;
-					for(x=0;x<size_x;++x) {
-						dstline[0] = srcline[0];
-						dstline[1] = srcline[1];
-						dstline[2] = srcline[2];
-						dstline += 3;
-						srcline += src_bytes_per_scanline;
-					}
-					dst += dst_bytes_per_scanline;
-					src += 3;
+				dst += dst_bytes_per_scanline;
+				src += 2;
+			}
+		} else if (bmp->bytes_per_pixel == 3) {
+			unsigned y;
+			for(y=0;y<size_y;++y) {
+				uint8* srcline = src;
+				uint8* dstline = dst;
+				unsigned x;
+				for(x=0;x<size_x;++x) {
+					dstline[0] = srcline[0];
+					dstline[1] = srcline[1];
+					dstline[2] = srcline[2];
+					dstline += 3;
+					srcline += src_bytes_per_scanline;
 				}
-			} else if (bmp->bytes_per_pixel == 4) {
-				unsigned y;
-				for(y=0;y<size_y;++y) {
-					uint8* srcline = src;
-					uint8* dstline = dst;
-					unsigned x;
-					for(x=0;x<size_x;++x) {
-						/* dstline and srcline are always aligned at 4 bytes */
-						*(uint32*)dstline = *(uint32*)srcline;
-						dstline += 4;
-						srcline += src_bytes_per_scanline;
-					}
-					dst += dst_bytes_per_scanline;
-					src += 4;
+				dst += dst_bytes_per_scanline;
+				src += 3;
+			}
+		} else if (bmp->bytes_per_pixel == 4) {
+			unsigned y;
+			for(y=0;y<size_y;++y) {
+				uint8* srcline = src;
+				uint8* dstline = dst;
+				unsigned x;
+				for(x=0;x<size_x;++x) {
+					/* dstline and srcline are always aligned at 4 bytes */
+					*(uint32*)dstline = *(uint32*)srcline;
+					dstline += 4;
+					srcline += src_bytes_per_scanline;
 				}
+				dst += dst_bytes_per_scanline;
+				src += 4;
 			}
 		}
 
-		/* copy */
-		free(bmp->heap);
-		*bmp = *newbmp;
-		newbmp->heap = 0;
-		newbmp->ptr = 0;
-		adv_bitmap_free(newbmp);
+		adv_bitmap_move(bmp, rotated);
 	}
 
 	if (orientation_mask & ADV_ORIENTATION_FLIP_Y) {
@@ -1192,6 +1206,8 @@ adv_bitmap* adv_bitmap_load_png(adv_color_rgb* rgb_map, unsigned* rgb_max, adv_f
 
 	if (pal_ptr) {
 		bmp = adv_bitmap_import_palette(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+
+		free(pal_ptr);
 	} else {
 		*rgb_max = 0;
 		bmp = adv_bitmap_import_rgb(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline);

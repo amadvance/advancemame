@@ -21,7 +21,7 @@ IOBJS += \
 	$(IOBJ)/lib/inone.o \
 	$(IOBJ)/lib/error.o
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 ICFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -39,7 +39,7 @@ IOBJS += \
 	$(IOBJ)/linux/itty.o
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 ICFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_INPUT_DOS -DUSE_INPUT_NONE

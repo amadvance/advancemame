@@ -142,7 +142,7 @@ void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap)
 	if (i>=ADV_FONT_MAX)
 		return;
 
-	if (font->data[i] && font->data[i] != &null_char) {
+	if (font->data[i] != 0 && font->data[i] != &null_char) {
 		adv_bitmap_free(font->data[i]);
 	}
 
@@ -175,7 +175,7 @@ void adv_font_free(adv_font* font)
 	if (font) {
 		int i;
 		for(i=0;i<ADV_FONT_MAX;++i) {
-			if (font->data[i] && font->data[i] != &null_char) {
+			if (font->data[i] != 0 && font->data[i] != &null_char) {
 				adv_bitmap_free(font->data[i]);
 			}
 		}
@@ -842,7 +842,7 @@ int adv_font_set(adv_font* font)
 
 	adv_font_data = (uint8*)malloc(ADV_FONT_MAX * adv_font_dy);
 	for(i=0;i<ADV_FONT_MAX;++i) {
-		if (font->data[i]) {
+		if (font->data[i] != 0) {
 			unsigned y;
 			for(y=0;y<adv_font_dy;++y) {
 				unsigned x;
@@ -880,7 +880,7 @@ void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 	if (orientation_mask) {
 		unsigned i;
 		for(i=0;i<ADV_FONT_MAX;++i) {
-			if (font->data[i])
+			if (font->data[i] != 0 && font->data[i] != &null_char)
 				adv_bitmap_orientation(font->data[i], orientation_mask);
 		}
 	}
@@ -1060,7 +1060,7 @@ void adv_font_scale(adv_font* font, unsigned fx, unsigned fy)
 	unsigned i;
 
 	for(i=0;i<ADV_FONT_MAX;++i) {
-		if (font->data[i] && font->data[i] != &null_char) {
+		if (font->data[i] != 0 && font->data[i] != &null_char) {
 			adv_bitmap* bitmap;
 
 			bitmap = adv_bitmap_resize(font->data[i], 0, 0, font->data[i]->size_x, font->data[i]->size_y, font->data[i]->size_x*fx, font->data[i]->size_y*fy, 0);

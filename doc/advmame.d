@@ -1,18 +1,20 @@
-fName
+Name
 	advmame, advmess - The AdvanceMAME/MESS Emulator
 
 Synopsis
-	:advmame GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
-	:	[-record FILE] [-playback FILE] [-version] [-help]
+	:advmame GAME [-default] [-remove] [-cfg FILE]
+	:	[-log] [-listxml] [-record FILE] [-playback FILE]
+	:	[-version] [-help]
 
-	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
-	:	[-listxml] [-record FILE] [-playback FILE] [-version] [-help]
+	:advmess MACHINE [images...] [-default] [-remove] [-cfg FILE]
+	:	[-log] [-listxml] [-record FILE] [-playback FILE]
+	:	[-version] [-help]
 
 Description
-	AdvanceMAME is an unofficial MAME version for GNU/Linux, Mac OS X, DOS
-	and Windows with an advanced video support for helping the use with
-	TVs, Arcade Monitors, Fixed Frequencies Monitors and also with normal
-	PC Monitors.
+	AdvanceMAME is an unofficial MAME version for GNU/Linux, Mac OS
+	X, DOS and Windows with an advanced video support for helping the
+	use with TVs, Arcade Monitors, Fixed Frequencies Monitors and
+	also with normal PC Monitors.
 
 	The major features are:
 
@@ -23,8 +25,8 @@ Description
 	* Support for 8, 15, 16 and 32 bits video modes.
 	* Real hardware scanlines.
 	* Software video image stretching by fractional factors, for
-		example to play vertical games like "Pac-Man" with horizontal
-		Arcade Monitors or TVs.
+		example to play vertical games like "Pac-Man" with
+		horizontal Arcade Monitors or TVs.
 	* Special `scale', `lq' and `hq' effects to improve the aspect
 		with modern PC Monitors.
 	* Special `blit' effects to improve the image quality in
@@ -49,12 +51,15 @@ Keys
 
 		ESC - Exit.
 		F1 - Help.
-		F2 - Reset the game.
-		F7 - Load a save game.
-		F8 - Previous frame skip value.
-		F9 - Next frame skip value or automatic frame skip.
-		F10 - Throttle.
-		F11 - Display frame per second.
+		TAB - Main Menu.
+		F2 - Test/Service Switch.
+		F3 - Reset the game.
+		F7 - Load a game state.
+		SHIFT + F7 - Save a gam state.
+		F8 - Decrease the frame skip value.
+		F9 - Increase the frame skip value.
+		F10 - Speed throttle.
+		F11 - Display the frame per second.
 		F12 - Save a snapshot.
 		P - Pause.
 		PAD * - Turbo mode until pressed.
@@ -65,7 +70,6 @@ Keys
 		, - Previous video mode.
 		. - Next video mode.
 		TILDE - Volume Menu.
-		TAB - Main Menu.
 
 	for player 1 you can use the keys:
 
@@ -85,6 +89,12 @@ Keys
 		S - Second button.
 		Q - Third button.
 
+	for AdvanceMESS are available also the following keys:
+
+		ScrollLock - Switch to partial keyboard emulation
+			which lets you use keys like TAB, ALT and
+			CTRL.
+
 Options
 	This is the list of the available command line options:
 
@@ -100,6 +110,11 @@ Options
 	-remove
 		Remove from the configuration file all the options
 		with default values.
+
+	-cfg FILE
+		Select an alternate configuration file. In Linux and Mac
+		OS X the you can prefix the file name with "./" to
+		load it from the current directory.
 
 	-log
 		A very detailed log of operations is saved in
@@ -384,8 +399,6 @@ Features
 	in internet to display arbitrary information on a real or simulated
 	LCD display.
 
-
-
 Use Cases
 	This section describes some useful cases for AdvanceMAME
 	on different video hardware.
@@ -565,6 +578,8 @@ Configuration
 		:horizontal/display_ror no
 
   Software Configuration Options
+	This section describes the options used to customize the
+	software loaded by system emulated.
 
     dev_*
 	Loads a specific device for the AdvanceMESS emulator. These
@@ -594,6 +609,8 @@ Configuration
 		:advmess ti99_4a -cart alpinerc.bin -cart alpinerg.bin
 
   Directory Configuration Options
+	This section describes the options used to customize the
+	directories used by the program.
 
     dir_*
 	Specify all the support directories. In DOS and Windows use the `;'
@@ -607,7 +624,7 @@ Configuration
 			AdvanceMAME `rom' files and AdvanceMESS `bios'
 			files.
 		dir_image - Multi directory specification for the
-			disk/cartdrige/... image files.
+			chd/disk/cartdrige/... image files.
 		dir_diff - Multi directory specification for the
 			disk image differential files.
 		dir_sample - Multi directory specification for the
@@ -664,24 +681,25 @@ Configuration
 	* DIR/GAME.zip/ROM.EXT
 	* DIR/GAME/ROM.zip/ROM
 
-	Where DIR is every directories specified, GAME is the name of
-	the game or machine emulated, ROM if the rom name, EXT if the
-	rom extension.
+	Where DIR is substituted with the directories specified, GAME
+	is the name of the game or machine emulated, ROM is the rom
+	name and EXT is the rom extension.
 
 	For the files searched in the `dir_image' option you can also
-	specify a different zip name dividing the zip name without
-	the extension from the file name with the `=' char.
+	specify a different zip name prefixing the rom name
+	with the zip name without extension and the `=' char.
 	For example to run the `ti99_4a' emulator and load the
-	cartdriges `crom.bin' and `grom.bin' both contained in
+	cartdriges `alpinerc.bin' and `alpinerg.bin' both contained in
 	the zip file `alpiner.zip' you can use this syntax:
 
 		:advmess ti99_4a -cart alpiner=alpinerc.bin -cart alpiner=alpinerg.bin
 
 	This feature is used automatically by AdvanceMENU to correctly
-	open software in zip files.
+	run AdvanceMESS software in zip files.
 
   Display Configuration Options
-	This section describes the options used to customize the display.
+	This section describes the options used to customize the
+	display.
   
     device_video_*
 	These options are used to customize the video drivers.
@@ -1056,7 +1074,7 @@ Configuration
 		even - Swap the even rows.
 		odd - Swap the odd rows.
 		filter - Apply a vertical filter.
-		
+
 	If your monitor uses a swapped order for interlaced rows, using the 
 	`even' or `odd' effect you can probably fix the image.
 
@@ -1791,15 +1809,13 @@ Configuration
 	game time as startup time. The default `startup' key
 	is `minus_pad'.
 
-	:sync_startuptime auto | TIME
+	:sync_startuptime auto | none | TIME
 
 	Options:
 		auto - Use an internal table to select the
 			startup time from the game name (default).
-			On the unknown game the used value is 0.
+		none - Disable the startup.
 		TIME - Time in seconds.
-
-	Use 0 seconds to disable the startup turbo effect.
 
 	With the `ui_speedmark' option you can enable a visual mark
 	of the current startup state.
@@ -1982,10 +1998,10 @@ Configuration
 	:misc_timetorun SECONDS
 
   Support Files Configuration Options
-	The AdvanceMAME emulator needs also some support files:
+	The AdvanceMAME emulator can use also some support files:
 
-		cheat.dat - Cheat database.
 		event.dat - The Event and Safequit database.
+		cheat.dat - Cheat database.
 		history.dat - Game history database.
 		hiscore.dat - Highscore database.
 		mameinfo.dat - MAME info database.
@@ -2026,13 +2042,22 @@ Configuration
 	Options:
 		FILE - Language file to load (default english.lng).
 
+    misc_hiscorefile
+	Selects the hiscore file.
+
+	:misc_hiscorefile FILE
+
+	Options:
+		FILE - High score file to load (default hiscore.dat).
+
     misc_historyfile
 	Selects the history file.
 
 	:misc_historyfile FILE
 
 	Options:
-		FILE - History file to load (default history.dat).
+		FILE - History file to load (default history.dat
+			or sysinfo.dat for MESS).
 
     misc_infofile
 	Selects the info file.
@@ -2040,7 +2065,8 @@ Configuration
 	:misc_infofile FILE
 
 	Options:
-		FILE - Info file to load (default mameinfo.dat).
+		FILE - Info file to load (default mameinfo.dat
+			or messinfo.dat for MESS).
 
     misc_safequit
 	Activates safe quit mode. If enabled, to stop the

@@ -373,7 +373,7 @@ int os_inner_init(const char* title)
 #ifdef USE_LSB
 	log_std(("os: compiled little endian system\n"));
 #else
-	log_std(("os: compiled big endian system\n"));
+	#error DOS version cannot be big endian
 #endif
 
 	ticker_setup();

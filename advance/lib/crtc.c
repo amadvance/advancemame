@@ -352,7 +352,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 	double best_factor = 0;
 	unsigned best_vtotal = 0;
 
-        if ((adjust & CRTC_ADJUST_EXACT) != 0) {
+	if ((adjust & CRTC_ADJUST_EXACT) != 0) {
 		/* exact match */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			if (crtc_find_exact(*req_vtotal, *req_vclock, monitor)==0) {

@@ -115,6 +115,8 @@ Functions
 		msg(VALUE) - Print on screen a value.
 		lcd(ROW, VALUE) - Display a value on the LCD at the
 			specified row. The first row is 0.
+		rand(N) - Generate a random number from 0
+			to N - 1.
 
 	The 'event()' command can be used to determine the end of the event
 	that started the script. For example for the 'coin1' event the

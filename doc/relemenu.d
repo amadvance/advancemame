@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.3.0
+	This release changes the manual compilation process in DOS
+	and Windows. You must now use the Makefile.usr file instead of
+	the old Makefile.in file. Check the build.txt file for more details.
+
 AdvanceMENU 2.2.14
 	This release removes the legacy support for the DOS
 	unchained VGA modes and for the banked VBE modes. It means

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,35 +187,9 @@ static void process_driverstatus(struct state_t* state, enum token_t t, const ch
 		}
 		string v = string(s, len);
 		if (v == "preliminary")
-			state->g->play_set(play_not);
-	}
-}
-
-static void process_drivercolor(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
-{
-	if (t == token_data) {
-		if (!state->g) {
-			process_error(state, 0, "invalid state");
-			return;
-		}
-		string v = string(s, len);
-		if (v == "preliminary")
-			if (state->g->play_get() < play_major)
-				state->g->play_set(play_major);
-	}
-}
-
-static void process_driversound(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
-{
-	if (t == token_data) {
-		if (!state->g) {
-			process_error(state, 0, "invalid state");
-			return;
-		}
-		string v = string(s, len);
-		if (v == "preliminary")
-			if (state->g->play_get() < play_minor)
-				state->g->play_set(play_minor);
+			state->g->play_set(play_preliminary);
+		if (v == "imperfect" && state->g->play_get() < play_imperfect)
+			state->g->play_set(play_imperfect);
 	}
 }
 
@@ -396,8 +370,6 @@ static struct conversion_t CONV3[] = {
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size", 0 }, process_romsize },
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "name", 0 }, process_devicename },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
-	{ 3, { match_mamemessraine, match_gamemachine, "driver", "color", 0 }, process_drivercolor },
-	{ 3, { match_mamemessraine, match_gamemachine, "driver", "sound", 0 }, process_driversound },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen", 0 }, process_videoscreen },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation", 0 }, process_videoorientation },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "width", 0 }, process_videowidth },
@@ -463,7 +435,11 @@ static void end_handler(void* data, const XML_Char* name)
 	if (state->depth < DEPTH_MAX) {
 		if (state->error == 0) {
 			if (state->level[state->depth].process) {
-				state->level[state->depth].process(state, token_data, state->level[state->depth].data, state->level[state->depth].len, 0);
+				if (state->level[state->depth].data != 0) {
+					state->level[state->depth].process(state, token_data, state->level[state->depth].data, state->level[state->depth].len, 0);
+				} else {
+					state->level[state->depth].process(state, token_data, "", 0, 0);
+				}
 				state->level[state->depth].process(state, token_close, 0, 0, 0);
 			}
 		}
@@ -554,7 +530,7 @@ bool mame_info::load_xml(istream& is, game_set& gar)
 	XML_SetCharacterDataHandler(state.parser, data_handler);
 
 	while (1) {
-		int done;
+		bool done;
 		int len;
 
 		is.read(buf, sizeof(buf));
@@ -584,3 +560,4 @@ bool mame_info::load_xml(istream& is, game_set& gar)
 
 	return true;
 }
+

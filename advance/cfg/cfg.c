@@ -1454,7 +1454,7 @@ int os_main(int argc, char* argv[]) {
 	const char* opt_rc;
 	adv_bool opt_log;
 	adv_bool opt_logsync;
-	const char* section_map[1];
+	char* section_map[1];
 	unsigned j;
 	adv_conf* config = 0;
 	unsigned bit_flag;
@@ -1626,7 +1626,7 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	/* insert modes */
-	crtc_container_insert_default_active(&mode_unsorted);
+	crtc_container_insert_default_all(&mode_unsorted);
 
 	crtc_container_init(&mode);
 	for(crtc_container_iterator_begin(&i, &mode_unsorted);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {

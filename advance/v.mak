@@ -35,8 +35,9 @@ VOBJDIRS += \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit
+VLIBS += -lm
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_SYSTEM),unix)
 VCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
@@ -73,7 +74,7 @@ VOBJS += \
 endif
 endif
 
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 VCFLAGS += \
 	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
@@ -147,7 +148,7 @@ VOBJS += \
 	$(VOBJ)/svgalib/clockchi/icd2061a.o
 endif
 
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 VCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows

@@ -1,8 +1,8 @@
 Name
 	device drivers - The Advance device drivers
 
-	This file describes the video, sound, joystick, mouse and keyboard
-	drivers used by the Advance programs.
+	This file describes the video, sound, joystick, mouse
+	and keyboard drivers used by the Advance programs.
 
 SubSubIndex
 
@@ -18,28 +18,29 @@ Video Drivers
 	to always generate a perfect video mode with the correct size
 	and frequency.
 
-	They always work in `fullscreen' output mode and generally support 
-	only a subset of video boards.
+	They always work in `fullscreen' output mode and generally
+	support only a subset of video boards.
 
-	To function correctly these drivers require a correct configuration
-	of the `device_video_*' options.
+	To function correctly these drivers require a correct
+	configuration of the `device_video_*' options.
 
 	The `Generate' drivers are always the preferred choice.
 
     System drivers
-	This set of drivers is able to use only the video modes available
-	on the operating system.
+	This set of drivers is able to use only the video modes
+	available on the operating system.
 
-	They can work in `fullscreen' mode, `window' mode and `zoom' output mode
-	using the video board hardware acceleration to stretch the image.
-	The default output mode is `window' if you run the program in a window
-	manager, otherwise the output mode `fullscreen' is chosen.
+	They can work in `fullscreen' mode, `window' mode and `zoom'
+	output mode using the video board hardware acceleration to
+	stretch the image. The default output mode is `window' if you
+	run the program in a window manager, otherwise the output
+	mode `fullscreen' is chosen.
 
-	Please note that these drivers generally need to stretch the image
-	losing a lot in image quality and speed.
+	Please note that these drivers generally need to stretch the
+	image losing a lot in image quality and speed.
 
-	These drivers don't require any `device_video_*' options because they
-	cannot control how the video modes are generated.
+	These drivers don't require any `device_video_*' options
+	because they cannot control how the video modes are generated.
 
   Available Generate Drivers
 	The following is the list of all the video drivers supported.
@@ -73,12 +74,19 @@ Video Drivers
 
 	All clocks, all RGB bit depths are available.
 
-	This driver is able to use the Linux fb API to synchronize with
-	the vertical sync of the video mode, but generally it isn't possible
-	because the low-end drivers don't support this feature.
-	Anyway, if you run the program as root it can use the standard VGA
-	registers to detect the vsync.
+	This driver is able to use the Linux fb API to synchronize
+	with the vertical sync of the video mode, but generally
+	it isn't possible because the low-end drivers don't support
+	this feature. Anyway, if you run the program as root it can
+	use the standard VGA registers to detect the vsync.
 	This is the major limitation compared with the svgalib driver.
+
+	To allow any user to run the program as root, you can
+	use the following commands to change the executable
+	permissions:
+
+		:chown root:root /usr/local/bin/advmame
+		:chmod u+s /usr/local/bin/advmame
 
 	To use this driver you must activate the Console Frame Buffer
 	support in your Linux kernel.
@@ -160,8 +168,9 @@ Video Drivers
 	To use this driver you need to install the included SVGAWIN
 	driver. Please read the `svgawin.txt' file carefully.
 
-	This driver is experimental. At present it's only tested on Windows
-	2000 with a GeForce 2 board. It may not work will all the other boards.
+	This driver is experimental. At present it's only tested on
+	Windows 2000 with a GeForce 2 board. It may not work will
+	all the other boards.
 
   Available System Drivers
 	The following is the list of all the System video drivers supported.
@@ -171,9 +180,10 @@ Video Drivers
 	use video modes reported by the SDL graphics library.
 
 	It supports all RGB/YUY2 bit depths available.
-	The output in the YUY2 modes is generally accelerated, and can be used
-        to scale the video output to an arbitrary size. You can enable this
-	feature with the `-device_video_output overlay' option.
+	The output in the YUY2 modes is generally accelerated, and can
+	be used to scale the video output to an arbitrary size.
+	You can enable this feature with the `-device_video_output overlay'
+	option.
 
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
@@ -239,16 +249,16 @@ Input Drivers
 
 	It supports more than one keyboard at the same time.
 
-    svgalib - SVGALIB keyboard (Linux)
-	This driver works in Linux and it uses the SVGALIB library.
+    raw - Kernel keyboard (Linux)
+	This driver works in Linux and it uses directly the Linux kernel
+	keyboard interface.
 
 	It supports only one keyboard.
 
 	You can change console with ALT+Fx and break the program with CTRL+C.
 
-    raw - Kernel keyboard (Linux)
-	This driver works in Linux and it uses directly the Linux kernel
-	keyboard interface.
+    svgalib - SVGALIB keyboard (Linux)
+	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports only one keyboard.
 
@@ -291,23 +301,12 @@ Input Drivers
 
 	It can also be used with some custom devices connected at the
 	Parallel Port. Details on how to build these custom interfaces are
-	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
+	in the file:///usr/src/linux/Documentation/input/joystick-parport.txt file.
 
 	It has a special support for the ACT Light-gun to fix the wrong
 	behavior of the light-gun when shooting out of screen.
 
 	The joysticks are searched on the /dev/input/eventX devices.
-
-	If you have a gameport joystick, the Linux Kernel Joystick driver
-	may prevent a correct video vsync if the joystick polling is too slow.
-	Generally it results in a missing frame every 5-10 seconds.
-
-    svgalib - SVGALIB joystick (Linux)
-	This driver works in Linux and it uses the SVGALIB library.
-
-	It supports up to 4 joysticks at the same time.
-
-	The joysticks are searched on the /dev/jsX devices.
 
 	If you have a gameport joystick, the Linux Kernel Joystick driver
 	may prevent a correct video vsync if the joystick polling is too slow.
@@ -320,6 +319,17 @@ Input Drivers
 	It supports up to 4 joysticks at the same time.
 
 	The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
+
+	If you have a gameport joystick, the Linux Kernel Joystick driver
+	may prevent a correct video vsync if the joystick polling is too slow.
+	Generally it results in a missing frame every 5-10 seconds.
+
+    svgalib - SVGALIB joystick (Linux)
+	This driver works in Linux and it uses the SVGALIB library.
+
+	It supports up to 4 joysticks at the same time.
+
+	The joysticks are searched on the /dev/jsX devices.
 
 	If you have a gameport joystick, the Linux Kernel Joystick driver
 	may prevent a correct video vsync if the joystick polling is too slow.
@@ -354,7 +364,25 @@ Input Drivers
 	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
 
+	For serial mouse you must use the `inputattach' system
+	utility to attach the serial line at the event interface.
+	Generally this utility is available in the joystick
+	calibration package of your distribution. In this case it's
+	probably simpler to use the `raw' mouse driver.
+
 	The mice are searched on the /dev/input/eventX devices.
+
+    raw - Serial mouse (Linux)
+	This driver works in Linux and it communicates directly with
+	the configured serial mice. It's also support USB mice
+	using the Linux mousedev module which maps mice to the
+	/dev/input/mouseX devices.
+
+	It supports more than one mouse at the same time.
+
+	To use this driver you need to configure correctly the
+	device_raw_* options to specify the mouse types and the mouse
+	devices.
 
     svgalib - SVGALIB mouse (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
@@ -363,17 +391,6 @@ Input Drivers
 
 	To use this driver you need to configure correctly the
 	SVGALIB mouse support in the file /etc/vga/libvga.config file.
-
-    raw - Serial mouse (Linux)
-	This driver works in Linux and it communicates directly with
-	the configured serial mice. It's also support USB mice
-	using the Linux mousedev module.
-
-	It supports up to 4 mice at the same time.
-
-	To use this driver you need to configure correctly the
-	device_raw_* options to specify the mouse types and the mouse
-	devices.
 
     sdl - SDL mouse (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
@@ -1059,7 +1076,7 @@ Input Drivers Configuration
 	imps2 or exps2.
 
 	Examples:
-		:device_raw_mousetype[0] ms3
+		:device_raw_mousetype[0] ps2
 		:device_raw_mousetype[1] ms
 
     device_raw_mousedev[0,1,2,3]

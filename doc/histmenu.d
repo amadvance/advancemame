@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.7 2004/07
+	) Fixed a Mac OS X crash problem with XML files with
+		empty items.
+	) Only the XML driver.status entry is now used to recognize
+		the game emulation status. Game not marked as
+		"preliminary" are considered working games.
+
 AdvanceMENU Version 2.3.6 2004/07
 	) Removed the copyright message box at startup.
 	) On Linux you can now specify relative directories

@@ -177,7 +177,7 @@ Requirements
   Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 (or newer)
+		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.4 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:zlib 1.1.4 (or newer)
 
@@ -188,9 +188,8 @@ Requirements
 		:S-Lang 1.4.3 (or newer)
 		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.3.
-	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
-	Other versions should work.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.4.
+	The versions 2.96.x, 3.0.x don't work. Other versions should work.
 
 	The SVGALIB 1.4.x versions are NOT supported. Download the latest
 	ALPHA 1.9.x or 2.0.x version from http://www.svgalib.org/.
@@ -230,7 +229,7 @@ Requirements
   DOS
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.3 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.4 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
@@ -242,9 +241,11 @@ Requirements
 		:SEAL 1.0.7 + MAME patch
 		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.3.
-	The versions 3.0, 3.0.1 and 3.0.2 don't work.
-	Other versions should work.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.4.
+	The versions 3.0.x don't work. The versions 3.4.x may have some
+	problems related to the new "unit-at-a-time" compilation,
+	don't use them, or disable this feature with the option
+	-fnounit-at-a-time. Other versions should work.
 
 	The patched SEAL library is available at http://www.mame.net/.
 

@@ -681,7 +681,7 @@ adv_error vbe_init(void)
 		ret = __dpmi_allocate_dos_memory(size / 16, &ret_selector_or_max);
 		if (ret == -1) {
 			log_std(("vbe: error allocationg the VBE stack\n"));
-			error_set("Error allocatiog the VBE stack");
+			error_set("Error allocating the VBE stack");
 			return -1;
 		}
 

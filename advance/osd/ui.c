@@ -1034,7 +1034,6 @@ adv_error advance_ui_inner_init(struct advance_ui_context* context, adv_conf* cf
 
 			++i;
 		}
-
 	} else {
 		if (strcmp(context->config.help_image_buffer, "none") != 0) {
 			adv_fz* f;

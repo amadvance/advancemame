@@ -956,7 +956,7 @@ void osd_reset(void)
 	hardware_script_start(HARDWARE_SCRIPT_EMULATION);
 
 	/* if not in "fastest" mode, the playing is already started */
-	if (!context->state.fastest_flag)
+	if (!context->state.fastest_flag || context->state.measure_flag)
 		hardware_script_start(HARDWARE_SCRIPT_PLAY);
 }
 
@@ -1415,7 +1415,9 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "sync_speed");
 
 	s = conf_string_get_default(cfg_context, "sync_startuptime");
-	if (strcmp(s, "auto") == 0) {
+	if (strcmp(s, "none") == 0) {
+		d = 0;
+	} else if (strcmp(s, "auto") == 0) {
 		for(i=0;GAME_STARTUP[i].name != 0;++i)
 			if (mame_is_game_relative(GAME_STARTUP[i].name, option->game))
 				break;
@@ -1476,7 +1478,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
 	}
-	if (err == 0) {
+	if (err==0) {
 		/* print the clock ranges */
 		log_std(("emu:video: pclock %.3f - %.3f\n", (double)context->config.monitor.pclock.low, (double)context->config.monitor.pclock.high));
 		for(i=0;i<MONITOR_RANGE_MAX;++i)
@@ -1486,7 +1488,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 			if (context->config.monitor.vclock[i].low)
 				log_std(("emu:video: vclock %.3f - %.3f\n", (double)context->config.monitor.vclock[i].low, (double)context->config.monitor.vclock[i].high));
 	}
-	if (err > 0) {
+	if (err>0) {
 		monitor_reset(&context->config.monitor);
 	}
 

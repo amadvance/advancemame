@@ -457,6 +457,11 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 "\tPlease note that not all the OEM cards are listed. If your card has a\n" \
 "\tsupported chipset, it's probably supported also if the OEM vendor is not\n" \
 "\tin the list.\n" \
+"\n" \
+"\tPlease note that some laptop video cards work only when connected to\n" \
+"\tan external monitor, and not with the LCD screen.\n" \
+"\n" \
+"SubIndex\n" \
 "\n"
 
 #define FOOTER \
@@ -494,15 +499,15 @@ HEADER
 ;
 
 	os <<
-"SVGALINE\n"
-"\tThe `svgaline' driver is a subset of the Linux SVGALIB library.\n"
+"SVGALINE Drivers\n"
+"\tThe `svgaline' drivers are a subset of the Linux SVGALIB library.\n"
 "\n"
 ;
 
 	print_set(os,vs_svgaline);
 
 	os <<
-"VBELINE\n"
+"VBELINE Drivers\n"
 "\tThese are the OLD DOS drivers based on the VBE BIOS of the\n"
 "\tvideo board. Some of these drivers are derived from the\n"
 "\tVSyncMAME video drivers written by Saka and from the ATI driver\n"
@@ -529,8 +534,8 @@ HEADER
 ;
 
 	os <<
-"Frame Buffer\n"
-"\tThe `fb' driver uses the Linux Kernel Frame Buffer Driver.\n"
+"Frame Buffer Drivers\n"
+"\tThe `fb' driver uses the Linux Kernel Frame Buffer Drivers.\n"
 "\tIt supports all the video board supported by your Linux\n"
 "\tKernel which are able to create new video modes.\n"
 "\tThis exclude the `vesafb' driver.\n"
@@ -544,7 +549,7 @@ HEADER
 	print_set(os,vs_fb);
 
 	os <<
-"SVGALIB\n"
+"SVGALIB Drivers\n"
 "\tThe `svgalib' driver uses the Linux SVGALIB library.\n"
 "\tIt supports all the video boards supported by the library.\n"
 "\n"
@@ -569,7 +574,7 @@ HEADER
 ;
 
 	os <<
-"Frame Buffer\n"
+"Frame Buffer Drivers\n"
 "\tThis is the list of all the video cards supported by the Linux\n"
 "\tKernel Frame Buffer drivers used in AdvanceCD.\n"
 "\n"
@@ -591,7 +596,7 @@ HEADER
 ;
 
 	os <<
-"ALSA\n"
+"ALSA Drivers\n"
 "\tThis is the list of all the PCI sound cards supported by the Linux\n"
 "\tKernel ALSA drivers used in AdvanceCD.\n"
 "\tOnly the PCI cards are listed, but also some ISA PnP and USB cards\n"
@@ -617,7 +622,7 @@ HEADER
 ;
 
 	os <<
-"SVGAWIN\n"
+"SVGAWIN Drivers\n"
 "\tThe `svgawin' driver is a subset of the Linux SVGALIB library.\n"
 "\n"
 "\tThis driver is experimental. At present it's only tested on Windows\n"

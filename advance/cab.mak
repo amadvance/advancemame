@@ -90,7 +90,7 @@ CAB_DOC_BIN += \
 	$(DOCOBJ)/readcab.html \
 	$(DOCOBJ)/relecab.html \
 	$(DOCOBJ)/advv.html
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 CAB_DOC_BIN += \
 	$(DOCOBJ)/vbe.txt \
 	$(DOCOBJ)/vbe32.txt \
@@ -107,7 +107,7 @@ CAB_DOC_BIN += \
 	$(DOCOBJ)/portio.html \
 	$(DOCOBJ)/carddos.html
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 CAB_DOC_BIN += \
 	$(DOCOBJ)/videow.txt \
 	$(DOCOBJ)/svgawin.txt \
@@ -130,7 +130,7 @@ CAB_CONTRIB_SRC = \
 
 CAB_ROOT_BIN += \
 	$(RCSRC)
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 CAB_ROOT_BIN += \
 	$(srcdir)/advance/vbe/vbe.com \
 	$(srcdir)/advance/vbe32/vbe32.exe \
@@ -145,7 +145,7 @@ CAB_ROOT_BIN += \
 	$(srcdir)/support/video.pcx \
 	$(srcdir)/support/videobis.pcx
 endif
-ifeq ($(CONF_HOST),windows)
+ifeq ($(CONF_SYSTEM),windows)
 CAB_ROOT_BIN += \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/videowv.bat \
@@ -231,7 +231,7 @@ distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)
 	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
 	mkdir $(CAB_DIST_DIR_BIN)/doc
 	cp $(CAB_DOC_BIN) $(CAB_DIST_DIR_BIN)/doc
-ifeq ($(CONF_HOST),dos)
+ifeq ($(CONF_SYSTEM),dos)
 	mkdir $(CAB_DIST_DIR_BIN)/contrib
 	cp -r $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_BIN)/contrib
 endif

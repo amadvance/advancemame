@@ -194,6 +194,7 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 adv_error mouseb_event_init(int mouseb_id)
 {
 	unsigned i;
+	adv_bool eacces = 0;
 
 	log_std(("mouseb:event: mouseb_event_init(id:%d)\n", mouseb_id));
 
@@ -227,8 +228,12 @@ adv_error mouseb_event_init(int mouseb_id)
 		snprintf(file, sizeof(file), "/dev/input/event%d", i);
 
 		f = event_open(file, event_state.map[event_state.mac].evtype_bitmask);
-		if (f == -1)
+		if (f == -1) {
+			if (errno == EACCES) {
+				eacces = 1;
+			}
 			continue;
+		}
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
@@ -247,7 +252,10 @@ adv_error mouseb_event_init(int mouseb_id)
 	}
 
 	if (!event_state.mac) {
-		error_set("No mouse found.\n");
+		if (eacces)
+			error_set("No mouse found. Check the /dev/input/event* permissions.\n");
+		else
+			error_set("No mouse found.\n");
 		return -1;
 	}
 

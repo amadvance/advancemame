@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.84.0
+	This version of AdvanceMAME is based on the MAME update
+	0.84u3. The original MAME 0.84 version has some problems
+	on the new input management.
+
 AdvanceMAME 0.82.0
 	This version has a reworked audio/video syncronization algorithm.
 	It should fix any remaining problem of distorted sound present on

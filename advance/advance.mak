@@ -10,8 +10,8 @@ IOBJ = obj/i/$(BINARYDIR)
 VOBJ = obj/v/$(BINARYDIR)
 SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
-LINEOBJ = obj/line/$(BINARYDIR_BUILD)
-D2OBJ = obj/d2/$(BINARYDIR_BUILD)
+LINEOBJ = obj/line/$(BINARYBUILDDIR)
+D2OBJ = obj/d2/$(BINARYBUILDDIR)
 DOCOBJ = obj/doc
 
 ############################################################################
@@ -52,7 +52,7 @@ INSTALL_DIRS += $(VOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
 endif
-ifneq ($(CONF_HOST),windows)
+ifneq ($(CONF_SYSTEM),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
 INSTALL_DIRS += $(SOBJ) $(DOCOBJ)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
@@ -259,8 +259,9 @@ CONF_SRC = \
 	$(srcdir)/root.mak \
 	$(srcdir)/configure.ac \
 	$(srcdir)/configure \
-	$(srcdir)/configure.msdos \
+	$(srcdir)/configure.dos \
 	$(srcdir)/configure.windows \
+	$(srcdir)/configure.darwin \
 	$(srcdir)/aclocal.m4 \
 	$(srcdir)/config.guess \
 	$(srcdir)/config.sub \
@@ -363,7 +364,7 @@ uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
 RCFLAGS += --include-dir advance/lib
 
 ############################################################################
-# Special Rules
+# Whole targets
 
 # Debug
 #WHOLE_CFLAGS_OPT = -O2 -Wall -Wno-sign-compare -Wno-unused
@@ -383,46 +384,22 @@ ARCH_PENTIUM_BLEND_GCCOLD = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-mar
 
 MANUAL=-f Makefile.usr
 
-mame:
-	$(MAKE) $(MANUAL) CONF_EMU=mame emu
-
-neomame:
-	$(MAKE) $(MANUAL) CONF_EMU=neomame emu
-
-cpmame:
-	$(MAKE) $(MANUAL) CONF_EMU=cpmame emu
-
-tiny:
-	$(MAKE) $(MANUAL) CONF_EMU=tiny emu
-
-# Ensure that the mess target is always created also if a mess directory exists
-.PHONY: mess
-
-mess:
-	$(MAKE) $(MANUAL) CONF_EMU=mess emu
+WHOLECD_FLAGS = \
+	DATADIR="/root" SYSCONFDIR="/etc" \
+	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
+	CONF_DEFS="$(DEFS_LINUX)" \
+	CONF_HOST=linux \
+	CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
+	CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
+	CONF_LIB_SVGALIB=no CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
+	CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
 wholemame: mamedif
 	$(MAKE) $(MANUAL) dist
 	$(MAKE) $(MANUAL) CONF_DIFFSRC=yes dist
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distbin
-
-dosmame:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distbin
-
-winmame:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
-
-WHOLECD_FLAGS = \
-	DATADIR="/root" SYSCONFDIR="/etc" \
-	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
-	CONF_DEFS="$(DEFS_LINUX)" \
-	CONF_HOST=unix \
-	CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
-	CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
-	CONF_LIB_SVGALIB=no CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
-	CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
 wholecd:
 	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distbin
@@ -432,48 +409,53 @@ wholecd:
 wholemess: messdif
 	$(MAKE) $(MANUAL) CONF_EMU=mess dist
 	$(MAKE) $(MANUAL) CONF_EMU=mess CONF_DIFFSRC=yes dist
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=linux CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos CONF_EMU=mess distbin
-
-dosmess:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos CONF_EMU=mess distbin
-
-winmess:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
 
 wholemenu:
 	$(MAKE) $(MANUAL) distmenu
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distmenubin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distmenubin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distmenubin
-
-dosmenu:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=dos distmenubin
-
-winmenu:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distmenubin
 
 wholecab:
 	$(MAKE) $(MANUAL) distcab
 	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=dos distcabbin
 	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=windows distcabbin
 
-wholewin:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF_HOST=windows distmenubin
+#############################################################################
+# Development targets
 
-distmess:
-	$(MAKE) $(MANUAL) CONF_EMU=mess dist
+devflags: obj
+	$(ECHO) CC=$(CC)
+	$(ECHO) CFLAGS=$(CFLAGS)
+	$(ECHO) CXX=$(CXX)
+	$(ECHO) CXXFLAGS=$(CXXFLAGS)
+	$(ECHO) LD=$(LD)
+	$(ECHO) LDFLAGS=$(LDFLAGS)
+	$(ECHO) CC_BUILD=$(CC_BUILD)
+	$(ECHO) CFLAGS_BUILD=$(CFLAGS_BUILD)
+	$(ECHO) LD_BUILD=$(LD_BUILD)
+	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
+	$(ECHO) SDLLIBS=$(SDLLIBS)
+	$(ECHO) FREETYPECFLAGS=$(FREETYPECFLAGS)
+	$(ECHO) FREETYPELIBS=$(FREETYPELIBS)
+	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
+	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
+	$(ECHO) ADVANCECFLAGS=$(ADVANCECFLAGS)
+	$(ECHO) ADVANCELDFLAGS=$(ADVANCELDFLAGS)
+	$(ECHO) ADVANCELIBS=$(ADVANCELIBS)
+	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
+	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 
-distmessbin:
-	$(MAKE) $(MANUAL) CONF_EMU=mess distbin
+devosdep:
+	rgrep -r MSDOS $(srcdir)/advance
+	rgrep -r WIN32 $(srcdir)/advance
 
-distmame:
-	$(MAKE) $(MANUAL) CONF_EMU=mame dist
+devdef:
+	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
 
-distmamebin:
-	$(MAKE) $(MANUAL) CONF_EMU=mame distbin
-
+devtags:
+	cd advance && ctags -R
 

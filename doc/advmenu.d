@@ -2,11 +2,12 @@ Name
 	advmenu - The AdvanceMENU Front-end
 
 Synopsis
-	:advmenu [-default] [-remove] [-log] [-logsync] [-version] [-help]
+	:advmenu [-default] [-remove] [-cfg FILE]
+	:	[-log] [-version] [-help]
 
 Description
-	The AdvanceMENU utility is a front-end to run the AdvanceMAME,
-	AdvanceMESS, MAME, MESS, xmame, Raine and other emulators.
+	AdvanceMENU is a front-end to run the AdvanceMAME, AdvanceMESS,
+	MAME, MESS, xmame, Raine and other emulators.
 
 	Simply run it in the same directory of the emulator and press
 	`f1' to get the help screen or `~' for the main menu.
@@ -45,14 +46,14 @@ Options
 		Remove from the configuration file all the options
 		with default values.
 
+	-cfg FILE
+		Select an alternate configuration file. In Linux and Mac
+		OS X the you can prefix the file name with "./" to
+		load it from the current directory.
+
 	-log
 		Create the file `advmenu.log' with a lot of internal
 		information. Very useful for bug report.
-
-	-logsync
-		Like the -log option but the file `advmenu.log' is
-		updated at every write. Useful for creating the log when
-		the program crash.
 
 	-verbose
 		Print some startup information.
@@ -468,14 +469,15 @@ Configuration
 		tile_marquee - Special mode for marquee preview.
 
     mode_skip
-	Disabled some menu modes when you press `tab'.
+	Disables some menu modes when you press `tab'.
 
 	:mode_skip (full | full_mixed | list | list_mixed | tile_small
 	:	| tile_normal | tile_big | tile_enormous | tile_giant
 	:	| tile_icon | tile_marquee)*
 
 	Options:
-		SKIP - You can enter multiple selections or an empty list.
+		SKIP - Multiple selections of disabled modes. Use
+			an empty list to enable all the modes.
 
 	Examples:
 		:mode_skip tile_giant
@@ -555,7 +557,7 @@ Configuration
 		:preview_default_icon "C:\MAME\DEFMAR.PNG"
 
     icon_space
-	Control the space between the icons. The `icon' mode is
+	Selects the space size between icons. The `icon' mode is
 	available only if you set the option `icons' in the
 	emulator config file.
 
@@ -831,8 +833,8 @@ Configuration
 	compiled with the FreeType2 library.
 
     ui_fontsize
-	Selects the font size, if the specificed font is scalable.
-	The size is expressed in number of rows and coloumns of text in the
+	Selects the font size, if the specified font is scalable.
+	The size is expressed in number of rows and columns of text in the
 	screen.
 
 	:ui_fontsize auto | ROWS [COLS]
@@ -865,7 +867,7 @@ Configuration
 
     ui_gamemsg
 	One line message displayed when a game is chosen. The
-	message is displayed only if the option `display_restoreaatgame' is
+	message is displayed only if the option `display_restoreatgame' is
 	set to `no'.
 
 	:ui_gamemsg "MESSAGE"
@@ -908,7 +910,7 @@ Configuration
 		N - Number of pixel to skip (default 0).
 
     ui_topbar/bottombar
-	Enable or disable the top and bottom information bars.
+	Enables or disables the top and bottom information bars.
 
 	ui_topbar yes | no
 	ui_bottombar yes | no
@@ -1036,8 +1038,8 @@ Configuration
 		:idle_start 400 60
 
     idle_screensaver
-	Select the start time of the default screen saver. The screensaved 
-	is a  slide show of the available snapshots.
+	Selects the start time of the default screen saver. The screensaver
+	is a slide show of the available snapshots.
 
 	:idle_screensaver START_TIMEOUT REPEAT_TIMEOUT
 
@@ -1132,7 +1134,7 @@ Configuration
 	
 	Options:
 		yes - Locked mode activate.
-		no - Locked mode disactivate (default).
+		no - Locked mode deactivate (default).
 
     event_assign
 	Customizes the input keyboard codes that trigger menu
@@ -1237,9 +1239,7 @@ Configuration
 		all - All the exit modes are possible.
 
     misc_quiet
-	Doesn't print the copyright text message at the startup:
-
-	:AdvanceMENU - Copyright (C) 1999-200X by Andrea Mazzoleni
+	Disables the copyright text message at the startup.
 
 	:misc_quiet yes | no
 
