@@ -271,14 +271,12 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 	if (svgaline_option.divide_clock)
 		clock *= 2;
 
-	adv_svgalib_mmio_map();
 	adv_svgalib_linear_map();
 
 	adv_svgalib_save(svgaline_state.saved);
 
 	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
 		adv_svgalib_linear_unmap();
-		adv_svgalib_mmio_unmap();
 		error_set("Generic error setting the svgaline mode");
 		return -1;
 	}
@@ -298,7 +296,6 @@ adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	adv_svgalib_unset();
 
 	adv_svgalib_linear_unmap();
-	adv_svgalib_mmio_unmap();
 
 	svgaline_state.mode_active = 0;
 
@@ -314,7 +311,6 @@ void svgaline_mode_done(adv_bool restore) {
 		adv_svgalib_restore(svgaline_state.saved);
 
 	adv_svgalib_linear_unmap();
-	adv_svgalib_mmio_unmap();
 
 	svgaline_state.mode_active = 0;
 }

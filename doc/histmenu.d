@@ -1,7 +1,7 @@
 Name
 	advmenu - History For AdvanceMENU
 
-AdvanceMENU Version 2.1.3 2002/09 (not yet released)
+AdvanceMENU Version 2.1.3 2002/10 (not yet released)
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
@@ -9,6 +9,7 @@ AdvanceMENU Version 2.1.3 2002/09 (not yet released)
 		enables all the available libraries.
 	) Fixed a nasty bug on the DOS svgaline drivers in the
 		libdos_mode_done() function.
+	) In the Linux target the `shutdown' event runs "/sbin/poweroff".
 
 AdvanceMENU Version 2.1.2 2002/09
 	) Added the support of the VSyncMAME audio drivers. This add

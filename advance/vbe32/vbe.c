@@ -508,8 +508,6 @@ static int driver_init(void) {
 
 	printf("Video driver : %s\n", adv_svgalib_driver_get());
 
-	adv_svgalib_mmio_map();
-
 	printf("Bit depth : ");
 	if (adv_svgalib_state.has_bit8) printf("8 ");
 	if (adv_svgalib_state.has_bit15) printf("15 ");
@@ -559,7 +557,6 @@ int vbe_init(const char* config) {
 }
 
 void vbe_done(void) {
-	adv_svgalib_mmio_unmap();
 	adv_svgalib_done();
 }
 

@@ -120,6 +120,230 @@ void* adv_svgalib_calloc(unsigned n, unsigned size) {
 }
 
 /**************************************************************************/
+/* pci */
+
+int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value) {
+	unsigned ori;
+	unsigned mask;
+	unsigned len;
+
+	if (adv_svgalib_pci_read_dword(bus_device_func, reg, &ori) != 0)
+		return -1;
+	if (!ori)
+		return -1;
+	if (adv_svgalib_pci_write_dword(bus_device_func, reg, 0xffffffff) != 0)
+		return -1;
+	if (adv_svgalib_pci_read_dword(bus_device_func, reg, &mask) != 0)
+		return -1;
+	if (adv_svgalib_pci_write_dword(bus_device_func, reg, ori) != 0)
+		return -1;
+
+	len = ~(mask & ~0xf) + 1;
+
+	if (!len)
+		return -1;
+
+	*value = len;
+
+	return 0;
+}
+
+int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg)
+{
+	unsigned i,j;
+
+	for(i=0;i<255;++i) {
+		for(j=0;j<32;++j) {
+			int r;
+			unsigned dw;
+			unsigned bus_device_func = (i << 8) | (j << 3);
+			unsigned device;
+			unsigned vendor;
+
+			if (adv_svgalib_pci_read_dword(bus_device_func,0,&dw)!=0)
+				continue;
+
+			vendor = dw & 0xFFFF;
+			device = (dw >> 16) & 0xFFFF;
+
+			r = callback(bus_device_func,vendor,device,arg);
+			if (r!=0)
+				return r;
+		}
+	}
+
+	return 0;
+}
+
+/**************************************************************************/
+/* vga_help.c */
+
+void port_rep_outb(unsigned char* string, int length, int port)
+{
+	while (length) {
+		port_out(*string, port);
+		++string;
+		--length;
+	}
+}
+
+void port_out(int value, int port)
+{
+	adv_svgalib_outportb(port, value);
+}
+
+void port_outw(int value, int port)
+{
+	adv_svgalib_outportw(port, value);
+}
+
+void port_outl(int value, int port)
+{
+	adv_svgalib_outportl(port, value);
+}
+
+int port_in(int port)
+{
+	return adv_svgalib_inportb(port);
+}
+
+int port_inw(int port)
+{
+	return adv_svgalib_inportw(port);
+}
+
+int port_inl(int port)
+{
+	return adv_svgalib_inportl(port);
+}
+
+/**************************************************************************/
+/* vgapci.c */
+
+struct pci_find {
+	unsigned vendor;
+	unsigned cont;
+	unsigned bus_device_func;
+};
+
+static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) {
+	unsigned dw;
+	unsigned base_class;
+	struct pci_find* arg = (struct pci_find*)_arg;
+	(void)device;
+
+	if (vendor != arg->vendor)
+		return 0;
+
+	if (adv_svgalib_pci_read_dword(bus_device_func,0x8,&dw)!=0)
+		return 0;
+
+	base_class = (dw >> 16) & 0xFFFF;
+	if (base_class != 0x300 /* DISPLAY | VGA */)
+		return 0;
+
+	if (arg->cont) {
+		--arg->cont;
+		return 0;
+	}
+
+	arg->bus_device_func = bus_device_func;
+
+	return 1;
+}
+
+int __svgalib_pci_find_vendor_vga(unsigned int vendor, unsigned long *conf, int cont)
+{
+	int r;
+	int i;
+	struct pci_find find;
+	find.vendor = vendor;
+	find.cont = cont;
+
+	r = adv_svgalib_pci_scan_device(pci_scan_device_callback,&find);
+	if (r!=1)
+		return 1; /* not found */
+
+	for(i=0;i<64;++i) {
+		unsigned v;
+		adv_svgalib_pci_read_dword(find.bus_device_func,i*4,&v);
+		conf[i] = v;
+	}
+
+	return 0;
+}
+
+int __svgalib_pci_find_vendor_vga_pos(unsigned int vendor, unsigned long *conf, int cont)
+{
+	int r;
+	int i;
+	struct pci_find find;
+	find.vendor = vendor;
+	find.cont = cont;
+
+	r = adv_svgalib_pci_scan_device(pci_scan_device_callback,&find);
+	if (r!=1)
+		return -1; /* not found */
+
+	for(i=0;i<64;++i) {
+		unsigned v;
+		adv_svgalib_pci_read_dword(find.bus_device_func,i*4,&v);
+		conf[i] = v;
+	}
+
+	return find.bus_device_func;
+}
+
+int __svgalib_pci_read_config_byte(int pos, int address)
+{
+	unsigned char r;
+	adv_svgalib_pci_read_byte(pos,address,&r);
+	return r;
+}
+
+int __svgalib_pci_read_config_word(int pos, int address)
+{
+	unsigned short r;
+	adv_svgalib_pci_read_word(pos,address,&r);
+	return r;
+}
+
+int __svgalib_pci_read_config_dword(int pos, int address)
+{
+	unsigned r;
+	adv_svgalib_pci_read_dword(pos,address,&r);
+	return r;
+}
+
+int __svgalib_pci_read_aperture_len(int pos, int reg)
+{
+	unsigned r;
+	unsigned address;
+	address = 16+4*reg; /* this is the memory register number */
+	if (adv_svgalib_pci_read_dword_aperture_len(pos,address,&r) != 0)
+		return 0;
+	else
+		return r;
+}
+
+void __svgalib_pci_write_config_byte(int pos, int address, unsigned char data)
+{
+	adv_svgalib_pci_write_byte(pos,address,data);
+}
+
+void __svgalib_pci_write_config_word(int pos, int address, unsigned short data)
+{
+	adv_svgalib_pci_write_word(pos,address,data);
+}
+
+void __svgalib_pci_write_config_dword(int pos, int address, unsigned int data)
+{
+	adv_svgalib_pci_write_dword(pos,address,data);
+}
+
+
+/**************************************************************************/
+/* memory */
 
 #if 0
 int memorytest(unsigned char *m, int max_mem) {
@@ -1258,21 +1482,6 @@ void adv_svgalib_restore(unsigned char* regs) {
 	vga_screenon();
 }
 
-void adv_svgalib_mmio_map(void) {
-	if (__svgalib_mmio_size) {
-		__svgalib_mmio_pointer = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
-	} else {
-		__svgalib_mmio_pointer = 0;
-	}
-}
-
-void adv_svgalib_mmio_unmap(void) {
-	if (__svgalib_mmio_size) {
-		adv_svgalib_munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
-		__svgalib_mmio_pointer = 0;
-	}
-}
-
 void adv_svgalib_linear_map(void) {
 	if (__svgalib_linear_mem_size) {
 		__svgalib_linear_pointer = adv_svgalib_mmap(0, __svgalib_linear_mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_linear_mem_base);
@@ -1300,7 +1509,7 @@ void adv_svgalib_scanline_set(unsigned byte_length) {
 }
 
 void adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b) {
-	vga_setpalette(index, r, g, b);
+	vga_setpalette(index, r >> 2, g >> 2, b >> 2);
 }
 
 void adv_svgalib_wait_vsync(void) {

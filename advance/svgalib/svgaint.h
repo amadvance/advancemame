@@ -63,6 +63,20 @@ void adv_svgalib_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsi
 void adv_svgalib_mode_done(void);
 void adv_svgalib_enable(void);
 void adv_svgalib_disable(void);
+unsigned char adv_svgalib_inportb(unsigned port);
+unsigned short adv_svgalib_inportw(unsigned port);
+unsigned adv_svgalib_inportl(unsigned port);
+void adv_svgalib_outportb(unsigned port, unsigned char data);
+void adv_svgalib_outportw(unsigned port, unsigned short data);
+void adv_svgalib_outportl(unsigned port, unsigned data);
+int adv_svgalib_pci_read_byte(unsigned bus_device_func, unsigned reg, unsigned char* value);
+int adv_svgalib_pci_read_word(unsigned bus_device_func, unsigned reg, unsigned short* value);
+int adv_svgalib_pci_read_dword(unsigned bus_device_func, unsigned reg, unsigned* value);
+int adv_svgalib_pci_write_byte(unsigned bus_device_func, unsigned reg, unsigned char value);
+int adv_svgalib_pci_write_word(unsigned bus_device_func, unsigned reg, unsigned short value);
+int adv_svgalib_pci_write_dword(unsigned bus_device_func, unsigned reg, unsigned value);
+int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value);
+int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg);
 
 /**************************************************************************/
 /* driver */
@@ -209,19 +223,20 @@ void adv_svgalib_unset(void);
 void adv_svgalib_save(unsigned char* regs);
 void adv_svgalib_restore(unsigned char* regs);
 
-void adv_svgalib_mmio_map(void);
-void adv_svgalib_mmio_unmap(void);
 void adv_svgalib_linear_map(void);
 void adv_svgalib_linear_unmap(void);
-
-static inline const char* adv_svgalib_driver_get() {
-	return adv_svgalib_state.driver->name;
-}
 
 void adv_svgalib_scroll_set(unsigned offset);
 void adv_svgalib_scanline_set(unsigned byte_length);
 void adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b);
 void adv_svgalib_wait_vsync(void);
+
+void adv_svgalib_on(void);
+void adv_svgalib_off(void);
+
+static inline const char* adv_svgalib_driver_get() {
+	return adv_svgalib_state.driver->name;
+}
 
 static inline unsigned char* adv_svgalib_linear_pointer_get(void) {
 	return __svgalib_linear_pointer;
@@ -254,9 +269,6 @@ static inline unsigned adv_svgalib_bytes_per_scanline_get(void) {
 static inline unsigned adv_svgalib_bytes_per_pixel_get(void) {
 	return adv_svgalib_state.mode.bytes_per_pixel;
 }
-
-void adv_svgalib_on(void);
-void adv_svgalib_off(void);
 
 #endif
 
