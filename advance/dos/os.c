@@ -34,6 +34,11 @@
 #include "file.h"
 #include "conf.h"
 #include "portable.h"
+#include "osdos.h"
+
+#ifdef USE_VIDEO
+#include "pci.h"
+#endif
 
 #include "allegro2.h"
 
@@ -62,6 +67,11 @@ struct os_context {
 	 * Link with --wrap get_config_string --wrap get_config_int --wrap set_config_string --wrap set_config_int --wrap get_config_id --wrap set_config_id.
 	 */
 	adv_conf* allegro_conf;
+#endif
+
+#ifdef USE_VIDEO
+	unsigned pci_vga_vendor; /**< Video board vendor. */
+	unsigned pci_vga_device; /**< Video board device. */
 #endif
 };
 
@@ -298,6 +308,49 @@ static void os_align(void)
 	}
 }
 
+#ifdef USE_VIDEO
+static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg)
+{
+	DWORD dw;
+	unsigned base_class;
+	unsigned subsys_card;
+	unsigned subsys_vendor;
+
+	(void)arg;
+
+	if (pci_read_dword(bus_device_func, 0x8, &dw)!=0)
+		return 0;
+
+	base_class = (dw >> 24) & 0xFF;
+	if (base_class != 0x3 /* PCI_CLASS_DISPLAY */)
+		return 0;
+
+	if (pci_read_dword(bus_device_func, 0x2c, &dw)!=0)
+		return 0;
+
+	subsys_vendor = dw & 0xFFFF;
+	subsys_card = (dw >> 16) & 0xFFFF;
+
+	log_std(("os: found pci display vendor:%04x, device:%04x, subsys_vendor:%04x, subsys_card:%04x\n", vendor, device, subsys_vendor, subsys_card));
+
+	OS.pci_vga_vendor = vendor;
+	OS.pci_vga_device = device;
+
+	return 0;
+}
+#endif
+
+adv_bool os_internal_brokenint10_active(void)
+{
+#ifdef USE_VIDEO
+	/* ATI bios seem broken. Teste with a Rage 128 and a Radeon 7000. */
+	/* Also a simple "mode co80" freeze the PC. */
+	return OS.pci_vga_vendor == 0x1002;
+#else
+	return 0;
+#endif
+}
+
 int os_inner_init(const char* title)
 {
 	log_std(("os: sys DOS\n"));
@@ -327,6 +380,14 @@ int os_inner_init(const char* title)
 	}
 
 	os_align();
+
+#ifdef USE_VIDEO
+	OS.pci_vga_vendor = 0;
+	OS.pci_vga_device = 0;
+	if (pci_scan_device(pci_scan_device_callback, 0)!=0) {
+		log_std(("ERROR:os: error scanning pci display device, resume and continue\n"));
+	}
+#endif
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -361,7 +422,7 @@ void os_default_signal(int signum)
 {
 	log_std(("os: signal %d\n", signum));
 
-#if defined(USE_VIDEO_SVGALINE) || defined(USE_VIDEO_VBELINE) || defined(USE_VIDEO_VBE)
+#if defined(USE_VIDEO)
 	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
@@ -369,7 +430,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_SOUND_SEAL) || defined(USE_SOUND_ALLEGRO) || defined(USE_SOUND_VSYNC)
+#if defined(USE_SOUND)
 	log_std(("os: sound_abort\n"));
 	{
 		extern void soundb_abort(void);

@@ -777,12 +777,12 @@ static void rgb_raw_mask1_compute(unsigned bytes_per_pixel, uint32* dst, unsigne
 /*
 This mask is applyed at the image:
 
-  ....	 (type 0)
-  GBR.	 (type 1)
+  .... (type 0)
+  GBR. (type 1)
   GBR.
   GBR.
-  ....	 (type 0)
-  .GBR	 (type 2)
+  .... (type 0)
+  .GBR (type 2)
   .GBR
   .GBR
 
@@ -1106,6 +1106,7 @@ static inline unsigned internal_rgb_triadstrong16pix32_def(unsigned state, uint3
 
 /*
 This mask is applyed at the image:
+
   BR (type 0)
   BG (type 1)
   RG (type 2)
@@ -1116,7 +1117,6 @@ This mask is applyed at the image:
 G = red:75%, green:100%, blue:75%
 B = red:75%, green:75%, blue:100%
 R = red:100%, green:75%, blue:75%
-
 */
 
 enum RGB_TRIAD6PIX_MASK {
@@ -1370,6 +1370,7 @@ static inline unsigned internal_rgb_triadstrong6pix32_def(unsigned state, uint32
 
 /*
 This mask is applyed at the image:
+
   RB (type 0)
   GR (type 1)
   BG (type 2)
@@ -1377,7 +1378,6 @@ This mask is applyed at the image:
 R = red:100%, green:75%, blue:75%
 G = red:75%, green:100%, blue:75%
 B = red:75%, green:75%, blue:100%
-
 */
 
 enum RGB_TRIAD3PIX_MASK {

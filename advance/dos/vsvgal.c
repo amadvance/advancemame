@@ -52,6 +52,8 @@ typedef struct svgaline_internal_struct {
 
 	unsigned flags;
 	unsigned char saved[ADV_SVGALIB_STATE_SIZE];
+	unsigned char original[ADV_SVGALIB_STATE_SIZE];
+	adv_bool original_flag;
 } svgaline_internal;
 
 static svgaline_internal svgaline_state;
@@ -194,6 +196,8 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 
 	assert( !svgaline_is_active() );
 
+	svgaline_state.original_flag = 0;
+
 	if (sizeof(svgaline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
 
@@ -297,6 +301,12 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 	adv_svgalib_linear_map();
 
 	adv_svgalib_save(svgaline_state.saved);
+
+	/* save the original video mode */
+	if (!svgaline_state.original_flag) {
+		svgaline_state.original_flag = 1;
+		memcpy(svgaline_state.original, svgaline_state.saved, sizeof(svgaline_state.original));
+	}
 
 	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
 		adv_svgalib_linear_unmap();
@@ -569,4 +579,16 @@ adv_video_driver video_svgaline_driver = {
 	svgaline_mode_compare_void,
 	svgaline_crtc_container_insert_default
 };
+
+/***************************************************************************/
+/* Internal interface */
+
+void os_internal_svgaline_mode_reset(void)
+{
+	if (svgaline_is_active() && !svgaline_mode_is_active()) {
+		if (svgaline_state.original_flag) {
+			adv_svgalib_restore(svgaline_state.original);
+		}
+	}
+}
 

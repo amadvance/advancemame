@@ -732,6 +732,22 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  		fprintf(stderr, "Can't use HASH option with WRITE option in generic_fopen!\n");
  
  	/* determine start/stop based on reverse search flag */
+diff -U 5 --new-file --recursive src.ori/info.c src/info.c
+--- src.ori/info.c	2003-09-03 22:06:04.000000000 +0200
++++ src/info.c	2003-12-16 18:14:05.000000000 +0100
+@@ -811,11 +811,11 @@
+ 	struct InternalMachineDriver driver;
+ 
+ 	expand_machine_driver(game->drv, &driver);
+ 
+ 	fprintf(out, SELECT(L1P "driver" L2B, "\t\t<driver"));
+-	if (game->flags & GAME_NOT_WORKING)
++	if (game->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION))
+ 		fprintf(out, SELECT(L2P "status preliminary" L2N, " status=\"preliminary\""));
+ 	else
+ 		fprintf(out, SELECT(L2P "status good" L2N, " status=\"good\""));
+ 
+ 	if (game->flags & GAME_WRONG_COLORS)
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2003-10-18 21:49:02.000000000 +0200
 +++ src/inptport.c	2003-11-12 20:58:44.000000000 +0100

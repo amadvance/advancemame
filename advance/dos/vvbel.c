@@ -35,6 +35,7 @@
 #include "error.h"
 #include "snstring.h"
 #include "portable.h"
+#include "osdos.h"
 
 #include "board.h"
 
@@ -280,6 +281,11 @@ adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	if (sizeof(vbeline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	if (os_internal_brokenint10_active()) {
+		error_set("Detected broken video BIOS.\n");
+		return -1;
+	}
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
 		error_set("Only fullscreen output is supported.\n");

@@ -245,4 +245,7 @@ unsigned vga_pixelclock_nearest_get(unsigned pixelclock, adv_bool is_text);
 unsigned vga_pixelclock_next_get(unsigned pixelclock, adv_bool is_text);
 unsigned vga_pixelclock_pred_get(unsigned pixelclock, adv_bool is_text);
 
+void vga_writeb(unsigned addr, unsigned char c);
+unsigned char vga_readb(unsigned addr);
+
 #endif

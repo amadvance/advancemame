@@ -33,6 +33,11 @@
 #include "file.h"
 #include "snstring.h"
 #include "portable.h"
+#include "osdos.h"
+
+#ifdef USE_VIDEO
+#include "scrvga.h"
+#endif
 
 #include "allegro2.h"
 
@@ -51,11 +56,23 @@
 #include <signal.h>
 #include <conio.h>
 
+struct target_context {
+#ifdef USE_VIDEO
+	struct vga_regs vga_original;
+#endif
+};
+
+static struct target_context TARGET;
+
 /***************************************************************************/
 /* Init */
 
 adv_error target_init(void)
 {
+#ifdef USE_VIDEO
+	vga_mode_get(&TARGET.vga_original);
+#endif
+
 	return 0;
 }
 
@@ -127,10 +144,49 @@ unsigned char target_readb(unsigned addr)
 
 void target_mode_reset(void)
 {
-	/* Restore the default text mode */
-	__dpmi_regs r;
-	r.x.ax = 0x3;
-	__dpmi_int(0x10, &r);
+#ifdef USE_VIDEO
+	/* restore the original video mode */
+	struct vga_info info;
+
+#if 0
+	if (!os_internal_brokenint10_active()) {
+		__dpmi_regs r;
+		r.x.ax = 0x3;
+		__dpmi_int(0x10, &r);
+		return;
+	}
+#endif
+
+#ifdef USE_VIDEO_SVGALINE
+	/* restore the SVGA */
+	os_internal_svgaline_mode_reset();
+#endif
+
+	/* restore the VGA */
+	vga_mode_set(&TARGET.vga_original);
+	vga_regs_info_get(&TARGET.vga_original, &info);
+
+	if (!info.is_graphics_mode) {
+		unsigned i;
+
+		if (info.char_size_y>=16) {
+			vga_font_copy(vga_font_bios_16, 16, 0, 1);
+		} else if (info.char_size_y>=14) {
+			vga_font_copy(vga_font_bios_14, 14, 0, 1);
+		} else if (info.char_size_y>=8) {
+			vga_font_copy(vga_font_bios_8, 8, 0, 1);
+		}
+
+		vga_palette_raw_set(vga_palette_bios_text, 0, 256);
+
+		for(i=0;i<info.memory_size;i+=2) {
+			vga_writeb(info.memory_address + i, 0);
+			vga_writeb(info.memory_address + i + 1, 0x7);
+		}
+	} else {
+		vga_palette_raw_set(vga_palette_bios_graph, 0, 256);
+	}
+#endif
 }
 
 /***************************************************************************/
@@ -217,6 +273,9 @@ adv_error target_apm_standby(void)
 	unsigned mode;
 	__dpmi_regs r;
 
+	if (os_internal_brokenint10_active())
+		return -1;
+
 	r.x.ax = 0x4F10;
 	r.h.bl = 0x00;
 	r.x.dx = 0;
@@ -252,6 +311,9 @@ adv_error target_apm_standby(void)
 adv_error target_apm_wakeup(void)
 {
 	__dpmi_regs r;
+
+	if (os_internal_brokenint10_active())
+		return -1;
 
 	r.x.ax = 0x4F10;
 	r.h.bl = 0x00;
@@ -459,12 +521,12 @@ void target_out_va(const char* text, va_list arg)
 
 void target_err_va(const char *text, va_list arg)
 {
-	vfprintf(stderr, text, arg);
+	vfprintf(stdout, text, arg);
 }
 
 void target_nfo_va(const char *text, va_list arg)
 {
-	vfprintf(stderr, text, arg);
+	vfprintf(stdout, text, arg);
 }
 
 void target_out(const char *text, ...)

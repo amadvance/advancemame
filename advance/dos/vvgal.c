@@ -80,7 +80,6 @@ static inline unsigned div_high(unsigned value, unsigned value_div)
 	return (value + value_div - 1) / value_div;
 }
 
-
 static void video_crtc_realize_h(const adv_crtc* crtc, unsigned *de, unsigned* bs, unsigned* rs, unsigned* re, unsigned* be, unsigned* tt, unsigned x_div)
 {
 	/* output horizontal */
@@ -128,14 +127,14 @@ adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, un
 	unsigned x_div = 0;
 
 	if (size_x % info->hde != 0) {
-		error_set("Video mode don't support VGA CRTC regs grabbing");
+		error_set("Video mode doesn't support VGA CRTC regs grabbing");
 		return -1;
 	}
 
 	x_div = size_x / info->hde;
 
 	if (!x_div) {
-		error_set("Video mode don't support VGA CRTC regs grabbing");
+		error_set("Video mode doesn't support VGA CRTC regs grabbing");
 		return -1;
 	}
 
@@ -145,13 +144,13 @@ adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, un
 	crtc->ht = info->ht * x_div;
 
 	if (info->vde % size_y != 0) {
-		error_set("Video mode don't support VGA CRTC regs grabbing");
+		error_set("Video mode doesn't support VGA CRTC regs grabbing");
 		return -1;
 	}
 	y_mul = info->vde / size_y;
 
 	if (!y_mul) {
-		error_set("Video mode don't support VGA CRTC regs grabbing");
+		error_set("Video mode doesn't support VGA CRTC regs grabbing");
 		return -1;
 	}
 

@@ -4,9 +4,9 @@
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.77.0.1
 else
-EMUVERSION = 0.77.1
+EMUVERSION = 0.77.2
 endif
-MENUVERSION = 2.2.15
+MENUVERSION = 2.2.16
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -429,6 +429,9 @@ wholemenu:
 	$(MAKE) CONF=no distmenu
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distmenubin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
+
+dosmenu:
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
 
 wholecab:
