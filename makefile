@@ -63,7 +63,7 @@ CFLAGS_DEBUG = -O0
 #MAP=1
 
 # Uncomment to compress the executable:
-COMPRESS=1
+#COMPRESS=1
 
 #############################################################################
 # System options

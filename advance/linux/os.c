@@ -73,7 +73,7 @@ struct os_context {
 
 #ifdef USE_JOYSTICK_SVGALIB
 	int joystick_id;
-	unsigned joystick_counter; /** Number of joystick active */
+	unsigned joystick_counter; /**< Number of joysticks active */
 	char joystick_axe_name[32];
 	char joystick_button_name[32];
 	char joystick_stick_name[32];
@@ -83,9 +83,7 @@ struct os_context {
 	unsigned input_last;
 #endif
 
-	unsigned delay_limit_us; /** Min delay in os_usleep [us] */
-
-	int signal_in_progress; /** Signal received */
+	unsigned delay_limit_us; /**< Min delay in os_usleep [us] */
 };
 
 static struct os_fixed OSF;
@@ -140,112 +138,13 @@ void os_msg_done(void) {
 /***************************************************************************/
 /* Clock */
 
-#define SYS_CLOCKS_PER_SEC 1000000LL
+os_clock_t OS_CLOCKS_PER_SEC = 1000000LL;
 
-typedef long long sys_clock_t;
-
-static inline sys_clock_t sys_clock(void) {
+os_clock_t os_clock(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec * 1000000LL + tv.tv_usec;
 }
-
-os_clock_t OS_CLOCKS_PER_SEC;
-
-/* Disabled the use of RDTSC */
-/* The precision of the RDTSC is vanified by the precision required */
-/* to measure the clock */
-#if 0
-
-#define SYS_MEASURE_PERIOD (SYS_CLOCKS_PER_SEC / 20 + 10)
-
-static void ticker_measure(os_clock_t* map, unsigned max) {
-	sys_clock_t start;
-	sys_clock_t stop;
-	os_clock_t tstart;
-	os_clock_t tstop;
-	unsigned mac;
-
-	usleep(10000);
-
-	mac = 0;
-	start = sys_clock();
-	do {
-		stop = sys_clock();
-	} while (stop == start);
-
-	start = stop;
-	tstart = os_clock();
-	while (mac < max) {
-		do {
-			stop = sys_clock();
-		} while (stop <= start + SYS_MEASURE_PERIOD);
-		tstop = os_clock();
-
-		map[mac] = (tstop - tstart) * SYS_CLOCKS_PER_SEC / (stop - start);
-		++mac;
-
-		start = stop;
-		tstart = tstop;
-	}
-}
-
-static int ticker_cmp(const void *e1, const void *e2) {
-	const os_clock_t* t1 = (const os_clock_t*)e1;
-	const os_clock_t* t2 = (const os_clock_t*)e2;
-
-	if (*t1 < *t2) return -1;
-	if (*t1 > *t2) return 1;
-	return 0;
-}
-
-/** Number of measures. */
-#define OS_CLOCK_MEASURE 7
-
-static void os_clock_setup(void) {
-	os_clock_t v[OS_CLOCK_MEASURE];
-	double error;
-	int i;
-
-	ticker_measure(v,OS_CLOCK_MEASURE);
-
-	qsort(v,OS_CLOCK_MEASURE,sizeof(os_clock_t),ticker_cmp);
-
-	for(i=0;i<OS_CLOCK_MEASURE;++i)
-		os_log(("os: clock estimate %g\n",(double)v[i]));
-
-	OS_CLOCKS_PER_SEC = v[OS_CLOCK_MEASURE / 2]; /* median value */
-
-	if (v[0])
-		error = (v[OS_CLOCK_MEASURE - 1] - v[0]) / (double)v[0];
-	else
-		error = 0;
-
-	os_log(("os: select clock %g (err %g%%)\n", (double)v[OS_CLOCK_MEASURE / 2], error * 100.0));
-}
-
-os_clock_t os_clock(void) {
-	os_clock_t r;
-
-	__asm__ __volatile__ (
-		"rdtsc"
-		: "=A" (r)
-	);
-
-	return r;
-}
-
-#else
-
-static void os_clock_setup(void) {
-	OS_CLOCKS_PER_SEC = SYS_CLOCKS_PER_SEC;
-}
-
-os_clock_t os_clock(void) {
-	return sys_clock();
-}
-
-#endif
 
 /***************************************************************************/
 /* Init */
@@ -331,8 +230,6 @@ int os_inner_init(void) {
 
 	os_log(("os: root dir %s\n", OSF.root_dir));
 	os_log(("os: home dir %s\n", OSF.home_dir));
-
-	os_clock_setup();
 
 	usleep(10000);
 	start = os_clock();
@@ -446,13 +343,13 @@ struct os_device OS_KEY[] = {
 
 int os_key_init(int key_id, int disable_special)
 {
-	if (key_id != KEY_TYPE_NONE) {
+	OS.key_id = key_id;
+
+	if (OS.key_id != KEY_TYPE_NONE) {
 		if (keyboard_init() != 0) {
 			os_log(("ERROR: keyboard_init() failed\n"));
 			return -1;
 		}
-
-		OS.key_id = key_id;
 	}
 
 	(void)disable_special; /* TODO disable special key sequence */
@@ -465,6 +362,8 @@ void os_key_done(void)
 	if (OS.key_id != KEY_TYPE_NONE) {
 		keyboard_close();
 	}
+
+	OS.key_id = KEY_TYPE_NONE;
 }
 
 unsigned os_key_get(unsigned code)
@@ -647,6 +546,8 @@ int os_mouse_init(int mouse_id)
 
 void os_mouse_done(void) {
 	/* closed internally at the svgalib */
+
+	OS.mouse_id = MOUSE_TYPE_NONE;
 }
 
 unsigned os_mouse_count_get(void)
@@ -693,6 +594,7 @@ struct os_device OS_JOY[] = {
 int os_joy_init(int joystick_id)
 {
 	OS.joystick_id = joystick_id;
+
 	if (OS.joystick_id != JOYSTICK_TYPE_NONE) {
 		unsigned i;
 		for(i=0;i<4;++i) {
@@ -713,6 +615,8 @@ void os_joy_done(void)
 		for(i=0;i<OS.joystick_counter;++i)
 			joystick_close(i);
 	}
+
+	OS.joystick_id = JOYSTICK_TYPE_NONE;
 }
 
 const char* os_joy_name_get(void) {
@@ -733,6 +637,8 @@ unsigned os_joy_stick_count_get(unsigned j) {
 }
 
 unsigned os_joy_stick_axe_count_get(unsigned j, unsigned s) {
+	assert(j < os_joy_count_get() );
+	assert(s < os_joy_stick_count_get(j) );
 	(void)s;
 	return joystick_getnumaxes(j);
 }
@@ -764,8 +670,6 @@ const char* os_joy_button_name_get(unsigned j, unsigned b) {
 int os_joy_button_get(unsigned j, unsigned b) {
 	assert(j < os_joy_count_get() );
 	assert(b < os_joy_button_count_get(j) );
-	if (b < 4) // TODO
-		return 0;
 	return joystick_getbutton(j, b) != 0;
 }
 
@@ -817,20 +721,16 @@ const char* os_joy_calib_next(void)
 /* Hardware */
 
 void os_port_set(unsigned addr, unsigned value) {
-	/* TODO port IO */
 }
 
 unsigned os_port_get(unsigned addr) {
-	/* TODO port IO */
 	return 0;
 }
 
 void os_writeb(unsigned addr, unsigned char c) {
-	/* TODO memory IO */
 }
 
 unsigned char os_readb(unsigned addr) {
-	/* TODO memory IO */
 	return 0;
 }
 
@@ -872,10 +772,6 @@ int os_system(const char* cmd) {
 
 	return system(cmd);
 }
-
-/* SVGALIB internal */
-#define SVGALIB_ACQUIRE_SIG SIGUNUSED
-#define SVGALIB_RELEASE_SIG SIGPROF
 
 int os_spawn(const char* file, const char** argv) {
 	int pid, status;
@@ -983,9 +879,6 @@ static void os_backtrace(void) {
 
 void os_default_signal(int signum)
 {
-	if (OS.signal_in_progress)
-		raise(signum);
-
 	os_log(("os: signal %d\n",signum));
 
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB)

@@ -476,6 +476,8 @@ void os_key_done(void)
 	if (OS.key_id != KEY_TYPE_NONE) {
 		remove_keyboard();
 	}
+
+	OS.key_id = KEY_TYPE_NONE;
 }
 
 /***************************************************************************/
@@ -513,6 +515,7 @@ int os_mouse_init(int mouse_id)
 	os_log(("os: mouse_init(mouse_id:%d)\n",mouse_id));
 
 	OS.mouse_id = mouse_id;
+
 	if (OS.mouse_id != MOUSE_TYPE_NONE) {
 		int err = install_mouse();
 		if (err != -1) {
@@ -538,9 +541,12 @@ int os_mouse_init(int mouse_id)
 void os_mouse_done(void)
 {
 	os_log(("os: mouse_done()\n"));
+
 	if (OS.mouse_id != MOUSE_TYPE_NONE) {
 		remove_mouse();
 	}
+
+	OS.mouse_id = MOUSE_TYPE_NONE;
 }
 
 unsigned os_mouse_count_get(void)
@@ -737,6 +743,7 @@ device OS_JOY[] = {
 int os_joy_init(int joy_id)
 {
 	OS.joy_id = joy_id;
+
 	if (OS.joy_id != JOY_TYPE_NONE) {
 		os_log(("os: joystick load calibration data\n"));
 		if (load_joystick_data(0) != 0) {
@@ -756,6 +763,8 @@ void os_joy_done(void)
 	if (OS.joy_id != JOY_TYPE_NONE) {
 		remove_joystick();
 	}
+
+	OS.joy_id = JOY_TYPE_NONE;
 }
 
 void os_joy_calib_start(void)
