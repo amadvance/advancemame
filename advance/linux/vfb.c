@@ -356,7 +356,7 @@ static adv_error fb_detect(void)
 
 	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
 		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
-		/* the Linux 2.4.20 driver doesn't support doublescan */
+		/* the Linux 2.4.20/2.4.21 driver doesn't support doublescan */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
 

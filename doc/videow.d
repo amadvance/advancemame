@@ -103,7 +103,7 @@ Troubleshooting
 	) If the screen image is stable but garbled it's probably because
 		the Windows video driver uses a not standard scanline size.
 		Try to guess it with the /n option. You should start
-		with the resolution width multiplied by the bytes per pixel.,
+		with the resolution width multiplied by the bytes per pixel.
 		Then, increase this value until the screen become readable.
 		Generally the correct value is multiplier of 2^n where n
 		may vary from 1 to 8.
@@ -111,7 +111,7 @@ Troubleshooting
 	) Try decreasing the video hardware acceleration.
 
 Tests
-	+Windows 2000 with the `nv3' driver using a GeForce 2 board
+	+Windows 2000 with a GeForce 2 board
 
 Examples
 	Set a 640x480 mode with 16 bits per pixel:

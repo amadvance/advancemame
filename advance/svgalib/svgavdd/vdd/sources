@@ -1,0 +1,8 @@
+TARGETNAME=svgavdd
+TARGETPATH=.\obj
+TARGETTYPE=DYNLINK
+TARGETLIBS=$(SDK_LIB_PATH)\kernel32.lib $(SDK_LIB_PATH)\user32.lib $(SDK_LIB_PATH)\ntvdm.lib
+DLLENTRY=VDDInitialize
+DLLBASE=0x2000000
+SOURCES=svgavdd.c svgavdd.rc
+

@@ -9,7 +9,6 @@
 #include <crt0.h>
 #include <sys/nearptr.h>
 #include <dos.h>
-#include <math.h>
 
 /**************************************************************************/
 /* misc */
@@ -36,11 +35,6 @@ void adv_svgalib_usleep(unsigned n)
 void adv_svgalib_abort(void) 
 {
 	abort();
-}
-
-double ADV_SVGALIB_CALL adv_svgalib_logf(double v) 
-{
-	return log(v);
 }
 
 /**************************************************************************/

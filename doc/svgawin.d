@@ -8,12 +8,6 @@ Description
 	The `svgawin' utility installs and uninstalls the svgawin.sys
 	driver in Windows NT/2000/XP.
 
-	This driver is EXPERIMENTAL and it works ONLY IN FEW
-	CONFIGURATIONS. Be prepared to reboot your PC if you use it.
-
-	At present the only reported working configurations are with
-	GeForge cards.
-
 	AdvanceMAME and AdvanceMENU work also without this driver, but
 	you lose the ability to set an arbitrary video mode.
 
@@ -47,5 +41,20 @@ Troubleshooting
 	If you want a stable solution you must use the Linux or DOS
 	version of AdvanceMAME and AdvanceMENU.
 
+Tech
+	This driver is used to export at user level some reversed operations
+	generally available only at kernel level. Specifically you can:
+
+	* Access the PCI information.
+	* Use direct port io.
+	* Map and umap physical memory.
+	* Call specific IOCTL_VIDEO_* ioctl on the Windows VIDEO driver.
+
+	It doesn't contains any specific video board code. It only exports these basic 
+	services.
+
+	The services interface is detailed in the advance/svgalib/svgawin/driver/svgacode.h
+	file.
+
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 Andrea Mazzoleni.

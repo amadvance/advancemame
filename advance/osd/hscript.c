@@ -167,7 +167,7 @@ struct symbol {
 { "ui_frameskip_inc", IPT_UI_FRAMESKIP_INC },
 { "ui_throttle", IPT_UI_THROTTLE },
 { "ui_show_fps", IPT_UI_SHOW_FPS },
-{ "ui_shapshot", IPT_UI_SNAPSHOT },
+{ "ui_snapshot", IPT_UI_SNAPSHOT },
 { "ui_toggle_cheat", IPT_UI_TOGGLE_CHEAT },
 { "ui_up", IPT_UI_UP },
 { "ui_down", IPT_UI_DOWN },

@@ -817,6 +817,7 @@ Optional Features:
                           with debug info. Only for developers. (default no)
   --enable-test           enable the test compilation without optimization.
                           Only for developers. (default no)
+  --enable-static         enable static compilation. (default no)
   --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
   --enable-debugger       enable the emulator debugger (default no)
@@ -1368,7 +1369,7 @@ case "$host" in
 	*-*-darwin*)
 		ac_host=unix
 		ac_host_cflags=-no-cpp-precomp
-		ac_host_ldflags=
+		ac_host_ldflags=-L/usr/local/lib
 		ASMFLAGS=""
 
 		CFLAGS_BUILD="-O0"
@@ -3288,6 +3289,15 @@ else
 
 fi;
 
+# Check whether --enable-static or --disable-static was given.
+if test "${enable_static+set}" = set; then
+  enableval="$enable_static"
+  ac_enable_static=$enableval
+else
+  ac_enable_static=no
+
+fi;
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
@@ -3457,6 +3467,9 @@ if test $ac_auto_ldflags = yes ; then
 		fi
 	else
 		LDFLAGS="-s"
+	fi
+	if test $ac_enable_static = yes ; then
+		LDFLAGS="-static $LDFLAGS"
 	fi
 	if test ! -z $ac_host_ldflags; then
 		LDFLAGS="$ac_host_ldflags $LDFLAGS"
@@ -4098,11 +4111,7 @@ echo "$as_me: error: the zlib library is required" >&2;}
 
 fi
 
-if test $ac_host = windows; then
-	ZLIBS="-static -lz"
-else
-	ZLIBS="-lz"
-fi
+ZLIBS="-lz"
 ZLIBS=$ZLIBS
 
 
@@ -5053,7 +5062,11 @@ done
 			ac_lib_sdl=no
 		else
 			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			if test $ac_enable_static = yes ; then
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+			else
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			fi
 			echo "$as_me:$LINENO: checking for SDL_Init in -lSDL" >&5
 echo $ECHO_N "checking for SDL_Init in -lSDL... $ECHO_C" >&6
 if test "${ac_cv_lib_SDL_SDL_Init+set}" = set; then
@@ -5169,7 +5182,11 @@ echo "$as_me: error: the ${ac_tool_prefix}sdl-config tool is missing" >&2;}
    { (exit 1); exit 1; }; }
 	else
 		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-		SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+		if test $ac_enable_static = yes ; then
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+		else
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+		fi
 
 echo "$as_me:$LINENO: checking for SDL_Init in -lSDL" >&5
 echo $ECHO_N "checking for SDL_Init in -lSDL... $ECHO_C" >&6

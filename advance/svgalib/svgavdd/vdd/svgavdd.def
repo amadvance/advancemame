@@ -1,0 +1,8 @@
+LIBRARY SVGAVDD
+
+DESCRIPTION 'SVGAVDD'
+
+EXPORTS
+        VDDInitialize
+        VDDRegisterInit
+        VDDDispatch

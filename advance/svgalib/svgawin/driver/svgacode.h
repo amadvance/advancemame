@@ -107,26 +107,26 @@ typedef struct _SVGALIB_MODE_INFORMATION {
 } SVGALIB_MODE_INFORMATION;
 
 typedef struct _SVGALIB_MEMORY {
-	PVOID RequestedVirtualAddress;
+	VOID* RequestedVirtualAddress;
 } SVGALIB_MEMORY;
 
 typedef struct _SVGALIB_SHARE_MEMORY {
 	HANDLE ProcessHandle;
 	ULONG ViewOffset;
 	ULONG ViewSize;
-	PVOID RequestedVirtualAddress;
+	VOID* RequestedVirtualAddress;
 } SVGALIB_SHARE_MEMORY;
 
 typedef struct _SVGALIB_SHARE_MEMORY_INFORMATION {
 	ULONG SharedViewOffset;
 	ULONG SharedViewSize;
-	PVOID VirtualAddress;
+	VOID* VirtualAddress;
 } SVGALIB_SHARE_MEMORY_INFORMATION;
 
 typedef struct _SVGALIB_PUBLIC_ACCESS_RANGES {
 	ULONG InIoSpace;
 	ULONG MappedInIoSpace;
-	PVOID VirtualAddress;
+	VOID* VirtualAddress;
 } SVGALIB_PUBLIC_ACCESS_RANGES;
 
 #define IOCTL_SVGALIB_SAVE_HARDWARE_STATE CTL_CODE(FILE_DEVICE_SVGALIB, 0x80, METHOD_BUFFERED, FILE_ANY_ACCESS)

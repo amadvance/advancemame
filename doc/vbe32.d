@@ -51,18 +51,21 @@ Cards
 
 Limitations
 	* The VBE 1.2 standard isn't supported. This makes the program
-		useless for 16 bit applications. Eventually this support may
-		be added in future.
-	* The VBE 3.0 standard isn't supported. Eventually this support
-		may be added in future.
-	* The VBE protect mode interface isn't supported.
-	* It uses a lot of low memory. Approx 200 kbyte.
+		useless for 16 bit applications.
+	* The VBE 3.0 standard isn't supported.
+	* The VBE protect mode interface isn't supported. Anyway, protect mode 
+		programs should be able to use the VBE real mode interface.
+	* It uses a lot of conventional memory. Approx 200 kbyte.
 	* It cannot be unloaded. It's a limitation of the DPMI support
 		not resolvable.
+	* If used with CWSDPMI all the XMS memory is allocated. It's a limitation
+		of CWSDPMI. Anyway, the memory is available through the
+		DPMI services.
+	* It doesn't work in Windows NT/2000/XP.
 
 Application Problems
 	Some applications are able to use only some common resolutions
-	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
+	like 320x240, 400x300, 512x384, 640x480 and 800x600. Others resolutions
 	may be completely ignored or crash the application.
 
 	Others applications may get in trouble if the list of available
@@ -70,8 +73,8 @@ Application Problems
 	Add only the best modelines and avoid duplicates.
 
 Tests
-	+Doom Legacy with the `nv3' driver (http://www.newdoom.com/doomlegacy)
-	+Duke Nukem 3D with the `nv3' driver
+	+Doom Legacy with a GeForce 2 board (http://www.newdoom.com/doomlegacy)
+	+Duke Nukem 3D with a GeForce 2 board
 
 Examples
 	Load it:
@@ -88,5 +91,4 @@ Bugs
 	All the other options are ignored.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
-
+	This file is Copyright (C) 2003 Andrea Mazzoleni.

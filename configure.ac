@@ -17,7 +17,7 @@ case "$host" in
 	*-*-darwin*)
 		ac_host=unix
 		ac_host_cflags=-no-cpp-precomp
-		ac_host_ldflags=
+		ac_host_ldflags=-L/usr/local/lib
 		AC_SUBST([ASMFLAGS],[""])
 		AC_SUBST([CFLAGS_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
@@ -123,6 +123,13 @@ AC_ARG_ENABLE(
 	[ac_enable_test=no]
 )
 
+AC_ARG_ENABLE(
+	[static],
+	AC_HELP_STRING([--enable-static],[enable static compilation. (default no)]),
+	[ac_enable_static=$enableval],
+	[ac_enable_static=no]
+)
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
@@ -152,6 +159,9 @@ if test $ac_auto_ldflags = yes ; then
 		fi
 	else
 		LDFLAGS="-s"
+	fi
+	if test $ac_enable_static = yes ; then
+		LDFLAGS="-static $LDFLAGS"
 	fi
 	if test ! -z $ac_host_ldflags; then
 		LDFLAGS="$ac_host_ldflags $LDFLAGS"
@@ -302,11 +312,7 @@ AC_CHECK_LIB(
 	[],
 	AC_MSG_ERROR([the zlib library is required])
 )
-if test $ac_host = windows; then
-	ZLIBS="-static -lz"
-else
-	ZLIBS="-lz"
-fi
+ZLIBS="-lz"
 AC_SUBST([ZLIBS],[$ZLIBS])
 
 AC_ARG_ENABLE(
@@ -542,7 +548,11 @@ if test $ac_lib_sdl = auto; then
 			ac_lib_sdl=no
 		else
 			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			if test $ac_enable_static = yes ; then
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+			else
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			fi
 			AC_CHECK_LIB(
 				[SDL],
 				[SDL_Init],
@@ -563,7 +573,11 @@ elif test $ac_lib_sdl = yes; then
 		AC_MSG_ERROR([the ${ac_tool_prefix}sdl-config tool is missing])
 	else
 		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-		SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+		if test $ac_enable_static = yes ; then
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+		else
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+		fi
 		AC_CHECK_LIB(
 			[SDL],
 			[SDL_Init],
