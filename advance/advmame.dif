@@ -131,7 +131,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  // Equites Hardware
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	Sat Jul  6 18:37:12 2002
-+++ src/drivers/neogeo.c	Sat Jul  6 18:41:38 2002
++++ src/drivers/neogeo.c	Wed Jul 10 04:33:48 2002
 @@ -287,11 +287,11 @@
  			}
  			fc++;
@@ -139,7 +139,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  		if (irq2control & IRQ2CTRL_ENABLE)
 -			usrintf_showmessage("IRQ2 enabled, need raster driver");
-+			/* usrintf_showmessage("IRQ2 enabled, need raster driver"); */
++			/* usrintf_showmessage("IRQ2 enabled, need raster driver") */ ;
  
  		/* return a standard vblank interrupt */
  		vblank_int = 1;	   /* vertical blank */

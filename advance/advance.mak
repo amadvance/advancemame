@@ -11,7 +11,7 @@ else
 ifeq ($(TARGET),pac)
 TARGETVERSION = 0.58.x
 else
-TARGETVERSION = 0.61.0
+TARGETVERSION = 0.61.1
 endif
 endif
 MENUVERSION = 1.19.1

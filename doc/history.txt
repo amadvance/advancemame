@@ -1,3 +1,6 @@
+AdvanceMAME Version 0.61.1 2002/07
+	) Fixed a stupid bug on some neogeo games.
+
 AdvanceMAME Version 0.61.0 2002/07
 	) Removed the input_analog[] and input_track[] options. They
 		are now substituted by the new input_map[] option.
