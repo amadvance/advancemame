@@ -25,6 +25,7 @@
 #ifndef __BITMAP_H
 #define __BITMAP_H
 
+#include "endianrw.h"
 #include "extra.h"
 #include "rgb.h"
 
@@ -52,11 +53,57 @@ adv_bitmap* bitmap_dup(adv_bitmap* src);
 adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
 adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
 void bitmap_free(adv_bitmap* bmp);
-uint8* bitmap_line(adv_bitmap* bmp, unsigned line);
-void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v);
-adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation);
-void bitmap_cutoff(adv_bitmap* bitmap, unsigned* _cx, unsigned* _cy);
-adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color);
+
+/**
+ * Get the pointer of a bitmap line.
+ * \param bmp Bitmap to draw.
+ * \param y Y.
+ * \return Pointer at the first pixel of the specified line.
+ */
+static inline uint8* bitmap_line(adv_bitmap* bmp, unsigned y)
+{
+	return bmp->ptr + y * bmp->bytes_per_scanline;
+}
+
+/**
+ * Get the pointer of a bitmap pixel.
+ * \param bmp Bitmap to draw.
+ * \param x X.
+ * \param y Y.
+ * \return Pointer at the first pixel of the specified line.
+ */
+static inline uint8* bitmap_pixel(adv_bitmap* bmp, unsigned x, unsigned y)
+{
+	return bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
+}
+
+/**
+ * Put a pixel in a bitmap.
+ * \param bmp Bitmap to write.
+ * \param x X.
+ * \param y Y.
+ * \param v Pixel value.
+ */
+static inline void bitmap_pixel_put(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v)
+{
+	cpu_uint_write(bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel, v);
+}
+
+/**
+ * Get a pixel in a bitmap.
+ * \param bmp Bitmap to read.
+ * \param x X.
+ * \param y Y.
+ * \param v Pixel value.
+ */
+static inline unsigned bitmap_pixel_get(adv_bitmap* bmp, unsigned x, unsigned y)
+{
+	return cpu_uint_read(bitmap_pixel(bmp, x, y), bmp->bytes_per_pixel);
+}
+
+adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation);
+adv_bitmap* bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask, adv_color_def def);
+void bitmap_cutoff(adv_bitmap* bitmap, unsigned* cx, unsigned* cy);
 
 /** \name Orientation
  * Orientation operation on a bitmap.

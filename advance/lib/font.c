@@ -89,7 +89,7 @@ static int load_font_data_fixed(adv_font* load_font, unsigned char* begin, unsig
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
 				int set = begin[x/8] & (1 << (7-(x % 8)));
-				bitmap_putpixel(bitmap, x, y, set ? 0xFF : 0);
+				bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
 			begin += (width+7)/8;
 		}
@@ -131,7 +131,7 @@ static int load_font_data(adv_font* load_font, unsigned char* begin, unsigned st
 		for(y=0;y<height;++y) {
 			for(x=0;x<width;++x) {
 				int set = begin[x/8] & (1 << (7-(x % 8)));
-				bitmap_putpixel(bitmap, x, y, set ? 0xFF : 0);
+				bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
 			begin += (width+7)/8;
 		}

@@ -281,6 +281,28 @@ static inline void be_uint32_write(void* ptr, unsigned v)
 #endif
 }
 
+static inline unsigned cpu_uint_read(void* ptr, unsigned size)
+{
+	switch (size) {
+	default:
+	case 1 : return cpu_uint8_read(ptr);
+	case 2 : return cpu_uint16_read(ptr);
+	case 3 : return cpu_uint24_read(ptr);
+	case 4 : return cpu_uint32_read(ptr);
+	}
+}
+
+static inline void cpu_uint_write(void* ptr, unsigned size, unsigned v)
+{
+	switch (size) {
+	default:
+	case 1 : cpu_uint8_write(ptr, v); break;
+	case 2 : cpu_uint16_write(ptr, v); break;
+	case 3 : cpu_uint24_write(ptr, v); break;
+	case 4 : cpu_uint32_write(ptr, v); break;
+	}
+}
+
 /*@}*/
 
 #endif

@@ -1,12 +1,13 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.76.1 2003/10
+AdvanceMAME Version 0.76.1 2003/11
 	) Added support for ACT Labs Lightgun in the Linux event driver.
 	) Fixed the order of the joystick buttons on the Linux event driver.
 	) Fixed the joystick dead zone management on the Linux event driver.
 	) Fixed an overflow problem in the YUV C conversion (used only if MMX
 		was not available).
+	) Updated the hq2x effect to the last version.
 
 AdvanceMAME Version 0.76.0 2003/10
 	) Fixed a computation error in the `hq2/3/4x' effects.

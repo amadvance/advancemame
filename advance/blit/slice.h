@@ -79,14 +79,14 @@ typedef struct adv_slice_struct  {
 	}
 \endcode
  * \param slice Slice context to initialize.
- * \param sd Source size.
- * \param dd Destination size.
+ * \param sd Source length.
+ * \param dd Destination length.
  */
 void slice_set(adv_slice* slice, unsigned sd, unsigned dd);
 
 /**
  * Compute a vector of offsets.
- * \param map Destination of the offsets. It must be length dd elements.
+ * \param map Destination of the offsets. It must have dd elements.
  * \param sd Source length.
  * \param dd Dest length.
  */

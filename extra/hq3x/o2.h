@@ -26,8 +26,8 @@
         case 130:
         case 162:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_22
+          PIXEL01_21
           PIXEL10_20
           PIXEL11_20
           break;
@@ -38,9 +38,9 @@
         case 49:
         {
           PIXEL00_20
-          PIXEL01_10
+          PIXEL01_22
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 64:
@@ -50,8 +50,8 @@
         {
           PIXEL00_20
           PIXEL01_20
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_21
+          PIXEL11_22
           break;
         }
         case 8:
@@ -59,9 +59,9 @@
         case 136:
         case 140:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_20
           break;
         }
@@ -71,7 +71,7 @@
         case 163:
         {
           PIXEL00_11
-          PIXEL01_10
+          PIXEL01_21
           PIXEL10_20
           PIXEL11_20
           break;
@@ -81,7 +81,7 @@
         case 134:
         case 166:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_12
           PIXEL10_20
           PIXEL11_20
@@ -95,7 +95,7 @@
           PIXEL00_20
           PIXEL01_11
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 144:
@@ -104,7 +104,7 @@
         case 177:
         {
           PIXEL00_20
-          PIXEL01_10
+          PIXEL01_22
           PIXEL10_20
           PIXEL11_12
           break;
@@ -116,7 +116,7 @@
         {
           PIXEL00_20
           PIXEL01_20
-          PIXEL10_10
+          PIXEL10_21
           PIXEL11_11
           break;
         }
@@ -128,7 +128,7 @@
           PIXEL00_20
           PIXEL01_20
           PIXEL10_12
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 40:
@@ -136,7 +136,7 @@
         case 168:
         case 172:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
           PIXEL10_11
           PIXEL11_20
@@ -149,14 +149,14 @@
         {
           PIXEL00_12
           PIXEL01_20
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_20
           break;
         }
         case 18:
         case 50:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_10
@@ -166,15 +166,15 @@
             PIXEL01_20
           }
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 80:
         case 81:
         {
           PIXEL00_20
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_22
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_10
@@ -188,7 +188,7 @@
         case 72:
         case 76:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
           if (M84)
           {
@@ -198,7 +198,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 10:
@@ -212,25 +212,25 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_21
+          PIXEL10_22
           PIXEL11_20
           break;
         }
         case 66:
         {
-          PIXEL00_10
-          PIXEL01_10
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL00_22
+          PIXEL01_21
+          PIXEL10_21
+          PIXEL11_22
           break;
         }
         case 24:
         {
-          PIXEL00_10
-          PIXEL01_10
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL00_21
+          PIXEL01_22
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 7:
@@ -276,7 +276,7 @@
         case 22:
         case 54:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -286,15 +286,15 @@
             PIXEL01_20
           }
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 208:
         case 209:
         {
           PIXEL00_20
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_22
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_0
@@ -308,7 +308,7 @@
         case 104:
         case 108:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
           if (M84)
           {
@@ -318,7 +318,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 11:
@@ -332,8 +332,8 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_21
+          PIXEL10_22
           PIXEL11_20
           break;
         }
@@ -347,17 +347,17 @@
           }
           else
           {
-            PIXEL00_50
-            PIXEL01_60
+            PIXEL00_60
+            PIXEL01_90
           }
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 146:
         case 178:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_10
@@ -365,8 +365,8 @@
           }
           else
           {
-            PIXEL01_60
-            PIXEL11_51
+            PIXEL01_90
+            PIXEL11_61
           }
           PIXEL10_20
           break;
@@ -382,17 +382,17 @@
           }
           else
           {
-            PIXEL01_50
-            PIXEL11_60
+            PIXEL01_60
+            PIXEL11_90
           }
-          PIXEL10_10
+          PIXEL10_21
           break;
         }
         case 112:
         case 113:
         {
           PIXEL00_20
-          PIXEL01_10
+          PIXEL01_22
           if (M68)
           {
             PIXEL10_12
@@ -400,15 +400,15 @@
           }
           else
           {
-            PIXEL10_51
-            PIXEL11_60
+            PIXEL10_61
+            PIXEL11_90
           }
           break;
         }
         case 200:
         case 204:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
           if (M84)
           {
@@ -417,8 +417,8 @@
           }
           else
           {
-            PIXEL10_60
-            PIXEL11_50
+            PIXEL10_90
+            PIXEL11_60
           }
           break;
         }
@@ -432,11 +432,11 @@
           }
           else
           {
-            PIXEL00_51
-            PIXEL10_60
+            PIXEL00_61
+            PIXEL10_90
           }
           PIXEL01_20
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 42:
@@ -449,10 +449,10 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL10_50
+            PIXEL00_90
+            PIXEL10_60
           }
-          PIXEL01_10
+          PIXEL01_21
           PIXEL11_20
           break;
         }
@@ -466,75 +466,75 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL01_51
+            PIXEL00_90
+            PIXEL01_61
           }
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_20
           break;
         }
         case 67:
         {
           PIXEL00_11
-          PIXEL01_10
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL01_21
+          PIXEL10_21
+          PIXEL11_22
           break;
         }
         case 70:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_12
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_21
+          PIXEL11_22
           break;
         }
         case 28:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 152:
         {
-          PIXEL00_10
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL00_21
+          PIXEL01_22
+          PIXEL10_22
           PIXEL11_12
           break;
         }
         case 194:
         {
-          PIXEL00_10
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL00_22
+          PIXEL01_21
+          PIXEL10_21
           PIXEL11_11
           break;
         }
         case 98:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_22
+          PIXEL01_21
           PIXEL10_12
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 56:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_21
+          PIXEL01_22
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 25:
         {
           PIXEL00_12
-          PIXEL01_10
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL01_22
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 26:
@@ -556,14 +556,14 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 82:
         case 214:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -572,7 +572,7 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_0
@@ -586,8 +586,8 @@
         case 88:
         case 248:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_21
+          PIXEL01_22
           if (M84)
           {
             PIXEL10_0
@@ -617,7 +617,7 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
+          PIXEL01_21
           if (M84)
           {
             PIXEL10_0
@@ -626,7 +626,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 27:
@@ -640,13 +640,13 @@
             PIXEL00_20
           }
           PIXEL01_10
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 86:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -655,14 +655,14 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
+          PIXEL10_21
           PIXEL11_10
           break;
         }
         case 216:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_21
+          PIXEL01_22
           PIXEL10_10
           if (M68)
           {
@@ -677,7 +677,7 @@
         case 106:
         {
           PIXEL00_10
-          PIXEL01_10
+          PIXEL01_21
           if (M84)
           {
             PIXEL10_0
@@ -686,7 +686,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 30:
@@ -700,15 +700,15 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 210:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_10
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_0
@@ -721,8 +721,8 @@
         }
         case 120:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_21
+          PIXEL01_22
           if (M84)
           {
             PIXEL10_0
@@ -744,31 +744,31 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
+          PIXEL01_21
           PIXEL10_10
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 29:
         {
           PIXEL00_12
           PIXEL01_11
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_22
+          PIXEL11_21
           break;
         }
         case 198:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_12
-          PIXEL10_10
+          PIXEL10_21
           PIXEL11_11
           break;
         }
         case 184:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_21
+          PIXEL01_22
           PIXEL10_11
           PIXEL11_12
           break;
@@ -776,72 +776,72 @@
         case 99:
         {
           PIXEL00_11
-          PIXEL01_10
+          PIXEL01_21
           PIXEL10_12
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 57:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 71:
         {
           PIXEL00_11
           PIXEL01_12
-          PIXEL10_10
-          PIXEL11_10
+          PIXEL10_21
+          PIXEL11_22
           break;
         }
         case 156:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
         case 226:
         {
-          PIXEL00_10
-          PIXEL01_10
+          PIXEL00_22
+          PIXEL01_21
           PIXEL10_12
           PIXEL11_11
           break;
         }
         case 60:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 195:
         {
           PIXEL00_11
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_21
+          PIXEL10_21
           PIXEL11_11
           break;
         }
         case 102:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_12
           PIXEL10_12
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 153:
         {
           PIXEL00_12
-          PIXEL01_10
-          PIXEL10_10
+          PIXEL01_22
+          PIXEL10_22
           PIXEL11_12
           break;
         }
@@ -853,7 +853,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -861,10 +861,10 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 83:
@@ -876,22 +876,22 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_10
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
         case 92:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           if (M84)
           {
@@ -899,7 +899,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -907,7 +907,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -919,16 +919,16 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
-          PIXEL01_10
+          PIXEL01_21
           if (M84)
           {
             PIXEL10_10
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           PIXEL11_11
           break;
@@ -941,7 +941,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           PIXEL01_12
           if (M84)
@@ -950,9 +950,9 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 154:
@@ -963,7 +963,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -971,22 +971,22 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
         case 114:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_10
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_12
           if (M68)
@@ -995,21 +995,21 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
         case 89:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           if (M84)
           {
             PIXEL10_10
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1017,7 +1017,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1029,7 +1029,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1037,7 +1037,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           if (M84)
           {
@@ -1045,7 +1045,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1053,7 +1053,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1067,17 +1067,17 @@
           }
           else
           {
-            PIXEL00_50
-            PIXEL01_60
+            PIXEL00_60
+            PIXEL01_90
           }
           PIXEL10_20
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 182:
         case 150:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -1085,8 +1085,8 @@
           }
           else
           {
-            PIXEL01_60
-            PIXEL11_51
+            PIXEL01_90
+            PIXEL11_61
           }
           PIXEL10_20
           break;
@@ -1102,17 +1102,17 @@
           }
           else
           {
-            PIXEL01_50
-            PIXEL11_60
+            PIXEL01_60
+            PIXEL11_90
           }
-          PIXEL10_10
+          PIXEL10_21
           break;
         }
         case 241:
         case 240:
         {
           PIXEL00_20
-          PIXEL01_10
+          PIXEL01_22
           if (M68)
           {
             PIXEL10_12
@@ -1120,15 +1120,15 @@
           }
           else
           {
-            PIXEL10_51
-            PIXEL11_60
+            PIXEL10_61
+            PIXEL11_90
           }
           break;
         }
         case 236:
         case 232:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_20
           if (M84)
           {
@@ -1137,8 +1137,8 @@
           }
           else
           {
-            PIXEL10_60
-            PIXEL11_50
+            PIXEL10_90
+            PIXEL11_60
           }
           break;
         }
@@ -1152,11 +1152,11 @@
           }
           else
           {
-            PIXEL00_51
-            PIXEL10_60
+            PIXEL00_61
+            PIXEL10_90
           }
           PIXEL01_20
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 171:
@@ -1169,10 +1169,10 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL10_50
+            PIXEL00_90
+            PIXEL10_60
           }
-          PIXEL01_10
+          PIXEL01_21
           PIXEL11_20
           break;
         }
@@ -1186,16 +1186,16 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL01_51
+            PIXEL00_90
+            PIXEL01_61
           }
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_20
           break;
         }
         case 124:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           if (M84)
           {
@@ -1218,7 +1218,7 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
+          PIXEL01_21
           PIXEL10_10
           PIXEL11_11
           break;
@@ -1235,14 +1235,14 @@
             PIXEL01_20
           }
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 211:
         {
           PIXEL00_11
           PIXEL01_10
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_0
@@ -1255,7 +1255,7 @@
         }
         case 118:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -1271,7 +1271,7 @@
         case 217:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           PIXEL10_10
           if (M68)
           {
@@ -1295,7 +1295,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 155:
@@ -1309,13 +1309,13 @@
             PIXEL00_20
           }
           PIXEL01_10
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
         case 188:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           PIXEL10_11
           PIXEL11_12
@@ -1324,7 +1324,7 @@
         case 185:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           PIXEL10_11
           PIXEL11_12
           break;
@@ -1334,14 +1334,14 @@
           PIXEL00_12
           PIXEL01_11
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 157:
         {
           PIXEL00_12
           PIXEL01_11
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
@@ -1350,20 +1350,20 @@
           PIXEL00_11
           PIXEL01_12
           PIXEL10_12
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 227:
         {
           PIXEL00_11
-          PIXEL01_10
+          PIXEL01_21
           PIXEL10_12
           PIXEL11_11
           break;
         }
         case 230:
         {
-          PIXEL00_10
+          PIXEL00_22
           PIXEL01_12
           PIXEL10_12
           PIXEL11_11
@@ -1373,13 +1373,13 @@
         {
           PIXEL00_11
           PIXEL01_12
-          PIXEL10_10
+          PIXEL10_21
           PIXEL11_11
           break;
         }
         case 220:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           if (M84)
           {
@@ -1387,7 +1387,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1407,7 +1407,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1417,7 +1417,7 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
@@ -1429,9 +1429,9 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
-          PIXEL01_10
+          PIXEL01_21
           if (M84)
           {
             PIXEL10_0
@@ -1445,14 +1445,14 @@
         }
         case 242:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_10
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_12
           if (M68)
@@ -1481,16 +1481,16 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 121:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           if (M84)
           {
             PIXEL10_0
@@ -1505,7 +1505,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1520,14 +1520,14 @@
           {
             PIXEL01_20
           }
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_10
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1548,9 +1548,9 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 122:
@@ -1561,7 +1561,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1569,7 +1569,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           if (M84)
           {
@@ -1585,7 +1585,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1597,7 +1597,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1613,7 +1613,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1621,7 +1621,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1633,7 +1633,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1641,7 +1641,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           if (M84)
           {
@@ -1649,7 +1649,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1677,7 +1677,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           if (M84)
           {
@@ -1685,7 +1685,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1693,7 +1693,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1737,7 +1737,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           if (M26)
           {
@@ -1745,7 +1745,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_11
           PIXEL11_12
@@ -1760,7 +1760,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_12
           if (M68)
@@ -1769,7 +1769,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1783,7 +1783,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           if (M68)
           {
@@ -1791,7 +1791,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1803,7 +1803,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           PIXEL01_12
           if (M84)
@@ -1812,7 +1812,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           PIXEL11_11
           break;
@@ -1828,7 +1828,7 @@
           }
           else
           {
-            PIXEL10_30
+            PIXEL10_70
           }
           PIXEL11_11
           break;
@@ -1842,7 +1842,7 @@
           }
           else
           {
-            PIXEL00_30
+            PIXEL00_70
           }
           PIXEL01_12
           PIXEL10_11
@@ -1859,7 +1859,7 @@
           }
           else
           {
-            PIXEL01_30
+            PIXEL01_70
           }
           PIXEL10_20
           PIXEL11_12
@@ -1877,7 +1877,7 @@
           }
           else
           {
-            PIXEL11_30
+            PIXEL11_70
           }
           break;
         }
@@ -1950,8 +1950,8 @@
           }
           else
           {
-            PIXEL00_51
-            PIXEL10_60
+            PIXEL00_61
+            PIXEL10_90
           }
           PIXEL01_11
           PIXEL11_10
@@ -1967,8 +1967,8 @@
           }
           else
           {
-            PIXEL01_50
-            PIXEL11_60
+            PIXEL01_60
+            PIXEL11_90
           }
           PIXEL10_10
           break;
@@ -1982,8 +1982,8 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL01_51
+            PIXEL00_90
+            PIXEL01_61
           }
           PIXEL10_10
           PIXEL11_11
@@ -2000,8 +2000,8 @@
           }
           else
           {
-            PIXEL10_60
-            PIXEL11_50
+            PIXEL10_90
+            PIXEL11_60
           }
           break;
         }
@@ -2015,8 +2015,8 @@
           }
           else
           {
-            PIXEL01_60
-            PIXEL11_51
+            PIXEL01_90
+            PIXEL11_61
           }
           PIXEL10_11
           break;
@@ -2030,8 +2030,8 @@
           }
           else
           {
-            PIXEL00_60
-            PIXEL10_50
+            PIXEL00_90
+            PIXEL10_60
           }
           PIXEL01_10
           PIXEL11_12
@@ -2048,8 +2048,8 @@
           }
           else
           {
-            PIXEL10_51
-            PIXEL11_60
+            PIXEL10_61
+            PIXEL11_90
           }
           break;
         }
@@ -2062,8 +2062,8 @@
           }
           else
           {
-            PIXEL00_50
-            PIXEL01_60
+            PIXEL00_60
+            PIXEL01_90
           }
           PIXEL10_12
           PIXEL11_10
@@ -2080,7 +2080,7 @@
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           PIXEL11_11
           break;
@@ -2094,7 +2094,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           PIXEL01_12
           PIXEL10_11
@@ -2111,7 +2111,7 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
           PIXEL10_20
           PIXEL11_12
@@ -2129,7 +2129,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
@@ -2223,7 +2223,7 @@
         }
         case 252:
         {
-          PIXEL00_10
+          PIXEL00_21
           PIXEL01_11
           if (M84)
           {
@@ -2239,21 +2239,21 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
         case 249:
         {
           PIXEL00_12
-          PIXEL01_10
+          PIXEL01_22
           if (M84)
           {
             PIXEL10_0
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           if (M68)
           {
@@ -2275,14 +2275,14 @@
           {
             PIXEL00_20
           }
-          PIXEL01_10
+          PIXEL01_21
           if (M84)
           {
             PIXEL10_0
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           PIXEL11_11
           break;
@@ -2295,7 +2295,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           PIXEL01_12
           if (M84)
@@ -2306,7 +2306,7 @@
           {
             PIXEL10_20
           }
-          PIXEL11_10
+          PIXEL11_22
           break;
         }
         case 63:
@@ -2317,7 +2317,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           if (M26)
           {
@@ -2328,7 +2328,7 @@
             PIXEL01_20
           }
           PIXEL10_11
-          PIXEL11_10
+          PIXEL11_21
           break;
         }
         case 159:
@@ -2347,9 +2347,9 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
-          PIXEL10_10
+          PIXEL10_22
           PIXEL11_12
           break;
         }
@@ -2362,9 +2362,9 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
-          PIXEL10_10
+          PIXEL10_21
           if (M68)
           {
             PIXEL11_0
@@ -2377,7 +2377,7 @@
         }
         case 246:
         {
-          PIXEL00_10
+          PIXEL00_22
           if (M26)
           {
             PIXEL01_0
@@ -2393,7 +2393,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
@@ -2422,7 +2422,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
@@ -2436,7 +2436,7 @@
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           if (M68)
           {
@@ -2444,7 +2444,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
@@ -2465,7 +2465,7 @@
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           if (M68)
           {
@@ -2485,7 +2485,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           PIXEL01_12
           if (M84)
@@ -2494,7 +2494,7 @@
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           PIXEL11_11
           break;
@@ -2507,7 +2507,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           if (M26)
           {
@@ -2536,7 +2536,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           if (M26)
           {
@@ -2544,7 +2544,7 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
           PIXEL10_11
           PIXEL11_12
@@ -2566,7 +2566,7 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
           PIXEL10_10
           if (M68)
@@ -2588,7 +2588,7 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
           PIXEL10_12
           if (M68)
@@ -2597,7 +2597,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
@@ -2609,7 +2609,7 @@
           }
           else
           {
-            PIXEL00_40
+            PIXEL00_100
           }
           if (M26)
           {
@@ -2617,7 +2617,7 @@
           }
           else
           {
-            PIXEL01_40
+            PIXEL01_100
           }
           if (M84)
           {
@@ -2625,7 +2625,7 @@
           }
           else
           {
-            PIXEL10_40
+            PIXEL10_100
           }
           if (M68)
           {
@@ -2633,8 +2633,7 @@
           }
           else
           {
-            PIXEL11_40
+            PIXEL11_100
           }
           break;
         }
-

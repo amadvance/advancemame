@@ -75,6 +75,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/videoall.o \
 	$(MENUOBJ)/lib/vnone.o \
 	$(MENUOBJ)/lib/error.o \
+	$(MENUOBJ)/lib/filter.o \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/blit/slice.o \

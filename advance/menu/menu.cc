@@ -750,7 +750,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	int bar_left_dx;
 	int bar_left_dy;
 
-	int bar_right_x; // Right bar
+	int bar_right_x; // right bar
 	int bar_right_y;
 	int bar_right_dx;
 	int bar_right_dy;

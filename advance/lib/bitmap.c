@@ -23,6 +23,7 @@
 #include "endianrw.h"
 #include "rgb.h"
 #include "slice.h"
+#include "filter.h"
 
 #include <assert.h>
 #include <string.h>
@@ -145,43 +146,6 @@ void bitmap_free(adv_bitmap* bmp)
 }
 
 /**
- * Get the pointer of a bitmap line.
- * \param bmp Bitmap to draw.
- * \param y Y.
- * \return Pointer at the first pixel of the specified line.
- */
-uint8* bitmap_line(adv_bitmap* bmp, unsigned y)
-{
-	return bmp->ptr + y * bmp->bytes_per_scanline;
-}
-
-/**
- * Put a pixel in a bitmap.
- * \param bmp Bitmap to draw.
- * \param x X.
- * \param y Y.
- * \param v Pixel value.
- */
-void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v)
-{
-	uint8* ptr = bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
-	switch (bmp->bytes_per_pixel) {
-	case 1 :
-		cpu_uint8_write(ptr, v);
-		break;
-	case 2 :
-		cpu_uint16_write(ptr, v);
-		break;
-	case 3 :
-		cpu_uint24_write(ptr, v);
-		break;
-	case 4 :
-		cpu_uint32_write(ptr, v);
-		break;
-	};
-}
-
-/**
  * Change the orientation of a bitmap.
  * \param bmp B itmap.
  * \param orientation_mask Subset of the ORIENTATION flags.
@@ -299,15 +263,58 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask)
 					*x1 = t;
 				}
 			}
-		} else {
+		} else if (bmp->bytes_per_pixel == 2) {
 			unsigned y;
 			for(y=0;y<bmp->size_y;++y) {
-				uint16* x0 = (uint16*)bitmap_line(bmp, y);
-				uint16* x1 = x0 + bmp->size_x - 1;
-				for(;x0<x1;++x0, --x1) {
-					uint16 t = *x0;
-					*x0 = *x1;
-					*x1 = t;
+				uint8* x0 = (uint8*)bitmap_line(bmp, y);
+				uint8* x1 = x0 + (bmp->size_x - 1) * 2;
+				for(;x0<x1;x0 += 2, x1 -= 2) {
+					uint8 t[2];
+					t[0] = x0[0];
+					t[1] = x0[1];
+					x0[0] = x1[0];
+					x0[1] = x1[1];
+					x1[0] = t[0];
+					x1[1] = t[1];
+				}
+			}
+		} else if (bmp->bytes_per_pixel == 3) {
+			unsigned y;
+			for(y=0;y<bmp->size_y;++y) {
+				uint8* x0 = (uint8*)bitmap_line(bmp, y);
+				uint8* x1 = x0 + (bmp->size_x - 1) * 3;
+				for(;x0<x1;x0 += 3, x1 -= 3) {
+					uint8 t[3];
+					t[0] = x0[0];
+					t[1] = x0[1];
+					t[2] = x0[2];
+					x0[0] = x1[0];
+					x0[1] = x1[1];
+					x0[2] = x1[2];
+					x1[0] = t[0];
+					x1[1] = t[1];
+					x1[2] = t[2];
+				}
+			}
+		} else if (bmp->bytes_per_pixel == 4) {
+			unsigned y;
+			for(y=0;y<bmp->size_y;++y) {
+				uint8* x0 = (uint8*)bitmap_line(bmp, y);
+				uint8* x1 = x0 + (bmp->size_x - 1) * 4;
+				for(;x0<x1;x0 += 4, x1 -= 4) {
+					uint8 t[4];
+					t[0] = x0[0];
+					t[1] = x0[1];
+					t[2] = x0[2];
+					t[3] = x0[3];
+					x0[0] = x1[0];
+					x0[1] = x1[1];
+					x0[2] = x1[2];
+					x0[3] = x1[3];
+					x1[0] = t[0];
+					x1[1] = t[1];
+					x1[2] = t[2];
+					x1[3] = t[3];
 				}
 			}
 		}
@@ -514,82 +521,95 @@ void bitmap_cvt_reduce_24to8(adv_bitmap* dst, adv_bitmap* src, unsigned* convert
  * Resize a bitmap.
  * \param bmp Bitmap to resize.
  * \param x, y Start position of the bitmap range.
- * \param dx, dy Size the bitmap range.
- * \param sx, sy Size of the resized bitmap.
+ * \param src_dx, src_dy Size of the bitmap range to resize.
+ * \param dst_dx, dst_dy Size of the resulting bitmap range.
  * \param orientation_mask Orientation operations.
  * \return Resized bitmap, or 0 on error.
  */
-adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation_mask)
+adv_bitmap* bitmap_resize(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask)
 {
-	adv_bitmap* newbmp;
+	adv_bitmap* dst;
 	unsigned* map_x;
 	unsigned* map_y;
 	unsigned i, j;
 
-	if (!sx || !sy || !dx || !dy)
+	if (!dst_dx || !dst_dy || !src_dx || !src_dy)
 		return 0;
 
 	/* new ptr */
-	newbmp = bitmap_alloc(sx, sy, bmp->bytes_per_pixel * 8);
-	map_x = malloc(sizeof(unsigned) * sx);
-	map_y = malloc(sizeof(unsigned) * sy);
+	dst = bitmap_alloc(dst_dx, dst_dy, src->bytes_per_pixel * 8);
+	map_x = malloc(sizeof(unsigned) * dst_dx);
+	map_y = malloc(sizeof(unsigned) * dst_dy);
 
-	slice_vector(map_x, dx, sx);
+	slice_vector(map_x, src_dx, dst_dx);
 	if (orientation_mask & ORIENTATION_MIRROR_X) {
-		for(i=0;i<sx;++i)
-			map_x[i] = x + dx - map_x[i] - 1;
+		for(i=0;i<dst_dx;++i)
+			map_x[i] = x + src_dx - map_x[i] - 1;
 	} else {
-		for(i=0;i<sx;++i)
+		for(i=0;i<dst_dx;++i)
 			map_x[i] = x + map_x[i];
 	}
 
-	slice_vector(map_y, dy, sy);
+	slice_vector(map_y, src_dy, dst_dy);
 	if (orientation_mask & ORIENTATION_MIRROR_Y) {
-		for(i=0;i<sy;++i)
-			map_y[i] = y + dy - map_y[i] - 1;
+		for(i=0;i<dst_dy;++i)
+			map_y[i] = y + src_dy - map_y[i] - 1;
 	} else {
-		for(i=0;i<sy;++i)
+		for(i=0;i<dst_dy;++i)
 			map_y[i] = y + map_y[i];
 	}
 
-	if (bmp->bytes_per_pixel == 1) {
-		for(j=0;j<sy;++j) {
-			uint8* src;
-			uint8* dst;
-			src = (uint8*)bitmap_line(bmp, map_y[j]);
-			dst = (uint8*)bitmap_line(newbmp, j);
-			for(i=0;i<sx;++i) {
-				*dst = src[map_x[i]];
-				++dst;
+	if (src->bytes_per_pixel == 1) {
+		for(j=0;j<dst_dy;++j) {
+			uint8* src_ptr;
+			uint8* dst_ptr;
+			src_ptr = (uint8*)bitmap_line(src, map_y[j]);
+			dst_ptr = (uint8*)bitmap_line(dst, j);
+			for(i=0;i<dst_dx;++i) {
+				*dst_ptr = src_ptr[map_x[i]];
+				++dst_ptr;
 			}
 		}
-	} else if (bmp->bytes_per_pixel == 3) {
-		for(j=0;j<sy;++j) {
-			uint8* src;
-			uint8* dst;
-			src = (uint8*)bitmap_line(bmp, map_y[j]);
-			dst = (uint8*)bitmap_line(newbmp, j);
-			for(i=0;i<sx;++i) {
+	} else if (src->bytes_per_pixel == 2) {
+		for(j=0;j<dst_dy;++j) {
+			uint8* src_ptr;
+			uint8* dst_ptr;
+			src_ptr = (uint8*)bitmap_line(src, map_y[j]);
+			dst_ptr = (uint8*)bitmap_line(dst, j);
+			for(i=0;i<dst_dx;++i) {
+				unsigned off = map_x[i] * 2;
+				dst_ptr[0] = src_ptr[off];
+				dst_ptr[1] = src_ptr[off+1];
+				dst_ptr += 2;
+			}
+		}
+	} else if (src->bytes_per_pixel == 3) {
+		for(j=0;j<dst_dy;++j) {
+			uint8* src_ptr;
+			uint8* dst_ptr;
+			src_ptr = (uint8*)bitmap_line(src, map_y[j]);
+			dst_ptr = (uint8*)bitmap_line(dst, j);
+			for(i=0;i<dst_dx;++i) {
 				unsigned off = map_x[i] * 3;
-				dst[0] = src[off];
-				dst[1] = src[off+1];
-				dst[2] = src[off+2];
-				dst += 3;
+				dst_ptr[0] = src_ptr[off];
+				dst_ptr[1] = src_ptr[off+1];
+				dst_ptr[2] = src_ptr[off+2];
+				dst_ptr += 3;
 			}
 		}
-	} else if (bmp->bytes_per_pixel == 4) {
-		for(j=0;j<sy;++j) {
-			uint8* src;
-			uint8* dst;
-			src = (uint8*)bitmap_line(bmp, map_y[j]);
-			dst = (uint8*)bitmap_line(newbmp, j);
-			for(i=0;i<sx;++i) {
+	} else if (src->bytes_per_pixel == 4) {
+		for(j=0;j<dst_dy;++j) {
+			uint8* src_ptr;
+			uint8* dst_ptr;
+			src_ptr = (uint8*)bitmap_line(src, map_y[j]);
+			dst_ptr = (uint8*)bitmap_line(dst, j);
+			for(i=0;i<dst_dx;++i) {
 				unsigned off = map_x[i] * 4;
-				dst[0] = src[off];
-				dst[1] = src[off+1];
-				dst[2] = src[off+2];
-				dst[3] = src[off+3];
-				dst += 4;
+				dst_ptr[0] = src_ptr[off];
+				dst_ptr[1] = src_ptr[off+1];
+				dst_ptr[2] = src_ptr[off+2];
+				dst_ptr[3] = src_ptr[off+3];
+				dst_ptr += 4;
 			}
 		}
 	}
@@ -597,112 +617,241 @@ adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, 
 	free(map_x);
 	free(map_y);
 
-	return newbmp;
+	return dst;
+}
+
+static void bitmap_filter_stage(
+		uint8* dst_ptr, adv_color_def dst_def, int ddp, unsigned dbp,
+		uint8* src_ptr, adv_color_def src_def, int sdp, unsigned sbp,
+		unsigned count,
+		adv_filter* f)
+{
+	unsigned count_0, count_1, count_2, count_3;
+	unsigned order, delay, size;
+	unsigned r, g, b;
+	adv_filter_real or, og, ob;
+	adv_filter_state sr;
+	adv_filter_state sg;
+	adv_filter_state sb;
+	adv_pixel p;
+	unsigned i;
+	int src_red_shift, src_green_shift, src_blue_shift;
+	adv_pixel src_red_mask, src_green_mask, src_blue_mask;
+	int dst_red_shift, dst_green_shift, dst_blue_shift;
+	adv_pixel dst_red_mask, dst_green_mask, dst_blue_mask;
+
+	union adv_color_def_union sdef;
+	union adv_color_def_union ddef;
+
+	sdef.ordinal = src_def;
+	ddef.ordinal = dst_def;
+
+	rgb_shiftmask_get(&src_red_shift, &src_red_mask, sdef.nibble.red_len, sdef.nibble.red_pos);
+	rgb_shiftmask_get(&src_green_shift, &src_green_mask, sdef.nibble.green_len, sdef.nibble.green_pos);
+	rgb_shiftmask_get(&src_blue_shift, &src_blue_mask, sdef.nibble.blue_len, sdef.nibble.blue_pos);
+	rgb_shiftmask_get(&dst_red_shift, &dst_red_mask, ddef.nibble.red_len, ddef.nibble.red_pos);
+	rgb_shiftmask_get(&dst_green_shift, &dst_green_mask, ddef.nibble.green_len, ddef.nibble.green_pos);
+	rgb_shiftmask_get(&dst_blue_shift, &dst_blue_mask, ddef.nibble.blue_len, ddef.nibble.blue_pos);
+
+	order = filter_order_get(f);
+	delay = filter_delay_get(f);
+	size = count;
+
+	count_0 = order - 1 - delay;
+	count_1 = delay;
+	count_2 = size - delay;
+	count_3 = delay;
+
+	filter_state_reset(f, &sr);
+	filter_state_reset(f, &sg);
+	filter_state_reset(f, &sb);
+
+	p = cpu_uint_read(src_ptr, sbp);
+
+	r = rgb_nibble_extract(p, src_red_shift, src_red_mask);
+	g = rgb_nibble_extract(p, src_green_shift, src_green_mask);
+	b = rgb_nibble_extract(p, src_blue_shift, src_blue_mask);
+
+	for(i=0;i<count_0;++i) {
+		filter_insert(f, &sr, r);
+		filter_insert(f, &sg, g);
+		filter_insert(f, &sb, b);
+	}
+
+	for(i=0;i<count_1;++i) {
+		p = cpu_uint_read(src_ptr, sbp);
+
+		r = rgb_nibble_extract(p, src_red_shift, src_red_mask);
+		g = rgb_nibble_extract(p, src_green_shift, src_green_mask);
+		b = rgb_nibble_extract(p, src_blue_shift, src_blue_mask);
+
+		src_ptr += sdp;
+
+		filter_insert(f, &sr, r);
+		filter_insert(f, &sg, g);
+		filter_insert(f, &sb, b);
+	}
+
+	for(i=0;i<count_2;++i) {
+		p = cpu_uint_read(src_ptr, sbp);
+
+		r = rgb_nibble_extract(p, src_red_shift, src_red_mask);
+		g = rgb_nibble_extract(p, src_green_shift, src_green_mask);
+		b = rgb_nibble_extract(p, src_blue_shift, src_blue_mask);
+
+		src_ptr += sdp;
+
+		filter_insert(f, &sr, r);
+		filter_insert(f, &sg, g);
+		filter_insert(f, &sb, b);
+
+		or = filter_extract(f, &sr);
+		og = filter_extract(f, &sg);
+		ob = filter_extract(f, &sb);
+		if (or < 0) or = 0;
+		if (or > 255) or = 255;
+		if (og < 0) og = 0;
+		if (og > 255) og = 255;
+		if (ob < 0) ob = 0;
+		if (ob > 255) ob = 255;
+
+		p = rgb_nibble_insert(or, dst_red_shift, dst_red_mask)
+			| rgb_nibble_insert(og, dst_green_shift, dst_green_mask)
+			| rgb_nibble_insert(ob, dst_blue_shift, dst_blue_mask);
+
+		cpu_uint_write(dst_ptr, dbp, p);
+
+		dst_ptr += ddp;
+	}
+
+	for(i=0;i<count_3;++i) {
+		filter_insert(f, &sr, r);
+		filter_insert(f, &sg, g);
+		filter_insert(f, &sb, b);
+
+		or = filter_extract(f, &sr);
+		og = filter_extract(f, &sg);
+		ob = filter_extract(f, &sb);
+		if (or < 0) or = 0;
+		if (or > 255) or = 255;
+		if (og < 0) og = 0;
+		if (og > 255) og = 255;
+		if (ob < 0) ob = 0;
+		if (ob > 255) ob = 255;
+
+		p = rgb_nibble_insert(or, dst_red_shift, dst_red_mask)
+			| rgb_nibble_insert(og, dst_green_shift, dst_green_mask)
+			| rgb_nibble_insert(ob, dst_blue_shift, dst_blue_mask);
+
+		cpu_uint_write(dst_ptr, dbp, p);
+
+		dst_ptr += ddp;
+	}
 }
 
 /**
- * Add a border at a bitmap.
- * \param bmp Bitmap.
- * \param x0, x1, y0, y1 Size of the border.
- * \param color Color of the border.
- * \return Modified bitmap, or 0 on error.
+ * Resample a bitmap.
+ * \param src Bitmap to resample.
+ * \param x, y Start position of the bitmap range.
+ * \param src_dx, src_dy Size the bitmap range.
+ * \param dst_dx, dst_dy Size of the resized bitmap.
+ * \param orientation_mask Orientation operations.
+ * \param def RGB definition.
+ * \return Resampled bitmap, or 0 on error.
  */
-adv_bitmap* bitmap_addborder(adv_bitmap* bmp, unsigned x0, unsigned x1, unsigned y0, unsigned y1, unsigned color)
+adv_bitmap* bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask, adv_color_def def)
 {
-	adv_bitmap* newbmp;
-	unsigned i, j;
-	unsigned sx = bmp->size_x;
-	unsigned sy = bmp->size_y;
-	unsigned tx = sx+x0+x1;
-	unsigned ty = sy+y0+y1;
+	adv_bitmap* dst;
+	unsigned order = 7;
 
-	/* new ptr */
-	newbmp = bitmap_alloc(tx, ty, bmp->bytes_per_pixel * 8);
-	assert( newbmp );
+	if (!dst_dx || !dst_dy || !src_dx || !src_dy)
+		return 0;
 
-	if (bmp->bytes_per_pixel == 1) {
-		/* 8 bit */
-		for(j=0;j<y0;++j) {
-			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp, j);
-			for(i=0;i<tx;++i)
-				*dst++ = color;
-		}
-		for(j=0;j<sy;++j) {
-			uint8* src;
-			uint8* dst;
-			src = (uint8*)bitmap_line(bmp, j);
-			dst = (uint8*)bitmap_line(newbmp, j+y0);
-			for(i=0;i<x0;++i)
-				*dst++ = color;
-			for(i=0;i<sx;++i)
-				*dst++ = src[i];
-			for(i=0;i<x1;++i)
-				*dst++ = color;
-		}
-		for(j=0;j<y1;++j) {
-			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp, j+y0+sy);
-			for(i=0;i<tx;++i)
-				*dst++ = color;
-		}
-	} else if (bmp->bytes_per_pixel == 3) {
-		/* 24 bit */
-		unsigned c0 = color & 0xFF;
-		unsigned c1 = (color >> 8) & 0xFF;
-		unsigned c2 = (color >> 16) & 0xFF;
-		for(j=0;j<y0;++j) {
-			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp, j);
-			for(i=0;i<tx;++i) {
-				*dst++ = c0;
-				*dst++ = c1;
-				*dst++ = c2;
-			}
-		}
-		for(j=0;j<sy;++j) {
-			uint8* src;
-			uint8* dst;
-			src = (uint8*)bitmap_line(bmp, j);
-			dst = (uint8*)bitmap_line(newbmp, j+y0);
-			for(i=0;i<x0;++i) {
-				*dst++ = c0;
-				*dst++ = c1;
-				*dst++ = c2;
-			}
-			for(i=0;i<sx;++i) {
-				dst[0] = src[i*3];
-				dst[1] = src[i*3+1];
-				dst[2] = src[i*3+2];
-				dst += 3;
-			}
-			for(i=0;i<x1;++i) {
-				*dst++ = c0;
-				*dst++ = c1;
-				*dst++ = c2;
-			}
-		}
-		for(j=0;j<y1;++j) {
-			uint8* dst;
-			dst = (uint8*)bitmap_line(newbmp, j+y0+sy);
-			for(i=0;i<tx;++i) {
-				*dst++ = c0;
-				*dst++ = c1;
-				*dst++ = c2;
-			}
+	if (color_def_type_get(def) != adv_color_type_rgb)
+		return bitmap_resize(src, x, y, src_dx, src_dy, dst_dx, dst_dy, orientation_mask);
+
+	if (src_dx > dst_dx) {
+		adv_filter f;
+		unsigned cy;
+
+		filter_lpfir_set(&f, (double)dst_dx / src_dx / 2, order);
+
+		for(cy=0;cy<src_dy;++cy) {
+			uint8* ptr = bitmap_pixel(src, x, y + cy);
+			bitmap_filter_stage(
+				ptr, def, src->bytes_per_pixel, src->bytes_per_pixel,
+				ptr, def, src->bytes_per_pixel, src->bytes_per_pixel,
+				src_dx,
+				&f
+			);
 		}
 	}
 
-	return newbmp;
+	if (src_dy > dst_dy) {
+		adv_filter f;
+		unsigned cx;
+
+		filter_lpfir_set(&f, (double)dst_dy / src_dy / 2, order);
+
+		for(cx=0;cx<src_dx;++cx) {
+			uint8* ptr = bitmap_pixel(src, x + cx, y);
+			bitmap_filter_stage(
+				ptr, def, src->bytes_per_scanline, src->bytes_per_pixel,
+				ptr, def, src->bytes_per_scanline, src->bytes_per_pixel,
+				src_dy,
+				&f
+			);
+		}
+	}
+
+	dst = bitmap_resize(src, x, y, src_dx, src_dy, dst_dx, dst_dy, orientation_mask);
+	if (!dst)
+		return 0;
+
+	if (src_dx < dst_dx) {
+		adv_filter f;
+		unsigned cy;
+
+		filter_lpfir_set(&f, (double)src_dx / dst_dx / 2, order);
+
+		for(cy=0;cy<dst_dy;++cy) {
+			uint8* ptr = bitmap_pixel(dst, 0, cy);
+			bitmap_filter_stage(
+				ptr, def, dst->bytes_per_pixel, dst->bytes_per_pixel,
+				ptr, def, dst->bytes_per_pixel, dst->bytes_per_pixel,
+				dst_dx,
+				&f
+			);
+		}
+	}
+
+	if (src_dy < dst_dy) {
+		adv_filter f;
+		unsigned cx;
+
+		filter_lpfir_set(&f, (double)src_dy / dst_dy / 2, order);
+
+		for(cx=0;cx<dst_dx;++cx) {
+			uint8* ptr = bitmap_pixel(dst, cx, 0);
+			bitmap_filter_stage(
+				ptr, def, dst->bytes_per_scanline, dst->bytes_per_pixel,
+				ptr, def, dst->bytes_per_scanline, dst->bytes_per_pixel,
+				dst_dy,
+				&f
+			);
+		}
+	}
+
+	return dst;
 }
 
 /**
  * Scan the bitmap to find a fixed color border.
  * \param bmp Bitmap to scan.
- * \param _cx Where to put the width of the border found.
- * \param _cy Where to put the height of the border found.
+ * \param rcx Where to put the width of the border found.
+ * \param rcy Where to put the height of the border found.
  */
-void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy)
+void bitmap_cutoff(adv_bitmap* bmp, unsigned* rcx, unsigned* rcy)
 {
 	unsigned yu = 0;
 	unsigned yd = bmp->size_y - 1;
@@ -799,8 +948,8 @@ void bitmap_cutoff(adv_bitmap* bmp, unsigned* _cx, unsigned* _cy)
 		cy = 0;
 	}
 
-	*_cx = cx;
-	*_cy = cy;
+	*rcx = cx;
+	*rcy = cy;
 }
 
 /**
@@ -874,9 +1023,13 @@ static void bitmap_cvt_palette_8to32(adv_bitmap* dst, adv_bitmap* src, unsigned*
 void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 {
 	unsigned cx, cy;
+	unsigned sdp, ddp;
+
+	sdp = src->bytes_per_pixel;
+	ddp = dst->bytes_per_pixel;
 
 	/* specialized versions */
-	if (src->bytes_per_pixel == 1) {
+	if (sdp == 1) {
 		switch (dst->bytes_per_pixel) {
 		case 1 :
 			bitmap_cvt_palette_8to8(dst, src, color_map);
@@ -897,49 +1050,14 @@ void bitmap_cvt_palette(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map)
 		for(cx=0;cx<src->size_x;++cx) {
 			adv_pixel p;
 
-			switch (src->bytes_per_pixel) {
-			default:
-				assert(0);
-			case 1 :
-				p = cpu_uint8_read(src_ptr);
-				src_ptr += 1;
-				break;
-			case 2 :
-				p = cpu_uint16_read(src_ptr);
-				src_ptr += 2;
-				break;
-			case 3 :
-				p = cpu_uint24_read(src_ptr);
-				src_ptr += 3;
-				break;
-			case 4 :
-				p = cpu_uint32_read(src_ptr);
-				src_ptr += 4;
-				break;
-			}
+			p = cpu_uint_read(src_ptr, sdp);
 
 			p = color_map[p];
 
-			switch (dst->bytes_per_pixel) {
-			default:
-				assert(0);
-			case 1 :
-				cpu_uint8_write(dst_ptr, p);
-				dst_ptr += 1;
-				break;
-			case 2 :
-				cpu_uint16_write(dst_ptr, p);
-				dst_ptr += 2;
-				break;
-			case 3 :
-				cpu_uint24_write(dst_ptr, p);
-				dst_ptr += 3;
-				break;
-			case 4 :
-				cpu_uint32_write(dst_ptr, p);
-				dst_ptr += 4;
-				break;
-			}
+			cpu_uint_write(dst_ptr, ddp, p);
+
+			src_ptr += sdp;
+			dst_ptr += ddp;
 		}
 	}
 }
@@ -958,6 +1076,7 @@ void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv
 	union adv_color_def_union ddef;
 	int red_shift, green_shift, blue_shift;
 	adv_pixel red_mask, green_mask, blue_mask;
+	unsigned sdp, ddp;
 
 	sdef.ordinal = src_def;
 	ddef.ordinal = dst_def;
@@ -969,6 +1088,9 @@ void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv
 	blue_shift = rgb_conv_shift_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
 	blue_mask = rgb_conv_mask_get(sdef.nibble.blue_len, sdef.nibble.blue_pos, ddef.nibble.blue_len, ddef.nibble.blue_pos);
 
+	sdp = src->bytes_per_pixel;
+	ddp = dst->bytes_per_pixel;
+
 	for(cy=0;cy<src->size_y;++cy) {
 		uint8* src_ptr = bitmap_line(src, cy);
 		uint8* dst_ptr = bitmap_line(dst, cy);
@@ -976,51 +1098,16 @@ void bitmap_cvt_rgb(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv
 		for(cx=0;cx<src->size_x;++cx) {
 			adv_pixel p;
 
-			switch (src->bytes_per_pixel) {
-			default:
-				assert(0);
-			case 1 :
-				p = cpu_uint8_read(src_ptr);
-				src_ptr += 1;
-				break;
-			case 2 :
-				p = cpu_uint16_read(src_ptr);
-				src_ptr += 2;
-				break;
-			case 3 :
-				p = cpu_uint24_read(src_ptr);
-				src_ptr += 3;
-				break;
-			case 4 :
-				p = cpu_uint32_read(src_ptr);
-				src_ptr += 4;
-				break;
-			}
+			p = cpu_uint_read(src_ptr, sdp);
 
 			p = (rgb_shift(p, red_shift) & red_mask)
 				| (rgb_shift(p, green_shift) & green_mask)
 				| (rgb_shift(p, blue_shift) & blue_mask);
 
-			switch (dst->bytes_per_pixel) {
-			default:
-				assert(0);
-			case 1 :
-				cpu_uint8_write(dst_ptr, p);
-				dst_ptr += 1;
-				break;
-			case 2 :
-				cpu_uint16_write(dst_ptr, p);
-				dst_ptr += 2;
-				break;
-			case 3 :
-				cpu_uint24_write(dst_ptr, p);
-				dst_ptr += 3;
-				break;
-			case 4 :
-				cpu_uint32_write(dst_ptr, p);
-				dst_ptr += 4;
-				break;
-			}
+			cpu_uint_write(dst_ptr, ddp, p);
+
+			src_ptr += sdp;
+			dst_ptr += ddp;
 		}
 	}
 }

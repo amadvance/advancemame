@@ -1,7 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.2.14 2003/10
+AdvanceMENU Version 2.2.14 2003/11
+	) The played mng clips have now a filter effect applied if
+		the size is very small.
 
 AdvanceMENU Version 2.2.13 2003/10
 	) The SIGHUP signal now kills and restarts the program.

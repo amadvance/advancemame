@@ -154,7 +154,10 @@ static int video_pipeline_menu(struct advance_video_context* context, int select
 			flag[total] = 0;
 			++total;
 		}
-		snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
+		if (stage->sbpp != stage->sdp)
+			snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
+		else
+			snprintf(buffer, sizeof(buffer), "(%d) %s, p %d", i, pipe_name(stage->type), stage->sbpp);
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
 		++total;

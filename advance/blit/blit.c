@@ -910,7 +910,6 @@ static adv_bool pipe_is_conversion(enum video_stage_enum pipe)
 		case pipe_bgr888tobgra8888 :
 		case pipe_rgbtorgb :
 		case pipe_rgbtoyuy2 :
-		case pipe_rotation :
 			return 1;
 		default:
 			return 0;
@@ -941,7 +940,7 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 }
 
 /* Check if the write operation is done writing the biggest register size */
-static adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* stage)
+static adv_bool pipe_is_fastwrite(const struct video_stage_horz_struct* stage)
 {
 #ifdef USE_MTRR
 	/* if MTRR is enabled, write is always fast */
@@ -1003,8 +1002,49 @@ static adv_bool stage_is_fastwrite(const struct video_stage_horz_struct* stage)
 #endif
 }
 
+/* Check if the write operation is done converting the RGB values */
+static adv_bool combine_is_rgb(unsigned stage)
+{
+	switch (stage) {
+	case VIDEO_COMBINE_Y_MEAN :
+	case VIDEO_COMBINE_Y_FILTER :
+#ifndef USE_BLIT_TINY
+	case VIDEO_COMBINE_Y_LQ2X :
+	case VIDEO_COMBINE_Y_LQ3X :
+	case VIDEO_COMBINE_Y_LQ4X :
+	case VIDEO_COMBINE_Y_HQ2X :
+	case VIDEO_COMBINE_Y_HQ3X :
+	case VIDEO_COMBINE_Y_HQ4X :
+#endif
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+/* Check if the write operation support direct writing without requiring a final stage */
+static adv_bool combine_is_direct(unsigned stage)
+{
+	switch (stage) {
+#ifndef USE_BLIT_TINY
+	case VIDEO_COMBINE_Y_SCALE2X :
+	case VIDEO_COMBINE_Y_SCALE3X :
+	case VIDEO_COMBINE_Y_SCALE4X :
+	case VIDEO_COMBINE_Y_LQ2X :
+	case VIDEO_COMBINE_Y_LQ3X :
+	case VIDEO_COMBINE_Y_LQ4X :
+	case VIDEO_COMBINE_Y_HQ2X :
+	case VIDEO_COMBINE_Y_HQ3X :
+	case VIDEO_COMBINE_Y_HQ4X :
+		return 1;
+#endif
+	default:
+		return 0;
+	}
+}
+
 /* Check if the write operation is done writing the biggest register size */
-static adv_bool stage_vert_is_fastwrite(unsigned stage, unsigned bytes_per_pixel)
+static adv_bool combine_is_fastwrite(unsigned stage, unsigned bytes_per_pixel)
 {
 #ifdef USE_MTRR
 	/* if MTRR is enabled, write is always fast */
@@ -2796,9 +2836,9 @@ static void video_stage_planey_set(struct video_stage_vert_struct* stage_vert)
 /* stretchy */
 
 /* set the pivot early in the pipeline */
-static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, adv_bool require_after_conversion)
+static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_vert, unsigned combine_y)
 {
-	if (require_after_conversion) {
+	if (combine_is_rgb(combine_y)) {
 		stage_vert->stage_pivot = stage_vert->stage_end;
 		while (stage_vert->stage_pivot != stage_vert->stage_begin
 			&& !pipe_is_conversion(stage_vert->stage_pivot[-1].type)) {
@@ -2810,13 +2850,13 @@ static void video_stage_pivot_early_set(struct video_stage_vert_struct* stage_ve
 }
 
 /* set the pivot late in the pipeline */
-static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, adv_bool require_final_stage)
+static void video_stage_pivot_late_set(struct video_stage_vert_struct* stage_vert, unsigned combine_y)
 {
-	if (require_final_stage) {
+	if (combine_is_direct(combine_y)) {
+		stage_vert->stage_pivot = stage_vert->stage_end;
+	} else {
 		assert(stage_vert->stage_begin != stage_vert->stage_end);
 		stage_vert->stage_pivot = stage_vert->stage_end - 1;
-	} else {
-		stage_vert->stage_pivot = stage_vert->stage_end;
 	}
 	while (stage_vert->stage_pivot != stage_vert->stage_begin
 		&& pipe_is_decoration(stage_vert->stage_pivot[-1].type)) {
@@ -2841,63 +2881,63 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 		/* scale2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_scale2x;
 		stage_vert->type = pipe_y_scale2x;
 	} else if (ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_LQ2X) {
 		/* lq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq2x;
 		stage_vert->type = pipe_y_lq2x;
 	} else if (ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_HQ2X) {
 		/* hq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq2x;
 		stage_vert->type = pipe_y_hq2x;
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALE3X) {
 		/* scale3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_scale3x;
 		stage_vert->type = pipe_y_scale3x;
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_LQ3X) {
 		/* lq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq3x;
 		stage_vert->type = pipe_y_lq3x;
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_HQ3X) {
 		/* hq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq3x;
 		stage_vert->type = pipe_y_hq3x;
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALE4X) {
 		/* scale4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_scale4x;
 		stage_vert->type = pipe_y_scale4x;
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_LQ4X) {
 		/* lq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq4x;
 		stage_vert->type = pipe_y_lq4x;
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_HQ4X) {
 		/* hq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
-		video_stage_pivot_early_set(stage_vert, 1);
+		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq4x;
 		stage_vert->type = pipe_y_hq4x;
 	} else
@@ -2907,17 +2947,17 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 
 		switch (combine_y) {
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_late_set(stage_vert, 1);
+				video_stage_pivot_late_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_mean_1x;
 				stage_vert->type = pipe_y_expansion_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_late_set(stage_vert, 1);
+				video_stage_pivot_late_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_filter_1x;
 				stage_vert->type = pipe_y_expansion_filter;
 				break;
 			default:
-				video_stage_pivot_late_set(stage_vert, 1);
+				video_stage_pivot_late_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_1x;
 				stage_vert->type = pipe_y_expansion_copy;
 				break;
@@ -2927,17 +2967,17 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 
 		switch (combine_y) {
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_early_set(stage_vert, 1);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_mean_1x;
 				stage_vert->type = pipe_y_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_early_set(stage_vert, 1);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_filter_1x;
 				stage_vert->type = pipe_y_filter;
 				break;
 			default:
-				video_stage_pivot_early_set(stage_vert, 0);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_11;
 				stage_vert->type = pipe_y_copy;
 				break;
@@ -2947,22 +2987,22 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 
 		switch (combine_y) {
 			case VIDEO_COMBINE_Y_MAX :
-				video_stage_pivot_early_set(stage_vert, 0);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_max_x1;
 				stage_vert->type = pipe_y_reduction_max;
 				break;
 			case VIDEO_COMBINE_Y_MEAN :
-				video_stage_pivot_early_set(stage_vert, 1);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_mean_x1;
 				stage_vert->type = pipe_y_reduction_mean;
 				break;
 			case VIDEO_COMBINE_Y_FILTER :
-				video_stage_pivot_early_set(stage_vert, 1);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_filter_x1;
 				stage_vert->type = pipe_y_reduction_filter;
 				break;
 			default:
-				video_stage_pivot_early_set(stage_vert, 0);
+				video_stage_pivot_early_set(stage_vert, combine_y);
 				stage_vert->put = video_stage_stretchy_x1;
 				stage_vert->type = pipe_y_reduction_copy;
 				break;
@@ -3040,17 +3080,7 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	struct video_stage_horz_struct* end;
 	unsigned combine_y = combine & VIDEO_COMBINE_Y_MASK;
 
-	/* If this flag is set a generic last stage is required */
-	adv_bool require_last;
-
-	/* If this flag is set it's required that the last stage isn't a color conversion stage */
-	/* Some vertical stretchings require a final stage. */
-	/* If a vertical filtering is done in the y stretching the final stage can't */
-	/* be a color conversion, because the filtering works on rgb values. */
-	/* This flag has effect only if "require_last" is set. */
-	adv_bool require_last_not_conversion;
-
-	/* in x reduction the filter is applied before */
+	/* in x reduction the filter is applied before the resize */
 	if ((combine & VIDEO_COMBINE_X_FILTER) != 0
 		&& src_dx > dst_dx) {
 		switch (bytes_per_pixel) {
@@ -3094,6 +3124,7 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 #endif
 	{
 #ifndef USE_BLIT_TINY
+		/* disable the y effect if size doesn't match */
 		switch (combine_y) {
 		case VIDEO_COMBINE_Y_SCALE2X :
 		case VIDEO_COMBINE_Y_LQ2X :
@@ -3119,7 +3150,7 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		}
 	}
 
-	/* in x expansion the filter is applied after */
+	/* in x expansion the filter is applied after the resize */
 	if ((combine & VIDEO_COMBINE_X_FILTER)!=0
 		&& src_dx <= dst_dx) {
 		switch (bytes_per_pixel) {
@@ -3240,35 +3271,19 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		src_dp = bytes_per_pixel;
 	}
 
-	/* set the last stage flags */
-	require_last_not_conversion = combine_y == VIDEO_COMBINE_Y_MEAN || combine_y == VIDEO_COMBINE_Y_FILTER
-#ifndef USE_BLIT_TINY
-		|| combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
-		|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X
-#endif
-	;
-
-#ifndef USE_BLIT_TINY
-	require_last = combine_y != VIDEO_COMBINE_Y_SCALE2X && combine_y != VIDEO_COMBINE_Y_SCALE3X && combine_y != VIDEO_COMBINE_Y_SCALE4X
-		&& combine_y != VIDEO_COMBINE_Y_LQ2X && combine_y != VIDEO_COMBINE_Y_LQ3X && combine_y != VIDEO_COMBINE_Y_LQ4X
-		&& combine_y != VIDEO_COMBINE_Y_HQ2X && combine_y != VIDEO_COMBINE_Y_HQ3X && combine_y != VIDEO_COMBINE_Y_HQ4X;
-#else
-	require_last = 1;
-#endif
-
 	if (bytes_per_pixel == 1 && video_is_unchained()) {
 		video_stage_unchained8_set( video_pipeline_insert(pipeline), dst_dx, src_dp );
 	} else {
 		/* add a dummy stage if it's required of it improves the speed */
 		if (
 			/* if the last stage is required */
-			(require_last && video_pipeline_size(pipeline) == 0)
-			/* if the last stage is a conversion and a conversion is not allowed as a last stage */
-			|| (require_last_not_conversion && require_last && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type))
+			(!combine_is_direct(combine_y) && video_pipeline_size(pipeline) == 0)
+			/* if the last stage exists and it's a conversion and a conversion is not allowed as a last stage */
+			|| (!combine_is_direct(combine_y) && combine_is_rgb(combine_y) && video_pipeline_size(pipeline) != 0 && pipe_is_conversion(video_pipeline_end(pipeline)[-1].type))
 			/* if the last stage is a slow memory write stage */
-			|| (video_pipeline_size(pipeline) != 0 && !stage_is_fastwrite(&video_pipeline_end(pipeline)[-1]))
+			|| (video_pipeline_size(pipeline) != 0 && !pipe_is_fastwrite(&video_pipeline_end(pipeline)[-1]))
 			/* if the last stage is a slow memory write vertical stage */
-			|| (video_pipeline_size(pipeline) == 0 && !stage_vert_is_fastwrite(combine_y, bytes_per_pixel))
+			|| (video_pipeline_size(pipeline) == 0 && !combine_is_fastwrite(combine_y, bytes_per_pixel))
 		) {
 			switch (bytes_per_pixel) {
 				case 1 : video_stage_copy8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
@@ -3282,7 +3297,7 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	/* optimize */
 	end = video_pipeline_end_mutable(pipeline);
 
-	if (!require_last_not_conversion) {
+	if (!combine_is_rgb(combine_y)) {
 		if (video_pipeline_size(pipeline) >= 2
 			&& end[-1].type == pipe_unchained
 			&& end[-2].type == pipe_palette16to8 && end[-2].sdp == 2) {
@@ -3532,3 +3547,4 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
 {
 	video_pipeline_vert_run(pipeline, dst_x, dst_y, src);
 }
+

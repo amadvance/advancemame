@@ -1914,6 +1914,7 @@ void int_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backdr
 
 static adv_bitmap* int_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned aspectx, unsigned aspecty)
 {
+#if 1 /* select resize or resample */
 	if (bitmap->size_x < back->pos.dx) {
 		unsigned rx, ry;
 
@@ -1953,19 +1954,73 @@ static adv_bitmap* int_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitm
 
 	pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
 	if (bitmap->bytes_per_pixel == 1) {
-		/* palette bitmap */
+		// palette bitmap
 		unsigned color_map[256];
 		for(unsigned i=0;i<*rgb_max;++i)
 			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
 		bitmap_cvt_palette(pal_bitmap, bitmap, color_map);
 	} else {
-		/* rgb bitmap */
+		// rgb bitmap
 		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
 		bitmap_cvt_rgb(pal_bitmap, video_color_def(), bitmap, def);
 	}
 
 	bitmap_free(bitmap);
 	bitmap = pal_bitmap;
+#else
+	adv_bitmap* pal_bitmap;
+
+	pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
+	if (bitmap->bytes_per_pixel == 1) {
+		// palette bitmap
+		unsigned color_map[256];
+		for(unsigned i=0;i<*rgb_max;++i)
+			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
+		bitmap_cvt_palette(pal_bitmap, bitmap, color_map);
+	} else {
+		// rgb bitmap
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		bitmap_cvt_rgb(pal_bitmap, video_color_def(), bitmap, def);
+	}
+
+	bitmap_free(bitmap);
+	bitmap = pal_bitmap;
+
+	if (bitmap->size_x < back->pos.dx) {
+		unsigned rx, ry;
+
+		// flip
+		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
+
+		int_backdrop_compute_real_size(&rx, &ry, back, bitmap, aspectx, aspecty);
+
+		// resize & mirror
+		adv_bitmap* shrink_bitmap = bitmap_resample(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation, video_color_def());
+		if (!shrink_bitmap) {
+			bitmap_free(bitmap);
+			return 0;
+		}
+		bitmap_free(bitmap);
+		bitmap = shrink_bitmap;
+	} else {
+		unsigned rx, ry;
+
+		int_backdrop_compute_virtual_size(&rx, &ry, back, bitmap, aspectx, aspecty);
+
+		// resize & mirror
+		unsigned flip = (int_orientation & ORIENTATION_FLIP_XY) ? ORIENTATION_MIRROR_X | ORIENTATION_MIRROR_Y : 0;
+		adv_bitmap* shrink_bitmap = bitmap_resample(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation ^ flip, video_color_def());
+		if (!shrink_bitmap) {
+			bitmap_free(bitmap);
+			return 0;
+		}
+		bitmap_free(bitmap);
+		bitmap = shrink_bitmap;
+
+		// flip
+		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
+	}
+#endif
 
 	return bitmap;
 }
@@ -2457,6 +2512,10 @@ static void int_clip_idle()
 	}
 
 	unsigned combine = VIDEO_COMBINE_Y_NONE;
+	if (dst_dx <= dx / 2)
+		combine |= VIDEO_COMBINE_X_FILTER;
+	if (dst_dy <= dy / 2)
+		combine |= VIDEO_COMBINE_Y_FILTER;
 
 	// write
 	if (bitmap->bytes_per_pixel == 1) {
