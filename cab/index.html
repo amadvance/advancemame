@@ -1,0 +1,361 @@
+<html>
+<head>
+<title>Cabinet Tecnical Specifications</title>
+</head>
+<body bgcolor="#FFFFFF">
+
+<h1>Cabinet Tecnical Specifications</h1>
+Tecnical description of the my arcade cabinet built in the end of 1999.
+<p>
+<center>
+<img src="cabtitle.jpg">
+</center>
+<br>
+
+<h4>Table of Contents</h4>
+<ol>
+<li><A HREF="#CAB">Cabinet</A>
+<li><A HREF="#VID">Video</A>
+<li><A HREF="#OVI">Output video signal</A>
+<li><A HREF="#OAU">Output audio signal</A>
+<li><A HREF="#CON">Controls</A>
+<li><A HREF="#ICS">Input control signals</A>
+<li><A HREF="#ICO">Input coding</A>
+<li><A HREF="#PRI">Price</A>
+<li><A HREF="#IMG">Pictures</A>
+<li><A HREF="#REF">Reference</A>
+</ol>
+
+<h3><a name="CAB">Cabinet</a></h3>
+
+The cabinet was completely build from scratch, using low cost wood.
+This is the project, all measures are in cm :
+<pre>
+              44       12
+       |------------| |--|
+
+    -          ____------+              +-----------------+     -       -
+ 10 _  ____----          |              |                 |     |       | 20
+       |                 |              |_________________|     |       _
+       |                /               |                 |     |       |
+       |              /                 |                 |     |       |
+       |              |                 |                 |     |       |
+       |              |                 |                 |     |       |
+       |               |                |                 |     |       | 64
+       |               |                |                 |     |       | 
+       |                |               |                 |     | 170   |
+       |                 \____   _      |_________________|     |       _
+       |                     |   | 14   |                 |     |       |
+       |                    _|   _      |-----------------|     |       |
+       |                  _/     _ 12   |_________________|     |       |
+       |                 |              |                 |     |       | 86
+       |                 |              |                 |     |       |
+       |                 |              |                 |     |       |
+       |                 |              |                 |     |       |
+       |                 |              |                 |     |       |
+       |                 |              |                 |     |       |
+       +-----------------+              +-----------------+     -       -
+
+       |-----------------|---|          |-----------------|
+              62          18                   60
+
+</pre>
+The color is black, with the exception of the upper band that has a 
+transparent plexiglas over the MAME logo retro illuminated.
+
+<h3><a name="VID">Video</a></h3>
+
+I used a 21-inch TV with SCART RGB input mounted vertically.
+This TV (but probably also all European TVs) auto configure itself as a PAL 
+TV if the vertical frequency is lower of 55 Hz and NTSC if greater. So is 
+possible to get two types of different resolutions characterized by a 
+different number of rows.
+In PAL mode visible rows are 264, in NTSC mode are 224. 
+These numbers may vary a little for different TV, but are approximately 
+corrects.
+Using interlaced modes is possible to double the vertical resolution, so 
+all possible vertical resolutions are 224, 264, 448, 528.
+The TV does not limit horizontal resolution, essentially any resolution is 
+possible simply driving the TV with the adequate dot-clock. 
+Using only standard VGA dot-clock horizontal resolutions of 288, 320, 576, 640 
+are available.
+<p>
+The main limitation is the low number of vertical resolutions, this is 
+intrinsic to the TV hardware. Obviously also lower resolutions are 
+available, but don't cover the entire TV screen.
+
+<h3><a name="OVI">Output video signal</a></h3>
+
+A normal SVGA board generates the RGB video signal with the correct 
+frequencies for a use by a TV. However this signal require an hardware 
+conversion realized by a simple converter of the synchronization signal 
+realized using the specifications written by Tomi Engdahl on the 
+<a href="http://www.hut.fi/Misc/Electronics/circuits/vga2tv/">VGA to TV converter page</a>
+site.
+<p>
+The only modification I inserted is the 12 V input at the pin 8 of the 
+SCART cable for automatically switching TV to the external input.
+<p>
+I suggest this circuit because is well projected, completely matchs signal 
+requirements, and normalizes the polarization of the sync signal of the 
+VGA output.
+
+<h3><a name="OAU">Output audio signal</a></h3>
+
+The audio output is the normal headphones output of an old SoundBlaster Pro 8 bit. 
+It's connected to the SCART connector to use the TV speakers.
+
+<h3><a name="CON">Controls</a></h3>
+
+Controls are original Happcontrols <EM>Ultimate Joystick</EM> and 
+<EM>Competition Push Button</EM>.
+
+<h3><a name="ICS">Input control signals</a></h3>
+
+Control inputs are subdivided in two category: <EM>fixed control</EM>, 
+structurally fixed on the cabinet, and <EM>removable controls</EM> which can 
+be extracted and substituted easily, essentially are removable control panels.
+
+<dl>
+<dt>
+Fixed controls
+<dd>
+Commands coin 1, coin 2, player 1, player 2 = 4 (4 unique)
+<br>
+Connectors 9 pin (8 contacts used)
+<dt>
+Removable controls, 1 player version
+<dd>
+Commands 4 movement, 6 button, 2 generic commands = 12 (10 unique)
+<br>
+Connectors 25 pin (24 contacts used)
+<dt>
+Removable controls, 2 player version
+<dd>
+Commands 4+4 movements, 4+4 buttons, 2 generic commands = 18 (14 unique)
+<br>
+Connectors 2x25 pin (20 + 16 contacts used)
+</dl>
+
+<p>
+The 'unique' value refer to the count of commands considering the pair of 
+movements under one axis (left-right, up-down) as only one command because 
+opposite directions are mutually exclusive and is possible to use ghost 
+commands in the generic keyboard hack or keyboard encoder.
+<p>
+This configuration provides the maximum generalization. 2 lines for every 
+command without any common line permit the use of the control by any 
+preferred protocol: keyboard hack, keyboard encoder, joystick interface,...
+Eventually the contacts my configured as normal-close instead of normal-open 
+simply by using the relative output of the microswitch.
+
+
+<h3><a name="ICO">Input coding</a></h3>
+
+All the input coding is based on the hack of an old HP keyboard.
+The keyboard use a 16x8 matrix, so is possible to use a 16+8-1 = 23 completely 
+independent command whiteout the undesired ghost effect on the used keys. 
+This configuration use a complete column and row, so ghost keys are possible, 
+but only on unused key which can be simply ignored. This work with the 
+assumption that the keyboard when the ghost effect happen generate the 
+keypress event for the real key and for the ghost key, which is the default 
+behavior of keyboards.
+<p>
+All inputs are properly connected for working with the keyboard by a 
+dedicated converter, which realize the properly mapping from command to key. 
+This converter surely depends on the particular keyboard used, and is a 
+simple BIG wiring.
+<pre>
+    -----------     25 pin    -------------   25 pin  ----------------------
+    | keyboard | -------------| converter |-----------| removable controls |
+    -----------               -------------           ----------------------
+                                    |
+                                    | 9 pin
+                                    |
+                            ------------------
+                            | fixed controls |
+                            ------------------
+</pre>
+Actually two different converter are used for the two different removable 
+controls (1 player and 2 player) this only for simplifying the first 
+realization. 
+<p>
+Problems solved and additional notes:
+<ol>
+<li>The keyboard I used has a very strange behavior: the ghost effect is not 
+present when pressing key, but instead is present when directly realizing 
+contacts. So I suspect that a sort of resistance measure is used for 
+detecting a key press.
+<li>On some keys also a very high resistance is capable to generate
+a keypress. For example touching by hands the two contacts.
+<li>Cable too long may generate false key press if the respective lines 
+are very near. Probably is a sort of parasite capacity generated by 
+the cable. I'm able to reproduce the problem using a very low capacitor 
+through the contacts. I solved using alternating lines in cables.
+</ol>
+
+<h3><a name="PRI">Price</a></h3>
+
+These are approximate cost of material used. Not all material was bought, 
+because was reused from other projects.
+
+<table>
+<tr><th align="left">Item</th><th align="left">Price</th></tr>
+<tr><td>Cabinet wood</th><td align="right">40 EU</td></tr>
+<tr><td>Cabinet screws and others</th><td align="right">15 EU</td></tr>
+<tr><td>Cabinet painting</th><td align="right">20 EU</td></tr>
+<tr><td>Cabinet wiring</th><td align="right">10 EU</td></tr>
+<tr><td>Cabinet plexiglas</th><td align="right">5 EU</td></tr>
+<tr><td>Controls (1 player)</th><td align="right">40 EU</td></tr>
+<tr><td>Controls connectors</th><td align="right">10 EU</td></tr>
+<tr><td>Controls wiring</th><td align="right">5 EU</td></tr>
+<tr><td>VGA-to-SCART converter</th><td align="right">15 EU</td></tr>
+<tr><td>Total</th><td align="right">160 EU</td><td>approx. 160 $</td></tr>
+</table>
+
+<p>
+Plus the PC/Video hardware get for free:
+<dl>
+<dt>Pentium 90 overclocked 120
+<dt>Memory 24Mb
+<dt>Italian HP keyboard 102 keys
+<dt>Seagate harddisk 800 Mb
+<dt>Cirrus Logic video board cl34xx
+<dt>SoundBlaster Pro 8 bit
+<dt>TV 21" with SCART RGB input
+</dl>
+
+<p>
+Plus a LOT of time, two months of my free time.
+
+<h3><a name="IMG">Pictures</a></h3>
+
+<img src="cab3white200.jpg">
+<img src="cab7white400.jpg">
+<br>
+<img src="cab4white200.jpg">
+<img src="cab5white400.jpg">
+
+<!--
+
+<h3><a name="REF">Reference</a></h3>
+
+These are all the links I used for learning all that I need to know for
+build the cabinet.
+
+<dl>
+<dt>
+<a href="http://www.arcadecontrols.speedhost.com/arcade.htm">Build Your Own Arcade Controls FAQ</a>
+<dd>
+The inspirating site! If you want to build an arcade cabinet read 
+all on this site!
+<p>
+</dl>
+
+<h4>Video</h4>
+<dl>
+<dt>
+<a href="http://www.hut.fi/Misc/Electronics/circuits/vga2tv/">VGA to TV converter page</a>
+<dd>
+The very detailed description of the VGA to SCART converter that I used. 
+<p>
+<dt>
+<a href="http://www.geocities.com/SiliconValley/Horizon/7694/vgatv.html">Coelho's Site - VGATV Home Page</a>
+<dd>
+The very useful utility VGA2TV used to test the converter, also
+the project of a VGA to S-VIDEO converter and a lot of
+explications of video modes.
+<p>
+<dt>
+<a href="http://www.yi.com/home/GiulianiClaudio/progett1.htm">I progetti elettronici di Claudio</a>
+<dd>
+Italian project of a VGA to S-VIDEO converter in italian.
+<p>
+<dt>
+<a href="http://www.hut.fi/Misc/Electronics/video.html">Tomi Engdahl's Video Technology Page</a>
+<dd>
+All that you need to know of video tecnology.
+<p>
+<dt>
+<a href="http://randyfromm.com/techdept/">Amusement International Magazine - Technical Department - Game repair</a>
+<dd>
+Specific arcade video information.
+<p>
+<dt>
+<a href="http://www.bbc.co.uk/aberdeen/eng_info/scart_connector.shtml">BBC Scotland North - Engi Info - The SCART Interface</a>
+<dd>
+Complete specifications of the SCART connector.
+<p>
+</dl>
+
+<h4>Controls</h4>
+<dl>
+<dt>
+<a href="http://www.hut.fi/Misc/Electronics/docs/joystick/pc_circuits.html">PC joystick interface circuits</a>
+<dd>
+How to build an interface for joystic port.
+<p>
+<dt>
+<a href="http://www.enteract.com/~drib/keyboard/">Keyboard Matrix Help</a>
+<dd>
+Understanding the keyboard matrix and the ghost effect.
+<p>
+<dt>
+<a href="http://www.hagstromelectronics.com/modules.html">Hagstrom Electronics - Encoder Modules</a>
+<dd>
+A commercial keyboard encoder.
+<p>
+<dt>
+<a href="http://www.happcontrols.com/">Happ Controls Home Page</a>
+<dd>
+A commercial seller of arcade controls, GET the free catalog by mail!
+<p>
+<dt>
+<a href="http://home.t-online.de/home/stephan.hans/tricks.htm">Hardwaretricks rund um den PC</a>
+<dd>
+A lot of simple circuits for keyboard, joystick, mouse.
+<p>
+</dl>
+
+<h4>Software</h4>
+<dl>
+<dt>
+<a href="http://mame.retrogames.com/">The official Multiple Arcade Machine Emulator (MAME) page</a>
+<dd>
+The Emulator!
+<p>
+<dt>
+<a href="http://www.frag.com/doomlegacy/">DOOM (Legacy)</a>
+<dd>
+The Game!
+<p>
+</dl>
+
+<h4>Electronics</h4>
+<dl>
+<dt>
+<a href="http://www.hut.fi/Misc/Electronics/">Electronics info page</a>
+<dd>
+Incommensurable source of informations!
+<p>
+<dt>
+<a href="http://www.repairfaq.org/REPAIR/">Sci.Electronics.Repair FAQ: Main Table of Contents (ToC)</a>
+<dd>
+Another incommensurable source of informations!
+<p>
+<dt>
+<a href="ftp://ftp.unina.it/pub/electronics/chipdir/chipdir.htm">Chip directory</a>
+<br>
+<a href="http://www.falstaff.demon.co.uk/GIICM.html">The Giant Internet IC Masturbator</a>
+<br>
+<a href="http://www.hwb.acc.umu.se/index.html">HwB: The Hardware Book</a>
+<dd>
+Datasheets, pinouts, connectors...
+<p>
+</dl>
+
+-->
+
+</body>
+</html>
+

@@ -1,0 +1,563 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation of makebootfat
+
+<center><h2>Makebootfat Bootable FAT Disk Creation</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+makebootfat [options] IMAGE
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+This utility creates a bootable FAT filesystem and
+populates it with files and boot tools.
+<p>
+It is mainly designed to create bootable USB and
+Fixed disk for the AdvanceCD project.
+<p>
+The official site of AdvanceCD and makebootfat is:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<a href="http://advancemame.sourceforge.net/">http://advancemame.sourceforge.net/</a>
+<br>
+</td></tr></table>
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-o, --output DEVICE
+</strong></td></tr><tr><td>
+Specify the output device. It must be the device
+where you want to setup the filesystem.
+You can use the special "usb" value to automatically
+select the USB Mass Storage device connected at
+the system.
+This option is always required.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-b, --boot FILE
+</strong></td></tr><tr><td>
+</td></tr>
+<tr valign="top" align="left"><td><strong>
+-1, --boot-fat12 FILE
+</strong></td></tr><tr><td>
+</td></tr>
+<tr valign="top" align="left"><td><strong>
+-2, --boot-fat16 FILE
+</strong></td></tr><tr><td>
+</td></tr>
+<tr valign="top" align="left"><td><strong>
+-3, --boot-fat32 FILE
+</strong></td></tr><tr><td>
+Specify the FAT boot sector images to use. The -b option
+uses the same sector for all the FAT types. The other
+options can be used to specify a different sector for
+different FAT types. The FAT types for which a boot sector
+is not specified are not used.
+This option is always required.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-m, --mbr FILE
+</strong></td></tr><tr><td>
+Specify the MBR sector image to use.
+If this option is specified a partition table is
+created on the disk. Otherwise the disk is filled without a
+partition table like a floppy disk.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-F, --mbrfat
+</strong></td></tr><tr><td>
+Change the MBR image specified with the -m option to pretend
+to be a FAT filesystem starting from the first sector of
+the disk. This allows booting from USB-FDD (Floppy Disk Drive)
+also using a partition table generally required by USB-HDD
+(Hard Disk Drive).
+The MBR image specified with the -m option must have
+executable code positioned like a FAT boot sector. You
+can use the included `mbrfat.bin' file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-c, --copy FILE
+</strong></td></tr><tr><td>
+Copy the specified file in the root directory of the disk.
+The file is copied using the readonly attribute.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-x, --exclude FILE
+</strong></td></tr><tr><td>
+Exclude the specified files and subdirectories in the
+IMAGE directory to copy. The path must be specified using
+the same format used in the IMAGE directory specification.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-X, --syslinux2
+</strong></td></tr><tr><td>
+Enforce the syslinux 2.xx FAT limitations. Syslinux
+2.xx doesn't support FAT32 at all, and FAT16 with
+64 and 128 sectors per cluster formats.
+This option excludes all the FAT formats not supported
+by syslinux. Please note that it limits the maximum
+size of filesystem to 1 GB.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-Y, --syslinux3
+</strong></td></tr><tr><td>
+Enforce the syslinux 3.xx FAT support. Syslinux 3.00
+supports all the FAT types and sizes but it requires
+a special customisation of the boot sector and of
+the file `ldlinux.sys'.
+This option does this customisation without the need
+to use the syslinux installer if the `ldlinux.sys'
+file is copied on disk with the -c option.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-Z, --zip
+</strong></td></tr><tr><td>
+If possible force the ZIP-Disk compatibility. It sets
+a geometry of 32 sectors and 64 heads. It also uses the
+4'th partition entry in the partition table.
+It's required to boot also in USB-ZIP mode.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-P, --partition
+</strong></td></tr><tr><td>
+Ensure to operate on a partition and not on a disk.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-D, --disk
+</strong></td></tr><tr><td>
+Ensure to operate on a disk and not on a partition.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-L, --label LABEL
+</strong></td></tr><tr><td>
+Set the FAT label. The label is a string of 11 chars.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-O, --oem OEM
+</strong></td></tr><tr><td>
+Set the FAT OEM name. The OEM name is a string of 11 chars.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-S, --serial SERIAL
+</strong></td></tr><tr><td>
+Set the FAT serial number. The serial number is a 32 bit
+unsigned integer.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-E, --drive DRIVE
+</strong></td></tr><tr><td>
+Set the BIOS drive to setup in the FAT boot sector.
+Generally this value is ignored by boot sectors, with
+the exception of the FAT12 and FAT16 FreeDOS boot sectors
+that require the correct value or the value 255 to force
+auto detection.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-v, --verbose
+</strong></td></tr><tr><td>
+Print some information on the device and on the filesystem
+created.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-i, --interactive
+</strong></td></tr><tr><td>
+Show the errors in a message box. Only for Windows.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-h, --help
+</strong></td></tr><tr><td>
+Print a short help.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-V, --version
+</strong></td></tr><tr><td>
+Print the version number.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+IMAGE
+</strong></td></tr><tr><td>
+Directory image to copy on the disk. All the files
+and subdirectories present in this directory
+are copied on the disk.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Disks and Partitions Names
+</h2>
+In Linux disk devices are named /dev/hdX or /dev/sdX where X
+is a letter. Partition devices are named /dev/hdXN or /dev/sdXN
+where X is a letter and N a digit.
+<p>
+In Windows disk devices are named \\.\PhysicalDriveN where N is
+a digit. Partition devices are named \\.\X: where X is a letter,
+but sometimes \\.\X: is a disk and not a partition, for example on
+floppies and on all the USB Mass Storage devices without a
+partition table.
+<h2><a name="5">5</a> 
+Syslinux
+</h2>
+To make a bootable FAT using syslinux you must use
+the -X option for syslinux version 2.xx or the -Y
+option for syslinux version 3.xx. You must also copy in
+the root directory of the disk the files:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ldlinux.sys
+</em></td><td width="90%">
+The syslinux loader.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+syslinux.cfg
+</em></td><td width="90%">
+The syslinux configuration file.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+linux
+</em></td><td width="90%">
+The Linux kernel image  (the file name may be different).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+initrd.img
+</em></td><td width="90%">
+The initrd filesystem (the file name may be different
+or missing).
+</td></tr>
+</table>
+<p>
+You must also specify the `ldlinux.bss' boot sector with the -b
+option and possibily the `mbr.bin' MBR sector with the -m option.
+Both the sector images are present in the syslinux package.
+<p>
+For example:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makebootfat -o usb \
+&nbsp;&nbsp;&nbsp;&nbsp;-Y \
+&nbsp;&nbsp;&nbsp;&nbsp;-b ldlinux.bss -m mbr.bin \
+&nbsp;&nbsp;&nbsp;&nbsp;-c ldlinux.sys -c syslinux.cfg \
+&nbsp;&nbsp;&nbsp;&nbsp;-c linux -c initrd.img \
+&nbsp;&nbsp;&nbsp;&nbsp;image
+</pre>
+</td></tr></table>
+<h2><a name="6">6</a> 
+Loadlin and FreeDOS
+</h2>
+To make a bootable FAT using loadlin and FreeDOS you must copy
+in the root directory of the disk the files:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+kernel.sys
+</em></td><td width="90%">
+The FreeDOS kernel. Remember to use the "32" kernel
+version to support FAT32.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+command.com
+</em></td><td width="90%">
+The FreeDOS shell.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+autoexec.bat
+</em></td><td width="90%">
+Used to start loadlin.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+loadlin.exe
+</em></td><td width="90%">
+The loadlin executable.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+linux
+</em></td><td width="90%">
+The Linux kernel image  (the file name may be different).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+initrd.img
+</em></td><td width="90%">
+The initrd filesystem (the file name may be different
+or missing).
+</td></tr>
+</table>
+<p>
+You must also specify the FreeDOS boot sectors available on the
+FreeDOS `sys' source package with the -1, -2, -3 option.
+For the MBR you can use the sectors image available on the FreeDOS
+`fdisk' source package.
+<p>
+For example:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makebootfat -o /dev/hda1 \
+&nbsp;&nbsp;&nbsp;&nbsp;-E 255 \
+&nbsp;&nbsp;&nbsp;&nbsp;-1 fat12com.bin -2 fat16com.bin -3 fat32lba.bin \
+&nbsp;&nbsp;&nbsp;&nbsp;-c kernel.sys -c command.com \
+&nbsp;&nbsp;&nbsp;&nbsp;-c autoexec.bat -c loadlin.exe \
+&nbsp;&nbsp;&nbsp;&nbsp;-c linux -c initrd.img \
+&nbsp;&nbsp;&nbsp;&nbsp;image
+</pre>
+</td></tr></table>
+<h2><a name="7">7</a> 
+Multi Standard USB Booting
+</h2>
+The BIOS USB boot support is generally differentiated in three
+categories: USB-HDD, USB-FDD and USB-ZIP.
+<p>
+The USB-HDD (Hard Disk Drive) standard is the preferred choice and
+it requires the presence of a partition table in the first sector
+of the disk. You can create this type of disk using the -m option.
+<p>
+The USB-FDD (Floppy Disk Drive) standard requires the presence of
+a filesystem starting from the first sector of the disk without
+a partition table.
+You can create this type of disk without using the -m option.
+<p>
+The USB-ZIP (ZIP Drive) standard requires the presence of a
+device with a very specific geometry. Specifically, it requires
+a geometry with 32 sectors and 64 heads. It also requires the presence
+of a partition table with only a bootable partition in the
+fourth entry. You can create this type of disk using the -m and -Z option.
+<p>
+Generally these standards are incompatible, but using the -m, -F
+and -Z options you can create a disk compatible with all of them.
+<p>
+To use the -F option, the MBR image specified must follow
+the constrains:
+<ul>
+<li>
+It must start with a standard FAT 3 bytes jump instruction.
+</li>
+<li>
+It must have the bytes from address 3 to 89 (included) unused.
+</li>
+</ul>
+<p>
+And example of such image is in the `mbrfat.bin' file.
+<p>
+For example to create a syslinux image:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makebootfat -o usb \
+&nbsp;&nbsp;&nbsp;&nbsp;-Y \
+&nbsp;&nbsp;&nbsp;&nbsp;-Z \
+&nbsp;&nbsp;&nbsp;&nbsp;-b ldlinux.bss -m mbrfat.bin -F \
+&nbsp;&nbsp;&nbsp;&nbsp;-c ldlinux.sys -c syslinux.cfg \
+&nbsp;&nbsp;&nbsp;&nbsp;-c linux -c initrd.img \
+&nbsp;&nbsp;&nbsp;&nbsp;image
+</pre>
+</td></tr></table>
+<p>
+and for a FreeDOS and loadlin image:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makebootfat -o usb \
+&nbsp;&nbsp;&nbsp;&nbsp;-E 255 \
+&nbsp;&nbsp;&nbsp;&nbsp;-Z \
+&nbsp;&nbsp;&nbsp;&nbsp;-1 fat12com.bin -2 fat16com.bin -3 fat32chs.bin \
+&nbsp;&nbsp;&nbsp;&nbsp;-m mbrfat.bin -F \
+&nbsp;&nbsp;&nbsp;&nbsp;-c kernel.sys -c command.com \
+&nbsp;&nbsp;&nbsp;&nbsp;-c autoexec.bat -c loadlin.exe \
+&nbsp;&nbsp;&nbsp;&nbsp;-c linux -c initrd.img \
+&nbsp;&nbsp;&nbsp;&nbsp;image
+</pre>
+</td></tr></table>
+<p>
+Please note that FreeDos has some problems booting
+from USB. It works only on very few conditions.
+<h2><a name="8">8</a> 
+Exclusion
+</h2>
+To exclude some files or directories in the image copy, you
+can use the -x option using the same path specification
+which are you using for the image directory.
+<p>
+For example, if you need to exclude the `isolinux' and
+`syslinux' subdirectories from the `image' directory
+you can use the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makebootfat ... \
+&nbsp;&nbsp;&nbsp;&nbsp;-x image/isolinux \
+&nbsp;&nbsp;&nbsp;&nbsp;-x image/syslinux \
+&nbsp;&nbsp;&nbsp;&nbsp;image
+</pre>
+</td></tr></table>
+<h2><a name="9">9</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2004, 2005 Andrea Mazzoleni
+<h2><a name="10">10</a> 
+See Also
+</h2>
+syslinux(1), mkdosfs(1), dosfsck(1)
+
+
+</div>
+</body>
+</html>
+
+
+

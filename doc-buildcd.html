@@ -1,0 +1,613 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation for the build of AdvanceCD.
+
+<center><h2>AdvanceCD Build Notes</h2></center>
+<h2><a name="1">1</a> 
+Description
+</h2>
+This document describes the internal details and the
+build process of AdvanceCD. The build process is
+possible only in Linux.
+<h2><a name="2">2</a> 
+Disk Types
+</h2>
+AdvanceCD can boot from three different disk types: CD/DVD,
+USB disk and fixed disk. Any disk type uses a different
+boot filesystem with different booting tools.
+<h3><a name="2.1">2.1</a> 
+CD/DVD
+</h3>
+For CD and DVD is used an iso9660 filesystem using the
+El Torito boot support in `no emulation' mode.
+The image is created with the mkisofs program.
+For booting is used the isolinux boot loader.
+<h3><a name="2.2">2.2</a> 
+USB disk
+</h3>
+For USB disks is used a FAT 12/16 filesystem, with a special
+partition table which is also a FAT boot sector. This allows
+booting using both the USB-FDD and USB-HDD BIOS.
+The disk is created with the included makebootfat program.
+For booting is used the syslinux boot loader.
+<h3><a name="2.3">2.3</a> 
+Fixed disk
+</h3>
+For Fixed disks is used a FAT 12/16/32 filesystem in
+a standard partition.
+The disk is created with the included makebootfat program.
+For booting is used the FreeDOS operating system and the
+loadlin linux loader.
+<h2><a name="3">3</a> 
+Files
+</h2>
+In the bootable disk images are present various files
+required in the booting process.
+<h3><a name="3.1">3.1</a> 
+isolinux.bin/isolinux.cfg
+</h3>
+isolinux.bin is the CD/DVD boot loader that loads the Linux Kernel
+and the root filesystem. The configuration of isolinux
+is in the isolinux.cfg file.
+In the configuration file is set the kernel parameter
+"advancecd=1" to allow the recognition of the boot from
+CD/DVD condition.
+<h3><a name="3.2">3.2</a> 
+ldlinux.sys/syslinux.cfg
+</h3>
+ldlinux.sys is the FAT boot loader used for USB disks that
+loads the Linux Kernel and the root filesystem.
+The configuration of ldlinux.sys is in the syslinux.cfg file.
+In the configuration file is set the kernel parameter
+"advanceusb=1" to allow the recognition of the boot from
+USB disk condition.
+<h3><a name="3.3">3.3</a> 
+loadlin.exe
+</h3>
+loadlin.exe is the FAT boot loader used for fixed disks
+that loads the Linux Kernel and the root filesystem.
+It's a DOS program, so it needs a DOS environment like
+FreeDOS to run.
+The configuration of loadlin.exe is in the autoexec.bat file.
+In the configuration file is set the kernel parameter
+"advancehd=1" to allow the recognition of the boot from
+fixed disk condition.
+<h3><a name="3.4">3.4</a> 
+kernel32.sys/command.com/config.sys/autoexec.bat
+</h3>
+kernel32.sys and command.com are minimal component
+of FreeDOS required to run the loadlin.exe linux loader.
+config.sys and autoexec.bat are the configuration files
+of FreeDOS.
+<h3><a name="3.5">3.5</a> 
+linux
+</h3>
+linux is the compressed image of the Linux Kernel.
+<h3><a name="3.6">3.6</a> 
+initrd.img
+</h3>
+initrd.img is a gzipped ext2 filesystem image containing
+the Linux root filesystem. This filesystem is loaded in ram
+by the linux loader. It contains the minimal software required
+for the Linux startup.
+<p>
+Please note that the ext2 filesystem is supported only
+in Linux. You cannot read this filesystem in Windows without
+using special tools.
+<p>
+The file /etc/rc.d/rc.S in the image is the start script
+which does all the initialization work. The /etc/rc.d/rc.0
+file is the shutdown script.
+<h3><a name="3.7">3.7</a> 
+app.img
+</h3>
+app.img is a compressed iso9660 filesystem image using the
+zisofs extension. This filesystem is mounted by the
+/etc/rc.d/rc.S startup script present in the initrd
+filesystem. It contains all the emulator software and
+all the Linux Kernel modules.
+<p>
+Please note that the zisofs extension is supported only in Linux.
+You cannot read this filesystem in Windows without using special
+tools.
+<h2><a name="4">4</a> 
+Preparation
+</h2>
+To build AdvanceCD you must have both the source and binary
+package.
+<p>
+Login as root and decompress both the packages in the same
+directory and run the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+make extract
+</td></tr></table>
+<p>
+to extract the initrd/ and app/ compressed filesystems.
+<h2><a name="5">5</a> 
+Makefile
+</h2>
+The Makefile has the targets:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+all
+</em></td><td width="90%">
+Update app, initrd and iso.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+app
+</em></td><td width="90%">
+Update the app.img file from the app/ directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+initrd
+</em></td><td width="90%">
+Update the initrd.img file from the initrd/ directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+iso
+</em></td><td width="90%">
+Create the iso image.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+dist
+</em></td><td width="90%">
+Create the source distribution file.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+distbin
+</em></td><td width="90%">
+Create the binary distribution file.
+</td></tr>
+</table>
+<h2><a name="6">6</a> 
+App
+</h2>
+To update the app image follow the steps:
+<ul>
+<li>
+Copy the new files in the app/ directory
+</li>
+<li>
+Update the image with the command "make app"
+</li>
+</ul>
+<p>
+You need at least the kernel 2.4.14 to support the zisofs extension.
+Check the manpage of mkisofs for the -z option or the mkzftree manpage.
+<h3><a name="6.1">6.1</a> 
+AdvanceMAME/AdvanceMENU/AdvanceMESS
+</h3>
+To compile a new version of AdvanceMAME/MESS/MENU you can use
+the `wholecd' AdvanceMAME make target.
+<p>
+Then you must manually copy the new binaries in
+the app/root directory. Remember to update also the .xml
+game list in the same directory.
+<h3><a name="6.2">6.2</a> 
+Kernel
+</h3>
+To update the Linux kernel follow the steps:
+<ul>
+<li>
+Uncompress the kernel source
+</li>
+<li>
+Copy the .config script from the contrib/ dir in the kernel dir.
+</li>
+<li>
+Change the .config script enabling the required SCSI, Joystick and
+FrameBuffer drivers.
+</li>
+<li>
+Go to the kernel dir.
+</li>
+<li>
+Use the ../contrib/dokernel script to compile and install the kernel.
+</li>
+</ul>
+<p>
+This is the list of the not included drivers/features:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SCSI
+</em></td><td width="90%">
+"Probe all LUNs on each SCSI device" - Safer to have it disabled.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+Joystick
+</em></td><td width="90%">
+"I-Force USB joysticks and wheels" - Kernel Panic
+also without the device.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+USB
+</em></td><td width="90%">
+"UHCI Alternate Driver (JE)" - This drivers is reported to have
+some problems with HID devices. Use the "UHCI (Intel PIIX4, VIA, ...)"
+version. Reported in the xmame list.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FrameBuffer
+</em></td><td width="90%">
+"VESA VGA" - This driver isn't able to set an
+arbitrary video mode.
+</td></tr>
+</table>
+<p>
+The kernel has all the modules compiled in. The only external
+modules are for Joystick, GamePort and ALSA.
+<p>
+To boot logo is contained in the linux_logo.h file created with the
+fblogo utility.
+<p>
+The kernel used is the version 2.4.26 with the following
+patches applied:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+noprintk
+</em></td><td width="90%">
+Remove all the kernel messages.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bootkey
+</em></td><td width="90%">
+Change the boot key sequence.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+keyboard
+</em></td><td width="90%">
+Allow the boot key sequence also in RAW mode and to
+immediately shutdown the system.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+i810fb-lite-0.0.23
+</em></td><td width="90%">
+Intel i810 framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+i810fb-lite-0.0.23-0.0.35
+</em></td><td width="90%">
+Updated Intel i810 framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+i810fb-noclock
+</em></td><td width="90%">
+Fix for the framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+i810fb-nomodule
+</em></td><td width="90%">
+Fix for the framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+savagefb-0.3.2
+</em></td><td width="90%">
+S3 Savage framebuffer driver (from DirectFB).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+savagefb-noexit
+</em></td><td width="90%">
+Fix for the framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+savagefb-nomodule
+</em></td><td width="90%">
+Fix for the framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+rivafb-0.9.4c
+</em></td><td width="90%">
+Updated nVidia GeForce framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+rivafb-id
+</em></td><td width="90%">
+New cards for nVidia GeForce framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+radeonfb-id
+</em></td><td width="90%">
+New cards for ATI Radeon framebuffer driver.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+i740fb-20021207
+</em></td><td width="90%">
+Intel i740 framebuffer driver.
+</td></tr>
+</table>
+<p>
+The kernel is compiled with the contrib/.config configuration
+file.
+<h3><a name="6.3">6.3</a> 
+Modules
+</h3>
+To update the Linux kernel modules follow the steps:
+<ul>
+<li>
+Go to the kernel dir.
+</li>
+<li>
+Use the ../contrib/dokernelmodules script to compile and
+install the kernel modules. Note that this command
+deletes all the previously installed modules.
+</li>
+<li>
+Install the ALSA modules.
+</li>
+<li>
+Delete from /app/lib/modules/modules.isapnpmap:
+</li>
+</ul>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snd-es968
+</em></td><td width="90%">
+It's a too short line and it generates a runtime warning.
+</td></tr>
+</table>
+<ul>
+<li>
+Delete from /app/lib/modules/modules.pcimap:
+</li>
+</ul>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snd-bt87x
+</em></td><td width="90%">
+It's a TV Tuner and must not be seen as an audio device.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snd-atiixp-modem
+</em></td><td width="90%">
+Only modems.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snd-via82xx-modem
+</em></td><td width="90%">
+Only modems.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snd-intel8x0m
+</em></td><td width="90%">
+Only modems.
+</td></tr>
+</table>
+<h3><a name="6.4">6.4</a> 
+ALSA
+</h3>
+To update the ALSA modules and binaries follow the steps:
+<ul>
+<li>
+Uncompress the ALSA-driver source.
+</li>
+<li>
+Go to the ALSA-driver dir.
+</li>
+<li>
+Use the ../contrib/doalsa script to compile and install
+the ALSA modules.
+</li>
+<li>
+Go to the kernel dir and use the ../contrib/dokerneldepmod
+script to update the modules dependencies.
+</li>
+</ul>
+<p>
+The ALSA library (lib 0.9.1) doesn't work if compiled with a prefix
+different than the final running location. It means that you need
+to compile and install it with the standard prefix=/usr and
+manually copy the files.
+<p>
+Ensure also that the /etc/modules.conf options are still valid
+for the new ALSA modules. Otherwise the modules will not be
+loaded.
+<h3><a name="6.5">6.5</a> 
+Other
+</h3>
+To update the other binaries and libraries you must copy
+them manually.
+<p>
+All the binaries already present are from a Slackware 10.0
+installation.
+<h2><a name="7">7</a> 
+Initrd
+</h2>
+To update the initrd image follow the steps:
+<ul>
+<li>
+Copy the new files in the initrd/ directory.
+</li>
+<li>
+Update the images with the command "make initrd".
+</li>
+</ul>
+<h3><a name="7.1">7.1</a> 
+Busybox
+</h3>
+The BusyBox program is compiled with the .config-busybox
+configuration file.
+<p>
+To compile Busybox, first copy the .config file, then
+type "make menuconfig", "make" and "make install".
+<p>
+To install, copy the install bin/ and sbin/ directory in initrd/.
+<p>
+Note that you must have all the commands in /bin and not
+in /usr/bin.
+<h2><a name="8">8</a> 
+Image
+</h2>
+To update the disk image follow the steps:
+<ul>
+<li>
+Copy the new files in the image/ directory
+</li>
+</ul>
+<h3><a name="8.1">8.1</a> 
+Isolinux
+</h3>
+The isolinux.bin image is compiled with the following patches:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+memfix
+</em></td><td width="90%">
+Allow the use of the mem=512M kernel parameter also if
+the system has less than 512MB. The mem=512M option is
+required to allow the Linux Frame Buffer driver to map the
+video card memory in the kernel address space also if the
+system has 1GB or more memory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+nomsg
+</em></td><td width="90%">
+Remove some boot messages.
+</td></tr>
+</table>
+<p>
+If you don't want to use the `memfix' patch, remember to remove
+the `mem=512M' option from isolinux.cfg.
+<h3><a name="8.2">8.2</a> 
+Syslinux
+</h3>
+If you update the syslinux files, be sure to update both the
+ldlinux.bss and the ldlinux.sys files. They must always be part
+of the same compilation process.
+<p>
+ldlinux.sys uses the same patches of isolinux.bin.
+<p>
+If you don't want to use the `memfix' patch, remember to remove
+the `mem=512M' option from syslinux.cfg.
+<h3><a name="8.3">8.3</a> 
+FreeDOS
+</h3>
+Be sure to use the 32 kernel.sys version. The 16 version
+doesn't have the FAT32 support.
+<h2><a name="9">9</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+
+
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,240 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation of the AdvanceCOMP <em>advdef</em> utility.
+
+<center><h2>AdvanceCOMP Deflate Compression Utility</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advdef [-z, --recompress] [-0, --shrink-store]
+&nbsp;&nbsp;&nbsp;&nbsp;[-1, --shrink-fast] [-2, --shrink-normal] [-3, --shrink-extra]
+&nbsp;&nbsp;&nbsp;&nbsp;[-4, --shrink-insane] [-i, --iter N]
+&nbsp;&nbsp;&nbsp;&nbsp;[-f, --force] [-q, --quiet]
+&nbsp;&nbsp;&nbsp;&nbsp;[-h, --help] [-V, --version] FILES...
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The main purpose of this utility is to recompress the
+data present in the .png, .mng, .gz, .tgz and .svgz
+files.
+<p>
+The internal structure of the files isn't changed.
+Only the compressed data is modified.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-z, --recompress FILES...
+</strong></td></tr><tr><td>
+Recompress the specified files. If the -1, -2, -3, -4
+options are specified it's used the smallest file
+choice from the previous compressed data and the
+new compression. If the -0 option is specified the
+file is always rewritten without any compression.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-0, --shrink-store
+</strong></td></tr><tr><td>
+Disable the compression. The file is
+only stored and not compressed. The file is always
+rewritten also if it's bigger.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-1, --shrink-fast
+</strong></td></tr><tr><td>
+Set the compression level to "fast" using the zlib
+compressor.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-2, --shrink-normal
+</strong></td></tr><tr><td>
+Set the compression level to "normal" using the 7z
+compressor.
+This is the default level of compression.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-3, --shrink-extra
+</strong></td></tr><tr><td>
+Set the compression level to "extra" using the 7z
+compressor.
+You can define the compressor iterations with
+the -i, --iter option.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-4, --shrink-insane
+</strong></td></tr><tr><td>
+Set the compression level to "insane" using the zopfli
+compressor.
+You can define the compressor iterations with
+the -i, --iter option.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-i, --iter N
+</strong></td></tr><tr><td>
+Define an additional numer of iterations for the 7z and zopfli
+compressors for modes -3 and -4.
+More iterations usually give a better compression, but may
+require a lot more time.
+Try for example with 10, 15, 20, and so on.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-f, --force
+</strong></td></tr><tr><td>
+Force the use of the new file also if it's bigger.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Limitations
+</h2>
+The advdef program cannot be used to recompress huge files
+because it needs to allocate memory for both the complete
+compressed and uncompressed data.
+<h2><a name="5">5</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni
+<h2><a name="6">6</a> 
+See Also
+</h2>
+advpng(1), advmng(1), advzip(1), gzip(1), bzip2(1)
+
+
+</div>
+</body>
+</html>
+
+
+

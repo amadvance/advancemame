@@ -1,0 +1,289 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation of the AdvanceMAME <em>advv</em> utility
+
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advv [-advmamev] [-advmessv] [-advmenuv]
+&nbsp;&nbsp;&nbsp;&nbsp;[-vbev] [-vgav] [-videowv] [-log] [-logsync]
+&nbsp;&nbsp;&nbsp;&nbsp;[-rc RCFILE]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `advv' utility is the main video configuration program
+for the Advance programs. It selects, creates and tweaks
+video modes interactively.
+<p>
+This utility works differently if one of the -advmamev,
+-advmessv, -advmenuv, -vbev, -vgav and -videowv options
+is specified.
+The main difference is the the name of the configuration
+file used to store the video modes.
+<p>
+Before running this utility you must add in your configuration
+file the option `device_video_clock' required to defines
+the limits of your monitor and video board. You can add them
+manually or using the `advcfg' utility.
+<p>
+Check the `advdev.txt' file for more details on these options.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-rc RCFILE
+</strong></td></tr><tr><td>
+Specify an alternate name of the configuration file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-log
+</strong></td></tr><tr><td>
+A very detailed log of operations is saved in
+a `.log' file. Very useful for debugging problems.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-logsync
+</strong></td></tr><tr><td>
+Like the `-log' option but the log file is not
+buffered. This option must be used to get a complete
+log file in presence of a machine crash.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-advmamev, -advmessv, -advmenuv, -vbev, -vgav, -videowv
+</strong></td></tr><tr><td>
+Select the mode of operation for the programs `advmame',
+`advmess', `advmenu', `vbe', `vga' and `videow'.
+The default is `advmame'.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Use
+</h2>
+When the program starts a list of modelines is printed. You can
+walk on the list with the UP and DOWN arrows of your keyboard.
+You can select the modelines to use in the emulator pressing
+SPACE.
+<p>
+With the LEFT and RIGHT arrows you can select the bit depth of
+the video mode to test.
+<p>
+To test a video mode you can press ENTER and ESC to return
+to the list.
+<p>
+When you have finished the selection press F2 to save the video
+modes in the configuration file. At the next run the emulator
+will use one of the modelines that you have chosen.
+<p>
+If you have problem please read the `Troubleshooting' chapter
+in the `install.txt' file.
+<p>
+If you have correctly configured the `device_video_p/h/vclock'
+options in your configuration file, the video modes out of
+the frequency range supported by your monitor are displayed
+in red, and you are prevented to use them.
+<h3><a name="4.1">4.1</a> 
+Creating Video Modes
+</h3>
+To create a new modeline you should press F5 or F6.
+<p>
+You will be asked for:
+<ul>
+<li>
+Vertical clock
+</li>
+<li>
+Horizontal resolution
+</li>
+<li>
+Vertical resolution
+</li>
+</ul>
+<p>
+If possible, a video mode compatible with your current monitor
+configuration is created. If a such mode doesn't exist,
+with F5 are favorite video modes with the specified size,
+with F6 are favorite video modes with the specified vertical
+frequency.
+<p>
+If a the `device_video_format' option is present in your
+configuration file, the video mode is created with this
+format. Otherwise the generic VGA monitor format is used.
+<p>
+All the video modes created have always negative horizontal
+and vertical sync polarity.
+<h3><a name="4.2">4.2</a> 
+Adjusting Modelines
+</h3>
+You can modify the modelines in the test screen pressing ENTER
+or in the list screen directly.
+<p>
+When you are in the test screen, `advv' prevent you to set a
+modeline out of the frequency range supported by your monitor.
+In this cases you can hear a grave long sound. Instead when you
+are in the list screen you don't have this limitation.
+<p>
+If you request a parameter not supported by your hardware
+you will hear an acute short sound.
+<p>
+You can easily change one of the clock values of your modelines
+pressing F8.
+<p>
+Finally you can rename the modelines pressing TAB.
+<p>
+Remember to select the modified modelines with SPACE otherwise
+they aren't saved in your configuration file and will be lost.
+<h3><a name="4.3">4.3</a> 
+Startup Text Mode
+</h3>
+The program at startup tries to set a text mode supported by
+your hardware to show his data.
+<p>
+If a modelines named `default_text' is present in your
+configuration file the program use it.
+<p>
+If correct `device_video_p/h/vclock' options are found in your
+configuration file the program try to use a text mode that
+match your clock configuration from a list of predefined
+modes and the modes present in the configuration file.
+<p>
+If no one of these modes match your configuration the current
+text mode is used.
+<h2><a name="5">5</a> 
+Configuration
+</h2>
+Depending one the command line options used one of the `advmame.rc',
+`advmess.rc', `advmenu.rc', `vbe.rc', `vga.rc' and
+`videow.rc' file is used to load and save the video configuration.
+
+
+</div>
+</body>
+</html>
+
+
+

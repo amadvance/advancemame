@@ -1,0 +1,683 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation of AdvanceCD
+
+<center><h2>AdvanceCD Arcade LiveCD</h2></center>
+<h2><a name="1">1</a> 
+Description
+</h2>
+AdvanceCD is a bootable live CD, DVD and USB disk of a minimal
+Linux distribution containing the AdvanceMAME emulator.
+<p>
+You can boot it in any PC and play the contained games without
+any installation. The default distribution contains the arcade
+games Gridlee, Poly Play and Robby Roto and it uses only 20
+Mbyte leaving the whole disk for your roms.
+<h2><a name="2">2</a> 
+Requirements
+</h2>
+Please note that AdvanceCD works only with PC MultiSync monitors
+with these clock ranges:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Horizontal Clock: 30 to 60 kHz
+<br>
+Vertical Clock: 55 to 110 Hz
+<br>
+</td></tr></table>
+<p>
+Ensure to use it with a PC MultiSync monitor compatible
+with these clocks. Generally all the recent monitors are ok.
+<p>
+To make it working with Arcade Monitors or TVs you must
+customize it manually.
+<h2><a name="3">3</a> 
+Using AdvanceCD
+</h2>
+Simply put the CD/DVD in the drive or connect the USB disk, and
+reboot your PC.
+<p>
+After the detection of your hardware the AdvanceMENU interface
+automatically starts.
+<p>
+When the menu is started, browse the available games and start
+them pressing ENTER.
+<p>
+To shutdown select "PowerOff" in the menu, or simply power-off
+the PC.
+<h2><a name="4">4</a> 
+Game Play
+</h2>
+In the game play you can use the following keys:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+F1
+</em></td><td width="90%">
+Show the keys used in the game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ESC
+</em></td><td width="90%">
+Exit and return at the menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+F3
+</em></td><td width="90%">
+Reset the game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+P
+</em></td><td width="90%">
+Pause.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PAD *
+</em></td><td width="90%">
+Turbo mode until pressed.
+</td></tr>
+</table>
+<p>
+For player 1 generally the keys are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+5
+</em></td><td width="90%">
+Insert coin.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+1
+</em></td><td width="90%">
+Play.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ARROWS
+</em></td><td width="90%">
+Move.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+LCTRL, LSHIFT
+</em></td><td width="90%">
+First button.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+LALT, LWIN, \
+</em></td><td width="90%">
+Second button.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SPACE, z
+</em></td><td width="90%">
+Third button.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+x
+</em></td><td width="90%">
+Fourth button.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+c
+</em></td><td width="90%">
+Fifth button.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+v
+</em></td><td width="90%">
+Sixth button.
+</td></tr>
+</table>
+<h2><a name="5">5</a> 
+Adding your files
+</h2>
+Before creating the disk image you must copy your roms and other
+files under the image/arcade/ directory.
+<p>
+Generally you need only to add roms in the image/arcade/rom directory
+and snapshots in the image/arcade/snap directory.
+<p>
+Eventually you can also add other files in the following
+directories:
+<p>
+For AdvanceMAME:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/rom
+</em></td><td width="90%">
+The .zip roms.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/image
+</em></td><td width="90%">
+The .chd harddisk images.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/diff
+</em></td><td width="90%">
+The .dif harddisk differential images.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/sample
+</em></td><td width="90%">
+The .zip samples.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/artwork
+</em></td><td width="90%">
+The .zip artworks.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/bezel
+</em></td><td width="90%">
+The .zip bezels.
+</td></tr>
+</table>
+<p>
+For AdvanceMESS:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/bios
+</em></td><td width="90%">
+The .zip bios.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/software
+</em></td><td width="90%">
+The .zip software.
+</td></tr>
+</table>
+<p>
+For AdvanceMENU:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/snap
+</em></td><td width="90%">
+The .png, .mp3, .mng snaps.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/flyer
+</em></td><td width="90%">
+The .png flyers.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/marquee
+</em></td><td width="90%">
+The .png marquees.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/cabinet
+</em></td><td width="90%">
+The .png cabinets.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/icon
+</em></td><td width="90%">
+The .ico icons.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+image/arcade/music
+</em></td><td width="90%">
+The background .mp3 music.
+</td></tr>
+</table>
+<p>
+Please note that AdvanceMENU lists only games that don't
+have the MAME driver in `preliminary' state.
+<p>
+If you want to improve the AdvanceMENU performance, instead of
+putting tons of images and sounds in the directories you can
+use only a single big .zip containing all the .png, .mp3 and
+.mng files. To improve performance is better to store the files
+in the zip and don't compress them.
+<p>
+If you prefer, before creating the disk image, you can delete
+the image/free directory containing the free games.
+<h2><a name="6">6</a> 
+Checking your roms
+</h2>
+Before creating the disk is a good idea to check if AdvanceMAME can use
+your set of roms.
+<p>
+This can be done running the included `checkrom' script.
+<p>
+In Linux you need to first install the AdvanceSCAN program
+and run the script:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+./checkrom.sh
+</pre>
+</td></tr></table>
+<p>
+The AdvanceSCAN program is present in the support/advancescan-1.8.tar.gz
+package.
+<p>
+In Windows you need only to run the batch file:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+checkrom.bat
+</pre>
+</td></tr></table>
+<p>
+The script will show at screen a short text report on incomplete
+rom files, and on missing roms required by other present roms.
+<h2><a name="7">7</a> 
+Installing on a CD/DVD
+</h2>
+To make a CD/DVD you need to run the `makecd' script to
+create the CD/DVD image, and burn it with a burning program.
+<p>
+In Linux you need to run the script:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+./makecd.sh
+</pre>
+</td></tr></table>
+<p>
+and in Window the script:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makecd.bat
+</pre>
+</td></tr></table>
+<p>
+These scripts create in the current directory the file `advcd.iso'
+containing the CD/DVD ISO image.
+<p>
+You can burn it with your favorite CD/DVD burning program.
+<h2><a name="8">8</a> 
+Installing on an USB disk
+</h2>
+To install on an USB disk, you need to connect it to your PC, and
+run the `makeusb' script.
+<p>
+In Linux you need to first install the `makebootfat' program and
+run the script:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+./makeusb.sh
+</pre>
+</td></tr></table>
+<p>
+The makebootfat program is present in the support/makebootfat-1.4.tar.gz
+package.
+<p>
+In Windows you need only to run the batch file:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makeusb.bat
+</pre>
+</td></tr></table>
+<p>
+These scripts format the connected USB disk, and copy on it the
+whole image/ directory. The disk is formatted with the FAT
+filesystem.
+<p>
+Please note that the content of the USB disk is completely
+deleted without asking.
+<h2><a name="9">9</a> 
+Installing on a Fixed disk partition
+</h2>
+To install on a Fixed disk partition you need to run the
+`makepart' script from a command shell specifying as the
+only argument the partition name.
+<p>
+In Linux you need to first install the `makebootfat' program and
+run the script:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+./makepart.sh DEVICE
+</pre>
+</td></tr></table>
+<p>
+where DEVICE is generally something like /dev/hdaN, for example:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+./makepart.sh /dev/hda8
+</pre>
+</td></tr></table>
+<p>
+to install in the eighth partition of the first harddisk.
+<p>
+The makebootfat program is present in the support/makebootfat-1.4.tar.gz
+package.
+<p>
+In Windows you need only to run the batch file:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makepart.bat DEVICE
+</pre>
+</td></tr></table>
+<p>
+where DEVICE is generally something like \\.\X:, for example:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+makepart.bat \\.\D:
+</pre>
+</td></tr></table>
+<p>
+to install on the partition D:.
+<p>
+These scripts format the partition, and copy on it the
+whole image/ directory. The partition is formatted with the
+FAT filesystem.
+<p>
+Please note that the content of the partition is completely
+deleted without asking. The program prevent you to delete
+the whole hard disk, but it's better TO BE SURE OF THAT
+YOU ARE DOING.
+<p>
+Note also that the script only operates on an exiting partition.
+You must use other tools to create the partition, mark
+it as active/bootable, and eventually install a boot manager.
+<h2><a name="10">10</a> 
+Customizing
+</h2>
+You can customize the behavior of AdvanceCD adding in the
+image/arcade/ directory the advcd.rc file containing some
+command keywords:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ejectcd
+</em></td><td width="90%">
+Eject the CD before the shutdown.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+waitbeforeshutdown
+</em></td><td width="90%">
+Wait some time before the shutdown.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+run COMMAND ARGS...
+</em></td><td width="90%">
+Run the specified command instead
+of AdvanceMENU. For example to run directly
+the game "polyplay" simply put the string
+"run advmame polyplay" in the advcd.rc file.
+</td></tr>
+</table>
+<p>
+You can customize the behavior of the AdvanceMAME, AdvanceMESS
+and AdvanceMENU programs adding in the image/arcade/ directory
+the configuration files advmame.rc, advmess.rc and advmenu.rc
+containing your custom options.
+<p>
+You can customize the system behavior adding in the
+image/arcade/ a shell script called advcd.sh. The script is
+executed at the end of the system startup just before
+running AdvanceMENU. Instead, the script advcd0.sh is
+executed before the shutdown.
+<h2><a name="11">11</a> 
+Running With An Arcade Monitor
+</h2>
+To use a Standard Arcade Monitor at 15 kHz, you must
+create custom configuration files advmame.rc and
+advmenu.rc in the /image/arcade directory:
+<p>
+To customize AdvanceMAME you must create a file named
+advmame.rc with the following options:
+<p>
+<pre>
+device_video_format 15750 0.737421 0.0754717 0.0738994 0.113208 0.916168 0.011976 0.011976 0.0598802
+device_video_pclock 12-50
+device_video_hclock 15.75
+device_video_vclock 60
+display_magnify 1
+display_adjust generate_yclock
+</pre>
+<p>
+To customize AdvanceMENU create a file named advmenu.rc
+with the following option:
+<p>
+<pre>
+device_video_pclock 12-50
+device_video_hclock 15.75
+device_video_vclock 60
+display_size 640
+device_video_modeline standard_640x240 13.5821 640 704 768 864 240 243 246 262 -hsync -vsync
+mode list
+mode_skip full_mixed list_mixed tile_big tile_enormous tile_giant tile_icon tile_marquee
+</pre>
+<p>
+You can force the text console to use an arcade like video
+mode using the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+fbset -n arcade
+</pre>
+</td></tr></table>
+<p>
+The complete list of video modes for the console is available in
+the file /etc/fb.modes.
+<h2><a name="12">12</a> 
+Troubleshooting
+</h2>
+You can press CTRL+ALT+F2 to open a Linux console and
+access directly the system. The most common Linux
+commands are available.
+<h3><a name="12.1">12.1</a> 
+CD/DVD
+</h3>
+If you are using a CD/DVD-RW be warned that a lot of PCs
+don't boot from a CD/DVD-RW. Always use a not RW support
+for the final version of your CD/DVD.
+<p>
+To ensure maximum compatibility you must use a high quality
+CD/DVD, burn it at low speed and finalize it.
+<p>
+Some motherboards have problems booting the specific El-torito
+format used by AdvanceCD. In this case generally the boot process
+aborts with the message "BOOT FAILURE" or similar. You can
+workaround this problem booting with a floppy. Use the
+rawwritewin.exe program to write the sbm36.raw image to a just
+formatted 1.44M disk. Both these files are in the support directory.
+<h3><a name="12.2">12.2</a> 
+USB disk
+</h3>
+If your USB disk doesn't boot, try selecting USB-HDD, USB-FDD,
+USB-ZIP or any other USB device in the boot menu.
+<p>
+With AMI BIOS and a Via chipset, including Epia-m and Shuttle
+mv42n you might have to enable USB Keyboard Support in your
+BIOS.
+<p>
+On some broken boards, like my Epia-M, you need to plug the
+memory stick in without any power (remove your power plug),
+otherwise the BIOS might not recognize the memory stick.
+<h3><a name="12.3">12.3</a> 
+Fixed disk partition
+</h3>
+If the partition doesn't boot, ensure to have marked it
+as `active'. Eventually try installing a boot manager.
+<h2><a name="13">13</a> 
+Contents
+</h2>
+The disk image contains the programs:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+advancemame-0.92.1
+<br>
+advancemess-0.92.0.0
+<br>
+advancemenu-2.4.6
+<br>
+makebootfat-1.4
+<br>
+linux-2.4.26 (with some patches)
+<br>
+alsa-1.0.8
+<br>
+busybox-1.00
+<br>
+syslinux-3.08-pre4 (with some patches)
+<br>
+FreeDOS-beta9rc5
+<br>
+loadlin-1.6c
+<br>
+glibc-2.3.3
+<br>
+zlib-1.2.2
+<br>
+isapnpmodules-0.3
+<br>
+pciutils-2.1.11 (with some patches)
+<br>
+usbutils-0.11
+<br>
+</td></tr></table>
+<p>
+The disk structure is:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+boot
+</em></td><td width="90%">
+Boot support.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+arcade
+</em></td><td width="90%">
+Arcade Roms and images.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+free
+</em></td><td width="90%">
+Free Arcade Roms and images.
+</td></tr>
+</table>
+<h2><a name="14">14</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, desmatic.
+
+
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,886 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+Documentation of the AdvanceSCAN <em>advscan</em> utility.
+
+<center><h2>AdvanceSCAN Roms Manager</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advscan [-c, --cfg CONFIG] [-r, --rom] [-s, --sample]
+&nbsp;&nbsp;&nbsp;&nbsp;[-k, --disk] [-a, --add-zip] [-b, --add-bin]
+&nbsp;&nbsp;&nbsp;&nbsp;[-d, --del-zip] [-u, --del-unknown]
+&nbsp;&nbsp;&nbsp;&nbsp;[-g, --del-garbage] [-t,--del-text]
+&nbsp;&nbsp;&nbsp;&nbsp;[-n, --print-only] [-p, --report]
+&nbsp;&nbsp;&nbsp;&nbsp;[-f, --filter FILTER]
+&nbsp;&nbsp;&nbsp;&nbsp;[-v, --verbose] &lt; info.xml
+</pre>
+<p>
+<pre>
+advscan [-R, --rom-std] [-S, --sample-std]
+&nbsp;&nbsp;&nbsp;&nbsp;[-K, --disk-std]&lt; info.xml
+</pre>
+<p>
+<pre>
+advscan [-i, --ident] files... &lt; info.xml
+</pre>
+<p>
+<pre>
+advscan [-l, --bbs] &lt; info.xml
+</pre>
+<p>
+<pre>
+advscan [-e, --equal] &lt; info.xml
+</pre>
+<p>
+<pre>
+advscan [-h, --help] [-V, --version]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+advscan is a command line utility for maintaining a zipped
+archive of roms and samples for the MAME, MESS, AdvanceMAME,
+AdvanceMESS and derivatives emulators.
+The goal of advscan is to obtain a complete and perfect roms
+and samples archive with differential merging.
+<p>
+Differential merging means that any game has its zip archive,
+which contains all the rom files, which are not already in
+the parent zip archive (if exists).
+<p>
+advscan has these features:
+<ul>
+<li>
+Directly read, writes zip archives without decompressing
+and recompressing them for best performance.
+</li>
+<li>
+Add, copy, move and rename files in the zip
+archives. Any rom that you have is placed
+automatically in the correct zip.
+</li>
+<li>
+Recognizes the text files added by rom sites and
+deletes them.
+</li>
+<li>
+Recognizes the text files added by the rom dumpers
+and keeps or deletes them as your choice.
+</li>
+<li>
+It's safe. In all the zip operations any file
+removed or overwritten is saved in the
+`rom_unknown' and `sample_unknown' directories and keep
+for future uses. This will prevent any unwanted
+remove operation.
+</li>
+</ul>
+<p>
+but also has these misfeatures:
+<ul>
+<li>
+Supports only roms and samples zipped.
+</li>
+<li>
+Supports only roms organized with differential merging.
+</li>
+<li>
+Doesn't support .chd files in subdirectories.
+</li>
+</ul>
+<h2><a name="3">3</a> 
+Getting Started
+</h2>
+To use AdvanceSCAN you need first to create and edit its textual
+configuration file named 'advscan.rc'. An example advscan.rc file
+is provided in the distribution archive, but you can also write
+it from scratch.
+<p>
+Let's start your preferred text editor and create the configuration
+file advscan.rc with these options:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+rom DIR_OF_YOUR_ROMS
+rom_new DIR_OF_YOUR_ROMS
+rom_unknown DIR_OF_REJECTED_ROMS
+rom_import DIR_OF_ROMS_TO_IMPORT
+</pre>
+</td></tr></table>
+<p>
+The most important configuration option is the directory where
+your roms are stored. This directory must be specified in the
+'rom' and 'rom_new' options.
+The 'rom_unknown' option is used to select the directory where
+store the unused roms. AdvanceSCAN never deletes roms for safety,
+so you need to specify this 'basket' directory.
+With the 'rom_import' option you can specify the directory where
+the roms to import resides. For example the update packs you want
+to integrate in your roms. If you don't have any, omit this option.
+<p>
+To analyze the roms, AdvanceSCAN needs also the roms
+information file from the emulator. This file can be created
+with the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+mame -listxml &gt; info.xml
+</pre>
+</td></tr></table>
+<p>
+Finally, you can now run AdvanceSCAN to fix your roms with
+the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan -R &lt; info.xml
+</pre>
+</td></tr></table>
+<p>
+You can also generate a report of the state of your roms
+running the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan -r -p &lt; info.xml &gt; report.txt
+</pre>
+</td></tr></table>
+<h2><a name="4">4</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-c, --cfg CONFIG
+</strong></td></tr><tr><td>
+Select the configuration file. If not specified is
+assumed the file `advscan.rc' in the current
+directory.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+&lt; info.xml
+</strong></td></tr><tr><td>
+To operate advscan needs always as input a rom
+information file. It can be generally created with
+the -listxml options of the emulator.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-r, --rom
+</strong></td></tr><tr><td>
+Operates on roms (.zip files). All the next commands
+will operate on your roms.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-s, --sample
+</strong></td></tr><tr><td>
+Operates on samples. All the next commands will
+operate on your samples.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-k, --disk
+</strong></td></tr><tr><td>
+Operates on disks (.chd files). All the next commands
+will operate on your disks.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-a, --add-zip
+</strong></td></tr><tr><td>
+Add the missing rom zips. Any missing zip archive
+for which at least one rom is available will be created.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-b, --add-bin
+</strong></td></tr><tr><td>
+Add, rename and substitute all the necessary files
+in the existing zip archives. No new zip archives
+are created, only the already present zip files are
+modified. No file is deleted. Anyway, some files may
+be overwritten. Any file overwritten is saved in
+the `rom_unknown' or `sample_unknown' directory in
+a zip archive with the same name of the original
+one.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-d, --del-zip
+</strong></td></tr><tr><td>
+Remove any unknown zip or chd archive. Any archive
+removed is saved in the `rom_unknown',
+`sample_unknown' or `disk_unknown' directory.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-u, --del-unknown
+</strong></td></tr><tr><td>
+Remove any unknown file from the existing zip
+archives. Any file removed is saved in the
+`rom_unknown' or `sample_unknown' directory in a
+zip archive with the same name of the original one.
+Only binary files are removed, all the text files
+are keep.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-g, --del-garbage
+</strong></td></tr><tr><td>
+Remove any garbage file from the zip archives. A
+garbage file is an advertising text file added
+generally by a rom site. The files removed are not
+saved.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-t, --del-text
+</strong></td></tr><tr><td>
+Remove any text file from the zip archives. Any
+file removed is saved in the `rom_unknown' or
+`sample_unknown' directory in a zip archive with the
+same name of the original one.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-R, --rom-std
+</strong></td></tr><tr><td>
+Shortcut for the options -rabdug. It does all the
+previous operations on roms except removing text
+files.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-S, --sample-std
+</strong></td></tr><tr><td>
+Shortcut for the options -sabdug. It does all the
+previous operations on samples except removing text
+files.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-K, --disk-std
+</strong></td></tr><tr><td>
+Shortcut for the options -kd. It moves any unknown
+disk file in the disk_unknown directory.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-n, --print-only
+</strong></td></tr><tr><td>
+Don't modify anything, it only shows operations.
+This option prevents any changes made by the
+previous commands. The operations are only printed and
+NOT executed.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-p, --report
+</strong></td></tr><tr><td>
+Write an extensive text report with the list of
+good, bad and missing roms or/and samples. The
+content of any zip archive with missing files is
+printed. You must also specify the -r or/and -s
+options.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-P, --report-file
+</strong></td></tr><tr><td>
+Write a small text report with information on the
+present files, listing incomplete, duplicate or
+missing required zips.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-f, --filter FILTER
+</strong></td></tr><tr><td>
+Apply a specific filter at the rom list. Check the
+FILTERS chapter for a detailed list of filters available.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-v, --verbose
+</strong></td></tr><tr><td>
+Print a more verbose report. The content of any zip
+archive is printed if it contains at least one
+unknow or bad rom file.
+</td></tr>
+</table>
+<h2><a name="5">5</a> 
+Information Options
+</h2>
+The following options are used only to print information.
+These options don't need the configuration file and don't
+access you roms.
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-i, --ident files...
+</strong></td></tr><tr><td>
+Identify the files specified. Only the information
+present in the info file is used.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-l, --bbs
+</strong></td></tr><tr><td>
+Print a standard `.bbs' files with the description
+of all the roms in the info file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-e, --equal
+</strong></td></tr><tr><td>
+Print a list of all the duplicate roms present in
+the info file. Only the information present in the
+info file is used.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-h, --help
+</strong></td></tr><tr><td>
+Print a short help screen.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-V, --version
+</strong></td></tr><tr><td>
+Print the program version.
+</td></tr>
+</table>
+<h2><a name="6">6</a> 
+Identification
+</h2>
+Rom files are identified by their crc and size. The roms
+are not really decompressed, but the crc values stored in
+the zip archives are used. If a rom has an incorrect crc or
+size, but it has a correct name, it's maintained if
+doesn't exist a valid alternative.
+<p>
+Sample files are identified only by their names. This
+limits the possible operations. Essentially advscan can
+report only missing samples.
+<p>
+Garbage files are identified by their size and crc.
+<p>
+All the others files are identified with this algorithm:
+<ul>
+<li>
+If the name is like *.sam, *.wav it's considered an
+unknown binary file.
+</li>
+<li>
+If the name is like *.doc, *.txt, *.nfo,
+*.diz, readme.* it's considered a text file.
+</li>
+<li>
+If the size is a power of 2 it's considered an
+unknown binary file.
+</li>
+<li>
+Otherwise it's considered a text file.
+</li>
+</ul>
+<h2><a name="7">7</a> 
+Configuration
+</h2>
+To run advscan you need two files. The rom information
+file and the configuration file.
+<p>
+The rom information file is the file that contains the
+information of all the roms used by the emulator. It can
+be made with the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+mame -listxml &gt; info.xml
+</pre>
+</td></tr></table>
+<p>
+This file is expected as input of advscan. So, you can use
+this command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan [options] &lt; info.xml
+</pre>
+</td></tr></table>
+<p>
+Or combine the two commands together:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+mame -listxml | advscan [options]
+</pre>
+</td></tr></table>
+<p>
+The configuration file is a text file that describes your
+directories structure. You can use absolute path or
+relative path. Relative path is relative to the current
+directory from where you run advscan.
+<p>
+In Unix the PATH separator is `:'. In DOS and Windows the PATH
+separator is `;'. The following options are expressed with the
+Unix format.
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom PATH:PATH...
+</strong></td></tr><tr><td>
+List of paths where the roms are placed. These are
+the zip archives, which are modified and fixed.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_new PATH
+</strong></td></tr><tr><td>
+Single directory where the new created zip archives are
+placed. It's STRONGLY suggested to put this path
+ALSO in the `rom' specification. Otherwise at the
+next run the zip archives are recreated.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_import PATH:PATH...
+</strong></td></tr><tr><td>
+List of directory trees where other roms files are
+placed. These are used for importing rom file missing
+in rompath. These files are only read and never
+modified in any way. It's very useful to insert
+here any rom directories of any other arcade
+emulators. When a new game will be supported the rom
+archive will be made automatically.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_unknown PATH
+</strong></td></tr><tr><td>
+Single directory where unknown rom zip archives will be
+moved. In this directory is inserted any rom file
+removed from the rom zip archives. However, any rom
+file is automatically deleted by advscan if it's
+duplicated in an archive listed on the `rom' or
+`rom_import' options.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+sample PATH:PATH...
+</strong></td></tr><tr><td>
+List of paths where the samples are placed. These
+are the zip archives, which are modified and fixed.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+sample_unknown PATH
+</strong></td></tr><tr><td>
+Single path where unknown sample zip archives will
+be moved. In this directory is inserted any sample
+file removed from the sample zip archives.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+disk PATH:PATH...
+</strong></td></tr><tr><td>
+List of paths where the disks are placed. These
+are the chd archives.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+disk_unknown PATH
+</strong></td></tr><tr><td>
+Single path where unknown disk chd archives will
+be moved.
+</td></tr>
+</table>
+<p>
+If the -c option is not specified the configuration file
+is read from ./advscan.rc.
+<p>
+The files advscan.rc.linux and advscan.rc.dos are two
+examples of configuration files.
+<h2><a name="8">8</a> 
+Damaged Files
+</h2>
+If a damaged .zip or .chd file is detected, it's renamed
+with a new name appending the extension ".damaged".
+For .chd file it may happen that the file is a disk image
+with an old format.
+<p>
+If the rename operation isn't possible the program aborts.
+<p>
+Please note that the program doesn't execute an
+extensive test to detect damaged files.
+<h2><a name="9">9</a> 
+Filters
+</h2>
+As default advscan uses all the rom definitions, including also
+unplayable games. If you prefere you can use only a subset
+of the roms defined with the --filter option.
+<p>
+The filters available are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+working
+</em></td><td width="90%">
+Use only working roms. A working rom is a rom
+reported working or a rom needed by another working
+rom. A rom is reported working if it isn't marked
+with the "preliminary" flag in the driver, video or
+sound. This should be the preferred filter which only
+store playable games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+preliminary
+</em></td><td width="90%">
+Use only roms which are not in the "working"
+subset.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+working_parent
+</em></td><td width="90%">
+Use only working parent roms from the
+"working" subset excluding clones. If a parent rom
+is not working but it has a working clone, both
+the parent and the clone are used.
+This is the preferred filter if you want only one
+working game for any parent/clones group.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+working_clone
+</em></td><td width="90%">
+Use only roms which  are in the "working"
+subset but not in the "working_parent" subset.
+</td></tr>
+</table>
+<p>
+For example, if you want to keep preliminary and working roms in
+different directories, you can setup two different advscan.rc files
+with different directories but sharing the `rom_unknown' dir to allow
+automatic rom moving between the two sets.
+If this is your configuration, to update your romset, you need to
+run advscan three times:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+on working set
+</em></td><td width="90%">
+To export preliminary roms in the
+rom_unknown dir.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+on preliminary set
+</em></td><td width="90%">
+To import preliminary roms and export
+working roms in the rom_unknown dir.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+on working set
+</em></td><td width="90%">
+To import working rom from the
+rom_unknown dir.
+</td></tr>
+</table>
+<p>
+For example:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+advscan -R -c advscan-wrk.rc -f working &lt; advmame.xml &gt; rom_wrk.log
+advscan -R -c advscan-pre.rc -f preliminary &lt; advmame.xml &gt; rom_pre.log
+advscan -R -c advscan-wrk.rc -f working &lt; advmame.xml &gt; rom_wrk.log
+</td></tr></table>
+<h2><a name="10">10</a> 
+Report Format
+</h2>
+The report generated with the -p option contains some text
+tag explained here:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_good
+</strong></td></tr><tr><td>
+A recognized good rom. The rom is recognized by its
+name, crc and size.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_bad
+</strong></td></tr><tr><td>
+A recognized bad rom with an incorrect size or crc.
+The rom is recognized by its name.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+rom_miss
+</strong></td></tr><tr><td>
+A missing rom.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+disk_bad
+</strong></td></tr><tr><td>
+A recognized bad disk with an incorrect hash.
+The disk is recognized by its name.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+nodump_good
+</strong></td></tr><tr><td>
+A fake "NO GOOD DUMP KNOWN" rom. The rom is
+recognized by its name, size and crc.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+nodump_miss
+</strong></td></tr><tr><td>
+A missing "NO GOOD DUMP KNOWN" rom. It's the normal
+condition, a no dump rom must be missing.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+nodump_bad
+</strong></td></tr><tr><td>
+A recognized bad "NO GOOD DUMP KNOWN" rom. The rom is
+recognized by its name.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+sound_good
+</strong></td></tr><tr><td>
+A recognized good sound sample. The sample is
+recognized by its name.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+sound_miss
+</strong></td></tr><tr><td>
+A missing sound sample.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+text
+</strong></td></tr><tr><td>
+An unknown text file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+binary
+</strong></td></tr><tr><td>
+An unknown binary file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+garbage
+</strong></td></tr><tr><td>
+A recognized garbage file. A garbage file is an
+advertising text file added generally by a rom
+site. The file is recognized by its name, size and
+crc.
+</td></tr>
+</table>
+<h2><a name="11">11</a> 
+Examples
+</h2>
+For the generic use you need to run advscan with the
+options:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan -R &lt; info.xml
+</pre>
+</td></tr></table>
+<p>
+This command will fix your rom collection (without removing
+the precious text files).
+<p>
+To check in advance all the operations that will be done
+you can use the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan -R -n &lt; info.xml
+</pre>
+</td></tr></table>
+<p>
+which only show the operations.
+<p>
+To only generate an extensive report of your rom set you
+can use the command:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+advscan -r -p &lt; info.xml &gt; report.txt
+</pre>
+</td></tr></table>
+<p>
+To increase the verbosity of the printed information you
+can add the -v switch.
+<h2><a name="12">12</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004, 2008 Andrea Mazzoleni, Filipe Estima
+<h2><a name="13">13</a> 
+See Also
+</h2>
+advdiff(1)
+
+
+</div>
+</body>
+</html>
+
+
+

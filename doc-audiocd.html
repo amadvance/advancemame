@@ -1,0 +1,1769 @@
+<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Advance Projects</title>
+<meta http-equiv="content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta name="description" content="Play MAME on your TV Arcade Monitor or Fixed Frequency Monitor" />
+<meta name="keywords" content="advancemame advancemenu advancecd advanceboot makebootfat advance advmame advcd advmenu advcomp mame mess linux scale2x arcade retrogame tv monitor control play coinop cabinet retrogaming" />
+<meta name="author" content="Andrea Mazzoleni" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-21967501-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="title">
+</div>
+
+<div id="topbar">
+<a href="index.html">About</a>
+<a href="support.html">Support</a>
+<a href="doc.html">Documentation</a>
+<a href="forum.html">Forum</a>
+<a href="history.html">History</a>
+<a href="cost.html">Cost</a>
+<a href="video-link.html">Video</a>
+<a href="authors.html">Authors</a>
+</div>
+
+<div id="bar">
+<!--
+<form method=GET action="http://www.google.com/search">
+<input type=text name=q size=12 maxlength=255 value="">
+<font face=arial size=2>
+<input type=submit name=button value="Search">
+<input type=hidden name=sitesearch value="www.advancemame.it">
+</font>
+</form>
+<br/>
+-->
+<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
+<a href="download.html"><span class="field">Download</span></a><br/>
+<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
+<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
+<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
+<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
+<br/>
+
+<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
+<a href="menu-download.html"><span class="field">Download</span></a><br/>
+<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+
+<!--
+<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
+<a href="cd-download.html"><span class="field">Download</span></a><br/>
+<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
+<br/>
+-->
+
+<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
+<a href="scan-download.html"><span class="field">Download</span></a><br/>
+<br/>
+
+<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
+<a href="comp-download.html"><span class="field">Download</span></a><br/>
+
+<!--
+<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
+<a href="cab-download.html"><span class="field">Download</span></a><br/>
+<br/>
+-->
+
+<br/>
+<span class="bold">Donation</span><br/>
+<p/>
+<span class="field">
+<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
+</span>
+
+<span class="section">Resources</span><br/>
+<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
+<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
+
+<!--
+<span class="section">Friends</span><br/>
+<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
+<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
+<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
+<br/>
+-->
+
+<!--
+<span class="section">Emulation</span><br/>
+<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
+<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
+<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
+<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
+<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
+-->
+</div>
+
+<div id="main">
+
+
+
+<center><h2>Supported AdvanceCD Sound Cards</h2></center>
+<p>
+This is the list of the sound cards supported by AdvanceCD.
+<p>
+Please note that not all the OEM cards are listed. If your card has a
+supported chipset, it's probably supported also if the OEM vendor is not
+in the list.
+<p>
+Please note that some laptop video cards work only when connected to
+an external monitor, and not with the LCD screen.
+<p>The sections of this document are:<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr><td width="5%"></td><td colspan=3>
+<a href="#1">1 ALSA Drivers</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.1">1.1 ATI Technologies (1002)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.2">1.2 Advanced Micro Devices [AMD] (1022)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.3">1.3 Trident Microsystems (1023)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.4">1.4 Motorola (1057)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.5">1.5 Yamaha Corporation (1073)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.6">1.6 ALi Corporation (10b9)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.7">1.7 Neomagic Corporation (10c8)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.8">1.8 nVidia Corporation (10de)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.9">1.9 Xilinx Corporation (10ee)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.10">1.10 Creative Labs (1102)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.11">1.11 VIA Technologies, Inc. (1106)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.12">1.12 Aztech System Ltd (122d)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.13">1.13 ESS Technology (125d)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.14">1.14 Ensoniq (1274)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.15">1.15 Platform Technologies, Inc. (1285)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.16">1.16 Aureal Semiconductor (12eb)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.17">1.17 Fortemedia, Inc (1319)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.18">1.18 C-Media Electronics Inc (13f6)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.19">1.19 VIA Technologies Inc. (1412)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.20">1.20 Avance Logic Inc. (4005)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.21">1.21 S3 Inc. (5333)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.22">1.22 Intel Corporation (8086)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.23">1.23 RME (ea60)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#2">2 Information</a><br>
+</td></tr>
+</table>
+<h2><a name="1">1</a> 
+ALSA Drivers
+</h2>
+This is the list of all the PCI sound cards supported by the Linux
+Kernel ALSA drivers used in AdvanceCD.
+Only the PCI cards are listed, but also some ISA PnP and USB cards
+are supported. You can check the official ALSA documentation for a
+more complete card list at <a href="http://www.alsa-project.org/alsa-doc/">http://www.alsa-project.org/alsa-doc/</a>.
+<h3><a name="1.1">1.1</a> 
+ATI Technologies (1002)
+</h3>
+AC'97 Audio Controller [4341]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : SoundMAX Integrated Digital Audio
+<br>
+OEM Acer Inc {1025} : Realtek AC'97 Audio
+<br>
+OEM Arima Computer Co {161f} : Realtek AC'97 Audio
+<br>
+OEM Avance Logic Inc {4005} : Realtek AC'97 Audio
+<br>
+OEM Compal Electronics Inc {14c0} : Realtek AC'97 Audio
+<br>
+OEM First International Computer Inc {1509} : Realtek AC'97 Audio
+<br>
+OEM Foxconn International Inc {105b} : Realtek AC'97 Audio
+<br>
+OEM GVC/BCM Advanced Research {14a4} : Realtek AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : Realtek AC'97 Audio
+<br>
+OEM Hewlett-Packard Company {103c} : SoundMAX Integrated Digital Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : Realtek AC'97 Audio
+<br>
+OEM Motorola {1057} : Realtek AC'97 Audio
+<br>
+OEM PC Partner Ltd {174b} : Realtek AC'97 Audio
+<br>
+</td></tr></table>
+AC'97 Audio [4361]
+<br>
+<h3><a name="1.2">1.2</a> 
+Advanced Micro Devices [AMD] (1022)
+</h3>
+AMD-768 AC'97 Audio [7445]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM Chaintech Computer Co Ltd {270f} : Onboard AC'97 Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio with STAC9766 codec
+<br>
+</td></tr></table>
+<h3><a name="1.3">1.3</a> 
+Trident Microsystems (1023)
+</h3>
+4DWave(DX) PCI Audio [2000]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+4DWave(DX) PCI Audio
+<br>
+</td></tr></table>
+4DWave(NX) PCI Audio [2001]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+4DWave(NX) PCI Audio
+<br>
+OEM Aztech System Ltd {122d} : 4DWave(NX) PCI Audio
+<br>
+</td></tr></table>
+<h3><a name="1.4">1.4</a> 
+Motorola (1057)
+</h3>
+MPC8240 [Kahlua] [0003]
+<br>
+<h3><a name="1.5">1.5</a> 
+Yamaha Corporation (1073)
+</h3>
+DS1L Audio [000a]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+YMF740 PCI Audio CODEC
+<br>
+YMF740B PCI Audio CODEC
+<br>
+</td></tr></table>
+YF724F DS-1 Audio [000d]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+DS-XG PCI Audio CODEC
+<br>
+</td></tr></table>
+YMF724 PCI Audio Controller [0004]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+YMF724-Based PCI Audio Adapter
+<br>
+</td></tr></table>
+YMF740C DS-1L Audio [000c]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM Networth {107a} : DS-XG PCI Audio CODEC
+<br>
+</td></tr></table>
+YMF744B DS-1S Audio [0010]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+DS-XG PCI Audio CODEC
+<br>
+</td></tr></table>
+<h3><a name="1.6">1.6</a> 
+ALi Corporation (10b9)
+</h3>
+ALI M5455 AC'97 Audio [5455]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM Avance Logic Inc {4005} : Realtek AC'97 Audio
+<br>
+OEM Benq Corp {17ff} : Realtek AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : Realtek AC'97 Audio
+<br>
+OEM Quanta Computer Inc {152d} : Realtek AC'97 Audio
+<br>
+OEM Wistron Corporation {17c0} : Realtek AC'97 Audio
+<br>
+</td></tr></table>
+C-Media CMI8738/C3DX Audio Device (OEM) [0111]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+C-Media CMI8738/C3DX Audio Device (OEM)
+<br>
+</td></tr></table>
+<h3><a name="1.7">1.7</a> 
+Neomagic Corporation (10c8)
+</h3>
+NM2200 MagicMedia 256AV Audio Device [8005]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+NM2200 MagicMedia 256AV Audio Device on FireAnt
+<br>
+OEM Acer Inc {1025} : NM2200 MagicMedia 256AV Audio Device on TravelMate 720
+<br>
+OEM Compal Electronics Inc {14c0} : NM2200 MagicMedia 256AV Audio Device
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : NM2200 MagicMedia 256AV Audio Device on Discovery
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : NM2200 MagicMedia 256AV Audio Device on Durango
+<br>
+OEM Dell Computer Corp {1028} : Latitude CPi A
+<br>
+OEM Dell Computer Corp {1028} : NM2200 MagicMedia 256AV Audio Device on Colorado Inspiron
+<br>
+OEM Hewlett-Packard Company {103c} : NM2200 MagicMedia 256AV Audio Device on Omnibook 900
+<br>
+OEM Hewlett-Packard Company {103c} : NM2200 MagicMedia 256AV Audio Device on Voyager II
+<br>
+OEM Hewlett-Packard Company {103c} : NM2200 MagicMedia 256AV Audio Device on Voyager III
+<br>
+OEM IBM {1014} : NM2200 MagicMedia 256AV Audio Device on BlackTip Thinkpad
+<br>
+</td></tr></table>
+NM2360 MagicMedia 256ZX Audio Device [8006]
+<br>
+NM2380 MagicMedia 256XL+ Audio Device [8016]
+<br>
+<h3><a name="1.8">1.8</a> 
+nVidia Corporation (10de)
+</h3>
+CK804 AC'97 Audio Controller [0059]
+<br>
+MCP04 AC'97 Audio Controller [003a]
+<br>
+nForce AC'97 Audio Codec Interface [008a]
+<br>
+nForce AC'97 Audio Codec Interface [00ea]
+<br>
+<h3><a name="1.9">1.9</a> 
+Xilinx Corporation (10ee)
+</h3>
+RME Digi96 [3fc0]
+<br>
+RME Digi96/8 Pad [3fc3]
+<br>
+RME Digi96/8 Pro [3fc2]
+<br>
+RME Digi96/8 [3fc1]
+<br>
+RME Digi9652 Hammerfall [3fc4]
+<br>
+RME Hammerfall DSP MADI [3fc6]
+<br>
+RME Hammerfall DSP [3fc5]
+<br>
+<h3><a name="1.10">1.10</a> 
+Creative Labs (1102)
+</h3>
+Audigy LS Series [0007]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+SB0310 Audigy LS
+<br>
+SB0312 Audigy LS
+<br>
+</td></tr></table>
+EMU10K1 Audio Chipset (SB Live!) [0002]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+CT0060 SBLive!
+<br>
+CT0061 SBLive!
+<br>
+CT4620 SBLive!
+<br>
+CT4760 SBLive!
+<br>
+CT4780 SBLive! Value
+<br>
+CT4790 SoundBlaster PCI512 OEM
+<br>
+CT4820 SB PCI512
+<br>
+CT4820 SBLive!
+<br>
+CT4830 SBLive! Value
+<br>
+CT4831 SBLive! Value
+<br>
+CT4832 SBLive! Value
+<br>
+CT4850 SBLive! Value
+<br>
+CT4870 SBLive! Value
+<br>
+CT4871 SBLive! Value
+<br>
+CT4872 SBLive!
+<br>
+CT4890 SB PCI256
+<br>
+CT4891 SB PCI256
+<br>
+CT4893 SB PCI256
+<br>
+E-mu APS
+<br>
+Integrated SBLive!
+<br>
+Integrated SBLive! 5.1
+<br>
+SB0060 SBLive! 5.1
+<br>
+SB0100 SBLive! 5.1
+<br>
+SB0101 SBLive! 5.1 Value
+<br>
+SB0102 SBLive! 5.1
+<br>
+SB0103 SBLive! 5.1
+<br>
+SB0105 SBLive! 5.1
+<br>
+SB0150 Sound Blaster PCI512
+<br>
+SB0220 SBLive! 5.1 Digital
+<br>
+</td></tr></table>
+EMU10K2 Audio Chipset (SB Audigy Series) [0004]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+CT0070 Audigy
+<br>
+CT0072 Audigy
+<br>
+CT0090 Audigy Player
+<br>
+CT4820 Audigy
+<br>
+SB0090 Audigy Platinum (EX)
+<br>
+SB0090 Audigy Player/OEM
+<br>
+SB0240 Audigy 2 Platinum 6.1
+<br>
+SB0243 Audigy 2 (OEM'd For Dell??)
+<br>
+SB0350 Audigy ZS
+<br>
+</td></tr></table>
+Ectiva EV1938 [8938]
+<br>
+SBLive! (OEM'd For Dell??) [0006]
+<br>
+<h3><a name="1.11">1.11</a> 
+VIA Technologies, Inc. (1106)
+</h3>
+VT8233/A AC'97 Enhanced Audio Controller [3059]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM AOpen Inc {a0a0} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM AOpen Inc {a0a0} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM ASRock Inc {1849} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM ASUSTeK Computer Inc {1043} : CUV266 mainboard
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM ASUSTeK Computer Inc {1043} : SoundMAX Integrated Digital Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Abit Computer Corp {147b} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Abit Computer Corp {147b} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Acer Inc {1025} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Acer Inc {1025} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Albatron Corp {17f2} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Analog Devices {11d4} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Avance Logic Inc {4005} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Chaintech Computer Co Ltd {270f} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Cirrus Logic {1013} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Clevo/Kapok Computer {1558} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Compal Electronics Inc {14c0} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM DFI Inc {15bd} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM DTK Computer {14c2} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Elitegroup Computer Sys {1019} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Elitegroup Computer Sys {1019} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Epox Computer Co Ltd {1695} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Epox Computer Co Ltd {1695} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Fastfame Technology Co Ltd {1664} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM First International Computer Inc {1509} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM First International Computer Inc {1509} : SoundMAX Integrated Digital Audio
+<br>
+OEM First International Computer Inc {1509} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Foxconn International Inc {105b} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Fujitsu Ltd {10cf} : Conexant AC-Link Audio
+<br>
+OEM Fujitsu Ltd {10cf} : SoundMAX Integrated Digital Audio
+<br>
+OEM Fujitsu Siemens Computers {1734} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM GVC/BCM Advanced Research {14a4} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Giga-Byte Technology {1458} : GA-7VAX Onboard Audio (Realtek ALC650)
+<br>
+OEM Giga-Byte Technology {1458} : Onboard AC'97 Enhanced Audio Controller
+<br>
+OEM Giga-Byte Technology {1458} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Giga-Byte Technology {1458} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Hitachi Ltd {1054} : SoundMAX Integrated Digital Audio
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : C-Media AC97 Audio Device
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Inventec Corp {1170} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Iwill Corp {15d4} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Kobian Pte Ltd {18d0} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Leadtek Research {107d} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : K8T NEO 2 motherboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6366 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6380 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6382 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6390 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6525 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6536 mainboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Mitac {1071} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Mitac {1071} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Movita Tehnologies Inc {17c4} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM NEC Computer International {1631} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM PC Partner Ltd {174b} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Pro Team Computer Corporation {1816} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Quanta Computer Inc {152d} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Sharp Corp {13bd} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Sharp Corp {13bd} : Realtek AC97 Audio for  VIA (R) Audio Controller
+<br>
+OEM Siemens PC Systeme GmBH {110a} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Enhanced Audio Controller with STAC9766 codec
+<br>
+OEM Sony Corp {104d} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Soyo Technology Corp Ltd {10fd} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Trigem Computer Inc {109f} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Trigem Computer Inc {109f} : SoundMAX Integrated Digital Audio
+<br>
+OEM Twinhead International Corp {14ff} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Tyan Computer {10f1} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Tyan Computer {10f1} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Universal Scientific Ind {14cd} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Uniwill Computer Corp {1584} : Realtek AC'97 Audio for VIA (R) Audio Controller
+<br>
+OEM Uniwill Computer Corp {1584} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM Wistron Corporation {17c0} : VT8233 AC'97 Enhanced Audio Controller
+<br>
+OEM {3116} : SoundMAX Integrated Digital Audio
+<br>
+</td></tr></table>
+<h3><a name="1.12">1.12</a> 
+Aztech System Ltd (122d)
+</h3>
+3328 Audio [80da]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+3328 Audio
+<br>
+</td></tr></table>
+PCI168/3328 Audio Device [50dc]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+3328 Audio Device
+<br>
+PCI168 A(W) Audio Device
+<br>
+PCI168 A/AP Audio Device
+<br>
+PCI168 AP(W) Audio Device
+<br>
+</td></tr></table>
+<h3><a name="1.13">1.13</a> 
+ESS Technology (125d)
+</h3>
+ES1938/41/46 SOLO-1(E) AudioDrive [1969]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ES1938/41/46 SOLO-1(E) Audio Adapter
+<br>
+ES1938/41/46 SOLO-1(E) AudioDrive
+<br>
+OEM First International Computer Inc {1509} : ES1938/41/46 SOLO-1(E) AudioDrive on FIC A450 Notebook
+<br>
+OEM IBM {1014} : ES1938/41/46 SOLO-1(E) AudioDrive on IBM Aptiva Mainboard
+<br>
+OEM SBS Technologies (AKA: SBS-Or Industrial Computers) {4c53} : CT8 mainboard
+<br>
+OEM {50b2} : Solo-1
+<br>
+OEM {525f} : ES1938/41/46 SOLO-1(E) AudioDrive
+<br>
+</td></tr></table>
+ES1968 Maestro-2 Audiodrive [1968]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ES1968 Maestro-2 Audiodrive
+<br>
+OEM Dell Computer Corp {1028} : ES1968 Maestro-2 PCI
+<br>
+OEM NEC Electronics Hong Kong {1033} : ES1968 Maestro-2 Audiodrive
+<br>
+OEM {0640} : ES1968 Maestro-2 Audiodrive on VIA-Chipset Motherboard
+<br>
+</td></tr></table>
+ES1978 Maestro-2E Audiodrive, ES1970 Canyon3D [1978]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ES1978 Maestro-2E Audiodrive
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : Armada V300 Laptop Integrated sound
+<br>
+OEM Diamond Multimedia Systems {1092} : Monster Sound MX400
+<br>
+OEM NEC Electronics Hong Kong {1033} : ES1978 Maestro-2E Audiodrive
+<br>
+OEM Sharp Corp {13bd} : ES1978 Maestro-2E Audiodrive on sharp PC-A520 Notebook
+<br>
+OEM Toshiba America Information Systems {1179} : ES1978 Maestro-2E Audiodrive
+<br>
+</td></tr></table>
+ES1988/9 Allegro-1 Audiodrive [1988]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ES1989 Allegro-1 Audiodrive
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : ES1989 Allegro-1 Audiodrive
+<br>
+OEM Diamond Multimedia Systems {1092} : Sonic Impact S100
+<br>
+OEM IBM {1014} : ES1989 Allegro-1 Audiodrive
+<br>
+OEM Mitac {1071} : ES1989 Allegro-1 Audiodrive
+<br>
+OEM NEC Electronics Hong Kong {1033} : ES1989 Allegro-1 Audiodrive
+<br>
+</td></tr></table>
+<h3><a name="1.14">1.14</a> 
+Ensoniq (1274)
+</h3>
+5880 AudioPCI [5880]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Sound Blaster Digital 4.1 (CT4751 w/EEPROM, Retail, 4 channel)
+<br>
+Sound Blaster PCI 128
+<br>
+Sound Blaster PCI 128 (CT4740 w/EEPROM)
+<br>
+Sound Blaster PCI 128 (CT4808 w/EEPROM, Retail, 4 channel)
+<br>
+Sound Blaster PCI 128 (CT4810/6)
+<br>
+Sound Blaster PCI 128 (CT4815 w/EEPROM)
+<br>
+OEM AOpen Inc {a0a0} : CT5880 AudioPCI On Motherboard
+<br>
+OEM ASUSTeK Computer Inc {1043} : 5880 AudioPCI
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6ATA4
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6CTR
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6WTX
+<br>
+OEM Delta Electronics Inc {1599} : CT5880 AudioPCI On Motherboard
+<br>
+OEM First International Computer Inc {1509} : FA11
+<br>
+OEM First International Computer Inc {1509} : FS11
+<br>
+OEM First International Computer Inc {1509} : FS31
+<br>
+OEM Giga-Byte Technology {1458} : 6VM7-4X
+<br>
+OEM Giga-Byte Technology {1458} : 6VX7-4
+<br>
+OEM Giga-Byte Technology {1458} : CT5880 AudioPCI On Motherboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : CT5880 AudioPCI On Motherboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6188 1.00
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6195
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6308
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6309
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6318
+<br>
+OEM Quanta Computer Inc {152d} : CT5880 AudioPCI On Motherboard
+<br>
+OEM Quanta Computer Inc {152d} : M30
+<br>
+</td></tr></table>
+ES1370 AudioPCI [5000]
+<br>
+ES1371, ES1373 AudioPCI [1371]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Creative Sound Blaster AudioPCI64V, AudioPCI 128
+<br>
+Sound Blaster PCI 128 (CT4751 w/EEPROM, Retail, 4 channel)
+<br>
+Vibra PCI 128 (CT4813 w/EEPROM)
+<br>
+Vibra PCI 128 (CT4813)
+<br>
+OEM A-Trend Technology Co Ltd {1563} : 7060
+<br>
+OEM A-Trend Technology Co Ltd {1563} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM ASUSTeK Computer Inc {1043} : ES1371 AudioPCI
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6AIA4
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6ASA2
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6ATA4
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6BTA3
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6WIV
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6WIV2
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6WSV
+<br>
+OEM Chaintech Computer Co Ltd {270f} : 6WTX
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : ES1371/3 AudioPCI
+<br>
+OEM Delta Electronics Inc {1599} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM First International Computer Inc {1509} : FA11
+<br>
+OEM First International Computer Inc {1509} : FS11
+<br>
+OEM First International Computer Inc {1509} : FS31
+<br>
+OEM First International Computer Inc {1509} : KA11
+<br>
+OEM First International Computer Inc {1509} : KC13
+<br>
+OEM First International Computer Inc {1509} : KW11
+<br>
+OEM First International Computer Inc {1509} : KW31
+<br>
+OEM GVC/BCM Advanced Research {14a4} : DR739
+<br>
+OEM GVC/BCM Advanced Research {14a4} : KR639
+<br>
+OEM GVC/BCM Advanced Research {14a4} : MR800
+<br>
+OEM GVC/BCM Advanced Research {14a4} : MR801
+<br>
+OEM Gateway 2000 {107b} : Tabor2
+<br>
+OEM Giga-Byte Technology {1458} : 6VM7-4X
+<br>
+OEM Giga-Byte Technology {1458} : 6VX7-4
+<br>
+OEM Giga-Byte Technology {1458} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM Intel Corporation {8086} : BI440ZX
+<br>
+OEM Intel Corporation {8086} : BL440ZX
+<br>
+OEM Intel Corporation {8086} : BZ440ZX
+<br>
+OEM Intel Corporation {8086} : Cape Cod
+<br>
+OEM Intel Corporation {8086} : Cayman
+<br>
+OEM Intel Corporation {8086} : Cayman 2
+<br>
+OEM Intel Corporation {8086} : Easton
+<br>
+OEM Intel Corporation {8086} : FJ440ZX
+<br>
+OEM Intel Corporation {8086} : Fire Island
+<br>
+OEM Intel Corporation {8086} : Garibaldi
+<br>
+OEM Intel Corporation {8086} : Montreal
+<br>
+OEM Intel Corporation {8086} : OC440LX
+<br>
+OEM Intel Corporation {8086} : RC440BX
+<br>
+OEM Intel Corporation {8086} : Stornaway
+<br>
+OEM Intel Corporation {8086} : SunRiver
+<br>
+OEM Intel Corporation {8086} : Vancouver
+<br>
+OEM Intel Corporation {8086} : WS440BX
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6147 1.1A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6156 1.10
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6163BX 1.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6163BX 2.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6163VIA 1.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6163VIA 2.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6182 1.00
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6182 1.00A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6183 1.00
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6188 1.00
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6190 1.00
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6191
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6193
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6195
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6199BX 2.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6199VIA 2.0A
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6308
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6309
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6318
+<br>
+OEM Micron (Was: PC Technology Inc) {1042} : Tazer
+<br>
+OEM NEC Electronics Hong Kong {1033} : ES1371, ES1373 AudioPCI
+<br>
+OEM Quanta Computer Inc {152d} : CP810
+<br>
+OEM Quanta Computer Inc {152d} : CP810E
+<br>
+OEM Quanta Computer Inc {152d} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM Quanta Computer Inc {152d} : M30
+<br>
+OEM Quanta Computer Inc {152d} : M62
+<br>
+OEM Quanta Computer Inc {152d} : M73
+<br>
+OEM Quanta Computer Inc {152d} : P3810-S
+<br>
+OEM Quanta Computer Inc {152d} : P3810E
+<br>
+OEM Quanta Computer Inc {152d} : P3820-S
+<br>
+OEM Seanix Technology Inc {4ca1} : ES1371/3 AudioPCI On Motherboard
+<br>
+OEM Sharp Corp {13bd} : DJ-P/ME1
+<br>
+</td></tr></table>
+<h3><a name="1.15">1.15</a> 
+Platform Technologies, Inc. (1285)
+</h3>
+ES1948 Maestro-1 AudioDrive [0100]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ES1948 Maestro-1 AudioDrive
+<br>
+</td></tr></table>
+<h3><a name="1.16">1.16</a> 
+Aureal Semiconductor (12eb)
+</h3>
+AU8810 Vortex Digital Audio Processor [0003]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+AU8810 Vortex Digital Audio Processor
+<br>
+OEM GVC/BCM Advanced Research {14a4} : AU8810 Vortex Digital Audio Processor
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : AU8810 Vortex Digital Audio Processor
+<br>
+OEM Sony Corp {104d} : AU8810 Vortex Digital Audio Processor
+<br>
+OEM Trigem Computer Inc {109f} : AU8810 Vortex Digital Audio Processor
+<br>
+</td></tr></table>
+AU8820 Vortex 1 Digital Audio Processor [0001]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+AU8820 Vortex Digital Audio Processor
+<br>
+OEM Aztech System Ltd {122d} : Vortex Multifunction PCI Parent
+<br>
+OEM Diamond Multimedia Systems {1092} : Sonic Impact A3D
+<br>
+OEM Sony Corp {104d} : AU8820 Vortex Digital Audio Processor
+<br>
+OEM Voyetra Technologies {5053} : Montego
+<br>
+</td></tr></table>
+AU8830 Vortex 2 3D Digital Audio Processor [0002]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+AU8830 Vortex 3D Digital Audio Processor
+<br>
+OEM Diamond Multimedia Systems {1092} : Monster Sound II
+<br>
+OEM Samsung Electronics Co Ltd {144d} : AU8830 Vortex 3D Digital Audio Processor
+<br>
+OEM Sony Corp {104d} : AU8830 Vortex 3D Digital Audio Processor
+<br>
+OEM Voyetra Technologies {5053} : Montego II
+<br>
+</td></tr></table>
+<h3><a name="1.17">1.17</a> 
+Fortemedia, Inc (1319)
+</h3>
+Xwave FM801 PCI Audio Device [0801]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+FM801-AU PCI Audio Device
+<br>
+</td></tr></table>
+<h3><a name="1.18">1.18</a> 
+C-Media Electronics Inc (13f6)
+</h3>
+CMI8338-031 PCI Audio Device [0101]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+CMI8338-031 PCI Audio Device
+<br>
+OEM ASUSTeK Computer Inc {1043} : CMI8338-based Onboard Audio
+<br>
+</td></tr></table>
+CMI8338/C3DX PCI Audio Device [0100]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+CMI8338/C3DX PCI Audio Device
+<br>
+</td></tr></table>
+CMI8378B/C3DX PCI Audio Device [0112]
+<br>
+CMI8738/C3DX PCI Audio Device [0111]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+CMI8738/C3DX PCI Audio Device
+<br>
+OEM ASUSTeK Computer Inc {1043} : CM8738 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Aashima Technology B.V. {145e} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Abit Computer Corp {147b} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Chaintech Computer Co Ltd {270f} : CM8738 Audio
+<br>
+OEM Chaintech Computer Co Ltd {270f} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Elitegroup Computer Sys {1019} : CM8738 Audio
+<br>
+OEM Elitegroup Computer Sys {1019} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Fastfame Technology Co Ltd {1664} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Formosa Industrial Computing {147a} : CM8738 Audio
+<br>
+OEM Giga-Byte Technology {1458} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Hsing Tech Enterprise Co Ltd {165d} : CM8738 Audio
+<br>
+OEM Iwill Corp {15d4} : CM8738 Audio
+<br>
+OEM Labway Corp {1483} : CM8738 Audio
+<br>
+OEM Leadtek Research {107d} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM Soyo Technology Corp Ltd {10fd} : CMI8738/C3DX PCI Audio Device
+<br>
+OEM VIA Technologies Inc {1106} : CMI8738/C3DX PCI Audio Device
+<br>
+</td></tr></table>
+<h3><a name="1.19">1.19</a> 
+VIA Technologies Inc. (1412)
+</h3>
+ICE1712 Envy24 Multichannel Audio Controller [1712]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Hoontech SoundTrack Audio DSP 24
+<br>
+M Audio Audiophile
+<br>
+M Audio Delta-1010
+<br>
+M Audio Delta-44
+<br>
+M Audio Delta-66
+<br>
+M Audio Delta-DiO
+<br>
+M-Audio Delta 410
+<br>
+SeaSound Solo
+<br>
+OEM Terratec Electronic GmbH {153b} : DMX 6Fire 24/96
+<br>
+OEM Terratec Electronic GmbH {153b} : EWS88 MT
+<br>
+OEM Terratec Electronic GmbH {153b} : EWX24/96
+<br>
+</td></tr></table>
+VT1720/4 Envy24PT PCI Multi-Channel Audio Controller [1724]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+VT1720/4 Envy24PT PCI Multi-Channel Audio Controller
+<br>
+</td></tr></table>
+<h3><a name="1.20">1.20</a> 
+Avance Logic Inc. (4005)
+</h3>
+ALS4000 Audio Chipset [4000]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+ALS4000 Audio Chipset
+<br>
+</td></tr></table>
+<h3><a name="1.21">1.21</a> 
+S3 Inc. (5333)
+</h3>
+86C617 SonicVibes [ca00]
+<br>
+<h3><a name="1.22">1.22</a> 
+Intel Corporation (8086)
+</h3>
+6300ESB AC'97 Audio Controller [25a6]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM SBS Technologies (AKA: SBS-Or Industrial Computers) {4c53} : CL9 mainboard
+<br>
+</td></tr></table>
+82440MX AC'97 Audio Controller [7195]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM Acer Inc {1025} : Avance AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Fujitsu Ltd {10cf} : Lifebook Series Notebooks
+<br>
+OEM Fujitsu Ltd {10cf} : QSound_SigmaTel Stac97 PCI Audio
+<br>
+OEM Giga-Byte Technology {1458} : Avance AC'97 Audio
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM NEC Electronics Hong Kong {1033} : Versa Note VXi
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM VIA Technologies Inc (Was: IC Ensemble Inc) {1412} : 82443MX AC'97 Audio Controller
+<br>
+OEM {414c} : Avance AC'97 Audio
+<br>
+</td></tr></table>
+82801AA 8xx Chipset AC'97 Audio Controller [2415]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+82801AA 8xx Chipset AC'97 Audio Controller
+<br>
+SoundMAX Integrated Digital Audio
+<br>
+OEM Abit Computer Corp {147b} : Avance AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Avance Logic Inc {4005} : Avance AC'97 Audio
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : Avance AC'97 Audio
+<br>
+OEM DFI Inc {15bd} : Avance AC'97 Audio
+<br>
+OEM Dell Computer Corp {1028} : SoundMAX Integrated Digital Audio
+<br>
+OEM Elitegroup Computer Sys {1019} : Avance AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : Avance AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM Hewlett-Packard Company {103c} : Avance AC'97 Audio
+<br>
+OEM Hewlett-Packard Company {103c} : Vectra VL400
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Avance AC'97 Audio
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM Tekram Technology {1de1} : Avance AC'97 Audio
+<br>
+OEM Tekram Technology {1de1} : TRM-S381 Fe Mainboard
+<br>
+OEM VIA Technologies Inc (Was: IC Ensemble Inc) {1412} : 82801AA AC'97 Audio Controller
+<br>
+OEM {414c} : Avance AC'97 Audio
+<br>
+</td></tr></table>
+82801AB 8xx Chipset AC'97 Audio Controller [2425]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM Abit Computer Corp {147b} : Avance AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Avance Logic Inc {4005} : Avance AC'97 Audio
+<br>
+OEM DFI Inc {15bd} : Avance AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : Avance AC'97 Audio
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Avance AC'97 Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM VIA Technologies Inc (Was: IC Ensemble Inc) {1412} : 82801AB AC'97 Audio Controller
+<br>
+OEM {414c} : Avance AC'97 Audio
+<br>
+</td></tr></table>
+82801BA/BAM (ICH2/ICH2-M) AC'97 Audio Controller [2445]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+D815EGEW Mainboard
+<br>
+SoundMAX Integrated Digital Audio
+<br>
+OEM AOpen Inc {a0a0} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : SoundMAX Integrated Digital Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : TUSL2 mainboard
+<br>
+OEM Abit Computer Corp {147b} : Realtek AC'97 Audio
+<br>
+OEM Acer Inc {1025} : Realtek AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : C-Media AC97 Audio Device
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : Realtek AC'97 Audio or C-Media AC97 Audio Device
+<br>
+OEM C-Media Electronics Inc {13f6} : C-Media AC97 Audio Device
+<br>
+OEM Chaintech Computer Co Ltd {270f} : Realtek AC'97 Audio
+<br>
+OEM Clevo/Kapok Computer {1558} : 0300&nbsp;&nbsp;&nbsp;&nbsp;Realtek AC'97 Audio
+<br>
+OEM Clevo/Kapok Computer {1558} : Realtek AC'97 Audio
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : 82801BA/BAM (ICH2) AC'97 Audio Controllers
+<br>
+OEM DFI Inc {15bd} : Realtek AC'97 Audio
+<br>
+OEM Dell Computer Corp {1028} : Onboard AC'97 Audio Controller
+<br>
+OEM Dell Computer Corp {1028} : SoundMAX Integrated Digital Audio
+<br>
+OEM Elitegroup Computer Sys {1019} : Realtek AC'97 Audio
+<br>
+OEM Epox Computer Co Ltd {1695} : Realtek AC'97 Audio
+<br>
+OEM First International Computer Inc {1509} : C-Media AC97 Audio Device
+<br>
+OEM First International Computer Inc {1509} : Realtek AC'97 Audio or C-Media AC97 Audio Device
+<br>
+OEM Fujitsu Ltd {10cf} : SoundMAX Integrated Digital Audio
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM Hewlett-Packard Company {103c} : Realtek AC'97 Audio
+<br>
+OEM Hewlett-Packard Company {103c} : SoundMAX Integrated Digital Audio
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : C-Media AC97 Audio Device
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Realtek AC'97 Audio
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Realtek AC'97 Audio or C-Media AC97 Audio Device
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6337 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6520 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6523 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6534 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6555 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6562 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6566 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6575 AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : SoundMAX Integrated Digital Audio
+<br>
+OEM PC Partner Ltd {174b} : Realtek AC'97 Audio
+<br>
+OEM Siemens PC Systeme GmBH {110a} : SoundMAX Integrated Digital Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM Sony Corp {104d} : Vaio PCG-FX290 notebook AC'97 Audio Controller
+<br>
+OEM {414c} : ALC100
+<br>
+</td></tr></table>
+82801CA/CAM (ICH3-S/ICH3-M) AC'97 Audio Controller [2485]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+OEM ASUSTeK Computer Inc {1043} : L2 Series Notebooks
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM Abit Computer Corp {147b} : Realtek AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Cirrus Logic {1013} : Crystal WMD Audio Codec
+<br>
+OEM Clevo/Kapok Computer {1558} : Realtek AC'97 Audio
+<br>
+OEM Clevo/Kapok Computer {1558} : SoundMAX Integrated Digital Audio
+<br>
+OEM Compal Electronics Inc {14c0} : Realtek AC'97 Audio
+<br>
+OEM Compal Electronics Inc {14c0} : Realtek AC97 Audio
+<br>
+OEM Dell Computer Corp {1028} : Onboard AC'97 Audio Controller
+<br>
+OEM First International Computer Inc {1509} : SoundMAX Integrated Digital Audio
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM IBM {1014} : ThinkPad T23 (2647-4MG) or A30/A30p (2652/2653)
+<br>
+OEM Samsung Electronics Co Ltd {144d} : vpr Matrix 170B4
+<br>
+OEM Siemens PC Systeme GmBH {110a} : SoundMAX Integrated Digital Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM Sony Corp {104d} : VAIO PCG-GR214EP/GR214MP/GR215MP/GR314MP/GR315MP
+<br>
+OEM {414c} : Avance AC'97 Audio
+<br>
+</td></tr></table>
+82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller [24c5]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Ashland Layton mainboard
+<br>
+Onboard AC'97 Audio with STAC9750T codec, D845GLVA mainboard
+<br>
+Realtek AC'97 Audio
+<br>
+SoundMAX Integrated Digital Audio
+<br>
+OEM AOpen Inc {a0a0} : Realtek AC'97 Audio
+<br>
+OEM ASRock Inc {1849} : C-Media AC97 Audio Device
+<br>
+OEM ASUSTeK Computer Inc {1043} : C-Media AC97 Audio Device
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : SoundMAX Integrated Digital Audio
+<br>
+OEM Abit Computer Corp {147b} : Onboard AC'97 Audio Controller
+<br>
+OEM Abit Computer Corp {147b} : Realtek AC'97 Audio
+<br>
+OEM Acer Inc {1025} : Realtek AC'97 Audio
+<br>
+OEM Acer Inc {1025} : S88M mainboard
+<br>
+OEM Acer Inc {1025} : TravelMate 290
+<br>
+OEM Albatron Corp {17f2} : Realtek AC'97 Audio
+<br>
+OEM Analog Devices {11d4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : C-Media AC97 Audio Device
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : Realtek AC'97 Audio or C-Media AC97 Audio Device
+<br>
+OEM Chaintech Computer Co Ltd {270f} : C-Media AC97 Audio Device
+<br>
+OEM Chaintech Computer Co Ltd {270f} : Realtek AC'97 Audio
+<br>
+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : Analog Devices Inc. codec [SoundMAX]
+<br>
+OEM DFI Inc {15bd} : C-Media AC97 Audio Device
+<br>
+OEM DFI Inc {15bd} : Realtek AC'97 Audio
+<br>
+OEM Dell Computer Corp {1028} : Latitude D505
+<br>
+OEM Dell Computer Corp {1028} : Onboard AC'97 Audio Controller
+<br>
+OEM Elitegroup Computer Sys {1019} : C-Media AC97 Audio Device
+<br>
+OEM Elitegroup Computer Sys {1019} : Realtek AC'97 Audio
+<br>
+OEM Epox Computer Co Ltd {1695} : Realtek AC'97 Audio
+<br>
+OEM First International Computer Inc {1509} : SoundMAX Integrated Digital Audio
+<br>
+OEM Fujitsu Ltd {10cf} : Realtek AC'97 Audio
+<br>
+OEM GVC/BCM Advanced Research {14a4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Giga-Byte Technology {1458} : GA-8PE667 Ultra
+<br>
+OEM Giga-Byte Technology {1458} : Onboard AC'97 Audio Controller
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM Hewlett-Packard Company {103c} : NC6000 laptop
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : C-Media AC97 Audio Device
+<br>
+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : Realtek AC'97 Audio
+<br>
+OEM IBM {1014} : Realtek AC'97 Audio
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM Iwill Corp {15d4} : Realtek AC'97 Audio
+<br>
+OEM Jetway Information Co Ltd {16f3} : C-Media AC97 Audio Device
+<br>
+OEM Jetway Information Co Ltd {16f3} : Realtek AC'97 Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : C-Media AC97 Audio Device
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6398 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6507 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6526 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6557 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6577 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6579 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6580 Onboard AC'97 Audio Controller
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : Realtek AC'97 Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : SoundMAX Integrated Digital Audio
+<br>
+OEM Mitac {1071} : MIM2000
+<br>
+OEM Movita Tehnologies Inc {17c4} : Realtek AC'97 Audio
+<br>
+OEM NEC Computer International {1631} : C-Media AC97 Audio Device
+<br>
+OEM NEC Computer International {1631} : Realtek AC'97 Audio
+<br>
+OEM PC Partner Ltd {174b} : Realtek AC'97 Audio
+<br>
+OEM Quantum Designs (H.K.) Inc {3411} : SoundMAX Integrated Digital Audio
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9700 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9708 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9721 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9744 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9750 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9756 codec
+<br>
+OEM Sigmatel Inc (??) {8384} : Onboard AC'97 Audio Controller with STAC9766 codec
+<br>
+OEM Soyo Technology Corp Ltd {10fd} : C-Media AC97 Audio Device
+<br>
+OEM Super Micro Computer Inc {15d9} : Realtek AC'97 Audio
+<br>
+OEM Tatung Co {15d5} : Realtek AC'97 Audio
+<br>
+OEM Toshiba America Information Systems {1179} : SoundMAX Integrated Digital Audio
+<br>
+OEM Trigem Computer Inc {109f} : Realtek AC'97 Audio
+<br>
+OEM Trigem Computer Inc {109f} : SoundMAX Integrated Digital Audio
+<br>
+OEM Tyan Computer {10f1} : Realtek AC'97 Audio
+<br>
+OEM Tyan Computer {10f1} : SoundMAX Integrated Digital Audio
+<br>
+OEM Wistron Corporation {17c0} : Realtek AC'97 Audio
+<br>
+OEM Zida Technologies Ltd {109d} : C-Media AC97 Audio Device
+<br>
+OEM {1865} : C-Media AC97 Audio Device
+<br>
+</td></tr></table>
+82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller [24d5]
+<br>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+Realtek AC'97 Audio
+<br>
+OEM AOpen Inc {a0a0} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : Realtek AC'97 Audio
+<br>
+OEM ASUSTeK Computer Inc {1043} : SoundMAX Integrated Digital Audio
+<br>
+OEM Abit Computer Corp {147b} : Realtek AC'97 Audio
+<br>
+OEM Acer Inc {1025} : Realtek AC'97 Audio
+<br>
+OEM Albatron Corp {17f2} : Realtek AC'97 Audio
+<br>
+OEM Alpha Data Parallel Systems Ltd {4144} : SoundMAX Integrated Digital Audio
+<br>
+OEM Avance Logic Inc {4005} : Realtek AC'97 Audio
+<br>
+OEM Biostar Microtech Int'l Corp {1565} : Realtek AC'97 Audio
+<br>
+OEM Clevo/Kapok Computer {1558} : Realtek AC'97 Audio
+<br>
+OEM Compal Electronics Inc {14c0} : Realtek AC97 Audio
+<br>
+OEM DTK Computer {14c2} : Realtek AC'97 Audio
+<br>
+OEM Dell Computer Corp {1028} : SoundMAX Integrated Digital Audio
+<br>
+OEM Elitegroup Computer Sys {1019} : Realtek AC'97 Audio
+<br>
+OEM Epox Computer Co Ltd {1695} : Realtek AC'97 Audio
+<br>
+OEM First International Computer Inc {1509} : Realtek AC'97 Audio
+<br>
+OEM First International Computer Inc {1509} : SoundMAX Integrated Digital Audio
+<br>
+OEM GVC/BCM Advanced Research {14a4} : SoundMAX Integrated Digital Audio
+<br>
+OEM Giga-Byte Technology {1458} : GA-8KNXP motherboard (875P)
+<br>
+OEM Giga-Byte Technology {1458} : SoundMAX Integrated Digital Audio
+<br>
+OEM Hewlett-Packard Company {103c} : SoundMAX Integrated Digital Audio
+<br>
+OEM IBM {1014} : SoundMAX Integrated Digital Audio
+<br>
+OEM Iwill Corp {15d4} : Realtek AC'97 Audio
+<br>
+OEM Jetway Information Co Ltd {16f3} : Realtek AC'97 Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : 865PE Neo2 (MS-6728)
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : Realtek AC'97 Audio
+<br>
+OEM Micro-Star International Co Ltd (MSI) {1462} : SoundMAX Integrated Digital Audio
+<br>
+OEM Mitac {1071} : SoundMAX Integrated Digital Audio
+<br>
+OEM PC Partner Ltd {174b} : Realtek AC'97 Audio
+<br>
+OEM Pro Team Computer Corporation {1816} : Realtek AC'97 Audio
+<br>
+OEM Quantum Designs (H.K.) Inc {3411} : Realtek AC'97 Audio
+<br>
+OEM Super Micro Computer Inc {15d9} : Realtek AC'97 Audio
+<br>
+OEM Uniwill Computer Corp {1584} : Realtek AC'97 Audio
+<br>
+OEM Wistron Corporation {17c0} : Realtek AC'97 Audio
+<br>
+</td></tr></table>
+82801FB ICH6 High Definition Audio Controller [2668]
+<br>
+<h3><a name="1.23">1.23</a> 
+RME (ea60)
+</h3>
+Digi32 Pro [9897]
+<br>
+Digi32 [9896]
+<br>
+Digi32/8 [9898]
+<br>
+<h2><a name="2">2</a> 
+Information
+</h2>
+This list is automatically generated from the `pcidevs.txt' and `pci.ids'
+files available at:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<a href="http://members.datafast.net.au/dft0802/downloads/pcidevs.txt">http://members.datafast.net.au/dft0802/downloads/pcidevs.txt</a>
+<br>
+<a href="http://pciids.sf.net/">http://pciids.sf.net/</a>
+<br>
+</td></tr></table>
+<p>
+The numbers in [] are the PCI product IDs (PID) of the board
+models. The numbers in () are the PCI vendor IDs (VID) of the
+board manufacturers. The idented names are submodels with
+the same chipset. The numbers in {} are the PCI OEM vendor IDs of
+the submodel.
+<p>
+To get the PCI VID/PID of your audio board you can use
+the 'lspci -n' command and search for the class 0401.
+<p>
+For example :
+<p>
+<pre>
+root@darkstar:~/tmp# lspci -n
+00:1f.3 Class 0c05: 8086:24c3 (rev 01)
+01:00.0 Class 0300: 1002:5159
+02:03.0 Class 0401: 13f6:0111 (rev 10)
+02:04.0 Class 0c00: 1033:00f2 (rev 01)
+</pre>
+<p>
+the PCI VID/PID is 13f6:0111 for 'CMI8738/C3DX PCI Audio Device'.
+
+</div>
+</body>
+</html>
+
