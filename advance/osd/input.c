@@ -2186,6 +2186,11 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 					}
 				}
 			}
+
+			if (analog_axis[i] < -128)
+				analog_axis[i] = -128;
+			if (analog_axis[i] > 128)
+				analog_axis[i] = 128;
 		}
 	} else {
 		unsigned i;

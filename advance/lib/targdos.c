@@ -515,10 +515,10 @@ void target_flush(void)
 void target_signal(int signum)
 {
 	if (signum == SIGINT) {
-		cprintf("Break pressed\n\r");
+		cprintf("Break\n\r");
 		exit(EXIT_FAILURE);
 	} else if (signum == SIGQUIT) {
-		cprintf("Quit pressed\n\r");
+		cprintf("Quit\n\r");
 		exit(EXIT_FAILURE);
 	} else if (signum == SIGUSR1) {
 		cprintf("Low memory\n\r");
@@ -540,7 +540,7 @@ void target_signal(int signum)
 void target_crash(void)
 {
 	unsigned* i = (unsigned*)0;
-	++*i;
+	*i = *i;
 	abort();
 }
 

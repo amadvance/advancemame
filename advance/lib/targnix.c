@@ -542,7 +542,7 @@ void target_signal(int signum)
 void target_crash(void)
 {
 	unsigned* i = (unsigned*)0;
-	++*i;
+	*i = *i;
 	abort();
 }
 

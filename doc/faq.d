@@ -28,6 +28,18 @@ AdvanceMAME FAQ
 	programming of the video board. In Windows 98/Me you can use
 	the DOS version to directly program your video board.
 
+  How to automatically record video and audio clips ?
+	Add this script in your advmame.rc. For any game started a 15 seconds
+	clip is recorded.
+
+	:script_emulation delay(5000); \
+	:	simulate_event(ui_snapshot, 50); \
+	:	simulate_event(ui_record_start, 50); \
+	:	delay(15100); \
+	:	simulate_event(ui_record_stop, 50); \
+	:	delay(100); \
+	:	simulate_event(ui_cancel, 50);
+
 AdvanceMENU FAQ
   Can I use AdvanceMENU to list my MP3 and MNG collection ?
 	Yes. You can create a fake emulator to play all your music

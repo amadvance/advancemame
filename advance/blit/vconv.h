@@ -991,6 +991,10 @@ static void video_stage_bgr888tobgra8888_set(struct video_stage_horz_struct* sta
 	Y =  0.299  R + 0.587  G + 0.114  B
 	U = -0.1687 R - 0.3313 G + 0.5    B + 128
 	V =  0.5    R - 0.4187 G - 0.0813 B + 128
+
+	Y = (76*R + 150*G + 29*B) >> 8
+	U = (-43*R - 84*G + 128*B) >> 8 + 128
+	V = (128*R - 107*G - 20*B) >> 8 + 128
 */
 
 static uint32 bgra8888toyuy2_coeff[] = {
@@ -1105,8 +1109,8 @@ static inline void bgra8888toyuy2_def(void* dst, const void* src)
 {
 	const uint8* src8 = (const uint8*)src;
 	uint8* dst8 = (uint8*)dst;
-	unsigned r, g, b;
-	unsigned y, u, v;
+	int r, g, b;
+	int y, u, v;
 
 #ifdef USE_LSB
 	b = src8[0];
@@ -1119,13 +1123,13 @@ static inline void bgra8888toyuy2_def(void* dst, const void* src)
 #endif
 
 /*
-	Y = 0.299R + 0.587G + 0.114B
-	U = 0.492 (B - Y)
-	V = 0.877 (R - Y)
+      Y =  0.299  R + 0.587  G + 0.114  B
+      U = -0.1687 R - 0.3313 G + 0.5    B + 128
+      V =  0.5    R - 0.4187 G - 0.0813 B + 128
 */
-	y = ((19595*r + 38469*g + 7471*b) >> 16) & 0xFF;
-	u = ((32243 * (int)(b-y) + 8388608) >> 16) & 0xFF;
-	v = ((57475 * (int)(r-y) + 8388608) >> 16) & 0xFF;
+	y = ((19595*r + 38469*g + 7471*b) >> 16);
+	u = ((-11055*r - 21712*g + 32768*b) >> 16) + 128;
+	v = ((32768*r - 27439*g - 5328*b) >> 16) + 128;
 
 	dst8[0] = y;
 	dst8[1] = u;

@@ -487,7 +487,7 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 /***************************************************************************/
 /* SafeQuit */
 
-#define SAFEQUIT_ENTRY_MAX 64
+#define SAFEQUIT_ENTRY_MAX 256
 
 enum {
 	safequit_event_zerocoin = 0,

@@ -1335,6 +1335,7 @@ static int r128_init(int force, int par1, int par2)
         (id==0x4c57) ||
         (id==0x4c59) ||
         (id==0x4c5a) ||
+        (id==0x4c66) || /* reported working (ATI Radeon Mobility 9000) */
         ((id>>8)==0x41) ||
         ((id>>8)==0x49) ||
         ((id>>8)==0x4E) ||

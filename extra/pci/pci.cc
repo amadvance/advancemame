@@ -456,7 +456,13 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 "\tvideo board manufacturers. The idented names are submodels with\n" \
 "\tthe same chipset. The numbers in {} are the PCI OEM vendor IDs of\n" \
 "\tthe submodel.\n" \
-"\n" \
+"\n"
+
+#define FOOTER_AUDIO \
+FOOTER
+
+#define FOOTER_VIDEO \
+FOOTER \
 "\tThe cards marked with (*) don't support interlaced modes.\n" \
 "\n"
 
@@ -492,7 +498,7 @@ HEADER
 
 	print_set(os,vs_vbeline);
 
-	os << FOOTER;
+	os << FOOTER_VIDEO;
 }
 
 void print_linux(ostream& os, entry_vendor_set& vs_svgalib, entry_vendor_set& vs_fb) {
@@ -532,7 +538,7 @@ HEADER
 
 	print_set(os,vs_svgalib);
 
-	os << FOOTER;
+	os << FOOTER_VIDEO;
 }
 
 void print_cd(ostream& os, entry_vendor_set& vs_fb) {
@@ -554,7 +560,7 @@ HEADER
 
 	print_set(os,vs_fb);
 
-	os << FOOTER;
+	os << FOOTER_VIDEO;
 }
 
 void print_audiocd(ostream& os, entry_vendor_set& vs_alsa) {
@@ -579,7 +585,7 @@ HEADER
 
 	print_set(os,vs_alsa);
 
-	os << FOOTER;
+	os << FOOTER_AUDIO;
 }
 
 void print_win(ostream& os, entry_vendor_set& vs_svgaline) {
@@ -604,7 +610,7 @@ HEADER
 
 	print_set(os,vs_svgaline);
 
-	os << FOOTER;
+	os << FOOTER_VIDEO;
 }
 
 // --------------------------------------------------------------------------

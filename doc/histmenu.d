@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.14 2003/10
+
 AdvanceMENU Version 2.2.13 2003/10
 	) The SIGHUP signal now kills and restarts the program.
 	) Added external commands support with the new

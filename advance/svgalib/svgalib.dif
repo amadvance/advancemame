@@ -374,7 +374,7 @@ diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
      if (__svgalib_driver_report) {
 diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
 --- ../svgalib.ori/drivers/r128.c	2003-10-13 17:40:51.000000000 +0200
-+++ drivers/r128.c	2003-10-13 17:41:42.000000000 +0200
++++ drivers/r128.c	2003-10-22 22:07:25.000000000 +0200
 @@ -10,12 +10,12 @@
  #include <errno.h>
  #include "vga.h"
@@ -431,10 +431,11 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
      save->dot_clock_freq = freq;
      save->feedback_div   = R128Div(pll->reference_div * save->pll_output_freq,
  				   pll->reference_freq);
-@@ -1327,6 +1335,9 @@
+@@ -1327,6 +1335,10 @@
          (id==0x4c57) ||
          (id==0x4c59) ||
          (id==0x4c5a) ||
++        (id==0x4c66) || /* reported working (ATI Radeon Mobility 9000) */
 +        ((id>>8)==0x41) ||
 +        ((id>>8)==0x49) ||
 +        ((id>>8)==0x4E) ||

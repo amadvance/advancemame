@@ -149,40 +149,50 @@ void target_sound_signal(void)
 adv_error target_apm_shutdown(void)
 {
 	OSVERSIONINFO VersionInformation;
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
 	DWORD flags = EWX_POWEROFF;
 
-	/* force always the shutdown */
+	/* Forces processes to terminate. When this flag is set, the system does not send */
+	/* the WM_QUERYENDSESSION and WM_ENDSESSION messages. This can cause the applications to */
+	/* lose data. Therefore, you should only use this flag in an emergency. */
+#if 0
 	flags |= EWX_FORCE;
+#endif
 
 	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	if (!GetVersionEx(&VersionInformation)) {
 		return -1;
 	}
 
-	if (VersionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-		HANDLE hToken;
-		TOKEN_PRIVILEGES tkp;
-
-		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
-			return -1;
- 
-		LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
-
-		tkp.PrivilegeCount = 1;
-		tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
- 
-		AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
- 
-		if (GetLastError() != ERROR_SUCCESS)
-			return -1;
-
-		if ((flags & EWX_FORCE) == 0) {
-			if (VersionInformation.dwMajorVersion >= 5)
-				flags |= WIN2K_EWX_FORCEIFHUNG;
-		}
+	/* It doesn't work on Windows 95/98/Me because all the Advance applications */
+	/* are console applications. */
+	/* From the MSDN: ExitWindowEx does not work from a console application. */
+	if (VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
+		return -1;
 	}
 
-	if (!ExitWindowsEx(flags, 0)) 
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+		return -1;
+ 
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+ 
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+ 
+	if (GetLastError() != ERROR_SUCCESS)
+		return -1;
+
+	if ((flags & EWX_FORCE) == 0) {
+		if (VersionInformation.dwMajorVersion >= 5)
+			/* Forces processes to terminate if they do not respond to the WM_QUERYENDSESSION or */
+			/* WM_ENDSESSION message. This flag is ignored if EWX_FORCE is used. */
+			flags |= WIN2K_EWX_FORCEIFHUNG;
+	}
+
+	if (!ExitWindowsEx(flags, 0))
 		return -1;
 
 	return 0;
@@ -462,7 +472,7 @@ static void target_backtrace(void)
 void target_signal(int signum)
 {
 	if (signum == SIGINT) {
-		fprintf(stderr, "Break pressed\n\r");
+		fprintf(stderr, "Break\n\r");
 		exit(EXIT_FAILURE);
 	} else {
 		fprintf(stderr, "Signal %d.\n", signum);
@@ -479,7 +489,7 @@ void target_signal(int signum)
 void target_crash(void)
 {
 	unsigned* i = (unsigned*)0;
-	++*i;
+	*i = *i;
 	abort();
 }
 

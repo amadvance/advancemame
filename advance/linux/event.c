@@ -1013,6 +1013,7 @@ static void event_abs_log(int f)
 	log_std(("\n"));
 }
 
+#ifdef EV_MSC
 static void event_msc_log(int f)
 {
 	unsigned char msc_bitmask[MSC_MAX/8 + 1];
@@ -1047,6 +1048,7 @@ static void event_msc_log(int f)
 
 	log_std(("\n"));
 }
+#endif
 
 static void event_led_log(int f)
 {
@@ -1174,6 +1176,7 @@ static void event_rep_log(int f)
 	log_std(("\n"));
 }
 
+#ifdef EV_FF
 static void event_ff_log(int f)
 {
 	unsigned char ff_bitmask[FF_MAX/8 + 1];
@@ -1293,6 +1296,7 @@ static void event_ff_log(int f)
 
 	log_std(("\n"));
 }
+#endif
 
 #define UK_MAX 256
 
@@ -1430,11 +1434,15 @@ void event_log(int f, unsigned char* evtype_bitmask)
 			case EV_KEY : event_key_log(f); break;
 			case EV_REL : event_rel_log(f); break;
 			case EV_ABS : event_abs_log(f); break;
+#ifdef EV_MSC
 			case EV_MSC : event_msc_log(f); break;
+#endif
 			case EV_LED : event_led_log(f); break;
 			case EV_SND : event_snd_log(f); break;
 			case EV_REP : event_rep_log(f); break;
+#ifdef EV_FF
 			case EV_FF : event_ff_log(f); break;
+#endif
 			default: event_unknown_log(f, i); break;
 			}
 		}

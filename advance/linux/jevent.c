@@ -42,6 +42,25 @@
 #include <stdlib.h>
 #include <linux/input.h>
 
+/***************************************************************************/
+/* Acts Labs Lightgun */
+
+/**
+ * Define to use the Acts Labs Lighgun Reload Hack.
+ * This lightgun remap the shot out of screen to the second button (BTN_SIDE)
+ * instead of the first button (BTN_MIDDLE).
+ */
+#define USE_ACTLABS_HACK
+
+#ifdef USE_ACTLABS_HACK
+#define ACTLABS_VENDOR 0x061c
+#define ACTLABS_DEVICE 0xa800
+#define ACTLABS_BUTTON BTN_SIDE
+#endif
+
+/***************************************************************************/
+/* Event */
+
 #define EVENT_JOYSTICK_MAX 8
 #define EVENT_JOYSTICK_DEVICE_MAX 32
 #define EVENT_JOYSTICK_BUTTON_MAX 16
@@ -83,6 +102,14 @@ struct joystick_rel_context {
 
 struct joystick_item_context {
 	int f;
+	unsigned vendor_id;
+	unsigned device_id;
+	unsigned version_id;
+	unsigned bus_id;
+#ifdef USE_ACTLABS_HACK
+	adv_bool actlabs_hack_enable; /**< If the ACT Labs hack is enabled. */
+	unsigned actlabs_hack_counter; /**< Poll counter at the hack start. */
+#endif
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned stick_mac;
 	struct joystick_stick_context stick_map[EVENT_JOYSTICK_STICK_MAX];
@@ -93,11 +120,14 @@ struct joystick_item_context {
 };
 
 struct joystickb_event_context {
+	unsigned counter; /**< Poll counter. Increased at every poll. */
 	unsigned mac;
 	struct joystick_item_context map[EVENT_JOYSTICK_MAX];
 };
 
 static struct joystickb_event_context event_state;
+
+/***************************************************************************/
 
 static adv_device DEVICE[] = {
 { "auto", -1, "Linux input-event joystick" },
@@ -112,6 +142,8 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	unsigned char abs_bitmask[ABS_MAX/8 + 1];
 	unsigned char rel_bitmask[REL_MAX/8 + 1];
 	unsigned i;
+	short device_info[4];
+
 	struct button_entry {
 		int code;
 		const char* name;
@@ -119,17 +151,17 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		#ifdef BTN_TRIGGER
 		{ BTN_TRIGGER, "trigger" }, /* joystick */
 		#endif
-		#ifdef BTN_TOP
-		{ BTN_TOP, "top" }, /* joystick */
-		#endif
-		#ifdef BTN_TOP2
-		{ BTN_TOP2, "top2" }, /* joystick */
-		#endif
 		#ifdef BTN_THUMB
 		{ BTN_THUMB, "thumb" }, /* joystick */
 		#endif
 		#ifdef BTN_THUMB2
 		{ BTN_THUMB2, "thumb2" }, /* joystick */
+		#endif
+		#ifdef BTN_TOP
+		{ BTN_TOP, "top" }, /* joystick */
+		#endif
+		#ifdef BTN_TOP2
+		{ BTN_TOP2, "top2" }, /* joystick */
 		#endif
 		#ifdef BTN_PINKIE
 		{ BTN_PINKIE, "pinkie" }, /* joystick */
@@ -243,10 +275,10 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ BTN_RIGHT, "right" }, /* ball */
 		#endif
 		#ifdef BTN_MIDDLE
-		{ BTN_MIDDLE, "middle" }, /* ball */
+		{ BTN_MIDDLE, "middle" }, /* ball/lightgun */
 		#endif
 		#ifdef BTN_SIDE
-		{ BTN_SIDE, "side" }, /* ball */
+		{ BTN_SIDE, "side" }, /* ball/lightgun */
 		#endif
 		#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" }, /* ball */
@@ -268,13 +300,13 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	} stick_map[] = {
 		{ { { ABS_X, "x" }, { ABS_Y, "y" }, { ABS_Z, "z" }, { ABS_RX, "rx" }, { ABS_RY, "ry" }, { ABS_RZ, "rz" }, { ABS_UNASSIGNED, 0 } }, "stick" },
 		#ifdef ABS_GAS
-		{ { { ABS_GAS, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "gas" }, /* acceleratore */
+		{ { { ABS_GAS, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "gas" }, /* IT:acceleratore */
 		#endif
 		#ifdef ABS_BRAKE
-		{ { { ABS_BRAKE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "brake" }, /* freno */
+		{ { { ABS_BRAKE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "brake" }, /* IT:freno */
 		#endif
 		#ifdef ABS_WHEEL
-		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* volante */
+		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* IT:volante */
 		#endif
 		#ifdef ABS_HAT0X
 		{ { { ABS_HAT0X, "x" }, { ABS_HAT0Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat" },
@@ -292,7 +324,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ { { ABS_THROTTLE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "throttle" },
 		#endif
 		#ifdef ABS_RUDDER
-		{ { { ABS_RUDDER, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "rudder" }, /* timone */
+		{ { { ABS_RUDDER, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "rudder" }, /* IT:timone */
 		#endif
 		/* { { { ABS_PRESSURE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "pressure" }, */ /* tablet */
 		/* { { { ABS_DISTANCE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "distance" }, */ /* tablet */
@@ -331,6 +363,23 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	};
 
 	item->f = f;
+
+#ifdef USE_ACTLABS_HACK
+	item->actlabs_hack_enable = 0;
+#endif
+
+	if (ioctl(f, EVIOCGID, &device_info)) {
+		log_std(("event: error in ioctl(EVIOCGID)\n"));
+		item->vendor_id = 0;
+		item->device_id = 0;
+		item->version_id = 0;
+		item->bus_id = 0;
+	} else {
+		item->vendor_id = device_info[ID_VENDOR];
+		item->device_id = device_info[ID_PRODUCT];
+		item->version_id = device_info[ID_VERSION];
+		item->bus_id = device_info[ID_BUS];
+	}
 
 	memset(key_bitmask, 0, sizeof(key_bitmask));
 	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
@@ -393,18 +442,13 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 						} else {
 							int middle = (features[1] + features[2]) / 2;
 							int size = features[2] - features[1];
+							int flat = features[4];
 							axe->min = features[1];
 							axe->max = features[2];
 							axe->fuzz = features[3];
 							axe->flat = features[4];
-							if (features[4]>=2) {
-								axe->digit_low = middle - features[4] - features[3];
-								axe->digit_high = middle + features[4] + features[3];
-							} else {
-								/* if size is very small digit_low and digit_high are equal at middle */
-								axe->digit_low = middle - size / 8;
-								axe->digit_high = middle + size / 8;
-							}
+							axe->digit_low = middle - flat - (size - flat) / 8;
+							axe->digit_high = middle + flat + (size - flat) / 8;
 							axe->value = middle;
 							axe->value_adj = 0;
 						}
@@ -450,6 +494,8 @@ adv_error joystickb_event_init(int joystickb_id)
 	log_std(("josytickb:event: joystickb_event_init(id:%d)\n", joystickb_id));
 
 	log_std(("joystickb:event: opening joystick from 0 to %d\n", EVENT_JOYSTICK_DEVICE_MAX));
+
+	event_state.counter = 0;
 
 	event_state.mac = 0;
 	for(i=0;i<EVENT_JOYSTICK_DEVICE_MAX;++i) {
@@ -554,6 +600,14 @@ int joystickb_event_stick_axe_analog_get(unsigned joystick, unsigned stick, unsi
 	int r;
 	log_debug(("joystickb:event: joystickb_event_stick_axe_analog_get()\n"));
 
+#ifdef USE_ACTLABS_HACK
+	if (stick == 0
+		&& axe < 2
+		&& event_state.map[joystick].actlabs_hack_enable) {
+		return -128;
+	}
+#endif
+
 	r = event_state.map[joystick].stick_map[stick].axe_map[axe].value_adj;
 
 	return r;
@@ -576,6 +630,20 @@ const char* joystickb_event_button_name_get(unsigned joystick, unsigned button)
 unsigned joystickb_event_button_get(unsigned joystick, unsigned button)
 {
 	log_debug(("joystickb:event: joystickb_event_button_get()\n"));
+
+#ifdef USE_ACTLABS_HACK
+	if (button == 0
+		&& event_state.map[joystick].actlabs_hack_enable
+		&& event_state.map[joystick].actlabs_hack_counter + 4 < event_state.counter) {
+		/* delay at least 4 poll call before enabling the fake button */
+		return 1;
+	}
+
+	if (button == 1
+		&& event_state.map[joystick].actlabs_hack_enable) {
+		return 0;
+	}
+#endif
 
 	return event_state.map[joystick].button_map[button].state != 0;
 }
@@ -609,31 +677,73 @@ int joystickb_event_rel_get(unsigned joystick, unsigned rel)
 
 static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 {
-	if (axe->flat) {
-		/* center position */
-		int middle = (axe->max + axe->min) / 2;
-		/* dead range */
-		int dead_min = middle - axe->flat / 2;
-		int dead_max = middle + axe->flat / 2;
-		if (dead_min <= axe->value && axe->value <= dead_max
-			&& dead_min <= value && value <= dead_max) {
-                        /* both in the dead zone */
-			if (abs(value - middle) >= abs(axe->value - middle)) {
-				/* moving out of the center, do nothing */
-				return;
-			}
-		}
-	}
+/*
+   The min_value is the minimum value that this particular axis can return, while
+   the max_value is the maximum value that it can return. The fuzz element is the
+   range of values that can be considered the same (due to mechanical sensor
+   tolerances, or some other reason), and is zero for most devices. The flat is the
+   range of values about the mid-point in the axes that are indicate a zero
+   response (typically, this is the "dead zone" around the null position of a
+   joystick).
+*/
+	int min = axe->min;
+	int max = axe->max;
+	int fuzz = axe->fuzz;
+	int flat = axe->flat;
+	int a, d;
 
 	axe->value = value;
 
-	if (axe->min == axe->max) {
-		axe->value_adj = value;
-	}  else {
-		int a = value - axe->min;
-		int d = axe->max - axe->min;
-		axe->value_adj = a * 256 / d - 128;
+	if (min == max) {
+		/* adjustment not possible */
+		axe->value_adj = 0;
+		return;
 	}
+
+	if (fuzz) {
+		/* detect edge values with some error */
+
+		int fuzz_min = min + fuzz;
+		int fuzz_max = max - fuzz;
+
+		if (value < fuzz_min) {
+			axe->value_adj = -128;
+			return;
+		}
+
+		if (value > fuzz_max) {
+			axe->value_adj = 128;
+			return;
+		}
+	}
+
+	if (flat) {
+		/* remove the dead zone */
+
+		int middle = (max + min) / 2;
+		int flat_min = middle - flat;
+		int flat_max = middle + flat;
+
+		if (flat_min <= value && value <= flat_max) {
+			/* center position */
+			axe->value_adj = 0;
+			return;
+		}
+
+		min += flat;
+		max -= flat;
+
+		if (value < middle) {
+			value += flat;
+		} else {
+			value -= flat;
+		}
+	}
+
+	a = value - min;
+	d = max - min;
+	axe->value_adj = a * 256 / d - 128;
+
 	if (axe->value_adj < -128)
 		axe->value_adj = -128;
 	if (axe->value_adj > 128)
@@ -647,6 +757,8 @@ void joystickb_event_poll(void)
 
 	log_debug(("joystickb:event: joystickb_event_poll()\n"));
 
+	++event_state.counter;
+
 	for(i=0;i<event_state.mac;++i) {
 		struct joystick_item_context* item = event_state.map + i;
 
@@ -659,6 +771,19 @@ void joystickb_event_poll(void)
 						break;
 					}
 				}
+#ifdef USE_ACTLABS_HACK
+				/* recogize the special button and enable the hack */
+				if (item->vendor_id == ACTLABS_VENDOR
+					&& item->device_id == ACTLABS_DEVICE
+					&& code == ACTLABS_BUTTON) {
+					if (value) {
+						item->actlabs_hack_enable = 1;
+						item->actlabs_hack_counter = event_state.counter;
+					} else {
+						item->actlabs_hack_enable = 0;
+					}
+				}
+#endif
 			} else if (type == EV_REL) {
 				unsigned j;
 				for(j=0;j<item->rel_mac;++j) {

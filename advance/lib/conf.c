@@ -1350,8 +1350,7 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 		state_comment,
 		state_comment_line,
 		state_tag,
-		state_before_equal,
-		state_after_equal,
+		state_before_value,
 		state_value,
 		state_value_line,
 		state_eof
@@ -1393,7 +1392,7 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 				if (c == EOF) {
 					state = state_eof;
 				} else if (c == '#') {
-					state = 1;
+					state = state_comment_line;
 					copy |= copy_in_comment;
 				} else if (!isspace(c)) {
 					state = state_tag;
@@ -1417,31 +1416,20 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 					state = state_eof;
 				} else if (c == '\n') {
 					state = state_eof;
-				} else if (c == '=') {
-					state = state_after_equal;
 				} else if (isspace(c)) {
-					state = state_before_equal;
+					state = state_before_value;
 				} else {
 					copy |= copy_in_tag;
 				}
 				break;
-			case state_before_equal :
+			case state_before_value :
 				if (c == EOF) {
 					state = state_eof;
 				} else if (c == '\n') {
 					state = state_eof;
-				} else if (c == '=') {
-					state = state_after_equal;
-				} else if (!isspace(c)) {
-					state = state_value;
-					copy |= copy_in_value | copy_in_format;
-				}
-				break;
-			case state_after_equal :
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_eof;
+				} else if (c == '\\' && multi_line) {
+					state = state_value_line;
+					copy |= copy_in_format;
 				} else if (!isspace(c)) {
 					state = state_value;
 					copy |= copy_in_value | copy_in_format;
@@ -1522,14 +1510,8 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 		if (!comment || !tag || !value || !format)
 			goto err_free;
 
-		if (tag[0] == '[' && tag[strlen(tag)-1]==']') {
-			if (input_section_insert(context, input, global_section, comment, tag, value, format)!=0)
-				goto err_done;
-		} else {
-			if (input_value_insert(context, input, global_section, comment, tag, value, format, error, error_context) != 0)
-				goto err_done;
-		}
-
+		if (input_value_insert(context, input, global_section, comment, tag, value, format, error, error_context) != 0)
+			goto err_done;
 	}
 
 	inc_str_done(&icomment);

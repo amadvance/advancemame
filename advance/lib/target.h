@@ -246,7 +246,7 @@ void target_out_va(const char *text, va_list arg) __attribute__((format(printf, 
 
 /**
  * Output an information message.
- * \note The display of the messages may be delayed.
+ * The display of the messages may be delayed until a target_flush() call.
  */
 void target_out(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
@@ -257,7 +257,7 @@ void target_err_va(const char *text, va_list arg) __attribute__((format(printf, 
 
 /**
  * Output an error message.
- * \note The display of the messages may be delayed.
+ * The display of the messages may be delayed until a target_flush() call.
  */
 void target_err(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
@@ -268,7 +268,7 @@ void target_nfo_va(const char *text, va_list arg) __attribute__((format(printf, 
 
 /**
  * Output a notification message.
- * \note These messages may be not printed.
+ * These messages may be not printed at all.
  */
 void target_nfo(const char *text, ...) __attribute__((format(printf, 1, 2)));
 

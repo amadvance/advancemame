@@ -1768,6 +1768,10 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 	}
 
+	if (gc.size() == 0) {
+		gc.insert(gc.end(), new menu_entry("<empty>"));
+	}
+
 	log_std(("menu: insert end\n"));
 
 	bool done = false;

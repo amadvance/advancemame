@@ -251,25 +251,34 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 			} else {
 				/* try a normal open */
 				h = fzopen(path_buffer, mode);
-				/* if it's failed for access denied */
-				if (h == 0 && errno == EACCES) {
-					log_std(("osd: osd_fopen() -> failed, retry with readonly\n"));
-					/* reopen in memory */
-					h = fzopennullwrite(path_buffer, mode);
-					if (h && context->state.diff_handle == 0) {
-						/* save the handle if not already saved */
-						context->state.diff_handle = h;
-						sncpy(context->state.diff_file_buffer, sizeof(context->state.diff_file_buffer), path_buffer);
+				if (h == 0) {
+					log_std(("osd: fzopen() failed, %s\n", strerror(errno)));
+					if (errno == EACCES || errno == EROFS) {
+						log_std(("osd: retry with readonly\n"));
+						/* reopen in memory */
+						h = fzopennullwrite(path_buffer, mode);
+						if (h == 0) {
+							log_std(("osd: fzopenullwrite() failed, %s\n", strerror(errno)));
+						} else {
+							if (context->state.diff_handle == 0) {
+								/* save the handle if not already saved */
+								context->state.diff_handle = h;
+								sncpy(context->state.diff_file_buffer, sizeof(context->state.diff_file_buffer), path_buffer);
+							}
+						}
 					}
 				}
 			}
 		} else {
 			/* open a regular file */
 			h = fzopen(path_buffer, mode);
+			if (h == 0) {
+				log_std(("osd: fzopen() failed, %s\n", strerror(errno)));
+			}
 		}
 	}
 
-	log_std(("osd: osd_fopen() -> %p, %s\n", h, h ? "success" : "failed"));
+	log_std(("osd: osd_fopen() -> return %p\n", h));
 
 	return (osd_file*)h;
 }

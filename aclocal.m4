@@ -28,13 +28,13 @@ if test -f /proc/cpuinfo ; then
 	if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
 		if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
 dnl The pentium4 generation is generally slower than pentium2
-			ac_cpu_arch="pentium2"
+			ac_cpu_arch=pentium2
 			ac_cpu_arch_secondary=i686
 		elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-			ac_cpu_arch="pentiumpro"
+			ac_cpu_arch=pentiumpro
 			ac_cpu_arch_secondary=i686
 		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-			ac_cpu_arch="pentium"
+			ac_cpu_arch=pentium
 			ac_cpu_arch_secondary=i586
 		else
 			ac_cpu_arch=blend
@@ -42,11 +42,12 @@ dnl The pentium4 generation is generally slower than pentium2
 		fi
 	elif grep -i "vendor_id.*:.*AuthenticAMD" /proc/cpuinfo > /dev/null ; then
 		if grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
-			ac_cpu_arch="athlon"
-			ac_cpu_arch_secondary=k6
+			ac_cpu_arch=athlon
+			ac_cpu_arch_secondary=i586
 		elif grep -i "family.*: 5" /proc/cpuinfo > /dev/null ; then
-			ac_cpu_arch="k6"
-			ac_cpu_arch_secondary=k6
+dnl The gcc 3.2.x/3.3.x fails on the the k6 compilation. It should be fixed from 3.3.2.
+			ac_cpu_arch=pentium
+			ac_cpu_arch_secondary=i586
 		else
 			ac_cpu_arch=blend
 			ac_cpu_arch_secondary=blend
