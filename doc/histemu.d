@@ -7,7 +7,7 @@ AdvanceMAME Version 0.62.0 2002/11
 		This fixes the crash problem with the Cirrus Laguna boards
 		and probably others.
 	) Updated the Windows SVGAWIN.SYS driver to the 1.1 version.
-	) Added the `display_aspect_x' and `display_aspect_y' to arbitary
+	) Added the `display_aspectx' and `display_aspecty' to arbitary
 		selects the aspect ratio of the monitor used.
 	) Fixed a slowdown bug on the SVGALIB video board detection.
 	) Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
@@ -16,6 +16,9 @@ AdvanceMAME Version 0.62.0 2002/11
 	) Fixed a bug on the SDL sound management. It should help the
 		interaction of AdvanceMENU and AdvanceMAME.
 	) Better error reporting on the DOS/Windows SVGALIB drivers.
+	) The Windows binary is now packaged with the SDL dll 1.2.5
+	) The `display_adjust' option is now ignored if the video driver
+		is not programmable.
 
 AdvanceMESS Version 0.61.2 2002/11
 	) The MESS threads are now used only if the SMP runtime option

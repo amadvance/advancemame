@@ -59,20 +59,6 @@ Options
 Video Drivers
 	For the DOS version of the programs the following drivers are 
 	available:
-		vgaline - Generated VGA modes.
-			Video modes obtained tweaking the hardware
-			registers of the standard VGA. Usually these modes
-			are called Tweaked, XMode, ZMode.
-
-			Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
-			14.16 MHz are available. Only 8 bit color modes. Only
-			256 kBytes of video memory.
-
-			This driver supports also text modes with pixel clocks
-			12.59, 14.16, 25.17, 28.32 MHz.
-			
-			This driver is completly indipendent of the VGA BIOS
-			of your board.
 		svgaline - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
@@ -108,6 +94,20 @@ Video Drivers
 			If your video board isn't supported by any drivers and
 			you don't have a VBE3 BIOS you can try installing a
 			software VESA BIOS like the SciTech Display Doctor.
+		vgaline - Generated VGA modes.
+			Video modes obtained tweaking the hardware
+			registers of the standard VGA. Usually these modes
+			are called Tweaked, XMode, ZMode.
+
+			Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
+			14.16 MHz are available. Only 8 bit color modes. Only
+			256 kBytes of video memory.
+
+			This driver supports also text modes with pixel clocks
+			12.59, 14.16, 25.17, 28.32 MHz.
+			
+			This driver is completly indipendent of the VGA BIOS
+			of your board.			
 		vbe - Available VBE modes.
 			This driver is able to use only the video modes
 			reported by the VBE BIOS.
@@ -267,7 +267,7 @@ Configuration
 	the `card*.txt' files. 
 	
 	Plese note that forcing a specific video driver is discouraged.
-	Generally you on't need it.
+	Generally you don't need it.
 
 	For a more complete description of the drivers check the
 	previous `VIDEO DRIVER' section.
@@ -445,7 +445,7 @@ Configuration
     device_video_fastchange
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video
-	mode. The reset should be generally not required, but some
+	mode. The reset isn't generally required, but some
 	limited DOS video BIOS need it. So, the fast change is disabled 
 	for default.
 
@@ -505,7 +505,7 @@ Configuration
 	Divide the pixelclock using the VGA sequencer. It should help to support 
 	lower pixel clocks on some boards.
 
-	The use of this option is discouraged, it's present only for testing.	
+	The use of this option is discouraged, it's present only for testing.
 
 	:device_svgaline_divideclock yes | no
 
@@ -525,7 +525,7 @@ Configuration
     	Options:
     		none - Don't use the Windows graphics support.
     		window - Create a stub window before setting the video mode.
-    		fullscreen - Create a stub fullscreen window before seting 
+    		fullscreen - Create a stub fullscreen window before setting 
     			the video mode (default).
 
     device_svgawin_divideclock
@@ -551,7 +551,7 @@ Configuration
 	:device_sdl_fullscreen yes | no
 
 	Options:
-		yes - Try to always use a fullscreen mode.
+		yes - Try to use a fullscreen mode.
 		no - Try to use a windowed mode (default).
 
 Copyright

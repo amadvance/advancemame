@@ -142,7 +142,7 @@ adv_error target_spawn(const char* file, const char** argv) {
 
 	log_std(("linux: spawn %s\n",file));
 	for(i=0;argv[i];++i)
-		log_std(("linux: spawn arg %s\n",argv[i]));
+		log_std(("linux: spawn arg%d %s\n",i,argv[i]));
 
 	pid = fork();
 	if (pid == -1)

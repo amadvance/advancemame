@@ -15,7 +15,6 @@ Name
 		off - Shutdown the PC for DOS
 		video - Video control for DOS
 		portio - Input/output on hardware ports for DOS
-		advv - Video configurator for DOS
-		videowin - Video control for Windows NT/2000/XP
+		videow - Video control for Windows NT/2000/XP
 		svgawin - SVGALIB driver for Windows NT/2000/XP
-
+		advv - Video configurator for DOS and Windows NT/2000/XP

@@ -1,8 +1,9 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
-AdvanceMAME 0.62.0
+AdvanceMAME 0.62.0 / AdvanceMESS 0.61.2
 	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
+	Simply run "svgawin /u" and "svgawin /l".
 
 AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	This is the first Windows NT/2000/XP version able to directly 
@@ -11,8 +12,11 @@ AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	with a GeForge 2. Anyway, it should work with all the video boards that 
 	work in DOS and Linux because the SVGA drivers are the same.
 
-	To use these video driver you need to install SVGAWIN.sys driver with the
-	SVGAWIN.exe utility.
+	To use these video drivers you need to install the SVGAWIN.sys driver with the
+	SVGAWIN.exe utility. If installed, AdvanceMAME automatically tries to use it
+	unless you set a specific driver with the `device_video' option.
+	If you don't install the SVGAWIN.sys driver AdvanceMAME works like the previous
+	version using only the SDL library.
 
 AdvanceMAME 0.61.0
 	The `input_analog' and `input_track' options are now substituted

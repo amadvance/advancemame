@@ -3,6 +3,7 @@ Name
 
 AdvanceCAB 1.1.2
 	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
+	Simply run "svgawin /u" and "svgawin /l".
 
 AdvanceCAB 1.1.0
 	The first version with a preliminary Windows NT/2000/XP support.

@@ -121,6 +121,10 @@ int file_init(void) {
 			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 			sprintf(buffer,"%s/inp",FL.home_dir);
 			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+			sprintf(buffer,"%s/image",FL.home_dir);
+			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+			sprintf(buffer,"%s/diff",FL.home_dir);
+			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		}
 #endif
 	}

@@ -21,6 +21,7 @@ AdvanceMENU Version 2.2.0 2002/11
 	) Fixed a bug on the SDL sound management. It should help the
 		interaction of AdvanceMENU and AdvanceMAME.
 	) Better error reporting on the DOS/Windows SVGALIB drivers.
+	) The Windows binary is now packaged with the SDL dll 1.2.5
 
 AdvanceMENU Version 2.1.2 2002/09
 	) Added the support of the VSyncMAME audio drivers. This add

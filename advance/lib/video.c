@@ -524,7 +524,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 		if (video_state.driver_map[i]) {
 			/* allow always faked crtc */
 			if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
-				log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
+				log_pedantic(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 				return 0;
 			}
 		}

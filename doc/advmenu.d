@@ -105,9 +105,9 @@ Emulators
 
 	The directories specified in the `dir_rom' option in the
 	`advmame.rc' file are used to detect the list of the
-	available roms. In the DOS version of the program the
-	`advmenu.rc' file is searched in the same directory of the
-	emulator. In the Unix version it's searched in the
+	available roms. In the DOS and Windows versions of the 
+	program the `advmenu.rc' file is searched in the same directory 
+	of the emulator. In the Unix version it's searched in the
 	`HOME/.advance' directory.
 
 	The directories specified in `dir_snap', `dir_cfg' are used to
@@ -280,7 +280,7 @@ Configuration
 	You can force the creation of a default `advmenu.rc' with the
 	command `advmenu -default'.
 
-	In DOS the directory name separator is '\' and the
+	In DOS and Windows the directory name separator is '\' and the
 	multidirectory separator is ';'. In Linux the directory name
 	separator is '/' and the multidirectory separator is ':'.
 
@@ -352,7 +352,7 @@ Configuration
 	to tell at the emulator which game run. For all the other emulator
 	types this information is automatically added by AdvanceMENU.
 
-	Examples for DOS:
+	Examples for DOS and Windows:
 		:emulator "advmame" advmame "advmame\advmame.exe" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 		:emulator "mame" mame "mame\mame.exe" "-nohws"
 		:emulator "neomame" mame "neomame\neomame.exe" ""
@@ -779,7 +779,7 @@ Configuration
 	Music tracks will be played in random order.
 
 	Multiple directories may be specified by separating each with a
-	semicolon `;' in DOS and with a doublecolon `:' in Linux.
+	semicolon `;' in DOS and Windows, with a doublecolon `:' in Linux.
 
 	Note that this directory must be used only for your music.
 	The emulated game recordings, played when the cursor is moved on
@@ -952,8 +952,8 @@ Configuration
 	additional information displayed for every game.
 
 	The file formats supported are CATINI, MacMAME and NMS.
-	The files are read in the current directory for the DOS version
-	and in the $home directory for the Linux version.
+	The files are read in the current directory for the DOS and Windows 
+	versions and in the $home directory for the Linux version.
 
 	WARNING! These option DON'T OVERWRITE any user explicit
 	choices made with the `game' option.

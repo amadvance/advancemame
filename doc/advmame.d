@@ -12,8 +12,8 @@ Synopsys
 	:	[-listinfo] [-record FILE] [-playback FILE]
 
 Description
-	AdvanceMAME is an unofficial MAME version for DOS and Linux with
-	an advanced video support for helping the use with TVs, Arcade
+	AdvanceMAME is an unofficial MAME version for Linux, DOS and Windows 
+	with an advanced video support for helping the use with TVs, Arcade
 	Monitors, Fixed Frequencies Monitors and also with normal
 	PC Monitors.
 
@@ -22,7 +22,7 @@ Description
 	* Automatic creation of `perfect' video modes with the correct
 		size and clock.
 	* A lot of video boards supported for direct hardware registers
-		programming. (see the card.txt file)
+		programming. (see the card*.txt file)
 	* Support for 8, 15, 16 and 32 bits video modes.
 	* Real hardware scanlines.
 	* Software video image stretching by fractional factors, for
@@ -314,8 +314,8 @@ Other Ports
 	8 bit depth, ...
 
 Configuration
-	The DOS version of AdvanceMAME reads configuration options
-	from the file `advmame.rc', `advmess.rc' and `advpac.rc'
+	The DOS and Windows versions of AdvanceMAME read configuration 
+	options	from the file `advmame.rc', `advmess.rc' and `advpac.rc'
 	in the current directory.
 
 	The Linux version reads configuration options from the files
@@ -410,11 +410,11 @@ Configuration
   Directory Configuration Options
 
     dir_*
-	All the directories specifications. The DOS version uses the
-	`;' char as directory separator, instead, the Linux version
+	All the directories specifications. The DOS and Windows versions 
+	use the `;' char as directory separator, instead, the Linux version
 	uses the `:' char.
 
-	:dir_* DIR[;DIR]... (DOS)
+	:dir_* DIR[;DIR]... (DOS, Windows)
 	:dir_* DIR[:DIR]... (Linux)
 
 	Options:
@@ -423,7 +423,7 @@ Configuration
 			files.
 		dir_image - Multi directory specification for the
 			disk/cartdrige/... image files.
-		dir_imagediff - Multi directory specification for the
+		dir_diff - Multi directory specification for the
 			disk image differential files.
 		dir_sample - Multi directory specification for the
 			zipped `sample' files. Only the zipped format
@@ -441,11 +441,10 @@ Configuration
 			files.
 		dir_crc - Single directory for the `crc' files.
 
-	Defaults for the DOS version :
+	Defaults for the DOS and Windows versions :
 		dir_rom - rom
-		dir_imager - image
-		dir_imagerw - image
-		dir_imagediff - image
+		dir_image - image
+		dir_diff - diff
 		dir_sample - sample
 		dir_artwork - artwork
 		dir_nvram - nvram
@@ -459,9 +458,8 @@ Configuration
 
 	Defaults for the Linux version :
 		dir_rom - $home/rom:$root/rom
-		dir_imager - $home/image:$root/image
-		dir_imagerw - $home/image:$root/image
-		dir_imagediff - $home/image:$root/image
+		dir_image - $home/image:$root/image
+		dir_diff - $home/image:$root/diff
 		dir_sample - $home/sample:$root/sample
 		dir_artwork - $home/artwork:$root/artwork
 		dir_nvram - $home/nvram
@@ -879,18 +877,14 @@ Configuration
   Display Orientation Configuration Options
 
     display_rotate
-	Select where the rotation is done, at core level or at blit
-	level. This solves problems with all the games that don't rotate
-	correctly if used with a vertical monitor. For example all
-	NeoGeo games.
+	Select the rotation mode. Actually only the blit rotation
+	is available.
 
-	:display_rotate none | core | blit
+	:display_rotate none | blit
 
 	Options:
 		none - Disables any rotation.
 		blit - Uses the rotation at blit level (default).
-		core - Uses the rotation at core level.
-		auto - Selects automatically the best mode (default).
 
     display_ror/rol/flipx/flipy
 	Flip and rotate the game image.
@@ -1328,8 +1322,8 @@ Configuration
 		english.lng - Language database.
 
 	These files should reside in current directory for the
-	DOS version or in the $root or $home directories for the
-	Linux version.
+	DOS and Windows versions or in the $root or $home directories 
+	for the	Linux version.
 
     misc_cheat
 	Enable or disable the cheat system. It may also change the
@@ -1343,11 +1337,11 @@ Configuration
 		no - Disable the cheats (default).
 
     misc_cheatfile
-	Select the cheat files. The DOS version uses the
+	Select the cheat files. The DOS and Windows versions use the
 	`;' char as file separator, instead, the Linux version
 	uses the `:' char.
 
-	:misc_cheatfile FILE[;FILE]... (Dos)
+	:misc_cheatfile FILE[;FILE]... (DOS, Windows)
 	:misc_cheatfile FILE[:FILE]... (Linux)
 
 	Options:

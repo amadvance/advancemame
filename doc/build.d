@@ -122,7 +122,7 @@ Requirements
 
 	To build on Linux you need the additional following software:
 		:Linux 2.4.5 (or newer)
-		:SVGALIB 1.9.15 (or newer)
+		:SVGALIB 1.9.14 (or newer)
 		:S-Lang 1.4.3 (or newer)
 		:LibSDL 1.2.4 (or newer)
 
@@ -131,7 +131,7 @@ Requirements
 	The SVGALIB 1.4.x versions are NOT supported.
 	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
 	Some users have reported problems with the 1.9.16 version, eventually
-	downgrade at the 1.9.15 version.
+	downgrade at the 1.9.15 or 1.9.14 version.
 
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.

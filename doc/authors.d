@@ -16,14 +16,14 @@ Acknowledgments
 	* Randy Schnedler
 
 Libraries
-	MAME - http://www.mame.net - Copyright Nicola Salmoria and the MAME Team
-	MESS - http://mess.emuverse.com - Copyright the MESS Team
-	PacMAME - http://www.mameworld.net/pacmame - Copyright bgr software
+	MAME - http://www.mame.net
+	MESS - http://mess.emuverse.com
+	PacMAME - http://www.mameworld.net/pacmame
 	SVGALIB - http://www.svgalib.org
-	Allegro - http://www.allegro.org - Copyright Shawn Hargreaves
-	SEAL - Copyright Carlos Hasan
-	MPGLIB - http://www.mpg123.de - Copyright Michael Hipp
-	zlib - http://www.gzip.org/zlib - Copyright Jean-loup Gailly and Mark Adler
-	S-Lang - http://www.s-lang.org - Copyright John E. Davis
-	SDL - http://www.libsdl.org - Copyright Sam Lantinga
+	Allegro - http://www.allegro.org
+	SEAL - unknown
+	MPGLIB - http://www.mpg123.de
+	zlib - http://www.gzip.org/zlib
+	S-Lang - http://www.s-lang.org
+	SDL - http://www.libsdl.org
 

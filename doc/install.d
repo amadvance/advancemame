@@ -43,7 +43,7 @@ Automatic Operation Mode
 
 	To configure and activate this mode you need to run the
 	`advcfg' utility for AdvanceMAME and `advcfg -advmenuc' for
-	AdvanceMENU and answer at the various questions.
+	AdvanceMENU, and answer at the various questions.
 	You don't need to create a list of video modes, any needed
 	video mode is created at runtime.
 
