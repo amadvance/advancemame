@@ -108,7 +108,9 @@ MPGLIB_SRC = \
 EXPAT_SRC = \
 	$(wildcard $(srcdir)/advance/expat/*.c) \
 	$(wildcard $(srcdir)/advance/expat/*.h) \
-	$(wildcard $(srcdir)/advance/expat/COPYING)
+	$(wildcard $(srcdir)/advance/expat/COPYING) \
+	$(wildcard $(srcdir)/advance/expat/README) \
+	$(wildcard $(srcdir)/advance/expat/*.diff)
 
 LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \

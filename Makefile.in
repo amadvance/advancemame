@@ -522,7 +522,7 @@ distclean: clean
 #############################################################################
 # Special targets
 
-flags: obj
+int-flags: obj
 	$(ECHO) CC=$(CC)
 	$(ECHO) CFLAGS=$(CFLAGS)
 	$(ECHO) CXX=$(CXX)
@@ -542,12 +542,12 @@ flags: obj
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 
-osdep:
+int-osdep:
 	rgrep -r MSDOS $(srcdir)/advance
 	rgrep -r WIN32 $(srcdir)/advance
 	rgrep -r OS2 $(srcdir)/advance
 
-def:
+int-def:
 	rgrep -r "#if" $(srcdir)/advance
 
 

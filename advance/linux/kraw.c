@@ -246,7 +246,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 
 	raw_state.graphics_flag = graphics;
 
-	raw_state.f = open("/dev/tty", O_RDONLY);
+	raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
 	if (raw_state.f == -1) {
 		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty) failed.\n");
 		goto err;
@@ -541,7 +541,7 @@ void keyb_raw_poll(void)
 		/* with AdvanceCD. The first key pressed in AdvanceMENU returning */
 		/* from AdvanceMAME get two press, instead of a press and a release */
 		/* It happen only on the first run of AdvanceMENU on the first terminal. */
-		/* With Linux 2.4.22, it also happen with the SVGALIB 1.9.17 keyboard driver */
+		/* Tested with Linux 2.4.22, it also happen with the SVGALIB 1.9.17 keyboard driver. */
 		if (raw_state.first_flag) {
 			switch (raw_state.first_state) {
 			case 0 :

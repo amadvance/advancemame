@@ -1326,7 +1326,7 @@ int event_open(const char* file, unsigned char* evtype_bitmask)
 	int f;
 	const char* bus;
 
-	f = open(file, O_RDWR);
+	f = open(file, O_RDWR | O_NONBLOCK);
 	if (f == -1) {
 		if (errno != ENODEV) {
 			log_std(("event: error opening device %s, errno %d (%s)\n", file, errno, strerror(errno)));
