@@ -104,6 +104,11 @@ Linux Configuration FAQ
 	option, or upgrade at the svgalib 1.9.16 library which supports
 	for some boards the vsync IRQ.
 
+  Using the last svgalib and enabling vsync I report random freeze
+  of the system.
+	Try using the svgalib patch in the contrib/svgalib directory or
+	downgrade at the version 1.9.15 or 1.9.14.
+
   How can I enable the XFree86 DGA extension ?
 	Ensure that in your XF86Config file the line :
 

@@ -1,12 +1,15 @@
 Name
 	history - History For Advance Emulators
 
-AdvanceMAME Version 0.64.0 2003/02
+AdvanceMAME Version 0.65.0 2003/02
 	) Fixed the CPU detection by the configure script.
-	) The Linux ALSA sound drivers not doesn't block the execution if the
+	) The Linux ALSA sound drivers now doesn't block the execution if the
 		DSP is already in use.
 	) Fixed the Linux Frame Buffer driver when a DIRECTCOLOR mode
-		is used.
+		is used displaying fuzzy colors.
+
+AdvanceMESS Version 0.64.0.0 2003/02
+	) All from AdvanceMAME 0.65.0.
 
 AdvanceMAME Version 0.63.0 2003/01
 	) Added the ALSA sound driver for Linux. It's now the

@@ -109,9 +109,11 @@ Requirements
 		:LibSDL 1.2.4 (or newer)
 
 	The SVGALIB 1.4.x versions are NOT supported.
+
 	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
-	Some users have reported problems with the 1.9.17/16 version, eventually
-	downgrade at the 1.9.15 or 1.9.14 version.
+	In the contrib/svgalib directory there are some source patchs to fix
+	some problems on the library. Use the noirq.diff patch if you detect
+	random freeze only with vsync activated.
 
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.

@@ -128,6 +128,12 @@ static void fb_log(void)
 	log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual));
 	log_std(("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset));
 	log_std(("video:fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)fb_state.varinfo.bits_per_pixel, (unsigned)fb_state.varinfo.grayscale));
+	log_std(("video:fb: red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
+		(unsigned)fb_state.varinfo.red.length, (unsigned)fb_state.varinfo.red.offset,
+		(unsigned)fb_state.varinfo.green.length, (unsigned)fb_state.varinfo.green.offset,
+		(unsigned)fb_state.varinfo.blue.length, (unsigned)fb_state.varinfo.blue.offset,
+		(unsigned)fb_state.varinfo.transp.length, (unsigned)fb_state.varinfo.transp.offset
+	));
 	log_std(("video:fb: nonstd:%d, activate:%x\n", (unsigned)fb_state.varinfo.nonstd, (unsigned)fb_state.varinfo.activate));
 	log_std(("video:fb: height:%d, width:%d\n", fb_state.varinfo.height, fb_state.varinfo.width));
 	log_std(("video:fb: accel_flags:%d\n", fb_state.varinfo.accel_flags));
@@ -141,6 +147,14 @@ static void fb_log(void)
 		(unsigned)fb_state.varinfo.vsync_len
 	));
 	log_std(("video:fb: sync:%x, vmode:%x\n", (unsigned)fb_state.varinfo.sync, (unsigned)fb_state.varinfo.vmode));
+	log_std(("video:fb: reserved %x:%x:%x:%x:%x:%x\n",
+		(unsigned)fb_state.varinfo.reserved[0],
+		(unsigned)fb_state.varinfo.reserved[1],
+		(unsigned)fb_state.varinfo.reserved[2],
+		(unsigned)fb_state.varinfo.reserved[3],
+		(unsigned)fb_state.varinfo.reserved[4],
+		(unsigned)fb_state.varinfo.reserved[5]
+	));
 
 	v = 1000000000000LL / (double)fb_state.varinfo.pixclock;
 	v /= fb_state.varinfo.xres + fb_state.varinfo.left_margin + fb_state.varinfo.right_margin + fb_state.varinfo.hsync_len;
@@ -344,8 +358,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	fb_log();
 
-	if (fb_state.fixinfo.visual == FB_VISUAL_DIRECTCOLOR
-		|| fb_state.fixinfo.visual == FB_VISUAL_TRUECOLOR) {
+	if (fb_state.fixinfo.visual == FB_VISUAL_DIRECTCOLOR) {
 		unsigned red_l = 1 << fb_state.varinfo.red.length;
 		unsigned green_l = 1 << fb_state.varinfo.green.length;
 		unsigned blue_l = 1 << fb_state.varinfo.blue.length;
@@ -471,7 +484,13 @@ unsigned fb_adjust_bytes_per_page(unsigned bytes_per_page)
 adv_color_def fb_color_def(void)
 {
 	assert(fb_is_active() && fb_mode_is_active());
-	return color_def_make_from_index(fb_state.index);
+
+	return color_def_make_from_rgb_sizelenpos(
+		fb_state.bytes_per_pixel,
+		fb_state.varinfo.red.length, fb_state.varinfo.red.offset,
+		fb_state.varinfo.green.length, fb_state.varinfo.green.offset,
+		fb_state.varinfo.blue.length, fb_state.varinfo.blue.offset
+	);
 }
 
 void fb_wait_vsync(void)
