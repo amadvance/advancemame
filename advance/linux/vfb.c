@@ -152,17 +152,17 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->vsync_len
 		));
 		log_std(("video:fb: sync:%x", (unsigned)var->sync));
-		if (var->sync & FB_SYNC_HOR_HIGH_ACT)
+		if ((var->sync & FB_SYNC_HOR_HIGH_ACT) == 0)
 			log_std((" nhsync"));
-		if (var->sync & FB_SYNC_VERT_HIGH_ACT)
+		if ((var->sync & FB_SYNC_VERT_HIGH_ACT) == 0)
 			log_std((" nvsync"));
-		if (var->sync & FB_SYNC_EXT)
+		if ((var->sync & FB_SYNC_EXT) != 0)
 			log_std((" external_sync"));
-		if (var->sync & FB_SYNC_COMP_HIGH_ACT)
+		if ((var->sync & FB_SYNC_COMP_HIGH_ACT) != 0)
 			log_std((" composite_sync"));
-		if (var->sync & FB_SYNC_BROADCAST)
+		if ((var->sync & FB_SYNC_BROADCAST) != 0)
 			log_std((" broadcast_sync"));
-		if (var->sync & FB_SYNC_ON_GREEN)
+		if ((var->sync & FB_SYNC_ON_GREEN) != 0)
 			log_std((" sync_on_green"));
 		log_std(("\n"));
 		log_std(("video:fb: vmode:%x", (unsigned)var->vmode));
@@ -241,9 +241,9 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->vsync_len = vre - vrs;
 
 	var->sync = 0;
-	if (nhsync)
+	if (!nhsync)
 		var->sync |= FB_SYNC_HOR_HIGH_ACT;
-	if (nvsync)
+	if (!nvsync)
 		var->sync |= FB_SYNC_VERT_HIGH_ACT;
 
 	var->vmode = 0;

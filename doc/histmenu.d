@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.7 2003/06
+
 AdvanceMENU Version 2.2.6 2003/05
 	) Added support for Mac OS X. It compiles and run with the SDL library.
 	) Added support for generic BigEndian targets.

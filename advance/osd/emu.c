@@ -485,6 +485,7 @@ int os_main(int argc, char* argv[])
 	int i;
 	struct mame_option option;
 	int opt_info;
+	int opt_xml;
 	int opt_log;
 	int opt_logsync;
 	int opt_default;
@@ -496,6 +497,7 @@ int os_main(int argc, char* argv[])
 	const char* section_map[5];
 
 	opt_info = 0;
+	opt_xml = 0;
 	opt_log = 0;
 	opt_logsync = 0;
 	opt_gamename = 0;
@@ -586,6 +588,8 @@ int os_main(int argc, char* argv[])
 			option.debug_flag = 1;
 		} else if (strcmp(argv[i], "-listinfo") == 0) {
 			opt_info = 1;
+		} else if (strcmp(argv[i], "-listxml") == 0) {
+			opt_xml = 1;
 		} else if (strcmp(argv[i], "-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
 			if (strchr(argv[i+1], '.') == 0)
 				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s.inp", argv[i+1]);
@@ -616,6 +620,11 @@ int os_main(int argc, char* argv[])
 
 	if (opt_info) {
 		mame_print_info(stdout);
+		goto done_os;
+	}
+
+	if (opt_xml) {
+		mame_print_xml(stdout);
 		goto done_os;
 	}
 

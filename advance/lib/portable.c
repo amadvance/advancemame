@@ -34,6 +34,8 @@
 
 #include "portable.h"
 
+#include <stdio.h>
+
 void sncpy(char* dst, size_t len, const char* src)
 {
 	if (len) {
@@ -62,4 +64,39 @@ void sncat(char* dst, size_t len, const char* src)
 	sncpy(dst, len, src);
 }
 
+void sncatf(char* str, size_t count, const char* fmt, ...)
+{
+	unsigned l;
+	va_list arg;
+	va_start(arg, fmt);
 
+	l = 0;
+	while (l<count && str[l])
+		++l;
+
+	if (count > l)
+		vsnprintf(str + l, count - l, fmt, arg);
+
+	va_end(arg);
+}
+
+#ifdef __MSDOS__
+int snprintf(char* str, size_t count, const char* fmt, ...)
+{
+	int r;
+
+	/* Note that the snprintf implementation of "Patrick Powell 1995" has */
+	/* various bugg on %f, %g and %e for example snprintf("%f",1.01) -> 1.1 */
+	va_list arg;
+	va_start(arg, fmt);
+	r = vsprintf(str, fmt, arg);
+	va_end(arg);
+
+	return r;
+}
+
+int vsnprintf(char* str, size_t count, const char* fmt, va_list arg)
+{
+	return vsprintf(str, fmt, arg);
+}
+#endif

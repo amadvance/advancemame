@@ -246,15 +246,14 @@ void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc)
 	const char* flag5 = crtc_is_tvpal(crtc) ? " tvpal" : "";
 	const char* flag6 = crtc_is_tvntsc(crtc) ? " tvntsc" : "";
 
+	*buffer = 0;
+
 	if (strchr(crtc->name, ' ')!=0)
-		snprintf(buffer, size, "\"%s\"", crtc->name);
+		sncatf(buffer, size, "\"%s\"", crtc->name);
 	else
-		snprintf(buffer, size, "%s", crtc->name);
+		sncatf(buffer, size, "%s", crtc->name);
 
-	size -= strlen(buffer);
-	buffer += strlen(buffer);
-
-	snprintf(buffer, size, " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
+	sncatf(buffer, size, " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
 		(double)crtc->pixelclock / 1E6,
 		crtc->hde, crtc->hrs, crtc->hre, crtc->ht,
 		crtc->vde, crtc->vrs, crtc->vre, crtc->vt,
@@ -398,27 +397,26 @@ void monitor_print(char* buffer, unsigned size, const adv_monitor_range* range_b
 {
 	adv_bool empty = 1;
 
+	*buffer = 0;
+
 	while (range_begin != range_end) {
 		if (range_begin->low != 0 && range_begin->high != 0) {
 			if (!empty) {
-				snprintf(buffer, size, ", ");
-				size -= strlen(buffer);
-				buffer += strlen(buffer);
+				sncatf(buffer, size, ", ");
 			}
 			if (range_begin->low == range_begin->high) {
-				snprintf(buffer, size, "%g", range_begin->low / mult);
+				sncatf(buffer, size, "%g", range_begin->low / mult);
 			} else {
-				snprintf(buffer, size, "%g-%g", range_begin->low / mult, range_begin->high / mult);
+				sncatf(buffer, size, "%g-%g", range_begin->low / mult, range_begin->high / mult);
 			}
-			size -= strlen(buffer);
-			buffer += strlen(buffer);
 			empty = 0;
 		}
 		++range_begin;
 	}
 
-	if (empty)
-		snprintf(buffer, size, "0");
+	if (empty) {
+		sncatf(buffer, size, "0");
+	}
 }
 
 adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v)

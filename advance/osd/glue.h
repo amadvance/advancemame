@@ -115,6 +115,7 @@ unsigned mame_game_orientation(const mame_game* game);
 const char* mame_game_name(const mame_game* game);
 const char* mame_game_description(const mame_game* game);
 void mame_print_info(FILE* out);
+void mame_print_xml(FILE* out);
 int mame_is_game_in_list(const char* list[], const mame_game* game);
 int mame_is_game_vector(const mame_game* game);
 const struct mame_game* mame_playback_look(const char* file);

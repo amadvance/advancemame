@@ -199,7 +199,6 @@ MENUOBJS += \
 	$(MENUOBJ)/dos/malleg.o \
 	$(MENUOBJ)/dos/kalleg.o \
 	$(MENUOBJ)/dos/jalleg.o \
-	$(MENUOBJ)/dos/snprintf.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/dos/pci.o \
 	$(MENUOBJ)/dos/pcimap.o \

@@ -149,7 +149,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/dos/jalleg.o \
 	$(OBJ)/advance/dos/kalleg.o \
 	$(OBJ)/advance/dos/malleg.o \
-	$(OBJ)/advance/dos/snprintf.o \
 	$(OBJ)/advance/card/card.o \
 	$(OBJ)/advance/dos/pci.o \
 	$(OBJ)/advance/dos/pcimap.o \
@@ -770,7 +769,11 @@ EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 endif
 
+ifeq ($(CONF_WHOLESRC),yes)
+EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)-whole
+else
 EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
+endif
 EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
@@ -872,10 +875,8 @@ endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)/doc
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
-ifeq ($(CONF_HOST),dos)
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
-endif
 ifeq ($(CONF_HOST),unix)
 	rm -f $(EMU_DIST_FILE_BIN).tar.gz
 	tar cfzo $(EMU_DIST_FILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)

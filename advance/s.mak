@@ -80,8 +80,7 @@ SOBJS += \
 	$(SOBJ)/dos/os.o \
 	$(SOBJ)/dos/sseal.o \
 	$(SOBJ)/dos/salleg.o \
-	$(SOBJ)/dos/svsync.o \
-	$(SOBJ)/dos/snprintf.o
+	$(SOBJ)/dos/svsync.o
 endif
 
 ifeq ($(CONF_HOST),windows)

@@ -441,7 +441,12 @@ const mame_game* mame_game_at(unsigned i)
 
 void mame_print_info(FILE* out)
 {
-	print_mame_info( out, drivers );
+	print_mame_info(out, drivers);
+}
+
+void mame_print_xml(FILE* out)
+{
+	print_mame_xml(out, drivers);
 }
 
 int mame_is_game_vector(const mame_game* game)

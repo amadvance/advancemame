@@ -69,8 +69,8 @@ extern "C" {
 
 #ifdef __MSDOS__
 #include <sys/types.h>
-int snprintf(char *str, size_t count, const char *fmt, ...);
-int vsnprintf(char *str, size_t count, const char *fmt, va_list arg);
+int snprintf(char* str, size_t count, const char* fmt, ...);
+int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #endif
 
 /***************************************************************************/
@@ -145,6 +145,7 @@ static inline void strupr(char* s) {
 
 void sncpy(char* dst, size_t len, const char* src);
 void sncat(char* dst, size_t len, const char* src);
+void sncatf(char* str, size_t count, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 
 #ifdef __cplusplus
 }

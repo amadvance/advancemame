@@ -100,7 +100,6 @@ VOBJS += \
 	$(VOBJ)/dos/scrvbe.o \
 	$(VOBJ)/dos/scrvga.o \
 	$(VOBJ)/dos/idos.o \
-	$(VOBJ)/dos/snprintf.o \
 	$(VOBJ)/card/card.o \
 	$(VOBJ)/dos/pci.o \
 	$(VOBJ)/dos/map.o \

@@ -102,7 +102,6 @@ CFGOBJS += \
 	$(CFGOBJ)/dos/scrvbe.o \
 	$(CFGOBJ)/dos/scrvga.o \
 	$(CFGOBJ)/dos/idos.o \
-	$(CFGOBJ)/dos/snprintf.o \
 	$(CFGOBJ)/card/card.o \
 	$(CFGOBJ)/dos/pci.o \
 	$(CFGOBJ)/dos/pcimap.o \

@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.69.0 2003/05
+	) Fixed the horizontal and vertical sync polarity on the Linux
+		Framebuffer video driver [by Ralph]
+	) Added a new preliminary -listxml option.
+	) Fixed the output of all the floating point values in configuration
+		files for the DOS version.
+
 AdvanceMAME Version 0.68.0 2003/05
 	) Added the `scale3x' and `scale4x' effects.
 	) Added support for Mac OS X. It compiles and run with the SDL library.

@@ -2,14 +2,14 @@ Name
 	advmame, advmess, advpac - The AdvanceMAME Emulator
 
 Synopsis
-	:advmame GAME [-default] [-remove] [-log] [-listinfo]
+	:advmame GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
 	:	[-record FILE] [-playback FILE] [-version]
 
-	:advpac GAME [-default] [-remove] [-log] [-listinfo]
+	:advpac GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
 	:	[-record FILE] [-playback FILE] [-version]
 
-	:advmess MACHINE [images...] [-default] [-remove] [-log]
-	:	[-listinfo] [-record FILE] [-playback FILE] [-version]
+	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
+	:	[-listxml] [-record FILE] [-playback FILE] [-version]
 
 Description
 	AdvanceMAME is an unofficial MAME version for Linux, Mac OS X, DOS
@@ -100,7 +100,10 @@ Options
 		a `.log' file. Very useful for debugging problems.
 
 	-listinfo
-		Outputs a very complete report of the emulated games.
+		Outputs the internal MAME database.
+
+	-listxml
+		Outputs the internal MAME database in XML format.
 
 	-record FILE
 		Record all the game inputs in the specified file.
