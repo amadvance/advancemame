@@ -92,7 +92,8 @@ struct os_context {
 
 	int is_quit; /**< Is termination requested. */
 	char title_buffer[128]; /**< Title of the window. */
-	struct termios term;
+
+	struct termios term; /**< Term state. */
 };
 
 static struct os_context OS;
@@ -125,6 +126,8 @@ int os_inner_init(const char* title)
 	SDL_version compiled;
 #endif
 
+	log_std(("os: os_inner_init\n"));
+
 	if (uname(&uts) != 0) {
 		log_std(("ERROR:os: uname failed\n"));
 	} else {
@@ -135,7 +138,10 @@ int os_inner_init(const char* title)
 	}
 
 	/* save term */
-	tcgetattr(fileno(stdin), &OS.term);
+	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
+		target_err("Error getting the tty state.\n");
+		return -1;
+	}
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
@@ -315,6 +321,8 @@ void* os_internal_sdl_get(void)
 
 void os_inner_done(void)
 {
+	log_std(("os: os_inner_done\n"));
+
 #ifdef USE_X
 	if (OS.x_display) {
 		log_std(("os: XCloseDisplay()\n"));
@@ -344,7 +352,12 @@ void os_inner_done(void)
 #endif
 
 	/* restore term */
-	tcsetattr(fileno(stdin), TCSANOW, &OS.term);
+	log_std(("os: tcsetattr(%sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
+
+	if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
+		/* ignore error */
+		log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+	}
 }
 
 void os_poll(void)

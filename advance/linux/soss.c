@@ -137,7 +137,7 @@ void sound_oss_done(void)
 void sound_oss_stop(void)
 {
 	log_std(("sound:oss: sound_oss_stop()\n"));
-	/* TODO OSS sound stop */
+	/* TODO implement OSS sound stop */
 }
 
 unsigned sound_oss_buffered(void)
@@ -160,7 +160,7 @@ unsigned sound_oss_buffered(void)
 void sound_oss_volume(double volume)
 {
 	log_std(("sound:oss: sound_oss_volume(volume:%g)\n", (double)volume));
-	/* TODO OSS volume control */
+	/* TODO implement OSS volume control */
 }
 
 void sound_oss_play(const short* sample_map, unsigned sample_count)

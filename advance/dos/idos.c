@@ -86,6 +86,18 @@ void inputb_dos_done(void)
 	log_std(("input:dos: inputb_dos_done()\n"));
 }
 
+adv_error inputb_dos_enable(adv_bool graphics)
+{
+	log_std(("input:dos: inputb_dos_enable(graphics:%d)\n", (int)graphics));
+
+	return 0;
+}
+
+void inputb_dos_disable(void)
+{
+	log_std(("input:dos: inputb_dos_disable()\n"));
+}
+
 adv_bool inputb_dos_hit(void)
 {
 	log_debug(("inputb:dos: inputb_dos_count_get()\n"));
@@ -129,6 +141,8 @@ inputb_driver inputb_dos_driver = {
 	inputb_dos_reg,
 	inputb_dos_init,
 	inputb_dos_done,
+	inputb_dos_enable,
+	inputb_dos_disable,
 	inputb_dos_flags,
 	inputb_dos_hit,
 	inputb_dos_get

@@ -19,4 +19,5 @@ $(sort $(LINEOBJDIRS)):
 $(LINEOBJ)/advline$(EXE_BUILD) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX_BUILD) $(LDFLAGS_BUILD) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
-
+	$(RM) advline$(EXE)
+	$(LN_S) $@ advline$(EXE)

@@ -1,9 +1,7 @@
 #include "emulator.h"
 #include "game.h"
 #include "target.h"
-
-// Include the internal copy of the libexpat library
-#include "../expat/expat.h"
+#include "intexpat.h"
 
 #include <string>
 #include <iostream>

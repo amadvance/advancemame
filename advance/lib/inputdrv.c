@@ -31,6 +31,7 @@
 #include "inputdrv.h"
 #include "error.h"
 #include "log.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <assert.h>
@@ -52,7 +53,7 @@ void inputb_reg(adv_conf* context, adv_bool auto_detect)
 
 void inputb_reg_driver(adv_conf* context, inputb_driver* driver)
 {
-	assert( inputb_state.driver_mac < INPUT_DRIVER_MAX );
+	assert(inputb_state.driver_mac < INPUT_DRIVER_MAX );
 
 	inputb_state.driver_map[inputb_state.driver_mac] = driver;
 	inputb_state.driver_map[inputb_state.driver_mac]->reg(context);
@@ -135,14 +136,15 @@ adv_error inputb_init(void)
 	log_std(("inputb: select driver %s\n", inputb_state.driver_current->name));
 
 	inputb_state.is_active_flag = 1;
+	inputb_state.is_enabled_flag = 0;
 
 	return 0;
 }
 
 void inputb_done(void)
 {
-	assert( inputb_state.driver_current );
-	assert( inputb_state.is_active_flag );
+	assert(inputb_state.driver_current );
+	assert(inputb_state.is_active_flag && !inputb_state.is_enabled_flag);
 
 	inputb_state.driver_current->done();
 
@@ -150,8 +152,33 @@ void inputb_done(void)
 	inputb_state.is_active_flag = 0;
 }
 
+adv_error inputb_enable(adv_bool graphics)
+{
+	assert(inputb_state.is_active_flag && !inputb_state.is_enabled_flag);
+
+	if (inputb_state.driver_current->enable(graphics) != 0)
+		return -1;
+
+	inputb_state.is_enabled_flag = 1;
+
+	return 0;
+}
+
+void inputb_disable(void)
+{
+	assert(inputb_state.is_active_flag && inputb_state.is_enabled_flag);
+
+	inputb_state.driver_current->disable();
+
+	inputb_state.is_enabled_flag = 0;
+}
+
 void inputb_abort(void)
 {
+	if (inputb_state.is_enabled_flag) {
+		inputb_disable();
+	}
+
 	if (inputb_state.is_active_flag) {
 		inputb_done();
 	}

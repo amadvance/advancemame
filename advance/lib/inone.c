@@ -48,6 +48,18 @@ void inputb_none_done(void)
 	log_std(("inputb:none: inputb_none_done()\n"));
 }
 
+adv_error inputb_none_enable(adv_bool graphics)
+{
+	log_std(("inputb:none: inputb_none_enable(graphics:%d)\n", (int)graphics));
+
+	return 0;
+}
+
+void inputb_none_disable(void)
+{
+	log_std(("inputb:none: inputb_none_disable()\n"));
+}
+
 adv_bool inputb_none_hit(void)
 {
 	log_debug(("inputb:none: inputb_none_pos_get()\n"));
@@ -86,6 +98,8 @@ inputb_driver inputb_none_driver = {
 	inputb_none_reg,
 	inputb_none_init,
 	inputb_none_done,
+	inputb_none_enable,
+	inputb_none_disable,
 	inputb_none_flags,
 	inputb_none_hit,
 	inputb_none_get

@@ -3415,17 +3415,7 @@ fi
 rm -f conftest*
 
 		fi
-
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O3" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -O3... $ECHO_C" >&6
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -O3 conftest.c 2>&1`"; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  CFLAGS="$CFLAGS -O3"
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+		# -O3 don't seem to be safe on x86 platforms, also on latest gcc 3.3.x
 
 echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O2" >&5
 echo $ECHO_N "checking whether ${CC-cc} accepts -O2... $ECHO_C" >&6
@@ -3438,9 +3428,6 @@ else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
   CFLAGS="$CFLAGS -O"
-fi
-rm -f conftest*
-
 fi
 rm -f conftest*
 

@@ -10,6 +10,7 @@ IOBJDIRS += \
 IOBJS += \
 	$(IOBJ)/i/i.o \
 	$(IOBJ)/lib/portable.o \
+	$(IOBJ)/lib/snstring.o \
 	$(IOBJ)/lib/log.o \
 	$(IOBJ)/lib/conf.o \
 	$(IOBJ)/lib/incstr.o \
@@ -33,7 +34,7 @@ IOBJS += \
 ICFLAGS += \
 	-DUSE_INPUT_TTY
 IOBJS += \
-	$(VOBJ)/linux/itty.o
+	$(IOBJ)/linux/itty.o
 endif
 
 ifeq ($(CONF_HOST),dos)

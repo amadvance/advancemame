@@ -234,12 +234,19 @@ adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 
 void text_reset(void)
 {
+	inputb_disable();
+
 	if (video_mode_is_active())
 		video_mode_done(1);
 
 	if (video_mode_set(&the_default_mode)!=0) {
 		video_mode_restore();
-		target_err("Error in inizialing the default video mode\n\r");
+		target_err("Error inizialing the default video mode\n\r");
+		exit(EXIT_FAILURE);
+	}
+
+	if (inputb_enable(0) != 0) {
+		target_err("Error inizialing the input mode\n\r");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -257,14 +264,14 @@ void text_put(int x, int y, char c, int color)
 }
 
 adv_error text_mode_set(adv_mode* mode) {
-	inputb_done();
+	inputb_disable();
 
 	if (video_mode_set(mode)!=0) {
-		inputb_init(); /* ignore error */
+		inputb_enable(0); /* ignore error */
 		return -1;
 	}
 
-	if (inputb_init() != 0) {
+	if (inputb_enable(1) != 0) {
 		return -1;
 	}
 

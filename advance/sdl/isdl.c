@@ -40,8 +40,8 @@
 #include <string.h>
 
 struct inputb_sdl_context {
-	unsigned last;
-	unsigned shift;
+	unsigned last; /**< Last key pressed. */
+	unsigned shift; /**< Shift state counter. If >0 the state is shifted. */
 };
 
 static struct inputb_sdl_context sdl_state;
@@ -60,15 +60,32 @@ adv_error inputb_sdl_init(int inputb_id)
 		return -1; 
 	}
 
-	sdl_state.last = SDLK_LAST;
-	sdl_state.shift = 0;
-
 	return 0;
 }
 
 void inputb_sdl_done(void)
 {
 	log_std(("inputb:sdl: inputb_sdl_done()\n"));
+}
+
+adv_error inputb_sdl_enable(adv_bool graphics)
+{
+	log_std(("inputb:sdl: inputb_sdl_enable(graphics:%d)\n", (int)graphics));
+
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		error_set("Not supported without the SDL video driver.\n");
+		return -1; 
+	}
+
+	sdl_state.last = SDLK_LAST;
+	sdl_state.shift = 0;
+
+	return 0;
+}
+
+void inputb_sdl_disable(void)
+{
+	log_std(("inputb:sdl: inputb_sdl_disable()\n"));
 }
 
 adv_bool inputb_sdl_hit(void)
@@ -212,6 +229,8 @@ inputb_driver inputb_sdl_driver = {
 	inputb_sdl_reg,
 	inputb_sdl_init,
 	inputb_sdl_done,
+	inputb_sdl_enable,
+	inputb_sdl_disable,
 	inputb_sdl_flags,
 	inputb_sdl_hit,
 	inputb_sdl_get

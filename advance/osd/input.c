@@ -2046,7 +2046,7 @@ void osd_lightgun_read(int player, int* deltax, int* deltay)
 #ifdef MESS
 int osd_keyboard_disabled(void)
 {
-	return 0; /* TODO implement osd_keyboard_disabled */
+	return 0; /* TODO implement osd_keyboard_disabled. what is it ? */
 }
 
 int osd_trying_to_quit(void)

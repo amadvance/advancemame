@@ -10,6 +10,7 @@ MOBJDIRS += \
 MOBJS += \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/portable.o \
+	$(MOBJ)/lib/snstring.o \
 	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
 	$(MOBJ)/lib/incstr.o \

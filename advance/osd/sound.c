@@ -38,6 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ADJUST_MULT_BASE 4096
+
 /***************************************************************************/
 /* OSD interface */
 
@@ -96,17 +98,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 
 	assert(context->state.active_flag == 0);
 
-#if 0
-	/* TODO This sound none check doesn't work with multiple sound driver specification. */
-
-	/* disable the sound with the none driver in the release build, */
-	/* in the debug build use the none driver */
-	if (strcmp(sound_name(), "none")==0) {
-		/* returning !=0 force MAME to disable the sound */
-		/* the osd2_sound_done isn't called */
-		return -1;
-	}
-#endif
+	/* note that if this function returns !=0, MAME disables the sound */
+	/* and doesn't call sd2_sound_done function */
 
 	if (stereo_flag)
 		context->state.input_mode = SOUND_MODE_STEREO;
@@ -133,6 +126,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
 	context->state.latency_min = context->state.rate * context->config.latency_time;
 	context->state.latency_max = context->state.rate * low_buffer_time;
+	context->state.adjust_mult = ADJUST_MULT_BASE;
+	context->state.adjust_limit = 0;
 	context->state.active_flag = 1;
 
 	sound_start(context->config.latency_time);
@@ -156,6 +151,57 @@ void osd2_sound_done(void)
 
 /***************************************************************************/
 /* Advance interface */
+
+static void sound_adjust(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count)
+{
+	unsigned i;
+	int limit;
+	int mult;
+	int new_mult;
+	unsigned count;
+
+	limit = context->state.adjust_limit;
+	mult = context->state.adjust_mult;
+	count = channel * sample_count;
+
+	for(i=0;i<count;++i) {
+		int v = input_sample[i];
+
+		if (v > limit)
+			limit = v;
+		if (v < -limit)
+			limit = -v;
+
+		v = v * mult / ADJUST_MULT_BASE;
+
+		if (v > 32767)
+			v = 32767;
+		if (v < -32768)
+			v = -32768;
+
+		output_sample[i] = v;
+	}
+
+	context->state.adjust_limit = limit;
+
+	if (limit > 32767 / 50)
+		new_mult = ADJUST_MULT_BASE * 32767 / limit;
+	else
+		new_mult = ADJUST_MULT_BASE; /* if the increase is too big reject it */
+
+	/* prevent overflow */
+	if (new_mult > 65536)
+		new_mult = 65536;
+
+	/* only increase the volume */
+	if (new_mult < ADJUST_MULT_BASE)
+		new_mult = ADJUST_MULT_BASE;
+
+	if (context->state.adjust_mult != new_mult)
+		log_std(("osd:sound: adjust factor %g, limit %d\n", (double)new_mult / ADJUST_MULT_BASE, limit));
+
+	context->state.adjust_mult = new_mult;
+}
 
 /**
  * Update the sound stream.
@@ -214,12 +260,28 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 				memset(sample_mix, 0, sample_count * context->state.output_bytes_per_sample);
 			}
 
+			if (context->config.adjust_flag) {
+				unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
+				sound_adjust(context, output_channel, sample_mix, sample_mix, sample_count);
+			}
+
 			sound_play(sample_mix, sample_count);
 
 			free(sample_mix);
 
 		} else {
-			sound_play(sample_buffer, sample_count);
+			if (context->config.adjust_flag) {
+				unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
+				short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
+
+				sound_adjust(context, output_channel, sample_buffer, sample_mix, sample_count);
+
+				sound_play(sample_mix, sample_count);
+
+				free(sample_mix);
+			} else {
+				sound_play(sample_buffer, sample_count);
+			}
 		}
 
 		if (!video_context->state.pause_flag)
@@ -266,6 +328,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
+	conf_bool_register_default(cfg_context, "sound_fillup", 1);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
 	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
@@ -290,6 +353,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	context->config.mode = conf_int_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
+	context->config.adjust_flag = conf_bool_get_default(cfg_context, "sound_fillup");
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
 	option->filter_flag = conf_bool_get_default(cfg_context, "sound_resamplefilter");
 

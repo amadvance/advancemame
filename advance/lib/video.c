@@ -459,7 +459,7 @@ adv_error video_init(void)
 	/* enable all the video driver */
 
 #if defined(__MSDOS__)
-	/* backward order */ /* TODO convert to forward removing the dependencies */
+	/* backward order */ /* TODO convert the order to forward removing the dependencies */
 	/* some drivers have dependencies to respect */
 	forward = 0;
 #else

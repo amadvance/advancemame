@@ -53,7 +53,7 @@ void keyb_reg(adv_conf* context, adv_bool auto_detect)
 
 void keyb_reg_driver(adv_conf* context, keyb_driver* driver)
 {
-	assert( keyb_state.driver_mac < KEYB_DRIVER_MAX );
+	assert(keyb_state.driver_mac < KEYB_DRIVER_MAX);
 
 	keyb_state.driver_map[keyb_state.driver_mac] = driver;
 	keyb_state.driver_map[keyb_state.driver_mac]->reg(context);

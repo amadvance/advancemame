@@ -143,7 +143,8 @@ if test $ac_auto_cflags = yes; then
 			CFLAGS="$CFLAGS -march=$ac_cc_arch "
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		fi
-		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
+		# -O3 don't seem to be safe on x86 platforms, also on latest gcc 3.3.x
+		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
 		# -fno-merge-constants is required to speedup the link time. ld spends a lot of time trying to merge partial strings.
 		AC_CHECK_CC_OPT([-fno-merge-constants], [CFLAGS="$CFLAGS -fno-merge-constants"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])

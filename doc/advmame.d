@@ -1051,6 +1051,15 @@ Configuration
 	So, you need to use a latency greater than zero to play these
 	games.
 
+    sound_fillup
+	Automatically increase the volume of games with a too lower one.
+
+	:sound_fillup yes | no
+
+	Options:
+		yes - Enable the effect (default):
+		no - Disable the effect.
+
   Input Configuration Options
 
     device_keyboard/joystick/mouse

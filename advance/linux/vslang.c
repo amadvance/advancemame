@@ -31,6 +31,7 @@
 #include "vslang.h"
 #include "log.h"
 #include "error.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include "oslinux.h"

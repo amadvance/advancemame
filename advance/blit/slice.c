@@ -144,8 +144,6 @@ void run_slice_init(struct run_slice* r, int S, int D)
 	}
 }
 
-#define TEST
-
 void test_red(int S, int D)
 {
 	int total = 0;

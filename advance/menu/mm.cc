@@ -31,6 +31,7 @@
 #include "keyall.h"
 #include "joyall.h"
 #include "mouseall.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <iostream>

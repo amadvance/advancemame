@@ -396,21 +396,27 @@ adv_error keyb_event_enable(adv_bool graphics)
 	event_state.fc = open("/dev/tty", O_RDONLY);
 	if (event_state.fc == -1) {
 		error_set("Error enabling the event keyboard driver. Function open(/dev/tty) failed.\n");
-		return -1;
+		goto err;
 	}
 
 	if (!event_state.passive_flag && event_state.graphics_flag) {
 		/* set the console in graphics mode, it only disable the cursor and the echo */
 		log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
 		if (ioctl(event_state.fc, KDSETMODE, KD_GRAPHICS) < 0) {
-			/* ignore error */
 			log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+			error_set("Error setting the tty in graphics mode.\n");
+			goto err_close;
 		}
 	}
 
 	keyb_event_clear();
 
 	return 0;
+
+err_close:
+	close(event_state.fc);
+err:
+	return -1;
 }
 
 void keyb_event_disable(void)

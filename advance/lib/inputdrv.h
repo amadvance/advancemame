@@ -101,6 +101,9 @@ typedef struct inputb_driver_struct {
 	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
+	adv_error (*enable)(adv_bool graphics);
+	void (*disable)(void);
+
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
 	adv_bool (*hit)(void);
@@ -112,6 +115,7 @@ typedef struct inputb_driver_struct {
 struct inputb_state_struct {
 	adv_bool is_initialized_flag;
 	adv_bool is_active_flag;
+	adv_bool is_enabled_flag; /**< If the inputbb_enable() function was called. */
 	unsigned driver_mac;
 	inputb_driver* driver_map[INPUT_DRIVER_MAX];
 	inputb_driver* driver_current;
@@ -125,18 +129,31 @@ void inputb_reg_driver(adv_conf* config_context, inputb_driver* driver);
 adv_error inputb_load(adv_conf* config_context);
 adv_error inputb_init(void);
 void inputb_done(void);
+
+/**
+ * Enable the input driver.
+ * The input driver must be enabled after the video mode set.
+ * \param graphics_mode Enable the graphics mode behaviour, disabling echo and cursor.
+ */
+adv_error inputb_enable(adv_bool graphics);
+
+/**
+ * Disable the input driver.
+ */
+void inputb_disable(void);
+
 void inputb_abort(void);
 
 static inline adv_bool inputb_hit(void)
 {
-	assert( inputb_state.is_active_flag );
+	assert( inputb_state.is_active_flag && inputb_state.is_enabled_flag );
 
 	return inputb_state.driver_current->hit();
 }
 
 static inline unsigned inputb_get(void)
 {
-	assert( inputb_state.is_active_flag );
+	assert( inputb_state.is_active_flag && inputb_state.is_enabled_flag );
 
 	return inputb_state.driver_current->get();
 }

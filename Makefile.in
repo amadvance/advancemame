@@ -62,25 +62,19 @@ PREFIX=@prefix@
 
 # Select the optimization flags: (optimized build for Pentium by default)
 # Optimized build for Pentium
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for Pentium Pro, Pentium II, Pentium III, Celeron
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentiumpro -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium2 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for Pentium IV
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentium4 -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium4 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for K6, K6-II, K6-III
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=k6 -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=k6 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for Duron, Athlon, Athlon XP, Athlon MP
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=athlon -Wall -Wno-sign-compare -Wno-unused
-# Profile build
-#CONF_CFLAGS_OPT=-O3 -pg -Wall -Wno-sign-compare -Wno-unused
-# Debug build
-#CONF_CFLAGS_OPT=-O0 -g -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=athlon -Wall -Wno-sign-compare -Wno-unused
 
 # Select the optimization linker flags: (optimized link by default)
 # Optimized build
 #CONF_LDFLAGS=-s
-# Debug/Profile build
-#CONF_LDFLAGS=-g
 
 # Uncomment and set to "yes" to compile the MAME debugger (default no):
 #CONF_DEBUGGER=no
@@ -219,7 +213,7 @@ CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_i586
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -march=pentium -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -O2 -fomit-frame-pointer -march=pentium -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS

@@ -421,6 +421,7 @@ struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
 	int attenuation; /**< Sound attenuation in db (0 == full volume). */
+	adv_bool adjust_flag; /**< Adjust the sound volume. */
 };
 
 struct advance_sound_state_context {
@@ -434,6 +435,8 @@ struct advance_sound_state_context {
 	unsigned input_bytes_per_sample; /**< Input data sample size. */
 	unsigned output_bytes_per_sample; /**< Output data sample size. */
 	unsigned snapshot_counter; /**< Current snapshot counter */
+	int adjust_limit; /**< Current high sample value. */
+	unsigned adjust_mult; /**< Sample multiplicator. */
 };
 
 struct advance_sound_context {

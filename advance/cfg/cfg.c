@@ -31,6 +31,7 @@
 #include "file.h"
 #include "conf.h"
 #include "target.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <string.h>
@@ -1630,6 +1631,10 @@ int os_main(int argc, char* argv[]) {
 		goto err_mode;
 	}
 
+	if (inputb_enable(0) != 0) {
+		goto err_text;
+	}
+
 	while (state >= 0 && state != 8) {
 
 		switch (state) {
@@ -1702,6 +1707,8 @@ int os_main(int argc, char* argv[]) {
 
 	log_std(("cfg: shutdown\n"));
 
+	inputb_disable();
+
 	text_done();
 
 	crtc_container_done(&mode);
@@ -1726,6 +1733,8 @@ int os_main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 
+err_text:
+	text_done();
 err_mode:
 	crtc_container_done(&mode);
 err_input:

@@ -225,7 +225,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 
 #if defined(USE_VIDEO_SDL)
 	if (os_internal_sdl_is_video_active()) {
-		error_set("The raw keyboard driver cannot be used with the SDL video driver\n");
+		error_set("The raw keyboard driver cannot be used with the SDL video driver.\n");
 		return -1;
 	}
 #endif
@@ -244,19 +244,17 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.f = open("/dev/tty", O_RDONLY);
 	if (raw_state.f == -1) {
 		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty) failed.\n");
-		return -1;
+		goto err;
 	}
 
 	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.oldkbmode) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
-		close(raw_state.f);
-		return -1;
+		goto err_close;
 	}
 
 	if (tcgetattr(raw_state.f, &raw_state.oldkbdtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcgetattr() failed.\n");
-		close(raw_state.f);
-		return -1;
+		goto err_close;
 	}
 
 	raw_state.newkbdtermios = raw_state.oldkbdtermios;
@@ -268,34 +266,43 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.newkbdtermios.c_cc[VTIME] = 0;
 
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
-		error_set("Error enabling the raw keyboard driver. Function tcsetattr() failed.\n");
-		close(raw_state.f);
-		return -1;
+		error_set("Error enabling the raw keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
+		goto err_close;
 	}
 
 	if (ioctl(raw_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
-		/* restore old mode */
-		if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
-			/* ignore error */
-			log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
-		}
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
-		close(raw_state.f);
-		return -1;
+		goto err_term;
 	}
 
 	if (!raw_state.passive_flag && raw_state.graphics_flag) {
 		/* set the console in graphics mode, it only disable the cursor and the echo */
 		log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
 		if (ioctl(raw_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
-			/* ignore error */
 			log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+			error_set("Error setting the tty in graphics mode.\n");
+			goto err_mode;
 		}
 	}
 
 	keyb_raw_clear();
 
 	return 0;
+
+err_mode:
+	if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
+		/* ignore error */
+		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+	}
+err_term:
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.oldkbdtermios) != 0) {
+		/* ignore error */
+		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
+	}
+err_close:
+	close(raw_state.f);
+err:
+	return -1;
 }
 
 void keyb_raw_disable(void)
@@ -314,9 +321,9 @@ void keyb_raw_disable(void)
 		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
 	}
 
-	if (tcsetattr(raw_state.f, 0, &raw_state.oldkbdtermios) != 0) {
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.oldkbdtermios) != 0) {
 		/* ignore error */
-		log_std(("keyb:raw: tcsetattr(old) failed\n"));
+		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
 	}
 
 	close(raw_state.f);

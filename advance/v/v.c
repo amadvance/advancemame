@@ -32,6 +32,7 @@
 #include "log.h"
 #include "file.h"
 #include "target.h"
+#include "snstring.h"
 #include "portable.h"
 
 #include <unistd.h>
@@ -2011,11 +2012,17 @@ int os_main(int argc, char* argv[])
 		goto err_input;
 	}
 
+	if (inputb_enable(0) != 0) {
+		goto err_text;
+	}
+
 	sound_signal();
 
 	menu_run();
 
 	log_std(("v: shutdown\n"));
+
+	inputb_disable();
 
 	text_done();
 
@@ -2043,6 +2050,8 @@ int os_main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 
+err_text:
+	text_done();
 err_input:
 	inputb_done();
 err_blit:

@@ -10,6 +10,7 @@ JOBJDIRS += \
 JOBJS += \
 	$(JOBJ)/j/j.o \
 	$(JOBJ)/lib/portable.o \
+	$(JOBJ)/lib/snstring.o \
 	$(JOBJ)/lib/log.o \
 	$(JOBJ)/lib/conf.o \
 	$(JOBJ)/lib/incstr.o \

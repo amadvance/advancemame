@@ -50,6 +50,9 @@
 
 struct inputb_tty_context {
 	unsigned last;
+	struct termios oldkbdtermios;
+	struct termios newkbdtermios;
+	adv_bool passive_flag;
 };
 
 static struct inputb_tty_context tty_state;
@@ -61,43 +64,84 @@ static adv_device DEVICE[] = {
 
 adv_error inputb_tty_init(int inputb_id)
 {
-	struct termios adjust;
-
 	log_std(("inputb:tty: inputb_tty_init(id:%d)\n", inputb_id));
 
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("inputb:tty: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("tty: Incompatible with the SDL video driver.\n");
+		error_set("Incompatible with the SDL video driver.\n");
 		return -1; 
 	}
 #endif
-
-	/* no buffer */
-	setvbuf(stdin, 0, _IONBF, 0);
-
-	/* not canonical input */
-	tcgetattr(fileno(stdin), &adjust);
-	adjust.c_lflag &= ~(ICANON | ECHO);
-	tcsetattr(fileno(stdin), TCSANOW, &adjust);
-
-	tty_state.last = 0;
 
 	return 0;
 }
 
 void inputb_tty_done(void)
 {
-	struct termios adjust;
-
 	log_std(("inputb:tty: inputb_tty_done()\n"));
+}
 
-	/* restore term */
-	tcgetattr(fileno(stdin), &adjust);
-	adjust.c_lflag |= ICANON | ECHO;
-	tcsetattr(fileno(stdin), TCSANOW, &adjust);
+adv_error inputb_tty_enable(adv_bool graphics)
+{
+	log_std(("inputb:tty: inputb_tty_enable(graphics:%d)\n", (int)graphics));
+
+#ifdef USE_VIDEO_SDL
+	/* If the SDL video driver is used, also the SDL */
+	/* keyboard input must be used. */
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+		error_set("Incompatible with the SDL video driver.\n");
+		return -1; 
+	}
+#endif
+
+	tty_state.passive_flag = 0;
+#ifdef USE_VIDEO_SVGALIB
+	/* SVGALIB already set the terminal in KD_GRAPHICS mode and */
+	/* it waits on a signal on a vt switch */
+	if (os_internal_svgalib_is_video_mode_active()) {
+		tty_state.passive_flag = 1;
+	}
+#endif
+
+	if (!tty_state.passive_flag) {
+		/* no buffer */
+		setvbuf(stdin, 0, _IONBF, 0);
+
+		/* not canonical input */
+		if (tcgetattr(fileno(stdin), &tty_state.oldkbdtermios) != 0) {
+			error_set("Error initializing the tty driver. Function tcgetattr() failed.\n");
+			return -1;
+		}
+
+		tty_state.newkbdtermios = tty_state.oldkbdtermios;
+
+		tty_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO);
+
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.newkbdtermios) != 0) {
+			error_set("Error initializing the tty driver. Function tcsetattr(TCSAFLUSH) failed.\n");
+			return -1;
+		}
+	}
+
+	tty_state.last = 0;
+
+	return 0;
+}
+
+void inputb_tty_disable(void)
+{
+	log_std(("inputb:tty: inputb_tty_disable()\n"));
+
+	if (!tty_state.passive_flag) {
+		log_std(("inputb:tty: tcsetattr(%sICANON %sECHO)\n", (tty_state.oldkbdtermios.c_lflag & ICANON) ? "" : "~", (tty_state.oldkbdtermios.c_lflag & ECHO) ? "" : "~"));
+
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.oldkbdtermios) != 0) {
+			/* ignore error */
+			log_std(("inputb:tty: tcsetattr(TCSAFLUSH) failed\n"));
+		}
+	}
 }
 
 static int tty_getkey(void)
@@ -236,6 +280,8 @@ inputb_driver inputb_tty_driver = {
 	inputb_tty_reg,
 	inputb_tty_init,
 	inputb_tty_done,
+	inputb_tty_enable,
+	inputb_tty_disable,
 	inputb_tty_flags,
 	inputb_tty_hit,
 	inputb_tty_get

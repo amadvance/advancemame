@@ -221,7 +221,7 @@ adv_error mouseb_event_init(int mouseb_id)
 	}
 
 	if (!event_state.mac) {
-		error_set("No mouse found on /dev/input/event*.\n");
+		error_set("No mouse found.\n");
 		return -1;
 	}
 

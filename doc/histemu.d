@@ -2,6 +2,8 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.72.0 2003/09
+	) Added a new option `sound_fillup' which automatically increase
+		the volume of games with a too lower one. It's enabled by default.
 	) Added a new set of Linux `event' input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.
 		These drivers remove any limitations on the number of

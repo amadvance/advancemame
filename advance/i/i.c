@@ -121,8 +121,12 @@ int os_main(int argc, char* argv[])
 	if (inputb_init() != 0)
 		goto err_os_inner;
 
+	if (inputb_enable(0) != 0)
+		goto err_input;
+
 	run();
 
+	inputb_disable();
 	inputb_done();
 	os_inner_done();
 	os_done();
@@ -130,6 +134,8 @@ int os_main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 
+err_input:
+	inputb_done();
 err_os_inner:
 	os_inner_done();
 err_os:
