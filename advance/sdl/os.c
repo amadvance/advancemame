@@ -94,7 +94,7 @@ static void SDL_WM_DefIcon(void) {
 
 	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
 	if (!surface) {
-		log_std(("sound: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
 		return;
 	}
 
@@ -111,7 +111,7 @@ static void SDL_WM_DefIcon(void) {
 	}
 
 	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
-		log_std(("sound: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
 		SDL_FreeSurface(surface);
 		return;
 	}
@@ -140,7 +140,7 @@ int os_inner_init(const char* title) {
 	/* the SDL_INIT_VIDEO flags must be specified also if the video */
 	/* output isn't used */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
-		log_std(("sound: SDL_Init() failed, %s\n", SDL_GetError()));
+		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
 		return -1;
 	}
 

@@ -497,6 +497,8 @@ static struct conf_conv STANDARD[] = {
 { "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.1 */
 { "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
+/* 0.61.2 */
+{ "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 },
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {

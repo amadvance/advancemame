@@ -537,6 +537,5 @@ int advance_safequit_inner_init(struct mame_option* option);
 void advance_safequit_inner_done(void);
 int advance_safequit_can_exit(void);
 void advance_safequit_update(void);
-void advance_safequit_debug(void);
 
 #endif

@@ -15,6 +15,9 @@ AdvanceMAME Version 0.61.2 2002/07
 	) Splitted the input_map[,trak] option in the input_map[,trakx]
 		and input_map[,traky] options. Now you can assign
 		different axes from different mouses.
+	) Renamed the option `misc_language' to `misc_languagefile'.
+	) Fixed the saving of the cheats.
+	) Documented the varius `misc_*file' options.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

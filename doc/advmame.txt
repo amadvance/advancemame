@@ -360,8 +360,8 @@ DIRECTORY CONFIGURATION OPTIONS
 	';' char as directory separator, instead, the Linux version
 	uses the ':' char.
 
-	dir_* DIR[;DIR ...] (DOS)
-	dir_* DIR[:DIR ...] (Linux)
+	dir_* DIR[;DIR]... (DOS)
+	dir_* DIR[:DIR]... (Linux)
 	
 	Options:
 		dir_rom - Multi directory specification for the
@@ -1157,6 +1157,21 @@ OTHER CONFIGURATION OPTIONS
 
 	Use 0 seconds to disable the startup turbo effect.
 
+    "misc_quiet"
+	Doesn't print the copyright text message at the startup :
+
+	"AdvanceMAME - Copyright (C) 1999-200X by Andrea Mazzoleni"
+	"MAME - Copyright (C) 1997-200X by Nicola Salmoria and the MAME Team"
+
+	misc_quiet yes | no
+
+    "misc_timetorun"
+	Run the emulation only for the given number of seconds whithout
+	any throttling and at the exit print the number of real CPU
+	seconds used. Useful for benchmarking.
+
+	misc_timetorun SECONDS
+
     "misc_internaldepth"
 	Control the size of the internal MAME bitmap.
 
@@ -1170,14 +1185,6 @@ OTHER CONFIGURATION OPTIONS
 
 	The use of this option is discouraged. Use the default value.
 
-    "misc_quiet"
-	Doesn't print the copyright text message at the startup :
-
-	"AdvanceMAME - Copyright (C) 1999-200X by Andrea Mazzoleni"
-	"MAME - Copyright (C) 1997-200X by Nicola Salmoria and the MAME Team"
-
-	misc_quiet yes | no
-
 SUPPORT FILES
 	The AdvanceMAME emulator needs also some support files:
 
@@ -1187,11 +1194,51 @@ SUPPORT FILES
 		hiscore.dat - Highscore database.
 		mameinfo.dat - MAME info database.
 		sysinfo.dat - MESS info database.
-		language.dat - Language database.
+		english.lng - Language database.
 
 	These files should reside in current directory for the
 	DOS version or in the $root or $home directories for the
 	Linux version.
+
+    "misc_cheat"
+	Enable or disable the cheat system. It may also change the
+	game behaviour enabling the cheat dipswitch if available.
+	If enabled, it disables the hiscore saving.
+
+	misc_cheat yes | no
+
+	Options:
+		yes - Enable the cheats.
+		no - Disable the cheats (default).
+
+    "misc_cheatfile"
+	Select the cheat files. The DOS version uses the
+	';' char as directory separator, instead, the Linux version
+	uses the ':' char.
+
+	misc_cheatfile FILE[;FILE]... (Dos)
+	misc_cheatfile FILE[:FILE]... (Linux)
+
+	Options:
+		FILE - Cheat file to load (default cheat.dat).
+
+    "misc_languagefile"
+
+	misc_languagefile FILE
+
+	(default english.lng)
+
+    "misc_historyfile"
+
+	misc_historyfile FILE
+
+	(default history.dat)
+
+    "misc_infofile"
+
+	misc_infofile FILE
+
+	(default mameinfo.dat)
 
 COPYRIGHT
 	Copyright (C) 2001 Andrea Mazzoleni

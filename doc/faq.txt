@@ -94,6 +94,16 @@ VIDEO CONFIGURATION FAQ
 	two frequencies. The solution is to enable the
 	"display_vsync" option.
 
+   How can I enable the DGA extension ?
+	Ensure that in your XF86Config file the line :
+
+		Option    "omit xfree86-dga"
+
+	is not present or commented. To test it you can use
+	the `dga' utility. Run :
+
+		man dga
+
 LICENSE FAQ
     Why SourceForge accepted the AdvanceMAME project and not the
     xmame project ?

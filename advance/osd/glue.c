@@ -506,7 +506,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	r = run_game(i);
 
 	if (options.language_file)
-                osd_fclose(options.language_file);
+		osd_fclose(options.language_file);
 
 	return r;
 }
@@ -1052,9 +1052,10 @@ int mame_init(struct advance_context* context, struct conf_context* cfg_context)
 
 	conf_bool_register_default(cfg_context, "misc_cheat", 0);
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
-	conf_string_register_default(cfg_context, "misc_language", "english");
+	conf_string_register_default(cfg_context, "misc_languagefile", "english.lng");
 	conf_string_register_default(cfg_context, "misc_cheatfile", "cheat.dat" );
 	conf_string_register_default(cfg_context, "misc_historyfile", "history.dat");
+
 #ifdef MESS
 	conf_string_register_default(cfg_context, "misc_infofile", "sysinfo.dat");
 #else
@@ -1075,6 +1076,7 @@ void mame_done(struct advance_context* context) {
 }
 
 int mame_config_load(struct conf_context* cfg_context, struct mame_option* option) {
+	char* s;
 
 	option->artwork_flag = conf_bool_get_default(cfg_context, "display_artwork");
 	option->artwork_crop_flag = conf_bool_get_default(cfg_context, "display_artwork_crop");
@@ -1102,10 +1104,18 @@ int mame_config_load(struct conf_context* cfg_context, struct mame_option* optio
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
 	option->quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 
-	strcpy(option->language_file,conf_string_get_default(cfg_context, "misc_language"));
-	strcpy(option->cheat_file,conf_string_get_default(cfg_context, "misc_cheatfile"));
-	strcpy(option->history_file,conf_string_get_default(cfg_context,"misc_historyfile"));
-	strcpy(option->info_file,conf_string_get_default(cfg_context,"misc_infofile"));
+	strcpy(option->language_file, conf_string_get_default(cfg_context, "misc_languagefile"));
+
+	strcpy(option->cheat_file, conf_string_get_default(cfg_context, "misc_cheatfile"));
+
+	/* convert the dir separator char to ';'. */
+	/* the cheat system use always this char in all the operating system */
+	for(s=option->cheat_file;*s;++s)
+		if (*s == file_dir_separator())
+			*s = ';';
+
+	strcpy(option->history_file, conf_string_get_default(cfg_context,"misc_historyfile"));
+	strcpy(option->info_file, conf_string_get_default(cfg_context,"misc_infofile"));
 
 #ifdef MESS
 	mess_config_load(cfg_context);
