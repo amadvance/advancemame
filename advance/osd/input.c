@@ -2054,9 +2054,9 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 
 	conf_string_register_multi(cfg_context, "input_name");
 
-	joystickb_reg(cfg_context, 0);
+	joystickb_reg(cfg_context, 1);
 	joystickb_reg_driver_all(cfg_context);
-	mouseb_reg(cfg_context, 0);
+	mouseb_reg(cfg_context, 1);
 	mouseb_reg_driver_all(cfg_context);
 	keyb_reg(cfg_context, 1);
 	keyb_reg_driver_all(cfg_context);

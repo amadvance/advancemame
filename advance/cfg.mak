@@ -58,6 +58,13 @@ CFGLIBS += -lslang
 CFGOBJS += \
 	$(CFGOBJ)/linux/vslang.o
 endif
+ifeq ($(CONF_LIB_NCURSES),yes)
+CFGCFLAGS += \
+	-DUSE_VIDEO_CURSES
+CFGLIBS += -lncurses
+CFGOBJS += \
+	$(CFGOBJ)/linux/vcurses.o
+endif
 CFGCFLAGS += \
 	-DUSE_INPUT_TTY
 CFGOBJS += \

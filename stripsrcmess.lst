@@ -101,6 +101,7 @@ cpu/z80
 dbgfonts
 debug
 drivers/cps1.c
+includes/amiga.h
 includes/atari.h
 includes/snes.h
 includes/jaguar.h
@@ -122,6 +123,7 @@ machine/7474.c
 machine/7474.h
 machine/8255ppi.c
 machine/8255ppi.h
+machine/amiga.c
 machine/atari.c
 machine/eeprom.c
 machine/eeprom.h
@@ -216,6 +218,7 @@ sound/ym2413.c
 sound/ym2413.h
 sound/ymdeltat.c
 sound/ymdeltat.h
+vidhrdw/amiga.c
 vidhrdw/antic.c
 vidhrdw/atari.c
 vidhrdw/cps1.c

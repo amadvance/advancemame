@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2004-12-02 19:12:17.000000000 +0100
++++ mess/advance.pat	2005-01-09 08:44:03.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive mess.ori/hashfile.c mess/hashfile.c
---- mess.ori/hashfile.c	2004-09-24 14:10:25.000000000 +0200
-+++ mess/hashfile.c	2004-12-02 19:12:17.000000000 +0100
+--- mess.ori/hashfile.c	2004-09-08 03:56:48.000000000 +0200
++++ mess/hashfile.c	2005-01-09 08:44:03.000000000 +0100
 @@ -6,11 +6,11 @@
  
  *********************************************************************/
@@ -20,8 +20,8 @@ diff -U 5 --new-file --recursive mess.ori/hashfile.c mess/hashfile.c
  
  	Type definitions
 diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
---- mess.ori/inputx.c	2004-10-25 05:23:29.000000000 +0200
-+++ mess/inputx.c	2004-12-02 19:12:17.000000000 +0100
+--- mess.ori/inputx.c	2004-10-13 00:59:26.000000000 +0200
++++ mess/inputx.c	2005-01-09 08:44:03.000000000 +0100
 @@ -1,8 +1,7 @@
  #include <ctype.h>
  #include <assert.h>
@@ -32,8 +32,8 @@ diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
  
  #define NUM_CODES		128
 diff -U 5 --new-file --recursive mess.ori/mess.c mess/mess.c
---- mess.ori/mess.c	2004-10-25 05:23:29.000000000 +0200
-+++ mess/mess.c	2004-12-02 19:12:17.000000000 +0100
+--- mess.ori/mess.c	2004-10-17 22:32:17.000000000 +0200
++++ mess/mess.c	2005-01-09 08:44:03.000000000 +0100
 @@ -649,11 +649,11 @@
  
  	if (inputx_validitycheck(NULL))

@@ -23,12 +23,16 @@ device_video_modeline pal_768x576 14.75 768 784 864 944 576 582 588 625 -hsync -
 
 # SVGA standard size modes
 device_video_modeline pal_320x240 6.125 320 328 360 392 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_640x240 12.25 640 656 720 784 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
 device_video_modeline pal_400x300 7.75 400 416 456 496 300 444 450 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
 device_video_modeline pal_512x384 9.875 512 528 576 632 384 486 492 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
 device_video_modeline pal_640x480 12.25 640 656 712 784 480 534 540 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
 device_video_modeline pal_256x224 4.875 256 264 288 312 224 259 262 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_512x224 9.75 512 528 576 624 224 259 262 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
 device_video_modeline pal_256x240 4.875 256 264 288 312 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_512x240 9.75 512 528 576 624 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
 device_video_modeline pal_320x224 6.125 320 328 360 392 224 259 262 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_640x224 12.25 640 656 720 784 224 259 262 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
 device_video_modeline pal_512x448 9.875 512 528 576 632 448 518 524 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
 device_video_modeline pal_512x480 9.875 512 528 576 632 480 534 540 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
 device_video_modeline pal_640x448 12.25 640 656 712 784 448 518 524 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]

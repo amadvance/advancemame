@@ -1408,7 +1408,7 @@ int os_main(int argc, char* argv[])
 	adv_error res;
 
 	state = 0;
-	index = MODE_FLAGS_INDEX_BGR8;
+	index = 0;
 	opt_rc = 0;
 	opt_log = 0;
 	opt_logsync = 0;
@@ -1527,6 +1527,24 @@ int os_main(int argc, char* argv[])
 		goto err_blit;
 	}
 
+	if (index == 0) {
+		unsigned mask = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0);
+		if ((mask & VIDEO_DRIVER_FLAGS_MODE_BGR8) != 0)
+			index = MODE_FLAGS_INDEX_BGR8;
+		else if ((mask & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
+			index = MODE_FLAGS_INDEX_BGR16;
+		else if ((mask & VIDEO_DRIVER_FLAGS_MODE_BGR15) != 0)
+			index = MODE_FLAGS_INDEX_BGR15;
+		else if ((mask & VIDEO_DRIVER_FLAGS_MODE_BGR32) != 0)
+			index = MODE_FLAGS_INDEX_BGR32;
+		else if ((mask & VIDEO_DRIVER_FLAGS_MODE_BGR24) != 0)
+			index = MODE_FLAGS_INDEX_BGR24;
+		else {
+			target_err("No valid bit depth supported.\n\r");
+			goto err_blit;
+		}
+	}
+
 	switch (index) {
 	case MODE_FLAGS_INDEX_BGR8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
 	case MODE_FLAGS_INDEX_BGR15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
@@ -1540,7 +1558,7 @@ int os_main(int argc, char* argv[])
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & bit_flag) == 0) {
 		target_err("The specified bit depth isn't supported.\n\r");
-		target_err("Try another value with the -bit option.\n\r");
+		target_err("Try another value with the -bit option. For example '-bit 16'\n\r");
 		goto err_blit;
 	}
 

@@ -329,7 +329,7 @@ private:
 
 output::output(ostream& Aos) : os(Aos), counter(0), type(output_none)
 {
-	pixel_clock_min = 3E6;
+	pixel_clock_min = 12E6;
 	horz_clock_min = 0;
 	vert_clock_max = 112;
 	vert_clock_min = 43;
@@ -735,38 +735,41 @@ bool compute_active(output& os, const generator& g, const string& name, unsigned
 
 void compute_svga_graph(output& os, const generator& g, const string& name)
 {
-	unsigned x_res[] = {
-		240,
-		256,
-		272,
-		288,
-		304,
-		320,
-		336,
-		344, // y=258 for 256 rows games
-		352,
-		368,
-		384,
-		400,
-		416,
-		432,
-		448,
-		464,
-		480,
-		496,
-		512,
-		544,
-		576,
-		608,
-		640,
-		672,
-		688, // y=516 for 512 rows games
-		704,
-		736,
-		768,
-		800,
-		1024,
-		0
+	struct {
+		unsigned x, y;
+	} res[] = {
+		{ 240, 180 },
+		{ 256, 192 },
+		{ 272, 204 },
+		{ 288, 216 },
+		{ 384, 224 }, // CPS2 games
+		{ 304, 228 },
+		{ 320, 240 },
+		{ 336, 252 },
+		{ 344, 258 }, // y=258 for 256 rows games
+		{ 352, 264 },
+		{ 368, 276 },
+		{ 384, 288 },
+		{ 400, 300 },
+		{ 416, 312 },
+		{ 432, 324 },
+		{ 448, 336 },
+		{ 464, 348 },
+		{ 480, 360 },
+		{ 496, 372 },
+		{ 512, 384 },
+		{ 544, 408 },
+		{ 576, 432 },
+		{ 608, 456 },
+		{ 640, 480 },
+		{ 672, 504 },
+		{ 688, 516 }, // y=516 for 512 rows games
+		{ 704, 528 },
+		{ 736, 552 },
+		{ 768, 576 },
+		{ 800, 600 },
+		{ 1024, 768 },
+		{ 0, 0 }
 	};
 
 	generator g2 = g;
@@ -779,12 +782,8 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 	if (g.clock_contrains_get() == clock_horz
 		|| g.clock_contrains_get() == clock_vert
 		|| g.clock_contrains_get() == clock_pixel) {
-		for(unsigned* i=x_res;*i;++i) {
-			unsigned y;
-			if (*i == 384) // for CPS2 games
-				compute_active(os.as(output::output_svga_graph), g2, name, 384, 224);
-			y = *i * 3 / 4;
-			compute_active(os.as(output::output_svga_graph), g2, name, *i, y);
+		for(unsigned i=0;res[i].x;++i) {
+			compute_active(os.as(output::output_svga_graph), g2, name, res[i].x, res[i].y);
 		}
 	} else {
 		compute_active(os.as(output::output_svga_graph), g2, name, 320, 240);
