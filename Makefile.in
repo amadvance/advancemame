@@ -13,8 +13,9 @@ bindir=@bindir@
 mandir=@mandir@
 docdir=@datadir@/doc
 CONF_EMU=@CONF_EMU@
-CONF_BUILD=@CONF_BUILD@
+CONF_SYSTEM=@CONF_SYSTEM@
 CONF_HOST=@CONF_HOST@
+CONF_BUILD=@CONF_BUILD@
 CONF_LIB_SVGALIB=@CONF_LIB_SVGALIB@
 CONF_LIB_FB=@CONF_LIB_FB@
 CONF_LIB_ALSA=@CONF_LIB_ALSA@
@@ -52,7 +53,11 @@ endif
 
 # Name of the architecture. Used in the distribution file names.
 ifndef CONF_ARCH
+ifeq ($(CONF_DEBUG),yes)
+CONF_ARCH=debug
+else
 CONF_ARCH=blend
+endif
 endif
 
 # Pack also the emulator source in the dist package

@@ -4,20 +4,23 @@
 #############################################################################
 # Derived options
 
-# Binaries
-ifeq ($(CONF_HOST),unix)
-BINARYTAG = linux-$(CONF_ARCH)
+# Implementation system
+ifndef CONF_SYSTEM
+ifeq ($(CONF_HOST),dos)
+CONF_SYSTEM=$(CONF_HOST)
 else
+ifeq ($(CONF_HOST),windows)
+CONF_SYSTEM=$(CONF_HOST)
+else
+CONF_SYSTEM=unix
+endif
+endif
+endif
+
+# Binaries names
 BINARYTAG = $(CONF_HOST)-$(CONF_ARCH)
-endif
-
 BINARYDIR = $(CONF_HOST)/$(CONF_ARCH)
-BINARYDIR_BUILD = $(CONF_BUILD)
-
-# Checks
-ifeq (,$(findstring $(CONF_HOST),-unix-dos-windows-))
-$(error Invalid CONF_HOST=$(CONF_HOST))
-endif
+BINARYBUILDDIR = $(CONF_BUILD)
 
 #############################################################################
 # CFLAGS/LDFLAGS
@@ -29,6 +32,7 @@ endif
 CFLAGS = $(CONF_DEFS) $(CONF_CFLAGS_ARCH) $(CONF_CFLAGS_OPT)
 LDFLAGS = $(CONF_LDFLAGS)
 
+# Compiling message
 ifeq ($(CONF_DEBUG),yes)
 MSG = "(debug)"
 else
@@ -109,9 +113,9 @@ dvi:
 
 install-strip: install
 
-installcheck: install
-
 check:
+
+installcheck: install check
 
 mostlyclean: distclean
 
@@ -122,37 +126,4 @@ clean:
 
 distclean: clean
 	$(RM) -f config.status config.log
-
-#############################################################################
-# Special targets
-
-int-flags: obj
-	$(ECHO) CC=$(CC)
-	$(ECHO) CFLAGS=$(CFLAGS)
-	$(ECHO) CXX=$(CXX)
-	$(ECHO) CXXFLAGS=$(CXXFLAGS)
-	$(ECHO) LD=$(LD)
-	$(ECHO) LDFLAGS=$(LDFLAGS)
-	$(ECHO) CC_BUILD=$(CC_BUILD)
-	$(ECHO) CFLAGS_BUILD=$(CFLAGS_BUILD)
-	$(ECHO) LD_BUILD=$(LD_BUILD)
-	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
-	$(ECHO) SDLLIBS=$(SDLLIBS)
-	$(ECHO) FREETYPECFLAGS=$(FREETYPECFLAGS)
-	$(ECHO) FREETYPELIBS=$(FREETYPELIBS)
-	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
-	$(ECHO) EMULDFLAGS=$(EMULDFLAGS)
-	$(ECHO) ADVANCECFLAGS=$(ADVANCECFLAGS)
-	$(ECHO) ADVANCELDFLAGS=$(ADVANCELDFLAGS)
-	$(ECHO) ADVANCELIBS=$(ADVANCELIBS)
-	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
-	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
-
-int-osdep:
-	rgrep -r MSDOS $(srcdir)/advance
-	rgrep -r WIN32 $(srcdir)/advance
-
-int-def:
-	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
-
 

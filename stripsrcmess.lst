@@ -42,7 +42,6 @@ inptport.c
 inptport.h
 input.c
 input.h
-legacy.h
 mame.c
 mame.h
 mameblit.c
@@ -54,8 +53,6 @@ memdbg.c
 memdbg.h
 memory.c
 memory.h
-network.c
-network.h
 osdepend.h
 palette.c
 palette.h

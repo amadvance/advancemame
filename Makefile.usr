@@ -12,7 +12,7 @@ prefix=/usr/local
 #CONF_EMU=mame
 
 # Uncomment the host operating system.
-# The available choices are unix, dos, windows.
+# The available choices are linux, dos, windows.
 #
 # The unix host uses:
 #   SVGALIB, Frame Buffer, SDL for the video
@@ -41,7 +41,7 @@ prefix=/usr/local
 #   SDL for the mouse
 #   none for the Multiprocessor support (no Multiprocessor support)
 #
-#CONF_HOST=unix
+#CONF_HOST=linux
 #CONF_HOST=dos
 #CONF_HOST=windows
 
@@ -104,7 +104,7 @@ endif
 ifndef CONF_BUILD
 UNAME := $(shell uname)
 ifneq (,$(findstring Linux,$(UNAME)))
-CONF_BUILD=unix
+CONF_BUILD=linux
 else
 ifneq (,$(findstring DOS,$(UNAME)))
 CONF_BUILD=dos
@@ -241,7 +241,7 @@ ECHO = @echo
 # No installation with the manual configuration
 INSTALL = false
 
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_HOST),linux)
 LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
@@ -263,14 +263,14 @@ CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
 ZLIBS = -lz
 endif
 
-ifeq ($(CONF_BUILD),unix)
+ifeq ($(CONF_BUILD),linux)
 ASM = @nasm
 EXE_BUILD =
 CC_BUILD = @gcc
 CXX_BUILD = @g++
 LD_BUILD = @gcc
 LDXX_BUILD = @g++
-ifeq ($(CONF_HOST),unix)
+ifeq ($(CONF_HOST),linux)
 AR = @ar
 CC = @gcc
 CXX = @g++

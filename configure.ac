@@ -8,7 +8,8 @@ AC_COPYRIGHT([Copyright 2004 Andrea Mazzoleni])
 # Checks for system.
 case "$host" in
 	*-*-linux*)
-		ac_host=unix
+		ac_system=unix
+		ac_host=linux
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f elf"])
@@ -16,14 +17,16 @@ case "$host" in
 		AC_SUBST([EXE],[])
 	;;
 	*-*-darwin*)
-		ac_host=unix
+		ac_system=unix
+		ac_host=darwin
 		ac_host_cflags=-no-cpp-precomp
-		ac_host_ldflags=-L/usr/local/lib
+		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],[""])
 		AC_SUBST([CFLAGS_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
+		ac_system=windows
 		ac_host=windows
 		ac_host_cflags=
 		ac_host_ldflags=
@@ -32,6 +35,7 @@ case "$host" in
 		AC_SUBST([EXE],[.exe])
 	;;
 	*-*-msdos*)
+		ac_system=dos
 		ac_host=dos
 		ac_host_cflags=
 		ac_host_ldflags=
@@ -41,7 +45,8 @@ case "$host" in
 	;;
 	*)
 		AC_MSG_WARN([Never tried host platform! Please report if it's working])
-		ac_host=unix
+		ac_system=unix
+		ac_host=generic
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],[""])
@@ -49,15 +54,16 @@ case "$host" in
 		AC_SUBST([EXE],[])
 	;;
 esac
+AC_SUBST([CONF_SYSTEM],[$ac_system])
 AC_SUBST([CONF_HOST],[$ac_host])
 
 case "$build" in
 	*-*-linux*)
-		ac_build=unix
+		ac_build=linux
 		AC_SUBST([EXE_BUILD],[])
 	;;
 	*-*-darwin*)
-		ac_build=unix
+		ac_build=darwin
 		AC_SUBST([EXE_BUILD],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
@@ -154,7 +160,7 @@ if test $ac_auto_cflags = yes; then
 fi
 if test $ac_auto_ldflags = yes ; then
 	if test $ac_enable_debug = yes ; then
-		if test $ac_host = unix ; then
+		if test $ac_system = unix ; then
 			LDFLAGS="-rdynamic"
 		else
 			LDFLAGS="-g"
@@ -304,7 +310,7 @@ AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
-if test $ac_host = unix ; then
+if test $ac_system = unix ; then
 	AC_HEADER_STDC
 	AC_HEADER_SYS_WAIT
 	AC_HEADER_DIRENT
@@ -317,8 +323,6 @@ if test $ac_host = unix ; then
 	AC_C_RESTRICT
 	AC_C_INLINE
 	AC_FUNC_ALLOCA
-	AC_FUNC_FORK
-	AC_FUNC_MALLOC
 	AC_FUNC_MMAP
 	AC_FUNC_SELECT_ARGTYPES
 	AC_FUNC_VPRINTF
@@ -344,7 +348,7 @@ ac_lib_video_flag=no
 ac_lib_sound_flag=no
 ac_lib_keyboard_flag=no
 
-if test $ac_host = dos; then
+if test $ac_system = dos; then
 	ac_lib_video="$ac_lib_video svgaline vbeline vgaline vbe"
 	ac_lib_sound="$ac_lib_sound seal vsync allegro"
 	ac_lib_keyboard="$ac_lib_keyboard allegro"
@@ -630,6 +634,7 @@ if test $ac_lib_freetype = auto; then
 				#include FT_GLYPH_H
 			], [
 				FT_Library library;
+				int dummy = FT_RENDER_MODE_NORMAL;
 				FT_Init_FreeType(&library);
 				FT_Done_FreeType(library);
 			],[ac_lib_freetype=yes],[ac_lib_freetype=no])
@@ -779,7 +784,7 @@ AC_ARG_ENABLE(
 	[ac_lib_svgawin=auto]
 )
 if test $ac_lib_svgawin = auto; then
-	if test $ac_host = windows; then
+	if test $ac_system = windows; then
 		if test $ac_lib_sdl = yes; then
 			ac_lib_svgawin=yes
 		else
@@ -790,7 +795,7 @@ if test $ac_lib_svgawin = auto; then
 	fi
 fi
 if test $ac_lib_svgawin = yes; then
-	if test ! $ac_host = windows; then
+	if test ! $ac_system = windows; then
 		AC_MSG_ERROR([the SVGAWIN library not supported in this host])
 	fi
 	if test $ac_lib_sdl = no; then
@@ -1030,17 +1035,20 @@ echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
 echo "Other :" $ac_lib_other
-if test $ac_lib_video_flag = no; then
-	AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
-fi
-if test $ac_lib_sound_flag = no; then
-	AC_MSG_ERROR([no sound library found])
-fi
-if test $ac_lib_keyboard_flag = no; then
-	AC_MSG_ERROR([no keyboard library found])
+echo ""
+
+if test $ac_enable_debug = no ; then
+	if test $ac_lib_video_flag = no; then
+		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+	fi
+	if test $ac_lib_sound_flag = no; then
+		AC_MSG_ERROR([no sound library found])
+	fi
+	if test $ac_lib_keyboard_flag = no; then
+		AC_MSG_ERROR([no keyboard library found])
+	fi
 fi
 
-echo ""
 echo "== Compiler =="
 echo "CC :" $CC
 echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
@@ -1051,5 +1059,4 @@ echo "Emulator :" $ac_with_emu
 if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
-
 

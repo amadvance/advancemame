@@ -51,7 +51,6 @@ inptport.c
 inptport.h
 input.c
 input.h
-legacy.h
 mame.c
 mame.h
 mame.mak
@@ -62,8 +61,6 @@ md5.c
 md5.h
 memory.c
 memory.h
-network.c
-network.h
 osdepend.h
 palette.c
 palette.h
