@@ -332,7 +332,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 	}
 }
 
-void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, preview_t preview, game_sort_t sort_mode, difficulty_t difficulty, bool lock)
+void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, listpreview_t preview, listsort_t sort_mode, difficulty_t difficulty, bool lock)
 {
 	int_clear(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
@@ -524,7 +524,7 @@ bool sound_find_preview(resource& path, const config_state& rs, const game* pgam
 	return false;
 }
 
-bool backdrop_find_preview_strict(resource& path, preview_t preview, const game* pgame, bool only_clip)
+bool backdrop_find_preview_strict(resource& path, listpreview_t preview, const game* pgame, bool only_clip)
 {
 	if (pgame) {
 		switch (preview) {
@@ -541,12 +541,12 @@ bool backdrop_find_preview_strict(resource& path, preview_t preview, const game*
 				return true;
 			break;
 		case preview_snap :
+			if (pgame->preview_find(path, &game::preview_clip_get))
+				return true;
 			if (!only_clip) {
 				if (pgame->preview_find(path, &game::preview_snap_get))
 					return true;
 			}
-			if (pgame->preview_find(path, &game::preview_clip_get))
-				return true;
 			break;
 		case preview_flyer :
 			if (pgame->preview_find(path, &game::preview_flyer_get))
@@ -562,7 +562,7 @@ bool backdrop_find_preview_strict(resource& path, preview_t preview, const game*
 	return false;
 }
 
-bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& aspecty, preview_t preview, const game* pgame, const config_state& rs)
+bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& aspecty, listpreview_t preview, const game* pgame, const config_state& rs)
 {
 	if (backdrop_find_preview_strict(path, preview, pgame, false))
 		return true;
@@ -606,7 +606,7 @@ bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& 
 	return path.is_valid();
 }
 
-void backdrop_game_set(const game* effective_game, unsigned back_pos, preview_t preview, bool current, bool highlight, bool clip, config_state& rs)
+void backdrop_game_set(const game* effective_game, unsigned back_pos, listpreview_t preview, bool current, bool highlight, bool clip, config_state& rs)
 {
 	resource backdrop_res;
 	resource clip_res;
@@ -644,7 +644,7 @@ void backdrop_game_set(const game* effective_game, unsigned back_pos, preview_t 
 	}
 }
 
-void backdrop_index_set(unsigned pos, menu_array& gc, unsigned back_pos, preview_t preview, bool current, bool highlight, bool clip, config_state& rs)
+void backdrop_index_set(unsigned pos, menu_array& gc, unsigned back_pos, listpreview_t preview, bool current, bool highlight, bool clip, config_state& rs)
 {
 	const game* effective_game;
 
@@ -685,10 +685,10 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 	target_clock_t back_stop = back_start + rs.repeat_rep * TARGET_CLOCKS_PER_SEC / 666; // / 666 = * 3 / 2 / 1000
 
 	// short busy wait (int_keypressed contains a idle call) */
-	while (!int_keypressed() && (target_clock() < back_stop)) {
+	while (!int_event_waiting() && (target_clock() < back_stop)) {
 	}
 
-	if (!int_keypressed()) {
+	if (!int_event_waiting()) {
 		bool sound_done = false; // game sound terminated
 		bool clip_done = false; // clip sound terminate
 
@@ -707,7 +707,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 		}
 
 		// wait until something pressed
-		while (!int_keypressed()) {
+		while (!int_event_waiting()) {
 			// start some background music if required
 
 			if (!play_background_is_active()) {
@@ -866,7 +866,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	bar_right_dx = int_font_dx_get()/2;
 
 	// effective preview type
-	preview_t effective_preview;
+	listpreview_t effective_preview;
 	switch (rs.mode_get()) {
 	case mode_tile_icon : effective_preview = preview_icon; break;
 	case mode_tile_marquee : effective_preview = preview_marquee; break;
@@ -1574,7 +1574,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		log_std(("menu: wait end\n"));
 
-		key = int_getkey(false);
+		key = int_event_get(false);
 
 		log_std(("menu: key %d\n", key));
 
@@ -1584,7 +1584,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 
 		switch (key) {
-		case INT_KEY_INS :
+		case EVENT_INS :
 			if (pos_base + pos_rel < gc.size() && pos_base + pos_rel > 0) {
 				unsigned new_pos = pos_base + pos_rel - 1;
 				string i = gc[new_pos]->category(category_extract);
@@ -1593,7 +1593,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 			}
 			break;
-		case INT_KEY_DEL :
+		case EVENT_DEL :
 			if (pos_base + pos_rel < gc.size()) {
 				unsigned new_pos = pos_base + pos_rel;
 				string i = gc[new_pos]->category(category_extract);
@@ -1628,38 +1628,38 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				}
 			}
 			break;
-		case INT_KEY_ENTER :
-		case INT_KEY_RUN_CLONE :
-		case INT_KEY_LOCK :
+		case EVENT_ENTER :
+		case EVENT_RUN_CLONE :
+		case EVENT_LOCK :
 			done = true;
 			break;
-		case INT_KEY_IDLE_0 :
-		case INT_KEY_IDLE_1 :
+		case EVENT_IDLE_0 :
+		case EVENT_IDLE_1 :
 			done = true;
 			break;
 		}
 		if (!rs.lock_effective)
 		switch (key) {
-		case INT_KEY_MODE :
-		case INT_KEY_HELP :
-		case INT_KEY_GROUP :
-		case INT_KEY_TYPE :
-		case INT_KEY_EXCLUDE :
-		case INT_KEY_SORT :
-		case INT_KEY_SETGROUP :
-		case INT_KEY_SETTYPE :
-		case INT_KEY_COMMAND :
-		case INT_KEY_MENU :
-		case INT_KEY_EMU :
-		case INT_KEY_ROTATE :
-		case INT_KEY_SPACE :
+		case EVENT_MODE :
+		case EVENT_HELP :
+		case EVENT_GROUP :
+		case EVENT_TYPE :
+		case EVENT_ATTRIB :
+		case EVENT_SORT :
+		case EVENT_SETGROUP :
+		case EVENT_SETTYPE :
+		case EVENT_COMMAND :
+		case EVENT_MENU :
+		case EVENT_EMU :
+		case EVENT_ROTATE :
+		case EVENT_PREVIEW :
 			done = true;
 			break;
-		case INT_KEY_ESC :
+		case EVENT_ESC :
 			if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
 				done = true;
 			break;
-		case INT_KEY_OFF :
+		case EVENT_OFF :
 			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
 				done = true;
 			break;
@@ -1674,7 +1674,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	}
 
-	if (key == INT_KEY_IDLE_0) {
+	if (key == EVENT_IDLE_0) {
 		if (gc.size() > 0) {
 			unsigned pos = rand() % gc.size();
 			while (pos < gc.size() && !gc[pos]->has_game())
@@ -1703,7 +1703,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 	bool done = false;
 	int key = 0;
 	unsigned counter = 0;
-	preview_t preview = preview_snap;
+	listpreview_t preview = preview_snap;
 
 	switch (rs.idle_saver_type) {
 	case saver_snap : preview = preview_snap; break;
@@ -1780,13 +1780,13 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 		run_background_wait(rs, sound, false, false, 0, 1);
 
-		key = int_getkey(false);
+		key = int_event_get(false);
 
-		if (key != INT_KEY_IDLE_1) {
+		if (key != EVENT_IDLE_1) {
 			done = true;
 
 			// select the game if the user press enter
-			if (found && key == INT_KEY_ENTER) {
+			if (found && key == EVENT_ENTER) {
 				rs.current_game = &gc[pos]->game_get();
 			}
 		}
@@ -1809,9 +1809,9 @@ int run_menu_idle_off()
 	while (!done) {
 		int_update();
 
-		key = int_getkey(false);
+		key = int_event_get(false);
 
-		if (key != INT_KEY_IDLE_1)
+		if (key != EVENT_IDLE_1)
 			done = true;
 	}
 
@@ -1875,7 +1875,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				run_menu_idle_off();
 			else {
 				key = run_menu_idle(rs, gc);
-				if (key == INT_KEY_ENTER)
+				if (key == EVENT_ENTER)
 					done = true;
 			}
 			idle = false;
@@ -1888,7 +1888,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 			silent = false;
 
 			switch (key) {
-			case INT_KEY_IDLE_1 :
+			case EVENT_IDLE_1 :
 				idle = true;
 				break;
 			default:
@@ -1921,7 +1921,7 @@ void run_runinfo(config_state& rs)
 		return;
 
 	if (rs.ui_gamesaver != saver_off) {
-		preview_t preview = preview_snap;
+		listpreview_t preview = preview_snap;
 		switch (rs.ui_gamesaver) {
 		case saver_snap : preview = preview_snap; break;
 		case saver_play : preview = preview_snap; break;
@@ -2027,7 +2027,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		category_func = sort_item_timepersession;
 		break;
 	default:
-		return INT_KEY_NONE;
+		return EVENT_NONE;
 	}
 
 	string emu_msg;
@@ -2184,7 +2184,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 		if (!rs.lock_effective)
 		switch (key) {
-		case INT_KEY_MODE :
+		case EVENT_MODE :
 			if (rs.mode_mask) {
 				do {
 					switch (rs.mode_get()) {
@@ -2204,7 +2204,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 				} while ((rs.mode_get() & rs.mode_mask) == 0);
 			}
 			break;
-		case INT_KEY_SPACE :
+		case EVENT_PREVIEW :
 			if (rs.preview_mask) {
 				do {
 					switch (rs.preview_get()) {
@@ -2220,24 +2220,24 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			break;
 		}
 		switch (key) {
-		case INT_KEY_ENTER :
-		case INT_KEY_RUN_CLONE :
-		case INT_KEY_IDLE_0 :
-		case INT_KEY_IDLE_1 :
-		case INT_KEY_LOCK :
-		case INT_KEY_HELP :
-		case INT_KEY_GROUP :
-		case INT_KEY_TYPE :
-		case INT_KEY_EXCLUDE :
-		case INT_KEY_SORT :
-		case INT_KEY_SETGROUP :
-		case INT_KEY_SETTYPE :
-		case INT_KEY_COMMAND :
-		case INT_KEY_MENU :
-		case INT_KEY_EMU :
-		case INT_KEY_ROTATE :
-		case INT_KEY_ESC :
-		case INT_KEY_OFF :
+		case EVENT_ENTER :
+		case EVENT_RUN_CLONE :
+		case EVENT_IDLE_0 :
+		case EVENT_IDLE_1 :
+		case EVENT_LOCK :
+		case EVENT_HELP :
+		case EVENT_GROUP :
+		case EVENT_TYPE :
+		case EVENT_ATTRIB :
+		case EVENT_SORT :
+		case EVENT_SETGROUP :
+		case EVENT_SETTYPE :
+		case EVENT_COMMAND :
+		case EVENT_MENU :
+		case EVENT_EMU :
+		case EVENT_ROTATE :
+		case EVENT_ESC :
+		case EVENT_OFF :
 			done = true;
 			break;
 		}

@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <sstream>
 #include <set>
+#include <deque>
 #include <cmath>
 
 using namespace std;
@@ -158,45 +159,51 @@ static void int_joystick_done()
 	joystickb_done();
 }
 
-static int int_joystick_button_raw_poll()
+static void int_joystick_button_raw_poll()
 {
 	for(int i=0;i<joystickb_count_get();++i) {
 		for(int j=0;j<joystickb_button_count_get(i);++j) {
 			if (joystickb_button_get(i, j)) {
 				switch (j) {
-					case 0 : return INT_KEY_ENTER;
-					case 1 : return INT_KEY_ESC;
-					case 2 : return INT_KEY_MENU;
-					case 3 : return INT_KEY_SPACE;
-					case 4 : return INT_KEY_MODE;
+				case 0 :
+					event_push(EVENT_ENTER);
+					break;
+				case 1 :
+					event_push(EVENT_ESC);
+					break;
+				case 2 :
+					event_push(EVENT_MENU);
+					break;
+				case 3 :
+					event_push(EVENT_PREVIEW);
+					break;
+				case 4 :
+					event_push(EVENT_MODE);
+					break;
 				}
 			}
 		}
 	}
-
-	return INT_KEY_NONE;
 }
 
-static int int_joystick_move_raw_poll()
+static void int_joystick_move_raw_poll()
 {
 	for(int i=0;i<joystickb_count_get();++i) {
 		for(int j=0;j<joystickb_stick_count_get(i);++j) {
 			if (joystickb_stick_axe_count_get(i, j) > 0) {
 				if (joystickb_stick_axe_digital_get(i, j, 0, 0))
-					return INT_KEY_RIGHT;
+					event_push(EVENT_RIGHT);
 				if (joystickb_stick_axe_digital_get(i, j, 0, 1))
-					return INT_KEY_LEFT;
+					event_push(EVENT_LEFT);
 			}
 			if (joystickb_stick_axe_count_get(i, j) > 1) {
 				if (joystickb_stick_axe_digital_get(i, j, 1, 0))
-					return INT_KEY_DOWN;
+					event_push(EVENT_DOWN);
 				if (joystickb_stick_axe_digital_get(i, j, 1, 1))
-					return INT_KEY_UP;
+					event_push(EVENT_UP);
 			}
 		}
 	}
-
-	return INT_KEY_NONE;
 }
 
 // -----------------------------------------------------------------------
@@ -289,29 +296,28 @@ static void int_mouse_done()
 	mouseb_done();
 }
 
-static int int_mouse_button_raw_poll()
+static void int_mouse_button_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
 		if (mouseb_button_count_get(i) > 0 && mouseb_button_get(i, 0))
-			return INT_KEY_ENTER;
+			event_push(EVENT_ENTER);
 
 		if (mouseb_button_count_get(i) > 1 && mouseb_button_get(i, 1))
-			return INT_KEY_ESC;
+			event_push(EVENT_ESC);
 
 		if (mouseb_button_count_get(i) > 2 && mouseb_button_get(i, 2))
-			return INT_KEY_MENU;
+			event_push(EVENT_MENU);
 	}
-
-	return INT_KEY_NONE;
 }
 
-static int int_mouse_move_raw_poll()
+static void int_mouse_move_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
 		int x, y;
 
 		x = 0;
 		y = 0;
+
 		if (mouseb_axe_count_get(i) > 0)
 			int_mouse_pos_x += mouseb_axe_get(i, 0);
 		if (mouseb_axe_count_get(i) > 1)
@@ -320,25 +326,23 @@ static int int_mouse_move_raw_poll()
 
 	if (int_mouse_pos_x >= int_mouse_delta) {
 		int_mouse_pos_x -= int_mouse_delta;
-		return INT_KEY_RIGHT;
+		event_push_repeat(EVENT_RIGHT);
 	}
 
 	if (int_mouse_pos_x <= -int_mouse_delta) {
 		int_mouse_pos_x += int_mouse_delta;
-		return INT_KEY_LEFT;
+		event_push_repeat(EVENT_LEFT);
 	}
 
 	if (int_mouse_pos_y >= int_mouse_delta) {
 		int_mouse_pos_y -= int_mouse_delta;
-		return INT_KEY_DOWN;
+		event_push_repeat(EVENT_DOWN);
 	}
 
 	if (int_mouse_pos_y <= -int_mouse_delta) {
 		int_mouse_pos_y += int_mouse_delta;
-		return INT_KEY_UP;
+		event_push_repeat(EVENT_UP);
 	}
-
-	return INT_KEY_NONE;
 }
 
 // -------------------------------------------------------------------------
@@ -456,22 +460,13 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 
 static bool int_updating_active; // if updating at the video is possible, or we are in a drawing stage
 
-static string int_sound_event_key; // sound for a key press
-
-static bool int_alpha_mode; // enabled key to ascii conversion
-
 static double int_gamma; // video gamma
 static double int_brightness; // video brightness
-
-static int int_key_next = INT_KEY_NONE; // next key
-static int int_key_last = INT_KEY_NONE; // last key
 
 static unsigned int_idle_0; // seconds before the first 0 event
 static unsigned int_idle_0_rep; // seconds before the second 0 event
 static unsigned int_idle_1; // seconds before the first 1 event
 static unsigned int_idle_1_rep; // seconds before the second 1 event
-static unsigned int_repeat; // milli seconds before the first key repeat event
-static unsigned int_repeat_rep; // milli seconds before the second key repeat event
 static time_t int_idle_time_current; // last time check in idle
 static bool int_idle_0_state; // idle event 0 enabler
 static bool int_idle_1_state; // idle event 1 enabler
@@ -559,13 +554,12 @@ void int_unreg(void)
 	int_key_unreg();
 }
 
-bool int_init(unsigned size, const string& sound_event_key)
+bool int_init(unsigned size)
 {
 	unsigned index;
 	bool mode_found = false;
 
 	int_mode_size = size;
-	int_sound_event_key = sound_event_key;
 	mode_reset(&int_current_mode);
 
 	if (video_init() != 0) {
@@ -647,17 +641,13 @@ void int_done()
 	video_done();
 }
 
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast)
 {
-	int_alpha_mode = alpha_mode;
-
 	int_idle_time_current = time(0);
 	int_idle_0 = idle_0;
 	int_idle_1 = idle_1;
 	int_idle_0_rep = idle_0_rep;
 	int_idle_1_rep = idle_1_rep;
-	int_repeat = repeat;
-	int_repeat_rep = repeat_rep;
 	int_idle_0_state = true;
 	int_idle_1_state = true;
 	int_wait_for_backdrop = !backdrop_fast;
@@ -803,20 +793,22 @@ static int fast_exit_handler(void)
 	if (int_wait_for_backdrop)
 		return 0;
 
-	// update the next key
-	int_keypressed();
+	// update
+	int_event_waiting();
 
-	return int_key_next == INT_KEY_PGUP
-		|| int_key_next == INT_KEY_PGDN
-		|| int_key_next == INT_KEY_INS
-		|| int_key_next == INT_KEY_DEL
-		|| int_key_next == INT_KEY_HOME
-		|| int_key_next == INT_KEY_END
-		|| int_key_next == INT_KEY_UP
-		|| int_key_next == INT_KEY_DOWN
-		|| int_key_next == INT_KEY_LEFT
-		|| int_key_next == INT_KEY_RIGHT
-		|| int_key_next == INT_KEY_MODE;
+	int key = event_peek();
+
+	return key == EVENT_PGUP
+		|| key == EVENT_PGDN
+		|| key == EVENT_INS
+		|| key == EVENT_DEL
+		|| key == EVENT_HOME
+		|| key == EVENT_END
+		|| key == EVENT_UP
+		|| key == EVENT_DOWN
+		|| key == EVENT_LEFT
+		|| key == EVENT_RIGHT
+		|| key == EVENT_MODE;
 }
 
 // -------------------------------------------------------------------------
@@ -1313,9 +1305,8 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		unsigned pal_size;
 		unsigned tick;
 
-		int r = adv_mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		int r = adv_mng_read_done(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
 		if (r != 0) {
-			adv_mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
@@ -1324,19 +1315,11 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
-			adv_mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
 
 		free(pal_ptr);
-
-		// duplicate the bitmap, it must exists also after destroying the mng context
-		adv_bitmap* dup_bitmap = adv_bitmap_dup(bitmap);
-		adv_bitmap_free(bitmap);
-		bitmap = dup_bitmap;
-
-		adv_mng_done(mng);
 		fzclose(f);
 
 		return bitmap;
@@ -1407,10 +1390,7 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 
 	video_pipeline_done(&pipeline);
 
-	adv_bitmap_free(bitmap);
-	bitmap = raw_bitmap;
-
-	return bitmap;
+	return raw_bitmap;
 }
 
 void backdrop_data::load(struct cell_pos_t* cell, const adv_color_rgb& background, double aspect_expand)
@@ -1431,11 +1411,14 @@ void backdrop_data::load(struct cell_pos_t* cell, const adv_color_rgb& backgroun
 
 	cell->compute_size(&dst_dx, &dst_dy, bitmap, aspectx, aspecty, aspect_expand);
 
-	bitmap = adapt(bitmap, rgb, &rgb_max, dst_dx, dst_dy);
-	if (!bitmap)
+	adv_bitmap* scaled_bitmap = adapt(bitmap, rgb, &rgb_max, dst_dx, dst_dy);
+
+	adv_bitmap_free(bitmap);
+
+	if (!scaled_bitmap)
 		return;
 
-	map = bitmap;
+	map = scaled_bitmap;
 }
 
 // -------------------------------------------------------------------------
@@ -2523,256 +2506,22 @@ void int_update(bool progressive)
 	int_update_post(int_update_pre(progressive));
 }
 
-//---------------------------------------------------------------------------
-// Key
-
-#define SEQ_MAX 256
-
-struct key_cvt {
-	const char* name;
-	unsigned event;
-	unsigned seq[SEQ_MAX];
-};
-
-// Special operator
-#define OP_NONE KEYB_MAX
-#define OP_OR (KEYB_MAX + 1)
-#define OP_NOT (KEYB_MAX + 2)
-
-static struct key_cvt KEYTAB[] = {
-{"up", INT_KEY_UP, { KEYB_UP, OP_OR, KEYB_8_PAD, KEYB_MAX } },
-{"down", INT_KEY_DOWN, { KEYB_DOWN, OP_OR, KEYB_2_PAD, KEYB_MAX } },
-{"left", INT_KEY_LEFT, { KEYB_LEFT, OP_OR, KEYB_4_PAD, KEYB_MAX } },
-{"right", INT_KEY_RIGHT, { KEYB_RIGHT, OP_OR, KEYB_6_PAD, KEYB_MAX } },
-{"enter", INT_KEY_ENTER, { KEYB_ENTER, OP_OR, KEYB_ENTER_PAD, KEYB_MAX } },
-{"shutdown", INT_KEY_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
-{"esc", INT_KEY_ESC, { KEYB_ESC, KEYB_MAX } },
-{"space", INT_KEY_SPACE, { KEYB_SPACE, KEYB_MAX } },
-{"mode", INT_KEY_MODE, { KEYB_TAB, KEYB_MAX } },
-{"home", INT_KEY_HOME, { KEYB_HOME, KEYB_MAX } },
-{"end", INT_KEY_END, { KEYB_END, KEYB_MAX } },
-{"pgup", INT_KEY_PGUP, { KEYB_PGUP, KEYB_MAX } },
-{"pgdn", INT_KEY_PGDN, { KEYB_PGDN, KEYB_MAX } },
-{"help", INT_KEY_HELP, { KEYB_F1, KEYB_MAX } },
-{"group", INT_KEY_GROUP, { KEYB_F2, KEYB_MAX } },
-{"type", INT_KEY_TYPE, { KEYB_F3, KEYB_MAX } },
-{"exclude", INT_KEY_EXCLUDE, { KEYB_F4, KEYB_MAX } },
-{"sort", INT_KEY_SORT, { KEYB_F5, KEYB_MAX } },
-{"setgroup", INT_KEY_SETGROUP, { KEYB_F9, KEYB_MAX } },
-{"settype", INT_KEY_SETTYPE, { KEYB_F10, KEYB_MAX } },
-{"runclone", INT_KEY_RUN_CLONE, { KEYB_F12, KEYB_MAX } },
-{"del", INT_KEY_DEL, { KEYB_DEL, KEYB_MAX } },
-{"ins", INT_KEY_INS, { KEYB_INSERT, KEYB_MAX } },
-{"command", INT_KEY_COMMAND, { KEYB_F8, KEYB_MAX } },
-{"menu", INT_KEY_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
-{"emulator", INT_KEY_EMU, { KEYB_F6, KEYB_MAX } },
-{"snapshot", INT_KEY_SNAPSHOT, { KEYB_PERIOD_PAD, KEYB_MAX } },
-{"rotate", INT_KEY_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
-{"lock", INT_KEY_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
-{ 0, 0, { 0 } }
-};
-
-static int seq_pressed(const unsigned* code)
+static void key_poll()
 {
-	int j;
-	int res = 1;
-	int invert = 0;
-	int count = 0;
-
-	for(j=0;j<SEQ_MAX;++j) {
-		switch (code[j]) {
-			case OP_NONE :
-				return res && count;
-			case OP_OR :
-				if (res && count)
-					return 1;
-				res = 1;
-				count = 0;
-				break;
-			case OP_NOT :
-				invert = !invert;
-				break;
-			default:
-				if (res) {
-					adv_bool pressed = 0;
-					for(unsigned k=0;k<keyb_count_get();++k)
-						pressed = pressed || (keyb_get(k, code[j]) != 0);
-					if ((pressed != 0) == invert)
-						res = 0;
-				}
-				invert = 0;
-				++count;
-		}
-	}
-	return res && count;
-}
-
-static int seq_valid(const unsigned* seq)
-{
-	int j;
-	int positive = 0; // if isn't a completly negative sequence
-	int pred_not = 0;
-	int operand = 0;
-	for(j=0;j<SEQ_MAX;++j)
-	{
-		switch (seq[j])
-		{
-			case OP_NONE :
-				return positive && operand;
-			case OP_OR :
-				if (!operand || !positive)
-					return 0;
-				pred_not = 0;
-				positive = 0;
-				operand = 0;
-				break;
-			case OP_NOT :
-				if (pred_not)
-					return 0;
-				pred_not = !pred_not;
-				operand = 0;
-				break;
-			default:
-				if (!pred_not)
-					positive = 1;
-				pred_not = 0;
-				operand = 1;
-				break;
-		}
+	if (os_is_quit()) {
+		event_push(EVENT_ESC);
 	}
 
-	return positive && operand;
-}
-
-static struct key_conv {
-	int code;
-	char c;
-} KEY_CONV[] = {
-{ KEYB_A, 'a' },
-{ KEYB_B, 'b' },
-{ KEYB_C, 'c' },
-{ KEYB_D, 'd' },
-{ KEYB_E, 'e' },
-{ KEYB_F, 'f' },
-{ KEYB_G, 'g' },
-{ KEYB_H, 'h' },
-{ KEYB_I, 'i' },
-{ KEYB_J, 'j' },
-{ KEYB_K, 'k' },
-{ KEYB_L, 'l' },
-{ KEYB_M, 'm' },
-{ KEYB_N, 'n' },
-{ KEYB_O, 'o' },
-{ KEYB_P, 'p' },
-{ KEYB_Q, 'q' },
-{ KEYB_R, 'r' },
-{ KEYB_S, 's' },
-{ KEYB_T, 't' },
-{ KEYB_U, 'u' },
-{ KEYB_V, 'v' },
-{ KEYB_W, 'w' },
-{ KEYB_X, 'x' },
-{ KEYB_Y, 'y' },
-{ KEYB_Z, 'z' },
-{ KEYB_0, '0' },
-{ KEYB_1, '1' },
-{ KEYB_2, '2' },
-{ KEYB_3, '3' },
-{ KEYB_4, '4' },
-{ KEYB_5, '5' },
-{ KEYB_6, '6' },
-{ KEYB_7, '7' },
-{ KEYB_8, '8' },
-{ KEYB_9, '9' },
-{ KEYB_MAX, ' ' },
-};
-
-static int keyboard_raw_poll()
-{
-	for(const struct key_cvt* i=KEYTAB;i->name;++i) {
-		if (seq_pressed(i->seq))
-			return i->event;
-	}
-
-	if (int_alpha_mode) {
-		for(unsigned i=0;KEY_CONV[i].code != KEYB_MAX;++i) {
-			for(unsigned k=0;k<keyb_count_get();++k)
-				if (keyb_get(k, KEY_CONV[i].code))
-					return KEY_CONV[i].c;
-		}
-	}
-
-	return INT_KEY_NONE;
-}
-
-static int key_poll()
-{
-	static int key_repeat_last = INT_KEY_NONE;
-
-	static target_clock_t key_repeat_last_time = 0;
-	static bool key_repeat_last_counter = 0;
-
-	int r = INT_KEY_NONE;
-
-	if (r == INT_KEY_NONE) {
-		if (os_is_quit())
-			r = INT_KEY_ESC;
-	}
-
-	if (r == INT_KEY_NONE) {
-		r = keyboard_raw_poll();
-	}
-
-	if (r == INT_KEY_NONE) {
-		r = int_joystick_button_raw_poll();
-	}
-
-	if (r == INT_KEY_NONE) {
-		r = int_mouse_button_raw_poll();
-	}
-
-	if (r == INT_KEY_NONE) {
-		r = int_mouse_move_raw_poll();
-
-		// never repeat or wait or play for the mouse movements
-		if (r != INT_KEY_NONE) {
-			key_repeat_last = r;
-			key_repeat_last_counter = 0;
-			key_repeat_last_time = target_clock();
-			return r;
-		}
-	}
-
-	if (r == INT_KEY_NONE) {
-		r = int_joystick_move_raw_poll();
-	}
-
-	if (r == INT_KEY_NONE) {
-		key_repeat_last = INT_KEY_NONE;
-		key_repeat_last_counter = 0;
-		key_repeat_last_time = target_clock();
-		return INT_KEY_NONE;
-	} else if (r != key_repeat_last) {
-		key_repeat_last = r;
-		key_repeat_last_counter = 0;
-		key_repeat_last_time = target_clock();
-		play_foreground_effect_key(int_sound_event_key);
-		return r;
-	} else {
-		if ((key_repeat_last_counter == 0 && (target_clock() - key_repeat_last_time > int_repeat * TARGET_CLOCKS_PER_SEC / 1000)) ||
-			(key_repeat_last_counter > 0 && (target_clock() - key_repeat_last_time > int_repeat_rep * TARGET_CLOCKS_PER_SEC / 1000))) {
-			key_repeat_last_time = target_clock();
-			++key_repeat_last_counter;
-			return r;
-		} else {
-			return INT_KEY_NONE;
-		}
-	}
+	event_poll();
+	int_joystick_button_raw_poll();
+	int_joystick_move_raw_poll();
+	int_mouse_button_raw_poll();
+	int_mouse_move_raw_poll();
 }
 
 void int_idle_repeat_reset()
 {
-	int_key_last = INT_KEY_NONE;
+	event_forget();
 }
 
 void int_idle_time_reset()
@@ -2792,19 +2541,19 @@ void int_idle_1_enable(bool state)
 
 static void int_idle()
 {
-	if (int_idle_0_state && int_key_last == INT_KEY_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time_current > int_idle_0_rep)
-		int_key_next = INT_KEY_IDLE_0;
+	if (int_idle_0_state && event_last() == EVENT_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time_current > int_idle_0_rep)
+		event_push(EVENT_IDLE_0);
 
-	if (int_idle_1_state && int_key_last == INT_KEY_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time_current > int_idle_1_rep)
-		int_key_next = INT_KEY_IDLE_1;
+	if (int_idle_1_state && event_last() == EVENT_IDLE_1 && int_idle_1_rep && time(0) - int_idle_time_current > int_idle_1_rep)
+		event_push(EVENT_IDLE_1);
 
 	if (int_idle_0_state && int_idle_0 && time(0) - int_idle_time_current > int_idle_0)
-		int_key_next = INT_KEY_IDLE_0;
+		event_push(EVENT_IDLE_0);
 
 	if (int_idle_1_state && int_idle_1 && time(0) - int_idle_time_current > int_idle_1)
-		int_key_next = INT_KEY_IDLE_1;
+		event_push(EVENT_IDLE_1);
 
-	if (int_key_next == INT_KEY_NONE) {
+	if (event_peek() == EVENT_NONE) {
 		if (int_updating_active) {
 			if (int_cell) {
 				// idle only if there is time
@@ -2826,11 +2575,11 @@ static void int_idle()
 	joystickb_poll();
 }
 
-int int_keypressed()
+int int_event_waiting()
 {
 	static target_clock_t key_pressed_last_time = 0;
 
-	if (int_key_next != INT_KEY_NONE)
+	if (event_peek() != EVENT_NONE)
 		return 1;
 
 	target_clock_t now = target_clock();
@@ -2842,31 +2591,29 @@ int int_keypressed()
 	if (now - key_pressed_last_time >= TARGET_CLOCKS_PER_SEC / 25) {
 		key_pressed_last_time = now;
 
-		int_key_next = key_poll();
-
-		if (int_key_next != INT_KEY_NONE)
-			return 1;
+		key_poll();
 	}
+
+	if (event_peek() != EVENT_NONE)
+		return 1;
 
 	return 0;
 }
 
-unsigned int_getkey(bool update_background)
+unsigned int_event_get(bool update_background)
 {
 	if (update_background)
 		int_update();
 
 	// wait for a keypress, internally a idle call is already done
-	while (!int_keypressed()) {
+	while (!int_event_waiting()) {
 		int_idle();
 	}
 
 	int_idle_time_current = time(0);
 
-	assert(int_key_next != INT_KEY_NONE);
-
 #if 0 /* OSDEF: Save interface image, only for debugging. */
-	if (int_key_next == INT_KEY_INS) {
+	if (event_peek() == EVENT_INS) {
 		char name[256];
 		static int ssn = 0;
 		++ssn;
@@ -2880,105 +2627,7 @@ unsigned int_getkey(bool update_background)
 	}
 #endif
 
-	int_key_last = int_key_next;
-	int_key_next = INT_KEY_NONE;
-
-	return int_key_last;
-}
-
-static void int_key_insert(unsigned event, unsigned* seq)
-{
-	unsigned i;
-	for(i=0;KEYTAB[i].name && KEYTAB[i].event != event;++i);
-	if (KEYTAB[i].name) {
-		unsigned j;
-		for(j=0;seq[j]!=OP_NONE;++j)
-			KEYTAB[i].seq[j] = seq[j];
-		KEYTAB[i].seq[j] = OP_NONE;
-	}
-}
-
-static unsigned string2event(const string& s)
-{
-	unsigned i;
-	for(i=0;KEYTAB[i].name && KEYTAB[i].name != s;++i);
-	if (KEYTAB[i].name)
-		return KEYTAB[i].event;
-	else
-		return INT_KEY_NONE;
-}
-
-bool int_key_in(const string& s)
-{
-	string sevent;
-	unsigned seq[SEQ_MAX];
-	unsigned seq_count;
-	int pos = 0;
-
-	sevent = arg_get(s, pos);
-
-	unsigned event = string2event(sevent);
-	if (event == INT_KEY_NONE)
-		return false;
-
-	seq_count = 0;
-	while (pos < s.length()) {
-		if (seq_count+1 >= SEQ_MAX)
-			return false;
-
-		string skey = arg_get(s, pos);
-		if (skey == "or") {
-			seq[seq_count++] = OP_OR;
-		} else if (skey == "not") {
-			seq[seq_count++] = OP_NOT;
-		} else if (skey == "and") {
-			/* nothing */
-		} else {
-			unsigned key;
-			key = key_code(skey.c_str());
-			if (key == KEYB_MAX) {
-				// support the old scan code format only numeric
-				if (skey.find_first_not_of("0123456789") == string::npos)
-					key = atoi(skey.c_str());
-				if (key >= KEYB_MAX) {
-					return false;
-				}
-			}
-			seq[seq_count++] = key;
-		}
-	}
-
-	seq[seq_count] = OP_NONE;
-
-	if (!seq_valid(seq))
-		return false;
-
-	int_key_insert(event, seq);
-
-	return true;
-}
-
-void int_key_out(adv_conf* config_context, const char* tag)
-{
-	for(unsigned i=0;KEYTAB[i].name;++i) {
-		string s;
-		s += KEYTAB[i].name;
-		s += " ";
-		for(unsigned j=0;KEYTAB[i].seq[j] != KEYB_MAX && j<SEQ_MAX;++j) {
-			unsigned k = KEYTAB[i].seq[j];
-			if (j != 0)
-				s += " ";
-			if (k == OP_OR)
-				s += "or";
-			else if (k == OP_NOT)
-				s += "and";
-			else {
-				s += key_name(k);
-			}
-		}
-
-		conf_set(config_context, "", tag, s.c_str());
-	}
+	return event_pop();
 }
 
 //---------------------------------------------------------------------------

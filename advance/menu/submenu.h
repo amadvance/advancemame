@@ -35,6 +35,7 @@ void run_group_next(config_state& rs);
 void run_group_move(config_state& rs);
 void run_clone(config_state& rs);
 void run_command(config_state& rs);
+void run_config(config_state& rs);
 void run_emu(config_state& rs);
 void run_emu_next(config_state& rs);
 emulator* run_emu_select(config_state& rs);
@@ -50,6 +51,7 @@ void run_stat(config_state& rs);
 #define SECOND_CHOICE_Y (FIRST_CHOICE_Y + int_font_dx_get()*2)
 #define THIRD_CHOICE_X (SECOND_CHOICE_X + int_font_dx_get()*2)
 #define THIRD_CHOICE_Y (SECOND_CHOICE_Y + int_font_dx_get()*2)
-
+#define FOURTH_CHOICE_X (THIRD_CHOICE_X + int_font_dx_get()*2)
+#define FOURTH_CHOICE_Y (THIRD_CHOICE_Y + int_font_dx_get()*2)
 
 #endif

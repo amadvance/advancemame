@@ -110,7 +110,7 @@ void adv_bitmap_move(adv_bitmap* dst, adv_bitmap* src)
  * \param height Height.
  * \param pixel Bytes per pixel.
  * \param dat_ptr Pointer at the allocated data. If this pointer is
- * different than 0 the data freed when calling ::bitmap_free().
+ * different than 0 the data is freed when calling ::bitmap_free().
  * \param dat_size Size of the allocated data.
  * \param ptr Pointer at the first pixel.
  * \param scanline Bytes per scanline.
@@ -132,17 +132,17 @@ adv_bitmap* adv_bitmap_import_rgb(unsigned width, unsigned height, unsigned pixe
 
 /**
  * Create a palette bitmap allocated externally.
- * \param rgb Where put the bitmap palette.
+ * \param rgb Where put the bitmap palette. At least space for pal_size/3 entries is required.
  * \param rgb_max Where put the bitmap palette size.
  * \param width Width.
  * \param height Height.
  * \param pixel Bytes per pixel.
  * \param dat_ptr Pointer at the allocated data. If this pointer is
- * different than 0 the data freed when calling ::bitmap_free().
+ * different than 0 the data is freed when calling ::bitmap_free().
  * \param dat_size Size of the allocated data.
  * \param ptr Pointer at the first pixel.
  * \param scanline Bytes per scanline.
- * \param pal_ptr Raw palette data in R,G,B byte format.
+ * \param pal_ptr Raw palette data in RGB byte format.
  * \param pal_size Size in byte of the raw palette data.
  */
 adv_bitmap* adv_bitmap_import_palette(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size)

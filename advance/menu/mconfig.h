@@ -42,7 +42,7 @@ enum clip_mode_t {
 };
 
 /// Type of sorting.
-enum game_sort_t {
+enum listsort_t {
 	sort_by_group,
 	sort_by_name,
 	sort_by_root_name,
@@ -122,7 +122,7 @@ typedef bool (*pgame_sort_func)(const game*, const game*);
 typedef std::set<const game*, pgame_sort_func> pgame_sort_set;
 
 /// Type of mode.
-enum show_t {
+enum listmode_t {
 	mode_list = 1,
 	mode_tile_small = 2,
 	mode_tile_normal = 4,
@@ -138,7 +138,7 @@ enum show_t {
 };
 
 /// Type of image to display.
-enum preview_t {
+enum listpreview_t {
 	preview_snap = 1,
 	preview_flyer = 2,
 	preview_cabinet = 4,
@@ -182,19 +182,19 @@ typedef std::list<script> script_container;
 
 class config_emulator_state {
 	bool sort_set_orig; ///< If the sort is set.
-	game_sort_t sort_orig; ///< Original sort mode.
+	listsort_t sort_orig; ///< Original sort mode.
 	bool sort_set_effective; ///< If the sort is set.
-	game_sort_t sort_effective; ///< Sort mode.
+	listsort_t sort_effective; ///< Sort mode.
 
 	bool mode_set_orig; ///< If the mode is set.
-	show_t mode_orig; ///< Original list mode.
+	listmode_t mode_orig; ///< Original list mode.
 	bool mode_set_effective; ///< If the mode is set.
-	show_t mode_effective; ///< List mode.
+	listmode_t mode_effective; ///< List mode.
 
 	bool preview_set_orig; ///< If the preview is set.
-	preview_t preview_orig; ///< Original preview type selected.
+	listpreview_t preview_orig; ///< Original preview type selected.
 	bool preview_set_effective; ///< If the preview is set.
-	preview_t preview_effective; ///< Preview type selected.
+	listpreview_t preview_effective; ///< Preview type selected.
 
 	bool include_group_set_orig; ///< If the group include is set.
 	category_container include_group_orig; ///< Original Included groups.
@@ -213,9 +213,9 @@ public:
 	void restore_load();
 	void restore_save();
 
-	game_sort_t sort_get();
-	show_t mode_get();
-	preview_t preview_get();
+	listsort_t sort_get();
+	listmode_t mode_get();
+	listpreview_t preview_get();
 	const category_container& include_group_get();
 	const category_container& include_type_get();
 
@@ -231,9 +231,9 @@ public:
 	void include_group_unset();
 	void include_type_unset();
 
-	void sort_set(game_sort_t A);
-	void mode_set(show_t A);
-	void preview_set(preview_t A);
+	void sort_set(listsort_t A);
+	void mode_set(listmode_t A);
+	void preview_set(listpreview_t A);
 	void include_group_set(const category_container& A);
 	void include_type_set(const category_container& A);
 };
@@ -251,14 +251,14 @@ class config_state {
 
 	emulator* sub_emu; ///< Sub emu selected.
 
-	game_sort_t default_sort_orig; ///< Original sort mode.
-	game_sort_t default_sort_effective; ///< Sort mode.
+	listsort_t default_sort_orig; ///< Original sort mode.
+	listsort_t default_sort_effective; ///< Sort mode.
 
-	show_t default_mode_orig; ///< Original list mode.
-	show_t default_mode_effective; ///< List mode.
+	listmode_t default_mode_orig; ///< Original list mode.
+	listmode_t default_mode_effective; ///< List mode.
 
-	preview_t default_preview_orig; ///< Original preview type selected.
-	preview_t default_preview_effective; ///< Preview type selected.
+	listpreview_t default_preview_orig; ///< Original preview type selected.
+	listpreview_t default_preview_effective; ///< Preview type selected.
 
 	category_container default_include_group_orig; ///< Original Included groups.
 	category_container default_include_group_effective; ///< Included groups.
@@ -270,15 +270,15 @@ class config_state {
 	emulator_container include_emu_effective; ///< Included emulators.
 
 public:
-	game_sort_t sort_get();
-	show_t mode_get();
-	preview_t preview_get();
+	listsort_t sort_get();
+	listmode_t mode_get();
+	listpreview_t preview_get();
 	const category_container& include_group_get();
 	const category_container& include_type_get();
 
-	void sort_set(game_sort_t A);
-	void mode_set(show_t A);
-	void preview_set(preview_t A);
+	void sort_set(listsort_t A);
+	void mode_set(listmode_t A);
+	void preview_set(listpreview_t A);
 	void include_group_set(const category_container& A);
 	void include_type_set(const category_container& A);
 
@@ -395,6 +395,7 @@ public:
 	std::string ui_game; ///< User interface game image
 
 	bool console_mode; ///< Run in console mode with limited features. Mainly for AdvanceCD.
+	bool menu_key; ///< Show in the menu the associated keys.
 
 	std::string script_menu;
 	std::string script_error;

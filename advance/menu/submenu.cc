@@ -32,9 +32,15 @@
 
 using namespace std;
 
+#define EVENT_TAG(s, e) \
+	(rs.menu_key ? event_tag(s, e) : s)
+
 #define MSG_CHOICE_DX 30*int_font_dx_get()
 #define MSG_CHOICE_X (int_dx_get()-MSG_CHOICE_DX)/2
 #define MSG_CHOICE_Y int_dy_get()/2
+
+/* Define to enable the default settings menus */
+/* #define USE_DEFAULT_SETTINGS */
 
 // ------------------------------------------------------------------------
 // Sort menu
@@ -63,8 +69,8 @@ void run_sort(config_state& rs)
 		i = ch.begin();
 
 	int key = ch.run(" Select Sort Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, SORT_CHOICE_DX, i);
-	if (key == INT_KEY_ENTER) {
-		rs.sort_set((game_sort_t)i->value_get());
+	if (key == EVENT_ENTER) {
+		rs.sort_set((listsort_t)i->value_get());
 	}
 }
 
@@ -158,7 +164,7 @@ void run_command(config_state& rs)
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(string(" ") + rs.script_menu, SECOND_CHOICE_X, SECOND_CHOICE_Y, COMMAND_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		int r;
 		if (i->value_get()>=-1 && i->value_get()<=256) {
 			switch (i->value_get()) {
@@ -251,8 +257,8 @@ void run_mode(config_state& rs)
 
 	int key = ch.run(" Select List Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, MODE_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
-		rs.mode_set((show_t)i->value_get());
+	if (key == EVENT_ENTER) {
+		rs.mode_set((listmode_t)i->value_get());
 	}
 }
 
@@ -278,8 +284,8 @@ void run_preview(config_state& rs)
 
 	int key = ch.run(" Select Preview Mode", THIRD_CHOICE_X, THIRD_CHOICE_Y, PREVIEW_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
-		rs.preview_set((preview_t)i->value_get());
+	if (key == EVENT_ENTER) {
+		rs.preview_set((listpreview_t)i->value_get());
 	}
 }
 
@@ -300,7 +306,7 @@ void run_group(config_state& rs)
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" Include Groups", THIRD_CHOICE_X, THIRD_CHOICE_Y, GROUP_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		category_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -372,7 +378,7 @@ void run_emu(config_state& rs)
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" Include Emulators", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		emulator_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -394,9 +400,9 @@ emulator* run_emu_select(config_state& rs)
 
 	if (ch.size() > 1) {
 		choice_bag::iterator i = ch.begin();
-		int key = ch.run(" Select Emulator", SECOND_CHOICE_X, SECOND_CHOICE_Y, EMU_CHOICE_DX, i);
+		int key = ch.run(" Select Emulator", THIRD_CHOICE_X, THIRD_CHOICE_Y, EMU_CHOICE_DX, i);
 
-		if (key != INT_KEY_ENTER)
+		if (key != EVENT_ENTER)
 			return 0;
 
 		emu = i->desc_get();
@@ -457,7 +463,7 @@ void run_type(config_state& rs)
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" Include Types", THIRD_CHOICE_X, THIRD_CHOICE_Y, TYPE_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		category_container c;
 		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
 			if (j->bistate_get())
@@ -522,9 +528,9 @@ void run_group_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select Game Group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Select Game Group", THIRD_CHOICE_X, THIRD_CHOICE_Y, GROUP_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		rs.current_game->user_group_set(rs.group.insert(i->desc_get()));
 	}
 }
@@ -543,9 +549,9 @@ void run_type_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select Game Type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Select Game Type", THIRD_CHOICE_X, THIRD_CHOICE_Y, TYPE_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		rs.current_game->user_type_set(rs.type.insert(i->desc_get()));
 	}
 }
@@ -595,7 +601,7 @@ void run_clone(config_state& rs)
 
 	i = ch.begin();
 	int key = ch.run(" Select game clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		rs.current_clone = (game*)i->ptr_get();
 	}
 }
@@ -629,7 +635,7 @@ void run_calib(config_state& rs)
 		choice_bag::iterator i = ch.begin();
 		int key = ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
 
-		if (key != INT_KEY_ENTER) {
+		if (key != EVENT_ENTER) {
 			message = 0;
 			break;
 		}
@@ -675,7 +681,7 @@ void run_volume(config_state& rs)
 
 	int key = ch.run(" Volume", SECOND_CHOICE_X, SECOND_CHOICE_Y, VOLUME_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		play_attenuation_set(i->value_get());
 	}
 }
@@ -701,7 +707,7 @@ void run_difficulty(config_state& rs)
 		i = ch.begin();
 	int key = ch.run(" Difficulty", SECOND_CHOICE_X, SECOND_CHOICE_Y, DIFFICULTY_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		rs.difficulty_effective = static_cast<difficulty_t>(i->value_get());
 	}
 }
@@ -709,29 +715,34 @@ void run_difficulty(config_state& rs)
 // ------------------------------------------------------------------------
 // Sub Menu
 
-#define MENU_CHOICE_DX 25*int_font_dx_get()
+#define MENU_CHOICE_DX 20*int_font_dx_get()
 
 unsigned run_suballmenu(config_state& rs)
 {
 	choice_bag ch;
-	unsigned ret = INT_KEY_NONE;
+	unsigned ret = EVENT_NONE;
 
 	rs.sub_disable(); // force the use of the default config
-
-	ch.insert(ch.end(), choice("Sort...", 0));
-	ch.insert(ch.end(), choice("Mode...", 1));
-	ch.insert(ch.end(), choice("Preview...", 2));
-	ch.insert(ch.end(), choice("Type...", 3));
-	ch.insert(ch.end(), choice("Group...", 4));
-	ch.insert(ch.end(), choice("Save Only Default", 5));
-	ch.insert(ch.end(), choice("Save All", 6));
+	if (rs.group.size() > 1)
+		ch.insert(ch.end(), choice(EVENT_TAG("Game Group...", EVENT_SETGROUP), 7));
+	if (rs.type.size() > 1)
+		ch.insert(ch.end(), choice(EVENT_TAG("Game Type...", EVENT_SETTYPE), 8));
+#ifdef USE_DEFAULT_SETTINGS
+	ch.insert(ch.end(), choice("Default Sort...", 0));
+	ch.insert(ch.end(), choice("Default Mode...", 1));
+	ch.insert(ch.end(), choice("Default Preview...", 2));
+	ch.insert(ch.end(), choice("Default Types...", 3));
+	ch.insert(ch.end(), choice("Default Groups...", 4));
+#endif
+	ch.insert(ch.end(), choice("Calibration...", 9));
+	ch.insert(ch.end(), choice("Save", 6));
+	ch.insert(ch.end(), choice("Restore", 20));
+	ch.insert(ch.end(), choice(EVENT_TAG("Lock", EVENT_LOCK), 11));
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Default Config", SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
+	int key = ch.run(" Settings", SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
-		emulator* emu;
-
+	if (key == EVENT_ENTER) {
 		switch (i->value_get()) {
 			case 0 :
 				run_sort(rs);
@@ -748,11 +759,23 @@ unsigned run_suballmenu(config_state& rs)
 			case 4 :
 				run_group(rs);
 				break;
-			case 5 :
-				rs.restore_save_default();
-				break;
 			case 6 :
 				rs.restore_save();
+				break;
+			case 20 :
+				rs.restore_load();
+				break;
+			case 7 :
+				run_group_move(rs);
+				break;
+			case 8 :
+				run_type_move(rs);
+				break;
+			case 9 :
+				run_calib(rs);
+				break;
+			case 11 :
+				rs.lock_effective = !rs.lock_effective;
 				break;
 		}
 	}
@@ -765,26 +788,34 @@ unsigned run_suballmenu(config_state& rs)
 unsigned run_subthismenu(config_state& rs)
 {
 	choice_bag ch;
-	unsigned ret = INT_KEY_NONE;
+	unsigned ret = EVENT_NONE;
 
-	ch.insert(ch.end(), choice("Sort...", 0));
-	ch.insert(ch.end(), choice("  Forget and use Default", 6, rs.sub_get().sort_has()));
-	ch.insert(ch.end(), choice("Mode...", 1));
-	ch.insert(ch.end(), choice("  Forget and use Default", 7, rs.sub_get().mode_has()));
-	ch.insert(ch.end(), choice("Preview...", 2));
-	ch.insert(ch.end(), choice("  Forget and use Default", 8, rs.sub_get().preview_has()));
-	ch.insert(ch.end(), choice("Type...", 3));
-	ch.insert(ch.end(), choice("  Forget and use Default", 9, rs.sub_get().include_type_has()));
-	ch.insert(ch.end(), choice("Group...", 4));
-	ch.insert(ch.end(), choice("  Forget and use Default", 10, rs.sub_get().include_group_has()));
-	ch.insert(ch.end(), choice("Save", 5));
+	ch.insert(ch.end(), choice(EVENT_TAG("Sort...", EVENT_SORT), 0));
+	ch.insert(ch.end(), choice(EVENT_TAG("Mode...", EVENT_MODE), 1));
+	ch.insert(ch.end(), choice(EVENT_TAG("Preview...", EVENT_PREVIEW), 2));
+	ch.insert(ch.end(), choice(EVENT_TAG("Groups...", EVENT_GROUP), 4));
+	ch.insert(ch.end(), choice(EVENT_TAG("Types...", EVENT_TYPE), 3));
+	ch.insert(ch.end(), choice(EVENT_TAG("Filters...", EVENT_ATTRIB), 11, rs.include_emu_get().size() != 0));
+
+	string title;
+	if (rs.sub_has()) {
+		title = " Listing Emulator";
+#ifdef USE_DEFAULT_SETTINGS
+		ch.insert(ch.end(), choice("Use Default Sort", 6, rs.sub_get().sort_has()));
+		ch.insert(ch.end(), choice("Use Default Mode", 7, rs.sub_get().mode_has()));
+		ch.insert(ch.end(), choice("Use Default Preview", 8, rs.sub_get().preview_has()));
+		ch.insert(ch.end(), choice("Use Default Type", 9, rs.sub_get().include_type_has()));
+		ch.insert(ch.end(), choice("Use Default Group", 10, rs.sub_get().include_group_has()));
+#endif
+	} else {
+		title = " Listing Multiple";
+	}
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Only This Emulator Config", SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
+	int key = ch.run(title, SECOND_CHOICE_X, SECOND_CHOICE_Y, MENU_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
+	if (key == EVENT_ENTER) {
 		emulator* emu;
-
 		switch (i->value_get()) {
 			case 0 :
 				run_sort(rs);
@@ -819,6 +850,11 @@ unsigned run_subthismenu(config_state& rs)
 			case 10 :
 				rs.sub_get().include_group_unset();
 				break;
+			case 11 :
+				emu = run_emu_select(rs);
+				if (emu)
+					emu->attrib_run(FOURTH_CHOICE_X, FOURTH_CHOICE_Y);
+				break;
 		}
 	}
 
@@ -828,52 +864,41 @@ unsigned run_subthismenu(config_state& rs)
 unsigned run_submenu(config_state& rs)
 {
 	choice_bag ch;
-	unsigned ret = INT_KEY_NONE;
+	unsigned ret = EVENT_NONE;
 
 	if (!rs.console_mode) {
-		ch.insert(ch.end(), choice("Config - Default...", 0));
-		ch.insert(ch.end(), choice("Config - Only This Emulator...", 1, rs.sub_has()));
 		if (rs.emu.size() > 1)
-			ch.insert(ch.end(), choice("Select - Emulator...", 4));
-		ch.insert(ch.end(), choice("Select - Attribute...", 3));
-		ch.insert(ch.end(), choice("Select - Calibration...", 13));
-		ch.insert(ch.end(), choice("Select - Volume...", 16));
-		ch.insert(ch.end(), choice("Select - Difficulty...", 17));
-		ch.insert(ch.end(), choice("Select - Lock-Unlock", 12));
-		if (rs.type.size() > 1)
-			ch.insert(ch.end(), choice("Game - Set Type...", 8));
-		if (rs.group.size() > 1)
-			ch.insert(ch.end(), choice("Game - Set Group...", 9));
-		ch.insert(ch.end(), choice("Game - Run", 14));
-		ch.insert(ch.end(), choice("Game - Run Clone...", 15));
-		ch.insert(ch.end(), choice(rs.script_menu, 7));
-		ch.insert(ch.end(), choice("Help", 10));
+		ch.insert(ch.end(), choice("Listing...", 1));
+		ch.insert(ch.end(), choice("Settings...", 0));
+		if (rs.emu.size() > 1)
+			ch.insert(ch.end(), choice(EVENT_TAG("Emulators...", EVENT_EMU), 7));
+		ch.insert(ch.end(), choice("Volume...", 16));
+		ch.insert(ch.end(), choice("Difficulty...", 17));
+		ch.insert(ch.end(), choice(EVENT_TAG(rs.script_menu, EVENT_COMMAND), 8));
+		ch.insert(ch.end(), choice(EVENT_TAG("Clone...", EVENT_RUN_CLONE), 15));
+		ch.insert(ch.end(), choice(EVENT_TAG("Help", EVENT_HELP), 10));
 			ch.insert(ch.end(), choice("Statistics", 18));
 	} else {
+		ch.insert(ch.end(), choice(EVENT_TAG("Help", EVENT_HELP), 10));
 		if (rs.emu.size() > 1)
-			ch.insert(ch.end(), choice("Emulator", 4));
-		ch.insert(ch.end(), choice("Volume", 16));
-		ch.insert(ch.end(), choice("Difficulty", 17));
-		ch.insert(ch.end(), choice("Run", 14));
-		ch.insert(ch.end(), choice("Clone", 15));
+			ch.insert(ch.end(), choice(EVENT_TAG("Emulators...", EVENT_EMU), 7));
+		ch.insert(ch.end(), choice("Volume...", 16));
+		ch.insert(ch.end(), choice("Difficulty...", 17));
 		if (rs.script_bag.size()!=0)
-				ch.insert(ch.end(), choice(rs.script_menu, 7));
-		ch.insert(ch.end(), choice("Help", 10));
+			ch.insert(ch.end(), choice(EVENT_TAG(rs.script_menu, EVENT_COMMAND), 8));
 	}
 
 	if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all) {
-		ch.insert(ch.end(), choice("Exit", 19));
+		ch.insert(ch.end(), choice(EVENT_TAG("Exit", EVENT_ESC), 19));
 	}
 	if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
-		ch.insert(ch.end(), choice("Poweroff", 20));
+		ch.insert(ch.end(), choice(EVENT_TAG("Poweroff", EVENT_OFF), 20));
 	}
 
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" Menu", FIRST_CHOICE_X, FIRST_CHOICE_Y, MENU_CHOICE_DX, i);
 
-	if (key == INT_KEY_ENTER) {
-		emulator* emu;
-
+	if (key == EVENT_ENTER) {
 		switch (i->value_get()) {
 			case 0 :
 				run_suballmenu(rs);
@@ -881,40 +906,20 @@ unsigned run_submenu(config_state& rs)
 			case 1 :
 				run_subthismenu(rs);
 				break;
-			case 3 :
-				emu = run_emu_select(rs);
-				if (emu)
-					emu->attrib_run();
-				break;
-			case 4 :
+			case 7 :
 				run_emu(rs);
 				break;
-			case 7 :
-				run_command(rs);
-				break;
 			case 8 :
-				run_type_move(rs);
-				break;
-			case 9 :
-				run_group_move(rs);
+				run_command(rs);
 				break;
 			case 10 :
 				run_help(rs);
 				break;
-			case 11 :
-				rs.restore_save();
-				break;
-			case 12 :
-				rs.lock_effective = !rs.lock_effective;
-				break;
-			case 13 :
-				run_calib(rs);
-				break;
 			case 14 :
-				ret = INT_KEY_ENTER;
+				ret = EVENT_ENTER;
 				break;
 			case 15 :
-				ret = INT_KEY_RUN_CLONE;
+				ret = EVENT_RUN_CLONE;
 				break;
 			case 16 :
 				run_volume(rs);
@@ -926,10 +931,10 @@ unsigned run_submenu(config_state& rs)
 				run_stat(rs);
 				break;
 			case 19 :
-				ret = INT_KEY_ESC;
+				ret = EVENT_ESC;
 				break;
 			case 20 :
-				ret = INT_KEY_OFF;
+				ret = EVENT_OFF;
 				break;
 		}
 	}
@@ -1070,7 +1075,7 @@ void run_help(config_state& rs)
 		}
 	}
 
-	int_getkey();
+	int_event_get();
 }
 
 // ------------------------------------------------------------------------
@@ -1266,7 +1271,7 @@ void run_stat(config_state& rs)
 		}
 	}
 
-	int_getkey();
+	int_event_get();
 }
 
 

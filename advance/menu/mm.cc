@@ -41,7 +41,7 @@ int run_sub(config_state& rs, bool silent)
 	log_std(("menu: int_init4 call\n"));
 
 	if (!int_enable(rs.video_fontx, rs.video_fonty, rs.video_font_path, rs.video_orientation_effective)) {
-		return INT_KEY_ESC;
+		return EVENT_ESC;
 	}
 
 	bool done = false;
@@ -58,77 +58,81 @@ int run_sub(config_state& rs, bool silent)
 		// don't replay the sound and clip
 		silent = true;
 
-		if (rs.console_mode && key == INT_KEY_ESC)
-			key = INT_KEY_MENU;
+		if (rs.console_mode && key == EVENT_ESC)
+			key = EVENT_MENU;
 
 		if (!rs.lock_effective) {
-			if (key == INT_KEY_MENU) {
+			if (key == EVENT_MENU) {
+				// replay the sound and clip
+				silent = false;
 				key = run_submenu(rs);
 			}
 
 			switch (key) {
-				case INT_KEY_HELP :
+				case EVENT_HELP :
+					// replay the sound and clip
+					silent = false;
 					run_help(rs);
 					break;
-				case INT_KEY_GROUP :
+				case EVENT_GROUP :
 					// replay the sound and clip
 					silent = false;
 					run_group_next(rs);
 					break;
-					case INT_KEY_EMU :
+				case EVENT_EMU :
 					// replay the sound and clip
 					silent = false;
 					run_emu_next(rs);
-						break;
-				case INT_KEY_TYPE :
+					break;
+				case EVENT_TYPE :
 					// replay the sound and clip
 					silent = false;
 					run_type_next(rs);
 					break;
-				case INT_KEY_EXCLUDE :
+				case EVENT_ATTRIB :
 					// replay the sound and clip
 					silent = false;
 					emu = run_emu_select(rs);
 					if (emu)
-						emu->attrib_run();
+						emu->attrib_run(SECOND_CHOICE_X, SECOND_CHOICE_Y);
 					break;
-				case INT_KEY_COMMAND :
+				case EVENT_COMMAND :
 					run_command(rs);
 					break;
-				case INT_KEY_SORT :
+				case EVENT_SORT :
 					// replay the sound and clip
 					silent = false;
 					run_sort(rs);
 					break;
-				case INT_KEY_SETGROUP :
+				case EVENT_SETGROUP :
 					// replay the sound and clip
 					silent = false;
 					run_group_move(rs);
 					break;
-				case INT_KEY_SETTYPE :
+				case EVENT_SETTYPE :
 					// replay the sound and clip
 					silent = false;
 					run_type_move(rs);
 					break;
-				case INT_KEY_ROTATE :
-				case INT_KEY_ESC :
-				case INT_KEY_OFF :
+				case EVENT_ROTATE :
+				case EVENT_ESC :
+				case EVENT_OFF :
 					done = true;
 					break;
 			}
 		}
 		switch (key) {
-			case INT_KEY_LOCK :
+			case EVENT_LOCK :
 				rs.lock_effective = !rs.lock_effective;
 				break;
-			case INT_KEY_IDLE_0 :
+			case EVENT_IDLE_0 :
 				if (rs.current_game) {
 					rs.current_clone = &rs.current_game->clone_best_get();
 					done = true;
 					is_run = true;
 				}
 				break;
-			case INT_KEY_RUN_CLONE :
+			case EVENT_RUN_CLONE :
 				// replay the sound and clip
 				silent = false;
 				run_clone(rs);
@@ -137,7 +141,7 @@ int run_sub(config_state& rs, bool silent)
 					is_run = true;
 				}
 				break;
-			case INT_KEY_ENTER :
+			case EVENT_ENTER :
 				// replay the sound and clip
 				silent = false;
 				if (rs.current_game) {
@@ -172,10 +176,8 @@ int run_main(config_state& rs, bool is_first, bool silent)
 {
 	log_std(("menu: int_set call\n"));
 
-	if (!int_set(rs.video_gamma, rs.video_brightness,
-		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
-		rs.preview_fast, rs.alpha_mode)) {
-		return INT_KEY_ESC;
+	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast)) {
+		return EVENT_ESC;
 	}
 
 	log_std(("menu: play_init call\n"));
@@ -183,7 +185,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		int_unset(true);
 		target_err("Error initializing the sound mixer.\n");
 		target_err("Try with the option '-device_sound none'.\n");
-		return INT_KEY_ESC;
+		return EVENT_ESC;
 	}
 
 	// play start background sounds
@@ -219,7 +221,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 
 		if (!rs.lock_effective)
 		switch (key) {
-			case INT_KEY_ROTATE : {
+			case EVENT_ROTATE : {
 					unsigned mirror = rs.video_orientation_effective & (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y);
 					unsigned flip = rs.video_orientation_effective & ADV_ORIENTATION_FLIP_XY;
 					if (mirror == 0) {
@@ -235,16 +237,16 @@ int run_main(config_state& rs, bool is_first, bool silent)
 					rs.video_orientation_effective = flip | mirror;
 				}
 				break;
-			case INT_KEY_ESC :
-			case INT_KEY_OFF :
+			case EVENT_ESC :
+			case EVENT_OFF :
 				done = true;
 				is_terminate = true;
 				break;
 		}
 		switch (key) {
-			case INT_KEY_IDLE_0 :
-			case INT_KEY_ENTER :
-			case INT_KEY_RUN_CLONE :
+			case EVENT_IDLE_0 :
+			case EVENT_ENTER :
+			case EVENT_RUN_CLONE :
 				if (rs.current_game && rs.current_clone) {
 					done = true;
 					is_run = true;
@@ -317,14 +319,14 @@ int run_all(adv_conf* config_context, config_state& rs)
 		silent = false;
 
 		switch (key) {
-			case INT_KEY_ESC :
-			case INT_KEY_OFF :
+			case EVENT_ESC :
+			case EVENT_OFF :
 				done = true;
 				break;
-			case INT_KEY_ENTER :
-			case INT_KEY_IDLE_0 :
-			case INT_KEY_RUN_CLONE :
-				if (key == INT_KEY_IDLE_0) {
+			case EVENT_IDLE_0 :
+			case EVENT_ENTER :
+			case EVENT_RUN_CLONE :
+				if (key == EVENT_IDLE_0) {
 					// don't replay the sound and clip
 					silent = true;
 				}
@@ -343,10 +345,12 @@ int run_all(adv_conf* config_context, config_state& rs)
 							bios = &rs.current_clone->bios_get();
 						else
 							bios = rs.current_clone;
-						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == INT_KEY_IDLE_0);
+						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == EVENT_IDLE_0);
 					} else {
-						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == INT_KEY_IDLE_0);
+						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == EVENT_IDLE_0);
 					}
+
+					event_forget();
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -765,7 +769,9 @@ int os_main(int argc, char* argv[])
 		goto err_init;
 	}
 
-	if (!int_init(rs.video_size, rs.sound_foreground_key)) {
+	event_setup(rs.sound_foreground_key, rs.repeat, rs.repeat_rep, rs.alpha_mode);
+
+	if (!int_init(rs.video_size)) {
 		goto err_inner_init;
 	}
 	
@@ -800,7 +806,7 @@ done_init:
 	int_unreg();
 	os_done();
 
-	if (key == INT_KEY_OFF)
+	if (key == EVENT_OFF)
 		target_apm_shutdown();
 
 	conf_done(config_context);

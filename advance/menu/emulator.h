@@ -105,7 +105,7 @@ public:
 	static const unsigned flag_derived_deco = game::flag_user << 5;
 	static const unsigned flag_derived_playchoice = game::flag_user << 6;
 
-	virtual void attrib_run() = 0;
+	virtual void attrib_run(int x, int y) = 0;
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0, const std::string& value1);
@@ -214,7 +214,7 @@ public:
 	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
 	virtual bool filter(const game& g) const;
 
-	virtual void attrib_run();
+	virtual void attrib_run(int x, int y);
 };
 
 class mame_mame : public mame_info {
@@ -230,7 +230,7 @@ protected:
 public:
 	mame_mame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg, bool Asupport_difficulty, bool Asupport_attenuation);
 
-	virtual void attrib_run();
+	virtual void attrib_run(int x, int y);
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0, const std::string& value1);
@@ -336,7 +336,7 @@ protected:
 public:
 	raine_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual void attrib_run();
+	virtual void attrib_run(int x, int y);
 	virtual void attrib_load();
 	virtual void attrib_save();
 	virtual bool attrib_set(const std::string& value0, const std::string& value1);
@@ -365,7 +365,7 @@ class generic : public emulator {
 public:
 	generic(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual void attrib_run();
+	virtual void attrib_run(int x, int y);
 	virtual bool tree_get() const;
 
 	virtual bool load_cfg(const game_set& gar, bool quiet);

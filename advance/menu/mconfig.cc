@@ -248,6 +248,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "mode_skip", "");
 	conf_int_register_enum_default(config_context, "misc_exit", conf_enum(OPTION_EXIT), exit_normal);
 	conf_bool_register_default(config_context, "ui_console", 0);
+	conf_bool_register_default(config_context, "ui_menukey", 1);
 	conf_string_register_multi(config_context, "event_assign");
 	conf_string_register_multi(config_context, "ui_color");
 	conf_string_register_default(config_context, "idle_start", "0 0");
@@ -302,7 +303,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_limit_default(config_context, "ui_skipright", 0, 1000, 0);
 	conf_bool_register_default(config_context, "ui_bottombar", 1);
 	conf_bool_register_default(config_context, "ui_topbar", 1);
-	conf_string_register_default(config_context, "ui_command_menu", "Command");
+	conf_string_register_default(config_context, "ui_command_menu", "Command...");
 	conf_string_register_default(config_context, "ui_command_error", "Error running the command");
 	conf_string_register_multi(config_context, "ui_command");
 }
@@ -743,9 +744,9 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	current_backdrop = resource();
 	current_sound = resource();
 
-	default_sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
-	default_mode_orig = (show_t)conf_int_get_default(config_context, "mode");
-	default_preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
+	default_sort_orig = (listsort_t)conf_int_get_default(config_context, "sort");
+	default_mode_orig = (listmode_t)conf_int_get_default(config_context, "mode");
+	default_preview_orig = (listpreview_t)conf_int_get_default(config_context, "preview");
 
 	if (!config_path(conf_string_get_default(config_context, "ui_background"), ui_back))
 		return false;
@@ -770,7 +771,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	exit_mode = (exit_t)conf_int_get_default(config_context, "misc_exit");
 	console_mode = conf_bool_get_default(config_context, "ui_console");
-	if (!config_load_iterator(config_context, "event_assign", int_key_in))
+	menu_key = conf_bool_get_default(config_context, "ui_menukey");
+	if (!config_load_iterator(config_context, "event_assign", event_in))
 		return false;
 	if (!config_load_iterator(config_context, "ui_color", int_color_in))
 		return false;
@@ -1169,7 +1171,7 @@ void config_state::conf_default(adv_conf* config_context)
 
 	conf_iterator_begin(&i, config_context, "event_assign");
 	if (conf_iterator_is_end(&i)) {
-		int_key_out(config_context, "event_assign");
+		event_out(config_context, "event_assign");
 	}
 }
 
@@ -1389,7 +1391,7 @@ const emulator_container& config_state::include_emu_get()
 	return include_emu_effective;
 }
 
-game_sort_t config_state::sort_get()
+listsort_t config_state::sort_get()
 {
 	if (sub_has() && sub_get().sort_has())
 		return sub_get().sort_get();
@@ -1397,7 +1399,7 @@ game_sort_t config_state::sort_get()
 		return default_sort_effective;
 }
 
-show_t config_state::mode_get()
+listmode_t config_state::mode_get()
 {
 	if (sub_has() && sub_get().mode_has())
 		return sub_get().mode_get();
@@ -1405,7 +1407,7 @@ show_t config_state::mode_get()
 		return default_mode_effective;
 }
 
-preview_t config_state::preview_get()
+listpreview_t config_state::preview_get()
 {
 	if (sub_has() && sub_get().preview_has())
 		return sub_get().preview_get();
@@ -1429,7 +1431,7 @@ const category_container& config_state::include_type_get()
 		return default_include_type_effective;
 }
 
-void config_state::sort_set(game_sort_t A)
+void config_state::sort_set(listsort_t A)
 {
 	if (sub_has())
 		sub_get().sort_set(A);
@@ -1437,7 +1439,7 @@ void config_state::sort_set(game_sort_t A)
 		default_sort_effective = A;
 }
 
-void config_state::mode_set(show_t A)
+void config_state::mode_set(listmode_t A)
 {
 	if (sub_has())
 		sub_get().mode_set(A);
@@ -1445,7 +1447,7 @@ void config_state::mode_set(show_t A)
 		default_mode_effective = A;
 }
 
-void config_state::preview_set(preview_t A)
+void config_state::preview_set(listpreview_t A)
 {
 	if (sub_has())
 		sub_get().preview_set(A);
@@ -1590,21 +1592,21 @@ bool config_emulator_state::load(adv_conf* config_context, const string& section
 
 	if (conf_int_section_get(config_context, section.c_str(), "sort", &i) == 0) {
 		sort_set_orig = true;
-		sort_orig = (game_sort_t)i;
+		sort_orig = (listsort_t)i;
 	} else {
 		sort_set_orig = false;
 	}
 
 	if (conf_int_section_get(config_context, section.c_str(), "mode", &i) == 0) {
 		mode_set_orig = true;
-		mode_orig = (show_t)i;
+		mode_orig = (listmode_t)i;
 	} else {
 		mode_set_orig = false;
 	}
 
 	if (conf_int_section_get(config_context, section.c_str(), "preview", &i) == 0) {
 		preview_set_orig = true;
-		preview_orig = (preview_t)i;
+		preview_orig = (listpreview_t)i;
 	} else {
 		preview_set_orig = false;
 	}
@@ -1716,17 +1718,17 @@ bool config_emulator_state::include_type_has()
 	return include_type_set_effective;
 }
 
-game_sort_t config_emulator_state::sort_get()
+listsort_t config_emulator_state::sort_get()
 {
 	return sort_effective;
 }
 
-show_t config_emulator_state::mode_get()
+listmode_t config_emulator_state::mode_get()
 {
 	return mode_effective;
 }
 
-preview_t config_emulator_state::preview_get()
+listpreview_t config_emulator_state::preview_get()
 {
 	return preview_effective;
 }
@@ -1741,19 +1743,19 @@ const category_container& config_emulator_state::include_type_get()
 	return include_type_effective;
 }
 
-void config_emulator_state::sort_set(game_sort_t A)
+void config_emulator_state::sort_set(listsort_t A)
 {
 	sort_set_effective = true;
 	sort_effective = A;
 }
 
-void config_emulator_state::mode_set(show_t A)
+void config_emulator_state::mode_set(listmode_t A)
 {
 	mode_set_effective = true;
 	mode_effective = A;
 }
 
-void config_emulator_state::preview_set(preview_t A)
+void config_emulator_state::preview_set(listpreview_t A)
 {
 	preview_set_effective = true;
 	preview_effective = A;

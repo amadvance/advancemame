@@ -22,6 +22,7 @@
 #define __TEXT_H
 
 #include "resource.h"
+#include "event.h"
 #include "conf.h"
 #include "bitmap.h"
 
@@ -42,9 +43,9 @@ struct int_color {
 void int_reg(adv_conf* config_context);
 void int_unreg();
 bool int_load(adv_conf* config_context);
-bool int_init(unsigned video_size, const std::string& sound_event_key);
+bool int_init(unsigned video_size);
 void int_done();
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast);
 void int_unset(bool reset_video_mode);
 bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientation);
 void int_disable();
@@ -82,8 +83,8 @@ void int_update(bool progressive = true);
 unsigned int_update_pre(bool progressive = false);
 void int_update_post(unsigned y = 0);
 
-unsigned int_getkey(bool update_background = true);
-int int_keypressed();
+unsigned int_event_get(bool update_background = true);
+int int_event_waiting();
 
 void int_idle_repeat_reset();
 void int_idle_time_reset();
@@ -96,45 +97,6 @@ int int_font_dy_get();
 
 int int_dx_get();
 int int_dy_get();
-
-// -------------------------------------------------------------------------
-// Key
-
-#define INT_KEY_NONE (1 << 16)
-#define INT_KEY_UP (2 << 16)
-#define INT_KEY_DOWN (3 << 16)
-#define INT_KEY_LEFT (4 << 16)
-#define INT_KEY_RIGHT (5 << 16)
-#define INT_KEY_ENTER (6 << 16)
-#define INT_KEY_ESC (7 << 16)
-#define INT_KEY_SPACE (8 << 16)
-#define INT_KEY_MODE (9 << 16)
-#define INT_KEY_HOME (10 << 16)
-#define INT_KEY_END (11 << 16)
-#define INT_KEY_PGUP (12 << 16)
-#define INT_KEY_PGDN (13 << 16)
-#define INT_KEY_HELP (14 << 16)
-#define INT_KEY_GROUP (15 << 16)
-#define INT_KEY_TYPE (16 << 16)
-#define INT_KEY_EXCLUDE (17 << 16)
-#define INT_KEY_SORT (18 << 16)
-#define INT_KEY_SETGROUP (19 << 16)
-#define INT_KEY_SETTYPE (20 << 16)
-#define INT_KEY_RUN_CLONE (21 << 16)
-#define INT_KEY_IDLE_0 (22 << 16)
-#define INT_KEY_IDLE_1 (23 << 16)
-#define INT_KEY_SNAPSHOT (24 << 16)
-#define INT_KEY_INS (25 << 16)
-#define INT_KEY_DEL (26 << 16)
-#define INT_KEY_COMMAND (27 << 16)
-#define INT_KEY_OFF (28 << 16)
-#define INT_KEY_MENU (29 << 16)
-#define INT_KEY_EMU (30 << 16)
-#define INT_KEY_ROTATE (31 << 16)
-#define INT_KEY_LOCK (32 << 16)
-
-bool int_key_in(const std::string& s);
-void int_key_out(adv_conf* config_context, const char* tag);
 
 // -------------------------------------------------------------------------
 // Colors

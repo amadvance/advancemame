@@ -135,6 +135,7 @@ const string& choice::print_get() const
 void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows)
 {
 	int_put_filled(x, y, dx, title, COLOR_CHOICE_TITLE);
+
 	y += int_font_dy_get();
 
 	for(unsigned j=0;j<rows;++j) {
@@ -173,14 +174,25 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 		string tag = token_get(desc, pos, "\t");
 		token_skip(desc, pos, "\t");
 		string rest = token_get(desc, pos, "");
+		string key;
 		if (!rest.length()) {
-			rest = tag;
+			pos = 0;
+			rest = token_get(tag, pos, "^");
+			token_skip(desc, pos, "^");
+			key = token_get(tag, pos, "");
 			tag = "";
 		}
 
 		int_put_filled(x, y, dx, tag, colorf);
+
+		int key_width = 0;
+		if (int_put_width(key) + int_put_width(CHOICE_INDENT_1) + int_put_width(rest) < dx - indent) {
+			key_width = int_put_width(key) + int_put_width(CHOICE_INDENT_1);
+			int_put(x + dx - key_width, y, key_width, key, color);
+		}
+
 		bool in = false;
-		int_put_special(in, x+indent, y, dx-indent, rest, colorf, color, color);
+		int_put_special(in, x+indent, y, dx - indent - key_width, rest, colorf, color, color);
 
 		y += int_font_dy_get();
 	}
@@ -188,8 +200,14 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 
 int choice_bag::run(const string& title, int x, int y, int dx, choice_container::iterator& pos)
 {
-	int key = INT_KEY_ESC;
+	int key = EVENT_ESC;
 	int done = 0;
+	int border = int_font_dx_get() / 2;
+
+	if (x < 0)
+		x = (int_dx_get() - dx - border * 2) / 2;
+	if (y < 0)
+		y = (int_dy_get() - (size() + 1) * int_font_dy_get() - border * 2) / 2;
 
 	int pos_rel_max = (int_dy_get() - y) / int_font_dy_get();
 	pos_rel_max -= 2;
@@ -202,7 +220,6 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int pos_rel = 0;
 
 	int dy = (pos_rel_max+1) * int_font_dy_get();
-	int border = int_font_dx_get()/2;
 
 	int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
 	int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
@@ -216,49 +233,58 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	while (!done) {
 		draw(title, x, y, dx, pos_base, pos_rel, pos_rel_max);
 
-		key = int_getkey();
+		key = int_event_get();
 
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, 1, pos_max);
 
 		switch (key) {
-			case INT_KEY_DEL :
+			case EVENT_DEL :
 				for(iterator i=begin();i!=end();++i) {
 					switch (i->state_get()) {
-						case 2: i->bistate_set(false); break;
-						case 3: i->tristate_set(exclude); break;
+					case 2 : i->bistate_set(false); break;
+					case 3 : i->tristate_set(exclude); break;
 					}
 				}
 			break;
-			case INT_KEY_INS :
+			case EVENT_INS :
 				for(iterator i=begin();i!=end();++i) {
 					switch (i->state_get()) {
-						case 2: i->bistate_set(true); break;
-						case 3: i->tristate_set(include); break;
+					case 2 : i->bistate_set(true); break;
+					case 3 : i->tristate_set(include); break;
 					}
 				}
 			break;
-			case INT_KEY_SPACE :
+			case EVENT_SPACE :
 				pos = begin() + pos_base + pos_rel;
 				switch (pos->state_get()) {
-					case 2:
-						pos->bistate_set(!pos->bistate_get());
-						break;
-					case 3:
-						switch (pos->tristate_get()) {
-							case include : pos->tristate_set(exclude); break;
-							case exclude : pos->tristate_set(exclude_not); break;
-							case exclude_not : pos->tristate_set(include); break;
-						}
-						break;
+				case 2 :
+					pos->bistate_set(!pos->bistate_get());
+					break;
+				case 3 :
+					switch (pos->tristate_get()) {
+					case include : pos->tristate_set(exclude); break;
+					case exclude : pos->tristate_set(exclude_not); break;
+					case exclude_not : pos->tristate_set(include); break;
+					}
+					break;
 				}
 				break;
-			case INT_KEY_ENTER :
+			case EVENT_ENTER :
 				pos = begin() + pos_base + pos_rel;
-				if (pos->active_get())
+				if (pos->active_get()) {
+					if (pos->state_get() == 2 && !pos->bistate_get()) {
+						for(iterator i=begin();i!=end();++i) {
+							if (i->state_get() == 2) {
+								i->bistate_set(false);
+							}
+						}
+						pos->bistate_set(true);
+					}
 					done = 1;
+				}
 				break;
-			case INT_KEY_ESC :
-			case INT_KEY_MENU :
+			case EVENT_ESC :
+			case EVENT_MENU :
 				done = 1;
 				break;
 		}
@@ -330,19 +356,19 @@ void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_bas
 int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max)
 {
 	switch (key) {
-		case INT_KEY_HOME :
+		case EVENT_HOME :
 			menu_pos(0, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
-		case INT_KEY_END :
+		case EVENT_END :
 			menu_pos(pos_max, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
-		case INT_KEY_LEFT :
+		case EVENT_LEFT :
 			if (coln > 1) {
 				menu_pos(pos_base + pos_rel - 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 				break;
 			}
 			// otherwise continue
-		case INT_KEY_PGUP :
+		case EVENT_PGUP :
 			if (pos_base >= pos_rel_max) {
 				pos_base -= pos_rel_max;
 			} else if (pos_base>0) {
@@ -351,13 +377,13 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 				pos_rel = 0;
 			}
 			break;
-		case INT_KEY_RIGHT :
+		case EVENT_RIGHT :
 			if (coln > 1) {
 				menu_pos(pos_base + pos_rel + 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 				break;
 			}
 			// otherwise continue
-		case INT_KEY_PGDN :
+		case EVENT_PGDN :
 			if (pos_base + pos_rel_max <= pos_base_upper) {
 				pos_base += pos_rel_max;
 			} else if (pos_base < pos_base_upper) {
@@ -369,16 +395,16 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 					pos_rel = 0;
 			}
 			break;
-		case INT_KEY_UP :
+		case EVENT_UP :
 			menu_pos(pos_base + pos_rel - coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
-		case INT_KEY_DOWN :
+		case EVENT_DOWN :
 			menu_pos(pos_base + pos_rel + coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
 			break;
 		default:
 			return key;
 	}
 
-	return INT_KEY_NONE;
+	return EVENT_NONE;
 }
 
