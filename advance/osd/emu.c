@@ -39,6 +39,11 @@
 #include "log.h"
 #include "target.h"
 #include "portable.h"
+#include "videoall.h"
+#include "soundall.h"
+#include "keyall.h"
+#include "joyall.h"
+#include "mouseall.h"
 
 #include <signal.h>
 #include <string.h>
@@ -138,6 +143,25 @@ static const mame_game* select_game(const char* gamename)
 
 	free(game_map);
 	return 0;
+}
+
+/***************************************************************************/
+/* Version */
+
+static void version(void)
+{
+	char report_buffer[128];
+	target_out("%s %s\n\n", ADVANCE_TITLE, VERSION);
+	video_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Video:%s\n", report_buffer);
+	sound_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Sound:%s\n", report_buffer);
+	keyb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Keyboard:%s\n", report_buffer);
+	joystickb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Joystick:%s\n", report_buffer);
+	mouseb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Mouse:%s\n", report_buffer);
 }
 
 /***************************************************************************/
@@ -272,6 +296,7 @@ int os_main(int argc, char* argv[])
 	struct advance_context* context = &CONTEXT;
 	adv_conf* cfg_context;
 	const char* section_map[5];
+	const char* include;
 
 	opt_info = 0;
 	opt_xml = 0;
@@ -300,6 +325,9 @@ int os_main(int argc, char* argv[])
 		goto err_conf;
 	}
 
+	/* include file */
+	conf_string_register_default(cfg_context, "include", "");
+
 	if (mame_init(context, cfg_context)!=0)
 		goto err_os;
 	if (advance_global_init(&context->global, cfg_context)!=0)
@@ -319,9 +347,11 @@ int os_main(int argc, char* argv[])
 	if (hardware_script_init(cfg_context)!=0)
 		goto err_os;
 
-	if (file_config_file_root(ADVANCE_NAME ".rc")!=0 && access(file_config_file_root(ADVANCE_NAME ".rc"), R_OK)==0)
-		if (conf_input_file_load_adv(cfg_context, 2, file_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_root(ADVANCE_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(cfg_context, 3, file_config_file_root(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_os;
+		}
+	}
 
 	if (conf_input_file_load_adv(cfg_context, 0, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
@@ -333,7 +363,7 @@ int os_main(int argc, char* argv[])
 		context->global.state.is_config_writable = access(file_config_file_home("."), W_OK)==0;
 	}
 
-	if (conf_input_args_load(cfg_context, 1, "", &argc, argv, error_callback, 0) != 0)
+	if (conf_input_args_load(cfg_context, 2, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
 	option.debug_flag = 0;
@@ -393,7 +423,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_version) {
-		target_out("%s\n", VERSION);
+		version();
 		goto done_os;
 	}
 
@@ -401,8 +431,7 @@ int os_main(int argc, char* argv[])
 		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)==0)) {
 		conf_set_default_if_missing(cfg_context, "");
 		conf_sort(cfg_context);
-		if (conf_save(cfg_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -411,8 +440,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_default) {
 		conf_set_default_if_missing(cfg_context, "");
-		if (conf_save(cfg_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -421,8 +449,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_remove) {
 		conf_remove_if_default(cfg_context, "");
-		if (conf_save(cfg_context, 1) !=0) {
-			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		if (conf_save(cfg_context, 1, error_callback, 0) != 0) {
 			goto err_os;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
@@ -474,6 +501,22 @@ int os_main(int argc, char* argv[])
 	conf_section_set(cfg_context, section_map, 5);
 	for(i=0;i<5;++i)
 		log_std(("advance: use configuration section '%s'\n", section_map[i]));
+
+	/* setup the include configuration file */
+	include = conf_string_get_default(cfg_context, "include");
+	if (include[0]) {
+		const char* include_file = file_config_file_home(include);
+		log_std(("advance: include file '%s'\n", include_file));
+		if (access(include_file, R_OK)!=0) {
+			target_err("Error opening the configuration include file '%s'.\n", include_file);
+			goto err_os;
+		}
+		if (conf_input_file_load_adv(cfg_context, 1, include_file, 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_os;
+		}
+	} else {
+		log_std(("advance: no include file\n"));
+	}
 
 	log_std(("advance: *_load()\n"));
 
@@ -559,8 +602,8 @@ int os_main(int argc, char* argv[])
 
 	log_std(("advance: conf_save()\n"));
 
-	/* save the configuration only if modified */
-	conf_save(cfg_context, 0);
+	/* save the configuration only if modified, ignore the error but print the message */
+	conf_save(cfg_context, 0, error_callback, 0);
 
 	log_std(("advance: conf_done()\n"));
 

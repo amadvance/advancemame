@@ -84,7 +84,7 @@ void sound_none_volume(double volume)
 
 void sound_none_play(const short* sample_map, unsigned sample_count)
 {
-	log_std(("sound: sound_none_play(count:%d)\n", sample_count));
+	log_debug(("sound: sound_none_play(count:%d)\n", sample_count));
 }
 
 unsigned sound_none_flags(void)

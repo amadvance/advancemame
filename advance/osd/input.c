@@ -329,40 +329,13 @@ static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
 /**************************************************************************/
 /* Parse */
 
-static void parse_skip(int* p, const char* s, const char* sep)
-{
-	while (s[*p] && strchr(sep, s[*p])!=0)
-		++*p;
-}
-
-static const char* parse_token(char* c, int* p, char* s, const char* sep, const char* ignore)
-{
-	int v;
-
-	while (s[*p] && strchr(ignore, s[*p])!=0)
-		++*p;
-
-	v = *p;
-
-	while (s[*p] && strchr(sep, s[*p])==0 && strchr(ignore, s[*p])==0)
-		++*p;
-
-	*c = s[*p];
-	if (s[*p]) {
-		s[*p] = 0;
-		++*p;
-	}
-
-	return s + v;
-}
-
 static adv_error parse_int(int* v, const char* s)
 {
 	char* e;
 
 	*v = strtol(s,&e,10);
 
-	if (*e)
+	if (*e!=0 || e == s)
 		return -1;
 
 	return 0;
@@ -559,7 +532,7 @@ static adv_error parse_analog(int* map, char* s)
 	first = 1;
 	mac = 0;
 	p = 0;
-	parse_skip(&p, s, " \t");
+	sskip(&p, s, " \t");
 	while (s[p]) {
 		char c;
 		const char* t;
@@ -567,9 +540,9 @@ static adv_error parse_analog(int* map, char* s)
 		const char* v1;
 		const char* v2;
 
-		t = parse_token(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
-			parse_skip(&p, s, " \t");
+			sskip(&p, s, " \t");
 
 			if (s[p] || c == '[')
 				return -1;
@@ -590,15 +563,15 @@ static adv_error parse_analog(int* map, char* s)
 
 			negate = t[0] == '-';
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, ",", " \t");
+			v1 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v2 = parse_token(&c, &p, s, "]", " \t");
+			v2 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -623,7 +596,7 @@ static adv_error parse_analog(int* map, char* s)
 			return -1;
 		}
 
-		parse_skip(&p, s, " \t");
+		sskip(&p, s, " \t");
 
 		first = 0;
 	}
@@ -646,16 +619,16 @@ static int parse_trak(int* map, char* s)
 	first = 1;
 	mac = 0;
 	p = 0;
-	parse_skip(&p, s, " \t");
+	sskip(&p, s, " \t");
 	while (s[p]) {
 		char c;
 		const char* t;
 		const char* v0;
 		const char* v1;
 
-		t = parse_token(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
-			parse_skip(&p, s, " \t");
+			sskip(&p, s, " \t");
 
 			if (s[p] || c == '[')
 				return -1;
@@ -677,11 +650,11 @@ static int parse_trak(int* map, char* s)
 
 			negate = t[0] == '-';
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, "]", " \t");
+			v1 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -708,11 +681,11 @@ static int parse_trak(int* map, char* s)
 
 			negate = t[0] == '-';
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, "]", " \t");
+			v1 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -734,7 +707,7 @@ static int parse_trak(int* map, char* s)
 			return -1;
 		}
 
-		parse_skip(&p, s, " \t");
+		sskip(&p, s, " \t");
 
 		first = 0;
 	}
@@ -757,7 +730,7 @@ static int parse_digital(unsigned* map, char* s)
 	first = 1;
 	mac = 0;
 	p = 0;
-	parse_skip(&p, s, " \t");
+	sskip(&p, s, " \t");
 	while (s[p]) {
 		char c;
 		const char* t;
@@ -766,9 +739,9 @@ static int parse_digital(unsigned* map, char* s)
 		const char* v2;
 		const char* v3;
 
-		t = parse_token(&c, &p, s, "[", " \t");
+		t = stoken(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
-			parse_skip(&p, s, " \t");
+			sskip(&p, s, " \t");
 
 			if (s[p] || c == '[')
 				return -1;
@@ -785,11 +758,11 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!='[')
 				return -1;
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, "]", " \t");
+			v1 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -816,19 +789,19 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!='[')
 				return -1;
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, ",", " \t");
+			v1 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v2 = parse_token(&c, &p, s, ",", " \t");
+			v2 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v3 = parse_token(&c, &p, s, "]", " \t");
+			v3 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -859,11 +832,11 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!='[')
 				return -1;
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, "]", " \t");
+			v1 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -888,11 +861,11 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!='[')
 				return -1;
 
-			v0 = parse_token(&c, &p, s, ",", " \t");
+			v0 = stoken(&c, &p, s, ",", " \t");
 			if (c!=',')
 				return -1;
 
-			v1 = parse_token(&c, &p, s, "]", " \t");
+			v1 = stoken(&c, &p, s, "]", " \t");
 			if (c!=']')
 				return -1;
 
@@ -932,7 +905,7 @@ static int parse_digital(unsigned* map, char* s)
 			return -1;
 		}
 
-		parse_skip(&p, s, " \t");
+		sskip(&p, s, " \t");
 
 		first = 0;
 	}
@@ -1744,7 +1717,7 @@ void advance_input_force_exit(struct advance_input_context* context)
 	context->state.input_forced_exit_flag = 1;
 }
 
-void advance_input_update(struct advance_input_context* context, adv_bool is_pause)
+void advance_input_update(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool is_pause)
 {
 	assert(context->state.active_flag != 0);
 
@@ -1756,6 +1729,8 @@ void advance_input_update(struct advance_input_context* context, adv_bool is_pau
 	input_keyboard_update(context);
 	input_mouse_update(context);
 	input_joystick_update(context);
+
+	advance_safequit_update(safequit_context);
 
 	/* forced exit due idle timeout */
 	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * TARGET_CLOCKS_PER_SEC) {
@@ -1813,8 +1788,6 @@ int advance_input_exit_filter(struct advance_input_context* context, struct adva
 
 	if (context->state.input_forced_exit_flag)
 		return 2;
-
-	advance_safequit_update(safequit_context);
 
 	if (advance_safequit_can_exit(safequit_context)) {
 		if (result_memory)

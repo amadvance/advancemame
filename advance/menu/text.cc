@@ -186,13 +186,13 @@ static bool int_updating_active; // is updating the video
 // -----------------------------------------------------------------------
 // Joystick
 
-static void int_joystick_init(adv_conf* config_context)
+static void int_joystick_reg(adv_conf* config_context)
 {
 	joystickb_reg(config_context, 0);
 	joystickb_reg_driver_all(config_context);
 }
 
-static void int_joystick_done()
+static void int_joystick_unreg()
 {
 }
 
@@ -203,14 +203,14 @@ static bool int_joystick_load(adv_conf* config_context)
 	return true;
 }
 
-static bool int_joystick_init2()
+static bool int_joystick_init()
 {
 	if (joystickb_init() != 0)
 		return false;
 	return true;
 }
 
-static void int_joystick_done2()
+static void int_joystick_done()
 {
 	joystickb_done();
 }
@@ -259,13 +259,13 @@ static int int_joystick_move_raw_poll()
 // -----------------------------------------------------------------------
 // Key
 
-static void int_key_init(adv_conf* config_context)
+static void int_key_reg(adv_conf* config_context)
 {
 	keyb_reg(config_context, 1);
 	keyb_reg_driver_all(config_context);
 }
 
-static void int_key_done()
+static void int_key_unreg()
 {
 }
 
@@ -277,7 +277,7 @@ static bool int_key_load(adv_conf* config_context)
 	return true;
 }
 
-static bool int_key_init2()
+static bool int_key_init()
 {
 	if (keyb_init(0) != 0)
 		return false;
@@ -285,9 +285,22 @@ static bool int_key_init2()
 	return true;
 }
 
-static void int_key_done2()
+static void int_key_done()
 {
 	keyb_done();
+}
+
+static bool int_key_enable()
+{
+	if (keyb_enable() != 0)
+		return false;
+
+	return true;
+}
+
+static void int_key_disable()
+{
+	keyb_disable();
 }
 
 // -----------------------------------------------------------------------
@@ -297,14 +310,14 @@ static int int_mouse_delta;
 static int int_mouse_pos_x;
 static int int_mouse_pos_y;
 
-static void int_mouse_init(adv_conf* config_context)
+static void int_mouse_reg(adv_conf* config_context)
 {
 	mouseb_reg(config_context, 0);
 	mouseb_reg_driver_all(config_context);
 	conf_int_register_limit_default(config_context, "mouse_delta", 1, 1000, 100);
 }
 
-static void int_mouse_done()
+static void int_mouse_unreg()
 {
 }
 
@@ -320,7 +333,7 @@ static bool int_mouse_load(adv_conf* config_context)
 	return true;
 }
 
-static bool int_mouse_init2()
+static bool int_mouse_init()
 {
 	if (mouseb_init() != 0)
 		return false;
@@ -328,7 +341,7 @@ static bool int_mouse_init2()
 	return true;
 }
 
-static void int_mouse_done2()
+static void int_mouse_done()
 {
 	mouseb_done();
 }
@@ -352,12 +365,14 @@ static int int_mouse_button_raw_poll()
 static int int_mouse_move_raw_poll()
 {
 	for(int i=0;i<mouseb_count_get();++i) {
-		int x, y, z;
+		int x, y;
 
-		mouseb_pos_get(i, &x, &y, &z);
-
-		int_mouse_pos_x += x;
-		int_mouse_pos_y += y;
+		x = 0;
+		y = 0;
+		if (mouseb_axe_count_get(i) > 0)
+			int_mouse_pos_x += mouseb_axe_get(i, 0);
+		if (mouseb_axe_count_get(i) > 1)
+			int_mouse_pos_y += mouseb_axe_get(i, 1);
 	}
 
 	if (int_mouse_pos_x >= int_mouse_delta) {
@@ -519,11 +534,11 @@ static unsigned video_buffer_line_size;
 static unsigned video_buffer_pixel_size;
 static unsigned char* video_buffer;
 
-void int_init(adv_conf* config_context)
+void int_reg(adv_conf* config_context)
 {
-	int_mouse_init(config_context);
-	int_joystick_init(config_context);
-	int_key_init(config_context);
+	int_mouse_reg(config_context);
+	int_joystick_reg(config_context);
+	int_key_reg(config_context);
 	generate_interpolate_register(config_context);
 	monitor_register(config_context);
 
@@ -586,15 +601,15 @@ bool int_load(adv_conf* config_context)
 	return true;
 }
 
-void int_done(void)
+void int_unreg(void)
 {
 	crtc_container_done(&int_modelines);
-	int_mouse_done();
-	int_joystick_done();
-	int_key_done();
+	int_mouse_unreg();
+	int_joystick_unreg();
+	int_key_unreg();
 }
 
-bool int_init2(unsigned size, const string& sound_event_key)
+bool int_init(unsigned size, const string& sound_event_key)
 {
 	unsigned index;
 	bool mode_found = false;
@@ -682,13 +697,13 @@ out:
 	return false;
 }
 
-void int_done2()
+void int_done()
 {
 	video_blit_done();
 	video_done();
 }
 
-bool int_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode)
 {
 
 	int_alpha_mode = alpha_mode;
@@ -708,46 +723,40 @@ bool int_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0
 	int_gamma = 1.0 / gamma;
 	int_brightness = brightness;
 
+	if (!int_key_init()) {
+		target_err("%s\n", error_get());
+		goto err;
+	}
+
+	if (!int_joystick_init()) {
+		target_err("%s\n", error_get());
+		goto err_key;
+	}
+
+	if (!int_mouse_init()) {
+		target_err("%s\n", error_get());
+		goto err_joy;
+	}
+
 	if (video_mode_set(&int_current_mode) != 0) {
 		video_mode_restore();
 		target_err("%s\n", error_get());
-		goto out;
-	}
-
-	if (!int_key_init2()) {
-		video_mode_restore();
-		target_err("%s\n", error_get());
-		goto out;
-	}
-
-	if (!int_joystick_init2()) {
-		video_mode_restore();
-		target_err("%s\n", error_get());
-		goto int_key;
-	}
-
-	if (!int_mouse_init2()) {
-		video_mode_restore();
-		target_err("%s\n", error_get());
-		goto int_joy;
+		goto err_mouse;
 	}
 
 	return true;
-
-int_joy:
+err_mouse:
 	int_joystick_done();
-int_key:
+err_joy:
+	int_joystick_done();
+err_key:
 	int_key_done();
-out:
+err:
 	return false;
 }
 
-void int_done3(bool reset_video_mode)
+void int_unset(bool reset_video_mode)
 {
-
-	int_mouse_done2();
-	int_joystick_done2();
-	int_key_done2();
 
 	if (reset_video_mode) {
 		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
@@ -760,9 +769,12 @@ void int_done3(bool reset_video_mode)
 		video_mode_done(0);
 	}
 
+	int_mouse_done();
+	int_joystick_done();
+	int_key_done();
 }
 
-bool int_init4(const string& font, unsigned orientation)
+bool int_enable(const string& font, unsigned orientation)
 {
 	int_orientation = orientation;
 
@@ -790,11 +802,15 @@ bool int_init4(const string& font, unsigned orientation)
 
 	int_updating_active = false;
 
+	int_key_enable();
+
 	return true;
 }
 
-void int_done4()
+void int_disable()
 {
+	int_key_disable();
+
 	font_free(real_font_map);
 	operator delete(video_buffer);
 }
@@ -2044,7 +2060,9 @@ int seq_pressed(const unsigned* code)
 				break;
 			default:
 				if (res) {
-					int pressed = keyb_get(code[j]);
+					adv_bool pressed = 0;
+					for(unsigned k=0;k<keyb_count_get();++k)
+						pressed = pressed || (keyb_get(k, code[j]) != 0);
 					if ((pressed != 0) == invert)
 						res = 0;
 				}
@@ -2143,9 +2161,11 @@ static int keyboard_raw_poll()
 	}
 
 	if (int_alpha_mode) {
-		for(unsigned i=0;KEY_CONV[i].code != KEYB_MAX;++i)
-			if (keyb_get(KEY_CONV[i].code))
-				return KEY_CONV[i].c;
+		for(unsigned i=0;KEY_CONV[i].code != KEYB_MAX;++i) {
+			for(unsigned k=0;k<keyb_count_get();++k)
+				if (keyb_get(k, KEY_CONV[i].code))
+					return KEY_CONV[i].c;
+		}
 	}
 
 	return INT_KEY_NONE;

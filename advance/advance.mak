@@ -7,10 +7,10 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.71.2
+EMUVERSION = 0.72.0
 endif
 endif
-MENUVERSION = 2.2.9
+MENUVERSION = 2.2.10
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -376,7 +376,10 @@ neomame:
 cpmame:
 	$(MAKE) CONF=no CONF_EMU=cpmame emu
 
-messmame:
+# Ensure that the mess target is always created also if a mess directory exists
+.PHONY: mess
+
+mess:
 	$(MAKE) CONF=no CONF_EMU=mess emu
 
 pacmame:
@@ -398,10 +401,10 @@ winmame:
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
 		CONF=no CONF_HOST=unix \
-		CONF_LIB_SVGALIB=yes CONF_LIB_ALSA=yes CONF_LIB_KRAW=yes \
-		CONF_LIB_FB=yes CONF_LIB_OSS=no CONF_LIB_PTHREAD=yes \
-		CONF_LIB_SDL=no \
-		DATADIR=/advance
+		CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
+		CONF_LIB_KRAW=yes CONF_LIB_MRAW=yes \
+		CONF_LIB_SVGALIB=yes CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
+		CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
 wholecd:
 	$(MAKE) $(WHOLECD_FLAGS) distbin

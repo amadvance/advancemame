@@ -13,15 +13,21 @@ Grammar
 
 Scripts
 	These are the available scripts:
-		script_video - video mode set
-		script_emulation - emulation start (after the `ok' screens)
-		script_play - play start (after the turbo_startup_time)
-		script_led[1] - MAME led1 (game controlled)
-		script_led[2] - MAME led2 (game controlled)
-		script_led[3] - MAME led3 (game controlled)
-		script_turbo - turbo key
-		script_coin[1,2,3,4] - coin keys
-		script_start[1,2,3,4] - player start keys
+		script_video - The video mode is set. It's the first event.
+		script_emulation - The emulation start. It happens after
+			the MAME confirmation screens.
+		script_play - The game play start. It happens after the
+			turbo_startup_time.
+		script_led[1] - The first led controlled by the emulated
+			game is enabled.
+		script_led[2] - The second led controlled by the emulated
+			game is enabled.
+		script_led[3] - The third led controlled by the emulated
+			game is enabled.
+		script_turbo - The turbo button is pressed.
+		script_coin[1,2,3,4] - A coin button is pressed.
+		script_start[1,2,3,4] - A start button is pressed.
+		script_safequit - The game enter in the safequit status.
 
 	You can assign a script at every event. The script is started
 	when the event is triggered.
@@ -209,7 +215,7 @@ Examples
 
 	Add a coin when the player start:
 
-		:start1 wait(!event()); simulate_event(coin1,100); delay(500); simulate_event(start1,100);
+		:script_start[1] wait(!event()); simulate_event(coin1,100); delay(500); simulate_event(start1,100);
 
 Configuration
 	The scripts must be inserted in the 'advmame.rc' file.

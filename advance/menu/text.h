@@ -45,15 +45,15 @@ struct int_color {
 	int_rgb background;
 };
 
-void int_init(adv_conf* config_context);
-void int_done();
+void int_reg(adv_conf* config_context);
+void int_unreg();
 bool int_load(adv_conf* config_context);
-bool int_init2(unsigned video_size, const std::string& sound_event_key);
-void int_done2();
-bool int_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
-void int_done3(bool reset_video_mode);
-bool int_init4(const std::string& font, unsigned orientation);
-void int_done4();
+bool int_init(unsigned video_size, const std::string& sound_event_key);
+void int_done();
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
+void int_unset(bool reset_video_mode);
+bool int_enable(const std::string& font, unsigned orientation);
+void int_disable();
 
 void int_clear();
 void int_clear(int x, int y, int dx, int dy, const int_rgb& color);

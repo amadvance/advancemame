@@ -1,4 +1,4 @@
-; SAFEQUIT.DAT Version 0.02
+; SAFEQUIT.DAT Version 0.03
 ; Data for the "safe quit" routines of AdvanceMAME
 ; Put this file in the same directory as the AdvanceMAME executable
 ; 
@@ -83,10 +83,11 @@
 ; This doesn't mean they won't work on games configured for 3, 4 or more
 ; simultaneous players.
 
-
+; ***************************************************************
+; * Version 0.03
+; * Minor fixes on the format
 ; ***************************************************************
 ; * Version 0.02 (WIP) * released by Bugfinder *
-;
 ; * This version supports a total of 551 (+31) games and clones.
 ; ***************************************************************
 
@@ -863,7 +864,7 @@ azurian:
 ; Needs more work, this game is tricky - probably
 ; stores accurate information only inside registers
 zero_coin:0:40b0:00:ff:00
-demo_mode:0::00:ff:00
+demo_mode:0:0000:00:ff:00
 
 batman2:
 zero_coin:0:428f:00:ff:00
@@ -1709,41 +1710,41 @@ demo_mode:0:ffc08d:00:ff:01
 blswhstl:
 detatwin:
 zero_coin:0:204025:00:ff:00
-demo_mode:0::00:ff:00
+demo_mode:0:0000:00:ff:00
 
 glfgreat:
 glfgretj:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 lgtnfght:
 trigon:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 mia:
 mia2:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 punkshot:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 punksht2:
 punkshtj:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 qgakumon:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 ssrdruac:
 ssrdruda:
 ssriders:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 ssrdrabd:
 ssrdrebd:
@@ -1754,8 +1755,8 @@ zero_coin:0:104044:00:ff:00
 demo_mode:0:104001:00:ff:01
 
 thndrx2:
-zero_coin:0::00:ff:00
-demo_mode:0::00:ff:00
+zero_coin:0:0000:00:ff:00
+demo_mode:0:0000:00:ff:00
 
 tmnt:
 tmntu:
@@ -1940,7 +1941,8 @@ demo_mode:0:0021cd84:00:ff:00
 
 totcarn:
 totcarnp:
-zero_coin:0:0020fc83:00:ff:30 ; Faulty (takes too long to update after pressing start)
+; Faulty (takes too long to update after pressing start)
+zero_coin:0:0020fc83:00:ff:30
 demo_mode:0:0021ed14:00:ff:00
 
 trog:
@@ -1977,8 +1979,8 @@ hydrap:
 zero_coin:0:ff8021:00:ff:00
 demo_mode:0:ff8229:00:ff:01
 
-FALTA FAZER
--=-=-=-=-=-
+; FALTA FAZER
+; -=-=-=-=-=-
 
 crimec:
 zero_coin:0:a02341:00:ff:00

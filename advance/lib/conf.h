@@ -182,15 +182,14 @@ void conf_done(adv_conf* context);
 void conf_sort(adv_conf* context);
 void conf_uncomment(adv_conf* context);
 
-adv_error conf_save(adv_conf* context, adv_bool force);
-
 /**
  * Type of error reading a configuration file.
  */
 enum conf_callback_error {
 	conf_error_unknown, /**< Unknown option. */
 	conf_error_invalid, /**< Invalid argument. */
-	conf_error_missing /**< Missing argument. */
+	conf_error_missing, /**< Missing argument. */
+	conf_error_failure /**< Input failure. */
 };
 
 /**
@@ -203,6 +202,8 @@ enum conf_callback_error {
  * \param desc Description of the error. To print at the user. It's always present.
  */
 typedef void conf_error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...);
+
+adv_error conf_save(adv_conf* context, adv_bool force, conf_error_callback* error, void* error_context);
 
 /**
  * Conversion specification.

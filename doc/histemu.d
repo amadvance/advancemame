@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.71.2 2003/08
+AdvanceMAME Version 0.72.0 2003/09
 	) Added a new set of Linux input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.
 		These drivers remove any limitations on the number of
@@ -13,6 +13,14 @@ AdvanceMAME Version 0.71.2 2003/08
 		inputs like keys, buttons and digital joystick.
 	) Improved the advk, advj and advm utilities. They now
 		report more information on the hardware found.
+	) Added a new `include' option to include additionaly
+		configuration options.
+	) The `display_magnify' option has now a new `auto' setting
+		which automatically scale the game if it's
+		too small.
+	) Added a new script `safequit' started when the game enter in the
+		safequit state.
+	) Added a strong error control parsing the safequit database.
 
 AdvanceMAME Version 0.71.1 2003/07
 	) Added a new mouse driver for Linux which supports up to 4 mice

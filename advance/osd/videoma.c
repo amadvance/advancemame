@@ -212,11 +212,13 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 		unsigned best_size_x;
 
 		switch (context->config.magnify_factor) {
-		default :
 		case 1 : best_size_x = context->state.mode_best_size_x; break;
 		case 2 : best_size_x = context->state.mode_best_size_2x; break;
 		case 3 : best_size_x = context->state.mode_best_size_3x; break;
 		case 4 : best_size_x = context->state.mode_best_size_4x; break;
+		default: /* auto setting */
+			best_size_x = context->state.mode_best_size_x < 512 ? context->state.mode_best_size_2x : context->state.mode_best_size_x;
+			break;
 		}
 
 		crtc_hsize_set(crtc, best_size_x);
@@ -1842,10 +1844,15 @@ static inline void video_frame_palette(struct advance_video_context* context)
 	}
 }
 
-static void event_compare(unsigned previous, unsigned current, int id)
+static void event_check(unsigned ordinal, adv_bool condition, int id, unsigned previous, unsigned* current)
 {
-	if (previous != current) {
-		if (current) {
+	unsigned mask = 1 << ordinal;
+
+	if (condition)
+		*current |= mask;
+
+	if ((previous & mask) != (*current & mask)) {
+		if (condition) {
 			hardware_script_start(id);
 		} else {
 			hardware_script_stop(id);
@@ -1853,36 +1860,25 @@ static void event_compare(unsigned previous, unsigned current, int id)
 	}
 }
 
-void video_frame_event(struct advance_video_context* context, int leds_status, adv_bool turbo_status, unsigned input)
+void video_frame_event(struct advance_video_context* context, struct advance_safequit_context* safequit_context, int leds_status, adv_bool turbo_status, unsigned input)
 {
 	unsigned event_mask = 0;
 
-	event_mask |= leds_status & 0x7;
-	if ((input & OSD_INPUT_COIN1) != 0) event_mask |= 0x100;
-	if ((input & OSD_INPUT_COIN2) != 0) event_mask |= 0x200;
-	if ((input & OSD_INPUT_COIN3) != 0) event_mask |= 0x400;
-	if ((input & OSD_INPUT_COIN4) != 0) event_mask |= 0x800;
-	if ((input & OSD_INPUT_START1) != 0) event_mask |= 0x1000;
-	if ((input & OSD_INPUT_START2) != 0) event_mask |= 0x2000;
-	if ((input & OSD_INPUT_START3) != 0) event_mask |= 0x4000;
-	if ((input & OSD_INPUT_START4) != 0) event_mask |= 0x8000;
-	if (turbo_status) event_mask |= 0x10000;
+	event_check(0, (leds_status & 0x1) != 0, HARDWARE_SCRIPT_LED1, context->state.event_mask_old, &event_mask);
+	event_check(1, (leds_status & 0x2) != 0, HARDWARE_SCRIPT_LED2, context->state.event_mask_old, &event_mask);
+	event_check(2, (leds_status & 0x4) != 0, HARDWARE_SCRIPT_LED3, context->state.event_mask_old, &event_mask);
+	event_check(3, (input & OSD_INPUT_COIN1) != 0, HARDWARE_SCRIPT_COIN1, context->state.event_mask_old, &event_mask);
+	event_check(4, (input & OSD_INPUT_COIN2) != 0, HARDWARE_SCRIPT_COIN2, context->state.event_mask_old, &event_mask);
+	event_check(5, (input & OSD_INPUT_COIN3) != 0, HARDWARE_SCRIPT_COIN3, context->state.event_mask_old, &event_mask);
+	event_check(6, (input & OSD_INPUT_COIN4) != 0, HARDWARE_SCRIPT_COIN4, context->state.event_mask_old, &event_mask);
+	event_check(7, (input & OSD_INPUT_START1) != 0, HARDWARE_SCRIPT_START1, context->state.event_mask_old, &event_mask);
+	event_check(8, (input & OSD_INPUT_START2) != 0, HARDWARE_SCRIPT_START2, context->state.event_mask_old, &event_mask);
+	event_check(9, (input & OSD_INPUT_START3) != 0, HARDWARE_SCRIPT_START3, context->state.event_mask_old, &event_mask);
+	event_check(10, (input & OSD_INPUT_START4) != 0, HARDWARE_SCRIPT_START4, context->state.event_mask_old, &event_mask);
+	event_check(11, turbo_status, HARDWARE_SCRIPT_TURBO, context->state.event_mask_old, &event_mask);
+	event_check(12, advance_safequit_can_exit(safequit_context), HARDWARE_SCRIPT_SAFEQUIT, context->state.event_mask_old, &event_mask);
 
-	event_compare(context->state.event_mask_old & 0x1, event_mask & 0x1, HARDWARE_SCRIPT_LED1);
-	event_compare(context->state.event_mask_old & 0x2, event_mask & 0x2, HARDWARE_SCRIPT_LED2);
-	event_compare(context->state.event_mask_old & 0x4, event_mask & 0x4, HARDWARE_SCRIPT_LED3);
-
-	event_compare(context->state.event_mask_old & 0x100, event_mask & 0x100, HARDWARE_SCRIPT_COIN1);
-	event_compare(context->state.event_mask_old & 0x200, event_mask & 0x200, HARDWARE_SCRIPT_COIN2);
-	event_compare(context->state.event_mask_old & 0x400, event_mask & 0x400, HARDWARE_SCRIPT_COIN3);
-	event_compare(context->state.event_mask_old & 0x800, event_mask & 0x800, HARDWARE_SCRIPT_COIN4);
-	event_compare(context->state.event_mask_old & 0x1000, event_mask & 0x1000, HARDWARE_SCRIPT_START1);
-	event_compare(context->state.event_mask_old & 0x2000, event_mask & 0x2000, HARDWARE_SCRIPT_START2);
-	event_compare(context->state.event_mask_old & 0x4000, event_mask & 0x4000, HARDWARE_SCRIPT_START3);
-	event_compare(context->state.event_mask_old & 0x8000, event_mask & 0x8000, HARDWARE_SCRIPT_START4);
-	event_compare(context->state.event_mask_old & 0x10000, event_mask & 0x10000, HARDWARE_SCRIPT_TURBO);
-
-	/* save the current status */
+	/* save the new status */
 	context->state.event_mask_old = event_mask;
 }
 
@@ -2197,11 +2193,11 @@ static void video_skip_update(struct advance_video_context* context, struct adva
 	}
 }
 
-static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, int leds_status, unsigned input, adv_bool skip_flag)
+static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, int leds_status, unsigned input, adv_bool skip_flag)
 {
 
 	/* events */
-	video_frame_event(context, leds_status, context->state.turbo_flag, input);
+	video_frame_event(context, safequit_context, leds_status, context->state.turbo_flag, input);
 
 	/* scripts */
 	hardware_script_idle( SCRIPT_TIME_UNIT / context->state.game_fps );
@@ -3008,9 +3004,9 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	}
 
 	/* update the global info */
-	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, led, input, skip_flag);
+	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, led, input, skip_flag);
 	video_skip_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.record);
-	advance_input_update(&CONTEXT.input, CONTEXT.video.state.pause_flag);
+	advance_input_update(&CONTEXT.input, &CONTEXT.safequit, CONTEXT.video.state.pause_flag);
 
 	/* estimate the time */
 	advance_estimate_frame(&CONTEXT.estimate);
@@ -3138,6 +3134,7 @@ static adv_conf_enum_int OPTION_ADJUST[] = {
 };
 
 static adv_conf_enum_int OPTION_MAGNIFY[] = {
+{ "auto", 0 },
 { "1", 1 },
 { "2", 2 },
 { "3", 3 },

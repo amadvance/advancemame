@@ -1072,7 +1072,8 @@ bool config_state::save(adv_conf* config_context) const {
 		}
 	}
 
-	if (conf_save(config_context, 1) != 0)
+	// don't print the error message (error_callback==0)
+	if (conf_save(config_context, 1, 0, 0) != 0)
 		return false;
 
 	// prevent data lost if crashing

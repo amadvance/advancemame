@@ -269,7 +269,7 @@ Configuration
 	prevent the automatic save at the exit with the `config' option.
 
 	In DOS and Windows the configuration options are read from the
-	file `advmame.rc' in the current directory.
+	file `advmenu.rc' in the current directory.
 
 	In Linux and Mac OS X the configuration options are read from the
 	file `advmenu.rc' in the $root and the $home directory.
@@ -285,10 +285,16 @@ Configuration
 	$root directory became also the $home directory.
 
 	The options in the $root directory overwrite the options in
-	the $home.
+	the $home directory or on the command line.
 
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
+
+	You can include an additional configuration file with the `include'
+	option. In DOS and Windows the file is searched in the current directory.
+	In Linux and Mac OS X the file is searched in the $home directory if it's
+	expressed as a relative path. You can force the search in the current
+	directory using the `./' prefix.
 
 	You can force the creation of a default configuration file with the
 	command line option `-default'.

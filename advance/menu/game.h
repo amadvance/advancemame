@@ -389,6 +389,8 @@ inline bool pgame_by_size_less(const game* A, const game* B)
 
 inline bool pgame_by_res_less(const game* A, const game* B)
 {
+#if 0
+	/* sort by area */
 	int aA = A->sizex_get() * A->sizey_get();
 	int aB = B->sizex_get() * B->sizey_get();
 	if (aA < aB)
@@ -396,6 +398,14 @@ inline bool pgame_by_res_less(const game* A, const game* B)
 	if (aA > aB)
 		return false;
 	return A->sizex_get() < B->sizex_get();
+#else
+	/* sort by x res */
+	if (A->sizex_get() < B->sizex_get())
+		return true;
+	if (A->sizex_get() > B->sizex_get())
+		return false;
+	return A->sizey_get() < B->sizey_get();
+#endif
 }
 
 inline bool pgame_by_info_less(const game* A, const game* B)

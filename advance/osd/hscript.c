@@ -275,6 +275,7 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_start[3]", "");
 	conf_string_register_default(context, "script_start[4]", "");
 	conf_string_register_default(context, "script_turbo", "while (event()) { toggle(kdb, 0b100); delay(100); } off(kdb, 0b100);");
+	conf_string_register_default(context, "script_safequit", "");
 
 	STATE.active_flag  = 0;
 
@@ -428,6 +429,9 @@ int hardware_script_config_load(adv_conf* context)
 
 	s = conf_string_get_default(context, "script_turbo");
 	hardware_script_set(HARDWARE_SCRIPT_TURBO, s);
+
+	s = conf_string_get_default(context, "script_safequit");
+	hardware_script_set(HARDWARE_SCRIPT_SAFEQUIT, s);
 
 	return 0;
 }

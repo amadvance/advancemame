@@ -1,12 +1,12 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-07-09 18:39:31.000000000 +0200
++++ src/advance.pat	2003-08-10 16:48:27.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
---- src.ori/common.c	2003-07-04 19:16:10.000000000 +0200
-+++ src/common.c	2003-07-09 18:39:31.000000000 +0200
-@@ -413,17 +413,11 @@
+--- src.ori/common.c	2003-08-10 16:47:51.000000000 +0200
++++ src/common.c	2003-08-10 17:22:03.000000000 +0200
+@@ -414,17 +414,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
  
@@ -25,7 +25,54 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
-@@ -1182,11 +1176,11 @@
+@@ -733,10 +727,11 @@
+ /*-------------------------------------------------
+ 	save_screen_snapshot_as - save a snapshot to
+ 	the given filename
+ -------------------------------------------------*/
+ 
++#if 0 /* AdvanceMAME has its snapshot code */
+ void save_screen_snapshot_as(mame_file *fp, struct mame_bitmap *bitmap)
+ {
+ 	struct rectangle bounds;
+ 	struct mame_bitmap *osdcopy;
+ 	UINT32 saved_rgb_components[3];
+@@ -815,19 +810,22 @@
+ 
+ 	/* if the OSD system allocated a bitmap; free it */
+ 	if (osdcopy)
+ 		bitmap_free(osdcopy);
+ }
++#endif
+ 
+ 
+ 
+ /*-------------------------------------------------
+ 	save_screen_snapshot - save a screen snapshot
+ -------------------------------------------------*/
+ 
++#if 0 /* AdvanceMAME has its snapshot code */
+ void save_screen_snapshot(struct mame_bitmap *bitmap)
+ {
++	osd_save_snapshot();
+ 	char name[20];
+ 	mame_file *fp;
+ 
+ 	/* avoid overwriting existing files */
+ 	/* first of all try with "gamename.png" */
+@@ -845,10 +843,11 @@
+ 	{
+ 		save_screen_snapshot_as(fp, bitmap);
+ 		mame_fclose(fp);
+ 	}
+ }
++#endif
+ 
+ 
+ 
+ /***************************************************************************
+ 
+@@ -1202,11 +1201,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -40,7 +87,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-07-09 18:39:31.000000000 +0200
++++ src/cpmame.mak	2003-08-10 16:48:27.000000000 +0200
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -55,7 +102,7 @@ diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2002-08-25 01:51:28.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-07-09 18:39:31.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-08-10 16:48:27.000000000 +0200
 @@ -61,10 +61,16 @@
   *
   *****************************************************************************/
@@ -75,7 +122,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2003-07-09 18:39:31.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-08-10 16:48:27.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -124,7 +171,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-07-09 18:39:31.000000000 +0200
++++ src/cpu/z80/z80.c	2003-08-10 16:48:27.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -144,7 +191,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
-+++ src/cpuexec.c	2003-07-09 18:39:31.000000000 +0200
++++ src/cpuexec.c	2003-08-10 16:48:27.000000000 +0200
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -161,7 +208,7 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
 --- src.ori/drivers/multi32.c	2003-07-04 19:16:28.000000000 +0200
-+++ src/drivers/multi32.c	2003-07-16 21:28:32.000000000 +0200
++++ src/drivers/multi32.c	2003-08-10 16:48:27.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -176,8 +223,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2003-07-04 19:16:28.000000000 +0200
-+++ src/drivers/neogeo.c	2003-07-09 18:39:34.000000000 +0200
+--- src.ori/drivers/neogeo.c	2003-08-10 16:47:52.000000000 +0200
++++ src/drivers/neogeo.c	2003-08-10 16:48:27.000000000 +0200
 @@ -381,11 +381,11 @@
  			}
  			fc++;
@@ -192,8 +239,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
  	}
  
 diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2003-07-04 19:16:22.000000000 +0200
-+++ src/fileio.c	2003-07-09 18:39:34.000000000 +0200
+--- src.ori/fileio.c	2003-08-10 16:47:52.000000000 +0200
++++ src/fileio.c	2003-08-10 16:52:51.000000000 +0200
 @@ -66,10 +66,11 @@
  	UINT64 offset;
  	UINT64 length;
@@ -252,7 +299,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  int mame_fgetc(mame_file *file)
  {
- 	char buffer;
+ 	unsigned char buffer;
  
 +	if (file->back_char != EOF) {
 +		buffer = file->back_char;
@@ -336,9 +383,9 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-07-04 19:16:28.000000000 +0200
-+++ src/inptport.c	2003-07-09 18:39:34.000000000 +0200
-@@ -196,10 +196,13 @@
+--- src.ori/inptport.c	2003-08-10 16:47:52.000000000 +0200
++++ src/inptport.c	2003-08-10 16:52:13.000000000 +0200
+@@ -200,10 +200,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -352,7 +399,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -207,10 +210,12 @@
+@@ -211,10 +214,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -365,7 +412,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1272,10 +1277,11 @@
+@@ -1305,10 +1310,11 @@
  		if (readint(f,&dispensed_tickets) != 0)
  			goto getout;
  
@@ -377,7 +424,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	}
  
  	/* All analog ports need initialization */
-@@ -1815,14 +1821,16 @@
+@@ -1848,14 +1854,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -398,7 +445,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2080,16 +2088,23 @@
+@@ -2113,16 +2121,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -422,16 +469,20 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -2181,18 +2196,20 @@
+@@ -2214,23 +2229,24 @@
  				}
  				else
  				{
  					InputSeq* seq;
  					seq = input_port_seq(in);
 -					if (seq_pressed(seq))
-+
 +					if (osd_input_port_filter(seq_pressed(seq), in->type & (IPF_PLAYERMASK | ~IPF_MASK)))
  					{
+ #ifdef MESS
+ 						if (((in->type & ~IPF_MASK) == IPT_KEYBOARD) && osd_keyboard_disabled())
+ 							continue;
+ #endif
+ 
 -						/* skip if coin input and it's locked out */
 -						if ((in->type & ~IPF_MASK) >= IPT_COIN1 &&
 -							(in->type & ~IPF_MASK) <= IPT_COIN4 &&
@@ -450,7 +501,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2323,10 +2340,14 @@
+@@ -2365,10 +2381,14 @@
  #elif defined XMAME_NET
  	if ( osd_net_active() )
  		osd_net_sync(input_port_value, input_port_defaults);
@@ -466,9 +517,9 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  
  
 diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	2003-07-04 19:16:28.000000000 +0200
-+++ src/inptport.h	2003-07-09 18:39:34.000000000 +0200
-@@ -81,10 +81,15 @@
+--- src.ori/inptport.h	2003-08-10 16:47:52.000000000 +0200
++++ src/inptport.h	2003-08-10 16:48:27.000000000 +0200
+@@ -87,10 +87,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -485,9 +536,9 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
---- src.ori/input.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/input.c	2003-07-09 18:39:34.000000000 +0200
-@@ -782,11 +782,11 @@
+--- src.ori/input.c	2003-08-10 16:47:52.000000000 +0200
++++ src/input.c	2003-08-10 16:48:27.000000000 +0200
+@@ -789,11 +789,11 @@
  {
  	int pressed;
  
@@ -500,7 +551,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  	{
  		if (ui_map[code].memory == 0)
  		{
-@@ -806,11 +806,11 @@
+@@ -813,11 +813,11 @@
  	static int counter,inputdelay;
  	int pressed;
  
@@ -514,9 +565,9 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
---- src.ori/mame.c	2003-06-10 19:54:02.000000000 +0200
-+++ src/mame.c	2003-07-09 18:39:34.000000000 +0200
-@@ -956,26 +956,20 @@
+--- src.ori/mame.c	2003-08-10 16:47:52.000000000 +0200
++++ src/mame.c	2003-08-10 16:48:27.000000000 +0200
+@@ -983,26 +983,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -555,7 +606,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2003-06-09 22:02:00.000000000 +0200
-+++ src/neomame.mak	2003-07-09 18:55:00.000000000 +0200
++++ src/neomame.mak	2003-08-10 16:48:27.000000000 +0200
 @@ -8,10 +8,11 @@
  EMULATOR_EXE = neomame.exe
  
@@ -569,9 +620,9 @@ diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
  SOUNDS+=YM2610@
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2003-06-09 22:02:00.000000000 +0200
-+++ src/osdepend.h	2003-07-09 18:39:34.000000000 +0200
-@@ -394,10 +394,32 @@
+--- src.ori/osdepend.h	2003-08-10 16:47:52.000000000 +0200
++++ src/osdepend.h	2003-08-10 17:22:58.000000000 +0200
+@@ -391,10 +391,35 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -592,6 +643,9 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +/* filter the input port state */
 +int osd_input_port_filter(int result, int type);
 +
++/* snapshot saving */
++void osd_save_snapshot(void);
++
 +/* start and stop the video/sound recording. */
 +void osd_record_start(void);
 +void osd_record_stop(void);
@@ -604,9 +658,65 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif
  
  #endif
+diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
+--- src.ori/rules.mak	2003-08-10 16:47:52.000000000 +0200
++++ src/rules.mak	2003-08-10 19:11:13.000000000 +0200
+@@ -1010,16 +1010,16 @@
+ CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
+ CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
+ CPUOBJS += $(OBJ)/$(G6D)/g65816o3.o
+ CPUOBJS += $(OBJ)/$(G6D)/g65816o4.o
+ DBGOBJS += $(OBJ)/$(G6D)/g65816ds.o
+-$(OBJ)/$(G6D)/g65816.o: $(G6D)/g65816.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
+-$(OBJ)/$(G6D)/g65816o0.o: $(G6D)/g65816o0.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
+-$(OBJ)/$(G6D)/g65816o1.o: $(G6D)/g65816o0.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
+-$(OBJ)/$(G6D)/g65816o2.o: $(G6D)/g65816o0.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
+-$(OBJ)/$(G6D)/g65816o3.o: $(G6D)/g65816o0.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
+-$(OBJ)/$(G6D)/g65816o4.o: $(G6D)/g65816o0.c $(G6D)/g65816.h $(G6D)/g65816cm.h $(G6D)/g65816op.h
++$(OBJ)/$(G6D)/g65816.o: g65816.c g65816.h g65816cm.h g65816op.h
++$(OBJ)/$(G6D)/g65816o0.o: g65816o0.c g65816.h g65816cm.h g65816op.h
++$(OBJ)/$(G6D)/g65816o1.o: g65816o0.c g65816.h g65816cm.h g65816op.h
++$(OBJ)/$(G6D)/g65816o2.o: g65816o0.c g65816.h g65816cm.h g65816op.h
++$(OBJ)/$(G6D)/g65816o3.o: g65816o0.c g65816.h g65816cm.h g65816op.h
++$(OBJ)/$(G6D)/g65816o4.o: g65816o0.c g65816.h g65816cm.h g65816op.h
+ else
+ CPUDEFS += -DHAS_G65816=0
+ endif
+ 
+ CPU=$(strip $(findstring SPC700@,$(CPUS)))
+@@ -1027,11 +1027,11 @@
+ SPCD = cpu/spc700
+ OBJDIRS += $(OBJ)/$(SPCD)
+ CPUDEFS += -DHAS_SPC700=1
+ CPUOBJS += $(OBJ)/$(SPCD)/spc700.o
+ DBGOBJS += $(OBJ)/$(SPCD)/spc700ds.o
+-$(OBJ)/$(SPCD)/spc700/spc700.o: $(SPCD)/spc700.c $(SPCD)/spc700.h
++$(OBJ)/$(SPCD)/spc700.o: spc700.c spc700.h
+ else
+ CPUDEFS += -DHAS_SPC700=0
+ endif
+ 
+ 
+@@ -1060,13 +1060,13 @@
+ 
+ SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
+ ifneq ($(SOUND),)
+ SOUNDDEFS += -DHAS_DISCRETE=1
+ SOUNDOBJS += $(OBJ)/sound/discrete.o
+-$(OBJ)/sound/discrete.o: src/sound/discrete.c src/sound/discrete.h \
+-		src/sound/disc_dev.c src/sound/disc_flt.c src/sound/disc_inp.c \
+-		src/sound/disc_mth.c src/sound/disc_out.c src/sound/disc_wav.c
++$(OBJ)/sound/discrete.o: discrete.c discrete.h \
++		disc_dev.c disc_flt.c disc_inp.c \
++		disc_mth.c disc_out.c disc_wav.c
+ else
+ SOUNDDEFS += -DHAS_DISCRETE=0
+ endif
+ 
+ SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-05-23 16:51:24.000000000 +0200
-+++ src/ui_text.c	2003-07-09 18:39:34.000000000 +0200
++++ src/ui_text.c	2003-08-10 16:48:27.000000000 +0200
 @@ -239,10 +239,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -624,7 +734,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  {
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-05-23 16:51:24.000000000 +0200
-+++ src/ui_text.h	2003-07-09 18:39:34.000000000 +0200
++++ src/ui_text.h	2003-08-10 16:48:27.000000000 +0200
 @@ -205,10 +205,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -641,8 +751,8 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  struct lang_struct
  {
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2003-07-04 19:16:30.000000000 +0200
-+++ src/usrintrf.c	2003-07-09 18:39:34.000000000 +0200
+--- src.ori/usrintrf.c	2003-08-10 16:47:52.000000000 +0200
++++ src/usrintrf.c	2003-08-10 17:20:49.000000000 +0200
 @@ -853,12 +853,16 @@
  	while (items[i])
  	{
@@ -695,6 +805,19 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	}
  
  	i = selected - topitem;
+@@ -1513,11 +1529,11 @@
+ 				}
+ 			}
+ 		}
+ 
+ 		if (input_ui_pressed(IPT_UI_SNAPSHOT))
+-			save_screen_snapshot(bitmap);
++			osd_save_snapshot();
+ 	} while (!input_ui_pressed(IPT_UI_SHOW_GFX) &&
+ 			!input_ui_pressed(IPT_UI_CANCEL));
+ 
+ 	schedule_full_refresh();
+ }
 @@ -2053,13 +2069,13 @@
  		in++;
  	}
@@ -932,18 +1055,21 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int file = 0;
  
  	mame_pause(1);
-@@ -3977,17 +4085,42 @@
+@@ -3973,21 +4081,43 @@
+ {
+ #ifdef MESS
+ 	extern int mess_pause_for_ui;
+ #endif
  
- 	/* if the user pressed F12, save the screen to a file */
+-	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
- 		artwork_save_snapshot(bitmap);
- 
-+	/* save the sound to a file */
+-		save_screen_snapshot(bitmap);
++		osd_save_snapshot();
 +	if (input_ui_pressed(IPT_UI_RECORD_START))
 +		osd_record_start();
 +	if (input_ui_pressed(IPT_UI_RECORD_STOP))
 +		osd_record_stop();
-+
+ 
  	/* This call is for the cheat, it must be called once a frame */
  	if (options.cheat) DoCheat(bitmap);
  
@@ -977,12 +1103,15 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4093,10 +4226,14 @@
+@@ -4091,12 +4221,15 @@
+ 				draw_screen();
+ 			}
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
- 				artwork_save_snapshot(bitmap);
- 
+-				save_screen_snapshot(bitmap);
+-
++				osd_save_snapshot();
 +			if (input_ui_pressed(IPT_UI_RECORD_START))
 +				osd_record_start();
 +			if (input_ui_pressed(IPT_UI_RECORD_STOP))
@@ -992,7 +1121,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4105,11 +4242,11 @@
+@@ -4105,11 +4238,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1006,9 +1135,9 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				setup_selected = -1;
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
---- src.ori/vidhrdw/cave.c	2003-07-04 19:16:30.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-07-09 18:42:50.000000000 +0200
-@@ -1394,10 +1394,13 @@
+--- src.ori/vidhrdw/cave.c	2003-08-10 16:47:52.000000000 +0200
++++ src/vidhrdw/cave.c	2003-08-10 16:48:27.000000000 +0200
+@@ -1424,10 +1424,13 @@
  VIDEO_UPDATE( cave )
  {
  	int pri, pri2;
@@ -1022,34 +1151,3 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
-diff -U 5 --new-file --recursive src.ori/vidhrdw/gaiden.c src/vidhrdw/gaiden.c
---- src.ori/vidhrdw/gaiden.c	2003-07-04 19:16:30.000000000 +0200
-+++ src/vidhrdw/gaiden.c	2003-07-09 18:46:28.000000000 +0200
-@@ -376,13 +376,10 @@
- 		UINT32 priority_mask;
- 		int col,row;
- 
- 		if (attributes & 0x04)
- 		{
--			if (!blend_support && (attributes & 0x20) && (cpu_getcurrentframe() & 1))
--				goto skip_sprite;
--
- 			UINT32 priority = (attributes >> 6) & 3;
- 			UINT32 flipx = (attributes & 1);
- 			UINT32 flipy = (attributes & 2);
- 
- 			UINT32 color = source[2];
-@@ -393,10 +390,13 @@
- 			UINT32 number = (source[1] & (sizex > 2 ? 0x7ff8 : 0x7ffc));
- 
- 			int ypos = source[3] & 0x01ff;
- 			int xpos = source[4] & 0x01ff;
- 
-+			if (!blend_support && (attributes & 0x20) && (cpu_getcurrentframe() & 1))
-+				goto skip_sprite;
-+
- 			color = (color >> 4) & 0x0f;
- 
- 			/* wraparound */
- 			if (xpos >= 256)
- 				xpos -= 512;

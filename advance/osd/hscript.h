@@ -49,9 +49,10 @@
 #define HARDWARE_SCRIPT_START3 12
 #define HARDWARE_SCRIPT_START4 13
 #define HARDWARE_SCRIPT_TURBO 14
+#define HARDWARE_SCRIPT_SAFEQUIT 15
 
 /* Max number of scripts */
-#define HARDWARE_SCRIPT_MAX 15
+#define HARDWARE_SCRIPT_MAX 16
 
 void hardware_script_set(int id, const char* script);
 

@@ -81,6 +81,7 @@ extern "C" {
 /*@{*/
 
 void video_reg_driver_all(adv_conf* context);
+void video_report_driver_all(char* s, unsigned size);
 
 /*@}*/
 

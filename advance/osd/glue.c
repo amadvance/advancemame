@@ -888,18 +888,6 @@ void mame_ui_menu(const char** items, const char** subitems, char* flag, int sel
 	ui_displaymenu(GLUE.bitmap, items, subitems, flag, selected, arrowize_subitem);
 }
 
-void mame_ui_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
-{
-	struct rectangle rec;
-
-	rec.min_x = x1;
-	rec.min_y = y1;
-	rec.max_x = x2;
-	rec.max_y = y2;
-
-	save_screen_snapshot(GLUE.bitmap, &rec);
-}
-
 const char* mame_ui_gettext(const char* text)
 {
 	return text;
@@ -1304,14 +1292,6 @@ int osd_update_audio_stream(short* buffer)
 	} else {
 		return 0;
 	}
-}
-
-void osd_save_snapshot(struct mame_bitmap *bitmap, const struct rectangle *bounds)
-{
-	/* save the bitmap */
-	GLUE.bitmap = bitmap;
-
-	osd2_save_snapshot(bounds->min_x, bounds->min_y, bounds->max_x, bounds->max_y);
 }
 
 cycles_t osd_cycles(void)

@@ -29,6 +29,7 @@
  */
 
 #include "inputall.h"
+#include "portable.h"
 
 /**
  * Register all the input drivers.
@@ -51,6 +52,27 @@ void inputb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_INPUT_NONE
 	inputb_reg_driver(context, &inputb_none_driver);
+#endif
+}
+
+/**
+ * Report the available drivers.
+ * The driver names are copied in the string separated by spaces.
+ */
+void inputb_report_driver_all(char* s, unsigned size)
+{
+	*s = 0;
+#ifdef USE_INPUT_DOS
+	sncat(s, size, " dos");
+#endif
+#ifdef USE_INPUT_SLANG
+	sncat(s, size, " slang");
+#endif
+#ifdef USE_INPUT_SDL
+	sncat(s, size, " sdl");
+#endif
+#ifdef USE_INPUT_NONE
+	sncat(s, size, " none");
 #endif
 }
 

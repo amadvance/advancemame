@@ -29,13 +29,14 @@
  */
 
 #include "keyall.h"
+#include "portable.h"
 
 /**
  * Register all the keyboard drivers.
  * The drivers are registered on the basis of the following defines:
  *  - USE_KEYBOARD_ALLEGRO
- *  - USE_KEYBOARD_SVGALIB
  *  - USE_KEYBOARD_EVENT
+ *  - USE_KEYBOARD_SVGALIB
  *  - USE_KEYBOARD_RAW
  *  - USE_KEYBOARD_SDL
  *  - USE_KEYBOARD_NONE
@@ -45,11 +46,11 @@ void keyb_reg_driver_all(adv_conf* context)
 #ifdef USE_KEYBOARD_ALLEGRO
 	keyb_reg_driver(context, &keyb_allegro_driver);
 #endif
-#ifdef USE_KEYBOARD_SVGALIB
-	keyb_reg_driver(context, &keyb_svgalib_driver);
-#endif
 #ifdef USE_KEYBOARD_EVENT
 	keyb_reg_driver(context, &keyb_event_driver);
+#endif
+#ifdef USE_KEYBOARD_SVGALIB
+	keyb_reg_driver(context, &keyb_svgalib_driver);
 #endif
 #ifdef USE_KEYBOARD_RAW
 	keyb_reg_driver(context, &keyb_raw_driver);
@@ -62,3 +63,29 @@ void keyb_reg_driver_all(adv_conf* context)
 #endif
 }
 
+/**
+ * Report the available drivers.
+ * The driver names are copied in the string separated by spaces.
+ */
+void keyb_report_driver_all(char* s, unsigned size)
+{
+	*s = 0;
+#ifdef USE_KEYBOARD_ALLEGRO
+	sncat(s, size, " allegro");
+#endif
+#ifdef USE_KEYBOARD_EVENT
+	sncat(s, size, " event");
+#endif
+#ifdef USE_KEYBOARD_SVGALIB
+	sncat(s, size, " svgalib");
+#endif
+#ifdef USE_KEYBOARD_RAW
+	sncat(s, size, " raw");
+#endif
+#ifdef USE_KEYBOARD_SDL
+	sncat(s, size, " sdl");
+#endif
+#ifdef USE_KEYBOARD_NONE
+	sncat(s, size, " none");
+#endif
+}

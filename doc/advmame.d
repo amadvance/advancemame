@@ -358,7 +358,7 @@ Other Ports
 
 Configuration
 	In DOS and Windows the configuration options are read from the
-	file `advmame.rc' and `advmess.rc' in the current
+	files `advmame.rc' and `advmess.rc' in the current
 	directory.
 
 	In Linux and Mac OS X the configuration options are read from the
@@ -376,10 +376,16 @@ Configuration
 	$root directory became also the $home directory.
 
 	The options in the $root directory overwrite the options in
-	the $home directory.
+	the $home directory or on the command line.
 
 	The $home directory is also used to write all the information
 	by the program. The files in the $root directory are only read.
+
+	You can include an additional configuration file with the `include'
+	option. In DOS and Windows the file is searched in the current directory.
+	In Linux and Mac OS X the file is searched in the $home directory if it's
+	expressed as a relative path. You can force the search in the current
+	directory using the `./' prefix.
 
 	You can force the creation of a default configuration file with the
 	command line option `-default'.
@@ -676,9 +682,11 @@ Configuration
 	It is mainly used to enable the `scale2x', `scale3x' and `scale4x'
 	effects. This option doesn't have any effect for vector games.
 
-	:display_magnify 1 | 2 | 3 | 4
+	:display_magnify auto | 1 | 2 | 3 | 4
 
 	Options:
+		auto - Double the size if the resulting video mode width
+			is smaller than 512.
 		1 - Normal size (default).
 		2 - Double size.
 		3 - Triple size.
@@ -1561,7 +1569,7 @@ Configuration
 	:misc_safequit yes | no
 
 	If the file `safequit.dat' is found the exit menu is shown only 
-	if a coin is inserted or if you are playing.
+	if one or more coins are inserted or if you are playing.
 
     misc_safequitdebug
 	Activates the debug mode for the safequit feature. On the top

@@ -65,6 +65,7 @@ extern "C" {
 /*@{*/
 
 void mouseb_reg_driver_all(adv_conf* context);
+void mouseb_report_driver_all(char* s, unsigned size);
 
 /*@}*/
 

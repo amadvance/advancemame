@@ -65,6 +65,7 @@ extern "C" {
 /*@{*/
 
 void keyb_reg_driver_all(adv_conf* context);
+void keyb_report_driver_all(char* s, unsigned size);
 
 /*@}*/
 

@@ -65,6 +65,7 @@ extern "C" {
 /*@{*/
 
 void joystickb_reg_driver_all(adv_conf* context);
+void joystickb_report_driver_all(char* s, unsigned size);
 
 /*@}*/
 

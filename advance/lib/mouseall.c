@@ -29,13 +29,14 @@
  */
 
 #include "mouseall.h"
+#include "portable.h"
 
 /**
  * Register all the mouse drivers.
  * The drivers are registered on the basis of the following defines:
  *  - USE_MOUSE_ALLEGRO
- *  - USE_MOUSE_SVGALIB
  *  - USE_MOUSE_EVENT
+ *  - USE_MOUSE_SVGALIB
  *  - USE_MOUSE_RAW
  *  - USE_MOUSE_SDL
  *  - USE_MOUSE_NONE
@@ -45,11 +46,11 @@ void mouseb_reg_driver_all(adv_conf* context)
 #ifdef USE_MOUSE_ALLEGRO
 	mouseb_reg_driver(context, &mouseb_allegro_driver);
 #endif
-#ifdef USE_MOUSE_SVGALIB
-	mouseb_reg_driver(context, &mouseb_svgalib_driver);
-#endif
 #ifdef USE_MOUSE_EVENT
 	mouseb_reg_driver(context, &mouseb_event_driver);
+#endif
+#ifdef USE_MOUSE_SVGALIB
+	mouseb_reg_driver(context, &mouseb_svgalib_driver);
 #endif
 #ifdef USE_MOUSE_RAW
 	mouseb_reg_driver(context, &mouseb_raw_driver);
@@ -59,6 +60,33 @@ void mouseb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_MOUSE_NONE
 	mouseb_reg_driver(context, &mouseb_none_driver);
+#endif
+}
+
+/**
+ * Report the available drivers.
+ * The driver names are copied in the string separated by spaces.
+ */
+void mouseb_report_driver_all(char* s, unsigned size)
+{
+	*s = 0;
+#ifdef USE_MOUSE_ALLEGRO
+	sncat(s, size, " allegro");
+#endif
+#ifdef USE_MOUSE_EVENT
+	sncat(s, size, " event");
+#endif
+#ifdef USE_MOUSE_SVGALIB
+	sncat(s, size, " svgalib");
+#endif
+#ifdef USE_MOUSE_RAW
+	sncat(s, size, " raw");
+#endif
+#ifdef USE_MOUSE_SDL
+	sncat(s, size, " sdl");
+#endif
+#ifdef USE_MOUSE_NONE
+	sncat(s, size, " none");
 #endif
 }
 

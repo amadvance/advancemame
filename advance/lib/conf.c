@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
 
 /** Buffer used for int/float values */
 #define CONF_NUM_BUFFER_MAX 48
@@ -1456,6 +1457,12 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 
 	} while (state != state_eof);
 
+	if (state == state_eof && ferror(f)) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_in, 0, 0, "Error reading the file %s, %s.", input->file_in, strerror(errno));
+		goto err_done;
+	}
+
 	if (inc_str_len(&itag) != 0) {
 		unsigned i;
 
@@ -1511,8 +1518,11 @@ static adv_error input_load(adv_conf* context, struct adv_conf_input_struct* inp
 	char* global_section;
 
 	f = fopen(input->file_in, "rt");
-	if (!f)
+	if (!f) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_in, 0, 0, "Error opening the file %s for reading, %s.", input->file_in, strerror(errno));
 		goto err;
+	}
 
 	global_section = 0;
 
@@ -1559,7 +1569,7 @@ adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* 
 
 	adv_bool is_file_in_exist = file_in != 0 && access(file_in, F_OK) == 0;
 
-	/* ignore if don't exist and is not writable */
+	/* ignore if it doesn't exist and isn't writable */
 	if (!is_file_in_exist && !file_out)
 		return 0;
 
@@ -1761,7 +1771,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 /***************************************************************************/
 /* Save */
 
-static void value_save(struct adv_conf_value_struct* value, const char** global_section, FILE* f)
+static adv_error value_save(struct adv_conf_input_struct* input, struct adv_conf_value_struct* value, const char** global_section, FILE* f, conf_error_callback* error, void* error_context)
 {
 	if (strcmp(*global_section, value->section) != 0) {
 #if 0
@@ -1775,9 +1785,20 @@ static void value_save(struct adv_conf_value_struct* value, const char** global_
 		fprintf(f, "%s%s/%s %s\n", value->comment, value->section, value->option->tag, value->format);
 	else
 		fprintf(f, "%s%s %s\n", value->comment, value->option->tag, value->format);
+
+	if (ferror(f)) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error writing the file %s, %s.", input->file_out, strerror(errno));
+		goto err;
+	}
+
+	return 0;
+
+err:
+	return -1;
 }
 
-static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input)
+static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, conf_error_callback* error, void* error_context)
 {
 	FILE* f;
 	const char* global_section;
@@ -1789,14 +1810,19 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 	global_section = "";
 
 	f = fopen(input->file_out, "wt");
-	if (!f)
+	if (!f) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
 		goto err;
+	}
 
 	if (context->value_list) {
 		struct adv_conf_value_struct* value = context->value_list;
 		do {
 			if (value->input == input) {
-				value_save(value, &global_section, f);
+				if (value_save(input, value, &global_section, f, error, error_context) != 0) {
+					goto err_close;
+				}
 			}
 			value = value->next;
 		} while (value != context->value_list);
@@ -1805,6 +1831,8 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 	fclose(f);
 	return 0;
 
+err_close:
+	fclose(f);
 err:
 	return -1;
 }
@@ -1813,8 +1841,10 @@ err:
  * Updates all the writable configuration files.
  * \param context Configuration context to use.
  * \param force Force the rewrite also if the configuration file are unchanged.
+ * \param error Callback called for every error.
+ * \param error_context Argument for the error callback.
  */
-adv_error conf_save(adv_conf* context, adv_bool force)
+adv_error conf_save(adv_conf* context, adv_bool force, conf_error_callback* error, void* error_context)
 {
 
 	/* only if necessary */
@@ -1824,7 +1854,7 @@ adv_error conf_save(adv_conf* context, adv_bool force)
 	if (context->input_list) {
 		struct adv_conf_input_struct* input = context->input_list;
 		do {
-			if (input_save(context, input)!=0)
+			if (input_save(context, input, error, error_context)!=0)
 				return -1;
 			input = input->next;
 		} while (input != context->input_list);
@@ -2159,7 +2189,7 @@ adv_error conf_string_section_get(adv_conf* context, const char* section, const 
 
 /**
  * Initialize an iterator for a multi value option.
- * The value is searched in the list of section specified by the previous call
+ * The value is searched in the list of sections specified by the previous call
  * of conf_section_set(). If no sections are specified calling conf_section_set()
  * no value is found.
  * \param i Iterator to initialize.
@@ -2175,6 +2205,7 @@ void conf_iterator_begin(adv_conf_iterator* i, adv_conf* context, const char* ta
 /**
  * Move the iterator to the next position.
  * You can call this function only if conf_iterator_is_end() return false.
+ * The next value is searched only on the same file and section of the first value found.
  * \param i Iterator to use.
  */
 void conf_iterator_next(adv_conf_iterator* i)

@@ -836,12 +836,12 @@ Optional Features:
                           (default auto)
   --enable-mraw           enable the use of the RAW mouse interface. (default
                           auto)
-  --enable-mevent         enable the use of the input-event mouse interface.
+  --enable-mevent         enable the use of the event mouse interface.
                           (default auto)
-  --enable-kevent         enable the use of the input-event keyboard
-                          interface. (default auto)
-  --enable-jevent         enable the use of the input-event joystick
-                          interface. (default auto)
+  --enable-kevent         enable the use of the event keyboard interface.
+                          (default auto)
+  --enable-jevent         enable the use of the event joystick interface.
+                          (default auto)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3937,15 +3937,19 @@ CONF_DEBUGGER=$ac_enable_debugger
 
 # Checks for libraries.
 
-ac_lib_video=no
-ac_lib_sound=no
-ac_lib_keyboard=no
+ac_lib_video_flag=no
+ac_lib_sound_flag=no
+ac_lib_keyboard_flag=no
 
 if test $ac_host = dos; then
-	ac_lib="$ac_lib Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
-	ac_lib_video=yes
-	ac_lib_sound=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video svgaline vbeline vgaline vbe"
+	ac_lib_sound="$ac_lib_sound seal vsync allegro"
+	ac_lib_keyboard="$ac_lib_keyboard allegro"
+	ac_lib_joystick="$ac_lib_joystick allegro"
+	ac_lib_mouse="$ac_lib_mouse allegro"
+	ac_lib_video_flag=yes
+	ac_lib_sound_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 
 
@@ -4255,9 +4259,12 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_svgalib = yes; then
-	ac_lib="$ac_lib SVGALIB"
-	ac_lib_video=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video svgalib"
+	ac_lib_keyboard="$ac_lib_keyboard svgalib"
+	ac_lib_mouse="$ac_lib_mouse svgalib"
+	ac_lib_joystick="$ac_lib_joystick svgalib"
+	ac_lib_video_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 CONF_LIB_SVGALIB=$ac_lib_svgalib
 
@@ -4360,8 +4367,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_fb = yes; then
-	ac_lib="$ac_lib FrameBuffer"
-	ac_lib_video=yes
+	ac_lib_video="$ac_lib_video fb"
+	ac_lib_video_flag=yes
 fi
 CONF_LIB_FB=$ac_lib_fb
 
@@ -4600,8 +4607,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_alsa = yes; then
-	ac_lib="$ac_lib ALSA"
-	ac_lib_sound=yes
+	ac_lib_sound="$ac_lib_sound alsa"
+	ac_lib_sound_flag=yes
 fi
 CONF_LIB_ALSA=$ac_lib_alsa
 
@@ -4704,8 +4711,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_oss = yes; then
-	ac_lib="$ac_lib OSS"
-	ac_lib_sound=yes
+	ac_lib_sound="$ac_lib_sound oss"
+	ac_lib_sound_flag=yes
 fi
 CONF_LIB_OSS=$ac_lib_oss
 
@@ -4852,7 +4859,7 @@ fi
 
 fi
 if test $ac_lib_pthread = yes; then
-	ac_lib="$ac_lib pthread"
+	ac_lib_thread="$ac_lib_thread pthread"
 fi
 CONF_LIB_PTHREAD=$ac_lib_pthread
 
@@ -4999,7 +5006,7 @@ fi
 
 fi
 if test $ac_lib_slang = yes; then
-	ac_lib="$ac_lib sLang"
+	ac_lib_video="$ac_lib_video slang"
 fi
 CONF_LIB_SLANG=$ac_lib_slang
 
@@ -5273,10 +5280,14 @@ fi
 	fi
 fi
 if test $ac_lib_sdl = yes; then
-	ac_lib="$ac_lib SDL"
-	ac_lib_video=yes
-	ac_lib_sound=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video sdl"
+	ac_lib_sound="$ac_lib_sound sdl"
+	ac_lib_keyboard="$ac_lib_keyboard sdl"
+	ac_lib_joystick="$ac_lib_joystick sdl"
+	ac_lib_mouse="$ac_lib_mouse sdl"
+	ac_lib_video_flag=yes
+	ac_lib_sound_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 
 
@@ -5315,8 +5326,8 @@ echo "$as_me: error: the SVGAWIN library requires the SDL library" >&2;}
 	fi
 fi
 if test $ac_lib_svgawin = yes; then
-	ac_lib="$ac_lib SVGAWIN"
-	ac_lib_video=yes
+	ac_lib_video="$ac_lib_video svgawin"
+	ac_lib_video_flag=yes
 fi
 CONF_LIB_SVGAWIN=$ac_lib_svgawin
 
@@ -5419,8 +5430,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_kraw = yes; then
-	ac_lib="$ac_lib KRAW"
-	ac_lib_keyboard=yes
+	ac_lib_keyboard="$ac_lib_keyboard raw"
+	ac_lib_keyboard_flag=yes
 fi
 CONF_LIB_KRAW=$ac_lib_kraw
 
@@ -5527,7 +5538,7 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_mraw = yes; then
-	ac_lib="$ac_lib MRAW"
+	ac_lib_mouse="$ac_lib_mouse raw"
 fi
 CONF_LIB_MRAW=$ac_lib_mraw
 
@@ -5541,8 +5552,8 @@ else
 
 fi;
 if test $ac_lib_mevent = auto; then
-	echo "$as_me:$LINENO: checking for input-event mouse interface" >&5
-echo $ECHO_N "checking for input-event mouse interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event mouse interface" >&5
+echo $ECHO_N "checking for event mouse interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5584,8 +5595,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_lib_mevent" >&5
 echo "${ECHO_T}$ac_lib_mevent" >&6
 elif test $ac_lib_mevent = yes; then
-	echo "$as_me:$LINENO: checking for input-event mouse interface" >&5
-echo $ECHO_N "checking for input-event mouse interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event mouse interface" >&5
+echo $ECHO_N "checking for event mouse interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5621,8 +5632,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: the input-event mouse interface is missing" >&5
-echo "$as_me: error: the input-event mouse interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the event mouse interface is missing" >&5
+echo "$as_me: error: the event mouse interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -5630,7 +5641,7 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_mevent = yes; then
-	ac_lib="$ac_lib MEVENT"
+	ac_lib_mouse="$ac_lib_mouse event"
 fi
 CONF_LIB_MEVENT=$ac_lib_mevent
 
@@ -5644,8 +5655,8 @@ else
 
 fi;
 if test $ac_lib_kevent = auto; then
-	echo "$as_me:$LINENO: checking for input-event keyboard interface" >&5
-echo $ECHO_N "checking for input-event keyboard interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event keyboard interface" >&5
+echo $ECHO_N "checking for event keyboard interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5687,8 +5698,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_lib_kevent" >&5
 echo "${ECHO_T}$ac_lib_kevent" >&6
 elif test $ac_lib_kevent = yes; then
-	echo "$as_me:$LINENO: checking for input-event keyboard interface" >&5
-echo $ECHO_N "checking for input-event keyboard interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event keyboard interface" >&5
+echo $ECHO_N "checking for event keyboard interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5724,8 +5735,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: the input-event keyboard interface is missing" >&5
-echo "$as_me: error: the input-event keyboard interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the event keyboard interface is missing" >&5
+echo "$as_me: error: the event keyboard interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -5733,7 +5744,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_kevent = yes; then
-	ac_lib="$ac_lib KEVENT"
+	ac_lib_keyboard="$ac_lib_keyboard event"
+	ac_lib_keyboard_flag=yes
 fi
 CONF_LIB_KEVENT=$ac_lib_kevent
 
@@ -5747,8 +5759,8 @@ else
 
 fi;
 if test $ac_lib_jevent = auto; then
-	echo "$as_me:$LINENO: checking for input-event joystick interface" >&5
-echo $ECHO_N "checking for input-event joystick interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event joystick interface" >&5
+echo $ECHO_N "checking for event joystick interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5790,8 +5802,8 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 	echo "$as_me:$LINENO: result: $ac_lib_jevent" >&5
 echo "${ECHO_T}$ac_lib_jevent" >&6
 elif test $ac_lib_jevent = yes; then
-	echo "$as_me:$LINENO: checking for input-event joystick interface" >&5
-echo $ECHO_N "checking for input-event joystick interface... $ECHO_C" >&6
+	echo "$as_me:$LINENO: checking for event joystick interface" >&5
+echo $ECHO_N "checking for event joystick interface... $ECHO_C" >&6
 	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -5827,8 +5839,8 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-{ { echo "$as_me:$LINENO: error: the input-event joystick interface is missing" >&5
-echo "$as_me: error: the input-event joystick interface is missing" >&2;}
+{ { echo "$as_me:$LINENO: error: the event joystick interface is missing" >&5
+echo "$as_me: error: the event joystick interface is missing" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -5836,7 +5848,7 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_jevent = yes; then
-	ac_lib="$ac_lib JEVENT"
+	ac_lib_joystick="$ac_lib_joystick event"
 fi
 CONF_LIB_JEVENT=$ac_lib_jevent
 
@@ -6798,18 +6810,26 @@ if test $ac_enable_asm = yes; then
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "Libraries :" $ac_lib
-if test $ac_lib_video = no; then
+
+echo ""
+echo "== Drivers =="
+echo "Video :" $ac_lib_video
+echo "Sound :" $ac_lib_sound
+echo "Keyboard :" $ac_lib_keyboard
+echo "Joystick :" $ac_lib_joystick
+echo "Mouse :" $ac_lib_mouse
+echo "Thread :" $ac_lib_thread
+if test $ac_lib_video_flag = no; then
 	{ { echo "$as_me:$LINENO: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&5
 echo "$as_me: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test $ac_lib_sound = no; then
+if test $ac_lib_sound_flag = no; then
 	{ { echo "$as_me:$LINENO: error: no sound library found" >&5
 echo "$as_me: error: no sound library found" >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test $ac_lib_keyboard = no; then
+if test $ac_lib_keyboard_flag = no; then
 	{ { echo "$as_me:$LINENO: error: no keyboard library found" >&5
 echo "$as_me: error: no keyboard library found" >&2;}
    { (exit 1); exit 1; }; }
@@ -6826,5 +6846,4 @@ echo "Emulator :" $ac_with_emu
 if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
-echo "Compress executables :" $ac_enable_compress
 

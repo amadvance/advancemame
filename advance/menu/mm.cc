@@ -26,6 +26,11 @@
 #include "log.h"
 #include "target.h"
 #include "os.h"
+#include "videoall.h"
+#include "soundall.h"
+#include "keyall.h"
+#include "joyall.h"
+#include "mouseall.h"
 
 #include <iostream>
 
@@ -43,7 +48,7 @@ int run_sub(config_state& rs, bool silent)
 
 	log_std(("menu: int_init4 call\n"));
 
-	if (!int_init4(rs.video_font_path, rs.video_orientation_effective)) {
+	if (!int_enable(rs.video_font_path, rs.video_orientation_effective)) {
 		return INT_KEY_ESC;
 	}
 
@@ -168,17 +173,17 @@ int run_sub(config_state& rs, bool silent)
 
 	log_std(("menu: menu stop\n"));
 
-	log_std(("menu: int_done4 call\n"));
-	int_done4();
+	log_std(("menu: int_disable call\n"));
+	int_disable();
 
 	return key;
 }
 
 int run_main(config_state& rs, bool is_first, bool silent)
 {
-	log_std(("menu: int_init3 call\n"));
+	log_std(("menu: int_set call\n"));
 
-	if (!int_init3(rs.video_gamma, rs.video_brightness,
+	if (!int_set(rs.video_gamma, rs.video_brightness,
 		rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.repeat, rs.repeat_rep,
 		rs.preview_fast, rs.alpha_mode)) {
 		return INT_KEY_ESC;
@@ -186,7 +191,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 
 	log_std(("menu: play_init call\n"));
 	if (!play_init()) {
-		int_done3(true);
+		int_unset(true);
 		target_err("Error initializing the sound mixer.\n");
 		target_err("Try with the option '-device_sound none'.\n");
 		return INT_KEY_ESC;
@@ -281,8 +286,8 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	log_std(("menu: play_done call\n"));
 	play_done();
 
-	log_std(("menu: int_done3 call\n"));
-	int_done3(is_terminate || rs.video_reset_mode);
+	log_std(("menu: int_unset call\n"));
+	int_unset(is_terminate || rs.video_reset_mode);
 
 	return key;
 }
@@ -347,6 +352,25 @@ int run_all(adv_conf* config_context, config_state& rs)
 	}
 
 	return key;
+}
+
+//---------------------------------------------------------------------------
+// Version
+
+static void version(void)
+{
+	char report_buffer[128];
+	target_out("AdvanceMENU %s\n\n", VERSION);
+	video_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Video:%s\n", report_buffer);
+	sound_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Sound:%s\n", report_buffer);
+	keyb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Keyboard:%s\n", report_buffer);
+	joystickb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Joystick:%s\n", report_buffer);
+	mouseb_report_driver_all(report_buffer, sizeof(report_buffer));
+	target_out("Mouse:%s\n", report_buffer);
 }
 
 //---------------------------------------------------------------------------
@@ -451,6 +475,7 @@ int os_main(int argc, char* argv[])
 	bool opt_version;
 	int key = 0;
 	const char* section_map[1];
+	const char* include;
 
 	srand(time(0));
 
@@ -461,12 +486,14 @@ int os_main(int argc, char* argv[])
 		goto err_conf;
 	}
 
-	config_state::conf_register(config_context);
+	/* include file */
+	conf_string_register_default(config_context, "include", "");
 
-	int_init(config_context);
+	config_state::conf_register(config_context);
+	int_reg(config_context);
 	play_reg(config_context);
 
-	if (conf_input_args_load(config_context, 1, "", &argc, argv, error_callback, 0) != 0)
+	if (conf_input_args_load(config_context, 2, "", &argc, argv, error_callback, 0) != 0)
 		goto err_init;
 
 	opt_verbose = false;
@@ -495,7 +522,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_version) {
-		target_out("%s\n", VERSION);
+		version();
 		goto done_init;
 	}
 
@@ -509,9 +536,11 @@ int os_main(int argc, char* argv[])
 
 	log_std(("menu: %s %s\n", __DATE__, __TIME__));
 
-	if (file_config_file_root("advmenu.rc") != 0)
-		if (conf_input_file_load_adv(config_context, 2, file_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (file_config_file_root("advmenu.rc") != 0) {
+		if (conf_input_file_load_adv(config_context, 3, file_config_file_root("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_init;
+		}
+	}
 
 	if (conf_input_file_load_adv(config_context, 0, file_config_file_home("advmenu.rc"), file_config_file_home("advmenu.rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_init;
@@ -524,8 +553,7 @@ int os_main(int argc, char* argv[])
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
-		if (conf_save(config_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
+		if (conf_save(config_context, 1, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home("advmenu.rc"));
@@ -535,8 +563,7 @@ int os_main(int argc, char* argv[])
 	if (opt_default) {
 		config_state::conf_default(config_context);
 		conf_set_default_if_missing(config_context, "");
-		if (conf_save(config_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
+		if (conf_save(config_context, 1, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home("advmenu.rc"));
@@ -545,13 +572,30 @@ int os_main(int argc, char* argv[])
 
 	if (opt_remove) {
 		conf_remove_if_default(config_context, "");
-		if (conf_save(config_context, 1) != 0) {
-			target_err("Error writing the configuration file '%s'.\n", file_config_file_home("advmenu.rc"));
+		if (conf_save(config_context, 1, error_callback, 0) != 0) {
 			goto err_init;
 		}
 		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home("advmenu.rc"));
 		goto done_init;
 	}
+
+	/* setup the include configuration file */
+	include = conf_string_get_default(config_context, "include");
+	if (include[0]) {
+		const char* include_file = file_config_file_home(include);
+		log_std(("menu: include file '%s'\n", include_file));
+		if (access(include_file, R_OK)!=0) {
+			target_err("Error opening the configuration include file '%s'.\n", include_file);
+			goto err_init;
+		}
+		if (conf_input_file_load_adv(config_context, 1, include_file, 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+			goto err_init;
+		}
+	} else {
+		log_std(("menu: no include file\n"));
+	}
+
+	log_std(("menu: *_load()\n"));
 
 	if (!rs.load(config_context, opt_verbose)) {
 		goto err_init;
@@ -568,7 +612,7 @@ int os_main(int argc, char* argv[])
 		goto err_init;
 	}
 
-	if (!int_init2(rs.video_size, rs.sound_foreground_key)) {
+	if (!int_init(rs.video_size, rs.sound_foreground_key)) {
 		goto err_inner_init;
 	}
 	
@@ -588,7 +632,7 @@ int os_main(int argc, char* argv[])
 	// print the messages before restoring the video
 	target_flush();
 
-	int_done2();
+	int_done();
 	
 	// save all the data
 	rs.save(config_context);
@@ -600,7 +644,7 @@ int os_main(int argc, char* argv[])
 	os_inner_done();
 	
 done_init:
-	int_done();
+	int_unreg();
 	os_done();
 
 	if (key == INT_KEY_OFF)
@@ -614,7 +658,7 @@ err_inner_init:
 	os_inner_done();
 
 err_init:
-	int_done();
+	int_unreg();
 	os_done();
 
 err_conf:

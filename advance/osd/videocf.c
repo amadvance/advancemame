@@ -160,7 +160,6 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned best_size_y;
 
 	switch (context->config.magnify_factor) {
-	default :
 	case 1 :
 		best_size_x = context->state.mode_best_size_x;
 		best_size_y = context->state.mode_best_size_y;
@@ -176,6 +175,15 @@ static int score_compare_size(const struct advance_video_context* context, const
 	case 4 :
 		best_size_x = context->state.mode_best_size_4x;
 		best_size_y = context->state.mode_best_size_4y;
+		break;
+	default :
+		if (context->state.mode_best_size_x < 512) {
+			best_size_x = context->state.mode_best_size_2x;
+			best_size_y = context->state.mode_best_size_2y;
+		} else {
+			best_size_x = context->state.mode_best_size_x;
+			best_size_y = context->state.mode_best_size_y;
+		}
 		break;
 	}
 

@@ -30,6 +30,7 @@
 
 #include "videoall.h"
 #include "video.h"
+#include "portable.h"
 
 /**
  * Register all the video drivers.
@@ -40,9 +41,9 @@
  *  - USE_VIDEO_FB
  *  - USE_VIDEO_VBELINE
  *  - USE_VIDEO_VGALINE
- *  - USE_VIDEO_SLANG
  *  - USE_VIDEO_SDL
  *  - USE_VIDEO_VBE
+ *  - USE_VIDEO_SLANG
  *  - USE_VIDEO_NONE
  */
 void video_reg_driver_all(adv_conf* context)
@@ -76,6 +77,45 @@ void video_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_VIDEO_NONE
 	video_reg_driver(context, &video_none_driver);
+#endif
+}
+
+/**
+ * Report the available drivers.
+ * The driver names are copied in the string separated by spaces.
+ */
+void video_report_driver_all(char* s, unsigned size)
+{
+	*s = 0;
+#ifdef USE_VIDEO_SVGALIB
+	sncat(s, size, " svgalib");
+#endif
+#ifdef USE_VIDEO_SVGALINE
+	sncat(s, size, " svgaline");
+#endif
+#ifdef USE_VIDEO_SVGAWIN
+	sncat(s, size, " svgawin");
+#endif
+#ifdef USE_VIDEO_FB
+	sncat(s, size, " fb");
+#endif
+#ifdef USE_VIDEO_VBELINE
+	sncat(s, size, " vbeline");
+#endif
+#ifdef USE_VIDEO_VGALINE
+	sncat(s, size, " vgaline");
+#endif
+#ifdef USE_VIDEO_SDL
+	sncat(s, size, " sdl");
+#endif
+#ifdef USE_VIDEO_VBE
+	sncat(s, size, " vbe");
+#endif
+#ifdef USE_VIDEO_SLANG
+	sncat(s, size, " slang");
+#endif
+#ifdef USE_VIDEO_NONE
+	sncat(s, size, " none");
 #endif
 }
 

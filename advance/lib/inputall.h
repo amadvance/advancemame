@@ -59,6 +59,7 @@ extern "C" {
 /*@{*/
 
 void inputb_reg_driver_all(adv_conf* context);
+void inputb_report_driver_all(char* s, unsigned size);
 
 /*@}*/
 

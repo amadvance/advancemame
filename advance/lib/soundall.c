@@ -29,6 +29,7 @@
  */
 
 #include "soundall.h"
+#include "portable.h"
 
 /**
  * Register all the sound drivers.
@@ -66,3 +67,32 @@ void sound_reg_driver_all(adv_conf* context)
 #endif
 }
 
+/**
+ * Report the available drivers.
+ * The driver names are copied in the string separated by spaces.
+ */
+void sound_report_driver_all(char* s, unsigned size)
+{
+	*s = 0;
+#ifdef USE_SOUND_SEAL
+	sncat(s, size, " seal");
+#endif
+#ifdef USE_SOUND_ALLEGRO
+	sncat(s, size, " allegro");
+#endif
+#ifdef USE_SOUND_VSYNC
+	sncat(s, size, " vsync");
+#endif
+#ifdef USE_SOUND_ALSA
+	sncat(s, size, " alsa");
+#endif
+#ifdef USE_SOUND_OSS
+	sncat(s, size, " oss");
+#endif
+#ifdef USE_SOUND_SDL
+	sncat(s, size, " sdl");
+#endif
+#ifdef USE_SOUND_NONE
+	sncat(s, size, " none");
+#endif
+}

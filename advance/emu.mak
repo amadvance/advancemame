@@ -470,7 +470,7 @@ include $(EMUSRC)/rules.mak
 endif
 
 # Special search paths required by the CPU core rules
-VPATH=$(wildcard $(EMUSRC)/cpu/*)
+VPATH=$(wildcard $(EMUSRC)/cpu/* $(EMUSRC)/sound)
 
 OBJDIRS += \
 	$(OBJ)/cpu \

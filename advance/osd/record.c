@@ -1026,17 +1026,25 @@ static void advance_snapshot_next(struct advance_record_context* context, const 
 	}
 }
 
-void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void osd_save_snapshot(void)
 {
 	struct advance_record_context* context = &CONTEXT.record;
 	const mame_game* game = CONTEXT.game;
 	char path_png_buffer[FILE_MAXPATH];
 
-	log_std(("osd: osd_save_snapshot(x1:%d, y1:%d, x2:%d, y2:%d)\n", x1, y1, x2, y2));
+#ifdef USE_SMP
+	pthread_mutex_lock(&context->state.access_mutex);
+#endif
+
+	log_std(("osd: osd_save_snapshot()\n"));
 
 	advance_snapshot_next(context, game, path_png_buffer, sizeof(path_png_buffer));
 
 	snapshot_start(context, path_png_buffer);
+
+#ifdef USE_SMP
+	pthread_mutex_unlock(&context->state.access_mutex);
+#endif
 }
 
 /*************************************************************************************/

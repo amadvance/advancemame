@@ -276,15 +276,19 @@ AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 
 # Checks for libraries.
 
-ac_lib_video=no
-ac_lib_sound=no
-ac_lib_keyboard=no
+ac_lib_video_flag=no
+ac_lib_sound_flag=no
+ac_lib_keyboard_flag=no
 
 if test $ac_host = dos; then
-	ac_lib="$ac_lib Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
-	ac_lib_video=yes
-	ac_lib_sound=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video svgaline vbeline vgaline vbe"
+	ac_lib_sound="$ac_lib_sound seal vsync allegro"
+	ac_lib_keyboard="$ac_lib_keyboard allegro"
+	ac_lib_joystick="$ac_lib_joystick allegro"
+	ac_lib_mouse="$ac_lib_mouse allegro"
+	ac_lib_video_flag=yes
+	ac_lib_sound_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 
 AC_CHECK_LIB(
@@ -336,9 +340,12 @@ elif test $ac_lib_svgalib = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_svgalib = yes; then
-	ac_lib="$ac_lib SVGALIB"
-	ac_lib_video=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video svgalib"
+	ac_lib_keyboard="$ac_lib_keyboard svgalib"
+	ac_lib_mouse="$ac_lib_mouse svgalib"
+	ac_lib_joystick="$ac_lib_joystick svgalib"
+	ac_lib_video_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 
@@ -362,8 +369,8 @@ elif test $ac_lib_fb = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_fb = yes; then
-	ac_lib="$ac_lib FrameBuffer"
-	ac_lib_video=yes
+	ac_lib_video="$ac_lib_video fb"
+	ac_lib_video_flag=yes
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
@@ -405,8 +412,8 @@ elif test $ac_lib_alsa = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_alsa = yes; then
-	ac_lib="$ac_lib ALSA"
-	ac_lib_sound=yes
+	ac_lib_sound="$ac_lib_sound alsa"
+	ac_lib_sound_flag=yes
 fi
 AC_SUBST([CONF_LIB_ALSA],[$ac_lib_alsa])
 
@@ -430,8 +437,8 @@ elif test $ac_lib_oss = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_oss = yes; then
-	ac_lib="$ac_lib OSS"
-	ac_lib_sound=yes
+	ac_lib_sound="$ac_lib_sound oss"
+	ac_lib_sound_flag=yes
 fi
 AC_SUBST([CONF_LIB_OSS],[$ac_lib_oss])
 
@@ -459,7 +466,7 @@ elif test $ac_lib_pthread = yes; then
 	)
 fi
 if test $ac_lib_pthread = yes; then
-	ac_lib="$ac_lib pthread"
+	ac_lib_thread="$ac_lib_thread pthread"
 fi
 AC_SUBST([CONF_LIB_PTHREAD],[$ac_lib_pthread])
 
@@ -487,7 +494,7 @@ elif test $ac_lib_slang = yes; then
 	)
 fi
 if test $ac_lib_slang = yes; then
-	ac_lib="$ac_lib sLang"
+	ac_lib_video="$ac_lib_video slang"
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 
@@ -559,10 +566,14 @@ elif test $ac_lib_sdl = yes; then
 	fi
 fi
 if test $ac_lib_sdl = yes; then
-	ac_lib="$ac_lib SDL"
-	ac_lib_video=yes
-	ac_lib_sound=yes
-	ac_lib_keyboard=yes
+	ac_lib_video="$ac_lib_video sdl"
+	ac_lib_sound="$ac_lib_sound sdl"
+	ac_lib_keyboard="$ac_lib_keyboard sdl"
+	ac_lib_joystick="$ac_lib_joystick sdl"
+	ac_lib_mouse="$ac_lib_mouse sdl"
+	ac_lib_video_flag=yes
+	ac_lib_sound_flag=yes
+	ac_lib_keyboard_flag=yes
 fi
 AC_SUBST([SDLCFLAGS])
 AC_SUBST([SDLLIBS])
@@ -594,8 +605,8 @@ if test $ac_lib_svgawin = yes; then
 	fi
 fi
 if test $ac_lib_svgawin = yes; then
-	ac_lib="$ac_lib SVGAWIN"
-	ac_lib_video=yes
+	ac_lib_video="$ac_lib_video svgawin"
+	ac_lib_video_flag=yes
 fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
@@ -619,8 +630,8 @@ elif test $ac_lib_kraw = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kraw = yes; then
-	ac_lib="$ac_lib KRAW"
-	ac_lib_keyboard=yes
+	ac_lib_keyboard="$ac_lib_keyboard raw"
+	ac_lib_keyboard_flag=yes
 fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
@@ -648,79 +659,80 @@ elif test $ac_lib_mraw = yes; then
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mraw = yes; then
-	ac_lib="$ac_lib MRAW"
+	ac_lib_mouse="$ac_lib_mouse raw"
 fi
 AC_SUBST([CONF_LIB_MRAW],[$ac_lib_mraw])
 
 AC_ARG_ENABLE(
 	[mevent],
-	AC_HELP_STRING([--enable-mevent],[enable the use of the input-event mouse interface. (default auto)]),
+	AC_HELP_STRING([--enable-mevent],[enable the use of the event mouse interface. (default auto)]),
 	[ac_lib_mevent=$enableval],
 	[ac_lib_mevent=auto]
 )
 if test $ac_lib_mevent = auto; then
-	AC_MSG_CHECKING([for input-event mouse interface])
+	AC_MSG_CHECKING([for event mouse interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
 		]])],[ac_lib_mevent=yes],[ac_lib_mevent=no])
 	AC_MSG_RESULT([$ac_lib_mevent])
 elif test $ac_lib_mevent = yes; then
-	AC_MSG_CHECKING([for input-event mouse interface])
+	AC_MSG_CHECKING([for event mouse interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the input-event mouse interface is missing])])
+		]])],[],[AC_MSG_ERROR([the event mouse interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_mevent = yes; then
-	ac_lib="$ac_lib MEVENT"
+	ac_lib_mouse="$ac_lib_mouse event"
 fi
 AC_SUBST([CONF_LIB_MEVENT],[$ac_lib_mevent])
 
 AC_ARG_ENABLE(
 	[kevent],
-	AC_HELP_STRING([--enable-kevent],[enable the use of the input-event keyboard interface. (default auto)]),
+	AC_HELP_STRING([--enable-kevent],[enable the use of the event keyboard interface. (default auto)]),
 	[ac_lib_kevent=$enableval],
 	[ac_lib_kevent=auto]
 )
 if test $ac_lib_kevent = auto; then
-	AC_MSG_CHECKING([for input-event keyboard interface])
+	AC_MSG_CHECKING([for event keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
 		]])],[ac_lib_kevent=yes],[ac_lib_kevent=no])
 	AC_MSG_RESULT([$ac_lib_kevent])
 elif test $ac_lib_kevent = yes; then
-	AC_MSG_CHECKING([for input-event keyboard interface])
+	AC_MSG_CHECKING([for event keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the input-event keyboard interface is missing])])
+		]])],[],[AC_MSG_ERROR([the event keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kevent = yes; then
-	ac_lib="$ac_lib KEVENT"
+	ac_lib_keyboard="$ac_lib_keyboard event"
+	ac_lib_keyboard_flag=yes
 fi
 AC_SUBST([CONF_LIB_KEVENT],[$ac_lib_kevent])
 
 AC_ARG_ENABLE(
 	[jevent],
-	AC_HELP_STRING([--enable-jevent],[enable the use of the input-event joystick interface. (default auto)]),
+	AC_HELP_STRING([--enable-jevent],[enable the use of the event joystick interface. (default auto)]),
 	[ac_lib_jevent=$enableval],
 	[ac_lib_jevent=auto]
 )
 if test $ac_lib_jevent = auto; then
-	AC_MSG_CHECKING([for input-event joystick interface])
+	AC_MSG_CHECKING([for event joystick interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
 		]])],[ac_lib_jevent=yes],[ac_lib_jevent=no])
 	AC_MSG_RESULT([$ac_lib_jevent])
 elif test $ac_lib_jevent = yes; then
-	AC_MSG_CHECKING([for input-event joystick interface])
+	AC_MSG_CHECKING([for event joystick interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/input.h>]], [[
 			int dummy = EVIOCGVERSION;
-		]])],[],[AC_MSG_ERROR([the input-event joystick interface is missing])])
+		]])],[],[AC_MSG_ERROR([the event joystick interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_jevent = yes; then
-	ac_lib="$ac_lib JEVENT"
+	ac_lib_joystick="$ac_lib_joystick event"
 fi
 AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
@@ -743,14 +755,22 @@ if test $ac_enable_asm = yes; then
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "Libraries :" $ac_lib
-if test $ac_lib_video = no; then
+
+echo ""
+echo "== Drivers =="
+echo "Video :" $ac_lib_video
+echo "Sound :" $ac_lib_sound
+echo "Keyboard :" $ac_lib_keyboard
+echo "Joystick :" $ac_lib_joystick
+echo "Mouse :" $ac_lib_mouse
+echo "Thread :" $ac_lib_thread
+if test $ac_lib_video_flag = no; then
 	AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
 fi
-if test $ac_lib_sound = no; then
+if test $ac_lib_sound_flag = no; then
 	AC_MSG_ERROR([no sound library found])
 fi
-if test $ac_lib_keyboard = no; then
+if test $ac_lib_keyboard_flag = no; then
 	AC_MSG_ERROR([no keyboard library found])
 fi
 
@@ -765,5 +785,4 @@ echo "Emulator :" $ac_with_emu
 if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
 fi
-echo "Compress executables :" $ac_enable_compress
 

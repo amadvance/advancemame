@@ -144,7 +144,6 @@ void mame_ui_text(const char* s, unsigned x, unsigned y);
 void mame_ui_message(const char* s, ...);
 void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
 const char* mame_ui_gettext(const char* text);
-void mame_ui_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void mame_ui_refresh(void);
 void mame_ui_swap(void);
 void mame_ui_gamma_factor_set(double gamma);

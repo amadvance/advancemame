@@ -1787,7 +1787,7 @@ int os_main(int argc, char* argv[])
 	/* MSDOS requires a special driver sub set */
 #ifndef __MSDOS__
 	video_reg_driver_all(the_config);
-#endif	
+#endif
 
 	if (conf_input_args_load(the_config, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -1908,12 +1908,11 @@ int os_main(int argc, char* argv[])
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		target_err("No driver is able to program your video board in this context.\n");
 		target_err("Ensure to use the 'device_video_output auto' option.\n");
-#ifdef __WIN32__
+#ifdef USE_VIDEO_SVGAWIN
 		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
 #endif
-#ifdef unix
-		target_err("Ensure to not run this program in X.\n");
-#endif
+		if (getenv("DISPLAY") != 0)
+			target_err("Try to not run this program in X.\n");
 		goto err_blit;
 	}
 
@@ -2025,7 +2024,7 @@ int os_main(int argc, char* argv[])
 
 	os_done();
 
-	conf_save(the_config, 0);
+	conf_save(the_config, 0, error_callback, 0);
 
 	conf_done(the_config);
 

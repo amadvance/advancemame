@@ -137,9 +137,11 @@ adv_error file_dir_make(const char* dir)
 	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
-adv_bool file_path_is_abs(const char* path)
+adv_bool file_path_is_abs(const char* file)
 {
-	return path[0] == '/';
+	return file[0] == '/'
+		|| (file[0] == '.' && file[1] == '/')
+		|| (file[0] == '.' && file[1] == '.' && file[2] == '/');
 }
 
 const char* file_abs(const char* dir, const char* file)
@@ -185,7 +187,7 @@ const char* file_config_file_root(const char* file)
 
 const char* file_config_file_home(const char* file)
 {
-	if (file[0] == '/')
+	if (file_path_is_abs(file))
 		snprintf(FL.file_home_buffer, sizeof(FL.file_home_buffer), "%s", file);
 	else
 		/* if relative add the home data dir */

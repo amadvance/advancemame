@@ -492,6 +492,33 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 /***************************************************************************/
 /* SafeQuit */
 
+#define SAFEQUIT_ENTRY_MAX 64
+
+enum {
+	safequit_event_zerocoin = 0,
+	safequit_event_demomode
+};
+
+enum {
+	safequit_action_match = 0,
+	safequit_action_nomatch = 1
+};
+
+enum {
+	safequit_format_bcd = 0,
+	safequit_format_byte = 1
+};
+
+struct safequit_entry {
+	unsigned char event;
+	unsigned char cpu;
+	unsigned address;
+	unsigned char action;
+	unsigned char mask;
+	unsigned char result;
+	unsigned frame_count;
+};
+
 struct advance_safequit_config_context {
 	char file_buffer[FILE_MAXPATH]; /**< File safequit.dat to load. */
 	adv_bool debug_flag; /**< Show the debug flag on the screen. */
@@ -499,6 +526,12 @@ struct advance_safequit_config_context {
 };
 
 struct advance_safequit_state_context {
+	struct safequit_entry entry_map[SAFEQUIT_ENTRY_MAX];
+	unsigned entry_mac;
+	unsigned status;
+	unsigned coin; /**< Number of coins. */
+	adv_bool coin_set; /**< If the number of coins is valid. */
+	unsigned coin_format; /**< Format of the coin byte. */
 };
 
 struct advance_safequit_context {
@@ -591,7 +624,7 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 void advance_input_done(struct advance_input_context* context);
 adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context);
 void advance_input_inner_done(struct advance_input_context* context);
-void advance_input_update(struct advance_input_context* context, adv_bool is_pause);
+void advance_input_update(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool is_pause);
 adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
 
