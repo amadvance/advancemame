@@ -231,30 +231,32 @@ void convert::step(string& s)
 	}
 
 	// continue without separator support
-	if (ns == 16 && state == state_option) {
-		option_text(s);
-		return;
-	}
-
-	if ((ns == 16 && state == state_dot0) || (ns == 24 && state == state_dot1)) {
-		dot_text(s);
-		return;
-	}
-
-	if ((ns == 0 && state == state_section0) || (ns == 2 && state == state_section1) || (ns == 4 && state == state_section2)) {
-		section_text(s);
-		return;
-	}
-
-	if ((ns == 8 && state == state_para0) || (ns == 16 && state == state_para1)) {
-		string a;
-		if (is_line(s,a)) {
-			para_text(a);
-			line();
-		} else {
-			para_text(s);
+	if (s.length() > 0) {
+		if (ns == 16 && state == state_option) {
+			option_text(s);
+			return;
 		}
-		return;
+
+		if ((ns == 16 && state == state_dot0) || (ns == 24 && state == state_dot1)) {
+			dot_text(s);
+			return;
+		}
+
+		if ((ns == 0 && state == state_section0) || (ns == 2 && state == state_section1) || (ns == 4 && state == state_section2)) {
+			section_text(s);
+			return;
+		}
+
+		if ((ns == 8 && state == state_para0) || (ns == 16 && state == state_para1)) {
+			string a;
+			if (is_line(s,a)) {
+				para_text(a);
+				line();
+			} else {
+				para_text(s);
+			}
+			return;
+		}
 	}
 
 	// end

@@ -116,8 +116,8 @@ CONF_LDFLAGS=@CONF_LDFLAGS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_COMPRESS=@CONF_COMPRESS@
 CONF_DEBUG=@CONF_DEBUG@
+CONF_ARCH=@CONF_ARCH@
 endif
-
 
 #############################################################################
 # Default configuration
@@ -203,7 +203,7 @@ endif
 
 # Name of the architecture. Used in the distribution file names.
 ifndef CONF_ARCH
-CONF_ARCH=def
+CONF_ARCH=blend
 endif
 
 ############################################################################
@@ -474,11 +474,28 @@ include $(srcdir)/advance/d2.mak
 endif
 
 #############################################################################
-# Special targets
+# Standard GNU targets
+
+info:
+
+dvi:
+
+installcheck: install
+
+check:
+
+mostlyclean: distclean
+
+maintainer-clear: distclean
 
 clean:
 	$(RM) -f -r obj
+
+distclean: clean
 	$(RM) -f config.status config.log
+
+#############################################################################
+# Special targets
 
 flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
@@ -504,11 +521,30 @@ osdep:
 	rgrep -r WIN32 $(srcdir)/advance
 
 costadvance:
-	sloccount advance/blit advance/card advance/cfg advance/common \
-		advance/dos advance/j advance/k advance/lib advance/line \
-		advance/linux advance/m advance/menu advance/off advance/osd \
-		advance/portio advance/s advance/sdl advance/tsr advance/v \
-		advance/vbe advance/vga advance/video \
+	sloccount \
+		advance/blit \
+		advance/card \
+		advance/cfg \
+		advance/common \
+		advance/d2 \
+		advance/dos \
+		advance/j \
+		advance/k \
+		advance/lib \
+		advance/line \
+		advance/linux \
+		advance/m \
+		advance/menu \
+		advance/off \
+		advance/osd \
+		advance/portio \
+		advance/s \
+		advance/sdl \
+		advance/tsr \
+		advance/v \
+		advance/vbe \
+		advance/vga \
+		advance/video \
 		> cost/advance.txt
 
 costmame:

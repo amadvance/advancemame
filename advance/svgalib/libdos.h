@@ -25,8 +25,8 @@ typedef unsigned long uint32_t;
 #define MAP_SHARED 0x1
 #define MAP_FIXED 0x2
 #define MAP_FAILED ((void*)(-1))
-#define PROT_READ 0
-#define PROT_WRITE 0
+
+#include <sys/mman.h>
 
 void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
 int munmap(void* start, unsigned length);

@@ -26,7 +26,7 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/submenu.o \
 	$(MENUOBJ)/menu/mm.o \
 	$(MENUOBJ)/menu/play.o \
-	$(MENUOBJ)/menu/playsnd.o \
+	$(MENUOBJ)/menu/playdef.o \
 	$(MENUOBJ)/menu/resource.o \
 	$(MENUOBJ)/menu/text.o \
 	$(MENUOBJ)/lib/log.o \
@@ -249,15 +249,18 @@ endif
 # MENU dist
 
 MENU_ROOT_SRC = \
-	$(CONF_BIN)
+	$(srcdir)/COPYING \
+	$(CONF_SRC)
 
 MENU_SRC = \
 	$(wildcard $(srcdir)/advance/menu/*.c) \
 	$(wildcard $(srcdir)/advance/menu/*.cc) \
-	$(wildcard $(srcdir)/advance/menu/*.h)
+	$(wildcard $(srcdir)/advance/menu/*.h) \
+	$(wildcard $(srcdir)/advance/menu/*.dat)
 
 MENU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/menu.mak \
 	$(srcdir)/advance/v.mak \
 	$(srcdir)/advance/cfg.mak \
 	$(srcdir)/advance/d2.mak
@@ -266,7 +269,6 @@ MENU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/menu/*)
 
 MENU_DOC_SRC = \
-	$(srcdir)/doc/copying \
 	$(srcdir)/doc/license.d \
 	$(srcdir)/doc/advmenu.d \
 	$(srcdir)/doc/authors.d \
@@ -286,7 +288,6 @@ MENU_SUPPORT_SRC = \
 	$(srcdir)/support/advmenuc.bat
 
 MENU_DOC_BIN = \
-	$(srcdir)/doc/copying \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmenu.txt \
 	$(DOCOBJ)/authors.txt \
@@ -298,6 +299,7 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/advmenu.html \
 	$(DOCOBJ)/authors.html \
 	$(DOCOBJ)/faq.html \
+	$(DOCOBJ)/readmenu.html \
 	$(DOCOBJ)/relemenu.html \
 	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/histmenu.html
@@ -315,11 +317,12 @@ MENU_DOC_BIN += \
 endif
 
 MENU_ROOT_BIN = \
+	$(srcdir)/COPYING \
 	$(MENUOBJ)/advmenu$(EXE)
-ifeq ($(CONF_SYSTEM),linux)
+ifeq ($(CONF_HOST),linux)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
-	$(CONF_SRC)
+	$(CONF_BIN)
 endif
 ifeq ($(CONF_HOST),dos)
 MENU_ROOT_BIN += \
@@ -334,7 +337,7 @@ ifneq ($(CONF_SYSTEM),sdl)
 MENU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(CONF_SYSTEM),linux)
+ifeq ($(CONF_HOST),linux)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1

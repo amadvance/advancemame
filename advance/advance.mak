@@ -10,7 +10,7 @@ else
 EMUVERSION = 0.61.2
 endif
 endif
-MENUVERSION = 2.0.1
+MENUVERSION = 2.1.0
 CABVERSION = 0.11.3
 
 ############################################################################
@@ -138,7 +138,8 @@ LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \
 	$(wildcard $(srcdir)/advance/lib/*.h) \
 	$(wildcard $(srcdir)/advance/lib/*.ico) \
-	$(wildcard $(srcdir)/advance/lib/*.rc)
+	$(wildcard $(srcdir)/advance/lib/*.rc) \
+	$(wildcard $(srcdir)/advance/lib/*.dat)
 
 BLIT_SRC = \
 	$(wildcard $(srcdir)/advance/blit/*.c) \
@@ -218,7 +219,7 @@ SDL_SRC = \
 D2_SRC = \
 	$(wildcard $(srcdir)/advance/d2/*.cc)
 
-CONF_BIN = \
+CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/config.guess \
 	$(srcdir)/config.status \
@@ -230,7 +231,8 @@ CONF_BIN = \
 	$(srcdir)/install-sh \
 	$(srcdir)/mkinstalldirs
 
-CONF_SRC = \
+CONF_BIN = \
+	$(srcdir)/support/confbin/INSTALL \
 	$(srcdir)/support/confbin/Makefile.am \
 	$(srcdir)/support/confbin/Makefile.in \
 	$(srcdir)/support/confbin/aclocal.m4 \
@@ -244,15 +246,14 @@ CONF_SRC = \
 ############################################################################
 # Common install
 
-install_data: $(INSTALL_DATAFILES)
+installdirs:
+	-$(INSTALL_DATA_DIR) $(PREFIX)/doc/advance
+	-$(INSTALL_MAN_DIR) $(PREFIX)/man/man1
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
 ifdef INSTALL_DATAFILES
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/sample
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/artwork
-	@for i in $(INSTALL_DATAFILES); do \
-		$(INSTALL_DATA) $$i $(PREFIX)/share/advance; \
-	done
 endif
 ifdef INSTALL_IMAGEDIRS
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
@@ -261,28 +262,63 @@ ifdef INSTALL_IMAGEDIRS
 	done
 endif
 
-install_bin: $(INSTALL_BINFILES)
+install-data: $(INSTALL_DATAFILES)
+ifdef INSTALL_DATAFILES
+	@for i in $(INSTALL_DATAFILES); do \
+		$(INSTALL_DATA) $$i $(PREFIX)/share/advance; \
+	done
+endif
+
+uninstall-data:
+ifdef INSTALL_DATAFILES
+	@for i in $(INSTALL_DATAFILES); do \
+		rm -f $(PREFIX)/share/advance/$$i; \
+	done
+endif
+
+install-bin: $(INSTALL_BINFILES)
 	@for i in $(INSTALL_BINFILES); do \
 		$(INSTALL_PROGRAM) $$i $(PREFIX)/bin; \
 	done
 
-install_doc: $(INSTALL_DOCFILES)
+uninstall-bin:
+	@for i in $(INSTALL_BINFILES); do \
+		rm -f $(PREFIX)/bin/$$i; \
+	done
+
+install-doc: $(INSTALL_DOCFILES)
 ifdef INSTALL_DOCFILES
-	-$(INSTALL_DATA_DIR) $(PREFIX)/doc/advance
 	@for i in $(INSTALL_DOCFILES); do \
 		$(INSTALL_DATA) $$i $(PREFIX)/doc/advance; \
 	done
 endif
 
-install_man: $(INSTALL_MANFILES)
+uninstall-doc:
+ifdef INSTALL_DOCFILES
+	@for i in $(INSTALL_DOCFILES); do \
+		rm -f $(PREFIX)/doc/advance/$$i; \
+	done
+endif
+
+install-man: $(INSTALL_MANFILES)
 ifdef INSTALL_MANFILES
-	-$(INSTALL_MAN_DIR) $(PREFIX)/man/man1
 	@for i in $(INSTALL_MANFILES); do \
 		$(INSTALL_DATA) $$i $(PREFIX)/man/man1; \
 	done
 endif
 
-install: install_bin install_data install_doc install_man
+uninstall-man:
+ifdef INSTALL_MANFILES
+	@for i in $(INSTALL_MANFILES); do \
+		rm -f $(PREFIX)/man/man1/$$i; \
+	done
+endif
+
+install: installdirs install-bin install-data install-doc install-man
+
+install-strip: install
+
+uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
 
 ############################################################################
 # Common build
@@ -293,22 +329,10 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special Rules
 
-ARCH_ALL = ARCH=i386 CONF_CFLAGS_ARCH="-march=i386 -DUSE_LSB"
-ARCH_PENTIUM = ARCH=i586 CONF_CFLAGS_ARCH="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
-ARCH_PENTIUM2 = ARCH=i686 CONF_CFLAGS_ARCH="-march=i686 -DUSE_LSB -DUSE_ASM_i586"
-ARCH_K6 = ARCH=k6 CONF_CFLAGS_ARCH="-march=k6 -DUSE_LSB -DUSE_ASM_i586"
-
-dosmame:
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mame emu
-
-dosmess:
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mess emu
-
-dospac:
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=pac emu
-
-dosmenu:
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mame menu
+ARCH_ALL = CONF_ARCH=i386 CONF_CFLAGS_ARCH="-march=i386 -DUSE_LSB"
+ARCH_PENTIUM = CONF_ARCH=i586 CONF_CFLAGS_ARCH="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
+ARCH_PENTIUM2 = CONF_ARCH=i686 CONF_CFLAGS_ARCH="-march=i686 -DUSE_LSB -DUSE_ASM_i586"
+ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_ARCH="-march=k6 -DUSE_LSB -DUSE_ASM_i586"
 
 mame:
 	$(MAKE) CONF=no CONF_EMU=mame emu
@@ -327,28 +351,28 @@ pacmame:
 
 wholemame:
 	$(MAKE) CONF=no dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes CONF_COMPRESS=yes distbin
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=linux CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=linux CONF_SYSTEM=linux CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes CONF_COMPRESS=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=linux CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=linux CONF_SYSTEM=linux CONF_MAP=yes distmenubin
 
 wholecab:
 	$(MAKE) CONF=no CONF_HOST=dos distcab
@@ -371,4 +395,5 @@ distmame:
 
 distmamebin:
 	$(MAKE) CONF=no CONF_EMU=mame distbin
+
 

@@ -443,6 +443,7 @@ $(srcdir)/advance/advmess.dif: $(srcdir)/srcmess $(srcdir)/srcmess.ori
 # EMU dist
 
 EMU_ROOT_SRC = \
+	$(srcdir)/COPYING \
 	$(CONF_BIN)
 
 EMU_ADVANCE_SRC = \
@@ -474,7 +475,6 @@ EMU_SUPPORT_SRC = \
 	$(srcdir)/support/safequit.dat
 
 EMU_DOC_SRC = \
-	$(srcdir)/doc/copying \
 	$(srcdir)/doc/advmame.d \
 	$(srcdir)/doc/license.d \
 	$(srcdir)/doc/authors.d \
@@ -496,7 +496,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/install.d
 
 EMU_DOC_BIN = \
-	$(srcdir)/doc/copying \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmame.txt \
 	$(DOCOBJ)/build.txt \

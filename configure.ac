@@ -60,7 +60,7 @@ AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
 if test -z "$CFLAGS" ; then
 	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -gstabs+3 -Wall -Wno-sign-compare"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
 	else
 		CFLAGS="-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused"
 	fi
@@ -95,15 +95,8 @@ AC_CHECK_PROGS(ASM, nasm)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
 
-AC_C_BIGENDIAN(
-	[ac_is_bigendian=yes],
-	[ac_is_bigendian=no]
-)
-if test $ac_is_bigendian = yes; then
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_MSB"
-else
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
-fi
+AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
+AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
 
 # Checks for libraries.
 AC_CHECK_LIB(
@@ -123,7 +116,55 @@ AC_SUBST([ZLIBS],[$ZLIBS])
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
-# Checks for command line options.
+# Checks for architecture
+AC_C_BIGENDIAN(
+	[ac_is_bigendian=yes],
+	[ac_is_bigendian=no]
+)
+if test $ac_is_bigendian = yes; then
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_MSB"
+else
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
+fi
+
+AC_CHECK_CPU_ARCH
+
+AC_ARG_WITH(
+	[arch],
+	AC_HELP_STRING([--with-arch],[select the host cpu architecture: i586, i686, k6, athlon, blend... (default auto)]),
+	[ac_with_arch=$withval],
+	[ac_with_arch=auto]
+)
+if test $ac_with_arch = auto; then
+	AC_CHECK_CC_ARCH
+	ac_with_arch=$ac_cc_arch
+fi
+if test ! $ac_with_arch = blend; then
+	CFLAGS_ARCH="-march=$ac_with_arch $CFLAGS_ARCH"
+fi
+AC_SUBST([CONF_ARCH],[$ac_with_arch])
+
+AC_ARG_ENABLE(
+	[asm],
+	AC_HELP_STRING([--enable-asm],[enable the assembler 586 optimizations (default auto)]),
+	[ac_enable_asm=$withval],
+	[ac_enable_asm=auto]
+)
+if test $ac_enable_asm = auto; then
+	if test $ac_cpu_family = 3 -o $ac_cpu_family = 4 ; then
+		ac_enable_asm=no
+	else
+		ac_enable_asm=yes
+	fi
+fi
+if test $ac_enable_asm = yes; then
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+fi
+
+# Export the architecture CFLAGS
+AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
+
+# Checks for configuration options.
 AC_ARG_WITH(
 	[emu],
 	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, neomame, cpmame, pac, none (default auto)]),
@@ -268,7 +309,6 @@ else
 fi
 AC_SUBST([CONF_SYSTEM],[$ac_with_system])
 
-# Checks for command line options.
 AC_ARG_ENABLE(
 	[smp],
 	AC_HELP_STRING([--enable-smp],[enable the multi processor support (default yes)]),
@@ -307,25 +347,6 @@ AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
 AC_SUBST([UPX],[$UPX])
 AC_SUBST([TOUCH],[$TOUCH])
 
-AC_ARG_ENABLE(
-	[asm],
-	AC_HELP_STRING([--enable-asm],[enable the 586 optimizations (default yes)]),
-	[ac_enable_asm=$withval],
-	[ac_enable_asm=yes]
-)
-if test $ac_enable_asm = yes; then
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
-fi
-
-# Export the architecture CFLAGS
-AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
-
-# Export the optimization CFLAGS
-AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
-
-# Export the linker LDFLAGS
-AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
-
 # Notify that ./configure was runned
 AC_SUBST([CONF],[yes])
 
@@ -333,28 +354,32 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
 echo ""
-echo "== Configuration =="
-echo "Build environment :" $ac_build "("$build")"
-echo "Host environment :" $ac_host "("$host")"
+echo "== Host Architecture =="
+echo "Environment :" $ac_host "("$host")"
 if test $ac_is_bigendian = yes; then
-	echo "Host endianess : big"
+	echo "Endianess : big"
 else
-	echo "Host endianess : little"
+	echo "Endianess : little"
 fi
-if test $ac_enable_smp = yes; then
-	echo "Host processor : single/multi processor"
-else
-	echo "Host processor : single processor"
-fi
-echo "System library :" $ac_with_system
-echo "Emulator to compile :" $ac_with_emu
+echo "Multiprocessor :" $ac_enable_smp
 if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "Compress executables :" $ac_enable_compress
-echo "Emulator debugger :" $ac_enable_debugger
-echo "CFLAGS :" $CFLAGS
+echo "CPU :" $ac_with_arch
+echo ""
+echo "== Compiler =="
+echo "CFLAGS (optimization) :" $CFLAGS
+echo "CFLAGS (architecture) :" $CFLAGS_ARCH
 echo "LDFLAGS :" $LDFLAGS
+echo ""
+echo "== Configuration =="
+echo "System library :" $ac_with_system
+echo "Emulator :" $ac_with_emu
+if test ! $ac_with_emu = none ; then
+	echo "Debugger :" $ac_enable_debugger
+fi
+echo "Compress executables :" $ac_enable_compress
+
 

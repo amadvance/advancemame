@@ -18,16 +18,5 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "font.h"
+#include "playdef.dat"
 
-#include "fontdef.dat"
-
-struct bitmapfont* font_default(unsigned height) {
-	if (height >= 17)
-		return bitmapfont_inport_grx(FONT_HELV17);
-	if (height >= 15)
-		return bitmapfont_inport_grx(FONT_HELV15);
-	if (height >= 13)
-		return bitmapfont_inport_grx(FONT_HELV13);
-	return bitmapfont_inport_grx(FONT_HELV11);
-}

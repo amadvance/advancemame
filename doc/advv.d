@@ -2,8 +2,8 @@ Name
 	advv - The AdvanceVIDEO Manual Configurator
 
 Synopsys
-	:advv [-advmamev] [-advmessv] [-advpacv] [-advmenuv] [-vbev]
-	:	[-vgav] [-log] [-logsync] [-rc RCFILE]
+	:advv [-advmamev] [-advmessv] [-advpacv] [-advmenuv]
+	:	[-vbev] [-vgav] [-log] [-logsync] [-rc RCFILE]
 
 Description
 	The `advv' utility is the main video configuration program

@@ -239,7 +239,7 @@ AdvanceMAME Version 0.56.0.1 (never released)
 	) Solved the bug for the detection of the svgaline Rendition
 		driver.
 
-AdvanceMAME Version 0.56.0
+AdvanceMAME Version 0.56.0 2001/11
 	) Change at the SVGALIB Rage 128/Radeon drivers for the
 		low clocks
 
@@ -275,7 +275,7 @@ AdvanceMAME Version 0.55.1
 	) Solved the crash bug for the vector games.
 	) Better mode generation for the vector games.
 
-AdvanceMAME Version 0.55.0
+AdvanceMAME Version 0.55.0 2001/09
 	) The `[gamename]' options are now correctly read.
 	) Renamed the option `video_mode_reset' to `videomodereset'
 	) The command line boolean options now don't need the
@@ -302,7 +302,7 @@ AdvanceMAME Version 0.53.1
 		distribution
 	) Minor bugfix
 
-AdvanceMAME Version 0.53.0
+AdvanceMAME Version 0.53.0 2001/08
 	) Major release with BIG changes. This should be considered
 		an alpha version. 
 	) Kept the support for 8 bit modes. You can still use 8 bit 
@@ -358,7 +358,7 @@ AdvanceMAME Version 0.37b16.1
 	) Added support for the Voodoo5 board.
 	) Added support for other Rage 128 boards.
 
-AdvanceMAME Version 0.37b16.0
+AdvanceMAME Version 0.37b16.0 2001/07
 	) Added the new `scale2x' blit effect. It's now the default
 		when the `Magnify' option is activated.
 	) Solved the unexpected termination when you exit from the
@@ -373,7 +373,7 @@ AdvanceMAME Version 0.37b16.0
 	) Removed the dirty blit support
 	) Some new 'ATI r128` and `Trident Blade 3D' cards supported.
 
-AdvanceMAME Version 0.37b15.0
+AdvanceMAME Version 0.37b15.0 2001/05
 	) The game aspect ratio is now used if available
 	) The `vsync' option is now ignored if no modes with the
 		correct frequency rate are available
@@ -431,7 +431,7 @@ AdvanceMAME Version 0.37b14.1
 	) Added the `speed' utility to check the memory performance of
 		your video board.
 
-AdvanceMAME Version 0.37b14.0
+AdvanceMAME Version 0.37b14.0 2001/04
 	) Added a new type of effects to simulate the aspect of an Arcade
 		Monitor with a PC monitor. Check the new option "rgbeffect".
 		- triad 3 pixel (normal/strong)
@@ -444,14 +444,14 @@ AdvanceMAME Version 0.37b14.0
 	) Added the new "Video" menu entry "Show Pipeline".
 		This option show the current Blit Pipeline stages.
 
-AdvanceMAME Version 0.37b13.0
+AdvanceMAME Version 0.37b13.0 2001/03
 	) Solved the throttle problem when the sound is disabled
 	) Linked with the correct SEAL library. This solve the problem
 		with some PCI Sound Blaster
 	) Some change at the F5 command (generate video mode) of
 		the `mv' utility
 
-AdvanceMAME Version 0.37b12.0
+AdvanceMAME Version 0.37b12.0 2001/02
 	) The scripts are terminated correctly also if the
 		program crash.
 	) Better system recover if the program crash.
@@ -483,7 +483,7 @@ AdvanceMAME Version 0.37b11.1
 	) Corrected the confusion of the "[config] video"
 		and "[script] video" options.
 
-AdvanceMAME Version 0.37b11.0
+AdvanceMAME Version 0.37b11.0 2001/01
 	) Removed the option `turbostartupspeed'. Now it's always at the
 		maximum speed available and at frameskip 11.
 	) Autoframeskip is automatically enabled when the turbo button
@@ -501,7 +501,7 @@ AdvanceMAME Version 0.37b11.0
 	) Added the option `video_mode_reset' to prevent the
 		video mode reset at the emulator exit
 
-AdvanceMAME Version 0.37b10.0
+AdvanceMAME Version 0.37b10.0 2000/12
 	) Added support for Trident cards using the new video
 		driver of VSyncMAME written by Saka.
 		Use the "vbeline_driver=vbe3" option to revert to the
@@ -517,7 +517,7 @@ AdvanceMAME Version 0.37b10.0
 		doesn't require the explicit driver support.
 	) Corrected some garbage on video when using artworks
 
-AdvanceMAME Version 0.37b9.0
+AdvanceMAME Version 0.37b9.0 2000/11
 	) Added the capability to save sound preview. Use `backspace' to start
 		and `enter' to stop the recording.
 		The file is saved in the `snap' directory in the `wav'
@@ -529,7 +529,7 @@ AdvanceMAME Version 0.37b9.0
 	) Rewritten the choice of the best video mode. Now you can control
 		the process with the new mame.cfg `video_factor_*' options.
 
-AdvanceMAME Version 0.37b8.0
+AdvanceMAME Version 0.37b8.0 2000/10
 	) Recovered from an harddisk crash!
 	) Halved the dotclock of interlaced modes in the "ati" driver
 	) Updated the contrib/nick directory with better instructions
@@ -577,7 +577,7 @@ AdvanceMAME Version 0.37b6.0
 		fault)
 	) Added and recomputed a lot of video modelines
 
-AdvanceMAME Version 0.37b5.0
+AdvanceMAME Version 0.37b5.0 2000/08
 	) Added the video driver `r128' for the ATI Rage 128 boards
 	) Added the video driver `neomagic' for the NeoMagic boards,
 		very common on laptops
@@ -598,7 +598,7 @@ AdvanceMAME Version 0.37b5.0
 		by Andy Geez. You can found the custom mouse driver
 		in the contrib/optimous directory.
 
-AdvanceMAME Version 0.37b4.0
+AdvanceMAME Version 0.37b4.0 2000/06
 	) Added `cirrus', `s3' and `matrox' video drivers
 	) Added the `-log' option at `mv'
 	) Added the `-nosound' option at `mv'
@@ -646,7 +646,7 @@ AdvanceMAME Version 0.37b3.1 (never released)
 	) Minor changes and corrections of the mame menu interface
 	) Added the `merge disable' option at the `mm' utility
 
-AdvanceMAME Version 0.37b3.0
+AdvanceMAME Version 0.37b3.0 2000/05
 	) Added to the source distribution the missing files
 		`blitmax.h' and `blitrot.h'
 	) Removed the file `makefile.dif' from the source distribution,
@@ -659,7 +659,7 @@ AdvanceMAME Version 0.37b2.2 (never released)
 	) Corrected the size of the vectors game
 	) Corrected the save function of the bliteffect option
 
-AdvanceMAME Version 0.37b2.1
+AdvanceMAME Version 0.37b2.1 2000/05
 	) Added to the `mm' utility the ability to save the
 		position of the cursor between runs
 	) Added to the `mm' utility the options `merge' to select
@@ -687,10 +687,10 @@ AdvanceMAME Version 0.37b2.1
 	) Changed the analog input stick behavior, read the
 		section `ANALOG INPUT STICK' in the file `mame.cfg'
 
-AdvanceMAME Version 0.37b2.0
+AdvanceMAME Version 0.37b2.0 2000/05
 	) Corrected a bug that prevent the selection of the input codes
 		for a specific game
-	) Corrected the problem of invisible columns on	the right for
+	) Corrected the problem of invisible columns on the right for
 		some games. This problem is still presents in the complex
 		blitters (stretch/rotate).
 	) Corrected a bug in the alignment of the memory of the visible
@@ -703,7 +703,7 @@ AdvanceMAME Version 0.37b2.0
 	) Updated the `mm' documentation file `mm.txt'
 	) Corrected the gamma modification at runtime
 
-AdvanceMAME Version 0.37b1.0
+AdvanceMAME Version 0.37b1.0 2000/04
 
 AdvanceMAME Version 0.36r2.2
 	) Added a warning screen for preventing the use of BIOS modes
@@ -739,7 +739,7 @@ AdvanceMAME Version 0.36r1.0 (never released)
 	) Default video mode change keys are now '[' and ']'
 	) Added a memory for the manually selected video configuration
 
-AdvanceMAME Version 0.36rc2.0
+AdvanceMAME Version 0.36rc2.0 2000/03
 	) Corrected a bug causing memory corruption in video mode change
 	) Added absolute tick values in the profiler
 	) Corrected the sort menu of the 'mm' utility
@@ -760,7 +760,7 @@ AdvanceMAME Version 0.36rc1.1 (never released)
 	) Corrected a bug in vbe 8 bit modes with a palette of 8 bit causing
 		incorrect colors
 
-AdvanceMAME Version 0.36rc1.0
+AdvanceMAME Version 0.36rc1.0 2000/02
 	) MAME compiled with Allegro WIP3931 (-march=i586), utilities
 		compiled with WIP3928 (smaller)
 	) Added special blitters for unchained double and palette conversion
@@ -802,13 +802,13 @@ AdvanceMAME Version 0.36b16.2 (never released)
 		an automatic random start after SECONDS of inactivity
 	) Documentation changes
 
-AdvanceMAME Version 0.36b16.1
+AdvanceMAME Version 0.36b16.1 2000/02
 	) Correct a bug in some blit routines, specifically in blitting
 		in a 8 bit mode with a 16 bit palette
 	) Reinsert dedicated and faster blitting routines when no rotation
 		is required
 
-AdvanceMAME Version 0.36b16.0
+AdvanceMAME Version 0.36b16.0 2000/02
 	) Added rotation at blit level, use the new option "blitrotate = yes"
 		for games that don't rotate correctly (ex. NeoGeo)
 	) Renamed the option "stretch" to "resize"
@@ -816,11 +816,46 @@ AdvanceMAME Version 0.36b16.0
 	) Minor modifications at mv
 	) Substituted the option `resize = yes' to `resize = integer'
 
-AdvanceMAME Version 0.36b15.1
+AdvanceMAME Version 0.36b15.1 2000/01
 	) Correct the crash if "vsync" is active and no modes avaliable
 	) Correct bug of missing horizontal lines if "scanline" is active
 	) Better output in errorlog.txt
 	) Correct bug in the input system
 
-AdvanceMAME Version 0.36b15.0
+AdvanceMAME Version 0.36b15.0 2000/01
 	) Created the history.txt file
+
+AdvanceMAME Version 0.36b14.0 2000/01
+
+AdvanceMAME Version 0.36b13.0 1999/12
+
+AdvanceMAME Version 0.36b13.0 1999/12
+
+AdvanceMAME Version 0.36b12.0 1999/12
+
+AdvanceMAME Version 0.36b11.0 1999/12
+
+AdvanceMAME Version 0.36b10.0 1999/11
+
+AdvanceMAME Version 0.36b9.0 1999/11
+
+AdvanceMAME Version 0.36b8.0 1999/11
+
+AdvanceMAME Version 0.36b7.0 1999/10
+
+AdvanceMAME Version 0.36b6.0 1999/09
+
+AdvanceMAME Version 0.36b5.0 1999/09
+
+AdvanceMAME Version 0.36b4.0 1999/09
+
+AdvanceMAME Version 0.36b3.0 1999/08
+
+AdvanceMAME Version 0.36b2.0 1999/08
+
+AdvanceMAME Version 0.35.0 1999/07
+
+AdvanceMAME Version 0.35rc2.0 1999/06
+
+AdvanceMAME Version 0.35rc1.0 1999/06
+

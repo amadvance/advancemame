@@ -399,7 +399,7 @@ AdvanceMENU Version 1.4.0
 		The `ico' files are read using the new mame.cfg `icons'
 		option. 
 
-AdvanceMENU Version 1.3.0 (0.37b8.0)
+AdvanceMENU Version 1.3.0 (0.37b8.0) 2000/10
 	) Better support for MESS
 	) Corrected some bugs related to long filenames and filenames
 		with spaces or dots
@@ -437,7 +437,7 @@ AdvanceMENU Version 1.1.0 (0.37b6.0)
 		newer joysticks
 	) Now works also if some games are missing in the info.txt
 
-AdvanceMENU Version 1.0.0 (0.37b5.0)
+AdvanceMENU Version 1.0.0 (0.37b5.0) 2000/08
 	) Added a new menu mode to the utility `mm' which display
 		a lot of tiled preview at the same times. Press TAB to
 		cycle from one mode to another.

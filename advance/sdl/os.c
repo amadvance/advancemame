@@ -64,7 +64,7 @@ os_clock_t os_clock(void) {
 /***************************************************************************/
 /* Init */
 
-#include "icondef.h"
+#include "icondef.dat"
 
 static void SDL_WM_DefIcon(void) {
 	SDL_Surface* surface;

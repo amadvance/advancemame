@@ -34,7 +34,8 @@ VIDEO_SRC = \
 	$(wildcard advance/video/*.h)
 
 CAB_ROOT_SRC = \
-	makefile
+	$(srcdir)/COPYING \
+	Makefile.in
 
 CAB_ADVANCE_SRC = \
 	advance/advance.mak \
@@ -42,7 +43,6 @@ CAB_ADVANCE_SRC = \
 	advance/d2.mak
 
 CAB_DOC_SRC = \
-	doc/copying \
 	doc/license.d \
 	doc/vbe.d \
 	doc/vga.d \
@@ -54,7 +54,6 @@ CAB_DOC_SRC = \
 	doc/relecab.txt
 
 CAB_DOC_BIN = \
-	doc/copying \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/vbe.txt \
 	$(DOCOBJ)/vga.txt \
@@ -82,6 +81,7 @@ CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
 CAB_ROOT_BIN = \
+	$(srcdir)/COPYING \
 	advance/vbe/vbe.com \
 	advance/vga/vga.exe \
 	advance/video/video.exe \

@@ -797,15 +797,18 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-debug          enable the debug information (default no)
+  --enable-asm            enable the assembler 586 optimizations (default
+                          auto)
   --enable-smp            enable the multi processor support (default yes)
   --enable-debugger       enable the emulator debugger (default no)
   --enable-compress       enable the compression of the executable (default
                           no)
-  --enable-asm            enable the 586 optimizations (default yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-arch             select the host cpu architecture: i586, i686, k6,
+                          athlon, blend... (default auto)
   --with-emu              select the emulator to use: mame, mess, neomame,
                           cpmame, pac, none (default auto)
   --with-system           select the system to use: native or sdl. (default
@@ -1338,7 +1341,7 @@ CONF_DEBUG=$ac_enable_debug
 
 if test -z "$CFLAGS" ; then
 	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -gstabs+3 -Wall -Wno-sign-compare"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
 	else
 		CFLAGS="-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused"
 	fi
@@ -3099,7 +3102,96 @@ fi
 done
 
 
+CONF_CFLAGS_OPT=$CFLAGS
 
+CONF_LDFLAGS=$LDFLAGS
+
+
+# Checks for libraries.
+
+
+echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
+echo $ECHO_N "checking for adler32 in -lz... $ECHO_C" >&6
+if test "${ac_cv_lib_z_adler32+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char adler32 ();
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+adler32 ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_z_adler32=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_lib_z_adler32=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_z_adler32" >&5
+echo "${ECHO_T}$ac_cv_lib_z_adler32" >&6
+if test $ac_cv_lib_z_adler32 = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBZ 1
+_ACEOF
+
+  LIBS="-lz $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: The zlib library is required" >&5
+echo "$as_me: error: The zlib library is required" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+if test $ac_host = windows; then
+	ZLIBS="-static -lz"
+else
+	ZLIBS="-lz"
+fi
+ZLIBS=$ZLIBS
+
+
+# Checks for header files.
+# Checks for typedefs, structures, and compiler characteristics.
+# Checks for library functions.
+
+# Checks for architecture
 echo "$as_me:$LINENO: checking whether byte ordering is bigendian" >&5
 echo $ECHO_N "checking whether byte ordering is bigendian... $ECHO_C" >&6
 if test "${ac_cv_c_bigendian+set}" = set; then
@@ -3305,90 +3397,130 @@ else
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
 fi
 
-# Checks for libraries.
 
-echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
-echo $ECHO_N "checking for adler32 in -lz... $ECHO_C" >&6
-if test "${ac_cv_lib_z_adler32+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
+if grep -i "family.*:.*3" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="i386"
+	ac_cpu_family=3
+elif grep -i "family.*:.*4" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="i486"
+	ac_cpu_family=4
+elif grep -i "family.*:.*5" /proc/cpuinfo > /dev/null ; then
+	if grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="k6"
+	elif grep -i "model name.*:.*Pentium MMX" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium-mmx"
+	elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium"
+	else
+		ac_cpu_arch="i586"
+	fi
+	ac_cpu_family=5
+elif grep "family.*:.*6" /proc/cpuinfo > /dev/null ; then
+	if grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="athlon"
+	elif grep -i "model name.*:.*Pentium IV" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium4"
+	elif grep -i "model name.*:.*Pentium III" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium3"
+	elif grep -i "model name.*:.*Pentium II" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium2"
+	elif grep -i "model name.*:.*Pentium Pro" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentiumpro"
+	else
+		ac_cpu_arch="i686"
+	fi
+	ac_cpu_family=6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lz  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-#include "confdefs.h"
+	{ echo "$as_me:$LINENO: WARNING: Unrecognized /proc/cpuinfo, assuming i686" >&5
+echo "$as_me: WARNING: Unrecognized /proc/cpuinfo, assuming i686" >&2;}
+	ac_cpu_arch="i686"
+	ac_cpu_family=6
+fi
+echo "$as_me:$LINENO: checking host cpu, family" >&5
+echo $ECHO_N "checking host cpu, family... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $ac_cpu_arch, $ac_cpu_family" >&5
+echo "${ECHO_T}$ac_cpu_arch, $ac_cpu_family" >&6
 
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char adler32 ();
-#ifdef F77_DUMMY_MAIN
-#  ifdef __cplusplus
-     extern "C"
-#  endif
-   int F77_DUMMY_MAIN() { return 1; }
-#endif
-int
-main ()
-{
-adler32 ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_z_adler32=yes
+
+
+# Check whether --with-arch or --without-arch was given.
+if test "${with_arch+set}" = set; then
+  withval="$with_arch"
+  ac_with_arch=$withval
 else
-  echo "$as_me: failed program was:" >&5
-cat conftest.$ac_ext >&5
-ac_cv_lib_z_adler32=no
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_z_adler32" >&5
-echo "${ECHO_T}$ac_cv_lib_z_adler32" >&6
-if test $ac_cv_lib_z_adler32 = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBZ 1
-_ACEOF
+  ac_with_arch=auto
 
-  LIBS="-lz $LIBS"
+fi;
+if test $ac_with_arch = auto; then
 
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=$ac_cpu_arch" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -march=$ac_cpu_arch... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -march=$ac_cpu_arch conftest.c 2>&1`"; then
+  ac_cc_cpu_arch="yes"
 else
-  { { echo "$as_me:$LINENO: error: The zlib library is required" >&5
-echo "$as_me: error: The zlib library is required" >&2;}
-   { (exit 1); exit 1; }; }
-
+  ac_cc_cpu_arch="no"
 fi
+rm -f conftest*
+echo "$as_me:$LINENO: result: ${ac_cc_cpu_arch}" >&5
+echo "${ECHO_T}${ac_cc_cpu_arch}" >&6
 
-if test $ac_host = windows; then
-	ZLIBS="-static -lz"
+if test $ac_cc_cpu_arch = yes ; then
+	ac_cc_arch=$ac_cpu_arch
 else
-	ZLIBS="-lz"
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -march=i${ac_cpu_family}86 conftest.c 2>&1`"; then
+  ac_cc_family_arch="yes"
+else
+  ac_cc_family_arch="no"
 fi
-ZLIBS=$ZLIBS
+rm -f conftest*
+echo "$as_me:$LINENO: result: ${ac_cc_family_arch}" >&5
+echo "${ECHO_T}${ac_cc_family_arch}" >&6
+
+	if test $ac_cc_family_arch = yes ; then
+		ac_cc_arch=i${ac_cpu_family}86
+	else
+		ac_cc_arch=blend
+	fi
+fi
+
+	ac_with_arch=$ac_cc_arch
+fi
+if test ! $ac_with_arch = blend; then
+	CFLAGS_ARCH="-march=$ac_with_arch $CFLAGS_ARCH"
+fi
+CONF_ARCH=$ac_with_arch
 
 
-# Checks for header files.
-# Checks for typedefs, structures, and compiler characteristics.
-# Checks for library functions.
+# Check whether --enable-asm or --disable-asm was given.
+if test "${enable_asm+set}" = set; then
+  enableval="$enable_asm"
+  ac_enable_asm=$withval
+else
+  ac_enable_asm=auto
 
-# Checks for command line options.
+fi;
+if test $ac_enable_asm = auto; then
+	if test $ac_cpu_family = 3 -o $ac_cpu_family = 4 ; then
+		ac_enable_asm=no
+	else
+		ac_enable_asm=yes
+	fi
+fi
+if test $ac_enable_asm = yes; then
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+fi
+
+# Export the architecture CFLAGS
+CONF_CFLAGS_ARCH=$CFLAGS_ARCH
+
+
+# Checks for configuration options.
 
 # Check whether --with-emu or --without-emu was given.
 if test "${with_emu+set}" = set; then
@@ -3902,7 +4034,6 @@ fi
 CONF_SYSTEM=$ac_with_system
 
 
-# Checks for command line options.
 # Check whether --enable-smp or --disable-smp was given.
 if test "${enable_smp+set}" = set; then
   enableval="$enable_smp"
@@ -4028,30 +4159,6 @@ CONF_COMPRESS=$ac_enable_compress
 UPX=$UPX
 
 TOUCH=$TOUCH
-
-
-# Check whether --enable-asm or --disable-asm was given.
-if test "${enable_asm+set}" = set; then
-  enableval="$enable_asm"
-  ac_enable_asm=$withval
-else
-  ac_enable_asm=yes
-
-fi;
-if test $ac_enable_asm = yes; then
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
-fi
-
-# Export the architecture CFLAGS
-CONF_CFLAGS_ARCH=$CFLAGS_ARCH
-
-
-# Export the optimization CFLAGS
-CONF_CFLAGS_OPT=$CFLAGS
-
-
-# Export the linker LDFLAGS
-CONF_LDFLAGS=$LDFLAGS
 
 
 # Notify that ./configure was runned
@@ -4681,7 +4788,11 @@ s,@ZIP@,$ZIP,;t t
 s,@ASM@,$ASM,;t t
 s,@CC_BUILD@,$CC_BUILD,;t t
 s,@CXX_BUILD@,$CXX_BUILD,;t t
+s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
+s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t
 s,@ZLIBS@,$ZLIBS,;t t
+s,@CONF_ARCH@,$CONF_ARCH,;t t
+s,@CONF_CFLAGS_ARCH@,$CONF_CFLAGS_ARCH,;t t
 s,@CONF_EMU@,$CONF_EMU,;t t
 s,@SDLCONFIG@,$SDLCONFIG,;t t
 s,@SDLCFLAGS@,$SDLCFLAGS,;t t
@@ -4692,9 +4803,6 @@ s,@CONF_DEBUGGER@,$CONF_DEBUGGER,;t t
 s,@UPX@,$UPX,;t t
 s,@TOUCH@,$TOUCH,;t t
 s,@CONF_COMPRESS@,$CONF_COMPRESS,;t t
-s,@CONF_CFLAGS_ARCH@,$CONF_CFLAGS_ARCH,;t t
-s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
-s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t
 s,@CONF@,$CONF,;t t
 CEOF
 
@@ -4925,28 +5033,32 @@ fi
 
 
 echo ""
-echo "== Configuration =="
-echo "Build environment :" $ac_build "("$build")"
-echo "Host environment :" $ac_host "("$host")"
+echo "== Host Architecture =="
+echo "Environment :" $ac_host "("$host")"
 if test $ac_is_bigendian = yes; then
-	echo "Host endianess : big"
+	echo "Endianess : big"
 else
-	echo "Host endianess : little"
+	echo "Endianess : little"
 fi
-if test $ac_enable_smp = yes; then
-	echo "Host processor : single/multi processor"
-else
-	echo "Host processor : single processor"
-fi
-echo "System library :" $ac_with_system
-echo "Emulator to compile :" $ac_with_emu
+echo "Multiprocessor :" $ac_enable_smp
 if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "Compress executables :" $ac_enable_compress
-echo "Emulator debugger :" $ac_enable_debugger
-echo "CFLAGS :" $CFLAGS
+echo "CPU :" $ac_with_arch
+echo ""
+echo "== Compiler =="
+echo "CFLAGS (optimization) :" $CFLAGS
+echo "CFLAGS (architecture) :" $CFLAGS_ARCH
 echo "LDFLAGS :" $LDFLAGS
+echo ""
+echo "== Configuration =="
+echo "System library :" $ac_with_system
+echo "Emulator :" $ac_with_emu
+if test ! $ac_with_emu = none ; then
+	echo "Debugger :" $ac_enable_debugger
+fi
+echo "Compress executables :" $ac_enable_compress
+
 

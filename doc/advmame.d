@@ -6,7 +6,8 @@ Synopsys
 
 	:advpac GAME [-default] [-remove] [-log] [-listinfo]
 
-	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
+	:advmess MACHINE [images...] [-default] [-remove] [-log]
+	:	[-listinfo]
 
 Description
 	AdvanceMAME is an unofficial MAME version for DOS and Linux with
