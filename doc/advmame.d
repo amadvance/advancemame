@@ -1591,6 +1591,70 @@ Configuration
 	Examples:
 		:record_video_interleave 1
 
+  Syncronization Options
+	This section describes the options used for the time syncronization
+	of the emulated game or system.
+
+    sync_fps
+	Selects an arbitrary frame rate for the game.
+
+	:sync_fps auto | FPS
+
+	Options:
+		auto - Use the original framerate of the game (default).
+		FPS - Use the specified framerate.
+
+    sync_speed
+	Selects a speed factor always active. You can play the game
+	in slowdown or in nightmare mode!
+
+	:sync_speed FACTOR
+
+	Options:
+		FACTOR - Float speed factor (default 1.0).
+
+	Examples:
+		:sync_speed 1.2
+
+    sync_turbospeed
+	Selects the speed factor used when the `turbo' button is
+	pressed. The default `turbo' key is `asterisk_pad'.
+
+	:sync_turbospeed FACTOR
+
+	Options:
+		FACTOR - Float speed factor (default 3.0).
+
+    sync_startuptime
+	Selects the time in seconds of the duration of the startup
+	speed up.
+
+	:sync_startuptime TIME
+
+	Options:
+		TIME - Time in seconds (default 6).
+
+	Use 0 seconds to disable the startup turbo effect.
+
+    sync_resample
+	Select the audio resampling mode.
+
+	:sync_resample auto | emulation | internal
+
+	Options:
+		auto - Select automatically, at present it's always
+			the `emulation' mode (default).
+		emulation - Change the emulation to produce the requested
+			number of samples instead of resampling.
+		internal - Internally resample the sound to match the
+			current speed.
+
+	Note that the `emulation' mode may result in wrong input recording
+	using the `-record' or `-playback' command line option due incorrect
+	behaviour of the emulation. Specifically some implementations may
+	depend on the number of sample requested, information which is not
+	stored in the recorded input file.
+
   Misc Configuration Options
 
     misc_bios
@@ -1646,47 +1710,6 @@ Configuration
 		yes - Enabled.
 
 	You can enable or disable it also on the runtime Video menu.
-
-    misc_fps
-	Selects an arbitrary frame rate for the game.
-
-	:misc_fps auto | FPS
-
-	Options:
-		auto - Use the original framerate of the game (default).
-		FPS - Use the specified framerate.
-
-    misc_speed
-	Selects a speed factor always active. You can play the game
-	in slowdown or in nightmare mode!
-
-	:misc_speed FACTOR
-
-	Options:
-		FACTOR - Float speed factor (default 1.0).
-
-	Examples:
-		:misc_speed 1.2
-
-    misc_turbospeed
-	Selects the speed factor used when the `turbo' button is
-	pressed. The default `turbo' key is `asterisk_pad'.
-
-	:misc_turbospeed FACTOR
-
-	Options:
-		FACTOR - Float speed factor (default 3.0).
-
-    misc_startuptime
-	Selects the time in seconds of the duration of the startup
-	speed up.
-
-	:misc_startuptime TIME
-
-	Options:
-		TIME - Time in seconds (default 6).
-
-	Use 0 seconds to disable the startup turbo effect.
 
     misc_quiet
 	Doesn't print the copyright text message at the startup, the

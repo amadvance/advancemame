@@ -36,7 +36,8 @@
 
 extern int script_input(char* buf, int max_size);
 
-void script_flush(void) {
+void script_flush(void)
+{
 	yy_delete_buffer(YY_CURRENT_BUFFER);
 }
 
@@ -57,6 +58,7 @@ void script_flush(void) {
 
 ID_VAL      [0-9]+|0x[0-9a-fA-F]+|0b[0-1]+
 ID_STR      [a-z_][a-z_0-9]*
+ID_TEXT     \"[^"\n]*\"
 
 %%
 
@@ -79,6 +81,11 @@ delay {
 {ID_STR} {
 		yylval.str = strdup( yytext );
 		return STRING;
+	}
+
+{ID_TEXT} {
+		yylval.text = strdup( yytext );
+		return TEXT;
 	}
 
 \<= {
@@ -104,3 +111,4 @@ delay {
 [ \t\n]+	/* eat up whitespace */
 
 .	return yytext[0];
+

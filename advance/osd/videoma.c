@@ -1537,9 +1537,16 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 
 	context->state.palette_total = colors;
 	context->state.palette_dirty_total = (context->state.palette_total + osd_mask_size - 1) / osd_mask_size;
+	if (context->state.palette_total % osd_mask_size == 0) {
+		context->state.palette_dirty_mask = osd_mask_full;
+	} else {
+		unsigned rest = context->state.palette_total % osd_mask_size;
+		context->state.palette_dirty_mask = (1U << rest) - 1;
+	}
 
 	log_std(("emu:video: palette_total %d\n", context->state.palette_total));
 	log_std(("emu:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
+	log_std(("emu:video: palette_dirty_mask %08x\n", context->state.palette_dirty_mask));
 
 	context->state.palette_dirty_map = (osd_mask_t*)malloc(context->state.palette_dirty_total * sizeof(osd_mask_t));
 	context->state.palette_map = (adv_color_rgb*)malloc(context->state.palette_total * sizeof(osd_rgb_t));
@@ -3343,14 +3350,29 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 		}
 	}
 
+	if (size > context->state.palette_total || dirty_size > context->state.palette_dirty_total) {
+		log_std(("ERROR:emu:video: invalid palette access, second try, size:%d, total:%d, dirty_size:%d, total:%d\n", size, context->state.palette_total, dirty_size, context->state.palette_dirty_total));
+		return;
+	}
+
 	context->state.palette_dirty_flag = 1;
 	for(i=0;i<size;++i) {
 		context->state.palette_map[i].red = osd_rgb_red(palette[i]);
 		context->state.palette_map[i].green = osd_rgb_green(palette[i]);
 		context->state.palette_map[i].blue = osd_rgb_blue(palette[i]);
 	}
-	for(i=0;i<dirty_size;++i)
-		context->state.palette_dirty_map[i] |= mask[i];
+
+	if (dirty_size > 0 && dirty_size == context->state.palette_dirty_total) {
+		/* the last element must be masked */
+		for(i=0;i<dirty_size - 1;++i) {
+			context->state.palette_dirty_map[i] |= mask[i];
+		}
+		context->state.palette_dirty_map[i] |= mask[i] & context->state.palette_dirty_mask;
+	} else {
+		for(i=0;i<dirty_size;++i) {
+			context->state.palette_dirty_map[i] |= mask[i];
+		}
+	}
 }
 
 void osd_pause(int paused)
@@ -3412,8 +3434,10 @@ int osd_skip_this_frame(void)
 
 int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count)
 {
+	struct advance_video_context* context = &CONTEXT.video;
+
 	/* save the values of the previous skip frame */
-	int skip_flag = CONTEXT.video.state.skip_flag;
+	int skip_flag = context->state.skip_flag;
 
 	/* current error of video/sound syncronization */
 	int latency_diff;
@@ -3421,28 +3445,27 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	/* effective number of sound samples to output */
 	int sample_recount;
 
-	struct advance_video_state_context* context = &CONTEXT.video.state;
 	unsigned i;
 	unsigned av_c_pos;
 	unsigned av_c_neg;
 	int sample_limit;
 
 	/* store the current audio video synctonization error measured in sound samples */
-	context->av_sync_map[context->av_sync_mac] = context->latency_diff;
+	context->state.av_sync_map[context->state.av_sync_mac] = context->state.latency_diff;
 
 	/* move the position on the circular buffer */
-	if (context->av_sync_mac == AUDIOVIDEO_MEASURE_MAX - 1)
-		context->av_sync_mac = 0;
+	if (context->state.av_sync_mac == AUDIOVIDEO_MEASURE_MAX - 1)
+		context->state.av_sync_mac = 0;
 	else
-		++context->av_sync_mac;
+		++context->state.av_sync_mac;
 
 	/* count the positive and negative errors */
 	av_c_pos = 0;
 	av_c_neg = 0;
 	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i) {
-		if (context->av_sync_map[i] >= AUDIOVIDEO_DISTRIBUTE_COUNT)
+		if (context->state.av_sync_map[i] >= AUDIOVIDEO_DISTRIBUTE_COUNT)
 			++av_c_pos;
-		if (context->av_sync_map[i] <= -AUDIOVIDEO_DISTRIBUTE_COUNT)
+		if (context->state.av_sync_map[i] <= -AUDIOVIDEO_DISTRIBUTE_COUNT)
 			++av_c_neg;
 	}
 
@@ -3453,7 +3476,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	if (av_c_pos == AUDIOVIDEO_MEASURE_MAX || av_c_neg == AUDIOVIDEO_MEASURE_MAX) {
 		/* adjust the output sample count to correct the syncronization error, */
 		/* the error is distributed on AUDIOVIDEO_DISTRIBUTE_COUNT frames */
-		latency_diff = context->latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
+		latency_diff = context->state.latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
 	} else {
 		/* doesn't correct the error if present */
 		latency_diff = 0;
@@ -3465,32 +3488,32 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
 	}
 
-#if USE_INTERNALRESAMPLE
-	sample_recount = sample_count - latency_diff;
+	if (context->config.internalresample_flag) {
+		sample_recount = sample_count - latency_diff;
 
-	/* lower limit of number of samples */
-	sample_limit = sample_count / 32;
-	if (sample_limit < 16)
-		sample_limit = 16;
+		/* lower limit of number of samples */
+		sample_limit = sample_count / 32;
+		if (sample_limit < 16)
+			sample_limit = 16;
 
-	/* correction for a generic sound buffer underflow. */
-	/* generally happen that the DMA buffer underflow reporting */
-	/* a fill state instead of an empty one. */
-	if (sample_recount < sample_limit) {
-		log_std(("WARNING:emu:video: too small sound samples %d adjusted to %d\n", sample_recount, sample_limit));
-		sample_recount = sample_limit;
-	}
+		/* correction for a generic sound buffer underflow. */
+		/* generally happen that the DMA buffer underflow reporting */
+		/* a fill state instead of an empty one. */
+		if (sample_recount < sample_limit) {
+			log_std(("WARNING:emu:video: too small sound samples %d adjusted to %d\n", sample_recount, sample_limit));
+			sample_recount = sample_limit;
+		}
 
-	latency_diff = 0;
-#else
-	/* ask the MAME core to adjust the number of generated samples */
-	if (advance_record_sound_is_active(&CONTEXT.record)) {
-		/* if recording is active does't skip any samples */
 		latency_diff = 0;
-	}
+	} else {
+		/* ask the MAME core to adjust the number of generated samples */
+		if (advance_record_sound_is_active(&CONTEXT.record)) {
+			/* if recording is active does't skip any samples */
+			latency_diff = 0;
+		}
 
-	sample_recount = sample_count;
-#endif
+		sample_recount = sample_count;
+	}
 
 	/* update the global info */
 	video_cmd_update(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, led, input, skip_flag);
@@ -3585,6 +3608,12 @@ static adv_conf_enum_int OPTION_MAGNIFY[] = {
 { "4", 4 }
 };
 
+static adv_conf_enum_int OPTION_RESAMPLE[] = {
+{ "auto", -1 },
+{ "emulation", 0 },
+{ "internal", 1 }
+};
+
 static adv_conf_enum_int OPTION_RGBEFFECT[] = {
 { "none", EFFECT_NONE },
 { "triad3dot", EFFECT_RGB_TRIAD3PIX },
@@ -3644,14 +3673,14 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_rgbeffect", conf_enum(OPTION_RGBEFFECT), EFFECT_NONE);
 	conf_int_register_enum_default(cfg_context, "display_interlaceeffect", conf_enum(OPTION_INTERLACEEFFECT), EFFECT_NONE);
-	conf_string_register_default(cfg_context, "misc_fps", "auto");
-	conf_float_register_limit_default(cfg_context, "misc_speed", 0.1, 10.0, 1.0);
-	conf_float_register_limit_default(cfg_context, "misc_turbospeed", 0.1, 30.0, 3.0);
+	conf_string_register_default(cfg_context, "sync_fps", "auto");
+	conf_float_register_limit_default(cfg_context, "sync_speed", 0.1, 10.0, 1.0);
+	conf_float_register_limit_default(cfg_context, "sync_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "misc_crash", 0);
 #ifdef MESS
-	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 0);
+	conf_int_register_limit_default(cfg_context, "sync_startuptime", 0, 180, 0);
 #else
-	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 6);
+	conf_int_register_limit_default(cfg_context, "sync_startuptime", 0, 180, 6);
 #endif
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
@@ -3664,6 +3693,8 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 #ifdef USE_SMP
 	conf_bool_register_default(cfg_context, "misc_smp", 0);
 #endif
+
+	conf_int_register_enum_default(cfg_context, "sync_resample", conf_enum(OPTION_RESAMPLE), -1);
 
 	monitor_register(cfg_context);
 	crtc_container_register(cfg_context);
@@ -3806,7 +3837,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 {
 	const char* s;
 	adv_error err;
-	unsigned i;
+	int i;
 	adv_bool ror, rol, flipx, flipy;
 
 	context->config.game_orientation = mame_game_orientation(option->game);
@@ -3863,20 +3894,20 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
-	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "misc_turbospeed");
-	s = conf_string_get_default(cfg_context, "misc_fps");
+	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
+	s = conf_string_get_default(cfg_context, "sync_fps");
 	if (strcmp(s,"auto")==0) {
 		context->config.fps_fixed = 0;
 	} else {
 		char* e;
 		context->config.fps_fixed = strtod(s,&e);
 		if (context->config.fps_fixed < 10 || context->config.fps_fixed > 300 || *e) {
-			target_err("Invalid argument '%s' for option 'misc_fps'.\n", s);
+			target_err("Invalid argument '%s' for option 'sync_fps'.\n", s);
 			return -1;
 		}
 	}
-	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "misc_speed");
-	context->config.fastest_time = conf_int_get_default(cfg_context, "misc_startuptime");
+	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "sync_speed");
+	context->config.fastest_time = conf_int_get_default(cfg_context, "sync_startuptime");
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
@@ -3906,6 +3937,12 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #else
 	context->config.smp_flag = 0;
 #endif
+
+	i = conf_int_get_default(cfg_context, "sync_resample");
+	if (i == 1)
+		context->config.internalresample_flag = 1;
+	else
+		context->config.internalresample_flag = 0;
 
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);

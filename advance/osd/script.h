@@ -32,6 +32,27 @@
 #define __SCRIPT_H
 
 /***************************************************************************/
+/* Value */
+
+#define SCRIPT_VALUE_NUM 0x00
+#define SCRIPT_VALUE_TEXT 0x01
+
+union script_value_arg {
+	char* text;
+	int num;
+};
+
+struct script_value {
+	int type;
+	union script_value_arg value;
+};
+
+void script_value_free(struct script_value* p);
+int script_value_free_num(struct script_value* p);
+struct script_value* script_value_alloc_num(int v);
+struct script_value* script_value_alloc_text(const char* v);
+
+/***************************************************************************/
 /* Expression */
 
 union script_arg_extra {
@@ -54,21 +75,25 @@ struct script_exp_op1v {
 	int arg0; /* value */
 };
 
-typedef int (script_exp_op1s_evaluator)(union script_arg_extra argextra);
+typedef struct script_value* (script_exp_op1s_evaluator)(union script_arg_extra argextra);
 
 struct script_exp_op1s {
 	union script_arg_extra argextra; /* extra value for the evaluator */
 	script_exp_op1s_evaluator* eval; /* evaluator */
 };
 
-typedef int (script_exp_op1f_evaluator)(union script_arg_extra argextra);
+struct script_exp_op1t {
+	char* arg0; /* text */
+};
+
+typedef struct script_value* (script_exp_op1f_evaluator)(union script_arg_extra argextra);
 
 struct script_exp_op1f {
 	union script_arg_extra argextra; /* extra value for the evaluator */
 	script_exp_op1f_evaluator* eval; /* evaluator */
 };
 
-typedef int (script_exp_op2fe_evaluator)(int arg1, union script_arg_extra argextra);
+typedef struct script_value* (script_exp_op2fe_evaluator)(struct script_value* arg1, union script_arg_extra argextra);
 
 struct script_exp_op2fe {
 	struct script_exp* arg1; /* expression */
@@ -76,7 +101,7 @@ struct script_exp_op2fe {
 	script_exp_op2fe_evaluator* eval; /* evaluator */
 };
 
-typedef int (script_exp_op3fee_evaluator)(int arg1, int arg2, union script_arg_extra argextra);
+typedef struct script_value* (script_exp_op3fee_evaluator)(struct script_value* arg1, struct script_value* arg2, union script_arg_extra argextra);
 
 struct script_exp_op3fee {
 	struct script_exp* arg1; /* expression */
@@ -90,6 +115,7 @@ union script_exp_data {
 	struct script_exp_op1e op1e;
 	struct script_exp_op1v op1v;
 	struct script_exp_op1s op1s;
+	struct script_exp_op1t op1t;
 	struct script_exp_op1f op1f;
 	struct script_exp_op2fe op2fe;
 	struct script_exp_op3fee op3fee;
@@ -103,7 +129,7 @@ union script_exp_data {
 #define SCRIPT_EXP_TYPE_1F 0x500
 #define SCRIPT_EXP_TYPE_2FE 0x600
 #define SCRIPT_EXP_TYPE_3FEE 0x700
-
+#define SCRIPT_EXP_TYPE_1T 0x800
 #define SCRIPT_EXP_TYPE_MASK 0xF00
 
 static inline int script_exp_type_get(unsigned type)
@@ -134,13 +160,14 @@ static inline int script_exp_type_get(unsigned type)
 #define SCRIPT_EXP_SR (0x13 | SCRIPT_EXP_TYPE_2EE)
 #define SCRIPT_EXP_LOR (0x14 | SCRIPT_EXP_TYPE_2EE)
 #define SCRIPT_EXP_LAND (0x15 | SCRIPT_EXP_TYPE_2EE)
+#define SCRIPT_EXP_TEXT (0x16 | SCRIPT_EXP_TYPE_1T) /* text */
 
 struct script_exp {
 	int type;
 	union script_exp_data data;
 };
 
-int script_evaluate(const struct script_exp* exp);
+struct script_value* script_evaluate(const struct script_exp* exp);
 
 /* Symbol callback */
 script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg_extra* argextra);
@@ -153,6 +180,7 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 
 struct script_exp* script_exp_make_op1v(int type, int arg0);
 struct script_exp* script_exp_make_op1s(int type, const char* arg0);
+struct script_exp* script_exp_make_op1t(int type, const char* arg0);
 struct script_exp* script_exp_make_op1e(int type, struct script_exp* arg0);
 struct script_exp* script_exp_make_op2ee(int type, struct script_exp* arg0, struct script_exp* arg1);
 struct script_exp* script_exp_make_op1f(int type, const char* arg0);

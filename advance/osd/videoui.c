@@ -211,16 +211,17 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct 
 	}
 }
 
-static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, const char* begin, const char* end, unsigned pos, unsigned cf, unsigned cb)
+static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char* begin, char* end, unsigned pos, unsigned cf, unsigned cb)
 {
 	unsigned size_r;
-	unsigned sizew;
+	unsigned size_v;
 	int step_x, step_y;
 	int border_x, border_y;
 	int size_x, size_y;
 	int pos_x, pos_y;
-	const char* i;
-	const char* start;
+	int limit_x;
+	char* i;
+	char* start;
 	unsigned n;
 
 	step_x = adv_font_sizex(context->state.ui_font);
@@ -229,16 +230,38 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, const
 	border_x = step_x;
 	border_y = step_y / 2;
 
-	/* count size_r and compute width */
+	/* count size_r and compute width and wrap long line */
+	limit_x = dst->size_x - 2 * border_x;
 	size_r = 0;
 	size_x = 0;
 	i = begin;
 	start = begin;
 	while (i != end) {
 		unsigned width;
-		const char* j = i;
-		while (j != end && *j != '\n')
+		char* j = i;
+
+		width = 0;
+		while (j != end && *j != '\n') {
+			unsigned char_width = adv_font_sizex_char(context->state.ui_font, *j);
+			if (width + char_width > limit_x) {
+				char* b = j;
+				/* search first space backward */
+				while (b != i && !isspace(*b))
+					--b;
+				if (b != i) {
+					/* adjust the position */
+					if (pos > size_r)
+						++pos;
+					/* insert a break */
+					*b = '\n';
+					j = b;
+					break;
+				}
+			} else {
+				width += char_width;
+			}
 			++j;
+		}
 
 		if (size_r == pos)
 			start = i;
@@ -258,10 +281,10 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, const
 	size_x += 2 * border_x;
 	if (size_x > dst->size_x)
 		size_x = dst->size_x;
-	sizew = (dst->size_y - 2 * border_y) / step_y;
-	if (sizew > size_r)
-		sizew = size_r;
-	size_y = sizew * step_y + 2 * border_y;
+	size_v = (dst->size_y - 2 * border_y) / step_y;
+	if (size_v > size_r)
+		size_v = size_r;
+	size_y = size_v * step_y + 2 * border_y;
 
 	/* position */
 	pos_x = dst->size_x / 2 - size_x / 2;
@@ -273,8 +296,8 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, const
 
 	n = 0;
 	i = start;
-	while (i != end && n < sizew) {
-		const char* j = i;
+	while (i != end && n < size_v) {
+		char* j = i;
 		const char* je;
 		while (j != end && *j != '\n')
 			++j;
@@ -928,7 +951,7 @@ void osd_ui_message(const char* s, int second)
 	advance_ui_message(context, "%s", s);
 }
 
-void osd_ui_menu(const char** items,const char** subitems, char* flag, int selected, int arrowize_subitem)
+void osd_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
 {
 	unsigned menu_mac;
 	struct ui_menu_entry* menu_map;
@@ -946,14 +969,18 @@ void osd_ui_menu(const char** items,const char** subitems, char* flag, int selec
 
 	for(i=0;i<menu_mac;++i) {
 		sncpy(menu_map[i].text_buffer, sizeof(menu_map[i].text_buffer), items[i]);
-		if (subitems && subitems[i])
+		if (subitems && subitems[i]) {
 			sncpy(menu_map[i].option_buffer, sizeof(menu_map[i].option_buffer), subitems[i]);
-		else
+			if (flag && flag[i]) {
+				menu_map[i].flag = flag[i] != 0;
+			} else {
+				menu_map[i].flag = 0;
+			}
+		} else {
 			menu_map[i].option_buffer[0] = 0;
-		if (flag && flag[i])
-			menu_map[i].flag = flag[i] != 0;
-		else
 			menu_map[i].flag = 0;
+		}
+
 		if (i == selected) {
 			menu_map[i].arrow_left_flag = (arrowize_subitem & 1) != 0;
 			menu_map[i].arrow_right_flag = (arrowize_subitem & 2) != 0 ;

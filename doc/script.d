@@ -42,25 +42,27 @@ Ports
 
 		set(ADDRESS, VALUE) - set the port with the specified value
 		get(ADDRESS) - return the value of the port
-		on(ADDRESS,VALUE) - like set(ADDRESS, get(ADDRESS) | VALUE)
-		off(ADDRESS,VALUE) - like set(ADDRESS, get(ADDRESS) & ~VALUE)
-		toggle(ADDRESS,VALUE) - like set(ADDRESS, get(ADDRESS) ^ VALUE)
+		on(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) | VALUE)
+		off(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) & ~VALUE)
+		toggle(ADDRESS, VALUE) - like set(ADDRESS, get(ADDRESS) ^ VALUE)
 
 	In DOS the hardware ports are accessed directly, in Linux through the
 	/dev/port interface.
 
 Values
 	These are the available value formats:
-		... - decimal format
-		0x... - hexadecimal format
-		0b... - binary format
+		... - Decimal format.
+		0x... - Hexadecimal format.
+		0b... - Binary format.
+		"..." - Strings.
 
 	Examples:
-		10 - decimal format of 10
-		0xA - hexadecimal format of 10
-		0b1010 - binary format of 10
+		10 - Decimal format of 10.
+		0xA - Hexadecimal format of 10.
+		0b1010 - Binary format of 10.
+		"Text" - Generic string.
 
-Operators
+Expression
 	These are the available operators:
 		+ - addition
 		- - subtraction
@@ -81,7 +83,8 @@ Commands
 	These are the available commands:
 
 		event() - Return 0 if the event that started the
-			script is terminated.
+			script is terminated. Return 1 if the event
+			is active.
 		event(EVENT) - Return 0 if the specified event is
 			not active. Return 1 if the event is active.
 		simulate_event(EVENT,N) - Simulate the specified
@@ -89,17 +92,19 @@ Commands
 		simulate_key(KEY,N) - Simulate the specified key for
 			N milli seconds.
 		wait(CONDITION) - Wait until the condition is true.
-		delay(N) - Wait the specified N milli seconds.
+		delay(N) - Wait the specified N milliseconds.
 		while (CONDITION) { ... } - While != 0.
-		if (CONDITION) { ...  } - If != 0.
+		if (CONDITION) { ...  } - If value != 0.
 		loop { ... } - Repeat forever.
 		repeat (N) { ... } - Repeat N times.
+		log(VALUE) - Output a value in the log.
+		msg(VALUE) - Print on screen a value.
 
 	The 'event()' command can be used to determine the end of the event
 	that started the script. For example for the 'coin1' event the
 	function return 0 when the key is released.
 
-	The 'wait()' and 'delay()' command are used to maintain the
+	The 'wait()' and 'delay()' commands are used to maintain the
 	synchronization with the game emulation. When these commands
 	are executed the script is temporarily suspended. All others
 	commands are executed continuously without any delay.

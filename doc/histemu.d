@@ -4,6 +4,23 @@ Name
 AdvanceMAME Version 0.78.1 2004/01
 	) Fixed the audio surround enabled with the "sound_mode surround" option.
 		Now you should not hear audio statics anymore.
+	) Renamed the options `misc_fps', `misc_speed', `misc_turbospeed' and
+		`misc_startuptime' in `sync_fps', `sync_speed', `sync_turbospeed' and
+		`sync_startuptime'.
+	) Partially reverted back to using the MAME sound generation instead of
+		the internal resampling. You can switch to the internal resampling
+		using the `sync_resample' option.
+	) The dipswitchs named "Unknown" and "Unused" are never saved.
+	) The long text lines of scroll windows are now wrapped if required.
+	) Added in the contrib dir a patch for "linux/fb.h" for compiling the
+		Frame Buffer support on the Linux Kernel 2.6.0.
+	) Added the "log" and "msg" commands at the scripts and fixed
+		the "event(EVENT)" and "get(PORT)" commands.
+	) The `dipswitch' and `configswitch' options in the .rc file are now
+		saved only one time.
+
+AdvanceMESS Version 0.78.0.1 2004/01
+	) Fixed the storing of the `Start' and `Select' input.
 
 AdvanceMAME Version 0.78.0 2004/01
 	) Added a new `help' button which display an arbitrary image with

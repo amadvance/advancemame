@@ -39,17 +39,19 @@
 
 int yylex(void);
 
-void yyerror(const char* s) {
+void yyerror(const char* s)
+{
 	script_error(s);
 }
 
-struct script_cmd* yyresult;
+static struct script_cmd* script_result;
 
 %}
 
 %union {
 	int val;
 	const char* str;
+	const char* text;
 	struct script_exp* exp;
 	struct script_cmd* cmd;
 }
@@ -67,15 +69,17 @@ struct script_cmd* yyresult;
 %token DELAY
 %token <val> VAL
 %token <str> STRING
+%token <text> TEXT
 %type <cmd> cmd cmd_list script
 %type <exp> exp
 
 %%
 
 script: cmd_list {
-		yyresult = $1;
+		script_result = $1;
 		YYACCEPT;
 	}
+;
 
 cmd_list: cmd_list cmd {
 		$$ = script_cmd_make_op2cc($1, $2);
@@ -87,12 +91,17 @@ cmd_list: cmd_list cmd {
 	}
 ;
 
-exp:	VAL {
+exp: VAL {
 		$$ = script_exp_make_op1v(SCRIPT_EXP_VALUE,$1);
 		if (!$$) YYERROR;
 	}
 	| STRING {
 		$$ = script_exp_make_op1s(SCRIPT_EXP_VARIABLE,$1);
+		free((char*)$1);
+		if (!$$) YYERROR;
+	}
+	| TEXT {
+		$$ = script_exp_make_op1t(SCRIPT_EXP_TEXT,$1);
 		free((char*)$1);
 		if (!$$) YYERROR;
 	}
@@ -180,7 +189,7 @@ exp:	VAL {
 	}
 ;
 
-cmd:	'{' cmd_list '}' {
+cmd: '{' cmd_list '}' {
 		$$ = script_cmd_make_op2sc("inner",$2);
 		if (!$$) YYERROR;
 	}
@@ -213,7 +222,8 @@ cmd:	'{' cmd_list '}' {
 const char* script_input_begin;
 const char* script_input_end;
 
-int script_input(char* buf, int max_size) {
+int script_input(char* buf, int max_size)
+{
 	(void)max_size;
 	if (script_input_begin == script_input_end) {
 		return 0;
@@ -223,13 +233,15 @@ int script_input(char* buf, int max_size) {
 	}
 }
 
-struct script_cmd* script_parse(const char* text) {
+struct script_cmd* script_parse(const char* text)
+{
 	int r;
 	script_input_begin = text;
 	script_input_end = script_input_begin + strlen(script_input_begin);
 	r = yyparse();
 	if (r!=0)
 		return 0;
+
 	r = yylex();
 	if (r!=0) {
 		if (r == STRING) {
@@ -245,5 +257,7 @@ struct script_cmd* script_parse(const char* text) {
 		}
 		return 0;
 	}
-	return yyresult;
+
+	return script_result;
 }
+

@@ -1216,7 +1216,7 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	char* slash;
 	char* own_section;
 	char* own_tag;
-	adv_bool autoreg;
+	int autoreg;
 
 	slash = strrchr(own_sectiontag, '/');
 	if (slash!=0) {
@@ -1237,7 +1237,7 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 		own_tag = own_sectiontag;
 	}
 
-	autoreg = 0;
+	autoreg = ADV_CONF_CONV_AUTOREG_NO;
 	if (input->conv_mac) {
 		unsigned conv;
 		for(conv=0;conv<input->conv_mac;++conv)
@@ -1269,11 +1269,11 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	option = option_search_tag(context, own_tag);
 	if (!option) {
 
-		if (autoreg) {
+		if (autoreg != ADV_CONF_CONV_AUTOREG_NO) {
 			/* auto register the option */
 			option = option_alloc();
 			option->type = conf_type_string;
-			option->is_multi = 1;
+			option->is_multi = autoreg == ADV_CONF_CONV_AUTOREG_MULTI;
 			option->tag = own_tag;
 			option->data.base_string.has_def = 0;
 			option->data.base_string.has_enum = 0;
@@ -2657,15 +2657,14 @@ adv_error conf_autoreg_string_get(adv_conf* context, const char* tag, const char
 
 /**
  * Autoregistration version of conf_remove().
- * The tag is automatically registered as a string (without default) if
- * it isn't already registered.
+ * If the tag isn't registred no action is taken.
  */
 adv_error conf_autoreg_remove(adv_conf* context, const char* section, const char* tag)
 {
 	if (conf_is_registered(context, tag)) {
 		return conf_remove(context, section, tag);
 	} else {
-		/* if it isn't registered is surely missing */
+		/* if it isn't registered it's surely missing */
 		return 0;
 	}
 }

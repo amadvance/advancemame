@@ -98,6 +98,7 @@ static const mame_game* select_game(const char* gamename)
 	struct game_fuzzy* game_map;
 	unsigned i;
 	int limit;
+	unsigned print_count;
 
 	for(i=0;mame_game_at(i);++i) {
 		if (strcmp(gamename, mame_game_name(mame_game_at(i))) == 0) {
@@ -110,9 +111,11 @@ static const mame_game* select_game(const char* gamename)
 
 	target_err("Game \"%s\" isn't supported.\n", gamename);
 
-	limit = (strlen(gamename) - 6) * FUZZY_UNIT_A;
+	limit = (strlen(gamename) / 3) * FUZZY_UNIT_A;
 	if (limit < 4*FUZZY_UNIT_A)
 		limit = 4*FUZZY_UNIT_A;
+	if (limit > 7*FUZZY_UNIT_A)
+		limit = 7*FUZZY_UNIT_A;
 
 	for(i=0;i<game_count;++i) {
 		const mame_game* game = mame_game_at(i);
@@ -129,13 +132,23 @@ static const mame_game* select_game(const char* gamename)
 
 	qsort(game_map, game_count, sizeof(struct game_fuzzy), game_fuzzy_cmp);
 
-	if (game_map[0].fuzzy < limit) {
-		target_err("\nSimilar are:\n");
-		for (i=0;i<15 && i<game_count;++i) {
-			if (game_map[i].fuzzy < limit) {
-				const mame_game* game = mame_game_at(game_map[i].index);
-				target_err("%10s %s\n", mame_game_name(game), mame_game_description(game));
-			}
+	print_count = 0;
+	while (print_count < game_count && game_map[print_count].fuzzy < limit) {
+		unsigned k;
+		k = print_count;
+		while (k < game_count && game_map[print_count].fuzzy == game_map[k].fuzzy)
+			++k;
+		if (k >= 15) {
+			break;
+		}
+		print_count = k;
+	}
+
+	if (print_count > 0 && print_count < 15) {
+		target_err("\nSimilar names are:\n");
+		for(i=0;i<print_count && i<game_count;++i) {
+			const mame_game* game = mame_game_at(game_map[i].index);
+			target_err("%10s %s\n", mame_game_name(game), mame_game_description(game));
 		}
 	}
 
@@ -214,7 +227,10 @@ static void help(void)
 #endif
 	target_out("\n");
 #if !defined(__MSDOS__) && !defined(__WIN32__)
-	target_out("To get an extensive help type 'man %s'\n", ADVANCE_NAME);
+	target_out("To get help type 'man %s'.\n", ADVANCE_NAME);
+#ifdef DATADIR
+	target_out("Extensive documentation is located at '%s'\n", DATADIR "/doc");
+#endif
 	target_out("\n");
 #endif
 }
@@ -224,11 +240,11 @@ static void help(void)
 
 static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
-{ "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
+{ "", "allegro_*", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_MULTI }, /* auto registration of the Allegro options */
 #endif
-{ "*", "input_dipswitch[*]", "*", "%s", "%s", "%s", 1 }, /* auto register */
+{ "*", "input_dipswitch[*]", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_SINGLE }, /* auto register */
 #ifdef MESS
-{ "*", "input_configswitch[*]", "*", "%s", "%s", "%s", 1 }, /* auto register */
+{ "*", "input_configswitch[*]", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_SINGLE }, /* auto register */
 #endif
 
 /* 0.57.1 */
@@ -367,7 +383,12 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 }, /* rename */
 /* 0.78.0 */
 { "*", "device_video_overlay", "*", "%s", "device_video_overlaysize", "%s", 0 }, /* rename */
-{ "*", "dir_cfg", "*", "", "", "", 0 } /* ignore */
+{ "*", "dir_cfg", "*", "", "", "", 0 }, /* ignore */
+/* 0.78.1 */
+{ "*", "misc_fps", "*", "%s", "sync_fps", "%s", 0 }, /* rename */
+{ "*", "misc_speed", "*", "%s", "sync_speed", "%s", 0 }, /* rename */
+{ "*", "misc_turbospeed", "*", "%s", "sync_turbospeed", "%s", 0 }, /* rename */
+{ "*", "misc_startuptime", "*", "%s", "sync_startuptime", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -674,14 +695,14 @@ int os_main(int argc, char* argv[])
 	section_map[section_mac++] = "";
 	conf_section_set(context->cfg, section_map, section_mac);
 	for(i=0;i<section_mac;++i)
-		log_std(("advance: use configuration section '%s'\n", section_map[i]));
+		log_std(("emu: use configuration section '%s'\n", section_map[i]));
 
 	/* setup the include configuration file */
 	if (include_load(context->cfg, 2, conf_string_get_default(context->cfg, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_os;
 	}
 
-	log_std(("advance: *_load()\n"));
+	log_std(("emu: *_load()\n"));
 
 	/* load all the options */
 	if (mame_config_load(context->cfg, &option) != 0)
@@ -709,13 +730,13 @@ int os_main(int argc, char* argv[])
 		target_nfo(ADVANCE_COPY);
 	}
 
-	log_std(("advance: os_inner_init()\n"));
+	log_std(("emu: os_inner_init()\n"));
 
 	if (os_inner_init(ADVANCE_TITLE) != 0) {
 		goto err_os;
 	}
 
-	log_std(("advance: *_inner_init()\n"));
+	log_std(("emu: *_inner_init()\n"));
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
@@ -728,13 +749,13 @@ int os_main(int argc, char* argv[])
 	if (hardware_script_inner_init()!=0)
 		goto err_inner_safequit;
 
-	log_std(("advance: mame_game_run()\n"));
+	log_std(("emu: mame_game_run()\n"));
 
 	r = mame_game_run(context, &option);
 	if (r < 0)
 		goto err_inner_script;
 
-	log_std(("advance: *_inner_done()\n"));
+	log_std(("emu: *_inner_done()\n"));
 
 	hardware_script_inner_done();
 	advance_safequit_inner_done(&context->safequit);
@@ -742,11 +763,11 @@ int os_main(int argc, char* argv[])
 	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
 
-	log_std(("advance: os_inner_done()\n"));
+	log_std(("emu: os_inner_done()\n"));
 
 	os_inner_done();
 
-	log_std(("advance: *_done()\n"));
+	log_std(("emu: *_done()\n"));
 
 	hardware_script_done();
 	advance_safequit_done(&context->safequit);
@@ -759,18 +780,20 @@ int os_main(int argc, char* argv[])
 	advance_global_done(&context->global);
 	mame_done(context);
 
-	log_std(("advance: os_done()\n"));
+	log_std(("emu: os_done()\n"));
 
 	os_done();
 
-	log_std(("advance: conf_save()\n"));
+	log_std(("emu: conf_save()\n"));
 
-	/* save the configuration only if modified, ignore the error but print the messages */
+	/* save the configuration only if modified (force_flag=0), ignore the error but print the messages (if quiet_flag is not 0) */
 	if (access(file_config_file_home(ADVANCE_NAME ".rc"), W_OK)==0) {
 		conf_save(context->cfg, 0, context->global.config.quiet_flag, error_callback, 0);
+	} else {
+		log_std(("WARNING:emu: configuration file %s not writable\n", file_config_file_home(ADVANCE_NAME ".rc")));
 	}
 
-	log_std(("advance: conf_done()\n"));
+	log_std(("emu: conf_done()\n"));
 
 	if (opt_log || opt_logsync) {
 		log_done();

@@ -205,6 +205,11 @@ typedef void conf_error_callback(void* context, enum conf_callback_error error, 
 
 adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_error_callback* error, void* error_context);
 
+
+#define ADV_CONF_CONV_AUTOREG_NO 0 /**< Conversion without autoregistration. */
+#define ADV_CONF_CONV_AUTOREG_MULTI 1 /**< Conversion with autoregistration in multi mode. */
+#define ADV_CONF_CONV_AUTOREG_SINGLE 2 /**< Conversion with autoregistration in single mode. */
+
 /**
  * Conversion specification.
  * This struct can be used to specify a conversion filter reading the options.
@@ -216,7 +221,7 @@ typedef struct adv_conf_conv_struct {
 	char* section_result; /**< Conversion. %s for the whole original record. */
 	char* tag_result; /**< Conversion. %s for the whole original record. Setting an empty tag automatically ignore the option. */
 	char* value_result; /**< Conversion. %s for the whole original record. */
-	adv_bool autoreg; /**< Auto registration. */
+	int autoreg; /**< Auto registration. One of ADV_CONF_CONF_AUTOREG_*. */
 } adv_conf_conv;
 
 adv_error conf_input_file_load(adv_conf* context, int priority, const char* file, conf_error_callback* error, void* error_context);

@@ -756,6 +756,16 @@ static struct mame_port PORT[] = {
 	P("left", "Left", JOYSTICK_LEFT)
 	P("right", "Right", JOYSTICK_RIGHT)
 
+	/* DOUBLE JOYSTICK */
+	S("doubleright_up", "Double Right Up", JOYSTICKRIGHT_UP)
+	S("doubleright_down", "Double Right Down", JOYSTICKRIGHT_DOWN)
+	S("doubleright_left", "Double Right Left", JOYSTICKRIGHT_LEFT)
+	S("doubleright_right", "Double Right Right", JOYSTICKRIGHT_RIGHT)
+	S("doubleleft_up", "Double Left Up", JOYSTICKLEFT_UP)
+	S("doubleleft_down", "Double Left Down", JOYSTICKLEFT_DOWN)
+	S("doubleleft_left", "Double Left Left", JOYSTICKLEFT_LEFT)
+	S("doubleleft_right", "Double Left Right", JOYSTICKLEFT_RIGHT)
+
 	/* BUTTON */
 	P("button1", "Button 1", BUTTON1)
 	P("button2", "Button 2", BUTTON2)
@@ -794,10 +804,10 @@ static struct mame_port PORT[] = {
 	PE("pedal2", "pedal2_autorelease", "Pedal 2", "Pedal 2 Release", PEDAL2)
 
 	/* START */
-	S("start1", "Player 1 Start", START1)
-	S("start2", "Player 2 Start", START2)
-	S("start3", "Player 3 Start", START3)
-	S("start4", "Player 4 Start", START4)
+	S("start1", "Start 1 Player", START1)
+	S("start2", "Start 2 Players", START2)
+	S("start3", "Start 3 Players", START3)
+	S("start4", "Start 4 Players", START4)
 
 	/* COIN */
 	S("coin1", "Player 1 Coin", COIN1)
@@ -816,6 +826,12 @@ static struct mame_port PORT[] = {
 
 	/* TILT */
 	S("tilt", "Tilt", TILT)
+
+	/* MESS Specific */
+#ifdef MESS
+	P("start", "Start", START)
+	P("select", "Select", SELECT)
+#endif
 
 	/* UI specific of AdvanceMAME */
 	S("ui_mode_next", "Next Mode", UI_MODE_NEXT)
@@ -1294,6 +1310,11 @@ void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort*
 #endif
 	default:
 		log_std(("WARNING:emu:glue: Unknown switchport %d\n", current->type & ~IPF_MASK));
+		return;
+	}
+
+	if (current->name == DEF_STR( Unused ) || current->name == DEF_STR( Unknown )) {
+		log_std(("WARNING:emu:glue: Ignoring named Unknown/Unused switchport %d\n", current->type & ~IPF_MASK));
 		return;
 	}
 

@@ -871,11 +871,15 @@ static inline void scale2x_32_mmx_single(scale2x_uint32* dst, const scale2x_uint
  */
 static void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
-	assert(count >= 16);
-	assert(count % 8 == 0);
+	if (count % 8 != 0 || count < 16) {
+		scale2x_8_def(dst0, dst1, src0, src1, src2, count);
+	} else {
+		assert(count >= 16);
+		assert(count % 8 == 0);
 
-	scale2x_8_mmx_single(dst0, src0, src1, src2, count);
-	scale2x_8_mmx_single(dst1, src2, src1, src0, count);
+		scale2x_8_mmx_single(dst0, src0, src1, src2, count);
+		scale2x_8_mmx_single(dst1, src2, src1, src0, count);
+	}
 }
 
 /**
@@ -891,11 +895,15 @@ static void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2
  */
 static void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
-	assert(count >= 8);
-	assert(count % 4 == 0);
+	if (count % 4 != 0 || count < 8) {
+		scale2x_16_def(dst0, dst1, src0, src1, src2, count);
+	} else {
+		assert(count >= 8);
+		assert(count % 4 == 0);
 
-	scale2x_16_mmx_single(dst0, src0, src1, src2, count);
-	scale2x_16_mmx_single(dst1, src2, src1, src0, count);
+		scale2x_16_mmx_single(dst0, src0, src1, src2, count);
+		scale2x_16_mmx_single(dst1, src2, src1, src0, count);
+	}
 }
 
 /**
@@ -911,11 +919,15 @@ static void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const sca
  */
 static void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
-	assert(count >= 4);
-	assert(count % 2 == 0);
+	if (count % 2 != 0 || count < 4) {
+		scale2x_32_def(dst0, dst1, src0, src1, src2, count);
+	} else {
+		assert(count >= 4);
+		assert(count % 2 == 0);
 
-	scale2x_32_mmx_single(dst0, src0, src1, src2, count);
-	scale2x_32_mmx_single(dst1, src2, src1, src0, count);
+		scale2x_32_mmx_single(dst0, src0, src1, src2, count);
+		scale2x_32_mmx_single(dst1, src2, src1, src0, count);
+	}
 }
 
 #endif

@@ -31,10 +31,12 @@
 #include "hscript.h"
 #include "script.h"
 #include "key.h"
+#include "log.h"
 #include "target.h"
 #include "keydrv.h"
 
 #include "glue.h"
+#include "emu.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,9 +133,9 @@ struct symbol {
 };
 
 /* Evaluate a symbol */
-static int script_symbol_get(union script_arg_extra argextra)
+static struct script_value* script_symbol_get(union script_arg_extra argextra)
 {
-	return argextra.value;
+	return script_value_alloc_num(argextra.value);
 }
 
 /* Check a symbol */
@@ -179,49 +181,115 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	return 0;
 }
 
-int script_function1_get(union script_arg_extra argextra)
+static struct script_value* script_function1_get(union script_arg_extra argextra)
 {
+	int r;
+
 	switch (argextra.value) {
-		case 0 : /* event */
-			return STATE.script_condition;
+	case 0 : /* event */
+		r = STATE.script_condition;
+		break;
+	default :
+		r = 0;
+		break;
 	}
-	return 0;
+
+	return script_value_alloc_num(r);
 }
 
-int script_function2_get(int arg0, union script_arg_extra argextra)
+static struct script_value* script_function2_get(struct script_value* varg0, union script_arg_extra argextra)
 {
+	int arg0 = script_value_free_num(varg0);
+	int r;
+
 	switch (argextra.value) {
-		case 0 : /* get */
-			return script_port_read(arg0);
-		case 1 :  /* event */
-			return mame_ui_port_pressed(arg0);
+	case 0 :  /* event */
+		r = mame_ui_port_pressed(arg0);
+		break;
+	case 1 : /* get */
+		r = script_port_read(arg0);
+		break;
+	default :
+		r = 0;
+		break;
 	}
-	return 0;
+
+	return script_value_alloc_num(r);
 }
 
-int script_function3_get(int arg0, int arg1, union script_arg_extra argextra)
+static struct script_value* script_function2t_get(struct script_value* varg0, union script_arg_extra argextra)
 {
+	int r;
+
 	switch (argextra.value) {
-		case 0 : /* set */
-			script_port_write(arg0, arg1);
-			return 0;
-		case 1 : /* on */
-			script_port_write(arg0, script_port_read(arg0) | arg1);
-			return 0;
-		case 2 : /* off */
-			script_port_write(arg0, script_port_read(arg0) & ~arg1);
-			return 0;
-		case 3 : /* toggle */
-			script_port_write(arg0, script_port_read(arg0) ^ arg1);
-			return 0;
-		case 4 : /* simulate_event */
-			hardware_simulate_input(SIMULATE_EVENT, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
-			return 0;
-		case 5 : /* simulate_key */
-			hardware_simulate_input(SIMULATE_KEY, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
-			return 0;
+	case 2 : /* log */
+		if (varg0->type == SCRIPT_VALUE_NUM) {
+			log_std(("script: %d\n", varg0->value.num));
+		} else if (varg0->type == SCRIPT_VALUE_TEXT) {
+			log_std(("script: %s\n", varg0->value.text));
+		} else {
+			log_std(("ERROR:script: invalid type\n"));
+		}
+		r = 0;
+		break;
+	case 3 : /* msg */
+		if (varg0->type == SCRIPT_VALUE_NUM) {
+			advance_global_message(&CONTEXT.global, "%d", varg0->value.num);
+		} else if (varg0->type == SCRIPT_VALUE_TEXT) {
+			advance_global_message(&CONTEXT.global, "%s", varg0->value.text);
+		} else {
+			log_std(("ERROR:script: invalid type\n"));
+		}
+
+		r = 0;
+		break;
+	default :
+		r = 0;
+		break;
 	}
-	return 0;
+
+	script_value_free(varg0);
+
+	return script_value_alloc_num(r);
+}
+
+static struct script_value* script_function3_get(struct script_value* varg0, struct script_value* varg1, union script_arg_extra argextra)
+{
+	int arg0 = script_value_free_num(varg0);
+	int arg1 = script_value_free_num(varg1);
+	int r;
+
+	switch (argextra.value) {
+	case 0 : /* set */
+		script_port_write(arg0, arg1);
+		r = 0;
+		break;
+	case 1 : /* on */
+		script_port_write(arg0, script_port_read(arg0) | arg1);
+		r = 0;
+		break;
+	case 2 : /* off */
+		script_port_write(arg0, script_port_read(arg0) & ~arg1);
+		r = 0;
+		break;
+	case 3 : /* toggle */
+		script_port_write(arg0, script_port_read(arg0) ^ arg1);
+		r = 0;
+		break;
+	case 4 : /* simulate_event */
+		hardware_simulate_input(SIMULATE_EVENT, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
+		r = 0;
+		break;
+	case 5 : /* simulate_key */
+		hardware_simulate_input(SIMULATE_KEY, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
+		r = 0;
+		break;
+	default :
+		r = 0;
+		break;
+	}
+
+	return script_value_alloc_num(r);
 }
 
 script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_arg_extra* argextra)
@@ -241,6 +309,12 @@ script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script
 	} else if (strcmp(sym, "get")==0) {
 		argextra->value = 1;
 		return &script_function2_get;
+	} else if (strcmp(sym, "log")==0) {
+		argextra->value = 2;
+		return &script_function2t_get;
+	} else if (strcmp(sym, "msg")==0) {
+		argextra->value = 3;
+		return &script_function2t_get;
 	}
 	return 0;
 }
@@ -273,8 +347,7 @@ script_exp_op3fee_evaluator* script_function3_check(const char* sym, union scrip
 /* Parse error callback */
 void script_error(const char* s)
 {
-	target_err("Error compiling the script: '%s'.\n", STATE.script_text);
-	target_err("%s\n", s);
+	target_err("Error compiling the script: '%s', %s\n", STATE.script_text, s);
 }
 
 int hardware_script_init(adv_conf* context)
@@ -330,8 +403,9 @@ int hardware_script_inner_init(void)
 		if (STATE.text_map[i]) {
 			STATE.script_text = STATE.text_map[i];
 			STATE.map[i].script = script_parse(STATE.text_map[i]);
-			if (!STATE.map[i].script)
+			if (!STATE.map[i].script) {
 				return -1;
+			}
 			STATE.map[i].state = script_run_alloc();
 		} else {
 			STATE.map[i].script = 0;

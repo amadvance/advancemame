@@ -185,6 +185,13 @@ struct advance_video_config_context {
 	adv_bool crash_flag; /**< If enable the crash menu entry. */
 	unsigned monitor_aspect_x; /**< Horizontal aspect of the monitor (4 for a standard monitor) */
 	unsigned monitor_aspect_y; /**< Vertical aspect of the monitor (3 for a standard monitor) */
+
+	/**
+	 * Use internal sound resampling instead of the changing MAME core sample generation.
+	 * Some MAME drivers change the behaviour of the game in dependency of the number of sample requested
+	 * desyncronizing any input recording.
+	 */
+	adv_bool internalresample_flag;
 };
 
 /** Number of measures of the audio/video syncronization. */
@@ -246,6 +253,7 @@ struct advance_video_state_context {
 	unsigned palette_dirty_total; /**< Number of entry in the palette dirty. */
 	adv_color_rgb* palette_map; /**< Current palette RGB triplets. */
 	osd_mask_t* palette_dirty_map; /**< If the palette is dirty this is the list of dirty colors. */
+	osd_mask_t palette_dirty_mask; /**< Mask for the last dirty element. */
 	adv_bool palette_dirty_flag; /**< If the current palette dirty, it need to be updated. */
 	uint32* palette_index32_map; /**< Software palette at 32 bit. */
 	uint16* palette_index16_map; /**< Software palette at 16 bit. */
@@ -451,16 +459,6 @@ adv_error advance_record_png_write(FILE* f, const void* video_buffer, unsigned v
 #define SOUND_MODE_STEREO 1
 #define SOUND_MODE_SURROUND 2
 /*@}*/
-
-/**
- * Define to 1 to use internal resample instead of the changing MAME core sample generation.
- * Some MAME drivers don't support an arbitrary number of sample generation, some others
- * may change the behaviour of the game in dependency of the number of sample requested
- * desyncronizing any input recording.
- * For these reasons it's better to always ask at the MAME core the same number of
- * sound sample for every frame.
- */
-#define USE_INTERNALRESAMPLE 1
 
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
@@ -757,27 +755,27 @@ struct advance_ui_state_context {
 	adv_bool ui_help_flag; /**< User interface help display flag. */
 	adv_font* ui_font; /**< User interface font. */
 	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
-	adv_bool ui_menu_flag;
+	adv_bool ui_menu_flag; /**< Menu display flag. */
 	struct ui_menu_entry* ui_menu_map;
 	unsigned ui_menu_mac;
 	unsigned ui_menu_sel;
-	adv_bool ui_osd_flag;
+	adv_bool ui_osd_flag; /**< On Screen Display display flag. */
 	char ui_osd_buffer[256];
 	int ui_osd_value;
 	int ui_osd_max;
 	int ui_osd_min;
 	int ui_osd_def;
-	adv_bool ui_scroll_flag;
+	adv_bool ui_scroll_flag; /**< Scroll display flag. */
 	char* ui_scroll_begin;
 	char* ui_scroll_end;
 	unsigned ui_scroll_pos;
 
-	adv_bool ui_direct_flag;
-	char ui_direct_buffer[256];
+	adv_bool ui_direct_flag; /**< Direct on screen flag. */
+	char ui_direct_buffer[256]; /**< Direct on screen message. */
 
 	adv_bitmap* help_image; /**< Help image. */
-	adv_color_rgb help_rgb_map[256];
-	unsigned help_rgb_max;
+	adv_color_rgb help_rgb_map[256]; /**< Help image palette. */
+	unsigned help_rgb_max; /**< Help image palette size. */
 };
 
 struct advance_ui_context {

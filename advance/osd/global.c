@@ -241,7 +241,7 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 	}
 
 	/* set the difficulty */
-	value->default_value = level->default_value;
+	value->default_value = level->default_value & value->mask;
 
 	log_std(("emu:global: difficulty dip switch set to '%s'\n", level->name));
 }

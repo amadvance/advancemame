@@ -2,9 +2,9 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.78.0.0
+EMUVERSION = 0.78.0.1
 else
-EMUVERSION = 0.78.0
+EMUVERSION = 0.78.1
 endif
 MENUVERSION = 2.2.17
 CABVERSION = 1.1.4

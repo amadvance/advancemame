@@ -106,8 +106,9 @@ void target_usleep(unsigned us)
 	unsigned effective;
 
 	/* if too short don't wait */
-	if (us <= TARGET.usleep_granularity)
+	if (us <= TARGET.usleep_granularity) {
 		return;
+	}
 
 	requested = us - TARGET.usleep_granularity;
 

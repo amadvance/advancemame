@@ -444,7 +444,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 
 static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
-{ "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
+{ "", "allegro_*", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_MULTI }, /* auto registration of the Allegro options */
 #endif
 { "*", "group_inport", "*", "%s", "group_import", "%s", 0 }, /* 1.16.0 */
 { "*", "type_inport", "*", "%s", "type_import", "%s", 0 }, /* 1.16.0 */
