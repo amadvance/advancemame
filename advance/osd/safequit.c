@@ -2,7 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Ian Patterson
- * Copyright (C) 2002-2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,14 +29,16 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "mame2.h"
-
 #include "emu.h"
 
 #include "log.h"
 #include "snstring.h"
 
+#include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 static adv_error advance_safequit_insert_database(struct advance_safequit_context* context, char* buf, unsigned line, const char* game, adv_bool insert)
 {
@@ -139,25 +141,42 @@ err:
 	return -1;
 }
 
-static adv_error advance_safequit_load_database(struct advance_safequit_context* context, const char* file, const char* game_name)
+static adv_error advance_safequit_load_database(struct advance_safequit_context* context, const char* name, const char* game_name)
 {
-	mame_file* f;
+	FILE* f;
 	char buffer[2048];
 	char game_name_buffer[32];
 	unsigned line = 1;
 	adv_bool match;
 	adv_bool def;
+	const char* file;
 
-	f = mame_fopen(NULL, file, FILETYPE_HISTORY, 0);
+	file = file_config_file_home(name);
+	f = fopen(file, "rt");
+	if (!f && errno == ENOENT) {
+		log_std(("event: event file '%s' not found\n", file));
+		file = file_config_file_data(name);
+		if (file) {
+			f = fopen(file, "rt");
+			if (!f && errno == ENOENT) {
+				log_std(("event: event file '%s' not found\n", file));
+			}
+		}
+	}
 	if (!f) {
-		target_err("Error opening the event database %s.\n", file);
+		if (errno == ENOENT) {
+			return 0;
+		}
+		log_std(("event: error %d opening the event file '%s'\n", errno, name));
+		target_err("Error opening the event database %s.\n", name);
 		goto err;
 	}
 
 	match = 0;
 	def = 0;
 
-	while (mame_fgets(buffer, sizeof(buffer), f) != NULL)
+	buffer[0] = 0;
+	while (fgets(buffer, sizeof(buffer), f) != NULL)
 	{
 		unsigned len = strlen(buffer);
 
@@ -183,14 +202,15 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		}
 
 		++line;
+		buffer[0] = 0;
 	}
 
 done:
-	mame_fclose(f);
+	fclose(f);
 	return 0;
 
 err_close:
-	mame_fclose(f);
+	fclose(f);
 err:
 	return -1;
 }
@@ -261,7 +281,7 @@ adv_error advance_safequit_config_load(struct advance_safequit_context* context,
 void advance_safequit_event(struct advance_safequit_context* context, struct safequit_entry* entry, unsigned char result)
 {
 	if (advance_safequit_is_entry_set(entry, result)) {
-		if (entry->frame_count < Machine->drv->frames_per_second) {
+		if (entry->frame_count < mame_ui_frames_per_second()) {
 			entry->frame_count++;
 			context->state.status &= ~(1 << entry->event);
 		}
@@ -314,7 +334,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 
 	for(i=0;i<context->state.entry_mac;++i) {
 		struct safequit_entry* entry = &context->state.entry_map[i];
-		unsigned char result = cpunum_read_byte(entry->cpu, entry->address);
+		unsigned char result = mame_ui_cpu_read(entry->cpu, entry->address);
 
 		advance_safequit_event(context, entry, result);
 		advance_safequit_coin(context, entry, result);

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -847,6 +847,17 @@ struct mame_port* mame_port_list(void)
 
 /***************************************************************************/
 /* MAME callback interface */
+
+unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr)
+{
+	unsigned char r = cpunum_read_byte(cpu, addr);
+	return r;
+}
+
+unsigned mame_ui_frames_per_second(void)
+{
+	return Machine->drv->frames_per_second;
+}
 
 /**
  * Check if a MAME port is active.
@@ -1710,4 +1721,5 @@ int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 
 	return 0;
 }
+
 

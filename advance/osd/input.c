@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,13 +67,6 @@ struct input_equiv {
 #define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBDDDTTT */
 #define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKBBBTTT */
 #define DIGITAL_TYPE_GET(i) ((i) & 0x7)
-
-#define DIGITAL_SPECIAL(code) (DIGITAL_TYPE_SPECIAL | (code) << 3)
-
-#define DIGITAL_SPECIAL_NONE DIGITAL_SPECIAL(1)
-#define DIGITAL_SPECIAL_OR DIGITAL_SPECIAL(2)
-#define DIGITAL_SPECIAL_NOT DIGITAL_SPECIAL(3)
-#define DIGITAL_SPECIAL_AUTO DIGITAL_SPECIAL(4)
 
 /**************************************************************************/
 /* Keyboard */
@@ -297,9 +290,6 @@ static char input_joyname_map[INPUT_JOYMOUSE_MAX + 1][INPUT_NAME_MAX];
 #define ANALOG_TYPE_BALL 7 /* Ball - NAAADDDTTT */
 #define ANALOG_TYPE_GET(i) DIGITAL_TYPE_GET(i)
 
-#define ANALOG_SPECIAL_NONE DIGITAL_SPECIAL_NONE
-#define ANALOG_SPECIAL_AUTO DIGITAL_SPECIAL_AUTO
-
 /* Analog Mouse */
 #define ANALOG_MOUSE_DEV_GET(i) (((i) >> 3) & 0x7)
 #define ANALOG_MOUSE_AXE_GET(i) (((i) >> 6) & 0x7)
@@ -328,6 +318,19 @@ static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
 };
 
 /**************************************************************************/
+/* Special */
+
+#define DIGITAL_SPECIAL(code) (DIGITAL_TYPE_SPECIAL | (code) << 3)
+
+#define DIGITAL_SPECIAL_NONE DIGITAL_SPECIAL(1)
+#define DIGITAL_SPECIAL_OR DIGITAL_SPECIAL(2)
+#define DIGITAL_SPECIAL_NOT DIGITAL_SPECIAL(3)
+#define DIGITAL_SPECIAL_AUTO DIGITAL_SPECIAL(4)
+
+#define ANALOG_SPECIAL_NONE DIGITAL_SPECIAL_NONE
+#define ANALOG_SPECIAL_AUTO DIGITAL_SPECIAL_AUTO
+
+/**************************************************************************/
 /* Parse */
 
 static adv_error parse_int(int* v, const char* s)
@@ -336,8 +339,10 @@ static adv_error parse_int(int* v, const char* s)
 
 	*v = strtol(s,&e,10);
 
-	if (*e!=0 || e == s)
+	if (*e!=0 || e == s) {
+		error_set("Invalid integer '%s'", s);
 		return -1;
+	}
 
 	return 0;
 }
@@ -362,6 +367,7 @@ static adv_error parse_joystick_stick(int* v, const char* s, unsigned joystick)
 		}
 	}
 
+	error_set("Invalid stick '%s'", s);
 	return -1;
 }
 
@@ -390,6 +396,8 @@ static adv_error parse_joystick_stick_axe(int* v, const char* s, unsigned joysti
 		}
 	}
 
+	error_set("Invalid joystick axe '%s'", s);
+
 	return -1;
 }
 
@@ -412,6 +420,8 @@ static adv_error parse_mouse_axe(int* v, const char* s, unsigned mouse)
 			return 0;
 		}
 	}
+
+	error_set("Invalid mouse axe '%s'", s);
 
 	return -1;
 }
@@ -436,6 +446,8 @@ static adv_error parse_joystick_rel(int* v, const char* s, unsigned joystick)
 		}
 	}
 
+	error_set("Invalid joystick rel '%s'", s);
+
 	return -1;
 }
 
@@ -458,6 +470,8 @@ static adv_error parse_mouse_button(int* v, const char* s, unsigned mouse)
 			return 0;
 		}
 	}
+
+	error_set("Invalid mouse button '%s'", s);
 
 	return -1;
 }
@@ -482,6 +496,8 @@ static adv_error parse_joystick_button(int* v, const char* s, unsigned joystick)
 		}
 	}
 
+	error_set("Invalid joystick button '%s'", s);
+
 	return -1;
 }
 
@@ -500,6 +516,8 @@ static adv_error parse_key(int* v, const char* s, unsigned keyboard)
 		}
 	}
 
+	error_set("Invalid key '%s'", s);
+
 	return -1;
 }
 
@@ -514,6 +532,8 @@ static adv_error parse_direction(int* v, const char* s)
 		*v = 0;
 		return 0;
 	}
+
+	error_set("Invalid direction '%s'", s);
 
 	return -1;
 }
@@ -545,13 +565,13 @@ static adv_error parse_analog(int* map, char* s)
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
-			if (s[p] || c == '[')
+			if (s[p] || c == '[') {
+				error_set("Wrong use of 'auto'");
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
-				return -1;
+			map[0] = ANALOG_SPECIAL_AUTO;
 
-			map[mac] = ANALOG_SPECIAL_AUTO;
 			return 0;
 		}
 
@@ -559,41 +579,58 @@ static adv_error parse_analog(int* map, char* s)
 			int joystick, stick, axe;
 			adv_bool negate;
 
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			negate = t[0] == '-';
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v2 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
 				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0)
 				return -1;
 
-			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+				error_set("Invalid joystick '%d'", joystick);
 				return -1;
-			if (stick < 0 || stick >= INPUT_STICK_MAX)
+			}
+			if (stick < 0 || stick >= INPUT_STICK_MAX) {
+				error_set("Invalid stick '%d'", stick);
 				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
+			}
+			if (axe < 0 || axe >= INPUT_AXE_MAX) {
+				error_set("Invalid joystick axe '%d'", axe);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = ANALOG_JOY(joystick, stick, axe, negate);
 			++mac;
 		} else {
+			error_set("Unknown '%s'", t);
 			return -1;
 		}
 
@@ -605,7 +642,7 @@ static adv_error parse_analog(int* map, char* s)
 	return 0;
 }
 
-static int parse_trak(int* map, char* s)
+static adv_error parse_trak(int* map, char* s)
 {
 	unsigned p;
 	unsigned mac;
@@ -631,13 +668,12 @@ static int parse_trak(int* map, char* s)
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
-			if (s[p] || c == '[')
+			if (s[p] || c == '[') {
+				error_set("Wrong use of 'auto'");
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
-				return -1;
-
-			map[mac] = ANALOG_SPECIAL_AUTO;
+			map[0] = ANALOG_SPECIAL_AUTO;
 
 			return 0;
 		}
@@ -646,30 +682,43 @@ static int parse_trak(int* map, char* s)
 			int mouse, axe;
 			adv_bool negate;
 			
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			negate = t[0] == '-';
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&mouse, v0) != 0
-				|| parse_mouse_axe(&axe, v1, mouse) != 0)
+				|| parse_mouse_axe(&axe, v1, mouse) != 0) {
 				return -1;
+			}
 
-			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX) {
+				error_set("Invalid mouse '%d'", mouse);
 				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
+			}
+			if (axe < 0 || axe >= INPUT_AXE_MAX) {
+				error_set("Invalid mouse axe '%d'", axe);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = ANALOG_MOUSE(mouse, axe, negate);
 			++mac;
@@ -677,34 +726,47 @@ static int parse_trak(int* map, char* s)
 			int joystick, axe;
 			adv_bool negate;
 			
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			negate = t[0] == '-';
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_rel(&axe, v1, joystick) != 0)
 				return -1;
 
-			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+				error_set("Invalid joystick '%d'", joystick);
 				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
+			}
+			if (axe < 0 || axe >= INPUT_AXE_MAX) {
+				error_set("Invalid joystick axe '%d'", axe);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = ANALOG_BALL(joystick, axe, negate);
 			++mac;
 		} else {
+			error_set("Unknown '%s'", t);
 			return -1;
 		}
 
@@ -716,7 +778,48 @@ static int parse_trak(int* map, char* s)
 	return 0;
 }
 
-static int parse_digital(unsigned* map, char* s)
+static adv_error validate_digital(unsigned* map)
+{
+	unsigned i;
+	adv_bool positive = 0;
+	adv_bool pred_not = 0;
+	adv_bool operand = 0;
+
+	i = 0;
+	while (i < INPUT_MAP_MAX && map[i] != DIGITAL_SPECIAL_NONE) {
+		switch (map[i]) {
+		case DIGITAL_SPECIAL_OR :
+			/* allow concatenation with the previous mapping */
+			if ((!operand || !positive) && i>0)
+				return -1;
+			pred_not = 0;
+			positive = 0;
+			operand = 0;
+			break;
+		case DIGITAL_SPECIAL_NOT :
+			if (pred_not)
+				return 0;
+			pred_not = !pred_not;
+			operand = 0;
+			break;
+		default:
+			if (!pred_not)
+				positive = 1;
+			pred_not = 0;
+			operand = 1;
+			break;
+		}
+
+		++i;
+	}
+
+	if ((!operand || !positive) && i>0)
+		return -1;
+
+	return 0;
+}
+
+static adv_error parse_digital(unsigned* map, char* s)
 {
 	unsigned p;
 	unsigned mac;
@@ -744,8 +847,10 @@ static int parse_digital(unsigned* map, char* s)
 		if (first && strcmp(t,"auto")==0) {
 			sskip(&p, s, " \t");
 
-			if (s[p] || c == '[')
+			if (s[p] || c == '[') {
+				error_set("Wrong use of 'auto'");
 				return -1;
+			}
 
 			map[0] = DIGITAL_SPECIAL_AUTO;
 
@@ -756,28 +861,40 @@ static int parse_digital(unsigned* map, char* s)
 			int board;
 			int key;
 
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&board, v0) != 0
 				|| parse_key(&key, v1, board) != 0)
 				return -1;
 
-			if (board < 0 || board >= INPUT_KEYBOARD_MAX)
+			if (board < 0 || board >= INPUT_KEYBOARD_MAX) {
+				error_set("Invalid keyboard '%d'", board);
 				return -1;
-			if (key < 0 || key >= KEYB_MAX)
+			}
+			if (key < 0 || key >= KEYB_MAX) {
+				error_set("Invalid key '%d'", key);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_KBD(board, key);
 			++mac;
@@ -787,24 +904,34 @@ static int parse_digital(unsigned* map, char* s)
 			int axe;
 			int dir;
 
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v2 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v3 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
@@ -812,17 +939,23 @@ static int parse_digital(unsigned* map, char* s)
 				|| parse_direction(&dir, v3) != 0)
 				return -1;
 
-			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+				error_set("Invalid joystick '%d'", joystick);
 				return -1;
-			if (stick < 0 || stick >= INPUT_STICK_MAX)
+			}
+			if (stick < 0 || stick >= INPUT_STICK_MAX) {
+				error_set("Invalid stick '%d'", stick);
 				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
+			}
+			if (axe < 0 || axe >= INPUT_AXE_MAX) {
+				error_set("Invalid joystick axe '%d'", axe);
 				return -1;
-			if (dir < 0 || dir >= 2)
-				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_JOY(joystick, stick, axe, dir);
 			++mac;
@@ -830,28 +963,40 @@ static int parse_digital(unsigned* map, char* s)
 			int joystick;
 			int button;
 
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&joystick, v0) != 0
 				|| parse_joystick_button(&button, v1, joystick) != 0)
 				return -1;
 
-			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX) {
+				error_set("Invalid joystick '%d'", joystick);
 				return -1;
-			if (button < 0 || button >= INPUT_BUTTON_MAX)
+			}
+			if (button < 0 || button >= INPUT_BUTTON_MAX) {
+				error_set("Invalid joystick button '%d'", button);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_JOY_BUTTON(joystick, button);
 			++mac;
@@ -859,56 +1004,82 @@ static int parse_digital(unsigned* map, char* s)
 			int mouse;
 			int button;
 
-			if (c!='[')
+			if (c!='[') {
+				error_set("Missing [ in '%s'", t);
 				return -1;
+			}
 
 			v0 = stoken(&c, &p, s, ",", " \t");
-			if (c!=',')
+			if (c!=',') {
+				error_set("Missing , in '%s'", t);
 				return -1;
+			}
 
 			v1 = stoken(&c, &p, s, "]", " \t");
-			if (c!=']')
+			if (c!=']') {
+				error_set("Missing ] in '%s'", t);
 				return -1;
+			}
 
 			if (parse_int(&mouse, v0) != 0
 				|| parse_mouse_button(&button, v1, mouse) != 0)
 				return -1;
 
-			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX) {
+				error_set("Invalid mouse '%d'", mouse);
 				return -1;
-			if (button < 0 || button >= INPUT_BUTTON_MAX)
+			}
+			if (button < 0 || button >= INPUT_BUTTON_MAX) {
+				error_set("Invalid mouse button '%d'", button);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_MOUSE_BUTTON(mouse, button);
 			++mac;
 		} else if (strcmp(t, "or")==0) {
-			if (c=='[')
+			if (c=='[') {
+				error_set("Unexpected [ in '%s'", t);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_SPECIAL_OR;
 			++mac;
 		} else if (strcmp(t, "not")==0) {
-			if (c=='[')
+			if (c=='[') {
+				error_set("Unexpected [ in '%s'", t);
 				return -1;
+			}
 
-			if (mac >= INPUT_MAP_MAX)
+			if (mac >= INPUT_MAP_MAX) {
+				error_set("Too long");
 				return -1;
+			}
 
 			map[mac] = DIGITAL_SPECIAL_NOT;
 			++mac;
 		} else {
+			error_set("Unknown '%s'", t);
 			return -1;
 		}
 
 		sskip(&p, s, " \t");
 
 		first = 0;
+	}
+
+	if (validate_digital(map) != 0) {
+		error_set("Wrong use of operators");
+		return -1;
 	}
 
 	return 0;
@@ -1413,9 +1584,10 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 
 			s = conf_string_get_default(cfg_context, tag_buffer);
 			d = strdup(s);
+
 			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
 				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE].\n");
 				return -1;
 			}
@@ -1434,7 +1606,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			d = strdup(s);
 			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
 				target_err("Valid format is [-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE].\n");
 				return -1;
 			}
@@ -1457,7 +1629,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			context->config.digital_map[i].port = p->port;
 			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
 				free(d);
-				target_err("Invalid argument '%s' for option '%s'.\n", s, tag_buffer);
+				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
 				target_err("Valid format is keyboard[BOARD,KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON].\n");
 				return -1;
 			}
@@ -1492,6 +1664,8 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 
 			if (seq[0] != DIGITAL_SPECIAL_AUTO) {
 				unsigned k;
+				unsigned y;
+				adv_bool overflow = 0;
 
 				struct mame_port* p = mame_port_list();
 				while (p->name) {
@@ -1504,7 +1678,40 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 				else
 					log_std(("advance: customize input 0x%x :", port));
 
-				for(k=0;k<SEQ_MAX && k<INPUT_MAP_MAX;++k) {
+				k = 0;
+				y = 0;
+
+				if (seq[k] == DIGITAL_SPECIAL_OR) {
+					/* skip the or code */
+					++k;
+
+					if (i->seq[y] != CODE_NONE) {
+						/* go to end */
+						while (y < SEQ_MAX && i->seq[y] != CODE_NONE) {
+							switch (i->seq[y]) {
+							case CODE_OR :
+								log_std((" or"));
+								break;
+							case CODE_NOT :
+								log_std((" not"));
+								break;
+							default:
+								log_std((" mame[code:%d]", (int)i->seq[y]));
+								break;
+							}
+							++y;
+						}
+
+						/* add the OR code if something is present */
+						if (y < SEQ_MAX) {
+							i->seq[y] = CODE_OR;
+							++y;
+						}
+						log_std((" or"));
+					}
+				}
+
+				while (k<SEQ_MAX) {
 					unsigned v;
 					switch (seq[k]) {
 					case DIGITAL_SPECIAL_NONE :
@@ -1541,11 +1748,23 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 							break;
 						}
 					}
-					i->seq[k] = v;
+					if (y < SEQ_MAX) {
+						i->seq[y] = v;
+						++y;
+					} else {
+						if (v != CODE_NONE)
+							overflow = 1;
+					}
+					++k;
+				}
+				while (y < SEQ_MAX) {
+					i->seq[y] = CODE_NONE;
+					++y;
 				}
 				log_std(("\n"));
-				for(;k<SEQ_MAX;++k)
-					i->seq[k] = CODE_NONE;
+				if (overflow) {
+					log_std(("ERROR:advance: input map definition overflow\n"));
+				}
 			}
 		}
 
@@ -1814,7 +2033,9 @@ int advance_input_exit_filter(struct advance_input_context* context, struct adva
 /***************************************************************************/
 /* OSD interface */
 
-/* return a list of all available keys */
+/**
+ * Get the list of all available digital key codes.
+ */
 const struct KeyboardInfo* osd_get_key_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -1824,6 +2045,10 @@ const struct KeyboardInfo* osd_get_key_list(void)
 	return input_key_map;
 }
 
+/**
+ * Check if a digital key code is active.
+ * This function is called only for the code returned by the osd_get_key_list() function.
+ */
 int osd_is_key_pressed(int keycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -1859,10 +2084,13 @@ int osd_is_key_pressed(int keycode)
 
 int osd_readkey_unicode(int flush)
 {
-	return 0; /* no unicode support */
+	/* no unicode support */
+	return 0;
 }
 
-/* return a list of all available joys */
+/**
+ * Get the list of all available digital joystick codes.
+ */
 const struct JoystickInfo* osd_get_joy_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -1872,6 +2100,10 @@ const struct JoystickInfo* osd_get_joy_list(void)
 	return input_joy_map;
 }
 
+/**
+ * Check if a digital joystick code is active.
+ * This function is called only for the code returned by the osd_get_joy_list() function.
+ */
 int osd_is_joy_pressed(int joycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -1914,7 +2146,14 @@ int osd_is_joy_pressed(int joycode)
 	return 0;
 }
 
-/* return a value in the range -128 .. 128 (yes, 128, not 127) */
+/**
+ * Get the analog control input.
+ * This function get all the analog axes for one player.
+ * \param player Player.
+ * \param analog_axis Vector filled with the analog position. Returned values are in the range -128 - 128.
+ * \param analogjoy_input Vector containing the digital code which the osd_is_joystick_axis_code()
+ * function reported be a joystick code. This code can be used to remap the joystick axes.
+ */
 void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -1956,8 +2195,13 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 	}
 }
 
+/**
+ * Check if a digital code refers to a joystick.
+ * This function is used to map analog joystick like digital joystick.
+ */
 int osd_is_joystick_axis_code(int joycode)
 {
+	/* not used */
 	return 0;
 }
 
@@ -2003,7 +2247,7 @@ void osd_trak_read(int player, int* x, int* y)
 
 			r = 0;
 			for(n=0;n<INPUT_MAP_MAX;++n) {
-				unsigned v = context->config.trak_map[player][0].seq[n];
+				unsigned v = context->config.trak_map[player][i].seq[n];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
 					unsigned m = ANALOG_MOUSE_DEV_GET(v);
 					unsigned a = ANALOG_MOUSE_AXE_GET(v);
@@ -2037,18 +2281,30 @@ void osd_trak_read(int player, int* x, int* y)
 	}
 }
 
+/**
+ * Read the position of the lightgun.
+ * The returned range is from -128 to 128. 0,0 is the center of the screen.
+ */
 void osd_lightgun_read(int player, int* deltax, int* deltay)
 {
+	/* no lightgun support */
 	*deltax = 0;
 	*deltay = 0;
 }
 
 #ifdef MESS
+/**
+ * Check if the keyboard is disabled.
+ * This functions disabled all the emulated keyboard input.
+ */
 int osd_keyboard_disabled(void)
 {
-	return 0; /* TODO implement osd_keyboard_disabled. what is it ? */
+	return 0;
 }
 
+/**
+ * Check if the user asked to quit.
+ */
 int osd_trying_to_quit(void)
 {
 	return os_is_quit() != 0;

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ void target_usleep(unsigned us)
 
 	if (effective > us) {
 		TARGET.min_usleep += effective - us;
-		log_std(("linux: target_usleep() increase min sleep to %d [us] (requested %d, effective %d)\n", TARGET.min_usleep, us, effective));
+		log_std(("linux: target_usleep() increase min sleep to %d [us] (requested %d, tryed %d, effective %d)\n", TARGET.min_usleep, us, requested, effective));
 	}
 }
 
@@ -142,11 +142,78 @@ target_clock_t target_clock(void)
 
 void target_port_set(unsigned addr, unsigned value)
 {
+	int f;
+	off_t o;
+	size_t s;
+	char c;
+
+	f = open("/dev/port", O_WRONLY);
+	if (f == -1) {
+		log_std(("linux: port_set failed, error %d open(/dev/port)\n", errno));
+		return;
+	}
+
+	o = lseek(f, addr, SEEK_SET);
+	if (o == -1) {
+		log_std(("linux: port_set failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
+		return;
+	}
+	if (o != addr) {
+		log_std(("linux: port_set failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
+		return;
+	}
+
+	c = value;
+
+	s = write(f, &c, 1);
+	if (s == -1) {
+		log_std(("linux: port_set failed, error %d in write(0x%x) /dev/port\n", errno, value));
+		return;
+	}
+	if (s != 1) {
+		log_std(("linux: port_set failed, erroneous return value %d in write(0x%x) /dev/port\n", (int)s, value));
+		return;
+	}
+
+	close(f);
 }
 
 unsigned target_port_get(unsigned addr)
 {
-	return 0;
+	int f;
+	off_t o;
+	size_t s;
+	char c;
+
+	f = open("/dev/port", O_RDONLY);
+	if (f == -1) {
+		log_std(("linux: port_get failed, error %d open(/dev/port)\n", errno));
+		return 0;
+	}
+
+	o = lseek(f, addr, SEEK_SET);
+	if (o == -1) {
+		log_std(("linux: port_get failed, error %d in lseek(0x%x) /dev/port\n", errno, addr));
+		return 0;
+	}
+	if (o != addr) {
+		log_std(("linux: port_get failed, erroneous return value %d in lseek(0x%x) /dev/port\n", (int)o, addr));
+		return 0;
+	}
+
+	s = read(f, &c, 1);
+	if (s == -1) {
+		log_std(("linux: port_get failed, error %d in read() /dev/port\n", errno));
+		return 0;
+	}
+	if (s != 1) {
+		log_std(("linux: port_get failed, erroneous return value %d in read() /dev/port\n", (int)s));
+		return 0;
+	}
+
+	close(f);
+
+	return (unsigned char)c;
 }
 
 void target_writeb(unsigned addr, unsigned char c)
@@ -431,7 +498,19 @@ void target_crash(void)
 	abort();
 }
 
-adv_bool target_option(const char* arg, const char* opt)
+const char* target_option_extract(const char* arg)
 {
-	return arg[0] == '-' && strcasecmp(arg+1, opt) == 0;
+	if (arg[0] != '-')
+		return 0;
+	if (arg[1] == '-')
+		return arg + 2;
+	else
+		return arg + 1;
 }
+
+adv_bool target_option_compare(const char* arg, const char* opt)
+{
+	const char* name = target_option_extract(arg);
+	return name!=0 && strcasecmp(name, opt) == 0;
+}
+

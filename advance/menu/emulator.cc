@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -385,7 +385,7 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 	return argc;
 }
 
-bool emulator::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool emulator::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -1116,7 +1116,7 @@ bool mame_mame::load_software(game_set&, bool quiet)
 	return true;
 }
 
-bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool mame_mame::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -1922,7 +1922,7 @@ string dmess::image_name_get(const string& snap_create, const string& name)
 	return path_buffer;
 }
 
-bool dmess::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool dmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2315,7 +2315,7 @@ bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], co
 		return compile_single(g, argc, argv, file);
 }
 
-bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool advmess::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2327,8 +2327,10 @@ bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, 
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
+	if (!bios)
+		bios = &g.bios_get();
+
 	if (g.software_get()) {
-		const game* bios = &g.bios_get();
 		bool found = false;
 
 		// name without emulator and bios
@@ -2793,7 +2795,7 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 	return true;
 }
 
-bool draine::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool draine::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -2984,10 +2986,10 @@ bool generic::is_runnable() const {
 	return emulator::is_runnable();
 }
 
-bool generic::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
+bool generic::run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	// if empty don't run
 	if (user_exe_path.length()==0)
 		return false;
 
-	return emulator::run(g, orientation, difficulty, attenuation, ignore_error);
+	return emulator::run(g, bios, orientation, difficulty, attenuation, ignore_error);
 }

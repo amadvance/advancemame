@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if ! test -f $1/mame.mak ; then
+	echo Syntax: stripmame src
+	exit 1
+fi
+
+if test -e $1.complete ; then
+	echo $1.complete already exits
+	exit 1
+fi
+
+cp -a $1 $1.complete
+
+rm -rf $1/windows
+rm -rf $1/unix
+rm -rf $1/msdos
+rm -rf $1/xml2info
+

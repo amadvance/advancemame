@@ -224,7 +224,7 @@ AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 # Checks for configuration options.
 AC_ARG_WITH(
 	[emu],
-	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, neomame, cpmame, pac, none (default auto)]),
+	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, neomame, cpmame, tiny, none (default auto)]),
 	[ac_with_emu=$withval],
 	[ac_with_emu=auto]
 )
@@ -233,13 +233,11 @@ if test $ac_with_emu = auto; then
 		ac_with_emu=mame
 	elif test -f $srcdir/advance/advmess.dif ; then
 		ac_with_emu=mess
-	elif test -f $srcdir/advance/advpac.dif ; then
-		ac_with_emu=pac
 	else
 		ac_with_emu=none
 	fi
 fi
-if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
+if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame -o $ac_with_emu = tiny; then
 	if test ! -f $srcdir/src/mame.mak ; then
 		AC_MSG_ERROR([you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions.])
 	fi
@@ -258,13 +256,6 @@ elif test $ac_with_emu = mess; then
 	fi
 	if test ! -f $srcdir/mess/advance.pat ; then
 		AC_MSG_ERROR([you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions.])
-	fi
-elif test $ac_with_emu = pac; then
-	if test ! -f $srcdir/srcpac/mame.mak ; then
-		AC_MSG_ERROR([you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions.])
-	fi
-	if test ! -f $srcdir/srcpac/advance.pat ; then
-		AC_MSG_ERROR([you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test ! $ac_with_emu = none; then
 	AC_MSG_ERROR([unknown emulator $ac_with_emu])

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,14 +48,14 @@ void run(unsigned channel, const char* file)
 
 	ext = strrchr(file, '.');
 	if (!ext) {
-		fprintf(stderr, "Missing file extension\n");
+		target_err("Missing file extension\n");
 		done = 1;
 		return;
 	}
 
 	f = fzopen(file, "rb");
 	if (!f) {
-		fprintf(stderr, "Error opening the file %s\n", file);
+		target_err("Error opening the file %s\n", file);
 		done = 1;
 		return;
 	}
@@ -65,7 +65,7 @@ void run(unsigned channel, const char* file)
 	} else if (strcmp(ext, ".mp3")==0) {
 		mixer_play_file_mp3(channel, f, 0);
 	} else {
-		fprintf(stderr, "Unknown file extension %s\n", ext);
+		target_err("Unknown file extension %s\n", ext);
 		fzclose(f);
 		done = 1;
 		return;
@@ -76,10 +76,10 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 {
 	va_list arg;
 	va_start(arg, desc);
-	vfprintf(stderr, desc, arg);
-	fprintf(stderr, "\n");
+	target_err_va(desc, arg);
+	target_err("\n");
 	if (valid)
-		fprintf(stderr, "%s\n", valid);
+		target_err("%s\n", valid);
 	va_end(arg);
 }
 
@@ -128,17 +128,20 @@ int os_main(int argc, char* argv[])
 	file_map = malloc(argc * sizeof(const char*));
 
 	for(i=1;i<argc;++i) {
-		if (target_option(argv[i], "log")) {
+		if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
-		} else if (target_option(argv[i], "logsync")) {
+		} else if (target_option_compare(argv[i], "logsync")) {
 			opt_logsync = 1;
-		} else {
+		} else if (target_option_extract(argv[i]) == 0) {
 			file_map[file_mac++] = argv[i];
+		} else {
+			target_err("Unknown command line option '%s'.\n", argv[i]);
+			goto err_os;
 		}
 	}
 
 	if (argc <= 1 || file_mac == 0) {
-		fprintf(stderr, "Syntax: advs FILES...\n");
+		target_err("Syntax: advs FILES...\n");
 		goto err_os;
 	}
 
@@ -167,7 +170,7 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 
 	if (file_mac > MIXER_CHANNEL_MAX) {
-		fprintf(stderr, "Too many files\n");
+		target_err("Too many files\n");
 		goto err_os_inner;
 	}
 

@@ -7,6 +7,10 @@ AdvanceMENU Version 2.2.10 2003/09
 	) Added a new `include' option to include additionally
 		configuration files.
 	) Added support for png images with alpha channel.
+	) The `Run Clone' command on a MESS software now allow to select the
+		clone of the BIOS to use.
+	) The `Types' and `Group' menus are shown only if the group and
+		type set are not empty.
 	) In Linux the host configuration files are now read in /etc,
 		the files in */share/advance have now less priority
 		of the user specified options. They can be used

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -494,8 +494,16 @@ void target_crash(void)
 	abort();
 }
 
-adv_bool target_option(const char* arg, const char* opt)
+const char* target_option_extract(const char* arg)
 {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
+	if (arg[0] != '-' && arg[0] != '/')
+		return 0;
+	return arg + 1;
+}
+
+adv_bool target_option_compare(const char* arg, const char* opt)
+{
+	const char* name = target_option_extract(arg);
+	return name!=0 && strcasecmp(name, opt) == 0;
 }
 

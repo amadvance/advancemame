@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ unsigned mouseb_axe_count_get(unsigned mouse)
 unsigned mouseb_button_count_get(unsigned mouse)
 {
 	assert(mouseb_state.is_active_flag);
-	assert(mouse < mouseb_event_count_get());
+	assert(mouse < mouseb_count_get());
 
 	return mouseb_state.driver_current->button_count_get(mouse);
 }
@@ -202,8 +202,8 @@ unsigned mouseb_button_get(unsigned mouse, unsigned button)
 const char* mouseb_button_name_get(unsigned mouse, unsigned button)
 {
 	assert(mouseb_state.is_active_flag);
-	assert(mouse < mouseb_event_count_get());
-	assert(button < mouseb_event_button_count_get(mouse));
+	assert(mouse < mouseb_count_get());
+	assert(button < mouseb_button_count_get(mouse));
 
 	if (mouseb_state.driver_current->button_name_get)
 		return mouseb_state.driver_current->button_name_get(mouse, button);

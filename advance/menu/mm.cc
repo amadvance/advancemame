@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -338,7 +338,16 @@ int run_all(adv_conf* config_context, config_state& rs)
 					rs.save(config_context);
 
 					// run the game
-					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == INT_KEY_IDLE_0);
+					if (rs.current_game->software_get()) {
+						const game* bios;
+						if (rs.current_clone->software_get())
+							bios = &rs.current_clone->bios_get();
+						else
+							bios = rs.current_clone;
+						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == INT_KEY_IDLE_0);
+					} else {
+						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, rs.difficulty_effective, play_attenuation_get(), key == INT_KEY_IDLE_0);
+					}
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -373,6 +382,28 @@ static void version(void)
 	target_out("Joystick:%s\n", report_buffer);
 	mouseb_report_driver_all(report_buffer, sizeof(report_buffer));
 	target_out("Mouse:%s\n", report_buffer);
+}
+
+static void help(void)
+{
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+	const char* slash = "--";
+#else
+	const char* slash = "-";
+#endif
+	target_out(ADVANCE_COPY);
+	target_out("\n");
+	target_out("Usage: advmenu [options]\n\n");
+	target_out("Options:\n");
+	target_out("%sdefault  add all the default options at the configuration file\n", slash);
+	target_out("%sremove   remove all the default option from the configuration file\n", slash);
+	target_out("%slog      create a log of operations\n", slash);
+	target_out("%sversion  print the version\n", slash);
+	target_out("\n");
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+	target_out("To get an extensive help type 'man advmenu'\n");
+	target_out("\n");
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -530,6 +561,7 @@ int os_main(int argc, char* argv[])
 	bool opt_remove;
 	bool opt_logsync;
 	bool opt_version;
+	bool opt_help;
 	int key = 0;
 	const char* section_map[1];
 
@@ -558,18 +590,21 @@ int os_main(int argc, char* argv[])
 	opt_remove = false;
 	opt_default = false;
 	opt_version = false;
+	opt_help = false;
 	for(int i=1;i<argc;++i) {
-		if (target_option(argv[i], "verbose")) {
+		if (target_option_compare(argv[i], "verbose")) {
 			opt_verbose = true;
-		} else if (target_option(argv[i], "version")) {
+		} else if (target_option_compare(argv[i], "version")) {
 			opt_version = true;
-		} else if (target_option(argv[i], "remove")) {
+		} else if (target_option_compare(argv[i], "help")) {
+			opt_help = true;
+		} else if (target_option_compare(argv[i], "remove")) {
 			opt_remove = true;
-		} else if (target_option(argv[i], "default")) {
+		} else if (target_option_compare(argv[i], "default")) {
 			opt_default = true;
-		} else if (target_option(argv[i], "log")) {
+		} else if (target_option_compare(argv[i], "log")) {
 			opt_log = true;
-		} else if (target_option(argv[i], "logsync")) {
+		} else if (target_option_compare(argv[i], "logsync")) {
 			opt_logsync = true;
 		} else {
 			target_err("Unknown option '%s'.\n", argv[i]);
@@ -579,6 +614,11 @@ int os_main(int argc, char* argv[])
 
 	if (opt_version) {
 		version();
+		goto done_init;
+	}
+
+	if (opt_help) {
+		help();
 		goto done_init;
 	}
 

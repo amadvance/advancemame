@@ -8,7 +8,7 @@
 PREFIX=@prefix@
 
 # Select the emu executable (mame by default)
-# The available choices are: mame, neomame, cpmame, mess
+# The available choices are: mame, neomame, cpmame, tiny, mess
 #CONF_EMU=mame
 
 # Uncomment the host operating system.
@@ -248,8 +248,8 @@ CONF_ARCH=blend
 endif
 
 # Pack also the emulator source in the dist package
-ifndef CONF_WHOLESRC
-CONF_WHOLESRC=no
+ifndef CONF_DIFFSRC
+CONF_DIFFSRC=no
 endif
 
 ############################################################################

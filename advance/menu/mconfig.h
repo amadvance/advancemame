@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 #include "emulator.h"
 #include "choice.h"
 #include "conf.h"
+
+#define ADVANCE_COPY \
+	"AdvanceMENU - Copyright (C) 1999-2003 by Andrea Mazzoleni\n"
 
 /// Type of sorting.
 enum game_sort_t {

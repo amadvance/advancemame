@@ -5,35 +5,40 @@ Name
 	and AdvanceMENU from the source archives.
 
 Preparing The Sources
-	To build one of the Advance emulators you need first to download and
-	unzip the emulator source with the same version of the Advance source.
-	Please note that you must use the original emulator source, you cannot
-	use the source of another MAME clone like xmame.
+	If you are using the standard source packages you don't need to prepare
+	the sources, simply decompress the archive.
 
-	Note that you need only the source from the MAME and MESS archive.
-	The original `makefile' and the other files must be manually deleted.
-
-	In Linux and Mac OS X remember to unzip the original MAME and
-	MESS .zip archives with the `unzip -aa' command to convert the
-	files from the DOS/Windows CR/LF format to the Unix CR format.
-
-    AdvanceMENU
-	To compile AdvanceMENU you don't need to prepare the source, they are
-	already complete in the AdvanceMENU archive.
+	Instead, if you are using one of the `diff' source package you need
+	to complete the sources with the original emulator source.
 
     AdvanceMAME
 	To compile AdvanceMAME you need the MAME source of the same
-	version of AdvanceMAME.
+	version of AdvanceMAME. Please note that you must use the original emulator
+	source, you cannot use the source of another MAME clone like xmame.
 
-	Copy the `src/' directory in the MAME source archive at the same level
-	of the `advance/' directory present in the AdvanceMAME archive.
+	The original MAME sources can be downloaded from:
+
+		http://www.mame.net
+
+	To complete the source you need to unzip the original MAME archive
+	in a different directory and copy some files in the AdvanceMAME
+	tree at the same level of the `advance/' directory.
+
+	In Linux and Mac OS X remember to unzip the original .zip archives
+	with the `unzip -aa' command to convert the files from the
+	DOS/Windows CR/LF format to the Unix CR format.
+
+	After unzipping you must:
+
+	* Copy the `src/' directory from the MAME archive in the AdvanceMAME tree.
+
 	Please note that only the `src/' directory from the
 	MAME source is required, all the other files must be deleted.
 
 	The final directory tree for AdvanceMAME must be :
 
-		:advance/advance.mak (from AdvanceMAME)
-		:src/mame.mak (from MAME)
+		:advance/advance.mak
+		:src/mame.mak
 
 	After unpacked, you need to patch the original MAME source in
 	the `src/' directory with the patch `advance/advmame.dif'.
@@ -52,20 +57,41 @@ Preparing The Sources
 
     AdvanceMESS
 	To compile AdvanceMESS you need the MAME and MESS source of
-	the same version of AdvanceMESS.
+	the same version of AdvanceMESS. Please note that you must use the
+	original emulator source, you cannot use the source of another MAME
+	clone like xmame.
 
-	The source of the MESS emulator must be unzipped in the `srcmess/'
-	directory over a clean copy of the MAME source of the same version.
-	This means that the MESS source must overwrite the MAME source with
-	the same name. Please note that the original source directory in the
-	MAME and MESS archive is named `src/'. You must rename it `srcmess/'.
-	You need also the additional `mess/' source directory.
+	The original MAME sources can be downloaded from:
+
+		http://www.mame.net
+
+	The original MESS sources can be downloaded from:
+
+		http://mess.emuverse.com
+
+	To complete the source you need to unzip the original MAME and MESS
+	archives in different directories and copy some files
+	in the AdvanceMAME tree at the same level of the `advance/' directory.
+
+	In Linux and Mac OS X remember to unzip the original .zip archives
+	with the `unzip -aa' command to convert the files from the
+	DOS/Windows CR/LF format to the Unix CR format.
+
+	After unzipping you must:
+
+	* Copy the `src/' directory from the MAME archive renaming it `srcmess/'.
+	* Copy the `src/' directory from the MESS archive renaming it `srcmess/'
+		overwriting any file already present in the MAME archive.
+	* Copy the `mess/' directory from the MESS archive.
+
+	Please note that only the specified directories from the
+	MAME and MESS source are required, all the other files must be deleted.
 
 	The final directory tree for AdvanceMESS must be :
 
-		:advance/advance.mak (from AdvanceMESS)
-		:srcmess/mame.mak (from MAME and MESS)
-		:mess/mess.mak (from MESS)
+		:advance/advance.mak
+		:srcmess/mame.mak
+		:mess/mess.mak
 
 	After unpacked, you need to patch the original MESS source in
 	in the `srcmess/' directory with the patch `advance/advmess.dif' and
@@ -94,9 +120,12 @@ Configuring
 	Generally no extra option is required. You can get the complete
 	option list with the `./configure --help' command.
 
+	The default installation prefix is /usr/local. You can change it
+	with the `--prefix=' option.
+
 	The configure script automatically detects all the available libraries
 	and the optimization flags. You can use the --with-sdl-prefix option
-	to search for the SDL library in specific locations.
+	to search for the SDL library in a specific location.
 
 	If you want to customize the compilation CFLAGS you can put them on the
 	./configure command line, for example:
@@ -104,8 +133,9 @@ Configuring
 		:./configure CFLAGS="-O2 -march=pentium4 -fomit-frame-pointer" LDFLAGS="-s"
 
 	The configure script automatically detects the emulator to compile
-	checking the installed sources. You can force a specific emulator
-	with the `--with-emu' option.
+	checking the installed sources. You can force a specific emulator,
+	or an emulator variant like `neomame' or `cpmame' with the
+	`--with-emu=' option.
 
     DOS/Windows
 	In DOS/Windows you need to manually rename the `Makefile.in' file
@@ -124,31 +154,16 @@ Installing
 	The default installation $prefix is /usr/local.
 
 	In Mac OS X please verify that the directory $prefix/bin is in the
-	search PATH. Generally /usr/local/bin it isn't.
+	search PATH. Generally /usr/local/bin isn't.
 
     DOS/Windows
 	Copy manually the compiled executables in a directory of your choice.
-
-Targets
-	These are the defined targets in the `Makefile' :
-		emu - Compile the emulator.
-		cfg -  Compile `advcfg'.
-		v - Compile `advv'.
-		line - Compile `advline'.
-		k - Compile `advk'.
-		j - Compile `advj'.
-		m - Compile `advm'.
-		s - Compile `advs'.
-		menu - Compile `advmenu'.
-		all (or empty) - Compile all.
-		clear - Clean all.
-		install - Install all [must be root].
 
 Requirements
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3
+		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.1
 		:GNU make 3.79.1 (or newer)
 		:NASM 0.98.33 (or newer)
 		:zlib 1.1.4 (or newer)
@@ -156,7 +171,7 @@ Requirements
 		:LibSDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.1.
 	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
@@ -186,7 +201,7 @@ Requirements
 
 	The SDL library must be manually compiled and installed.
 	Please note that you may need to use the --with-sdl-prefix option
-	of the emulator ./configure to correctly find the installed SDL
+	of the ./configure script to correctly find the installed SDL
 	library. Generally "./configure --with-sdl-prefix=/usr/local" is
 	enough.
 
@@ -206,8 +221,6 @@ Requirements
 
 	The suggested gcc compiler versions are 2.95.3 and 3.2.3.
 	The versions 3.0, 3.0.1 and 3.0.2 don't work.
-	The versions 3.1, 3.1.1, 3.2, 3.2.1, 3.2.2 have some minor
-	problems (a few games may not work correctly).
 	Other versions should work.
 
 	The patched SEAL library is available at http://www.mame.net

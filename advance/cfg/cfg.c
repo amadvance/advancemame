@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1476,21 +1476,21 @@ int os_main(int argc, char* argv[]) {
 		goto err_os;
 
 	for(j=1;j<argc;++j) {
-		if (target_option(argv[j],"rc") && j+1<argc) {
+		if (target_option_compare(argv[j],"rc") && j+1<argc) {
 			opt_rc = argv[++j];
-		} else if (target_option(argv[j],"log")) {
+		} else if (target_option_compare(argv[j],"log")) {
 			opt_log = 1;
-		} else if (target_option(argv[j],"logsync")) {
+		} else if (target_option_compare(argv[j],"logsync")) {
 			opt_logsync = 1;
-		} else if (target_option(argv[j],"advmamec")) {
+		} else if (target_option_compare(argv[j],"advmamec")) {
 			the_advance = advance_mame;
-		} else if (target_option(argv[j],"advmessc")) {
+		} else if (target_option_compare(argv[j],"advmessc")) {
 			the_advance = advance_mess;
-		} else if (target_option(argv[j],"advpacc")) {
+		} else if (target_option_compare(argv[j],"advpacc")) {
 			the_advance = advance_pac;
-		} else if (target_option(argv[j],"advmenuc")) {
+		} else if (target_option_compare(argv[j],"advmenuc")) {
 			the_advance = advance_menu;
-		} else if (target_option(argv[j],"bit") && j+1<argc) {
+		} else if (target_option_compare(argv[j],"bit") && j+1<argc) {
 			unsigned bits = atoi(argv[++j]);
 			switch (bits) {
 				case 8 : index = MODE_FLAGS_INDEX_BGR8; break;

@@ -224,9 +224,9 @@ Features
 	`display_mode'.
 
   Per Game options
-	All the video options are customizable for the single
-	game or for a group of games. You can also save them
-	directly from the `Video Menu'.
+	All the options are customizable for the single game or for
+	a group of games. You can also save them directly from
+	the `Video Menu'.
 
   Scripts
 	AdvanceMAME supports a basic script language capable to
@@ -271,7 +271,8 @@ Features
 
   Input Control
 	AdvanceMAME supports a very fine control of the mapping
-	of the analog inputs on the MAME analog port.
+	of the analog and digital inputs. You can remap any input
+	event using easy to maintain text configuration files.
 
 	More details are in the description of the `input_map'
 	option.
@@ -1123,8 +1124,8 @@ Configuration
 		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
 		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
 
-	The control and axe names can be checked using the `advj' utility.
-	Generally the control names are :
+	The CONTROLl and AXE names can be checked using the `advj' utility.
+	Generally the CONTROL names are :
 		stick - Stick.
 		gas - Acceleration pedal.
 		brake - Brake pedal.
@@ -1134,7 +1135,7 @@ Configuration
 		rudder - Rudder.
 		misc - Any other.
 
-	And the axe names are :
+	And the AXE names are :
 		x, y, z - Movement on the X, Y, Z axe.
 		rx, ry, rz - Rotation on the X, Y, Z axe.
 		mono - For all the control with a single axe.
@@ -1171,7 +1172,7 @@ Configuration
 		JOYSTICK - Number of physical joystick: 0, 1, 2, 3, ...
 		AXE - Number or name of physical mouse axe: 0, 1, 2, ...
 
-	The axe names can be checked using the `advm' and `advj' utilities.
+	The AXE names can be checked using the `advm' and `advj' utilities.
 	Generally they are :
 		x, y, z - Movement on the X, Y, Z axe.
 		wheel - Vertical wheel.
@@ -1179,7 +1180,7 @@ Configuration
 		dial - Dial.
 		misc - Any other.
 
-	The analog traks are:
+	The analog TRAKs are:
 		p1_AXE - Player 1.
 		p2_AXE - Player 2.
 		p3_AXE - Player 3.
@@ -1203,7 +1204,10 @@ Configuration
 		| joystick_digital[JOY,CONTROL,AXE,DIR]
 		| or | not | ...
 
-	The default is always `auto'.
+	The default is always `auto' which uses the standard mapping. If the
+	definition starts with `or', the mapping is concatenated with the `or'
+	operator at the previous mapping. Otherwise, the previous mapping
+	is overwritten.
 
 	Options:
 		DIGITAL - Player button or analog simulation digital
@@ -1221,38 +1225,9 @@ Configuration
 			0, 1, 2, 3, ...
 		or - Or operand.
 		not - Not operand.
+		auto - Use the mapping defined in the MAME .cfg files.
 
-	The joystick button names can be checked using the `advj' utility.
-	Generally they are:
-		trigger - Joystick trigger button.
-		top, top2 - Joystick top buttons.
-		thumb, thumb2 - Joystick thumb buttons.
-		pinkie - Joystick pinkie button.
-		base, base2, base3, base4, base5, base6 - Joystick base buttons.
-		dead - Joystick dead button.
-		a, b, c, x, y, z - GamePad buttons.
-		tl, tr, tl2, tr2 - GamePad top (left/right) buttons.
-		thumbl thumbr - GamePad thumb (left/right) buttons.
-		select, start, mode - GamePad extra buttons.
-		gear_up, gear_down - Wheel gear buttons.
-		left, right, middle - Ball standard buttons.
-		side - Ball side button.
-		extra - Ball extra button.
-		forward - Ball forward button.
-		back - Ball back button.
-		fourth, fifth, sixth - Ball misc buttons.
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - Misc buttons.
-
-	The mouse button names can be checked using the `advm' utility.
-	Generally they are:
-		left, right, middle - Standard buttons.
-		side - Side button.
-		extra - Extra button.
-		forward - Forward button.
-		back - Back button.
-		fourth, fifth, sixth - Misc buttons.
-
-	The digital controls are:
+	The DIGITAL controls are:
 		p1_up, p2_up, p3_up, p4_up, p1_down, p2_down, p3_down, p4_down, 
 		p1_left, p2_left, p3_left, p4_left, p1_right, p2_right, p3_right, 
 		p4_right, p1_button1, p2_button1, p3_button1, p4_button1, p1_button2, 
@@ -1296,7 +1271,16 @@ Configuration
 		ui_toggle_debug, ui_save_state, ui_load_state, ui_add_cheat, 
 		ui_delete_cheat, ui_save_cheat, ui_watch_value.
 
-	The key names can be checked using the `advk' utility.
+	The MOUSE_BUTTON names can be checked using the `advm' utility.
+	Generally they are:
+		left, right, middle - Standard buttons.
+		side - Side button.
+		extra - Extra button.
+		forward - Forward button.
+		back - Back button.
+		fourth, fifth, sixth - Misc buttons.
+
+	The KEY names can be checked using the `advk' utility.
 	Generally they are:
 		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
 		v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad, 2_pad,
@@ -1319,6 +1303,27 @@ Configuration
 		playcd, pausecd, prog3, prog4, suspend, close, brightnessdown,
 		brightnessup, macro, mute, volumedown, volumeup, power, compose,
 		f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24.
+
+	The JOY_BUTTON button names can be checked using the `advj' utility.
+	Generally they are:
+		trigger - Joystick trigger button.
+		top, top2 - Joystick top buttons.
+		thumb, thumb2 - Joystick thumb buttons.
+		pinkie - Joystick pinkie button.
+		base, base2, base3, base4, base5, base6 - Joystick base buttons.
+		dead - Joystick dead button.
+		a, b, c, x, y, z - GamePad buttons.
+		tl, tr, tl2, tr2 - GamePad top (left/right) buttons.
+		thumbl thumbr - GamePad thumb (left/right) buttons.
+		select, start, mode - GamePad extra buttons.
+		gear_up, gear_down - Wheel gear buttons.
+		left, right, middle - Ball standard buttons.
+		side - Ball side button.
+		extra - Ball extra button.
+		forward - Ball forward button.
+		back - Ball back button.
+		fourth, fifth, sixth - Ball misc buttons.
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - Misc buttons.
 
 	Examples:
 		input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]

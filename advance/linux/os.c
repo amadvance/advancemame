@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +94,7 @@ struct os_context {
 	char title_buffer[128]; /**< Title of the window. */
 
 	struct termios term; /**< Term state. */
+	adv_bool term_active;
 };
 
 static struct os_context OS;
@@ -142,6 +143,7 @@ int os_inner_init(const char* title)
 		target_err("Error getting the tty state.\n");
 		return -1;
 	}
+	OS.term_active = 1;
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
@@ -352,11 +354,12 @@ void os_inner_done(void)
 #endif
 
 	/* restore term */
-	log_std(("os: tcsetattr(%sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
-
-	if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
-		/* ignore error */
-		log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+	if (OS.term_active) {
+		log_std(("os: tcsetattr(%sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
+			/* ignore error */
+			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+		}
 	}
 }
 
@@ -480,6 +483,11 @@ void os_default_signal(int signum)
 #endif
 
 	target_mode_reset();
+
+	if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
+		/* ignore error */
+		log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+	}
 
 	log_std(("os: close log\n"));
 	log_abort();

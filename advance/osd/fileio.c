@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	{ FILETYPE_STATE, "dir_sta", "sta", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_MEMCARD, "dir_memcard", "memcard", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_SCREENSHOT, "dir_snap", "snap", FILEIO_MODE_SINGLE, 0, 0 },
-	{ FILETYPE_HISTORY, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ FILETYPE_HISTORY, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for history.dat, mameinfo.dat */
 	{ FILETYPE_CHEAT, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for cheat.dat */
 	{ FILETYPE_LANGUAGE, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for language file */
 	/* FILETYPE_CTRLR */

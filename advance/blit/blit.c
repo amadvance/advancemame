@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2337,7 +2337,7 @@ void video_stretch_palette_16hw_pipeline_init(struct video_pipeline_struct* pipe
 	video_pipeline_realize(pipeline, src_dx, src_dp, bytes_per_pixel);
 }
 
-void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine)
+void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
@@ -2346,13 +2346,13 @@ void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipelin
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
 		case 1 :
-			video_stage_palette8to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette8to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette8 );
 			break;
 		case 2 :
-			video_stage_palette8to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette8to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette16 );
 			break;
 		case 4 :
-			video_stage_palette8to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette8to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette32 );
 			break;
 	}
 	src_dp = bytes_per_pixel;
@@ -2364,7 +2364,7 @@ void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipelin
 	video_pipeline_realize(pipeline, src_dx, src_dp, bytes_per_pixel);
 }
 
-void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const unsigned* palette, unsigned combine)
+void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, const uint8* palette8, const uint16* palette16, const uint32* palette32, unsigned combine)
 {
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 
@@ -2373,13 +2373,13 @@ void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeli
 	/* conversion and rotation */
 	switch (bytes_per_pixel) {
 		case 1 :
-			video_stage_palette16to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette16to8_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette8 );
 			break;
 		case 2 :
-			video_stage_palette16to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette16to16_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette16 );
 			break;
 		case 4 :
-			video_stage_palette16to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette );
+			video_stage_palette16to32_set( video_pipeline_insert(pipeline), src_dx, src_dp, palette32 );
 			break;
 	}
 	src_dp = bytes_per_pixel;

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2003 Andrea Mazzoleni
+ * Copyright (C) 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -292,20 +292,30 @@ adv_error mouseb_raw_load(adv_conf* context)
 		snprintf(buf, sizeof(buf), "device_raw_mousetype[%d]", i);
 		raw_state.map[i].context.type = conf_int_get_default(context, buf);
 
-		/* auto maps to pnp mouse */
-		if (raw_state.map[i].context.type < 0)
-			raw_state.map[i].context.type = MOUSE_PNP;
-
 		snprintf(buf, sizeof(buf), "device_raw_mousedev[%d]", i);
 		s = conf_string_get_default(context, buf);
 		if (strcmp(s, "auto") == 0) {
 			if (i == 0 && access("/dev/mouse", F_OK) == 0) {
 				sncpy(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), "/dev/mouse");
+				if (raw_state.map[i].context.type < 0)
+					raw_state.map[i].context.type = MOUSE_PNP;
 			} else {
 				snprintf(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), "/dev/input/mouse%d", i);
+				switch (raw_state.map[i].context.type) {
+				case MOUSE_PS2 :
+				case MOUSE_IMPS2 :
+				case MOUSE_EXPPS2 :
+					/* the /dev/input/mouse interfaces is compatible only with these three protocols */
+					break;
+				default:
+					raw_state.map[i].context.type = MOUSE_IMPS2;
+					break;
+				}
 			}
 		} else {
 			sncpy(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), s);
+			if (raw_state.map[i].context.type < 0)
+				raw_state.map[i].context.type = MOUSE_PNP;
 		}
 	}
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1797,30 +1797,30 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 
 	for(j=1;j<argc;++j) {
-		if (target_option(argv[j], "rc") && j+1<argc) {
+		if (target_option_compare(argv[j], "rc") && j+1<argc) {
 			opt_rc = argv[++j];
-		} else if (target_option(argv[j], "log")) {
+		} else if (target_option_compare(argv[j], "log")) {
 			opt_log = 1;
-		} else if (target_option(argv[j], "logsync")) {
+		} else if (target_option_compare(argv[j], "logsync")) {
 			opt_logsync = 1;
-		} else if (target_option(argv[j], "nosound")) {
+		} else if (target_option_compare(argv[j], "nosound")) {
 			the_sound_flag = 0;
-		} else if (target_option(argv[j], "advmamev")) {
+		} else if (target_option_compare(argv[j], "advmamev")) {
 			the_advance = advance_mame;
-		} else if (target_option(argv[j], "advmessv")) {
+		} else if (target_option_compare(argv[j], "advmessv")) {
 			the_advance = advance_mess;
-		} else if (target_option(argv[j], "advpacv")) {
+		} else if (target_option_compare(argv[j], "advpacv")) {
 			the_advance = advance_pac;
-		} else if (target_option(argv[j], "advmenuv")) {
+		} else if (target_option_compare(argv[j], "advmenuv")) {
 			the_advance = advance_menu;
 #ifdef __MSDOS__
-		} else if (target_option(argv[j], "vgav")) {
+		} else if (target_option_compare(argv[j], "vgav")) {
 			the_advance = advance_vga;
-		} else if (target_option(argv[j], "vbev")) {
+		} else if (target_option_compare(argv[j], "vbev")) {
 			the_advance = advance_vbe;
 #endif
 #ifdef __WIN32__
-		} else if (target_option(argv[j], "videowv")) {
+		} else if (target_option_compare(argv[j], "videowv")) {
 			the_advance = advance_videow;
 #endif
 		} else {

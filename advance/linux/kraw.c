@@ -2,7 +2,7 @@
  * This file is part of the Advance project.
  *
  * Copyright (C) 2002 Kari Hautio
- * Copyright (C) 1999-2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,13 +1,17 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
-AdvanceMAME 0.71.2
-	This release contains a new set of Linux input driver for
-	keyboards, mice and joysticks based on the Linux input-event
-	interfaces.
+AdvanceMAME 0.72.0
+	This release contains a new set of `event' Linux
+	drivers for keyboards, mice and joysticks based on the Linux
+	input-event interfaces.
 	These drivers remove any limitations on the number of
 	keyboards, mice and joysticks, and they give the best
 	support for the new USB HID devices.
+
+	The `raw' set of Linux drivers has now the same functionality
+	of the `svgalib' set. If you don't need the SVGALIB video you can
+	now completely remove this library.
 
 	The `input_map' option now accept the `auto' setting which
 	is able to map the correct input device on the correct

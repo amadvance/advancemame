@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -305,7 +305,7 @@ static adv_error video_update_index(struct advance_video_context* context)
 	unsigned select_pref_bgr15[] = { MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8,  MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr16[] = { MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr32[] = { MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
-	unsigned select_pref_yuy2[] = { MODE_FLAGS_INDEX_YUY2, 0 };
+	unsigned select_pref_yuy2[] = { MODE_FLAGS_INDEX_YUY2, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR8, 0 };
 	unsigned* select;
 	unsigned index;
 
@@ -449,6 +449,21 @@ static void video_invalidate_screen(void)
 }
 
 /**
+ * Invalidate all the color information.
+ * At the next frame all the color information are recomputed.
+ */
+static void video_invalidate_color(struct advance_video_context* context)
+{
+	/* set all dirty */
+	if (!context->state.game_rgb_flag) {
+		unsigned i;
+		context->state.palette_dirty_flag = 1;
+		for(i=0;i<context->state.palette_dirty_total;++i)
+			context->state.palette_dirty_map[i] = osd_mask_full;
+	}
+}
+
+/**
  * Set the video mode.
  * The mode is copyed in the context if it is set with success.
  * \return 0 on success
@@ -473,6 +488,7 @@ static adv_error video_init_vidmode(struct advance_video_context* context, adv_m
 	update_init( context->config.triplebuf_flag!=0 ? 3 : 1 );
 
 	video_invalidate_screen();
+	video_invalidate_color(context);
 
 	log_std(("emu:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n", video_name(), video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
 
@@ -732,21 +748,6 @@ static void video_update_effect(struct advance_video_context* context)
 	}
 
 	mame_ui_gamma_factor_set( context->state.gamma_effect_factor / previous_gamma_factor );
-}
-
-/**
- * Invalidate all the color information.
- * At the next frame all the color information are recomputed.
- */
-static void video_invalidate_color(struct advance_video_context* context)
-{
-	/* set all dirty */
-	if (!context->state.game_rgb_flag) {
-		unsigned i;
-		context->state.palette_dirty_flag = 1;
-		for(i=0;i<context->state.palette_dirty_total;++i)
-			context->state.palette_dirty_map[i] = osd_mask_full;
-	}
 }
 
 /**
@@ -1526,14 +1527,18 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 
 	/* create the software palette */
 	/* it will not be used if a hardware palette is present, but a runtime mode change may require it */
-	context->state.palette_index_map = (unsigned*)malloc(context->state.palette_total * sizeof(unsigned));
+	context->state.palette_index32_map = (uint32*)malloc(context->state.palette_total * sizeof(uint32));
+	context->state.palette_index16_map = (uint16*)malloc(context->state.palette_total * sizeof(uint16));
+	context->state.palette_index8_map = (uint8*)malloc(context->state.palette_total * sizeof(uint8));
 
 	/* initialize the palette */
 	for(i=0;i<context->state.palette_total;++i) {
 		context->state.palette_map[i] = osd_rgb(0, 0, 0);
 	}
 	for(i=0;i<context->state.palette_total;++i) {
-		context->state.palette_index_map[i] = 0;
+		context->state.palette_index32_map[i] = 0;
+		context->state.palette_index16_map[i] = 0;
+		context->state.palette_index8_map[i] = 0;
 	}
 
 	/* make the palette completly dirty */
@@ -1560,8 +1565,12 @@ static void video_done_color(struct advance_video_context* context)
 	context->state.palette_dirty_map = 0;
 	free(context->state.palette_map);
 	context->state.palette_map = 0;
-	free(context->state.palette_index_map);
-	context->state.palette_index_map = 0;
+	free(context->state.palette_index32_map);
+	context->state.palette_index32_map = 0;
+	free(context->state.palette_index16_map);
+	context->state.palette_index16_map = 0;
+	free(context->state.palette_index8_map);
+	context->state.palette_index8_map = 0;
 }
 
 /***************************************************************************/
@@ -1674,10 +1683,10 @@ static inline void video_frame_blit(struct advance_video_context* context, unsig
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 			case 1 :
-				video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
+				video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 				break;
 			case 2 :
-				video_stretch_palette_16(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index_map, combine);
+				video_stretch_palette_16(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 				break;
 			default:
 				log_std(("ERROR:emu:video unsupported palette size %d\n", context->state.game_bytes_per_pixel));
@@ -1760,10 +1769,10 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
-					video_stretch_palette_8_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index_map, combine);
+					video_stretch_palette_8_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 					break;
 				case 2 :
-					video_stretch_palette_16_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp,  context->state.palette_index_map, combine);
+					video_stretch_palette_16_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine);
 					break;
 				default :
 					assert(0);
@@ -1845,7 +1854,17 @@ static inline void video_frame_palette(struct advance_video_context* context)
 							/* software */
 							adv_pixel pixel;
 							video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
-							context->state.palette_index_map[p] = pixel;
+							switch (video_bytes_per_pixel()) {
+							case 4 :
+								context->state.palette_index32_map[p] = pixel;
+								break;
+							case 2 :
+								context->state.palette_index16_map[p] = pixel;
+								break;
+							case 1 :
+								context->state.palette_index8_map[p] = pixel;
+								break;
+							}
 						}
 					}
 
@@ -2401,21 +2420,29 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 		/* TODO set the hardware palette for the debugger */
 		video_stretch_palette_16hw(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, VIDEO_COMBINE_Y_MAX);
 	} else {
-		unsigned* palette_raw;
+		uint8* palette8_raw;
+		uint16* palette16_raw;
+		uint32* palette32_raw;
 		unsigned i;
 
-		palette_raw = (unsigned*)malloc(palette_size * sizeof(unsigned));
+		palette32_raw = (uint32*)malloc(palette_size * sizeof(uint32));
+		palette16_raw = (uint16*)malloc(palette_size * sizeof(uint16));
+		palette8_raw = (uint8*)malloc(palette_size * sizeof(uint8));
 
 		for(i=0;i<palette_size;++i) {
 			osd_rgb_t c = palette[i];
 			adv_pixel pixel;
 			video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
-			palette_raw[i] = pixel;
+			palette32_raw[i] = pixel;
+			palette16_raw[i] = pixel;
+			palette8_raw[i] = pixel;
 		}
 
-		video_stretch_palette_8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette_raw, VIDEO_COMBINE_Y_MAX);
+		video_stretch_palette_8(0, 0, size_x, size_y, bitmap->ptr, bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, 1, palette8_raw, palette16_raw, palette32_raw, VIDEO_COMBINE_Y_MAX);
 
-		free(palette_raw);
+		free(palette32_raw);
+		free(palette16_raw);
+		free(palette8_raw);
 	}
 }
 
@@ -2723,8 +2750,6 @@ adv_error advance_video_set(struct advance_video_context* context)
 	if (video_make_vidmode(context, &mode, &context->state.crtc_effective) != 0) {
 		goto err;
 	}
-
-	video_invalidate_color(context);
 
 	video_update_pan(context);
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,7 +150,7 @@ public:
 
 	unsigned preview_set(game_set& gar) const;
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet) = 0;
 	virtual bool load_data(const game_set& gar) = 0;
 	virtual bool load_game(game_set& gar, bool quiet) = 0;
@@ -236,7 +236,7 @@ public:
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
 };
@@ -296,7 +296,7 @@ class advmess : public mame_mess {
 public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
@@ -313,7 +313,7 @@ class dmess : public mame_mess {
 public:
 	dmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar, bool quiet);
@@ -352,7 +352,7 @@ class draine : public raine_info {
 public:
 	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 
 	virtual std::string type_get() const;
@@ -373,7 +373,7 @@ public:
 
 	virtual std::string type_get() const;
 
-	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
+	virtual bool run(const game& g, const game* bios, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const;
 	virtual bool is_present() const;
 	virtual bool is_runnable() const;
 };

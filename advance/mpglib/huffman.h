@@ -1,7 +1,7 @@
 /*
  * This file is part of MPGLIB.
  *
- * Copyright (C) 1995-1997 Michael Hipp
+ * Copyright (C) 1995, 1996, 1997 Michael Hipp
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

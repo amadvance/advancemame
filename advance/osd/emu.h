@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,7 +230,9 @@ struct advance_video_state_context {
 	osd_rgb_t* palette_map; /**< Current palette RGB triplets. */
 	osd_mask_t* palette_dirty_map; /**< If the palette is dirty this is the list of dirty colors. */
 	adv_bool palette_dirty_flag; /**< If the current palette dirty, it need to be updated. */
-	unsigned* palette_index_map; /**< Software palette if required. */
+	uint32* palette_index32_map; /**< Software palette at 32 bit. */
+	uint16* palette_index16_map; /**< Software palette at 16 bit. */
+	uint8* palette_index8_map; /**< Software palette at 8 bit. */
 
 	/* Syncronization */
 	adv_bool sync_warming_up_flag; /**< Initializing flag. */

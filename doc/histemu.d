@@ -4,6 +4,11 @@ Name
 AdvanceMAME Version 0.72.0 2003/09
 	) Added a new option `sound_normalize' which automatically increase
 		the volume of games with a too lower one. It's enabled by default.
+	) Added a new `include' option to include additionally
+		configuration files.
+	) The `display_magnify' option has now a new `auto' setting
+		which automatically scale the game if it's
+		too small.
 	) Added a new set of Linux `event' input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.
 		These drivers remove any limitations on the number of
@@ -15,29 +20,28 @@ AdvanceMAME Version 0.72.0 2003/09
 		inputs like keys, buttons and digital joystick.
 	) Improved the advk, advj and advm utilities. They now
 		report more information on the hardware found.
-	) Added a new `include' option to include additionally
-		configuration files.
-	) The `display_magnify' option has now a new `auto' setting
-		which automatically scale the game if it's
-		too small.
-	) Added a new script `safequit' started when the game enter in the
-		safequit state.
-	) Added a strong error control parsing for the safequit database.
-	) Renamed the script options removing the [] in the names.
-	) Added a new set of script `event1,2,3,4,5,6' for a fine control
-		of the safequit system.
-	) Renamed the safequit options in `misc_eventdebug' and
-		`misc_eventfile and the `safequit.dat' file in `event.dat'.
+	) Revised the `safequit' system. The database file is now
+		called `event.dat' and it has a strong error check.
+		The options are now named `misc_eventdebug' and
+		`misc_eventfile'. A new set of scripts `safequit' and
+		`event1,2,3,4,5,6' are now started when triggered by the
+		event system.
+	) Renamed the script names removing the [] in the names.
 	) The Linux keyboard `raw' driver has now a basic support to switch
 		virtual terminal pressing ALT+Fx.
-	) The Linux version of the advv and advcfg utilities have now
-		a better keyboard input handling.
+	) Added a new Linux `raw' joystick driver.
+	) Substituted the Linux input driver `slang' with a new `tty' driver
+		which always works correctly with the advv and advcfg utility.
+		Specifically it works when using the `fb' video driver.
 	) In Linux the host configuration files are now read in /etc,
 		the files in */share/advance have now less priority
 		of the user specified options. They can be used
 		to set default options.
 	) The `-version' option now lists the low level drivers compiled
 		in the executable.
+	) The Linux version can now access hardware ports in scripts using
+		the /dev/port interface.
+	) Reduced the CPU cache usage in the palette conversion.
 
 AdvanceMESS Version 0.72.0.0 2003/09
 	) All from AdvanceMAME 0.72.0.

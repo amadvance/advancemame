@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,7 +198,7 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 		new_mult = ADJUST_MULT_BASE;
 
 	if (context->state.adjust_mult != new_mult)
-		log_std(("osd:sound: adjust factor %g, limit %d\n", (double)new_mult / ADJUST_MULT_BASE, limit));
+		log_std(("osd:sound: normalize factor %g, limit %d, time %g\n", (double)new_mult / ADJUST_MULT_BASE, limit, advance_timer()));
 
 	context->state.adjust_mult = new_mult;
 }

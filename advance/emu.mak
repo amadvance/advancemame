@@ -325,11 +325,10 @@ endif
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/advance.mak
 EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
 
-ifeq ($(CONF_EMU),mame)
-EMUCFLAGS += -DMAME
-endif
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS
+else
+EMUCFLAGS += -DMAME
 endif
 
 ifeq ($(CONF_HOST),unix)
@@ -497,10 +496,10 @@ OBJDIRS += \
 	$(OBJ)/mess/cpu
 endif
 
-ifeq ($(CONF_DEBUGGER),)
+ifeq ($(CONF_DEBUGGER),yes)
 EMUDEFS += -DMAME_DEBUG
 else
-# Required because DBGOBJS is always included
+# don't include the debug only modules
 DBGOBJS =
 endif
 
@@ -518,16 +517,11 @@ M68000FLAGS += \
 	-I$(srcdir)/mess
 endif
 
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
+$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
+	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
-
-# Special rule for gcc-djgpp 3.1, 3.1.1, 3.2, 3.2.1, 3.2.2, 3.2.3
-#$(OBJ)/memory.o: $(EMUSRC)/memory.c
-#	$(ECHO) $@ $(MSG) "(without -O3)"
-#	$(CC) $(subst -O3,-O2,$(CFLAGS)) $(EMUCFLAGS) $(CONF_CFLAGS_EMU) $(EMUDEFS) -c $< -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -583,17 +577,15 @@ $(sort $(OBJDIRS)):
 ############################################################################
 # EMU diff
 
-advance/advmame.dif:
+mamedif:
 	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
-advance/advmess.dif:
+messdif:
 	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive srcmess.ori srcmess > advance/advmess.dif
 	ls -l advance/advmess.dif
-
-advance/mess.dif:
 	find mess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
 	-diff -U 5 --new-file --recursive mess.ori mess > advance/mess.dif
 	ls -l advance/mess.dif
@@ -602,7 +594,6 @@ advance/mess.dif:
 # EMU dist
 
 EMU_ROOT_SRC = \
-	$(srcdir)/COPYING \
 	$(CONF_SRC)
 
 EMU_ADVANCE_SRC = \
@@ -627,14 +618,13 @@ endif
 EMU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/mame/*)
 
-ifeq ($(CONF_EMU),mame)
-EMU_SUPPORT_SRC += \
-	$(srcdir)/support/event.dat
-endif
 ifeq ($(CONF_EMU),mess)
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/advmess.1 \
 	$(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
+else
+EMU_SUPPORT_SRC += \
+	$(srcdir)/support/event.dat
 endif
 
 EMU_DOC_SRC = \
@@ -732,7 +722,7 @@ EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(CONF_EMU),mame)
+ifneq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/event.dat
 endif
@@ -777,8 +767,8 @@ EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 endif
 
-ifeq ($(CONF_WHOLESRC),yes)
-EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)-whole
+ifeq ($(CONF_DIFFSRC),yes)
+EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)-diff
 else
 EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
 endif
@@ -786,12 +776,16 @@ EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
-dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt
+distdiff:
+	$(MAKE) dist CONF_DIFFSRC=yes
+
+dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt $(DOCOBJ)/license.txt
 	mkdir $(EMU_DIST_DIR_SRC)
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_SRC)/RELEASE
 	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_SRC)/HISTORY
 	cp $(DOCOBJ)/build.txt $(EMU_DIST_DIR_SRC)/BUILD
+	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_SRC)/COPYING
 	cp $(EMU_ROOT_SRC) $(EMU_DIST_DIR_SRC)
 	mkdir $(EMU_DIST_DIR_SRC)/doc
 	cp $(EMU_DOC_SRC) $(EMU_DIST_DIR_SRC)/doc
@@ -856,13 +850,12 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame
-ifeq ($(CONF_WHOLESRC),yes)
-ifeq ($(CONF_EMU),mame)
-	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
-endif
+ifneq ($(CONF_DIFFSRC),yes)
 ifeq ($(CONF_EMU),mess)
 	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
+else
+	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
 endif
 endif
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz
@@ -875,10 +868,12 @@ ifeq ($(CONF_HOST),unix)
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
+	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/COPYING
 else
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/readme.txt
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/release.txt
 	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/history.txt
+	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)/doc

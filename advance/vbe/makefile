@@ -1,7 +1,7 @@
 #
 # This file is part of the AdvanceMAME project
 #
-# Copyright (C) 1999-2002 Andrea Mazzoleni
+# Copyright (C) 1999, 2000, 2001 Andrea Mazzoleni
 #
 
 # Directories

@@ -849,7 +849,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-emu              select the emulator to use: mame, mess, neomame,
-                          cpmame, pac, none (default auto)
+                          cpmame, tiny, none (default auto)
   --with-sdl-prefix=DIR   Prefix where SDL is installed (optional)
 
 Some influential environment variables:
@@ -3902,13 +3902,11 @@ if test $ac_with_emu = auto; then
 		ac_with_emu=mame
 	elif test -f $srcdir/advance/advmess.dif ; then
 		ac_with_emu=mess
-	elif test -f $srcdir/advance/advpac.dif ; then
-		ac_with_emu=pac
 	else
 		ac_with_emu=none
 	fi
 fi
-if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
+if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame -o $ac_with_emu = tiny; then
 	if test ! -f $srcdir/src/mame.mak ; then
 		{ { echo "$as_me:$LINENO: error: you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&5
 echo "$as_me: error: you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&2;}
@@ -3938,17 +3936,6 @@ echo "$as_me: error: you must patch the MESS source in $srcdir/srcmess/ with the
 	if test ! -f $srcdir/mess/advance.pat ; then
 		{ { echo "$as_me:$LINENO: error: you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions." >&5
 echo "$as_me: error: you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions." >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-elif test $ac_with_emu = pac; then
-	if test ! -f $srcdir/srcpac/mame.mak ; then
-		{ { echo "$as_me:$LINENO: error: you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&5
-echo "$as_me: error: you need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-	if test ! -f $srcdir/srcpac/advance.pat ; then
-		{ { echo "$as_me:$LINENO: error: you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&5
-echo "$as_me: error: you must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&2;}
    { (exit 1); exit 1; }; }
 	fi
 elif test ! $ac_with_emu = none; then

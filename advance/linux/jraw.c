@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2003 Andrea Mazzoleni
+ * Copyright (C) 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -316,7 +316,7 @@ static adv_error joystickb_read(int f, int* type, int* code, int* value)
 		return -1;
 	}
 
-	log_debug(("joystickb:raw: read %ld.%06ld, type %d, code %d, value %d\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value));
+	log_debug(("joystickb:raw: read %d, type %d, code %d, value %d\n", e.time, e.type, e.number, e.value));
 
 	*type = e.type;
 	*code = e.number;

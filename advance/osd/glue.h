@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,6 +158,8 @@ void mame_ui_refresh(void);
 void mame_ui_swap(void);
 void mame_ui_gamma_factor_set(double gamma);
 void mame_ui_show_info_temp(void);
+unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr);
+unsigned mame_ui_frames_per_second(void);
 
 /***************************************************************************/
 /* OSD interface */

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2352,10 +2352,16 @@ static void int_clip_idle()
 
 	// write
 	if (bitmap->bytes_per_pixel == 1) {
-		adv_pixel palette[256];
-		for(unsigned i=0;i<rgb_max;++i)
-			video_pixel_make(palette + i, rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
-		video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, palette, combine);
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		for(unsigned i=0;i<rgb_max;++i) {
+			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+			palette32[i] = p;
+			palette16[i] = p;
+			palette8[i] = p;
+		}
+		video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, palette8, palette16, palette32, combine);
 	} else if (bitmap->bytes_per_pixel == 3 || bitmap->bytes_per_pixel == 4) {
 		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, def, combine);

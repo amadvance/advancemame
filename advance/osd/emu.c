@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ static const mame_game* select_game(const char* gamename)
 }
 
 /***************************************************************************/
-/* Version */
+/* Version/Help */
 
 static void version(void)
 {
@@ -164,6 +164,38 @@ static void version(void)
 	target_out("Joystick:%s\n", report_buffer);
 	mouseb_report_driver_all(report_buffer, sizeof(report_buffer));
 	target_out("Mouse:%s\n", report_buffer);
+}
+
+static void help(void)
+{
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+	const char* slash = "--";
+#else
+	const char* slash = "-";
+#endif
+	target_out(ADVANCE_COPY);
+	target_out("\n");
+	target_out("Usage: %s [options] GAME\n\n", ADVANCE_NAME);
+	target_out("Options:\n");
+	target_out("%sdefault        add all the default options at the configuration file\n", slash);
+	target_out("%sremove         remove all the default option from the configuration file\n", slash);
+	target_out("%slog            create a log of operations\n", slash);
+	target_out("%slistinfo       output the rom INFO file\n", slash);
+	target_out("%slistxml        output the rom XML file\n", slash);
+	target_out("%srecord FILE    record an .inp file\n", slash);
+	target_out("%splayback FILE  play an .inp file\n", slash);
+	target_out("%sversion        print the version\n", slash);
+	target_out("\n");
+#ifdef MESS
+	target_out("Example: %s ti99_4a\n", ADVANCE_NAME);
+#else
+	target_out("Example: %s polyplay\n", ADVANCE_NAME);
+#endif
+	target_out("\n");
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+	target_out("To get an extensive help type 'man %s'\n", ADVANCE_NAME);
+	target_out("\n");
+#endif
 }
 
 /***************************************************************************/
@@ -355,6 +387,7 @@ int os_main(int argc, char* argv[])
 	int opt_logsync;
 	int opt_default;
 	int opt_remove;
+	int opt_help;
 	char* opt_gamename;
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
@@ -369,6 +402,7 @@ int os_main(int argc, char* argv[])
 	opt_default = 0;
 	opt_remove = 0;
 	opt_version = 0;
+	opt_help = 0;
 
 	memset(&option, 0, sizeof(option));
 
@@ -437,35 +471,37 @@ int os_main(int argc, char* argv[])
 
 	option.debug_flag = 0;
 	for(i=1;i<argc;++i) {
-		if (strcmp(argv[i], "-default") == 0) {
+		if (target_option_compare(argv[i], "default")) {
 			opt_default = 1;
-		} else if (strcmp(argv[i], "-version") == 0) {
+		} else if (target_option_compare(argv[i], "version")) {
 			opt_version = 1;
-		} else if (strcmp(argv[i], "-log") == 0) {
+		} else if (target_option_compare(argv[i], "help")) {
+			opt_help = 1;
+		} else if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
-		} else if (strcmp(argv[i], "-logsync") == 0) {
+		} else if (target_option_compare(argv[i], "logsync")) {
 			opt_logsync = 1;
-		} else if (strcmp(argv[i], "-remove") == 0) {
+		} else if (target_option_compare(argv[i], "remove")) {
 			opt_remove = 1;
-		} else if (strcmp(argv[i], "-debug") == 0) {
+		} else if (target_option_compare(argv[i], "debug")) {
 			option.debug_flag = 1;
-		} else if (strcmp(argv[i], "-listinfo") == 0) {
+		} else if (target_option_compare(argv[i], "listinfo")) {
 			opt_info = 1;
-		} else if (strcmp(argv[i], "-listxml") == 0) {
+		} else if (target_option_compare(argv[i], "listxml")) {
 			opt_xml = 1;
-		} else if (strcmp(argv[i], "-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
+		} else if (target_option_compare(argv[i], "record") && i+1<argc && argv[i+1][0] != '-') {
 			if (strchr(argv[i+1], '.') == 0)
 				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s.inp", argv[i+1]);
 			else
 				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s", argv[i+1]);
 			++i;
-		} else if (strcmp(argv[i], "-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
+		} else if (target_option_compare(argv[i], "playback") && i+1<argc && argv[i+1][0] != '-') {
 			if (strchr(argv[i+1], '.') == 0)
 				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s.inp", argv[i+1]);
 			else
 				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s", argv[i+1]);
 			++i;
-		} else if (argv[i][0]!='-') {
+		} else if (target_option_extract(argv[i]) == 0) {
 			unsigned j;
 			if (opt_gamename) {
 				target_err("Multiple game name definition, '%s' and '%s'.\n", opt_gamename, argv[i]);
@@ -496,13 +532,18 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
+	if (opt_help) {
+		help();
+		goto done_os;
+	}
+
 	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)!=0) {
 		conf_set_default_if_missing(config_context, "");
 		conf_sort(config_context);
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' created with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -511,7 +552,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' updated with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -520,7 +561,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file '%s' updated with all the default options removed.\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 

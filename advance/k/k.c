@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,9 +156,9 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 
 	for(i=1;i<argc;++i) {
-		if (target_option(argv[i], "log")) {
+		if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
-		} else if (target_option(argv[i], "logsync")) {
+		} else if (target_option_compare(argv[i], "logsync")) {
 			opt_logsync = 1;
 		} else {
 			fprintf(stderr, "Unknown argument '%s'\n", argv[1]);

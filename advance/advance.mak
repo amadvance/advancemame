@@ -276,6 +276,7 @@ ifneq ($(wildcard $(EMUSRC)),)
 	-$(INSTALL_DATA_DIR) $(DATADIR)/sample
 	-$(INSTALL_DATA_DIR) $(DATADIR)/artwork
 	-$(INSTALL_DATA_DIR) $(DATADIR)/image
+	-$(INSTALL_DATA_DIR) $(DATADIR)/crc
 endif
 
 install-data: $(INSTALL_DATAFILES)
@@ -369,6 +370,9 @@ neomame:
 cpmame:
 	$(MAKE) CONF=no CONF_EMU=cpmame emu
 
+tiny:
+	$(MAKE) CONF=no CONF_EMU=tiny emu
+
 # Ensure that the mess target is always created also if a mess directory exists
 .PHONY: mess
 
@@ -377,7 +381,7 @@ mess:
 
 wholemame:
 	$(MAKE) CONF=no dist
-	$(MAKE) CONF=no CONF_WHOLESRC=yes dist
+	$(MAKE) CONF=no CONF_DIFFSRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
@@ -403,7 +407,7 @@ wholecd:
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) CONF=no CONF_EMU=mess CONF_WHOLESRC=yes dist
+	$(MAKE) CONF=no CONF_EMU=mess CONF_DIFFSRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin

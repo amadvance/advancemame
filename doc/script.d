@@ -46,6 +46,9 @@ Ports
 		off(ADDRESS,VALUE) - like set(ADDRESS, get(ADDRESS) & ~VALUE)
 		toggle(ADDRESS,VALUE) - like set(ADDRESS, get(ADDRESS) ^ VALUE)
 
+	In DOS the hardware ports are accessed directly, in Linux through the
+	/dev/port interface.
+
 Values
 	These are the available value formats:
 		... - decimal format

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "conf.h"
 #include "incstr.h"
 #include "log.h"
+#include "target.h"
 #include "portable.h"
 
 #include <unistd.h>
@@ -1661,15 +1662,15 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 	while (i<*argc) {
 		adv_bool noformat;
 		struct adv_conf_option_struct* option;
-		const char* tag = argv[i];
+		const char* tag;
 		unsigned used;
 
-		if (tag[0]!='-') {
+		tag = target_option_extract(argv[i]);
+
+		if (!tag) {
 			++i;
 			continue;
 		}
-
-		++tag;
 
 		noformat = 0;
 		option = 0;

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -460,7 +460,7 @@ void run_group_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
+	int key = ch.run(" Select game group", SECOND_CHOICE_X, SECOND_CHOICE_Y, GROUP_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		rs.current_game->user_group_set( rs.group.insert(i->desc_get()) );
@@ -481,7 +481,7 @@ void run_type_move(config_state& rs)
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
-	int key = ch.run(" Select type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
+	int key = ch.run(" Select game type", SECOND_CHOICE_X, SECOND_CHOICE_Y, TYPE_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		rs.current_game->user_type_set( rs.type.insert(i->desc_get()) );
@@ -499,16 +499,23 @@ void run_clone(config_state& rs)
 {
 	choice_bag ch;
 	choice_bag::iterator i;
+	const game* base;
 
 	rs.current_clone = 0;
 	if (!rs.current_game)
 		return;
 
-	ostringstream s;
-	s << rs.current_game->description_get() << ", " << rs.current_game->manufacturer_get() << ", " << rs.current_game->year_get();
-	ch.insert( ch.end(), choice( s.str(), (void*)rs.current_game ) );
+	if (rs.current_game->software_get()) {
+		base = &rs.current_game->root_get();
+	} else {
+		base = rs.current_game;
+	}
 
-	for(pgame_container::const_iterator j = rs.current_game->clone_bag_get().begin();j!=rs.current_game->clone_bag_get().end();++j) {
+	ostringstream s;
+	s << base->description_get() << ", " << base->manufacturer_get() << ", " << base->year_get();
+	ch.insert( ch.end(), choice( s.str(), (void*)base ) );
+
+	for(pgame_container::const_iterator j = base->clone_bag_get().begin();j!=base->clone_bag_get().end();++j) {
 		if (!(*j)->software_get()) {
 			ostringstream s;
 			s << (*j)->description_get() << ", " << (*j)->manufacturer_get() << ", " << (*j)->year_get();
@@ -517,7 +524,7 @@ void run_clone(config_state& rs)
 	}
 
 	i = ch.begin();
-	int key = ch.run(" Select clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
+	int key = ch.run(" Select game clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
 	if (key == INT_KEY_ENTER) {
 		rs.current_clone = (game*)i->ptr_get();
 	}
@@ -604,7 +611,7 @@ void run_volume(config_state& rs)
 }
 
 // ------------------------------------------------------------------------
-// Volume
+// Difficulty
 
 #define DIFFICULTY_CHOICE_DX 10*int_font_dx_get()
 
@@ -612,7 +619,7 @@ void run_difficulty(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert( ch.end(), choice("None (default)", difficulty_none) );
+	ch.insert( ch.end(), choice("Default", difficulty_none) );
 	ch.insert( ch.end(), choice("Easiest", difficulty_easiest) );
 	ch.insert( ch.end(), choice("Easy", difficulty_easy) );
 	ch.insert( ch.end(), choice("Normal", difficulty_medium) );
@@ -622,7 +629,7 @@ void run_difficulty(config_state& rs)
 	choice_bag::iterator i = ch.find_by_value(rs.difficulty_effective);
 	if (i == ch.end())
 		i = ch.begin();
-	int key = ch.run(" Volume", SECOND_CHOICE_X, SECOND_CHOICE_Y, DIFFICULTY_CHOICE_DX, i);
+	int key = ch.run(" Difficulty", SECOND_CHOICE_X, SECOND_CHOICE_Y, DIFFICULTY_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		rs.difficulty_effective = static_cast<difficulty_t>(i->value_get());
@@ -640,8 +647,13 @@ bool run_submenu(config_state& rs)
 	bool ret = false;
 
 	ch.insert( ch.end(), choice("Config/Sort", 0) );
-	ch.insert( ch.end(), choice("Config/Type", 1) );
-	ch.insert( ch.end(), choice("Config/Group", 2) );
+
+	if (rs.type.size() > 1)
+		ch.insert( ch.end(), choice("Config/Type", 1) );
+
+	if (rs.group.size() > 1)
+		ch.insert( ch.end(), choice("Config/Group", 2) );
+
 	ch.insert( ch.end(), choice("Config/Selection", 3) );
 	ch.insert( ch.end(), choice("Config/Emulator", 4) );
 	ch.insert( ch.end(), choice("Config/Mode", 5) );
@@ -651,8 +663,13 @@ bool run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Config/Difficulty", 17) );
 	ch.insert( ch.end(), choice("Config/Lock-Unlock", 12) );
 	ch.insert( ch.end(), choice("Config/Save as Default", 11) );
-	ch.insert( ch.end(), choice("Game/Type", 8) );
-	ch.insert( ch.end(), choice("Game/Group", 9) );
+
+	if (rs.type.size() > 1)
+		ch.insert( ch.end(), choice("Game/Set Type", 8) );
+
+	if (rs.group.size() > 1)
+		ch.insert( ch.end(), choice("Game/Set Group", 9) );
+
 	ch.insert( ch.end(), choice("Game/Run", 14) );
 	ch.insert( ch.end(), choice("Game/Run Clone", 15) );
 	ch.insert( ch.end(), choice("Command", 7) );
@@ -974,7 +991,7 @@ void run_stat(config_state& rs)
 
 	y += int_font_dy_get();
 	int_put(xt, y, "Total", COLOR_HELP_TAG);
-	int_put(xs, y, "Selected", COLOR_HELP_TAG);
+	int_put(xs, y, "Listed", COLOR_HELP_TAG);
 	int_put(xp, y, "Percentage", COLOR_HELP_TAG);
 
 	{

@@ -901,7 +901,7 @@ Configuration
 	Used to customize the input keyboard codes that trigger menu
 	events.
 
-	:event EVENT EXPRESSION
+	:event_assign EVENT EXPRESSION
 
 	Events:
 		up, down, left, right - Movement.
@@ -948,10 +948,9 @@ Configuration
 			lwin, rwin, menu, scrlock, numlock, capslock.
 
 	Examples:
+		:event_assign enter lcontrol or enter
 		:event_assign menu 90 or 35
-		:	-> 90 or 35
 		:event_assign emulator 91 23 or not 21 33
-		:	-> (91 and 23) or ((not 21) and 33)
 
 	You can use the utility `advk' to get the key scancodes and
 	names.
