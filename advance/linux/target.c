@@ -34,6 +34,8 @@
 #include "snstring.h"
 #include "portable.h"
 
+#include "oslinux.h"
+
 #include <stdlib.h>
 #include <sched.h>
 #include <time.h>
@@ -46,7 +48,7 @@
 #include <string.h>
 
 struct target_context {
-	unsigned min_usleep; /**< Minimun sleep time in microseconds. */
+	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 
 	target_clock_t last; /**< Last clock. */
 	target_clock_t init; /**< First clock. */
@@ -61,7 +63,7 @@ adv_error target_init(void)
 {
 	TARGET.last = 0;
 	TARGET.init = 0;
-	TARGET.min_usleep = 0;
+	TARGET.usleep_granularity = 0;
 
 	TARGET.init = target_clock();
 
@@ -77,7 +79,9 @@ void target_done(void)
 
 void target_yield(void)
 {
+#ifdef _POSIX_PRIORITY_SCHEDULING
 	sched_yield();
+#endif
 }
 
 void target_idle(void)
@@ -86,6 +90,11 @@ void target_idle(void)
 	req.tv_sec = 0;
 	req.tv_nsec = 1000000; /* 1 ms */
 	nanosleep(&req, 0);
+}
+
+void target_usleep_granularity(unsigned us)
+{
+	TARGET.usleep_granularity = us;
 }
 
 void target_usleep(unsigned us)
@@ -98,10 +107,10 @@ void target_usleep(unsigned us)
 	unsigned effective;
 
 	/* if too short don't wait */
-	if (us <= TARGET.min_usleep)
+	if (us <= TARGET.usleep_granularity)
 		return;
 
-	requested = us - TARGET.min_usleep;
+	requested = us - TARGET.usleep_granularity;
 
 	req.tv_sec = requested / 1000000;
 	req.tv_nsec = (requested % 1000000) * 1000;
@@ -113,8 +122,10 @@ void target_usleep(unsigned us)
 	effective = (stop_tv.tv_sec - start_tv.tv_sec) * 1000000 + (stop_tv.tv_usec - start_tv.tv_usec);
 
 	if (effective > us) {
-		TARGET.min_usleep += effective - us;
-		log_std(("linux: target_usleep() increase min sleep to %d [us] (requested %d, tryed %d, effective %d)\n", TARGET.min_usleep, us, requested, effective));
+#if 0 /* don't adjust the granularity, it should be measured by the OS code */
+		TARGET.usleep_granularity += effective - us;
+#endif
+		log_std(("WARNING:linux: target_usleep() too long, granularity %d [us] (requested %d, tryed %d, effective %d)\n", TARGET.usleep_granularity, us, requested, effective));
 	}
 }
 
@@ -276,14 +287,6 @@ adv_error target_apm_wakeup(void)
 {
 	/* nothing */
 	return 0;
-}
-
-/***************************************************************************/
-/* Led */
-
-void target_led_set(unsigned mask)
-{
-	/* nothing */
 }
 
 /***************************************************************************/

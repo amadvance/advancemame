@@ -397,6 +397,13 @@ void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
+void keyb_raw_led_set(unsigned keyboard, unsigned led_mask)
+{
+	log_debug(("keyb:raw: keyb_raw_led_set(keyboard:%d,mask:%d)\n", led_mask));
+
+	/* TODO led support */
+}
+
 #define SCANCODE_LCTRL 29
 #define SCANCODE_RCTRL 97
 #define SCANCODE_C 46
@@ -614,6 +621,7 @@ keyb_driver keyb_raw_driver = {
 	keyb_raw_has,
 	keyb_raw_get,
 	keyb_raw_all_get,
+	keyb_raw_led_set,
 	keyb_raw_poll
 };
 

@@ -8,6 +8,7 @@ SOBJS += \
 	$(SOBJ)/lib/portable.o \
 	$(SOBJ)/lib/snstring.o \
 	$(SOBJ)/lib/log.o \
+	$(SOBJ)/lib/measure.o \
 	$(SOBJ)/lib/conf.o \
 	$(SOBJ)/lib/incstr.o \
 	$(SOBJ)/lib/sounddrv.o \
@@ -38,8 +39,8 @@ SLIBS += $(ZLIBS) -lm
 SOBJDIRS += \
 	$(SOBJ)/linux
 SOBJS += \
-	$(SOBJ)/lib/filenix.o \
-	$(SOBJ)/lib/targnix.o \
+	$(SOBJ)/linux/file.o \
+	$(SOBJ)/linux/target.o \
 	$(SOBJ)/linux/os.o
 ifeq ($(CONF_LIB_ALSA),yes)
 SCFLAGS += \
@@ -76,8 +77,8 @@ SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJDIRS += \
 	$(SOBJ)/dos
 SOBJS += \
-	$(SOBJ)/lib/filedos.o \
-	$(SOBJ)/lib/targdos.o \
+	$(SOBJ)/dos/file.o \
+	$(SOBJ)/dos/target.o \
 	$(SOBJ)/dos/os.o \
 	$(SOBJ)/dos/sseal.o \
 	$(SOBJ)/dos/salleg.o \
@@ -89,10 +90,11 @@ SCFLAGS += \
 	-I$(srcdir)/advance/windows
 SLIBS += $(ZLIBS) -lm
 SOBJDIRS += \
-	$(SOBJ)/windows
+	$(SOBJ)/windows \
+	$(SOBJ)/dos
 SOBJS += \
-	$(SOBJ)/lib/filedos.o \
-	$(SOBJ)/lib/targwin.o \
+	$(SOBJ)/dos/file.o \
+	$(SOBJ)/windows/target.o \
 	$(SOBJ)/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
 SCFLAGS += \

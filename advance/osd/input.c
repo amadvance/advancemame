@@ -506,8 +506,8 @@ static adv_error parse_key(int* v, const char* s, unsigned keyboard)
 {
 	unsigned i;
 
-	if (strspn(s, "0123456789") == strlen(s)) {
-		return parse_int(v, s);
+	if (strlen(s)>=5 && strncmp(s, "scan", 4) == 0 && strspn(s+4, "0123456789") == strlen(s+4)) {
+		return parse_int(v, s+4);
 	}
 
 	for(i=0;i<KEYB_MAX;++i) {

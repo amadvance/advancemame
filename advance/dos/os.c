@@ -88,7 +88,7 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 
 	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
-		&& conf_section_string_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
+		&& conf_string_section_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
 		return result;
 	else
 		return def;
@@ -105,7 +105,7 @@ int __wrap_get_config_int(const char *section, const char *name, int def)
 		return def;
 	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
-		&& conf_section_string_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
+		&& conf_string_section_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
 		return atoi(result);
 	else
 		return def;
@@ -123,7 +123,7 @@ int __wrap_get_config_id(const char *section, const char *name, int def)
 
 	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
-		&& conf_section_string_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
+		&& conf_string_section_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
 	{
 		unsigned v;
 		v = ((unsigned)(unsigned char)result[3]);

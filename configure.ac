@@ -287,6 +287,13 @@ if test $ac_host = dos; then
 	ac_lib_keyboard_flag=yes
 fi
 
+if test $ac_host = unix ; then
+	AC_CHECK_HEADERS([sys/utsname.h])
+	AC_CHECK_HEADERS([sys/time.h])
+	AC_CHECK_HEADERS([sys/types.h])
+	AC_CHECK_HEADERS([sys/stat.h])
+fi
+
 AC_CHECK_LIB(
 	[z],
 	[adler32],
@@ -490,6 +497,7 @@ elif test $ac_lib_slang = yes; then
 	)
 fi
 if test $ac_lib_slang = yes; then
+	AC_CHECK_HEADERS([slang.h slang/slang.h], [break])
 	ac_lib_video="$ac_lib_video slang"
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])

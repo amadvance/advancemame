@@ -180,9 +180,11 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_LQ2X 0x7 /**< LQ2x. */
 #define VIDEO_COMBINE_Y_LQ3X 0x8 /**< LQ3x. */
 #define VIDEO_COMBINE_Y_LQ4X 0x9 /**< LQ4x. */
+#ifndef USE_BLIT_SMALL
 #define VIDEO_COMBINE_Y_HQ2X 0xA /**< HQ2x. */
 #define VIDEO_COMBINE_Y_HQ3X 0xB /**< HQ3x. */
 #define VIDEO_COMBINE_Y_HQ4X 0xC /**< HQ4x. */
+#endif
 #endif
 #define VIDEO_COMBINE_Y_MASK 0xF /**< Mask for the Y effect. */
 

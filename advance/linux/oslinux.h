@@ -42,6 +42,8 @@ extern "C" {
 /***************************************************************************/
 /* Internal */
 
+void target_usleep_granularity(unsigned us);
+
 /* Check if svgalib is used in some way */
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
 #define USE_SVGALIB

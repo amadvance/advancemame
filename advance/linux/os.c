@@ -34,6 +34,7 @@
 #include "target.h"
 #include "file.h"
 #include "snstring.h"
+#include "measure.h"
 #include "portable.h"
 
 #include <stdlib.h>
@@ -41,13 +42,23 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
-#include <sys/utsname.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <setjmp.h>
+#include <time.h>
+
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 #if defined(USE_SVGALIB)
 #include <vga.h>
@@ -55,8 +66,15 @@
 #endif
 
 #if defined(USE_SLANG)
-#define USE_SLANG
+#ifdef HAVE_SLANG_H
+#include <slang.h>
+#else
+#ifdef HAVE_SLANG_SLANG_H
 #include <slang/slang.h>
+#else
+#error slang.h file not found!
+#endif
+#endif
 #endif
 
 #if defined(USE_X)
@@ -201,10 +219,44 @@ int os_is_quit(void)
 	return OS.is_quit;
 }
 
+static void os_wait(void)
+{
+	struct timespec req;
+	req.tv_sec = 0;
+	req.tv_nsec = 1 * 1000000; /* 1 ms */
+	nanosleep(&req, 0);
+}
+
+static void os_delay(void)
+{
+	double delay_time;
+	target_clock_t start, stop;
+
+	target_yield();
+
+	delay_time = measure_step(os_wait, 0.0001, 0.5, 7);
+
+	if (delay_time > 0) {
+		log_std(("os: sleep granularity %g\n", delay_time));
+		target_usleep_granularity( delay_time * 1000000 );
+	} else {
+		log_std(("ERROR:os: sleep granularity NOT measured\n"));
+		target_usleep_granularity( 20000 /* 20 ms */ );
+	}
+
+	target_yield();
+
+	start = target_clock();
+	stop = target_clock();
+	while (stop == start)
+		stop = target_clock();
+
+	log_std(("os: clock granularity %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC ));
+}
+
 int os_inner_init(const char* title)
 {
 	const char* display;
-	target_clock_t start, stop;
 	struct utsname uts;
 #ifdef USE_SDL
 	SDL_version compiled;
@@ -220,6 +272,12 @@ int os_inner_init(const char* title)
 		log_std(("os: version %s\n", uts.version));
 		log_std(("os: machine %s\n", uts.machine));
 	}
+
+#ifdef _POSIX_PRIORITY_SCHEDULING
+	log_std(("os: scheduling available\n"));
+#else
+	log_std(("os: scheduling NOT available\n"));
+#endif
 
 	/* save term if possible */
 	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
@@ -238,18 +296,7 @@ int os_inner_init(const char* title)
 	log_std(("os: compiler unknown\n"));
 #endif
 
-	usleep(10000);
-	start = target_clock();
-	stop = target_clock();
-	while (stop == start)
-		stop = target_clock();
-	log_std(("os: clock delta %ld\n", (unsigned long)(stop - start)));
-
-	usleep(10000);
-	start = target_clock();
-	usleep(1000);
-	stop = target_clock();
-	log_std(("os: 0.001 delay, effective %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC ));
+	os_delay();
 
 #if defined(linux)
 	log_std(("os: sysconf(_SC_CLK_TCK) %ld\n", sysconf(_SC_CLK_TCK)));
@@ -279,27 +326,39 @@ int os_inner_init(const char* title)
 	if (display == 0) {
 		int h;
 		log_std(("os: open /dev/svga\n"));
-		/* try opening the device, otherwise vga_init() abort. */
+
+		/* try opening the device, otherwise vga_init() will abort the program. */
 		h = open("/dev/svga", O_RDWR);
 		if (h >= 0) {
+			int res;
 			close(h);
+
 			vga_disabledriverreport();
-			log_std(("os: vga_init()\n"));
-			if (vga_init() != 0) {
-				log_std(("os: vga_init() failed\n"));
-				target_err("Error initializing the SVGALIB video support.\n");
-				return -1;
+
+			/* check the version of the SVGALIB */
+			res = vga_setmode(-1);
+			if (res < 0 || res < 0x1911) { /* 1.9.11 */
+				log_std(("WARNING:os: invalid SVGALIB version %x. All the SVGALIB drivers will be disabled.\n", (int)res));
+				/* don't print the message. It may be a normal condition. */
+				/* target_nfo("Invalid SVGALIB version, you need SVGALIB version 1.9.x or 2.0.x.\nPlease upgrade or recompile without SVGALIB support.\n"); */
+			} else {
+				log_std(("os: vga_init()\n"));
+				if (vga_init() != 0) {
+					log_std(("os: vga_init() failed\n"));
+					target_err("Error initializing the SVGALIB video support.\n");
+					return -1;
+				}
+				OS.svgalib_active = 1;
 			}
-			OS.svgalib_active = 1;
 		} else {
-			log_std(("os: open /dev/svga failed\n"));
+			log_std(("WARNING:os: open /dev/svga failed. All the SVGALIB drivers will be disabled.\n"));
 			/* don't print the message. It may be a normal condition. */
-			/* target_err("Error opening the SVGALIB device /dev/svga.\n"); */
+			/* target_nfo("Error opening the SVGALIB device /dev/svga.\n"); */
 		}
 	} else {
-		log_std(("os: vga_init() skipped because DISPLAY is defined\n"));
+		log_std(("WARNING:os: vga_init() skipped because DISPLAY is defined. All the SVGALIB drivers will be disabled.\n"));
 		/* don't print the message. It may be a normal condition. */
-		/* target_err("Error initializing SVGALIB, it's unusable in X.\n"); */
+		/* target_nfo("SVGALIB not initialized because it's unusable in X.\n"); */
 	}
 #endif
 #if defined(USE_SDL)

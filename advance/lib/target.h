@@ -75,14 +75,14 @@ void target_done(void);
 
 /**
  * Schedule another process if available.
- * If no more process need execution the current process continues immeditiatly.
+ * If no process is waiting the current process continues immeditiatly.
  * Calling this function generally doesn't reduce the CPU occupation.
  */
 void target_yield(void);
 
 /**
  * Put the process in idle state.
- * If no more process need execution the current process waits anyway some time.
+ * If no process is waiting the current process waits anyway some time.
  * Generally this call waits at least 10 ms.
  * Calling this function generally reduces the CPU occupation.
  */
@@ -91,6 +91,7 @@ void target_idle(void);
 /**
  * Wait no more than then specified time.
  * Calling this function generally reduces the CPU occupation.
+ * \param us Microsencond to wait.
  */
 void target_usleep(unsigned us);
 
@@ -183,18 +184,6 @@ adv_error target_apm_standby(void);
  * \return ==0 if success
  */
 adv_error target_apm_wakeup(void);
-
-/***************************************************************************/
-/* Led */
-
-#define TARGET_LED_NUMLOCK 0x1
-#define TARGET_LED_CAPSLOCK 0x2
-#define TARGET_LED_SCROLOCK 0x4
-
-/**
- * Set the keyboard led status.
- */
-void target_led_set(unsigned mask);
 
 /***************************************************************************/
 /* System */

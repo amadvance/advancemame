@@ -17,6 +17,7 @@ CFGOBJS += \
 	$(CFGOBJ)/lib/snstring.o \
 	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
+	$(CFGOBJ)/lib/measure.o \
 	$(CFGOBJ)/lib/rgb.o \
 	$(CFGOBJ)/lib/conf.o \
 	$(CFGOBJ)/lib/incstr.o \
@@ -46,8 +47,8 @@ CFGCFLAGS += \
 CFGOBJDIRS += \
 	$(CFGOBJ)/linux
 CFGOBJS += \
-	$(CFGOBJ)/lib/filenix.o \
-	$(CFGOBJ)/lib/targnix.o \
+	$(CFGOBJ)/linux/file.o \
+	$(CFGOBJ)/linux/target.o \
 	$(CFGOBJ)/linux/os.o
 CFGLIBS += -lm
 ifeq ($(CONF_LIB_SLANG),yes)
@@ -98,8 +99,8 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/svgalib/clockchi \
 	$(CFGOBJ)/svgalib/drivers
 CFGOBJS += \
-	$(CFGOBJ)/lib/filedos.o \
-	$(CFGOBJ)/lib/targdos.o \
+	$(CFGOBJ)/dos/file.o \
+	$(CFGOBJ)/dos/target.o \
 	$(CFGOBJ)/dos/os.o \
 	$(CFGOBJ)/dos/vvgal.o \
 	$(CFGOBJ)/dos/vvbel.o \
@@ -155,10 +156,11 @@ CFGCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 CFGOBJDIRS += \
-	$(CFGOBJ)/windows
+	$(CFGOBJ)/windows \
+	$(CFGOBJ)/dos
 CFGOBJS += \
-	$(CFGOBJ)/lib/filedos.o \
-	$(CFGOBJ)/lib/targwin.o \
+	$(CFGOBJ)/dos/file.o \
+	$(CFGOBJ)/windows/target.o \
 	$(CFGOBJ)/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
 CFGOBJDIRS += \

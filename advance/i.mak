@@ -12,6 +12,7 @@ IOBJS += \
 	$(IOBJ)/lib/portable.o \
 	$(IOBJ)/lib/snstring.o \
 	$(IOBJ)/lib/log.o \
+	$(IOBJ)/lib/measure.o \
 	$(IOBJ)/lib/conf.o \
 	$(IOBJ)/lib/incstr.o \
 	$(IOBJ)/lib/device.o \
@@ -28,8 +29,8 @@ ICFLAGS += \
 IOBJDIRS += \
 	$(IOBJ)/linux
 IOBJS += \
-	$(IOBJ)/lib/filenix.o \
-	$(IOBJ)/lib/targnix.o \
+	$(IOBJ)/linux/file.o \
+	$(IOBJ)/linux/target.o \
 	$(IOBJ)/linux/os.o
 ICFLAGS += \
 	-DUSE_INPUT_TTY
@@ -45,8 +46,8 @@ ILIBS += -lalleg
 IOBJDIRS += \
 	$(IOBJ)/dos
 IOBJS += \
-	$(IOBJ)/lib/filedos.o \
-	$(IOBJ)/lib/targdos.o \
+	$(IOBJ)/dos/file.o \
+	$(IOBJ)/dos/target.o \
 	$(IOBJ)/dos/os.o \
 	$(IOBJ)/dos/idos.o
 endif

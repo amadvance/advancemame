@@ -8,7 +8,7 @@ AdvanceMENU Version 2.2.15 2003/12
 	) Fixed a segmentation fault bug on the DOS SVGALIB driver for
 		ATI Rage boards.
 	) The ui_top/bottom/left/right values are now scaled accordling
-		the ui_background image.
+		to the ui_background image.
 
 AdvanceMENU Version 2.2.14 2003/11
 	) All the snapshots and animated clips are now reduced in size

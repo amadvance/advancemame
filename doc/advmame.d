@@ -1312,8 +1312,8 @@ Configuration
 	The KEY names can be checked using the `advk' utility.
 	Generally they are:
 		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
-		v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad, 2_pad,
-		3_pad, 4_pad, 5_pad, 6_pad, 7_pad, 8_pad, 9_pad, f1, f2, f3,
+		v, w, x, y, z, n0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad,
+		2_pad, 3_pad, 4_pad, 5_pad, 6_pad, 7_pad, 8_pad, 9_pad, f1, f2, f3,
 		f4, f5, f6, f7, f8, f9, f10, f11, f12, esc, backquote, minus,
 		equals, backspace, tab, openbrace, closebrace, enter, semicolon,
 		quote, backslash, less, comma, period, slash, space, insert,
@@ -1332,6 +1332,8 @@ Configuration
 		playcd, pausecd, prog3, prog4, suspend, close, brightnessdown,
 		brightnessup, macro, mute, volumedown, volumeup, power, compose,
 		f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24.
+
+	You can also specify a numerical scancode N in the form: `scanN'.
 
 	The JOY_BUTTON button names can be checked using the `advj' utility.
 	Generally they are:

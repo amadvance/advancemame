@@ -315,6 +315,7 @@ keyb_driver keyb_svgalib_driver = {
 	keyb_svgalib_has,
 	keyb_svgalib_get,
 	keyb_svgalib_all_get,
+	0,
 	keyb_svgalib_poll
 };
 

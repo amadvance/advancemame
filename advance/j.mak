@@ -12,6 +12,7 @@ JOBJS += \
 	$(JOBJ)/lib/portable.o \
 	$(JOBJ)/lib/snstring.o \
 	$(JOBJ)/lib/log.o \
+	$(JOBJ)/lib/measure.o \
 	$(JOBJ)/lib/conf.o \
 	$(JOBJ)/lib/incstr.o \
 	$(JOBJ)/lib/device.o \
@@ -27,8 +28,8 @@ JCFLAGS += \
 JOBJDIRS += \
 	$(JOBJ)/linux
 JOBJS += \
-	$(JOBJ)/lib/filenix.o \
-	$(JOBJ)/lib/targnix.o \
+	$(JOBJ)/linux/file.o \
+	$(JOBJ)/linux/target.o \
 	$(JOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 JCFLAGS += \
@@ -79,8 +80,8 @@ JLIBS += -lalleg
 JOBJDIRS += \
 	$(JOBJ)/dos
 JOBJS += \
-	$(JOBJ)/lib/filedos.o \
-	$(JOBJ)/lib/targdos.o \
+	$(JOBJ)/dos/file.o \
+	$(JOBJ)/dos/target.o \
 	$(JOBJ)/dos/os.o \
 	$(JOBJ)/dos/jalleg.o
 endif
@@ -89,10 +90,11 @@ ifeq ($(CONF_HOST),windows)
 JCFLAGS += \
 	-I$(srcdir)/advance/windows
 JOBJDIRS += \
-	$(JOBJ)/windows
+	$(JOBJ)/windows \
+	$(JOBJ)/dos
 JOBJS += \
-	$(JOBJ)/lib/filedos.o \
-	$(JOBJ)/lib/targwin.o \
+	$(JOBJ)/dos/file.o \
+	$(JOBJ)/windows/target.o \
 	$(JOBJ)/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
 JCFLAGS += \

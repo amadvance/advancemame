@@ -67,6 +67,7 @@ typedef struct keyb_driver_struct {
 	adv_bool (*has)(unsigned keyboard, unsigned code);
 	unsigned (*get)(unsigned keyboard, unsigned code);
 	void (*all_get)(unsigned keyboard, unsigned char* code_map);
+	void (*led_set)(unsigned keyboard, unsigned mask);
 	void (*poll)(void);
 } keyb_driver;
 
@@ -190,6 +191,23 @@ unsigned keyb_get(unsigned keyboard, unsigned code);
  * \param code_map The destination vector of KEYB_MAX elements.
  */
 void keyb_all_get(unsigned keyboard, unsigned char* code_map);
+
+
+#define KEYB_LED_NUML 0x0001
+#define KEYB_LED_CAPSL 0x0002
+#define KEYB_LED_SCROLLL 0x0004
+#define KEYB_LED_COMPOSE 0x0008
+#define KEYB_LED_KANA 0x0010
+#define KEYB_LED_SLEEP 0x0020
+#define KEYB_LED_SUSPEND 0x0040
+#define KEYB_LED_MUTE 0x0080
+#define KEYB_LED_MISC 0x0100
+
+/**
+ * Set the led state.
+ * \param led_mask Mask of the led to enable.
+ */
+void keyb_led_set(unsigned keyboard, unsigned led_mask);
 
 /**
  * Poll the keyboard status.

@@ -276,23 +276,6 @@ adv_error target_apm_wakeup(void)
 }
 
 /***************************************************************************/
-/* Led */
-
-void target_led_set(unsigned mask)
-{
-	unsigned allegro_mask = 0;
-
-	if ((mask & TARGET_LED_NUMLOCK) != 0)
-		allegro_mask |= KB_NUMLOCK_FLAG;
-	if ((mask & TARGET_LED_CAPSLOCK) != 0)
-		allegro_mask |= KB_CAPSLOCK_FLAG;
-	if ((mask & TARGET_LED_SCROLOCK) != 0)
-		allegro_mask |= KB_SCROLOCK_FLAG;
-
-	set_leds(allegro_mask);
-}
-
-/***************************************************************************/
 /* System */
 
 adv_error target_script(const char* script)
@@ -520,9 +503,6 @@ void target_signal(int signum)
 	} else if (signum == SIGQUIT) {
 		cprintf("Quit\n\r");
 		exit(EXIT_FAILURE);
-	} else if (signum == SIGUSR1) {
-		cprintf("Low memory\n\r");
-		_exit(EXIT_FAILURE);
 	} else {
 		cprintf("Signal %d.\n\r", signum);
 		cprintf("%s, %s\n\r", __DATE__, __TIME__);
@@ -530,7 +510,7 @@ void target_signal(int signum)
 		__djgpp_traceback_exit(signum);
 
 		if (signum == SIGILL) {
-			cprintf("Are you using the correct binary ?\n\r");
+			cprintf("Are you using the correct binary for your processor?\n\r");
 		}
 
 		_exit(EXIT_FAILURE);

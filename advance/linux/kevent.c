@@ -900,6 +900,13 @@ void keyb_event_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
+void keyb_event_led_set(unsigned keyboard, unsigned led_mask)
+{
+	log_debug(("keyb:event: keyb_event_led_set(keyboard:%d,mask:%d)\n", led_mask));
+
+	/* TODO led support */
+}
+
 void keyb_event_poll(void)
 {
 	unsigned i;
@@ -949,6 +956,7 @@ keyb_driver keyb_event_driver = {
 	keyb_event_has,
 	keyb_event_get,
 	keyb_event_all_get,
+	keyb_event_led_set,
 	keyb_event_poll
 };
 

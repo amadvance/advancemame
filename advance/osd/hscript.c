@@ -86,14 +86,32 @@ unsigned char script_port_read(int address)
 
 void script_port_write(int address, unsigned char value)
 {
+	unsigned led_bit[] = {
+		KEYB_LED_NUML,
+		KEYB_LED_CAPSL,
+		KEYB_LED_SCROLLL,
+		KEYB_LED_COMPOSE,
+		KEYB_LED_KANA,
+		KEYB_LED_SLEEP,
+		KEYB_LED_SUSPEND,
+		KEYB_LED_MUTE,
+		KEYB_LED_MISC,
+		0
+	};
+
 	if (address == 0) {
-		value &= 0x7;
 		if (STATE.kdb_state != value) {
+			unsigned i;
 			unsigned led_mask = 0;
-			if (value & 0x1) led_mask |= TARGET_LED_NUMLOCK;
-			if (value & 0x2) led_mask |= TARGET_LED_CAPSLOCK;
-			if (value & 0x4) led_mask |= TARGET_LED_SCROLOCK;
-			target_led_set(led_mask);
+
+			for(i=0;led_bit[i] != 0;++i) {
+				if ((value & (1 << i)) != 0) {
+					led_mask |= led_bit[i];
+				}
+			}
+
+			keyb_led_set(0, led_mask);
+
 			STATE.kdb_state = value;
 		}
 	} else {

@@ -155,9 +155,11 @@ static inline void internal_end(void)
 #include "lq2x.h"
 #include "lq3x.h"
 #include "lq4x.h"
+#ifndef USE_BLIT_SMALL
 #include "hq2x.h"
 #include "hq3x.h"
 #include "hq4x.h"
+#endif
 #endif
 
 /***************************************************************************/
@@ -417,6 +419,7 @@ static void lq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, uns
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
@@ -424,6 +427,7 @@ static void hq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, uns
 		case 4 : hq2x_32_def(dst0, dst1, src0, src1, src2, count); break;
 	}
 }
+#endif
 
 static void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
@@ -442,6 +446,7 @@ static void lq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, voi
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
@@ -449,6 +454,7 @@ static void hq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, voi
 		case 4 : hq3x_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
 	}
 }
+#endif
 
 static void stage_scale2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
@@ -464,12 +470,14 @@ static void stage_lq2x(const struct video_stage_horz_struct* stage, void* dst0, 
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq2x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq2x(dst0, dst1, src0, src1, src2, stage->sbpp, stage->sdx);
 	}
 }
+#endif
 
 static void stage_scale3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
@@ -485,12 +493,14 @@ static void stage_lq3x(const struct video_stage_horz_struct* stage, void* dst0, 
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq3x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq3x(dst0, dst1, dst2, src0, src1, src2, stage->sbpp, stage->sdx);
 	}
 }
+#endif
 
 static void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
@@ -500,6 +510,7 @@ static void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, voi
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned bytes_per_pixel, unsigned count)
 {
 	switch (bytes_per_pixel) {
@@ -507,6 +518,7 @@ static void hq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, voi
 		case 4 : hq4x_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
 	}
 }
+#endif
 
 static void stage_scale4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
 {
@@ -521,12 +533,14 @@ static void stage_lq4x(const struct video_stage_horz_struct* stage, void* dst0, 
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq4x(const struct video_stage_horz_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->sbpp == stage->sdp) {
 		hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->sbpp, stage->sdx);
 	}
 }
+#endif
 
 static void stage_scale2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
@@ -542,12 +556,14 @@ static void stage_lq2x_direct(const struct video_stage_vert_struct* stage, void*
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq2x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq2x(dst0, dst1, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
 	}
 }
+#endif
 
 static void stage_scale3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
@@ -563,12 +579,14 @@ static void stage_lq3x_direct(const struct video_stage_vert_struct* stage, void*
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq3x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq3x(dst0, dst1, dst2, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
 	}
 }
+#endif
 
 static void stage_scale4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3)
 {
@@ -583,12 +601,14 @@ static void stage_lq4x_direct(const struct video_stage_vert_struct* stage, void*
 	}
 }
 
+#ifndef USE_BLIT_SMALL
 static void stage_hq4x_direct(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2)
 {
 	if ((int)stage->stage_pivot_sbpp == stage->stage_pivot_sdp) {
 		hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->stage_pivot_sbpp, stage->stage_pivot_sdx);
 	}
 }
+#endif
 #endif
 
 /***************************************************************************/
@@ -896,9 +916,11 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_y_lq2x : return "lq2x";
 		case pipe_y_lq3x : return "lq3x";
 		case pipe_y_lq4x : return "lq4x";
+#ifndef USE_BLIT_SMALL
 		case pipe_y_hq2x : return "hq2x";
 		case pipe_y_hq3x : return "hq3x";
 		case pipe_y_hq4x : return "hq4x";
+#endif
 	}
 	return 0;
 }
@@ -984,7 +1006,7 @@ static adv_bool pipe_is_fastwrite(const struct video_stage_horz_struct* stage)
 			case pipe_x_rgb_scantriplevert : return is_plain;
 			case pipe_swap_even : return 1;
 			case pipe_swap_odd : return 1;
-			case pipe_interlate_filter : return 1;
+			case pipe_interlace_filter : return 1;
 			case pipe_palette8to16 : return is_plain;
 			case pipe_palette16to8 : return 1;
 			case pipe_palette16to16 : return 1;
@@ -1021,9 +1043,11 @@ static adv_bool combine_is_rgb(unsigned stage)
 	case VIDEO_COMBINE_Y_LQ2X :
 	case VIDEO_COMBINE_Y_LQ3X :
 	case VIDEO_COMBINE_Y_LQ4X :
+#ifndef USE_BLIT_SMALL
 	case VIDEO_COMBINE_Y_HQ2X :
 	case VIDEO_COMBINE_Y_HQ3X :
 	case VIDEO_COMBINE_Y_HQ4X :
+#endif
 #endif
 		return 1;
 	default:
@@ -1042,9 +1066,11 @@ static adv_bool combine_is_direct(unsigned stage)
 	case VIDEO_COMBINE_Y_LQ2X :
 	case VIDEO_COMBINE_Y_LQ3X :
 	case VIDEO_COMBINE_Y_LQ4X :
+#ifndef USE_BLIT_SMALL
 	case VIDEO_COMBINE_Y_HQ2X :
 	case VIDEO_COMBINE_Y_HQ3X :
 	case VIDEO_COMBINE_Y_HQ4X :
+#endif
 		return 1;
 #endif
 	default:
@@ -1746,6 +1772,7 @@ static void video_stage_stretchy_lq2x(const struct video_pipeline_target_struct*
 /* stretch hq2x */
 
 #ifndef USE_BLIT_TINY
+#ifndef USE_BLIT_SMALL
 static void video_stage_stretchy_hq2x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
 {
 	unsigned x_off = x * target->bytes_per_pixel;
@@ -1878,6 +1905,7 @@ static void video_stage_stretchy_hq2x(const struct video_pipeline_target_struct*
 		}
 	}
 }
+#endif
 #endif
 
 /***************************************************************************/
@@ -2160,6 +2188,7 @@ static void video_stage_stretchy_lq3x(const struct video_pipeline_target_struct*
 /* stretch hq3x */
 
 #ifndef USE_BLIT_TINY
+#ifndef USE_BLIT_SMALL
 static void video_stage_stretchy_hq3x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
 {
 	unsigned x_off = x * target->bytes_per_pixel;
@@ -2292,6 +2321,7 @@ static void video_stage_stretchy_hq3x(const struct video_pipeline_target_struct*
 		}
 	}
 }
+#endif
 #endif
 
 /***************************************************************************/
@@ -2649,6 +2679,7 @@ static void video_stage_stretchy_lq4x(const struct video_pipeline_target_struct*
 /* stretch hq4x */
 
 #ifndef USE_BLIT_TINY
+#ifndef USE_BLIT_SMALL
 static void video_stage_stretchy_hq4x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
 {
 	unsigned x_off = x * target->bytes_per_pixel;
@@ -2782,6 +2813,7 @@ static void video_stage_stretchy_hq4x(const struct video_pipeline_target_struct*
 	}
 }
 #endif
+#endif
 
 /***************************************************************************/
 /* stretchy copy */
@@ -2862,6 +2894,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq2x;
 		stage_vert->type = pipe_y_lq2x;
+#ifndef USE_BLIT_SMALL
 	} else if (ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_HQ2X) {
 		/* hq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -2869,6 +2902,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq2x;
 		stage_vert->type = pipe_y_hq2x;
+#endif
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALE3X) {
 		/* scale3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -2883,6 +2917,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq3x;
 		stage_vert->type = pipe_y_lq3x;
+#ifndef USE_BLIT_SMALL
 	} else if (ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_HQ3X) {
 		/* hq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -2890,6 +2925,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq3x;
 		stage_vert->type = pipe_y_hq3x;
+#endif
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALE4X) {
 		/* scale4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -2904,6 +2940,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_lq4x;
 		stage_vert->type = pipe_y_lq4x;
+#ifndef USE_BLIT_SMALL
 	} else if (ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_HQ4X) {
 		/* hq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -2911,6 +2948,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		video_stage_pivot_late_set(stage_vert, combine_y);
 		stage_vert->put = video_stage_stretchy_hq4x;
 		stage_vert->type = pipe_y_hq4x;
+#endif
 	} else
 #endif
 	if (sdy < ddy) { /* y expansion */
@@ -2995,7 +3033,10 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 
 #ifndef USE_BLIT_TINY
 		if (combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
-			|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X)
+#ifndef USE_BLIT_SMALL
+			|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X
+#endif
+		)
 			interp_set(target);
 
 		if ((combine & VIDEO_COMBINE_X_RGB_TRIAD3PIX)!=0 || (combine & VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX)!=0)
@@ -3067,27 +3108,33 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 	} else if (dst_dx == 2*src_dx && combine_y == VIDEO_COMBINE_Y_LQ2X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#ifndef USE_BLIT_SMALL
 	} else if (dst_dx == 2*src_dx && combine_y == VIDEO_COMBINE_Y_HQ2X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#endif
 	} else if (dst_dx == 3*src_dx && combine_y == VIDEO_COMBINE_Y_SCALE3X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
 	} else if (dst_dx == 3*src_dx && combine_y == VIDEO_COMBINE_Y_LQ3X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#ifndef USE_BLIT_SMALL
 	} else if (dst_dx == 3*src_dx && combine_y == VIDEO_COMBINE_Y_HQ3X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#endif
 	} else if (dst_dx == 4*src_dx && combine_y == VIDEO_COMBINE_Y_SCALE4X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
 	} else if (dst_dx == 4*src_dx && combine_y == VIDEO_COMBINE_Y_LQ4X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#ifndef USE_BLIT_SMALL
 	} else if (dst_dx == 4*src_dx && combine_y == VIDEO_COMBINE_Y_HQ4X) {
 		/* the stretch is done by the y stage */
 		src_dp = bytes_per_pixel;
+#endif
 	} else
 #endif
 	{
@@ -3095,14 +3142,16 @@ static void video_pipeline_make(struct video_pipeline_struct* pipeline, unsigned
 		/* disable the y effect if size doesn't match */
 		switch (combine_y) {
 		case VIDEO_COMBINE_Y_SCALE2X :
-		case VIDEO_COMBINE_Y_LQ2X :
-		case VIDEO_COMBINE_Y_HQ2X :
 		case VIDEO_COMBINE_Y_SCALE3X :
-		case VIDEO_COMBINE_Y_LQ3X :
-		case VIDEO_COMBINE_Y_HQ3X :
 		case VIDEO_COMBINE_Y_SCALE4X :
+		case VIDEO_COMBINE_Y_LQ2X :
+		case VIDEO_COMBINE_Y_LQ3X :
 		case VIDEO_COMBINE_Y_LQ4X :
+#ifndef USE_BLIT_SMALL
+		case VIDEO_COMBINE_Y_HQ2X :
+		case VIDEO_COMBINE_Y_HQ3X :
 		case VIDEO_COMBINE_Y_HQ4X :
+#endif
 			combine_y = VIDEO_COMBINE_Y_NONE;
 			break;
 		}

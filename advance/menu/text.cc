@@ -3109,3 +3109,4 @@ void int_color_out(adv_conf* config_context, const char* tag)
 		conf_set(config_context, "", tag, s.c_str());
 	}
 }
+

@@ -185,9 +185,18 @@ struct advance_video_config_context {
 	unsigned monitor_aspect_y; /**< Vertical aspect of the monitor (3 for a standard monitor) */
 };
 
+/** Number of measures of the audio/video syncronization. */
+#define AUDIOVIDEO_MEASURE_MAX 16
+
+/** Number of frames on which distribuite the audio/video syncronization error. */
+#define AUDIOVIDEO_DISTRIBUTE_COUNT 16
+
 /** State for the video part. */
 struct advance_video_state_context {
 	adv_conf* cfg_context; /**< Context of the current configuration. */
+
+	int av_sync_map[AUDIOVIDEO_MEASURE_MAX]; /**< Circular buffer of the most recent audio/video syncronization measures. */
+	unsigned av_sync_mac; /**< Current position in the ::av_sync_map buffer. */
 
 	/* Game info */
 	adv_bool game_vector_flag; /**< If is a vector game. */

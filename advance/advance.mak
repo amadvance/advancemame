@@ -2,7 +2,7 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.77.0.0
+EMUVERSION = 0.77.0.1
 else
 EMUVERSION = 0.77.1
 endif
@@ -356,6 +356,7 @@ RCFLAGS += --include-dir advance/lib
 #WHOLE_CFLAGS_OPT = -O2 -Wall -Wno-sign-compare -Wno-unused
 #WHOLE_CFLAGS_EMU = -fomit-frame-pointer
 #WHOLE_LDFLAGS = -rdynamic
+DEFS_LINUX = -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_LIBZ=1 -DHAVE_SLANG_SLANG_H=1
 
 # Optimized
 WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O2 -Wall -Wno-sign-compare -Wno-unused
@@ -389,7 +390,7 @@ wholemame: mamedif
 	$(MAKE) CONF=no dist
 	$(MAKE) CONF=no CONF_DIFFSRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin
 
 dosmame:
@@ -414,7 +415,7 @@ wholecd:
 wholemess: messdif
 	$(MAKE) CONF=no CONF_EMU=mess dist
 	$(MAKE) CONF=no CONF_EMU=mess CONF_DIFFSRC=yes dist
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
@@ -426,7 +427,7 @@ winmess:
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distmenubin
+	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_DEFS="$(DEFS_LINUX)" distmenubin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distmenubin
 

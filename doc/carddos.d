@@ -4,17 +4,9 @@ Name
 	This is the list of the DOS video cards supported
 	by the Advance programs with the DOS drivers. 
 
-	This list is automatically generated from the `pcidevs.txt' file:
-
-		http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
-
-	The numbers in [] are the PCI device IDs of the video board
-	models. The numbers in () are the PCI vendor IDs of the
-	video board manufacturers. The idented names are submodels with
-	the same chipset. The numbers in {} are the PCI OEM vendor IDs of
-	the submodel.
-
-	The cards marked with (*) don't support interlaced modes.
+	Please note that not all the OEM cards are listed. If your card has a
+	supported chipset, it's probably supported also if the OEM vendor is not
+	in the list.
 
 SVGALINE
 	The `svgaline' driver is a subset of the Linux SVGALIB library.
@@ -164,6 +156,10 @@ SVGALINE
 		+OEM ELSA GmbH {1048} : Blade 3D 
 	+Blade XP /ICD [9910] 
 		+Blade XP /ICD 
+	+Cyber9382 Reference Design [9382] 
+	+Cyber9383 Reference Design [9383] 
+	+Cyber9385 Reference Design [9385] 
+	+Cyber9386 Video Accelerator [9386] 
 	+Cyber9388 Video Accelerator [9388] 
 		+OEM Sharp Corp {13bd} : Cyber9388 Video Accelerator on sharp PC-A520 Notebook 
 	+Cyber9397 Video Accelerator [9397] 
@@ -173,6 +169,12 @@ SVGALINE
 		+OEM Fujitsu Ltd {10cf} : Lifebook C6155 
 		+OEM Toshiba America Information Systems {1179} : Cyber9525DVD 
 	+Cyber9540 Video Accelerator [9540] 
+	+CyberBlade XP Ai1 [8820] 
+		+OEM Toshiba America Information Systems {1179} : CyberBlade XP Ai1 
+	+CyberBlade i1 [8520] 
+		+CyberBlade i1 AGP 
+		+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : CyberBlade i1 AGP 
+		+OEM First International Computer Inc {1509} : CyberBlade i1 AGP 
 	+CyberBlade i7 [8400] 
 		+CyberBlade i7/VIA MVP4 
 	+CyberBlade i7d [8420] 
@@ -191,13 +193,24 @@ SVGALINE
 		+OEM Giga-Byte Technology {1458} : VT8361/VT8601 Graphics Controller 
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : VT8361/VT8601 Graphics Controller 
 		+OEM Tekram Technology {1de1} : VT8361/VT8601 Graphics Controller 
+	+Flat panel GUI Accelerator [9360] 
+	+ProVIDIA 9685 [9685] 
 	+TGUI9320 GUI Accelerator [9320] 
+	+TGUI9350 GUI Accelerator [9350] 
 	+TGUI9420 DGi GUI Accelerator [9420] 
 	+TGUI9430 GUI Accelerator [9430] 
 	+TGUI9440 DGi GUI Accelerator [9440] 
 	+TGUI9460 GUI Accelerator [9460] 
 	+TGUI9470 [9470] 
 	+TGUI9660XGi/968x/938x GUI Accelerator [9660] 
+	+TGUI9680 GUI Accelerator [9680] 
+	+TGUI9682 Multimedia Accelerator [9682] 
+	+TGUI9683 DUI Accelerator [9683] 
+	+TGUI975 Image GUI Accelerator [9759] 
+	+TGUI9753 Video Accelerator [9753] 
+	+TGUI9753 Wave Video Accelerator [9754] 
+	+TGUI9783 [9783] 
+	+TGUI9785 [9785] 
 
   Matrox Graphics, Inc. (102b)
 	+MGA-1064SG Mystique [051a] 
@@ -299,9 +312,54 @@ SVGALINE
 		+OEM Sparkle Computer Co Ltd {172f} : SP305 
 		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : AGP 110L/AGP 110S 
 		+OEM {400c} : V300C 
+	+SiS315 2D/3D Accelerator [0315] 
+	+SiS315H PCI/AGP VGA Display Adapter [0310] 
+	+SiS325 2D/3D Accelerator [0325] 
+		+SiS325 2D/3D Accelerator 
+		+OEM Acer Inc {1025} : SI10S 
+		+OEM Aopen Inc {a0a0} : PA315 
+		+OEM Aopen Inc {a0a0} : PA315 Pro 
+		+OEM Bitland {1642} : SiS315-BD3169-128M 
+		+OEM Bitland {1642} : SiS315-BD3169-32M 
+		+OEM Bitland {1642} : SiS315-BD3169-64M 
+		+OEM Bitland {1642} : SiS315-BD3172 
+		+OEM C.P. Technology Co Ltd {148c} : CS315 DV 
+		+OEM C.P. Technology Co Ltd {148c} : S315 E 
+		+OEM C.P. Technology Co Ltd {148c} : S315 L 
+		+OEM C.P. Technology Co Ltd {148c} : S315 VD 
+		+OEM C.P. Technology Co Ltd {148c} : S315 VT 
+		+OEM C.P. Technology Co Ltd {148c} : S315D 
+		+OEM C.P. Technology Co Ltd {148c} : S315ES 
+		+OEM C.P. Technology Co Ltd {148c} : XP80A 
+		+OEM CardExpert Technology {10b0} : CARDEXpert SiS315 
+		+OEM Chaintech Computer Co Ltd {270f} : S150 
+		+OEM Chaintech Computer Co Ltd {270f} : S151 
+		+OEM Chaintech Computer Co Ltd {270f} : S5E0 
+		+OEM Elitegroup Computer Sys {1019} : AG315-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315-64 
+		+OEM Elitegroup Computer Sys {1019} : AG315E-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315ET-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315P-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315S-64 
+		+OEM Hightech Information Systems Ltd {17af} : MX315 
+		+OEM Hightech Information Systems Ltd {17af} : MX315E 
+		+OEM InnoVision Multimedia Ltd {1771} : Inno3D SiS315E 
+		+OEM Jaton Corp {1b13} : 3DForce S-16-32-Twin 
+		+OEM Jaton Corp {1b13} : 3DForce S-64-128-Quad 
+		+OEM Jetway Information Co Ltd {16f3} : MAGIC-315B 
+		+OEM Jetway Information Co Ltd {16f3} : MAGIC-315C 
+		+OEM Joytech Computer Co Ltd {1496} : Apollo 3D Thrill 315 
+		+OEM Joytech Computer Co Ltd {1496} : Apollo 3D Thrill 315 Explorer 
+		+OEM Pine Technology Ltd {1682} : PV-S04 
+		+OEM Pine Technology Ltd {1682} : PV-S05A-B 
+		+OEM Pine Technology Ltd {1682} : PV-S05A-C 
+		+OEM Universal Scientific Ind {14cd} : VP-315S1 
+		+OEM Universal Scientific Ind {14cd} : VP-315S2 
+		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : AGP-130 
 	+SiS530,620 GUI Accelerator+3D [6306] 
 		+SiS530,620 GUI Accelerator+3D 
 	+SiS540 PCI Display Adapter [5300] 
+	+SiS550/1/2 GUI Accelerator [5315] 
 	+SiS5597/8 GUI Accelerator (SuperTX) [0200] 
 		+SiS5597 SVGA (Shared RAM) 
 	+SiS6205 GUI Accelerator with RAM-DAC, UMA-Support [0205] 
@@ -313,6 +371,77 @@ SVGALINE
 		+OEM Diamond Multimedia Systems {1092} : SpeedStar A50 
 		+OEM Diamond Multimedia Systems {1092} : SpeedStar A70 
 		+OEM Joytech Computer Co Ltd {1496} : SiS6326 GUI Accelerator 
+	+SiS650/1,740 GUI 2D/3D Accelerator [6325] 
+		+SiS650/GX,M650,651,740 GUI 2D/3D Accelerator 
+		+OEM ASUSTeK Computer Inc {1043} : SiS650 GUI 2D/3D Accelerator 
+		+OEM ASUSTeK Computer Inc {1043} : SiS651 GUI 2D/3D Accelerator 
+		+OEM ASUSTeK Computer Inc {1043} : SiS740 GUI 2D/3D Accelerator 
+		+OEM Acer Inc {1025} : SiS M650 GUI 2D/3D Accelerator 
+		+OEM Acer Inc {1025} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Albatron Corp {17f2} : SiS650GX GUI 2D/3D Accelerator 
+		+OEM Albatron Corp {17f2} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Alpha-Top Corp {156d} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Aopen Inc {a0a0} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Aopen Inc {a0a0} : SiS650GX GUI 2D/3D Accelerator 
+		+OEM Aopen Inc {a0a0} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Biostar Microtech Int'l Corp {1565} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Chaintech Computer Co Ltd {270f} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Chaintech Computer Co Ltd {270f} : SiS740 GUI 2D/3D Accelerator 
+		+OEM Clevo/Kapok Computer {1558} : SiS M650 GUI 2D/3D Accelerator 
+		+OEM Clevo/Kapok Computer {1558} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Compal Electronics Inc {14c0} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Compaq Computer Corp (Now owned by Hewlett-Packard) {0e11} : SiS M650 GUI 2D/3D Accelerator 
+		+OEM DFI Inc {15bd} : SiS650 GUI 2D/3D Accelerator 
+		+OEM DFI Inc {15bd} : SiS650GX GUI 2D/3D Accelerator 
+		+OEM Elitegroup Computer Sys {1019} : AG315-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315E-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315ET-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315P-32 
+		+OEM Elitegroup Computer Sys {1019} : AG315P-64 
+		+OEM Elitegroup Computer Sys {1019} : AG315S-64 
+		+OEM Elitegroup Computer Sys {1019} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Elitegroup Computer Sys {1019} : SiS650,651,740 GUI 2D/3D Accelerator 
+		+OEM Elitegroup Computer Sys {1019} : SiS650,740 GUI 2D/3D Accelerator 
+		+OEM Elitegroup Computer Sys {1019} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Elitegroup Computer Sys {1019} : SiS740 GUI 2D/3D Accelerator 
+		+OEM Epox Computer Co Ltd {1695} : SiS650 GUI 2D/3D Accelerator 
+		+OEM First International Computer Inc {1509} : SiS650 GUI 2D/3D Accelerator 
+		+OEM First International Computer Inc {1509} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Fujitsu Ltd {10cf} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Fujitsu Ltd {10cf} : SiS740 GUI 2D/3D Accelerator 
+		+OEM GVC/BCM Advanced Research {14a4} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Giga-Byte Technology {1458} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Hewlett-Packard Company {103c} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Holco Ent Co Ltd/Shuttle Computer {1297} : SiS740 GUI 2D/3D Accelerator 
+		+OEM KDS Innotech Corp {168f} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Leadtek Research {107d} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Leadtek Research {107d} : SiS740 GUI 2D/3D Accelerator 
+		+OEM Max Diligent Technology Inc {17bf} : DT-302A 
+		+OEM Max Diligent Technology Inc {17bf} : DT-302AE 
+		+OEM Micro-Star International Co Ltd (MSI) {1462} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Micro-Star International Co Ltd (MSI) {1462} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Mitac {1071} : SiS M650 GUI 2D/3D Accelerator 
+		+OEM Mitac {1071} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Movita Tehnologies Inc {17c4} : SiS650 GUI 2D/3D Accelerator 
+		+OEM NEC Computer International {1631} : SiS650 GUI 2D/3D Accelerator 
+		+OEM NEC Computer International {1631} : SiS651 GUI 2D/3D Accelerator 
+		+OEM NEC Electronics Hong Kong {1033} : SiS650 GUI 2D/3D Accelerator 
+		+OEM NEC Electronics Hong Kong {1033} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Pine Technology Ltd {1682} : PV-S04 
+		+OEM Pine Technology Ltd {1682} : PV-S04A-B 
+		+OEM Pine Technology Ltd {1682} : PV-S05A-B 
+		+OEM Pine Technology Ltd {1682} : PV-S05A-C 
+		+OEM Sharp Corp {13bd} : SiS M650 GUI 2D/3D Accelerator 
+		+OEM Sharp Corp {13bd} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Sony Corp {104d} : SiS650,M650,651,740 GUI 2D/3D Accelerator 
+		+OEM Twinhead International Corp {14ff} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Universal Scientific Ind {14cd} : SiS651 GUI 2D/3D Accelerator 
+		+OEM Uniwill Computer Corp {1584} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Wistron Corporation {17c0} : SiS650 GUI 2D/3D Accelerator 
+		+OEM Wistron Corporation {17c0} : SiS740 GUI 2D/3D Accelerator 
+	+SiS730 GUI Accelerator + 3D [7300] 
 	+SiS86C6262 GUI Accelerator [0002] 
 
   nVidia Corporation (10de)
@@ -487,6 +616,7 @@ SVGALINE
 	+GeForce4 MX 460 [NV17.1] [0170] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 PRO (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 PRO DELUXE (*)
+	+GeForce4 MX Integrated GPU [01f0] (*)
 	+GeForce4 Ti 4200 [NV25.4] [0253] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8420 Deluxe (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8420 NTSC 128Mb (*)
@@ -771,9 +901,14 @@ SVGALINE
 		+OEM Number 9 Computer Company {105d} : SR9 Pro+ SGRAM 
 	+86C410 Savage 2000 [9102] 
 		+OEM Diamond Multimedia Systems {1092} : Viper II Z200 
+	+86C420 ProSavage DDR [8d04] 
+		+ProSavage DDR 
+		+OEM Fujitsu Ltd {10cf} : 86C420 ProSavage DDR 
+		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-6390 Integrated Video 
 	+86C732 Trio32, 86C764 Trio64, 86C765 Trio64V+ Rev 01 [8811] 
 	+86C988 ViRGE/VX [883d] 
 	+TrioV Family [8903] 
+	+VT8751 [ProSavageDDR P4M266] [8d03] 
 
 VBELINE
 	These are the OLD DOS drivers based on the VBE BIOS of the
@@ -1113,4 +1248,19 @@ VBELINE
 	+86C968 Vision 968 VRAM Rev 03 [88f3] 
 	+86C988 ViRGE/VX [883d] 
 	+86CM65 Aurora64V+ [8812] 
+
+
+	This list is automatically generated from the `pcidevs.txt' and `pci.ids'
+	files available at:
+
+		:http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
+		:http://pciids.sf.net/
+
+	The numbers in [] are the PCI device IDs of the video board
+	models. The numbers in () are the PCI vendor IDs of the
+	video board manufacturers. The idented names are submodels with
+	the same chipset. The numbers in {} are the PCI OEM vendor IDs of
+	the submodel.
+
+	The cards marked with (*) don't support interlaced modes.
 

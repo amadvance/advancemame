@@ -48,6 +48,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/fontdef.o \
 	$(MENUOBJ)/lib/font.o \
 	$(MENUOBJ)/lib/video.o \
+	$(MENUOBJ)/lib/measure.o \
 	$(MENUOBJ)/lib/rgb.o \
 	$(MENUOBJ)/lib/conf.o \
 	$(MENUOBJ)/lib/key.o \
@@ -103,8 +104,8 @@ MENUCFLAGS += \
 	-DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_NONE
 MENUOBJS += \
-	$(MENUOBJ)/lib/filenix.o \
-	$(MENUOBJ)/lib/targnix.o \
+	$(MENUOBJ)/linux/file.o \
+	$(MENUOBJ)/linux/target.o \
 	$(MENUOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 MENUCFLAGS += \
@@ -227,8 +228,8 @@ MENULIBS += -lalleg -laudio
 MENUOBJDIRS += \
 	$(MENUOBJ)/dos
 MENUOBJS += \
-	$(MENUOBJ)/lib/filedos.o \
-	$(MENUOBJ)/lib/targdos.o \
+	$(MENUOBJ)/dos/file.o \
+	$(MENUOBJ)/dos/target.o \
 	$(MENUOBJ)/dos/os.o \
 	$(MENUOBJ)/dos/vvgal.o \
 	$(MENUOBJ)/dos/vvbe.o \
@@ -302,10 +303,11 @@ MENUCFLAGS += \
 	-DUSE_JOYSTICK_NONE \
 	-DM_PI=3.1415927
 MENUOBJDIRS += \
-	$(MENUOBJ)/windows
+	$(MENUOBJ)/windows \
+	$(MENUOBJ)/dos
 MENUOBJS += \
-	$(MENUOBJ)/lib/filedos.o \
-	$(MENUOBJ)/lib/targwin.o \
+	$(MENUOBJ)/dos/file.o \
+	$(MENUOBJ)/windows/target.o \
 	$(MENUOBJ)/lib/icondef.o \
 	$(MENUOBJ)/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
@@ -475,7 +477,6 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/readmenu.html \
 	$(DOCOBJ)/relemenu.html \
-	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \

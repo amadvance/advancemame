@@ -1802,6 +1802,7 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 			combine |= VIDEO_COMBINE_Y_NONE;
 		break;
 	case COMBINE_HQ :
+#ifndef USE_BLIT_SMALL
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
 			combine |= VIDEO_COMBINE_Y_HQ2X;
 		else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x && context->state.mode_visible_size_y == 3*context->state.game_visible_size_y)
@@ -1809,6 +1810,7 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 		else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x && context->state.mode_visible_size_y == 4*context->state.game_visible_size_y)
 			combine |= VIDEO_COMBINE_Y_HQ4X;
 		else
+#endif
 			combine |= VIDEO_COMBINE_Y_NONE;
 		break;
 	default:
@@ -2142,7 +2144,9 @@ static void video_frame_sync(struct advance_video_context* context)
 
 		log_debug(("advance:sync: throttle warming up\n"));
 	} else {
-		double previous = current;
+		double time0, time1, time2;
+
+		time0 = current;
 
 		expected = context->state.sync_last + context->state.skip_step * (1 + context->state.sync_skip_counter);
 		context->state.sync_skip_counter = 0;
@@ -2157,33 +2161,41 @@ static void video_frame_sync(struct advance_video_context* context)
 		if (context->state.vsync_flag && context->state.skip_level_full == SYNC_MAX) {
 			if (current < expected) {
 
-				/* wait until the retrace is near, otherwise if the */
-				/* mode has a double freq the retrace may be the wrong one */
-				double early = 0.98 / video_measured_vclock();
+				/* wait until the retrace is near (2% early), otherwise if the */
+				/* mode has a double freq the retrace may be the wrong one. */
+				double early = 0.02 / video_measured_vclock();
 
 				current = video_frame_wait(current, expected - early);
+
+				time1 = current;
 
 				if (current < expected) {
 					double after;
 					video_wait_vsync();
 					after = advance_timer();
 					if (after - current > 1.1 / video_measured_vclock())
-						log_std(("ERROR:emu:video: sync wait too long. %g instead of %g\n", after - current, 1.0 / (double)video_measured_vclock()));
+						log_std(("ERROR:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
+					else if (after - current > 0.05 / video_measured_vclock())
+						log_std(("WARNING:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
 					current = after;
 				} else {
 					log_std(("ERROR:emu:video: sync delay too big\n"));
 				}
 			} else {
+				time1 = current;
 				log_std(("ERROR:emu:video: too late for a sync\n"));
 			}
 		} else {
 			current = video_frame_wait(current, expected);
+			time1 = current;
 		}
+
+		time2 = current;
 
 		/* update the error state */
 		context->state.sync_pivot = expected - current;
 
-		log_debug(("advance:sync: total %.5f, error %8.5f, last %.5f, wait %.5f\n", current - context->state.sync_last, context->state.sync_pivot, previous - context->state.sync_last, current - previous));
+		log_debug(("advance:sync: total %.5f, error %8.5f, computation %.5f, sleep %.5f, sync %.5f\n", current - context->state.sync_last, context->state.sync_pivot, time0 - context->state.sync_last, time1 - time0, time2 - time1));
 
 		if (context->state.sync_pivot < -5) {
 			/* if the error is too big (negative) the delay is unrecoverable */
@@ -3129,20 +3141,65 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	int sample_recount;
 
 #if USE_INTERNALRESAMPLE
-	/* adjust the output sample count to correct the syncronization error */
-	/* the / 16 division is a low pass filter to improve the stability */
-	latency_diff = CONTEXT.video.state.latency_diff / 16;
+	struct advance_video_state_context* context = &CONTEXT.video.state;
+	unsigned i;
+	unsigned av_c_pos;
+	unsigned av_c_neg;
+	int sample_limit;
+
+	/* store the current audio video synctonization error measured in sound samples */
+	context->av_sync_map[context->av_sync_mac] = context->latency_diff;
+
+	/* move the position on the circular buffer */
+	if (context->av_sync_mac == AUDIOVIDEO_MEASURE_MAX - 1)
+		context->av_sync_mac = 0;
+	else
+		++context->av_sync_mac;
+
+	/* count the positive and negative errors */
+	av_c_pos = 0;
+	av_c_neg = 0;
+	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i) {
+		if (context->av_sync_map[i] >= AUDIOVIDEO_DISTRIBUTE_COUNT)
+			++av_c_pos;
+		if (context->av_sync_map[i] <= -AUDIOVIDEO_DISTRIBUTE_COUNT)
+			++av_c_neg;
+	}
+
+	/* try to correct the error only if it's sign is constant on the most recent frames, */
+	/* otherwise it may contiously jumping from positive to negative values if */
+	/* the sound driver is not able to report the EXACT number of sample in the DMA */
+	/* buffer of the sound board. */
+	if (av_c_pos == AUDIOVIDEO_MEASURE_MAX || av_c_neg == AUDIOVIDEO_MEASURE_MAX) {
+		/* adjust the output sample count to correct the syncronization error, */
+		/* the error is distributed on AUDIOVIDEO_DISTRIBUTE_COUNT frames */
+		latency_diff = context->latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
+	} else {
+		/* doesn't correct the error if present */
+		latency_diff = 0;
+	}
+
+	/* report the error, an error of 1 sample is the normal condition on good */
+	/* drivers and hardware */
 	if (latency_diff < -1 || latency_diff > 1) {
 		log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
 	}
+
 	sample_recount = sample_count - latency_diff;
-	/* Correction for a generic sound buffer underflow. */
-	/* Generally happen that the DMA buffer underflow reporting */
+
+	/* lower limit of number of samples */
+	sample_limit = sample_count / 32;
+	if (sample_limit < 16)
+		sample_limit = 16;
+
+	/* correction for a generic sound buffer underflow. */
+	/* generally happen that the DMA buffer underflow reporting */
 	/* a fill state instead of an empty one. */
-	if (sample_recount < 16) {
-		log_std(("WARNING:emu:video: too small sound samples %d adjusted to 16\n", sample_recount));
-		sample_recount = 16;
+	if (sample_recount < sample_limit) {
+		log_std(("WARNING:emu:video: too small sound samples %d adjusted to %d\n", sample_recount, sample_limit));
+		sample_recount = sample_limit;
 	}
+
 	latency_diff = 0;
 #else
 	/* ask the MAME core to adjust the number of generated samples */
@@ -3150,13 +3207,17 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		/* if recording is active does't skip any samples */
 		latency_diff = 0;
 	} else {
-		/* adjust the next sample count to correct the syncronization error */
-		/* the / 16 division is a low pass filter to improve the stability */
-		latency_diff = CONTEXT.video.state.latency_diff / 16;
-		if (latency_diff < -1 || latency_diff > 1) {
-			log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
-		}
+		/* adjust the output sample count to correct the syncronization error, */
+		/* the error is distributed on AUDIOVIDEO_DISTRIBUTE_COUNT frames */
+		latency_diff = context->latency_diff / AUDIOVIDEO_DISTRIBUTE_COUNT;
 	}
+
+	/* report the error, an error of 1 sample is the normal condition on good */
+	/* drivers and hardware */
+	if (latency_diff < -1 || latency_diff > 1) {
+		log_std(("WARNING:emu:video: audio/video syncronization error of %d samples\n", latency_diff));
+	}
+
 	sample_recount = sample_count;
 #endif
 
@@ -3329,8 +3390,15 @@ static adv_conf_enum_int OPTION_INDEX[] = {
 
 adv_error advance_video_init(struct advance_video_context* context, adv_conf* cfg_context)
 {
+	unsigned i;
+
 	/* save the configuration */
 	context->state.cfg_context = cfg_context;
+
+	/* other initialization */
+	context->state.av_sync_mac = 0;
+	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i)
+		context->state.av_sync_map[i] = 0;
 
 	conf_bool_register_default(cfg_context, "display_scanlines", 0);
 	conf_bool_register_default(cfg_context, "display_vsync", 1);

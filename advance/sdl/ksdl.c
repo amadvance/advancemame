@@ -312,6 +312,7 @@ keyb_driver keyb_sdl_driver = {
 	keyb_sdl_has,
 	keyb_sdl_get,
 	keyb_sdl_all_get,
+	0,
 	keyb_sdl_poll
 };
 

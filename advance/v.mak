@@ -10,6 +10,7 @@ VOBJS += \
 	$(VOBJ)/lib/snstring.o \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
+	$(VOBJ)/lib/measure.o \
 	$(VOBJ)/lib/rgb.o \
 	$(VOBJ)/lib/conf.o \
 	$(VOBJ)/lib/incstr.o \
@@ -43,8 +44,8 @@ VCFLAGS += \
 VOBJDIRS += \
 	$(VOBJ)/linux
 VOBJS += \
-	$(VOBJ)/lib/filenix.o \
-	$(VOBJ)/lib/targnix.o \
+	$(VOBJ)/linux/file.o \
+	$(VOBJ)/linux/target.o \
 	$(VOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SLANG),yes)
 VCFLAGS += \
@@ -94,8 +95,8 @@ VOBJDIRS += \
 	$(VOBJ)/svgalib/clockchi \
 	$(VOBJ)/svgalib/drivers
 VOBJS += \
-	$(VOBJ)/lib/filedos.o \
-	$(VOBJ)/lib/targdos.o \
+	$(VOBJ)/dos/file.o \
+	$(VOBJ)/dos/target.o \
 	$(VOBJ)/dos/os.o \
 	$(VOBJ)/dos/vvgal.o \
 	$(VOBJ)/dos/vvbe.o \
@@ -151,10 +152,11 @@ VCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 VOBJDIRS += \
-	$(VOBJ)/windows
+	$(VOBJ)/windows \
+	$(VOBJ)/dos
 VOBJS += \
-	$(VOBJ)/lib/filedos.o \
-	$(VOBJ)/lib/targwin.o \
+	$(VOBJ)/dos/file.o \
+	$(VOBJ)/windows/target.o \
 	$(VOBJ)/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
 VOBJDIRS += \

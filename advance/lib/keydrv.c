@@ -240,6 +240,15 @@ void keyb_all_get(unsigned keyboard, unsigned char* code_map)
 	keyb_state.driver_current->all_get(keyboard, code_map);
 }
 
+void keyb_led_set(unsigned keyboard, unsigned led_mask)
+{
+	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
+	assert(keyboard < keyb_count_get());
+
+	if (keyb_state.driver_current->led_set)
+		keyb_state.driver_current->led_set(keyboard, led_mask);
+}
+
 void keyb_poll(void)
 {
 	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);

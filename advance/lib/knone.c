@@ -128,6 +128,7 @@ keyb_driver keyb_none_driver = {
 	keyb_none_has,
 	keyb_none_get,
 	keyb_none_all_get,
+	0,
 	keyb_none_poll
 };
 

@@ -10,6 +10,7 @@ MOBJDIRS += \
 MOBJS += \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/portable.o \
+	$(MOBJ)/lib/measure.o \
 	$(MOBJ)/lib/snstring.o \
 	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
@@ -27,8 +28,8 @@ MCFLAGS += \
 MOBJDIRS += \
 	$(MOBJ)/linux
 MOBJS += \
-	$(MOBJ)/lib/filenix.o \
-	$(MOBJ)/lib/targnix.o \
+	$(MOBJ)/linux/file.o \
+	$(MOBJ)/linux/target.o \
 	$(MOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 MCFLAGS += \
@@ -68,8 +69,8 @@ MLIBS += -lalleg
 MOBJDIRS += \
 	$(MOBJ)/dos
 MOBJS += \
-	$(MOBJ)/lib/filedos.o \
-	$(MOBJ)/lib/targdos.o \
+	$(MOBJ)/dos/file.o \
+	$(MOBJ)/dos/target.o \
 	$(MOBJ)/dos/os.o \
 	$(MOBJ)/dos/malleg.o
 endif

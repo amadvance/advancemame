@@ -27,8 +27,8 @@ ADVANCECFLAGS += \
 	-DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_NONE
 ADVANCEOBJS += \
-	$(OBJ)/advance/lib/filenix.o \
-	$(OBJ)/advance/lib/targnix.o \
+	$(OBJ)/advance/linux/file.o \
+	$(OBJ)/advance/linux/target.o \
 	$(OBJ)/advance/linux/os.o
 ADVANCELIBS += -lm
 ifeq ($(CONF_LIB_PTHREAD),yes)
@@ -168,8 +168,8 @@ OBJDIRS += \
 	$(OBJ)/advance/svgalib/drivers \
 	$(OBJ)/advance/svgalib/svgados
 ADVANCEOBJS += \
-	$(OBJ)/advance/lib/filedos.o \
-	$(OBJ)/advance/lib/targdos.o \
+	$(OBJ)/advance/dos/file.o \
+	$(OBJ)/advance/dos/target.o \
 	$(OBJ)/advance/dos/os.o \
 	$(OBJ)/advance/dos/sseal.o \
 	$(OBJ)/advance/dos/salleg.o \
@@ -228,7 +228,8 @@ endif
 
 ifeq ($(CONF_HOST),windows)
 OBJDIRS += \
-	$(OBJ)/advance/windows
+	$(OBJ)/advance/windows \
+	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/windows \
 	-DUSE_VIDEO_NONE \
@@ -237,8 +238,8 @@ ADVANCECFLAGS += \
 	-DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_NONE
 ADVANCEOBJS += \
-	$(OBJ)/advance/lib/filedos.o \
-	$(OBJ)/advance/lib/targwin.o \
+	$(OBJ)/advance/dos/file.o \
+	$(OBJ)/advance/windows/target.o \
 	$(OBJ)/advance/lib/icondef.o \
 	$(OBJ)/advance/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
@@ -372,6 +373,7 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/snstring.o \
 	$(OBJ)/advance/lib/log.o \
 	$(OBJ)/advance/lib/video.o \
+	$(OBJ)/advance/lib/measure.o \
 	$(OBJ)/advance/lib/rgb.o \
 	$(OBJ)/advance/lib/conf.o \
 	$(OBJ)/advance/lib/incstr.o \

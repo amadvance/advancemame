@@ -116,6 +116,7 @@ CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
 CONF_LDFLAGS=@CONF_LDFLAGS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_DEBUG=@CONF_DEBUG@
+CONF_DEFS=@DEFS@
 endif
 
 #############################################################################
@@ -228,6 +229,10 @@ endif
 
 ifndef CONF_DEBUG
 CONF_DEBUG=no
+endif
+
+ifndef CONF_DEFS
+CONF_DEFS=
 endif
 
 ifndef DATADIR
@@ -426,7 +431,10 @@ endif
 # CFLAGS/LDFLAGS
 
 # Override any environment CFLAGS/LDFLAGS declaration
-CFLAGS = $(CONF_CFLAGS_ARCH) $(CONF_CFLAGS_OPT)
+# - CONF_DEFS are the defines from autoconf like HAVE_LIBZ_H...
+# - CONF_CFLAGS_ARCH are the architecture flags
+# - CONF_CFLAGS_OPT are the optimization flags
+CFLAGS = $(CONF_DEFS) $(CONF_CFLAGS_ARCH) $(CONF_CFLAGS_OPT)
 LDFLAGS = $(CONF_LDFLAGS)
 
 ifeq ($(CONF_DEBUG),yes)

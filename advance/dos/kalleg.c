@@ -262,6 +262,24 @@ void keyb_allegro_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
+void keyb_allegro_led_set(unsigned keyboard, unsigned led_mask)
+{
+	unsigned allegro_mask;
+
+	log_debug(("keyb:allegro: keyb_allegro_led_set(keyboard:%d,mask:%d)\n", led_mask));
+
+	allegro_mask = 0;
+
+	if ((led_mask & KEYB_LED_NUML) != 0)
+		allegro_mask |= KB_NUMLOCK_FLAG;
+	if ((led_mask & KEYB_LED_CAPSL) != 0)
+		allegro_mask |= KB_CAPSLOCK_FLAG;
+	if ((led_mask & KEYB_LED_SCROLLL) != 0)
+		allegro_mask |= KB_SCROLOCK_FLAG;
+
+	set_leds(allegro_mask);
+}
+
 void keyb_allegro_poll(void)
 {
 	log_debug(("keyb:allegro: keyb_allegro_poll()\n"));
@@ -301,6 +319,7 @@ keyb_driver keyb_allegro_driver = {
 	keyb_allegro_has,
 	keyb_allegro_get,
 	keyb_allegro_all_get,
+	keyb_allegro_led_set,
 	keyb_allegro_poll
 };
 

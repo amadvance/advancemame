@@ -208,8 +208,6 @@ static void sound_scale(struct advance_sound_context* context, unsigned channel,
 	adv_slice slice;
 	unsigned i, j;
 
-	log_std(("SOUND: %d %d %d\n", channel, sample_count, sample_recount));
-
 	slice_set(&slice, sample_count, sample_recount);
 
 	if (channel == 1) {

@@ -36,8 +36,9 @@
 #include "error.h"
 #include "rgb.h"
 #include "snstring.h"
+#include "measure.h"
 #include "portable.h"
-   
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -735,6 +736,7 @@ static void log_clock(void)
 adv_error video_mode_set(adv_mode* mode)
 {
 	unsigned color_def;
+	double vsync_time;
 
 	assert( video_is_active() );
 
@@ -783,7 +785,15 @@ adv_error video_mode_set(adv_mode* mode)
 		video_fake_text_adjust();
 	}
 
-	video_state.measured_vclock = video_measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0);
+	vsync_time = measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 7);
+
+	if (vsync_time > 0) {
+		video_state.measured_vclock = 1 / vsync_time;
+		log_std(("video: measured vsync %g\n", (double)video_state.measured_vclock));
+	} else {
+		video_state.measured_vclock = 0;
+		log_std(("WARNING:video: vsync time not measured\n"));
+	}
 
 	log_clock();
 
@@ -1060,84 +1070,6 @@ void video_wait_vsync(void)
 	}
 }
 
-static int video_double_cmp(const void* _a, const void* _b)
-{
-	const double* a = (const double*)_a;
-	const double* b = (const double*)_b;
-	if (*a < *b)
-		return -1;
-	if (*a > *b)
-		return 1;
-	return 0;
-}
-
-#define VIDEO_MEASURE_COUNT 7
-
-/**
- * Measure the time beetween two event.
- * \param wait Function used to wait.
- * \param low Low limit time in second.
- * \param high High limit time in second.
- * \return
- *   - ==0 Error in the measure.
- *   - !=0 Frequency in Hz of the event.
- */
-double video_measure_step(void (*wait)(void), double low, double high)
-{
-	double map[VIDEO_MEASURE_COUNT];
-	target_clock_t start, stop;
-	unsigned map_start, map_end;
-	unsigned median;
-	unsigned i;
-	double error;
-
-	low *= TARGET_CLOCKS_PER_SEC;
-	high *= TARGET_CLOCKS_PER_SEC;
-
-	i = 0;
-	wait();
-	start = target_clock();
-	while (i < VIDEO_MEASURE_COUNT) {
-		wait();
-		stop = target_clock();
-		map[i] = stop - start;
-		start = stop;
-		++i;
-	}
-
-	qsort(map, VIDEO_MEASURE_COUNT, sizeof(double), video_double_cmp);
-
-	map_start = 0;
-	map_end = VIDEO_MEASURE_COUNT;
-
-	/* reject low values */
-	while (map_start < map_end && map[map_start] <= low)
-		++map_start;
-
-	/* reject high values */
-	while (map_start < map_end && map[map_end-1] >= high)
-		--map_end;
-
-	if (map_start == map_end) {
-		log_std(("video: measure vclock failed, return 0\n"));
-		return 0;
-	}
-
-	median = map_start + (map_end - map_start) / 2; /* the median */
-
-	for(i=map_start;i<map_end;++i) {
-		log_std(("video: measured vclock %g\n", TARGET_CLOCKS_PER_SEC / map[i]));
-	}
-
-	if (map[map_start])
-		error = (map[map_end - 1] - map[map_start]) / map[map_start];
-	else
-		error = 0;
-
-	log_std(("video: used vclock %g (err %g%%)\n", TARGET_CLOCKS_PER_SEC / map[median], error * 100.0));
-
-	return TARGET_CLOCKS_PER_SEC / map[median];
-}
 
 /** X size of the font for text mode. */
 unsigned video_font_size_x(void)

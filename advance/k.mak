@@ -12,6 +12,7 @@ KOBJS += \
 	$(KOBJ)/lib/portable.o \
 	$(KOBJ)/lib/snstring.o \
 	$(KOBJ)/lib/log.o \
+	$(KOBJ)/lib/measure.o \
 	$(KOBJ)/lib/conf.o \
 	$(KOBJ)/lib/incstr.o \
 	$(KOBJ)/lib/key.o \
@@ -28,8 +29,8 @@ KCFLAGS += \
 KOBJDIRS += \
 	$(KOBJ)/linux
 KOBJS += \
-	$(KOBJ)/lib/filenix.o \
-	$(KOBJ)/lib/targnix.o \
+	$(KOBJ)/linux/file.o \
+	$(KOBJ)/linux/target.o \
 	$(KOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 KCFLAGS += \
@@ -61,8 +62,8 @@ KLIBS += -lalleg
 KOBJDIRS += \
 	$(KOBJ)/dos
 KOBJS += \
-	$(KOBJ)/lib/filedos.o \
-	$(KOBJ)/lib/targdos.o \
+	$(KOBJ)/dos/file.o \
+	$(KOBJ)/dos/target.o \
 	$(KOBJ)/dos/os.o \
 	$(KOBJ)/dos/kalleg.o
 endif

@@ -36,7 +36,16 @@
 
 #include "oslinux.h"
 
+#ifdef HAVE_SLANG_H
+#include <slang.h>
+#else
+#ifdef HAVE_SLANG_SLANG_H
 #include <slang/slang.h>
+#else
+#error slang.h file not found!
+#endif
+#endif
+
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>

@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.77.2 2003/12
+	) Games with unemulated protection are now reported as not working.
+		For example Choplifter.
+
 AdvanceMAME Version 0.77.1 2003/12
 	) The audio/video syncroniziation is now done by AdvanceMAME
 		without using the internal MAME core support. This should
@@ -16,13 +20,21 @@ AdvanceMAME Version 0.77.1 2003/12
 		`advdev.txt' file and it's installed as a man page in the Linux
 		systems.
 	) The `display_magnify' option is now disabled for vector games.
-	) Fixed some problems running vector games on windows.
+	) Fixed some problems running vector games with a window manager.
 	) The `zoom' value of the `device_video_output' option is now
 		named `overlay'.
 	) Added a new `input_name' option to customize the input names
 		displayed in the menus [Martin Adrian].
 	) Added a new `display_pausebrightness' option to control the
 		display brightness when paused [Martin Adrian].
+	) The Linux version should now found the slang.h file also if it's
+		in include/ and not in include/slang/.
+	) The `keyboard[]' option now accepts numerical scancode in the
+		form `scanN'.
+	) Fixed a compilation problem with the most recent ALSA library
+		(version 1.0.0rc2).
+	) If an old (1.4.x) SVGALIB version is installed the program
+		doesn't abort.
 
 AdvanceMAME Version 0.77.0 2003/11
 	) Added support for ACT Labs Lightgun in the Linux event driver.

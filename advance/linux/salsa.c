@@ -34,6 +34,7 @@
 
 /* new ALSA API */
 #define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
 
 #include <alsa/asoundlib.h>
 
@@ -75,7 +76,7 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 		(unsigned)period_time, (unsigned)period_size, (unsigned)period_count, (unsigned)buffer_time, (unsigned)buffer_size, (unsigned)tick_time
 	));
 
-	xfer_align = snd_pcm_sw_params_get_xfer_align(sw_params);
+	snd_pcm_sw_params_get_xfer_align(sw_params, &xfer_align);
 	log_std(("sound:alsa: sw xfer_align %d\n",
 		(unsigned)xfer_align
 	));

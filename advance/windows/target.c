@@ -211,13 +211,6 @@ adv_error target_apm_wakeup(void)
 }
 
 /***************************************************************************/
-/* Led */
-
-void target_led_set(unsigned mask)
-{
-}
-
-/***************************************************************************/
 /* System */
 
 static int exec(char* cmdline)

@@ -136,7 +136,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 	/* check the version of the SVGALIB */
 	res = vga_setmode(-1);
 	if (res < 0 || res < 0x1911) { /* 1.9.11 */
-		error_set("You need the svgalib version 1.9.x or 2.0.x. Please upgrade.\n");
+		error_set("You need SVGALIB version 1.9.x or 2.0.x. Please upgrade.\n");
 		return -1;
 	}
 

@@ -160,6 +160,8 @@ Installing
 	Copy manually the compiled executables in a directory of your choice.
 
 Requirements
+	To compile AdvanceMAME you need at least 256 Mbyte of memory.
+
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
