@@ -609,13 +609,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.skip_disclaimer = context->global.config.quiet_flag;
 	options.skip_gameinfo = context->global.config.quiet_flag;
 	options.skip_warnings = context->global.config.quiet_flag;
+	options.skip_validitychecks = 1; /* always skip the validity checks at startup */
 	options.samplerate = advance->samplerate;
 	options.use_samples = advance->samples_flag;
 	options.use_filter = advance->filter_flag;
 	options.brightness = advance->brightness;
 	options.pause_bright = context->global.config.pause_brightness;
 	options.gamma = advance->gamma;
-	options.color_depth = advance->color_depth;
 	options.vector_width = advance->vector_width;
 	options.vector_height = advance->vector_height;
 	options.ui_orientation = 0;
@@ -2923,8 +2923,6 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	option->gamma = conf_float_get_default(cfg_context, "display_gamma");
 	option->brightness = conf_float_get_default(cfg_context, "display_brightness");
-
-	option->color_depth = conf_int_get_default(cfg_context, "debug_internaldepth");
 
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
 

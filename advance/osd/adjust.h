@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+/* the first match is used */
+
 { "1941", 0 }, /* 0.85 */
 { "1942", 0 }, /* 0.85 */
 { "1943", 0 }, /* 0.85 */

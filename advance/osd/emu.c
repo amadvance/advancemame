@@ -509,7 +509,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_setting[p2_mouse_y]", "*", "%s", "input_setting[p2_mousey]", "%s", 0 }, /* rename */
 { "*", "input_setting[p3_mouse_y]", "*", "%s", "input_setting[p3_mousey]", "%s", 0 }, /* rename */
 { "*", "input_setting[p4_mouse_y]", "*", "%s", "input_setting[p4_mousey]", "%s", 0 }, /* rename */
-{ "*", "ui_speedmark", "*", "%s", "debug_speedmark", "%s", 0 } /* rename */
+{ "*", "ui_speedmark", "*", "%s", "debug_speedmark", "%s", 0 }, /* rename */
+/* 0.88.0 */
+{ "*", "debug_internaldepth", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.87.1 2004/10
+AdvanceMAME Version 0.88.0 2004/11
 	) Improved the timer precision in the Windows version.
 	) Added support for scaling bitmapped fonts by an
 		integer factor.
@@ -18,8 +18,8 @@ AdvanceMAME Version 0.87.1 2004/10
 		`paddle', `dial', `trackball', `stick', `lightgun',
 		`mouse'.
 
-AdvanceMESS Version 0.87.0.0 2004/10
-	) All from AdvanceMAME 0.87.0.
+AdvanceMESS Version 0.88.0.0 2004/11
+	) All from AdvanceMAME 0.88.0.
 
 AdvanceMAME Version 0.87.0 2004/09
 	) Added support for translucency in the user interface

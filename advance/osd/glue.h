@@ -65,8 +65,6 @@ struct mame_option {
 	int samples_flag;
 	int filter_flag;
 
-	int color_depth;
-
 	int vector_width;
 	int vector_height;
 

@@ -2190,17 +2190,6 @@ Configuration
 	The use of these options is discouraged. They are present only
 	for testing purpose.
 
-    debug_internaldepth
-	Controls the bits per pixel of the internal MAME bitmap.
-
-	:debug_internaldepth auto | 15 | 16 | 32
-
-	Options:
-		auto - Automatic (default).
-		15 - 15 bit RGB mode.
-		16 - 16 bit Palette mode.
-		32 - 32 bit RGB mode.
-
     debug_crash
 	Crashes the program. It can be used to ensure that the correct
 	video mode is restored on aborting conditions.
