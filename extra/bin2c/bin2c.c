@@ -5,18 +5,19 @@ int main(int argc, char* argv[]) {
 	int c;
 	int n;
 	int s;
-        FILE* f;
+	FILE* f;
 
-	f = fopen(argv[1],"rb");
-        if (!f) {
-           exit(EXIT_FAILURE);
-        }
+	f = fopen(argv[1], "rb");
+	if (!f) {
+		exit(EXIT_FAILURE);
+	}
 
 	n = 0;
 	s = 0;
-        c = fgetc(f);
+	c = fgetc(f);
 	printf("unsigned char DATA[] = {\n\t");
-        while (c!=EOF) {
+
+	while (c!=EOF) {
 		++s;
 		printf("0x%02x",(unsigned)c);
 		c = fgetc(f);
@@ -32,7 +33,9 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+
 	printf("#define DATA_SIZE %d\n",s);
 
-        return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
+

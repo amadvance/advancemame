@@ -1,5 +1,5 @@
 ############################################################################
-# S
+# system
 
 SCFLAGS += \
 	-I$(srcdir)/advance/lib \
@@ -109,6 +109,30 @@ SOBJS += \
 	$(SOBJ)/sdl/ssdl.o
 endif
 endif
+
+############################################################################
+# zlib
+
+$(SOBJ)/libz.a: $(SOBJ)/zlib/adler32.o $(SOBJ)/zlib/crc32.o $(SOBJ)/zlib/deflate.o \
+	$(SOBJ)/zlib/inffast.o $(SOBJ)/zlib/inflate.o \
+	$(SOBJ)/zlib/infback.o $(SOBJ)/zlib/inftrees.o $(SOBJ)/zlib/trees.o \
+	$(SOBJ)/zlib/zutil.o $(SOBJ)/zlib/uncompr.o $(SOBJ)/zlib/compress.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_ZLIB),yes)
+SLIBS += -lz
+else
+CFLAGS += \
+	-I$(srcdir)/advance/zlib
+SDIRS += \
+	$(SOBJ)/zlib
+SLIBS += \
+	$(SOBJ)/libz.a
+endif
+
+############################################################################
+# s
 
 $(SOBJ)/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)

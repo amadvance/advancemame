@@ -107,14 +107,22 @@ static inline void osd_mkdir(const char* dir)
 #endif
 }
 
+/*
+ * CRLF
+ * - 1 CR
+ * - 2 LF
+ * - 3 CRLF
+ */
 #if defined(__MSDOS__) || defined(__WIN32__)
 #define PATH_SEPARATOR '\\'
 #define PATH_SEPARATOR_STR "\\"
 #define EOLN "\r\n"
+#define CRLF 3
 #else
 #define PATH_SEPARATOR '/'
 #define PATH_SEPARATOR_STR "/"
 #define EOLN "\n"
+#define CRLF 2
 #endif
 
 #ifdef __cplusplus

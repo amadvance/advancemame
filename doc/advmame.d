@@ -1318,25 +1318,43 @@ Configuration
 		TIME - Number of seconds to wait, if 0 (default)
 			never exits automatically.
 
-    input_map[p1|2|3|4_x|y|z|pedal]
-	Changes the analog control mapping. Map a joystick/control axe
-	on a player analog control.
+    input_map[ANALOG]
+	Changes the analog control mapping. Maps joystick, trackball
+	and mouse controls on a player analog control.
 
-	:input_map[ANALOG] auto | [-]joystick[JOY,CONTROL,AXE] ...
+	:input_map[ANALOG] auto | [[-]joystick[JOY,CONTROL,AXE]]
+	:	[[-]mouse[MOUSE,AXE]] [[-]joystick_ball[JOY,AXE]] ...
 
 	The default is always `auto'.
 
 	Options:
-		ANALOG - Player analog control. One of: p1_x, p1_y, p1_z, p1_pedal,
-			p2_x, p2_y, p2_z, p2_pedal, p3_x, p3_y, p3_z, p3_pedal,
-			p4_x, p4_y, p4_z, p4_pedal.
+		ANALOG - Player analog control. One of:
+			p1_stickx, p1_sticky, p1_stickz,
+			p2_stickx, p2_sticky, p2_stickz,
+			p3_stickx, p3_sticky, p3_stickz,
+			p4_stickx, p4_sticky, p4_stickz.
 		- - Invert the direction of the movement.
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
+		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
 		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
-		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
+		AXE - Number or name of physical axe of the
+			control: 0, 1, 2, 3, ...
 
-	The CONTROL and AXE names can be checked using the `advj' utility.
-	Generally the CONTROL names are:
+	The `joystick' option is used to reference all the analog
+	controls which report an absolute position. For example
+	stick, lightgun, steering wheel, pedal, throttle and rudder controls.
+
+	The `joystick_ball' and `mouse' options are used to reference
+	all the analog controls which reports a relative position. For
+	example trackball, dial and mouse controls.
+	The option `joystick_ball' is for joystick devices which
+	have other relative analog controls. The option `mouse' is
+	for mouse devices which have only relative analog controls.
+
+	The exact CONTROL and AXE names can be checked interactively
+	using the `advj' and `advm' utility.
+
+	Generally the CONTROL names for the `joystick' option are:
 		stick - Stick.
 		gas - Acceleration pedal.
 		brake - Brake pedal.
@@ -1346,67 +1364,50 @@ Configuration
 		rudder - Rudder.
 		misc - Any other.
 
-	And the AXE names are:
+	And the AXE names for the `joystick' option are:
 		x, y, z - Movement on the X, Y, Z axe.
 		rx, ry, rz - Rotation on the X, Y, Z axe.
 		mono - For all the control with a single axe.
 
-	The analog controls are:
-		p1_AXE - Player 1.
-		p2_AXE - Player 2.
-		p3_AXE - Player 3.
-		p4_AXE - Player 4.
-		PLAYER_x - This axe is generally used for all the horizontal movements
-			and for steering wheel.
-		PLAYER_y - This axe is generally used for all the vertical movements.
-		PLAYER_z - This axe is generally used for all the in deep movements
-			and for the second pedal (brake).
-		PLAYER_pedal - This axe is generally used for the first pedal (gas).
-
-	Examples:
-		:input_map[p1_x] -joystick[0,0,0] joystick[0,1,0]
-		:input_map[p1_y] -joystick[0,0,1] -joystick[0,1,1]
-
-    input_map[p1|2|3|4_trakx|traky]
-	Changes the trak control mapping. Map a mouse axe or a joystick ball axe on
-	a player trak control.
-
-	:input_map[TRAK] auto | [-]mouse[MOUSE,AXE] [-]joystick_ball[JOYSTICK,AXE] ...
-
-	The default is always `auto'.
-
-	Options:
-		TRAK - Player analog trak. One of: p1_trakx, p1_traky,
-			p2_trakx, p2_traky, p3_trakx, p3_traky, p4_trakx, p4_traky.
-		- - Invert the direction of the movement.
-		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
-		JOYSTICK - Number of physical joystick: 0, 1, 2, 3, ...
-		AXE - Number or name of physical mouse axe: 0, 1, 2, ...
-
-	The AXE names can be checked using the `advm' and `advj' utilities.
-	Generally they are:
+	And the AXE names for the `joystick_ball' and `mouse'
+	options are:
 		x, y, z - Movement on the X, Y, Z axe.
 		wheel - Vertical wheel.
 		hwheel - Horizontal wheel.
 		dial - Dial.
 		misc - Any other.
 
-	The analog TRAKs are:
+	The ANALOG controls are always formed with a "player" string
+	and with a "control" strings.
 		p1_AXE - Player 1.
 		p2_AXE - Player 2.
 		p3_AXE - Player 3.
 		p4_AXE - Player 4.
-		PLAYER_trackx - This axe is generally used for all the horizontal
-			movements with a trackball.
-		PLAYER_tracky - This axe is generally used for all the vertical movements
-			with a trackball.
+		PLAYER_paddlex - Paddle in horizontal direction.
+		PLAYER_paddley - Paddle in vertical direction.
+		PLAYER_stickx - Stick in horizontal direction.
+		PLAYER_sticky - Stick in vertical direction.
+		PLAYER_stickz - Stick in z axis direction.
+		PLAYER_lightgunx - Lightgun in horizontal direction.
+		PLAYER_lightguny - Lightgun in vertical direction.
+		PLAYER_pedalgas - Gas pedal.
+		PLAYER_pedalbrake - Brake pedal.
+		PLAYER_pedalother - Other pedal.
+		PLAYER_dialx - Dial in horizontal direction.
+		PLAYER_dialy - Dial in vertical direction.
+		PLAYER_trackballx - Trackball in horizontal direction.
+		PLAYER_trackbally - Trackball in vertical direction.
+		PLAYER_mousex - Mouse in horizontal direction.
+		PLAYER_mousey - Mouse in vertical direction.
 
 	Examples:
-		:input_map[p1_trakx] -mouse[0,0] -mouse[1,0]
-		:input_map[p1_traky] -mouse[0,1] -mouse[1,1]
+		:input_map[p1_stickx] joystick[0,0,0] -joystick[0,1,0]
+		:input_map[p1_sticky] joystick[0,0,1] -joystick[0,1,1]
+		:input_map[p1_trackballx] mouse[0,0] -mouse[1,0]
+		:input_map[p1_trackbally] mouse[0,1] -mouse[1,1]
 
-    input_map[*]
-	Changes the digital control mapping. Map a sequence of
+    input_map[DIGITAL]
+	Changes the digital control mapping. Maps a sequence of
 	keyboard/mouse/joystick keys on a player button or analog
 	simulation digital control.
 

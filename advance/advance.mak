@@ -114,13 +114,6 @@ MPGLIB_SRC = \
 	$(wildcard $(srcdir)/advance/mpglib/*.h) \
 	$(wildcard $(srcdir)/advance/mpglib/*.txt)
 
-EXPAT_SRC = \
-	$(wildcard $(srcdir)/advance/expat/*.c) \
-	$(wildcard $(srcdir)/advance/expat/*.h) \
-	$(wildcard $(srcdir)/advance/expat/COPYING) \
-	$(wildcard $(srcdir)/advance/expat/README) \
-	$(wildcard $(srcdir)/advance/expat/*.diff)
-
 LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.c) \
 	$(wildcard $(srcdir)/advance/lib/*.h) \
@@ -253,6 +246,20 @@ SDL_SRC = \
 D2_SRC = \
 	$(wildcard $(srcdir)/advance/d2/*.cc)
 
+EXPAT_SRC = \
+	$(wildcard $(srcdir)/advance/expat/*.c) \
+	$(wildcard $(srcdir)/advance/expat/*.h) \
+	$(wildcard $(srcdir)/advance/expat/COPYING) \
+	$(wildcard $(srcdir)/advance/expat/README) \
+	$(wildcard $(srcdir)/advance/expat/*.diff)
+
+ZLIB_SRC = \
+	$(wildcard $(srcdir)/advance/zlib/*.c) \
+	$(wildcard $(srcdir)/advance/zlib/*.h) \
+	$(wildcard $(srcdir)/advance/zlib/COPYING) \
+	$(wildcard $(srcdir)/advance/zlib/README) \
+	$(wildcard $(srcdir)/advance/zlib/*.diff)
+
 CONF_SRC = \
 	$(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.usr \
@@ -370,7 +377,7 @@ RCFLAGS += --include-dir advance/lib
 #WHOLE_CFLAGS_OPT = -O2 -Wall -Wno-sign-compare -Wno-unused
 #WHOLE_CFLAGS_EMU = -fomit-frame-pointer
 #WHOLE_LDFLAGS = -rdynamic
-DEFS_LINUX =-DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_DIRENT_H=1 -DTIME_WITH_SYS_TIME=1 -DGWINSZ_IN_SYS_IOCTL=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SCHED_H=1 -DHAVE_NETDB_H=1 -DHAVE_TERMIOS_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_IOCTL_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_MMAN_H=1 -DHAVE_SYS_IO_H=1 -DHAVE_SYS_KD_H=1 -DHAVE_SYS_VT_H=1 -DHAVE_NETINET_IN_H=1 -Drestrict=__restrict -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_UNISTD_H=1 -DHAVE_FORK=1 -DHAVE_VFORK=1 -DHAVE_WORKING_VFORK=1 -DHAVE_WORKING_FORK=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_SOCKET_H=1 -DSELECT_TYPE_ARG1=int -DSELECT_TYPE_ARG234=\(fd_set\ \*\) -DSELECT_TYPE_ARG5=\(struct\ timeval\ \*\) -DHAVE_VPRINTF=1 -DHAVE_STRCASECMP=1 -DHAVE_STRERROR=1 -DHAVE_UNAME=1 -DHAVE_SYSCONF=1 -DHAVE_BACKTRACE=1 -DHAVE_BACKTRACE_SYMBOLS=1 -DHAVE_IOPL=1 -DHAVE_INOUT=1 -DHAVE_LIBZ=1 -DHAVE_SLANG_SLANG_H=1
+DEFS_LINUX =-DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_DIRENT_H=1 -DTIME_WITH_SYS_TIME=1 -DGWINSZ_IN_SYS_IOCTL=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SCHED_H=1 -DHAVE_NETDB_H=1 -DHAVE_TERMIOS_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_IOCTL_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_MMAN_H=1 -DHAVE_SYS_IO_H=1 -DHAVE_SYS_KD_H=1 -DHAVE_SYS_VT_H=1 -DHAVE_NETINET_IN_H=1 -Drestrict=__restrict -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_UNISTD_H=1 -DHAVE_FORK=1 -DHAVE_VFORK=1 -DHAVE_WORKING_VFORK=1 -DHAVE_WORKING_FORK=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_SOCKET_H=1 -DSELECT_TYPE_ARG1=int -DSELECT_TYPE_ARG234=\(fd_set\ \*\) -DSELECT_TYPE_ARG5=\(struct\ timeval\ \*\) -DHAVE_VPRINTF=1 -DHAVE_STRCASECMP=1 -DHAVE_STRERROR=1 -DHAVE_UNAME=1 -DHAVE_SYSCONF=1 -DHAVE_BACKTRACE=1 -DHAVE_BACKTRACE_SYMBOLS=1 -DHAVE_IOPL=1 -DHAVE_INOUT=1 -DHAVE_SLANG_SLANG_H=1
 
 # Optimized
 WHOLE_CFLAGS_OPT = -fomit-frame-pointer -O2 -Wall -Wno-sign-compare -Wno-unused
@@ -454,7 +461,7 @@ devosdep:
 	rgrep -r WIN32 $(srcdir)/advance
 
 devdef:
-	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
+	rgrep -r "^#if" $(srcdir)/advance | grep -v -E "_H$$|USE|__cplusplus|expat|zlib|svgalib|windows|NDEBUG|MESS|linux/.*event|advmame.dif|advmess.dif|/y_tab|/lexyy|/tsr|/card|/dos"
 
 devtags:
 	cd advance && ctags -R

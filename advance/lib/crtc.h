@@ -90,7 +90,7 @@ typedef struct adv_crtc_struct {
 } adv_crtc;
 
 /* Allowed steps in CRTC values */
-#define CRTC_HSTEP 8
+#define CRTC_HSTEP 16
 #define CRTC_VSTEP 1
 
 unsigned crtc_step(double v, unsigned st);

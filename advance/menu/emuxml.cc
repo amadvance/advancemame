@@ -22,7 +22,8 @@
 
 #include "emulator.h"
 #include "game.h"
-#include "../expat/expat.h"
+
+#include <expat.h>
 
 #include "advance.h"
 

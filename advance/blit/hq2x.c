@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "hq2x.h"
@@ -45,8 +41,12 @@
  * This effect is a rewritten implementation of the hq2x effect made by Maxim Stepin
  */
 
-void hq2x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
+void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict volatile dst1, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
 {
+	/* The volatile keyword for destination pointer ensures that */
+	/* the destination memory is only written and never read. */
+	/* It improves the speed for video memory */
+
 	unsigned i;
 
 	for(i=0;i<count;++i) {
@@ -127,7 +127,7 @@ void hq2x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, con
 	}
 }
 
-void hq2x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
+void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 

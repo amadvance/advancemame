@@ -120,6 +120,14 @@ CONF_HOST=$(CONF_BUILD)
 endif
 
 # Automatic libraries and other options setting
+ifndef CONF_LIB_ZLIB
+CONF_LIB_ZLIB=no
+endif
+
+ifndef CONF_LIB_EXPAT
+CONF_LIB_EXPAT=no
+endif
+
 ifndef CONF_LIB_SVGALIB
 CONF_LIB_SVGALIB=no
 endif
@@ -246,21 +254,18 @@ LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
 CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
-ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),dos)
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
-ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),windows)
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
-ZLIBS = -lz
 endif
 
 ifeq ($(CONF_BUILD),linux)

@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.85.0 2004/08
+	) The modeline generation now always use horizontal
+		values which are multipler of 16 to solve
+		memory corruption problems on some video cards.
+
 AdvanceMAME Version 0.84.0 2004/07
 	) Added a new rand(N) function at the scripts.
 	) Added a new `misc_hiscorefile' to specify a different

@@ -205,8 +205,10 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 	crtc->ht = crtc_step(crtc->hde / norm.hactive, CRTC_HSTEP);
 	crtc->hrs = crtc_step(crtc->ht * (norm.hactive + norm.hfront), CRTC_HSTEP);
 	crtc->hre = crtc_step(crtc->ht * (norm.hactive + norm.hfront + norm.hsync), CRTC_HSTEP);
-	if (crtc->hrs == crtc->hre)
+	if (crtc->hrs >= crtc->hre)
 		crtc->hre = crtc->hrs + CRTC_HSTEP;
+	if (crtc->hre >= crtc->ht)
+		crtc->ht = crtc->hre + CRTC_HSTEP;
 
 	/* compute the vertical crtc */
 	crtc->vt = crtc_step(vtotal, CRTC_VSTEP);
@@ -215,8 +217,10 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 		crtc->vde = crtc_step(vsize, CRTC_VSTEP);
 	crtc->vrs = crtc_step(crtc->vt * (norm.vactive + norm.vfront), CRTC_VSTEP);
 	crtc->vre = crtc_step(crtc->vt * (norm.vactive + norm.vfront + norm.vsync), CRTC_VSTEP);
-	if (crtc->vrs == crtc->vre)
+	if (crtc->vrs >= crtc->vre)
 		crtc->vre = crtc->vrs + CRTC_VSTEP;
+	if (crtc->vre >= crtc->vt)
+		crtc->vt = crtc->vre + CRTC_VSTEP;
 
 	/* pixelclock */
 	crtc->pixelclock = vclock * factor * (crtc->vt * crtc->ht);
@@ -388,8 +392,10 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
 	crtc->ht = crtc_step(crtc->hde / norm.hactive, CRTC_HSTEP);
 	crtc->hrs = crtc_step(crtc->ht * (norm.hactive + norm.hfront), CRTC_HSTEP);
 	crtc->hre = crtc_step(crtc->ht * (norm.hactive + norm.hfront + norm.hsync), CRTC_HSTEP);
-	if (crtc->hrs == crtc->hre)
+	if (crtc->hrs >= crtc->hre)
 		crtc->hre = crtc->hrs + CRTC_HSTEP;
+	if (crtc->hre >= crtc->ht)
+		crtc->ht = crtc->hre + CRTC_HSTEP;
 
 	/* compute the vertical crtc */
 	crtc->vt = crtc_step(vtotal, CRTC_VSTEP);
@@ -400,6 +406,8 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
 	crtc->vre = crtc_step(crtc->vt * (norm.vactive + norm.vfront + norm.vsync), CRTC_VSTEP);
 	if (crtc->vrs == crtc->vre)
 		crtc->vre = crtc->vrs + CRTC_VSTEP;
+	if (crtc->vre >= crtc->vt)
+		crtc->vt = crtc->vre + CRTC_VSTEP;
 
 	/* pixelclock */
 	crtc->pixelclock = vclock * factor * (crtc->vt * crtc->ht);
@@ -498,9 +506,10 @@ static void generate_crtc_h(adv_crtc* crtc, unsigned hsize, unsigned vsize, cons
 	crtc->ht = crtc_step(crtc->hde / generate_norm->hactive, CRTC_HSTEP);
 	crtc->hrs = crtc_step(crtc->ht * (generate_norm->hactive + generate_norm->hfront), CRTC_HSTEP);
 	crtc->hre = crtc_step(crtc->ht * (generate_norm->hactive + generate_norm->hfront + generate_norm->hsync), CRTC_HSTEP);
-
-	if (crtc->hrs == crtc->hre)
+	if (crtc->hrs >= crtc->hre)
 		crtc->hre = crtc->hrs + CRTC_HSTEP;
+	if (crtc->hre >= crtc->ht)
+		crtc->ht = crtc->hre + CRTC_HSTEP;
 }
 
 static void generate_crtc_v(adv_crtc* crtc, unsigned hsize, unsigned vsize, const adv_generate* generate_norm)
@@ -509,9 +518,10 @@ static void generate_crtc_v(adv_crtc* crtc, unsigned hsize, unsigned vsize, cons
 	crtc->vt = crtc_step(crtc->vde / generate_norm->vactive, CRTC_VSTEP);
 	crtc->vrs = crtc_step(crtc->vt * (generate_norm->vactive + generate_norm->vfront), CRTC_VSTEP);
 	crtc->vre = crtc_step(crtc->vt * (generate_norm->vactive + generate_norm->vfront + generate_norm->vsync), CRTC_VSTEP);
-
 	if (crtc->vrs == crtc->vre)
 		crtc->vre = crtc->vrs + CRTC_VSTEP;
+	if (crtc->vre >= crtc->vt)
+		crtc->vt = crtc->vre + CRTC_VSTEP;
 }
 
 /**

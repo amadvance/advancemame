@@ -377,11 +377,6 @@ struct color_node {
 	unsigned count;
 };
 
-#define COUNT_SORT_BIT_MAX 8
-#define COUNT_SORT_MAX (1U << COUNT_SORT_BIT_MAX)
-
-static unsigned count_sort[COUNT_SORT_MAX];
-
 /**
  * Number of bit for channel in the color reduction.
  */
@@ -405,12 +400,13 @@ static void countsort(struct color_node* indexin[], struct color_node* indexout[
 {
 	unsigned max = 1 << bit;
 	unsigned mask = max - 1;
+	unsigned count_sort[max + 1];
 	unsigned i;
 
 	for(i=0;i<=max;i++)
 		count_sort[i] = 0;
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = (indexin[i]->count >> skipbit) & mask;
 		count_sort[j+1]++;
 	}
@@ -418,7 +414,7 @@ static void countsort(struct color_node* indexin[], struct color_node* indexout[
 	for(i=1;i<max;i++)
 		count_sort[i] += count_sort[i-1];
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = (indexin[i]->count >> skipbit) & mask;
 		indexout[count_sort[j]] = indexin[i];
 		count_sort[j]++;
@@ -427,16 +423,17 @@ static void countsort(struct color_node* indexin[], struct color_node* indexout[
 #endif
 
 /**
- * Count sort of the lower 8 bit.
+ * Count sort. Bits 0-8.
  */
 static void countsort80(struct color_node* indexin[], struct color_node* indexout[])
 {
+	unsigned count_sort[256 + 1];
 	unsigned i;
 
 	for(i=0;i<=256;i++)
 		count_sort[i] = 0;
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = indexin[i]->count & 0xFF;
 		count_sort[j+1]++;
 	}
@@ -444,7 +441,7 @@ static void countsort80(struct color_node* indexin[], struct color_node* indexou
 	for(i=1;i<256;i++)
 		count_sort[i] += count_sort[i-1];
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = indexin[i]->count & 0xFF;
 		indexout[count_sort[j]] = indexin[i];
 		count_sort[j]++;
@@ -452,16 +449,17 @@ static void countsort80(struct color_node* indexin[], struct color_node* indexou
 }
 
 /**
- * Count sort of the higher 8 bit.
+ * Count sort. Bits 8-16.
  */
 static void countsort88(struct color_node* indexin[], struct color_node* indexout[])
 {
+	unsigned count_sort[256 + 1];
 	unsigned i;
 
 	for(i=0;i<=256;i++)
 		count_sort[i] = 0;
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = (indexin[i]->count >> 8) & 0xFF;
 		count_sort[j+1]++;
 	}
@@ -469,8 +467,34 @@ static void countsort88(struct color_node* indexin[], struct color_node* indexou
 	for(i=1;i<256;i++)
 		count_sort[i] += count_sort[i-1];
 
-	for(i=0;i<REDUCE_INDEX_MAX;i++) {
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
 		unsigned j = (indexin[i]->count >> 8) & 0xFF;
+		indexout[count_sort[j]] = indexin[i];
+		count_sort[j]++;
+	}
+}
+
+/**
+ * Count sort. Bits 24-16.
+ */
+static void countsort816(struct color_node* indexin[], struct color_node* indexout[])
+{
+	unsigned count_sort[256 + 1];
+	unsigned i;
+
+	for(i=0;i<=256;i++)
+		count_sort[i] = 0;
+
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
+		unsigned j = (indexin[i]->count >> 16) & 0xFF;
+		count_sort[j+1]++;
+	}
+
+	for(i=1;i<256;i++)
+		count_sort[i] += count_sort[i-1];
+
+	for(i=0;i<REDUCE_INDEX_MAX;++i) {
+		unsigned j = (indexin[i]->count >> 16) & 0xFF;
 		indexout[count_sort[j]] = indexin[i];
 		count_sort[j]++;
 	}
@@ -530,12 +554,13 @@ static unsigned adv_bitmap_cvt_reduce_step1(unsigned* convert_map, adv_color_rgb
 	/* sort */
 	countsort80(index1, index2);
 	countsort88(index2, index1);
+	countsort816(index1, index2);
 
 	/* create palette */
-	for(i=0;i<rgb_max && index1[REDUCE_INDEX_MAX - i - 1]->count;++i) {
+	for(i=0;i<rgb_max && index2[REDUCE_INDEX_MAX - i - 1]->count;++i) {
 		unsigned subindex = REDUCE_INDEX_MAX - i - 1;
-		unsigned j = index1[subindex] - map;
-		index1[subindex]->index = i + 1;
+		unsigned j = index2[subindex] - map;
+		index2[subindex]->index = i + 1;
 		rgb_map[i].red = REDUCE_INDEX_TO_RED( j );
 		rgb_map[i].green = REDUCE_INDEX_TO_GREEN( j );
 		rgb_map[i].blue = REDUCE_INDEX_TO_BLUE( j );

@@ -155,8 +155,7 @@ void advance_safequit_update(struct advance_safequit_context* context);
 /*@{*/
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
 
-#define INPUT_ANALOG_MAX 4 /**< Max number of analog control for player. */
-#define INPUT_TRAK_MAX 2 /**< Max number of trak control for player. */
+#define INPUT_ANALOG_MAX 16 /**< Max number of analog controls for player. */
 #define INPUT_DIGITAL_MAX 2048 /**< Max number of digital port definition. */
 
 #define INPUT_MAP_MAX 16 /**< Max number of mapping codes. */
@@ -170,7 +169,6 @@ void advance_safequit_update(struct advance_safequit_context* context);
 #define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
 
 #define INPUT_HELP_MAX 512 /**< Max number of help entry. */
-
 /*@}*/
 
 struct help_entry {
@@ -182,20 +180,14 @@ struct help_entry {
 };
 
 struct analog_map_entry {
-	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
-};
-
-struct trak_map_entry {
-	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+	unsigned seq[INPUT_MAP_MAX]; /**< Input sequence assigned. */
 };
 
 struct advance_input_config_context {
 	int input_idle_limit; /**< Limit of no input to exit. */
 	adv_bool steadykey_flag; /**< Enable the steady-key management. */
 	adv_bool disable_special_flag; /**< Disable the special OS key sequences. */
-
 	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
-	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
 };
 
 struct advance_input_state_context {
@@ -233,9 +225,9 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
 void advance_input_force_exit(struct advance_input_context* context);
 adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char* buffer);
+void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* seq_map, unsigned seq_max);
 adv_error advance_input_parse_analogname(unsigned* type, const char* buffer);
-adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer);
-adv_error advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type, unsigned player);
+adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* centerdelta, char* buffer);
 void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center);
 adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code);
 

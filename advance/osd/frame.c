@@ -1266,7 +1266,6 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	} else {
 		unsigned long long factor_x;
 		unsigned long long factor_y;
-		unsigned step_x;
 
 		/* if the clock is programmable the monitor specification must be present */
 		if (video_is_programmable(context)) {
@@ -1330,28 +1329,24 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 
 		log_std(("emu:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
-		/* Some video cards require a size multiple of 16. */
-		/* (for example GeForce in doublescan with 8 bit modes) */
-		step_x = 16;
-
 		/* compute the best mode */
 		if (context->config.monitor_aspect_x * arcade_aspect_y > arcade_aspect_x * context->config.monitor_aspect_y) {
 			best_size_y = context->state.game_used_size_y;
-			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_y;
-			best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_y;
-			best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_y;
-			best_size_4x = best_step((double)4*context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_4x = best_step((double)4*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
 		} else {
-			best_size_x = best_step(context->state.game_used_size_x, step_x);
+			best_size_x = best_step(context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
-			best_size_2x = best_step(2*context->state.game_used_size_x, step_x);
+			best_size_2x = best_step(2*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_3x = best_step(3*context->state.game_used_size_x, step_x);
+			best_size_3x = best_step(3*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_4x = best_step(4*context->state.game_used_size_x, step_x);
+			best_size_4x = best_step(4*context->state.game_used_size_x, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_x * factor_y / factor_x;
 		}
 		best_bits = context->state.game_bits_per_pixel;

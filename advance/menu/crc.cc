@@ -23,9 +23,9 @@
 #include "crc.h"
 #include "common.h"
 
-#include <fstream>
-
 #include <zlib.h>
+
+#include <fstream>
 
 using namespace std;
 

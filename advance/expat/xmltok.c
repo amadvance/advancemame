@@ -2,8 +2,11 @@
    See the file COPYING for copying permission.
 */
 
+#include <stddef.h>
+
 #include "expatcfg.h"
 
+#include "expat_external.h"
 #include "internal.h"
 #include "xmltok.h"
 #include "nametab.h"
@@ -1225,7 +1228,7 @@ XmlUtf16Encode(int charNum, unsigned short *buf)
 
 struct unknown_encoding {
   struct normal_encoding normal;
-  int (*convert)(void *userData, const char *p);
+  CONVERTER convert;
   void *userData;
   unsigned short utf16[256];
   char utf8[256][4];

@@ -1,12 +1,12 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2004-07-19 18:44:54.000000000 +0200
++++ src/advance.pat	2004-08-07 19:18:41.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
---- src.ori/common.c	2004-06-27 18:40:06.000000000 +0200
-+++ src/common.c	2004-07-19 18:44:54.000000000 +0200
-@@ -754,10 +754,11 @@
+--- src.ori/common.c	2004-08-07 19:16:48.000000000 +0200
++++ src/common.c	2004-08-07 19:18:41.000000000 +0200
+@@ -765,10 +765,11 @@
  	the given filename
  -------------------------------------------------*/
  
@@ -18,7 +18,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  	UINT32 saved_rgb_components[3];
  
  	/* allow the artwork system to override certain parameters */
-@@ -852,20 +853,24 @@
+@@ -863,20 +864,24 @@
  	memcpy(direct_rgb_components, saved_rgb_components, sizeof(saved_rgb_components));
  
  	/* if the OSD system allocated a bitmap; free it */
@@ -43,7 +43,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  
  	/* avoid overwriting existing files */
  	/* first of all try with "gamename.png" */
-@@ -882,10 +887,11 @@
+@@ -893,10 +898,11 @@
  	if ((fp = mame_fopen(Machine->gamedrv->name, name, FILETYPE_SCREENSHOT, 1)) != NULL)
  	{
  		save_screen_snapshot_as(fp, bitmap);
@@ -55,7 +55,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  
  
  /***************************************************************************
-@@ -1240,11 +1246,11 @@
+@@ -1251,11 +1257,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -70,7 +70,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2004-06-27 18:40:06.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2004-07-19 18:44:54.000000000 +0200
++++ src/cpu/i8085/i8085.c	2004-08-07 19:18:41.000000000 +0200
 @@ -110,10 +110,16 @@
   * 
   *****************************************************************************/
@@ -90,7 +90,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2004-05-06 18:22:10.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2004-07-19 18:44:54.000000000 +0200
++++ src/cpu/m68000/make68k.c	2004-08-07 19:18:41.000000000 +0200
 @@ -191,11 +191,11 @@
  
  
@@ -137,26 +137,9 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
  #else
  
-diff -U 5 --new-file --recursive src.ori/cpu/tms34010/tms34010.c src/cpu/tms34010/tms34010.c
---- src.ori/cpu/tms34010/tms34010.c	2004-06-27 18:40:08.000000000 +0200
-+++ src/cpu/tms34010/tms34010.c	2004-07-19 18:44:54.000000000 +0200
-@@ -930,13 +930,10 @@
- 
- 	/* clear out the timers */
- 	for (i = 0; i < MAX_CPU; i++)
- 		dpyint_timer[i] = vsblnk_timer[i] = NULL;
- 
--	/* free memory */
--	if (state.shiftreg)
--		free(state.shiftreg);
- 	state.shiftreg = NULL;
- }
- 
- 
- 
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2004-06-27 18:40:08.000000000 +0200
-+++ src/cpu/z80/z80.c	2004-07-19 18:44:54.000000000 +0200
++++ src/cpu/z80/z80.c	2004-08-07 19:18:41.000000000 +0200
 @@ -82,10 +82,16 @@
  #include "cpuintrf.h"
  #include "state.h"
@@ -175,8 +158,8 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2004-06-27 18:40:08.000000000 +0200
-+++ src/cpuexec.c	2004-07-19 18:44:54.000000000 +0200
+--- src.ori/cpuexec.c	2004-08-07 19:16:48.000000000 +0200
++++ src/cpuexec.c	2004-08-07 19:18:41.000000000 +0200
 @@ -307,10 +307,13 @@
  	watchdog_counter = -1;
  
@@ -191,25 +174,9 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive src.ori/drivers/dkong.c src/drivers/dkong.c
---- src.ori/drivers/dkong.c	2004-07-19 18:44:25.000000000 +0200
-+++ src/drivers/dkong.c	2004-07-19 18:44:54.000000000 +0200
-@@ -1372,11 +1372,11 @@
- };
- 
- static struct GfxLayout spritelayout =
- {
- 	16,16,	/* 16*16 sprites */
--	RGN_FRAC(1,2),	/* 128 sprites */
-+	RGN_FRAC(1,4),	/* 128 sprites */
- 	2,	/* 2 bits per pixel */
- 	{ RGN_FRAC(1,2), RGN_FRAC(0,2) },	/* the two bitplanes are separated */
- 	{ 0, 1, 2, 3, 4, 5, 6, 7,	/* the two halves of the sprite are separated */
- 			RGN_FRAC(1,4)+0, RGN_FRAC(1,4)+1, RGN_FRAC(1,4)+2, RGN_FRAC(1,4)+3, RGN_FRAC(1,4)+4, RGN_FRAC(1,4)+5, RGN_FRAC(1,4)+6, RGN_FRAC(1,4)+7 },
- 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8,
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
---- src.ori/drivers/multi32.c	2004-07-19 18:44:25.000000000 +0200
-+++ src/drivers/multi32.c	2004-07-19 18:44:54.000000000 +0200
+--- src.ori/drivers/multi32.c	2004-08-07 19:16:49.000000000 +0200
++++ src/drivers/multi32.c	2004-08-07 19:18:41.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -224,9 +191,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
---- src.ori/drivers/namcos11.c	2004-07-19 18:44:25.000000000 +0200
-+++ src/drivers/namcos11.c	2004-07-19 18:44:54.000000000 +0200
-@@ -654,11 +654,11 @@
+--- src.ori/drivers/namcos11.c	2004-08-07 19:16:49.000000000 +0200
++++ src/drivers/namcos11.c	2004-08-07 19:18:41.000000000 +0200
+@@ -655,11 +655,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -240,10 +207,10 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
---- src.ori/drivers/namcos12.c	2004-07-19 18:44:30.000000000 +0200
-+++ src/drivers/namcos12.c	2004-07-19 18:44:54.000000000 +0200
-@@ -466,11 +466,11 @@
- 	MDRV_NVRAM_HANDLER( generic_0fill )
+--- src.ori/drivers/namcos12.c	2004-08-07 19:16:49.000000000 +0200
++++ src/drivers/namcos12.c	2004-08-07 19:18:41.000000000 +0200
+@@ -467,11 +467,11 @@
+ 	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
  	MDRV_VIDEO_ATTRIBUTES( VIDEO_TYPE_RASTER )
@@ -256,8 +223,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
---- src.ori/drivers/psikyo4.c	2004-07-19 18:44:25.000000000 +0200
-+++ src/drivers/psikyo4.c	2004-07-19 18:44:54.000000000 +0200
+--- src.ori/drivers/psikyo4.c	2004-08-07 19:16:49.000000000 +0200
++++ src/drivers/psikyo4.c	2004-08-07 19:18:41.000000000 +0200
 @@ -412,13 +412,13 @@
  	MDRV_NVRAM_HANDLER(93C56)
  
@@ -288,8 +255,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  MACHINE_DRIVER_END
  
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
---- src.ori/drivers/stv.c	2004-07-19 18:44:25.000000000 +0200
-+++ src/drivers/stv.c	2004-07-19 18:44:54.000000000 +0200
+--- src.ori/drivers/stv.c	2004-08-07 19:16:50.000000000 +0200
++++ src/drivers/stv.c	2004-08-07 19:18:41.000000000 +0200
 @@ -3670,11 +3670,11 @@
  	MDRV_NVRAM_HANDLER(93C46) /* Actually 93c45 */
  
@@ -304,9 +271,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  	MDRV_VIDEO_START(stv_vdp2)
  	MDRV_VIDEO_UPDATE(stv_vdp2)
 diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
---- src.ori/drivers/zn.c	2004-07-19 18:44:30.000000000 +0200
-+++ src/drivers/zn.c	2004-07-19 18:44:54.000000000 +0200
-@@ -612,11 +612,11 @@
+--- src.ori/drivers/zn.c	2004-08-07 19:16:50.000000000 +0200
++++ src/drivers/zn.c	2004-08-07 19:18:41.000000000 +0200
+@@ -611,11 +611,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -319,7 +286,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -647,11 +647,11 @@
+@@ -646,11 +646,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -332,7 +299,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -848,11 +848,11 @@
+@@ -847,11 +847,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -345,7 +312,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1265,11 +1265,11 @@
+@@ -1264,11 +1264,11 @@
  	MDRV_NVRAM_HANDLER( coh1000ta )
  
  	/* video hardware */
@@ -358,7 +325,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1358,11 +1358,11 @@
+@@ -1357,11 +1357,11 @@
  	MDRV_NVRAM_HANDLER( coh1000tb )
  
  	/* video hardware */
@@ -371,7 +338,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1526,11 +1526,11 @@
+@@ -1525,11 +1525,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -384,7 +351,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1736,11 +1736,11 @@
+@@ -1735,11 +1735,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -397,7 +364,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1980,11 +1980,11 @@
+@@ -1979,11 +1979,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -410,7 +377,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2313,11 +2313,11 @@
+@@ -2312,11 +2312,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -423,7 +390,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2560,11 +2560,11 @@
+@@ -2559,11 +2559,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -436,7 +403,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2827,11 +2827,11 @@
+@@ -2826,11 +2826,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -449,7 +416,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2860,11 +2860,11 @@
+@@ -2859,11 +2859,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -462,7 +429,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2892,11 +2892,11 @@
+@@ -2891,11 +2891,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -476,239 +443,238 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2004-07-19 18:44:26.000000000 +0200
-+++ src/inptport.c	2004-07-24 20:53:55.000000000 +0200
-@@ -184,10 +184,18 @@
- 	{ IPT_UI_SHOW_PROFILER,		0, "Show Profiler",		{ SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) } },
- #ifdef MESS
- 	{ IPT_UI_TOGGLE_UI,			0, "UI Toggle",			{ SEQ_DEF_1(KEYCODE_SCRLOCK) } },
- #endif
- 	{ IPT_UI_SNAPSHOT,			0, "Save Snapshot",		{ SEQ_DEF_1(KEYCODE_F12) } },
-+	{ IPT_UI_RECORD_START,			0, "Record Start", { SEQ_DEF_2(KEYCODE_ENTER,KEYCODE_LCONTROL) } },
-+	{ IPT_UI_RECORD_STOP,			0, "Record Stop", { SEQ_DEF_3(KEYCODE_ENTER,CODE_NOT,KEYCODE_LCONTROL) } },
-+	{ IPT_UI_TURBO,				0, "Turbo", { SEQ_DEF_1(KEYCODE_ASTERISK) } },
-+	{ IPT_UI_COCKTAIL,			0, "Cocktail", { SEQ_DEF_1(KEYCODE_SLASH_PAD) } },
-+	{ IPT_UI_HELP,				0, "Help", { SEQ_DEF_1(KEYCODE_F1_REAL) } },
-+	{ IPT_UI_STARTUP_END,			0, "Startup End", { SEQ_DEF_1(KEYCODE_MINUS_PAD) } },
-+	{ IPT_UI_MODE_NEXT,			0, "Mode Next", { SEQ_DEF_1(KEYCODE_STOP) } },
-+	{ IPT_UI_MODE_PRED,			0, "Mode Pred", { SEQ_DEF_1(KEYCODE_COMMA) } },
- 	{ IPT_UI_TOGGLE_CHEAT,		0, "Toggle Cheat",		{ SEQ_DEF_1(KEYCODE_F6) } },
- 	{ IPT_UI_UP,				0, "UI Up",				{ SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) } },
- 	{ IPT_UI_DOWN,				0, "UI Down",			{ SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) } },
- 	{ IPT_UI_LEFT,				0, "UI Left",			{ SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) } },
- 	{ IPT_UI_RIGHT,				0, "UI Right",			{ SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) } },
-@@ -1393,10 +1401,13 @@
- 	config_file *cfg;
- 
- 	osd_customize_inputport_defaults(inputport_defaults);
- 	memcpy(inputport_defaults_backup,inputport_defaults,sizeof(inputport_defaults));
- 
-+	/* AdvanceMAME: Load user defined customization */
-+	osd_customize_inputport_pre_defaults(inputport_defaults);
-+
- 	cfg = config_open(NULL);
- 	if (cfg)
- 	{
- 		config_read_default_ports(cfg, inputport_defaults);
- 		config_close(cfg);
-@@ -1446,10 +1457,13 @@
- 
- getout:
- 		config_close(cfg);
- 	}
- 
-+	/* AdvanceMAME: Load user defined customization */
-+	osd_customize_inputport_pre_game(Machine->input_ports);
-+
- 	/* All analog ports need initialization */
- 	{
- 		int i;
- 		for (i = 0; i < MAX_INPUT_PORTS; i++)
- 			input_analog_init[i] = 1;
-@@ -1689,14 +1703,16 @@
- 		int new, prev;
- 
- 		/* center stick */
- 		if ((delta == 0) && (in->u.analog.center))
- 		{
--			if (current > default_value)
--			delta = -100 / sensitivity;
--			if (current < default_value)
--			delta = 100 / sensitivity;
-+			/* AdvanceMAME: Return backward at middle keyboard speed */
-+			delta = default_value - current;
-+			if (delta < -(keydelta+1)/2)
-+				delta = -(keydelta+1)/2;
-+			if (delta > (keydelta+1)/2)
-+				delta = (keydelta+1)/2;
- 		}
- 
- 		/* An analog joystick which is not at zero position (or has just */
- 		/* moved there) takes precedence over all other computations */
- 		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2035,11 +2051,12 @@
- 				}
- 				else
- 				{
- 					InputSeq* seq;
- 					seq = input_port_seq(in, 0);
--					if (seq_pressed(seq))
-+					/* AdvanceMAME: Filter all the input ports */
-+					if (osd_input_port_filter(seq_pressed(seq), in->type, in->player + 1, 0))
- 					{
- #ifdef MESS
- 						if ((in->type == IPT_KEYBOARD) && osd_keyboard_disabled())
- 							continue;
- #endif
-diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	2004-07-19 18:44:26.000000000 +0200
-+++ src/inptport.h	2004-07-19 18:45:01.000000000 +0200
-@@ -135,10 +135,18 @@
- 	IPT_OSD_4,
- 
- 	IPT_EXTENSION,
- 
- 	/* the following are special codes for user interface handling - not to be used by drivers! */
-+	IPT_UI_MODE_NEXT,
-+	IPT_UI_MODE_PRED,
-+	IPT_UI_RECORD_START,
-+	IPT_UI_RECORD_STOP,
-+	IPT_UI_TURBO,
-+	IPT_UI_COCKTAIL,
-+	IPT_UI_HELP,
-+	IPT_UI_STARTUP_END,
- 	IPT_UI_CONFIGURE,
- 	IPT_UI_ON_SCREEN_DISPLAY,
- 	IPT_UI_PAUSE,
- 	IPT_UI_RESET_MACHINE,
- 	IPT_UI_SHOW_GFX,
-diff -U 5 --new-file --recursive src.ori/input.c src/input.c
---- src.ori/input.c	2004-07-19 18:44:26.000000000 +0200
-+++ src/input.c	2004-07-19 18:45:01.000000000 +0200
-@@ -12,15 +12,10 @@
- #include <assert.h>
- 
- /***************************************************************************/
- /* Codes */
- 
--/* Subtype of codes */
--#define CODE_TYPE_NONE 0U /* code not assigned */
--#define CODE_TYPE_KEYBOARD 1U /* keyboard code */
--#define CODE_TYPE_JOYSTICK 2U /* joystick code */
+--- src.ori/inptport.c	2004-08-07 19:16:50.000000000 +0200
++++ src/inptport.c	2004-08-10 19:18:41.000000000 +0200
+@@ -808,24 +808,21 @@
+ 	
+ 	/* start with the raw defaults and ask the OSD to customize them in the backup array */
+ 	memcpy(inputport_list_backup, inputport_list_defaults, sizeof(inputport_list_backup));
+ 	osd_customize_inputport_list(inputport_list_backup);
+ 	
+-	/* load the controller-specific info */
+-	if (options.controller != NULL)
+-	{
+-		loaded = config_load_controller(options.controller, inputport_list_backup);
+-		if (!loaded)
+-			osd_die("Could not load controller file %s.cfg\n", options.controller);
+-	}
 -
- /* Informations for every input code */
- struct code_info {
- 	int memory; /* boolean memory */
- 	unsigned oscode; /* os dependant code */
- 	unsigned type; /* subtype: CODE_TYPE_KEYBOARD or CODE_TYPE_JOYSTICK */
-@@ -195,12 +190,11 @@
- 		}
- 	}
+ 	/* propogate that forward to the live list and apply the config on top of that */
+ 	memcpy(inputport_list, inputport_list_backup, sizeof(inputport_list));
+-	config_load_default(inputport_list_backup, inputport_list);
+ 
+-	/* now load the game-specific info */
+-	loaded = config_load(Machine->input_ports_default, Machine->input_ports);
++	/* AdvanceMAME: Load user defined customization */
++	osd_config_load_default(inputport_list_backup, inputport_list);
++
++	/* AdvanceMAME: Load user defined customization */
++	osd_config_load(Machine->input_ports_default, Machine->input_ports);
++
++	/* AdvanceMAME: Report no setting loaded, always show the disclaimer */
++	loaded = 0;
+ 
+ 	/* initialize the various port states */
+ 	inputport_init();
+ 
+ 	/* if we didn't find a saved config, return 0 so the main core knows that it */
+@@ -835,12 +832,16 @@
+ 
+ 
+ void save_input_port_settings(void)
+ {
+ 	/* save the default config and the game-specific config */
+-	config_save_default(inputport_list_backup, inputport_list);
+-	config_save(Machine->input_ports_default, Machine->input_ports);
++
++	/* AdvanceMAME: Save user defined customization */
++	osd_config_save_default(inputport_list_backup, inputport_list);
++
++	/* AdvanceMAME: Save user defined customization */
++	osd_config_save(Machine->input_ports_default, Machine->input_ports);
+ }
+ 
+ 
+ 
+ /*************************************
+@@ -1299,13 +1300,19 @@
+ {
+ 	int listnum;
+ 
+ 	/* search the defaults for the type */
+ 	for (listnum = 0; inputport_list[listnum].type != IPT_END; listnum++)
+-		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player)
+-			return seq_pressed(&inputport_list[listnum].defaultseq);
+-	
++		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player) {
++			int pressed = seq_pressed(&inputport_list[listnum].defaultseq);
++
++			/* AdvanceMAME: Filter all the input ports */
++			pressed = osd_input_port_filter(pressed, inputport_list[listnum].type, inputport_list[listnum].player, SEQ_TYPE_STANDARD);
++
++			return pressed;
++		}
++
  	return 0;
  }
  
--/* Check if a code is pressed */
--static int internal_code_pressed(InputCode code)
-+unsigned code_to_oscode(InputCode code, unsigned* type)
- {
- 	const struct KeyboardInfo *keyinfo;
- 	const struct JoystickInfo *joyinfo;
  
- 	assert( code < code_mac );
-@@ -209,28 +203,52 @@
+ int input_ui_pressed(int code)
+@@ -1315,10 +1322,13 @@
+ profiler_mark(PROFILER_INPUT);
+ 	
+ 	/* get the status of this key (assumed to be only in the defaults) */
+ 	pressed = seq_pressed(input_port_default_seq(code, 0, SEQ_TYPE_STANDARD));
+ 
++	/* AdvanceMAME: Filter all the input ports */
++	pressed = osd_input_port_filter(pressed, code, 0, SEQ_TYPE_STANDARD);
++
+ 	/* if pressed, handle it specially */
+ 	if (pressed)
  	{
- 		switch (code_map[code].type)
- 		{
- 			case CODE_TYPE_KEYBOARD :
- 				keyinfo = internal_code_find_keyboard(code);
--				if (keyinfo)
--					return osd_is_key_pressed(keyinfo->code);
-+				if (keyinfo) {
-+					*type = CODE_TYPE_KEYBOARD;
-+					return keyinfo->code;
-+				}
- 				break;
- 			case CODE_TYPE_JOYSTICK :
- 				joyinfo = internal_code_find_joystick(code);
--				if (joyinfo)
--					return osd_is_joy_pressed(joyinfo->code);
-+				if (joyinfo) {
-+					*type = CODE_TYPE_JOYSTICK;
-+					return joyinfo->code;
-+				}
- 				break;
- 		}
- 	} else {
- 		switch (code_map[code].type)
- 		{
- 			case CODE_TYPE_KEYBOARD :
--				return osd_is_key_pressed(code_map[code].oscode);
-+				*type = CODE_TYPE_KEYBOARD;
-+				return code_map[code].oscode;
- 			case CODE_TYPE_JOYSTICK :
--				return osd_is_joy_pressed(code_map[code].oscode);
-+				*type = CODE_TYPE_JOYSTICK;
-+				return code_map[code].oscode;
- 		}
- 	}
+ 		/* if this is the first press, leave pressed = 1 */
+ 		if (ui_memory[code] == 0)
+@@ -1348,10 +1358,13 @@
+ profiler_mark(PROFILER_INPUT);
+ 
+ 	/* get the status of this key (assumed to be only in the defaults) */
+ 	pressed = seq_pressed(input_port_default_seq(code, 0, SEQ_TYPE_STANDARD));
+ 
++	/* AdvanceMAME: Filter all the input ports */
++	pressed = osd_input_port_filter(pressed, code, 0, SEQ_TYPE_STANDARD);
 +
-+	*type = CODE_TYPE_NONE;
-+	return 0;
-+}
+ 	/* if so, handle it specially */
+ 	if (pressed)
+ 	{
+ 		/* if this is the first press, set a 3x delay and leave pressed = 1 */
+ 		if (ui_memory[code] == 0)
+@@ -1454,11 +1467,16 @@
+ 			
+ 			/* handle non-analog types, but only when the UI isn't visible */
+ 			else if (!IS_ANALOG(port) && !ui_visible)
+ 			{
+ 				/* if the sequence for this port is currently pressed.... */
+-				if (seq_pressed(input_port_seq(port, SEQ_TYPE_STANDARD)))
++				int pressed = seq_pressed(input_port_seq(port, SEQ_TYPE_STANDARD));
 +
-+/* Check if a code is pressed */
-+static int internal_code_pressed(InputCode code)
++				/* AdvanceMAME: Filter all the input ports */
++				pressed = osd_input_port_filter(pressed, port->type, port->player, SEQ_TYPE_STANDARD);
++
++				if (pressed)
+ 				{
+ #ifdef MESS
+ 					/* (MESS-specific) check for disabled keyboard */
+ 					if (port->type == IPT_KEYBOARD && osd_keyboard_disabled())
+ 						continue;
+@@ -1586,17 +1604,18 @@
+ 			{
+ 				info->previous = info->current;
+ 				info->current = 0;
+ 				
+ 				/* read all the associated ports */
+-				if (info->port[JOYDIR_UP] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_UP], SEQ_TYPE_STANDARD)))
++				/* AdvanceMAME: Filter all the input ports */
++				if (info->port[JOYDIR_UP] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_UP], SEQ_TYPE_STANDARD)), info->port[JOYDIR_UP]->type, info->port[JOYDIR_UP]->player, SEQ_TYPE_STANDARD))
+ 					info->current |= JOYDIR_UP_BIT;
+-				if (info->port[JOYDIR_DOWN] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_DOWN], SEQ_TYPE_STANDARD)))
++				if (info->port[JOYDIR_DOWN] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_DOWN], SEQ_TYPE_STANDARD)), info->port[JOYDIR_DOWN]->type, info->port[JOYDIR_DOWN]->player, SEQ_TYPE_STANDARD))
+ 					info->current |= JOYDIR_DOWN_BIT;
+-				if (info->port[JOYDIR_LEFT] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_LEFT], SEQ_TYPE_STANDARD)))
++				if (info->port[JOYDIR_LEFT] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_LEFT], SEQ_TYPE_STANDARD)), info->port[JOYDIR_LEFT]->type, info->port[JOYDIR_LEFT]->player, SEQ_TYPE_STANDARD))
+ 					info->current |= JOYDIR_LEFT_BIT;
+-				if (info->port[JOYDIR_RIGHT] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)))
++				if (info->port[JOYDIR_RIGHT] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)), info->port[JOYDIR_RIGHT]->type, info->port[JOYDIR_RIGHT]->player, SEQ_TYPE_STANDARD))
+ 					info->current |= JOYDIR_RIGHT_BIT;
+ 				
+ 				/* lock out opposing directions (left + right or up + down) */
+ 				if ((info->current & (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT)) == (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT))
+ 					info->current &= ~(JOYDIR_UP_BIT | JOYDIR_DOWN_BIT);
+@@ -1707,31 +1726,33 @@
+ 		int analog_type, keypressed = 0;
+ 			
+ 		/* clamp the previous value to the min/max range and remember it */
+ 		info->previous = info->accum = apply_analog_min_max(info, info->accum);
+ 
+-		/* get the new raw analog value and its type */
+-		rawvalue = seq_analog_value(input_port_seq(port, SEQ_TYPE_STANDARD), &analog_type);
+-		
++		/* AdvanceMAME: Get the analog input for different players from the osd core. */
++		rawvalue = osd_get_analog_value(port->type, port->player, &analog_type);
++
+ 		/* if we got it from a relative device, use that as the starting delta */
+ 		/* also note that the last input was not a digital one */
+ 		if (analog_type == ANALOG_TYPE_RELATIVE && rawvalue != 0)
+ 		{
+ 			delta = rawvalue;
+ 			info->lastdigital = 0;
+ 		}
+ 		
+ 		/* if the decrement code sequence is pressed, add the key delta to */
+ 		/* the accumulated delta; also note that the last input was a digital one */
+-		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)))
++		/* AdvanceMAME: Filter all the input ports */
++		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)), info->port->type, info->port->player, SEQ_TYPE_DECREMENT))
+ 		{
+ 			delta -= (INT32)(port->analog.delta * info->keyscale);
+ 			keypressed = info->lastdigital = 1;
+ 		}
+ 		
+ 		/* same for the increment code sequence */
+-		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)))
++		/* AdvanceMAME: Filter all the input ports */
++		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)), info->port->type, info->port->player, SEQ_TYPE_INCREMENT))
+ 		{
+ 			delta += (INT32)(port->analog.delta * info->keyscale);
+ 			keypressed = info->lastdigital = 1;
+ 		}
+ 		
+diff -U 5 --new-file --recursive src.ori/input.c src/input.c
+--- src.ori/input.c	2004-08-07 19:16:50.000000000 +0200
++++ src/input.c	2004-08-07 19:44:08.000000000 +0200
+@@ -538,11 +538,33 @@
+ 	code_count = 0;
+ 	free(code_map);
+ 	code_map = NULL;
+ }
+ 
++os_code_t code_to_oscode(input_code_t code)
 +{
-+	unsigned oscode;
-+	unsigned type;
++	if (code_map[code].osinfo != NULL)
++		return code_map[code].osinfo->oscode;
++	else
++		return 0;
++}
+ 
++input_code_t oscode_to_code(os_code_t oscode)
++{
++	unsigned i;
 +
-+	oscode = code_to_oscode(code, &type);
-+
-+	switch (type) {
-+	case CODE_TYPE_KEYBOARD : return osd_is_key_pressed(oscode);
-+	case CODE_TYPE_JOYSTICK : return osd_is_joy_pressed(oscode);
++	for(i=0;i<code_count;++i) {
++		if (code_map[i].osinfo != NULL && code_map[i].osinfo->oscode == oscode) {
++			break;
++		}
 +	}
 +
- 	return 0;
- }
++	if (i == code_count)
++		return CODE_NONE;
++
++	return i;
++}
  
- /* Return the name of the code */
- static const char* internal_code_name(InputCode code)
-@@ -812,11 +830,11 @@
- {
- 	int pressed;
- 
- 	profiler_mark(PROFILER_INPUT);
- 
--	pressed = seq_pressed(input_port_type_seq(code,0));
-+	pressed = osd_input_port_filter(seq_pressed(input_port_type_seq(code,0)), code, 0, 0);
- 
- 	if (pressed)
- 	{
- 		if (ui_map[code].memory == 0)
- 		{
-@@ -836,11 +854,11 @@
- 	static int counter,inputdelay;
- 	int pressed;
- 
- 	profiler_mark(PROFILER_INPUT);
- 
--	pressed = seq_pressed(input_port_type_seq(code,0));
-+	pressed = osd_input_port_filter(seq_pressed(input_port_type_seq(code,0)), code, 0, 0);
- 
- 	if (pressed)
- 	{
- 		if (ui_map[code].memory == 0)
- 		{
+ /*************************************
+  *
+  *	Return the analog value of a code.
+  *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
---- src.ori/input.h	2004-06-27 18:40:24.000000000 +0200
-+++ src/input.h	2004-07-19 18:45:01.000000000 +0200
-@@ -121,18 +121,33 @@
- #define KEYCODE_OTHER CODE_OTHER
- #define JOYCODE_OTHER CODE_OTHER
- #define KEYCODE_NONE CODE_NONE
- #define JOYCODE_NONE CODE_NONE
+--- src.ori/input.h	2004-08-07 19:16:50.000000000 +0200
++++ src/input.h	2004-08-07 19:18:41.000000000 +0200
+@@ -429,11 +429,17 @@
+ 	CODE_DEFAULT,				/* special for input port definitions */
+ 	CODE_NOT,					/* operators for sequences */
+ 	CODE_OR						/* operators for sequences */
+ };
  
+-
 +/* AdvanceMAME: Remap the F1 key used by some debug code to an unused key. */
 +#ifdef MESS
 +#define KEYCODE_F1_REAL KEYCODE_F1
@@ -716,31 +682,29 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 +#define KEYCODE_F1_REAL (KEYCODE_F2-1)
 +#define KEYCODE_F1 KEYCODE_NUMLOCK
 +#endif
-+
- /***************************************************************************/
- /* Single code functions */
  
+ /*************************************
+  *
+  *	Type definitions
+  *
+@@ -481,10 +487,13 @@
+ 
+ /* single code functions */
  int code_init(void);
  void code_close(void);
  
-+/* Subtype of codes */
-+#define CODE_TYPE_NONE 0U /* code not assigned */
-+#define CODE_TYPE_KEYBOARD 1U /* keyboard code */
-+#define CODE_TYPE_JOYSTICK 2U /* joystick code */
++os_code_t code_to_oscode(input_code_t code);
++input_code_t oscode_to_code(os_code_t oscode);
 +
- InputCode keyoscode_to_code(unsigned oscode);
- InputCode joyoscode_to_code(unsigned oscode);
-+unsigned code_to_oscode(InputCode code, unsigned* type);
-+
- InputCode savecode_to_code(unsigned savecode);
- unsigned code_to_savecode(InputCode code);
- 
- const char *code_name(InputCode code);
- int code_pressed(InputCode code);
+ INT32 code_analog_value(input_code_t code);
+ int code_pressed(input_code_t code);
+ int code_pressed_memory(input_code_t code);
+ int code_pressed_memory_repeat(input_code_t code, int speed);
+ input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
---- src.ori/mame.c	2004-07-01 06:35:24.000000000 +0200
-+++ src/mame.c	2004-07-24 21:00:21.000000000 +0200
-@@ -541,10 +541,13 @@
+--- src.ori/mame.c	2004-08-07 19:16:50.000000000 +0200
++++ src/mame.c	2004-08-07 19:18:41.000000000 +0200
+@@ -534,10 +534,13 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
  			/* show info about the game */
@@ -754,44 +718,33 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  				/* enable artwork now */
  				artwork_enable(1);
  
-diff -U 5 --new-file --recursive src.ori/mamedbg.c src/mamedbg.c
---- src.ori/mamedbg.c	2004-07-19 18:44:26.000000000 +0200
-+++ src/mamedbg.c	2004-07-19 18:45:01.000000000 +0200
-@@ -2329,11 +2329,11 @@
- 		win_create(WIN_CMDS(i), 1,
- 			cmds.min_x,cmds.min_y,
- 			cmds.max_x+1-cmds.min_x,cmds.max_y+1-cmds.min_y,
- 			cur_col[E_CMDS], cur_col[E_FRAME], ' ', flags );
- 
--		win_set_title(WIN_CMDS(i), "Command (press F1 for help)");
-+		win_set_title(WIN_CMDS(i), "Command (press NUMLOCK for help)");
- 	}
- }
- 
- /**************************************************************************
-  * dbg_close_windows
-@@ -3311,11 +3311,11 @@
- 		win_set_title( WIN_CMDS(active_cpu), "%s%s", dbg_info_once, hist_info );
- 		dbg_info_once = NULL;
- 	}
- 	else
- 	{
--		win_set_title( WIN_CMDS(active_cpu), "Command (press F1 for help)%s", hist_info );
-+		win_set_title( WIN_CMDS(active_cpu), "Command (press NUMLOCK for help)%s", hist_info );
- 	}
- 	return INVALID;
- }
- 
- /**************************************************************************
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2004-06-27 18:40:42.000000000 +0200
-+++ src/osdepend.h	2004-07-19 18:45:01.000000000 +0200
-@@ -384,10 +384,45 @@
+--- src.ori/osdepend.h	2004-08-07 19:16:50.000000000 +0200
++++ src/osdepend.h	2004-08-10 12:01:33.000000000 +0200
+@@ -187,10 +187,16 @@
+   code specified in the list returned by osd_get_code_list().
+ */
+ INT32 osd_get_code_value(os_code_t oscode);
+ 
+ /*
++  return the analog value of the specified input.
++  analog inputs return a value between -65536 and +65536.
++*/
++INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
++
++/*
+   Return the Unicode value of the most recently pressed key. This
+   function is used only by text-entry routines in the user interface and should
+   not be used by drivers. The value returned is in the range of the first 256
+   bytes of Unicode, e.g. ISO-8859-1. A return value of 0 indicates no key down.
+ 
+@@ -347,10 +353,44 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
  #endif
  
++/* AdvanceMAME: Specific OSD interface */
 +/* called then the game is reset */
 +void osd_reset(void);
 +
@@ -802,7 +755,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +int osd_input_exit_filter(int result);
 +
 +/* filter the input port state */
-+int osd_input_port_filter(int result, unsigned type, unsigned player, unsigned index);
++int osd_input_port_filter(int result, unsigned type, unsigned player, int seqtype);
 +
 +/* snapshot saving */
 +void osd_save_snapshot(void);
@@ -817,12 +770,10 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +void osd_ui_scroll(const char* text, int* pos);
 +
 +/* customize the inputport */
-+void osd_customize_inputport_pre_game(struct InputPort* current);
-+void osd_customize_inputport_pre_defaults(struct ipd* current);
-+void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current, unsigned index);
-+void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current, unsigned index);
-+void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current);
-+void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current);
++void osd_config_load_default(struct InputPortDefinition* backup, struct InputPortDefinition* list);
++void osd_config_load(struct InputPort* backup, struct InputPort* list);
++void osd_config_save_default(struct InputPortDefinition* backup, struct InputPortDefinition* list);
++void osd_config_save(struct InputPort* backup, struct InputPort* list);
 +
 +/* handle the specific user interface */
 +int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active);
@@ -832,24 +783,9 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif
  
  #endif
-diff -U 5 --new-file --recursive src.ori/palette.c src/palette.c
---- src.ori/palette.c	2004-06-27 18:40:26.000000000 +0200
-+++ src/palette.c	2004-07-19 18:45:01.000000000 +0200
-@@ -523,10 +523,11 @@
- 
- 	/* allocate memory for the dirty palette array */
- 	dirty_palette = auto_malloc((max_total_colors + 31) / 32 * sizeof(dirty_palette[0]));
- 	if (!dirty_palette)
- 		return 1;
-+	dirty_palette[(max_total_colors - 1) / 32] = 0; /* initialize all the bits of the last dirty entry */
- 	for (i = 0; i < max_total_colors; i++)
- 		mark_pen_dirty(i);
- 
- 	/* allocate memory for the pen table */
- 	Machine->pens = auto_malloc(total_colors * sizeof(Machine->pens[0]));
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
---- src.ori/rules.mak	2004-07-19 18:44:30.000000000 +0200
-+++ src/rules.mak	2004-07-19 18:45:01.000000000 +0200
+--- src.ori/rules.mak	2004-08-07 19:16:50.000000000 +0200
++++ src/rules.mak	2004-08-07 19:18:41.000000000 +0200
 @@ -1143,16 +1143,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -886,7 +822,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring E132XS@,$(CPUS)))
-@@ -1243,13 +1243,13 @@
+@@ -1255,13 +1255,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -903,49 +839,16 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
-diff -U 5 --new-file --recursive src.ori/sound/mixer.c src/sound/mixer.c
---- src.ori/sound/mixer.c	2003-10-12 20:51:58.000000000 +0200
-+++ src/sound/mixer.c	2004-07-24 20:30:45.000000000 +0200
-@@ -690,10 +690,11 @@
- 
- int mixer_sh_start(void)
- {
- 	struct mixer_channel_data *channel;
- 	int i;
-+	int r;
- 
- 	/* reset all channels to their defaults */
- 	memset(&mixer_channel, 0, sizeof(mixer_channel));
- 	for (i = 0, channel = mixer_channel; i < MIXER_MAX_CHANNELS; i++, channel++)
- 	{
-@@ -713,11 +714,15 @@
- 	/* clear the accumulators */
- 	accum_base = 0;
- 	memset(left_accum, 0, sizeof(left_accum));
- 	memset(right_accum, 0, sizeof(right_accum));
- 
--	samples_this_frame = osd_start_audio_stream(is_stereo);
-+	r = osd_start_audio_stream(is_stereo);
-+	if (r < 0)
-+		return -1;
-+
-+	samples_this_frame = r;
- 
- 	mixer_sound_enabled = 1;
- 
- 	return 0;
- }
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
---- src.ori/ui_text.c	2004-07-19 18:44:30.000000000 +0200
-+++ src/ui_text.c	2004-07-19 18:46:00.000000000 +0200
-@@ -202,10 +202,14 @@
+--- src.ori/ui_text.c	2004-08-07 19:16:50.000000000 +0200
++++ src/ui_text.c	2004-08-07 19:18:41.000000000 +0200
+@@ -216,10 +216,13 @@
  	"One match found - added to list",
  
  	/* refresh rate */
  	"Refresh rate",
  
 +	/* AdvanceMAME: Extra user interface commands */
-+	"Center",
 +	"Video",
 +
  	NULL
@@ -954,16 +857,15 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
---- src.ori/ui_text.h	2004-07-19 18:44:30.000000000 +0200
-+++ src/ui_text.h	2004-07-19 18:45:41.000000000 +0200
-@@ -171,10 +171,14 @@
+--- src.ori/ui_text.h	2004-08-07 19:16:50.000000000 +0200
++++ src/ui_text.h	2004-08-07 19:18:41.000000000 +0200
+@@ -185,10 +185,13 @@
  	UI_search_one_match_found_added,
  	
  	/* refresh rate */
  	UI_refresh_rate,
  
 +	/* AdvanceMAME: Extra user interface commands */
-+	UI_center,
 +	UI_osdmenu,
 +
  	UI_last_mame_entry
@@ -972,15 +874,15 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #ifdef MESS
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2004-07-19 18:44:30.000000000 +0200
-+++ src/usrintrf.c	2004-07-24 20:52:24.000000000 +0200
-@@ -826,10 +826,13 @@
+--- src.ori/usrintrf.c	2004-08-07 19:16:50.000000000 +0200
++++ src/usrintrf.c	2004-08-10 19:22:09.000000000 +0200
+@@ -821,10 +821,13 @@
  
  
  
  void ui_displaymenu(struct mame_bitmap *bitmap,const char **items,const char **subitems,char *flag,int selected,int arrowize_subitem)
  {
-+#if 1 /* AdvanceMAME has its ui code */
++#if 1 /* AdvanceMAME: Use custom ui code */
 +	osd_ui_menu(items, subitems, flag, selected, arrowize_subitem);
 +#else
  	struct DisplayText dt[256];
@@ -988,7 +890,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	const char *lefthilight = ui_getstring (UI_lefthilight);
  	const char *righthilight = ui_getstring (UI_righthilight);
  	const char *uparrow = ui_getstring (UI_uparrow);
-@@ -996,15 +999,19 @@
+@@ -991,15 +994,19 @@
  		if (long_y + long_dy > uirotheight)
  			long_y = topoffs + i * 3*uirotcharheight/2 - long_dy;
  
@@ -1000,7 +902,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  void ui_displaymessagewindow(struct mame_bitmap *bitmap,const char *text)
  {
-+#if 1 /* AdvanceMAME has its ui code */
++#if 1 /* AdvanceMAME: Use custom ui code */
 +	osd_ui_scroll(text, 0);
 +#else
  	struct DisplayText dt[256];
@@ -1008,7 +910,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	char *c,*c2;
  	int i,len,maxlen,lines;
  	char textcopy[2048];
-@@ -1099,10 +1106,11 @@
+@@ -1094,10 +1101,11 @@
  	}
  
  	dt[curr_dt].text = 0;	/* terminate array */
@@ -1020,226 +922,50 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  static void showcharset(struct mame_bitmap *bitmap)
-@@ -1631,10 +1639,13 @@
- 			{
- 				if ((in+1)->type == switch_setting)
- 					entry[sel]->default_value = (in+1)->default_value & entry[sel]->mask;
+@@ -1770,15 +1778,17 @@
+ 					menu_item[total] = in->name;
+ 					total++;
+ 				}
+ 				else
+ 				{
++#if 0 /* AdvanceMAME: The analog configuration is done at OSD level */
+ 					entry[total] = &in->defaultseq;
+ 					defentry[total] = &indef->defaultseq;
+ 					sprintf(menu_item_buffer[total], "%s Analog", in->name);
+ 					menu_item[total] = menu_item_buffer[total];
+ 					total++;
++#endif
+ 
+ 					analog[total] = 0;
+ 					entry[total] = &in->defaultdecseq;
+ 					defentry[total] = &indef->defaultdecseq;
+ 					sprintf(menu_item_buffer[total], "%s Dec", in->name);
+@@ -1957,16 +1967,18 @@
+ 				menu_subitem[total] = menu_subitem_buffer[total];
+ 				total++;
  			}
- 
-+			/* AdvanceMAME: Store the port changes */
-+			osd_customize_switchport_post_game(Machine->input_ports_default + (entry[sel] - Machine->input_ports), entry[sel]);
-+
- 			/* tell updatescreen() to clean after us (in case the window changes size) */
- 			schedule_full_refresh();
- 		}
- 	}
- 
-@@ -1654,10 +1665,13 @@
+ 			else
  			{
- 				if ((in-1)->type == switch_setting)
- 					entry[sel]->default_value = (in-1)->default_value & entry[sel]->mask;
- 			}
++#if 0 /* AdvanceMAME: The analog configuration is done at OSD level */
+ 				seq[total] = &in->seq;
+ 				sprintf(menu_item_buffer[total], "%s Analog", input_port_name(in));
+ 				menu_item[total] = menu_item_buffer[total];
+ 				seq_name(input_port_seq(in, SEQ_TYPE_STANDARD), menu_subitem_buffer[total], sizeof(menu_subitem_buffer[0]));
+ 				menu_subitem[total] = menu_subitem_buffer[total];
+ 				total++;
++#endif
  
-+			/* AdvanceMAME: Store the port changes */
-+			osd_customize_switchport_post_game(Machine->input_ports_default + (entry[sel] - Machine->input_ports), entry[sel]);
-+
- 			/* tell updatescreen() to clean after us (in case the window changes size) */
- 			schedule_full_refresh();
- 		}
- 	}
- 
-@@ -1715,15 +1729,18 @@
- static int setdefcodesettings(struct mame_bitmap *bitmap,int selected)
- {
- 	const char *menu_item[500];
- 	const char *menu_subitem[500];
- 	InputSeq *entry[500];
-+	struct ipd* port[500];
-+	unsigned char index[500];
- 	char flag[500];
- 	int i,sel;
- 	struct ipd *in;
- 	int total;
- 	extern struct ipd inputport_defaults[];
-+	extern struct ipd inputport_defaults_backup[];
- 
- 	sel = selected - 1;
- 
- 
- 	if (Machine->input_ports == 0)
-@@ -1738,10 +1755,12 @@
- 		{
- 			int seq_count = (in->type > IPT_ANALOG_START && in->type < IPT_ANALOG_END) ? 2 : 1;
- 			int j;
- 			for (j = 0; j < seq_count; j++)
- 			{
-+				port[total] = in;
-+				index[total] = j;
- 				entry[total] = &in->seq[j];
- 				menu_item[total] = in->name;
- 				if (j == 1 && in->type >= IPT_PEDAL && in->type <= IPT_PEDAL2)
- 					menu_item[total] = "Auto Release <Y/N>";
- 
-@@ -1792,10 +1811,13 @@
- 			schedule_full_refresh();
- 
- 			record_first_insert = ret != 0;
- 		}
- 
-+		/* AdvanceMAME: Store the port changes */
-+		osd_customize_inputport_post_defaults(inputport_defaults_backup + (port[sel & SEL_MASK] - inputport_defaults), port[sel & SEL_MASK], index[sel & SEL_MASK]);
-+
- 		init_analog_seq();
- 
- 		return sel + 1;
- 	}
- 
-@@ -1850,10 +1872,12 @@
- static int setcodesettings(struct mame_bitmap *bitmap,int selected)
- {
- 	const char *menu_item[500];
- 	const char *menu_subitem[500];
- 	InputSeq *seq[500];
-+	struct InputPort* port[500];
-+	unsigned char index[500];
- 	char flag[500];
- 	int i,sel;
- 	struct InputPort *in;
- 	int total;
- 
-@@ -1876,10 +1900,12 @@
- #ifdef MESS
- 				&& ((in->category == 0) || input_category_active(in->category))
- #endif /* MESS */
- 				&& in->type != IPT_OSD_RESERVED)
- 			{
-+				port[total] = in;
-+				index[total] = i;
- 				seq[total] = &in->seq[i];
- 				menu_item[total] = input_port_name(in);
- 				if (i == 1 && in->type >= IPT_PEDAL && in->type <= IPT_PEDAL2)
- 					menu_item[total] = "Auto Release <Y/N>";
- 
-@@ -1929,10 +1955,13 @@
- 			schedule_full_refresh();
- 
- 			record_first_insert = ret != 0;
- 		}
- 
-+		/* AdvanceMAME: Store the port changes */
-+		osd_customize_inputport_post_game(Machine->input_ports_default + (port[sel & SEL_MASK] - Machine->input_ports), port[sel & SEL_MASK], index[sel & SEL_MASK]);
-+
- 		init_analog_seq();
- 
- 		return sel + 1;
- 	}
- 
-@@ -2074,13 +2103,13 @@
- 		in++;
- 	}
- 
- 	if (total == 0) return 0;
- 
--	/* Each analog control has 3 entries - key & joy delta, reverse, sensitivity */
-+	/* Each analog control has 4 entries - key & joy delta, reverse, sensitivity, center */
- 
--#define ENTRIES 3
-+#define ENTRIES 4
- 
- 	total2 = total * ENTRIES;
- 
- 	menu_item[total2] = ui_getstring (UI_returntomain);
- 	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2093,15 +2122,17 @@
- 		{
- 			char label[30][40];
- 			char setting[30][40];
- 			int sensitivity,delta;
- 			int reverse;
-+			int center;
- 
- 			strcpy (label[i], input_port_name(entry[i/ENTRIES]));
- 			sensitivity = entry[i/ENTRIES]->u.analog.sensitivity;
- 			delta = entry[i/ENTRIES]->u.analog.delta;
- 			reverse = entry[i/ENTRIES]->u.analog.reverse;
-+			center = entry[i/ENTRIES]->u.analog.center;
- 
- 			strcat (label[i], " ");
- 			switch (i%ENTRIES)
- 			{
- 				case 0:
-@@ -2120,10 +2151,18 @@
- 				case 2:
- 					strcat (label[i], ui_getstring (UI_sensitivity));
- 					sprintf(setting[i],"%3d%%",sensitivity);
- 					if (i == sel) arrowize = 3;
- 					break;
-+				case 3:
-+					strcat (label[i], ui_getstring (UI_center));
-+					if (center)
-+						strcpy(setting[i],ui_getstring (UI_on));
-+					else
-+						strcpy(setting[i],ui_getstring (UI_off));
-+					if (i == sel) arrowize = 3;
-+					break;
- 			}
- 
- 			menu_item[i] = label[i];
- 			menu_subitem[i] = setting[i];
- 
-@@ -2165,10 +2204,22 @@
- 
- 				val --;
- 				if (val < 1) val = 1;
- 				entry[sel/ENTRIES]->u.analog.sensitivity = val;
- 			}
-+			else if ((sel % ENTRIES) == 3)
-+			{
-+				/* center */
-+				int val = entry[sel/ENTRIES]->u.analog.center;
-+
-+				val = !val;
-+
-+				entry[sel/ENTRIES]->u.analog.center = val;
-+			}
-+
-+			/* AdvanceMAME: Store the port changes */
-+			osd_customize_analogport_post_game(Machine->input_ports_default + (entry[sel/ENTRIES] - Machine->input_ports), entry[sel/ENTRIES]);
- 		}
- 	}
- 
- 	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
- 	{
-@@ -2195,10 +2246,22 @@
- 
- 				val ++;
- 				if (val > 255) val = 255;
- 				entry[sel/ENTRIES]->u.analog.sensitivity = val;
- 			}
-+			else if ((sel % ENTRIES) == 3)
-+			{
-+				/* center */
-+				int val = entry[sel/ENTRIES]->u.analog.center;
-+
-+				val = !val;
-+
-+				entry[sel/ENTRIES]->u.analog.center = val;
-+			}
-+
-+			/* AdvanceMAME: Store the port changes */
-+			osd_customize_analogport_post_game(Machine->input_ports_default + (entry[sel/ENTRIES] - Machine->input_ports), entry[sel/ENTRIES]);
- 		}
- 	}
- 
- 	if (input_ui_pressed(IPT_UI_SELECT))
- 	{
-@@ -2707,10 +2770,13 @@
+ 				analog[total] = 0;
+ 				seq[total] = &in->analog.decseq;
+ 				sprintf(menu_item_buffer[total], "%s Dec", input_port_name(in));
+ 				menu_item[total] = menu_item_buffer[total];
+@@ -2795,10 +2807,13 @@
  }
  
  /* Display lines from buffer, starting with line 'scroll', in a width x height text window */
  static void display_scroll_message (struct mame_bitmap *bitmap, int *scroll, int width, int height, char *buf)
  {
-+#if 1 /* AdvanceMAME has its ui code */
++#if 1 /* AdvanceMAME: Use custom ui code */
 +	osd_ui_scroll(buf, scroll);
 +#else
  	struct DisplayText dt[256];
@@ -1247,7 +973,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	const char *uparrow = ui_getstring (UI_uparrow);
  	const char *downarrow = ui_getstring (UI_downarrow);
  	char textcopy[2048];
-@@ -2813,10 +2879,11 @@
+@@ -2901,10 +2916,11 @@
  	}
  
  	dt[curr_dt].text = 0;	/* terminate array */
@@ -1259,7 +985,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  /* Display text entry for current driver from history.dat and mameinfo.dat. */
  static int displayhistory (struct mame_bitmap *bitmap, int selected)
-@@ -2844,11 +2911,13 @@
+@@ -2932,11 +2948,13 @@
  		{
  			/* try to load entry */
  			if (load_driver_history (Machine->gamedrv, buf, bufsize) == 0)
@@ -1273,70 +999,74 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				strcat(buf," ");
  				strcat(buf,ui_getstring (UI_returntomain));
  				strcat(buf," ");
-@@ -3067,16 +3136,16 @@
+@@ -3153,16 +3171,16 @@
  
  
  #ifndef MESS
- enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
+ enum { UI_SWITCH = 0,UI_DEFGROUP,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_STATS,UI_GAMEINFO, UI_HISTORY,
 -		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
 +		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
  #else
- enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
+ enum { UI_SWITCH = 0,UI_DEFGROUP,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_GAMEINFO, UI_IMAGEINFO,UI_FILEMANAGER,UI_TAPECONTROL,
- 		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,
+-		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,
 -		UI_CONFIGURATION, UI_CATEGORIES };
-+		UI_CONFIGURATION, UI_CATEGORIES,UI_OSD };
++		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD,
++		UI_CONFIGURATION, UI_CATEGORIES, };
  #endif
  
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3211,10 +3280,11 @@
+@@ -3295,10 +3313,12 @@
+ 		append_menu(UI_memorycard, UI_MEMCARD);
  	}
  #endif
  #endif
- #endif
  
++	/* AdvanceMAME: Extra menu UI_OSD */
 +	append_menu(UI_osdmenu, UI_OSD);
  	append_menu(UI_resetgame, UI_RESET);
  	append_menu(UI_returntogame, UI_EXIT);
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3279,10 +3349,13 @@
+@@ -3363,10 +3383,14 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
  				res = cheat_menu(bitmap, sel >> SEL_BITS);
  				break;
++			/* AdvanceMAME: Extra menu UI_OSD */
 +			case UI_OSD :
 +				res = osd_menu(bitmap, sel >> SEL_BITS);
 +				break;
  #ifndef MESS
  #ifndef TINY_COMPILE
- #ifndef MMSND
  			case UI_MEMCARD:
  				res = memcard_menu(bitmap, sel >> SEL_BITS);
-@@ -3333,10 +3406,11 @@
+ 				break;
+@@ -3415,10 +3439,12 @@
  			case UI_CATEGORIES:
  #endif /* !MESS */
  			case UI_HISTORY:
  			case UI_CHEAT:
  			case UI_MEMCARD:
++			/* AdvanceMAME: Extra menu UI_OSD */
 +			case UI_OSD :
  				sel |= 1 << SEL_BITS;
  				schedule_full_refresh();
  				break;
  
  			case UI_RESET:
-@@ -3373,10 +3447,13 @@
+@@ -3455,10 +3481,13 @@
  
  *********************************************************************/
  
  static void displayosd(struct mame_bitmap *bitmap,const char *text,int percentage,int default_percentage)
  {
-+#if 1 /* AdvanceMAME has its ui code */
++#if 1 /* AdvanceMAME: Use custom ui code */
 +	osd_ui_osd(text, percentage, default_percentage);
 +#else
  	struct DisplayText dt[2];
@@ -1344,7 +1074,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3398,10 +3475,11 @@
+@@ -3480,10 +3509,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -1356,7 +1086,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3431,17 +3509,17 @@
+@@ -3513,17 +3543,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1376,13 +1106,13 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3788,10 +3866,13 @@
+@@ -3870,10 +3900,13 @@
  *********************************************************************/
  
  
  static void displaymessage(struct mame_bitmap *bitmap,const char *text)
  {
-+#if 1 /* AdvanceMAME has its ui code */
++#if 1 /* AdvanceMAME: Use custom ui code */
 +	osd_ui_message(text, 0);
 +#else
  	struct DisplayText dt[2];
@@ -1390,7 +1120,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3811,10 +3892,11 @@
+@@ -3893,10 +3926,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -1402,19 +1132,19 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -3936,10 +4018,11 @@
+@@ -4018,10 +4052,11 @@
  	return show_profiler;
  }
  
  void ui_display_fps(struct mame_bitmap *bitmap)
  {
-+#if 0 /* AdvanceMAME has its ui code */
++#if 0 /* AdvanceMAME: Use custom ui code */
  	const char *text, *end;
  	char textbuf[256];
  	int done = 0;
  	int y = 0;
  
-@@ -3977,32 +4060,35 @@
+@@ -4059,32 +4094,31 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1437,10 +1167,6 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
  		save_screen_snapshot(bitmap);
-+	if (input_ui_pressed(IPT_UI_RECORD_START))
-+		osd_record_start();
-+	if (input_ui_pressed(IPT_UI_RECORD_STOP))
-+		osd_record_stop();
  
  	/* This call is for the cheat, it must be called once a frame */
  	if (options.cheat) DoCheat(bitmap);
@@ -1455,22 +1181,19 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4112,10 +4198,14 @@
+@@ -4146,11 +4180,10 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
  				save_screen_snapshot(bitmap);
  
-+			if (input_ui_pressed(IPT_UI_RECORD_START))
-+				osd_record_start();
-+			if (input_ui_pressed(IPT_UI_RECORD_STOP))
-+				osd_record_stop();
- 
+-
  			if (input_ui_pressed(IPT_UI_SAVE_STATE))
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4124,11 +4214,11 @@
+ 				do_loadsave(bitmap, LOADSAVE_LOAD);
+@@ -4158,11 +4191,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1483,7 +1206,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4207,16 +4297,18 @@
+@@ -4241,16 +4274,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);
@@ -1502,25 +1225,9 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* if the user pressed F4, show the character set */
  	if (input_ui_pressed(IPT_UI_SHOW_GFX))
  	{
-diff -U 5 --new-file --recursive src.ori/vidhrdw/aeroboto.c src/vidhrdw/aeroboto.c
---- src.ori/vidhrdw/aeroboto.c	2004-06-27 18:40:30.000000000 +0200
-+++ src/vidhrdw/aeroboto.c	2004-07-19 18:45:01.000000000 +0200
-@@ -57,11 +57,11 @@
- 		data8_t *rom, *temp;
- 		int i, length;
- 
- 		rom = memory_region(REGION_GFX2);
- 		length = memory_region_length(REGION_GFX2);
--		temp = auto_malloc(length);
-+		temp = malloc(length);
- 		memcpy(temp, rom, length);
- 
- 		for (i=0; i<length; i++) rom[(i&~0xff)+(i<<5&0xe0)+(i>>3&0x1f)] = temp[i];
- 
- 		free(temp);
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
---- src.ori/vidhrdw/voodoo.c	2004-07-19 18:44:28.000000000 +0200
-+++ src/vidhrdw/voodoo.c	2004-07-19 18:45:01.000000000 +0200
+--- src.ori/vidhrdw/voodoo.c	2004-08-07 19:16:50.000000000 +0200
++++ src/vidhrdw/voodoo.c	2004-08-07 19:18:41.000000000 +0200
 @@ -16,11 +16,11 @@
   *
   *	Math trickery
@@ -1536,7 +1243,7 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #include <float.h>
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
 --- src.ori/x86drc.c	2004-06-27 18:40:38.000000000 +0200
-+++ src/x86drc.c	2004-07-19 18:45:01.000000000 +0200
++++ src/x86drc.c	2004-08-07 19:18:41.000000000 +0200
 @@ -677,10 +677,11 @@
  
  

@@ -157,7 +157,10 @@ struct mame_analog* mame_analog_find(unsigned port);
 /***************************************************************************/
 /* Conversion */
 
-unsigned glue_port_convert(unsigned type, unsigned player, unsigned index, const char* name);
+unsigned glue_port_seq_begin(unsigned type);
+unsigned glue_port_seq_end(unsigned type);
+int glue_port_seqtype(unsigned type, unsigned index);
+unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, const char* name);
 void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsigned max);
 void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsigned mame_max);
 
@@ -174,7 +177,7 @@ struct mame_digital_map_entry {
 
 /**
  * Mask used to store the player number.
- * The player number uses 1 for player1.
+ * The player number uses 1 for player1. 0 is used for global port.
  */
 #define MAME_PORT_PLAYER_SHIFT 16
 #define MAME_PORT_PLAYER_MASK 0xff0000
@@ -200,7 +203,6 @@ struct mame_digital_map_entry {
  */
 #define MAME_PORT_INTERNAL 0xc0
 
-// TODO controllare come sono usati questi valori
 #define IPT_MAME_PORT_SAFEQUIT (MAME_PORT_INTERNAL + 0)
 #define IPT_MAME_PORT_EVENT1 (MAME_PORT_INTERNAL + 1)
 #define IPT_MAME_PORT_EVENT2 (MAME_PORT_INTERNAL + 2)
@@ -374,9 +376,6 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void osd2_info(char* buffer, unsigned size);
 void osd2_debugger_focus(int debugger_has_focus);
 void osd2_message(void);
-void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max);
-void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max);
-void osd2_customize_genericport_post_game(const char* tag, const char* value);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);

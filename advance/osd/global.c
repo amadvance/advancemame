@@ -32,9 +32,8 @@
 
 #include "emu.h"
 #include "input.h"
-#include "glue.h"
 
-#include "mame2.h"
+#include "glueint.h"
 
 #include "advance.h"
 
@@ -207,7 +206,7 @@ void osd2_message(void)
 /**
  * User customization of the language dipswitch.
  */
-static void customize_language(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_language(struct advance_global_context* context, struct InputPort* current)
 {
 	struct InputPort* i;
 	adv_bool at_least_one_found = 0;
@@ -285,7 +284,7 @@ const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 /**
  * User customization of the difficulty dipswitch.
  */
-static void customize_difficulty(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_difficulty(struct advance_global_context* context, struct InputPort* current)
 {
 	const char** names;
 	const char** names_secondary;
@@ -427,7 +426,7 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 /**
  * User customization of the freeplay dipswitch.
  */
-static void customize_freeplay(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_freeplay(struct advance_global_context* context, struct InputPort* current)
 {
 	struct InputPort* i;
 	adv_bool atleastone;
@@ -484,7 +483,7 @@ static void customize_freeplay(struct advance_global_context* context, struct In
 /**
  * User customization of the mutedemo dipswitch.
  */
-static void customize_mutedemo(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_mutedemo(struct advance_global_context* context, struct InputPort* current)
 {
 	struct InputPort* i;
 	adv_bool atleastone;
@@ -542,7 +541,7 @@ static void customize_mutedemo(struct advance_global_context* context, struct In
 /**
  * User customization of the generic dipswitches.
  */
-static void customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
+static void config_customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
 {
 	struct InputPort* i;
 
@@ -578,33 +577,41 @@ static void customize_switch(struct advance_global_context* context, adv_conf* c
 /**
  * User customization of the analog ports.
  */
-static void customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+static void config_customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
 {
 	struct InputPort* i;
 
 	i = current;
 	while (i->type != IPT_END) {
-		char name_buffer[256];
+		struct mame_analog* a;
+		unsigned port;
 
-		if (advance_input_print_analogname(name_buffer, sizeof(name_buffer), i->type, i->player + 1) == 0) {
+		port = glue_port_convert(i->type, i->player, SEQ_TYPE_STANDARD, 0);
+
+		a = mame_analog_find(port);
+		if (a) {
 			char tag_buffer[256];
 			const char* value;
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", a->name);
 
 			if (conf_autoreg_string_get(cfg_context, tag_buffer, &value) == 0) {
 				int delta;
 				int sensitivity;
 				int reverse;
-				int center;
+				int centerdelta;
 				char* d;
 
 				d = strdup(value);
-				if (advance_input_parse_analogvalue(&delta, &sensitivity, &reverse, &center, d) == 0) {
-					i->u.analog.delta = delta;
-					i->u.analog.sensitivity = sensitivity;
-					i->u.analog.reverse = reverse;
-					i->u.analog.center = center;
-					log_std(("emu:global: input set '%s %s'\n", name_buffer, value));
+				delta = i->analog.delta;
+				sensitivity = i->analog.sensitivity;
+				reverse = i->analog.reverse;
+				centerdelta = i->analog.centerdelta;
+				if (advance_input_parse_analogvalue(&delta, &sensitivity, &reverse, &centerdelta, d) == 0) {
+					i->analog.delta = delta;
+					i->analog.sensitivity = sensitivity;
+					i->analog.reverse = reverse;
+					i->analog.centerdelta = centerdelta;
+					log_std(("emu:global: input set '%s %s'\n", a->name, value));
 				} else {
 					log_std(("ERROR:emu:global: unknown '%s %s'\n", tag_buffer, value));
 				}
@@ -619,21 +626,16 @@ static void customize_analog(struct advance_global_context* context, adv_conf* c
 /**
  * User customization of the input code sequences.
  */
-static void customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+static void config_customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
 {
 	struct InputPort* i;
 
 	i = current;
 	while (i->type != IPT_END) {
-		unsigned count;
 		unsigned n;
-		if (i->type >= IPT_ANALOG_START && i->type <= IPT_ANALOG_END)
-			count = 2;
-		else
-			count = 1;
-		for(n=0;n<count;++n) {
+		for(n=glue_port_seq_begin(i->type);n<glue_port_seq_end(i->type);++n) {
 			struct mame_port* p;
-			p = mame_port_find(glue_port_convert(i->type, i->player + 1, n, i->name));
+			p = mame_port_find(glue_port_convert(i->type, i->player, glue_port_seqtype(i->type, n), i->name));
 			if (p != 0) {
 				char tag_buffer[64];
 				const char* value;
@@ -647,7 +649,7 @@ static void customize_input(struct advance_global_context* context, adv_conf* cf
 					if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
 						if (seq[0] != DIGITAL_SPECIAL_AUTO) {
 							log_std(("emu:global: input game seq '%s %s'\n", p->name, value));
-							glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq[n], SEQ_MAX);
+							glue_seq_convertback(seq, INPUT_MAP_MAX, glue_port_seq_get(i, glue_port_seqtype(i->type, n))->code, SEQ_MAX);
 						}
 					} else {
 						log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
@@ -662,16 +664,61 @@ static void customize_input(struct advance_global_context* context, adv_conf* cf
 	}
 }
 
+static struct InputPortDefinition* config_portdef_find(struct InputPortDefinition* list, unsigned type)
+{
+	while (list->type != IPT_END && list->type != type)
+		++list;
+
+	assert(list->type != IPT_END);
+
+	if (list->type == IPT_END)
+		return 0;
+
+	return list;
+}
+
 /**
  * Customization of the GLOBAL ports.
  * These are system depended customization and are used to
  * to change the defaults values.
  */
-void osd_customize_inputport_defaults(struct ipd* defaults)
+void osd_customize_inputport_list(struct InputPortDefinition* defaults)
 {
-	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
+	struct InputPortDefinition* i;
 
-	/* no specific OS customization */
+	log_std(("emu:global: osd_customize_inputport_defaults()\n"));
+
+	i = config_portdef_find(defaults, IPT_UI_HELP);
+	seq_set_1(&i->defaultseq, KEYCODE_F1_REAL);
+	i->name = "Help";
+
+	i = config_portdef_find(defaults, IPT_UI_RECORD_START);
+	seq_set_2(&i->defaultseq, KEYCODE_ENTER, KEYCODE_LCONTROL);
+	i->name = "Record Start";
+
+	i = config_portdef_find(defaults, IPT_UI_RECORD_STOP);
+	seq_set_3(&i->defaultseq, KEYCODE_ENTER, CODE_NOT, KEYCODE_LCONTROL);
+	i->name = "Record Stop";
+
+	i = config_portdef_find(defaults, IPT_UI_TURBO);
+	seq_set_1(&i->defaultseq, KEYCODE_ASTERISK);
+	i->name = "Turbo";
+
+	i = config_portdef_find(defaults, IPT_UI_COCKTAIL);
+	seq_set_1(&i->defaultseq, KEYCODE_SLASH_PAD);
+	i->name = "Cocktail";
+
+	i = config_portdef_find(defaults, IPT_UI_STARTUP_END);
+	seq_set_1(&i->defaultseq, KEYCODE_MINUS_PAD);
+	i->name = "Startup End";
+
+	i = config_portdef_find(defaults, IPT_UI_MODE_NEXT);
+	seq_set_1(&i->defaultseq, KEYCODE_STOP);
+	i->name = "Mode Next";
+
+	i = config_portdef_find(defaults, IPT_UI_MODE_PRED);
+	seq_set_1(&i->defaultseq, KEYCODE_COMMA);
+	i->name = "Mode Pred";
 }
 
 /**
@@ -680,24 +727,19 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
  * to allow the user to restore the original values
  * if he want.
  */
-void osd_customize_inputport_pre_defaults(struct ipd* defaults)
+void osd_config_load_default(struct InputPortDefinition* backup, struct InputPortDefinition* list)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
-	struct ipd* i = defaults;
+	struct InputPortDefinition* i;
 
 	log_std(("emu:global: osd_customize_inputport_pre_defaults()\n"));
 
+	i = list;
 	while (i->type != IPT_END) {
-		unsigned count;
 		unsigned n;
-		if (i->type >= IPT_ANALOG_START && i->type <= IPT_ANALOG_END)
-			count = 2;
-		else
-			count = 1;
-		for(n=0;n<count;++n) {
+		for(n=glue_port_seq_begin(i->type);n<glue_port_seq_end(i->type);++n) {
 			struct mame_port* p;
-
-			p = mame_port_find(glue_port_convert(i->type, i->player, n, i->name));
+			p = mame_port_find(glue_port_convert(i->type, i->player, glue_port_seqtype(i->type, n), i->name));
 			if (p != 0) {
 				char tag_buffer[64];
 				const char* value;
@@ -711,7 +753,7 @@ void osd_customize_inputport_pre_defaults(struct ipd* defaults)
 					if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) == 0) {
 						if (seq[0] != DIGITAL_SPECIAL_AUTO) {
 							log_std(("emu:global: input default seq '%s %s'\n", p->name, value));
-							glue_seq_convertback(seq, INPUT_MAP_MAX, i->seq[n], SEQ_MAX);
+							glue_seq_convertback(seq, INPUT_MAP_MAX, glue_portdef_seq_get(i, glue_port_seqtype(i->type, n))->code, SEQ_MAX);
 						}
 					} else {
 						log_std(("ERROR:emu:global: error parsing '%s %s'\n", tag_buffer, value));
@@ -732,7 +774,7 @@ void osd_customize_inputport_pre_defaults(struct ipd* defaults)
  * to allow the user to restore the original values
  * if he want.
  */
-void osd_customize_inputport_pre_game(struct InputPort* current)
+void osd_config_load(struct InputPort* backup, struct InputPort* list)
 {
 	struct advance_global_context* context = &CONTEXT.global;
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -740,18 +782,18 @@ void osd_customize_inputport_pre_game(struct InputPort* current)
 
 	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
 
-	customize_language(context, current);
-	customize_difficulty(context, current);
-	customize_freeplay(context, current);
-	customize_mutedemo(context, current);
+	config_customize_language(context, list);
+	config_customize_difficulty(context, list);
+	config_customize_freeplay(context, list);
+	config_customize_mutedemo(context, list);
 
-	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
+	config_customize_switch(context, cfg_context, game, list, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
 #ifdef MESS
-	customize_switch(context, cfg_context, game, current, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
+	config_customize_switch(context, cfg_context, game, list, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
 #endif
 
-	customize_analog(context, cfg_context, game, current);
-	customize_input(context, cfg_context, game, current);
+	config_customize_analog(context, cfg_context, game, list);
+	config_customize_input(context, cfg_context, game, list);
 }
 
 /**
@@ -759,17 +801,305 @@ void osd_customize_inputport_pre_game(struct InputPort* current)
  * Used for both dipswitch and analog ports.
  * Called with a null value to delete the customization.
  */
-void osd2_customize_genericport_post_game(const char* tag, const char* value)
+static void config_save_generic(const char* tag, const char* value)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
 	const mame_game* game = CONTEXT.game;
 
-	log_std(("emu:global: osd2_customize_port_post_game(%s,%s)\n", tag, value));
+	log_debug(("emu:global: osd2_customize_port_post_game(%s,%s)\n", tag, value));
 
 	if (value) {
 		conf_autoreg_string_set(cfg_context, mame_game_name(game), tag, value);
 	} else {
 		conf_autoreg_remove(cfg_context, mame_game_name(game), tag);
+	}
+}
+
+/**
+ * Called after a user customization of a GLOBAL input code combination.
+ * Called with an null/empty sequence to delete the customization.
+ */
+static void config_save_seq_default(unsigned port, unsigned* seq, unsigned seq_max)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const struct mame_port* p;
+
+	if (seq)
+		log_debug(("global: config_save_seq_default(%d, set)\n", port));
+	else
+		log_debug(("global: config_save_seq_default(%d, clear)\n", port));
+
+	p = mame_port_find(port);
+	if (p) {
+		char tag_buffer[64];
+		char value_buffer[512];
+
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+		if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
+			log_std(("global: customize port default %s\n", tag_buffer));
+
+			conf_remove(cfg_context, "", tag_buffer);
+		} else {
+			advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+			log_std(("global: customize port %s %s\n", tag_buffer, value_buffer));
+
+			conf_string_set(cfg_context, "", tag_buffer, value_buffer);
+		}
+	} else {
+		log_debug(("WARNING:global: customization for unknown port %d not saved\n", port));
+	}
+}
+
+/**
+ * Called after a user customization of a GAME input code combination.
+ * Called with an null/empty sequence to delete the customization.
+ */
+static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
+{
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const mame_game* game = CONTEXT.game;
+	const struct mame_port* p;
+
+	if (seq)
+		log_debug(("global: config_save_seq(%d, set)\n", port));
+	else
+		log_debug(("global: config_save_seq(%d, clear)\n", port));
+
+	p = mame_port_find(port);
+	if (p) {
+		char tag_buffer[64];
+		char value_buffer[512];
+
+		log_std(("global: setup port %s\n", p->name));
+
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+
+		if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
+			log_std(("global: customize port default %s/%s\n", mame_section_name(game, cfg_context), tag_buffer));
+
+			conf_remove(cfg_context, mame_section_name(game, cfg_context), tag_buffer);
+		} else {
+			advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+			log_std(("global: customize port %s/%s %s\n", mame_section_name(game, cfg_context), tag_buffer, value_buffer));
+
+			conf_string_set(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
+		}
+	} else {
+		log_debug(("WARNING:global: customization for unknown port %d not saved\n", port));
+	}
+}
+
+/**
+ * Called after a user customization of a GAME input code combination.
+ * \param def Default value of the input code combination.
+ * \param current User chosen value of the input code combination.
+ */
+static void config_save_seqport(struct InputPort* def, struct InputPort* current, int seqtype)
+{
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned port;
+
+	log_debug(("global: config_save_seqport()\n"));
+
+	glue_seq_convert(glue_port_seq_get(current, seqtype)->code, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(glue_port_seq_get(def, seqtype)->code, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	port = glue_port_convert(current->type, current->player, seqtype, current->name);
+
+	if (seq[0] != DIGITAL_SPECIAL_AUTO
+		&& memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		config_save_seq(port, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		config_save_seq(port, 0, 0);
+	}
+}
+
+/**
+ * Called after a user customization of a GLOBAL input code combination.
+ * \param def Default value of the input code combination.
+ * \param current User chosen value of the input code combination.
+ */
+static void config_save_seqport_default(struct InputPortDefinition* def, struct InputPortDefinition* current, int seqtype)
+{
+	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned seq[MAME_INPUT_MAP_MAX];
+	unsigned port;
+
+	log_debug(("global: config_save_seqport_default()\n"));
+
+	glue_seq_convert(glue_portdef_seq_get(current, seqtype)->code, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
+	glue_seq_convert(glue_portdef_seq_get(def, seqtype)->code, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	port = glue_port_convert(current->type, current->player, seqtype, current->name);
+
+	assert(seq[0] != DIGITAL_SPECIAL_AUTO);
+	assert(def_seq[0] != DIGITAL_SPECIAL_AUTO);
+
+	if (memcmp(def_seq, seq, sizeof(def_seq)) != 0) {
+		config_save_seq_default(port, seq, MAME_INPUT_MAP_MAX);
+	} else {
+		config_save_seq_default(port, 0, 0);
+	}
+}
+
+/**
+ * Called after a user customization of a dipswitch.
+ * \param def Default value of the dipswitch.
+ * \param current User chosen value of the dipswitch.
+ */
+static void config_save_switchport(struct InputPort* def, struct InputPort* current)
+{
+	char name_buffer[256];
+	char tag_buffer[256];
+	char value_buffer[256];
+	struct InputPort* v;
+	const char* tag;
+	unsigned type;
+
+	log_debug(("global: config_save_switchport()\n"));
+
+	switch (current->type) {
+	case IPT_DIPSWITCH_NAME :
+		tag = "input_dipswitch";
+		type = IPT_DIPSWITCH_SETTING;
+		break;
+#ifdef MESS
+	case IPT_CONFIG_NAME :
+		tag = "input_configswitch";
+		type = IPT_CONFIG_SETTING;
+		break;
+#endif
+	default:
+		log_std(("WARNING:global: unknown switchport %d\n", current->type));
+		return;
+	}
+
+	if (strcmp(current->name, DEF_STR(Unused))==0 || strcmp(current->name, DEF_STR(Unknown))==0) {
+		log_std(("WARNING:global: ignoring named Unknown/Unused switchport %d\n", current->type));
+		return;
+	}
+
+	mame_name_adjust(name_buffer, sizeof(name_buffer), current->name);
+
+	v = current + 1;
+	while (v->type == type) {
+		if ((v->default_value & current->mask) == (current->default_value & current->mask)) {
+			break;
+		}
+		++v;
+	}
+
+	if (v->type != type) {
+		log_std(("ERROR:global: Unknown switchport %s value %d\n", name_buffer, current->default_value));
+		return;
+	}
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
+
+	if ((def->default_value & current->mask) != (current->default_value & current->mask)) {
+		mame_name_adjust(value_buffer, sizeof(value_buffer), v->name);
+		config_save_generic(tag_buffer, value_buffer);
+	} else {
+		config_save_generic(tag_buffer, 0);
+	}
+}
+
+/**
+ * Called after a user customization of GAME analog port.
+ * \param def Default value of the analog port.
+ * \param current User chosen value of the analog port.
+ */
+static void config_save_analogport(struct InputPort* def, struct InputPort* current)
+{
+	char value_buffer[256];
+	char default_buffer[256];
+	char tag_buffer[256];
+	unsigned port;
+	struct mame_analog* a;
+
+	log_debug(("global: config_save_analogport()\n"));
+
+	port = glue_port_convert(current->type, current->player, SEQ_TYPE_STANDARD, 0);
+
+	a = mame_analog_find(port);
+	if (!a) {
+		log_debug(("WARNING:global: unknown analog port %d\n", port));
+		return;
+	}
+
+	advance_input_print_analogvalue(value_buffer, sizeof(value_buffer), current->analog.delta, current->analog.sensitivity, current->analog.reverse != 0, current->analog.centerdelta);
+	advance_input_print_analogvalue(default_buffer, sizeof(default_buffer), def->analog.delta, def->analog.sensitivity, def->analog.reverse != 0, def->analog.centerdelta);
+
+	snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", a->name);
+
+	if (strcmp(value_buffer, default_buffer) != 0) {
+		config_save_generic(tag_buffer, value_buffer);
+	} else {
+		config_save_generic(tag_buffer, 0);
+	}
+}
+
+void osd_config_save_default(struct InputPortDefinition* backup, struct InputPortDefinition* list)
+{
+	struct InputPortDefinition* i;
+	struct InputPortDefinition* j;
+
+	i = list;
+	j = backup;
+	while (i->type != IPT_END) {
+		unsigned type = i->type;
+		unsigned k;
+
+		if (i->name != 0) {
+			switch (type) {
+			default:
+				for(k=glue_port_seq_begin(type);k!=glue_port_seq_end(type);++k) {
+					config_save_seqport_default(j, i, glue_port_seqtype(type, k));
+				}
+				break;
+			}
+		}
+
+		++i;
+		++j;
+	}
+}
+
+void osd_config_save(struct InputPort* backup, struct InputPort* list)
+{
+	struct InputPort* i;
+	struct InputPort* j;
+
+	i = list;
+	j = backup;
+	while (i->type != IPT_END) {
+		unsigned type = i->type;
+		adv_bool analog = port_type_is_analog(type);
+		unsigned k;
+
+		if (input_port_active(i)) {
+			switch (type) {
+			case IPT_DIPSWITCH_NAME :
+			case IPT_CONFIG_NAME :
+				config_save_switchport(j, i);
+				break;
+			default:
+				if (analog) {
+					config_save_analogport(j, i);
+				}
+				for(k=glue_port_seq_begin(type);k!=glue_port_seq_end(type);++k) {
+					config_save_seqport(j, i, glue_port_seqtype(type, k));
+				}
+				break;
+			}
+		}
+
+		++i;
+		++j;
 	}
 }
 

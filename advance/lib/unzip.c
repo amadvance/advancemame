@@ -350,4 +350,3 @@ int zip_readcompress(adv_zip* zip, adv_zipent* ent, char* data)
 	return 0;
 }
 
-

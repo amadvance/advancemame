@@ -203,16 +203,16 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ BTN_Z, "z" }, /* gamepad */
 		#endif
 		#ifdef BTN_TL
-		{ BTN_TL, "tl" }, /* gamepad */
+		{ BTN_TL, "tl" }, /* gamepad (top left) */
 		#endif
 		#ifdef BTN_TR
-		{ BTN_TR, "tr" }, /* gamepad */
+		{ BTN_TR, "tr" }, /* gamepad (top right) */
 		#endif
 		#ifdef BTN_TL2
-		{ BTN_TL2, "tl2" }, /* gamepad */
+		{ BTN_TL2, "tl2" }, /* gamepad (top left 2) */
 		#endif
 		#ifdef BTN_TR2
-		{ BTN_TR2, "tr2" }, /* gamepad */
+		{ BTN_TR2, "tr2" }, /* gamepad (top right 2) */
 		#endif
 		#ifdef BTN_SELECT
 		{ BTN_SELECT, "select" }, /* gamepad */
@@ -224,10 +224,10 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ BTN_MODE, "mode" }, /* gamepad */
 		#endif
 		#ifdef BTN_THUMBL
-		{ BTN_THUMBL, "thumbl" }, /* gamepad */
+		{ BTN_THUMBL, "thumbl" }, /* gamepad (thumb left) */
 		#endif
 		#ifdef BTN_THUMBR
-		{ BTN_THUMBR, "thumbr" }, /* gamepad */
+		{ BTN_THUMBR, "thumbr" }, /* gamepad (thumb right) */
 		#endif
 		#ifdef BTN_GEAR_DOWN
 		{ BTN_GEAR_DOWN, "gear_down" }, /* wheel */
@@ -306,7 +306,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* IT:volante */
 		#endif
 		#ifdef ABS_HAT0X
-		{ { { ABS_HAT0X, "x" }, { ABS_HAT0Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat" },
+		{ { { ABS_HAT0X, "x" }, { ABS_HAT0Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat" }, /* IT:mini joystick digitale */
 		#endif
 		#ifdef ABS_HAT1X
 		{ { { ABS_HAT1X, "x" }, { ABS_HAT1Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat2" },
@@ -346,13 +346,13 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ REL_Z, "z" },
 		#endif
 		#ifdef REL_WHEEL
-		{ REL_WHEEL, "wheel" },
+		{ REL_WHEEL, "wheel" }, /* (IT: rotella del mouse verticale) */
 		#endif
 		#ifdef REL_HWHEEL
-		{ REL_HWHEEL, "hwheel" },
+		{ REL_HWHEEL, "hwheel" }, /* (IT: rotella del mouse orizzontale) */
 		#endif
 		#ifdef REL_DIAL
-		{ REL_DIAL, "dial" },
+		{ REL_DIAL, "dial" }, /* (IT: manopola che gira) */
 		#endif
 		#ifdef REL_MISC
 		{ REL_MISC, "misc" }

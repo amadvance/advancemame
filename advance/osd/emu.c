@@ -410,7 +410,48 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_map[doubleleft_up]", "*", "%s", "input_map[p1_doubleleft_up]", "%s", 0 }, /* rename */
 { "*", "input_map[doubleleft_down]", "*", "%s", "input_map[p1_doubleleft_down]", "%s", 0 }, /* rename */
 { "*", "input_map[doubleleft_left]", "*", "%s", "input_map[p1_doubleleft_left]", "%s", 0 }, /* rename */
-{ "*", "input_map[doubleleft_right]", "*", "%s", "input_map[p1_doubleleft_right]", "%s", 0 } /* rename */
+{ "*", "input_map[doubleleft_right]", "*", "%s", "input_map[p1_doubleleft_right]", "%s", 0 }, /* rename */
+/* 0.85.0 */
+{ "*", "input_map[p1_trakx]", "*", "%s", "input_map[p1_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_traky]", "*", "%s", "input_map[p1_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_trakx]", "*", "%s", "input_map[p2_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_traky]", "*", "%s", "input_map[p2_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_trakx]", "*", "%s", "input_map[p3_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_traky]", "*", "%s", "input_map[p3_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_trakx]", "*", "%s", "input_map[p4_trackballx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_traky]", "*", "%s", "input_map[p4_trackbally]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_x]", "*", "%s", "input_map[p1_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_y]", "*", "%s", "input_map[p1_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_z]", "*", "%s", "input_map[p1_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_x]", "*", "%s", "input_map[p2_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_y]", "*", "%s", "input_map[p2_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_z]", "*", "%s", "input_map[p2_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_x]", "*", "%s", "input_map[p3_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_y]", "*", "%s", "input_map[p3_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_z]", "*", "%s", "input_map[p3_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_x]", "*", "%s", "input_map[p4_stickx]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_y]", "*", "%s", "input_map[p4_sticky]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_z]", "*", "%s", "input_map[p4_stickz]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_pedal]", "*", "%s", "input_map[p1_pedalgas]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_pedal]", "*", "%s", "input_map[p2_pedalgas]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_pedal]", "*", "%s", "input_map[p3_pedalgas]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_pedal]", "*", "%s", "input_map[p4_pedalgas]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_pedal1]", "*", "%s", "input_map[p1_pedalgas_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_pedal2]", "*", "%s", "input_map[p1_pedalbrake_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_pedal1]", "*", "%s", "input_map[p2_pedalgas_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_pedal2]", "*", "%s", "input_map[p2_pedalbrake_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_pedal1]", "*", "%s", "input_map[p3_pedalgas_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_pedal2]", "*", "%s", "input_map[p3_pedalbrake_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_pedal1]", "*", "%s", "input_map[p4_pedalgas_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_pedal2]", "*", "%s", "input_map[p4_pedalbrake_push]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_pedal1_autorelease]", "*", "%s", "input_map[p1_pedalgas_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p1_pedal2_autorelease]", "*", "%s", "input_map[p1_pedalbrake_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_pedal1_autorelease]", "*", "%s", "input_map[p2_pedalgas_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p2_pedal2_autorelease]", "*", "%s", "input_map[p2_pedalbrake_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_pedal1_autorelease]", "*", "%s", "input_map[p3_pedalgas_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p3_pedal2_autorelease]", "*", "%s", "input_map[p3_pedalbrake_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_pedal1_autorelease]", "*", "%s", "input_map[p4_pedalgas_release]", "%s", 0 }, /* rename */
+{ "*", "input_map[p4_pedal2_autorelease]", "*", "%s", "input_map[p4_pedalbrake_release]", "%s", 0 }, /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

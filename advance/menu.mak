@@ -1,5 +1,5 @@
 ############################################################################
-# Menu build
+# system
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
@@ -10,14 +10,12 @@ MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/mpglib \
-	-I$(srcdir)/advance/expat \
 	-DUSE_BLIT_TINY
 MENUOBJDIRS += \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
-	$(MENUOBJ)/mpglib \
-	$(MENUOBJ)/expat
+	$(MENUOBJ)/mpglib
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
@@ -87,12 +85,7 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/decode.o \
 	$(MENUOBJ)/mpglib/dct64.o \
 	$(MENUOBJ)/mpglib/layer3.o \
-	$(MENUOBJ)/mpglib/tabinit.o \
-	$(MENUOBJ)/expat/xmlrole.o \
-	$(MENUOBJ)/expat/xmltok.o \
-	$(MENUOBJ)/expat/xmlparse.o
-
-MENULIBS += $(ZLIBS) -lm
+	$(MENUOBJ)/mpglib/tabinit.o
 
 ifeq ($(CONF_SYSTEM),unix)
 
@@ -420,6 +413,53 @@ MENULIBS += $(FREETYPELIBS)
 endif
 endif
 
+############################################################################
+# expat
+
+$(MENUOBJ)/libexpat.a: $(MENUOBJ)/expat/xmlparse.o $(MENUOBJ)/expat/xmlrole.o $(MENUOBJ)/expat/xmltok.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_EXPAT),yes)
+MENULIBS += -lexpat
+else
+CFLAGS += \
+	-I$(srcdir)/advance/expat
+MENUDIRS += \
+	$(MENUOBJ)/expat
+MENULIBS += \
+	$(MENUOBJ)/libexpat.a
+endif
+
+############################################################################
+# zlib
+
+$(MENUOBJ)/libz.a: $(MENUOBJ)/zlib/adler32.o $(MENUOBJ)/zlib/crc32.o $(MENUOBJ)/zlib/deflate.o \
+	$(MENUOBJ)/zlib/inffast.o $(MENUOBJ)/zlib/inflate.o \
+	$(MENUOBJ)/zlib/infback.o $(MENUOBJ)/zlib/inftrees.o $(MENUOBJ)/zlib/trees.o \
+	$(MENUOBJ)/zlib/zutil.o $(MENUOBJ)/zlib/uncompr.o $(MENUOBJ)/zlib/compress.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_ZLIB),yes)
+MENULIBS += -lz
+else
+CFLAGS += \
+	-I$(srcdir)/advance/zlib
+MENUDIRS += \
+	$(MENUOBJ)/zlib
+MENULIBS += \
+	$(MENUOBJ)/libz.a
+endif
+
+############################################################################
+# m
+
+ADVANCELIBS += -lm
+
+############################################################################
+# menu
+
 ifeq ($(CONF_MAP),yes)
 MENULDFLAGS += -Xlinker -Map -Xlinker $(MENUOBJ)/advmenu.map
 endif
@@ -619,14 +659,16 @@ distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $
 	cp $(SVGALIBSVGAWINDRIVER_SRC) $(MENU_DIST_DIR_SRC)/advance/svgalib/svgawin/driver
 	mkdir $(MENU_DIST_DIR_SRC)/advance/mpglib
 	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/mpglib
-	mkdir $(MENU_DIST_DIR_SRC)/advance/expat
-	cp $(EXPAT_SRC) $(MENU_DIST_DIR_SRC)/advance/expat
 	mkdir $(MENU_DIST_DIR_SRC)/advance/v
 	cp $(V_SRC) $(MENU_DIST_DIR_SRC)/advance/v
 	mkdir $(MENU_DIST_DIR_SRC)/advance/cfg
 	cp $(CFG_SRC) $(MENU_DIST_DIR_SRC)/advance/cfg
 	mkdir $(MENU_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(MENU_DIST_DIR_SRC)/advance/d2
+	mkdir $(MENU_DIST_DIR_SRC)/advance/expat
+	cp $(EXPAT_SRC) $(MENU_DIST_DIR_SRC)/advance/expat
+	mkdir $(MENU_DIST_DIR_SRC)/advance/zlib
+	cp $(ZLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/zlib
 	mkdir $(MENU_DIST_DIR_SRC)/contrib
 	mkdir $(MENU_DIST_DIR_SRC)/contrib/menu
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_SRC)/contrib/menu

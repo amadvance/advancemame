@@ -8,96 +8,103 @@ bool isname(char c) {
 	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c=='_';
 }
 
-class detect {
-	unsigned len;
-	const char* tag;
-	unsigned match;
-	bool complete;
-	bool pred_sep;
-public:
-	detect(const char* s);
+bool match(const string& s, unsigned i, const string& token)
+{
+	return s.substr(i, token.length()) == token;
+}
 
-	void process(char c);
-	bool is() const;
+enum state_t {
+	state_code,
+	state_declaration,
+	state_char,
+	state_string,
+	state_comment,
+	state_commentline
 };
 
-detect::detect(const char* s) {
-	len = strlen(s);
-	tag = s;
-	match = 0;
-	complete = false;
-	pred_sep = true;
-}
-
-bool detect::is() const
+void subs(string& s)
 {
-	return complete;
-}
-
-void detect::process(char c)
-{
-	if (c=='\n') {
-		match = 0;
-		complete = false;
-		pred_sep = true;
-	} else if (complete) {
-	} else if (match == 0) {
-		if (pred_sep && c==tag[0])
-			match = 1;
-	} else if (match == len) {
-		if (!isname(c)) {
-			complete = true;
-		} else {
-			match = 0;
-		}
-	} else {
-		if (c==tag[match])
-			++match;
-		else
-			match = 0;
-	}
-
-	pred_sep = !isname(c);
-}
-
-void subs(string& s) {
 	unsigned i = 0;
-	bool zero_start = false;
-	bool in_string = false;
+	state_t state = state_code;
 	char pred = 0;
-	char begin_string = 0;
 
 	while (i < s.length()) {
-		if (!in_string && pred==',' && !isspace(s[i])) {
-			s.insert(i, " ");
-		}
+		char next_pred = s[i];
 
-		if (!in_string) {
-			if (s[i]=='\'' || s[i] == '\"') {
-				in_string = true;
-				begin_string = s[i];
+		switch (state) {
+		case state_declaration :
+			if (match(s, i, ") {\n"))
+				s[i+1] = '\n';
+			/* nobreak */
+		case state_code :
+			if (match(s, i, " )"))
+				s.erase(i, 1);
+			if (match(s, i, "( "))
+				s.erase(i+1, 1);
+
+			if (s[i] == ',' && !isspace(s[i+1]))
+				s.insert(i+1, " ");
+			if (s[i] == '\'')
+				state = state_char;
+			if (s[i] == '\"')
+				state = state_string;
+			if (match(s, i, "//"))
+				state = state_commentline;
+			if (match(s, i, "/*"))
+				state = state_comment;
+
+			if (s[i] == '\n') {
+				if ((i+1<s.length()) && !isspace(s[i+1])
+					&& !match(s, i, "\nstruct")
+					&& !match(s, i, "\nclass")
+					&& !match(s, i, "\nunion")
+					&& !match(s, i, "\nenum")
+					&& !match(s, i, "\ntypedef")
+				) {
+					state = state_declaration;
+				} else {
+					state = state_code;
+				}
 			}
-		} else {
-			if (s[i] == begin_string && pred != '\\') {
-				in_string = false;
+			break;
+		case state_comment :
+			if (match(s, i, "*/"))
+				state = state_code;
+			break;
+		case state_commentline :
+			if (s[i] == '\n')
+				state = state_code;
+			break;
+		case state_string :
+			if (s[i] == '\\' && pred == '\\')
+				next_pred = ' '; /* prevent incorrect detection of "\\" */
+			if (s[i] == '\"' && pred != '\\')
+				state = state_code;
+			if (s[i] == '\n') {
+				cerr << "Invalid return in a string" << endl;
+				abort();
 			}
+			break;
+		case state_char :
+			if (s[i] == '\\' && pred == '\\')
+				next_pred = ' '; /* prevent incorrect detection of '\\' */
+			if (s[i] == '\'' && pred != '\\')
+				state = state_code;
+			if (s[i] == '\n') {
+				cerr << "Invalid return in a string" << endl;
+				abort();
+			}
+			break;
 		}
 
-		if (pred == '\n') {
-			zero_start = !isspace(s[i]);
-		}
-
-		if (zero_start && s[i]==')' && s[i+1]==' ' && s[i+2]=='{' && s[i+3]=='\n') {
-			s[i+1] = '\n';
-		}
-
-		pred = s[i];
+		pred = next_pred;
 
 		++i;
 	}
 }
 
-void process(const char* path) {
+void process(const char* path)
+{
 	ifstream fi(path);
 	if (!fi) {
 		cerr << "Error opening for reading" << path << endl;
@@ -105,7 +112,7 @@ void process(const char* path) {
 	}
 
 	string s;
-	getline(fi,s,(char)EOF);
+	getline(fi, s, (char)EOF);
 	if (fi.bad()) {
 		cerr << "Error reading" << path << endl;
 		exit(1);
@@ -130,13 +137,17 @@ void process(const char* path) {
 	fo.close();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	int i;
 	if (argc < 2) {
 		cout << "Syntax: adj files..." << endl;
 		exit(0);
 	}
+
 	for(i=1;i<argc;++i)
 		process(argv[i]);
+
 	return 0;
 }
+

@@ -28,10 +28,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "portable.h"
 
 #include "blit.h"
@@ -101,9 +97,10 @@ static void blit_has_capability(adv_bool* mmx, adv_bool* sse)
 	}
 }
 
-/* Support the the both condition. MMX present or not */
+/* Support both the conditions: MMX present or not */
 adv_bool the_blit_mmx = 0;
 adv_bool the_blit_sse = 0;
+adv_bool the_blit_direct = 0;
 
 #define BLITTER(name) (the_blit_mmx ? name##_mmx : name##_def)
 
@@ -129,6 +126,7 @@ static inline void internal_end(void)
 
 #define the_blit_mmx 0
 #define the_blit_sse 0
+
 #define BLITTER(name) (name##_def)
 
 static adv_error blit_cpu(void)

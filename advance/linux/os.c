@@ -258,6 +258,7 @@ static void* os_thread_function(void* arg)
 
 static int os_thread(void)
 {
+#ifdef NDEBUG /* disable on debugging */
 	pthread_t pid;
 	pid_t process_id;
  
@@ -277,6 +278,7 @@ static int os_thread(void)
 	} else {
 		log_std(("os: thread_id is different than process_id. Probably LinuxThread threading.\n"));
 	}
+#endif
 
 	return 0;
 }
@@ -286,6 +288,10 @@ int os_inner_init(const char* title)
 {
 	const char* display;
 	struct utsname uts;
+	struct sigaction term_action;
+	struct sigaction quit_action;
+	struct sigaction hup_action;
+	struct sigaction pipe_action;
 #ifdef USE_SDL
 	SDL_version compiled;
 #endif
@@ -503,52 +509,46 @@ int os_inner_init(const char* title)
 	sncpy(OS.title_buffer, sizeof(OS.title_buffer), title);
 
 	/* set some signal handlers */
-	{
-		struct sigaction term_action;
-		struct sigaction quit_action;
-		struct sigaction hup_action;
-		struct sigaction pipe_action;
 
-		/* STANDARD signals */
-		term_action.sa_handler = (void (*)(int))os_signal;
-		/* block external generated signals in the signal handler */
-		sigemptyset(&term_action.sa_mask);
-		sigaddset(&term_action.sa_mask, SIGALRM);
-		sigaddset(&term_action.sa_mask, SIGINT);
-		sigaddset(&term_action.sa_mask, SIGTERM);
-		sigaddset(&term_action.sa_mask, SIGHUP);
-		sigaddset(&term_action.sa_mask, SIGQUIT);
-		term_action.sa_flags = SA_RESTART | SA_SIGINFO;
-		/* external generated */
-		sigaction(SIGALRM, &term_action, 0);
-		sigaction(SIGINT, &term_action, 0);
-		sigaction(SIGTERM, &term_action, 0);
-		/* internal generated */
-		sigaction(SIGABRT, &term_action, 0);
-		sigaction(SIGFPE, &term_action, 0);
-		sigaction(SIGILL, &term_action, 0);
-		sigaction(SIGSEGV, &term_action, 0);
-		sigaction(SIGBUS, &term_action, 0);
+	/* STANDARD signals */
+	term_action.sa_handler = (void (*)(int))os_signal;
+	/* block external generated signals in the signal handler */
+	sigemptyset(&term_action.sa_mask);
+	sigaddset(&term_action.sa_mask, SIGALRM);
+	sigaddset(&term_action.sa_mask, SIGINT);
+	sigaddset(&term_action.sa_mask, SIGTERM);
+	sigaddset(&term_action.sa_mask, SIGHUP);
+	sigaddset(&term_action.sa_mask, SIGQUIT);
+	term_action.sa_flags = SA_RESTART | SA_SIGINFO;
+	/* external generated */
+	sigaction(SIGALRM, &term_action, 0);
+	sigaction(SIGINT, &term_action, 0);
+	sigaction(SIGTERM, &term_action, 0);
+	/* internal generated */
+	sigaction(SIGABRT, &term_action, 0);
+	sigaction(SIGFPE, &term_action, 0);
+	sigaction(SIGILL, &term_action, 0);
+	sigaction(SIGSEGV, &term_action, 0);
+	sigaction(SIGBUS, &term_action, 0);
 
-		/* HUP signal */
-		hup_action.sa_handler = os_hup_signal;
-		sigemptyset(&hup_action.sa_mask);
-		hup_action.sa_flags = SA_RESTART;
-		sigaction(SIGHUP, &hup_action, 0);
+	/* HUP signal */
+	hup_action.sa_handler = os_hup_signal;
+	sigemptyset(&hup_action.sa_mask);
+	hup_action.sa_flags = SA_RESTART;
+	sigaction(SIGHUP, &hup_action, 0);
 
-		/* QUIT signal */
-		quit_action.sa_handler = os_quit_signal;
-		sigemptyset(&quit_action.sa_mask);
-		quit_action.sa_flags = SA_RESTART;
-		sigaction(SIGQUIT, &quit_action, 0);
+	/* QUIT signal */
+	quit_action.sa_handler = os_quit_signal;
+	sigemptyset(&quit_action.sa_mask);
+	quit_action.sa_flags = SA_RESTART;
+	sigaction(SIGQUIT, &quit_action, 0);
 
-		/* PIPE signal, ignoring it force the some functions to */
-		/* return with error. It happen for example on the LCD sockets. */
-		pipe_action.sa_handler = SIG_IGN;
-		sigemptyset(&pipe_action.sa_mask);
-		pipe_action.sa_flags = SA_RESTART;
-		sigaction(SIGPIPE, &pipe_action, 0);
-	}
+	/* PIPE signal, ignoring it force some functions to */
+	/* return with error. It happen for example on the LCD sockets. */
+	pipe_action.sa_handler = SIG_IGN;
+	sigemptyset(&pipe_action.sa_mask);
+	pipe_action.sa_flags = SA_RESTART;
+	sigaction(SIGPIPE, &pipe_action, 0);
 
 	return 0;
 }

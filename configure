@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_SYSTEM CONF_HOST EXE_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA ZLIBS CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_SYSTEM CONF_HOST EXE_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -867,6 +867,8 @@ Optional Features:
   --enable-asm-mips3      enable the Pentium assembler MIPS3 emulator (default
                           auto)
   --enable-debugger       enable the emulator debugger (default no)
+  --enable-zlib           enable the use of the zlib library. (default auto)
+  --enable-expat          enable the use of the expat library. (default auto)
   --enable-svgalib        enable the use of the SVGALIB library. (default
                           auto)
   --enable-fb             enable the use of the Frame Buffer library. (default
@@ -7685,8 +7687,16 @@ if test $ac_system = dos; then
 fi
 
 # Checks for zlib
+# Check whether --enable-zlib or --disable-zlib was given.
+if test "${enable_zlib+set}" = set; then
+  enableval="$enable_zlib"
+  ac_lib_zlib=$enableval
+else
+  ac_lib_zlib=auto
 
-echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
+fi;
+if test $ac_lib_zlib = auto; then
+	echo "$as_me:$LINENO: checking for adler32 in -lz" >&5
 echo $ECHO_N "checking for adler32 in -lz... $ECHO_C" >&6
 if test "${ac_cv_lib_z_adler32+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -7751,21 +7761,109 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_z_adler32" >&5
 echo "${ECHO_T}$ac_cv_lib_z_adler32" >&6
 if test $ac_cv_lib_z_adler32 = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBZ 1
-_ACEOF
-
-  LIBS="-lz $LIBS"
-
+  ac_lib_zlib=yes
 else
-  { { echo "$as_me:$LINENO: error: the zlib library is required" >&5
-echo "$as_me: error: the zlib library is required" >&2;}
-   { (exit 1); exit 1; }; }
+  ac_lib_zlib=no
 
 fi
 
-ZLIBS="-lz"
-ZLIBS=$ZLIBS
+fi
+if test $ac_lib_zlib = yes; then
+	ac_lib_other="$ac_lib_other zlib"
+else
+	ac_lib_other="$ac_lib_other zlib(internal)"
+fi
+CONF_LIB_ZLIB=$ac_lib_zlib
+
+
+# Checks for expat
+# Check whether --enable-expat or --disable-expat was given.
+if test "${enable_expat+set}" = set; then
+  enableval="$enable_expat"
+  ac_lib_expat=$enableval
+else
+  ac_lib_expat=auto
+
+fi;
+if test $ac_lib_expat = auto; then
+	echo "$as_me:$LINENO: checking for XML_ParserCreate in -lexpat" >&5
+echo $ECHO_N "checking for XML_ParserCreate in -lexpat... $ECHO_C" >&6
+if test "${ac_cv_lib_expat_XML_ParserCreate+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lexpat  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char XML_ParserCreate ();
+int
+main ()
+{
+XML_ParserCreate ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_expat_XML_ParserCreate=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_expat_XML_ParserCreate=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_expat_XML_ParserCreate" >&5
+echo "${ECHO_T}$ac_cv_lib_expat_XML_ParserCreate" >&6
+if test $ac_cv_lib_expat_XML_ParserCreate = yes; then
+  ac_lib_expat=yes
+else
+  ac_lib_expat=no
+
+fi
+
+fi
+if test $ac_lib_expat = yes; then
+	ac_lib_other="$ac_lib_other expat"
+else
+	ac_lib_other="$ac_lib_other expat(internal)"
+fi
+CONF_LIB_EXPAT=$ac_lib_expat
 
 
 # Checks for svgalib
@@ -11104,7 +11202,8 @@ s,@CONF_DEBUGGER@,$CONF_DEBUGGER,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@ALLOCA@,$ALLOCA,;t t
-s,@ZLIBS@,$ZLIBS,;t t
+s,@CONF_LIB_ZLIB@,$CONF_LIB_ZLIB,;t t
+s,@CONF_LIB_EXPAT@,$CONF_LIB_EXPAT,;t t
 s,@CONF_LIB_SVGALIB@,$CONF_LIB_SVGALIB,;t t
 s,@CONF_LIB_FB@,$CONF_LIB_FB,;t t
 s,@CONF_LIB_ALSA@,$CONF_LIB_ALSA,;t t
@@ -11646,13 +11745,13 @@ else
 fi
 
 echo ""
-echo "== Drivers =="
+echo "== Drivers/Libraries =="
 echo "Video :" $ac_lib_video
 echo "Sound :" $ac_lib_sound
 echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
-echo "Other :" $ac_lib_other
+echo "Misc :" $ac_lib_other
 echo ""
 
 if test $ac_enable_debug = no ; then

@@ -1,5 +1,5 @@
 ############################################################################
-# EMU Target and System
+# system
 
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/osd \
@@ -11,8 +11,6 @@ OBJDIRS += \
 	$(OBJ)/advance/lib \
 	$(OBJ)/advance/osd \
 	$(OBJ)/advance/blit
-
-ADVANCELIBS += $(ZLIBS) -lm
 
 ifeq ($(CONF_SYSTEM),unix)
 
@@ -352,7 +350,54 @@ endif
 endif
 
 ############################################################################
-# EMU build
+# expat
+
+$(OBJ)/advance/libexpat.a: $(OBJ)/advance/expat/xmlparse.o $(OBJ)/advance/expat/xmlrole.o $(OBJ)/advance/expat/xmltok.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_EXPAT),yes)
+ADVANCELIBS += -lexpat
+else
+CFLAGS += \
+	-I$(srcdir)/advance/expat
+OBJDIRS += \
+	$(OBJ)/advance/expat
+EMULIBS += \
+	$(OBJ)/advance/libexpat.a
+endif
+
+############################################################################
+# zlib
+
+$(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o $(OBJ)/advance/zlib/deflate.o \
+	$(OBJ)/advance/zlib/inffast.o $(OBJ)/advance/zlib/inflate.o \
+	$(OBJ)/advance/zlib/infback.o $(OBJ)/advance/zlib/inftrees.o $(OBJ)/advance/zlib/trees.o \
+	$(OBJ)/advance/zlib/zutil.o $(OBJ)/advance/zlib/uncompr.o $(OBJ)/advance/zlib/compress.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_ZLIB),yes)
+ADVANCELIBS += -lz
+EMUCHDMANLIBS += -lz
+else
+CFLAGS += \
+	-I$(srcdir)/advance/zlib
+OBJDIRS += \
+	$(OBJ)/advance/zlib
+EMULIBS += \
+	$(OBJ)/advance/libz.a
+EMUCHDMANLIBS += \
+	$(OBJ)/advance/libz.a
+endif
+
+############################################################################
+# m
+
+ADVANCELIBS += -lm
+
+############################################################################
+# emu
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
@@ -381,6 +426,9 @@ endif
 EMUCFLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
+	$(COREOBJS)
+
+ADVANCEOBJS += \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
 	$(OBJ)/advance/osd/global.o \
@@ -459,7 +507,10 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/error.o \
 	$(OBJ)/advance/lib/wave.o
 
-EMUCHDMANOBJS = \
+EMULIBS += \
+	$(DRVLIBS)
+
+EMUCHDMANOBJS += \
 	$(OBJ)/chdman.o \
 	$(OBJ)/chd.o \
 	$(OBJ)/chdcd.o \
@@ -467,20 +518,27 @@ EMUCHDMANOBJS = \
 	$(OBJ)/md5.o \
 	$(OBJ)/version.o
 
+############################################################################
+# advance compile
+
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
-	$(ECHO) $@ $(MSG) 
+	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
 
+$(OBJ)/advance/libadv.a: $(ADVANCEOBJS)
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
 ############################################################################
-# EMU MAME specific build
+# emu compile
 
 # Target CFLAGS
 ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
@@ -575,9 +633,9 @@ endif
 
 EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(DRVLIBS)
+$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(OBJ)/advance/libadv.a $(EMULIBS) $(EMUOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(OBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(EMUOBJS) $(OBJ)/advance/libadv.a $(EMULIBS) $(ADVANCELIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
 ifeq ($(CONF_DEBUG),yes)
 	$(RM) $(EMUNAME)d$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
@@ -586,9 +644,9 @@ else
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 endif
 
-$(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS)
+$(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUCHDMANOBJS) $(ZLIBS) $(LDFLAGS) -o $@
+	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLIBS) $(LDFLAGS) -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -929,6 +987,10 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	cp $(LINE_SRC) $(EMU_DIST_DIR_SRC)/advance/line
 	mkdir $(EMU_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(EMU_DIST_DIR_SRC)/advance/d2
+	mkdir $(EMU_DIST_DIR_SRC)/advance/zlib
+	cp $(ZLIB_SRC) $(EMU_DIST_DIR_SRC)/advance/zlib
+	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
+	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame

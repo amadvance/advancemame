@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.8 2004/08
+
 AdvanceMENU Version 2.3.7 2004/07
 	) Fixed a Mac OS X crash problem with XML files with
 		empty items.

@@ -360,14 +360,48 @@ if test $ac_system = dos; then
 fi
 
 # Checks for zlib
-AC_CHECK_LIB(
-	[z],
-	[adler32],
-	[],
-	AC_MSG_ERROR([the zlib library is required])
+AC_ARG_ENABLE(
+	[zlib],
+	AC_HELP_STRING([--enable-zlib],[enable the use of the zlib library. (default auto)]),
+	[ac_lib_zlib=$enableval],
+	[ac_lib_zlib=auto]
 )
-ZLIBS="-lz"
-AC_SUBST([ZLIBS],[$ZLIBS])
+if test $ac_lib_zlib = auto; then
+	AC_CHECK_LIB(
+		[z],
+		[adler32],
+		[ac_lib_zlib=yes],
+		[ac_lib_zlib=no]
+	)
+fi
+if test $ac_lib_zlib = yes; then
+	ac_lib_other="$ac_lib_other zlib"
+else
+	ac_lib_other="$ac_lib_other zlib(internal)"
+fi
+AC_SUBST([CONF_LIB_ZLIB],[$ac_lib_zlib])
+
+# Checks for expat
+AC_ARG_ENABLE(
+	[expat],
+	AC_HELP_STRING([--enable-expat],[enable the use of the expat library. (default auto)]),
+	[ac_lib_expat=$enableval],
+	[ac_lib_expat=auto]
+)
+if test $ac_lib_expat = auto; then
+	AC_CHECK_LIB(
+		[expat],
+		[XML_ParserCreate],
+		[ac_lib_expat=yes],
+		[ac_lib_expat=no]
+	)
+fi
+if test $ac_lib_expat = yes; then
+	ac_lib_other="$ac_lib_other expat"
+else
+	ac_lib_other="$ac_lib_other expat(internal)"
+fi
+AC_SUBST([CONF_LIB_EXPAT],[$ac_lib_expat])
 
 # Checks for svgalib
 AC_ARG_ENABLE(
@@ -1028,13 +1062,13 @@ else
 fi
 
 echo ""
-echo "== Drivers =="
+echo "== Drivers/Libraries =="
 echo "Video :" $ac_lib_video
 echo "Sound :" $ac_lib_sound
 echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
-echo "Other :" $ac_lib_other
+echo "Misc :" $ac_lib_other
 echo ""
 
 if test $ac_enable_debug = no ; then

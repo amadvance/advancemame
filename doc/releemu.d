@@ -1,6 +1,12 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.85.0
+	This version of AdvanceMAME tries always to use the installed
+	zlib and expat libraries. If you want to use the copy included
+	in the source of these libraries you must run the ./configure
+	script with the arguments --disable-zlib and --disable-expat.
+
 AdvanceMAME 0.84.0
 	This version of AdvanceMAME is based on the MAME update
 	0.84u3. The original MAME 0.84 version has some problems

@@ -31,11 +31,11 @@
 
 #include "portable.h"
 
-#include "mame2.h"
-
 #include "input.h"
 #include "emu.h"
 #include "hscript.h"
+
+#include "glueint.h"
 
 #include "advance.h"
 
@@ -43,7 +43,7 @@
 /* MAME/OS equivalence */
 
 /**
- * Equivalence from a system code and a MAME code.
+ * Equivalence from a os code and a MAME code.
  */
 struct input_equiv {
 	int os_code;
@@ -51,9 +51,9 @@ struct input_equiv {
 };
 
 /**
- * Equivalence from system key code and MAME key code.
+ * Equivalence from os codes and MAME codes.
  */
-static struct input_equiv input_keyequiv_map[] = {
+static struct input_equiv input_equiv_map[] = {
 { DIGITAL_KBD(0, KEYB_A), KEYCODE_A },
 { DIGITAL_KBD(0, KEYB_B), KEYCODE_B },
 { DIGITAL_KBD(0, KEYB_C), KEYCODE_C },
@@ -155,13 +155,7 @@ static struct input_equiv input_keyequiv_map[] = {
 { DIGITAL_KBD(0, KEYB_ALTGR), KEYCODE_RALT },
 { DIGITAL_KBD(0, KEYB_SCRLOCK), KEYCODE_SCRLOCK },
 { DIGITAL_KBD(0, KEYB_NUMLOCK), KEYCODE_NUMLOCK },
-{ DIGITAL_KBD(0, KEYB_CAPSLOCK), KEYCODE_CAPSLOCK }
-};
-
-/**
- * Equivalence from system joystick/mouse code and MAME joystick/mouse code.
- */
-static struct input_equiv input_joyequiv_map[] = {
+{ DIGITAL_KBD(0, KEYB_CAPSLOCK), KEYCODE_CAPSLOCK },
 { DIGITAL_JOY(0, 0, 0, 1), JOYCODE_1_LEFT },
 { DIGITAL_JOY(0, 0, 0, 0), JOYCODE_1_RIGHT },
 { DIGITAL_JOY(0, 0, 1, 1), JOYCODE_1_UP },
@@ -208,14 +202,9 @@ static struct input_equiv input_joyequiv_map[] = {
 /* MAME input map */
 
 /**
- * Used to store the key list for MAME.
+ * Used to store the input list for MAME.
  */
-static struct KeyboardInfo input_key_map[INPUT_DIGITAL_MAX];
-
-/**
- * Used to store the joystick/mouse list for MAME.
- */
-static struct JoystickInfo input_joy_map[INPUT_DIGITAL_MAX];
+static struct OSCodeInfo input_code_map[INPUT_DIGITAL_MAX];
 
 /**************************************************************************/
 /* Names */
@@ -224,21 +213,59 @@ static struct JoystickInfo input_joy_map[INPUT_DIGITAL_MAX];
 #define INPUT_NAME_MAX 64
 
 /**
- * Used to store the key names.
+ * Used to store the names.
  */
-static char input_keyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
+static char input_name_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
 
-/**
- * Used to store the joystick/mouse names.
- */
-static char input_joyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
+/** Analog inputs. */
+/*@{*/
+#define INPUT_ANALOG_PADDLE_X 0
+#define INPUT_ANALOG_PADDLE_Y 1
+#define INPUT_ANALOG_STICK_X 2
+#define INPUT_ANALOG_STICK_Y 3
+#define INPUT_ANALOG_STICK_Z 4
+#define INPUT_ANALOG_LIGHTGUN_X 5
+#define INPUT_ANALOG_LIGHTGUN_Y 6
+#define INPUT_ANALOG_PEDAL 7
+#define INPUT_ANALOG_PEDAL2 8
+#define INPUT_ANALOG_PEDAL3 9
+#define INPUT_ANALOG_DIAL_X 10
+#define INPUT_ANALOG_DIAL_Y 11
+#define INPUT_ANALOG_TRACKBALL_X 12
+#define INPUT_ANALOG_TRACKBALL_Y 13
+#define INPUT_ANALOG_MOUSE_X 14
+#define INPUT_ANALOG_MOUSE_Y 15
+/*@}*/
 
-static char* input_analog_map_desc[INPUT_ANALOG_MAX] = {
-	"x", "y", "z", "pedal"
+struct analog_axe_info {
+	const char* control;
+	const char* axe;
 };
 
-static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
-	"trakx", "traky"
+struct analog_info {
+	unsigned index;
+	const char* name;
+	struct analog_axe_info map[8];
+};
+
+struct analog_info ANALOG_INFO[] = {
+{ INPUT_ANALOG_PADDLE_X, "paddlex", { { "stick", "x" }, { "relative", "x" } } },
+{ INPUT_ANALOG_PADDLE_Y, "paddley", { { "stick", "y" }, { "relative", "y" } } },
+{ INPUT_ANALOG_STICK_X, "stickx", { { "stick", "x" }, { "wheel", "mono" }, { "relative", "x" }, { "stick", "rx" }, { "rudder", "mono" }, { "throttle", "mono" } } },
+{ INPUT_ANALOG_STICK_Y, "sticky", { { "stick", "y" }, { "relative", "y" }, { "stick", "ry" } } },
+{ INPUT_ANALOG_STICK_Z, "stickz", { { "stick", "z" } } },
+{ INPUT_ANALOG_LIGHTGUN_X, "lightgunx", { { "stick", "x" }, { "relative", "x" } } },
+{ INPUT_ANALOG_LIGHTGUN_Y, "lightguny", { { "stick", "y" }, { "relative", "y" } } },
+{ INPUT_ANALOG_PEDAL, "pedalgas", { { "gas", "mono" } } },
+{ INPUT_ANALOG_PEDAL2, "pedalbrake", { { "brake", "mono" } } },
+{ INPUT_ANALOG_PEDAL3, "pedalother", { } },
+{ INPUT_ANALOG_DIAL_X, "dialx", { { "relative", "dial" }, { "relative", "x" }, { "stick", "x" } } },
+{ INPUT_ANALOG_DIAL_Y, "dialy", { { "relative", "y" }, { "stick", "y" } } },
+{ INPUT_ANALOG_TRACKBALL_X, "trackballx", { { "relative", "x" }, { "stick", "x" } } },
+{ INPUT_ANALOG_TRACKBALL_Y, "trackbally", { { "relative", "y" }, { "stick", "y" } } },
+{ INPUT_ANALOG_MOUSE_X, "mousex", { { "relative", "x" }, { "stick", "x" } } },
+{ INPUT_ANALOG_MOUSE_Y, "mousey", { { "relative", "y" }, { "stick", "y" } } },
+{ 0, 0 }
 };
 
 /**************************************************************************/
@@ -582,56 +609,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 
 			map[mac] = ANALOG_JOY(joystick, stick, axe, negate);
 			++mac;
-		} else {
-			error_set("Unknown '%s'", t);
-			return -1;
-		}
-
-		sskip(&p, s, " \t");
-
-		first = 0;
-	}
-
-	return 0;
-}
-
-static adv_error parse_trak(unsigned* map, char* s)
-{
-	int p;
-	unsigned mac;
-	unsigned i;
-	adv_bool first;
-
-	/* initialize */
-	for(i=0;i<INPUT_MAP_MAX;++i)
-		map[i] = 0;
-
-	/* parse */
-	first = 1;
-	mac = 0;
-	p = 0;
-	sskip(&p, s, " \t");
-	while (s[p]) {
-		char c;
-		const char* t;
-		const char* v0;
-		const char* v1;
-
-		t = stoken(&c, &p, s, "[ \t", " \t");
-		if (first && strcmp(t,"auto")==0) {
-			sskip(&p, s, " \t");
-
-			if (s[p] || c == '[') {
-				error_set("Wrong use of 'auto'");
-				return -1;
-			}
-
-			map[0] = ANALOG_SPECIAL_AUTO;
-
-			return 0;
-		}
-
-		if (strcmp(t, "mouse")==0 || strcmp(t, "-mouse")==0) {
+		} else if (strcmp(t, "mouse")==0 || strcmp(t, "-mouse")==0) {
 			int mouse, axe;
 			adv_bool negate;
 			
@@ -722,6 +700,7 @@ static adv_error parse_trak(unsigned* map, char* s)
 			error_set("Unknown '%s'", t);
 			return -1;
 		}
+
 
 		sskip(&p, s, " \t");
 
@@ -1038,7 +1017,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 	return 0;
 }
 
-static void output_digital(char* buffer, unsigned buffer_size, unsigned* seq_map, unsigned seq_max)
+void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* seq_map, unsigned seq_max)
 {
 	unsigned i;
 
@@ -1244,15 +1223,9 @@ static adv_error parse_inputname(char* s)
 
 	/* look up code in all the tables */
 	found = 0;
-	for(i=0;input_key_map[i].name;++i) {
-		if (input_key_map[i].code == code) {
-			sncpy(input_key_map[i].name, INPUT_NAME_MAX, name);
-			found = 1;
-		}
-	}
-	for(i=0;input_joy_map[i].name;++i) {
-		if (input_joy_map[i].code == code) {
-			sncpy(input_joy_map[i].name, INPUT_NAME_MAX, name);
+	for(i=0;input_code_map[i].name;++i) {
+		if (input_code_map[i].oscode == code) {
+			sncpy(input_code_map[i].name, INPUT_NAME_MAX, name);
 			found = 1;
 		}
 	}
@@ -1292,72 +1265,92 @@ adv_error advance_input_parse_analogname(unsigned* port, const char* buffer)
 	return 0;
 }
 
-adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* center, char* buffer)
+adv_error advance_input_parse_analogvalue(int* keydelta, int* sensitivity, int* reverse, int* centerdelta, char* buffer)
 {
-	const char* v0;
-	const char* v1;
-	const char* v2;
-	const char* v3;
-	char c;
 	int p;
+	unsigned n;
 
 	p = 0;
+	n = 0;
+	while (buffer[p]) {
+		char* token;
+		const char* tag;
+		const char* value;
+		int q;
+		char c;
 
-	v0 = stoken(&c, &p, buffer, ",", "");
-	if (c != ',')
-		return -1;
-	v1 = stoken(&c, &p, buffer, ",", "");
-	if (c != ',')
-		return -1;
-	v2 = stoken(&c, &p, buffer, ",", "");
-	if (c != ',')
-		return -1;
-	v3 = stoken(&c, &p, buffer, "", "");
-	if (c != 0)
-		return -1;
+		token = (char*)stoken(&c, &p, buffer, ",", "");
+		if (c != ',' && c != 0)
+			return -1;
 
-	*delta = atoi(v0);
-	*sensitivity = atoi(v1);
-	if (strcmp(v2,"reverse") == 0)
-		*reverse = 1;
-	else if (strcmp(v2,"noreverse") == 0)
-		*reverse = 0;
-	else
-		return -1;
-	if (strcmp(v3,"center") == 0)
-		*center = 1;
-	else if (strcmp(v3,"nocenter") == 0)
-		*center = 0;
-	else
-		return -1;
+		q = 0;
+		tag = stoken(&c, &q, token, ":", "");
+		if (c != ':' && c != 0)
+			return -1;
+		if (c == 0) { /* LEGACY for 0.84 */
+			value = tag;
+			switch (n) {
+			case 0 : tag = "keydelta"; break;
+			case 1 : tag = "sensitivity"; break;
+			case 2 : tag = "reverse"; break;
+			case 3 : tag = "centerdelta"; break;
+			default : tag = "none"; break;
+			}
+		} else {
+			value = stoken(&c, &q, token, "", "");
+			if (c != 0)
+				return -1;
+		}
 
-	return 0;
-}
+		if (strcmp(tag, "keydelta") == 0) {
+			*keydelta = atoi(value);
+			if (*keydelta < 1)
+				*keydelta = 1;
+			if (*keydelta > 255)
+				*keydelta = 255;
+		} else if (strcmp(tag, "sensitivity") == 0) {
+			*sensitivity = atoi(value);
+			if (*sensitivity < 1)
+				*sensitivity = 1;
+			if (*sensitivity > 255)
+				*sensitivity = 255;
+		} else if (strcmp(tag, "reverse") == 0) {
+			if (strcmp(value,"reverse") == 0 || strcmp(value,"1") == 0)
+				*reverse = 1;
+			else if (strcmp(value,"noreverse") == 0 || strcmp(value,"0") == 0)
+				*reverse = 0;
+			else {
+				/* ignore */
+			}
+		} else if (strcmp(tag, "centerdelta") == 0) {
+			if (strcmp(value, "nocenter") == 0) { /* LEGACY for 0.84 */
+				*centerdelta = 0;
+			} else if (strcmp(value, "center") == 0) { /* LEGACY for 0.84 */
+				/* nothing */
+			} else {
+				*centerdelta = atoi(value);
+				if (*centerdelta < 0)
+					*centerdelta = 0;
+				if (*centerdelta > 255)
+					*centerdelta = 255;
+			}
+		} else {
+			/* ignore */
+		}
 
-int advance_input_print_analogname(char* buffer, unsigned buffer_size, unsigned type, unsigned player)
-{
-	struct mame_analog* a;
-
-	unsigned port = MAME_PORT_PLAYER(type, player);
-
-	a = mame_analog_find(port);
-	if (!a) {
-		log_std(("WARNING:emu:input: unknown analog port %d,%d\n", type, player));
-		return -1;
+		++n;
 	}
 
-	snprintf(buffer, buffer_size, "%s", a->name);
-
 	return 0;
 }
 
-void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center)
+void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int centerdelta)
 {
-	snprintf(buffer, buffer_size, "%d,%d,%s,%s",
+	snprintf(buffer, buffer_size, "keydelta:%d,centerdelta:%d,sensitivity:%d,reverse:%d",
 		delta,
+		centerdelta,
 		sensitivity,
-		reverse != 0 ? "reverse" : "noreverse",
-		center != 0 ? "center" : "nocenter"
+		reverse != 0
 	);
 }
 
@@ -1539,7 +1532,6 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 	return 0;
 }
 
-
 /**************************************************************************/
 /* Input */
 
@@ -1581,136 +1573,71 @@ static void input_keyboard_update(struct advance_input_context* context)
 	}
 }
 
-static unsigned search_joy_axe(unsigned player, const char* stick_name, const char* axe_name)
+static unsigned search_analog_control(unsigned player, const char* stick_name, const char* axe_name, unsigned* map, unsigned mac, unsigned max)
 {
-	unsigned axe;
-	unsigned stick;
+	if (strcmp(stick_name, "relative") == 0) {
+		unsigned axe;
 
-	if (player < joystickb_count_get()) {
-		for(stick=0;stick<joystickb_stick_count_get(player);++stick) {
-			if (strcmp(stick_name, joystickb_stick_name_get(player, stick)) == 0) {
-				for(axe=0;axe<joystickb_stick_axe_count_get(player, stick);++axe) {
-					if (strcmp(axe_name, joystickb_stick_axe_name_get(player, stick, axe)) == 0) {
-						return ANALOG_JOY(player, stick, axe, 0);
+		if (player < mouseb_count_get()) {
+			for(axe=0;axe<mouseb_axe_count_get(player);++axe) {
+				if (strcmp(axe_name, mouseb_axe_name_get(player, axe)) == 0) {
+					if (mac < max) {
+						map[mac] = ANALOG_MOUSE(player, axe, 0);
+						++mac;
+					}
+				}
+			}
+		}
+
+		if (player < joystickb_count_get()) {
+			for(axe=0;axe<joystickb_rel_count_get(player);++axe) {
+				if (strcmp(axe_name, joystickb_rel_name_get(player, axe)) == 0) {
+					if (mac < max) {
+						map[mac] = ANALOG_BALL(player, axe, 0);
+						++mac;
+					}
+				}
+			}
+		}
+
+	} else {
+		unsigned axe;
+		unsigned stick;
+
+		if (player < joystickb_count_get()) {
+			for(stick=0;stick<joystickb_stick_count_get(player);++stick) {
+				if (strcmp(stick_name, joystickb_stick_name_get(player, stick)) == 0) {
+					for(axe=0;axe<joystickb_stick_axe_count_get(player, stick);++axe) {
+						if (strcmp(axe_name, joystickb_stick_axe_name_get(player, stick, axe)) == 0) {
+							if (mac < max) {
+								map[mac] = ANALOG_JOY(player, stick, axe, 0);
+								++mac;
+							}
+						}
 					}
 				}
 			}
 		}
 	}
 
-	return ANALOG_SPECIAL_NONE;
-}
-
-static unsigned search_mouse_axe(unsigned player, const char* axe_name)
-{
-	unsigned axe;
-
-	if (player < mouseb_count_get()) {
-		for(axe=0;axe<mouseb_axe_count_get(player);++axe) {
-			if (strcmp(axe_name, mouseb_axe_name_get(player, axe)) == 0) {
-				return ANALOG_MOUSE(player, axe, 0);
-			}
-		}
-	}
-
-	return ANALOG_SPECIAL_NONE;
+	return mac;
 }
 
 static void input_setup_config(struct advance_input_context* context)
 {
-	unsigned i, j;
+	unsigned i, j, k;
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		unsigned mac;
-		unsigned v;
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
+			if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+				unsigned mac;
 
-		/* This code tries to map the input device to the axe */
-		/* effectively used by MAME. It's an hack heavily depended */
-		/* on the current MAME behaviour (at present version 0.71). */
-		/* A better approach is not possible due limitations of the */
-		/* MAME input interface */
-
-		/* To check the present MAME behaviour see the update_analog_port() */
-		/* function in the inpport.c file */
-
-		j = 0; /* X_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "rx");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "hat", "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "wheel", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "rudder", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 1; /* Y_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "ry");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "hat", "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 2; /* Z_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "z");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "rz");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "brake", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 3; /* PEDAL_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "gas", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-	}
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		j = 0; /* trakx */
-		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			unsigned mac = 0;
-			unsigned v = search_mouse_axe(i, "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.trak_map[i][j].seq[mac++] = v;
-			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 1; /* traky */
-		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			unsigned mac = 0;
-			unsigned v = search_mouse_axe(i, "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.trak_map[i][j].seq[mac++] = v;
-			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
+				mac = 0;
+				for(k=0;ANALOG_INFO[j].map[k].control;++k) {
+					mac = search_analog_control(i, ANALOG_INFO[j].map[k].control, ANALOG_INFO[j].map[k].axe, context->config.analog_map[i][j].seq, mac, INPUT_MAP_MAX - 1);
+				}
+				context->config.analog_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
+			}
 		}
 	}
 }
@@ -1763,49 +1690,34 @@ static void input_setup_log(struct advance_input_context* context)
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		for(j=0;j<INPUT_ANALOG_MAX;++j) {
-			log_std(("emu:input: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
+			log_std(("emu:input: input analog mapping player:%d control:%s :", i, ANALOG_INFO[j].name));
 			for(k=0;k<INPUT_MAP_MAX;++k) {
 				unsigned v = context->config.analog_map[i][j].seq[k];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
-					unsigned j = ANALOG_JOY_DEV_GET(v);
+					unsigned d = ANALOG_JOY_DEV_GET(v);
 					unsigned s = ANALOG_JOY_STICK_GET(v);
 					unsigned a = ANALOG_JOY_AXE_GET(v);
 					adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
 					if (negate)
-						log_std((" -joystick[%d,%d,%d]", j, s, a));
+						log_std((" -joystick[%d,%d,%d]", d, s, a));
 					else
-						log_std((" joystick[%d,%d,%d]", j, s, a));
-				} else {
-					if (k == 0)
-						log_std((" <none>"));
-					break;
-				}
-			}
-			log_std(("\n"));
-		}
-	}
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			log_std(("emu:input: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
-			for(k=0;k<INPUT_MAP_MAX;++k) {
-				unsigned v = context->config.trak_map[i][j].seq[k];
-				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-					unsigned m = ANALOG_MOUSE_DEV_GET(v);
+						log_std((" joystick[%d,%d,%d]", d, s, a));
+				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+					unsigned d = ANALOG_MOUSE_DEV_GET(v);
 					unsigned a = ANALOG_MOUSE_AXE_GET(v);
 					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
 					if (negate)
-						log_std((" -mouse[%d,%d]", m, a));
+						log_std((" -mouse[%d,%d]", d, a));
 					else
-						log_std((" mouse[%d,%d]", m, a));
+						log_std((" mouse[%d,%d]", d, a));
 				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
-					unsigned m = ANALOG_BALL_DEV_GET(v);
+					unsigned d = ANALOG_BALL_DEV_GET(v);
 					unsigned a = ANALOG_BALL_AXE_GET(v);
 					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
 					if (negate)
-						log_std((" -joystick_ball[%d,%d]", m, a));
+						log_std((" -joystick_ball[%d,%d]", d, a));
 					else
-						log_std((" joystick_ball[%d,%d]", m, a));
+						log_std((" joystick_ball[%d,%d]", d, a));
 				} else {
 					if (k == 0)
 						log_std((" <none>"));
@@ -1822,7 +1734,7 @@ static void input_setup_list(struct advance_input_context* context)
 	unsigned i, j, k;
 	unsigned mac;
 
-	/* fill the joystick/mouse vector */
+	/* fill the code vector */
 	mac = 0;
 
 	/* add the available mouse buttons */
@@ -1830,11 +1742,12 @@ static void input_setup_list(struct advance_input_context* context)
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_DIGITAL_MAX) {
 				if (i == 0)
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
 				else
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i,j));
-				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i, j);
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i,j));
+				input_code_map[mac].name = input_name_map[mac];
+				input_code_map[mac].oscode = DIGITAL_MOUSE_BUTTON(i, j);
+				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
 			}
 		}
@@ -1846,20 +1759,22 @@ static void input_setup_list(struct advance_input_context* context)
 			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
 				if (mac+1 < INPUT_DIGITAL_MAX) {
 					if (i == 0)
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
 					else
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					input_code_map[mac].name = input_name_map[mac];
+					input_code_map[mac].oscode = DIGITAL_JOY(i, j, k, 0);
+					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
 				}
 				if (mac+1 < INPUT_DIGITAL_MAX) {
 					if (i == 0)
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
 					else
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 1);
+						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					input_code_map[mac].name = input_name_map[mac];
+					input_code_map[mac].oscode = DIGITAL_JOY(i, j, k, 1);
+					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
 				}
 			}
@@ -1868,46 +1783,28 @@ static void input_setup_list(struct advance_input_context* context)
 		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_DIGITAL_MAX) {
 				if (i == 0)
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
 				else
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
-				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i, j);
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
+				input_code_map[mac].name = input_name_map[mac];
+				input_code_map[mac].oscode = DIGITAL_JOY_BUTTON(i, j);
+				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
 			}
 		}
 	}
 
-	/* terminate the joystick vector */
-	input_joy_map[mac].name = 0;
-	input_joy_map[mac].code = 0;
-	input_joy_map[mac].standardcode = 0;
-
-	log_std(("emu:input: input digital joystick code %d\n", mac));
-
-	/* set the equivalence */
-	for(i=0;i<mac;++i) {
-		input_joy_map[i].standardcode = CODE_OTHER;
-		for(j=0;j<sizeof(input_joyequiv_map)/sizeof(input_joyequiv_map[0]);++j) {
-			if (input_joyequiv_map[j].os_code == input_joy_map[i].code) {
-				input_joy_map[i].standardcode = input_joyequiv_map[j].mame_code;
-				break;
-			}
-		}
-	}
-
-	/* fill the keyboard vector */
-	mac = 0;
 	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
 		for(j=0;j<KEYB_MAX;++j) {
 			if (keyb_has(i, j)) {
 				if (mac+1 < INPUT_DIGITAL_MAX) {
 					if (i == 0)
-						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "%s", key_name(j));
+						snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "%s", key_name(j));
 					else
-						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "k%d:%s", i+1, key_name(j));
-					input_key_map[mac].name = input_keyname_map[mac];
-					input_key_map[mac].code = DIGITAL_KBD(i, j);
+						snprintf(input_name_map[mac], sizeof(input_name_map[mac]), "k%d:%s", i+1, key_name(j));
+					input_code_map[mac].name = input_name_map[mac];
+					input_code_map[mac].oscode = DIGITAL_KBD(i, j);
+					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
 				}
 			}
@@ -1915,22 +1812,21 @@ static void input_setup_list(struct advance_input_context* context)
 	}
 
 	/* terminate the keyboard vector */
-	input_key_map[mac].name = 0;
-	input_key_map[mac].code = 0;
-	input_key_map[mac].standardcode = 0;
+	input_code_map[mac].name = 0;
+	input_code_map[mac].oscode = 0;
+	input_code_map[mac].inputcode = 0;
 
-	/* set the equivalence */
+	/* set the known inputcodes */
 	for(i=0;i<mac;++i) {
-		input_key_map[i].standardcode = CODE_OTHER;
-		for(j=0;j<sizeof(input_keyequiv_map)/sizeof(input_keyequiv_map[0]);++j) {
-			if (input_keyequiv_map[j].os_code == input_key_map[i].code) {
-				input_key_map[i].standardcode = input_keyequiv_map[j].mame_code;
+		for(j=0;j<sizeof(input_equiv_map)/sizeof(input_equiv_map[0]);++j) {
+			if (input_equiv_map[j].os_code == input_code_map[i].oscode) {
+				input_code_map[i].inputcode = input_equiv_map[j].mame_code;
 				break;
 			}
 		}
 	}
 
-	log_std(("emu:input: input digital keyboard code %d\n", mac));
+	log_std(("emu:input: input code vector %d\n", mac));
 }
 
 static void input_setup_init(struct advance_input_context* context)
@@ -1999,7 +1895,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 		for(j=0;j<INPUT_ANALOG_MAX;++j) {
 			char tag_buffer[32];
 			char* d;
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, ANALOG_INFO[j].name);
 
 			s = conf_string_get_default(cfg_context, tag_buffer);
 			d = strdup(s);
@@ -2007,26 +1903,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
-				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE].\n");
-				return -1;
-			}
-			free(d);
-		}
-	}
-
-	/* trak */
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			char tag_buffer[32];
-			char* d;
-
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
-			s = conf_string_get_default(cfg_context, tag_buffer);
-			d = strdup(s);
-			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
-				free(d);
-				target_err("Invalid argument '%s' for option '%s'.\n%s.\n", s, tag_buffer, error_get());
-				target_err("Valid format is [-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE].\n");
+				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE]/[-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE].\n");
 				return -1;
 			}
 			free(d);
@@ -2087,92 +1964,6 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	return 0;
 }
 
-/**
- * Called after a user customization of a GLOBAL input code combination.
- * Called with an empty sequence to delete the customization.
- */
-void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max)
-{
-	adv_conf* cfg_context = CONTEXT.cfg;
-	const struct mame_port* p;
-
-	log_std(("emu:input: osd2_customize_inputport_post_defaults(%d)\n", type));
-
-	p = mame_port_list();
-	while (p->name) {
-		if (p->port == type) {
-			char tag_buffer[64];
-			char value_buffer[512];
-
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
-
-			if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
-				log_std(("emu:input: customize port default %s\n", tag_buffer));
-
-				conf_remove(cfg_context, "", tag_buffer);
-			} else {
-				output_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
-
-				log_std(("emu:input: customize port %s %s\n", tag_buffer, value_buffer));
-
-				conf_string_set(cfg_context, "", tag_buffer, value_buffer);
-			}
-
-			break;
-		}
-
-		++p;
-	}
-}
-
-/**
- * Called after a user customization of a GAME input code combination.
- * Called with an empty sequence to delete the customization.
- */
-void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max)
-{
-	adv_conf* cfg_context = CONTEXT.cfg;
-	const mame_game* game = CONTEXT.game;
-	const struct mame_port* p;
-
-	if (seq)
-		log_std(("emu:input: osd2_customize_inputport_post_game(%d, set)\n", type));
-	else
-		log_std(("emu:input: osd2_customize_inputport_post_game(%d, clear)\n", type));
-
-	p = mame_port_list();
-	while (p->name) {
-		if (p->port == type) {
-			char tag_buffer[64];
-			char value_buffer[512];
-
-			log_std(("emu:input: setup port %s\n", p->name));
-
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
-
-			if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
-				log_std(("emu:input: customize port default %s/%s\n", mame_section_name(game, cfg_context), tag_buffer));
-
-				conf_remove(cfg_context, mame_section_name(game, cfg_context), tag_buffer);
-			} else {
-				output_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
-
-				log_std(("emu:input: customize port %s/%s %s\n", mame_section_name(game, cfg_context), tag_buffer, value_buffer));
-
-				conf_string_set(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
-			}
-
-			break;
-		}
-
-		++p;
-	}
-
-	if (!p->name) {
-		log_std(("WARNING:emu:input: customization for unknown port %d not saved\n", type));
-	}
-}
-
 /***************************************************************************/
 /* Advance interface */
 
@@ -2191,17 +1982,7 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 		unsigned j;
 		for(j=0;j<INPUT_ANALOG_MAX;++j) {
 			char tag_buffer[64];
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
-			conf_string_register_default(cfg_context, tag_buffer, "auto");
-		}
-	}
-
-	/* trak */
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		unsigned j;
-		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			char tag_buffer[64];
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, ANALOG_INFO[j].name);
 			conf_string_register_default(cfg_context, tag_buffer, "auto");
 		}
 	}
@@ -2489,33 +2270,198 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 	return 0;
 }
 
+/**
+ * Get the analog control input for the specified player and control
+ * Analog absolute inputs return a value between -65536 and +65536.
+ * Analog relative inputs are scaled with a 512 units for 1 pixel movement.
+ * \param player Player.
+ * \param control Control to read. One of INPUT_ANALOG_*.
+ * \param value Value read.
+ * \return Type of value returned.
+ */
+static int advance_input_analog_read(struct advance_input_context* context, unsigned player, unsigned control, int* value)
+{
+	unsigned n;
+	int r;
+
+	adv_bool at_least_one_absolute = 0;
+	adv_bool at_least_one_relative = 0;
+
+	assert(context->state.active_flag != 0);
+
+	r = 0;
+
+	if (player < INPUT_PLAYER_MAX) {
+		if (control < INPUT_ANALOG_MAX) {
+			for(n=0;n<INPUT_MAP_MAX;++n) {
+				unsigned v = context->config.analog_map[player][control].seq[n];
+				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
+					unsigned j = ANALOG_JOY_DEV_GET(v);
+					unsigned s = ANALOG_JOY_STICK_GET(v);
+					unsigned a = ANALOG_JOY_AXE_GET(v);
+					adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
+					if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX) {
+						int z;
+						if (negate)
+							r -= context->state.joystick_analog_current[j][s][a];
+						else
+							r += context->state.joystick_analog_current[j][s][a];
+						at_least_one_absolute = 1;
+					}
+				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+					unsigned m = ANALOG_MOUSE_DEV_GET(v);
+					unsigned a = ANALOG_MOUSE_AXE_GET(v);
+					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
+					if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
+						if (negate)
+							r -= context->state.mouse_analog_current[m][a];
+						else
+							r += context->state.mouse_analog_current[m][a];
+						at_least_one_relative = 1;
+					}
+				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
+					unsigned j = ANALOG_BALL_DEV_GET(v);
+					unsigned a = ANALOG_BALL_AXE_GET(v);
+					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
+					if (j < INPUT_JOY_MAX && a < INPUT_AXE_MAX) {
+						if (negate)
+							r -= context->state.ball_analog_current[j][a];
+						else
+							r += context->state.ball_analog_current[j][a];
+						at_least_one_relative = 1;
+					}
+				} else {
+					break;
+				}
+			}
+		}
+	}
+
+	if (at_least_one_absolute) {
+		/* adjust from -128..128 to -65536..65536 */
+		r *= 512;
+
+		/* limit the range */
+		if (r < -65536)
+			r = -65536;
+		if (r > 65536)
+			r = 65536;
+
+		*value = r;
+
+		return ANALOG_TYPE_ABSOLUTE;
+	}
+
+	if (at_least_one_relative) {
+		/* adjust from 1 step for pixel to 512 steps for pixels */
+		r *= 512;
+
+		*value = r;
+
+		return ANALOG_TYPE_RELATIVE;
+	}
+
+	*value = r;
+	return ANALOG_TYPE_NONE;
+}
+
 /***************************************************************************/
 /* OSD interface */
 
 /**
- * Get the list of all available digital key codes.
- * This list is allowed to change at runtime.
+ * Return a list of all available input codes.
  */
-const struct KeyboardInfo* osd_get_key_list(void)
+const struct OSCodeInfo *osd_get_code_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
 	assert(context->state.active_flag != 0);
 
-	return input_key_map;
+	return input_code_map;
 }
 
 /**
- * Check if a digital key code is active.
- * This function is called only for the code returned by the osd_get_key_list() function.
+ * Read the value of a input code.
+ * Return the value of the specified input.
+ * Digital inputs return 0 or 1.
+ * \param oscode is the OS dependent code specified in the list
+ * returned by osd_get_code_list().
  */
-int osd_is_key_pressed(int keycode)
+INT32 osd_get_code_value(os_code_t oscode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
-	log_debug(("emu:input: osd_is_key_pressed(keycode:0x%08x)\n", keycode));
+	log_debug(("emu:input: osd_get_code_value(code:0x%08x)\n", oscode));
 
-	return advance_input_digital_pressed(context, keycode);
+	return advance_input_digital_pressed(context, oscode);
+}
+
+INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type)
+{
+	struct advance_input_context* context = &CONTEXT.input;
+	int value_type;
+	int value;
+
+	log_debug(("emu:input: osd_get_analog_value(type:%d, player:%d)\n", type, player));
+
+	switch (type) {
+	case IPT_PADDLE :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_X, &value);
+		break;
+	case IPT_PADDLE_V :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_Y, &value);
+		break;
+	case IPT_AD_STICK_X :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_X, &value);
+		break;
+	case IPT_AD_STICK_Y :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Y, &value);
+		break;
+	case IPT_AD_STICK_Z :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Z, &value);
+		break;
+	case IPT_LIGHTGUN_X :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_X, &value);
+		break;
+	case IPT_LIGHTGUN_Y :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_Y, &value);
+		break;
+	case IPT_PEDAL :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL, &value);
+		break;
+	case IPT_PEDAL2 :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL2, &value);
+		break;
+	case IPT_PEDAL3 :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL3, &value);
+		break;
+	case IPT_DIAL :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_X, &value);
+		break;
+	case IPT_DIAL_V :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_Y, &value);
+		break;
+	case IPT_TRACKBALL_X :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_X, &value);
+		break;
+	case IPT_TRACKBALL_Y :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_Y, &value);
+		break;
+	case IPT_MOUSE_X :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_X, &value);
+		break;
+	case IPT_MOUSE_Y :
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_Y, &value);
+		break;
+	default:
+		log_std(("ERROR:input: invalid port type %d\n", type));
+		value_type = ANALOG_TYPE_NONE;
+		value = 0;
+		break;
+	}
+
+	*analog_type = value_type;
+	return value;
 }
 
 /**
@@ -2528,100 +2474,6 @@ int osd_is_key_pressed(int keycode)
 int osd_readkey_unicode(int flush)
 {
 	/* no unicode support */
-	return 0;
-}
-
-/**
- * Get the list of all available digital joystick codes.
- * This list is allowed to change at runtime.
- */
-const struct JoystickInfo* osd_get_joy_list(void)
-{
-	struct advance_input_context* context = &CONTEXT.input;
-
-	assert(context->state.active_flag != 0);
-
-	return input_joy_map;
-}
-
-/**
- * Check if a digital joystick code is active.
- * This function is called only for the code returned by the osd_get_joy_list() function.
- */
-int osd_is_joy_pressed(int joycode)
-{
-	struct advance_input_context* context = &CONTEXT.input;
-
-	log_debug(("emu:input: osd_is_joy_pressed(joycode:0x%08x)\n", joycode));
-
-	return advance_input_digital_pressed(context, joycode);
-}
-
-/**
- * Get the analog control input.
- * This function get all the analog axes for one player.
- * \param player Player.
- * \param analog_axis Vector filled with the analog position. Returned values are in the range -128 - 128.
- * \param analogjoy_input Vector containing the digital codes which the osd_is_joystick_axis_code()
- * function reported be joystick codes for the same digital movement. These codes can be used to remap the joystick axes.
- */
-void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
-{
-	struct advance_input_context* context = &CONTEXT.input;
-	unsigned i, n;
-
-	assert(context->state.active_flag != 0);
-
-	/* the variable analogjoy_input is ignored */
-
-	if (player < INPUT_PLAYER_MAX) {
-		for(i=0;i<MAX_ANALOG_AXES;++i) {
-			analog_axis[i] = 0;
-
-			if (i < INPUT_ANALOG_MAX) {
-				for(n=0;n<INPUT_MAP_MAX;++n) {
-					unsigned v = context->config.analog_map[player][i].seq[n];
-					if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
-						unsigned j = ANALOG_JOY_DEV_GET(v);
-						unsigned s = ANALOG_JOY_STICK_GET(v);
-						unsigned a = ANALOG_JOY_AXE_GET(v);
-						adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
-						if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX) {
-							if (negate)
-								analog_axis[i] -= context->state.joystick_analog_current[j][s][a];
-							else
-								analog_axis[i] += context->state.joystick_analog_current[j][s][a];
-						}
-					} else {
-						break;
-					}
-				}
-			}
-
-			if (analog_axis[i] < -128)
-				analog_axis[i] = -128;
-			if (analog_axis[i] > 128)
-				analog_axis[i] = 128;
-		}
-	} else {
-		unsigned i;
-		for(i=0;i<MAX_ANALOG_AXES;++i) {
-			analog_axis[i] = 0;
-		}
-	}
-}
-
-/**
- * Check if a digital code refers to a joystick.
- * This function is used to map analog joystick like digital joystick.
- * The values returned are used ONLY for calling osd_analogjoy_read().
- * \return
- * - != 0 The code refers to a joystick.
- * - == 0 The code doesn't refer to a joystick.
- */
-int osd_is_joystick_axis_code(int joycode)
-{
-	/* not used */
 	return 0;
 }
 
@@ -2668,82 +2520,6 @@ void osd_joystick_calibrate(void)
 void osd_joystick_end_calibration(void)
 {
 	/* nothing */
-}
-
-/**
- * Get the trackball position.
- * \param player Player.
- * \param x, y Where to store the trackball movement from the last call.
- * The movement can have any sensibility.
- */
-void osd_trak_read(int player, int* x, int* y)
-{
-	struct advance_input_context* context = &CONTEXT.input;
-	unsigned n;
-
-	assert(context->state.active_flag != 0);
-
-	*x = 0;
-	*y = 0;
-
-	if (player < INPUT_PLAYER_MAX) {
-		unsigned i;
-		for(i=0;i<2;++i) {
-			int r;
-
-			r = 0;
-			for(n=0;n<INPUT_MAP_MAX;++n) {
-				unsigned v = context->config.trak_map[player][i].seq[n];
-				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-					unsigned m = ANALOG_MOUSE_DEV_GET(v);
-					unsigned a = ANALOG_MOUSE_AXE_GET(v);
-					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
-					if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
-						if (negate)
-							r -= context->state.mouse_analog_current[m][a];
-						else
-							r += context->state.mouse_analog_current[m][a];
-					}
-				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
-					unsigned j = ANALOG_BALL_DEV_GET(v);
-					unsigned a = ANALOG_BALL_AXE_GET(v);
-					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
-					if (j < INPUT_JOY_MAX && a < INPUT_AXE_MAX) {
-						if (negate)
-							r -= context->state.ball_analog_current[j][a];
-						else
-							r += context->state.ball_analog_current[j][a];
-					}
-				} else {
-					break;
-				}
-			}
-
-			switch (i) {
-			case 0 : *x += r; break;
-			case 1 : *y += r; break;
-			}
-		}
-	}
-}
-
-/**
- * Read the position of the lightgun.
- * The returned range is from -128 to 128. 0,0 is the center of the screen.
- * \note
- * The OSD lightgun call should return the delta from the middle of the screen
- * when the gun is fired (not the absolute pixel value), and 0 when the gun is
- * inactive.  We take advantage of this to provide support for other controllers
- * in place of a physical lightgun.  When the OSD lightgun returns 0, then control
- * passes through to the analog joystick, and mouse, in that order.  When the OSD
- * lightgun returns a value it overrides both mouse & analog joystick.
- * There is an ugly hack to stop scaling of lightgun returned values.
- */
-void osd_lightgun_read(int player, int* deltax, int* deltay)
-{
-	/* no lightgun support */
-	*deltax = 0;
-	*deltay = 0;
 }
 
 #ifdef MESS
