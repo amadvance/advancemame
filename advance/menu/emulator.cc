@@ -395,7 +395,7 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 	return argc;
 }
 
-bool emulator::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool emulator::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -821,9 +821,10 @@ static bool fskip(unsigned size, FILE* f)
 	return fseek(f, size, SEEK_CUR)==0;
 }
 
-mame_mame::mame_mame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_info(Aname, Aexe_path, Acmd_arg) {
-
+mame_mame::mame_mame(const string& Aname, const string& Aexe_path, const string& Acmd_arg, bool Asupport_difficulty)
+	: mame_info(Aname, Aexe_path, Acmd_arg)
+{
+	support_difficulty = Asupport_difficulty;
 	exclude_neogeo_orig = include;
 	exclude_deco_orig = exclude;
 	exclude_playchoice_orig = exclude;
@@ -843,7 +844,7 @@ void mame_mame::attrib_run()
 	ch.insert( ch.end(), choice("PlayChoice-10", exclude_playchoice_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -1021,7 +1022,7 @@ bool mame_mame::load_software(game_set&)
 	return true;
 }
 
-bool mame_mame::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -1038,6 +1039,24 @@ bool mame_mame::run(const game& g, unsigned orientation, bool ignore_error) cons
 
 	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
 	argc = compile(g, argv, argc, "%s", orientation);
+
+	if (support_difficulty) {
+		const char* opt;
+		switch (difficulty) {
+		case difficulty_easiest : opt = "easiest"; break;
+		case difficulty_easy : opt = "easy"; break;
+		case difficulty_medium : opt = "normal"; break;
+		case difficulty_hard : opt = "hard"; break;
+		case difficulty_hardest : opt = "hardest"; break;
+		default:
+			opt = 0;
+			break;
+		}
+		if (opt) {
+			argv[argc++] = strdup("-difficulty");
+			argv[argc++] = strdup(opt);
+		}
+	}
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
 
@@ -1062,8 +1081,9 @@ bool mame_mame::run(const game& g, unsigned orientation, bool ignore_error) cons
 //---------------------------------------------------------------------------
 // dmame
 
-dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mame(Aname, Aexe_path, Acmd_arg) {
+dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+{
 }
 
 string dmame::type_get() const {
@@ -1142,8 +1162,9 @@ bool dmame::load_cfg(const game_set& gar)
 //---------------------------------------------------------------------------
 // wmame
 
-wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mame(Aname, Aexe_path, Acmd_arg) {
+wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+{
 }
 
 string wmame::type_get() const {
@@ -1222,8 +1243,9 @@ bool wmame::load_cfg(const game_set& gar)
 //---------------------------------------------------------------------------
 // wmame
 
-xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mame(Aname, Aexe_path, Acmd_arg) {
+xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+{
 }
 
 string xmame::type_get() const {
@@ -1308,8 +1330,9 @@ bool xmame::load_cfg(const game_set& gar)
 //---------------------------------------------------------------------------
 // advmame
 
-advmame::advmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mame(Aname, Aexe_path, Acmd_arg) {
+advmame::advmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, true)
+{
 }
 
 string advmame::type_get() const {
@@ -1388,8 +1411,9 @@ bool advmame::load_cfg(const game_set& gar)
 //---------------------------------------------------------------------------
 // advpac
 
-advpac::advpac(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mame(Aname, Aexe_path, Acmd_arg) {
+advpac::advpac(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+{
 }
 
 string advpac::type_get() const {
@@ -1468,8 +1492,9 @@ bool advpac::load_cfg(const game_set& gar)
 //---------------------------------------------------------------------------
 // mame_mess
 
-mame_mess::mame_mess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_info(Aname, Aexe_path, Acmd_arg) {
+mame_mess::mame_mess(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_info(Aname, Aexe_path, Acmd_arg)
+{
 	exclude_empty_orig = exclude;
 }
 
@@ -1535,7 +1560,7 @@ void mame_mess::attrib_run()
 	ch.insert( ch.end(), choice("With BIOS or not", " Only\tWith BIOS", " Only\tWithout BIOS", exclude_empty_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -1550,8 +1575,9 @@ void mame_mess::attrib_run()
 //---------------------------------------------------------------------------
 // mess
 
-dmess::dmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mess(Aname, Aexe_path, Acmd_arg) {
+dmess::dmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mess(Aname, Aexe_path, Acmd_arg)
+{
 }
 
 string dmess::type_get() const {
@@ -1788,7 +1814,7 @@ string dmess::image_name_get(const string& snap_create, const string& name)
 	return path;
 }
 
-bool dmess::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool dmess::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -1859,8 +1885,9 @@ bool dmess::run(const game& g, unsigned orientation, bool ignore_error) const {
 //---------------------------------------------------------------------------
 // advmess
 
-advmess::advmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	mame_mess(Aname, Aexe_path, Acmd_arg) {
+advmess::advmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mess(Aname, Aexe_path, Acmd_arg)
+{
 }
 
 string advmess::type_get() const {
@@ -2175,7 +2202,7 @@ bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], co
 		return compile_single(g, argc, argv, file);
 }
 
-bool advmess::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2270,9 +2297,9 @@ bool advmess::run(const game& g, unsigned orientation, bool ignore_error) const 
 //---------------------------------------------------------------------------
 // raine_info
 
-raine_info::raine_info(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	emulator(Aname, Aexe_path, Acmd_arg) {
-
+raine_info::raine_info(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: emulator(Aname, Aexe_path, Acmd_arg)
+{
 	exclude_clone_orig = exclude;
 	exclude_bad_orig = exclude;
 	exclude_vertical_orig = include;
@@ -2288,7 +2315,7 @@ void raine_info::attrib_run()
 	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -2555,8 +2582,9 @@ bool raine_info::load_software(game_set&)
 //---------------------------------------------------------------------------
 // draine
 
-draine::draine(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	raine_info(Aname, Aexe_path, Acmd_arg) {
+draine::draine(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: raine_info(Aname, Aexe_path, Acmd_arg)
+{
 }
 
 string draine::type_get() const {
@@ -2641,7 +2669,7 @@ bool draine::load_cfg(const game_set& gar)
 	return true;
 }
 
-bool draine::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool draine::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -2667,8 +2695,9 @@ bool draine::run(const game& g, unsigned orientation, bool ignore_error) const {
 //---------------------------------------------------------------------------
 // generic
 
-generic::generic(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
-	emulator(Aname, Aexe_path, Acmd_arg) {
+generic::generic(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: emulator(Aname, Aexe_path, Acmd_arg)
+{
 }
 
 void generic::attrib_run()
@@ -2678,7 +2707,7 @@ void generic::attrib_run()
 	ch.insert( ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
+	int key = ch.run(" " + user_name_get() + " Selection", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
@@ -2740,10 +2769,10 @@ bool generic::is_runnable() const {
 	return emulator::is_runnable();
 }
 
-bool generic::run(const game& g, unsigned orientation, bool ignore_error) const {
+bool generic::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
 	// if empty don't run
 	if (user_exe_path.length()==0)
 		return false;
 
-	return emulator::run(g, orientation, ignore_error);
+	return emulator::run(g, orientation, difficulty, ignore_error);
 }

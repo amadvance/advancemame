@@ -309,7 +309,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 	}
 }
 
-void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, preview_t preview, game_sort_t sort_mode, bool lock)
+void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, preview_t preview, game_sort_t sort_mode, difficulty_t difficulty, bool lock)
 {
 	int_clear(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
@@ -361,6 +361,15 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	}
+
+	switch (difficulty) {
+		case difficulty_none : draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_easiest : draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_easy : draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_medium : draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_hard : draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_hardest : draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (g) {
@@ -1350,7 +1359,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (bar_top_dy)
 			draw_menu_bar(rs.current_game, gc.size(), bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
-			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_effective, rs.lock_effective);
+			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_effective, rs.difficulty_effective, rs.lock_effective);
 		if (bar_right_dx)
 			draw_menu_scroll(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, pos_base, pos_rel_max, pos_base_upper + pos_rel_max);
 		if (bar_left_dx)
@@ -1473,6 +1482,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					for(i=gc.begin();i!=gc.end();++i) {
 						if (menu_fast_compare((*i)->desc_get(), oldfast))
 							break;
+					}
+					if (i==gc.end()) {
+						for(i=gc.begin();i!=gc.end();++i) {
+							if ((*i)->has_game()) {
+								if (menu_fast_compare((*i)->game_get().name_without_emulator_get(), oldfast))
+									break;
+							}
+						}
 					}
 					if (i!=gc.end()) {
 						int pos = i - gc.begin();

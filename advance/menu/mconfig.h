@@ -182,6 +182,9 @@ public:
 	unsigned video_orientation_orig; ///< Original video orientation.
 	unsigned video_orientation_effective; ///< Video orientation.
 
+	difficulty_t difficulty_orig; ///< Original difficulty selected.
+	difficulty_t difficulty_effective; ///< Difficulty selected.
+
 	preview_t preview_orig; ///< Original preview type selected.
 	preview_t preview_effective; ///< Preview type selected.
 	bool preview_fast; ///< Fast preview mode.

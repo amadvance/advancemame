@@ -53,8 +53,9 @@ void run_sort(config_state& rs)
 	ch.insert( ch.end(), choice("Info", sort_by_info) );
 
 	choice_bag::iterator i = ch.find_by_value(rs.sort_effective);
-	if (i==ch.end())
+	if (i == ch.end())
 		i = ch.begin();
+
 	int key = ch.run(" Sort mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, SORT_CHOICE_DX, i);
 	if (key == INT_KEY_ENTER) {
 		rs.sort_effective = (game_sort_t)i->value_get();
@@ -186,7 +187,10 @@ void run_mode(config_state& rs)
 	ch.insert( ch.end(), choice("Tile Icon", mode_tile_icon) );
 	ch.insert( ch.end(), choice("Tile Marquee", mode_tile_marquee) );
 
-	choice_bag::iterator i = ch.begin();
+	choice_bag::iterator i = ch.find_by_value(rs.mode_effective);
+	if (i == ch.end())
+		i = ch.begin();
+
 	int key = ch.run(" Mode", SECOND_CHOICE_X, SECOND_CHOICE_Y, MODE_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
@@ -210,7 +214,10 @@ void run_preview(config_state& rs)
 	ch.insert( ch.end(), choice("Icon", preview_icon) );
 	ch.insert( ch.end(), choice("Marquee", preview_marquee) );
 
-	choice_bag::iterator i = ch.begin();
+	choice_bag::iterator i = ch.find_by_value(rs.preview_effective);
+	if (i == ch.end())
+		i = ch.begin();
+
 	int key = ch.run(" Preview", SECOND_CHOICE_X, SECOND_CHOICE_Y, PREVIEW_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
@@ -591,6 +598,32 @@ void run_volume(config_state& rs)
 }
 
 // ------------------------------------------------------------------------
+// Volume
+
+#define DIFFICULTY_CHOICE_DX 10*int_font_dx_get()
+
+void run_difficulty(config_state& rs)
+{
+	choice_bag ch;
+
+	ch.insert( ch.end(), choice("None (default)", difficulty_none) );
+	ch.insert( ch.end(), choice("Easiest", difficulty_easiest) );
+	ch.insert( ch.end(), choice("Easy", difficulty_easy) );
+	ch.insert( ch.end(), choice("Normal", difficulty_medium) );
+	ch.insert( ch.end(), choice("Hard", difficulty_hard) );
+	ch.insert( ch.end(), choice("Hardest", difficulty_hardest) );
+
+	choice_bag::iterator i = ch.find_by_value(rs.difficulty_effective);
+	if (i == ch.end())
+		i = ch.begin();
+	int key = ch.run(" Volume", SECOND_CHOICE_X, SECOND_CHOICE_Y, DIFFICULTY_CHOICE_DX, i);
+
+	if (key == INT_KEY_ENTER) {
+		rs.difficulty_effective = static_cast<difficulty_t>(i->value_get());
+	}
+}
+
+// ------------------------------------------------------------------------
 // Sub Menu
 
 #define MENU_CHOICE_DX 25*int_font_dx_get()
@@ -603,12 +636,13 @@ bool run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Config/Sort", 0) );
 	ch.insert( ch.end(), choice("Config/Type", 1) );
 	ch.insert( ch.end(), choice("Config/Group", 2) );
-	ch.insert( ch.end(), choice("Config/Attrib", 3) );
+	ch.insert( ch.end(), choice("Config/Selection", 3) );
 	ch.insert( ch.end(), choice("Config/Emulator", 4) );
 	ch.insert( ch.end(), choice("Config/Mode", 5) );
 	ch.insert( ch.end(), choice("Config/Preview", 6) );
 	ch.insert( ch.end(), choice("Config/Calibration", 13) );
 	ch.insert( ch.end(), choice("Config/Volume", 16) );
+	ch.insert( ch.end(), choice("Config/Difficulty", 17) );
 	ch.insert( ch.end(), choice("Config/Lock-Unlock", 12) );
 	ch.insert( ch.end(), choice("Config/Save as Default", 11) );
 	ch.insert( ch.end(), choice("Game/Type", 8) );
@@ -679,6 +713,9 @@ bool run_submenu(config_state& rs)
 				break;
 			case 16 :
 				run_volume(rs);
+				break;
+			case 17 :
+				run_difficulty(rs);
 				break;
 		}
 	}

@@ -42,6 +42,15 @@ enum merge_t {
 	merge_disable // Check disabled
 };
 
+enum difficulty_t {
+	difficulty_none,
+	difficulty_easiest,
+	difficulty_easy,
+	difficulty_medium,
+	difficulty_hard,
+	difficulty_hardest
+};
+
 // ------------------------------------------------------------------------
 // Device
 

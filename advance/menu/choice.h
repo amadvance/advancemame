@@ -79,7 +79,6 @@ typedef std::vector<choice> choice_container;
 class choice_bag : public choice_container {
 	void draw(const std::string& title, int x, int y, int dx, int base, int rel, int rows);
 public:
-
 	int run(const std::string& title, int x, int y, int dx, choice_container::iterator& pos);
 
 	choice_container::iterator find_by_value(int value);

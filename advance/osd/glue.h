@@ -85,8 +85,10 @@ struct mame_option {
 	float vector_flicker;
 	float vector_intensity;
 
-	int artwork_flag;
-	int artwork_crop_flag;
+	adv_bool artwork_backdrop_flag;
+	adv_bool artwork_overlay_flag;
+	adv_bool artwork_bezel_flag;
+	adv_bool artwork_crop_flag;
 
 	char savegame;
 
@@ -249,6 +251,7 @@ void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void osd2_info(char* buffer, unsigned size);
 void osd2_debugger_focus(int debugger_has_focus);
+void osd2_message(void);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);

@@ -539,7 +539,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.vector_intensity = advance->vector_intensity;
 	options.brightness = advance->brightness;
 	options.gamma = advance->gamma;
-	options.use_artwork = advance->artwork_flag ? ARTWORK_USE_ALL : ARTWORK_USE_NONE; /* or all or nothing */
+	options.use_artwork = 0;
+	if (advance->artwork_backdrop_flag)
+		options.use_artwork |= ARTWORK_USE_BACKDROPS;
+	if (advance->artwork_overlay_flag)
+		options.use_artwork |= ARTWORK_USE_OVERLAYS;
+	if (advance->artwork_bezel_flag)
+		options.use_artwork |= ARTWORK_USE_BEZELS;
 	options.artwork_res = 1; /* no artwork scaling */
 	options.artwork_crop = advance->artwork_crop_flag;
 
@@ -1024,6 +1030,8 @@ void osd_update_video_and_audio(struct mame_display *display)
 		sample_count = 0;
 	}
 
+	osd2_message();
+
 	GLUE.sound_latency = osd2_frame(
 		pgame,
 		pdebug,
@@ -1261,7 +1269,7 @@ static void mess_done(void)
 
 #endif
 
-int mame_init(struct advance_context* context, adv_conf* cfg_context)
+adv_error mame_init(struct advance_context* context, adv_conf* cfg_context)
 {
 
 	/* Clear the MAIN context */
@@ -1273,8 +1281,10 @@ int mame_init(struct advance_context* context, adv_conf* cfg_context)
 	/* Clear the MAME global struct */
 	memset(&options, 0, sizeof(options));
 
-	conf_bool_register_default(cfg_context, "display_artwork", 1);
-	conf_bool_register_default(cfg_context, "display_artwork_crop", 0);
+	conf_bool_register_default(cfg_context, "display_artwork_backdrop", 1);
+	conf_bool_register_default(cfg_context, "display_artwork_overlay", 1);
+	conf_bool_register_default(cfg_context, "display_artwork_bezel", 0);
+	conf_bool_register_default(cfg_context, "display_artwork_crop", 1);
 	conf_bool_register_default(cfg_context, "sound_samples", 1);
 
 	conf_bool_register_default(cfg_context, "display_antialias", 1);
@@ -1313,11 +1323,13 @@ void mame_done(struct advance_context* context)
 #endif
 }
 
-int mame_config_load(adv_conf* cfg_context, struct mame_option* option)
+adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 {
 	char* s;
 
-	option->artwork_flag = conf_bool_get_default(cfg_context, "display_artwork");
+	option->artwork_backdrop_flag = conf_bool_get_default(cfg_context, "display_artwork_backdrop");
+	option->artwork_overlay_flag = conf_bool_get_default(cfg_context, "display_artwork_overlay");
+	option->artwork_bezel_flag = conf_bool_get_default(cfg_context, "display_artwork_bezel");
 	option->artwork_crop_flag = conf_bool_get_default(cfg_context, "display_artwork_crop");
 	option->samples_flag = conf_bool_get_default(cfg_context, "sound_samples");
 

@@ -262,7 +262,7 @@ static adv_conf_enum_int OPTION_CHANNELS[] = {
 { "surround", SOUND_MODE_SURROUND }
 };
 
-int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
+adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
 {
 	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
@@ -286,7 +286,7 @@ struct sound_device {
 	const char* desc;
 };
 
-int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
+adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	context->config.mode = conf_int_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");

@@ -86,19 +86,24 @@
 /***************************************************************************/
 /* Video */
 
-/* Software strecth (enumeration) */
+/** Software strecth (enumeration). */
+/*@{*/
 #define STRETCH_NONE 0 /**< No stretch. */
 #define STRETCH_INTEGER_XY 1 /**< Only integer strech x2, x3, ... */
 #define STRETCH_INTEGER_X_FRACTIONAL_Y 2 /**< Integer stretch on x, fractional on y. */
 #define STRETCH_FRACTIONAL_XY 3 /**< Stretch fractional on x and y. */
+/*@}*/
 
-/* Hardware stretch (enumeration) */
+/** Hardware stretch (enumeration). */
+/*@{*/
 #define ADJUST_NONE 0 /**< No mode adjust. */
 #define ADJUST_ADJUST_X 0x1 /**< Adjust the x size. */
 #define ADJUST_ADJUST_CLOCK 0x2 /**< Adjuts the clock. */
 #define ADJUST_GENERATE 0x4 /**< Generate. */
+/*@}*/
 
-/* Special combine effect (enumeration) */
+/** Special combine effect (enumeration). */
+/*@{*/
 #define COMBINE_AUTO -1
 #define COMBINE_NONE VIDEO_COMBINE_Y_NONE
 #define COMBINE_MAX VIDEO_COMBINE_Y_MAX
@@ -107,8 +112,10 @@
 #define COMBINE_FILTERX (VIDEO_COMBINE_Y_NONE | VIDEO_COMBINE_X_FILTER)
 #define COMBINE_FILTERY VIDEO_COMBINE_Y_FILTER
 #define COMBINE_SCALE2X VIDEO_COMBINE_Y_SCALE2X
+/*@}*/
 
-/* Special additional effect (enumeration) */
+/** Special additional effect (enumeration). */
+/*@{*/
 #define EFFECT_NONE 0
 #define EFFECT_RGB_TRIAD3PIX VIDEO_COMBINE_X_RGB_TRIAD3PIX
 #define EFFECT_RGB_TRIADSTRONG3PIX VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX
@@ -122,15 +129,19 @@
 #define EFFECT_RGB_SCANTRIPLEVERT VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT
 #define EFFECT_INTERLACE_EVEN VIDEO_COMBINE_SWAP_EVEN
 #define EFFECT_INTERLACE_ODD VIDEO_COMBINE_SWAP_ODD
+/*@}*/
 
+/** Rotate mode (enumeration). */
+/*@{*/
 #define ROTATE_AUTO -1
 #define ROTATE_NONE 0
 #define ROTATE_BLIT 1
+/*@}*/
 
-/** Max number of modelines */
+/** Max number of modelines. */
 #define VIDEO_CRTC_MAX 256
 
-/** Macro SWAP utility */
+/** Macro SWAP utility. */
 #define SWAP(type, x, y) \
 	{ \
 		type temp; \
@@ -139,16 +150,16 @@
 		y = temp; \
 	}
 
-/* Configuration options for the video part */
+/** Configuration for the video part. */
 struct advance_video_config_context {
-	int inlist_combinemax_flag; /**< The game requires the max effect instead of the mean effect for resizing. */
-	int vsync_flag; /**< If vsync is active. */
-	int wait_vsync_flag; /**< If wait vsync is active. */
-	int triplebuf_flag; /**< If triple buffering is active. */
+	adv_bool inlist_combinemax_flag; /**< The game requires the max effect instead of the mean effect for resizing. */
+	adv_bool vsync_flag; /**< If vsync is active. */
+	adv_bool wait_vsync_flag; /**< If wait vsync is active. */
+	adv_bool triplebuf_flag; /**< If triple buffering is active. */
 	int skiplines; /**< Centering value for screen, -1 for auto centering. */
 	int skipcolumns; /**< Centering value for screen, -1 for auto centering. */
 	char resolution[256]; /**< Name of the resolution. "auto" for automatic. */
-	int scanlines_flag; /**< If hardware scanlines are active */
+	adv_bool scanlines_flag; /**< If hardware scanlines are active */
 	int stretch; /**< Type of stretch. One of STRETCH_*. */
 	int adjust; /**< Type of hardware stretch. One of ADJUST_*. */
 	int blit_orientation; /**< Blit orientation mask. Mask of ORIENTATION_*. */
@@ -160,11 +171,11 @@ struct advance_video_config_context {
 	double fps_speed_factor; /**< Additional speed factor over the standard value. Multiplicative factor. */
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
 	int measure_time; /**< Time for the speed measure [seconds]. */
-	int restore_flag; /**< Reset the video mode at the exit [boolean]. */
-	int magnify_flag; /**< Magnify effect requested [boolean]. */
+	adv_bool restore_flag; /**< Reset the video mode at the exit [boolean]. */
+	adv_bool magnify_flag; /**< Magnify effect requested [boolean]. */
 	unsigned index; /**< Index mode. */
 	double frameskip_factor; /**< Current frameskip factor. */
-	int frameskip_auto_flag; /**< boolean. */
+	adv_bool frameskip_auto_flag; /**< boolean. */
 	double aspect_expansion_factor; /**< Expansion factor of the aspect. */
 	adv_monitor monitor; /**< Monitor specifications. */
 	adv_generate_interpolate_set interpolate; /**< Video mode generator specifications. */
@@ -173,18 +184,18 @@ struct advance_video_config_context {
 	char section_resolution[256]; /**< Section used to store the option for the resolution. */
 	char section_resolutionclock[256]; /**< Section used to store the option for the resolution/freq. */
 	char section_orientation[256]; /**< Section used to store the option for the orientation. */
-	int smp_flag; /**< Use threads */
-	int crash_flag; /**< If enable the crash menu entry. */
+	adv_bool smp_flag; /**< Use threads */
+	adv_bool crash_flag; /**< If enable the crash menu entry. */
 	unsigned monitor_aspect_x; /**< Horizontal aspect of the monitor (4 for a standard monitor) */
 	unsigned monitor_aspect_y; /**< Vertical aspect of the monitor (3 for a standard monitor) */
 };
 
-/* Internal options for the video part */
+/** State for the video part. */
 struct advance_video_state_context {
 	adv_conf* cfg_context; /**< Context of the current configuration. */
 
 	/* Game info */
-	int game_vector_flag; /**< If is a vector game. */
+	adv_bool game_vector_flag; /**< If is a vector game. */
 	double game_fps; /**< Frame rate of the game. */
 	unsigned long long game_aspect_x; /**< Aspect x of the game */
 	unsigned long long game_aspect_y; /**< Aspect x of the game */
@@ -197,15 +208,15 @@ struct advance_video_state_context {
 	int game_bits_per_pixel; /**< Game bits per pixel. */
 	int game_bytes_per_pixel; /**< Game bytes per pixel. */
 	int game_colors; /**< Number of colors used by the game. */
-	int game_rgb_flag; /**< If the bitmap contains direct RGB colors. */
+	adv_bool game_rgb_flag; /**< If the bitmap contains direct RGB colors. */
 	adv_color_def game_color_def; /**< Game color format. */
 
-	int debugger_flag; /**< Debugger show flag. */
+	adv_bool debugger_flag; /**< Debugger show flag. */
 
 	double gamma_effect_factor; /**< Gamma value required by the display effect. */
 
 	adv_mode mode; /**< Video mode. */
-	int mode_flag; /**< If the mode is set */
+	adv_bool mode_flag; /**< If the mode is set */
 	unsigned mode_index; /**< Mode index. */
 	double mode_vclock; /**< Vertical clock (normalized) */
 	unsigned mode_best_size_x;
@@ -219,19 +230,19 @@ struct advance_video_state_context {
 	unsigned palette_dirty_total; /**< Number of entry in the palette dirty. */
 	osd_rgb_t* palette_map; /**< Current palette RGB triplets. */
 	osd_mask_t* palette_dirty_map; /**< If the palette is dirty this is the list of dirty colors. */
-	int palette_is_dirty; /**< If the current palette dirty, it need to be updated. */
+	adv_bool palette_dirty_flag; /**< If the current palette dirty, it need to be updated. */
 	unsigned* palette_index_map; /**< Software palette if required. */
 
 	/* Syncronization */
-	int sync_warming_up_flag; /**< Initializing flag. */
+	adv_bool sync_warming_up_flag; /**< Initializing flag. */
 	double sync_pivot; /**< Syncronization error, > 0 if early, < 0 if late. */
 	double sync_last; /**< Time of the last syncronization. */
-	int sync_throttle_flag; /**< Throttle mode flag. */
+	adv_bool sync_throttle_flag; /**< Throttle mode flag. */
 	unsigned sync_skip_counter; /**< Number of frames skipped. */
 
 	/* Frameskip */
-	int skip_warming_up_flag; /**< Initializing flag. */
-	int skip_flag; /**< Skip the next frame flag. */
+	adv_bool skip_warming_up_flag; /**< Initializing flag. */
+	adv_bool skip_flag; /**< Skip the next frame flag. */
 	double skip_step; /**< Time for one frame. */
 	unsigned skip_level_counter; /**< Current position in the cycle. */
 	unsigned skip_level_full; /**< Number of frames to draw in the cycle. */
@@ -245,32 +256,32 @@ struct advance_video_state_context {
 	pthread_t thread_id; /**< Thread identifier. */
 	pthread_cond_t thread_video_cond; /**< Thread start/stop condition. */
 	pthread_mutex_t thread_video_mutex; /**< Thread access control. */
-	int thread_exit_flag; /**< If the thread must exit. */
-	int thread_state_ready_flag; /**< If the thread data is ready. */
+	adv_bool thread_exit_flag; /**< If the thread must exit. */
+	adv_bool thread_state_ready_flag; /**< If the thread data is ready. */
 	struct osd_bitmap* thread_state_game; /**< Thread game bitmap to draw. */
 	short* thread_state_sample_buffer; /**< Thread game sound to play. */
 	unsigned thread_state_sample_count;
 	unsigned thread_state_sample_max;
 	unsigned thread_state_led; /**< Thread game led to set. */
 	unsigned thread_state_input; /**< Thread input to process. */
-	int thread_state_skip_flag; /**< Thread frame skip_flag to use. */
+	adv_bool thread_state_skip_flag; /**< Thread frame skip_flag to use. */
 #endif
 
 	/* Fastest startup */
 	unsigned fastest_counter; /**< Startup frame counter (it isn't reset during the game play) */
-	int fastest_flag; /**< Fastest active flag. */
+	adv_bool fastest_flag; /**< Fastest active flag. */
 
 	/* Measure */
 	unsigned measure_counter; /**< Measure frame counter. */
-	int measure_flag; /**< Measure active flag. */
+	adv_bool measure_flag; /**< Measure active flag. */
 	os_clock_t measure_start; /**< Start of the measure. */
 	os_clock_t measure_stop; /**< End of the measure. */
 
 	/* Turbo */
-	int turbo_flag; /**< Turbo speed is active flag. */
+	adv_bool turbo_flag; /**< Turbo speed is active flag. */
 
 	/* Vsync */
-	int vsync_flag; /**< Vsync is active flag. */
+	adv_bool vsync_flag; /**< Vsync is active flag. */
 
 	/* Blit info */
 	int blit_src_dp; /**< Source pixel step. */
@@ -279,9 +290,9 @@ struct advance_video_state_context {
 	unsigned blit_dst_y; /**< Destination y pos. */
 	int blit_src_offset; /**< Pointer at the first used pixel of the bitmap. */
 
-	int combine;
-	int rgb_effect;
-	int interlace_effect;
+	int combine; /**< One of the COMBINE_ effect. */
+	int rgb_effect; /**< One of the EFFECT_ effect. */
+	int interlace_effect; /**< One of the EFFECT_INTERLACE_ effect. */
 
 	unsigned game_visible_size_x;
 	unsigned game_visible_size_y;
@@ -295,7 +306,7 @@ struct advance_video_state_context {
 	unsigned game_visible_pos_x_increment;
 
 	/* Blit pipeline */
-	int blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
+	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
 	struct video_pipeline_struct blit_pipeline; /**< Put pipeline for the whole put. */
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
@@ -306,10 +317,10 @@ struct advance_video_state_context {
 	/* Event */
 	unsigned event_mask_old; /**< Previous event bitmask. */
 
-	int pause_flag; /**< The emulation is paused. */
+	adv_bool pause_flag; /**< The emulation is paused. */
 
 	/* Menu state */
-	int menu_sub_active; /**< If the sub menu is active. */
+	adv_bool menu_sub_flag; /**< If the sub menu is active. */
 	int menu_sub_selected; /**< Index of the selected sub menu voice. */
 };
 
@@ -329,12 +340,12 @@ int mode_current_stretch(const struct advance_video_context* context);
 const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc);
 int mode_current_stretch(const struct advance_video_context* context);
 
-int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context);
+adv_error advance_video_init(struct advance_video_context* context, adv_conf* cfg_context);
 void advance_video_done(struct advance_video_context* context);
-int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option);
+adv_error advance_video_inner_init(struct advance_video_context* context, struct mame_option* option);
 void advance_video_inner_done(struct advance_video_context* context);
-int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option);
-int advance_video_change(struct advance_video_context* context);
+adv_error advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option);
+adv_error advance_video_change(struct advance_video_context* context);
 void advance_video_save(struct advance_video_context* context, const char* section);
 
 /***************************************************************************/
@@ -344,8 +355,8 @@ struct advance_record_config_context {
 	unsigned sound_time; /**< Max recording time in seconds. */
 	unsigned video_time; /**< Max recording time in seconds. */
 	char dir[FILE_MAXPATH]; /**< Directory to store the recording. */
-	int video_flag; /**< Main activation flag for video recording. */
-	int sound_flag; /**< Main activation flag for sound recording. */
+	adv_bool video_flag; /**< Main activation flag for video recording. */
+	adv_bool sound_flag; /**< Main activation flag for sound recording. */
 	unsigned video_interlace; /**< Interlace factor for the video recording. */
 };
 
@@ -354,19 +365,21 @@ struct advance_record_state_context {
 	pthread_mutex_t access_mutex;
 #endif
 
-	int sound_active_flag; /**< Main flag */
-	int video_active_flag; /**< Main flag */
-	int snapshot_active_flag; /**< Main flag */
+	adv_bool sound_active_flag; /**< Main activation flag for sound recording. */
+	adv_bool video_active_flag; /**< Main activation flag for video recording. */
+	adv_bool snapshot_active_flag; /**< Main activatio flag for snapshot recording. */
 
-	int sound_stereo_flag; /**< Number of channels 1 (==0) or 2 (!=0) channels */
-	double sound_frequency; /**< Frequency */
-	unsigned sound_sample_counter; /**< Samples saved */
-	unsigned sound_sample_size; /**< Size in byte of one sample */
+	adv_bool sound_stereo_flag; /**< Number of channels 1 (==0) or 2 (!=0) channels. */
+	double sound_frequency; /**< Frequency. */
+	unsigned sound_sample_counter; /**< Samples saved. */
+	unsigned sound_sample_size; /**< Size in byte of one sample. */
+	adv_bool sound_stopped_flag; /**< If the sound recording is stopped. */
 
 	double video_frequency;
 	unsigned video_sample_counter;
-	unsigned video_freq_step; /**< Frequency base value */
-	unsigned video_freq_base; /**< Frequency step value */
+	unsigned video_freq_step; /**< Frequency base value. */
+	unsigned video_freq_base; /**< Frequency step value. */
+	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
 
 	char sound_file[FILE_MAXPATH]; /**< Sound file */
 	FILE* sound_f; /**< Sound handle */
@@ -382,34 +395,37 @@ struct advance_record_context {
 	struct advance_record_state_context state;
 };
 
-int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context);
+adv_error advance_record_init(struct advance_record_context* context, adv_conf* cfg_context);
 void advance_record_done(struct advance_record_context* context);
-int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
+adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
 
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
 void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
 void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
 
-int advance_record_sound_is_active(struct advance_record_context* context);
-int advance_record_video_is_active(struct advance_record_context* context);
-int advance_record_snapshot_is_active(struct advance_record_context* context);
+adv_bool advance_record_sound_is_active(struct advance_record_context* context);
+adv_bool advance_record_video_is_active(struct advance_record_context* context);
+adv_bool advance_record_snapshot_is_active(struct advance_record_context* context);
 
 /***************************************************************************/
 /* Sound */
 
+/** Sound mode (enumeration). */
+/*@{*/
 #define SOUND_MODE_AUTO -1
 #define SOUND_MODE_MONO 0
 #define SOUND_MODE_STEREO 1
 #define SOUND_MODE_SURROUND 2
+/*@}*/
 
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
-	int attenuation;
+	int attenuation; /**< Sound attenuation in db (0 == full volume). */
 };
 
 struct advance_sound_state_context {
-	int active_flag; /**< Flag for active sound. */
+	adv_bool active_flag; /**< Flag for active sound. */
 	double volume; /**< Current volume. [0 - 1]. */
 	unsigned latency_min; /**< Expected minum latency in samples. */
 	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
@@ -426,9 +442,9 @@ struct advance_sound_context {
 	struct advance_sound_state_context state;
 };
 
-int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
+adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context);
 void advance_sound_done(struct advance_sound_context* context);
-int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
+adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count);
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 
@@ -443,10 +459,10 @@ struct advance_estimate_context {
 	double estimate_common_full;
 	double estimate_common_skip;
 	double estimate_frame; /**< Estimate time for a MAME+OSD frame */
-	int estimate_mame_flag; /**< If last time at point 1 is set */
-	int estimate_osd_flag; /**< If last time at point 2 is set */
-	int estimate_frame_flag; /**< If last time at point 3 is set */
-	int estimate_common_flag;
+	adv_bool estimate_mame_flag; /**< If last time at point 1 is set */
+	adv_bool estimate_osd_flag; /**< If last time at point 2 is set */
+	adv_bool estimate_frame_flag; /**< If last time at point 3 is set */
+	adv_bool estimate_common_flag;
 	double estimate_mame_last; /**< Last time at point 1 */
 	double estimate_osd_last; /**< Last time at point 2 */
 	double estimate_frame_last; /**< Last time at point 3 */
@@ -456,70 +472,71 @@ struct advance_estimate_context {
 void advance_estimate_init(struct advance_estimate_context* context, double step);
 
 void advance_estimate_mame_begin(struct advance_estimate_context* context);
-void advance_estimate_mame_end(struct advance_estimate_context* context, int skip_flag);
+void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag);
 void advance_estimate_osd_begin(struct advance_estimate_context* context);
-void advance_estimate_osd_end(struct advance_estimate_context* context, int skip_flag);
+void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag);
 void advance_estimate_frame(struct advance_estimate_context* context);
 void advance_estimate_common_begin(struct advance_estimate_context* context);
-void advance_estimate_common_end(struct advance_estimate_context* context, int skip_flag);
+void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag);
 
 /***************************************************************************/
 /* SafeQuit */
 
-struct advance_safequit_config {
+struct advance_safequit_config_context {
 	char file[FILE_MAXPATH]; /**< File safequit.dat to load. */
-	int debug_flag; /**< Show the debug flag on the screen. */
-        int safe_exit_flag; /**< Flag for safe exit. */
+	adv_bool debug_flag; /**< Show the debug flag on the screen. */
+        adv_bool safe_exit_flag; /**< Flag for safe exit. */
 };
 
-struct advance_safequit_state {
+struct advance_safequit_state_context {
 };
 
 struct advance_safequit_context {
-	struct advance_safequit_config config;
-	struct advance_safequit_state state;
+	struct advance_safequit_config_context config;
+	struct advance_safequit_state_context state;
 };
 
-int advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context);
+adv_error advance_safequit_init(struct advance_safequit_context* context, adv_conf* cfg_context);
 void advance_safequit_done(struct advance_safequit_context* context);
-int advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
+adv_error advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
 void advance_safequit_inner_done(struct advance_safequit_context* context);
-int advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
-int advance_safequit_can_exit(struct advance_safequit_context* context);
+adv_error advance_safequit_config_load(struct advance_safequit_context* context, adv_conf* cfg_context);
+adv_bool advance_safequit_can_exit(struct advance_safequit_context* context);
 void advance_safequit_update(struct advance_safequit_context* context);
 
 /***************************************************************************/
 /* Input */
 
+/** Max supported input devices. */
+/*@{*/
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
 #define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player. */
-
 #define INPUT_MAP_MAX 8 /**< Max number of mapping codes. */
-
 #define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
 #define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
 #define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
 #define INPUT_DIR_MAX 2 /**< Max number of direction for a stick. */
 #define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
 #define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
+/*@}*/
 
-struct advance_input_config {
-	int input_idle_limit; /**< Limit of no input to exit */
-	int steadykey_flag;
-	int disable_special_flag; /**< Disable the special OS key sequences */
+struct advance_input_config_context {
+	int input_idle_limit; /**< Limit of no input to exit. */
+	adv_bool steadykey_flag; /**< Enable the steady-key management. */
+	adv_bool disable_special_flag; /**< Disable the special OS key sequences. */
 
-	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX][INPUT_MAP_MAX]; /**< Mapping of the analog control */
-	unsigned trakx_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the trakx control */
-	unsigned traky_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the traky control */
+	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX][INPUT_MAP_MAX]; /**< Mapping of the analog control. */
+	unsigned trakx_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the trakx control. */
+	unsigned traky_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the traky control. */
 };
 
-struct advance_input_state {
+struct advance_input_state_context {
 	/* Clock */
 	os_clock_t input_current_clock; /**< Current clock. */
 	os_clock_t input_idle_clock; /**< Clock of last input. */
 
-	int input_forced_exit_flag; /**< Flag to signal the forced exit. */
-	int input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
+	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
+	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
 
 	unsigned char key_old[KEYB_MAX]; /**< Keyboard previous frame state. */
 	unsigned char key_current[KEYB_MAX]; /**< Keyboard current frame state. */
@@ -533,28 +550,55 @@ struct advance_input_state {
 };
 
 struct advance_input_context {
-	struct advance_input_config config;
-	struct advance_input_state state;
+	struct advance_input_config_context config;
+	struct advance_input_state_context state;
 };
 
-int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
+adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
 void advance_input_done(struct advance_input_context* context);
-int advance_input_inner_init(struct advance_input_context* context);
+adv_error advance_input_inner_init(struct advance_input_context* context);
 void advance_input_inner_done(struct advance_input_context* context);
-void advance_input_update(struct advance_input_context* context, int is_pause);
-int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
-int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory);
+void advance_input_update(struct advance_input_context* context, adv_bool is_pause);
+adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory);
+
+void advance_input_force_exit(struct advance_input_context* context);
 
 /***************************************************************************/
 /* Global */
 
+/** Max length of a stored message. */
+#define MESSAGE_MAX 256
+
+/** Difficult level (enumeration). */
+/*@{*/
+#define DIFFICULTY_NONE -1 /**< Don't change the value stored in the .cfg file. */
+#define DIFFICULTY_EASIEST 0
+#define DIFFICULTY_EASY 1
+#define DIFFICULTY_MEDIUM 2
+#define DIFFICULTY_HARD 3
+#define DIFFICULTY_HARDEST 4
+/*@}*/
+
+struct advance_global_config_context {
+	int difficulty; /**< Difficulty level. */
+};
+
 struct advance_global_state_context {
 	adv_bool is_config_writable; /**< Is the configuration file writable ? */
+	char msg[MESSAGE_MAX]; /**< Next message to be displayed. */
 };
 
 struct advance_global_context {
+	struct advance_global_config_context config;
 	struct advance_global_state_context state;
 };
+
+void advance_global_message(struct advance_global_context* context, const char* msg);
+
+adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context);
+adv_error advance_global_config_load(struct advance_global_context* context, adv_conf* cfg_context);
+void advance_global_done(struct advance_global_context* context);
 
 /***************************************************************************/
 /* State */
@@ -580,15 +624,15 @@ extern struct advance_context CONTEXT;
 /* Interface */
 
 /* Glue */
-int mame_init(struct advance_context* context, adv_conf* cfg_context);
+adv_error mame_init(struct advance_context* context, adv_conf* cfg_context);
 void mame_done(struct advance_context* context);
-int mame_config_load(adv_conf* context, struct mame_option* option);
+adv_error mame_config_load(adv_conf* context, struct mame_option* option);
 int mame_game_run(struct advance_context* context, const struct mame_option* option);
 
 /* Fileio */
-int advance_fileio_init(adv_conf* context);
+adv_error advance_fileio_init(adv_conf* context);
 void advance_fileio_done(void);
-int advance_fileio_config_load(adv_conf* context, struct mame_option* option);
+adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option);
 
 /* Timer */
 static inline double advance_timer(void)

@@ -150,7 +150,7 @@ public:
 
 	unsigned preview_set(game_set& gar) const;
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar) = 0;
 	virtual bool load_data(const game_set& gar) = 0;
 	virtual bool load_game(game_set& gar) = 0;
@@ -213,11 +213,12 @@ protected:
 	tristate_t exclude_deco_orig;
 	tristate_t exclude_playchoice_effective;
 	tristate_t exclude_playchoice_orig;
+	bool support_difficulty;
 
 	void load_game_cfg_dir(const game_set& gar, const std::string& dir) const;
 	bool load_game_coin(const std::string& file, unsigned& total_coin) const;
 public:
-	mame_mame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	mame_mame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg, bool Asupport_difficulty);
 
 	virtual void attrib_run();
 	virtual void attrib_load();
@@ -227,7 +228,7 @@ public:
 	virtual bool filter(const game& g) const;
 	virtual void cache(const game_set& gar, const game& g) const;
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar);
 };
@@ -287,7 +288,7 @@ class advmess : public mame_mess {
 public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar);
@@ -304,7 +305,7 @@ class dmess : public mame_mess {
 public:
 	dmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar);
 	virtual bool load_data(const game_set& gar);
 	virtual bool load_software(game_set& gar);
@@ -343,7 +344,7 @@ class draine : public raine_info {
 public:
 	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool load_cfg(const game_set& gar);
 
 	virtual std::string type_get() const;
@@ -363,7 +364,7 @@ public:
 
 	virtual std::string type_get() const;
 
-	virtual bool run(const game& g, unsigned orientation, bool ignore_error) const;
+	virtual bool run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const;
 	virtual bool is_present() const;
 	virtual bool is_runnable() const;
 };

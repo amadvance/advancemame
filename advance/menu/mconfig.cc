@@ -79,6 +79,15 @@ static adv_conf_enum_int OPTION_SAVER[] = {
 { "none", saver_off }
 };
 
+static adv_conf_enum_int OPTION_DIFFICULTY[] = {
+{ "none", difficulty_none },
+{ "easiest", difficulty_easiest },
+{ "easy", difficulty_easy },
+{ "normal", difficulty_medium },
+{ "hard", difficulty_hard },
+{ "hardest", difficulty_hardest }
+};
+
 static adv_conf_enum_int OPTION_PREVIEW[] = {
 { "snap", preview_snap },
 { "flyers", preview_flyer },
@@ -200,6 +209,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "event_repeat", "500 50");
 	conf_string_register_default(config_context, "run_msg", "\"Run game\"");
 	conf_int_register_enum_default(config_context, "run_preview", conf_enum(OPTION_SAVER), saver_snap);
+	conf_int_register_enum_default(config_context, "difficulty", conf_enum(OPTION_DIFFICULTY), difficulty_none);
 	conf_int_register_enum_default(config_context, "preview", conf_enum(OPTION_PREVIEW), preview_snap);
 	conf_float_register_limit_default(config_context, "preview_expand", 1.0, 3.0, 1.15);
 	conf_string_register_default(config_context, "preview_default", "none");
@@ -652,6 +662,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!config_split(conf_string_get_default(config_context, "run_msg"), msg_run_game))
 		return false;
 	run_saver_type = (saver_t)conf_int_get_default(config_context, "run_preview");
+	difficulty_orig = (difficulty_t)conf_int_get_default(config_context, "difficulty");
 	preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
 	idle_saver_type = (saver_t)conf_int_get_default(config_context, "idle_screensaver_preview");
 	preview_expand = conf_float_get_default(config_context, "preview_expand");
@@ -983,6 +994,7 @@ bool config_state::save(adv_conf* config_context) const {
 	conf_int_set(config_context, "", "menu_base", menu_base_orig);
 	conf_int_set(config_context, "", "menu_rel", menu_rel_orig);
 	conf_int_set(config_context, "", "sort", sort_orig);
+	conf_int_set(config_context, "", "difficulty", difficulty_orig);
 	conf_int_set(config_context, "", "preview", preview_orig);
 
 	conf_remove(config_context, "", "emulator_include");
@@ -1071,6 +1083,7 @@ bool config_state::save(adv_conf* config_context) const {
 void config_state::restore_load()
 {
 	mode_effective = mode_orig;
+	difficulty_effective = difficulty_orig;
 	preview_effective = preview_orig;
 	sort_effective = sort_orig;
 	include_group_effective = include_group_orig;
@@ -1088,6 +1101,7 @@ void config_state::restore_load()
 void config_state::restore_save()
 {
 	mode_orig = mode_effective;
+	difficulty_orig = difficulty_effective;
 	preview_orig = preview_effective;
 	sort_orig = sort_effective;
 	include_group_orig = include_group_effective;

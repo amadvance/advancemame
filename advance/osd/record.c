@@ -260,6 +260,7 @@ static int sound_start(struct advance_record_context* context, const char* file,
 	context->state.sound_sample_size = 2;
 	if (stereo)
 		context->state.sound_sample_size *= 2;
+	context->state.sound_stopped_flag = 0;
 
 	strcpy(context->state.sound_file, file);
 
@@ -291,8 +292,16 @@ static int sound_update(struct advance_record_context* context, const short* map
 	if (!context->state.sound_active_flag)
 		return -1;
 
-	if (context->state.sound_sample_counter / context->state.sound_frequency >= context->config.sound_time)
-		return -1;
+	if (context->state.sound_stopped_flag) {
+		return 0;
+	}
+
+	if (context->state.sound_sample_counter / context->state.sound_frequency >= context->config.sound_time) {
+		if (!context->state.video_active_flag)
+			advance_global_message(&CONTEXT.global, "Sound recording full");
+		context->state.sound_stopped_flag = 1;
+		return 0;
+	}
 
 	if (fwrite(map, mac * context->state.sound_sample_size, 1, context->state.sound_f)!=1)
 		goto err;
@@ -786,6 +795,7 @@ static int video_start(struct advance_record_context* context, const char* file,
 
 	context->state.video_frequency = frequency;
 	context->state.video_sample_counter = 0;
+	context->state.video_stopped_flag = 0;
 
 	strcpy(context->state.video_file, file);
 
@@ -831,8 +841,14 @@ static int video_update(struct advance_record_context* context, const void* vide
 	if (!context->state.video_active_flag)
 		return -1;
 
-	if (context->state.video_sample_counter / context->state.video_frequency >= context->config.video_time)
-		return -1;
+	if (context->state.video_stopped_flag)
+		return 0;
+
+	if (context->state.video_sample_counter / context->state.video_frequency >= context->config.video_time) {
+		advance_global_message(&CONTEXT.global, "Video recording full");
+		context->state.video_stopped_flag = 1;
+		return 0;
+	}
 
 	context->state.video_sample_counter += 1;
 
@@ -1014,6 +1030,37 @@ static void advance_record_next(struct advance_record_context* context, const ma
 	}
 }
 
+static void advance_record_terminate(struct advance_record_context* context, unsigned* sound_time, unsigned* video_time)
+{
+	if (context->config.sound_flag) {
+		/* save only if at least 1 second of data is available */
+		if (context->state.sound_sample_counter / context->state.sound_frequency > 1.0) {
+			if (sound_stop(context, sound_time) != 0) {
+				*sound_time = 0;
+			}
+		} else {
+			sound_cancel(context);
+			*sound_time = 0;
+		}
+	} else {
+		*sound_time = 0;
+	}
+
+	if (context->config.video_flag) {
+		/* save only if at least 1 second of data is available */
+		if (context->state.video_sample_counter / context->state.video_frequency > 1.0) {
+			if (video_stop(context, video_time) != 0) {
+				*video_time = 0;
+			}
+		} else {
+			video_cancel(context);
+			*video_time = 0;
+		}
+	} else {
+		*video_time = 0;
+	}
+}
+
 void osd_record_start(void)
 {
 	struct advance_record_context* context = &CONTEXT.record;
@@ -1067,8 +1114,8 @@ void osd_record_stop(void)
 {
 	struct advance_record_context* context = &CONTEXT.record;
 
-	unsigned sound_time = 0;
-	unsigned video_time = 0;
+	unsigned sound_time;
+	unsigned video_time;
 
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
@@ -1076,17 +1123,7 @@ void osd_record_stop(void)
 
 	log_std(("osd: osd_record_stop()\n"));
 
-	if (context->config.sound_flag) {
-		if (sound_stop(context, &sound_time) != 0) {
-			sound_time = 0;
-		}
-	}
-
-	if (context->config.video_flag) {
-		if (video_stop(context, &video_time) != 0) {
-			video_time = 0;
-		}
-	}
+	advance_record_terminate(context, &sound_time, &video_time);
 
 #ifdef USE_SMP
 	pthread_mutex_unlock(&context->state.access_mutex);
@@ -1127,19 +1164,19 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 /*************************************************************************************/
 /* Advance */
 
-int advance_record_sound_is_active(struct advance_record_context* context)
+adv_bool advance_record_sound_is_active(struct advance_record_context* context)
 {
 	return context->state.sound_active_flag
-		&& context->state.sound_sample_counter / context->state.sound_frequency < context->config.sound_time;
+		&& !context->state.sound_stopped_flag;
 }
 
-int advance_record_video_is_active(struct advance_record_context* context)
+adv_bool advance_record_video_is_active(struct advance_record_context* context)
 {
 	return context->state.video_active_flag
-		&& context->state.video_sample_counter / context->state.video_frequency < context->config.video_time;
+		&& !context->state.video_stopped_flag;
 }
 
-int advance_record_snapshot_is_active(struct advance_record_context* context)
+adv_bool advance_record_snapshot_is_active(struct advance_record_context* context)
 {
 	return context->state.snapshot_active_flag;
 }
@@ -1183,7 +1220,7 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 #endif
 }
 
-int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
+adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
 {
 	strcpy(context->config.dir, conf_string_get_default(cfg_context, "dir_snap"));
 	context->config.sound_time = conf_int_get_default(cfg_context, "record_sound_time");
@@ -1203,7 +1240,7 @@ int advance_record_config_load(struct advance_record_context* context, adv_conf*
 	return 0;
 }
 
-int advance_record_init(struct advance_record_context* context, adv_conf* cfg_context)
+adv_error advance_record_init(struct advance_record_context* context, adv_conf* cfg_context)
 {
 	conf_int_register_limit_default(cfg_context, "record_sound_time", 1, 1000000, 15);
 	conf_int_register_limit_default(cfg_context, "record_video_time", 1, 1000000, 15);

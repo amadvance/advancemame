@@ -417,7 +417,7 @@ static char* input_map_axe_desc[INPUT_PLAYER_AXE_MAX] = {
 	"x", "y", "z", "pedal"
 };
 
-int advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
+adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
 {
 	unsigned i;
 
@@ -463,7 +463,7 @@ void advance_input_done(struct advance_input_context* context)
 {
 }
 
-int advance_input_inner_init(struct advance_input_context* context)
+adv_error advance_input_inner_init(struct advance_input_context* context)
 {
 	unsigned i;
 
@@ -553,7 +553,12 @@ static void input_joystick_update(struct advance_input_context* context)
 	}
 }
 
-void advance_input_update(struct advance_input_context* context, int is_pause)
+void advance_input_force_exit(struct advance_input_context* context)
+{
+	context->state.input_forced_exit_flag = 1;
+}
+
+void advance_input_update(struct advance_input_context* context, adv_bool is_pause)
 {
 	os_poll();
 	keyb_poll();
@@ -740,7 +745,7 @@ static int parse_mouse(int* map, char* s)
 	return 0;
 }
 
-int advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
+adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
 {
 	const char* s;
 	unsigned i, j, k;
@@ -861,7 +866,14 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 	return 0;
 }
 
-int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory)
+/**
+ * Check if an exit is requested.
+ * \return
+ *  0 - No exit.
+ *  1 - Normal exit.
+ *  2 - Exit forced.
+ */
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, adv_bool result_memory)
 {
 	if (context->state.input_forced_exit_flag)
 		return 2;
@@ -1075,12 +1087,6 @@ void osd_lightgun_read(int player, int* deltax, int* deltay)
 {
 	*deltax = 0;
 	*deltay = 0;
-}
-
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	/* nothing */
-	(void)defaults;
 }
 
 #ifdef MESS

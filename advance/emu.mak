@@ -14,6 +14,7 @@ OBJDIRS += \
 	$(OBJ)/advance/blit
 
 ADVANCELIBS += $(ZLIBS)
+ADVANCELDFLAGS += -Xlinker --wrap -Xlinker malloc -Xlinker --wrap -Xlinker realloc
 
 ifeq ($(CONF_HOST),unix)
 OBJDIRS += \
@@ -316,8 +317,10 @@ EMUCFLAGS += -I$(srcdir)/advance/osd
 M68000FLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
+	$(OBJ)/advance/osd/allocz.o \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
+	$(OBJ)/advance/osd/global.o \
 	$(OBJ)/advance/osd/videoma.o \
 	$(OBJ)/advance/osd/videocf.o \
 	$(OBJ)/advance/osd/videomn.o \

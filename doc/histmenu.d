@@ -3,11 +3,15 @@ Name
 
 AdvanceMENU Version 2.2.3 2003/01
 	) Added a new attrib for the AdvanceMESS emulator
-		to exclude the system without a BIOS rom.
+		to exclude the systems without a BIOS rom.
 	) Added the Alsa sound driver for Linux. It's now the
 		preferred choice.
 	) The emulator rom info file is not updated if the existing
 		file is readonly.
+	) Renamed the "Attrib" menu to "Selection".
+	) Added a new `difficulty' option and menu to globaly control
+		the difficulty level of the games. It works only
+		with AdvanceMAME.
 
 AdvanceMENU Version 2.2.2 2002/12
 	) Fixed the MNG playing in 32 bits modes. This is potentially

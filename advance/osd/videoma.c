@@ -739,7 +739,7 @@ static void video_invalidate_color(struct advance_video_context* context)
 	/* set all dirty */
 	if (!context->state.game_rgb_flag) {
 		unsigned i;
-		context->state.palette_is_dirty = 1;
+		context->state.palette_dirty_flag = 1;
 		for(i=0;i<context->state.palette_dirty_total;++i)
 			context->state.palette_dirty_map[i] = osd_mask_full;
 	}
@@ -1218,7 +1218,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	context->state.pause_flag = 0;
 	context->state.crtc_selected = 0;
 	context->state.gamma_effect_factor = 1;
-	context->state.menu_sub_active = 0;
+	context->state.menu_sub_flag = 0;
 	context->state.menu_sub_selected = 0;
 
 	context->state.fastest_counter = 0; /* inizialize the fastest frame counter */
@@ -1446,7 +1446,7 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 	}
 
 	/* make the palette completly dirty */
-	context->state.palette_is_dirty = 1;
+	context->state.palette_dirty_flag = 1;
 	for(i=0;i<context->state.palette_dirty_total;++i)
 		context->state.palette_dirty_map[i] = osd_mask_full;
 
@@ -1705,10 +1705,10 @@ static inline void video_frame_screen(struct advance_video_context* context, con
 
 static inline void video_frame_palette(struct advance_video_context* context)
 {
-	if (context->state.palette_is_dirty) {
+	if (context->state.palette_dirty_flag) {
 		unsigned i;
 
-		context->state.palette_is_dirty = 0;
+		context->state.palette_dirty_flag = 0;
 
 		for(i=0;i<context->state.palette_dirty_total;++i) {
 			if (context->state.palette_dirty_map[i]) {
@@ -2572,7 +2572,7 @@ int thread_is_active(void)
 /**
  * Update the state after a configuration change from the user interface.
  */
-int advance_video_change(struct advance_video_context* context)
+adv_error advance_video_change(struct advance_video_context* context)
 {
 	adv_mode mode;
 
@@ -2775,7 +2775,7 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 		}
 	}
 
-	context->state.palette_is_dirty = 1;
+	context->state.palette_dirty_flag = 1;
 	for(i=0;i<size;++i)
 		context->state.palette_map[i] = palette[i];
 	for(i=0;i<dirty_size;++i)
@@ -3016,7 +3016,7 @@ static adv_conf_enum_int OPTION_INDEX[] = {
 { "yuy2", MODE_FLAGS_INDEX_YUY2 }
 };
 
-int advance_video_init(struct advance_video_context* context, adv_conf* cfg_context)
+adv_error advance_video_init(struct advance_video_context* context, adv_conf* cfg_context)
 {
 	/* save the configuration */
 	context->state.cfg_context = cfg_context;
@@ -3165,7 +3165,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	}
 }
 
-int advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option)
+adv_error advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	const char* s;
 	int err;
@@ -3340,7 +3340,7 @@ void advance_video_done(struct advance_video_context* context)
 	crtc_container_done(&context->config.crtc_bag);
 }
 
-int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
+adv_error advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
 	if (video_init() != 0) {
 		target_err("%s\n", error_get());

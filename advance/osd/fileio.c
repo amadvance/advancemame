@@ -979,7 +979,7 @@ void osd_device_eject(int type, int id)
 /***************************************************************************/
 /* Advance interface */
 
-static int path_allocate(char*** dir_map, unsigned* dir_mac, const char* path)
+static adv_error path_allocate(char*** dir_map, unsigned* dir_mac, const char* path)
 {
 	char* temp_path = strdup(path);
 	char* token;
@@ -1014,7 +1014,7 @@ static void path_free(char** dir_map, unsigned dir_mac)
 	free(dir_map);
 }
 
-int advance_fileio_init(adv_conf* context)
+adv_error advance_fileio_init(adv_conf* context)
 {
 
 	struct fileio_item* i;
@@ -1066,7 +1066,7 @@ static void dir_create(char** dir_map, unsigned dir_mac)
 	}
 }
 
-int advance_fileio_config_load(adv_conf* context, struct mame_option* option)
+adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option)
 {
 	struct fileio_item* i;
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {

@@ -234,16 +234,16 @@ int osd2_menu(int selected, unsigned input)
 	else
 		selected = 0;
 
-	if (context->state.menu_sub_active)
+	if (context->state.menu_sub_flag)
 	{
 		int ret = 0;
-		switch (context->state.menu_sub_active) {
+		switch (context->state.menu_sub_flag) {
 			case 1 : ret = video_mode_menu(context, context->state.menu_sub_selected, input); break;
 			case 2 : ret = video_pipeline_menu(context, context->state.menu_sub_selected, input); break;
 		}
 		switch (ret) {
 			case -1 : return -1; /* hide interface */
-			case 0 : context->state.menu_sub_active = 0; context->state.menu_sub_selected = 1; break; /* close submenu */
+			case 0 : context->state.menu_sub_flag = 0; context->state.menu_sub_selected = 1; break; /* close submenu */
 			default: context->state.menu_sub_selected = ret; break;
 		}
 		return selected + 1;
@@ -575,10 +575,10 @@ int osd2_menu(int selected, unsigned input)
 		if (selected == total - 1) {
 			selected = -1;
 		} else if (selected == resolution_index) {
-			context->state.menu_sub_active = 1;
+			context->state.menu_sub_flag = 1;
 			mame_ui_refresh();
 		} else if (selected == pipeline_index) {
-			context->state.menu_sub_active = 2;
+			context->state.menu_sub_flag = 2;
 			mame_ui_refresh();
 		} else if (selected == save_game_index) {
 			advance_video_save(context, context->config.section_name);

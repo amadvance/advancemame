@@ -29,6 +29,7 @@
  */
 
 #include "generate.h"
+#include "log.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -297,12 +298,63 @@ static double pos(double v)
 static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, const adv_generate_interpolate* e0, const adv_generate_interpolate* e1)
 {
 	if (e1->hclock != e0->hclock) {
+		/* linear interpolation on the hclock */
 		double f1 = (hclock - (double)e0->hclock) / (e1->hclock - (double)e0->hclock);
 		double f0 = 1 - f1;
+
+#if 1
+		/* compute the horizontal format with the linear interpolation */
 		generate->hactive = pos(e0->gen.hactive * f0 + e1->gen.hactive * f1);
 		generate->hfront = pos(e0->gen.hfront * f0 + e1->gen.hfront * f1);
 		generate->hsync = pos(e0->gen.hsync * f0 + e1->gen.hsync * f1);
 		generate->hback = pos(e0->gen.hback * f0 + e1->gen.hback * f1);
+#else
+		/* I have some doubts on the correctness of this approach */
+		/* It compute correctly the size, but you may */
+		/* lose the correct centering */
+
+		/* compute the horizontal format with the gtf interpolation */
+		double duty_cycle;
+		double active;
+		double blank;
+		double sync;
+		double front;
+		double back;
+		double c;
+		double m;
+
+		/* horizontal total */
+		double t0 = e0->gen.hactive + e0->gen.hfront + e0->gen.hsync + e0->gen.hback;
+		double t1 = e1->gen.hactive + e1->gen.hfront + e1->gen.hsync + e1->gen.hback;
+
+		/* hclock */
+		double h0 = e0->hclock;
+		double h1 = e1->hclock;
+
+		/* duty cycle */
+		double d0 = (t0 - e0->gen.hactive) / t0;
+		double d1 = (t1 - e1->gen.hactive) / t1;
+
+		/* compute c and m */
+		c = (d0*h0 - d1*h1) / (h0 - h1);
+		m = h1*c - d1*h1;
+
+		/* compute duty cycle */
+		duty_cycle = c - m / hclock;
+
+		active = 1 - duty_cycle;
+		blank = duty_cycle;
+		sync = e0->gen.hsync / t0;
+		front = blank/2 - sync;
+		back = 1 - active - sync - front;
+
+		generate->hactive = pos(active);
+		generate->hfront = pos(front);
+		generate->hsync = pos(sync);
+		generate->hback = pos(back);
+#endif
+
+		/* vertical data with the linear interpolation */
 		generate->vactive = pos(e0->gen.vactive * f0 + e1->gen.vactive * f1);
 		generate->vfront = pos(e0->gen.vfront * f0 + e1->gen.vfront * f1);
 		generate->vsync = pos(e0->gen.vsync * f0 + e1->gen.vsync * f1);

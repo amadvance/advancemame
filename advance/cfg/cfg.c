@@ -51,6 +51,8 @@ unsigned x_from_y(unsigned y) {
 	unsigned x;
 	x = y*2/3;
 	x = (x + 0xf) & ~0xF;
+	if (x < 256)
+		x = 256;
 	return x;
 }
 
@@ -436,8 +438,8 @@ static adv_error cmd_model_custom(adv_monitor* monitor) {
 "The pclock specification is in MHz, the hclock is in kHz, the vclock is in Hz.\n\n"
 "For example:\n\n"
 "pclock = 5-90\n"
-"hclock = 30-50\n"
-"vclock = 55-90\n"
+"hclock = 30.5-60\n"
+"vclock = 55-130\n"
 "\nor\n\n"
 "hclock = 12-70\n"
 "hclock = 31.5, 35-50\n"

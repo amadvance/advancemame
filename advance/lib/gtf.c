@@ -63,7 +63,7 @@ static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsiz
 	/* compute the horizontal crtc */
 	{
 		double hclock = vclock * vtotal * factor;
-		/* total = blank * duty = active + (1-duty) */
+		/* total = blank / duty = active / (1-duty) */
 		double duty_cycle = gtf->c - (gtf->m / hclock);
 		double active = hsize;
 		double blank = active * duty_cycle / (1-duty_cycle);

@@ -51,7 +51,7 @@ void advance_estimate_init(struct advance_estimate_context* context, double step
 	context->estimate_common_full = 0.001 * step;
 }
 
-void advance_estimate_mame_end(struct advance_estimate_context* context, int skip_flag)
+void advance_estimate_mame_end(struct advance_estimate_context* context, adv_bool skip_flag)
 {
 	double current = advance_timer();
 
@@ -73,7 +73,7 @@ void advance_estimate_osd_begin(struct advance_estimate_context* context)
 	context->estimate_osd_last = current;
 }
 
-void advance_estimate_osd_end(struct advance_estimate_context* context, int skip_flag)
+void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool skip_flag)
 {
 	double current = advance_timer();
 
@@ -95,7 +95,7 @@ void advance_estimate_common_begin(struct advance_estimate_context* context)
 	context->estimate_common_last = current;
 }
 
-void advance_estimate_common_end(struct advance_estimate_context* context, int skip_flag)
+void advance_estimate_common_end(struct advance_estimate_context* context, adv_bool skip_flag)
 {
 	double current = advance_timer();
 

@@ -35,6 +35,15 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
+#include <stdarg.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/***************************************************************************/
+/* Signal */
+
 #ifdef __WIN32__
 #define WIFSTOPPED(r) 0
 #define WIFSIGNALED(r) 0
@@ -46,11 +55,23 @@
 #include <sys/wait.h>
 #endif
 
-#include <stdarg.h>
+/***************************************************************************/
+/* snprintf */
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef __WIN32__
+#include <stdio.h>
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 #endif
+
+#ifdef __MSDOS__
+#include <sys/types.h>
+int snprintf(char *str, size_t count, const char *fmt, ...);
+int vsnprintf(char *str, size_t count, const char *fmt, va_list arg);
+#endif
+
+/***************************************************************************/
+/* common */
 
 #include "extra.h"
 

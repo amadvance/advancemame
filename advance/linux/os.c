@@ -41,6 +41,9 @@
 #include <stdio.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /* Check if svgalib is used in some way */
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
@@ -199,16 +202,29 @@ int os_inner_init(const char* title)
 #if defined(USE_SVGALIB)
 	OS.svgalib_active = 0;
 	if (display == 0) {
-		vga_disabledriverreport();
-		log_std(("os: vga_init()\n"));
-		if (vga_init() != 0) {
-			log_std(("os: vga_init() failed\n"));
-			target_err("Error initializing the SVGALIB video support.\n");
-			return -1;
+		int h;
+		log_std(("os: open /dev/svga\n"));
+		/* try opening the device, otherwise vga_init() abort. */
+		h = open("/dev/svga", O_RDWR);
+		if (h >= 0) {
+			close(h);
+			vga_disabledriverreport();
+			log_std(("os: vga_init()\n"));
+			if (vga_init() != 0) {
+				log_std(("os: vga_init() failed\n"));
+				target_err("Error initializing the SVGALIB video support.\n");
+				return -1;
+			}
+			OS.svgalib_active = 1;
+		} else {
+			log_std(("os: open /dev/svga failed\n"));
+			/* don't print the message. It may be a normal condition. */
+			/* target_err("Error opening the SVGALIB device /dev/svga.\n"); */
 		}
-		OS.svgalib_active = 1;
 	} else {
-		log_std(("os: vga_init() skipped\n"));
+		log_std(("os: vga_init() skipped because DISPLAY is defined\n"));
+		/* don't print the message. It may be a normal condition. */
+		/* target_err("Error initializing SVGALIB, it's unusable in X.\n"); */
 	}
 #endif
 #if defined(USE_SDL)
@@ -452,7 +468,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_SOUND_OSS) || defined(USE_SOUND_SDL)
+#if defined(USE_SOUND_OSS) || defined(USE_SOUND_SDL) || defined(USE_SOUND_ALSA)
 	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);

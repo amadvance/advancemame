@@ -83,13 +83,13 @@ Manual Operation Mode
 
 	Generic PC SVGA multisync monitor :
 		:device_video_pclock 10 - 90
-		:device_video_hclock 31 - 60
-		:device_video_vclock 55 - 90
+		:device_video_hclock 30.5 - 60
+		:device_video_vclock 55 - 130
 
 	Generic PC VGA monitor :
 		:device_video_pclock 10 - 50
 		:device_video_hclock 31.5
-		:device_video_vclock 55 - 110
+		:device_video_vclock 55 - 130
 
 	Generic LCD screen :
 		:device_video_pclock 0 - 0

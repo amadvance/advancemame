@@ -10,6 +10,10 @@ AdvanceMAME Version 0.62.3 2003/01
 		requires a big frame skip.
 	) The auto frameskip is now optimized to minimize the idle
 		waiting time instead of getting a 100% speed.
+	) Added the `display_artwork_backdrop/overlay/bezel' option
+		to control any artwork types.
+	) Added the `misc_difficulty' option to select the game
+		difficulty from the command line.
 
 AdvanceMAME Version 0.62.2 2002/12
 	) Added a new raw keyboard driver for Linux [Kari Hautio].

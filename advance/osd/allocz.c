@@ -44,19 +44,26 @@ void malloc_done(void)
 
 extern void* __real_malloc(size_t size);
 
-extern void advance_signal(int);
-
 void* __wrap_malloc(size_t size)
 {
 	void* p;
 
 	p = __real_malloc(size);
 	if (!p) {
-#ifdef __WIN32__
 		raise(SIGSEGV);
-#else
-		raise(SIGUSR1);
-#endif
+	}
+
+	return p;
+}
+
+extern void* __real_realloc(void* p, size_t size);
+
+void* __wrap_realloc(void* d, size_t size) {
+	void* p;
+
+	p = __real_realloc(d, size);
+	if (!p) {
+		raise(SIGSEGV);
 	}
 
 	return p;

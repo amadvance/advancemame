@@ -776,7 +776,7 @@ Configuration
 
     display_interlaceeffect
 	This option enables some special operations on interlaced modes.
-	On not interlaced modes the effect is always off.
+	On not interlaced modes the effect is always disabled.
 
 	:display_interlaceeffect none | even | odd
 
@@ -814,14 +814,18 @@ Configuration
 
   Display Artwork Configuration Options
 
-    display_artwork
+    display_artwork_backdrop/overlay/bezel
 	Enables or disables the artwork display.
 
-	:display_artwork yes | no
+	:display_artwork_backdrop yes | no
+	:display_artwork_overlay yes | no
+	:display_artwork_bezel yes | no
 
 	Options:
-		yes - Enables the artwork (default).
-		no - Doesn't display the artwork.
+		yes - Enables the artwork (default for backdrop
+			and overlay).
+		no - Doesn't display the artwork (default for
+			bezel).
 
     display_artwork_crop
 	Crops the artwork at the game size.
@@ -829,8 +833,8 @@ Configuration
 	:display_artwork_crop yes | no
 
 	Options:
-		yes - Crops the artwork.
-		no - Doesn't crop the artwork (default).
+		yes - Crops the artwork (default).
+		no - Doesn't crop the artwork.
 
   Display Vector Configuration Options
 
@@ -1254,7 +1258,27 @@ Configuration
 	Examples:
 		:record_video_interleave 1
 
+    record_video_stoploop
+	Automatically stop the recording if a looping is detected.
+	This option can be used to automatically record the attract mode.
+
+	:record_video_stoploop yes | no
+
   Misc Configuration Options
+
+    misc_difficulty
+	Selects the game difficulty.
+
+	misc_difficulty none | easiest | easy | normal | hard | hardest
+
+	Options:
+		none - Don't change the default difficulty
+			or the value stored in the .cfg file (default).
+		easiest - Easiest game play.
+		easy - Easy game play.
+		normal - Normal game play.
+		hard - Hard game play.
+		hardest - Hardest game play.
 
     misc_smp
 	Enables the "Symmetric Multi-Processing" (SMP).

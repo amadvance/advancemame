@@ -38,6 +38,7 @@
 #include "fuzzy.h"
 #include "log.h"
 #include "target.h"
+#include "alloc.h"
 
 #include <signal.h>
 #include <string.h>
@@ -458,7 +459,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
 { "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
 { "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
-{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 } /* rename */
+{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
+/* 0.62.3 */
+{ "*", "display_artwork", "*", "%s", "display_artwork_backdrop", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -494,6 +497,8 @@ int os_main(int argc, char* argv[])
 	opt_default = 0;
 	opt_remove = 0;
 
+	malloc_init();
+
 	memset(&option, 0, sizeof(option));
 
 	if (thread_init() != 0) {
@@ -513,6 +518,8 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (mame_init(context, cfg_context)!=0)
+		goto err_os;
+	if (advance_global_init(&context->global, cfg_context)!=0)
 		goto err_os;
 	if (advance_video_init(&context->video, cfg_context)!=0)
 		goto err_os;
@@ -684,6 +691,8 @@ int os_main(int argc, char* argv[])
 	/* load all the options */
 	if (mame_config_load(cfg_context, &option) != 0)
 		goto err_os;
+	if (advance_global_config_load(&context->global, cfg_context)!=0)
+		goto err_os;
 	if (advance_video_config_load(&context->video, cfg_context, &option) != 0)
 		goto err_os;
 	if (advance_sound_config_load(&context->sound, cfg_context, &option) != 0)
@@ -749,6 +758,7 @@ int os_main(int argc, char* argv[])
 	advance_input_done(&context->input);
 	advance_sound_done(&context->sound);
 	advance_video_done(&context->video);
+	advance_global_done(&context->global);
 	mame_done(context);
 
 	log_std(("advance: os_msg_done()\n"));
@@ -777,6 +787,7 @@ int os_main(int argc, char* argv[])
 done_os:
 	os_done();
 	conf_done(cfg_context);
+	malloc_done();
 	return 0;
 
 err_os_inner:
@@ -788,5 +799,6 @@ err_conf:
 err_thread:
 	thread_done();
 err:
+	malloc_done();
 	return -1;
 }

@@ -330,7 +330,7 @@ int run_all(adv_conf* config_context, config_state& rs)
 					rs.save(config_context);
 
 					// run the game
-					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, key == INT_KEY_IDLE_0);
+					rs.current_clone->emulator_get()->run(*rs.current_clone, rs.video_orientation_effective, rs.difficulty_effective, key == INT_KEY_IDLE_0);
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
