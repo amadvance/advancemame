@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <dos.h>
 
+#include "svgalib.h"
+
 /****************************************************************************/
 /* Types */
 
@@ -37,133 +39,6 @@ typedef struct realptr_struct {
 	uint16 off __attribute__ ((packed));
 	uint16 seg __attribute__ ((packed));
 } realptr __attribute__ ((packed));
-
-/****************************************************************************/
-/* SVGALIB */
-
-#include "svgalib.h"
-
-struct chipset_struct {
-	DriverSpecs* drv;
-	int chipset;
-	const char* name;
-	unsigned cap;
-};
-
-/* Short names for the most common flags */
-#define FLAGS_ALL 1
-#define FLAGS_INTERLACE 1
-#define FLAGS_NOINTERLACE 0
-
-static struct chipset_struct cards[] = {
-#ifdef INCLUDE_NV3_DRIVER
-	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_TRIDENT_DRIVER
-	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_RENDITION_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_rendition_driverspecs, RENDITION, "rendition", FLAGS_NOINTERLACE },
-#endif
-#ifdef INCLUDE_G400_DRIVER
-	{ &__svgalib_g400_driverspecs, G400, "g400", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_PM2_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_pm2_driverspecs, PM2, "pm2", FLAGS_NOINTERLACE },
-#endif
-#ifdef INCLUDE_SAVAGE_DRIVER
-	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_MILLENNIUM_DRIVER
-	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_R128_DRIVER
-	{ &__svgalib_r128_driverspecs, R128, "r128", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_BANSHEE_DRIVER
-	{ &__svgalib_banshee_driverspecs, BANSHEE, "banshee", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_SIS_DRIVER
-	{ &__svgalib_sis_driverspecs, SIS, "sis", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_I740_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i740_driverspecs, I740, "i740", FLAGS_NOINTERLACE },
-#endif
-#ifdef INCLUDE_I810_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i810_driverspecs, I810, "i810", FLAGS_NOINTERLACE },
-#endif
-#ifdef INCLUDE_LAGUNA_DRIVER
-	{ &__svgalib_laguna_driverspecs, LAGUNA, "laguna", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_RAGE_DRIVER
-	{ &__svgalib_rage_driverspecs, RAGE, "rage", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_MX_DRIVER
-	{ &__svgalib_mx_driverspecs, MX, "mx", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_NEO_DRIVER
-	{ &__svgalib_neo_driverspecs, NEOMAGIC, "neomagic", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_CHIPS_DRIVER
-	{ &__svgalib_chips_driverspecs, CHIPS, "chips", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_MACH64_DRIVER
-	{ &__svgalib_mach64_driverspecs, MACH64, "mach64", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_MACH32_DRIVER
-	{ &__svgalib_mach32_driverspecs, MACH32, "mach32", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_EGA_DRIVER
-	{ &__svgalib_ega_driverspecs, EGA, "ega", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ET6000_DRIVER
-	/* This must be before ET4000 */
-	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ET4000_DRIVER
-	{ &__svgalib_et4000_driverspecs, ET4000, "et4000", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_TVGA_DRIVER
-	{ &__svgalib_tvga8900_driverspecs, TVGA8900, "tvga8900", FLAGS_ALL }
-#endif
-#ifdef INCLUDE_CIRRUS_DRIVER
-	{ &__svgalib_cirrus_driverspecs, CIRRUS, "cirrus", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_OAK_DRIVER
-	{ &__svgalib_oak_driverspecs, OAK, "oak", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_PARADISE_DRIVER
-	{ &__svgalib_paradise_driverspecs, PARADISE, "paradise", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_S3_DRIVER
-	{ &__svgalib_s3_driverspecs, S3, "s3", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ET3000_DRIVER
-	{ &__svgalib_et3000_driverspecs, ET3000, "et3000", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ARK_DRIVER
-	{ &__svgalib_ark_driverspecs, ARK, "ark", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_GVGA6400_DRIVER
-	{ &__svgalib_gvga6400_driverspecs, GVGA6400, "gvga6400", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ATI_DRIVER
-	{ &__svgalib_ati_driverspecs, ATI, "ati", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_ALI_DRIVER
-	{ &__svgalib_ali_driverspecs, ALI, "ali", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_APM_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	/* On certain cards this may toggle the video signal on/off which is ugly. Hence we test this last. */
-	{ &__svgalib_apm_driverspecs, APM, "apm", FLAGS_NOINTERLACE },
-#endif
-	{ 0, 0, 0, 0 }
-};
 
 /****************************************************************************/
 /* VBE */
@@ -342,21 +217,11 @@ struct state_context {
 	/** Dos memory buffer. */
 	realptr dos_buffer;
 
-	/** Active driver. */
-	struct chipset_struct* driver;
-
-	unsigned char driver_regs[MAX_REGS];
+	unsigned char saved[MAX_REGS];
 
 	unsigned bytes_per_scanline;
 	unsigned bytes_per_pixel;
 	unsigned scroll;
-
-	int has_bit8;
-	int has_bit15;
-	int has_bit16;
-	int has_bit24;
-	int has_bit32;
-	int has_interlace;
 
 	unsigned char palette[768];
 };
@@ -549,23 +414,23 @@ static int load(const char* file) {
 				return -1;
 			}
 
-			if (state.has_bit8 && mode_insert(&info,8) != 0) {
+			if (adv_svgalib_state.has_bit8 && mode_insert(&info,8) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (state.has_bit15 && mode_insert(&info,15) != 0) {
+			if (adv_svgalib_state.has_bit15 && mode_insert(&info,15) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (state.has_bit16 && mode_insert(&info,16) != 0) {
+			if (adv_svgalib_state.has_bit16 && mode_insert(&info,16) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (state.has_bit24 && mode_insert(&info,24) != 0) {
+			if (adv_svgalib_state.has_bit24 && mode_insert(&info,24) != 0) {
 				fclose(f);
 				return -1;
 			}
-			if (state.has_bit32 && mode_insert(&info,32) != 0) {
+			if (adv_svgalib_state.has_bit32 && mode_insert(&info,32) != 0) {
 				fclose(f);
 				return -1;
 			}
@@ -625,105 +490,40 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 }
 
 static int driver_init(void) {
-	unsigned bit_map[5] = { 8,15,16,24,32 };
-	unsigned i;
-
 	printf("\n");
 
 	if (pci_scan_device(pci_scan_device_callback,0)!=0) {
 		printf("PCI/AGP card : none\n");
 	}
 
-	state.driver = 0;
-	for(i=0;cards[i].name;++i) {
-		if (cards[i].drv->test()) {
-			printf("Video driver : %s\n",cards[i].name);
-			state.driver = &cards[i];
-			__svgalib_chipset = state.driver->chipset;
-			break;
-		}
+	if (adv_svgalib_init(0) != 0) {
+		printf("Error initializing SVGALIB\n");
+		return -1;
 	}
-	if (state.driver == 0) {
+
+	if (adv_svgalib_detect("auto") != 0) {
 		printf("Unsupported video board.\n");
 		return -1;
 	}
 
-	/* linear frame buffer */
-	if (__svgalib_linear_mem_size == 0) {
-		printf("Invalid linear size.\n");
-		return -1;
-	}
+	printf("Video driver : %s\n", adv_svgalib_driver_get());
 
-	if (__svgalib_linear_mem_base == 0) {
-		printf("Invalid linear base.\n");
-		return -1;
-	}
-
-	/* map the MMIO memory */
-	/* the memory must be always mapped to support the save/restore functions */
-	if (__svgalib_mmio_size) {
-		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
-	} else {
-		__svgalib_mmio_pointer = 0;
-	}
-
-	state.has_bit8 = 1;
-	state.has_bit15 = 1;
-	state.has_bit16 = 1;
-	state.has_bit24 = 1;
-	state.has_bit32 = 1;
-
-	/* bit depth */
-	for(i=0;i<5;++i) {
-		unsigned bit = bit_map[i];
-
-		adv_svgalib_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
-
-		if (state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
-			switch (bit) {
-				case 8 : state.has_bit8 = 0; break;
-				case 15 : state.has_bit15 = 0; break;
-				case 16 : state.has_bit16 = 0; break;
-				case 24 : state.has_bit24 = 0; break;
-				case 32 : state.has_bit32 = 0; break;
-			}
-		}
-
-		adv_svgalib_mode_done();
-	}
-
-	if (state.has_bit8 == 0 && state.has_bit15 == 0 && state.has_bit16 == 0 && state.has_bit24 == 0 && state.has_bit32 == 0) {
-		printf("No bit depth supported.\n");
-		return -1;
-	}
-
-	/* interlace */
-	state.has_interlace = 0;
-	if ((state.driver->cap & FLAGS_INTERLACE) != 0) {
-		state.has_interlace = 1;
-		adv_svgalib_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
-
-		if (state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
-			state.has_interlace = 0;
-		}
-
-		adv_svgalib_mode_done();
-	}
+	adv_svgalib_mmio_map();
 
 	printf("Bit depth : ");
-	if (state.has_bit8) printf("8 ");
-	if (state.has_bit15) printf("15 ");
-	if (state.has_bit16) printf("16 ");
-	if (state.has_bit24) printf("24 ");
-	if (state.has_bit32) printf("32 ");
+	if (adv_svgalib_state.has_bit8) printf("8 ");
+	if (adv_svgalib_state.has_bit15) printf("15 ");
+	if (adv_svgalib_state.has_bit16) printf("16 ");
+	if (adv_svgalib_state.has_bit24) printf("24 ");
+	if (adv_svgalib_state.has_bit32) printf("32 ");
 	printf("\n");
-	if (state.has_interlace)
+	if (adv_svgalib_state.has_interlace)
 		printf("Interlace : yes\n");
 	else
 		printf("Interlace : no\n");
-	printf("Linear memory : %08x, %d Mbyte\n", (unsigned)__svgalib_linear_mem_base, (unsigned)__svgalib_linear_mem_size / (1024*1024));
-	if (__svgalib_mmio_size) {
-		printf("MMIO memory : %08x, %d byte\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size);
+	printf("Linear memory : %08x, %d Mbyte\n", adv_svgalib_linear_base_get(), adv_svgalib_linear_size_get() / (1024*1024));
+	if (adv_svgalib_mmio_size_get()) {
+		printf("MMIO memory : %08x, %d byte\n", adv_svgalib_mmio_base_get(), adv_svgalib_mmio_size_get());
 	}
 
 	return 0;
@@ -737,9 +537,6 @@ int vbe_init(const char* config) {
 	state.mode_number_generator = VBE_CUSTOM_MODE;
 	state.version = 0x200;
 	state.mode = 0;
-	state.driver = 0;
-
-	adv_svgalib_init(0);
 
 	if (driver_init() != 0) {
 		return -1;
@@ -762,6 +559,8 @@ int vbe_init(const char* config) {
 }
 
 void vbe_done(void) {
+	adv_svgalib_mmio_unmap();
+	adv_svgalib_done();
 }
 
 /****************************************************************************/
@@ -775,35 +574,11 @@ static realptr oem_alloc(realptr* base, void* data, unsigned size)
 	return r;
 }
 
-static void stabilize(void) {
-	unsigned i;
-	for(i=0;i<10000;++i) {
-		inportb(0x80);
-	}
-}
-
-static int mode_set_noint(mode_info* mode)
+static int mode_set(mode_info* mode)
 {
-	adv_svgalib_mode_init(mode->pixelclock, mode->hde, mode->hrs, mode->hre, mode->ht, mode->vde, mode->vrs, mode->vre, mode->vt, mode->doublescan, mode->interlace, mode->nhsync, mode->nvsync, mode->bits_per_pixel, 0, 0);
+	adv_svgalib_save(state.saved);
 
-	if (state.driver->drv->unlock)
-		state.driver->drv->unlock();
-
-	__svgalib_saveregs(state.driver_regs);
-
-	vga_screenoff();
-
-	if (state.driver->drv->setmode(adv_svgalib_mode_number, TEXT)) {
-		return -1;
-	}
-
-	stabilize();
-
-	vga_screenon();
-
-	if (state.driver->drv->linear(LINEAR_ENABLE, __svgalib_linear_mem_base)!=0) {
-		return -1;
-	}
+	adv_svgalib_set(mode->pixelclock, mode->hde, mode->hrs, mode->hre, mode->ht, mode->vde, mode->vrs, mode->vre, mode->vt, mode->doublescan, mode->interlace, mode->nhsync, mode->nvsync, mode->bits_per_pixel, 0, 0);
 
 	state.mode = mode;
 	state.bytes_per_pixel = (mode->bits_per_pixel + 7) / 8;
@@ -814,44 +589,13 @@ static int mode_set_noint(mode_info* mode)
 	return 0;
 }
 
-static int mode_set(mode_info* mode)
-{
-	int r;
-
-	disable();
-	r = mode_set_noint(mode);
-	enable();
-
-	return r;
-}
-
-static void mode_unset_noint(void)
-{
-	if (state.driver->drv->unlock)
-		state.driver->drv->unlock();
-
-	state.driver->drv->linear(LINEAR_DISABLE, __svgalib_linear_mem_base);
-
-	vga_screenoff();
-
-	__svgalib_setregs(state.driver_regs);
-
-	state.driver->drv->setregs(state.driver_regs, TEXT);
-
-	stabilize();
-
-	vga_screenon();
-
-	adv_svgalib_mode_done();
-
-	state.mode = 0;
-}
-
 static void mode_unset(void)
 {
-	disable();
-	mode_unset_noint();
-	enable();
+	adv_svgalib_unset();
+
+	adv_svgalib_restore(state.saved);
+
+	state.mode = 0;
 }
 
 static void vga_service_00(_go32_dpmi_registers* r)
@@ -905,7 +649,7 @@ static void vbe_service_4f00(_go32_dpmi_registers* r)
 	info.OemStringPtr = oem_alloc(&oem_addr, OEM_STR, strlen(OEM_STR)+1);
 	info.Capabilities = 0;
 	info.VideoModePtr = oem_alloc(&reserved_addr, &state.mode_list, 2*(state.mode_max+1));
-	info.TotalMemory = __svgalib_linear_mem_size / (1 << 16);
+	info.TotalMemory = adv_svgalib_linear_size_get() / (1 << 16);
 
 	if (state.version >= 0x200) {
 		info.OemSoftwareRev = OEM_VERSION_NUM;
@@ -971,7 +715,7 @@ static void vbe_service_4f01(_go32_dpmi_registers* r)
 	else
 		info.MemoryModel = vbeMemRGB;
 	info.BankSize = 0;
-	info.NumberOfImagePages = __svgalib_linear_mem_size / (info.YResolution * (unsigned)info.BytesPerScanLine) - 1;
+	info.NumberOfImagePages = adv_svgalib_linear_size_get() / (info.YResolution * (unsigned)info.BytesPerScanLine) - 1;
 	info.ReservedPage = 1;
 	switch (info.BitsPerPixel) {
 		case 15 :
@@ -1028,7 +772,7 @@ static void vbe_service_4f01(_go32_dpmi_registers* r)
 	info.DirectColorModeInfo = vbeDcRsvdUsable;
 
 	if (state.version >= 0x200) {
-		info.PhysBasePtr = __svgalib_linear_mem_base;
+		info.PhysBasePtr = adv_svgalib_linear_base_get();
 		info.OffScreenMemOffset = 0;
 		info.OffScreenMemSize = 0;
 	}
@@ -1144,9 +888,7 @@ static void vbe_service_4f04(_go32_dpmi_registers* r)
 	if (r->h.dl == 1) {
 		if ((r->x.cx & 0x1) != 0 || (r->x.cx & 0x4) != 0 || (r->x.cx & 0x8) != 0) {
 			unsigned char regs[MAX_REGS];
-			if (state.driver->drv->unlock)
-				state.driver->drv->unlock();
-			__svgalib_saveregs(regs);
+			adv_svgalib_save(regs);
 			dosmemput(regs, MAX_REGS, r->x.es * 16 + r->x.bx);
 		}
 		r->x.ax = 0x004f; /* success */
@@ -1156,16 +898,8 @@ static void vbe_service_4f04(_go32_dpmi_registers* r)
 	if (r->h.dl == 2) {
 		if ((r->x.cx & 0x1) != 0 || (r->x.cx & 0x4) != 0 || (r->x.cx & 0x8) != 0) {
 			unsigned char regs[MAX_REGS];
-			if (state.driver->drv->unlock)
-				state.driver->drv->unlock();
-
 			dosmemget(r->x.es * 16 + r->x.bx, MAX_REGS, regs);
-
-			vga_screenoff();
-			__svgalib_setregs(regs);
-			state.driver->drv->setregs(regs, TEXT);
-			stabilize();
-			vga_screenon();
+			adv_svgalib_restore(regs);
 		}
 		r->x.ax = 0x004f; /* success */
 		return;
@@ -1216,14 +950,9 @@ static void vbe_service_4f06(_go32_dpmi_registers* r)
 		return;
 	}
 
-	if (!state.driver->drv->setlogicalwidth) {
-		r->x.ax = 0x0100; /* not supported */
-		return;
-	}
-
 	if (r->h.bl == 0) {
 		state.bytes_per_scanline = r->x.cx * state.bytes_per_pixel;
-		state.driver->drv->setlogicalwidth(state.bytes_per_scanline);
+		adv_svgalib_scanline_set(state.bytes_per_scanline);
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
@@ -1231,27 +960,27 @@ static void vbe_service_4f06(_go32_dpmi_registers* r)
 	if (r->h.bl == 1) {
 		r->x.bx = state.bytes_per_scanline;
 		r->x.cx = state.bytes_per_scanline / state.bytes_per_pixel;
-		r->x.dx = __svgalib_linear_mem_size / state.bytes_per_scanline;
+		r->x.dx = adv_svgalib_linear_size_get() / state.bytes_per_scanline;
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
 
 	if (r->h.bl == 2) {
 		state.bytes_per_scanline = r->x.cx;
-		state.driver->drv->setlogicalwidth(state.bytes_per_scanline);
+		adv_svgalib_scanline_set(state.bytes_per_scanline);
 		r->x.bx = state.bytes_per_scanline;
 		r->x.cx = state.bytes_per_scanline / state.bytes_per_pixel;
-		r->x.dx = __svgalib_linear_mem_size / state.bytes_per_scanline;
+		r->x.dx = adv_svgalib_linear_size_get() / state.bytes_per_scanline;
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
 
 	if (r->h.bl == 3) {
-		r->x.cx = __svgalib_linear_mem_size / (state.mode->hde * state.bytes_per_pixel);
+		r->x.cx = adv_svgalib_linear_size_get() / (state.mode->hde * state.bytes_per_pixel);
 		if (r->x.cx > 1024)
 			r->x.cx = 1024;
 		r->x.bx = r->x.cx * state.bytes_per_pixel;
-		r->x.dx = __svgalib_linear_mem_size / (r->x.cx * state.bytes_per_pixel);
+		r->x.dx = adv_svgalib_linear_size_get() / (r->x.cx * state.bytes_per_pixel);
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
@@ -1285,11 +1014,6 @@ static void vbe_service_4f07(_go32_dpmi_registers* r)
 		return;
 	}
 
-	if (!state.driver->drv->setdisplaystart) {
-		r->x.ax = 0x0100; /* not supported */
-		return;
-	}
-
 	if (r->h.bh != 0) {
 		r->x.ax = 0x014f; /* error */
 		return;
@@ -1297,9 +1021,9 @@ static void vbe_service_4f07(_go32_dpmi_registers* r)
 
 	if (r->h.bl == 0 || r->h.bl == 0x80) {
 		if (r->h.bl == 0x80)
-			vga_waitretrace();
+			adv_svgalib_wait_vsync();
 		state.scroll = r->x.dx * state.bytes_per_scanline + r->x.cx * state.bytes_per_pixel;
-		state.driver->drv->setdisplaystart(state.scroll);
+		adv_svgalib_scroll_set(state.scroll);
 		r->x.ax = 0x004f; /* success */
 		return;
 	}
@@ -1384,13 +1108,13 @@ static void vbe_service_4f09(_go32_dpmi_registers* r)
 		}
 
 		if (r->h.bl == 0x80)
-			vga_waitretrace();
+			adv_svgalib_wait_vsync();
 
 		dosmemget(r->x.es * 16 + r->x.di, r->x.cx * 3, state.palette + r->x.dx * 3);
 
 		rgb = state.palette + r->x.dx * 3;
 		for(i=0;i<r->x.cx;++i) {
-			vga_setpalette(r->x.dx + i, rgb[0], rgb[1], rgb[2]);
+			adv_svgalib_palette_set(r->x.dx + i, rgb[0] << 2, rgb[1] << 2, rgb[2] << 2);
 			rgb += 3;
 		}
 

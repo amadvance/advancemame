@@ -113,7 +113,7 @@ void target_sound_signal(void) {
 /* APM */
 
 adv_error target_apm_shutdown(void) {
-	/* nothing */
+	system("/sbin/poweroff");
 	return 0;
 }
 

@@ -754,7 +754,7 @@ uint16 _pascal tsr(int (*remote)(void far* arg), char far* args) {
 	cputs(OEM_PRODUCT_STR " by " OEM_VENDOR_STR " v" OEM_VERSION_STR "\r\n");
 	cputs(
 "Usage:\n\r"
-"    vga [/l] [/u] [/a] [/e] [/d] —[/c CONFIG]\n\r"
+"    vga [/l] [/u] [/a] [/e] [/d] [/c CONFIG]\n\r"
 "Commands:\n\r"
 "    /l         Load the TSR\n\r"
 "    /u         Unload the TSR\n\r"

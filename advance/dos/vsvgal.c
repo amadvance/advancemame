@@ -33,7 +33,6 @@
 #include "log.h"
 #include "error.h"
 
-#define USE_SVGALIB_EXTERNAL
 #include "svgalib.h"
 
 #include <sys/mman.h>
@@ -45,23 +44,12 @@
 /***************************************************************************/
 /* State */
 
-struct svgaline_chipset_struct {
-	DriverSpecs* drv;
-	int chipset;
-	const char* name;
-	unsigned cap;
-};
-
 typedef struct svgaline_internal_struct {
 	int active;
 	int mode_active;
 
-	struct svgaline_chipset_struct* driver;
-	unsigned char driver_regs[MAX_REGS];
-
-	unsigned linear_base;
-	unsigned linear_size;
-	void* linear_pointer;
+	unsigned cap;
+	unsigned char saved[MAX_REGS];
 } svgaline_internal;
 
 static svgaline_internal svgaline_state;
@@ -82,123 +70,8 @@ static struct svgaline_option_struct svgaline_option;
 /* Internal */
 
 static unsigned char* svgaline_linear_write_line(unsigned y) {
-	return (unsigned char*)svgaline_state.linear_pointer + adv_svgalib_mode.bytes_per_scanline * y;
+	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_bytes_per_scanline_get() * y;
 }
-
-/* Short names for the most common flags */
-#define FLAGS_ALL (VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL)
-#define FLAGS_NOTV (FLAGS_ALL & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC))
-#define FLAGS_NOTVINTERLACE (FLAGS_NOTV & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE))
-
-static struct svgaline_chipset_struct cards[] = {
-#ifdef INCLUDE_NV3_DRIVER
-	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_ALL },
-#endif
-#ifdef INCLUDE_TRIDENT_DRIVER
-	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_RENDITION_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_rendition_driverspecs, RENDITION, "rendition", FLAGS_NOTVINTERLACE },
-#endif
-#ifdef INCLUDE_G400_DRIVER
-	{ &__svgalib_g400_driverspecs, G400, "g400", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_PM2_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_pm2_driverspecs, PM2, "pm2", FLAGS_NOTVINTERLACE },
-#endif
-#ifdef INCLUDE_SAVAGE_DRIVER
-	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_MILLENNIUM_DRIVER
-	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_R128_DRIVER
-	{ &__svgalib_r128_driverspecs, R128, "r128", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_BANSHEE_DRIVER
-	{ &__svgalib_banshee_driverspecs, BANSHEE, "banshee", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_SIS_DRIVER
-	{ &__svgalib_sis_driverspecs, SIS, "sis", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_I740_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i740_driverspecs, I740, "i740", FLAGS_NOTVINTERLACE },
-#endif
-#ifdef INCLUDE_I810_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i810_driverspecs, I810, "i810", FLAGS_NOTVINTERLACE },
-#endif
-#ifdef INCLUDE_LAGUNA_DRIVER
-	{ &__svgalib_laguna_driverspecs, LAGUNA, "laguna", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_RAGE_DRIVER
-	{ &__svgalib_rage_driverspecs, RAGE, "rage", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_MX_DRIVER
-	{ &__svgalib_mx_driverspecs, MX, "mx", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_NEO_DRIVER
-	{ &__svgalib_neo_driverspecs, NEOMAGIC, "neomagic", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_CHIPS_DRIVER
-	{ &__svgalib_chips_driverspecs, CHIPS, "chips", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_MACH64_DRIVER
-	{ &__svgalib_mach64_driverspecs, MACH64, "mach64", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_MACH32_DRIVER
-	{ &__svgalib_mach32_driverspecs, MACH32, "mach32", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_EGA_DRIVER
-	{ &__svgalib_ega_driverspecs, EGA, "ega", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ET6000_DRIVER
-	/* This must be before ET4000 */
-	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ET4000_DRIVER
-	{ &__svgalib_et4000_driverspecs, ET4000, "et4000", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_TVGA_DRIVER
-	{ &__svgalib_tvga8900_driverspecs, TVGA8900, "tvga8900", FLAGS_NOTV }
-#endif
-#ifdef INCLUDE_CIRRUS_DRIVER
-	{ &__svgalib_cirrus_driverspecs, CIRRUS, "cirrus", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_OAK_DRIVER
-	{ &__svgalib_oak_driverspecs, OAK, "oak", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_PARADISE_DRIVER
-	{ &__svgalib_paradise_driverspecs, PARADISE, "paradise", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_S3_DRIVER
-	{ &__svgalib_s3_driverspecs, S3, "s3", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ET3000_DRIVER
-	{ &__svgalib_et3000_driverspecs, ET3000, "et3000", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ARK_DRIVER
-	{ &__svgalib_ark_driverspecs, ARK, "ark", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_GVGA6400_DRIVER
-	{ &__svgalib_gvga6400_driverspecs, GVGA6400, "gvga6400", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ATI_DRIVER
-	{ &__svgalib_ati_driverspecs, ATI, "ati", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_ALI_DRIVER
-	{ &__svgalib_ali_driverspecs, ALI, "ali", FLAGS_NOTV },
-#endif
-#ifdef INCLUDE_APM_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	/* On certain cards this may toggle the video signal on/off which is ugly. Hence we test this last. */
-	{ &__svgalib_apm_driverspecs, APM, "apm", FLAGS_NOTVINTERLACE },
-#endif
-	{ 0, 0, 0, 0 }
-};
 
 /* Keep the same order of svgaline_chipset_struct cards */
 static adv_device DEVICE[] = {
@@ -305,97 +178,6 @@ static adv_device DEVICE[] = {
 	{ 0, 0, 0 }
 };
 
-#define CARD_MAX (sizeof(cards)/sizeof(cards[0]) - 1)
-
-/** Test the capability of the driver */
-static adv_error svgaline_test_capability(struct svgaline_chipset_struct* driver) {
-	unsigned bit_map[5] = { 8,15,16,24,32 };
-	unsigned i;
-
-	/* linear frame buffer */
-	if (__svgalib_linear_mem_size == 0) {
-		log_std(("svgaline: linear_size 0, skip\n"));
-		return -1;
-	}
-
-	if (__svgalib_linear_mem_base == 0) {
-		log_std(("svgaline: linear_base 0, skip\n"));
-		return -1;
-	}
-
-	if (!driver->drv->saveregs
-		|| !driver->drv->setregs
-		|| !driver->drv->unlock
-		|| !driver->drv->test
-		|| !driver->drv->init
-		|| !driver->drv->setmode
-		|| !driver->drv->modeavailable
-		|| !driver->drv->linear) {
-		log_std(("svgaline: missing function, skip\n"));
-	}
-
-	/* bit depth */
-	for(i=0;i<5;++i) {
-		unsigned bit = bit_map[i];
-
-		adv_svgalib_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
-
-		if (driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
-			unsigned cap = 0;
-			switch (bit) {
-				case 8 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT; break;
-				case 15 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT; break;
-				case 16 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT; break;
-				case 24 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT; break;
-				case 32 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
-			}
-			driver->cap &= ~cap;
-			log_std(("svgaline: mode bit %d not supported, removed\n", bit));
-		}
-
-		adv_svgalib_mode_done();
-	}
-
-	if ((driver->cap & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) == 0) {
-		log_std(("svgaline: no modes supported, skip\n"));
-		return -1;
-	}
-
-	/* interlace */
-	if ((driver->cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
-		adv_svgalib_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
-
-		if (driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
-			driver->cap &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-			log_std(("svgaline: interlace not supported, removed\n"));
-		}
-
-		adv_svgalib_mode_done();
-	}
-
-	return 0;
-}
-
-static void svgaline_mode_print(void) {
-#ifndef NDEBUG
-	unsigned char driver_regs[MAX_REGS];
-	unsigned i,j,k;
-
-	memset(driver_regs,0x00,sizeof(driver_regs));
-
-	k = __svgalib_saveregs(driver_regs);
-
-	for(i=0;i<k;i+=32) {
-		log_std(("svgaline: regs %04x:",i));
-		for(j=0;j<32 && i+j<k;++j)
-			log_std(("%02x",(unsigned)driver_regs[i+j]));
-		log_std(("\n"));
-	}
-#endif
-
-	log_std(("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size));
-}
-
 /***************************************************************************/
 /* Public */
 
@@ -418,26 +200,38 @@ adv_error svgaline_init(int device_id) {
 	}
 
 	if (adv_svgalib_init(svgaline_option.divide_clock) != 0) {
+		log_std(("svgaline: error calling adv_svgalib_init()\n"));
 		return -1;
 	}
 
-	for(i=0;cards[i].name;++i) {
-		if (strcmp(name,"auto")==0 || strcmp(name,cards[i].name)==0) {
-			if (cards[i].drv->test()) {
-				log_std(("svgaline: found driver %s\n",cards[i].name));
-				if (svgaline_test_capability(&cards[i]) != 0) {
-					continue;
-				}
-				svgaline_state.driver = &cards[i];
-				svgaline_state.active = 1;
-				__svgalib_chipset = svgaline_state.driver->chipset;
-				break;
-			}
-		}
+	if (adv_svgalib_detect(name) != 0) {
+		log_std(("svgaline: error calling adv_svgalib_detect(%s)\n", name));
+		return -1;
 	}
 
-	if (!svgaline_state.active)
-		return -1;
+	log_std(("svgaline: found driver %s\n", adv_svgalib_driver_get()));
+
+	svgaline_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
+
+	if (adv_svgalib_state.has_bit8)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+	if (adv_svgalib_state.has_bit15)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+	if (adv_svgalib_state.has_bit16)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+	if (adv_svgalib_state.has_bit24)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT;
+	if (adv_svgalib_state.has_bit32)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+	if (adv_svgalib_state.has_interlace)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	if (adv_svgalib_state.has_tvpal)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
+	if (adv_svgalib_state.has_tvntsc)
+		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
+
+	svgaline_state.active = 1;
 
 	return 0;
 }
@@ -460,10 +254,10 @@ adv_bool svgaline_mode_is_active(void) {
 
 unsigned svgaline_flags(void) {
 	assert( svgaline_is_active() );
-	return svgaline_state.driver->cap;
+	return svgaline_state.cap;
 }
 
-static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
+adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 {
 	unsigned clock;
 
@@ -477,66 +271,15 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	if (svgaline_option.divide_clock)
 		clock *= 2;
 
-	adv_svgalib_mode_init(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc));
+	adv_svgalib_mmio_map();
+	adv_svgalib_linear_map();
 
-	if (!__svgalib_linear_mem_size) {
-		error_set("The current driver does't support the linear frame buffer");
-		return -1;
-	}
+	adv_svgalib_save(svgaline_state.saved);
 
-	svgaline_state.linear_base = __svgalib_linear_mem_base;
-	svgaline_state.linear_size = __svgalib_linear_mem_size;
-
-	log_std(("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size));
-	svgaline_state.linear_pointer = adv_svgalib_mmap(0, svgaline_state.linear_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, svgaline_state.linear_base);
-
-	log_std(("svgaline: svgalib linear pointer %p\n", svgaline_state.linear_pointer));
-	__svgalib_linear_pointer = svgaline_state.linear_pointer;
-
-	if (__svgalib_mmio_size) {
-		log_std(("svgaline: svgalib mmap(mmio) address %x, size %d\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size));
-		__svgalib_mmio_pointer = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
-		log_std(("svgaline: svgalib mmio pointer %x\n",(unsigned)__svgalib_mmio_pointer));
-	} else
-		__svgalib_mmio_pointer = 0;
-
-	log_std(("svgaline: svgalib unlock()\n"));
-
-	if (svgaline_state.driver->drv->unlock)
-		svgaline_state.driver->drv->unlock();
-
-	log_std(("svgaline: svgalib saveregs()\n"));
-
-	__svgalib_saveregs(svgaline_state.driver_regs);
-
-#ifdef NDEBUG
-	log_std(("svgaline: svgalib screenoff()\n"));
-	vga_screenoff();
-#endif
-
-	log_std(("svgaline: svgalib setmode()\n"));
-
-	if (svgaline_state.driver->drv->setmode(adv_svgalib_mode_number, TEXT)) {
+	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
+		adv_svgalib_linear_unmap();
+		adv_svgalib_mmio_unmap();
 		error_set("Generic error setting the svgaline mode");
-		return -1;
-	}
-
-	log_std(("svgaline: svgalib print()\n"));
-
-	svgaline_mode_print();
-
-	log_std(("svgaline: svgalib delay()\n"));
-
-	usleep(10000); /* wait for signal to stabilize */
-
-	log_std(("svgaline: svgalib screenon()\n"));
-
-	vga_screenon();
-
-	log_std(("svgaline: svgalib linear(LINEAR_ENABLE)\n"));
-
-	if (svgaline_state.driver->drv->linear(LINEAR_ENABLE,svgaline_state.linear_base)!=0) {
-		error_set("Generic error setting the linear mode");
 		return -1;
 	}
 
@@ -549,124 +292,41 @@ static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	return 0;
 }
 
-adv_error svgaline_mode_set(const svgaline_video_mode* mode) {
-	adv_error r;
-
-#ifdef NDEBUG
-	/* disable the interrupts */
-	disable();
-#endif
-	r = svgaline_mode_set_noint(mode);
-#ifdef NDEBUG
-	enable();
-#endif
-
-	return r;
-}
-
 adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
-	/* fast unset */
-	log_std(("svgaline: svgalib unlock()\n"));
+	adv_svgalib_unset();
 
-	if (svgaline_state.driver->drv->unlock)
-		svgaline_state.driver->drv->unlock();
-
-	log_std(("svgaline: svgalib linear(LINEAR_DISABLE)\n"));
-
-	svgaline_state.driver->drv->linear(LINEAR_DISABLE,svgaline_state.linear_base);
-
-	log_std(("svgaline: svgalib unmap(linear)\n"));
-
-	adv_svgalib_munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
-	svgaline_state.linear_size = 0;
-	svgaline_state.linear_base = 0;
-	svgaline_state.linear_pointer = 0;
-	__svgalib_linear_pointer = 0;
-
-	if (__svgalib_mmio_size) {
-		log_std(("svgaline: svgalib unmap(mmio)\n"));
-		adv_svgalib_munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
-		__svgalib_mmio_pointer = 0;
-	}
-
-	adv_svgalib_mode_done();
+	adv_svgalib_linear_unmap();
+	adv_svgalib_mmio_unmap();
 
 	svgaline_state.mode_active = 0;
 
 	return svgaline_mode_set(mode);
 }
 
-static void svgaline_mode_done_noint(adv_bool restore) {
+void svgaline_mode_done(adv_bool restore) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
-	/* complete unset */
-	log_std(("svgaline: svgalib unlock()\n"));
+	adv_svgalib_unset();
 
-	if (svgaline_state.driver->drv->unlock)
-		svgaline_state.driver->drv->unlock();
+	if (restore)
+		adv_svgalib_restore(svgaline_state.saved);
 
-	log_std(("svgaline: svgalib linear(LINEAR_DISABLE)\n"));
-
-	svgaline_state.driver->drv->linear(LINEAR_DISABLE,svgaline_state.linear_base);
-
-	if (restore) {
-#ifdef NDEBUG
-		log_std(("svgaline: svgalib screenoff()\n"));
-		vga_screenoff();
-#endif
-		log_std(("svgaline: svgalib vgasetregs()\n"));
-
-		__svgalib_setregs(svgaline_state.driver_regs);
-
-		log_std(("svgaline: svgalib setregs()\n"));
-
-		svgaline_state.driver->drv->setregs(svgaline_state.driver_regs, TEXT);
-
-		log_std(("svgaline: svgalib delay()\n"));
-
-		usleep(10000); /* wait for signal to stabilize */
-
-		log_std(("svgaline: svgalib screenon()\n"));
-
-		vga_screenon();
-	}
-
-	log_std(("svgaline: svgalib unmap(linear)\n"));
-
-	adv_svgalib_munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
-	svgaline_state.linear_size = 0;
-	svgaline_state.linear_base = 0;
-	svgaline_state.linear_pointer = 0;
-	__svgalib_linear_pointer = 0;
-
-	if (__svgalib_mmio_size) {
-		log_std(("svgaline: svgalib unmap(mmio)\n"));
-		adv_svgalib_munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
-		__svgalib_mmio_pointer = 0;
-	}
-
-	adv_svgalib_mode_done();
+	adv_svgalib_linear_unmap();
+	adv_svgalib_mmio_unmap();
 
 	svgaline_state.mode_active = 0;
 }
 
-void svgaline_mode_done(adv_bool restore) {
-	/* disable the interrupts */
-	disable();
-	svgaline_mode_done_noint(restore);
-	enable();
-}
-
 unsigned svgaline_virtual_x(void) {
-	unsigned size = adv_svgalib_mode.bytes_per_scanline / adv_svgalib_mode.bytes_per_pixel;
+	unsigned size = adv_svgalib_bytes_per_scanline_get() / adv_svgalib_bytes_per_pixel_get();
 	size = size & ~0x7;
 	return size;
 }
 
 unsigned svgaline_virtual_y(void) {
-	return __svgalib_linear_mem_size / adv_svgalib_mode.bytes_per_scanline;
+	return adv_svgalib_linear_size_get() / adv_svgalib_bytes_per_scanline_get();
 }
 
 unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
@@ -675,46 +335,43 @@ unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page) {
 }
 
 unsigned svgaline_bytes_per_scanline(void) {
-	return adv_svgalib_mode.bytes_per_scanline;
+	return adv_svgalib_bytes_per_scanline_get();
 }
 
 adv_rgb_def svgaline_rgb_def(void) {
-	return rgb_def_make(adv_svgalib_mode.red_len,adv_svgalib_mode.red_pos,adv_svgalib_mode.green_len,adv_svgalib_mode.green_pos,adv_svgalib_mode.blue_len,adv_svgalib_mode.blue_pos);
+	return rgb_def_make(adv_svgalib_state.mode.red_len,adv_svgalib_state.mode.red_pos,adv_svgalib_state.mode.green_len,adv_svgalib_state.mode.green_pos,adv_svgalib_state.mode.blue_len,adv_svgalib_state.mode.blue_pos);
 }
 
 void svgaline_wait_vsync(void) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
-	vga_waitretrace();
+	adv_svgalib_wait_vsync();
 }
 
 adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
-	if (!svgaline_state.driver->drv->setdisplaystart)
-		return -1;
-
 	if (waitvsync)
-		svgaline_wait_vsync();
+		adv_svgalib_wait_vsync();
 
-	svgaline_state.driver->drv->setdisplaystart(offset);
+	adv_svgalib_scroll_set(offset);
+
 	return 0;
 }
 
 adv_error svgaline_scanline_set(unsigned byte_length) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
-	if (!svgaline_state.driver->drv->setlogicalwidth)
-		return -1;
-	svgaline_state.driver->drv->setlogicalwidth(byte_length);
+
+	adv_svgalib_scanline_set(byte_length);
 	return 0;
 }
 
 adv_error svgaline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	if (waitvsync)
-		svgaline_wait_vsync();
+		adv_svgalib_wait_vsync();
 
 	while (count) {
-		vga_setpalette(start, palette->red >> 2, palette->green >> 2, palette->blue >> 2);
+		adv_svgalib_palette_set(start, palette->red, palette->green, palette->blue);
 		++palette;
 		++start;
 		--count;
@@ -760,7 +417,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 	/* try the internal driver */
 	adv_svgalib_mode_init(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0);
 
-	if (svgaline_state.driver->drv->modeavailable(adv_svgalib_mode_number) == 0) {
+	if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
 		error_nolog_cat("svgaline: Generic error checking the availability of the video mode\n");
 		adv_svgalib_mode_done();
 		return -1;
