@@ -109,8 +109,6 @@ unsigned update_x_get(void)
 	unsigned x;
 	assert( is_update_draw_allowed );
 	x = (update_offset % video_bytes_per_scanline()) / video_bytes_per_pixel();
-	if (video_is_unchained())
-		x *= 4;
 	return x;
 }
 

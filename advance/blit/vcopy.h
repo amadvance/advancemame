@@ -68,8 +68,6 @@ static void video_stage_copy32_set(struct video_stage_horz_struct* stage, unsign
 	stage->put_plain = BLITTER(video_line_stretchx32_11_step4);
 	if (sdp == 4)
 		stage->put = BLITTER(video_line_stretchx32_11_step4);
-	else if (sdp == 3)
-		stage->put = video_line_stretchx32_11_step3;
 	else
 		stage->put = BLITTER(video_line_stretchx32_11);
 }

@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-10-19 17:27:35.000000000 +0200
++++ src/advance.pat	2003-11-12 20:58:44.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
---- src.ori/common.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/common.c	2003-10-19 17:27:35.000000000 +0200
+--- src.ori/common.c	2003-11-11 22:25:54.000000000 +0100
++++ src/common.c	2003-11-12 20:58:44.000000000 +0100
 @@ -414,17 +414,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -37,7 +37,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  	struct rectangle bounds;
  	struct mame_bitmap *osdcopy;
  	UINT32 saved_rgb_components[3];
-@@ -815,17 +810,19 @@
+@@ -824,17 +819,19 @@
  
  	/* if the OSD system allocated a bitmap; free it */
  	if (osdcopy)
@@ -57,7 +57,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  	char name[20];
  	mame_file *fp;
  
-@@ -845,10 +842,11 @@
+@@ -854,10 +851,11 @@
  	{
  		save_screen_snapshot_as(fp, bitmap);
  		mame_fclose(fp);
@@ -69,7 +69,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  
  /***************************************************************************
  
-@@ -1202,11 +1200,11 @@
+@@ -1211,11 +1209,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -84,7 +84,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-10-19 17:27:35.000000000 +0200
++++ src/cpmame.mak	2003-11-12 20:58:44.000000000 +0100
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -99,7 +99,7 @@ diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2003-10-12 20:51:58.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-10-19 17:27:35.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-11-12 20:58:44.000000000 +0100
 @@ -85,10 +85,16 @@
   * 
   *****************************************************************************/
@@ -119,7 +119,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2003-10-19 17:27:35.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-11-12 20:58:44.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -167,13 +167,13 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  #else
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
---- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-10-19 17:27:35.000000000 +0200
-@@ -80,10 +80,16 @@
- 
- #ifdef Z80_MSX
- #include "z80_msx.h"
- #endif
+--- src.ori/cpu/z80/z80.c	2003-11-11 22:25:56.000000000 +0100
++++ src/cpu/z80/z80.c	2003-11-12 20:59:47.000000000 +0100
+@@ -79,10 +79,16 @@
+ #include "cpuintrf.h"
+ #include "state.h"
+ #include "mamedbg.h"
+ #include "z80.h"
  
 +#if defined(__GNUC__) && __GNUC__ >= 3
 +/* Disable all the asm macro and the big switch */
@@ -187,8 +187,8 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/cpuexec.c	2003-10-19 17:27:35.000000000 +0200
+--- src.ori/cpuexec.c	2003-11-11 22:25:56.000000000 +0100
++++ src/cpuexec.c	2003-11-12 20:58:44.000000000 +0100
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -205,7 +205,7 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
 --- src.ori/drivers/multi32.c	2003-09-14 13:53:06.000000000 +0200
-+++ src/drivers/multi32.c	2003-10-19 17:27:38.000000000 +0200
++++ src/drivers/multi32.c	2003-11-12 20:58:44.000000000 +0100
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -219,9 +219,25 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  	MDRV_PALETTE_LENGTH(32768)
  
  	MDRV_VIDEO_START(system32)
+diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
+--- src.ori/drivers/namcos11.c	2003-11-11 22:25:56.000000000 +0100
++++ src/drivers/namcos11.c	2003-11-16 17:28:02.000000000 +0100
+@@ -655,11 +655,11 @@
+ #if defined( MAME_DEBUG )
+ 	MDRV_SCREEN_SIZE( 1024, 1024 )
+ 	MDRV_VISIBLE_AREA( 0, 1023, 0, 1023 )
+ #else
+ 	MDRV_SCREEN_SIZE( 640, 480 )
+-	MDRV_VISIBLE_AREA( 0, 639, 0, 479 )
++	MDRV_VISIBLE_AREA( 0, 512-1, 8, 240-1 )
+ #endif
+ 	MDRV_PALETTE_LENGTH( 65536 )
+ 
+ 	MDRV_PALETTE_INIT( psx )
+ 	MDRV_VIDEO_START( psx_type1_1024x1024 )
 diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/drivers/neogeo.c	2003-10-19 17:27:38.000000000 +0200
+--- src.ori/drivers/neogeo.c	2003-11-11 22:25:56.000000000 +0100
++++ src/drivers/neogeo.c	2003-11-12 20:58:44.000000000 +0100
 @@ -386,11 +386,11 @@
  			}
  			fc++;
@@ -235,10 +251,26 @@ diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
  		vblank_int = 1;	   /* vertical blank */
  	}
  
+diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
+--- src.ori/drivers/stv.c	2003-11-11 22:25:56.000000000 +0100
++++ src/drivers/stv.c	2003-11-16 17:17:29.000000000 +0100
+@@ -4369,11 +4369,11 @@
+ 	MDRV_NVRAM_HANDLER(93C46) /* Actually 93c45 */
+ 
+ 	/* video hardware */
+ 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK | VIDEO_RGB_DIRECT )
+ 	MDRV_SCREEN_SIZE(1024, 1024)
+-	MDRV_VISIBLE_AREA(0*8, 703, 0*8, 479) // we need to use a resolution as high as the max size it can change to
++	MDRV_VISIBLE_AREA(0*8, 320-1, 0*8, 240-1)
+ 	MDRV_PALETTE_LENGTH(2048)
+ 	MDRV_GFXDECODE(gfxdecodeinfo)
+ 
+ 	MDRV_VIDEO_START(stv_vdp2)
+ 	MDRV_VIDEO_UPDATE(stv_vdp2)
 diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2003-08-09 02:53:12.000000000 +0200
-+++ src/fileio.c	2003-10-19 17:27:38.000000000 +0200
-@@ -66,10 +66,11 @@
+--- src.ori/fileio.c	2003-11-11 22:25:56.000000000 +0100
++++ src/fileio.c	2003-11-12 20:58:44.000000000 +0100
+@@ -72,10 +72,11 @@
  	UINT64 offset;
  	UINT64 length;
  	UINT8 eof;
@@ -250,7 +282,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  
  /***************************************************************************
-@@ -306,10 +307,13 @@
+@@ -353,10 +354,13 @@
  	mame_fread
  ***************************************************************************/
  
@@ -264,7 +296,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  	{
  		case PLAIN_FILE:
  			return osd_fread(file->file, buffer, length);
-@@ -339,10 +343,13 @@
+@@ -386,10 +390,13 @@
  	mame_fwrite
  ***************************************************************************/
  
@@ -278,7 +310,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  	{
  		case PLAIN_FILE:
  			return osd_fwrite(file->file, buffer, length);
-@@ -359,10 +366,13 @@
+@@ -406,10 +413,13 @@
  
  int mame_fseek(mame_file *file, INT64 offset, int whence)
  {
@@ -292,7 +324,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  	{
  		case PLAIN_FILE:
  			return osd_fseek(file->file, offset, whence);
-@@ -461,10 +471,16 @@
+@@ -508,10 +518,16 @@
  
  int mame_fgetc(mame_file *file)
  {
@@ -309,7 +341,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  	{
  		case PLAIN_FILE:
  			if (osd_fread(file->file, &buffer, 1) == 1)
-@@ -488,38 +504,13 @@
+@@ -535,38 +551,13 @@
  	mame_ungetc
  ***************************************************************************/
  
@@ -351,7 +383,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  
  /***************************************************************************
-@@ -577,10 +568,14 @@
+@@ -624,10 +615,14 @@
  	mame_feof
  ***************************************************************************/
  
@@ -366,7 +398,7 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  	{
  		case PLAIN_FILE:
  			return osd_feof(file->file);
-@@ -806,10 +801,12 @@
+@@ -877,10 +872,12 @@
  	LOG(("generic_fopen(%d, %s, %s, %s, %X)\n", pathc, gamename, filename, extension, flags));
  
  	/* reset the file handle */
@@ -380,8 +412,8 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-10-19 17:26:12.000000000 +0200
-+++ src/inptport.c	2003-10-19 17:27:38.000000000 +0200
+--- src.ori/inptport.c	2003-10-18 21:49:02.000000000 +0200
++++ src/inptport.c	2003-11-12 20:58:44.000000000 +0100
 @@ -201,10 +201,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -532,7 +564,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  
 diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	2003-09-03 22:06:04.000000000 +0200
-+++ src/inptport.h	2003-10-19 17:27:38.000000000 +0200
++++ src/inptport.h	2003-11-12 20:58:44.000000000 +0100
 @@ -87,10 +87,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -551,7 +583,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2003-09-03 22:06:04.000000000 +0200
-+++ src/input.c	2003-10-19 17:27:38.000000000 +0200
++++ src/input.c	2003-11-12 20:58:44.000000000 +0100
 @@ -812,11 +812,11 @@
  {
  	int pressed;
@@ -580,7 +612,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  		{
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/mame.c	2003-10-19 17:27:38.000000000 +0200
++++ src/mame.c	2003-11-12 20:58:44.000000000 +0100
 @@ -983,26 +983,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -620,7 +652,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2003-06-09 22:02:00.000000000 +0200
-+++ src/neomame.mak	2003-10-19 17:27:38.000000000 +0200
++++ src/neomame.mak	2003-11-12 20:58:44.000000000 +0100
 @@ -8,10 +8,11 @@
  EMULATOR_EXE = neomame.exe
  
@@ -635,7 +667,7 @@ diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-08-09 02:53:02.000000000 +0200
-+++ src/osdepend.h	2003-10-19 17:27:38.000000000 +0200
++++ src/osdepend.h	2003-11-12 20:58:44.000000000 +0100
 @@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -676,8 +708,8 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
---- src.ori/rules.mak	2003-09-03 22:06:06.000000000 +0200
-+++ src/rules.mak	2003-10-19 17:27:38.000000000 +0200
+--- src.ori/rules.mak	2003-11-11 22:25:56.000000000 +0100
++++ src/rules.mak	2003-11-12 20:58:44.000000000 +0100
 @@ -1010,16 +1010,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -733,7 +765,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.c	2003-10-19 17:27:43.000000000 +0200
++++ src/ui_text.c	2003-11-12 20:58:44.000000000 +0100
 @@ -240,10 +240,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -751,7 +783,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  {
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.h	2003-10-19 17:27:43.000000000 +0200
++++ src/ui_text.h	2003-11-12 20:58:44.000000000 +0100
 @@ -206,10 +206,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -768,9 +800,9 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  struct lang_struct
  {
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2003-09-14 13:53:06.000000000 +0200
-+++ src/usrintrf.c	2003-10-19 17:27:43.000000000 +0200
-@@ -853,12 +853,16 @@
+--- src.ori/usrintrf.c	2003-11-11 22:25:56.000000000 +0100
++++ src/usrintrf.c	2003-11-12 21:00:16.000000000 +0100
+@@ -858,12 +858,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -789,7 +821,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	count = i;
  
  	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
-@@ -926,15 +930,27 @@
+@@ -931,15 +935,27 @@
  				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
  				curr_dt++;
  			}
@@ -822,7 +854,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	}
  
  	i = selected - topitem;
-@@ -1513,11 +1529,11 @@
+@@ -1518,11 +1534,11 @@
  				}
  			}
  		}
@@ -835,7 +867,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	schedule_full_refresh();
  }
-@@ -2062,13 +2078,13 @@
+@@ -2076,13 +2092,13 @@
  		in++;
  	}
  
@@ -851,7 +883,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2081,15 +2097,17 @@
+@@ -2095,15 +2111,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -869,7 +901,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -2108,10 +2126,18 @@
+@@ -2122,10 +2140,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -888,7 +920,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -2159,10 +2185,21 @@
+@@ -2173,10 +2199,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -910,7 +942,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -2195,10 +2232,21 @@
+@@ -2209,10 +2246,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -932,7 +964,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2502,14 +2550,16 @@
+@@ -2516,14 +2564,16 @@
  
  int showgamewarnings(struct mame_bitmap *bitmap)
  {
@@ -952,7 +984,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  		strcpy(buf, ui_getstring (UI_knownproblems));
  		strcat(buf, "\n\n");
-@@ -3069,15 +3119,15 @@
+@@ -3083,16 +3133,16 @@
  
  
  #ifndef MESS
@@ -963,14 +995,15 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  #else
  enum { UI_SWITCH = 0,UI_DEFCODE,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_GAMEINFO, UI_IMAGEINFO,UI_FILEMANAGER,UI_TAPECONTROL,
--		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT };
-+		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,UI_OSD };
+ 		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_RAPIDFIRE,UI_EXIT,
+-		UI_CONFIGURATION };
++		UI_CONFIGURATION,UI_OSD };
  #endif
  
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3190,10 +3240,11 @@
+@@ -3208,10 +3258,11 @@
  #endif
  #endif
  #endif
@@ -982,7 +1015,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3257,10 +3308,13 @@
+@@ -3278,10 +3329,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -996,9 +1029,9 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3314,10 +3368,11 @@
- 			case UI_TAPECONTROL:
- 			#endif
+@@ -3336,10 +3390,11 @@
+ 			case UI_CONFIGURATION:
+ #endif /* !MESS */
  			case UI_HISTORY:
  			case UI_CHEAT:
  			case UI_MEMCARD:
@@ -1008,7 +1041,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -4003,22 +4058,23 @@
+@@ -4025,22 +4080,23 @@
  {
  #ifdef MESS
  	extern int mess_pause_for_ui;
@@ -1039,7 +1072,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4121,12 +4177,15 @@
+@@ -4154,12 +4210,15 @@
  				draw_screen();
  			}
  			profiler_mark(PROFILER_END);
@@ -1057,7 +1090,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4135,11 +4194,11 @@
+@@ -4168,11 +4227,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1072,7 +1105,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-10-19 17:27:43.000000000 +0200
++++ src/vidhrdw/cave.c	2003-11-12 20:58:44.000000000 +0100
 @@ -1424,10 +1424,13 @@
  VIDEO_UPDATE( cave )
  {

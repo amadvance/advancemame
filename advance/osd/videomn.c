@@ -413,8 +413,6 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_MAX : menu_item[total] = "Resize Effect [max]"; break;
 		case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
 		case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
-		case COMBINE_FILTERX : menu_item[total] = "Resize Effect [filterx]"; break;
-		case COMBINE_FILTERY : menu_item[total] = "Resize Effect [filtery]"; break;
 		case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
 		case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
 		case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
@@ -425,8 +423,6 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_MAX : menu_subitem[total] = "max"; break;
 		case COMBINE_MEAN : menu_subitem[total] = "mean"; break;
 		case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
-		case COMBINE_FILTERX : menu_subitem[total] = "filterx"; break;
-		case COMBINE_FILTERY : menu_subitem[total] = "filtery"; break;
 		case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
 		case COMBINE_LQ : menu_subitem[total] = "lq"; break;
 		case COMBINE_HQ : menu_subitem[total] = "hq"; break;
@@ -616,9 +612,7 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_NONE : config.combine = COMBINE_MAX; break;
 				case COMBINE_MAX : config.combine = COMBINE_MEAN; break;
 				case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
-				case COMBINE_FILTER : config.combine = COMBINE_FILTERX; break;
-				case COMBINE_FILTERX : config.combine = COMBINE_FILTERY; break;
-				case COMBINE_FILTERY : config.combine = COMBINE_SCALE; break;
+				case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
 				case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
 				case COMBINE_LQ : config.combine = COMBINE_HQ; break;
 				case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
@@ -707,9 +701,7 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_MAX : config.combine = COMBINE_NONE; break;
 				case COMBINE_MEAN : config.combine = COMBINE_MAX; break;
 				case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
-				case COMBINE_FILTERX : config.combine = COMBINE_FILTER; break;
-				case COMBINE_FILTERY : config.combine = COMBINE_FILTERX; break;
-				case COMBINE_SCALE : config.combine = COMBINE_FILTERY; break;
+				case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
 				case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
 				case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			}

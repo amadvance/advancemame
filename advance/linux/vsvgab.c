@@ -523,7 +523,6 @@ adv_error svgalib_mode_import(adv_mode* mode, const svgalib_video_mode* svgalib_
 
 	mode->driver = &video_svgalib_driver;
 	mode->flags = MODE_FLAGS_SCROLL_ASYNC
-		| MODE_FLAGS_MEMORY_LINEAR
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| svgalib_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;
@@ -645,7 +644,6 @@ adv_video_driver video_svgalib_driver = {
 	svgalib_scroll,
 	svgalib_scanline_set,
 	svgalib_palette8_set,
-	0,
 	svgalib_mode_size,
 	0,
 	svgalib_mode_generate_void,

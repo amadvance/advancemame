@@ -47,7 +47,7 @@ typedef unsigned scale3x_uint32;
 /***************************************************************************/
 /* Scale3x C implementation */
 
-static void scale3x_8_def_single(scale3x_uint8* dst, const scale3x_uint8* src0, const scale3x_uint8* src1, const scale3x_uint8* src2, unsigned count)
+static void scale3x_8_def_single(scale3x_uint8* __restrict__ dst, const scale3x_uint8* __restrict__ src0, const scale3x_uint8* __restrict__ src1, const scale3x_uint8* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -93,7 +93,7 @@ static void scale3x_8_def_single(scale3x_uint8* dst, const scale3x_uint8* src0, 
 	dst[2] = src1[0];
 }
 
-static void scale3x_8_def_fill(scale3x_uint8* dst, const scale3x_uint8* src, unsigned count)
+static void scale3x_8_def_fill(scale3x_uint8* __restrict__ dst, const scale3x_uint8* __restrict__ src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -106,7 +106,7 @@ static void scale3x_8_def_fill(scale3x_uint8* dst, const scale3x_uint8* src, uns
 	}
 }
 
-static void scale3x_16_def_single(scale3x_uint16* dst, const scale3x_uint16* src0, const scale3x_uint16* src1, const scale3x_uint16* src2, unsigned count)
+static void scale3x_16_def_single(scale3x_uint16* __restrict__ dst, const scale3x_uint16* __restrict__ src0, const scale3x_uint16* __restrict__ src1, const scale3x_uint16* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -152,7 +152,7 @@ static void scale3x_16_def_single(scale3x_uint16* dst, const scale3x_uint16* src
 	dst[2] = src1[0];
 }
 
-static void scale3x_16_def_fill(scale3x_uint16* dst, const scale3x_uint16* src, unsigned count)
+static void scale3x_16_def_fill(scale3x_uint16* __restrict__ dst, const scale3x_uint16* __restrict__ src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];
@@ -165,7 +165,7 @@ static void scale3x_16_def_fill(scale3x_uint16* dst, const scale3x_uint16* src, 
 	}
 }
 
-static void scale3x_32_def_single(scale3x_uint32* dst, const scale3x_uint32* src0, const scale3x_uint32* src1, const scale3x_uint32* src2, unsigned count)
+static void scale3x_32_def_single(scale3x_uint32* __restrict__ dst, const scale3x_uint32* __restrict__ src0, const scale3x_uint32* __restrict__ src1, const scale3x_uint32* __restrict__ src2, unsigned count)
 {
 	assert(count >= 2);
 
@@ -211,7 +211,7 @@ static void scale3x_32_def_single(scale3x_uint32* dst, const scale3x_uint32* src
 	dst[2] = src1[0];
 }
 
-static void scale3x_32_def_fill(scale3x_uint32* dst, const scale3x_uint32* src, unsigned count)
+static void scale3x_32_def_fill(scale3x_uint32* __restrict__ dst, const scale3x_uint32* __restrict__ src, unsigned count)
 {
 	while (count) {
 		dst[0] = src[0];

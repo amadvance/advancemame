@@ -73,18 +73,16 @@ void int_put_filled(int x, int y, int dx, const std::string& s, const int_color&
 void int_put_special(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
 unsigned int_put_right(int x, int y, int dx, const std::string& s, const int_color& color);
 
-void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Aoutline, unsigned Acursor, double expand_factor);
+void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip);
 void int_backdrop_done();
-void int_backdrop_pos(int back_index, int x, int y, int dx, int dy);
-void int_backdrop_set(int back_index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty);
-void int_backdrop_clear(int back_index, bool highlight);
+void int_backdrop_pos(int index, int x, int y, int dx, int dy);
+void int_backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty);
+void int_backdrop_clear(int index, bool highlight);
 
-void int_clip_init();
-void int_clip_start();
-void int_clip_done();
-void int_clip_set(int back_index, const resource& res, unsigned aspectx, unsigned aspecty);
-void int_clip_clear();
-bool int_clip_is_active();
+void int_clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
+void int_clip_clear(int index);
+void int_clip_start(int index);
+bool int_clip_is_active(int index);
 
 void int_update(bool progressive = true);
 unsigned int_update_pre(bool progressive = false);

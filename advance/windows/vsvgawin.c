@@ -888,7 +888,6 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 
 	mode->driver = &video_svgawin_driver;
 	mode->flags = MODE_FLAGS_SCROLL_ASYNC
-		| MODE_FLAGS_MEMORY_LINEAR
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| svgawin_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;
@@ -1037,7 +1036,6 @@ adv_video_driver video_svgawin_driver = {
 	svgawin_scroll,
 	svgawin_scanline_set,
 	svgawin_palette8_set,
-	0,
 	svgawin_mode_size,
 	0,
 	svgawin_mode_generate_void,

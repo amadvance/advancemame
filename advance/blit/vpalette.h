@@ -53,14 +53,14 @@ static void video_line_palette8to8_step1(const struct video_stage_horz_struct* s
 static void video_line_palette8to8(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	int line_index1 = stage->sdp;
+	int step1 = stage->sdp;
 	const uint8* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
 	while (inner_count) {
 		*dst8++ = palette[src8[0]];
-		src8 += line_index1;
+		src8 += step1;
 		--inner_count;
 	}
 }
@@ -132,15 +132,15 @@ static void video_line_palette8to16_step1_def(const struct video_stage_horz_stru
 static void video_line_palette8to16(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
-	int line_index1 = stage->sdp;
-	int line_index2 = line_index1 + line_index1;
+	int step1 = stage->sdp;
+	int step2 = step1 + step1;
 	const uint16* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		*dst32++ = cpu_uint32_make_uint16(palette[src8[0]], palette[src8[line_index1]]);
-		src8 += line_index2;
+		*dst32++ = cpu_uint32_make_uint16(palette[src8[0]], palette[src8[step1]]);
+		src8 += step2;
 		--inner_count;
 	}
 }
@@ -172,14 +172,14 @@ static void video_line_palette8to32_step4(const struct video_stage_horz_struct* 
 static void video_line_palette8to32(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	int line_index1 = stage->sdp;
+	int step1 = stage->sdp;
 	const uint32* palette = stage->palette;
 	uint8* src8 = (uint8*)src;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
 		*dst32++ = palette[src8[0]];
-		src8 += line_index1;
+		src8 += step1;
 		--inner_count;
 	}
 }
@@ -336,16 +336,16 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 static void video_line_palette16to8_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 4;
-	int line_index1 = stage->sdp;
-	int line_index2 = line_index1 + line_index1;
-	int line_index3 = line_index2 + line_index1;
-	int line_index4 = line_index3 + line_index1;
+	int step1 = stage->sdp;
+	int step2 = step1 + step1;
+	int step3 = step2 + step1;
+	int step4 = step3 + step1;
 	const uint8* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		*dst32++ = cpu_uint32_make_uint8(palette[P16DER0(src)], palette[P16DER(src, line_index1)], palette[P16DER(src, line_index2)], palette[P16DER(src, line_index3)]);
-		PADD(src, line_index4);
+		*dst32++ = cpu_uint32_make_uint8(palette[P16DER0(src)], palette[P16DER(src, step1)], palette[P16DER(src, step2)], palette[P16DER(src, step3)]);
+		PADD(src, step4);
 		--inner_count;
 	}
 }
@@ -460,14 +460,14 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 static void video_line_palette16to16_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count / 2;
-	int line_index1 = stage->sdp;
-	int line_index2 = line_index1 + line_index1;
+	int step1 = stage->sdp;
+	int step2 = step1 + step1;
 	const uint16* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
-		*dst32++ = cpu_uint32_make_uint16(palette[P16DER0(src)], palette[P16DER(src, line_index1)]);
-		PADD(src, line_index2);
+		*dst32++ = cpu_uint32_make_uint16(palette[P16DER0(src)], palette[P16DER(src, step1)]);
+		PADD(src, step2);
 		--inner_count;
 	}
 }
@@ -560,13 +560,13 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 static void video_line_palette16to32_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
 	unsigned inner_count = stage->slice.count;
-	int line_index1 = stage->sdp;
+	int step1 = stage->sdp;
 	const uint32* palette = stage->palette;
 	uint32* dst32 = (uint32*)dst;
 
 	while (inner_count) {
 		*dst32++ = palette[P16DER0(src)];
-		PADD(src, line_index1);
+		PADD(src, step1);
 		--inner_count;
 	}
 }

@@ -18,6 +18,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#define USE_MULTI_CLIP
+
 #include "advance.h"
 
 #include "text.h"
@@ -124,88 +126,19 @@ int int_font_dy_get()
 		return real_font_dy;
 }
 
-// -------------------------------------------------------------------------
-// Backdrop
+//---------------------------------------------------------------------------
+// Video put
 
-// Backdrop (already orientation corrected)
-class backdrop_data {
-	adv_bitmap* map;
-	resource res;
-	unsigned target_dx;
-	unsigned target_dy;
-	unsigned aspectx;
-	unsigned aspecty;
-public:
-	backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty);
-	~backdrop_data();
-
-	bool has_bitmap() const { return map != 0; }
-	const resource& res_get() const { return res; }
-	const adv_bitmap* bitmap_get() const { return map; }
-	void bitmap_set(adv_bitmap* Amap) { assert(!map); map = Amap; }
-
-	unsigned target_dx_get() const { return target_dx; }
-	unsigned target_dy_get() const { return target_dy; }
-	unsigned aspectx_get() const { return aspectx; }
-	unsigned aspecty_get() const { return aspecty; }
-};
-
-backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty)
-	: res(Ares), target_dx(Atarget_dx), target_dy(Atarget_dy), aspectx(Aaspectx), aspecty(Aaspecty) {
-	map = 0;
-}
-
-backdrop_data::~backdrop_data()
+static void video_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
 {
-	if (map)
-		bitmap_free(map);
+	adv_pixel pixel = video_pixel_get(color.r, color.g, color.b);
+	video_clear(x, y, dx, width, pixel);
+	video_clear(x, y+dy-width, dx, width, pixel);
+	video_clear(x, y+width, width, dy-2*width, pixel);
+	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
 }
 
-struct backdrop_pos_t {
-	// Position of the backdrop in the screen
-	int x;
-	int y;
-	int dx;
-	int dy;
-
-	// Position of the backdrop in the screen, already rotated
-	int real_x;
-	int real_y;
-	int real_dx;
-	int real_dy;
-
-	bool highlight;
-
-	bool redraw;
-} pos;
-
-struct backdrop_t {
-	// Backdrop (already orientation corrected)
-	backdrop_data* data;
-	resource last;
-	backdrop_pos_t pos;
-};
-
-// Color used for missing backdrop
-static int_color backdrop_missing_color;
-
-// Color used for the lighting box backdrop
-static int_color backdrop_box_color;
-
-#define BACKDROP_MAX 512
-static unsigned backdrop_mac;
-
-static struct backdrop_t backdrop_map[BACKDROP_MAX];
-
-#define BACKDROP_CACHE_MAX (BACKDROP_MAX*2+1)
-typedef list<backdrop_data*> pbackdrop_list;
-static pbackdrop_list* backdrop_cache_list;
-static unsigned backdrop_cache_max;
-
-static double backdrop_expand_factor; // stretch factor
-
-static unsigned backdrop_outline; // size of the backdrop outline
-static unsigned backdrop_cursor; // size of the backdrop cursor
+// -----------------------------------------------------------------------
 
 static string int_cfg_file;
 
@@ -864,27 +797,102 @@ void int_disable() {
 	operator delete(video_buffer);
 }
 
-//---------------------------------------------------------------------------
-// Generic put
+static int fast_exit_handler(void)
+{
+	if (int_wait_for_backdrop)
+		return 0;
+
+	int_keypressed();
+	return int_key_saved == INT_KEY_PGUP
+		|| int_key_saved == INT_KEY_PGDN
+		|| int_key_saved == INT_KEY_INS
+		|| int_key_saved == INT_KEY_DEL
+		|| int_key_saved == INT_KEY_HOME
+		|| int_key_saved == INT_KEY_END
+		|| int_key_saved == INT_KEY_UP
+		|| int_key_saved == INT_KEY_DOWN
+		|| int_key_saved == INT_KEY_LEFT
+		|| int_key_saved == INT_KEY_RIGHT
+		|| int_key_saved == INT_KEY_MODE;
+}
+
+// -------------------------------------------------------------------------
+// Cell Pos
+
+class cell_pos_t {
+	void gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background);
+	void gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background);
+	void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background);
+public:
+	// Position of the cell in the screen
+	int x;
+	int y;
+	int dx;
+	int dy;
+
+	// Position of the cell in the screen, already rotated
+	int real_x;
+	int real_y;
+	int real_dx;
+	int real_dy;
+
+	void compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty, double aspect_expand);
+	void draw_backdrop(const adv_bitmap* map, const int_rgb& background);
+	void draw_clip(const adv_bitmap* map, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const int_rgb& background, bool clear);
+	void clear(const int_rgb& background);
+	void redraw();
+	void border(int width, const int_rgb& color);
+};
+
+void cell_pos_t::redraw()
+{
+	video_write_lock();
+
+	video_stretch(real_x, real_y, real_dx, real_dy, video_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
+
+	video_write_unlock(real_x, real_y, real_dx, real_dy);
+}
+
+void cell_pos_t::compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty, double aspect_expand)
+{
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		unsigned t = aspectx;
+		aspectx = aspecty;
+		aspecty = t;
+	}
+
+	if (!aspectx || !aspecty) {
+		aspectx = bitmap->size_x;
+		aspecty = bitmap->size_y;
+	}
+
+	if (!aspectx || !aspecty) {
+		aspectx = 1;
+		aspecty = 1;
+	}
+
+	aspectx *= 3 * video_size_x();
+	aspecty *= 4 * video_size_y();
+
+	if (aspectx * real_dy > aspecty * real_dx) {
+		*rx = real_dx;
+		*ry = static_cast<unsigned>(real_dx * aspecty * aspect_expand / aspectx);
+	} else {
+		*rx = static_cast<unsigned>(real_dy * aspectx * aspect_expand / aspecty);
+		*ry = real_dy;
+	}
+	if (*rx > real_dx)
+		*rx = real_dx;
+	if (*ry > real_dy)
+		*ry = real_dy;
+}
+
 
 static void gen_clear_raw8rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
 {
 	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
 	for(unsigned cy=0;cy<dy;++cy) {
 		unsigned char* dst_ptr = buffer;
-		for(unsigned cx=0;cx<dx;++cx) {
-			*dst_ptr = pixel;
-			dst_ptr += 1;
-		}
-		buffer += ptr_d;
-	}
-}
-
-static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
-{
-	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
-	for(unsigned cy=0;cy<dy;++cy) {
-		unsigned* dst_ptr = (unsigned*)buffer;
 		for(unsigned cx=0;cx<dx;++cx) {
 			*dst_ptr = pixel;
 			dst_ptr += 1;
@@ -906,106 +914,1045 @@ static void gen_clear_raw16rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_
 	}
 }
 
+static void gen_clear_raw32rgb(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, unsigned x, unsigned y, unsigned dx, unsigned dy, adv_pixel pixel)
+{
+	unsigned char* buffer = ptr + x * ptr_p + y * ptr_d;
+	for(unsigned cy=0;cy<dy;++cy) {
+		unsigned* dst_ptr = (unsigned*)buffer;
+		for(unsigned cx=0;cx<dx;++cx) {
+			*dst_ptr = pixel;
+			dst_ptr += 1;
+		}
+		buffer += ptr_d;
+	}
+}
+
 static void gen_clear_raw(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, int x, int y, int dx, int dy, const int_rgb& color)
 {
 	assert( x>=0 && y>=0 && x+dx<=video_size_x() &&  y+dy<=video_size_y() );
 
 	adv_pixel pixel = video_pixel_get(color.r, color.g, color.b);
 
-	switch (video_index()) {
-	case MODE_FLAGS_INDEX_BGR8 :
+	switch (video_bytes_per_pixel()) {
+	case 1 :
 		gen_clear_raw8rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
-	case MODE_FLAGS_INDEX_BGR15 :
-	case MODE_FLAGS_INDEX_BGR16 :
+	case 2 :
 		gen_clear_raw16rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
-	case MODE_FLAGS_INDEX_BGR32 :
+	case 4 :
 		gen_clear_raw32rgb(ptr, ptr_p, ptr_d, x, y, dx, dy, pixel);
 		break;
 	}
 }
 
-static void gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, struct backdrop_t* back, const adv_bitmap* map)
+void cell_pos_t::gen_backdrop_raw8(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background)
 {
-	unsigned x0 = (back->pos.real_dx - map->size_x) / 2;
-	unsigned x1 = back->pos.real_dx -  map->size_x - x0;
-	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
-	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
+	unsigned x0 = (real_dx - map->size_x) / 2;
+	unsigned x1 = real_dx -  map->size_x - x0;
+	unsigned y0 = (real_dy - map->size_y) / 2;
+	unsigned y1 = real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
-	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
+	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x);
 		buffer += ptr_d;
 	}
 }
 
-static void gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, struct backdrop_t* back, const adv_bitmap* map)
+void cell_pos_t::gen_backdrop_raw16(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background)
 {
-	unsigned x0 = (back->pos.real_dx - map->size_x) / 2;
-	unsigned x1 = back->pos.real_dx -  map->size_x - x0;
-	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
-	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
+	unsigned x0 = (real_dx - map->size_x) / 2;
+	unsigned x1 = real_dx -  map->size_x - x0;
+	unsigned y0 = (real_dy - map->size_y) / 2;
+	unsigned y1 = real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
-	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
+	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 2);
 		buffer += ptr_d;
 	}
 }
 
-static void gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, struct backdrop_t* back, const adv_bitmap* map)
+void cell_pos_t::gen_backdrop_raw32(unsigned char* ptr, unsigned ptr_p, unsigned ptr_d, const adv_bitmap* map, const int_rgb& background)
 {
-	unsigned x0 = (back->pos.real_dx - map->size_x) / 2;
-	unsigned x1 = back->pos.real_dx -  map->size_x - x0;
-	unsigned y0 = (back->pos.real_dy - map->size_y) / 2;
-	unsigned y1 = back->pos.real_dy -  map->size_y - y0;
+	unsigned x0 = (real_dx - map->size_x) / 2;
+	unsigned x1 = real_dx -  map->size_x - x0;
+	unsigned y0 = (real_dy - map->size_y) / 2;
+	unsigned y1 = real_dy -  map->size_y - y0;
 	if (x0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, x0, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, x0, real_dy, background);
 	if (x1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x + back->pos.real_dx - x1, back->pos.real_y, x1, back->pos.real_dy, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x + real_dx - x1, real_y, x1, real_dy, background);
 	if (y0)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y, back->pos.real_dx, y0, backdrop_missing_color.background);
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y, real_dx, y0, background);
 	if (y1)
-		gen_clear_raw(ptr, ptr_p, ptr_d, back->pos.real_x, back->pos.real_y + back->pos.real_dy - y1, back->pos.real_dx, y1, backdrop_missing_color.background);
-	unsigned char* buffer = ptr + (back->pos.real_y + y0) * ptr_d + (back->pos.real_x + x0) * ptr_p;
+		gen_clear_raw(ptr, ptr_p, ptr_d, real_x, real_y + real_dy - y1, real_dx, y1, background);
+	unsigned char* buffer = ptr + (real_y + y0) * ptr_d + (real_x + x0) * ptr_p;
 	for(unsigned cy=0;cy<map->size_y;++cy) {
 		memcpy(buffer, bitmap_line(const_cast<adv_bitmap*>(map), cy), map->size_x * 4);
 		buffer += ptr_d;
 	}
 }
 
-//---------------------------------------------------------------------------
-// Video put
-
-static void video_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
+void cell_pos_t::draw_backdrop(const adv_bitmap* map, const int_rgb& background)
 {
-	adv_pixel pixel = video_pixel_get(color.r, color.g, color.b);
-	video_clear(x, y, dx, width, pixel);
-	video_clear(x, y+dy-width, dx, width, pixel);
-	video_clear(x, y+width, width, dy-2*width, pixel);
-	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
+	switch (video_bytes_per_pixel()) {
+		case 1 :
+			gen_backdrop_raw8(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
+			break;
+		case 2 :
+			gen_backdrop_raw16(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
+			break;
+		case 4 :
+			gen_backdrop_raw32(video_buffer, video_buffer_pixel_size, video_buffer_line_size, map, background);
+			break;
+	}
 }
 
-static void video_backdrop_box()
+void cell_pos_t::clear(const int_rgb& background)
+{
+	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, real_x, real_y, real_dx, real_dy, background);
+}
+
+void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const int_rgb& background, bool clear)
+{
+	adv_pixel pixel = video_pixel_get(background.r, background.g, background.b);
+
+	// source range and steps
+	unsigned char* ptr = bitmap->ptr;
+	int dw = bitmap->bytes_per_scanline;
+	int dp = bitmap->bytes_per_pixel;
+	int dx = bitmap->size_x;
+	int dy = bitmap->size_y;
+
+	// set the correct orientation
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		int t;
+		t = dp;
+		dp = dw;
+		dw = t;
+		t = dx;
+		dx = dy;
+		dy = t;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_X) {
+		ptr = ptr + (dx-1) * dp;
+		dp = - dp;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
+		ptr = ptr + (dy-1) * dw;
+		dw = - dw;
+	}
+
+	// destination range
+	unsigned dst_dx;
+	unsigned dst_dy;
+	unsigned dst_x;
+	unsigned dst_y;
+	dst_x = real_x;
+	dst_y = real_y;
+	dst_dx = real_dx;
+	dst_dy = real_dy;
+
+	// compute the size of the bitmap
+	unsigned rel_dx;
+	unsigned rel_dy;
+	compute_size(&rel_dx, &rel_dy, bitmap, aspectx, aspecty, aspect_expand);
+
+	// adjust the destination range if too big
+	if (dst_dx > rel_dx) {
+		unsigned pre_dx = (dst_dx - rel_dx) / 2;
+		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
+
+		if (clear) {
+			video_clear(dst_x, dst_y, pre_dx, dst_dy, pixel);
+			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, pixel);
+		}
+
+		dst_x += pre_dx;
+		dst_dx = rel_dx;
+	}
+	if (dst_dy > rel_dy) {
+		unsigned pre_dy = (dst_dy - rel_dy) / 2;
+		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
+
+		if (clear) {
+			video_clear(dst_x, dst_y, dst_dx, pre_dy, pixel);
+			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, pixel);
+		}
+
+		dst_y += pre_dy;
+		dst_dy = rel_dy;
+	}
+
+	unsigned combine = VIDEO_COMBINE_Y_NONE;
+	if (dst_dx < dx)
+		combine |= VIDEO_COMBINE_X_MEAN;
+	if (dst_dy < dy)
+		combine |= VIDEO_COMBINE_Y_MEAN;
+
+	struct video_pipeline_struct pipeline;
+
+	// write
+	if (bitmap->bytes_per_pixel == 1) {
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		for(unsigned i=0;i<rgb_max;++i) {
+			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+			palette32[i] = p;
+			palette16[i] = p;
+			palette8[i] = p;
+		}
+		video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+	} else {
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+		video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+	}
+
+	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
+
+	video_pipeline_blit(&pipeline, dst_x, dst_y, ptr);
+
+	video_pipeline_done(&pipeline);
+}
+
+void cell_pos_t::border(int width, const int_rgb& color)
+{
+	int x = real_x - width;
+	int y = real_y - width;
+	int dx = real_dx + width * 2;
+	int dy = real_dy + width * 2;
+
+	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y, dx, width, color);
+	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y+dy-width, dx, width, color);
+	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y+width, width, dy-2*width, color);
+	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x+dx-width, y+width, width, dy-2*width, color);
+}
+
+// -------------------------------------------------------------------------
+// Backdrop
+
+// Backdrop (already orientation corrected)
+class backdrop_data {
+	adv_bitmap* map;
+	resource res;
+	unsigned target_dx;
+	unsigned target_dy;
+	unsigned aspectx;
+	unsigned aspecty;
+
+	void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& background);
+	adv_bitmap* image_load(const resource& res, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& background);
+	adv_bitmap* adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy);
+
+public:
+	backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty);
+	~backdrop_data();
+
+	bool is_active() const { return map != 0; }
+	const resource& res_get() const { return res; }
+	const adv_bitmap* bitmap_get() const { return map; }
+
+	unsigned target_dx_get() const { return target_dx; }
+	unsigned target_dy_get() const { return target_dy; }
+	unsigned aspectx_get() const { return aspectx; }
+	unsigned aspecty_get() const { return aspecty; }
+
+	void load(struct cell_pos_t* cell, const int_rgb& background, double aspect_expand);
+};
+
+backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty)
+	: res(Ares), target_dx(Atarget_dx), target_dy(Atarget_dy), aspectx(Aaspectx), aspecty(Aaspecty) {
+	map = 0;
+}
+
+backdrop_data::~backdrop_data()
+{
+	if (map)
+		bitmap_free(map);
+}
+
+void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& background)
+{
+	unsigned index;
+	if (*rgb_max == 256) {
+		unsigned count[256];
+		for(unsigned i=0;i<256;++i)
+			count[i] = 0;
+
+		for(unsigned y=0;y<bitmap->size_y;++y) {
+			uint8* line = bitmap_line(bitmap, y);
+			for(unsigned x=0;x<bitmap->size_x;++x)
+				++count[line[x]];
+		}
+
+		index = 0;
+		for(unsigned i=0;i<256;++i)
+			if (count[i] < count[index])
+				index = i;
+
+		if (count[index] != 0) {
+			unsigned substitute = 0;
+			for(unsigned y=0;y<bitmap->size_y;++y) {
+				uint8* line = bitmap_line(bitmap, y);
+				for(unsigned x=0;x<bitmap->size_x;++x)
+					if (line[x] == index)
+						line[x] = substitute;
+			}
+		}
+	} else {
+		index = *rgb_max;
+		++*rgb_max;
+	}
+
+	rgb[index].red = background.r;
+	rgb[index].green = background.g;
+	rgb[index].blue = background.b;
+	rgb[index].alpha = 0;
+
+	for(unsigned y=0;y<bitmap->size_y;++y) {
+		uint8* line = bitmap_line(bitmap, y);
+		uint8* line_mask = bitmap_line(bitmap_mask, y);
+		for(unsigned x=0;x<bitmap->size_x;++x) {
+			if (!line_mask[x])
+				line[x] = index;
+		}
+	}
+}
+
+adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& background)
+{
+	string ext = file_ext(res.path_get());
+
+	if (ext == ".png") {
+		adv_fz* f = res.open();
+		if (!f)
+			return 0;
+
+		unsigned pix_width;
+		unsigned pix_height;
+		unsigned pix_pixel;
+		unsigned char* dat_ptr;
+		unsigned dat_size;
+		unsigned char* pix_ptr;
+		unsigned pix_scanline;
+		unsigned char* pal_ptr;
+		unsigned pal_size;
+
+		int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
+		if (r != 0) {
+			fzclose(f);
+			return 0;
+		}
+
+		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		if (!bitmap) {
+			free(dat_ptr);
+			free(pal_ptr);
+			fzclose(f);
+			return 0;
+		}
+
+		free(pal_ptr);
+		fzclose(f);
+
+		return bitmap;
+	}
+
+	if (ext == ".pcx") {
+		adv_fz* f = res.open();
+		if (!f)
+			return 0;
+		adv_bitmap* bitmap = pcx_load(f, rgb, rgb_max);
+		fzclose(f);
+		return bitmap;
+	}
+
+	if (ext == ".ico") {
+		adv_fz* f = res.open();
+		if (!f)
+			return 0;
+		adv_bitmap* bitmap_mask;
+		adv_bitmap* bitmap = icon_load(f, rgb, rgb_max, &bitmap_mask);
+		if (!bitmap) {
+			fzclose(f);
+			return 0;
+		}
+
+		icon_apply(bitmap, bitmap_mask, rgb, rgb_max, background);
+
+		bitmap_free(bitmap_mask);
+		fzclose(f);
+		return bitmap;
+	}
+
+	if (ext == ".mng") {
+		adv_mng* mng;
+
+		adv_fz* f = res.open();
+		if (!f)
+			return 0;
+
+		mng = mng_init(f);
+		if (mng == 0) {
+			fzclose(f);
+			return 0;
+		}
+
+		unsigned pix_width;
+		unsigned pix_height;
+		unsigned pix_pixel;
+		unsigned char* dat_ptr;
+		unsigned dat_size;
+		unsigned char* pix_ptr;
+		unsigned pix_scanline;
+		unsigned char* pal_ptr;
+		unsigned pal_size;
+		unsigned tick;
+
+		int r = mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		if (r != 0) {
+			mng_done(mng);
+			fzclose(f);
+			return 0;
+		}
+
+		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+		if (!bitmap) {
+			free(dat_ptr);
+			free(pal_ptr);
+			mng_done(mng);
+			fzclose(f);
+			return 0;
+		}
+
+		free(pal_ptr);
+
+		// duplicate the bitmap, it must exists also after destroying the mng context
+		adv_bitmap* dup_bitmap = bitmap_dup(bitmap);
+		bitmap_free(bitmap);
+		bitmap = dup_bitmap;
+
+		mng_done(mng);
+		fzclose(f);
+
+		return bitmap;
+	}
+
+	return 0;
+}
+
+adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy)
+{
+	// source range and steps
+	unsigned char* ptr = bitmap->ptr;
+	int dw = bitmap->bytes_per_scanline;
+	int dp = bitmap->bytes_per_pixel;
+	int dx = bitmap->size_x;
+	int dy = bitmap->size_y;
+
+	// set the correct orientation
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		int t;
+		t = dp;
+		dp = dw;
+		dw = t;
+		t = dx;
+		dx = dy;
+		dy = t;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_X) {
+		ptr = ptr + (dx-1) * dp;
+		dp = - dp;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
+		ptr = ptr + (dy-1) * dw;
+		dw = - dw;
+	}
+
+	unsigned combine = VIDEO_COMBINE_Y_NONE;
+	if (dst_dx < dx)
+		combine |= VIDEO_COMBINE_X_MEAN;
+	if (dst_dy < dy)
+		combine |= VIDEO_COMBINE_Y_MEAN;
+
+	adv_bitmap* raw_bitmap = bitmap_alloc(dst_dx, dst_dy, video_bits_per_pixel());
+
+	struct video_pipeline_struct pipeline;
+
+	if (bitmap->bytes_per_pixel == 1) {
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		for(unsigned i=0;i<*rgb_max;++i) {
+			adv_pixel p = video_pixel_get(rgb[i].red, rgb[i].green, rgb[i].blue);
+			palette32[i] = p;
+			palette16[i] = p;
+			palette8[i] = p;
+		}
+
+		video_stretch_palette_8_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+	} else {
+		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
+
+		video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+	}
+
+	video_pipeline_target(&pipeline, raw_bitmap->ptr, raw_bitmap->bytes_per_scanline, video_color_def());
+
+	video_pipeline_blit(&pipeline, 0, 0, ptr);
+
+	video_pipeline_done(&pipeline);
+
+	bitmap_free(bitmap);
+	bitmap = raw_bitmap;
+
+	return bitmap;
+}
+
+void backdrop_data::load(struct cell_pos_t* cell, const int_rgb& background, double aspect_expand)
+{
+	if (map)
+		return; // already loaded
+
+	adv_color_rgb rgb[256];
+	unsigned rgb_max;
+
+	adv_bitmap* bitmap = image_load(res_get(), rgb, &rgb_max, background);
+	if (!bitmap)
+		return;
+
+	// compute the size of the bitmap
+	unsigned dst_dx;
+	unsigned dst_dy;
+
+	cell->compute_size(&dst_dx, &dst_dy, bitmap, aspectx, aspecty, aspect_expand);
+
+	bitmap = adapt(bitmap, rgb, &rgb_max, dst_dx, dst_dy);
+	if (!bitmap)
+		return;
+
+	map = bitmap;
+}
+
+// -------------------------------------------------------------------------
+// Backdrop Cache
+
+class backdrop_cache {
+	unsigned max;
+	list<backdrop_data*> bag;
+public:
+	backdrop_cache(unsigned Amax);
+	~backdrop_cache();
+
+	void reduce();
+	void free(backdrop_data* data);
+	backdrop_data* alloc(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty);
+};
+
+backdrop_cache::backdrop_cache(unsigned Amax)
+{
+	max = Amax;
+}
+
+backdrop_cache::~backdrop_cache()
+{
+	for(list<backdrop_data*>::iterator i=bag.begin();i!=bag.end();++i)
+		delete *i;
+}
+
+// Reduce the size of the cache
+void backdrop_cache::reduce()
+{
+	// limit the cache size
+	while (bag.size() > max) {
+		list<backdrop_data*>::iterator i = bag.end();
+		--i;
+		backdrop_data* data = *i;
+		bag.erase(i);
+		delete data;
+	}
+}
+
+// Delete or insert in the cache the backdrop image
+void backdrop_cache::free(backdrop_data* data)
+{
+	if (data) {
+		if (data->is_active()) {
+			// insert the image in the cache
+			bag.insert(bag.begin(), data);
+		} else {
+			delete data;
+		}
+	}
+}
+
+backdrop_data* backdrop_cache::alloc(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty)
+{
+	// search in the cache
+	for(list<backdrop_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+		if ((*i)->res_get() == res
+			&& dx == (*i)->target_dx_get()
+			&& dy == (*i)->target_dy_get()) {
+
+			// extract from the cache
+			backdrop_data* data = *i;
+
+			// remove from the cache
+			bag.erase(i);
+
+			return data;
+		}
+	}
+
+	return new backdrop_data(res, dx, dy, aspectx, aspecty);
+}
+
+// -------------------------------------------------------------------------
+// Clip
+
+class clip_data {
+	bool active;
+	bool running;
+	bool waiting;
+	resource res;
+	adv_fz* f;
+	target_clock_t wait;
+	unsigned count;
+	adv_mng* mng_context;
+
+public:
+	clip_data(const resource& Ares);
+	~clip_data();
+
+	void start();
+	void rewind();
+
+	adv_bitmap* load(adv_color_rgb* rgb_map, unsigned* rgb_max);
+	bool is_waiting();
+	bool is_old();
+	bool is_first();
+	bool is_active();
+	const resource& res_get() const { return res; }
+};
+
+clip_data::clip_data(const resource& Ares)
+{
+	f = 0;
+	active = true;
+	running = false;
+	waiting = true;
+	res = Ares;
+}
+
+clip_data::~clip_data()
+{
+	if (f) {
+		fzclose(f);
+		mng_done(mng_context);
+	}
+}
+
+void clip_data::rewind()
+{
+	if (f) {
+		fzclose(f);
+		mng_done(mng_context);
+		f = 0;
+	}
+
+	active = true;
+	running = false;
+	waiting = true;
+}
+
+void clip_data::start()
+{
+	waiting = false;
+
+	if (!active)
+		return;
+	if (running)
+		return;
+
+	running = true;
+	wait = target_clock(); // reset the start time
+}
+
+bool clip_data::is_first()
+{
+	return count == 1;
+}
+
+bool clip_data::is_waiting()
+{
+	return waiting;
+}
+
+bool clip_data::is_old()
+{
+	if (!active)
+		return false;
+
+	if (!running)
+		return false;
+
+	if (!f)
+		return true;
+
+	if (target_clock() > wait)
+		return true;
+
+	return false;
+}
+
+bool clip_data::is_active()
+{
+	return active && running;
+}
+
+adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
+{
+	if (!active)
+		return 0;
+
+	if (!f) {
+		// first load
+		f = res.open();
+		if (!f) {
+			active = false;
+			f = 0;
+			return 0;
+		}
+
+		mng_context = mng_init(f);
+		if (mng_context == 0) {
+			fzclose(f);
+			f = 0;
+			active = false;
+			return 0;
+		}
+
+		wait = target_clock();
+		count = 0;
+	}
+
+	unsigned pix_width;
+	unsigned pix_height;
+	unsigned pix_pixel;
+	unsigned char* dat_ptr;
+	unsigned dat_size;
+	unsigned char* pix_ptr;
+	unsigned pix_scanline;
+	unsigned char* pal_ptr;
+	unsigned pal_size;
+	unsigned tick;
+
+	int r = mng_read(mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+	if (r != 0) {
+		mng_done(mng_context);
+		fzclose(f);
+		f = 0;
+		running = false;
+		return 0;
+	}
+
+	double delay = tick / (double)mng_frequency_get(mng_context);
+
+	adv_bitmap* bitmap = bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
+	if (!bitmap) {
+		free(dat_ptr);
+		free(pal_ptr);
+		mng_done(mng_context);
+		fzclose(f);
+		f = 0;
+		active = false;
+		return 0;
+	}
+
+	free(pal_ptr);
+
+	wait += (target_clock_t)(delay * TARGET_CLOCKS_PER_SEC);
+
+	++count;
+
+	return bitmap;
+}
+
+// -------------------------------------------------------------------------
+// Clip Cache
+
+class clip_cache {
+	unsigned max;
+	list<clip_data*> bag;
+public:
+	clip_cache(unsigned Amax);
+	~clip_cache();
+
+	void reduce();
+	void free(clip_data* data);
+	clip_data* alloc(const resource& res);
+};
+
+clip_cache::clip_cache(unsigned Amax)
+{
+	max = Amax;
+}
+
+clip_cache::~clip_cache()
+{
+	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i)
+		delete *i;
+}
+
+// Reduce the size of the cache
+void clip_cache::reduce()
+{
+	// limit the cache size
+	while (bag.size() > max) {
+		list<clip_data*>::iterator i = bag.end();
+		--i;
+		clip_data* data = *i;
+		bag.erase(i);
+		delete data;
+	}
+}
+
+// Delete or insert in the cache the backdrop image
+void clip_cache::free(clip_data* data)
+{
+	if (data) {
+		if (max)
+			bag.insert(bag.begin(), data);
+		else
+			delete data;
+	}
+}
+
+clip_data* clip_cache::alloc(const resource& res)
+{
+	// search in the cache
+	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+		if ((*i)->res_get() == res) {
+
+			// extract from the cache
+			clip_data* data = *i;
+
+			// remove from the cache
+			bag.erase(i);
+
+			return data;
+		}
+	}
+
+	return new clip_data(res);
+}
+
+//---------------------------------------------------------------------------
+// Backdrop manager
+
+struct cell_t {
+	cell_pos_t pos; ///< Position on the screen.
+	backdrop_data* data; ///< Backdrop (already orientation corrected and resized).
+	clip_data* cdata; ///< Clip.
+	unsigned caspectx; ///< Clip aspect.
+	unsigned caspecty;
+	resource last; ///< Previous backdrop resource.
+	bool highlight; ///< The backdrop has the highlight.
+	bool redraw; ///< The backdrop need to be redrawn.
+};
+
+#define CELL_MAX 512
+
+class cell_manager {
+	class backdrop_cache* int_backdrop_cache;
+	class clip_cache* int_clip_cache;
+
+	unsigned backdrop_mac;
+
+	struct cell_t backdrop_map[CELL_MAX];
+
+	// Color used for missing backdrop
+	int_color backdrop_missing_color;
+
+	// Color used for the lighting box backdrop
+	int_color backdrop_box_color;
+
+	unsigned backdrop_outline; // size of the backdrop outline
+	unsigned backdrop_cursor; // size of the backdrop cursor
+
+	double backdrop_expand_factor; // stretch factor
+
+	bool multiclip;
+
+	target_clock_t backdrop_box_last;
+public:
+	cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip);
+	~cell_manager();
+
+	unsigned size() const { return backdrop_mac; }
+
+	void pos_set(int index, int x, int y, int dx, int dy);
+
+	void backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty);
+	void backdrop_clear(int index, bool highlight);
+	void backdrop_update(int index);
+	unsigned backdrop_topline(int index);
+	void backdrop_box();
+
+	void clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
+	void clip_clear(int index);
+	void clip_start(int index);
+	bool clip_is_active(int index);
+
+	void reduce();
+	void idle();
+};
+
+unsigned cell_manager::backdrop_topline(int index) {
+	return backdrop_map[index].pos.real_y - backdrop_outline;
+}
+
+cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip)
+{
+	backdrop_box_last = 0;
+	backdrop_missing_color = Abackdrop_missing_color;
+	backdrop_box_color = Abackdrop_box_color;
+	backdrop_outline = outline;
+	backdrop_cursor = cursor;
+	backdrop_expand_factor = expand_factor;
+	backdrop_mac = Amac;
+
+	int_backdrop_cache = new backdrop_cache(backdrop_mac*2 + 1);
+
+	multiclip = Amulticlip;
+	if (multiclip)
+		int_clip_cache = new clip_cache(backdrop_mac + 1);
+	else
+		int_clip_cache = new clip_cache(0);
+
+	for(int i=0;i<backdrop_mac;++i) {
+		backdrop_map[i].data = 0;
+		backdrop_map[i].cdata = 0;
+		backdrop_map[i].last = resource();
+		backdrop_map[i].highlight = false;
+		backdrop_map[i].redraw = true;
+	}
+}
+
+cell_manager::~cell_manager()
 {
 	for(int i=0;i<backdrop_mac;++i) {
-		struct backdrop_t* back = backdrop_map + i;
-		if (back->pos.highlight && backdrop_cursor) {
+		if (backdrop_map[i].data)
+			delete backdrop_map[i].data;
+		backdrop_map[i].data = 0;
+	}
+
+	delete int_backdrop_cache;
+	int_backdrop_cache = 0;
+
+	delete int_clip_cache;
+	int_clip_cache = 0;
+}
+
+// Set the backdrop position and size
+void cell_manager::pos_set(int index, int x, int y, int dx, int dy)
+{
+	assert(index >= 0 && index < backdrop_mac);
+
+	int_backdrop_cache->free(backdrop_map[index].data);
+	backdrop_map[index].data = 0;
+
+	int_clip_cache->free(backdrop_map[index].cdata);
+	backdrop_map[index].cdata = 0;
+
+	backdrop_map[index].last = resource();
+	backdrop_map[index].highlight = false;
+	backdrop_map[index].redraw = true;
+
+	backdrop_map[index].pos.x = backdrop_map[index].pos.real_x = x + backdrop_outline;
+	backdrop_map[index].pos.y = backdrop_map[index].pos.real_y = y + backdrop_outline;
+	backdrop_map[index].pos.dx = backdrop_map[index].pos.real_dx = dx - 2*backdrop_outline;
+	backdrop_map[index].pos.dy = backdrop_map[index].pos.real_dy = dy - 2*backdrop_outline;
+
+	if (int_orientation & ORIENTATION_FLIP_XY) {
+		swap(backdrop_map[index].pos.real_x, backdrop_map[index].pos.real_y);
+		swap(backdrop_map[index].pos.real_dx, backdrop_map[index].pos.real_dy);
+	}
+	if (int_orientation & ORIENTATION_MIRROR_X) {
+		backdrop_map[index].pos.real_x = video_size_x() - backdrop_map[index].pos.real_x - backdrop_map[index].pos.real_dx;
+	}
+	if (int_orientation & ORIENTATION_MIRROR_Y) {
+		backdrop_map[index].pos.real_y = video_size_y() - backdrop_map[index].pos.real_y - backdrop_map[index].pos.real_dy;
+	}
+}
+
+// Select the backdrop
+void cell_manager::backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
+{
+	assert(index >= 0 && index < backdrop_mac);
+
+	int_backdrop_cache->free(backdrop_map[index].data);
+
+	backdrop_map[index].data = int_backdrop_cache->alloc(res, backdrop_map[index].pos.dx, backdrop_map[index].pos.dy, aspectx, aspecty);
+
+	if (backdrop_map[index].last == res) {
+		if (backdrop_map[index].highlight != highlight) {
+			backdrop_map[index].highlight = highlight;
+			backdrop_map[index].redraw = true;
+		}
+	} else {
+		backdrop_map[index].last = res;
+		backdrop_map[index].highlight = highlight;
+		backdrop_map[index].redraw = true;
+	}
+}
+
+// Clear the backdrop
+void cell_manager::backdrop_clear(int index, bool highlight)
+{
+	assert(index >= 0 && index < backdrop_mac);
+
+	int_backdrop_cache->free(backdrop_map[index].data);
+
+	backdrop_map[index].data = 0;
+
+	if (!backdrop_map[index].last.is_valid()) {
+		if (backdrop_map[index].highlight != highlight) {
+			backdrop_map[index].highlight = highlight;
+			backdrop_map[index].redraw = true;
+		}
+	} else {
+		backdrop_map[index].last = resource();
+		backdrop_map[index].highlight = highlight;
+		backdrop_map[index].redraw = true;
+	}
+}
+
+void cell_manager::backdrop_box()
+{
+	if (!backdrop_cursor)
+		return;
+
+	for(int i=0;i<backdrop_mac;++i) {
+		struct cell_t* back = backdrop_map + i;
+		if (back->highlight) {
 			unsigned x = back->pos.real_x - backdrop_outline;
 			unsigned y = back->pos.real_y - backdrop_outline;
 			unsigned dx = back->pos.real_dx + 2*backdrop_outline;
@@ -1022,27 +1969,199 @@ static void video_backdrop_box()
 	}
 }
 
+// Update the backdrop image
+void cell_manager::backdrop_update(int index)
+{
+	struct cell_t* back = backdrop_map + index;
+
+	assert(index >= 0 && index < backdrop_mac);
+
+	if (back->data) {
+		if (!fast_exit_handler())
+			back->data->load(&back->pos, backdrop_missing_color.background, backdrop_expand_factor);
+	}
+
+	if (back->redraw) {
+		if (back->data) {
+			if (back->data->bitmap_get()) {
+				back->redraw = false;
+				back->pos.draw_backdrop(back->data->bitmap_get(), backdrop_missing_color.background);
+			} else {
+				// the image need to be update when loaded
+				back->pos.clear(backdrop_missing_color.background);
+			}
+		} else {
+			back->redraw = false;
+			back->pos.clear(backdrop_missing_color.background);
+		}
+
+		if (backdrop_outline)
+			back->pos.border(backdrop_outline, backdrop_missing_color.foreground);
+	}
+}
+
+void cell_manager::reduce()
+{
+	if (int_backdrop_cache)
+		int_backdrop_cache->reduce();
+	if (int_clip_cache)
+		int_clip_cache->reduce();
+}
+
+void cell_manager::idle()
+{
+	for(unsigned i=0;i<backdrop_mac;++i) {
+		cell_t* cell = backdrop_map + i;
+		clip_data* clip = cell->cdata;
+		if (clip) {
+			adv_color_rgb rgb_map[256];
+			unsigned rgb_max;
+
+			if (!clip->is_old())
+				continue;
+
+			adv_bitmap* bitmap = clip->load(rgb_map, &rgb_max);
+
+			if (!bitmap) {
+				cell->redraw = true; // force the redraw
+				backdrop_update(i);
+				if (!multiclip)
+					cell->pos.redraw();
+				continue;
+			}
+
+			cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first());
+
+			if (!multiclip)
+				cell->pos.redraw();
+
+			bitmap_free(bitmap);
+		}
+	}
+
+	if (multiclip) {
+		video_write_lock();
+		video_stretch(0, 0, video_size_x(), video_size_y(), video_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
+		video_write_unlock(0, 0, video_size_x(), video_size_y());
+	}
+
+	target_clock_t backdrop_box_new = target_clock();
+	if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
+		backdrop_box_last = backdrop_box_new;
+		backdrop_box();
+	}
+}
+
+void cell_manager::clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart)
+{
+	assert(index >= 0 && index < backdrop_mac);
+
+	int_clip_cache->free(backdrop_map[index].cdata);
+
+	backdrop_map[index].cdata = int_clip_cache->alloc(res);
+	backdrop_map[index].caspectx = aspectx;
+	backdrop_map[index].caspecty = aspecty;
+
+	if (backdrop_map[index].cdata) {
+		if (restart)
+			backdrop_map[index].cdata->rewind();
+	}
+}
+
+void cell_manager::clip_clear(int index)
+{
+	assert(index >= 0 && index < backdrop_mac);
+
+	int_clip_cache->free(backdrop_map[index].cdata);
+
+	backdrop_map[index].cdata = 0;
+}
+
+void cell_manager::clip_start(int index)
+{
+	assert(index >= 0);
+
+	for(unsigned i=0;i<backdrop_mac;++i) {
+		if (backdrop_map[i].cdata
+			&& (i == index || backdrop_map[i].cdata->is_waiting())) {
+			backdrop_map[i].cdata->start();
+		}
+	}
+}
+
+bool cell_manager::clip_is_active(int index)
+{
+	assert(index >= 0);
+
+	if (index >= backdrop_mac) {
+		return false;
+	}
+
+	if (backdrop_map[index].cdata) {
+		return backdrop_map[index].cdata->is_active();
+	} else {
+		return false;
+	}
+}
+
+static class cell_manager* CELL;
+
+void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip)
+{
+	CELL = new cell_manager(back_color, back_box_color, Amac, Aoutline, Acursor, expand_factor, multiclip);
+}
+
+void int_backdrop_done()
+{
+	delete CELL;
+	CELL = 0;
+}
+
+void int_backdrop_pos(int index, int x, int y, int dx, int dy)
+{
+	CELL->pos_set(index, x, y, dx, dy);
+}
+
+void int_backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
+{
+	CELL->backdrop_set(index, res, highlight, aspectx, aspecty);
+}
+
+void int_backdrop_clear(int index, bool highlight)
+{
+	CELL->backdrop_clear(index, highlight);
+}
+
+void int_clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart)
+{
+	CELL->clip_set(index, res, aspectx, aspecty, restart);
+}
+
+void int_clip_clear(int index)
+{
+	CELL->clip_clear(index);
+}
+
+void int_clip_start(int index)
+{
+	if (CELL)
+		CELL->clip_start(index);
+}
+
+bool int_clip_is_active(int index)
+{
+	if (CELL)
+		return CELL->clip_is_active(index);
+	else
+		return true;
+}
+
 //---------------------------------------------------------------------------
 // Text put
 
 static void int_clear_raw(int x, int y, int dx, int dy, const int_rgb& color)
 {
 	gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, x, y, dx, dy, color);
-}
-
-static void int_backdrop_raw(struct backdrop_t* back, const adv_bitmap* map)
-{
-	switch (video_bytes_per_pixel()) {
-		case 1 :
-			gen_backdrop_raw8(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
-			break;
-		case 2 :
-			gen_backdrop_raw16(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
-			break;
-		case 4 :
-			gen_backdrop_raw32(video_buffer, video_buffer_pixel_size, video_buffer_line_size, back, map);
-			break;
-	}
 }
 
 static void int_put8rgb_char_font(unsigned x, unsigned y, unsigned bitmap, adv_pixel pixel_foreground, adv_pixel pixel_background)
@@ -1196,7 +2315,15 @@ void int_clear()
 	} else {
 		memset(video_buffer, 0x0, video_buffer_size);
 	}
-}	
+}
+
+void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
+{
+	int_clear(x, y, dx, width, color);
+	int_clear(x, y+dy-width, dx, width, color);
+	int_clear(x, y+width, width, dy-2*width, color);
+	int_clear(x+dx-width, y+width, width, dy-2*width, color);
+}
 
 void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 {
@@ -1280,14 +2407,6 @@ bool int_image(const char* file)
 	return true;
 }
 
-void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
-{
-	int_clear(x, y, dx, width, color);
-	int_clear(x, y+dy-width, dx, width, color);
-	int_clear(x, y+width, width, dy-2*width, color);
-	int_clear(x+dx-width, y+width, width, dy-2*width, color);
-}
-
 void int_put(int x, int y, const string& s, const int_color& color)
 {
 	for(unsigned i=0;i<s.length();++i) {
@@ -1324,784 +2443,16 @@ unsigned int_put_right(int x, int y, int dx, const string& s, const int_color& c
 }
 
 //---------------------------------------------------------------------------
-// Backdrop
-
-// Reduce the size of the cache
-static void int_backdrop_cache_reduce()
-{
-	// limit the cache size
-	if (backdrop_cache_list) {
-		while (backdrop_cache_list->size() > backdrop_cache_max) {
-			list<backdrop_data*>::iterator i = backdrop_cache_list->end();
-			--i;
-			backdrop_data* data = *i;
-			backdrop_cache_list->erase(i);
-			delete data;
-		}
-	}
-}
-
-// Delete or insert in the cache the backdrop image
-static void int_backdrop_cache(backdrop_data* data)
-{
-	if (data) {
-		if (data->has_bitmap()) {
-			// insert the image in the cache
-			backdrop_cache_list->insert(backdrop_cache_list->begin(), data);
-		} else {
-			delete data;
-		}
-	}
-}
-
-static backdrop_data* int_backdrop_cache_find(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty)
-{
-	// search in the cache
-	for(list<backdrop_data*>::iterator i=backdrop_cache_list->begin();i!=backdrop_cache_list->end();++i) {
-		if ((*i)->res_get() == res
-			&& dx == (*i)->target_dx_get()
-			&& dy == (*i)->target_dy_get()) {
-
-			// extract from the cache
-			backdrop_data* data = *i;
-
-			// remove from the cache
-			backdrop_cache_list->erase(i);
-
-			return data;
-		}
-	}
-
-	return new backdrop_data(res, dx, dy, aspectx, aspecty);
-}
-
-static void int_backdrop_cache_all()
-{
-	for(unsigned i=0;i<backdrop_mac;++i) {
-		int_backdrop_cache(backdrop_map[i].data);
-		backdrop_map[i].data = 0;
-	}
-}
-
-// Select the backdrop
-void int_backdrop_set(int back_index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty)
-{
-	assert( back_index < backdrop_mac );
-
-	int_backdrop_cache(backdrop_map[back_index].data);
-
-	backdrop_map[back_index].data = int_backdrop_cache_find(res, backdrop_map[back_index].pos.dx, backdrop_map[back_index].pos.dy, aspectx, aspecty);
-
-	if (backdrop_map[back_index].last == res) {
-		if (backdrop_map[back_index].pos.highlight != highlight) {
-			backdrop_map[back_index].pos.highlight = highlight;
-			backdrop_map[back_index].pos.redraw = true;
-		}
-	} else {
-		backdrop_map[back_index].last = res;
-		backdrop_map[back_index].pos.highlight = highlight;
-		backdrop_map[back_index].pos.redraw = true;
-	}
-}
-
-// Clear the backdrop
-void int_backdrop_clear(int back_index, bool highlight)
-{
-	assert( back_index < backdrop_mac );
-
-	int_backdrop_cache(backdrop_map[back_index].data);
-
-	backdrop_map[back_index].data = 0;
-
-	if (!backdrop_map[back_index].last.is_valid()) {
-		if (backdrop_map[back_index].pos.highlight != highlight) {
-			backdrop_map[back_index].pos.highlight = highlight;
-			backdrop_map[back_index].pos.redraw = true;
-		}
-	} else {
-		backdrop_map[back_index].last = resource();
-		backdrop_map[back_index].pos.highlight = highlight;
-		backdrop_map[back_index].pos.redraw = true;
-	}
-}
-
-void int_backdrop_done()
-{
-	assert(backdrop_mac != 0);
-
-	for(int i=0;i<backdrop_mac;++i) {
-		if (backdrop_map[i].data)
-			delete backdrop_map[i].data;
-		backdrop_map[i].data = 0;
-	}
-	backdrop_mac = 0;
-
-	for(list<backdrop_data*>::iterator i=backdrop_cache_list->begin();i!=backdrop_cache_list->end();++i)
-		delete *i;
-	delete backdrop_cache_list;
-	backdrop_cache_list = 0;
-}
-
-void int_backdrop_init(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor)
-{
-	assert(backdrop_mac == 0);
-
-	backdrop_cache_list = new pbackdrop_list;
-	backdrop_missing_color = Abackdrop_missing_color;
-	backdrop_box_color = Abackdrop_box_color;
-	backdrop_outline = outline;
-	backdrop_cursor = cursor;
-	backdrop_expand_factor = expand_factor;
-
-	backdrop_mac = Amac;
-	backdrop_cache_max = backdrop_mac*2 + 1;
-
-	int_updating_active = false;
-
-	for(int i=0;i<backdrop_mac;++i) {
-		backdrop_map[i].data = 0;
-		backdrop_map[i].last = resource();
-		backdrop_map[i].pos.highlight = false;
-		backdrop_map[i].pos.redraw = true;
-	}
-
-	if (backdrop_mac == 1 && video_index_rgb_to_packed_is_available())
-		video_index_rgb_to_packed();
-	if (backdrop_mac > 1 && video_index_packed_to_rgb_is_available())
-		video_index_packed_to_rgb(0);
-}
-
-// Set the backdrop position and size
-void int_backdrop_pos(int back_index, int x, int y, int dx, int dy)
-{
-	assert( back_index < backdrop_mac );
-
-	int_backdrop_cache(backdrop_map[back_index].data);
-	backdrop_map[back_index].data = 0;
-
-	backdrop_map[back_index].last = resource();
-	backdrop_map[back_index].pos.highlight = false;
-	backdrop_map[back_index].pos.redraw = true;
-
-	backdrop_map[back_index].pos.x = backdrop_map[back_index].pos.real_x = x + backdrop_outline;
-	backdrop_map[back_index].pos.y = backdrop_map[back_index].pos.real_y = y + backdrop_outline;
-	backdrop_map[back_index].pos.dx = backdrop_map[back_index].pos.real_dx = dx - 2*backdrop_outline;
-	backdrop_map[back_index].pos.dy = backdrop_map[back_index].pos.real_dy = dy - 2*backdrop_outline;
-
-	if (int_orientation & ORIENTATION_FLIP_XY) {
-		swap(backdrop_map[back_index].pos.real_x, backdrop_map[back_index].pos.real_y);
-		swap(backdrop_map[back_index].pos.real_dx, backdrop_map[back_index].pos.real_dy);
-	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
-		backdrop_map[back_index].pos.real_x = video_size_x() - backdrop_map[back_index].pos.real_x - backdrop_map[back_index].pos.real_dx;
-	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
-		backdrop_map[back_index].pos.real_y = video_size_y() - backdrop_map[back_index].pos.real_y - backdrop_map[back_index].pos.real_dy;
-	}
-}
-
-//---------------------------------------------------------------------------
-// Clip
-
-static bool int_clip_active;
-static bool int_clip_running;
-static resource int_clip_res;
-static int int_clip_index;
-static adv_fz* int_clip_f;
-static unsigned int_clip_aspectx;
-static unsigned int_clip_aspecty;
-target_clock_t int_clip_wait;
-unsigned int_clip_count;
-adv_mng* int_mng_context;
-
-void int_clip_clear()
-{
-	if (int_clip_f) {
-		fzclose(int_clip_f);
-		mng_done(int_mng_context);
-		int_clip_f = 0;
-	}
-	int_clip_active = false;
-	int_clip_running = false;
-}
-
-void int_clip_set(int back_index, const resource& res, unsigned aspectx, unsigned aspecty)
-{
-	int_clip_clear();
-
-	int_clip_index = back_index;
-	int_clip_res = res;
-	int_clip_active = true;
-	int_clip_running = false;
-	int_clip_aspectx = aspectx;
-	int_clip_aspecty = aspecty;
-}
-
-void int_clip_init()
-{
-	int_clip_f = 0;
-	int_clip_active = false;
-}
-
-void int_clip_start()
-{
-	if (!int_clip_active)
-		return;
-
-	int_clip_running = true;
-	int_clip_wait = target_clock(); // reset the start time
-}
-
-void int_clip_done()
-{
-	int_clip_clear();
-}
-
-static bool int_clip_need_load()
-{
-	if (!int_clip_active)
-		return false;
-
-	if (!int_clip_running)
-		return false;
-
-	if (!int_clip_f)
-		return true;
-
-	if (target_clock() > int_clip_wait)
-		return true;
-
-	return false;
-}
-
-bool int_clip_is_active()
-{
-	return int_clip_active && int_clip_running;
-}
-
-static adv_bitmap* int_clip_load(adv_color_rgb* rgb_map, unsigned* rgb_max)
-{
-	if (!int_clip_active)
-		return 0;
-
-	if (!int_clip_f) {
-		// first load
-		int_clip_f = int_clip_res.open();
-		if (!int_clip_f) {
-			int_clip_active = false;
-			int_clip_f = 0;
-			return 0;
-		}
-
-		int_mng_context = mng_init(int_clip_f);
-		if (int_mng_context == 0) {
-			fzclose(int_clip_f);
-			int_clip_f = 0;
-			int_clip_active = false;
-			return 0;
-		}
-
-		int_clip_wait = target_clock();
-		int_clip_count = 0;
-	}
-
-	unsigned pix_width;
-	unsigned pix_height;
-	unsigned pix_pixel;
-	unsigned char* dat_ptr;
-	unsigned dat_size;
-	unsigned char* pix_ptr;
-	unsigned pix_scanline;
-	unsigned char* pal_ptr;
-	unsigned pal_size;
-	unsigned tick;
-
-	int r = mng_read(int_mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, int_clip_f);
-	if (r != 0) {
-		mng_done(int_mng_context);
-		fzclose(int_clip_f);
-		int_clip_f = 0;
-		int_clip_running = false;
-		return 0;
-	}
-
-	double delay = tick / (double)mng_frequency_get(int_mng_context);
-
-	adv_bitmap* bitmap = bitmappalette_import(rgb_map, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
-	if (!bitmap) {
-		free(dat_ptr);
-		free(pal_ptr);
-		mng_done(int_mng_context);
-		fzclose(int_clip_f);
-		int_clip_f = 0;
-		int_clip_active = false;
-		return 0;
-	}
-
-	free(pal_ptr);
-
-	int_clip_wait += (target_clock_t)(delay * TARGET_CLOCKS_PER_SEC);
-
-	++int_clip_count;
-
-	return bitmap;
-}
-
-//---------------------------------------------------------------------------
 // Update
-
-extern "C" int fast_exit_handler(void)
-{
-	if (int_wait_for_backdrop)
-		return 0;
-
-	int_keypressed();
-	return int_key_saved == INT_KEY_PGUP
-		|| int_key_saved == INT_KEY_PGDN
-		|| int_key_saved == INT_KEY_INS
-		|| int_key_saved == INT_KEY_DEL
-		|| int_key_saved == INT_KEY_HOME
-		|| int_key_saved == INT_KEY_END
-		|| int_key_saved == INT_KEY_UP
-		|| int_key_saved == INT_KEY_DOWN
-		|| int_key_saved == INT_KEY_LEFT
-		|| int_key_saved == INT_KEY_RIGHT
-		|| int_key_saved == INT_KEY_MODE;
-}
-
-static void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const int_rgb& trasparent)
-{
-	unsigned index;
-	if (*rgb_max == 256) {
-		unsigned count[256];
-		for(unsigned i=0;i<256;++i)
-			count[i] = 0;
-
-		for(unsigned y=0;y<bitmap->size_y;++y) {
-			uint8* line = bitmap_line(bitmap, y);
-			for(unsigned x=0;x<bitmap->size_x;++x)
-				++count[line[x]];
-		}
-
-		index = 0;
-		for(unsigned i=0;i<256;++i)
-			if (count[i] < count[index])
-				index = i;
-
-		if (count[index] != 0) {
-			unsigned substitute = 0;
-			for(unsigned y=0;y<bitmap->size_y;++y) {
-				uint8* line = bitmap_line(bitmap, y);
-				for(unsigned x=0;x<bitmap->size_x;++x)
-					if (line[x] == index)
-						line[x] = substitute;
-			}
-		}
-	} else {
-		index = *rgb_max;
-		++*rgb_max;
-	}
-
-	rgb[index].red = trasparent.r;
-	rgb[index].green = trasparent.g;
-	rgb[index].blue = trasparent.b;
-	rgb[index].alpha = 0;
-
-	for(unsigned y=0;y<bitmap->size_y;++y) {
-		uint8* line = bitmap_line(bitmap, y);
-		uint8* line_mask = bitmap_line(bitmap_mask, y);
-		for(unsigned x=0;x<bitmap->size_x;++x) {
-			if (!line_mask[x])
-				line[x] = index;
-		}
-	}
-}
-
-static adv_bitmap* backdrop_load(const resource& res, adv_color_rgb* rgb, unsigned* rgb_max)
-{
-	string ext = file_ext(res.path_get());
-
-	if (ext == ".png") {
-		adv_fz* f = res.open();
-		if (!f)
-			return 0;
-
-		unsigned pix_width;
-		unsigned pix_height;
-		unsigned pix_pixel;
-		unsigned char* dat_ptr;
-		unsigned dat_size;
-		unsigned char* pix_ptr;
-		unsigned pix_scanline;
-		unsigned char* pal_ptr;
-		unsigned pal_size;
-
-		int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
-		if (r != 0) {
-			fzclose(f);
-			return 0;
-		}
-
-		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
-		if (!bitmap) {
-			free(dat_ptr);
-			free(pal_ptr);
-			fzclose(f);
-			return 0;
-		}
-
-		free(pal_ptr);
-		fzclose(f);
-
-		return bitmap;
-	}
-
-	if (ext == ".pcx") {
-		adv_fz* f = res.open();
-		if (!f)
-			return 0;
-		adv_bitmap* bitmap = pcx_load(f, rgb, rgb_max);
-		fzclose(f);
-		return bitmap;
-	}
-
-	if (ext == ".ico") {
-		adv_fz* f = res.open();
-		if (!f)
-			return 0;
-		adv_bitmap* bitmap_mask;
-		adv_bitmap* bitmap = icon_load(f, rgb, rgb_max, &bitmap_mask);
-		if (!bitmap) {
-			fzclose(f);
-			return 0;
-		}
-
-		// TODO
-		icon_apply(bitmap, bitmap_mask, rgb, rgb_max, backdrop_missing_color.background);
-
-		bitmap_free(bitmap_mask);
-		fzclose(f);
-		return bitmap;
-	}
-
-	if (ext == ".mng") {
-		adv_mng* mng;
-
-		adv_fz* f = res.open();
-		if (!f)
-			return 0;
-
-		mng = mng_init(f);
-		if (mng == 0) {
-			fzclose(f);
-			return 0;
-		}
-
-		unsigned pix_width;
-		unsigned pix_height;
-		unsigned pix_pixel;
-		unsigned char* dat_ptr;
-		unsigned dat_size;
-		unsigned char* pix_ptr;
-		unsigned pix_scanline;
-		unsigned char* pal_ptr;
-		unsigned pal_size;
-		unsigned tick;
-
-		int r = mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
-		if (r != 0) {
-			mng_done(mng);
-			fzclose(f);
-			return 0;
-		}
-
-		adv_bitmap* bitmap = bitmappalette_import(rgb, rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
-		if (!bitmap) {
-			free(dat_ptr);
-			free(pal_ptr);
-			mng_done(mng);
-			fzclose(f);
-			return 0;
-		}
-
-		free(pal_ptr);
-
-		// duplicate the bitmap, it must exists also after destroying the mng context
-		adv_bitmap* dup_bitmap = bitmap_dup(bitmap);
-		bitmap_free(bitmap);
-		bitmap = dup_bitmap;
-
-		mng_done(mng);
-		fzclose(f);
-
-		return bitmap;
-	}
-
-	return 0;
-}
-
-void int_backdrop_compute_real_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
-{
-	if (int_orientation & ORIENTATION_FLIP_XY) {
-		unsigned t = aspectx;
-		aspectx = aspecty;
-		aspecty = t;
-	}
-
-	if (!aspectx || !aspecty) {
-		aspectx = bitmap->size_x;
-		aspecty = bitmap->size_y;
-	}
-
-	if (!aspectx || !aspecty) {
-		aspectx = 1;
-		aspecty = 1;
-	}
-
-	aspectx *= 3 * video_size_x();
-	aspecty *= 4 * video_size_y();
-
-	unsigned dx = back->pos.real_dx;
-	unsigned dy = back->pos.real_dy;
-	if (aspectx * dy > aspecty * dx) {
-		*rx = dx;
-		*ry = static_cast<unsigned>(dx * aspecty * backdrop_expand_factor / aspectx);
-	} else {
-		*rx = static_cast<unsigned>(dy * aspectx * backdrop_expand_factor / aspecty);
-		*ry = dy;
-	}
-	if (*rx > dx)
-		*rx = dx;
-	if (*ry > dy)
-		*ry = dy;
-}
-
-void int_backdrop_compute_virtual_size(unsigned* rx, unsigned* ry, struct backdrop_t* back, adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty)
-{
-	if (!aspectx || !aspecty) {
-		aspectx = bitmap->size_x;
-		aspecty = bitmap->size_y;
-	}
-
-	if (!aspectx || !aspecty) {
-		aspectx = 1;
-		aspecty = 1;
-	}
-
-	if (int_orientation & ORIENTATION_FLIP_XY) {
-		aspectx *= 4 * video_size_y();
-		aspecty *= 3 * video_size_x();
-	} else {
-		aspectx *= 3 * video_size_x();
-		aspecty *= 4 * video_size_y();
-	}
-
-	unsigned dx = back->pos.dx;
-	unsigned dy = back->pos.dy;
-
-	if (aspectx * dy > aspecty * dx) {
-		*rx = dx;
-		*ry = static_cast<unsigned>(dx * aspecty * backdrop_expand_factor / aspectx);
-	} else {
-		*rx = static_cast<unsigned>(dy * aspectx * backdrop_expand_factor / aspecty);
-		*ry = dy;
-	}
-	if (*rx > dx)
-		*rx = dx;
-	if (*ry > dy)
-		*ry = dy;
-}
-
-static adv_bitmap* int_backdrop_compute_bitmap(struct backdrop_t* back, adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned aspectx, unsigned aspecty)
-{
-#if 1 /* select resize or resample */
-	if (bitmap->size_x < back->pos.dx) {
-		unsigned rx, ry;
-
-		// flip
-		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
-
-		int_backdrop_compute_real_size(&rx, &ry, back, bitmap, aspectx, aspecty);
-
-		// resize & mirror
-		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation);
-		if (!shrink_bitmap) {
-			bitmap_free(bitmap);
-			return 0;
-		}
-		bitmap_free(bitmap);
-		bitmap = shrink_bitmap;
-	} else {
-		unsigned rx, ry;
-
-		int_backdrop_compute_virtual_size(&rx, &ry, back, bitmap, aspectx, aspecty);
-
-		// resize & mirror
-		unsigned flip = (int_orientation & ORIENTATION_FLIP_XY) ? ORIENTATION_MIRROR_X | ORIENTATION_MIRROR_Y : 0;
-		adv_bitmap* shrink_bitmap = bitmap_resize(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation ^ flip);
-		if (!shrink_bitmap) {
-			bitmap_free(bitmap);
-			return 0;
-		}
-		bitmap_free(bitmap);
-		bitmap = shrink_bitmap;
-
-		// flip
-		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
-	}
-
-	adv_bitmap* pal_bitmap;
-
-	pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
-	if (bitmap->bytes_per_pixel == 1) {
-		// palette bitmap
-		unsigned color_map[256];
-		for(unsigned i=0;i<*rgb_max;++i)
-			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-		bitmap_cvt_palette(pal_bitmap, bitmap, color_map);
-	} else {
-		// rgb bitmap
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
-		bitmap_cvt_rgb(pal_bitmap, video_color_def(), bitmap, def);
-	}
-
-	bitmap_free(bitmap);
-	bitmap = pal_bitmap;
-#else
-	adv_bitmap* pal_bitmap;
-
-	pal_bitmap = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
-	if (bitmap->bytes_per_pixel == 1) {
-		// palette bitmap
-		unsigned color_map[256];
-		for(unsigned i=0;i<*rgb_max;++i)
-			video_pixel_make(color_map + i, rgb[i].red, rgb[i].green, rgb[i].blue);
-		bitmap_cvt_palette(pal_bitmap, bitmap, color_map);
-	} else {
-		// rgb bitmap
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
-		bitmap_cvt_rgb(pal_bitmap, video_color_def(), bitmap, def);
-	}
-
-	bitmap_free(bitmap);
-	bitmap = pal_bitmap;
-
-	if (bitmap->size_x < back->pos.dx) {
-		unsigned rx, ry;
-
-		// flip
-		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
-
-		int_backdrop_compute_real_size(&rx, &ry, back, bitmap, aspectx, aspecty);
-
-		// resize & mirror
-		adv_bitmap* shrink_bitmap = bitmap_resample(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation, video_color_def());
-		if (!shrink_bitmap) {
-			bitmap_free(bitmap);
-			return 0;
-		}
-		bitmap_free(bitmap);
-		bitmap = shrink_bitmap;
-	} else {
-		unsigned rx, ry;
-
-		int_backdrop_compute_virtual_size(&rx, &ry, back, bitmap, aspectx, aspecty);
-
-		// resize & mirror
-		unsigned flip = (int_orientation & ORIENTATION_FLIP_XY) ? ORIENTATION_MIRROR_X | ORIENTATION_MIRROR_Y : 0;
-		adv_bitmap* shrink_bitmap = bitmap_resample(bitmap, 0, 0, bitmap->size_x, bitmap->size_y, rx, ry, int_orientation ^ flip, video_color_def());
-		if (!shrink_bitmap) {
-			bitmap_free(bitmap);
-			return 0;
-		}
-		bitmap_free(bitmap);
-		bitmap = shrink_bitmap;
-
-		// flip
-		bitmap_orientation(bitmap, int_orientation & ORIENTATION_FLIP_XY);
-	}
-#endif
-
-	return bitmap;
-}
-
-static void int_backdrop_clear(struct backdrop_t* back)
-{
-	int_clear(back->pos.x, back->pos.y, back->pos.dx, back->pos.dy, backdrop_missing_color.background);
-}
-
-static void int_backdrop_load(struct backdrop_t* back)
-{
-	if (!back->data->bitmap_get()) {
-		adv_color_rgb rgb[256];
-		unsigned rgb_max;
-
-		adv_bitmap* bitmap = backdrop_load(back->data->res_get(), rgb, &rgb_max);
-		if (!bitmap)
-			return;
-
-		bitmap = int_backdrop_compute_bitmap(back, bitmap, rgb, &rgb_max, back->data->aspectx_get(), back->data->aspecty_get());
-		if (!bitmap)
-			return;
-
-		// store
-		back->data->bitmap_set(bitmap);
-	}
-}
-
-// Update the backdrop image
-static void int_backdrop_update(struct backdrop_t* back)
-{
-	if (back->data) {
-		if (!fast_exit_handler())
-			int_backdrop_load(back);
-	}
-
-	if (back->pos.redraw) {
-		if (back->data) {
-			if (back->data->bitmap_get()) {
-				back->pos.redraw = false;
-				int_backdrop_raw(back, back->data->bitmap_get());
-			} else {
-				// the image need to be update when loaded
-				int_backdrop_clear(back);
-			}
-		} else {
-			back->pos.redraw = false;
-			int_backdrop_clear(back);
-		}
-
-		if (backdrop_outline)
-			int_box(back->pos.x-backdrop_outline, back->pos.y-backdrop_outline, back->pos.dx+2*backdrop_outline, back->pos.dy+2*backdrop_outline, backdrop_outline, backdrop_missing_color.foreground);
-	}
-}
 
 static void int_copy_partial(unsigned y0, unsigned y1)
 {
 	video_write_lock();
 
-	if (video_is_unchained()) {
-		for(unsigned plane=0;plane<4;++plane) {
-			video_unchained_plane_set(plane);
-			unsigned char* buffer = video_buffer + plane * video_bytes_per_pixel() + y0 * video_buffer_line_size;
-
-			for(unsigned y=y0;y<y1;++y) {
-				unsigned char* dst_ptr = video_write_line(y);
-				unsigned char* src_ptr = buffer;
-				for(unsigned x=0;x<video_size_x()/4;++x) {
-					*dst_ptr = *src_ptr;
-					++dst_ptr;
-					src_ptr += 4;
-				}
-				buffer += video_buffer_line_size;
-			}
-		}
-	} else {
-		unsigned char* buffer = video_buffer + y0 * video_buffer_line_size;
-		for(unsigned y=y0;y<y1;++y) {
-			memcpy(video_write_line(y), buffer, video_buffer_line_size );
-			buffer += video_buffer_line_size;
-		}
+	unsigned char* buffer = video_buffer + y0 * video_buffer_line_size;
+	for(unsigned y=y0;y<y1;++y) {
+		memcpy(video_write_line(y), buffer, video_buffer_line_size );
+		buffer += video_buffer_line_size;
 	}
 
 	video_write_unlock(0, y0, video_size_x(), y1 - y0);
@@ -2113,26 +2464,27 @@ unsigned int_update_pre(bool progressive)
 
 	play_poll();
 
-	int_backdrop_cache_reduce();
-
 	int y = 0;
-	for(int i=0;i<backdrop_mac;++i) {
-		play_poll();
 
-		// this thick work only if the backdrop are from top to down
-		if (int_orientation == 0 && progressive) {
-			// update progressively the screen
-			int yl = backdrop_map[i].pos.real_y - backdrop_outline;
-			if (yl > y) {
-				int_copy_partial(y, yl);
-				y = yl;
+	if (CELL) {
+		for(int i=0;i<CELL->size();++i) {
+			play_poll();
+
+			// this trick works only if the backdrops positioned are from top to down
+			if (int_orientation == 0 && progressive) {
+				// update progressively the screen
+				int yl = CELL->backdrop_topline(i);
+				if (yl > y) {
+					int_copy_partial(y, yl);
+					y = yl;
+				}
 			}
+
+			CELL->backdrop_update(i);
 		}
 
-		int_backdrop_update(backdrop_map + i);
+		CELL->reduce();
 	}
-
-	int_backdrop_cache_all();
 
 	return y;
 }
@@ -2143,7 +2495,9 @@ void int_update_post(unsigned y)
 
 	int_copy_partial(y, video_size_y());
 
-	video_backdrop_box();
+	if (CELL) {
+		CELL->backdrop_box();
+	}
 
 	play_poll();
 
@@ -2422,134 +2776,6 @@ void int_idle_1_enable(bool state)
 	int_idle_1_state = state;
 }
 
-static void int_clip_idle()
-{
-	adv_color_rgb rgb_map[256];
-	unsigned rgb_max;
-	backdrop_t* back = backdrop_map + int_clip_index;
-
-	if (!int_clip_need_load()) {
-		return;
-	}
-
-	adv_bitmap* bitmap = int_clip_load(rgb_map, &rgb_max);
-	if (!bitmap) {
-		// update the screen with the previous backdrop
-		int_copy_partial(back->pos.real_y, back->pos.real_y + back->pos.real_dy);
-		return;
-	}
-
-	adv_pixel pixel = video_pixel_get(backdrop_missing_color.background.r, backdrop_missing_color.background.g, backdrop_missing_color.background.b);
-
-	// source range and steps
-	unsigned char* ptr = bitmap->ptr;
-	int dw = bitmap->bytes_per_scanline;
-	int dp = bitmap->bytes_per_pixel;
-	int dx = bitmap->size_x;
-	int dy = bitmap->size_y;
-
-	// set the correct orientation
-	if (int_orientation & ORIENTATION_FLIP_XY) {
-		int t;
-		t = dp;
-		dp = dw;
-		dw = t;
-		t = dx;
-		dx = dy;
-		dy = t;
-	}
-	if (int_orientation & ORIENTATION_MIRROR_X) {
-		ptr = ptr + (dx-1) * dp;
-		dp = - dp;
-	}
-	if (int_orientation & ORIENTATION_MIRROR_Y) {
-		ptr = ptr + (dy-1) * dw;
-		dw = - dw;
-	}
-
-	// destination range
-	unsigned dst_dx;
-	unsigned dst_dy;
-	unsigned dst_x;
-	unsigned dst_y;
-	dst_x = back->pos.real_x;
-	dst_y = back->pos.real_y;
-	dst_dx = back->pos.real_dx;
-	dst_dy = back->pos.real_dy;
-
-	// compute the size of the bitmap
-	unsigned rel_dx;
-	unsigned rel_dy;
-	int_backdrop_compute_real_size(&rel_dx, &rel_dy, back, bitmap, int_clip_aspectx, int_clip_aspecty);
-
-	// start writing
-	video_write_lock();
-
-	// adjust the destination range if too big
-	if (dst_dx > rel_dx) {
-		unsigned pre_dx = (dst_dx - rel_dx) / 2;
-		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
-
-		if (int_clip_count == 1) {
-			video_clear(dst_x, dst_y, pre_dx, dst_dy, pixel);
-			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, pixel);
-		}
-
-		dst_x += pre_dx;
-		dst_dx = rel_dx;
-	}
-	if (dst_dy > rel_dy) {
-		unsigned pre_dy = (dst_dy - rel_dy) / 2;
-		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
-
-		if (int_clip_count == 1) {
-			video_clear(dst_x, dst_y, dst_dx, pre_dy, pixel);
-			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, pixel);
-		}
-
-		dst_y += pre_dy;
-		dst_dy = rel_dy;
-	}
-
-	unsigned combine = VIDEO_COMBINE_Y_NONE;
-	if (dst_dx <= dx / 2)
-		combine |= VIDEO_COMBINE_X_FILTER;
-	if (dst_dy <= dy / 2)
-		combine |= VIDEO_COMBINE_Y_FILTER;
-
-	// write
-	if (bitmap->bytes_per_pixel == 1) {
-		uint32 palette32[256];
-		uint16 palette16[256];
-		uint8 palette8[256];
-		for(unsigned i=0;i<rgb_max;++i) {
-			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
-			palette32[i] = p;
-			palette16[i] = p;
-			palette8[i] = p;
-		}
-		video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, palette8, palette16, palette32, combine);
-	} else if (bitmap->bytes_per_pixel == 3 || bitmap->bytes_per_pixel == 4) {
-		adv_color_def def = png_color_def(bitmap->bytes_per_pixel);
-		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, def, combine);
-	}
-
-	// end write
-	video_write_unlock(dst_x, dst_y, dst_dx, dst_dy);
-
-	bitmap_free(bitmap);
-}
-
-static void int_box_idle()
-{
-	static target_clock_t int_backdrop_box_last = 0;
-	target_clock_t int_backdrop_box_new = target_clock();
-	if (int_backdrop_box_new >= int_backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
-		int_backdrop_box_last = int_backdrop_box_new;
-		video_backdrop_box();
-	}
-}
-
 static void int_idle()
 {
 	if (int_idle_0_state && int_key_last == INT_KEY_IDLE_0 && int_idle_0_rep && time(0) - int_idle_time > int_idle_0_rep)
@@ -2566,8 +2792,8 @@ static void int_idle()
 
 	if (int_key_saved == INT_KEY_NONE) {
 		if (int_updating_active) {
-			int_clip_idle();
-			int_box_idle();
+			if (CELL)
+				CELL->idle();
 			target_idle();
 		}
 	}

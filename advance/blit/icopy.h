@@ -78,6 +78,8 @@ static uint8 copy8_mask[8] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 
 static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsigned count)
 {
+	unsigned rest = count % 8;
+
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -101,6 +103,13 @@ static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsign
 		: "r" (copy8_mask)
 		: "cc"
 	);
+
+	while (rest) {
+		dst[0] = src[0];
+		dst += 1;
+		src += 2;
+		--rest;
+	}
 }
 #endif
 
@@ -144,21 +153,11 @@ static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned cou
 
 static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsigned count)
 {
-	unsigned rest = count % 4;
-
-	count /= 4;
 	while (count) {
-		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[2], src[4], src[6]);
-		dst += 4;
-		src += 8;
-		--count;
-	}
-
-	while (rest) {
 		dst[0] = src[0];
 		dst += 1;
 		src += 2;
-		--rest;
+		--count;
 	}
 }
 
@@ -187,8 +186,10 @@ static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned 
 }
 
 #if defined(USE_ASM_i586)
-static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step1)
+static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step)
 {
+	unsigned rest = count % 8;
+
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -238,39 +239,34 @@ static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigne
 		"1:\n"
 
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step1)
+		: "b" (step)
 		: "cc"
 	);
-}
-#endif
-
-static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step1)
-{
-	unsigned rest = count % 4;
-
-	int step2 = step1 + step1;
-	int step3 = step2 + step1;
-	int step4 = step3 + step1;
-
-	count /= 4;
-	while (count) {
-		P32DER0(dst) = cpu_uint32_make_uint8(src[0], src[step1], src[step2], src[step3]);
-		dst += 4;
-		src += step4;
-		--count;
-	}
 
 	while (rest) {
 		dst[0] = src[0];
 		dst += 1;
-		src += step1;
+		PADD(src, step);
 		--rest;
+	}
+}
+#endif
+
+static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step)
+{
+	while (count) {
+		dst[0] = src[0];
+		dst += 1;
+		PADD(src, step);
+		--count;
 	}
 }
 
 #if defined(USE_ASM_i586)
-static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step1)
+static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step)
 {
+	unsigned rest = count % 4;
+
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -299,63 +295,34 @@ static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsi
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step1)
+		: "b" (step)
 		: "cc", "%eax", "%edx"
 	);
-}
-#endif
-
-static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step1)
-{
-	unsigned rest = count % 2;
-
-	int step2 = step1 + step1;
-
-	count /= 2;
-	while (count) {
-		P32DER0(dst) = cpu_uint32_make_uint16(P16DER0(src), P16DER(src, step1));
-		dst += 2;
-		PADD(src, step2);
-		--count;
-	}
 
 	while (rest) {
 		dst[0] = src[0];
 		dst += 1;
-		PADD(src, step1);
+		PADD(src, step);
 		--rest;
 	}
 }
+#endif
 
-static inline void internal_copy32_step3(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step)
 {
-	uint8* dst8 = (uint8*)dst;
-	uint8* src8 = (uint8*)src;
-
-	while (count >= 2) {
-		dst8[0] = src8[0];
-		dst8[1] = src8[1];
-		dst8[2] = src8[2];
-		/* dst8[3] = 0; */
-		dst8[4] = src8[3];
-		dst8[5] = src8[4];
-		dst8[6] = src8[5];
-		/* dst8[7] = 0; */
-		dst8 += 8;
-		src8 += 6;
-		count -= 2;
-	}
-	if (count) {
-		dst8[0] = src8[0];
-		dst8[1] = src8[1];
-		dst8[2] = src8[2];
-		/* dst8[3] = 0; */
+	while (count) {
+		dst[0] = src[0];
+		dst += 1;
+		PADD(src, step);
+		--count;
 	}
 }
 
 #if defined(USE_ASM_i586)
-static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step1)
+static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step)
 {
+	unsigned rest = count % 2;
+
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -374,18 +341,22 @@ static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsi
 		"jnz 0b\n"
 		"1:\n"
 		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step1)
+		: "b" (step)
 		: "cc"
 	);
+
+	if (rest) {
+		dst[0] = src[0];
+	}
 }
 #endif
 
-static inline void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step1)
+static inline void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step)
 {
 	while (count) {
 		dst[0] = src[0];
 		dst += 1;
-		PADD(src, step1);
+		PADD(src, step);
 		--count;
 	}
 }

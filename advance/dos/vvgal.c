@@ -504,13 +504,11 @@ adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_
 		(mode->flags & MODE_FLAGS_USER_MASK);
 
 	if (DRIVER(mode)->is_text) {
-		mode->flags |= MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_MEMORY_LINEAR;
+		mode->flags |= MODE_FLAGS_INDEX_TEXT;
 	} else {
 		mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
 		if (DRIVER(mode)->crtc.vde * DRIVER(mode)->crtc.hde > 0x10000)
-			mode->flags |= MODE_FLAGS_MEMORY_UNCHAINED;
-		else
-			mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
+			return -1;
 	}
 
 	mode->size_x = DRIVER(mode)->crtc.hde;
@@ -548,6 +546,11 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 		mode->font_x = 8;
 	} else {
 		error_nolog_set("Unsupported horizontal crtc values. Only multiple of 8 or 9 pixels are supported.\n");
+		return -1;
+	}
+
+	if (crtc->hde * crtc->vde > 0x10000) {
+		error_nolog_set("Video mode too big.\n");
 		return -1;
 	}
 
@@ -727,7 +730,6 @@ adv_video_driver video_vgaline_driver = {
 	vgaline_scroll,
 	vgaline_scanline_set,
 	vga_palette8_set,
-	vga_unchained_plane_mask_set,
 	vgaline_mode_size,
 	vgaline_mode_grab_void,
 	vgaline_mode_generate_void,

@@ -38,8 +38,6 @@
 #ifndef __SLICE_H
 #define __SLICE_H
 
-#include "video.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

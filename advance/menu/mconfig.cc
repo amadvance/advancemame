@@ -112,6 +112,14 @@ static adv_conf_enum_int OPTION_MERGE[] = {
 { "disable", merge_disable }
 };
 
+static adv_conf_enum_int OPTION_CLIPMODE[] = {
+{ "none", clip_none },
+{ "single", clip_single },
+{ "singleloop", clip_singleloop },
+{ "multi", clip_multi },
+{ "multiloop", clip_multiloop }
+};
+
 static void config_error_la(const string& line, const string& arg)
 {
 	target_err("Invalid argument '%s' at line '%s'.\n", arg.c_str(), line.c_str());
@@ -226,7 +234,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "preview_default_title", "none");
 	conf_int_register_enum_default(config_context, "event_mode", conf_enum(OPTION_EVENTMODE), 1);
 	conf_bool_register_default(config_context, "event_alpha", 1);
-	conf_bool_register_default(config_context, "loop", 0);
+	conf_int_register_enum_default(config_context, "ui_clip", conf_enum(OPTION_CLIPMODE), clip_single);
 	conf_int_register_enum_default(config_context, "merge", conf_enum(OPTION_MERGE), merge_differential);
 	conf_int_register_limit_default(config_context, "icon_space", 10, 500, 43);
 	conf_string_register_default(config_context, "sound_foreground_begin", "default");
@@ -734,7 +742,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	preview_fast = (bool)conf_int_get_default(config_context, "event_mode");
 	alpha_mode = (bool)conf_bool_get_default(config_context, "event_alpha");
-	loop = (bool)conf_bool_get_default(config_context, "loop");
+	clip_mode = (clip_mode_t)conf_int_get_default(config_context, "ui_clip");
 	merge = (merge_t)conf_int_get_default(config_context, "merge");
 	icon_space = conf_int_get_default(config_context, "icon_space");
 

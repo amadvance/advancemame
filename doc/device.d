@@ -134,11 +134,10 @@ Video Drivers
     vgaline - Generate VGA video (DOS)
 	This driver works in DOS and is able to use video modes obtained
 	tweaking the hardware registers of the standard VGA.
-	Usually these modes are called Tweaked, XMode, ZMode.
 
 	Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
 	14.16 MHz are available. Only 8 bit color modes. Only
-	256 kBytes of video memory.
+	64 kBytes of video memory.
 
 	This driver supports also text modes with pixel clocks
 	12.59, 14.16, 25.17, 28.32 MHz.

@@ -193,6 +193,9 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 			if ((info.ModeAttributes & vbeMdNonBanked) != 0) {
 				error_nolog_set("Banked frame buffer not available in this mode");
 				return -1;
+			} else {
+				error_nolog_set("Banked frame buffer isn't supported");
+				return -1;
 			}
 		}
 		/* Packed or RGB memory model */
@@ -232,10 +235,6 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 		default :
 			return -1;
 	}
-	if (DRIVER(mode)->mode & vbeLinearBuffer)
-		mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
-	else
-		mode->flags |= MODE_FLAGS_MEMORY_BANKED;
 
 	mode->size_x = info.XResolution;
 	mode->size_y = info.YResolution;
@@ -481,7 +480,6 @@ adv_video_driver video_vbe_driver = {
 	vbe_scroll,
 	vbe_scanline_set,
 	vbe_palette8_set,
-	0,
 	vbe_mode_size,
 	vbe_mode_grab_void,
 	vbe_mode_generate_void,

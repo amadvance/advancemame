@@ -58,7 +58,7 @@
 #include <limits.h>
 
 /** Max framskip factor */
-#define SYNC_MAX 12
+#define SYNC_MAX 3
 
 /***************************************************************************/
 /*
@@ -649,10 +649,8 @@ static void video_update_effect(struct advance_video_context* context)
 	}
 
 	if (context->state.combine == COMBINE_MEAN
-		|| context->state.combine == COMBINE_MAX
 		|| context->state.combine == COMBINE_FILTER
-		|| context->state.combine == COMBINE_FILTERX
-		|| context->state.combine == COMBINE_FILTERY) {
+	) {
 		switch (context->state.mode_index) {
 		case MODE_FLAGS_INDEX_BGR8 :
 		case MODE_FLAGS_INDEX_BGR15 :
@@ -692,14 +690,18 @@ static void video_update_effect(struct advance_video_context* context)
 
 	/* max only in y reduction */
 	if (context->state.combine == COMBINE_MAX
-		&& context->state.mode_visible_size_y >= context->state.game_visible_size_y) {
+		&& context->state.mode_visible_size_y >= context->state.game_visible_size_y
+		&& context->state.mode_visible_size_x >= context->state.game_visible_size_x
+	) {
 		log_std(("emu:video: resizeeffect=max disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	/* mean only in y change */
 	if (context->state.combine == COMBINE_MEAN
-		&& context->state.mode_visible_size_y == context->state.game_visible_size_y) {
+		&& context->state.mode_visible_size_y == context->state.game_visible_size_y
+		&& context->state.mode_visible_size_x == context->state.game_visible_size_x
+	) {
 		log_std(("emu:video: resizeeffect=mean disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
@@ -840,7 +842,8 @@ static void video_update_visible(struct advance_video_context* context, const ad
 	if ((context->config.adjust & (ADJUST_ADJUST_X | ADJUST_GENERATE)) != 0
 		&& video_is_programmable(context)
 	) {
-		if (stretch == STRETCH_FRACTIONAL_XY) {
+		if (stretch == STRETCH_FRACTIONAL_XY
+			&& strcmp(context->config.resolution_buffer, "auto")==0) {
 			log_std(("emu:video: fractional converted in mixed because generate/x is active\n"));
 			stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
 		}
@@ -1668,6 +1671,7 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 	char buffer[256];
 	const struct video_stage_horz_struct* stage;
 	unsigned i;
+	unsigned pixel;
 
 	/* check if the pipeline is already allocated */
 	if (context->state.blit_pipeline_flag)
@@ -1679,13 +1683,8 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 	context->state.blit_dst_x = (video_size_x() - context->state.mode_visible_size_x) / 2;
 	context->state.blit_dst_y = (video_size_y() - context->state.mode_visible_size_y) / 2;
 
-	if (video_is_unchained()) {
-		unsigned pixel = ALIGN_UNCHAINED / video_bytes_per_pixel();
-		context->state.blit_dst_x = (context->state.blit_dst_x + pixel-1) & ~(pixel-1);
-	} else {
-		unsigned pixel = ALIGN / video_bytes_per_pixel();
-		context->state.blit_dst_x = (context->state.blit_dst_x + pixel-1) & ~(pixel-1);
-	}
+	pixel = ALIGN / video_bytes_per_pixel();
+	context->state.blit_dst_x = (context->state.blit_dst_x + pixel-1) & ~(pixel-1);
 
 	/* source increment */
 	context->state.blit_src_dw = bitmap->bytes_per_scanline;
@@ -1769,19 +1768,13 @@ static void video_frame_pipeline(struct advance_video_context* context, const st
 
 	switch (context->state.combine) {
 	case COMBINE_MAX :
-		combine |= VIDEO_COMBINE_Y_MAX;
+		combine |= VIDEO_COMBINE_Y_MAX | VIDEO_COMBINE_X_MAX;
 		break;
 	case COMBINE_MEAN :
-		combine |= VIDEO_COMBINE_Y_MEAN;
+		combine |= VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
 		break;
 	case COMBINE_FILTER :
 		combine |= VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
-		break;
-	case COMBINE_FILTERX :
-		combine |= VIDEO_COMBINE_Y_NONE | VIDEO_COMBINE_X_FILTER;
-		break;
-	case COMBINE_FILTERY :
-		combine |= VIDEO_COMBINE_Y_FILTER;
 		break;
 	case COMBINE_SCALE :
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x && context->state.mode_visible_size_y == 2*context->state.game_visible_size_y)
@@ -1859,7 +1852,7 @@ static void video_frame_put(struct advance_video_context* context, const struct 
 	/* compute the source pointer */
 	src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
 
-	video_blit_pipeline(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
+	video_pipeline_blit(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 }
 
 static void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input)
@@ -2030,7 +2023,7 @@ static adv_bool video_skip_inc(struct advance_video_context* context)
 static void video_time(struct advance_video_context* context, struct advance_estimate_context* estimate_context, double* full, double* skip)
 {
 	if (context->config.smp_flag) {
-		/* if SMP is active the time estimation take care of it */
+		/* if SMP is active the time estimation take care of it, */
 		/* the times are not added, but the max value is used */
 		*full = estimate_context->estimate_mame_full;
 		if (*full < estimate_context->estimate_osd_full)
@@ -2047,12 +2040,21 @@ static void video_time(struct advance_video_context* context, struct advance_est
 	/* common time */
 	*full += estimate_context->estimate_common_full;
 	*skip += estimate_context->estimate_common_skip;
+
+	/* correct errors */
+	if (*full < *skip)
+		*skip = *full;
 }
 
 static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
 {
+	/* frame time */
 	double step = context->state.skip_step;
+
+	/* time required to compute and draw a complete frame */
 	double full;
+
+	/* time required to compute a frame without displaying it */
 	double skip;
 
 	video_time(context, estimate_context, &full, &skip);
@@ -2068,9 +2070,15 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
 	} else if (skip > step) {
-		/* null frame rate */
-		context->state.skip_level_full = 1;
-		context->state.skip_level_skip = SYNC_MAX - 1;
+		if (context->state.turbo_flag || context->state.fastest_flag) {
+			/* null frame rate */
+			context->state.skip_level_full = 1;
+			context->state.skip_level_skip = SYNC_MAX - 1;
+		} else {
+			/* full frame rate, there isn't reason to skip, the correct speed is impossible */
+			context->state.skip_level_full = SYNC_MAX;
+			context->state.skip_level_skip = 0;
+		}
 	} else {
 		double v = (step - skip) / (full - step);
 		double f = (full - skip) / step;
@@ -3231,8 +3239,6 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "max", COMBINE_MAX },
 { "mean", COMBINE_MEAN },
 { "filter", COMBINE_FILTER },
-{ "filterx", COMBINE_FILTERX },
-{ "filtery", COMBINE_FILTERY },
 { "scale", COMBINE_SCALE },
 { "lq", COMBINE_LQ },
 { "hq", COMBINE_HQ },

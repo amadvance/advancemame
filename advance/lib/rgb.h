@@ -151,6 +151,19 @@ static inline unsigned rgb_shift(unsigned value, int shift)
 }
 
 /**
+ * Shift a value with sign.
+ * \param value Value to shift.
+ * \param shift Number of bit to shift right. If negative the value is shifted left.
+ */
+static inline int rgb_shift_sign(int value, int shift)
+{
+	if (shift >= 0)
+		return value >> shift;
+	else
+		return value << -shift;
+}
+
+/**
  * Convert a 8 bit channel to a specific subformat channel.
  * \param value 8 bit channel.
  * \param shift Shift for the channel. Generally computed with rgb_shift_make_from_def().

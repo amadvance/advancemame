@@ -42,7 +42,7 @@
  * This effect is a rewritten implementation of the hq3x effect made by Maxim Stepin
  */
 
-static void hq3x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count)
+static void hq3x_16_def(interp_uint16* __restrict__ dst0, interp_uint16* __restrict__ dst1, interp_uint16* __restrict__ dst2, const interp_uint16* __restrict__ src0, const interp_uint16* __restrict__ src1, const interp_uint16* __restrict__ src2, unsigned count)
 {
 	unsigned i;
 
@@ -163,7 +163,7 @@ static void hq3x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16*
 	}
 }
 
-static void hq3x_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count)
+static void hq3x_32_def(interp_uint32* __restrict__ dst0, interp_uint32* __restrict__ dst1, interp_uint32* __restrict__ dst2, const interp_uint32* __restrict__ src0, const interp_uint32* __restrict__ src1, const interp_uint32* __restrict__ src2, unsigned count)
 {
 	unsigned i;
 

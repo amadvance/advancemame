@@ -42,7 +42,7 @@
  * This effect is a rewritten implementation of the hq4x effect made by Maxim Stepin
  */
 
-static void hq4x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count)
+static void hq4x_16_def(interp_uint16* __restrict__ dst0, interp_uint16* __restrict__ dst1, interp_uint16* __restrict__ dst2, interp_uint16* __restrict__ dst3, const interp_uint16* __restrict__ src0, const interp_uint16* __restrict__ src1, const interp_uint16* __restrict__ src2, unsigned count)
 {
 	unsigned i;
 
@@ -178,7 +178,7 @@ static void hq4x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16*
 	}
 }
 
-static void hq4x_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* dst2, interp_uint32* dst3, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count)
+static void hq4x_32_def(interp_uint32* __restrict__ dst0, interp_uint32* __restrict__ dst1, interp_uint32* __restrict__ dst2, interp_uint32* __restrict__ dst3, const interp_uint32* __restrict__ src0, const interp_uint32* __restrict__ src1, const interp_uint32* __restrict__ src2, unsigned count)
 {
 	unsigned i;
 

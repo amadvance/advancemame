@@ -43,7 +43,7 @@
  *   x, y destination pos
  *   src data source
  */
-static void video_chained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src)
+static void video_8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src)
 {
 	unsigned j;
 	unsigned pre_count;
@@ -78,7 +78,7 @@ static void video_chained8_clear(unsigned x, unsigned y, unsigned dx, unsigned d
 	}
 }
 
-static void video_chained16_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+static void video_16_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
 {
 	unsigned j;
 	unsigned pre_count;
@@ -115,7 +115,7 @@ static void video_chained16_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 	}
 }
 
-static void video_chained24_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+static void video_24_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
 {
 	unsigned j;
 	unsigned inner_count;
@@ -141,7 +141,7 @@ static void video_chained24_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 	}
 }
 
-static void video_chained32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
+static void video_32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned src)
 {
 	unsigned j;
 	unsigned inner_count;
@@ -161,75 +161,21 @@ static void video_chained32_clear(unsigned x, unsigned y, unsigned dx, unsigned 
 	}
 }
 
-static void video_unchained8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint8 src)
-{
-	unsigned p;
-	uint32 mask;
-
-	src &= 0xFF;
-	mask = src | (src << 8) | (src << 16) | (src << 24);
-
-	for(p=0;p<4;++p) {
-		unsigned j;
-
-		unsigned p_x;
-		unsigned p_dx;
-		unsigned pre_count;
-		unsigned post_count;
-		unsigned inner_count;
-
-		p_x = x / 4;
-		p_dx = (x + dx - 1) / 4 - p_x + 1;
-		if ((x + dx - 1) % 4 < p)
-			--p_dx;
-		if (x % 4 > p) {
-			--p_dx;
-			++p_x;
-		}
-
-		pre_count = (4 - p_x) & 3;
-		if (pre_count >= p_dx) pre_count = p_dx;
-		inner_count = (p_dx - pre_count) / 4;
-		post_count = p_dx - pre_count - inner_count * 4;
-
-		video_unchained_plane_set(p);
-		for(j=0;j<dy;++j) {
-			void* dst = video_write_line(y+j) + p_x;
-			unsigned i;
-			for(i=pre_count;i;--i) {
-				P8DER0(dst) = mask;
-				PADD(dst, 1);
-			}
-			for(i=inner_count;i;--i) {
-				P32DER0(dst) = mask;
-				PADD(dst, 4);
-			}
-			for(i=post_count;i;--i) {
-				P8DER0(dst) = mask;
-				PADD(dst, 1);
-			}
-		}
-	}
-}
-
 /* Clear the screen */
 void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src)
 {
 	switch (video_bytes_per_pixel()) {
 		case 1 :
-			if (video_is_unchained())
-				video_unchained8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
-			else
-				video_chained8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+			video_8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 2 :
-			video_chained16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+			video_16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 3 :
-			video_chained24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+			video_24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 		case 4 :
-			video_chained32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
+			video_32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 			break;
 	}
 }

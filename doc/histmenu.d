@@ -2,8 +2,12 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.14 2003/11
-	) The played mng clips have now a filter effect applied if
-		the size is very small.
+	) All the snapshots and animated clips are now reduced in size
+		using the AdvanceMAME `mean' effect.
+	) In the DOS version removed the legacy support for unchained VGA
+		and VBE banked video modes.
+	) Added a new `ui_clip' option which allow to play all the video
+		clips together.
 
 AdvanceMENU Version 2.2.13 2003/10
 	) The SIGHUP signal now kills and restarts the program.

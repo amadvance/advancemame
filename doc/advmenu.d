@@ -859,6 +859,20 @@ Configuration
 			FF0000 is red and 00FF00 is green.
 		BACKGROUND - Background color. Like foreground color.
 
+    ui_clip
+	Select how play the video clips.
+
+	:ui_clip none | single | singleloop | multi | multiloop
+
+	Options:
+		none - No clip.
+		single - Play only one clip and only one time (default).
+		singleloop - Play only one clip continuously. The sound is
+			not looped.
+		multi - Play all the clips.
+		multiloop - Play all the clips, and loop the clip on the
+			cursor. The sound is not looped.
+
     ui_command_menu
 	Menu item name for the commands submenu.
 
@@ -1131,16 +1145,6 @@ Configuration
 		none - Don't diplay any preview.
 		snap, flyers, cabinets, titles - Display the
 			specified preview. (default snap).
-
-    loop
-	Select if the animated clips need to be played continuously.
-
-	:loop yes | no
-
-	Options:
-		no - Play the clips only one time (default).
-		yes - Play the clips continuously. The sound is not
-			looped.
 
     misc_exit
 	Exit modes.

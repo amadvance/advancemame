@@ -1239,22 +1239,7 @@ static void video_line_rgbtoyuy2_step_def(const struct video_stage_horz_struct* 
 		adv_pixel p;
 		unsigned char p4[4];
 
-		switch (stage->ssp) {
-		default :
-			assert(0);
-		case 1 :
-			p = cpu_uint8_read(src8);
-			break;
-		case 2 :
-			p = cpu_uint16_read(src8);
-			break;
-		case 3 :
-			p = cpu_uint24_read(src8);
-			break;
-		case 4 :
-			p = cpu_uint32_read(src8);
-			break;
-		}
+		p = cpu_uint_read(src8, stage->ssp);
 
 		cpu_uint32_write(p4, (rgb_shift(p, stage->red_shift) & stage->red_mask)
 			| (rgb_shift(p, stage->green_shift) & stage->green_mask)
@@ -1288,43 +1273,13 @@ static void video_line_rgbtorgb_step_def(const struct video_stage_horz_struct* s
 	while (count) {
 		adv_pixel p;
 
-		switch (stage->ssp) {
-		default :
-			assert(0);
-		case 1 :
-			p = cpu_uint8_read(src8);
-			break;
-		case 2 :
-			p = cpu_uint16_read(src8);
-			break;
-		case 3 :
-			p = cpu_uint24_read(src8);
-			break;
-		case 4 :
-			p = cpu_uint32_read(src8);
-			break;
-		}
+		p = cpu_uint_read(src8, stage->ssp);
 
 		p = (rgb_shift(p, stage->red_shift) & stage->red_mask)
 			| (rgb_shift(p, stage->green_shift) & stage->green_mask)
 			| (rgb_shift(p, stage->blue_shift) & stage->blue_mask);
 
-		switch (stage->dsp) {
-		default :
-			assert(0);
-		case 1 :
-			cpu_uint8_write(dst8, p);
-			break;
-		case 2 :
-			cpu_uint16_write(dst8, p);
-			break;
-		case 3 :
-			cpu_uint24_write(dst8, p);
-			break;
-		case 4 :
-			cpu_uint32_write(dst8, p);
-			break;
-		}
+		cpu_uint_write(dst8, stage->dsp, p);
 
 		PADD(src8, stage->sdp);
 		PADD(dst8, stage->dsp);

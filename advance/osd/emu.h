@@ -102,8 +102,6 @@
 #define COMBINE_MAX 1
 #define COMBINE_MEAN 2
 #define COMBINE_FILTER 3
-#define COMBINE_FILTERX 4
-#define COMBINE_FILTERY 5
 #define COMBINE_SCALE 6
 #define COMBINE_LQ 7
 #define COMBINE_HQ 8

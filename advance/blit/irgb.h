@@ -569,6 +569,7 @@ static unsigned rgb_raw_pixel_mask_compute(unsigned shift, unsigned sub_mask)
 {
 	unsigned v = 0;
 
+	/* TODO target */
 	/* red */
 	if (sub_mask & 0x4)
 		v |= video_rgb_red_mask_bit_get() & (video_rgb_red_mask_bit_get() >> shift);
@@ -588,6 +589,7 @@ static unsigned rgb_raw_carry_mask_compute(unsigned sub_mask)
 {
 	unsigned v = 0;
 
+	/* TODO target */
 	/* red */
 	if (sub_mask & 0x4)
 		v |= video_rgb_low_bit_get() & video_rgb_red_mask_bit_get();
@@ -844,9 +846,9 @@ enum RGB_TRIAD16PIX_MASK {
 
 static uint32 rgb_triad16pix_mask[RGB_TRIAD16PIX_MASK_MAX];
 
-static void internal_rgb_triad16pix_set(void)
+static void internal_rgb_triad16pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask4_compute(bytes_per_pixel, rgb_triad16pix_mask + RGB_TRIAD16PIX_MASK_0_0_0, 0, 0x0000); /* factor 2^0 = 100% */
@@ -1171,9 +1173,9 @@ enum RGB_TRIAD6PIX_MASK {
 
 static uint32 rgb_triad6pix_mask[RGB_TRIAD6PIX_MASK_MAX];
 
-static void internal_rgb_triad6pix_set(void)
+static void internal_rgb_triad6pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad6pix_mask + RGB_TRIAD6PIX_MASK_0_0_0, 0, 0x14); /* factor 2^0 = 100% */
@@ -1408,9 +1410,9 @@ enum RGB_TRIAD3PIX_MASK {
 
 static uint32 rgb_triad3pix_mask[RGB_TRIAD3PIX_MASK_MAX];
 
-static void internal_rgb_triad3pix_set(void)
+static void internal_rgb_triad3pix_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_triad3pix_mask + RGB_TRIAD3PIX_MASK_0_0_0, 0, 0x41); /* factor 2^0 = 100% */
@@ -1599,9 +1601,9 @@ enum RGB_SCANDOUBLE_MASK {
 
 static uint32 rgb_scandouble_mask[RGB_SCANDOUBLE_MASK_MAX];
 
-static void internal_rgb_scandouble_set(void)
+static void internal_rgb_scandouble_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
@@ -1695,9 +1697,9 @@ enum RGB_SCANDOUBLEVERT_MASK {
 
 static uint32 rgb_scandoublevert_mask[RGB_SCANDOUBLEVERT_MASK_MAX];
 
-static void internal_rgb_scandoublevert_set(void)
+static void internal_rgb_scandoublevert_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask2_compute(bytes_per_pixel, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, 0, 0x70); /* factor 2^0 = 100% */
@@ -1765,9 +1767,9 @@ enum RGB_SCANTRIPLE_MASK {
 
 static uint32 rgb_scantriple_mask[RGB_SCANTRIPLE_MASK_MAX];
 
-static void internal_rgb_scantriple_set(void)
+static void internal_rgb_scantriple_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask1_compute(bytes_per_pixel, rgb_scantriple_mask + RGB_SCANTRIPLE_MASK_0_0_0, 0, 0x7); /* factor 2^0 = 100% */
@@ -1936,9 +1938,9 @@ enum RGB_SCANTRIPLEVERT_MASK {
 
 static uint32 rgb_scantriplevert_mask[RGB_SCANTRIPLEVERT_MASK_MAX];
 
-static void internal_rgb_scantriplevert_set(void)
+static void internal_rgb_scantriplevert_set(const struct video_pipeline_target_struct* target)
 {
-	unsigned bytes_per_pixel = video_bytes_per_pixel();
+	unsigned bytes_per_pixel = target->bytes_per_pixel;
 
 	/* type 0 */
 	rgb_raw_mask3_compute(bytes_per_pixel, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0, 0, 0x700); /* factor 2^0 = 100% */
@@ -1983,7 +1985,7 @@ static inline void internal_rgb_scantriplevert32_def(uint32* dst, const uint32* 
 /***************************************************************************/
 /* internal_rgb_skipdouble */
 
-static void internal_rgb_skipdouble_set(void)
+static void internal_rgb_skipdouble_set(const struct video_pipeline_target_struct* target)
 {
 }
 

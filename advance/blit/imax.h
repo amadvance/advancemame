@@ -42,8 +42,10 @@ static unsigned max_rgb_mask_2;
 static int max_rgb_shift_1;
 static int max_rgb_shift_2;
 
-static void internal_max_rgb_set(void)
+static void internal_max_rgb_set(const struct video_pipeline_target_struct* target)
 {
+	/* TODO target */
+
 	unsigned mask_0;
 	unsigned mask_1;
 	unsigned mask_2;

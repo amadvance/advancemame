@@ -36,9 +36,6 @@
 /****************************************************************************/
 /* stretchx8 */
 
-static uint32 mask8_set_all[256];
-
-/* This code access only the ds segment */
 #define VIDEO8_LINE_INIT \
 	uint8* dst8 = (uint8*)dst;
 
@@ -57,16 +54,19 @@ static uint32 mask8_set_all[256];
 	dst8[2] = color; \
 	dst8 += 3;
 
-static inline void video_line_stretchx8_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx8_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
-		if ((error += stage->slice.up) > 0) {
+		unsigned run = whole;
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		internal_fill8(dst, P8DER0(src), run);
 		PADD(dst, run);
@@ -85,24 +85,26 @@ static void video_line_stretchx8_1x_step1(const struct video_stage_horz_struct* 
 	video_line_stretchx8_1x_step(stage, dst, src, 1);
 }
 
-static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx8_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO8_LINE_INIT
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
+		unsigned run = whole;
 		unsigned color = P8DER0(src);
 		VIDEO8_LINE_WRITE1
-		if ((error += stage->slice.up) > 0) {
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		PADD(src, sdp * run);
 		--inner_count;
-
 	}
 }
 
@@ -152,17 +154,19 @@ static void video_line_stretchx8_11_def(const struct video_stage_horz_struct* st
 	internal_copy8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx8_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx8_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO8_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P8DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO8_LINE_WRITE2
 		} else {
 			VIDEO8_LINE_WRITE1
@@ -199,17 +203,20 @@ static void video_line_stretchx8_22(const struct video_stage_horz_struct* stage,
 	internal_double8_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx8_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx8_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO8_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P8DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO8_LINE_WRITE3
 		} else {
 			VIDEO8_LINE_WRITE2
@@ -255,52 +262,26 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 1, ddx, 1);
 
 	if (sdx > ddx) {
-		stage->put_plain = video_line_stretchx8_x1_step1;
-		stage->put = video_line_stretchx8_x1;
+		STAGE_PUT(stage, video_line_stretchx8_x1_step1, video_line_stretchx8_x1);
 	} else if (sdx == ddx) {
-		if (stage->sdp == 1) {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx8_11_step1);
-			stage->put = BLITTER(video_line_stretchx8_11_step1);
-		} else {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx8_11_step1);
-			stage->put = BLITTER(video_line_stretchx8_11);
-		}
+		STAGE_TYPE(stage, pipe_x_copy);
+		STAGE_PUT(stage, BLITTER(video_line_stretchx8_11_step1), BLITTER(video_line_stretchx8_11));
 	} else {
 		if (stage->slice.whole == 1) {
-			stage->put_plain = video_line_stretchx8_12_step1;
-			stage->put = video_line_stretchx8_12;
-		} else if (stage->slice.whole == 2 && stage->slice.up == 0 && stage->sdp == 1) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx8_22_step1);
-			stage->put = BLITTER(video_line_stretchx8_22_step1);
+			STAGE_PUT(stage, video_line_stretchx8_12_step1, video_line_stretchx8_12);
 		} else if (stage->slice.whole == 2 && stage->slice.up == 0) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx8_22_step1);
-			stage->put = video_line_stretchx8_22;
+			STAGE_TYPE(stage, pipe_x_double);
+			STAGE_PUT(stage, BLITTER(video_line_stretchx8_22_step1), video_line_stretchx8_22);
 		} else if (stage->slice.whole == 2) {
-			stage->put_plain = video_line_stretchx8_23_step1;
-			stage->put = video_line_stretchx8_23;
-		} else if (stage->slice.whole == 3 && stage->slice.up == 0 && stage->sdp == 1) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx8_33_step1;
-			stage->put = video_line_stretchx8_33_step1;
+			STAGE_PUT(stage, video_line_stretchx8_23_step1, video_line_stretchx8_23);
 		} else if (stage->slice.whole == 3 && stage->slice.up == 0) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx8_33_step1;
-			stage->put = video_line_stretchx8_33;
-		} else if (stage->slice.whole == 4 && stage->slice.up == 0 && stage->sdp == 1) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx8_44_step1;
-			stage->put = video_line_stretchx8_44_step1;
+			STAGE_TYPE(stage, pipe_x_triple);
+			STAGE_PUT(stage, video_line_stretchx8_33_step1, video_line_stretchx8_33);
 		} else if (stage->slice.whole == 4 && stage->slice.up == 0) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx8_44_step1;
-			stage->put = video_line_stretchx8_44;
+			STAGE_TYPE(stage, pipe_x_quadruple);
+			STAGE_PUT(stage, video_line_stretchx8_44_step1, video_line_stretchx8_44);
 		} else {
-			stage->put_plain = video_line_stretchx8_1x_step1;
-			stage->put = video_line_stretchx8_1x;
+			STAGE_PUT(stage, video_line_stretchx8_1x_step1, video_line_stretchx8_1x);
 		}
 	}
 }
@@ -308,7 +289,6 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 /****************************************************************************/
 /* stretchx16 */
 
-/* This code access only the ds segment */
 #define VIDEO16_LINE_INIT \
 	uint16* dst16 = (uint16*)dst;
 
@@ -327,16 +307,19 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 	dst16[2] = color; \
 	dst16 += 3;
 
-static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
-		if ((error += stage->slice.up) > 0) {
+		unsigned run = whole;
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		internal_fill16(dst, P16DER0(src), run);
 		PADD(dst, run*2);
@@ -355,20 +338,23 @@ static void video_line_stretchx16_1x_step2(const struct video_stage_horz_struct*
 	video_line_stretchx16_1x_step(stage, dst, src, 2);
 }
 
-static inline void video_line_stretchx16_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx16_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO16_LINE_INIT
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
+		unsigned run = whole;
 		unsigned color = P16DER0(src);
 		VIDEO16_LINE_WRITE1
-		if ((error += stage->slice.up) > 0) {
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		PADD(src, sdp * run);
 		--inner_count;
@@ -409,17 +395,19 @@ static void video_line_stretchx16_11_def(const struct video_stage_horz_struct* s
 	internal_copy16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx16_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx16_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO16_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P16DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO16_LINE_WRITE2
 		} else {
 			VIDEO16_LINE_WRITE1
@@ -456,17 +444,19 @@ static void video_line_stretchx16_22(const struct video_stage_horz_struct* stage
 	internal_double16_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx16_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx16_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO16_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P16DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO16_LINE_WRITE3
 		} else {
 			VIDEO16_LINE_WRITE2
@@ -511,52 +501,26 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 2, ddx, 2);
 
 	if (sdx > ddx) {
-		stage->put_plain = video_line_stretchx16_x1_step2;
-		stage->put = video_line_stretchx16_x1;
+		STAGE_PUT(stage, video_line_stretchx16_x1_step2, video_line_stretchx16_x1);
 	} else if (sdx == ddx) {
-		if (stage->sdp == 2) {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx16_11_step2);
-			stage->put = BLITTER(video_line_stretchx16_11_step2);
-		} else {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx16_11_step2);
-			stage->put = BLITTER(video_line_stretchx16_11);
-		}
+		STAGE_TYPE(stage, pipe_x_copy);
+		STAGE_PUT(stage, BLITTER(video_line_stretchx16_11_step2), BLITTER(video_line_stretchx16_11));
 	} else {
 		if (stage->slice.whole == 1) {
-			stage->put_plain = video_line_stretchx16_12_step2;
-			stage->put = video_line_stretchx16_12;
-		} else if (stage->slice.whole == 2 && stage->slice.up == 0 && stage->sdp == 2) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx16_22_step2);
-			stage->put = BLITTER(video_line_stretchx16_22_step2);
+			STAGE_PUT(stage, video_line_stretchx16_12_step2, video_line_stretchx16_12);
 		} else if (stage->slice.whole == 2 && stage->slice.up == 0) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx16_22_step2);
-			stage->put = video_line_stretchx16_22;
+			STAGE_TYPE(stage, pipe_x_double);
+			STAGE_PUT(stage, BLITTER(video_line_stretchx16_22_step2), video_line_stretchx16_22);
 		} else if (stage->slice.whole == 2) {
-			stage->put_plain = video_line_stretchx16_23_step2;
-			stage->put = video_line_stretchx16_23;
-		} else if (stage->slice.whole == 3 && stage->slice.up == 0 && stage->sdp == 2) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx16_33_step2;
-			stage->put = video_line_stretchx16_33_step2;
+			STAGE_PUT(stage, video_line_stretchx16_23_step2, video_line_stretchx16_23);
 		} else if (stage->slice.whole == 3 && stage->slice.up == 0) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx16_33_step2;
-			stage->put = video_line_stretchx16_33;
-		} else if (stage->slice.whole == 4 && stage->slice.up == 0 && stage->sdp == 2) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx16_44_step2;
-			stage->put = video_line_stretchx16_44_step2;
+			STAGE_TYPE(stage, pipe_x_triple);
+			STAGE_PUT(stage, video_line_stretchx16_33_step2, video_line_stretchx16_33);
 		} else if (stage->slice.whole == 4 && stage->slice.up == 0) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx16_44_step2;
-			stage->put = video_line_stretchx16_44;
+			STAGE_TYPE(stage, pipe_x_quadruple);
+			STAGE_PUT(stage, video_line_stretchx16_44_step2, video_line_stretchx16_44);
 		} else {
-			stage->put_plain = (video_stage_hook*)video_line_stretchx16_1x_step2;
-			stage->put = video_line_stretchx16_1x;
+			STAGE_PUT(stage, video_line_stretchx16_1x_step2, video_line_stretchx16_1x);
 		}
 	}
 }
@@ -564,7 +528,6 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 /****************************************************************************/
 /* stretchx32 */
 
-/* This code access only the ds segment */
 #define VIDEO32_LINE_INIT \
 	uint32* dst32 = (uint32*)dst;
 
@@ -583,16 +546,19 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 	dst32[2] = color; \
 	dst32 += 3;
 
-static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
-		if ((error += stage->slice.up) > 0) {
+		unsigned run = whole;
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		internal_fill32(dst, P32DER0(src), run);
 		PADD(dst, run*4);
@@ -611,20 +577,23 @@ static void video_line_stretchx32_1x_step4(const struct video_stage_horz_struct*
 	video_line_stretchx32_1x_step(stage, dst, src, 4);
 }
 
-static inline void video_line_stretchx32_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx32_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int whole = stage->slice.whole;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO32_LINE_INIT
 
 	while (inner_count) {
-		unsigned run = stage->slice.whole;
+		unsigned run = whole;
 		unsigned color = P32DER0(src);
 		VIDEO32_LINE_WRITE1
-		if ((error += stage->slice.up) > 0) {
+		if ((error += up) > 0) {
 			++run;
-			error -= stage->slice.down;
+			error -= down;
 		}
 		PADD(src, sdp * run);
 		--inner_count;
@@ -653,11 +622,6 @@ static void video_line_stretchx32_11_step4_def(const struct video_stage_horz_str
 	internal_copy32_def(dst, src, stage->slice.count);
 }
 
-static void video_line_stretchx32_11_step3(const struct video_stage_horz_struct* stage, void* dst, const void* src)
-{
-	internal_copy32_step3(dst, src, stage->slice.count);
-}
-
 #if defined(USE_ASM_i586)
 static void video_line_stretchx32_11_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
 {
@@ -670,17 +634,19 @@ static void video_line_stretchx32_11_def(const struct video_stage_horz_struct* s
 	internal_copy32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx32_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx32_12_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO32_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P32DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO32_LINE_WRITE2
 		} else {
 			VIDEO32_LINE_WRITE1
@@ -717,17 +683,19 @@ static void video_line_stretchx32_22(const struct video_stage_horz_struct* stage
 	internal_double32_step_def(dst, src, stage->slice.count, stage->sdp);
 }
 
-static inline void video_line_stretchx32_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, unsigned sdp)
+static inline void video_line_stretchx32_23_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
 {
 	int error = stage->slice.error;
+	int up = stage->slice.up;
+	int down = stage->slice.down;
 	unsigned inner_count = stage->slice.count;
 
 	VIDEO32_LINE_INIT
 
 	while (inner_count) {
 		unsigned color = P32DER0(src);
-		if ((error += stage->slice.up) > 0) {
-			error -= stage->slice.down;
+		if ((error += up) > 0) {
+			error -= down;
 			VIDEO32_LINE_WRITE3
 		} else {
 			VIDEO32_LINE_WRITE2
@@ -772,52 +740,26 @@ static void video_stage_stretchx32_set(struct video_stage_horz_struct* stage, un
 	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 4, ddx, 4);
 
 	if (sdx > ddx) {
-		stage->put_plain = video_line_stretchx32_x1_step4;
-		stage->put = video_line_stretchx32_x1;
+		STAGE_PUT(stage, video_line_stretchx32_x1_step4, video_line_stretchx32_x1);
 	} else if (sdx == ddx) {
-		if (stage->sdp == 4) {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx32_11_step4);
-			stage->put = BLITTER(video_line_stretchx32_11_step4);
-		} else {
-			stage->type = pipe_x_copy;
-			stage->put_plain = BLITTER(video_line_stretchx32_11_step4);
-			stage->put = BLITTER(video_line_stretchx32_11);
-		}
+		STAGE_TYPE(stage, pipe_x_copy);
+		STAGE_PUT(stage, BLITTER(video_line_stretchx32_11_step4), BLITTER(video_line_stretchx32_11));
 	} else {
 		if (stage->slice.whole == 1) {
-			stage->put_plain = video_line_stretchx32_12_step4;
-			stage->put = video_line_stretchx32_12;
-		} else if (stage->slice.whole == 2 && stage->slice.up == 0 && stage->sdp == 4) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx32_22_step4);
-			stage->put = BLITTER(video_line_stretchx32_22_step4);
+			STAGE_PUT(stage, video_line_stretchx32_12_step4, video_line_stretchx32_12);
 		} else if (stage->slice.whole == 2 && stage->slice.up == 0) {
-			stage->type = pipe_x_double;
-			stage->put_plain = BLITTER(video_line_stretchx32_22_step4);
-			stage->put = video_line_stretchx32_22;
+			STAGE_TYPE(stage, pipe_x_double);
+			STAGE_PUT(stage, BLITTER(video_line_stretchx32_22_step4), video_line_stretchx32_22);
 		} else if (stage->slice.whole == 2) {
-			stage->put_plain = video_line_stretchx32_23_step4;
-			stage->put = video_line_stretchx32_23;
-		} else if (stage->slice.whole == 3 && stage->slice.up == 0 && stage->sdp == 4) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx32_33_step4;
-			stage->put = video_line_stretchx32_33_step4;
+			STAGE_PUT(stage, video_line_stretchx32_23_step4, video_line_stretchx32_23);
 		} else if (stage->slice.whole == 3 && stage->slice.up == 0) {
-			stage->type = pipe_x_triple;
-			stage->put_plain = video_line_stretchx32_33_step4;
-			stage->put = video_line_stretchx32_33;
-		} else if (stage->slice.whole == 4 && stage->slice.up == 0 && stage->sdp == 4) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx32_44_step4;
-			stage->put = video_line_stretchx32_44_step4;
+			STAGE_TYPE(stage, pipe_x_triple);
+			STAGE_PUT(stage, video_line_stretchx32_33_step4, video_line_stretchx32_33);
 		} else if (stage->slice.whole == 4 && stage->slice.up == 0) {
-			stage->type = pipe_x_quadruple;
-			stage->put_plain = video_line_stretchx32_44_step4;
-			stage->put = video_line_stretchx32_44;
+			STAGE_TYPE(stage, pipe_x_quadruple);
+			STAGE_PUT(stage, video_line_stretchx32_44_step4, video_line_stretchx32_44);
 		} else {
-			stage->put_plain = video_line_stretchx32_1x_step4;
-			stage->put = video_line_stretchx32_1x;
+			STAGE_PUT(stage, video_line_stretchx32_1x_step4, video_line_stretchx32_1x);
 		}
 	}
 }

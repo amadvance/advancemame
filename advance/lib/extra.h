@@ -117,15 +117,9 @@ typedef signed long long int int64; /**< Signed 64 bit integer. */
  * Alignment.
  */
 /*@{*/
-
 #define ALIGN_BIT 3 /**< Number of bit of alignment required. */
 #define ALIGN (1U << ALIGN_BIT) /**< Alignment multiplicator. */
 #define ALIGN_MASK (ALIGN - 1U) /**< Alignment mask. */
-
-#define ALIGN_UNCHAINED_BIT 4 /**< Number of bit of alignment required for unchained images. */
-#define ALIGN_UNCHAINED (1U << ALIGN_UNCHAINED_BIT) /**< Alignment multiplicator for unchained images. */
-#define ALIGN_UNCHAINED_MASK (ALIGN_UNCHAINED - 1U) /**< Alignment mask for unchained images. */
-
 /*@}*/
 
 /*@}*/

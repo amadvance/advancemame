@@ -163,7 +163,7 @@ Requirements
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.1
+		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.2
 		:GNU make 3.79.1 (or newer)
 		:NASM 0.98.33 (or newer)
 		:zlib 1.1.4 (or newer)
@@ -171,18 +171,14 @@ Requirements
 		:LibSDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.1.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.2.
 	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
-	The SVGALIB 1.4.x versions are NOT supported.
-
-	Download the latest ALPHA 1.9.x or 2.0.x version from
-	http://www.svgalib.org. In the contrib/svgalib directory there
-	are some source patches to fix some problems of the library.
-	Use the noirq.diff patch if you detect random freeze only with
-	vsync activated.
-
+	The SVGALIB 1.4.x versions are NOT supported. Download the latest
+	ALPHA 1.9.x or 2.0.x version from http://www.svgalib.org.
+	In the contrib/svgalib directory there are some source patches to
+	fix some problems of the library.
 	Remember to edit the /etc/vga/libvga.conf file with your settings.
 	Specifically you need at least to set correctly `HorizSync' and
 	`VertRefresh'.
@@ -200,6 +196,7 @@ Requirements
 	must be installed manually from the original Mac OS X cd.
 
 	The SDL library must be manually compiled and installed.
+
 	Please note that you may need to use the --with-sdl-prefix option
 	of the ./configure script to correctly find the installed SDL
 	library. Generally "./configure --with-sdl-prefix=/usr/local" is
@@ -209,7 +206,7 @@ Requirements
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.2 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
 		:DJGPP GNU shellutils [shl*b.zip]
@@ -219,7 +216,7 @@ Requirements
 		:SEAL 1.0.7 + MAME patch
 		:Allegro 4.0.0 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3 and 3.2.3.
+	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.2.
 	The versions 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
@@ -239,6 +236,12 @@ Requirements
 
 	The only tested compiler version is 2.95.3.
 	Other versions should work.
+
+    Others
+	You should be able to compile the Advance programs in any environment
+	supported by the SDL library and by the GNU development tools.
+
+	Simply ensure to use the GNU gcc compiler and the GNU make.
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.

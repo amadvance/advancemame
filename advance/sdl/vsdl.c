@@ -798,7 +798,7 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 	*DRIVER(mode) = *sdl_mode;
 
 	mode->driver = &video_sdl_driver;
-	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK) | sdl_mode->index | MODE_FLAGS_MEMORY_LINEAR;
+	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK) | sdl_mode->index;
 	mode->size_x = sdl_mode->size_x;
 	mode->size_y = sdl_mode->size_y;
 	mode->vclock = 0;
@@ -977,7 +977,6 @@ adv_video_driver video_sdl_driver = {
 	sdl_scroll,
 	sdl_scanline_set,
 	sdl_palette8_set,
-	0,
 	sdl_mode_size,
 	0,
 	sdl_mode_generate_void,

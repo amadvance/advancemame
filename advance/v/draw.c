@@ -791,14 +791,14 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 		video_stretch_pipeline_init(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_color_def(), 0);
 
 		/* fill the cache */
-		video_blit_pipeline(&pipeline, s_x, s_y, data);
+		video_pipeline_blit(&pipeline, s_x, s_y, data);
 
 		count = 0;
 		start = target_clock();
 		end = start + TARGET_CLOCKS_PER_SEC * 2;
 		stop = start;
 		while (stop < end) {
-			video_blit_pipeline(&pipeline, s_x, s_y, data);
+			video_pipeline_blit(&pipeline, s_x, s_y, data);
 			++count;
 			stop = target_clock();
 		}

@@ -692,13 +692,18 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 			if ((info.ModeAttributes & vbeMdNonBanked) != 0) {
 				error_nolog_set("Banked frame buffer isn't available in mode %x", DRIVER(mode)->mode);
 				return -1;
+			} else {
+				error_nolog_set("Banked frame buffer isn't supported");
+				return -1;
 			}
 		}
+
 		/* Packed or RGB memory model */
 		if (info.MemoryModel!=vbeMemPK && info.MemoryModel!=vbeMemRGB) {
 			error_nolog_set("Unsupported memory model");
 			return -1;
 		}
+
 		/* Non planar mode */
 		if (info.NumberOfPlanes!=1) {
 			error_nolog_set("Unsupported number of planes");
@@ -739,10 +744,6 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 		default :
 			return -1;
 	}
-	if (DRIVER(mode)->mode & vbeLinearBuffer)
-		mode->flags |= MODE_FLAGS_MEMORY_LINEAR;
-	else
-		mode->flags |= MODE_FLAGS_MEMORY_BANKED;
 
 	mode->size_x = DRIVER(mode)->crtc.hde;
 	mode->size_y = DRIVER(mode)->crtc.vde;
@@ -1099,7 +1100,6 @@ adv_video_driver video_vbeline_driver = {
 	vbe_scroll,
 	vbe_scanline_set,
 	vbeline_palette8_set,
-	0,
 	vbeline_mode_size,
 	0,
 	vbeline_mode_generate_void,

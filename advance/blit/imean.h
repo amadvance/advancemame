@@ -67,8 +67,10 @@ static uint32 expand_nibble(unsigned bytes_per_pixel, unsigned v)
 	}
 }
 
-static void internal_mean_set(void)
+static void internal_mean_set(const struct video_pipeline_target_struct* target)
 {
+	/* TODO target */
+
 	adv_pixel rgb_h = video_rgb_high_bit_get();
 	adv_pixel rgb_l = video_rgb_low_bit_get();
 	adv_pixel rgb_m = video_rgb_mask_bit_get();

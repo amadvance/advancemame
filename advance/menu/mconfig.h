@@ -32,6 +32,14 @@
 #define ADVANCE_COPY \
 	"AdvanceMENU - Copyright (C) 1999-2003 by Andrea Mazzoleni\n"
 
+enum clip_mode_t {
+	clip_none,
+	clip_single,
+	clip_singleloop,
+	clip_multi,
+	clip_multiloop
+};
+
 /// Type of sorting.
 enum game_sort_t {
 	sort_by_group,
@@ -225,7 +233,7 @@ public:
 	std::string preview_default_marquee; ///< Default preview file for the specified mode.
 	std::string preview_default_title; ///< Default preview file for the specified mode.
 
-	bool loop; ///< Loop the play of all the game clips and sounds.
+	clip_mode_t clip_mode; ///< Loop the play of all the game clips and sounds.
 
 	unsigned icon_space; ///< Space in pixels between icons.
 

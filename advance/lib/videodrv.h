@@ -220,7 +220,6 @@ typedef struct adv_video_driver_struct {
 	adv_error (*scroll)(unsigned offset, int waitvsync);
 	adv_error (*scanline_set)(unsigned byte_length);
 	adv_error (*palette8_set)(const adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync);
-	void (*unchained_plane_mask_set)(unsigned plane_mask);
 
 	/** Return the size of the driver video mode struct */
 	unsigned (*mode_size)(void);

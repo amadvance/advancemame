@@ -47,16 +47,6 @@ extern "C" {
 /***************************************************************************/
 /* Video mode */
 
-/** \name Flags memory
- * Flags describing the memory of a video mode.
- */
-/*@{*/
-#define MODE_FLAGS_MEMORY_LINEAR 0x0001 /**< The memory is linear. */
-#define MODE_FLAGS_MEMORY_UNCHAINED 0x0002 /**< The memory is unchained (Xmode). */
-#define MODE_FLAGS_MEMORY_BANKED 0x0004 /**< The memory is banked. */
-#define MODE_FLAGS_MEMORY_MASK 0x000F /**< Mask. */
-/*@}*/
-
 /** \name Flags sync
  * Flags describing the sync support of a video mode.
  */
@@ -289,15 +279,6 @@ static inline unsigned mode_index(const adv_mode* mode)
 }
 
 /**
- * Get the memory mode of a video mode.
- * \return One of the MODE_FLAGS_MEMORY_* flags.
- */
-static inline unsigned mode_memory(const adv_mode* mode)
-{
-	return mode_flags(mode) & MODE_FLAGS_MEMORY_MASK;
-}
-
-/**
  * Check if a video mode is a text mode.
  */
 static inline adv_bool mode_is_text(const adv_mode* mode)
@@ -311,30 +292,6 @@ static inline adv_bool mode_is_text(const adv_mode* mode)
 static inline adv_bool mode_is_graphics(const adv_mode* mode)
 {
 	return !mode_is_text(mode);
-}
-
-/**
- * Check if a video mode is a linear mode.
- */
-static inline adv_bool mode_is_linear(const adv_mode* mode)
-{
-	return mode_memory(mode) == MODE_FLAGS_MEMORY_LINEAR;
-}
-
-/**
- * Check if a video mode is a unchained mode.
- */
-static inline adv_bool mode_is_unchained(const adv_mode* mode)
-{
-	return mode_memory(mode) == MODE_FLAGS_MEMORY_UNCHAINED;
-}
-
-/**
- * Check if a video mode is a banked mode.
- */
-static inline adv_bool mode_is_banked(const adv_mode* mode)
-{
-	return mode_memory(mode) == MODE_FLAGS_MEMORY_BANKED;
 }
 
 /**

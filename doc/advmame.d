@@ -805,7 +805,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| filterx | filtery | scale | lq | hq
+	:	| scale | lq | hq
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -816,48 +816,41 @@ Configuration
 			On the other cases the `mean' or `max' effect
 			is selected.
 		none - Simply removes or duplicates lines as required.
-		max - In vertical reduction merges consecutive lines
-			using the lightest pixels versus the darkest.
-			In vertical expansion simply duplicates lines.
-			Supported only in games with a static palette
-			or in RGB modes.
-			It works best for the games with black 
+		max - In merges consecutive columns and rows using the
+			lightest pixels versus the darkest.
+			In expansion simply duplicates pixels.
+			Supported in both rgb and palette video modes.
+			It works best for the games with black
 			background or without scrolling. Like "Pac-Man".
-		mean - In vertical reduction merges lines using the
-			mean color of the pixels. In vertical expansion 
-			adds lines which are the mean of previous and 
-			next lines.
-			Supported only in RGB (not palettized) video
-			modes. It works best for the games with very
-			high resolution. Like "1941".
-		filter - In vertical reduction and expansion removes or
-			duplicates lines and applies a low pass 
-			filter in the x and the y directions. 
+		mean - In reduction merges columns and rows using the
+			mean color of the pixels. In expansion it adds
+			columns and rows which are the mean of previous
+			and next lines.
+			Supported only in rgb video modes.
+			It works best for the games with animated
+			or scrolling background. Like "1941".
+		filter - It removes or duplicates columns and rows with
+			a low pass filter in the x and the y directions.
 			It's a simple FIR filter with two points of 
 			equal value.
-			Supported only in RGB (not palettized) video
-			modes.
-		filterx/filtery - Like `filter' but only in one direction.
+			Supported only in rgb video modes.
 		scale - It tries to add the missing pixels
 			matching the original bitmap pattern.
 			It doesn't interpolate pixels and it compares colors
 			for equality.
-			If works for expansion factor of 2, 3 and 4.
+			If works only for expansion factor of 2, 3 and 4.
 		lq - It tries to add the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for equality.
-			If works for expansion factor of 2 and 3 and only in
-			rgb modes at 15, 16 and 32 bits.
+			It works only for expansion factor of 2, 3 and 4,
+			only in rgb modes at 15, 16 and 32 bits.
 		hq - It tries to add the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for distance.
-			If works for expansion factor of 2 and 3 and only in
-			rgb modes at 15, 16 and 32 bits.
-
-	The Nx filters work only if the video `magnify' factor match the
-	effect scale factor.
+			It works only for expansion factor of 2, 3 and 4,
+			only in rgb modes at 15, 16 and 32 bits.
 
     display_rgbeffect
 	This option selects a special effect to simulate the aspect of

@@ -183,24 +183,6 @@ static inline adv_bool video_is_graphics(void)
 	return mode_is_graphics(video_current_mode());
 }
 
-/** If the current video mode is a linear mode. */
-static inline adv_bool video_is_linear(void)
-{
-	return mode_is_linear(video_current_mode());
-}
-
-/** If the current video mode is an unchained mode. */
-static inline adv_bool video_is_unchained(void)
-{
-	return mode_is_unchained(video_current_mode());
-}
-
-/** If the current video mode is a banked mode. */
-static inline adv_bool video_is_banked(void)
-{
-	return mode_is_banked(video_current_mode());
-}
-
 /** Name of the current video mode */
 static inline  const char* video_name(void)
 {
@@ -264,10 +246,7 @@ static inline void video_write_unlock(unsigned x, unsigned y, unsigned size_x, u
 /** Write column offset of the current video mode. */
 static inline unsigned video_offset(unsigned x)
 {
-	unsigned off = x * video_bytes_per_pixel();
-	if (video_is_unchained())
-		off /= 4;
-	return off;
+	return x * video_bytes_per_pixel();
 }
 
 /***************************************************************************/
@@ -360,19 +339,6 @@ static inline unsigned video_blue_get_approx(unsigned rgb)
 
 /***************************************************************************/
 /* Commands */
-
-static inline void video_unchained_plane_mask_set(unsigned plane_mask)
-{
-	assert( video_mode_is_active() );
-
-	assert( video_current_driver()->unchained_plane_mask_set );
-	video_current_driver()->unchained_plane_mask_set(plane_mask);
-}
-
-static inline void video_unchained_plane_set(unsigned plane)
-{
-	video_unchained_plane_mask_set(1 << plane);
-}
 
 void video_wait_vsync(void);
 unsigned video_font_size_x(void);

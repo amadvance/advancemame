@@ -261,8 +261,7 @@ adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 	*DRIVER(mode) = *slang_mode;
 
 	mode->driver = &video_slang_driver;
-	mode->flags = MODE_FLAGS_MEMORY_LINEAR |
-		MODE_FLAGS_INDEX_TEXT |
+	mode->flags = MODE_FLAGS_INDEX_TEXT |
 		(mode->flags & MODE_FLAGS_USER_MASK);
 	mode->size_x = slang_state.size_x * slang_mode->font_size_x;
 	mode->size_y = slang_state.size_y * slang_mode->font_size_y;
@@ -391,7 +390,6 @@ adv_video_driver video_slang_driver = {
 	0,
 	&slang_write_line,
 	slang_wait_vsync,
-	0,
 	0,
 	0,
 	0,

@@ -537,7 +537,6 @@ bool backdrop_find_preview_strict(resource& path, preview_t preview, const game*
 
 bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& aspecty, preview_t preview, const game* pgame, const config_state& rs)
 {
-
 	if (backdrop_find_preview_strict(path, preview, pgame, false))
 		return true;
 
@@ -592,18 +591,19 @@ void backdrop_game_set(const game* effective_game, unsigned back_pos, preview_t 
 		aspecty = effective_game->aspecty_get();
 
 		if (clip && preview == preview_snap) {
-			if (effective_game->preview_find(clip_res, &game::preview_clip_get))
-				int_clip_set(back_pos, clip_res, aspectx, aspecty);
-			else
-				int_clip_clear();
+			if (rs.clip_mode != clip_none && effective_game->preview_find(clip_res, &game::preview_clip_get)) {
+				int_clip_set(back_pos, clip_res, aspectx, aspecty, current);
+			} else {
+				int_clip_clear(back_pos);
+			}
+		} else {
+			int_clip_clear(back_pos);
 		}
 	} else {
 		aspectx = 0;
 		aspecty = 0;
 
-		if (clip && preview == preview_snap) {
-			int_clip_clear();
-		}
+		int_clip_clear(back_pos);
 	}
 
 	if (backdrop_find_preview_default(backdrop_res, aspectx, aspecty, preview, effective_game, rs)) {
@@ -650,7 +650,7 @@ static void run_background_set(config_state& rs, const resource& sound)
 	}
 }
 
-static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent)
+static void run_background_wait(config_state& rs, const resource& sound, bool idle_control, bool silent, int current)
 {
 	target_clock_t back_start = target_clock();
 
@@ -673,7 +673,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			run_background_set(rs, sound);
 
 			// start the new game clip
-			int_clip_start();
+			int_clip_start(current);
 		} else {
 			// if silent we are already in idle state
 			idle_control = false;
@@ -699,10 +699,10 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 			}
 
 			// restart the clip if terminated
-			if (!int_clip_is_active()) {
+			if (!int_clip_is_active(current)) {
 				clip_done = true;
-				if (rs.loop)
-					int_clip_start();
+				if (rs.clip_mode == clip_singleloop || rs.clip_mode == clip_multiloop)
+					int_clip_start(current);
 			}
 
 			if (idle_control) {
@@ -1266,18 +1266,18 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	}
 
 	if (backdrop_mac == 1) {
-		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 1, cursor_size, rs.preview_expand);
+		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 1, cursor_size, rs.preview_expand, false);
 		int_backdrop_pos(0, backdrop_x, backdrop_y, backdrop_dx, backdrop_dy);
 	} else if (backdrop_mac > 1) {
 		if (rs.mode_effective == mode_tile_icon)
-			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, cursor_size, cursor_size, rs.preview_expand);
+			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, cursor_size, cursor_size, rs.preview_expand, false);
 		else if (rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_full_mixed)
-			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand, false);
 		else {
 			if (space_x == 0)
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 0, cursor_size, rs.preview_expand);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
 			else
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
 		}
 		for(int i=0;i<backdrop_mac;++i)
 			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
@@ -1285,10 +1285,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 	// reset the sound
 	rs.current_sound = resource();
-
-	// reset the clip
-	if (backdrop_mac > 0)
-		int_clip_init();
 
 	int pos_rel_max = coln*rown;
 	int pos_base_upper = gc.size();
@@ -1463,7 +1459,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			} else if (backdrop_mac > 1) {
 				for(int i=0;i<coln*rown;++i) {
 					bool current = i == pos_rel;
-					backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, current, rs);
+					if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop)
+						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, true, rs);
+					else
+						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, current, rs);
 				}
 			}
 		}
@@ -1475,7 +1474,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
 		int_idle_1_enable(true);
 
-		run_background_wait(rs, sound, true, silent);
+		run_background_wait(rs, sound, true, silent, pos_rel);
 
 		// replay the sound and clip
 		silent = false;
@@ -1600,7 +1599,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	delete [] backdrop_map_bis;
 
 	if (backdrop_mac > 0) {
-		int_clip_done();
 		int_backdrop_done();
 	}
 
@@ -1625,8 +1623,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 			break;
 	}
 
-	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
-	int_clip_init();
+	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand, false);
 
 	int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 
@@ -1688,7 +1685,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		// next game
 		++counter;
 
-		run_background_wait(rs, sound, false, false);
+		run_background_wait(rs, sound, false, false, 0);
 
 		key = int_getkey(false);
 
@@ -1702,7 +1699,6 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		}
 	}
 
-	int_clip_done();
 	int_backdrop_done();
 
 	return key;
@@ -1849,7 +1845,7 @@ void run_runinfo(config_state& rs)
 
 		resource backdrop;
 		if (backdrop_find_preview_strict(backdrop, preview, g, false)) {
-			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand);
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand, false);
 			int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 			backdrop_game_set(g, 0, preview, false, false, false, rs);
 			int_update();

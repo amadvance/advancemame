@@ -1222,7 +1222,19 @@ unsigned video_bytes_per_page(void)
 /***************************************************************************/
 /* Put */
 
-static inline void video_chained_put_pixel(unsigned x, unsigned y, unsigned color)
+void video_put_char(unsigned x, unsigned y, char c, unsigned color)
+{
+	assert( video_mode_is_active() && video_is_text() );
+
+	if (x < video_virtual_x() / video_font_size_x()
+		&& y < video_virtual_y() / video_font_size_y()) {
+		unsigned char* line = video_write_line(y) + 2 * x;
+		line[0] = c;
+		line[1] = color;
+	}
+}
+
+static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
 {
 	unsigned char* line = video_write_line(y);
 	switch (video_bytes_per_pixel()) {
@@ -1248,32 +1260,6 @@ static inline void video_chained_put_pixel(unsigned x, unsigned y, unsigned colo
 		line[3] = (color >> 24) & 0xFF;
 		break;
 	}
-}
-
-static inline void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color)
-{
-	video_unchained_plane_set(x % 4);
-	video_chained_put_pixel(x / 4, y, color);
-}
-
-void video_put_char(unsigned x, unsigned y, char c, unsigned color)
-{
-	assert( video_mode_is_active() && video_is_text() );
-
-	if (x < video_virtual_x() / video_font_size_x()
-		&& y < video_virtual_y() / video_font_size_y()) {
-		unsigned char* line = video_write_line(y) + 2 * x;
-		line[0] = c;
-		line[1] = color;
-	}
-}
-
-static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
-{
-	if (video_is_unchained())
-		video_unchained_put_pixel(x, y, color);
-	else
-		video_chained_put_pixel(x, y, color);
 }
 
 void video_put_pixel(unsigned x, unsigned y, unsigned color)
