@@ -849,6 +849,7 @@ adv_error png_read_rns(
 			case PNG_CN_IHDR :
 				if (png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, rns_ptr, rns_size, f, data, size) != 0)
 					goto err_data;
+				free(data);
 				return 0;
 			default :
 				/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */

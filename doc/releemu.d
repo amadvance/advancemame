@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.77.0
+	This release removes the legacy support for the DOS
+	unchained VGA modes and for the banked VBE modes. It means
+	that you now need a supported SVGA or VBE2 video card.
+
 AdvanceMAME 0.72.0
 	This release contains a new set of `event' Linux
 	drivers for keyboards, mice and joysticks based on the Linux

@@ -12,8 +12,9 @@ AdvanceMAME Version 0.77.0 2003/11
 	) The `mean' and `max' effects now work also in the horizontal
 		direction.
 	) Removed the `filterx' and `filtery' effects.
-	) In the DOS version removed the legacy support for unchained VGA
-		and VBE banked video modes.
+	) In the DOS version removed the legacy support for unchained
+		VGA modes (8 bit modes with memory in 4 planes) and the
+		VBE1 banked modes (not linear modes).
 	) Autoframeskip is automatically disabled if the correct game
 		speed is impossible to reach.
 

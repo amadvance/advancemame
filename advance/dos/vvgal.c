@@ -549,11 +549,6 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 		return -1;
 	}
 
-	if (crtc->hde * crtc->vde > 0x10000) {
-		error_nolog_set("Video mode too big.\n");
-		return -1;
-	}
-
 	if (video_mode_generate_check("vgaline", vgaline_flags(), 1, 1024, crtc, flags)!=0)
 		return -1;
 
@@ -573,7 +568,7 @@ static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const 
 	if (video_mode_generate_check("vgaline", vgaline_flags(), 2, 1024, crtc, flags)!=0)
 		return -1;
 
-	if (crtc->hde * crtc->vde > 256 * 1024) {
+	if (crtc->hde * crtc->vde > 64 * 1024) {
 		error_nolog_set("Mode to big for the VGA memory.\n");
 		return -1;
 	}

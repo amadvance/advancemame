@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.2.14
+	This release removes the legacy support for the DOS
+	unchained VGA modes and for the banked VBE modes. It means
+	that you now need a supported SVGA or VBE2 video card.
+
 AdvanceMENU 2.2.10
 	This release contains a new set of `event' Linux
 	drivers for keyboards, mice and joysticks based on the Linux

@@ -24,7 +24,7 @@ Description
 	* Support for any TV/Arcade Monitor like AdvanceMAME but it's
 		good also for a normal PC monitor.
 	* Static and Animated image preview (PNG/PCX/ICO/MNG).
-		>Up to 192 images</strong> at the same time!
+		Up to 192 images at the same time!
 	* Sound preview. (MP3/WAV). You can select a special sound for
 		every game played when the cursor move on it.
 	* Sound backgrounds (MP3/WAV). Play your favorite songs or
@@ -797,12 +797,10 @@ Configuration
   User Interface
 
     ui_background
-	Define a background image.
+	Define a background image in the .PNG format. The image is stretched
+	to fit the screen.
 
 	ui_background FILE
-
-	The image must be in PNG format at 24 bits per pixel. The image is
-	not loaded if the current video mode is a 8 bits per pixel.
 
 	Options:
 		FILE - File to load (default none).
@@ -890,7 +888,7 @@ Configuration
 		MSG - Message to display (default "Error running the command").
 
     ui_command
-	Used defined commands. These commands are executed as sheel scripts.
+	Used defined commands. These commands are executed as shell scripts.
 	The video mode is not changed, so they must be silent.
 
 	ui_command "MENU" SCRIPT

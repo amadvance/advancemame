@@ -4,10 +4,14 @@ Name
 AdvanceMENU Version 2.2.14 2003/11
 	) All the snapshots and animated clips are now reduced in size
 		using the AdvanceMAME `mean' effect.
-	) In the DOS version removed the legacy support for unchained VGA
-		and VBE banked video modes.
+	) In the DOS version removed the legacy support for unchained
+		VGA modes (8 bit modes with memory in 4 planes) and the
+		VBE1 banked modes (not linear modes).
 	) Added a new `ui_clip' option which allow to play all the video
 		clips together.
+	) Improved the ui_background option. It now supports the most common
+		RGB and palette formats and it's also able to stretch the image
+		to fit the screen. It's now working also in DOS/Windows.
 
 AdvanceMENU Version 2.2.13 2003/10
 	) The SIGHUP signal now kills and restarts the program.

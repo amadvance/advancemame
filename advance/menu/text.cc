@@ -1080,8 +1080,8 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		unsigned post_dx = (dst_dx - rel_dx + 1) / 2;
 
 		if (clear) {
-			video_clear(dst_x, dst_y, pre_dx, dst_dy, pixel);
-			video_clear(dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, pixel);
+			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y, pre_dx, dst_dy, background);
+			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x + pre_dx + rel_dx, dst_y, post_dx, dst_dy, background);
 		}
 
 		dst_x += pre_dx;
@@ -1092,8 +1092,8 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		unsigned post_dy = (dst_dy - rel_dy + 1) / 2;
 
 		if (clear) {
-			video_clear(dst_x, dst_y, dst_dx, pre_dy, pixel);
-			video_clear(dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, pixel);
+			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y, dst_dx, pre_dy, background);
+			gen_clear_raw(video_buffer, video_buffer_pixel_size, video_buffer_line_size, dst_x, dst_y + pre_dy + rel_dy, dst_dx, post_dy, background);
 		}
 
 		dst_y += pre_dy;
@@ -1717,8 +1717,10 @@ clip_cache::clip_cache(unsigned Amax)
 
 clip_cache::~clip_cache()
 {
-	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i)
-		delete *i;
+	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+		clip_data* data = *i;
+		delete data;
+	}
 }
 
 // Reduce the size of the cache
@@ -1862,6 +1864,9 @@ cell_manager::~cell_manager()
 		if (backdrop_map[i].data)
 			delete backdrop_map[i].data;
 		backdrop_map[i].data = 0;
+		if (backdrop_map[i].cdata)
+			delete backdrop_map[i].cdata;
+		backdrop_map[i].cdata = 0;
 	}
 
 	delete int_backdrop_cache;
@@ -2347,12 +2352,11 @@ void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 
 bool int_image(const char* file)
 {
-	if (color_def_type_get(video_color_def()) != adv_color_type_rgb)
+	adv_fz* f = fzopen(file, "rb");
+	if (!f) {
+		log_std(("ERROR:text: error opening file %s\n", file));
 		return false;
-
-	adv_fz* f = fzopen(file, "r");
-	if (!f)
-		return false;
+	}
 
 	unsigned pix_width;
 	unsigned pix_height;
@@ -2366,43 +2370,37 @@ bool int_image(const char* file)
 
 	int r = png_read(&pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, f);
 	if (r != 0) {
+		log_std(("ERROR:text: error reading file %s\n", file));
 		fzclose(f);
 		return false;
 	}
 
 	fzclose(f);
 
-	adv_color_def def = png_color_def(pix_pixel);
+	struct video_pipeline_struct pipeline;
+	unsigned combine = VIDEO_COMBINE_X_MEAN | VIDEO_COMBINE_Y_MEAN;
 
-	if (color_def_type_get(def) != adv_color_type_rgb) {
-		free(dat_ptr);
-		free(pal_ptr);
-		return false;
-	}
-
-	adv_bitmap* bitmap = bitmap_import(pix_width, pix_height, pix_pixel, 0, 0, pix_ptr, pix_scanline);
-	if (!bitmap) {
-		free(dat_ptr);
-		free(pal_ptr);
-		return 0;
-	}
-
-	adv_bitmap* bitmap_scr = bitmap_import(video_size_x(), video_size_y(), video_bits_per_pixel(), 0, 0, video_buffer, video_buffer_line_size);
-
-	if (def != video_color_def()) {
-		adv_bitmap* bitmap_cvt = bitmap_alloc(bitmap->size_x, bitmap->size_y, video_bits_per_pixel());
-		bitmap_cvt_rgb(bitmap_cvt, video_color_def(), bitmap, def);
-		bitmap_put(bitmap_scr, 0, 0, bitmap_cvt);
-		bitmap_free(bitmap_cvt);
+	if (pix_pixel == 1) {
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		for(unsigned i=0;i<pal_size;++i) {
+			adv_pixel p = video_pixel_get(pal_ptr[i*3+0], pal_ptr[i*3+1], pal_ptr[i*3+2]);
+			palette32[i] = p;
+			palette16[i] = p;
+			palette8[i] = p;
+		}
+		video_stretch_palette_8_pipeline_init(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, palette8, palette16, palette32, combine);
 	} else {
-		bitmap_put(bitmap_scr, 0, 0, bitmap);
+		adv_color_def def = png_color_def(pix_pixel);
+		video_stretch_pipeline_init(&pipeline, video_size_x(), video_size_y(), pix_width, pix_height, pix_scanline, pix_pixel, def, combine);
 	}
 
-	bitmap_free(bitmap_scr);
+	video_pipeline_target(&pipeline, video_buffer, video_buffer_line_size, video_color_def());
 
-	free(dat_ptr);
-	free(pal_ptr);
-	bitmap_free(bitmap);
+	video_pipeline_blit(&pipeline, 0, 0, pix_ptr);
+
+	video_pipeline_done(&pipeline);
 
 	return true;
 }

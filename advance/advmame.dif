@@ -253,8 +253,297 @@ diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
  
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
 --- src.ori/drivers/stv.c	2003-11-11 22:25:56.000000000 +0100
-+++ src/drivers/stv.c	2003-11-16 17:17:29.000000000 +0100
-@@ -4369,11 +4369,11 @@
++++ src/drivers/stv.c	2003-11-17 19:37:09.000000000 +0100
+@@ -518,16 +518,16 @@
+ 		case 0x05:
+ 				//open tray
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 				//NOT USED
+ 				break;
+-		case 0x06:
++		case 0x06: {
+ 				//end data transfer
+-				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+-
+ 				UINT32 count;
+ 
++				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
++
+ 				switch(CD_trans_type){
+ 				case -1:	count = 0xffffff; break;			// no transfer
+ 				case 0:	count = (CD_data_count + 1) >> 1; break;	// data transfer
+ 				default:	count = (CD_info_count + 1) >> 1; break;	// info transfer
+ 				}
+@@ -540,19 +540,19 @@
+ 				CR1 = (CD_status << 8) | (count >> 16);
+ 				CR2 = count;
+ 				CR3 = 0;
+ 				CR4 = 0;
+ 
+-				break;
+-		case 0x10:
++				} break;
++		case 0x10: {
+ 				//play
++				UINT8 pm; // play mode
++
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+ 				// sthief: must be rewritten!
+ 
+-				UINT8 pm; // play mode
+-
+ 				pm = (CR3 >> 8);
+ 
+ 				if((CR1 & 0x80) != (CR3 & 0x80)){
+ 
+ 				}
+@@ -699,11 +699,11 @@
+ 
+ 				CD_com_play = CD_com;
+ 
+ 				CDB_SEND_REPORT();
+ 
+-				break;
++				} break;
+ 		case 0x11:
+ 				//seek
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 				if((CR1 & 0xff) == 0xff){
+ 
+@@ -1028,12 +1028,14 @@
+ 				CR4 = 0;
+ 
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+ 
+ 				break;
+-		case 0x48:
++		case 0x48: {
+ 				//reset selector
++				UINT32 rf;
++
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+ 				// reset flag:
+ 				//
+ 				// b7		init false output connectors
+@@ -1043,11 +1045,11 @@
+ 				// b3		init partition output connectors	?
+ 				// b2		init partition data
+ 				// b1,0	unused
+ 				//
+ 				// if reset flag is zero, all selectors are completely reset
+-				UINT32 rf;
++
+ 
+ 				rf = CR1 & 0xff;
+ 
+ 				if(rf == 0){
+ 
+@@ -1126,11 +1128,11 @@
+ 				}
+ 
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+ 
+ 				CDB_SEND_REPORT();
+-				break;
++				} break;
+ 		case 0x50:
+ 				//get block size
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+ 
+@@ -1161,16 +1163,16 @@
+ 				CR4 = 0x0001;//CD_part[pn].size; // sectors
+ //HACK
+ 				logerror("get buffer %02i size = %03i sectors\n", pn, CD_part[pn].size);
+ 
+ 				break;
+-		case 0x52:
++		case 0x52: {
+ 				//calc actual size
+-				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+-
+ 				int ii;
+ 
++				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
++
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+ 
+ 				pn = (CR3 >> 8);
+ 				sp = CR2;
+ 				sn = CR4;
+@@ -1190,11 +1192,11 @@
+ 
+ 				CD_actual_size = (CD_actual_size + 1) >> 1;
+ 
+ 				CDB_SEND_REPORT();
+ 
+-				break;
++				} break;
+ 		case 0x53:
+ 				//get actual block size
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+@@ -1207,17 +1209,16 @@
+ 				CR3 = 0;
+ 				CR4 = 0;
+ 
+ 				logerror("get actual block size : %i words\n", CD_actual_size);
+ 				break;
+-		case 0x54:
++		case 0x54: {
+ 				//get sector info
+-				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+-
+-
+ 				sect_t * s;
+ 
++				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
++
+ 				pn = CR3 >> 8;
+ 				sn = CR2 & 0xff;
+ 
+ 				if(pn >= CDB_SEL_NUM){
+ 					logerror("ERROR: invalid selector\n");
+@@ -1229,18 +1230,18 @@
+ 				CR1 = (CD_status << 8) | (s->fad >> 16);
+ 				CR2 = s->fad;
+ 				CR3 = (s->fid << 8) | s->chan;
+ 				CR4 = (s->sub << 8) | s->cod;
+ 
+-				break;
+-		case 0x55:
++				} break;
++		case 0x55: {
+ 				//execute fad search
+-				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+-
+ 				UINT32  fad;
+ 				UINT32 i, j, nearest = 0, fad2 = 0;
+ 
++				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
++
+ 				CD_hirq |= HIRQ_CMOK | HIRQ_ESEL;
+ 
+ 				pn = CR3 >> 8;
+ 				sp = CR2;
+ 				fad = ((CR3 & 0xff) << 8) | CR4;
+@@ -1287,11 +1288,11 @@
+ 				CD_search_pn = pn;
+ 				CD_search_sp = nearest;
+ 				CD_search_fad = fad2;
+ 
+ 
+-				break;
++				} break;
+ 		case 0x56:
+ 				//get fad search res
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+ 
+@@ -1475,15 +1476,16 @@
+ 				CR2 = 0x0063;
+ 				CR3 = 0x0100;
+ 				CR4 = 0x0002;
+ 
+ 				break;
+-		case 0x73:
++		case 0x73: {
+ 				//get file info
++				UINT32 size;
++
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+-				UINT32 size;
+ 				// check if out of scope
+ 
+ 				fid = (CR3 << 16) | CR4;
+ 
+ 				if(fid >= 254){
+@@ -1514,17 +1516,17 @@
+ 				CD_info_size	= size;
+ 				CD_info_count	= 0;
+ 
+ 				CD_trans_type	= 1; // INFO
+ 
+-				break;
+-		case 0x74:
++				} break;
++		case 0x74: {
+ 				//read file
+-				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+-
+ 				UINT32 off;
+ 
++				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
++
+ 				CD_com_play = CD_com;
+ 
+ 				fn = (CR3 >> 8);
+ 				fid = ((CR3 & 0xff) << 16) | CR4;
+ 				off = ((CR1 & 0xff) << 16) | CR2;
+@@ -1564,11 +1566,11 @@
+ 
+ 				CD_repeat = 0;
+ 
+ 				CDB_SEND_REPORT();
+ 
+-				break;
++				} break;
+ 		case 0x75:
+ 				//abort file
+ 				logerror("CDBLOCK Command 0x%02x\n", (CR1>>8));
+ 
+ 				// stop file info hold
+@@ -1623,12 +1625,12 @@
+ 
+ 
+ 
+ static READ32_HANDLER ( cdregister_r ){
+ 
+-	offset=offset*4;
+ 	UINT16 d;
++	offset=offset*4;
+ 
+ 	//logerror("read from cd block offset=%08x\n", offset);
+ 	switch(offset){
+ 
+ 		case 0x90008:
+@@ -1915,13 +1917,13 @@
+ }
+ 
+ static void stv_SMPC_w8 (int offset, UINT8 data)
+ {
+ //	logerror ("8-bit SMPC Write to Offset %02x with Data %02x\n", offset, data);
+-	smpc_ram[offset] = data;
+ 	time_t ltime;
+ 	struct tm *today;
++	smpc_ram[offset] = data;
+ 	time(&ltime);
+ 	today = localtime(&ltime);
+ 	if(offset == 0x75)
+ 	{
+ 		EEPROM_set_clock_line((data & 0x08) ? ASSERT_LINE : CLEAR_LINE);
+@@ -4179,14 +4181,15 @@
+ 
+ DRIVER_INIT ( stv )
+ {
+ 	time_t ltime;
+ 	struct tm *today;
++	unsigned char *ROM = memory_region(REGION_USER1);
++
+ 	time(&ltime);
+ 	today = localtime(&ltime);
+ 
+-	unsigned char *ROM = memory_region(REGION_USER1);
+ 	cpu_setbank(1,&ROM[0x000000]);
+ 
+ 	/* we allocate the memory here so its easier to share between cpus */
+ 	smpc_ram = auto_malloc (0x80);
+ 	stv_scu = auto_malloc (0x100);
+@@ -4369,11 +4372,11 @@
  	MDRV_NVRAM_HANDLER(93C46) /* Actually 93c45 */
  
  	/* video hardware */
@@ -610,6 +899,27 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  	{
  		if (ui_map[code].memory == 0)
  		{
+diff -U 5 --new-file --recursive src.ori/machine/stvcd.c src/machine/stvcd.c
+--- src.ori/machine/stvcd.c	2003-11-11 22:25:56.000000000 +0100
++++ src/machine/stvcd.c	2003-11-17 19:37:44.000000000 +0100
+@@ -666,15 +666,17 @@
+ 
+ 	logerror("leadout:  %02i:%02i:%02i (addr: %i)\n",
+ 	CD_toc.leadout.min, CD_toc.leadout.sec, CD_toc.leadout.fra, CD_toc.leadout.fad);
+ 
+ 	logerror("\n\nTOC DUMP\n\n");
++	{
+ 	int oo=0;
+ 	while (oo<408){
+ 	logerror("%2x %2x %2x %2x\n", CD_sat_toc[oo],CD_sat_toc[oo+1],CD_sat_toc[oo+2],CD_sat_toc[oo+3]);
+ 	oo+=4;
+ 	}
++	}
+ 
+ }
+ 
+ 
+ void cdb_build_ftree(void){
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-08-09 02:53:14.000000000 +0200
 +++ src/mame.c	2003-11-12 20:58:44.000000000 +0100
@@ -1120,3 +1430,21 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
+diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
+--- src.ori/vidhrdw/voodoo.c	2003-11-11 22:25:56.000000000 +0100
++++ src/vidhrdw/voodoo.c	2003-11-17 19:47:17.000000000 +0100
+@@ -11,11 +11,13 @@
+ #include "cpu/mips/mips3.h"
+ #include <math.h>
+ 
+ 
+ /* math trickery */
+-#ifndef _WIN32
++#if 1 /* this is the only portable implementation */
++#define floorf floor
++#define sqrtf sqrt
+ #define SETUP_FPU()
+ #define RESTORE_FPU()
+ #define TRUNC_TO_INT(f) (floorf(f))
+ #else
+ #include <float.h>
