@@ -1,6 +1,6 @@
 all: pci pcismall.txt
 
-pci: pci.cc fbid.h vbeid.h vgaid.h alsaid.h
+pci: pci.cc fbid26.h fbid24.h vbeid.h vgaid.h alsaid.h
 	g++ -g -Wall -O0 pci.cc -o pci
 
 clean:
