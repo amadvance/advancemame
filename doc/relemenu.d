@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMAME 2.2.5
+	The precompiled DOS binary of this release is compiled with
+	the old gcc 2.95.3. Please report if this fixes any know
+	problem.
+
 AdvanceMENU 2.2.2
 	The option `video_depth' is now removed. The video bit depth is
 	choosen automatically. If you need to exclude some depth you can

@@ -3,9 +3,14 @@ Name
 
 AdvanceMAME Version 0.67.0 2003/04
 	) Updated with autoconf 2.57.
+	) The error messages are printed also if `misc_quiet' is specified.
+	) The configure script now checks if the MAME/MESS emulator source
+		are missing.
+	) Added in the contrib/ dir the "Quick guide to find safequit data"
+		[by Filipe Estima].
 
 AdvanceMESS Version 0.66.0.0 2003/04
-	) Updated with autoconf 2.57.
+	) All from AdvanceMAME 0.67.0.
 
 AdvanceMAME Version 0.66.0 2003/03
 	) The display_scanlines option is now off as default.

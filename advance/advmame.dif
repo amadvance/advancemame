@@ -38,6 +38,21 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		if (!options.gui_host && !bailing)
  		{
  			int k;
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpmame.mak src/cpmame.mak
+--- src.ori/cpmame.mak	2001-07-25 00:13:12.000000000 +0200
++++ src/cpmame.mak	2003-04-13 15:43:14.000000000 +0200
+@@ -15,10 +15,11 @@
+ 
+ # SOUNDs
+ SOUNDS+=YM2151_ALT@
+ SOUNDS+=OKIM6295@
+ SOUNDS+=QSOUND@
++SOUNDS+=DISCRETE@
+ 
+ DRVLIBS = $(OBJ)/cps.a
+ 
+ $(OBJ)/cps.a: \
+ 	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2002-08-25 01:51:27.000000000 +0200
 +++ src/cpu/i8085/i8085.c	2003-04-09 20:37:49.000000000 +0200
@@ -176,6 +191,103 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  }
  
  
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/namcos1.c src/drivers/namcos1.c
+--- src.ori/drivers/namcos1.c	2002-12-25 17:37:56.000000000 +0100
++++ src/drivers/namcos1.c	2003-04-13 15:54:30.000000000 +0200
+@@ -925,11 +925,11 @@
+ 	MDRV_INTERLEAVE(240) // necessary to ensure the 1st and 2nd CPU's work in tandem
+ 	MDRV_MACHINE_INIT(namcos1)
+ 	MDRV_NVRAM_HANDLER(generic_0fill)
+ 
+ 	/* video hardware */
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_UPDATE_BEFORE_VBLANK)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_UPDATE_BEFORE_VBLANK | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 	MDRV_GFXDECODE(gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(128*16+6*256+6*256+1)
+ 
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/namcos2.c src/drivers/namcos2.c
+--- src.ori/drivers/namcos2.c	2003-03-10 15:13:04.000000000 +0100
++++ src/drivers/namcos2.c	2003-04-13 15:54:38.000000000 +0200
+@@ -1602,11 +1602,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 	MDRV_GFXDECODE(gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(VIRTUAL_PALETTE_BANKS*256)	/* virtual palette (physical palette has 8192 colors) */
+ 
+@@ -1641,11 +1641,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 	MDRV_GFXDECODE(gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(VIRTUAL_PALETTE_BANKS*256)	/* virtual palette (physical palette has 8192 colors) */
+ 
+@@ -1680,11 +1680,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 
+ 	MDRV_GFXDECODE(finallap_gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(VIRTUAL_PALETTE_BANKS*256)	/* virtual palette (physical palette has 8192 colors) */
+@@ -1720,11 +1720,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 	MDRV_GFXDECODE(sgunner_gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(VIRTUAL_PALETTE_BANKS*256)	/* virtual palette (physical palette has 8192 colors) */
+ 
+@@ -1759,11 +1759,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 	MDRV_GFXDECODE(luckywld_gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(VIRTUAL_PALETTE_BANKS*256)	/* virtual palette (physical palette has 8192 colors) */
+ 
+@@ -1798,11 +1798,11 @@
+ 	MDRV_INTERLEAVE(100) /* CPU slices per frame */
+ 
+ 	MDRV_MACHINE_INIT(namcos2)
+ 	MDRV_NVRAM_HANDLER(namcos2)
+ 
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_HAS_SHADOWS)
+ 
+ 	MDRV_SCREEN_SIZE(36*8, 28*8)
+ 	MDRV_VISIBLE_AREA(0*8, 36*8-1, 0*8, 28*8-1)
+ 
+     MDRV_GFXDECODE(metlhawk_gfxdecodeinfo)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	2003-03-10 15:13:42.000000000 +0100
 +++ src/drivers/neogeo.c	2003-04-09 20:37:49.000000000 +0200
@@ -191,6 +303,22 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		/* return a standard vblank interrupt */
  		vblank_int = 1;	   /* vertical blank */
  	}
+ 
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/shangha3.c src/drivers/shangha3.c
+--- src.ori/drivers/shangha3.c	2002-08-24 15:49:49.000000000 +0200
++++ src/drivers/shangha3.c	2003-04-13 15:59:23.000000000 +0200
+@@ -521,11 +521,11 @@
+ 
+ 	MDRV_FRAMES_PER_SECOND(60)
+ 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+ 
+ 	/* video hardware */
+-	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
++	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_HAS_SHADOWS)
+ 	MDRV_SCREEN_SIZE(24*16, 16*16)
+ 	MDRV_VISIBLE_AREA(0*16, 24*16-1, 1*16, 15*16-1)
+ 	MDRV_GFXDECODE(gfxdecodeinfo)
+ 	MDRV_PALETTE_LENGTH(2048)
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/fileio.c src/fileio.c
 --- src.ori/fileio.c	2003-02-10 22:19:18.000000000 +0100
@@ -571,8 +699,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2001-02-16 17:13:54.000000000 +0100
-+++ src/neomame.mak	2003-04-09 20:37:49.000000000 +0200
-@@ -8,17 +8,19 @@
++++ src/neomame.mak	2003-04-13 15:39:55.000000000 +0200
+@@ -8,17 +8,20 @@
  EMULATOR_EXE = neomame.exe
  
  # CPUs
@@ -583,6 +711,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  # SOUNDs
  SOUNDS+=AY8910@
  SOUNDS+=YM2610@
++SOUNDS+=DISCRETE@
  
  DRVLIBS = $(OBJ)/neogeo.a
  

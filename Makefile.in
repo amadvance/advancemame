@@ -322,8 +322,8 @@ CROSSDIR = /usr/local/gcc-2.95.3-i586-pc-msdosdjgpp
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
-LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
-LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
+LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
+LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 endif
 ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:

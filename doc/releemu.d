@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.67.0 / AdvanceMESS 0.66.0
+	The precompiled DOS binaries of these releases are compiled with
+	the old gcc 2.95.3. Please report if this fixes any know specific
+	game problem.
+
 AdvanceMAME 0.63.0
 	The .chd files must now be placed in a subdirectory of the same name.
 	For example C:\CHD\AREA51\AREA51.CHD.

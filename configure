@@ -813,10 +813,10 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-debug          enable the debug information and slow code (default
-                          no)
-  --enable-fast           enable the fast compilation and slow code (default
-                          no)
+  --enable-debug          enable the test compilation without optimization and
+                          with debug info. Only for developers. (default no)
+  --enable-test           enable the test compilation without optimization.
+                          Only for developers. (default no)
   --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
   --enable-svgalib        enable the use of the SVGALIB library. (default
@@ -3337,19 +3337,19 @@ fi;
 CONF_DEBUG=$ac_enable_debug
 
 
-# Check whether --enable-fast or --disable-fast was given.
-if test "${enable_fast+set}" = set; then
-  enableval="$enable_fast"
-  ac_enable_fast=$enableval
+# Check whether --enable-test or --disable-test was given.
+if test "${enable_test+set}" = set; then
+  enableval="$enable_test"
+  ac_enable_test=$enableval
 else
-  ac_enable_fast=no
+  ac_enable_test=no
 
 fi;
 
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
-	elif test $ac_enable_fast = yes ; then
+	elif test $ac_enable_test = yes ; then
 		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
@@ -3841,11 +3841,11 @@ else
 
 fi;
 if test $ac_with_emu = auto; then
-	if test -d $srcdir/src ; then
+	if test -f $srcdir/advance/advmame.dif ; then
 		ac_with_emu=mame
-	elif test -d $srcdir/srcmess ; then
+	elif test -f $srcdir/advance/advmess.dif ; then
 		ac_with_emu=mess
-	elif test -d $srcdir/srcpac ; then
+	elif test -f $srcdir/advance/advpac.dif ; then
 		ac_with_emu=pac
 	else
 		ac_with_emu=none
@@ -3853,34 +3853,41 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		{ echo "$as_me:$LINENO: WARNING: You need the MAME source in the $srcdir/src/ directory" >&5
-echo "$as_me: WARNING: You need the MAME source in the $srcdir/src/ directory" >&2;}
+		{ { echo "$as_me:$LINENO: error: You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		{ echo "$as_me:$LINENO: WARNING: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch" >&5
-echo "$as_me: WARNING: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch" >&2;}
+		{ { echo "$as_me:$LINENO: error: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		{ echo "$as_me:$LINENO: WARNING: You need the MESS source in the $srcdir/srcmess/ directory" >&5
-echo "$as_me: WARNING: You need the MESS source in the $srcdir/srcmess/ directory" >&2;}
+		{ { echo "$as_me:$LINENO: error: You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		{ echo "$as_me:$LINENO: WARNING: You need the MESS source in the $srcdir/srcmess/ directory" >&5
-echo "$as_me: WARNING: You need the MESS source in the $srcdir/srcmess/ directory" >&2;}
+		{ { echo "$as_me:$LINENO: error: You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		{ echo "$as_me:$LINENO: WARNING: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch" >&5
-echo "$as_me: WARNING: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch" >&2;}
+		{ { echo "$as_me:$LINENO: error: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		{ echo "$as_me:$LINENO: WARNING: You need the PacMAME source in the $srcdir/srcpac/ directory" >&5
-echo "$as_me: WARNING: You need the PacMAME source in the $srcdir/srcpac/ directory" >&2;}
+		{ { echo "$as_me:$LINENO: error: You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		{ echo "$as_me:$LINENO: WARNING: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch" >&5
-echo "$as_me: WARNING: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch" >&2;}
+		{ { echo "$as_me:$LINENO: error: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&5
+echo "$as_me: error: You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions." >&2;}
+   { (exit 1); exit 1; }; }
 	fi
 elif test ! $ac_with_emu = none; then
 	{ { echo "$as_me:$LINENO: error: Unknown emulator $ac_with_emu" >&5

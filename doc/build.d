@@ -47,33 +47,43 @@ Preparing The Sources
 
 Configuring
     Linux
-	In Linux you need to run the `./configure' script with the proper options.
-	You can get a complete option list with the `./configure --help' command.
-	
-	The configure script automatically detect all the available libraries.
-	All the libraries found are used.
+	Run the `./configure' script.
+
+	Generally no extra option is required. You can get the complete
+	option list with the `./configure --help' command.
+
+	The configure script automatically detects all the available libraries
+	and the optimization flags.
 
 	If you want to customize the compilation CFLAGS you can set them before
 	calling the ./configure script, for example:
 
-		:export CFLAGS="-O3 -march=pentium3 -fomit-frame-pointer"
+		:export CFLAGS="-O2 -march=pentium4 -fomit-frame-pointer"
 		:export LDFLAGS="-s"
 		:./configure
+
+	The configure script automatically detects the emulator to compile
+	checking the installed sources. You can force a specific emulator
+	with the `--with-emu' option.
 
     DOS/Windows
 	In DOS/Windows you need to manually rename the `Makefile.in' file
 	as `Makefile' and edit the first section to match your requirements.
 
 Compiling
-	Finally you can run `make' to compile all.
+	To compile run `make'.
 
 Installing
-	In Linux type `make install' to install the binaries and the documentation.
+    Linux
+	Run `make install' to install the binaries and the documentation.
 	The binaries are installed in $prefix/bin, the documentation
 	in $prefix/doc/advance, the program data in $prefix/share/advance and
 	the man pages in $prefix/man/man1.
 
 	The default installation $prefix is /usr/local.
+
+    DOS/Windows
+	Copy manually the compiled executables in a directory of your choice.
 
 Targets
 	These are the defined targets in the `Makefile' :
@@ -94,7 +104,7 @@ Requirememts
     Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.0.4 or 3.2.2
+		:GNU gcc C/C++ 2.95.3 or 3.2.2
 		:GNU make 3.79.1 (or newer)
 		:NASM 0.98.33 (or newer)
 		:zlib 1.1.4 (or newer)
@@ -102,7 +112,8 @@ Requirememts
 		:LibSDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
 
-	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 doesn't work.
+	The suggested gcc compiler versions are 2.95.3 and 3.2.2.
+	The versions 2.96.x, 3.0, 3.0.1 and 3.0.2 don't work.
 	Other versions should work.
 
 	The SVGALIB 1.4.x versions are NOT supported.
@@ -123,7 +134,7 @@ Requirememts
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.0.4 or 3.2.2 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.2 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
 		:DJGPP GNU shellutils [shl*b.zip]
@@ -133,8 +144,9 @@ Requirememts
 		:SEAL 1.0.7 + MAME patch
 		:Allegro 4.0.0 (or newer)
 
-	The gcc compiler versions 3.0, 3.0.1 and 3.0.2 doesn't work.
-	The versions 3.1, 3.1.1, 3.2, 3.2.1 and 3.2.2 have some minor known
+	The suggested gcc compiler versions are 2.95.3 and 3.2.2.
+	The versions 3.0, 3.0.1 and 3.0.2 don't work.
+	The versions 3.1, 3.1.1, 3.2, 3.2.1 have some minor known
 	problems (a few games doesn't work correctly).
 	Other versions should work.
 
@@ -152,8 +164,8 @@ Requirememts
 		:zlib 1.1.4 (or newer)
 		:LibSDL 1.2.4 (or newer)
 
-	The only tested compiler version is 2.95.3. Other versions
-	should work.
+	The only tested compiler version is 2.95.3.
+	Other versions should work.
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.

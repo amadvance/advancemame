@@ -106,23 +106,23 @@ AC_SUBST([ZLIBS],[$ZLIBS])
 # Checks for optimizations
 AC_ARG_ENABLE(
 	[debug],
-	AC_HELP_STRING([--enable-debug],[enable the debug information and slow code (default no)]),
+	AC_HELP_STRING([--enable-debug],[enable the test compilation without optimization and with debug info. Only for developers. (default no)]),
 	[ac_enable_debug=$enableval],
 	[ac_enable_debug=no]
 )
 AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
 AC_ARG_ENABLE(
-	[fast],
-	AC_HELP_STRING([--enable-fast],[enable the fast compilation and slow code (default no)]),
-	[ac_enable_fast=$enableval],
-	[ac_enable_fast=no]
+	[test],
+	AC_HELP_STRING([--enable-test],[enable the test compilation without optimization. Only for developers. (default no)]),
+	[ac_enable_test=$enableval],
+	[ac_enable_test=no]
 )
 
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
-	elif test $ac_enable_fast = yes ; then
+	elif test $ac_enable_test = yes ; then
 		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
@@ -196,11 +196,11 @@ AC_ARG_WITH(
 	[ac_with_emu=auto]
 )
 if test $ac_with_emu = auto; then
-	if test -d $srcdir/src ; then
+	if test -f $srcdir/advance/advmame.dif ; then
 		ac_with_emu=mame
-	elif test -d $srcdir/srcmess ; then
+	elif test -f $srcdir/advance/advmess.dif ; then
 		ac_with_emu=mess
-	elif test -d $srcdir/srcpac ; then
+	elif test -f $srcdir/advance/advpac.dif ; then
 		ac_with_emu=pac
 	else
 		ac_with_emu=none
@@ -208,27 +208,27 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		AC_MSG_WARN([You need the MAME source in the $srcdir/src/ directory])
+		AC_MSG_ERROR([You need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		AC_MSG_WARN([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch])
+		AC_MSG_ERROR([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		AC_MSG_WARN([You need the MESS source in the $srcdir/srcmess/ directory])
+		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		AC_MSG_WARN([You need the MESS source in the $srcdir/srcmess/ directory])
+		AC_MSG_ERROR([You need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		AC_MSG_WARN([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch])
+		AC_MSG_ERROR([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		AC_MSG_WARN([You need the PacMAME source in the $srcdir/srcpac/ directory])
+		AC_MSG_ERROR([You need the PacMAME source in the $srcdir/srcpac/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		AC_MSG_WARN([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch])
+		AC_MSG_ERROR([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test ! $ac_with_emu = none; then
 	AC_MSG_ERROR([Unknown emulator $ac_with_emu])
