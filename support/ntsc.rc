@@ -30,6 +30,7 @@ device_video_modeline ntsc_vga_360x240 7.0803 360 378 410 450 240 244 247 262 -h
 
 # SVGA best fit modes
 device_video_modeline ntsc_320x242 6.04186 320 328 352 384 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
+device_video_modeline ntsc_640x242 12.0837 640 656 704 768 242 245 248 262 -hsync -vsync # H 15734 [Hz], V 60.0534 [Hz]
 device_video_modeline ntsc_640x484 12.0837 640 656 704 768 484 490 496 525 -hsync -vsync interlace # H 15734 [Hz], V 59.939 [Hz]
 
 # SVGA standard modes

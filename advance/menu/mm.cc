@@ -67,7 +67,7 @@ int run_sub(config_state& rs, bool silent) {
 			case TEXT_KEY_GROUP :
 				// replay the sound and clip
 				silent = false;
-				run_group(rs);
+				run_group_next(rs);
 				break;
 			case TEXT_KEY_EMU :
 				// replay the sound and clip
@@ -77,7 +77,7 @@ int run_sub(config_state& rs, bool silent) {
 			case TEXT_KEY_TYPE :
 				// replay the sound and clip
 				silent = false;
-				run_type(rs);
+				run_type_next(rs);
 				break;
 			case TEXT_KEY_EXCLUDE :
 				// replay the sound and clip

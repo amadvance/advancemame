@@ -248,6 +248,43 @@ void run_group(config_state& rs) {
 	}
 }
 
+void run_group_next(config_state& rs) {
+	category* next_select = 0;
+	bool all_select = true;
+
+	bool pred_in = false;
+	for(pcategory_container::const_iterator j=rs.group.begin();j!=rs.group.end();++j) {
+		if (pred_in)
+			next_select = *j;
+		pred_in = false;
+		for(category_container::const_iterator k = rs.include_group_effective.begin();k!=rs.include_group_effective.end();++k) {
+			if ((*j)->name_get() == *k) {
+				pred_in = true;
+				break;
+			}
+		}
+		if (!pred_in)
+			all_select = false;
+	}
+
+	// remove all
+	rs.include_group_effective.erase(rs.include_group_effective.begin(), rs.include_group_effective.end());
+
+	if (!all_select && next_select == 0) {
+		// insert all
+		for(pcategory_container::const_iterator j=rs.group.begin();j!=rs.group.end();++j) {
+			rs.include_group_effective.insert( rs.include_group_effective.end(), (*j)->name_get() );
+		}
+	} else {
+		if ((all_select || next_select == 0) && rs.group.begin() != rs.group.end())
+			next_select = *rs.group.begin();
+		if (next_select != 0) {
+			// insert the next
+			rs.include_group_effective.insert( rs.include_group_effective.end(), next_select->name_get() );
+		}
+	}
+}
+
 // ------------------------------------------------------------------------
 // Emu menu
 
@@ -312,12 +349,12 @@ emulator* run_emu_select(config_state& rs) {
 }
 
 void run_emu_next(config_state& rs) {
-	string last = "";
+	string next_select = "";
 	bool pred_in = false;
 
 	for(pemulator_container::const_iterator j=rs.emu_active.begin();j!=rs.emu_active.end();++j) {
 		if (pred_in)
-			last = (*j)->user_name_get();
+			next_select = (*j)->user_name_get();
 		pred_in = false;
 		for(emulator_container::const_iterator k = rs.include_emu_effective.begin();k!=rs.include_emu_effective.end();++k) {
 			if ((*j)->user_name_get() == *k) {
@@ -326,13 +363,13 @@ void run_emu_next(config_state& rs) {
 			}
 		}
 	}
-	if (last.length() == 0 && rs.emu_active.begin() != rs.emu_active.end())
-		last = (*rs.emu_active.begin())->user_name_get();
+	if (next_select.length() == 0 && rs.emu_active.begin() != rs.emu_active.end())
+		next_select = (*rs.emu_active.begin())->user_name_get();
 
 	rs.include_emu_effective.erase(rs.include_emu_effective.begin(), rs.include_emu_effective.end());
 
-	if (last.length() != 0)
-		rs.include_emu_effective.insert( rs.include_emu_effective.end(), last );
+	if (next_select.length() != 0)
+		rs.include_emu_effective.insert( rs.include_emu_effective.end(), next_select );
 }
 
 // ------------------------------------------------------------------------
@@ -361,6 +398,44 @@ void run_type(config_state& rs) {
 		}
 	}
 }
+
+void run_type_next(config_state& rs) {
+	category* next_select = 0;
+	bool all_select = true;
+
+	bool pred_in = false;
+	for(pcategory_container::const_iterator j=rs.type.begin();j!=rs.type.end();++j) {
+		if (pred_in)
+			next_select = *j;
+		pred_in = false;
+		for(category_container::const_iterator k = rs.include_type_effective.begin();k!=rs.include_type_effective.end();++k) {
+			if ((*j)->name_get() == *k) {
+				pred_in = true;
+				break;
+			}
+		}
+		if (!pred_in)
+			all_select = false;
+	}
+
+	// remove all
+	rs.include_type_effective.erase(rs.include_type_effective.begin(), rs.include_type_effective.end());
+
+	if (!all_select && next_select == 0) {
+		// insert all
+		for(pcategory_container::const_iterator j=rs.type.begin();j!=rs.type.end();++j) {
+			rs.include_type_effective.insert( rs.include_type_effective.end(), (*j)->name_get() );
+		}
+	} else {
+		if ((all_select || next_select == 0) && rs.type.begin() != rs.type.end())
+			next_select = *rs.type.begin();
+		if (next_select != 0) {
+			// insert the next
+			rs.include_type_effective.insert( rs.include_type_effective.end(), next_select->name_get() );
+		}
+	}
+}
+
 
 // ------------------------------------------------------------------------
 // Move menu

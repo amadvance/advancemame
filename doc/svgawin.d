@@ -10,8 +10,8 @@ Description
 
 	This driver is experimental, be prepared to reboot your PC if you use it.
 	
-	If you install it AdvanceMAME and AdvanceMENU automatically try to use it
-	before any other drivers, unless you set a specific driver with the 
+	If you install it, AdvanceMAME and AdvanceMENU automatically try to use it
+	before any other driver, unless you set a specific driver with the
 	`device_video' option in their configuration files.
 
 	You must run it as Administrator.

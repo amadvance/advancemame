@@ -173,7 +173,7 @@ protected:
 	tristate_t exclude_vertical_effective;
 	tristate_t exclude_vertical_orig;
 
-	bool internal_load(FILE* f, game_set& gar);
+	bool internal_load(game_set& gar);
 public:
 	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -312,7 +312,7 @@ protected:
 	tristate_t exclude_vertical_effective;
 	tristate_t exclude_vertical_orig;
 
-	bool internal_load(FILE* f, game_set& gar);
+	bool internal_load(game_set& gar);
 public:
 	raine_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 

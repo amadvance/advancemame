@@ -1,6 +1,13 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.2.1
+	The `group' and `type' menus are now accessible only from the
+	main menu. The `group' and `type' events now automatically switch
+	to the next item without displaying a menu.
+	The selection logic is: first item, second item, ..., last item,
+	all items, and repeat.
+
 AdvanceMENU 2.2.0
 	This is the first Windows NT/2000/XP version able to directly 
 	program your video board. This puts the Windows version at the same level 

@@ -1,6 +1,9 @@
 Name
 	release notes - Release Notes For AdvanceCAB
 
+AdvanceCAB 1.1.3
+	Only a bug fix release for Rage 128 and Radeon.
+
 AdvanceCAB 1.1.2
 	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
 	Simply run "svgawin /u" and "svgawin /l".

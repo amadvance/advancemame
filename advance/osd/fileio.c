@@ -37,7 +37,9 @@
 #include "mame2.h"
 
 #include <zlib.h>
+
 #include <sys/stat.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 #include <ctype.h>
@@ -104,7 +106,7 @@ static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_IMAGE_R, "dir_image", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 /* OSD_FILETYPE_IMAGE_RW is not used. It's present only for MESS compatibility */
 #endif
-	{ OSD_FILETYPE_IMAGE_DIFF, "dir_diff", "diff", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITECREATE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_IMAGE_DIFF, "dir_diff", "diff", ".dif", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITECREATE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 #ifdef MESS
@@ -422,7 +424,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			char file[FILE_MAXPATH];
 			char sub[FILE_MAXPATH];
 			sprintf(sub,"%s",name);
-			strcpy(file,file_abs(item->dir_map[i],sub));
+			strcpy(file, file_abs(item->dir_map[i],sub));
 			item_open_raw(file, item->extension, mode, h);
 		}
 	}
@@ -1036,6 +1038,19 @@ void advance_fileio_done(void) {
 	}
 }
 
+static void dir_create(char** dir_map, unsigned dir_mac) {
+	unsigned i;
+	for(i=0;i<dir_mac;++i) {
+		struct stat st;
+		if (stat(dir_map[i], &st) != 0) {
+			log_std(("advance:fileio: creating dir %s\n", dir_map[i]));
+			if (file_mkdir(dir_map[i]) != 0) {
+				log_std(("advance:fileio: unable to create dir %s\n", dir_map[i]));
+			}
+		}
+	}
+}
+
 int advance_fileio_config_load(adv_conf* context, struct mame_option* option) {
 	struct fileio_item* i;
 	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
@@ -1047,10 +1062,11 @@ int advance_fileio_config_load(adv_conf* context, struct mame_option* option) {
 		if (i->config) {
 			const char* s = conf_string_get_default(context, i->config);
 			log_std(("advance:fileio: %s %s\n", i->config, s));
-			path_allocate(&i->dir_map,&i->dir_mac,s);
+			path_allocate(&i->dir_map, &i->dir_mac,s);
+			dir_create(i->dir_map, i->dir_mac);
 		} else {
 			/* add the standard directories search as default */
-			path_allocate(&i->dir_map,&i->dir_mac,file_config_dir_singlefile());
+			path_allocate(&i->dir_map, &i->dir_mac, file_config_dir_singlefile());
 		}
 	}
 

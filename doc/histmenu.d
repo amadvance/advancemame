@@ -2,6 +2,9 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.1 2002/11
+	) Reduced the startup load time.
+	) The event `group' and `type' now select the next group and type
+		instead of opening the menus.
 	) Fixed the abort bug on the DOS and Windows versions for the
 		SVGALIB Rage 128/Radeon video boards and probably others.
 

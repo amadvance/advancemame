@@ -438,10 +438,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "display_waitvsync", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.4 */
 { "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 }, /* rename */
-/* 0.61.5 */
-{ "*", "dir_imager", "*", "%s", "dir_image", "%s", 0 }, /* rename */
-{ "*", "dir_imagerw", "*", "%s", "dir_image", "%s", 0 }, /* rename */
-{ "*", "dir_imagediff", "*", "%s", "dir_diff", "%s", 0 } /* rename */
+/* 0.62.1 */
+{ "*", "dir_imager", "*", "", "", "", 0 }, /* ignore */
+{ "*", "dir_imagerw", "*", "", "", "", 0 }, /* ignore */
+{ "*", "dir_imagediff", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {

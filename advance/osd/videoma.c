@@ -186,7 +186,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 	*crtc = *original_crtc;
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
-		return 0; /* always ok if driver is not programmable */
+		return 0; /* always ok if the driver is not programmable */
 	}
 
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
@@ -221,6 +221,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 	}
 
 	if (!crtc_clock_check(&context->config.monitor, crtc)) {
+		log_std(("ERROR: checking the final clock"));
 		return -1;
 	}
 
@@ -356,7 +357,9 @@ static int video_update_depthindex(struct advance_video_context* context) {
 		case 15 : select = select_pref_15; break;
 		case 16 : select = select_pref_16; break;
 		case 32 : select = select_pref_32; break;
-		default: return -1;
+		default:
+			log_std(("ERROR: invalid bits_per_pixel\n"));
+			return -1;
 	}
 
 	while (*select) {
@@ -366,15 +369,19 @@ static int video_update_depthindex(struct advance_video_context* context) {
 			case 15 : flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT; break;
 			case 16 : flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT; break;
 			case 32 : flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
-			default: return -1;
+			default:
+				log_std(("ERROR: invalid bits_per_pixel\n"));
+				return -1;
 		}
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & flag) != 0)
 			break;
 		++select;
 	}
 
-	if (!*select)
+	if (!*select) {
+		log_std(("ERROR: no bits_per_pixel supported\n"));
 		return -1;
+	}
 
 	context->state.mode_bits_per_pixel = *select;
 
@@ -393,6 +400,7 @@ static int video_update_depthindex(struct advance_video_context* context) {
  */
 static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc) {
 	if (video_mode_generate(mode,crtc,context->state.mode_bits_per_pixel,MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
+		log_std(("ERROR: video_mode_generate failed '%s'\n", error_get()));
 		return -1;
 	}
 
@@ -425,6 +433,7 @@ static int video_init_mode(struct advance_video_context* context, adv_mode* mode
 	assert( !context->state.mode_flag );
 
 	if (video_mode_set(mode) != 0) {
+		log_std(("ERROR: calling video_mode_set() '%s'\n", error_get()));
 		return -1;
 	}
 
@@ -965,10 +974,6 @@ static int video_update_crtc(struct advance_video_context* context) {
 	}
 
 	if (!crtc) {
-		if (strcmp(context->config.resolution,"auto")==0)
-			target_err("No video modes available for the current game.\n");
-		else
-			target_err("The specified 'display_mode %s' doesn't exist.\n",context->config.resolution);
 		return -1;
 	}
 
@@ -2519,14 +2524,20 @@ int osd2_video_init(struct osd_video_option* req)
 	}
 
 	if (video_update_depthindex(context)!=0) {
+		target_err("Unsupported bit depth.\n");
 		return -1;
 	}
 
 	if (video_update_crtc(context) != 0) {
+		if (strcmp(context->config.resolution,"auto")==0)
+			target_err("No video modes available for the current game.\n");
+		else
+			target_err("The specified 'display_mode %s' doesn't exist.\n", context->config.resolution);
 		return -1;
 	}
 
 	if (video_make_crtc(context, &context->state.crtc_effective, context->state.crtc_selected) != 0) {
+		target_err("Unable to generate the crtc values.\n");
 		return -1;
 	}
 
@@ -2534,6 +2545,7 @@ int osd2_video_init(struct osd_video_option* req)
 	video_update_effect(context);
 
 	if (video_make_mode(context, &mode, &context->state.crtc_effective) != 0) {
+		target_err("%s\n", error_get());
 		return -1;
 	}
 
@@ -2542,6 +2554,7 @@ int osd2_video_init(struct osd_video_option* req)
 	video_update_pan(context);
 
 	if (video_update_mode(context,&mode) != 0) {
+		target_err("%s\n", error_get());
 		return -1;
 	}
 
@@ -2561,6 +2574,7 @@ int osd2_video_init(struct osd_video_option* req)
 		keyb_done();
 		video_done_mode(context, 0);
 		video_mode_restore();
+		target_err("Error initializing the thread system\n");
 		return -1;
 	}
 

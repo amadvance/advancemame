@@ -397,7 +397,7 @@ Vert. Sync Polarity    NEG     POS     NEG
 
 void output::svga_graph_out_internal(const string& name, double f, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, bool interlace, bool doublescan) {
 	ostringstream n;
-	n << name << "_" << hde << "x" << vde << ends;
+	n << name << "_" << hde << "x" << vde;
 	string ns = n.str();
 
 	if (!insert(ns))
@@ -493,7 +493,7 @@ void output::vga_text_out(const string& name, double f, unsigned hde, unsigned h
 	}
 
 	ostringstream n;
-	n << name << "_vga_text" << cols << "_" << hde/cols << "x" << vde/25 << ends;
+	n << name << "_vga_text" << cols << "_" << hde/cols << "x" << vde/25;
 	string ns = n.str();
 
 	if (!insert(ns))
@@ -523,7 +523,7 @@ void output::vga_graph_out(const string& name, double f, unsigned hde, unsigned 
 	}
 
 	ostringstream n;
-	n << name << "_vga_" << hde << "x" << vde << ends;
+	n << name << "_vga_" << hde << "x" << vde;
 	string ns = n.str();
 
 	if (!insert(ns))
@@ -570,6 +570,8 @@ void compute_default(output& os, const generator& g, const string& name) {
 			g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
 			c = g.horz_clock_get() * ht;
 			os(name,c,hde,hrs,hre,ht,vde,vrs,vre,vt,g.clock_contrains_get());
+			// try a double horz and clock
+			os(name,2*c,2*hde,2*hrs,2*hre,2*ht,vde,vrs,vre,vt,g.clock_contrains_get());
 			// try an interlaced version with double pixel clock and double size
 			os(name,2*c,2*hde,2*hrs,2*hre,2*ht,2*vde,2*vrs,2*vre,2*vt+1,g.clock_contrains_get(),true);
 		}

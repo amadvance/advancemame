@@ -5,7 +5,12 @@ AdvanceMAME Version 0.62.1 2002/11
 	) Fixed the abort bug on the DOS and Windows versions for the
 		SVGALIB Rage 128/Radeon video boards and probably others.
 	) Some fixes for the `.chd' games.
-	) Some fixes at the palette management.
+	) Fixed the palette management of the cojag games.
+	) The DOS `vbeline' and `vbe' drivers now correctly detect
+		the absence of some bit depths.
+
+AdvanceMESS Version 0.61.2.1 2002/11
+	) All from AdvanceMAME 0.62.1.
 
 AdvanceMAME Version 0.62.0 2002/11
 	) The Windows SVGAWIN driver now use the framebuffer reported by

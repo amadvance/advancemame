@@ -33,7 +33,7 @@ First Time Configuration
 	The `sdl' and `vbe' video drivers are only indicated to use AdvanceMAME 
 	in a Window Manager system. Instead it's the prefered choice for 
 	AdvanceMENU for the use with a normal PC monitor, because AdvanceMENU 
-	doesn't	require not standard video modes.
+	doesn't require not standard video modes.
 
 Automatic Operation Mode
 	In the automatic operation mode the programs automatically
@@ -161,8 +161,13 @@ Troubleshotting
 		:device_video_hclock 31 - 50
 
 	) If you are using an Arcade Monitor/TV and the image is
-		instable try increasing the lower pclock limit.
+		instable or completly black try increasing the lower
+		pclock limit. Instead of 5 try 8, 10, 12, ...
 		Try for example with:
+
+		:device_video_pclock 8 - 50
+
+		or
 
 		:device_video_pclock 12 - 50
 
