@@ -34,8 +34,8 @@ extern "C" {
 
 const char* png_error_get(void);
 int png_error_unsupported_get(void);
-void png_error(const char* s, ...);
-void png_error_unsupported(const char* s, ...);
+void png_error(const char* s, ...) __attribute__((format(printf,1,2)));
+void png_error_unsupported(const char* s, ...) __attribute__((format(printf,1,2)));
 
 int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type);
 int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count);

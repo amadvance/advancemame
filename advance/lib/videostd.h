@@ -125,9 +125,9 @@ static __inline__ unsigned video_rgb_mask_make_from_def(unsigned len, unsigned p
 /***************************************************************************/
 /* error/log */
 
-void video_error_description_set(const char* error, ...);
-void video_error_description_nolog_set(const char* error, ...);
-void video_error_description_nolog_cat(const char* error, ...);
+void video_error_description_set(const char* error, ...) __attribute__((format(printf,1,2)));
+void video_error_description_nolog_set(const char* error, ...) __attribute__((format(printf,1,2)));
+void video_error_description_nolog_cat(const char* error, ...) __attribute__((format(printf,1,2)));
 
 void video_log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
 void video_log(const char *text, ...) __attribute__((format(printf,1,2)));

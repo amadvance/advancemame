@@ -65,15 +65,24 @@ Configuring
 	If you want to customize the compilation CFLAGS you can set them before
 	calling the ./configure script, for example:
 
-		:CFLAGS="-O3 -march=pentium3 -fomit-frame-pointer" ./configure
+		:export CFLAGS="-O3 -march=pentium3 -fomit-frame-pointer"
+		:export LDFLAGS="-s"
+		:./configure
 
     DOS/Windows
 	In DOS/Windows you need to manually rename the `Makefile.in' file
 	as `Makefile' and edit the first section to match your requirements.
 
 Compiling
-	Finally you can run `make' to compile all, and in Linux `make install'
-	to install the binaries and the documentation.
+	Finally you can run `make' to compile all.
+
+Installing
+	In Linux type `make install' to install the binaries and the documentation.
+	The binaries are installed in $prefix/bin, the documentation
+	in $prefix/doc/advance, the program data in $prefix/share/advance and
+	the man pages in $prefix/man/man1.
+
+	The default installation $prefix is /usr/local.
 
 Targets
 	These are the defined targets in the `Makefile' :

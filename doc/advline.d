@@ -151,81 +151,81 @@ Timings
 
     PAL TVs
 
-			Horizontal		Vertical
-	A		52.00 us		18.468 ms
-	F		 1.65 us +- 0.1		 0.192 ms (? to check)
-	S		 4.70 us +- 0.1		 0.192 ms (? to check)
-	B		 5.65 us		 1.152 ms (? to check)
-	F+S+B		12.00 us +- 0.25
-	A+F+S+B		64.00 us		20.000 ms
-	Clock		15.625 kHz		50.00 Hz
-	Visible Pixel				288.5
-	Total Pixel				312.5
+	:               Horizontal              Vertical
+	:A              52.00 us                18.468 ms
+	:F              1.65 us +- 0.1          0.192 ms (? to check)
+	:S              4.70 us +- 0.1          0.192 ms (? to check)
+	:B              5.65 us                 1.152 ms (? to check)
+	:F+S+B          12.00 us +- 0.25
+        :A+F+S+B        64.00 us                20.000 ms
+	:Clock          15.625 kHz              50.00 Hz
+	:Visible Pixel                          288.5
+	:Total Pixel                            312.5
 
     NTSC TVs
 
-			Horizontal		Vertical
-	A		52.60 us		15.39875 ms
-	F		 1.50 us		 0.190.50 ms
-	S		 4.70 us		 0.190.50 ms
-	B		 4.70 us		 0.889.00 ms
-	F+S+B		10.90 us
-	A+F+S+B		63.50 us		16.66875 ms
-	Clock		15.72 kHz		59.94 Hz
-	Visible Pixel				242.5
-	Total Pixel				262.5
+	:               Horizontal              Vertical
+	:A              52.60 us                15.39875 ms
+	:F              1.50 us                 0.190.50 ms
+	:S              4.70 us                 0.190.50 ms
+	:B              4.70 us                 0.889.00 ms
+	:F+S+B          10.90 us
+        :A+F+S+B        63.50 us                16.66875 ms
+	:Clock          15.72 kHz               59.94 Hz
+	:Visible Pixel                          242.5
+	:Total Pixel                            262.5
 
     Atari Standard Resolution Monitors
 
-			Horizontal		Vertical
-	A		46.90 us		15.30 ms
-	S		 4.70 us		 0.20 ms
-	S+B		11.90 us		 1.20 ms
-	A+F+S+B		63.60 us		16.70 ms
-	Clock		15.72 kHz		60.00 Hz
-	Visible Pixel	336			240
-	Total Pixel	456			262
+	:               Horizontal              Vertical
+	:A              46.90 us                15.30 ms
+	:S              4.70 us                 0.20 ms
+	:S+B            11.90 us                1.20 ms
+	:A+F+S+B        63.60 us                16.70 ms
+	:Clock          15.72 kHz               60.00 Hz
+	:Visible Pixel  336                     240
+	:Total Pixel    456                     262
 
-	Pixel Clock 7.16 MHz
+        :Pixel Clock 7.16 MHz
 
     Atari Extended Resolution Monitors
 
-			Horizontal		Vertical
-	A		48.00 us		17.40 ms
-	S		 3.90 us		 0.20 ms
-	S+B		11.90 us		 1.20 ms
-	A+F+S+B		60.60 us		18.90 ms
-	Clock		16.50 kHz		53.00 Hz
-	Visible Pixel	512			288
-	Total Pixel	646			312
+	:               Horizontal              Vertical
+	:A              48.00 us                17.40 ms
+	:S              3.90 us                 0.20 ms
+	:S+B            11.90 us                1.20 ms
+	:A+F+S+B        60.60 us                18.90 ms
+	:Clock          16.50 kHz               53.00 Hz
+	:Visible Pixel  512                     288
+	:Total Pixel    646                     312
 
-	Pixel Clock 10.67 MHz
+	:Pixel Clock 10.67 MHz
 
     Atari Medium Resolution Monitors
 
-			Horizontal		Vertical
-	A		32.00 us		15.40 ms
-	S		 4.00 us		 0.20 ms
-	S+B		 7.20 us		 1.20 ms
-	A+F+S+B		40.00 us		16.70 ms
-	Clock		25.00 kHz		60.00 Hz
-	Visible Pixel	512			384
-	Total Pixel	640			416
+	:               Horizontal              Vertical
+	:A              32.00 us                15.40 ms
+	:S              4.00 us                 0.20 ms
+	:S+B            7.20 us                 1.20 ms
+	:A+F+S+B        40.00 us                16.70 ms
+	:Clock          25.00 kHz               60.00 Hz
+	:Visible Pixel  512                     384
+	:Total Pixel    640                     416
 
-	Pixel Clock 16.00 MHz
+	:Pixel Clock 16.00 MHz
 
     Atari VGA20 Resolution Monitors
 
-			Horizontal		Vertical
-	A		25.60 us		12.20 ms
-	S		 4.00 us		 0.20 ms
-	S+B		 5.70 us		 1.10 ms
-	A+F+S+B		31.70 us		14.30 ms
-	Clock		31.55 kHz		70.00 Hz
-	Visible Pixel	512			384
-	Total Pixel	634			450
+	:               Horizontal              Vertical
+	:A              25.60 us                12.20 ms
+	:S              4.00 us                 0.20 ms
+	:S+B            5.70 us                 1.10 ms
+        :A+F+S+B        31.70 us                14.30 ms
+	:Clock          31.55 kHz               70.00 Hz
+	:Visible Pixel  512                     384
+	:Total Pixel    634                     450
 
-	Pixel Clock 20.00 MHz
+	:Pixel Clock 20.00 MHz
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

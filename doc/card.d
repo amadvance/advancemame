@@ -4,9 +4,9 @@ Name
 	This is the list of all the video cards supported by the
 	Advance emulators and AvanceMENU frontend.
 
-  SVgaLine
-	These are DOS/Linux drivers based on the SVGALIB Linux
-	library (at the time of writing version 1.9.16).
+  SVGALine
+	These are DOS drivers based on the SVGALIB library (at the time
+	of writing version 1.9.16).
 
 	The numbers in [] are the PCI device IDs of the video board
 	models. The numbers in () are the PCI vendor IDs of the
@@ -22,8 +22,21 @@ Name
 		+GeForce4 [x25x] (interlaced modes not supported)
 
 	r128 - +ATI (1002)
-		+Rage 128 [4c45, 4c56, 4d46, 4d4c, 50xx, 52xx, 53xx, 54xx]
-		+Radeon [4242, 4c57, 4c59, 4c51, 51xx]
+		+Rage 128 Mobility LE/LF/MF/ML [4c45, 4c56, 4d46, 4d4c]
+		+Rage 128 <generic> [50xx, 52xx, 53xx, 54xx]
+		+Rage 128 Pro PD/PF/PP/PR [5044, 5046, 5050, 5052]
+		+Rage 128 Pro TF/TL/TR [5446, 544c, 5442]
+		+Rage 128 SM [534d]
+		+Rage 128 RE/RF/RG/RK/RL [5245, 5247, 524b, 524c]
+		+Radeon Mobility M7 LW/M7 GL/M6 LY/M6 LZ [4c57, 4c58, 4c59, 4c5a]
+		+Radeon 8500 DV [4242]
+		+Radeon <generic> [51xx]
+		+Radeon QD/QE/QF/QG [5144, 5145, 5146, 5147]
+		+Radeon R200 QH/QI/QJ/QK [5148, 5149, 514a, 514b]
+		+Radeon 7500 QW/QX [5157, 5158]
+		+Radeon VE QY/QZ [5159, 515a]
+		+Radeon R200 Qh/Qi/Qj/Qk/Ql [5168, 5169, 516a, 516b, 516c]
+		+Radeon 8500 QL/QN/QO [514c, 514e, 514f]
 
 	g400 - +Matrox (102B)
 		+Mystique [051a, 051e]
@@ -90,7 +103,7 @@ Name
 	ark - +ARK (custom detection)
 		+1000PV, 2000PV
 
-  VbeLine
+  VBELine
 	These are the OLD DOS drivers based on the VBE BIOS of the
 	video board. Some of these drivers are derived from the
 	VSyncMAME video drivers written by Saka and from the ATI driver
@@ -102,7 +115,7 @@ Name
 	matrox - +Matrox
 		+Mystique 1064SG, G100, G200, G400
 
-	ati - +ATI
+	ati - +ATI (custom detection)
 		+Mach 64 (without SDD), ATI All-In-Wonder Pro (without SDD)
 
 	cirrus - +Cirrus Logic (all with SDD)
@@ -151,9 +164,13 @@ Name
 		Any video boards with a VBE3 BIOS which is also VGA
 		compatible at the registers level.
 
+  SVGALib
+	The `svgalib' driver uses the Linux SVGALIB library.
+	It supports all the video boards supported by the library.
+
   FrameBuffer
 	The `fb' driver uses the Linux Kernel Consolle Driver.
-	It supports all the video board supported by your Linux
+	It supports all the video boards supported by your Linux
 	Kernel.
 
 Copyright

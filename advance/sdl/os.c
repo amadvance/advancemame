@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001 Andrea Mazzoleni
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,9 +116,8 @@ static void os_term_signal(int signum) {
 int os_inner_init(const char* title) {
 	SDL_version compiled;
 
-	/* the SDL_INIT_VIDEO flags must be specified also if the video */
-	/* output isn't used */
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
+	log_std(("os: call SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
+	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
 		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
 		target_err("Error initializing the SDL video support.\n");
 		return -1;
@@ -149,6 +148,7 @@ int os_inner_init(const char* title) {
 }
 
 void os_inner_done(void) {
+	log_std(("os: call SDL_Quit()\n"));
 	SDL_Quit();
 }
 
@@ -276,13 +276,13 @@ int main(int argc, char* argv[])
 
 	if (os_main(argc,argv) != 0) {
 		file_done();
-		target_done();		
+		target_done();
 		return EXIT_FAILURE;
 	}
-		
+
 	file_done();
 	target_done();
-	
+
 	return EXIT_SUCCESS;
 }
 

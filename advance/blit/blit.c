@@ -30,6 +30,7 @@
 
 #include "blit.h"
 #include "target.h"
+#include "log.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -75,16 +76,21 @@ static int blit_has_mmx(void) {
 		: "cc"
 	);
 
-	if (a == b)
+	if (a == b) {
+		log_std(("blit: no cpuid\n"));
 		return 0; /* no cpuid */
+	}
 
 	blit_cpuid(0, regs);
 	if (regs[0] > 0) {
 		blit_cpuid(1, regs);
-		if ((regs[3] & 0x800000) != 0)
+		if ((regs[3] & 0x800000) != 0) {
+			log_std(("blit: mmx\n"));
 			return 1;
+		}
 	}
 
+	log_std(("blit: no mmx\n"));
 	return 0;
 }
 

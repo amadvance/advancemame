@@ -369,6 +369,21 @@ Configuration
 	interpolation of the two formats with the nearest horizontal
 	clock.
 
+	The default value of this option is for an Arcade 15 kHz monitor :
+
+		:15720 0.737 0.075 0.074 0.113 0.916 0.012 0.012 0.060
+
+	and for an Arcade 25 kHz monitor:
+
+		:25000 0.800 0.020 0.100 0.080 0.922 0.006 0.012 0.060
+
+	and for a VGA 31.5 kHz monitor:
+
+		:31500 0.800 0.020 0.120 0.060 0.914 0.019 0.004 0.063
+
+	Which one is used depend on the setting of the device_video_hclock
+	option.
+
     device_video_singlescan/doublescan/interlace
 	Limit the use of certains features.
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001 Andrea Mazzoleni
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ static int allegro_freq;
 int __real__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices);
 
 int __wrap__mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices) {
-	log_std(("allegro: sound bufsize %d, freq %d, stereo %d, is16bit %d\n",bufsize,freq,stereo,is16bit));
+	log_std(("sound:allegro: sound bufsize %d, freq %d, stereo %d, is16bit %d\n",bufsize,freq,stereo,is16bit));
 	allegro_freq = freq;
 	return __real__mixer_init(bufsize, freq, stereo, is16bit, voices);
 }
@@ -203,7 +203,7 @@ void sound_allegro_play(const short* sample_map, unsigned sample_count) {
 	allegro_state.last = current;
 
 	if (sound_allegro_overflow(allegro_state.pos,sample_count))
-		log_std(("sound:allegro: sound overflow\n"));
+		log_std(("ERROR: sound buffer overflow\n"));
 
 	if (allegro_state.channel > 1) {
 		while (count) {

@@ -279,7 +279,8 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/advv.d \
 	$(srcdir)/doc/advcfg.d \
 	$(srcdir)/doc/install.d \
-	$(srcdir)/doc/card.d \
+	$(srcdir)/doc/carddos.d \
+	$(srcdir)/doc/cardlinx.d \
 	$(srcdir)/doc/build.d
 
 MENU_SUPPORT_SRC = \
@@ -308,11 +309,13 @@ MENU_DOC_BIN += \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/install.txt \
-	$(DOCOBJ)/card.txt \
+	$(DOCOBJ)/carddos.txt \
+	$(DOCOBJ)/cardlinx.txt \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
 	$(DOCOBJ)/install.html \
-	$(DOCOBJ)/card.html \
+	$(DOCOBJ)/carddos.html \
+	$(DOCOBJ)/cardlinx.html \
 	$(RCSRC)
 endif
 
@@ -346,14 +349,8 @@ endif
 
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
 MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
-
-ifeq ($(CONF_HOST),dos)
-MENU_DIST_DIR_SRC = tmp
-MENU_DIST_DIR_BIN = tmpbin
-else
 MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
-endif
 
 distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $(DOCOBJ)/build.txt
 	mkdir $(MENU_DIST_DIR_SRC)
@@ -396,6 +393,8 @@ distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histm
 	cp $(MPGLIB_SRC) $(MENU_DIST_DIR_SRC)/advance/mpglib
 	mkdir $(MENU_DIST_DIR_SRC)/advance/v
 	cp $(V_SRC) $(MENU_DIST_DIR_SRC)/advance/v
+	mkdir $(MENU_DIST_DIR_SRC)/advance/cfg
+	cp $(CFG_SRC) $(MENU_DIST_DIR_SRC)/advance/cfg
 	mkdir $(MENU_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(MENU_DIST_DIR_SRC)/advance/d2
 	mkdir $(MENU_DIST_DIR_SRC)/contrib

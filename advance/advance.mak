@@ -182,6 +182,10 @@ S_SRC = \
 	$(wildcard $(srcdir)/advance/s/*.c) \
 	$(wildcard $(srcdir)/advance/s/*.h)
 
+I_SRC = \
+	$(wildcard $(srcdir)/advance/i/*.c) \
+	$(wildcard $(srcdir)/advance/i/*.h)
+
 K_SRC = \
 	$(wildcard $(srcdir)/advance/k/*.c) \
 	$(wildcard $(srcdir)/advance/k/*.h)
@@ -345,7 +349,7 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special Rules
 
-ARCH_COMMON = -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
+ARCH_COMMON = -O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
 ARCH_ALL = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(ARCH_COMMON)"
 ARCH_PENTIUM = CONF_ARCH=i586 CONF_CFLAGS_OPT="-march=i586 $(ARCH_COMMON)"
 ARCH_PENTIUM2 = CONF_ARCH=i686 CONF_CFLAGS_OPT="-march=i686 $(ARCH_COMMON)"
@@ -371,6 +375,7 @@ wholemame:
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
 	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_MAP=yes CONF_COMPRESS=yes distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
@@ -388,8 +393,8 @@ wholemenu:
 	$(MAKE) CONF=no distmenu
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes CONF_COMPRESS=yes distmenubin
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=no distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_MAP=yes CONF_COMPRESS=no distmenubin
 
 wholecab:
 	$(MAKE) CONF=no CONF_HOST=dos distcab

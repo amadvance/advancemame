@@ -457,7 +457,7 @@ video_error monitor_load(struct conf_context* context, video_monitor* monitor) {
 		return -1;
 	}
 	if (monitor_range_parse(monitor->vclock,v,v+strlen(v),1)!=0) {
-		video_error_description_set("Invalid argument '%s' for option 'device_video_vclock'");
+		video_error_description_set("Invalid argument '%s' for option 'device_video_vclock'",v);
 		return -1;
 	}
 

@@ -490,10 +490,15 @@ Configuration
 		:advmess ti99_4a -cart alpiner=crom.bin -cart alpiner=grom.bin
 
   Display Configuration Options
-
     device_video_*
-	All the `device_video_*' options defined in the `advv.txt'
-	file can be used.
+	All the `device_video_*' options defined in the `advv.txt' file can
+	be used.
+
+	If you are using the `sdl' target you don't need to set these options.
+
+	On the other targets these options are used to select and create the
+	correct video mode. They are mandatory. You can use the `advcfg'
+	utility to set them interactively.
 
     display_mode
 	Selects a specific modeline by its name.

@@ -393,7 +393,7 @@ char *yytext;
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001 Andrea Mazzoleni
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

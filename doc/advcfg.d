@@ -37,6 +37,7 @@ Options
 	-bit N
 		Select the bit depth of the test video modes.
 		If omitted the 8 bit modes are used.
+		Valid values are 8, 15, 16 and 32.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

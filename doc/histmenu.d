@@ -1,7 +1,7 @@
 Name
 	advmenu - History For AdvanceMENU
 
-AdvanceMENU Version 2.1.0 2002/08
+AdvanceMENU Version 2.1.0 2002/09
 	) Revised the output format of all the documentation. Now
 		it's available as formatted text, html and man pages.
 	) Fixed a bug on the emulator names. Now they can be uppercase.
@@ -45,6 +45,9 @@ AdvanceMENU Version 2.1.0 2002/08
 		and `group_import' options.
 	) Added in the contrib/ dir the hiscore.ini file to display the top
 		hiscore of the MAME games.
+	) Various fix at the `advcfg' utility.
+	) Fixed some problems of the fullscreen use of the sdl system.
+	) Various bug fixed.
 
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics

@@ -1,76 +1,81 @@
 Name
-	install - The Advance Installation
+	install - The Advance First Time Configuration
 
 First Time Configuration
-	AdvanceMAME has the ability to directly control your video
-	board to get the best possibile video modes with always the
-	correct size and aspect ratio.
+	The Advance projects have the ability to directly control your
+	video board to get the best possibile video modes with always
+	the correct size and aspect ratio.
 
-	To made it possible it needs some information on your monitor
+	To made it possible they needs some information on your monitor
 	capability in the form of the supported pixel, horizontal and
 	vertical clocks.
 
-	With these info AdvanceMAME is able to always generate a
-	`perfect' video mode for the emulated game.
+	With these info the programs are able to always generate
+	`perfect' video modes for the emulated game.
 
-	AdvanceMAME supports two basic way to generated video modes:
-	the automatic and the manual operation mode.
+	The programs support two basic way to generated video modes:
+	the `automatic' and the `manual' operation mode.
 
-	In the automatic mode AdvanceMAME always automatically generate
+	In the `automatic' mode the programs automatically generate
 	a video mode from scratch. It's the simplest mode of operation.
 
-	In the manual mode AdvanceMAME picks the video mode from a
+	In the `manual' mode the programs pick the video mode from a
 	predefined list of modelines, eventually adjsting them to match
 	the game clock or size requirements.
-	This mode of operation should be used only if the automatic mode
+	This mode of operation should be used only if the `automatic' mode
 	doesn't work.
 
-	If you are using the special `sdl' or `vbe' video drivers,
-	AdvanceMAME isn't able to create or adjust video modes. In this
-	case you don't need to configure anything because AdvanceMAME
+	If you are using the special `sdl' system library, the programs
+	aren't able to create or adjust video modes.
+	In this case you don't need to configure anything because the programs
 	can use only the video modes which your system reports as available.
-	These drivers are only indicated to use AdvanceMAME or AdvanceMENU
-	in a Window Manager system.
+
+	The `sdl' system is only indicated to use AdvanceMAME in a Window
+	Manager system. Instead it's the prefered choice for AdvanceMENU
+	for the use with a normal PC monitor.
 
 Automatic Operation Mode
-	In the automatic operation mode AdvanceMAME automatically
+	In the automatic operation mode the programs automatically
 	creates a `perfect' video mode for the game to be emulated
 	that fit exactly the whole screen with the correct aspect
 	and frame rate.
 
 	To configure and activate this mode you need to run the
-	`advcfg' utility and to answer at the various questions.
+	`advcfg' utility for AdvanceMAME and `advcfg -advmenuc' for
+	AdvanceMENU and answer at the various questions.
 	You don't need to create a list of video modes, any needed
-	video mode is created at runtime by AdvanceMAME.
+	video mode is created at runtime.
 
 	Before running the `advcfg' utility you should check your
 	monitor manual for the vertical and horizontal clocks
 	supported by your monitor.
 
-	The `advcfg' utility add these options in your `advmame.rc'.
+	The `advcfg' utility add these options in your `advmame.rc'
+	and `advmenu.rc' :
 
-		:display_mode auto
-		:display_adjust generate
+		:display_mode auto (only for advmame)
+		:display_adjust generate (only for advmame)
 		:device_video_pclock ?
 		:device_video_hclock ?
 		:device_video_vclock ?
 		:device_video_format ?
 
 Manual Operation Mode
-	In the manual operation mode AdvanceMAME scan a list of `good'
-	video modelines and chose the best available. You must prevently
-	create this list of video modelines with the `advv' utility.
+	In the manual operation mode the programs scan a list of `good'
+	video modelines created manually and chose the best available.
+	You must prevently create this list of video modelines with the
+	`advv' utility.
 
 	This is the description of the few basic steps required to run
-	AdvanceMAME in the manual operation mode.
+	the programs in the manual operation mode.
 
-	) Add in the in the file `advmame.rc' these options.
+	) For AdvamceMAME add in the in the file `advmame.rc' these options:
 
 		:diplay_mode auto
 		:display_adjust x
 
-	) Add in the the file `advmame.rc' the `p/h/vclock' options
-		that specify which horizontal and vertical clocks are
+	) Add in the the file `advmame.rc' or `advmenu.rc' the `p/h/vclock'
+		options that specify which horizontal and vertical clocks are
 		supported by your monitor.
 		Generally these values are specified in the technical page of
 		your monitor manual. These are some example :
@@ -121,14 +126,15 @@ Manual Operation Mode
 		:device_video_hclock 16.5
 		:device_video_vclock 53
 
-	) Run the `advv' program.
+	) Run the `advv' program for AdvanceMAME or `advv -advmenuv' for
+		AdvanceMENU.
 
 	) Test the video modelines of your interest pressing ENTER on them.
 		If the mode isn't centered try centering it with the ARROW keys.
 		When you have finished press ENTER to save your modifications or ESC
 		to restore the previous setting.
 		Returned in the video mode list, if the mode is displayed correctly,
-		you can select it to be used by AdvanceMAME pressing SPACE.
+		you can select it to be used by the programs pressing SPACE.
 		It's very important that in all the selected modes the screen area
 		is completely visible. Otherwise, when playing, part of the game
 		may be out of screen.
@@ -136,7 +142,7 @@ Manual Operation Mode
 		hardware.
 
 	) When you have selected the list of `good' video modes press
-		F2 to save them in your `advmame.rc'
+		F2 to save them in your configuration file.
 
 	) Press ESC to exit from `advv'
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2001 Andrea Mazzoleni
+ * Copyright (C) 1999-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,6 +103,7 @@ video_error sdl_init(int device_id) {
 		sdl_default();
 	}
 
+	log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
 		log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
 		return -1;
@@ -179,7 +180,10 @@ void sdl_done(void) {
 
 	log_std(("video:sdl: sdl_done()\n"));
 
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+		log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	}
 
 	sdl_state.active = 0;
 }
@@ -231,6 +235,14 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 	assert( !sdl_mode_is_active() );
 
 	log_std(("video:sdl: sdl_mode_set()\n"));
+
+	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
+		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
+			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			return -1;
+		}
+	}
 
 	info = SDL_GetVideoInfo();
 
@@ -292,10 +304,24 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 }
 
 void sdl_mode_done(video_bool restore) {
+	const SDL_VideoInfo* info;
+
 	assert( sdl_is_active() );
 	assert( sdl_mode_is_active() );
 
 	log_std(("video:sdl: sdl_mode_done()\n"));
+
+	info = SDL_GetVideoInfo();
+
+	/* close the screen if we are fullscreen in a window manager. */
+	/* otherwise we cannot see the started programs by AdvanceMENU. */
+	/* this is only done for the window managers becase the problem is only here */
+	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0 && info->wm_available) {
+		if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+			log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		}
+	}
 
 	sdl_state.mode_active = 0;
 }

@@ -1,7 +1,7 @@
 Name
 	advmenu - History For Advance Emulators
 
-AdvanceMAME Version 0.61.2 2002/08 (not yet released)
+AdvanceMAME Version 0.61.2 2002/09
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program
 		in a Window Manager. But it isn't a good choice for
@@ -45,6 +45,8 @@ AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 		`device_video_16bit', `device_video_32bit' to selectively
 		disable some bit depths on the video drivers.
 	) Fixed the colors on the snapshots of games with a 32 color depth.
+	) Various fix at the `advcfg' utility.
+	) Various bug fixed.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

@@ -88,17 +88,22 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 
 	log_std(("osd: osd2_sound_init(sample_rate:%d,stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
-	assert( context->state.active_flag == 0);
+	assert(context->state.active_flag == 0);
 
 #ifdef NDEBUG
-	/* disable the sound with the none driver in the release build */
+	/* disable the sound with the none driver in the release build, */
+	/* in the debug build use the none driver */
 	if (strcmp(sound_name(),"none")==0) {
+		/* returning !=0 force MAME to disable the sound */
+		/* the osd2_sound_done isn't called */
 		return -1;
 	}
 #endif
 
-	/* 1.1 is to increase a little the lower driver latency */
-	if (sound_init(sample_rate, stereo_flag, 1.1 * context->config.latency_time) != 0) {
+	/* 2.0 is to increase a the lower driver latency */
+	/* the value is guessed with some tries, don't change it */
+	/* without testing on all the drivers */
+	if (sound_init(sample_rate, stereo_flag, 2.0 * context->config.latency_time) != 0) {
 		return -1;
 	}
 
@@ -122,7 +127,7 @@ void osd2_sound_done(void)
 
 	log_std(("osd: osd2_sound_done()\n"));
 
-	assert( context->state.active_flag);
+	assert(context->state.active_flag);
 
 	sound_stop();
 	sound_done();

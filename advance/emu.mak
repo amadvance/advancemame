@@ -424,20 +424,20 @@ $(sort $(OBJDIRS)):
 ############################################################################
 # EMU diff
 
-$(srcdir)/advance/advmame.dif: $(srcdir)/src $(srcdir)/src.ori
-	find $(srcdir)/src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/src.ori $(srcdir)/src > $(srcdir)/advance/advmame.dif
-	ls -l $(srcdir)/advance/advmame.dif
+advance/advmame.dif: src src.ori
+	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" src.ori src > advance/advmame.dif
+	ls -l advance/advmame.dif
 
-$(srcdir)/advance/advpac.dif: $(srcdir)/srcpac $(srcdir)/srcpac.ori
-	find $(srcdir)/srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/srcpac.ori $(srcdir)/srcpac > $(srcdir)/advance/advpac.dif
-	ls -l $(srcdir)/advance/advpac.dif
+advance/advpac.dif: srcpac srcpac.ori
+	find srcpac \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcpac.ori srcpac > advance/advpac.dif
+	ls -l advance/advpac.dif
 
-$(srcdir)/advance/advmess.dif: $(srcdir)/srcmess $(srcdir)/srcmess.ori
-	find $(srcdir)/srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" $(srcdir)/srcmess.ori $(srcdir)/srcmess > $(srcdir)/advance/advmess.dif
-	ls -l $(srcdir)/advance/advmess.dif
+advance/advmess.dif: srcmess srcmess.ori
+	find srcmess \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" srcmess.ori srcmess > advance/advmess.dif
+	ls -l advance/advmess.dif
 
 ############################################################################
 # EMU dist
@@ -453,6 +453,7 @@ EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/cfg.mak \
 	$(srcdir)/advance/k.mak \
 	$(srcdir)/advance/s.mak \
+	$(srcdir)/advance/i.mak \
 	$(srcdir)/advance/j.mak \
 	$(srcdir)/advance/m.mak \
 	$(srcdir)/advance/line.mak \
@@ -493,7 +494,8 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/advj.d \
 	$(srcdir)/doc/advm.d \
 	$(srcdir)/doc/advline.d \
-	$(srcdir)/doc/card.d \
+	$(srcdir)/doc/carddos.d \
+	$(srcdir)/doc/cardlinx.d \
 	$(srcdir)/doc/install.d
 
 EMU_DOC_BIN = \
@@ -525,7 +527,8 @@ EMU_DOC_BIN += \
 	$(DOCOBJ)/advs.txt \
 	$(DOCOBJ)/advj.txt \
 	$(DOCOBJ)/advm.txt \
-	$(DOCOBJ)/card.txt \
+	$(DOCOBJ)/carddos.txt \
+	$(DOCOBJ)/cardlinx.txt \
 	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
@@ -533,7 +536,8 @@ EMU_DOC_BIN += \
 	$(DOCOBJ)/advs.html \
 	$(DOCOBJ)/advj.html \
 	$(DOCOBJ)/advm.html \
-	$(DOCOBJ)/card.html \
+	$(DOCOBJ)/carddos.html \
+	$(DOCOBJ)/cardlinx.html \
 	$(DOCOBJ)/install.html
 endif
 
@@ -584,14 +588,8 @@ endif
 
 EMU_DISTFILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
 EMU_DISTFILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
-
-ifeq ($(CONF_HOST),dos)
-EMU_DIST_DIR_SRC = tmp
-EMU_DIST_DIR_BIN = tmpbin
-else
 EMU_DIST_DIR_SRC = $(EMU_DISTFILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DISTFILE_BIN)
-endif
 
 dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
@@ -642,6 +640,8 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 	cp $(M_SRC) $(EMU_DIST_DIR_SRC)/advance/m
 	mkdir $(EMU_DIST_DIR_SRC)/advance/s
 	cp $(S_SRC) $(EMU_DIST_DIR_SRC)/advance/s
+	mkdir $(EMU_DIST_DIR_SRC)/advance/i
+	cp $(I_SRC) $(EMU_DIST_DIR_SRC)/advance/i
 	mkdir $(EMU_DIST_DIR_SRC)/advance/cfg
 	cp $(CFG_SRC) $(EMU_DIST_DIR_SRC)/advance/cfg
 	mkdir $(EMU_DIST_DIR_SRC)/advance/line

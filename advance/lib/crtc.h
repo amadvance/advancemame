@@ -201,6 +201,7 @@ video_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* en
 void video_crtc_print(char* buffer, const video_crtc* crtc);
 
 void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y);
+video_bool crtc_is_fake(const video_crtc* crtc);
 
 #ifdef __cplusplus
 }

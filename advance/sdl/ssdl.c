@@ -227,9 +227,16 @@ unsigned sound_sdl_flags(void) {
 static struct conf_enum_int OPTION[] = {
 { "512", 512 },
 { "1024", 1024 },
+{ "1536", 1536 },
 { "2048", 2048 },
+{ "2560", 2560 },
+{ "3072", 3072 },
+{ "3584", 3584 },
 { "4096", 4096 },
-{ "8192", 8192 }
+{ "6144", 6144 },
+{ "8192", 8192 },
+{ "12288", 12288 },
+{ "16384", 16384 }
 };
 
 video_error sound_sdl_load(struct conf_context* context) {

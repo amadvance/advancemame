@@ -53,6 +53,8 @@ unsigned crtc_step(double v, unsigned st) {
 
 /**
  * Adjust the clock to match the monitor specifications.
+ * Only the horizontal and vertical clock limits are checked.
+ * The pixel clock limits are NOT checked.
  * \return 0 if successful
  */
 video_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
@@ -683,4 +685,8 @@ void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y) {
 	crtc->flags = 0;
 
 	sprintf(crtc->name, "%dx%d", size_x, size_y);
+}
+
+video_bool crtc_is_fake(const video_crtc* crtc) {
+	return crtc->pixelclock == 0;
 }

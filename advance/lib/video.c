@@ -472,12 +472,20 @@ video_error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsign
 	unsigned i;
 
 	/* clear the error */
-	video_error_description_nolog_set("None driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
+	video_error_description_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
-			if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
-				return 0;
+			/* mask out the driver flags with the user requested limitations */
+			unsigned driver_flags = video_state.driver_map[i]->flags() & video_internal_flags();
+
+			/* allow always faked crtc */
+			if (crtc_is_fake(crtc)
+				|| video_mode_generate_check(video_state.driver_map[i]->name,driver_flags,8,4096,crtc,bits,flags)==0) {
+				if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
+					log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
+					return 0;
+				}
 			}
 		}
 	}
@@ -515,35 +523,35 @@ video_error video_mode_generate_check(const char* driver, unsigned driver_flags,
 
 	if (crtc_is_interlace(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) == 0) {
-			video_error_description_nolog_cat("%s: Interlace not supported\n",driver);
+			video_error_description_nolog_cat("%s: Interlace not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_doublescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
-			video_error_description_nolog_cat("%s: Doublescan not supported\n",driver);
+			video_error_description_nolog_cat("%s: Doublescan not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_singlescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) == 0) {
-			video_error_description_nolog_cat("%s: Singlescan not supported\n");
+			video_error_description_nolog_cat("%s: Singlescan not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvpal(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL) == 0) {
-			video_error_description_nolog_cat("%s: TV-PAL not supported\n");
+			video_error_description_nolog_cat("%s: TV-PAL not supported\n", driver);
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvntsc(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC) == 0) {
-			video_error_description_nolog_cat("%s: TV-NTSC not supported\n");
+			video_error_description_nolog_cat("%s: TV-NTSC not supported\n", driver);
 			return -1;
 		}
 	}
@@ -569,42 +577,42 @@ video_error video_mode_generate_check(const char* driver, unsigned driver_flags,
 	switch (bits) {
 		case 0 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				video_error_description_nolog_cat("%s: Text mode bit depth not supported\n",driver);
+				video_error_description_nolog_cat("%s: Text mode bit depth not supported\n", driver);
 				return -1;
 			}
 			break;
 		case 8 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT) == 0) {
-				video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+				video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 15 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT) == 0) {
-				video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+				video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 16 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT) == 0) {
-				video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+				video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 24 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT) == 0) {
-				video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+				video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		case 32 :
 			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT) == 0) {
-				video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+				video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 				return -1;
 			}
 			break;
 		default:
-			video_error_description_nolog_cat("%s: %d bit depth not supported\n",driver,bits);
+			video_error_description_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
 			return -1;
 	}
 

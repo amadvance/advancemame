@@ -823,8 +823,8 @@ int mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double buffe
 	if (buffer_time < latency_time)
 		goto err;
 
-	/* 1.1 is to increase a little the lower driver latency */
-	if (sound_init(&mixer_rate, 1, 1.1 * latency_time) != 0)
+	/* 2.0 is to increase the lower driver latency */
+	if (sound_init(&mixer_rate, 1, 2.0 * latency_time) != 0)
 		goto err;
 
 	mixer_buffer_size = buffer_time * mixer_rate;

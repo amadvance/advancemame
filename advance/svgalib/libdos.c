@@ -2,7 +2,7 @@
 
 LIBDOS - SVGALIB port to MSDOS for the DJGPP compiler.
 
-Copyright (C) 1999-2001 Andrea Mazzoleni
+Copyright (C) 1999-2002 Andrea Mazzoleni
 
 */
 
