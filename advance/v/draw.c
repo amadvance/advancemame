@@ -182,7 +182,7 @@ static int text_default_set(void)
 	}
 
 	if (!the_default_mode_flag) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT) & VIDEO_DRIVER_FLAGS_INFO_WINDOW) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 			/* add a fake text mode for the windowed modes */
 			adv_crtc crtc;
 			adv_mode mode;
@@ -223,10 +223,10 @@ int text_init(void)
 
 	if (the_default_mode_flag == 0) {
 		video_mode_restore();
-		target_err("No text modes available for your hardware.\nTry removig the `device_video' option from the configuration file.\n");
+		target_err("No text modes available for your hardware.\nPlease check your `device_video_p/h/vclock' options in the configuration file.\nEventually add a specific modeline named '" DEFAULT_TEXT_MODE "'\n");
 		return -1;
 	}
-	
+
 	return 0;
 }
 

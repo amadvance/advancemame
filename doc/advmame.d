@@ -941,6 +941,22 @@ Configuration
 	Options for the Windows version:
 		sdl - SDL automatic detection.
 
+    sound_mode
+	Sets the sound output mode.
+
+	:sound_channel auto | mono | stereo | surround
+
+	Options:
+		auto - Use mono if the emulated game is mono
+			or stereo if it's stereo.
+		mono - Use always mono. The game stereo channels
+			are mixed.
+		stereo - Use always stereo. The game mono channel
+			is duplicated.
+		surround - Use a fake surround effect. The right channel
+			plays part of the left channel as negate samples
+			and viceversa.
+
     sound_samplerate
 	Sets the audio sample rate.
 
@@ -949,11 +965,6 @@ Configuration
 	Options:
 		RATE - Sample rate. Common values are 11025, 22050
 			and 44100 (default 44100).
-
-    sound_stereo
-	Selects stereo or mono output for games supporting stereo sound.
-
-	:sound_stereo yes | no
 
     sound_volume
 	Sets the startup volume.
@@ -980,7 +991,7 @@ Configuration
 	increase the latency.
 
 	The default value is relatively high because it should work also
-	with high frame skip rate. Supposing a skip of 6 consecutive frames
+	with high frame skip rates. Supposing a skip of 6 consecutive frames
 	the sound buffer should contain 6 * 1/60 = 0.1 seconds of samples.
 	If you always play at full frame rate you can safely decrease
 	the latency down to 0.02 seconds.

@@ -1043,7 +1043,7 @@ void osd_record_start(void)
 	log_std(("osd: osd_record_start()\n"));
 
 	if (context->config.sound_flag && sound_context->state.rate) {
-		sound_start(context, path_wav, sound_context->state.rate, sound_context->state.stereo_flag);
+		sound_start(context, path_wav, sound_context->state.rate, sound_context->state.input_mode != SOUND_MODE_MONO);
 	}
 
 	if (context->config.video_flag) {

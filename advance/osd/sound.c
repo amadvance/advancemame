@@ -35,6 +35,7 @@
 #include "log.h"
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 
 /***************************************************************************/
@@ -102,17 +103,26 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	}
 #endif
 
+	if (stereo_flag)
+		context->state.input_mode = SOUND_MODE_STEREO;
+	else
+		context->state.input_mode = SOUND_MODE_MONO;
+	if (context->config.mode == SOUND_MODE_AUTO)
+		context->state.output_mode = context->state.input_mode;
+	else
+		context->state.output_mode = context->config.mode;
+
 	/* *2.0 is to increase a the lower driver buffer */
 	/* the value is guessed with some tries, don't change it */
 	/* without testing on all the drivers */
-	if (sound_init(sample_rate, stereo_flag, 2.0 * context->config.latency_time) != 0) {
+	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, 2.0 * context->config.latency_time) != 0) {
 		return -1;
 	}
 
 	context->state.active_flag = 1;
 	context->state.rate = *sample_rate;
-	context->state.stereo_flag = stereo_flag;
-	context->state.bytes_per_sample = stereo_flag ? 4 : 2;
+	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
+	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
 	context->state.latency = context->state.rate * context->config.latency_time;
 	context->state.active_flag = 1;
 
@@ -149,7 +159,59 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 	log_debug(("advance: sound play %d\n", sample_count));
 
 	if (context->state.active_flag) {
-		sound_play(sample_buffer, sample_count);
+		if (context->state.input_mode != context->state.output_mode) {
+			short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
+
+			if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_STEREO) {
+				unsigned i;
+				const short* sample_mono = sample_buffer;
+				short* sample_stereo = sample_mix;
+				for(i=0;i<sample_count;++i) {
+					sample_stereo[0] = sample_mono[0];
+					sample_stereo[1] = sample_mono[0];
+					sample_mono += 1;
+					sample_stereo += 2;
+				}
+			} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_MONO) {
+				unsigned i;
+				const short* sample_stereo = sample_buffer;
+				short* sample_mono = sample_mix;
+				for(i=0;i<sample_count;++i) {
+					sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
+					sample_mono += 1;
+					sample_stereo += 2;
+				}
+			} else if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_SURROUND) {
+				unsigned i;
+				const short* sample_mono = sample_buffer;
+				short* sample_surround = sample_mix;
+				for(i=0;i<sample_count;++i) {
+					sample_surround[0] = sample_mono[0];
+					sample_surround[1] = -sample_mono[0];
+					sample_mono += 1;
+					sample_surround += 2;
+				}
+			} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_SURROUND) {
+				unsigned i;
+				const short* sample_stereo = sample_buffer;
+				short* sample_surround = sample_mix;
+				for(i=0;i<sample_count;++i) {
+					sample_surround[0] = (3*sample_stereo[0] - sample_stereo[1]) / 4;
+					sample_surround[1] = (3*sample_stereo[1] - sample_stereo[0]) / 4;
+					sample_surround += 2;
+					sample_stereo += 2;
+				}
+			} else {
+				memset(sample_mix, 0, sample_count * context->state.output_bytes_per_sample);
+			}
+
+			sound_play(sample_mix, sample_count);
+
+			free(sample_mix);
+
+		} else {
+			sound_play(sample_buffer, sample_count);
+		}
 
 		if (!video_context->state.pause_flag)
 			advance_record_sound_update(record_context, sample_buffer, sample_count);
@@ -175,9 +237,16 @@ int advance_sound_latency_diff(struct advance_sound_context* context)
 	}
 }
 
+static adv_conf_enum_int OPTION_CHANNELS[] = {
+{ "auto", SOUND_MODE_AUTO },
+{ "mono", SOUND_MODE_MONO },
+{ "stereo", SOUND_MODE_STEREO },
+{ "surround", SOUND_MODE_SURROUND },
+};
+
 int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
 {
-	conf_bool_register_default(cfg_context, "sound_stereo", 1);
+	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), -1);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
@@ -201,7 +270,7 @@ struct sound_device {
 
 int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
-	context->config.stereo_flag = conf_bool_get_default(cfg_context, "sound_stereo");
+	context->config.mode = conf_bool_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");

@@ -2351,13 +2351,13 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		context->state.thread_state_skip_flag = skip_flag;
 
 		if (sample_count > context->state.thread_state_sample_max) {
-			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.bytes_per_sample * 2*sample_count));
+			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.input_bytes_per_sample * 2*sample_count));
 			context->state.thread_state_sample_max = 2*sample_count;
-			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.bytes_per_sample * context->state.thread_state_sample_max);
+			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.input_bytes_per_sample * context->state.thread_state_sample_max);
 			assert(context->state.thread_state_sample_buffer);
 		}
 
-		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.bytes_per_sample );
+		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample );
 		context->state.thread_state_sample_count = sample_count;
 
 		advance_estimate_common_end(estimate_context, skip_flag);

@@ -11,8 +11,13 @@ AdvanceMAME Version 0.62.2 2002/12
 		driver [Kari Hautio].
 	) Added support for YUV overlay in the SDL driver with a new
 		zoom mode. With this driver the image is zoomed
-		by the video board.
+		by the video board. Check the new `device_video_mode'
+		option.
 	) Upgraded at the SVGALIB 1.9.17 library.
+	) Fixed a bug on exit with a multiprocessor system.
+	) Added a new `sound_mode' option which replaces the old
+		`sound_stereo'. It also support a (fake) `surround'
+		effect.
 
 AdvanceMESS Version 0.62.0.0 2002/12
 	) All from AdvanceMAME 0.62.2.

@@ -397,9 +397,14 @@ int advance_record_snapshot_is_active(struct advance_record_context* context);
 /***************************************************************************/
 /* Sound */
 
+#define SOUND_MODE_AUTO -1
+#define SOUND_MODE_MONO 0
+#define SOUND_MODE_STEREO 1
+#define SOUND_MODE_SURROUND 2
+
 struct advance_sound_config_context {
 	double latency_time; /**< Requested latency in seconds */
-	int stereo_flag;
+	int mode; /**< Channel mode. */
 	int attenuation;
 };
 
@@ -408,8 +413,10 @@ struct advance_sound_state_context {
 	double volume; /**< Current volume. [0 - 1] */
 	unsigned latency; /**< Expected latency in samples */
 	unsigned rate; /**< Current sample rate */
-	int stereo_flag; /**< Current stereo flag */
-	unsigned bytes_per_sample;
+	int input_mode; /**< Input mode format. */
+	int output_mode; /**< Output mode format. */
+	unsigned input_bytes_per_sample; /**< Input data sample size. */
+	unsigned output_bytes_per_sample; /**< Output data sample size. */
 	unsigned snapshot_counter; /**< Current snapshot counter */
 };
 

@@ -445,6 +445,7 @@ static adv_conf_conv STANDARD[] = {
 { "*", "dir_imagerw", "*", "", "", "", 0 }, /* ignore */
 { "*", "dir_imagediff", "*", "", "", "", 0 }, /* ignore */
 /* 0.62.2 */
+{ "*", "sound_stereo", "*", "", "", "", 0 }, /* ignore */
 { "*", "display_rgb", "*", "", "", "", 0 }, /* ignore */
 { "*", "display_depth", "8", "%s", "display_color", "palette8", 0 }, /* rename */
 { "*", "display_depth", "15", "%s", "display_color", "bgr15", 0 }, /* rename */
