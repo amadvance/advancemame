@@ -1,0 +1,320 @@
+<html>
+<head>
+<title>AdvanceCAB Video Control For Windows 2000/XP</title>
+</head>
+<body>
+<center><h2>AdvanceCAB Video Control For Windows 2000/XP</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
+&nbsp;&nbsp;&nbsp;&nbsp;[/n SIZE] [/m]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `videow' utility can be used to control the video
+output of the PC in Windows NT/2000/XP.
+<p>
+It requires the `svgawin' driver installed and running.
+<p>
+The modelines are read from the file `videow.rc'.
+The format of this configuration file is specified in the
+document `advv.txt'.
+<p>
+These are some example rc files:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ntsc.rc
+</em></td><td width="90%">
+NTSC TV.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pal.rc
+</em></td><td width="90%">
+PAL TV.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+standard.rc
+</em></td><td width="90%">
+Arcade Standard Resolution (15 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+medium.rc
+</em></td><td width="90%">
+Arcade Medium Resolution (25 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+extended.rc
+</em></td><td width="90%">
+Arcade Extended Resolution (16.5 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pcvga.rc
+</em></td><td width="90%">
+VGA PC Monitor.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pcsvga60.rc
+</em></td><td width="90%">
+SVGA PC Multisync Monitor.
+</td></tr>
+</table>
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/s XxYxBITS
+</strong></td></tr><tr><td>
+Set an arbitrary video mode using the first modeline
+with the correct size found in the config file.
+You can specify only resolutions already supported by
+Windows. You cannot create new resolutions.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/a
+</strong></td></tr><tr><td>
+Adjust the current video mode using the first modeline
+with the correct size found in the config file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/o
+</strong></td></tr><tr><td>
+Set the original Windows mode. Use this option if
+the screen become unreadable.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/d
+</strong></td></tr><tr><td>
+Disable the hardware video signal.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/e
+</strong></td></tr><tr><td>
+Enable the hardware video signal.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/c CONFIG
+</strong></td></tr><tr><td>
+Use an arbitrary configuration file instead of the
+standard `videow.rc' file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/p
+</strong></td></tr><tr><td>
+Print some info of the video board.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/n SIZE
+</strong></td></tr><tr><td>
+Set the length of the scanline in bytes. The program
+automatically select the smallest scanline size.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/m
+</strong></td></tr><tr><td>
+Enable the use of the hardware mouse pointer.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Cards
+</h2>
+The program supports all the `svgawin' drivers listed in the
+`cardwin.txt' file.
+<p>
+You can force the use of a specific driver using the `device_video'
+option in the configuration file.
+<p>
+The available drivers are :
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/auto
+</em></td><td width="90%">
+Auto detection.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/nv3
+</em></td><td width="90%">
+nVidia Riva/GeForce.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/trident
+</em></td><td width="90%">
+Trident.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/rendition
+</em></td><td width="90%">
+Rendition.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/g400
+</em></td><td width="90%">
+Matrox Mystique/G100/G200/G400/G450.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/pm2
+</em></td><td width="90%">
+Permedia 2.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/savage
+</em></td><td width="90%">
+S3 Savage.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/millenium
+</em></td><td width="90%">
+Matrox Millennium/Millenium II.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/r128
+</em></td><td width="90%">
+ATI Rage 128/Radeon.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/banshee
+</em></td><td width="90%">
+3dfx Voodoo Banshee/3/4/5.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/sis
+</em></td><td width="90%">
+SIS.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/i740
+</em></td><td width="90%">
+Intel i740.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/laguna
+</em></td><td width="90%">
+Cirrus Logic Laguna 5462/5464/5465.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/rage
+</em></td><td width="90%">
+ATI Rage.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/mx
+</em></td><td width="90%">
+MX.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/et6000
+</em></td><td width="90%">
+ET6000.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/s3
+</em></td><td width="90%">
+S3.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/ark
+</em></td><td width="90%">
+ARK.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/apm
+</em></td><td width="90%">
+APM.
+</td></tr>
+</table>
+<h2><a name="5">5</a> 
+Limitations
+</h2>
+<ul>
+<li>
+The program can only set the resolutions originally supported
+by Windows. It cannot create new resolutions.
+</li>
+<li>
+If the video board or the video driver doesn't support interlaced
+modes, these modes are simulated skipping every odd row.
+It doesn't look very good.
+</li>
+<li>
+The program doesn't stay resident, any successive mode change will
+reset the original video mode.
+</li>
+</ul>
+<h2><a name="6">6</a> 
+Troubleshooting
+</h2>
+<ul>
+<li>
+If the mouse pointer disappears try to reenable it with the /m option.
+</li>
+</ul>
+<ul>
+<li>
+If the screen image is stable but garbled it's probably because
+the Windows video driver uses a not standard scanline size.
+Try to guess it with the /n option. You should start
+with the resolution width multiplied by the bytes per pixel.
+Then, increase this value until the screen become readable.
+Generally the correct value is multiplier of 2^n where n
+may vary from 1 to 8.
+</li>
+</ul>
+<ul>
+<li>
+Try decreasing the video hardware acceleration.
+</li>
+</ul>
+<h2><a name="7">7</a> 
+Tests
+</h2>
+Windows 2000 with a GeForce 2 board
+<br>
+<h2><a name="8">8</a> 
+Examples
+</h2>
+Set a 640x480 mode with 16 bits per pixel:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+videow /s 640x480x16
+</pre>
+</td></tr></table>
+<p>
+Adjust the current mode:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+videow /a
+</pre>
+</td></tr></table>
+<h2><a name="9">9</a> 
+Bugs
+</h2>
+The configuration file is checked only for the
+`device_video_modeline' and `device_video' options.
+All the other options are ignored.
+<h2><a name="10">10</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003 Andrea Mazzoleni.
+</body>
+</html>

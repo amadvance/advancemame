@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>AdvanceCAB Hardware Port Input/Output For DOS</title>
+</head>
+<body>
+<center><h2>AdvanceCAB Hardware Port Input/Output For DOS</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+portio lpt?
+portio ADDRESS_HEX
+portio lpt? VALUE_HEX
+portio ADDRESS_HEX VALUE_HEX
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `portio' utility can be used to drive the parallel port
+or any other hardware device which use the PC ports.
+<p>
+If a lpt ports (lpt1,lpt2,lpt3) or an hexadecimal address is
+specified the port is read and the read value is printed on
+the screen.
+<p>
+If also a value is specified the port is written with the
+specified value.
+<p>
+All the address and all the values are in the hexadecimal
+format.
+<p>
+The address of the lpt ports are detected using the BIOS
+informations at the memory address 408h.
+<h2><a name="3">3</a> 
+Examples
+</h2>
+Set all the parallel port data bits:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+portio lpt1 ff
+</pre>
+</td></tr></table>
+<p>
+Clear all the parallel port data bits:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+portio lpt1 0
+</pre>
+</td></tr></table>
+<p>
+Set all bit on the port 80h
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+portio 80 ff
+</pre>
+</td></tr></table>
+<p>
+Set all the parallel port data bits in the config.sys:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+device=c:\mame\portio.exe lpt1 ff
+</pre>
+</td></tr></table>
+<h2><a name="4">4</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003 Andrea Mazzoleni.
+</body>
+</html>

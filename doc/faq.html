@@ -1,0 +1,793 @@
+<html>
+<head>
+<title>AdvanceMAME FAQ</title>
+</head>
+<body>
+<center><h2>AdvanceMAME FAQ</h2></center>
+<p>
+This is a collection of Frequently Asked Questions.
+<p>The sections of this document are:<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr><td width="5%"></td><td colspan=3>
+<a href="#1">1 AdvanceMAME FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.1">1.1 Is the Linux version of AdvanceMAME able to program my video board ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.2">1.2 Is the DOS version of AdvanceMAME able to program my video board ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.3">1.3 Is the Windows version of AdvanceMAME able to program my video board ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#1.4">1.4 How to automatically record video and audio clips ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#2">2 AdvanceMENU FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#2.1">2.1 Can I use AdvanceMENU to list my MP3 and MNG collection ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#3">3 DOS FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.1">3.1 How can I solve the compiler error "Argument list too long (E2BIG)" and "Error -1" ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.2">3.2 What's the best configuration in PURE DOS ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.3">3.3 Why can I use only 32M of RAM ? I have more RAM.</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.4">3.4 Why can I use only 64M of RAM ? I have more RAM.</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.5">3.5 Which is the minimum memory requirement ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.6">3.6 Which is the maximum memory required ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#3.7">3.7 How can I use two mouse ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#4">4 Linux FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.1">4.1 How can I load the svgalib_helper.o kernel module automatically ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.2">4.2 On scrolling games I see a missing frame every 5/10 seconds, also with vsync enabled. How can I fix it ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.3">4.3 Using the last svgalib and enabling vsync I report random freeze of the system.</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.4">4.4 How can I enable the XFree86 DGA extension ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.5">4.5 Can I run AdvanceMENU directly from /etc/inittab ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.6">4.6 Can I run the Advance programs in a readonly filesystem ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#5">5 Windows FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.1">5.1 The SVGAWIN driver doesn't seem to work with my video board. How can I solve this ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.2">5.2 How disable the Windows hotkeys ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#6">6 Video FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.1">6.1 How can I enable the TV-OUT signal (S-VIDEO) of the video board ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.2">6.2 Which is the "tearing" effect ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.3">6.3 How can I remove the tearing effect ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.4">6.4 How can I reduce the tearing effect ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.5">6.5 Does the "double/tripler buffer" help to reduce the tearing effect ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.6">6.6 Can I get a good animation with a video mode with arbitrary frequency ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.7">6.7 Why the smaller video modes like 256x224 are not working ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#7">7 License FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.1">7.1 Is MAME Open Source ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.2">7.2 Is MAME Free Software ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.3">7.3 Is AdvanceMAME Open Source and Free Software ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.4">7.4 Which is the license of the AdvanceMAME source ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.5">7.5 Why the AdvanceMAME license is called GPL if it's different than the GPL ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.6">7.6 Does the MAME license allow linking the MAME source with a GPL source ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.7">7.7 Does the GPL license allow to link a GPL source with a MAME source ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.8">7.8 Does the GPL license + exception allow linking a GPL + exception source with a MAME source ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.9">7.9 The license exception say "MAME library". Is MAME a library or a program ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.10">7.10 The GPL FAQ say: "Combining two modules means connecting them together so that they form a single larger program. If either part is covered by the GPL, the whole combination must also be released under the GPL--if you can't, or won't, do that, you may not combine them.". Is it true ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.11">7.11 Which is the license of the AdvanceMAME binary ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.12">7.12 Can I sell the AdvanceMAME binary ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.13">7.13 Why SourceForge accepted the AdvanceMAME project and not the xmame project ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.14">7.14 Who is the copyright holder of AdvanceMAME ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#8">8 GPL FAQ</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#8.1">8.1 I am writing free software that uses non-free libraries. What legal issues come up if I use the GPL?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#8.2">8.2 Is the developer of a GPL-covered program bound by the GPL? Could the developer's actions ever be a violation of the GPL?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#8.3">8.3 I want to distribute binaries, but distributing complete source is inconvenient. Is it ok if I give users the diffs from the "standard" version along with the binaries?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#9">9 Copyright</a><br>
+</td></tr>
+</table>
+<h2><a name="1">1</a> 
+AdvanceMAME FAQ
+</h2>
+<h3><a name="1.1">1.1</a> 
+Is the Linux version of AdvanceMAME able to program my video board ?
+</h3>
+Yes. It uses both the SVGALIB library and FrameBuffer kernel service
+to directly program the video board.
+<h3><a name="1.2">1.2</a> 
+Is the DOS version of AdvanceMAME able to program my video board ?
+</h3>
+Yes. It uses a modified version of the Linux SVGALIB library that
+allows the direct programming the video board.
+<h3><a name="1.3">1.3</a> 
+Is the Windows version of AdvanceMAME able to program my video board ?
+</h3>
+Yes in Windows NT/2000/XP. It uses a modified version of the
+Linux SVGALIB library, called SVGAWIN, that allows the direct
+programming of the video board. In Windows 98/Me you can use
+the DOS version to directly program your video board.
+<h3><a name="1.4">1.4</a> 
+How to automatically record video and audio clips ?
+</h3>
+Add this script in your advmame.rc. For any game started a 15 seconds
+clip is recorded.
+<p>
+<pre>
+script_emulation delay(5000); \
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(ui_snapshot, 50); \
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(ui_record_start, 50); \
+&nbsp;&nbsp;&nbsp;&nbsp;delay(15100); \
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(ui_record_stop, 50); \
+&nbsp;&nbsp;&nbsp;&nbsp;delay(100); \
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(ui_cancel, 50);
+</pre>
+<h2><a name="2">2</a> 
+AdvanceMENU FAQ
+</h2>
+<h3><a name="2.1">2.1</a> 
+Can I use AdvanceMENU to list my MP3 and MNG collection ?
+</h3>
+Yes. You can create a fake emulator to play all your music
+and video clips. Add the following options in your
+advmenu.rc :
+<p>
+<pre>
+emulator "mng" generic ""
+emulator_altss "mng" "C:\CLIP"
+emulator_roms "mng" "C:\CLIP"
+emulator_roms_filter "mng" "*.mng"
+</pre>
+<p>
+<pre>
+emulator "mp3" generic ""
+emulator_altss "mp3" "C:\MP3;C:\MUSIC"
+emulator_roms "mp3" "C:\MP3;C:\MUSIC"
+emulator_roms_filter "mp3" "*.mp3"
+</pre>
+<h2><a name="3">3</a> 
+DOS FAQ
+</h2>
+<h3><a name="3.1">3.1</a> 
+How can I solve the compiler error "Argument list too long (E2BIG)"
+and "Error -1" ?
+</h3>
+If compiling you get the "Argument list too long" error,
+or "Error -1" you need to use the DJGPP stubedit utility
+to increase bufsize value for some DJGPP tools, with the
+following commands:
+<p>
+<pre>
+stubedit c:\djgpp\bin\gcc.exe bufsize=32k
+stubedit c:\djgpp\bin\ld.exe bufsize=32k
+stubedit c:\djgpp\bin\make.exe bufsize=32k
+stubedit c:\djgpp\lib\gcc-lib\djgpp\3.23\collect2.exe bufsize=32k
+</pre>
+<p>
+You may need to use different paths to the files,
+especially for collect2.exe.
+<h3><a name="3.2">3.2</a> 
+What's the best configuration in PURE DOS ?
+</h3>
+My favorite choice is to use HIMEM, EMM386 and a little
+cache with SMARTDRV.
+<p>
+In CONFIG.SYS:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+dos=high
+device=C:\DOS\W98\HIMEM.SYS
+device=C:\DOS\EMM386.EXE NOEMS NOVCPI
+</pre>
+</td></tr></table>
+<p>
+In AUTOEXEC.BAT:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+smartdrv 1024
+</pre>
+</td></tr></table>
+<p>
+If you have a lot of RAM you can use a bigger disk cache like :
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+smartdrv 8192
+</pre>
+</td></tr></table>
+<h3><a name="3.3">3.3</a> 
+Why can I use only 32M of RAM ? I have more RAM.
+</h3>
+Start the EMM386.EXE device in your CONFIG.SYS with the
+"NOEMS NOVCPI" arguments.
+<h3><a name="3.4">3.4</a> 
+Why can I use only 64M of RAM ? I have more RAM.
+</h3>
+Don't use the DOS 6.22 version of the HIMEM.SYS device. Use a
+newer version, the Windows 98 version works good. You don't
+need to upgrade your DOS, simply copy the newer HIMEM.SYS
+from a Windows 98 installation.
+<h3><a name="3.5">3.5</a> 
+Which is the minimum memory requirement ?
+</h3>
+With 64 MB of memory you are able to play all the games.
+At least in PURE DOS with CWSDPMI 5 and with 512 MB of virtual
+memory.
+<h3><a name="3.6">3.6</a> 
+Which is the maximum memory required ?
+</h3>
+With 128 MB you should be able to play all the games without
+any big speed loss. For the bigger games you may need 512
+MB of virtual memory.
+<h3><a name="3.7">3.7</a> 
+How can I use two mouse ?
+</h3>
+To use the second mouse support you need the mouse driver
+in the contrib/optimous directory. It's also present
+a short text instruction file.
+<h2><a name="4">4</a> 
+Linux FAQ
+</h2>
+<h3><a name="4.1">4.1</a> 
+How can I load the svgalib_helper.o kernel module automatically ?
+</h3>
+Insert this line :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+alias char-major-209 svgalib_helper
+</pre>
+</td></tr></table>
+<p>
+in your /etc/modules.conf file and run only one time :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+depmod -a
+</pre>
+</td></tr></table>
+<p>
+After that the module is loaded automatically every time is
+needed.
+<h3><a name="4.2">4.2</a> 
+On scrolling games I see a missing frame every 5/10 seconds, also
+with vsync enabled. How can I fix it ?
+</h3>
+If you are using a gameport joystick try disabling the joystick support
+with the `device_joystick none' option.
+<p>
+Or upgrade at the svgalib 1.9.16 library which supports
+for some boards the vsync IRQ.
+<h3><a name="4.3">4.3</a> 
+Using the last svgalib and enabling vsync I report random freeze
+of the system.
+</h3>
+Try using the svgalib patch in the contrib/svgalib directory or
+downgrade at the version 1.9.15 or 1.9.14.
+<h3><a name="4.4">4.4</a> 
+How can I enable the XFree86 DGA extension ?
+</h3>
+Ensure that in your XF86Config file the line :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+Option    "omit xfree86-dga"
+</pre>
+</td></tr></table>
+<p>
+is not present or commented. To test it you can use
+the `dga' utility. Run :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+man dga
+</pre>
+</td></tr></table>
+<h3><a name="4.5">4.5</a> 
+Can I run AdvanceMENU directly from /etc/inittab ?
+</h3>
+The SVGALIB library needs a controlling tty and programs using it
+cannot be run directly from init. You can anyway start them in
+a shell, like :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+::respawn:-/bin/sh -c advmenu
+</pre>
+</td></tr></table>
+<p>
+or write a simple program wrapper which sets a tty and
+execs the program you want, like :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+i=open("/dev/tty1", O_RDWR);
+ioctl(i, TIOCSCTTY, 1);
+exec(...)
+</pre>
+</td></tr></table>
+<h3><a name="4.6">4.6</a> 
+Can I run the Advance programs in a readonly filesystem ?
+</h3>
+Yes. All the writable files are put in the $HOME/.advance
+directory. If they are readonly, they are not updated.
+<h2><a name="5">5</a> 
+Windows FAQ
+</h2>
+<h3><a name="5.1">5.1</a> 
+The SVGAWIN driver doesn't seem to work with my video board. How can I
+solve this ?
+</h3>
+The SVGAWIN driver is experimental. At present it's only tested
+on Windows 2000 with a GeForce 2 board. It may not work will all
+the other boards.
+<p>
+The svgawin drivers are inherently unsafe because they should coexist
+with the normal Windows drivers.
+<p>
+The most common problem is that the Windows driver sets the video
+card in a state that the SVGAWIN driver cannot understand or
+restore.
+<p>
+The only possible solution is to try to reduce the video hardware
+acceleration at the minimum in
+DisplayProperties/Settings/Advanced/Troubleshooting.
+<p>
+If you want a stable solution you must use the Linux or DOS
+version of AdvanceMAME and AdvanceMENU.
+<p>
+Alternatively you can try to use two different video boards, one for
+Windows and the other for the game display. Check the
+`device_svgawin_skipboard' option to control which video board to use.
+<h3><a name="5.2">5.2</a> 
+How disable the Windows hotkeys ?
+</h3>
+Check the Microsoft online documents "Disabling the Windows Key
+on Microsoft Natural Keyboard" at <a href="http://support.microsoft.com/?kbid=181348">http://support.microsoft.com/?kbid=181348</a>.
+<h2><a name="6">6</a> 
+Video FAQ
+</h2>
+<h3><a name="6.1">6.1</a> 
+How can I enable the TV-OUT signal (S-VIDEO) of the video board ?
+</h3>
+You cannot. If the TV-OUT signal is not enabled automatically
+by your video board you cannot enable it manually.
+<p>
+If you have a TV with SCART input (all european TVs) you can buy
+or build a VGA to SCART cable.
+<h3><a name="6.2">6.2</a> 
+Which is the "tearing" effect ?
+</h3>
+The tearing effect is a defects of the animation caused by a wrong
+synchronization with the game refresh rate and the video mode refresh
+rate. It generally appears as a horizontal image split line, on the
+top of this line you see the previous game frame, on the bottom of this
+line you see the next game frame.
+<p>
+If the game and the video refresh rate are only a little different
+the tearing split line is slowly moving up or down. If the refreshes are
+very different the split line is moving randomly.
+<p>
+The tearing effect is mostly noticeable in games with a continuously
+scrolling background.
+<h3><a name="6.3">6.3</a> 
+How can I remove the tearing effect ?
+</h3>
+The only way to remove the tearing effect is to enable the
+`display_vsync' option. To correctly work this option need a video
+mode with a refresh rate which is a multiplier of the original game
+refresh rate. For example for a 50 Hz game you can use video modes
+of 50, 100, 150 Hz.
+<h3><a name="6.4">6.4</a> 
+How can I reduce the tearing effect ?
+</h3>
+If for some reason you cannot use the `display_vsync' option the
+only way to reduce the tearing effect is to choose a video mode
+refresh rate which ensure to have a randomly and fast moving tearing
+split line.
+<p>
+Generally they are high refresh rates, prime with the original game
+frequency.
+<h3><a name="6.5">6.5</a> 
+Does the "double/tripler buffer" help to reduce the tearing effect ?
+</h3>
+No. A generic asynchronous buffer doesn't remove or reduce the
+tearing effect. A synchronous buffer instead it's exactly like
+the vsync. AdvanceMAME supports only the asynchronous buffers.
+<h3><a name="6.6">6.6</a> 
+Can I get a good animation with a video mode with arbitrary frequency ?
+</h3>
+There is no way to get a perfect animation without using
+a video mode with the same game refresh rate. You will get the
+tearing effect or a not smooth animation from some frames skipped
+or displayed too long.
+<p>
+For example, suppose to use a 70 Hz video mode with a 60 Hz game.
+You can display every frame for 1/60 of second and get the tearing
+effect. Alternatively you can display every frame for 1/70 of second,
+but after 7 frame you need to display a frame for 2/70 of second to
+synchronize with the original game speed.
+<p>
+The only exception is for frequencies which are multiplier of
+the original game refresh rate.
+<h3><a name="6.7">6.7</a> 
+Why the smaller video modes like 256x224 are not working ?
+</h3>
+Probably your video board isn't able to generate very low
+pixelclocks. You can try to increase the minimum value of the
+`device_video_pclock' option. The video mode generation will
+automatically generate video modes with double or triple
+horizontal resolutions to force the use of a pixelclock in
+the specified range.
+<h2><a name="7">7</a> 
+License FAQ
+</h2>
+<h3><a name="7.1">7.1</a> 
+Is MAME Open Source ?
+</h3>
+No. The MAME License is not an Open Source License as defined
+at <a href="http://www.opensource.org/">http://www.opensource.org/</a>.
+<h3><a name="7.2">7.2</a> 
+Is MAME Free Software ?
+</h3>
+No. The MAME License is not a Free Software License as defined
+at <a href="http://www.gnu.org/">http://www.gnu.org/</a>.
+<h3><a name="7.3">7.3</a> 
+Is AdvanceMAME Open Source and Free Software ?
+</h3>
+Yes. AdvanceMAME is released with the GPL License which is
+an Open Source and a Free Software License.
+<h3><a name="7.4">7.4</a> 
+Which is the license of the AdvanceMAME source ?
+</h3>
+The AdvanceMAME project is released under the GPL license.
+<p>
+In addition you have some extra rights granted by a special
+license exception which allow you to link the AdvanceMAME GPL
+source with the not GPL MAME source.
+<p>
+The exception give also to you the rights to eliminate it
+if you don't like it or if you want to include the
+AdvanceMAME source in another GPL program. So, AdvanceMAME
+is 100% GPL.
+<p>
+You can more easily think at it as a sort of double license.
+A GPL or a GPL + exception. You have all the rights of the
+GPL, and, if you want, some others.
+<p>
+The only limitation is for AdvanceMAME. AdvanceMAME cannot
+include external GPL source without the explicit permission
+of the source copyright holder.
+<h3><a name="7.5">7.5</a> 
+Why the AdvanceMAME license is called GPL if it's different
+than the GPL ?
+</h3>
+The GPL license used by AdvanceMAME isn't modified in any
+way.
+<p>
+The license exception is added outside the GPL license text.
+It's added at the top of every source files for which the
+exception has the validity.
+<p>
+How to add this sort of exceptions is specifically covered on
+the Official GPL FAQ written by the same people which have
+written the GPL license and which are the copyright holders
+of the GPL license.
+<p>
+Specifically, in the Official GPL FAQ you can see that in
+every source files with the license exception you must add
+the following text :
+<p>
+"This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version."
+<p>
+Which explicitly claims that the program with the license
+exception is still GPL.
+<h3><a name="7.6">7.6</a> 
+Does the MAME license allow linking the MAME source with
+a GPL source ?
+</h3>
+Yes. The only requirement of the MAME License for the
+derivative works is the whole source availability.
+With the GPL you have it.
+Obviously this assuming that the MAME License isn't changed
+and it maintains complete validity.
+<h3><a name="7.7">7.7</a> 
+Does the GPL license allow to link a GPL source with a
+MAME source ?
+</h3>
+No. The GPL license requires that the whole program be
+released with the GPL license or with a GPL compatible
+license. The MAME License isn't a GPL compatible license.
+<h3><a name="7.8">7.8</a> 
+Does the GPL license + exception allow linking a
+GPL + exception source with a MAME source ?
+</h3>
+Yes. The license exception specifically allows it.
+<h3><a name="7.9">7.9</a> 
+The license exception say "MAME library". Is MAME a library or
+a program ?
+</h3>
+AdvanceMAME uses only the internal MAME core, which is
+effectively a library.  For example MESS is distributed with
+the MAME core as a DLL (Dynamic Linked Library) and two
+different frontends as .EXE files.
+<p>
+Anyway, calling a software program or library doesn't change
+his license.
+<h3><a name="7.10">7.10</a> 
+The GPL FAQ say: "Combining two modules means connecting
+them together so that they form a single larger program. If
+either part is covered by the GPL, the whole combination must
+also be released under the GPL--if you can't, or won't, do
+that, you may not combine them.". Is it true ?
+</h3>
+Yes. But the GPL FAQ speak of a generic GPL program without
+any exception.
+<p>
+The license exception explicitly allows you to combine the
+GPL program with MAME. These exceptions exist specifically
+to solve this problem. Essentially, if your GPL program need
+to use another not GPL module, you (as copyright holder) can
+grant at the user the rights to link it with the not GPL
+module.
+<p>
+The GPL was made to protect the interests of the copyright
+holder. But if the copyright holder wants, he can relax the
+license adding specific exceptions that extend the rights of
+the users. So, the users can do things not generally
+permitted by the simple GPL license.
+<h3><a name="7.11">7.11</a> 
+Which is the license of the AdvanceMAME binary ?
+</h3>
+The AdvanceMAME binary contains source from AdvanceMAME,
+MAME, Allegro, SEAL, svgalib, zlib and FreeType2. You must
+follow ALL these licenses when you use the binary.
+So, you can do with it only things allowed by ALL these licenses.
+<h3><a name="7.12">7.12</a> 
+Can I sell the AdvanceMAME binary ?
+</h3>
+No. The AdvanceMAME binary contains compiled MAME source and
+the "MAME License" prohibits selling.
+<h3><a name="7.13">7.13</a> 
+Why SourceForge accepted the AdvanceMAME project and not the
+xmame project ?
+</h3>
+SourceForge accepts only Open Source licenses.
+<p>
+The source distribution of AdvanceMAME is released with
+an Open Source license. So, it was accepted.
+<p>
+The xmame is released with the "MAME License". The MAME
+License isn't an Open Source license as defined on
+<a href="http://www.opensource.org/">http://www.opensource.org/</a>. So, it was rejected.
+<h3><a name="7.14">7.14</a> 
+Who is the copyright holder of AdvanceMAME ?
+</h3>
+Andrea Mazzoleni is the copyright holder of AdvanceMAME.
+<p>
+Some source and documentation files are also under the
+copyright of Filipe Estima, Ian Patterson, Randy Schnedler,
+S. Sakamaki.
+<h2><a name="8">8</a> 
+GPL FAQ
+</h2>
+This is an extract of the Official GPL FAQ present at :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<a href="http://www.gnu.org/licenses/gpl-faq.html">http://www.gnu.org/licenses/gpl-faq.html</a>
+<br>
+</td></tr></table>
+<h3><a name="8.1">8.1</a> 
+I am writing free software that uses non-free libraries.
+What legal issues come up if I use the GPL?
+</h3>
+<p>
+If the libraries that you link with falls within the
+following exception in the GPL:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+However, as a special exception, the source code distributed need not
+include anything that is normally distributed (in either source or
+binary form) with the major components (compiler, kernel, and so on) of
+the operating system on which the executable runs, unless that
+component itself accompanies the executable.
+</pre>
+</td></tr></table>
+<p>
+then you don't have to do anything special to use them. In
+other words, if the libraries you need come with major parts
+of a proprietary operating system, the GPL says people can
+link your program with them.
+<p>
+If you want your program to link against a library not
+covered by that exception, you need to add your own
+exception, wholly outside of the GPL. This copyright notice
+and license notice give permission to link with the program
+FOO:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+Copyright (C) yyyy
+</pre>
+</td></tr></table>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+</pre>
+</td></tr></table>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+</pre>
+</td></tr></table>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+</pre>
+</td></tr></table>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+In addition, as a special exception, &lt;name of copyright
+holder&gt; gives permission to link the code of this program with
+the FOO library (or with modified versions of FOO that use the
+same license as FOO), and distribute linked combinations including
+the two.  You must obey the GNU General Public License in all
+respects for all of the code used other than FOO.  If you modify
+this file, you may extend this exception to your version of the
+file, but you are not obligated to do so.  If you do not wish to
+do so, delete this exception statement from your version.
+</pre>
+</td></tr></table>
+<p>
+Only the copyright holders for the program can legally
+authorize this exception. If you wrote the whole program
+yourself, then assuming your employer or school does not
+claim the copyright, you are the copyright holder--so
+you can authorize the exception. But if you want to use
+parts of other GPL-covered programs by other authors in your
+code, you cannot authorize the exception for them. You have
+to get the approval of the copyright holders of those programs.
+<p>
+When other people modify the program, they do not have to
+make the same exception for their code--it is their choice
+whether to do so.
+<p>
+Adding this exception eliminates the legal issue, ...
+<p>
+<a href="http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs">http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs</a>
+<br>
+<h3><a name="8.2">8.2</a> 
+Is the developer of a GPL-covered program bound by the GPL? Could the
+developer's actions ever be a violation of the GPL?
+</h3>
+<p>
+Strictly speaking, the GPL is a license from the developer for others
+to use, distribute and change the program. The developer itself is
+not bound by it, so no matter what the developer does, this is not a
+"violation" of the GPL.
+<p>
+However, if the developer does something that would violate the GPL
+if done by someone else, the developer will surely lose moral
+standing in the community.
+<p>
+<a href="http://www.gnu.org/licenses/gpl-faq.html#TOCDeveloperViolate">http://www.gnu.org/licenses/gpl-faq.html#TOCDeveloperViolate</a>
+<br>
+<h3><a name="8.3">8.3</a> 
+I want to distribute binaries, but distributing complete source is inconvenient.
+Is it ok if I give users the diffs from the "standard" version along with the
+binaries?
+</h3>
+<p>
+This is a well-meaning request, but this method of providing the source
+doesn't really do the job.
+<p>
+A user that wants the source a year from now may be unable to get the proper
+version from another site at that time. The standard distribution site may have
+a newer version, but the same diffs probably won't work with that version.
+<p>
+So you need to provide complete sources, not just diffs, with the binaries.
+<p>
+<a href="http://www.gnu.org/licenses/gpl-faq.html#TOCDistributingSourceIsInconvenient">http://www.gnu.org/licenses/gpl-faq.html#TOCDistributingSourceIsInconvenient</a>
+<br>
+<h2><a name="9">9</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+</body>
+</html>

@@ -4,6 +4,15 @@ Name
 AdvanceMAME Version 0.90.1 2005/01
 	) Added a new `system()' script function to execute
 		a shell script.
+	) Improved the behaviour of the analog input. You can now
+		use both the keyboard and the joystick at the
+		same time.
+	) Enabled as default the use of the joystick and mouse.
+		The `device_joystick' and `device_mouse' options
+		have now the `auto' value as default.
+
+AdvanceMESS Version 0.90.0.0 2005/01
+	) All from AdvanceMAME 0.90.0.
 
 AdvanceMAME Version 0.90.0 2005/01
 	) Fixed the recognition of some USB mouses and keyboards

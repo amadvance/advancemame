@@ -1,0 +1,368 @@
+<html>
+<head>
+<title>AdvanceMAME Modeline Generator</title>
+</head>
+<body>
+<center><h2>AdvanceMAME Modeline Generator</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advline [/fh A,F,S,B] [/fv A,F,S,B]
+&nbsp;&nbsp;&nbsp;&nbsp;[/p CLOCK] [/h CLOCK] [/v CLOCK] [WIDTHxHEIGHT]
+</pre>
+<p>
+<pre>
+advline [/atari_standard] [/atari_extended] [/atari_medium]
+&nbsp;&nbsp;&nbsp;&nbsp;[/atari_vga] [/pal] [/ntsc] [/hp_vga] [/vga] [/svga60]
+&nbsp;&nbsp;&nbsp;&nbsp;[/svga57]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+This utility is a video modeline generator.
+The output of the execution is a valid list of video modes that
+you can use in your `cfg' files.
+The `.cfg' examples are generated with the predefinite options of
+this program.
+<p>
+The modelines are generated using an user specified reference
+length of the Active Display, Front Porch, Sync Pulse and Back
+Porch.
+<p>
+You can also set any type of clock constrains like Horizontal Clock,
+Vertical Clock and Pixel Clock.
+If you select more than one exact clock the resulting video modes
+will have something fixed.
+For example the PAL modes have a fixed Vertical and Horizontal
+clocks. This result in a fixed number of rows.
+<p>
+The minimum and maximum clock limitations are considered as
+suggestions. The video modes are adjusted trying to match these
+limits. The available changes are enabling the doublescan, enabling
+the interlace and doubling the horizontal size.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/fh A,F,S,B
+</strong></td></tr><tr><td>
+Select the horizontal format. You need specify the length
+of the Active Display, Front Porch, Sync Pulse and
+Back Porch.
+You can use any measure unit because these values are
+normalized.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/fv A,F,S,B
+</strong></td></tr><tr><td>
+Select the vertical format.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/sync_vga
+</strong></td></tr><tr><td>
+Generate the sync polarization for old VGA monitors.
+Otherwise the sync polarization is always negative.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/p CLOCK
+</strong></td></tr><tr><td>
+Select the pixel clock in MHz.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/h CLOCK
+</strong></td></tr><tr><td>
+Select the horizontal clock in kHz.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/v CLOCK
+</strong></td></tr><tr><td>
+Select the vertical clock in Hz.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/pmin CLOCK
+</strong></td></tr><tr><td>
+Suggest the minimum pixel clock in MHz.
+You can use this option if your video board has problems
+generating too low pixel clock.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/hmin CLOCK
+</strong></td></tr><tr><td>
+Suggest the minimum horizontal clock in kHz.
+You can use this option to match the capabilities
+of your monitor.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/vmin CLOCK
+</strong></td></tr><tr><td>
+Suggest the minimum vertical clock in Hz.
+You can use this option to match the capabilities
+of your monitor.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/vmax CLOCK
+</strong></td></tr><tr><td>
+Suggests the maximum vertical clock in Hz.
+You can use this option to match the capabilities
+of your monitor.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+WIDTHxHEIGHT
+</strong></td></tr><tr><td>
+Set the favorite video mode. If none is specified a
+default set is generated.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Predefinite Options
+</h2>
+These options are a predefinite set of configurations:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/atari_standard
+</strong></td></tr><tr><td>
+Atari standard resolution monitor
+HClock 15.7 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/atari_extended
+</strong></td></tr><tr><td>
+Atari extended resolution monitor
+HClock 16.5 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/atari_medium
+</strong></td></tr><tr><td>
+Atari medium resolution monitor
+HClock 25 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/atari_vga
+</strong></td></tr><tr><td>
+Atari VGA monitor
+HClock 31.5 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/pal
+</strong></td></tr><tr><td>
+PAL TV
+HClock 15.63 kHz, VClock 50 Hz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/ntsc
+</strong></td></tr><tr><td>
+NTSC TV
+HClock 15.75 kHz, VClock 60 Hz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/hp_vga
+</strong></td></tr><tr><td>
+HP VGA monitor
+HClock 31.5 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/vga
+</strong></td></tr><tr><td>
+Generic VGA monitor
+HClock 31.5 kHz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/svga60
+</strong></td></tr><tr><td>
+Generic SVGA multisync 60 Hz monitor
+VClock 60 Hz
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/svga57
+</strong></td></tr><tr><td>
+Generic SVGA multisync 57 Hz monitor
+VClock 57 Hz
+</td></tr>
+</table>
+<p>
+You can overrides some parameters using the normal options.
+<p>
+Examples for SVGA default modes at 75 Hz:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+modeline /svga60 /v 75
+</pre>
+</td></tr></table>
+<p>
+Examples for SVGA mode 384x224 at 72 Hz:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+modeline /svga60 /v 72 384x224
+</pre>
+</td></tr></table>
+<h2><a name="5">5</a> 
+Timings
+</h2>
+This is the collections of video timings used by the
+predefinite options.
+<p>
+The nomenclature used is :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+A = Active Display
+F = Front Porch
+S = Sync Pulse
+B = Back Porch
+S+B = Video Delay
+F+S+B = Blank
+A+F+S+B = Scan Period
+</td></tr></table>
+<p>
+|                       A              F   S   B
+|----|  |----XXXXXXXXXXXXXXXXXXXXXXXXX----|  |----XXXXXXXX...
+|    |--|                                 |--|
+<h4>
+PAL TVs
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              52.00 us                18.468 ms
+F              1.65 us +- 0.1          0.192 ms (? to check)
+S              4.70 us +- 0.1          0.192 ms (? to check)
+B              5.65 us                 1.152 ms (? to check)
+F+S+B          12.00 us +- 0.25
+A+F+S+B        64.00 us                20.000 ms
+Clock          15.625 kHz              50.00 Hz
+Visible Pixel                          288.5
+Total Pixel                            312.5
+</pre>
+<h4>
+NTSC TVs
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              52.60 us                15.39875 ms
+F              1.50 us                 0.190.50 ms
+S              4.70 us                 0.190.50 ms
+B              4.70 us                 0.889.00 ms
+F+S+B          10.90 us
+A+F+S+B        63.50 us                16.66875 ms
+Clock          15.72 kHz               59.94 Hz
+Visible Pixel                          242.5
+Total Pixel                            262.5
+</pre>
+<h4>
+Atari Standard Resolution Monitors
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              46.90 us                15.30 ms
+S              4.70 us                 0.20 ms
+S+B            11.90 us                1.20 ms
+A+F+S+B        63.60 us                16.70 ms
+Clock          15.72 kHz               60.00 Hz
+Visible Pixel  336                     240
+Total Pixel    456                     262
+</pre>
+<p>
+<pre>
+Pixel Clock 7.16 MHz
+</pre>
+<h4>
+Atari Extended Resolution Monitors
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              48.00 us                17.40 ms
+S              3.90 us                 0.20 ms
+S+B            11.90 us                1.20 ms
+A+F+S+B        60.60 us                18.90 ms
+Clock          16.50 kHz               53.00 Hz
+Visible Pixel  512                     288
+Total Pixel    646                     312
+</pre>
+<p>
+<pre>
+Pixel Clock 10.67 MHz
+</pre>
+<h4>
+Atari Medium Resolution Monitors
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              32.00 us                15.40 ms
+S              4.00 us                 0.20 ms
+S+B            7.20 us                 1.20 ms
+A+F+S+B        40.00 us                16.70 ms
+Clock          25.00 kHz               60.00 Hz
+Visible Pixel  512                     384
+Total Pixel    640                     416
+</pre>
+<p>
+<pre>
+Pixel Clock 16.00 MHz
+</pre>
+<h4>
+Atari VGA20 Resolution Monitors
+</h4>
+<p>
+<pre>
+               Horizontal              Vertical
+A              25.60 us                12.20 ms
+S              4.00 us                 0.20 ms
+S+B            5.70 us                 1.10 ms
+A+F+S+B        31.70 us                14.30 ms
+Clock          31.55 kHz               70.00 Hz
+Visible Pixel  512                     384
+Total Pixel    634                     450
+</pre>
+<p>
+<pre>
+Pixel Clock 20.00 MHz
+</pre>
+<h2><a name="6">6</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003 Andrea Mazzoleni.
+</body>
+</html>

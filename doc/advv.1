@@ -1,0 +1,138 @@
+.TH "AdvanceMAME Video Manual Configurator" 1
+.SH NAME
+advv \(hy AdvanceMAME Video Manual Configurator
+.SH SYNOPSIS 
+advv [\(hyadvmamev] [\(hyadvmessv] [\(hyadvmenuv]
+.PD 0
+.PP
+.PD
+	[\(hyvbev] [\(hyvgav] [\(hyvideowv] [\(hylog] [\(hylogsync]
+.PD 0
+.PP
+.PD
+	[\(hyrc RCFILE]
+.PD 0
+.PP
+.PD
+.SH DESCRIPTION 
+The \(oqadvv\(cq utility is the main video configuration program
+for the Advance programs. It selects, creates and tweaks
+video modes interactively.
+.PP
+This utility works differently if one of the \(hyadvmamev,
+\(hyadvmessv, \(hyadvmenuv, \(hyvbev, \(hyvgav and \(hyvideowv options
+is specified.
+The main difference is the the name of the configuration
+file used to store the video modes.
+.PP
+Before running this utility you must add in your configuration
+file the option \(oqdevice_video_clock\(cq required to defines
+the limits of your monitor and video board. You can add them
+manually or using the \(oqadvcfg\(cq utility.
+.PP
+Check the \(oqadvdev.txt\(cq file for more details on these options.
+.SH OPTIONS 
+.TP
+.B \(hyrc RCFILE
+Specify an alternate name of the configuration file.
+.TP
+.B \(hylog
+A very detailed log of operations is saved in
+a \(oq.log\(cq file. Very useful for debugging problems.
+.TP
+.B \(hylogsync
+Like the \(oq\(hylog\(cq option but the log file is not
+buffered. This option must be used to get a complete
+log file in presence of a machine crash.
+.TP
+.B \(hyadvmamev, \(hyadvmessv, \(hyadvmenuv, \(hyvbev, \(hyvgav, \(hyvideowv
+Select the mode of operation for the programs \(oqadvmame\(cq,
+\(oqadvmess\(cq, \(oqadvmenu\(cq, \(oqvbe\(cq, \(oqvga\(cq and \(oqvideow\(cq.
+The default is \(oqadvmame\(cq.
+.SH USE 
+When the program starts a list of modelines is printed. You can
+walk on the list with the UP and DOWN arrows of your keyboard.
+You can select the modelines to use in the emulator pressing
+SPACE.
+.PP
+With the LEFT and RIGHT arrows you can select the bit depth of
+the video mode to test.
+.PP
+To test a video mode you can press ENTER and ESC to return
+to the list.
+.PP
+When you have finished the selection press F2 to save the video
+modes in the configuration file. At the next run the emulator
+will use one of the modelines that you have chosen.
+.PP
+If you have problem please read the \(oqTroubleshooting\(cq chapter
+in the \(oqinstall.txt\(cq file.
+.PP
+If you have correctly configured the \(oqdevice_video_p/h/vclock\(cq
+options in your configuration file, the video modes out of
+the frequency range supported by your monitor are displayed
+in red, and you are prevented to use them.
+.SS Creating Video Modes 
+To create a new modeline you should press F5 or F6.
+.PP
+You will be asked for:
+.PD 0
+.IP \(bu
+Vertical clock
+.IP \(bu
+Horizontal resolution
+.IP \(bu
+Vertical resolution
+.PD
+.PP
+If possible, a video mode compatible with your current monitor
+configuration is created. If a such mode doesn\(cqt exist,
+with F5 are favorite video modes with the specified size,
+with F6 are favorite video modes with the specified vertical
+frequency.
+.PP
+If a the \(oqdevice_video_format\(cq option is present in your
+configuration file, the video mode is created with this
+format. Otherwise the generic VGA monitor format is used.
+.PP
+All the video modes created have always negative horizontal
+and vertical sync polarity.
+.SS Adjusting Modelines 
+You can modify the modelines in the test screen pressing ENTER
+or in the list screen directly.
+.PP
+When you are in the test screen, \(oqadvv\(cq prevent you to set a
+modeline out of the frequency range supported by your monitor.
+In this cases you can hear a grave long sound. Instead when you
+are in the list screen you don\(cqt have this limitation.
+.PP
+If you request a parameter not supported by your hardware
+you will hear an acute short sound.
+.PP
+You can easily change one of the clock values of your modelines
+pressing F8.
+.PP
+Finally you can rename the modelines pressing TAB.
+.PP
+Remember to select the modified modelines with SPACE otherwise
+they aren\(cqt saved in your configuration file and will be lost.
+.SS Startup Text Mode 
+The program at startup tries to set a text mode supported by
+your hardware to show his data.
+.PP
+If a modelines named \(oqdefault_text\(cq is present in your
+configuration file the program use it.
+.PP
+If correct \(oqdevice_video_p/h/vclock\(cq options are found in your
+configuration file the program try to use a text mode that
+match your clock configuration from a list of predefined
+modes and the modes present in the configuration file.
+.PP
+If no one of these modes match your configuration the current
+text mode is used.
+.SH CONFIGURATION 
+Depending one the command line options used one of the \(oqadvmame.rc\(cq,
+\(oqadvmess.rc\(cq, \(oqadvmenu.rc\(cq, \(oqvbe.rc\(cq, \(oqvga.rc\(cq and
+\(oqvideow.rc\(cq file is used to load and save the video configuration.
+.SH COPYRIGHT 
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

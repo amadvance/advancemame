@@ -1,0 +1,149 @@
+                         =============================
+                         Release Notes For AdvanceMENU
+                         =============================
+
+
+ADVANCEMENU 2.3.8
+=================
+
+This release adds support for specific emulator configuration
+options. Please note that these specific emulator
+configurations are not activated if you select to show
+more than one emulator at time.
+In this case only the default configuration is used.
+Specifically these special options are `mode', `sort',
+`preview', `group_include' and `type_include'.
+
+
+ADVANCEMENU 2.3.0
+=================
+
+This release changes the manual compilation process in DOS
+and Windows. You must now use the Makefile.usr file instead of
+the old Makefile.in file. Check the build.txt file for more details.
+
+
+ADVANCEMENU 2.2.14
+==================
+
+This release removes the legacy support for the DOS
+unchained VGA modes and for the banked VBE modes. It means
+that you now need a supported SVGA or VBE2 video card.
+
+
+ADVANCEMENU 2.2.10
+==================
+
+This release contains a new set of `event' Linux
+drivers for keyboards, mice and joysticks based on the Linux
+input-event interfaces.
+These drivers remove any limitations on the number of
+keyboards, mice and joysticks, and they give the best
+support for the new USB HID devices.
+
+The `raw' set of Linux drivers has now the same functionality
+of the `svgalib' set. If you don't need the SVGALIB video you can
+now completely remove this library.
+
+In Linux the host configuration files are now read in /etc,
+the files in */share/advance have now less priority
+of the user specified options. They can be used
+to set default options.
+
+
+ADVANCEMENU 2.2.7
+=================
+
+This release adds support for the new MAME -listxml option. It's now
+used as default. The old -listinfo is still supported and it's used
+if -listxml fails.
+
+The xml file is saved with the .xml extension. You probably want to
+remove the old .lst file.
+
+
+ADVANCEMENU 2.2.6
+=================
+
+This release supports Mac OS X with the SDL library. Please note that
+it isn't able to directly program your video board, so you cannot use
+it with an Arcade Monitor.
+
+
+ADVANCEMENU 2.2.5
+=================
+
+The precompiled DOS binary of this release is compiled with
+the old gcc 2.95.3. Please report if this fixes any know
+problem.
+
+
+ADVANCEMENU 2.2.2
+=================
+
+The option `video_depth' is now removed. The video bit depth is
+chosen automatically. If you need to exclude some depth you can
+use the new `device_color_*' options.
+
+
+ADVANCEMENU 2.2.1
+=================
+
+The `group' and `type' menus are now accessible only from the
+main menu. The `group' and `type' events now automatically switch
+to the next item without displaying a menu.
+The selection logic is: first item, second item, ..., last item,
+all items, and repeat.
+
+
+ADVANCEMENU 2.2.0
+=================
+
+This is the first Windows NT/2000/XP version able to directly
+program your video board. This puts the Windows version at the same level
+of the other Linux and DOS versions. It's very experimental, and tested only
+with a GeForce 2. Anyway, it should work with all the video boards that
+work in DOS and Linux because the SVGA drivers are the same.
+
+To use these video drivers you need to install the SVGAWIN.sys driver with the
+SVGAWIN.exe utility. If installed, AdvanceMENU automatically tries to use it
+unless you set a specific driver with the `device_video' option.
+If you don't install the SVGAWIN.sys driver AdvanceMENU works like the previous
+version using only the SDL library.
+
+
+ADVANCEMENU 2.0.0
+=================
+
+The emulator type `mame' is now used for the Windows MAME.
+The DOS MAME now requires the `dmame' emulator type.
+The DOS MESS now requires the `dmess' emulator type.
+The DOS Raine now requires the `draine' emulator type.
+
+
+ADVANCEMENU 1.17.4
+==================
+
+The option `preview_aspect' is removed. It's automatically
+converted to the new option `preview_expand'.
+
+
+ADVANCEMENU 1.16.1
+==================
+
+You must rename manually the Linux config directories to `$home/.advance' and
+`$prefix/share/advance'. (Previously they were `*/advmame').
+
+
+ADVANCEMENU 1.16.0
+==================
+
+The format of the configuration file is changed.
+These are the instruction to convert your "mm.cfg" to the new format :
+
+* Copy the file "mm.cfg" in the same directory of advmenu.exe.
+* Ensure that a file named "advmenu.rc" doesn't exist.
+* Run "advmenu.exe".
+* A file named "advmenu.rc" should be now present in your current directory.
+
+This conversion works only for the DOS version of AdvanceMENU.

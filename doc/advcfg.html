@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>AdvanceMAME Automatic Video Configurator</title>
+</head>
+<body>
+<center><h2>AdvanceMAME Automatic Video Configurator</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advcfg [-advmamec] [-advmessc] [-advmenuc]
+&nbsp;&nbsp;&nbsp;&nbsp;[-log] [-logsync] [-rc RCFILE] [-bit N]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `advcfg' utility is the automatic video configuration
+program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
+<p>
+This utility works differently if one of the -advmamec,
+-advmessc and -advmenuc option is specified.
+The main difference is the name of the configuration
+file used to store the video modes.
+<p>
+All the video modes used in the configuration process
+have always negative horizontal and vertical sync polarity.
+<p>
+Check the `advdev.txt' file for more details on the video
+drivers supported.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-rc RCFILE
+</strong></td></tr><tr><td>
+Specify an alternate name of the configuration file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-log
+</strong></td></tr><tr><td>
+A very detailed log of operations is saved in
+a `.log' file. Very useful for debugging problems.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-logsync
+</strong></td></tr><tr><td>
+Like the `-log' option but the log file is not
+buffered. This option must be used to get a complete
+log file in presence of a machine crash.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-advmamec, -advmessc, -advmenuc
+</strong></td></tr><tr><td>
+Select the mode of operation for the programs
+`advmame', `advmess' and `advmenu'.
+The default is for `advmame'.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-bit N
+</strong></td></tr><tr><td>
+Select the bit depth of the test video modes.
+If omitted 8 bit modes are used.
+Valid values are 8, 15, 16 and 32.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Configuration
+</h2>
+Depending one the command line options used one of the
+`advmame.rc', `advmess.rc' and `advmenu.rc' file is used
+to load and save the video configuration.
+<p>
+If the configuration process completes with success the
+program adds these options in your configuration file:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+device_video_clock ?
+device_video_format ?
+</pre>
+</td></tr></table>
+<p>
+which define the capabilities of your monitor and video board.
+And for the `advmame' and `advmess' modes also the options:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+display_mode auto
+display_adjust generate_yclock
+</pre>
+</td></tr></table>
+<p>
+which select the `automatic' video mode generation of the
+emulators.
+<p>
+All these options are documented in the `advdev.txt'
+and `advmame.txt' files.
+<h2><a name="5">5</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+</body>
+</html>

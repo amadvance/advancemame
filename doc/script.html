@@ -1,0 +1,632 @@
+<html>
+<head>
+<title>AdvanceMAME Script Machine</title>
+</head>
+<body>
+<center><h2>AdvanceMAME Script Machine</h2></center>
+<p>
+AdvanceMAME support a scripting language to control external
+device like lamps, keyboard leds...
+You can assign a simple script at various events like key press,
+game led state change or others.
+When the event is triggered the script is started.
+<h2><a name="1">1</a> 
+Grammar
+</h2>
+The scripts use a C like grammar.
+<h2><a name="2">2</a> 
+Scripts
+</h2>
+These are the available scripts:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_video
+</em></td><td width="90%">
+The video mode is set. It's the first event
+triggered.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_emulation
+</em></td><td width="90%">
+The emulation start. It's triggered after
+the MAME confirmation screens.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_play
+</em></td><td width="90%">
+The game play start. It happens after the
+`sync_startuptime'.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_led1,2,3
+</em></td><td width="90%">
+The led controlled by the emulated
+game is enabled.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_turbo
+</em></td><td width="90%">
+The turbo button is pressed.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_coin1,2,3,4
+</em></td><td width="90%">
+A coin button is pressed.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_start1,2,3,4
+</em></td><td width="90%">
+A start button is pressed.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_safequit
+</em></td><td width="90%">
+The game enter in the safequit status.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+script_event1-14
+</em></td><td width="90%">
+The events controlled by the
+event system.
+</td></tr>
+</table>
+<p>
+You can assign a script at every event. The script is started
+when the event is triggered.
+<h2><a name="3">3</a> 
+Values
+</h2>
+You have two type of values. Numerical integer values and text
+string values.
+<p>
+The numerical values are expressed with the following formats:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+...
+</em></td><td width="90%">
+Number in decimal format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+0x...
+</em></td><td width="90%">
+Number in hexadecimal format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+0b...
+</em></td><td width="90%">
+Number in binary format.
+</td></tr>
+</table>
+<p>
+The text values are expressed with the following formats:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+"..."
+</em></td><td width="90%">
+String.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+10
+</em></td><td width="90%">
+Decimal format of 10.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+0xA
+</em></td><td width="90%">
+Hexadecimal format of 10.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+0b1010
+</em></td><td width="90%">
+Binary format of 10.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+"Text"
+</em></td><td width="90%">
+Generic string.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Operators
+</h2>
+The values can be combined in expressions using some operators.
+<p>
+For numerical values the following operators are available:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
++
+</em></td><td width="90%">
+Addition.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+-
+</em></td><td width="90%">
+Subtraction.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&amp;
+</em></td><td width="90%">
+Bitwise and.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+|
+</em></td><td width="90%">
+Bitwise or.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+^
+</em></td><td width="90%">
+Bitwise xor.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+~
+</em></td><td width="90%">
+Bitwise not.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&amp;&amp;
+</em></td><td width="90%">
+Logical and.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+||
+</em></td><td width="90%">
+Logical or.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+!
+</em></td><td width="90%">
+Logical not.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&lt;
+</em></td><td width="90%">
+Less.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&gt;
+</em></td><td width="90%">
+Greater.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+==
+</em></td><td width="90%">
+Equal.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&lt;=
+</em></td><td width="90%">
+Less or equal.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+&gt;=
+</em></td><td width="90%">
+Greater or equal.
+</td></tr>
+</table>
+<p>
+For string values the following operators are available:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
++
+</em></td><td width="90%">
+Concatenation.
+</td></tr>
+</table>
+<h2><a name="5">5</a> 
+Commands
+</h2>
+These are the available commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+while (CONDITION) { ... }
+</em></td><td width="90%">
+Repeat until CONDITION is not 0.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+if (CONDITION) { ...  }
+</em></td><td width="90%">
+Execute if CONDITIDION is not 0.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+loop { ... }
+</em></td><td width="90%">
+Repeat forever.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+repeat (N) { ... }
+</em></td><td width="90%">
+Repeat N times.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+wait(CONDITION)
+</em></td><td width="90%">
+Wait until the CONDITION is not 0.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+delay(N)
+</em></td><td width="90%">
+Wait the specified N milliseconds.
+</td></tr>
+</table>
+<p>
+The 'wait()' and 'delay()' commands are used to maintain the
+synchronization with the game emulation. When these commands
+are executed, the script is temporarily suspended. All others
+commands are executed continuously without any delay.
+<p>
+The granularity of the delay command is the frame rate period.
+Approx. 16 ms for a 60 Hz game. Delays under this limit may
+don't have the desired effect.
+<p>
+IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
+COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may
+loop forever and the executable will lock! For example the
+statement :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+loop { toggle(0, 1); }
+</pre>
+</td></tr></table>
+<p>
+completely STOP the emulation and you CAN'T EXIT from the program.
+A correct one is :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+loop { toggle(0, 1); delay(100); }
+</pre>
+</td></tr></table>
+<h2><a name="6">6</a> 
+Functions
+</h2>
+These are the available functions:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+event()
+</em></td><td width="90%">
+Return 0 if the event that started the
+script is terminated. Return 1 if the event
+is active.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+event(EVENT)
+</em></td><td width="90%">
+Return 0 if the specified event is
+not active. Return 1 if the event is active.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+simulate_event(EVENT,NUMBER)
+</em></td><td width="90%">
+Simulate the specified
+event for NUMBER milli seconds.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+simulate_key(KEY,NUMBER)
+</em></td><td width="90%">
+Simulate the specified key for
+NUMBER milli seconds.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+log(VALUE)
+</em></td><td width="90%">
+Output a texr or number value in the log file.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+msg(VALUE)
+</em></td><td width="90%">
+Print on screen a a text or number value.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+system(TEXT)
+</em></td><td width="90%">
+Execute the specified command TEXT as a
+shell script. Return the exit code.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+lcd(ROW_NUMBER, VALUE)
+</em></td><td width="90%">
+Display a value on the LCD at the
+specified row. The first row is 0.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+rand(NUMBER)
+</em></td><td width="90%">
+Generate a random number from 0
+to NUMBER - 1.
+</td></tr>
+</table>
+<p>
+The 'event()' command can be used to determine the end of the event
+that started the script. For example for the 'coin1' event the
+function return 0 when the key is released.
+<h2><a name="7">7</a> 
+Ports
+</h2>
+External devices can be controlled using the keyboard led
+or the PC ports, like the parallel port.
+<p>
+Generally the parallel ports are mapped at the addresses
+0x378, 0x278 and 0x3bc. To maintain the same interface the
+keyboard leds are mapped to the virtual port 0 at the
+lower 3 bits. All the other ports are mapped to the PC
+hardware ports.
+<p>
+These are the available functions to read and write the ports:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+set(ADDRESS, VALUE)
+</em></td><td width="90%">
+Set the port with the specified value.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+get(ADDRESS)
+</em></td><td width="90%">
+Return the value of the port
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+on(ADDRESS, VALUE)
+</em></td><td width="90%">
+Enable the active bits in VALUE.
+Like set(ADDRESS, get(ADDRESS) | VALUE).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+off(ADDRESS, VALUE)
+</em></td><td width="90%">
+Disable the active bits in VALUE.
+Like set(ADDRESS, get(ADDRESS) &amp; ~VALUE).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+toggle(ADDRESS, VALUE)
+</em></td><td width="90%">
+Toggle the active bits in VALUE.
+Like set(ADDRESS, get(ADDRESS) ^ VALUE).
+</td></tr>
+</table>
+<p>
+In DOS the hardware ports are accessed directly. In Linux 386
+they are directly accessed if you are root, otherwise they
+are accessed using the /dev/port interface. In Windows you
+cannot access the hardware ports. On other systems you can
+access the ports if the inb() and outb() C functions are
+available on your system.
+<h2><a name="8">8</a> 
+Symbols
+</h2>
+This is the complete list of all the predefinite symbols
+available.
+<p>
+These are the event symbols available for the
+`simulate_event(EVENT, TIME)' and `event(EVENT)'
+commands :
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EVENT
+</em></td><td width="90%">
+p1_up, p1_down, p1_left, p1_right, p2_up, p2_down,
+p2_left, p2_right, p1_button1, p1_button2, p1_button3,
+p1_button4, p1_button5, p1_button6, p1_button7,
+p1_button8, p1_button9, p1_button10, p2_button1,
+p2_button2, p2_button3, p2_button4, p2_button5,
+p2_button6, p2_button7, p2_button8, p2_button9,
+p2_button10, start1, start2, start3, start4, coin1,
+coin2, coin3, coin4, service_coin1, service_coin2,
+service_coin3, service_coin4, service, tilt.
+</td></tr>
+</table>
+<p>
+These are the user interface event symbols available for
+the `simulate_event(EVENT, TIME)' and `event(EVENT)'
+commands :
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EVENT
+</em></td><td width="90%">
+ui_mode_next, ui_mode_pred, ui_record_start,
+ui_record_stop, ui_turbo, ui_cocktail, ui_configure,
+ui_on_screen_display, ui_pause, ui_reset_machine,
+ui_show_gfx, ui_frameskip_dec, ui_frameskip_inc,
+ui_throttle, ui_show_fps, ui_snapshot, ui_toggle_cheat,
+ui_up, ui_down, ui_left, ui_right, ui_select,
+ui_cancel, ui_pan_up, ui_pan_down, ui_pan_left,
+ui_pan_right, ui_show_profiler, ui_show_colors,
+ui_toggle_ui, ui_toggle_debug, ui_save_state,
+ui_load_state, ui_add_cheat, ui_delete_cheat,
+ui_save_cheat, ui_watch_value.
+</td></tr>
+</table>
+<p>
+These are the keyboard symbols available for the
+`simulate_key(EVENT, TIME)' command :
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EVENT
+</em></td><td width="90%">
+key_a, key_b, key_c, key_d, key_e, key_f, key_g,
+key_h, key_i, key_j, key_k, key_l, key_m, key_n,
+key_o, key_p, key_q, key_r, key_s, key_t, key_u,
+key_v, key_w, key_x, key_y, key_z, key_0, key_1,
+key_2, key_3, key_4, key_5, key_6, key_7, key_8,
+key_9, key_0_pad, key_1_pad, key_2_pad, key_3_pad,
+key_4_pad, key_5_pad, key_6_pad, key_7_pad,
+key_8_pad, key_9_pad, key_f1, key_f2, key_f3,
+key_f4, key_f5, key_f6, key_f7, key_f8, key_f9,
+key_f10, key_f11, key_f12, key_esc, key_backquote,
+key_minus, key_equals, key_backspace, key_tab,
+key_openbrace, key_closebrace, key_enter, key_semicolon,
+key_quote, key_backslash, key_less, key_comma,
+key_period, key_slash, key_space, key_insert, key_del,
+key_home, key_end, key_pgup, key_pgdn, key_left,
+key_right, key_up, key_down, key_slash_pad,
+key_asterisk_pad, key_minus_pad, key_plus_pad,
+key_period_pad, key_enter_pad, key_prtscr, key_pause,
+key_lshift, key_rshift, key_lcontrol, key_rcontrol,
+key_lalt, key_ralt, key_scrlock, key_numlock,
+key_capslock, key_lwin, key_rwin, key_menu.
+</td></tr>
+</table>
+<p>
+These are text symbols containing some game and emulation
+information:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info_desc
+</em></td><td width="90%">
+The game title. For example "PacMan".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info_manufacturer
+</em></td><td width="90%">
+The game manufacturer. For example "Namco".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info_year
+</em></td><td width="90%">
+The game year. For example "1980".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info_throttle
+</em></td><td width="90%">
+The current game speed. For example "100%".
+</td></tr>
+</table>
+<h2><a name="9">9</a> 
+Examples
+</h2>
+This script clears all the keyboard leds at the emulation end :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_video wait(!event()); set(0,0);
+</pre>
+</td></tr></table>
+<p>
+Activate all the parallel data bits when the game start, flash
+the bit 0 during the emulation and clear them then the game
+stop :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_start \
+&nbsp;&nbsp;&nbsp;&nbsp;set(0x378, 0xff); \
+&nbsp;&nbsp;&nbsp;&nbsp;while(event()) { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toggle(0x378, 1); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
+&nbsp;&nbsp;&nbsp;&nbsp;} \
+&nbsp;&nbsp;&nbsp;&nbsp;set(0x378, 0);
+</pre>
+</td></tr></table>
+<p>
+Map the first MAME led to the first keyboard led:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
+</pre>
+</td></tr></table>
+<p>
+Map the second MAME led to the first keyboard led:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
+</pre>
+</td></tr></table>
+<p>
+Flash the third keyboard led when the 'turbo' is active :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_turbo \
+&nbsp;&nbsp;&nbsp;&nbsp;while (event()) { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toggle(0, 0b100); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
+&nbsp;&nbsp;&nbsp;&nbsp;} \
+&nbsp;&nbsp;&nbsp;&nbsp;off(0, 0b100);
+</pre>
+</td></tr></table>
+<p>
+Light the third keyboard led when the 'coin1' key is pressed :
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
+</pre>
+</td></tr></table>
+<p>
+Add 3 coins automatically:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_play \
+&nbsp;&nbsp;&nbsp;&nbsp;delay(1000); \
+&nbsp;&nbsp;&nbsp;&nbsp;repeat(3) { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(coin1,100); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(200); \
+&nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+</td></tr></table>
+<p>
+Add a coin when the player start:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_start1 \
+&nbsp;&nbsp;&nbsp;&nbsp;wait(!event());
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(coin1,100); \
+&nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
+&nbsp;&nbsp;&nbsp;&nbsp;simulate_event(start1,100);
+</pre>
+</td></tr></table>
+<p>
+Display continously the game speed on the LCD:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_video loop { lcd(0,"Speed " + info_throttle); delay(1000); }
+</pre>
+</td></tr></table>
+<h2><a name="10">10</a> 
+Configuration
+</h2>
+The scripts must be inserted in the 'advmame.rc' file. You can split
+complex scripts terminating any splitted row with the `\' char.
+<p>
+For example:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+script_video wait(!event()); set(0,0);
+script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
+script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
+script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
+script_turbo \
+&nbsp;&nbsp;&nbsp;&nbsp;while (event()) { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toggle(0, 0b100); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
+&nbsp;&nbsp;&nbsp;&nbsp;} \
+&nbsp;&nbsp;&nbsp;&nbsp;off(0, 0b100);
+script_start1 \
+&nbsp;&nbsp;&nbsp;&nbsp;set(0x378, 0xff); \
+&nbsp;&nbsp;&nbsp;&nbsp;while(event()) { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toggle(0x378, 1); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
+&nbsp;&nbsp;&nbsp;&nbsp;} \
+&nbsp;&nbsp;&nbsp;&nbsp;set(0x378, 0);
+script_video loop { \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lcd(0,"Speed " + info_throttle); \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delay(1000); \
+&nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+</td></tr></table>
+<h2><a name="11">11</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+</body>
+</html>

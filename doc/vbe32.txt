@@ -1,0 +1,125 @@
+                       =================================
+                       AdvanceCAB VBE 32bit BIOS For DOS
+                       =================================
+
+
+1 SYNOPSIS
+==========
+
+vbe32 [/l] [/c CONFIG]
+
+
+2 DESCRIPTION
+=============
+
+The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
+VBE BIOS that completely substitutes the original VBE BIOS of your
+video board.
+
+It allow to set an arbitrary video mode list with the favorite
+modes which work best with your video hardware without any
+restrictions in size and frequencies.
+
+With this utility you can play all the DOS games that use the
+standard VESA VBE services with your PC Monitor, TV and Arcade
+Monitor.
+
+At the startup the configuration file `vbe.rc', created with
+the utility `vbev', is read and all the modelines present
+are activated. The format of this configuration file is
+specified in the document `advv.txt'.
+
+These are some example rc files:
+
+    ntsc.rc - NTSC TV.
+    pal.rc - PAL TV.
+    standard.rc - Arcade Standard Resolution (15 kHz).
+    medium.rc - Arcade Medium Resolution (25 kHz).
+    extended.rc - Arcade Extended Resolution (16.5 kHz).
+    pcvga.rc - VGA PC Monitor.
+    pcsvga60.rc - SVGA PC Multisync Monitor.
+
+All the modelines present in the configuration files are used
+to create the list of available VBE mode. For every modeline
+five VBE modes with 8, 15, 16, 24, 32 bits are added.
+
+
+3 OPTIONS
+=========
+
+These are the command line options supported:
+
+    /l
+        Load in memory the utility
+
+    /c CONFIG
+        Use an arbitrary configuration file
+
+
+4 CARDS
+=======
+
+The program supports all the `svgaline' drivers listed in the
+`carddos.txt' file.
+
+
+5 LIMITATIONS
+=============
+
+* The VBE 1.2 standard isn't supported. This makes the program
+  useless for 16 bit applications.
+* The VBE 3.0 standard isn't supported.
+* The VBE protect mode interface isn't supported. Anyway, protect mode
+  programs should be able to use the VBE real mode interface.
+* It uses a lot of conventional memory. Approx 200 kbyte.
+* It cannot be unloaded. It's a limitation of the DPMI support
+  not resolvable.
+* If used with CWSDPMI all the XMS memory is allocated. It's a limitation
+  of CWSDPMI. Anyway, the memory is available through the
+  DPMI services.
+* It doesn't work in Windows NT/2000/XP.
+
+
+6 APPLICATION PROBLEMS
+======================
+
+Some applications are able to use only some common resolutions
+like 320x240, 400x300, 512x384, 640x480 and 800x600. Others resolutions
+may be completely ignored or crash the application.
+
+Others applications may get in trouble if the list of available
+VBE modes contains duplicate resolutions or is too big.
+Add only the best modelines and avoid duplicates.
+
+
+7 TESTS
+=======
+
+Doom Legacy with a GeForce 2 board (http://www.newdoom.com/doomlegacy/)
+Duke Nukem 3D with a GeForce 2 board
+
+
+8 EXAMPLES
+==========
+
+Load it:
+
+    vbe32 /l
+
+Load it with an arbitrary configuration file:
+
+    vbe32 /l /c c:\cab\myconf.rc
+
+
+9 BUGS
+======
+
+The configuration file is checked only for the
+`device_video_modeline' options.
+All the other options are ignored.
+
+
+10 COPYRIGHT
+============
+
+This file is Copyright (C) 2003 Andrea Mazzoleni.

@@ -1,0 +1,173 @@
+<html>
+<head>
+<title>AdvanceMAME Video Manual Configurator</title>
+</head>
+<body>
+<center><h2>AdvanceMAME Video Manual Configurator</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advv [-advmamev] [-advmessv] [-advmenuv]
+&nbsp;&nbsp;&nbsp;&nbsp;[-vbev] [-vgav] [-videowv] [-log] [-logsync]
+&nbsp;&nbsp;&nbsp;&nbsp;[-rc RCFILE]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `advv' utility is the main video configuration program
+for the Advance programs. It selects, creates and tweaks
+video modes interactively.
+<p>
+This utility works differently if one of the -advmamev,
+-advmessv, -advmenuv, -vbev, -vgav and -videowv options
+is specified.
+The main difference is the the name of the configuration
+file used to store the video modes.
+<p>
+Before running this utility you must add in your configuration
+file the option `device_video_clock' required to defines
+the limits of your monitor and video board. You can add them
+manually or using the `advcfg' utility.
+<p>
+Check the `advdev.txt' file for more details on these options.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-rc RCFILE
+</strong></td></tr><tr><td>
+Specify an alternate name of the configuration file.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-log
+</strong></td></tr><tr><td>
+A very detailed log of operations is saved in
+a `.log' file. Very useful for debugging problems.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-logsync
+</strong></td></tr><tr><td>
+Like the `-log' option but the log file is not
+buffered. This option must be used to get a complete
+log file in presence of a machine crash.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-advmamev, -advmessv, -advmenuv, -vbev, -vgav, -videowv
+</strong></td></tr><tr><td>
+Select the mode of operation for the programs `advmame',
+`advmess', `advmenu', `vbe', `vga' and `videow'.
+The default is `advmame'.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Use
+</h2>
+When the program starts a list of modelines is printed. You can
+walk on the list with the UP and DOWN arrows of your keyboard.
+You can select the modelines to use in the emulator pressing
+SPACE.
+<p>
+With the LEFT and RIGHT arrows you can select the bit depth of
+the video mode to test.
+<p>
+To test a video mode you can press ENTER and ESC to return
+to the list.
+<p>
+When you have finished the selection press F2 to save the video
+modes in the configuration file. At the next run the emulator
+will use one of the modelines that you have chosen.
+<p>
+If you have problem please read the `Troubleshooting' chapter
+in the `install.txt' file.
+<p>
+If you have correctly configured the `device_video_p/h/vclock'
+options in your configuration file, the video modes out of
+the frequency range supported by your monitor are displayed
+in red, and you are prevented to use them.
+<h3><a name="4.1">4.1</a> 
+Creating Video Modes
+</h3>
+To create a new modeline you should press F5 or F6.
+<p>
+You will be asked for:
+<ul>
+<li>
+Vertical clock
+</li>
+<li>
+Horizontal resolution
+</li>
+<li>
+Vertical resolution
+</li>
+</ul>
+<p>
+If possible, a video mode compatible with your current monitor
+configuration is created. If a such mode doesn't exist,
+with F5 are favorite video modes with the specified size,
+with F6 are favorite video modes with the specified vertical
+frequency.
+<p>
+If a the `device_video_format' option is present in your
+configuration file, the video mode is created with this
+format. Otherwise the generic VGA monitor format is used.
+<p>
+All the video modes created have always negative horizontal
+and vertical sync polarity.
+<h3><a name="4.2">4.2</a> 
+Adjusting Modelines
+</h3>
+You can modify the modelines in the test screen pressing ENTER
+or in the list screen directly.
+<p>
+When you are in the test screen, `advv' prevent you to set a
+modeline out of the frequency range supported by your monitor.
+In this cases you can hear a grave long sound. Instead when you
+are in the list screen you don't have this limitation.
+<p>
+If you request a parameter not supported by your hardware
+you will hear an acute short sound.
+<p>
+You can easily change one of the clock values of your modelines
+pressing F8.
+<p>
+Finally you can rename the modelines pressing TAB.
+<p>
+Remember to select the modified modelines with SPACE otherwise
+they aren't saved in your configuration file and will be lost.
+<h3><a name="4.3">4.3</a> 
+Startup Text Mode
+</h3>
+The program at startup tries to set a text mode supported by
+your hardware to show his data.
+<p>
+If a modelines named `default_text' is present in your
+configuration file the program use it.
+<p>
+If correct `device_video_p/h/vclock' options are found in your
+configuration file the program try to use a text mode that
+match your clock configuration from a list of predefined
+modes and the modes present in the configuration file.
+<p>
+If no one of these modes match your configuration the current
+text mode is used.
+<h2><a name="5">5</a> 
+Configuration
+</h2>
+Depending one the command line options used one of the `advmame.rc',
+`advmess.rc', `advmenu.rc', `vbe.rc', `vga.rc' and
+`videow.rc' file is used to load and save the video configuration.
+<h2><a name="6">6</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+</body>
+</html>

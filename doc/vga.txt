@@ -1,0 +1,173 @@
+                      ====================================
+                      AdvanceCAB VGA Mode Remapper For DOS
+                      ====================================
+
+
+1 SYNOPSIS
+==========
+
+vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
+
+
+2 DESCRIPTION
+=============
+
+The `vga' utility is a TSR (Terminate Stay Resident) VGA BIOS
+wrapper that substitutes the default list of VGA video modes
+with a list of the favorite modes which work best with your
+video hardware.
+
+The `vga.exe' executable can be used as a standard executable or
+it can also be loaded as a `sys' driver in the `config.sys' as a
+`device'. Please note that the `sys' version can't be unloaded.
+
+At the startup the configuration file `vga.rc', created with
+the utility `vgav', is read and all the modelines present
+are activated. The format of this configuration file is
+specified in the document `advv.txt'.
+
+These are some example rc files:
+
+    ntsc.rc - NTSC TV.
+    pal.rc - PAL TV.
+    standard.rc - Arcade Standard Resolution (15 kHz).
+    medium.rc - Arcade Medium Resolution (25 kHz).
+    extended.rc - Arcade Extended Resolution (16.5 kHz).
+    pcvga.rc - VGA PC Monitor.
+    pcsvga60.rc - SVGA PC Multisync Monitor.
+
+From all the modelines in the configuration file three of them
+are chosen for the standard VGA mode 1h, 3h and 13h.
+
+    1h - width of 40*9 or 40*8 pixel.
+    3h - width of 80*9 or 80*8 pixel.
+    13h - width of 320 pixel and height of 200.
+
+All the other modelines are used to adjust any other XMode
+detected. When the current video mode width and height match
+a modeline, the modeline is automatically set.
+
+
+3 OPTIONS
+=========
+
+These are the command line options supported:
+
+    /l
+        Load in memory the utility and adjust the current video
+        mode if a corresponding mode is defined in the config
+        file.
+
+    /u
+        Unload the utility.
+
+    /a
+        Adjust the current video mode if a corresponding mode
+        is defined in the config file without loading in memory
+        the utility.
+
+    /c CONFIG
+        Use an arbitrary configuration file for the /l and /a
+        commands.
+
+    /d
+        Disable all the video output from others programs.
+        This option works only if the program is loaded in
+        memory. Remember to reenable the video output before
+        running your programs.
+
+    /e
+        Enable the video output.
+
+You can force a video mode reset in text mode using the standard
+DOS command:
+
+    mode co80
+
+or with the `video' utility.
+
+
+4 CARDS
+=======
+
+This utility should works with any VGA compatible board.
+
+
+5 HOW IT WORKS
+==============
+
+This utility intercepts all the VGA BIOS calls and if it detects
+a ModeSet call for a know mode it uses his version of the mode.
+
+At any call of the interrupt 08h and 21h some VGA registers are
+read. If a VGA mode with the size of a know modeline is detected
+the mode is adjusted to match the mode defined in the
+configuration file.
+
+The disabling of the video output works ignoring all the int
+10h calls.
+
+
+6 LIMITATIONS
+=============
+
+Only the `modelines' compatible with the vga hardware are used.
+
+The text modes can use only the pixel clocks 28.322, 25.175,
+14.161 and 12.587 MHz. The graphics modes can use only the
+pixelclocks 14.161, 12.587, 7.080 and 6.293 MHz.
+
+
+7 EXAMPLES
+==========
+
+Load it:
+
+    vga /l
+
+Load it with an arbitrary configuration file:
+
+    vga /l /c c:\myconf.rc
+
+Unload it:
+
+    vga /u
+
+Load it in the config.sys file:
+
+    device=c:\cab\vga.exe /l /c c:\cab\vga.rc
+
+Adjust the current video mode in the config.sys without loading
+in memory the utility:
+
+    device=c:\cab\vga.exe /a /c c:\cab\vga.rc
+
+Adjust the current video mode in the config.sys and disable
+all the video output:
+
+    device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
+
+the latter is probably the most interesting use. You can load
+`vga' as soon as possible to adjust the video output and prevent
+other programs to write to the screen. You can also use the
+`video' utility to load an arbitrary image to display.
+After the system is initialized you can insert in the autoexec.bat
+the command:
+
+    c:\cab\vga /e
+
+to reenable the video output.
+
+
+8 BUGS
+======
+
+The configuration file is checked only for the
+`device_video_modeline' options.
+All the other options are ignored.
+
+
+9 COPYRIGHT
+===========
+
+This file is Copyright (C) 2003 Andrea Mazzoleni.

@@ -1,0 +1,106 @@
+<html>
+<head>
+<title>AdvanceCAB Video Control For DOS</title>
+</head>
+<body>
+<center><h2>AdvanceCAB Video Control For DOS</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `video' utility can be used to control the video
+output of the PC in DOS.
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/l IMAGE
+</strong></td></tr><tr><td>
+Load a PCX image. The image must be a PCX image
+in the 320x200 8bit format. The image is displayed using
+the standard VGA 320x200 256 color video mode number 13h.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/s MODE
+</strong></td></tr><tr><td>
+Set an arbitrary video mode. The MODE is expressed as
+an hexadecimal BIOS number.
+</td></tr>
+</table>
+<p>
+The most common modes are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+1
+</em></td><td width="90%">
+Text mode 40x25 16 color.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+3
+</em></td><td width="90%">
+Text mode 80x25 16 color.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+13
+</em></td><td width="90%">
+Graphics mode 320x200 256 color.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/d
+</strong></td></tr><tr><td>
+Disable the hardware video signal.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/e
+</strong></td></tr><tr><td>
+Enable the hardware video signal.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/r
+</strong></td></tr><tr><td>
+Reset the video board using the BIOS startup
+function.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Examples
+</h2>
+A good configuration for Arcade monitors/TVs may be:
+<p>
+In CONFIG.SYS:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+device=c:\cab\video.exe /l c:\cab\video.pcx
+device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
+...other commands...
+</pre>
+</td></tr></table>
+<p>
+In AUTOEXEC.BAT:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+...other commands...
+c:\cab\vga /e
+...final application...
+</pre>
+</td></tr></table>
+<h2><a name="5">5</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003 Andrea Mazzoleni.
+</body>
+</html>

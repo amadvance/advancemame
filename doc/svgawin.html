@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>AdvanceCAB SVGAWIN Driver Installer For Windows 2000/XP</title>
+</head>
+<body>
+<center><h2>AdvanceCAB SVGAWIN Driver Installer For Windows 2000/XP</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+svgawin [/l] [/u]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `svgawin' utility installs and uninstalls the svgawin.sys
+driver in Windows NT/2000/XP.
+<p>
+AdvanceMAME and AdvanceMENU work also without this driver, but
+you lose the ability to set an arbitrary video mode.
+<p>
+If you install it, AdvanceMAME and AdvanceMENU automatically
+try to use it before any other driver, unless you set a specific
+driver with the `device_video' option in the configuration files.
+<p>
+You must run this installation utility as Administrator.
+<h2><a name="3">3</a> 
+Options
+</h2>
+These are the command line options supported:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/l
+</strong></td></tr><tr><td>
+Install and run the driver.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/u
+</strong></td></tr><tr><td>
+Stop and uninstall the driver.
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Troubleshooting
+</h2>
+The svgawin drivers are inherently unsafe because they should coexist
+with the normal Windows drivers.
+<p>
+The most common problem is that the Windows driver sets the video
+card in a state that the SVGAWIN driver cannot understand or
+restore.
+<p>
+The only possible solution is to try to reduce the video hardware
+acceleration at the minimum in
+DisplayProperties/Settings/Advanced/Troubleshooting.
+<p>
+If you want a stable solution you must use the Linux or DOS
+version of AdvanceMAME and AdvanceMENU.
+<p>
+Alternatively you can try to use two different video boards, one for
+Windows and the other for the game display. Check the
+`device_svgawin_skipboard' option to control which video board to use.
+<h2><a name="5">5</a> 
+Tech
+</h2>
+This driver is used to export at user level some reversed operations
+generally available only at kernel level. Specifically you can:
+<ul>
+<li>
+Access the PCI information.
+</li>
+<li>
+Use direct port io.
+</li>
+<li>
+Map and umap physical memory.
+</li>
+<li>
+Call specific IOCTL_VIDEO_* ioctl on the Windows VIDEO driver.
+</li>
+</ul>
+<p>
+It doesn't contains any specific video board code. It only exports
+these basic services.
+<p>
+The services interface is detailed in the advance/svgalib/svgawin/driver/svgacode.h
+file.
+<h2><a name="6">6</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+</body>
+</html>

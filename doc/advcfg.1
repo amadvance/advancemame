@@ -1,0 +1,89 @@
+.TH "AdvanceMAME Automatic Video Configurator" 1
+.SH NAME
+advcfg \(hy AdvanceMAME Automatic Video Configurator
+.SH SYNOPSIS 
+advcfg [\(hyadvmamec] [\(hyadvmessc] [\(hyadvmenuc]
+.PD 0
+.PP
+.PD
+	[\(hylog] [\(hylogsync] [\(hyrc RCFILE] [\(hybit N]
+.PD 0
+.PP
+.PD
+.SH DESCRIPTION 
+The \(oqadvcfg\(cq utility is the automatic video configuration
+program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
+.PP
+This utility works differently if one of the \(hyadvmamec,
+\(hyadvmessc and \(hyadvmenuc option is specified.
+The main difference is the name of the configuration
+file used to store the video modes.
+.PP
+All the video modes used in the configuration process
+have always negative horizontal and vertical sync polarity.
+.PP
+Check the \(oqadvdev.txt\(cq file for more details on the video
+drivers supported.
+.SH OPTIONS 
+.TP
+.B \(hyrc RCFILE
+Specify an alternate name of the configuration file.
+.TP
+.B \(hylog
+A very detailed log of operations is saved in
+a \(oq.log\(cq file. Very useful for debugging problems.
+.TP
+.B \(hylogsync
+Like the \(oq\(hylog\(cq option but the log file is not
+buffered. This option must be used to get a complete
+log file in presence of a machine crash.
+.TP
+.B \(hyadvmamec, \(hyadvmessc, \(hyadvmenuc
+Select the mode of operation for the programs
+\(oqadvmame\(cq, \(oqadvmess\(cq and \(oqadvmenu\(cq.
+The default is for \(oqadvmame\(cq.
+.TP
+.B \(hybit N
+Select the bit depth of the test video modes.
+If omitted 8 bit modes are used.
+Valid values are 8, 15, 16 and 32.
+.SH CONFIGURATION 
+Depending one the command line options used one of the
+\(oqadvmame.rc\(cq, \(oqadvmess.rc\(cq and \(oqadvmenu.rc\(cq file is used
+to load and save the video configuration.
+.PP
+If the configuration process completes with success the
+program adds these options in your configuration file:
+.PP
+.RS 4
+device_video_clock ?
+.PD 0
+.PP
+.PD
+device_video_format ?
+.PD 0
+.PP
+.PD
+.RE
+.PP
+which define the capabilities of your monitor and video board.
+And for the \(oqadvmame\(cq and \(oqadvmess\(cq modes also the options:
+.PP
+.RS 4
+display_mode auto
+.PD 0
+.PP
+.PD
+display_adjust generate_yclock
+.PD 0
+.PP
+.PD
+.RE
+.PP
+which select the \(oqautomatic\(cq video mode generation of the
+emulators.
+.PP
+All these options are documented in the \(oqadvdev.txt\(cq
+and \(oqadvmame.txt\(cq files.
+.SH COPYRIGHT 
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>AdvanceCAB VBE 32bit BIOS For DOS</title>
+</head>
+<body>
+<center><h2>AdvanceCAB VBE 32bit BIOS For DOS</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+vbe32 [/l] [/c CONFIG]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
+VBE BIOS that completely substitutes the original VBE BIOS of your
+video board.
+<p>
+It allow to set an arbitrary video mode list with the favorite
+modes which work best with your video hardware without any
+restrictions in size and frequencies.
+<p>
+With this utility you can play all the DOS games that use the
+standard VESA VBE services with your PC Monitor, TV and Arcade
+Monitor.
+<p>
+At the startup the configuration file `vbe.rc', created with
+the utility `vbev', is read and all the modelines present
+are activated. The format of this configuration file is
+specified in the document `advv.txt'.
+<p>
+These are some example rc files:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ntsc.rc
+</em></td><td width="90%">
+NTSC TV.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pal.rc
+</em></td><td width="90%">
+PAL TV.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+standard.rc
+</em></td><td width="90%">
+Arcade Standard Resolution (15 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+medium.rc
+</em></td><td width="90%">
+Arcade Medium Resolution (25 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+extended.rc
+</em></td><td width="90%">
+Arcade Extended Resolution (16.5 kHz).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pcvga.rc
+</em></td><td width="90%">
+VGA PC Monitor.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+pcsvga60.rc
+</em></td><td width="90%">
+SVGA PC Multisync Monitor.
+</td></tr>
+</table>
+<p>
+All the modelines present in the configuration files are used
+to create the list of available VBE mode. For every modeline
+five VBE modes with 8, 15, 16, 24, 32 bits are added.
+<h2><a name="3">3</a> 
+Options
+</h2>
+These are the command line options supported:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/l
+</strong></td></tr><tr><td>
+Load in memory the utility
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+/c CONFIG
+</strong></td></tr><tr><td>
+Use an arbitrary configuration file
+</td></tr>
+</table>
+<h2><a name="4">4</a> 
+Cards
+</h2>
+The program supports all the `svgaline' drivers listed in the
+`carddos.txt' file.
+<h2><a name="5">5</a> 
+Limitations
+</h2>
+<ul>
+<li>
+The VBE 1.2 standard isn't supported. This makes the program
+useless for 16 bit applications.
+</li>
+<li>
+The VBE 3.0 standard isn't supported.
+</li>
+<li>
+The VBE protect mode interface isn't supported. Anyway, protect mode
+programs should be able to use the VBE real mode interface.
+</li>
+<li>
+It uses a lot of conventional memory. Approx 200 kbyte.
+</li>
+<li>
+It cannot be unloaded. It's a limitation of the DPMI support
+not resolvable.
+</li>
+<li>
+If used with CWSDPMI all the XMS memory is allocated. It's a limitation
+of CWSDPMI. Anyway, the memory is available through the
+DPMI services.
+</li>
+<li>
+It doesn't work in Windows NT/2000/XP.
+</li>
+</ul>
+<h2><a name="6">6</a> 
+Application Problems
+</h2>
+Some applications are able to use only some common resolutions
+like 320x240, 400x300, 512x384, 640x480 and 800x600. Others resolutions
+may be completely ignored or crash the application.
+<p>
+Others applications may get in trouble if the list of available
+VBE modes contains duplicate resolutions or is too big.
+Add only the best modelines and avoid duplicates.
+<h2><a name="7">7</a> 
+Tests
+</h2>
+Doom Legacy with a GeForce 2 board (<a href="http://www.newdoom.com/doomlegacy/)">http://www.newdoom.com/doomlegacy/)</a>
+<br>
+Duke Nukem 3D with a GeForce 2 board
+<br>
+<h2><a name="8">8</a> 
+Examples
+</h2>
+Load it:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+vbe32 /l
+</pre>
+</td></tr></table>
+<p>
+Load it with an arbitrary configuration file:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+vbe32 /l /c c:\cab\myconf.rc
+</pre>
+</td></tr></table>
+<h2><a name="9">9</a> 
+Bugs
+</h2>
+The configuration file is checked only for the
+`device_video_modeline' options.
+All the other options are ignored.
+<h2><a name="10">10</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003 Andrea Mazzoleni.
+</body>
+</html>

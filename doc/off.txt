@@ -1,0 +1,21 @@
+                          ===========================
+                          AdvanceCAB Shutdown For DOS
+                          ===========================
+
+
+1 DESCRIPTION
+=============
+
+The `off' utility can be used to shutdown an ATX-powered PC.
+
+To work properly it requires an APM (Advanced Power
+Management) BIOS version 1.02 or greater.
+
+Before the shutdown the disk cache (SMARTDRV) is automatically
+flushed using the standard BIOS service 2F-4A10.
+
+
+2 COPYRIGHT
+===========
+
+This file is Copyright (C) 2003 Andrea Mazzoleni, Randy Schnedler.

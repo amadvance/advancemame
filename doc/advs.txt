@@ -1,0 +1,31 @@
+                            ========================
+                            AdvanceMAME Sound Tester
+                            ========================
+
+
+1 SYNOPSIS
+==========
+
+advs [-device_sound DEVICE] [-sound_samplerate RATE]
+	[-sound_latency TIME] [-sound_buffer TIME]
+	[-sound_volume VOLUME] [-log] [-logsync]
+	FILES...
+
+
+2 DESCRIPTION
+=============
+
+The `advs' plays the specified wav and mp3 files.
+If you specify more than one file all the files are mixed
+and played together.
+
+Press Break to terminate before the end.
+
+Check the `advdev.txt' file for the description of
+the `device_sound' option.
+
+
+3 COPYRIGHT
+===========
+
+This file is Copyright (C) 2003 Andrea Mazzoleni.

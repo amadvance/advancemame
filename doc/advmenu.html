@@ -1,0 +1,3048 @@
+<html>
+<head>
+<title>AdvanceMENU Frontend</title>
+</head>
+<body>
+<center><h2>AdvanceMENU Frontend</h2></center>
+<h2><a name="1">1</a> 
+Synopsis
+</h2>
+<pre>
+advmenu [-default] [-remove] [-cfg FILE]
+&nbsp;&nbsp;&nbsp;&nbsp;[-log] [-version] [-help]
+</pre>
+<h2><a name="2">2</a> 
+Description
+</h2>
+AdvanceMENU is a front-end to run the AdvanceMAME, AdvanceMESS,
+MAME, MESS, xmame, Raine and other emulators.
+<p>
+Simply run it in the same directory of the emulator and press
+`f1' to get the help screen or `~' for the main menu.
+<p>
+Press `tab' to change the display mode. Press `space' to change
+the preview mode.
+<p>
+To run a game press `enter'. Press `esc' to exit.
+<p>
+The major features are:
+<ul>
+<li>
+Simply download and run. Copy the executable and run it!
+</li>
+<li>
+Auto update of the rom info.
+</li>
+<li>
+Vertical and horizontal orientation.
+</li>
+<li>
+Support for any TV/Arcade Monitor like AdvanceMAME but it's
+good also for a normal PC monitor.
+</li>
+<li>
+Static and Animated image and clip preview (PNG/PCX/ICO/MNG).
+Up to 192 images at the same time!
+</li>
+<li>
+Sound preview. (MP3/WAV). You can select a special sound for
+every game played when the cursor move on it.
+</li>
+<li>
+Sound backgrounds (MP3/WAV). Play your favorite songs or
+radio records in background.
+</li>
+<li>
+Sound effects (MP3/WAV) for key press, program start, game
+start, program exit...
+</li>
+<li>
+Support for zipped images and sounds archives.
+</li>
+<li>
+Screen-saver. A slide show of the game images.
+</li>
+<li>
+Selectable background and help images with translucency.
+</li>
+</ul>
+<p>The sections of this document are:<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr><td width="5%"></td><td colspan=3>
+<a href="#1">1 Synopsis</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#2">2 Description</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#3">3 Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#4">4 Emulators</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.1">4.1 generic - Generic emulator</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.2">4.2 advmame - AdvanceMAME</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.3">4.3 advmess - AdvanceMESS</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.4">4.4 mame - Windows MAME</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.5">4.5 xmame - xmame</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.6">4.6 dmame - DOS MAME</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.7">4.7 dmess - DOS MESS</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.8">4.8 draine - DOS Raine</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#5">5 Configuration</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.1">5.1 Global Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.1">5.1.1 config</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.2">5.1.2 emulator</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.3">5.1.3 emulator_roms/roms_filter/altss/flyers/cabinets/icons/titles</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.4">5.1.4 mode</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.5">5.1.5 sort</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.6">5.1.6 preview</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.7">5.1.7 mode_skip</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.8">5.1.8 preview_expand</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.9">5.1.9 preview_default_*</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.10">5.1.10 icon_space</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.11">5.1.11 merge</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.1.12">5.1.12 game</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.2">5.2 Display Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.1">5.2.1 device_video_*</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.2">5.2.2 display_size</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.3">5.2.3 display_restoreatgame</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.4">5.2.4 display_restoreatext</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.5">5.2.5 display_orientation</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.6">5.2.6 display_brightness</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.7">5.2.7 display_gamma</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.3">5.3 Sound Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.1">5.3.1 device_sound_*</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.2">5.3.2 sound_volume</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.3">5.3.3 sound_latency</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.4">5.3.4 sound_buffer</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.5">5.3.5 sound_foreground_EVENT</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.6">5.3.6 sound_background_EVENT</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.3.7">5.3.7 sound_background_loop_dir</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.4">5.4 Input Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.1">5.4.1 device_keyboard/joystick/mouse</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.2">5.4.2 mouse_delta</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.5">5.5 User Interface</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.1">5.5.1 ui_font</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.2">5.5.2 ui_fontsize</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.3">5.5.3 ui_background</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.4">5.5.4 ui_exit</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.5">5.5.5 ui_help</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.6">5.5.6 ui_gamemsg</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.7">5.5.7 ui_game</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.8">5.5.8 ui_skiptop/bottom/left/right</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.9">5.5.9 ui_topbar/bottombar</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.10">5.5.10 ui_color</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.11">5.5.11 ui_clip</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.12">5.5.12 ui_translucency</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.13">5.5.13 ui_command</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.14">5.5.14 ui_command_menu</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.15">5.5.15 ui_command_error</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.16">5.5.16 ui_menukey</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.17">5.5.17 ui_console</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.6">5.6 Input Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.1">5.6.1 device_keyboard/joystick/mouse_*</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.2">5.6.2 input_hotkey</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.3">5.6.3 lock</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.4">5.6.4 event_assign</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.5">5.6.5 event_repeat</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.6">5.6.6 event_mode</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.6.7">5.6.7 event_alpha</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#5.7">5.7 Other Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.1">5.7.1 idle_start</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.2">5.7.2 idle_screensaver</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.3">5.7.3 idle_screensaver_preview</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.4">5.7.4 group/type</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.5">5.7.5 group/type/desc/info_import</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.6">5.7.6 misc_exit</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.7">5.7.7 misc_quiet</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#6">6 Formats Supported</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#7">7 Signals</a><br>
+</td></tr>
+<tr><td width="5%"></td><td colspan=3>
+<a href="#8">8 Copyright</a><br>
+</td></tr>
+</table>
+<h2><a name="3">3</a> 
+Options
+</h2>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-default
+</strong></td></tr><tr><td>
+Add to the configuration file all the missing options
+with default values.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-remove
+</strong></td></tr><tr><td>
+Remove from the configuration file all the options
+with default values.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-cfg FILE
+</strong></td></tr><tr><td>
+Select an alternate configuration file. In Linux and Mac
+OS X the you can prefix the file name with "./" to
+load it from the current directory.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-log
+</strong></td></tr><tr><td>
+Create the file `advmenu.log' with a lot of internal
+information. Very useful for bug report.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-verbose
+</strong></td></tr><tr><td>
+Print some startup information.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-version
+</strong></td></tr><tr><td>
+Print the version number, the low-level device drivers
+supported and the configuration directories.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td><strong>
+-help
+</strong></td></tr><tr><td>
+Print a short command line help.
+</td></tr>
+</table>
+<p>
+In Linux and Mac OS X you can also use `--' before options instead of `-'.
+In DOS and Windows you can also use `/'.
+<h2><a name="4">4</a> 
+Emulators
+</h2>
+The program supports many type of emulators. The emulators
+AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+DMESS and DRAINE are directly supported and the only thing
+you should do is to run the AdvanceMENU program in the same
+directory of the emulator.
+<p>
+All the other emulators are supported with the emulator
+type `generic'.
+<h3><a name="4.1">4.1</a> 
+generic - Generic emulator
+</h3>
+For the `generic' emulator no additional rom information is
+needed. Only the name and the size of the rom files are used.
+<p>
+You should specify all emulator information and directories
+with the `emulator' and `emulator_*' options in the
+`advmenu.rc' file.
+<p>
+You need to use at least the `emulator' and `emulator_roms'
+options to inform AdvanceMENU how to run the emulator and where
+to find the roms.
+<p>
+For example:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+emulator "snes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
+emulator_roms "snes9x" "c:\game\snes9x\roms"
+emulator_roms_filter "snes9x" "*.smc;*.sfc;*.fig;*.1"
+</pre>
+</td></tr></table>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
+emulator_roms "zsnes" "c:\game\zsnes\roms"
+emulator_roms_filter "zsnes" "*.smc;*.sfc;*.fig;*.1"
+</pre>
+</td></tr></table>
+<p>
+The various %s, %f, %p, ... macros are explained in the `emulator'
+option description.
+<p>
+The roms are searched in the path specified with the
+`emulator_roms' option in the `advmenu.rc' file. For every file
+found (with any extension) a game is added in the menu.
+You can filter the files with the `emulator_roms_filter' option.
+<p>
+All the snapshots are searched in the directories specified with
+the `emulator_*' options using the same name of the rom file.
+<p>
+If you want, you can manually write a MAME like information file
+and name it as `ENUNAME.lst'. This file has the same format
+of the output of the `-listinfo' MAME command.
+Actually only the information `game', `name', `description', `year',
+`manufacturer', `cloneof' are used.
+Please note that this file is used only to add information at the
+existing games. The games present in this file are not automatically
+added at the game list.
+<h3><a name="4.2">4.2</a> 
+advmame - AdvanceMAME
+</h3>
+For the `advmame' emulator type the roms informations are
+gathered from the file `ENUNAME.xml'. If this file doesn't
+exist, it's created automatically with emulator `-listxml'
+command.
+<p>
+The directories specified in the `dir_rom' option in the
+`advmame.rc' file are used to detect the list of the
+available roms. In the DOS and Windows versions of the
+program the `advmenu.rc' file is searched in the same directory
+of the emulator. In the Unix version it's searched in the
+`HOME/.advance' directory.
+<p>
+The directory specified in `dir_snap' is used to
+detect the list of available snapshots.
+<h3><a name="4.3">4.3</a> 
+advmess - AdvanceMESS
+</h3>
+For the `advmess' emulator the rom information is gathered
+from the file `EMUNAME.xml'. If this file doesn't exist,
+it's created automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `dir_rom' option in the
+`advmess.rc' file are used to detect the list of the
+available bioses.
+<p>
+All the directories listed in the option `dir_image' are
+read and all the files found in the `machine' directories
+are inserted as software if the extension is recognized as a
+valid device extension for the current `machine' or if it's a
+`zip' file.
+For example if the `dir_image' options is `c:\software',
+AdvanceMENU scans the directories `c:\software\ti99_4a',
+`c:\software\sms', `c:\software\gameboy'...
+Files in the main directory `c:\software' are NOT checked.
+<p>
+When you select to run a zip file, the zip file is opened and
+all the files in the zip with a valid name and with a recognized
+device extension are added at the AdvanceMESS command line.
+A file is considered to have a valid name if has the same name
+of the zip of if it has the name of the zip with an additional
+char. For example in the file `alpiner.zip' the files
+`alpiner.bin', `alpinerc.bin' and `alpinerg.bin' have a valid
+name. This feature can be used to group all the required roms
+to play a software in a single zip file.
+<p>
+The file extension is also used to correctly select the device
+type when calling AdvanceMESS.
+<p>
+The directory specified in `dir_snap' is used to detect the
+list of available snapshots.
+At any exit of AdvanceMESS if a new snapshot is created, this
+file is moved to the correct `snap\system' directory renaming
+it as the software started.
+For example, suppose that you run the `ti99_4a' system with the
+software `alpiner'. If you press F12 during the emulation, the
+file `snap\ti99_4a.png' is created. When you return to
+AdvanceMENU the file is moved automatically to
+`snap\ti99_4a\alpiner.png'.
+<h3><a name="4.4">4.4</a> 
+mame - Windows MAME
+</h3>
+For the `mame' emulator the roms information is gathered from
+the file `EMUNAME.xml'. If this file doesn't exist, it's created
+automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `rompath' option in the
+`mame.ini' file are used to detect the list of the available
+roms.
+<p>
+The directory specified in `snap_directory' is
+used to detect the list of available snapshots.
+<h3><a name="4.5">4.5</a> 
+xmame - xmame
+</h3>
+For the `xmame' emulator the roms informations are gathered
+from the file `EMUNAME.xml'. If this file doesn't exist, it's
+created automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `rompath' option in the
+`HOME/.xmame/mamerc' file are used to detect the list of the
+available roms.
+<p>
+The directory specified in `screenshotdir' is
+used to detect the list of available snapshots files.
+<h3><a name="4.6">4.6</a> 
+dmame - DOS MAME
+</h3>
+For the `dmame' emulator the roms informations are gathered
+from the file `EMUNAME.xml'. If this file doesn't exist, it's
+created automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `rompath' option in the
+`mame.cfg' file are used to detect the list of the available
+roms.
+<p>
+The directory specified in `snap' is used to
+detect the list of available snapshots.
+<h3><a name="4.7">4.7</a> 
+dmess - DOS MESS
+</h3>
+For the `dmess' emulator the roms informations are gathered
+from the file `EMUNAME.xml'. If this file doesn't exist, it's
+created automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `biospath' option in the
+`mess.cfg' file are used to detect the list of the available
+bioses.
+<p>
+All the directories listed in the option `softwarepath' are
+read and all the `zip' files found in the `subsystem'
+directories are inserted as software.
+For example if the `softwarepath' options is `c:\software',
+AdvanceMENU scans the directories `c:\software\ti99_4a',
+`c:\software\sms', `c:\software\gameboy'...
+Zips in the main directory `c:\software' are NOT checked.
+<p>
+When you select one of these entries the zip is opened and is
+searched the first file with the same name of the zip but
+different extension. This file is used as the argument of the
+`-cart' option when running `mess'.
+AdvanceMENU is NOT able to use other supports like `-flop'.
+<p>
+All the aliases present if the `mess.cfg' are inserted as
+software entries. When you select one of these entries the
+`mess' option `-alias' is used to start the game.
+<p>
+You can set an arbitrary description on an alias specification
+adding it on the same line of the alias after the comment char
+'#' using this format:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+ALIAS = ALIAS_DEF # Description | YEAR | MANUFACTURER
+</pre>
+</td></tr></table>
+<p>
+For example:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+[ti99_4a]
+ti-inva = -cart ti-invac.bin -cart ti-invag.bin \
+&nbsp;&nbsp;&nbsp;&nbsp;# Invaders | 1982 | Texas Instrument
+</pre>
+</td></tr></table>
+<p>
+At any exit of the emulator if a new snapshot is created, this file
+is moved to the correct `snap\system' directory renaming it as
+the software started.
+For example, suppose that you run the `ti99_4a' system with the
+software `alpiner'. If you press F12 during the emulation, the
+file `snap\ti99_4a.png' is created. When you return to
+AdvanceMENU the file is moved automatically to
+`snap\ti99_4a\alpiner.png'.
+<h3><a name="4.8">4.8</a> 
+draine - DOS Raine
+</h3>
+For the `draine' emulator the roms informations are gathered
+from the file `EMUNAME.lst'. If this file doesn't exist, it's
+created automatically with emulator `-gameinfo' command.
+<p>
+All the directories specified in the `rom_dir_*' options are
+used to detect the list of the available roms.
+<p>
+The directory specified in `screenshots' is used to detect the
+list of available snapshots.
+<h2><a name="5">5</a> 
+Configuration
+</h2>
+The file `advmenu.rc' is used to save the current state of the
+front-end. It's read at startup and saved at exit. You can
+prevent the automatic save at the exit with the `config' option.
+<p>
+In DOS and Windows the configuration options are read from the
+file `advmenu.rc' in the current directory.
+<p>
+In Linux and Mac OS X the configuration options are read from the
+files `advmame.rc' and `advmess.rc' in the $host, $data and
+the $home directory.
+The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
+`sysconfdir' directory configured with the `configure' script.
+The default is `/usr/local/etc'.
+The $data directory is `$DATADIR/advance', where $DATADIR is the
+`datadir' directory configured with the `configure' script.
+The default is `/usr/local/share'.
+The $home directory is `$ADVANCE', where $ADVANCE is the value of the
+ADVANCE environment variable when the program is run.
+If the ADVANCE environment variable is missing the $home directory
+is `$HOME/.advance' where $HOME is the value of the HOME environment
+variable.
+If both the ADVANCE and HOME environment variables are missing the
+$data directory became also the $home directory.
+<p>
+The priority of the options is in the order: $host, $home and $data.
+<p>
+The $home directory is also used to write all the information
+by the program. The files in the $host and $data directory are only read.
+<p>
+You can include an additional configuration files with the `include'
+option. In DOS and Windows the files are searched in the current directory.
+In Linux and Mac OS X the files are searched in the $home directory if
+they are expressed as a relative path. You can force the search in the
+current directory prefixing the file with `./'.
+To include more than one file you must divide the names with `;' in
+DOS and Windows, and with `:' in Linux and Mac OS X.
+<p>
+You can force the creation of a default configuration file with the
+command line option `-default'.
+<p>
+In DOS and Windows the directory name separator is `\' and the
+multi-directory separator is `;'. In Linux and Mac OS X the directory
+name separator is `/' and the multi-directory separator is `:'.
+<h3><a name="5.1">5.1</a> 
+Global Configuration Options
+</h3>
+This section describes the global options used to
+customize the the program.
+<p>
+A subset of the configuration options are saved per
+emulator basis to allow different configurations for
+different emulators. Please note that these specific emulator
+configurations are not activated if you select to show
+more than one emulator at time.
+In this case only the default configuration is used.
+Specifically these special options are `mode', `sort',
+`preview', `group_include' and `type_include'.
+<h4><a name="5.1.1">5.1.1</a> 
+config
+</h4>
+Selects if and when the configuration modified by the user at
+runtime should be saved.
+<p>
+<pre>
+config save_at_exit | restore_at_exit | restore_at_idle
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+save_at_exit
+</em></td><td width="90%">
+Save any changes before exiting
+(default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+restore_at_exit
+</em></td><td width="90%">
+Don't save the changes. At the next
+run, restore the previous configuration.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+restore_at_idle
+</em></td><td width="90%">
+Restore the previous configuration
+after the `idle' time.
+</td></tr>
+</table>
+<p>
+You can manually save the configuration at runtime from the
+main menu.
+<h4><a name="5.1.2">5.1.2</a> 
+emulator
+</h4>
+Selects the emulators to list in the menu. You can specify more than
+one emulator.
+<p>
+WARNING! Before playing with this option, you should do a
+backup copy of your current `advmenu.rc' because when you remove
+an emulator, the game information for that emulator (like
+the time played) is lost.
+<p>
+<pre>
+emulator "EMULATOR" (generic | advmame | advmess | mame | dmame
+&nbsp;&nbsp;&nbsp;&nbsp;| dmess | draine) "[-]EXECUTABLE" "ARGUMENTS"
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR
+</em></td><td width="90%">
+The name for the emulator. It must be
+different for every emulator defined.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+generic
+</em></td><td width="90%">
+It's a generic emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+advmame
+</em></td><td width="90%">
+It's the AdvanceMAME emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+advmess
+</em></td><td width="90%">
+It's the AdvanceMESS emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mame
+</em></td><td width="90%">
+It's the Window MAME emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+dmame
+</em></td><td width="90%">
+It's the DOS MAME emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+dmess
+</em></td><td width="90%">
+It's the DOS MESS emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+draine
+</em></td><td width="90%">
+It's the DOS Raine emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+[-]EXECUTABLE
+</em></td><td width="90%">
+The executable path of the emulator.
+In DOS and Windows you can also use a batch (.bat)
+file, but this prevent the automatic generation of
+the listing file which must be generated manually.
+You can put a `-' in front of the file path
+to ignore any error returned by the executable.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ARGUMENTS
+</em></td><td width="90%">
+The arguments to be passed to the emulator.
+The arguments are required only for the `generic'
+emulator. For the others, AdvanceMENU automatically
+adds the required arguments to run a
+game. However, you may wish to add extra
+arguments.
+</td></tr>
+</table>
+<p>
+In the emulator arguments some macros are substituted
+with some special values:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%s
+</em></td><td width="90%">
+Expanded as the game name. For example "pacman".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%p
+</em></td><td width="90%">
+Expanded as the complete path of the rom. For
+example "c:\emu\roms\pacman.zip".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%f
+</em></td><td width="90%">
+Expanded as the rom name with the extension. For
+example "pacman.zip".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%o[R0,R90,R180,R270]
+</em></td><td width="90%">
+Expanded as one of the R* string,
+depending on the current menu orientation.
+Note that you cannot use space in the R* string.
+For example "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
+correctly rotate the AdvanceMAME emulator.
+</td></tr>
+</table>
+<p>
+For the `generic' emulator type you need use the % macros
+to tell at the emulator which game run. For all the other emulator
+types this information is automatically added by AdvanceMENU.
+<p>
+Examples for DOS and Windows:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+emulator "AdvanceMAME" advmame "advmame\advmame.exe" \
+&nbsp;&nbsp;&nbsp;&nbsp;"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
+emulator "MAME" mame "mame\mame.exe" "-nohws"
+emulator "MESS" dmess "mess\mess.exe" ""
+emulator "Raine" draine "raine\raine.exe" ""
+emulator "Custom Raine" draine "raine\raine2.bat" ""
+emulator "SNes9x" generic "c:\game\snes9x\snes9x.exe" "%f"
+emulator "ZSNes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
+</pre>
+</td></tr></table>
+<p>
+Examples for Linux and Mac OS X:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+emulator "AdvanceMAME" advmame "advmame" \
+&nbsp;&nbsp;&nbsp;&nbsp;"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
+</pre>
+</td></tr></table>
+<h4><a name="5.1.3">5.1.3</a> 
+emulator_roms/roms_filter/altss/flyers/cabinets/icons/titles
+</h4>
+Selects additional directories for the emulators. These
+directories are used in addition to any other directory
+defined in the emulator config file. The preview images and
+sounds files are also searched also in any `.zip' file present
+in these directories.
+<p>
+<pre>
+emulator_roms "EMULATOR" "LIST"
+emulator_roms_filter "EMULATOR" "LIST"
+emulator_altss "EMULATOR" "LIST"
+emulator_flyers "EMULATOR" "LIST"
+emulator_cabinets "EMULATOR" "LIST"
+emulator_marquees "EMULATOR" "LIST"
+emulator_icons "EMULATOR" "LIST"
+emulator_titles "EMULATOR" "LIST"
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+roms
+</em></td><td width="90%">
+List of directories used for the roms. This
+option is used only for the `generic' emulator
+type. All the other emulators use the
+emulator-specific config file to set the rom
+path.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+roms_filter
+</em></td><td width="90%">
+List of pattern for the file to list.
+An empty pattern means all files.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+altss
+</em></td><td width="90%">
+Snapshot directory, used for snap images and
+sounds. If possible, the directories
+specified in the emulator configuration file
+are also used.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+flyers
+</em></td><td width="90%">
+Flyers directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+cabinets
+</em></td><td width="90%">
+Cabinets directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+marquees
+</em></td><td width="90%">
+Marquees directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+icons
+</em></td><td width="90%">
+Icons directory.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+titles
+</em></td><td width="90%">
+Titles directory.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR
+</em></td><td width="90%">
+The name for the emulator. Must be the same
+name of a defined emulator
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+LIST
+</em></td><td width="90%">
+List of directories or patterns. In DOS and Windows
+use the `;' char as separator. In Linux and
+Mac OS X use the `:' char.
+</td></tr>
+</table>
+<p>
+Examples for DOS and Windows:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+emulator_roms "SNes9x" "c:\game\snes9x\roms;c:\game\zsnes\roms2"
+emulator_roms_filter "SNes9x" "*.smc;*.sfc;*.fig;*.1"
+emulator_flyers "SNes9x" "c:\game\zsnes\fly"
+emulator_cabinets "SNes9x" "c:\game\zsnes\cab"
+emulator_marquees "SNes9x" "c:\game\zsnes\mar"
+emulator_roms "ZSNes" "c:\game\zsnes\roms"
+emulator_roms_filter "ZSNes" "*.smc;*.sfc;*.fig;*.1"
+</pre>
+</td></tr></table>
+<h4><a name="5.1.4">5.1.4</a> 
+mode
+</h4>
+Selects the menu listing mode.
+<p>
+<pre>
+[EMULATOR/]mode full | full_mixed | text | list | list_mixed | tile_small
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_normal | tile_big | tile_enormous | tile_giant
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_icon | tile_marquee
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR/
+</em></td><td width="90%">
+Nothing for the default value, or an emulator
+name for a specific emulator option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+full
+</em></td><td width="90%">
+Full screen preview.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+full_mixed
+</em></td><td width="90%">
+Full screen preview with 4 images.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+text
+</em></td><td width="90%">
+Game list.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+list
+</em></td><td width="90%">
+Game list and preview of the selected game (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+list_mixed
+</em></td><td width="90%">
+Game list and 4 preview of the selected game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_small
+</em></td><td width="90%">
+Show the preview of 4x3 games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_normal
+</em></td><td width="90%">
+Show the preview of 5x6 games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_big
+</em></td><td width="90%">
+Show the preview of 8x6 games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_enormous
+</em></td><td width="90%">
+Show the preview of 12x9 games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_giant
+</em></td><td width="90%">
+Show the preview of 16x12 games.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_icon
+</em></td><td width="90%">
+Special mode for icon preview.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_marquee
+</em></td><td width="90%">
+Special mode for marquee preview.
+</td></tr>
+</table>
+<h4><a name="5.1.5">5.1.5</a> 
+sort
+</h4>
+Selects the sort order of the games displayed.
+<p>
+<pre>
+[EMULATOR/]sort parent | name | time | play | year | manufacturer
+&nbsp;&nbsp;&nbsp;&nbsp;| type | group | size | resolution | info
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR/
+</em></td><td width="90%">
+Nothing for the default value, or an emulator
+name for a specific emulator option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+parent
+</em></td><td width="90%">
+Game parent name.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+emulator
+</em></td><td width="90%">
+Emulator name.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+name
+</em></td><td width="90%">
+Game name.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+time
+</em></td><td width="90%">
+Total Time played.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+play
+</em></td><td width="90%">
+Total Play times.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+timeperplay
+</em></td><td width="90%">
+Time per play.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+year
+</em></td><td width="90%">
+Game year release.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+manufacturer
+</em></td><td width="90%">
+Game manufacturer.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+type
+</em></td><td width="90%">
+Game type.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group
+</em></td><td width="90%">
+Game group.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+size
+</em></td><td width="90%">
+Size of the game rom.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+resolution
+</em></td><td width="90%">
+Resolution of the game display.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info
+</em></td><td width="90%">
+External information imported with the
+`info_import' option.
+</td></tr>
+</table>
+<h4><a name="5.1.6">5.1.6</a> 
+preview
+</h4>
+Selects the type of the images displayed.
+<p>
+<pre>
+[EMULATOR/]preview snap | titles | flyers | cabinets
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR/
+</em></td><td width="90%">
+Nothing for the default value, or an emulator
+name for a specific emulator option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snap
+</em></td><td width="90%">
+Files in the `snap' and `altss' dir.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+flyers
+</em></td><td width="90%">
+Files in the `flyers' dir.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+cabinets
+</em></td><td width="90%">
+Files in the `cabinets' dir.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+titles
+</em></td><td width="90%">
+Files in the `titles' dir.
+</td></tr>
+</table>
+<p>
+The `icons' and `marquees' images can be selected with the
+special `mode' options `tile_icon' and `tile_marquee'.
+<h4><a name="5.1.7">5.1.7</a> 
+mode_skip
+</h4>
+Disables some menu modes when you press `tab'.
+<p>
+<pre>
+mode_skip (full | full_mixed | list | list_mixed | tile_small
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_normal | tile_big | tile_enormous | tile_giant
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_icon | tile_marquee)*
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SKIP
+</em></td><td width="90%">
+Multiple selections of disabled modes. Use
+an empty list to enable all the modes.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+mode_skip tile_giant
+mode_skip full full_mixed list tile_small tile_giant
+mode_skip
+</pre>
+</td></tr></table>
+<h4><a name="5.1.8">5.1.8</a> 
+preview_expand
+</h4>
+Enlarges the screen area used by the vertical games on horizontal
+tile (and horizontal games in vertical tile).
+<p>
+<pre>
+preview_expand FACTOR
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FACTOR
+</em></td><td width="90%">
+Expansion float factor from 1.0 to 3.0
+(default 1.15)
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+preview_expand 1.15
+</pre>
+</td></tr></table>
+<h4><a name="5.1.9">5.1.9</a> 
+preview_default_*
+</h4>
+Selects the default images. When an image for the selected game
+is not found, a default image can be displayed.
+<p>
+<pre>
+preview_default "FILE"
+preview_default_snap "FILE"
+preview_default_flyer "FILE"
+preview_default_cabinet "FILE"
+preview_default_icon "FILE"
+preview_default_marquee "FILE"
+preview_default_title "FILE"
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+default
+</em></td><td width="90%">
+Selects the default image for all preview
+modes.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+default_TAG
+</em></td><td width="90%">
+Selects the default image for a single
+preview mode.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+The complete PATH of the image.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+preview_default "C:\MAME\DEFAULT.PNG"
+preview_default_marquee "C:\MAME\DEFMAR.PNG"
+preview_default_icon "C:\MAME\DEFMAR.PNG"
+</pre>
+</td></tr></table>
+<h4><a name="5.1.10">5.1.10</a> 
+icon_space
+</h4>
+Selects the space size between icons. The `icon' mode is
+available only if you set the option `emulator_icons' in the
+emulator config file.
+<p>
+<pre>
+icon_space SPACE
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SPACE
+</em></td><td width="90%">
+The number of pixel between icons (default 43).
+</td></tr>
+</table>
+<p>
+In the icon display the game title is displayed in multiple rows
+if there is enough space.
+<h4><a name="5.1.11">5.1.11</a> 
+merge
+</h4>
+Selects the expected format of your romset. It's used to test
+the existence of the correct zips needed to run the games.
+<p>
+<pre>
+merge none | differential | parent | any | disable
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Every clone zip contains all the needed roms.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+differential
+</em></td><td width="90%">
+Every clone zip contains only
+the unique roms (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+parent
+</em></td><td width="90%">
+All the roms are in the parent zip.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+any
+</em></td><td width="90%">
+Any of the above, use this if you have
+a rom set that is organized poorly.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+disable
+</em></td><td width="90%">
+Check disabled.
+</td></tr>
+</table>
+<h4><a name="5.1.12">5.1.12</a> 
+game
+</h4>
+Contains various information of the know games.
+A `game' option is added automatically at the configuration
+files for any rom found. It's used to keep some game
+information like the play time.
+<p>
+<pre>
+game "EMULATOR/GAME" "GROUP" "TYPE" TIME PLAY "DESC"
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR
+</em></td><td width="90%">
+Name of the emulator.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+GAME
+</em></td><td width="90%">
+Short name of the game, generally the
+rom name without the extension.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+GROUP
+</em></td><td width="90%">
+Name of the group of the game or empty "".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+TYPE
+</em></td><td width="90%">
+Name of the type of the game or empty "".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+TIME
+</em></td><td width="90%">
+Time played in seconds.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PLAY
+</em></td><td width="90%">
+Number of play.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+DESC
+</em></td><td width="90%">
+User description or empty "".
+</td></tr>
+</table>
+<p>
+The GROUP, TYPE and DESC argument overwrite any
+other value imported with the `group_import', `type_import',
+and `desc_import' options. The imported values take effect
+only if the user GROUP, TYPE and DESC are empty.
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+game "advmame/puckman" "Very Good" "Arcade" \
+&nbsp;&nbsp;&nbsp;&nbsp;1231 21 "Pac-Man Japanese"
+game "advmame/1943" "" "" 121 4 "1943 !!"
+</pre>
+</td></tr></table>
+<h3><a name="5.2">5.2</a> 
+Display Configuration Options
+</h3>
+This section describes the options used to customize the display.
+<h4><a name="5.2.1">5.2.1</a> 
+device_video_*
+</h4>
+These options are used to customize the video drivers.
+<p>
+All the `device_video_*' options defined in the `advdev.txt' file can
+be used.
+<p>
+If you use a `System' video driver, you don't need to set these
+options. They are mostly ignored.
+<p>
+With a `Generate' video drivers these options are used to select
+and create the correct video mode. If missing the settings for a
+standard Multisync SVGA monitor are used.
+<h4><a name="5.2.2">5.2.2</a> 
+display_size
+</h4>
+Selects the desired width of the video mode.
+<p>
+<pre>
+display_size WIDTH
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+WIDTH
+</em></td><td width="90%">
+Width in pixels of the video mode. The nearest
+available video mode is chosen (default 1024).
+</td></tr>
+</table>
+<h4><a name="5.2.3">5.2.3</a> 
+display_restoreatgame
+</h4>
+Selects whether to reset the video mode before running the
+emulator.
+<p>
+<pre>
+[EMULATOR/]display_restoreatgame yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR/
+</em></td><td width="90%">
+Nothing for the default value, or an emulator
+name for a specific emulator option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Reset the video mode (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Maintain the current graphics mode.
+</td></tr>
+</table>
+<h4><a name="5.2.4">5.2.4</a> 
+display_restoreatext
+</h4>
+Selects whether to reset the video mode before exiting.
+<p>
+<pre>
+display_restoreatexit yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Reset the video mode (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Maintain the current graphics mode.
+</td></tr>
+</table>
+<h4><a name="5.2.5">5.2.5</a> 
+display_orientation
+</h4>
+Selects the desired orientation of the screen.
+<p>
+<pre>
+display_orientation (flip_xy | mirror_x | mirror_y)*
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mirror_x
+</em></td><td width="90%">
+Mirror in the horizontal direction.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mirror_y
+</em></td><td width="90%">
+Mirror in the vertical direction.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+flip_xy
+</em></td><td width="90%">
+Swap the x and y axes.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+display_orientation flip_xy mirror_x
+</pre>
+</td></tr></table>
+<h4><a name="5.2.6">5.2.6</a> 
+display_brightness
+</h4>
+Selects the image brightness factor.
+<p>
+<pre>
+display_brightness FACTOR
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FACTOR
+</em></td><td width="90%">
+Brightness float factor (default 1.0).
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+display_brightness 0.9
+</pre>
+</td></tr></table>
+<h4><a name="5.2.7">5.2.7</a> 
+display_gamma
+</h4>
+Selects the image gamma correction factor.
+<p>
+<pre>
+display_gamma FACTOR
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FACTOR
+</em></td><td width="90%">
+Gamma float factor (default 1.0).
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+display_gamma 0.9
+</pre>
+</td></tr></table>
+<h3><a name="5.3">5.3</a> 
+Sound Configuration Options
+</h3>
+This section describes the options used to customize the sound.
+<h4><a name="5.3.1">5.3.1</a> 
+device_sound_*
+</h4>
+These options are used to customize the audio drivers.
+<p>
+All the `device_sound_*' options defined in the `advdev.txt' file can
+be used.
+<h4><a name="5.3.2">5.3.2</a> 
+sound_volume
+</h4>
+Sets the global sound volume.
+<p>
+<pre>
+sound_volume VOLUME
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+VOLUME
+</em></td><td width="90%">
+The volume attenuation in dB (default -3).
+The attenuation is a negative value from -40 to 0.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+sound_volume -5
+</pre>
+</td></tr></table>
+<h4><a name="5.3.3">5.3.3</a> 
+sound_latency
+</h4>
+Sets the audio latency.
+<p>
+<pre>
+sound_latency TIME
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+TIME
+</em></td><td width="90%">
+Latency in seconds from 0.01 to 2.0.
+(default 0.1)
+</td></tr>
+</table>
+<p>
+Increase the value if your hear a choppy audio.
+<h4><a name="5.3.4">5.3.4</a> 
+sound_buffer
+</h4>
+Sets the size of the lookahead audio buffer for decoding.
+<p>
+<pre>
+sound_buffer TIME
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+TIME
+</em></td><td width="90%">
+Buffer size in seconds from 0.05 to 2.0.
+(default 0.1)
+</td></tr>
+</table>
+<p>
+Increase the value if your hear a choppy audio.
+<h4><a name="5.3.5">5.3.5</a> 
+sound_foreground_EVENT
+</h4>
+Selects the sounds played in foreground for the various events.
+<p>
+<pre>
+sound_foreground_begin none | default | FILE
+sound_foreground_end none | default | FILE
+sound_foreground_key none | default | FILE
+sound_foreground_start none | default | FILE
+sound_foreground_stop none | default | FILE
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+begin
+</em></td><td width="90%">
+Sound played at AdvanceMENU startup.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+end
+</em></td><td width="90%">
+Sound played at AdvanceMENU exit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+start
+</em></td><td width="90%">
+Sound played at emulator startup.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+stop
+</em></td><td width="90%">
+Sound played at emulator exit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+key
+</em></td><td width="90%">
+Sound played when a key is pressed.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No sound.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+default
+</em></td><td width="90%">
+Use the default sound.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+Path of the sound file (.wav or .mp3).
+</td></tr>
+</table>
+<h4><a name="5.3.6">5.3.6</a> 
+sound_background_EVENT
+</h4>
+Selects the sounds played in background for the various events.
+<p>
+<pre>
+sound_background_begin none | FILE
+sound_background_end none | FILE
+sound_background_start none | FILE
+sound_background_stop none | FILE
+sound_background_loop none | default | FILE
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+begin
+</em></td><td width="90%">
+Sound played at AdvanceMENU startup.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+end
+</em></td><td width="90%">
+Sound played at AdvanceMENU exit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+start
+</em></td><td width="90%">
+Sound played at emulator startup.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+stop
+</em></td><td width="90%">
+Sound played at emulator exit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+loop
+</em></td><td width="90%">
+Sound played in loop if no other background
+sound is available.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No sound
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+default
+</em></td><td width="90%">
+Use the default sound
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+Path of the sound file (.wav or .mp3)
+</td></tr>
+</table>
+<h4><a name="5.3.7">5.3.7</a> 
+sound_background_loop_dir
+</h4>
+Selects the background music directory to search for MP3 and WAV
+files. Music tracks will be played in random order.
+<p>
+Multiple directories may be specified by separating each with a
+semicolon `;' in DOS and Windows, with a double-colon `:' in Linux
+and Mac OS X.
+<p>
+Note that this directory must be used only for your music.
+The emulated game recordings, played when the cursor is moved on
+the game, are stored in the snap directory defined in the emulator
+configuration file or with the `emulator_altss' option.
+<p>
+<pre>
+sound_background_loop_dir "DIR"
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+DIR
+</em></td><td width="90%">
+Directory for .mp3 and .wav files.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+sound_background_loop_dir C:\MP3\POP;C:\MP3\ROCK
+</pre>
+</td></tr></table>
+<h3><a name="5.4">5.4</a> 
+Input Configuration Options
+</h3>
+This section describes the options used to customize the user
+input.
+<h4><a name="5.4.1">5.4.1</a> 
+device_keyboard/joystick/mouse
+</h4>
+These options are used to customize the input drivers.
+<p>
+All the `device_keyboard/joystick/mouse_*' options defined in
+the `advdev.txt' file can be used.
+<h4><a name="5.4.2">5.4.2</a> 
+mouse_delta
+</h4>
+Selects the mouse/trackball sensitivity. Increase the value for
+a slower movement. Decrease it for a faster movement.
+<p>
+<pre>
+mouse_delta STEP
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+STEP
+</em></td><td width="90%">
+Mouse/trackball position step (default 100).
+</td></tr>
+</table>
+<h3><a name="5.5">5.5</a> 
+User Interface
+</h3>
+This section describes the options used to customize the user
+interface.
+<h4><a name="5.5.1">5.5.1</a> 
+ui_font
+</h4>
+Selects a font file. The formats TrueType (TTF), GRX, PSF and
+RAW are supported. You can find a collection of fonts in the
+`contrib' directory.
+<p>
+<pre>
+ui_font auto | "FILE"
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Use the built-in font (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+Font file path.
+</td></tr>
+</table>
+<p>
+The TrueType (TTF) format is supported only if the program is
+compiled with the FreeType2 library.
+<h4><a name="5.5.2">5.5.2</a> 
+ui_fontsize
+</h4>
+Selects the font size, if the specified font is scalable.
+The size is expressed in number of rows and columns of text in the
+screen.
+<p>
+<pre>
+ui_fontsize auto | ROWS [COLS]
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Automatically compute the size (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ROWS
+</em></td><td width="90%">
+Number of text rows.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+COLS
+</em></td><td width="90%">
+Number of text columns. If omitted is computed from
+the number of rows.
+</td></tr>
+</table>
+<h4><a name="5.5.3">5.5.3</a> 
+ui_background
+</h4>
+Defines a background image in .PNG or MNG format. The image is
+stretched to fit the screen.
+<p>
+ui_background FILE | none
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No image (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+File in .PNG or .MNG format to load.
+</td></tr>
+</table>
+<p>
+For .MNG files only the first frame is used.
+<h4><a name="5.5.4">5.5.4</a> 
+ui_exit
+</h4>
+Defines an exit background image in .PNG or .MNG format displayed when
+the emulator exits. The image is stretched to fit the screen.
+The message is displayed only if the option `display_restoreaatexit'
+is set to `no'.
+<p>
+ui_exit FILE | none
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No image (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+File in .PNG or .MNG format to load.
+</td></tr>
+</table>
+<p>
+For .MNG files only the first frame is used.
+<h4><a name="5.5.5">5.5.5</a> 
+ui_help
+</h4>
+Defines an help image in .PNG or .MNG format displayed when the
+user press F1. The image is stretched to fit the screen.
+<p>
+ui_help FILE | none
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No image (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+File in .PNG or .MNG format to load.
+</td></tr>
+</table>
+<p>
+For .MNG files only the first frame is used.
+<h4><a name="5.5.6">5.5.6</a> 
+ui_gamemsg
+</h4>
+One line message displayed when a game is chosen. The
+message is displayed only if the option `display_restoreatgame' is
+set to `no'.
+<p>
+<pre>
+ui_gamemsg "MESSAGE"
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MESSAGE
+</em></td><td width="90%">
+Message to display (default "Run Game").
+To prevent the display of the message use the
+empty string "".
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+ui_gamemsg "Avvio il gioco..."
+</pre>
+</td></tr></table>
+<h4><a name="5.5.7">5.5.7</a> 
+ui_game
+</h4>
+Selects the preview type to display when a game is run. The
+preview is displayed only if the option `display_restoreatgame' is
+set to `no'.
+<p>
+<pre>
+ui_game none | snap | flyers | cabinets | titles
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Don't display any preview.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snap, flyers, cabinets, titles
+</em></td><td width="90%">
+Display the
+specified preview. (default snap).
+</td></tr>
+</table>
+<h4><a name="5.5.8">5.5.8</a> 
+ui_skiptop/bottom/left/right
+</h4>
+Defines the border area of the screen not used by the menu.
+Generally it's the part of the screen used by the background image.
+If a `ui_background' image is specified these values refer at image
+size before stretching, otherwise they refer at the current video
+mode size.
+<p>
+ui_skiptop N
+ui_skipbottom N
+ui_skipleft N
+ui_skipright N
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+N
+</em></td><td width="90%">
+Number of pixel to skip (default 0).
+</td></tr>
+</table>
+<h4><a name="5.5.9">5.5.9</a> 
+ui_topbar/bottombar
+</h4>
+Enables or disables the top and bottom information bars.
+<p>
+ui_topbar yes | no
+ui_bottombar yes | no
+<h4><a name="5.5.10">5.5.10</a> 
+ui_color
+</h4>
+Selects the user interface colors.
+<p>
+<pre>
+ui_color TAG FOREGROUND BACKGROUND
+</pre>
+<p>
+Tags:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+help
+</em></td><td width="90%">
+Help.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+help_tag
+</em></td><td width="90%">
+Help highlight.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+submenu_bar
+</em></td><td width="90%">
+Submenu title.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+submenu_item
+</em></td><td width="90%">
+Submenu entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+submenu_item_select
+</em></td><td width="90%">
+Submenu selected entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+submenu_hidden
+</em></td><td width="90%">
+Submenu hidden entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+submenu_hidden_select
+</em></td><td width="90%">
+Submenu selected hidden entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_item
+</em></td><td width="90%">
+Menu entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_hidden
+</em></td><td width="90%">
+Menu hidden entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_tag
+</em></td><td width="90%">
+Menu highlight entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_item_select
+</em></td><td width="90%">
+Menu selected entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_hidden_select
+</em></td><td width="90%">
+Menu hidden selected entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_tag_select
+</em></td><td width="90%">
+Menu selected highlight.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar
+</em></td><td width="90%">
+Title.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar_tag
+</em></td><td width="90%">
+Title highlight.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar_hidden
+</em></td><td width="90%">
+Title hidden text.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+grid
+</em></td><td width="90%">
+Scrollbar marker and generic background color.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+backdrop
+</em></td><td width="90%">
+Backdrop outline and missing backdrop.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+icon
+</em></td><td width="90%">
+Icon outline and missing icon.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+cursor
+</em></td><td width="90%">
+Flashing cursor.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FOREGROUND
+</em></td><td width="90%">
+Foreground color in RRGGBB
+hex format. For example FF0000 is red,
+00FF00 is green and 0000FF is blue.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+BACKGROUND
+</em></td><td width="90%">
+Background color. Like foreground color.
+</td></tr>
+</table>
+<h4><a name="5.5.11">5.5.11</a> 
+ui_clip
+</h4>
+Selects how play the video clips.
+<p>
+<pre>
+ui_clip none | single | singleloop | multi | multiloop | multiloopall
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+No clip.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+single
+</em></td><td width="90%">
+Play only one clip and only one time (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+singleloop
+</em></td><td width="90%">
+Play only one clip continuously. The sound is
+not looped.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+multi
+</em></td><td width="90%">
+Play all the clips.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+multiloop
+</em></td><td width="90%">
+Play all the clips, and loop the clip on the
+cursor. The sound is not looped.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+multiloopall
+</em></td><td width="90%">
+Play all the clips, and loop all the clips.
+The sound is not looped.
+</td></tr>
+</table>
+<h4><a name="5.5.12">5.5.12</a> 
+ui_translucency
+</h4>
+Selects the translucency of the user interface.
+<p>
+ui_translucency FACTOR
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FACTOR
+</em></td><td width="90%">
+Translucency factor from 0 to 1
+(default 0.6).
+</td></tr>
+</table>
+<p>
+The translucency has effect only if you have a background
+image.
+<h4><a name="5.5.13">5.5.13</a> 
+ui_command
+</h4>
+Defines the user commands. These commands are executed as
+shell scripts. The video mode is not changed, so they must be
+silent.
+<p>
+ui_command "MENU" SCRIPT
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MENU
+</em></td><td width="90%">
+Name of the menu entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SCRIPT
+</em></td><td width="90%">
+Commands to execute. If you need to insert more
+command rows you can end the line with the \ char.
+</td></tr>
+</table>
+<p>
+In the script text some macro are substituted with information of
+the selected game:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%s
+</em></td><td width="90%">
+The game name. For example "pacman".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%p
+</em></td><td width="90%">
+The complete path of the rom. For
+example "c:\emu\roms\pacman.zip".
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+%f
+</em></td><td width="90%">
+The rom name with the extension. For
+example "pacman.zip".
+</td></tr>
+</table>
+<p>
+If no game is selected the macros aren't substituted.
+<p>
+If the script exits with an error code, a message is displayed.
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+ui_command "Delete Hiscore" \
+&nbsp;&nbsp;&nbsp;&nbsp;rm ~/.advance/hi/%s.hi
+ui_command "Enable GamePad" \
+&nbsp;&nbsp;&nbsp;&nbsp;rmmod analog \
+&nbsp;&nbsp;&nbsp;&nbsp;sleep 1 \
+&nbsp;&nbsp;&nbsp;&nbsp;modprobe analog js=gamepad
+</pre>
+</td></tr></table>
+<h4><a name="5.5.14">5.5.14</a> 
+ui_command_menu
+</h4>
+Selects the name of the menu entry for the commands submenu.
+<p>
+ui_command_menu MENU
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MENU
+</em></td><td width="90%">
+Name of the menu entry (default "Command").
+</td></tr>
+</table>
+<h4><a name="5.5.15">5.5.15</a> 
+ui_command_error
+</h4>
+Selects the message to display if a command fails.
+<p>
+ui_command_error MSG
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MSG
+</em></td><td width="90%">
+Message to display (default "Error running the command").
+</td></tr>
+</table>
+<h4><a name="5.5.16">5.5.16</a> 
+ui_menukey
+</h4>
+Enables or disables the key names in the menu entries.
+<p>
+ui_menukey yes | no
+<h4><a name="5.5.17">5.5.17</a> 
+ui_console
+</h4>
+Changes the user interface behavior for the use on a game
+console system. Mainly for AdvanceCD.
+<p>
+ui_console yes | no
+<p>
+In console mode the menu is reduced to contains only the
+minimal commands, and the sound volume is propagated to the
+emulators if possible.
+<h3><a name="5.6">5.6</a> 
+Input Configuration Options
+</h3>
+This section describes the options used to customize the user
+input.
+<h4><a name="5.6.1">5.6.1</a> 
+device_keyboard/joystick/mouse_*
+</h4>
+These options are used to customize the input drivers.
+<p>
+All the `device_keyboard/joystick/mouse_*' options defined in
+the `advdev.txt' file can be used.
+<h4><a name="5.6.2">5.6.2</a> 
+input_hotkey
+</h4>
+Enables or disables the recognition of the special OS keyboard
+sequences.
+<p>
+<pre>
+input_hotkey yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+No hot key recognition.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Hot key recognition (default).
+</td></tr>
+</table>
+<p>
+In DOS the hotkey recognized are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+ALT+DEL
+</em></td><td width="90%">
+Reset.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+ALT+END
+</em></td><td width="90%">
+Quit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+BREAK (Pause)
+</em></td><td width="90%">
+Break.
+</td></tr>
+</table>
+<p>
+In Linux the hotkey recognized generally are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+C
+</em></td><td width="90%">
+Break.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ALT+Fx
+</em></td><td width="90%">
+Change virtual console.
+</td></tr>
+</table>
+<h4><a name="5.6.3">5.6.3</a> 
+lock
+</h4>
+Locks or unlocks the user interface. When locked, the user can
+only browse and run games. Options can't be changed and the user
+cannot exit.
+<p>
+<pre>
+lock yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Locked mode activate.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Locked mode deactivate (default).
+</td></tr>
+</table>
+<h4><a name="5.6.4">5.6.4</a> 
+event_assign
+</h4>
+Customizes the input keyboard codes that trigger menu
+events.
+<p>
+<pre>
+event_assign EVENT EXPRESSION
+</pre>
+<p>
+Events:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+up, down, left, right
+</em></td><td width="90%">
+Movement.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+home, end, pgup, pgdn
+</em></td><td width="90%">
+Movement.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+enter
+</em></td><td width="90%">
+Main action, start.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+esc
+</em></td><td width="90%">
+Back action, exit &amp; cancel.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+space
+</em></td><td width="90%">
+Change action, select &amp; deselect.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ins
+</em></td><td width="90%">
+Select all.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+del
+</em></td><td width="90%">
+Deselect all.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu
+</em></td><td width="90%">
+The main menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+sort
+</em></td><td width="90%">
+Changes the sort mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mode
+</em></td><td width="90%">
+Change the display mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+preview
+</em></td><td width="90%">
+Change the preview mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+emulator
+</em></td><td width="90%">
+The emulator menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+help
+</em></td><td width="90%">
+Show a little help.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group
+</em></td><td width="90%">
+Select a game group.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+type
+</em></td><td width="90%">
+Select a game type.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+exclude
+</em></td><td width="90%">
+Exclude some games with filters.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+setgroup
+</em></td><td width="90%">
+Select the group of the current game
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+settype
+</em></td><td width="90%">
+Select the type of the current game
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+runclone
+</em></td><td width="90%">
+Run a game clone.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+shutdown
+</em></td><td width="90%">
+Exit and shutdown.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+command
+</em></td><td width="90%">
+The file command menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+rotate
+</em></td><td width="90%">
+Rotate the screen of 90°.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+lock
+</em></td><td width="90%">
+Lock/unlock the user interface.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EXPRESSION
+</em></td><td width="90%">
+Definition of the key expression that
+generates the event. It's a combination of
+the key names or scan-code, and of the operators
+`not', `or'. The `and' operator is implicit
+between consecutive scan-codes.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+KEY
+</em></td><td width="90%">
+The available key names are:
+a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
+s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+0_pad, 1_pad, 2_pad, 3_pad, 4_pad, 5_pad, 6_pad,
+7_pad, 8_pad, 9_pad, f1, f2, f3, f4, f5, f6, f7, f8,
+f9, f10, f11, f12, esc, backquote, minus, equals,
+backspace, tab, openbrace, closebrace, enter,
+semicolon, quote, backslash, less, comma, period,
+slash, space, insert, del, home, end, pgup, pgdn, left,
+right, up, down, slash_pad, asterisk_pad, minus_pad,
+plus_pad, period_pad, enter_pad, prtscr, pause,
+lshift, rshift, lcontrol, rcontrol, lalt, ralt,
+lwin, rwin, menu, scrlock, numlock, capslock.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+event_assign enter lcontrol or enter
+event_assign menu 90 or 35
+event_assign emulator 91 23 or not 21 33
+</pre>
+</td></tr></table>
+<p>
+You can use the utility `advk' to get the key scancodes and
+names.
+<h4><a name="5.6.5">5.6.5</a> 
+event_repeat
+</h4>
+Selects the repeat rate of the various events.
+<p>
+<pre>
+event_repeat FIRST_TIME NEXT_TIME
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FIRST_TIME
+</em></td><td width="90%">
+Time of the first repeat in ms.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+NEXT_TIME
+</em></td><td width="90%">
+Time of the next repeats in ms.
+</td></tr>
+</table>
+<h4><a name="5.6.6">5.6.6</a> 
+event_mode
+</h4>
+Selects whether to wait for a complete screen update before
+processing the next event.
+<p>
+<pre>
+event_mode wait | fast
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+wait
+</em></td><td width="90%">
+The screen is completely redrawn before processing
+the next event.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+fast
+</em></td><td width="90%">
+If an event is waiting, the screen drawing
+is interrupted (default).
+</td></tr>
+</table>
+<h4><a name="5.6.7">5.6.7</a> 
+event_alpha
+</h4>
+Disables the alphanumeric keys for fast moving.
+If you have a keyboard encoder or a keyboard hack with some
+buttons remapped to alphanumeric keys, it's useful to disable
+them.
+<p>
+<pre>
+event_alpha yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Enable (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Disable.
+</td></tr>
+</table>
+<h3><a name="5.7">5.7</a> 
+Other Configuration Options
+</h3>
+<h4><a name="5.7.1">5.7.1</a> 
+idle_start
+</h4>
+Automatically starts a random game after some time of inactivity.
+You can also configure the AdvanceMAME option `input_idleexit'
+in the file `advmame.rc' to create a continuous demo mode.
+<p>
+<pre>
+idle_start START_TIMEOUT REPEAT_TIMEOUT
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+START_TIMEOUT
+</em></td><td width="90%">
+Number of seconds to wait for the
+first run. 0 means do nothing (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+REPEAT_TIMEOUT
+</em></td><td width="90%">
+Number of seconds to wait for the
+next run. 0 means do nothing (default).
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+idle_start 400 60
+</pre>
+</td></tr></table>
+<h4><a name="5.7.2">5.7.2</a> 
+idle_screensaver
+</h4>
+Selects the start time of the default screen saver. The screensaver
+is a slide show of the available snapshots.
+<p>
+<pre>
+idle_screensaver START_TIMEOUT REPEAT_TIMEOUT
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+START_TIMEOUT
+</em></td><td width="90%">
+Number of seconds to wait for the
+first run. 0 means never (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+REPEAT_TIMEOUT
+</em></td><td width="90%">
+Number of seconds to wait for the
+next run. 0 means never (default).
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+idle_screensaver 40 5
+</pre>
+</td></tr></table>
+<h4><a name="5.7.3">5.7.3</a> 
+idle_screensaver_preview
+</h4>
+Selects the preview type to use in the screensaver. Like
+the preview option.
+<p>
+<pre>
+idle_screensaver_preview none | play | snap | flyers
+&nbsp;&nbsp;&nbsp;&nbsp;| cabinets | titles
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Shutdown the monitor using the VESA/PM services
+if available. Otherwise use a black image.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+snap, flyers, cabinets, titles
+</em></td><td width="90%">
+Start a mute slide show
+of the specified image type (default snap).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+play
+</em></td><td width="90%">
+Start a snap slide show using the animated
+snapshots and the game sounds. The static
+snapshots are ignored.
+</td></tr>
+</table>
+<h4><a name="5.7.4">5.7.4</a> 
+group/type
+</h4>
+Selects the available `group' and `type' category names and
+which of them to show.
+<p>
+<pre>
+group "STRING"
+type "STRING"
+[EMULATOR/]group_include "STRING"
+[EMULATOR/]type_include "STRING"
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group, type
+</em></td><td width="90%">
+Define a category.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group_include, type_include
+</em></td><td width="90%">
+Show a category.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR/
+</em></td><td width="90%">
+Nothing for the default value, or an emulator
+name for a specific emulator option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+STRING
+</em></td><td width="90%">
+name of the category
+</td></tr>
+</table>
+<h4><a name="5.7.5">5.7.5</a> 
+group/type/desc/info_import
+</h4>
+Selects the automatic import of the groups, types, descriptions
+and extra information from an external file. The extra info are
+additional information displayed for every game.
+<p>
+The file formats supported are CATINI, MacMAME and NMS.
+The files are read in the current directory in DOS and Windows
+and in the $home directory in Linux and Mac OS X.
+<p>
+WARNING! These options DON'T OVERRIDE any user explicit
+choices made with the `game' option.
+<p>
+<pre>
+desc_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+info_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+type_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+</pre>
+<p>
+Commands:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+desc_import
+</em></td><td width="90%">
+Imports the game names shown in the menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+info_import
+</em></td><td width="90%">
+Imports additional information printed on
+bottom bar of the menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group_import
+</em></td><td width="90%">
+Imports the group names of the game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+type_import
+</em></td><td width="90%">
+Imports the type names of the game.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Don't import.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ini
+</em></td><td width="90%">
+Import in CATLIST format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mac
+</em></td><td width="90%">
+Import in the MacMAME format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+nms
+</em></td><td width="90%">
+Import in the NMS format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EMULATOR
+</em></td><td width="90%">
+The emulator tag name as specified in
+the `emulator' option.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FILE
+</em></td><td width="90%">
+The file name.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SECTION
+</em></td><td width="90%">
+The section name (only for the `ini' format).
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+group_import ini "advmame" "catver.ini" "Category"
+type_import mac "advmame" "Genre 37b14.txt"
+desc_import nms "raine" "raine.nms"
+info_import ini "advmame" "catver.ini" "VerAdded"
+</pre>
+</td></tr></table>
+<p>
+The CATLIST files can be downloaded at:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<a href="http://www.mameworld.net/catlist/">http://www.mameworld.net/catlist/</a>
+<br>
+</td></tr></table>
+<h4><a name="5.7.6">5.7.6</a> 
+misc_exit
+</h4>
+Selects the exit mode.
+<p>
+<pre>
+misc_exit none | normal | shutdown | all
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Exit is disabled.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+normal
+</em></td><td width="90%">
+Exit is possible pressing ESC.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+shutdown
+</em></td><td width="90%">
+Exit is possible pressing CTRL-ESC.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+all
+</em></td><td width="90%">
+All the exit modes are possible.
+</td></tr>
+</table>
+<h4><a name="5.7.7">5.7.7</a> 
+misc_quiet
+</h4>
+Disables the copyright text message at the startup.
+<p>
+<pre>
+misc_quiet yes | no
+</pre>
+<h2><a name="6">6</a> 
+Formats Supported
+</h2>
+This is the list of the file formats supported by AdvanceMENU.
+<p>
+Images:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PNG
+</em></td><td width="90%">
+The PNG format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PCX
+</em></td><td width="90%">
+The PCX format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ICO
+</em></td><td width="90%">
+The ICON format.
+</td></tr>
+</table>
+<p>
+Clips:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MNG
+</em></td><td width="90%">
+The MNG-VLC (Very Low Complexity) sub format
+without transparency and alpha channel.
+Or the sub-formats generated by AdvanceMAME or
+by the `advmng' compression utility.
+</td></tr>
+</table>
+<p>
+Sounds:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MP3
+</em></td><td width="90%">
+The MP3 format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+WAV
+</em></td><td width="90%">
+The WAV format with a sample size of 16 bit.
+</td></tr>
+</table>
+<p>
+Fonts:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+TTF
+</em></td><td width="90%">
+The TrueType format (with the FreeType2 library).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+RAW
+</em></td><td width="90%">
+The RAW format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PSF
+</em></td><td width="90%">
+The PSF format.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+GRX
+</em></td><td width="90%">
+The GRX format.
+</td></tr>
+</table>
+<p>
+Archives:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ZIP
+</em></td><td width="90%">
+The ZIP format.
+</td></tr>
+</table>
+<h2><a name="7">7</a> 
+Signals
+</h2>
+The program intercepts the following signals:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SIGQUIT
+</em></td><td width="90%">
+Exit normally.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SIGTERM, SIGINT, SIGALRM
+</em></td><td width="90%">
+Exit restoring only the output devices.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SIGHUP
+</em></td><td width="90%">
+Restart the program.
+</td></tr>
+</table>
+<h2><a name="8">8</a> 
+Copyright
+</h2>
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Randy Schnedler.
+</body>
+</html>

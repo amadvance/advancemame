@@ -1,0 +1,3416 @@
+<html>
+<head>
+<title>History For AdvanceMAME/MESS</title>
+</head>
+<body>
+<center><h2>History For AdvanceMAME/MESS</h2></center>
+<h2> 
+AdvanceMAME Version 0.90.1 2005/01
+</h2>
+<ul>
+<li>
+Added a new `system()' script function to execute
+a shell script.
+</li>
+<li>
+Improved the behaviour of the analog input. You can now
+use both the keyboard and the joystick at the
+same time.
+</li>
+<li>
+Enabled as default the use of the joystick and mouse.
+The `device_joystick' and `device_mouse' options
+have now the `auto' value as default.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.90.0.0 2005/01
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.90.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.90.0 2005/01
+</h2>
+<ul>
+<li>
+Fixed the recognition of some USB mouses and keyboards
+with the Linux event driver.
+</li>
+<li>
+The USB devices in Linux now have always the same order
+in the input_map[] specifications.
+</li>
+<li>
+Added a SVGALIB patch to fix the compilation with Linux
+Kernel 2.6 when you get the warning of missing
+"pci_find_class" function.
+</li>
+<li>
+Added the missing control code `ui_edit_cheat' and
+`ui_toggle_crosshair'.
+</li>
+<li>
+The linux keyboard event driver now recognize the
+special CTRL+C keypress.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.89.0 2004/12
+</h2>
+<ul>
+<li>
+Added a ncurses driver for text mode in Linux.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.89.0.0 2004/12
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.89.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.88.0 2004/11
+</h2>
+<ul>
+<li>
+Improved the timer precision in the Windows version.
+</li>
+<li>
+Added support for scaling bitmapped fonts by an
+integer factor.
+</li>
+<li>
+Added support at the Linux keyboard `event' driver to
+disable the hotkeys like CTRL+C and ALT+Fx.
+</li>
+<li>
+Removed the generic requirement of the C++ compiler.
+It's now required only if you change the
+documentation.
+</li>
+<li>
+Fixed the user interface in overlay video modes.
+</li>
+<li>
+Added new configuration sections which allow to select
+different options based on the input device type.
+The new sections are named: `joy4way',
+`joy8way', `doublejoy4way', `doublejoy8way',
+`paddle', `dial', `trackball', `stick', `lightgun',
+`mouse'.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.88.0.0 2004/11
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.88.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.87.0 2004/09
+</h2>
+<ul>
+<li>
+Added support for translucency in the user interface
+with the `ui_translucency' option.
+</li>
+<li>
+Added a new `device_video_clock' option which substitutes
+the old `device_video_p/h/vclock'. This allows
+a more complete specification of the allowed clocks
+if you use a multistandard arcade monitor.
+</li>
+<li>
+The `x', `xclock' and `generate_*' modes of the `display_adjust'
+option now set a different horizontal resolution if
+the current resize mode doesn't allow a fractional
+vertical stretch. This always ensures a correct
+aspect ratio if you use the `none' and `integer'
+resize modes.
+</li>
+<li>
+Improved the support for multiple input device. You should
+be now able to use a mouse and a joystick at the same
+time for the same player.
+</li>
+<li>
+Fixed a library creation problem in MacOS X.
+</li>
+<li>
+Fixed some issues using `not' input sequence in
+the .rc file.
+</li>
+<li>
+Now if you unplug a input controller the settings in
+the .rc file are not removed.
+</li>
+<li>
+Fixed the `input_name' option [wpcmame].
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.86.0 2004/09
+</h2>
+<ul>
+<li>
+Added an audio spectrum analyzer in the "Audio" menu.
+</li>
+<li>
+The sound normalization now uses the Fletcher-Munson
+"Equal Loudness Curve" at 80 dB to remove inaudible
+frequencies. The sound power is now also increased if
+required.
+</li>
+<li>
+Fixed the compilation of the chdman utility.
+</li>
+<li>
+Fixed the joystick recognition with some low level drivers.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.86.0.0 2004/09
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.86.0.
+</li>
+<li>
+Fixed the recognition of the `Start' and `Select' buttons.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.85.0 2004/08
+</h2>
+<ul>
+<li>
+The modeline generation now always use horizontal
+values which are multiplier of 16 to solve
+memory corruption problems on some video cards.
+</li>
+<li>
+Fixed a crash bug on vector games with artwork.
+</li>
+<li>
+Added the `ui_color[*]' options to customize the user
+interface colors.
+</li>
+<li>
+Added the `sound_adjust' option with an internal
+database with the volume correction for all
+the games.
+</li>
+<li>
+Added a sound equalizer with the new `sound_equalizer'
+options.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.85.0.0 2004/08
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.85.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.84.0 2004/07
+</h2>
+<ul>
+<li>
+Added a new rand(N) function at the scripts.
+</li>
+<li>
+Added a new `misc_hiscorefile' to specify a different
+name of the hiscore.dat file.
+</li>
+<li>
+Fixed the advfg utility to found always a valid
+text modeline.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.83.1 2004/07
+</h2>
+<ul>
+<li>
+Enabled the MIPS dynamic recompilation in DOS and
+Windows.
+</li>
+<li>
+On Linux you can now specify relative directories
+in the `dir_*' options.
+</li>
+<li>
+Fixed some problems enabling and disabling SMP at
+runtime.
+</li>
+<li>
+Revised the `install' documentation file and the `video links'
+section of the web site.
+</li>
+<li>
+Added the `misc_lang' option to select the game
+language.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.83.0.1 2004/06
+</h2>
+<ul>
+<li>
+The input port customizations are now saved
+for the current software only.
+</li>
+<li>
+Fixed some issues saving options with software
+containing spaces in the name.
+</li>
+<li>
+Fixed input saving for `coleco' system.
+</li>
+<li>
+All from AdvanceMAME 0.83.1.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.83.0 2004/06
+</h2>
+<ul>
+<li>
+Added the option "ui_speedmark" to enable or disable the on-screen
+speed red mark.
+</li>
+<li>
+Fixed the option "sync_startuptime 0".
+</li>
+<li>
+Added volume control at the `oss' audio driver.
+</li>
+<li>
+Added support for the `mprotect' os call to allow execution
+of MIPS DRC also on systems with memory protected from
+execution.
+</li>
+<li>
+Fixed the use of fgetc_unlocked() on Mac OS X 10.3.
+</li>
+<li>
+Upgraded the DOS/Windows SVGALIB drivers at version 1.9.19.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.83.0.0 2004/06
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.83.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.82.0 2004/05
+</h2>
+<ul>
+<li>
+Added a new "Startup End" key (minus on numeric pad) to store
+in the configuration file the startuptime required for
+the current game. Simply press it when the game start.
+</li>
+<li>
+The `sync_startuptime' now has an `auto' value which use an
+internal table to select the correct startup time.
+</li>
+<li>
+The sound normalization is now computed using the normalized
+power of the audio and not the maximum value.
+</li>
+<li>
+Added a new option `misc_freeplay' to enable the freeplay mode
+changing the game dipswitches.
+</li>
+<li>
+Added a new option `misc_mutedemo' to mute the sound on game demo.
+</li>
+<li>
+Improved the audio/video synchronization. It should fixes the problems
+on system which are not able to return the correct number of
+samples in the audio board buffer.
+</li>
+<li>
+The `sync_resample' default value is now set to use
+internal re-sampling.
+</li>
+<li>
+Fixed the loading of .rc files from the /etc directory.
+</li>
+<li>
+Improved the loading speed of the history/mameinfo databases in
+Linux using the unlocked file API.
+</li>
+<li>
+The history/mameinfo text is now wrapped to fit the whole screen.
+</li>
+<li>
+Added a new `device_alsa_mixer' option to control the sound mixing.
+The default is to use an internal mixer to change the volume.
+</li>
+<li>
+Documented in the `advdev.txt' file how use the ALSA `dmix' plug
+for a software mixing from multiple programs.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.81.0.1 2004/05
+</h2>
+<ul>
+<li>
+The customization of keyboard ports are now saved in the
+.rc file as input_map[key_*] options.
+</li>
+<li>
+Added the MESS sysinfo.dat file in the distribution and
+fixed its loading.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.81.1 2004/04
+</h2>
+<ul>
+<li>
+In Linux the hardware ports are always accessed directly if
+the program is run as root. Otherwise is used the /dev/port
+interface.
+</li>
+<li>
+Removed the green bars when using the video overlay.
+</li>
+<li>
+Added support for recent Radeon boards 9600/9700/9800 at
+the DOS version.
+</li>
+<li>
+Fixed the MNG recording.
+</li>
+<li>
+The `input_dipswitch[difficulty]' option now always override
+the `misc_difficulty' option.
+</li>
+<li>
+Added a new `device_alsa_device' option to select the ALSA
+output device.
+</li>
+<li>
+Removed the initial audio tick with the ALSA and OSS drivers.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.81.0.0 2004/04
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.81.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.81.0 2004/04
+</h2>
+<h2> 
+AdvanceMESS Version 0.80.0.0 2004/03
+</h2>
+<ul>
+<li>
+You can now specify configuration options for a single software
+using the format `SYSTEM[SOFTWARE]/OPTION' in the configuration
+file. Like `ti99_4a[ti-inva]/display_magnify auto'.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.80.0 2004/03
+</h2>
+<ul>
+<li>
+The 16 bits rgb color mode is now used as default also if the
+game has less than 256 colors. Previously the 8 bits palette
+color mode was used.
+</li>
+<li>
+Added new configuration sections based on the number of the
+players in the game using the format `Nplayer/OPTION'.
+Like `1player/input_map[p1_button1] lshift'
+</li>
+<li>
+Added new effects `scale2x3', `scale2x4', `lq2x3', `lq2x4',
+`hq2x3', `hq2x4'.
+</li>
+<li>
+Added support for TrueType (TTF) fonts with alpha blending
+using the FreeType2 library. Added also a new `ui_fontsize'
+option to select the font size and a collection of TTF fonts
+in the `contrib/' dir
+</li>
+<li>
+Renamed the `input_map[double*_*]' options as `input_map[p1_double*_*]'
+to allow different player specifications [Shane Warren].
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.79.0.0 2004/02
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.79.1 and MESS 0.79.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.79.1 2004/02
+</h2>
+<ul>
+<li>
+Added a new revision of the `scale3x' effect. It now looks good as
+`scale2x'. Added also a new optimized C version of the `scale2x'
+effect for not x86 MMX architectures.
+</li>
+<li>
+The `max' effect now works also in vertical and horizontal expansion.
+</li>
+<li>
+Fixed some compilation problems on Mac OS X.
+</li>
+<li>
+General improvement of the video blit speed. The program now
+evaluates at runtime the best approach to write video
+memory. Or direct or buffered writing.
+</li>
+<li>
+Improved the speed of the `lq', `hq', `mean' and `filter' effects
+using a different method to compute mean pixels.
+</li>
+<li>
+The `Video Pipeline' menu now display the time used to update
+the screen.
+</li>
+<li>
+Fixed the display of help tags of players 2, 3, 4.
+</li>
+<li>
+Fixed the use of palette 8 bit modes with the FrameBuffer Linux drivers.
+</li>
+<li>
+Added a workaround to correct the color in the 15 bit RGB modes for
+the Radeon FrameBuffer Linux 2.4.23 driver.
+</li>
+<li>
+Fixed a memory leak in the DOS SVGALIB Riva/Radeon driver which
+caused a crash after some video mode changes at runtime.
+</li>
+<li>
+The C 68000 emulator is now used as default. You can revert back to
+the assembler version with the --enable-asm-68000 configure
+switch. A similar --enable-asm-mips3 switch is present for
+the MIPS3 assembler emulator.
+</li>
+<li>
+The default host configuration directory is now /usr/local/etc if you
+install in /usr/local.
+</li>
+<li>
+The default documentation directory is now /usr/local/share/doc/advance
+if you install in /usr/local.
+</li>
+<li>
+The autoconf defines are now stored in a header file and not in the
+compiler command line.
+</li>
+<li>
+The debugger now always use the new `max' effect. It also forces
+the video mode to be `rgb' to remove any palette problem.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.79.0 2004/02
+</h2>
+<ul>
+<li>
+Added LCD support at the Linux version using the lcdproc library.
+You can now display arbitrary messages on the LCD using the
+"lcd" command on the scripts.
+</li>
+<li>
+Added the `device_svgawin_skipboard' and `device_svgaline_skipboard'
+options to control which video board to use in Windows and DOS
+in case you have more than one video board on the system.
+</li>
+<li>
+To compile in DOS/Window now you must use the `Makefile.usr' file.
+</li>
+<li>
+Fixed a problem when converting old options name to the new values.
+The conversion was failing if more than one conversion was required.
+</li>
+<li>
+Splitted the big source file blit.c in small parts. This should reduce
+the memory requirement when compiling.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.78.1 2004/01
+</h2>
+<ul>
+<li>
+Fixed the audio surround enabled with the "sound_mode surround" option.
+Now you should not hear audio statics anymore.
+</li>
+<li>
+Renamed the options `misc_fps', `misc_speed', `misc_turbospeed' and
+`misc_startuptime' in `sync_fps', `sync_speed', `sync_turbospeed' and
+`sync_startuptime'.
+</li>
+<li>
+Partially reverted back to using the MAME sound generation instead of
+the internal resampling. You can switch to the internal resampling
+using the `sync_resample' option.
+</li>
+<li>
+The dipswitchs named "Unknown" and "Unused" are never saved.
+</li>
+<li>
+The long text lines of scroll windows are now wrapped if required.
+</li>
+<li>
+Added in the contrib dir a patch for "linux/fb.h" for compiling the
+Frame Buffer support on the Linux Kernel 2.6.0.
+</li>
+<li>
+Added the "log" and "msg" commands at the scripts and fixed
+the "event(EVENT)" and "get(PORT)" commands.
+</li>
+<li>
+The `dipswitch' and `configswitch' options in the .rc file are now
+saved only one time.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.78.0.1 2004/01
+</h2>
+<ul>
+<li>
+Fixed the storing of the `Start' and `Select' input.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.78.0 2004/01
+</h2>
+<ul>
+<li>
+Added a new `help' button which display an arbitrary image with
+the player buttons highlighted. You can customize the image
+and the keys/buttons highlight with the options `ui_helptag'
+and `ui_helpimage'. The default key is F1.
+</li>
+<li>
+Added a new `cocktail' button which flip the game screen for
+a cocktail monitor. The default key is the slash on the
+keypad.
+</li>
+<li>
+A new MAME like user interface completely independent of the MAME core.
+This interface doesn't have applied the same video
+effects of the game, it isn't limited on the game area, it
+isn't recorded on video clips and you can customize the font.
+</li>
+<li>
+Removed the .cfg file support. All the input customizations are now
+saved in the .rc file.
+</li>
+<li>
+The frame skipping algorithm try now to get the correct speed of the
+game also if it imply a waste of CPU time.
+</li>
+<li>
+Fixed the screen position on games with a moving display area.
+For example invaders in cocktail mode.
+</li>
+<li>
+The exit menu is always displayed if the `safequit' function is
+enabled and the `event.dat' file is missing or it doesn't contain
+information of the game. You can disable it with the option
+`misc_safequit no'.
+</li>
+<li>
+The DOS version should now restore correctly the video mode at the
+program exit.
+</li>
+<li>
+Fixed the mouse support with the SVGALIB driver.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.78.0.0 2004/01
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.78.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.77.2 2003/12
+</h2>
+<ul>
+<li>
+Games with unemulated protection are now reported as not working.
+For example Choplifter.
+</li>
+<li>
+The DOS version now automatically disable any BIOS call on ATI
+boards to prevent problems on broken video BIOS.
+</li>
+<li>
+Improved the frame synchronization algorithm. It uses less
+CPU power if the operating system have a fine sleep
+granularity like Linux 2.6.x.
+</li>
+<li>
+Reverted back the S3 Savage/Virge/Trio SVGALIB driver at
+version 1.9.17. At least with S3 VirgeDX there is
+a regression in version 1.9.18.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.77.1 2003/12
+</h2>
+<ul>
+<li>
+The audio/video synchronization is now done by AdvanceMAME
+without using the internal MAME core support. This should
+solve all the sound distortion problems present in some game
+and all the input recording desynchronizations.
+</li>
+<li>
+The `display_interlaceffect' option has now a new `filter' value
+which operates like the old `filtery' effect.
+</li>
+<li>
+The configuration options are also read in the parent game and bios
+sections.
+</li>
+<li>
+Fixed a segmentation fault bug on the DOS SVGALIB driver for
+ATI Rage boards.
+</li>
+<li>
+The description of the AdvanceMAME device drivers is now in the
+`advdev.txt' file and it's installed as a man page in the Linux
+systems.
+</li>
+<li>
+The `display_magnify' option is now disabled for vector games.
+</li>
+<li>
+Fixed some problems running vector games with a window manager.
+</li>
+<li>
+The `zoom' value of the `device_video_output' option is now
+named `overlay'.
+</li>
+<li>
+Added a new `input_name' option to customize the input names
+displayed in the menus [Martin Adrian].
+</li>
+<li>
+Added a new `display_pausebrightness' option to control the
+display brightness when paused [Martin Adrian].
+</li>
+<li>
+The Linux version should now found the slang.h file also if it's
+in include/ and not in include/slang/.
+</li>
+<li>
+The `keyboard[]' option now accepts numerical scancode in the
+form `scanN'.
+</li>
+<li>
+Fixed a compilation problem with the most recent ALSA library
+(version 1.0.0rc2).
+</li>
+<li>
+If an old (1.4.x) SVGALIB version is installed the program
+doesn't abort.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.77.0 2003/11
+</h2>
+<ul>
+<li>
+Added support for ACT Labs Lightgun in the Linux event driver.
+</li>
+<li>
+Fixed the order of the joystick buttons on the Linux event driver.
+</li>
+<li>
+Fixed the joystick dead zone management on the Linux event driver.
+</li>
+<li>
+Fixed an overflow problem in the YUV C conversion (used only if MMX
+was not available).
+</li>
+<li>
+Updated the hq2x effect to the last official version.
+</li>
+<li>
+Fixed a crash bug on the `mean' and `max' effects.
+</li>
+<li>
+The `mean' and `max' effects now work also in the horizontal
+direction.
+</li>
+<li>
+Removed the `filterx' and `filtery' effects.
+</li>
+<li>
+In the DOS version removed the legacy support for unchained
+VGA modes (8 bit modes with memory in 4 planes) and the
+VBE1 banked modes (not linear modes).
+</li>
+<li>
+Autoframeskip is automatically disabled if the correct game
+speed is impossible to reach.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.76.0 2003/10
+</h2>
+<ul>
+<li>
+Fixed a computation error in the `hq2/3/4x' effects.
+</li>
+<li>
+Fixed a bug on the `mean' effect introduced in the last version.
+</li>
+<li>
+Upgraded the DOS/Windows SVGALIB drivers at version 1.9.18.
+</li>
+<li>
+The harddisk differential image .dif file are now created in memory
+if the access on the filesystem is denied.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.74.1 2003/09
+</h2>
+<ul>
+<li>
+Added the effects `lq4x' and `hq4x'. The `hq2x' and `hq3x' versions
+are now exactly like the original effects.
+</li>
+<li>
+The effects names `scale2/3/4x', `lq2/3/4x' and `hq2/3/4x' are now
+unified in `scale', `lq' and `hq'. The correct scale
+factor if automatically detected from the video mode size.
+</li>
+<li>
+Updated the `vsync/ac97' audio driver for VIA VT823x built
+in AC97 audio [Shigeaki Sakamaki].
+</li>
+<li>
+Fixed the `advv' utility to display and use all the available
+default modelines.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.74.0.0 2003/09
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.74.1.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.74.0 2003/09
+</h2>
+<ul>
+<li>
+Added a bunch of new video effects: `lq2x', `hq2x', `lq3x' and `hq3x'.
+They are interpolation effects. Slower than `scale2x'
+but with a nicer image.
+They are derived from the HQ3X effect made by Maxim Stepin.
+</li>
+<li>
+The Linux fb video driver is now able to wait for vsync also if
+the low-end driver doesn't support this feature.
+You must run the program as root.
+</li>
+<li>
+Increased the number of supported event [Filipe Estima].
+</li>
+<li>
+Fixed support for SiS boards 530/630/730 in the DOS vbeline/sis
+driver.
+</li>
+<li>
+Revised the list of supported cards.
+</li>
+<li>
+Removed the `display_rotate' option.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.73.0 2003/09
+</h2>
+<ul>
+<li>
+Fixed some problems on the SDL keyboard driver in the
+Windows version.
+</li>
+<li>
+Added a preliminary support for newer Radeon boards for the
+DOS version.
+</li>
+<li>
+The Linux version now works also if it cannot read the tty state.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.73.0.0 2003/09
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.73.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.72.0 2003/09
+</h2>
+<ul>
+<li>
+Added a new option `sound_normalize' which automatically increase
+the volume of games with a too lower one. It's enabled by default.
+</li>
+<li>
+Added a new `include' option to include additionally
+configuration files.
+</li>
+<li>
+The `display_magnify' option has now a new `auto' setting
+which automatically scale the game if it's
+too small.
+</li>
+<li>
+Added a new set of Linux `event' input driver for keyboards, mice
+and joysticks based on the Linux input-event interfaces.
+These drivers remove any limitations on the number of
+keyboards, mice and joysticks.
+</li>
+<li>
+The `input_map' option now accepts the `auto' setting which
+is able to map the correct input device on the correct
+game control.
+</li>
+<li>
+The `input_map' option now can remap also all the digital
+inputs like keys, buttons and digital joystick.
+</li>
+<li>
+Improved the advk, advj and advm utilities. They now
+report more information on the hardware found.
+</li>
+<li>
+Revised the `safequit' system. The database file is now
+called `event.dat' and it has a strong error check.
+The options are now named `misc_eventdebug' and
+`misc_eventfile'. A new set of scripts `safequit' and
+`event1,2,3,4,5,6' are now started when triggered by the
+event system.
+</li>
+<li>
+Renamed the script names removing the [] in the names.
+</li>
+<li>
+The Linux keyboard `raw' driver has now a basic support to switch
+virtual terminal pressing ALT+Fx.
+</li>
+<li>
+Added a new Linux `raw' joystick driver.
+</li>
+<li>
+Substituted the Linux input driver `slang' with a new `tty' driver
+which always works correctly with the advv and advcfg utility.
+Specifically it works when using the `fb' video driver.
+</li>
+<li>
+In Linux the host configuration files are now read in /etc.
+</li>
+<li>
+The `-version' option now lists the low level drivers compiled
+in the executable.
+</li>
+<li>
+The Linux version can now access hardware ports in scripts using
+the /dev/port interface.
+</li>
+<li>
+Reduced the CPU cache usage in the palette conversion.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.72.0.0 2003/09
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.72.0.
+</li>
+<li>
+The specific AdvanceMAME keys are now disabled in the full
+keyboard emulation like any other MAME key.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.71.1 2003/07
+</h2>
+<ul>
+<li>
+Added a new mouse driver for Linux which supports up to 4 mice
+at the same time.
+</li>
+<li>
+Partially fixed some problems on games that need
+to change the display area at runtime like "orunners".
+</li>
+<li>
+Added the `misc_fps' option to change arbitrarily the frame rate
+of the games (like SmoothMAME).
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.71.0.0 2003/07
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.71.0.
+</li>
+<li>
+Added the `misc_ramsize' option.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.71.0 2003/07
+</h2>
+<ul>
+<li>
+Added the volume control at the SDL sound driver. It's implemented
+reducing the sample values and not using the hardware
+volume control.
+</li>
+<li>
+Fixed a possible bug on the SVGALIB Rage 128/Radeon drivers.
+Also updated the SVGALIB patch in the contrib/ dir.
+</li>
+<li>
+The information on the supported drivers is now in the
+device.txt file.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.70.0 2003/06
+</h2>
+<ul>
+<li>
+Added some patches for Linux 2.4.20 Frame Buffer for ATI Radeon
+and nVidia GeForce boards to improve the support of low
+clock video modes.
+</li>
+<li>
+Added some patches for SVGALIB 1.9.17 for Trident and nVidia GeForce
+boards to improve the support of low clock video modes.
+These patches are integrated in the DOS and Windows SVGALIB
+versions.
+</li>
+<li>
+Fixed the sound recording broken in version 0.68.0.
+</li>
+<li>
+The MAME sound emulation is activated also if the "none" sound
+device is chosen.
+</li>
+<li>
+The SIGPIPE signal is no more redirected.
+</li>
+<li>
+The SIGHUP signal now quits the program without aborting.
+</li>
+<li>
+Reduced the sound buffer length for the ALSA driver.
+</li>
+<li>
+Removed the legacy support for the "mame.cfg" configuration file.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.69.0 2003/05
+</h2>
+<ul>
+<li>
+Fixed the horizontal and vertical sync polarity on the Linux
+Framebuffer video driver [Ralph]
+</li>
+<li>
+Added a new preliminary -listxml option.
+</li>
+<li>
+Fixed the output of all the floating point values in configuration
+files for the DOS version.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.68.0 2003/05
+</h2>
+<ul>
+<li>
+Added the `scale3x' and `scale4x' effects.
+</li>
+<li>
+Added support for Mac OS X. It compiles and run with the SDL library.
+</li>
+<li>
+Added support for generic BigEndian targets.
+</li>
+<li>
+The `magnify' option now accepts the input values 1, 2, 3 and 4.
+</li>
+<li>
+The `display_adjust' value `generate' is now renamed `generate_yclock'.
+A bunch of new `generate_*' values are available for a fine
+control on the generated modes.
+</li>
+<li>
+In Linux you can specify an arbitrary data directory with the
+$ADVANCE environment variable. This value overwrites the default
+$HOME/.advance.
+</li>
+<li>
+Added the "-version" command line option.
+</li>
+<li>
+Removed some "buffer overflow".
+</li>
+<li>
+Fixed the mouse handling in Linux with the SVGALIB library
+[Fabio Cavallo].
+</li>
+<li>
+Fixed some minor problems in the `configure' script.
+</li>
+<li>
+Added the `device_video_zoom' option to control the size of
+screen mode used with the `zoom' output mode.
+</li>
+<li>
+Some fixes for the gcc 3.3 compiler.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.67.0 2003/04
+</h2>
+<ul>
+<li>
+Updated with autoconf 2.57.
+</li>
+<li>
+The error messages are printed also if `misc_quiet' is specified.
+</li>
+<li>
+The configure script now checks if the MAME/MESS emulator source
+are missing.
+</li>
+<li>
+Added in the contrib/ dir the "Quick guide to find safequit data"
+[Filipe Estima].
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.66.0.0 2003/04
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.67.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.66.0 2003/03
+</h2>
+<ul>
+<li>
+The display_scanlines option is now off as default.
+The `generate-scanline' video modes are now created only
+if display_scanlines is active at the startup.
+</li>
+<li>
+Minor changes at the video menu.
+</li>
+<li>
+Fixed the `-playback' command.
+</li>
+<li>
+Fixed the slowdown problem reading .dat files.
+</li>
+<li>
+Added automatic detection of Linux Frame Buffer capabilities.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.65.0 2003/02
+</h2>
+<ul>
+<li>
+Fixed the CPU detection by the configure script.
+</li>
+<li>
+The Linux ALSA sound drivers now doesn't block the execution if the
+DSP is already in use.
+</li>
+<li>
+Fixed the Linux Frame Buffer driver when a DIRECTCOLOR mode
+is used displaying fuzzy colors.
+</li>
+<li>
+Added some patches for the Linux SVGALIB in the contrib/ dir.
+</li>
+<li>
+Added a new `device_video_cursor' option to control the visibility
+of the mouse cursor.
+</li>
+<li>
+Minor fix computing the size of double sized modes.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.64.0.0 2003/02
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.65.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.63.0 2003/01
+</h2>
+<ul>
+<li>
+Added the ALSA sound driver for Linux. It's now the
+preferred choice over OSS.
+</li>
+<li>
+Fixed another bug in the ./configure script if the
+SDL library is missing.
+</li>
+<li>
+The sound latency is now automatically increased if the game
+requires a big frame skip.
+</li>
+<li>
+The auto frameskip is now optimized to minimize the idle
+waiting time instead of getting a 100% speed.
+</li>
+<li>
+Added the `display_artwork_backdrop/overlay/bezel' option
+to control any artwork types.
+</li>
+<li>
+Added the `misc_difficulty' option to select the game
+difficulty from the command line.
+</li>
+<li>
+The `misc_quiet' option now also disable the NO GOOD DUMP
+messages.
+</li>
+<li>
+The SVGALIB `banshee' driver in Linux now doesn't tries to
+use 16 bit video modes. They are not working.
+</li>
+<li>
+The `misc_quiet' options, if activated, skips also the graphics
+information screens.
+</li>
+<li>
+If the doublescan modes are disabled, a mode with a double
+vertical size is automatically used instead.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.62.2 2002/12
+</h2>
+<ul>
+<li>
+Added a new raw keyboard driver for Linux [Kari Hautio].
+</li>
+<li>
+Changed the yield behavior on high system load. Now the
+yield operation is done before the synchronization point.
+It should reduce the effective system load.
+</li>
+<li>
+Fixed some issues in the ./configure scripts.
+</li>
+<li>
+Removed the blinking cursor in the Linux `fb' video
+driver [Kari Hautio].
+</li>
+<li>
+Added support for YUV overlay in the SDL driver with a new
+zoom mode. With this driver the image is zoomed
+by the video board. Check the new `device_video_mode'
+option.
+</li>
+<li>
+Upgraded at the SVGALIB 1.9.17 library.
+</li>
+<li>
+Fixed a bug on exit with a multiprocessor system.
+</li>
+<li>
+Added a new `sound_mode' option which replaces the old
+`sound_stereo'. It also support a (fake) `surround'
+effect.
+</li>
+<li>
+The `advcfg' utility now uses the user and system list
+of modelines if the device_video_p/h/vclock option is
+present.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.62.0.0 2002/12
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.62.2.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.62.1 2002/11
+</h2>
+<ul>
+<li>
+Fixed the abort bug on the DOS and Windows versions for the
+SVGALIB Rage 128/Radeon video boards and probably others.
+</li>
+<li>
+Some fixes for the `.chd' games.
+</li>
+<li>
+Fixed the palette management of the cojag games.
+</li>
+<li>
+The DOS `vbeline' and `vbe' drivers now correctly detect
+the absence of some bit depths.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.61.2.1 2002/11
+</h2>
+<ul>
+<li>
+All from AdvanceMAME 0.62.1.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.62.0 2002/11
+</h2>
+<ul>
+<li>
+The Windows SVGAWIN driver now use the framebuffer reported by
+Windows if the Windows SVGALIB isn't able to get it.
+This fixes the crash problem with the Cirrus Laguna boards
+and probably others.
+</li>
+<li>
+Updated the Windows SVGAWIN.SYS driver to the 1.1 version.
+</li>
+<li>
+Added the `display_aspectx' and `display_aspecty' to arbitrary
+selects the aspect ratio of the monitor used.
+</li>
+<li>
+Fixed a slowdown bug on the SVGALIB video board detection.
+</li>
+<li>
+Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
+help with the video modes at lower frequency generally used
+in Arcade Monitors and TVs.
+</li>
+<li>
+Fixed a bug on the SDL sound management. It should help the
+interaction of AdvanceMENU and AdvanceMAME.
+</li>
+<li>
+Better error reporting on the DOS/Windows SVGALIB drivers.
+</li>
+<li>
+The Windows binary is now packaged with the SDL dll 1.2.5
+</li>
+<li>
+The `display_adjust' option is now ignored if the video driver
+is not programmable.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.61.2 2002/11
+</h2>
+<ul>
+<li>
+The MESS threads are now used only if the SMP runtime option
+is activated. Previously on a SMP compile the threads was
+always used.
+</li>
+<li>
+All from MESS 0.61.2.
+</li>
+<li>
+All from AdvanceMAME 0.62.0.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.61.4 2002/11
+</h2>
+<ul>
+<li>
+Merged the sdl and native system of the Linux target.
+You can now mix the SDL input/output drivers with the
+native drivers.
+</li>
+<li>
+Better ./configure script. It detects and automatically
+enables all the available libraries.
+</li>
+<li>
+The configuration file now recognizes the SIZEXxSIZEYxFREQ section.
+</li>
+<li>
+Fixed a precision error checking the clock in the DOS vgaline
+driver.
+</li>
+<li>
+Removed the limitation of 8 bit crtc multiplier in the DOS
+vgaline driver.
+</li>
+<li>
+Revised the SVGALIB DOS compatibility layer. Some bugs fixed.
+</li>
+<li>
+Added the support for the SVGALIB video drivers in Windows NT/2000/XP.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.61.1 2002/11
+</h2>
+<ul>
+<li>
+Fixed the name of the .nv files
+</li>
+<li>
+All from MESS 0.61.1.
+</li>
+<li>
+All from AdvanceMAME 0.61.4.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.61.3 2002/09
+</h2>
+<ul>
+<li>
+Fixed the window title and the icon in the sdl system.
+</li>
+<li>
+In Windows the default sdl samples buffer is now 2048.
+This solve the distorted sound.
+</li>
+<li>
+Added the new option `display_interlaceeffect' to help
+with some broken monitors which need to swap the
+video rows in interlaced modes.
+</li>
+<li>
+Uppercase names of games in the command line are accepted.
+</li>
+<li>
+Improved the advcfg error management.
+</li>
+<li>
+Added the `cost' doc.
+</li>
+<li>
+Revised the video section of the `faq' doc.
+</li>
+<li>
+The `display_vsync' option is now enabled as default.
+</li>
+<li>
+Added the support of the VSyncMAME audio drivers. This add
+support for the AC97 chipset [Shigeaki Sakamaki].
+</li>
+<li>
+Fixed a bug in the 68k emulator in the Windows port.
+</li>
+<li>
+Removed the compression of all the executables, and added
+a little debug info on the precompiled binaries.
+This should help the problem reporting.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.61.0 2002/09
+</h2>
+<ul>
+<li>
+Fixed the window title and the icon in the sdl system.
+</li>
+<li>
+In Windows the default sdl samples buffer is now 2048.
+This solve the distorted sound.
+</li>
+<li>
+Added the new option `display_interlaceeffect' to help
+with some broken monitors which need to swap the
+video rows in interlaced modes.
+</li>
+<li>
+Uppercase names of games in the command line are accepted.
+</li>
+<li>
+Improved the advcfg error management.
+</li>
+<li>
+Added the `cost' doc.
+</li>
+<li>
+All from AdvanceMAME 0.61.2
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.61.2 2002/09
+</h2>
+<ul>
+<li>
+Added the `sdl' system which uses the libSDL graphics
+library. This system enable the use of the program
+in a Window Manager. But it isn't a good choice for
+a fullscreen use of the program because it can't
+generate `perfect' video mode.
+</li>
+<li>
+Added the HOST_SYSTEM section in the makefile.
+</li>
+<li>
+Added the `windows' target in the Makefile. It use the `sdl'
+system.
+</li>
+<li>
+Added the `device_sdl_fullscreen' option to force the use of
+a fullscreen mode with the SDL library.
+</li>
+<li>
+Readded the basic `vbe' driver.
+</li>
+<li>
+Added the MMX detection in the linux and windows targets.
+Previously the MMX presence was assumed.
+</li>
+<li>
+Splitted the `input_map[,trak]' option in the input_map[,trakx]
+and `input_map[,traky]' options. Now you can assign
+different axes from different mice.
+</li>
+<li>
+The `input_map[]' option now supports multiple input sources
+and eventually allow to negate them.
+</li>
+<li>
+Renamed the option `misc_language' to `misc_languagefile'.
+</li>
+<li>
+Fixed the saving of the cheats.
+</li>
+<li>
+Documented the various `misc_*file' options.
+</li>
+<li>
+Removed the `zmng' utility from the contrib dir.
+It's now included in the AdvanceSCAN package.
+</li>
+<li>
+Renamed the `input_safeexit' option to `misc_safequit' and
+added the options `misc_safequitdebug' and
+`misc_safequitfile'. The SafeQuit is now enabled by
+default.
+</li>
+<li>
+Revised the output format of all the documentation. Now
+it's available as formatted text, html and man pages.
+</li>
+<li>
+Fixed an overflow bug on the aspect computation. It prevented
+"Elevator Action" to run.
+</li>
+<li>
+Fixed the "Division by Zero" crash bug with the Rage128 board in
+the DOS svgaline driver.
+</li>
+<li>
+Upgraded at the SVGALIB 1.9.16 library.
+</li>
+<li>
+Readded the `-playback' and `-record' command line options.
+</li>
+<li>
+Added a `./configure' script in all the Linux distributions.
+</li>
+<li>
+Fixed the detection of the screen resize keys in the
+advcfg and advv utility in the Linux platform.
+The keys are now changed to 'i' and 'k'.
+</li>
+<li>
+Added the options `device_video_8bit', `device_video_15bit',
+`device_video_16bit', `device_video_32bit' to selectively
+disable some bit depths on the video drivers.
+</li>
+<li>
+Fixed the colors on the snapshots of games with a 32 color depth.
+</li>
+<li>
+Various fix at the `advcfg' utility.
+</li>
+<li>
+Various bug fixed.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.61.1 2002/07
+</h2>
+<ul>
+<li>
+Fixed a stupid bug on some neogeo games.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.61.0 2002/07
+</h2>
+<ul>
+<li>
+Removed the input_analog[] and input_track[] options. They
+are now substituted by the new input_map[] option.
+</li>
+<li>
+Upgraded at the SVGALIB 1.9.15 library.
+</li>
+<li>
+Added the `vertical' and `horizontal' sections on the
+config file. With these sections you can have
+different configuration for vertical and horizontal
+games. If you have a rotating monitor, you can now
+always configure the correct orientation.
+</li>
+<li>
+The `display_rotate auto' option now selects always the
+`blit' rotation. The reason of this change is that
+the `core' rotation will be completely removed on the
+next MAME version (0.62).
+On monoprocessor machines this may result in a
+sensible slowdown on some games. Instead, on SMP
+(multiprocessor) machines all these games are now
+faster because the rotation is done in the parallel
+blit thread.
+</li>
+<li>
+Fixed the joystick problem with more than 8 buttons
+[Anthony D. Saxton (las_vegas)].
+</li>
+<li>
+Added the `display_intensity' option.
+</li>
+<li>
+Added the `display_artwork_crop' option.
+</li>
+<li>
+Fixed the `display_expand' option for the vertical vector
+games.
+</li>
+<li>
+Prevented the use on the NT platform.
+</li>
+<li>
+Added some new MMX blitters to speedup the blit rotation.
+</li>
+<li>
+In the Linux version if the HOME environment variable
+is not set all the files are read and written on the
+PREFIX/share/advance directory.
+</li>
+<li>
+Fixed a bug when forcing the use of the vbeline/3dfx driver.
+</li>
+<li>
+Enabled the interlaced modes with the 3dfx svgalib driver.
+</li>
+<li>
+Minor bugfix.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.60.1 2002/05
+</h2>
+<ul>
+<li>
+Fixed the MNG recording for some games.
+</li>
+<li>
+Added the input_hotkey option to disable the special
+key sequences like CTRL+ALT+DEL.
+</li>
+<li>
+Fixed the rgb 16pix effect on 32 bit modes.
+</li>
+<li>
+Disabled the pause key. It should not be used.
+</li>
+<li>
+The advs utility now prevent the keyboard buffer to be
+filled.
+</li>
+<li>
+Added a new `License' chapter at the faq.txt file.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.60.0 2002/05
+</h2>
+<ul>
+<li>
+Upgraded at the SVGALIB 1.9.14 library.
+</li>
+<li>
+Solved a video mode restore problem with the
+vbeline drivers.
+</li>
+<li>
+After unpausing the idle exit timeout is now reset.
+</li>
+<li>
+Fixed the idle_exit timing on Linux.
+</li>
+<li>
+Fixed the size of vector games when a custom mode is
+specified with the display mode option.
+</li>
+<li>
+Other minor bugfix.
+</li>
+</ul>
+<h2> 
+AdvancePAC Version 0.58.0 2002/04
+</h2>
+<ul>
+<li>
+Added the PacMAME target at AdvanceMAME.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.59.1 2002/04
+</h2>
+<ul>
+<li>
+Upgraded at the SVGALIB 1.9.13 library.
+</li>
+<li>
+Upgraded at the Allegro 4.01 library.
+</li>
+<li>
+Fixed some issues if no sound card is present.
+</li>
+<li>
+Fixed a bug in the blit rotation.
+</li>
+<li>
+Updated the list of the games which require the blit
+rotation for the auto option.
+</li>
+<li>
+Fixed the use of gamma and brightness on the rgb games.
+</li>
+<li>
+The precision of the frame rate of the generated MNG
+files is now always at least 1:1000000.
+</li>
+<li>
+The `mng' recording now can be started and stopped also
+during the pause.
+</li>
+<li>
+The `script_play' option now works also if
+`misc_startuptime' is 0.
+</li>
+<li>
+Fixed some issues on the directory paths.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.59.0 2002/03
+</h2>
+<ul>
+<li>
+Added the option "-r" at the zmng utility. This fixes the
+bug when compressing 24 bit image which cannot be
+converted to 8 bit.
+</li>
+<li>
+Added the device_video_singlescan/doublescan/interlace
+options to disable the use of some mode types.
+</li>
+<li>
+Rewritten the `vgaline' DOS driver. Now it never uses the
+BIOS to set the video mode.
+</li>
+<li>
+The MNG files now use the FRAME chuck to specify a
+precise timing.
+</li>
+<li>
+Added the `misc_quiet' option to disable the text message :
+"AdvanceMAME - Copyright (C) 1999-2002 by..."
+</li>
+<li>
+Fixed some imprecision on the image stretch.
+</li>
+<li>
+Completed the color conversion functions.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.58.1 2002/03
+</h2>
+<ul>
+<li>
+Fixed the clock values printed on the first line of the
+video menu.
+</li>
+<li>
+Changed the behavior of the "display_adjust x" option.
+Now all the modes are adjusted in size, not only the
+nearest mode.
+</li>
+<li>
+Faster `scale2x' effect. Now optimized for AGP bus.
+</li>
+<li>
+Fixed the video and sound recording for the SMP machine.
+</li>
+<li>
+The .mng and .wav file are now saved always with the same
+basename.
+</li>
+<li>
+Fixed the selection of the video mode with the nearest clock.
+</li>
+<li>
+The idleexit feature now detect also the joystick and
+mouse use.
+</li>
+<li>
+MMX implementation of some functions of the tilemap engine.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.58.0 2002/02
+</h2>
+<ul>
+<li>
+Added the video recording feature in `.mng' files.
+</li>
+<li>
+Added the `record_sound', `record_sound_time',
+`record_video', `record_video_time',
+`record_video_interleave' options.
+</li>
+<li>
+Added the `zmng' compression utility in the contrib/zmng dir.
+</li>
+<li>
+When recording, the sound is now generated ignoring
+the synchronization issues to get a perfect sound
+also with games with a very high frame skip.
+</li>
+<li>
+Now you can record sound and video without any length limit.
+</li>
+<li>
+The recorded sound is now NOT adjusted in volume.
+</li>
+<li>
+Minor corrections at the sound synchronization.
+</li>
+</ul>
+<h2> 
+AdvanceMESS Version 0.56.0 2002/01
+</h2>
+<ul>
+<li>
+Added the MESS target at AdvanceMAME.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.57.1 2002/01
+</h2>
+<ul>
+<li>
+The default rom and sample directory are now `rom' and
+`sample' (singular).
+</li>
+<li>
+The Linux config directories are now named `$home/.advance' and
+`$prefix/share/advance'. Rename them manually.
+</li>
+<li>
+Fixed the sound snapshot saving.
+</li>
+<li>
+Fixed the graphics snapshot saving in Linux.
+</li>
+<li>
+Fixed the dir rights in creation in Linux.
+</li>
+<li>
+Fixed the support of roms not zipped.
+</li>
+<li>
+Fixed the `display_resize' option saving.
+</li>
+<li>
+Recompiled the video driver with lower optimizations.
+</li>
+<li>
+Readded the autocentering control menu.
+</li>
+<li>
+Fixed a SIGSEGV in the mode selection.
+</li>
+<li>
+Other minor bugfix.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.57.0 2002/01
+</h2>
+<ul>
+<li>
+Improved the SMP performance. Now the blit stage is completely
+done by the second thread without any bitmap copy.
+</li>
+<li>
+Added a Console Frame Buffer video driver for Linux.
+</li>
+<li>
+Added the `misc_speed' option to control the speed of the game.
+</li>
+<li>
+Added the `sound_latency' option to control the size of the
+sound buffer.
+</li>
+<li>
+Added the `advs' utility. A wav/mp3 player.
+</li>
+<li>
+Added the `faq.txt' and `tips.txt' files.
+</li>
+<li>
+Fixed the `device_video' option. Now works also for `advv' and
+`advcfg'.
+</li>
+<li>
+Fixed the wrong patch command in the build.txt file.
+</li>
+<li>
+Added latency measure in the advk, advj and advm utilities.
+</li>
+<li>
+Removed the SEAL awe32 driver. The generic SEAL SoundBlaster
+driver is faster.
+</li>
+<li>
+Solved some problems and a crash bug on the mode selection
+</li>
+<li>
+Renamed all the `modeline' options in `device_video_modeline'
+in all the .rc files.
+</li>
+<li>
+Solved a bug in the svgaline nv3 driver.
+</li>
+<li>
+Fixed the double mouse support for the DOS version.
+</li>
+<li>
+Fixed the Allegro sound driver volume.
+</li>
+<li>
+Various bugs fixed
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.56.2
+</h2>
+<ul>
+<li>
+Fixed the .dat support in the DOS version.
+</li>
+<li>
+Fixed the script support.
+</li>
+<li>
+Fixed the name used for `memcard' files.
+</li>
+<li>
+Disabled the use of the rgb effects if the mode is palettized
+</li>
+<li>
+Added the contrib directory in the source distribution
+</li>
+<li>
+Added the TARGET=tiny option in the makefile
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.56.1
+</h2>
+<ul>
+<li>
+General renaming:
+mame -&gt; advmame
+mv -&gt; advv
+cfg -&gt; advcfg
+mk -&gt; advk
+</li>
+<li>
+New utilities:
+advj - Joystick tester
+advm - Mouse tester
+</li>
+<li>
+A complete Linux/i386 port based on the SVGALIB 1.9.x library.
+</li>
+<li>
+A new frameskip computation system.
+</li>
+<li>
+A new format of configuration file (now named advmame.rc).
+</li>
+<li>
+Limited support of Multi Processor (SMP) architecture for
+the Linux version. Check the `misc_smp' option.
+</li>
+<li>
+New input_analog[] and input_track[] option to choice the
+mapping of the joystick and of the mouse. For example you
+can use the joystick for the first player and the mouse
+for the second player.
+</li>
+<li>
+Added support for all the Allegro sound drivers.
+Check the new option `device_sound'.
+</li>
+<li>
+Better and simpler video mode choice.
+</li>
+<li>
+Better vsync support, now it can be enabled and disabled
+at runtime.
+</li>
+<li>
+A new Makefile system, check the `build.txt' file for the new
+compilation instructions.
+</li>
+<li>
+Updated the safequit.dat database [Filipe Estima].
+</li>
+<li>
+Revised the docs [Filipe Estima and Randy Schnedler].
+</li>
+<li>
+Compiled with the latest Allegro 3.9.40 library.
+</li>
+<li>
+Various bugs fixed.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.56.0.1 (never released)
+</h2>
+<ul>
+<li>
+Removed a warning in the source
+</li>
+<li>
+Solved the bug of the brightness on screen menu
+</li>
+<li>
+Added a new safequit.dat database [Filipe Estima]
+</li>
+<li>
+Solved a bug with the VBE detection.
+</li>
+<li>
+Solved the bug for the detection of the svgaline Rendition
+driver.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.56.0 2001/11
+</h2>
+<ul>
+<li>
+Change at the SVGALIB Rage 128/Radeon drivers for the
+low clocks
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.55.2
+</h2>
+<ul>
+<li>
+On the documentation the suggested value for pclock
+is now `pclock = 5 - 80'.
+</li>
+<li>
+Solved a bug that prevented the read of the vbeline_* options.
+</li>
+<li>
+Solved a bug that prevented a lot of games to start
+(centiped, nibbler, tempest, ...)
+</li>
+<li>
+Readded the support for the internal MAME debugger.
+</li>
+<li>
+Added the `[config] expand' option to use a bigger screen
+area when playing vertical games on horizontal monitors.
+</li>
+<li>
+Added the MMX implementation for the color conversions
+888 -&gt; 332 and 555 -&gt; 332 (mainly used in vector games)
+</li>
+<li>
+Added the generation of modes with double size with scanlines.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.55.1
+</h2>
+<ul>
+<li>
+Added the `[video] pclock' option to control the lower
+and higher limit of the pixel clock used.
+YOU MUST ENTER THIS VALUE IN YOUR mame.cfg.
+The lower value is the lower clock generable
+by your video board. The higher value is the video
+bandwidth of your monitor. If don't know these
+values you can start with `pclock = 5 - 70' which
+essentially enable any pixel clock needed by
+AdvanceMAME. (like the previous version)
+</li>
+<li>
+Added the `-report' option at the MV utility. You can use
+this option to create informative bug report on the
+video drivers.
+</li>
+<li>
+Updated with the new SVGALIB 1.9.12. It contains various
+video driver fix and a new `Rendition V2200' driver.
+</li>
+<li>
+Solved a bug on the command line parsing.
+</li>
+<li>
+Solved the crash bug for the vector games.
+</li>
+<li>
+Better mode generation for the vector games.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.55.0 2001/09
+</h2>
+<ul>
+<li>
+The `[gamename]' options are now correctly read.
+</li>
+<li>
+Renamed the option `video_mode_reset' to `videomodereset'
+</li>
+<li>
+The command line boolean options now don't need the
+argument "yes". You can disable them with
+the format -noOPTION.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.53.2
+</h2>
+<ul>
+<li>
+Revised the readme.txt/mame.txt/install.txt docs.
+</li>
+<li>
+Added the -cfg option to specify an alternate name of
+the configuration file.
+</li>
+<li>
+Added a new and improved fuzzy game name compare.
+</li>
+<li>
+Readded the soundcard=NUMBER options.
+</li>
+<li>
+Solved the hidded user interface bug.
+</li>
+<li>
+Solved a configuration bug that prevented the vsync option
+to work.
+</li>
+<li>
+Minor bugfix.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.53.1
+</h2>
+<ul>
+<li>
+Solved the crash bug on exit
+</li>
+<li>
+Solved the vsync deadlock bug
+</li>
+<li>
+Solved the text mode selection in the mv utility
+</li>
+<li>
+The G200/G100 reference clock set to 27MHz
+</li>
+<li>
+Added the missing makefile (advance.mak) in the source
+distribution
+</li>
+<li>
+Minor bugfix
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.53.0 2001/08
+</h2>
+<ul>
+<li>
+Major release with BIG changes. This should be considered
+an alpha version.
+</li>
+<li>
+Kept the support for 8 bit modes. You can still use 8 bit
+modes for games with less than 256 colors without
+problems. You can also use 8 bit modes for all the other
+games but you lose in color precision.
+</li>
+<li>
+The modeline format is changed. The new format is independent
+of the video driver and of video board. The modelines
+can now be exchanged between users.
+</li>
+<li>
+Added a new set of video drivers called `svgaline' from
+the Linux SVGALIB library. These drivers overperform
+the old `vbeline' drivers. The old drivers are still
+supported anyway.
+These drivers are completely independent of the underline
+VBE BIOS. You don't need the SDD utility anymore.
+</li>
+<li>
+Added support for 32 bit depth.
+</li>
+<li>
+The sources are now completely independent from the MAMEDOS
+sources. They stay in a new directory called `advance'.
+Check the updated `build.txt' to compile.
+</li>
+<li>
+The configuration file is now named like the executable.
+For example "mamepp.exe" checks for "mamepp.cfg".
+</li>
+<li>
+Added the `videodepth' option to control the bit depth of the
+video mode used. The old `depth' option is still present
+but control only the internal size of the working MAME
+bitmap.
+</li>
+<li>
+Added the command line option `-default' to create a default
+`mame.cfg' file.
+</li>
+<li>
+Removed the `videogenerate=adjustxy' option.
+</li>
+<li>
+Removed all the -list* and -verify* options. These will may be
+added in a future version with an external utility.
+Only the -listinfo option is maintained.
+</li>
+<li>
+Updated the `mv' and `cfg' utility at the new features.
+</li>
+<li>
+Updated the `card.txt' file with a complete list of the video
+board supported.
+</li>
+<li>
+The safeexit option now uses the safequit.dat file to check if
+the exit is safe or not. If the game is in demo mode and no
+coin is inserted the "Continue/Exit" menu is not shown.
+[Filipe de V. Estima (Bugfinder), Ian Patterson]
+</li>
+<li>
+The `soundcard' option now uses text tag and not numbers.
+The tags are :
+auto - Automatic detection
+sb - Sound Blaster
+awe32 - Sound Blaster AWE 32 (probably the 'sb' driver is faster)
+pas - Pro Audio Spectrum
+gusmax - Gravis Ultrasound Max
+gus - Gravis Ultrasound
+wss - Windows Sound System
+ess - Ensoniq Soundscape
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b16.1
+</h2>
+<ul>
+<li>
+Added the -quiet option to prevent the startup messages.
+</li>
+<li>
+Minor bugfix
+</li>
+<li>
+Added support for the Voodoo5 board.
+</li>
+<li>
+Added support for other Rage 128 boards.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b16.0 2001/07
+</h2>
+<ul>
+<li>
+Added the new `scale2x' blit effect. It's now the default
+when the `Magnify' option is activated.
+</li>
+<li>
+Solved the unexpected termination when you exit from the
+onscreen menu.
+</li>
+<li>
+The `safeexit' option now show a confirmation menu.
+</li>
+<li>
+Hopefully solved all the "Page Fault" exceptions.
+You should be able to play also very huge games like
+garou with only 64 Mb of memory.
+</li>
+<li>
+Changed the default keys for the sound recording.
+LCTRL+ENTER to start, ENTER to stop.
+</li>
+<li>
+Updated the contrib/aos section by Nick Bourdo
+</li>
+<li>
+Removed the dirty blit support
+</li>
+<li>
+Some new 'ATI r128` and `Trident Blade 3D' cards supported.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b15.0 2001/05
+</h2>
+<ul>
+<li>
+The game aspect ratio is now used if available
+</li>
+<li>
+The `vsync' option is now ignored if no modes with the
+correct frequency rate are available
+</li>
+<li>
+Added the new scripts commands `simulate_event(EVENT,TIME)',
+`event(EVENT)' and simulate_key(KEY,TIME).
+Check the updated `script.txt' file.
+</li>
+<li>
+Added the new option `safeexit=yes'. If enabled to exit
+you need to keep pressed the ESC key for 3 seconds.
+</li>
+<li>
+The `cfg' utility now accepts the format values also in
+incremental format, not only in the differential format.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b14.3
+</h2>
+<ul>
+<li>
+Corrected a bug in the video mode generation for the high
+vertical resolution games with an Arcade/TV Monitor.
+</li>
+<li>
+Some change at the `vbe3' driver. Now it logs a lot of
+details for a better debugging
+</li>
+<li>
+Changed the source distribution. Now you must apply two
+patch. Check the build.txt file.
+</li>
+<li>
+Some fix and improvement at the `cfg' utility.
+</li>
+<li>
+Added support for saving the volume attenuation in
+the directory "att". [Rafael Prado Rocchi]
+You have to create the directory to enable this
+function.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b14.2
+</h2>
+<ul>
+<li>
+Removed the `[config] aspect' option. The aspect is
+4/3 as default.
+</li>
+<li>
+Removed the `[config] video_factor_frequency' option.
+The game frequency is now matched implicitly.
+</li>
+<li>
+Renabled the `[config] scanlines' option. Now video modes are
+generated and chosen with scanlines if available.
+Note that you generally need a wide Vclock range.
+Something like 55-125 Hz.
+</li>
+<li>
+Added the `[config] magnify' option to suggest the use of
+a double resolution.
+</li>
+<li>
+Added the `[config] rgb' to suggest the use of a true RGB mode.
+If you already used the `depth=16' option now you can
+set it to `depth=auto' and use `rgb=yes' instead.
+</li>
+<li>
+Some fix and improvement at the modes generation and choice.
+</li>
+<li>
+Some fix and improvement at the `cfg' utility.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b14.1
+</h2>
+<ul>
+<li>
+Added the configuration utility `cfg.exe' for the first
+time run.
+</li>
+<li>
+Updated the `install.txt' file for the `cfg' utility.
+</li>
+<li>
+Added the `[config] videogenerate' option to automatically
+create perfect video modes. Check the `mame.txt' and
+`install.txt' files for other info.
+</li>
+<li>
+Solved a "Division by Zero" bug caused by
+the incorrect use of textmode modelines.
+</li>
+<li>
+The "bliteffect = auto" option now select the "filter"
+effect if the game is stretched by a factor equal or
+greater than 2.
+</li>
+<li>
+The `pentium' version now uses the MMX if available.
+</li>
+<li>
+Added the `speed' utility to check the memory performance of
+your video board.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b14.0 2001/04
+</h2>
+<ul>
+<li>
+Added a new type of effects to simulate the aspect of an Arcade
+Monitor with a PC monitor. Check the new option "rgbeffect".
+- triad 3 pixel (normal/strong)
+- triad 6 pixel (normal/strong)
+- trial 16 pixel (normal/strong)
+- scanline 2/3 vertical lines
+- scanline 2/3 horizontal lines
+</li>
+<li>
+General optimization at the blitter. A lot of new MMX
+code and some slowdown bugs fixed.
+</li>
+<li>
+Added the new "Video" menu entry "Show Pipeline".
+This option show the current Blit Pipeline stages.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b13.0 2001/03
+</h2>
+<ul>
+<li>
+Solved the throttle problem when the sound is disabled
+</li>
+<li>
+Linked with the correct SEAL library. This solve the problem
+with some PCI Sound Blaster
+</li>
+<li>
+Some change at the F5 command (generate video mode) of
+the `mv' utility
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b12.0 2001/02
+</h2>
+<ul>
+<li>
+The scripts are terminated correctly also if the
+program crash.
+</li>
+<li>
+Better system recover if the program crash.
+Now the system should be more stable.
+</li>
+<li>
+Solved some "Page Fault" error in systems with low memory.
+Now you can run any game also with only
+64 Mbytes of memory.
+</li>
+<li>
+Increased the maximum turbospeed to 30 and turbostartuptime
+to 180 seconds
+</li>
+<li>
+Solved a precision time problem of the scripts. Now they work
+also if the frame rate is very high (&gt; 1000)
+</li>
+<li>
+Now you can use the joystick, the keyboard and the mouse
+together like the official MAME.
+</li>
+<li>
+Added the support for the alpha blending and for the
+color conversion to any video mode depth. You can use
+the alpha blending also with 8 and 16 bits video modes.
+The best speed is with 15 bits video modes.
+The 32 bit video modes and the blit level rotation are
+currently unsupported.
+</li>
+<li>
+Minor speedup for the case with "depth=16" and a 8 bit video mode.
+</li>
+<li>
+Compiled with Allegro WIP 3.9.34 like the current MAME
+</li>
+<li>
+Added the new default mode 384x224 mainly for the CPS2 games
+</li>
+<li>
+Added the new config option `aspect'. This option control
+how compute the aspect ratio of the game emulated.
+The default behavior is different than the previous
+version. Check the file `mame.txt'
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b11.1
+</h2>
+<ul>
+<li>
+Corrected the confusion of the "[config] video"
+and "[script] video" options.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b11.0 2001/01
+</h2>
+<ul>
+<li>
+Removed the option `turbostartupspeed'. Now it's always at the
+maximum speed available and at frameskip 11.
+</li>
+<li>
+Autoframeskip is automatically enabled when the turbo button
+is pressed
+</li>
+<li>
+Corrected the automatic video mode choice.
+</li>
+<li>
+Added the `video_factor_game_stretch' option. Now the
+'video_factor_*' options are documented in the
+'mame.txt' file. With these options you can control
+how the auto video mode is chosen.
+If you get incorrect results try to delete them and
+restart with the default values.
+</li>
+<li>
+Renamed the option `video_factor_strecth' in `video_factor_aspect'.
+</li>
+<li>
+Added scripts! You can control any external hardware devices
+using a like C scripts. See the new script.txt file.
+</li>
+<li>
+Added the option `video_mode_reset' to prevent the
+video mode reset at the emulator exit
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b10.0 2000/12
+</h2>
+<ul>
+<li>
+Added support for Trident cards using the new video
+driver of VSyncMAME written by Saka.
+Use the "vbeline_driver=vbe3" option to revert to the
+old behavior.
+</li>
+<li>
+Minor change at the `trident' driver for 16 bit modes
+</li>
+<li>
+Added two new `turbostartupspeed' and `turbostartuptime' options to
+speed up the game startup.
+</li>
+<li>
+Added a new `turbo' button (num pad *) and a new option
+`turbospeed' to speed up the game play
+</li>
+<li>
+Added two new simple effects `filterx' and `filtery'
+</li>
+<li>
+Changed the coinage support. Now it works for all
+the games because it intercepts the coin keys and it
+doesn't require the explicit driver support.
+</li>
+<li>
+Corrected some garbage on video when using artworks
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b9.0 2000/11
+</h2>
+<ul>
+<li>
+Added the capability to save sound preview. Use `backspace' to start
+and `enter' to stop the recording.
+The file is saved in the `snap' directory in the `wav'
+format. The frequency rate is the value specified
+with the mame.cfg `samplerate' option.
+Use the mame.cfg `recordtime' option to limit the maximum
+record length in seconds.
+</li>
+<li>
+Corrected some color palette issues in the `vbe/vbeline' modes.
+</li>
+<li>
+Rewritten the choice of the best video mode. Now you can control
+the process with the new mame.cfg `video_factor_*' options.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b8.0 2000/10
+</h2>
+<ul>
+<li>
+Recovered from an harddisk crash!
+</li>
+<li>
+Halved the dotclock of interlaced modes in the "ati" driver
+</li>
+<li>
+Updated the contrib/nick directory with better instructions
+for newbies and for the use with ArcadeOS
+</li>
+<li>
+Added the contrib/prophet directory with example settings
+for the Princeton AR27T Monitor.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b7.0
+</h2>
+<ul>
+<li>
+Corrected the aspect ratio of some games with
+VIDEO_ASPECT_RATIO_1_2 and ORIENTATION_SWAP_XY attributes.
+</li>
+<li>
+Corrected some audit options like -verifyroms,...
+</li>
+<li>
+Added the utility `portio' to drive the hardware ports.
+</li>
+<li>
+Added the utility `off' to shutdown the PC.
+</li>
+<li>
+Corrected a cheat menu bug (MAME bug)
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b6.0
+</h2>
+<ul>
+<li>
+Corrected the aspect ratio of some vectors games.
+</li>
+<li>
+Minor correction at the `vbe3' driver
+</li>
+<li>
+Added the option `[config] vsync_adjust'. If it's set to `yes'
+AND the `vsync' is enabled all the `vbeline' modes
+are adjusted to match the exact frame rate of the
+emulated game. This option makes sense only with a PC
+multisync monitor which can accept a wide range of
+vertical and horizontal frequencies.
+Try with :
+</li>
+</ul>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+[config]
+vsync = yes
+vsync_adjust = yes
+</pre>
+</td></tr></table>
+<ul>
+<li>
+Solved some bugs in the `r128' driver. Now working.
+</li>
+<li>
+Now `mame' doesn't add any default video modes if the list
+defined in the `mame.cfg' file is empty. You MUST use
+`mv' to select the video modes available.
+</li>
+<li>
+Now the required hclock/vclock specification for a LCD screen are:
+:[video]
+:hclock = 0
+:vclock = 0
+</li>
+<li>
+The default keys for the video mode change at runtime are now
+`,' (COMMA) and `.' (STOP) for preventing clash with the
+hotrod settings.
+</li>
+<li>
+If the exit is done by the idle timeout the exit code is !=0
+</li>
+<li>
+Removed the complete clear of all the video memory for
+problems with some NeoMagic cards (possible Segmentation
+fault)
+</li>
+<li>
+Added and recomputed a lot of video modelines
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b5.0 2000/08
+</h2>
+<ul>
+<li>
+Added the video driver `r128' for the ATI Rage 128 boards
+</li>
+<li>
+Added the video driver `neomagic' for the NeoMagic boards,
+very common on laptops
+</li>
+<li>
+Updated the video driver `s6326' to the last VSyncMAME
+0.37b5 driver.
+</li>
+<li>
+Restructured the others video drivers.
+</li>
+</ul>
+<p>
+If you have problem with these new drivers you can
+disable them with the option:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+[video]
+vbeline_driver = no
+</pre>
+</td></tr></table>
+<ul>
+<li>
+Added the contrib/xfree directory with some very useful
+technical documentation of video stuffs
+</li>
+<li>
+Changed the display format of the video mode list in `mame'
+</li>
+<li>
+Updated a lot the file `mame.txt'
+</li>
+<li>
+Added the support for a second mouse imported from OptiMAME
+by Andy Geez. You can found the custom mouse driver
+in the contrib/optimous directory.
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b4.0 2000/06
+</h2>
+<ul>
+<li>
+Added `cirrus', `s3' and `matrox' video drivers
+</li>
+<li>
+Added the `-log' option at `mv'
+</li>
+<li>
+Added the `-nosound' option at `mv'
+</li>
+<li>
+Reinserted the mame option `triplebuffer'. If you want to activate
+the buffering you must insert the `triplebuffer = yes'
+option in your mame.cfg. The default is with buffering
+disabled like the official mame. (auto-&gt;yes, missing-&gt;no)
+</li>
+<li>
+Added some new `vbeline' modes for PAL/NTSC
+</li>
+<li>
+Added the resize command with the CTRL+ARROW keys in the `mv'
+test screen
+</li>
+</ul>
+<p>
+I am interested in functionality reports with these information:
+1) Model of your video board
+2) The runtime log file "mv.log" generated with the command
+"mv -log"  when you test (pressing ENTER) all the `vbeline'
+video modes available.
+3) The list of `vbeline' video modes that display incorrectly
+<h2> 
+AdvanceMAME Version 0.37b3.1 (never released)
+</h2>
+<ul>
+<li>
+Corrected a lot of bugs in the blitters when the rotation
+and effects are active together (segmentation fault)
+</li>
+<li>
+Corrected a bug in the palette conversion from 16 to 8 bit
+(slow down)
+</li>
+<li>
+Corrected a bug in `mm' if no snap was present for the first
+selected game (blank screen)
+</li>
+<li>
+Added the `max' effect also in rgb modes
+</li>
+<li>
+Corrected the save function of the `video' option
+</li>
+<li>
+Changed the default of the `resize' option from `integer'
+to `mixed'
+</li>
+<li>
+Changed the `mm' savescreen to fullscreen size
+</li>
+<li>
+Added the save state for the list of types and groups selected
+in the `mm' utility
+</li>
+<li>
+Corrected the save function of the video options by
+resolution with a vertical monitor
+</li>
+<li>
+Added an internal font in the `mm' utility that now
+doesn't require the file `mm.fnt'
+</li>
+<li>
+Added the automatic creation and updating of the file `info.txt'
+in the `mm' utility
+</li>
+<li>
+Added all the VSyncMAME drivers. See the new option
+`vbeline_driver' in the `mv.txt' file. Very
+thanks to Saka!
+</li>
+<li>
+Converted the `mame' ati video driver from the original MAME source.
+</li>
+<li>
+Added the center command with the ARROW keys in the `mv'
+test screen
+</li>
+<li>
+Minor changes and corrections of the mame menu interface
+</li>
+<li>
+Added the `merge disable' option at the `mm' utility
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b3.0 2000/05
+</h2>
+<ul>
+<li>
+Added to the source distribution the missing files
+`blitmax.h' and `blitrot.h'
+</li>
+<li>
+Removed the file `makefile.dif' from the source distribution,
+now you can use the standard `mame' Makefile
+</li>
+<li>
+Corrected minor bugs in the `Analog Controls' and
+`Video Config' menu
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b2.2 (never released)
+</h2>
+<ul>
+<li>
+Corrected the `mm' option merge
+</li>
+<li>
+Corrected the size of the vectors game
+</li>
+<li>
+Corrected the save function of the bliteffect option
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b2.1 2000/05
+</h2>
+<ul>
+<li>
+Added to the `mm' utility the ability to save the
+position of the cursor between runs
+</li>
+<li>
+Added to the `mm' utility the options `merge' to select
+the format of your roms.
+</li>
+<li>
+Corrected the bug that prevented the correct loading and saving
+of the nvram files
+</li>
+<li>
+Added a new configuration method based on the resolution of
+the games. All the `[config]' options in the `mame.cfg'
+file are now read in three different sections in this
+order:
+</li>
+</ul>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+[GAME]
+</em></td><td width="90%">
+the short game name like [pacman]
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+[RESOLUTION]
+</em></td><td width="90%">
+the resolution of the game like [244x288]
+for raster games or [vector] for vector games
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+[config]
+</em></td><td width="90%">
+the default section
+</td></tr>
+</table>
+<ul>
+<li>
+Inserted the option `dirty' like the current `mame', use
+`dirty = no' to disable the dirty buffer.
+</li>
+<li>
+Added to the `mm' utility a software key repeat for who use
+the hotrod console.
+</li>
+<li>
+Added a new menu option `Video Config' for selecting at runtime
+some video options like: video mode, effects, ...
+</li>
+<li>
+The video mode for any game is now saved only if
+requested with the appropriate menu entry.
+</li>
+<li>
+Changed the analog input stick behavior, read the
+section `ANALOG INPUT STICK' in the file `mame.cfg'
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b2.0 2000/05
+</h2>
+<ul>
+<li>
+Corrected a bug that prevent the selection of the input codes
+for a specific game
+</li>
+<li>
+Corrected the problem of invisible columns on the right for
+some games. This problem is still presents in the complex
+blitters (stretch/rotate).
+</li>
+<li>
+Corrected a bug in the alignment of the memory of the visible
+part of the game bitmap.
+</li>
+<li>
+Moved and changed the `mm' option "idlestart" from the file
+mame.cfg to "idle_start" in the file mm.cfg
+</li>
+<li>
+Added the `mm' option "idle_move" to the file mm.cfg to realize
+a basic slide show
+</li>
+<li>
+Added the game screen size information in the `mm' utility
+</li>
+<li>
+Updated the `mm' documentation file `mm.txt'
+</li>
+<li>
+Corrected the gamma modification at runtime
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.37b1.0 2000/04
+</h2>
+<h2> 
+AdvanceMAME Version 0.36r2.2
+</h2>
+<ul>
+<li>
+Added a warning screen for preventing the use of BIOS modes
+with low frequency monitors
+</li>
+<li>
+Corrected the parsing of fixed value in the "hclock=" option
+</li>
+<li>
+Added memory for skiplines and skipcolumns options for
+the single game
+</li>
+<li>
+Other minor changes
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36r2.1
+</h2>
+<ul>
+<li>
+Corrected the error "Too low virtual x size" with some
+bogus VBE3 implementation
+</li>
+<li>
+Corrected and extended the vbeline modes
+</li>
+<li>
+Added the '[video]' option 'vbe_tweak=moderate|aggressive'
+</li>
+<li>
+The specifications of '[video]' options 'hclock'
+and 'vclock' are required
+</li>
+<li>
+Added hardware mode grabbing in command F6 in 'mv' for all modes
+</li>
+<li>
+Added customization of horizontal/vertical/pixel clock in
+command F5 in 'mv'
+</li>
+<li>
+Added mode number change for vgaline/vbeline in command F7 in 'mv'
+</li>
+<li>
+Changed the calibration screen in command F9 in 'mv'
+</li>
+<li>
+Changed the list of default video mode in 'mv', added a lot of
+default vbeline modes
+</li>
+<li>
+Documentation update
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36r2.0
+</h2>
+<h2> 
+AdvanceMAME Version 0.36r1.0 (never released)
+</h2>
+<ul>
+<li>
+Corrected a bug in the video mode change causing a freeze if the
+cheat option is active
+</li>
+<li>
+Corrected a bug in the vsync code causing a crash at the startup of
+many games
+</li>
+<li>
+Default video mode change keys are now '[' and ']'
+</li>
+<li>
+Added a memory for the manually selected video configuration
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36rc2.0 2000/03
+</h2>
+<ul>
+<li>
+Corrected a bug causing memory corruption in video mode change
+</li>
+<li>
+Added absolute tick values in the profiler
+</li>
+<li>
+Corrected the sort menu of the 'mm' utility
+</li>
+<li>
+Changed the sort order of video modes in the 'mv' utility
+</li>
+<li>
+Corrected a bug in vsync code causing (sometimes)
+a big slowdown if 'frameskip=auto' is active
+</li>
+<li>
+Video mode change at runtime disabled if vsync is active, you can
+still change the video configuration on the same video mode
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36rc1.1 (never released)
+</h2>
+<ul>
+<li>
+Added a startup check for the presence of a mmx cpu if required
+</li>
+<li>
+Corrected a bug in color of the user interface in 16 bit modes
+causing wrong colors
+</li>
+<li>
+Corrected a bug if stretch and filter activated together causing
+incorrect video output
+</li>
+<li>
+Corrected a bug that permits to use unaligned bitmap causing a loss
+of performance with mmx
+</li>
+<li>
+Corrected a bug in vbe 8 bit modes with a palette of 8 bit causing
+incorrect colors
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36rc1.0 2000/02
+</h2>
+<ul>
+<li>
+MAME compiled with Allegro WIP3931 (-march=i586), utilities
+compiled with WIP3928 (smaller)
+</li>
+<li>
+Added special blitters for unchained double and palette conversion
+</li>
+<li>
+Added new bliteffects for rgb video modes
+mean - merge lines with the mean colors
+filter - apply a low pass filter
+</li>
+<li>
+MAME compiled with a patched version of SEAL with improved sound
+quality
+</li>
+<li>
+Corrected some minor bugs on the blitrotate system
+</li>
+<li>
+Added the Advance Mame logo [Melanie Burns]
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b16.2 (never released)
+</h2>
+<ul>
+<li>
+Added basic asm/mmx blit routines for x1,x2 horizontal stretch:
+the pentiumpro target uses asm routines with mmx instructions
+the pentium target uses asm routines with shift/swap instructions
+</li>
+<li>
+Added cache for input functions at core level
+</li>
+<li>
+Utility `mm' flush smartdrv cache before running games
+</li>
+<li>
+Added utility `mk'
+</li>
+<li>
+Correct bug of partially black screen with video conversion
+from 8 to 16 bit
+</li>
+<li>
+Video option bliteffect= for selecting the image
+reduction algorithm (when the screeen is too small for
+the complete image). Modes available :
+</li>
+</ul>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+skip some lines
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+max
+</em></td><td width="90%">
+plot the lightest pixel (work very well for
+pacman style games). Avaliable only if the
+game uses a fixed palette.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+automatic selection (list based)
+</td></tr>
+</table>
+<ul>
+<li>
+Added video options blitrotate = auto, automatic selection (list based)
+</li>
+<li>
+Added new aos.txt and mame.dat for AOS [Nick Bourdo]
+</li>
+<li>
+Video configuration modifiable at runtime, press HOME/END,
+use the -log option for viewing the list of available
+video configuration for one game
+</li>
+<li>
+Added patch src.dif to apply at mame core sources for compiling
+</li>
+<li>
+Added `mame' configuration option "idleexit = SECONDS" for
+an automatic exit after SECONDS of inactivity
+</li>
+<li>
+Added `mm' configuration option "idlestart = SECONDS" for
+an automatic random start after SECONDS of inactivity
+</li>
+<li>
+Documentation changes
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b16.1 2000/02
+</h2>
+<ul>
+<li>
+Correct a bug in some blit routines, specifically in blitting
+in a 8 bit mode with a 16 bit palette
+</li>
+<li>
+Reinsert dedicated and faster blitting routines when no rotation
+is required
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b16.0 2000/02
+</h2>
+<ul>
+<li>
+Added rotation at blit level, use the new option "blitrotate = yes"
+for games that don't rotate correctly (ex. NeoGeo)
+</li>
+<li>
+Renamed the option "stretch" to "resize"
+</li>
+<li>
+Minor modifications at errorlog
+</li>
+<li>
+Minor modifications at mv
+</li>
+<li>
+Substituted the option `resize = yes' to `resize = integer'
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b15.1 2000/01
+</h2>
+<ul>
+<li>
+Correct the crash if "vsync" is active and no modes available
+</li>
+<li>
+Correct bug of missing horizontal lines if "scanline" is active
+</li>
+<li>
+Better output in errorlog.txt
+</li>
+<li>
+Correct bug in the input system
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b15.0 2000/01
+</h2>
+<ul>
+<li>
+Created the history.txt file
+</li>
+</ul>
+<h2> 
+AdvanceMAME Version 0.36b14.0 2000/01
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b13.0 1999/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b13.0 1999/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b12.0 1999/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b11.0 1999/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b10.0 1999/11
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b9.0 1999/11
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b8.0 1999/11
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b7.0 1999/10
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b6.0 1999/09
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b5.0 1999/09
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b4.0 1999/09
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b3.0 1999/08
+</h2>
+<h2> 
+AdvanceMAME Version 0.36b2.0 1999/08
+</h2>
+<h2> 
+AdvanceMAME Version 0.35.0 1999/07
+</h2>
+<h2> 
+AdvanceMAME Version 0.35rc2.0 1999/06
+</h2>
+<h2> 
+AdvanceMAME Version 0.35rc1.0 1999/06
+</h2>
+<h2> 
+AdvanceMAME Version 0.34rc1.0 1998/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b8.0 1998/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b7.0 1998/12
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b6.0 1998/11
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b5.0 1998/10
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b4.0 1998/10
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b3.0 1998/09
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b2.0 1998/09
+</h2>
+<h2> 
+AdvanceMAME Version 0.34b1.0 1998/08
+</h2>
+<h2> 
+AdvanceMAME Version 0.33.0 1998/08
+</h2>
+<h2> 
+AdvanceMAME Version 0.33b8.0 1998/08
+</h2>
+<h2> 
+AdvanceMAME Version 0.33b7.0 1998/07
+</h2>
+<h2> 
+AdvanceMAME Version 0.33b6.0 1998/07
+</h2>
+<h2> 
+AdvanceMAME Version 0.33b5.0 1998/06
+</h2>
+<h2> 
+AdvanceMAME Version 0.31.0 1998/05
+</h2>
+</body>
+</html>

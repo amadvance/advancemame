@@ -1,0 +1,86 @@
+                    ========================================
+                    AdvanceMAME Automatic Video Configurator
+                    ========================================
+
+
+1 SYNOPSIS
+==========
+
+advcfg [-advmamec] [-advmessc] [-advmenuc]
+	[-log] [-logsync] [-rc RCFILE] [-bit N]
+
+
+2 DESCRIPTION
+=============
+
+The `advcfg' utility is the automatic video configuration
+program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
+
+This utility works differently if one of the -advmamec,
+-advmessc and -advmenuc option is specified.
+The main difference is the name of the configuration
+file used to store the video modes.
+
+All the video modes used in the configuration process
+have always negative horizontal and vertical sync polarity.
+
+Check the `advdev.txt' file for more details on the video
+drivers supported.
+
+
+3 OPTIONS
+=========
+
+    -rc RCFILE
+        Specify an alternate name of the configuration file.
+
+    -log
+        A very detailed log of operations is saved in
+        a `.log' file. Very useful for debugging problems.
+
+    -logsync
+        Like the `-log' option but the log file is not
+        buffered. This option must be used to get a complete
+        log file in presence of a machine crash.
+
+    -advmamec, -advmessc, -advmenuc
+        Select the mode of operation for the programs
+        `advmame', `advmess' and `advmenu'.
+        The default is for `advmame'.
+
+    -bit N
+        Select the bit depth of the test video modes.
+        If omitted 8 bit modes are used.
+        Valid values are 8, 15, 16 and 32.
+
+
+4 CONFIGURATION
+===============
+
+Depending one the command line options used one of the
+`advmame.rc', `advmess.rc' and `advmenu.rc' file is used
+to load and save the video configuration.
+
+If the configuration process completes with success the
+program adds these options in your configuration file:
+
+    device_video_clock ?
+    device_video_format ?
+
+which define the capabilities of your monitor and video board.
+And for the `advmame' and `advmess' modes also the options:
+
+    display_mode auto
+    display_adjust generate_yclock
+
+which select the `automatic' video mode generation of the
+emulators.
+
+All these options are documented in the `advdev.txt'
+and `advmame.txt' files.
+
+
+5 COPYRIGHT
+===========
+
+This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
