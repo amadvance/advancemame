@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.78.1 2004/01
+	) Fixed the audio surround enabled with the "sound_mode surround" option.
+		Now you should not hear audio statics anymore.
+
 AdvanceMAME Version 0.78.0 2004/01
 	) Added a new `help' button which display an arbitrary image with
 		the player buttons highlighted. You can customize the image

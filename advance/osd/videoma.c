@@ -3446,7 +3446,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 			++av_c_neg;
 	}
 
-	/* try to correct the error only if it's sign is constant on the most recent frames, */
+	/* try to correct the error only if the sign is constant on the most recent frames, */
 	/* otherwise it may contiously jumping from positive to negative values if */
 	/* the sound driver is not able to report the EXACT number of sample in the DMA */
 	/* buffer of the sound board. */

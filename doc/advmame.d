@@ -1089,18 +1089,18 @@ Configuration
     sound_mode
 	Sets the sound output mode.
 
-	:sound_channel auto | mono | stereo | surround
+	:sound_mode auto | mono | stereo | surround
 
 	Options:
 		auto - Use mono if the emulated game is mono
-			or stereo if it's stereo.
+			or stereo if it's stereo (default).
 		mono - Use always mono. The game stereo channels
 			are mixed.
 		stereo - Use always stereo. The game mono channel
 			is duplicated.
-		surround - Use a fake surround effect. With stereo games
-			the right channel plays part of the left channel
-			as negate samples and vice-versa.
+		surround - Use a fake surround effect. With
+			stereo games the right channel plays part of
+			the left channel as negate samples and vice-versa.
 			With mono games the left channel is the negation of
 			the right channel. This means that with surround enabled
 			the output is always stereo.

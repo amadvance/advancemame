@@ -378,8 +378,13 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 				const short* sample_mono = sample_buffer;
 				short* sample_surround = sample_mix;
 				for(i=0;i<sample_count;++i) {
-					sample_surround[0] = sample_mono[0];
-					sample_surround[1] = -sample_mono[0];
+					if (sample_mono[0] == -32768) {
+						sample_surround[0] = -32768;
+						sample_surround[1] = 32767;
+					} else {
+						sample_surround[0] = sample_mono[0];
+						sample_surround[1] = -sample_mono[0];
+					}
 					sample_mono += 1;
 					sample_surround += 2;
 				}
