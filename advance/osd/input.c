@@ -1076,4 +1076,10 @@ int osd_keyboard_disabled(void)
 {
 	return 0; /* TODO implement osd_keyboard_disabled */
 }
+
+int osd_trying_to_quit(void)
+{
+	return os_is_quit() != 0;
+}
+
 #endif

@@ -29,10 +29,18 @@
  */
 
 /*
+ * This file contains a C and MMX implentation of the "AdvanceMAME Scale2x"
+ * effect.
+ *
+ * You can found an high level description of the effect at :
+ *
+ * http://advancemame.sourceforge.net/scale2x.html
+ *
  * Alternatively at the previous license terms, you are allowed to use this
  * code in your program with these conditions:
  * - the program is not used in commercial activities.
  * - the whole source code of the program is released with the binary.
+ * - derivative works of the program are allowed.
  */
 
 #ifndef __ISCALE_H
@@ -43,17 +51,15 @@
 /***************************************************************************/
 /* internal_scale2x */
 
-/* Scale by a factor of 2
- * in:
- *   src0 previous row, normal length
- *   src1 current row, normal length
- *   src2 next row, normal length
- *   count length in pixel
- * out:
- *   dst0 first destination row, double length
- *   dst1 second destination row, double length
+/**
+ * Scale by a factor of 2
+ * \param src0 Previous row, normal length.
+ * \param src1 Current row, normal length.
+ * \param src2 Next row, normal length.
+ * \param count Length in pixel.
+ * \param dst0 First destination row, double length.
+ * \param dst1 Second destination row, double length.
  */
-
 static void internal_scale2x_8_def(uint8* dst0, uint8* dst1, const uint8* src0, const uint8* src1, const uint8* src2, unsigned count) {
 	/* first pixel */
 	dst0[0] = src1[0];
@@ -237,40 +243,48 @@ static void internal_scale2x_32_def(uint32* dst0, uint32* dst1, const uint32* sr
 #if defined(USE_ASM_i586)
 
 /*
-The pixel map is :
+This is a very fast MMX implementation of the Scale2x effect.
+
+The implementation uses a combination of cmp/and/not operations to
+completly remove the need of conditional jumps. This trick give the
+major speed improvement.
+Also, using the 8 bytes MMX registers more than one pixel are computed
+at the same time.
+
+Considering the pixel map :
 
 	ABC (src0)
 	DEF (src1)
 	GHI (src2)
 
-This function compute 4 new pixels in substitution of the source pixel E
+the functions compute 4 new pixels in substitution of the source pixel E
 like this map :
 
 	ab (dst0)
 	cd (dst1)
 
-These are the variable used in the mmx implementation :
+with these variables :
 
-	&current point at E
-	&current_left point at D
-	&current_right point at F
-	&current_upper point at B
-	&current_lower point at H
+	&current -> E
+	&current_left -> D
+	&current_right -> F
+	&current_upper -> B
+	&current_lower -> H
 
-	%0 point at B (src0)
-	%1 point at E (src1)
-	%2 point at H (src2)
-	%3 point at dst
-	%4 is the counter
+	%0 -> B (src0)
+	%1 -> E (src1)
+	%2 -> H (src2)
+	%3 -> dst
+	%4 -> counter
 
-	%mm0 current_left
-	%mm1 current_next
-	%mm2 tmp0
-	%mm3 tmp1
-	%mm4 tmp2
-	%mm5 tmp3
-	%mm6 current_upper
-	%mm7 current
+	%mm0 -> current_left
+	%mm1 -> current_next
+	%mm2 -> tmp0
+	%mm3 -> tmp1
+	%mm4 -> tmp2
+	%mm5 -> tmp3
+	%mm6 -> current_upper
+	%mm7 -> current
 */
 
 static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* src0, const uint8* src1, const uint8* src2, unsigned count) {
@@ -845,8 +859,6 @@ static void internal_scale2x_32_mmx(uint32* dst0, uint32* dst1, const uint32* sr
 	internal_scale2x_32_mmx_single(dst0, src0, src1, src2, count);
 	internal_scale2x_32_mmx_single(dst1, src2, src1, src0, count);
 }
-
-
 
 #endif
 

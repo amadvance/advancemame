@@ -127,7 +127,7 @@ emulator::~emulator() {
 }
 
 string emulator::attrib_compile(const string& value0, const string& value1) {
-	string name = "\"" + user_name_get() + "\" " + value0 + " " + value1;;
+	string name = "\"" + user_name_get() + "\" " + value0 + " " + value1;
 	return name;
 }
 

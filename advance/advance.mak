@@ -7,7 +7,7 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.61.5
+EMUVERSION = 0.62.0
 endif
 endif
 MENUVERSION = 2.2.0
@@ -40,6 +40,12 @@ ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 INSTALL_DATAFILES += $(srcdir)/support/safequit.dat
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
+ifeq ($(CONF_EMU),mess)
+INSTALL_MANFILES += $(srcdir)/support/advmess.1
+endif
+ifeq ($(CONF_EMU),pac)
+INSTALL_MANFILES += $(srcdir)/support/advpac.1
+endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)

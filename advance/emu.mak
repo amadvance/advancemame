@@ -583,6 +583,16 @@ ifeq ($(CONF_EMU),mame)
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/safequit.dat
 endif
+ifeq ($(CONF_EMU),mess)
+EMU_SUPPORT_SRC += \
+	$(srcdir)/support/advmess.1 \
+	$(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
+endif
+ifeq ($(CONF_EMU),pac)
+EMU_SUPPORT_SRC += \
+	$(srcdir)/support/advpac.1 \
+	$(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
+endif
 
 EMU_DOC_SRC = \
 	$(srcdir)/doc/advmame.d \
@@ -694,6 +704,14 @@ EMU_ROOT_BIN += \
 	$(DOCOBJ)/advj.1 \
 	$(DOCOBJ)/advm.1 \
 	$(CONF_BIN)
+ifeq ($(CONF_EMU),mess)
+EMU_ROOT_BIN += \
+	$(srcdir)/support/advmess.1
+endif
+ifeq ($(CONF_EMU),pac)
+EMU_ROOT_BIN += \
+	$(srcdir)/support/advpac.1
+endif
 endif
 ifeq ($(CONF_HOST),dos)
 EMU_ROOT_BIN += \
@@ -702,6 +720,12 @@ EMU_ROOT_BIN += \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
 	$(MOBJ)/advm$(EXE)
+ifeq ($(CONF_EMU),mess)
+EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
+endif
+ifeq ($(CONF_EMU),pac)
+EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
+endif
 endif
 ifeq ($(CONF_HOST),windows)
 EMU_ROOT_BIN += \
@@ -709,19 +733,12 @@ EMU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll
-endif
-
 ifeq ($(CONF_EMU),mess)
-ifneq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
-EMU_SUPPORT_SRC += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
-endif
 ifeq ($(CONF_EMU),pac)
-ifneq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
-EMU_SUPPORT_SRC += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 
 EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)

@@ -20,6 +20,7 @@
 #if defined(USE_ADV_SVGALIB_WINK)
 
 #define ADV_SVGALIB_CALL __stdcall
+#define ADV_SVGALIB_CALL_VARARGS __cdecl
 #define PROT_READ 0
 #define PROT_WRITE 0
 #define sigemptyset(a) do { (void)(a); } while (0)
@@ -29,6 +30,7 @@
 #elif defined(USE_ADV_SVGALIB_WIN)
 
 #define ADV_SVGALIB_CALL
+#define ADV_SVGALIB_CALL_VARARGS
 #ifdef TEXT
 #undef TEXT
 #define TEXT 0
@@ -42,6 +44,7 @@
 #elif defined(USE_ADV_SVGALIB_DOS)
 
 #define ADV_SVGALIB_CALL
+#define ADV_SVGALIB_CALL_VARARGS
 #include <sys/types.h>
 #include <sys/mman.h>
 
@@ -60,7 +63,7 @@ typedef unsigned long uint32_t;
 
 void ADV_SVGALIB_CALL adv_svgalib_log_va(const char *text, va_list arg);
 
-void ADV_SVGALIB_CALL adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
+void ADV_SVGALIB_CALL_VARARGS adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
 
 /**
  * Map a memory region.
@@ -108,7 +111,6 @@ void ADV_SVGALIB_CALL adv_svgalib_exit(int code);
 char* ADV_SVGALIB_CALL adv_svgalib_strtok(const char* s, const char* t);
 double ADV_SVGALIB_CALL adv_svgalib_atof(const char* s);
 int ADV_SVGALIB_CALL adv_svgalib_strcasecmp(const char* s1, const char* s2);
-double ADV_SVGALIB_CALL adv_svgalib_logf(double v);
 void ADV_SVGALIB_CALL adv_svgalib_abort(void);
 
 /* Override of os functions. */
@@ -130,7 +132,6 @@ void ADV_SVGALIB_CALL adv_svgalib_abort(void);
 #define strtok adv_svgalib_strtok
 #define atof adv_svgalib_atof
 #define strcasecmp adv_svgalib_strcasecmp
-#define log adv_svgalib_logf
 #endif
 
 /**************************************************************************/

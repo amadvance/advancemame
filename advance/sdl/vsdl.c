@@ -34,6 +34,10 @@
 #include "ossdl.h"
 #include "error.h"
 
+#ifdef USE_KEYBOARD_SDL
+#include "ksdl.h"
+#endif
+
 #include "SDL.h"
 
 #include <stdlib.h>
@@ -310,6 +314,11 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
 		SDL_WM_DefIcon();
 	}
+
+#ifdef USE_KEYBOARD_SDL
+	/* clear all the keyboard state, it depends on the video */
+	keyb_sdl_event_release_all();
+#endif
 
 	info = SDL_GetVideoInfo();
 

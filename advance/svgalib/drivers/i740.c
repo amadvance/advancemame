@@ -415,8 +415,16 @@ I740CalcVCLK(double freq ,int *M, int *N, int *MN, int *DIVSEL )
     double err_max = 0.005;
     double err_target = 0.001;
     double err_best = 999999.0;
+    double freq_log2;
 
-    p_best = p = log(MAX_VCO_FREQ/f_target)/log((double)2);
+    p = 0;
+    freq_log2 = MAX_VCO_FREQ/f_target;
+    while (freq_log2 > 1) {
+    	freq_log2 /= 2;
+    	++p;
+    }
+
+    p_best = p;
     d_best = d = 0;
 
     f_vco = f_target * (1 << p);

@@ -258,6 +258,14 @@ void keyb_sdl_event_release(unsigned code) {
 		sdl_state.state[code] = 0;
 }
 
+void keyb_sdl_event_release_all(void) {
+	unsigned j;
+
+	for(j=0;j<SDLK_LAST;++j) {
+		sdl_state.state[j] = 0;
+	}
+}
+
 
 /***************************************************************************/
 /* Driver */

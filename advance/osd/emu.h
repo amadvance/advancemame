@@ -125,8 +125,7 @@
 
 #define ROTATE_AUTO -1
 #define ROTATE_NONE 0
-#define ROTATE_CORE 1
-#define ROTATE_BLIT 2
+#define ROTATE_BLIT 1
 
 /** Max number of modelines */
 #define VIDEO_CRTC_MAX 256

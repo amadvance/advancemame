@@ -18,29 +18,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "bitmap.h"
+#include "advance.h"
+
 #include "text.h"
 #include "common.h"
 #include "play.h"
-#include "font.h"
-#include "fontdef.h"
-#include "png.h"
-#include "mng.h"
-#include "pcx.h"
-#include "icon.h"
-#include "video.h"
-#include "generate.h"
-#include "crtcbag.h"
-#include "clear.h"
-#include "blit.h"
-#include "target.h"
-#include "os.h"
-#include "videoall.h"
-#include "keyall.h"
-#include "mouseall.h"
-#include "joyall.h"
-#include "log.h"
-#include "error.h"
 
 #include <list>
 #include <iostream>

@@ -462,21 +462,21 @@ const struct mame_game* mame_playback_look(const char* file) {
 
 	playback= osd_fopen(0,file,OSD_FILETYPE_INPUTLOG,0);
 	if (!playback) {
-		target_err("Error opening the input playback file '%s'\n", file);
+		target_err("Error opening the input playback file '%s'.\n", file);
 		return 0;
 	}
 
 	/* read playback header */
 	if (osd_fread(playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
 		osd_fclose(playback);
-		target_err("Error reading the input playback file '%s'\n", file);
+		target_err("Error reading the input playback file '%s'.\n", file);
 		return 0;
 	}
 
 	osd_fclose(playback);
 
 	if (!isalnum(inp_header.name[0])) {
-		target_err("No game specified in the playback file '%s'\n", file);
+		target_err("No game specified in the playback file '%s'.\n", file);
 		return 0;
 	} else {
 		unsigned i;
@@ -519,12 +519,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.debug_width = advance->debug_width;
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;
-	options.norotate = advance->norotate;
+#ifdef MESS
+	options.norotate = 1;
+	options.ror = 0;
+	options.rol = 0;
+	options.flipx = 0;
+	options.flipy = 0;
+#endif
 	options.ui_orientation = advance->ui_orientation;
-	options.ror = advance->ror;
-	options.rol = advance->rol;
-	options.flipx = advance->flipx;
-	options.flipy = advance->flipy;
 	options.antialias = advance->antialias;
 	options.translucency = advance->translucency;
 	options.beam = advance->beam;
@@ -548,7 +550,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 		options.record = osd_fopen(0,advance->record_file,OSD_FILETYPE_INPUTLOG,1);
 		if (!options.record) {
-			target_err("Error opening the input record file '%s'\n", advance->record_file);
+			target_err("Error opening the input record file '%s'.\n", advance->record_file);
 			return -1;
 		}
 
@@ -560,7 +562,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		inp_header.version[2] = 0;
 
 		if (osd_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
-			target_err("Error writing the input record file '%s'\n", advance->record_file);
+			target_err("Error writing the input record file '%s'.\n", advance->record_file);
 			return -1;
 		}
 	} else
@@ -571,13 +573,13 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 		options.playback = osd_fopen(0,advance->playback_file,OSD_FILETYPE_INPUTLOG,0);
 		if (!options.playback) {
-			target_err("Error opening the input playback file '%s'\n", advance->playback_file);
+			target_err("Error opening the input playback file '%s'.\n", advance->playback_file);
 			return -1;
 		}
 
 		/* read playback header */
 		if (osd_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
-			target_err("Error reading the input playback file '%s'\n", advance->playback_file);
+			target_err("Error reading the input playback file '%s'.\n", advance->playback_file);
 			return -1;
 		}
 
@@ -1132,18 +1134,38 @@ static adv_conf_enum_int OPTION_DEPTH[] = {
 };
 
 #ifdef MESS
-extern const struct Devices devices[]; /* from mess device.c */
+
+/* This is the list of the MESS recognized devices, it must be syncronized */
+/* with the devices names present in the mess/device.c file */
+static const char* DEVICES[] = {
+	"cartridge",
+	"floppydisk",
+	"harddisk",
+	"cylinder",
+	"cassette",
+	"punchcard",
+	"punchtape",
+	"printer",
+	"serial",
+	"parallel",
+	"snapshot",
+	"quickload",
+	0
+};
 
 static void mess_init(adv_conf* context) {
-	const struct Devices* i;
+	const char** i;
 
 	options.image_count = 0;
 
-	i = devices;
-	while (i->id != IO_COUNT) {
+	/* use the old portable ui */
+	options.disable_normal_ui = 0;
+
+	i = DEVICES;
+	while (*i) {
 		char buffer[256];
 
-		sprintf(buffer,"dev_%s",i->name);
+		sprintf(buffer,"dev_%s", *i);
 
 		conf_string_register_multi(context, buffer);
 
@@ -1151,29 +1173,43 @@ static void mess_init(adv_conf* context) {
 	}
 }
 
-static void mess_config_load(adv_conf* context) {
-	const struct Devices* i;
+static int mess_config_load(adv_conf* context) {
+	const char** i;
 
-	i = devices;
-	while (i->id != IO_COUNT) {
+	i = DEVICES;
+	while (*i) {
 		adv_conf_iterator j;
 		char buffer[256];
 
-		sprintf(buffer,"dev_%s",i->name);
+		sprintf(buffer,"dev_%s", *i);
 
 		conf_iterator_begin(&j, context, buffer);
 		while (!conf_iterator_is_end(&j)) {
 			const char* arg = conf_iterator_string_get(&j);
+			int id;
 
-			log_std(("mess: register device %s %s\n",i->name,arg));
+			log_std(("mess: register device %s %s\n", *i, arg));
 
-			register_device(i->id,arg);
+			id = device_typeid(*i);
+			if (id < 0) {
+				/* If we get to here, log the error - This is mostly due to a mismatch in the array */
+				log_std(("ERROR: unknown mess devices %s\n", *i));
+				return -1;
+			}
+
+			/* register the devices with its arg */
+			if (register_device(id, arg) != 0) {
+				log_std(("ERROR: calling register_device(type:%d,arg:%s)\n", id, arg));
+				return -1;
+			}
 
 			conf_iterator_next(&j);
 		}
 
 		++i;
 	}
+
+	return 0;
 }
 
 static void mess_done(void) {
@@ -1274,7 +1310,10 @@ int mame_config_load(adv_conf* cfg_context, struct mame_option* option) {
 	strcpy(option->info_file, conf_string_get_default(cfg_context,"misc_infofile"));
 
 #ifdef MESS
-	mess_config_load(cfg_context);
+	if (mess_config_load(cfg_context) != 0) {
+		target_err("Internal error loading a device.\n");
+		return -1;
+	}
 #endif
 
 	return 0;

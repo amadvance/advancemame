@@ -138,19 +138,19 @@ static int video_pipeline_menu(struct advance_video_context* context, int select
 
 	for(i=1,stage=video_pipeline_begin(&context->state.blit_pipeline);stage!=video_pipeline_end(&context->state.blit_pipeline);++stage,++i) {
 		if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-			sprintf(buffer,"(%d) %s\n",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+			sprintf(buffer,"(%d) %s",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 			++i;
 			menu_item[total] = strdup(buffer);
 			flag[total] = 0;
 			++total;
 		}
-		sprintf(buffer,"(%d) %s, p %d, dp %d\n",i,pipe_name(stage->type),stage->sbpp,stage->sdp);
+		sprintf(buffer,"(%d) %s, p %d, dp %d",i,pipe_name(stage->type),stage->sbpp,stage->sdp);
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
 		++total;
 	}
 	if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-		sprintf(buffer,"(%d) %s\n",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+		sprintf(buffer,"(%d) %s",i,pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 		++i;
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;

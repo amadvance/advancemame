@@ -1131,12 +1131,17 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
+#if 1
+		context->config.adjust = ADJUST_NONE;
+		log_std(("advance:video: adjust=* disabled because the graphics driver is not programmable\n"));
+#else
 		target_err(
 			"Your current video driver doesn't support hardware programming.\n"
 			"Try changing the video driver with the `device_video' option or\n"
 			"disable the `display_adjust' option.\n"
 		);
 		return -1;
+#endif
 	}
 
 	log_std(("advance:video: blit_orientation %d\n", context->config.blit_orientation));
@@ -2833,7 +2838,6 @@ static adv_conf_enum_int OPTION_ADJUST[] = {
 static adv_conf_enum_int OPTION_ROTATE[] = {
 { "auto", ROTATE_AUTO },
 { "none", ROTATE_NONE },
-{ "core", ROTATE_CORE },
 { "blit", ROTATE_BLIT }
 };
 
@@ -3019,6 +3023,7 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	int err;
 	unsigned i;
 	int rotate;
+	int ror, rol, flipx, flipy;
 
 	assert( cfg_context == context->state.cfg_context );
 
@@ -3057,45 +3062,26 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 		context->config.skipcolumns = atoi(s);
 	}
 
-	option->ror = conf_bool_get_default(cfg_context, "display_ror");
-	option->rol = conf_bool_get_default(cfg_context, "display_rol");
-	option->flipx = conf_bool_get_default(cfg_context, "display_flipx");
-	option->flipy = conf_bool_get_default(cfg_context, "display_flipy");
+	ror = conf_bool_get_default(cfg_context, "display_ror");
+	rol = conf_bool_get_default(cfg_context, "display_rol");
+	flipx = conf_bool_get_default(cfg_context, "display_flipx");
+	flipy = conf_bool_get_default(cfg_context, "display_flipy");
 
 	rotate = conf_int_get_default(cfg_context, "display_rotate");
 	if (rotate == ROTATE_AUTO) {
 		rotate = ROTATE_BLIT;
 	}
+
 	switch (rotate) {
-		case ROTATE_CORE :
-			/* disable the blit orientation */
-			context->config.blit_orientation = 0;
-			/* enable the core orientation */
-			option->norotate = 0;
-			/* disable the ui orientation */
-			option->ui_orientation = 0;
-			break;
 		case ROTATE_BLIT :
 			/* enable the blit orientation */
-			context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, option->rol, option->ror, option->flipx, option->flipy);
-			/* disable the core orientation */
-			option->norotate = 1;
-			option->ror = 0;
-			option->rol = 0;
-			option->flipx = 0;
-			option->flipy = 0;
+			context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, rol, ror, flipx, flipy);
 			/* enable the ui orientation */
 			option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
 			break;
 		case ROTATE_NONE :
 			/* disable the blit orientation */
 			context->config.blit_orientation = 0;
-			/* disable the core orientation */
-			option->norotate = 1;
-			option->ror = 0;
-			option->rol = 0;
-			option->flipx = 0;
-			option->flipy = 0;
 			/* enable the ui orientation */
 			option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
 			break;

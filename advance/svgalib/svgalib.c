@@ -1758,7 +1758,7 @@ void ADV_SVGALIB_CALL adv_svgalib_cursor_off(void) {
 		adv_svgalib_state.driver->drv->cursor(CURSOR_HIDE, 0, 0, 0, 0, 0);
 }
 
-void ADV_SVGALIB_CALL adv_svgalib_log(const char *text, ...) {
+void ADV_SVGALIB_CALL_VARARGS adv_svgalib_log(const char *text, ...) {
 	va_list arg;
 	va_start(arg, text);
 	adv_svgalib_log_va(text, arg);

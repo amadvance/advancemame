@@ -49,6 +49,7 @@ extern keyb_driver keyb_sdl_driver;
 
 void keyb_sdl_event_press(unsigned code);
 void keyb_sdl_event_release(unsigned code);
+void keyb_sdl_event_release_all(void);
 
 #ifdef __cplusplus
 }

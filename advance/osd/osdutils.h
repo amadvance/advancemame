@@ -39,12 +39,16 @@
 #include <ctype.h>
 
 #ifdef __MSDOS__
+
+#include <wchar.h>
+
 static inline wchar_t towlower(wchar_t c) {
 	if (c >= 'A' && c <= 'Z')
 		return c - 'A' + 'a';
 	else
 		return c;
 }
+
 static inline wchar_t towupper(wchar_t c) {
 	if (c >= 'a' && c <= 'z')
 		return c - 'a' + 'A';
@@ -75,7 +79,7 @@ static inline void osd_mkdir(const char* dir) {
 #endif
 }
 
-#ifdef __MSDOS__
+#if defined(__MSDOS__) || defined(__WIN32__)
 #define PATH_SEPARATOR '\\'
 #define EOLN "\r\n"
 #else
