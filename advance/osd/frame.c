@@ -1508,6 +1508,9 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 	context->state.palette_index32_map = (uint32*)malloc(context->state.palette_total * sizeof(uint32));
 	context->state.palette_index16_map = (uint16*)malloc(context->state.palette_total * sizeof(uint16));
 	context->state.palette_index8_map = (uint8*)malloc(context->state.palette_total * sizeof(uint8));
+	context->state.buffer_index32_map = (uint32*)malloc(context->state.palette_total * sizeof(uint32));
+	context->state.buffer_index16_map = (uint16*)malloc(context->state.palette_total * sizeof(uint16));
+	context->state.buffer_index8_map = (uint8*)malloc(context->state.palette_total * sizeof(uint8));
 
 	/* initialize the palette */
 	for(i=0;i<context->state.palette_total;++i) {
@@ -1519,6 +1522,9 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 		context->state.palette_index32_map[i] = 0;
 		context->state.palette_index16_map[i] = 0;
 		context->state.palette_index8_map[i] = 0;
+		context->state.buffer_index32_map[i] = 0;
+		context->state.buffer_index16_map[i] = 0;
+		context->state.buffer_index8_map[i] = 0;
 	}
 
 	/* make the palette completly dirty */
@@ -1551,6 +1557,12 @@ static void video_done_color(struct advance_video_context* context)
 	context->state.palette_index16_map = 0;
 	free(context->state.palette_index8_map);
 	context->state.palette_index8_map = 0;
+	free(context->state.buffer_index32_map);
+	context->state.buffer_index32_map = 0;
+	free(context->state.buffer_index16_map);
+	context->state.buffer_index16_map = 0;
+	free(context->state.buffer_index8_map);
+	context->state.buffer_index8_map = 0;
 }
 
 /***************************************************************************/
@@ -1565,9 +1577,9 @@ static void video_buffer_clear(struct advance_video_context* context)
 	assert(video_mode_is_active());
 
 	/* on palettized modes it always return 0 */
-	color = video_pixel_get(0, 0, 0);
+	color = pixel_make_from_def(0, 0, 0, context->state.buffer_def);
 
-	bytes_per_pixel = video_bytes_per_pixel();
+	bytes_per_pixel = color_def_bytes_per_pixel_get(context->state.buffer_def);
 
 	/* clear */
 	if (color == 0) {
@@ -1763,7 +1775,12 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	video_pipeline_init(&context->state.blit_pipeline_video);
 	video_pipeline_init(&context->state.buffer_pipeline_video);
 
-	context->state.buffer_bytes_per_scanline = context->state.buffer_size_x * video_bytes_per_pixel();
+	if (color_def_type_get(video_color_def()) == adv_color_type_yuy2)
+		context->state.buffer_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+	else
+		context->state.buffer_def = video_color_def();
+
+	context->state.buffer_bytes_per_scanline = context->state.buffer_size_x * color_def_bytes_per_pixel_get(context->state.buffer_def);
 
 	/* align at 32 bytes */
 	context->state.buffer_bytes_per_scanline = ALIGN_UNSIGNED(context->state.buffer_bytes_per_scanline, 32);
@@ -1777,7 +1794,7 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	/* clear */
 	video_buffer_clear(context);
 
-	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_bytes_per_scanline, video_color_def());
+	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_bytes_per_scanline, context->state.buffer_def);
 
 	if (context->state.game_rgb_flag) {
 		video_pipeline_direct(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine_video);
@@ -1791,11 +1808,19 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
 					video_pipeline_palette8(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video);
-					video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
+					/* use the alternate palette only if required */
+					if (context->state.buffer_def != video_color_def())
+						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
+					else
+						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
 					break;
 				case 2 :
 					video_pipeline_palette16(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video);
-					video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
+					/* use the alternate palette only if required */
+					if (context->state.buffer_def != video_color_def())
+						video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
+					else
+						video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
 					break;
 				default :
 					assert(0);
@@ -1951,12 +1976,12 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 
 		/* draw the user interface */
 		if (ui_buffer_active) {
-			advance_ui_buffer_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_bytes_per_scanline, video_color_def(), context->state.palette_map, context->state.palette_total);
+			advance_ui_buffer_update(ui_context, context->state.buffer_ptr, context->state.buffer_size_x, context->state.buffer_size_y, context->state.buffer_bytes_per_scanline, context->state.buffer_def, context->state.palette_map, context->state.palette_total);
 		}
 
 		buf_ptr = context->state.buffer_ptr;
 		buf_dw = context->state.buffer_bytes_per_scanline;
-		buf_dp = video_bytes_per_pixel();
+		buf_dp = color_def_bytes_per_pixel_get(context->state.buffer_def);
 
 #if 0 /* OSDEF: Save interface image, only for debugging. */
 		{
@@ -1970,7 +1995,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 				++in;
 
 				f = fzopen(buffer, "wb");
-				advance_record_png_write(f, buf_ptr, context->state.buffer_size_x, context->state.buffer_size_y, buf_dp, buf_dw, video_color_def(), 0, 0, 0);
+				advance_record_png_write(f, buf_ptr, context->state.buffer_size_x, context->state.buffer_size_y, buf_dp, buf_dw, context->state.buffer_def, 0, 0, 0);
 				fzclose(f);
 			}
 		}
@@ -1994,7 +2019,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		/* blit the buffer */
 		/* the image is rotated to the user requested orientation in this stage */
 		/* the whole buffer is blitted, implying a slowdown for vertical games on horizontal monitors */
-		video_stretch_direct(x, y, video_size_x(), video_size_y(), buf_ptr, final_size_x, final_size_y, buf_dw, buf_dp, video_color_def(), 0);
+		video_stretch_direct(x, y, video_size_x(), video_size_y(), buf_ptr, final_size_x, final_size_y, buf_dw, buf_dp, context->state.buffer_def, 0);
 
 		if (ui_buffer_active) {
 			/* always clear the buffer for the next update */
@@ -2100,6 +2125,8 @@ static void video_frame_palette(struct advance_video_context* context)
 							/* software */
 							adv_pixel pixel;
 							video_pixel_make(&pixel, c.red, c.green, c.blue);
+
+							/* update only the currently used palette to doesn't overload the memory cache */
 							switch (video_bytes_per_pixel()) {
 							case 4 :
 								context->state.palette_index32_map[p] = pixel;
@@ -2110,6 +2137,24 @@ static void video_frame_palette(struct advance_video_context* context)
 							case 1 :
 								context->state.palette_index8_map[p] = pixel;
 								break;
+							}
+
+							if (video_color_def() != context->state.buffer_def) {
+								pixel = pixel_make_from_def(c.red, c.green, c.blue, context->state.buffer_def);
+								/* update only the 32 bit palette, the others are never used */
+								context->state.buffer_index32_map[p] = pixel;
+							} else {
+								switch (video_bytes_per_pixel()) {
+								case 4 :
+									context->state.buffer_index32_map[p] = pixel;
+									break;
+								case 2 :
+									context->state.buffer_index16_map[p] = pixel;
+									break;
+								case 1 :
+									context->state.buffer_index8_map[p] = pixel;
+									break;
+								}
 							}
 						}
 					}

@@ -10,6 +10,7 @@ AdvanceMAME Version 0.87.1 2004/10
 	) Removed the generic requirement of the C++ compiler.
 		It's now required only if you change the
 		documentation.
+	) Fixed the user interface in overlay video modes.
 
 AdvanceMESS Version 0.87.0.0 2004/10
 	) All from AdvanceMAME 0.87.0.

@@ -42,7 +42,7 @@
 
 static inline adv_bool ui_alpha(adv_color_def color_def)
 {
-	return color_def_type_get(color_def) != adv_color_type_palette;
+	return color_def_type_get(color_def) == adv_color_type_rgb;
 }
 
 static void ui_text_center(struct advance_ui_context* context, adv_bitmap* dst, int x, int y, const char* begin, const char* end, struct ui_color cf, struct ui_color cb, adv_pixel* map, adv_color_def def)

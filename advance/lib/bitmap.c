@@ -1525,6 +1525,9 @@ void adv_bitmap_put_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_d
 	uint8* dst8;
 	uint8* back8;
 
+	assert(color_def_type_get(src_color_def) == adv_color_type_rgb);
+	assert(color_def_type_get(dst_color_def) == adv_color_type_rgb);
+
 	if (dst_x < 0) {
 		src_dx += dst_x;
 		back_x += dst_x;
@@ -1546,7 +1549,8 @@ void adv_bitmap_put_alphaback(adv_bitmap* dst, int dst_x, int dst_y, adv_color_d
 	dst8 = adv_bitmap_pixel(dst, dst_x, dst_y);
 	back8 = adv_bitmap_pixel(back, back_x, back_y);
 
-	if (dst_color_def == src_color_def) {
+	if (dst_color_def == src_color_def
+		&& dst_color_def == color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0)) {
 		bitmap_put_alpha_bgra8888(dst8, dst->bytes_per_scanline,
 			back8, back->bytes_per_scanline,
 			src8, src->bytes_per_scanline,

@@ -763,6 +763,9 @@ struct advance_video_state_context {
 	uint32* palette_index32_map; /**< Software palette at 32 bit. */
 	uint16* palette_index16_map; /**< Software palette at 16 bit. */
 	uint8* palette_index8_map; /**< Software palette at 8 bit. */
+	uint32* buffer_index32_map; /**< Software buffer palette at 32 bit. */
+	uint16* buffer_index16_map; /**< Software buffer palette at 16 bit. */
+	uint8* buffer_index8_map; /**< Software buffer palette at 8 bit. */
 
 	/* Syncronization */
 	adv_bool sync_warming_up_flag; /**< Initializing flag. */
@@ -826,17 +829,20 @@ struct advance_video_state_context {
 	int blit_src_dp; /**< Source pixel step of the game bitmap. */
 	int blit_src_dw; /**< Source row step of the game bitmap. */
 	int blit_src_offset; /**< Pointer at the first pixel of the game bitmap. */
+	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
+	struct video_pipeline_struct blit_pipeline_video; /**< Put pipeline to video. */
 
 	/* Buffer info */
 	int buffer_src_dp; /**< Source pixel step of the game bitmap. */
 	int buffer_src_dw; /**< Source row step of the game bitmap. */
 	int buffer_src_offset; /**< Pointer at the first pixel of the game bitmap. */
-
 	unsigned char* buffer_ptr; /**< Buffer used for bufferized output. */
 	unsigned char* buffer_ptr_alloc; /**< Real data allocated. */
 	unsigned buffer_bytes_per_scanline; /**< Byte per scanline in the buffer. */
 	unsigned buffer_size_x; /**< Width of the buffer image. */
 	unsigned buffer_size_y; /**< Height of the buffer image. */
+	struct video_pipeline_struct buffer_pipeline_video; /**< Put pipeline to buffer. */
+	adv_color_def buffer_def; /**< Put pipeline to buffer color format. */
 
 	int combine; /**< One of the COMBINE_ effect. */
 	int rgb_effect; /**< One of the EFFECT_ effect. */
@@ -852,11 +858,6 @@ struct advance_video_state_context {
 
 	/** Basic increment of number of pixel for mantaining the alignement. */
 	unsigned game_visible_pos_x_increment;
-
-	/* Blit pipeline */
-	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
-	struct video_pipeline_struct blit_pipeline_video; /**< Put pipeline to video. */
-	struct video_pipeline_struct buffer_pipeline_video; /**< Put pipeline to buffer. */
 
 	adv_bool pipeline_measure_flag; /**< !=0 if the time measure is active. */
 	double pipeline_measure_direct_map[PIPELINE_MEASURE_MAX];
