@@ -85,19 +85,24 @@ static void vbe_probe(void) {
 
 	/* remove unsupported bit depth */
 	if (!has8bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	if (!has15bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	if (!has16bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	if (!has24bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT;
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	if (!has32bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
 static adv_error vbe_init2(int device_id) {
-	const adv_device* i = DEVICE;
+	const adv_device* i;
+
+	if (sizeof(vbe_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
+		return -1;
+
+	i = DEVICE;
 	while (i->name && i->id != device_id)
 		++i;
 	if (!i->name)
@@ -106,7 +111,7 @@ static adv_error vbe_init2(int device_id) {
 	if (vbe_init() != 0)
 		return -1;
 
-	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
+	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
 
 	vbe_probe();
 
@@ -195,13 +200,20 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode) {
 		mode->flags |= MODE_FLAGS_SCROLL_SYNC;
 	switch (info.MemoryModel) {
 		case vbeMemTXT :
-			mode->flags |= MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_TYPE_TEXT;
+			mode->flags |= MODE_FLAGS_INDEX_TEXT;
 			break;
 		case vbeMemPK :
-			mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
 			break;
 		case vbeMemRGB :
-			mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
+			switch (info.BitsPerPixel) {
+			case 15 : mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
+			case 16 : mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
+			case 24 : mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
+			case 32 : mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
+			default:
+				return -1;
+			}
 			break;
 		default :
 			return -1;
@@ -219,7 +231,6 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode) {
 	}
 	mode->vclock = 0;
 	mode->hclock = 0;
-	mode->bits_per_pixel = info.BitsPerPixel;
 	if (info.YResolution <= 300)
 		mode->scan = 1; /* assume doublescan */
 	else
@@ -228,8 +239,8 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode) {
 	return 0;
 }
 
-adv_error vbe_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
-	adv_color vbe_pal[256];
+adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+	adv_color_rgb vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
 	if (shift) {
@@ -279,10 +290,11 @@ static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned
 	return -1;
 }
 
-adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
+adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
 	int number;
 	unsigned model;
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
+	unsigned bits;
 
 	assert( vbe_is_active() );
 
@@ -292,21 +304,35 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_RGB :
+		case MODE_FLAGS_INDEX_PALETTE8 :
+			bits = 8;
+			model = vbeMemPK;
+			break;
+		case MODE_FLAGS_INDEX_BGR15 :
+			bits = 15;
 			model = vbeMemRGB;
 			break;
-		case MODE_FLAGS_INDEX_PACKED :
-			model = vbeMemPK;
+		case MODE_FLAGS_INDEX_BGR16 :
+			bits = 16;
+			model = vbeMemRGB;
+			break;
+		case MODE_FLAGS_INDEX_BGR24 :
+			bits = 24;
+			model = vbeMemRGB;
+			break;
+		case MODE_FLAGS_INDEX_BGR32 :
+			bits = 32;
+			model = vbeMemRGB;
 			break;
 		default:
 			assert(0);
 			return -1;
 	}
 
-	number = vbe_search_target_mode(crtc->hde,crtc->vde,bits,model,vbeflags);
+	number = vbe_search_target_mode(crtc->hde, crtc->vde, bits, model, vbeflags);
 	if (number < 0 && model == vbeMemRGB) {
 		model = vbeMemPK; /* the packed mode is better than RGB */
-		number = vbe_search_target_mode(crtc->hde,crtc->vde,bits,model,vbeflags);
+		number = vbe_search_target_mode(crtc->hde, crtc->vde,bits, model, vbeflags);
 	}
 	if (number < 0) {
 		error_nolog_cat("vbe: No compatible VBE mode found\n");
@@ -380,8 +406,8 @@ static adv_error vbe_mode_import_void(adv_mode* mode, const void* vbe_mode) {
 	return vbe_mode_import(mode, (const vbe_video_mode*)vbe_mode);
 }
 
-static adv_error vbe_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return vbe_mode_generate((vbe_video_mode*)mode, crtc, bits, flags);
+static adv_error vbe_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+	return vbe_mode_generate((vbe_video_mode*)mode, crtc, flags);
 }
 
 static int vbe_mode_compare_void(const void* a, const void* b) {
@@ -420,7 +446,7 @@ adv_video_driver video_vbe_driver = {
 	vbe_font_size_y,
 	vbe_bytes_per_scanline,
 	vbe_adjust_bytes_per_page,
-	vbe_rgb_def,
+	vbe_color_def,
 	0,
 	0,
 	&vbe_write_line,

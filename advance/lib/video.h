@@ -71,12 +71,14 @@ typedef struct video_internal_struct {
 	/* Mode */
 	adv_bool mode_active; /**< !=0 if a mode is selected. */
 	adv_mode mode; /**< Current mode. */
+	adv_mode mode_original; /**< Current mode previously any internal change */
 	unsigned virtual_x;
 	unsigned virtual_y;
 	double measured_vclock;
 
 	/* Mode RGB */
-	adv_rgb_def rgb_def; /**< Definition of the current RGB mode. */
+	adv_color_def color_def; /**< Definition of the current RGB mode. */
+
 	unsigned rgb_red_mask; /**< Positioned mask for the RED channel. */
 	unsigned rgb_green_mask;
 	unsigned rgb_blue_mask;
@@ -86,9 +88,14 @@ typedef struct video_internal_struct {
 	unsigned rgb_red_len; /**< Number of bit of the RED channel. */
 	unsigned rgb_green_len;
 	unsigned rgb_blue_len;
-	adv_rgb rgb_mask_bit; /**< Whole mask of the three RGB channel. */
-	adv_rgb rgb_high_bit; /**< High bits of the three RGB channel. */
-	adv_rgb rgb_low_bit; /**< Low bits of the three RGB channel. */
+	unsigned rgb_mask_bit; /**< Whole mask of the three RGB channel. */
+	unsigned rgb_high_bit; /**< High bits of the three RGB channel. */
+	unsigned rgb_low_bit; /**< Low bits of the three RGB channel. */
+
+	unsigned char* fake_text_map; /**< Fake text buffer. */
+	unsigned char* fake_text_last_map; /**< Fake text last buffer. */
+	unsigned fake_text_dx; /**< Fake text columns. */
+	unsigned fake_text_dy; /**< Fake text rows. */
 } video_internal;
 
 extern video_internal video_state;
@@ -120,14 +127,23 @@ static inline const adv_video_driver* video_current_driver(void) {
 	return mode_driver(video_current_mode());
 }
 
+/**
+ * Get the color format of the current video mode.
+ */
+static inline adv_color_def video_color_def(void) {
+	return video_state.color_def;
+}
+
+/**
+ * Get the index format of the current video mode.
+ */
 static inline unsigned video_index(void) {
 	return mode_index(video_current_mode());
 }
 
-static inline unsigned video_type(void) {
-	return mode_type(video_current_mode());
-}
-
+/**
+ * Get the scan format of the current video mode.
+ */
 static inline unsigned video_scan(void) {
 	return mode_scan(video_current_mode());
 }
@@ -197,22 +213,6 @@ static inline unsigned video_size_y(void) {
 	return mode_size_y(video_current_mode());
 }
 
-/** Horizontal size of the font of the current video mode. */
-unsigned video_font_size_x(void);
-
-/** Vertical size of the font of the current video mode. */
-unsigned video_font_size_y(void);
-
-/** Horizontal virtual size of the current video mode. */
-static inline unsigned video_virtual_x(void) {
-	return video_state.virtual_x;
-}
-
-/** Vertical virtual size of the current video mode. */
-static inline unsigned video_virtual_y(void) {
-	return video_state.virtual_y;
-}
-
 /** Capabilities VIDEO_DRIVER_FLAGS_ * of the current video mode. */
 static inline unsigned video_flags(void) {
 	/* the flags may be limited by the video options */
@@ -250,51 +250,44 @@ adv_bool video_index_rgb_to_packed_is_available(void);
 void video_index_rgb_to_packed(void);
 adv_bool video_index_packed_to_rgb_is_available(void);
 
-/** Get the RGB format of the current video mode. */
-static inline adv_rgb_def video_current_rgb_def_get(void) {
-	return video_state.rgb_def;
-}
+adv_color_rgb* video_palette_get(void);
+adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync);
 
-adv_color* video_palette_get(void);
-adv_error video_palette_set(adv_color* palette, unsigned start, unsigned count, int waitvsync);
-
-static inline void video_palette_make(adv_color* vp, unsigned r, unsigned g, unsigned b) {
+static inline void video_palette_make(adv_color_rgb* vp, unsigned r, unsigned g, unsigned b) {
 	vp->red = r;
 	vp->green = g;
 	vp->blue = b;
 }
 
-static inline adv_rgb video_rgb_get(unsigned r, unsigned g, unsigned b) {
-	return rgb_nibble_insert(r, video_state.rgb_red_shift, video_state.rgb_red_mask) |
-		rgb_nibble_insert(g, video_state.rgb_green_shift, video_state.rgb_green_mask) |
-		rgb_nibble_insert(b, video_state.rgb_blue_shift, video_state.rgb_blue_mask);
+static inline adv_pixel video_pixel_get(unsigned r, unsigned g, unsigned b) {
+	return pixel_make_from_def(r, g, b, video_color_def());
 }
 
-static inline void video_rgb_make(adv_rgb* rgb, unsigned r, unsigned g, unsigned b) {
-	*rgb = video_rgb_get(r,g,b);
+static inline void video_pixel_make(adv_pixel* pixel, unsigned r, unsigned g, unsigned b) {
+	*pixel = pixel_make_from_def(r, g, b, video_color_def());
 }
 
-static inline adv_rgb video_rgb_red_mask_bit_get(void) {
+static inline unsigned video_rgb_red_mask_bit_get(void) {
 	return video_state.rgb_red_mask;
 }
 
-static inline adv_rgb video_rgb_green_mask_bit_get(void) {
+static inline unsigned video_rgb_green_mask_bit_get(void) {
 	return video_state.rgb_green_mask;
 }
 
-static inline adv_rgb video_rgb_blue_mask_bit_get(void) {
+static inline unsigned video_rgb_blue_mask_bit_get(void) {
 	return video_state.rgb_blue_mask;
 }
 
-static inline adv_rgb video_rgb_mask_bit_get(void) {
+static inline unsigned video_rgb_mask_bit_get(void) {
 	return video_state.rgb_mask_bit;
 }
 
-static inline adv_rgb video_rgb_high_bit_get(void) {
+static inline unsigned video_rgb_high_bit_get(void) {
 	return video_state.rgb_high_bit;
 }
 
-static inline adv_rgb video_rgb_low_bit_get(void) {
+static inline unsigned video_rgb_low_bit_get(void) {
 	return video_state.rgb_low_bit;
 }
 
@@ -328,24 +321,6 @@ static inline unsigned video_blue_get_approx(unsigned rgb)
 /***************************************************************************/
 /* Commands */
 
-static inline adv_error video_display_set_async(unsigned offset, adv_bool waitvsync) {
-	assert( video_mode_is_active() );
-
-	return video_current_driver()->scroll(offset, waitvsync);
-}
-
-static inline unsigned video_bytes_per_scanline(void) {
-	assert( video_mode_is_active() );
-
-	return video_current_driver()->bytes_per_scanline();
-}
-
-static inline unsigned video_bytes_per_page(void) {
-	unsigned bytes_per_page = video_size_y() * video_bytes_per_scanline();
-
-	return video_current_driver()->adjust_bytes_per_page(bytes_per_page);
-}
-
 static inline void video_unchained_plane_mask_set(unsigned plane_mask) {
 	assert( video_mode_is_active() );
 
@@ -358,6 +333,13 @@ static inline void video_unchained_plane_set(unsigned plane) {
 }
 
 void video_wait_vsync(void);
+unsigned video_font_size_x(void);
+unsigned video_font_size_y(void);
+unsigned video_virtual_x(void);
+unsigned video_virtual_y(void);
+adv_error video_display_set_async(unsigned offset, adv_bool waitvsync);
+unsigned video_bytes_per_scanline(void);
+unsigned video_bytes_per_page(void);
 
 adv_error video_init(void);
 void video_done(void);
@@ -369,8 +351,8 @@ void video_mode_restore(void);
 adv_error video_mode_grab(adv_mode* mode);
 int video_mode_compare(const adv_mode* a, const adv_mode* b);
 
-adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
-adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned flags);
+adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned flags);
 unsigned video_mode_generate_driver_flags(unsigned subset);
 
 void video_mode_print(char* buffer, const adv_mode* vm);
@@ -382,8 +364,6 @@ adv_error video_display_set_sync(unsigned offset);
 void video_put_pixel(unsigned x, unsigned y, unsigned color);
 void video_put_pixel_clip(unsigned x, unsigned y, unsigned color);
 void video_put_char(unsigned x, unsigned y, char c, unsigned color);
-
-adv_error video_snapshot_save(const char* snapshot_name, int start_x, int start_y);
 
 unsigned video_driver_vector_max(void);
 const adv_video_driver* video_driver_vector_pos(unsigned i);

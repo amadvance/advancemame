@@ -32,6 +32,11 @@
 #include "kraw.h"
 
 #include "log.h"
+#include "error.h"
+
+#ifdef USE_VIDEO_SDL
+#include "SDL.h"
+#endif
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -83,7 +88,17 @@ static struct keyb_raw_context raw_state;
 
 adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 {
-	log_std(("key:raw: keyb_raw_init(id:%d,disable_special:%d)\n", keyb_id, (int)disable_special));
+	log_std(("keyb:raw: keyb_raw_init(id:%d,disable_special:%d)\n", keyb_id, (int)disable_special));
+
+#ifdef USE_VIDEO_SDL
+	/* If the SDL video driver is used, also the SDL */
+	/* keyboard input must be used. */
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+		log_std(("keyb:raw: Incompatible with the SDL video driver\n"));
+		error_nolog_cat("raw: Incompatible with the SDL video driver\n");
+		return -1; 
+	}
+#endif
 
 	raw_state.kbd_fd = open("/dev/tty", O_RDONLY);
 	if (raw_state.kbd_fd == -1) {

@@ -91,13 +91,15 @@ enum video_stage_enum {
 	pipe_palette16to8, /**< Palette conversion 16 -\> 8. */
 	pipe_palette16to16, /**< Palette conversion 16 -\> 16. */
 	pipe_palette16to32, /**< Palette conversion 16 -\> 32. */
-	pipe_rgb8888to332, /**< RGB conversion 8888 (bgra) -> 332 (bgr). */
-	pipe_rgb8888to565, /**< RGB conversion 8888 (bgra) -> 565 (bgr). */
-	pipe_rgb8888to555, /**< RGB conversion 8888 (bgra) -> 555 (bgr). */
-	pipe_rgb555to332, /**< RGB conversion 555 (bgr) -> 332 (bgr). */
-	pipe_rgb555to565, /**< RGB conversion 555 (bgr) -> 565 (bgr). */
-	pipe_rgb555to8888, /**< RGB conversion 555 (bgr) -> 8888 (bgra). */
-	pipe_rgbRGB888to8888, /**< RGB conversion 888 (rgb) -> 8888 (bgra). */
+	pipe_bgr8888tobgr332, /**< RGB conversion 8888 (bgra) -> 332 (bgr). */
+	pipe_bgr8888tobgr555, /**< RGB conversion 8888 (bgra) -> 555 (bgr). */
+	pipe_bgr8888tobgr565, /**< RGB conversion 8888 (bgra) -> 565 (bgr). */
+	pipe_bgr8888toyuy2, /**< YUY2 conversion 8888 (bgra) -> (yuy2). */
+	pipe_bgr555tobgr332, /**< RGB conversion 555 (bgr) -> 332 (bgr). */
+	pipe_bgr555tobgr565, /**< RGB conversion 555 (bgr) -> 565 (bgr). */
+	pipe_bgr555tobgr8888, /**< RGB conversion 555 (bgr) -> 8888 (bgra). */
+	pipe_bgr555toyuy2, /**< YUY2 conversion 555 (bgra) -> (yuy2). */
+	pipe_rgb888tobgr8888, /**< RGB conversion 888 (rgb) -> 8888 (bgra). */
 	pipe_y_copy, /**< Vertical copy. */
 	pipe_y_reduction_copy, /**< Vertical reduction. */
 	pipe_y_expansion_copy, /**< Vertical expansion. */
@@ -314,7 +316,7 @@ void video_blit_done(void);
  * Initialize a pipeline for a stretch blit.
  * Check the video_stretch() for more details.
  */
-adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_rgb_def src_rgb_def, unsigned combine);
+adv_error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine);
 
 /**
  * Initialize a pipeline for a stretch blit with an hardware palette.
@@ -362,10 +364,10 @@ void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned 
  * \param src_rgb_def Source RGB format.
  * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
  */
-static __inline__ adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_rgb_def src_rgb_def, unsigned combine) {
+static __inline__ adv_error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, adv_color_def src_color_def, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
-	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_rgb_def, combine) != 0)
+	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_color_def, combine) != 0)
 		return -1;
 
 	video_blit_pipeline(&pipeline, dst_x, dst_y, src);

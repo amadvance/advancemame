@@ -441,7 +441,10 @@ static adv_conf_conv STANDARD[] = {
 /* 0.62.1 */
 { "*", "dir_imager", "*", "", "", "", 0 }, /* ignore */
 { "*", "dir_imagerw", "*", "", "", "", 0 }, /* ignore */
-{ "*", "dir_imagediff", "*", "", "", "", 0 } /* ignore */
+{ "*", "dir_imagediff", "*", "", "", "", 0 }, /* ignore */
+/* 0.62.2 */
+{ "*", "display_rgb", "*", "", "", "", 0 }, /* ignore */
+{ "*", "display_depth", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {

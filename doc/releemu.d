@@ -1,6 +1,12 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
+AdvanceMAME 0.62.2
+	The display_rgb and display_depth options are gone. They are now
+	substituted with the new display_color option.
+	The device_video_*bit options are now substituted by the
+	new device_color_* options.
+
 AdvanceMAME 0.62.1
 	The .CHD files are searched as default in the "image" directory.
 	The .DIF file in the "diff" directory. You can customize them

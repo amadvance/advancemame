@@ -164,7 +164,6 @@ public:
 
 	// video
 	unsigned video_size; ///< Preferred video x size.
-	unsigned video_depth; ///< Preferred video bit depth.
 	bool video_reset_mode; ///< Reset to text mode at exit.
 	std::string video_font_path; ///< Font path, "none"== default.
 	double video_gamma; ///< Video gamma.

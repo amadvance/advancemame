@@ -42,8 +42,8 @@ extern "C" {
 #endif
 
 typedef struct svgawin_video_mode_struct {
-	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	adv_crtc crtc; /**< CRTC values */
+	unsigned index; /**< Mode index. */
+	adv_crtc crtc; /**< CRTC values. */
 } svgawin_video_mode;
 
 void svgawin_default(void);

@@ -9,6 +9,8 @@ AdvanceMENU Version 2.2.2 2002/12
 		or when the game position changes because you play it.
 	) Added a new raw keyboard driver for Linux [Kari Hautio].
 	) Fixed some issues in the ./configure scripts.
+	) Removed the blinking cursor in the Linux `fb' video
+		driver [Kari Hautio].
 
 AdvanceMENU Version 2.2.1 2002/11
 	) Reduced the startup load time.

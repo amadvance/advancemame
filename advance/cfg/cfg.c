@@ -485,7 +485,7 @@ static int video_crtc_check(const adv_crtc* crtc) {
 		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
 }
 
-static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_monitor* monitor, int only_h_center) {
+static int adjust(const char* msg, adv_crtc* crtc, unsigned index, const adv_monitor* monitor, int only_h_center) {
 	int done = 0;
 	int modify = 1;
 	int first = 1;
@@ -504,7 +504,7 @@ static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_moni
 			if (crtc_adjust_clock(&current, monitor)==0
 				&& video_crtc_check(&current)
 				&& crtc_clock_check(monitor,&current)
-				&& video_mode_generate(&mode, &current, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)==0) {
+				&& video_mode_generate(&mode, &current, index)==0) {
 				video_mode_done(1);
 				if (video_mode_set(&mode)!=0) {
 					text_done();
@@ -628,7 +628,7 @@ static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_moni
 	return userkey == INPUTB_ENTER ? 0 : -1;
 }
 
-static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv_monitor* monitor) {
+static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const adv_monitor* monitor) {
 	adv_crtc current = *crtc;
 
 	adv_mode mode;
@@ -637,7 +637,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv
 	if (crtc_adjust_clock(&current, monitor)==0
 		&& video_crtc_check(&current)
 		&& crtc_clock_check(monitor,&current)
-		&& video_mode_generate(&mode, &current, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)==0) {
+		&& video_mode_generate(&mode, &current, index)==0) {
 		video_mode_done(1);
 		if (video_mode_set(&mode)!=0) {
 			text_done();
@@ -658,7 +658,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv
 	}
 }
 
-static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const adv_generate* generate, const adv_monitor* monitor, unsigned y, unsigned bits, double horz_clock, int only_h_center) {
+static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const adv_generate* generate, const adv_monitor* monitor, unsigned y, unsigned index, double horz_clock, int only_h_center) {
 	unsigned x;
 	adv_crtc crtc;
 
@@ -692,7 +692,7 @@ static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const ad
 		exit(EXIT_FAILURE);
 	}
 
-	if (adjust(msg, &crtc, bits, monitor, only_h_center)!=0)
+	if (adjust(msg, &crtc, index, monitor, only_h_center)!=0)
 		return -1;
 
 	entry->hclock = crtc.pixelclock / crtc.ht;
@@ -711,7 +711,7 @@ static int cmd_adjust(const char* msg, adv_generate_interpolate* entry, const ad
 	return 0;
 }
 
-static int cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index) {
 	int y;
 	double ty;
 	double hclock, vclock;
@@ -730,7 +730,7 @@ static int cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const 
 	ty = hclock / vclock;
 	y = floor( ty * generate->vactive / (generate->vactive + generate->vfront + generate->vsync + generate->vback) );
 
-	if (cmd_adjust("Center and resize the screen (1/1)", interpolate->map + 0, generate, monitor, y, bits, hclock, 0)!=0) {
+	if (cmd_adjust("Center and resize the screen (1/1)", interpolate->map + 0, generate, monitor, y, index, hclock, 0)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -740,7 +740,7 @@ static int cmd_interpolate_one(adv_generate_interpolate_set* interpolate, const 
 	return 0;
 }
 
-static int cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index) {
 	int y;
 	double ty,vclock,hclock;
 	adv_generate current = *generate;
@@ -762,7 +762,7 @@ static int cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const 
 	if (y<192)
 		y = 192;
 
-	if (cmd_adjust("Center and resize the screen (1/2)", interpolate->map + 0, &current, monitor, y, bits, hclock, 0)!=0) {
+	if (cmd_adjust("Center and resize the screen (1/2)", interpolate->map + 0, &current, monitor, y, index, hclock, 0)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -778,7 +778,7 @@ static int cmd_interpolate_two(adv_generate_interpolate_set* interpolate, const 
 	if (y>768)
 		y = 768;
 
-	if (cmd_adjust("Center the screen (2/2)", interpolate->map + 1, &current, monitor, y, bits, hclock, 1)!=0) {
+	if (cmd_adjust("Center the screen (2/2)", interpolate->map + 1, &current, monitor, y, index, hclock, 1)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -899,13 +899,13 @@ static void interpolate_update(adv_generate_interpolate_set* interpolate, struct
 	}
 }
 
-int interpolate_test(const char* msg, adv_crtc* crtc, const adv_monitor* monitor, int bits) {
+int interpolate_test(const char* msg, adv_crtc* crtc, const adv_monitor* monitor, unsigned index) {
 	int res;
 
 	adv_mode mode;
 	mode_reset(&mode);
 
-	if (video_mode_generate(&mode, crtc, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, crtc, index)!=0) {
 		return -1;
 	}
 
@@ -915,14 +915,14 @@ int interpolate_test(const char* msg, adv_crtc* crtc, const adv_monitor* monitor
 		return -1;
 	}
 
-	res = adjust(msg, crtc, bits, monitor, 0);
+	res = adjust(msg, crtc, index, monitor, 0);
 
 	text_reset();
 
 	return res;
 }
 
-static int cmd_interpolate_many(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned bits) {
+static int cmd_interpolate_many(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index) {
 	unsigned mac = 0;
 	int res;
 	int ymin,ymax,ymins,ymaxs;
@@ -1006,7 +1006,7 @@ static int cmd_interpolate_many(adv_generate_interpolate_set* interpolate, const
 		if (res >= 0 && data[res].type == interpolate_mode) {
 			if (key == INPUTB_ENTER) {
 				if (data[res].valid) {
-					if (interpolate_test("Center and resize the screen", &data[res].crtc,monitor,bits)==0)
+					if (interpolate_test("Center and resize the screen", &data[res].crtc,monitor,index)==0)
 						data[res].selected = 1;
 				}
 			} else
@@ -1150,7 +1150,7 @@ static void entry_test(int x, int y, int dx, void* data, int n, int selected) {
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 }
 
-int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int x, int y, double vclock, int bits, unsigned cap, int calib) {
+int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int x, int y, double vclock, unsigned index, unsigned cap, int calib) {
 	adv_crtc crtc;
 
 	adv_mode mode;
@@ -1160,7 +1160,7 @@ int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* 
 		return -1;
 	}
 
-	if (video_mode_generate(&mode, &crtc, bits, MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB)!=0) {
+	if (video_mode_generate(&mode, &crtc, index)!=0) {
 		return -1;
 	}
 
@@ -1178,7 +1178,7 @@ int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* 
 			os_poll();
 		} while (inputb_get()==INPUTB_NONE);
 	} else {
-		adjust_fix("Verify the mode", &crtc, bits, monitor);
+		adjust_fix("Verify the mode", &crtc, index, monitor);
 	}
 
 	text_reset();
@@ -1247,7 +1247,7 @@ static int cmd_test_custom(int* x, int* y, double* vclock) {
 		return 0;
 }
 
-static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int bits) {
+static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, unsigned index) {
 	unsigned mac = 0;
 	int res;
 	int ymin,ymax,ymins,ymaxs;
@@ -1288,17 +1288,17 @@ static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor
 	data[mac].type = test_exit;
 	++mac;
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
 		data[mac].type = test_custom_single;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
 		data[mac].type = test_custom_double;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
 		data[mac].type = test_custom_interlace;
 		++mac;
 	}
@@ -1349,31 +1349,31 @@ static int cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor
 
 		res = draw_text_menu(2,y,text_size_x() - 4,text_size_y() - 2 - y,&data,mac,entry_test,0, &base, &pos, 0);
 		if (res >= 0 && data[res].type == test_mode) {
-			cmd_test_mode(interpolate,monitor,data[res].x,data[res].y,60,bits,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN,1);
+			cmd_test_mode(interpolate,monitor,data[res].x,data[res].y,60, index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN,1);
 		}
 		if (res >= 0 && data[res].type == test_custom_single) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN,0);
 		}
 		if (res >= 0 && data[res].type == test_custom_double) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN,0);
 		}
 		if (res >= 0 && data[res].type == test_custom_interlace) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE,0);
 		}
 		if (res >= 0 && data[res].type == test_custom) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,bits,video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL),0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK),0);
 		}
 	} while (res >= 0 && (data[res].type == test_mode || data[res].type == test_custom_single || data[res].type == test_custom_double || data[res].type == test_custom_interlace || data[res].type == test_custom));
 
@@ -1435,7 +1435,7 @@ int os_main(int argc, char* argv[]) {
 	enum adjust_enum adjust_type;
 	adv_monitor monitor;
 	int state;
-	unsigned bits;
+	unsigned index;
 	const char* opt_rc;
 	int opt_log;
 	int opt_logsync;
@@ -1445,7 +1445,7 @@ int os_main(int argc, char* argv[]) {
 	unsigned bit_flag;
 
 	state = 0;
-	bits = 8;
+	index = MODE_FLAGS_INDEX_BGR8;
 	opt_rc = 0;
 	opt_log = 0;
 	opt_logsync = 0;
@@ -1489,7 +1489,17 @@ int os_main(int argc, char* argv[]) {
 		} else if (target_option(argv[j],"advmenuc")) {
 			the_advance = advance_menu;
 		} else if (target_option(argv[j],"bit") && j+1<argc) {
-			bits = atoi(argv[++j]);
+			unsigned bits = atoi(argv[++j]);
+			switch (bits) {
+				case 8 : index = MODE_FLAGS_INDEX_BGR8; break;
+				case 15 : index = MODE_FLAGS_INDEX_BGR15; break;
+				case 16 : index = MODE_FLAGS_INDEX_BGR16; break;
+				case 24 : index = MODE_FLAGS_INDEX_BGR24; break;
+				case 32 : index = MODE_FLAGS_INDEX_BGR32; break;
+				default:
+					target_err("Invalid bit depth %d.\n", bits);
+					goto err_os;
+			}
 		} else {
 			target_err("Unknown option %s.\n",argv[j]);
 			goto err_os;
@@ -1534,38 +1544,45 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (video_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_os;
 	}
 
 	if (video_blit_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		target_err("No driver supports your video board.\n");
-#ifdef __WIN32__		
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+		target_err("No driver is able to program your video board in this context.\n");
+#ifdef __WIN32__
 		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
-#endif		
+#endif
+#ifdef unix
+		target_err("Ensure to not run this program in X.\n");
+#endif
 		goto err_blit;
 	}
 
-	switch (bits) {
-		case 8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT; break;
-		case 15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT; break;
-		case 16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT; break;
-		case 24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT; break;
-		case 32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
+	switch (index) {
+		case MODE_FLAGS_INDEX_BGR8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
+		case MODE_FLAGS_INDEX_BGR15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
+		case MODE_FLAGS_INDEX_BGR16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
+		case MODE_FLAGS_INDEX_BGR24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
+		case MODE_FLAGS_INDEX_BGR32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
 		default:
 			target_err("Invalid bit depth specification.\n");
 			goto err_blit;
 	}
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & bit_flag) == 0) {
-		target_err("Specified bit depth (%d) not supported.\n", bits);
+
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & bit_flag) == 0) {
+		target_err("Specified bit depth isn't supported.\n");
 		target_err("Try another value with the -bit option.\n");
 		goto err_blit;
 	}
 
 	if (inputb_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_blit;
 	}
 
@@ -1620,18 +1637,18 @@ int os_main(int argc, char* argv[]) {
 						state = 5;
 					} else if (adjust_type == adjust_easy) {
 						if (monitor_hclock_min(&monitor) == monitor_hclock_max(&monitor))
-							res = cmd_interpolate_one(&interpolate,&generate,&monitor,bits);
+							res = cmd_interpolate_one(&interpolate,&generate,&monitor,index);
 						else
-							res = cmd_interpolate_two(&interpolate,&generate,&monitor,bits);
+							res = cmd_interpolate_two(&interpolate,&generate,&monitor,index);
 					} else {
-						res = cmd_interpolate_many(&interpolate,&generate,&monitor,bits);
+						res = cmd_interpolate_many(&interpolate,&generate,&monitor,index);
 					}
 					if (res >= 0)
 						state = 5;
 				}
 				break;
 			case 5 :
-				res = cmd_test(&interpolate,&monitor,bits);
+				res = cmd_test(&interpolate,&monitor, index);
 				if (res == -1)
 					state = 4;
 				else

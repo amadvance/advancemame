@@ -795,7 +795,7 @@ static int video_start(struct advance_record_context* context, const char* file,
  * \param map samples buffer
  * \param mac number of 16 bit samples mono or stereo in little endian format
  */
-static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 	unsigned color_type;
 
 	if (!context->state.video_active_flag)
@@ -892,7 +892,7 @@ static int snapshot_start(struct advance_record_context* context, const char* fi
 	return 0;
 }
 
-static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 	const char* file = context->state.snapshot_file;
 	FILE* f;
 	unsigned color_type;
@@ -1118,24 +1118,24 @@ void advance_record_sound_update(struct advance_record_context* context, const s
 #endif
 }
 
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	video_update(context, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, rgb_def, palette_map, palette_max, orientation);
+	video_update(context, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, color_def, palette_map, palette_max, orientation);
 
 #ifdef USE_SMP
 	pthread_mutex_unlock(&context->state.access_mutex);
 #endif
 }
 
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation) {
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	snapshot_update(context, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, rgb_def, palette_map, palette_max, orientation);
+	snapshot_update(context, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, color_def, palette_map, palette_max, orientation);
 
 #ifdef USE_SMP
 	pthread_mutex_unlock(&context->state.access_mutex);

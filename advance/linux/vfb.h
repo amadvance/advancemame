@@ -42,42 +42,9 @@ extern "C" {
 #endif
 
 typedef struct fb_video_mode_struct {
-	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	adv_crtc crtc; /**< CRTC values */
+	unsigned index; /**< Mode index. */
+	adv_crtc crtc; /**< CRTC values. */
 } fb_video_mode;
-
-adv_error fb_init(int device_id);
-void fb_done(void);
-
-adv_bool fb_is_active(void);
-adv_bool fb_mode_is_active(void);
-
-unsigned fb_flags(void);
-
-adv_error fb_mode_set(const fb_video_mode* mode);
-adv_error fb_mode_change(const fb_video_mode* mode);
-void fb_mode_done(adv_bool restore);
-
-unsigned fb_virtual_x(void);
-unsigned fb_virtual_y(void);
-unsigned fb_bytes_per_scanline(void);
-unsigned fb_adjust_bytes_per_page(unsigned bytes_per_page);
-adv_rgb_def fb_rgb_def(void);
-
-extern unsigned char* (*fb_write_line)(unsigned y);
-
-void fb_wait_vsync(void);
-adv_error fb_scroll(unsigned offset, adv_bool waitvsync);
-adv_error fb_scanline_set(unsigned byte_length);
-adv_error fb_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
-
-adv_error fb_mode_import(adv_mode* mode, const fb_video_mode* fb_mode);
-adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
-int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b);
-
-void fb_default(void);
-void fb_reg(adv_conf* context);
-adv_error fb_load(adv_conf* context);
 
 /**
  * Video driver "fb".

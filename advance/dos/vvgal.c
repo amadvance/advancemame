@@ -178,8 +178,8 @@ adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, un
 /***************************************************************************/
 /* Internal */
 
-adv_rgb_def vgaline_rgb_def(void) {
-	return 0; /* always palettized */
+adv_color_def vgaline_rgb_def(void) {
+	return color_def_make(adv_color_type_palette); /* always palettized */
 }
 
 static int vgaline_mode_graph_realize(struct vga_regs* regs, const adv_crtc* crtc) {
@@ -364,6 +364,9 @@ adv_error vgaline_init(int device_id)
 
 	assert( !vgaline_is_active() );
 
+	if (sizeof(vgaline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
+		return -1;
+
 	i = DEVICE;
 	while (i->name && i->id != device_id)
 		++i;
@@ -389,7 +392,7 @@ adv_bool vgaline_mode_is_active(void) {
 }
 
 unsigned vgaline_flags(void) {
-	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT | VIDEO_DRIVER_FLAGS_MODE_TEXT
+	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_TEXT
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
 }
 
@@ -473,11 +476,9 @@ adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_
 		(mode->flags & MODE_FLAGS_USER_MASK);
 
 	if (DRIVER(mode)->is_text) {
-		mode->flags |= MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_MEMORY_LINEAR;
-		mode->bits_per_pixel = 0;
+		mode->flags |= MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_MEMORY_LINEAR;
 	} else {
-		mode->flags |= MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_PACKED;
-		mode->bits_per_pixel = 8;
+		mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
 		if (DRIVER(mode)->crtc.vde * DRIVER(mode)->crtc.hde > 0x10000)
 			mode->flags |= MODE_FLAGS_MEMORY_UNCHAINED;
 		else
@@ -506,7 +507,7 @@ static int vgaline_acceptable_pixelclock(unsigned requested, unsigned effective)
 	return 0;
 }
 
-static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
 
 	mode->is_text = 1;
 	mode->crtc = *crtc;
@@ -520,7 +521,7 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 		return -1;
 	}
 
-	if (video_mode_generate_check("vgaline",vgaline_flags(),1,1024,crtc,bits,flags)!=0)
+	if (video_mode_generate_check("vgaline",vgaline_flags(),1,1024,crtc,flags)!=0)
 		return -1;
 
 	mode->font_y = crtc->vde / 25;
@@ -534,8 +535,8 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 	return 0;
 }
 
-static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	if (video_mode_generate_check("vgaline",vgaline_flags(),2,1024,crtc,bits,flags)!=0)
+static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
+	if (video_mode_generate_check("vgaline",vgaline_flags(),2,1024,crtc,flags)!=0)
 		return -1;
 
 	if (crtc->hde * crtc->vde > 256 * 1024) {
@@ -551,23 +552,23 @@ static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const 
 	return 0;
 }
 
-adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
 	unsigned pixelclock;
 
 	assert( vgaline_is_active() );
 
-	switch (flags & MODE_FLAGS_TYPE_MASK) {
-		case MODE_FLAGS_TYPE_GRAPHICS :
-			if (vgaline_mode_generate_graphics(mode, crtc, bits, flags) != 0)
-				return -1;
-			break;
-		case MODE_FLAGS_TYPE_TEXT :
-			if (vgaline_mode_generate_text(mode, crtc, bits, flags) != 0)
-				return -1;
-			break;
-		default :
+	switch (flags & MODE_FLAGS_INDEX_MASK) {
+	case MODE_FLAGS_INDEX_PALETTE8 :
+		if (vgaline_mode_generate_graphics(mode, crtc, flags) != 0)
 			return -1;
+		break;
+	case MODE_FLAGS_INDEX_TEXT :
+		if (vgaline_mode_generate_text(mode, crtc, flags) != 0)
+			return -1;
+		break;
+	default :
+		return -1;
 	}
 
 	pixelclock = crtc->pixelclock;
@@ -611,8 +612,8 @@ static adv_error vgaline_mode_import_void(adv_mode* mode, const void* vgaline_mo
 	return vgaline_mode_import(mode, (const vgaline_video_mode*)vgaline_mode);
 }
 
-static adv_error vgaline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return vgaline_mode_generate((vgaline_video_mode*)mode,crtc,bits,flags);
+static adv_error vgaline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+	return vgaline_mode_generate((vgaline_video_mode*)mode, crtc, flags);
 }
 
 static int vgaline_mode_compare_void(const void* a, const void* b) {

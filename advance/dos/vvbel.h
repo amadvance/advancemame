@@ -63,13 +63,13 @@ unsigned vbeline_virtual_y(void);
 extern unsigned char* (*vbeline_write_line)(unsigned y);
 
 void vbeline_wait_vsync(void);
-adv_error vbeline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync);
 adv_error vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
 adv_error vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
 
 unsigned vbeline_mode_size(void);
 adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_mode);
-adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, unsigned flags);
 int vbeline_mode_compare(const vbeline_video_mode* a, const vbeline_video_mode* b);
 
 void vbeline_default(void);

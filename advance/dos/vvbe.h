@@ -47,10 +47,10 @@ typedef struct vbe_video_mode_struct {
 
 unsigned vbe_flags(void);
 
-adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned flags);
 adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode);
 adv_error vbe_mode_grab(vbe_video_mode* mode);
-adv_error vbe_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync);
 int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b);
 
 /**

@@ -167,15 +167,17 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 	struct keyb_pair* i;
 	unsigned j;
 
-	log_std(("key:svgalib: keyb_svgalib_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	log_std(("keyb:svgalib: keyb_svgalib_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("keyb:svgalib: svgalib not initialized\n"));
 		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
 		return -1;
 	}
-	
+
 #ifdef USE_VIDEO_SDL
+	/* If the SDL video driver is used, also the SDL */
+	/* keyboard input must be used. */
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("keyb:svgalib: Incompatible with the SDL video driver\n"));
 		error_nolog_cat("svgalib: Incompatible with the SDL video driver\n");

@@ -220,8 +220,7 @@ int osd2_menu(int selected, unsigned input)
 	int pipeline_index;
 	int magnify_index;
 	int scanline_index;
-	int rgb_index;
-	int depth_index;
+	int index_index;
 	int smp_index;
 	int crash_index;
 	char mode_buffer[128];
@@ -332,59 +331,64 @@ int osd2_menu(int selected, unsigned input)
 		}
 		flag[total] = 0;
 		++total;
-
-		rgb_index = total;
-		if (video_index() == MODE_FLAGS_INDEX_RGB)
-			menu_item[total] = "Rgb [rgb]";
-		else
-			menu_item[total] = "Rgb [palette]";
-		if (context->config.rgb_flag)
-			menu_subitem[total] = "yes";
-		else
-			menu_subitem[total] = "no";
-		flag[total] = 0;
-		++total;
-
-		depth_index = total;
-		switch (video_bits_per_pixel()) {
-			case 8 : menu_item[total] = "Depth [8]"; break;
-			case 15 : menu_item[total] = "Depth [15]"; break;
-			case 16 : menu_item[total] = "Depth [16]"; break;
-			case 32 : menu_item[total] = "Depth [32]"; break;
-		}
-		switch (context->config.depth) {
-			case 0 : menu_subitem[total] = "auto"; break;
-			case 8 : menu_subitem[total] = "8"; break;
-			case 15 : menu_subitem[total] = "15"; break;
-			case 16 : menu_subitem[total] = "16"; break;
-			case 32 : menu_subitem[total] = "32"; break;
-		}
-		flag[total] = 0;
-		++total;
-
 	} else {
 		stretch_index = -1;
 		magnify_index = -1;
-		rgb_index = -1;
 		scanline_index = -1;
-
-		depth_index = total;
-		switch (video_bits_per_pixel()) {
-			case 8 : menu_item[total] = "Depth [8]"; break;
-			case 15 : menu_item[total] = "Depth [15]"; break;
-			case 16 : menu_item[total] = "Depth [16]"; break;
-			case 32 : menu_item[total] = "Depth [32]"; break;
-		}
-		switch (context->config.depth) {
-			case 0 : menu_subitem[total] = "auto"; break;
-			case 8 : menu_subitem[total] = "8"; break;
-			case 15 : menu_subitem[total] = "15"; break;
-			case 16 : menu_subitem[total] = "16"; break;
-			case 32 : menu_subitem[total] = "32"; break;
-		}
-		flag[total] = 0;
-		++total;
 	}
+
+	index_index = total;
+	switch (video_index()) {
+	case MODE_FLAGS_INDEX_PALETTE8 :
+		menu_item[total] = "Color [palette8]";
+		break;
+	case MODE_FLAGS_INDEX_BGR8 :
+		menu_item[total] = "Color [bgr8]";
+		break;
+	case MODE_FLAGS_INDEX_BGR15 :
+		menu_item[total] = "Color [bgr15]";
+		break;
+	case MODE_FLAGS_INDEX_BGR16 :
+		menu_item[total] = "Color [bgr16]";
+		break;
+	case MODE_FLAGS_INDEX_BGR32 :
+		menu_item[total] = "Color [bgr32]";
+		break;
+	case MODE_FLAGS_INDEX_YUY2 :
+		menu_item[total] = "Color [yuy2]";
+		break;
+	default:
+		menu_item[total] = "Color [unknown]";
+		break;
+	}
+	switch (context->config.index) {
+	case MODE_FLAGS_INDEX_NONE :
+	menu_subitem[total] = "auto";
+			break;
+	case MODE_FLAGS_INDEX_PALETTE8 :
+	menu_subitem[total] = "palette8";
+		break;
+	case MODE_FLAGS_INDEX_BGR8 :
+		menu_subitem[total] = "bgr8";
+		break;
+	case MODE_FLAGS_INDEX_BGR15 :
+		menu_subitem[total] = "bgr15";
+		break;
+	case MODE_FLAGS_INDEX_BGR16 :
+		menu_subitem[total] = "bgr16";
+		break;
+	case MODE_FLAGS_INDEX_BGR32 :
+		menu_subitem[total] = "bgr32";
+		break;
+	case MODE_FLAGS_INDEX_YUY2 :
+		menu_subitem[total] = "yuy2";
+		break;
+	default:
+		menu_subitem[total] = "unknown";
+		break;
+	}
+	flag[total] = 0;
+	++total;
 
 	menu_item[total] = "Options";
 	menu_subitem[total] = 0;
@@ -528,8 +532,7 @@ int osd2_menu(int selected, unsigned input)
 		|| selected == combine_index
 		|| selected == effect_index
 		|| selected == magnify_index
-		|| selected == rgb_index
-		|| selected == depth_index
+		|| selected == index_index
 		|| selected == scanline_index
 	)
 		arrowize = 3;
@@ -622,17 +625,15 @@ int osd2_menu(int selected, unsigned input)
 			context->config.magnify_flag = !context->config.magnify_flag;
 			advance_video_change(context);
 			mame_ui_refresh();
-		} else if (selected == rgb_index) {
-			context->config.rgb_flag = !context->config.rgb_flag;
-			advance_video_change(context);
-			mame_ui_refresh();
-		} else if (selected == depth_index) {
-			switch (context->config.depth) {
-				case 0 : context->config.depth = 8; break;
-				case 8 : context->config.depth = 15; break;
-				case 15 : context->config.depth = 16; break;
-				case 16 : context->config.depth = 32; break;
-				case 32 : context->config.depth = 0; break;
+		} else if (selected == index_index) {
+			switch (context->config.index) {
+				case MODE_FLAGS_INDEX_NONE : context->config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+				case MODE_FLAGS_INDEX_PALETTE8 : context->config.index = MODE_FLAGS_INDEX_BGR8; break;
+				case MODE_FLAGS_INDEX_BGR8 : context->config.index = MODE_FLAGS_INDEX_BGR15; break;
+				case MODE_FLAGS_INDEX_BGR15 : context->config.index = MODE_FLAGS_INDEX_BGR16; break;
+				case MODE_FLAGS_INDEX_BGR16 : context->config.index = MODE_FLAGS_INDEX_BGR32; break;
+				case MODE_FLAGS_INDEX_BGR32 : context->config.index = MODE_FLAGS_INDEX_YUY2; break;
+				case MODE_FLAGS_INDEX_YUY2 : context->config.index = MODE_FLAGS_INDEX_NONE; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();
@@ -701,17 +702,15 @@ int osd2_menu(int selected, unsigned input)
 			context->config.magnify_flag = !context->config.magnify_flag;
 			advance_video_change(context);
 			mame_ui_refresh();
-		} else if (selected == rgb_index) {
-			context->config.rgb_flag = !context->config.rgb_flag;
-			advance_video_change(context);
-			mame_ui_refresh();
-		} else if (selected == depth_index) {
-			switch (context->config.depth) {
-				case 0 : context->config.depth = 32; break;
-				case 8 : context->config.depth = 0; break;
-				case 15 : context->config.depth = 8; break;
-				case 16 : context->config.depth = 15; break;
-				case 32 : context->config.depth = 16; break;
+		} else if (selected == index_index) {
+			switch (context->config.index) {
+				case MODE_FLAGS_INDEX_NONE : context->config.index = MODE_FLAGS_INDEX_YUY2; break;
+				case MODE_FLAGS_INDEX_PALETTE8 : context->config.index = MODE_FLAGS_INDEX_NONE; break;
+				case MODE_FLAGS_INDEX_BGR8 : context->config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+				case MODE_FLAGS_INDEX_BGR15 : context->config.index = MODE_FLAGS_INDEX_BGR8; break;
+				case MODE_FLAGS_INDEX_BGR16 : context->config.index = MODE_FLAGS_INDEX_BGR15; break;
+				case MODE_FLAGS_INDEX_BGR32 : context->config.index = MODE_FLAGS_INDEX_BGR16; break;
+				case MODE_FLAGS_INDEX_YUY2 : context->config.index = MODE_FLAGS_INDEX_BGR32; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();

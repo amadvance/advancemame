@@ -92,7 +92,7 @@ struct bitmap_header_t {
  * \param bitmap_mask Where to put the mask bitmap. 
  * \return The loaded bitmap or 0 on error.
  */
-adv_bitmap* icon_load(adv_fz* f, adv_color* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask) {
+adv_bitmap* icon_load(adv_fz* f, adv_color_rgb* rgb, unsigned* rgb_max, adv_bitmap** bitmap_mask) {
 	adv_bitmap* bitmap;
 	struct icon_header_t header;
 	struct icon_entry_t* entry;

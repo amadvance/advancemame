@@ -57,28 +57,45 @@ static slang_internal slang_state;
 
 unsigned char* (*slang_write_line)(unsigned y);
 
+static adv_device DEVICE[] = {
+{ "auto", -1, "sLang video" },
+{ 0, 0, 0 }
+};
+
 /***************************************************************************/
-/* Internal */
+/* Functions */
 
 static unsigned char* slang_linear_write_line(unsigned y) {
 	return slang_state.ptr + slang_state.size_x * y * 2;
 }
 
-/***************************************************************************/
-/* Public */
+adv_bool slang_is_active(void) {
+	return slang_state.active != 0;
+}
 
-static adv_device DEVICE[] = {
-{ "auto", -1, "sLang video" },
-{ 0, 0, 0 }
-};
+adv_bool slang_mode_is_active(void) {
+	return slang_state.mode_active != 0;
+}
+
+unsigned slang_flags(void) {
+	assert( slang_is_active() );
+	return VIDEO_DRIVER_FLAGS_MODE_TEXT;
+}
 
 adv_error slang_init(int device_id) {
 	assert( !slang_is_active() );
 
 	log_std(("video:slang: slang_init()\n"));
 
+	if (getenv("DISPLAY")) {
+		log_std(("video:vslang: DISPLAY set\n"));
+		error_nolog_cat("vslang: Unsupported in X\n");
+		return -1;
+	}
+
 	if (!os_internal_slang_get()) {
-		log_std(("video:slang: slang not initialized\n"));
+		log_std(("video:vslang: vslang not initialized\n"));
+		error_nolog_cat("vslang: Unsupported without the slang library\n");
 		return -1;
 	}
 
@@ -97,20 +114,7 @@ void slang_done(void) {
 	slang_state.active = 0;
 }
 
-adv_bool slang_is_active(void) {
-	return slang_state.active != 0;
-}
-
-adv_bool slang_mode_is_active(void) {
-	return slang_state.mode_active != 0;
-}
-
-unsigned slang_flags(void) {
-	assert( slang_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_TEXT;
-}
-
-adv_error slang_mode_set(const slang_video_mode* mode) 
+adv_error slang_mode_set(const slang_video_mode* mode)
 {
 	unsigned size;
 	unsigned i;
@@ -152,11 +156,11 @@ void slang_mode_done(adv_bool restore)
 }
 
 unsigned slang_virtual_x(void) {
-	return 0;
+	return slang_state.size_x * slang_state.font_size_x;
 }
 
 unsigned slang_virtual_y(void) {
-	return 0;
+	return slang_state.size_y  * slang_state.font_size_y;
 }
 
 unsigned slang_bytes_per_scanline(void) {
@@ -240,14 +244,12 @@ adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 
 	mode->driver = &video_slang_driver;
 	mode->flags = MODE_FLAGS_MEMORY_LINEAR |
-		MODE_FLAGS_TYPE_TEXT |
 		MODE_FLAGS_INDEX_TEXT |
 		(mode->flags & MODE_FLAGS_USER_MASK);
 	mode->size_x = slang_state.size_x * slang_mode->font_size_x;
 	mode->size_y = slang_state.size_y * slang_mode->font_size_y;
 	mode->vclock = 0;
 	mode->hclock = 0;
-	mode->bits_per_pixel = 0;
 	mode->scan = 0; /* assume singlescan */
 
 	return 0;
@@ -256,13 +258,13 @@ adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 adv_error slang_mode_grab(slang_video_mode* mode) {
 	assert( slang_is_active() );
 
-	mode->font_size_x = 9;
+	mode->font_size_x = 8;
 	mode->font_size_y = 16;
 
 	return 0;
 }
 
-adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
 	assert( slang_is_active() );
 
@@ -304,8 +306,8 @@ adv_error slang_load(adv_conf* context) {
 	return 0;
 }
 
-adv_rgb_def slang_rgb_def(void) {
-	return 0;
+adv_color_def slang_color_def(void) {
+	return color_def_make(adv_color_type_text);
 }
 
 /***************************************************************************/
@@ -319,8 +321,8 @@ static adv_error slang_mode_import_void(adv_mode* mode, const void* slang_mode) 
 	return slang_mode_import(mode, (const slang_video_mode*)slang_mode);
 }
 
-static adv_error slang_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return slang_mode_generate((slang_video_mode*)mode,crtc,bits,flags);
+static adv_error slang_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+	return slang_mode_generate((slang_video_mode*)mode, crtc, flags);
 }
 
 static int slang_mode_compare_void(const void* a, const void* b) {
@@ -352,7 +354,7 @@ adv_video_driver video_slang_driver = {
 	slang_font_size_y,
 	slang_bytes_per_scanline,
 	0,
-	slang_rgb_def,
+	slang_color_def,
 	0,
 	0,
 	&slang_write_line,

@@ -42,8 +42,8 @@ extern "C" {
 #endif
 
 typedef struct svgaline_video_mode_struct {
-	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	adv_crtc crtc; /**< CRTC values */
+	unsigned index; /**< Mode index. */
+	adv_crtc crtc; /**< CRTC values. */
 } svgaline_video_mode;
 
 adv_error svgaline_init(int device_id);
@@ -61,17 +61,17 @@ unsigned svgaline_virtual_x(void);
 unsigned svgaline_virtual_y(void);
 unsigned svgaline_bytes_per_scanline(void);
 unsigned svgaline_adjust_bytes_per_page(unsigned bytes_per_page);
-adv_rgb_def svgaline_rgb_def(void);
+adv_color_def svgaline_color_def(void);
 
 extern unsigned char* (*svgaline_write_line)(unsigned y);
 
 void svgaline_wait_vsync(void);
 adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync);
 adv_error svgaline_scanline_set(unsigned byte_length);
-adv_error svgaline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+adv_error svgaline_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
 adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgaline_mode);
-adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags);
 int svgaline_mode_compare(const svgaline_video_mode* a, const svgaline_video_mode* b);
 
 void svgaline_default(void);

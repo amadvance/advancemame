@@ -60,10 +60,13 @@ struct video_option_struct {
 	adv_bool scan_double; /**< Allow doublescan modes. */
 	adv_bool scan_interlace; /**< Allow interlace modes. */
 	adv_bool fast_change; /**< Allow the fast change. */
-	adv_bool mode_8bit; /**< Allow 8 bit modes. */
-	adv_bool mode_15bit; /**< Allow 15 bit modes. */
-	adv_bool mode_16bit; /**< Allow 16 bit modes. */
-	adv_bool mode_32bit; /**< Allow 32 bit modes. */
+	adv_bool mode_palette8; /**< Allow palette8 modes. */
+	adv_bool mode_bgr8; /**< Allow bgr8 modes. */
+	adv_bool mode_bgr15; /**< Allow bgr15 modes. */
+	adv_bool mode_bgr16; /**< Allow bgr16 modes. */
+	adv_bool mode_bgr24; /**< Allow bgr24 modes. */
+	adv_bool mode_bgr32; /**< Allow bgr32 modes. */
+	adv_bool mode_yuy2; /**< Allow yuy2 modes. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
@@ -104,6 +107,210 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 }
 #endif
 
+static void video_color_def_adjust(adv_color_def def_ordinal)
+{
+	union adv_color_def_union def;
+
+	video_state.color_def = def_ordinal;
+	def.ordinal = def_ordinal;
+
+	if (def.nibble.type == adv_color_type_rgb) {
+		rgb_maskshift_get(&video_state.rgb_red_mask,&video_state.rgb_red_shift,def.nibble.red_len,def.nibble.red_pos);
+		rgb_maskshift_get(&video_state.rgb_green_mask,&video_state.rgb_green_shift,def.nibble.green_len,def.nibble.green_pos);
+		rgb_maskshift_get(&video_state.rgb_blue_mask,&video_state.rgb_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
+
+		video_state.rgb_red_len = def.nibble.red_len;
+		video_state.rgb_green_len = def.nibble.green_len;
+		video_state.rgb_blue_len = def.nibble.blue_len;
+
+		video_state.rgb_mask_bit = video_pixel_get(0xFF,0xFF,0xFF);
+		video_state.rgb_high_bit = video_pixel_get(0x80,0x80,0x80);
+		video_state.rgb_low_bit = video_pixel_get(
+			1 << (8-video_state.rgb_red_len),
+			1 << (8-video_state.rgb_green_len),
+			1 << (8-video_state.rgb_blue_len)
+		);
+	} else {
+		video_state.rgb_red_shift = 0;
+		video_state.rgb_green_shift = 0;
+		video_state.rgb_blue_shift = 0;
+		video_state.rgb_red_mask = 0;
+		video_state.rgb_green_mask = 0;
+		video_state.rgb_blue_mask = 0;
+		video_state.rgb_red_len = 0;
+		video_state.rgb_green_len = 0;
+		video_state.rgb_blue_len = 0;
+		video_state.rgb_mask_bit = 0;
+		video_state.rgb_high_bit = 0;
+		video_state.rgb_low_bit =  0;
+	}
+}
+
+/***************************************************************************/
+/* Fake Text */
+
+static void video_fake_text_init(void) {
+	video_state.fake_text_map = 0;
+	video_state.fake_text_last_map = 0;
+	video_state.fake_text_dx = 0;
+	video_state.fake_text_dy = 0;
+}
+
+static void video_fake_text_done(void) {
+	free(video_state.fake_text_map);
+	free(video_state.fake_text_last_map);
+	video_state.fake_text_map = 0;
+	video_state.fake_text_last_map = 0;
+	video_state.fake_text_dx = 0;
+	video_state.fake_text_dy = 0;
+}
+
+static unsigned char* video_fake_text_write_line(unsigned y) {
+	assert(y < video_state.fake_text_dy);
+	return video_state.fake_text_map + y * video_state.fake_text_dx * 2;
+}
+
+static void video_fake_text_adjust(void)
+{
+
+	video_write_line = video_fake_text_write_line;
+	video_color_def_adjust(color_def_make(adv_color_type_text));
+
+	video_state.fake_text_dx = video_state.mode.size_x / 8;
+	video_state.fake_text_dy = video_state.mode.size_y / 16;
+
+	free(video_state.fake_text_map);
+	free(video_state.fake_text_last_map);
+	video_state.fake_text_map = malloc(video_state.fake_text_dx * video_state.fake_text_dy * 2);
+	video_state.fake_text_last_map = malloc(video_state.fake_text_dx * video_state.fake_text_dy * 2);
+
+	memset(video_state.fake_text_map, 0, video_state.fake_text_dx * video_state.fake_text_dy * 2);
+	memset(video_state.fake_text_last_map, 0, video_state.fake_text_dx * video_state.fake_text_dy * 2);
+
+	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
+	video_state.mode.flags |= MODE_FLAGS_INDEX_TEXT;
+}
+
+static adv_color_rgb fake_text_palette[16] = {
+{   0,  0,  0,0 },
+{ 192,  0,  0,0 },
+{   0,192,  0,0 },
+{ 192,192,  0,0 },
+{   0,  0,192,0 },
+{ 192,  0,192,0 },
+{   0,192,192,0 },
+{ 192,192,192,0 },
+{ 128,128,128,0 },
+{ 255,128,128,0 },
+{ 128,255,128,0 },
+{ 255,255,128,0 },
+{ 128,128,255,0 },
+{ 255,128,255,0 },
+{ 128,255,255,0 },
+{ 255,255,255,0 }
+};
+
+#include "fonttxt.dat"
+
+void video_fake_text_wait_vsync(void)
+{
+	unsigned x, y;
+	unsigned i;
+	unsigned color[16];
+	unsigned size;
+	unsigned color_def;
+	unsigned char* (*write_line)(unsigned y);
+
+	/* not available in graphics mode */
+	if (!video_state.fake_text_map)
+		return;
+
+	color_def = video_current_driver()->color_def();
+	write_line = *video_current_driver()->write_line;
+
+	/* no change required */
+	size = video_state.fake_text_dy * video_state.fake_text_dx * 2;
+	if (memcmp(video_state.fake_text_map, video_state.fake_text_last_map, size) == 0)
+		return;
+
+	/* update the last buffer */
+	memcpy(video_state.fake_text_last_map, video_state.fake_text_map, size);
+
+	for(i=0;i<16;++i)
+		color[i] = pixel_make_from_def(fake_text_palette[i].red, fake_text_palette[i].green, fake_text_palette[i].blue, color_def);
+
+	video_write_lock();
+
+	for(y=0;y<video_state.fake_text_dy;++y) {
+		for(x=0;x<video_state.fake_text_dx;++x) {
+			unsigned cx, cy;
+			unsigned sx, sy;
+			unsigned ch, at;
+			unsigned c0, c1;
+			unsigned char* bit;
+
+			sx = x * 8;
+			sy = y * 16;
+			ch = video_state.fake_text_map[(y*video_state.fake_text_dx+x)*2];
+			at = video_state.fake_text_map[(y*video_state.fake_text_dx+x)*2+1];
+			c0 = color[(at >> 4) & 0xF];
+			c1 = color[at & 0xF];
+			bit = FONT + ch * 16;
+
+			for(cy=0;cy<16;++cy) {
+				unsigned char* line = write_line(sy + cy) + sx * 2;
+				for(cx=0;cx<8;++cx) {
+					unsigned c;
+					if ((bit[cy] & (0x80 >> cx)) != 0)
+						c = c1;
+					else
+						c = c0;
+					line[0] = c;
+					line[1] = c >> 8;
+					line += 2;
+				}
+			}
+		}
+	}
+
+	video_write_unlock(0,0,0,0);
+}
+
+static inline unsigned video_fake_text_font_size_x(void)
+{
+	return 8;
+}
+
+static inline unsigned video_fake_text_font_size_y(void)
+{
+	return 16;
+}
+
+static inline unsigned video_fake_text_virtual_x(void)
+{
+	return video_state.fake_text_dx * 8;
+}
+
+static inline unsigned video_fake_text_virtual_y(void)
+{
+	return video_state.fake_text_dy * 16;
+}
+
+static inline adv_error video_fake_text_display_set_async(unsigned offset, adv_bool waitvsync)
+{
+	return 0;
+}
+
+static inline unsigned video_fake_text_bytes_per_scanline(void)
+{
+	return video_state.fake_text_dx * 2;
+}
+
+static inline unsigned video_fake_text_bytes_per_page(void)
+{
+	return video_state.fake_text_dx * video_state.fake_text_dy * 2;
+}
+
 /***************************************************************************/
 /* Public */
 
@@ -116,10 +323,13 @@ void video_default(void)
 	video_option.scan_single = 1;
 	video_option.scan_double = 1;
 	video_option.scan_interlace = 1;
-	video_option.mode_8bit = 1;
-	video_option.mode_15bit = 1;
-	video_option.mode_16bit = 1;
-	video_option.mode_32bit = 1;
+	video_option.mode_palette8 = 1;
+	video_option.mode_bgr8 = 1;
+	video_option.mode_bgr15 = 1;
+	video_option.mode_bgr16 = 1;
+	video_option.mode_bgr24 = 1;
+	video_option.mode_bgr32 = 1;
+	video_option.mode_yuy2 = 1;
 	video_option.fast_change = 0;
 	strcpy(video_option.name,"auto");
 }
@@ -134,10 +344,13 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 	conf_bool_register_default(context, "device_video_doublescan", 1);
 	conf_bool_register_default(context, "device_video_interlace", 1);
 	conf_bool_register_default(context, "device_video_fastchange", 0);
-	conf_bool_register_default(context, "device_video_8bit", 1);
-	conf_bool_register_default(context, "device_video_15bit", 1);
-	conf_bool_register_default(context, "device_video_16bit", 1);
-	conf_bool_register_default(context, "device_video_32bit", 1);
+	conf_bool_register_default(context, "device_color_palette8", 1);
+	conf_bool_register_default(context, "device_color_bgr8", 1);
+	conf_bool_register_default(context, "device_color_bgr15", 1);
+	conf_bool_register_default(context, "device_color_bgr16", 1);
+	conf_bool_register_default(context, "device_color_bgr24", 1);
+	conf_bool_register_default(context, "device_color_bgr32", 1);
+	conf_bool_register_default(context, "device_color_yuy2", 1);
 }
 
 /**
@@ -237,6 +450,8 @@ adv_error video_init(void)
 		return -1;
 	}
 
+	video_fake_text_init();
+
 	/* enable */
 	video_state.active = 1;
 	video_state.mode_active = 0;
@@ -267,6 +482,8 @@ void video_done(void)
 			video_state.driver_map[i]->done();
 		}
 	}
+
+	video_fake_text_done();
 
 	/* disable */
 	video_state.active = 0;
@@ -314,10 +531,13 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.scan_double = conf_bool_get_default(context,"device_video_doublescan");
 	video_option.scan_interlace = conf_bool_get_default(context,"device_video_interlace");
 	video_option.fast_change = conf_bool_get_default(context,"device_video_fastchange");
-	video_option.mode_8bit = conf_bool_get_default(context,"device_video_8bit");
-	video_option.mode_15bit = conf_bool_get_default(context,"device_video_15bit");
-	video_option.mode_16bit = conf_bool_get_default(context,"device_video_16bit");
-	video_option.mode_32bit = conf_bool_get_default(context,"device_video_32bit");
+	video_option.mode_palette8 = conf_bool_get_default(context,"device_color_palette8");
+	video_option.mode_bgr8 = conf_bool_get_default(context,"device_color_bgr8");
+	video_option.mode_bgr15 = conf_bool_get_default(context,"device_color_bgr15");
+	video_option.mode_bgr16 = conf_bool_get_default(context,"device_color_bgr16");
+	video_option.mode_bgr24 = conf_bool_get_default(context,"device_color_bgr24");
+	video_option.mode_bgr32 = conf_bool_get_default(context,"device_color_bgr32");
+	video_option.mode_yuy2 = conf_bool_get_default(context,"device_color_yuy2");
 
 	strcpy(video_option.name, conf_string_get_default(context, "device_video"));
 
@@ -351,29 +571,30 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 /* Mode */
 
 /**
- * The predefinite capabilities flags.
+ * Change the drivers flags with the capability flags.
  */
-unsigned video_internal_flags(void)
+unsigned video_capability_flags(unsigned flags)
 {
-	unsigned flags =
-		VIDEO_DRIVER_FLAGS_MODE_MASK
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK
-		| VIDEO_DRIVER_FLAGS_INFO_MASK;
-
 	if (!video_option.scan_double)
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	if (!video_option.scan_single)
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN;
 	if (!video_option.scan_interlace)
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-	if (!video_option.mode_8bit)
-		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
-	if (!video_option.mode_15bit)
-		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
-	if (!video_option.mode_16bit)
-		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
-	if (!video_option.mode_32bit)
-		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+	if (!video_option.mode_palette8)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
+	if (!video_option.mode_bgr8)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR8;
+	if (!video_option.mode_bgr15)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
+	if (!video_option.mode_bgr16)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
+	if (!video_option.mode_bgr24)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
+	if (!video_option.mode_bgr32)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
+	if (!video_option.mode_yuy2)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 	return flags;
 }
@@ -390,8 +611,11 @@ unsigned video_internal_flags(void)
  */
 int video_mode_compare(const adv_mode* a, const adv_mode* b)
 {
+	/* we need to compare also the fake rgb flags not present in the driver data */
+	unsigned flags_a = mode_flags(a) & MODE_FLAGS_INTERNAL_MASK;
+	unsigned flags_b = mode_flags(b) & MODE_FLAGS_INTERNAL_MASK;
 	COMPARE(mode_driver(a), mode_driver(b));
-
+	COMPARE(flags_a, flags_b);
 	return mode_driver(a)->mode_compare(a->driver_mode,b->driver_mode);
 }
 
@@ -418,17 +642,31 @@ void mode_reset(adv_mode* mode) {
 	strcpy(mode->name, "unamed");
 }
 
-static void video_state_rgb_set_from_def(adv_rgb_def _def);
-static void video_state_rgb_clear(void);
+static void log_clock(void) {
+	double factor;
+	double error;
+
+	if (video_vclock()) {
+		factor = video_measured_vclock() / video_vclock();
+		error = (video_measured_vclock() - video_vclock()) / video_vclock();
+	} else {
+		factor = 0;
+		error = 0;
+	}
+
+	log_std(("video: measured/expected vert clock: %.2f/%.2f = %g (err %g%%)\n", video_measured_vclock(), video_vclock(), factor, error * 100.0));
+}
 
 /**
  * Set a video mode.
  */
 adv_error video_mode_set(adv_mode* mode)
 {
+	unsigned color_def;
+
 	assert( video_is_active() );
 
-	log_std(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), mode_bits_per_pixel(mode), (double)mode_hclock(mode) / 1E3,(double)mode_vclock(mode)));
+	log_std(("video: mode_set %s %dx%d %s %.1f kHz/%.1f Hz\n", mode_name(mode), mode_size_x(mode), mode_size_y(mode), index_name(mode_index(mode)), (double)mode_hclock(mode) / 1E3, (double)mode_vclock(mode)));
 
 	video_state.old_mode_required = 1; /* the mode will change */
 
@@ -455,33 +693,27 @@ adv_error video_mode_set(adv_mode* mode)
 
 	video_state.mode_active = 1;
 	video_state.mode = *mode;
+	video_state.mode_original = *mode;
 	video_state.virtual_x = video_current_driver()->virtual_x();
 	video_state.virtual_y = video_current_driver()->virtual_y();
-	video_state.rgb_def = video_current_driver()->rgb_def();
 	video_write_line = *video_current_driver()->write_line;
+	color_def = video_current_driver()->color_def();
+	video_color_def_adjust(color_def);
 
-	if (video_type() == MODE_FLAGS_TYPE_GRAPHICS && video_index() == MODE_FLAGS_INDEX_RGB) {
-		video_state_rgb_set_from_def(video_state.rgb_def);
-	} else {
-		video_state_rgb_clear();
+	/* adjust for fake rgb modes */
+	if ((mode_flags(mode) & MODE_FLAGS_INTERNAL_FAKERGB) != 0) {
+		log_std(("video: convert from palette8 to bgr8\n"));
+		video_index_packed_to_rgb(0);
+	}
+
+	if ((mode_flags(mode) & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		log_std(("video: convert from bgr16 to text\n"));
+		video_fake_text_adjust();
 	}
 
 	video_state.measured_vclock = video_measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0);
 
-	{
-		double factor;
-		double error;
-
-		if (video_vclock()) {
-			factor = video_measured_vclock() / video_vclock();
-			error = (video_measured_vclock() - video_vclock()) / video_vclock();
-		} else {
-			factor = 0;
-			error = 0;
-		}
-
-		log_std(("video: measured/expected vert clock: %.2f/%.2f = %g (err %g%%)\n",video_measured_vclock(),video_vclock(),factor,error * 100.0));
-	}
+	log_clock();
 
 	return 0;
 }
@@ -512,9 +744,10 @@ adv_error video_mode_grab(adv_mode* mode)
  * \param bits Required bits per pixel of the new video mode.
  * \param flags Required flags of the new video mode.
  */
-adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
 	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX];
+	unsigned driver_flags;
 	unsigned i;
 
 	/* store the error prefix */
@@ -522,10 +755,37 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
-			/* allow always faked crtc */
-			if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
+			driver_flags = video_capability_flags(video_state.driver_map[i]->flags());
+
+			/* allow also faked crtc */
+			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
 				log_pedantic(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 				return 0;
+			}
+
+			/* convert PALETTE8 in BGR8 */
+			if ((flags & MODE_FLAGS_INDEX_MASK) == MODE_FLAGS_INDEX_BGR8
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0) {
+				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_PALETTE8;
+				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+					/* adjust the flags */
+					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR8 | MODE_FLAGS_INTERNAL_FAKERGB;
+					log_pedantic(("video: using driver %s for mode %s (fake rgb)\n", video_state.driver_map[i]->name, mode->name));
+					return 0;
+				}
+			}
+
+			/* convert BGR16 in TEXT, only on a Window Manager */
+			if ((flags & MODE_FLAGS_INDEX_MASK) == MODE_FLAGS_INDEX_TEXT
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_INFO_WINDOW) != 0) {
+				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16;
+				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+					/* adjust the flags */
+					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16 | MODE_FLAGS_INTERNAL_FAKETEXT;
+					log_pedantic(("video: using driver %s for mode %s (fake text)\n", video_state.driver_map[i]->name, mode->name));
+					return 0;
+				}
 			}
 		}
 	}
@@ -533,8 +793,11 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned bit
 	return -1;
 }
 
-adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned bits, unsigned flags)
+adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned flags)
 {
+	/* filter the drivers falgs */
+	driver_flags = video_capability_flags(driver_flags);
+
 	if (crtc->hde % hstep != 0 || crtc->hrs % hstep != 0 || crtc->hre % hstep != 0 || crtc->ht % hstep != 0) {
 		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n", driver, hstep);
 		return -1;
@@ -542,23 +805,6 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	if (crtc->ht >= hvmax || crtc->vt >= hvmax) {
 		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n", driver, hvmax);
 		return -1;
-	}
-
-	switch (flags & MODE_FLAGS_TYPE_MASK) {
-		case MODE_FLAGS_TYPE_GRAPHICS :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL)==0) {
-				error_nolog_cat("%s: Graphics modes not supported\n", driver);
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_TYPE_TEXT :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text modes not supported\n", driver);
-				return -1;
-			}
-			break;
-		default:
-			assert(0);
 	}
 
 	if (crtc_is_interlace(crtc)) {
@@ -597,63 +843,57 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_RGB :
-		case MODE_FLAGS_INDEX_PACKED :
-			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
-				error_nolog_cat("%s: Graph mode index supported only in graphics modes\n", driver);
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_INDEX_TEXT :
-			if ((flags & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_TEXT) {
-				error_nolog_cat("%s: Text mode index supported only in text modes\n", driver);
-				return -1;
-			}
-			break;
-		default:
+	case MODE_FLAGS_INDEX_PALETTE8 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
+			error_nolog_cat("%s: palette8 not supported\n", driver);
 			return -1;
-	}
-
-	switch (bits) {
-		case 0 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT)==0) {
-				error_nolog_cat("%s: Text mode bit depth not supported\n", driver);
-				return -1;
-			}
-			break;
-		case 8 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
-				return -1;
-			}
-			break;
-		case 15 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
-				return -1;
-			}
-			break;
-		case 16 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
-				return -1;
-			}
-			break;
-		case 24 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
-				return -1;
-			}
-			break;
-		case 32 :
-			if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT) == 0) {
-				error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
-				return -1;
-			}
-			break;
-		default:
-			error_nolog_cat("%s: %d bit depth not supported\n", driver, bits);
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR8 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0) {
+			error_nolog_cat("%s: bgr8 not supported\n", driver);
 			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR15 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
+			error_nolog_cat("%s: bgr15 not supported\n", driver);
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR16 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
+			error_nolog_cat("%s: bgr16 not supported\n", driver);
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR24 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
+			error_nolog_cat("%s: bgr24 not supported\n", driver);
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR32 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
+			error_nolog_cat("%s: bgr32 not supported\n", driver);
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_YUY2 :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_YUY2) == 0) {
+			error_nolog_cat("%s: yuy2 not supported\n", driver);
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_TEXT :
+		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT) == 0) {
+			error_nolog_cat("%s: text not supported\n", driver);
+			return -1;
+		}
+		break;
+	default:
+		error_nolog_cat("%s: unknown mode not supported\n", driver);
+		return -1;
 	}
 
 	return 0;
@@ -673,15 +913,24 @@ unsigned video_mode_generate_driver_flags(unsigned subset)
 	flags = 0;
 
 	for(i=0;i<video_state.driver_mac;++i) {
-		if (video_state.driver_map[i] && (video_state.driver_map[i]->flags() & subset) != 0) {
+		if (video_state.driver_map[i]) {
 			/* limit the flags with the video internal options */
-			unsigned new_flags = video_state.driver_map[i]->flags() & video_internal_flags();
-
-			/* add flags only with the same programmable capabilities */
-			if (!flags || (flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK) == (new_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK))
-				flags |= new_flags;
+			unsigned driver_flags = video_capability_flags(video_state.driver_map[i]->flags());
+			if ((driver_flags & subset) != 0) {
+				/* add flags only with the same programmable capabilities */
+				if (!flags || (flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK) == (driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK))
+					flags |= driver_flags;
+			}
 		}
 	}
+
+	/* add BGR8 derived from PALETTE8 */
+	if ((flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0)
+		flags |= VIDEO_DRIVER_FLAGS_MODE_BGR8;
+
+	/* add TEXT derived from BGR16 */
+	if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
+		flags |= VIDEO_DRIVER_FLAGS_MODE_TEXT;
 
 	return flags;
 }
@@ -714,6 +963,10 @@ void video_wait_vsync(void)
 	assert( video_mode_is_active() );
 
 	video_current_driver()->wait_vsync();
+
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		video_fake_text_wait_vsync();
+	}
 }
 
 static int video_double_cmp(const void* _a, const void* _b)
@@ -800,7 +1053,12 @@ unsigned video_font_size_x(void)
 {
 	assert( video_mode_is_active() && video_is_text() );
 
-	return video_current_driver()->font_size_x();
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		return video_fake_text_font_size_x();
+	} else {
+		assert( video_current_driver()->font_size_x != 0 );
+		return video_current_driver()->font_size_x();
+	}
 }
 
 /** Y size of the font for text mode. */
@@ -808,7 +1066,61 @@ unsigned video_font_size_y(void)
 {
 	assert( video_mode_is_active() && video_is_text() );
 
-	return video_current_driver()->font_size_y();
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		return video_fake_text_font_size_y();
+	} else {
+		assert( video_current_driver()->font_size_y != 0 );
+		return video_current_driver()->font_size_y();
+	}
+}
+
+/** Horizontal virtual size of the current video mode. */
+unsigned video_virtual_x(void) {
+	assert( video_mode_is_active() );
+
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0)
+		return video_fake_text_virtual_x();
+	else
+		return video_current_driver()->virtual_x();
+}
+
+/** Vertical virtual size of the current video mode. */
+unsigned video_virtual_y(void) {
+	assert( video_mode_is_active() );
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0)
+		return video_fake_text_virtual_y();
+	else
+		return video_current_driver()->virtual_y();
+}
+
+adv_error video_display_set_async(unsigned offset, adv_bool waitvsync) {
+	assert( video_mode_is_active() );
+
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		return video_fake_text_display_set_async(offset, waitvsync);
+	} else {
+		return video_current_driver()->scroll(offset, waitvsync);
+	}
+}
+
+unsigned video_bytes_per_scanline(void) {
+	assert( video_mode_is_active() );
+
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		return video_fake_text_bytes_per_scanline();
+	} else {
+		return video_current_driver()->bytes_per_scanline();
+	}
+}
+
+unsigned video_bytes_per_page(void) {
+	unsigned bytes_per_page = video_size_y() * video_bytes_per_scanline();
+
+	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
+		return video_fake_text_bytes_per_page();
+	} else {
+		return video_current_driver()->adjust_bytes_per_page(bytes_per_page);
+	}
 }
 
 /***************************************************************************/
@@ -816,22 +1128,28 @@ unsigned video_font_size_y(void)
 
 static inline void video_chained_put_pixel(unsigned x, unsigned y, unsigned color)
 {
+	unsigned char* line = video_write_line(y);
 	switch (video_bytes_per_pixel()) {
-		case 1 :
-			*(uint8*)(video_write_line(y) + x) = color;
+	case 1 :
+		line[x] = color & 0xFF;
 		break;
-		case 2 :
-			*(uint16*)(video_write_line(y) + 2*x) = color;
+	case 2 :
+		line += 2*x;
+		line[0] = color & 0xFF;
+		line[1] = (color >> 8) & 0xFF;
 		break;
-		case 3 : {
-			uint8* p = (uint8*)(video_write_line(y) + 3*x);
-			p[0] = color & 0xFF;
-			p[1] = (color >> 8) & 0xFF;
-			p[2] = (color >> 16) & 0xFF;
-		}
+	case 3 :
+		line += 3*x;
+		line[0] = color & 0xFF;
+		line[1] = (color >> 8) & 0xFF;
+		line[2] = (color >> 16) & 0xFF;
 		break;
-		case 4 :
-			*(uint32*)(video_write_line(y) + 4*x) = color;
+	case 4 :
+		line += 4*x;
+		line[0] = color & 0xFF;
+		line[1] = (color >> 8) & 0xFF;
+		line[2] = (color >> 16) & 0xFF;
+		line[3] = (color >> 24) & 0xFF;
 		break;
 	}
 }
@@ -839,13 +1157,19 @@ static inline void video_chained_put_pixel(unsigned x, unsigned y, unsigned colo
 static inline void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color)
 {
 	video_unchained_plane_set(x % 4);
-	*(uint8*)(video_write_line(y) + x / 4) = color;
+	video_chained_put_pixel(x / 4, y, color);
 }
 
 void video_put_char(unsigned x, unsigned y, char c, unsigned color)
 {
 	assert( video_mode_is_active() && video_is_text() );
-	*(uint16*)(video_write_line(y) + 2*x) = (color << 8) | (unsigned char)c;
+
+	if (x < video_virtual_x() / video_font_size_x()
+		&& y < video_virtual_y() / video_font_size_y()) {
+		unsigned char* line = video_write_line(y) + 2 * x;
+		line[0] = c;
+		line[1] = color;
+	}
 }
 
 static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
@@ -866,45 +1190,6 @@ void video_put_pixel(unsigned x, unsigned y, unsigned color)
 /****************************************************************************/
 /* Color */
 
-static void video_state_rgb_set_from_def(adv_rgb_def _def)
-{
-	union adv_rgb_def_union def;
-	def.ordinal = _def;
-
-	rgb_maskshift_get(&video_state.rgb_red_mask,&video_state.rgb_red_shift,def.nibble.red_len,def.nibble.red_pos);
-	rgb_maskshift_get(&video_state.rgb_green_mask,&video_state.rgb_green_shift,def.nibble.green_len,def.nibble.green_pos);
-	rgb_maskshift_get(&video_state.rgb_blue_mask,&video_state.rgb_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
-
-	video_state.rgb_def = def.ordinal;
-	video_state.rgb_red_len = def.nibble.red_len;
-	video_state.rgb_green_len = def.nibble.green_len;
-	video_state.rgb_blue_len = def.nibble.blue_len;
-	video_state.rgb_mask_bit = video_rgb_get(0xFF,0xFF,0xFF);
-	video_state.rgb_high_bit = video_rgb_get(0x80,0x80,0x80);
-	video_state.rgb_low_bit = video_rgb_get(
-		1 << (8-video_state.rgb_red_len),
-		1 << (8-video_state.rgb_green_len),
-		1 << (8-video_state.rgb_blue_len)
-	);
-}
-
-static void video_state_rgb_clear(void)
-{
-	video_state.rgb_def = 0;
-	video_state.rgb_red_shift = 0;
-	video_state.rgb_green_shift = 0;
-	video_state.rgb_blue_shift = 0;
-	video_state.rgb_red_mask = 0;
-	video_state.rgb_green_mask = 0;
-	video_state.rgb_blue_mask = 0;
-	video_state.rgb_red_len = 0;
-	video_state.rgb_green_len = 0;
-	video_state.rgb_blue_len = 0;
-	video_state.rgb_mask_bit = 0;
-	video_state.rgb_high_bit = 0;
-	video_state.rgb_low_bit =  0;
-}
-
 /** Convert one video mode from PACKED to RGB. */
 void video_index_packed_to_rgb(int waitvsync)
 {
@@ -912,7 +1197,7 @@ void video_index_packed_to_rgb(int waitvsync)
 	unsigned bit_g;
 	unsigned bit_b;
 
-	adv_color* palette;
+	adv_color_rgb* palette;
 	unsigned i;
 	unsigned colors = 1 << video_bits_per_pixel();
 
@@ -920,9 +1205,14 @@ void video_index_packed_to_rgb(int waitvsync)
 	bit_r = (video_bits_per_pixel() - bit_b) / 2;
 	bit_g = video_bits_per_pixel() - bit_b - bit_r;
 
-	video_state_rgb_set_from_def(rgb_def_make(bit_r,bit_b+bit_g,bit_g,bit_b,bit_b,0));
+	/* set the palette mode */
+	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
+	video_state.mode.flags |= MODE_FLAGS_INDEX_PALETTE8;
 
-	palette = malloc(colors * sizeof(adv_color));
+	/* set the new color definition */
+	video_color_def_adjust(color_def_make_from_rgb_sizelenpos(1,bit_r,bit_b+bit_g,bit_g,bit_b,bit_b,0));
+
+	palette = malloc(colors * sizeof(adv_color_rgb));
 	assert( palette );
 
 	for(i=0;i<colors;++i) {
@@ -935,19 +1225,19 @@ void video_index_packed_to_rgb(int waitvsync)
 
 	free(palette);
 
-	/* set RGB */
+	/* set the RGB mode */
 	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
-	video_state.mode.flags |= MODE_FLAGS_INDEX_RGB;
+	video_state.mode.flags |= MODE_FLAGS_INDEX_BGR8 | MODE_FLAGS_INTERNAL_FAKERGB;
 }
 
 adv_bool video_index_rgb_to_packed_is_available(void)
 {
-	return video_index() == MODE_FLAGS_INDEX_RGB && video_bytes_per_pixel() == 1;
+	return (video_state.mode.flags & MODE_FLAGS_INTERNAL_FAKERGB) != 0;
 }
 
 adv_bool video_index_packed_to_rgb_is_available(void)
 {
-	return video_index() == MODE_FLAGS_INDEX_PACKED;
+	return video_index() == MODE_FLAGS_INDEX_PALETTE8;
 }
 
 /**
@@ -958,20 +1248,20 @@ void video_index_rgb_to_packed(void)
 {
 	assert( video_index_rgb_to_packed_is_available() );
 
-	video_state_rgb_clear();
+	video_color_def_adjust(color_def_make(adv_color_type_palette));
 
-	/* set PACKED */
-	video_state.mode.flags &= ~MODE_FLAGS_INDEX_MASK;
-	video_state.mode.flags |= MODE_FLAGS_INDEX_PACKED;
+	/* restore the palette mode */
+	video_state.mode.flags &= ~(MODE_FLAGS_INDEX_MASK | MODE_FLAGS_INTERNAL_FAKERGB);
+	video_state.mode.flags |= MODE_FLAGS_INDEX_PALETTE8;
 }
 
 /** Last active palette. */
-static adv_color video_palette[256];
+static adv_color_rgb video_palette[256];
 
 /**
  * Get the current palette.
  */
-adv_color* video_palette_get(void)
+adv_color_rgb* video_palette_get(void)
 {
 	return video_palette;
 }
@@ -983,15 +1273,15 @@ adv_color* video_palette_get(void)
  * \param count number of color to set
  * \param waitvsync if !=0 wait a vertical retrace
  */
-adv_error video_palette_set(adv_color* palette, unsigned start, unsigned count, int waitvsync)
+adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync)
 {
 	assert( video_mode_is_active() );
 
-	assert( video_index() == MODE_FLAGS_INDEX_PACKED );
-	assert( count <= 256 );
+	assert( video_index() == MODE_FLAGS_INDEX_PALETTE8 );
+	assert( start + count <= 256 );
 
 	/* update the static palette */
-	memcpy(video_palette + start, palette, count * sizeof(adv_color));
+	memcpy(video_palette + start, palette, count * sizeof(adv_color_rgb));
 
 	return video_current_driver()->palette8_set(palette,start,count,waitvsync);
 }

@@ -162,10 +162,9 @@ struct advance_video_config_context {
 	int measure_time; /**< Time for the speed measure [seconds]. */
 	int restore_flag; /**< Reset the video mode at the exit [boolean]. */
 	int magnify_flag; /**< Magnify effect requested [boolean]. */
-	int rgb_flag; /**< If a rgb mode is requested [boolean]. */
+	unsigned index; /**< Index mode. */
 	double frameskip_factor; /**< Current frameskip factor. */
 	int frameskip_auto_flag; /**< boolean. */
-	unsigned depth; /**< Depth of the video mode, ==0 if auto. */
 	double aspect_expansion_factor; /**< Expansion factor of the aspect. */
 	adv_monitor monitor; /**< Monitor specifications. */
 	adv_generate_interpolate_set interpolate; /**< Video mode generator specifications. */
@@ -198,7 +197,7 @@ struct advance_video_state_context {
 	int game_bytes_per_pixel; /**< Game bytes per pixel. */
 	int game_colors; /**< Number of colors used by the game. */
 	int game_rgb_flag; /**< If the bitmap contains direct RGB colors. */
-	adv_rgb_def game_rgb_def; /**< Game color format. */
+	adv_color_def game_color_def; /**< Game color format. */
 
 	int debugger_flag; /**< Debugger show flag. */
 
@@ -206,8 +205,7 @@ struct advance_video_state_context {
 
 	adv_mode mode; /**< Video mode. */
 	int mode_flag; /**< If the mode is set */
-	int mode_rgb_flag; /**< If is a rgb video mode. */
-	int mode_bits_per_pixel; /**< Bits per pixel. */
+	unsigned mode_index; /**< Mode index. */
 	double mode_vclock; /**< Vertical clock (normalized) */
 	unsigned mode_best_size_x;
 	unsigned mode_best_size_y;
@@ -388,8 +386,8 @@ void advance_record_done(struct advance_record_context* context);
 int advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context);
 
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
-void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
-void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_rgb_def rgb_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation);
 
 int advance_record_sound_is_active(struct advance_record_context* context);
 int advance_record_video_is_active(struct advance_record_context* context);

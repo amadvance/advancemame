@@ -7,6 +7,8 @@ AdvanceMAME Version 0.62.2 2002/12
 		yield operation is done before the syncronization point.
 		It should reduce the effective system load.
 	) Fixed some issues in the ./configure scripts.
+	) Removed the blinking cursor in the Linux `fb' video
+		driver [Kari Hautio].
 
 AdvanceMAME Version 0.62.1 2002/11
 	) Fixed the abort bug on the DOS and Windows versions for the

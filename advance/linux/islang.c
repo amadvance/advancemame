@@ -32,6 +32,11 @@
 #include "log.h"
 #include "target.h"
 #include "oslinux.h"
+#include "error.h"
+
+#ifdef USE_VIDEO_SDL
+#include "SDL.h"
+#endif
 
 #include <sys/select.h>
 #include <stdio.h>
@@ -57,6 +62,16 @@ adv_error inputb_slang_init(int inputb_id)
 		log_std(("inputb:slang: slang not initialized\n"));
 		return -1;
 	}
+
+#ifdef USE_VIDEO_SDL
+	/* If the SDL video driver is used, also the SDL */
+	/* keyboard input must be used. */
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+		log_std(("inputb:slang: Incompatible with the SDL video driver\n"));
+		error_nolog_cat("slang: Incompatible with the SDL video driver\n");
+		return -1; 
+	}
+#endif
 
 	slang_state.last = 0;
 

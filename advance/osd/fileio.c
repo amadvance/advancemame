@@ -178,7 +178,6 @@ static int item_is_partialequal(const char* zipfile, const char* file) {
 
 static int item_open_raw(const char* file, const char* ext, unsigned  mode, struct fileio_handle* h) {
 	char file_complete[FILE_MAXPATH];
-	const char* open_mode;
 
 	if (ext && !item_has_ext(file))
 		sprintf(file_complete,"%s%s",file,ext);

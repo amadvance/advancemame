@@ -209,10 +209,16 @@ int os_inner_init(const char* title) {
 		log_std(("os: big endian system\n"));
 #endif
 #if defined(USE_SLANG)
-	SLtt_get_terminfo();
-	SLang_init_tty(-1, 0, 0);
-	SLsmg_init_smg();
-	OS.slang_active = 1;
+	OS.slang_active = 0;
+	if (display == 0) {
+		log_std(("os: SLang_init_tty()\n"));
+		SLtt_get_terminfo();
+		SLang_init_tty(-1, 0, 0);
+		SLsmg_init_smg();
+		OS.slang_active = 1;
+	} else {
+		log_std(("os: SLang_init_tty() skipped\n"));
+	}
 #endif
 #if defined(USE_X)
 	OS.x_active = 0;

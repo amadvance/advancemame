@@ -29,11 +29,11 @@
  */
 
 /** \file
- * RGB.
+ * Color.
  */
 
-#ifndef __RGB_H
-#define __RGB_H
+#ifndef __COLOR_H
+#define __COLOR_H
 
 #include "extra.h"
 
@@ -47,50 +47,72 @@ extern "C" {
 /**
  * RGB color.
  */
-typedef struct video_color_struct {
+typedef struct adv_color_rgb_struct {
 	uint8 blue __attribute__ ((packed)); /**< Blue channel. From 0 to 255. */
 	uint8 green __attribute__ ((packed)); /**< Green channel. From 0 to 255. */
 	uint8 red __attribute__ ((packed)); /**< Red channel. From 0 to 255. */
 	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
-} adv_color;
+} adv_color_rgb;
 
 /**
- * RGB as ordinal value.
+ * YUV color.
+ */
+typedef struct adv_color_yuv_struct {
+	uint8 y __attribute__ ((packed)); /**< Blue channel. From 0 to 255. */
+	uint8 u __attribute__ ((packed)); /**< Green channel. From 0 to 255. */
+	uint8 v __attribute__ ((packed)); /**< Red channel. From 0 to 255. */
+	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
+} adv_color_yuv;
+
+/**
+ * Color RGB/YUV as ordinal value.
  * The effective format is not defined. It depends on the current context.
  */
-typedef unsigned adv_rgb;
+typedef unsigned adv_pixel;
+
+typedef enum adv_color_type_enum {
+	adv_color_type_unknown = 0, /**< Unknown. */
+	adv_color_type_palette = 1, /**< Palette. */
+	adv_color_type_rgb = 2, /**< RGB. */
+	adv_color_type_yuy2 = 3, /**< YUY2 (2 sample). */
+	adv_color_type_text = 4 /**< Text. */
+} adv_color_type;
 
 /**
- * RGB definition as bit nibble.
+ * RGB/YUV definition as bit nibble.
  */
-struct adv_rgb_def_bits {
+struct adv_color_def_bits {
+	unsigned type : 3; /**< Type bit. */
 	unsigned red_len : 4; /**< Bits for the red channel. */
 	unsigned red_pos : 5; /**< Shift for the red channel. */
 	unsigned green_len : 4; /**< Bits for the green channel. */
 	unsigned green_pos : 5; /**< Shift for the green channel. */
 	unsigned blue_len : 4; /**< Bits for the blue channel. */
 	unsigned blue_pos : 5; /**< Shift for the blue channel. */
-	/* 5*3+4*3 = 27 bit */
-	unsigned dummy : 5; /**< Unused bit. */
+	unsigned alpha_size : 2; /**< Extra alpha bytes. */
+	/* 3+5*3+4*3+2 = 32 bit */
 };
 
 /**
- * RGB definition as ordinal value.
+ * Color definition as ordinal value.
  */
-typedef unsigned adv_rgb_def;
+typedef unsigned adv_color_def;
 
 /**
- * RGB definition as union.
+ * color definition as union.
  */
-union adv_rgb_def_union {
-	adv_rgb_def ordinal;
-	struct adv_rgb_def_bits nibble;
+union adv_color_def_union {
+	adv_color_def ordinal;
+	struct adv_color_def_bits nibble;
 };
 
-const char* rgb_def_name_make(adv_rgb_def rgb_def);
-adv_rgb_def rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-adv_rgb_def rgb_def_make_from_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
-adv_rgb rgb_make_from_def(unsigned r, unsigned g, unsigned b, adv_rgb_def def);
+const char* color_def_name_make(adv_color_def rgb_def);
+adv_color_def color_def_make(adv_color_type type);
+adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
+adv_color_def color_def_make_from_rgb_lenpos(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
+adv_color_def color_def_make_from_rgb_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
+adv_color_def color_def_make_from_index(unsigned index);
+adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
 
 /**
  * Get a channel shift from the RGB definition.
@@ -109,7 +131,7 @@ static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos) {
 	return ((1 << len) - 1) << pos;
 }
 
-unsigned video_color_dist(const adv_color* A, const adv_color* B);
+unsigned video_color_dist(const adv_color_rgb* A, const adv_color_rgb* B);
 
 /**
  * Shift a value.

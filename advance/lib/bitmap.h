@@ -50,7 +50,7 @@ typedef struct adv_bitmap_struct {
 adv_bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
 adv_bitmap* bitmap_dup(adv_bitmap* src);
 adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline);
-adv_bitmap* bitmappalette_import(adv_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
+adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size);
 void bitmap_free(adv_bitmap* bmp);
 uint8* bitmap_line(adv_bitmap* bmp, unsigned line);
 void bitmap_putpixel(adv_bitmap* bmp, unsigned x, unsigned y, unsigned v);
@@ -79,9 +79,9 @@ void bitmap_orientation(adv_bitmap* bmp, unsigned orientation_mask);
  */
 #define REDUCE_INDEX_MAX (1U << (3*REDUCE_COLOR_BIT))
 
-unsigned bitmap_reduce(unsigned* convert, adv_color* palette, unsigned size, const adv_bitmap* bmp);
+unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp);
 
-void bitmap_cvt(adv_bitmap* dst, adv_rgb_def dst_def, adv_bitmap* src, adv_rgb_def src_def);
+void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def);
 
 void bitmap_cvt_8to8(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);
 void bitmap_cvt_8to16(adv_bitmap* dst, adv_bitmap* src, unsigned* color_map);

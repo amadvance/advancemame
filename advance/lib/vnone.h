@@ -45,8 +45,8 @@ extern "C" {
  * Video driver "none" mode information.
  */
 typedef struct none_video_mode_struct {
-	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
-	adv_crtc crtc; /**< CRTC values */
+	unsigned index; /**< Mode index. */
+	adv_crtc crtc; /**< CRTC values. */
 } none_video_mode;
 
 /** \addtogroup Video */

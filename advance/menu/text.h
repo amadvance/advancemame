@@ -37,7 +37,7 @@
 void text_init(adv_conf* config_context);
 void text_done();
 bool text_load(adv_conf* config_context);
-bool text_init2(unsigned video_size, unsigned video_depth, const std::string& sound_event_key);
+bool text_init2(unsigned video_size, const std::string& sound_event_key);
 void text_done2();
 bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep,unsigned idle_1, unsigned idle_1_rep, unsigned repeat, unsigned repeat_rep, bool backdrop_fast, bool alpha_mode);
 void text_done3(bool reset_video_mode);

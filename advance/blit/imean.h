@@ -69,13 +69,11 @@ static uint32 expand_nibble(unsigned bytes_per_pixel, unsigned v) {
 }
 
 static void internal_mean_set(void) {
-	adv_rgb rgb_h = video_rgb_high_bit_get();
-	adv_rgb rgb_l = video_rgb_low_bit_get();
-	adv_rgb rgb_m = video_rgb_mask_bit_get();
+	adv_pixel rgb_h = video_rgb_high_bit_get();
+	adv_pixel rgb_l = video_rgb_low_bit_get();
+	adv_pixel rgb_m = video_rgb_mask_bit_get();
 
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
-
-	assert( video_index() == MODE_FLAGS_INDEX_RGB );
 
 	mean_mask[MEAN_MASK_L_0] = expand_nibble(bytes_per_pixel,rgb_l);
 	mean_mask[MEAN_MASK_L_1] = mean_mask[MEAN_MASK_L_0];

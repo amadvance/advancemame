@@ -590,11 +590,6 @@ Configuration
 		X_SIZE - Width in pixels of the video mode. The nearest
 			available video mode is chosen (default 1024).
 
-    video_depth
-	Select the desired bit depth of the video mode.
-
-	:video_depth 8 | 15 | 16 | 32
-
     video_restore
 	Select whether to reset in the text mode before running the
 	emulator.
@@ -795,8 +790,26 @@ Configuration
 		:sound_background_loop_dir C:\MP3\POP;C:\MP3\ROCK
 
   Input Configuration Options
+
+    device_keyboard
+	Selects the keyboard drivers.
+
+	:device_keyboard auto | none
+
+	Options:
+		none - No keyboard.
+		auto - Automatic detection (default).
+
+	Options for the Linux version:
+		svgalib - SVGALIB keyboard. This driver is not available
+			if the SDL video output is used.
+		raw - Linux RAW kernel keyboard interface. This driver
+			is not available if the SDL video output is used.
+		sdl - SDL keyboard. This driver is available
+			only if the SDL video output is used.
+
     device_joystick
-	Enables or disables joystick support.
+	Selects the joystick driver.
 
 	:device_joystick auto | none | DEVICE
 
@@ -884,6 +897,7 @@ Configuration
 		STEP - Mouse/trackball position step (default 100).
 
   Other Configuration Options
+
     idle_start
 	Automatically start a random game after some time of inactivity.
 	You can also configure the AdvanceMAME option `input_idleexit'

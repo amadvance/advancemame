@@ -235,9 +235,13 @@ Configuration
 
 	Options for the Linux version:
 		svgalib - SVGA generated graphics modes with the
-			SVGALIB 1.9.x library.
+			SVGALIB 1.9.x library. This driver is not
+			available in X (when the environment DISPLAY
+			variable is defined).
 		fb - SVGA generated grahics modes with the Linux Console
-			Frame Buffer.
+			Frame Buffer. This driver is not
+			available in X (when the environment DISPLAY
+			variable is defined).
 		slang - Text video modes with the sLang library.
 		sdl - SDL graphics and fake text modes.
 
@@ -429,13 +433,27 @@ Configuration
 			low end driver allow it (default).
 		no - Disable completly the feature.
 
-    device_video_8bit/15bit/16bit/32bit
-	Limit the use of certains bit depths.
+    device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
+	Limit the use of certains bit depths. If you known that
+	the program doesn't work well with a specific bit depth you
+	can disable it.
 
-	:device_video_8bit yes | no
-	:device_video_15bit yes | no
-	:device_video_16bit yes | no
-	:device_video_32bit yes | no
+	:device_color_palette8 yes | no
+	:device_color_bgr8 yes | no
+	:device_color_bgr15 yes | no
+	:device_color_bgr16 yes | no
+	:device_color_bgr24 yes | no
+	:device_color_bgr32 yes | no
+	:device_color_yuy2 yes | no
+
+	Modes:
+		palette8 - Palettized 8 bits mode.
+		bgr8 - RGB 8 bits mode.
+		bgr15 - RGB 15 bits mode.
+		bgr16 - RGB 16 bits mode.
+		bgr24 - RGB 24 bits mode.
+		bgr32 - RGB 32 bits mode.
+		yuy2 - YUV mode in the YUY2 format.
 
 	Options:
 		yes - Permits the use of the bit depth if the

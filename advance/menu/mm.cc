@@ -449,7 +449,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
 /* 2.2.0 */
-{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 } /* rename */
+{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 }, /* rename */
+/* 2.2.2 */
+{ "*", "video_depth", "*", "", "", "", 0 } /* remove */
 };
 
 void os_signal(int signum) {
@@ -591,7 +593,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_init;
 	}
 
-	if (!text_init2(rs.video_size, rs.video_depth, rs.sound_foreground_key)) {
+	if (!text_init2(rs.video_size, rs.sound_foreground_key)) {
 		goto err_inner_init;
 	}
 	

@@ -511,7 +511,7 @@ void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count)
 	}
 }
 
-adv_error vga_palette6_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error vga_palette6_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned i;
 
 	if (waitvsync)
@@ -529,7 +529,7 @@ adv_error vga_palette6_set(const adv_color* palette, unsigned start, unsigned co
 	return 0;
 }
 
-adv_error vga_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error vga_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned i;
 
 	if (waitvsync)

@@ -111,7 +111,7 @@ adv_bitmap* bitmap_import(unsigned width, unsigned height, unsigned pixel, unsig
 /**
  * Create a palettized bitmap allocated externally.
  */
-adv_bitmap* bitmappalette_import(adv_color* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size) {
+adv_bitmap* bitmappalette_import(adv_color_rgb* rgb, unsigned* rgb_max, unsigned width, unsigned height, unsigned pixel, unsigned char* dat_ptr, unsigned dat_size, unsigned char* ptr, unsigned scanline, unsigned char* pal_ptr, unsigned pal_size) {
 	if (pixel == 1) {
 		unsigned char* p = pal_ptr;
 		unsigned n = pal_size / 3;
@@ -413,7 +413,7 @@ static void countsort88(struct color_node* indexin[], struct color_node* indexou
  * \param size Size of the new palette.
  * \param bmp Bitmap at 24 bit.
  */
-unsigned bitmap_reduce(unsigned* convert, adv_color* palette, unsigned size, const adv_bitmap* bmp) {
+unsigned bitmap_reduce(unsigned* convert, adv_color_rgb* palette, unsigned size, const adv_bitmap* bmp) {
 	unsigned i,y;
 	unsigned res_size;
 	static struct color_node map[REDUCE_INDEX_MAX];
@@ -844,9 +844,9 @@ void bitmap_cvt_24to8idx(adv_bitmap* dst, adv_bitmap* src, unsigned* convert_map
  * \param src Source bitmap.
  * \param src_def Source RGB definition.
  */
-void bitmap_cvt(adv_bitmap* dst, adv_rgb_def dst_def, adv_bitmap* src, adv_rgb_def src_def) {
+void bitmap_cvt(adv_bitmap* dst, adv_color_def dst_def, adv_bitmap* src, adv_color_def src_def) {
 	unsigned cx, cy;
-	union adv_rgb_def_union def;
+	union adv_color_def_union def;
 	unsigned dst_red_mask, dst_green_mask, dst_blue_mask;
 	int dst_red_shift, dst_green_shift, dst_blue_shift;
 	unsigned src_red_mask, src_green_mask, src_blue_mask;
@@ -855,6 +855,7 @@ void bitmap_cvt(adv_bitmap* dst, adv_rgb_def dst_def, adv_bitmap* src, adv_rgb_d
 	int mix_red_shift, mix_green_shift, mix_blue_shift;
 
 	def.ordinal = dst_def;
+
 	rgb_maskshift_get(&dst_red_mask,&dst_red_shift,def.nibble.red_len,def.nibble.red_pos);
 	rgb_maskshift_get(&dst_green_mask,&dst_green_shift,def.nibble.green_len,def.nibble.green_pos);
 	rgb_maskshift_get(&dst_blue_mask,&dst_blue_shift,def.nibble.blue_len,def.nibble.blue_pos);
@@ -937,7 +938,7 @@ void bitmap_cvt_24to8(adv_bitmap* dst, adv_bitmap* src) {
 		uint8* src_ptr = bitmap_line(src,cy);
 		uint8* dst_ptr = bitmap_line(dst,cy);
 		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_rgb_get(src_ptr[0], src_ptr[1], src_ptr[2]);
+			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
 			src_ptr += 3;
 		}
@@ -954,7 +955,7 @@ void bitmap_cvt_24to16(adv_bitmap* dst, adv_bitmap* src) {
 		uint8* src_ptr = bitmap_line(src,cy);
 		uint16* dst_ptr = (uint16*)bitmap_line(dst,cy);
 		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_rgb_get(src_ptr[0], src_ptr[1], src_ptr[2]);
+			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
 			src_ptr += 3;
 		}
@@ -971,7 +972,7 @@ void bitmap_cvt_24to32(adv_bitmap* dst, adv_bitmap* src) {
 		uint8* src_ptr = bitmap_line(src,cy);
 		uint32* dst_ptr = (uint32*)bitmap_line(dst,cy);
 		for(cx=0;cx<src->size_x;++cx) {
-			*dst_ptr = video_rgb_get(src_ptr[0], src_ptr[1], src_ptr[2]);
+			*dst_ptr = video_pixel_get(src_ptr[0], src_ptr[1], src_ptr[2]);
 			dst_ptr += 1;
 			src_ptr += 3;
 		}

@@ -67,8 +67,7 @@ enum advance_t {
 
 adv_conf* the_config;
 
-int the_mode_bit = 8;
-int the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB;
+int the_mode_index = MODE_FLAGS_INDEX_PALETTE8;
 
 /***************************************************************************/
 /* Common information screens */
@@ -318,26 +317,28 @@ static void draw_text_info(int x, int y, int dx, int dy, int pos) {
 	}
 }
 
-static void draw_text_bit(int x, int y, int dx) {
+static void draw_text_index(int x, int y, int dx) {
 	int i;
 	int pos = x;
 
 	pos += draw_text_string(pos,y,"Type ",COLOR_TITLE);
 
-	for(i=0;i<6;++i) {
+	for(i=0;i<8;++i) {
 		const char* text;
-		int bit;
+		unsigned index;
 		unsigned color;
 		switch (i) {
 			default:
-			case 0 : text = "text"; bit = 0; break;
-			case 1 : text = "8 bit"; bit = 8; break;
-			case 2 : text = "15 bit"; bit = 15; break;
-			case 3 : text = "16 bit"; bit = 16; break;
-			case 4 : text = "24 bit"; bit = 24; break;
-			case 5 : text = "32 bit"; bit = 32; break;
+			case 0 : text = "text"; index = MODE_FLAGS_INDEX_TEXT; break;
+			case 1 : text = "palette8"; index = MODE_FLAGS_INDEX_PALETTE8; break;
+			case 2 : text = "bgr8"; index = MODE_FLAGS_INDEX_BGR8; break;
+			case 3 : text = "bgr15"; index = MODE_FLAGS_INDEX_BGR15; break;
+			case 4 : text = "bgr16"; index = MODE_FLAGS_INDEX_BGR16; break;
+			case 5 : text = "bgr24"; index = MODE_FLAGS_INDEX_BGR24; break;
+			case 6 : text = "bgr32"; index = MODE_FLAGS_INDEX_BGR32; break;
+			case 7 : text = "yuy2"; index = MODE_FLAGS_INDEX_YUY2; break;
 		}
-		if (the_mode_bit == bit)
+		if (the_mode_index == index)
 			color = COLOR_SELECTED;
 		else
 			color = COLOR_NORMAL;
@@ -501,11 +502,11 @@ static int test_vgaline(int x, int y, vgaline_video_mode* mode) {
 	draw_test_default();
 
 	if (video_is_text()) {
-		sprintf(buffer,"vgaline %dx%d %dx%d", video_size_x(), video_size_y(), video_size_x() / video_font_size_x(), video_size_y() / video_font_size_y());
+		sprintf(buffer,"vgaline %s %dx%d %dx%d", index_name(video_index()), video_size_x(), video_size_y(), video_size_x() / video_font_size_x(), video_size_y() / video_font_size_y());
 		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 		++y;
 	} else {
-		sprintf(buffer,"vgaline %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+		sprintf(buffer,"vgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 		draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 		++y;
 	}
@@ -526,7 +527,7 @@ static int test_vbeline(int x, int y, vbeline_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"vbeline %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"vbeline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -550,7 +551,7 @@ static int test_svgaline(int x, int y, svgaline_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"svgaline %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"svgaline %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -568,7 +569,7 @@ static int test_svgawin(int x, int y, svgawin_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"svgawin %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"svgawin %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -587,7 +588,7 @@ static int test_svgalib(int x, int y, svgalib_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"svgalib %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"svgalib %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -605,13 +606,30 @@ static int test_fb(int x, int y, fb_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"fb %dx%dx%d [%dx%d]", video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"fb %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
 	++y;
 
 	y = test_crtc(x,y,&mode->crtc,1,1,1);
+	y = test_default_command(x,y);
+	return y;
+}
+#endif
+
+#ifdef USE_VIDEO_SDL
+static int test_sdl(int x, int y, sdl_video_mode* mode) {
+	char buffer[256];
+
+	draw_test_default();
+
+	sprintf(buffer,"sdl %s %dx%dx%d [%dx%d]", index_name(video_index()), video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
+	++y;
+
+	++y;
+
 	y = test_default_command(x,y);
 	return y;
 }
@@ -625,7 +643,7 @@ static int test_vga(int x, int y, vga_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"BIOS vga 0x%x %dx%dx%d [%dx%d]", mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"vga %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -653,7 +671,7 @@ static int test_vbe(int x, int y, vbe_video_mode* mode) {
 
 	draw_test_default();
 
-	sprintf(buffer,"BIOS vbe 0x%x %dx%dx%d [%dx%d]", mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
+	sprintf(buffer,"vbe %s 0x%x %dx%dx%d [%dx%d]", index_name(video_index()), mode->mode, video_size_x(), video_size_y(), video_bits_per_pixel(), video_virtual_x(), video_virtual_y());
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
@@ -706,6 +724,10 @@ static int test_draw(int x, int y, adv_mode* mode) {
 #ifdef USE_VIDEO_FB
 	else if (video_current_driver() == &video_fb_driver)
 		y = test_fb(x,y,(fb_video_mode*)mode->driver_mode);
+#endif
+#ifdef USE_VIDEO_SDL
+	else if (video_current_driver() == &video_sdl_driver)
+		y = test_sdl(x,y,(sdl_video_mode*)mode->driver_mode);
 #endif
 	return y;
 }
@@ -904,24 +926,26 @@ static int test_exe_crtc(int userkey, adv_crtc* crtc) {
 
 static void cmd_type(int key) {
 	if (key == INPUTB_RIGHT) {
-		switch (the_mode_bit) {
-			case 0 : the_mode_bit = 8; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 8 : the_mode_bit = 15; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 15 : the_mode_bit = 16; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 16 : the_mode_bit = 24; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 24 : the_mode_bit = 32; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 32 : the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
-			default: the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
+		switch (the_mode_index) {
+			case MODE_FLAGS_INDEX_TEXT : the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
+			case MODE_FLAGS_INDEX_PALETTE8 : the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
+			case MODE_FLAGS_INDEX_BGR8 : the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
+			case MODE_FLAGS_INDEX_BGR15 : the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
+			case MODE_FLAGS_INDEX_BGR16 : the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
+			case MODE_FLAGS_INDEX_BGR24 : the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
+			case MODE_FLAGS_INDEX_BGR32 : the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
+			case MODE_FLAGS_INDEX_YUY2 : the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
 		}
 	} else {
-		switch (the_mode_bit) {
-			case 15 : the_mode_bit = 8; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 16 : the_mode_bit = 15; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 24 : the_mode_bit = 16; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 32 : the_mode_bit = 24; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 0 : the_mode_bit = 32; the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB; break;
-			case 8 : the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
-			default: the_mode_bit = 0; the_mode_type = MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT; break;
+		switch (the_mode_index) {
+			case MODE_FLAGS_INDEX_TEXT : the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
+			case MODE_FLAGS_INDEX_PALETTE8 : the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
+			case MODE_FLAGS_INDEX_BGR8 : the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
+			case MODE_FLAGS_INDEX_BGR15 : the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
+			case MODE_FLAGS_INDEX_BGR16 : the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
+			case MODE_FLAGS_INDEX_BGR24 : the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
+			case MODE_FLAGS_INDEX_BGR32 : the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
+			case MODE_FLAGS_INDEX_YUY2 : the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
 		}
 	}
 }
@@ -987,7 +1011,7 @@ static int cmd_onvideo_test(void) {
 	if (!crtc_clock_check(&the_monitor,crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc,the_mode_bit,the_mode_type)!=0) {
+	if (video_mode_generate(&mode,crtc,the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1042,7 +1066,7 @@ static int cmd_onvideo_test(void) {
 				dirty = 1;
 
 				if (crtc_clock_check(&the_monitor,crtc)
-					&& video_mode_generate(&mode,crtc,the_mode_bit,the_mode_type)==0) {
+					&& video_mode_generate(&mode,crtc,the_mode_index)==0) {
 					if (video_mode_set(&mode) != 0) {
 						/* abort */
 						*crtc = crtc_save;
@@ -1075,7 +1099,7 @@ static int cmd_onvideo_calib(void) {
 
 	mode_reset(&mode);
 
-	if ((the_mode_type & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
+	if (the_mode_index == MODE_FLAGS_INDEX_TEXT) {
 		error_set("Command supported only in graphics mode");
 		return -1;
 	}
@@ -1087,7 +1111,7 @@ static int cmd_onvideo_calib(void) {
 	if (!crtc_clock_check(&the_monitor,crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc,the_mode_bit,the_mode_type)!=0) {
+	if (video_mode_generate(&mode,crtc,the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1127,7 +1151,7 @@ static int cmd_onvideo_animate(void) {
 
 	mode_reset(&mode);
 
-	if ((the_mode_type & MODE_FLAGS_TYPE_MASK) != MODE_FLAGS_TYPE_GRAPHICS) {
+	if (the_mode_index == MODE_FLAGS_INDEX_TEXT) {
 		error_set("Command supported only in graphics mode");
 		return -1;
 	}
@@ -1139,7 +1163,7 @@ static int cmd_onvideo_animate(void) {
 	if (!crtc_clock_check(&the_monitor,crtc))
 		return -1;
 
-	if (video_mode_generate(&mode,crtc,the_mode_bit,the_mode_type)!=0) {
+	if (video_mode_generate(&mode,crtc, the_mode_index)!=0) {
 		return -1;
 	}
 
@@ -1320,54 +1344,6 @@ static int cmd_modeline_create(int favourite_vtotal) {
 	return 0;
 }
 
-/*
-static int cmd_modeline_create_gtf(void) {
-	adv_crtc crtc;
-	char buffer[80];
-	double freq = 0;
-	unsigned x;
-	unsigned y;
-
-	strcpy(crtc.name,"gtf_created");
-
-	strcpy(buffer,"");
-	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ",buffer,10)!=0)
-		return 0;
-	freq = strtod(buffer,0);
-	if (freq < 10 || freq > 200) {
-		error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
-		return -1;
-	}
-
-	strcpy(buffer,"");
-	if (cmd_input_string(" X resolution [pixel] : ",buffer,10)!=0)
-		return 0;
-	x = atoi(buffer);
-	if (x < 64 || x > 2048) {
-		error_set("Invalid x resolution value");
-		return -1;
-	}
-
-	strcpy(buffer,"");
-	if (cmd_input_string(" Y resolution [pixel] : ",buffer,10)!=0)
-		return 0;
-	y = atoi(buffer);
-	if (y < 64 || y > 2048) {
-		error_set("Invalid y resolution value");
-		return -1;
-	}
-
-	if (gtf_find(&crtc, x, y, freq, &the_monitor, &the_gtf, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GTF_ADJUST_EXACT | GTF_ADJUST_VCLOCK) != 0) {
-		error_set("Request out of your monitor range");
-		return -1;
-	}
-
-	menu_insert(&crtc);
-
-	return 0;
-}
-*/
-
 static int cmd_mode_clock(void) {
 	adv_crtc* crtc;
 	char buffer[80];
@@ -1502,7 +1478,7 @@ static int menu_run(void) {
 
 	done = 0;
 	while (!done) {
-		draw_text_bit(BAR_X,BAR_Y1+1,BAR_DX);
+		draw_text_index(BAR_X,BAR_Y1+1,BAR_DX);
 		draw_text_bar(BAR_X,BAR_Y1,BAR_Y2,BAR_DX);
 		draw_text_info(INFO_X,INFO_Y,INFO_DX,INFO_DY,menu_base + menu_rel);
 		menu_draw(MENU_X,MENU_Y,MENU_DX,MENU_DY);
@@ -1845,14 +1821,29 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (video_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_os;
 	}
 
 	if (video_blit_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_video;
 	}
 
+	if (the_advance != advance_vbe && the_advance != advance_vga)
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+		target_err("No driver is able to program your video board in this context.\n");
+#ifdef __WIN32__
+		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
+#endif
+#ifdef unix
+		target_err("Ensure to not run this program in X.\n");
+#endif
+		goto err_blit;
+	}
+
 	if (inputb_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_blit;
 	}
 

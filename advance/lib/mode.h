@@ -70,33 +70,39 @@ extern "C" {
  * Flags describing the color index of a video mode.
  */
 /*@{*/
-#define MODE_FLAGS_INDEX_RGB 0x0100 /**< RGB mode. */
-#define MODE_FLAGS_INDEX_PACKED 0x0200 /**< Palette mode. */
-#define MODE_FLAGS_INDEX_TEXT 0x0300 /**< Text mode. */
-#define MODE_FLAGS_INDEX_MASK 0x0F00 /**< Mask. */
+#define MODE_FLAGS_INDEX_NONE 0x0000 /**< None mode. */
+#define MODE_FLAGS_INDEX_PALETTE8 0x0100 /**< Palette mode. */
+#define MODE_FLAGS_INDEX_BGR8 0x0200 /**< BGR8 mode. */
+#define MODE_FLAGS_INDEX_BGR15 0x0300 /**< BGR15 mode. */
+#define MODE_FLAGS_INDEX_BGR16 0x0400 /**< BGR16 mode. */
+#define MODE_FLAGS_INDEX_BGR24 0x0500 /**< BGR24 mode. */
+#define MODE_FLAGS_INDEX_BGR32 0x0600 /**< BGR32 mode. */
+#define MODE_FLAGS_INDEX_YUY2 0x0700 /**< YUY2 mode. */
+#define MODE_FLAGS_INDEX_TEXT 0x0800 /**< Text mode. */
+#define MODE_FLAGS_INDEX_MASK 0xFF00 /**< Mask. */
 /*@}*/
 
-/** \name Flags type
- * Flags describing the type of a video mode.
+/** \name Flags internal
+ * Flags describing internak info.
  */
 /*@{*/
-#define MODE_FLAGS_TYPE_TEXT 0x1000 /**< Text mode. */
-#define MODE_FLAGS_TYPE_GRAPHICS 0x2000 /**< Graphics mode. */
-#define MODE_FLAGS_TYPE_MASK 0xF000 /**< Mask. */
+#define MODE_FLAGS_INTERNAL_FAKERGB 0x10000 /**< If it's a rgb over a palette. */
+#define MODE_FLAGS_INTERNAL_FAKETEXT 0x20000 /**< If it's a text mode over a graphics mode. */
+#define MODE_FLAGS_INTERNAL_MASK 0xF0000 /**< Mask. */
 /*@}*/
 
 /** \name Flags user
  * Flags for the user.
  */
 /*@{*/
-#define MODE_FLAGS_USER_BIT0 0x10000000 /**< First user flag. */
-#define MODE_FLAGS_USER_MASK 0xF0000000 /**< Mask. */
+#define MODE_FLAGS_USER_BIT0 0x01000000 /**< First user flag. */
+#define MODE_FLAGS_USER_MASK 0xFF000000 /**< Mask. */
 /*@}*/
 
 /**
- * Max size of a driver video mode
+ * Max size of a driver video mode.
  */
-#define MODE_DRIVER_MODE_SIZE_MAX (sizeof(adv_crtc)+16)
+#define MODE_DRIVER_MODE_SIZE_MAX 256
 
 /**
  * Max length of video mode name.
@@ -116,11 +122,86 @@ typedef struct vmode_struct {
 	double vclock; /**< Vertical freq, ==0 if not computable. */
 	double hclock; /**< Horiz freq, ==0 if not computable. */
 	int scan; /**< Scan mode. 0=singlescan, 1=doublescan, -1=interlace. */
-	unsigned bits_per_pixel; /**< graph=8,15,16,24,32, text=0 */
 
 	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX]; /**< Driver mode information. */
 	struct adv_video_driver_struct* driver; /**< Video driver of the mode. */
 } adv_mode;
+
+/**
+ * Get the bits_per_pixel of a index.
+ * \return
+ *   - ==0 on error
+ *   - !=0 bits_per_pixel
+ */
+static inline unsigned index_bits_per_pixel(unsigned index) {
+	switch (index) {
+	case MODE_FLAGS_INDEX_PALETTE8 : return 8;
+	case MODE_FLAGS_INDEX_BGR8 : return 8;
+	case MODE_FLAGS_INDEX_BGR15 : return 15;
+	case MODE_FLAGS_INDEX_BGR16 : return 16;
+	case MODE_FLAGS_INDEX_BGR24 : return 24;
+	case MODE_FLAGS_INDEX_BGR32 : return 32;
+	case MODE_FLAGS_INDEX_YUY2 : return 32;
+	case MODE_FLAGS_INDEX_TEXT : return 16;
+	default: return 0;
+	}
+}
+
+/**
+ * Get the bytes_per_pixel of a index.
+ * \return
+ *   - ==0 on error
+ *   - !=0 bits_per_pixel
+ */
+static inline unsigned index_bytes_per_pixel(unsigned index) {
+	switch (index) {
+	case MODE_FLAGS_INDEX_PALETTE8 : return 1;
+	case MODE_FLAGS_INDEX_BGR8 : return 1;
+	case MODE_FLAGS_INDEX_BGR15 : return 2;
+	case MODE_FLAGS_INDEX_BGR16 : return 2;
+	case MODE_FLAGS_INDEX_BGR24 : return 3;
+	case MODE_FLAGS_INDEX_BGR32 : return 4;
+	case MODE_FLAGS_INDEX_YUY2 : return 4;
+	case MODE_FLAGS_INDEX_TEXT : return 2;
+	default: return 0;
+	}
+}
+
+/**
+ * Get the index name.
+ */
+static inline const char* index_name(unsigned index) {
+	switch (index) {
+	case MODE_FLAGS_INDEX_PALETTE8 : return "palette8";
+	case MODE_FLAGS_INDEX_BGR8 : return "bgr8";
+	case MODE_FLAGS_INDEX_BGR15 : return "bgr15";
+	case MODE_FLAGS_INDEX_BGR16 : return "bgr16";
+	case MODE_FLAGS_INDEX_BGR24 : return "bgr24";
+	case MODE_FLAGS_INDEX_BGR32 : return "bgr32";
+	case MODE_FLAGS_INDEX_YUY2 : return "yuy2";
+	case MODE_FLAGS_INDEX_TEXT : return "text";
+	default: return "unknown";
+	}
+}
+
+/**
+ * Check if a index is a RGB mode.
+ * \return
+ *   - ==0 on error
+ *   - !=0 bits_per_pixel
+ */
+static inline adv_bool index_is_rgb(unsigned index) {
+	switch (index & MODE_FLAGS_INDEX_MASK) {
+	case MODE_FLAGS_INDEX_BGR8 :
+	case MODE_FLAGS_INDEX_BGR15 :
+	case MODE_FLAGS_INDEX_BGR16 :
+	case MODE_FLAGS_INDEX_BGR24 :
+	case MODE_FLAGS_INDEX_BGR32 :
+		return 1;
+	default:
+		return 0;
+	}
+}
 
 /**
  * Get the name of a video mode.
@@ -168,14 +249,14 @@ static inline unsigned mode_size_y(const adv_mode* mode) {
  * Get the bits per pixel of a video mode.
  */
 static inline unsigned mode_bits_per_pixel(const adv_mode* mode) {
-	return mode->bits_per_pixel;
+	return index_bits_per_pixel(mode->flags & MODE_FLAGS_INDEX_MASK);
 }
 
 /**
  * Get the bytes per pixel of a video mode.
  */
 static inline unsigned mode_bytes_per_pixel(const adv_mode* mode) {
-	return (mode_bits_per_pixel(mode) + 7) / 8;
+	return index_bytes_per_pixel(mode->flags & MODE_FLAGS_INDEX_MASK);
 }
 
 /**
@@ -194,14 +275,6 @@ static inline unsigned mode_index(const adv_mode* mode) {
 }
 
 /**
- * Get the type of a video mode.
- * \return One of the MODE_FLAGS_TYPE_* flags.
- */
-static inline unsigned mode_type(const adv_mode* mode) {
-	return mode_flags(mode) & MODE_FLAGS_TYPE_MASK;
-}
-
-/**
  * Get the memory mode of a video mode.
  * \return One of the MODE_FLAGS_MEMORY_* flags.
  */
@@ -213,14 +286,14 @@ static inline unsigned mode_memory(const adv_mode* mode) {
  * Check if a video mode is a text mode.
  */
 static inline adv_bool mode_is_text(const adv_mode* mode) {
-	return mode_type(mode) == MODE_FLAGS_TYPE_TEXT;
+	return mode_index(mode) == MODE_FLAGS_INDEX_TEXT;
 }
 
 /**
  * Check if a video mode is a graphics mode.
  */
 static inline adv_bool mode_is_graphics(const adv_mode* mode) {
-	return mode_type(mode) == MODE_FLAGS_TYPE_GRAPHICS;
+	return !mode_is_text(mode);
 }
 
 /**

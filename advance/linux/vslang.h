@@ -46,38 +46,6 @@ typedef struct slang_video_mode_struct {
 	unsigned font_size_y;
 } slang_video_mode;
 
-adv_error slang_init(int device_id);
-void slang_done(void);
-
-adv_bool slang_is_active(void);
-adv_bool slang_mode_is_active(void);
-
-unsigned slang_flags(void);
-
-adv_error slang_mode_set(const slang_video_mode* mode);
-void slang_mode_done(adv_bool restore);
-
-unsigned slang_virtual_x(void);
-unsigned slang_virtual_y(void);
-unsigned slang_bytes_per_scanline(void);
-unsigned slang_adjust_bytes_per_page(unsigned bytes_per_page);
-adv_rgb_def slang_rgb_def(void);
-
-extern unsigned char* (*slang_write_line)(unsigned y);
-
-void slang_wait_vsync(void);
-adv_error slang_scroll(unsigned offset, adv_bool waitvsync);
-adv_error slang_scanline_set(unsigned byte_length);
-adv_error slang_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
-
-adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode);
-adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
-int slang_mode_compare(const slang_video_mode* a, const slang_video_mode* b);
-
-void slang_default(void);
-void slang_reg(adv_conf* context);
-adv_error slang_load(adv_conf* context);
-
 /**
  * Video driver "slang".
  * \ingroup Video

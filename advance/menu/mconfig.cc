@@ -99,13 +99,6 @@ static adv_conf_enum_int OPTION_MERGE[] = {
 { "disable", merge_disable }
 };
 
-static adv_conf_enum_int OPTION_DEPTH[] = {
-{ "8", 8 },
-{ "15", 15 },
-{ "16", 16 },
-{ "32", 32 }
-};
-
 static void config_error_la(const string& line, const string& arg) {
 	target_err("Invalid argument '%s' at line '%s'.\n", arg.c_str(), line.c_str());
 }
@@ -224,7 +217,6 @@ void config_state::conf_register(adv_conf* config_context) {
 	conf_string_register_default(config_context, "sound_background_stop", "none");
 	conf_string_register_default(config_context, "sound_background_loop_dir", "\"mp3\"");
 	conf_int_register_limit_default(config_context, "video_size",160,2048,1024);
-	conf_int_register_enum_default(config_context, "video_depth", conf_enum(OPTION_DEPTH), 16);
 	conf_string_register_default(config_context, "video_font", "none");
 	conf_string_register_default(config_context, "video_orientation", "");
 	conf_float_register_limit_default(config_context,"video_gamma",0.2,5,1);
@@ -621,7 +613,6 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose) {
 	repeat = atoi( a0.c_str() );
 	repeat_rep = atoi( a1.c_str() );
 	video_size = conf_int_get_default(config_context, "video_size");
-	video_depth = conf_int_get_default(config_context, "video_depth");
 	if (!config_path_import(conf_string_get_default(config_context, "video_font"), a0))
 		return false;
 	video_font_path = a0;

@@ -42,42 +42,9 @@ extern "C" {
 #endif
 
 typedef struct svgalib_video_mode_struct {
-	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
+	unsigned index; /**< Mode index. */
 	adv_crtc crtc; /**< CRTC values */
 } svgalib_video_mode;
-
-adv_error svgalib_init(int device_id);
-void svgalib_done(void);
-
-adv_bool svgalib_is_active(void);
-adv_bool svgalib_mode_is_active(void);
-
-unsigned svgalib_flags(void);
-
-adv_error svgalib_mode_set(const svgalib_video_mode* mode);
-adv_error svgalib_mode_change(const svgalib_video_mode* mode);
-void svgalib_mode_done(adv_bool restore);
-
-unsigned svgalib_virtual_x(void);
-unsigned svgalib_virtual_y(void);
-unsigned svgalib_bytes_per_scanline(void);
-unsigned svgalib_adjust_bytes_per_page(unsigned bytes_per_page);
-adv_rgb_def svgalib_rgb_def(void);
-
-extern unsigned char* (*svgalib_write_line)(unsigned y);
-
-void svgalib_wait_vsync(void);
-adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync);
-adv_error svgalib_scanline_set(unsigned byte_length);
-adv_error svgalib_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
-
-adv_error svgalib_mode_import(adv_mode* mode, const svgalib_video_mode* svgalib_mode);
-adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
-int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b);
-
-void svgalib_default(void);
-void svgalib_reg(adv_conf* context);
-adv_error svgalib_load(adv_conf* context);
 
 /**
  * Video driver "svgalib".

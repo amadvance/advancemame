@@ -61,7 +61,7 @@ void vgaline_mode_done(adv_bool restore);
 
 adv_error vgaline_mode_grab(vgaline_video_mode* mode);
 adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_mode);
-adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags);
 int vgaline_mode_compare(const vgaline_video_mode* a, const vgaline_video_mode* b);
 
 adv_error crtc_import(adv_crtc* crtc, struct vga_info* info, unsigned size_x, unsigned size_y, double vclock);

@@ -785,13 +785,13 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	GLUE.option.fps = params->fps;
 
 	if (GLUE.option.bits_per_pixel == 8 || GLUE.option.bits_per_pixel == 16) {
-		GLUE.option.rgb_def = 0;
+		GLUE.option.color_def = 0;
 		GLUE.option.rgb_flag = 0;
 	} else if (GLUE.option.bits_per_pixel == 15) {
-		GLUE.option.rgb_def = rgb_def_make(5,10,5,5,5,0);
+		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(2,5,10,5,5,5,0);
 		GLUE.option.rgb_flag = 1;
 	} else if (GLUE.option.bits_per_pixel == 32) {
-		GLUE.option.rgb_def = rgb_def_make(8,16,8,8,8,0);
+		GLUE.option.color_def = color_def_make_from_rgb_sizelenpos(4,8,16,8,8,8,0);
 		GLUE.option.rgb_flag = 1;
 	} else
 		return -1;

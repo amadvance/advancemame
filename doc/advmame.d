@@ -570,15 +570,21 @@ Configuration
 	`display_resize mixed' for an Arcade/TV to disable
 	software stretching.
 
-    display_depth
-	Control the bit depth of the video mode.
+    display_color
+	Control the color format of the video mode.
 
-	:display_depth auto | 8 | 15 | 16 | 32
+	:display_color auto | palette8 | bgr8 | bgr15 | bgr16 | bgr32 | yuy2
 
 	Options:
 		auto - Automatically choose the best option.
-		8 - 8 bit palettized/RGB mode.
-		15,16,32 - 15, 16, 32 bit RGB modes.
+		palette8 - Palettized 8 bits mode.
+		bgr8 - RGB 8 bits mode.
+		bgr15 - RGB 15 bits mode.
+		bgr16 - RGB 16 bits mode.
+		bgr32 - RGB 32 bits mode.
+		yuy2 - YUV mode in the YUY2 format.
+
+	Note that the bgr24 color mode isn't really supported.
 
     display_resize
 	Used to suggest the favourite image stretching.
@@ -605,15 +611,6 @@ Configuration
 	This option doesn't have any effect for vector games.
 
 	:display_magnify yes | no
-
-    display_rgb
-	Used to suggest the use of a RGB video mode.
-
-	:display_rgb yes | no
-
-	Note that if you set it to `no' a RGB mode can be selected
-	anyway if it's required by the game. This option is
-	useful to force a RGB mode to enable the other effects.
 
     display_scanlines
 	Used to suggest the use of hardware scanlines when choosing
@@ -985,7 +982,7 @@ Configuration
   Input Configuration Options
 
     device_keyboard
-	Enables or disables keyboard support.
+	Selects the keyboard drivers.
 
 	:device_keyboard auto | none
 
@@ -994,38 +991,15 @@ Configuration
 		auto - Automatic detection (default).
 
 	Options for the Linux version:
-		svgalib - SVGALIB keyboard.
-		sdl - SDL keyboard (available only if the SDL video is used).
-		raw - Linux RAW keyboard interface.
-
-    device_mouse
-	Enables or disables mouse support.
-
-	:device_mouse auto | none
-
-	Options:
-		none - No mouse (default).
-		auto - Automatic detection.
-
-	Options for the Linux version:
-		svgalib - SVGALIB automatic detection.
-		sdl - SDL automatic detection.
-
-	If you use the `svgalib' driver remember to configure the
-	correct mouse in the SVGALIB configuration file.
-
-	Options for the DOS version:
-		allegro - Allegro automatic detection.
-
-	The Allegro driver also uses the special `optimous' driver
-	for a second mouse. The `optimous' driver is available in
-	the `contrib/' directory.
-
-	Options for the Windows version:
-		sdl - SDL automatic detection.
+		svgalib - SVGALIB keyboard. This driver is not available
+			if the SDL video output is used.
+		raw - Linux RAW kernel keyboard interface. This driver
+			is not available if the SDL video output is used.
+		sdl - SDL keyboard. This driver is available
+			only if the SDL video output is used.
 
     device_joystick
-	Enables or disables joystick support.
+	Selects the joystick driver.
 
 	:device_joystick auto | none | DEVICE
 
@@ -1073,6 +1047,32 @@ Configuration
 		allegro/segapci - IF-SEGA2/PCI.
 		allegro/segapcifast - IF-SEGA2/PCI (normal).
 		allegro/wingwarrior - Wingman Warrior.
+
+	Options for the Windows version:
+		sdl - SDL automatic detection.
+
+    device_mouse
+	Selects the mouse driver.
+
+	:device_mouse auto | none
+
+	Options:
+		none - No mouse (default).
+		auto - Automatic detection.
+
+	Options for the Linux version:
+		svgalib - SVGALIB automatic detection.
+		sdl - SDL automatic detection.
+
+	If you use the `svgalib' driver remember to configure the
+	correct mouse in the SVGALIB configuration file.
+
+	Options for the DOS version:
+		allegro - Allegro automatic detection.
+
+	The Allegro driver also uses the special `optimous' driver
+	for a second mouse. The `optimous' driver is available in
+	the `contrib/' directory.
 
 	Options for the Windows version:
 		sdl - SDL automatic detection.
@@ -1237,7 +1237,8 @@ Configuration
 		:record_video_interleave 1
 
   Misc Configuration Options
-    misc_smp [Linux Only]
+
+    misc_smp
 	Enables the "Symmetric Multi-Processing" (SMP).
 	This option use two concurrent threads. One for MAME and one
 	for updating the screen.
@@ -1328,7 +1329,7 @@ Configuration
 
 	These files should reside in current directory for the
 	DOS and Windows versions or in the $root or $home directories 
-	for the	Linux version.
+	for the Linux version.
 
     misc_cheat
 	Enable or disable the cheat system. It may also change the

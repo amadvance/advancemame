@@ -63,6 +63,8 @@ CFGOBJS += \
 	$(CFGOBJ)/linux/vsvgab.o
 endif
 ifeq ($(CONF_LIB_FB),yes)
+CFGCFLAGS += \
+	-DUSE_VIDEO_FB
 CFGOBJS += \
 	$(CFGOBJ)/linux/vfb.o
 endif

@@ -103,7 +103,8 @@ static struct vbeline_option_struct vbeline_option;
 /***************************************************************************/
 /* Card interface */
 
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT
+#define VIDEO_DRIVER_FLAGS_MODE_12BYTES \
+	VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16
 
 static adv_device DEVICE[] = {
 { "auto", 1, "VBELINE video" },
@@ -124,18 +125,18 @@ static adv_device DEVICE[] = {
 
 vbeline_chipset cards[] =
 {
-	{ "laguna", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, laguna_detect, laguna_set, laguna_reset }, /* Laguna driver */
-	{ "3dfx", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, tdfx_detect, tdfx_set, tdfx_reset }, /* 3dfx driver */
-	{ "savage", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, savage_detect, savage_set, savage_reset}, /* Savage driver */
-	{ "sis", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, sis_detect, sis_set, sis_reset }, /* Sis driver */
-	{ "matrox", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, matrox_detect, matrox_set, matrox_reset }, /* Matrox driver */
-	{ "r128", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES | VBELINE_FLAGS_REQUIRES_VBE_SAVE, r128_detect, r128_set, r128_reset }, /* R128 driver */
-	{ "neomagic", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, neomagic_detect, neomagic_set, neomagic_reset }, /* NeoMagic driver */
-	{ "s3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, s3_detect, s3_set, s3_reset }, /* S3 driver */
-	{ "trident", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, trident_detect, trident_set, trident_reset }, /* Trident driver */
-	{ "ati", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, ati_detect, ati_set, ati_reset } , /* ATI driver */
-	{ "cirrus", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_12BYTES, cirrus_detect, cirrus_set, cirrus_reset }, /* Cirrus driver */
-	{ "vbe3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VBELINE_FLAGS_REQUIRES_VBE3_SET, vbe3_detect, vbe3_set, vbe3_reset }, /* VBE3 driver */
+	{ "laguna", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, laguna_detect, laguna_set, laguna_reset }, /* Laguna driver */
+	{ "3dfx", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_12BYTES, tdfx_detect, tdfx_set, tdfx_reset }, /* 3dfx driver */
+	{ "savage", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, savage_detect, savage_set, savage_reset}, /* Savage driver */
+	{ "sis", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, sis_detect, sis_set, sis_reset }, /* Sis driver */
+	{ "matrox", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, matrox_detect, matrox_set, matrox_reset }, /* Matrox driver */
+	{ "r128", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES | VBELINE_FLAGS_REQUIRES_VBE_SAVE, r128_detect, r128_set, r128_reset }, /* R128 driver */
+	{ "neomagic", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_12BYTES, neomagic_detect, neomagic_set, neomagic_reset }, /* NeoMagic driver */
+	{ "s3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, s3_detect, s3_set, s3_reset }, /* S3 driver */
+	{ "trident", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, trident_detect, trident_set, trident_reset }, /* Trident driver */
+	{ "ati", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, ati_detect, ati_set, ati_reset } , /* ATI driver */
+	{ "cirrus", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, cirrus_detect, cirrus_set, cirrus_reset }, /* Cirrus driver */
+	{ "vbe3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES | VBELINE_FLAGS_REQUIRES_VBE3_SET, vbe3_detect, vbe3_set, vbe3_reset }, /* VBE3 driver */
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -250,15 +251,15 @@ static void vbeline_probe(void) {
 
 	/* remove unsupported bit depth */
 	if (!has8bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	if (!has15bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	if (!has16bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	if (!has24bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT;
+		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	if (!has32bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
 adv_error vbeline_init(int device_id) {
@@ -267,6 +268,9 @@ adv_error vbeline_init(int device_id) {
 	const adv_device* j;
 
 	assert( !vbeline_is_active() );
+
+	if (sizeof(vbeline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
+		return -1;
 
 	j = DEVICE;
 	while (j->name && j->id != device_id)
@@ -559,8 +563,8 @@ void vbeline_wait_vsync(void) {
 	vbe_wait_vsync();
 }
 
-adv_error vbeline_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
-	adv_color vbe_pal[256];
+adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+	adv_color_rgb vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
 	if (shift) {
@@ -682,13 +686,20 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 		mode->flags |= MODE_FLAGS_SCROLL_SYNC;
 	switch (info.MemoryModel) {
 		case vbeMemTXT :
-			mode->flags |= MODE_FLAGS_INDEX_TEXT | MODE_FLAGS_TYPE_TEXT;
+			mode->flags |= MODE_FLAGS_INDEX_TEXT;
 			break;
 		case vbeMemPK :
-			mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS;
+			mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
 			break;
 		case vbeMemRGB :
-			mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS;
+			switch (info.BitsPerPixel) {
+			case 15 : mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
+			case 16 : mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
+			case 24 : mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
+			case 32 : mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
+			default:
+				return -1;
+			}
 			break;
 		default :
 			return -1;
@@ -702,7 +713,6 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 	mode->size_y = DRIVER(mode)->crtc.vde;
 	mode->vclock = crtc_vclock_get(&DRIVER(mode)->crtc);
 	mode->hclock = crtc_hclock_get(&DRIVER(mode)->crtc);
-	mode->bits_per_pixel = info.BitsPerPixel;
 	mode->scan = crtc_scan_get(&DRIVER(mode)->crtc);
 
 	return 0;
@@ -860,21 +870,36 @@ static adv_error vbeline_search_target_mode(unsigned req_x, unsigned req_y, unsi
 	return -1;
 }
 
-adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
+adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, unsigned flags) {
 	int number;
 	unsigned model;
+	unsigned bits;
 
 	assert( vbeline_is_active() );
 
-	if (video_mode_generate_check("vbeline",vbeline_flags(),8,2048,crtc,bits,flags)!=0)
+	if (video_mode_generate_check("vbeline",vbeline_flags(),8,2048,crtc,flags)!=0)
 		return -1;
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_RGB :
+		case MODE_FLAGS_INDEX_PALETTE8 :
+			bits = 8;
+			model = vbeMemPK;
+			break;
+		case MODE_FLAGS_INDEX_BGR15 :
+			bits = 15;
 			model = vbeMemRGB;
 			break;
-		case MODE_FLAGS_INDEX_PACKED :
-			model = vbeMemPK;
+		case MODE_FLAGS_INDEX_BGR16 :
+			bits = 16;
+			model = vbeMemRGB;
+			break;
+		case MODE_FLAGS_INDEX_BGR24 :
+			bits = 24;
+			model = vbeMemRGB;
+			break;
+		case MODE_FLAGS_INDEX_BGR32 :
+			bits = 32;
+			model = vbeMemRGB;
 			break;
 		default:
 			error_nolog_cat("vbeline: Invalid index mode\n");
@@ -884,10 +909,10 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 
 	mode->crtc = *crtc;
 
-	number = vbeline_search_target_mode(mode->crtc.hde,mode->crtc.vde,bits,model);
+	number = vbeline_search_target_mode(mode->crtc.hde,mode->crtc.vde,bits, model);
 	if (number < 0 && model == vbeMemRGB) {
 		model = vbeMemPK; /* the packed mode is better than RGB */
-		number = vbeline_search_target_mode(mode->crtc.hde,mode->crtc.vde,bits,model);
+		number = vbeline_search_target_mode(mode->crtc.hde, mode->crtc.vde, bits, model);
 	}
 	if (number < 0) {
 		error_nolog_cat("vbeline: No compatible VBE mode found\n");
@@ -983,8 +1008,8 @@ static adv_error vbeline_mode_import_void(adv_mode* mode, const void* vbeline_mo
 	return vbeline_mode_import(mode, (const vbeline_video_mode*)vbeline_mode);
 }
 
-static adv_error vbeline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return vbeline_mode_generate((vbeline_video_mode*)mode, crtc, bits, flags);
+static adv_error vbeline_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+	return vbeline_mode_generate((vbeline_video_mode*)mode, crtc, flags);
 }
 
 static int vbeline_mode_compare_void(const void* a, const void* b) {
@@ -1008,7 +1033,7 @@ adv_video_driver video_vbeline_driver = {
 	vbe_font_size_y,
 	vbe_bytes_per_scanline,
 	vbe_adjust_bytes_per_page,
-	vbe_rgb_def,
+	vbe_color_def,
 	0,
 	0,
 	&vbeline_write_line,

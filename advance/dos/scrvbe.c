@@ -1145,7 +1145,7 @@ adv_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
  * note:
  *   Prefferred are not real-protected switch required method
  */
-adv_error vbe_palette_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+adv_error vbe_palette_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned mode = waitvsync ? 0x80 : 0x0;
 
 	assert( vbe_is_active() && vbe_mode_is_active() );
@@ -1168,7 +1168,7 @@ adv_error vbe_palette_set(const adv_color* palette, unsigned start, unsigned cou
 
 		log_debug(("vbe: palette set (%d bit) with VBE bios\n",(unsigned)vbe_state.palette_width));
 
-		dosmemput(palette, count * sizeof(adv_color), __tb);
+		dosmemput(palette, count * sizeof(adv_color_rgb), __tb);
 
 		r.x.ax = 0x4F07;
 		r.x.bx = mode;

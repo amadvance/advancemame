@@ -41,7 +41,7 @@ typedef struct none_internal_struct {
 	adv_bool active;
 	adv_bool mode_active;
 
-	adv_rgb_def rgb_def;
+	adv_color_def color_def;
 	unsigned bytes_per_pixel;
 	unsigned bytes_per_scanline;
 	unsigned size;
@@ -78,6 +78,9 @@ static adv_bool none_mode_is_active(void) {
 static adv_error none_init(int device_id) {
 	assert( !none_is_active() );
 
+	if (sizeof(none_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
+		return -1;
+
 	none_state.size = 4*1024*1024;
 	none_state.pointer = 0;
 
@@ -95,36 +98,15 @@ static void none_done(void) {
 
 static unsigned none_flags(void) {
 	assert( none_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_MODE_YUY2
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 }
 
-static adv_error none_mode_set(const none_video_mode* mode) {
-
+static adv_error none_mode_set(const none_video_mode* mode)
+{
 	none_write_line = none_linear_write_line;
-	switch (mode->bits_per_pixel) {
-		case 8 :
-			none_state.bytes_per_pixel = 1;
-			none_state.rgb_def = 0;
-			break;
-		case 15 :
-			none_state.bytes_per_pixel = 2;
-			none_state.rgb_def = rgb_def_make(5,10,5,5,5,0);
-			break;
-		case 16 :
-			none_state.bytes_per_pixel = 2;
-			none_state.rgb_def = rgb_def_make(5,11,6,5,5,0);
-			break;
-		case 24 :
-			none_state.bytes_per_pixel = 3;
-			none_state.rgb_def = rgb_def_make(8,16,8,8,8,0);
-			break;
-		case 32 :
-			none_state.bytes_per_pixel = 4;
-			none_state.rgb_def = rgb_def_make(8,16,8,8,8,0);
-			break;
-		default :
-			return -1;
-	}
+	none_state.color_def = color_def_make_from_index(mode->index);
+	none_state.bytes_per_pixel = index_bytes_per_pixel(mode->index);
 
 	assert( !none_state.pointer );
 	none_state.pointer = (unsigned char*)malloc(none_state.size);
@@ -172,9 +154,9 @@ static unsigned none_bytes_per_scanline(void) {
 	return none_state.bytes_per_scanline;
 }
 
-static adv_rgb_def none_rgb_def(void) {
+static adv_color_def none_color_def(void) {
 	assert(none_is_active() && none_mode_is_active());
-	return none_state.rgb_def;
+	return none_state.color_def;
 }
 
 static void none_wait_vsync(void) {
@@ -192,7 +174,7 @@ static adv_error none_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-static adv_error none_palette8_set(const adv_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+static adv_error none_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	assert(none_is_active() && none_mode_is_active());
 	return 0;
 }
@@ -208,17 +190,12 @@ static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mo
 	mode->driver = &video_none_driver;
 	mode->flags = MODE_FLAGS_SCROLL_ASYNC
 		| MODE_FLAGS_MEMORY_LINEAR
-		| (mode->flags & MODE_FLAGS_USER_MASK);
-	switch (none_mode->bits_per_pixel) {
-		case 8 : mode->flags |= MODE_FLAGS_INDEX_PACKED | MODE_FLAGS_TYPE_GRAPHICS; break;
-		default: mode->flags |= MODE_FLAGS_INDEX_RGB | MODE_FLAGS_TYPE_GRAPHICS; break;
-	}
-
+		| (mode->flags & MODE_FLAGS_USER_MASK)
+		| none_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;
 	mode->size_y = DRIVER(mode)->crtc.vde;
 	mode->vclock = crtc_vclock_get(&DRIVER(mode)->crtc);
 	mode->hclock = crtc_hclock_get(&DRIVER(mode)->crtc);
-	mode->bits_per_pixel = none_mode->bits_per_pixel;
 
 	if (crtc_is_doublescan(&none_mode->crtc))
 		mode->scan = 1;
@@ -230,15 +207,15 @@ static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mo
 	return 0;
 }
 
-static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
+static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
 	assert( none_is_active() );
 
-	if (video_mode_generate_check("none",none_flags(),8,2048,crtc,bits,flags)!=0)
+	if (video_mode_generate_check("none",none_flags(),8,2048,crtc,flags)!=0)
 		return -1;
 
 	mode->crtc = *crtc;
-	mode->bits_per_pixel = bits;
+	mode->index = flags & MODE_FLAGS_INDEX_MASK;
 
 	return 0;
 }
@@ -250,8 +227,8 @@ static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc,
 		return 1
 
 static int none_mode_compare(const none_video_mode* a, const none_video_mode* b) {
-	COMPARE(a->bits_per_pixel,b->bits_per_pixel);
-	return crtc_compare(&a->crtc,&b->crtc);
+	COMPARE(a->index, b->index);
+	return crtc_compare(&a->crtc, &b->crtc);
 }
 
 static void none_reg(adv_conf* context) {
@@ -276,8 +253,8 @@ static adv_error none_mode_import_void(adv_mode* mode, const void* none_mode) {
 	return none_mode_import(mode, (const none_video_mode*)none_mode);
 }
 
-static adv_error none_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned bits, unsigned flags) {
-	return none_mode_generate((none_video_mode*)mode,crtc,bits,flags);
+static adv_error none_mode_generate_void(void* mode, const adv_crtc* crtc, unsigned flags) {
+	return none_mode_generate((none_video_mode*)mode,crtc,flags);
 }
 
 static int none_mode_compare_void(const void* a, const void* b) {
@@ -305,7 +282,7 @@ adv_video_driver video_none_driver = {
 	0,
 	none_bytes_per_scanline,
 	none_adjust_bytes_per_page,
-	none_rgb_def,
+	none_color_def,
 	0,
 	0,
 	&none_write_line,

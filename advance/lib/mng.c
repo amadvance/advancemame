@@ -27,12 +27,12 @@
 #include <string.h>
 
 /**************************************************************************************/
-/* adv_mng */
+/* MNG */
 
 static unsigned char MNG_Signature[] = "\x8A\x4D\x4E\x47\x0D\x0A\x1A\x0A";
 
 /**
- * Read the adv_mng file signature.
+ * Read the MNG file signature.
  * \param f File to read. 
  */
 adv_error mng_read_signature(adv_fz* f)
@@ -45,7 +45,7 @@ adv_error mng_read_signature(adv_fz* f)
 	}
 
 	if (memcmp(signature,MNG_Signature,8)!=0) {
-		error_set("Invalid adv_mng signature");
+		error_set("Invalid MNG signature");
 		return -1;
 	}
 
@@ -53,7 +53,7 @@ adv_error mng_read_signature(adv_fz* f)
 }
 
 /**
- * Write the adv_mng file signature.
+ * Write the MNG file signature.
  * \param f File to write.
  * \param count Pointer at the number of bytes written. It may be 0.
  */
@@ -495,8 +495,8 @@ static void mng_import(
 }
 
 /**
- * Read a adv_mng image.
- * \param mng adv_mng context previously returned by mng_init().
+ * Read a MNG image.
+ * \param mng MNG context previously returned by mng_init().
  * \param pix_width Where to put the image width.
  * \param pix_height Where to put the image height.
  * \param pix_pixel Where to put the image bytes per pixel.
@@ -616,9 +616,9 @@ err:
 }
 
 /**
- * Inizialize a adv_mng reading stream.
+ * Inizialize a MNG reading stream.
  * \param f File to read.
- * \return Return the adv_mng context. It must be destroied calling mng_done(). On error return 0.
+ * \return Return the MNG context. It must be destroied calling mng_done(). On error return 0.
  */
 adv_mng* mng_init(adv_fz* f)
 {
@@ -684,8 +684,8 @@ err:
 }
 
 /**
- * Destory a adv_mng context.
- * \param mng adv_mng context previously returned by mng_init().
+ * Destory a MNG context.
+ * \param mng MNG context previously returned by mng_init().
  */
 void mng_done(adv_mng* mng)
 {
@@ -695,9 +695,9 @@ void mng_done(adv_mng* mng)
 }
 
 /**
- * Get the base frequency of the adv_mng.
+ * Get the base frequency of the MNG.
  * This value can be used to convert the number of tick per frame in a time.
- * \param mng adv_mng context.
+ * \param mng MNG context.
  * \return Frequency in Hz.
  */
 unsigned mng_frequency_get(adv_mng* mng) {
@@ -706,7 +706,7 @@ unsigned mng_frequency_get(adv_mng* mng) {
 
 /**
  * Get the width of the frame.
- * \param mng adv_mng context.
+ * \param mng MNG context.
  * \return Width in pixel.
  */
 unsigned mng_width_get(adv_mng* mng) {
@@ -715,7 +715,7 @@ unsigned mng_width_get(adv_mng* mng) {
 
 /**
  * Get the height of the frame.
- * \param mng adv_mng context.
+ * \param mng MNG context.
  * \return height in pixel.
  */
 unsigned mng_height_get(adv_mng* mng) {

@@ -146,7 +146,7 @@ static int text_default_set(void) {
 			adv_mode mode;
 			if (strcmp(crtc->name,DEFAULT_TEXT_MODE)==0) {
 				if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor,crtc))
-					&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
+					&& video_mode_generate(&mode,crtc,MODE_FLAGS_INDEX_TEXT)==0) {
 					the_default_mode = mode;
 					the_default_mode_flag = 1;
 				}
@@ -161,7 +161,7 @@ static int text_default_set(void) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
 			if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor,crtc))
-				&& video_mode_generate(&mode,crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
+				&& video_mode_generate(&mode,crtc, MODE_FLAGS_INDEX_TEXT)==0) {
 				if (!the_default_mode_flag || text_crtc_compare(crtc,&default_crtc)>0) {
 					the_default_mode = mode;
 					default_crtc = *crtc;
@@ -177,7 +177,7 @@ static int text_default_set(void) {
 			adv_crtc crtc;
 			adv_mode mode;
 			crtc_fake_set(&crtc, 640, 480);
-			if (video_mode_generate(&mode,&crtc,0,MODE_FLAGS_TYPE_TEXT | MODE_FLAGS_INDEX_TEXT)==0) {
+			if (video_mode_generate(&mode,&crtc, MODE_FLAGS_INDEX_TEXT)==0) {
 				the_default_mode = mode;
 				the_default_mode_flag = 1;
 			}
@@ -315,8 +315,8 @@ static unsigned char draw_font[] = {
 
 unsigned draw_color(unsigned r, unsigned g, unsigned b) {
 	if (video_is_graphics()) {
-		adv_rgb c;
-		video_rgb_make(&c,r,g,b);
+		adv_pixel c;
+		video_pixel_make(&c,r,g,b);
 		return c;
 	} else if (video_is_text()) {
 		return (r >> 7) | ((g >> 7) << 1) | ((b >> 7) << 2);
@@ -489,10 +489,8 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 
 /* Set the default color palette */
 void draw_graphics_palette(void) {
-	if (video_type() == MODE_FLAGS_TYPE_GRAPHICS) {
-		if (video_index() == MODE_FLAGS_INDEX_PACKED) {
-			video_index_packed_to_rgb(0);
-		}
+	if (video_index() == MODE_FLAGS_INDEX_PALETTE8) {
+		video_index_packed_to_rgb(0);
 	}
 }
 
@@ -545,7 +543,7 @@ static void draw_graphics_ellipse(int xc, int yc, int a0, int b0, unsigned color
 /* Draw the animation screen */
 void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counter, int do_clear) {
 	if (video_is_graphics()) {
-		adv_rgb c;
+		adv_pixel c;
 
 		int dx = s_dx / (4*8);
 		int dy = s_dy / (3*8);
@@ -563,9 +561,9 @@ void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counte
 
 		/* draw bar */
 		if (do_clear)
-			video_rgb_make(&c,0,0,0);
+			video_pixel_make(&c,0,0,0);
 		else
-			video_rgb_make(&c,255,255,255);
+			video_pixel_make(&c,255,255,255);
 
 		video_clear(s_x + x,s_y,dx,s_dy,c);
 		video_clear(s_x,s_y+y,s_dx,dy,c);
@@ -602,7 +600,7 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 	draw_graphics_palette();
 
 	if (video_is_graphics()) {
-		adv_rgb c;
+		adv_pixel c;
 
 		unsigned dx = s_dx*3/5;
 		unsigned dy = s_dy*4/5;
@@ -613,11 +611,11 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 		unsigned dyS = dyB/4;
 
 		/* draw background */
-		video_rgb_make(&c,128,128,128);
+		video_pixel_make(&c,128,128,128);
 		video_clear(s_x,s_y,s_dx,s_dy,c);
 
 		/* draw rows */
-		video_rgb_make(&c,255,255,255);
+		video_pixel_make(&c,255,255,255);
 		for(i=0;i<15;++i)
 			video_clear(s_x,s_y + s_dy*i/15+s_dy/30,s_dx,1,c);
 
@@ -631,14 +629,14 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 		/* draw ramp */
 		for(i=0;i<dx;++i) {
 			switch (i*8/dx) {
-				case 0 : video_rgb_make(&c,255,255,255); break;
-				case 1 : video_rgb_make(&c,255,255,0); break;
-				case 2 : video_rgb_make(&c,0,255,255); break;
-				case 3 : video_rgb_make(&c,0,255,0); break;
-				case 4 : video_rgb_make(&c,255,0,255); break;
-				case 5 : video_rgb_make(&c,255,0,0); break;
-				case 6 : video_rgb_make(&c,0,0,255); break;
-				case 7 : video_rgb_make(&c,0,0,0); break;
+				case 0 : video_pixel_make(&c,255,255,255); break;
+				case 1 : video_pixel_make(&c,255,255,0); break;
+				case 2 : video_pixel_make(&c,0,255,255); break;
+				case 3 : video_pixel_make(&c,0,255,0); break;
+				case 4 : video_pixel_make(&c,255,0,255); break;
+				case 5 : video_pixel_make(&c,255,0,0); break;
+				case 6 : video_pixel_make(&c,0,0,255); break;
+				case 7 : video_pixel_make(&c,0,0,0); break;
 			}
 			for(j=0;j<dyB;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
@@ -646,12 +644,11 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 		y += dyB;
 
 		for(i=0;i<dx;++i) {
-			video_rgb_make(&c,i*255/dx,i*255/dx,i*255/dx);
+			video_pixel_make(&c,i*255/dx,i*255/dx,i*255/dx);
 			for(j=0;j<dyS;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
 		}
 		y += dyS;
-
 
 		k = 0;
 		l = 0;
@@ -662,9 +659,9 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 			}
 			++k;
 			if  (l)
-				video_rgb_make(&c,0,0,0);
+				video_pixel_make(&c,0,0,0);
 			else
-				video_rgb_make(&c,255,255,255);
+				video_pixel_make(&c,255,255,255);
 			for(j=0;j<dyM;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
 		}
@@ -672,9 +669,9 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 
 		for(i=0;i<dx;++i) {
 			if (i<dx/2)
-				video_rgb_make(&c,i*255/(dx/2),0,0);
+				video_pixel_make(&c,i*255/(dx/2),0,0);
 			else
-				video_rgb_make(&c,255,(i-dx/2)*255/(dx/2),(i-dx/2)*255/(dx/2));
+				video_pixel_make(&c,255,(i-dx/2)*255/(dx/2),(i-dx/2)*255/(dx/2));
 			for(j=0;j<dyS;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
 		}
@@ -682,9 +679,9 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 
 		for(i=0;i<dx;++i) {
 			if (i<dx/2)
-				video_rgb_make(&c,0,i*255/(dx/2),0);
+				video_pixel_make(&c,0,i*255/(dx/2),0);
 			else
-				video_rgb_make(&c,(i-dx/2)*255/(dx/2),255,(i-dx/2)*255/(dx/2));
+				video_pixel_make(&c,(i-dx/2)*255/(dx/2),255,(i-dx/2)*255/(dx/2));
 			for(j=0;j<dyS;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
 		}
@@ -692,9 +689,9 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 
 		for(i=0;i<dx;++i) {
 			if (i<dx/2)
-				video_rgb_make(&c,0,0,i*255/(dx/2));
+				video_pixel_make(&c,0,0,i*255/(dx/2));
 			else
-				video_rgb_make(&c,(i-dx/2)*255/(dx/2),(i-dx/2)*255/(dx/2),255);
+				video_pixel_make(&c,(i-dx/2)*255/(dx/2),(i-dx/2)*255/(dx/2),255);
 			for(j=0;j<dyS;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
 		}
@@ -702,11 +699,11 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 
 		for(i=0;i<dx;++i) {
 			switch (i*5/dx) {
-				case 0 : video_rgb_make(&c,0,0,0); break;
-				case 1 : video_rgb_make(&c,64,64,64); break;
-				case 2 : video_rgb_make(&c,128,128,128); break;
-				case 3 : video_rgb_make(&c,196,196,196); break;
-				case 4 : video_rgb_make(&c,255,255,255); break;
+				case 0 : video_pixel_make(&c,0,0,0); break;
+				case 1 : video_pixel_make(&c,64,64,64); break;
+				case 2 : video_pixel_make(&c,128,128,128); break;
+				case 3 : video_pixel_make(&c,196,196,196); break;
+				case 4 : video_pixel_make(&c,255,255,255); break;
 			}
 			for(j=0;j<dyM;++j)
 				video_put_pixel(s_x+x+i,s_y+y+j,c);
@@ -714,7 +711,7 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy) {
 		y += dyM;
 
 
-		video_rgb_make(&c,255,255,255);
+		video_pixel_make(&c,255,255,255);
 		draw_graphics_ellipse(s_dx / 2,  s_dy / 2, s_dx * 3 / 9, s_dy * 4 / 9, c);
 	}
 }
@@ -736,7 +733,7 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy) {
 		for(i=0;i<size;++i)
 			data[i] = i;
 
-		video_stretch_pipeline_init(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_current_rgb_def_get(), 0);
+		video_stretch_pipeline_init(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_color_def(), 0);
 
 		/* fill the cache */
 		video_blit_pipeline(&pipeline, s_x, s_y, data);
@@ -772,21 +769,21 @@ void draw_test_default(void) {
 	draw_graphics_palette();
 
 	if (video_is_graphics()) {
-		adv_rgb c;
+		adv_pixel c;
 
 		/* draw out of screen data */
-		video_rgb_make(&c,255,0,0);
+		video_pixel_make(&c,255,0,0);
 		for(i=0;i<video_size_x();++i)
 			video_put_pixel(i,video_size_y(),c);
 		for(j=0;j<video_size_y();++j)
 			video_put_pixel(video_size_x(),j,c);
 
 		/* draw background */
-		video_rgb_make(&c,0,0,0);
+		video_pixel_make(&c,0,0,0);
 		video_clear(0,0,video_size_x(),video_size_y(),c);
 
 		/* draw border */
-		video_rgb_make(&c,255,255,255);
+		video_pixel_make(&c,255,255,255);
 		for(i=0;i<video_size_x();++i) {
 			video_put_pixel(i,0,c);
 			video_put_pixel(i,video_size_y()-1,c);
@@ -797,7 +794,7 @@ void draw_test_default(void) {
 		}
 
 		/* draw grid */
-		video_rgb_make(&c,128,128,128);
+		video_pixel_make(&c,128,128,128);
 		for(i=TEST_DELTA1;i<video_size_x()-1;i += TEST_DELTA1)
 			for(j=TEST_DELTA2;j<video_size_y()-1;j += TEST_DELTA2)
 				video_put_pixel(i,j,c);
@@ -806,7 +803,7 @@ void draw_test_default(void) {
 				video_put_pixel(i,j,c);
 
 		/* draw line */
-		video_rgb_make(&c,196,196,196);
+		video_pixel_make(&c,196,196,196);
 		for(i=1;i<video_size_x()/2 && i<video_size_y()/2;++i) {
 			video_put_pixel(i,i,c);
 			video_put_pixel(video_size_x()-i-1,i,c);
