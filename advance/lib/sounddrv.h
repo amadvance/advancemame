@@ -113,6 +113,16 @@ void soundb_done(void);
 void soundb_abort(void);
 
 /**
+ * If the sound library is initialized.
+ */
+adv_bool soundb_is_active(void);
+
+/**
+ * If the sound library is playing.
+ */
+adv_bool soundb_is_playing(void);
+
+/**
  * Get the capabilities of the driver.
  */
 unsigned soundb_flags(void);

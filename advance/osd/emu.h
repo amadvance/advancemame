@@ -42,6 +42,7 @@
 #include "generate.h"
 #include "crtcbag.h"
 #include "blit.h"
+#include "filter.h"
 #include "font.h"
 
 #ifdef USE_LCD
@@ -235,6 +236,22 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 /***************************************************************************/
 /* UI */
 
+/** User interface colors. */
+/*@{*/
+#define UI_COLOR_INTERFACE_F 0
+#define UI_COLOR_INTERFACE_B 1
+#define UI_COLOR_TAG_F 2
+#define UI_COLOR_TAG_B 3
+#define UI_COLOR_SELECT_F 4
+#define UI_COLOR_SELECT_B 5
+#define UI_COLOR_HELP_P1 6
+#define UI_COLOR_HELP_P2 7
+#define UI_COLOR_HELP_P3 8
+#define UI_COLOR_HELP_P4 9
+#define UI_COLOR_HELP_OTHER 10
+#define UI_COLOR_MAX 11 /**< Max number of colors. */
+/*@}*/
+
 struct advance_ui_config_context {
 	unsigned help_mac; /**< Number of help entries. */
 	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
@@ -244,6 +261,7 @@ struct advance_ui_config_context {
 	unsigned ui_font_orientation; /**< Orientation for the font. */
 	unsigned ui_font_sizex; /**< X size of the font. */
 	unsigned ui_font_sizey; /**< Y size of the font. */
+	adv_color_rgb ui_color[UI_COLOR_MAX]; /**< Colors. */
 };
 
 struct advance_ui_state_context {
@@ -255,6 +273,7 @@ struct advance_ui_state_context {
 	adv_font* ui_font; /**< User interface font. */
 	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
 	adv_bool ui_menu_flag; /**< Menu display flag. */
+	const char* ui_menu_title; /**< Menu title. 0 for none. */
 	struct ui_menu_entry* ui_menu_map;
 	unsigned ui_menu_mac;
 	unsigned ui_menu_sel;
@@ -290,8 +309,8 @@ void advance_ui_direct_text(struct advance_ui_context* context, const char* text
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
-void advance_ui_menu(struct advance_ui_context* context, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
-void advance_ui_menu_vect(struct advance_ui_context* context, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
+void advance_ui_menu(struct advance_ui_context* context, const char* menu_title, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
+void advance_ui_menu_vect(struct advance_ui_context* context, const char* title, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
 void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
 void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
 adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
@@ -410,19 +429,24 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
-	int attenuation; /**< Sound attenuation in db (0 == full volume). */
-	adv_bool adjust_flag; /**< Adjust the sound volume. */
+	int attenuation; /**< Sound volume in db (0 == full volume). */
+	int adjust; /**< Initial adjust factor int db for sound normalization. */
+	adv_bool normalize_flag; /**< Adjust the sound volume. */
 	adv_bool mutedemo_flag; /**< Mute on demo. */
 	adv_bool mutestartup_flag; /**< Mute on startup. */
+	int equalizer_low;
+	int equalizer_mid;
+	int equalizer_high;
 };
 
 struct advance_sound_state_context {
 	adv_bool active_flag; /**< Flag for active sound. */
 
-	double volume; /**< Current volume. [0 - 1]. */
+	int adjust; /**< Current adjust factor int db for sound normalization. */
 
 	unsigned latency_min; /**< Expected minum latency in samples. */
 	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
+	double buffer_time; /**< Buffer size for sample in seconds. */
 	unsigned rate; /**< Current sample rate */
 	int input_mode; /**< Input mode format. */
 	int output_mode; /**< Output mode format. */
@@ -430,16 +454,28 @@ struct advance_sound_state_context {
 	unsigned output_bytes_per_sample; /**< Output data sample size. */
 	unsigned snapshot_counter; /**< Current snapshot counter */
 
+	unsigned sample_mult; /**< Current volume sample multiplicator. */
+
 	unsigned adjust_power_counter; /**< Sample counter for the power computation. */
 	unsigned adjust_power_counter_limit; /**< Limit for the counter. */
 	long long adjust_power_accumulator; /**< Power accumulator. */
-	long long adjust_power; /**< Current max normalized power. */
-	unsigned adjust_mult; /**< Sample multiplicator. */
+	long long adjust_power_maximum; /**< Current max normalized power. */
 	double adjust_power_factor; /**< Current power adjustment. */
-	double adjust_volume_factor; /**< Current volume adjustment. Used only if adjust_flag is set. */
+	adv_bool adjust_power_waitfirstsound_flag; /**< If the adjust process must be delayed. */
 
 	adv_bool mute_flag; /**< Mute state for demo mode. */
 	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
+
+	adv_bool equalizer_flag;
+	adv_filter equalizer_low;
+	adv_filter equalizer_mid;
+	adv_filter equalizer_high;
+	adv_filter_state equalizer_low_state[2];
+	adv_filter_state equalizer_mid_state[2];
+	adv_filter_state equalizer_high_state[2];
+	double equalizer_low_factor;
+	double equalizer_mid_factor;
+	double equalizer_high_factor;
 };
 
 struct advance_sound_context {
@@ -452,6 +488,8 @@ void advance_sound_done(struct advance_sound_context* context);
 adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 int advance_sound_latency(struct advance_sound_context* context, double extra_latency);
+
+void advance_sound_reconfigure(struct advance_sound_context* context, struct advance_sound_config_context* config);
 
 /***************************************************************************/
 /* Video */
@@ -561,6 +599,7 @@ struct advance_video_config_context {
 	char section_orientation_buffer[256]; /**< Section used to store the option for the orientation. */
 	adv_bool smp_flag; /**< Use threads */
 	adv_bool crash_flag; /**< If enable the crash menu entry. */
+	adv_bool rawsound_flag; /**< Force the generation of all the sound samples. */
 	unsigned monitor_aspect_x; /**< Horizontal aspect of the monitor (4 for a standard monitor) */
 	unsigned monitor_aspect_y; /**< Vertical aspect of the monitor (3 for a standard monitor) */
 

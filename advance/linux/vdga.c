@@ -133,7 +133,7 @@ static device DEVICE[] = {
 adv_error dga_init(int device_id)
 {
 	/* assume that vga_init() is already called */
-	assert( !dga_is_active() );
+	assert(!dga_is_active());
 
 	log_std(("video:dga: dga_init()\n"));
 
@@ -155,7 +155,7 @@ adv_error dga_init(int device_id)
 
 void dga_done(void)
 {
-	assert(dga_is_active() && !dga_mode_is_active() );
+	assert(dga_is_active() && !dga_mode_is_active());
 
 	log_std(("video:dga: dga_done()\n"));
 
@@ -178,7 +178,7 @@ adv_bool dga_mode_is_active(void)
 
 unsigned dga_flags(void)
 {
-	assert( dga_is_active() );
+	assert(dga_is_active());
 	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 }
 
@@ -322,7 +322,7 @@ adv_error dga_mode_set(const dga_video_mode* mode)
 
 adv_error dga_mode_change(const dga_video_mode* mode)
 {
-	assert( dga_is_active() && dga_mode_is_active() );
+	assert(dga_is_active() && dga_mode_is_active());
 
 	log_std(("video:dga: dga_mode_change()\n"));
 
@@ -334,7 +334,7 @@ adv_error dga_mode_change(const dga_video_mode* mode)
 
 void dga_mode_done(adv_bool restore)
 {
-	assert( dga_is_active() && dga_mode_is_active() );
+	assert(dga_is_active() && dga_mode_is_active());
 
 	log_std(("video:dga: dga_mode_done()\n"));
 
@@ -460,7 +460,7 @@ adv_error dga_mode_import(adv_mode* mode, const dga_video_mode* dga_mode)
 
 adv_error dga_mode_generate(dga_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
 {
-	assert( dga_is_active() );
+	assert(dga_is_active());
 
 	if (video_mode_generate_check("dga", dga_flags(), 8, 2048, crtc, bits, flags)!=0)
 		return -1;
@@ -489,12 +489,12 @@ void dga_default(void)
 
 void dga_reg(adv_conf* context)
 {
-	assert( !dga_is_active() );
+	assert(!dga_is_active());
 }
 
 adv_error dga_load(adv_conf* context)
 {
-	assert( !dga_is_active() );
+	assert(!dga_is_active());
 	return 0;
 }
 

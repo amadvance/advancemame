@@ -91,13 +91,13 @@ adv_bool slang_mode_is_active(void)
 
 unsigned slang_flags(void)
 {
-	assert( slang_is_active() );
+	assert(slang_is_active());
 	return VIDEO_DRIVER_FLAGS_MODE_TEXT | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
 adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
-	assert( !slang_is_active() );
+	assert(!slang_is_active());
 	(void)cursor;
 
 	log_std(("video:slang: slang_init()\n"));
@@ -126,7 +126,7 @@ adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_c
 
 void slang_done(void)
 {
-	assert(slang_is_active() && !slang_mode_is_active() );
+	assert(slang_is_active() && !slang_mode_is_active());
 
 	log_std(("video:slang: slang_done()\n"));
 
@@ -222,7 +222,7 @@ static unsigned getattr(unsigned dos_attr)
 	if (color_mac < COLOR_MAX) {
 		unsigned f = (dos_attr) & 0xF;
 		unsigned b = (dos_attr >> 4) & 0xF;
-		SLtt_set_color( color_mac, 0, (char*)COLOR[f], (char*)COLOR[b] );
+		SLtt_set_color(color_mac, 0, (char*)COLOR[f], (char*)COLOR[b]);
 		color_map[color_mac] = dos_attr;
 		return color_mac++;
 	} else
@@ -280,7 +280,7 @@ adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 
 adv_error slang_mode_grab(slang_video_mode* mode)
 {
-	assert( slang_is_active() );
+	assert(slang_is_active());
 
 	mode->font_size_x = 8;
 	mode->font_size_y = 16;
@@ -290,7 +290,7 @@ adv_error slang_mode_grab(slang_video_mode* mode)
 
 adv_error slang_mode_generate(slang_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( slang_is_active() );
+	assert(slang_is_active());
 
 	error_nolog_set("Mode generation not supported.\n");
 
@@ -327,12 +327,12 @@ void slang_default(void)
 
 void slang_reg(adv_conf* context)
 {
-	assert( !slang_is_active() );
+	assert(!slang_is_active());
 }
 
 adv_error slang_load(adv_conf* context)
 {
-	assert( !slang_is_active() );
+	assert(!slang_is_active());
 	return 0;
 }
 

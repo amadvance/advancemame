@@ -265,9 +265,9 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 #ifdef USE_FULLCPU
 			/* The use of ceil() instead of floor() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
-			context->state.skip_level_full = ceil( v );
+			context->state.skip_level_full = ceil(v);
 #else
-			context->state.skip_level_full = floor( v );
+			context->state.skip_level_full = floor(v);
 #endif
 			context->state.skip_level_skip = 1;
 
@@ -287,9 +287,9 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 #ifdef USE_FULLCPU
 			/* The use of floor() instead of ceil() generates a frame rate lower than 100% */
 			/* but it ensures to use all the CPU time */
-			context->state.skip_level_skip = floor( v );
+			context->state.skip_level_skip = floor(v);
 #else
-			context->state.skip_level_skip = ceil( v );
+			context->state.skip_level_skip = ceil(v);
 #endif
 
 			/* max skip limit */
@@ -306,7 +306,7 @@ static double video_frame_wait(double current, double expected)
 	while (current < expected) {
 		double diff = expected - current;
 
-		target_usleep( diff * 1E6 );
+		target_usleep(diff * 1E6);
 
 		current = advance_timer();
 	}

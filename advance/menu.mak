@@ -32,6 +32,8 @@ MENUOBJS += \
 	$(MENUOBJ)/menu/playdef.o \
 	$(MENUOBJ)/menu/resource.o \
 	$(MENUOBJ)/menu/text.o \
+	$(MENUOBJ)/menu/event.o \
+	$(MENUOBJ)/menu/color.o \
 	$(MENUOBJ)/lib/portable.o \
 	$(MENUOBJ)/lib/snstring.o \
 	$(MENUOBJ)/lib/log.o \
@@ -77,6 +79,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/vnone.o \
 	$(MENUOBJ)/lib/error.o \
 	$(MENUOBJ)/lib/filter.o \
+	$(MENUOBJ)/lib/complex.o \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/blit/slice.o \
@@ -425,9 +428,9 @@ MENULIBS += -lexpat
 else
 CFLAGS += \
 	-I$(srcdir)/advance/expat
-MENUDIRS += \
+MENUOBJDIRS += \
 	$(MENUOBJ)/expat
-MENULIBS += \
+MENUOBJS += \
 	$(MENUOBJ)/libexpat.a
 endif
 
@@ -446,9 +449,9 @@ MENULIBS += -lz
 else
 CFLAGS += \
 	-I$(srcdir)/advance/zlib
-MENUDIRS += \
+MENUOBJDIRS += \
 	$(MENUOBJ)/zlib
-MENULIBS += \
+MENUOBJS += \
 	$(MENUOBJ)/libz.a
 endif
 
@@ -487,8 +490,13 @@ $(sort $(MENUOBJDIRS)):
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(MENUOBJS) $(MENULIBS) $(MENULDFLAGS) $(LDFLAGS) -o $@
+ifeq ($(CONF_DEBUG),yes)
+	$(RM) advmenud$(EXE)
+	$(LN_S) $@ advmenud$(EXE)
+else
 	$(RM) advmenu$(EXE)
 	$(LN_S) $@ advmenu$(EXE)
+endif
 
 ############################################################################
 # MENU dist
@@ -601,6 +609,7 @@ MENU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll \
+	$(srcdir)/support/libexpat.dll \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 endif

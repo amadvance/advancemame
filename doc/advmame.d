@@ -1234,16 +1234,60 @@ Configuration
 	different value is selected.
 
     sound_volume
-	Sets the sound volume.
+	Sets the global sound volume.
 
 	:sound_volume VOLUME
 
 	Options:
-		VOLUME - The volume attenuation in dB (default 0).
-			The dB is a negative value from -40 to 0.
+		VOLUME - The volume attenuation in dB (default -3).
+			The attenuation is a negative value from -40 to 0.
 
 	Examples:
-		:sound_volume -2
+		:sound_volume -5
+
+    sound_adjust
+	Sets the sound gain volume. This option can be used to
+	adjust the volume of some games to have all the games with
+	the same volume.
+	If the `sound_normalize' option is active this value is
+	also automatically updated during the game play.
+
+	:sound_adjust auto | VOLUME
+
+	Options:
+		auto - Get the value for the current game from
+			an internal database.
+		VOLUME - The volume gain in dB (default 0).
+			The gain is a positive value from 0 to 40.
+
+	Examples:
+		:sound_adjust 16
+
+    sound_normalize
+	Automatically decreases the sound gain to prevent too hight
+	volume condition. Precisely, the maximum audio normalized
+	power is made constant for all the games.
+
+	The last computed gain is saved in the `sound_adjust'
+	option.
+
+	:sound_normalize yes | no
+
+	Options:
+		yes - Enable the power computation (default).
+		no - Disable it.
+
+    sound_equalizer_*
+	Sets the equalizer volume. To disable the euqualizer set
+	all the VOLUME values to 0.
+
+	sound_equalizer_lowvolume VOLUME
+	sound_equalizer_midvolume VOLUME
+	sound_equalizer_highvolume VOLUME
+
+	Options:
+		VOLUME - The volume gain in dB (default 0).
+			The gain is a integer value from -20 to 20.
 
     sound_latency
 	Sets the minimum audio latency.
@@ -1257,17 +1301,6 @@ Configuration
 	If in the game play you hear some sound ticks you can try to
 	increase the latency. Try doubling the value until the ticks
 	go away.
-
-    sound_normalize
-	Automatically increases and decreases the sound volume to make it
-	constant. Precisely, the max audio normalized power is made
-	constant for all the games.
-
-	:sound_normalize yes | no
-
-	Options:
-		yes - Enable the effect (default).
-		no - Disable the effect.
 
   Input Configuration Options
 	This section describes the options used to customize the user
@@ -1329,10 +1362,22 @@ Configuration
 
 	Options:
 		ANALOG - Player analog control. One of:
-			p1_stickx, p1_sticky, p1_stickz,
-			p2_stickx, p2_sticky, p2_stickz,
-			p3_stickx, p3_sticky, p3_stickz,
-			p4_stickx, p4_sticky, p4_stickz.
+			p1_paddle_x, p2_paddle_x, p3_paddle_x, p4_paddle_x,
+			p1_paddle_y, p2_paddle_y, p3_paddle_y, p4_paddle_y,
+			p1_stick_x, p2_stick_x, p3_stick_x, p4_stick_x,
+			p1_stick_y, p2_stick_y, p3_stick_y, p4_stick_y,
+			p1_stick_z, p2_stick_z, p3_stick_z, p4_stick_z,
+			p1_lightgun_x, p2_lightgun_x, p3_lightgun_x, p4_lightgun_x,
+			p1_lightgun_y, p2_lightgun_y, p3_lightgun_y, p4_lightgun_y,
+			p1_pedal1, p2_pedal1, p3_pedal1, p4_pedal1,
+			p1_pedal2, p2_pedal2, p3_pedal2, p4_pedal2,
+			p1_pedal3, p2_pedal3, p3_pedal3, p4_pedal3,
+			p1_dial_x, p2_dial_x, p3_dial_x, p4_dial_x,
+			p1_dial_y, p2_dial_y, p3_dial_y, p4_dial_y,
+			p1_trackball_x, p2_trackball_x, p3_trackball_x, p4_trackball_x,
+			p1_trackball_y, p2_trackball_y, p3_trackball_y, p4_trackball_y,
+			p1_mouse_x, p2_mouse_x, p3_mouse_x, p4_mouse_x,
+			p1_mouse_y, p2_mouse_y, p3_mouse_y, p4_mouse_y.
 		- - Invert the direction of the movement.
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
@@ -1383,28 +1428,28 @@ Configuration
 		p2_AXE - Player 2.
 		p3_AXE - Player 3.
 		p4_AXE - Player 4.
-		PLAYER_paddlex - Paddle in horizontal direction.
-		PLAYER_paddley - Paddle in vertical direction.
-		PLAYER_stickx - Stick in horizontal direction.
-		PLAYER_sticky - Stick in vertical direction.
-		PLAYER_stickz - Stick in z axis direction.
-		PLAYER_lightgunx - Lightgun in horizontal direction.
-		PLAYER_lightguny - Lightgun in vertical direction.
+		PLAYER_paddle_x - Paddle in horizontal direction.
+		PLAYER_paddle_y - Paddle in vertical direction.
+		PLAYER_stick_x - Stick in horizontal direction.
+		PLAYER_stick_y - Stick in vertical direction.
+		PLAYER_stick_z - Stick in z axis direction.
+		PLAYER_lightgun_x - Lightgun in horizontal direction.
+		PLAYER_lightgun_y - Lightgun in vertical direction.
 		PLAYER_pedalgas - Gas pedal.
 		PLAYER_pedalbrake - Brake pedal.
 		PLAYER_pedalother - Other pedal.
-		PLAYER_dialx - Dial in horizontal direction.
-		PLAYER_dialy - Dial in vertical direction.
-		PLAYER_trackballx - Trackball in horizontal direction.
-		PLAYER_trackbally - Trackball in vertical direction.
-		PLAYER_mousex - Mouse in horizontal direction.
-		PLAYER_mousey - Mouse in vertical direction.
+		PLAYER_dial_x - Dial in horizontal direction.
+		PLAYER_dial_y - Dial in vertical direction.
+		PLAYER_trackball_x - Trackball in horizontal direction.
+		PLAYER_trackball_y - Trackball in vertical direction.
+		PLAYER_mouse_x - Mouse in horizontal direction.
+		PLAYER_mouse_y - Mouse in vertical direction.
 
 	Examples:
-		:input_map[p1_stickx] joystick[0,0,0] -joystick[0,1,0]
-		:input_map[p1_sticky] joystick[0,0,1] -joystick[0,1,1]
-		:input_map[p1_trackballx] mouse[0,0] -mouse[1,0]
-		:input_map[p1_trackbally] mouse[0,1] -mouse[1,1]
+		:input_map[p1_stick_x] joystick[0,0,0] -joystick[0,1,0]
+		:input_map[p1_stick_y] joystick[0,0,1] -joystick[0,1,1]
+		:input_map[p1_trackball_x] mouse[0,0] -mouse[1,0]
+		:input_map[p1_trackball_y] mouse[0,1] -mouse[1,1]
 
     input_map[DIGITAL]
 	Changes the digital control mapping. Maps a sequence of
@@ -1599,21 +1644,23 @@ Configuration
 		:input_name joystick_digital[0,stick,x,right] Right
 
     input_setting[*]
-	Selects some additional settings for analog inputs. These settings can be
-	modified using the "Analog Config" menu present if the game has analog
-	controls.
+	Selects some additional settings for analog inputs. These
+	settings can be modified using the "Analog Config" menu
+	present if the game has analog controls.
 
 	:input_setting[NAME] SETTING
 
     input_dipswitch[*]
 	Selects the state of the game dipswitch. These settings can be
-	modified using the "Dipswitch" menu present if the game has dipswitches.
+	modified using the "Dipswitch" menu present if the game has
+	dipswitches.
 
 	:input_dipswitch[NAME] SETTING
 
     input_configswitch[*]
-	Selects the state of the game configswitch. These settings can be
-	modified using the "Config" menu present if the game has configswitches.
+	Selects the state of the game configswitch. These settings can
+	be modified using the "Config" menu present if the game has
+	configswitches.
 
 	:input_configswitch[NAME] SETTING
 
@@ -1705,6 +1752,27 @@ Configuration
 		ROWS - Number of text rows.
 		COLS - Number of text columns. If omitted, it's computed from
 			the number of rows.
+
+    ui_color[*]
+	Selects the user interface colors.
+
+	ui_color[TAG] FOREGROUND BACKGROUND
+
+	Tags:
+		interface - Main inteface color.
+		tag - Highlight tags.
+		select - Selected menu entries.
+		help_p1 - Help color for player 1 controls.
+		help_p2 - Help color for player 2 controls.
+		help_p3 - Help color for player 3 controls.
+		help_p4 - Help color for player 4 controls.
+		help_other - Help color for other controls
+
+	Options:
+		FOREGROUND - Foreground color in RRGGBB
+			hex format. For example FF0000 is red
+			and 00FF00 is green.
+		BACKGROUND - Background color. Like foreground color.
 
   Record Configuration Options
 	This section describes the options used for the recording
@@ -1813,8 +1881,8 @@ Configuration
 	:sync_startuptime auto | none | TIME
 
 	Options:
-		auto - Use an internal table to select the
-			startup time from the game name (default).
+		auto - Get the value for the current game from
+			an internal database (default).
 		none - Disable the startup.
 		TIME - Time in seconds.
 

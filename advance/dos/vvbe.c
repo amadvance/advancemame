@@ -316,7 +316,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
 	unsigned bits;
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	if (!crtc_is_fake(crtc)) {
 		error_nolog_set("Programmable modes not supported.\n");

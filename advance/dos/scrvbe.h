@@ -316,13 +316,13 @@ static inline adv_bool vbe_pm_is_active(void)
 
 static inline unsigned vbe_font_size_x(void)
 {
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 	return vbe_state.mode_info.XCharSize;
 }
 
 static inline unsigned vbe_font_size_y(void)
 {
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 	return vbe_state.mode_info.YCharSize;
 }
 

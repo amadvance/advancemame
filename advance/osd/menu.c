@@ -74,7 +74,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 	menu_item[total] = 0;
 	flag[total] = 0;
 
-	advance_ui_menu_vect(ui_context, menu_item, 0, flag, selected, 0);
+	advance_ui_menu_vect(ui_context, "Video Mode", menu_item, 0, flag, selected, 0);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -193,7 +193,7 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 	menu_item[total] = 0;
 	flag[total] = 0;
 
-	advance_ui_menu_vect(ui_context, menu_item, 0, flag, selected, 0);
+	advance_ui_menu_vect(ui_context, "Video Pipeline", menu_item, 0, flag, selected, 0);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -223,7 +223,7 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 	return selected + 1;
 }
 
-int osd2_menu(int selected, unsigned input)
+int osd2_video_menu(int selected, unsigned input)
 {
 	const char* menu_item[32];
 	const char* menu_subitem[32];
@@ -239,7 +239,6 @@ int osd2_menu(int selected, unsigned input)
 	int save_game_index;
 	int save_resolution_index;
 	int save_resolutionclock_index;
-	int save_all_index;
 	int pipeline_index;
 	int magnify_index;
 	int scanline_index;
@@ -529,21 +528,10 @@ int osd2_menu(int selected, unsigned input)
 		} else {
 			save_resolutionclock_index = -1;
 		}
-
-		if (!context->state.game_vector_flag) {
-			save_all_index = total;
-			menu_item[total] = "Save for all games";
-			menu_subitem[total] = 0;
-			flag[total] = 0;
-			++total;
-		} else {
-			save_all_index = -1;
-		}
 	} else {
 		save_game_index = -1;
 		save_resolution_index = -1;
 		save_resolutionclock_index = -1;
-		save_all_index = -1;
 	}
 
 	if (context->config.crash_flag) {
@@ -578,7 +566,7 @@ int osd2_menu(int selected, unsigned input)
 	else
 		arrowize = 0;
 
-	advance_ui_menu_vect(ui_context, menu_item, menu_subitem, flag, selected, arrowize);
+	advance_ui_menu_vect(ui_context, "Video Menu", menu_item, menu_subitem, flag, selected, arrowize);
 
 	if (input == OSD_INPUT_DOWN)
 	{
@@ -604,8 +592,6 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_config_save(context, context->config.section_resolution_buffer);
 		} else if (selected == save_resolutionclock_index) {
 			advance_video_config_save(context, context->config.section_resolutionclock_buffer);
-		} else if (selected == save_all_index) {
-			advance_video_config_save(context, "");
 		} else if (selected == crash_index) {
 			target_crash();
 		}
@@ -768,6 +754,234 @@ int osd2_menu(int selected, unsigned input)
 			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
 			}
 			advance_video_reconfigure(context, &config);
+		}
+	}
+
+	if (input == OSD_INPUT_CANCEL)
+		selected = -1;
+
+	if (input == OSD_INPUT_CONFIGURE)
+		selected = -2;
+
+	return selected + 1;
+}
+
+int osd2_audio_menu(int selected, unsigned input)
+{
+	const char* menu_item[32];
+	const char* menu_subitem[32];
+	char flag[32];
+	int total;
+	int arrowize;
+
+	char volume_buffer[128];
+	char adjust_buffer[128];
+	char eql_buffer[128];
+	char eqm_buffer[128];
+	char eqh_buffer[128];
+
+	struct advance_video_context* video_context = &CONTEXT.video;
+	struct advance_sound_context* sound_context = &CONTEXT.sound;
+	struct advance_global_context* global_context = &CONTEXT.global;
+	struct advance_ui_context* ui_context = &CONTEXT.ui;
+
+	int mode_index;
+	int adjust_index;
+	int volume_index;
+	int normalize_index;
+	int eql_index;
+	int eqm_index;
+	int eqh_index;
+
+	if (selected >= 1)
+		selected = selected - 1;
+	else
+		selected = 0;
+
+	total = 0;
+
+	mode_index = total;
+	switch (sound_context->state.output_mode) {
+	case SOUND_MODE_MONO : menu_item[total] = "Mode [mono]"; break;
+	case SOUND_MODE_STEREO : menu_item[total] = "Mode [stereo]"; break;
+	case SOUND_MODE_SURROUND : menu_item[total] = "Mode [surround]"; break;
+	}
+	switch (sound_context->config.mode) {
+	case SOUND_MODE_AUTO : menu_subitem[total] = "auto"; break;
+	case SOUND_MODE_MONO : menu_subitem[total] = "mono"; break;
+	case SOUND_MODE_STEREO : menu_subitem[total] = "stereo"; break;
+	case SOUND_MODE_SURROUND : menu_subitem[total] = "surround"; break;
+	}
+	flag[total] = 0;
+	++total;
+
+	volume_index = total;
+	menu_item[total] = "Attenuation (dB)";
+	snprintf(volume_buffer, sizeof(volume_buffer), "%d", sound_context->config.attenuation);
+	menu_subitem[total] = volume_buffer;
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = "Normalize";
+	menu_subitem[total] = 0;
+	flag[total] = 0;
+	++total;
+
+	normalize_index = total;
+	menu_item[total] = "Auto limit";
+	if (sound_context->config.normalize_flag)
+		menu_subitem[total] = "yes";
+	else
+		menu_subitem[total] = "no";
+	flag[total] = 0;
+	++total;
+
+	adjust_index = total;
+	menu_item[total] = "Amplifier (dB)";
+	if (sound_context->config.adjust >= 0)
+		snprintf(adjust_buffer, sizeof(adjust_buffer), "%d", sound_context->config.adjust);
+	else
+		strcpy(adjust_buffer, "auto");
+	menu_subitem[total] = adjust_buffer;
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = "Equalizer";
+	menu_subitem[total] = 0;
+	flag[total] = 0;
+	++total;
+
+	eql_index = total;
+	menu_item[total] = "Low Freq (dB)";
+	snprintf(eql_buffer, sizeof(eql_buffer), "%d", sound_context->config.equalizer_low);
+	menu_subitem[total] = eql_buffer;
+	flag[total] = 0;
+	++total;
+
+	eqm_index = total;
+	menu_item[total] = "Mid Freq (dB)";
+	snprintf(eqm_buffer, sizeof(eqm_buffer), "%d", sound_context->config.equalizer_mid);
+	menu_subitem[total] = eqm_buffer;
+	flag[total] = 0;
+	++total;
+
+	eqh_index = total;
+	menu_item[total] = "High Freq (dB)";
+	snprintf(eqh_buffer, sizeof(eqh_buffer), "%d", sound_context->config.equalizer_high);
+	menu_subitem[total] = eqh_buffer;
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = "Return to Main Menu";
+	menu_subitem[total] = 0;
+	flag[total] = 0;
+	++total;
+
+	menu_item[total] = 0;
+	menu_subitem[total] = 0;
+	flag[total] = 0;
+
+	if (selected == mode_index
+		|| selected == volume_index
+		|| selected == adjust_index
+		|| selected == normalize_index
+	)
+		arrowize = 3;
+	else
+		arrowize = 0;
+
+	advance_ui_menu_vect(ui_context, "Audio Menu", menu_item, menu_subitem, flag, selected, arrowize);
+
+	if (input == OSD_INPUT_DOWN)
+	{
+		selected = (selected + 1) % total;
+	}
+
+	if (input == OSD_INPUT_UP)
+	{
+		selected = (selected + total - 1) % total;
+	}
+
+	if (input == OSD_INPUT_SELECT)
+	{
+		if (selected == total - 1) {
+			selected = -1;
+		}
+	}
+
+	if (input == OSD_INPUT_RIGHT)
+	{
+		if (selected == volume_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.attenuation = sound_context->config.attenuation + 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == adjust_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.adjust = sound_context->config.adjust + 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == normalize_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.normalize_flag = !sound_context->config.normalize_flag;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == mode_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			switch (config.mode) {
+			case SOUND_MODE_AUTO : config.mode = SOUND_MODE_MONO; break;
+			case SOUND_MODE_MONO : config.mode = SOUND_MODE_STEREO; break;
+			case SOUND_MODE_STEREO : config.mode = SOUND_MODE_SURROUND; break;
+			case SOUND_MODE_SURROUND : config.mode = SOUND_MODE_AUTO; break;
+			}
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eql_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_low = sound_context->config.equalizer_low + 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eqm_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_mid = sound_context->config.equalizer_mid + 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eqh_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_high = sound_context->config.equalizer_high + 1;
+			advance_sound_reconfigure(sound_context, &config);
+		}
+	}
+
+	if (input == OSD_INPUT_LEFT)
+	{
+		if (selected == volume_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.attenuation = sound_context->config.attenuation - 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == adjust_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.adjust = sound_context->config.adjust - 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == normalize_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.normalize_flag = !sound_context->config.normalize_flag;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == mode_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			switch (config.mode) {
+			case SOUND_MODE_AUTO : config.mode = SOUND_MODE_SURROUND; break;
+			case SOUND_MODE_MONO : config.mode = SOUND_MODE_AUTO; break;
+			case SOUND_MODE_STEREO : config.mode = SOUND_MODE_MONO; break;
+			case SOUND_MODE_SURROUND : config.mode = SOUND_MODE_STEREO; break;
+			}
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eql_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_low = sound_context->config.equalizer_low - 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eqm_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_mid = sound_context->config.equalizer_mid - 1;
+			advance_sound_reconfigure(sound_context, &config);
+		} else if (selected == eqh_index) {
+			struct advance_sound_config_context config = sound_context->config;
+			config.equalizer_high = sound_context->config.equalizer_high - 1;
+			advance_sound_reconfigure(sound_context, &config);
 		}
 	}
 

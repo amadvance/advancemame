@@ -350,53 +350,6 @@ endif
 endif
 
 ############################################################################
-# expat
-
-$(OBJ)/advance/libexpat.a: $(OBJ)/advance/expat/xmlparse.o $(OBJ)/advance/expat/xmlrole.o $(OBJ)/advance/expat/xmltok.o
-	$(ECHO) $@
-	$(AR) cr $@ $^
-
-ifeq ($(CONF_LIB_EXPAT),yes)
-ADVANCELIBS += -lexpat
-else
-CFLAGS += \
-	-I$(srcdir)/advance/expat
-OBJDIRS += \
-	$(OBJ)/advance/expat
-EMULIBS += \
-	$(OBJ)/advance/libexpat.a
-endif
-
-############################################################################
-# zlib
-
-$(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o $(OBJ)/advance/zlib/deflate.o \
-	$(OBJ)/advance/zlib/inffast.o $(OBJ)/advance/zlib/inflate.o \
-	$(OBJ)/advance/zlib/infback.o $(OBJ)/advance/zlib/inftrees.o $(OBJ)/advance/zlib/trees.o \
-	$(OBJ)/advance/zlib/zutil.o $(OBJ)/advance/zlib/uncompr.o $(OBJ)/advance/zlib/compress.o
-	$(ECHO) $@
-	$(AR) cr $@ $^
-
-ifeq ($(CONF_LIB_ZLIB),yes)
-ADVANCELIBS += -lz
-EMUCHDMANLIBS += -lz
-else
-CFLAGS += \
-	-I$(srcdir)/advance/zlib
-OBJDIRS += \
-	$(OBJ)/advance/zlib
-EMULIBS += \
-	$(OBJ)/advance/libz.a
-EMUCHDMANLIBS += \
-	$(OBJ)/advance/libz.a
-endif
-
-############################################################################
-# m
-
-ADVANCELIBS += -lm
-
-############################################################################
 # emu
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
@@ -478,6 +431,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/fontdef.o \
 	$(OBJ)/advance/lib/bitmap.o \
 	$(OBJ)/advance/lib/filter.o \
+	$(OBJ)/advance/lib/complex.o \
 	$(OBJ)/advance/lib/png.o \
 	$(OBJ)/advance/lib/pngdef.o \
 	$(OBJ)/advance/lib/mng.o \
@@ -519,6 +473,53 @@ EMUCHDMANOBJS += \
 	$(OBJ)/version.o
 
 ############################################################################
+# expat
+
+$(OBJ)/advance/libexpat.a: $(OBJ)/advance/expat/xmlparse.o $(OBJ)/advance/expat/xmlrole.o $(OBJ)/advance/expat/xmltok.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_EXPAT),yes)
+ADVANCELIBS += -lexpat
+else
+CFLAGS += \
+	-I$(srcdir)/advance/expat
+OBJDIRS += \
+	$(OBJ)/advance/expat
+EMULIBS += \
+	$(OBJ)/advance/libexpat.a
+endif
+
+############################################################################
+# zlib
+
+$(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o $(OBJ)/advance/zlib/deflate.o \
+	$(OBJ)/advance/zlib/inffast.o $(OBJ)/advance/zlib/inflate.o \
+	$(OBJ)/advance/zlib/infback.o $(OBJ)/advance/zlib/inftrees.o $(OBJ)/advance/zlib/trees.o \
+	$(OBJ)/advance/zlib/zutil.o $(OBJ)/advance/zlib/uncompr.o $(OBJ)/advance/zlib/compress.o
+	$(ECHO) $@
+	$(AR) cr $@ $^
+
+ifeq ($(CONF_LIB_ZLIB),yes)
+ADVANCELIBS += -lz
+EMUCHDMANLIBS += -lz
+else
+CFLAGS += \
+	-I$(srcdir)/advance/zlib
+OBJDIRS += \
+	$(OBJ)/advance/zlib
+EMULIBS += \
+	$(OBJ)/advance/libz.a
+EMUCHDMANLIBS += \
+	$(OBJ)/advance/libz.a
+endif
+
+############################################################################
+# m
+
+ADVANCELIBS += -lm
+
+############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
@@ -532,10 +533,6 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
-
-$(OBJ)/advance/libadv.a: $(ADVANCEOBJS)
-	$(ECHO) $@
-	$(AR) cr $@ $^
 
 ############################################################################
 # emu compile
@@ -633,9 +630,9 @@ endif
 
 EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(OBJ)/advance/libadv.a $(EMULIBS) $(EMUOBJS)
+$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUOBJS) $(OBJ)/advance/libadv.a $(EMULIBS) $(ADVANCELIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS) $(ADVANCELIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
 ifeq ($(CONF_DEBUG),yes)
 	$(RM) $(EMUNAME)d$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
@@ -901,7 +898,8 @@ EMU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
-	$(srcdir)/support/zlib.dll
+	$(srcdir)/support/zlib.dll \
+	$(srcdir)/support/libexpat.dll
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif

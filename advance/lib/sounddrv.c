@@ -218,3 +218,15 @@ unsigned soundb_flags(void)
 		return 0;
 }
 
+adv_bool soundb_is_active(void)
+{
+	return soundb_state.is_active_flag != 0;
+}
+
+adv_bool soundb_is_playing(void)
+{
+	assert(soundb_is_active());
+
+	return soundb_state.is_playing_flag != 0;
+}
+

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,18 @@
 
 #include <math.h>
 
+static struct game_adjust_struct {
+	const char* name;
+	int gain;
+} GAME_ADJUST[] = {
+#include "adjust.h"
+{ 0 }
+};
+
 /**
  * Base for the sample gain adjustment.
  */
-#define ADJUST_MULT_BASE 4096
+#define SAMPLE_MULT_BASE 4096
 
 /**
  * Expected volume factor.
@@ -50,9 +58,28 @@
 /***************************************************************************/
 /* Advance interface */
 
-static void sound_volume_recompute(struct advance_sound_context* context)
+/**
+ * Maximum volume requested at the hardware mixer.
+ */
+#define SOUND_MIXER_MAX 0.9
+
+static void sound_volume_update(struct advance_sound_context* context)
 {
-	double volume = context->state.volume;
+	double volume;
+	double mult;
+
+	if (context->config.attenuation > 0)
+		context->config.attenuation = 0;
+
+	if (context->config.attenuation < -40)
+		context->config.attenuation = -40;
+
+	/* initial volume */
+	if (context->config.attenuation <= -40) {
+		volume = 0;
+	} else {
+		volume = pow(10, (double)context->config.attenuation / 20);
+	}
 
 	/* if mute, zero the volume */
 	if (context->state.mute_flag)
@@ -62,49 +89,47 @@ static void sound_volume_recompute(struct advance_sound_context* context)
 	if (context->state.disabled_flag)
 		volume = 0;
 
-	/* if already changing the volume, don't use the mixer */
-	if (context->config.adjust_flag) {
-		double n;
+	/* add the current power normalization factor */
+	if (!context->state.adjust_power_waitfirstsound_flag)
+		volume *= context->state.adjust_power_factor;
 
-		if ((soundb_flags() & SOUND_DRIVER_FLAGS_VOLUME_SAMPLE) != 0) {
-			/* adjust the volume internally */
-			context->state.adjust_volume_factor = volume;
-			soundb_volume(1.0);
-		} else {
-			context->state.adjust_volume_factor = 1.0;
-			soundb_volume(volume);
-		}
-
-		n = ADJUST_MULT_BASE * context->state.adjust_power_factor * context->state.adjust_volume_factor;
-
-		/* prevent multiplication overflow */
-		if (n > 65535)
-			n = 65535;
-		if (n < 0)
-			n = 0;
-
-		context->state.adjust_mult = n;
+	if ((soundb_flags() & SOUND_DRIVER_FLAGS_VOLUME_SAMPLE) != 0
+		|| volume > SOUND_MIXER_MAX) {
+		/* adjust the volume scaling the sample */
+		soundb_volume(SOUND_MIXER_MAX);
+		volume /= SOUND_MIXER_MAX;
 	} else {
+		/* adjust the volume with the hardware mixer */
 		soundb_volume(volume);
+		volume = 1.0;
 	}
+
+	mult = SAMPLE_MULT_BASE * volume;
+
+	/* prevent multiplication overflow */
+	if (mult > 65535)
+		mult = 65535;
+	if (mult < 0)
+		mult = 0;
+
+	context->state.sample_mult = mult;
 }
 
 /* Adjust the sound volume computing the maximum normalized power */
-static void sound_adjust(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count, adv_bool compute_power)
+static void sound_normalize(struct advance_sound_context* context, unsigned channel, const short* sample, unsigned sample_count, adv_bool compute_power)
 {
 	unsigned i;
-	int mult;
-	unsigned count;
-
-	count = channel * sample_count;
 
 	if (compute_power) {
 		long long power;
+		unsigned count;
 
 		/* use a local variable for faster access */
 		power = context->state.adjust_power_accumulator;
 
 		i = 0;
+		count = sample_count * channel;
+
 		while (i < count) {
 			unsigned run_sample = count - i;
 			unsigned run_counter = context->state.adjust_power_counter_limit - context->state.adjust_power_counter;
@@ -113,9 +138,9 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 			context->state.adjust_power_counter += run;
 
 			while (run) {
-				int v = input_sample[i];
+				int y = sample[i];
 
-				power += v*v;
+				power += y*y;
 
 				++i;
 				--run;
@@ -126,29 +151,52 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 				power /= context->state.adjust_power_counter_limit;
 
 				/* check for the maximum power */
-				if (power != 0 && power > context->state.adjust_power) {
+				if (power != 0 && power > context->state.adjust_power_maximum) {
 					double n;
 
-					context->state.adjust_power = power;
+					/* now the process is started */
+					context->state.adjust_power_waitfirstsound_flag = 0;
+
+					context->state.adjust_power_maximum = power;
 
 					/* normalized power */
-					n = sqrt(power) / 32768;
+					n = sqrt((double)power) / 32768.0;
 
 					n = ADJUST_EXPECTED_FACTOR / n;
 
 					/* limit the maximum gain */
-					if (n > 64)
-						n = 64;
+					if (n > 100.0)
+						n = 100.0;
 
 					log_std(("osd:sound: normalize factor %g, time %g\n", (double)n, advance_timer()));
 
-					context->state.adjust_power_factor = n;
+					if (n < context->state.adjust_power_factor) {
+						char buffer[64];
+						int adjust_db;
 
-					sound_volume_recompute(context);
+						context->state.adjust_power_factor = n;
+
+						adjust_db = 20 * log10(context->state.adjust_power_factor);
+						if (adjust_db < 0)
+							adjust_db = 0;
+						if (adjust_db > 40)
+							adjust_db = 40;
+
+						context->config.adjust = adjust_db;
+
+						log_std(("osd:sound: normalize factor save adjust dB %d\n", adjust_db));
+
+						snprintf(buffer, sizeof(buffer), "%d", adjust_db);
+
+						conf_set(CONTEXT.cfg, mame_section_name(CONTEXT.game, CONTEXT.cfg), "sound_adjust", buffer);
+					}
+
+					sound_volume_update(context);
 				}
 
 				/* restart the computation */
 				power = 0;
+
 				context->state.adjust_power_counter = 0;
 			}
 		}
@@ -159,14 +207,25 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 		context->state.adjust_power_accumulator = 0;
 		context->state.adjust_power_counter = 0;
 	}
+}
 
-	mult = context->state.adjust_mult;
+/* Adjust the sound volume */
+static void sound_adjust(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count)
+{
+	unsigned i;
+	int mult;
+	unsigned count;
 
-	/* now convert */
+	count = channel * sample_count;
+
+	mult = context->state.sample_mult;
+
+	assert(mult != SAMPLE_MULT_BASE);
+
 	for(i=0;i<count;++i) {
 		int v = input_sample[i];
 
-		v = v * mult / ADJUST_MULT_BASE;
+		v = v * mult / SAMPLE_MULT_BASE;
 
 		if (v > 32767)
 			v = 32767;
@@ -177,6 +236,45 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 	}
 }
 
+static void sound_equalizer(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count)
+{
+	unsigned i, j;
+	int mult;
+
+	for(j=0;j<channel;++j) {
+		unsigned off = j;
+		for(i=0;i<sample_count;++i) {
+			double v, vl, vm, vh;
+			int vi;
+
+			v = input_sample[off];
+
+			adv_filter_insert(&context->state.equalizer_low, &context->state.equalizer_low_state[j], v);
+			adv_filter_insert(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j], v);
+			adv_filter_insert(&context->state.equalizer_high, &context->state.equalizer_high_state[j], v);
+
+			vl = adv_filter_extract(&context->state.equalizer_low, &context->state.equalizer_low_state[j]);
+			vm = adv_filter_extract(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j]);
+			vh = adv_filter_extract(&context->state.equalizer_high, &context->state.equalizer_high_state[j]);
+
+			v = vl * context->state.equalizer_low_factor
+				+ vm * context->state.equalizer_mid_factor
+				+ vh * context->state.equalizer_high_factor;
+
+			vi = v;
+
+			if (vi > 32767)
+				vi = 32767;
+			if (vi < -32768)
+				vi = -32768;
+
+			output_sample[off] = vi;
+			off += channel;
+		}
+	}
+}
+
+/* Resample */
 static void sound_scale(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count, unsigned sample_recount)
 {
 	adv_slice slice;
@@ -283,33 +381,101 @@ static void sound_play_recount(struct advance_sound_context* context, const shor
 	}
 }
 
-static void sound_play_adjust_own(struct advance_sound_context* context, short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
+static void sound_play_effect(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
 {
-	unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
-
-	if (context->config.adjust_flag) {
-		sound_adjust(context, output_channel, sample_buffer, sample_buffer, sample_count, compute_power);
-
-		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
-	} else {
-		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
-	}
-}
-
-static void sound_play_adjust_const(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
-{
-	unsigned output_channel = context->state.output_mode != SOUND_MODE_MONO ? 2 : 1;
-
-	if (context->config.adjust_flag) {
+	if (context->state.input_mode != context->state.output_mode) {
 		short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
 
-		sound_adjust(context, output_channel, sample_buffer, sample_mix, sample_count, compute_power);
+		if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_STEREO) {
+			unsigned i;
+			const short* sample_mono = sample_buffer;
+			short* sample_stereo = sample_mix;
+			for(i=0;i<sample_count;++i) {
+				sample_stereo[0] = sample_mono[0];
+				sample_stereo[1] = sample_mono[0];
+				sample_mono += 1;
+				sample_stereo += 2;
+			}
+		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_MONO) {
+			unsigned i;
+			const short* sample_stereo = sample_buffer;
+			short* sample_mono = sample_mix;
+			for(i=0;i<sample_count;++i) {
+				sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
+				sample_mono += 1;
+				sample_stereo += 2;
+			}
+		} else if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_SURROUND) {
+			unsigned i;
+			const short* sample_mono = sample_buffer;
+			short* sample_surround = sample_mix;
+			for(i=0;i<sample_count;++i) {
+				if (sample_mono[0] == -32768) { /* prevent overflow */
+					sample_surround[0] = -32768;
+					sample_surround[1] = 32767;
+				} else {
+					sample_surround[0] = sample_mono[0];
+					sample_surround[1] = -sample_mono[0];
+				}
+				sample_mono += 1;
+				sample_surround += 2;
+			}
+		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_SURROUND) {
+			unsigned i;
+			const short* sample_stereo = sample_buffer;
+			short* sample_surround = sample_mix;
+			for(i=0;i<sample_count;++i) {
+				sample_surround[0] = (3*sample_stereo[0] - sample_stereo[1]) / 4;
+				sample_surround[1] = (3*sample_stereo[1] - sample_stereo[0]) / 4;
+				sample_surround += 2;
+				sample_stereo += 2;
+			}
+		} else {
+			memset(sample_mix, 0, sample_count * context->state.output_bytes_per_sample);
+		}
 
 		sound_play_recount(context, sample_mix, sample_count, sample_recount);
 
 		free(sample_mix);
 	} else {
 		sound_play_recount(context, sample_buffer, sample_count, sample_recount);
+	}
+}
+
+static void sound_play_equalizer(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
+{
+	unsigned input_channel = context->state.input_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	if (context->state.equalizer_flag) {
+		short* sample_mix = (short*)malloc(sample_count * context->state.input_bytes_per_sample);
+
+		sound_equalizer(context, input_channel, sample_buffer, sample_mix, sample_count);
+
+		sound_play_effect(context, sample_mix, sample_count, sample_recount);
+
+		free(sample_mix);
+	} else {
+		sound_play_effect(context, sample_buffer, sample_count, sample_recount);
+	}
+}
+
+static void sound_play_adjust(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
+{
+	unsigned input_channel = context->state.input_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	if (context->config.normalize_flag)
+		sound_normalize(context, input_channel, sample_buffer, sample_count, compute_power);
+
+	if (context->state.sample_mult != SAMPLE_MULT_BASE) {
+		short* sample_mix = (short*)malloc(sample_count * context->state.input_bytes_per_sample);
+
+		sound_adjust(context, input_channel, sample_buffer, sample_mix, sample_count);
+
+		sound_play_equalizer(context, sample_mix, sample_count, sample_recount);
+
+		free(sample_mix);
+	} else {
+		sound_play_equalizer(context, sample_buffer, sample_count, sample_recount);
 	}
 }
 
@@ -348,64 +514,10 @@ void advance_sound_frame(struct advance_sound_context* context, struct advance_r
 	/* update the mute state */
 	if (context->state.mute_flag != mute) {
 		context->state.mute_flag = mute;
-		sound_volume_recompute(context);
+		sound_volume_update(context);
 	}
 
-	if (context->state.input_mode != context->state.output_mode) {
-		short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
-
-		if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_STEREO) {
-			unsigned i;
-			const short* sample_mono = sample_buffer;
-			short* sample_stereo = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				sample_stereo[0] = sample_mono[0];
-				sample_stereo[1] = sample_mono[0];
-				sample_mono += 1;
-				sample_stereo += 2;
-			}
-		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_MONO) {
-			unsigned i;
-			const short* sample_stereo = sample_buffer;
-			short* sample_mono = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
-				sample_mono += 1;
-				sample_stereo += 2;
-			}
-		} else if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_SURROUND) {
-			unsigned i;
-			const short* sample_mono = sample_buffer;
-			short* sample_surround = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				if (sample_mono[0] == -32768) {
-					sample_surround[0] = -32768;
-					sample_surround[1] = 32767;
-				} else {
-					sample_surround[0] = sample_mono[0];
-					sample_surround[1] = -sample_mono[0];
-				}
-				sample_mono += 1;
-				sample_surround += 2;
-			}
-		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_SURROUND) {
-			unsigned i;
-			const short* sample_stereo = sample_buffer;
-			short* sample_surround = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				sample_surround[0] = (3*sample_stereo[0] - sample_stereo[1]) / 4;
-				sample_surround[1] = (3*sample_stereo[1] - sample_stereo[0]) / 4;
-				sample_surround += 2;
-				sample_stereo += 2;
-			}
-		} else {
-			memset(sample_mix, 0, sample_count * context->state.output_bytes_per_sample);
-		}
-			sound_play_adjust_own(context, sample_mix, sample_count, sample_recount, compute_power);
-		free(sample_mix);
-	} else {
-		sound_play_adjust_const(context, sample_buffer, sample_count, sample_recount, compute_power);
-	}
+	sound_play_adjust(context, sample_buffer, sample_count, sample_recount, compute_power);
 
 	if (!video_context->state.pause_flag)
 		advance_record_sound_update(record_context, sample_buffer, sample_count);
@@ -453,7 +565,11 @@ static adv_conf_enum_int OPTION_CHANNELS[] = {
 adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
 {
 	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
-	conf_int_register_limit_default(cfg_context, "sound_volume", -40, 0, 0);
+	conf_int_register_limit_default(cfg_context, "sound_volume", -40, 0, -3);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_lowvolume", -20, 20, 0);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_midvolume", -20, 20, 0);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_highvolume", -20, 20, 0);
+	conf_string_register_default(cfg_context, "sound_adjust", "auto");
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_normalize", 1);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
@@ -477,14 +593,44 @@ struct sound_device {
 
 adv_error advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
+	const char* s;
+	int i;
+
 	context->config.mode = conf_int_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");
+
+	s = conf_string_get_default(cfg_context, "sound_adjust");
+	if (strcmp(s, "none") == 0) {
+		i = -1;
+	} else if (strcmp(s, "auto") == 0) {
+		for(i=0;GAME_ADJUST[i].name != 0;++i)
+			if (mame_is_game_relative(GAME_ADJUST[i].name, option->game))
+				break;
+		if (GAME_ADJUST[i].name != 0)
+			i = GAME_ADJUST[i].gain;
+		else
+			i = -1;
+	} else {
+		char* e;
+		i = strtol(s, &e, 10);
+		if (*e != 0 || i < 0 || i > 40) {
+			target_err("Invalid argument '%s' for option 'sound_adjust'.\n", s);
+			return -1;
+		}
+	}
+	context->config.adjust = i;
+	log_std(("emu:sound: normalize factor load adjust dB %d\n", context->config.adjust));
+
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
-	context->config.adjust_flag = conf_bool_get_default(cfg_context, "sound_normalize");
+	context->config.normalize_flag = conf_bool_get_default(cfg_context, "sound_normalize");
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.mutestartup_flag = 1;
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
 	option->filter_flag = conf_bool_get_default(cfg_context, "sound_resamplefilter");
+
+	context->config.equalizer_low = conf_int_get_default(cfg_context, "sound_equalizer_lowvolume");
+	context->config.equalizer_mid = conf_int_get_default(cfg_context, "sound_equalizer_midvolume");
+	context->config.equalizer_high = conf_int_get_default(cfg_context, "sound_equalizer_highvolume");
 
 	if (soundb_load(cfg_context)!=0) {
 		return -1;
@@ -503,25 +649,9 @@ void osd_set_mastervolume(int attenuation)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 
-	double volume;
-
-	if (attenuation > 0) attenuation = 0;
-	if (attenuation < -40) attenuation = -40;
-
 	context->config.attenuation = attenuation;
 
-	if (context->state.active_flag) {
-		if (attenuation <= -40) {
-			volume = 0;
-		} else {
-			volume = 1;
-			while (attenuation++ < 0)
-				volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
-		}
-
-		context->state.volume = volume;
-		sound_volume_recompute(context);
-	}
+	sound_volume_update(context);
 }
 
 int osd_get_mastervolume(void)
@@ -537,7 +667,169 @@ void osd_sound_enable(int enable_it)
 
 	if (context->state.active_flag) {
 		context->state.disabled_flag = !enable_it;
-		sound_volume_recompute(context);
+		sound_volume_update(context);
+	}
+}
+
+static void sound_equalizer_update(struct advance_sound_context* context)
+{
+	if (context->config.equalizer_low < -20)
+		context->config.equalizer_low = -20;
+	if (context->config.equalizer_low > 20)
+		context->config.equalizer_low = 20;
+
+	if (context->config.equalizer_mid < -20)
+		context->config.equalizer_mid = -20;
+	if (context->config.equalizer_mid > 20)
+		context->config.equalizer_mid = 20;
+
+	if (context->config.equalizer_high < -20)
+		context->config.equalizer_high = -20;
+	if (context->config.equalizer_high > 20)
+		context->config.equalizer_high = 20;
+
+	if (context->config.equalizer_low == 0
+		&& context->config.equalizer_mid == 0
+		&& context->config.equalizer_high == 0) {
+		context->state.equalizer_flag = 0;
+	} else {
+		adv_bool reset = !context->state.equalizer_flag;
+
+		context->state.equalizer_flag = 1;
+
+		adv_filter_lp_butterworth_set(&context->state.equalizer_low, 0.018, 5);
+		adv_filter_bp_butterworth_set(&context->state.equalizer_mid, 0.018, 0.18, 5);
+		adv_filter_hp_butterworth_set(&context->state.equalizer_high, 0.18, 5);
+
+		if (reset) {
+			unsigned i;
+			for(i=0;i<2;++i) {
+				adv_filter_state_reset(&context->state.equalizer_low, &context->state.equalizer_low_state[i]);
+				adv_filter_state_reset(&context->state.equalizer_mid, &context->state.equalizer_mid_state[i]);
+				adv_filter_state_reset(&context->state.equalizer_high, &context->state.equalizer_high_state[i]);
+			}
+		}
+
+		context->state.equalizer_low_factor = pow(10, (double)context->config.equalizer_low / 20);
+		context->state.equalizer_mid_factor = pow(10, (double)context->config.equalizer_mid / 20);
+		context->state.equalizer_high_factor = pow(10, (double)context->config.equalizer_high / 20);
+	}
+}
+
+static void sound_normalize_update(struct advance_sound_context* context)
+{
+	unsigned i;
+
+	context->state.adjust_power_maximum = 0;
+
+	if (context->config.adjust > 40)
+		context->config.adjust = 40;
+
+	if (context->config.adjust < -1)
+		context->config.adjust = -1;
+
+	if (context->config.adjust < 0) {
+		/* first run, don't apply the correction until the */
+		/* first power computation is not zero */
+		context->state.adjust_power_waitfirstsound_flag = 1;
+		context->state.adjust_power_factor = 100; /* fake high value, never used */
+	} else {
+		/* use the stored initial value */
+		context->state.adjust_power_waitfirstsound_flag = 0;
+		context->state.adjust_power_factor = pow(10, (double)context->config.adjust / 20.0);
+	}
+
+	context->state.adjust_power_accumulator = 0;
+	context->state.adjust_power_counter = 0;
+	context->state.adjust_power_counter_limit = context->state.rate * 1; /* recompute every 1 second */
+	if (context->state.input_mode != SOUND_MODE_MONO)
+		context->state.adjust_power_counter_limit *= 2; /* stereo */
+}
+
+static adv_error sound_mode_update(struct advance_sound_context* context)
+{
+	int new_mode;
+	int new_channel;
+	int channel;
+
+	/* new requested mode */
+	if (context->config.mode == SOUND_MODE_AUTO)
+		new_mode = context->state.input_mode;
+	else
+		new_mode = context->config.mode;
+	if (new_mode != SOUND_MODE_MONO)
+		new_channel = 2;
+	else
+		new_channel = 1;
+	if (context->state.output_mode != SOUND_MODE_MONO)
+		channel = 2;
+	else
+		channel = 1;
+
+	/* detect change in the number of channel */
+	if (new_channel != channel) {
+		unsigned rate = context->state.rate;
+
+		if (soundb_is_active()) {
+			if (soundb_is_playing())
+				soundb_stop();
+			soundb_done();
+		}
+
+		if (soundb_init(&rate, new_mode != SOUND_MODE_MONO, context->state.buffer_time) != 0) {
+			return -1;
+		}
+
+		soundb_start(0);
+	}
+
+	/* set the new output mode */
+	context->state.output_mode = new_mode;
+	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
+
+	return 0;
+}
+
+static adv_error sound_update(struct advance_sound_context* context)
+{
+	if (sound_mode_update(context) != 0)
+		return -1;
+
+	sound_normalize_update(context);
+	sound_equalizer_update(context);
+	sound_volume_update(context);
+
+	return 0;
+}
+
+/**
+ * Set a new audio configuration.
+ * If the configuration is invalid the previous one is restored.
+ */
+void advance_sound_reconfigure(struct advance_sound_context* context, struct advance_sound_config_context* config)
+{
+	struct advance_sound_config_context old_config;
+
+	/* save the old configuration */
+	old_config = context->config;
+
+	/* set the new config */
+	context->config = *config;
+
+	/* update all the complete state, the configuration is choosen by the name */
+	if (sound_update(context) != 0) {
+
+		/* restore the config */
+		context->config = old_config;
+
+		log_std(("emu:sound: retrying old config\n"));
+
+		if (sound_update(context) != 0) {
+			/* if something go wrong abort */
+			log_std(("emu:sound: sound_reconfigure() failed\n"));
+			target_err("Unexpected error changing audio options.\n");
+			abort();
+		}
 	}
 }
 
@@ -545,6 +837,7 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 	double low_buffer_time;
+	double d;
 
 	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
@@ -561,6 +854,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 		context->state.output_mode = context->state.input_mode;
 	else
 		context->state.output_mode = context->config.mode;
+	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
+	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
 
 	/* size the buffer to allow a double latency, the specified latency */
 	/* is the target latency, a latency bigger than the target must be allowed */
@@ -577,28 +872,19 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	}
 
 	context->state.active_flag = 1;
+	context->state.buffer_time = low_buffer_time;
 	context->state.rate = *sample_rate;
-	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
-	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
 	context->state.latency_min = context->state.rate * context->config.latency_time;
 	context->state.latency_max = context->state.rate * low_buffer_time;
-	context->state.adjust_mult = ADJUST_MULT_BASE;
-	context->state.adjust_power_factor = 1;
-	context->state.adjust_volume_factor = 1;
-	context->state.adjust_power_accumulator = 0;
-	context->state.adjust_power_counter = 0;
-	context->state.adjust_power_counter_limit = context->state.rate / 2; /* recompute every 1/2 seconds */
-	if (context->state.input_mode != SOUND_MODE_MONO)
-		context->state.adjust_power_counter_limit *= 2; /* stereo */
-	context->state.adjust_power = 0;
-	context->state.active_flag = 1;
 	context->state.mute_flag = 0;
 	context->state.disabled_flag = 0;
+	context->state.equalizer_flag = 0;
 
 	soundb_start(context->config.latency_time);
 
-	/* set the internal volume, it may be faked changing the samples */
-	osd_set_mastervolume(context->config.attenuation);
+	sound_normalize_update(context);
+	sound_equalizer_update(context);
+	sound_volume_update(context);
 
 	return 0;
 }

@@ -363,7 +363,7 @@ adv_error vgaline_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	(void)cursor;
 
-	assert( !vgaline_is_active() );
+	assert(!vgaline_is_active());
 
 	if (sizeof(vgaline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -385,7 +385,7 @@ adv_error vgaline_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 void vgaline_done(void)
 {
-	assert( vgaline_is_active() );
+	assert(vgaline_is_active());
 
 	vgaline_state.active = 0;
 }
@@ -445,7 +445,7 @@ adv_error vgaline_mode_set(const vgaline_video_mode* mode)
 
 void vgaline_mode_done(adv_bool restore)
 {
-	assert( vgaline_mode_is_active() );
+	assert(vgaline_mode_is_active());
 
 	vgaline_state.mode_active = 0;
 }
@@ -455,7 +455,7 @@ adv_error vgaline_mode_grab(vgaline_video_mode* mode)
 	struct vga_regs regs;
 	struct vga_info info;
 
-	assert( vgaline_is_active() );
+	assert(vgaline_is_active());
 
 	/* get the video mode */
 	vga_mode_get(&regs);
@@ -571,7 +571,7 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 {
 	unsigned pixelclock;
 
-	assert( vgaline_is_active() );
+	assert(vgaline_is_active());
 
 	if (crtc_is_fake(crtc)) {
 		error_nolog_set("Not programmable modes are not supported.\n");

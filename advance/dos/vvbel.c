@@ -273,7 +273,7 @@ adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	(void)cursor;
 
-	assert( !vbeline_is_active() );
+	assert(!vbeline_is_active());
 
 	if (sizeof(vbeline_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -344,8 +344,8 @@ adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 void vbeline_done(void)
 {
-	assert( vbeline_is_active() );
-	assert( !vbeline_mode_is_active() );
+	assert(vbeline_is_active());
+	assert(!vbeline_mode_is_active());
 
 	if (vbeline_state.driver->reset)
 		vbeline_state.driver->reset();
@@ -370,19 +370,19 @@ adv_bool vbeline_mode_is_active(void)
 
 const char* vbeline_driver_name(void)
 {
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 	return vbeline_state.driver->name;
 }
 
 const char* vbeline_driver_description(void)
 {
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 	return "";
 }
 
 unsigned vbeline_flags(void)
 {
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 	return vbeline_state.flags;
 }
 
@@ -480,12 +480,12 @@ adv_error vbeline_mode_set(const vbeline_video_mode* mode)
 	card_mode cm; /* requested mode info */
 	card_mode co; /* current mode info */
 
-	assert( vbeline_is_active() );
-	assert( !vbeline_mode_is_active() );
+	assert(vbeline_is_active());
+	assert(!vbeline_mode_is_active());
 
-	log_std(("vbeline: mode_set number 0x%x\n", mode->mode ));
-	log_std_modeline_c(("vbeline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
-	log_std(("vbeline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+	log_std(("vbeline: mode_set number 0x%x\n", mode->mode));
+	log_std_modeline_c(("vbeline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc)));
+	log_std(("vbeline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc)));
 
 	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
 		log_std(("vbeline: save video board state\n"));
@@ -560,8 +560,8 @@ adv_error vbeline_mode_set(const vbeline_video_mode* mode)
 
 void vbeline_mode_done(adv_bool restore)
 {
-	assert( vbeline_is_active() );
-	assert( vbeline_mode_is_active() );
+	assert(vbeline_is_active());
+	assert(vbeline_mode_is_active());
 
 	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
 		log_std(("vbeline: restore video board state\n"));
@@ -626,7 +626,7 @@ adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 
 int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 {
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
 		return vbe_pixelclock_getnext(pixelclock, mode);
 	} else {
@@ -639,7 +639,7 @@ int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 
 int vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode)
 {
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
 		return vbe_pixelclock_getpred(pixelclock, mode);
 	} else {
@@ -915,7 +915,7 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 	unsigned model;
 	unsigned bits;
 
-	assert( vbeline_is_active() );
+	assert(vbeline_is_active());
 
 	if (crtc_is_fake(crtc)) {
 		error_nolog_set("Not programmable modes are not supported.\n");
@@ -1008,7 +1008,7 @@ void vbeline_reg(adv_conf* context)
 {
 	unsigned i;
 
-	assert( !vbeline_is_active() );
+	assert(!vbeline_is_active());
 
 	OPTION_DRIVER[0].value = "auto";
 	OPTION_DRIVER[1].value = "none";
@@ -1025,7 +1025,7 @@ adv_error vbeline_load(adv_conf* context)
 {
 
 	/* Options must be loaded before initialization */
-	assert( !vbeline_is_active() );
+	assert(!vbeline_is_active());
 
 	vbeline_option.choice = conf_int_get_default(context, "device_vbeline_mode");
 	vbeline_option.clock_multiplier = conf_float_get_default(context, "device_vbeline_clock_multiplier");

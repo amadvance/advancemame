@@ -351,7 +351,7 @@ static inline void internal_rgb_raw64x3_012nocarry_mmx(void* dst, const void* sr
 
 static inline void internal_rgb_raw32_012_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count)
 {
-	assert_align( ((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
+	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
 		unsigned v0;

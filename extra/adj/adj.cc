@@ -4,13 +4,28 @@
 
 using namespace std;
 
-bool isname(char c) {
-	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c=='_';
-}
-
 bool match(const string& s, unsigned i, const string& token)
 {
 	return s.substr(i, token.length()) == token;
+}
+
+bool eol(const string& s, unsigned i)
+{
+	while (i < s.length()) {
+		if (s[i] == '\n')
+			return true;
+		if (!isspace(s[i]))
+			return false;
+		++i;
+	}
+
+	return true;
+}
+
+bool matcheol(const string& s, unsigned i, const string& token)
+{
+	return s.substr(i, token.length()) == token
+		&& eol(s, i + token.length());
 }
 
 enum state_t {
@@ -33,8 +48,10 @@ void subs(string& s)
 
 		switch (state) {
 		case state_declaration :
-			if (match(s, i, ") {\n"))
+			if (matcheol(s, i, ") {"))
 				s[i+1] = '\n';
+			if (matcheol(s,i,") const {"))
+				s[i+7] = '\n';
 			/* nobreak */
 		case state_code :
 			if (match(s, i, " )"))

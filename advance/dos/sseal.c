@@ -198,7 +198,7 @@ void soundb_seal_stop(void)
 	log_std(("sound:seal: soundb_seal_stop()\n"));
 
 	for (i=0;i<seal_state.channel;++i) {
-		assert( seal_state.wave[i] );
+		assert(seal_state.wave[i]);
 
 		AStopVoice(seal_state.voice[i]);
 

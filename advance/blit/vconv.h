@@ -1243,7 +1243,7 @@ static void video_line_rgbtoyuy2_step_def(const struct video_stage_horz_struct* 
 
 		cpu_uint32_write(p4, (rgb_shift(p, stage->red_shift) & stage->red_mask)
 			| (rgb_shift(p, stage->green_shift) & stage->green_mask)
-			| (rgb_shift(p, stage->blue_shift) & stage->blue_mask) );
+			| (rgb_shift(p, stage->blue_shift) & stage->blue_mask));
 
 		bgra8888toyuy2_def(dst8, &p4);
 

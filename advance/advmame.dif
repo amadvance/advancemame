@@ -667,14 +667,13 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 --- src.ori/input.h	2004-08-07 19:16:50.000000000 +0200
-+++ src/input.h	2004-08-07 19:18:41.000000000 +0200
-@@ -429,11 +429,17 @@
- 	CODE_DEFAULT,				/* special for input port definitions */
++++ src/input.h	2004-08-12 12:28:10.000000000 +0200
+@@ -430,10 +430,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
  };
  
--
+ 
 +/* AdvanceMAME: Remap the F1 key used by some debug code to an unused key. */
 +#ifdef MESS
 +#define KEYCODE_F1_REAL KEYCODE_F1
@@ -687,7 +686,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
   *
   *	Type definitions
   *
-@@ -481,10 +487,13 @@
+@@ -481,10 +488,13 @@
  
  /* single code functions */
  int code_init(void);
@@ -703,14 +702,16 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2004-08-07 19:16:50.000000000 +0200
-+++ src/mame.c	2004-08-07 19:18:41.000000000 +0200
-@@ -534,10 +534,13 @@
++++ src/mame.c	2004-08-12 11:24:18.000000000 +0200
+@@ -534,10 +534,15 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
  			/* show info about the game */
  			if (options.skip_gameinfo || showgameinfo(artwork_get_ui_bitmap()) == 0)
  			{
-+				/* AdvanceMAME: Update the video, otherwise with all the skip options the program crash */
++				/* AdvanceMAME: Force a video update, otherwise with all the skip options the program crash */
++				fillbitmap(artwork_get_ui_bitmap(), get_black_pen(), NULL);
++				schedule_full_refresh();
 +				update_video_and_audio();
 +
  				init_user_interface();
@@ -720,36 +721,23 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2004-08-07 19:16:50.000000000 +0200
-+++ src/osdepend.h	2004-08-10 12:01:33.000000000 +0200
-@@ -187,10 +187,16 @@
-   code specified in the list returned by osd_get_code_list().
- */
- INT32 osd_get_code_value(os_code_t oscode);
- 
- /*
-+  return the analog value of the specified input.
-+  analog inputs return a value between -65536 and +65536.
-+*/
-+INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
-+
-+/*
-   Return the Unicode value of the most recently pressed key. This
-   function is used only by text-entry routines in the user interface and should
-   not be used by drivers. The value returned is in the range of the first 256
-   bytes of Unicode, e.g. ISO-8859-1. A return value of 0 indicates no key down.
- 
-@@ -347,10 +353,44 @@
++++ src/osdepend.h	2004-08-20 15:25:23.000000000 +0200
+@@ -347,10 +347,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
  #endif
  
 +/* AdvanceMAME: Specific OSD interface */
++
++/* return the analog value of the specified input. */
++INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
++
 +/* called then the game is reset */
 +void osd_reset(void);
 +
 +/* execute the specified menu (0,1,...) */
-+int osd_menu(struct mame_bitmap *bitmap, int sel);
++int osd_menu(unsigned menu, struct mame_bitmap *bitmap, int sel);
 +
 +/* filter the main exit request */
 +int osd_input_exit_filter(int result);
@@ -841,8 +829,8 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2004-08-07 19:16:50.000000000 +0200
-+++ src/ui_text.c	2004-08-07 19:18:41.000000000 +0200
-@@ -216,10 +216,13 @@
++++ src/ui_text.c	2004-08-20 15:23:45.000000000 +0200
+@@ -216,10 +216,14 @@
  	"One match found - added to list",
  
  	/* refresh rate */
@@ -850,6 +838,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 +	/* AdvanceMAME: Extra user interface commands */
 +	"Video",
++	"Audio",
 +
  	NULL
  };
@@ -858,15 +847,16 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2004-08-07 19:16:50.000000000 +0200
-+++ src/ui_text.h	2004-08-07 19:18:41.000000000 +0200
-@@ -185,10 +185,13 @@
++++ src/ui_text.h	2004-08-20 15:23:29.000000000 +0200
+@@ -185,10 +185,14 @@
  	UI_search_one_match_found_added,
  	
  	/* refresh rate */
  	UI_refresh_rate,
  
 +	/* AdvanceMAME: Extra user interface commands */
-+	UI_osdmenu,
++	UI_osd_1,
++	UI_osd_2,
 +
  	UI_last_mame_entry
  };
@@ -875,7 +865,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2004-08-07 19:16:50.000000000 +0200
-+++ src/usrintrf.c	2004-08-10 19:22:09.000000000 +0200
++++ src/usrintrf.c	2004-08-20 15:25:02.000000000 +0200
 @@ -821,10 +821,13 @@
  
  
@@ -1006,61 +996,64 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  enum { UI_SWITCH = 0,UI_DEFGROUP,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_STATS,UI_GAMEINFO, UI_HISTORY,
 -		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT };
-+		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD };
++		UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD_1,UI_OSD_2 };
  #else
  enum { UI_SWITCH = 0,UI_DEFGROUP,UI_CODE,UI_ANALOG,UI_CALIBRATE,
  		UI_GAMEINFO, UI_IMAGEINFO,UI_FILEMANAGER,UI_TAPECONTROL,
 -		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,
 -		UI_CONFIGURATION, UI_CATEGORIES };
-+		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD,
++		UI_HISTORY,UI_CHEAT,UI_RESET,UI_MEMCARD,UI_EXIT,UI_OSD_1,UI_OSD_2,
 +		UI_CONFIGURATION, UI_CATEGORIES, };
  #endif
  
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3295,10 +3313,12 @@
+@@ -3295,10 +3313,13 @@
  		append_menu(UI_memorycard, UI_MEMCARD);
  	}
  #endif
  #endif
  
 +	/* AdvanceMAME: Extra menu UI_OSD */
-+	append_menu(UI_osdmenu, UI_OSD);
++	append_menu(UI_osd_1, UI_OSD_1);
++	append_menu(UI_osd_2, UI_OSD_2);
  	append_menu(UI_resetgame, UI_RESET);
  	append_menu(UI_returntogame, UI_EXIT);
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3363,10 +3383,14 @@
+@@ -3363,10 +3384,15 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
  				res = cheat_menu(bitmap, sel >> SEL_BITS);
  				break;
 +			/* AdvanceMAME: Extra menu UI_OSD */
-+			case UI_OSD :
-+				res = osd_menu(bitmap, sel >> SEL_BITS);
++			case UI_OSD_1 :
++			case UI_OSD_2 :
++				res = osd_menu(menu_action[sel & SEL_MASK] - UI_OSD_1, bitmap, sel >> SEL_BITS);
 +				break;
  #ifndef MESS
  #ifndef TINY_COMPILE
  			case UI_MEMCARD:
  				res = memcard_menu(bitmap, sel >> SEL_BITS);
  				break;
-@@ -3415,10 +3439,12 @@
+@@ -3415,10 +3441,13 @@
  			case UI_CATEGORIES:
  #endif /* !MESS */
  			case UI_HISTORY:
  			case UI_CHEAT:
  			case UI_MEMCARD:
 +			/* AdvanceMAME: Extra menu UI_OSD */
-+			case UI_OSD :
++			case UI_OSD_1 :
++			case UI_OSD_2 :
  				sel |= 1 << SEL_BITS;
  				schedule_full_refresh();
  				break;
  
  			case UI_RESET:
-@@ -3455,10 +3481,13 @@
+@@ -3455,10 +3484,13 @@
  
  *********************************************************************/
  
@@ -1074,7 +1067,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3480,10 +3509,11 @@
+@@ -3480,10 +3512,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -1086,7 +1079,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3513,17 +3543,17 @@
+@@ -3513,17 +3546,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1106,7 +1099,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3870,10 +3900,13 @@
+@@ -3870,10 +3903,13 @@
  *********************************************************************/
  
  
@@ -1120,7 +1113,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3893,10 +3926,11 @@
+@@ -3893,10 +3929,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -1132,7 +1125,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -4018,10 +4052,11 @@
+@@ -4018,10 +4055,11 @@
  	return show_profiler;
  }
  
@@ -1144,7 +1137,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int done = 0;
  	int y = 0;
  
-@@ -4059,32 +4094,31 @@
+@@ -4059,32 +4097,31 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1181,19 +1174,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4146,11 +4180,10 @@
- 			profiler_mark(PROFILER_END);
- 
- 			if (input_ui_pressed(IPT_UI_SNAPSHOT))
- 				save_screen_snapshot(bitmap);
- 
--
- 			if (input_ui_pressed(IPT_UI_SAVE_STATE))
- 				do_loadsave(bitmap, LOADSAVE_SAVE);
- 
- 			if (input_ui_pressed(IPT_UI_LOAD_STATE))
- 				do_loadsave(bitmap, LOADSAVE_LOAD);
-@@ -4158,11 +4191,11 @@
+@@ -4158,11 +4195,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1206,7 +1187,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4241,16 +4274,18 @@
+@@ -4241,16 +4278,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);

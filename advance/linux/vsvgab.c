@@ -84,7 +84,7 @@ static adv_bool svgalib_mode_is_active(void)
 
 static unsigned svgalib_flags(void)
 {
-	assert( svgalib_is_active() );
+	assert(svgalib_is_active());
 	return svgalib_state.flags;
 }
 
@@ -103,7 +103,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 	(void)zoom_size;
 
 	/* assume that vga_init() is already called */
-	assert( !svgalib_is_active() );
+	assert(!svgalib_is_active());
 
 	log_std(("video:svgalib: svgalib_init()\n"));
 
@@ -226,7 +226,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	unsigned bytes_per_pixel;
 	unsigned bytes_per_scanline;
 
-	assert( svgalib_is_active() && !svgalib_mode_is_active() );
+	assert(svgalib_is_active() && !svgalib_mode_is_active());
 
 	log_std(("video:svgalib: svgalib_mode_set()\n"));
 
@@ -397,7 +397,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 adv_error svgalib_mode_change(const svgalib_video_mode* mode)
 {
-	assert( svgalib_is_active() && svgalib_mode_is_active() );
+	assert(svgalib_is_active() && svgalib_mode_is_active());
 
 	log_std(("video:svgalib: svgalib_mode_change()\n"));
 
@@ -407,7 +407,7 @@ adv_error svgalib_mode_change(const svgalib_video_mode* mode)
 
 void svgalib_mode_done(adv_bool restore)
 {
-	assert( svgalib_is_active() && svgalib_mode_is_active() );
+	assert(svgalib_is_active() && svgalib_mode_is_active());
 
 	log_std(("video:svgalib: svgalib_mode_done()\n"));
 
@@ -422,7 +422,7 @@ void svgalib_mode_done(adv_bool restore)
 
 		/* refresh the screen, SVGALIB doesn't save and restore the video memory */
 		term = getenv("TERM");
-		if (term && strcmp(term,"linux")==0) {
+		if (term && strcmp(term, "linux")==0) {
 			/* refresh the screen, partial output of "tput flash" */
 			fputs("\033[?5h\033[?5l", stdout);
 			fflush(stdout);
@@ -560,7 +560,7 @@ adv_error svgalib_mode_import(adv_mode* mode, const svgalib_video_mode* svgalib_
 
 adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( svgalib_is_active() );
+	assert(svgalib_is_active());
 
 	if (crtc_is_fake(crtc)) {
 		error_nolog_set("Not programmable modes are not supported.\n");
@@ -590,12 +590,12 @@ int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* 
 
 void svgalib_reg(adv_conf* context)
 {
-	assert( !svgalib_is_active() );
+	assert(!svgalib_is_active());
 }
 
 adv_error svgalib_load(adv_conf* context)
 {
-	assert( !svgalib_is_active() );
+	assert(!svgalib_is_active());
 	return 0;
 }
 

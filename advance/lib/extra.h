@@ -38,6 +38,7 @@
 /** \defgroup LCD LCD */
 /** \defgroup Log Log */
 /** \defgroup Color Color */
+/** \defgroup Complex Complex */
 /** \defgroup BitMap BitMap */
 /** \defgroup Configuration Configuration */
 /** \defgroup Crtc Crtc */

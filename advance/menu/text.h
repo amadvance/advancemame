@@ -23,6 +23,7 @@
 
 #include "resource.h"
 #include "event.h"
+#include "color.h"
 #include "conf.h"
 #include "bitmap.h"
 
@@ -31,14 +32,6 @@
 
 #include <string>
 #include <iostream>
-
-// -------------------------------------------------------------------------
-// Interface
-
-struct int_color {
-	adv_color_rgb foreground;
-	adv_color_rgb background;
-};
 
 void int_reg(adv_conf* config_context);
 void int_unreg();
@@ -51,6 +44,8 @@ bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientat
 void int_disable();
 void int_unplug();
 void int_plug();
+void* int_save();
+void int_restore(void* buffer);
 
 bool int_image(const char* file, unsigned& size_x, unsigned& size_y);
 void int_clear();
@@ -98,31 +93,5 @@ int int_font_dy_get();
 int int_dx_get();
 int int_dy_get();
 
-// -------------------------------------------------------------------------
-// Colors
-
-extern int_color COLOR_HELP_NORMAL;
-extern int_color COLOR_HELP_TAG;
-extern int_color COLOR_CHOICE_TITLE;
-extern int_color COLOR_CHOICE_NORMAL;
-extern int_color COLOR_CHOICE_HIDDEN;
-extern int_color COLOR_CHOICE_SELECT;
-extern int_color COLOR_CHOICE_HIDDEN_SELECT;
-extern int_color COLOR_MENU_NORMAL;
-extern int_color COLOR_MENU_HIDDEN;
-extern int_color COLOR_MENU_TAG;
-extern int_color COLOR_MENU_SELECT;
-extern int_color COLOR_MENU_HIDDEN_SELECT;
-extern int_color COLOR_MENU_TAG_SELECT;
-extern int_color COLOR_MENU_BAR;
-extern int_color COLOR_MENU_BAR_TAG;
-extern int_color COLOR_MENU_BAR_HIDDEN;
-extern int_color COLOR_MENU_GRID;
-extern int_color COLOR_MENU_BACKDROP;
-extern int_color COLOR_MENU_ICON;
-extern int_color COLOR_MENU_CURSOR;
-
-bool int_color_in(const std::string& s);
-void int_color_out(adv_conf* config_context, const char* tag);
-
 #endif
+

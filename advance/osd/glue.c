@@ -935,7 +935,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	for(game_index=0;drivers[game_index];++game_index)
 		if ((const struct GameDriver*)context->game == drivers[game_index])
 			break;
-	assert( drivers[game_index] != 0);
+	assert(drivers[game_index] != 0);
 	if (!drivers[game_index])
 		return -1;
 
@@ -1020,6 +1020,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 #define KR4(name, re1, re2, re3, re4) \
 	{ "key_" name, "Key " name, { re1, re2, re3, re4 } },
 
+#define KR5(name, re1, re2, re3, re4, re5) \
+	{ "key_" name, "Key " name, { re1, re2, re3, re4, re5 } },
+
 #ifdef MESS
 struct glue_keyboard_name {
 	const char* name;
@@ -1034,6 +1037,7 @@ struct glue_keyboard_name {
  * the key from it's free form description on the MESS driver port list.
  */
 static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
+
 	K("q")
 	K("w")
 	K("e")
@@ -1079,16 +1083,16 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	KR4("pad_diesis", "keypad*#", "#*keypad?", "#*kp?", "kp*#")
 	KR4("pad_asterisk", "keypad*\\*", "\\**keypad?", "\\**kp?", "kp*\\*")
 
-	K("0")
-	K("1")
-	K("2")
-	K("3")
-	K("4")
-	K("5")
-	K("6")
-	K("7")
-	K("8")
-	K("9")
+	KR1("0", "0")
+	KR1("1", "1")
+	KR1("2", "2")
+	KR1("3", "3")
+	KR1("4", "4")
+	KR1("5", "5")
+	KR1("6", "6")
+	KR1("7", "7")
+	KR1("8", "8")
+	KR1("9", "9")
 
 	KR2("esc", "esc", "escape")
 	KR2("enter", "enter", "return")
@@ -1568,26 +1572,38 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 }
 
 #ifdef MESS
-static unsigned glue_keyboard_find(const char* name)
+static unsigned glue_keyboard_find(const char* const_name)
 {
 	int i;
-	char name_buffer[64];
+	char name_buffer[128];
+	char* name;
+	char* s;
 	unsigned name_len;
 	unsigned j, k;
 
-	if (!name) {
+	if (!const_name) {
 		log_std(("ERROR:glue: keyboard port without a name\n"));
 		return 0;
 	}
 
-	/* HACK for MESS c128 driver */
-	if (strncmp(name,"(64)", 4) == 0)
-		name += 4;
-
-	sncpy(name_buffer, sizeof(name_buffer), name);
+	/* duplicate */
+	sncpy(name_buffer, sizeof(name_buffer), const_name);
+	name = name_buffer;
 
 	/* comparison is in lower case */
-	strlwr(name_buffer);
+	strlwr(name);
+
+	/* HACK for MESS c128 driver */
+	if (strncmp(name, "(64)", 4) == 0)
+		name += 4; /* remove starting "(64)" string */
+
+	/* HACK for MESS coleco driver */
+	s = strstr(name, "(pad 1)"); /* remove ending "(pad 1)" string */
+	if (s && strlen(s) == 7)
+		strcpy(s, "");
+	s = strstr(name, "(pad 2)"); /* substitute ending "(pad 2)" string */
+	if (s && strlen(s) == 7)
+		strcpy(s, " keypad");
 
 	/* search for exact match */
 	for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
@@ -2079,9 +2095,9 @@ static struct mame_analog ANALOG[] = {
 	A("stick_z", AD_STICK_Z)
 	A("lightgun_x", LIGHTGUN_X)
 	A("lightgun_y", LIGHTGUN_Y)
-	A("pedal1", PEDAL)
-	A("pedal2", PEDAL2)
-	A("pedal3", PEDAL3)
+	A("pedalgas", PEDAL)
+	A("pedalbrake", PEDAL2)
+	A("pedalother", PEDAL3)
 	A("dial_x", DIAL)
 	A("dial_y", DIAL_V)
 	A("trackball_x", TRACKBALL_X)
@@ -2253,7 +2269,7 @@ void osd_exit(void)
  * Terminate the program with an error message.
  * It never return.
  */
-void osd_die(const char* text,...)
+void osd_die(const char* text, ...)
 {
 	va_list arg;
 	va_start(arg, text);
@@ -2378,7 +2394,7 @@ void osd_close_display(void)
 /**
  * Display a menu.
  */
-int osd_menu(struct mame_bitmap *bitmap, int selected)
+int osd_menu(unsigned menu, struct mame_bitmap *bitmap, int selected)
 {
 	unsigned input;
 	int r;
@@ -2407,7 +2423,18 @@ int osd_menu(struct mame_bitmap *bitmap, int selected)
 	if (input_ui_pressed_repeat(IPT_UI_RIGHT, 8))
 		input |= OSD_INPUT_RIGHT;
 
-	r = osd2_menu(selected, input);
+	switch (menu) {
+	case 0 :
+		r = osd2_video_menu(selected, input);
+		break;
+	case 1 :
+		r = osd2_audio_menu(selected, input);
+		break;
+	default:
+		r = -1;
+		break;
+	}
+
 	if (r < 0)
 		return -1;
 	else
@@ -2551,7 +2578,7 @@ int osd_start_audio_stream(int stereo)
 
 	log_std(("osd: osd_start_audio_stream(sample_rate:%d, stereo_flag:%d)\n", rate, stereo));
 
-	assert( GLUE.sound_flag == 0 );
+	assert(GLUE.sound_flag == 0);
 
 	if (osd2_sound_init(&rate, stereo) != 0) {
 		log_std(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
@@ -2587,10 +2614,10 @@ int osd_start_audio_stream(int stereo)
 
 	GLUE.sound_silence_count = 2 * GLUE.sound_step; /* double size for safety */
 	if (stereo) {
-		GLUE.sound_silence_buffer = (short*)malloc( 4 * GLUE.sound_silence_count );
+		GLUE.sound_silence_buffer = (short*)malloc(4 * GLUE.sound_silence_count);
 		memset(GLUE.sound_silence_buffer, 0, 4 * GLUE.sound_silence_count);
 	} else {
-		GLUE.sound_silence_buffer = (short*)malloc( 2 * GLUE.sound_silence_count );
+		GLUE.sound_silence_buffer = (short*)malloc(2 * GLUE.sound_silence_count);
 		memset(GLUE.sound_silence_buffer, 0, 2 * GLUE.sound_silence_count);
 	}
 
@@ -2713,13 +2740,13 @@ static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
 	exit_menu_item[total] = 0;
 	flag[total] = 0;
 
-	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
+	ui_displaymenu(bitmap, exit_menu_item, 0, flag, sel, 0);
 
-	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
+	if (input_ui_pressed_repeat(IPT_UI_DOWN, 8)) {
 		sel = (sel + 1) % total;
 	}
 
-	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
+	if (input_ui_pressed_repeat(IPT_UI_UP, 8)) {
 		sel = (sel + total - 1) % total;
 	}
 
@@ -2925,7 +2952,7 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 		option->ram = 0;
 	} else {
 		char* e;
-		option->ram = strtol(s,&e,10);
+		option->ram = strtol(s, &e, 10);
 
 		if (*e == 'k') {
 			option->ram *= 1024;
@@ -2967,7 +2994,7 @@ adv_error mame_init(struct advance_context* context)
 	j = 0;
 
 	/* check that port masks don't overlap */
-	assert( (MAME_PORT_PLAYER_MASK ^ MAME_PORT_TYPE_MASK ^ MAME_PORT_INDEX_MASK) == (MAME_PORT_PLAYER_MASK | MAME_PORT_TYPE_MASK | MAME_PORT_INDEX_MASK) );
+	assert((MAME_PORT_PLAYER_MASK ^ MAME_PORT_TYPE_MASK ^ MAME_PORT_INDEX_MASK) == (MAME_PORT_PLAYER_MASK | MAME_PORT_TYPE_MASK | MAME_PORT_INDEX_MASK));
 
 	/* add the constant ports */
 	for(i=0;GLUE_PORT_STD[i].name;++i) {
@@ -3012,7 +3039,7 @@ adv_error mame_init(struct advance_context* context)
 
 	conf_bool_register_default(context->cfg, "misc_cheat", 0);
 	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");
-	conf_string_register_default(context->cfg, "misc_cheatfile", "cheat.dat" );
+	conf_string_register_default(context->cfg, "misc_cheatfile", "cheat.dat");
 
 	conf_string_register_default(context->cfg, "misc_hiscorefile", "hiscore.dat");
 

@@ -204,7 +204,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 
 adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 {
-	if (text_default_set(cc,monitor)!=0) {
+	if (text_default_set(cc, monitor)!=0) {
 		video_mode_restore();
 		target_err("Error initialing the default video mode.\n\r\"%s\"\n\r", error_get());
 		return -1;
@@ -250,7 +250,8 @@ void text_put(int x, int y, char c, int color)
 	}
 }
 
-adv_error text_mode_set(adv_mode* mode) {
+adv_error text_mode_set(adv_mode* mode)
+{
 	inputb_disable();
 
 	if (video_mode_set(mode)!=0) {
@@ -594,8 +595,8 @@ void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counte
 		if (y >= (s_dy - dy))
 			y = (s_dy - dy) * 2 - y;
 
-		assert( x + dx <= s_dx );
-		assert( y + dy <= s_dy );
+		assert(x + dx <= s_dx);
+		assert(y + dy <= s_dy);
 
 		/* draw bar */
 		if (do_clear)

@@ -142,7 +142,7 @@ static void draw_text_error(void)
 
 	if (*error_get()) {
 		y = draw_text_para(x, y, dx, dy-y, "\nThe video software reports this error:", COLOR_NORMAL);
-		log_std(("v: error \"%s\"\n", error_get() ));
+		log_std(("v: error \"%s\"\n", error_get()));
 		y = draw_text_para(x, y, dx, dy-y, error_get(), COLOR_ERROR);
 	}
 
@@ -411,7 +411,7 @@ static void draw_text_bar(int x, int by1, int by2, int dx)
 	char buffer[256];
 	unsigned i;
 
-	snprintf(buffer, sizeof(buffer), " AdvanceVIDEO Config - " __DATE__ );
+	snprintf(buffer, sizeof(buffer), " AdvanceVIDEO Config - " __DATE__);
 
 	draw_text_left(x, by1, dx, buffer, COLOR_BAR);
 
@@ -1556,10 +1556,10 @@ static int menu_run(void)
 
 		switch (userkey) {
 			case INPUTB_UP:
-				cmd_gotopos( menu_base + menu_rel - 1);
+				cmd_gotopos(menu_base + menu_rel - 1);
 				break;
 			case INPUTB_DOWN:
-				cmd_gotopos( menu_base + menu_rel + 1 );
+				cmd_gotopos(menu_base + menu_rel + 1);
 				break;
 			case INPUTB_HOME: {
 				int i = menu_base + menu_rel - 1;
@@ -1567,7 +1567,7 @@ static int menu_run(void)
 					i = 0;
 				while (i>0 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
 					--i;
-				cmd_gotopos( i );
+				cmd_gotopos(i);
 				break;
 			}
 			case INPUTB_END: {
@@ -1576,14 +1576,14 @@ static int menu_run(void)
 					i = menu_max - 1;
 				while (i < menu_max - 1 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
 					++i;
-				cmd_gotopos( i );
+				cmd_gotopos(i);
 				break;
 			}
 			case INPUTB_PGDN:
-				cmd_gotopos( menu_base + menu_rel + menu_rel_max );
+				cmd_gotopos(menu_base + menu_rel + menu_rel_max);
 				break;
 			case INPUTB_PGUP:
-				cmd_gotopos( menu_base + menu_rel - menu_rel_max );
+				cmd_gotopos(menu_base + menu_rel - menu_rel_max);
 				break;
 			case INPUTB_F2:
 				cmd_save();
@@ -1597,7 +1597,7 @@ static int menu_run(void)
 				break;
 			case INPUTB_SPACE:
 				cmd_select();
-				cmd_gotopos( menu_base + menu_rel + 1 );
+				cmd_gotopos(menu_base + menu_rel + 1);
 				break;
 			case INPUTB_ENTER:
 				if (cmd_onvideo_test() != 0) {
@@ -1655,7 +1655,7 @@ static int menu_run(void)
 				break;
 			case INPUTB_DEL :
 				cmd_del();
-				cmd_gotopos( menu_base + menu_rel );
+				cmd_gotopos(menu_base + menu_rel);
 				break;
 			case INPUTB_F1:
 				draw_text_help();
@@ -1769,7 +1769,7 @@ void troubleshotting(void)
 #endif
 		}
 		term = getenv("TERM");
-		if (!term || strcmp(term,"linux")!=0)
+		if (!term || strcmp(term, "linux")!=0)
 			target_err("Try to run this program in a TERM=linux terminal.\n\r");
 	}
 #endif
@@ -2018,7 +2018,7 @@ int os_main(int argc, char* argv[])
 
 	the_modes_modified = 0;
 
-	if (text_init(&the_modes,&the_monitor) != 0) {
+	if (text_init(&the_modes, &the_monitor) != 0) {
 		goto err_input;
 	}
 

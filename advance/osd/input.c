@@ -275,7 +275,7 @@ static adv_error parse_int(int* v, const char* s)
 {
 	char* e;
 
-	*v = strtol(s,&e,10);
+	*v = strtol(s, &e, 10);
 
 	if (*e!=0 || e == s) {
 		error_set("Invalid integer '%s'", s);
@@ -304,7 +304,7 @@ static adv_error parse_joystick_stick(int* v, const char* s, int joystick)
 	}
 
 	for(i=0;i<joystickb_stick_count_get(joystick);++i) {
-		if (strcmp(joystickb_stick_name_get(joystick,i), s) == 0) {
+		if (strcmp(joystickb_stick_name_get(joystick, i), s) == 0) {
 			*v = i;
 			return 0;
 		}
@@ -503,12 +503,12 @@ static adv_error parse_direction(int* v, const char* s)
 		return parse_int(v, s);
 	}
 
-	if (strcmp(s,"left")==0 || strcmp(s,"up")==0) {
+	if (strcmp(s, "left")==0 || strcmp(s, "up")==0) {
 		*v = 1;
 		return 0;
 	}
 
-	if (strcmp(s,"right")==0 || strcmp(s,"down")==0) {
+	if (strcmp(s, "right")==0 || strcmp(s, "down")==0) {
 		*v = 0;
 		return 0;
 	}
@@ -542,7 +542,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 		const char* v2;
 
 		t = stoken(&c, &p, s, "[ \t", " \t");
-		if (first && strcmp(t,"auto")==0) {
+		if (first && strcmp(t, "auto")==0) {
 			sskip(&p, s, " \t");
 
 			if (s[p] || c == '[') {
@@ -776,7 +776,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 		const char* v3;
 
 		t = stoken(&c, &p, s, "[ \t", " \t");
-		if (first && strcmp(t,"auto")==0) {
+		if (first && strcmp(t, "auto")==0) {
 			sskip(&p, s, " \t");
 
 			if (s[p] || c == '[') {
@@ -1041,7 +1041,7 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 			case DIGITAL_TYPE_KBD :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				sncatf(buffer, buffer_size, "keyboard[%d,%s]", DIGITAL_KBD_BOARD_GET(v), key_name(DIGITAL_KBD_KEY_GET(v)) );
+				sncatf(buffer, buffer_size, "keyboard[%d,%s]", DIGITAL_KBD_BOARD_GET(v), key_name(DIGITAL_KBD_KEY_GET(v)));
 				break;
 			case DIGITAL_TYPE_JOY :
 				if (buffer[0] != 0)
@@ -1315,9 +1315,9 @@ adv_error advance_input_parse_analogvalue(int* keydelta, int* sensitivity, int* 
 			if (*sensitivity > 255)
 				*sensitivity = 255;
 		} else if (strcmp(tag, "reverse") == 0) {
-			if (strcmp(value,"reverse") == 0 || strcmp(value,"1") == 0)
+			if (strcmp(value, "reverse") == 0 || strcmp(value, "1") == 0)
 				*reverse = 1;
-			else if (strcmp(value,"noreverse") == 0 || strcmp(value,"0") == 0)
+			else if (strcmp(value, "noreverse") == 0 || strcmp(value, "0") == 0)
 				*reverse = 0;
 			else {
 				/* ignore */
@@ -1676,7 +1676,7 @@ static void input_setup_log(struct advance_input_context* context)
 		log_std(("joy %d, controls %d, buttons %d, ball axes %d\n", i, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i)));
 		for(j=0;j<joystickb_stick_count_get(i);++j) {
 			log_std(("\tcontrol %d [%s], axes %d\n", j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j)));
-			for(k=0;k<joystickb_stick_axe_count_get(i,j);++k) {
+			for(k=0;k<joystickb_stick_axe_count_get(i, j);++k) {
 				log_std(("\t\taxe %d [%s]\n", k, joystickb_stick_axe_name_get(i, j, k)));
 			}
 		}
@@ -1742,9 +1742,9 @@ static void input_setup_list(struct advance_input_context* context)
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_DIGITAL_MAX) {
 				if (i == 0)
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i, j));
 				else
-					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i,j));
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i, j));
 				input_code_map[mac].name = input_name_map[mac];
 				input_code_map[mac].oscode = DIGITAL_MOUSE_BUTTON(i, j);
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;

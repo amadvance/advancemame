@@ -187,8 +187,8 @@ static int score_compare_dim2(
 	unsigned rx, unsigned ry,
 	unsigned mx0, unsigned mx1, unsigned mx2, unsigned mx3,
 	unsigned my0, unsigned my1, unsigned my2, unsigned my3,
-	adv_bool best_auto
-) {
+	adv_bool best_auto)
+{
 	adv_bool ae;
 	adv_bool be;
 	unsigned axi;
@@ -267,9 +267,9 @@ static int score_compare_dim2(
 		/* if the scale factor is automatically choosen, favorite factors with effects */
 		if (best_auto) {
 			/* use the same x and y scale factors */
-			if (factor_has_effect(axi,ayi) && !factor_has_effect(bxi,byi))
+			if (factor_has_effect(axi, ayi) && !factor_has_effect(bxi, byi))
 				return -1;
-			else if (!factor_has_effect(axi,ayi) && factor_has_effect(bxi,byi))
+			else if (!factor_has_effect(axi, ayi) && factor_has_effect(bxi, byi))
 				return 1;
 		}
 
@@ -291,8 +291,8 @@ static int score_compare_dim1(
 	unsigned a,
 	unsigned b,
 	unsigned r,
-	unsigned m0, unsigned m1, unsigned m2, unsigned m3
-) {
+	unsigned m0, unsigned m1, unsigned m2, unsigned m3)
+{
 	adv_bool ae;
 	adv_bool be;
 

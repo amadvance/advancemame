@@ -1,6 +1,15 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.3.8
+	This release adds support for specific emulator configuration
+	options. Please note that these specific emulator
+	configurations are not activated if you select to show
+	more than one emulator at time.
+	In this case only the default configuration is used.
+	Specifically these special options are `mode', `sort',
+	`preview', `group_include' and `type_include'.
+
 AdvanceMENU 2.3.0
 	This release changes the manual compilation process in DOS
 	and Windows. You must now use the Makefile.usr file instead of

@@ -92,7 +92,7 @@ static adv_error insert_database(struct advance_safequit_context* context, char*
 
 	/* cpu (decimal) */
 	t = stoken(&c, &i, buf, ":", " \t");
-	entry->cpu = strtol(t,&e,10);
+	entry->cpu = strtol(t, &e, 10);
 	if (*e != 0 || e == t)
 		goto err;
 	if (c != ':')
@@ -197,7 +197,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 
 		if (len>0 && (buffer[0]==';' || buffer[0] == '#')) {
 			/* ignore comment line */
-		} else if (len>0 && strchr(buffer,':') == &buffer[len-1]) {
+		} else if (len>0 && strchr(buffer, ':') == &buffer[len-1]) {
 			buffer[len-1] = 0; /* remove the : */
 			sncpy(game_name_buffer, sizeof(game_name_buffer), buffer);
 			if (!def)

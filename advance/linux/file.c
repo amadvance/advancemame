@@ -231,7 +231,7 @@ const char* file_config_file_home(const char* file)
 
 const char* file_config_dir_multidir(const char* tag)
 {
-	assert( tag[0] != '/' );
+	assert(tag[0] != '/');
 	if (FL.data_dir_buffer[0])
 		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s/%s:%s/%s", FL.home_dir_buffer, tag, FL.data_dir_buffer, tag);
 	else
@@ -241,7 +241,7 @@ const char* file_config_dir_multidir(const char* tag)
 
 const char* file_config_dir_singledir(const char* tag)
 {
-	assert( tag[0] != '/' );
+	assert(tag[0] != '/');
 	snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s/%s", FL.home_dir_buffer, tag);
 	return FL.dir_buffer;
 }

@@ -114,7 +114,7 @@ static adv_bool fb_mode_is_active(void)
 
 static unsigned fb_flags(void)
 {
-	assert( fb_is_active() );
+	assert(fb_is_active());
 	return fb_state.flags;
 }
 
@@ -519,7 +519,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	(void)cursor;
 	(void)zoom_size;
 
-	assert( !fb_is_active() );
+	assert(!fb_is_active());
 
 	log_std(("video:fb: fb_init()\n"));
 
@@ -610,7 +610,7 @@ err_close:
 
 void fb_done(void)
 {
-	assert(fb_is_active() && !fb_mode_is_active() );
+	assert(fb_is_active() && !fb_mode_is_active());
 
 	log_std(("video:fb: fb_done()\n"));
 
@@ -695,7 +695,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	unsigned req_yres;
 	unsigned req_bits_per_pixel;
 
-	assert( fb_is_active() && !fb_mode_is_active() );
+	assert(fb_is_active() && !fb_mode_is_active());
 
 	log_std(("video:fb: fb_mode_set()\n"));
 
@@ -813,7 +813,7 @@ err:
 
 void fb_mode_done(adv_bool restore)
 {
-	assert( fb_is_active() && fb_mode_is_active() );
+	assert(fb_is_active() && fb_mode_is_active());
 
 	log_std(("video:fb: fb_mode_done()\n"));
 
@@ -1113,7 +1113,7 @@ adv_error fb_mode_import(adv_mode* mode, const fb_video_mode* fb_mode)
 
 adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( fb_is_active() );
+	assert(fb_is_active());
 
 	if (crtc_is_fake(crtc)) {
 		error_nolog_set("Not programmable modes are not supported.\n");
@@ -1143,12 +1143,12 @@ int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b)
 
 void fb_reg(adv_conf* context)
 {
-	assert( !fb_is_active() );
+	assert(!fb_is_active());
 }
 
 adv_error fb_load(adv_conf* context)
 {
-	assert( !fb_is_active() );
+	assert(!fb_is_active());
 	return 0;
 }
 

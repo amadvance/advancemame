@@ -67,7 +67,7 @@ static int vbe_stack_selector;
 
 static void vbe_int(unsigned num, __dpmi_regs* r)
 {
-	assert( vbe_stack_ss );
+	assert(vbe_stack_ss);
 
 	__dpmi_int_ss = vbe_stack_ss;
 	__dpmi_int_sp = vbe_stack_sp;
@@ -90,7 +90,7 @@ static void vbe_int(unsigned num, __dpmi_regs* r)
 
 static unsigned vbe_adjust_scanline_size(unsigned size)
 {
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 #ifdef VBE_BOGUS
 	/* align at 16 bytes */
 	return (size + 0xF) & ~0xF;
@@ -112,7 +112,7 @@ static adv_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length,
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 
 	r.x.ax = 0x4F06;
 	r.x.bx = 0x01;
@@ -143,7 +143,7 @@ adv_error vbe_scanline_set(unsigned byte_length)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 
 	/* adjust */
 	byte_length = vbe_adjust_scanline_size(byte_length);
@@ -222,8 +222,8 @@ static adv_error vbe_linear_init(void)
 {
 	unsigned long linear;
 
-	assert( vbe_mode_is_active() );
-	assert( !vbe_linear_is_active() );
+	assert(vbe_mode_is_active());
+	assert(!vbe_linear_is_active());
 
 	if (vbe_state.info.VESAVersion < 0x200) {
 		error_set("Linear frame buffer is avaliable only with VBE2 or greather");
@@ -247,7 +247,7 @@ static adv_error vbe_linear_init(void)
 /* Deinitialize the vbe linear framebuffer */
 static void vbe_linear_done(void)
 {
-	assert( vbe_linear_is_active() );
+	assert(vbe_linear_is_active());
 
 	map_remove_linear_mapping(vbe_state.mode_info.PhysBasePtr, vbe_state.info.TotalMemory * 0x10000);
 
@@ -335,8 +335,8 @@ static adv_error vbe_pm_init(void)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( !vbe_pm_is_active() );
-	assert( vbe_mode_is_active() );
+	assert(!vbe_pm_is_active());
+	assert(vbe_mode_is_active());
 
 	vbe_state.pm_switcher = 0;
 	vbe_state.pm_scroller = 0;
@@ -362,7 +362,7 @@ static adv_error vbe_pm_init(void)
 
 	len = r.x.cx;
 	vbe_state.pm_info = malloc(len);
-	assert( vbe_state.pm_info );
+	assert(vbe_state.pm_info);
 
 	dosmemget(r.x.es*16+r.x.di, len, vbe_state.pm_info);
 
@@ -403,9 +403,9 @@ static adv_error vbe_pm_init(void)
 
 static void vbe_pm_done(void)
 {
-	assert( vbe_pm_is_active() );
+	assert(vbe_pm_is_active());
 
-	free( vbe_state.pm_info );
+	free(vbe_state.pm_info);
 
 	/* disable */
 	vbe_state.pm_active = 0;
@@ -417,7 +417,7 @@ static void vbe_pm_done(void)
 /* Return the offset for accessing in writing the video memory */
 static unsigned char* vbe_text_write_line(unsigned y)
 {
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 	return (unsigned char*)(0xA0000 + y * vbe_state.bytes_per_scanline + __djgpp_conventional_base);
 }
 
@@ -426,11 +426,11 @@ static unsigned char* vbe_text_write_line(unsigned y)
 
 void vbe_mode_done(adv_bool restore)
 {
-	assert( vbe_mode_is_active() );
+	assert(vbe_mode_is_active());
 
 	if (vbe_linear_is_active())
 		vbe_linear_done();
-	if (vbe_pm_is_active() )
+	if (vbe_pm_is_active())
 		vbe_pm_done();
 
 	if (restore) {
@@ -481,7 +481,7 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc)
 
 	log_std(("vbe: mode_set %x\n", mode));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	/* check support for CRTC */
 	if (crtc && vbe_state.info.VESAVersion < 0x300) {
@@ -604,7 +604,7 @@ adv_error vbe_mode_get(unsigned* mode)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	r.x.ax = 0x4F03;
 	vbe_int(0x10, &r);
@@ -691,10 +691,10 @@ adv_error vbe_init(void)
 	}
 #endif
 
-	assert( !vbe_is_active() );
+	assert(!vbe_is_active());
 
 	/* initialize with all zero */
-	memset(&vbe_state.info, 0, sizeof(vbe_VbeInfoBlock) );
+	memset(&vbe_state.info, 0, sizeof(vbe_VbeInfoBlock));
 
 	/* request VBE 2.0+ */
 	memcpy(&vbe_state.info.VESASignature, "VBE2", 4);
@@ -791,15 +791,15 @@ adv_error vbe_init(void)
 /* Deinitialize the vbe system */
 void vbe_done(void)
 {
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	if (vbe_mode_is_active()) {
 		vbe_mode_done(1);
 	}
 
-	assert( !vbe_mode_is_active() );
-	assert( !vbe_linear_is_active() );
-	assert( !vbe_pm_is_active() );
+	assert(!vbe_mode_is_active());
+	assert(!vbe_linear_is_active());
+	assert(!vbe_pm_is_active());
 
 	/* disable */
 	vbe_state.active = 0;
@@ -822,7 +822,7 @@ adv_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	memset(info, 0, sizeof(vbe_ModeInfoBlock));
 
@@ -839,7 +839,7 @@ adv_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode)
 		return -1;
 	}
 
-	dosmemget( __tb, sizeof(vbe_ModeInfoBlock), info);
+	dosmemget(__tb, sizeof(vbe_ModeInfoBlock), info);
 
 #ifdef VBE_BOGUS
 	/* support old VESA implementation */
@@ -941,7 +941,7 @@ adv_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode)
 
 adv_error vbe_scroll(unsigned offset, adv_bool waitvsync)
 {
-	assert( vbe_is_active() && vbe_mode_is_active() );
+	assert(vbe_is_active() && vbe_mode_is_active());
 
 #ifndef VBE_BOGUS
 	/* On my clean hardware always wait a vsync, but with software
@@ -991,7 +991,7 @@ adv_error vbe_request_scroll(unsigned offset)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() && vbe_mode_is_active() );
+	assert(vbe_is_active() && vbe_mode_is_active());
 
 	r.x.ax = 0x4F07;
 	r.x.bx = 0x02;
@@ -1018,7 +1018,7 @@ adv_error vbe_poll_scroll(unsigned* done)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() && vbe_mode_is_active() );
+	assert(vbe_is_active() && vbe_mode_is_active());
 
 	r.x.ax = 0x4F07;
 	r.x.bx = 0x04;
@@ -1037,7 +1037,7 @@ adv_error vbe_poll_scroll(unsigned* done)
 /* Wait a vsync */
 void vbe_wait_vsync(void)
 {
-	assert( vbe_is_active() && vbe_mode_is_active() );
+	assert(vbe_is_active() && vbe_mode_is_active());
 
 	/* if possible use vga version */
 	if ((vbe_state.info.Capabilities & vbeNonVGA)==0) {
@@ -1101,7 +1101,7 @@ adv_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	r.x.ax = 0x4F0B;
 	r.x.bx = 0x00;
@@ -1129,7 +1129,7 @@ adv_error vbe_palette_set(const adv_color_rgb* palette, unsigned start, unsigned
 {
 	unsigned mode = waitvsync ? 0x80 : 0x0;
 
-	assert( vbe_is_active() && vbe_mode_is_active() );
+	assert(vbe_is_active() && vbe_mode_is_active());
 
 	if (vbe_state.pm_active && vbe_state.pm_palette) {
 		log_debug(("vbe: palette set (%d bit) with VBE pm call\n", (unsigned)vbe_state.palette_width));
@@ -1165,7 +1165,7 @@ adv_error vbe_palette_set(const adv_color_rgb* palette, unsigned start, unsigned
 
 void vbe_mode_iterator_begin(vbe_mode_iterator* vmi)
 {
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 	vmi->mode_ptr = 0;
 }
 
@@ -1192,7 +1192,7 @@ adv_error vbe_save_state(unsigned* psize, void** pptr)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	r.x.ax = 0x4F04;
 	r.x.cx = 0xF;
@@ -1205,7 +1205,7 @@ adv_error vbe_save_state(unsigned* psize, void** pptr)
 
 	size = r.x.bx * 64;
 	if (size > 4096)
-		log_std(( "vbe: WARNING! save state size %d, probably to big for the DJGPP real mode buffer\n", size));
+		log_std(("vbe: WARNING! save state size %d, probably to big for the DJGPP real mode buffer\n", size));
 
 	r.x.ax = 0x4F04;
 	r.x.cx = 0xF;
@@ -1234,7 +1234,7 @@ adv_error vbe_restore_state(unsigned size, void* ptr)
 
 	memset(&r, 0, sizeof(r));
 
-	assert( vbe_is_active() );
+	assert(vbe_is_active());
 
 	dosmemput(ptr, size, __tb);
 

@@ -73,7 +73,7 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	/* FILETYPE_RAW */
 	{ FILETYPE_ROM, "dir_rom", "rom", FILEIO_MODE_MULTI, 0, 0 },
 	/* FILETYPE_ROM_NOCRC */
-	{ FILETYPE_IMAGE, "dir_image", "image", FILEIO_MODE_MULTI,0, 0 },
+	{ FILETYPE_IMAGE, "dir_image", "image", FILEIO_MODE_MULTI, 0, 0 },
 	{ FILETYPE_IMAGE_DIFF, "dir_diff", "diff", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_SAMPLE, "dir_sample", "sample", FILEIO_MODE_MULTI, 0, 0 },
 	{ FILETYPE_ARTWORK, "dir_artwork", "artwork", FILEIO_MODE_MULTI, 0, 0 },
@@ -351,7 +351,7 @@ UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 
 	r = fzwrite(buffer, 1, length, h);
 
-	log_debug(("osd: osd_fwrite(%p, length:%d) -> %d\n", file, (int)length,(int)r));
+	log_debug(("osd: osd_fwrite(%p, length:%d) -> %d\n", file, (int)length, (int)r));
 
 	return r;
 }
@@ -437,10 +437,11 @@ void osd_dir_close(void* void_h)
 	free(h);
 }
 
-static int match(const char* str, const char* pattern) {
+static int match(const char* str, const char* pattern)
+{
 	while (*str && *pattern) {
 		if (*pattern == '*') {
-			if (match(str+1,pattern))
+			if (match(str+1, pattern))
 				return 1;
 			++pattern;
 		} else if (*pattern == '?') {

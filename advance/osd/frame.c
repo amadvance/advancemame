@@ -383,7 +383,7 @@ void advance_video_invalidate_screen(struct advance_video_context* context)
 	unsigned i;
 	adv_pixel color;
 
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	/* on palettized modes it always return 0 */
 	color = video_pixel_get(0, 0, 0);
@@ -448,7 +448,7 @@ static adv_error vidmode_init(struct advance_video_context* context, adv_mode* m
 {
 	union adv_color_def_union def;
 
-	assert( !context->state.mode_flag );
+	assert(!context->state.mode_flag);
 
 	if (video_mode_set(mode) != 0) {
 		log_std(("ERROR:emu:video: calling video_mode_set() '%s'\n", error_get()));
@@ -468,7 +468,7 @@ static adv_error vidmode_init(struct advance_video_context* context, adv_mode* m
 	context->state.buffer_ptr_alloc = 0;
 
 	/* initialize the update system */
-	update_init( context->config.triplebuf_flag != 0 ? 3 : 1 );
+	update_init(context->config.triplebuf_flag != 0 ? 3 : 1);
 
 	log_std(("emu:video: using %d hardware video buffers\n", update_page_max_get()));
 
@@ -482,7 +482,7 @@ static adv_error vidmode_init(struct advance_video_context* context, adv_mode* m
 
 static void vidmode_done(struct advance_video_context* context, adv_bool restore)
 {
-	assert( context->state.mode_flag );
+	assert(context->state.mode_flag);
 
 	/* clear all the video memory used */
 	if (restore)
@@ -756,7 +756,7 @@ void advance_video_update_effect(struct advance_video_context* context)
 		context->state.interlace_effect = EFFECT_NONE;
 	}
 
-	mame_ui_gamma_factor_set( context->state.gamma_effect_factor / previous_gamma_factor );
+	mame_ui_gamma_factor_set(context->state.gamma_effect_factor / previous_gamma_factor);
 }
 
 /**
@@ -768,7 +768,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 {
 	unsigned stretch;
 
-	assert( crtc );
+	assert(crtc);
 
 	stretch = context->config.stretch;
 
@@ -834,7 +834,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 			/* vertical game in horizontal screen */
 			context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 			/* adjust to 8 pixel */
-			context->state.mode_visible_size_x = crtc_step( (double)context->state.mode_visible_size_y * factor_x / factor_y, 8);
+			context->state.mode_visible_size_x = crtc_step((double)context->state.mode_visible_size_y * factor_x / factor_y, 8);
 			if (context->state.mode_visible_size_x > crtc_hsize_get(crtc))
 				context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		} else {
@@ -1231,10 +1231,10 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 
 	/* set the correct blit orientation */
 	if (context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) {
-		SWAP(unsigned, context->state.game_area_size_x, context->state.game_area_size_y );
-		SWAP(unsigned, context->state.game_used_pos_x, context->state.game_used_pos_y );
-		SWAP(unsigned, context->state.game_used_size_x, context->state.game_used_size_y );
-		SWAP(unsigned, arcade_aspect_x, arcade_aspect_y );
+		SWAP(unsigned, context->state.game_area_size_x, context->state.game_area_size_y);
+		SWAP(unsigned, context->state.game_used_pos_x, context->state.game_used_pos_y);
+		SWAP(unsigned, context->state.game_used_size_x, context->state.game_used_size_y);
+		SWAP(unsigned, arcade_aspect_x, arcade_aspect_y);
 	}
 
 	context->state.game_rgb_flag = req->rgb_flag;
@@ -1514,7 +1514,7 @@ static void video_buffer_clear(struct advance_video_context* context)
 	unsigned bytes_per_pixel;
 	unsigned x, y;
 
-	assert( video_mode_is_active() );
+	assert(video_mode_is_active());
 
 	/* on palettized modes it always return 0 */
 	color = video_pixel_get(0, 0, 0);
@@ -1550,7 +1550,7 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	if (context->state.blit_pipeline_flag)
 		return;
 
-	assert( *mode_name(&context->state.mode) );
+	assert(*mode_name(&context->state.mode));
 
 	/* source for direct blit */
 	context->state.blit_src_dw = bitmap->bytes_per_scanline;
@@ -1902,7 +1902,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 #if 0 /* OSDEF: Save interface image, only for debugging. */
 		{
 			struct advance_input_context* input_context = &CONTEXT.input;
-			if (advance_input_digital_pressed(input_context, DIGITAL_KBD(0,KEYB_ENTER_PAD))) {
+			if (advance_input_digital_pressed(input_context, DIGITAL_KBD(0, KEYB_ENTER_PAD))) {
 				FILE* f;
 				static unsigned in = 1;
 				char buffer[64];

@@ -36,7 +36,7 @@ SCFLAGS += \
 	-DDATADIR=\"$(datadir)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
-SLIBS += $(ZLIBS) -lm
+SLIBS += -lm
 SOBJDIRS += \
 	$(SOBJ)/linux
 SOBJS += \
@@ -73,7 +73,7 @@ ifeq ($(CONF_SYSTEM),dos)
 SCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC
-SLIBS += -laudio -lalleg $(ZLIBS) -lm
+SLIBS += -laudio -lalleg -lm
 SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJDIRS += \
 	$(SOBJ)/dos
@@ -89,7 +89,7 @@ endif
 ifeq ($(CONF_SYSTEM),windows)
 SCFLAGS += \
 	-I$(srcdir)/advance/windows
-SLIBS += $(ZLIBS) -lm
+SLIBS += -lm
 SOBJDIRS += \
 	$(SOBJ)/windows \
 	$(SOBJ)/dos
@@ -125,9 +125,9 @@ SLIBS += -lz
 else
 CFLAGS += \
 	-I$(srcdir)/advance/zlib
-SDIRS += \
+SOBJDIRS += \
 	$(SOBJ)/zlib
-SLIBS += \
+SOBJS += \
 	$(SOBJ)/libz.a
 endif
 
@@ -151,3 +151,4 @@ $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(LD) $(SOBJS) $(SLIBS) $(SLDFLAGS) $(LDFLAGS) -o $@
 	$(RM) advs$(EXE)
 	$(LN_S) $@ advs$(EXE)
+

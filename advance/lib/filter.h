@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,49 +19,111 @@
  */
 
 /** \file
- * FIR Filter.
- * If you define USE_FILTER_INT all the computations are done using integer math.
- * Otherwise they are done with double math.
+ * Filter.
  */
 
 #ifndef __FILTER_H
 #define __FILTER_H
+
+#include "complex.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** Max filter order. */
-#define FILTER_ORDER_MAX 51
+#define FILTER_ORDER_IIR_MAX 10
+#define FILTER_ORDER_FIR_MAX 32
 
-/** Define to use interger calculation in the filter operations. */
-#define USE_FILTER_INT
+/** Max number of poles. */
+#define FILTER_POLE_MAX (FILTER_ORDER_IIR_MAX*2+1)
 
 /**
  * Sample type.
  */
-#ifdef USE_FILTER_INT
-typedef int adv_filter_real;
-
-#define FILTER_INT_FRACT 15 /**< Fractional bits of the ::adv_filter_real type. */
-#else
 typedef double adv_filter_real;
-#endif
+
+typedef enum adv_filter_type_enum {
+	adv_filter_lp, /**< Low Pass. */
+	adv_filter_hp, /** < High Pass. */
+	adv_filter_bp, /**< Band Pass. */
+	adv_filter_bs /**< Band Stop. */
+} adv_filter_type;
+
+typedef enum adv_filter_model_enum {
+	adv_filter_fir_windowedsinc, /**< FIR filter. */
+	adv_filter_iir_bessel, /**< IIR Bessel filter. */
+	adv_filter_iir_butterworth, /**< IIR Butterworth filter. */
+	adv_filter_iir_chebyshev /**< IIR Chebyshev filter. */
+} adv_filter_model;
+
+struct adv_filter_struct;
+struct adv_filter_state_struct;
+
+typedef void (*adv_filter_insert_proc)(struct adv_filter_struct* f, struct adv_filter_state_struct* s, adv_filter_real v);
+typedef adv_filter_real (*adv_filter_extract_proc)(struct adv_filter_struct* f, struct adv_filter_state_struct* s);
+typedef void (*adv_filter_reset_proc)(struct adv_filter_struct* f, struct adv_filter_state_struct* s);
 
 /**
- * Filter definition.
+ * IIR filter definition.
+ */
+struct adv_filter_struct_iir {
+	adv_filter_real xcoeffs[FILTER_POLE_MAX]; /**< Filter X coefficients. From x[-M] to x[0]. */
+	adv_filter_real ycoeffs[FILTER_POLE_MAX]; /**< Filter Y coefficients. From y[-N] to y[-1]. */
+	unsigned M, N;
+
+	unsigned szeros_mac; /**< Number of zeros in the S plane. */
+	unsigned spoles_mac; /**< Number of poles in the S plane. */
+
+	adv_complex szeros_map[FILTER_POLE_MAX]; /**< Zeros in the S plane. */
+	adv_complex spoles_map[FILTER_POLE_MAX]; /**< Poles in the S plane. */
+
+	unsigned zzeros_mac; /**< Number of zeros in the Z plane. */
+	unsigned zpoles_mac; /**< Number of poles in the Z plane. */
+
+	adv_complex zzeros_map[FILTER_POLE_MAX]; /**< Zeros in the Z plane. */
+	adv_complex zpoles_map[FILTER_POLE_MAX]; /**< Poles in the Z plane. */
+
+	adv_filter_real gain; /**< Gain. */
+};
+
+/**
+ * FIR filter definition.
+ */
+struct adv_filter_struct_fir {
+	adv_filter_real xcoeffs[FILTER_ORDER_FIR_MAX+1]; /**< Filter X coefficients. From x[-M] to x[0]. */
+	unsigned M;
+};
+
+union adv_filter_union {
+	struct adv_filter_struct_iir iir;
+	struct adv_filter_struct_fir fir;
+};
+
+/**
+ * Generic filter definition.
  */
 typedef struct adv_filter_struct {
-	adv_filter_real xcoeffs[(FILTER_ORDER_MAX+1)/2]; /**< Filter coefficients. */
-	unsigned order; /**< Filter order. */
+	union adv_filter_union data;
+	adv_filter_insert_proc insert;
+	adv_filter_extract_proc extract;
+	adv_filter_reset_proc reset;
+	adv_filter_type type; /**< Filter type. */
+	adv_filter_model model; /**< Filter model. */
+	unsigned order; /**< Order of the filter. */
+	unsigned delay; /**< Delay of the filter. */
 } adv_filter;
+
+#define FILTER_STATE_MAX (FILTER_ORDER_FIR_MAX+1)
 
 /**
  * Filter state.
  */
 typedef struct adv_filter_state_struct {
-	unsigned prev_mac; /**< Position of the last input value inserted. */
-	adv_filter_real xprev[FILTER_ORDER_MAX]; /**< Previous input value. */
+	unsigned x_mac; /**< Position of the last X value inserted. */
+	unsigned y_mac; /**< Position of the last Y value inserted. */
+	adv_filter_real x_map[FILTER_STATE_MAX]; /**< Previous X values. */
+	adv_filter_real y_map[FILTER_STATE_MAX]; /**< Previous Y values. */
 } adv_filter_state;
 
 /** \addtogroup Filter */
@@ -72,31 +134,52 @@ typedef struct adv_filter_state_struct {
  * \param f Filter definition.
  * \return Order of the filter.
  */
-unsigned adv_filter_order_get(const adv_filter* f);
+static inline unsigned adv_filter_order_get(const adv_filter* f)
+{
+	return f->order;
+}
 
 /**
  * Get the output delay of the filter.
  * \param f Filter definition.
  * \return Delay in sample of the filter.
  */
-unsigned adv_filter_delay_get(const adv_filter* f);
+static inline unsigned adv_filter_delay_get(const adv_filter* f)
+{
+	return f->delay;
+}
 
 /**
- * Setup a FIR Low Pass filter.
+ * Setup a filter.
  * The effective filter order may differ than the requested value. You must
  * read it using the adv_filter_order_get() function.
  * \param f Filter definition.
- * \param freq Cut frecuenty of the filter. 0 < freq <= 0.5.
- * \param order Order of the filter. It must be odd.
+ * \param freq Cut frequenty of the filter. 0 < freq <= 0.5.
+ * \param order Order of the filter.
  */
-void adv_filter_lpfir_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_lp_windowedsinc_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_lp_bessel_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_lp_butterworth_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, double ripple);
+void adv_filter_hp_bessel_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_hp_butterworth_set(adv_filter* f, double freq, unsigned order);
+void adv_filter_hp_chebyshev_set(adv_filter* f, double freq, unsigned order, double ripple);
+void adv_filter_bp_bessel_set(adv_filter* f, double freq_low, double freq_high, unsigned order);
+void adv_filter_bp_butterworth_set(adv_filter* f, double freq_low, double freq_high, unsigned order);
+void adv_filter_bp_chebyshev_set(adv_filter* f, double freq_low, double freq_high, unsigned order, double ripple);
+void adv_filter_bs_bessel_set(adv_filter* f, double freq_low, double freq_high, unsigned order);
+void adv_filter_bs_butterworth_set(adv_filter* f, double freq_low, double freq_high, unsigned order);
+void adv_filter_bs_chebyshev_set(adv_filter* f, double freq_low, double freq_high, unsigned order, double ripple);
 
 /**
  * Reset the filter state.
  * \param f Filter definition.
  * \param s Filter state.
  */
-void adv_filter_state_reset(adv_filter* f, adv_filter_state* s);
+static inline void adv_filter_state_reset(adv_filter* f, adv_filter_state* s)
+{
+	f->reset(f, s);
+}
 
 /**
  * Insert a value in the filter state.
@@ -106,25 +189,24 @@ void adv_filter_state_reset(adv_filter* f, adv_filter_state* s);
  */
 static inline void adv_filter_insert(adv_filter* f, adv_filter_state* s, adv_filter_real x)
 {
-	/* next position */
-	++s->prev_mac;
-	if (s->prev_mac >= f->order)
-		s->prev_mac = 0;
-
-	/* set the most recent sample */
-	s->xprev[s->prev_mac] = x;
+	f->insert(f, s, x);
 }
 
 /**
  * Compute an output sample of the filter.
  * You can start to extract data after you have inserted a number of samples
- * equal at the filter order returned by adv_filter_order_get().
- * The output delay is of (order-1)/2 samples computed by adv_filter_delay_get().
+ * equal at the filter order plus one (the current input sample).
+ * If you don't need the output value you can skip the call at adv_filter_extract().
+ * The filter order is returned by adv_filter_order_get().
+ * The output delay is returned by adv_filter_delay_get().
  * \param f Filter definition.
  * \param s Filter state.
  * \return Output value.
  */
-adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s);
+static inline adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s)
+{
+	return f->extract(f, s);
+}
 
 /*@}*/
 
@@ -133,3 +215,4 @@ adv_filter_real adv_filter_extract(adv_filter* f, adv_filter_state* s);
 #endif
 
 #endif
+

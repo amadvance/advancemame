@@ -66,7 +66,7 @@ static inline wchar_t towupper(wchar_t c)
 
 #ifndef __WIN32__
 #define strcmpi strcmpi /* For some #ifdef */
-static inline int strcmpi(const char* a, const char* b)
+static inline int strcmpi(const char* a, const char* b) /* LEGACY: Still used in MESS  */
 {
 	return strcasecmp(a, b);
 }
@@ -74,14 +74,15 @@ static inline int strcmpi(const char* a, const char* b)
 
 #ifndef __WIN32__
 #define strncmpi strncmpi /* For some #ifdef */
-static inline int strncmpi(const char* a, const char* b, size_t count)
+static inline int strncmpi(const char* a, const char* b, size_t count) /* LEGACY: Still used in MESS  */
 {
 	return strncasecmp(a, b, count);
 }
 #endif
 
 #if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strlwr(char* s) {
+static inline void strlwr(char* s)
+{
 	while (*s) {
 		*s = tolower(*s);
 		++s;
@@ -90,7 +91,8 @@ static inline void strlwr(char* s) {
 #endif
 
 #if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strupr(char* s) {
+static inline void strupr(char* s)
+{
 	while (*s) {
 		*s = toupper(*s);
 		++s;
@@ -107,22 +109,22 @@ static inline void osd_mkdir(const char* dir)
 #endif
 }
 
-/*
- * CRLF
- * - 1 CR
- * - 2 LF
- * - 3 CRLF
+/**
+ * Selects the CRLF convention to use for output files.
+ * - 1 CR (Mac)
+ * - 2 LF (*nix)
+ * - 3 CRLF (Dos/Windows)
  */
+#define CRLF 2 /* Always use the UNIX convention */
+
+#define EOLN "\n" /* LEGACY: Still used in MESS */
+
 #if defined(__MSDOS__) || defined(__WIN32__)
-#define PATH_SEPARATOR '\\'
-#define PATH_SEPARATOR_STR "\\"
-#define EOLN "\r\n"
-#define CRLF 3
+#define PATH_SEPARATOR '\\' /* LEGACY: Still used in MESS  */
+#define PATH_SEPARATOR_STR "\\" /* LEGACY: Still used in MESS  */
 #else
-#define PATH_SEPARATOR '/'
-#define PATH_SEPARATOR_STR "/"
-#define EOLN "\n"
-#define CRLF 2
+#define PATH_SEPARATOR '/' /* LEGACY: Still used in MESS */
+#define PATH_SEPARATOR_STR "/" /* LEGACY: Still used in MESS  */
 #endif
 
 #ifdef __cplusplus
@@ -140,7 +142,7 @@ int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #endif
 
 #ifdef __WIN32__
-#define logb(a) floor(log(a) / 0.69314718055994530942 /* log(2) */ )
+#define logb(a) floor(log(a) / 0.69314718055994530942)
 #endif
 
 #ifdef __cplusplus

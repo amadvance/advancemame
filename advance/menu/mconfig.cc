@@ -774,7 +774,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	menu_key = conf_bool_get_default(config_context, "ui_menukey");
 	if (!config_load_iterator(config_context, "event_assign", event_in))
 		return false;
-	if (!config_load_iterator(config_context, "ui_color", int_color_in))
+	if (!config_load_iterator(config_context, "ui_color", color_in))
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "idle_start"), a0, a1))
 		return false;
@@ -1166,7 +1166,7 @@ void config_state::conf_default(adv_conf* config_context)
 
 	conf_iterator_begin(&i, config_context, "ui_color");
 	if (conf_iterator_is_end(&i)) {
-		int_color_out(config_context, "ui_color");
+		color_out(config_context, "ui_color");
 	}
 
 	conf_iterator_begin(&i, config_context, "event_assign");

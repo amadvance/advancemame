@@ -84,7 +84,7 @@ static void soundb_sdl_callback(void *userdata, Uint8 *stream, int len)
 	unsigned samples_count;
 	Uint8* samples_buffer;
 
-	assert( state == &sdl_state );
+	assert(state == &sdl_state);
 
 	samples_count = len / 2;
 	samples_buffer = stream;

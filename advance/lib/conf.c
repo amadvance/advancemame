@@ -1186,7 +1186,10 @@ static char* format_alloc(const char* value)
 	return r;
 }
 
-/** Insert if it doesn't exist whithout error checks. Return the existing value if any. */
+/**
+ * Insert if it doesn't exist without error checks.
+ * Return the existing value if any.
+ */
 static adv_error value_set_dup(adv_conf* context, struct adv_conf_input_struct* input, struct adv_conf_option_struct* option, const char* section, const char* comment, const char* value, const char* format, conf_error_callback* error, void* error_context)
 {
 	/* check for not multi options */
@@ -2208,7 +2211,7 @@ const char* conf_string_get_default(adv_conf* context, const char* tag)
  */
 adv_error conf_string_get(adv_conf* context, const char* tag, const char** result)
 {
-	struct adv_conf_value_struct* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
+	adv_conf_value* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
 
 	assert_option_def(context, tag, conf_type_string, 0);
 
@@ -2220,8 +2223,74 @@ adv_error conf_string_get(adv_conf* context, const char* tag, const char** resul
 }
 
 /**
+ * Get a value in raw internal format.
+ * The value is searched in the list of section specified by the previous call
+ * of conf_section_set(). If no sections are specified calling conf_section_set()
+ * no value is found.
+ * \param context Configuration context to use.
+ * \param tag Tag to search.
+ * \return
+ *   - ==0 if not found
+ *   - !=0 value pointer
+ */
+adv_conf_value* conf_value_get(adv_conf* context, const char* tag)
+{
+	adv_conf_value* value = value_searchbest_tag(context, (const char**)context->section_map, context->section_mac, tag);
+
+	return value;
+}
+
+/**
+ * Get the bool value from a raw value.
+ */
+adv_bool conf_value_bool_get(const adv_conf_value* value)
+{
+	return value->data.bool_value;
+}
+
+/**
+ * Get the int value from a raw value.
+ */
+int conf_value_int_get(const adv_conf_value* value)
+{
+	return value->data.int_value;
+}
+
+/**
+ * Get the flat value from a raw value.
+ */
+double conf_value_float_get(const adv_conf_value* value)
+{
+	return value->data.float_value;
+}
+
+/**
+ * Get the string value from a raw value.
+ */
+const char* conf_value_string_get(const adv_conf_value* value)
+{
+	return value->data.string_value;
+}
+
+/**
+ * Get the section from a raw value.
+ */
+const char* conf_value_section_get(const adv_conf_value* value)
+{
+	return value->section;
+}
+
+/**
+ * Get the comment from a raw value.
+ */
+const char* conf_value_comment_get(const adv_conf_value* value)
+{
+	return value->comment;
+}
+
+/**
  * Get a value in a specified section.
- * The sections specified with of conf_section_set() are temporarely ignored.
+ * The sections specified with conf_section_set() are temporarely ignored.
  * \param context Configuration context to use.
  * \param section Section to search.
  * \param tag Tag to search.
@@ -2600,6 +2669,52 @@ adv_error conf_set_default(adv_conf* context, const char* section, const char* t
 }
 
 /**
+ * Set the value of a option only if it change something.
+ * The value is set only if the current value is different. Otherwise the
+ * option is removed.
+ * The option is added in the last writable file.
+ * \param context Configuration context to use.
+ * \param section Section of the option.
+ * \param tag Tag of the option.
+ */
+adv_error conf_set_if_different(adv_conf* context, const char* section, const char* tag, const char* result)
+{
+	adv_conf_value* value;
+	struct adv_conf_option_struct* option;
+	const char* result_current;
+	char result_buffer[CONF_NUM_BUFFER_MAX];
+	unsigned i;
+
+	/* limits the search only after the specified section */
+	for(i=0;i<context->section_mac;++i) {
+		if (strcmp(section, context->section_map[i]) == 0) {
+			++i;
+			break;
+		}
+	}
+
+	value = value_searchbest_tag(context, (const char**)(context->section_map + i), context->section_mac - i, tag);
+
+	result_current = 0;
+
+	if (!value) {
+		/* get the default value if any */
+		option = option_search_tag(context, tag);
+		if (option) {
+			result_current = option_default_get(option, result_buffer, sizeof(result_buffer));
+		}
+	} else {
+		/* get the value */
+		result_current = value_get(value, result_buffer, sizeof(result_buffer));
+	}
+
+	if (!result_current || strcmp(result_current, result) != 0)
+		return conf_set(context, section, tag, result);
+	else
+		return conf_remove(context, section, tag);
+}
+
+/**
  * Set the default value of all the options if they are not defined.
  * If the option is missing in all the input files is added at the last writable.
  * \param context Configuration context to use.
@@ -2607,7 +2722,6 @@ adv_error conf_set_default(adv_conf* context, const char* section, const char* t
  */
 void conf_set_default_if_missing(adv_conf* context, const char* section)
 {
-
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {

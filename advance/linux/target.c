@@ -716,12 +716,12 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef SEGV_MAPERR
-				case SEGV_MAPERR : fprintf(stderr,"[MAPERR]"); break;
+				case SEGV_MAPERR : fprintf(stderr, "[MAPERR]"); break;
 #endif
 #ifdef SEGV_ACCERR
-				case SEGV_ACCERR : fprintf(stderr,"[ACCERR]"); break;
+				case SEGV_ACCERR : fprintf(stderr, "[ACCERR]"); break;
 #endif
-				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -729,30 +729,30 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef ILL_ILLOPC
-				case ILL_ILLOPC : fprintf(stderr,"[ILLOPC]"); break;
+				case ILL_ILLOPC : fprintf(stderr, "[ILLOPC]"); break;
 #endif
 #ifdef ILL_ILLOPN
-				case ILL_ILLOPN : fprintf(stderr,"[ILLOPN]"); break;
+				case ILL_ILLOPN : fprintf(stderr, "[ILLOPN]"); break;
 #endif
 #ifdef ILL_ILLADR
-				case ILL_ILLADR : fprintf(stderr,"[ILLADR]"); break;
+				case ILL_ILLADR : fprintf(stderr, "[ILLADR]"); break;
 #endif
 #ifdef ILL_ILLTRP
-				case ILL_ILLTRP : fprintf(stderr,"[ILLTRP]"); break;
+				case ILL_ILLTRP : fprintf(stderr, "[ILLTRP]"); break;
 #endif
 #ifdef ILL_PRVOPC
-				case ILL_PRVOPC : fprintf(stderr,"[PRVOPC]"); break;
+				case ILL_PRVOPC : fprintf(stderr, "[PRVOPC]"); break;
 #endif
 #ifdef ILL_PRVREG
-				case ILL_PRVREG : fprintf(stderr,"[PRVREG]"); break;
+				case ILL_PRVREG : fprintf(stderr, "[PRVREG]"); break;
 #endif
 #ifdef ILL_COPROC
-				case ILL_COPROC : fprintf(stderr,"[COPROC]"); break;
+				case ILL_COPROC : fprintf(stderr, "[COPROC]"); break;
 #endif
 #ifdef ILL_BADSTK
-				case ILL_BADSTK : fprintf(stderr,"[BADSTK]"); break;
+				case ILL_BADSTK : fprintf(stderr, "[BADSTK]"); break;
 #endif
-				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -760,15 +760,15 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef BUS_ADRALN
-				case BUS_ADRALN : fprintf(stderr,"[ADRALN]"); break;
+				case BUS_ADRALN : fprintf(stderr, "[ADRALN]"); break;
 #endif
 #ifdef BUS_ADRERR
-				case BUS_ADRERR : fprintf(stderr,"[ADRERR]"); break;
+				case BUS_ADRERR : fprintf(stderr, "[ADRERR]"); break;
 #endif
 #ifdef BUS_OBJERR
-				case BUS_OBJERR : fprintf(stderr,"[OBJERR]"); break;
+				case BUS_OBJERR : fprintf(stderr, "[OBJERR]"); break;
 #endif
-				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -776,36 +776,36 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef FPE_INTDIV
-				case FPE_INTDIV : fprintf(stderr,"[INTDIV]"); break;
+				case FPE_INTDIV : fprintf(stderr, "[INTDIV]"); break;
 #endif
 #ifdef FPE_INTOVF
-				case FPE_INTOVF : fprintf(stderr,"[INTOVF]"); break;
+				case FPE_INTOVF : fprintf(stderr, "[INTOVF]"); break;
 #endif
 #ifdef FPE_FLTDIV
-				case FPE_FLTDIV : fprintf(stderr,"[FLTDIV]"); break;
+				case FPE_FLTDIV : fprintf(stderr, "[FLTDIV]"); break;
 #endif
 #ifdef FPE_FLTOVF
-				case FPE_FLTOVF : fprintf(stderr,"[FLTOVF]"); break;
+				case FPE_FLTOVF : fprintf(stderr, "[FLTOVF]"); break;
 #endif
 #ifdef FPE_FLTUND
-				case FPE_FLTUND : fprintf(stderr,"[FLTUND]"); break;
+				case FPE_FLTUND : fprintf(stderr, "[FLTUND]"); break;
 #endif
 #ifdef FPE_FLTRES
-				case FPE_FLTRES : fprintf(stderr,"[FLTRES]"); break;
+				case FPE_FLTRES : fprintf(stderr, "[FLTRES]"); break;
 #endif
 #ifdef FPE_FLTINV
-				case FPE_FLTINV : fprintf(stderr,"[FLTINV]"); break;
+				case FPE_FLTINV : fprintf(stderr, "[FLTINV]"); break;
 #endif
 #ifdef FPE_FLTSUB
-				case FPE_FLTSUB : fprintf(stderr,"[FLTSUB]"); break;
+				case FPE_FLTSUB : fprintf(stderr, "[FLTSUB]"); break;
 #endif
-				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
 		} else {
 			if (info) {
-				fprintf(stderr,"[%xh]", (unsigned)info->si_code);
+				fprintf(stderr, "[%xh]", (unsigned)info->si_code);
 			}
 			fprintf(stderr, ", from code at %p\n", caller);
 		}

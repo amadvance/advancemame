@@ -194,7 +194,7 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 
 	(void)cursor;
 
-	assert( !svgaline_is_active() );
+	assert(!svgaline_is_active());
 
 	svgaline_state.original_flag = 0;
 
@@ -254,7 +254,7 @@ adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, ad
 
 void svgaline_done(void)
 {
-	assert(svgaline_is_active() && !svgaline_mode_is_active() );
+	assert(svgaline_is_active() && !svgaline_mode_is_active());
 
 	svgaline_state.active = 0;
 
@@ -273,7 +273,7 @@ adv_bool svgaline_mode_is_active(void)
 
 unsigned svgaline_flags(void)
 {
-	assert( svgaline_is_active() );
+	assert(svgaline_is_active());
 	return svgaline_state.flags;
 }
 
@@ -287,8 +287,8 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 	assert(svgaline_is_active() && !svgaline_mode_is_active());
 
 	log_std(("video:svgaline: mode_set\n"));
-	log_std_modeline_c(("video:svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
-	log_std(("video:svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+	log_std_modeline_c(("video:svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc)));
+	log_std(("video:svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc)));
 
 	clock = mode->crtc.pixelclock;
 	if (svgaline_option.divide_clock)
@@ -442,7 +442,7 @@ adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgali
 
 adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( svgaline_is_active() );
+	assert(svgaline_is_active());
 
 	log_std(("video:svgaline: svgaline_mode_generate(x:%d, y:%d, bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
 
@@ -486,7 +486,7 @@ void svgaline_default(void)
 
 void svgaline_reg(adv_conf* context)
 {
-	assert( !svgaline_is_active() );
+	assert(!svgaline_is_active());
 
 	conf_bool_register_default(context, "device_svgaline_divideclock", 0);
 	conf_int_register_limit_default(context, "device_svgaline_skipboard", 0, 8, 0);
@@ -496,7 +496,7 @@ void svgaline_reg(adv_conf* context)
 
 adv_error svgaline_load(adv_conf* context)
 {
-	assert( !svgaline_is_active() );
+	assert(!svgaline_is_active());
 
 	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divideclock");
 	svgaline_option.skip = conf_int_get_default(context, "device_svgaline_skipboard");

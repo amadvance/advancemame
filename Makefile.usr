@@ -121,11 +121,19 @@ endif
 
 # Automatic libraries and other options setting
 ifndef CONF_LIB_ZLIB
+ifeq ($(CONF_HOST),dos)
 CONF_LIB_ZLIB=no
+else
+CONF_LIB_ZLIB=yes
+endif
 endif
 
 ifndef CONF_LIB_EXPAT
+ifeq ($(CONF_HOST),dos)
 CONF_LIB_EXPAT=no
+else
+CONF_LIB_EXPAT=yes
+endif
 endif
 
 ifndef CONF_LIB_SVGALIB

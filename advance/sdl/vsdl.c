@@ -173,7 +173,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	adv_bool has_window_manager;
 	adv_bool initialized_now;
 
-	assert( !sdl_is_active() );
+	assert(!sdl_is_active());
 
 	log_std(("video:sdl: sdl_init(id:%d,output:%d)\n", device_id, (unsigned)output));
 
@@ -412,8 +412,8 @@ err:
 
 void sdl_done(void)
 {
-	assert( sdl_is_active() );
-	assert( !sdl_mode_is_active() );
+	assert(sdl_is_active());
+	assert(!sdl_mode_is_active());
 
 	log_std(("video:sdl: sdl_done()\n"));
 
@@ -427,7 +427,7 @@ void sdl_done(void)
 
 static unsigned char* sdl_linear_write_line(unsigned y)
 {
-	assert( sdl_state.lock_active );
+	assert(sdl_state.lock_active);
 
 	if (sdl_state.overlay)
 		return (unsigned char*)sdl_state.overlay->pixels[0] + (unsigned)sdl_state.overlay->pitches[0] * y;
@@ -437,7 +437,7 @@ static unsigned char* sdl_linear_write_line(unsigned y)
 
 void sdl_write_lock(void)
 {
-	assert( !sdl_state.lock_active );
+	assert(!sdl_state.lock_active);
 
 	if (sdl_state.overlay) {
 		while (SDL_LockYUVOverlay(sdl_state.overlay) != 0) {
@@ -456,7 +456,7 @@ void sdl_write_lock(void)
 
 void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
 {
-	assert( sdl_state.lock_active );
+	assert(sdl_state.lock_active);
 
 	if (sdl_state.overlay) {
 		SDL_UnlockYUVOverlay(sdl_state.overlay);
@@ -509,8 +509,8 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 {
 	const SDL_VideoInfo* info;
 
-	assert( sdl_is_active() );
-	assert( !sdl_mode_is_active() );
+	assert(sdl_is_active());
+	assert(!sdl_mode_is_active());
 
 	log_std(("video:sdl: sdl_mode_set()\n"));
 
@@ -646,8 +646,8 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 void sdl_mode_done(adv_bool restore)
 {
-	assert( sdl_is_active() );
-	assert( sdl_mode_is_active() );
+	assert(sdl_is_active());
+	assert(sdl_mode_is_active());
 
 	log_std(("video:sdl: sdl_mode_done()\n"));
 
@@ -674,8 +674,8 @@ void sdl_mode_done(adv_bool restore)
 
 adv_error sdl_mode_change(const sdl_video_mode* mode)
 {
-	assert( sdl_is_active() );
-	assert( sdl_mode_is_active() );
+	assert(sdl_is_active());
+	assert(sdl_mode_is_active());
 
 	log_std(("video:sdl: sdlb_mode_change()\n"));
 
@@ -846,7 +846,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		request_y = crtc->vde;
 		request_bits = index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK);
 
-		suggested_bits = SDL_VideoModeOK(request_x, request_y, request_bits, sdl_mode_flags() );
+		suggested_bits = SDL_VideoModeOK(request_x, request_y, request_bits, sdl_mode_flags());
 
 		if (!suggested_bits) {
 			error_nolog_set("No compatible SDL mode found.\n");
@@ -899,7 +899,7 @@ void sdl_crtc_container_insert_default(adv_crtc_container* cc)
 
 	if (sdl_state.output == adv_output_fullscreen) {
 		SDL_Rect** map; /* it must not be released */
-		map = SDL_ListModes(0, sdl_mode_flags() );
+		map = SDL_ListModes(0, sdl_mode_flags());
 		if (!map) {
 			/* no resolutions */
 		} else if (map == (SDL_Rect **)-1) {

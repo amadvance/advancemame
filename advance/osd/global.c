@@ -180,7 +180,7 @@ int osd_display_loading_rom_message(const char* name, struct rom_load_data* romd
 
 	if (!romdata && name) {
 		/* it's a message */
-		if (!context->config.quiet_flag || strstr(name,"ERROR")!=0) {
+		if (!context->config.quiet_flag || strstr(name, "ERROR")!=0) {
 			target_err("%s", name);
 		}
 	}
@@ -303,7 +303,7 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 	i = current;
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME
-			&& strcmp(i->name,"Difficulty")==0) {
+			&& strcmp(i->name, "Difficulty")==0) {
 
 			/* the value is stored in the NAME item */
 			value = i;
@@ -369,7 +369,7 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 		unsigned j;
 		for(j=0;names[j] && !level;++j) {
 			for(i=begin;i!=end && !level;++i) {
-				if (strcmp(names[j],i->name)==0) {
+				if (strcmp(names[j], i->name)==0) {
 					level = i;
 					break;
 				}
@@ -382,7 +382,7 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 		unsigned j;
 		for(j=0;names[j] && !level;++j) {
 			for(i=begin;i!=end && !level;++i) {
-				if (strcmp(names_secondary[j],i->name)==0) {
+				if (strcmp(names_secondary[j], i->name)==0) {
 					level = i;
 					break;
 				}
@@ -885,7 +885,7 @@ static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
 
 			log_std(("global: customize port %s/%s %s\n", mame_section_name(game, cfg_context), tag_buffer, value_buffer));
 
-			conf_string_set(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
+			conf_set_if_different(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
 		}
 	} else {
 		log_debug(("WARNING:global: customization for unknown port %d not saved\n", port));
@@ -906,7 +906,11 @@ static void config_save_seqport(struct InputPort* def, struct InputPort* current
 	log_debug(("global: config_save_seqport()\n"));
 
 	glue_seq_convert(glue_port_seq_get(current, seqtype)->code, SEQ_MAX, seq, MAME_INPUT_MAP_MAX);
-	glue_seq_convert(glue_port_seq_get(def, seqtype)->code, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
+
+	/* the evaluated sequence must be used because the default */
+	/* configuration value is copied also in the specific game */
+	/* configuration in the osd_config_load() function. */
+	glue_seq_convert(glue_port_seqeval_get(def, seqtype)->code, SEQ_MAX, def_seq, MAME_INPUT_MAP_MAX);
 
 	port = glue_port_convert(current->type, current->player, seqtype, current->name);
 

@@ -476,14 +476,14 @@ int hardware_script_init(adv_conf* context)
 
 void hardware_script_done(void)
 {
-	assert( !STATE.active_flag );
+	assert(!STATE.active_flag);
 }
 
 int hardware_script_inner_init(void)
 {
 	int i;
 
-	assert( !STATE.active_flag );
+	assert(!STATE.active_flag);
 
 	for(i=0;i<HARDWARE_SCRIPT_MAX;++i) {
 		if (STATE.text_map[i]) {
@@ -508,7 +508,7 @@ void hardware_script_inner_done(void)
 {
 	int i;
 
-	assert( STATE.active_flag );
+	assert(STATE.active_flag);
 
 	STATE.active_flag = 0;
 

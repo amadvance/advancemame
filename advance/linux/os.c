@@ -126,7 +126,8 @@ void os_done(void)
 /***************************************************************************/
 /* Signal */
 
-static void os_restore(void) {
+static void os_restore(void)
+{
 #if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW) || defined(USE_KEYBOARD_EVENT)
 	log_std(("os: keyb_abort\n"));
 	{
@@ -230,10 +231,10 @@ static void os_delay(void)
 
 	if (delay_time > 0) {
 		log_std(("os: sleep granularity %g\n", delay_time));
-		target_usleep_granularity( delay_time * 1000000 );
+		target_usleep_granularity(delay_time * 1000000);
 	} else {
 		log_std(("ERROR:os: sleep granularity NOT measured\n"));
-		target_usleep_granularity( 20000 /* 20 ms */ );
+		target_usleep_granularity(20000 /* 20 ms */);
 	}
 
 	target_yield();
@@ -243,7 +244,7 @@ static void os_delay(void)
 	while (stop == start)
 		stop = target_clock();
 
-	log_std(("os: clock granularity %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC ));
+	log_std(("os: clock granularity %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC));
 }
 
 #ifdef USE_SMP
@@ -594,7 +595,8 @@ void* os_internal_sdl_get(void)
 }
 #endif
 
-adv_bool os_internal_wm_active(void) {
+adv_bool os_internal_wm_active(void)
+{
 #ifdef USE_X
 	if (OS.x_active) {
 		return 1;

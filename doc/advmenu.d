@@ -318,6 +318,17 @@ Configuration
 	name separator is `/' and the multi-directory separator is `:'.
 
   Global Configuration Options
+	This section describes the global options used to
+	customize the the program.
+
+	A subset of the configuration options are saved per
+	emulator basis to allow different configurations for
+	different emulators. Please note that these specific emulator
+	configurations are not activated if you select to show
+	more than one emulator at time.
+	In this case only the default configuration is used.
+	Specifically these special options are `mode', `sort',
+	`preview', `group_include' and `type_include'.
 
     config
 	Selects if and when the configuration modified by the user at 
@@ -345,11 +356,11 @@ Configuration
 	an emulator, the game information for that emulator (like
 	the time played) is lost.
 
-	:emulator "EMUNAME" (generic | advmame | advmess | mame | dmame
+	:emulator "EMULATOR" (generic | advmame | advmess | mame | dmame
 	:	| dmess | raine) "[-]EXECUTABLE" "ARGUMENTS"
 
 	Options:
-		EMUNAME - The name for the emulator. It must be
+		EMULATOR - The name for the emulator. It must be
 			different for every emulator defined.
 		generic - It's a generic emulator.
 		advmame - It's the AdvanceMAME emulator.
@@ -409,14 +420,14 @@ Configuration
 	sounds files are also searched also in any `.zip' file present
 	in these directories.
 
-	:emulator_roms "EMUNAME" "LIST"
-	:emulator_roms_filter "EMUNAME" "LIST"
-	:emulator_altss "EMUNAME" "LIST"
-	:emulator_flyers "EMUNAME" "LIST"
-	:emulator_cabinets "EMUNAME" "LIST"
-	:emulator_marquees "EMUNAME" "LIST"
-	:emulator_icons "EMUNAME" "LIST"
-	:emulator_titles "EMUNAME" "LIST"
+	:emulator_roms "EMULATOR" "LIST"
+	:emulator_roms_filter "EMULATOR" "LIST"
+	:emulator_altss "EMULATOR" "LIST"
+	:emulator_flyers "EMULATOR" "LIST"
+	:emulator_cabinets "EMULATOR" "LIST"
+	:emulator_marquees "EMULATOR" "LIST"
+	:emulator_icons "EMULATOR" "LIST"
+	:emulator_titles "EMULATOR" "LIST"
 
 	Commands:
 		roms - List of directories used for the roms. This
@@ -435,7 +446,7 @@ Configuration
 		titles - Titles directory.
 
 	Options:
-		EMUNAME - The name for the emulator. Must be the same
+		EMULATOR - The name for the emulator. Must be the same
 			name of a defined emulator
 		LIST - List of directories or patterns. In DOS and Windows
 			use the `;' char as separator. In Linux and
@@ -448,13 +459,15 @@ Configuration
 		:emulator_roms_filter "ZSNes" "*.smc;*.sfc;*.fig;*.1"
 
     mode
-	Selects the menu mode.
+	Selects the menu listing mode.
 
-	:mode full | full_mixed | text | list | list_mixed | tile_small
+	:[EMULATOR/]mode full | full_mixed | text | list | list_mixed | tile_small
 	:	| tile_normal | tile_big | tile_enormous | tile_giant
 	:	| tile_icon | tile_marquee
 
 	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
 		full - Full screen preview.
 		full_mixed - Full screen preview with 4 images.
 		text - Game list.
@@ -467,6 +480,43 @@ Configuration
 		tile_giant - Show the preview of 16x12 games.
 		tile_icon - Special mode for icon preview.
 		tile_marquee - Special mode for marquee preview.
+
+    sort
+	Selects the sort order of the games displayed.
+
+	:[EMULATOR/]sort parent | name | time | play | year | manufacturer
+	:	| type | group | size | resolution | info
+
+	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
+		parent - Game parent name.
+		name - Game name.
+		time - Time played.
+		play - Play times.
+		year - Game year release.
+		manufacturer - Game manufacturer.
+		type - Game type.
+		group - Game group.
+		size - Size of the game rom.
+		resolution - Resolution of the game display.
+		info - Information read with `info_import'.
+
+    preview
+	Selects the type of the images displayed.
+
+	:[EMULATOR/]preview snap | titles | flyers | cabinets
+
+	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
+		snap - Files in the `snap' and `altss' dir.
+		flyers - Files in the `flyers' dir.
+		cabinets - Files in the `cabinets' dir.
+		titles - Files in the `titles' dir.
+
+	The `icons' and `marquees' images can be selected with the
+	special `mode' options `tile_icon' and `tile_marquee'.
 
     mode_skip
 	Disables some menu modes when you press `tab'.
@@ -483,39 +533,6 @@ Configuration
 		:mode_skip tile_giant
 		:mode_skip full full_mixed list tile_small tile_giant
 		:mode_skip
-
-    sort
-	Selects the order of the games displayed.
-
-	:sort parent | name | time | play | year | manufacturer
-	:	| type | group | size | resolution | info
-
-	Options:
-		parent - Game parent name.
-		name - Game name.
-		time - Time played.
-		play - Play times.
-		year - Game year release.
-		manufacturer - Game manufacturer.
-		type - Game type.
-		group - Game group.
-		size - Size of the game rom.
-		resolution - Resolution of the game display.
-		info - Information read with `info_import'.
-
-    preview
-	Selects the type of the images displayed.
-
-	:preview snap | titles | flyers | cabinets
-
-	Options:
-		snap - Files in the `snap' and `altss' dir.
-		flyers - Files in the `flyers' dir.
-		cabinets - Files in the `cabinets' dir.
-		titles - Files in the `titles' dir.
-
-	The `icons' and `marquees' images can be selected with the
-	special `mode' options `tile_icon' and `tile_marquee'.
 
     preview_expand
 	Enlarges the screen area used by the vertical games on horizontal
@@ -698,16 +715,16 @@ Configuration
 	be used.
 
     sound_volume
-	Sets the sound volume.
+	Sets the global sound volume.
 
 	:sound_volume VOLUME
 
 	Options:
-		VOLUME - The volume is an attenuation in dB. The dB is
-			a negative value from -40 to 0.
+		VOLUME - The volume attenuation in dB (default -3).
+			The attenuation is a negative value from -40 to 0.
 
 	Examples:
-		:sound_volume -12
+		:sound_volume -5
 
     sound_latency
 	Sets the audio latency.
@@ -926,6 +943,8 @@ Configuration
 		submenu_bar - Submenu title.
 		submenu_item - Submenu entry.
 		submenu_item_select - Submenu selected entry.
+		submenu_hidden - Submenu hidden entry.
+		submenu_hidden_select - Submenu selected hidden entry.
 		menu_item - Menu entry.
 		menu_hidden - Menu hidden entry.
 		menu_tag - Menu highlight entry.
@@ -941,12 +960,9 @@ Configuration
 		cursor - Flashing cursor.
 
 	Options:
-		FOREGROUND - Foreground color. One of the following:
-			black, blue, green, cyan, red, magenta, brown,
-			lightgray, gray, lightblue, lightgreen
-			lightcyan, lightred, lightmagenta, yellow,
-			white or RRGGBB in hex format. For example
-			FF0000 is red and 00FF00 is green.
+		FOREGROUND - Foreground color in RRGGBB
+			hex format. For example FF0000 is red
+			and 00FF00 is green.
 		BACKGROUND - Background color. Like foreground color.
 
     ui_clip
@@ -1019,6 +1035,11 @@ Configuration
 
 	ui_console yes | no
 
+    ui_menukey
+	Enables or disables the key names in the menu entries.
+
+	ui_menukey yes | no
+
   Other Configuration Options
 
     idle_start
@@ -1074,14 +1095,16 @@ Configuration
 
 	:group "STRING"
 	:type "STRING"
-	:group_include "STRING"
-	:type_include "STRING"
+	:[EMULATOR/]group_include "STRING"
+	:[EMULATOR/]type_include "STRING"
 
 	Commands:
 		group, type - Define a category.
 		group_include, type_include - Show a category.
 
 	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
 		STRING - name of the category
 
     group/type/desc/info_import
@@ -1093,7 +1116,7 @@ Configuration
 	The files are read in the current directory in DOS and Windows
 	and in the $home directory in Linux and Mac OS X.
 
-	WARNING! These option DON'T OVERWRITE any user explicit
+	WARNING! These options DON'T OVERRIDE any user explicit
 	choices made with the `game' option.
 
 	:group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
@@ -1145,25 +1168,26 @@ Configuration
 	Events:
 		up, down, left, right - Movement.
 		home, end, pgup, pgdn - Movement.
-		mode - Change the display mode.
-		help - Show a little help.
-		group - Select a game group.
-		type - Select a game type.
-		exclude - Exclude some games.
-		sort - Sort games.
-		setgroup - Select the group of the current game
-		settype - Select the type of the current game
-		runclone - Run a game clone.
 		enter - Main action, start.
 		esc - Back action, exit & cancel.
-		shutdown - Exit and shutdown.
 		space - Change action, select & deselect.
 		ins - Select all.
 		del - Deselect all.
-		command - The file command menu.
 		menu - The main menu.
+		sort - Changes the sort mode.
+		mode - Change the display mode.
+		preview - Change the preview mode.
 		emulator - The emulator menu.
-		rotate - Rotate the screen of 90ø.
+		help - Show a little help.
+		group - Select a game group.
+		type - Select a game type.
+		exclude - Exclude some games with filters.
+		setgroup - Select the group of the current game
+		settype - Select the type of the current game
+		runclone - Run a game clone.
+		shutdown - Exit and shutdown.
+		command - The file command menu.
+		rotate - Rotate the screen of 90°.
 		lock - Lock/unlock the user interface.
 
 	Options:

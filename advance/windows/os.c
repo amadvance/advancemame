@@ -85,10 +85,10 @@ int os_inner_init(const char* title)
 
 	if (delay_time > 0) {
 		log_std(("os: sleep granularity %g\n", delay_time));
-		target_usleep_granularity( delay_time * 1000000 );
+		target_usleep_granularity(delay_time * 1000000);
 	} else {
 		log_std(("ERROR:os: sleep granularity NOT measured\n"));
-		target_usleep_granularity( 20000 /* 20 ms */ );
+		target_usleep_granularity(20000 /* 20 ms */);
 	}
 
 	log_std(("os: sys SDL\n"));

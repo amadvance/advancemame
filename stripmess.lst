@@ -9,7 +9,6 @@ device.h
 devices
 eventlst.c
 eventlst.h
-expat
 filemngr.c
 formats
 hashfile.c

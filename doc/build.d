@@ -302,10 +302,14 @@ Debugging
 	To debug the program the suggested configuration options
 	are:
 
-		./configure --enable-debug --disable-svgalib
+		:./configure --enable-debug --disable-svgalib \
+		:	--disable-pthread
 
-	The SVGALIB library interferes with the stack backtrace
-	on the signal handler, so it's better to disable it.
+	The svgalib library is disabled because it interferes with
+	the stack backtrace on the signal handler.
+
+	The pthread library is disabled because it interferes with
+	the debugger signals.
 
 	The suggested environment is X Window using the SDL
 	library. This allow to run the debugger and the programs

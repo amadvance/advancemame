@@ -116,14 +116,14 @@ enum video_stage_enum {
 	pipe_y_scale2x4, /**< Scale2x4. */
 	pipe_y_scale3x, /**< Scale3x. */
 	pipe_y_scale4x, /**< Scale4x. */
-	pipe_y_lq2x,/**< LQ2x */
-	pipe_y_lq2x3,/**< LQ2x3 */
-	pipe_y_lq2x4,/**< LQ2x4 */
+	pipe_y_lq2x, /**< LQ2x */
+	pipe_y_lq2x3, /**< LQ2x3 */
+	pipe_y_lq2x4, /**< LQ2x4 */
 	pipe_y_lq3x, /**< LQ3x */
 	pipe_y_lq4x, /**< LQ4x */
-	pipe_y_hq2x,/**< HQ2x */
-	pipe_y_hq2x3,/**< HQ2x3 */
-	pipe_y_hq2x4,/**< HQ2x4 */
+	pipe_y_hq2x, /**< HQ2x */
+	pipe_y_hq2x3, /**< HQ2x3 */
+	pipe_y_hq2x4, /**< HQ2x4 */
 	pipe_y_hq3x, /**< HQ3x */
 	pipe_y_hq4x /**< HQ4x */
 };

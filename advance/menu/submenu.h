@@ -24,25 +24,24 @@
 #include "mconfig.h"
 
 void run_help(config_state& rs);
-void run_volume(config_state& rs);
-void run_sort(config_state& rs);
+int run_volume(config_state& rs);
+int run_sort(config_state& rs);
 void run_exclude(config_state& rs);
-void run_type(config_state& rs);
+int run_type(config_state& rs);
 void run_type_next(config_state& rs);
-void run_type_move(config_state& rs);
-void run_group(config_state& rs);
+int run_type_move(config_state& rs);
+int run_group(config_state& rs);
 void run_group_next(config_state& rs);
-void run_group_move(config_state& rs);
+int run_group_move(config_state& rs);
 void run_clone(config_state& rs);
-void run_command(config_state& rs);
-void run_config(config_state& rs);
-void run_emu(config_state& rs);
+int run_command(config_state& rs);
+int run_emu(config_state& rs);
 void run_emu_next(config_state& rs);
 emulator* run_emu_select(config_state& rs);
-unsigned run_submenu(config_state& rs);
+int run_submenu(config_state& rs);
 void run_runinfo(config_state& rs);
 void run_calib(config_state& rs);
-void run_difficulty(config_state& rs);
+int run_difficulty(config_state& rs);
 void run_stat(config_state& rs);
 
 #define FIRST_CHOICE_X (int_dx_get()/20)

@@ -782,7 +782,7 @@ static void adv_bitmap_filter_stage(
 	delay = adv_filter_delay_get(f);
 	size = count;
 
-	count_0 = order - 1 - delay;
+	count_0 = order - delay;
 	count_1 = delay;
 	count_2 = size - delay;
 	count_3 = delay;
@@ -887,7 +887,7 @@ static void adv_bitmap_filter_stage(
 adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigned src_dx, unsigned src_dy, unsigned dst_dx, unsigned dst_dy, unsigned orientation_mask, adv_color_def def)
 {
 	adv_bitmap* dst;
-	unsigned order = 7;
+	unsigned order = 19;
 
 	if (!dst_dx || !dst_dy || !src_dx || !src_dy)
 		return 0;
@@ -899,7 +899,7 @@ adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigne
 		adv_filter f;
 		unsigned cy;
 
-		adv_filter_lpfir_set(&f, (double)dst_dx / src_dx / 2, order);
+		adv_filter_lp_windowedsinc_set(&f, (double)dst_dx / src_dx / 2, order);
 
 		for(cy=0;cy<src_dy;++cy) {
 			uint8* ptr = adv_bitmap_pixel(src, x, y + cy);
@@ -916,7 +916,7 @@ adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigne
 		adv_filter f;
 		unsigned cx;
 
-		adv_filter_lpfir_set(&f, (double)dst_dy / src_dy / 2, order);
+		adv_filter_lp_windowedsinc_set(&f, (double)dst_dy / src_dy / 2, order);
 
 		for(cx=0;cx<src_dx;++cx) {
 			uint8* ptr = adv_bitmap_pixel(src, x + cx, y);
@@ -937,7 +937,7 @@ adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigne
 		adv_filter f;
 		unsigned cy;
 
-		adv_filter_lpfir_set(&f, (double)src_dx / dst_dx / 2, order);
+		adv_filter_lp_windowedsinc_set(&f, (double)src_dx / dst_dx / 2, order);
 
 		for(cy=0;cy<dst_dy;++cy) {
 			uint8* ptr = adv_bitmap_pixel(dst, 0, cy);
@@ -954,7 +954,7 @@ adv_bitmap* adv_bitmap_resample(adv_bitmap* src, unsigned x, unsigned y, unsigne
 		adv_filter f;
 		unsigned cx;
 
-		adv_filter_lpfir_set(&f, (double)src_dy / dst_dy / 2, order);
+		adv_filter_lp_windowedsinc_set(&f, (double)src_dy / dst_dy / 2, order);
 
 		for(cx=0;cx<dst_dx;++cx) {
 			uint8* ptr = adv_bitmap_pixel(dst, cx, 0);
@@ -1243,9 +1243,9 @@ adv_bitmap* adv_bitmap_load_png(adv_color_rgb* rgb_map, unsigned* rgb_max, adv_f
 
 /**
  * Load a bitmap in PNG format as RGB image.
- * If required the bitmap is converted to the desiderated format.
+ * If required the bitmap is converted to the specified format.
  * \param f Stream to read.
- * \param def Color definition desiderated.
+ * \param def Color RGB definition required.
  * \return Bitmap read.
  */
 adv_bitmap* adv_bitmap_load_png_rgb(adv_fz* f, adv_color_def def)

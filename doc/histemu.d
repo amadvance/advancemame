@@ -5,6 +5,17 @@ AdvanceMAME Version 0.85.0 2004/08
 	) The modeline generation now always use horizontal
 		values which are multipler of 16 to solve
 		memory corruption problems on some video cards.
+	) Fixed a crash bug on vector games with artwork.
+	) Added the `ui_color[*]' options to customize the user
+		interface colors.
+	) Added the `sound_adjust' option with an internal
+		database with the volume correction for all
+		the games.
+	) Added a sound equalizer with the new `sound_equalizer'
+		options.
+
+AdvanceMESS Version 0.85.0.0 2004/08
+	) All from AdvanceMAME 0.85.0.
 
 AdvanceMAME Version 0.84.0 2004/07
 	) Added a new rand(N) function at the scripts.

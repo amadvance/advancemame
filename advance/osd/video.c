@@ -197,9 +197,9 @@ static void video_command(struct advance_video_context* context, struct advance_
 	video_command_event(context, safequit_context, leds_status, context->state.turbo_flag, input);
 
 	/* scripts */
-	hardware_script_idle( SCRIPT_TIME_UNIT / context->state.game_fps );
-	hardware_simulate_input_idle( SIMULATE_EVENT, SCRIPT_TIME_UNIT / context->state.game_fps );
-	hardware_simulate_input_idle( SIMULATE_KEY, SCRIPT_TIME_UNIT / context->state.game_fps );
+	hardware_script_idle(SCRIPT_TIME_UNIT / context->state.game_fps);
+	hardware_simulate_input_idle(SIMULATE_EVENT, SCRIPT_TIME_UNIT / context->state.game_fps);
+	hardware_simulate_input_idle(SIMULATE_KEY, SCRIPT_TIME_UNIT / context->state.game_fps);
 
 	if (context->state.measure_flag) {
 		if (context->state.measure_counter > 0) {
@@ -325,7 +325,7 @@ static void video_command(struct advance_video_context* context, struct advance_
 			advance_global_message(&CONTEXT.global, "Startup time cleared");
 		}
 	}
-	
+
 	advance_ui_direct_fast(ui_context, context->state.fastest_flag || context->state.turbo_flag);
 
 	advance_ui_direct_slow(ui_context, context->state.skip_level_disable_flag);
@@ -344,7 +344,7 @@ static void video_command(struct advance_video_context* context, struct advance_
 			}
 		}
 
-		rate = floor( 100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5 );
+		rate = floor(100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5);
 		skip = 100 * context->state.skip_level_full / (context->state.skip_level_full + context->state.skip_level_skip);
 
 		if (context->state.fastest_flag) {
@@ -377,7 +377,7 @@ static void video_command(struct advance_video_context* context, struct advance_
 		char buffer[256];
 		unsigned rate;
 
-		rate = floor( 100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5 );
+		rate = floor(100.0 / (estimate_context->estimate_frame * context->state.game_fps / context->config.fps_speed_factor) + 0.5);
 
 		snprintf(buffer, sizeof(buffer), "%3d%%", rate);
 
@@ -422,7 +422,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	advance_video_frame(context, record_context, ui_context, game, debug, debug_palette, debug_palette_size, skip_flag);
 
 	/* update the audio buffer for the new frame */
-	advance_sound_frame(sound_context, record_context, context, safequit_context, sample_buffer, sample_count, sample_recount, video_is_normal_speed(context));
+	advance_sound_frame(sound_context, record_context, context, safequit_context, sample_buffer, sample_count, sample_recount, context->config.rawsound_flag || video_is_normal_speed(context));
 
 	/* estimate the time */
 	advance_estimate_osd_end(estimate_context, skip_flag);
@@ -693,7 +693,7 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 
 		if (advance_video_mode_update(context) != 0) {
 			/* if something go wrong abort */
-			log_std(("emu:video: advance_video_update_config() failed\n"));
+			log_std(("emu:video: video_reconfigure() failed\n"));
 			target_err("Unexpected error changing video options.\n");
 			abort();
 		}
@@ -1095,6 +1095,11 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		sample_recount = sample_count;
 	}
 
+	if (context->config.rawsound_flag) {
+		sample_recount = sample_count;
+		latency_diff = 0;
+	}
+
 	/* update the global info */
 	video_command(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, CONTEXT.cfg, led, input, skip_flag);
 	advance_video_skip(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.record);
@@ -1255,6 +1260,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_float_register_limit_default(cfg_context, "sync_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "sync_turbospeed", 0.1, 30.0, 3.0);
 	conf_bool_register_default(cfg_context, "misc_crash", 0);
+	conf_bool_register_default(cfg_context, "misc_rawsound", 0);
 	conf_string_register_default(cfg_context, "sync_startuptime", "auto");
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
@@ -1402,11 +1408,11 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
 	s = conf_string_get_default(cfg_context, "sync_fps");
-	if (strcmp(s,"auto")==0) {
+	if (strcmp(s, "auto")==0) {
 		context->config.fps_fixed = 0;
 	} else {
 		char* e;
-		context->config.fps_fixed = strtod(s,&e);
+		context->config.fps_fixed = strtod(s, &e);
 		if (context->config.fps_fixed < 10 || context->config.fps_fixed > 300 || *e) {
 			target_err("Invalid argument '%s' for option 'sync_fps'.\n", s);
 			return -1;
@@ -1436,6 +1442,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.fastest_time = d;
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
+	context->config.rawsound_flag = conf_bool_get_default(cfg_context, "misc_rawsound");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
 	sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), s);

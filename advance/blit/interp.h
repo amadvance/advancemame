@@ -59,14 +59,14 @@ extern unsigned interp_highnot_mask;
 #define INTERP_16_UNMASK_2(v) ((v) & interp_mask[1])
 #define INTERP_16_HNMASK interp_highnot_mask
 
-#define INTERP_16_GEN2(a,b) \
+#define INTERP_16_GEN2(a, b) \
 static inline interp_uint16 interp_16_##a##b(interp_uint16 p1, interp_uint16 p2) \
 { \
 	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*a + INTERP_16_MASK_1(p2)*b) / 16) \
 		| INTERP_16_UNMASK_2((INTERP_16_MASK_2(p1)*a + INTERP_16_MASK_2(p2)*b) / 16); \
 }
 
-#define INTERP_16_GEN3(a,b,c) \
+#define INTERP_16_GEN3(a, b, c) \
 static inline interp_uint16 interp_16_##a##b##c(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3) \
 { \
 	return INTERP_16_UNMASK_1((INTERP_16_MASK_1(p1)*a + INTERP_16_MASK_1(p2)*b + INTERP_16_MASK_1(p3)*c) / 16) \
@@ -79,14 +79,14 @@ static inline interp_uint16 interp_16_##a##b##c(interp_uint16 p1, interp_uint16 
 #define INTERP_32_UNMASK_2(v) ((v) & 0x00FF00U)
 #define INTERP_32_HNMASK (~0x808080U)
 
-#define INTERP_32_GEN2(a,b) \
+#define INTERP_32_GEN2(a, b) \
 static inline interp_uint32 interp_32_##a##b(interp_uint32 p1, interp_uint32 p2) \
 { \
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*a + INTERP_32_MASK_1(p2)*b) / 16) \
 		| INTERP_32_UNMASK_2((INTERP_32_MASK_2(p1)*a + INTERP_32_MASK_2(p2)*b) / 16); \
 }
 
-#define INTERP_32_GEN3(a,b,c) \
+#define INTERP_32_GEN3(a, b, c) \
 static inline interp_uint32 interp_32_##a##b##c(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3) \
 { \
 	return INTERP_32_UNMASK_1((INTERP_32_MASK_1(p1)*a + INTERP_32_MASK_1(p2)*b + INTERP_32_MASK_1(p3)*c) / 16) \
@@ -191,22 +191,22 @@ static inline interp_uint16 interp_16_71(interp_uint16 p1, interp_uint16 p2)
 #endif
 }
 
-INTERP_16_GEN3(6,5,5)
-INTERP_16_GEN3(7,5,4)
-INTERP_16_GEN3(7,6,3)
-INTERP_16_GEN3(7,7,2)
-INTERP_16_GEN3(8,5,3)
-INTERP_16_GEN3(9,4,3)
-INTERP_16_GEN3(9,6,1)
-INTERP_16_GEN3(10,3,3)
-INTERP_16_GEN3(10,5,1)
-INTERP_16_GEN3(11,3,2)
-INTERP_16_GEN2(11,5)
-INTERP_16_GEN3(12,3,1)
-INTERP_16_GEN2(13,3)
-INTERP_16_GEN3(14,1,1)
-INTERP_16_GEN2(15,1)
-INTERP_16_GEN2(9,7)
+INTERP_16_GEN3(6, 5, 5)
+INTERP_16_GEN3(7, 5, 4)
+INTERP_16_GEN3(7, 6, 3)
+INTERP_16_GEN3(7, 7, 2)
+INTERP_16_GEN3(8, 5, 3)
+INTERP_16_GEN3(9, 4, 3)
+INTERP_16_GEN3(9, 6, 1)
+INTERP_16_GEN3(10, 3, 3)
+INTERP_16_GEN3(10, 5, 1)
+INTERP_16_GEN3(11, 3, 2)
+INTERP_16_GEN2(11, 5)
+INTERP_16_GEN3(12, 3, 1)
+INTERP_16_GEN2(13, 3)
+INTERP_16_GEN3(14, 1, 1)
+INTERP_16_GEN2(15, 1)
+INTERP_16_GEN2(9, 7)
 
 static inline interp_uint32 interp_32_11(interp_uint32 p1, interp_uint32 p2)
 {
@@ -306,22 +306,22 @@ static inline interp_uint32 interp_32_71(interp_uint32 p1, interp_uint32 p2)
 #endif
 }
 
-INTERP_32_GEN3(6,5,5)
-INTERP_32_GEN3(7,5,4)
-INTERP_32_GEN3(7,6,3)
-INTERP_32_GEN3(7,7,2)
-INTERP_32_GEN3(8,5,3)
-INTERP_32_GEN3(9,4,3)
-INTERP_32_GEN3(9,6,1)
-INTERP_32_GEN3(10,3,3)
-INTERP_32_GEN3(10,5,1)
-INTERP_32_GEN3(11,3,2)
-INTERP_32_GEN2(11,5)
-INTERP_32_GEN3(12,3,1)
-INTERP_32_GEN2(13,3)
-INTERP_32_GEN3(14,1,1)
-INTERP_32_GEN2(15,1)
-INTERP_32_GEN2(9,7)
+INTERP_32_GEN3(6, 5, 5)
+INTERP_32_GEN3(7, 5, 4)
+INTERP_32_GEN3(7, 6, 3)
+INTERP_32_GEN3(7, 7, 2)
+INTERP_32_GEN3(8, 5, 3)
+INTERP_32_GEN3(9, 4, 3)
+INTERP_32_GEN3(9, 6, 1)
+INTERP_32_GEN3(10, 3, 3)
+INTERP_32_GEN3(10, 5, 1)
+INTERP_32_GEN3(11, 3, 2)
+INTERP_32_GEN2(11, 5)
+INTERP_32_GEN3(12, 3, 1)
+INTERP_32_GEN2(13, 3)
+INTERP_32_GEN3(14, 1, 1)
+INTERP_32_GEN2(15, 1)
+INTERP_32_GEN2(9, 7)
 
 int interp_16_diff(interp_uint16 p1, interp_uint16 p2);
 int interp_32_diff(interp_uint32 p1, interp_uint32 p2);

@@ -55,7 +55,7 @@ static inline unsigned end_value(unsigned start, unsigned end_nibble, unsigned e
 {
 	unsigned end;
 	unsigned end_mask = (1 << end_bits) - 1;
-	assert( (end_nibble & ~end_mask) == 0 );
+	assert((end_nibble & ~end_mask) == 0);
 	if ((start & end_mask) > end_nibble) {
 		end = start + end_mask + 1;
 	} else {
@@ -67,7 +67,7 @@ static inline unsigned end_value(unsigned start, unsigned end_nibble, unsigned e
 /* Set a register with mask */
 static unsigned char setregmask(unsigned char value, unsigned rbit, unsigned lbit, unsigned char reg)
 {
-	assert( lbit <= 8 );
+	assert(lbit <= 8);
 
 	if (lbit != 8) {
 		reg &= ~(((1 << lbit) - 1) << rbit);
@@ -95,8 +95,8 @@ void vga_regs_hbs_set(struct vga_regs* regs, unsigned value)
 
 void vga_regs_hbe_set(struct vga_regs* regs, unsigned value)
 {
-	regs->crtc[0x3] = setregmask( mask(value, 0, 5), 0, 5, regs->crtc[0x3]);
-	regs->crtc[0x5] = setregmask( mask(value, 5, 1), 7, 1, regs->crtc[0x5]);
+	regs->crtc[0x3] = setregmask(mask(value, 0, 5), 0, 5, regs->crtc[0x3]);
+	regs->crtc[0x5] = setregmask(mask(value, 5, 1), 7, 1, regs->crtc[0x5]);
 }
 
 void vga_regs_hrs_set(struct vga_regs* regs, unsigned value)
@@ -106,30 +106,30 @@ void vga_regs_hrs_set(struct vga_regs* regs, unsigned value)
 
 void vga_regs_hre_set(struct vga_regs* regs, unsigned value)
 {
-	regs->crtc[0x5] = setregmask( mask(value, 0, 5), 0, 5, regs->crtc[0x5]);
+	regs->crtc[0x5] = setregmask(mask(value, 0, 5), 0, 5, regs->crtc[0x5]);
 }
 
 void vga_regs_vtt_set(struct vga_regs* regs, unsigned value)
 {
 	value -= 2;
 	regs->crtc[0x6] = mask(value, 0, 8);
-	regs->crtc[0x7] = setregmask( mask(value, 8, 1), 0, 1, regs->crtc[0x7]);
-	regs->crtc[0x7] = setregmask( mask(value, 9, 1), 5, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 8, 1), 0, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 9, 1), 5, 1, regs->crtc[0x7]);
 }
 
 void vga_regs_vde_set(struct vga_regs* regs, unsigned value)
 {
 	value -= 1;
 	regs->crtc[0x12] = mask(value, 0, 8);
-	regs->crtc[0x7] = setregmask( mask(value, 8, 1), 1, 1, regs->crtc[0x7]);
-	regs->crtc[0x7] = setregmask( mask(value, 9, 1), 6, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 8, 1), 1, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 9, 1), 6, 1, regs->crtc[0x7]);
 }
 
 void vga_regs_vbs_set(struct vga_regs* regs, unsigned value)
 {
 	regs->crtc[0x15] = mask(value, 0, 8);
-	regs->crtc[0x7] = setregmask( mask(value, 8, 1), 3, 1, regs->crtc[0x7]);
-	regs->crtc[0x9] = setregmask( mask(value, 9, 1), 5, 1, regs->crtc[0x9]);
+	regs->crtc[0x7] = setregmask(mask(value, 8, 1), 3, 1, regs->crtc[0x7]);
+	regs->crtc[0x9] = setregmask(mask(value, 9, 1), 5, 1, regs->crtc[0x9]);
 }
 
 /**
@@ -150,54 +150,54 @@ void vga_regs_vbe_set(struct vga_regs* regs, unsigned value)
 void vga_regs_vrs_set(struct vga_regs* regs, unsigned value)
 {
 	regs->crtc[0x10] = mask(value, 0, 8);
-	regs->crtc[0x7] = setregmask( mask(value, 8, 1), 2, 1, regs->crtc[0x7]);
-	regs->crtc[0x7] = setregmask( mask(value, 9, 1), 7, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 8, 1), 2, 1, regs->crtc[0x7]);
+	regs->crtc[0x7] = setregmask(mask(value, 9, 1), 7, 1, regs->crtc[0x7]);
 }
 
 void vga_regs_vre_set(struct vga_regs* regs, unsigned value)
 {
-	regs->crtc[0x11] = setregmask( mask(value, 0, 4), 0, 4, regs->crtc[0x11]);
+	regs->crtc[0x11] = setregmask(mask(value, 0, 4), 0, 4, regs->crtc[0x11]);
 }
 
 void vga_regs_doublescan_set(struct vga_regs* regs, unsigned value)
 {
-	regs->crtc[0x9] = setregmask( mask(value, 0, 1), 7, 1, regs->crtc[0x9]);
+	regs->crtc[0x9] = setregmask(mask(value, 0, 1), 7, 1, regs->crtc[0x9]);
 }
 
 void vga_regs_dotclock_middle_set(struct vga_regs* regs, unsigned value)
 {
-	regs->seq[0x1] = setregmask( mask(value, 0, 1), 3, 1, regs->seq[0x1]);
+	regs->seq[0x1] = setregmask(mask(value, 0, 1), 3, 1, regs->seq[0x1]);
 }
 
 void vga_regs_masterclock_input_set(struct vga_regs* regs, unsigned value)
 {
-	regs->misc = setregmask( mask(value, 0, 2), 2, 2, regs->misc);
+	regs->misc = setregmask(mask(value, 0, 2), 2, 2, regs->misc);
 }
 
 void vga_regs_char_size_x_set(struct vga_regs* regs, unsigned value)
 {
-	assert( value==8 || value==9 );
+	assert(value==8 || value==9);
 	if (value==8)
 		value = 1;
 	else
 		value = 0;
-	regs->seq[0x1] = setregmask( mask(value, 0, 1), 0, 1, regs->seq[0x1]);
+	regs->seq[0x1] = setregmask(mask(value, 0, 1), 0, 1, regs->seq[0x1]);
 }
 
 void vga_regs_char_size_y_set(struct vga_regs* regs, unsigned value)
 {
 	value -= 1;
-	regs->crtc[0x9] = setregmask( mask(value, 0, 4), 0, 4, regs->crtc[0x9]);
+	regs->crtc[0x9] = setregmask(mask(value, 0, 4), 0, 4, regs->crtc[0x9]);
 }
 
 void vga_regs_hsync_set(struct vga_regs* regs, unsigned value)
 {
-	regs->misc = setregmask( mask(value, 0, 1), 6, 1, regs->misc);
+	regs->misc = setregmask(mask(value, 0, 1), 6, 1, regs->misc);
 }
 
 void vga_regs_vsync_set(struct vga_regs* regs, unsigned value)
 {
-	regs->misc = setregmask( mask(value, 0, 1), 7, 1, regs->misc);
+	regs->misc = setregmask(mask(value, 0, 1), 7, 1, regs->misc);
 }
 
 void vga_regs_offset_set(struct vga_regs* regs, unsigned value)
@@ -209,18 +209,18 @@ void vga_regs_chained_set(struct vga_regs* regs, adv_bool chained)
 {
 	if (chained) {
 		/* turn on the Chain-4 bit */
-		regs->seq[0x4] = setregmask( 1, 3, 1, regs->seq[0x4]);
+		regs->seq[0x4] = setregmask(1, 3, 1, regs->seq[0x4]);
 		/* turn on word mode (negate) */
-		regs->crtc[0x17] = setregmask( 0, 6, 1, regs->crtc[0x17]);
+		regs->crtc[0x17] = setregmask(0, 6, 1, regs->crtc[0x17]);
 		/* turn on doubleword mode */
-		regs->crtc[0x14] = setregmask( 1, 6, 1, regs->crtc[0x14]);
+		regs->crtc[0x14] = setregmask(1, 6, 1, regs->crtc[0x14]);
 	} else {
 		/* turn off the Chain-4 bit */
-		regs->seq[0x4] = setregmask( 0, 3, 1, regs->seq[0x4]);
+		regs->seq[0x4] = setregmask(0, 3, 1, regs->seq[0x4]);
 		/* turn off word mode (negate) */
-		regs->crtc[0x17] = setregmask( 1, 6, 1, regs->crtc[0x17]);
+		regs->crtc[0x17] = setregmask(1, 6, 1, regs->crtc[0x17]);
 		/* turn off doubleword mode */
-		regs->crtc[0x14] = setregmask( 0, 6, 1, regs->crtc[0x14]);
+		regs->crtc[0x14] = setregmask(0, 6, 1, regs->crtc[0x14]);
 	}
 }
 
@@ -433,7 +433,7 @@ void vga_outb(unsigned port, unsigned index, unsigned char value)
 
 void vga_writeb(unsigned addr, unsigned char c)
 {
-	_farpokeb( _dos_ds, addr, c);
+	_farpokeb(_dos_ds, addr, c);
 }
 
 unsigned char vga_readb(unsigned addr)
@@ -605,7 +605,7 @@ void vga_scanline_set(unsigned byte_length)
 	if (!vga_state.info.is_linear)
 		offset /= 4;
 
-	vga_outb(VGAREG_CRTC_ADDR, 0x13, offset );
+	vga_outb(VGAREG_CRTC_ADDR, 0x13, offset);
 }
 
 /**
@@ -614,7 +614,7 @@ void vga_scanline_set(unsigned byte_length)
  */
 void vga_unchained_plane_mask_set(unsigned plane_mask)
 {
-	assert( (plane_mask | 0xf) == 0xf );
+	assert((plane_mask | 0xf) == 0xf);
 	vga_outb(VGAREG_SEQ_ADDR, 0x2, plane_mask & 0xf);
 }
 
@@ -624,8 +624,8 @@ void vga_unchained_plane_mask_set(unsigned plane_mask)
  */
 void vga_unchained_plane_set(unsigned plane)
 {
-	assert( plane < 4 );
-	vga_unchained_plane_mask_set( 1 << plane );
+	assert(plane < 4);
+	vga_unchained_plane_mask_set(1 << plane);
 }
 
 void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, adv_bool set)
@@ -691,7 +691,7 @@ void vga_font_map_set(unsigned bit_0_slot, unsigned bit_1_slot)
 {
 	unsigned c;
 
-	assert(bit_0_slot < 8 && bit_1_slot < 8 );
+	assert(bit_0_slot < 8 && bit_1_slot < 8);
 
 	c = mask(bit_0_slot, 0, 2) | mask(bit_0_slot, 2, 1) << 4;
 	c |= mask(bit_1_slot, 0, 2) << 2 | mask(bit_1_slot, 2, 1) << 5;

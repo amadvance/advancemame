@@ -2,6 +2,13 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.3.8 2004/08
+	) Fixed the renaming of the AdvanceMESS snapshots,
+		clips and sounds. It was broken on
+		version 2.3.6.
+	) Added support for specific emulator configuration.
+	) New menu organization.
+	) Added the new `ui_menukey' option to enable and disable
+		the keyboard shortcuts in the menus.
 
 AdvanceMENU Version 2.3.7 2004/07
 	) Fixed a Mac OS X crash problem with XML files with

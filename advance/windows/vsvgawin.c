@@ -110,13 +110,13 @@ static adv_bool is_sdl_framebuffer_valid(void)
 
 static unsigned char* svgawin_svgalib_write_line(unsigned y)
 {
-	assert( svgawin_state.lock_active );
+	assert(svgawin_state.lock_active);
 	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
 }
 
 static unsigned char* svgawin_sdl_write_line(unsigned y)
 {
-	assert( svgawin_state.lock_active );
+	assert(svgawin_state.lock_active);
 	return (unsigned char*)svgawin_state.surface->pixels + adv_svgalib_scanline_get() * y;;
 }
 
@@ -280,7 +280,7 @@ static adv_error sdl_init(int device_id)
 	char buf[64];
 	unsigned j;
 
-	assert( !svgawin_is_active() );
+	assert(!svgawin_is_active());
 
 	svgawin_state.surface = 0;
 
@@ -456,8 +456,8 @@ static void svgalib_done(void)
 
 void svgawin_done(void)
 {
-	assert( svgawin_is_active() );
-	assert( !svgawin_mode_is_active() );
+	assert(svgawin_is_active());
+	assert(!svgawin_mode_is_active());
 
 	log_std(("video:svgawin: svgawin_done()\n"));
 
@@ -472,17 +472,17 @@ void svgawin_done(void)
 
 unsigned svgawin_flags(void)
 {
-	assert( svgawin_is_active() );
+	assert(svgawin_is_active());
 	return svgawin_state.cap;
 }
 
 void svgawin_write_lock(void)
 {
-	assert( !svgawin_state.lock_active );
+	assert(!svgawin_state.lock_active);
 
 	if (svgawin_option.stub != STUB_NONE) {
 		if (SDL_MUSTLOCK(svgawin_state.surface)) {
-			while (SDL_LockSurface( svgawin_state.surface ) != 0) {
+			while (SDL_LockSurface(svgawin_state.surface) != 0) {
 				SDL_Delay(1);
 			}
 		}
@@ -493,7 +493,7 @@ void svgawin_write_lock(void)
 
 void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
 {
-	assert( svgawin_state.lock_active );
+	assert(svgawin_state.lock_active);
 
 	if (svgawin_option.stub != STUB_NONE) {
 		if (SDL_MUSTLOCK(svgawin_state.surface))
@@ -539,8 +539,8 @@ static void svgalib_mode_done(void)
 
 void svgawin_mode_done(adv_bool restore)
 {
-	assert( svgawin_is_active() );
-	assert( svgawin_mode_is_active() );
+	assert(svgawin_is_active());
+	assert(svgawin_mode_is_active());
 
 	log_std(("video:svgawin: svgawin_mode_done()\n"));
 
@@ -679,8 +679,8 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 	unsigned clock;
 
 	log_std(("video:svgawin: mode_set\n"));
-	log_std_modeline_c(("video:svgawin: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
-	log_std(("video:svgawin: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+	log_std_modeline_c(("video:svgawin: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc)));
+	log_std(("video:svgawin: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc)));
 
 	clock = mode->crtc.pixelclock;
 	if (svgawin_option.divide_clock)
@@ -701,8 +701,8 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 
 adv_error svgawin_mode_set(const svgawin_video_mode* mode)
 {
-	assert( svgawin_is_active() );
-	assert( !svgawin_mode_is_active() );
+	assert(svgawin_is_active());
+	assert(!svgawin_mode_is_active());
 
 	log_std(("video:svgawin: svgawin_mode_set()\n"));
 
@@ -904,7 +904,7 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 
 adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	assert( svgawin_is_active() );
+	assert(svgawin_is_active());
 
 	log_std(("video:svgawin: svgawin_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
@@ -962,7 +962,7 @@ static adv_conf_enum_int OPTION_STUB[] = {
 
 void svgawin_reg(adv_conf* context)
 {
-	assert( !svgawin_is_active() );
+	assert(!svgawin_is_active());
 
 	conf_bool_register_default(context, "device_svgawin_divideclock", 0);
 	conf_int_register_limit_default(context, "device_svgawin_skipboard", 0, 8, 0);
@@ -973,7 +973,7 @@ void svgawin_reg(adv_conf* context)
 
 adv_error svgawin_load(adv_conf* context)
 {
-	assert( !svgawin_is_active() );
+	assert(!svgawin_is_active());
 
 	svgawin_option.divide_clock = conf_bool_get_default(context, "device_svgawin_divideclock");
 	svgawin_option.skip = conf_int_get_default(context, "device_svgawin_skipboard");

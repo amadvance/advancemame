@@ -137,7 +137,7 @@ struct adv_conf_input_struct {
  * Configuration value.
  * This struct contains a single configuration value.
  */
-struct adv_conf_value_struct {
+typedef struct adv_conf_value_struct {
 	struct adv_conf_option_struct* option; /**< Registration entry of the value. */
 	struct adv_conf_input_struct* input; /**< File where the value lives. */
 
@@ -156,7 +156,7 @@ struct adv_conf_value_struct {
 
 	struct adv_conf_value_struct* pred; /**< Pred entry on the list. */
 	struct adv_conf_value_struct* next; /**< Next entry on the list. */
-};
+} adv_conf_value;
 
 /**
  * Configuration context.
@@ -275,12 +275,21 @@ adv_error conf_string_get(adv_conf* context, const char* tag, const char** resul
 adv_error conf_int_section_get(adv_conf* context, const char* section, const char* tag, int* result);
 adv_error conf_string_section_get(adv_conf* context, const char* section, const char* tag, const char** result);
 
+adv_conf_value* conf_value_get(adv_conf* context, const char* tag);
+adv_bool conf_value_bool_get(const adv_conf_value* value);
+int conf_value_int_get(const adv_conf_value* value);
+double conf_value_float_get(const adv_conf_value* value);
+const char* conf_value_string_get(const adv_conf_value* value);
+const char* conf_value_section_get(const adv_conf_value* value);
+enum adv_conf_enum conf_value_type_get(const adv_conf_value* value);
+
 adv_error conf_bool_set(adv_conf* context, const char* section, const char* tag, adv_bool value);
 adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, int value);
 adv_error conf_float_set(adv_conf* context, const char* section, const char* tag, double value);
 adv_error conf_string_set(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_set(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_set_default(adv_conf* context, const char* section, const char* tag);
+adv_error conf_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value);
 void conf_set_default_if_missing(adv_conf* context, const char* section);
 
 void conf_remove_if_default(adv_conf* context, const char* section);

@@ -930,7 +930,7 @@ mame_mame::mame_mame(const string& Aname, const string& Aexe_path, const string&
 	exclude_playchoice_orig = exclude;
 }
 
-void mame_mame::attrib_run(int x, int y)
+int mame_mame::attrib_run(int x, int y)
 {
 	choice_bag ch;
 
@@ -944,6 +944,7 @@ void mame_mame::attrib_run(int x, int y)
 	ch.insert(ch.end(), choice("PlayChoice-10", exclude_playchoice_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
+
 	int key = ch.run(" " + user_name_get() + " Filters", x, y, ATTRIB_CHOICE_DX, i);
 
 	if (key == EVENT_ENTER) {
@@ -956,6 +957,8 @@ void mame_mame::attrib_run(int x, int y)
 		exclude_deco_effective = ch[6].tristate_get();
 		exclude_playchoice_effective = ch[7].tristate_get();
 	}
+
+	return key;
 }
 
 void mame_mame::attrib_load()
@@ -1577,7 +1580,7 @@ bool mame_mess::filter(const game& g) const
 	return true;
 }
 
-void mame_mess::attrib_run(int x, int y)
+int mame_mess::attrib_run(int x, int y)
 {
 	choice_bag ch;
 
@@ -1589,6 +1592,7 @@ void mame_mess::attrib_run(int x, int y)
 	ch.insert(ch.end(), choice("With BIOS or not", " Only\tWith BIOS", " Only\tWithout BIOS", exclude_empty_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
+
 	int key = ch.run(" " + user_name_get() + " Filters", x, y, ATTRIB_CHOICE_DX, i);
 
 	if (key == EVENT_ENTER) {
@@ -1599,6 +1603,8 @@ void mame_mess::attrib_run(int x, int y)
 		exclude_vertical_effective = ch[4].tristate_get();
 		exclude_empty_effective = ch[5].tristate_get();
 	}
+
+	return key;
 }
 
 //---------------------------------------------------------------------------
@@ -2359,7 +2365,7 @@ raine_info::raine_info(const string& Aname, const string& Aexe_path, const strin
 	exclude_vertical_orig = include;
 }
 
-void raine_info::attrib_run(int x, int y)
+int raine_info::attrib_run(int x, int y)
 {
 	choice_bag ch;
 
@@ -2369,6 +2375,7 @@ void raine_info::attrib_run(int x, int y)
 	ch.insert(ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
+
 	int key = ch.run(" " + user_name_get() + " Filters", x, y, ATTRIB_CHOICE_DX, i);
 
 	if (key == EVENT_ENTER) {
@@ -2377,6 +2384,8 @@ void raine_info::attrib_run(int x, int y)
 		exclude_clone_effective = ch[2].tristate_get();
 		exclude_vertical_effective = ch[3].tristate_get();
 	}
+
+	return key;
 }
 
 void raine_info::attrib_load()
@@ -2758,18 +2767,21 @@ generic::generic(const string& Aname, const string& Aexe_path, const string& Acm
 {
 }
 
-void generic::attrib_run(int x, int y)
+int generic::attrib_run(int x, int y)
 {
 	choice_bag ch;
 
 	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
+
 	int key = ch.run(" " + user_name_get() + " Filters", x, y, ATTRIB_CHOICE_DX, i);
 
 	if (key == EVENT_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
 	}
+
+	return key;
 }
 
 bool generic::tree_get() const
