@@ -11,13 +11,34 @@ typedef set<string> string_set;
 // --------------------------------------------------------------------------
 // device
 
+class entry_subdevice {
+public:
+	unsigned sub;
+	string desc;
+
+	entry_subdevice(unsigned Adevice, const string& Adesc);
+
+	bool operator<(const entry_subdevice&) const;
+};
+
+entry_subdevice::entry_subdevice(unsigned Asub, const string& Adesc)
+	: sub(Asub), desc(Adesc)
+{
+}
+
+bool entry_subdevice::operator<(const entry_subdevice& B) const {
+	if (sub < B.sub) return true;
+	if (sub > B.sub) return false;
+	return false;
+}
+
 class entry_device {
 public:
 	unsigned device;
 
 	mutable string desc;
 	mutable string comment;
-	mutable string_set ss;
+	mutable set<entry_subdevice> ss;
 
 	entry_device(unsigned Adevice, const string& Adesc, const string& Acomment);
 
@@ -67,8 +88,8 @@ entry_device_group::entry_device_group(unsigned Adevice, unsigned Adevice_mask, 
 }
 
 bool entry_device_group::operator<(const entry_device_group& B) const {
-	unsigned Adevice = device & device_mask & B.device_mask;
-	unsigned Bdevice = B.device & device_mask & B.device_mask;
+	unsigned Adevice = device & device_mask;
+	unsigned Bdevice = B.device & B.device_mask;
 	if (Adevice < Bdevice) return true;
 	if (Adevice > Bdevice) return false;
 	return false;
@@ -131,7 +152,9 @@ void entry_vendor_group::insert(unsigned vendor, unsigned device, unsigned mask,
 	entry_vendor_set::iterator i;
 	i = vg.insert(entry_vendor(vendor)).first;
 	entry_device_group d(device, mask, comment);
-	i->gs.insert(d);
+	if (!i->gs.insert(d).second) {
+		cerr << "warning: duplicate id " << hex << vendor << ":" << hex << device << endl;
+	}
 }
 
 // --------------------------------------------------------------------------
@@ -163,7 +186,7 @@ string hex(unsigned v) {
 	return o.str();
 }
 
-void process_vendor(istream& is, entry_vendor_set& vs) {
+void process_vendor_pcidevs(istream& is, entry_vendor_set& vs) {
 	while (!is.eof()) {
 		string s;
 		unsigned p = 0;
@@ -187,10 +210,9 @@ void process_vendor(istream& is, entry_vendor_set& vs) {
 }
 
 
-void process(istream& is, entry_vendor_set& vs, const entry_vendor_set& vns) {
+void process_pcidevs(istream& is, entry_vendor_set& vs, const entry_vendor_set& vns) {
 	unsigned vendor = 0;
 	unsigned device = 0;
-	string device_desc;
 	string oem;
 
 	while (!is.eof()) {
@@ -238,13 +260,111 @@ void process(istream& is, entry_vendor_set& vs, const entry_vendor_set& vns) {
 				}
 			}
 		} else if (c == "S") {
+			unsigned subdevice = strtol(v.c_str(),0,16);
 			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
 			if (i != vs.end()) {
 				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
 				if (j != i->gs.end()) {
 					entry_device_set::iterator k = j->ds.find(entry_device(device,"",""));
 					if (k != j->ds.end()) {
-						k->ss.insert(oem+d);
+						k->ss.insert(entry_subdevice(subdevice, oem+d));
+					}
+				}
+			}
+		}
+	}
+}
+
+void process_vendor_pciids(istream& is, entry_vendor_set& vs) {
+	while (!is.eof()) {
+		string s;
+		unsigned p = 0;
+		getline(is,s,'\n');
+
+		if (s.length() == 0 || s[0] == '#')
+			continue;
+
+		unsigned t = 0;
+
+		while (t < s.length() && s[t]=='\t')
+			++t;
+
+		token_skip(s,p," \t");
+		string v = token_get(s,p," \t");
+		token_skip(s,p," \t");
+
+		if (t == 0) {
+			string d = strip(token_get(s,p,""));
+			unsigned vendor = strtol(v.c_str(),0,16);
+			vs.insert(entry_vendor(vendor,d));
+		}
+	}
+}
+
+void process_pciids(istream& is, entry_vendor_set& vs, const entry_vendor_set& vns) {
+	unsigned vendor = 0;
+	unsigned device = 0;
+	string oem;
+
+	while (!is.eof()) {
+		string s;
+		unsigned p = 0;
+		getline(is,s,'\n');
+
+		if (s.length() == 0 || s[0] == '#')
+			continue;
+
+		unsigned t = 0;
+
+		while (t < s.length() && s[t]=='\t')
+			++t;
+
+		token_skip(s,p," \t");
+		string v = token_get(s,p," \t");
+		token_skip(s,p," \t");
+
+		if (t == 0) {
+			string d = strip(token_get(s,p,""));
+			vendor = strtol(v.c_str(),0,16);
+			oem = "";
+			device = 0;
+			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
+			if (i != vs.end()) {
+				i->desc = d + " (" + hex(vendor) + ")";
+			}
+		} else if (t == 1) {
+			string d = strip(token_get(s,p,""));
+			device = strtol(v.c_str(),0,16);
+			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
+			if (i != vs.end()) {
+				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				if (j != i->gs.end()) {
+					j->ds.insert(entry_device(device,d + " [" + hex(device) + "]",j->comment));
+				}
+			}
+		} else if (t == 2) {
+			string o = token_get(s,p," \t");
+			token_skip(s,p," \t");
+			string d = strip(token_get(s,p,""));
+			unsigned sub = strtol(v.c_str(),0,16);
+			unsigned subdevice = strtol(o.c_str(),0,16);
+			if (sub == vendor) {
+				oem = "";
+			} else {
+				entry_vendor_set::const_iterator i = vns.find(entry_vendor(sub));
+				if (i != vns.end()) {
+					oem = "OEM " + i->desc + " {" + hex(sub) + "} : ";
+				} else {
+					oem = "OEM {" + hex(sub) + "} : ";
+				}
+			}
+			entry_vendor_set::iterator i = vs.find(entry_vendor(vendor));
+			if (i != vs.end()) {
+				entry_device_group_set::iterator j = i->gs.find(entry_device_group(device,0xffff,""));
+				if (j != i->gs.end()) {
+					entry_device_set::iterator k = j->ds.find(entry_device(device,"",""));
+					if (k != j->ds.end()) {
+						k->ss.insert(entry_subdevice(subdevice, oem+d));
 					}
 				}
 			}
@@ -268,19 +388,36 @@ void print_set(ostream& os, entry_vendor_set& vs) {
 			os << "\t+" << k->desc << " " << k->comment << endl;
 
 			// not oem
-			for(string_set::iterator w=k->ss.begin();w!=k->ss.end();++w) {
-				if (w->find('{') == string::npos)
-					os << "\t\t+" << *w << " " << k->comment << endl;
+			set<string> ss1;
+			for(set<entry_subdevice>::iterator w=k->ss.begin();w!=k->ss.end();++w) {
+				if (w->desc.find('{') == string::npos)
+					ss1.insert(w->desc);
 			}
 
 			// oem
-			for(string_set::iterator w=k->ss.begin();w!=k->ss.end();++w) {
-				if (w->find('{') != string::npos)
-					os << "\t\t+" << *w << " " << k->comment << endl;
+			set<string> ss2;
+			for(set<entry_subdevice>::iterator w=k->ss.begin();w!=k->ss.end();++w) {
+				if (w->desc.find('{') != string::npos)
+					ss2.insert(w->desc);
 			}
+
+			for(set<string>::iterator w=ss1.begin();w!=ss1.end();++w)
+				os << "\t\t+" << *w << " " << k->comment << endl;
+			for(set<string>::iterator w=ss2.begin();w!=ss2.end();++w)
+				os << "\t\t+" << *w << " " << k->comment << endl;
 		}
 
 		os << endl;
+	}
+}
+
+void print_id(ostream& os, entry_vendor_set& vs) {
+	for(entry_vendor_set::iterator i=vs.begin();i!=vs.end();++i) {
+		for(entry_device_group_set::iterator j=i->gs.begin();j!=i->gs.end();++j) {
+			for(entry_device_set::iterator k=j->ds.begin();k!=j->ds.end();++k) {
+				os << hex(i->vendor) << ":" << hex(k->device) << endl;
+			}
+		}
 	}
 }
 
@@ -350,8 +487,7 @@ MSG
 "\tThis exclude the `vesafb' and `sisfb' drivers.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tLinux Kernel 2.4.22 with the i810fb-lite, vmwarefb, savagefb\n"
-"\tpatches applied.\n"
+"\tLinux Kernel 2.4.22.\n"
 "\n"
 ;
 
@@ -375,8 +511,7 @@ void print_cd(ostream& os, entry_vendor_set& vs_fb) {
 "Name\n"
 "\tcardcd - Supported AdvanceCD Video Cards\n"
 "\n"
-"\tThis is the list of the video cards supported\n"
-"\tby the AdvanceCD system.\n"
+"\tThis is the list of the video cards supported by AdvanceCD.\n"
 "\n"
 MSG
 ;
@@ -384,7 +519,7 @@ MSG
 	os <<
 "Frame Buffer\n"
 "\tThis is the list of all the video cards supported by the Linux\n"
-"\tKernel used in AdvanceCD.\n"
+"\tKernel Frame Buffer drivers used in AdvanceCD.\n"
 "\n"
 ;
 
@@ -439,6 +574,13 @@ struct pci_id ID_FB[] = {
 { 0, 0, 0 }
 };
 
+struct pci_id ID_FBPATCH[] = {
+#define USE_FB_PATCH
+#include "fbid.h"
+#undef USE_FB_PATCH
+{ 0, 0, 0 }
+};
+
 struct pci_id_mask ID_SVGALIB[] = {
 #include "vgaid.h"
 { 0, 0, 0 }
@@ -464,26 +606,40 @@ void insert(struct pci_id* pci, entry_vendor_group& device)
 
 void load_vendor(entry_vendor_set& vendor)
 {
-	ifstream fi;
-	fi.open("pcidevs.txt");
-	if (!fi) {
-		printf("Error opening pcidevs.txt\n");
+	ifstream fi1("pcidevs.txt");
+	if (!fi1) {
+		cerr << "Error opening pcidevs.txt" << endl;
 		exit(EXIT_FAILURE);
 	}
-	process_vendor(fi,vendor);
-	fi.close();
+	process_vendor_pcidevs(fi1,vendor);
+	fi1.close();
+
+	ifstream fi2("pci.ids");
+	if (!fi2) {
+		cerr << "Error opening pci.ids" << endl;
+		exit(EXIT_FAILURE);
+	}
+	process_vendor_pciids(fi2,vendor);
+	fi2.close();
 }
 
 void load_device(entry_vendor_set& device, const entry_vendor_set& vendor)
 {
-	ifstream fi;
-	fi.open("pcidevs.txt");
-	if (!fi) {
-		printf("Error opening pcidevs.txt\n");
+	ifstream fi1("pcidevs.txt");
+	if (!fi1) {
+		cerr << "Error opening pcidevs.txt" << endl;
 		exit(EXIT_FAILURE);
 	}
-	process(fi,device,vendor);
-	fi.close();
+	process_pcidevs(fi1,device,vendor);
+	fi1.close();
+
+	ifstream fi2("pci.ids");
+	if (!fi2) {
+		cerr << "Error opening pci.ids" << endl;
+		exit(EXIT_FAILURE);
+	}
+	process_pciids(fi2,device,vendor);
+	fi2.close();
 }
 
 int main() {
@@ -491,13 +647,16 @@ int main() {
 	entry_vendor_group vs_svgalib;
 	entry_vendor_group vs_vbeline;
 	entry_vendor_group vs_fb;
+	entry_vendor_group vs_fbpatch;
 
 	load_vendor(vs_vendor.vg);
 
 	insert(ID_VBELINE, vs_vbeline);
 	insert(ID_SVGALIB, vs_svgalib);
 	insert(ID_FB, vs_fb);
+	insert(ID_FBPATCH, vs_fbpatch);
 
+	load_device(vs_fbpatch.vg, vs_vendor.vg);
 	load_device(vs_vbeline.vg, vs_vendor.vg);
 	load_device(vs_svgalib.vg, vs_vendor.vg);
 	load_device(vs_fb.vg, vs_vendor.vg);
@@ -526,7 +685,14 @@ int main() {
 	{
 		ofstream fo;
 		fo.open("cardcd.d");
-		print_cd(fo, vs_fb.vg);
+		print_cd(fo, vs_fbpatch.vg);
+		fo.close();
+	}
+
+	{
+		ofstream fo;
+		fo.open("cardcd.lst");
+		print_id(fo, vs_fbpatch.vg);
 		fo.close();
 	}
 
