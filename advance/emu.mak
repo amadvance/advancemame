@@ -543,11 +543,6 @@ ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
 EMUCFLAGS += -DX86_ASM
 endif
 
-ifneq (,$(findstring USE_ASM_EMU68000,$(CFLAGS)))
-X86_ASM_68000=1
-#X86_ASM_68020=1
-endif
-
 ifneq (,$(findstring USE_ASM_EMUMIPS3,$(CFLAGS)))
 X86_MIPS3_DRC=1
 endif
@@ -667,27 +662,6 @@ $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
 	$(ECHO) $@
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
 	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
-
-# Generate asm source files for the 68000/68020 emulators
-$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/make68k.c
-	$(ECHO) $@
-	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $<
-
-$(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD)
-	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $@ $(OBJ)/cpu/m68000/68000tab.asm 00 > /dev/null
-
-$(OBJ)/cpu/m68000/68020.asm: $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD)
-	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $@ $(OBJ)/cpu/m68000/68020tab.asm 20 > /dev/null
-
-$(OBJ)/cpu/m68000/68000.o: $(OBJ)/cpu/m68000/68000.asm
-	$(ECHO) $@
-	$(ASM) -o $@ $(ASMFLAGS) $(subst -D,-d,$(ASMDEFS)) $<
-
-$(OBJ)/cpu/m68000/68020.o: $(OBJ)/cpu/m68000/68020.asm
-	$(ECHO) $@
-	$(ASM) -o $@ $(ASMFLAGS) $(subst -D,-d,$(ASMDEFS)) $<
 
 $(OBJ)/%.a:
 	$(ECHO) $@

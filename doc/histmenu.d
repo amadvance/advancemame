@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.4.6 2005/01
+AdvanceMENU Version 2.4.6 2005/02
 	) Before running any external program all the
 		privileges of suid/gid programs are dropped.
 	) The option `display_restoreatgame' can now be customized

@@ -231,19 +231,6 @@ elif test $ac_enable_asm = yes; then
 fi
 
 AC_ARG_ENABLE(
-	[asm-68000],
-	AC_HELP_STRING([--enable-asm-68000],[enable the Pentium assembler 68000 emulator (default no)]),
-	[ac_enable_asm_68000=$enableval],
-	[ac_enable_asm_68000=no]
-)
-if test $ac_enable_asm_68000 = yes; then
-	if test ! $ac_enable_asm = yes; then
-		AC_MSG_ERROR([the Pentium assembler is required for the "asm-68000" compilation])
-	fi
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMU68000"
-fi
-
-AC_ARG_ENABLE(
 	[asm-mips3],
 	AC_HELP_STRING([--enable-asm-mips3],[enable the Pentium assembler MIPS3 emulator (default auto)]),
 	[ac_enable_asm_mips3=$enableval],
@@ -1094,11 +1081,6 @@ if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
-fi
-if test $ac_enable_asm_68000 = yes; then
-	echo "Assembler 68000 emulator for Pentium : yes"
-else
-	echo "Assembler 68000 emulator for Pentium : no"
 fi
 if test $ac_enable_asm_mips3 = yes; then
 	echo "Assembler MIPS3 emulator for Pentium : yes"

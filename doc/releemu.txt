@@ -3,8 +3,8 @@
                        ==================================
 
 
-1 ADVANCEMAME 0.87.0
-====================
+ADVANCEMAME 0.87.0
+==================
 
 This version of AdvanceMAME adds a new `device_video_clock'
 option which substitutes the previous `device_video_p/h/vclock'
@@ -13,8 +13,8 @@ multi-standard arcade monitor. You can now specify different
 vertical clocks for different horizontal clocks.
 
 
-2 ADVANCEMAME 0.85.0
-====================
+ADVANCEMAME 0.85.0
+==================
 
 This version of AdvanceMAME tries always to use the installed
 zlib and expat libraries. If you want to use the copy included
@@ -22,16 +22,16 @@ in the source of these libraries you must run the ./configure
 script with the arguments --disable-zlib and --disable-expat.
 
 
-3 ADVANCEMAME 0.84.0
-====================
+ADVANCEMAME 0.84.0
+==================
 
 This version of AdvanceMAME is based on the MAME update
 0.84u3. The original MAME 0.84 version has some problems
 on the new input management.
 
 
-4 ADVANCEMAME 0.82.0
-====================
+ADVANCEMAME 0.82.0
+==================
 
 This version has a reworked audio/video syncronization algorithm.
 It should fix any remaining problem of distorted sound present on
@@ -45,8 +45,8 @@ The next time you start the game, it will execute very fast
 until the startup time is reached.
 
 
-5 ADVANCEMAME 0.80.0
-====================
+ADVANCEMAME 0.80.0
+==================
 
 This version adds support for TrueType (TTF) fonts with alpha blending
 using the FreeType2 library. If you compile from source, you must
@@ -58,8 +58,8 @@ game has less than 256 colors. Previously the 8 bits palette
 color mode was used.
 
 
-6 ADVANCEMAME 0.79.1
-====================
+ADVANCEMAME 0.79.1
+==================
 
 The host configuration directory is now under the installation prefix
 as $prefix/etc. This means that if you install in /usr/local the host
@@ -68,16 +68,16 @@ You can customize this directory using the --sysconfdir option of the
 ./configure script.
 
 
-7 ADVANCEMAME 0.79.0
-====================
+ADVANCEMAME 0.79.0
+==================
 
 This release changes the manual compilation process in DOS
 and Windows. You must now use the Makefile.usr file instead of
 the old Makefile.in file. Check the build.txt file for more details.
 
 
-8 ADVANCEMAME 0.78.0
-====================
+ADVANCEMAME 0.78.0
+==================
 
 This release completely removes the .cfg file support. All the
 customization information are now saved in the main .rc file.
@@ -93,16 +93,16 @@ of the game, it isn't limited on the game area, and it isn't recorded
 on video clips.
 
 
-9 ADVANCEMAME 0.77.0
-====================
+ADVANCEMAME 0.77.0
+==================
 
 This release removes the legacy support for the DOS
 unchained VGA modes and for the banked VBE modes. It means
 that you now need a supported SVGA or VBE2 video card.
 
 
-10 ADVANCEMAME 0.72.0
-=====================
+ADVANCEMAME 0.72.0
+==================
 
 This release contains a new set of `event' Linux
 drivers for keyboards, mice and joysticks based on the Linux
@@ -136,8 +136,8 @@ of the user specified options. They can be used
 to set default options.
 
 
-11 ADVANCEMAME 0.68.0
-=====================
+ADVANCEMAME 0.68.0
+==================
 
 This release supports the new `scale3x' and `scale4x' effects.
 To use them you must ensure to use an high pclock upper limit.
@@ -150,23 +150,23 @@ it isn't able to directly program your video board, so you cannot use
 it with an Arcade Monitor.
 
 
-12 ADVANCEMAME 0.67.0 / ADVANCEMESS 0.66.0
-==========================================
+ADVANCEMAME 0.67.0 / ADVANCEMESS 0.66.0
+=======================================
 
 The precompiled DOS binaries of these releases are compiled with
 the old gcc 2.95.3. Please report if this fixes any know specific
 game problem.
 
 
-13 ADVANCEMAME 0.63.0
-=====================
+ADVANCEMAME 0.63.0
+==================
 
 The .chd files must now be placed in a subdirectory of the same name.
 For example C:\CHD\AREA51\AREA51.CHD.
 
 
-14 ADVANCEMAME 0.62.2 / ADVANCEMESS 0.62.0.0
-============================================
+ADVANCEMAME 0.62.2 / ADVANCEMESS 0.62.0.0
+=========================================
 
 The display_rgb and display_depth options are gone. They are now
 substituted with the new display_color option.
@@ -178,23 +178,23 @@ device_video_output option which is also used to enable a new
 `zoom' mode. Check the advv.txt file for other details.
 
 
-15 ADVANCEMAME 0.62.1
-=====================
+ADVANCEMAME 0.62.1
+==================
 
 The .CHD files are searched as default in the "image" directory.
 The .DIF file in the "diff" directory. You can customize them
 with the `dir_image' and `dir_diff' options.
 
 
-16 ADVANCEMAME 0.62.0 / ADVANCEMESS 0.61.2
-==========================================
+ADVANCEMAME 0.62.0 / ADVANCEMESS 0.61.2
+=======================================
 
 In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
 Simply run "svgawin /u" and "svgawin /l".
 
 
-17 ADVANCEMAME 0.61.4 / ADVANCEMESS 0.61.1
-==========================================
+ADVANCEMAME 0.61.4 / ADVANCEMESS 0.61.1
+=======================================
 
 This is the first Windows NT/2000/XP version able to directly
 program your video board. This puts the Windows version at the same level
@@ -209,23 +209,23 @@ If you don't install the SVGAWIN.sys driver AdvanceMAME works like the previous
 version using only the SDL library.
 
 
-18 ADVANCEMAME 0.61.0
-=====================
+ADVANCEMAME 0.61.0
+==================
 
 The `input_analog' and `input_track' options are now substituted
 by the new `input_map' option.
 
 
-19 ADVANCEMAME 0.59.1
-=====================
+ADVANCEMAME 0.59.1
+==================
 
 The option `input_analog[] joy[]' is now changed in
 `input_analog[] joystick[]', where the joystick stick index is
 decremented by 1. The conversion is done automatically.
 
 
-20 ADVANCEMAME 0.57.1
-=====================
+ADVANCEMAME 0.57.1
+==================
 
 You must remove the option `dir_sound' from the configuration file. The
 sound file are now saved in the `dir_snap' directory.
@@ -233,8 +233,8 @@ You must rename manually the Linux config directories to `$home/.advance' and
 `$prefix/share/advance'. (Previously they were `*/advmame').
 
 
-21 ADVANCEMAME 0.56.2
-=====================
+ADVANCEMAME 0.56.2
+==================
 
 This is a big update for AdvanceMAME with a lot of changes.
 Don't uncompress the new archives in your MAME directory, but create

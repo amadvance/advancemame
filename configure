@@ -862,8 +862,6 @@ Optional Features:
   --enable-static         enable static compilation. (default no)
   --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
-  --enable-asm-68000      enable the Pentium assembler 68000 emulator (default
-                          no)
   --enable-asm-mips3      enable the Pentium assembler MIPS3 emulator (default
                           auto)
   --enable-debugger       enable the emulator debugger (default no)
@@ -4113,23 +4111,6 @@ echo "$as_me: error: the NASM assembler is required for the \"asm\" compilation"
 	else
 		CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_INLINE"
 	fi
-fi
-
-# Check whether --enable-asm-68000 or --disable-asm-68000 was given.
-if test "${enable_asm_68000+set}" = set; then
-  enableval="$enable_asm_68000"
-  ac_enable_asm_68000=$enableval
-else
-  ac_enable_asm_68000=no
-
-fi;
-if test $ac_enable_asm_68000 = yes; then
-	if test ! $ac_enable_asm = yes; then
-		{ { echo "$as_me:$LINENO: error: the Pentium assembler is required for the \"asm-68000\" compilation" >&5
-echo "$as_me: error: the Pentium assembler is required for the \"asm-68000\" compilation" >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMU68000"
 fi
 
 # Check whether --enable-asm-mips3 or --disable-asm-mips3 was given.
@@ -11916,11 +11897,6 @@ if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
-fi
-if test $ac_enable_asm_68000 = yes; then
-	echo "Assembler 68000 emulator for Pentium : yes"
-else
-	echo "Assembler 68000 emulator for Pentium : no"
 fi
 if test $ac_enable_asm_mips3 = yes; then
 	echo "Assembler MIPS3 emulator for Pentium : yes"

@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2005-02-05 16:17:57.000000000 +0100
++++ src/advance.pat	2005-02-13 13:37:02.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
---- src.ori/common.c	2005-02-05 16:17:07.000000000 +0100
-+++ src/common.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/common.c	2005-02-04 21:36:30.000000000 +0100
++++ src/common.c	2005-02-13 13:37:02.000000000 +0100
 @@ -779,10 +779,11 @@
  	the given filename
  -------------------------------------------------*/
@@ -69,8 +69,8 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  		{
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
---- src.ori/cpu/i8085/i8085.c	2005-02-05 16:17:07.000000000 +0100
-+++ src/cpu/i8085/i8085.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/cpu/i8085/i8085.c	2005-02-04 21:36:30.000000000 +0100
++++ src/cpu/i8085/i8085.c	2005-02-13 13:37:02.000000000 +0100
 @@ -110,10 +110,16 @@
   *
   *****************************************************************************/
@@ -88,78 +88,9 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "driver.h"
  #include "state.h"
  #include "osd_cpu.h"
-diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
---- src.ori/cpu/m68000/make68k.c	2004-05-06 18:22:10.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2005-02-05 16:17:57.000000000 +0100
-@@ -191,11 +191,11 @@
- 
- 
- #define NORMAL 0
- #define PCREL  1
- 
--#ifdef __ELF__
-+#if defined(USE_OBJ_ELF)
- #define PREF ""
- #else
- #define PREF "_"
- #endif
- 
-@@ -252,17 +252,17 @@
- 
- 
- 
- /* External register preservation */
- 
--#ifdef DOS
-+#if defined(USE_COMPILER_GNUC)
- 
- /* Registers normally saved around C routines anyway */
- /* GCC 2.9.1 (dos) seems to preserve EBX,EDI and EBP */
- static char SavedRegs[] = "-B--SDB";
- 
--#elif defined(WIN32)
-+#elif defined(USE_COMPILER_VISUALC)
- 
- /* visual C++, win32, says it preserves ebx, edi, esi, and ebp */
- /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
- static char SavedRegs[] = "-B--S-B";
- 
-@@ -8040,11 +8040,11 @@
- 	fprintf(fp, "\t\tDW   0,0,0\n\n");
- 
- 
- /* If Win32, put the table area in .data section (Kenjo) */
- 
--#ifdef WIN32
-+#if defined(USE_OS_WINDOWS)
- 
- 	fprintf(fp, "%s_OPCODETABLE\tTIMES  65536  DD 0\n\n", CPUtype);
- 
- #else
- 
-diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
---- src.ori/cpu/z80/z80.c	2004-12-17 22:04:14.000000000 +0100
-+++ src/cpu/z80/z80.c	2005-02-05 16:17:57.000000000 +0100
-@@ -91,10 +91,16 @@
- #include "cpuintrf.h"
- #include "state.h"
- #include "mamedbg.h"
- #include "z80.h"
- 
-+#if defined(__GNUC__) && __GNUC__ >= 3
-+/* Disable all the asm macro and the big switch */
-+#undef X86_ASM
-+#define BIG_SWITCH 0
-+#endif
-+
- #define VERBOSE 0
- 
- #if VERBOSE
- #define LOG(x)	logerror x
- #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2004-12-17 22:04:14.000000000 +0100
-+++ src/cpuexec.c	2005-02-05 16:17:57.000000000 +0100
++++ src/cpuexec.c	2005-02-13 13:37:33.000000000 +0100
 @@ -323,10 +323,13 @@
  	watchdog_setup();
  
@@ -174,9 +105,46 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive src.ori/drivers/macs.c src/drivers/macs.c
+--- src.ori/drivers/macs.c	2005-02-12 11:04:48.000000000 +0100
++++ src/drivers/macs.c	2005-02-13 14:23:50.000000000 +0100
+@@ -49,10 +49,14 @@
+ */
+ 
+ #include "driver.h"
+ #include "cpu/z80/z80.h"
+ 
++/* AdvanceMAME: Prevent name pollution */
++#define random_r mame_random_r
++#define rand_r mame_rand_r
++
+ WRITE8_HANDLER (st0016_sprite_bank_w);
+ WRITE8_HANDLER (st0016_palette_bank_w);
+ WRITE8_HANDLER (st0016_character_bank_w);
+ READ8_HANDLER  (st0016_sprite_ram_r);
+ WRITE8_HANDLER (st0016_sprite_ram_w);
+diff -U 5 --new-file --recursive src.ori/drivers/micro3d.c src/drivers/micro3d.c
+--- src.ori/drivers/micro3d.c	2005-02-11 19:22:08.000000000 +0100
++++ src/drivers/micro3d.c	2005-02-13 16:06:58.000000000 +0100
+@@ -442,13 +442,13 @@
+        }
+ }
+ 
+ static WRITE16_HANDLER( m68901_w )
+ {
+-
++UINT8 value;
+ m68901_base[offset]=data;
+-UINT8 value = (data>>8)& 0xff;
++value = (data>>8)& 0xff;
+ 
+ switch(offset)
+ {
+ 
+         case 0x0c:    printf("Timer A Control: %x\n",value);
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
---- src.ori/drivers/multi32.c	2005-02-05 16:17:07.000000000 +0100
-+++ src/drivers/multi32.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/drivers/multi32.c	2005-02-04 21:36:32.000000000 +0100
++++ src/drivers/multi32.c	2005-02-13 13:37:33.000000000 +0100
 @@ -827,11 +827,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -191,9 +159,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
---- src.ori/drivers/namcos11.c	2004-08-05 21:50:16.000000000 +0200
-+++ src/drivers/namcos11.c	2005-02-05 16:17:57.000000000 +0100
-@@ -655,11 +655,11 @@
+--- src.ori/drivers/namcos11.c	2005-02-04 21:40:00.000000000 +0100
++++ src/drivers/namcos11.c	2005-02-13 13:37:33.000000000 +0100
+@@ -825,11 +825,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -207,8 +175,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
---- src.ori/drivers/namcos12.c	2004-09-21 18:10:28.000000000 +0200
-+++ src/drivers/namcos12.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/drivers/namcos12.c	2005-02-04 21:40:00.000000000 +0100
++++ src/drivers/namcos12.c	2005-02-13 13:37:33.000000000 +0100
 @@ -469,11 +469,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -224,7 +192,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
 --- src.ori/drivers/psikyo4.c	2004-09-21 18:10:28.000000000 +0200
-+++ src/drivers/psikyo4.c	2005-02-05 16:17:57.000000000 +0100
++++ src/drivers/psikyo4.c	2005-02-13 13:37:33.000000000 +0100
 @@ -412,13 +412,13 @@
  	MDRV_NVRAM_HANDLER(93C56)
  
@@ -254,9 +222,27 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  #endif
  MACHINE_DRIVER_END
  
+diff -U 5 --new-file --recursive src.ori/drivers/shanghai.c src/drivers/shanghai.c
+--- src.ori/drivers/shanghai.c	2005-02-12 22:21:46.000000000 +0100
++++ src/drivers/shanghai.c	2005-02-13 14:24:35.000000000 +0100
+@@ -20,10 +20,14 @@
+ ***************************************************************************/
+ 
+ #include "driver.h"
+ #include "sndhrdw/seibu.h"
+ 
++/* AdvanceMAME: Prevent name pollution */
++#define random_r mame_random_r
++#define rand_r mame_rand_r
++
+ /* the on-chip FIFO is 16 bytes long, but we use a larger one to simplify */
+ /* decoding of long commands. Commands can be up to 64KB long... but Shanghai */
+ /* doesn't reach that length. */
+ #define FIFO_LENGTH 50
+ #define HD63484_RAM_SIZE 0x200000
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
---- src.ori/drivers/stv.c	2005-02-05 16:17:07.000000000 +0100
-+++ src/drivers/stv.c	2005-02-05 16:20:01.000000000 +0100
+--- src.ori/drivers/stv.c	2005-02-04 21:36:32.000000000 +0100
++++ src/drivers/stv.c	2005-02-13 13:37:33.000000000 +0100
 @@ -4206,11 +4206,11 @@
  	MDRV_NVRAM_HANDLER(stv) /* Actually 93c45 */
  
@@ -272,7 +258,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  	MDRV_VIDEO_UPDATE(stv_vdp2)
 diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
 --- src.ori/drivers/zn.c	2004-12-17 22:04:08.000000000 +0100
-+++ src/drivers/zn.c	2005-02-05 16:17:57.000000000 +0100
++++ src/drivers/zn.c	2005-02-13 13:37:33.000000000 +0100
 @@ -620,11 +620,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -443,8 +429,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2005-01-29 00:22:22.000000000 +0100
-+++ src/inptport.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/inptport.c	2005-02-12 00:33:04.000000000 +0100
++++ src/inptport.c	2005-02-13 13:37:33.000000000 +0100
 @@ -916,26 +916,21 @@
  
  	/* start with the raw defaults and ask the OSD to customize them in the backup array */
@@ -667,7 +653,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* was pressed, apply autocentering */
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2004-09-21 20:02:10.000000000 +0200
-+++ src/input.c	2005-02-05 16:17:57.000000000 +0100
++++ src/input.c	2005-02-13 13:37:33.000000000 +0100
 @@ -603,11 +603,33 @@
  	code_count = 0;
  	free(code_map);
@@ -704,7 +690,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 --- src.ori/input.h	2004-09-21 20:02:10.000000000 +0200
-+++ src/input.h	2005-02-05 16:17:57.000000000 +0100
++++ src/input.h	2005-02-13 13:37:33.000000000 +0100
 @@ -479,10 +479,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
@@ -739,7 +725,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2005-01-29 00:22:26.000000000 +0100
-+++ src/mame.c	2005-02-05 16:17:57.000000000 +0100
++++ src/mame.c	2005-02-13 13:37:33.000000000 +0100
 @@ -541,10 +541,15 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
@@ -758,7 +744,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2005-01-29 00:22:26.000000000 +0100
-+++ src/osdepend.h	2005-02-05 16:17:57.000000000 +0100
++++ src/osdepend.h	2005-02-13 13:37:33.000000000 +0100
 @@ -350,10 +350,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -809,9 +795,9 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
---- src.ori/rules.mak	2005-02-05 16:17:08.000000000 +0100
-+++ src/rules.mak	2005-02-05 16:17:57.000000000 +0100
-@@ -1198,16 +1198,16 @@
+--- src.ori/rules.mak	2005-02-11 20:37:08.000000000 +0100
++++ src/rules.mak	2005-02-13 13:37:33.000000000 +0100
+@@ -1166,16 +1166,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o3.o
@@ -834,7 +820,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring SPC700@,$(CPUS)))
-@@ -1215,11 +1215,11 @@
+@@ -1183,11 +1183,11 @@
  SPCD = cpu/spc700
  OBJDIRS += $(OBJ)/$(SPCD)
  CPUDEFS += -DHAS_SPC700=1
@@ -847,7 +833,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  CPU=$(strip $(findstring E116T@,$(CPUS)))
-@@ -1528,13 +1528,13 @@
+@@ -1507,13 +1507,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -866,7 +852,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2004-08-22 21:14:00.000000000 +0200
-+++ src/ui_text.c	2005-02-05 16:17:57.000000000 +0100
++++ src/ui_text.c	2005-02-13 13:37:33.000000000 +0100
 @@ -191,10 +191,14 @@
  	"One match found - added to list",
  
@@ -884,7 +870,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2004-07-28 22:26:24.000000000 +0200
-+++ src/ui_text.h	2005-02-05 16:17:57.000000000 +0100
++++ src/ui_text.h	2005-02-13 13:37:33.000000000 +0100
 @@ -185,10 +185,14 @@
  	UI_search_one_match_found_added,
  	
@@ -902,7 +888,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2005-01-03 15:05:50.000000000 +0100
-+++ src/usrintrf.c	2005-02-05 16:17:57.000000000 +0100
++++ src/usrintrf.c	2005-02-13 13:37:33.000000000 +0100
 @@ -809,10 +809,13 @@
  
  
@@ -1244,8 +1230,8 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	if (input_ui_pressed(IPT_UI_SHOW_GFX))
  	{
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
---- src.ori/vidhrdw/voodoo.c	2005-02-05 16:17:08.000000000 +0100
-+++ src/vidhrdw/voodoo.c	2005-02-05 16:17:57.000000000 +0100
+--- src.ori/vidhrdw/voodoo.c	2005-02-04 21:36:32.000000000 +0100
++++ src/vidhrdw/voodoo.c	2005-02-13 13:37:33.000000000 +0100
 @@ -16,11 +16,11 @@
   *
   *	Math trickery
@@ -1261,7 +1247,7 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #include <float.h>
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
 --- src.ori/x86drc.c	2004-11-23 18:05:40.000000000 +0100
-+++ src/x86drc.c	2005-02-05 16:17:57.000000000 +0100
++++ src/x86drc.c	2005-02-13 13:37:33.000000000 +0100
 @@ -677,10 +677,11 @@
  
  
