@@ -236,9 +236,5 @@ $(sort $(CFGOBJDIRS)):
 $(CFGOBJ)/advcfg$(EXE) : $(sort $(CFGOBJDIRS)) $(CFGOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(CFGLDFLAGS) $(CFGOBJS) $(CFGLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advcfg$(EXE)
 	$(LN_S) $@ advcfg$(EXE)

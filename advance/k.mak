@@ -71,10 +71,6 @@ $(sort $(KOBJDIRS)):
 $(KOBJ)/advk$(EXE) : $(sort $(KOBJDIRS)) $(KOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(KLDFLAGS) $(KOBJS) $(KLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advk$(EXE)
 	$(LN_S) $@ advk$(EXE)
 

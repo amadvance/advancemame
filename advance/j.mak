@@ -106,9 +106,5 @@ $(sort $(JOBJDIRS)):
 $(JOBJ)/advj$(EXE) : $(sort $(JOBJDIRS)) $(JOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(JLDFLAGS) $(JOBJS) $(JLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advj$(EXE)
 	$(LN_S) $@ advj$(EXE)

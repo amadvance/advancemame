@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-06-13 21:21:32.000000000 +0200
++++ src/advance.pat	2003-07-09 18:39:31.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.c src/common.c
---- src.ori/common.c	2003-06-10 19:33:14.000000000 +0200
-+++ src/common.c	2003-06-13 21:21:32.000000000 +0200
+--- src.ori/common.c	2003-07-04 19:16:10.000000000 +0200
++++ src/common.c	2003-07-09 18:39:31.000000000 +0200
 @@ -413,17 +413,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -25,7 +25,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
-@@ -1133,11 +1127,11 @@
+@@ -1182,11 +1176,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
@@ -40,7 +40,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-06-13 21:21:32.000000000 +0200
++++ src/cpmame.mak	2003-07-09 18:39:31.000000000 +0200
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -55,7 +55,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2002-08-25 01:51:28.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-06-13 21:21:32.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-07-09 18:39:31.000000000 +0200
 @@ -61,10 +61,16 @@
   *
   *****************************************************************************/
@@ -75,7 +75,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2003-06-13 21:21:32.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-07-09 18:39:31.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -124,7 +124,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-06-13 21:21:32.000000000 +0200
++++ src/cpu/z80/z80.c	2003-07-09 18:39:31.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -144,7 +144,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
-+++ src/cpuexec.c	2003-06-13 21:21:32.000000000 +0200
++++ src/cpuexec.c	2003-07-09 18:39:31.000000000 +0200
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -159,167 +159,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/konamigx.c src/drivers/konamigx.c
---- src.ori/drivers/konamigx.c	2003-06-05 12:00:00.000000000 +0200
-+++ src/drivers/konamigx.c	2003-06-13 22:23:42.000000000 +0200
-@@ -2845,10 +2845,11 @@
- 		konamigx_cfgport = 7;
- 	}
- 
- 	else if (!strcmp(Machine->gamedrv->name, "tkmmpzdm"))
- 	{
-+		int i;
- 		data32_t *rom = (data32_t*)memory_region(REGION_CPU1);
- 
- 		// The display is initialized after POST but the copyright screen disabled
- 		// planes B,C,D and didn't bother restoring them. I've spent a good
- 		// amount of time chasing this bug but the cause remains inconclusive.
-@@ -2864,24 +2865,26 @@
- 		esc_cb = tkmmpzdm_esc;
- 		readback = BPP6;
- 		konamigx_cfgport = 7;
- 
- 		// boost voice(chip 1 channel 3-7)
--		for (int i=3; i<=7; i++) K054539_set_gain(1, i, 2.0);
-+		for (i=3; i<=7; i++) K054539_set_gain(1, i, 2.0);
- 	}
- 
- 	else if (!strcmp(Machine->gamedrv->name, "dragoonj"))
- 	{
-+		int i;
-+
- 		#if GX_SKIPIDLE
- 			ADD_SKIPPER32(0x202f48, 0xc00000, 0x1020, 0x1020, 0xff00, 0x0000ff00)
- 		#endif
- 
- 		esc_cb = dragoonj_esc;
- 		konamigx_cfgport = 7;
- 
- 		// soften percussions(chip 1 channel 0-3), boost voice(chip 1 channel 4-7)
--		for (int i=0; i<=3; i++)
-+		for (i=0; i<=3; i++)
- 		{
- 			K054539_set_gain(1, i, 0.8);
- 			K054539_set_gain(1, i+4, 2.0);
- 		}
- 	}
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/mystwarr.c src/drivers/mystwarr.c
---- src.ori/drivers/mystwarr.c	2003-06-05 12:00:00.000000000 +0200
-+++ src/drivers/mystwarr.c	2003-06-14 18:19:51.000000000 +0200
-@@ -1817,91 +1817,103 @@
- 	state_save_register_func_postload(reset_sound_region);
- }
- 
- static DRIVER_INIT(mystwarr)
- {
-+	int i;
-+
- 	init_common();
- 
- 	#if MW_SKIPIDLE
- 		ADD_SKIPPER16(0x1bac, 0x200000, 0x540, 0x6ff, -1, 0xffff)
- 	#endif
- 
- 	// soften chorus(chip 0 channel 0-3), boost voice(chip 0 channel 4-7)
--	for (int i=0; i<=3; i++)
-+	for (i=0; i<=3; i++)
- 	{
- 		K054539_set_gain(0, i, 0.8);
- 		K054539_set_gain(0, i+4, 2.0);
- 	}
- 
- 	// soften percussions(chip 1 channel 0-7)
--	for (int i=0; i<=7; i++) K054539_set_gain(1, i, 0.5);
-+	for (i=0; i<=7; i++) K054539_set_gain(1, i, 0.5);
- }
- 
- static DRIVER_INIT(dadandrn)
- {
-+	int i;
-+
- 	init_common();
- 
- 	#if MW_SKIPIDLE
- 		ADD_SKIPPER16(0x442a, 0x600000, 0x400, 0x4ff, -1, 0xffff)
- 	#endif
- 
- 	// boost voice(chip 0 channel 4-7)
--	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
-+	for (i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
- }
- 
- static DRIVER_INIT(viostorm)
- {
-+	int i;
-+
- 	init_common();
- 
- 	#if MW_SKIPIDLE
- 		ADD_SKIPPER16(0x0a9c, 0x200000, 0xf400, 0xf9df, -1, 0xffff)
- 	#endif
- 
- 	// boost voice(chip 0 channel 4-7)
--	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
-+	for (i=4; i<=7; i++) K054539_set_gain(0, i, 2.0);
- }
- 
- static DRIVER_INIT(metamrph)
- {
-+	int i;
-+
- 	init_common();
- 
- 	K053250_unpack_pixels(REGION_GFX3);
- 
- 	// boost voice(chip 0 channel 4-7) and soften other channels
--	for (int i=0; i<=3; i++)
-+	for (i=0; i<=3; i++)
- 	{
- 		K054539_set_gain(0, i,   0.8);
- 		K054539_set_gain(0, i+4, 1.8);
- 		K054539_set_gain(1, i,   0.8);
- 		K054539_set_gain(1, i+4, 0.8);
- 	}
- }
- 
- static DRIVER_INIT(martchmp)
- {
-+	int i;
-+
- 	init_common();
- 
- 	#if MW_SKIPIDLE
- 		ADD_SKIPPER16(0x1190, 0x100000, 0x30, 0xaf, -1, 0xffff)
- 	#endif
- 
- 	K054539_init_flags(K054539_REVERSE_STEREO);
- 
- 	// boost voice(chip 0 channel 4-7)
--	for (int i=4; i<=7; i++) K054539_set_gain(0, i, 1.4);
-+	for (i=4; i<=7; i++) K054539_set_gain(0, i, 1.4);
- }
- 
- static DRIVER_INIT(gaiapols)
- {
-+	int i;
-+
- 	init_common();
- 
- 	#if MW_SKIPIDLE
- 		ADD_SKIPPER16(0x200e4a, 0x600000, 0x540, 0x6ff, -1, 0xffff)
- 	#endif
- 
- 	// boost voice(chip 0 channel 5-7)
--	for (int i=5; i<=7; i++) K054539_set_gain(0, i, 2.0);
-+	for (i=5; i<=7; i++) K054539_set_gain(0, i, 2.0);
- }
- 
- 
- /*           ROM       parent    machine   inp       init */
- GAMEX( 1993, mystwarr, 0,        mystwarr, mystwarr, mystwarr, ROT0,  "Konami", "Mystic Warriors (World ver EAA)", GAME_IMPERFECT_GRAPHICS )
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2003-06-10 19:59:08.000000000 +0200
-+++ src/drivers/neogeo.c	2003-06-13 21:21:32.000000000 +0200
+--- src.ori/drivers/neogeo.c	2003-07-04 19:16:28.000000000 +0200
++++ src/drivers/neogeo.c	2003-07-09 18:39:34.000000000 +0200
 @@ -381,11 +381,11 @@
  			}
  			fc++;
@@ -334,9 +176,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2003-05-23 16:51:24.000000000 +0200
-+++ src/fileio.c	2003-06-13 21:21:32.000000000 +0200
-@@ -59,10 +59,11 @@
+--- src.ori/fileio.c	2003-07-04 19:16:22.000000000 +0200
++++ src/fileio.c	2003-07-09 18:39:34.000000000 +0200
+@@ -66,10 +66,11 @@
  	UINT64 offset;
  	UINT64 length;
  	UINT8 eof;
@@ -348,7 +190,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
  /***************************************************************************
-@@ -294,10 +295,13 @@
+@@ -306,10 +307,13 @@
  	mame_fread
  ***************************************************************************/
  
@@ -362,7 +204,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		case PLAIN_FILE:
  			return osd_fread(file->file, buffer, length);
-@@ -327,10 +331,13 @@
+@@ -339,10 +343,13 @@
  	mame_fwrite
  ***************************************************************************/
  
@@ -376,7 +218,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		case PLAIN_FILE:
  			return osd_fwrite(file->file, buffer, length);
-@@ -347,10 +354,13 @@
+@@ -359,10 +366,13 @@
  
  int mame_fseek(mame_file *file, INT64 offset, int whence)
  {
@@ -390,7 +232,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		case PLAIN_FILE:
  			return osd_fseek(file->file, offset, whence);
-@@ -449,10 +459,16 @@
+@@ -461,10 +471,16 @@
  
  int mame_fgetc(mame_file *file)
  {
@@ -407,7 +249,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		case PLAIN_FILE:
  			if (osd_fread(file->file, &buffer, 1) == 1)
-@@ -476,38 +492,13 @@
+@@ -488,38 +504,13 @@
  	mame_ungetc
  ***************************************************************************/
  
@@ -449,7 +291,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
  /***************************************************************************
-@@ -565,10 +556,14 @@
+@@ -577,10 +568,14 @@
  	mame_feof
  ***************************************************************************/
  
@@ -464,7 +306,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		case PLAIN_FILE:
  			return osd_feof(file->file);
-@@ -794,10 +789,12 @@
+@@ -806,10 +801,12 @@
  	LOG(("generic_fopen(%d, %s, %s, %s, %X)\n", pathc, gamename, filename, extension, flags));
  
  	/* reset the file handle */
@@ -478,9 +320,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-06-09 22:02:00.000000000 +0200
-+++ src/inptport.c	2003-06-13 21:23:27.000000000 +0200
-@@ -147,10 +147,13 @@
+--- src.ori/inptport.c	2003-07-04 19:16:28.000000000 +0200
++++ src/inptport.c	2003-07-09 18:39:34.000000000 +0200
+@@ -196,10 +196,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -494,7 +336,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -158,10 +161,12 @@
+@@ -207,10 +210,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -507,7 +349,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1167,10 +1172,11 @@
+@@ -1272,10 +1277,11 @@
  		if (readint(f,&dispensed_tickets) != 0)
  			goto getout;
  
@@ -519,7 +361,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
  	/* All analog ports need initialization */
-@@ -1710,14 +1716,16 @@
+@@ -1815,14 +1821,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -540,7 +382,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -1975,16 +1983,23 @@
+@@ -2080,16 +2088,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -564,7 +406,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -2076,18 +2091,20 @@
+@@ -2181,18 +2196,20 @@
  				}
  				else
  				{
@@ -592,7 +434,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2218,10 +2235,14 @@
+@@ -2323,10 +2340,14 @@
  #elif defined XMAME_NET
  	if ( osd_net_active() )
  		osd_net_sync(input_port_value, input_port_defaults);
@@ -608,8 +450,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	2003-05-15 04:59:00.000000000 +0200
-+++ src/inptport.h	2003-06-13 21:21:40.000000000 +0200
+--- src.ori/inptport.h	2003-07-04 19:16:28.000000000 +0200
++++ src/inptport.h	2003-07-09 18:39:34.000000000 +0200
 @@ -81,10 +81,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -628,7 +470,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/input.c src/input.c
 --- src.ori/input.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/input.c	2003-06-13 21:21:40.000000000 +0200
++++ src/input.c	2003-07-09 18:39:34.000000000 +0200
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -657,7 +499,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-06-10 19:54:02.000000000 +0200
-+++ src/mame.c	2003-06-13 21:21:40.000000000 +0200
++++ src/mame.c	2003-07-09 18:39:34.000000000 +0200
 @@ -956,26 +956,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -697,7 +539,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-06-09 22:02:00.000000000 +0200
-+++ src/osdepend.h	2003-06-13 21:24:55.000000000 +0200
++++ src/osdepend.h	2003-07-09 18:39:34.000000000 +0200
 @@ -394,10 +394,32 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -733,7 +575,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-05-23 16:51:24.000000000 +0200
-+++ src/ui_text.c	2003-06-13 21:21:40.000000000 +0200
++++ src/ui_text.c	2003-07-09 18:39:34.000000000 +0200
 @@ -239,10 +239,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -751,7 +593,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-05-23 16:51:24.000000000 +0200
-+++ src/ui_text.h	2003-06-13 21:21:40.000000000 +0200
++++ src/ui_text.h	2003-07-09 18:39:34.000000000 +0200
 @@ -205,10 +205,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -768,9 +610,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2003-06-09 22:02:00.000000000 +0200
-+++ src/usrintrf.c	2003-06-13 21:25:41.000000000 +0200
-@@ -851,12 +851,16 @@
+--- src.ori/usrintrf.c	2003-07-04 19:16:30.000000000 +0200
++++ src/usrintrf.c	2003-07-09 18:39:34.000000000 +0200
+@@ -853,12 +853,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -789,7 +631,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	count = i;
  
  	visible = uirotheight / (3 * uirotcharheight / 2) - 1;
-@@ -924,15 +928,27 @@
+@@ -926,15 +930,27 @@
  				dt[curr_dt].y = topoffs + (3*i+1)*uirotcharheight/2;
  				curr_dt++;
  			}
@@ -822,7 +664,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	}
  
  	i = selected - topitem;
-@@ -2051,13 +2067,13 @@
+@@ -2053,13 +2069,13 @@
  		in++;
  	}
  
@@ -838,7 +680,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -2070,15 +2086,17 @@
+@@ -2072,15 +2088,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -856,7 +698,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -2097,10 +2115,18 @@
+@@ -2099,10 +2117,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -875,7 +717,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -2148,10 +2174,21 @@
+@@ -2150,10 +2176,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -897,7 +739,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -2184,10 +2221,21 @@
+@@ -2186,10 +2223,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -919,7 +761,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2491,14 +2539,16 @@
+@@ -2493,14 +2541,16 @@
  
  int showgamewarnings(struct mame_bitmap *bitmap)
  {
@@ -939,7 +781,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  		strcpy(buf, ui_getstring (UI_knownproblems));
  		strcat(buf, "\n\n");
-@@ -3050,15 +3100,15 @@
+@@ -3060,15 +3110,15 @@
  
  
  #ifndef MESS
@@ -957,7 +799,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3150,10 +3200,11 @@
+@@ -3160,10 +3210,11 @@
  #endif
  #endif
  #endif
@@ -969,7 +811,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3217,10 +3268,13 @@
+@@ -3227,10 +3278,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -983,7 +825,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3274,10 +3328,11 @@
+@@ -3284,10 +3338,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -995,7 +837,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				break;
  
  			case UI_RESET:
-@@ -3811,10 +3866,63 @@
+@@ -3821,10 +3876,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -1059,7 +901,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	int file = 0;
  
  	mame_pause(1);
-@@ -3931,17 +4039,42 @@
+@@ -3977,17 +4085,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1104,7 +946,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4047,10 +4180,14 @@
+@@ -4093,10 +4226,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1119,7 +961,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4059,11 +4196,11 @@
+@@ -4105,11 +4242,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1133,15 +975,15 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				setup_selected = -1;
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
---- src.ori/vidhrdw/cave.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-06-13 21:21:40.000000000 +0200
-@@ -1535,10 +1535,13 @@
+--- src.ori/vidhrdw/cave.c	2003-07-04 19:16:30.000000000 +0200
++++ src/vidhrdw/cave.c	2003-07-09 18:42:50.000000000 +0200
+@@ -1394,10 +1394,13 @@
+ VIDEO_UPDATE( cave )
  {
  	int pri, pri2;
  	int layers_ctrl = -1;
- 	int background_color;
  
-+	/* Set the correct destination if SMP is active */
++	/* Update the destination pointer. With SMP active it changes from one frame to another. */
 +	blit.baseaddr = Machine->scrbitmap->line[0];
 +
  	/* Choose the tilemap to display (8x8 tiles or 16x16 tiles) */
@@ -1149,3 +991,34 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/gaiden.c src/vidhrdw/gaiden.c
+--- src.ori/vidhrdw/gaiden.c	2003-07-04 19:16:30.000000000 +0200
++++ src/vidhrdw/gaiden.c	2003-07-09 18:46:28.000000000 +0200
+@@ -376,13 +376,10 @@
+ 		UINT32 priority_mask;
+ 		int col,row;
+ 
+ 		if (attributes & 0x04)
+ 		{
+-			if (!blend_support && (attributes & 0x20) && (cpu_getcurrentframe() & 1))
+-				goto skip_sprite;
+-
+ 			UINT32 priority = (attributes >> 6) & 3;
+ 			UINT32 flipx = (attributes & 1);
+ 			UINT32 flipy = (attributes & 2);
+ 
+ 			UINT32 color = source[2];
+@@ -393,10 +390,13 @@
+ 			UINT32 number = (source[1] & (sizex > 2 ? 0x7ff8 : 0x7ffc));
+ 
+ 			int ypos = source[3] & 0x01ff;
+ 			int xpos = source[4] & 0x01ff;
+ 
++			if (!blend_support && (attributes & 0x20) && (cpu_getcurrentframe() & 1))
++				goto skip_sprite;
++
+ 			color = (color >> 4) & 0x0f;
+ 
+ 			/* wraparound */
+ 			if (xpos >= 256)
+ 				xpos -= 512;

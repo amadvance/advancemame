@@ -79,9 +79,6 @@ PREFIX=@prefix@
 # Uncomment and set to "yes" to compile the MAME debugger (default no):
 #CONF_DEBUGGER=no
 
-# Uncomment and set to "yes" to compress the executable (default no):
-#CONF_COMPRESS=no
-
 # Uncomment and set to "yes" to enable the debug code (default no):
 #CONF_DEBUG=no
 
@@ -109,7 +106,6 @@ CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
 CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
 CONF_LDFLAGS=@CONF_LDFLAGS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
-CONF_COMPRESS=@CONF_COMPRESS@
 CONF_DEBUG=@CONF_DEBUG@
 endif
 
@@ -203,10 +199,6 @@ ifndef CONF_DEBUGGER
 CONF_DEBUGGER=no
 endif
 
-ifndef CONF_COMPRESS
-CONF_COMPRESS=no
-endif
-
 ifndef CONF_DEBUG
 CONF_DEBUG=no
 endif
@@ -246,8 +238,6 @@ LDXX=@@CXX@
 AR=@@AR@
 ASM=@@ASM@
 RC=@@RC@
-UPX=@@UPX@
-TOUCH=@@TOUCH@
 LN_S=@@LN_S@
 MD=-@@MKDIR@ -p
 RM=@@RM@ -f
@@ -278,7 +268,6 @@ ECHO = @echo
 INSTALL = install
 
 ifeq ($(CONF_HOST),unix)
-UPX = @upx -q -q -q
 LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
@@ -286,7 +275,6 @@ CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
 ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),dos)
-UPX = @upx -q -q -q
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
@@ -294,7 +282,6 @@ CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
 ZLIBS = -lz
 endif
 ifeq ($(CONF_HOST),windows)
-UPX = @upx -q -q -q
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
@@ -309,7 +296,6 @@ CC_BUILD = @gcc
 CXX_BUILD = @g++
 LD_BUILD = @gcc
 LDXX_BUILD = @g++
-TOUCH = @touch
 ifeq ($(CONF_HOST),unix)
 AR = @ar
 CC = @gcc
@@ -357,7 +343,6 @@ CC = @gcc
 CXX = @gxx
 LD = @gcc
 LDXX = @gxx
-TOUCH = @rem
 endif
 
 ifeq ($(CONF_BUILD),windows)
@@ -372,7 +357,6 @@ CC = @gcc
 CXX = @g++
 LD = @gcc
 LDXX = @g++
-TOUCH = @true
 RC = @windres
 # The "" are required, otherwise the backslash are removed
 SDLCFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\SDL"

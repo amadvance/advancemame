@@ -233,9 +233,5 @@ $(sort $(VOBJDIRS)):
 $(VOBJ)/advv$(EXE) : $(sort $(VOBJDIRS)) $(VOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(VLDFLAGS) $(VOBJS) $(VLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advv$(EXE)
 	$(LN_S) $@ advv$(EXE)

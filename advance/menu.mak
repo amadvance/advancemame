@@ -369,10 +369,6 @@ $(sort $(MENUOBJDIRS)):
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(LDFLAGS) $(MENULDFLAGS) $(MENUOBJS) $(MENULIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advmenu$(EXE)
 	$(LN_S) $@ advmenu$(EXE)
 
@@ -400,8 +396,10 @@ MENU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/menu/*)
 
 MENU_DOC_SRC = \
-	$(srcdir)/doc/license.d \
+	$(srcdir)/doc/device.d \
 	$(srcdir)/doc/advmenu.d \
+	$(srcdir)/doc/build.d \
+	$(srcdir)/doc/cost.d \
 	$(srcdir)/doc/authors.d \
 	$(srcdir)/doc/faq.d \
 	$(srcdir)/doc/histmenu.d \
@@ -411,15 +409,14 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/advcfg.d \
 	$(srcdir)/doc/install.d \
 	$(srcdir)/doc/carddos.d \
-	$(srcdir)/doc/cardlinx.d \
-	$(srcdir)/doc/build.d \
-	$(srcdir)/doc/cost.d
+	$(srcdir)/doc/cardlinx.d
 
 MENU_SUPPORT_SRC = \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 
 MENU_DOC_BIN = \
+	$(DOCOBJ)/device.txt \
 	$(DOCOBJ)/advmenu.txt \
 	$(DOCOBJ)/build.txt \
 	$(DOCOBJ)/cost.txt \
@@ -431,6 +428,7 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/install.txt \
+	$(DOCOBJ)/device.html \
 	$(DOCOBJ)/advmenu.html \
 	$(DOCOBJ)/build.html \
 	$(DOCOBJ)/cost.html \

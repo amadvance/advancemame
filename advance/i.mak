@@ -64,10 +64,6 @@ $(sort $(IOBJDIRS)):
 $(IOBJ)/advi$(EXE) : $(sort $(IOBJDIRS)) $(IOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(ILDFLAGS) $(IOBJS) $(ILIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advi$(EXE)
 	$(LN_S) $@ advi$(EXE)
 

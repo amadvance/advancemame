@@ -227,7 +227,7 @@ static int exec(char* cmdline)
 
 	/* wait until the process terminate */
 	while (1) {
-		 MSG msg;
+		MSG msg;
 		if (!GetExitCodeProcess(process.hProcess, &exitcode)) {
 			log_std(("win: GetExitCodeProcess() failed %d\n", (unsigned)GetLastError()));
 			exitcode = -1;

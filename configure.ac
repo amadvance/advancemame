@@ -87,8 +87,8 @@ else
 fi
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_CHECK_TOOLS(AR, ar)
@@ -271,28 +271,6 @@ AC_ARG_ENABLE(
 )
 AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 
-AC_ARG_ENABLE(
-	[compress],
-	AC_HELP_STRING([--enable-compress],[enable the compression of the executable (default no)]),
-	[ac_enable_compress=$enableval],
-	[ac_enable_compress=no]
-)
-if test $ac_enable_compress = yes; then
-	AC_CHECK_PROGS(
-		[UPX],
-		[upx],
-		AC_MSG_ERROR([the upx program is required for compressing])
-	)
-	AC_CHECK_PROGS(
-		[TOUCH],
-		[touch],
-		AC_MSG_ERROR([the touch program is required for compressing])
-	)
-fi
-AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
-AC_SUBST([UPX],[$UPX])
-AC_SUBST([TOUCH],[$TOUCH])
-
 # Checks for libraries.
 
 ac_lib_video=no
@@ -322,13 +300,14 @@ AC_ARG_ENABLE(
 	[ac_lib_svgalib=auto]
 )
 if test $ac_lib_svgalib = auto; then
-	if test $ac_host = unix; then
-		AC_CHECK_LIB(
-			[vga],
-			[vga_init],
-			[ac_lib_svgalib=yes],
-			[ac_lib_svgalib=no]
-		)
+	AC_CHECK_LIB(
+		[vga],
+		[vga_init],
+		[ac_lib_svgalib=yes],
+		[ac_lib_svgalib=no],
+		[-lm]
+	)
+	if test $ac_lib_svgalib = yes; then
 		AC_MSG_CHECKING([for svgalib version])
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
 				#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
@@ -336,21 +315,22 @@ if test $ac_lib_svgalib = auto; then
 				#endif
 			]])],[],[ac_lib_svgalib=no])
 		AC_MSG_RESULT([$ac_lib_svgalib])
-	else
-		ac_lib_svgalib=no
 	fi
 elif test $ac_lib_svgalib = yes; then
 	AC_CHECK_LIB(
 		[vga],
 		[vga_init],
 		[],
-		[AC_MSG_ERROR([the SVGALIB library is missing])]
+		[AC_MSG_ERROR([the SVGALIB library is missing])],
+		[-lm]
 	)
+	AC_MSG_CHECKING([for svgalib version])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
 			#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
 			choke me
 			#endif
 		]])],[],[AC_MSG_ERROR([the SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
+	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_svgalib = yes; then
 	ac_lib="$ac_lib SVGALIB"
@@ -366,15 +346,11 @@ AC_ARG_ENABLE(
 	[ac_lib_fb=auto]
 )
 if test $ac_lib_fb = auto; then
-	if test $ac_host = unix; then
-		AC_MSG_CHECKING([for FrameBuffer])
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
-				struct fb_var_screeninfo dummy;
-			]])],[ac_lib_fb=yes],[ac_lib_fb=no])
-		AC_MSG_RESULT([$ac_lib_fb])
-	else
-		ac_lib_fb=no
-	fi
+	AC_MSG_CHECKING([for FrameBuffer])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
+			struct fb_var_screeninfo dummy;
+		]])],[ac_lib_fb=yes],[ac_lib_fb=no])
+	AC_MSG_RESULT([$ac_lib_fb])
 elif test $ac_lib_fb = yes; then
 	AC_MSG_CHECKING([for FrameBuffer])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
@@ -395,26 +371,34 @@ AC_ARG_ENABLE(
 	[ac_lib_alsa=auto]
 )
 if test $ac_lib_alsa = auto; then
-	if test $ac_host = unix; then
-		AC_MSG_CHECKING([for ALSA])
+	AC_CHECK_LIB(
+		[asound],
+		[snd_pcm_open],
+		[ac_lib_alsa=yes],
+		[ac_lib_alsa=no]
+	)
+	if test $ac_lib_alsa = yes; then
+		AC_MSG_CHECKING([for ALSA version])
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
 				#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 				choke me
 				#endif
-				int dummy = SND_PCM_FORMAT_S16_LE;
-			]])],[ac_lib_alsa=yes],[ac_lib_alsa=no])
+			]])],[],[ac_lib_alsa=no])
 		AC_MSG_RESULT([$ac_lib_alsa])
-	else
-		ac_lib_alsa=no
 	fi
 elif test $ac_lib_alsa = yes; then
-	AC_MSG_CHECKING([for ALSA])
+	AC_CHECK_LIB(
+		[asound],
+		[snd_pcm_open],
+		[],
+		[AC_MSG_ERROR([the ALSA library is missing])]
+	)
+	AC_MSG_CHECKING([for ALSA version])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
 			#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 			choke me
 			#endif
-			int dummy = SND_PCM_FORMAT_S16_LE;
-		]])],[],[AC_MSG_ERROR([the ALSA library is missing or too old])])
+		]])],[],[AC_MSG_ERROR([the ALSA library is too old])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_alsa = yes; then
@@ -430,15 +414,11 @@ AC_ARG_ENABLE(
 	[ac_lib_oss=auto]
 )
 if test $ac_lib_oss = auto; then
-	if test $ac_host = unix; then
-		AC_MSG_CHECKING([for OSS])
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
-				int dummy = SNDCTL_DSP_SETFMT;
-			]])],[ac_lib_oss=yes],[ac_lib_oss=no])
-		AC_MSG_RESULT([$ac_lib_oss])
-	else
-		ac_lib_oss=no
-	fi
+	AC_MSG_CHECKING([for OSS])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
+			int dummy = SNDCTL_DSP_SETFMT;
+		]])],[ac_lib_oss=yes],[ac_lib_oss=no])
+	AC_MSG_RESULT([$ac_lib_oss])
 elif test $ac_lib_oss = yes; then
 	AC_MSG_CHECKING([for OSS])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
@@ -459,17 +439,13 @@ AC_ARG_ENABLE(
 	[ac_lib_pthread=auto]
 )
 if test $ac_lib_pthread = auto; then
-	if test $ac_host = unix; then
-		AC_CHECK_LIB(
-			[pthread],
-			[pthread_create],
-			[ac_lib_pthread=yes],
-			[ac_lib_pthread=no],
-			[]
-		)
-	else
-		ac_lib_pthread=no
-	fi
+	AC_CHECK_LIB(
+		[pthread],
+		[pthread_create],
+		[ac_lib_pthread=yes],
+		[ac_lib_pthread=no],
+		[]
+	)
 elif test $ac_lib_pthread = yes; then
 	AC_CHECK_LIB(
 		[pthread],
@@ -491,17 +467,13 @@ AC_ARG_ENABLE(
 	[ac_lib_slang=auto]
 )
 if test $ac_lib_slang = auto; then
-	if test $ac_host = unix; then
-		AC_CHECK_LIB(
-			[slang],
-			[SLang_init_tty],
-			[ac_lib_slang=yes],
-			[ac_lib_slang=no],
-			[]
-		)
-	else
-		ac_lib_slang=no
-	fi
+	AC_CHECK_LIB(
+		[slang],
+		[SLang_init_tty],
+		[ac_lib_slang=yes],
+		[ac_lib_slang=no],
+		[]
+	)
 elif test $ac_lib_slang = yes; then
 	AC_CHECK_LIB(
 		[slang],
@@ -535,32 +507,28 @@ AC_ARG_ENABLE(
 	[ac_lib_sdl=auto]
 )
 if test $ac_lib_sdl = auto; then
-	if test $ac_host = dos; then
+	AC_PATH_PROGS(
+		[ac_lib_sdl_config],
+		[${ac_tool_prefix}sdl-config],
+		[],
+		[${ac_lib_sdl_path}]
+	)
+	if test -z $ac_lib_sdl_config; then
 		ac_lib_sdl=no
 	else
-		AC_PATH_PROGS(
-			[ac_lib_sdl_config],
-			[${ac_tool_prefix}sdl-config],
-			[],
-			[${ac_lib_sdl_path}]
-		)
-		if test -z $ac_lib_sdl_config; then
-			ac_lib_sdl=no
+		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+		if test $ac_enable_static = yes ; then
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
 		else
-			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-			if test $ac_enable_static = yes ; then
-				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
-			else
-				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
-			fi
-			AC_CHECK_LIB(
-				[SDL],
-				[SDL_Init],
-				[ac_lib_sdl=yes],
-				[ac_lib_sdl=no],
-				[$SDLLIBS]
-			)
+			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
 		fi
+		AC_CHECK_LIB(
+			[SDL],
+			[SDL_Init],
+			[ac_lib_sdl=yes],
+			[ac_lib_sdl=no],
+			[$SDLLIBS]
+		)
 	fi
 elif test $ac_lib_sdl = yes; then
 	AC_PATH_PROGS(
@@ -635,15 +603,11 @@ AC_ARG_ENABLE(
 	[ac_lib_kraw=auto]
 )
 if test $ac_lib_kraw = auto; then
-	if test $ac_host = unix; then
-		AC_MSG_CHECKING([for KRAW keyboard interface])
-		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
-				int dummy = K_MEDIUMRAW;
-			]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
-		AC_MSG_RESULT([$ac_lib_kraw])
-	else
-		ac_lib_kraw=no
-	fi
+	AC_MSG_CHECKING([for KRAW keyboard interface])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
+			int dummy = K_MEDIUMRAW;
+		]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
+	AC_MSG_RESULT([$ac_lib_kraw])
 elif test $ac_lib_kraw = yes; then
 	AC_MSG_CHECKING([for KRAW keyboard interface])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[

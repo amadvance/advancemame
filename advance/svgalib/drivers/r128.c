@@ -203,7 +203,7 @@ static void R128RestoreCommonRegisters(R128SavePtr restore)
     OUTREG(R128_MEM_VGA_WP_SEL,	      restore->mem_vga_wp_sel);
     OUTREG(R128_MEM_VGA_RP_SEL,	      restore->mem_vga_rp_sel);
 
-    if(chiptype == Rage128) {
+    if(chiptype == Radeon) {
         OUTREG(RADEON_SURFACE_CNTL,   restore->surface_cntl);
         OUTREG(RADEON_DAC_CNTL2,     restore->dac_cntl2);
         OUTREG(RADEON_CRTC_MORE_CNTL,restore->crtc_more_cntl);

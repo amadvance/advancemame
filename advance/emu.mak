@@ -493,10 +493,6 @@ endif
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(DRVLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(ADVANCELDFLAGS) $(ADVANCEOBJS) $(EMUOBJS) $(COREOBJS) $(ADVANCELIBS) $(DRVLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) $(EMUNAME)$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
 
@@ -623,8 +619,9 @@ EMU_SUPPORT_SRC += \
 endif
 
 EMU_DOC_SRC = \
-	$(srcdir)/doc/advmame.d \
+	$(srcdir)/doc/device.d \
 	$(srcdir)/doc/license.d \
+	$(srcdir)/doc/advmame.d \
 	$(srcdir)/doc/authors.d \
 	$(srcdir)/doc/script.d \
 	$(srcdir)/doc/reademu.d \
@@ -648,6 +645,7 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/svgawin.d
 
 EMU_DOC_BIN = \
+	$(DOCOBJ)/device.txt \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmame.txt \
 	$(DOCOBJ)/build.txt \
@@ -662,6 +660,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
+	$(DOCOBJ)/device.html \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \

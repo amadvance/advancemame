@@ -266,7 +266,7 @@ diff -u ../svgalib.ori/drivers/mx.c drivers/mx.c
  #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
 --- ../svgalib.ori/drivers/nv3.c	2002-08-04 11:35:40.000000000 +0200
-+++ drivers/nv3.c	2002-12-15 16:49:21.000000000 +0100
++++ drivers/nv3.c	2003-06-16 20:02:48.000000000 +0200
 @@ -27,7 +27,7 @@
  /* New style driver interface. */
  #include "timing.h"
@@ -276,6 +276,15 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  #include "nv3ref.h"
  #include "nvreg.h"
  #include "vgapci.h"
+@@ -804,7 +804,7 @@
+     for (P = 0; P <= P_MAX; P ++)
+     {
+         Freq = VClk << P;
+-        if ((Freq >= 128000) && (Freq <= MAXVCLOCK))
++        if ((Freq >= 128000 || P == P_MAX) && (Freq <= MAXVCLOCK))
+         {
+             for (M = M_MIN; M <= M_MAX; M++)
+             {
 diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
 --- ../svgalib.ori/drivers/pm2.c	2002-10-15 15:14:40.000000000 +0200
 +++ drivers/pm2.c	2002-12-15 16:49:21.000000000 +0100
@@ -301,7 +310,7 @@ diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
      if (__svgalib_driver_report) {
 diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
 --- ../svgalib.ori/drivers/r128.c	2002-09-04 17:28:10.000000000 +0200
-+++ drivers/r128.c	2002-12-15 16:49:22.000000000 +0100
++++ drivers/r128.c	2003-07-09 21:59:07.000000000 +0200
 @@ -13,9 +13,9 @@
  #include "driver.h"
  #include "timing.h"
@@ -314,6 +323,15 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
  #include "r128_reg.h"
  
  static enum { Rage128=0, Radeon } chiptype; /* r128io needs to know */
+@@ -203,7 +203,7 @@
+     OUTREG(R128_MEM_VGA_WP_SEL,	      restore->mem_vga_wp_sel);
+     OUTREG(R128_MEM_VGA_RP_SEL,	      restore->mem_vga_rp_sel);
+ 
+-    if(chiptype == Rage128) {
++    if(chiptype == Radeon) {
+         OUTREG(RADEON_SURFACE_CNTL,   restore->surface_cntl);
+         OUTREG(RADEON_DAC_CNTL2,     restore->dac_cntl2);
+         OUTREG(RADEON_CRTC_MORE_CNTL,restore->crtc_more_cntl);
 @@ -807,7 +807,6 @@
      };
  

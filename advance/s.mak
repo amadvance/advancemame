@@ -117,9 +117,5 @@ $(sort $(SOBJDIRS)):
 $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(SLDFLAGS) $(SOBJS) $(SLIBS) -o $@
-ifeq ($(CONF_COMPRESS),yes)
-	$(UPX) $@
-	$(TOUCH) $@
-endif
 	$(RM) advs$(EXE)
 	$(LN_S) $@ advs$(EXE)
