@@ -1790,7 +1790,7 @@ Configuration
 	To use the LCD support you must install on your system the `lcdproc'
 	program available at:
 
-		:http://lcdproc.sourceforge.net
+		http://lcdproc.sourceforge.net
 
 	More details and some examples of how to display information on the LCD
 	using the scripts are in the `script.txt' documentation file.

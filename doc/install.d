@@ -2,40 +2,42 @@ Name
 	install - Installation
 
 System Requirements
-	To run the Advance programs you may need to install and configure
-	some drivers and libraries on your system.
+	To run the Advance programs you may need to install and
+	configure some drivers and libraries on your system.
 
 	The following is a list of all that you need.
 
-	More details on the single drivers are present in the `advdev.txt'
-	documentation file.
+	More details on the single drivers are present in the
+	`advdev.txt' documentation file.
 
   Linux
-	To allow the Advance programs to display in X you must install the
-	SDL library. Generally it's already present in all the recent
-	distributions.
+	To allow the Advance programs to display in X you must
+	install the SDL library. Generally it's already present in
+	all the recent distributions.
   
-	To allow the Advance programs to directly control your video board
-	in console mode, you must install and configure the Linux Frame
-	Buffer driver or a recent SVGALIB library.
+	To allow the Advance programs to directly control your
+	video board in console mode, you must install and configure
+	the Linux Frame Buffer driver or a recent SVGALIB library.
 
-	The Linux Frame Buffer drivers are always included in the Linux
-	kernel source, but generally they must be explicitely compiled
-	or loaded. Please note that you cannot use the VESA Linux Frame
-	Buffer driver, you must use a driver specific for your video board.
+	The Linux Frame Buffer drivers are always included in the
+	Linux kernel source, but generally they must be explicitly
+	compiled or loaded. Please note that you cannot use the VESA
+	Linux Frame Buffer driver, you must use a driver specific for
+	your video board.
 
-	The SVGALIB library must be installed manually. Generally the Linux
-	distributions contain an old 1.4 version of the library, but the
-	Advance programs you need at least the version 1.9.14 available at:
+	The SVGALIB library must be installed manually. Generally the
+	Linux distributions contain an old 1.4 version of the library,
+	but the Advance programs you need at least the version 1.9.14
+	available at:
 
-		:http://www.svgalib.org
+		http://www.svgalib.org
 
 	For both the Frame Buffer driver and the SVGALIB library some
 	additional patches are available in the `contrib/' directory.
 
 	To allow the Advance programs to play sounds, you must have
-	installed the OSS or the ALSA audio system. Generally at least one
-	is always available in all the Linux distributions.
+	installed the OSS or the ALSA audio system. Generally at least
+	one is always available in all the Linux distributions.
 	If you have the SDL library, it can also be used for the
 	sound output.
 
@@ -44,33 +46,35 @@ System Requirements
 	If you have the SDL library, it can also be used for the input
 	controllers.
 
-    DOS
+  DOS
 	The Advance programs already contain all the required drivers
 	for video, sound, and input controllers.
 
 	Generally you don't need to install additional software with
 	the exception of a mouse driver if you want to use one.
 
-    Windows
-	To allow the Advance programs to directly control your video board,
-	you must install the included SVGAWIN driver.
+  Windows
+	To allow the Advance programs to directly control your video
+	board, you must install the included SVGAWIN driver.
 
-	Please note that this driver is EXPERIMENTAL software and it works
-	only for a few set of video boards. More information is present in the
-	`svgawin.txt' documentation file.
+	Please note that this driver is EXPERIMENTAL software and it
+	works only for a few set of video boards. More information is
+	present in the `svgawin.txt' documentation file.
 
-	Otherwise the Advance programs are able to display in a window or
-	to use the default video modes using the included SDL library.
+	Otherwise the Advance programs are able to display in a window
+	or to use the default video modes using the included SDL
+	library.
 
 	The SDL library is also used for sound, and input controllers.
 
-    Mac OS X/Generic Unix
+  Mac OS X/Generic Unix
 	To allow the Advance programs to work you must install the SDL
-	library. This library is used for video, sound and input controllers.
+	library. This library is used for video, sound and input
+	controllers.
 
 	The SDL library is available at:
 
-		:http://www.libsdl.org
+		http://www.libsdl.org
 
 Installation
 	The suggested way to installing the Advance programs is to start 
@@ -78,10 +82,10 @@ Installation
 	
 	The build process is detailed in `build.txt' file, but generally 
 	you need only the usual commands:
-		
-		./configure
-		make
-		make install
+
+		:./configure
+		:make
+		:make install
 
 	The exception is the DOS and Windows target. In this case it's 
 	better to start from the binary distribution and don't compile 
@@ -100,11 +104,12 @@ Configuration
 	In DOS and Windows the configuration file is created in the 
 	current directory.
 
-	When you have finished to modify the configuration file, it's
-	suggested to run the program with the `-remove' option to remove
-	all the default configuration options from the configuration file.
+	When you have finished to modify the configuration file,
+	it's suggested to run the program with the `-remove' option
+	to remove all the default configuration options from the
+	configuration file.
 
-    AdvanceMAME
+  AdvanceMAME
 	To run AdvanceMAME you need at least to set the `dir_rom' option 
 	to the path there the roms resides.
 
@@ -112,19 +117,184 @@ Configuration
 	Manager environment like X Window, Windows or Mac OS X Acqua, 
 	you don't need to configure any video options. Instead, if you 
 	want to  enable the direct programming of the video board 
-	you need to carefully follow the "Video Configuration" chapter.
+	you need to carefully follow the "Video Setup" chapter
+	in this file.
 
-    AdvanceMENU
+  AdvanceMENU
 	To run AdvanceMENU you need to configure which emulator is
 	present in your system. If a known emulator is found, it's 
 	configured automatically. In Linux and Mac OS X the 
 	emulators are searched in the current PATH list, in DOS and 
 	Windows only in the current directory.
 
-	Generally you need also to adjust the path where the game's .png,
-	.mp3 and .mng files reside with the emulator_* options.
+	Generally you need also to adjust the path where the
+	game's .png, .mp3 and .mng files reside with the
+	emulator_* options.
 
-Video Configuration
+Video Hardware
+	The Advance programs are able to drive different types
+	of video hardware: Multi Sync Monitors, Fixed Sync Monitors,
+	Arcade Monitors and TVs.
+
+	With the exception of PC Monitors that always accept the
+	VGA signal, for other monitors you should take in account
+	the required video signals and eventually use conversion
+	circuits to adapt signals.
+
+	A lot of useful links are available on the AdvanceMAME video
+	link page:
+
+		http://advancemame.sourceforge.net/video-link.html
+
+  Multi Sync Monitors
+	Multi Sync monitors support a wide range of horizontal clocks
+	and requires a standard VGA connector. They are the normal PC
+	monitors.
+  
+	You can generally find the range of clocks supported in the
+	monitor manual, generic values are :
+
+		:device_video_pclock 10 - 150
+		:device_video_hclock 30.5 - 60
+		:device_video_vclock 55 - 130
+
+  Fixed Sync Monitors
+	Fixed Sync monitors support only a few fixed horizontal clocks.
+	Generally they requires separate 3,4 or 5 BNC connectors, with
+	the exception of old VGA monitors which requires a standard
+	VGA connector.
+
+	You must find the exact clocks supported in the monitor manual.
+
+	The standard clocks for VGA monitors are:
+
+		:device_video_pclock 10 - 50
+		:device_video_hclock 31.5
+		:device_video_vclock 55 - 130
+
+	If the monitor uses separate H/V sync signals you can
+	directly use the VGA sync signals of your PC. If the monitor
+	uses composite sync, or sync-on-green you must use a sync
+	converter circuit.
+  
+	These monitors are generally compatible with the VGA video
+	signal level of 0.7 V p-p.
+ 
+  Arcade Monitors
+	Arcade monitors support only a few fixed horizontal and
+	vertical clocks, generally the horizontal 15.75 and 25 kHz,
+	and only the vertical 60 Hz.
+
+	You must find the exact clocks supported in the monitor
+	manual.
+	
+	Please note that the manuals of some Arcade Monitors
+	incorrectly state a wide range of horizontal frequency
+	like 15 - 31 kHz. Generally these monitors support only
+	the three fixed clocks of 15.75, 25, 31.1 kHz. An example
+	is the Wells-Gardner D9200.
+	Instead, a range of vertical frequency is generally supported,
+	for example 50 - 60 Hz.
+  
+	The standard clocks for a Standard Resolution 15 kHz (CGA) are:
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 15.75
+		:device_video_vclock 60
+
+	for a Extended Resolution 16 kHz are:
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 16.5
+		:device_video_vclock 53
+
+	for a Medium Resolution 25 kHz (EGA) are:
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 25
+		:device_video_vclock 60
+
+	If the monitor accepts separate H/V sync signals at
+	levels 0 - 5 V you can directly use the VGA sync signal of
+	your PC. If the monitor uses another sync signal you must
+	use a sync conversion circuit.
+
+	If the monitor accepts a composite sync signal, instead of
+	using a sync conversion circuits you can also try twisting
+	the two H and V VGA signal together. It works if you select
+	VGA negative H and V sync on the programs. To be on safe side
+	I DO NOT RECOMMEND THIS HACK to connect sync signals directly
+	together. Technically you should never just tie sync
+	signal lines together. They are not usually designed for
+	this, so this can damage your video card. If you try, use
+	with caution.
+  
+	You must also ensure that the monitor accepts the VGA video
+	signal level of 0.7 V p-p. Generally arcade monitors require a
+	video signal between 1 V and 5 V for each line.
+	Therefore if you attempt to drive an arcade monitor with a
+	VGA video signal you will at most, have a very dark picture with
+	no contrast. You will need to buy/make an amplifier for each
+	line in order for it to work.
+
+  TVs
+	TVs generally supports only two fixed combination of
+	horizontal and vertical clocks, corresponding at the TV PAL
+	and NTSC standards.
+
+	Clocks values for for PAL TV (European) are:
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 15.62
+		:device_video_vclock 50
+
+	for NTSC TV (USA) are:
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 15.73
+		:device_video_vclock 60
+
+	for PAL TV (European) which supports also NTSC TV (USA) modes
+	(common if you use the SCART input):
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 15.62, 15.73
+		:device_video_vclock 50, 60
+
+    TVs with SCART
+	If your TV has a SCART input, you can use directly the VGA 
+	analog signal as RGB input.
+
+	A composite sync signal is required. It means that you must
+	use a sync converter circuit to convert the VGA H/V sync with
+	levels 0 - 5 V to a composite sync of levels 0 - 0.3 V.
+
+	The SCART input accepts also a composite video signal, but
+	the RGB video is far superior.
+
+	Remember what to enable the SCART RGB signal you must set
+	the SCART pin 16 at level 1 - 3 V (no more than 3 V).
+	And to automatically switch the TV to the AV signal you
+	must set the SCART pin 8 at level 9.5 - 12 V (for some
+	TVs 5 V may be enough).
+
+	If you have a recent VGA board, you can use the 5 V power
+	available on the VGA pin 9. Alternatively you can use the
+	5 V and 12 V PC internal power.
+
+    TVs with S-Video
+	If your TV has a S-Video input, you can use the TV-Out signal
+	of your VGA board.
+
+	The quality of the S-Video signal is near at the quality of
+	the RGB signal.
+
+	Unfortunately the TV-Out signal is generally not enabled
+	by the Advance programs. There are some external utilities
+	for Linux and Windows able to enable the TV-Out signal,
+	but their use is mainly untested.
+
+Video Setup
 	The Advance programs have the ability to directly control your video
 	board to get the best possible fullscreen video modes with always the
 	correct size and aspect ratio.
@@ -149,20 +319,21 @@ Video Configuration
 	a video mode from scratch. It's the simplest mode of operation.
 
 	In the `manual' mode the programs pick the video mode from a
-	manually defined list of modelines, eventually adjusting them to match
-	the game clock or size requirements.
-	This mode of operation should be used only if the `automatic' mode
-	doesn't work.
+	manually defined list of modelines, eventually adjusting them
+	to match the game clock or size requirements.
+	This mode of operation should be used only if the `automatic'
+	mode doesn't work.
 
-	Please note that if you are using the SDL or VBE video drivers,
-	the programs aren't able to create or adjust video modes.
-	In this case you don't need to configure anything because the programs
-	can use only the video modes which your system reports as available.
+	Please note that if you are using the SDL or VBE video
+	drivers, the programs aren't able to create or adjust video
+	modes. In this case you don't need to configure anything because
+	the programs can use only the video modes which your system
+	reports as available.
 
-	The SDL and VBE video drivers are only indicated to use AdvanceMAME
-	in a Window Manager system. Instead they can be used with AdvanceMENU
-	for the use with a normal PC monitor, because AdvanceMENU only use
-	standard video modes.
+	The SDL and VBE video drivers are only indicated to use
+	AdvanceMAME in a Window Manager system. Instead they can
+	be used with AdvanceMENU for the use with a normal PC monitor,
+	because AdvanceMENU only use standard video modes.
 
     Automatic Operation Mode
 	In the automatic operation mode the programs automatically
@@ -202,110 +373,56 @@ Video Configuration
 	the programs in the manual operation mode. All the option used 
 	are documented in the `advdev.txt' file.
 
-	) For AdvanceMAME add in the in the file `advmame.rc' these options:
+	) For AdvanceMAME add in the in the file `advmame.rc' these
+		options:
 
 		:display_mode auto
 		:display_adjust x
 
-	) Add in the the file `advmame.rc' or `advmenu.rc' the `p/h/vclock'
-		options that specify which horizontal and vertical clocks are
-		supported by your monitor.
-		Generally these values are specified in the technical page of
-		your monitor manual. These are some example:
-
-	Generic PC SVGA multisync monitor:
-
-		:device_video_pclock 10 - 150
-		:device_video_hclock 30.5 - 60
-		:device_video_vclock 55 - 130
-
-	Generic PC VGA monitor:
-
-		:device_video_pclock 10 - 50
-		:device_video_hclock 31.5
-		:device_video_vclock 55 - 130
-
-	Generic LCD screen:
-
-		:device_video_pclock 0 - 0
-		:device_video_hclock 0
-		:device_video_vclock 0
-
-	PAL/SECAM TV (European):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62
-		:device_video_vclock 50
-
-	PAL/SECAM TV (European) which supports also NTSC
-	modes (very common if you use the SCART input):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.62, 15.73
-		:device_video_vclock 49 - 61
-
-	NTSC TV (USA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.73
-		:device_video_vclock 60
-
-	Generic Arcade Monitor Standard Resolution 15 kHz (CGA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 15.75
-		:device_video_vclock 49 - 61
-
-	Generic Arcade Monitor Medium Resolution 25 kHz (EGA):
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 25
-		:device_video_vclock 49 - 61
-
-	Generic Atari Monitor Extended Resolution 16 kHz:
-
-		:device_video_pclock 5 - 50
-		:device_video_hclock 16.5
-		:device_video_vclock 53
-
-	Please note that the manuals of some Arcade Monitors incorrectly
-	state a wide range of horizontal frequency like 15 - 31 kHz.
-	Generally these monitors support only the three fixed frequency
-	15.75, 25, 31.1 kHz. For example the Wells Gardner D9200.
+	) Add in the the file `advmame.rc' or `advmenu.rc' the
+		`p/h/vclock' options that specify which horizontal and
+		vertical clocks are supported by your monitor.
+		Generally these values are specified in the technical
+		page of your monitor manual. You can see the
+		"Video Hardware" chapter in this file for some
+		examples.
 
 	) Run the `advv' program for AdvanceMAME or `advv -advmenuv' for
 		AdvanceMENU.
 
-	) Test the video modelines of your interest pressing ENTER on them.
-		If the mode isn't centered try centering it with the ARROW keys.
-		When you have finished press ENTER to save your modifications or ESC
-		to restore the previous setting.
-		Returned in the video mode list, if the mode is displayed correctly,
-		you can select it to be used by the programs pressing SPACE.
-		It's very important that in all the selected modes the screen area
-		is completely visible. Otherwise, when playing, part of the game
-		may be out of screen.
-		Video modes displayed in red aren't supported by your video
-		hardware.
+	) Test the video modelines of your interest pressing ENTER
+		on them. If the mode isn't centered try centering it
+		with the ARROW keys. When you have finished press ENTER
+		to save your modifications or ESC to restore the
+		previous setting.
+		Returned in the video mode list, if the mode is
+		displayed correctly, you can select it to be used by
+		the programs pressing SPACE.
+		It's very important that in all the selected modes
+		the screen area is completely visible. Otherwise,
+		when playing, part of the game may be out of screen.
+		Video modes displayed in red aren't supported by
+		your video hardware.
 
 	) When you have selected the list of `good' video modes press
 		F2 to save them in your configuration file.
 
 	) Press ESC to exit from `advv'
 
-	In the `contrib/modeline' dir are present some .rc file with some
-	example modelines. The same modelines are contained in the `advv'
-	program.
+	In the `contrib/modeline' dir are present some .rc file with
+	some example modelines. The same modelines are contained in
+	the `advv' program.
 
   Troubleshooting
 	) Delete any old configuration files and restart from scratch.
 
 	) If you are using a PC Multisync monitor and the image is
-		instable or the monitor automatically switch off, you have
-		probably entered wrong clock values.
-		Check the horizontal and vertical clock ranges supported
-		by your monitor in the monitor manual. Eventually try
-		with shorter ranges. Try for example with:
+		instable or the monitor automatically switch off, you
+		have probably entered wrong clock values.
+		Check the horizontal and vertical clock ranges
+		supported by your monitor in the monitor manual.
+		Eventually try with shorter ranges. Try for example
+		with:
 
 		:device_video_vclock 55 - 90
 		:device_video_hclock 31 - 50
@@ -319,9 +436,9 @@ Video Configuration
 		:device_video_pclock 8 - 50
 
     Linux
-	) If you are using the `svgalib' driver ensure that you have installed
-		the most recent SVGALIB library. The old 1.4.x versions are
-		not supported.
+	) If you are using the `svgalib' driver ensure that you have
+		installed the most recent SVGALIB library. The old
+		1.4.x versions are not supported.
 
 	) If you are using the `fb' driver, ensure to don't use the VESA
 		Frame Buffer. It doesn't work for the Advance programs.
@@ -348,14 +465,15 @@ Video Configuration
 
 		:device_video vbeline/vbe3 vgaline
 
-	) If you are using the `vbeline' driver try changing the `vbeline_mode'
-		option:
+	) If you are using the `vbeline' driver try changing the
+		`vbeline_mode' option:
 
 		:device_video vbeline vgaline
 		:device_vbeline_mode smaller
 
     Windows
-	) Try reducing the video hardware acceleration from the Control Panel.
+	) Try reducing the video hardware acceleration from the
+		Control Panel.
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.

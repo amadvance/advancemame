@@ -214,7 +214,7 @@ Sound Drivers
 	The source patch and the library source can be downloaded from
 	the MAME site :
 
-		:http://www.mame.net
+		http://www.mame.net
 
     allegro - Allegro sound (DOS)
 	This driver works in DOS and it uses the Allegro library.
@@ -225,7 +225,7 @@ Sound Drivers
 
 	More info is in the VSyncMAME page :
 
-		:http://vsyncmame.mameworld.net
+		http://vsyncmame.mameworld.net
 
 Input Drivers
   Available Keyboard Drivers
@@ -534,51 +534,55 @@ Video Drivers Configuration
 		V_FIXED - Vertical fixed clock in Hz
 
 	Example for a Generic PC SVGA multisync monitor :
+
 		:device_video_pclock 10 - 150
 		:device_video_hclock 30.5 - 60
 		:device_video_vclock 55 - 130
 
 	Example for a Generic PC VGA monitor :
+
 		:device_video_pclock 10 - 50
 		:device_video_hclock 31.5
 		:device_video_vclock 55 - 130
 
-	Example for a PAL/SECAM TV (European) :
+	Example for a PAL TV (European) :
+
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62
 		:device_video_vclock 50
 
-	Example for a PAL/SECAM TV (European) which supports also NTSC
-	modes (very common if you use the SCART input) :
+	Example for PAL TV (European) which supports also NTSC TV
+	(USA) modes (common if you use the SCART input):
+
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62, 15.73
 		:device_video_vclock 50, 60
 
 	Example for a NTSC TV (USA) :
+
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.73
 		:device_video_vclock 59.94
 
 	Example for a Generic Arcade Monitor Standard Resolution 15 kHz (CGA) :
+
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.75
 		:device_video_vclock 50 - 60
 
-	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
-		:device_video_pclock 5 - 50
-		:device_video_hclock 25
-		:device_video_vclock 50 - 60
+	Example for a Generic Atari Monitor Extended Resolution 16 kHz :
 
-	Example for a Generic Atari Monitor Extended Resolution 16 kHz
 		:device_video_pclock 5 - 50
 		:device_video_hclock 16.5
 		:device_video_vclock 53
 
-	Please note that the manuals of some Arcade Monitors incorrectly
-	state to support a wide range of horizontal frequency
-	like 15 - 31 kHz. Generally these monitors support only the
-	three fixed frequency 15.75, 25, 31.1 kHz. For example the
-	Wells Gardner D9200.
+	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
+
+		:device_video_pclock 5 - 50
+		:device_video_hclock 25
+		:device_video_vclock 50 - 60
+
+	Check the `install.txt' file for other information.
 
     device_video_modeline
 	Define a video modeline. The modeline format is compatible with
@@ -587,7 +591,6 @@ Video Drivers Configuration
 
 	:device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT
 	:	[-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace]
-	:	[tvpal] [tvntsc]
 
 	Options:
 		Name - Name of the video mode. You can use the quotes
@@ -600,17 +603,10 @@ Video Drivers Configuration
 		-hsync -vsync +hsync +vsync - Polarization mode.
 		doublescan - Doublescan mode.
 		interlace - Interlaced mode.
-		tvpal - Modeline converted to PAL format by the internal
-			video board scan converter.
-		tvntsc - Modeline converted to NTSC format by the internal
-			video board scan converter.
 
 	Examples:
 		:device_video_modeline tweak320x240 12.59 320 336 356 400 240 \
 		:	249 254 262 doublescan -hsync -vsync
-
-	The `tvpal' and `tvntsc' are available only for the nVidia
-	svgaline driver.
 
     device_video_format
 	Select the format of the video modes to create.

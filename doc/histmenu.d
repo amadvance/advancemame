@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.6 2004/06
+	) Removed the copyright message box at startup.
+
 AdvanceMENU Version 2.3.5 2004/06
 	) Added volume control at the `oss' audio driver.
 

@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.83.1 2004/06
+	) Enabled the MIPS dinamic recompilation in DOS and
+		Windows.
+
 AdvanceMAME Version 0.83.0 2004/06
 	) Added the option "ui_speedmark" to enable or disable the onscreen
 		speed red mark.

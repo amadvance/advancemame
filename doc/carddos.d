@@ -1465,8 +1465,8 @@ Information
 	This list is automatically generated from the `pcidevs.txt' and `pci.ids'
 	files available at:
 
-		:http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
-		:http://pciids.sf.net/
+		http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
+		http://pciids.sf.net/
 
 	The numbers in [] are the PCI device IDs of the video board
 	models. The numbers in () are the PCI vendor IDs of the
