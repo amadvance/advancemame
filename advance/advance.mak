@@ -4,7 +4,7 @@
 ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.73.0.1
 else
-EMUVERSION = 0.73.1
+EMUVERSION = 0.74.0
 endif
 MENUVERSION = 2.2.12
 CABVERSION = 1.1.4
@@ -125,7 +125,8 @@ LIB_SRC = \
 
 BLIT_SRC = \
 	$(wildcard $(srcdir)/advance/blit/*.c) \
-	$(wildcard $(srcdir)/advance/blit/*.h)
+	$(wildcard $(srcdir)/advance/blit/*.h) \
+	$(wildcard $(srcdir)/advance/blit/*.dat)
 
 CARD_SRC = \
 	$(wildcard $(srcdir)/advance/card/*.c) \

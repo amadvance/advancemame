@@ -155,7 +155,7 @@ endif
 
 # Automatic libraries and other options setting
 ifndef CONF_LIB_SVGALIB
-CONF_LIB_SVGALIB=yes
+CONF_LIB_SVGALIB=no
 endif
      
 ifndef CONF_LIB_FB
@@ -167,7 +167,7 @@ CONF_LIB_ALSA=yes
 endif
 
 ifndef CONF_LIB_OSS
-CONF_LIB_OSS=yes
+CONF_LIB_OSS=no
 endif
      
 ifndef CONF_LIB_SDL

@@ -332,7 +332,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "script_start[3]", "*", "%s", "script_start3", "%s", 0 }, /* rename */
 { "*", "script_start[4]", "*", "%s", "script_start4", "%s", 0 }, /* rename */
 { "*", "misc_safequitdebug", "*", "%s", "misc_eventdebug", "%s", 0 }, /* rename */
-{ "*", "misc_safequitfile", "*", "%s", "misc_eventfile", "%s", 0 } /* rename */
+{ "*", "misc_safequitfile", "*", "%s", "misc_eventfile", "%s", 0 }, /* rename */
+/* 0.74.0 */
+{ "*", "display_rotate", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

@@ -8,7 +8,8 @@ MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/mpglib \
-	-I$(srcdir)/advance/expat
+	-I$(srcdir)/advance/expat \
+	-DUSE_BLIT_TINY
 MENUOBJDIRS += \
 	$(MENUOBJ) \
 	$(MENUOBJ)/menu \

@@ -1,11 +1,19 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.73.1 2003/09
+AdvanceMAME Version 0.74.0 2003/09
+	) Added a bunch of new video effects: `lq2x', `hq2x', `lq3x' and `hq3x'.
+		They are interpolation effects. Slower than `scale2x'
+		but with a nicer image.
+		They are derived from the HQ3X effect made by Maxim Stepin.
 	) The Linux fb video driver is now able to wait for vsync also if
 		the low-end driver doesn't support this feature.
 		You must run the program as root.
 	) Increased the number of supported event [by Filipe Estima].
+	) Fixed support for SiS boards 530/630/730 in the DOS vbeline/sis
+		driver.
+	) Revised the list of supported cards.
+	) Removed the `display_rotate' option.
 
 AdvanceMAME Version 0.73.0 2003/09
 	) Fixed some problems on the SDL keyboard driver in the

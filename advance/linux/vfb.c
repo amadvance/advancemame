@@ -425,7 +425,11 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 		}
 	}
 	if (fb_state.fd < 0) {
-		error_set("Error opening the frame buffer %s. Error %d (%s).\n", fb, errno, strerror(errno));
+		if (errno == ENODEV) {
+			error_set("Video board not supported. Error %d (%s).\n", errno, strerror(errno));
+		} else {
+			error_set("Error opening the frame buffer %s. Error %d (%s).\n", fb, errno, strerror(errno));
+		}
 		return -1;
 	}
 

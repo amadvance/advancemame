@@ -666,21 +666,28 @@ static void video_update_effect(struct advance_video_context* context)
 		}
 	}
 
-	if (context->state.combine == COMBINE_SCALE2X
+	if ((context->state.combine == COMBINE_SCALE2X  || context->state.combine == COMBINE_LQ2X || context->state.combine == COMBINE_HQ2X)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x
 			|| context->state.mode_visible_size_y != 2*context->state.game_visible_size_y
 		)
 	) {
-		log_std(("emu:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=scale2x|lq2x|hq2x disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if (context->state.combine == COMBINE_SCALE3X
+	if ((context->state.combine == COMBINE_SCALE3X || context->state.combine == COMBINE_LQ3X || context->state.combine == COMBINE_HQ3X)
 		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x
 			|| context->state.mode_visible_size_y != 3*context->state.game_visible_size_y
 		)
 	) {
-		log_std(("emu:video: resizeeffect=scale3x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=scale3x|lq3x|hq3x disabled because the wrong mode size\n"));
+		context->state.combine = COMBINE_NONE;
+	}
+
+	if ((context->state.combine == COMBINE_HQ3X || context->state.combine == COMBINE_HQ2X
+		|| context->state.combine == COMBINE_LQ3X || context->state.combine == COMBINE_LQ2X)
+		&& (context->state.mode_index != MODE_FLAGS_INDEX_BGR32 && context->state.mode_index != MODE_FLAGS_INDEX_BGR16 && context->state.mode_index != MODE_FLAGS_INDEX_BGR15)) {
+		log_std(("emu:video: resizeeffect=lq2x|lq3x|hq2x|hq3x disabled because is supported only in 15/16/32 bit modes\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -3175,7 +3182,11 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filtery", COMBINE_FILTERY },
 { "scale2x", COMBINE_SCALE2X },
 { "scale3x", COMBINE_SCALE3X },
-{ "scale4x", COMBINE_SCALE4X }
+{ "scale4x", COMBINE_SCALE4X },
+{ "lq2x", COMBINE_LQ2X },
+{ "lq3x", COMBINE_LQ3X },
+{ "hq2x", COMBINE_HQ2X },
+{ "hq3x", COMBINE_HQ3X }
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {
@@ -3196,12 +3207,6 @@ static adv_conf_enum_int OPTION_MAGNIFY[] = {
 { "2", 2 },
 { "3", 3 },
 { "4", 4 }
-};
-
-static adv_conf_enum_int OPTION_ROTATE[] = {
-{ "auto", ROTATE_AUTO },
-{ "none", ROTATE_NONE },
-{ "blit", ROTATE_BLIT }
 };
 
 static adv_conf_enum_int OPTION_RGBEFFECT[] = {
@@ -3252,7 +3257,6 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_bool_register_default(cfg_context, "display_rol", 0);
 	conf_bool_register_default(cfg_context, "display_flipx", 0);
 	conf_bool_register_default(cfg_context, "display_flipy", 0);
-	conf_int_register_enum_default(cfg_context, "display_rotate", conf_enum(OPTION_ROTATE), ROTATE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_rgbeffect", conf_enum(OPTION_RGBEFFECT), EFFECT_NONE);
 	conf_int_register_enum_default(cfg_context, "display_interlaceeffect", conf_enum(OPTION_INTERLACEEFFECT), EFFECT_NONE);
@@ -3389,7 +3393,6 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	const char* s;
 	adv_error err;
 	unsigned i;
-	int rotate;
 	adv_bool ror, rol, flipx, flipy;
 
 	assert( cfg_context == context->state.cfg_context );
@@ -3434,25 +3437,10 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	flipx = conf_bool_get_default(cfg_context, "display_flipx");
 	flipy = conf_bool_get_default(cfg_context, "display_flipy");
 
-	rotate = conf_int_get_default(cfg_context, "display_rotate");
-	if (rotate == ROTATE_AUTO) {
-		rotate = ROTATE_BLIT;
-	}
-
-	switch (rotate) {
-		case ROTATE_BLIT :
-			/* enable the blit orientation */
-			context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, rol, ror, flipx, flipy);
-			/* enable the ui orientation */
-			option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
-			break;
-		case ROTATE_NONE :
-			/* disable the blit orientation */
-			context->config.blit_orientation = 0;
-			/* enable the ui orientation */
-			option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
-			break;
-	}
+	/* enable the blit orientation */
+	context->config.blit_orientation = video_orientation_compute(context->config.game_orientation, rol, ror, flipx, flipy);
+	/* enable the ui orientation */
+	option->ui_orientation = video_orientation_inverse(context->config.game_orientation);
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");

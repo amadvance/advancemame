@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-09-06 16:25:17.000000000 +0200
++++ src/advance.pat	2003-09-21 16:36:13.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2003-08-09 02:53:08.000000000 +0200
-+++ src/common.c	2003-09-06 16:25:17.000000000 +0200
++++ src/common.c	2003-09-21 16:36:13.000000000 +0200
 @@ -414,17 +414,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -84,7 +84,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-09-06 16:25:17.000000000 +0200
++++ src/cpmame.mak	2003-09-21 16:36:13.000000000 +0200
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -99,7 +99,7 @@ diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive src.ori/cpu/e132xs/e132xs.c src/cpu/e132xs/e132xs.c
 --- src.ori/cpu/e132xs/e132xs.c	2003-09-03 22:05:58.000000000 +0200
-+++ src/cpu/e132xs/e132xs.c	2003-09-07 22:18:18.000000000 +0200
++++ src/cpu/e132xs/e132xs.c	2003-09-21 16:36:13.000000000 +0200
 @@ -529,11 +529,11 @@
  //other bits are reversed, in particular 7 - 5 for the operating system.
  //the user program can only changes the above 2 flags
@@ -160,7 +160,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/e132xs/e132xs.c src/cpu/e132xs/e132
  				INT32 quotient, remainder;
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2003-09-03 22:05:58.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-09-06 16:25:17.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-09-21 16:36:13.000000000 +0200
 @@ -80,10 +80,16 @@
   * 
   *****************************************************************************/
@@ -180,7 +180,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2003-09-06 16:25:17.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-09-21 16:36:13.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -229,7 +229,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-09-06 16:25:17.000000000 +0200
++++ src/cpu/z80/z80.c	2003-09-21 16:36:13.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -249,7 +249,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
-+++ src/cpuexec.c	2003-09-06 16:25:17.000000000 +0200
++++ src/cpuexec.c	2003-09-21 16:36:13.000000000 +0200
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -265,8 +265,8 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
---- src.ori/drivers/multi32.c	2003-09-03 22:06:02.000000000 +0200
-+++ src/drivers/multi32.c	2003-09-06 16:25:26.000000000 +0200
+--- src.ori/drivers/multi32.c	2003-09-14 13:53:06.000000000 +0200
++++ src/drivers/multi32.c	2003-09-21 16:36:13.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -281,8 +281,8 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2003-09-03 22:06:02.000000000 +0200
-+++ src/drivers/neogeo.c	2003-09-06 16:25:26.000000000 +0200
+--- src.ori/drivers/neogeo.c	2003-09-14 13:53:06.000000000 +0200
++++ src/drivers/neogeo.c	2003-09-21 16:36:13.000000000 +0200
 @@ -386,11 +386,11 @@
  			}
  			fc++;
@@ -298,7 +298,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
  
 diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
 --- src.ori/fileio.c	2003-08-09 02:53:12.000000000 +0200
-+++ src/fileio.c	2003-09-06 16:25:26.000000000 +0200
++++ src/fileio.c	2003-09-21 16:36:13.000000000 +0200
 @@ -66,10 +66,11 @@
  	UINT64 offset;
  	UINT64 length;
@@ -441,8 +441,8 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-09-03 22:06:04.000000000 +0200
-+++ src/inptport.c	2003-09-06 16:43:14.000000000 +0200
+--- src.ori/inptport.c	2003-09-14 13:53:06.000000000 +0200
++++ src/inptport.c	2003-09-21 16:36:13.000000000 +0200
 @@ -200,10 +200,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -470,7 +470,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1795,10 +1800,11 @@
+@@ -1859,10 +1864,11 @@
  		if (readint(f,&dispensed_tickets) != 0)
  			goto getout;
  
@@ -482,7 +482,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	}
  
  	/* All analog ports need initialization */
-@@ -2326,14 +2332,16 @@
+@@ -2396,14 +2402,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -503,7 +503,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -2585,16 +2593,23 @@
+@@ -2655,16 +2663,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -527,7 +527,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -2689,29 +2704,35 @@
+@@ -2759,29 +2774,35 @@
  				}
  				else
  				{
@@ -575,7 +575,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2842,10 +2863,14 @@
+@@ -2912,10 +2933,14 @@
  #elif defined XMAME_NET
  	if ( osd_net_active() )
  		osd_net_sync(input_port_value, input_port_defaults);
@@ -592,7 +592,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  
 diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	2003-09-03 22:06:04.000000000 +0200
-+++ src/inptport.h	2003-09-06 16:25:26.000000000 +0200
++++ src/inptport.h	2003-09-21 16:36:13.000000000 +0200
 @@ -87,10 +87,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -611,7 +611,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2003-09-03 22:06:04.000000000 +0200
-+++ src/input.c	2003-09-06 16:25:26.000000000 +0200
++++ src/input.c	2003-09-21 16:36:13.000000000 +0200
 @@ -812,11 +812,11 @@
  {
  	int pressed;
@@ -640,7 +640,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  		{
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/mame.c	2003-09-06 16:25:26.000000000 +0200
++++ src/mame.c	2003-09-21 16:36:13.000000000 +0200
 @@ -983,26 +983,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -680,7 +680,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2003-06-09 22:02:00.000000000 +0200
-+++ src/neomame.mak	2003-09-06 16:25:26.000000000 +0200
++++ src/neomame.mak	2003-09-21 16:36:13.000000000 +0200
 @@ -8,10 +8,11 @@
  EMULATOR_EXE = neomame.exe
  
@@ -695,7 +695,7 @@ diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-08-09 02:53:02.000000000 +0200
-+++ src/osdepend.h	2003-09-06 16:25:26.000000000 +0200
++++ src/osdepend.h	2003-09-21 16:36:13.000000000 +0200
 @@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -737,7 +737,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
 --- src.ori/rules.mak	2003-09-03 22:06:06.000000000 +0200
-+++ src/rules.mak	2003-09-06 16:25:26.000000000 +0200
++++ src/rules.mak	2003-09-21 16:36:13.000000000 +0200
 @@ -1010,16 +1010,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -791,34 +791,9 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
-diff -U 5 --new-file --recursive src.ori/sound/mixer.c src/sound/mixer.c
---- src.ori/sound/mixer.c	2003-05-15 04:59:00.000000000 +0200
-+++ src/sound/mixer.c	2003-09-06 17:41:24.000000000 +0200
-@@ -1054,14 +1054,17 @@
- {
- 	UINT8 default_levels[MIXER_MAX_CHANNELS];
- 	UINT8 mixing_levels[MIXER_MAX_CHANNELS];
- 	int i;
- 
--	memset(default_levels, 0xff, sizeof(default_levels));
--	memset(mixing_levels, 0xff, sizeof(mixing_levels));
--	mame_fread(f, default_levels, MIXER_MAX_CHANNELS);
--	mame_fread(f, mixing_levels, MIXER_MAX_CHANNELS);
-+	if (mame_fread(f, default_levels, MIXER_MAX_CHANNELS) < MIXER_MAX_CHANNELS ||
-+	    mame_fread(f, mixing_levels, MIXER_MAX_CHANNELS) < MIXER_MAX_CHANNELS)
-+	{
-+		memset(default_levels, 0xff, sizeof(default_levels));
-+		memset(mixing_levels, 0xff, sizeof(mixing_levels));
-+	}
-+
- 	for (i = 0; i < MIXER_MAX_CHANNELS; i++)
- 	{
- 		config_default_mixing_level[i] = default_levels[i];
- 		config_mixing_level[i] = mixing_levels[i];
- 	}
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.c	2003-09-06 16:25:26.000000000 +0200
++++ src/ui_text.c	2003-09-21 16:36:23.000000000 +0200
 @@ -240,10 +240,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -836,7 +811,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  {
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.h	2003-09-06 16:25:26.000000000 +0200
++++ src/ui_text.h	2003-09-21 16:36:23.000000000 +0200
 @@ -206,10 +206,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -853,8 +828,8 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  struct lang_struct
  {
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2003-09-03 22:06:06.000000000 +0200
-+++ src/usrintrf.c	2003-09-06 16:25:26.000000000 +0200
+--- src.ori/usrintrf.c	2003-09-14 13:53:06.000000000 +0200
++++ src/usrintrf.c	2003-09-21 16:36:23.000000000 +0200
 @@ -853,12 +853,16 @@
  	while (items[i])
  	{
@@ -1157,7 +1132,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-09-06 16:25:26.000000000 +0200
++++ src/vidhrdw/cave.c	2003-09-21 16:36:23.000000000 +0200
 @@ -1424,10 +1424,13 @@
  VIDEO_UPDATE( cave )
  {
@@ -1173,9 +1148,9 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
 diff -U 5 --new-file --recursive src.ori/vidhrdw/stvvdp1.c src/vidhrdw/stvvdp1.c
---- src.ori/vidhrdw/stvvdp1.c	2003-09-03 22:06:06.000000000 +0200
-+++ src/vidhrdw/stvvdp1.c	2003-09-07 22:24:47.000000000 +0200
-@@ -333,18 +333,17 @@
+--- src.ori/vidhrdw/stvvdp1.c	2003-09-14 13:53:06.000000000 +0200
++++ src/vidhrdw/stvvdp1.c	2003-09-21 16:37:26.000000000 +0200
+@@ -376,18 +376,17 @@
  
  void stv_vdp1_process_list(struct mame_bitmap *bitmap, const struct rectangle *cliprect)
  {
@@ -1192,6 +1167,70 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/stvvdp1.c src/vidhrdw/stvvdp1.c
 -
  	vdp1_nest = -1;
  
- 	while (spritecount<10000) // if its drawn this many sprites something is probably wrong or sega were crazy ;-)
- 	{
- 		int draw_this_sprite;
+ 	/*Set CEF bit to 0*/
+ 	SET_CEF_FROM_1_TO_0;
+ 
+diff -U 5 --new-file --recursive src.ori/vidhrdw/welltris.c src/vidhrdw/welltris.c
+--- src.ori/vidhrdw/welltris.c	2003-09-14 13:53:06.000000000 +0200
++++ src/vidhrdw/welltris.c	2003-09-21 17:01:25.000000000 +0200
+@@ -44,28 +44,44 @@
+ 	UINT8 zoomtable[16] = { 0,7,14,20,25,30,34,38,42,46,49,52,54,57,59,61 };
+ 	int offs;
+ 
+ 	/* draw the sprites */
+ 	for (offs = 0; offs < 0x200 - 4; offs += 4) {
++		int data0;
++		int data1;
++		int data2;
++		int data3;
++		int code;
++		int color;
++		int y;
++		int x;
++		int yzoom;
++		int xzoom;
++		int zoomed;
++		int ytiles;
++		int xtiles;
++		int yflip;
++		int xflip;
++		int xt, yt;
++
+ 		if (!(welltris_spriteram[offs + 2] & 0x0080)) continue;
+ 
+-		int data0 = welltris_spriteram[offs + 0];
+-		int data1 = welltris_spriteram[offs + 1];
+-		int data2 = welltris_spriteram[offs + 2];
+-		int data3 = welltris_spriteram[offs + 3];
+-		int code = data3 & 0x1fff;
+-		int color = (data2 & 0x0f) + (0x10 * spritepalettebank);
+-		int y = (data0 & 0x1ff) + 1;
+-		int x = (data1 & 0x1ff) + 6;
+-		int yzoom = (data0 >> 12) & 15;
+-		int xzoom = (data1 >> 12) & 15;
+-		int zoomed = (xzoom | yzoom);
+-		int ytiles = ((data2 >> 12) & 7) + 1;
+-		int xtiles = ((data2 >>  8) & 7) + 1;
+-		int yflip = (data2 >> 15) & 1;
+-		int xflip = (data2 >> 11) & 1;
+-		int xt, yt;
++		data0 = welltris_spriteram[offs + 0];
++		data1 = welltris_spriteram[offs + 1];
++		data2 = welltris_spriteram[offs + 2];
++		data3 = welltris_spriteram[offs + 3];
++		code = data3 & 0x1fff;
++		color = (data2 & 0x0f) + (0x10 * spritepalettebank);
++		y = (data0 & 0x1ff) + 1;
++		x = (data1 & 0x1ff) + 6;
++		yzoom = (data0 >> 12) & 15;
++		xzoom = (data1 >> 12) & 15;
++		zoomed = (xzoom | yzoom);
++		ytiles = ((data2 >> 12) & 7) + 1;
++		xtiles = ((data2 >>  8) & 7) + 1;
++		yflip = (data2 >> 15) & 1;
++		xflip = (data2 >> 11) & 1;
+ 
+ 		/* compute the zoom factor -- stolen from aerofgt.c */
+ 		xzoom = 16 - zoomtable[xzoom] / 8;
+ 		yzoom = 16 - zoomtable[yzoom] / 8;
+ 

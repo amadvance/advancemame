@@ -4,7 +4,8 @@
 CFGCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/v
+	-I$(srcdir)/advance/v \
+	-DUSE_BLIT_TINY
 CFGOBJDIRS += \
 	$(CFGOBJ) \
 	$(CFGOBJ)/cfg \

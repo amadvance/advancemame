@@ -183,8 +183,9 @@ Features
 	AdvanceMAME supports many special video effects to improve
 	the image quality when it's stretched.
 
-	There are five types of video effects: `none', `max', `mean',
-	`filter', `scale2x', `scale3x' and `scale4x'.
+	There are a lot of video effects: `none', `max', `mean',
+	`filter', `scale2x', `scale3x', `scale4x', `lq2x', `lq3x',
+	`hq2x' and `hq3x'.
         You can select the favorite effect with the `display_resizeeffect'
 	option.
 
@@ -807,6 +808,7 @@ Configuration
 
 	:display_resizeeffect auto | none | max | mean | filter
 	:	| filterx | filtery | scale2x | scale3x | scale4x
+	:	| lq2x | lq3x | hq2x | hq3x
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -838,17 +840,22 @@ Configuration
 			equal value.
 			Supported only in RGB (not palettized) video
 			modes.
-		filterx - Like `filter' but only in the x direction
-		filtery - Like `filter' but only in the y direction
-		scale2x - It works only in expansion by a factor of 2.
-			It tries to add the missing pixels matching the
-			original bitmap pattern.
-		scale3x - It works only in expansion by a factor of 3.
-			It tries to add the missing pixels matching the
-			original bitmap pattern.
-		scale4x - It works only in expansion by a factor of 4.
-			It tries to add the missing pixels matching the
-			original bitmap pattern.
+		filterx/filtery - Like `filter' but only in one direction.
+		scale2x/scale3x/scale4x - It tries to add the missing pixels
+			matching the original bitmap pattern.
+			It doesn't interpolate pixels and it compares colors
+			for equality.
+		lq2x, lq3x - It tries to add the missing pixels matching the
+			original bitmap pattern. It uses a deeper analysis
+			than scale2x/scale3x. It interpolates pixels and it
+			compares colors for equality.
+		hq2x, hq3x - It tries to add the missing pixels matching the
+			original bitmap pattern. It uses a deeper analysis
+			than scale2x/scale3x. It interpolates pixels and it
+			compares colors for distance.
+
+	The Nx filters work only if the video `magnify' factor match the
+	effect scale factor.
 
     display_rgbeffect
 	This option selects a special effect to simulate the aspect of
@@ -976,16 +983,6 @@ Configuration
 			(default 1.5).
 
   Display Orientation Configuration Options
-
-    display_rotate
-	Select the rotation mode. Actually only the blit rotation
-	is available.
-
-	:display_rotate none | blit
-
-	Options:
-		none - Disables any rotation.
-		blit - Uses the rotation at blit level (default).
 
     display_ror/rol/flipx/flipy
 	Flip and rotate the game image.

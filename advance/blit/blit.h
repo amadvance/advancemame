@@ -116,9 +116,13 @@ enum video_stage_enum {
 	pipe_y_expansion_filter, /**< Vertical expansion with the FIR filter. */
 	pipe_y_reduction_filter, /**< Vertical reduction with the FIR filter. */
 	pipe_y_reduction_max, /**< Vertical reduction with the max effect. */
-	pipe_y_scale2x, /**< Scale 2x. */
-	pipe_y_scale3x, /**< Scale 3x. */
-	pipe_y_scale4x /**< Scale 4x. */
+	pipe_y_scale2x, /**< Scale2x. */
+	pipe_y_scale3x, /**< Scale3x. */
+	pipe_y_scale4x, /**< Scale4x. */
+	pipe_y_lq2x,/**< LQ2x */
+	pipe_y_lq3x, /**< LQ3x */
+	pipe_y_hq2x,/**< HQ2x */
+	pipe_y_hq3x /**< HQ3x */
 };
 
 /**
@@ -173,25 +177,33 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_MAX 0x1 /**< Use the max value in y reductions. */
 #define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
 #define VIDEO_COMBINE_Y_FILTER 0x3 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction. */
-#define VIDEO_COMBINE_Y_SCALE2X 0x4 /**< Scale 2x. */
-#define VIDEO_COMBINE_Y_SCALE3X 0x5 /**< Scale 3x. */
-#define VIDEO_COMBINE_Y_SCALE4X 0x6 /**< Scale 4x. */
-#define VIDEO_COMBINE_Y_MASK 0x7 /**< Mask for the Y effect. */
+#ifndef USE_BLIT_TINY
+#define VIDEO_COMBINE_Y_SCALE2X 0x4 /**< Scale2x. */
+#define VIDEO_COMBINE_Y_SCALE3X 0x5 /**< Scale3x. */
+#define VIDEO_COMBINE_Y_SCALE4X 0x6 /**< Scale4x. */
+#define VIDEO_COMBINE_Y_LQ2X 0x7 /**< LQ2x. */
+#define VIDEO_COMBINE_Y_LQ3X 0x8 /**< LQ3x. */
+#define VIDEO_COMBINE_Y_HQ2X 0x9 /**< HQ2x. */
+#define VIDEO_COMBINE_Y_HQ3X 0xA /**< HQ3x. */
+#endif
+#define VIDEO_COMBINE_Y_MASK 0xF /**< Mask for the Y effect. */
 
-#define VIDEO_COMBINE_X_FILTER 0x8 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the x direction. */
-#define VIDEO_COMBINE_X_RGB_TRIAD3PIX 0x10 /**< Rgb triad filter 3 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_TRIAD6PIX 0x20 /**< Rgb triad filter 6 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_TRIAD16PIX 0x40 /**< Rgb triad filter 16 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX 0x80 /**< Rgb triad strong filter 3 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX 0x100 /**< Rgb triad strong filter 6 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX 0x200 /**< Rgb triad strong filter 16 pixel mask. */
-#define VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ 0x400 /**< Double scanline. */
-#define VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ 0x800 /**< Triple scanline. */
-#define VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT 0x1000 /**< Double scanline vertical. */
-#define VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT 0x2000 /**< Triple scanline vertical. */
+#define VIDEO_COMBINE_X_FILTER 0x10 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the x direction. */
+#ifndef USE_BLIT_TINY
+#define VIDEO_COMBINE_X_RGB_TRIAD3PIX 0x20 /**< Rgb triad filter 3 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIAD6PIX 0x40 /**< Rgb triad filter 6 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIAD16PIX 0x80 /**< Rgb triad filter 16 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX 0x100 /**< Rgb triad strong filter 3 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX 0x200 /**< Rgb triad strong filter 6 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX 0x400 /**< Rgb triad strong filter 16 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ 0x800 /**< Double scanline. */
+#define VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ 0x1000 /**< Triple scanline. */
+#define VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT 0x2000 /**< Double scanline vertical. */
+#define VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT 0x4000 /**< Triple scanline vertical. */
+#endif
 
-#define VIDEO_COMBINE_SWAP_EVEN 0x4000 /**< Swap every two even line. */
-#define VIDEO_COMBINE_SWAP_ODD 0x8000 /**< Swap every two odd line. */
+#define VIDEO_COMBINE_SWAP_EVEN 0x8000 /**< Swap every two even line. */
+#define VIDEO_COMBINE_SWAP_ODD 0x10000 /**< Swap every two odd line. */
 /*@}*/
 
 struct video_stage_vert_struct;

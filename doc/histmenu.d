@@ -1,8 +1,8 @@
-Name
+33;1R114RName
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.12 2003/09
-	) Added a new set of `ui_*' options to define a user interface skin
+	) Added a new set of `ui_*' options to define an user interface skin
 		with a background image.
 	) Added a new `misc_exit' option which substitute the old `exit_press'.
 

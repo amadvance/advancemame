@@ -435,15 +435,9 @@ int sis_detect(void)
 	}
 
 	while (1) {
-		if (pci_find_device(0x00001039, 0x00000620, 0, &SiS6326BusDeviceFunc)==0) {
-			CARD_LOG(("sis: SiS620 found\n"));
+		if (pci_find_device(0x00001039, 0x00006306, 0, &SiS6326BusDeviceFunc)==0) {
+			CARD_LOG(("sis: Sis530/SiS620 found\n"));
 			sis_device = SiS620;
-			break;
-		}
-
-		if (pci_find_device(0x00001039, 0x00000530, 0, &SiS6326BusDeviceFunc)==0) {
-			CARD_LOG(("sis: SiS530 found\n"));
-			sis_device = SiS530;
 			break;
 		}
 
@@ -459,13 +453,13 @@ int sis_detect(void)
 			break;
 		}
 
-		if (pci_find_device(0x00001039, 0x00000630, 0, &SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x00006300, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS630 found\n"));
 			sis_device = SiS630;
 			break;
 		}
 
-		if (pci_find_device(0x00001039, 0x00000540, 0, &SiS6326BusDeviceFunc)==0) {
+		if (pci_find_device(0x00001039, 0x0005300, 0, &SiS6326BusDeviceFunc)==0) {
 			CARD_LOG(("sis: SiS540 found\n"));
 			sis_device = SiS540;
 			break;
