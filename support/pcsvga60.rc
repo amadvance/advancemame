@@ -1,0 +1,58 @@
+# Example configuration file for PC Multisync Monitors
+
+device_video_pclock 10-80
+device_video_hclock 30-60
+device_video_vclock 55-100
+
+# pc_mult60
+# format H 0.8 0.02 0.12 0.06
+# format V 0.914286 0.0190476 0.00380952 0.0628571
+# fixed vert clock 60
+
+# VGA text modes
+
+# VGA best fit modes
+
+# VGA standard modes
+
+# SVGA best fit modes
+
+# SVGA standard modes
+device_video_modeline pc_mult60_240x180 6.99744 240 240 280 296 180 184 185 197 -hsync -vsync doublescan # H 23640 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_240x360 13.9949 240 240 280 296 360 368 370 394 -hsync -vsync doublescan # H 47280 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_256x192 8.064 256 264 304 320 192 196 197 210 -hsync -vsync doublescan # H 25200 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_256x384 16.128 256 264 304 320 384 392 394 420 -hsync -vsync doublescan # H 50400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_272x204 8.99136 272 272 312 336 204 208 209 223 -hsync -vsync doublescan # H 26760 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_272x408 17.9827 272 272 312 336 408 416 418 446 -hsync -vsync doublescan # H 53520 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_288x216 10.1952 288 296 336 360 216 220 221 236 -hsync -vsync doublescan # H 28320 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_288x432 20.3904 288 296 336 360 432 440 442 472 -hsync -vsync doublescan # H 56640 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_304x228 11.2349 304 312 352 376 228 232 233 249 -hsync -vsync doublescan # H 29880 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_304x456 22.4698 304 312 352 376 456 464 466 498 -hsync -vsync doublescan # H 59760 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_320x240 12.576 320 328 376 400 240 245 246 262 -hsync -vsync doublescan # H 31440 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_336x252 13.7779 336 344 392 416 252 258 259 276 -hsync -vsync doublescan # H 33120 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_344x258 14.6189 344 352 408 432 258 263 264 282 -hsync -vsync doublescan # H 33840 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_352x264 15.2592 352 360 416 440 264 270 271 289 -hsync -vsync doublescan # H 34680 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_368x276 16.5254 368 376 432 456 276 282 283 302 -hsync -vsync doublescan # H 36240 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_384x224 14.112 384 392 448 480 224 229 230 245 -hsync -vsync doublescan # H 29400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_384x448 28.224 384 392 448 480 448 458 460 490 -hsync -vsync doublescan # H 58800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_384x288 18.144 384 392 448 480 288 294 295 315 -hsync -vsync doublescan # H 37800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_400x300 19.5226 400 408 464 496 300 306 307 328 -hsync -vsync doublescan # H 39360 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_416x312 21.2784 416 424 488 520 312 318 320 341 -hsync -vsync doublescan # H 40920 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_432x324 22.7693 432 440 504 536 324 330 332 354 -hsync -vsync doublescan # H 42480 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_448x336 24.6624 448 456 528 560 336 343 344 367 -hsync -vsync doublescan # H 44040 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_464x348 26.3347 464 472 544 576 348 356 357 381 -hsync -vsync doublescan # H 45720 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_480x360 28.368 480 488 560 600 360 368 369 394 -hsync -vsync doublescan # H 47280 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_496x372 30.0854 496 504 576 616 372 380 381 407 -hsync -vsync doublescan # H 48840 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_512x384 32.256 512 528 600 640 384 392 394 420 -hsync -vsync doublescan # H 50400 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_544x408 36.3936 544 560 640 680 408 416 418 446 -hsync -vsync doublescan # H 53520 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_576x432 40.7808 576 592 680 720 432 441 442 472 -hsync -vsync doublescan # H 56640 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_608x456 45.5088 608 624 712 760 456 466 468 499 -hsync -vsync doublescan # H 59880 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_640x480 25.2 640 656 752 800 480 490 492 525 -hsync -vsync # H 31500 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_672x504 27.7704 672 688 792 840 504 514 516 551 -hsync -vsync # H 33060 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_688x516 28.967 688 704 808 856 516 526 529 564 -hsync -vsync # H 33840 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_704x528 30.4656 704 720 824 880 528 539 541 577 -hsync -vsync # H 34620 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_736x552 33.3408 736 752 864 920 552 564 566 604 -hsync -vsync # H 36240 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_768x576 36.288 768 784 904 960 576 588 590 630 -hsync -vsync # H 37800 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync # H 39360 [Hz], V 60 [Hz]
+device_video_modeline pc_mult60_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync # H 50400 [Hz], V 60 [Hz]
+

@@ -1,0 +1,40 @@
+# Example configuration file for PAL TVs
+
+device_video_pclock 5-50
+device_video_hclock 15.62
+device_video_vclock 50
+
+# pal
+# format H 0.8125 0.0257812 0.0734375 0.0882813
+# format V 0.9232 0.0096 0.0096 0.0576
+# fixed horz clock 15625
+# fixed vert clock 50
+
+# VGA text modes
+device_video_modeline pal_vga_text40_8x8 12.5938 320 508 568 806 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_text40_9x8 12.5938 360 528 588 806 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_text80_8x8 12.5938 640 668 728 806 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_text80_9x8 14.1562 720 752 818 906 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+
+# VGA best fit modes
+device_video_modeline pal_vga_328x288 6.28125 328 336 366 402 288 291 294 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_368x288 7.09375 368 380 414 454 288 291 294 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_656x288 12.5938 656 676 734 806 288 291 294 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_736x288 14.1562 736 760 826 906 288 291 294 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+
+# VGA standard modes
+device_video_modeline pal_vga_320x200 6.28125 320 334 364 402 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_360x200 7.09375 360 376 410 454 200 247 250 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_320x240 6.28125 320 334 364 402 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_vga_360x240 7.09375 360 376 410 454 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+
+# SVGA best fit modes
+device_video_modeline pal_384x288 7.375 384 392 432 472 288 291 294 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_768x576 14.75 768 784 864 944 576 582 588 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
+
+# SVGA standard modes
+device_video_modeline pal_320x240 6.125 320 328 360 392 240 267 270 312 -hsync -vsync # H 15625 [Hz], V 50.0801 [Hz]
+device_video_modeline pal_400x300 7.75 400 416 456 496 300 444 450 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
+device_video_modeline pal_512x384 9.875 512 528 576 632 384 486 492 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
+device_video_modeline pal_640x480 12.25 640 656 712 784 480 534 540 625 -hsync -vsync interlace # H 15625 [Hz], V 50 [Hz]
+
