@@ -248,7 +248,16 @@ video_error sound_sdl_load(struct conf_context* context) {
 }
 
 void sound_sdl_reg(struct conf_context* context) {
-	conf_int_register_enum_default(context, "device_sdl_samples", conf_enum(OPTION), 512);
+	unsigned def_samples;
+
+#ifdef __WIN32__
+	/* in Windows a shorter value result in a distorced sound with SDL 1.2.4 */
+	def_samples = 2048;
+#else
+	def_samples = 512;
+#endif
+
+	conf_int_register_enum_default(context, "device_sdl_samples", conf_enum(OPTION), def_samples);
 }
 
 void sound_sdl_default(void) {

@@ -82,14 +82,9 @@ static void video_line_unchained8_plane(const struct video_stage_horz_struct* st
 }
 
 static void video_stage_unchained8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	stage->type = pipe_unchained;
-	stage->sdx = sdx;
-	stage->sbpp = 1;
-	video_slice_init(&stage->slice,sdx,sdx);
-	stage->sdp = sdp;
-	stage->buffer_size = 0;
-	stage->plane_num = 4;
+	STAGE_SIZE(stage,pipe_unchained,sdx,sdp,1,sdx,0);
 
+	stage->plane_num = 4;
 	stage->put_plain = video_line_unchained8_step1;
 	stage->plane_put_plain = video_line_unchained8_step1_plane;
 	if (sdp == 1) {
@@ -123,15 +118,10 @@ static void video_line_unchained8_palette16to8_step1_plane(const struct video_st
 }
 
 static void video_stage_unchained8_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette) {
-	stage->type = pipe_unchained_palette16to8;
-	stage->sdx = sdx;
-	stage->sbpp = 2;
-	video_slice_init(&stage->slice,sdx,sdx);
-	stage->sdp = 2;
-	stage->palette = palette;
-	stage->buffer_size = 0;
-	stage->plane_num = 4;
+	STAGE_SIZE(stage,pipe_unchained_palette16to8,sdx,2,2,sdx,0);
 
+	stage->palette = palette;
+	stage->plane_num = 4;
 	stage->put_plain = video_line_unchained8_palette16to8_step1;
 	stage->plane_put_plain = video_line_unchained8_palette16to8_step1_plane;
 	stage->put = video_line_unchained8_palette16to8_step1;
@@ -175,14 +165,7 @@ static void video_line_unchained8_double(const struct video_stage_horz_struct* s
 }
 
 static void video_stage_unchained8_double_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	stage->type = pipe_unchained_x_double;
-	stage->sdx = sdx;
-	stage->sbpp = 1;
-	video_slice_init(&stage->slice,sdx,sdx);
-	stage->sdp = sdp;
-	stage->buffer_size = 0;
-	stage->plane_put = 0;
-	stage->plane_put_plain = 0;
+	STAGE_SIZE(stage,pipe_unchained_x_double,sdx,sdp,1,sdx,0);
 
 	stage->put_plain = video_line_unchained8_double_step1;
 	if (stage->sdp == 1)
@@ -208,16 +191,9 @@ static void video_line_unchained8_double_palette16to8_step1(const struct video_s
 }
 
 static void video_stage_unchained8_double_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, unsigned* palette) {
-	stage->type = pipe_unchained_x_double_palette16to8;
-	stage->sdx = sdx;
-	stage->sbpp = 2;
-	video_slice_init(&stage->slice,sdx,sdx);
-	stage->sdp = 2;
-	stage->palette = palette;
-	stage->buffer_size = 0;
-	stage->plane_put = 0;
-	stage->plane_put_plain = 0;
+	STAGE_SIZE(stage,pipe_unchained_x_double_palette16to8,sdx,2,2,sdx,0);
 
+	stage->palette = palette;
 	stage->put_plain = video_line_unchained8_double_palette16to8_step1;
 	stage->put = video_line_unchained8_double_palette16to8_step1;
 }

@@ -286,14 +286,7 @@ static void video_line_stretchx8_44(const struct video_stage_horz_struct* stage,
 
 /* Inizialize the line rescaling system */
 static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp) {
-	stage->type = pipe_x_stretch;
-	stage->sdx = sdx;
-	stage->sbpp = 1;
-	video_slice_init(&stage->slice, sdx, ddx);
-	stage->sdp = sdp;
-	stage->buffer_size = ddx;
-	stage->plane_put = 0;
-	stage->plane_put_plain = 0;
+	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 1, ddx, 1);
 
 	if (sdx > ddx) {
 		stage->put_plain = video_line_stretchx8_x1_step1;
@@ -584,14 +577,7 @@ static void video_line_stretchx16_44(const struct video_stage_horz_struct* stage
 }
 
 static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp) {
-	stage->type = pipe_x_stretch;
-	stage->sdx = sdx;
-	stage->sbpp = 2;
-	video_slice_init(&stage->slice, sdx, ddx);
-	stage->sdp = sdp;
-	stage->buffer_size = 2*ddx;
-	stage->plane_put = 0;
-	stage->plane_put_plain = 0;
+	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 2, ddx, 2);
 
 	if (sdx > ddx) {
 		stage->put_plain = video_line_stretchx16_x1_step2;
@@ -878,14 +864,7 @@ static void video_line_stretchx32_44(const struct video_stage_horz_struct* stage
 }
 
 static void video_stage_stretchx32_set(struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp) {
-	stage->type = pipe_x_stretch;
-	stage->sdx = sdx;
-	stage->sbpp = 4;
-	video_slice_init(&stage->slice, sdx, ddx);
-	stage->sdp = sdp;
-	stage->buffer_size = 4*ddx;
-	stage->plane_put = 0;
-	stage->plane_put_plain = 0;
+	STAGE_SIZE(stage, pipe_x_stretch, sdx, sdp, 4, ddx, 4);
 
 	if (sdx > ddx) {
 		stage->put_plain = video_line_stretchx32_x1_step4;

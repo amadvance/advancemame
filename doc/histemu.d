@@ -1,6 +1,14 @@
 Name
 	advmenu - History For Advance Emulators
 
+AdvanceMAME Version 0.61.3 2002/09
+	) Fixed the window title and the icon in the sdl system.
+	) In Windows the default sdl samples buffer is now 2048
+	) Added the new option `display_interlaceeffect' to help
+		with some broken monitors which need to swap the
+		video rows in interlaced modes.
+	) Uppercase names of games in the command line are accepted.
+
 AdvanceMAME Version 0.61.2 2002/09
 	) Added the `sdl' system which uses the libSDL graphics
 		library. This system enable the use of the program

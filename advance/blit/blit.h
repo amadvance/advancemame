@@ -72,6 +72,8 @@ enum video_stage_enum {
 	pipe_x_rgb_scantriplehorz,
 	pipe_x_rgb_scandoublevert,
 	pipe_x_rgb_scantriplevert,
+	pipe_swap_even,
+	pipe_swap_odd,
 	pipe_unchained,
 	pipe_unchained_palette16to8,
 	pipe_unchained_x_double,
@@ -106,58 +108,58 @@ const char* pipe_name(enum video_stage_enum pipe_type);
 
 /* Pipeline horizontal trasformation stage */
 struct video_stage_horz_struct {
-	/* hook */
-	video_stage_hook* put;
-
-	/* hook assuming sdp == sbpp */
-	video_stage_hook* put_plain;
+	video_stage_hook* put; /**< Hook. */
+	video_stage_hook* put_plain; /**< Hook assuming sdp == sbpp. */
 
 	/* type */
 	enum video_stage_enum type;
 
 	/* dest */
-	void* buffer; /* eventually dest buffer */
-	unsigned buffer_size; /* size of the dest buffer, ==0 if not required */
+	void* buffer; /**< Eventually dest buffer. */
+	unsigned buffer_size; /**< Size of the dest buffer, ==0 if not required. */
+
+	void* buffer_extra; /**< Eventually extra buffer. */
+	unsigned buffer_extra_size; /**< Size of the extra buffer, ==0 if not required. */
 
 	/* source */
-	int sdp; /* step in the src for the next pixel (in bytes) */
-	unsigned sdx; /* size of the source (in bytes) */
-	unsigned sbpp; /* bytes per pixel of the source */
+	int sdp; /**< Step in the src for the next pixel (in bytes). */
+	unsigned sdx; /**< Size of the source (in bytes). */
+	unsigned sbpp; /**< Bytes per pixel of the source. */
 
-	/* stretch slice */
-	struct video_slice slice;
+	struct video_slice slice; /**< Stretch slice. */
 
-	/* palette conversion */
-	unsigned* palette;
+	unsigned* palette; /**< Palette conversion table. */
 
 	/* unchained plane */
-	unsigned plane_num; /* number of plane */
-	video_stage_hook* plane_put; /* hook for single plane put, !=0 if plane put supported */
-	video_stage_hook* plane_put_plain; /* hook assuming sdp == sbpp */
+	unsigned plane_num; /**< Number of plane. */
+	video_stage_hook* plane_put; /**< Hook for single plane put, !=0 if plane put supported. */
+	video_stage_hook* plane_put_plain; /**< Hook assuming sdp == sbpp. */
 
 	/* state */
-	unsigned state_mutable; /* state value zeroed at the startup */
+	unsigned state_mutable; /**< State value zeroed at the startup. */
 };
 
 /* Special effect */
-#define VIDEO_COMBINE_Y_NONE 0 /* no effect */
-#define VIDEO_COMBINE_Y_MAX 0x1 /* use the max value in y reductions */
-#define VIDEO_COMBINE_Y_MEAN 0x2 /* use the mean value in y transformations for added or removed lines */
-#define VIDEO_COMBINE_Y_FILTER 0x3 /* apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction */
-#define VIDEO_COMBINE_Y_SCALE2X 0x4 /* scale 2x */
-#define VIDEO_COMBINE_Y_MASK 0x7 /* mask for the Y effect */
+#define VIDEO_COMBINE_Y_NONE 0 /**< No effect. */
+#define VIDEO_COMBINE_Y_MAX 0x1 /**< Use the max value in y reductions. */
+#define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
+#define VIDEO_COMBINE_Y_FILTER 0x3 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction. */
+#define VIDEO_COMBINE_Y_SCALE2X 0x4 /**< Scale 2x. */
+#define VIDEO_COMBINE_Y_MASK 0x7 /**< Mask for the Y effect. */
 
-#define VIDEO_COMBINE_X_FILTER 0x8 /* apply a FIR lowpass filter with 2 point and fc 0.5 in the x direction */
-#define VIDEO_COMBINE_X_RGB_TRIAD3PIX 0x10 /* rgb triad filter 3 pixel mask */
-#define VIDEO_COMBINE_X_RGB_TRIAD6PIX 0x20 /* rgb triad filter 6 pixel mask */
-#define VIDEO_COMBINE_X_RGB_TRIAD16PIX 0x40 /* rgb triad filter 16 pixel mask */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX 0x80 /* rgb triad strong filter 3 pixel mask */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX 0x100 /* rgb triad strong filter 6 pixel mask */
-#define VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX 0x200 /* rgb triad strong filter 16 pixel mask */
-#define VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ 0x400 /* double scanline */
-#define VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ 0x800 /* triple scanline */
-#define VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT 0x1000 /* double scanline vertical */
-#define VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT 0x2000 /* triple scanline vertical */
+#define VIDEO_COMBINE_X_FILTER 0x8 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the x direction. */
+#define VIDEO_COMBINE_X_RGB_TRIAD3PIX 0x10 /**< Rgb triad filter 3 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIAD6PIX 0x20 /**< Rgb triad filter 6 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIAD16PIX 0x40 /**< Rgb triad filter 16 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX 0x80 /**< Rgb triad strong filter 3 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX 0x100 /**< Rgb triad strong filter 6 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX 0x200 /**< Rgb triad strong filter 16 pixel mask. */
+#define VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ 0x400 /**< Double scanline. */
+#define VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ 0x800 /**< Triple scanline. */
+#define VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT 0x1000 /**< Double scanline vertical. */
+#define VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT 0x2000 /**< Triple scanline vertical. */
+#define VIDEO_COMBINE_SWAP_EVEN 0x4000 /**< Swap every two even line. */
+#define VIDEO_COMBINE_SWAP_ODD 0x8000 /**< Swap every two odd line. */
 
 struct video_stage_vert_struct;
 
@@ -165,19 +167,20 @@ typedef void video_stage_vert_hook(const struct video_stage_vert_struct* stage_v
 
 /* Pipeline vertical trasformation stage */
 struct video_stage_vert_struct {
-	/* hook */
-	video_stage_vert_hook* put;
+	video_stage_vert_hook* put; /**< Hook. */
 
 	/* type */
 	enum video_stage_enum type;
 
 	/* source */
-	unsigned sdy; /* source vertical size in rows */
-	unsigned sdw; /* source row size in bytes */
+	unsigned sdy; /**< Source vertical size in rows. */
+	unsigned sdw; /**< Source row size in bytes. */
 
-	/* dest */
-	unsigned ddy; /* destination vertical size in rows */
-	/* the destination row size is always the minimun */
+	/**
+	 * Destination vertical size in rows.
+	 * The destination row size is always the minimun.
+	 */
+	unsigned ddy;
 
 	/* stretch slice */
 	struct video_slice slice;
@@ -186,16 +189,19 @@ struct video_stage_vert_struct {
 	const struct video_stage_horz_struct* stage_begin;
 	const struct video_stage_horz_struct* stage_end;
 
-	/* stage used for splitting the pipeline, on the split is applied the vertical stage */
+	/**
+	 * Stage used for splitting the pipeline.
+	 * On the split is applied the vertical stage.
+	 */
 	const struct video_stage_horz_struct* stage_pivot;
 
-	/* information from the stage_pivot (used if the pipeline is empty) */
-	int stage_pivot_sdp; /* step in the src for the next pixel (in bytes) */
-	unsigned stage_pivot_sdx; /* size of the source (in bytes) */
-	unsigned stage_pivot_sbpp; /* bytes per pixel of the source */
+	/* information from the stage_pivot (used if the pipeline is empty). */
+	int stage_pivot_sdp; /**< Step in the src for the next pixel (in bytes). */
+	unsigned stage_pivot_sdx; /**< Size of the source (in bytes). */
+	unsigned stage_pivot_sbpp; /**< Bytes per pixel of the source. */
 
 	/* unchained plane */
-	video_stage_vert_hook* plane_put; /* hook for plane put, !=0 if plane put supported */
+	video_stage_vert_hook* plane_put; /**< Hook for plane put, !=0 if plane put supported */
 };
 
 #define VIDEO_STAGE_MAX 8
@@ -292,31 +298,30 @@ static __inline__ void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, 
 	video_pipeline_done(&pipeline);
 }
 
-#define STAGE_EX(stage,_type,_sdx,_sdp,_sbpp,_dbpp,_palette) \
+#define STAGE_SIZE(stage,_type,_sdx,_sdp,_sbpp,_ddx,_dbpp) \
 	stage->type = (_type); \
 	stage->sdx = (_sdx); \
 	stage->sdp = (_sdp); \
 	stage->sbpp = (_sbpp); \
-	video_slice_init(&stage->slice,_sdx,_sdx); \
-	stage->buffer_size = (_dbpp)*(_sdx); \
+	video_slice_init(&stage->slice,(_sdx),(_ddx)); \
+	stage->palette = 0; \
+	stage->buffer_size = (_dbpp)*(_ddx); \
+	stage->buffer_extra_size = 0; \
+	stage->plane_num = 0; \
+	stage->plane_put_plain = 0; \
+	stage->plane_put = 0; \
+	stage->put_plain = 0; \
+	stage->put = 0
+
+#define STAGE_PUT(stage,_put_plain,_put) \
+	stage->put_plain = (_put_plain); \
+	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
+
+#define STAGE_EXTRA(stage) \
+	stage->buffer_extra_size = stage->buffer_size
+
+#define STAGE_PALETTE(stage,_palette) \
 	stage->palette = _palette
-
-#define STAGE_SIZE(stage,_type,_sdx,_sdp,_sbpp,_dbpp) \
-	STAGE_EX(stage,_type,_sdx,_sdp,_sbpp,_dbpp,0)
-
-#define STAGE(stage,_type,_sdx,_sdp,_sbpp,_dbpp,_put_plain,_put) \
-	STAGE_EX(stage,_type,_sdx,_sdp,_sbpp,_dbpp,0); \
-	stage->plane_put_plain = 0; \
-	stage->plane_put = 0; \
-	stage->put_plain = (_put_plain); \
-	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
-
-#define STAGE_PALETTE(stage,_type,_sdx,_sdp,_sbpp,_dbpp,_palette,_put_plain,_put) \
-	STAGE_EX(stage,_type,_sdx,_sdp,_sbpp,_dbpp,_palette); \
-	stage->plane_put_plain = 0; \
-	stage->plane_put = 0; \
-	stage->put_plain = (_put_plain); \
-	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
 
 #ifdef __cplusplus
 }

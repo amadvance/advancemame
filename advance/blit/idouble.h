@@ -37,7 +37,7 @@
 /* internal double */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double8_mmx(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_double8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -65,7 +65,7 @@ static __inline__ void internal_double8_mmx(uint8* dst, uint8* src, unsigned cou
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double16_mmx(uint16* dst, uint16* src, unsigned count)
+static __inline__ void internal_double16_mmx(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -93,7 +93,7 @@ static __inline__ void internal_double16_mmx(uint16* dst, uint16* src, unsigned 
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double32_mmx(uint32* dst, uint32* src, unsigned count)
+static __inline__ void internal_double32_mmx(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -121,7 +121,7 @@ static __inline__ void internal_double32_mmx(uint32* dst, uint32* src, unsigned 
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double8_def(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
@@ -149,7 +149,7 @@ static __inline__ void internal_double8_def(uint8* dst, uint8* src, unsigned cou
 	);
 }
 #else
-static __inline__ void internal_double8_def(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_double8_def(uint8* dst, const uint8* src, unsigned count) {
 	unsigned rest = count % 2;
 
 	count /= 2;
@@ -173,7 +173,7 @@ static __inline__ void internal_double8_def(uint8* dst, uint8* src, unsigned cou
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double16_def(uint16* dst, uint16* src, unsigned count)
+static __inline__ void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
@@ -199,7 +199,7 @@ static __inline__ void internal_double16_def(uint16* dst, uint16* src, unsigned 
 	);
 }
 #else
-static __inline__ void internal_double16_def(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_double16_def(uint16* dst, const uint16* src, unsigned count) {
 	while (count) {
 		P32DER0(dst) = src[0] /* ENDIAN */
 			| (unsigned)src[0] << 16;
@@ -211,7 +211,7 @@ static __inline__ void internal_double16_def(uint16* dst, uint16* src, unsigned 
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_double32_def(uint32* dst, uint32* src, unsigned count)
+static __inline__ void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
 
@@ -233,7 +233,7 @@ static __inline__ void internal_double32_def(uint32* dst, uint32* src, unsigned 
 	);
 }
 #else
-static __inline__ void internal_double32_def(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_double32_def(uint32* dst, const uint32* src, unsigned count) {
 	while (count) {
 		dst[0] = src[0];
 		dst[1] = src[0];

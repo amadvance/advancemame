@@ -31,6 +31,7 @@
 #include "vsdl.h"
 #include "video.h"
 #include "log.h"
+#include "osint.h"
 
 #include "SDL.h"
 
@@ -78,6 +79,42 @@ static unsigned SDL_ModeFlags(void) {
 	return flags;
 }
 
+#include "icondef.dat"
+
+static void SDL_WM_DefIcon(void) {
+	SDL_Surface* surface;
+	SDL_Color colors[ICON_PALETTE];
+	unsigned i,x,y;
+
+	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
+	if (!surface) {
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
+		return;
+	}
+
+	for(y=0;y<ICON_SIZE;++y) {
+		unsigned char* p = (unsigned char*)surface->pixels + y * surface->pitch;
+		for(x=0;x<ICON_SIZE;++x)
+			p[x] = icon_pixel[y*ICON_SIZE+x];
+	}
+
+	for(i=0;i<ICON_PALETTE;++i) {
+		colors[i].r = icon_palette[i*3+0];
+		colors[i].g = icon_palette[i*3+1];
+		colors[i].b = icon_palette[i*3+2];
+	}
+
+	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
+		log_std(("os: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
+		SDL_FreeSurface(surface);
+		return;
+	}
+
+	SDL_WM_SetIcon(surface, icon_mask);
+
+	SDL_FreeSurface(surface);
+}
+
 video_error sdl_init(int device_id) {
 	char name[64];
 	const device* i;
@@ -108,6 +145,10 @@ video_error sdl_init(int device_id) {
 		log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
 		return -1;
 	}
+
+	/* set the window information */
+	SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+	SDL_WM_DefIcon();
 
 	if (SDL_VideoDriverName(name,sizeof(name))) {
 		video_log("video:sdl: driver %s\n", name);
@@ -243,6 +284,10 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
 			return -1;
 		}
+
+		/* set the window information */
+		SDL_WM_SetCaption(os_internal_title_get(),os_internal_title_get());
+		SDL_WM_DefIcon();
 	}
 
 	info = SDL_GetVideoInfo();

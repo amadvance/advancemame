@@ -37,7 +37,7 @@
 /* internal_unchained */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_unchained8(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8(uint8* dst, const uint8* src, unsigned count) {
 	unsigned rest = count % 4;
 
 	__asm__ __volatile__ (
@@ -68,7 +68,7 @@ static __inline__ void internal_unchained8(uint8* dst, uint8* src, unsigned coun
 	}
 }
 #else
-static __inline__ void internal_unchained8(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8(uint8* dst, const uint8* src, unsigned count) {
 	unsigned rest = count % 4;
 
 	count /= 4;
@@ -91,7 +91,7 @@ static __inline__ void internal_unchained8(uint8* dst, uint8* src, unsigned coun
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_unchained8_step2(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8_step2(uint8* dst, const uint8* src, unsigned count) {
 	__asm__ __volatile__ (
 		"shrl $2,%2\n"
 		"jz 1f\n"
@@ -114,7 +114,7 @@ static __inline__ void internal_unchained8_step2(uint8* dst, uint8* src, unsigne
 	);
 }
 #else
-static __inline__ void internal_unchained8_step2(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8_step2(uint8* dst, const uint8* src, unsigned count) {
 	unsigned rest = count % 4;
 
 	count /= 4;
@@ -137,7 +137,7 @@ static __inline__ void internal_unchained8_step2(uint8* dst, uint8* src, unsigne
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_unchained8_double(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8_double(uint8* dst, const uint8* src, unsigned count) {
 	__asm__ __volatile__ (
 		"shrl $2,%2\n"
 		"jz 1f\n"
@@ -160,12 +160,12 @@ static __inline__ void internal_unchained8_double(uint8* dst, uint8* src, unsign
 	);
 }
 #else
-static __inline__ void internal_unchained8_double(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8_double(uint8* dst, const uint8* src, unsigned count) {
 	/* TODO */
 }
 #endif
 
-static __inline__ void internal_unchained8_step(uint8* dst, uint8* src, unsigned count, int step) {
+static __inline__ void internal_unchained8_step(uint8* dst, const uint8* src, unsigned count, int step) {
 	unsigned rest = count % 4;
 
 	int step1 = 4 * step; /* 4 is for unchained mode */
@@ -191,11 +191,11 @@ static __inline__ void internal_unchained8_step(uint8* dst, uint8* src, unsigned
 	}
 }
 
-static __inline__ void internal_unchained8_double_step2(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_unchained8_double_step2(uint8* dst, const uint8* src, unsigned count) {
 	internal_unchained8(dst,src,count);
 }
 
-static __inline__ void internal_unchained8_double_step(uint8* dst, uint8* src, unsigned count, int step) {
+static __inline__ void internal_unchained8_double_step(uint8* dst, const uint8* src, unsigned count, int step) {
 	unsigned rest = count % 4;
 
 	int step1 = 2 * step; /* 2 is for unchained mode with double */
@@ -221,7 +221,7 @@ static __inline__ void internal_unchained8_double_step(uint8* dst, uint8* src, u
 	}
 }
 
-static __inline__ void internal_unchained8_palette16to8(uint8* dst, uint16* src, unsigned count, unsigned* palette) {
+static __inline__ void internal_unchained8_palette16to8(uint8* dst, const uint16* src, unsigned count, unsigned* palette) {
 	unsigned rest = count % 4;
 
 	count /= 4;
@@ -242,7 +242,7 @@ static __inline__ void internal_unchained8_palette16to8(uint8* dst, uint16* src,
 	}
 }
 
-static __inline__ void internal_unchained8_double_palette16to8(uint8* dst, uint16* src, unsigned count, unsigned* palette) {
+static __inline__ void internal_unchained8_double_palette16to8(uint8* dst, const uint16* src, unsigned count, unsigned* palette) {
 	unsigned rest = count % 4;
 
 	count /= 4;

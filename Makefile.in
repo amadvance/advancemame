@@ -267,7 +267,7 @@ LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
 CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
-ZLIBS = -static -lz
+ZLIBS = -lz
 endif
 
 ifeq ($(CONF_BUILD),unix)

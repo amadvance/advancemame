@@ -117,6 +117,8 @@
 #define EFFECT_RGB_SCANTRIPLEHORZ VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ
 #define EFFECT_RGB_SCANDOUBLEVERT VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT
 #define EFFECT_RGB_SCANTRIPLEVERT VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT
+#define EFFECT_INTERLACE_EVEN VIDEO_COMBINE_SWAP_EVEN
+#define EFFECT_INTERLACE_ODD VIDEO_COMBINE_SWAP_ODD
 
 #define ROTATE_AUTO -1
 #define ROTATE_NONE 0
@@ -150,7 +152,8 @@ struct advance_video_config_context {
 	int blit_orientation; /**< Blit orientation mask. Mask of ORIENTATION_*. */
 	int game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
 	int combine; /**< Special combine effect. Mask of COMBINE_*. */
-	int effect; /**< Special additional effect. Mask of EFFECT_*. */
+	int rgb_effect; /**< Special additional effect. Mask of EFFECT_*. */
+	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */
 	double fps_speed_factor; /**< Additional speed factor over the standard value. Multiplicative factor. */
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
@@ -272,7 +275,8 @@ struct advance_video_state_context {
 	int blit_src_offset; /**< Pointer at the first used pixel of the bitmap. */
 
 	int combine;
-	int effect;
+	int rgb_effect;
+	int interlace_effect;
 
 	unsigned game_visible_size_x;
 	unsigned game_visible_size_y;

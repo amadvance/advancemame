@@ -145,7 +145,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 	conf_string_set(context->state.cfg_context, section, "display_mode", context->config.resolution);
 	if (!context->state.game_vector_flag) {
 		conf_int_set(context->state.cfg_context, section, "display_resizeeffect", context->config.combine);
-		conf_int_set(context->state.cfg_context, section, "display_rgbeffect", context->config.effect);
+		conf_int_set(context->state.cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
 		conf_int_set(context->state.cfg_context, section, "display_resize", context->config.stretch);
 		conf_bool_set(context->state.cfg_context, section, "display_magnify", context->config.magnify_flag);
 		conf_int_set(context->state.cfg_context, section, "display_depth", context->config.depth);
@@ -578,7 +578,8 @@ static void video_update_effect(struct advance_video_context* context)
 {
 	double previous_gamma_factor;
 
-	context->state.effect = context->config.effect;
+	context->state.rgb_effect = context->config.rgb_effect;
+	context->state.interlace_effect = context->config.interlace_effect;
 	context->state.combine = context->config.combine;
 
 	if (context->state.combine == COMBINE_AUTO) {
@@ -626,16 +627,16 @@ static void video_update_effect(struct advance_video_context* context)
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if (context->state.effect != EFFECT_NONE
+	if (context->state.rgb_effect != EFFECT_NONE
 		&& !context->state.mode_rgb_flag) {
 		log_std(("advance:video: rgbeffect=* disabled because we are in a palettized mode\n"));
-		context->state.effect = EFFECT_NONE;
+		context->state.rgb_effect = EFFECT_NONE;
 	}
 
 	previous_gamma_factor = context->state.gamma_effect_factor;
 
 	/* adjust the gamma settings */
-	switch (context->state.effect) {
+	switch (context->state.rgb_effect) {
 		case EFFECT_NONE :
 			context->state.gamma_effect_factor = 1.0;
 			break;
@@ -653,6 +654,10 @@ static void video_update_effect(struct advance_video_context* context)
 		case EFFECT_RGB_SCANTRIPLEVERT :
 			context->state.gamma_effect_factor = 1.3;
 			break;
+	}
+
+	if (!crtc_is_interlace(&context->state.crtc_effective)) {
+		context->state.interlace_effect = EFFECT_NONE;
 	}
 
 	mame_ui_gamma_factor_set( context->state.gamma_effect_factor / previous_gamma_factor );
@@ -1470,7 +1475,7 @@ static __inline__ void video_frame_pan(struct advance_video_context* context, un
 
 static __inline__ void video_frame_blit(struct advance_video_context* context, unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp)
 {
-	unsigned combine = context->state.combine | context->state.effect;
+	unsigned combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
 	if (context->state.game_rgb_flag) {
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, src, src_dx, src_dy, src_dw, src_dp, context->state.game_rgb_def, combine);
 	} else {
@@ -1546,7 +1551,7 @@ static __inline__ void video_frame_pipeline(struct advance_video_context* contex
 	/* adjust the source position */
 	context->state.game_visible_pos_x = context->state.game_visible_pos_x - context->state.game_visible_pos_x % context->state.game_visible_pos_x_increment;
 
-	combine = context->state.combine | context->state.effect;
+	combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
 
 	if (context->state.game_rgb_flag) {
 		video_stretch_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_rgb_def, combine);
@@ -2801,6 +2806,12 @@ static struct conf_enum_int OPTION_RGBEFFECT[] = {
 { "scan3vert", EFFECT_RGB_SCANTRIPLEVERT }
 };
 
+static struct conf_enum_int OPTION_INTERLACEEFFECT[] = {
+{ "none", EFFECT_NONE },
+{ "odd", EFFECT_INTERLACE_ODD },
+{ "even", EFFECT_INTERLACE_EVEN }
+};
+
 static struct conf_enum_int OPTION_DEPTH[] = {
 { "auto", 0 },
 { "8", 8 },
@@ -2831,6 +2842,7 @@ int advance_video_init(struct advance_video_context* context, struct conf_contex
 	conf_int_register_enum_default(cfg_context, "display_rotate", conf_enum(OPTION_ROTATE), ROTATE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_int_register_enum_default(cfg_context, "display_rgbeffect", conf_enum(OPTION_RGBEFFECT), EFFECT_NONE);
+	conf_int_register_enum_default(cfg_context, "display_interlaceeffect", conf_enum(OPTION_INTERLACEEFFECT), EFFECT_NONE);
 	conf_float_register_limit_default(cfg_context, "misc_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "misc_turbospeed", 0.1, 30.0, 3.0);
 	conf_int_register_limit_default(cfg_context, "misc_startuptime", 0, 180, 6);
@@ -3041,7 +3053,8 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	}
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
-	context->config.effect = conf_int_get_default(cfg_context, "display_rgbeffect");
+	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
+	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "misc_turbospeed");
 	context->config.fps_speed_factor = conf_float_get_default(cfg_context, "misc_speed");
 	context->config.fastest_time = conf_int_get_default(cfg_context, "misc_startuptime");

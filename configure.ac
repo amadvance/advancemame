@@ -81,7 +81,6 @@ AC_CHECK_PROGS(ECHO, echo)
 AC_CHECK_PROGS(TAR, tar)
 AC_CHECK_PROGS(GZIP, gzip)
 AC_CHECK_PROGS(ZIP, zip)
-AC_CHECK_PROGS(ASM, nasm)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
 
@@ -172,6 +171,10 @@ if test $ac_enable_asm = auto; then
 	AC_MSG_RESULT([$ac_enable_asm])
 fi
 if test $ac_enable_asm = yes; then
+	AC_CHECK_PROGS([ASM], [nasm nasmw], [none])
+	if test $ASM = none; then
+		AC_MSG_ERROR([The NASM assembler is required for the "asm" compilation])
+	fi
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
 fi
 

@@ -413,7 +413,7 @@ int osd2_menu(int selected, unsigned input)
 	++total;
 
 	effect_index = total;
-	switch (context->state.effect) {
+	switch (context->state.rgb_effect) {
 		case EFFECT_NONE : menu_item[total] = "Rgb Effect [no]"; break;
 		case EFFECT_RGB_TRIAD3PIX : menu_item[total] = "Rgb Effect [triad3dot]"; break;
 		case EFFECT_RGB_TRIAD6PIX : menu_item[total] = "Rgb Effect [triad6dot]"; break;
@@ -426,7 +426,7 @@ int osd2_menu(int selected, unsigned input)
 		case EFFECT_RGB_SCANDOUBLEVERT : menu_item[total] = "Rgb Effect [scan2vert]"; break;
 		case EFFECT_RGB_SCANTRIPLEVERT : menu_item[total] = "Rgb Effect [scan3vert]"; break;
 	}
-	switch (context->config.effect) {
+	switch (context->config.rgb_effect) {
 		case EFFECT_NONE : menu_subitem[total] = "no"; break;
 		case EFFECT_RGB_TRIAD3PIX : menu_subitem[total] = "triad3dot"; break;
 		case EFFECT_RGB_TRIAD6PIX : menu_subitem[total] = "triad6dot"; break;
@@ -571,18 +571,18 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == effect_index) {
-			switch (context->config.effect) {
-				case EFFECT_NONE : context->config.effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD3PIX : context->config.effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : context->config.effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : context->config.effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.effect = EFFECT_RGB_SCANDOUBLEVERT; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : context->config.effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : context->config.effect = EFFECT_NONE; break;
+			switch (context->config.rgb_effect) {
+				case EFFECT_NONE : context->config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+				case EFFECT_RGB_TRIAD3PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+				case EFFECT_RGB_TRIAD6PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+				case EFFECT_RGB_TRIAD16PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+				case EFFECT_RGB_SCANDOUBLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+				case EFFECT_RGB_SCANTRIPLEVERT : context->config.rgb_effect = EFFECT_NONE; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();
@@ -650,18 +650,18 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == effect_index) {
-			switch (context->config.effect) {
-				case EFFECT_NONE : context->config.effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_TRIAD3PIX : context->config.effect = EFFECT_NONE; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : context->config.effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : context->config.effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : context->config.effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : context->config.effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+			switch (context->config.rgb_effect) {
+				case EFFECT_NONE : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+				case EFFECT_RGB_TRIAD3PIX : context->config.rgb_effect = EFFECT_NONE; break;
+				case EFFECT_RGB_TRIADSTRONG3PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+				case EFFECT_RGB_TRIAD6PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+				case EFFECT_RGB_TRIADSTRONG6PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+				case EFFECT_RGB_TRIAD16PIX : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+				case EFFECT_RGB_TRIADSTRONG16PIX : context->config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+				case EFFECT_RGB_SCANDOUBLEHORZ : context->config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+				case EFFECT_RGB_SCANTRIPLEHORZ : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+				case EFFECT_RGB_SCANDOUBLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+				case EFFECT_RGB_SCANTRIPLEVERT : context->config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();

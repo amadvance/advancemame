@@ -31,7 +31,7 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#ifdef WIN32
+#ifdef __WIN32__
 #define WIFSTOPPED(r) 0
 #define WIFSIGNALED(r) 0
 #define WIFEXITED(r) 1

@@ -7,10 +7,10 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.61.2
+EMUVERSION = 0.61.3
 endif
 endif
-MENUVERSION = 2.1.0
+MENUVERSION = 2.1.1
 CABVERSION = 0.11.3
 
 ############################################################################

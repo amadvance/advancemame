@@ -152,6 +152,7 @@ static __inline__ void internal_end(void)
 #include "vfilter.h"
 #include "vconv.h"
 #include "vpalette.h"
+#include "vswap.h"
 
 /***************************************************************************/
 /* slice */
@@ -195,10 +196,10 @@ void video_slice_init(struct video_slice* slice, unsigned sd, unsigned dd) {
 /* A very fast dynamic buffers allocations */
 
 /* Max number of allocable buffers */
-#define FAST_BUFFER_MAX 32
+#define FAST_BUFFER_MAX 64
 
 /* Total size of the buffers */
-#define FAST_BUFFER_SIZE (64*1024)
+#define FAST_BUFFER_SIZE (128*1024)
 
 /* Align mask */
 #define FAST_BUFFER_ALIGN_MASK 0x1F
@@ -382,6 +383,12 @@ void video_pipeline_done(struct video_pipeline_struct* pipeline) {
 	int i;
 	for(i=pipeline->stage_mac-1;i>=0;--i) {
 		struct video_stage_horz_struct* stage = &pipeline->stage_map[i];
+		if (stage->buffer_extra)
+			video_buffer_free(stage->buffer_extra);
+	}
+
+	for(i=pipeline->stage_mac-1;i>=0;--i) {
+		struct video_stage_horz_struct* stage = &pipeline->stage_map[i];
 		if (stage->buffer)
 			video_buffer_free(stage->buffer);
 	}
@@ -446,6 +453,12 @@ static void video_pipeline_realize(struct video_pipeline_struct* pipeline, int s
 			} else {
 				stage->buffer = 0;
 			}
+			if (stage->buffer_extra_size) {
+				stage->buffer_extra = video_buffer_alloc(stage->buffer_extra_size);
+			} else {
+				stage->buffer_extra = 0;
+			}
+
 			++stage;
 		}
 
@@ -453,6 +466,20 @@ static void video_pipeline_realize(struct video_pipeline_struct* pipeline, int s
 		stage_vert->stage_pivot_sdx = sdx;
 		stage_vert->stage_pivot_sbpp = sbpp;
 	}
+
+	{
+		struct video_stage_horz_struct* stage = stage_begin;
+		while (stage != stage_end) {
+			if (stage->buffer_extra_size) {
+				stage->buffer_extra = video_buffer_alloc(stage->buffer_extra_size);
+			} else {
+				stage->buffer_extra = 0;
+			}
+
+			++stage;
+		}
+	}
+
 }
 
 /* Run a partial pipeline */
@@ -567,6 +594,8 @@ const char* pipe_name(enum video_stage_enum pipe) {
 		case pipe_x_rgb_scantriplehorz : return "hscanline x3";
 		case pipe_x_rgb_scandoublevert : return "vscanline x2";
 		case pipe_x_rgb_scantriplevert : return "vscanline x3";
+		case pipe_swap_even : return "swap even";
+		case pipe_swap_odd : return "swap odd";
 		case pipe_unchained : return "unchained hcopy";
 		case pipe_unchained_palette16to8 : return "unchained hcopy palette 16>8";
 		case pipe_unchained_x_double : return "unchained hcopy x2";
@@ -639,6 +668,8 @@ static int pipe_is_decoration(enum video_stage_enum pipe) {
 		case pipe_x_rgb_scantriplehorz :
 		case pipe_x_rgb_scandoublevert :
 		case pipe_x_rgb_scantriplevert :
+		case pipe_swap_even :
+		case pipe_swap_odd :
 			return 1;
 		default:
 			return 0;
@@ -664,6 +695,8 @@ static __inline__ int stage_is_fastwrite(const struct video_stage_horz_struct* s
 			case pipe_x_rgb_scantriplehorz : return is_plain;
 			case pipe_x_rgb_scandoublevert : return is_plain;
 			case pipe_x_rgb_scantriplevert : return is_plain;
+			case pipe_swap_even : return 0;
+			case pipe_swap_odd : return 0;
 			case pipe_palette8to8 : return 0;
 			case pipe_palette8to16 : return is_plain;
 			case pipe_palette8to32 : return 0;
@@ -1571,6 +1604,24 @@ static __inline__ void video_pipeline_make(struct video_pipeline_struct* pipelin
 			case 1 : video_stage_rgb_scantriplevert8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
 			case 2 : video_stage_rgb_scantriplevert16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
 			case 4 : video_stage_rgb_scantriplevert32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+		}
+		src_dp = bytes_per_pixel;
+	}
+
+	if ((combine & VIDEO_COMBINE_SWAP_EVEN)!=0) {
+		switch (bytes_per_pixel) {
+			case 1 : video_stage_swapeven8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 2 : video_stage_swapeven16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 4 : video_stage_swapeven32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+		}
+		src_dp = bytes_per_pixel;
+	}
+
+	if ((combine & VIDEO_COMBINE_SWAP_ODD)!=0) {
+		switch (bytes_per_pixel) {
+			case 1 : video_stage_swapodd8_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 2 : video_stage_swapodd16_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
+			case 4 : video_stage_swapodd32_set( video_pipeline_insert(pipeline), dst_dx, src_dp ); break;
 		}
 		src_dp = bytes_per_pixel;
 	}

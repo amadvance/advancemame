@@ -26,9 +26,9 @@ Preparing The Sources
 
 	For example the final directory tree for AdvanceMAME must be :
 
-		./configure
-		./advance/advance.mak
-		./src/mame.mak
+		:./configure
+		:./advance/advance.mak
+		:./src/mame.mak
 
 	After unpacked, you need to patch the original MAME source with the
 	patch `advance/advmame.dif', the MESS source with `advance/advmess.dif' and
@@ -37,13 +37,13 @@ Preparing The Sources
 
 	For example the command for patching the source for AdvanceMAME in DOS is :
 
-		cd src
-		patch -p1 < ..\advance\advmame.dif
+		:cd src
+		:patch -p1 < ..\advance\advmame.dif
 
 	and in Linux is :
 
-		cd src
-		patch -p1 < ../advance/advmame.dif
+		:cd src
+		:patch -p1 < ../advance/advmame.dif
 
 Configuring
     Linux

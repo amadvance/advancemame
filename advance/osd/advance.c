@@ -43,6 +43,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #ifdef __MSDOS__
 #include <dpmi.h> /* for _go32_dpmi_remaining_virtual_memory() */
@@ -553,7 +554,7 @@ int os_main(int argc, char* argv[])
 	int opt_logsync;
 	int opt_default;
 	int opt_remove;
-	const char* opt_gamename;
+	char* opt_gamename;
 	struct advance_context* context = &CONTEXT;
 	struct conf_context* cfg_context;
 	const char* section_map[4];
@@ -635,11 +636,15 @@ int os_main(int argc, char* argv[])
 			strcpy(option.playback_file,argv[i+1]);
 			++i;
 		} else if (argv[i][0]!='-') {
+			unsigned i;
 			if (opt_gamename) {
 				target_err("Multiple game name definition, '%s' and '%s'.\n", opt_gamename, argv[i]);
 				goto err_os;
 			}
 			opt_gamename = argv[i];
+			/* case insensitive compare, there are a lot of frontends which use uppercase names */
+			for(i=0;opt_gamename[i];++i)
+				opt_gamename[i] = tolower(opt_gamename[i]);
 		} else {
 			target_err("Unknown command line option '%s'.\n",argv[i]);
 			goto err_os;

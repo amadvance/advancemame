@@ -92,80 +92,62 @@ static __inline__ unsigned internal_max_rgb_value(unsigned v) {
 		+ ((v << max_rgb_shift_2) & max_rgb_mask_2);
 }
 
-static __inline__ void internal_max_rgb8_vert_self(void* dst, void* src, unsigned count) {
-	uint8* src8 = (uint8*)src;
-	uint8* dst8 = (uint8*)dst;
-
+static __inline__ void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count) {
 	while (count) {
-		if (internal_max_rgb_value(dst8[0]) < internal_max_rgb_value(src8[0]))
-			dst8[0] = src8[0];
-		++src8;
-		++dst8;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb8_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint8* src8 = (uint8*)src;
-	uint8* dst8 = (uint8*)dst;
-
+static __inline__ void internal_max_rgb8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1) {
 	while (count) {
-		if (internal_max_rgb_value(dst8[0]) < internal_max_rgb_value(src8[0]))
-			dst8[0] = src8[0];
-		src8 += step1;
-		++dst8;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		src += step1;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb16_vert_self(void* dst, void* src, unsigned count) {
-	uint16* src16 = (uint16*)src;
-	uint16* dst16 = (uint16*)dst;
-
+static __inline__ void internal_max_rgb16_vert_self(uint16* dst, const uint16* src, unsigned count) {
 	while (count) {
-		if (internal_max_rgb_value(dst16[0]) < internal_max_rgb_value(src16[0]))
-			dst16[0] = src16[0];
-		++src16;
-		++dst16;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb16_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint16* src16 = (uint16*)src;
-	uint16* dst16 = (uint16*)dst;
-
+static __inline__ void internal_max_rgb16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1) {
 	while (count) {
-		if (internal_max_rgb_value(dst16[0]) < internal_max_rgb_value(src16[0]))
-			dst16[0] = src16[0];
-		PADD(src16,step1);
-		++dst16;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		PADD(src,step1);
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb32_vert_self(void* dst, void* src, unsigned count) {
-	uint32* src32 = (uint32*)src;
-	uint32* dst32 = (uint32*)dst;
-
+static __inline__ void internal_max_rgb32_vert_self(uint32* dst, const uint32* src, unsigned count) {
 	while (count) {
-		if (internal_max_rgb_value(dst32[0]) < internal_max_rgb_value(src32[0]))
-			dst32[0] = src32[0];
-		++src32;
-		++dst32;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max_rgb32_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint32* src32 = (uint32*)src;
-	uint32* dst32 = (uint32*)dst;
-
+static __inline__ void internal_max_rgb32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1) {
 	while (count) {
-		if (internal_max_rgb_value(dst32[0]) < internal_max_rgb_value(src32[0]))
-			dst32[0] = src32[0];
-		PADD(src32,step1);
-		++dst32;
+		if (internal_max_rgb_value(dst[0]) < internal_max_rgb_value(src[0]))
+			dst[0] = src[0];
+		PADD(src,step1);
+		++dst;
 		--count;
 	}
 }
@@ -173,80 +155,62 @@ static __inline__ void internal_max_rgb32_vert_self_step(void* dst, void* src, u
 /***************************************************************************/
 /* internal_max */
 
-static __inline__ void internal_max8_vert_self(void* dst, void* src, unsigned count) {
-	uint8* src8 = (uint8*)src;
-	uint8* dst8 = (uint8*)dst;
-
+static __inline__ void internal_max8_vert_self(uint8* dst, const uint8* src, unsigned count) {
 	while (count) {
-		if (dst8[0] < src8[0])
-			dst8[0] = src8[0];
-		++src8;
-		++dst8;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max8_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint8* src8 = (uint8*)src;
-	uint8* dst8 = (uint8*)dst;
-
+static __inline__ void internal_max8_vert_self_step(uint8* dst, const uint8* src, unsigned count, int step1) {
 	while (count) {
-		if (dst8[0] < src8[0])
-			dst8[0] = src8[0];
-		src8 += step1;
-		++dst8;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		src += step1;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max16_vert_self(void* dst, void* src, unsigned count) {
-	uint16* src16 = (uint16*)src;
-	uint16* dst16 = (uint16*)dst;
-
+static __inline__ void internal_max16_vert_self(uint16* dst, const uint16* src, unsigned count) {
 	while (count) {
-		if (dst16[0] < src16[0])
-			dst16[0] = src16[0];
-		++src16;
-		++dst16;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max16_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint16* src16 = (uint16*)src;
-	uint16* dst16 = (uint16*)dst;
-
+static __inline__ void internal_max16_vert_self_step(uint16* dst, const uint16* src, unsigned count, int step1) {
 	while (count) {
-		if (dst16[0] < src16[0])
-			dst16[0] = src16[0];
-		PADD(src16,step1);
-		++dst16;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		PADD(src,step1);
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max32_vert_self(void* dst, void* src, unsigned count) {
-	uint32* src32 = (uint32*)src;
-	uint32* dst32 = (uint32*)dst;
-
+static __inline__ void internal_max32_vert_self(uint32* dst, const uint32* src, unsigned count) {
 	while (count) {
-		if (dst32[0] < src32[0])
-			dst32[0] = src32[0];
-		++src32;
-		++dst32;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		++src;
+		++dst;
 		--count;
 	}
 }
 
-static __inline__ void internal_max32_vert_self_step(void* dst, void* src, unsigned count, int step1) {
-	uint32* src32 = (uint32*)src;
-	uint32* dst32 = (uint32*)dst;
-
+static __inline__ void internal_max32_vert_self_step(uint32* dst, const uint32* src, unsigned count, int step1) {
 	while (count) {
-		if (dst32[0] < src32[0])
-			dst32[0] = src32[0];
-		PADD(src32,step1);
-		++dst32;
+		if (dst[0] < src[0])
+			dst[0] = src[0];
+		PADD(src,step1);
+		++dst;
 		--count;
 	}
 }

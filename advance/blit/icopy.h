@@ -37,7 +37,7 @@
 /* internal copy */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_mmx(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 8;
 
@@ -76,7 +76,7 @@ static __inline__ void internal_copy8_mmx(uint8* dst, uint8* src, unsigned count
 #if defined(USE_ASM_i586)
 static uint8 copy8_mask[8] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 
-static __inline__ void internal_copy8_step2_mmx(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -105,7 +105,7 @@ static __inline__ void internal_copy8_step2_mmx(uint8* dst, uint8* src, unsigned
 #endif
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_def(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -136,13 +136,13 @@ static __inline__ void internal_copy8_def(uint8* dst, uint8* src, unsigned count
 	}
 }
 #else
-static __inline__ void internal_copy8_def(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	memcpy(dst,src,count);
 }
 #endif
 
-static __inline__ void internal_copy8_step2_def(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_copy8_step2_def(uint8* dst, const uint8* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -166,27 +166,27 @@ static __inline__ void internal_copy8_step2_def(uint8* dst, uint8* src, unsigned
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy16_mmx(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_copy16_mmx(uint16* dst, const uint16* src, unsigned count) {
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 2*count);
 }
 #endif
 
-static __inline__ void internal_copy16_def(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_copy16_def(uint16* dst, const uint16* src, unsigned count) {
 	internal_copy8_def((uint8*)dst, (uint8*)src, 2*count);
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy32_mmx(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_copy32_mmx(uint32* dst, const uint32* src, unsigned count) {
 	internal_copy8_mmx((uint8*)dst, (uint8*)src, 4*count);
 }
 #endif
 
-static __inline__ void internal_copy32_def(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_copy32_def(uint32* dst, const uint32* src, unsigned count) {
 	internal_copy8_def((uint8*)dst, (uint8*)src, 4*count);
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy8_step_mmx(uint8* dst, uint8* src, unsigned count, int step1) {
+static __inline__ void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigned count, int step1) {
 	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -242,7 +242,7 @@ static __inline__ void internal_copy8_step_mmx(uint8* dst, uint8* src, unsigned 
 }
 #endif
 
-static __inline__ void internal_copy8_step_def(uint8* dst, uint8* src, unsigned count, int step1)
+static __inline__ void internal_copy8_step_def(uint8* dst, const uint8* src, unsigned count, int step1)
 {
 	unsigned rest = count % 4;
 
@@ -270,7 +270,7 @@ static __inline__ void internal_copy8_step_def(uint8* dst, uint8* src, unsigned 
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy16_step_mmx(uint16* dst, uint16* src, unsigned count, int step1) {
+static __inline__ void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsigned count, int step1) {
 	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -305,7 +305,7 @@ static __inline__ void internal_copy16_step_mmx(uint16* dst, uint16* src, unsign
 }
 #endif
 
-static __inline__ void internal_copy16_step_def(uint16* dst, uint16* src, unsigned count, int step1)
+static __inline__ void internal_copy16_step_def(uint16* dst, const uint16* src, unsigned count, int step1)
 {
 	unsigned rest = count % 2;
 
@@ -328,7 +328,7 @@ static __inline__ void internal_copy16_step_def(uint16* dst, uint16* src, unsign
 	}
 }
 
-static __inline__ void internal_copy32_step3(uint32* dst, uint32* src, unsigned count)
+static __inline__ void internal_copy32_step3(uint32* dst, const uint32* src, unsigned count)
 {
 	uint8* dst8 = (uint8*)dst;
 	uint8* src8 = (uint8*)src;
@@ -356,7 +356,7 @@ static __inline__ void internal_copy32_step3(uint32* dst, uint32* src, unsigned 
 }
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_copy32_step_mmx(uint32* dst, uint32* src, unsigned count, int step1) {
+static __inline__ void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsigned count, int step1) {
 	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
@@ -381,7 +381,7 @@ static __inline__ void internal_copy32_step_mmx(uint32* dst, uint32* src, unsign
 }
 #endif
 
-static __inline__ void internal_copy32_step_def(uint32* dst, uint32* src, unsigned count, int step1)
+static __inline__ void internal_copy32_step_def(uint32* dst, const uint32* src, unsigned count, int step1)
 {
 	while (count) {
 		dst[0] = src[0];

@@ -51,7 +51,8 @@ static void video_line_filter8_step(const struct video_stage_horz_struct* stage,
 }
 
 static void video_stage_filter8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_filter,sdx,sdp,1,1,BLITTER(video_line_filter8_step1),video_line_filter8_step);
+	STAGE_SIZE(stage,pipe_x_filter,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_filter8_step1),video_line_filter8_step);
 }
 
 /****************************************************************************/
@@ -72,7 +73,8 @@ static void video_line_filter16_step(const struct video_stage_horz_struct* stage
 }
 
 static void video_stage_filter16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_filter,sdx,sdp,2,2,BLITTER(video_line_filter16_step2),video_line_filter16_step);
+	STAGE_SIZE(stage,pipe_x_filter,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_filter16_step2),video_line_filter16_step);
 }
 
 /****************************************************************************/
@@ -93,7 +95,8 @@ static void video_line_filter32_step(const struct video_stage_horz_struct* stage
 }
 
 static void video_stage_filter32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_filter,sdx,sdp,4,4,BLITTER(video_line_filter32_step4),video_line_filter32_step);
+	STAGE_SIZE(stage,pipe_x_filter,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_filter32_step4),video_line_filter32_step);
 }
 
 #endif

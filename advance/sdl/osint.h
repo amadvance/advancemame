@@ -28,34 +28,20 @@
  * do so, delete this exception statement from your version.
  */
 
-#include <stdlib.h>
-#include <signal.h>
-#include <string.h>
+#ifndef __OSINT_H
+#define __OSINT_H
 
-#include "alloc.h"
-
-void malloc_init(void) {
-}
-
-void malloc_done(void) {
-}
-
-extern void* __real_malloc(size_t size);
-
-extern void advance_signal(int);
-
-void* __wrap_malloc(size_t size) {
-	void* p;
-
-	p = __real_malloc(size);
-	if (!p) {
-#ifdef __WIN32__
-		raise(SIGSEGV);
-#else
-		raise(SIGUSR1);
+#ifdef __cplusplus
+extern "C" {
 #endif
-	}
 
-	return p;
+/***************************************************************************/
+/* Internal */
+
+const char* os_internal_title_get(void);
+
+#ifdef __cplusplus
 }
+#endif
 
+#endif

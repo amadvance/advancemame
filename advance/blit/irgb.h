@@ -38,7 +38,7 @@
 
 #if defined(USE_ASM_i586)
 
-static __inline__ void internal_rgb_raw128_012carry_mmx(void* dst, void* src, void* mask, void* carry, unsigned count) {
+static __inline__ void internal_rgb_raw128_012carry_mmx(void* dst, const void* src, void* mask, void* carry, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstqq = (*srcqq & maskqq[0]) + ((*srcqq >> 1) & maskqq[1]) + ((*srcqq >> 2) & maskqq[2]) + (*srcqq & (*srcqq >> 1) & carry) */
@@ -88,7 +88,7 @@ static __inline__ void internal_rgb_raw128_012carry_mmx(void* dst, void* src, vo
 	);
 }
 
-static __inline__ void internal_rgb_raw128_01_mmx(void* dst, void* src, void* mask, unsigned count) {
+static __inline__ void internal_rgb_raw128_01_mmx(void* dst, const void* src, void* mask, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstqq = (*srcqq & maskqq[0]) + ((*srcq >> 1) & maskqq[1])*/
@@ -129,7 +129,7 @@ static __inline__ void internal_rgb_raw128_01_mmx(void* dst, void* src, void* ma
 #define internal_rgb_raw128_1_mmx internal_rgb_raw128_01_mmx
 #define internal_rgb_raw128_2_mmx internal_rgb_raw128_01_mmx
 
-static __inline__ void internal_rgb_raw64_012carry_mmx(void* dst, void* src, void* mask, void* carry, unsigned count) {
+static __inline__ void internal_rgb_raw64_012carry_mmx(void* dst, const void* src, void* mask, void* carry, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 1) & maskq[1]) + ((*srcq >> 2) & maskq[2]) + (*srcq & (*srcq >> 1) & carry) */
@@ -166,7 +166,7 @@ static __inline__ void internal_rgb_raw64_012carry_mmx(void* dst, void* src, voi
 	);
 }
 
-static __inline__ void internal_rgb_raw64_01_mmx(void* dst, void* src, void* mask, unsigned count) {
+static __inline__ void internal_rgb_raw64_01_mmx(void* dst, const void* src, void* mask, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 1) & maskq[1])*/
@@ -193,7 +193,7 @@ static __inline__ void internal_rgb_raw64_01_mmx(void* dst, void* src, void* mas
 	);
 }
 
-static __inline__ void internal_rgb_raw64_12carry_mmx(void* dst, void* src, void* mask, void* carry, unsigned count) {
+static __inline__ void internal_rgb_raw64_12carry_mmx(void* dst, const void* src, void* mask, void* carry, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstq = ((*srcq >> 1) & maskq[1]) + ((*srcq >> 2) & maskq[2]) + (*srcq & (*srcq >> 1) & carry) */
@@ -226,7 +226,7 @@ static __inline__ void internal_rgb_raw64_12carry_mmx(void* dst, void* src, void
 	);
 }
 
-static __inline__ void internal_rgb_raw64_1_mmx(void* dst, void* src, void* mask, unsigned count) {
+static __inline__ void internal_rgb_raw64_1_mmx(void* dst, const void* src, void* mask, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstq = ((*srcq >> 1) & maskq[1]) */
@@ -249,7 +249,7 @@ static __inline__ void internal_rgb_raw64_1_mmx(void* dst, void* src, void* mask
 	);
 }
 
-static __inline__ void internal_rgb_raw64_2_mmx(void* dst, void* src, void* mask, unsigned count) {
+static __inline__ void internal_rgb_raw64_2_mmx(void* dst, const void* src, void* mask, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* *dstq = ((*srcq >> 2) & maskq[2]) */
@@ -272,7 +272,7 @@ static __inline__ void internal_rgb_raw64_2_mmx(void* dst, void* src, void* mask
 	);
 }
 
-static __inline__ void internal_rgb_raw64x3_012nocarry_mmx(void* dst, void* src, void* mask, unsigned count) {
+static __inline__ void internal_rgb_raw64x3_012nocarry_mmx(void* dst, const void* src, void* mask, unsigned count) {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
 	/* dstq[0] = (srcq[0] & maskq[0]) + ((srcq[0] >> 1) & maskq[3]) + ((srcq[0] >> 2) & maskq[6]) */
@@ -341,7 +341,7 @@ static __inline__ void internal_rgb_raw64x3_012nocarry_mmx(void* dst, void* src,
 
 /* Currently all these functions lose the carry */
 
-static __inline__ void internal_rgb_raw32_012_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32_012_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align( ((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
@@ -355,7 +355,7 @@ static __inline__ void internal_rgb_raw32_012_def(uint32* dst32, uint32* src32, 
 	}
 }
 
-static __inline__ void internal_rgb_raw32_01_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32_01_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
@@ -369,7 +369,7 @@ static __inline__ void internal_rgb_raw32_01_def(uint32* dst32, uint32* src32, u
 	}
 }
 
-static __inline__ void internal_rgb_raw32_12_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32_12_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
@@ -383,7 +383,7 @@ static __inline__ void internal_rgb_raw32_12_def(uint32* dst32, uint32* src32, u
 	}
 }
 
-static __inline__ void internal_rgb_raw32_1_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32_1_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
@@ -397,7 +397,7 @@ static __inline__ void internal_rgb_raw32_1_def(uint32* dst32, uint32* src32, ui
 	}
 }
 
-static __inline__ void internal_rgb_raw32_2_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32_2_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count) {
@@ -411,7 +411,7 @@ static __inline__ void internal_rgb_raw32_2_def(uint32* dst32, uint32* src32, ui
 	}
 }
 
-static __inline__ void internal_rgb_raw32x2_012_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32x2_012_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count >= 2) {
@@ -435,7 +435,7 @@ static __inline__ void internal_rgb_raw32x2_012_def(uint32* dst32, uint32* src32
 	}
 }
 
-static __inline__ void internal_rgb_raw32x2_01_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32x2_01_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count >= 2) {
@@ -459,7 +459,7 @@ static __inline__ void internal_rgb_raw32x2_01_def(uint32* dst32, uint32* src32,
 	}
 }
 
-static __inline__ void internal_rgb_raw32x2_12_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32x2_12_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count >= 2) {
@@ -483,7 +483,7 @@ static __inline__ void internal_rgb_raw32x2_12_def(uint32* dst32, uint32* src32,
 	}
 }
 
-static __inline__ void internal_rgb_raw32x2_1_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32x2_1_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count >= 2) {
@@ -507,7 +507,7 @@ static __inline__ void internal_rgb_raw32x2_1_def(uint32* dst32, uint32* src32, 
 	}
 }
 
-static __inline__ void internal_rgb_raw32x3_012_def(uint32* dst32, uint32* src32, uint32* mask, unsigned count) {
+static __inline__ void internal_rgb_raw32x3_012_def(uint32* dst32, const uint32* src32, uint32* mask, unsigned count) {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
 	while (count>=3) {
@@ -844,7 +844,7 @@ static void internal_rgb_triad16pix_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -862,7 +862,7 @@ static __inline__ unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* d
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -880,7 +880,7 @@ static __inline__ unsigned internal_rgb_triadstrong16pix8_mmx(unsigned state, ui
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triad16pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -898,7 +898,7 @@ static __inline__ unsigned internal_rgb_triad16pix16_mmx(unsigned state, uint16*
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -916,7 +916,7 @@ static __inline__ unsigned internal_rgb_triadstrong16pix16_mmx(unsigned state, u
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triad16pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -934,7 +934,7 @@ static __inline__ unsigned internal_rgb_triad16pix32_mmx(unsigned state, uint32*
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -954,7 +954,7 @@ static __inline__ unsigned internal_rgb_triadstrong16pix32_mmx(unsigned state, u
 
 #endif
 
-static __inline__ unsigned internal_rgb_triad16pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -972,7 +972,7 @@ static __inline__ unsigned internal_rgb_triad16pix8_def(unsigned state, uint8* d
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -990,7 +990,7 @@ static __inline__ unsigned internal_rgb_triadstrong16pix8_def(unsigned state, ui
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triad16pix16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -1008,7 +1008,7 @@ static __inline__ unsigned internal_rgb_triad16pix16_def(unsigned state, uint16*
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -1026,7 +1026,7 @@ static __inline__ unsigned internal_rgb_triadstrong16pix16_def(unsigned state, u
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triad16pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad16pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -1044,7 +1044,7 @@ static __inline__ unsigned internal_rgb_triad16pix32_def(unsigned state, uint32*
 	return (state+1) & 0x7;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong16pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong16pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 		case 4 :
@@ -1178,7 +1178,7 @@ static void internal_rgb_triad6pix_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ unsigned internal_rgb_triad6pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 	uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
@@ -1190,7 +1190,7 @@ static __inline__ unsigned internal_rgb_triad6pix8_mmx(unsigned state, uint8* ds
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 8);
@@ -1201,7 +1201,7 @@ static __inline__ unsigned internal_rgb_triadstrong6pix8_mmx(unsigned state, uin
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad6pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 	uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
@@ -1213,7 +1213,7 @@ static __inline__ unsigned internal_rgb_triad6pix16_mmx(unsigned state, uint16* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 4);
@@ -1224,7 +1224,7 @@ static __inline__ unsigned internal_rgb_triadstrong6pix16_mmx(unsigned state, ui
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad6pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 	uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
@@ -1236,7 +1236,7 @@ static __inline__ unsigned internal_rgb_triad6pix32_mmx(unsigned state, uint32* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 2);
@@ -1249,7 +1249,7 @@ static __inline__ unsigned internal_rgb_triadstrong6pix32_mmx(unsigned state, ui
 
 #endif
 
-static __inline__ unsigned internal_rgb_triad6pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_012_def((uint32*)dst, (uint32*)src, mask, count / 4);
@@ -1260,7 +1260,7 @@ static __inline__ unsigned internal_rgb_triad6pix8_def(unsigned state, uint8* ds
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 4);
@@ -1271,7 +1271,7 @@ static __inline__ unsigned internal_rgb_triadstrong6pix8_def(unsigned state, uin
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad6pix16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_012_def((uint32*)dst, (uint32*)src, mask, count / 2);
@@ -1282,7 +1282,7 @@ static __inline__ unsigned internal_rgb_triad6pix16_def(unsigned state, uint16* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 2);
@@ -1293,7 +1293,7 @@ static __inline__ unsigned internal_rgb_triadstrong6pix16_def(unsigned state, ui
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad6pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad6pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_012_def(dst, src, mask, count);
@@ -1304,7 +1304,7 @@ static __inline__ unsigned internal_rgb_triad6pix32_def(unsigned state, uint32* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong6pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong6pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad6pix_mask + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_01_def(dst, src, mask, count);
@@ -1386,7 +1386,7 @@ static void internal_rgb_triad3pix_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ unsigned internal_rgb_triad3pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
 	uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
@@ -1398,7 +1398,7 @@ static __inline__ unsigned internal_rgb_triad3pix8_mmx(unsigned state, uint8* ds
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 8);
@@ -1409,7 +1409,7 @@ static __inline__ unsigned internal_rgb_triadstrong3pix8_mmx(unsigned state, uin
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad3pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 	uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
@@ -1421,7 +1421,7 @@ static __inline__ unsigned internal_rgb_triad3pix16_mmx(unsigned state, uint16* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 4);
@@ -1432,7 +1432,7 @@ static __inline__ unsigned internal_rgb_triadstrong3pix16_mmx(unsigned state, ui
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad3pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 	uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
@@ -1444,7 +1444,7 @@ static __inline__ unsigned internal_rgb_triad3pix32_mmx(unsigned state, uint32* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 2);
@@ -1457,7 +1457,7 @@ static __inline__ unsigned internal_rgb_triadstrong3pix32_mmx(unsigned state, ui
 
 #endif
 
-static __inline__ unsigned internal_rgb_triad3pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_012_def((uint32*)dst, (uint32*)src, mask, count / 4);
@@ -1468,7 +1468,7 @@ static __inline__ unsigned internal_rgb_triad3pix8_def(unsigned state, uint8* ds
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 4);
@@ -1479,7 +1479,7 @@ static __inline__ unsigned internal_rgb_triadstrong3pix8_def(unsigned state, uin
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad3pix16_def(unsigned state, uint8* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix16_def(unsigned state, uint8* dst, const uint16* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw32_012_def((uint32*)dst, (uint32*)src, mask, count / 2);
@@ -1490,7 +1490,7 @@ static __inline__ unsigned internal_rgb_triad3pix16_def(unsigned state, uint8* d
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix16_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix16_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 2);
@@ -1501,7 +1501,7 @@ static __inline__ unsigned internal_rgb_triadstrong3pix16_def(unsigned state, ui
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triad3pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triad3pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw32_012_def(dst, src, mask, count);
@@ -1512,7 +1512,7 @@ static __inline__ unsigned internal_rgb_triad3pix32_def(unsigned state, uint32* 
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_triadstrong3pix32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_triadstrong3pix32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	uint32* mask = rgb_triad3pix_mask + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
 
 	internal_rgb_raw32_01_def(dst, src, mask, count);
@@ -1556,7 +1556,7 @@ static void internal_rgb_scandouble_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ unsigned internal_rgb_scandouble8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw64_1_mmx(dst, src, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count / 8);
 	} else {
@@ -1566,7 +1566,7 @@ static __inline__ unsigned internal_rgb_scandouble8_mmx(unsigned state, uint8* d
 	return (state + 1) & 0x1;
 }
 
-static __inline__ unsigned internal_rgb_scandouble16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw64_1_mmx(dst, src, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count / 4);
 	} else {
@@ -1576,7 +1576,7 @@ static __inline__ unsigned internal_rgb_scandouble16_mmx(unsigned state, uint16*
 	return (state + 1) & 0x1;
 }
 
-static __inline__ unsigned internal_rgb_scandouble32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw64_1_mmx(dst,src,rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count / 2);
 	} else {
@@ -1588,7 +1588,7 @@ static __inline__ unsigned internal_rgb_scandouble32_mmx(unsigned state, uint32*
 
 #endif
 
-static __inline__ unsigned internal_rgb_scandouble8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count / 4);
 	} else {
@@ -1598,7 +1598,7 @@ static __inline__ unsigned internal_rgb_scandouble8_def(unsigned state, uint8* d
 	return (state + 1) & 0x1;
 }
 
-static __inline__ unsigned internal_rgb_scandouble16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count / 2);
 	} else {
@@ -1608,7 +1608,7 @@ static __inline__ unsigned internal_rgb_scandouble16_def(unsigned state, uint16*
 	return (state + 1) & 0x1;
 }
 
-static __inline__ unsigned internal_rgb_scandouble32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scandouble32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	if (state) {
 		internal_rgb_raw32_1_def(dst, src, rgb_scandouble_mask + RGB_SCANDOUBLE_MASK_1_0_0, count);
 	} else {
@@ -1643,29 +1643,29 @@ static void internal_rgb_scandoublevert_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ void internal_rgb_scandoublevert8_mmx(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert8_mmx(uint8* dst, const uint8* src, unsigned count) {
 	internal_rgb_raw64_01_mmx(dst,src,rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count / 8);
 }
 
-static __inline__ void internal_rgb_scandoublevert16_mmx(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert16_mmx(uint16* dst, const uint16* src, unsigned count) {
 	internal_rgb_raw64_01_mmx(dst,src,rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count / 4);
 }
 
-static __inline__ void internal_rgb_scandoublevert32_mmx(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert32_mmx(uint32* dst, const uint32* src, unsigned count) {
 	internal_rgb_raw64_01_mmx(dst,src,rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count / 2);
 }
 
 #endif
 
-static __inline__ void internal_rgb_scandoublevert8_def(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert8_def(uint8* dst, const uint8* src, unsigned count) {
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count / 4);
 }
 
-static __inline__ void internal_rgb_scandoublevert16_def(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert16_def(uint16* dst, const uint16* src, unsigned count) {
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count / 2);
 }
 
-static __inline__ void internal_rgb_scandoublevert32_def(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_rgb_scandoublevert32_def(uint32* dst, const uint32* src, unsigned count) {
 	internal_rgb_raw32_01_def(dst, src, rgb_scandoublevert_mask + RGB_SCANDOUBLEVERT_MASK_0_0_0, count);
 }
 
@@ -1719,7 +1719,7 @@ static void internal_rgb_scantriple_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy8_mmx(dst, src, count);
@@ -1738,7 +1738,7 @@ static __inline__ unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* d
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_scantriple16_mmx(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy16_mmx(dst, src, count);
@@ -1757,7 +1757,7 @@ static __inline__ unsigned internal_rgb_scantriple16_mmx(unsigned state, uint16*
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_scantriple32_mmx(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy32_mmx(dst, src, count);
@@ -1778,7 +1778,7 @@ static __inline__ unsigned internal_rgb_scantriple32_mmx(unsigned state, uint32*
 
 #endif
 
-static __inline__ unsigned internal_rgb_scantriple8_def(unsigned state, uint8* dst, uint8* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple8_def(unsigned state, uint8* dst, const uint8* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy8_def(dst, src, count);
@@ -1797,7 +1797,7 @@ static __inline__ unsigned internal_rgb_scantriple8_def(unsigned state, uint8* d
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_scantriple16_def(unsigned state, uint16* dst, uint16* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple16_def(unsigned state, uint16* dst, const uint16* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy16_def(dst, src, count);
@@ -1816,7 +1816,7 @@ static __inline__ unsigned internal_rgb_scantriple16_def(unsigned state, uint16*
 	return state;
 }
 
-static __inline__ unsigned internal_rgb_scantriple32_def(unsigned state, uint32* dst, uint32* src, unsigned count) {
+static __inline__ unsigned internal_rgb_scantriple32_def(unsigned state, uint32* dst, const uint32* src, unsigned count) {
 	switch (state) {
 		case 0 :
 			internal_copy32_def(dst, src, count);
@@ -1875,29 +1875,29 @@ static void internal_rgb_scantriplevert_set(void) {
 
 #if defined(USE_ASM_i586)
 
-static __inline__ void internal_rgb_scantriplevert8_mmx(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert8_mmx(uint8* dst, const uint8* src, unsigned count) {
 	internal_rgb_raw64x3_012nocarry_mmx(dst,src,rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count / 8);
 }
 
-static __inline__ void internal_rgb_scantriplevert16_mmx(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert16_mmx(uint16* dst, const uint16* src, unsigned count) {
 	internal_rgb_raw64x3_012nocarry_mmx(dst,src,rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count / 4);
 }
 
-static __inline__ void internal_rgb_scantriplevert32_mmx(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert32_mmx(uint32* dst, const uint32* src, unsigned count) {
 	internal_rgb_raw64x3_012nocarry_mmx(dst,src,rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count / 2);
 }
 
 #endif
 
-static __inline__ void internal_rgb_scantriplevert8_def(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert8_def(uint8* dst, const uint8* src, unsigned count) {
 	internal_rgb_raw32x3_012_def((uint32*)dst, (uint32*)src, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count / 4);
 }
 
-static __inline__ void internal_rgb_scantriplevert16_def(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert16_def(uint16* dst, const uint16* src, unsigned count) {
 	internal_rgb_raw32x3_012_def((uint32*)dst, (uint32*)src, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count / 2);
 }
 
-static __inline__ void internal_rgb_scantriplevert32_def(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_rgb_scantriplevert32_def(uint32* dst, const uint32* src, unsigned count) {
 	internal_rgb_raw32x3_012_def(dst, src, rgb_scantriplevert_mask + RGB_SCANTRIPLEVERT_MASK_0_0_0,count);
 }
 

@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <math.h>
 
-#ifdef WIN32
+#ifdef __WIN32__
 #define M_PI       3.14159265358979323846
 #define M_SQRT2    1.41421356237309504880
 #define random rand

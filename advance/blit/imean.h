@@ -96,7 +96,7 @@ static __inline__ uint32 internal_mean_value(uint32 v0, uint32 v1)
 /* Compute the mean of dst and src and store the result in dst */
 
 #if defined(USE_ASM_i586)
-static __inline__ void internal_mean64_vert_self_mmx(void* dst, void* src, unsigned count)
+static __inline__ void internal_mean64_vert_self_mmx(void* dst, const void* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -128,20 +128,20 @@ static __inline__ void internal_mean64_vert_self_mmx(void* dst, void* src, unsig
 	);
 }
 
-static __inline__ void internal_mean8_vert_self_mmx(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_mean8_vert_self_mmx(uint8* dst, const uint8* src, unsigned count) {
 	internal_mean64_vert_self_mmx(dst,src,count / 8);
 }
 
-static __inline__ void internal_mean16_vert_self_mmx(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_mean16_vert_self_mmx(uint16* dst, const uint16* src, unsigned count) {
 	internal_mean64_vert_self_mmx(dst,src,count / 4);
 }
 
-static __inline__ void internal_mean32_vert_self_mmx(uint32* dst, uint32* src, unsigned count) {
+static __inline__ void internal_mean32_vert_self_mmx(uint32* dst, const uint32* src, unsigned count) {
 	internal_mean64_vert_self_mmx(dst,src,count / 2);
 }
 #endif
 
-static __inline__ void internal_mean32_vert_self_def(uint32* dst32, uint32* src32, unsigned count) {
+static __inline__ void internal_mean32_vert_self_def(uint32* dst32, const uint32* src32, unsigned count) {
 
 	while (count) {
 		dst32[0] = internal_mean_value(dst32[0],src32[0]);
@@ -151,15 +151,15 @@ static __inline__ void internal_mean32_vert_self_def(uint32* dst32, uint32* src3
 	}
 }
 
-static __inline__ void internal_mean8_vert_self_def(uint8* dst, uint8* src, unsigned count) {
+static __inline__ void internal_mean8_vert_self_def(uint8* dst, const uint8* src, unsigned count) {
 	internal_mean32_vert_self_def((uint32*)dst, (uint32*)src, count / 4);
 }
 
-static __inline__ void internal_mean16_vert_self_def(uint16* dst, uint16* src, unsigned count) {
+static __inline__ void internal_mean16_vert_self_def(uint16* dst, const uint16* src, unsigned count) {
 	internal_mean32_vert_self_def((uint32*)dst, (uint32*)src, count / 2);
 }
 
-static __inline__ void internal_mean8_vert_self_step(uint8* dst8, uint8* src8, unsigned count, int step1) {
+static __inline__ void internal_mean8_vert_self_step(uint8* dst8, const uint8* src8, unsigned count, int step1) {
 	while (count) {
 		dst8[0] = internal_mean_value(dst8[0],src8[0]);
 		src8 += step1;
@@ -168,7 +168,7 @@ static __inline__ void internal_mean8_vert_self_step(uint8* dst8, uint8* src8, u
 	}
 }
 
-static __inline__ void internal_mean16_vert_self_step(uint16* dst16, uint16* src16, unsigned count, int step1) {
+static __inline__ void internal_mean16_vert_self_step(uint16* dst16, const uint16* src16, unsigned count, int step1) {
 	while (count) {
 		dst16[0] = internal_mean_value(dst16[0],src16[0]);
 		PADD(src16,step1);
@@ -177,7 +177,7 @@ static __inline__ void internal_mean16_vert_self_step(uint16* dst16, uint16* src
 	}
 }
 
-static __inline__ void internal_mean32_vert_self_step(uint32* dst32, uint32* src32, unsigned count, int step1) {
+static __inline__ void internal_mean32_vert_self_step(uint32* dst32, const uint32* src32, unsigned count, int step1) {
 	while (count) {
 		dst32[0] = internal_mean_value(dst32[0],src32[0]);
 		PADD(src32,step1);
@@ -192,7 +192,7 @@ static __inline__ void internal_mean32_vert_self_step(uint32* dst32, uint32* src
 #if defined(USE_ASM_i586)
 static uint32 mean8_horz_step1_mask[2] = { 0x00000000, 0xFF000000 };
 
-static __inline__ void internal_mean8_horz_next_step1_mmx(uint8* dst, uint8* src, unsigned count)
+static __inline__ void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -261,7 +261,7 @@ static __inline__ void internal_mean8_horz_next_step1_mmx(uint8* dst, uint8* src
 
 static uint32 mean16_horz_step2_mask[2] = { 0x00000000, 0xFFFF0000 };
 
-static __inline__ void internal_mean16_horz_next_step2_mmx(uint16* dst, uint16* src, unsigned count)
+static __inline__ void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -330,7 +330,7 @@ static __inline__ void internal_mean16_horz_next_step2_mmx(uint16* dst, uint16* 
 
 static uint32 mean32_horz_step4_mask[2] = { 0x00000000, 0xFFFFFFFF };
 
-static __inline__ void internal_mean32_horz_next_step4_mmx(uint32* dst, uint32* src, unsigned count)
+static __inline__ void internal_mean32_horz_next_step4_mmx(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -398,10 +398,10 @@ static __inline__ void internal_mean32_horz_next_step4_mmx(uint32* dst, uint32* 
 }
 #endif
 
-static __inline__ void internal_mean8_horz_next_step1_def(uint8* dst8, uint8* src8, unsigned count) {
+static __inline__ void internal_mean8_horz_next_step1_def(uint8* dst8, const uint8* src8, unsigned count) {
 	count /= 4;
 	if (count) {
-		uint32* src32 = (uint32*)src8;
+		const uint32* src32 = (const uint32*)src8;
 		uint32* dst32 = (uint32*)dst8;
 		--count;
 		while (count) {
@@ -414,10 +414,10 @@ static __inline__ void internal_mean8_horz_next_step1_def(uint8* dst8, uint8* sr
 	}
 }
 
-static __inline__ void internal_mean16_horz_next_step2_def(uint16* dst16, uint16* src16, unsigned count) {
+static __inline__ void internal_mean16_horz_next_step2_def(uint16* dst16, const uint16* src16, unsigned count) {
 	count /= 2;
 	if (count) {
-		uint32* src32 = (uint32*)src16;
+		const uint32* src32 = (uint32*)src16;
 		uint32* dst32 = (uint32*)dst16;
 		--count;
 		while (count) {
@@ -430,7 +430,7 @@ static __inline__ void internal_mean16_horz_next_step2_def(uint16* dst16, uint16
 	}
 }
 
-static __inline__ void internal_mean32_horz_next_step4_def(uint32* dst32, uint32* src32, unsigned count) {
+static __inline__ void internal_mean32_horz_next_step4_def(uint32* dst32, const uint32* src32, unsigned count) {
 	if (count) {
 		--count;
 		while (count) {
@@ -443,7 +443,7 @@ static __inline__ void internal_mean32_horz_next_step4_def(uint32* dst32, uint32
 	}
 }
 
-static __inline__ void internal_mean8_horz_next_step(uint8* dst8, uint8* src8, unsigned count, int step) {
+static __inline__ void internal_mean8_horz_next_step(uint8* dst8, const uint8* src8, unsigned count, int step) {
 	if (count) {
 		--count;
 		while (count) {
@@ -456,7 +456,7 @@ static __inline__ void internal_mean8_horz_next_step(uint8* dst8, uint8* src8, u
 	}
 }
 
-static __inline__ void internal_mean16_horz_next_step(uint16* dst16, uint16* src16, unsigned count, int step) {
+static __inline__ void internal_mean16_horz_next_step(uint16* dst16, const uint16* src16, unsigned count, int step) {
 	if (count) {
 		--count;
 		while (count) {
@@ -469,7 +469,7 @@ static __inline__ void internal_mean16_horz_next_step(uint16* dst16, uint16* src
 	}
 }
 
-static __inline__ void internal_mean32_horz_next_step(uint32* dst32, uint32* src32, unsigned count, int step) {
+static __inline__ void internal_mean32_horz_next_step(uint32* dst32, const uint32* src32, unsigned count, int step) {
 	if (count) {
 		--count;
 		while (count) {

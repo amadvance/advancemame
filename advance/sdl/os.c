@@ -47,7 +47,8 @@
 #include <sys/stat.h>
 
 struct os_context {
-	int is_term; /**< Is termination requested */
+	int is_term; /**< Is termination requested. */
+	char title[128]; /**< Title of the window. */
 };
 
 static struct os_context OS;
@@ -63,42 +64,6 @@ os_clock_t os_clock(void) {
 
 /***************************************************************************/
 /* Init */
-
-#include "icondef.dat"
-
-static void SDL_WM_DefIcon(void) {
-	SDL_Surface* surface;
-	SDL_Color colors[ICON_PALETTE];
-	unsigned i,x,y;
-
-	surface = SDL_CreateRGBSurface(SDL_SWSURFACE, ICON_SIZE, ICON_SIZE, 8, 0, 0, 0, 0);
-	if (!surface) {
-		log_std(("os: SDL_WM_DefIcon() failed in SDL_CreateRGBSurface\n"));
-		return;
-	}
-
-	for(y=0;y<ICON_SIZE;++y) {
-		unsigned char* p = (unsigned char*)surface->pixels + y * surface->pitch;
-		for(x=0;x<ICON_SIZE;++x)
-			p[x] = icon_pixel[y*ICON_SIZE+x];
-	}
-
-	for(i=0;i<ICON_PALETTE;++i) {
-		colors[i].r = icon_palette[i*3+0];
-		colors[i].g = icon_palette[i*3+1];
-		colors[i].b = icon_palette[i*3+2];
-	}
-
-	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
-		log_std(("os: SDL_WM_DefIcon() failed in SDL_SetColors\n"));
-		SDL_FreeSurface(surface);
-		return;
-	}
-
-	SDL_WM_SetIcon(surface, icon_mask);
-
-	SDL_FreeSurface(surface);
-}
 
 int os_init(struct conf_context* context) {
 	memset(&OS,0,sizeof(OS));
@@ -133,8 +98,7 @@ int os_inner_init(const char* title) {
 		log_std(("os: big endian system\n"));
 
 	/* set the titlebar */
-	SDL_WM_SetCaption(title,title);
-	SDL_WM_DefIcon();
+	strcpy(OS.title, title);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -203,6 +167,10 @@ void os_poll(void) {
 				break;
 		}
 	}
+}
+
+const char* os_internal_title_get(void) {
+	return OS.title;
 }
 
 /***************************************************************************/

@@ -47,7 +47,8 @@ static void video_line_rgb_triad16pix8_step1_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_triad16pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad16pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triad16pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad16pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad16pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -64,7 +65,8 @@ static void video_line_rgb_triad16pix16_step2_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_triad16pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad16pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triad16pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad16pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad16pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -81,7 +83,8 @@ static void video_line_rgb_triad16pix32_step4_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_triad16pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad16pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triad16pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad16pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad16pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -98,7 +101,8 @@ static void video_line_rgb_triad6pix8_step1_def(const struct video_stage_horz_st
 }
 
 static void video_stage_rgb_triad6pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad6pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triad6pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad6pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad6pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -115,7 +119,8 @@ static void video_line_rgb_triad6pix16_step2_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_triad6pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad6pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triad6pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad6pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad6pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -132,7 +137,8 @@ static void video_line_rgb_triad6pix32_step4_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_triad6pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad6pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triad6pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad6pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad6pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -149,7 +155,8 @@ static void video_line_rgb_triad3pix8_step1_def(const struct video_stage_horz_st
 }
 
 static void video_stage_rgb_triad3pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad3pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triad3pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad3pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad3pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -166,7 +173,8 @@ static void video_line_rgb_triad3pix16_step2_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_triad3pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad3pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triad3pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad3pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad3pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -183,7 +191,8 @@ static void video_line_rgb_triad3pix32_step4_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_triad3pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triad3pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triad3pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triad3pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triad3pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -200,7 +209,8 @@ static void video_line_rgb_triadstrong16pix8_step1_def(const struct video_stage_
 }
 
 static void video_stage_rgb_triadstrong16pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triadstrong16pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong16pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -217,7 +227,8 @@ static void video_line_rgb_triadstrong16pix16_step2_def(const struct video_stage
 }
 
 static void video_stage_rgb_triadstrong16pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triadstrong16pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong16pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -234,7 +245,8 @@ static void video_line_rgb_triadstrong16pix32_step4_def(const struct video_stage
 }
 
 static void video_stage_rgb_triadstrong16pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triadstrong16pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong16pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong16pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -251,7 +263,8 @@ static void video_line_rgb_triadstrong6pix8_step1_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_triadstrong6pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triadstrong6pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong6pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -268,7 +281,8 @@ static void video_line_rgb_triadstrong6pix16_step2_def(const struct video_stage_
 }
 
 static void video_stage_rgb_triadstrong6pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triadstrong6pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong6pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -285,7 +299,8 @@ static void video_line_rgb_triadstrong6pix32_step4_def(const struct video_stage_
 }
 
 static void video_stage_rgb_triadstrong6pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triadstrong6pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong6pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong6pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -302,7 +317,8 @@ static void video_line_rgb_triadstrong3pix8_step1_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_triadstrong3pix8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,1,1,BLITTER(video_line_rgb_triadstrong3pix8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong3pix8_step1),0);
 }
 
 /****************************************************************************/
@@ -319,7 +335,8 @@ static void video_line_rgb_triadstrong3pix16_step2_def(const struct video_stage_
 }
 
 static void video_stage_rgb_triadstrong3pix16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,2,2,BLITTER(video_line_rgb_triadstrong3pix16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong3pix16_step2),0);
 }
 
 /****************************************************************************/
@@ -336,7 +353,8 @@ static void video_line_rgb_triadstrong3pix32_step4_def(const struct video_stage_
 }
 
 static void video_stage_rgb_triadstrong3pix32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,4,4,BLITTER(video_line_rgb_triadstrong3pix32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_triadstrong3pix,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_triadstrong3pix32_step4),0);
 }
 
 /****************************************************************************/
@@ -353,7 +371,8 @@ static void video_line_rgb_scandouble8_step1_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_scandouble8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,1,1,BLITTER(video_line_rgb_scandouble8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandouble8_step1),0);
 }
 
 /****************************************************************************/
@@ -370,7 +389,8 @@ static void video_line_rgb_scandouble16_step2_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_scandouble16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,2,2,BLITTER(video_line_rgb_scandouble16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandouble16_step2),0);
 }
 
 /****************************************************************************/
@@ -387,7 +407,8 @@ static void video_line_rgb_scandouble32_step4_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_scandouble32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,4,4,BLITTER(video_line_rgb_scandouble32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublehorz,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandouble32_step4),0);
 }
 
 /****************************************************************************/
@@ -404,7 +425,8 @@ static void video_line_rgb_scandoublevert8_step1_def(const struct video_stage_ho
 }
 
 static void video_stage_rgb_scandoublevert8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,1,1,BLITTER(video_line_rgb_scandoublevert8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandoublevert8_step1),0);
 }
 
 /****************************************************************************/
@@ -421,7 +443,8 @@ static void video_line_rgb_scandoublevert16_step2_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_scandoublevert16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,2,2,BLITTER(video_line_rgb_scandoublevert16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandoublevert16_step2),0);
 }
 
 /****************************************************************************/
@@ -438,7 +461,8 @@ static void video_line_rgb_scandoublevert32_step4_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_scandoublevert32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,4,4,BLITTER(video_line_rgb_scandoublevert32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scandoublevert,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scandoublevert32_step4),0);
 }
 
 /****************************************************************************/
@@ -455,7 +479,8 @@ static void video_line_rgb_scantriple8_step1_def(const struct video_stage_horz_s
 }
 
 static void video_stage_rgb_scantriple8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,1,1,BLITTER(video_line_rgb_scantriple8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriple8_step1),0);
 }
 
 /****************************************************************************/
@@ -472,7 +497,8 @@ static void video_line_rgb_scantriple16_step2_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_scantriple16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,2,2,BLITTER(video_line_rgb_scantriple16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriple16_step2),0);
 }
 
 /****************************************************************************/
@@ -489,7 +515,8 @@ static void video_line_rgb_scantriple32_step4_def(const struct video_stage_horz_
 }
 
 static void video_stage_rgb_scantriple32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,4,4,BLITTER(video_line_rgb_scantriple32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplehorz,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriple32_step4),0);
 }
 
 /****************************************************************************/
@@ -506,7 +533,8 @@ static void video_line_rgb_scantriplevert8_step1_def(const struct video_stage_ho
 }
 
 static void video_stage_rgb_scantriplevert8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,1,1,BLITTER(video_line_rgb_scantriplevert8_step1),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,1,sdx,1);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriplevert8_step1),0);
 }
 
 /****************************************************************************/
@@ -523,7 +551,8 @@ static void video_line_rgb_scantriplevert16_step2_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_scantriplevert16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,2,2,BLITTER(video_line_rgb_scantriplevert16_step2),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,2,sdx,2);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriplevert16_step2),0);
 }
 
 /****************************************************************************/
@@ -540,7 +569,8 @@ static void video_line_rgb_scantriplevert32_step4_def(const struct video_stage_h
 }
 
 static void video_stage_rgb_scantriplevert32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp) {
-	STAGE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,4,4,BLITTER(video_line_rgb_scantriplevert32_step4),0);
+	STAGE_SIZE(stage,pipe_x_rgb_scantriplevert,sdx,sdp,4,sdx,4);
+	STAGE_PUT(stage,BLITTER(video_line_rgb_scantriplevert32_step4),0);
 }
 
 #endif

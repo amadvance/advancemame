@@ -1,6 +1,10 @@
 Name
 	advmenu - History For AdvanceMENU
 
+AdvanceMENU Version 2.1.1 2002/09
+	) Fixed the window title and the icon in the sdl system.
+	) In Windows the default sdl samples buffer is now 2048
+
 AdvanceMENU Version 2.1.0 2002/09
 	) Revised the output format of all the documentation. Now
 		it's available as formatted text, html and man pages.

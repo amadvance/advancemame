@@ -755,6 +755,17 @@ Configuration
 		scan2horz - Scanline of 2 horizontal lines.
 		scan3horz - Scanline of 3 horizontal lines.
 
+    display_interlaceeffect
+	This option enables some special operations on interlaced modes.
+	On not interlaced modes the effect is always off.
+
+	:display_interlaceeffect none | even | odd
+
+	Options:
+		none - No effect (default).
+		even - Swap the even rows.
+		odd - Swap the odd rows.
+
     display_brightness
 	Select the image brightness factor.
 

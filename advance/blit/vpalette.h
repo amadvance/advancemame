@@ -64,7 +64,9 @@ static void video_line_palette8to8(const struct video_stage_horz_struct* stage, 
 }
 
 static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette8to8,sdx,sdp,1,1,palette,video_line_palette8to8_step1,video_line_palette8to8);
+	STAGE_SIZE(stage,pipe_palette8to8,sdx,sdp,1,sdx,1);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,video_line_palette8to8_step1,video_line_palette8to8);
 }
 
 /****************************************************************************/
@@ -134,7 +136,9 @@ static void video_line_palette8to16(const struct video_stage_horz_struct* stage,
 }
 
 static void video_stage_palette8to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette8to16,sdx,sdp,1,2,palette,BLITTER(video_line_palette8to16_step1),video_line_palette8to16);
+	STAGE_SIZE(stage,pipe_palette8to16,sdx,sdp,1,sdx,2);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,BLITTER(video_line_palette8to16_step1),video_line_palette8to16);
 }
 
 /****************************************************************************/
@@ -168,7 +172,9 @@ static void video_line_palette8to32(const struct video_stage_horz_struct* stage,
 }
 
 static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, int unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette8to32,sdx,sdp,1,4,palette,video_line_palette8to32_step4,video_line_palette8to32);
+	STAGE_SIZE(stage,pipe_palette8to32,sdx,sdp,1,sdx,4);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,video_line_palette8to32_step4,video_line_palette8to32);
 }
 
 /****************************************************************************/
@@ -317,7 +323,9 @@ static void video_line_palette16to8_def(const struct video_stage_horz_struct* st
 }
 
 static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette16to8,sdx,sdp,2,1,palette,BLITTER(video_line_palette16to8_step2),BLITTER(video_line_palette16to8));
+	STAGE_SIZE(stage,pipe_palette16to8,sdx,sdp,2,sdx,1);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,BLITTER(video_line_palette16to8_step2),BLITTER(video_line_palette16to8));
 }
 
 /****************************************************************************/
@@ -424,7 +432,9 @@ static void video_line_palette16to16_def(const struct video_stage_horz_struct* s
 }
 
 static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette16to16,sdx,sdp,2,2,palette,BLITTER(video_line_palette16to16_step2),BLITTER(video_line_palette16to16));
+	STAGE_SIZE(stage,pipe_palette16to16,sdx,sdp,2,sdx,2);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,BLITTER(video_line_palette16to16_step2),BLITTER(video_line_palette16to16));
 }
 
 /****************************************************************************/
@@ -516,7 +526,9 @@ static void video_line_palette16to32_def(const struct video_stage_horz_struct* s
 }
 
 static void video_stage_palette16to32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp, unsigned* palette) {
-	STAGE_PALETTE(stage,pipe_palette16to32,sdx,sdp,2,4,palette,BLITTER(video_line_palette16to32_step2),BLITTER(video_line_palette16to32));
+	STAGE_SIZE(stage,pipe_palette16to32,sdx,sdp,2,sdx,4);
+	STAGE_PALETTE(stage,palette);
+	STAGE_PUT(stage,BLITTER(video_line_palette16to32_step2),BLITTER(video_line_palette16to32));
 }
 
 #endif
