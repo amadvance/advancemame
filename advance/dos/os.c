@@ -143,7 +143,7 @@ void __wrap_set_config_string(const char *section, const char *name, const char 
 	if (val) {
 		if (!conf_is_registered(OS.allegro_conf, allegro_name))
 			conf_string_register(OS.allegro_conf, allegro_name);
-		conf_string_set(OS.allegro_conf, "", allegro_name, val); /* ignore adv_error */
+		conf_string_set(OS.allegro_conf, "", allegro_name, val); /* ignore error */
 	} else {
 		conf_remove(OS.allegro_conf, "", allegro_name);
 	}
@@ -161,7 +161,7 @@ void __wrap_set_config_int(const char *section, const char *name, int val) {
 	if (!conf_is_registered(OS.allegro_conf, allegro_name))
 		conf_string_register(OS.allegro_conf, allegro_name);
 	sprintf(buffer,"%d",val);
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore adv_error */
+	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
 }
 
 void __wrap_set_config_id(const char *section, const char *name, int val) {
@@ -180,7 +180,7 @@ void __wrap_set_config_id(const char *section, const char *name, int val) {
 	buffer[1] = (((unsigned)val) >> 16) & 0xFF;
 	buffer[0] = (((unsigned)val) >> 24) & 0xFF;
 	buffer[4] = 0;
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore adv_error */
+	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
 }
 
 #endif
@@ -241,7 +241,7 @@ static void os_clock_setup(void) {
 	OS_CLOCKS_PER_SEC = USE_TICKER_FIXED;
 #else
 	os_clock_t v[7];
-	double adv_error;
+	double error;
 	int i;
 
 	ticker_measure(v,7);
@@ -254,11 +254,11 @@ static void os_clock_setup(void) {
 	OS_CLOCKS_PER_SEC = v[3]; /* median value */
 
 	if (v[0])
-		adv_error = (v[6] - v[0]) / (double)v[0];
+		error = (v[6] - v[0]) / (double)v[0];
 	else
-		adv_error = 0;
+		error = 0;
 
-	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], adv_error * 100.0));
+	log_std(("os: select clock %g (err %g%%)\n", (double)v[3], error * 100.0));
 #endif
 }
 

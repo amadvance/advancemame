@@ -105,7 +105,7 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 	}
 
 	if (AInitialize() != AUDIO_ERROR_NONE) {
-		log_std(("sound:seal: adv_error in AInitialize\n"));
+		log_std(("sound:seal: error in AInitialize\n"));
 		return -1;
 	}
 
@@ -113,7 +113,7 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 		UINT id = device_id;
 
 		if (APingAudio(&id) != AUDIO_ERROR_NONE) {
-			log_std(("sound:seal: adv_error in APingAudio\n"));
+			log_std(("sound:seal: error in APingAudio\n"));
 			return -1;
 		}
 
@@ -139,7 +139,7 @@ adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, d
 	}
 
 	if (AOpenAudio(&info) != AUDIO_ERROR_NONE) {
-		log_std(("sound:seal: adv_error in AOpenAudio\n"));
+		log_std(("sound:seal: error in AOpenAudio\n"));
 		return -1;
 	}
 

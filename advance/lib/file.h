@@ -78,6 +78,7 @@ char file_dir_slash(void);
 /**
  * Compute the absolute path.
  * If the file is already an absolute path the directory is ignored.
+ * \note The args and the returned value are in the UNIX format.
  * \param dir The base directory.
  * \param file The relative file spec.
  * \return The resulting absolute path.
@@ -100,6 +101,13 @@ const char* file_import(const char* path);
  */
 const char* file_export(const char* path);
 
+/**
+ * Create a directory.
+ * \note The arg is in the OS depended format.
+ * \return 0 on success.
+ */
+int file_mkdir(const char* dir);
+
 /***************************************************************************/
 /* Files */
 
@@ -116,7 +124,7 @@ const char* file_config_file_root(const char* file);
  * Complete path of a file in the home data directory.
  * If the path is relative, the home directory is added. If the
  * path is absolute the path isn't changed.
- * \note The arg and the returned value are in the OS depended format.
+ * \note The arg and the returned value are in the OS format.
  * \return The complete path.
  */
 const char* file_config_file_home(const char* file);
@@ -125,28 +133,28 @@ const char* file_config_file_home(const char* file);
  * Complete path of a file in the legacy data directory.
  * If the path is relative, the legacye directory is added. If the
  * path is absolute the path isn't changed.
- * \note The arg and the returned value are in the OS depended format.
+ * \note The arg and the returned value are in the OS format.
  * \return The complete path or 0 if the legacy dir is not supported.
  */
 const char* file_config_file_legacy(const char* file);
 
 /**
  * Directory list where to search a subdirectory or a file.
- * \note The returned value is in the OS depended format.
+ * \note The returned value is in the OS format.
  * \return The directory list with the tag added. Generally first the HOME DATA directory and as second choice the ROOT DATA directory.
  */
 const char* file_config_dir_multidir(const char* tag);
 
 /**
  * Single directory where to search a subdirectory or a file.
- * \note The returned value is in the OS depended format.
+ * \note The returned value is in the OS format.
  * \return The directory with the tag added. Generally the HOME DATA directory.
  */
 const char* file_config_dir_singledir(const char* tag);
 
 /**
  * Directory list where search a single support file.
- * \note The returned value is in the OS depended format.
+ * \note The returned value is in the OS format.
  * \return The directory list. Generally first the HOME DATA directory and as second choice the ROOT DATA directory.
  */
 const char* file_config_dir_singlefile(void);

@@ -593,7 +593,7 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 				log_std(("vbe: try setting 8 bit palette\n"));
 				if (vbe_dac_set(8)!=0) {
 					log_std(("vbe: set 8 bit palette FAILED\n"));
-					/* ignore adv_error, if failed the default is 6 bit */
+					/* ignore error, if failed the default is 6 bit */
 				}
 			}
 #endif
@@ -602,7 +602,7 @@ adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 		/* inizialize pm interface */
 		if (vbe_state.info.VESAVersion >= 0x200) {
 			if (vbe_pm_init() != 0) {
-				/* ignore adv_error, don't use pm interface */
+				/* ignore error, don't use pm interface */
 			}
 		}
 
@@ -711,7 +711,7 @@ adv_error vbe_init(void) {
 
 		ret = __dpmi_allocate_dos_memory(size / 16, &ret_selector_or_max);
 		if (ret == -1) {
-			log_std(("vbe: adv_error allocationg the VBE stack\n"));
+			log_std(("vbe: error allocationg the VBE stack\n"));
 			error_set("Error allocatiog the VBE stack");
 			return -1;
 		}
@@ -796,7 +796,7 @@ adv_error vbe_init(void) {
 	for(i=0;vbe_mode_map[i]!=0xFFFF;++i) {
 		vbe_ModeInfoBlock info;
 		if (vbe_mode_info_get(&info, vbe_mode_map[i])!=0) {
-			log_std(("vbe: adv_error getting info for mode %x\n",(unsigned)vbe_mode_map[i]));
+			log_std(("vbe: error getting info for mode %x\n",(unsigned)vbe_mode_map[i]));
 		} else {
 			if (!(info.ModeAttributes & vbeMdGraphMode)) {
 				log_std(("vbe: mode %4xh %4dx%4d text\n",vbe_mode_map[i],info.XResolution,info.YResolution));

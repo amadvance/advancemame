@@ -84,10 +84,10 @@ static adv_device DEVICE[] = {
  *      7 - clock           4
  *      9 - ack             12 (conport 1, 3, 4, 5, 6), 14 (conport 2) **
  *
- *      ** There is an adv_error in the DirectPad Pro documentation, which states that
+ *      ** There is an error in the DirectPad Pro documentation, which states that
  *         the second control port should have pin 9 connected to pin 15 on the
  *         parallel port. This should actually be pin 14 on the parallel port. To
- *         make things more confusing, this adv_error is unlikely to prevent the
+ *         make things more confusing, this error is unlikely to prevent the
  *         interface from working properly. It's also possible that a change to the
  *         scanning code has been made in version 5.0 to prevent people from having
  *         to rewire their interfaces.
@@ -196,7 +196,7 @@ adv_error joystickb_allegro_init(int id)
 
 	log_std(("joystickb:allegro: joystick load calibration data\n"));
 	if (load_joystick_data(0) != 0) {
-		log_std(("joystickb:allegro: joystick adv_error loading calibration data, try reinizializing\n"));
+		log_std(("joystickb:allegro: joystick error loading calibration data, try reinizializing\n"));
 		if (install_joystick(allegro_state.id) != 0) {
 			log_std(("joystickb:allegro: joystick initialization failed\n"));
 			return -1;
@@ -338,8 +338,8 @@ const char* joystickb_allegro_calib_next(void)
 		if (joy[allegro_state.calibration_target].flags & JOYFLAG_CALIBRATE) {
 			if (!allegro_state.calibration_first) {
 				if (calibrate_joystick(allegro_state.calibration_target) != 0) {
-					log_std(("joystickb:allegro: joystick adv_error in calibration %d\n",allegro_state.calibration_target));
-					/* stop on adv_error */
+					log_std(("joystickb:allegro: joystick error in calibration %d\n",allegro_state.calibration_target));
+					/* stop on error */
 					return 0;
 				}
 			}

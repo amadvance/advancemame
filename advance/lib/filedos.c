@@ -32,6 +32,7 @@
 
 #include <signal.h>
 #include <process.h>
+#include <sys/stat.h>
 #include <conio.h>
 #include <stdio.h>
 #include <dos.h>
@@ -230,6 +231,14 @@ const char* file_export(const char* path) {
 	*dst_begin = 0;
 
 	return buffer;
+}
+
+int file_mkdir(const char* dir) {
+#ifdef __WIN32__
+	return mkdir(dir);
+#else
+	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+#endif
 }
 
 /***************************************************************************/

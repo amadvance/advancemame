@@ -55,6 +55,7 @@ fixed vert clock 50
 
 /* SVGA best fit modes */
 "pal_384x288 7.375 384 392 432 472 288 291 294 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
+"pal_768x288 14.75 768 784 864 944 288 291 294 312 -hsync -vsync", /* H 15625 [Hz], V 50.0801 [Hz] */
 "pal_768x576 14.75 768 784 864 944 576 582 588 625 -hsync -vsync interlace", /* H 15625 [Hz], V 50 [Hz] */
 
 /* SVGA standard modes */
@@ -75,6 +76,7 @@ fixed vert clock 59.94
 
 /* SVGA best fit modes */
 "ntsc_320x242 6.04186 320 328 352 384 242 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
+"ntsc_640x242 12.0837 640 656 704 768 242 245 248 262 -hsync -vsync", /* H 15734 [Hz], V 60.0534 [Hz] */
 "ntsc_640x484 12.0837 640 656 704 768 484 490 496 525 -hsync -vsync interlace", /* H 15734 [Hz], V 59.939 [Hz] */
 
 /* SVGA standard modes */

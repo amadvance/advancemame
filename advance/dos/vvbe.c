@@ -42,6 +42,60 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
+typedef struct vbe_internal_struct2 {
+	unsigned cap;
+} vbe_internal2;
+
+static vbe_internal2 vbe_state2;
+
+static void vbe_probe(void) {
+	unsigned flags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
+
+	adv_bool has8bit = 0;
+	adv_bool has15bit = 0;
+	adv_bool has16bit = 0;
+	adv_bool has24bit = 0;
+	adv_bool has32bit = 0;
+
+	vbe_mode_iterator i;
+	vbe_mode_iterator_begin(&i);
+
+	while (!vbe_mode_iterator_end(&i)) {
+		unsigned mode;
+		vbe_ModeInfoBlock info;
+
+		mode = vbe_mode_iterator_get(&i) | vbeLinearBuffer;
+
+		if (vbe_mode_info_get(&info, mode) == 0
+			&& (info.ModeAttributes & flags) == flags
+			&& info.NumberOfPlanes == 1
+			&& (info.MemoryModel == vbeMemRGB || info.MemoryModel == vbeMemPK)) {
+
+			switch (info.BitsPerPixel) {
+				case 8 : has8bit = 1; break;
+				case 15 : has15bit = 1; break;
+				case 16 : has16bit = 1; break;
+				case 24 : has24bit = 1; break;
+				case 32 : has32bit = 1; break;
+			}
+		}
+
+		vbe_mode_iterator_next(&i);
+	}
+
+	/* remove unsupported bit depth */
+	if (!has8bit)
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+	if (!has15bit)
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+	if (!has16bit)
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+	if (!has24bit)
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT;
+	if (!has32bit)
+		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
+}
+
 static adv_error vbe_init2(int device_id) {
 	const adv_device* i = DEVICE;
 	while (i->name && i->id != device_id)
@@ -49,11 +103,18 @@ static adv_error vbe_init2(int device_id) {
 	if (!i->name)
 		return -1;
 
-	return vbe_init();
+	if (vbe_init() != 0)
+		return -1;
+
+	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
+
+	vbe_probe();
+
+	return 0;
 }
 
 unsigned vbe_flags(void) {
-	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
+	return vbe_state2.cap;
 }
 
 /**
@@ -284,13 +345,24 @@ void vbe_crtc_container_insert_default(adv_crtc_container* cc) {
 			&& (info.ModeAttributes & flags) == flags
 			&& info.NumberOfPlanes == 1
 			&& (info.MemoryModel == vbeMemRGB || info.MemoryModel == vbeMemPK)) {
+			adv_crtc_container_iterator j;
 
 			adv_crtc crtc;
 			crtc_fake_set(&crtc, info.XResolution, info.YResolution);
 
-			log_std(("video:vbe: mode %dx%d\n", (unsigned)info.XResolution, (unsigned)info.YResolution));
+			/* insert only if not already present, generally a mode is listed for many bit depths */
+			crtc_container_iterator_begin(&j, cc);
+			while (!crtc_container_iterator_is_end(&j)) {
+				adv_crtc* crtc_in = crtc_container_iterator_get(&j);
+				if (crtc_in->hde == crtc.hde && crtc_in->vde == crtc.vde && crtc_is_fake(crtc_in))
+					break;
+				crtc_container_iterator_next(&j);
+			}
 
-			crtc_container_insert(cc, &crtc);
+			if (crtc_container_iterator_is_end(&j)) {
+				log_std(("video:vbe: mode %dx%d\n", (unsigned)info.XResolution, (unsigned)info.YResolution));
+				crtc_container_insert(cc, &crtc);
+			}
 		}
 
 		vbe_mode_iterator_next(&i);

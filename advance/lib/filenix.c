@@ -98,35 +98,11 @@ int file_init(void) {
 				return -1;
 			}
 		} else {
-			if (mkdir(FL.home_dir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
+			if (mkdir(FL.home_dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
 				target_err("Failure: Error creating the directory %s\n", FL.home_dir);
 				return -1;
 			}
 		}
-
-#if defined(MAME) || defined(MESS) || defined(PAC)
-		{
-			char buffer[FILE_MAXPATH];
-			sprintf(buffer,"%s/cfg",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/snap",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/hi",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/nvram",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/memcard",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/sta",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/inp",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/image",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-			sprintf(buffer,"%s/diff",FL.home_dir);
-			mkdir(buffer,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		}
-#endif
 	}
 
 	return 0;
@@ -165,6 +141,10 @@ const char* file_import(const char* path) {
 
 const char* file_export(const char* path) {
 	return path;
+}
+
+int file_mkdir(const char* dir) {
+	return mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 /***************************************************************************/

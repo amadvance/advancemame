@@ -29,8 +29,6 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-
 /** \addtogroup Info */
 /*@{*/
 
@@ -43,12 +41,12 @@ enum info_t {
 	info_string      /* c string automatically converted */
 };
 
-void info_init(void);
+void info_init(int (*get)(void*), void (*unget)(void*, char), void* arg);
 void info_done(void);
 
 const char* info_text_get(void);
-enum info_t info_token_get(FILE* f);
-enum info_t info_skip_value(FILE* f);
+enum info_t info_token_get(void);
+enum info_t info_skip_value(void);
 
 unsigned info_row_get(void);
 unsigned info_col_get(void);
