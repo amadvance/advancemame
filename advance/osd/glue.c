@@ -1186,6 +1186,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	SU("ui_delete_cheat", UI_DELETE_CHEAT)
 	SU("ui_save_cheat", UI_SAVE_CHEAT)
 	SU("ui_watch_value", UI_WATCH_VALUE)
+	SU("ui_edit_cheat", UI_EDIT_CHEAT)
+	SU("ui_toggle_crosshair", UI_TOGGLE_CROSSHAIR)
 
 	/* specific of AdvanceMAME */
 	SU("safequit", MAME_PORT_SAFEQUIT)
@@ -2900,6 +2902,7 @@ void mame_done(struct advance_context* context)
 adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 {
 	char* s;
+	unsigned i, j;
 
 	option->artwork_backdrop_flag = conf_bool_get_default(cfg_context, "display_artwork_backdrop");
 	option->artwork_overlay_flag = conf_bool_get_default(cfg_context, "display_artwork_overlay");
@@ -2949,6 +2952,33 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 		target_err("Error loading the device configuration options.\n");
 		return -1;
 	}
+
+#if 0 /* TEST: Print the list of digital controls */
+	log_std(("glue: MAME/MESS digital port list\n"));
+	j = 0;
+	log_std(("\t\t"));
+	for(i=0;GLUE_PORT_STD[i].name;++i) {
+		j += strlen(GLUE_PORT_STD[i].name) + 2;
+		log_std(("%s,", GLUE_PORT_STD[i].name));
+		if (j>54) {
+			j = 0;
+			log_std(("\n\t\t"));
+		} else {
+			log_std((" "));
+		}
+	}
+	for(i=0;GLUE_KEYBOARD_STD[i].name;++i) {
+		j += strlen(GLUE_KEYBOARD_STD[i].name) + 2;
+		log_std(("%s,", GLUE_KEYBOARD_STD[i].name));
+		if (j>54) {
+			j = 0;
+			log_std(("\n\t\t"));
+		} else {
+			log_std((" "));
+		}
+	}
+	log_std(("\n"));
+#endif
 #endif
 
 	return 0;

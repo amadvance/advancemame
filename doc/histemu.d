@@ -9,6 +9,8 @@ AdvanceMAME Version 0.89.1 2004/12
 	) Added a SVGALIB patch to fix the compilation with Linux
 		Kernel 2.6 when you get the warning of missing
 		"pci_find_class" function.
+	) Added the missing control code `ui_edit_cheat' and
+		`ui_toggle_crosshair'.
 
 AdvanceMAME Version 0.89.0 2004/12
 	) Added a ncurses driver for text mode in Linux.
