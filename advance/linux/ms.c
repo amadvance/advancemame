@@ -218,7 +218,9 @@ static void raw_mouse_setspeed(struct raw_mouse_context* context, const int old,
     tty.c_iflag = IGNBRK | IGNPAR;
     tty.c_oflag = 0;
     tty.c_lflag = 0;
+#if 0 /* only present in Linux */
     tty.c_line  = 0;
+#endif
     tty.c_cc[VTIME] = 0;
     tty.c_cc[VMIN]  = 1;
 
@@ -365,7 +367,9 @@ static int raw_mouse_init(struct raw_mouse_context* context)
 	tty.c_iflag = IGNBRK | IGNPAR;
 	tty.c_oflag = 0;
 	tty.c_lflag = 0;
+#if 0 /* only present in Linux */
 	tty.c_line = 0;
+#endif
 	tty.c_cc[VTIME] = 0;
 	tty.c_cc[VMIN] = 1;
 	tty.c_cflag = cflag[context->type] | B1200;
