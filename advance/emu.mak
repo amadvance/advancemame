@@ -392,6 +392,7 @@ ifneq (,$(findstring USE_ASM_i586,$(CFLAGS)))
 EMUCFLAGS += -DX86_ASM
 X86_ASM_68000=1
 #X86_ASM_68020=1
+X86_MIPS3_DRC=1
 endif
 
 ifneq (,$(findstring USE_LSB,$(CFLAGS)))
@@ -404,7 +405,6 @@ EMUCFLAGS += -DMSB_FIRST
 M68000FLAGS += -DMSB_FIRST
 endif
 
-# TODO check the -I. need
 EMUCFLAGS += \
 	-I. \
 	-I$(EMUSRC)
