@@ -48,14 +48,14 @@ void inputb_none_done(void)
 	log_std(("inputb:none: inputb_none_done()\n"));
 }
 
-video_bool inputb_hit(void)
+video_bool inputb_none_hit(void)
 {
 	log_debug(("inputb:none: inputb_none_pos_get()\n"));
 
 	return 0;
 }
 
-unsigned inputb_get(void)
+unsigned inputb_none_get(void)
 {
 	log_debug(("inputb:none: inputb_none_button_get()\n"));
 

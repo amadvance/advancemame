@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __ILINUX_H
-#define __ILINUX_H
+#ifndef __ISLANG_H
+#define __ISLANG_H
 
 #include "inputdrv.h"
 
@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-extern inputb_driver inputb_linux_driver;
+extern inputb_driver inputb_slang_driver;
 
 #ifdef __cplusplus
 }

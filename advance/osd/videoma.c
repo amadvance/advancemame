@@ -675,7 +675,8 @@ static void video_invalidate_color(struct advance_video_context* context)
 
 /**
  * Check if a modeline is acceptable.
- * The complete modeline processing is done.
+ * The complete modeline processing is done. This ensure that later the
+ * mode setting will not fail.
  * \return
  *  - !=0 ok
  *  - ==0 error
@@ -683,15 +684,25 @@ static void video_invalidate_color(struct advance_video_context* context)
 static int is_crtc_acceptable(struct advance_video_context* context, const video_crtc* crtc) {
 	video_mode mode;
 	video_crtc temp_crtc;
+	unsigned bit;
 
 	/* try to adjust the crtc if required */
 	if (video_make_crtc(context,&temp_crtc,crtc) != 0)
 		return 0;
 
-	/* try creating a standard 8 bit mode */
-	/* the 8 bit mode is used because is for sure supported in any conditions */
-	if (video_mode_generate(&mode,&temp_crtc,8,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
-		/* generally this fail due the limitation os the video drivers */
+	bit = 0;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
+		bit = 8;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
+		bit = 15;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
+		bit = 16;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
+		bit = 32;
+	if (!bit)
+		return 0;
+	if (video_mode_generate(&mode, &temp_crtc, bit, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+		/* generally this fail due the limitation of the video drivers */
 		/* for example the vgaline drivers accepts only some clocks */
 		return 0;
 	}
@@ -701,8 +712,9 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
 
 /**
  * Check if a modeline is acceptable.
- * Only a partial processing is done. No information on the game are used.
- * This function is theorically equivalent at the is_crtc_acceptable function.
+ * Only a partial processing is done.
+ * This function guess the result of the is_crtc_acceptable function without
+ * using any game information.
  * \return
  *  - !=0 ok
  *  - ==0 error
@@ -710,6 +722,7 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
 static int is_crtc_acceptable_preventive(struct advance_video_context* context, const video_crtc* crtc) {
 	video_mode mode;
 	video_crtc temp_crtc = *crtc;
+	unsigned bit;
 
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 1; /* always ok if the driver is not programmable */
@@ -727,10 +740,19 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 		return 0;
 	}
 
-	/* try creating a standard 8 bit mode */
-	/* the 8 bit mode is used because is for sure supported in any conditions */
-	if (video_mode_generate(&mode,&temp_crtc,8,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
-		/* generally this fail due the limitation os the video drivers */
+	bit = 0;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT)!=0)
+		bit = 8;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT)!=0)
+		bit = 15;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT)!=0)
+		bit = 16;
+	if (bit == 0 && (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)!=0)
+		bit = 32;
+	if (!bit)
+		return 0;
+	if (video_mode_generate(&mode, &temp_crtc, bit, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
+		/* generally this fail due the limitation of the video drivers */
 		/* for example the vgaline drivers accepts only some clocks */
 		return 0;
 	}

@@ -28,13 +28,75 @@
 
 using namespace std;
 
-void category_container::insert_double(const string& name, category_container& cat_include) {
-	pair<category_base_container::iterator,bool> i = insert(name);
-	if (i.second)
-		cat_include.insert(name);
+// ------------------------------------------------------------------------
+// category
+
+category::category(const category& A) : name(A.name), state(A.state), undefined(false) {
 }
 
-void category_container::import_ini(game_set& gar, const string& file, const string& section, const string& emulator, void (game::*set)(const string& s) const, category_container& include) {
+category::~category() {
+}
+
+category::category(const string& Aname) : name(Aname), state(false), undefined(false) {
+}
+
+category::category(const string& Aname, bool Aundefined) : name(Aname), state(false), undefined(Aundefined) {
+}
+
+// ------------------------------------------------------------------------
+// category container
+
+#define CATEGORY_UNDEFINED "<undefined>"
+
+pcategory_container::pcategory_container()  {
+	category* c = new category(CATEGORY_UNDEFINED,true);
+	undefined = c;
+	pcategory_container_base::insert(c);
+}
+
+pcategory_container::~pcategory_container() {
+}
+
+const category* pcategory_container::insert(const std::string& name) {
+	if (name.length() == 0 || name == CATEGORY_UNDEFINED)
+		return undefined;
+
+	category* c = new category(name);
+
+	pair<pcategory_container_base::iterator,bool> i = pcategory_container_base::insert(c);
+
+	if (i.second) {
+		// inserted
+	} else {
+		// not inserted
+		delete c;
+	}
+
+	// return the category in the container
+	return *i.first;
+}
+
+const category* pcategory_container::insert_double(const string& name, category_container& cat_include) {
+	if (name.length() == 0 || name == CATEGORY_UNDEFINED)
+		return undefined;
+
+	category* c = new category(name);
+
+	pair<pcategory_container_base::iterator,bool> i = pcategory_container_base::insert(c);
+
+	if (i.second) {
+		// inserted
+		cat_include.insert(name);
+	} else {
+		// not inserted
+		delete c;
+	}
+
+	// return the category in the container
+	return *i.first;
+}
+
+void pcategory_container::import_ini(game_set& gar, const string& file, const string& section, const string& emulator, void (game::*set)(const category*) const, category_container& include) {
 	int j = 0;
 	string ss = file_read( file );
 
@@ -58,15 +120,14 @@ void category_container::import_ini(game_set& gar, const string& file, const str
 				string name = emulator + "/" + tag;
 				game_set::const_iterator i = gar.find( game( name ) );
 				if (i!=gar.end()) {
-					((*i).*set)(category);
-					insert_double(category,include);
+					((*i).*set)(insert_double(category,include));
 				}
 			}
 		}
 	}
 }
 
-void category_container::import_mac(game_set& gar, const string& file, const string& section, const string& emulator, void (game::*set)(const string& s) const, category_container& include) {
+void pcategory_container::import_mac(game_set& gar, const string& file, const string& section, const string& emulator, void (game::*set)(const category*) const, category_container& include) {
 	(void)section;
 	int j = 0;
 
@@ -97,8 +158,7 @@ void category_container::import_mac(game_set& gar, const string& file, const str
 				string name = emulator + "/" + tag;
 				game_set::const_iterator i = gar.find( game( name ) );
 				if (i!=gar.end()) {
-					((*i).*set)(main_category);
-					insert_double(main_category,include);
+					((*i).*set)(insert_double(main_category,include));
 				}
 			}
 		}

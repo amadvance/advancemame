@@ -3,7 +3,7 @@ Name
 
 AdvanceMENU 2.1.0
 	On the argument of the device_joystick and device_mouse configuration
-	options you must always to prepend the main driver name. For example:
+	options you must always prepend the main driver name. For example:
 	`device_joystick 4button' must be changed in
 	`device_joystick allegro/4button'.
 

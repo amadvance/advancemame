@@ -31,11 +31,17 @@ AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 		it's available as formatted text, html and man pages.
 	) Fixed an overflow bug on the aspect computation. It prevented
 		"Elevator Action" to run.
-	) Fixed some problems for the Rage128 board with the DOS svgaline
-		driver.
+	) Fixed the "Division by Zero" crash bug with the Rage128 board in
+		the DOS svgaline driver.
 	) Upgraded at the SVGALIB 1.9.16 library.
 	) Readded the `-playback' and `-record' command line options.
-	) Added a `./configure' script in all the distributions.
+	) Added a `./configure' script in all the Linux distributions.
+	) Fixed the detection of the screen resize keys in the
+		advcfg and advv utility in the Linux platform.
+		The keys are now changed to 'i' and 'k'.
+	) Added the options `device_video_8bit', `device_video_15bit',
+		`device_video_16bit', `device_video_32bit' to selectively
+		disable some bit depths on the video drivers.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

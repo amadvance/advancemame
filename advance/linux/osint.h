@@ -39,6 +39,7 @@ extern "C" {
 /* Internal */
 
 void* os_internal_svgalib_get(void);
+void* os_internal_slang_get(void);
 void* os_internal_dga_get(void);
 
 #ifdef __cplusplus

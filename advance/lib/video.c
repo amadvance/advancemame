@@ -47,6 +47,7 @@
 /***************************************************************************/
 /* State */
 
+/** State of the video support. */
 video_internal video_state;
 
 struct video_option_struct {
@@ -54,10 +55,15 @@ struct video_option_struct {
 	video_bool scan_single; /**< Allow singlescan modes. */
 	video_bool scan_double; /**< Allow doublescan modes. */
 	video_bool scan_interlace; /**< Allow interlace modes. */
-	video_bool fast_change; /**< Allow the fast change */
+	video_bool fast_change; /**< Allow the fast change. */
+	video_bool mode_8bit; /**< Allow 8 bit modes. */
+	video_bool mode_15bit; /**< Allow 15 bit modes. */
+	video_bool mode_16bit; /**< Allow 16 bit modes. */
+	video_bool mode_32bit; /**< Allow 32 bit modes. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
+/** State of the video configuration options. */
 static struct video_option_struct video_option;
 
 unsigned char* (*video_write_line)(unsigned y);
@@ -66,7 +72,8 @@ unsigned char* (*video_write_line)(unsigned y);
 /* Internal */
 
 #ifdef __MSDOS__
-static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg) {
+static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg)
+{
 	DWORD dw;
 	unsigned base_class;
 	unsigned subsys_card;
@@ -96,28 +103,45 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 /***************************************************************************/
 /* Public */
 
-void video_default(void) {
+/**
+ * Set the default configuration options.
+ */
+void video_default(void)
+{
 	video_option.initialized = 1;
 	video_option.scan_single = 1;
 	video_option.scan_double = 1;
 	video_option.scan_interlace = 1;
+	video_option.mode_8bit = 1;
+	video_option.mode_15bit = 1;
+	video_option.mode_16bit = 1;
+	video_option.mode_32bit = 1;
 	video_option.fast_change = 0;
 	strcpy(video_option.name,"auto");
 }
 
-void video_reg(struct conf_context* context, video_bool auto_detect) {
+/**
+ * Register the configuration options.
+ */
+void video_reg(struct conf_context* context, video_bool auto_detect)
+{
 	conf_string_register_default(context, "device_video", auto_detect ? "auto" : "none");
 	conf_bool_register_default(context, "device_video_singlescan", 1);
 	conf_bool_register_default(context, "device_video_doublescan", 1);
 	conf_bool_register_default(context, "device_video_interlace", 1);
 	conf_bool_register_default(context, "device_video_fastchange", 0);
+	conf_bool_register_default(context, "device_video_8bit", 1);
+	conf_bool_register_default(context, "device_video_15bit", 1);
+	conf_bool_register_default(context, "device_video_16bit", 1);
+	conf_bool_register_default(context, "device_video_32bit", 1);
 }
 
 /**
  * Register a video driver.
  * \note Call before video_init().
  */
-void video_reg_driver(struct conf_context* context, video_driver* driver) {
+void video_reg_driver(struct conf_context* context, video_driver* driver)
+{
 	assert( !video_is_active() );
 
 	assert( video_state.driver_mac < DEVICE_MAX );
@@ -133,7 +157,8 @@ void video_reg_driver(struct conf_context* context, video_driver* driver) {
 /**
  * Inizialize the video system.
  */
-video_error video_init(void) {
+video_error video_init(void)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -187,7 +212,8 @@ video_error video_init(void) {
 /**
  * Deinizialize the video system.
  */
-void video_done(void) {
+void video_done(void)
+{
 	unsigned i;
 
 	assert( video_is_active() && !video_mode_is_active() );
@@ -212,7 +238,12 @@ void video_done(void) {
 	video_state.driver_mac = 0;
 }
 
-void video_abort(void) {
+/**
+ * Emergency abort.
+ * Callable in any context.
+ */
+void video_abort(void)
+{
 	if (video_is_active()) {
 		if (video_mode_is_active())
 			video_mode_done(1);
@@ -227,7 +258,8 @@ void video_abort(void) {
  * Load the video configuration.
  * \param ignore list of driver to ignore (separated by space).
  */
-video_error video_load(struct conf_context* context, const char* driver_ignore) {
+video_error video_load(struct conf_context* context, const char* driver_ignore)
+{
 	unsigned i;
 	int at_least_one;
 
@@ -244,6 +276,10 @@ video_error video_load(struct conf_context* context, const char* driver_ignore) 
 	video_option.scan_double = conf_bool_get_default(context,"device_video_doublescan");
 	video_option.scan_interlace = conf_bool_get_default(context,"device_video_interlace");
 	video_option.fast_change = conf_bool_get_default(context,"device_video_fastchange");
+	video_option.mode_8bit = conf_bool_get_default(context,"device_video_8bit");
+	video_option.mode_15bit = conf_bool_get_default(context,"device_video_15bit");
+	video_option.mode_16bit = conf_bool_get_default(context,"device_video_16bit");
+	video_option.mode_32bit = conf_bool_get_default(context,"device_video_32bit");
 
 	strcpy(video_option.name, conf_string_get_default(context, "device_video"));
 
@@ -276,7 +312,11 @@ video_error video_load(struct conf_context* context, const char* driver_ignore) 
 /***************************************************************************/
 /* Mode */
 
-unsigned video_internal_flags(void) {
+/**
+ * The predefinite capabilities flags.
+ */
+unsigned video_internal_flags(void)
+{
 	unsigned flags =
 		VIDEO_DRIVER_FLAGS_MODE_MASK
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK
@@ -288,6 +328,14 @@ unsigned video_internal_flags(void) {
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN;
 	if (!video_option.scan_interlace)
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	if (!video_option.mode_8bit)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT;
+	if (!video_option.mode_15bit)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT;
+	if (!video_option.mode_16bit)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT;
+	if (!video_option.mode_32bit)
+		flags &= ~VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT;
 
 	return flags;
 }
@@ -302,13 +350,19 @@ unsigned video_internal_flags(void) {
  * Compare two video mode.
  * \return Like strcmp.
  */
-int video_mode_compare(const video_mode* a, const video_mode* b) {
+int video_mode_compare(const video_mode* a, const video_mode* b)
+{
 	COMPARE(video_mode_driver(a),video_mode_driver(b));
 
 	return video_mode_driver(a)->mode_compare(a->driver_mode,b->driver_mode);
 }
 
-void video_mode_done(video_bool restore) {
+/**
+ * Unset a video mode.
+ * \param restore If the previous video mode must be restored.
+ */
+void video_mode_done(video_bool restore)
+{
 	assert( video_mode_is_active() );
 
 	video_current_driver()->mode_done(restore);
@@ -322,9 +376,10 @@ static void video_state_rgb_set_from_def(video_rgb_def _def);
 static void video_state_rgb_clear(void);
 
 /**
- * Activate the video mode.
+ * Set a video mode.
  */
-video_error video_mode_set(video_mode* mode) {
+video_error video_mode_set(video_mode* mode)
+{
 	assert( video_is_active() );
 
 	log_std(("video: mode_set %s %dx%d %d %.1f kHz/%.1f Hz\n",video_mode_name(mode),video_mode_size_x(mode),video_mode_size_y(mode),video_mode_bits_per_pixel(mode),(double)video_mode_hclock(mode) / 1E3,(double)video_mode_vclock(mode)));
@@ -385,8 +440,11 @@ video_error video_mode_set(video_mode* mode) {
 	return 0;
 }
 
-/* Grab the current video mode */
-video_error video_mode_grab(video_mode* mode) {
+/**
+ * Grab the current video mode.
+ */
+video_error video_mode_grab(video_mode* mode)
+{
 	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX];
 	unsigned i;
 
@@ -401,6 +459,13 @@ video_error video_mode_grab(video_mode* mode) {
 	return -1;
 }
 
+/**
+ * Generate a video mode.
+ * \param mode Destination of the new video mode.
+ * \param crtc Required crtc of the new video mode.
+ * \param bits Required bits per pixel of the new video mode.
+ * \param flags Required flags of the new video mode.
+ */
 video_error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX];
@@ -546,7 +611,8 @@ video_error video_mode_generate_check(const char* driver, unsigned driver_flags,
 	return 0;
 }
 
-unsigned video_mode_generate_driver_flags(void) {
+unsigned video_mode_generate_driver_flags(void)
+{
 	unsigned flags;
 	unsigned i;
 
@@ -570,7 +636,8 @@ unsigned video_mode_generate_driver_flags(void) {
  * Reset the startup mode.
  * \note After this call none video mode is active. video_mode_active()==0
  */
-void video_mode_reset(void) {
+void video_mode_reset(void)
+{
 	assert(video_is_active());
 
 	if (video_mode_is_active())
@@ -588,13 +655,15 @@ void video_mode_reset(void) {
  * Wait for a vertical retrace.
  * \note if no video mode is active the VGA version is used
  */
-void video_wait_vsync(void) {
+void video_wait_vsync(void)
+{
 	assert( video_mode_is_active() );
 
 	video_current_driver()->wait_vsync();
 }
 
-static int video_double_cmp(const void* _a, const void* _b) {
+static int video_double_cmp(const void* _a, const void* _b)
+{
 	const double* a = (const double*)_a;
 	const double* b = (const double*)_b;
 	if (*a < *b)
@@ -614,7 +683,8 @@ static int video_double_cmp(const void* _a, const void* _b) {
  *   - ==0 error in the measure
  *   - !=0 the frequency of the event
  */
-double video_measure_step(void (*wait)(void), double low, double high) {
+double video_measure_step(void (*wait)(void), double low, double high)
+{
 	double map[VIDEO_MEASURE_COUNT];
 	os_clock_t start, stop;
 	unsigned map_start,map_end;
@@ -671,14 +741,16 @@ double video_measure_step(void (*wait)(void), double low, double high) {
 }
 
 /** X size of the font for text mode. */
-unsigned video_font_size_x(void) {
+unsigned video_font_size_x(void)
+{
 	assert( video_mode_is_active() && video_is_text() );
 
 	return video_current_driver()->font_size_x();
 }
 
 /** Y size of the font for text mode. */
-unsigned video_font_size_y(void) {
+unsigned video_font_size_y(void)
+{
 	assert( video_mode_is_active() && video_is_text() );
 
 	return video_current_driver()->font_size_y();
@@ -687,7 +759,8 @@ unsigned video_font_size_y(void) {
 /***************************************************************************/
 /* Put */
 
-static __inline__ void video_chained_put_pixel(unsigned x, unsigned y, unsigned color) {
+static __inline__ void video_chained_put_pixel(unsigned x, unsigned y, unsigned color)
+{
 	switch (video_bytes_per_pixel()) {
 		case 1 :
 			*(uint8*)(video_write_line(y) + x) = color;
@@ -708,24 +781,28 @@ static __inline__ void video_chained_put_pixel(unsigned x, unsigned y, unsigned 
 	}
 }
 
-static __inline__ void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color) {
+static __inline__ void video_unchained_put_pixel(unsigned x, unsigned y, unsigned color)
+{
 	video_unchained_plane_set(x % 4);
 	*(uint8*)(video_write_line(y) + x / 4) = color;
 }
 
-void video_put_char(unsigned x, unsigned y, char c, unsigned color) {
+void video_put_char(unsigned x, unsigned y, char c, unsigned color)
+{
 	assert( video_mode_is_active() && video_is_text() );
 	*(uint16*)(video_write_line(y) + 2*x) = (color << 8) | (unsigned char)c;
 }
 
-static __inline__ void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color) {
+static __inline__ void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color)
+{
 	if (video_is_unchained())
 		video_unchained_put_pixel(x,y,color);
 	else
 		video_chained_put_pixel(x,y,color);
 }
 
-void video_put_pixel(unsigned x, unsigned y, unsigned color) {
+void video_put_pixel(unsigned x, unsigned y, unsigned color)
+{
 	assert( video_mode_is_active() && video_is_graphics() );
 	if (x < video_virtual_x() && y < video_virtual_y())
 		video_put_pixel_noclip(x,y,color);
@@ -735,7 +812,8 @@ void video_put_pixel(unsigned x, unsigned y, unsigned color) {
 /* Color */
 
 /** Compute the size in bit of the mask. */
-static unsigned video_rgb_len_get_from_mask(unsigned mask) {
+static unsigned video_rgb_len_get_from_mask(unsigned mask)
+{
 	unsigned len = 0;
 	if (!mask)
 		return len;
@@ -749,7 +827,8 @@ static unsigned video_rgb_len_get_from_mask(unsigned mask) {
 }
 
 /** Compute shift and mask value. */
-static __inline__ void video_rgb_maskshift_get(unsigned* mask, int* shift, unsigned len, unsigned pos) {
+static __inline__ void video_rgb_maskshift_get(unsigned* mask, int* shift, unsigned len, unsigned pos)
+{
 	*mask = ((1 << len) - 1) << pos;
 	*shift = pos + len - 8;
 }
@@ -764,7 +843,8 @@ static __inline__ void video_rgb_maskshift_get(unsigned* mask, int* shift, unsig
  * \param blue_pos bit position blue channel
  * \return RGB format
  */
-video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos) {
+video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
+{
 	union video_rgb_def_union def;
 	def.ordinal = 0;
 
@@ -781,7 +861,8 @@ video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned gr
 /**
  * Make an arbitary RGB format definition from a maskshift specification.
  */
-video_rgb_def video_rgb_def_make_from_maskshift(unsigned red_mask, unsigned red_shift, unsigned green_mask, unsigned green_shift, unsigned blue_mask, unsigned blue_shift) {
+video_rgb_def video_rgb_def_make_from_maskshift(unsigned red_mask, unsigned red_shift, unsigned green_mask, unsigned green_shift, unsigned blue_mask, unsigned blue_shift)
+{
 	unsigned red_len = video_rgb_len_get_from_mask(red_mask);
 	unsigned green_len = video_rgb_len_get_from_mask(green_mask);
 	unsigned blue_len = video_rgb_len_get_from_mask(blue_mask);
@@ -793,7 +874,8 @@ video_rgb_def video_rgb_def_make_from_maskshift(unsigned red_mask, unsigned red_
 }
 
 /** Compute the distance of two color. */
-unsigned video_color_dist(const video_color* A, const video_color* B) {
+unsigned video_color_dist(const video_color* A, const video_color* B)
+{
 	int r,g,b;
 	r = (int)A->red - B->red;
 	g = (int)A->green - B->green;
@@ -801,7 +883,8 @@ unsigned video_color_dist(const video_color* A, const video_color* B) {
 	return r*r + g*g + b*b;
 }
 
-static void video_state_rgb_set_from_def(video_rgb_def _def) {
+static void video_state_rgb_set_from_def(video_rgb_def _def)
+{
 	union video_rgb_def_union def;
 	def.ordinal = _def;
 
@@ -822,7 +905,8 @@ static void video_state_rgb_set_from_def(video_rgb_def _def) {
 	);
 }
 
-static void video_state_rgb_clear(void) {
+static void video_state_rgb_clear(void)
+{
 	video_state.rgb_def = 0;
 	video_state.rgb_red_shift = 0;
 	video_state.rgb_green_shift = 0;
@@ -838,7 +922,8 @@ static void video_state_rgb_clear(void) {
 	video_state.rgb_low_bit =  0;
 }
 
-static unsigned video_rgb_approx(unsigned value, unsigned len) {
+static unsigned video_rgb_approx(unsigned value, unsigned len)
+{
 	unsigned fill = len;
 	while (fill < 8) {
 		value |= value >> fill;
@@ -847,20 +932,24 @@ static unsigned video_rgb_approx(unsigned value, unsigned len) {
 	return value;
 }
 
-unsigned video_red_get_approx(unsigned rgb) {
+unsigned video_red_get_approx(unsigned rgb)
+{
 	return video_rgb_approx(video_red_get(rgb), video_state.rgb_red_len);
 }
 
-unsigned video_green_get_approx(unsigned rgb) {
+unsigned video_green_get_approx(unsigned rgb)
+{
 	return video_rgb_approx(video_green_get(rgb), video_state.rgb_green_len);
 }
 
-unsigned video_blue_get_approx(unsigned rgb) {
+unsigned video_blue_get_approx(unsigned rgb)
+{
 	return video_rgb_approx(video_blue_get(rgb), video_state.rgb_blue_len);
 }
 
 /** Convert one video mode from PACKED to RGB. */
-void video_index_packed_to_rgb(int waitvsync) {
+void video_index_packed_to_rgb(int waitvsync)
+{
 	unsigned bit_r;
 	unsigned bit_g;
 	unsigned bit_b;
@@ -893,11 +982,13 @@ void video_index_packed_to_rgb(int waitvsync) {
 	video_state.mode.flags |= VIDEO_FLAGS_INDEX_RGB;
 }
 
-int video_index_rgb_to_packed_is_available(void) {
+int video_index_rgb_to_packed_is_available(void)
+{
 	return video_index() == VIDEO_FLAGS_INDEX_RGB && video_bytes_per_pixel() == 1;
 }
 
-int video_index_packed_to_rgb_is_available(void) {
+int video_index_packed_to_rgb_is_available(void)
+{
 	return video_index() == VIDEO_FLAGS_INDEX_PACKED;
 }
 
@@ -905,7 +996,8 @@ int video_index_packed_to_rgb_is_available(void) {
  * Convert a RGB video mode to PACKED
  * \note This function can be called only if video_index_rgb_to_packed_is_available() != 0
  */
-void video_index_rgb_to_packed(void) {
+void video_index_rgb_to_packed(void)
+{
 	assert( video_index_rgb_to_packed_is_available() );
 
 	video_state_rgb_clear();
@@ -921,7 +1013,8 @@ static video_color video_palette[256];
 /**
  * Get the current palette.
  */
-video_color* video_palette_get(void) {
+video_color* video_palette_get(void)
+{
 	return video_palette;
 }
 
@@ -932,7 +1025,8 @@ video_color* video_palette_get(void) {
  * \param count number of color to set
  * \param waitvsync if !=0 wait a vertical retrace
  */
-video_error video_palette_set(video_color* palette, unsigned start, unsigned count, int waitvsync) {
+video_error video_palette_set(video_color* palette, unsigned start, unsigned count, int waitvsync)
+{
 	assert( video_mode_is_active() );
 
 	assert( video_index() == VIDEO_FLAGS_INDEX_PACKED );
@@ -950,7 +1044,8 @@ video_error video_palette_set(video_color* palette, unsigned start, unsigned cou
  * \param def RGB format
  * \return RGB nibble
  */
-video_rgb video_rgb_make_from_def(unsigned r, unsigned g, unsigned b, video_rgb_def def) {
+video_rgb video_rgb_make_from_def(unsigned r, unsigned g, unsigned b, video_rgb_def def)
+{
 	union video_rgb_def_union rgb;
 	rgb.ordinal = def;
 	return video_rgb_nibble_insert(r, video_rgb_shift_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos), video_rgb_mask_make_from_def(rgb.nibble.red_len,rgb.nibble.red_pos))
@@ -963,7 +1058,8 @@ video_rgb video_rgb_make_from_def(unsigned r, unsigned g, unsigned b, video_rgb_
  * Return a string description in the format red_len/red_pos,green_len/green_pos,blue_len/blue_pos.
  * \return pointer aat a static buffer
  */
-const char* video_rgb_def_name_make(video_rgb_def def) {
+const char* video_rgb_def_name_make(video_rgb_def def)
+{
 	static char buffer[63];
 	union video_rgb_def_union rgb;
 	rgb.ordinal = def;
@@ -982,7 +1078,8 @@ const char* video_rgb_def_name_make(video_rgb_def def) {
  * Set the description of the last error.
  * \note The description IS logged.
  */
-void video_error_description_set(const char* text, ...) {
+void video_error_description_set(const char* text, ...)
+{
 	va_list arg;
 	va_start(arg,text);
 	vsprintf(video_state.error,text,arg);
@@ -996,7 +1093,8 @@ void video_error_description_set(const char* text, ...) {
  * Set the description of the last error.
  * \note The description IS NOT logged.
  */
-void video_error_description_nolog_set(const char* text, ...) {
+void video_error_description_nolog_set(const char* text, ...)
+{
 	va_list arg;
 	va_start(arg,text);
 	vsprintf(video_state.error,text,arg);
@@ -1007,7 +1105,8 @@ void video_error_description_nolog_set(const char* text, ...) {
  * Add some text at the description of the last error.
  * \note The description IS NOT logged.
  */
-void video_error_description_nolog_cat(const char* text, ...) {
+void video_error_description_nolog_cat(const char* text, ...)
+{
 	va_list arg;
 	char buffer[VIDEO_ERROR_DESCRIPTION_MAX];
 	va_start(arg,text);
@@ -1022,7 +1121,8 @@ void video_error_description_nolog_cat(const char* text, ...) {
 /****************************************************************************/
 /* Log */
 
-void video_log_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace) {
+void video_log_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+{
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
 	const char* flag3 = doublescan ? " doublescan" : "";
@@ -1035,7 +1135,8 @@ void video_log_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde,
 	);
 }
 
-void video_log_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace) {
+void video_log_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+{
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
 	const char* flag3 = doublescan ? " doublescan" : "";
@@ -1048,7 +1149,8 @@ void video_log_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, 
 	);
 }
 
-void video_log(const char* text, ...) {
+void video_log(const char* text, ...)
+{
 	va_list arg;
 	va_start(arg,text);
 	video_log_va(text,arg);

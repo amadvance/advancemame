@@ -56,7 +56,7 @@ SYSTEMCFLAGS += \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers
 SYSTEMCFLAGS += \
-	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
+	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE -DUSE_VIDEO_NONE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
@@ -544,6 +544,11 @@ ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
 	$(DOCOBJ)/advmame.1 \
 	$(CONF_BIN)
+endif
+ifeq ($(CONF_HOST),windows)
+EMU_ROOT_BIN += \
+	$(srcdir)/support/sdl.dll \
+	$(srcdir)/support/zlib.dll
 endif
 ifneq ($(CONF_SYSTEM),sdl)
 EMU_ROOT_BIN += \

@@ -60,6 +60,15 @@ char file_dir_separator(void);
 char file_dir_slash(void);
 
 /**
+ * Compute the absolute path.
+ * If the file is already an absolute path the directory is ignored.
+ * \param dir The base directory.
+ * \param file The relative file spec.
+ * \return The resulting absolute path.
+ */
+const char* file_abs(const char* dir, const char* file);
+
+/**
  * Convert a path from the OS format in a standard UNIX format.
  * The returned buffer may be the same argument or a static buffer.
  * If a static buffer is used, you need at least two static buffer to use
@@ -125,6 +134,7 @@ const char* file_config_dir_singledir(const char* tag);
  * \return The directory list. Generally first the HOME DATA directory and as second choice the ROOT DATA directory.
  */
 const char* file_config_dir_singlefile(void);
+
 
 #ifdef __cplusplus
 }

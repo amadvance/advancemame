@@ -34,8 +34,8 @@ void inputb_reg_driver_all(struct conf_context* context) {
 #ifdef USE_INPUT_DOS
 	inputb_reg_driver(context, &inputb_dos_driver);
 #endif
-#ifdef USE_INPUT_LINUX
-	inputb_reg_driver(context, &inputb_linux_driver);
+#ifdef USE_INPUT_SLANG
+	inputb_reg_driver(context, &inputb_slang_driver);
 #endif
 #ifdef USE_INPUT_NONE
 	inputb_reg_driver(context, &inputb_none_driver);

@@ -21,6 +21,7 @@
 #include "os.h"
 #include "conf.h"
 #include "mouseall.h"
+#include "target.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -120,6 +120,7 @@ int os_inner_init(const char* title) {
 	/* output isn't used */
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
 		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
+		target_err("Error initializing the SDL video support.\n");
 		return -1;
 	}
 

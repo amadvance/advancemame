@@ -48,6 +48,7 @@
 #endif
 
 struct file_context {
+	char file_abs[FILE_MAXPATH]; /**< Absolute path returned by file_abs. */
 	char root_dir[FILE_MAXPATH]; /**< Root directory. */
 	char home_dir[FILE_MAXPATH]; /**< Home directory. */
 	char dir_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
@@ -137,6 +138,19 @@ char file_dir_separator(void) {
 
 char file_dir_slash(void) {
 	return '/';
+}
+
+const char* file_abs(const char* dir, const char* file) {
+	/* TODO implement the complete . and .. management */
+	if (file[0] == '/') {
+		strcpy(FL.file_abs,file);
+	} else {
+		strcpy(FL.file_abs, dir);
+		if (FL.file_abs[strlen(FL.file_abs)-1] != '/')
+			strcat(FL.file_abs,"/");
+		strcat(FL.file_abs, file);
+	}
+	return FL.file_abs;
 }
 
 const char* file_import(const char* path) {

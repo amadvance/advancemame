@@ -78,7 +78,7 @@ PREFIX=@prefix@
 # Optimized build
 #CONF_LDFLAGS=-s
 # Debug/Profile build
-#CONF_LDFLAGS=
+#CONF_LDFLAGS=-g
 
 # Uncomment and set to "yes" to compile the MAME debugger (default no):
 #CONF_DEBUGGER=no
@@ -458,6 +458,9 @@ include $(srcdir)/advance/s.mak
 endif
 ifneq ($(wildcard $(srcdir)/advance/k.mak),)
 include $(srcdir)/advance/k.mak
+endif
+ifneq ($(wildcard $(srcdir)/advance/i.mak),)
+include $(srcdir)/advance/i.mak
 endif
 ifneq ($(wildcard $(srcdir)/advance/j.mak),)
 include $(srcdir)/advance/j.mak

@@ -1,15 +1,36 @@
 Name
 	advmenu - History For AdvanceMENU
 
-AdvanceMENU Version 2.1.0 2002/08 (not yet released)
+AdvanceMENU Version 2.1.0 2002/08
 	) Revised the output format of all the documentation. Now
 		it's available as formatted text, html and man pages.
 	) Fixed a bug on the emulator names. Now they can be uppercase.
-	) Fixed some problems for the Rage128 board with the DOS svgaline
-		driver.
+	) Fixed the "Division by Zero" crash bug with the Rage128 board in
+		the DOS svgaline driver.
 	) Upgraded at the SVGALIB 1.9.16 library.
 	) Added a `./configure' script in all the distributions.
-	) Fixed the output in the configuration file of the advcfg program.
+	) Removed the output of the `display_*' option when running
+		advcfg for AdvanceMENU.
+	) Fixed the detection of the screen resize keys in the
+		advcfg and advv utility in the Linux platform.
+		The keys are now changed to 'i' and 'k'.
+	) Added the %o option in the emulator command line to force the
+		emulators to use the same orientation of the menu.
+		Check the example in the advmenu.txt file.
+	) The keyboard key codes are changed another times. Now they are
+		always the same for all the platform and for all the
+		keyboard drivers. If you are using the linux version probably
+		you need to reconfigure the event option with the new codes.
+	) Renamed the `msg_run' option in `run_msg'.
+	) Added the option `run_preview' to select which preview display
+		before to run a game.
+	) Removed all the `select_*' option. They are now specified with the
+		new `emulator_attrib' option. It allow to specify different
+		display attribute for different emulator. For example you can
+		show clones for AdvancePAC and only parents for AdvanceMAME.
+	) Fixed the slowdown bug with a lot of MESS roms.
+	) Generally improved the speed of the select/sort implementation
+		of the list of games.
 
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics

@@ -20,13 +20,16 @@
 
 #include "os.h"
 #include "conf.h"
-#include "keyall.h"
+#include "inputall.h"
 #include "target.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
+#include <ctype.h>
+
+#include <vga.h>
 
 static int done;
 
@@ -35,57 +38,25 @@ void sigint(int signum) {
 }
 
 void run(void) {
-	char cmd[256];
-	int esc_pressed_before;
-	int esc_count;
-	os_clock_t last;
-
-	printf("Press ESC three times or Break to exit\n");
+	printf("Press ESC or Break to exit\n\r");
 
 	signal(SIGINT,sigint);
 
-	last = os_clock();
-	esc_pressed_before = 0;
-	esc_count = 0;
-	strcpy(cmd, "unknown");
+	while (!done) {
 
-	while (esc_count < 3 && !done) {
-		int i;
-		int esc_pressed = 0;
-		unsigned count = 0;
-		char newcmd[256];
-		*newcmd = 0;
+		if (inputb_hit()) {
+			unsigned k = inputb_get();
 
-		for(i=0;i<OS_KEY_MAX;++i) {
-			if (keyb_get(i)) {
-				if (i==OS_KEY_ESC)
-					esc_pressed = 1;
-				++count;
-				sprintf(newcmd + strlen(newcmd), "%s ", key_name(i));
-			}
-		}
+			if (k > 32 && k < 256)
+				printf("- %d (%c)\n\r",k,(char)k);
+			else
+				printf("- %d ()\n\r",k);
 
-		if (strcmp(cmd,newcmd)!=0) {
-			os_clock_t current = os_clock();
-			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
-			last = current;
-			strcpy(cmd,newcmd);
-			printf("(%6.1f ms) [%3d] %s\n",period,count,cmd);
-		}
-
-		if (count == 1 && esc_pressed) {
-			esc_pressed_before = 1;
-		} else if (count == 0) {
-			if (esc_pressed_before) {
-				++esc_count;
-				esc_pressed_before = 0;
-			}
-		} else {
-			esc_count = 0;
+			if (k == 27)
+				done = 1;
 		}
 
 		os_poll();
-		keyb_poll();
 		target_idle();
 	}
 }
@@ -113,8 +84,8 @@ int os_main(int argc, char* argv[]) {
 	if (os_init(context) != 0)
 		goto err_conf;
 
-	keyb_reg(context, 1);
-	keyb_reg_driver_all(context);
+	inputb_reg(context, 1);
+	inputb_reg_driver_all(context);
 
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -127,18 +98,18 @@ int os_main(int argc, char* argv[]) {
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
 
-	if (keyb_load(context) != 0)
+	if (inputb_load(context) != 0)
 		goto err_os;
 
-	if (os_inner_init("AdvanceKEY") != 0)
+	if (os_inner_init("AdvanceINPUT") != 0)
 		goto err_os;
 
-	if (keyb_init(0) != 0)
+	if (inputb_init() != 0)
 		goto err_os_inner;
 
 	run();
 
-	keyb_done();
+	inputb_done();
 	os_inner_done();
 	os_done();
 	conf_done(context);

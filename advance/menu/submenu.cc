@@ -61,40 +61,6 @@ void run_sort(config_state& rs) {
 }
 
 // ------------------------------------------------------------------------
-// Exclude menu
-
-#define EXCLUDE_CHOICE_X text_dx_get()/8
-#define EXCLUDE_CHOICE_Y text_dy_get()/5
-#define EXCLUDE_CHOICE_DX 20*text_font_dx_get()
-
-void run_exclude(config_state& rs) {
-	choice_bag ch;
-
-	ch.insert( ch.end(), choice("Working or Preliminary"," Only\tWorking"," Only\tPreliminary", rs.exclude_bad_effective, 0) );
-	ch.insert( ch.end(), choice("Present or Missing"," Only\tPresent"," Only\tMissing", rs.exclude_missing_effective, 0) );
-	ch.insert( ch.end(), choice("Parent or Clone"," Only\tParent"," Only\tClone", rs.exclude_clone_effective, 0) );
-	ch.insert( ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", rs.exclude_vector_effective, 0) );
-	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", rs.exclude_vertical_effective, 0) );
-	ch.insert( ch.end(), choice("Neogeo", rs.exclude_neogeo_effective, 0) );
-	ch.insert( ch.end(), choice("Cassette", rs.exclude_deco_effective, 0) );
-	ch.insert( ch.end(), choice("PlayChoice-10", rs.exclude_playchoice_effective, 0) );
-
-	choice_bag::iterator i = ch.begin();
-	int key = ch.run(" Show attrib", EXCLUDE_CHOICE_X, EXCLUDE_CHOICE_Y, EXCLUDE_CHOICE_DX, i);
-
-	if (key == TEXT_KEY_ENTER) {
-		rs.exclude_bad_effective = ch[0].tristate_get();
-		rs.exclude_missing_effective = ch[1].tristate_get();
-		rs.exclude_clone_effective = ch[2].tristate_get();
-		rs.exclude_vector_effective = ch[3].tristate_get();
-		rs.exclude_vertical_effective = ch[4].tristate_get();
-		rs.exclude_neogeo_effective = ch[5].tristate_get();
-		rs.exclude_deco_effective = ch[6].tristate_get();
-		rs.exclude_playchoice_effective = ch[7].tristate_get();
-	}
-}
-
-// ------------------------------------------------------------------------
 // Command menu
 
 #define COMMAND_CHOICE_X text_dx_get()/8
@@ -103,23 +69,64 @@ void run_exclude(config_state& rs) {
 
 void run_command(config_state& rs) {
 	choice_bag ch;
+	bool used_backdrop = false;
+	bool used_sound = false;
 
-	if (rs.current_game && rs.current_game->preview_snap_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game snapshot", 0) );
-	if (rs.current_game && rs.current_game->preview_clip_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game clip", 1) );
-	if (rs.current_game && rs.current_game->preview_flyer_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game flyer", 2) );
-	if (rs.current_game && rs.current_game->preview_cabinet_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game cabinet", 3) );
-	if (rs.current_game && rs.current_game->preview_icon_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game icon", 4) );
-	if (rs.current_game && rs.current_backdrop.is_deletable())
-		ch.insert( ch.end(), choice("Delete current image", 5) );
-	if (rs.current_game && rs.current_game->preview_sound_get().is_deletable())
-		ch.insert( ch.end(), choice("Delete game sound", 6) );
-	if (rs.current_game && rs.current_sound.is_deletable())
-		ch.insert( ch.end(), choice("Delete current sound", 7) );
+	if (rs.current_game && rs.current_game->preview_snap_get().is_deletable()) {
+		string s = "Delete game snapshot";
+		if (rs.current_game->preview_snap_get() == rs.current_backdrop) {
+			s += " (shown)";
+			used_backdrop = true;
+		}
+		ch.insert( ch.end(), choice(s, 0) );
+	}
+	if (rs.current_game && rs.current_game->preview_clip_get().is_deletable()) {
+		string s = "Delete game clip";
+		if (rs.current_game->preview_clip_get() == rs.current_backdrop) {
+			s += " (shown)";
+			used_backdrop = true;
+		}
+		ch.insert( ch.end(), choice(s, 1) );
+	}
+	if (rs.current_game && rs.current_game->preview_flyer_get().is_deletable()) {
+		string s = "Delete game flyer";
+		if (rs.current_game->preview_flyer_get() == rs.current_backdrop) {
+			s += " (shown)";
+			used_backdrop = true;
+		}
+		ch.insert( ch.end(), choice(s, 2) );
+	}
+	if (rs.current_game && rs.current_game->preview_cabinet_get().is_deletable()) {
+		string s = "Delete game cabinet";
+		if (rs.current_game->preview_cabinet_get() == rs.current_backdrop) {
+			s += " (shown)";
+			used_backdrop = true;
+		}
+		ch.insert( ch.end(), choice(s, 3) );
+	}
+	if (rs.current_game && rs.current_game->preview_icon_get().is_deletable()) {
+		string s = "Delete game icon";
+		if (rs.current_game->preview_icon_get() == rs.current_backdrop) {
+			s += " (shown)";
+			used_backdrop = true;
+		}
+		ch.insert( ch.end(), choice(s, 4) );
+	}
+	if (!used_backdrop && rs.current_game && rs.current_backdrop.is_deletable()) {
+		string s = "Delete shown image (from parent)";
+		ch.insert( ch.end(), choice(s, 5) );
+	}
+	if (rs.current_game && rs.current_game->preview_sound_get().is_deletable()) {
+		string s = "Delete game sound";
+		if (rs.current_game->preview_sound_get() == rs.current_sound) {
+			s += " (played)";
+			used_sound = true;
+		}
+		ch.insert( ch.end(), choice(s, 6) );
+	}
+	if (!used_sound && rs.current_game && rs.current_sound.is_deletable()) {
+		ch.insert( ch.end(), choice("Delete played sound (from parent)", 7) );
+	}
 
 	if (ch.begin() == ch.end())
 		ch.insert( ch.end(), choice("No commands available", -1) );
@@ -223,9 +230,9 @@ void run_preview(config_state& rs) {
 void run_group(config_state& rs) {
 	choice_bag ch;
 
-	for(category_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
-		bool tag = rs.include_group_effective.find(*j) != rs.include_group_effective.end();
-		ch.insert( ch.end(), choice(*j, tag, 0) );
+	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
+		bool tag = rs.include_group_effective.find((*j)->name_get()) != rs.include_group_effective.end();
+		ch.insert( ch.end(), choice((*j)->name_get(), tag, 0) );
 	}
 
 	choice_bag::iterator i = ch.begin();
@@ -307,9 +314,9 @@ void run_emu_next(config_state& rs) {
 void run_type(config_state& rs) {
 	choice_bag ch;
 
-	for(category_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
-		bool tag = rs.include_type_effective.find(*j) != rs.include_type_effective.end();
-		ch.insert( ch.end(), choice(*j, tag, 0) );
+	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
+		bool tag = rs.include_type_effective.find((*j)->name_get()) != rs.include_type_effective.end();
+		ch.insert( ch.end(), choice((*j)->name_get(), tag, 0) );
 	}
 
 	choice_bag::iterator i = ch.begin();
@@ -333,17 +340,17 @@ void run_group_move(config_state& rs) {
 	if (!rs.current_game)
 		return;
 
-	for(category_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
-		ch.insert( ch.end(), choice(*j,0) );
+	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
+		ch.insert( ch.end(), choice((*j)->name_get(),0) );
 	}
 
-	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get());
+	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
 	int key = ch.run(" Select group", GROUP_CHOICE_X, GROUP_CHOICE_Y, GROUP_CHOICE_DX, i);
 
 	if (key == TEXT_KEY_ENTER) {
-		rs.current_game->user_group_set( i->desc_get() );
+		rs.current_game->user_group_set( rs.group.insert(i->desc_get()) );
 	}
 }
 
@@ -353,17 +360,17 @@ void run_type_move(config_state& rs) {
 	if (!rs.current_game)
 		return;
 
-	for(category_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
-		ch.insert( ch.end(), choice(*j, 0) );
+	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
+		ch.insert( ch.end(), choice((*j)->name_get(), 0) );
 	}
 
-	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get());
+	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
 	if (i==ch.end())
 		i = ch.begin();
 	int key = ch.run(" Select type", TYPE_CHOICE_X, TYPE_CHOICE_Y, TYPE_CHOICE_DX, i);
 
 	if (key == TEXT_KEY_ENTER) {
-		rs.current_game->user_type_set( i->desc_get() );
+		rs.current_game->user_type_set( rs.type.insert(i->desc_get()) );
 	}
 }
 
@@ -484,7 +491,8 @@ void run_submenu(config_state& rs) {
 				run_group(rs);
 				break;
 			case 3 :
-				run_exclude(rs);
+				if (rs.current_game)
+					rs.current_game->emulator_get()->attrib_run();
 				break;
 			case 4 :
 				run_emu(rs);
@@ -598,34 +606,4 @@ void run_help() {
 	text_getkey();
 }
 
-// ------------------------------------------------------------------------
-// Run Info
-
-#define RUNINFO_CHOICE_X text_dx_get()/8
-#define RUNINFO_CHOICE_Y text_dy_get()/10
-#define RUNINFO_CHOICE_DX text_dx_get()*3/4
-#define RUNINFO_CHOICE_DY 2*text_font_dy_get()
-
-void run_runinfo(config_state& rs) {
-	int x = RUNINFO_CHOICE_X;
-	int y = RUNINFO_CHOICE_Y;
-	int dx = RUNINFO_CHOICE_DX;
-	int dy = RUNINFO_CHOICE_DY;
-	int border = text_font_dx_get()/2;
-
-	const game* g = rs.current_clone ? rs.current_clone : rs.current_game;
-	if (!g)
-		return;
-
-	text_box(x-border,y-border,dx+2*border,dy+border*2,1,COLOR_CHOICE_NORMAL);
-	text_clear(x-border+1,y-border+1,dx+2*border-2,dy+border*2-2,COLOR_CHOICE_NORMAL >> 4);
-
-	text_put(x,y,dx,rs.msg_run_game,COLOR_CHOICE_TITLE);
-	y += text_font_dy_get();
-
-	text_put(x,y,dx,g->description_get(),COLOR_CHOICE_NORMAL);
-	y += text_font_dy_get();
-
-	text_update();
-}
 

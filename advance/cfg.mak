@@ -40,7 +40,7 @@ ifeq ($(CONF_SYSTEM),linux)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_LINUX \
+	-DUSE_INPUT_SLANG \
 	-I$(srcdir)/advance/$(CONF_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
@@ -50,7 +50,7 @@ CFGOBJS += \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vfb.o \
 	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/ilinux.o
+	$(CFGOBJ)/$(CONF_SYSTEM)/islang.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)

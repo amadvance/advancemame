@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-/* Key definitions */
+/* Key definitions. They are chosen like the Allegro library 4.0.1 */
 #define OS_KEY_A 1
 #define OS_KEY_B 2
 #define OS_KEY_C 3
@@ -119,18 +119,20 @@ extern "C" {
 #define OS_KEY_ENTER_PAD 91
 #define OS_KEY_PRTSCR 92
 #define OS_KEY_PAUSE 93
-#define OS_KEY_LSHIFT 94
-#define OS_KEY_RSHIFT 95
-#define OS_KEY_LCONTROL 96
-#define OS_KEY_RCONTROL 97
-#define OS_KEY_ALT 98
-#define OS_KEY_ALTGR 99
-#define OS_KEY_LWIN 100
-#define OS_KEY_RWIN 101
-#define OS_KEY_MENU 102
-#define OS_KEY_SCRLOCK 103
-#define OS_KEY_NUMLOCK 104
-#define OS_KEY_CAPSLOCK 105
+/* hole */
+#define OS_KEY_LSHIFT 103
+#define OS_KEY_RSHIFT 104
+#define OS_KEY_LCONTROL 105
+#define OS_KEY_RCONTROL 106
+#define OS_KEY_ALT 107
+#define OS_KEY_ALTGR 108
+#define OS_KEY_LWIN 109
+#define OS_KEY_RWIN 110
+#define OS_KEY_MENU 111
+#define OS_KEY_SCRLOCK 112
+#define OS_KEY_NUMLOCK 113
+#define OS_KEY_CAPSLOCK 114
+/* hole */
 #define OS_KEY_MAX 128
 
 const char* key_name(unsigned code);

@@ -330,7 +330,8 @@ MENU_ROOT_BIN += \
 endif
 ifeq ($(CONF_HOST),windows)
 MENU_ROOT_BIN += \
-	$(srcdir)/support/sdl.dll
+	$(srcdir)/support/sdl.dll \
+	$(srcdir)/support/zlib.dll
 endif
 ifneq ($(CONF_SYSTEM),sdl)
 MENU_ROOT_BIN += \

@@ -58,36 +58,36 @@ video_error video_load(struct conf_context* context, const char* driver_ignore);
 #define VIDEO_ERROR_DESCRIPTION_MAX 2048
 
 typedef struct video_internal_struct {
-	video_bool active; /**< !=0 if active */
+	video_bool active; /**< !=0 if active. */
 
-	unsigned driver_mac; /**< Number of video driver available */
-	video_driver* driver_map[DEVICE_MAX]; /**< Video drivers available */
+	unsigned driver_mac; /**< Number of video driver available. */
+	video_driver* driver_map[DEVICE_MAX]; /**< Video drivers available. */
 
-	video_bool old_mode_required; /**< If at least one mode is set */
+	video_bool old_mode_required; /**< If at least one mode is set. */
 
 	/* Mode */
-	video_bool mode_active; /**< !=0 if a mode is selected */
-	video_mode mode; /**< Current mode */
+	video_bool mode_active; /**< !=0 if a mode is selected. */
+	video_mode mode; /**< Current mode. */
 	unsigned virtual_x;
 	unsigned virtual_y;
 	double measured_vclock;
 
 	/* Mode RGB */
-	video_rgb_def rgb_def; /**< Definition of the current RGB mode */
-	unsigned rgb_red_mask; /**< Positioned mask for the RED channel */
+	video_rgb_def rgb_def; /**< Definition of the current RGB mode. */
+	unsigned rgb_red_mask; /**< Positioned mask for the RED channel. */
 	unsigned rgb_green_mask;
 	unsigned rgb_blue_mask;
-	int rgb_red_shift; /**< Shift in bit of the RED channel (shift = pos + len - 8) */
+	int rgb_red_shift; /**< Shift in bit of the RED channel (shift = pos + len - 8). */
 	int rgb_green_shift;
 	int rgb_blue_shift;
-	unsigned rgb_red_len; /**< Number of bit of the RED channel */
+	unsigned rgb_red_len; /**< Number of bit of the RED channel. */
 	unsigned rgb_green_len;
 	unsigned rgb_blue_len;
-	video_rgb rgb_mask_bit; /**< Whole mask of the three RGB channel */
-	video_rgb rgb_high_bit; /**< High bits of the three RGB channel */
-	video_rgb rgb_low_bit; /**< Low bits of the three RGB channel */
+	video_rgb rgb_mask_bit; /**< Whole mask of the three RGB channel. */
+	video_rgb rgb_high_bit; /**< High bits of the three RGB channel. */
+	video_rgb rgb_low_bit; /**< Low bits of the three RGB channel. */
 
-	char error[VIDEO_ERROR_DESCRIPTION_MAX]; /**< Last error description */
+	char error[VIDEO_ERROR_DESCRIPTION_MAX]; /**< Last error description. */
 } video_internal;
 
 extern video_internal video_state;
@@ -95,7 +95,6 @@ extern video_internal video_state;
 /***************************************************************************/
 /* Informative */
 
-/** The predefinite capabilities flags */
 unsigned video_internal_flags(void);
 
 /** If the video library is initialized. */
@@ -115,6 +114,7 @@ static __inline__ const video_mode* video_current_mode(void) {
 	return &video_state.mode;
 }
 
+/** Video driver of the current mode. */
 static __inline__ const video_driver* video_current_driver(void) {
 	return video_mode_driver(video_current_mode());
 }
@@ -254,9 +254,7 @@ video_bool video_index_rgb_to_packed_is_available(void);
 void video_index_rgb_to_packed(void);
 video_bool video_index_packed_to_rgb_is_available(void);
 
-/**
- * Get the RGB format of the current video mode.
- */
+/** Get the RGB format of the current video mode. */
 static __inline__ video_rgb_def video_current_rgb_def_get(void) {
 	return video_state.rgb_def;
 }

@@ -24,6 +24,35 @@
 
 using namespace std;
 
+// ------------------------------------------------------------------------
+// tristate
+
+const string tristate(tristate_t v) {
+	switch (v) {
+	case include : return "include";
+	case exclude : return "exclude";
+	case exclude_not : return "exclude_not";
+	default:
+		assert(0);
+		return "include";
+	}
+}
+
+bool tristate(tristate_t& v, const std::string& s) {
+	if (s == "include")
+		v = include;
+	else if (s == "exclude")
+		v = exclude;
+	else if (s == "exclude_not")
+		v = exclude_not;
+	else
+		return false;
+	return true;
+}
+
+// ------------------------------------------------------------------------
+// choice
+
 #define CHOICE_INDENT_1 " M"
 #define CHOICE_INDENT_2 " +M"
 #define CHOICE_INDENT_3 " OnlyM"

@@ -28,41 +28,47 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "ilinux.h"
+#include "islang.h"
 #include "log.h"
 #include "target.h"
+#include "osint.h"
 
 #include <sys/select.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 
-struct inputb_linux_context {
+struct inputb_slang_context {
 	unsigned last;
 };
 
-static struct inputb_linux_context linux_state;
+static struct inputb_slang_context slang_state;
 
 static device DEVICE[] = {
-{ "auto", -1, "Linux input" },
+{ "auto", -1, "sLang input" },
 { 0, 0, 0 }
 };
 
-video_error inputb_linux_init(int inputb_id)
+video_error inputb_slang_init(int inputb_id)
 {
-	log_std(("input:linux: inputb_linux_init(id:%d)\n",inputb_id));
+	log_std(("inputb:slang: inputb_slang_init(id:%d)\n",inputb_id));
 
-	linux_state.last = 0;
+	if (!os_internal_slang_get()) {
+		log_std(("inputb:slang: slang not initialized\n"));
+		return -1;
+	}
+
+	slang_state.last = 0;
 
 	return 0;
 }
 
-void inputb_linux_done(void)
+void inputb_slang_done(void)
 {
-	log_std(("input:linux: inputb_linux_done()\n"));
+	log_std(("inputb:slang: inputb_slang_done()\n"));
 }
 
-static int linux_getkey(void)
+static int slang_getkey(void)
 {
 	struct timeval tv;
 	fd_set fds;
@@ -83,40 +89,40 @@ static int linux_getkey(void)
 	return 0;
 }
 
-video_bool inputb_linux_hit(void)
+video_bool inputb_slang_hit(void)
 {
-	log_debug(("inputb:linux: inputb_linux_count_get()\n"));
+	log_debug(("inputb:slang: inputb_slang_count_get()\n"));
 
-	if (linux_state.last != 0)
+	if (slang_state.last != 0)
 		return 1;
 
-	linux_state.last = linux_getkey();
-	return linux_state.last != 0;
+	slang_state.last = slang_getkey();
+	return slang_state.last != 0;
 }
 
-unsigned inputb_linux_get(void)
+unsigned inputb_slang_get(void)
 {
 	const unsigned max = 32;
 	char map[max+1];
 	unsigned mac;
 
-	log_debug(("inputb:linux: inputb_linux_button_count_get()\n"));
+	log_debug(("inputb:slang: inputb_slang_button_count_get()\n"));
 
 	mac = 0;
-	while (mac<max && (mac==0 || linux_state.last)) {
+	while (mac<max && (mac==0 || slang_state.last)) {
 
-		if (linux_state.last) {
-			map[mac] = linux_state.last;
+		if (slang_state.last) {
+			map[mac] = slang_state.last;
 			if (mac > 0 && map[mac] == 27) {
 				break;
 			}
 			++mac;
-			linux_state.last = 0;
+			slang_state.last = 0;
 		} else {
 			target_idle();
 		}
 
-		linux_state.last = linux_getkey();
+		slang_state.last = slang_getkey();
 	}
 	map[mac] = 0;
 
@@ -164,37 +170,37 @@ unsigned inputb_linux_get(void)
 	if (mac != 1)
 		return 0;
 	else
-		return map[0];
+		return (unsigned char)map[0];
 
 	return 0;
 }
 
-unsigned inputb_linux_flags(void)
+unsigned inputb_slang_flags(void)
 {
 	return 0;
 }
 
-video_error inputb_linux_load(struct conf_context* context)
+video_error inputb_slang_load(struct conf_context* context)
 {
 	return 0;
 }
 
-void inputb_linux_reg(struct conf_context* context)
+void inputb_slang_reg(struct conf_context* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-inputb_driver inputb_linux_driver = {
-	"linux",
+inputb_driver inputb_slang_driver = {
+	"slang",
 	DEVICE,
-	inputb_linux_load,
-	inputb_linux_reg,
-	inputb_linux_init,
-	inputb_linux_done,
-	inputb_linux_flags,
-	inputb_linux_hit,
-	inputb_linux_get
+	inputb_slang_load,
+	inputb_slang_reg,
+	inputb_slang_init,
+	inputb_slang_done,
+	inputb_slang_flags,
+	inputb_slang_hit,
+	inputb_slang_get
 };
 

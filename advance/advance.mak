@@ -21,6 +21,7 @@ MENUOBJ = obj/menu/$(BINARYDIR)
 MOBJ = obj/m/$(BINARYDIR)
 JOBJ = obj/j/$(BINARYDIR)
 KOBJ = obj/k/$(BINARYDIR)
+IOBJ = obj/i/$(BINARYDIR)
 VOBJ = obj/v/$(BINARYDIR)
 SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
@@ -112,6 +113,7 @@ cfg: $(CFGOBJ)/advcfg$(EXE)
 v: $(VOBJ)/advv$(EXE)
 s: $(SOBJ)/advs$(EXE)
 k: $(KOBJ)/advk$(EXE)
+i: $(IOBJ)/advi$(EXE)
 j: $(JOBJ)/advj$(EXE)
 m: $(MOBJ)/advm$(EXE)
 line: $(LINEOBJ)/advline$(EXE_BUILD)
@@ -326,6 +328,19 @@ uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
 
 # Resource include dir
 RCFLAGS += --include-dir advance/lib
+
+############################################################################
+# Special build
+
+# It seems to be required with gcc 3.1 for DOS. No problem in Linux.
+#
+#MSG_FIX = $(MSG) "(with low opt)"
+#
+#CFLAGS_FIX = $(subst -O3,-O2,$(CFLAGS))
+#
+#$(OBJ)/memory.o: $(EMUSRC)/memory.c
+#	$(ECHO) $@ $(MSG_FIX)
+#	$(CC) $(CFLAGS_FIX) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 ############################################################################
 # Special Rules

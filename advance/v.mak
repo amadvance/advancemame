@@ -37,7 +37,7 @@ ifeq ($(CONF_SYSTEM),linux)
 VCFLAGS += -DPREFIX=\"$(PREFIX)\"
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_LINUX
+	-DUSE_INPUT_SLANG
 VLIBS = -lslang -lvga
 VOBJS += \
 	$(VOBJ)/lib/filenix.o \
@@ -46,7 +46,7 @@ VOBJS += \
 	$(VOBJ)/$(CONF_SYSTEM)/vsvgab.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vfb.o \
 	$(VOBJ)/$(CONF_SYSTEM)/vslang.o \
-	$(VOBJ)/$(CONF_SYSTEM)/ilinux.o
+	$(VOBJ)/$(CONF_SYSTEM)/islang.o
 endif
 
 ifeq ($(CONF_SYSTEM),dos)

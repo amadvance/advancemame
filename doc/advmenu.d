@@ -335,17 +335,25 @@ Configuration
 			game. However, you may wish to add extra
 			arguments.
 
-	The string `%s' is automatically changed to thegame name,
-	the string `%p' is the complete path of the rom, and the
-	string `%f' is the rom name with the extension.
-	For example, with game "PacMan" these macro are expanded
-	in the following way:
-		%s - pacman
-		%p - c:\emu\roms\pacman.zip
-		%f - pacman.zip
+	In the emulator option some strings are substitutes
+	with some special values:
+		%s -  The game name. For example "pacman".
+		%p - The complete path of the rom. For
+			example "c:\emu\roms\pacman.zip".
+		%f - The rom name with the extension. For
+			example "pacman.zip".
+		%o[R0,R90,R180,R270] - One of the R* string, depending
+			on the current menu orientation. You cannot use
+			space in the R* string. For example
+			"%o[,-ror,-flipx,-rol] %o[,,-flipy,]" correctly
+			rotate the AdvanceMAMEMAME emulator.
+
+	For the `generic' emulator type you need use the various % options
+	to tell at the emulator which game run. For all the other emulator
+	types this information is automatically added by AdvanceMENU.
 
 	Examples for DOS:
-		:emulator "advmame" advmame "advmame\advmame.exe" ""
+		:emulator "advmame" advmame "advmame\advmame.exe" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 		:emulator "mame" mame "mame\mame.exe" "-nohws"
 		:emulator "neomame" mame "neomame\neomame.exe" ""
 		:emulator "cpsmame" mame "cpsmame\cpsmame.exe" ""
@@ -356,7 +364,7 @@ Configuration
 		:emulator "zsnes" generic "c:\game\zsnes\zsnes.exe" "-e -m roms\%f"
 
 	Examples for Linux:
-		:emulator "advmame" advmame "advmame" ""
+		:emulator "advmame" advmame "advmame" "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 
     emulator_TAG
 	Select additional directories for the emulators. These
@@ -1041,18 +1049,32 @@ Configuration
 	Examples:
 		:event_exit_press 3
 
-    msg_run
+    run_msg
 	One line message displayed when a game is chosen. The
 	message is displayed only if the option `video_restore' is
 	set to `no'.
 
-	:msg_run "MESSAGE"
+	:run_msg "MESSAGE"
 
 	Options:
-		MESSAGE - Message to display
+		MESSAGE - Message to display (default "Run Game").
+			To prevent the display of the message use the
+			empty string "".
 
 	Examples:
-		:msg_run "Run game"
+		:run_msg "Avvio il gioco..."
+
+    run_preview
+	Select the preview type to display when a game is run. The
+	message is displayed only if the option `video_restore' is
+	set to `no'.
+
+	:run_preview none | snap | flyers | cabinets | titles
+
+	Options:
+		none - Don't diplay any preview.
+		snap, flyers, cabinets, titles - Display the
+			specified preview. (default snap).
 
     color
 	Colors used.

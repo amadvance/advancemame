@@ -132,7 +132,7 @@ if test $ac_auto_ldflags = yes ; then
 		if test $ac_host = unix ; then
 			LDFLAGS="-rdynamic"
 		else
-			LDFLAGS=""
+			LDFLAGS="-g"
 		fi
 	else
 		LDFLAGS="-s"
@@ -244,7 +244,8 @@ if test $ac_with_system = auto; then
 	else
 		ac_with_system=linux
 	fi
-elif test $ac_with_system = sdl; then
+fi
+if test $ac_with_system = sdl; then
 	if test -z ${host_alias} ; then
 		AC_CHECK_PROGS(
 			[SDLCONFIG],

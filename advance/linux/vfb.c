@@ -228,10 +228,10 @@ video_error fb_mode_set(const fb_video_mode* mode)
 	fb_state.varinfo.pixclock = (unsigned)(1000000000000LL / mode->crtc.pixelclock);
 	fb_state.varinfo.left_margin = mode->crtc.ht - mode->crtc.hre;
 	fb_state.varinfo.right_margin = mode->crtc.hrs - mode->crtc.hde;
-	fb_state.varinfo.upper_margin = mode->crtc.vt - mode->crtc.vre;;
+	fb_state.varinfo.upper_margin = mode->crtc.vt - mode->crtc.vre;
 	fb_state.varinfo.lower_margin = mode->crtc.vrs - mode->crtc.vde;
 	fb_state.varinfo.hsync_len = mode->crtc.hre - mode->crtc.hrs;
-	fb_state.varinfo.vsync_len = mode->crtc.vre - mode->crtc.vrs;;
+	fb_state.varinfo.vsync_len = mode->crtc.vre - mode->crtc.vrs;
 
 	fb_state.varinfo.sync = 0;
 	if (crtc_is_nhsync(&mode->crtc))

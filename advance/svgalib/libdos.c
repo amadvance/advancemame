@@ -345,7 +345,7 @@ unsigned char* __svgalib_linear_pointer = (unsigned char*)0x80000000; /* UNUSED 
 unsigned long int __svgalib_linear_mem_base, __svgalib_linear_mem_size;
 unsigned char* __svgalib_mmio_pointer;
 unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
-static int mmio_mapped=0, mem_mapped=0;
+static int mmio_mapped=0;
 
 int inrestore; /* UNUSED */
 

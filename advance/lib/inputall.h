@@ -41,11 +41,11 @@ extern "C" {
 #ifdef USE_INPUT_DOS
 #include "idos.h"
 #endif
-#ifdef USE_INPUT_LINUX
-#include "ilinux.h"
+#ifdef USE_INPUT_SLANG
+#include "islang.h"
 #endif
 #ifdef USE_INPUT_NONE
-#include "inont.h"
+#include "inone.h"
 #endif
 
 void inputb_reg_driver_all(struct conf_context* context);

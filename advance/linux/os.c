@@ -40,6 +40,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <sys/utsname.h>
+#include <sys/time.h>
 #include <execinfo.h>
 
 /* Check if svgalib is used in some way */
@@ -47,6 +48,12 @@
 #define USE_SVGALIB
 #include <vga.h>
 #include <vgamouse.h>
+#endif
+
+/* Check if sLang is used in some way */
+#if defined(USE_VIDEO_SLANG) || defined(USE_INPUT_SLANG)
+#define USE_SLANG
+#include <slang/slang.h>
 #endif
 
 /* Check if dga is used in some way */
@@ -59,6 +66,10 @@
 struct os_context {
 #ifdef USE_SVGALIB
 	int svgalib_active; /**< SVGALIB initialized. */
+#endif
+
+#ifdef USE_SLANG
+	int slang_active; /**< Slang initialized. */
 #endif
 
 #ifdef USE_DGA
@@ -146,11 +157,19 @@ int os_inner_init(const char* title) {
 		log_std(("os: vga_init()\n"));
 		if (vga_init() != 0) {
 			log_std(("os: vga_init() failed\n"));
-			target_err("Couldn't open SVGALIB.");
+			target_err("Error initializing the SVGALIB video support.\n");
 			return -1;
 		}
 		OS.svgalib_active = 1;
+	} else {
+		target_err("The SVGALIB video isn't supported in X Window.\n");
 	}
+#endif
+#if defined(USE_SLANG)
+	SLtt_get_terminfo();
+	SLang_init_tty(-1, 0, 0);
+	SLsmg_init_smg();
+	OS.slang_active = 1;
 #endif
 #if defined(USE_DGA)
 	OS.dga_active = 0;
@@ -214,6 +233,14 @@ void* os_internal_svgalib_get(void) {
 	return 0;
 }
 
+void* os_internal_slang_get(void) {
+#if defined(USE_SLANG)
+	if (OS.slang_active)
+		return &OS.slang_active;
+#endif
+	return 0;
+}
+
 void* os_internal_dga_get(void) {
 #if defined(USE_DGA)
 	if (OS.dga_active)
@@ -230,6 +257,11 @@ void os_inner_done(void) {
 #endif
 #ifdef USE_SVGALIB
 	OS.svgalib_active = 0;
+#endif
+#ifdef USE_SLANG
+	OS.slang_active = 0;
+	SLsmg_reset_smg();
+	SLang_reset_tty();
 #endif
 #ifdef USE_DGA
 	/* close up the display */

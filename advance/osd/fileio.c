@@ -284,9 +284,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& item->mode == FILEIO_MODE_DIRGAME
 			&& game) {
 			char file[FILE_MAXPATH];
-
-			sprintf(file,"%s/%s",item->dir_map[i],game);
-
+			strcpy(file, file_abs(item->dir_map[i],game));
 			item_open_raw(file, item->extension, open_mode, h);
 		}
 
@@ -295,9 +293,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& (item->mode == FILEIO_MODE_DIRNAME || item->mode == FILEIO_MODE_NAME)
 			&& name) {
 			char file[FILE_MAXPATH];
-
-			sprintf(file,"%s/%s",item->dir_map[i],name);
-
+			strcpy(file, file_abs(item->dir_map[i],name));
 			item_open_raw(file, item->extension, open_mode, h);
 		}
 
@@ -307,9 +303,9 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& game
 			&& name) {
 			char file[FILE_MAXPATH];
-
-			sprintf(file,"%s/%s/%s",item->dir_map[i],game,name);
-
+			char sub[FILE_MAXPATH];
+			sprintf(sub,"%s%c%s",game,file_dir_slash(),name);
+			strcpy(file,file_abs(item->dir_map[i],sub));
 			item_open_raw(file, item->extension, open_mode, h);
 		}
 
@@ -319,12 +315,11 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 			&& mode == FILEIO_OPEN_READ
 			&& game
 			&& name) {
-
-			char zip_file[FILE_MAXPATH];
-
-			sprintf(zip_file, "%s/%s.zip", item->dir_map[i], game);
-
-			item_open_zip(zip_file, name, item->extension, h);
+			char file[FILE_MAXPATH];
+			char sub[FILE_MAXPATH];
+			sprintf(sub,"%s.zip",game);
+			strcpy(file, file_abs(item->dir_map[i], sub));
+			item_open_zip(file, name, item->extension, h);
 		}
 
 #ifdef MESS
@@ -338,6 +333,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 
 			char zip_file[FILE_MAXPATH];
 			char file[FILE_MAXPATH];
+			char sub[FILE_MAXPATH];
 			const char* end;
 
 			end = strchr(name,'.');
@@ -346,8 +342,9 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 
 			strncpy(file, name, end - name);
 			file[end - name] = 0;
-			sprintf(zip_file, "%s/%s/%s.zip", item->dir_map[i], game, file);
 
+			sprintf(sub, "%s%c%s.zip", game, file_dir_slash(), file);
+			strcpy(zip_file, file_abs(item->dir_map[i], sub));
 			item_open_zip(zip_file, name, item->extension, h);
 		}
 
@@ -362,6 +359,7 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 
 			char zip_file[FILE_MAXPATH];
 			char file[FILE_MAXPATH];
+			char sub[FILE_MAXPATH];
 			const char* end;
 			const char* real_name;
 
@@ -370,8 +368,9 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 
 			strncpy(file, name, end - name);
 			file[end - name] = 0;
-			sprintf(zip_file, "%s/%s/%s.zip", item->dir_map[i], game, file);
 
+			sprintf(sub, "%s%c%s.zip", game, file_dir_slash(), file);
+			strcpy(zip_file, file_abs(item->dir_map[i], sub));
 			item_open_zip(zip_file, real_name, item->extension, h);
 		}
 #endif
@@ -562,10 +561,15 @@ int osd_fread_scatter(void* void_h, void* buffer, int length, int increment)
 int osd_fseek(void* void_h, int offset, int whence)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	int r;
 
 	log_debug(("osd: osd_fseek(void_h, offset:%d, whence:%d)\n",offset,whence));
 
-	return fzseek(h->f, offset, whence);
+	r = fzseek(h->f, offset, whence);;
+
+	log_debug(("osd: osd_fseek() -> %d\n",r));
+
+	return r;
 }
 
 void osd_fclose(void* void_h)
@@ -681,10 +685,15 @@ int osd_feof(void* void_h)
 int osd_ftell(void* void_h)
 {
 	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	int r;
 
 	log_debug(("osd: osd_ftell(void_h)\n"));
 
-	return fztell(h->f);
+	r = fztell(h->f);
+
+	log_debug(("osd: osd_ftell() -> %d\n", r));
+
+	return r;
 }
 
 /**

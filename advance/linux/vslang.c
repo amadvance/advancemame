@@ -30,6 +30,7 @@
 
 #include "vslang.h"
 #include "log.h"
+#include "osint.h"
 
 #include <slang/slang.h>
 #include <stdlib.h>
@@ -75,8 +76,10 @@ video_error slang_init(int device_id) {
 
 	log_std(("video:slang: slang_init()\n"));
 
-	/* get the term info */
-	SLtt_get_terminfo();
+	if (!os_internal_slang_get()) {
+		log_std(("video:slang: slang not initialized\n"));
+		return -1;
+	}
 
 	slang_state.size_x = SLtt_Screen_Cols;
 	slang_state.size_y = SLtt_Screen_Rows;

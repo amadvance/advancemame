@@ -396,7 +396,7 @@ void os_default_signal(int signum)
 		cprintf("Low memory\n\r");
 		_exit(EXIT_FAILURE);
 	} else {
-		cprintf("AdvanceMAME signal %d.\n", signum);
+		cprintf("AdvanceMAME signal %d.\n\r", signum);
 		cprintf("%s, %s\n\r", __DATE__, __TIME__);
 
 		if (signum == SIGILL) {

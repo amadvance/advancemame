@@ -30,18 +30,68 @@
 #include <string>
 
 // ------------------------------------------------------------------------
-// Category
+// category
 
-#define CATEGORY_UNDEFINED "<undefined>"
+class category {
+	std::string name;
+	bool state; /// if the category is listed or not
+	bool undefined; /// if it's the undefined category
 
-typedef std::set<std::string> category_base_container;
-
-class category_container : public category_base_container {
+	category();
 public:
-	void insert_double(const std::string& name, category_container& cat_include);
+	category(const category& A);
+	~category();
 
-	void import_ini(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const std::string& s) const, category_container& include);
-	void import_mac(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const std::string& s) const, category_container& include);
+	category(const std::string& Aname);
+	category(const std::string& Aname, bool Aundefined);
+
+	const std::string& name_get() const { return name; }
+
+	void state_set(bool Astate) { state = Astate; }
+	bool state_get() const { return state; }
+
+	bool undefined_get() const { return undefined; }
+
+	bool operator<(const category& A) const { return case_less(name,A.name); }
+};
+
+inline bool pgame_by_group_less(const game* A, const game* B) {
+	return *A->group_derived_get() < *B->group_derived_get();
+}
+
+inline bool pgame_by_type_less(const game* A, const game* B) {
+	return *A->type_derived_get() < *B->type_derived_get();
+}
+
+
+// ------------------------------------------------------------------------
+// category_container
+
+typedef std::set<std::string> category_container;
+
+struct pcategory_less : std::binary_function<const category*,const category*,bool> {
+	bool operator()(const category* A, const category* B) const {
+		return *A < *B;
+	}
+};
+
+typedef std::set<category*,pcategory_less> pcategory_container_base;
+
+class pcategory_container : public pcategory_container_base {
+	const category* undefined;
+public:
+	pcategory_container();
+	~pcategory_container();
+
+	const category* undefined_get() const {
+		return undefined;
+	}
+
+	const category* insert(const std::string& name);
+	const category* insert_double(const std::string& name, category_container& cat_include);
+
+	void import_ini(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const category*) const, category_container& include);
+	void import_mac(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const category*) const, category_container& include);
 };
 
 #endif

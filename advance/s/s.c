@@ -23,6 +23,7 @@
 #include "fz.h"
 #include "mixer.h"
 #include "sounddrv.h"
+#include "target.h"
 
 #include <string.h>
 
@@ -184,16 +185,3 @@ err:
 
 }
 
-#ifdef __MSDOS__
-
-/* Keep Allegro small */
-BEGIN_GFX_DRIVER_LIST
-END_GFX_DRIVER_LIST
-
-BEGIN_COLOR_DEPTH_LIST
-END_COLOR_DEPTH_LIST
-
-BEGIN_JOYSTICK_DRIVER_LIST
-END_JOYSTICK_DRIVER_LIST
-
-#endif

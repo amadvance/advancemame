@@ -21,6 +21,7 @@
 #include "os.h"
 #include "conf.h"
 #include "joyall.h"
+#include "target.h"
 
 #include <stdio.h>
 #include <stdlib.h>

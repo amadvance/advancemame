@@ -381,6 +381,19 @@ Configuration
 			low end driver allow it (default).
 		no - Disable completly the feature.
 
+    device_video_8bit/15bit/16bit/32bit
+	Limit the use of certains bit depths.
+
+	:device_video_8bit yes | no
+	:device_video_15bit yes | no
+	:device_video_16bit yes | no
+	:device_video_32bit yes | no
+
+	Options:
+		yes - Permits the use of the bit depth if the
+			low end driver allow it (default).
+		no - Disable completly the bit depth.
+
     device_video_fastchange
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video

@@ -38,46 +38,35 @@ using namespace std;
 // ------------------------------------------------------------------------
 // game
 
-/// Set the final name in lowercase. The user name before the slash is kept.
-string game_name_adjust(const string& name) {
-	string r = name;
-	unsigned i = r.rfind('/');
-	if (i == string::npos)
-		i = 0;
-	else
-		++i;
-
-	for(;i<r.length();++i)
-		r[i] = tolower(r[i]);
-
-	return r;
-}
-
 game::game() {
-	flag = flag_working | flag_sound | flag_color;
+	flag = 0;
+	play = play_perfect;
+	play_best = play_not;
 	sizex = 0;
 	sizey = 0;
 	aspectx = 0;
 	aspecty = 0;
 	time = 0;
 	size = 0;
-	type = CATEGORY_UNDEFINED;
-	group = CATEGORY_UNDEFINED;
+	type = 0;
+	group = 0;
 	parent = 0;
 	emu = 0;
 	coin = 0;
 }
 
 game::game(const string& Aname) : name(Aname) {
-	flag = flag_working | flag_sound | flag_color;
+	flag = 0;
+	play = play_perfect;
+	play_best = play_not;
 	sizex = 0;
 	sizey = 0;
 	aspectx = 0;
 	aspecty = 0;
 	time = 0;
 	size = 0;
-	type = CATEGORY_UNDEFINED;
-	group = CATEGORY_UNDEFINED;
+	type = 0;
+	group = 0;
 	parent = 0;
 	emu = 0;
 	coin = 0;
@@ -85,6 +74,7 @@ game::game(const string& Aname) : name(Aname) {
 
 game::game(const game& A) :
 	flag(A.flag),
+	play(A.play), play_best(A.play_best),
 	name(A.name), romof(A.romof),cloneof(A.cloneof),
 	description(A.description), year(A.year),
 	manufacturer(A.manufacturer), software_path(A.software_path),
@@ -104,6 +94,10 @@ game::game(const game& A) :
 }
 
 game::~game() {
+}
+
+void game::name_set(const std::string& A) {
+	name = A;
 }
 
 void game::auto_description_set(const std::string& A) const {
@@ -155,20 +149,41 @@ string game::name_without_emulator_get() const {
 		return name_get().substr(i + 1);
 }
 
-string game::group_derived_get() const {
-	if (group_get() != CATEGORY_UNDEFINED)
+void game::auto_group_set(const category* A) const {
+	if (!is_user_group_set())
+		group = A;
+}
+
+void game::user_group_set(const category* A) const {
+	if (!A->undefined_get())
+		flag |= flag_user_group_set; group = A;
+}
+
+void game::auto_type_set(const category* A) const {
+	if (!is_user_type_set())
+		type = A;
+}
+
+void game::user_type_set(const category* A) const {
+	if (!A->undefined_get())
+		flag |= flag_user_type_set;
+	type = A;
+}
+
+const category* game::group_derived_get() const {
+	if (!group_get()->undefined_get())
 		return group_get();
 	if (parent_get())
 		return parent_get()->group_derived_get();
-	return CATEGORY_UNDEFINED;
+	return group_get();
 }
 
-string game::type_derived_get() const {
-	if (type_get() != CATEGORY_UNDEFINED)
+const category* game::type_derived_get() const {
+	if (!type_get()->undefined_get())
 		return type_get();
 	if (parent_get())
 		return parent_get()->type_derived_get();
-	return CATEGORY_UNDEFINED;
+	return type_get();
 }
 
 const game& game::bios_get() const {
@@ -297,171 +312,7 @@ bool game::preview_find(resource& path, const resource& (game::*preview_get)() c
 // ------------------------------------------------------------------------
 // game_set
 
-static const char* manufacturer_strip(const char* s) {
-	static char buffer[1024];
-	char* dst = buffer;
-	// remove begin space
-	while (*s && isspace(*s))
-		++s;
-	if (s[0] == '[') {
-		++s;
-		while (*s && *s!=']') {
-			*dst++ = *s++;
-		}
-	} else {
-		while (*s && *s!='(' && *s!='/' && *s!='+' && *s!='&') {
-			*dst++ = *s++;
-		}
-	}
-	// remove end space
-	while (dst != buffer && isspace(dst[-1]))
-		--dst;
-	*dst = 0;
-	return buffer;
-}
-
-bool game_set::load(FILE* f, const emulator* Aemu) {
-	info_init();
-	bool r = internal_load(f,Aemu);
-	info_done();
-	return r;
-}
-
-bool game_set::internal_load(FILE* f, const emulator* Aemu) {
-	info_t token = info_token_get(f);
-	while (token!=info_eof) {
-		if (token != info_symbol) return false;
-		bool isresource = strcmp(info_text_get(),"resource")==0;
-		bool isgame = strcmp(info_text_get(),"game")==0 || strcmp(info_text_get(),"machine")==0;
-		if (isgame || isresource) {
-			if (info_token_get(f) != info_open) return false;
-			game g;
-			g.emulator_set(Aemu);
-			g.resource_set(isresource);
-			token = info_token_get(f);
-			while (token != info_close) {
-				if (token != info_symbol)
-					return false;
-				if (strcmp(info_text_get(),"name")==0) {
-					if (info_token_get(f) != info_symbol) return false;
-					g.name_set( Aemu->user_name_get() + "/" + info_text_get() );
-				} else if (strcmp(info_text_get(),"description")==0) {
-					if (info_token_get(f) != info_string) return false;
-					g.auto_description_set( info_text_get() );
-				} else if (strcmp(info_text_get(),"manufacturer")==0) {
-					if (info_token_get(f) != info_string) return false;
-					g.manufacturer_set( manufacturer_strip( info_text_get() ) );
-				} else if (strcmp(info_text_get(),"year")==0) {
-					if (info_token_get(f) != info_symbol) return false;
-					g.year_set( info_text_get() );
-				} else if (strcmp(info_text_get(),"cloneof")==0) {
-					if (info_token_get(f) != info_symbol) return false;
-					g.cloneof_set( Aemu->user_name_get() + "/" + info_text_get() );
-				} else if (strcmp(info_text_get(),"romof")==0) {
-					if (info_token_get(f) != info_symbol) return false;
-					g.romof_set( Aemu->user_name_get() + "/" + info_text_get() );
-				} else if (strcmp(info_text_get(),"driver")==0) {
-					if (info_token_get(f) != info_open)  return false;
-					token = info_token_get(f);
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(),"status")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.working_set( strcmp( info_text_get(), "preliminary") != 0 );
-						} else if (strcmp(info_text_get(),"color")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.color_set( strcmp( info_text_get(), "preliminary") != 0 );
-						} else if (strcmp(info_text_get(),"sound")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.sound_set( strcmp( info_text_get(), "preliminary") != 0 );
-						} else {
-							if (info_skip_value(f) == info_error) return false;
-						}
-						token = info_token_get(f);
-					}
-				} else if (strcmp(info_text_get(),"video")==0)  {
-					if (info_token_get(f) != info_open)  return false;
-					token = info_token_get(f);
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(),"screen")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.vector_set( strcmp( info_text_get(),"vector") == 0 );
-						} else if (strcmp(info_text_get(),"orientation")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.vertical_set(strcmp(info_text_get(),"vertical")==0);
-						} else if (strcmp(info_text_get(),"x")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.sizex_set( atoi(info_text_get()) );
-						} else if (strcmp(info_text_get(),"y")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.sizey_set( atoi(info_text_get()) );
-						} else if (strcmp(info_text_get(),"aspectx")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.aspectx_set( atoi(info_text_get()) );
-						} else if (strcmp(info_text_get(),"aspecty")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							g.aspecty_set( atoi(info_text_get()) );
-						} else {
-							if (info_skip_value(f) == info_error) return false;
-						}
-						token = info_token_get(f);
-					}
-				} else if (strcmp(info_text_get(),"rom")==0) {
-					unsigned size = 0;
-					bool merge = false;
-					if (info_token_get(f) != info_open) return false;
-					token = info_token_get(f);
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(),"size")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							size = atoi( info_text_get() );
-						} else if (strcmp(info_text_get(),"merge")==0) {
-							if (info_token_get(f) != info_symbol) return false;
-							merge = true;
-						} else {
-							if (info_skip_value(f) == info_error) return false;
-						}
-						token = info_token_get(f);
-					}
-					if (!merge)
-						g.size_set( g.size_get() + size );
-				} else if (strcmp(info_text_get(),"device")==0) {
-					machinedevice dev;
-					if (info_token_get(f) != info_open) return false;
-					token = info_token_get(f);
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(),"ext")==0) {
-							if (info_token_get(f) != info_string) return false;
-							dev.ext_bag.insert(dev.ext_bag.end(), string( info_text_get() ) );
-						} else if (strcmp(info_text_get(),"name")==0) {
-							if (info_token_get(f) != info_string) return false;
-							dev.name = string(info_text_get());
-						} else {
-							if (info_skip_value(f) == info_error) return false;
-						}
-						token = info_token_get(f);
-					}
-					g.machinedevice_bag_get().insert(g.machinedevice_bag_get().end(),dev);
-				} else {
-					if (info_skip_value(f) == info_error) return false;
-				}
-				token = info_token_get(f);
-			}
-			insert( g );
-		} else {
-			if (info_skip_value(f) == info_error)
-				return false;
-		}
-		token = info_token_get(f);
-	}
-
-	return true;
-}
-
-void game_set::sync_relationships() {
+void game_set::cache(merge_t merge) {
 	for(iterator i=begin();i!=end();++i) {
 		// erase the clone list
 		i->clone_bag_erase();
@@ -517,6 +368,22 @@ void game_set::sync_relationships() {
 			j = j->parent_get();
 		}
 	}
+
+	// compute the derived play_best
+	for(iterator i=begin();i!=end();++i) {
+		i->play_best_set( i->clone_best_get().play_get() );
+	}
+
+	// compute the derived tree_present
+	for(iterator i=begin();i!=end();++i) {
+		bool present = is_tree_rom_of_present(i->name_get(),merge);
+		i->flag_set(present, game::flag_tree_present);
+	}
+
+	// specific emulator cache
+	for(iterator i=begin();i!=end();++i) {
+		i->emulator_get()->cache(*this,*i);
+	}
 }
 
 bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const {
@@ -524,7 +391,7 @@ bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const {
 		case merge_differential : {
 			const_iterator i = find( game( name ) );
 			while (i!=end()) {
-				if (!i->is_present())
+				if (!i->present_get())
 					return false;
 				if (i->romof_get().length()==0)
 					return true;
@@ -535,7 +402,7 @@ bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const {
 		case merge_any : {
 			const_iterator i = find( game( name ) );
 			while (i!=end()) {
-				if (i->is_present())
+				if (i->present_get())
 					return true;
 				if (i->romof_get().length()==0)
 					return false;
@@ -546,13 +413,13 @@ bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const {
 		case merge_no : {
 			const_iterator i = find( game( name ) );
 			if (i!=end())
-				return i->is_present();
+				return i->present_get();
 			return false;
 		}
 		case merge_parent : {
 			const_iterator i = root_clone_of_get(name);
 			if (i!=end())
-				return i->is_present();
+				return i->present_get();
 			return false;
 		}
 		case merge_disable :
@@ -812,11 +679,11 @@ string sort_item_coin(const game& g) {
 }
 
 string sort_item_group(const game& g) {
-	return g.group_get();
+	return g.group_get()->name_get();
 }
 
 string sort_item_type(const game& g) {
-	return g.type_get();
+	return g.type_get()->name_get();
 }
 
 string sort_item_size(const game& g) {

@@ -109,8 +109,9 @@ static int draw_text_help(void) {
 "r/f   Increase the x/y Retrace End register (SHIFT for decreasing)\n"
 "t/g   Increase the x/y Blank End register (SHIFT for decreasing)\n"
 "y/h   Increase the x/y Total End register (SHIFT for decreasing)\n"
-"v     Increase the pixel clock (SHIFT for decreasing)\n"
 "u/j   Change the polarization\n"
+"i/k   Expand the x/y size (SHIFT to shrink)\n"
+"v     Increase the pixel clock (SHIFT for decreasing)\n"
 "x/c   Change the scan line mode\n"
 "n/m   Change the tv mode\n"
 "\n"
@@ -506,15 +507,13 @@ static int test_crtc(int x, int y, video_crtc* crtc, int print_clock, int print_
 
 	if (print_key) {
 		++y;
-		draw_string(x,y,"Q...U  Inc horz (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x,y,"Q...I  Inc horz (SHIFT dec)",DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"A...J  Inc vert (SHIFT dec)",DRAW_COLOR_WHITE);
+		draw_string(x,y,"A...K  Inc vert (SHIFT dec)",DRAW_COLOR_WHITE);
 		++y;
 		draw_string(x,y,"XCV    Flip flag",DRAW_COLOR_WHITE);
 		++y;
 		draw_string(x,y,"ARROWS Center",DRAW_COLOR_WHITE);
-		++y;
-		draw_string(x,y,"CTRL+ARROWS Expand/Shrink",DRAW_COLOR_WHITE);
 		++y;
 	}
 
@@ -724,25 +723,25 @@ static int test_exe_crtc(int userkey, video_crtc* crtc) {
 		xdelta = 8;
 
 	switch (userkey) {
-		case OS_INPUT_CTRLLEFT :
+		case 'i' :
 			pred_t = crtc->ht;
 			crtc->ht -= crtc->ht % xdelta;
 			crtc->ht -= xdelta;
 			crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
 			modify = 1;
 			break;
-		case OS_INPUT_CTRLRIGHT :
+		case 'I' :
 			pred_t = crtc->ht;
 			crtc->ht -= crtc->ht % xdelta;
 			crtc->ht += xdelta;
 			crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
 			modify = 1;
 			break;
-		case OS_INPUT_CTRLUP :
+		case 'k' :
 			crtc->vt -= 1;
 			modify = 1;
 			break;
-		case OS_INPUT_CTRLDOWN :
+		case 'K' :
 			crtc->vt += 1;
 			modify = 1;
 			break;

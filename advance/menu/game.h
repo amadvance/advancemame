@@ -25,6 +25,7 @@
 #include "resource.h"
 
 class emulator;
+class category;
 
 #include <set>
 #include <list>
@@ -58,37 +59,32 @@ typedef std::list<machinedevice> machinedevice_container;
 
 std::string game_name_adjust(const std::string& name);
 
+enum play_t {
+	play_perfect, /// Perfect
+	play_minor, /// Minor problems
+	play_major, /// Major problems
+	play_not /// Unusable
+};
+
 class game;
 
 typedef std::list<const game*> pgame_container;
 
 class game {
-	static const unsigned flag_working = 0x0001;
-	static const unsigned flag_resource = 0x0002;
-	static const unsigned flag_software = 0x0004;
-	static const unsigned flag_vector = 0x0008;
-	static const unsigned flag_sound = 0x0010;
-	static const unsigned flag_color = 0x0020;
-	static const unsigned flag_alias = 0x0040;
-	static const unsigned flag_vertical = 0x0080;
-	static const unsigned flag_coin_set = 0x0100;
-	static const unsigned flag_time_set = 0x0200;
-	static const unsigned flag_user_description_set = 0x0400;
-	static const unsigned flag_user_type_set = 0x0800;
-	static const unsigned flag_user_group_set = 0x1000;
+	static const unsigned flag_coin_set = 0x1;
+	static const unsigned flag_time_set = 0x2;
+	static const unsigned flag_user_description_set = 0x4;
+	static const unsigned flag_user_type_set = 0x8;
+	static const unsigned flag_user_group_set = 0x10;
+	static const unsigned flag_software = 0x20;
+	static const unsigned flag_tree_present = 0x40;
+
+	friend class game_set;
 
 	mutable unsigned flag;
 
-	void flag_set(bool value, unsigned mask) {
-		if (value)
-			flag |= mask;
-		else
-			flag &=~mask;
-	}
-
-	bool flag_get(unsigned mask) const {
-		return (flag & mask) != 0;
-	}
+	play_t play; /// Playlability of the game
+	mutable play_t play_best; /// Playlability of the best clone or the game. It's a derived value.
 
 	// game information
 	std::string name;
@@ -104,8 +100,8 @@ class game {
 	unsigned aspectx;
 	unsigned aspecty;
 
-	mutable std::string group;
-	mutable std::string type;
+	mutable const category* group;
+	mutable const category* type;
 	mutable unsigned time;
 
 	mutable int coin;
@@ -129,7 +125,7 @@ class game {
 	mutable resource marquee_path;
 	mutable resource title_path;
 
-	const emulator* emu;
+	emulator* emu;
 
 	bool preview_find_down(resource& path, const resource& (game::*preview_get)() const, const std::string& exclude) const;
 	bool preview_find_up(resource& path, const resource& (game::*preview_get)() const, const std::string& exclude) const;
@@ -140,7 +136,20 @@ public:
 	game(const game&);
 	~game();
 
-	void name_set(const std::string& A) { name = game_name_adjust(A); }
+	static const unsigned flag_user = 0x100;
+
+	void flag_set(bool value, unsigned mask) const {
+		if (value)
+			flag |= mask;
+		else
+			flag &=~mask;
+	}
+
+	bool flag_get(unsigned mask) const {
+		return (flag & mask) != 0;
+	}
+
+	void name_set(const std::string& A);
 	const std::string& name_get() const { return name; }
 	void cloneof_set(const std::string& A) { cloneof = A; }
 	const std::string& cloneof_get() const { return cloneof; }
@@ -151,29 +160,28 @@ public:
 	bool is_user_description_set() const { return flag_get(flag_user_description_set); }
 	void user_description_set(const std::string& A) const { flag |= flag_user_description_set; description = A; }
 	const std::string& description_get() const { return description; }
+	std::string description_tree_get() const { return strip_comment(description_get()); }
 
 	bool is_user_group_set() const { return flag_get(flag_user_group_set); }
-	void auto_group_set(const std::string& A) const { if (!is_user_group_set()) group = A; }
-	void user_group_set(const std::string& A) const { flag |= flag_user_group_set; group = A; }
-	std::string group_get() const { return group; }
+	void auto_group_set(const category* A) const;
+	void user_group_set(const category* A) const;
+	const category* group_get() const { return group; }
 
 	bool is_user_type_set() const { return flag_get(flag_user_type_set); }
-	void auto_type_set(const std::string& A) const { if (!is_user_type_set()) type = A; }
-	void user_type_set(const std::string& A) const { flag |= flag_user_type_set; type = A; }
-	std::string type_get() const { return type; }
+	void auto_type_set(const category* A) const;
+	void user_type_set(const category* A) const;
+	const category* type_get() const { return type; }
 
+	void play_set(play_t A) { play = A; }
+	play_t play_get() const { return play; }
+	void play_best_set(play_t A) const { play_best = A; }
+	play_t play_best_get() const { return play_best; }
 	void year_set(const std::string& A) { year = A; }
 	const std::string& year_get() const { return year; }
 	void manufacturer_set(const std::string& A) { manufacturer = A; }
 	const std::string& manufacturer_get() const { return manufacturer; }
 	void software_path_set(const std::string& A) const { software_path = A; }
 	const std::string& software_path_get() const { return software_path; }
-	void working_set(bool A) { flag_set(A,flag_working); }
-	bool working_get() const { return flag_get(flag_working); }
-	void vertical_set(bool A) { flag_set(A,flag_vertical); }
-	bool vertical_get() const { return flag_get(flag_vertical); }
-	void resource_set(bool A) { flag_set(A,flag_resource); }
-	bool resource_get() const { return flag_get(flag_resource); }
 	void software_set(bool A) { flag_set(A,flag_software); }
 	bool software_get() const { return flag_get(flag_software); }
 	void time_set(unsigned A) const { flag |= flag_time_set; time = A; }
@@ -185,16 +193,8 @@ public:
 	bool is_coin_set() const { return flag_get(flag_coin_set); }
 	unsigned coin_tree_get() const;
 	unsigned coin_get() const { return coin; }
-	void vector_set(bool A) { flag_set(A,flag_vector); }
-	bool vector_get() const { return flag_get(flag_vector); }
 	void size_set(unsigned Asize) const { size = Asize; }
 	unsigned size_get() const { return size; }
-	void sound_set(bool A) { flag_set(A,flag_sound); }
-	bool sound_get() const { return flag_get(flag_sound); }
-	void color_set(bool A) { flag_set(A,flag_color); }
-	bool color_get() const { return flag_get(flag_color); }
-	void alias_set(bool A) { flag_set(A,flag_alias); }
-	bool alias_get() const { return flag_get(flag_alias); }
 	void sizex_set(unsigned A) { sizex = A; }
 	unsigned sizex_get() const { return sizex; }
 	void sizey_set(unsigned A) { sizey = A; }
@@ -203,8 +203,8 @@ public:
 	unsigned aspectx_get() const { return aspectx; }
 	void aspecty_set(unsigned A) { aspecty = A; }
 	unsigned aspecty_get() const { return aspecty; }
-	void emulator_set(const emulator* A) { emu = A; }
-	const emulator* emulator_get() const { return emu; }
+	void emulator_set(emulator* A) { emu = A; }
+	emulator* emulator_get() const { return emu; }
 
 	void preview_snap_set(const resource& A) const { snap_path = A; }
 	void preview_snap_set_ifmissing(const resource& A) const { if (!snap_path.is_valid()) snap_path = A; }
@@ -243,8 +243,8 @@ public:
 	void rom_zip_set_insert(const std::string& Afile) const;
 	const path_container& rom_zip_set_get() const { return rzs; }
 
-	std::string group_derived_get() const;
-	std::string type_derived_get() const;
+	const category* group_derived_get() const;
+	const category* type_derived_get() const;
 	std::string name_without_emulator_get() const;
 
 	pgame_container& clone_bag_get() const { return clone_bag; }
@@ -256,14 +256,12 @@ public:
 
 	machinedevice_container& machinedevice_bag_get() const { return machinedevice_bag; }
 
-	bool is_present() const {
+	bool present_get() const {
 		return size_get() == 0 || rom_zip_set_get().size() > 0;
 	}
-
-	bool is_good() const {
-		return working_get() && color_get() && sound_get();
+	bool present_tree_get() const {
+		return flag_get(flag_tree_present);
 	}
-
 };
 
 typedef std::list<game> game_container;
@@ -276,27 +274,18 @@ struct game_by_name_less : std::binary_function<game,game,bool> {
 
 struct game_by_play_less : std::binary_function<game,game,bool> {
 	bool operator()(const game& A, const game& B) const {
-		if (!A.working_get() && B.working_get()) return true;
-		if (A.working_get() && !B.working_get()) return false;
-		if (!A.color_get() && B.color_get()) return true;
-		if (A.color_get() && !B.color_get()) return false;
-		if (!A.sound_get() && B.sound_get()) return true;
-		/* if (A.sound_get() && !B.sound_get()) return false; */
-		return false;
+		return A.play_get() > B.play_get();
 	}
 };
 
 typedef std::set<game,game_by_name_less> game_by_name_set;
 
 class game_set : public game_by_name_set {
-	bool game_set::internal_load(FILE* f, const emulator* Aemu);
-
 public:
 	typedef game_by_name_set::const_iterator const_iterator;
 	typedef game_by_name_set::iterator iterator;
 
-	bool load(FILE* f, const emulator* Aemu);
-	void sync_relationships();
+	void cache(merge_t merge);
 
 	bool is_tree_rom_of_present(const std::string& name, merge_t type) const;
 	bool is_game_tag(const std::string& name, const std::string& tag) const;
@@ -372,30 +361,6 @@ inline bool pgame_by_manufacturer_less(const game* A, const game* B) {
 
 inline bool pgame_by_year_less(const game* A, const game* B) {
 	return A->year_get() > B->year_get();
-}
-
-inline bool pgame_by_time_less(const game* A, const game* B) {
-	return A->time_get() > B->time_get();
-}
-
-inline bool pgame_by_time_tree_less(const game* A, const game* B) {
-	return A->time_tree_get() > B->time_tree_get();
-}
-
-inline bool pgame_by_coin_less(const game* A, const game* B) {
-	return A->coin_get() > B->coin_get();
-}
-
-inline bool pgame_by_coin_tree_less(const game* A, const game* B) {
-	return A->coin_tree_get() > B->coin_tree_get();
-}
-
-inline bool pgame_by_group_less(const game* A, const game* B) {
-	return case_less(A->group_derived_get(),B->group_derived_get());
-}
-
-inline bool pgame_by_type_less(const game* A, const game* B) {
-	return case_less(A->type_derived_get(),B->type_derived_get());
 }
 
 inline bool pgame_by_size_less(const game* A, const game* B) {

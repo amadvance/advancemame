@@ -53,19 +53,22 @@ enum advance_t {
 /***************************************************************************/
 /* Draw */
 
-int draw_test(int x, int y, video_crtc* crtc, int modify) {
+int draw_test(int x, int y, const char* s, video_crtc* crtc, int modify) {
 	char buffer[256];
 
 	draw_test_default();
 
+	draw_string(x,y,s,DRAW_COLOR_WHITE);
+	++y;
+
 	/* draw info */
 	if (modify) {
-		draw_string(x,y,"Center and resize the screen",DRAW_COLOR_WHITE);
-		++y;
 		++y;
 		draw_string(x,y,"ARROWS      Center",DRAW_COLOR_WHITE);
 		++y;
-		draw_string(x,y,"CTRL+ARROWS Resize",DRAW_COLOR_WHITE);
+		draw_string(x,y,"i/k         Expand x/y",DRAW_COLOR_WHITE);
+		++y;
+		draw_string(x,y,"SHIFT + i/k Shrink x/y",DRAW_COLOR_WHITE);
 		++y;
 		draw_string(x,y,"ENTER       Accept",DRAW_COLOR_WHITE);
 		++y;
@@ -370,7 +373,7 @@ static int cmd_model(struct conf_context* config, video_monitor* monitor) {
 			if (manufacturer && model && h && v && mac < max) {
 				data[mac].manufacturer = strdup(manufacturer);
 				data[mac].model = strdup(model);
-				if (monitor_parse(&data[mac].monitor,"5 - 80",h,v)!=0) {
+				if (monitor_parse(&data[mac].monitor,"5 - 90",h,v)!=0) {
 					video_mode_reset();
 					fprintf(stderr,"error: invalid monitor specification %s:%s:%s:%s",manufacturer,model,h,v);
 					exit(EXIT_FAILURE);
@@ -424,10 +427,10 @@ static int cmd_model_custom(video_monitor* monitor) {
 	draw_text_para(0,6,text_size_x(),text_size_y()-8,
 "Enter the clock specification of your monitor. "
 "Usually you can find them in the last page of your monitor manual. "
-"For the pclock you can safely use the values 5 - 80.\n"
+"For the pclock you can safely use the values 5 - 90.\n"
 "The pclock specification is in MHz, the hclock is in kHz, the vclock is in Hz.\n\n"
 "For example:\n\n"
-"pclock = 5-80\n"
+"pclock = 5-90\n"
 "hclock = 30-50\n"
 "vclock = 55-90\n"
 "\nor\n\n"
@@ -484,19 +487,22 @@ static int video_crtc_check(const video_crtc* crtc) {
 		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
 }
 
-static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor, int only_h_center) {
+static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor, int only_h_center) {
 	int done = 0;
 	int modify = 1;
+	int first = 1;
 	int userkey;
 	video_crtc current = *crtc;
 
 	double hclock = crtc->pixelclock / crtc->ht;
 
+	video_mode mode;
+	strcpy(mode.name,"test");
+
 	while (!done) {
 		unsigned pred_t;
 
 		if (modify) {
-			video_mode mode;
 			if (crtc_adjust_clock(&current, monitor)==0
 				&& video_crtc_check(&current)
 				&& crtc_clock_check(monitor,&current)
@@ -510,11 +516,19 @@ static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor,
 				}
 				*crtc = current;
 				modify = 0;
-				draw_test(2,2,&current,1);
+				draw_test(2,2,msg,&current,1);
 			} else {
+				if (first) {
+					text_reset();
+					fprintf(stderr,"Error in the test mode\n");
+					fprintf(stderr,"%s\n",video_error_description_get());
+					exit(EXIT_FAILURE);
+				}
 				sound_error();
 			}
 		}
+
+		first = 0;
 
 		current = *crtc;
 
@@ -524,8 +538,8 @@ static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor,
 			switch (userkey) {
 				case OS_INPUT_LEFT :
 				case OS_INPUT_RIGHT :
-				case OS_INPUT_CTRLLEFT :
-				case OS_INPUT_CTRLRIGHT :
+				case 'i' :
+				case 'I' :
 				case OS_INPUT_ENTER:
 				case OS_INPUT_ESC:
 				break;
@@ -540,25 +554,25 @@ static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor,
 			case OS_INPUT_ESC:
 				done = 1;
 				break;
-			case OS_INPUT_CTRLRIGHT :
+			case 'i' :
 				pred_t = current.ht;
 				current.ht -= current.ht % 8;
 				current.ht -= 8;
 				current.pixelclock = hclock * current.ht;
 				modify = 1;
 				break;
-			case OS_INPUT_CTRLLEFT :
+			case 'I' :
 				pred_t = current.ht;
 				current.ht -= current.ht % 8;
 				current.ht += 8;
 				current.pixelclock = hclock * current.ht;
 				modify = 1;
 				break;
-			case OS_INPUT_CTRLUP :
+			case 'k' :
 				current.vde -= 1;
 				modify = 1;
 				break;
-			case OS_INPUT_CTRLDOWN :
+			case 'K' :
 				current.vde += 1;
 				modify = 1;
 				break;
@@ -608,7 +622,7 @@ static int adjust(video_crtc* crtc, unsigned bits, const video_monitor* monitor,
 	return userkey == OS_INPUT_ENTER ? 0 : -1;
 }
 
-static void adjust_fix(video_crtc* crtc, unsigned bits, const video_monitor* monitor) {
+static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor) {
 	video_crtc current = *crtc;
 	video_mode mode;
 
@@ -623,23 +637,41 @@ static void adjust_fix(video_crtc* crtc, unsigned bits, const video_monitor* mon
 			fprintf(stderr,"%s\n",video_error_description_get());
 			exit(EXIT_FAILURE);
 		}
-		draw_test(2,2,&current,0);
+		draw_test(2,2,msg,&current,0);
 
 		inputb_get();
 	}
 }
 
-static int cmd_adjust(video_generate_interpolate* entry, const video_generate* generate, const video_monitor* monitor, unsigned y, unsigned bits, double horz_clock, int only_h_center) {
+static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const video_generate* generate, const video_monitor* monitor, unsigned y, unsigned bits, double horz_clock, int only_h_center) {
+	unsigned x;
 	video_crtc crtc;
 
 	crtc_reset(&crtc);
 
-	generate_crtc(&crtc,y*4/3,y,generate);
+	x = y*4/3;
+	x = x & ~0xF;
+
+	log_std(("horz_clock %g\n", horz_clock));
+	log_std(("pclock_min %g\n", (double)monitor_pclock_min(monitor)));
+	log_std(("pclock_max %g\n", (double)monitor_pclock_max(monitor)));
+	log_std(("x %d\n", x));
+	log_std(("pclock %g\n", x*horz_clock));
+
+	generate_crtc(&crtc,x,y,generate);
 	crtc_hclock_set(&crtc,horz_clock);
 
-	/* double the horizontal size if required */
-	if (crtc_pclock_get(&crtc) < monitor_pclock_min(monitor)) {
-		generate_crtc(&crtc,y*8/3,y,generate);
+	/* ensure that pclock is in range */
+	while (crtc_pclock_get(&crtc) > monitor_pclock_max(monitor)) {
+		x = x - 16;
+		x = x & ~0xF;
+		generate_crtc(&crtc,x,y,generate);
+		crtc_hclock_set(&crtc,horz_clock);
+	}
+	while (crtc_pclock_get(&crtc) < monitor_pclock_min(monitor)) {
+		x = x + 16;
+		x = x & ~0xF;
+		generate_crtc(&crtc,x,y,generate);
 		crtc_hclock_set(&crtc,horz_clock);
 	}
 
@@ -650,7 +682,7 @@ static int cmd_adjust(video_generate_interpolate* entry, const video_generate* g
 		exit(EXIT_FAILURE);
 	}
 
-	if (adjust(&crtc,bits,monitor,only_h_center)!=0)
+	if (adjust(msg, &crtc, bits, monitor, only_h_center)!=0)
 		return -1;
 
 	entry->hclock = crtc.pixelclock / crtc.ht;
@@ -688,7 +720,7 @@ static int cmd_interpolate_one(video_generate_interpolate_set* interpolate, cons
 	ty = hclock / vclock;
 	y = floor( ty * generate->vactive / (generate->vactive + generate->vfront + generate->vsync + generate->vback) );
 
-	if (cmd_adjust(interpolate->map + 0, generate, monitor, y, bits, hclock, 0)!=0) {
+	if (cmd_adjust("Center and resize the screen (1/1)", interpolate->map + 0, generate, monitor, y, bits, hclock, 0)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -720,7 +752,7 @@ static int cmd_interpolate_two(video_generate_interpolate_set* interpolate, cons
 	if (y<192)
 		y = 192;
 
-	if (cmd_adjust(interpolate->map + 0, &current, monitor, y, bits, hclock, 0)!=0) {
+	if (cmd_adjust("Center and resize the screen (1/2)", interpolate->map + 0, &current, monitor, y, bits, hclock, 0)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -736,7 +768,7 @@ static int cmd_interpolate_two(video_generate_interpolate_set* interpolate, cons
 	if (y>768)
 		y = 768;
 
-	if (cmd_adjust(interpolate->map + 1, &current, monitor, y, bits, hclock, 1)!=0) {
+	if (cmd_adjust("Center the screen (2/2)", interpolate->map + 1, &current, monitor, y, bits, hclock, 1)!=0) {
 		text_reset();
 		return -1;
 	}
@@ -851,7 +883,7 @@ static int interpolate_update(video_generate_interpolate_set* interpolate, struc
 	return 0;
 }
 
-int interpolate_test(video_crtc* crtc, const video_monitor* monitor, int bits) {
+int interpolate_test(const char* msg, video_crtc* crtc, const video_monitor* monitor, int bits) {
 	video_mode mode;
 	int res;
 
@@ -865,7 +897,7 @@ int interpolate_test(video_crtc* crtc, const video_monitor* monitor, int bits) {
 		return -1;
 	}
 
-	res = adjust(crtc, bits, monitor, 0);
+	res = adjust(msg, crtc, bits, monitor, 0);
 
 	text_reset();
 
@@ -959,7 +991,7 @@ static int cmd_interpolate_many(video_generate_interpolate_set* interpolate, con
 		res = draw_text_menu(2,y,text_size_x() - 4,text_size_y() - 2 - y,&data,mac,entry_interpolate,0, &base, &pos, &key);
 		if (res >= 0 && data[res].type == interpolate_mode) {
 			if (key == OS_INPUT_ENTER) {
-				if (interpolate_test(&data[res].crtc,monitor,bits)==0)
+				if (interpolate_test("Center and resize the screen", &data[res].crtc,monitor,bits)==0)
 					data[res].selected = 1;
 			} else
 				data[res].selected = !data[res].selected;
@@ -1124,7 +1156,7 @@ int cmd_test_mode(video_generate_interpolate_set* interpolate, const video_monit
 		draw_graphics_calib(0,0,video_size_x(),video_size_y());
 		inputb_get();
 	} else {
-		adjust_fix(&crtc, bits, monitor);
+		adjust_fix("Verify the mode", &crtc, bits, monitor);
 	}
 
 	text_reset();
@@ -1456,10 +1488,10 @@ int os_main(int argc, char* argv[]) {
 	if (opt_log || opt_logsync) {
 		const char* log = 0;
 		switch (the_advance) {
-			case advance_menu : log = "advmenuv.log"; break;
-			case advance_mame : log = "advmamev.log"; break;
-			case advance_mess : log = "advmessv.log"; break;
-			case advance_pac : log = "advpacv.log"; break;
+			case advance_menu : log = "advmenuc.log"; break;
+			case advance_mame : log = "advmamec.log"; break;
+			case advance_mess : log = "advmessc.log"; break;
+			case advance_pac : log = "advpacc.log"; break;
 		}
 		remove(log);
 		log_init(log,opt_logsync);

@@ -65,16 +65,8 @@ inline bool sort_by_time_func(const game* A, const game* B) {
 	return pgame_combine_less(A,B,pgame_by_time_less,pgame_by_desc_less,pgame_by_name_less);
 }
 
-inline bool sort_by_time_tree_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_time_tree_less,pgame_by_desc_less,pgame_by_name_less);
-}
-
 inline bool sort_by_coin_func(const game* A, const game* B) {
 	return pgame_combine_less(A,B,pgame_by_coin_less,pgame_by_desc_less,pgame_by_name_less);
-}
-
-inline bool sort_by_coin_tree_func(const game* A, const game* B) {
-	return pgame_combine_less(A,B,pgame_by_coin_tree_less,pgame_by_desc_less,pgame_by_name_less);
 }
 
 inline bool sort_by_group_func(const game* A, const game* B) {
@@ -142,8 +134,13 @@ struct config_state {
 
 public:
 	game_set gar; // main game list
-	category_container group; // main group list
-	category_container type; // main type list
+
+	pcategory_container group; // group set
+	pcategory_container type; // type set
+	category_container include_group_effective; // included groups
+	category_container include_type_effective; // included types
+	category_container include_group_orig;
+	category_container include_type_orig;
 
 	bool lock_effective; // interface locked
 	bool lock_orig;
@@ -163,11 +160,6 @@ public:
 	unsigned video_orientation_orig;
 	unsigned video_orientation_effective;
 
-	category_container include_group_effective; // gruppi di inclusione
-	category_container include_type_effective; // gruppi tipo
-	category_container include_group_orig;
-	category_container include_type_orig;
-
 	// desc import
 	std::string desc_import_type;
 	std::string desc_import_sub;
@@ -184,23 +176,6 @@ public:
 	std::string group_import_sub;
 	std::string group_import_file;
 	std::string group_import_section;
-
-	tristate_t exclude_neogeo_effective;
-	tristate_t exclude_deco_effective;
-	tristate_t exclude_playchoice_effective;
-	tristate_t exclude_clone_effective;
-	tristate_t exclude_bad_effective;
-	tristate_t exclude_missing_effective;
-	tristate_t exclude_vector_effective;
-	tristate_t exclude_vertical_effective;
-	tristate_t exclude_neogeo_orig;
-	tristate_t exclude_deco_orig;
-	tristate_t exclude_playchoice_orig;
-	tristate_t exclude_clone_orig;
-	tristate_t exclude_bad_orig;
-	tristate_t exclude_missing_orig;
-	tristate_t exclude_vector_orig;
-	tristate_t exclude_vertical_orig;
 
 	preview_t preview_effective; // type of preview selected
 	preview_t preview_orig;
@@ -240,7 +215,9 @@ public:
 	unsigned repeat_rep; // milli seconds
 
 	merge_t merge; // rom merge type
+
 	std::string msg_run_game; // message to display before a game run
+	saver_t run_saver_type; // preview to display before a game run
 
 	unsigned exit_count; // number of times the exit buttun need to be pressed
 

@@ -707,7 +707,7 @@ int os_main(int argc, char* argv[])
 	if (!option.quiet_flag) {
 		target_nfo(ADVANCE_COPY);
 #ifdef __MSDOS__
-		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", _go32_dpmi_remaining_physical_memory()/(1024*1024), _go32_dpmi_remaining_virtual_memory()/(1024*1024));
+		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", (unsigned)_go32_dpmi_remaining_physical_memory()/(1024*1024), (unsigned)_go32_dpmi_remaining_virtual_memory()/(1024*1024));
 #endif
 	}
 

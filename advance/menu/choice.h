@@ -25,13 +25,19 @@
 #include <vector>
 
 // ------------------------------------------------------------------------
-// Choice menu
+// tristate
 
 enum tristate_t {
-	include,
-	exclude, // not
-	exclude_not // only
+	include, // ignore the condition
+	exclude, // exclude if yes
+	exclude_not // exclude if no
 };
+
+const std::string tristate(tristate_t v);
+bool tristate(tristate_t& v, const std::string& s);
+
+// ------------------------------------------------------------------------
+// choice
 
 union choice_data {
 	void* ptr;

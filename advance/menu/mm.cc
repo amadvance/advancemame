@@ -70,7 +70,8 @@ int run_sub(config_state& rs) {
 				run_type(rs);
 				break;
 			case TEXT_KEY_EXCLUDE :
-				run_exclude(rs);
+				if (rs.current_game)
+					rs.current_game->emulator_get()->attrib_run();
 				break;
 			case TEXT_KEY_COMMAND :
 				run_command(rs);
@@ -115,7 +116,7 @@ int run_sub(config_state& rs) {
 				break;
 			case TEXT_KEY_ENTER :
 				if (rs.current_game) {
-					if (rs.exclude_clone_effective == exclude)
+					if (rs.current_game->emulator_get()->tree_get())
 						rs.current_clone = &rs.current_game->clone_best_get();
 					else
 						rs.current_clone = rs.current_game;
@@ -280,7 +281,7 @@ int run_all(struct conf_context* config_context, config_state& rs) {
 					rs.save(config_context);
 
 					// run the game
-					rs.current_clone->emulator_get()->run(*rs.current_clone,key == TEXT_KEY_IDLE_0);
+					rs.current_clone->emulator_get()->run(*rs.current_clone,rs.video_orientation_effective,key == TEXT_KEY_IDLE_0);
 
 					// update the game info
 					rs.current_clone->emulator_get()->update(*rs.current_clone);
@@ -362,7 +363,18 @@ static struct conf_conv STANDARD[] = {
 { "*", "group_inport", "*", "%s", "group_import", "%s", 0 }, /* 1.16.0 */
 { "*", "type_inport", "*", "%s", "type_import", "%s", 0 }, /* 1.16.0 */
 { "*", "preview_aspect", "fit", "%s", "preview_expand", "3.0", 0 }, /* 1.17.4 */
-{ "*", "preview_aspect", "correct", "%s", "preview_expand", "1.15", 0 } /* 1.17.4 */
+{ "*", "preview_aspect", "correct", "%s", "preview_expand", "1.15", 0 }, /* 1.17.4 */
+/* 2.1.0 */
+{ "*", "msg_run", "*", "%s", "run_msg", "%s", 0 }, /* rename */
+{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_deco", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_playchoice", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_clone", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_bad", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_missing", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_vector", "*", "", "", "", 0 }, /* remove */
+{ "*", "select_vertical", "*", "", "", "", 0 } /* remove */
 };
 
 void os_signal(int signum) {

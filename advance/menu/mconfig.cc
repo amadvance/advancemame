@@ -35,12 +35,6 @@ using namespace std;
 // --------------------------------------------------------------------------
 // Configuration init
 
-static struct conf_enum_int OPTION_TRISTATE[] = {
-{ "include", include },
-{ "exclude", exclude },
-{ "exclude_not", exclude_not }
-};
-
 static struct conf_enum_int OPTION_SORT[] = {
 { "group", sort_by_group },
 { "name", sort_by_name },
@@ -177,6 +171,7 @@ void config_state::conf_register(struct conf_context* config_context) {
 	conf_string_register_multi(config_context, "emulator_marquees");
 	conf_string_register_multi(config_context, "emulator_titles");
 	conf_string_register_multi(config_context, "emulator_include");
+	conf_string_register_multi(config_context, "emulator_attrib");
 	conf_string_register_multi(config_context, "group");
 	conf_string_register_multi(config_context, "type");
 	conf_string_register_multi(config_context, "group_include");
@@ -185,14 +180,6 @@ void config_state::conf_register(struct conf_context* config_context) {
 	conf_string_register_default(config_context, "group_import", "none");
 	conf_string_register_default(config_context, "desc_import", "none");
 	conf_string_register_multi(config_context, "game");
-	conf_int_register_enum_default(config_context, "select_neogeo", conf_enum(OPTION_TRISTATE), include);
-	conf_int_register_enum_default(config_context, "select_deco", conf_enum(OPTION_TRISTATE), include);
-	conf_int_register_enum_default(config_context, "select_playchoice", conf_enum(OPTION_TRISTATE), include);
-	conf_int_register_enum_default(config_context, "select_clone", conf_enum(OPTION_TRISTATE), exclude);
-	conf_int_register_enum_default(config_context, "select_bad", conf_enum(OPTION_TRISTATE), exclude);
-	conf_int_register_enum_default(config_context, "select_missing", conf_enum(OPTION_TRISTATE), include);
-	conf_int_register_enum_default(config_context, "select_vector", conf_enum(OPTION_TRISTATE), include);
-	conf_int_register_enum_default(config_context, "select_vertical", conf_enum(OPTION_TRISTATE), include);
 	conf_int_register_enum_default(config_context, "sort", conf_enum(OPTION_SORT), sort_by_root_name);
 	conf_bool_register_default(config_context, "lock", 0);
 	conf_int_register_enum_default(config_context, "config", conf_enum(OPTION_RESTORE), restore_none);
@@ -207,7 +194,8 @@ void config_state::conf_register(struct conf_context* config_context) {
 	conf_int_register_default(config_context, "menu_base", 0);
 	conf_int_register_default(config_context, "menu_rel", 0);
 	conf_string_register_default(config_context, "event_repeat", "500 50");
-	conf_string_register_default(config_context, "msg_run", "\"Run game\"");
+	conf_string_register_default(config_context, "run_msg", "\"Run game\"");
+	conf_int_register_enum_default(config_context, "run_preview", conf_enum(OPTION_SAVER), saver_snap);
 	conf_int_register_enum_default(config_context, "preview", conf_enum(OPTION_PREVIEW), preview_snap);
 	conf_float_register_limit_default(config_context, "preview_expand", 1.0, 3.0, 1.15);
 	conf_string_register_default(config_context, "preview_default", "none");
@@ -282,11 +270,8 @@ bool config_state::load_game(const string& name, const string& group_name, const
 	if (i==gar.end())
 		return false;
 
-	if (group_name != CATEGORY_UNDEFINED)
-		i->user_group_set(group_name);
-
-	if (type_name != CATEGORY_UNDEFINED)
-		i->user_type_set(type_name);
+	i->user_group_set(group.insert_double(group_name,include_group_orig));
+	i->user_type_set(type.insert_double(type_name,include_type_orig));
 
 	if (desc.length()!=0)
 		i->user_description_set(desc);
@@ -297,9 +282,6 @@ bool config_state::load_game(const string& name, const string& group_name, const
 	if (coin.length()!=0 && isdigit(coin[0]))
 		i->coin_set(atoi(coin.c_str()));
 
-	group.insert_double(group_name,include_group_orig);
-	type.insert_double(type_name,include_type_orig);
-
 	return true;
 }
 
@@ -309,6 +291,19 @@ static bool config_emulator_load(const string& name, pemulator_container& emu, v
 		++i;
 	if (i!=emu.end()) {
 		((*i)->*set)(value);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+static bool config_emulator_attrib_load(const string& name, pemulator_container& emu, const string& value0, const string& value1) {
+	pemulator_container::iterator i = emu.begin();
+	while (i!=emu.end() && name!=(*i)->user_name_get())
+		++i;
+	if (i!=emu.end()) {
+		if (!(*i)->attrib_set(value0,value1))
+			return false;
 		return true;
 	} else {
 		return false;
@@ -338,6 +333,23 @@ static bool config_load_iterator_emu_set(struct conf_context* config_context, co
 		if (!config_split(s,a0,a1))
 			return false;
 		if (!config_emulator_load(a0,emu,set,a1)) {
+			config_error_a(s);
+			return false;
+		}
+		conf_iterator_next(&i);
+	}
+	return true;
+}
+
+static bool config_load_iterator_emu_attrib(struct conf_context* config_context, const string& tag, pemulator_container& emu) {
+	conf_iterator i;
+	conf_iterator_begin(&i, config_context, tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string s,a0,a1,a2;
+		s = conf_iterator_string_get(&i);
+		if (!config_split(s,a0,a1,a2))
+			return false;
+		if (!config_emulator_attrib_load(a0,emu,a1,a2)) {
 			config_error_a(s);
 			return false;
 		}
@@ -414,6 +426,20 @@ static bool config_load_iterator_emu(struct conf_context* config_context, const 
 	return true;
 }
 
+static bool config_load_iterator_pcategory(struct conf_context* config_context, const string& tag, pcategory_container& cat) {
+	conf_iterator i;
+	conf_iterator_begin(&i, config_context, tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string a0;
+		string s = conf_iterator_string_get(&i);
+		if (!config_split(s,a0))
+			return false;
+		cat.insert(a0);
+		conf_iterator_next(&i);
+	}
+	return true;
+}
+
 static bool config_load_iterator_category(struct conf_context* config_context, const string& tag, category_container& cat) {
 	conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
@@ -466,12 +492,6 @@ bool config_state::load_iterator_game(struct conf_context* config_context, const
 			config_error_a(s);
 			return false;
 		}
-
-		if (group.length()==0)
-			group = CATEGORY_UNDEFINED;
-
-		if (type.length()==0)
-			type = CATEGORY_UNDEFINED;
 
 		if (!load_game(game,group,type,time,coin,desc)) {
 			++ignored_count;
@@ -541,14 +561,6 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	if (!config_split(conf_string_get_default(config_context, "group_import"),group_import_type,group_import_sub,group_import_file,group_import_section))
 		return false;
 	group_import_file = path_import(group_import_file);
-	exclude_neogeo_orig = (tristate_t)conf_int_get_default(config_context, "select_neogeo");
-	exclude_deco_orig = (tristate_t)conf_int_get_default(config_context, "select_deco");
-	exclude_playchoice_orig = (tristate_t)conf_int_get_default(config_context, "select_playchoice");
-	exclude_clone_orig = (tristate_t)conf_int_get_default(config_context, "select_clone");
-	exclude_bad_orig = (tristate_t)conf_int_get_default(config_context, "select_bad");
-	exclude_vertical_orig = (tristate_t)conf_int_get_default(config_context, "select_vertical");
-	exclude_missing_orig = (tristate_t)conf_int_get_default(config_context, "select_missing");
-	exclude_vector_orig = (tristate_t)conf_int_get_default(config_context, "select_vector");
 	sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
 	lock_orig = (bool)conf_bool_get_default(config_context, "lock");
 	restore = (restore_t)conf_int_get_default(config_context, "config");
@@ -585,8 +597,9 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	video_brightness = conf_float_get_default(config_context, "video_brightness");
 	video_reset_mode = conf_bool_get_default(config_context,"video_restore");
 	quiet = conf_bool_get_default(config_context,"misc_quiet");
-	if (!config_split(conf_string_get_default(config_context, "msg_run"),msg_run_game))
+	if (!config_split(conf_string_get_default(config_context, "run_msg"),msg_run_game))
 		return false;
+	run_saver_type = (saver_t)conf_int_get_default(config_context, "run_preview");
 	preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
 	idle_saver_type = (saver_t)conf_int_get_default(config_context, "idle_screensaver_preview");
 	preview_expand = conf_float_get_default(config_context, "preview_expand");
@@ -632,6 +645,8 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	if (!config_import(conf_string_get_default(config_context, "sound_background_loop_dir"),sound_background_loop_dir))
 		return false;
 	if (!config_load_iterator_emu(config_context, "emulator", emu))
+		return false;
+	if (!config_load_iterator_emu_attrib(config_context, "emulator_attrib", emu))
 		return false;
 	if (!config_load_iterator_emu_set(config_context, "emulator_roms", emu,&emulator::user_rom_path_set))
 		return false;
@@ -699,11 +714,10 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 		}
 	}
 
+	// cache some values and relations
 	if (opt_verbose)
-		target_nfo("log: adjust list\n");
-
-	// compile the relations
-	gar.sync_relationships();
+		target_nfo("log: cache\n");
+	gar.cache(merge);
 
 	// set the previews
 	for(pemulator_container::iterator i=emu_active.begin();i!=emu_active.end();++i) {
@@ -716,27 +730,35 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 		target_nfo("log: load group and types\n");
 
 	// load the group/type informations
-	if (!config_load_iterator_category(config_context,"group",group))
+	if (!config_load_iterator_pcategory(config_context,"group",group))
 		return false;
-	if (!config_load_iterator_category(config_context,"type",type))
+	if (!config_load_iterator_pcategory(config_context,"type",type))
 		return false;
 	if (!config_load_iterator_category(config_context,"group_include",include_group_orig))
 		return false;
 	if (!config_load_iterator_category(config_context,"type_include",include_type_orig))
 		return false;
 
-	group.insert_double(CATEGORY_UNDEFINED,include_group_orig);
-	type.insert_double(CATEGORY_UNDEFINED,include_type_orig);
-	if (include_group_orig.size() == 0)
-		include_group_orig = group;
-	if (include_type_orig.size() == 0)
-		include_type_orig = type;
+	if (include_group_orig.size() == 0) {
+		for(pcategory_container::iterator i=group.begin();i!=group.end();++i)
+			include_group_orig.insert((*i)->name_get());
+	}
+	if (include_type_orig.size() == 0) {
+		for(pcategory_container::iterator i=type.begin();i!=type.end();++i)
+			include_type_orig.insert((*i)->name_get());
+		}
 
 	if (opt_verbose)
 		target_nfo("log: load games info\n");
 
 	if (!load_iterator_game(config_context, "game"))
 		return false;
+
+	// set the group and type of all the remainig games
+	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
+		i->auto_group_set(group.undefined_get());
+		i->auto_type_set(type.undefined_get());
+	}
 
 	// load the emulator active
 	if (!config_load_iterator_emu_include(config_context,"emulator_include",include_emu_orig))
@@ -947,14 +969,10 @@ bool config_state::save(struct conf_context* config_context) const {
 		conf_string_set(config_context,"","type_include",config_out(*i).c_str());
 	}
 
-	conf_int_set(config_context,"","select_neogeo",exclude_neogeo_orig);
-	conf_int_set(config_context,"","select_deco",exclude_deco_orig);
-	conf_int_set(config_context,"","select_playchoice",exclude_playchoice_orig);
-	conf_int_set(config_context,"","select_clone",exclude_clone_orig);
-	conf_int_set(config_context,"","select_bad",exclude_bad_orig);
-	conf_int_set(config_context,"","select_missing",exclude_missing_orig);
-	conf_int_set(config_context,"","select_vector",exclude_vector_orig);
-	conf_int_set(config_context,"","select_vertical",exclude_vertical_orig);
+	conf_remove(config_context,"","emulator_attrib");
+	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->attrib_get(config_context,"","emulator_attrib");
+	}
 
 	string s;
 	if ((video_orientation_orig & TEXT_ORIENTATION_SWAP_XY) != 0) {
@@ -974,8 +992,8 @@ bool config_state::save(struct conf_context* config_context) const {
 	conf_remove(config_context,"","game");
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
 		if (0
-			|| (i->is_user_group_set() && i->group_get().length()!=0)
-			|| (i->is_user_type_set() && i->type_get().length()!=0)
+			|| i->is_user_group_set()
+			|| i->is_user_type_set()
 			|| (i->is_time_set() && i->time_get()!=0)
 			|| (i->is_coin_set() && i->coin_get()!=0)
 			|| (i->is_user_description_set() && i->description_get().length()!=0)
@@ -985,12 +1003,12 @@ bool config_state::save(struct conf_context* config_context) const {
 
 			f << " \"";
 			if (i->is_user_group_set())
-				f << i->group_get();
+				f << i->group_get()->name_get();
 			f << "\"";
 
 			f << " \"";
 			if (i->is_user_type_set())
-				f << i->type_get();
+				f << i->type_get()->name_get();
 			f << "\"";
 
 			f << " " << i->time_get();
@@ -1023,14 +1041,6 @@ void config_state::restore_load() {
 	mode_effective = mode_orig;
 	preview_effective = preview_orig;
 	sort_effective = sort_orig;
-	exclude_neogeo_effective = exclude_neogeo_orig;
-	exclude_deco_effective = exclude_deco_orig;
-	exclude_playchoice_effective = exclude_playchoice_orig;
-	exclude_clone_effective = exclude_clone_orig;
-	exclude_bad_effective = exclude_bad_orig;
-	exclude_missing_effective = exclude_missing_orig;
-	exclude_vector_effective = exclude_vector_orig;
-	exclude_vertical_effective = exclude_vertical_orig;
 	include_group_effective = include_group_orig;
 	include_type_effective = include_type_orig;
 	include_emu_effective = include_emu_orig;
@@ -1038,20 +1048,15 @@ void config_state::restore_load() {
 	menu_rel_effective = menu_rel_orig;
 	lock_effective = lock_orig;
 	video_orientation_effective = video_orientation_orig;
+	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->attrib_load();
+	}
 }
 
 void config_state::restore_save() {
 	mode_orig = mode_effective;
 	preview_orig = preview_effective;
 	sort_orig = sort_effective;
-	exclude_neogeo_orig = exclude_neogeo_effective;
-	exclude_deco_orig = exclude_deco_effective;
-	exclude_playchoice_orig = exclude_playchoice_effective;
-	exclude_clone_orig = exclude_clone_effective;
-	exclude_bad_orig = exclude_bad_effective;
-	exclude_missing_orig = exclude_missing_effective;
-	exclude_vector_orig = exclude_vector_effective;
-	exclude_vertical_orig = exclude_vertical_effective;
 	include_group_orig = include_group_effective;
 	include_type_orig = include_type_effective;
 	include_emu_orig = include_emu_effective;
@@ -1059,6 +1064,9 @@ void config_state::restore_save() {
 	menu_rel_orig = menu_rel_effective;
 	lock_orig = lock_effective;
 	video_orientation_orig = video_orientation_effective;
+	for(pemulator_container::const_iterator i=emu.begin();i!=emu.end();++i) {
+		(*i)->attrib_save();
+	}
 }
 
 // ------------------------------------------------------------------------
@@ -1068,8 +1076,16 @@ config_state::config_state() {
 }
 
 config_state::~config_state() {
-	// delete the emulator pointer
+	// delete the emulators
 	for(pemulator_container::iterator i=emu.begin();i!=emu.end();++i) {
+		delete *i;
+	}
+	// delete the groups
+	for(pcategory_container::iterator i=group.begin();i!=group.end();++i) {
+		delete *i;
+	}
+	// delete the types
+	for(pcategory_container::iterator i=type.begin();i!=type.end();++i) {
 		delete *i;
 	}
 }

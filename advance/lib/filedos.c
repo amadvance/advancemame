@@ -48,6 +48,7 @@
 #define UNIVERSAL_SIZE 4096
 
 struct file_context {
+	char file_abs[FILE_MAXPATH]; /**< Absolute path returned by file_abs. */
 	char file_legacy_buffer[FILE_MAXPATH];
 	char file_home_buffer[FILE_MAXPATH];
 	char universal_map[UNIVERSAL_MAX][UNIVERSAL_SIZE];
@@ -79,6 +80,19 @@ char file_dir_separator(void) {
 
 char file_dir_slash(void) {
 	return '\\';
+}
+
+const char* file_abs(const char* dir, const char* file) {
+	/* TODO implement the complete . and .. management */
+	if (file[0] == '\\' || (file[0] != 0 && file[1]==':')) {
+		strcpy(FL.file_abs,file);
+	} else {
+		strcpy(FL.file_abs, dir);
+		if (FL.file_abs[strlen(FL.file_abs)-1] != '\\')
+			strcat(FL.file_abs,"\\");
+		strcat(FL.file_abs, file);
+	}
+	return FL.file_abs;
 }
 
 static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end) {
