@@ -586,6 +586,34 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  /* network */
  int osd_net_init(void);
  int osd_net_send(int player, unsigned char buf[], int *size);
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/disc_mth.c src/sound/disc_mth.c
+--- src.ori/sound/disc_mth.c	2003-03-03 16:47:14.000000000 +0100
++++ src/sound/disc_mth.c	2003-03-13 21:34:25.000000000 +0100
+@@ -24,10 +24,11 @@
+ /* DST_LOGIC_XOR         - Logic XOR gate 2 input                       */
+ /* DST_LOGIC_NXOR        - Logic NXOR gate 2 input                      */
+ /*                                                                      */
+ /************************************************************************/
+ 
++#include <float.h>
+ 
+ struct dss_ramp_context
+ {
+         double step;
+         int dir;	/* 1 if End is higher then Start */
+@@ -123,11 +124,11 @@
+ {
+ 	if(node->input0)
+ 	{
+ 		if(node->input2==0)
+ 		{
+-			node->output=_HUGE;	/* Max out but dont break */
++			node->output=DBL_MAX;	/* Max out but dont break */
+ 			discrete_log("dst_divider_step() - Divide by Zero attempted.");
+ 		}
+ 		else
+ 		{
+ 			node->output=node->input1 / node->input2;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/fm.c src/sound/fm.c
 --- src.ori/sound/fm.c	2002-12-21 22:38:58.000000000 +0100
 +++ src/sound/fm.c	2003-03-13 21:22:07.000000000 +0100
@@ -602,6 +630,26 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /* OPN LFO waveform table */
  static INT32 OPN_LFO_wave[LFO_ENT];
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/namcona.c src/sound/namcona.c
+--- src.ori/sound/namcona.c	2003-03-03 17:49:02.000000000 +0100
++++ src/sound/namcona.c	2003-03-16 14:25:04.000000000 +0100
+@@ -498,14 +498,15 @@
+ 					{
+ 						int no = ReadMetaDataByte(pSequence->addr++);	/* Sequence No */
+ 						int cod = ReadMetaDataByte(pSequence->addr++);
+ 						if (no < MAX_SEQUENCE)
+ 						{
++							int offs;
+ 							struct sequence *pSequence2 = &mSequence[no];
+ 							data16_t *pStatus2 = GetSequenceStatusAddr(pSequence2);
+ 							*pStatus2 = (cod<<8)|0x0080;
+-							int offs = 0x12+cod*2;
++							offs = 0x12+cod*2;
+ 							memset( pSequence2, 0x00, sizeof(struct sequence) );
+ 							pSequence2->addr = ReadMetaDataWord(offs);
+ 						}
+ 					}
+ 					break;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2002-11-20 21:54:00.000000000 +0100
 +++ src/ui_text.c	2003-03-13 21:22:07.000000000 +0100
