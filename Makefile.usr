@@ -261,28 +261,28 @@ ifeq ($(CONF_HOST),linux)
 LN_S = @ln -s
 EXE =
 ASMFLAGS = -f elf
-CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
+CFLAGS_FOR_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX
 endif
 ifeq ($(CONF_HOST),dos)
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
+CFLAGS_FOR_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS
 endif
 ifeq ($(CONF_HOST),windows)
 LN_S = @cp -p
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
+CFLAGS_FOR_BUILD += -O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS
 endif
 
 ifeq ($(CONF_BUILD),linux)
 ASM = @nasm
-EXE_BUILD =
-CC_BUILD = @gcc
-CXX_BUILD = @g++
-LD_BUILD = @gcc
-LDXX_BUILD = @g++
+EXE_FOR_BUILD =
+CC_FOR_BUILD = @gcc
+LD_FOR_BUILD = @gcc
+CXX_FOR_BUILD = @g++
+LDXX_FOR_BUILD = @g++
 ifeq ($(CONF_HOST),linux)
 AR = @ar
 CC = @gcc
@@ -326,11 +326,11 @@ endif
 
 ifeq ($(CONF_BUILD),dos)
 ASM = @nasm
-EXE_BUILD = .exe
-CC_BUILD = @gcc
-LD_BUILD = @gcc
-CXX_BUILD = @gxx
-LDXX_BUILD = @gxx
+EXE_FOR_BUILD = .exe
+CC_FOR_BUILD = @gcc
+LD_FOR_BUILD = @gcc
+CXX_FOR_BUILD = @gxx
+LDXX_FOR_BUILD = @gxx
 AR = @ar
 CC = @gcc
 CXX = @gxx
@@ -342,11 +342,11 @@ endif
 
 ifeq ($(CONF_BUILD),windows)
 ASM = @nasmw
-EXE_BUILD = .exe
-CC_BUILD = @gcc
-LD_BUILD = @gcc
-CXX_BUILD = @g++
-LDXX_BUILD = @g++
+EXE_FOR_BUILD = .exe
+CC_FOR_BUILD = @gcc
+LD_FOR_BUILD = @gcc
+CXX_FOR_BUILD = @g++
+LDXX_FOR_BUILD = @g++
 AR = @ar
 CC = @gcc
 CXX = @g++

@@ -663,7 +663,7 @@ $(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 
 $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
-	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
+	$(ECHO) $@
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
 	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
 

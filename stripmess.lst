@@ -37,8 +37,6 @@ pool.c
 pool.h
 rules_ms.mak
 sndhrdw
-snprintf.c
-snprintf.h
 sound
 system.c
 systems
