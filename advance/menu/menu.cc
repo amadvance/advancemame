@@ -1564,7 +1564,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				done = true;
 				break;
 			case INT_KEY_ESC :
-				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all)
+				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
 					done = true;
 				break;
 			case INT_KEY_OFF :

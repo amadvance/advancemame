@@ -68,6 +68,9 @@ int run_sub(config_state& rs, bool silent)
 		// don't replay the sound and clip
 		silent = true;
 
+		if (rs.console_mode && key == INT_KEY_ESC)
+			key = INT_KEY_MENU;
+
 		if (!rs.lock_effective) {
 			if (key == INT_KEY_MENU) {
 				key = run_submenu(rs);

@@ -776,8 +776,13 @@ void run_help(config_state& rs)
 	int y = 2*int_font_dy_get();
 	int xt = 2*int_font_dx_get();
 	int xd = (2+12)*int_font_dx_get();
-	int_put(xt, y, "TILDE", COLOR_HELP_TAG);
-	int_put(xd, y, "Main menu (TILDE is the key below ESC)", COLOR_HELP_NORMAL);
+	if (rs.console_mode) {
+		int_put(xt, y, "ESC", COLOR_HELP_TAG);
+		int_put(xd, y, "Main menu", COLOR_HELP_NORMAL);
+	} else {
+		int_put(xt, y, "TILDE", COLOR_HELP_TAG);
+		int_put(xd, y, "Main menu (TILDE is the key below ESC)", COLOR_HELP_NORMAL);
+	}
 	y += int_font_dy_get();
 	int_put(xt, y, "ENTER", COLOR_HELP_TAG);
 	int_put(xd, y, "Run the current game/On menu accept the choice", COLOR_HELP_NORMAL);
@@ -789,9 +794,11 @@ void run_help(config_state& rs)
 	int_put(xd, y, "Next menu mode", COLOR_HELP_NORMAL);
 	y += int_font_dy_get();
 	if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all) {
-		int_put(xt, y, "ESC", COLOR_HELP_TAG);
-		int_put(xd, y, "Exit", COLOR_HELP_NORMAL);
-		y += int_font_dy_get();
+		if (!rs.console_mode) {
+			int_put(xt, y, "ESC", COLOR_HELP_TAG);
+			int_put(xd, y, "Exit", COLOR_HELP_NORMAL);
+			y += int_font_dy_get();
+		}
 	}
 	if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
 		int_put(xt, y, "CTRL-ESC", COLOR_HELP_TAG);
